@@ -20,1550 +20,1006 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.PorterDuff;
-import android.graphics.DashPathEffect;
 import android.graphics.PorterDuffXfermode;
 import android.graphics.Region;
-import android.support.annotation.IntDef;
 import android.util.Log;
 import android.util.SparseArray;
-
-import com.google.android.exoplayer2.core.BuildConfig;
 import com.google.android.exoplayer2.text.Cue;
 import com.google.android.exoplayer2.util.ParsableBitArray;
-
+import com.google.android.exoplayer2.util.Util;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
- * Parse and generate a list of {@link Cue}s from DVB subtitling bitstream
+ * Parses {@link Cue}s from a DVB subtitle bitstream.
  */
-public class DvbParser {
+/* package */ final class DvbParser {
 
-  private static final String TAG = "DVBSubs";
+  private static final String TAG = "DvbParser";
 
-  @IntDef(flag = true, value = {FLAG_PES_STRIPPED_DVBSUB})
-  public @interface Flags {
-  }
+  // Segment types, as defined by ETSI EN 300 743 Table 2
+  private static final int SEGMENT_TYPE_PAGE_COMPOSITION = 0x10;
+  private static final int SEGMENT_TYPE_REGION_COMPOSITION = 0x11;
+  private static final int SEGMENT_TYPE_CLUT_DEFINITION = 0x12;
+  private static final int SEGMENT_TYPE_OBJECT_DATA = 0x13;
+  private static final int SEGMENT_TYPE_DISPLAY_DEFINITION = 0x14;
 
-  public static final int FLAG_PES_STRIPPED_DVBSUB = 1;
+  // Page states, as defined by ETSI EN 300 743 Table 3
+  private static final int PAGE_STATE_NORMAL = 0; // Update. Only changed elements.
+  // private static final int PAGE_STATE_ACQUISITION = 1; // Refresh. All elements.
+  // private static final int PAGE_STATE_CHANGE = 2; // New. All elements.
 
-  @Flags
-  private final int flags;
+  // Region depths, as defined by ETSI EN 300 743 Table 5
+  // private static final int REGION_DEPTH_2_BIT = 1;
+  private static final int REGION_DEPTH_4_BIT = 2;
+  private static final int REGION_DEPTH_8_BIT = 3;
 
-  /* List of different SEGMENT TYPES */
-    /* According to EN 300-743, table 2 */
-  private final static int DVBSUB_ST_PAGE_COMPOSITION = 0x10;
-  private final static int DVBSUB_ST_REGION_COMPOSITION = 0x11;
-  private final static int DVBSUB_ST_CLUT_DEFINITION = 0x12;
-  private final static int DVBSUB_ST_OBJECT_DATA = 0x13;
-  private final static int DVBSUB_ST_DISPLAY_DEFINITION = 0x14;
-  private final static int DVBSUB_ST_ENDOFDISPLAY = 0x80;
-  private final static int DVBSUB_ST_STUFFING = 0xff;
+  // Object codings, as defined by ETSI EN 300 743 Table 8
+  private static final int OBJECT_CODING_PIXELS = 0;
+  private static final int OBJECT_CODING_STRING = 1;
 
-  /* List of different Page Composition Segment state */
-    /* According to EN 300-743, 7.2.1 table 3 */
-  private final static int DVBSUB_PCS_STATE_NORMAL = 0b00; // Update. Only changed elements.
-  private final static int DVBSUB_PCS_STATE_ACQUISITION = 0b01; // Refresh. All subtitle elements.
-  private final static int DVBSUB_PCS_STATE_CHANGE = 0b10; // New. All subtitle elements.
+  // Pixel-data types, as defined by ETSI EN 300 743 Table 9
+  private static final int DATA_TYPE_2BP_CODE_STRING = 0x10;
+  private static final int DATA_TYPE_4BP_CODE_STRING = 0x11;
+  private static final int DATA_TYPE_8BP_CODE_STRING = 0x12;
+  private static final int DATA_TYPE_24_TABLE_DATA = 0x20;
+  private static final int DATA_TYPE_28_TABLE_DATA = 0x21;
+  private static final int DATA_TYPE_48_TABLE_DATA = 0x22;
+  private static final int DATA_TYPE_END_LINE = 0xF0;
 
-  /* List of different Region Composition Segments CLUT level oc compatibility */
-    /* According to EN 300-743, 7.2.1 table 4 */
-  private final static int DVBSUB_RCS_CLUT_2 = 0x01;
-  private final static int DVBSUB_RCS_CLUT_4 = 0x02;
-  private final static int DVBSUB_RCS_CLUT_8 = 0x03;
-
-  /* List of different Region Composition Segments bit depths */
-    /* According to EN 300-743, 7.2.1 table 5 */
-  private final static int DVBSUB_RCS_BITDEPTH_2 = 0x01;
-  private final static int DVBSUB_RCS_BITDEPTH_4 = 0x02;
-  private final static int DVBSUB_RCS_BITDEPTH_8 = 0x03;
-
-  /* List of different object types in the Region Composition Segment */
-    /* According to EN 300-743, table 6 */
-  private final static int DVBSUB_OT_BASIC_BITMAP = 0x00;
-  private final static int DVBSUB_OT_BASIC_CHAR = 0x01;
-  private final static int DVBSUB_OT_COMPOSITE_STRING = 0x02;
-
-  /* List of different object coding methods in the Object Data Segment */
-    /* According to EN 300-743, table 8 */
-  private static final int DVBSUB_ODS_PIXEL_CODED = 0x00;
-  private static final int DVBSUB_ODS_CHAR_CODED = 0x01;
-
-  /* Pixel DATA TYPES */
-    /* According to EN 300-743, table 9 */
-  private final static int DVBSUB_DT_2BP_CODE_STRING = 0x10;
-  private final static int DVBSUB_DT_4BP_CODE_STRING = 0x11;
-  private final static int DVBSUB_DT_8BP_CODE_STRING = 0x12;
-  private final static int DVBSUB_DT_24_TABLE_DATA = 0x20;
-  private final static int DVBSUB_DT_28_TABLE_DATA = 0x21;
-  private final static int DVBSUB_DT_48_TABLE_DATA = 0x22;
-  private final static int DVBSUB_DT_END_LINE = 0xf0;
-
-  /* Clut mapping tables */
-    /* According to EN 300-743, 10.4 10.5 10.6 */
-  private byte[] defaultMap24 = {(byte) 0x00, (byte) 0x07, (byte) 0x08, (byte) 0x0f};
-  private byte[] defaultMap28 = {(byte) 0x00, (byte) 0x77, (byte) 0x88, (byte) 0xff};
-  private byte[] defaultMap48 = {(byte) 0x00, (byte) 0x11, (byte) 0x22, (byte) 0x33,
+  // Clut mapping tables, as defined by ETSI EN 300 743 10.4, 10.5, 10.6
+  private static final byte[] defaultMap2To4 = {
+      (byte) 0x00, (byte) 0x07, (byte) 0x08, (byte) 0x0F};
+  private static final byte[] defaultMap2To8 = {
+      (byte) 0x00, (byte) 0x77, (byte) 0x88, (byte) 0xFF};
+  private static final byte[] defaultMap4To8 = {
+      (byte) 0x00, (byte) 0x11, (byte) 0x22, (byte) 0x33,
       (byte) 0x44, (byte) 0x55, (byte) 0x66, (byte) 0x77,
-      (byte) 0x88, (byte) 0x99, (byte) 0xaa, (byte) 0xbb,
-      (byte) 0xcc, (byte) 0xdd, (byte) 0xee, (byte) 0xff};
+      (byte) 0x88, (byte) 0x99, (byte) 0xAA, (byte) 0xBB,
+      (byte) 0xCC, (byte) 0xDD, (byte) 0xEE, (byte) 0xFF};
 
-  /* FLAGS */
-  private final static int DISPLAY_WINDOW_FLAG = 0x01;
+  private final Paint defaultPaint;
+  private final Paint fillRegionPaint;
+  private final Canvas canvas;
+  private final DisplayDefinition defaultDisplayDefinition;
+  private final ClutDefinition defaultClutDefinition;
+  private final SubtitleService subtitleService;
 
-  private final static int REGION_FILL_FLAG = 0x01;
-
-  private final static int OBJECT_NON_MODIFYING_COLOUR_FLAG = 0x01;
-
-  /* instance variables */
-  private Paint defaultPaint = new Paint();
-  private Paint fillRegionPaint = new Paint();
-  private Paint debugRegionPaint = new Paint();
-  private Paint debugObjectPaint = new Paint();
   private Bitmap bitmap;
-  private Canvas canvas = new Canvas();
-  private ClutDefinition defaultClut = new ClutDefinition();
 
-  private static ParsableBitArray tsStream;
-  private SubtitleService subtitleService;
-
-  /*
-   * Contains the current subtitle service definition
+  /**
+   * Construct an instance for the given subtitle and ancillary page ids.
+   *
+   * @param subtitlePageId The id of the subtitle page carrying the subtitle to be parsed.
+   * @param ancillaryPageId The id of the ancillary page containing additional data.
    */
-  private class SubtitleService {
-    int subtitlePageId;
-    int ancillaryPageId;
-
-    // subtitle page
-    DisplayDefinition displayDefinition;
-    PageComposition pageComposition;
-    SparseArray<RegionComposition> regions = new SparseArray<>();
-    SparseArray<ClutDefinition> cluts = new SparseArray<>();
-    SparseArray<ObjectData> objects = new SparseArray<>();
-
-    // ancillary page
-    SparseArray<ClutDefinition> ancillaryCluts = new SparseArray<>();
-    SparseArray<ObjectData> ancillaryObjects = new SparseArray<>();
-  }
-
-  /* The display definition contains the geometry and active area of the subtitle service [7.2.1] */
-  private class DisplayDefinition {
-    int pageId;
-    int versionNumber;
-
-    int displayWidth = 719;
-    int displayHeight = 575;
-
-    int flags;
-    int displayWindowHorizontalPositionMinimum = 0;
-    int displayWindowHorizontalPositionMaximum = 719;
-    int displayWindowVerticalPositionMinimum = 0;
-    int displayWindowVerticalPositionMaximum = 575;
-
-    void updateBitmapResolution() {
-      bitmap = Bitmap.createBitmap(this.displayWidth + 1, this.displayHeight + 1,
-          Bitmap.Config.ARGB_8888);
-      canvas = new Canvas(bitmap);
-    }
-  }
-
-  /* The page is the definition and arrangement of regions in the screen [7.2.2] */
-  private class PageComposition {
-    int pageId;
-    int pageTimeOut; /* in seconds */
-    int pageVersionNumber;
-    int pageState;
-    SparseArray<PageRegion> pageRegions = new SparseArray<>();
-  }
-
-  private class PageRegion {
-    int regionId;
-    int regionHorizontalAddress;
-    int regionVerticalAddress;
-  }
-
-  /* The Region is an area of the page [7.2.3] composed of a list of objects and a CLUT */
-  private class RegionComposition {
-    int pageId;
-    int regionId;
-    int regionVersionNumber;
-    int flags;
-    int regionWidth;
-    int regionHeight;
-    int regionLevelOfCompatibility;
-    int regionDepth;
-    int clutId;
-    int region8bitPixelCode;
-    int region4bitPixelCode;
-    int region2bitPixelCode;
-    SparseArray<RegionObject> regionObjects = new SparseArray<>();
-
-    /*
-     * We maintain a reference to the Cue to implement future drawing optimizations, no re-render in case of:
-     *
-     *   - Page updates not affecting region composition (no clut change/redefinition, no object changes)
-     *   - Incremental subtitle display render (e.g. live captions updates)
-     */
-    Cue cue;
-  }
-
-  private class RegionObject {
-    int objectId;
-    int objectType;
-    int objectProvider;
-    int objectHorizontalPosition;
-    int objectVerticalPosition;
-    int foregroundPixelCode;
-    int backgroundPixelCode;
-  }
-
-  /* An entry in the palette CLUT and associated color space translation methods */
-  private class ClutEntry {
-    int clutEntryId;
-    byte flags;
-    byte Y;
-    byte Cr;
-    byte Cb;
-    byte T;
-
-    byte A;
-    byte R;
-    byte G;
-    byte B;
-    int ARGB;
-
-    void clutYCbCrT(int Y, int Cb, int Cr, int T) {
-
-      this.Y = (byte) Y;
-      this.Cb = (byte) Cb;
-      this.Cr = (byte) Cr;
-      this.T = (byte) T;
-
-      int R = (int) (Y + 1.40200 * (Cr - 128));
-      int G = (int) (Y - 0.34414 * (Cb - 128) - 0.71414 * (Cr - 128));
-      int B = (int) (Y + 1.77200 * (Cb - 128));
-
-      if (R > 255) this.R = (byte) 255;
-      else if (R < 0) this.R = 0;
-      else this.R = (byte) R;
-
-      if (G > 255) this.G = (byte) 255;
-      else if (G < 0) this.G = 0;
-      else this.G = (byte) G;
-
-      if (B > 255) this.B = (byte) 255;
-      else if (B < 0) this.B = 0;
-      else this.B = (byte) B;
-
-      this.A = (byte) (0xFF - (this.T & 0xFF));
-      this.ARGB =
-          ((this.A & 0xFF) << 24) |
-              ((this.R & 0xFF) << 16) |
-              ((this.G & 0xFF) << 8) |
-              (this.B & 0xFF);
-
-    }
-
-    void clutRGBA(int R, int G, int B, int A) {
-
-      this.A = (byte) A;
-      this.R = (byte) R;
-      this.G = (byte) G;
-      this.B = (byte) B;
-
-      this.ARGB =
-          ((A & 0xFF) << 24) |
-              ((R & 0xFF) << 16) |
-              ((G & 0xFF) << 8) |
-              (B & 0xFF);
-
-      int y = (int) (0.299000 * R + 0.587000 * G + 0.114000 * B);
-      int Cb = 128 + (int) (-0.168736 * R + -0.331264 * G + 0.500000 * B);
-      int Cr = 128 + (int) (0.500000 * R + -0.418688 * G + -0.081312 * B);
-
-      if (y > 255) this.Y = (byte) 255;
-      else if (y < 0) this.Y = 0;
-      else this.Y = (byte) y;
-
-      if (Cb > 255) this.Cb = (byte) 255;
-      else if (Cb < 0) this.Cb = 0;
-      else this.Cb = (byte) Cb;
-
-      if (Cr > 255) this.Cr = (byte) 255;
-      else if (Cr < 0) this.Cr = 0;
-      else this.Cr = (byte) Cr;
-
-      this.T = (byte) (0xFF - (this.A & 0xFF));
-    }
-  }
-
-  /* CLUT family definition containing the color tables for the three bitdepths defined [7.2.4] */
-  private class ClutDefinition {
-    int pageId;
-    int clutId;
-    int clutVersionNumber;
-    ClutEntry[] clutEntries2bit;
-    ClutEntry[] clutEntries4bit;
-    ClutEntry[] clutEntries8bit;
-
-    ClutEntry[] generateDefault2bitClut() {
-      ClutEntry[] entries = new ClutEntry[4];
-
-      entries[0] = new ClutEntry();
-      entries[0].clutRGBA(0x00, 0x00, 0x00, 0x00);
-      entries[1] = new ClutEntry();
-      entries[1].clutRGBA(0xFF, 0xFF, 0xFF, 0xFF);
-      entries[2] = new ClutEntry();
-      entries[2].clutRGBA(0x00, 0x00, 0x00, 0xFF);
-      entries[3] = new ClutEntry();
-      entries[3].clutRGBA(0x7F, 0x7F, 0x7F, 0xFF);
-
-      return entries;
-    }
-
-    ClutEntry[] generateDefault4bitClut() {
-      ClutEntry[] entries = new ClutEntry[16];
-
-      entries[0] = new ClutEntry();
-      entries[0].clutRGBA(0x00, 0x00, 0x00, 0x00);
-
-      int i = 15;
-      while (i > 0) {
-        entries[i] = new ClutEntry();
-        if (i < 8) {
-          entries[i].clutRGBA(
-              ((i & 0x01) != 0 ? 0xFF : 0x00),
-              ((i & 0x02) != 0 ? 0xFF : 0x00),
-              ((i & 0x04) != 0 ? 0xFF : 0x00),
-              0xFF);
-        } else {
-          entries[i].clutRGBA(
-              ((i & 0x01) != 0 ? 0x7F : 0x00),
-              ((i & 0x02) != 0 ? 0x7F : 0x00),
-              ((i & 0x04) != 0 ? 0x7F : 0x00),
-              0xFF);
-        }
-
-        i--;
-      }
-
-      return entries;
-    }
-
-    ClutEntry[] generateDefault8bitClut() {
-      ClutEntry[] entries = new ClutEntry[256];
-
-      entries[0] = new ClutEntry();
-      entries[0].clutRGBA(0x00, 0x00, 0x00, 0x00);
-
-      int i = 255;
-      while (i > 0) {
-        entries[i] = new ClutEntry();
-        if (i < 8) {
-          entries[i].clutRGBA(
-              ((i & 0x01) != 0 ? 0xFF : 0x00),
-              ((i & 0x02) != 0 ? 0xFF : 0x00),
-              ((i & 0x04) != 0 ? 0xFF : 0x00),
-              0x3F);
-        } else {
-          switch (i & 0x88) {
-            case 0x00:
-              entries[i].clutRGBA(
-                  (((i & 0x01) != 0 ? 0x55 : 0x00) + ((i & 0x10) != 0 ? 0xAA : 0x00)),
-                  (((i & 0x02) != 0 ? 0x55 : 0x00) + ((i & 0x20) != 0 ? 0xAA : 0x00)),
-                  (((i & 0x04) != 0 ? 0x55 : 0x00) + ((i & 0x40) != 0 ? 0xAA : 0x00)),
-                  0xFF);
-              break;
-            case 0x08:
-              entries[i].clutRGBA(
-                  (((i & 0x01) != 0 ? 0x55 : 0x00) + ((i & 0x10) != 0 ? 0xAA : 0x00)),
-                  (((i & 0x02) != 0 ? 0x55 : 0x00) + ((i & 0x20) != 0 ? 0xAA : 0x00)),
-                  (((i & 0x04) != 0 ? 0x55 : 0x00) + ((i & 0x40) != 0 ? 0xAA : 0x00)),
-                  0x7F);
-              break;
-            case 0x80:
-              entries[i].clutRGBA(
-                  (127 + ((i & 0x01) != 0 ? 0x2B : 0x00) + ((i & 0x10) != 0 ? 0x55 : 0x00)),
-                  (127 + ((i & 0x02) != 0 ? 0x2B : 0x00) + ((i & 0x20) != 0 ? 0x55 : 0x00)),
-                  (127 + ((i & 0x04) != 0 ? 0x2B : 0x00) + ((i & 0x40) != 0 ? 0x55 : 0x00)),
-                  0xFF);
-              break;
-            case 0x88:
-              entries[i].clutRGBA(
-                  (((i & 0x01) != 0 ? 0x2B : 0x00) + ((i & 0x10) != 0 ? 0x55 : 0x00)),
-                  (((i & 0x02) != 0 ? 0x2B : 0x00) + ((i & 0x20) != 0 ? 0x55 : 0x00)),
-                  (((i & 0x04) != 0 ? 0x2B : 0x00) + ((i & 0x40) != 0 ? 0x55 : 0x00)),
-                  0xFF);
-              break;
-          }
-
-        }
-
-        i--;
-      }
-
-      return entries;
-    }
-
-    ClutDefinition() {
-      clutEntries2bit = generateDefault2bitClut();
-      clutEntries4bit = generateDefault4bitClut();
-      clutEntries8bit = generateDefault8bitClut();
-    }
-
-  }
-
-  /* The object data segment contains the textual/graphical representation of an object [7.2.5] */
-  private class ObjectData {
-    int pageId;
-    int objectId;
-    int objectVersionNumber;
-    int objectCodingMethod;
-    byte flags;
-    int topFieldDataLength;
-    byte[] topFieldData;
-    int bottomFieldDataLength;
-    byte[] bottomFieldData;
-    int numberOfCodes;
+  public DvbParser(int subtitlePageId, int ancillaryPageId) {
+    defaultPaint = new Paint();
+    defaultPaint.setStyle(Paint.Style.FILL_AND_STROKE);
+    defaultPaint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.SRC));
+    defaultPaint.setPathEffect(null);
+    fillRegionPaint = new Paint();
+    fillRegionPaint.setStyle(Paint.Style.FILL);
+    fillRegionPaint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.DST_OVER));
+    fillRegionPaint.setPathEffect(null);
+    canvas = new Canvas();
+    defaultDisplayDefinition = new DisplayDefinition(719, 575, 0, 719, 0, 575);
+    defaultClutDefinition = new ClutDefinition(0, generateDefault2BitClutEntries(),
+        generateDefault4BitClutEntries(), generateDefault8BitClutEntries());
+    subtitleService = new SubtitleService(subtitlePageId, ancillaryPageId);
   }
 
   /**
-   * Construct a subtitle service for the given subtitle and ancillary pageIds
-   *
-   * @param subtitlePageId  The Id of the subtitle page carrying the selected subtitle track
-   * @param ancillaryPageId Id of the common subtitle page containing additional data for the current
-   *                        subtitle track
-   * @param flags           additional initialisation info to properly configure the parser
+   * Resets the parser.
    */
-  DvbParser(int subtitlePageId, int ancillaryPageId, @Flags int flags) {
-    this.subtitleService = new SubtitleService();
-    this.flags = flags;
-
-    this.defaultPaint.setStyle(Paint.Style.FILL_AND_STROKE);
-    this.defaultPaint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.SRC));
-    this.defaultPaint.setPathEffect(null);
-
-    this.fillRegionPaint.setStyle(Paint.Style.FILL);
-    this.fillRegionPaint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.DST_OVER));
-    this.fillRegionPaint.setPathEffect(null);
-
-    this.debugRegionPaint.setColor(0xff00ff00);
-    this.debugRegionPaint.setStyle(Paint.Style.STROKE);
-    this.debugRegionPaint.setPathEffect(new DashPathEffect(new float[]{2, 2}, 0));
-
-    this.debugObjectPaint.setColor(0xffff0000);
-    this.debugObjectPaint.setStyle(Paint.Style.STROKE);
-    this.debugObjectPaint.setPathEffect(new DashPathEffect(new float[]{10, 20}, 0));
-
-    this.subtitleService.subtitlePageId = subtitlePageId;
-    this.subtitleService.ancillaryPageId = ancillaryPageId;
-
-    this.subtitleService.displayDefinition = new DisplayDefinition();
-    this.subtitleService.displayDefinition.updateBitmapResolution();
+  public void reset() {
+    subtitleService.reset();
   }
 
-  private void parseSubtitlingSegment() {
+  /**
+   * Decodes a subtitling packet, returning a list of parsed {@link Cue}s.
+   *
+   * @param data The subtitling packet data to decode.
+   * @param limit The limit in {@code data} at which to stop decoding.
+   * @return The parsed {@link Cue}s.
+   */
+  public List<Cue> decode(byte[] data, int limit) {
+    // Parse the input data.
+    ParsableBitArray dataBitArray = new ParsableBitArray(data, limit);
+    while (dataBitArray.bitsLeft() >= 48 // sync_byte (8) + segment header (40)
+        && dataBitArray.readBits(8) == 0x0F) {
+      parseSubtitlingSegment(dataBitArray, subtitleService);
+    }
 
-        /* Parse subtitling segment. ETSI EN 300 743 7.2
+    if (subtitleService.pageComposition == null) {
+      return Collections.emptyList();
+    }
 
-                          SYNTAX                  SIZE                SEMANTICS
-        ---------------------------------------   ----   ------------------------------------------
-        Subtitling_segment() {
-           sync_byte                                8    An 8-bit field that shall be coded with the value '0000 1111'
-           segment_type                             8    Indicates the type of data contained in the segment data field
-           page_id                                 16    Identifies the subtitle service of the data contained in this subtitling_segment
-           segment_length                          16    Number of bytes contained in the segment_data_field
-           segment_data_field()                          This is the payload of the segment
+    // Update the canvas bitmap if necessary.
+    DisplayDefinition displayDefinition = subtitleService.displayDefinition != null
+        ? subtitleService.displayDefinition : defaultDisplayDefinition;
+    if (bitmap == null || displayDefinition.width + 1 != bitmap.getWidth()
+        || displayDefinition.height + 1 != bitmap.getHeight()) {
+      bitmap = Bitmap.createBitmap(displayDefinition.width + 1, displayDefinition.height + 1,
+          Bitmap.Config.ARGB_8888);
+      canvas.setBitmap(bitmap);
+    }
 
-         */
+    // Build the cues.
+    List<Cue> cues = new ArrayList<>();
+    SparseArray<PageRegion> pageRegions = subtitleService.pageComposition.regions;
+    for (int i = 0; i < pageRegions.size(); i++) {
+      PageRegion pageRegion = pageRegions.valueAt(i);
+      int regionId = pageRegions.keyAt(i);
+      RegionComposition regionComposition = subtitleService.regions.get(regionId);
 
-    int pageId, segmentId, segmentLength;
-    segmentId = tsStream.readBits(8);
-    switch (segmentId) {
-      case DVBSUB_ST_DISPLAY_DEFINITION:
-        if (BuildConfig.DEBUG) Log.d(TAG, "    Parse Display Definition segment.");
-        DisplayDefinition tempDisplay = parseDisplayDefinitionSegment();
-        if (tempDisplay != null && tempDisplay.pageId == subtitleService.subtitlePageId) {
-          if (tempDisplay.displayWidth != subtitleService.displayDefinition.displayWidth ||
-              tempDisplay.displayHeight != subtitleService.displayDefinition.displayHeight ||
-              tempDisplay.displayWindowHorizontalPositionMaximum != subtitleService.displayDefinition.displayWindowHorizontalPositionMaximum ||
-              tempDisplay.displayWindowHorizontalPositionMinimum != subtitleService.displayDefinition.displayWindowHorizontalPositionMinimum ||
-              tempDisplay.displayWindowVerticalPositionMaximum != subtitleService.displayDefinition.displayWindowVerticalPositionMaximum ||
-              tempDisplay.displayWindowVerticalPositionMinimum != subtitleService.displayDefinition.displayWindowVerticalPositionMinimum ||
-              tempDisplay.flags != subtitleService.displayDefinition.flags) {
-            subtitleService.displayDefinition = tempDisplay;
-            subtitleService.displayDefinition.updateBitmapResolution();
-          } else {
-            subtitleService.displayDefinition.versionNumber = tempDisplay.versionNumber;
+      // Clip drawing to the current region and display definition window.
+      int baseHorizontalAddress = pageRegion.horizontalAddress
+          + displayDefinition.horizontalPositionMinimum;
+      int baseVerticalAddress = pageRegion.verticalAddress
+          + displayDefinition.verticalPositionMinimum;
+      int clipRight = Math.min(baseHorizontalAddress + regionComposition.width,
+          displayDefinition.horizontalPositionMaximum);
+      int clipBottom = Math.min(baseVerticalAddress + regionComposition.height,
+          displayDefinition.verticalPositionMaximum);
+      canvas.clipRect(baseHorizontalAddress, baseVerticalAddress, clipRight, clipBottom,
+          Region.Op.REPLACE);
+
+      ClutDefinition clutDefinition = subtitleService.cluts.get(regionComposition.clutId);
+      if (clutDefinition == null) {
+        clutDefinition = subtitleService.ancillaryCluts.get(regionComposition.clutId);
+        if (clutDefinition == null) {
+          clutDefinition = defaultClutDefinition;
+        }
+      }
+
+      SparseArray<RegionObject> regionObjects = regionComposition.regionObjects;
+      for (int j = 0; j < regionObjects.size(); j++) {
+        int objectId = regionObjects.keyAt(j);
+        RegionObject regionObject = regionObjects.valueAt(j);
+        ObjectData objectData = subtitleService.objects.get(objectId);
+        if (objectData == null) {
+          objectData = subtitleService.ancillaryObjects.get(objectId);
+        }
+        if (objectData != null) {
+          Paint paint = objectData.nonModifyingColorFlag ? null : defaultPaint;
+          paintPixelDataSubBlocks(objectData, clutDefinition, regionComposition.depth,
+              baseHorizontalAddress + regionObject.horizontalPosition,
+              baseVerticalAddress + regionObject.verticalPosition, paint, canvas);
+        }
+      }
+
+      if (regionComposition.fillFlag) {
+        int color;
+        if (regionComposition.depth == REGION_DEPTH_8_BIT) {
+          color = clutDefinition.clutEntries8Bit[regionComposition.pixelCode8Bit];
+        } else if (regionComposition.depth == REGION_DEPTH_4_BIT) {
+          color = clutDefinition.clutEntries4Bit[regionComposition.pixelCode4Bit];
+        } else {
+          color = clutDefinition.clutEntries2Bit[regionComposition.pixelCode2Bit];
+        }
+        fillRegionPaint.setColor(color);
+        canvas.drawRect(baseHorizontalAddress, baseVerticalAddress,
+            baseHorizontalAddress + regionComposition.width,
+            baseVerticalAddress + regionComposition.height,
+            fillRegionPaint);
+      }
+
+      Bitmap cueBitmap = Bitmap.createBitmap(bitmap, baseHorizontalAddress, baseVerticalAddress,
+          regionComposition.width, regionComposition.height);
+      cues.add(new Cue(cueBitmap, (float) baseHorizontalAddress / displayDefinition.width,
+          Cue.ANCHOR_TYPE_START, (float) baseVerticalAddress / displayDefinition.height,
+          Cue.ANCHOR_TYPE_START, (float) regionComposition.width / displayDefinition.width,
+          (float) regionComposition.height / displayDefinition.height));
+
+      canvas.drawColor(Color.TRANSPARENT, PorterDuff.Mode.CLEAR);
+    }
+
+    return cues;
+  }
+
+  // Static parsing.
+
+  /**
+   * Parses a subtitling segment, as defined by ETSI EN 300 743 7.2
+   * <p>
+   * The {@link SubtitleService} is updated with the parsed segment data.
+   */
+  private static void parseSubtitlingSegment(ParsableBitArray data, SubtitleService service) {
+    int segmentType = data.readBits(8);
+    int pageId = data.readBits(16);
+    int dataFieldLength = data.readBits(16);
+    int dataFieldLimit = data.getBytePosition() + dataFieldLength;
+
+    if ((dataFieldLength * 8) > data.bitsLeft()) {
+      Log.w(TAG, "Data field length exceeds limit");
+      // Skip to the very end.
+      data.skipBits(data.bitsLeft());
+      return;
+    }
+
+    switch (segmentType) {
+      case SEGMENT_TYPE_DISPLAY_DEFINITION:
+        if (pageId == service.subtitlePageId) {
+          service.displayDefinition = parseDisplayDefinition(data);
+        }
+        break;
+      case SEGMENT_TYPE_PAGE_COMPOSITION:
+        if (pageId == service.subtitlePageId) {
+          PageComposition current = service.pageComposition;
+          PageComposition pageComposition = parsePageComposition(data, dataFieldLength);
+          if (pageComposition.state != PAGE_STATE_NORMAL) {
+            service.pageComposition = pageComposition;
+            service.regions.clear();
+            service.cluts.clear();
+            service.objects.clear();
+          } else if (current != null && current.version != pageComposition.version) {
+            service.pageComposition = pageComposition;
           }
-
-          if (BuildConfig.DEBUG)
-            Log.d(TAG + "/DDS", "    [versionNumber] = " + tempDisplay.versionNumber +
-                " [width/height] = " + (tempDisplay.displayWidth + 1) + "/" + (tempDisplay.displayHeight + 1) +
-                " Window[minX/minY/maxX/maxY] = " + tempDisplay.displayWindowHorizontalPositionMinimum +
-                "/" + tempDisplay.displayWindowVerticalPositionMinimum +
-                "/" + tempDisplay.displayWindowHorizontalPositionMaximum +
-                "/" + tempDisplay.displayWindowVerticalPositionMaximum
-            );
         }
         break;
-      case DVBSUB_ST_PAGE_COMPOSITION:
-        if (BuildConfig.DEBUG) Log.d(TAG, "    Parse Page Composition segment.");
-        PageComposition tempPage = parsePageCompositionSegment();
-        if (tempPage != null && tempPage.pageId == subtitleService.subtitlePageId) {
-          if (tempPage.pageState == DVBSUB_PCS_STATE_NORMAL && subtitleService.pageComposition == null)
-            break;
-          subtitleService.pageComposition = tempPage;
-        }
-        break;
-      case DVBSUB_ST_REGION_COMPOSITION:
-        if (BuildConfig.DEBUG) Log.d(TAG, "    Parse Region Composition segment.");
-        RegionComposition tempRegionComposition = parseRegionCompositionSegment();
-        if (tempRegionComposition != null && tempRegionComposition.pageId == subtitleService.subtitlePageId) {
-          subtitleService.regions.put(tempRegionComposition.regionId, tempRegionComposition);
-        }
-        break;
-      case DVBSUB_ST_CLUT_DEFINITION:
-        if (BuildConfig.DEBUG) Log.d(TAG, "    Parse Clut Definition segment.");
-        ClutDefinition tempClutDefinition = parseClutDefinitionSegment();
-        if (tempClutDefinition != null) {
-          if (tempClutDefinition.pageId == subtitleService.subtitlePageId) {
-            subtitleService.cluts.put(tempClutDefinition.clutId, tempClutDefinition);
-          } else if (tempClutDefinition.pageId == subtitleService.ancillaryPageId) {
-            subtitleService.ancillaryCluts.put(tempClutDefinition.clutId, tempClutDefinition);
+      case SEGMENT_TYPE_REGION_COMPOSITION:
+        PageComposition pageComposition = service.pageComposition;
+        if (pageId == service.subtitlePageId && pageComposition != null) {
+          RegionComposition regionComposition = parseRegionComposition(data, dataFieldLength);
+          if (pageComposition.state == PAGE_STATE_NORMAL) {
+            regionComposition.mergeFrom(service.regions.get(regionComposition.id));
           }
+          service.regions.put(regionComposition.id, regionComposition);
         }
         break;
-      case DVBSUB_ST_OBJECT_DATA:
-        if (BuildConfig.DEBUG) Log.d(TAG, "    Parse Object Data segment.");
-        ObjectData tempObjectData = parseObjectDataSegment();
-        if (tempObjectData != null) {
-          if (tempObjectData.pageId == subtitleService.subtitlePageId) {
-            subtitleService.objects.put(tempObjectData.objectId, tempObjectData);
-          } else if (tempObjectData.pageId == subtitleService.ancillaryPageId) {
-            subtitleService.ancillaryObjects.put(tempObjectData.objectId, tempObjectData);
-          }
+      case SEGMENT_TYPE_CLUT_DEFINITION:
+        if (pageId == service.subtitlePageId) {
+          ClutDefinition clutDefinition = parseClutDefinition(data, dataFieldLength);
+          service.cluts.put(clutDefinition.id, clutDefinition);
+        } else if (pageId == service.ancillaryPageId) {
+          ClutDefinition clutDefinition = parseClutDefinition(data, dataFieldLength);
+          service.ancillaryCluts.put(clutDefinition.id, clutDefinition);
         }
         break;
-      case DVBSUB_ST_ENDOFDISPLAY:
-        pageId = tsStream.readBits(16);
-        segmentLength = tsStream.readBits(16);
-        if (BuildConfig.DEBUG)
-          Log.d(TAG, "pageId " + pageId + "end of display size = " + segmentLength);
-        tsStream.skipBits(segmentLength * 8);
-        break;
-      case DVBSUB_ST_STUFFING:
-        pageId = tsStream.readBits(16);
-        segmentLength = tsStream.readBits(16);
-        if (BuildConfig.DEBUG) Log.d(TAG, "pageId " + pageId + "stuffing size = " + segmentLength);
-        tsStream.skipBits(segmentLength * 8);
+      case SEGMENT_TYPE_OBJECT_DATA:
+        if (pageId == service.subtitlePageId) {
+          ObjectData objectData = parseObjectData(data);
+          service.objects.put(objectData.id, objectData);
+        } else if (pageId == service.ancillaryPageId) {
+          ObjectData objectData = parseObjectData(data);
+          service.ancillaryObjects.put(objectData.id, objectData);
+        }
         break;
       default:
+        // Do nothing.
         break;
     }
+
+    // Skip to the next segment.
+    data.skipBytes(dataFieldLimit - data.getBytePosition());
   }
 
-  private DisplayDefinition parseDisplayDefinitionSegment() {
+  /**
+   * Parses a display definition segment, as defined by ETSI EN 300 743 7.2.1.
+   */
+  private static DisplayDefinition parseDisplayDefinition(ParsableBitArray data) {
+    data.skipBits(4); // dds_version_number (4).
+    boolean displayWindowFlag = data.readBit();
+    data.skipBits(3); // Skip reserved.
+    int width = data.readBits(16);
+    int height = data.readBits(16);
 
-        /* Parse display definition segment. ETSI EN 300 743 7.2.1
-
-                          SYNTAX                  SIZE                SEMANTICS
-        ---------------------------------------   ----   ------------------------------------------
-        display_definition_segment(){
-           sync_byte                                8    An 8-bit field that shall be coded with the value '0000 1111'
-           segment_type                             8    Indicates the type of data contained in the segment data field
-           page_id                                 16    Identifies the subtitle service of the data contained in this subtitling_segment
-           segment_length                          16    Number of bytes contained in the segment_data_field
-           dds_version_number                       4    Incremented when any of the contents of this segment change
-           display_window_flag                      1    if "1" display the subtitle in the defined window
-           reserved                                 3
-           display_width                           16    Specifies the maximum horizontal width of the display in pixels minus 1
-           display_height                          16    Specifies the maximum vertical height of the display in lines minus 1
-           if (display_window_flag == 1) {               With origin in the top-left of the screen:
-              display_window_horizontal_position_minimum
-                                                   16    Specifies the left-hand most pixel of this DVB subtitle display set
-              display_window_horizontal_position_maximum
-                                                   16    Specifies the right-hand most pixel of this DVB subtitle display set
-              display_window_vertical_position_minimum
-                                                   16    Specifies the upper most line of this DVB subtitle display set
-              display_window_vertical_position_maximum
-                                                   16    Specifies the bottom line of this DVB subtitle display set
-           }
-        }
-        */
-
-    DisplayDefinition display = new DisplayDefinition();
-
-    display.pageId = tsStream.readBits(16);
-    tsStream.skipBits(16);
-    display.versionNumber = tsStream.readBits(4);
-    if (tsStream.readBits(1) == 1) {
-      display.flags |= DISPLAY_WINDOW_FLAG;
-    }
-    tsStream.skipBits(3);
-    display.displayWidth = tsStream.readBits(16);
-    display.displayHeight = tsStream.readBits(16);
-    if ((display.flags & DISPLAY_WINDOW_FLAG) != 0) {
-      display.displayWindowHorizontalPositionMinimum = tsStream.readBits(16);
-      display.displayWindowHorizontalPositionMaximum = tsStream.readBits(16);
-      display.displayWindowVerticalPositionMinimum = tsStream.readBits(16);
-      display.displayWindowVerticalPositionMaximum = tsStream.readBits(16);
+    int horizontalPositionMinimum;
+    int horizontalPositionMaximum;
+    int verticalPositionMinimum;
+    int verticalPositionMaximum;
+    if (displayWindowFlag) {
+      horizontalPositionMinimum = data.readBits(16);
+      horizontalPositionMaximum = data.readBits(16);
+      verticalPositionMinimum = data.readBits(16);
+      verticalPositionMaximum = data.readBits(16);
     } else {
-      display.displayWindowHorizontalPositionMinimum = 0;
-      display.displayWindowHorizontalPositionMaximum = display.displayWidth;
-      display.displayWindowVerticalPositionMinimum = 0;
-      display.displayWindowVerticalPositionMaximum = display.displayHeight;
+      horizontalPositionMinimum = 0;
+      horizontalPositionMaximum = width;
+      verticalPositionMinimum = 0;
+      verticalPositionMaximum = height;
     }
 
-    return display;
+    return new DisplayDefinition(width, height, horizontalPositionMinimum,
+        horizontalPositionMaximum, verticalPositionMinimum, verticalPositionMaximum);
   }
 
-  private PageComposition parsePageCompositionSegment() {
+  /**
+   * Parses a page composition segment, as defined by ETSI EN 300 743 7.2.2.
+   */
+  private static PageComposition parsePageComposition(ParsableBitArray data, int length) {
+    int timeoutSecs = data.readBits(8);
+    int version = data.readBits(4);
+    int state = data.readBits(2);
+    data.skipBits(2);
+    int remainingLength = length - 2;
 
-        /* Parse page composition segment. ETSI EN 300 743 7.2.2
-
-                          SYNTAX                  SIZE                SEMANTICS
-        ---------------------------------------   ----   ------------------------------------------
-        page_composition_segment() {
-            sync_byte                               8
-            segment_type                            8
-            page_id                                16
-            segment_length                         16
-            page_time_out                           8    The period after the page instace should be erased
-            page_version_number                     4    Incremented when any of the contents of this segment change
-            page_state                              2    The status of the subtitling page instance
-            reserved                                2
-            while (processed_length < segment_length) {  Page region list
-                region_id                           8    Uniquely identifies a region within a page
-                reserved                            8
-                region_horizontal_address          16    Horizontal address of the top left pixel of this region
-                region_vertical_address            16    Vertical address of the top line of this region
-            }
-        }
-        */
-
-    PageComposition page = new PageComposition();
-
-    page.pageId = tsStream.readBits(16);
-    int remainingSegmentLength = tsStream.readBits(16);
-    page.pageTimeOut = tsStream.readBits(8);
-    page.pageVersionNumber = tsStream.readBits(4);
-    page.pageState = tsStream.readBits(2);
-    tsStream.skipBits(2);
-
-    if (page.pageState == DVBSUB_PCS_STATE_NORMAL &&
-        subtitleService.pageComposition != null &&
-        subtitleService.pageComposition.pageId == page.pageId &&
-        (subtitleService.pageComposition.pageVersionNumber + 1) % 16 == page.pageVersionNumber) {
-      //page.pageRegions = subtitleService.pageComposition.pageRegions;
-
-      if (BuildConfig.DEBUG) {
-        Log.d(TAG, "        Updated Page Composition. pageId: " + page.pageId +
-            " version: " + page.pageVersionNumber +
-            " timeout: " + page.pageTimeOut
-        );
-      }
-
-    } else if (subtitleService.subtitlePageId == page.pageId) {
-      if (BuildConfig.DEBUG) {
-        if (page.pageState == DVBSUB_PCS_STATE_NORMAL) {
-          Log.d(TAG, "        FAILED Page Composition update. pageId: " + page.pageId +
-              " Version(Old/New): " + (subtitleService.pageComposition != null ? subtitleService.pageComposition.pageVersionNumber : "NaN") + "/" + page.pageVersionNumber);
-        }
-      }
-
-      subtitleService.pageComposition = null;
-      subtitleService.regions = new SparseArray<>();
-      subtitleService.cluts = new SparseArray<>();
-      subtitleService.objects = new SparseArray<>();
-
-      if (BuildConfig.DEBUG) {
-        if (page.pageState != DVBSUB_PCS_STATE_NORMAL) {
-          Log.d(TAG, "        New Page Composition. pageId: " + page.pageId +
-              " version: " + page.pageVersionNumber +
-              " timeout: " + page.pageTimeOut
-          );
-        }
-      }
+    SparseArray<PageRegion> regions = new SparseArray<>();
+    while (remainingLength > 0) {
+      int regionId = data.readBits(8);
+      data.skipBits(8); // Skip reserved.
+      int regionHorizontalAddress = data.readBits(16);
+      int regionVerticalAddress = data.readBits(16);
+      remainingLength -= 6;
+      regions.put(regionId, new PageRegion(regionHorizontalAddress, regionVerticalAddress));
     }
 
-    remainingSegmentLength -= 2;
-    while (remainingSegmentLength > 0) {
-      PageRegion region = new PageRegion();
-
-      region.regionId = tsStream.readBits(8);
-      tsStream.skipBits(8);
-      region.regionHorizontalAddress = tsStream.readBits(16);
-      region.regionVerticalAddress = tsStream.readBits(16);
-
-      if (BuildConfig.DEBUG) {
-        Log.d(TAG, "            " +
-            (page.pageRegions.get(region.regionId) == null ? "New" : "Upd.") +
-            " Page Region. regionId: " + region.regionId +
-            " (x/y): (" + region.regionHorizontalAddress + "/" + region.regionVerticalAddress + ")");
-      }
-
-      page.pageRegions.put(region.regionId, region);
-
-      remainingSegmentLength -= 6;
-    }
-
-    return page;
+    return new PageComposition(timeoutSecs, version, state, regions);
   }
 
-  private RegionComposition parseRegionCompositionSegment() {
+  /**
+   * Parses a region composition segment, as defined by ETSI EN 300 743 7.2.3.
+   */
+  private static RegionComposition parseRegionComposition(ParsableBitArray data, int length) {
+    int id = data.readBits(8);
+    data.skipBits(4); // Skip region_version_number
+    boolean fillFlag = data.readBit();
+    data.skipBits(3); // Skip reserved.
+    int width = data.readBits(16);
+    int height = data.readBits(16);
+    int levelOfCompatibility = data.readBits(3);
+    int depth = data.readBits(3);
+    data.skipBits(2); // Skip reserved.
+    int clutId = data.readBits(8);
+    int pixelCode8Bit = data.readBits(8);
+    int pixelCode4Bit = data.readBits(4);
+    int pixelCode2Bit = data.readBits(2);
+    data.skipBits(2); // Skip reserved
+    int remainingLength = length - 10;
 
-        /* Parse region composition segment. ETSI EN 300 743 7.2.3
+    SparseArray<RegionObject> regionObjects = new SparseArray<>();
+    while (remainingLength > 0) {
+      int objectId = data.readBits(16);
+      int objectType = data.readBits(2);
+      int objectProvider = data.readBits(2);
+      int objectHorizontalPosition = data.readBits(12);
+      data.skipBits(4); // Skip reserved.
+      int objectVerticalPosition = data.readBits(12);
+      remainingLength -= 6;
 
-                          SYNTAX                  SIZE                SEMANTICS
-        ---------------------------------------   ----   ------------------------------------------
-        region_composition_segment() {
-            sync_byte                               8
-            segment_type                            8
-            page_id                                16
-            segment_length                         16
-            region_id                               8     Uniquely identifies the region
-            region_version_number                   4     Indicates the version of this region
-            region_fill_flag                        1     If set the region is to be filled region_n-bit_pixel_code clut index
-            reserved                                3
-            region_width                           16     Specifies the horizontal length of this region
-            region_height                          16     Specifies the vertical length of the region
-            region_level_of_compatibility           3     Code that indicates the minimum bithdepth of CLUT
-            region_depth                            3     Identifies the intended pixel depth for this region
-            reserved                                2
-            CLUT_id                                 8     Identifies the family of CLUTs that applies to this region
-            region_8-bit_pixel_code                 8     Specifies the entry of the applied 8-bit CLUT as background colour
-            region_4-bit_pixel-code                 4     Specifies the entry of the applied 4-bit CLUT as background colour
-            region_2-bit_pixel-code                 2     Specifies the entry of the applied 2-bit CLUT as background colour
-            reserved                                2
-            while (processed_length < segment_length) {   list of region objects
-                object_id                          16     Identifies an object that is shown in the region
-                object_type                         2     Identifies the type of object
-                object_provider_flag                2     How this object is provided
-                object_horizontal_position         12     Specifies the horizontal position of the top left pixel of this object
-                reserved                            4
-                object_vertical_position           12     Specifies the vertical position of the top left pixel of this object
-                if (object_type ==0x01 or object_type == 0x02){ UNSUPPORTED
-                    foreground_pixel_code           8
-                    background_pixel_code           8
-                }
-            }
-        }
-        */
-
-    RegionComposition region = new RegionComposition();
-
-    region.pageId = tsStream.readBits(16);
-    int remainingSegmentLength = tsStream.readBits(16);
-    region.regionId = tsStream.readBits(8);
-    region.regionVersionNumber = tsStream.readBits(4);
-    if (tsStream.readBits(1) == 1) {
-      region.flags |= REGION_FILL_FLAG;
-    }
-    tsStream.skipBits(3);
-    region.regionWidth = tsStream.readBits(16);
-    region.regionHeight = tsStream.readBits(16);
-    region.regionLevelOfCompatibility = tsStream.readBits(3);
-    region.regionDepth = tsStream.readBits(3);
-    tsStream.skipBits(2);
-    region.clutId = tsStream.readBits(8);
-    tsStream.skipBits(16);
-
-    if (BuildConfig.DEBUG) {
-      Log.d(TAG, "        New Region Composition. regionId: " + region.regionId +
-          " (w/h): (" + region.regionWidth + "/" + region.regionHeight + ")");
-    }
-
-    int arrayIndex = 0; // index by an incremental counter to allow repeating objects in one region
-
-    if (subtitleService.pageComposition != null && subtitleService.pageComposition.pageId == region.pageId &&
-        subtitleService.pageComposition.pageState == DVBSUB_PCS_STATE_NORMAL) {
-      RegionComposition tempRegion = subtitleService.regions.get(region.regionId);
-      if (tempRegion != null) {
-        region.regionObjects = tempRegion.regionObjects;
-        arrayIndex = region.regionObjects.size();
-      }
-    }
-
-    remainingSegmentLength -= 10;
-    RegionObject object;
-    while (remainingSegmentLength > 0) {
-      object = new RegionObject();
-
-      object.objectId = tsStream.readBits(16);
-      object.objectType = tsStream.readBits(2);
-      object.objectProvider = tsStream.readBits(2);
-      object.objectHorizontalPosition = tsStream.readBits(12);
-      tsStream.skipBits(4);
-      object.objectVerticalPosition = tsStream.readBits(12);
-      remainingSegmentLength -= 6;
-
-      if (object.objectType == 0x01 || object.objectType == 0x02) { // Only seems to affect to char subtitles
-        object.foregroundPixelCode = tsStream.readBits(8);
-        object.backgroundPixelCode = tsStream.readBits(8);
-        remainingSegmentLength -= 2;
+      int foregroundPixelCode = 0;
+      int backgroundPixelCode = 0;
+      if (objectType == 0x01 || objectType == 0x02) { // Only seems to affect to char subtitles.
+        foregroundPixelCode = data.readBits(8);
+        backgroundPixelCode = data.readBits(8);
+        remainingLength -= 2;
       }
 
-      if (BuildConfig.DEBUG) {
-        Log.d(TAG, "            New Region Object[" + arrayIndex + "]." +
-            " objectId: " + object.objectId +
-            " (x/y): (" + object.objectHorizontalPosition + "/" + object.objectVerticalPosition + ")");
-      }
-
-      region.regionObjects.put(arrayIndex++, object);
+      regionObjects.put(objectId, new RegionObject(objectType, objectProvider,
+          objectHorizontalPosition, objectVerticalPosition, foregroundPixelCode,
+          backgroundPixelCode));
     }
 
-
-    return region;
+    return new RegionComposition(id, fillFlag, width, height, levelOfCompatibility, depth, clutId,
+        pixelCode8Bit, pixelCode4Bit, pixelCode2Bit, regionObjects);
   }
 
-  private ClutDefinition parseClutDefinitionSegment() {
+  /**
+   * Parses a CLUT definition segment, as defined by ETSI EN 300 743 7.2.4.
+   */
+  private static ClutDefinition parseClutDefinition(ParsableBitArray data, int length) {
+    int clutId = data.readBits(8);
+    data.skipBits(8); // Skip clut_version_number (4), reserved (4)
+    int remainingLength = length - 2;
 
-        /* Parse CLUT definition segment. ETSI EN 300 743 7.2.4
+    int[] clutEntries2Bit = generateDefault2BitClutEntries();
+    int[] clutEntries4Bit = generateDefault4BitClutEntries();
+    int[] clutEntries8Bit = generateDefault8BitClutEntries();
 
-                          SYNTAX                  SIZE                SEMANTICS
-        ---------------------------------------   ----   ------------------------------------------
-        CLUT_definition_segment() {
-            sync_byte                               8
-            segment_type                            8
-            page_id                                16
-            segment_length                         16
-            CLUT-id                                 8    Uniquely identifies within a page the CLUT family
-            CLUT_version_number                     4    Indicates the version of this segment data
-            reserved                                4
-            while (processed_length < segment_length) {  Clut entries list
-                CLUT_entry_id                       8    Specifies the entry number of the CLUT
-                2-bit/entry_CLUT_flag               1    Indicates this entry is to be loaded into the 2-bit/entry CLUT
-                4-bit/entry_CLUT_flag               1    Indicates this entry is to be loaded into the 4-bit/entry CLUT
-                8-bit/entry_CLUT_flag               1    Indicates this entry is to be loaded into the 8-bit/entry CLUT
-                reserved                            4
-                full_range_flag                     1    Indicates that the Y_value, Cr_value, Cb_value and T_value
-                                                         fields have the full 8-bit resolution
-                if full_range_flag =='1' {
-                    Y-value                         8    The Y value for this CLUT entry.
-                    Cr-value                        8    The Cr value for this CLUT entry.
-                    Cb-value                        8    The Cb value for this CLUT entry.
-                    T-value                         8    The Transparency value for this CLUT entry. 0 = no transparency
-                } else {
-                    Y-value                         6    The Y value for this CLUT entry.
-                    Cr-value                        4    The Cr value for this CLUT entry.
-                    Cb-value                        4    The Cb value for this CLUT entry.
-                    T-value                         2    The Transparency value for this CLUT entry. 0 = no transparency
-                }
-            }
-        }
-        */
+    while (remainingLength > 0) {
+      int entryId = data.readBits(8);
+      int entryFlags = data.readBits(8);
+      remainingLength -= 2;
 
-    ClutDefinition clut = new ClutDefinition();
-    clut.pageId = tsStream.readBits(16);
-    int remainingSegmentLength = tsStream.readBits(16);
-    clut.clutId = tsStream.readBits(8);
-    clut.clutVersionNumber = tsStream.readBits(4);
-    tsStream.skipBits(4);
-
-    remainingSegmentLength -= 2;
-    ClutEntry entry;
-    int Y, Cb, Cr, T;
-    int entryId, entryFlags;
-    while (remainingSegmentLength > 0) {
-      entryId = tsStream.readBits(8);
-      entryFlags = tsStream.readBits(8);
-
+      int[] clutEntries;
       if ((entryFlags & 0x80) != 0) {
-        entry = clut.clutEntries2bit[entryId];
+        clutEntries = clutEntries2Bit;
       } else if ((entryFlags & 0x40) != 0) {
-        entry = clut.clutEntries4bit[entryId];
+        clutEntries = clutEntries4Bit;
       } else {
-        entry = clut.clutEntries8bit[entryId];
+        clutEntries = clutEntries8Bit;
       }
 
-      entry.flags = (byte) (entryFlags & 0xE1);
-      if ((entry.flags & 0x01) != 0) {
-        Y = tsStream.readBits(8);
-        Cr = tsStream.readBits(8);
-        Cb = tsStream.readBits(8);
-        T = tsStream.readBits(8);
-        remainingSegmentLength -= 6;
+      int y;
+      int cr;
+      int cb;
+      int t;
+      if ((entryFlags & 0x01) != 0) {
+        y = data.readBits(8);
+        cr = data.readBits(8);
+        cb = data.readBits(8);
+        t = data.readBits(8);
+        remainingLength -= 4;
       } else {
-        Y = tsStream.readBits(6) << 2;
-        Cr = tsStream.readBits(4) << 4;
-        Cb = tsStream.readBits(4) << 4;
-        T = tsStream.readBits(2) << 6;
-        remainingSegmentLength -= 4;
+        y = data.readBits(6) << 2;
+        cr = data.readBits(4) << 4;
+        cb = data.readBits(4) << 4;
+        t = data.readBits(2) << 6;
+        remainingLength -= 2;
       }
 
-      if (Y == 0x00) {
-        Cr = 0x00;
-        Cb = 0x00;
-        T = 0xFF;
+      if (y == 0x00) {
+        cr = 0x00;
+        cb = 0x00;
+        t = 0xFF;
       }
 
-      entry.clutYCbCrT(Y, Cb, Cr, T);
+      int a = (byte) (0xFF - (t & 0xFF));
+      int r = (int) (y + (1.40200 * (cr - 128)));
+      int g = (int) (y - (0.34414 * (cb - 128)) - (0.71414 * (cr - 128)));
+      int b = (int) (y + (1.77200 * (cb - 128)));
+      clutEntries[entryId] = getColor(a, Util.constrainValue(r, 0, 255),
+          Util.constrainValue(g, 0, 255), Util.constrainValue(b, 0, 255));
     }
-    return clut;
+
+    return new ClutDefinition(clutId, clutEntries2Bit, clutEntries4Bit, clutEntries8Bit);
   }
 
-  private ObjectData parseObjectDataSegment() {
+  /**
+   * Parses an object data segment, as defined by ETSI EN 300 743 7.2.5.
+   *
+   * @return The parsed object data.
+   */
+  private static ObjectData parseObjectData(ParsableBitArray data) {
+    int objectId = data.readBits(16);
+    data.skipBits(4); // Skip object_version_number
+    int objectCodingMethod = data.readBits(2);
+    boolean nonModifyingColorFlag = data.readBit();
+    data.skipBits(1); // Skip reserved.
 
-        /* Parse object data segment. ETSI EN 300 743 7.2.5
+    byte[] topFieldData = null;
+    byte[] bottomFieldData = null;
 
-                          SYNTAX                  SIZE                SEMANTICS
-        ---------------------------------------   ----   ------------------------------------------
-        object_data_segment() {
-            sync_byte                               8
-            segment_type                            8
-            page_id                                16
-            segment_length                         16
-            object_id                              16    Uniquely identifies within the page the object
-            object_version_number                   4    Indicates the version of this segment data
-            object_coding_method                    2    Specifies the method used to code the object
-            non_modifying_colour_flag               1    Indicates that the CLUT entry value '1' is a non modifying colour
-            reserved                                1
-            if (object_coding_method == '00'){
-                top_field_data_block_length        16    Specifies the number of bytes contained in his pixel-data_sub-blocks
-                bottom_field_data_block_length     16    Specifies the number of bytes contained in his pixel-data_sub-blocks
-                while(processed_length<top_field_data_block_length)
-                    pixel-data_sub-block()
-                while (processed_length<bottom_field_data_block_length)
-                    pixel-data_sub-block()
-                if (!wordaligned())
-                    8_stuff_bits                    8
-            }
-            if (object_coding_method == '01') {          UNSUPPORTED
-                number of codes                     8
-                for (i == 1, i <= number of codes, i ++)
-                character_code                     16
-            }
-        }
-        */
-
-    ObjectData object = new ObjectData();
-    object.pageId = tsStream.readBits(16);
-    tsStream.skipBits(16); // remainingSegmentLength
-    object.objectId = tsStream.readBits(16);
-    object.objectVersionNumber = tsStream.readBits(4);
-    object.objectCodingMethod = tsStream.readBits(2);
-    if (tsStream.readBits(1) == 1) {
-      object.flags |= OBJECT_NON_MODIFYING_COLOUR_FLAG;
-    }
-    tsStream.skipBits(1);
-
-    if (object.objectCodingMethod == DVBSUB_ODS_CHAR_CODED) {
-            /* not implemented yet */
-      object.numberOfCodes = tsStream.readBits(8);
-      tsStream.skipBits(object.numberOfCodes * 16);
-    } else if (object.objectCodingMethod == DVBSUB_ODS_PIXEL_CODED) {
-      object.topFieldDataLength = tsStream.readBits(16);
-      object.bottomFieldDataLength = tsStream.readBits(16);
-
-      object.topFieldData = new byte[object.topFieldDataLength];
-      System.arraycopy(tsStream.data, tsStream.getPosition() / 8, object.topFieldData, 0, object.topFieldDataLength);
-      tsStream.skipBits(object.topFieldDataLength * 8);
-
-      object.bottomFieldData = new byte[object.bottomFieldDataLength];
-      if (object.bottomFieldDataLength == 0) {
-        object.bottomFieldData = object.topFieldData;
+    if (objectCodingMethod == OBJECT_CODING_STRING) {
+      int numberOfCodes = data.readBits(8);
+      // TODO: Parse and use character_codes.
+      data.skipBits(numberOfCodes * 16); // Skip character_codes.
+    } else if (objectCodingMethod == OBJECT_CODING_PIXELS) {
+      int topFieldDataLength = data.readBits(16);
+      int bottomFieldDataLength = data.readBits(16);
+      if (topFieldDataLength > 0) {
+        topFieldData = new byte[topFieldDataLength];
+        data.readBytes(topFieldData, 0, topFieldDataLength);
+      }
+      if (bottomFieldDataLength > 0) {
+        bottomFieldData = new byte[bottomFieldDataLength];
+        data.readBytes(bottomFieldData, 0, bottomFieldDataLength);
       } else {
-        System.arraycopy(tsStream.data, tsStream.getPosition() / 8, object.bottomFieldData, 0, object.bottomFieldDataLength);
-        tsStream.skipBits(object.bottomFieldDataLength * 8);
+        bottomFieldData = topFieldData;
       }
     }
 
-    return object;
+    return new ObjectData(objectId, nonModifyingColorFlag, topFieldData, bottomFieldData);
   }
 
-  private Bitmap parsePixelDataSubBlocks(ObjectData object, ClutDefinition clut, int regionDepth,
-                                         int horizontalAddress, int verticalAddress) {
+  private static int[] generateDefault2BitClutEntries() {
+    int[] entries = new int[4];
+    entries[0] = 0x00000000;
+    entries[1] = 0xFFFFFFFF;
+    entries[2] = 0xFF000000;
+    entries[3] = 0xFF7F7F7F;
+    return entries;
+  }
 
-        /* Parse pixel-data sub-block. ETSI EN 300 743 7.2.5.1
+  private static int[] generateDefault4BitClutEntries() {
+    int[] entries = new int[16];
+    entries[0] = 0x00000000;
+    for (int i = 1; i < entries.length; i++) {
+      if (i < 8) {
+        entries[i] = getColor(
+            0xFF,
+            ((i & 0x01) != 0 ? 0xFF : 0x00),
+            ((i & 0x02) != 0 ? 0xFF : 0x00),
+            ((i & 0x04) != 0 ? 0xFF : 0x00));
+      } else {
+        entries[i] = getColor(
+            0xFF,
+            ((i & 0x01) != 0 ? 0x7F : 0x00),
+            ((i & 0x02) != 0 ? 0x7F : 0x00),
+            ((i & 0x04) != 0 ? 0x7F : 0x00));
+      }
+    }
+    return entries;
+  }
 
-                          SYNTAX                  SIZE
-        ---------------------------------------   ----
-        pixel-data_sub-block() {
-            data_type                               8
-            if data_type =='0x10' {
-                repeat {
-                    2-bit/pixel_code_string()
-                } until (end of 2-bit/pixel_code_string)
-                while (!bytealigned())
-                    2_stuff_bits                    2
-                if data_type =='0x11' {
-                    repeat {
-                        4-bit/pixel_code_string()
-                    } until (end of 4-bit/pixel_code_string)
-                    if (!bytealigned())
-                        4_stuff_bits                4
-                }
-            }
-            if data_type =='0x12' {
-                repeat {
-                    8-bit/pixel_code_string()
-                } until (end of 8-bit/pixel_code_string)
-            }
-            if data_type =='0x20'
-            2_to_4-bit_map-table                   16
-            if data_type =='0x21'
-            2_to_8-bit_map-table                   32
-            if data_type =='0x22'
-            4_to_8-bit_map-table                  128
+  private static int[] generateDefault8BitClutEntries() {
+    int[] entries = new int[256];
+    entries[0] = 0x00000000;
+    for (int i = 0; i < entries.length; i++) {
+      if (i < 8) {
+        entries[i] = getColor(
+            0x3F,
+            ((i & 0x01) != 0 ? 0xFF : 0x00),
+            ((i & 0x02) != 0 ? 0xFF : 0x00),
+            ((i & 0x04) != 0 ? 0xFF : 0x00));
+      } else {
+        switch (i & 0x88) {
+          case 0x00:
+            entries[i] = getColor(
+                0xFF,
+                (((i & 0x01) != 0 ? 0x55 : 0x00) + ((i & 0x10) != 0 ? 0xAA : 0x00)),
+                (((i & 0x02) != 0 ? 0x55 : 0x00) + ((i & 0x20) != 0 ? 0xAA : 0x00)),
+                (((i & 0x04) != 0 ? 0x55 : 0x00) + ((i & 0x40) != 0 ? 0xAA : 0x00)));
+            break;
+          case 0x08:
+            entries[i] = getColor(
+                0x7F,
+                (((i & 0x01) != 0 ? 0x55 : 0x00) + ((i & 0x10) != 0 ? 0xAA : 0x00)),
+                (((i & 0x02) != 0 ? 0x55 : 0x00) + ((i & 0x20) != 0 ? 0xAA : 0x00)),
+                (((i & 0x04) != 0 ? 0x55 : 0x00) + ((i & 0x40) != 0 ? 0xAA : 0x00)));
+            break;
+          case 0x80:
+            entries[i] = getColor(
+                0xFF,
+                (127 + ((i & 0x01) != 0 ? 0x2B : 0x00) + ((i & 0x10) != 0 ? 0x55 : 0x00)),
+                (127 + ((i & 0x02) != 0 ? 0x2B : 0x00) + ((i & 0x20) != 0 ? 0x55 : 0x00)),
+                (127 + ((i & 0x04) != 0 ? 0x2B : 0x00) + ((i & 0x40) != 0 ? 0x55 : 0x00)));
+            break;
+          case 0x88:
+            entries[i] = getColor(
+                0xFF,
+                (((i & 0x01) != 0 ? 0x2B : 0x00) + ((i & 0x10) != 0 ? 0x55 : 0x00)),
+                (((i & 0x02) != 0 ? 0x2B : 0x00) + ((i & 0x20) != 0 ? 0x55 : 0x00)),
+                (((i & 0x04) != 0 ? 0x2B : 0x00) + ((i & 0x40) != 0 ? 0x55 : 0x00)));
+            break;
         }
-        */
+      }
+    }
+    return entries;
+  }
 
-    int line, column;
-    int i;
-    byte[] clutMapTable, clutMapTable24, clutMapTable28, clutMapTable48;
+  private static int getColor(int a, int r, int g, int b) {
+    return (a << 24) | (r << 16) | (g << 8) | b;
+  }
 
+  // Static drawing.
 
-    ClutEntry[] clutEntries;
-    if (regionDepth == DVBSUB_RCS_BITDEPTH_8) {
-      clutEntries = clut.clutEntries8bit;
-    } else if (regionDepth == DVBSUB_RCS_BITDEPTH_4) {
-      clutEntries = clut.clutEntries4bit;
+  /**
+   * Draws a pixel data sub-block, as defined by ETSI EN 300 743 7.2.5.1, into a canvas.
+   */
+  private static void paintPixelDataSubBlocks(ObjectData objectData, ClutDefinition clutDefinition,
+      int regionDepth, int horizontalAddress, int verticalAddress, Paint paint, Canvas canvas) {
+    int[] clutEntries;
+    if (regionDepth == REGION_DEPTH_8_BIT) {
+      clutEntries = clutDefinition.clutEntries8Bit;
+    } else if (regionDepth == REGION_DEPTH_4_BIT) {
+      clutEntries = clutDefinition.clutEntries4Bit;
     } else {
-      clutEntries = clut.clutEntries2bit;
+      clutEntries = clutDefinition.clutEntries2Bit;
     }
-
-    int lineHeight;
-
-    ParsableBitArray[] pixelData = new ParsableBitArray[2];
-    pixelData[0] = new ParsableBitArray(object.topFieldData);
-    if (object.bottomFieldDataLength == 0) {
-      lineHeight = 2;
-    } else {
-      lineHeight = 1;
-      pixelData[1] = new ParsableBitArray(object.bottomFieldData);
-
-    }
-
-    ParsableBitArray data;
-    int field = 0;
-    while (field < 2) {
-      data = pixelData[field];
-      column = horizontalAddress;
-      line = verticalAddress + field;
-      clutMapTable24 = null;
-      clutMapTable28 = null;
-      clutMapTable48 = null;
-
-      while (data.bitsLeft() > 0) {
-        switch (data.readBits(8)) {
-          case DVBSUB_DT_2BP_CODE_STRING:
-            if (regionDepth == DVBSUB_RCS_BITDEPTH_8) {
-              clutMapTable = clutMapTable28 == null ? defaultMap28 : clutMapTable28;
-            } else if (regionDepth == DVBSUB_RCS_BITDEPTH_4) {
-              clutMapTable = clutMapTable24 == null ? defaultMap24 : clutMapTable24;
-            } else {
-              clutMapTable = null;
-            }
-            column += dvbSub2BitPixelCodeString(data, lineHeight, clutEntries, clutMapTable,
-                column, line, (object.flags & OBJECT_NON_MODIFYING_COLOUR_FLAG) == 0);
-            if ((i = data.getPosition() % 8) != 0) {
-              data.skipBits(7 - i + 1);
-            }
-            break;
-          case DVBSUB_DT_4BP_CODE_STRING:
-            if (regionDepth == DVBSUB_RCS_BITDEPTH_8)
-              clutMapTable = clutMapTable48 == null ? defaultMap48 : clutMapTable48;
-            else
-              clutMapTable = null;
-            column += dvbSub4BitPixelCodeString(data, lineHeight, clutEntries, clutMapTable,
-                column, line, (object.flags & OBJECT_NON_MODIFYING_COLOUR_FLAG) == 0);
-            if ((i = data.getPosition() % 8) != 0) {
-              data.skipBits(7 - i + 1);
-            }
-            break;
-          case DVBSUB_DT_8BP_CODE_STRING:
-            column += dvbSub8BitPixelCodeString(data, lineHeight, clutEntries, null,
-                column, line, (object.flags & OBJECT_NON_MODIFYING_COLOUR_FLAG) == 0);
-            break;
-          case DVBSUB_DT_24_TABLE_DATA:
-            clutMapTable24 = new byte[4];
-            for (i = 0; i < 4; i++) {
-              clutMapTable24[i] = (byte) data.readBits(4);
-            }
-            break;
-          case DVBSUB_DT_28_TABLE_DATA:
-            clutMapTable28 = new byte[4];
-            for (i = 0; i < 4; i++) {
-              clutMapTable28[i] = (byte) data.readBits(8);
-            }
-            break;
-          case DVBSUB_DT_48_TABLE_DATA:
-            clutMapTable48 = new byte[16];
-            for (i = 0; i < 4; i++) {
-              clutMapTable48[i] = (byte) data.readBits(8);
-            }
-            break;
-          case DVBSUB_DT_END_LINE:
-            column = horizontalAddress;
-            line += 2;
-            break;
-          default:
-            break;
-        }
-      }
-      field += lineHeight;
-    }
-
-    return null;
+    paintPixelDataSubBlock(objectData.topFieldData, clutEntries, regionDepth, horizontalAddress,
+        verticalAddress, paint, canvas);
+    paintPixelDataSubBlock(objectData.bottomFieldData, clutEntries, regionDepth, horizontalAddress,
+        verticalAddress + 1, paint, canvas);
   }
 
-  private int dvbSub2BitPixelCodeString(ParsableBitArray data, int lineHeigth,
-                                        ClutEntry[] clutEntries, byte[] clutMapTable,
-                                        int column, int line, boolean paint) {
+  /**
+   * Draws a pixel data sub-block, as defined by ETSI EN 300 743 7.2.5.1, into a canvas.
+   */
+  private static void paintPixelDataSubBlock(byte[] pixelData, int[] clutEntries, int regionDepth,
+      int horizontalAddress, int verticalAddress, Paint paint, Canvas canvas) {
+    ParsableBitArray data = new ParsableBitArray(pixelData);
+    int column = horizontalAddress;
+    int line = verticalAddress;
+    byte[] clutMapTable2To4 = null;
+    byte[] clutMapTable2To8 = null;
+    byte[] clutMapTable4To8 = null;
 
-        /* Parse 2-bit/pixel code string. ETSI EN 300 743 7.2.5.2
-
-                          SYNTAX                  SIZE
-        ---------------------------------------   ----
-        2-bit/pixel_code_string() {
-            if (nextbits() != '00') {
-                2-bit_pixel-code                    2
-            } else {
-                2-bit_zero                          2
-                switch_1 1 bslbf
-                if (switch_1 == '1') {
-                    run_length_3-10                 3
-                    2-bit_pixel-code                2
-                } else {
-                    switch_2                        1
-                    if (switch_2 == '0') {
-                        switch_3                    2
-                        if (switch_3 == '10') {
-                            run_length_12-27        4
-                            2-bit_pixel-code        2
-                        }
-                        if (switch_3 == '11') {
-                            run_length_29-284       8
-                            2-bit_pixel-code        2
-                        }
-                    }
-                }
-            }
-        }
-        */
-
-    int savedColumn = column, peek, runLength, clutIdx = 0x00, colour;
-    boolean endOfPixelCodeString = false;
-
-    while (!endOfPixelCodeString) {
-      runLength = 0;
-      peek = data.readBits(2);
-      if (peek != 0x00) {
-        runLength = 1;
-        clutIdx = peek;
-      } else {
-        peek = data.readBits(1);
-        if (peek == 0x01) {
-          runLength = 3 + data.readBits(3);
-          clutIdx = data.readBits(2);
-        } else {
-          peek = data.readBits(1);
-          if (peek == 0x00) {
-            peek = data.readBits(2);
-            switch (peek) {
-              case 0x00:
-                endOfPixelCodeString = true;
-                break;
-              case 0x01:
-                runLength = 2;
-                clutIdx = 0x00;
-                break;
-              case 0x02:
-                runLength = 12 + data.readBits(4);
-                clutIdx = data.readBits(2);
-                break;
-              case 0x03:
-                runLength = 29 + data.readBits(8);
-                clutIdx = data.readBits(2);
-                break;
-            }
-          }
-        }
-      }
-
-      if (runLength != 0 && paint) {
-        colour = clutMapTable != null ? clutEntries[clutMapTable[clutIdx]].ARGB
-            : clutEntries[clutIdx].ARGB;
-        defaultPaint.setColor(colour);
-        canvas.drawRect(
-            column, line, column + runLength, line + lineHeigth, defaultPaint);
-      }
-
-      column += runLength;
-    }
-
-    return column - savedColumn;
-  }
-
-  private int dvbSub4BitPixelCodeString(ParsableBitArray data, int lineHeigth,
-                                        ClutEntry[] clutEntries, byte[] clutMapTable,
-                                        int column, int line, boolean paint) {
-
-        /* Parse 4-bit/pixel code string. ETSI EN 300 743 7.2.5.2
-
-                          SYNTAX                  SIZE
-        ---------------------------------------   ----
-        4-bit/pixel_code_string() {
-            if (nextbits() != '0000') {
-                4-bit_pixel-code                    4
-            } else {
-                4-bit_zero                          4
-                switch_1                            1
-                if (switch_1 == '0') {
-                    if (nextbits() != '000')
-                        run_length_3-9              3
-                    else
-                        end_of_string_signal        3
-                } else {
-                    switch_2                        1
-                    if (switch_2 == '0') {
-                        run_length_4-7              2
-                        4-bit_pixel-code            4
-                    } else {
-                        switch_3                    2
-                        if (switch_3 == '10') {
-                            run_length_9-24         4
-                            4-bit_pixel-code        4
-                        }
-                        if (switch_3 == '11') {
-                            run_length_25-280       8
-                            4-bit_pixel-code        4
-                        }
-                    }
-                }
-            }
-        }
-        */
-
-    int savedColumn = column, peek, runLength, clutIdx = 0x00, colour;
-    boolean endOfPixelCodeString = false;
-
-    while (!endOfPixelCodeString) {
-      runLength = 0;
-      peek = data.readBits(4);
-      if (peek != 0x00) {
-        runLength = 1;
-        clutIdx = peek;
-      } else {
-        peek = data.readBits(1);
-        if (peek == 0x00) {
-          peek = data.readBits(3);
-          if (peek != 0x00) {
-            runLength = 2 + peek;
-            clutIdx = 0x00;
+    while (data.bitsLeft() != 0) {
+      int dataType = data.readBits(8);
+      switch (dataType) {
+        case DATA_TYPE_2BP_CODE_STRING:
+          byte[] clutMapTable2ToX;
+          if (regionDepth == REGION_DEPTH_8_BIT) {
+            clutMapTable2ToX = clutMapTable2To8 == null ? defaultMap2To8 : clutMapTable2To8;
+          } else if (regionDepth == REGION_DEPTH_4_BIT) {
+            clutMapTable2ToX = clutMapTable2To4 == null ? defaultMap2To4 : clutMapTable2To4;
           } else {
+            clutMapTable2ToX = null;
+          }
+          column = paint2BitPixelCodeString(data, clutEntries, clutMapTable2ToX, column, line,
+              paint, canvas);
+          data.byteAlign();
+          break;
+        case DATA_TYPE_4BP_CODE_STRING:
+          byte[] clutMapTable4ToX;
+          if (regionDepth == REGION_DEPTH_8_BIT) {
+            clutMapTable4ToX = clutMapTable4To8 == null ? defaultMap4To8 : clutMapTable4To8;
+          } else {
+            clutMapTable4ToX = null;
+          }
+          column = paint4BitPixelCodeString(data, clutEntries, clutMapTable4ToX, column, line,
+              paint, canvas);
+          data.byteAlign();
+          break;
+        case DATA_TYPE_8BP_CODE_STRING:
+          column = paint8BitPixelCodeString(data, clutEntries, null, column, line, paint, canvas);
+          break;
+        case DATA_TYPE_24_TABLE_DATA:
+          clutMapTable2To4 = buildClutMapTable(4, 4, data);
+          break;
+        case DATA_TYPE_28_TABLE_DATA:
+          clutMapTable2To8 = buildClutMapTable(4, 8, data);
+          break;
+        case DATA_TYPE_48_TABLE_DATA:
+          clutMapTable2To8 = buildClutMapTable(16, 8, data);
+          break;
+        case DATA_TYPE_END_LINE:
+          column = horizontalAddress;
+          line += 2;
+          break;
+        default:
+          // Do nothing.
+          break;
+      }
+    }
+  }
+
+  /**
+   * Paint a 2-bit/pixel code string, as defined by ETSI EN 300 743 7.2.5.2, to a canvas.
+   */
+  private static int paint2BitPixelCodeString(ParsableBitArray data, int[] clutEntries,
+      byte[] clutMapTable, int column, int line, Paint paint, Canvas canvas) {
+    boolean endOfPixelCodeString = false;
+    do {
+      int runLength = 0;
+      int clutIndex = 0;
+      int peek = data.readBits(2);
+      if (!data.readBit()) {
+        runLength = 1;
+        clutIndex = peek;
+      } else if (data.readBit()) {
+        runLength = 3 + data.readBits(3);
+        clutIndex = data.readBits(2);
+      } else if (!data.readBit()) {
+        switch (data.readBits(2)) {
+          case 0x00:
             endOfPixelCodeString = true;
-          }
-        } else {
-          peek = data.readBits(1);
-          if (peek == 0x00) {
-            runLength = 4 + data.readBits(2);
-            clutIdx = data.readBits(4);
-          } else {
-            peek = data.readBits(2);
-            switch (peek) {
-              case 0x00:
-                runLength = 1;
-                clutIdx = 0x00;
-                break;
-              case 0x01:
-                runLength = 2;
-                clutIdx = 0x00;
-                break;
-              case 0x02:
-                runLength = 9 + data.readBits(4);
-                clutIdx = data.readBits(4);
-                break;
-              case 0x03:
-                runLength = 25 + data.readBits(8);
-                clutIdx = data.readBits(4);
-                break;
-            }
-          }
+            break;
+          case 0x01:
+            runLength = 2;
+            break;
+          case 0x02:
+            runLength = 12 + data.readBits(4);
+            clutIndex = data.readBits(2);
+            break;
+          case 0x03:
+            runLength = 29 + data.readBits(8);
+            clutIndex = data.readBits(2);
+            break;
         }
       }
 
-      if (runLength != 0 && paint) {
-        colour = clutMapTable != null ? clutEntries[clutMapTable[clutIdx]].ARGB
-            : clutEntries[clutIdx].ARGB;
-        defaultPaint.setColor(colour);
-        canvas.drawRect(
-            column, line, column + runLength, line + lineHeigth, defaultPaint);
+      if (runLength != 0 && paint != null) {
+        paint.setColor(clutEntries[clutMapTable != null ? clutMapTable[clutIndex] : clutIndex]);
+        canvas.drawRect(column, line, column + runLength, line + 1, paint);
       }
 
       column += runLength;
-    }
+    } while (!endOfPixelCodeString);
 
-    return column - savedColumn;
+    return column;
   }
 
-  private int dvbSub8BitPixelCodeString(ParsableBitArray data, int lineHeigth,
-                                        ClutEntry[] clutEntries, byte[] clutMapTable,
-                                        int column, int line, boolean paint) {
-
-        /* Parse 8-bit/pixel code string. ETSI EN 300 743 7.2.5.2
-
-                          SYNTAX                  SIZE
-        ---------------------------------------   ----
-
-        8-bit/pixel_code_string() {
-            if (nextbits() != '0000 0000') {
-                8-bit_pixel-code                    8
-            } else {
-                8-bit_zero                          8
-                switch_1                            1
-                if switch_1 == '0' {
-                    if nextbits() != '000 0000'
-                        run_length_1-127            7
-                    else
-                        end_of_string_signal        7
-                } else {
-                    run_length_3-127                7
-                    8-bit_pixel-code                8
-                }
-            }
-        }
-        */
-
-    int savedColumn = column, peek, runLength, clutIdx = 0x00, colour;
+  /**
+   * Paint a 4-bit/pixel code string, as defined by ETSI EN 300 743 7.2.5.2, to a canvas.
+   */
+  private static int paint4BitPixelCodeString(ParsableBitArray data, int[] clutEntries,
+      byte[] clutMapTable, int column, int line, Paint paint, Canvas canvas) {
     boolean endOfPixelCodeString = false;
-
-    while (!endOfPixelCodeString) {
-      runLength = 0;
-      peek = data.readBits(8);
+    do {
+      int runLength = 0;
+      int clutIndex = 0;
+      int peek = data.readBits(4);
       if (peek != 0x00) {
         runLength = 1;
-        clutIdx = peek;
+        clutIndex = peek;
+      } else if (!data.readBit()) {
+        peek = data.readBits(3);
+        if (peek != 0x00) {
+          runLength = 2 + peek;
+          clutIndex = 0x00;
+        } else {
+          endOfPixelCodeString = true;
+        }
+      } else if (!data.readBit()) {
+        runLength = 4 + data.readBits(2);
+        clutIndex = data.readBits(4);
       } else {
-        peek = data.readBits(1);
-        if (peek == 0x00) {
+        switch (data.readBits(2)) {
+          case 0x00:
+            runLength = 1;
+            break;
+          case 0x01:
+            runLength = 2;
+            break;
+          case 0x02:
+            runLength = 9 + data.readBits(4);
+            clutIndex = data.readBits(4);
+            break;
+          case 0x03:
+            runLength = 25 + data.readBits(8);
+            clutIndex = data.readBits(4);
+            break;
+        }
+      }
+
+      if (runLength != 0 && paint != null) {
+        paint.setColor(clutEntries[clutMapTable != null ? clutMapTable[clutIndex] : clutIndex]);
+        canvas.drawRect(column, line, column + runLength, line + 1, paint);
+      }
+
+      column += runLength;
+    } while (!endOfPixelCodeString);
+
+    return column;
+  }
+
+  /**
+   * Paint an 8-bit/pixel code string, as defined by ETSI EN 300 743 7.2.5.2, to a canvas.
+   */
+  private static int paint8BitPixelCodeString(ParsableBitArray data, int[] clutEntries,
+      byte[] clutMapTable, int column, int line, Paint paint, Canvas canvas) {
+    boolean endOfPixelCodeString = false;
+    do {
+      int runLength = 0;
+      int clutIndex = 0;
+      int peek = data.readBits(8);
+      if (peek != 0x00) {
+        runLength = 1;
+        clutIndex = peek;
+      } else {
+        if (!data.readBit()) {
           peek = data.readBits(7);
           if (peek != 0x00) {
             runLength = peek;
-            clutIdx = 0x00;
+            clutIndex = 0x00;
           } else {
             endOfPixelCodeString = true;
           }
         } else {
           runLength = data.readBits(7);
-          clutIdx = data.readBits(8);
+          clutIndex = data.readBits(8);
         }
       }
 
-      if (runLength != 0 && paint) {
-        colour = clutMapTable != null ? clutEntries[clutMapTable[clutIdx]].ARGB
-            : clutEntries[clutIdx].ARGB;
-        defaultPaint.setColor(colour);
-        canvas.drawRect(
-            column, line, column + runLength, line + lineHeigth, defaultPaint);
+      if (runLength != 0 && paint != null) {
+        paint.setColor(clutEntries[clutMapTable != null ? clutMapTable[clutIndex] : clutIndex]);
+        canvas.drawRect(column, line, column + runLength, line + 1, paint);
       }
-
       column += runLength;
+    } while (!endOfPixelCodeString);
+
+    return column;
+  }
+
+  private static byte[] buildClutMapTable(int length, int bitsPerEntry, ParsableBitArray data) {
+    byte[] clutMapTable = new byte[length];
+    for (int i = 0; i < length; i++) {
+      clutMapTable[i] = (byte) data.readBits(bitsPerEntry);
+    }
+    return clutMapTable;
+  }
+
+  // Private inner classes.
+
+  /**
+   * The subtitle service definition.
+   */
+  private static final class SubtitleService {
+
+    public final int subtitlePageId;
+    public final int ancillaryPageId;
+
+    public final SparseArray<RegionComposition> regions = new SparseArray<>();
+    public final SparseArray<ClutDefinition> cluts = new SparseArray<>();
+    public final SparseArray<ObjectData> objects = new SparseArray<>();
+    public final SparseArray<ClutDefinition> ancillaryCluts = new SparseArray<>();
+    public final SparseArray<ObjectData> ancillaryObjects = new SparseArray<>();
+
+    public DisplayDefinition displayDefinition;
+    public PageComposition pageComposition;
+
+    public SubtitleService(int subtitlePageId, int ancillaryPageId) {
+      this.subtitlePageId = subtitlePageId;
+      this.ancillaryPageId = ancillaryPageId;
     }
 
-    return column - savedColumn;
+    public void reset() {
+      regions.clear();
+      cluts.clear();
+      objects.clear();
+      ancillaryCluts.clear();
+      ancillaryObjects.clear();
+      displayDefinition = null;
+      pageComposition = null;
+    }
+
   }
 
   /**
-   * Takes a subtitling packet, parses the included segments and returns the list of {@link Cue}s
-   * defined in them
-   *
-   * @param input
-   * @param inputSize
-   * @return list of {@link Cue}s contained in the packet or null if there is an error or subtitle
-   * is incomplete
+   * Contains the geometry and active area of the subtitle service.
+   * <p>
+   * See ETSI EN 300 743 7.2.1
    */
-  List<Cue> dvbSubsDecode(byte[] input, int inputSize) {
+  private static final class DisplayDefinition {
 
-        /* process PES PACKET. ETSI EN 300 743 7.1
+    public final int width;
+    public final int height;
 
-                          SYNTAX                  SIZE                SEMANTICS
-        ---------------------------------------   ----   ------------------------------------------
-        PES_data_field() {
-           data_identifier                          8    For DVB subtitle streams it shall be 0x20
-           subtitle_stream_id                       8    For DVB subtitling stream it shall be 0x00
-              while nextbits() == '0000 1111' {
-                 Subtitling_segment()
-              }
-              end_of_PES_data_field_marker          8    An 8-bit field with fixed contents '1111 1111'
+    public final int horizontalPositionMinimum;
+    public final int horizontalPositionMaximum;
+    public final int verticalPositionMinimum;
+    public final int verticalPositionMaximum;
 
-         */
-
-    if (input != null) {
-      tsStream = new ParsableBitArray(input, inputSize);
-    } else {
-      return null;
-    }
-    if (!isSet(FLAG_PES_STRIPPED_DVBSUB)) {
-      if (tsStream.readBits(8) != 0x20) {   // data_identifier
-        return null;
-      }
-      if (tsStream.readBits(8) != 0x00) {   // subtitle_stream_id
-        return null;
-      }
+    public DisplayDefinition(int width, int height, int horizontalPositionMinimum,
+        int horizontalPositionMaximum, int verticalPositionMinimum, int verticalPositionMaximum) {
+      this.width = width;
+      this.height = height;
+      this.horizontalPositionMinimum = horizontalPositionMinimum;
+      this.horizontalPositionMaximum = horizontalPositionMaximum;
+      this.verticalPositionMinimum = verticalPositionMinimum;
+      this.verticalPositionMaximum = verticalPositionMaximum;
     }
 
-    if (BuildConfig.DEBUG) Log.d(TAG, "New PES subtitle packet.");
-
-    int sync = tsStream.readBits(8);
-    // test for segment Sync Byte and account for possible additional wordalign byte in Object data segment
-    while (sync == 0x0f || (sync == 0x00 && (sync = tsStream.readBits(8)) == 0x0f)) {
-      parseSubtitlingSegment();
-      if (isSet(FLAG_PES_STRIPPED_DVBSUB) && tsStream.bitsLeft() == 0) {
-        break;
-      }
-      sync = tsStream.readBits(8);
-
-    }
-
-    if (sync == 0xff || (isSet(FLAG_PES_STRIPPED_DVBSUB) && tsStream.bitsLeft() == 0)) { // end_of_PES_data_field_marker
-      // paint the current Subtitle definition
-      if (subtitleService.pageComposition != null) {
-        List<Cue> cueList = new ArrayList<>();
-
-        if (BuildConfig.DEBUG) {
-          Log.d(TAG, "Rendering subtitle. w: " + subtitleService.displayDefinition.displayWidth +
-              " h: " + subtitleService.displayDefinition.displayHeight);
-
-          if ((subtitleService.displayDefinition.flags & DISPLAY_WINDOW_FLAG) != 0) {
-            Log.d(TAG, "    Window dimensions (x/y/w/h): (" +
-                subtitleService.displayDefinition.displayWindowHorizontalPositionMinimum + "/" +
-                subtitleService.displayDefinition.displayWindowVerticalPositionMinimum + "/" +
-                (subtitleService.displayDefinition.displayWindowHorizontalPositionMaximum -
-                    subtitleService.displayDefinition.displayWindowHorizontalPositionMinimum) + "/" +
-                (subtitleService.displayDefinition.displayWindowVerticalPositionMaximum -
-                    subtitleService.displayDefinition.displayWindowVerticalPositionMinimum) + ")");
-          }
-        }
-
-        int a, b;
-        PageRegion pageRegion;
-        RegionComposition regionComposition;
-        int baseHorizontalAddress, baseVerticalAddress;
-        ObjectData object;
-        ClutDefinition clut;
-        int regionKey;
-        // process page regions
-        for (a = 0; a < subtitleService.pageComposition.pageRegions.size(); a++) {
-          regionKey = subtitleService.pageComposition.pageRegions.keyAt(a);
-          pageRegion = subtitleService.pageComposition.pageRegions.get(regionKey);
-          regionComposition = subtitleService.regions.get(regionKey);
-
-          baseHorizontalAddress = pageRegion.regionHorizontalAddress;
-          baseVerticalAddress = pageRegion.regionVerticalAddress;
-
-          if ((subtitleService.displayDefinition.flags & DISPLAY_WINDOW_FLAG) != 0) {
-            baseHorizontalAddress +=
-                subtitleService.displayDefinition.displayWindowHorizontalPositionMinimum;
-            baseVerticalAddress +=
-                subtitleService.displayDefinition.displayWindowVerticalPositionMinimum;
-          }
-
-          // clip object drawing to the current region and display definition window
-          canvas.clipRect(
-              baseHorizontalAddress, baseVerticalAddress,
-              Math.min(baseHorizontalAddress + regionComposition.regionWidth,
-                  subtitleService.displayDefinition.displayWindowHorizontalPositionMaximum),
-              Math.min(baseVerticalAddress + regionComposition.regionHeight,
-                  subtitleService.displayDefinition.displayWindowVerticalPositionMaximum),
-              Region.Op.REPLACE);
-
-          if ((clut = subtitleService.cluts.get(regionComposition.clutId)) == null) {
-            if ((clut = subtitleService.ancillaryCluts.get(regionComposition.clutId)) == null) {
-              clut = defaultClut;
-            }
-          }
-
-          if (BuildConfig.DEBUG) {
-            Log.d(TAG, "    Region: " + regionKey + " (x/y/w/h): (" +
-                baseHorizontalAddress + "/" + baseVerticalAddress + "/" +
-                (baseHorizontalAddress + regionComposition.regionWidth - 1) + "/" +
-                (baseVerticalAddress + regionComposition.regionHeight - 1) + ")"
-            );
-
-            canvas.drawRect(
-                baseHorizontalAddress, baseVerticalAddress,
-                baseHorizontalAddress + regionComposition.regionWidth - 1,
-                baseVerticalAddress + regionComposition.regionHeight - 1,
-                debugRegionPaint);
-          }
-
-          RegionObject regionObject;
-          int objectKey;
-          // process regions compositions
-          for (b = 0; b < regionComposition.regionObjects.size(); b++) {
-            objectKey = regionComposition.regionObjects.keyAt(b);
-            regionObject = regionComposition.regionObjects.get(objectKey);
-
-            if (BuildConfig.DEBUG) {
-              Log.d(TAG, "        Object[" + objectKey + "]. objectId: " + regionObject.objectId + " (x/y): (" +
-                  (baseHorizontalAddress + regionObject.objectHorizontalPosition) + "/" +
-                  (baseVerticalAddress + regionObject.objectVerticalPosition) + ")"
-              );
-
-              canvas.drawRect(
-                  baseHorizontalAddress + regionObject.objectHorizontalPosition,
-                  baseVerticalAddress + regionObject.objectVerticalPosition,
-                  baseHorizontalAddress + regionObject.objectHorizontalPosition + regionComposition.regionWidth - 1,
-                  baseVerticalAddress + regionObject.objectVerticalPosition + regionComposition.regionHeight - 1,
-                  debugObjectPaint);
-            }
-
-            if ((object = subtitleService.objects.get(regionObject.objectId)) == null) {
-              if ((object = subtitleService.ancillaryObjects.get(regionObject.objectId)) == null) {
-                continue;
-              }
-            }
-
-            parsePixelDataSubBlocks(object, clut, regionComposition.regionDepth,
-                baseHorizontalAddress + regionObject.objectHorizontalPosition,
-                baseVerticalAddress + regionObject.objectVerticalPosition);
-
-          }
-
-          // fill the region if needed
-          if ((regionComposition.flags & REGION_FILL_FLAG) != 0) {
-            int colour;
-            if (regionComposition.regionDepth == DVBSUB_RCS_BITDEPTH_8) {
-              colour = clut.clutEntries8bit[regionComposition.region8bitPixelCode].ARGB;
-            } else if (regionComposition.regionDepth == DVBSUB_RCS_BITDEPTH_4) {
-              colour = clut.clutEntries4bit[regionComposition.region4bitPixelCode].ARGB;
-            } else {
-              colour = clut.clutEntries2bit[regionComposition.region2bitPixelCode].ARGB;
-            }
-
-            fillRegionPaint.setColor(colour);
-
-            canvas.drawRect(
-                baseHorizontalAddress, baseVerticalAddress,
-                baseHorizontalAddress + regionComposition.regionWidth,
-                baseVerticalAddress + regionComposition.regionHeight,
-                fillRegionPaint);
-          }
-
-          Bitmap cueBitmap = Bitmap.createBitmap(bitmap,
-              baseHorizontalAddress, baseVerticalAddress,
-              regionComposition.regionWidth, regionComposition.regionHeight);
-          canvas.drawColor(Color.TRANSPARENT, PorterDuff.Mode.CLEAR);
-          regionComposition.cue = new Cue(cueBitmap,
-              (float) baseHorizontalAddress / subtitleService.displayDefinition.displayWidth, Cue.ANCHOR_TYPE_START,
-              (float) baseVerticalAddress / subtitleService.displayDefinition.displayHeight, Cue.ANCHOR_TYPE_START,
-              (float) regionComposition.regionWidth / subtitleService.displayDefinition.displayWidth,
-              (float) regionComposition.regionHeight / subtitleService.displayDefinition.displayHeight);
-          cueList.add(regionComposition.cue);
-        }
-
-        return cueList;
-      }
-    } else {
-      Log.d(TAG, "Unexpected...");
-    }
-    return null;
   }
 
-  private boolean isSet(@Flags int flag) {
-    return (flags & flag) != 0;
+  /**
+   *  The page is the definition and arrangement of regions in the screen.
+   *  <p>
+   *  See ETSI EN 300 743 7.2.2
+   */
+  private static final class PageComposition {
+
+    public final int timeOutSecs; // TODO: Use this or remove it.
+    public final int version;
+    public final int state;
+    public final SparseArray<PageRegion> regions;
+
+    public PageComposition(int timeoutSecs, int version, int state,
+        SparseArray<PageRegion> regions) {
+      this.timeOutSecs = timeoutSecs;
+      this.version = version;
+      this.state = state;
+      this.regions = regions;
+    }
+
+  }
+
+  /**
+   * A region within a {@link PageComposition}.
+   * <p>
+   * See ETSI EN 300 743 7.2.2
+   */
+  private static final class PageRegion {
+
+    public final int horizontalAddress;
+    public final int verticalAddress;
+
+    public PageRegion(int horizontalAddress, int verticalAddress) {
+      this.horizontalAddress = horizontalAddress;
+      this.verticalAddress = verticalAddress;
+    }
+
+  }
+
+  /**
+   * An area of the page composed of a list of objects and a CLUT.
+   * <p>
+   * See ETSI EN 300 743 7.2.3
+   */
+  private static final class RegionComposition {
+
+    public final int id;
+    public final boolean fillFlag;
+    public final int width;
+    public final int height;
+    public final int levelOfCompatibility; // TODO: Use this or remove it.
+    public final int depth;
+    public final int clutId;
+    public final int pixelCode8Bit;
+    public final int pixelCode4Bit;
+    public final int pixelCode2Bit;
+    public final SparseArray<RegionObject> regionObjects;
+
+    public RegionComposition(int id, boolean fillFlag, int width, int height,
+        int levelOfCompatibility, int depth, int clutId, int pixelCode8Bit, int pixelCode4Bit,
+        int pixelCode2Bit, SparseArray<RegionObject> regionObjects) {
+      this.id = id;
+      this.fillFlag = fillFlag;
+      this.width = width;
+      this.height = height;
+      this.levelOfCompatibility = levelOfCompatibility;
+      this.depth = depth;
+      this.clutId = clutId;
+      this.pixelCode8Bit = pixelCode8Bit;
+      this.pixelCode4Bit = pixelCode4Bit;
+      this.pixelCode2Bit = pixelCode2Bit;
+      this.regionObjects = regionObjects;
+    }
+
+    public void mergeFrom(RegionComposition otherRegionComposition) {
+      if (otherRegionComposition == null) {
+        return;
+      }
+      SparseArray<RegionObject> otherRegionObjects = otherRegionComposition.regionObjects;
+      for (int i = 0; i < otherRegionObjects.size(); i++) {
+        regionObjects.put(otherRegionObjects.keyAt(i), otherRegionObjects.valueAt(i));
+      }
+    }
+
+  }
+
+  /**
+   * An object within a {@link RegionComposition}.
+   * <p>
+   * See ETSI EN 300 743 7.2.3
+   */
+  private static final class RegionObject {
+
+    public final int type; // TODO: Use this or remove it.
+    public final int provider; // TODO: Use this or remove it.
+    public final int horizontalPosition;
+    public final int verticalPosition;
+    public final int foregroundPixelCode; // TODO: Use this or remove it.
+    public final int backgroundPixelCode; // TODO: Use this or remove it.
+
+    public RegionObject(int type, int provider, int horizontalPosition,
+        int verticalPosition, int foregroundPixelCode, int backgroundPixelCode) {
+      this.type = type;
+      this.provider = provider;
+      this.horizontalPosition = horizontalPosition;
+      this.verticalPosition = verticalPosition;
+      this.foregroundPixelCode = foregroundPixelCode;
+      this.backgroundPixelCode = backgroundPixelCode;
+    }
+
+  }
+
+  /**
+   * CLUT family definition containing the color tables for the three bit depths defined
+   * <p>
+   * See ETSI EN 300 743 7.2.4
+   */
+  private static final class ClutDefinition {
+
+    public final int id;
+    public final int[] clutEntries2Bit;
+    public final int[] clutEntries4Bit;
+    public final int[] clutEntries8Bit;
+
+    public ClutDefinition(int id, int[] clutEntries2Bit, int[] clutEntries4Bit,
+        int[] clutEntries8bit) {
+      this.id = id;
+      this.clutEntries2Bit = clutEntries2Bit;
+      this.clutEntries4Bit = clutEntries4Bit;
+      this.clutEntries8Bit = clutEntries8bit;
+    }
+
+  }
+
+  /**
+   * The textual or graphical representation of an object.
+   * <p>
+   * See ETSI EN 300 743 7.2.5
+   */
+  private static final class ObjectData {
+
+    public final int id;
+    public final boolean nonModifyingColorFlag;
+    public final byte[] topFieldData;
+    public final byte[] bottomFieldData;
+
+    public ObjectData(int id, boolean nonModifyingColorFlag, byte[] topFieldData,
+        byte[] bottomFieldData) {
+      this.id = id;
+      this.nonModifyingColorFlag = nonModifyingColorFlag;
+      this.topFieldData = topFieldData;
+      this.bottomFieldData = bottomFieldData;
+    }
+
   }
 
 }

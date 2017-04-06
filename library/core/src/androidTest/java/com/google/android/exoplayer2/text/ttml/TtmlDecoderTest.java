@@ -482,7 +482,7 @@ public final class TtmlDecoderTest extends InstrumentationTestCase {
   private TtmlSubtitle getSubtitle(String file) throws IOException, SubtitleDecoderException {
     TtmlDecoder ttmlDecoder = new TtmlDecoder();
     byte[] bytes = TestUtil.getByteArray(getInstrumentation(), file);
-    return ttmlDecoder.decode(bytes, bytes.length);
+    return ttmlDecoder.decode(bytes, bytes.length, false);
   }
 
 }

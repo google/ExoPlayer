@@ -81,14 +81,14 @@ public final class Mp4WebvttDecoderTest extends TestCase {
 
   public void testSingleCueSample() throws SubtitleDecoderException {
     Mp4WebvttDecoder decoder = new Mp4WebvttDecoder();
-    Subtitle result = decoder.decode(SINGLE_CUE_SAMPLE, SINGLE_CUE_SAMPLE.length);
+    Subtitle result = decoder.decode(SINGLE_CUE_SAMPLE, SINGLE_CUE_SAMPLE.length, false);
     Cue expectedCue = new Cue("Hello World"); // Line feed must be trimmed by the decoder
     assertMp4WebvttSubtitleEquals(result, expectedCue);
   }
 
   public void testTwoCuesSample() throws SubtitleDecoderException {
     Mp4WebvttDecoder decoder = new Mp4WebvttDecoder();
-    Subtitle result = decoder.decode(DOUBLE_CUE_SAMPLE, DOUBLE_CUE_SAMPLE.length);
+    Subtitle result = decoder.decode(DOUBLE_CUE_SAMPLE, DOUBLE_CUE_SAMPLE.length, false);
     Cue firstExpectedCue = new Cue("Hello World");
     Cue secondExpectedCue = new Cue("Bye Bye");
     assertMp4WebvttSubtitleEquals(result, firstExpectedCue, secondExpectedCue);
@@ -96,7 +96,7 @@ public final class Mp4WebvttDecoderTest extends TestCase {
 
   public void testNoCueSample() throws SubtitleDecoderException {
     Mp4WebvttDecoder decoder = new Mp4WebvttDecoder();
-    Subtitle result = decoder.decode(NO_CUE_SAMPLE, NO_CUE_SAMPLE.length);
+    Subtitle result = decoder.decode(NO_CUE_SAMPLE, NO_CUE_SAMPLE.length, false);
     assertMp4WebvttSubtitleEquals(result);
   }
 
@@ -105,7 +105,7 @@ public final class Mp4WebvttDecoderTest extends TestCase {
   public void testSampleWithIncompleteHeader() {
     Mp4WebvttDecoder decoder = new Mp4WebvttDecoder();
     try {
-      decoder.decode(INCOMPLETE_HEADER_SAMPLE, INCOMPLETE_HEADER_SAMPLE.length);
+      decoder.decode(INCOMPLETE_HEADER_SAMPLE, INCOMPLETE_HEADER_SAMPLE.length, false);
     } catch (SubtitleDecoderException e) {
       return;
     }

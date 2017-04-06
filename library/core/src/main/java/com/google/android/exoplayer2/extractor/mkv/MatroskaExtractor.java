@@ -1465,8 +1465,9 @@ public final class MatroskaExtractor implements Extractor {
           break;
         case CODEC_ID_DVBSUB:
           mimeType = MimeTypes.APPLICATION_DVBSUBS;
-          initializationData = Collections.singletonList(new byte[] {
-              (byte) 0x01, codecPrivate[0], codecPrivate[1], codecPrivate[2], codecPrivate[3]});
+          // Init data: composition_page (2), ancillary_page (2)
+          initializationData = Collections.singletonList(new byte[] {codecPrivate[0],
+              codecPrivate[1], codecPrivate[2], codecPrivate[3]});
           break;
         default:
           throw new ParserException("Unrecognized codec identifier.");
