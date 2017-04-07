@@ -278,7 +278,7 @@ public class DefaultDrmSessionManager<T extends ExoMediaCrypto> implements DrmSe
       // No data for this manager's scheme.
       return false;
     }
-    String schemeType = schemeData.type;
+    String schemeType = drmInitData.schemeType;
     if (schemeType == null || C.CENC_TYPE_cenc.equals(schemeType)) {
       // If there is no scheme information, assume patternless AES-CTR.
       return true;
