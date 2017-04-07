@@ -264,7 +264,9 @@ public final class MediaCodecInfo {
       logNoSupport("channelCount.aCaps");
       return false;
     }
-    if (audioCapabilities.getMaxInputChannelCount() < channelCount) {
+    int maxInputChannelCount = adjustMaxInputChannelCount(name, mimeType,
+        audioCapabilities.getMaxInputChannelCount());
+    if (maxInputChannelCount < channelCount) {
       logNoSupport("channelCount.support, " + channelCount);
       return false;
     }
@@ -279,6 +281,40 @@ public final class MediaCodecInfo {
   private void logAssumedSupport(String message) {
     Log.d(TAG, "AssumedSupport [" + message + "] [" + name + ", " + mimeType + "] ["
         + Util.DEVICE_DEBUG_INFO + "]");
+  }
+
+  private static int adjustMaxInputChannelCount(String name, String mimeType, int maxChannelCount) {
+    if (maxChannelCount > 1 || (Util.SDK_INT >= 26 && maxChannelCount > 0)) {
+      // The maximum channel count looks like it's been set correctly.
+      return maxChannelCount;
+    }
+    if (MimeTypes.AUDIO_MPEG.equals(mimeType)
+        || MimeTypes.AUDIO_AMR_NB.equals(mimeType)
+        || MimeTypes.AUDIO_AMR_WB.equals(mimeType)
+        || MimeTypes.AUDIO_AAC.equals(mimeType)
+        || MimeTypes.AUDIO_VORBIS.equals(mimeType)
+        || MimeTypes.AUDIO_OPUS.equals(mimeType)
+        || MimeTypes.AUDIO_RAW.equals(mimeType)
+        || MimeTypes.AUDIO_FLAC.equals(mimeType)
+        || MimeTypes.AUDIO_ALAW.equals(mimeType)
+        || MimeTypes.AUDIO_MLAW.equals(mimeType)
+        || MimeTypes.AUDIO_MSGSM.equals(mimeType)) {
+      // Platform code should have set a default.
+      return maxChannelCount;
+    }
+    // The maximum channel count looks incorrect. Adjust it to an assumed default.
+    int assumedMaxChannelCount;
+    if (MimeTypes.AUDIO_AC3.equals(mimeType)) {
+      assumedMaxChannelCount = 6;
+    } else if (MimeTypes.AUDIO_E_AC3.equals(mimeType)) {
+      assumedMaxChannelCount = 16;
+    } else {
+      // Default to the platform limit, which is 30.
+      assumedMaxChannelCount = 30;
+    }
+    Log.w(TAG, "AssumedMaxChannelAdjustment: " + name + ", [" + maxChannelCount + " to "
+        + assumedMaxChannelCount + "]");
+    return assumedMaxChannelCount;
   }
 
   private static boolean isAdaptive(CodecCapabilities capabilities) {
