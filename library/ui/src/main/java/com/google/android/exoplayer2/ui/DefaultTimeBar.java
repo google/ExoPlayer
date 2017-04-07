@@ -60,7 +60,7 @@ public class DefaultTimeBar extends View implements TimeBar {
   private static final long STOP_SCRUBBING_TIMEOUT_MS = 1000;
   private static final int DEFAULT_INCREMENT_COUNT = 20;
   private static final int DEFAULT_BAR_HEIGHT = 4;
-  private static final int DEFAULT_TOUCH_TARGET_HEIGHT = 24;
+  private static final int DEFAULT_TOUCH_TARGET_HEIGHT = 26;
   private static final int DEFAULT_PLAYED_COLOR = 0x33FFFFFF;
   private static final int DEFAULT_BUFFERED_COLOR = 0xCCFFFFFF;
   private static final int DEFAULT_AD_MARKER_COLOR = 0xB2FFFF00;
