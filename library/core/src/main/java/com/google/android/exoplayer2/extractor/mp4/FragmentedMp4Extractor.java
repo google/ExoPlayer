@@ -1275,7 +1275,7 @@ public final class FragmentedMp4Extractor implements Extractor {
         if (uuid == null) {
           Log.w(TAG, "Skipped pssh atom (failed to extract uuid)");
         } else {
-          schemeDatas.add(new SchemeData(uuid, null, MimeTypes.VIDEO_MP4, psshData));
+          schemeDatas.add(new SchemeData(uuid, MimeTypes.VIDEO_MP4, psshData));
         }
       }
     }

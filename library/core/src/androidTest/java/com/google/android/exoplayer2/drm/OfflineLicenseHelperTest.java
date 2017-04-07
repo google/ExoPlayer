@@ -153,7 +153,7 @@ public class OfflineLicenseHelperTest extends InstrumentationTestCase {
   }
 
   private static DrmInitData newDrmInitData() {
-    return new DrmInitData(new SchemeData(C.WIDEVINE_UUID, "cenc", "mimeType",
+    return new DrmInitData(new SchemeData(C.WIDEVINE_UUID, "mimeType",
         new byte[] {1, 4, 7, 0, 3, 6}));
   }
 
