@@ -90,6 +90,7 @@ import java.io.IOException;
   private static final String TAG = "ExoPlayerImplInternal";
 
   // External messages
+  public static final int MSG_PREPARE_ACK = 0;
   public static final int MSG_STATE_CHANGED = 1;
   public static final int MSG_LOADING_CHANGED = 2;
   public static final int MSG_TRACKS_CHANGED = 3;
@@ -383,6 +384,7 @@ import java.io.IOException;
   }
 
   private void prepareInternal(MediaSource mediaSource, boolean resetPosition) {
+    eventHandler.sendEmptyMessage(MSG_PREPARE_ACK);
     resetInternal(true);
     loadControl.onPrepared();
     if (resetPosition) {

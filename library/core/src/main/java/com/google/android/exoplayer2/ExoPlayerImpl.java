@@ -53,6 +53,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
   private boolean playWhenReady;
   private int playbackState;
   private int pendingSeekAcks;
+  private int pendingPrepareAcks;
   private boolean isLoading;
   private Timeline timeline;
   private Object manifest;
@@ -142,6 +143,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
         }
       }
     }
+    pendingPrepareAcks++;
     internalPlayer.prepare(mediaSource, resetPosition);
   }
 
@@ -310,18 +312,12 @@ import java.util.concurrent.CopyOnWriteArraySet;
 
   @Override
   public boolean isCurrentWindowDynamic() {
-    if (timeline.isEmpty()) {
-      return false;
-    }
-    return timeline.getWindow(getCurrentWindowIndex(), window).isDynamic;
+    return !timeline.isEmpty() && timeline.getWindow(getCurrentWindowIndex(), window).isDynamic;
   }
 
   @Override
   public boolean isCurrentWindowSeekable() {
-    if (timeline.isEmpty()) {
-      return false;
-    }
-    return timeline.getWindow(getCurrentWindowIndex(), window).isSeekable;
+    return !timeline.isEmpty() && timeline.getWindow(getCurrentWindowIndex(), window).isSeekable;
   }
 
   @Override
@@ -357,6 +353,10 @@ import java.util.concurrent.CopyOnWriteArraySet;
   // Not private so it can be called from an inner class without going through a thunk method.
   /* package */ void handleEvent(Message msg) {
     switch (msg.what) {
+      case ExoPlayerImplInternal.MSG_PREPARE_ACK: {
+        pendingPrepareAcks--;
+        break;
+      }
       case ExoPlayerImplInternal.MSG_STATE_CHANGED: {
         playbackState = msg.arg1;
         for (EventListener listener : listeners) {
@@ -372,13 +372,15 @@ import java.util.concurrent.CopyOnWriteArraySet;
         break;
       }
       case ExoPlayerImplInternal.MSG_TRACKS_CHANGED: {
-        TrackSelectorResult trackSelectorResult = (TrackSelectorResult) msg.obj;
-        tracksSelected = true;
-        trackGroups = trackSelectorResult.groups;
-        trackSelections = trackSelectorResult.selections;
-        trackSelector.onSelectionActivated(trackSelectorResult.info);
-        for (EventListener listener : listeners) {
-          listener.onTracksChanged(trackGroups, trackSelections);
+        if (pendingPrepareAcks == 0) {
+          TrackSelectorResult trackSelectorResult = (TrackSelectorResult) msg.obj;
+          tracksSelected = true;
+          trackGroups = trackSelectorResult.groups;
+          trackSelections = trackSelectorResult.selections;
+          trackSelector.onSelectionActivated(trackSelectorResult.info);
+          for (EventListener listener : listeners) {
+            listener.onTracksChanged(trackGroups, trackSelections);
+          }
         }
         break;
       }
@@ -404,12 +406,14 @@ import java.util.concurrent.CopyOnWriteArraySet;
       }
       case ExoPlayerImplInternal.MSG_SOURCE_INFO_REFRESHED: {
         SourceInfo sourceInfo = (SourceInfo) msg.obj;
-        timeline = sourceInfo.timeline;
-        manifest = sourceInfo.manifest;
-        playbackInfo = sourceInfo.playbackInfo;
         pendingSeekAcks -= sourceInfo.seekAcks;
-        for (EventListener listener : listeners) {
-          listener.onTimelineChanged(timeline, manifest);
+        if (pendingPrepareAcks == 0) {
+          timeline = sourceInfo.timeline;
+          manifest = sourceInfo.manifest;
+          playbackInfo = sourceInfo.playbackInfo;
+          for (EventListener listener : listeners) {
+            listener.onTimelineChanged(timeline, manifest);
+          }
         }
         break;
       }
