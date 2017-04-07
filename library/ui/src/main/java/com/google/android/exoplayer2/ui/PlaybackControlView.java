@@ -146,8 +146,6 @@ import java.util.Locale;
  */
 public class PlaybackControlView extends FrameLayout {
 
-  private static final String TAG = "PlaybackControlView";
-
   /**
    * Listener to be notified about changes of the visibility of the UI control.
    */
