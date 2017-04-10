@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.extractor.ts;
 
+import android.support.annotation.IntDef;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.audio.Ac3Util;
@@ -23,12 +24,17 @@ import com.google.android.exoplayer2.extractor.TrackOutput;
 import com.google.android.exoplayer2.extractor.ts.TsPayloadReader.TrackIdGenerator;
 import com.google.android.exoplayer2.util.ParsableBitArray;
 import com.google.android.exoplayer2.util.ParsableByteArray;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 
 /**
  * Parses a continuous (E-)AC-3 byte stream and extracts individual samples.
  */
 public final class Ac3Reader implements ElementaryStreamReader {
 
+  @Retention(RetentionPolicy.SOURCE)
+  @IntDef({STATE_FINDING_SYNC, STATE_READING_HEADER, STATE_READING_SAMPLE})
+  private @interface State {}
   private static final int STATE_FINDING_SYNC = 0;
   private static final int STATE_READING_HEADER = 1;
   private static final int STATE_READING_SAMPLE = 2;
@@ -42,7 +48,7 @@ public final class Ac3Reader implements ElementaryStreamReader {
   private String trackFormatId;
   private TrackOutput output;
 
-  private int state;
+  @State private int state;
   private int bytesRead;
 
   // Used to find the header.
@@ -123,6 +129,8 @@ public final class Ac3Reader implements ElementaryStreamReader {
             timeUs += sampleDurationUs;
             state = STATE_FINDING_SYNC;
           }
+          break;
+        default:
           break;
       }
     }
