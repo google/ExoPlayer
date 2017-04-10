@@ -52,7 +52,6 @@ public final class Ac3Reader implements ElementaryStreamReader {
   private long sampleDurationUs;
   private Format format;
   private int sampleSize;
-  private boolean isEac3;
 
   // Used when reading the samples.
   private long timeUs;
@@ -177,26 +176,22 @@ public final class Ac3Reader implements ElementaryStreamReader {
   /**
    * Parses the sample header.
    */
+  @SuppressWarnings("ReferenceEquality")
   private void parseHeader() {
-    if (format == null) {
-      // We read ahead to distinguish between AC-3 and E-AC-3.
-      headerScratchBits.skipBits(40);
-      isEac3 = headerScratchBits.readBits(5) == 16;
-      headerScratchBits.setPosition(headerScratchBits.getPosition() - 45);
-      format = isEac3
-          ? Ac3Util.parseEac3SyncframeFormat(headerScratchBits, trackFormatId, language , null)
-          : Ac3Util.parseAc3SyncframeFormat(headerScratchBits, trackFormatId, language, null);
+    headerScratchBits.setPosition(0);
+    Ac3Util.Ac3SyncFrameInfo frameInfo = Ac3Util.parseAc3SyncframeInfo(headerScratchBits);
+    if (format == null || frameInfo.channelCount != format.channelCount
+        || frameInfo.sampleRate != format.sampleRate
+        || frameInfo.mimeType != format.sampleMimeType) {
+      format = Format.createAudioSampleFormat(trackFormatId, frameInfo.mimeType, null,
+          Format.NO_VALUE, Format.NO_VALUE, frameInfo.channelCount, frameInfo.sampleRate, null,
+          null, 0, language);
       output.format(format);
     }
-    sampleSize = isEac3 ? Ac3Util.parseEAc3SyncframeSize(headerScratchBits.data)
-        : Ac3Util.parseAc3SyncframeSize(headerScratchBits.data);
-    int audioSamplesPerSyncframe = isEac3
-        ? Ac3Util.parseEAc3SyncframeAudioSampleCount(headerScratchBits.data)
-        : Ac3Util.getAc3SyncframeAudioSampleCount();
+    sampleSize = frameInfo.frameSize;
     // In this class a sample is an access unit (syncframe in AC-3), but the MediaFormat sample rate
     // specifies the number of PCM audio samples per second.
-    sampleDurationUs =
-        (int) (C.MICROS_PER_SECOND * audioSamplesPerSyncframe / format.sampleRate);
+    sampleDurationUs = C.MICROS_PER_SECOND * frameInfo.sampleCount / format.sampleRate;
   }
 
 }
