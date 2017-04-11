@@ -39,8 +39,7 @@ public final class DefaultTsPayloadReaderFactory implements TsPayloadReader.Fact
   @IntDef(flag = true, value = {FLAG_ALLOW_NON_IDR_KEYFRAMES, FLAG_IGNORE_AAC_STREAM,
       FLAG_IGNORE_H264_STREAM, FLAG_DETECT_ACCESS_UNITS, FLAG_IGNORE_SPLICE_INFO_STREAM,
       FLAG_OVERRIDE_CAPTION_DESCRIPTORS})
-  public @interface Flags {
-  }
+  public @interface Flags {}
   public static final int FLAG_ALLOW_NON_IDR_KEYFRAMES = 1;
   public static final int FLAG_IGNORE_AAC_STREAM = 1 << 1;
   public static final int FLAG_IGNORE_H264_STREAM = 1 << 2;
@@ -54,11 +53,19 @@ public final class DefaultTsPayloadReaderFactory implements TsPayloadReader.Fact
   private final List<Format> closedCaptionFormats;
 
   public DefaultTsPayloadReaderFactory() {
-    this(0, Collections.<Format>emptyList());
+    this(0);
   }
 
   /**
-   * @param flags A combination of {@code FLAG_*} values, which control the behavior of the created
+   * @param flags A combination of {@code FLAG_*} values that control the behavior of the created
+   *     readers.
+   */
+  public DefaultTsPayloadReaderFactory(@Flags int flags) {
+    this(flags, Collections.<Format>emptyList());
+  }
+
+  /**
+   * @param flags A combination of {@code FLAG_*} values that control the behavior of the created
    *     readers.
    * @param closedCaptionFormats {@link Format}s to be exposed by payload readers for streams with
    *     embedded closed captions when no caption service descriptors are provided. If

@@ -58,39 +58,23 @@ public interface MetadataDecoderFactory {
 
     @Override
     public boolean supportsFormat(Format format) {
-      return getDecoderClass(format.sampleMimeType) != null;
+      String mimeType = format.sampleMimeType;
+      return MimeTypes.APPLICATION_ID3.equals(mimeType)
+          || MimeTypes.APPLICATION_EMSG.equals(mimeType)
+          || MimeTypes.APPLICATION_SCTE35.equals(mimeType);
     }
 
     @Override
     public MetadataDecoder createDecoder(Format format) {
-      try {
-        Class<?> clazz = getDecoderClass(format.sampleMimeType);
-        if (clazz == null) {
+      switch (format.sampleMimeType) {
+        case MimeTypes.APPLICATION_ID3:
+          return new Id3Decoder();
+        case MimeTypes.APPLICATION_EMSG:
+          return new EventMessageDecoder();
+        case MimeTypes.APPLICATION_SCTE35:
+          return new SpliceInfoDecoder();
+        default:
           throw new IllegalArgumentException("Attempted to create decoder for unsupported format");
-        }
-        return clazz.asSubclass(MetadataDecoder.class).getConstructor().newInstance();
-      } catch (Exception e) {
-        throw new IllegalStateException("Unexpected error instantiating decoder", e);
-      }
-    }
-
-    private Class<?> getDecoderClass(String mimeType) {
-      if (mimeType == null) {
-        return null;
-      }
-      try {
-        switch (mimeType) {
-          case MimeTypes.APPLICATION_ID3:
-            return Class.forName("com.google.android.exoplayer2.metadata.id3.Id3Decoder");
-          case MimeTypes.APPLICATION_EMSG:
-            return Class.forName("com.google.android.exoplayer2.metadata.emsg.EventMessageDecoder");
-          case MimeTypes.APPLICATION_SCTE35:
-            return Class.forName("com.google.android.exoplayer2.metadata.scte35.SpliceInfoDecoder");
-          default:
-            return null;
-        }
-      } catch (ClassNotFoundException e) {
-        return null;
       }
     }
 

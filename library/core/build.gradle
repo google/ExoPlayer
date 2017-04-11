@@ -20,7 +20,6 @@ android {
     defaultConfig {
         minSdkVersion project.ext.minSdkVersion
         targetSdkVersion project.ext.targetSdkVersion
-        consumerProguardFiles 'proguard-rules.txt'
     }
 
     sourceSets {
