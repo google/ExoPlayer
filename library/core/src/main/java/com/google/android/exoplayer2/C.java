@@ -77,6 +77,11 @@ public final class C {
   public static final String UTF8_NAME = "UTF-8";
 
   /**
+   * The name of the UTF-16 charset.
+   */
+  public static final String UTF16_NAME = "UTF-16";
+
+  /**
    * Crypto modes for a codec.
    */
   @Retention(RetentionPolicy.SOURCE)

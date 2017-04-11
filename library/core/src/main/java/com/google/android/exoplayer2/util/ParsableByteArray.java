@@ -202,6 +202,14 @@ public final class ParsableByteArray {
   }
 
   /**
+   * Peeks at the next char.
+   */
+  public char peekChar() {
+    return (char) ((data[position] & 0xFF) << 8
+        | (data[position + 1] & 0xFF));
+  }
+
+  /**
    * Reads the next byte as an unsigned value.
    */
   public int readUnsignedByte() {
