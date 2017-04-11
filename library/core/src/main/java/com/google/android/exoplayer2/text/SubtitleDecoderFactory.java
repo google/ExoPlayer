@@ -18,13 +18,13 @@ package com.google.android.exoplayer2.text;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.text.cea.Cea608Decoder;
 import com.google.android.exoplayer2.text.cea.Cea708Decoder;
+import com.google.android.exoplayer2.text.dvb.DvbDecoder;
 import com.google.android.exoplayer2.text.subrip.SubripDecoder;
 import com.google.android.exoplayer2.text.ttml.TtmlDecoder;
 import com.google.android.exoplayer2.text.tx3g.Tx3gDecoder;
 import com.google.android.exoplayer2.text.webvtt.Mp4WebvttDecoder;
 import com.google.android.exoplayer2.text.webvtt.WebvttDecoder;
 import com.google.android.exoplayer2.util.MimeTypes;
-import java.util.List;
 
 /**
  * A factory for {@link SubtitleDecoder} instances.
@@ -61,68 +61,47 @@ public interface SubtitleDecoderFactory {
    * <li>TX3G ({@link Tx3gDecoder})</li>
    * <li>Cea608 ({@link Cea608Decoder})</li>
    * <li>Cea708 ({@link Cea708Decoder})</li>
+   * <li>DVB ({@link DvbDecoder})</li>
    * </ul>
    */
   SubtitleDecoderFactory DEFAULT = new SubtitleDecoderFactory() {
 
     @Override
     public boolean supportsFormat(Format format) {
-      return getDecoderClass(format.sampleMimeType) != null;
+      String mimeType = format.sampleMimeType;
+      return MimeTypes.TEXT_VTT.equals(mimeType)
+          || MimeTypes.APPLICATION_TTML.equals(mimeType)
+          || MimeTypes.APPLICATION_MP4VTT.equals(mimeType)
+          || MimeTypes.APPLICATION_SUBRIP.equals(mimeType)
+          || MimeTypes.APPLICATION_TX3G.equals(mimeType)
+          || MimeTypes.APPLICATION_CEA608.equals(mimeType)
+          || MimeTypes.APPLICATION_MP4CEA608.equals(mimeType)
+          || MimeTypes.APPLICATION_CEA708.equals(mimeType)
+          || MimeTypes.APPLICATION_DVBSUBS.equals(mimeType);
     }
 
     @Override
     public SubtitleDecoder createDecoder(Format format) {
-      try {
-        Class<?> clazz = getDecoderClass(format.sampleMimeType);
-        if (clazz == null) {
+      switch (format.sampleMimeType) {
+        case MimeTypes.TEXT_VTT:
+          return new WebvttDecoder();
+        case MimeTypes.APPLICATION_MP4VTT:
+          return new Mp4WebvttDecoder();
+        case MimeTypes.APPLICATION_TTML:
+          return new TtmlDecoder();
+        case MimeTypes.APPLICATION_SUBRIP:
+          return new SubripDecoder();
+        case MimeTypes.APPLICATION_TX3G:
+          return new Tx3gDecoder();
+        case MimeTypes.APPLICATION_CEA608:
+        case MimeTypes.APPLICATION_MP4CEA608:
+          return new Cea608Decoder(format.sampleMimeType, format.accessibilityChannel);
+        case MimeTypes.APPLICATION_CEA708:
+          return new Cea708Decoder(format.accessibilityChannel);
+        case MimeTypes.APPLICATION_DVBSUBS:
+          return new DvbDecoder(format.initializationData);
+        default:
           throw new IllegalArgumentException("Attempted to create decoder for unsupported format");
-        }
-        if (format.sampleMimeType.equals(MimeTypes.APPLICATION_CEA608)
-            || format.sampleMimeType.equals(MimeTypes.APPLICATION_MP4CEA608)) {
-          return clazz.asSubclass(SubtitleDecoder.class).getConstructor(String.class, Integer.TYPE)
-              .newInstance(format.sampleMimeType, format.accessibilityChannel);
-        } else if (format.sampleMimeType.equals(MimeTypes.APPLICATION_CEA708)) {
-          return clazz.asSubclass(SubtitleDecoder.class).getConstructor(Integer.TYPE)
-              .newInstance(format.accessibilityChannel);
-        } else if (format.sampleMimeType.equals(MimeTypes.APPLICATION_DVBSUBS)) {
-          return clazz.asSubclass(SubtitleDecoder.class).getConstructor(List.class)
-              .newInstance(format.initializationData);
-        } else {
-          return clazz.asSubclass(SubtitleDecoder.class).getConstructor().newInstance();
-        }
-      } catch (Exception e) {
-        throw new IllegalStateException("Unexpected error instantiating decoder", e);
-      }
-    }
-
-    private Class<?> getDecoderClass(String mimeType) {
-      if (mimeType == null) {
-        return null;
-      }
-      try {
-        switch (mimeType) {
-          case MimeTypes.TEXT_VTT:
-            return Class.forName("com.google.android.exoplayer2.text.webvtt.WebvttDecoder");
-          case MimeTypes.APPLICATION_TTML:
-            return Class.forName("com.google.android.exoplayer2.text.ttml.TtmlDecoder");
-          case MimeTypes.APPLICATION_MP4VTT:
-            return Class.forName("com.google.android.exoplayer2.text.webvtt.Mp4WebvttDecoder");
-          case MimeTypes.APPLICATION_SUBRIP:
-            return Class.forName("com.google.android.exoplayer2.text.subrip.SubripDecoder");
-          case MimeTypes.APPLICATION_TX3G:
-            return Class.forName("com.google.android.exoplayer2.text.tx3g.Tx3gDecoder");
-          case MimeTypes.APPLICATION_CEA608:
-          case MimeTypes.APPLICATION_MP4CEA608:
-            return Class.forName("com.google.android.exoplayer2.text.cea.Cea608Decoder");
-          case MimeTypes.APPLICATION_CEA708:
-            return Class.forName("com.google.android.exoplayer2.text.cea.Cea708Decoder");
-          case MimeTypes.APPLICATION_DVBSUBS:
-            return Class.forName("com.google.android.exoplayer2.text.dvb.DvbDecoder");
-          default:
-            return null;
-        }
-      } catch (ClassNotFoundException e) {
-        return null;
       }
     }
 

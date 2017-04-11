@@ -27,6 +27,7 @@ import com.google.android.exoplayer2.extractor.ExtractorsFactory;
 import com.google.android.exoplayer2.extractor.PositionHolder;
 import com.google.android.exoplayer2.extractor.SeekMap;
 import com.google.android.exoplayer2.extractor.TrackOutput;
+import com.google.android.exoplayer2.extractor.ts.DefaultTsPayloadReaderFactory.Flags;
 import com.google.android.exoplayer2.extractor.ts.TsPayloadReader.EsInfo;
 import com.google.android.exoplayer2.extractor.ts.TsPayloadReader.TrackIdGenerator;
 import com.google.android.exoplayer2.util.Assertions;
@@ -122,7 +123,16 @@ public final class TsExtractor implements Extractor {
   private TsPayloadReader id3Reader;
 
   public TsExtractor() {
-    this(MODE_NORMAL, new TimestampAdjuster(0), new DefaultTsPayloadReaderFactory());
+    this(0);
+  }
+
+  /**
+   * @param defaultTsPayloadReaderFlags A combination of {@link DefaultTsPayloadReaderFactory}
+   *     {@code FLAG_*} values that control the behavior of the payload readers.
+   */
+  public TsExtractor(@Flags int defaultTsPayloadReaderFlags) {
+    this(MODE_NORMAL, new TimestampAdjuster(0),
+        new DefaultTsPayloadReaderFactory(defaultTsPayloadReaderFlags));
   }
 
   /**
