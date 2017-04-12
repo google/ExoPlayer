@@ -92,7 +92,7 @@ public interface SubtitleDecoderFactory {
         case MimeTypes.APPLICATION_SUBRIP:
           return new SubripDecoder();
         case MimeTypes.APPLICATION_TX3G:
-          return new Tx3gDecoder();
+          return new Tx3gDecoder(format.initializationData);
         case MimeTypes.APPLICATION_CEA608:
         case MimeTypes.APPLICATION_MP4CEA608:
           return new Cea608Decoder(format.sampleMimeType, format.accessibilityChannel);

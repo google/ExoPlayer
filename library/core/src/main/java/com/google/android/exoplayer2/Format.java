@@ -283,30 +283,31 @@ public final class Format implements Parcelable {
   public static Format createTextSampleFormat(String id, String sampleMimeType, String codecs,
       int bitrate, @C.SelectionFlags int selectionFlags, String language, DrmInitData drmInitData) {
     return createTextSampleFormat(id, sampleMimeType, codecs, bitrate, selectionFlags, language,
-        NO_VALUE, drmInitData, OFFSET_SAMPLE_RELATIVE);
+        NO_VALUE, drmInitData, OFFSET_SAMPLE_RELATIVE, Collections.<byte[]>emptyList());
   }
 
   public static Format createTextSampleFormat(String id, String sampleMimeType, String codecs,
       int bitrate, @C.SelectionFlags int selectionFlags, String language, int accessibilityChannel,
       DrmInitData drmInitData) {
     return createTextSampleFormat(id, sampleMimeType, codecs, bitrate, selectionFlags, language,
-        accessibilityChannel, drmInitData, OFFSET_SAMPLE_RELATIVE);
+        accessibilityChannel, drmInitData, OFFSET_SAMPLE_RELATIVE, Collections.<byte[]>emptyList());
   }
 
   public static Format createTextSampleFormat(String id, String sampleMimeType, String codecs,
       int bitrate, @C.SelectionFlags int selectionFlags, String language, DrmInitData drmInitData,
       long subsampleOffsetUs) {
     return createTextSampleFormat(id, sampleMimeType, codecs, bitrate, selectionFlags, language,
-        NO_VALUE, drmInitData, subsampleOffsetUs);
+        NO_VALUE, drmInitData, subsampleOffsetUs, Collections.<byte[]>emptyList());
   }
 
   public static Format createTextSampleFormat(String id, String sampleMimeType, String codecs,
       int bitrate, @C.SelectionFlags int selectionFlags, String language,
-      int accessibilityChannel, DrmInitData drmInitData, long subsampleOffsetUs) {
+      int accessibilityChannel, DrmInitData drmInitData, long subsampleOffsetUs,
+      List<byte[]> initializationData) {
     return new Format(id, null, sampleMimeType, codecs, bitrate, NO_VALUE, NO_VALUE, NO_VALUE,
         NO_VALUE, NO_VALUE, NO_VALUE, null, NO_VALUE, NO_VALUE, NO_VALUE, NO_VALUE, NO_VALUE,
-        NO_VALUE, selectionFlags, language, accessibilityChannel, subsampleOffsetUs, null,
-        drmInitData, null);
+        NO_VALUE, selectionFlags, language, accessibilityChannel, subsampleOffsetUs,
+        initializationData, drmInitData, null);
   }
 
   // Image.
@@ -438,6 +439,7 @@ public final class Format implements Parcelable {
         drmInitData, metadata);
   }
 
+  @SuppressWarnings("ReferenceEquality")
   public Format copyWithManifestFormatInfo(Format manifestFormat) {
     if (this == manifestFormat) {
       // No need to copy from ourselves.
