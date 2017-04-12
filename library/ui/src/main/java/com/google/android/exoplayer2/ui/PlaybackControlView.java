@@ -161,28 +161,50 @@ public class PlaybackControlView extends FrameLayout {
   }
 
   /**
-   * Dispatches seek operations to the player.
+   * Dispatches operations to the player.
+   * <p>
+   * Implementations may choose to suppress (e.g. prevent playback from resuming if audio focus is
+   * denied) or modify (e.g. change the seek position to prevent a user from seeking past a
+   * non-skippable advert) operations.
    */
-  public interface SeekDispatcher {
+  public interface ControlDispatcher {
 
     /**
-     * @param player The player to seek.
+     * Dispatches a {@link ExoPlayer#setPlayWhenReady(boolean)} operation.
+     *
+     * @param player The player to which the operation should be dispatched.
+     * @param playWhenReady Whether playback should proceed when ready.
+     * @return True if the operation was dispatched. False if suppressed.
+     */
+    boolean dispatchSetPlayWhenReady(ExoPlayer player, boolean playWhenReady);
+
+    /**
+     * Dispatches a {@link ExoPlayer#seekTo(int, long)} operation.
+     *
+     * @param player The player to which the operation should be dispatched.
      * @param windowIndex The index of the window.
      * @param positionMs The seek position in the specified window, or {@link C#TIME_UNSET} to seek
      *     to the window's default position.
-     * @return True if the seek was dispatched. False otherwise.
+     * @return True if the operation was dispatched. False if suppressed.
      */
-    boolean dispatchSeek(ExoPlayer player, int windowIndex, long positionMs);
+    boolean dispatchSeekTo(ExoPlayer player, int windowIndex, long positionMs);
 
   }
 
   /**
-   * Default {@link SeekDispatcher} that dispatches seeks to the player without modification.
+   * Default {@link ControlDispatcher} that dispatches operations to the player without
+   * modification.
    */
-  public static final SeekDispatcher DEFAULT_SEEK_DISPATCHER = new SeekDispatcher() {
+  public static final ControlDispatcher DEFAULT_CONTROL_DISPATCHER = new ControlDispatcher() {
 
     @Override
-    public boolean dispatchSeek(ExoPlayer player, int windowIndex, long positionMs) {
+    public boolean dispatchSetPlayWhenReady(ExoPlayer player, boolean playWhenReady) {
+      player.setPlayWhenReady(playWhenReady);
+      return true;
+    }
+
+    @Override
+    public boolean dispatchSeekTo(ExoPlayer player, int windowIndex, long positionMs) {
       player.seekTo(windowIndex, positionMs);
       return true;
     }
@@ -216,7 +238,7 @@ public class PlaybackControlView extends FrameLayout {
   private final Timeline.Window window;
 
   private ExoPlayer player;
-  private SeekDispatcher seekDispatcher;
+  private ControlDispatcher controlDispatcher;
   private VisibilityListener visibilityListener;
 
   private boolean isAttachedToWindow;
@@ -278,7 +300,7 @@ public class PlaybackControlView extends FrameLayout {
     formatter = new Formatter(formatBuilder, Locale.getDefault());
     adBreakTimesMs = new long[0];
     componentListener = new ComponentListener();
-    seekDispatcher = DEFAULT_SEEK_DISPATCHER;
+    controlDispatcher = DEFAULT_CONTROL_DISPATCHER;
 
     LayoutInflater.from(context).inflate(controllerLayoutId, this);
     setDescendantFocusability(FOCUS_AFTER_DESCENDANTS);
@@ -364,13 +386,14 @@ public class PlaybackControlView extends FrameLayout {
   }
 
   /**
-   * Sets the {@link SeekDispatcher}.
+   * Sets the {@link ControlDispatcher}.
    *
-   * @param seekDispatcher The {@link SeekDispatcher}, or null to use
-   *     {@link #DEFAULT_SEEK_DISPATCHER}.
+   * @param controlDispatcher The {@link ControlDispatcher}, or null to use
+   *     {@link #DEFAULT_CONTROL_DISPATCHER}.
    */
-  public void setSeekDispatcher(SeekDispatcher seekDispatcher) {
-    this.seekDispatcher = seekDispatcher == null ? DEFAULT_SEEK_DISPATCHER : seekDispatcher;
+  public void setControlDispatcher(ControlDispatcher controlDispatcher) {
+    this.controlDispatcher = controlDispatcher == null ? DEFAULT_CONTROL_DISPATCHER
+        : controlDispatcher;
   }
 
   /**
@@ -697,7 +720,7 @@ public class PlaybackControlView extends FrameLayout {
   }
 
   private void seekTo(int windowIndex, long positionMs) {
-    boolean dispatched = seekDispatcher.dispatchSeek(player, windowIndex, positionMs);
+    boolean dispatched = controlDispatcher.dispatchSeekTo(player, windowIndex, positionMs);
     if (!dispatched) {
       // The seek wasn't dispatched. If the progress bar was dragged by the user to perform the
       // seek then it'll now be in the wrong position. Trigger a progress update to snap it back.
@@ -758,13 +781,13 @@ public class PlaybackControlView extends FrameLayout {
           rewind();
           break;
         case KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE:
-          player.setPlayWhenReady(!player.getPlayWhenReady());
+          controlDispatcher.dispatchSetPlayWhenReady(player, !player.getPlayWhenReady());
           break;
         case KeyEvent.KEYCODE_MEDIA_PLAY:
-          player.setPlayWhenReady(true);
+          controlDispatcher.dispatchSetPlayWhenReady(player, true);
           break;
         case KeyEvent.KEYCODE_MEDIA_PAUSE:
-          player.setPlayWhenReady(false);
+          controlDispatcher.dispatchSetPlayWhenReady(player, false);
           break;
         case KeyEvent.KEYCODE_MEDIA_NEXT:
           next();
@@ -913,9 +936,9 @@ public class PlaybackControlView extends FrameLayout {
         } else if (rewindButton == view) {
           rewind();
         } else if (playButton == view) {
-          player.setPlayWhenReady(true);
+          controlDispatcher.dispatchSetPlayWhenReady(player, true);
         } else if (pauseButton == view) {
-          player.setPlayWhenReady(false);
+          controlDispatcher.dispatchSetPlayWhenReady(player, false);
         }
       }
       hideAfterTimeout();
