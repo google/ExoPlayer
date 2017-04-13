@@ -153,8 +153,6 @@ import com.google.android.exoplayer2.util.Util;
       CaptionStyleCompat style, float textSizePx, float bottomPaddingFraction, Canvas canvas,
       int cueBoxLeft, int cueBoxTop, int cueBoxRight, int cueBoxBottom) {
     boolean isTextCue = cue.bitmap == null;
-    CharSequence cueText = null;
-    Bitmap cueBitmap = null;
     int windowColor = Color.BLACK;
     if (isTextCue) {
       if (TextUtils.isEmpty(cue.text)) {
@@ -163,30 +161,10 @@ import com.google.android.exoplayer2.util.Util;
       }
       windowColor = (cue.windowColorSet && applyEmbeddedStyles)
           ? cue.windowColor : style.windowColor;
-      // Remove embedded styling or font size if requested.
-      if (applyEmbeddedFontSizes && applyEmbeddedStyles) {
-        cueText = cue.text;
-      } else if (!applyEmbeddedStyles) {
-        cueText = cue.text.toString(); // Equivalent to erasing all spans.
-      } else {
-        SpannableStringBuilder newCueText = new SpannableStringBuilder(cue.text);
-        int cueLength = newCueText.length();
-        AbsoluteSizeSpan[] absSpans = newCueText.getSpans(0, cueLength, AbsoluteSizeSpan.class);
-        RelativeSizeSpan[] relSpans = newCueText.getSpans(0, cueLength, RelativeSizeSpan.class);
-        for (AbsoluteSizeSpan absSpan : absSpans) {
-          newCueText.removeSpan(absSpan);
-        }
-        for (RelativeSizeSpan relSpan : relSpans) {
-          newCueText.removeSpan(relSpan);
-        }
-        cueText = newCueText;
-      }
-    } else {
-      cueBitmap = cue.bitmap;
     }
-    if (areCharSequencesEqual(this.cueText, cueText)
+    if (areCharSequencesEqual(this.cueText, cue.text)
         && Util.areEqual(this.cueTextAlignment, cue.textAlignment)
-        && this.cueBitmap == cueBitmap
+        && this.cueBitmap == cue.bitmap
         && this.cueLine == cue.line
         && this.cueLineType == cue.lineType
         && Util.areEqual(this.cueLineAnchor, cue.lineAnchor)
@@ -213,9 +191,9 @@ import com.google.android.exoplayer2.util.Util;
       return;
     }
 
-    this.cueText = cueText;
+    this.cueText = cue.text;
     this.cueTextAlignment = cue.textAlignment;
-    this.cueBitmap = cueBitmap;
+    this.cueBitmap = cue.bitmap;
     this.cueLine = cue.line;
     this.cueLineType = cue.lineType;
     this.cueLineAnchor = cue.lineAnchor;
@@ -260,6 +238,26 @@ import com.google.android.exoplayer2.util.Util;
     if (availableWidth <= 0) {
       Log.w(TAG, "Skipped drawing subtitle cue (insufficient space)");
       return;
+    }
+
+    // Remove embedded styling or font size if requested.
+    CharSequence cueText;
+    if (applyEmbeddedFontSizes && applyEmbeddedStyles) {
+      cueText = this.cueText;
+    } else if (!applyEmbeddedStyles) {
+      cueText = this.cueText.toString(); // Equivalent to erasing all spans.
+    } else {
+      SpannableStringBuilder newCueText = new SpannableStringBuilder(this.cueText);
+      int cueLength = newCueText.length();
+      AbsoluteSizeSpan[] absSpans = newCueText.getSpans(0, cueLength, AbsoluteSizeSpan.class);
+      RelativeSizeSpan[] relSpans = newCueText.getSpans(0, cueLength, RelativeSizeSpan.class);
+      for (AbsoluteSizeSpan absSpan : absSpans) {
+        newCueText.removeSpan(absSpan);
+      }
+      for (RelativeSizeSpan relSpan : relSpans) {
+        newCueText.removeSpan(relSpan);
+      }
+      cueText = newCueText;
     }
 
     Alignment textAlignment = cueTextAlignment == null ? Alignment.ALIGN_CENTER : cueTextAlignment;
