@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.extractor.flv;
 
+import android.util.Log;
 import android.util.Pair;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
@@ -29,12 +30,20 @@ import java.util.Collections;
  */
 /* package */ final class AudioTagPayloadReader extends TagPayloadReader {
 
+  private static final String TAG = "AudioTagPayloadReader";
+
+  private static final int AUDIO_FORMAT_MP3 = 2;
   private static final int AUDIO_FORMAT_ALAW = 7;
   private static final int AUDIO_FORMAT_ULAW = 8;
   private static final int AUDIO_FORMAT_AAC = 10;
 
   private static final int AAC_PACKET_TYPE_SEQUENCE_HEADER = 0;
   private static final int AAC_PACKET_TYPE_AAC_RAW = 1;
+
+  // SAMPLING RATES USED FOR MP3
+  private static final int[] AUDIO_SAMPLING_RATE_TABLE = new int[] {
+      5512, 11025, 22050, 44100
+  };
 
   // State variables
   private boolean hasParsedAudioDataHeader;
@@ -55,8 +64,19 @@ import java.util.Collections;
     if (!hasParsedAudioDataHeader) {
       int header = data.readUnsignedByte();
       audioFormat = (header >> 4) & 0x0F;
-      // TODO: Add support for MP3.
-      if (audioFormat == AUDIO_FORMAT_ALAW || audioFormat == AUDIO_FORMAT_ULAW) {
+      if (audioFormat == AUDIO_FORMAT_MP3) {
+        int sampleRateIndex = (header >> 2) & 0x03;
+        if (sampleRateIndex < 0 || sampleRateIndex >= AUDIO_SAMPLING_RATE_TABLE.length) {
+          Log.d(TAG, "Invalid sample rate, attempting to read at 44.1k");
+          //rather than throw an exception, lets just attempt to play at 44.1k
+          sampleRateIndex = 3;
+        }
+        int sampleRate = AUDIO_SAMPLING_RATE_TABLE[sampleRateIndex];
+        Format format = Format.createAudioSampleFormat(null, MimeTypes.AUDIO_MPEG, null,
+            Format.NO_VALUE, Format.NO_VALUE, 1, sampleRate, null, null, 0, null);
+        output.format(format);
+        hasOutputFormat = true;
+      } else if (audioFormat == AUDIO_FORMAT_ALAW || audioFormat == AUDIO_FORMAT_ULAW) {
         String type = audioFormat == AUDIO_FORMAT_ALAW ? MimeTypes.AUDIO_ALAW
             : MimeTypes.AUDIO_ULAW;
         int pcmEncoding = (header & 0x01) == 1 ? C.ENCODING_PCM_16BIT : C.ENCODING_PCM_8BIT;
@@ -77,22 +97,27 @@ import java.util.Collections;
 
   @Override
   protected void parsePayload(ParsableByteArray data, long timeUs) {
-    int packetType = data.readUnsignedByte();
-    if (packetType == AAC_PACKET_TYPE_SEQUENCE_HEADER && !hasOutputFormat) {
-      // Parse the sequence header.
-      byte[] audioSpecificConfig = new byte[data.bytesLeft()];
-      data.readBytes(audioSpecificConfig, 0, audioSpecificConfig.length);
-      Pair<Integer, Integer> audioParams = CodecSpecificDataUtil.parseAacAudioSpecificConfig(
-          audioSpecificConfig);
-      Format format = Format.createAudioSampleFormat(null, MimeTypes.AUDIO_AAC, null,
-          Format.NO_VALUE, Format.NO_VALUE, audioParams.second, audioParams.first,
-          Collections.singletonList(audioSpecificConfig), null, 0, null);
-      output.format(format);
-      hasOutputFormat = true;
-    } else if (audioFormat != AUDIO_FORMAT_AAC || packetType == AAC_PACKET_TYPE_AAC_RAW) {
+    if (audioFormat == AUDIO_FORMAT_MP3) {
       int sampleSize = data.bytesLeft();
       output.sampleData(data, sampleSize);
       output.sampleMetadata(timeUs, C.BUFFER_FLAG_KEY_FRAME, sampleSize, 0, null);
+    } else {
+      int packetType = data.readUnsignedByte();
+      if (packetType == AAC_PACKET_TYPE_SEQUENCE_HEADER && !hasOutputFormat) {
+        // Parse the sequence header.
+        byte[] audioSpecificConfig = new byte[data.bytesLeft()];
+        data.readBytes(audioSpecificConfig, 0, audioSpecificConfig.length);
+        Pair<Integer, Integer> audioParams = CodecSpecificDataUtil.parseAacAudioSpecificConfig(audioSpecificConfig);
+        Format format =
+            Format.createAudioSampleFormat(null, MimeTypes.AUDIO_AAC, null, Format.NO_VALUE, Format.NO_VALUE, audioParams.second, audioParams.first,
+                Collections.singletonList(audioSpecificConfig), null, 0, null);
+        output.format(format);
+        hasOutputFormat = true;
+      } else if (audioFormat != AUDIO_FORMAT_AAC || packetType == AAC_PACKET_TYPE_AAC_RAW) {
+        int sampleSize = data.bytesLeft();
+        output.sampleData(data, sampleSize);
+        output.sampleMetadata(timeUs, C.BUFFER_FLAG_KEY_FRAME, sampleSize, 0, null);
+      }
     }
   }
 
