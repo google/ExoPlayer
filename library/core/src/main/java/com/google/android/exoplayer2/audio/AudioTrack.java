@@ -1002,9 +1002,13 @@ public final class AudioTrack {
                 ? playbackParametersCheckpoints.getLast().playbackParameters
                 : this.playbackParameters;
     if (!playbackParameters.equals(lastSetPlaybackParameters)) {
-      // We need to change the playback parameters. Drain the audio processors so we can determine
-      // the frame position at which the new parameters apply.
-      drainingPlaybackParameters = playbackParameters;
+      if (isInitialized()) {
+        // Drain the audio processors so we can determine the frame position at which the new
+        // parameters apply.
+        drainingPlaybackParameters = playbackParameters;
+      } else {
+        this.playbackParameters = playbackParameters;
+      }
     }
     return this.playbackParameters;
   }
@@ -1132,6 +1136,7 @@ public final class AudioTrack {
       framesPerEncodedSample = 0;
       if (drainingPlaybackParameters != null) {
         playbackParameters = drainingPlaybackParameters;
+        drainingPlaybackParameters = null;
       } else if (!playbackParametersCheckpoints.isEmpty()) {
         playbackParameters = playbackParametersCheckpoints.getLast().playbackParameters;
       }

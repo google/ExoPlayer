@@ -201,9 +201,11 @@ import java.nio.ShortBuffer;
   @Override
   public void release() {
     sonic = null;
+    channelCount = Format.NO_VALUE;
+    sampleRateHz = Format.NO_VALUE;
     buffer = EMPTY_BUFFER;
+    shortBuffer = buffer.asShortBuffer();
     outputBuffer = EMPTY_BUFFER;
-    shortBuffer = null;
   }
 
 }
