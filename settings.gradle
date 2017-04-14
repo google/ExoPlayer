@@ -15,6 +15,7 @@ include ':library'
 include ':library-core'
 include ':library-dash'
 include ':library-hls'
+include ':library-rtmp'
 include ':library-smoothstreaming'
 include ':library-ui'
 include ':testutils'
@@ -33,6 +34,7 @@ project(':library').projectDir = new File(settingsDir, 'library/all')
 project(':library-core').projectDir = new File(settingsDir, 'library/core')
 project(':library-dash').projectDir = new File(settingsDir, 'library/dash')
 project(':library-hls').projectDir = new File(settingsDir, 'library/hls')
+project(':library-rtmp').projectDir = new File(settingsDir, 'library/rtmp')
 project(':library-smoothstreaming').projectDir = new File(settingsDir, 'library/smoothstreaming')
 project(':library-ui').projectDir = new File(settingsDir, 'library/ui')
 project(':extension-ffmpeg').projectDir = new File(settingsDir, 'extensions/ffmpeg')

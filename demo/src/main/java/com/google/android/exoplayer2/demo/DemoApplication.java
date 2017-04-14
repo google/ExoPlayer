@@ -16,13 +16,13 @@
 package com.google.android.exoplayer2.demo;
 
 import android.app.Application;
+import com.google.android.exoplayer2.source.rtmp.RtmpDataSource;
+import com.google.android.exoplayer2.source.rtmp.RtmpDataSourceFactory;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DefaultBandwidthMeter;
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
 import com.google.android.exoplayer2.upstream.DefaultHttpDataSourceFactory;
 import com.google.android.exoplayer2.upstream.HttpDataSource;
-import com.google.android.exoplayer2.upstream.RtmpDataSource;
-import com.google.android.exoplayer2.upstream.RtmpDataSourceFactory;
 import com.google.android.exoplayer2.util.Util;
 
 /**
