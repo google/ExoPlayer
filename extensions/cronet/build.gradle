@@ -29,7 +29,7 @@ android {
 }
 
 dependencies {
-    compile project(':library')
+    compile project(':library-core')
     compile files('libs/cronet_api.jar')
     compile files('libs/cronet_impl_common_java.jar')
     compile files('libs/cronet_impl_native_java.jar')
@@ -39,3 +39,8 @@ dependencies {
     androidTestCompile project(':library')
     androidTestCompile 'com.android.support.test:runner:0.5'
 }
+
+ext {
+    javadocTitle = 'Cronet extension'
+}
+apply from: '../../javadoc_library.gradle'

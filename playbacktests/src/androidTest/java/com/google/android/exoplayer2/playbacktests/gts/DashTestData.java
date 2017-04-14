@@ -18,7 +18,7 @@ package com.google.android.exoplayer2.playbacktests.gts;
 import com.google.android.exoplayer2.util.Util;
 
 /**
- * Test data for {@link DashTest} and {@link DashWidevineOfflineTest).
+ * Test data for DASH tests.
  */
 public final class DashTestData {
 

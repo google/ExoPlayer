@@ -22,6 +22,7 @@ import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.Format;
+import com.google.android.exoplayer2.PlaybackParameters;
 import com.google.android.exoplayer2.RendererCapabilities;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.audio.AudioRendererEventListener;
@@ -97,6 +98,12 @@ import java.util.Locale;
   @Override
   public void onPositionDiscontinuity() {
     Log.d(TAG, "positionDiscontinuity");
+  }
+
+  @Override
+  public void onPlaybackParametersChanged(PlaybackParameters playbackParameters) {
+    Log.d(TAG, "playbackParameters " + String.format(
+        "[speed=%.2f, pitch=%.2f]", playbackParameters.speed, playbackParameters.pitch));
   }
 
   @Override
@@ -274,7 +281,7 @@ import java.util.Locale;
 
   @Override
   public void onRenderedFirstFrame(Surface surface) {
-    // Do nothing.
+    Log.d(TAG, "renderedFirstFrame [" + surface + "]");
   }
 
   // DefaultDrmSessionManager.EventListener

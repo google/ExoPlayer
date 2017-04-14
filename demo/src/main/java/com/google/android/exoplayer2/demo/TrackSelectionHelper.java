@@ -21,13 +21,11 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.res.TypedArray;
-import android.text.TextUtils;
 import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckedTextView;
-import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.RendererCapabilities;
 import com.google.android.exoplayer2.source.TrackGroup;
 import com.google.android.exoplayer2.source.TrackGroupArray;
@@ -37,9 +35,7 @@ import com.google.android.exoplayer2.trackselection.MappingTrackSelector.MappedT
 import com.google.android.exoplayer2.trackselection.MappingTrackSelector.SelectionOverride;
 import com.google.android.exoplayer2.trackselection.RandomTrackSelection;
 import com.google.android.exoplayer2.trackselection.TrackSelection;
-import com.google.android.exoplayer2.util.MimeTypes;
 import java.util.Arrays;
-import java.util.Locale;
 
 /**
  * Helper class for displaying track selection dialogs.
@@ -157,7 +153,7 @@ import java.util.Locale;
         CheckedTextView trackView = (CheckedTextView) inflater.inflate(
             trackViewLayoutId, root, false);
         trackView.setBackgroundResource(selectableItemBackgroundResourceId);
-        trackView.setText(buildTrackName(group.getFormat(trackIndex)));
+        trackView.setText(DemoUtil.buildTrackName(group.getFormat(trackIndex)));
         if (trackInfo.getTrackFormatSupport(rendererIndex, groupIndex, trackIndex)
             == RendererCapabilities.FORMAT_HANDLED) {
           trackView.setFocusable(true);
@@ -294,59 +290,6 @@ import java.util.Locale;
       }
     }
     return tracks;
-  }
-
-  // Track name construction.
-
-  private static String buildTrackName(Format format) {
-    String trackName;
-    if (MimeTypes.isVideo(format.sampleMimeType)) {
-      trackName = joinWithSeparator(joinWithSeparator(joinWithSeparator(
-          buildResolutionString(format), buildBitrateString(format)), buildTrackIdString(format)),
-          buildSampleMimeTypeString(format));
-    } else if (MimeTypes.isAudio(format.sampleMimeType)) {
-      trackName = joinWithSeparator(joinWithSeparator(joinWithSeparator(joinWithSeparator(
-          buildLanguageString(format), buildAudioPropertyString(format)),
-          buildBitrateString(format)), buildTrackIdString(format)),
-          buildSampleMimeTypeString(format));
-    } else {
-      trackName = joinWithSeparator(joinWithSeparator(joinWithSeparator(buildLanguageString(format),
-          buildBitrateString(format)), buildTrackIdString(format)),
-          buildSampleMimeTypeString(format));
-    }
-    return trackName.length() == 0 ? "unknown" : trackName;
-  }
-
-  private static String buildResolutionString(Format format) {
-    return format.width == Format.NO_VALUE || format.height == Format.NO_VALUE
-        ? "" : format.width + "x" + format.height;
-  }
-
-  private static String buildAudioPropertyString(Format format) {
-    return format.channelCount == Format.NO_VALUE || format.sampleRate == Format.NO_VALUE
-        ? "" : format.channelCount + "ch, " + format.sampleRate + "Hz";
-  }
-
-  private static String buildLanguageString(Format format) {
-    return TextUtils.isEmpty(format.language) || "und".equals(format.language) ? ""
-        : format.language;
-  }
-
-  private static String buildBitrateString(Format format) {
-    return format.bitrate == Format.NO_VALUE ? ""
-        : String.format(Locale.US, "%.2fMbit", format.bitrate / 1000000f);
-  }
-
-  private static String joinWithSeparator(String first, String second) {
-    return first.length() == 0 ? second : (second.length() == 0 ? first : first + ", " + second);
-  }
-
-  private static String buildTrackIdString(Format format) {
-    return format.id == null ? "" : ("id:" + format.id);
-  }
-
-  private static String buildSampleMimeTypeString(Format format) {
-    return format.sampleMimeType == null ? "" : format.sampleMimeType;
   }
 
 }
