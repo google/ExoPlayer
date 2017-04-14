@@ -279,7 +279,7 @@ public final class C {
    * Represents a streaming or other media type.
    */
   @Retention(RetentionPolicy.SOURCE)
-  @IntDef({TYPE_DASH, TYPE_SS, TYPE_HLS, TYPE_OTHER})
+  @IntDef({TYPE_DASH, TYPE_SS, TYPE_HLS, TYPE_RTMP, TYPE_OTHER})
   public @interface ContentType {}
   /**
    * Value returned by {@link Util#inferContentType(String)} for DASH manifests.
@@ -294,10 +294,14 @@ public final class C {
    */
   public static final int TYPE_HLS = 2;
   /**
-   * Value returned by {@link Util#inferContentType(String)} for files other than DASH, HLS or
+   * Value returned by {@link Util#inferContentType(String)} for RTMP manifests.
+   */
+  public static final int TYPE_RTMP = 3;
+  /**
+   * Value returned by {@link Util#inferContentType(String)} for files other than DASH, HLS, RTMP or
    * Smooth Streaming manifests.
    */
-  public static final int TYPE_OTHER = 3;
+  public static final int TYPE_OTHER = 4;
 
   /**
    * A return value for methods where the end of an input was encountered.

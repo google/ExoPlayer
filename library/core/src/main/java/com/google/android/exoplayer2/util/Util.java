@@ -844,6 +844,8 @@ public final class Util {
     } else if (fileName.endsWith(".ism") || fileName.endsWith(".isml")
         || fileName.endsWith(".ism/manifest") || fileName.endsWith(".isml/manifest")) {
       return C.TYPE_SS;
+    } else if (fileName.startsWith("rtmp")) {
+      return C.TYPE_RTMP;
     } else {
       return C.TYPE_OTHER;
     }

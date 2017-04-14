@@ -32,6 +32,7 @@ import java.util.List;
  * <li>MPEG TS ({@link com.google.android.exoplayer2.extractor.ts.TsExtractor})</li>
  * <li>MPEG PS ({@link com.google.android.exoplayer2.extractor.ts.PsExtractor})</li>
  * <li>FLV ({@link com.google.android.exoplayer2.extractor.flv.FlvExtractor})</li>
+ * <li>FLV STREAM ({@link com.google.android.exoplayer2.extractor.flv.FlvStreamExtractor})</li>
  * <li>WAV ({@link com.google.android.exoplayer2.extractor.wav.WavExtractor})</li>
  * <li>FLAC (only available if the FLAC extension is built and included)</li>
  * </ul>
@@ -104,6 +105,13 @@ public final class DefaultExtractorsFactory implements ExtractorsFactory {
         try {
           extractorClasses.add(
               Class.forName("com.google.android.exoplayer2.extractor.flv.FlvExtractor")
+                  .asSubclass(Extractor.class));
+        } catch (ClassNotFoundException e) {
+          // Extractor not found.
+        }
+        try {
+          extractorClasses.add(
+              Class.forName("com.google.android.exoplayer2.extractor.flv.FlvStreamExtractor")
                   .asSubclass(Extractor.class));
         } catch (ClassNotFoundException e) {
           // Extractor not found.
