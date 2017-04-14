@@ -93,7 +93,7 @@ import com.google.android.exoplayer2.video.AvcConfig;
           avcConfig.initializationData, Format.NO_VALUE, avcConfig.pixelWidthAspectRatio, null);
       output.format(format);
       hasOutputFormat = true;
-    } else if (packetType == AVC_PACKET_TYPE_AVC_NALU) {
+    } else if (packetType == AVC_PACKET_TYPE_AVC_NALU && hasOutputFormat) {
       // TODO: Deduplicate with Mp4Extractor.
       // Zero the top three bytes of the array that we'll use to decode nal unit lengths, in case
       // they're only 1 or 2 bytes long.
@@ -101,6 +101,7 @@ import com.google.android.exoplayer2.video.AvcConfig;
       nalLengthData[0] = 0;
       nalLengthData[1] = 0;
       nalLengthData[2] = 0;
+      if(nalUnitLengthFieldLength == 0) nalUnitLengthFieldLength = 4;
       int nalUnitLengthFieldLengthDiff = 4 - nalUnitLengthFieldLength;
       // NAL units are length delimited, but the decoder requires start code delimited units.
       // Loop until we've written the sample to the track output, replacing length delimiters with
