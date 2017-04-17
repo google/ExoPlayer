@@ -52,7 +52,7 @@ import com.google.android.exoplayer2.text.Cue;
    * @return Whether this cue should be placed in the default position.
    */
   public boolean isNormalCue() {
-    return (line == DIMEN_UNSET && position == DIMEN_UNSET);
+    return (line == DIMEN_UNSET);
   }
 
   /**
