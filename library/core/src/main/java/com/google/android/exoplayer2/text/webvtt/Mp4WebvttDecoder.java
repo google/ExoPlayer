@@ -58,7 +58,10 @@ public final class Mp4WebvttDecoder extends SimpleSubtitleDecoder {
       int boxSize = sampleData.readInt();
       int boxType = sampleData.readInt();
       if (boxType == TYPE_vttc) {
-        resultingCueList.add(parseVttCueBox(sampleData, builder, boxSize - BOX_HEADER_SIZE));
+        Cue[] result = parseVttCueBox(sampleData, builder, boxSize - BOX_HEADER_SIZE);
+        for (int i = 0; i < result.length; i++) {
+          resultingCueList.add(result[i]);
+        }
       } else {
         // Peers of the VTTCueBox are still not supported and are skipped.
         sampleData.skipBytes(boxSize - BOX_HEADER_SIZE);
@@ -67,7 +70,7 @@ public final class Mp4WebvttDecoder extends SimpleSubtitleDecoder {
     return new Mp4WebvttSubtitle(resultingCueList);
   }
 
-  private static Cue parseVttCueBox(ParsableByteArray sampleData, WebvttCue.Builder builder,
+  private static Cue[] parseVttCueBox(ParsableByteArray sampleData, WebvttCue.Builder builder,
         int remainingCueBoxBytes) throws SubtitleDecoderException {
     builder.reset();
     while (remainingCueBoxBytes > 0) {

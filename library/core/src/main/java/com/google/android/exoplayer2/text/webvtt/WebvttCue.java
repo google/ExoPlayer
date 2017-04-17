@@ -20,6 +20,11 @@ import android.text.SpannableStringBuilder;
 import android.util.Log;
 import com.google.android.exoplayer2.text.Cue;
 
+import java.util.List;
+import android.util.Pair;
+import java.util.ArrayList;
+import com.google.android.exoplayer2.C;
+
 /**
  * A representation of a WebVTT cue.
  */
@@ -74,9 +79,11 @@ import com.google.android.exoplayer2.text.Cue;
     private int positionAnchor;
     private float width;
 
+    private List<Pair<Long, String>> cueTimeStampList;
     // Initialization methods
 
     public Builder() {
+      cueTimeStampList = new ArrayList<>();
       reset();
     }
 
@@ -91,16 +98,31 @@ import com.google.android.exoplayer2.text.Cue;
       position = Cue.DIMEN_UNSET;
       positionAnchor = Cue.TYPE_UNSET;
       width = Cue.DIMEN_UNSET;
+      cueTimeStampList.clear();
     }
 
     // Construction methods.
 
-    public WebvttCue build() {
+    public WebvttCue[] build() {
+      long currentStartTime = startTime;
+      long currentEndTime = C.TIME_UNSET;
+	
+      WebvttCue[] webvttCue = new WebvttCue[(cueTimeStampList.size() + 1)]; 
+	
       if (position != Cue.DIMEN_UNSET && positionAnchor == Cue.TYPE_UNSET) {
         derivePositionAnchorFromAlignment();
       }
-      return new WebvttCue(startTime, endTime, text, textAlignment, line, lineType, lineAnchor,
+
+      for (int i = 0; i < cueTimeStampList.size(); i++) {
+        Pair<Long, String> pair = cueTimeStampList.get(i);
+        currentEndTime = pair.first;
+        webvttCue[i] = new WebvttCue(currentStartTime, currentEndTime, pair.second, textAlignment, line, lineType, lineAnchor,
+            position, positionAnchor, width);
+        currentStartTime = currentEndTime; 
+      }
+      webvttCue[cueTimeStampList.size()] = new WebvttCue(currentStartTime, endTime, text, textAlignment, line, lineType, lineAnchor,
           position, positionAnchor, width);
+      return webvttCue;
     }
 
     public Builder setStartTime(long time) {
@@ -150,6 +172,11 @@ import com.google.android.exoplayer2.text.Cue;
 
     public Builder setWidth(float width) {
       this.width = width;
+      return this;
+    }
+
+    public Builder addCueTimeStamp(long timeStamp, String string) {
+      cueTimeStampList.add(Pair.create(timeStamp, string));
       return this;
     }
 
