@@ -116,8 +116,8 @@ public interface AudioProcessor {
   void flush();
 
   /**
-   * Releases any resources associated with this instance.
+   * Resets the processor to its initial state.
    */
-  void release();
+  void reset();
 
 }

@@ -58,9 +58,8 @@ import java.nio.ShortBuffer;
   private float speed;
   private float pitch;
 
-  private ShortBuffer shortBuffer;
-
   private ByteBuffer buffer;
+  private ShortBuffer shortBuffer;
   private ByteBuffer outputBuffer;
   private long inputBytes;
   private long outputBytes;
@@ -199,13 +198,16 @@ import java.nio.ShortBuffer;
   }
 
   @Override
-  public void release() {
+  public void reset() {
     sonic = null;
-    channelCount = Format.NO_VALUE;
-    sampleRateHz = Format.NO_VALUE;
     buffer = EMPTY_BUFFER;
     shortBuffer = buffer.asShortBuffer();
     outputBuffer = EMPTY_BUFFER;
+    channelCount = Format.NO_VALUE;
+    sampleRateHz = Format.NO_VALUE;
+    inputBytes = 0;
+    outputBytes = 0;
+    inputEnded = false;
   }
 
 }
