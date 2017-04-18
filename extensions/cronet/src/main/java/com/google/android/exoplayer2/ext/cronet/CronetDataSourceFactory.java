@@ -72,7 +72,7 @@ public final class CronetDataSourceFactory extends BaseFactory {
   protected CronetDataSource createDataSourceInternal(HttpDataSource.RequestProperties
       defaultRequestProperties) {
     return new CronetDataSource(cronetEngine, executor, contentTypePredicate, transferListener,
-        connectTimeoutMs, readTimeoutMs, resetTimeoutOnRedirects, null, defaultRequestProperties);
+        connectTimeoutMs, readTimeoutMs, resetTimeoutOnRedirects, defaultRequestProperties);
   }
 
 }
