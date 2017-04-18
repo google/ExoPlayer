@@ -24,6 +24,6 @@ android {
 }
 
 dependencies {
-    compile project(':library')
+    compile project(':library-core')
     compile 'org.mockito:mockito-core:' + mockitoVersion
 }
