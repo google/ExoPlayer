@@ -31,7 +31,7 @@ android {
 
 dependencies {
     compile project(':library-core')
-    compile 'com.android.support:support-annotations:25.2.0'
+    compile 'com.android.support:support-annotations:' + supportLibraryVersion
 }
 
 ext {
