@@ -30,8 +30,6 @@ import java.util.Collections;
  */
 /* package */ final class AudioTagPayloadReader extends TagPayloadReader {
 
-  private static final String TAG = "AudioTagPayloadReader";
-
   private static final int AUDIO_FORMAT_MP3 = 2;
   private static final int AUDIO_FORMAT_ALAW = 7;
   private static final int AUDIO_FORMAT_ULAW = 8;
@@ -66,11 +64,6 @@ import java.util.Collections;
       audioFormat = (header >> 4) & 0x0F;
       if (audioFormat == AUDIO_FORMAT_MP3) {
         int sampleRateIndex = (header >> 2) & 0x03;
-        if (sampleRateIndex < 0 || sampleRateIndex >= AUDIO_SAMPLING_RATE_TABLE.length) {
-          Log.d(TAG, "Invalid sample rate, attempting to read at 44.1k");
-          //rather than throw an exception, lets just attempt to play at 44.1k
-          sampleRateIndex = 3;
-        }
         int sampleRate = AUDIO_SAMPLING_RATE_TABLE[sampleRateIndex];
         Format format = Format.createAudioSampleFormat(null, MimeTypes.AUDIO_MPEG, null,
             Format.NO_VALUE, Format.NO_VALUE, 1, sampleRate, null, null, 0, null);
