@@ -1187,7 +1187,7 @@ public final class AudioTrack {
     reset();
     releaseKeepSessionIdAudioTrack();
     for (AudioProcessor audioProcessor : availableAudioProcessors) {
-      audioProcessor.release();
+      audioProcessor.reset();
     }
     audioSessionId = C.AUDIO_SESSION_ID_UNSET;
     playing = false;

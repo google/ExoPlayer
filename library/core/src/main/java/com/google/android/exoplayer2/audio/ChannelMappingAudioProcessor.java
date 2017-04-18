@@ -17,6 +17,7 @@ package com.google.android.exoplayer2.audio;
 
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.C.Encoding;
+import com.google.android.exoplayer2.Format;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.Arrays;
@@ -43,6 +44,8 @@ import java.util.Arrays;
   public ChannelMappingAudioProcessor() {
     buffer = EMPTY_BUFFER;
     outputBuffer = EMPTY_BUFFER;
+    channelCount = Format.NO_VALUE;
+    sampleRateHz = Format.NO_VALUE;
   }
 
   /**
@@ -147,9 +150,13 @@ import java.util.Arrays;
   }
 
   @Override
-  public void release() {
+  public void reset() {
     flush();
     buffer = EMPTY_BUFFER;
+    channelCount = Format.NO_VALUE;
+    sampleRateHz = Format.NO_VALUE;
+    outputChannels = null;
+    active = false;
   }
 
 }
