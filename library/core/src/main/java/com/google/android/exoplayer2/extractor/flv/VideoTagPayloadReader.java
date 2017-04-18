@@ -101,7 +101,6 @@ import com.google.android.exoplayer2.video.AvcConfig;
       nalLengthData[0] = 0;
       nalLengthData[1] = 0;
       nalLengthData[2] = 0;
-      if(nalUnitLengthFieldLength == 0) nalUnitLengthFieldLength = 4;
       int nalUnitLengthFieldLengthDiff = 4 - nalUnitLengthFieldLength;
       // NAL units are length delimited, but the decoder requires start code delimited units.
       // Loop until we've written the sample to the track output, replacing length delimiters with
