@@ -156,7 +156,7 @@ public final class TsExtractorTest extends InstrumentationTestCase {
     @Override
     public TsPayloadReader createPayloadReader(int streamType, EsInfo esInfo) {
       if (provideCustomEsReader && streamType == 3) {
-        esReader = new CustomEsReader(esInfo.language);
+        esReader = new CustomEsReader(esInfo.languagesInfo.get(0).languageCode);
         return new PesReader(esReader);
       } else {
         return defaultFactory.createPayloadReader(streamType, esInfo);
