@@ -93,16 +93,16 @@ public final class DefaultTsPayloadReaderFactory implements TsPayloadReader.Fact
     switch (streamType) {
       case TsExtractor.TS_STREAM_TYPE_MPA:
       case TsExtractor.TS_STREAM_TYPE_MPA_LSF:
-        return new PesReader(new MpegAudioReader(esInfo.language));
+        return new PesReader(new MpegAudioReader(esInfo.languagesInfo.get(0).languageCode));
       case TsExtractor.TS_STREAM_TYPE_AAC:
         return isSet(FLAG_IGNORE_AAC_STREAM)
-            ? null : new PesReader(new AdtsReader(false, esInfo.language));
+            ? null : new PesReader(new AdtsReader(false, esInfo.languagesInfo.get(0).languageCode));
       case TsExtractor.TS_STREAM_TYPE_AC3:
       case TsExtractor.TS_STREAM_TYPE_E_AC3:
-        return new PesReader(new Ac3Reader(esInfo.language));
+        return new PesReader(new Ac3Reader(esInfo.languagesInfo.get(0).languageCode));
       case TsExtractor.TS_STREAM_TYPE_DTS:
       case TsExtractor.TS_STREAM_TYPE_HDMV_DTS:
-        return new PesReader(new DtsReader(esInfo.language));
+        return new PesReader(new DtsReader(esInfo.languagesInfo.get(0).languageCode));
       case TsExtractor.TS_STREAM_TYPE_H262:
         return new PesReader(new H262Reader());
       case TsExtractor.TS_STREAM_TYPE_H264:
@@ -118,7 +118,7 @@ public final class DefaultTsPayloadReaderFactory implements TsPayloadReader.Fact
         return new PesReader(new Id3Reader());
       case TsExtractor.TS_STREAM_TYPE_DVBSUBS:
         return new PesReader(
-            new DvbSubtitleReader(esInfo.language, esInfo.dvbSubtitleInitializationData));
+            new DvbSubtitleReader(esInfo));
       default:
         return null;
     }
