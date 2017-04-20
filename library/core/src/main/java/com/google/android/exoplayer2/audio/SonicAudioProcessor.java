@@ -26,8 +26,7 @@ import java.nio.ShortBuffer;
 /**
  * An {@link AudioProcessor} that uses the Sonic library to modify the speed/pitch of audio.
  */
-// TODO: Make public once it is possible to override AudioTrack's position calculations.
-/* package */ final class SonicAudioProcessor implements AudioProcessor {
+public final class SonicAudioProcessor implements AudioProcessor {
 
   /**
    * The maximum allowed playback speed in {@link #setSpeed(float)}.
