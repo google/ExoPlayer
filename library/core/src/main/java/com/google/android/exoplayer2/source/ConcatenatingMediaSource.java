@@ -20,6 +20,7 @@ import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.upstream.Allocator;
+import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Util;
 import java.io.IOException;
 import java.util.HashMap;
@@ -152,12 +153,14 @@ public final class ConcatenatingMediaSource implements MediaSource {
     public ConcatenatedTimeline(Timeline[] timelines) {
       int[] sourcePeriodOffsets = new int[timelines.length];
       int[] sourceWindowOffsets = new int[timelines.length];
-      int periodCount = 0;
+      long periodCount = 0;
       int windowCount = 0;
       for (int i = 0; i < timelines.length; i++) {
         Timeline timeline = timelines[i];
         periodCount += timeline.getPeriodCount();
-        sourcePeriodOffsets[i] = periodCount;
+        Assertions.checkState(periodCount <= Integer.MAX_VALUE,
+            "ConcatenatingMediaSource children contain too many periods");
+        sourcePeriodOffsets[i] = (int) periodCount;
         windowCount += timeline.getWindowCount();
         sourceWindowOffsets[i] = windowCount;
       }
