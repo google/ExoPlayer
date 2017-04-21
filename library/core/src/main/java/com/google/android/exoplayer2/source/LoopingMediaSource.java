@@ -29,6 +29,13 @@ import java.io.IOException;
  */
 public final class LoopingMediaSource implements MediaSource {
 
+  /**
+   * The maximum number of periods that can be exposed by the source. The value of this constant is
+   * large enough to cause indefinite looping in practice (the total duration of the looping source
+   * will be approximately five years if the duration of each period is one second).
+   */
+  public static final int MAX_EXPOSED_PERIODS = 157680000;
+
   private static final String TAG = "LoopingMediaSource";
 
   private final MediaSource childSource;
@@ -50,8 +57,8 @@ public final class LoopingMediaSource implements MediaSource {
    *
    * @param childSource The {@link MediaSource} to loop.
    * @param loopCount The desired number of loops. Must be strictly positive. The actual number of
-   *     loops will be capped at the maximum value that can achieved without causing the number of
-   *     periods exposed by the source to exceed {@link Integer#MAX_VALUE}.
+   *     loops will be capped at the maximum that can achieved without causing the number of
+   *     periods exposed by the source to exceed {@link #MAX_EXPOSED_PERIODS}.
    */
   public LoopingMediaSource(MediaSource childSource, int loopCount) {
     Assertions.checkArgument(loopCount > 0);
@@ -101,8 +108,9 @@ public final class LoopingMediaSource implements MediaSource {
       this.childTimeline = childTimeline;
       childPeriodCount = childTimeline.getPeriodCount();
       childWindowCount = childTimeline.getWindowCount();
-      // This is the maximum number of loops that can be performed without overflow.
-      int maxLoopCount = Integer.MAX_VALUE / childPeriodCount;
+      // This is the maximum number of loops that can be performed without exceeding
+      // MAX_EXPOSED_PERIODS periods.
+      int maxLoopCount = MAX_EXPOSED_PERIODS / childPeriodCount;
       if (loopCount > maxLoopCount) {
         if (loopCount != Integer.MAX_VALUE) {
           Log.w(TAG, "Capped loops to avoid overflow: " + loopCount + " -> " + maxLoopCount);
