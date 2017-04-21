@@ -659,7 +659,7 @@ public class SimpleExoPlayer implements ExoPlayer {
       Constructor<?> constructor = clazz.getConstructor(boolean.class, long.class, Handler.class,
           VideoRendererEventListener.class, int.class);
       Renderer renderer = (Renderer) constructor.newInstance(true, allowedVideoJoiningTimeMs,
-          mainHandler, componentListener, MAX_DROPPED_VIDEO_FRAME_COUNT_TO_NOTIFY);
+          mainHandler, eventListener, MAX_DROPPED_VIDEO_FRAME_COUNT_TO_NOTIFY);
       out.add(extensionRendererIndex++, renderer);
       Log.i(TAG, "Loaded LibvpxVideoRenderer.");
     } catch (ClassNotFoundException e) {
@@ -702,7 +702,7 @@ public class SimpleExoPlayer implements ExoPlayer {
           Class.forName("com.google.android.exoplayer2.ext.opus.LibopusAudioRenderer");
       Constructor<?> constructor = clazz.getConstructor(Handler.class,
           AudioRendererEventListener.class, AudioProcessor[].class);
-      Renderer renderer = (Renderer) constructor.newInstance(mainHandler, componentListener,
+      Renderer renderer = (Renderer) constructor.newInstance(mainHandler, eventListener,
           audioProcessors);
       out.add(extensionRendererIndex++, renderer);
       Log.i(TAG, "Loaded LibopusAudioRenderer.");
@@ -717,7 +717,7 @@ public class SimpleExoPlayer implements ExoPlayer {
           Class.forName("com.google.android.exoplayer2.ext.flac.LibflacAudioRenderer");
       Constructor<?> constructor = clazz.getConstructor(Handler.class,
           AudioRendererEventListener.class, AudioProcessor[].class);
-      Renderer renderer = (Renderer) constructor.newInstance(mainHandler, componentListener,
+      Renderer renderer = (Renderer) constructor.newInstance(mainHandler, eventListener,
           audioProcessors);
       out.add(extensionRendererIndex++, renderer);
       Log.i(TAG, "Loaded LibflacAudioRenderer.");
@@ -732,7 +732,7 @@ public class SimpleExoPlayer implements ExoPlayer {
           Class.forName("com.google.android.exoplayer2.ext.ffmpeg.FfmpegAudioRenderer");
       Constructor<?> constructor = clazz.getConstructor(Handler.class,
           AudioRendererEventListener.class, AudioProcessor[].class);
-      Renderer renderer = (Renderer) constructor.newInstance(mainHandler, componentListener,
+      Renderer renderer = (Renderer) constructor.newInstance(mainHandler, eventListener,
           audioProcessors);
       out.add(extensionRendererIndex++, renderer);
       Log.i(TAG, "Loaded FfmpegAudioRenderer.");
