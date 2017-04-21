@@ -15,7 +15,6 @@
  */
 package com.google.android.exoplayer2.extractor.flv;
 
-import android.util.Log;
 import android.util.Pair;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
@@ -38,10 +37,7 @@ import java.util.Collections;
   private static final int AAC_PACKET_TYPE_SEQUENCE_HEADER = 0;
   private static final int AAC_PACKET_TYPE_AAC_RAW = 1;
 
-  // SAMPLING RATES USED FOR MP3
-  private static final int[] AUDIO_SAMPLING_RATE_TABLE = new int[] {
-      5512, 11025, 22050, 44100
-  };
+  private static final int[] AUDIO_SAMPLING_RATE_TABLE = new int[] {5512, 11025, 22050, 44100};
 
   // State variables
   private boolean hasParsedAudioDataHeader;
@@ -100,10 +96,11 @@ import java.util.Collections;
         // Parse the sequence header.
         byte[] audioSpecificConfig = new byte[data.bytesLeft()];
         data.readBytes(audioSpecificConfig, 0, audioSpecificConfig.length);
-        Pair<Integer, Integer> audioParams = CodecSpecificDataUtil.parseAacAudioSpecificConfig(audioSpecificConfig);
-        Format format =
-            Format.createAudioSampleFormat(null, MimeTypes.AUDIO_AAC, null, Format.NO_VALUE, Format.NO_VALUE, audioParams.second, audioParams.first,
-                Collections.singletonList(audioSpecificConfig), null, 0, null);
+        Pair<Integer, Integer> audioParams = CodecSpecificDataUtil.parseAacAudioSpecificConfig(
+            audioSpecificConfig);
+        Format format = Format.createAudioSampleFormat(null, MimeTypes.AUDIO_AAC, null,
+            Format.NO_VALUE, Format.NO_VALUE, audioParams.second, audioParams.first,
+            Collections.singletonList(audioSpecificConfig), null, 0, null);
         output.format(format);
         hasOutputFormat = true;
       } else if (audioFormat != AUDIO_FORMAT_AAC || packetType == AAC_PACKET_TYPE_AAC_RAW) {
