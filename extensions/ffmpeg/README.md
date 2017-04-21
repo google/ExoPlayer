@@ -37,7 +37,6 @@ NDK_PATH="<path to Android NDK>"
 HOST_PLATFORM="linux-x86_64"
 ```
 
-
 * Fetch and build FFmpeg. For example, to fetch and build for armeabi-v7a,
   arm64-v8a and x86 on Linux x86_64:
 
