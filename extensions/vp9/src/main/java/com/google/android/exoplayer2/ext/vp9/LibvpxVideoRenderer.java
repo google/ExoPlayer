@@ -262,11 +262,11 @@ public final class LibvpxVideoRenderer extends BaseRenderer {
       return false;
     }
 
-    // Drop the frame if we're joining and are more than 30ms late, or if we have the next frame
-    // and that's also late. Else we'll render what we have.
-    if ((joiningDeadlineMs != C.TIME_UNSET && outputBuffer.timeUs < positionUs - 30000)
-        || (nextOutputBuffer != null && !nextOutputBuffer.isEndOfStream()
-        && nextOutputBuffer.timeUs < positionUs)) {
+    final long nextOutputBufferTimeUs =
+        nextOutputBuffer != null && !nextOutputBuffer.isEndOfStream()
+            ? nextOutputBuffer.timeUs : C.TIME_UNSET;
+    if (shouldDropOutputBuffer(
+        outputBuffer.timeUs, nextOutputBufferTimeUs, positionUs, joiningDeadlineMs)) {
       dropBuffer();
       return true;
     }
@@ -278,6 +278,25 @@ public final class LibvpxVideoRenderer extends BaseRenderer {
       renderBuffer();
     }
     return false;
+  }
+
+
+  /**
+   * Returns whether the current frame should be dropped.
+   *
+   * @param outputBufferTimeUs The timestamp of the current output buffer.
+   * @param nextOutputBufferTimeUs The timestamp of the next output buffer or
+   *     {@link TIME_UNSET} if the next output buffer is unavailable.
+   * @param positionUs The current playback position.
+   * @param joiningDeadlineMs The joining deadline.
+   * @return Returns whether to drop the current output buffer.
+   */
+  protected boolean shouldDropOutputBuffer(long outputBufferTimeUs, long nextOutputBufferTimeUs,
+      long positionUs, long joiningDeadlineMs) {
+     // Drop the frame if we're joining and are more than 30ms late, or if we have the next frame
+     // and that's also late. Else we'll render what we have.
+    return (joiningDeadlineMs != C.TIME_UNSET && outputBufferTimeUs < positionUs - 30000)
+        || (nextOutputBufferTimeUs != C.TIME_UNSET && nextOutputBufferTimeUs < positionUs);
   }
 
   private void renderBuffer() {
