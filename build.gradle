@@ -51,6 +51,11 @@ allprojects {
         releaseVersion = 'r2.3.1'
         releaseWebsite = 'https://github.com/google/ExoPlayer'
     }
+    if (it.hasProperty('externalBuildDir')) {
+        if (!new File(externalBuildDir).isAbsolute())
+            externalBuildDir = new File(rootDir, externalBuildDir)
+        buildDir = "${externalBuildDir}/${project.name}"
+    }
 }
 
 def getBintrayRepo() {
