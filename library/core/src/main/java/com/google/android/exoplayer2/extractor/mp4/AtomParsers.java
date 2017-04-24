@@ -762,7 +762,7 @@ import java.util.List;
 
     out.format = Format.createVideoSampleFormat(Integer.toString(trackId), mimeType, null,
         Format.NO_VALUE, Format.NO_VALUE, width, height, Format.NO_VALUE, initializationData,
-        rotationDegrees, pixelWidthHeightRatio, projectionData, stereoMode, drmInitData);
+        rotationDegrees, pixelWidthHeightRatio, projectionData, stereoMode, null, drmInitData);
   }
 
   /**
