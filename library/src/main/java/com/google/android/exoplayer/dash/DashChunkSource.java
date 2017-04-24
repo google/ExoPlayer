@@ -888,7 +888,8 @@ public class DashChunkSource implements ChunkSource, Output {
       String mimeType = representation.format.mimeType;
       mimeTypeIsRawText = mimeTypeIsRawText(mimeType);
       extractorWrapper = mimeTypeIsRawText ? null : new ChunkExtractorWrapper(
-          mimeTypeIsWebm(mimeType) ? new WebmExtractor() : new FragmentedMp4Extractor());
+          mimeTypeIsWebm(mimeType) ? new WebmExtractor(WebmExtractor.FLAG_DISABLE_SEEK_FOR_CUES)
+              : new FragmentedMp4Extractor());
       segmentIndex = representation.getIndex();
     }
 

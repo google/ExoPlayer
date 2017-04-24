@@ -55,6 +55,16 @@ import java.util.UUID;
  */
 public final class WebmExtractor implements Extractor {
 
+  /**
+   * Flag to disable seeking for cues.
+   * <p>
+   * Normally (i.e. when this flag is not set) the extractor will seek to the cues element if its
+   * position is specified in the seek head and if it's after the first cluster. Setting this flag
+   * disables seeking to the cues element. If the cues element is after the first cluster then the
+   * media is treated as being unseekable.
+   */
+  public static final int FLAG_DISABLE_SEEK_FOR_CUES = 1;
+
   private static final int BLOCK_STATE_START = 0;
   private static final int BLOCK_STATE_HEADER = 1;
   private static final int BLOCK_STATE_DATA = 2;
@@ -207,6 +217,7 @@ public final class WebmExtractor implements Extractor {
   private final EbmlReader reader;
   private final VarintReader varintReader;
   private final SparseArray<Track> tracks;
+  private final boolean seekForCuesEnabled;
 
   // Temporary arrays.
   private final ParsableByteArray nalStartCode;
@@ -274,12 +285,20 @@ public final class WebmExtractor implements Extractor {
   private ExtractorOutput extractorOutput;
 
   public WebmExtractor() {
-    this(new DefaultEbmlReader());
+    this(new DefaultEbmlReader(), 0);
   }
 
-  /* package */ WebmExtractor(EbmlReader reader) {
+  /**
+   * @param flags Flags that control the extractor's behavior.
+   */
+  public WebmExtractor(int flags) {
+    this(new DefaultEbmlReader(), flags);
+  }
+
+  /* package */ WebmExtractor(EbmlReader reader, int flags) {
     this.reader = reader;
     this.reader.init(new InnerEbmlReaderOutput());
+    seekForCuesEnabled = (flags & FLAG_DISABLE_SEEK_FOR_CUES) == 0;
     varintReader = new VarintReader();
     tracks = new SparseArray<>();
     scratch = new ParsableByteArray(4);
@@ -430,7 +449,7 @@ public final class WebmExtractor implements Extractor {
       case ID_CLUSTER:
         if (!sentSeekMap) {
           // We need to build cues before parsing the cluster.
-          if (cuesContentPosition != UNKNOWN) {
+          if (seekForCuesEnabled && cuesContentPosition != UNKNOWN) {
             // We know where the Cues element is located. Seek to request it.
             seekForCues = true;
           } else {
