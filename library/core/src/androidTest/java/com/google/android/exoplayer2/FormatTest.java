@@ -29,6 +29,7 @@ import com.google.android.exoplayer2.metadata.id3.TextInformationFrame;
 import com.google.android.exoplayer2.testutil.TestUtil;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.Util;
+import com.google.android.exoplayer2.video.ColorInfo;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -61,11 +62,13 @@ public final class FormatTest extends TestCase {
     Metadata metadata = new Metadata(
         new TextInformationFrame("id1", "description1", "value1"),
         new TextInformationFrame("id2", "description2", "value2"));
+    ColorInfo colorInfo =  new ColorInfo(C.COLOR_SPACE_BT709,
+        C.COLOR_RANGE_LIMITED, C.COLOR_TRANSFER_SDR, new byte[] {1, 2, 3, 4, 5, 6, 7});
 
     Format formatToParcel = new Format("id", MimeTypes.VIDEO_MP4, MimeTypes.VIDEO_H264, null,
-        1024, 2048, 1920, 1080, 24, 90, 2, projectionData, C.STEREO_MODE_TOP_BOTTOM, 6, 44100,
-        C.ENCODING_PCM_24BIT, 1001, 1002, 0, "und", Format.NO_VALUE, Format.OFFSET_SAMPLE_RELATIVE,
-        INIT_DATA, drmInitData, metadata);
+        1024, 2048, 1920, 1080, 24, 90, 2, projectionData, C.STEREO_MODE_TOP_BOTTOM, colorInfo, 6,
+        44100, C.ENCODING_PCM_24BIT, 1001, 1002, 0, "und", Format.NO_VALUE,
+        Format.OFFSET_SAMPLE_RELATIVE, INIT_DATA, drmInitData, metadata);
 
     Parcel parcel = Parcel.obtain();
     formatToParcel.writeToParcel(parcel, 0);
