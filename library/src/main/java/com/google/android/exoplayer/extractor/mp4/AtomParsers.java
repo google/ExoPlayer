@@ -707,7 +707,7 @@ import java.util.List;
 
     out.mediaFormat = MediaFormat.createVideoFormat(Integer.toString(trackId), mimeType,
         MediaFormat.NO_VALUE, MediaFormat.NO_VALUE, durationUs, width, height, initializationData,
-        rotationDegrees, pixelWidthHeightRatio, projectionData, stereoMode);
+        rotationDegrees, pixelWidthHeightRatio, projectionData, stereoMode, null);
   }
 
   private static AvcCData parseAvcCFromParent(ParsableByteArray parent, int position) {

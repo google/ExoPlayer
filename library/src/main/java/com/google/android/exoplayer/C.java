@@ -18,6 +18,7 @@ package com.google.android.exoplayer;
 import android.media.AudioFormat;
 import android.media.MediaCodec;
 import android.media.MediaExtractor;
+import android.media.MediaFormat;
 import com.google.android.exoplayer.util.Util;
 
 /**
@@ -160,6 +161,42 @@ public final class C {
    * used with 360/3D/VR videos.
    */
   public static final int STEREO_MODE_STEREO_MESH = 3;
+
+  /**
+   * @see MediaFormat#COLOR_STANDARD_BT709
+   */
+  public static final int COLOR_SPACE_BT709 = MediaFormat.COLOR_STANDARD_BT709;
+  /**
+   * @see MediaFormat#COLOR_STANDARD_BT601_PAL
+   */
+  public static final int COLOR_SPACE_BT601 = MediaFormat.COLOR_STANDARD_BT601_PAL;
+  /**
+   * @see MediaFormat#COLOR_STANDARD_BT2020
+   */
+  public static final int COLOR_SPACE_BT2020 = MediaFormat.COLOR_STANDARD_BT2020;
+
+  /**
+   * @see MediaFormat#COLOR_TRANSFER_SDR_VIDEO
+   */
+  public static final int COLOR_TRANSFER_SDR = MediaFormat.COLOR_TRANSFER_SDR_VIDEO;
+  /**
+   * @see MediaFormat#COLOR_TRANSFER_ST2084
+   */
+  public static final int COLOR_TRANSFER_ST2084 = MediaFormat.COLOR_TRANSFER_ST2084;
+  /**
+   * @see MediaFormat#COLOR_TRANSFER_HLG
+   */
+  public static final int COLOR_TRANSFER_HLG = MediaFormat.COLOR_TRANSFER_HLG;
+
+  /**
+   * @see MediaFormat#COLOR_RANGE_LIMITED
+   */
+  public static final int COLOR_RANGE_LIMITED = MediaFormat.COLOR_RANGE_LIMITED;
+  /**
+   * @see MediaFormat#COLOR_RANGE_FULL
+   */
+  public static final int COLOR_RANGE_FULL = MediaFormat.COLOR_RANGE_FULL;
+
 
   private C() {}
 
