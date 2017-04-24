@@ -22,6 +22,7 @@ import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ParserException;
 import com.google.android.exoplayer2.source.AdaptiveMediaSourceEventListener.EventDispatcher;
 import com.google.android.exoplayer2.source.chunk.ChunkedTrackBlacklistUtil;
+import com.google.android.exoplayer2.source.hls.HlsDataSourceFactory;
 import com.google.android.exoplayer2.source.hls.playlist.HlsMasterPlaylist.HlsUrl;
 import com.google.android.exoplayer2.source.hls.playlist.HlsMediaPlaylist.Segment;
 import com.google.android.exoplayer2.upstream.DataSource;
@@ -81,7 +82,7 @@ public final class HlsPlaylistTracker implements Loader.Callback<ParsingLoadable
   private static final long PRIMARY_URL_KEEPALIVE_MS = 15000;
 
   private final Uri initialPlaylistUri;
-  private final DataSource.Factory dataSourceFactory;
+  private final HlsDataSourceFactory dataSourceFactory;
   private final HlsPlaylistParser playlistParser;
   private final int minRetryCount;
   private final IdentityHashMap<HlsUrl, MediaPlaylistBundle> playlistBundles;
@@ -105,7 +106,7 @@ public final class HlsPlaylistTracker implements Loader.Callback<ParsingLoadable
    *     playlist.
    * @param primaryPlaylistListener A callback for the primary playlist change events.
    */
-  public HlsPlaylistTracker(Uri initialPlaylistUri, DataSource.Factory dataSourceFactory,
+  public HlsPlaylistTracker(Uri initialPlaylistUri, HlsDataSourceFactory dataSourceFactory,
       EventDispatcher eventDispatcher, int minRetryCount,
       PrimaryPlaylistListener primaryPlaylistListener) {
     this.initialPlaylistUri = initialPlaylistUri;
@@ -143,8 +144,8 @@ public final class HlsPlaylistTracker implements Loader.Callback<ParsingLoadable
    */
   public void start() {
     ParsingLoadable<HlsPlaylist> masterPlaylistLoadable = new ParsingLoadable<>(
-        dataSourceFactory.createDataSource(), initialPlaylistUri, C.DATA_TYPE_MANIFEST,
-        playlistParser);
+        dataSourceFactory.createDataSource(C.DATA_TYPE_MANIFEST), initialPlaylistUri,
+        C.DATA_TYPE_MANIFEST, playlistParser);
     initialPlaylistLoader.startLoading(masterPlaylistLoadable, this, minRetryCount);
   }
 
@@ -166,8 +167,24 @@ public final class HlsPlaylistTracker implements Loader.Callback<ParsingLoadable
    *     be null if no snapshot has been loaded yet.
    */
   public HlsMediaPlaylist getPlaylistSnapshot(HlsUrl url) {
-    maybeSetPrimaryUrl(url);
-    return playlistBundles.get(url).getPlaylistSnapshot();
+    HlsMediaPlaylist snapshot = playlistBundles.get(url).getPlaylistSnapshot();
+    if (snapshot != null) {
+      maybeSetPrimaryUrl(url);
+    }
+    return snapshot;
+  }
+
+  /**
+   * Returns whether the snapshot of the playlist referenced by the provided {@link HlsUrl} is
+   * valid, meaning all the segments referenced by the playlist are expected to be available. If the
+   * playlist is not valid then some of the segments may no longer be available.
+
+   * @param url The {@link HlsUrl}.
+   * @return Whether the snapshot of the playlist referenced by the provided {@link HlsUrl} is
+   *     valid.
+   */
+  public boolean isSnapshotValid(HlsUrl url) {
+    return playlistBundles.get(url).isSnapshotValid();
   }
 
   /**
@@ -299,7 +316,7 @@ public final class HlsPlaylistTracker implements Loader.Callback<ParsingLoadable
     for (int i = 0; i < listSize; i++) {
       HlsUrl url = urls.get(i);
       MediaPlaylistBundle bundle = new MediaPlaylistBundle(url, currentTimeMs);
-      playlistBundles.put(urls.get(i), bundle);
+      playlistBundles.put(url, bundle);
     }
   }
 
@@ -334,45 +351,71 @@ public final class HlsPlaylistTracker implements Loader.Callback<ParsingLoadable
     }
   }
 
-  /**
-   * TODO: Track discontinuities for media playlists that don't include the discontinuity number.
-   */
-  private HlsMediaPlaylist adjustPlaylistTimestamps(HlsMediaPlaylist oldPlaylist,
-      HlsMediaPlaylist newPlaylist) {
-    if (newPlaylist.hasProgramDateTime) {
-      if (newPlaylist.isNewerThan(oldPlaylist)) {
-        return newPlaylist;
+  private HlsMediaPlaylist getLatestPlaylistSnapshot(HlsMediaPlaylist oldPlaylist,
+      HlsMediaPlaylist loadedPlaylist) {
+    if (!loadedPlaylist.isNewerThan(oldPlaylist)) {
+      if (loadedPlaylist.hasEndTag) {
+        // If the loaded playlist has an end tag but is not newer than the old playlist then we have
+        // an inconsistent state. This is typically caused by the server incorrectly resetting the
+        // media sequence when appending the end tag. We resolve this case as best we can by
+        // returning the old playlist with the end tag appended.
+        return oldPlaylist.copyWithEndTag();
       } else {
         return oldPlaylist;
       }
     }
-    // TODO: Once playlist type support is added, the snapshot's age can be added by using the
-    // target duration.
+    long startTimeUs = getLoadedPlaylistStartTimeUs(oldPlaylist, loadedPlaylist);
+    int discontinuitySequence = getLoadedPlaylistDiscontinuitySequence(oldPlaylist, loadedPlaylist);
+    return loadedPlaylist.copyWith(startTimeUs, discontinuitySequence);
+  }
+
+  private long getLoadedPlaylistStartTimeUs(HlsMediaPlaylist oldPlaylist,
+      HlsMediaPlaylist loadedPlaylist) {
+    if (loadedPlaylist.hasProgramDateTime) {
+      return loadedPlaylist.startTimeUs;
+    }
     long primarySnapshotStartTimeUs = primaryUrlSnapshot != null
         ? primaryUrlSnapshot.startTimeUs : 0;
     if (oldPlaylist == null) {
-      if (newPlaylist.startTimeUs == primarySnapshotStartTimeUs) {
-        // Playback has just started or is VOD so no adjustment is needed.
-        return newPlaylist;
-      } else {
-        return newPlaylist.copyWithStartTimeUs(primarySnapshotStartTimeUs);
-      }
+      return primarySnapshotStartTimeUs;
     }
+    int oldPlaylistSize = oldPlaylist.segments.size();
+    Segment firstOldOverlappingSegment = getFirstOldOverlappingSegment(oldPlaylist, loadedPlaylist);
+    if (firstOldOverlappingSegment != null) {
+      return oldPlaylist.startTimeUs + firstOldOverlappingSegment.relativeStartTimeUs;
+    } else if (oldPlaylistSize == loadedPlaylist.mediaSequence - oldPlaylist.mediaSequence) {
+      return oldPlaylist.getEndTimeUs();
+    } else {
+      // No segments overlap, we assume the new playlist start coincides with the primary playlist.
+      return primarySnapshotStartTimeUs;
+    }
+  }
+
+  private int getLoadedPlaylistDiscontinuitySequence(HlsMediaPlaylist oldPlaylist,
+      HlsMediaPlaylist loadedPlaylist) {
+    if (loadedPlaylist.hasDiscontinuitySequence) {
+      return loadedPlaylist.discontinuitySequence;
+    }
+    // TODO: Improve cross-playlist discontinuity adjustment.
+    int primaryUrlDiscontinuitySequence = primaryUrlSnapshot != null
+        ? primaryUrlSnapshot.discontinuitySequence : 0;
+    if (oldPlaylist == null) {
+      return primaryUrlDiscontinuitySequence;
+    }
+    Segment firstOldOverlappingSegment = getFirstOldOverlappingSegment(oldPlaylist, loadedPlaylist);
+    if (firstOldOverlappingSegment != null) {
+      return oldPlaylist.discontinuitySequence
+          + firstOldOverlappingSegment.relativeDiscontinuitySequence
+          - loadedPlaylist.segments.get(0).relativeDiscontinuitySequence;
+    }
+    return primaryUrlDiscontinuitySequence;
+  }
+
+  private static Segment getFirstOldOverlappingSegment(HlsMediaPlaylist oldPlaylist,
+      HlsMediaPlaylist loadedPlaylist) {
+    int mediaSequenceOffset = loadedPlaylist.mediaSequence - oldPlaylist.mediaSequence;
     List<Segment> oldSegments = oldPlaylist.segments;
-    int oldPlaylistSize = oldSegments.size();
-    if (!newPlaylist.isNewerThan(oldPlaylist)) {
-      // Playlist has not changed.
-      return oldPlaylist;
-    }
-    int mediaSequenceOffset = newPlaylist.mediaSequence - oldPlaylist.mediaSequence;
-    if (mediaSequenceOffset <= oldPlaylistSize) {
-      long adjustedNewPlaylistStartTimeUs = mediaSequenceOffset == oldPlaylistSize
-          ? oldPlaylist.getEndTimeUs()
-          : oldPlaylist.startTimeUs + oldSegments.get(mediaSequenceOffset).relativeStartTimeUs;
-      return newPlaylist.copyWithStartTimeUs(adjustedNewPlaylistStartTimeUs);
-    }
-    // No segments overlap, we assume the new playlist start coincides with the primary playlist.
-    return newPlaylist.copyWithStartTimeUs(primarySnapshotStartTimeUs);
+    return mediaSequenceOffset < oldSegments.size() ? oldSegments.get(mediaSequenceOffset) : null;
   }
 
   /**
@@ -386,14 +429,17 @@ public final class HlsPlaylistTracker implements Loader.Callback<ParsingLoadable
     private final ParsingLoadable<HlsPlaylist> mediaPlaylistLoadable;
 
     private HlsMediaPlaylist playlistSnapshot;
+    private long lastSnapshotLoadMs;
     private long lastSnapshotAccessTimeMs;
     private long blacklistUntilMs;
+    private boolean pendingRefresh;
 
     public MediaPlaylistBundle(HlsUrl playlistUrl, long initialLastSnapshotAccessTimeMs) {
       this.playlistUrl = playlistUrl;
       lastSnapshotAccessTimeMs = initialLastSnapshotAccessTimeMs;
       mediaPlaylistLoader = new Loader("HlsPlaylistTracker:MediaPlaylist");
-      mediaPlaylistLoadable = new ParsingLoadable<>(dataSourceFactory.createDataSource(),
+      mediaPlaylistLoadable = new ParsingLoadable<>(
+          dataSourceFactory.createDataSource(C.DATA_TYPE_MANIFEST),
           UriUtil.resolveToUri(masterPlaylist.baseUri, playlistUrl.url), C.DATA_TYPE_MANIFEST,
           playlistParser);
     }
@@ -403,13 +449,25 @@ public final class HlsPlaylistTracker implements Loader.Callback<ParsingLoadable
       return playlistSnapshot;
     }
 
+    public boolean isSnapshotValid() {
+      if (playlistSnapshot == null) {
+        return false;
+      }
+      long currentTimeMs = SystemClock.elapsedRealtime();
+      long snapshotValidityDurationMs = Math.max(30000, C.usToMs(playlistSnapshot.durationUs));
+      return playlistSnapshot.hasEndTag
+          || playlistSnapshot.playlistType == HlsMediaPlaylist.PLAYLIST_TYPE_EVENT
+          || playlistSnapshot.playlistType == HlsMediaPlaylist.PLAYLIST_TYPE_VOD
+          || lastSnapshotLoadMs + snapshotValidityDurationMs > currentTimeMs;
+    }
+
     public void release() {
       mediaPlaylistLoader.release();
     }
 
     public void loadPlaylist() {
       blacklistUntilMs = 0;
-      if (!mediaPlaylistLoader.isLoading()) {
+      if (!pendingRefresh && !mediaPlaylistLoader.isLoading()) {
         mediaPlaylistLoader.startLoading(mediaPlaylistLoadable, this, minRetryCount);
       }
     }
@@ -455,25 +513,27 @@ public final class HlsPlaylistTracker implements Loader.Callback<ParsingLoadable
 
     @Override
     public void run() {
+      pendingRefresh = false;
       loadPlaylist();
     }
 
     // Internal methods.
 
-    private void processLoadedPlaylist(HlsMediaPlaylist loadedMediaPlaylist) {
+    private void processLoadedPlaylist(HlsMediaPlaylist loadedPlaylist) {
       HlsMediaPlaylist oldPlaylist = playlistSnapshot;
-      playlistSnapshot = adjustPlaylistTimestamps(oldPlaylist, loadedMediaPlaylist);
+      lastSnapshotLoadMs = SystemClock.elapsedRealtime();
+      playlistSnapshot = getLatestPlaylistSnapshot(oldPlaylist, loadedPlaylist);
       long refreshDelayUs = C.TIME_UNSET;
-      if (oldPlaylist != playlistSnapshot) {
+      if (playlistSnapshot != oldPlaylist) {
         if (onPlaylistUpdated(playlistUrl, playlistSnapshot)) {
           refreshDelayUs = playlistSnapshot.targetDurationUs;
         }
-      } else if (!loadedMediaPlaylist.hasEndTag) {
+      } else if (!playlistSnapshot.hasEndTag) {
         refreshDelayUs = playlistSnapshot.targetDurationUs / 2;
       }
       if (refreshDelayUs != C.TIME_UNSET) {
         // See HLS spec v20, section 6.3.4 for more information on media playlist refreshing.
-        playlistRefreshHandler.postDelayed(this, C.usToMs(refreshDelayUs));
+        pendingRefresh = playlistRefreshHandler.postDelayed(this, C.usToMs(refreshDelayUs));
       }
     }
 

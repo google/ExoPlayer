@@ -28,6 +28,7 @@ import com.google.android.exoplayer2.upstream.DataSpec;
 import com.google.android.exoplayer2.upstream.Loader;
 import com.google.android.exoplayer2.upstream.Loader.Loadable;
 import com.google.android.exoplayer2.util.Assertions;
+import com.google.android.exoplayer2.util.Util;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -108,6 +109,11 @@ import java.util.Arrays;
       }
     }
     return positionUs;
+  }
+
+  @Override
+  public void discardBuffer(long positionUs) {
+    // Do nothing.
   }
 
   @Override
@@ -204,11 +210,12 @@ import java.util.Arrays;
     }
 
     @Override
-    public int readData(FormatHolder formatHolder, DecoderInputBuffer buffer) {
+    public int readData(FormatHolder formatHolder, DecoderInputBuffer buffer,
+        boolean requireFormat) {
       if (streamState == STREAM_STATE_END_OF_STREAM) {
         buffer.addFlag(C.BUFFER_FLAG_END_OF_STREAM);
         return C.RESULT_BUFFER_READ;
-      } else if (streamState == STREAM_STATE_SEND_FORMAT) {
+      } else if (requireFormat || streamState == STREAM_STATE_SEND_FORMAT) {
         formatHolder.format = format;
         streamState = STREAM_STATE_SEND_SAMPLE;
         return C.RESULT_FORMAT_READ;
@@ -276,7 +283,7 @@ import java.util.Arrays;
           result = dataSource.read(sampleData, sampleSize, sampleData.length - sampleSize);
         }
       } finally {
-        dataSource.close();
+        Util.closeQuietly(dataSource);
       }
     }
 

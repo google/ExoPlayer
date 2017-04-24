@@ -16,8 +16,7 @@
 
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
 
-  <!-- The user visible name of the application. [CHAR LIMIT=20] -->
-  <string name="application_name">ExoPlayer2 Demo</string>
+  <string name="application_name">ExoPlayer</string>
 
   <string name="video">Video</string>
 

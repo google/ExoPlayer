@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.extractor.ogg;
 
+import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ParserException;
 import com.google.android.exoplayer2.extractor.Extractor;
 import com.google.android.exoplayer2.extractor.ExtractorInput;
@@ -75,7 +76,7 @@ public class OggExtractor implements Extractor {
 
   @Override
   public void init(ExtractorOutput output) {
-    TrackOutput trackOutput = output.track(0);
+    TrackOutput trackOutput = output.track(0, C.TRACK_TYPE_AUDIO);
     output.endTracks();
     // TODO: fix the case if sniff() isn't called
     streamReader.init(output, trackOutput);

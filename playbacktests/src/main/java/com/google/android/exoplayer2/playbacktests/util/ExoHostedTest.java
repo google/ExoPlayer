@@ -34,7 +34,7 @@ import com.google.android.exoplayer2.drm.FrameworkMediaCrypto;
 import com.google.android.exoplayer2.playbacktests.util.HostActivity.HostedTest;
 import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.source.TrackGroupArray;
-import com.google.android.exoplayer2.trackselection.AdaptiveVideoTrackSelection;
+import com.google.android.exoplayer2.trackselection.AdaptiveTrackSelection;
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
 import com.google.android.exoplayer2.trackselection.MappingTrackSelector;
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
@@ -63,7 +63,8 @@ public abstract class ExoHostedTest implements HostedTest, ExoPlayer.EventListen
   public static final long EXPECTED_PLAYING_TIME_MEDIA_DURATION_MS = -2;
   public static final long EXPECTED_PLAYING_TIME_UNSET = -1;
 
-  private final String tag;
+  protected final String tag;
+
   private final boolean failOnPlayerError;
   private final long expectedPlayingTimeMs;
   private final DecoderCounters videoDecoderCounters;
@@ -247,7 +248,7 @@ public abstract class ExoHostedTest implements HostedTest, ExoPlayer.EventListen
 
   @Override
   public void onAudioInputFormatChanged(Format format) {
-    Log.d(tag, "audioFormatChanged [" + format.id + "]");
+    Log.d(tag, "audioFormatChanged [" + Format.toLogString(format) + "]");
   }
 
   @Override
@@ -277,7 +278,7 @@ public abstract class ExoHostedTest implements HostedTest, ExoPlayer.EventListen
 
   @Override
   public void onVideoInputFormatChanged(Format format) {
-    Log.d(tag, "videoFormatChanged [" + format.id + "]");
+    Log.d(tag, "videoFormatChanged [" + Format.toLogString(format) + "]");
   }
 
   @Override
@@ -312,7 +313,7 @@ public abstract class ExoHostedTest implements HostedTest, ExoPlayer.EventListen
   @SuppressWarnings("unused")
   protected MappingTrackSelector buildTrackSelector(HostActivity host,
       BandwidthMeter bandwidthMeter) {
-    return new DefaultTrackSelector(new AdaptiveVideoTrackSelection.Factory(bandwidthMeter));
+    return new DefaultTrackSelector(new AdaptiveTrackSelection.Factory(bandwidthMeter));
   }
 
   @SuppressWarnings("unused")

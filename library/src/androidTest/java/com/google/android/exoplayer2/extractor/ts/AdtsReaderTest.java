@@ -69,8 +69,8 @@ public class AdtsReaderTest extends TestCase {
   @Override
   protected void setUp() throws Exception {
     FakeExtractorOutput fakeExtractorOutput = new FakeExtractorOutput();
-    adtsOutput = fakeExtractorOutput.track(0);
-    id3Output = fakeExtractorOutput.track(1);
+    adtsOutput = fakeExtractorOutput.track(0, C.TRACK_TYPE_AUDIO);
+    id3Output = fakeExtractorOutput.track(1, C.TRACK_TYPE_METADATA);
     adtsReader = new AdtsReader(true);
     TrackIdGenerator idGenerator = new TrackIdGenerator(0, 1);
     adtsReader.createTracks(fakeExtractorOutput, idGenerator);

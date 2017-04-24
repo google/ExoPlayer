@@ -61,8 +61,7 @@ public class DecoderInputBuffer extends Buffer {
    */
   public long timeUs;
 
-  @BufferReplacementMode
-  private final int bufferReplacementMode;
+  @BufferReplacementMode private final int bufferReplacementMode;
 
   /**
    * @param bufferReplacementMode Determines the behavior of {@link #ensureSpaceForWrite(int)}. One

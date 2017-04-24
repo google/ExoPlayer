@@ -15,6 +15,8 @@
  */
 package com.google.android.exoplayer2;
 
+import android.annotation.TargetApi;
+import android.content.Context;
 import android.media.AudioFormat;
 import android.media.AudioManager;
 import android.media.MediaCodec;
@@ -95,6 +97,13 @@ public final class C {
    */
   @SuppressWarnings("InlinedApi")
   public static final int CRYPTO_MODE_AES_CBC = MediaCodec.CRYPTO_MODE_AES_CBC;
+
+  /**
+   * Represents an unset {@link android.media.AudioTrack} session identifier. Equal to
+   * {@link AudioManager#AUDIO_SESSION_ID_GENERATE}.
+   */
+  @SuppressWarnings("InlinedApi")
+  public static final int AUDIO_SESSION_ID_UNSET = AudioManager.AUDIO_SESSION_ID_GENERATE;
 
   /**
    * Represents an audio encoding, or an invalid or unset value.
@@ -435,8 +444,15 @@ public final class C {
   public static final UUID UUID_NIL = new UUID(0L, 0L);
 
   /**
+   * UUID for the ClearKey DRM scheme.
+   * <p>
+   * ClearKey is supported on Android devices running Android 5.0 (API Level 21) and up.
+   */
+  public static final UUID CLEARKEY_UUID = new UUID(0x1077EFECC0B24D02L, 0xACE33C1E52E2FB4BL);
+
+  /**
    * UUID for the Widevine DRM scheme.
-   * <p></p>
+   * <p>
    * Widevine is supported on Android devices running Android 4.3 (API Level 18) and up.
    */
   public static final UUID WIDEVINE_UUID = new UUID(0xEDEF8BA979D64ACEL, 0xA3C827DCD51D21EDL);
@@ -468,7 +484,7 @@ public final class C {
    * {@link ExoPlayer#sendMessages} or {@link ExoPlayer#blockingSendMessages}. The message object
    * should be a {@link android.media.PlaybackParams}, or null, which will be used to configure the
    * underlying {@link android.media.AudioTrack}. The message object should not be modified by the
-   * caller after it has been passed
+   * caller after it has been passed.
    */
   public static final int MSG_SET_PLAYBACK_PARAMS = 3;
 
@@ -506,7 +522,13 @@ public final class C {
    * The stereo mode for 360/3D/VR videos.
    */
   @Retention(RetentionPolicy.SOURCE)
-  @IntDef({Format.NO_VALUE, STEREO_MODE_MONO, STEREO_MODE_TOP_BOTTOM, STEREO_MODE_LEFT_RIGHT})
+  @IntDef({
+      Format.NO_VALUE,
+      STEREO_MODE_MONO,
+      STEREO_MODE_TOP_BOTTOM,
+      STEREO_MODE_LEFT_RIGHT,
+      STEREO_MODE_STEREO_MESH
+  })
   public @interface StereoMode {}
   /**
    * Indicates Monoscopic stereo layout, used with 360/3D/VR videos.
@@ -520,6 +542,16 @@ public final class C {
    * Indicates Left-Right stereo layout, used with 360/3D/VR videos.
    */
   public static final int STEREO_MODE_LEFT_RIGHT = 2;
+  /**
+   * Indicates a stereo layout where the left and right eyes have separate meshes,
+   * used with 360/3D/VR videos.
+   */
+  public static final int STEREO_MODE_STEREO_MESH = 3;
+
+  /**
+   * Priority for media playback.
+   */
+  public static final int PRIORITY_PLAYBACK = 0;
 
   /**
    * Converts a time in microseconds to the corresponding time in milliseconds, preserving
@@ -541,6 +573,15 @@ public final class C {
    */
   public static long msToUs(long timeMs) {
     return timeMs == TIME_UNSET ? TIME_UNSET : (timeMs * 1000);
+  }
+
+  /**
+   * Returns a newly generated {@link android.media.AudioTrack} session identifier.
+   */
+  @TargetApi(21)
+  public static int generateAudioSessionIdV21(Context context) {
+    return ((AudioManager) context.getSystemService(Context.AUDIO_SERVICE))
+        .generateAudioSessionId();
   }
 
 }

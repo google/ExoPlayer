@@ -371,6 +371,73 @@ public class ParsableByteArrayTest extends TestCase {
     assertNull(parser.readLine());
   }
 
+  public void testReadNullTerminatedStringWithLengths() {
+    byte[] bytes = new byte[] {
+        'f', 'o', 'o', 0, 'b', 'a', 'r', 0
+    };
+    // Test with lengths that match NUL byte positions.
+    ParsableByteArray parser = new ParsableByteArray(bytes);
+    assertEquals("foo", parser.readNullTerminatedString(4));
+    assertEquals(4, parser.getPosition());
+    assertEquals("bar", parser.readNullTerminatedString(4));
+    assertEquals(8, parser.getPosition());
+    assertNull(parser.readNullTerminatedString());
+    // Test with lengths that do not match NUL byte positions.
+    parser = new ParsableByteArray(bytes);
+    assertEquals("fo", parser.readNullTerminatedString(2));
+    assertEquals(2, parser.getPosition());
+    assertEquals("o", parser.readNullTerminatedString(2));
+    assertEquals(4, parser.getPosition());
+    assertEquals("bar", parser.readNullTerminatedString(3));
+    assertEquals(7, parser.getPosition());
+    assertEquals("", parser.readNullTerminatedString(1));
+    assertEquals(8, parser.getPosition());
+    assertNull(parser.readNullTerminatedString());
+    // Test with limit at NUL
+    parser = new ParsableByteArray(bytes, 4);
+    assertEquals("foo", parser.readNullTerminatedString(4));
+    assertEquals(4, parser.getPosition());
+    assertNull(parser.readNullTerminatedString());
+    // Test with limit before NUL
+    parser = new ParsableByteArray(bytes, 3);
+    assertEquals("foo", parser.readNullTerminatedString(3));
+    assertEquals(3, parser.getPosition());
+    assertNull(parser.readNullTerminatedString());
+  }
+
+  public void testReadNullTerminatedString() {
+    byte[] bytes = new byte[] {
+        'f', 'o', 'o', 0, 'b', 'a', 'r', 0
+    };
+    // Test normal case.
+    ParsableByteArray parser = new ParsableByteArray(bytes);
+    assertEquals("foo", parser.readNullTerminatedString());
+    assertEquals(4, parser.getPosition());
+    assertEquals("bar", parser.readNullTerminatedString());
+    assertEquals(8, parser.getPosition());
+    assertNull(parser.readNullTerminatedString());
+    // Test with limit at NUL.
+    parser = new ParsableByteArray(bytes, 4);
+    assertEquals("foo", parser.readNullTerminatedString());
+    assertEquals(4, parser.getPosition());
+    assertNull(parser.readNullTerminatedString());
+    // Test with limit before NUL.
+    parser = new ParsableByteArray(bytes, 3);
+    assertEquals("foo", parser.readNullTerminatedString());
+    assertEquals(3, parser.getPosition());
+    assertNull(parser.readNullTerminatedString());
+  }
+
+  public void testReadNullTerminatedStringWithoutEndingNull() {
+    byte[] bytes = new byte[] {
+        'f', 'o', 'o', 0, 'b', 'a', 'r'
+    };
+    ParsableByteArray parser = new ParsableByteArray(bytes);
+    assertEquals("foo", parser.readNullTerminatedString());
+    assertEquals("bar", parser.readNullTerminatedString());
+    assertNull(parser.readNullTerminatedString());
+  }
+
   public void testReadSingleLineWithoutEndingTrail() {
     byte[] bytes = new byte[] {
       'f', 'o', 'o'

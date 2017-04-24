@@ -83,8 +83,7 @@ public final class Mp4Extractor implements Extractor, SeekMap {
   private final ParsableByteArray atomHeader;
   private final Stack<ContainerAtom> containerAtoms;
 
-  @State
-  private int parserState;
+  @State private int parserState;
   private int atomType;
   private long atomSize;
   private int atomHeaderBytesRead;
@@ -344,7 +343,8 @@ public final class Mp4Extractor implements Extractor, SeekMap {
         continue;
       }
 
-      Mp4Track mp4Track = new Mp4Track(track, trackSampleTable, extractorOutput.track(i));
+      Mp4Track mp4Track = new Mp4Track(track, trackSampleTable,
+          extractorOutput.track(i, track.type));
       // Each sample has up to three bytes of overhead for the start code that replaces its length.
       // Allow ten source samples per output sample, like the platform extractor.
       int maxInputSize = trackSampleTable.maximumSize + 3 * 10;

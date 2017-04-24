@@ -4,7 +4,7 @@ import android.test.InstrumentationTestCase;
 import android.test.MoreAsserts;
 import android.util.SparseArray;
 import com.google.android.exoplayer2.C;
-import com.google.android.exoplayer2.testutil.TestUtil;
+import com.google.android.exoplayer2.util.Util;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -36,13 +36,13 @@ public class CachedContentIndexTest extends InstrumentationTestCase {
 
   @Override
   public void setUp() throws Exception {
-    cacheDir = TestUtil.createTempFolder(getInstrumentation().getContext());
+    cacheDir = Util.createTempDirectory(getInstrumentation().getContext(), "ExoPlayerTest");
     index = new CachedContentIndex(cacheDir);
   }
 
   @Override
   protected void tearDown() throws Exception {
-    TestUtil.recursiveDelete(cacheDir);
+    Util.recursiveDelete(cacheDir);
   }
 
   public void testAddGetRemove() throws Exception {
@@ -163,7 +163,7 @@ public class CachedContentIndexTest extends InstrumentationTestCase {
 
   public void testEncryption() throws Exception {
     byte[] key = "Bar12345Bar12345".getBytes(C.UTF8_NAME); // 128 bit key
-    byte[] key2 = "bar12345Bar12345".getBytes(C.UTF8_NAME); // 128 bit key
+    byte[] key2 = "Foo12345Foo12345".getBytes(C.UTF8_NAME); // 128 bit key
 
     assertStoredAndLoadedEqual(new CachedContentIndex(cacheDir, key),
         new CachedContentIndex(cacheDir, key));
@@ -181,7 +181,7 @@ public class CachedContentIndexTest extends InstrumentationTestCase {
     // Assert file content is different
     FileInputStream fis1 = new FileInputStream(file1);
     FileInputStream fis2 = new FileInputStream(file2);
-    for (int b; (b = fis1.read()) == fis2.read();) {
+    for (int b; (b = fis1.read()) == fis2.read(); ) {
       assertTrue(b != -1);
     }
 
@@ -205,6 +205,12 @@ public class CachedContentIndexTest extends InstrumentationTestCase {
     // Non encrypted index file can be read even when encryption key provided.
     assertStoredAndLoadedEqual(new CachedContentIndex(cacheDir),
         new CachedContentIndex(cacheDir, key));
+
+    // Test multiple store() calls
+    CachedContentIndex index = new CachedContentIndex(cacheDir, key);
+    index.addNew(new CachedContent(15, "key3", 110));
+    index.store();
+    assertStoredAndLoadedEqual(index, new CachedContentIndex(cacheDir, key));
   }
 
   private void assertStoredAndLoadedEqual(CachedContentIndex index, CachedContentIndex index2)

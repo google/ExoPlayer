@@ -21,9 +21,9 @@ import com.google.android.exoplayer2.metadata.MetadataDecoderException;
 import junit.framework.TestCase;
 
 /**
- * Test for {@link Id3Decoder}
+ * Test for {@link Id3Decoder}.
  */
-public class Id3DecoderTest extends TestCase {
+public final class Id3DecoderTest extends TestCase {
 
   public void testDecodeTxxxFrame() throws MetadataDecoderException {
     byte[] rawId3 = new byte[] {73, 68, 51, 4, 0, 0, 0, 0, 0, 41, 84, 88, 88, 88, 0, 0, 0, 31, 0, 0,
@@ -32,9 +32,10 @@ public class Id3DecoderTest extends TestCase {
     Id3Decoder decoder = new Id3Decoder();
     Metadata metadata = decoder.decode(rawId3, rawId3.length);
     assertEquals(1, metadata.length());
-    TxxxFrame txxxFrame = (TxxxFrame) metadata.get(0);
-    assertEquals("", txxxFrame.description);
-    assertEquals("mdialog_VINDICO1527664_start", txxxFrame.value);
+    TextInformationFrame textInformationFrame = (TextInformationFrame) metadata.get(0);
+    assertEquals("TXXX", textInformationFrame.id);
+    assertEquals("", textInformationFrame.description);
+    assertEquals("mdialog_VINDICO1527664_start", textInformationFrame.value);
   }
 
   public void testDecodeApicFrame() throws MetadataDecoderException {
@@ -60,7 +61,19 @@ public class Id3DecoderTest extends TestCase {
     assertEquals(1, metadata.length());
     TextInformationFrame textInformationFrame = (TextInformationFrame) metadata.get(0);
     assertEquals("TIT2", textInformationFrame.id);
-    assertEquals("Hello World", textInformationFrame.description);
+    assertNull(textInformationFrame.description);
+    assertEquals("Hello World", textInformationFrame.value);
+  }
+
+  public void testDecodePrivFrame() throws MetadataDecoderException {
+    byte[] rawId3 = new byte[] {73, 68, 51, 4, 0, 0, 0, 0, 0, 19, 80, 82, 73, 86, 0, 0, 0, 9, 0, 0,
+        116, 101, 115, 116, 0, 1, 2, 3, 4};
+    Id3Decoder decoder = new Id3Decoder();
+    Metadata metadata = decoder.decode(rawId3, rawId3.length);
+    assertEquals(1, metadata.length());
+    PrivFrame privFrame = (PrivFrame) metadata.get(0);
+    assertEquals("test", privFrame.owner);
+    MoreAsserts.assertEquals(new byte[] {1, 2, 3, 4}, privFrame.privateData);
   }
 
 }

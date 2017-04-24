@@ -19,7 +19,6 @@ import android.net.Uri;
 import android.os.SystemClock;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
-import com.google.android.exoplayer2.extractor.TimestampAdjuster;
 import com.google.android.exoplayer2.source.BehindLiveWindowException;
 import com.google.android.exoplayer2.source.TrackGroup;
 import com.google.android.exoplayer2.source.chunk.Chunk;
@@ -33,11 +32,13 @@ import com.google.android.exoplayer2.trackselection.BaseTrackSelection;
 import com.google.android.exoplayer2.trackselection.TrackSelection;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DataSpec;
+import com.google.android.exoplayer2.util.TimestampAdjuster;
 import com.google.android.exoplayer2.util.UriUtil;
 import com.google.android.exoplayer2.util.Util;
 import java.io.IOException;
 import java.math.BigInteger;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Locale;
 
 /**
@@ -80,11 +81,13 @@ import java.util.Locale;
 
   }
 
-  private final DataSource dataSource;
+  private final DataSource mediaDataSource;
+  private final DataSource encryptionDataSource;
   private final TimestampAdjusterProvider timestampAdjusterProvider;
   private final HlsUrl[] variants;
   private final HlsPlaylistTracker playlistTracker;
   private final TrackGroup trackGroup;
+  private final List<Format> muxedCaptionFormats;
 
   private boolean isTimestampMaster;
   private byte[] scratchSpace;
@@ -103,24 +106,28 @@ import java.util.Locale;
   /**
    * @param playlistTracker The {@link HlsPlaylistTracker} from which to obtain media playlists.
    * @param variants The available variants.
-   * @param dataSource A {@link DataSource} suitable for loading the media data.
+   * @param dataSourceFactory An {@link HlsDataSourceFactory} to create {@link DataSource}s for the
+   *     chunks.
    * @param timestampAdjusterProvider A provider of {@link TimestampAdjuster} instances. If
    *     multiple {@link HlsChunkSource}s are used for a single playback, they should all share the
    *     same provider.
+   * @param muxedCaptionFormats List of muxed caption {@link Format}s.
    */
   public HlsChunkSource(HlsPlaylistTracker playlistTracker, HlsUrl[] variants,
-      DataSource dataSource, TimestampAdjusterProvider timestampAdjusterProvider) {
+      HlsDataSourceFactory dataSourceFactory, TimestampAdjusterProvider timestampAdjusterProvider,
+      List<Format> muxedCaptionFormats) {
     this.playlistTracker = playlistTracker;
     this.variants = variants;
-    this.dataSource = dataSource;
     this.timestampAdjusterProvider = timestampAdjusterProvider;
-
+    this.muxedCaptionFormats = muxedCaptionFormats;
     Format[] variantFormats = new Format[variants.length];
     int[] initialTrackSelection = new int[variants.length];
     for (int i = 0; i < variants.length; i++) {
       variantFormats[i] = variants[i].format;
       initialTrackSelection[i] = i;
     }
+    mediaDataSource = dataSourceFactory.createDataSource(C.DATA_TYPE_MEDIA);
+    encryptionDataSource = dataSourceFactory.createDataSource(C.DATA_TYPE_DRM);
     trackGroup = new TrackGroup(variantFormats);
     trackSelection = new InitializationTrackSelection(trackGroup, initialTrackSelection);
   }
@@ -194,15 +201,16 @@ import java.util.Locale;
 
     // Select the variant.
     trackSelection.updateSelectedTrack(bufferedDurationUs);
-    int newVariantIndex = trackSelection.getSelectedIndexInTrackGroup();
+    int selectedVariantIndex = trackSelection.getSelectedIndexInTrackGroup();
 
-    boolean switchingVariant = oldVariantIndex != newVariantIndex;
-    HlsMediaPlaylist mediaPlaylist = playlistTracker.getPlaylistSnapshot(variants[newVariantIndex]);
-    if (mediaPlaylist == null) {
-      out.playlist = variants[newVariantIndex];
+    boolean switchingVariant = oldVariantIndex != selectedVariantIndex;
+    HlsUrl selectedUrl = variants[selectedVariantIndex];
+    if (!playlistTracker.isSnapshotValid(selectedUrl)) {
+      out.playlist = selectedUrl;
       // Retry when playlist is refreshed.
       return;
     }
+    HlsMediaPlaylist mediaPlaylist = playlistTracker.getPlaylistSnapshot(selectedUrl);
 
     // Select the chunk.
     int chunkMediaSequence;
@@ -218,8 +226,9 @@ import java.util.Locale;
         if (chunkMediaSequence < mediaPlaylist.mediaSequence && previous != null) {
           // We try getting the next chunk without adapting in case that's the reason for falling
           // behind the live window.
-          newVariantIndex = oldVariantIndex;
-          mediaPlaylist = playlistTracker.getPlaylistSnapshot(variants[newVariantIndex]);
+          selectedVariantIndex = oldVariantIndex;
+          selectedUrl = variants[selectedVariantIndex];
+          mediaPlaylist = playlistTracker.getPlaylistSnapshot(selectedUrl);
           chunkMediaSequence = previous.getNextChunkIndex();
         }
       }
@@ -236,7 +245,7 @@ import java.util.Locale;
       if (mediaPlaylist.hasEndTag) {
         out.endOfStream = true;
       } else /* Live */ {
-        out.playlist = variants[newVariantIndex];
+        out.playlist = selectedUrl;
       }
       return;
     }
@@ -249,7 +258,7 @@ import java.util.Locale;
       Uri keyUri = UriUtil.resolveToUri(mediaPlaylist.baseUri, segment.encryptionKeyUri);
       if (!keyUri.equals(encryptionKeyUri)) {
         // Encryption is specified and the key has changed.
-        out.chunk = newEncryptionKeyChunk(keyUri, segment.encryptionIV, newVariantIndex,
+        out.chunk = newEncryptionKeyChunk(keyUri, segment.encryptionIV, selectedVariantIndex,
             trackSelection.getSelectionReason(), trackSelection.getSelectionData());
         return;
       }
@@ -270,18 +279,19 @@ import java.util.Locale;
 
     // Compute start time of the next chunk.
     long startTimeUs = mediaPlaylist.startTimeUs + segment.relativeStartTimeUs;
+    int discontinuitySequence = mediaPlaylist.discontinuitySequence
+        + segment.relativeDiscontinuitySequence;
     TimestampAdjuster timestampAdjuster = timestampAdjusterProvider.getAdjuster(
-        segment.discontinuitySequenceNumber, startTimeUs);
+        discontinuitySequence);
 
     // Configure the data source and spec for the chunk.
     Uri chunkUri = UriUtil.resolveToUri(mediaPlaylist.baseUri, segment.url);
     DataSpec dataSpec = new DataSpec(chunkUri, segment.byterangeOffset, segment.byterangeLength,
         null);
-    out.chunk = new HlsMediaChunk(dataSource, dataSpec, initDataSpec, variants[newVariantIndex],
-        trackSelection.getSelectionReason(), trackSelection.getSelectionData(),
-        startTimeUs, startTimeUs + segment.durationUs, chunkMediaSequence,
-        segment.discontinuitySequenceNumber, isTimestampMaster, timestampAdjuster, previous,
-        encryptionKey, encryptionIv);
+    out.chunk = new HlsMediaChunk(mediaDataSource, dataSpec, initDataSpec, selectedUrl,
+        muxedCaptionFormats, trackSelection.getSelectionReason(), trackSelection.getSelectionData(),
+        startTimeUs, startTimeUs + segment.durationUs, chunkMediaSequence, discontinuitySequence,
+        isTimestampMaster, timestampAdjuster, previous, encryptionKey, encryptionIv);
   }
 
   /**
@@ -334,7 +344,7 @@ import java.util.Locale;
   private EncryptionKeyChunk newEncryptionKeyChunk(Uri keyUri, String iv, int variantIndex,
       int trackSelectionReason, Object trackSelectionData) {
     DataSpec dataSpec = new DataSpec(keyUri, 0, C.LENGTH_UNSET, null, DataSpec.FLAG_ALLOW_GZIP);
-    return new EncryptionKeyChunk(dataSource, dataSpec, variants[variantIndex].format,
+    return new EncryptionKeyChunk(encryptionDataSource, dataSpec, variants[variantIndex].format,
         trackSelectionReason, trackSelectionData, scratchSpace, iv);
   }
 

@@ -28,6 +28,7 @@ public abstract class BaseRenderer implements Renderer, RendererCapabilities {
 
   private final int trackType;
 
+  private RendererConfiguration configuration;
   private int index;
   private int state;
   private SampleStream stream;
@@ -70,9 +71,11 @@ public abstract class BaseRenderer implements Renderer, RendererCapabilities {
   }
 
   @Override
-  public final void enable(Format[] formats, SampleStream stream, long positionUs, boolean joining,
-      long offsetUs) throws ExoPlaybackException {
+  public final void enable(RendererConfiguration configuration, Format[] formats,
+      SampleStream stream, long positionUs, boolean joining, long offsetUs)
+      throws ExoPlaybackException {
     Assertions.checkState(state == STATE_DISABLED);
+    this.configuration = configuration;
     state = STATE_ENABLED;
     onEnabled(joining);
     replaceStream(formats, stream, offsetUs);
@@ -238,12 +241,25 @@ public abstract class BaseRenderer implements Renderer, RendererCapabilities {
   // Methods to be called by subclasses.
 
   /**
+   * Returns the configuration set when the renderer was most recently enabled.
+   */
+  protected final RendererConfiguration getConfiguration() {
+    return configuration;
+  }
+
+  /**
    * Returns the index of the renderer within the player.
-   *
-   * @return The index of the renderer within the player.
    */
   protected final int getIndex() {
     return index;
+  }
+
+  /**
+   * Use {@link #readSource(FormatHolder, DecoderInputBuffer, boolean)} instead.
+   */
+  @Deprecated
+  protected final int readSource(FormatHolder formatHolder, DecoderInputBuffer buffer) {
+    return readSource(formatHolder, buffer, false);
   }
 
   /**
@@ -251,16 +267,19 @@ public abstract class BaseRenderer implements Renderer, RendererCapabilities {
    * {@link C#RESULT_BUFFER_READ} is only returned if {@link #setCurrentStreamFinal()} has been
    * called. {@link C#RESULT_NOTHING_READ} is returned otherwise.
    *
-   * @see SampleStream#readData(FormatHolder, DecoderInputBuffer)
    * @param formatHolder A {@link FormatHolder} to populate in the case of reading a format.
    * @param buffer A {@link DecoderInputBuffer} to populate in the case of reading a sample or the
    *     end of the stream. If the end of the stream has been reached, the
    *     {@link C#BUFFER_FLAG_END_OF_STREAM} flag will be set on the buffer.
+   * @param formatRequired Whether the caller requires that the format of the stream be read even if
+   *     it's not changing. A sample will never be read if set to true, however it is still possible
+   *     for the end of stream or nothing to be read.
    * @return The result, which can be {@link C#RESULT_NOTHING_READ}, {@link C#RESULT_FORMAT_READ} or
    *     {@link C#RESULT_BUFFER_READ}.
    */
-  protected final int readSource(FormatHolder formatHolder, DecoderInputBuffer buffer) {
-    int result = stream.readData(formatHolder, buffer);
+  protected final int readSource(FormatHolder formatHolder, DecoderInputBuffer buffer,
+      boolean formatRequired) {
+    int result = stream.readData(formatHolder, buffer, formatRequired);
     if (result == C.RESULT_BUFFER_READ) {
       if (buffer.isEndOfStream()) {
         readEndOfStream = true;
@@ -292,7 +311,7 @@ public abstract class BaseRenderer implements Renderer, RendererCapabilities {
    * @param timeUs The specified time.
    */
   protected void skipToKeyframeBefore(long timeUs) {
-    stream.skipToKeyframeBefore(timeUs);
+    stream.skipToKeyframeBefore(timeUs - streamOffsetUs);
   }
 
 }

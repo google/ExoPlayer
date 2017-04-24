@@ -141,7 +141,7 @@ import java.nio.ByteBuffer;
   private native long vpxClose(long context);
   private native long vpxDecode(long context, ByteBuffer encoded, int length);
   private native long vpxSecureDecode(long context, ByteBuffer encoded, int length,
-      ExoMediaCrypto wvCrypto, int inputMode, byte[] key, byte[] iv,
+      ExoMediaCrypto mediaCrypto, int inputMode, byte[] key, byte[] iv,
       int numSubSamples, int[] numBytesOfClearData, int[] numBytesOfEncryptedData);
   private native int vpxGetFrame(long context, VpxOutputBuffer outputBuffer);
   private native int vpxGetErrorCode(long context);

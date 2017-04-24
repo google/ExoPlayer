@@ -57,8 +57,7 @@ public final class MergingMediaSource implements MediaSource {
      * The reason the merge failed. One of {@link #REASON_WINDOWS_ARE_DYNAMIC} and
      * {@link #REASON_PERIOD_COUNT_MISMATCH}.
      */
-    @Reason
-    public final int reason;
+    @Reason public final int reason;
 
     /**
      * @param reason The reason the merge failed. One of {@link #REASON_WINDOWS_ARE_DYNAMIC} and

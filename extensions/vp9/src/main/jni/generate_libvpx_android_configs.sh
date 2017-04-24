@@ -40,7 +40,7 @@ config[0]+=" --enable-neon-asm"
 
 arch[1]="armeabi"
 config[1]="--target=armv7-android-gcc --sdk-path=$ndk --disable-neon"
-config[1]+=" --disable-neon-asm --disable-media"
+config[1]+=" --disable-neon-asm"
 
 arch[2]="mips"
 config[2]="--force-target=mips32-android-gcc --sdk-path=$ndk"
@@ -78,12 +78,12 @@ convert_asm() {
   for i in $(seq 0 ${limit}); do
     while read file; do
       case "${file}" in
-        *.asm.s)
+        *.asm.[sS])
           # Some files may already have been processed (there are duplicated
           # .asm.s files for vp8 in the armeabi/armeabi-v7a configurations).
           file="libvpx/${file}"
           if [[ ! -e "${file}" ]]; then
-            asm_file="${file%.s}"
+            asm_file="${file%.[sS]}"
             cat "${asm_file}" | libvpx/build/make/ads2gas.pl > "${file}"
             remove_trailing_whitespace "${file}"
             rm "${asm_file}"
@@ -105,7 +105,11 @@ for i in $(seq 0 ${limit}); do
   echo "configure ${config[${i}]} ${common_params}"
   ../../libvpx/configure ${config[${i}]} ${common_params}
   rm -f libvpx_srcs.txt
-  make libvpx_srcs.txt
+  for f in ${allowed_files}; do
+    # the build system supports multiple different configurations. avoid
+    # failing out when, for example, vp8_rtcd.h is not part of a configuration
+    make "${f}" || true
+  done
 
   # remove files that aren't needed
   rm -rf !(${allowed_files// /|})

@@ -74,8 +74,11 @@ DECODER_FUNC(jlong, vpxInit) {
   vpx_codec_dec_cfg_t cfg = {0, 0, 0};
   cfg.threads = android_getCpuCount();
   errorCode = 0;
-  if (vpx_codec_dec_init(context, &vpx_codec_vp9_dx_algo, &cfg, 0)) {
-    LOGE("ERROR: Fail to initialize libvpx decoder.");
+  vpx_codec_err_t err = vpx_codec_dec_init(context, &vpx_codec_vp9_dx_algo,
+                                           &cfg, 0);
+  if (err) {
+    LOGE("ERROR: Failed to initialize libvpx decoder, error = %d.", err);
+    errorCode = err;
     return 0;
   }
 
@@ -160,6 +163,7 @@ DECODER_FUNC(jint, vpxGetFrame, jlong jContext, jobject jOutputBuffer) {
     const int kColorspaceUnknown = 0;
     const int kColorspaceBT601 = 1;
     const int kColorspaceBT709 = 2;
+    const int kColorspaceBT2020 = 3;
 
     int colorspace = kColorspaceUnknown;
     switch (img->cs) {
@@ -168,6 +172,9 @@ DECODER_FUNC(jint, vpxGetFrame, jlong jContext, jobject jOutputBuffer) {
         break;
       case VPX_CS_BT_709:
         colorspace = kColorspaceBT709;
+        break;
+    case VPX_CS_BT_2020:
+        colorspace = kColorspaceBT2020;
         break;
       default:
         break;
@@ -186,14 +193,55 @@ DECODER_FUNC(jint, vpxGetFrame, jlong jContext, jobject jOutputBuffer) {
     jbyte* const data =
         reinterpret_cast<jbyte*>(env->GetDirectBufferAddress(dataObject));
 
-    // TODO: This copy can be eliminated by using external frame buffers. NOLINT
-    // This is insignificant for smaller videos but takes ~1.5ms for 1080p
-    // clips. So this should eventually be gotten rid of.
-    const uint64_t y_length = img->stride[VPX_PLANE_Y] * img->d_h;
-    const uint64_t uv_length = img->stride[VPX_PLANE_U] * ((img->d_h + 1) / 2);
-    memcpy(data, img->planes[VPX_PLANE_Y], y_length);
-    memcpy(data + y_length, img->planes[VPX_PLANE_U], uv_length);
-    memcpy(data + y_length + uv_length, img->planes[VPX_PLANE_V], uv_length);
+    const int32_t uvHeight = (img->d_h + 1) / 2;
+    const uint64_t yLength = img->stride[VPX_PLANE_Y] * img->d_h;
+    const uint64_t uvLength = img->stride[VPX_PLANE_U] * uvHeight;
+    int sample = 0;
+    if (img->fmt == VPX_IMG_FMT_I42016) {  // HBD planar 420.
+      // Note: The stride for BT2020 is twice of what we use so this is wasting
+      // memory. The long term goal however is to upload half-float/short so
+      // it's not important to optimize the stride at this time.
+      // Y
+      for (int y = 0; y < img->d_h; y++) {
+        const uint16_t* srcBase = reinterpret_cast<uint16_t*>(
+            img->planes[VPX_PLANE_Y] + img->stride[VPX_PLANE_Y] * y);
+        int8_t* destBase = data + img->stride[VPX_PLANE_Y] * y;
+        for (int x = 0; x < img->d_w; x++) {
+          // Lightweight dither. Carryover the remainder of each 10->8 bit
+          // conversion to the next pixel.
+          sample += *srcBase++;
+          *destBase++ = sample >> 2;
+          sample = sample & 3;  // Remainder.
+        }
+      }
+      // UV
+      const int32_t uvWidth = (img->d_w + 1) / 2;
+      for (int y = 0; y < uvHeight; y++) {
+        const uint16_t* srcUBase = reinterpret_cast<uint16_t*>(
+            img->planes[VPX_PLANE_U] + img->stride[VPX_PLANE_U] * y);
+        const uint16_t* srcVBase = reinterpret_cast<uint16_t*>(
+            img->planes[VPX_PLANE_V] + img->stride[VPX_PLANE_V] * y);
+        int8_t* destUBase = data + yLength + img->stride[VPX_PLANE_U] * y;
+        int8_t* destVBase = data + yLength + uvLength
+            + img->stride[VPX_PLANE_V] * y;
+        for (int x = 0; x < uvWidth; x++) {
+          // Lightweight dither. Carryover the remainder of each 10->8 bit
+          // conversion to the next pixel.
+          sample += *srcUBase++;
+          *destUBase++ = sample >> 2;
+          sample = (*srcVBase++) + (sample & 3);  // srcV + previousRemainder.
+          *destVBase++ = sample >> 2;
+          sample = sample & 3;  // Remainder.
+        }
+      }
+    } else {
+      // TODO: This copy can be eliminated by using external frame buffers. This
+      // is insignificant for smaller videos but takes ~1.5ms for 1080p clips.
+      // So this should eventually be gotten rid of.
+      memcpy(data, img->planes[VPX_PLANE_Y], yLength);
+      memcpy(data + yLength, img->planes[VPX_PLANE_U], uvLength);
+      memcpy(data + yLength + uvLength, img->planes[VPX_PLANE_V], uvLength);
+    }
   }
   return 0;
 }

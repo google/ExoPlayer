@@ -17,11 +17,10 @@ package com.google.android.exoplayer2.source.hls;
 
 import android.text.TextUtils;
 import com.google.android.exoplayer2.C;
-import com.google.android.exoplayer2.ParserException;
+import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.extractor.DefaultExtractorInput;
 import com.google.android.exoplayer2.extractor.Extractor;
 import com.google.android.exoplayer2.extractor.ExtractorInput;
-import com.google.android.exoplayer2.extractor.TimestampAdjuster;
 import com.google.android.exoplayer2.extractor.mp3.Mp3Extractor;
 import com.google.android.exoplayer2.extractor.mp4.FragmentedMp4Extractor;
 import com.google.android.exoplayer2.extractor.ts.Ac3Extractor;
@@ -37,8 +36,10 @@ import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DataSpec;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.ParsableByteArray;
+import com.google.android.exoplayer2.util.TimestampAdjuster;
 import com.google.android.exoplayer2.util.Util;
 import java.io.IOException;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -56,6 +57,7 @@ import java.util.concurrent.atomic.AtomicInteger;
   private static final String EC3_FILE_EXTENSION = ".ec3";
   private static final String MP3_FILE_EXTENSION = ".mp3";
   private static final String MP4_FILE_EXTENSION = ".mp4";
+  private static final String M4_FILE_EXTENSION_PREFIX = ".m4";
   private static final String VTT_FILE_EXTENSION = ".vtt";
   private static final String WEBVTT_FILE_EXTENSION = ".webvtt";
 
@@ -79,8 +81,11 @@ import java.util.concurrent.atomic.AtomicInteger;
   private final boolean isEncrypted;
   private final boolean isMasterTimestampSource;
   private final TimestampAdjuster timestampAdjuster;
-  private final HlsMediaChunk previousChunk;
   private final String lastPathSegment;
+  private final Extractor previousExtractor;
+  private final boolean shouldSpliceIn;
+  private final boolean needNewExtractor;
+  private final List<Format> muxedCaptionFormats;
 
   private final boolean isPackedAudio;
   private final Id3Decoder id3Decoder;
@@ -99,6 +104,7 @@ import java.util.concurrent.atomic.AtomicInteger;
    * @param dataSpec Defines the data to be loaded.
    * @param initDataSpec Defines the initialization data to be fed to new extractors. May be null.
    * @param hlsUrl The url of the playlist from which this chunk was obtained.
+   * @param muxedCaptionFormats List of muxed caption {@link Format}s.
    * @param trackSelectionReason See {@link #trackSelectionReason}.
    * @param trackSelectionData See {@link #trackSelectionData}.
    * @param startTimeUs The start time of the chunk in microseconds.
@@ -112,18 +118,19 @@ import java.util.concurrent.atomic.AtomicInteger;
    * @param encryptionIv For AES encryption chunks, the encryption initialization vector.
    */
   public HlsMediaChunk(DataSource dataSource, DataSpec dataSpec, DataSpec initDataSpec,
-      HlsUrl hlsUrl, int trackSelectionReason, Object trackSelectionData, long startTimeUs,
-      long endTimeUs, int chunkIndex, int discontinuitySequenceNumber,
-      boolean isMasterTimestampSource, TimestampAdjuster timestampAdjuster,
-      HlsMediaChunk previousChunk, byte[] encryptionKey, byte[] encryptionIv) {
+      HlsUrl hlsUrl, List<Format> muxedCaptionFormats, int trackSelectionReason,
+      Object trackSelectionData, long startTimeUs, long endTimeUs, int chunkIndex,
+      int discontinuitySequenceNumber, boolean isMasterTimestampSource,
+      TimestampAdjuster timestampAdjuster, HlsMediaChunk previousChunk, byte[] encryptionKey,
+      byte[] encryptionIv) {
     super(buildDataSource(dataSource, encryptionKey, encryptionIv), dataSpec, hlsUrl.format,
         trackSelectionReason, trackSelectionData, startTimeUs, endTimeUs, chunkIndex);
+    this.discontinuitySequenceNumber = discontinuitySequenceNumber;
     this.initDataSpec = initDataSpec;
     this.hlsUrl = hlsUrl;
+    this.muxedCaptionFormats = muxedCaptionFormats;
     this.isMasterTimestampSource = isMasterTimestampSource;
     this.timestampAdjuster = timestampAdjuster;
-    this.discontinuitySequenceNumber = discontinuitySequenceNumber;
-    this.previousChunk = previousChunk;
     // Note: this.dataSource and dataSource may be different.
     this.isEncrypted = this.dataSource instanceof Aes128DataSource;
     lastPathSegment = dataSpec.uri.getLastPathSegment();
@@ -131,13 +138,19 @@ import java.util.concurrent.atomic.AtomicInteger;
         || lastPathSegment.endsWith(AC3_FILE_EXTENSION)
         || lastPathSegment.endsWith(EC3_FILE_EXTENSION)
         || lastPathSegment.endsWith(MP3_FILE_EXTENSION);
-    if (isPackedAudio) {
-      id3Decoder = previousChunk != null ? previousChunk.id3Decoder : new Id3Decoder();
-      id3Data = previousChunk != null ? previousChunk.id3Data
-          : new ParsableByteArray(Id3Decoder.ID3_HEADER_LENGTH);
+    if (previousChunk != null) {
+      id3Decoder = previousChunk.id3Decoder;
+      id3Data = previousChunk.id3Data;
+      previousExtractor = previousChunk.extractor;
+      shouldSpliceIn = previousChunk.hlsUrl != hlsUrl;
+      needNewExtractor = previousChunk.discontinuitySequenceNumber != discontinuitySequenceNumber
+          || shouldSpliceIn;
     } else {
-      id3Decoder = null;
-      id3Data = null;
+      id3Decoder = isPackedAudio ? new Id3Decoder() : null;
+      id3Data = isPackedAudio ? new ParsableByteArray(Id3Decoder.ID3_HEADER_LENGTH) : null;
+      previousExtractor = null;
+      shouldSpliceIn = false;
+      needNewExtractor = true;
     }
     initDataSource = dataSource;
     uid = UID_SOURCE.getAndIncrement();
@@ -151,7 +164,7 @@ import java.util.concurrent.atomic.AtomicInteger;
    */
   public void init(HlsSampleStreamWrapper output) {
     extractorOutput = output;
-    output.init(uid, previousChunk != null && previousChunk.hlsUrl != hlsUrl);
+    output.init(uid, shouldSpliceIn);
   }
 
   @Override
@@ -180,7 +193,7 @@ import java.util.concurrent.atomic.AtomicInteger;
   public void load() throws IOException, InterruptedException {
     if (extractor == null && !isPackedAudio) {
       // See HLS spec, version 20, Section 3.4 for more information on packed audio extraction.
-      extractor = buildExtractorByExtension();
+      extractor = createExtractor();
     }
     maybeLoadInitData();
     if (!loadCanceled) {
@@ -191,8 +204,8 @@ import java.util.concurrent.atomic.AtomicInteger;
   // Internal loading methods.
 
   private void maybeLoadInitData() throws IOException, InterruptedException {
-    if ((previousChunk != null && previousChunk.extractor == extractor) || initLoadCompleted
-        || initDataSpec == null) {
+    if (previousExtractor == extractor || initLoadCompleted || initDataSpec == null) {
+      // According to spec, for packed audio, initDataSpec is expected to be null.
       return;
     }
     DataSpec initSegmentDataSpec = Util.getRemainderDataSpec(initDataSpec, initSegmentBytesLoaded);
@@ -229,6 +242,9 @@ import java.util.concurrent.atomic.AtomicInteger;
     }
     if (!isMasterTimestampSource) {
       timestampAdjuster.waitUntilInitialized();
+    } else if (timestampAdjuster.getFirstSampleTimestampUs() == TimestampAdjuster.DO_NOT_OFFSET) {
+      // We're the master and we haven't set the desired first sample timestamp yet.
+      timestampAdjuster.setFirstSampleTimestampUs(startTimeUs);
     }
     try {
       ExtractorInput input = new DefaultExtractorInput(dataSource,
@@ -236,10 +252,8 @@ import java.util.concurrent.atomic.AtomicInteger;
       if (extractor == null) {
         // Media segment format is packed audio.
         long id3Timestamp = peekId3PrivTimestamp(input);
-        if (id3Timestamp == C.TIME_UNSET) {
-          throw new ParserException("ID3 PRIV timestamp missing.");
-        }
-        extractor = buildPackedAudioExtractor(timestampAdjuster.adjustTsTimestamp(id3Timestamp));
+        extractor = buildPackedAudioExtractor(id3Timestamp != C.TIME_UNSET
+            ? timestampAdjuster.adjustTsTimestamp(id3Timestamp) : startTimeUs);
       }
       if (skipLoadedBytes) {
         input.skipFully(bytesLoaded);
@@ -322,27 +336,30 @@ import java.util.concurrent.atomic.AtomicInteger;
     return new Aes128DataSource(dataSource, encryptionKey, encryptionIv);
   }
 
-  private Extractor buildExtractorByExtension() {
-    // Set the extractor that will read the chunk.
+  private Extractor createExtractor() {
+    // Select the extractor that will read the chunk.
     Extractor extractor;
-    boolean needNewExtractor = previousChunk == null
-        || previousChunk.discontinuitySequenceNumber != discontinuitySequenceNumber
-        || trackFormat != previousChunk.trackFormat;
     boolean usingNewExtractor = true;
-    if (lastPathSegment.endsWith(WEBVTT_FILE_EXTENSION)
+    if (MimeTypes.TEXT_VTT.equals(hlsUrl.format.sampleMimeType)
+        || lastPathSegment.endsWith(WEBVTT_FILE_EXTENSION)
         || lastPathSegment.endsWith(VTT_FILE_EXTENSION)) {
       extractor = new WebvttExtractor(trackFormat.language, timestampAdjuster);
     } else if (!needNewExtractor) {
       // Only reuse TS and fMP4 extractors.
       usingNewExtractor = false;
-      extractor = previousChunk.extractor;
-    } else if (lastPathSegment.endsWith(MP4_FILE_EXTENSION)) {
+      extractor = previousExtractor;
+    } else if (lastPathSegment.endsWith(MP4_FILE_EXTENSION)
+        || lastPathSegment.startsWith(M4_FILE_EXTENSION_PREFIX, lastPathSegment.length() - 4)) {
       extractor = new FragmentedMp4Extractor(0, timestampAdjuster);
     } else {
       // MPEG-2 TS segments, but we need a new extractor.
       // This flag ensures the change of pid between streams does not affect the sample queues.
       @DefaultTsPayloadReaderFactory.Flags
       int esReaderFactoryFlags = DefaultTsPayloadReaderFactory.FLAG_IGNORE_SPLICE_INFO_STREAM;
+      if (!muxedCaptionFormats.isEmpty()) {
+        // The playlist declares closed caption renditions, we should ignore descriptors.
+        esReaderFactoryFlags |= DefaultTsPayloadReaderFactory.FLAG_OVERRIDE_CAPTION_DESCRIPTORS;
+      }
       String codecs = trackFormat.codecs;
       if (!TextUtils.isEmpty(codecs)) {
         // Sometimes AAC and H264 streams are declared in TS chunks even though they don't really
@@ -355,8 +372,8 @@ import java.util.concurrent.atomic.AtomicInteger;
           esReaderFactoryFlags |= DefaultTsPayloadReaderFactory.FLAG_IGNORE_H264_STREAM;
         }
       }
-      extractor = new TsExtractor(timestampAdjuster,
-          new DefaultTsPayloadReaderFactory(esReaderFactoryFlags), true);
+      extractor = new TsExtractor(TsExtractor.MODE_HLS, timestampAdjuster,
+          new DefaultTsPayloadReaderFactory(esReaderFactoryFlags, muxedCaptionFormats));
     }
     if (usingNewExtractor) {
       extractor.init(extractorOutput);
@@ -372,7 +389,7 @@ import java.util.concurrent.atomic.AtomicInteger;
         || lastPathSegment.endsWith(EC3_FILE_EXTENSION)) {
       extractor = new Ac3Extractor(startTimeUs);
     } else if (lastPathSegment.endsWith(MP3_FILE_EXTENSION)) {
-      extractor = new Mp3Extractor(startTimeUs);
+      extractor = new Mp3Extractor(0, startTimeUs);
     } else {
       throw new IllegalArgumentException("Unkown extension for audio file: " + lastPathSegment);
     }

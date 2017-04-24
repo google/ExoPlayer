@@ -29,13 +29,13 @@ public class RepresentationTest extends TestCase {
     String uri = "http://www.google.com";
     SegmentBase base = new SingleSegmentBase(new RangedUri(null, 0, 1), 1, 0, 1, 1);
     Format format = Format.createVideoContainerFormat("0", MimeTypes.APPLICATION_MP4, null,
-        MimeTypes.VIDEO_H264, 2500000, 1920, 1080, Format.NO_VALUE, null);
+        MimeTypes.VIDEO_H264, 2500000, 1920, 1080, Format.NO_VALUE, null, 0);
     Representation representation = Representation.newInstance("test_stream_1", 3, format, uri,
         base);
     assertEquals("test_stream_1.0.3", representation.getCacheKey());
 
     format = Format.createVideoContainerFormat("150", MimeTypes.APPLICATION_MP4, null,
-        MimeTypes.VIDEO_H264, 2500000, 1920, 1080, Format.NO_VALUE, null);
+        MimeTypes.VIDEO_H264, 2500000, 1920, 1080, Format.NO_VALUE, null, 0);
     representation = Representation.newInstance("test_stream_1", Representation.REVISION_ID_DEFAULT,
         format, uri, base);
     assertEquals("test_stream_1.150.-1", representation.getCacheKey());

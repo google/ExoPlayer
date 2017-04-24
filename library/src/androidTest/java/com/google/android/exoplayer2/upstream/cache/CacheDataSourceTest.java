@@ -20,14 +20,16 @@ import android.test.InstrumentationTestCase;
 import android.test.MoreAsserts;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.testutil.FakeDataSource;
-import com.google.android.exoplayer2.testutil.FakeDataSource.Builder;
-import com.google.android.exoplayer2.testutil.TestUtil;
 import com.google.android.exoplayer2.upstream.DataSpec;
+import com.google.android.exoplayer2.upstream.FileDataSource;
+import com.google.android.exoplayer2.util.Util;
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
 
-/** Unit tests for {@link CacheDataSource}. */
+/**
+ * Unit tests for {@link CacheDataSource}.
+ */
 public class CacheDataSourceTest extends InstrumentationTestCase {
 
   private static final byte[] TEST_DATA = new byte[] {0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
@@ -40,13 +42,13 @@ public class CacheDataSourceTest extends InstrumentationTestCase {
 
   @Override
   protected void setUp() throws Exception {
-    cacheDir = TestUtil.createTempFolder(getInstrumentation().getContext());
+    cacheDir = Util.createTempDirectory(getInstrumentation().getContext(), "ExoPlayerTest");
     simpleCache = new SimpleCache(cacheDir, new NoOpCacheEvictor());
   }
 
   @Override
   protected void tearDown() throws Exception {
-    TestUtil.recursiveDelete(cacheDir);
+    Util.recursiveDelete(cacheDir);
   }
 
   public void testMaxCacheFileSize() throws Exception {
@@ -117,9 +119,22 @@ public class CacheDataSourceTest extends InstrumentationTestCase {
         C.LENGTH_UNSET, KEY_2)));
   }
 
+  public void testIgnoreCacheForUnsetLengthRequests() throws Exception {
+    CacheDataSource cacheDataSource = createCacheDataSource(false, true,
+        CacheDataSource.FLAG_IGNORE_CACHE_FOR_UNSET_LENGTH_REQUESTS);
+    assertReadData(cacheDataSource, true, 0, C.LENGTH_UNSET);
+    MoreAsserts.assertEmpty(simpleCache.getKeys());
+  }
+
+  public void testReadOnlyCache() throws Exception {
+    CacheDataSource cacheDataSource = createCacheDataSource(false, false, 0, null);
+    assertReadDataContentLength(cacheDataSource, false, false);
+    assertEquals(0, cacheDir.list().length);
+  }
+
   private void assertCacheAndRead(boolean unboundedRequest, boolean simulateUnknownLength)
       throws IOException {
-    // Read all data from upstream and cache
+    // Read all data from upstream and write to cache
     CacheDataSource cacheDataSource = createCacheDataSource(false, simulateUnknownLength);
     assertReadDataContentLength(cacheDataSource, unboundedRequest, simulateUnknownLength);
 
@@ -169,15 +184,27 @@ public class CacheDataSourceTest extends InstrumentationTestCase {
 
   private CacheDataSource createCacheDataSource(boolean setReadException,
       boolean simulateUnknownLength) {
-    Builder builder = new Builder();
+    return createCacheDataSource(setReadException, simulateUnknownLength,
+        CacheDataSource.FLAG_BLOCK_ON_CACHE);
+  }
+
+  private CacheDataSource createCacheDataSource(boolean setReadException,
+      boolean simulateUnknownLength, @CacheDataSource.Flags int flags) {
+    return createCacheDataSource(setReadException, simulateUnknownLength, flags,
+        new CacheDataSink(simpleCache, MAX_CACHE_FILE_SIZE));
+  }
+
+  private CacheDataSource createCacheDataSource(boolean setReadException,
+      boolean simulateUnknownLength, @CacheDataSource.Flags int flags,
+      CacheDataSink cacheWriteDataSink) {
+    FakeDataSource.Builder builder = new FakeDataSource.Builder();
     if (setReadException) {
       builder.appendReadError(new IOException("Shouldn't read from upstream"));
     }
-    builder.setSimulateUnknownLength(simulateUnknownLength);
-    builder.appendReadData(TEST_DATA);
-    FakeDataSource upstream = builder.build();
-    return new CacheDataSource(simpleCache, upstream, CacheDataSource.FLAG_BLOCK_ON_CACHE,
-        MAX_CACHE_FILE_SIZE);
+    FakeDataSource upstream =
+        builder.setSimulateUnknownLength(simulateUnknownLength).appendReadData(TEST_DATA).build();
+    return new CacheDataSource(simpleCache, upstream, new FileDataSource(), cacheWriteDataSink,
+        flags, null);
   }
 
 }

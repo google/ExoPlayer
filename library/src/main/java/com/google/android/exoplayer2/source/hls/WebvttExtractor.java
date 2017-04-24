@@ -24,12 +24,12 @@ import com.google.android.exoplayer2.extractor.ExtractorInput;
 import com.google.android.exoplayer2.extractor.ExtractorOutput;
 import com.google.android.exoplayer2.extractor.PositionHolder;
 import com.google.android.exoplayer2.extractor.SeekMap;
-import com.google.android.exoplayer2.extractor.TimestampAdjuster;
 import com.google.android.exoplayer2.extractor.TrackOutput;
 import com.google.android.exoplayer2.text.SubtitleDecoderException;
 import com.google.android.exoplayer2.text.webvtt.WebvttParserUtil;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.ParsableByteArray;
+import com.google.android.exoplayer2.util.TimestampAdjuster;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.regex.Matcher;
@@ -167,7 +167,7 @@ import java.util.regex.Pattern;
   }
 
   private TrackOutput buildTrackOutput(long subsampleOffsetUs) {
-    TrackOutput trackOutput = output.track(0);
+    TrackOutput trackOutput = output.track(0, C.TRACK_TYPE_TEXT);
     trackOutput.format(Format.createTextSampleFormat(null, MimeTypes.TEXT_VTT, null,
         Format.NO_VALUE, 0, language, null, subsampleOffsetUs));
     output.endTracks();

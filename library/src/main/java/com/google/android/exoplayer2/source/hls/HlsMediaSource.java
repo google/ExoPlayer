@@ -44,7 +44,7 @@ public final class HlsMediaSource implements MediaSource,
   public static final int DEFAULT_MIN_LOADABLE_RETRY_COUNT = 3;
 
   private final Uri manifestUri;
-  private final DataSource.Factory dataSourceFactory;
+  private final HlsDataSourceFactory dataSourceFactory;
   private final int minLoadableRetryCount;
   private final EventDispatcher eventDispatcher;
 
@@ -58,6 +58,13 @@ public final class HlsMediaSource implements MediaSource,
   }
 
   public HlsMediaSource(Uri manifestUri, DataSource.Factory dataSourceFactory,
+      int minLoadableRetryCount, Handler eventHandler,
+      AdaptiveMediaSourceEventListener eventListener) {
+    this(manifestUri, new DefaultHlsDataSourceFactory(dataSourceFactory), minLoadableRetryCount,
+        eventHandler, eventListener);
+  }
+
+  public HlsMediaSource(Uri manifestUri, HlsDataSourceFactory dataSourceFactory,
       int minLoadableRetryCount, Handler eventHandler,
       AdaptiveMediaSourceEventListener eventListener) {
     this.manifestUri = manifestUri;
@@ -94,26 +101,36 @@ public final class HlsMediaSource implements MediaSource,
 
   @Override
   public void releaseSource() {
-    playlistTracker.release();
-    playlistTracker = null;
+    if (playlistTracker != null) {
+      playlistTracker.release();
+      playlistTracker = null;
+    }
     sourceListener = null;
   }
 
   @Override
   public void onPrimaryPlaylistRefreshed(HlsMediaPlaylist playlist) {
     SinglePeriodTimeline timeline;
+    long windowDefaultStartPositionUs = playlist.startOffsetUs;
     if (playlistTracker.isLive()) {
-      // TODO: fix windowPositionInPeriodUs when playlist is empty.
+      long periodDurationUs = playlist.hasEndTag ? (playlist.startTimeUs + playlist.durationUs)
+          : C.TIME_UNSET;
       List<HlsMediaPlaylist.Segment> segments = playlist.segments;
-      long windowDefaultStartPositionUs = segments.isEmpty() ? 0
-          : segments.get(Math.max(0, segments.size() - 3)).relativeStartTimeUs;
-      timeline = new SinglePeriodTimeline(C.TIME_UNSET, playlist.durationUs,
+      if (windowDefaultStartPositionUs == C.TIME_UNSET) {
+        windowDefaultStartPositionUs = segments.isEmpty() ? 0
+            : segments.get(Math.max(0, segments.size() - 3)).relativeStartTimeUs;
+      }
+      timeline = new SinglePeriodTimeline(periodDurationUs, playlist.durationUs,
           playlist.startTimeUs, windowDefaultStartPositionUs, true, !playlist.hasEndTag);
     } else /* not live */ {
+      if (windowDefaultStartPositionUs == C.TIME_UNSET) {
+        windowDefaultStartPositionUs = 0;
+      }
       timeline = new SinglePeriodTimeline(playlist.startTimeUs + playlist.durationUs,
-          playlist.durationUs, playlist.startTimeUs, 0, true, false);
+          playlist.durationUs, playlist.startTimeUs, windowDefaultStartPositionUs, true, false);
     }
-    sourceListener.onSourceInfoRefreshed(timeline, playlist);
+    sourceListener.onSourceInfoRefreshed(timeline,
+        new HlsManifest(playlistTracker.getMasterPlaylist(), playlist));
   }
 
 }

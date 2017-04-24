@@ -12,42 +12,31 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 apply plugin: 'com.android.library'
-apply plugin: 'bintray-release'
 
 android {
     compileSdkVersion project.ext.compileSdkVersion
     buildToolsVersion project.ext.buildToolsVersion
 
     defaultConfig {
-        minSdkVersion 9
+        minSdkVersion project.ext.minSdkVersion
         targetSdkVersion project.ext.targetSdkVersion
     }
 
-    buildTypes {
-        release {
-            minifyEnabled false
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
-        }
-    }
-
     lintOptions {
-        abortOnError false
+        // See: https://github.com/square/okio/issues/58
+        warning 'InvalidPackage'
     }
 }
 
 dependencies {
     compile project(':library')
-    compile('com.squareup.okhttp3:okhttp:3.4.1') {
+    compile('com.squareup.okhttp3:okhttp:3.6.0') {
         exclude group: 'org.json'
     }
 }
 
-publish {
-    artifactId = 'extension-okhttp'
-    description = 'An OkHttp extension for ExoPlayer.'
-    repoName = releaseRepoName
-    userOrg = releaseUserOrg
-    groupId = releaseGroupId
-    version = releaseVersion
-    website = releaseWebsite
+ext {
+    releaseArtifact = 'extension-okhttp'
+    releaseDescription = 'OkHttp extension for ExoPlayer.'
 }
+apply from: '../../publish.gradle'

@@ -42,6 +42,12 @@ import javax.microedition.khronos.opengles.GL10;
     1.793f, -0.533f, 0.0f,
   };
 
+  private static final float[] kColorConversion2020 = {
+    1.168f, 1.168f, 1.168f,
+    0.0f, -0.188f, 2.148f,
+    1.683f, -0.652f, 0.0f,
+  };
+
   private static final String VERTEX_SHADER =
       "varying vec2 interp_tc;\n"
       + "attribute vec4 in_pos;\n"
@@ -59,12 +65,13 @@ import javax.microedition.khronos.opengles.GL10;
       + "uniform sampler2D v_tex;\n"
       + "uniform mat3 mColorConversion;\n"
       + "void main() {\n"
-      + "  vec3 yuv;"
+      + "  vec3 yuv;\n"
       + "  yuv.x = texture2D(y_tex, interp_tc).r - 0.0625;\n"
       + "  yuv.y = texture2D(u_tex, interp_tc).r - 0.5;\n"
       + "  yuv.z = texture2D(v_tex, interp_tc).r - 0.5;\n"
-      + "  gl_FragColor = vec4(mColorConversion * yuv, 1.0);"
+      + "  gl_FragColor = vec4(mColorConversion * yuv, 1.0);\n"
       + "}\n";
+
   private static final FloatBuffer TEXTURE_VERTICES = nativeFloatBuffer(
       -1.0f, 1.0f,
       -1.0f, -1.0f,
@@ -156,8 +163,18 @@ import javax.microedition.khronos.opengles.GL10;
     }
     VpxOutputBuffer outputBuffer = renderedOutputBuffer;
     // Set color matrix. Assume BT709 if the color space is unknown.
-    float[] colorConversion = outputBuffer.colorspace == VpxOutputBuffer.COLORSPACE_BT601
-        ? kColorConversion601 : kColorConversion709;
+    float[] colorConversion = kColorConversion709;
+    switch (outputBuffer.colorspace) {
+      case VpxOutputBuffer.COLORSPACE_BT601:
+        colorConversion = kColorConversion601;
+        break;
+      case VpxOutputBuffer.COLORSPACE_BT2020:
+        colorConversion = kColorConversion2020;
+        break;
+      case VpxOutputBuffer.COLORSPACE_BT709:
+      default:
+        break; // Do nothing
+    }
     GLES20.glUniformMatrix3fv(colorMatrixLocation, 1, false, colorConversion, 0);
 
     for (int i = 0; i < 3; i++) {

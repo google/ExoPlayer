@@ -19,7 +19,6 @@ import android.net.Uri;
 import android.os.Handler;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlayer;
-import com.google.android.exoplayer2.ParserException;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.extractor.DefaultExtractorsFactory;
 import com.google.android.exoplayer2.extractor.Extractor;
@@ -27,7 +26,6 @@ import com.google.android.exoplayer2.extractor.ExtractorsFactory;
 import com.google.android.exoplayer2.upstream.Allocator;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.util.Assertions;
-import com.google.android.exoplayer2.util.Util;
 import java.io.IOException;
 
 /**
@@ -58,18 +56,6 @@ public final class ExtractorMediaSource implements MediaSource, MediaSource.List
   }
 
   /**
-   * Thrown if the input format could not recognized.
-   */
-  public static final class UnrecognizedInputFormatException extends ParserException {
-
-    public UnrecognizedInputFormatException(Extractor[] extractors) {
-      super("None of the available extractors ("
-          + Util.getCommaDelimitedSimpleClassNames(extractors) + ") could read the stream.");
-    }
-
-  }
-
-  /**
    * The default minimum number of times to retry loading prior to failing for on-demand streams.
    */
   public static final int DEFAULT_MIN_LOADABLE_RETRY_COUNT_ON_DEMAND = 3;
@@ -93,6 +79,7 @@ public final class ExtractorMediaSource implements MediaSource, MediaSource.List
   private final Handler eventHandler;
   private final EventListener eventListener;
   private final Timeline.Period period;
+  private final String customCacheKey;
 
   private MediaSource.Listener sourceListener;
   private Timeline timeline;
@@ -110,7 +97,25 @@ public final class ExtractorMediaSource implements MediaSource, MediaSource.List
   public ExtractorMediaSource(Uri uri, DataSource.Factory dataSourceFactory,
       ExtractorsFactory extractorsFactory, Handler eventHandler, EventListener eventListener) {
     this(uri, dataSourceFactory, extractorsFactory, MIN_RETRY_COUNT_DEFAULT_FOR_MEDIA, eventHandler,
-        eventListener);
+        eventListener, null);
+  }
+
+  /**
+   * @param uri The {@link Uri} of the media stream.
+   * @param dataSourceFactory A factory for {@link DataSource}s to read the media.
+   * @param extractorsFactory A factory for {@link Extractor}s to process the media stream. If the
+   *     possible formats are known, pass a factory that instantiates extractors for those formats.
+   *     Otherwise, pass a {@link DefaultExtractorsFactory} to use default extractors.
+   * @param eventHandler A handler for events. May be null if delivery of events is not required.
+   * @param eventListener A listener of events. May be null if delivery of events is not required.
+   * @param customCacheKey A custom key that uniquely identifies the original stream. Used for cache
+   *     indexing. May be null.
+   */
+  public ExtractorMediaSource(Uri uri, DataSource.Factory dataSourceFactory,
+      ExtractorsFactory extractorsFactory, Handler eventHandler, EventListener eventListener,
+      String customCacheKey) {
+    this(uri, dataSourceFactory, extractorsFactory, MIN_RETRY_COUNT_DEFAULT_FOR_MEDIA, eventHandler,
+        eventListener, customCacheKey);
   }
 
   /**
@@ -122,16 +127,19 @@ public final class ExtractorMediaSource implements MediaSource, MediaSource.List
    * @param minLoadableRetryCount The minimum number of times to retry if a loading error occurs.
    * @param eventHandler A handler for events. May be null if delivery of events is not required.
    * @param eventListener A listener of events. May be null if delivery of events is not required.
+   * @param customCacheKey A custom key that uniquely identifies the original stream. Used for cache
+   *     indexing. May be null.
    */
   public ExtractorMediaSource(Uri uri, DataSource.Factory dataSourceFactory,
       ExtractorsFactory extractorsFactory, int minLoadableRetryCount, Handler eventHandler,
-      EventListener eventListener) {
+      EventListener eventListener, String customCacheKey) {
     this.uri = uri;
     this.dataSourceFactory = dataSourceFactory;
     this.extractorsFactory = extractorsFactory;
     this.minLoadableRetryCount = minLoadableRetryCount;
     this.eventHandler = eventHandler;
     this.eventListener = eventListener;
+    this.customCacheKey = customCacheKey;
     period = new Timeline.Period();
   }
 
@@ -152,7 +160,7 @@ public final class ExtractorMediaSource implements MediaSource, MediaSource.List
     Assertions.checkArgument(index == 0);
     return new ExtractorMediaPeriod(uri, dataSourceFactory.createDataSource(),
         extractorsFactory.createExtractors(), minLoadableRetryCount, eventHandler, eventListener,
-        this, allocator);
+        this, allocator, customCacheKey);
   }
 
   @Override

@@ -447,4 +447,20 @@ public interface ExoPlayer {
    */
   int getBufferedPercentage();
 
+  /**
+   * Returns whether the current window is dynamic, or {@code false} if the {@link Timeline} is
+   * empty.
+   *
+   * @see Timeline.Window#isDynamic
+   */
+  boolean isCurrentWindowDynamic();
+
+  /**
+   * Returns whether the current window is seekable, or {@code false} if the {@link Timeline} is
+   * empty.
+   *
+   * @see Timeline.Window#isSeekable
+   */
+  boolean isCurrentWindowSeekable();
+
 }

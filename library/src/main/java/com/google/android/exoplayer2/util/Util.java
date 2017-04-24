@@ -36,6 +36,7 @@ import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DataSpec;
 import java.io.ByteArrayOutputStream;
 import java.io.Closeable;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Method;
@@ -94,7 +95,7 @@ public final class Util {
   private static final String TAG = "Util";
   private static final Pattern XS_DATE_TIME_PATTERN = Pattern.compile(
       "(\\d\\d\\d\\d)\\-(\\d\\d)\\-(\\d\\d)[Tt]"
-      + "(\\d\\d):(\\d\\d):(\\d\\d)(\\.(\\d+))?"
+      + "(\\d\\d):(\\d\\d):(\\d\\d)([\\.,](\\d+))?"
       + "([Zz]|((\\+|\\-)(\\d\\d):?(\\d\\d)))?");
   private static final Pattern XS_DURATION_PATTERN =
       Pattern.compile("^(-)?P(([0-9]*)Y)?(([0-9]*)M)?(([0-9]*)D)?"
@@ -252,6 +253,16 @@ public final class Util {
    */
   public static byte[] getUtf8Bytes(String value) {
     return value.getBytes(Charset.defaultCharset()); // UTF-8 is the default on Android.
+  }
+
+  /**
+   * Returns whether the given character is a carriage return ('\r') or a line feed ('\n').
+   *
+   * @param c The character.
+   * @return Whether the given character is a linebreak.
+   */
+  public static boolean isLinebreak(int c) {
+    return c == '\n' || c == '\r';
   }
 
   /**
@@ -758,6 +769,40 @@ public final class Util {
   }
 
   /**
+   * Returns the frame size for audio with {@code channelCount} channels in the specified encoding.
+   *
+   * @param pcmEncoding The encoding of the audio data.
+   * @param channelCount The channel count.
+   * @return The size of one audio frame in bytes.
+   */
+  public static int getPcmFrameSize(@C.PcmEncoding int pcmEncoding, int channelCount) {
+    switch (pcmEncoding) {
+      case C.ENCODING_PCM_8BIT:
+        return channelCount;
+      case C.ENCODING_PCM_16BIT:
+        return channelCount * 2;
+      case C.ENCODING_PCM_24BIT:
+        return channelCount * 3;
+      case C.ENCODING_PCM_32BIT:
+        return channelCount * 4;
+      default:
+        throw new IllegalArgumentException();
+    }
+  }
+
+  /**
+   * Makes a best guess to infer the type from a {@link Uri}.
+   *
+   * @param uri The {@link Uri}.
+   * @return The content type.
+   */
+  @C.ContentType
+  public static int inferContentType(Uri uri) {
+    String path = uri.getPath();
+    return path == null ? C.TYPE_OTHER : inferContentType(path);
+  }
+
+  /**
    * Makes a best guess to infer the type from a file name.
    *
    * @param fileName Name of the file. It can include the path of the file.
@@ -765,14 +810,14 @@ public final class Util {
    */
   @C.ContentType
   public static int inferContentType(String fileName) {
-    if (fileName == null) {
-      return C.TYPE_OTHER;
-    } else if (fileName.endsWith(".mpd")) {
+    fileName = fileName.toLowerCase();
+    if (fileName.endsWith(".mpd")) {
       return C.TYPE_DASH;
-    } else if (fileName.endsWith(".ism") || fileName.endsWith(".isml")) {
-      return C.TYPE_SS;
     } else if (fileName.endsWith(".m3u8")) {
       return C.TYPE_HLS;
+    } else if (fileName.endsWith(".ism") || fileName.endsWith(".isml")
+        || fileName.endsWith(".ism/manifest") || fileName.endsWith(".isml/manifest")) {
+      return C.TYPE_SS;
     } else {
       return C.TYPE_OTHER;
     }
@@ -912,6 +957,24 @@ public final class Util {
   @SuppressWarnings("unchecked")
   private static <T extends Throwable> void sneakyThrowInternal(Throwable t) throws T {
     throw (T) t;
+  }
+
+  /** Recursively deletes a directory and its content. */
+  public static void recursiveDelete(File fileOrDirectory) {
+    if (fileOrDirectory.isDirectory()) {
+      for (File child : fileOrDirectory.listFiles()) {
+        recursiveDelete(child);
+      }
+    }
+    fileOrDirectory.delete();
+  }
+
+  /** Creates an empty directory in the directory returned by {@link Context#getCacheDir()}. */
+  public static File createTempDirectory(Context context, String prefix) throws IOException {
+    File tempFile = File.createTempFile(prefix, null, context.getCacheDir());
+    tempFile.delete(); // Delete the temp file.
+    tempFile.mkdir(); // Create a directory with the same name.
+    return tempFile;
   }
 
   /**

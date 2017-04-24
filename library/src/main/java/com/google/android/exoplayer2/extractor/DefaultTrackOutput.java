@@ -70,6 +70,8 @@ public final class DefaultTrackOutput implements TrackOutput {
   private Format downstreamFormat;
 
   // Accessed only by the loading thread (or the consuming thread when there is no loading thread).
+  private boolean pendingFormatAdjustment;
+  private Format lastUnadjustedFormat;
   private long sampleOffsetUs;
   private long totalBytesWritten;
   private Allocation lastAllocation;
@@ -226,13 +228,32 @@ public final class DefaultTrackOutput implements TrackOutput {
   }
 
   /**
-   * Attempts to skip to the keyframe before the specified time, if it's present in the buffer.
+   * Attempts to skip to the keyframe before or at the specified time. Succeeds only if the buffer
+   * contains a keyframe with a timestamp of {@code timeUs} or earlier, and if {@code timeUs} falls
+   * within the currently buffered media.
+   * <p>
+   * This method is equivalent to {@code skipToKeyframeBefore(timeUs, false)}.
    *
    * @param timeUs The seek time.
    * @return Whether the skip was successful.
    */
   public boolean skipToKeyframeBefore(long timeUs) {
-    long nextOffset = infoQueue.skipToKeyframeBefore(timeUs);
+    return skipToKeyframeBefore(timeUs, false);
+  }
+
+  /**
+   * Attempts to skip to the keyframe before or at the specified time. Succeeds only if the buffer
+   * contains a keyframe with a timestamp of {@code timeUs} or earlier. If
+   * {@code allowTimeBeyondBuffer} is {@code false} then it is also required that {@code timeUs}
+   * falls within the buffer.
+   *
+   * @param timeUs The seek time.
+   * @param allowTimeBeyondBuffer Whether the skip can succeed if {@code timeUs} is beyond the end
+   *     of the buffer.
+   * @return Whether the skip was successful.
+   */
+  public boolean skipToKeyframeBefore(long timeUs, boolean allowTimeBeyondBuffer) {
+    long nextOffset = infoQueue.skipToKeyframeBefore(timeUs, allowTimeBeyondBuffer);
     if (nextOffset == C.POSITION_UNSET) {
       return false;
     }
@@ -247,38 +268,41 @@ public final class DefaultTrackOutput implements TrackOutput {
    * @param buffer A {@link DecoderInputBuffer} to populate in the case of reading a sample or the
    *     end of the stream. If the end of the stream has been reached, the
    *     {@link C#BUFFER_FLAG_END_OF_STREAM} flag will be set on the buffer.
+   * @param formatRequired Whether the caller requires that the format of the stream be read even if
+   *     it's not changing. A sample will never be read if set to true, however it is still possible
+   *     for the end of stream or nothing to be read.
    * @param loadingFinished True if an empty queue should be considered the end of the stream.
    * @param decodeOnlyUntilUs If a buffer is read, the {@link C#BUFFER_FLAG_DECODE_ONLY} flag will
    *     be set if the buffer's timestamp is less than this value.
    * @return The result, which can be {@link C#RESULT_NOTHING_READ}, {@link C#RESULT_FORMAT_READ} or
    *     {@link C#RESULT_BUFFER_READ}.
    */
-  public int readData(FormatHolder formatHolder, DecoderInputBuffer buffer, boolean loadingFinished,
-      long decodeOnlyUntilUs) {
-    switch (infoQueue.readData(formatHolder, buffer, downstreamFormat, extrasHolder)) {
-      case C.RESULT_NOTHING_READ:
-        if (loadingFinished) {
-          buffer.setFlags(C.BUFFER_FLAG_END_OF_STREAM);
-          return C.RESULT_BUFFER_READ;
-        }
-        return C.RESULT_NOTHING_READ;
+  public int readData(FormatHolder formatHolder, DecoderInputBuffer buffer, boolean formatRequired,
+      boolean loadingFinished, long decodeOnlyUntilUs) {
+    int result = infoQueue.readData(formatHolder, buffer, formatRequired, loadingFinished,
+        downstreamFormat, extrasHolder);
+    switch (result) {
       case C.RESULT_FORMAT_READ:
         downstreamFormat = formatHolder.format;
         return C.RESULT_FORMAT_READ;
       case C.RESULT_BUFFER_READ:
-        if (buffer.timeUs < decodeOnlyUntilUs) {
-          buffer.addFlag(C.BUFFER_FLAG_DECODE_ONLY);
+        if (!buffer.isEndOfStream()) {
+          if (buffer.timeUs < decodeOnlyUntilUs) {
+            buffer.addFlag(C.BUFFER_FLAG_DECODE_ONLY);
+          }
+          // Read encryption data if the sample is encrypted.
+          if (buffer.isEncrypted()) {
+            readEncryptionData(buffer, extrasHolder);
+          }
+          // Write the sample data into the holder.
+          buffer.ensureSpaceForWrite(extrasHolder.size);
+          readData(extrasHolder.offset, buffer.data, extrasHolder.size);
+          // Advance the read head.
+          dropDownstreamTo(extrasHolder.nextOffset);
         }
-        // Read encryption data if the sample is encrypted.
-        if (buffer.isEncrypted()) {
-          readEncryptionData(buffer, extrasHolder);
-        }
-        // Write the sample data into the holder.
-        buffer.ensureSpaceForWrite(extrasHolder.size);
-        readData(extrasHolder.offset, buffer.data, extrasHolder.size);
-        // Advance the read head.
-        dropDownstreamTo(extrasHolder.nextOffset);
         return C.RESULT_BUFFER_READ;
+      case C.RESULT_NOTHING_READ:
+        return C.RESULT_NOTHING_READ;
       default:
         throw new IllegalStateException();
     }
@@ -425,23 +449,24 @@ public final class DefaultTrackOutput implements TrackOutput {
   }
 
   /**
-   * Like {@link #format(Format)}, but with an offset that will be added to the timestamps of
-   * samples subsequently queued to the buffer. The offset is also used to adjust
-   * {@link Format#subsampleOffsetUs} for both the {@link Format} passed and those subsequently
-   * passed to {@link #format(Format)}.
+   * Sets an offset that will be added to the timestamps (and sub-sample timestamps) of samples
+   * subsequently queued to the buffer.
    *
-   * @param format The format.
    * @param sampleOffsetUs The timestamp offset in microseconds.
    */
-  public void formatWithOffset(Format format, long sampleOffsetUs) {
-    this.sampleOffsetUs = sampleOffsetUs;
-    format(format);
+  public void setSampleOffsetUs(long sampleOffsetUs) {
+    if (this.sampleOffsetUs != sampleOffsetUs) {
+      this.sampleOffsetUs = sampleOffsetUs;
+      pendingFormatAdjustment = true;
+    }
   }
 
   @Override
   public void format(Format format) {
     Format adjustedFormat = getAdjustedSampleFormat(format, sampleOffsetUs);
     boolean formatChanged = infoQueue.format(adjustedFormat);
+    lastUnadjustedFormat = format;
+    pendingFormatAdjustment = false;
     if (upstreamFormatChangeListener != null && formatChanged) {
       upstreamFormatChangeListener.onUpstreamFormatChanged(adjustedFormat);
     }
@@ -498,6 +523,9 @@ public final class DefaultTrackOutput implements TrackOutput {
   @Override
   public void sampleMetadata(long timeUs, @C.BufferFlags int flags, int size, int offset,
       byte[] encryptionKey) {
+    if (pendingFormatAdjustment) {
+      format(lastUnadjustedFormat);
+    }
     if (!startWriteOperation()) {
       infoQueue.commitSampleTimestamp(timeUs);
       return;
@@ -732,24 +760,36 @@ public final class DefaultTrackOutput implements TrackOutput {
      *     about the sample, but not its data. The size and absolute position of the data in the
      *     rolling buffer is stored in {@code extrasHolder}, along with an encryption id if present
      *     and the absolute position of the first byte that may still be required after the current
-     *     sample has been read.
+     *     sample has been read. May be null if the caller requires that the format of the stream be
+     *     read even if it's not changing.
+     * @param formatRequired Whether the caller requires that the format of the stream be read even
+     *     if it's not changing. A sample will never be read if set to true, however it is still
+     *     possible for the end of stream or nothing to be read.
+     * @param loadingFinished True if an empty queue should be considered the end of the stream.
      * @param downstreamFormat The current downstream {@link Format}. If the format of the next
      *     sample is different to the current downstream format then a format will be read.
      * @param extrasHolder The holder into which extra sample information should be written.
      * @return The result, which can be {@link C#RESULT_NOTHING_READ}, {@link C#RESULT_FORMAT_READ}
      *     or {@link C#RESULT_BUFFER_READ}.
      */
+    @SuppressWarnings("ReferenceEquality")
     public synchronized int readData(FormatHolder formatHolder, DecoderInputBuffer buffer,
-        Format downstreamFormat, BufferExtrasHolder extrasHolder) {
+        boolean formatRequired, boolean loadingFinished, Format downstreamFormat,
+        BufferExtrasHolder extrasHolder) {
       if (queueSize == 0) {
-        if (upstreamFormat != null && upstreamFormat != downstreamFormat) {
+        if (loadingFinished) {
+          buffer.setFlags(C.BUFFER_FLAG_END_OF_STREAM);
+          return C.RESULT_BUFFER_READ;
+        } else if (upstreamFormat != null
+            && (formatRequired || upstreamFormat != downstreamFormat)) {
           formatHolder.format = upstreamFormat;
           return C.RESULT_FORMAT_READ;
+        } else {
+          return C.RESULT_NOTHING_READ;
         }
-        return C.RESULT_NOTHING_READ;
       }
 
-      if (formats[relativeReadIndex] != downstreamFormat) {
+      if (formatRequired || formats[relativeReadIndex] != downstreamFormat) {
         formatHolder.format = formats[relativeReadIndex];
         return C.RESULT_FORMAT_READ;
       }
@@ -775,20 +815,22 @@ public final class DefaultTrackOutput implements TrackOutput {
     }
 
     /**
-     * Attempts to locate the keyframe before the specified time, if it's present in the buffer.
+     * Attempts to locate the keyframe before or at the specified time. If
+     * {@code allowTimeBeyondBuffer} is {@code false} then it is also required that {@code timeUs}
+     * falls within the buffer.
      *
      * @param timeUs The seek time.
+     * @param allowTimeBeyondBuffer Whether the skip can succeed if {@code timeUs} is beyond the end
+     *     of the buffer.
      * @return The offset of the keyframe's data if the keyframe was present.
      *     {@link C#POSITION_UNSET} otherwise.
      */
-    public synchronized long skipToKeyframeBefore(long timeUs) {
+    public synchronized long skipToKeyframeBefore(long timeUs, boolean allowTimeBeyondBuffer) {
       if (queueSize == 0 || timeUs < timesUs[relativeReadIndex]) {
         return C.POSITION_UNSET;
       }
 
-      int lastWriteIndex = (relativeWriteIndex == 0 ? capacity : relativeWriteIndex) - 1;
-      long lastTimeUs = timesUs[lastWriteIndex];
-      if (timeUs > lastTimeUs) {
+      if (timeUs > largestQueuedTimestampUs && !allowTimeBeyondBuffer) {
         return C.POSITION_UNSET;
       }
 

@@ -57,6 +57,16 @@ public final class VpxLibrary {
     return isAvailable() ? vpxGetBuildConfig() : null;
   }
 
+  /**
+   * Returns true if the underlying libvpx library supports high bit depth.
+   */
+  public static boolean isHighBitDepthSupported() {
+    String config = getBuildConfig();
+    int indexHbd = config != null
+        ? config.indexOf("--enable-vp9-highbitdepth") : -1;
+    return indexHbd >= 0;
+  }
+
   private static native String vpxGetVersion();
   private static native String vpxGetBuildConfig();
   public static native boolean vpxIsSecureDecodeSupported();

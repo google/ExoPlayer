@@ -15,8 +15,11 @@
  */
 package com.google.android.exoplayer2.text.cea;
 
+import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.text.Cue;
 import com.google.android.exoplayer2.text.Subtitle;
+import com.google.android.exoplayer2.util.Assertions;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -35,7 +38,7 @@ import java.util.List;
 
   @Override
   public int getNextEventTimeIndex(long timeUs) {
-    return 0;
+    return timeUs < 0 ? 0 : C.INDEX_UNSET;
   }
 
   @Override
@@ -45,12 +48,13 @@ import java.util.List;
 
   @Override
   public long getEventTime(int index) {
+    Assertions.checkArgument(index == 0);
     return 0;
   }
 
   @Override
   public List<Cue> getCues(long timeUs) {
-    return cues;
+    return timeUs >= 0 ? cues : Collections.<Cue>emptyList();
   }
 
 }

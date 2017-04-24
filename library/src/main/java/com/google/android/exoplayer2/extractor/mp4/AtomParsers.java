@@ -332,6 +332,9 @@ import java.util.List;
       return new TrackSampleTable(offsets, sizes, maximumSize, timestamps, flags);
     }
 
+    // Omit any sample at the end point of an edit for audio tracks.
+    boolean omitClippedSample = track.type == C.TRACK_TYPE_AUDIO;
+
     // Count the number of samples after applying edits.
     int editedSampleCount = 0;
     int nextSampleIndex = 0;
@@ -342,7 +345,8 @@ import java.util.List;
         long duration = Util.scaleLargeTimestamp(track.editListDurations[i], track.timescale,
             track.movieTimescale);
         int startIndex = Util.binarySearchCeil(timestamps, mediaTime, true, true);
-        int endIndex = Util.binarySearchCeil(timestamps, mediaTime + duration, true, false);
+        int endIndex = Util.binarySearchCeil(timestamps, mediaTime + duration, omitClippedSample,
+            false);
         editedSampleCount += endIndex - startIndex;
         copyMetadata |= nextSampleIndex != startIndex;
         nextSampleIndex = endIndex;
@@ -365,7 +369,7 @@ import java.util.List;
         long endMediaTime = mediaTime + Util.scaleLargeTimestamp(duration, track.timescale,
             track.movieTimescale);
         int startIndex = Util.binarySearchCeil(timestamps, mediaTime, true, true);
-        int endIndex = Util.binarySearchCeil(timestamps, endMediaTime, true, false);
+        int endIndex = Util.binarySearchCeil(timestamps, endMediaTime, omitClippedSample, false);
         if (copyMetadata) {
           int count = endIndex - startIndex;
           System.arraycopy(offsets, startIndex, editedOffsets, sampleIndex, count);
@@ -604,7 +608,7 @@ import java.util.List;
           || childAtomType == Atom.TYPE_dtsh || childAtomType == Atom.TYPE_dtsl
           || childAtomType == Atom.TYPE_samr || childAtomType == Atom.TYPE_sawb
           || childAtomType == Atom.TYPE_lpcm || childAtomType == Atom.TYPE_sowt
-          || childAtomType == Atom.TYPE__mp3) {
+          || childAtomType == Atom.TYPE__mp3 || childAtomType == Atom.TYPE_alac) {
         parseAudioSampleEntry(stsd, childAtomType, childStartPosition, childAtomSize, trackId,
             language, isQuickTime, drmInitData, out, i);
       } else if (childAtomType == Atom.TYPE_TTML) {
@@ -715,6 +719,9 @@ import java.util.List;
               break;
             case 2:
               stereoMode = C.STEREO_MODE_LEFT_RIGHT;
+              break;
+            case 3:
+              stereoMode = C.STEREO_MODE_STEREO_MESH;
               break;
             default:
               break;
@@ -839,6 +846,8 @@ import java.util.List;
       mimeType = MimeTypes.AUDIO_RAW;
     } else if (atomType == Atom.TYPE__mp3) {
       mimeType = MimeTypes.AUDIO_MPEG;
+    } else if (atomType == Atom.TYPE_alac) {
+      mimeType = MimeTypes.AUDIO_ALAC;
     }
 
     byte[] initializationData = null;
@@ -876,6 +885,10 @@ import java.util.List;
         out.format = Format.createAudioSampleFormat(Integer.toString(trackId), mimeType, null,
             Format.NO_VALUE, Format.NO_VALUE, channelCount, sampleRate, null, drmInitData, 0,
             language);
+      } else if (childAtomType == Atom.TYPE_alac) {
+        initializationData = new byte[childAtomSize];
+        parent.setPosition(childPosition);
+        parent.readBytes(initializationData, 0, childAtomSize);
       }
       childPosition += childAtomSize;
     }

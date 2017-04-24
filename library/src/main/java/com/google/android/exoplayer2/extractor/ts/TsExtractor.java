@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.extractor.ts;
 
+import android.support.annotation.IntDef;
 import android.util.SparseArray;
 import android.util.SparseBooleanArray;
 import android.util.SparseIntArray;
@@ -25,16 +26,21 @@ import com.google.android.exoplayer2.extractor.ExtractorOutput;
 import com.google.android.exoplayer2.extractor.ExtractorsFactory;
 import com.google.android.exoplayer2.extractor.PositionHolder;
 import com.google.android.exoplayer2.extractor.SeekMap;
-import com.google.android.exoplayer2.extractor.TimestampAdjuster;
 import com.google.android.exoplayer2.extractor.TrackOutput;
 import com.google.android.exoplayer2.extractor.ts.TsPayloadReader.EsInfo;
 import com.google.android.exoplayer2.extractor.ts.TsPayloadReader.TrackIdGenerator;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.ParsableBitArray;
 import com.google.android.exoplayer2.util.ParsableByteArray;
+import com.google.android.exoplayer2.util.TimestampAdjuster;
 import com.google.android.exoplayer2.util.Util;
 import java.io.IOException;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * Facilitates the extraction of data from the MPEG-2 TS container format.
@@ -52,6 +58,27 @@ public final class TsExtractor implements Extractor {
     }
 
   };
+
+  /**
+   * Modes for the extractor.
+   */
+  @Retention(RetentionPolicy.SOURCE)
+  @IntDef({MODE_NORMAL, MODE_SINGLE_PMT, MODE_HLS})
+  public @interface Mode {}
+
+  /**
+   * Behave as defined in ISO/IEC 13818-1.
+   */
+  public static final int MODE_NORMAL = 0;
+  /**
+   * Assume only one PMT will be contained in the stream, even if more are declared by the PAT.
+   */
+  public static final int MODE_SINGLE_PMT = 1;
+  /**
+   * Enable single PMT mode, map {@link TrackOutput}s by their type (instead of PID) and ignore
+   * continuity counters.
+   */
+  public static final int MODE_HLS = 2;
 
   public static final int TS_STREAM_TYPE_MPA = 0x03;
   public static final int TS_STREAM_TYPE_MPA_LSF = 0x04;
@@ -78,8 +105,8 @@ public final class TsExtractor implements Extractor {
   private static final int BUFFER_PACKET_COUNT = 5; // Should be at least 2
   private static final int BUFFER_SIZE = TS_PACKET_SIZE * BUFFER_PACKET_COUNT;
 
-  private final boolean hlsMode;
-  private final TimestampAdjuster timestampAdjuster;
+  @Mode private final int mode;
+  private final List<TimestampAdjuster> timestampAdjusters;
   private final ParsableByteArray tsPacketBuffer;
   private final ParsableBitArray tsScratch;
   private final SparseIntArray continuityCounters;
@@ -89,31 +116,30 @@ public final class TsExtractor implements Extractor {
 
   // Accessed only by the loading thread.
   private ExtractorOutput output;
+  private int remainingPmts;
   private boolean tracksEnded;
   private TsPayloadReader id3Reader;
 
   public TsExtractor() {
-    this(new TimestampAdjuster(0));
+    this(MODE_NORMAL, new TimestampAdjuster(0), new DefaultTsPayloadReaderFactory());
   }
 
   /**
-   * @param timestampAdjuster A timestamp adjuster for offsetting and scaling sample timestamps.
-   */
-  public TsExtractor(TimestampAdjuster timestampAdjuster) {
-    this(timestampAdjuster, new DefaultTsPayloadReaderFactory(), false);
-  }
-
-  /**
+   * @param mode Mode for the extractor. One of {@link #MODE_NORMAL}, {@link #MODE_SINGLE_PMT}
+   *     and {@link #MODE_HLS}.
    * @param timestampAdjuster A timestamp adjuster for offsetting and scaling sample timestamps.
    * @param payloadReaderFactory Factory for injecting a custom set of payload readers.
-   * @param hlsMode Whether the extractor should be used in HLS mode. If true, {@link TrackOutput}s
-   *     are mapped by their type (instead of PID) and continuity counters are ignored.
    */
-  public TsExtractor(TimestampAdjuster timestampAdjuster,
-      TsPayloadReader.Factory payloadReaderFactory, boolean hlsMode) {
-    this.timestampAdjuster = timestampAdjuster;
+  public TsExtractor(@Mode int mode, TimestampAdjuster timestampAdjuster,
+      TsPayloadReader.Factory payloadReaderFactory) {
     this.payloadReaderFactory = Assertions.checkNotNull(payloadReaderFactory);
-    this.hlsMode = hlsMode;
+    this.mode = mode;
+    if (mode == MODE_SINGLE_PMT || mode == MODE_HLS) {
+      timestampAdjusters = Collections.singletonList(timestampAdjuster);
+    } else {
+      timestampAdjusters = new ArrayList<>();
+      timestampAdjusters.add(timestampAdjuster);
+    }
     tsPacketBuffer = new ParsableByteArray(BUFFER_SIZE);
     tsScratch = new ParsableBitArray(new byte[3]);
     trackIds = new SparseBooleanArray();
@@ -150,7 +176,10 @@ public final class TsExtractor implements Extractor {
 
   @Override
   public void seek(long position, long timeUs) {
-    timestampAdjuster.reset();
+    int timestampAdjustersCount = timestampAdjusters.size();
+    for (int i = 0; i < timestampAdjustersCount; i++) {
+      timestampAdjusters.get(i).reset();
+    }
     tsPacketBuffer.reset();
     continuityCounters.clear();
     // Elementary stream readers' state should be cleared to get consistent behaviours when seeking.
@@ -215,7 +244,7 @@ public final class TsExtractor implements Extractor {
     // Discontinuity check.
     boolean discontinuityFound = false;
     int continuityCounter = tsScratch.readBits(4);
-    if (!hlsMode) {
+    if (mode != MODE_HLS) {
       int previousCounter = continuityCounters.get(pid, continuityCounter - 1);
       continuityCounters.put(pid, continuityCounter);
       if (previousCounter == continuityCounter) {
@@ -307,7 +336,11 @@ public final class TsExtractor implements Extractor {
         } else {
           int pid = patScratch.readBits(13);
           tsPayloadReaders.put(pid, new SectionReader(new PmtReader(pid)));
+          remainingPmts++;
         }
+      }
+      if (mode != MODE_HLS) {
+        tsPayloadReaders.remove(TS_PAT_PID);
       }
     }
 
@@ -345,10 +378,22 @@ public final class TsExtractor implements Extractor {
         // See ISO/IEC 13818-1, section 2.4.4.4 for more information on table id assignment.
         return;
       }
-      // section_syntax_indicator(1), '0'(1), reserved(2), section_length(12), program_number (16),
-      // reserved (2), version_number (5), current_next_indicator (1), // section_number (8),
+      // TimestampAdjuster assignment.
+      TimestampAdjuster timestampAdjuster;
+      if (mode == MODE_SINGLE_PMT || mode == MODE_HLS || remainingPmts == 1) {
+        timestampAdjuster = timestampAdjusters.get(0);
+      } else {
+        timestampAdjuster = new TimestampAdjuster(
+            timestampAdjusters.get(0).getFirstSampleTimestampUs());
+        timestampAdjusters.add(timestampAdjuster);
+      }
+
+      // section_syntax_indicator(1), '0'(1), reserved(2), section_length(12)
+      sectionData.skipBytes(2);
+      int programNumber = sectionData.readUnsignedShort();
+      // reserved (2), version_number (5), current_next_indicator (1), section_number (8),
       // last_section_number (8), reserved (3), PCR_PID (13)
-      sectionData.skipBytes(9);
+      sectionData.skipBytes(5);
 
       // Read program_info_length.
       sectionData.readBytes(pmtScratch, 2);
@@ -358,13 +403,13 @@ public final class TsExtractor implements Extractor {
       // Skip the descriptors.
       sectionData.skipBytes(programInfoLength);
 
-      if (hlsMode && id3Reader == null) {
+      if (mode == MODE_HLS && id3Reader == null) {
         // Setup an ID3 track regardless of whether there's a corresponding entry, in case one
         // appears intermittently during playback. See [Internal: b/20261500].
         EsInfo dummyEsInfo = new EsInfo(TS_STREAM_TYPE_ID3, null, new byte[0]);
         id3Reader = payloadReaderFactory.createPayloadReader(TS_STREAM_TYPE_ID3, dummyEsInfo);
         id3Reader.init(timestampAdjuster, output,
-            new TrackIdGenerator(TS_STREAM_TYPE_ID3, MAX_PID_PLUS_ONE));
+            new TrackIdGenerator(programNumber, TS_STREAM_TYPE_ID3, MAX_PID_PLUS_ONE));
       }
 
       int remainingEntriesLength = sectionData.bytesLeft();
@@ -381,19 +426,20 @@ public final class TsExtractor implements Extractor {
         }
         remainingEntriesLength -= esInfoLength + 5;
 
-        int trackId = hlsMode ? streamType : elementaryPid;
+        int trackId = mode == MODE_HLS ? streamType : elementaryPid;
         if (trackIds.get(trackId)) {
           continue;
         }
         trackIds.put(trackId, true);
 
         TsPayloadReader reader;
-        if (hlsMode && streamType == TS_STREAM_TYPE_ID3) {
+        if (mode == MODE_HLS && streamType == TS_STREAM_TYPE_ID3) {
           reader = id3Reader;
         } else {
           reader = payloadReaderFactory.createPayloadReader(streamType, esInfo);
           if (reader != null) {
-            reader.init(timestampAdjuster, output, new TrackIdGenerator(trackId, MAX_PID_PLUS_ONE));
+            reader.init(timestampAdjuster, output,
+                new TrackIdGenerator(programNumber, trackId, MAX_PID_PLUS_ONE));
           }
         }
 
@@ -401,16 +447,20 @@ public final class TsExtractor implements Extractor {
           tsPayloadReaders.put(elementaryPid, reader);
         }
       }
-      if (hlsMode) {
+      if (mode == MODE_HLS) {
         if (!tracksEnded) {
           output.endTracks();
+          remainingPmts = 0;
+          tracksEnded = true;
         }
       } else {
-        tsPayloadReaders.remove(TS_PAT_PID);
         tsPayloadReaders.remove(pid);
-        output.endTracks();
+        remainingPmts = mode == MODE_SINGLE_PMT ? 0 : remainingPmts - 1;
+        if (remainingPmts == 0) {
+          output.endTracks();
+          tracksEnded = true;
+        }
       }
-      tracksEnded = true;
     }
 
     /**
