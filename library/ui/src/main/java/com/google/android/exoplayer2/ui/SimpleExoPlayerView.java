@@ -74,9 +74,15 @@ import java.util.List;
  *         <li>Default: {@code null}</li>
  *       </ul>
  *   </li>
- *   <li><b>{@code use_controller}</b> - Whether playback controls are displayed.
+ *   <li><b>{@code use_controller}</b> - Whether the playback controls can be shown.
  *       <ul>
  *         <li>Corresponding method: {@link #setUseController(boolean)}</li>
+ *         <li>Default: {@code true}</li>
+ *       </ul>
+ *   </li>
+ *   <li><b>{@code hide_on_touch}</b> - Whether the playback controls are hidden by touch events.
+ *       <ul>
+ *         <li>Corresponding method: {@link #setControllerHideOnTouch(boolean)}</li>
  *         <li>Default: {@code true}</li>
  *       </ul>
  *   </li>
@@ -190,6 +196,7 @@ public final class SimpleExoPlayerView extends FrameLayout {
   private boolean useArtwork;
   private Bitmap defaultArtwork;
   private int controllerShowTimeoutMs;
+  private boolean controllerHideOnTouch;
 
   public SimpleExoPlayerView(Context context) {
     this(context, null);
@@ -228,6 +235,7 @@ public final class SimpleExoPlayerView extends FrameLayout {
     int surfaceType = SURFACE_TYPE_SURFACE_VIEW;
     int resizeMode = AspectRatioFrameLayout.RESIZE_MODE_FIT;
     int controllerShowTimeoutMs = PlaybackControlView.DEFAULT_SHOW_TIMEOUT_MS;
+    boolean controllerHideOnTouch = true;
     if (attrs != null) {
       TypedArray a = context.getTheme().obtainStyledAttributes(attrs,
           R.styleable.SimpleExoPlayerView, 0, 0);
@@ -242,6 +250,8 @@ public final class SimpleExoPlayerView extends FrameLayout {
         resizeMode = a.getInt(R.styleable.SimpleExoPlayerView_resize_mode, resizeMode);
         controllerShowTimeoutMs = a.getInt(R.styleable.SimpleExoPlayerView_show_timeout,
             controllerShowTimeoutMs);
+        controllerHideOnTouch = a.getBoolean(R.styleable.SimpleExoPlayerView_hide_on_touch,
+            controllerHideOnTouch);
       } finally {
         a.recycle();
       }
@@ -304,6 +314,7 @@ public final class SimpleExoPlayerView extends FrameLayout {
       this.controller = null;
     }
     this.controllerShowTimeoutMs = controller != null ? controllerShowTimeoutMs : 0;
+    this.controllerHideOnTouch = controllerHideOnTouch;
     this.useController = useController && controller != null;
     hideController();
   }
@@ -407,17 +418,17 @@ public final class SimpleExoPlayerView extends FrameLayout {
   }
 
   /**
-   * Returns whether the playback controls are enabled.
+   * Returns whether the playback controls can be shown.
    */
   public boolean getUseController() {
     return useController;
   }
 
   /**
-   * Sets whether playback controls are enabled. If set to {@code false} the playback controls are
-   * never visible and are disconnected from the player.
+   * Sets whether the playback controls can be shown. If set to {@code false} the playback controls
+   * are never visible and are disconnected from the player.
    *
-   * @param useController Whether playback controls should be enabled.
+   * @param useController Whether the playback controls can be shown.
    */
   public void setUseController(boolean useController) {
     Assertions.checkState(!useController || controller != null);
@@ -484,6 +495,23 @@ public final class SimpleExoPlayerView extends FrameLayout {
   public void setControllerShowTimeoutMs(int controllerShowTimeoutMs) {
     Assertions.checkState(controller != null);
     this.controllerShowTimeoutMs = controllerShowTimeoutMs;
+  }
+
+  /**
+   * Returns whether the playback controls are hidden by touch events.
+   */
+  public boolean getControllerHideOnTouch() {
+    return controllerHideOnTouch;
+  }
+
+  /**
+   * Sets whether the playback controls are hidden by touch events.
+   *
+   * @param controllerHideOnTouch Whether the playback controls are hidden by touch events.
+   */
+  public void setControllerHideOnTouch(boolean controllerHideOnTouch) {
+    Assertions.checkState(controller != null);
+    this.controllerHideOnTouch = controllerHideOnTouch;
   }
 
   /**
@@ -573,10 +601,10 @@ public final class SimpleExoPlayerView extends FrameLayout {
     if (!useController || player == null || ev.getActionMasked() != MotionEvent.ACTION_DOWN) {
       return false;
     }
-    if (controller.isVisible()) {
-      controller.hide();
-    } else {
+    if (!controller.isVisible()) {
       maybeShowController(true);
+    } else if (controllerHideOnTouch) {
+      controller.hide();
     }
     return true;
   }
