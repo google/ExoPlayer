@@ -21,6 +21,7 @@ import com.google.android.exoplayer2.extractor.TrackOutput;
 import com.google.android.exoplayer2.util.ParsableByteArray;
 import com.google.android.exoplayer2.util.TimestampAdjuster;
 
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -61,33 +62,44 @@ public interface TsPayloadReader {
   final class EsInfo {
 
     public final int streamType;
-    public final List<LanguageInfo> languagesInfo;
+    public final String language;
+    public final List<DvbSubtitleInfo> dvbSubtitleInfos;
     public final byte[] descriptorBytes;
 
     /**
      * @param streamType The type of the stream as defined by the
      *     {@link TsExtractor}{@code .TS_STREAM_TYPE_*}.
-     * @param languagesInfo Language or languages info of the associated program element
+     * @param language The language of the stream, as defined by ISO/IEC 13818-1, section 2.6.18.
+     * @param dvbSubtitleInfos Information about DVB subtitles associated to the stream.
      * @param descriptorBytes The descriptor bytes associated to the stream.
      */
-    public EsInfo(int streamType, List<LanguageInfo> languagesInfo, byte[] descriptorBytes) {
+    public EsInfo(int streamType, String language, List<DvbSubtitleInfo> dvbSubtitleInfos,
+        byte[] descriptorBytes) {
       this.streamType = streamType;
-      this.languagesInfo = languagesInfo;
+      this.language = language;
+      this.dvbSubtitleInfos = dvbSubtitleInfos == null ? Collections.<DvbSubtitleInfo>emptyList()
+          : Collections.unmodifiableList(dvbSubtitleInfos);
       this.descriptorBytes = descriptorBytes;
     }
+
   }
 
-  final class LanguageInfo {
+  /**
+   * Holds information about a DVB subtitle.
+   */
+  final class DvbSubtitleInfo {
 
-    public String languageCode;
-    public final byte programElementType;
+    public final String language;
+    public final int programElementType;
     public final List<byte[]> initializationData;
 
-    LanguageInfo (String languageCode, byte programElementType, List<byte[]> initializationData) {
-      this.languageCode = languageCode;
+    public DvbSubtitleInfo(String language, int programElementType,
+        List<byte[]> initializationData) {
+      this.language = language;
       this.programElementType = programElementType;
       this.initializationData = initializationData;
     }
+
   }
 
   /**
