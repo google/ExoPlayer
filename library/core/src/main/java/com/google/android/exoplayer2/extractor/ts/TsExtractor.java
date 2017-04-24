@@ -29,6 +29,7 @@ import com.google.android.exoplayer2.extractor.SeekMap;
 import com.google.android.exoplayer2.extractor.TrackOutput;
 import com.google.android.exoplayer2.extractor.ts.DefaultTsPayloadReaderFactory.Flags;
 import com.google.android.exoplayer2.extractor.ts.TsPayloadReader.EsInfo;
+import com.google.android.exoplayer2.extractor.ts.TsPayloadReader.LanguageInfo;
 import com.google.android.exoplayer2.extractor.ts.TsPayloadReader.TrackIdGenerator;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.ParsableBitArray;
@@ -418,7 +419,7 @@ public final class TsExtractor implements Extractor {
       if (mode == MODE_HLS && id3Reader == null) {
         // Setup an ID3 track regardless of whether there's a corresponding entry, in case one
         // appears intermittently during playback. See [Internal: b/20261500].
-        EsInfo dummyEsInfo = new EsInfo(TS_STREAM_TYPE_ID3, null, null, new byte[0]);
+        EsInfo dummyEsInfo = new EsInfo(TS_STREAM_TYPE_ID3, null, new byte[0]);
         id3Reader = payloadReaderFactory.createPayloadReader(TS_STREAM_TYPE_ID3, dummyEsInfo);
         id3Reader.init(timestampAdjuster, output,
             new TrackIdGenerator(programNumber, TS_STREAM_TYPE_ID3, MAX_PID_PLUS_ONE));
@@ -487,8 +488,7 @@ public final class TsExtractor implements Extractor {
       int descriptorsStartPosition = data.getPosition();
       int descriptorsEndPosition = descriptorsStartPosition + length;
       int streamType = -1;
-      String language = null;
-      byte[] dvbSubtitleInitializationData = null;
+      List<LanguageInfo> languages = null;
       while (data.getPosition() < descriptorsEndPosition) {
         int descriptorTag = data.readUnsignedByte();
         int descriptorLength = data.readUnsignedByte();
@@ -509,21 +509,35 @@ public final class TsExtractor implements Extractor {
         } else if (descriptorTag == TS_PMT_DESC_DTS) { // DTS_descriptor
           streamType = TS_STREAM_TYPE_DTS;
         } else if (descriptorTag == TS_PMT_DESC_ISO639_LANG) {
-          language = new String(data.data, data.getPosition(), 3).trim();
-          // Audio type is ignored.
+          int position = data.getPosition();
+          languages = Collections.singletonList(
+              new LanguageInfo(new String(new byte[]
+                  {data.data[position++], data.data[position++], data.data[position++]}).trim(),
+                  data.data[position], null));
         } else if (descriptorTag == TS_PMT_DESC_DVBSUBS) {
           streamType = TS_STREAM_TYPE_DVBSUBS;
-          language = new String(data.data, data.getPosition(), 3).trim();
-          data.skipBytes(4); // Skip language (3) + subtitling_type (1)
-          // Init data: composition_page (2), ancillary_page (2)
-          dvbSubtitleInitializationData = new byte[4];
-          data.readBytes(dvbSubtitleInitializationData, 0, 4);
+          int position = data.getPosition();
+          String language;
+          byte programElementType;
+          byte[] buffer;
+          languages = new ArrayList<>();
+          while (position < positionOfNextDescriptor) {
+            buffer = new byte[4];
+            language = new String(new byte[]
+                {data.data[position++], data.data[position++], data.data[position++]}).trim();
+            programElementType = data.data[position++];
+            data.setPosition(position);
+            data.readBytes(buffer, 0,4);
+            languages.add(
+                new LanguageInfo(language, programElementType, Collections.singletonList(buffer)));
+            position += 4;
+          }
         }
         // Skip unused bytes of current descriptor.
         data.skipBytes(positionOfNextDescriptor - data.getPosition());
       }
       data.setPosition(descriptorsEndPosition);
-      return new EsInfo(streamType, language, dvbSubtitleInitializationData,
+      return new EsInfo(streamType, languages,
           Arrays.copyOfRange(data.data, descriptorsStartPosition, descriptorsEndPosition));
     }
 
