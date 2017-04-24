@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.extractor.mkv;
 
+import android.support.annotation.IntDef;
 import android.util.SparseArray;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
@@ -38,6 +39,8 @@ import com.google.android.exoplayer2.util.Util;
 import com.google.android.exoplayer2.video.AvcConfig;
 import com.google.android.exoplayer2.video.HevcConfig;
 import java.io.IOException;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.ArrayList;
@@ -63,6 +66,22 @@ public final class MatroskaExtractor implements Extractor {
     }
 
   };
+
+  /**
+   * Flags controlling the behavior of the extractor.
+   */
+  @Retention(RetentionPolicy.SOURCE)
+  @IntDef(flag = true, value = {FLAG_DISABLE_SEEK_FOR_CUES})
+  public @interface Flags {}
+  /**
+   * Flag to disable seeking for cues.
+   * <p>
+   * Normally (i.e. when this flag is not set) the extractor will seek to the cues element if its
+   * position is specified in the seek head and if it's after the first cluster. Setting this flag
+   * disables seeking to the cues element. If the cues element is after the first cluster then the
+   * media is treated as being unseekable.
+   */
+  public static final int FLAG_DISABLE_SEEK_FOR_CUES = 1;
 
   private static final int UNSET_ENTRY_ID = -1;
 
@@ -222,6 +241,7 @@ public final class MatroskaExtractor implements Extractor {
   private final EbmlReader reader;
   private final VarintReader varintReader;
   private final SparseArray<Track> tracks;
+  private final boolean seekForCuesEnabled;
 
   // Temporary arrays.
   private final ParsableByteArray nalStartCode;
@@ -289,12 +309,17 @@ public final class MatroskaExtractor implements Extractor {
   private ExtractorOutput extractorOutput;
 
   public MatroskaExtractor() {
-    this(new DefaultEbmlReader());
+    this(0);
   }
 
-  /* package */ MatroskaExtractor(EbmlReader reader) {
+  public MatroskaExtractor(@Flags int flags) {
+    this(new DefaultEbmlReader(), flags);
+  }
+
+  /* package */ MatroskaExtractor(EbmlReader reader, @Flags int flags) {
     this.reader = reader;
     this.reader.init(new InnerEbmlReaderOutput());
+    seekForCuesEnabled = (flags & FLAG_DISABLE_SEEK_FOR_CUES) == 0;
     varintReader = new VarintReader();
     tracks = new SparseArray<>();
     scratch = new ParsableByteArray(4);
@@ -448,7 +473,7 @@ public final class MatroskaExtractor implements Extractor {
       case ID_CLUSTER:
         if (!sentSeekMap) {
           // We need to build cues before parsing the cluster.
-          if (cuesContentPosition != C.POSITION_UNSET) {
+          if (seekForCuesEnabled && cuesContentPosition != C.POSITION_UNSET) {
             // We know where the Cues element is located. Seek to request it.
             seekForCues = true;
           } else {

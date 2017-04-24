@@ -64,9 +64,23 @@ public final class DefaultExtractorsFactory implements ExtractorsFactory {
     FLAC_EXTRACTOR_CONSTRUCTOR = flacExtractorConstructor;
   }
 
+  private @MatroskaExtractor.Flags int matroskaFlags;
   private @FragmentedMp4Extractor.Flags int fragmentedMp4Flags;
   private @Mp3Extractor.Flags int mp3Flags;
   private @DefaultTsPayloadReaderFactory.Flags int tsFlags;
+
+  /**
+   * Sets flags for {@link MatroskaExtractor} instances created by the factory.
+   *
+   * @see MatroskaExtractor#MatroskaExtractor(int)
+   * @param flags The flags to use.
+   * @return The factory, for convenience.
+   */
+  public synchronized DefaultExtractorsFactory setMatroskaExtractorFlags(
+      @MatroskaExtractor.Flags int flags) {
+    this.matroskaFlags = flags;
+    return this;
+  }
 
   /**
    * Sets flags for {@link FragmentedMp4Extractor} instances created by the factory.
@@ -110,7 +124,7 @@ public final class DefaultExtractorsFactory implements ExtractorsFactory {
   @Override
   public synchronized Extractor[] createExtractors() {
     Extractor[] extractors = new Extractor[FLAC_EXTRACTOR_CONSTRUCTOR == null ? 11 : 12];
-    extractors[0] = new MatroskaExtractor();
+    extractors[0] = new MatroskaExtractor(matroskaFlags);
     extractors[1] = new FragmentedMp4Extractor(fragmentedMp4Flags);
     extractors[2] = new Mp4Extractor();
     extractors[3] = new Mp3Extractor(mp3Flags);

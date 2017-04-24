@@ -393,7 +393,7 @@ public class DefaultDashChunkSource implements DashChunkSource {
         if (MimeTypes.APPLICATION_RAWCC.equals(containerMimeType)) {
           extractor = new RawCcExtractor(representation.format);
         } else if (mimeTypeIsWebm(containerMimeType)) {
-          extractor = new MatroskaExtractor();
+          extractor = new MatroskaExtractor(MatroskaExtractor.FLAG_DISABLE_SEEK_FOR_CUES);
         } else {
           int flags = 0;
           if (enableEventMessageTrack) {
