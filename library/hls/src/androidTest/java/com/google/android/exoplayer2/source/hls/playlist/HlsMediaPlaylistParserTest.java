@@ -70,7 +70,6 @@ public class HlsMediaPlaylistParserTest extends TestCase {
     try {
       HlsPlaylist playlist = new HlsPlaylistParser().parse(playlistUri, inputStream);
       assertNotNull(playlist);
-      assertEquals(HlsPlaylist.TYPE_MEDIA, playlist.type);
 
       HlsMediaPlaylist mediaPlaylist = (HlsMediaPlaylist) playlist;
       assertEquals(HlsMediaPlaylist.PLAYLIST_TYPE_VOD, mediaPlaylist.playlistType);
