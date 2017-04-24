@@ -21,6 +21,8 @@ import android.content.res.Resources;
 import android.content.res.TypedArray;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.util.AttributeSet;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -320,6 +322,30 @@ public final class SimpleExoPlayerView extends FrameLayout {
   }
 
   /**
+   * Switches the view targeted by a given {@link SimpleExoPlayer}.
+   *
+   * @param player The player whose target view is being switched.
+   * @param oldPlayerView The old view to detach from the player.
+   * @param newPlayerView The new view to attach to the player.
+   */
+  public static void switchTargetView(@NonNull SimpleExoPlayer player,
+      @Nullable SimpleExoPlayerView oldPlayerView, @Nullable SimpleExoPlayerView newPlayerView) {
+    if (oldPlayerView == newPlayerView) {
+      return;
+    }
+    // We attach the new view before detaching the old one because this ordering allows the player
+    // to swap directly from one surface to another, without transitioning through a state where no
+    // surface is attached. This is significantly more efficient and achieves a more seamless
+    // transition when using platform provided video decoders.
+    if (newPlayerView != null) {
+      newPlayerView.setPlayer(player);
+    }
+    if (oldPlayerView != null) {
+      oldPlayerView.setPlayer(null);
+    }
+  }
+
+  /**
    * Returns the player currently set on this view, or null if no player is set.
    */
   public SimpleExoPlayer getPlayer() {
@@ -330,6 +356,12 @@ public final class SimpleExoPlayerView extends FrameLayout {
    * Set the {@link SimpleExoPlayer} to use. The {@link SimpleExoPlayer#setTextOutput} and
    * {@link SimpleExoPlayer#setVideoListener} method of the player will be called and previous
    * assignments are overridden.
+   * <p>
+   * To transition a {@link SimpleExoPlayer} from targeting one view to another, it's recommended to
+   * use {@link #switchTargetView(SimpleExoPlayer, SimpleExoPlayerView, SimpleExoPlayerView)} rather
+   * than this method. If you do wish to use this method directly, be sure to attach the player to
+   * the new view <em>before</em> calling {@code setPlayer(null)} to detach it from the old one.
+   * This ordering is significantly more efficient and may allow for more seamless transitions.
    *
    * @param player The {@link SimpleExoPlayer} to use.
    */
@@ -338,10 +370,14 @@ public final class SimpleExoPlayerView extends FrameLayout {
       return;
     }
     if (this.player != null) {
-      this.player.setTextOutput(null);
-      this.player.setVideoListener(null);
       this.player.removeListener(componentListener);
-      this.player.setVideoSurface(null);
+      this.player.clearTextOutput(componentListener);
+      this.player.clearVideoListener(componentListener);
+      if (surfaceView instanceof TextureView) {
+        this.player.clearVideoTextureView((TextureView) surfaceView);
+      } else if (surfaceView instanceof SurfaceView) {
+        this.player.clearVideoSurfaceView((SurfaceView) surfaceView);
+      }
     }
     this.player = player;
     if (useController) {
@@ -357,8 +393,8 @@ public final class SimpleExoPlayerView extends FrameLayout {
         player.setVideoSurfaceView((SurfaceView) surfaceView);
       }
       player.setVideoListener(componentListener);
-      player.addListener(componentListener);
       player.setTextOutput(componentListener);
+      player.addListener(componentListener);
       maybeShowController(false);
       updateForCurrentTrackSelections();
     } else {

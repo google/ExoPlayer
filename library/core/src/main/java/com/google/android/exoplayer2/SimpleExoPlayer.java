@@ -240,6 +240,18 @@ public class SimpleExoPlayer implements ExoPlayer {
   }
 
   /**
+   * Clears the {@link Surface} onto which video is being rendered if it matches the one passed.
+   * Else does nothing.
+   *
+   * @param surface The surface to clear.
+   */
+  public void clearVideoSurface(Surface surface) {
+    if (surface != null && surface == this.surface) {
+      setVideoSurface(null);
+    }
+  }
+
+  /**
    * Sets the {@link SurfaceHolder} that holds the {@link Surface} onto which video will be
    * rendered. The player will track the lifecycle of the surface automatically.
    *
@@ -257,13 +269,35 @@ public class SimpleExoPlayer implements ExoPlayer {
   }
 
   /**
+   * Clears the {@link SurfaceHolder} that holds the {@link Surface} onto which video is being
+   * rendered if it matches the one passed. Else does nothing.
+   *
+   * @param surfaceHolder The surface holder to clear.
+   */
+  public void clearVideoSurfaceHolder(SurfaceHolder surfaceHolder) {
+    if (surfaceHolder != null && surfaceHolder == this.surfaceHolder) {
+      setVideoSurfaceHolder(null);
+    }
+  }
+
+  /**
    * Sets the {@link SurfaceView} onto which video will be rendered. The player will track the
    * lifecycle of the surface automatically.
    *
    * @param surfaceView The surface view.
    */
   public void setVideoSurfaceView(SurfaceView surfaceView) {
-    setVideoSurfaceHolder(surfaceView.getHolder());
+    setVideoSurfaceHolder(surfaceView == null ? null : surfaceView.getHolder());
+  }
+
+  /**
+   * Clears the {@link SurfaceView} onto which video is being rendered if it matches the one passed.
+   * Else does nothing.
+   *
+   * @param surfaceView The texture view to clear.
+   */
+  public void clearVideoSurfaceView(SurfaceView surfaceView) {
+    clearVideoSurfaceHolder(surfaceView == null ? null : surfaceView.getHolder());
   }
 
   /**
@@ -284,6 +318,18 @@ public class SimpleExoPlayer implements ExoPlayer {
       SurfaceTexture surfaceTexture = textureView.getSurfaceTexture();
       setVideoSurfaceInternal(surfaceTexture == null ? null : new Surface(surfaceTexture), true);
       textureView.setSurfaceTextureListener(componentListener);
+    }
+  }
+
+  /**
+   * Clears the {@link TextureView} onto which video is being rendered if it matches the one passed.
+   * Else does nothing.
+   *
+   * @param textureView The texture view to clear.
+   */
+  public void clearVideoTextureView(TextureView textureView) {
+    if (textureView != null && textureView == this.textureView) {
+      setVideoTextureView(null);
     }
   }
 
@@ -405,6 +451,57 @@ public class SimpleExoPlayer implements ExoPlayer {
   }
 
   /**
+   * Clears the listener receiving video events if it matches the one passed. Else does nothing.
+   *
+   * @param listener The listener to clear.
+   */
+  public void clearVideoListener(VideoListener listener) {
+    if (videoListener == listener) {
+      videoListener = null;
+    }
+  }
+
+  /**
+   * Sets an output to receive text events.
+   *
+   * @param output The output.
+   */
+  public void setTextOutput(TextRenderer.Output output) {
+    textOutput = output;
+  }
+
+  /**
+   * Clears the output receiving text events if it matches the one passed. Else does nothing.
+   *
+   * @param output The output to clear.
+   */
+  public void clearTextOutput(TextRenderer.Output output) {
+    if (textOutput == output) {
+      textOutput = null;
+    }
+  }
+
+  /**
+   * Sets a listener to receive metadata events.
+   *
+   * @param output The output.
+   */
+  public void setMetadataOutput(MetadataRenderer.Output output) {
+    metadataOutput = output;
+  }
+
+  /**
+   * Clears the output receiving metadata events if it matches the one passed. Else does nothing.
+   *
+   * @param output The output to clear.
+   */
+  public void clearMetadataOutput(MetadataRenderer.Output output) {
+    if (metadataOutput == output) {
+      metadataOutput = null;
+    }
+  }
+
+  /**
    * Sets a listener to receive debug events from the video renderer.
    *
    * @param listener The listener.
@@ -420,24 +517,6 @@ public class SimpleExoPlayer implements ExoPlayer {
    */
   public void setAudioDebugListener(AudioRendererEventListener listener) {
     audioDebugListener = listener;
-  }
-
-  /**
-   * Sets an output to receive text events.
-   *
-   * @param output The output.
-   */
-  public void setTextOutput(TextRenderer.Output output) {
-    textOutput = output;
-  }
-
-  /**
-   * Sets a listener to receive metadata events.
-   *
-   * @param output The output.
-   */
-  public void setMetadataOutput(MetadataRenderer.Output output) {
-    metadataOutput = output;
   }
 
   // ExoPlayer implementation
