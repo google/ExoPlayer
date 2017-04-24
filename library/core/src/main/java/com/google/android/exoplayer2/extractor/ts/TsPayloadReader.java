@@ -21,6 +21,8 @@ import com.google.android.exoplayer2.extractor.TrackOutput;
 import com.google.android.exoplayer2.util.ParsableByteArray;
 import com.google.android.exoplayer2.util.TimestampAdjuster;
 
+import java.util.List;
+
 /**
  * Parses TS packet payload data.
  */
@@ -59,26 +61,33 @@ public interface TsPayloadReader {
   final class EsInfo {
 
     public final int streamType;
-    public final String language;
-    public final byte[] dvbSubtitleInitializationData;
+    public final List<LanguageInfo> languagesInfo;
     public final byte[] descriptorBytes;
 
     /**
      * @param streamType The type of the stream as defined by the
      *     {@link TsExtractor}{@code .TS_STREAM_TYPE_*}.
-     * @param language The language of the stream, as defined by ISO/IEC 13818-1, section 2.6.18.
-     * @param dvbSubtitleInitializationData If the descriptors include a DVB subtitle tag, this is
-     *     the corresponding decoder initialization data. Null otherwise.
+     * @param languagesInfo Language or languages info of the associated program element
      * @param descriptorBytes The descriptor bytes associated to the stream.
      */
-    public EsInfo(int streamType, String language, byte[] dvbSubtitleInitializationData,
-        byte[] descriptorBytes) {
+    public EsInfo(int streamType, List<LanguageInfo> languagesInfo, byte[] descriptorBytes) {
       this.streamType = streamType;
-      this.language = language;
-      this.dvbSubtitleInitializationData = dvbSubtitleInitializationData;
+      this.languagesInfo = languagesInfo;
       this.descriptorBytes = descriptorBytes;
     }
+  }
 
+  final class LanguageInfo {
+
+    public String languageCode;
+    public final byte programElementType;
+    public final List<byte[]> initializationData;
+
+    LanguageInfo (String languageCode, byte programElementType, List<byte[]> initializationData) {
+      this.languageCode = languageCode;
+      this.programElementType = programElementType;
+      this.initializationData = initializationData;
+    }
   }
 
   /**
