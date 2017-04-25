@@ -1,5 +1,36 @@
 # Release notes #
 
+### r2.4.0 ###
+
+* New modular library structure. You can read more about depending on individual
+  library modules [here](TODO).
+* Variable speed playback support on API level 16+. You can read more about
+  changing the playback speed [here](TODO)
+  ([#26](https://github.com/google/ExoPlayer/issues/26))."
+* New time bar view, including support for displaying ad break markers.
+* Support DVB subtitles in MPEG-TS and MKV.
+* Support adaptive playback for audio only DASH, HLS and SmoothStreaming
+  ([#1975](https://github.com/google/ExoPlayer/issues/1975)).
+* Support for setting extractor flags on DefaultExtractorsFactory
+  ([#2657](https://github.com/google/ExoPlayer/issues/2657)).
+* Support injecting custom renderers into SimpleExoPlayer using a new
+  RenderersFactory interface.
+* Correctly set ExoPlayer's internal thread priority to `THREAD_PRIORITY_AUDIO`.
+* TX3G: Support styling and positioning.
+* FLV:
+  * Support MP3 in FLV.
+  * Skip unhandled metadata rather than failing
+    ([#2634](https://github.com/google/ExoPlayer/issues/2634)).
+  * Fix potential OutOfMemory errors.
+* ID3: Better handle malformed ID3 data
+  ([#2604](https://github.com/google/ExoPlayer/issues/2604),
+  [#2663](https://github.com/google/ExoPlayer/issues/2663)).
+* FFmpeg extension: Fixed build instructions
+  ([#2561](https://github.com/google/ExoPlayer/issues/2561)).
+* VP9 extension: Reduced binary size.
+* FLAC extension: Enabled 64 bit targets.
+* Misc bugfixes.
+
 ### r2.3.1 ###
 
 * Fix NPE enabling WebVTT subtitles in DASH streams
@@ -301,6 +332,12 @@ and hence it can be assumed that all changes in r1.5.11 and earlier are included
 in all V2 releases. This cannot be assumed for changes in r1.5.12 and later,
 however it can be assumed that all such changes are included in the most recent
 V2 release.
+
+### r1.5.16 ###
+
+* VP9 extension: Reduced binary size.
+* FLAC extension: Enabled 64 bit targets and fixed proguard config.
+* Misc bugfixes.
 
 ### r1.5.15 ###
 
