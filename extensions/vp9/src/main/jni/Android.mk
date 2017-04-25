@@ -21,6 +21,7 @@ LIBYUV_ROOT := $(WORKING_DIR)/libyuv
 
 # build libyuv_static.a
 LOCAL_PATH := $(WORKING_DIR)
+LIBYUV_DISABLE_JPEG := "yes"
 include $(LIBYUV_ROOT)/Android.mk
 
 # build libvpx.so
