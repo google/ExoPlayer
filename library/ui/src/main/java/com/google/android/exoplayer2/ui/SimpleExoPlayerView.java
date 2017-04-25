@@ -21,6 +21,8 @@ import android.content.res.Resources;
 import android.content.res.TypedArray;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.util.AttributeSet;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -74,9 +76,15 @@ import java.util.List;
  *         <li>Default: {@code null}</li>
  *       </ul>
  *   </li>
- *   <li><b>{@code use_controller}</b> - Whether playback controls are displayed.
+ *   <li><b>{@code use_controller}</b> - Whether the playback controls can be shown.
  *       <ul>
  *         <li>Corresponding method: {@link #setUseController(boolean)}</li>
+ *         <li>Default: {@code true}</li>
+ *       </ul>
+ *   </li>
+ *   <li><b>{@code hide_on_touch}</b> - Whether the playback controls are hidden by touch events.
+ *       <ul>
+ *         <li>Corresponding method: {@link #setControllerHideOnTouch(boolean)}</li>
  *         <li>Default: {@code true}</li>
  *       </ul>
  *   </li>
@@ -190,6 +198,7 @@ public final class SimpleExoPlayerView extends FrameLayout {
   private boolean useArtwork;
   private Bitmap defaultArtwork;
   private int controllerShowTimeoutMs;
+  private boolean controllerHideOnTouch;
 
   public SimpleExoPlayerView(Context context) {
     this(context, null);
@@ -228,6 +237,7 @@ public final class SimpleExoPlayerView extends FrameLayout {
     int surfaceType = SURFACE_TYPE_SURFACE_VIEW;
     int resizeMode = AspectRatioFrameLayout.RESIZE_MODE_FIT;
     int controllerShowTimeoutMs = PlaybackControlView.DEFAULT_SHOW_TIMEOUT_MS;
+    boolean controllerHideOnTouch = true;
     if (attrs != null) {
       TypedArray a = context.getTheme().obtainStyledAttributes(attrs,
           R.styleable.SimpleExoPlayerView, 0, 0);
@@ -242,6 +252,8 @@ public final class SimpleExoPlayerView extends FrameLayout {
         resizeMode = a.getInt(R.styleable.SimpleExoPlayerView_resize_mode, resizeMode);
         controllerShowTimeoutMs = a.getInt(R.styleable.SimpleExoPlayerView_show_timeout,
             controllerShowTimeoutMs);
+        controllerHideOnTouch = a.getBoolean(R.styleable.SimpleExoPlayerView_hide_on_touch,
+            controllerHideOnTouch);
       } finally {
         a.recycle();
       }
@@ -304,8 +316,33 @@ public final class SimpleExoPlayerView extends FrameLayout {
       this.controller = null;
     }
     this.controllerShowTimeoutMs = controller != null ? controllerShowTimeoutMs : 0;
+    this.controllerHideOnTouch = controllerHideOnTouch;
     this.useController = useController && controller != null;
     hideController();
+  }
+
+  /**
+   * Switches the view targeted by a given {@link SimpleExoPlayer}.
+   *
+   * @param player The player whose target view is being switched.
+   * @param oldPlayerView The old view to detach from the player.
+   * @param newPlayerView The new view to attach to the player.
+   */
+  public static void switchTargetView(@NonNull SimpleExoPlayer player,
+      @Nullable SimpleExoPlayerView oldPlayerView, @Nullable SimpleExoPlayerView newPlayerView) {
+    if (oldPlayerView == newPlayerView) {
+      return;
+    }
+    // We attach the new view before detaching the old one because this ordering allows the player
+    // to swap directly from one surface to another, without transitioning through a state where no
+    // surface is attached. This is significantly more efficient and achieves a more seamless
+    // transition when using platform provided video decoders.
+    if (newPlayerView != null) {
+      newPlayerView.setPlayer(player);
+    }
+    if (oldPlayerView != null) {
+      oldPlayerView.setPlayer(null);
+    }
   }
 
   /**
@@ -319,6 +356,12 @@ public final class SimpleExoPlayerView extends FrameLayout {
    * Set the {@link SimpleExoPlayer} to use. The {@link SimpleExoPlayer#setTextOutput} and
    * {@link SimpleExoPlayer#setVideoListener} method of the player will be called and previous
    * assignments are overridden.
+   * <p>
+   * To transition a {@link SimpleExoPlayer} from targeting one view to another, it's recommended to
+   * use {@link #switchTargetView(SimpleExoPlayer, SimpleExoPlayerView, SimpleExoPlayerView)} rather
+   * than this method. If you do wish to use this method directly, be sure to attach the player to
+   * the new view <em>before</em> calling {@code setPlayer(null)} to detach it from the old one.
+   * This ordering is significantly more efficient and may allow for more seamless transitions.
    *
    * @param player The {@link SimpleExoPlayer} to use.
    */
@@ -327,10 +370,14 @@ public final class SimpleExoPlayerView extends FrameLayout {
       return;
     }
     if (this.player != null) {
-      this.player.setTextOutput(null);
-      this.player.setVideoListener(null);
       this.player.removeListener(componentListener);
-      this.player.setVideoSurface(null);
+      this.player.clearTextOutput(componentListener);
+      this.player.clearVideoListener(componentListener);
+      if (surfaceView instanceof TextureView) {
+        this.player.clearVideoTextureView((TextureView) surfaceView);
+      } else if (surfaceView instanceof SurfaceView) {
+        this.player.clearVideoSurfaceView((SurfaceView) surfaceView);
+      }
     }
     this.player = player;
     if (useController) {
@@ -346,8 +393,8 @@ public final class SimpleExoPlayerView extends FrameLayout {
         player.setVideoSurfaceView((SurfaceView) surfaceView);
       }
       player.setVideoListener(componentListener);
-      player.addListener(componentListener);
       player.setTextOutput(componentListener);
+      player.addListener(componentListener);
       maybeShowController(false);
       updateForCurrentTrackSelections();
     } else {
@@ -407,17 +454,17 @@ public final class SimpleExoPlayerView extends FrameLayout {
   }
 
   /**
-   * Returns whether the playback controls are enabled.
+   * Returns whether the playback controls can be shown.
    */
   public boolean getUseController() {
     return useController;
   }
 
   /**
-   * Sets whether playback controls are enabled. If set to {@code false} the playback controls are
-   * never visible and are disconnected from the player.
+   * Sets whether the playback controls can be shown. If set to {@code false} the playback controls
+   * are never visible and are disconnected from the player.
    *
-   * @param useController Whether playback controls should be enabled.
+   * @param useController Whether the playback controls can be shown.
    */
   public void setUseController(boolean useController) {
     Assertions.checkState(!useController || controller != null);
@@ -484,6 +531,23 @@ public final class SimpleExoPlayerView extends FrameLayout {
   public void setControllerShowTimeoutMs(int controllerShowTimeoutMs) {
     Assertions.checkState(controller != null);
     this.controllerShowTimeoutMs = controllerShowTimeoutMs;
+  }
+
+  /**
+   * Returns whether the playback controls are hidden by touch events.
+   */
+  public boolean getControllerHideOnTouch() {
+    return controllerHideOnTouch;
+  }
+
+  /**
+   * Sets whether the playback controls are hidden by touch events.
+   *
+   * @param controllerHideOnTouch Whether the playback controls are hidden by touch events.
+   */
+  public void setControllerHideOnTouch(boolean controllerHideOnTouch) {
+    Assertions.checkState(controller != null);
+    this.controllerHideOnTouch = controllerHideOnTouch;
   }
 
   /**
@@ -573,10 +637,10 @@ public final class SimpleExoPlayerView extends FrameLayout {
     if (!useController || player == null || ev.getActionMasked() != MotionEvent.ACTION_DOWN) {
       return false;
     }
-    if (controller.isVisible()) {
-      controller.hide();
-    } else {
+    if (!controller.isVisible()) {
       maybeShowController(true);
+    } else if (controllerHideOnTouch) {
+      controller.hide();
     }
     return true;
   }

@@ -20,6 +20,7 @@ import android.content.Context;
 import android.media.AudioFormat;
 import android.media.AudioManager;
 import android.media.MediaCodec;
+import android.media.MediaFormat;
 import android.support.annotation.IntDef;
 import android.view.Surface;
 import com.google.android.exoplayer2.util.Util;
@@ -553,6 +554,67 @@ public final class C {
    * used with 360/3D/VR videos.
    */
   public static final int STEREO_MODE_STEREO_MESH = 3;
+
+  /**
+   * Video colorspaces.
+   */
+  @Retention(RetentionPolicy.SOURCE)
+  @IntDef({Format.NO_VALUE, COLOR_SPACE_BT709, COLOR_SPACE_BT601, COLOR_SPACE_BT2020})
+  public @interface ColorSpace {}
+  /**
+   * @see MediaFormat#COLOR_STANDARD_BT709
+   */
+  @SuppressWarnings("InlinedApi")
+  public static final int COLOR_SPACE_BT709 = MediaFormat.COLOR_STANDARD_BT709;
+  /**
+   * @see MediaFormat#COLOR_STANDARD_BT601_PAL
+   */
+  @SuppressWarnings("InlinedApi")
+  public static final int COLOR_SPACE_BT601 = MediaFormat.COLOR_STANDARD_BT601_PAL;
+  /**
+   * @see MediaFormat#COLOR_STANDARD_BT2020
+   */
+  @SuppressWarnings("InlinedApi")
+  public static final int COLOR_SPACE_BT2020 = MediaFormat.COLOR_STANDARD_BT2020;
+
+  /**
+   * Video color transfer characteristics.
+   */
+  @Retention(RetentionPolicy.SOURCE)
+  @IntDef({Format.NO_VALUE, COLOR_TRANSFER_SDR, COLOR_TRANSFER_ST2084, COLOR_TRANSFER_HLG})
+  public @interface ColorTransfer {}
+  /**
+   * @see MediaFormat#COLOR_TRANSFER_SDR_VIDEO
+   */
+  @SuppressWarnings("InlinedApi")
+  public static final int COLOR_TRANSFER_SDR = MediaFormat.COLOR_TRANSFER_SDR_VIDEO;
+  /**
+   * @see MediaFormat#COLOR_TRANSFER_ST2084
+   */
+  @SuppressWarnings("InlinedApi")
+  public static final int COLOR_TRANSFER_ST2084 = MediaFormat.COLOR_TRANSFER_ST2084;
+  /**
+   * @see MediaFormat#COLOR_TRANSFER_HLG
+   */
+  @SuppressWarnings("InlinedApi")
+  public static final int COLOR_TRANSFER_HLG = MediaFormat.COLOR_TRANSFER_HLG;
+
+  /**
+   * Video color range.
+   */
+  @Retention(RetentionPolicy.SOURCE)
+  @IntDef({Format.NO_VALUE, COLOR_RANGE_LIMITED, COLOR_RANGE_FULL})
+  public @interface ColorRange {}
+  /**
+   * @see MediaFormat#COLOR_RANGE_LIMITED
+   */
+  @SuppressWarnings("InlinedApi")
+  public static final int COLOR_RANGE_LIMITED = MediaFormat.COLOR_RANGE_LIMITED;
+  /**
+   * @see MediaFormat#COLOR_RANGE_FULL
+   */
+  @SuppressWarnings("InlinedApi")
+  public static final int COLOR_RANGE_FULL = MediaFormat.COLOR_RANGE_FULL;
 
   /**
    * Priority for media playback.

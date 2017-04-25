@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.extractor.mkv;
 
+import android.support.annotation.IntDef;
 import android.util.SparseArray;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
@@ -36,8 +37,11 @@ import com.google.android.exoplayer2.util.NalUnitUtil;
 import com.google.android.exoplayer2.util.ParsableByteArray;
 import com.google.android.exoplayer2.util.Util;
 import com.google.android.exoplayer2.video.AvcConfig;
+import com.google.android.exoplayer2.video.ColorInfo;
 import com.google.android.exoplayer2.video.HevcConfig;
 import java.io.IOException;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.ArrayList;
@@ -63,6 +67,22 @@ public final class MatroskaExtractor implements Extractor {
     }
 
   };
+
+  /**
+   * Flags controlling the behavior of the extractor.
+   */
+  @Retention(RetentionPolicy.SOURCE)
+  @IntDef(flag = true, value = {FLAG_DISABLE_SEEK_FOR_CUES})
+  public @interface Flags {}
+  /**
+   * Flag to disable seeking for cues.
+   * <p>
+   * Normally (i.e. when this flag is not set) the extractor will seek to the cues element if its
+   * position is specified in the seek head and if it's after the first cluster. Setting this flag
+   * disables seeking to the cues element. If the cues element is after the first cluster then the
+   * media is treated as being unseekable.
+   */
+  public static final int FLAG_DISABLE_SEEK_FOR_CUES = 1;
 
   private static final int UNSET_ENTRY_ID = -1;
 
@@ -168,6 +188,23 @@ public final class MatroskaExtractor implements Extractor {
   private static final int ID_PROJECTION = 0x7670;
   private static final int ID_PROJECTION_PRIVATE = 0x7672;
   private static final int ID_STEREO_MODE = 0x53B8;
+  private static final int ID_COLOUR = 0x55B0;
+  private static final int ID_COLOUR_RANGE = 0x55B9;
+  private static final int ID_COLOUR_TRANSFER = 0x55BA;
+  private static final int ID_COLOUR_PRIMARIES = 0x55BB;
+  private static final int ID_MAX_CLL = 0x55BC;
+  private static final int ID_MAX_FALL = 0x55BD;
+  private static final int ID_MASTERING_METADATA = 0x55D0;
+  private static final int ID_PRIMARY_R_CHROMATICITY_X = 0x55D1;
+  private static final int ID_PRIMARY_R_CHROMATICITY_Y = 0x55D2;
+  private static final int ID_PRIMARY_G_CHROMATICITY_X = 0x55D3;
+  private static final int ID_PRIMARY_G_CHROMATICITY_Y = 0x55D4;
+  private static final int ID_PRIMARY_B_CHROMATICITY_X = 0x55D5;
+  private static final int ID_PRIMARY_B_CHROMATICITY_Y = 0x55D6;
+  private static final int ID_WHITE_POINT_CHROMATICITY_X = 0x55D7;
+  private static final int ID_WHITE_POINT_CHROMATICITY_Y = 0x55D8;
+  private static final int ID_LUMNINANCE_MAX = 0x55D9;
+  private static final int ID_LUMNINANCE_MIN = 0x55DA;
 
   private static final int LACING_NONE = 0;
   private static final int LACING_XIPH = 1;
@@ -222,6 +259,7 @@ public final class MatroskaExtractor implements Extractor {
   private final EbmlReader reader;
   private final VarintReader varintReader;
   private final SparseArray<Track> tracks;
+  private final boolean seekForCuesEnabled;
 
   // Temporary arrays.
   private final ParsableByteArray nalStartCode;
@@ -289,12 +327,17 @@ public final class MatroskaExtractor implements Extractor {
   private ExtractorOutput extractorOutput;
 
   public MatroskaExtractor() {
-    this(new DefaultEbmlReader());
+    this(0);
   }
 
-  /* package */ MatroskaExtractor(EbmlReader reader) {
+  public MatroskaExtractor(@Flags int flags) {
+    this(new DefaultEbmlReader(), flags);
+  }
+
+  /* package */ MatroskaExtractor(EbmlReader reader, @Flags int flags) {
     this.reader = reader;
     this.reader.init(new InnerEbmlReaderOutput());
+    seekForCuesEnabled = (flags & FLAG_DISABLE_SEEK_FOR_CUES) == 0;
     varintReader = new VarintReader();
     tracks = new SparseArray<>();
     scratch = new ParsableByteArray(4);
@@ -368,6 +411,8 @@ public final class MatroskaExtractor implements Extractor {
       case ID_CUE_TRACK_POSITIONS:
       case ID_BLOCK_GROUP:
       case ID_PROJECTION:
+      case ID_COLOUR:
+      case ID_MASTERING_METADATA:
         return EbmlReader.TYPE_MASTER;
       case ID_EBML_READ_VERSION:
       case ID_DOC_TYPE_READ_VERSION:
@@ -398,6 +443,11 @@ public final class MatroskaExtractor implements Extractor {
       case ID_CUE_CLUSTER_POSITION:
       case ID_REFERENCE_BLOCK:
       case ID_STEREO_MODE:
+      case ID_COLOUR_RANGE:
+      case ID_COLOUR_TRANSFER:
+      case ID_COLOUR_PRIMARIES:
+      case ID_MAX_CLL:
+      case ID_MAX_FALL:
         return EbmlReader.TYPE_UNSIGNED_INT;
       case ID_DOC_TYPE:
       case ID_CODEC_ID:
@@ -413,6 +463,16 @@ public final class MatroskaExtractor implements Extractor {
         return EbmlReader.TYPE_BINARY;
       case ID_DURATION:
       case ID_SAMPLING_FREQUENCY:
+      case ID_PRIMARY_R_CHROMATICITY_X:
+      case ID_PRIMARY_R_CHROMATICITY_Y:
+      case ID_PRIMARY_G_CHROMATICITY_X:
+      case ID_PRIMARY_G_CHROMATICITY_Y:
+      case ID_PRIMARY_B_CHROMATICITY_X:
+      case ID_PRIMARY_B_CHROMATICITY_Y:
+      case ID_WHITE_POINT_CHROMATICITY_X:
+      case ID_WHITE_POINT_CHROMATICITY_Y:
+      case ID_LUMNINANCE_MAX:
+      case ID_LUMNINANCE_MIN:
         return EbmlReader.TYPE_FLOAT;
       default:
         return EbmlReader.TYPE_UNKNOWN;
@@ -448,7 +508,7 @@ public final class MatroskaExtractor implements Extractor {
       case ID_CLUSTER:
         if (!sentSeekMap) {
           // We need to build cues before parsing the cluster.
-          if (cuesContentPosition != C.POSITION_UNSET) {
+          if (seekForCuesEnabled && cuesContentPosition != C.POSITION_UNSET) {
             // We know where the Cues element is located. Seek to request it.
             seekForCues = true;
           } else {
@@ -470,6 +530,9 @@ public final class MatroskaExtractor implements Extractor {
         break;
       case ID_TRACK_ENTRY:
         currentTrack = new Track();
+        break;
+      case ID_MASTERING_METADATA:
+        currentTrack.hasColorInfo = true;
         break;
       default:
         break;
@@ -681,6 +744,60 @@ public final class MatroskaExtractor implements Extractor {
             break;
         }
         break;
+      case ID_COLOUR_PRIMARIES:
+        currentTrack.hasColorInfo = true;
+        switch ((int) value) {
+          case 1:
+            currentTrack.colorSpace = C.COLOR_SPACE_BT709;
+            break;
+          case 4:  // BT.470M.
+          case 5:  // BT.470BG.
+          case 6:  // SMPTE 170M.
+          case 7:  // SMPTE 240M.
+            currentTrack.colorSpace = C.COLOR_SPACE_BT601;
+            break;
+          case 9:
+            currentTrack.colorSpace = C.COLOR_SPACE_BT2020;
+            break;
+          default:
+            break;
+        }
+        break;
+      case ID_COLOUR_TRANSFER:
+        switch ((int) value) {
+          case 1:  // BT.709.
+          case 6:  // SMPTE 170M.
+          case 7:  // SMPTE 240M.
+            currentTrack.colorTransfer = C.COLOR_TRANSFER_SDR;
+            break;
+          case 16:
+            currentTrack.colorTransfer = C.COLOR_TRANSFER_ST2084;
+            break;
+          case 18:
+            currentTrack.colorTransfer = C.COLOR_TRANSFER_HLG;
+            break;
+          default:
+            break;
+        }
+        break;
+      case ID_COLOUR_RANGE:
+        switch((int) value) {
+          case 1:  // Broadcast range.
+            currentTrack.colorRange = C.COLOR_RANGE_LIMITED;
+            break;
+          case 2:
+            currentTrack.colorRange = C.COLOR_RANGE_FULL;
+            break;
+          default:
+            break;
+        }
+        break;
+      case ID_MAX_CLL:
+        currentTrack.maxContentLuminance = (int) value;
+        break;
+      case ID_MAX_FALL:
+        currentTrack.maxFrameAverageLuminance = (int) value;
+        break;
       default:
         break;
     }
@@ -693,6 +810,36 @@ public final class MatroskaExtractor implements Extractor {
         break;
       case ID_SAMPLING_FREQUENCY:
         currentTrack.sampleRate = (int) value;
+        break;
+      case ID_PRIMARY_R_CHROMATICITY_X:
+        currentTrack.primaryRChromaticityX = (float) value;
+        break;
+      case ID_PRIMARY_R_CHROMATICITY_Y:
+        currentTrack.primaryRChromaticityY = (float) value;
+        break;
+      case ID_PRIMARY_G_CHROMATICITY_X:
+        currentTrack.primaryGChromaticityX = (float) value;
+        break;
+      case ID_PRIMARY_G_CHROMATICITY_Y:
+        currentTrack.primaryGChromaticityY = (float) value;
+        break;
+      case ID_PRIMARY_B_CHROMATICITY_X:
+        currentTrack.primaryBChromaticityX = (float) value;
+        break;
+      case ID_PRIMARY_B_CHROMATICITY_Y:
+        currentTrack.primaryBChromaticityY = (float) value;
+        break;
+      case ID_WHITE_POINT_CHROMATICITY_X:
+        currentTrack.whitePointChromaticityX = (float) value;
+        break;
+      case ID_WHITE_POINT_CHROMATICITY_Y:
+        currentTrack.whitePointChromaticityY = (float) value;
+        break;
+      case ID_LUMNINANCE_MAX:
+        currentTrack.maxMasteringLuminance = (float) value;
+        break;
+      case ID_LUMNINANCE_MIN:
+        currentTrack.minMasteringLuminance = (float) value;
         break;
       default:
         break;
@@ -1305,6 +1452,16 @@ public final class MatroskaExtractor implements Extractor {
   private static final class Track {
 
     private static final int DISPLAY_UNIT_PIXELS = 0;
+    private static final int MAX_CHROMATICITY = 50000;  // Defined in CTA-861.3.
+    /**
+     * Default max content light level (CLL) that should be encoded into hdrStaticInfo.
+     */
+    private static final int DEFAULT_MAX_CLL = 1000;  // nits.
+
+    /**
+     * Default frame-average light level (FALL) that should be encoded into hdrStaticInfo.
+     */
+    private static final int DEFAULT_MAX_FALL = 200;  // nits.
 
     // Common elements.
     public String codecId;
@@ -1326,6 +1483,25 @@ public final class MatroskaExtractor implements Extractor {
     public byte[] projectionData = null;
     @C.StereoMode
     public int stereoMode = Format.NO_VALUE;
+    public boolean hasColorInfo = false;
+    @C.ColorSpace
+    public int colorSpace = Format.NO_VALUE;
+    @C.ColorTransfer
+    public int colorTransfer = Format.NO_VALUE;
+    @C.ColorRange
+    public int colorRange = Format.NO_VALUE;
+    public int maxContentLuminance = DEFAULT_MAX_CLL;
+    public int maxFrameAverageLuminance = DEFAULT_MAX_FALL;
+    public float primaryRChromaticityX = Format.NO_VALUE;
+    public float primaryRChromaticityY = Format.NO_VALUE;
+    public float primaryGChromaticityX = Format.NO_VALUE;
+    public float primaryGChromaticityY = Format.NO_VALUE;
+    public float primaryBChromaticityX = Format.NO_VALUE;
+    public float primaryBChromaticityY = Format.NO_VALUE;
+    public float whitePointChromaticityX = Format.NO_VALUE;
+    public float whitePointChromaticityY = Format.NO_VALUE;
+    public float maxMasteringLuminance = Format.NO_VALUE;
+    public float minMasteringLuminance = Format.NO_VALUE;
 
     // Audio elements. Initially set to their default values.
     public int channelCount = 1;
@@ -1495,9 +1671,15 @@ public final class MatroskaExtractor implements Extractor {
         if (displayWidth != Format.NO_VALUE && displayHeight != Format.NO_VALUE) {
           pixelWidthHeightRatio = ((float) (height * displayWidth)) / (width * displayHeight);
         }
+        ColorInfo colorInfo = null;
+        if (hasColorInfo) {
+          byte[] hdrStaticInfo = getHdrStaticInfo();
+          colorInfo = new ColorInfo(colorSpace, colorRange, colorTransfer, hdrStaticInfo);
+        }
         format = Format.createVideoSampleFormat(Integer.toString(trackId), mimeType, null,
             Format.NO_VALUE, maxInputSize, width, height, Format.NO_VALUE, initializationData,
-            Format.NO_VALUE, pixelWidthHeightRatio, projectionData, stereoMode, drmInitData);
+            Format.NO_VALUE, pixelWidthHeightRatio, projectionData, stereoMode, colorInfo,
+            drmInitData);
       } else if (MimeTypes.APPLICATION_SUBRIP.equals(mimeType)) {
         type = C.TRACK_TYPE_TEXT;
         format = Format.createTextSampleFormat(Integer.toString(trackId), mimeType, null,
@@ -1514,6 +1696,38 @@ public final class MatroskaExtractor implements Extractor {
 
       this.output = output.track(number, type);
       this.output.format(format);
+    }
+
+    /**
+     * Returns the HDR Static Info as defined in CTA-861.3.
+     */
+    private byte[] getHdrStaticInfo() {
+      // Are all fields present.
+      if (primaryRChromaticityX == Format.NO_VALUE || primaryRChromaticityY == Format.NO_VALUE
+          || primaryGChromaticityX == Format.NO_VALUE || primaryGChromaticityY == Format.NO_VALUE
+          || primaryBChromaticityX == Format.NO_VALUE || primaryBChromaticityY == Format.NO_VALUE
+          || whitePointChromaticityX == Format.NO_VALUE
+          || whitePointChromaticityY == Format.NO_VALUE || maxMasteringLuminance == Format.NO_VALUE
+          || minMasteringLuminance == Format.NO_VALUE) {
+        return null;
+      }
+
+      byte[] hdrStaticInfoData = new byte[25];
+      ByteBuffer hdrStaticInfo = ByteBuffer.wrap(hdrStaticInfoData);
+      hdrStaticInfo.put((byte) 0);  // Type.
+      hdrStaticInfo.putShort((short) ((primaryRChromaticityX * MAX_CHROMATICITY) + 0.5f));
+      hdrStaticInfo.putShort((short) ((primaryRChromaticityY * MAX_CHROMATICITY) + 0.5f));
+      hdrStaticInfo.putShort((short) ((primaryGChromaticityX * MAX_CHROMATICITY)  + 0.5f));
+      hdrStaticInfo.putShort((short) ((primaryGChromaticityY * MAX_CHROMATICITY) + 0.5f));
+      hdrStaticInfo.putShort((short) ((primaryBChromaticityX * MAX_CHROMATICITY) + 0.5f));
+      hdrStaticInfo.putShort((short) ((primaryBChromaticityY * MAX_CHROMATICITY) + 0.5f));
+      hdrStaticInfo.putShort((short) ((whitePointChromaticityX * MAX_CHROMATICITY) + 0.5f));
+      hdrStaticInfo.putShort((short) ((whitePointChromaticityY * MAX_CHROMATICITY) + 0.5f));
+      hdrStaticInfo.putShort((short) (maxMasteringLuminance + 0.5f));
+      hdrStaticInfo.putShort((short) (minMasteringLuminance + 0.5f));
+      hdrStaticInfo.putShort((short) maxContentLuminance);
+      hdrStaticInfo.putShort((short) maxFrameAverageLuminance);
+      return hdrStaticInfoData;
     }
 
     /**

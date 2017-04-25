@@ -55,7 +55,7 @@ public final class HlsMasterPlaylist extends HlsPlaylist {
 
   public HlsMasterPlaylist(String baseUri, List<HlsUrl> variants, List<HlsUrl> audios,
       List<HlsUrl> subtitles, Format muxedAudioFormat, List<Format> muxedCaptionFormats) {
-    super(baseUri, HlsPlaylist.TYPE_MASTER);
+    super(baseUri);
     this.variants = Collections.unmodifiableList(variants);
     this.audios = Collections.unmodifiableList(audios);
     this.subtitles = Collections.unmodifiableList(subtitles);

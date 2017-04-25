@@ -97,7 +97,7 @@ public final class HlsMediaPlaylist extends HlsPlaylist {
       long startTimeUs, boolean hasDiscontinuitySequence, int discontinuitySequence,
       int mediaSequence, int version, long targetDurationUs, boolean hasEndTag,
       boolean hasProgramDateTime, Segment initializationSegment, List<Segment> segments) {
-    super(baseUri, HlsPlaylist.TYPE_MEDIA);
+    super(baseUri);
     this.playlistType = playlistType;
     this.startTimeUs = startTimeUs;
     this.hasDiscontinuitySequence = hasDiscontinuitySequence;
