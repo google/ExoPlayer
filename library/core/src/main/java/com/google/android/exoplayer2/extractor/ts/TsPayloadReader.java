@@ -20,7 +20,6 @@ import com.google.android.exoplayer2.extractor.ExtractorOutput;
 import com.google.android.exoplayer2.extractor.TrackOutput;
 import com.google.android.exoplayer2.util.ParsableByteArray;
 import com.google.android.exoplayer2.util.TimestampAdjuster;
-
 import java.util.Collections;
 import java.util.List;
 
@@ -85,18 +84,22 @@ public interface TsPayloadReader {
   }
 
   /**
-   * Holds information about a DVB subtitle.
+   * Holds information about a DVB subtitle, as defined in ETSI EN 300 468 V1.11.1 section 6.2.41.
    */
   final class DvbSubtitleInfo {
 
     public final String language;
-    public final int programElementType;
-    public final List<byte[]> initializationData;
+    public final int type;
+    public final byte[] initializationData;
 
-    public DvbSubtitleInfo(String language, int programElementType,
-        List<byte[]> initializationData) {
+    /**
+     * @param language The ISO 639-2 three character language.
+     * @param type The subtitling type.
+     * @param initializationData The composition and ancillary page ids.
+     */
+    public DvbSubtitleInfo(String language, int type, byte[] initializationData) {
       this.language = language;
-      this.programElementType = programElementType;
+      this.type = type;
       this.initializationData = initializationData;
     }
 

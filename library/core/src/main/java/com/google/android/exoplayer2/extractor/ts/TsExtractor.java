@@ -517,11 +517,11 @@ public final class TsExtractor implements Extractor {
           dvbSubtitleInfos = new ArrayList<>();
           while (data.getPosition() < positionOfNextDescriptor) {
             String dvbLanguage = data.readString(3).trim();
-            int dvbProgramElementType = data.readUnsignedByte();
+            int dvbSubtitlingType = data.readUnsignedByte();
             byte[] initializationData = new byte[4];
             data.readBytes(initializationData, 0, 4);
-            dvbSubtitleInfos.add(new DvbSubtitleInfo(dvbLanguage, dvbProgramElementType,
-                Collections.singletonList(initializationData)));
+            dvbSubtitleInfos.add(new DvbSubtitleInfo(dvbLanguage, dvbSubtitlingType,
+                initializationData));
           }
         }
         // Skip unused bytes of current descriptor.
