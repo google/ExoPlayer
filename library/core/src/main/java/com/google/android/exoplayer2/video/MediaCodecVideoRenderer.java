@@ -166,7 +166,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
     currentPixelWidthHeightRatio = Format.NO_VALUE;
     pendingPixelWidthHeightRatio = Format.NO_VALUE;
     scalingMode = C.VIDEO_SCALING_MODE_DEFAULT;
-    clearLastReportedVideoSize();
+    clearReportedVideoSize();
   }
 
   @Override
@@ -229,8 +229,11 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
     super.onPositionReset(positionUs, joining);
     clearRenderedFirstFrame();
     consecutiveDroppedFrameCount = 0;
-    joiningDeadlineMs = joining && allowedJoiningTimeMs > 0
-        ? (SystemClock.elapsedRealtime() + allowedJoiningTimeMs) : C.TIME_UNSET;
+    if (joining) {
+      setJoiningDeadlineMs();
+    } else {
+      joiningDeadlineMs = C.TIME_UNSET;
+    }
   }
 
   @Override
@@ -272,7 +275,8 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
     currentHeight = Format.NO_VALUE;
     currentPixelWidthHeightRatio = Format.NO_VALUE;
     pendingPixelWidthHeightRatio = Format.NO_VALUE;
-    clearLastReportedVideoSize();
+    clearReportedVideoSize();
+    clearRenderedFirstFrame();
     frameReleaseTimeHelper.disable();
     tunnelingOnFrameRenderedListener = null;
     try {
@@ -312,11 +316,25 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
           maybeInitCodec();
         }
       }
+      if (surface != null) {
+        // If we know the video size, report it again immediately.
+        maybeRenotifyVideoSizeChanged();
+        // We haven't rendered to the new surface yet.
+        clearRenderedFirstFrame();
+        if (state == STATE_STARTED) {
+          setJoiningDeadlineMs();
+        }
+      } else {
+        // The surface has been removed.
+        clearReportedVideoSize();
+        clearRenderedFirstFrame();
+      }
+    } else if (surface != null) {
+      // The surface is unchanged and non-null. If we know the video size and/or have already
+      // rendered to the surface, report these again immediately.
+      maybeRenotifyVideoSizeChanged();
+      maybeRenotifyRenderedFirstFrame();
     }
-    // Clear state so that we always call the event listener with the video size and when a frame
-    // is rendered, even if the surface hasn't changed.
-    clearRenderedFirstFrame();
-    clearLastReportedVideoSize();
   }
 
   @Override
@@ -521,6 +539,11 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
     maybeNotifyRenderedFirstFrame();
   }
 
+  private void setJoiningDeadlineMs() {
+    joiningDeadlineMs = allowedJoiningTimeMs > 0
+        ? (SystemClock.elapsedRealtime() + allowedJoiningTimeMs) : C.TIME_UNSET;
+  }
+
   private void clearRenderedFirstFrame() {
     renderedFirstFrame = false;
     // The first frame notification is triggered by renderOutputBuffer or renderOutputBufferV21 for
@@ -543,7 +566,13 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
     }
   }
 
-  private void clearLastReportedVideoSize() {
+  private void maybeRenotifyRenderedFirstFrame() {
+    if (renderedFirstFrame) {
+      eventDispatcher.renderedFirstFrame(surface);
+    }
+  }
+
+  private void clearReportedVideoSize() {
     reportedWidth = Format.NO_VALUE;
     reportedHeight = Format.NO_VALUE;
     reportedPixelWidthHeightRatio = Format.NO_VALUE;
@@ -560,6 +589,13 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
       reportedHeight = currentHeight;
       reportedUnappliedRotationDegrees = currentUnappliedRotationDegrees;
       reportedPixelWidthHeightRatio = currentPixelWidthHeightRatio;
+    }
+  }
+
+  private void maybeRenotifyVideoSizeChanged() {
+    if (reportedWidth != Format.NO_VALUE || reportedHeight != Format.NO_VALUE) {
+      eventDispatcher.videoSizeChanged(currentWidth, currentHeight, currentUnappliedRotationDegrees,
+          currentPixelWidthHeightRatio);
     }
   }
 

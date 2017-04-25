@@ -464,13 +464,16 @@ public final class LibvpxVideoRenderer extends BaseRenderer {
   protected void onPositionReset(long positionUs, boolean joining) {
     inputStreamEnded = false;
     outputStreamEnded = false;
-    renderedFirstFrame = false;
+    clearRenderedFirstFrame();
     consecutiveDroppedFrameCount = 0;
     if (decoder != null) {
       flushDecoder();
     }
-    joiningDeadlineMs = joining && allowedJoiningTimeMs > 0
-        ? (SystemClock.elapsedRealtime() + allowedJoiningTimeMs) : C.TIME_UNSET;
+    if (joining) {
+      setJoiningDeadlineMs();
+    } else {
+      joiningDeadlineMs = C.TIME_UNSET;
+    }
   }
 
   @Override
@@ -492,6 +495,7 @@ public final class LibvpxVideoRenderer extends BaseRenderer {
     format = null;
     waitingForKeys = false;
     clearReportedVideoSize();
+    clearRenderedFirstFrame();
     try {
       releaseDecoder();
     } finally {
@@ -568,28 +572,44 @@ public final class LibvpxVideoRenderer extends BaseRenderer {
   private void setOutput(Surface surface, VpxOutputBufferRenderer outputBufferRenderer) {
     // At most one output may be non-null. Both may be null if the output is being cleared.
     Assertions.checkState(surface == null || outputBufferRenderer == null);
-    // We only need to update the decoder if the output has changed.
     if (this.surface != surface || this.outputBufferRenderer != outputBufferRenderer) {
+      // The output has changed.
       this.surface = surface;
       this.outputBufferRenderer = outputBufferRenderer;
       outputMode = outputBufferRenderer != null ? VpxDecoder.OUTPUT_MODE_YUV
           : surface != null ? VpxDecoder.OUTPUT_MODE_RGB : VpxDecoder.OUTPUT_MODE_NONE;
-      // If outputMode is OUTPUT_MODE_NONE we leave the mode of the underlying decoder unchanged in
-      // anticipation that a subsequent output will likely be of the same type as the one that was
-      // set previously.
-      if (decoder != null && outputMode != VpxDecoder.OUTPUT_MODE_NONE) {
-        decoder.setOutputMode(outputMode);
+      if (outputMode != VpxDecoder.OUTPUT_MODE_NONE) {
+        if (decoder != null) {
+          decoder.setOutputMode(outputMode);
+        }
+        // If we know the video size, report it again immediately.
+        maybeRenotifyVideoSizeChanged();
+        // We haven't rendered to the new output yet.
+        clearRenderedFirstFrame();
+        if (getState() == STATE_STARTED) {
+          setJoiningDeadlineMs();
+        }
+      } else {
+        // The output has been removed. We leave the outputMode of the underlying decoder unchanged
+        // in anticipation that a subsequent output will likely be of the same type.
+        clearReportedVideoSize();
+        clearRenderedFirstFrame();
       }
+    } else if (outputMode != VpxDecoder.OUTPUT_MODE_NONE) {
+      // The output is unchanged and non-null. If we know the video size and/or have already
+      // rendered to the output, report these again immediately.
+      maybeRenotifyVideoSizeChanged();
+      maybeRenotifyRenderedFirstFrame();
     }
-    // Clear state so that we always call the event listener with the video size and when a frame
-    // is rendered, even if the output hasn't changed.
-    renderedFirstFrame = false;
-    clearReportedVideoSize();
   }
 
-  private void clearReportedVideoSize() {
-    reportedWidth = Format.NO_VALUE;
-    reportedHeight = Format.NO_VALUE;
+  private void setJoiningDeadlineMs() {
+    joiningDeadlineMs = allowedJoiningTimeMs > 0
+        ? (SystemClock.elapsedRealtime() + allowedJoiningTimeMs) : C.TIME_UNSET;
+  }
+
+  private void clearRenderedFirstFrame() {
+    renderedFirstFrame = false;
   }
 
   private void maybeNotifyRenderedFirstFrame() {
@@ -599,11 +619,28 @@ public final class LibvpxVideoRenderer extends BaseRenderer {
     }
   }
 
+  private void maybeRenotifyRenderedFirstFrame() {
+    if (renderedFirstFrame) {
+      eventDispatcher.renderedFirstFrame(surface);
+    }
+  }
+
+  private void clearReportedVideoSize() {
+    reportedWidth = Format.NO_VALUE;
+    reportedHeight = Format.NO_VALUE;
+  }
+
   private void maybeNotifyVideoSizeChanged(int width, int height) {
     if (reportedWidth != width || reportedHeight != height) {
       reportedWidth = width;
       reportedHeight = height;
       eventDispatcher.videoSizeChanged(width, height, 0, 1);
+    }
+  }
+
+  private void maybeRenotifyVideoSizeChanged() {
+    if (reportedWidth != Format.NO_VALUE || reportedHeight != Format.NO_VALUE) {
+      eventDispatcher.videoSizeChanged(reportedWidth, reportedHeight, 0, 1);
     }
   }
 
