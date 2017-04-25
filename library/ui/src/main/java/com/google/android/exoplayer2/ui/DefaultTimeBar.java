@@ -186,9 +186,8 @@ public class DefaultTimeBar extends View implements TimeBar {
     keyTimeIncrement = C.TIME_UNSET;
     keyCountIncrement = DEFAULT_INCREMENT_COUNT;
     setFocusable(true);
-    if (Util.SDK_INT >= 16
-        && getImportantForAccessibility() == View.IMPORTANT_FOR_ACCESSIBILITY_AUTO) {
-      setImportantForAccessibility(View.IMPORTANT_FOR_ACCESSIBILITY_YES);
+    if (Util.SDK_INT >= 16) {
+      maybeSetImportantForAccessibilityV16();
     }
   }
 
@@ -372,7 +371,7 @@ public class DefaultTimeBar extends View implements TimeBar {
     event.setClassName(DefaultTimeBar.class.getName());
   }
 
-  @TargetApi(14)
+  @TargetApi(21)
   @Override
   public void onInitializeAccessibilityNodeInfo(AccessibilityNodeInfo info) {
     super.onInitializeAccessibilityNodeInfo(info);
@@ -415,6 +414,13 @@ public class DefaultTimeBar extends View implements TimeBar {
   }
 
   // Internal methods.
+
+  @TargetApi(16)
+  private void maybeSetImportantForAccessibilityV16() {
+    if (getImportantForAccessibility() == View.IMPORTANT_FOR_ACCESSIBILITY_AUTO) {
+      setImportantForAccessibility(View.IMPORTANT_FOR_ACCESSIBILITY_YES);
+    }
+  }
 
   private void startScrubbing() {
     scrubbing = true;
