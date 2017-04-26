@@ -3,10 +3,12 @@
 ### r2.4.0 ###
 
 * New modular library structure. You can read more about depending on individual
-  library modules [here](TODO).
+  library modules
+  [here](https://medium.com/google-exoplayer/exoplayers-new-modular-structure-a916c0874907).
 * Variable speed playback support on API level 16+. You can read more about
-  changing the playback speed [here](TODO)
-  ([#26](https://github.com/google/ExoPlayer/issues/26))."
+  changing the playback speed
+  [here](https://medium.com/google-exoplayer/variable-speed-playback-with-exoplayer-e6e6a71e0343)
+  ([#26](https://github.com/google/ExoPlayer/issues/26)).
 * New time bar view, including support for displaying ad break markers.
 * Support DVB subtitles in MPEG-TS and MKV.
 * Support adaptive playback for audio only DASH, HLS and SmoothStreaming
