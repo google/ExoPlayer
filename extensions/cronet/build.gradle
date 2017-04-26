@@ -29,13 +29,18 @@ android {
 }
 
 dependencies {
-    compile project(':library')
+    compile project(':library-core')
     compile files('libs/cronet_api.jar')
     compile files('libs/cronet_impl_common_java.jar')
     compile files('libs/cronet_impl_native_java.jar')
-    androidTestCompile 'com.google.dexmaker:dexmaker:1.2'
-    androidTestCompile 'com.google.dexmaker:dexmaker-mockito:1.2'
-    androidTestCompile 'org.mockito:mockito-core:1.9.5'
     androidTestCompile project(':library')
-    androidTestCompile 'com.android.support.test:runner:0.5'
+    androidTestCompile 'com.google.dexmaker:dexmaker:' + dexmakerVersion
+    androidTestCompile 'com.google.dexmaker:dexmaker-mockito:' + dexmakerVersion
+    androidTestCompile 'org.mockito:mockito-core:' + mockitoVersion
+    androidTestCompile 'com.android.support.test:runner:' + testSupportLibraryVersion
 }
+
+ext {
+    javadocTitle = 'Cronet extension'
+}
+apply from: '../../javadoc_library.gradle'

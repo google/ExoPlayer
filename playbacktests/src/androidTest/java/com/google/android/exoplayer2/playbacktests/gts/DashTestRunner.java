@@ -25,8 +25,8 @@ import android.net.Uri;
 import android.util.Log;
 import android.view.Surface;
 import com.google.android.exoplayer2.C;
-import com.google.android.exoplayer2.DefaultLoadControl;
 import com.google.android.exoplayer2.ExoPlaybackException;
+import com.google.android.exoplayer2.ExoPlayerFactory;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.RendererCapabilities;
 import com.google.android.exoplayer2.SimpleExoPlayer;
@@ -39,7 +39,7 @@ import com.google.android.exoplayer2.drm.MediaDrmCallback;
 import com.google.android.exoplayer2.drm.UnsupportedDrmException;
 import com.google.android.exoplayer2.mediacodec.MediaCodecUtil;
 import com.google.android.exoplayer2.playbacktests.util.ActionSchedule;
-import com.google.android.exoplayer2.playbacktests.util.DebugSimpleExoPlayer;
+import com.google.android.exoplayer2.playbacktests.util.DebugRenderersFactory;
 import com.google.android.exoplayer2.playbacktests.util.DecoderCountersUtil;
 import com.google.android.exoplayer2.playbacktests.util.ExoHostedTest;
 import com.google.android.exoplayer2.playbacktests.util.HostActivity;
@@ -296,8 +296,8 @@ public final class DashTestRunner {
     protected SimpleExoPlayer buildExoPlayer(HostActivity host, Surface surface,
         MappingTrackSelector trackSelector,
         DrmSessionManager<FrameworkMediaCrypto> drmSessionManager) {
-      SimpleExoPlayer player = new DebugSimpleExoPlayer(host, trackSelector,
-          new DefaultLoadControl(), drmSessionManager);
+      SimpleExoPlayer player = ExoPlayerFactory.newSimpleInstance(
+          new DebugRenderersFactory(host, drmSessionManager), trackSelector);
       player.setVideoSurface(surface);
       return player;
     }

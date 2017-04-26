@@ -152,14 +152,19 @@ public final class GvrAudioProcessor implements AudioProcessor {
 
   @Override
   public void flush() {
-    gvrAudioSurround.flush();
+    if (gvrAudioSurround != null) {
+      gvrAudioSurround.flush();
+    }
     inputEnded = false;
   }
 
   @Override
-  public synchronized void release() {
-    buffer = null;
+  public synchronized void reset() {
     maybeReleaseGvrAudioSurround();
+    inputEnded = false;
+    buffer = null;
+    sampleRateHz = Format.NO_VALUE;
+    channelCount = Format.NO_VALUE;
   }
 
   private void maybeReleaseGvrAudioSurround() {

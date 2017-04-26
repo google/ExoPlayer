@@ -29,11 +29,16 @@ android {
 }
 
 dependencies {
-    compile project(':library')
+    compile project(':library-core')
     compile('com.squareup.okhttp3:okhttp:3.6.0') {
         exclude group: 'org.json'
     }
 }
+
+ext {
+    javadocTitle = 'OkHttp extension'
+}
+apply from: '../../javadoc_library.gradle'
 
 ext {
     releaseArtifact = 'extension-okhttp'

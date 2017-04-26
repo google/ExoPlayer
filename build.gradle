@@ -19,8 +19,15 @@ buildscript {
         classpath 'com.android.tools.build:gradle:2.3.0'
         classpath 'com.novoda:bintray-release:0.4.0'
     }
+    // Workaround for the following test coverage issue. Remove when fixed:
+    // https://code.google.com/p/android/issues/detail?id=226070
+    configurations.all {
+        resolutionStrategy {
+            force 'org.jacoco:org.jacoco.report:0.7.4.201502262128'
+            force 'org.jacoco:org.jacoco.core:0.7.4.201502262128'
+        }
+    }
 }
-
 allprojects {
     repositories {
         jcenter()
@@ -30,15 +37,25 @@ allprojects {
         // components provided by the library may be of use on older devices.
         // However, please note that the core media playback functionality
         // provided by the library requires API level 16 or greater.
-        minSdkVersion=9
-        compileSdkVersion=25
-        targetSdkVersion=25
-        buildToolsVersion='25'
+        minSdkVersion = 9
+        compileSdkVersion = 25
+        targetSdkVersion = 25
+        buildToolsVersion = '25'
+        testSupportLibraryVersion = '0.5'
+        supportLibraryVersion = '25.3.1'
+        dexmakerVersion = '1.2'
+        mockitoVersion = '1.9.5'
         releaseRepoName = getBintrayRepo()
         releaseUserOrg = 'google'
         releaseGroupId = 'com.google.android.exoplayer'
-        releaseVersion = 'r2.3.1'
+        releaseVersion = 'r2.4.0'
         releaseWebsite = 'https://github.com/google/ExoPlayer'
+    }
+    if (it.hasProperty('externalBuildDir')) {
+        if (!new File(externalBuildDir).isAbsolute()) {
+            externalBuildDir = new File(rootDir, externalBuildDir)
+        }
+        buildDir = "${externalBuildDir}/${project.name}"
     }
 }
 
@@ -47,3 +64,5 @@ def getBintrayRepo() {
         property('publicRepo').toBoolean()
     return publicRepo ? 'exoplayer' : 'exoplayer-test'
 }
+
+apply from: 'javadoc_combined.gradle'
