@@ -31,7 +31,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 import com.google.android.exoplayer2.C;
-import com.google.android.exoplayer2.DefaultLoadControl;
+import com.google.android.exoplayer2.DefaultRenderersFactory;
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.ExoPlayerFactory;
@@ -253,18 +253,21 @@ public class PlayerActivity extends Activity implements OnClickListener, ExoPlay
         }
       }
 
-      @SimpleExoPlayer.ExtensionRendererMode int extensionRendererMode =
+      @DefaultRenderersFactory.ExtensionRendererMode int extensionRendererMode =
           ((DemoApplication) getApplication()).useExtensionRenderers()
-              ? (preferExtensionDecoders ? SimpleExoPlayer.EXTENSION_RENDERER_MODE_PREFER
-              : SimpleExoPlayer.EXTENSION_RENDERER_MODE_ON)
-              : SimpleExoPlayer.EXTENSION_RENDERER_MODE_OFF;
+              ? (preferExtensionDecoders ? DefaultRenderersFactory.EXTENSION_RENDERER_MODE_PREFER
+              : DefaultRenderersFactory.EXTENSION_RENDERER_MODE_ON)
+              : DefaultRenderersFactory.EXTENSION_RENDERER_MODE_OFF;
+      DefaultRenderersFactory renderersFactory = new DefaultRenderersFactory(this,
+          drmSessionManager, extensionRendererMode);
+
       TrackSelection.Factory videoTrackSelectionFactory =
           new AdaptiveTrackSelection.Factory(BANDWIDTH_METER);
       trackSelector = new DefaultTrackSelector(videoTrackSelectionFactory);
       trackSelectionHelper = new TrackSelectionHelper(trackSelector, videoTrackSelectionFactory);
       lastSeenTrackGroupArray = null;
-      player = ExoPlayerFactory.newSimpleInstance(this, trackSelector, new DefaultLoadControl(),
-          drmSessionManager, extensionRendererMode);
+
+      player = ExoPlayerFactory.newSimpleInstance(renderersFactory, trackSelector);
       player.addListener(this);
 
       eventLogger = new EventLogger(trackSelector);
