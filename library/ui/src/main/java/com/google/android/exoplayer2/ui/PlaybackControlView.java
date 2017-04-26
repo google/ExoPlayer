@@ -728,6 +728,42 @@ public class PlaybackControlView extends FrameLayout {
     }
   }
 
+  private void seekToTimebarPosition(long timebarPositionMs) {
+    if (multiWindowTimeBar) {
+      Timeline timeline = player.getCurrentTimeline();
+      int windowCount = timeline.getWindowCount();
+      long remainingMs = timebarPositionMs;
+      for (int i = 0; i < windowCount; i++) {
+        timeline.getWindow(i, window);
+        for (int j = window.firstPeriodIndex; j <= window.lastPeriodIndex; j++) {
+          if (!timeline.getPeriod(j, period).isAd) {
+            long periodDurationMs = period.getDurationMs();
+            if (periodDurationMs == C.TIME_UNSET) {
+              // Should never happen as canShowMultiWindowTimeBar is true.
+              throw new IllegalStateException();
+            }
+            if (j == window.firstPeriodIndex) {
+              periodDurationMs -= window.getPositionInFirstPeriodMs();
+            }
+            if (i == windowCount - 1 && j == window.lastPeriodIndex
+                && remainingMs >= periodDurationMs) {
+              // Seeking past the end of the last window should seek to the end of the timeline.
+              seekTo(i, window.getDurationMs());
+              return;
+            }
+            if (remainingMs < periodDurationMs) {
+              seekTo(i, period.getPositionInWindowMs() + remainingMs);
+              return;
+            }
+            remainingMs -= periodDurationMs;
+          }
+        }
+      }
+    } else {
+      seekTo(timebarPositionMs);
+    }
+  }
+
   @Override
   public void onAttachedToWindow() {
     super.onAttachedToWindow();
@@ -855,32 +891,7 @@ public class PlaybackControlView extends FrameLayout {
     public void onScrubStop(TimeBar timeBar, long position, boolean canceled) {
       scrubbing = false;
       if (!canceled && player != null) {
-        if (multiWindowTimeBar) {
-          Timeline timeline = player.getCurrentTimeline();
-          int windowCount = timeline.getWindowCount();
-          long remainingMs = position;
-          for (int i = 0; i < windowCount; i++) {
-            timeline.getWindow(i, window);
-            if (!timeline.getPeriod(window.firstPeriodIndex, period).isAd) {
-              long windowDurationMs = window.getDurationMs();
-              if (windowDurationMs == C.TIME_UNSET) {
-                break;
-              }
-              if (i == windowCount - 1 && remainingMs >= windowDurationMs) {
-                // Seeking past the end of the last window should seek to the end of the timeline.
-                seekTo(i, windowDurationMs);
-                break;
-              }
-              if (remainingMs < windowDurationMs) {
-                seekTo(i, remainingMs);
-                break;
-              }
-              remainingMs -= windowDurationMs;
-            }
-          }
-        } else {
-          seekTo(position);
-        }
+        seekToTimebarPosition(position);
       }
       hideAfterTimeout();
     }
