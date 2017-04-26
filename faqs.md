@@ -6,6 +6,9 @@ weight: 5
 
 * [What formats does ExoPlayer support?][]
 * [Why are some media files not seekable?][]
+* [Why do some MPEG-TS files fail to play?][]
+* [Why do some streams fail with HTTP response code 301 or 302?][]
+* [How can I query whether the stream being played is a live stream?][]
 * [How do I keep audio playing when my app is backgrounded?][]
 * [How do I get smooth animation/scrolling of video?][]
 * [Should I use SurfaceView or TextureView?][]
@@ -31,6 +34,60 @@ If you require seeking but have unseekable media, we suggest converting your
 content to use a more appropriate container format. In the specific case of
 unseekable MP3 files, you can enable seeking under the assumption that the
 files have a constant bitrate using [FLAG_ENABLE_CONSTANT_BITRATE_SEEKING][].
+This can be set on a DefaultExtractorsFactory using [setMp3ExtractorFlags][].
+
+#### Why do some MPEG-TS files fail to play? ####
+
+Some MPEG-TS files do not contain access unit delimiters (AUDs). By default
+ExoPlayer relies on AUDs to cheaply detect frame boundaries. Similarly, some
+MPEG-TS files do not contain IDR keyframes. By default these are the only type
+of keyframes considered by ExoPlayer.
+
+ExoPlayer will appear to be stuck in the buffering state when asked to play an
+MPEG-TS file that lacks AUDs or IDR keyframes. If you need to play such files,
+you can do so using [FLAG_DETECT_ACCESS_UNITS][] and
+[FLAG_ALLOW_NON_IDR_KEYFRAMES][] respectively. These flags can be set on a
+DefaultExtractorsFactory using [setTsExtractorFlags][]. Use of
+FLAG_DETECT_ACCESS_UNITS has no side effects other than being computationally
+expensive relative to AUD based frame boundary detection. Use of
+FLAG_ALLOW_NON_IDR_KEYFRAMES may result in temporary visual corruption at the
+start of playback and immediately after seeks when playing some MPEG-TS files.
+
+#### Why do some streams fail with HTTP response code 301 or 302? ####
+
+HTTP response codes 301 and 302 both indicate redirection. Brief descriptions
+can be found on [Wikipedia][]. When ExoPlayer makes a request and receives a
+response with status code 301 or 302, it will normally follow the redirect
+and start playback as normal. The one case where this does not happen by default
+is for cross-protocol redirects. A cross-protocol redirect is one that redirects
+from HTTPS to HTTP or vice-versa (or less commonly, between another pair of
+protocols). You can test whether a URL causes a cross-protocol redirect using
+the [wget][] command line tool as follows:
+```wget "https://yourserver.com/test.mp3" 2>&1  | grep Location
+```
+The output should look something like this:
+```$ wget "https://yourserver.com/test.mp3" 2>&1  | grep Location
+Location: https://second.com/test.mp3 [following]
+Location: http://third.com/test.mp3 [following]
+```
+In this example there are two redirects. The first redirect is from
+`https://yourserver.com/test.mp3` to `https://second.com/test.mp3`. Both are
+HTTPS, and so this is not a cross-protocol redirect. The second redirect is from
+`https://second.com/test.mp3` to `http://third.com/test.mp3`. This redirects
+from HTTPS to HTTP and so is a cross-protocol redirect. ExoPlayer will not
+follow this redirect in its default configuration, meaning playback will fail.
+
+If you need to, you can configure ExoPlayer to follow cross-protocol redirects
+when instantiating the `HttpDataSource.Factory` instances used by ExoPlayer in
+your application. [`DefaultHttpDataSourceFactory`][] has constructors that
+accept an `allowCrossProtocolRedirects` argument for this purpose, as do other
+`HttpDataSource.Factory` implementations. Set these arguments to true to enable
+cross-protocol redirects.
+
+#### How can I query whether the stream being played is a live stream? ####
+
+You can query ExoPlayer's [isCurrentWindowDynamic][] method. A dynamic window
+implies that the stream being played is a live stream.
 
 #### How do I keep audio playing when my app is backgrounded? ####
 
@@ -89,6 +146,9 @@ physical devices rather than emulators.
 
 [What formats does ExoPlayer support?]: #what-formats-does-exoplayer-support
 [Why are some media files not seekable?]: #why-are-some-media-files-not-seekable
+[Why do some MPEG-TS files fail to play?]: #why-do-some-mpeg-ts-files-fail-to-play
+[Why do some streams fail with HTTP response code 301 or 302?]: #why-do-some-streams-fail-with-http-response-code-301-or-302
+[How can I query whether the stream being played is a live stream?]: #how-can-i-query-whether-the-stream-being-played-is-a-live-stream
 [How do I keep audio playing when my app is backgrounded?]: #how-do-i-keep-audio-playing-when-my-app-is-backgrounded
 [How do I get smooth animation/scrolling of video?]: #how-do-i-get-smooth-animationscrolling-of-video
 [Should I use SurfaceView or TextureView?]: #should-i-use-surfaceview-or-textureview
@@ -96,6 +156,13 @@ physical devices rather than emulators.
 
 [Supported formats]: https://google.github.io/ExoPlayer/supported-formats.html
 [FLAG_ENABLE_CONSTANT_BITRATE_SEEKING]: https://google.github.io/ExoPlayer/doc/reference/com/google/android/exoplayer2/extractor/mp3/Mp3Extractor.html#FLAG_ENABLE_CONSTANT_BITRATE_SEEKING
+[setMp3ExtractorFlags]: https://google.github.io/ExoPlayer/doc/reference/com/google/android/exoplayer2/extractor/DefaultExtractorsFactory#setMp3ExtractorFlags-int-
+[FLAG_DETECT_ACCESS_UNITS]: https://google.github.io/ExoPlayer/doc/reference/com/google/android/exoplayer2/extractor/ts/DefaultTsPayloadReaderFactory.html#FLAG_DETECT_ACCESS_UNITS
+[FLAG_ALLOW_NON_IDR_KEYFRAMES]: https://google.github.io/ExoPlayer/doc/reference/com/google/android/exoplayer2/extractor/ts/DefaultTsPayloadReaderFactory.html#FLAG_ALLOW_NON_IDR_KEYFRAMES
+[setTsExtractorFlags]: https://google.github.io/ExoPlayer/doc/reference/com/google/android/exoplayer2/extractor/DefaultExtractorsFactory#setTsExtractorFlags-int-
+[Wikipedia]: https://en.wikipedia.org/wiki/List_of_HTTP_status_codes
+[DefaultHttpDataSourceFactory]: http://google.github.io/ExoPlayer/doc/reference/com/google/android/exoplayer2/upstream/DefaultHttpDataSourceFactory.html
+[isCurrentWindowDynamic]: https://google.github.io/ExoPlayer/doc/reference/com/google/android/exoplayer2/ExoPlayer.html#isCurrentWindowDynamic--
 [foreground service]: https://developer.android.com/guide/components/services.html#Foreground
 [WifiLock]: https://developer.android.com/reference/android/net/wifi/WifiManager.WifiLock.html
 [WakeLock]: https://developer.android.com/reference/android/os/PowerManager.WakeLock.html

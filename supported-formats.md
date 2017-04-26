@@ -44,6 +44,9 @@ audio and video sample formats must also be supported (see the
 | **Closed&nbsp;captions/subtitles** |||
 | TTML | YES | Raw, or embedded in FMP4 according to ISO/IEC 14496-30 |
 | WebVTT | YES | Raw, or embedded in FMP4 according to ISO/IEC 14496-30 |
+| CEA-608 | YES | Carried in SEI messages embedded in FMP4 video tracks |
+| **Metadata** |||
+| EMSG metadata | YES | Embedded in FMP4 |
 | **Content protection** |||
 | Widevine CENC | YES | API 19 and higher; "cenc" scheme only |
 | PlayReady SL2000 | YES | Android TV only |
@@ -82,9 +85,9 @@ about some of the benefits of DASH
 | ADTS (AAC) | YES ||
 | MP3 | YES ||
 | **Closed&nbsp;captions/subtitles** |||
-| EIA-608 | YES ||
+| CEA-608 | YES ||
 | WebVTT | YES ||
-| **Metdata** |||
+| **Metadata** |||
 | ID3 metadata | YES ||
 | **Content protection** |||
 | AES-128 | YES ||
@@ -145,15 +148,15 @@ arguments to FFmpeg's `configure` script:
 | Vorbis         | --enable-decoder=vorbis |
 | Opus           | --enable-decoder=opus |
 | FLAC           | --enable-decoder=flac |
-| MP3            | --enable-decoder=mp3 |
-| AMR-NB         | --enable-decoder=armnb |
-| ARM-WB         | --enable-decoder=armwb |
+| ALAC           | --enable-decoder=alac |
+| MP1, MP2, MP3  | --enable-decoder=mp3 |
+| AMR-NB         | --enable-decoder=amrnb |
+| AMR-WB         | --enable-decoder=amrwb |
 | AAC            | --enable-decoder=aac |
 | AC-3           | --enable-decoder=ac3 |
 | E-AC-3         | --enable-decoder=eac3 |
 | DTS, DTS-HD    | --enable-decoder=dca |
 | TrueHD         | --enable-decoder=mlp --enable-decoder=truehd |
-| ALAC           | --enable-decoder=alac |
 
 See the extension's
 [README.md](https://github.com/google/ExoPlayer/tree/release-v2/extensions/ffmpeg/README.md)

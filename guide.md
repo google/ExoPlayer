@@ -72,7 +72,7 @@ the ability to buffer media, play, pause and seek. Implementations are designed
 to make few assumptions about (and hence impose few restrictions on) the type of
 media being played, how and where it is stored, and how it is rendered. Rather
 than implementing the loading and rendering of media directly, `ExoPlayer`
-implementaitons delegate this work to components that are injected when a player
+implementations delegate this work to components that are injected when a player
 is created or when it's prepared for playback. Components common to all
 `ExoPlayer` implementations are:
 
@@ -129,26 +129,46 @@ repositories {
 }
 ```
 
-Next add a gradle compile dependency for the ExoPlayer library to the
-`build.gradle` file of your app module.
+Next add a gradle compile dependency to the `build.gradle` file of your app
+module. The following will add a dependency to the full ExoPlayer library:
 
 ```gradle
 compile 'com.google.android.exoplayer:exoplayer:r2.X.X'
 ```
 
-where `r2.X.X` is the your preferred version. For the latest version, see the
-project's [Releases][]. For more details, see the project on [Bintray][].
+where `r2.X.X` is your preferred version. Alternatively, you can depend on only
+the library modules that you actually need. For example the following will add
+dependencies on the Core, DASH and UI library modules, as might be required for
+an app that plays DASH content:
+
+```gradle
+compile 'com.google.android.exoplayer:exoplayer-core:r2.X.X'
+compile 'com.google.android.exoplayer:exoplayer-dash:r2.X.X'
+compile 'com.google.android.exoplayer:exoplayer-ui:r2.X.X'
+```
+
+The available modules are listed below. Adding a dependency to the full
+ExoPlayer library is equivalent to adding dependencies on all of the modules
+individually.
+
+* `exoplayer-core`: Core functionality (required).
+* `exoplayer-dash`: Support for DASH content.
+* `exoplayer-hls`: Support for HLS content.
+* `exoplayer-smoothstreaming`: Support for SmoothStreaming content.
+* `exoplayer-ui`: UI components and resources for use with ExoPlayer.
+
+For more details, see the project on [Bintray][]. For information about the
+latest versions, see the [Release notes][].
 
 ### Creating the player ###
 
-Now you can create an `ExoPlayer` instance using `ExoPlayerFactory`. The factory
+You can create an `ExoPlayer` instance using `ExoPlayerFactory`. The factory
 provides a range of methods for creating `ExoPlayer` instances with varying
-levels of customization. For the vast majority of use cases the default
-`Renderer` implementations provided by the library are sufficient. For such
-cases one of the `ExoPlayerFactory.newSimpleInstance` methods should be used.
-These methods return `SimpleExoPlayer`, which extends `ExoPlayer` to add
-additional high level player functionality. The code below is an example of
-creating a `SimpleExoPlayer`.
+levels of customization. For the vast majority of use cases one of the
+`ExoPlayerFactory.newSimpleInstance` methods should be used. These methods
+return `SimpleExoPlayer`, which extends `ExoPlayer` to add additional high level
+player functionality. The code below is an example of creating a
+`SimpleExoPlayer`.
 
 {% highlight java %}
 // 1. Create a default TrackSelector
@@ -159,12 +179,9 @@ TrackSelection.Factory videoTrackSelectionFactory =
 TrackSelector trackSelector =
     new DefaultTrackSelector(videoTrackSelectionFactory);
 
-// 2. Create a default LoadControl
-LoadControl loadControl = new DefaultLoadControl();
-
-// 3. Create the player
+// 2. Create the player
 SimpleExoPlayer player =
-    ExoPlayerFactory.newSimpleInstance(context, trackSelector, loadControl);
+    ExoPlayerFactory.newSimpleInstance(context, trackSelector);
 {% endhighlight %}
 
 ### Attaching the player to a view ###
@@ -203,8 +220,8 @@ later in this guide. The following code shows how to prepare the player with a
 // Measures bandwidth during playback. Can be null if not required.
 DefaultBandwidthMeter bandwidthMeter = new DefaultBandwidthMeter();
 // Produces DataSource instances through which media data is loaded.
-DataSource.Factory dataSourceFactory = new DefaultDataSourceFactory(this,
-    Util.getUserAgent(this, "yourApplicationName"), bandwidthMeter);
+DataSource.Factory dataSourceFactory = new DefaultDataSourceFactory(context,
+    Util.getUserAgent(context, "yourApplicationName"), bandwidthMeter);
 // Produces Extractor instances for parsing the media data.
 ExtractorsFactory extractorsFactory = new DefaultExtractorsFactory();
 // This is the MediaSource representing the media to be played.
@@ -438,5 +455,5 @@ additional schemes such as PlayReady. All Android TV devices support PlayReady.
 [`MediaCodec`]: {{ site.sdkurl }}/android/media/MediaCodec.html
 [`AudioTrack`]: {{ site.sdkurl }}/android/media/AudioTrack.html
 [`MediaDrm`]: {{ site.sdkurl }}/android/media/MediaDrm.html
-[Releases]: https://github.com/google/ExoPlayer/releases
-[Bintray]: https://bintray.com/google/exoplayer/exoplayer/view
+[Bintray]: https://bintray.com/google/exoplayer
+[Release notes]: https://github.com/google/ExoPlayer/blob/release-v2/RELEASENOTES.md
