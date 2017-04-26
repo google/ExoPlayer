@@ -45,7 +45,11 @@ android {
 }
 
 dependencies {
-    compile project(':library')
+    compile project(':library-core')
+    compile project(':library-dash')
+    compile project(':library-hls')
+    compile project(':library-smoothstreaming')
+    compile project(':library-ui')
     withExtensionsCompile project(path: ':extension-ffmpeg')
     withExtensionsCompile project(path: ':extension-flac')
     withExtensionsCompile project(path: ':extension-opus')

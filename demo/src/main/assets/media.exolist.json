@@ -416,13 +416,16 @@
         ]
       },
       {
-        "name": "Audio -> Video",
+        "name": "Audio -> Video -> Audio",
         "playlist": [
           {
             "uri": "https://storage.googleapis.com/exoplayer-test-media-1/gen-3/screens/dash-vod-single-segment/audio-141.mp4"
           },
           {
             "uri": "http://storage.googleapis.com/exoplayer-test-media-1/mkv/android-screens-lavf-56.36.100-aac-avc-main-1280x720.mkv"
+          },
+          {
+            "uri": "https://storage.googleapis.com/exoplayer-test-media-1/gen-3/screens/dash-vod-single-segment/audio-141.mp4"
           }
         ]
       },

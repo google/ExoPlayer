@@ -1,7 +1,0 @@
-# Accessed via reflection in SubtitleDecoderFactory.DEFAULT
--keepclassmembers class com.google.android.exoplayer2.text.cea.Cea608Decoder {
-    public <init>(java.lang.String, int);
-}
--keepclassmembers class com.google.android.exoplayer2.text.cea.Cea708Decoder {
-    public <init>(int);
-}

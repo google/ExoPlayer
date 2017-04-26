@@ -18,11 +18,15 @@ package com.google.android.exoplayer2.playbacktests.gts;
 import android.media.MediaDrm.MediaDrmStateException;
 import android.test.ActivityInstrumentationTestCase2;
 import android.util.Pair;
+import com.google.android.exoplayer2.drm.DrmInitData;
 import com.google.android.exoplayer2.drm.DrmSession.DrmSessionException;
 import com.google.android.exoplayer2.drm.FrameworkMediaCrypto;
 import com.google.android.exoplayer2.drm.OfflineLicenseHelper;
 import com.google.android.exoplayer2.playbacktests.util.ActionSchedule;
 import com.google.android.exoplayer2.playbacktests.util.HostActivity;
+import com.google.android.exoplayer2.source.dash.DashUtil;
+import com.google.android.exoplayer2.source.dash.manifest.DashManifest;
+import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DefaultHttpDataSourceFactory;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.Util;
@@ -72,7 +76,7 @@ public final class DashWidevineOfflineTest extends ActivityInstrumentationTestCa
       releaseLicense();
     }
     if (offlineLicenseHelper != null) {
-      offlineLicenseHelper.releaseResources();
+      offlineLicenseHelper.release();
     }
     offlineLicenseHelper = null;
     httpDataSourceFactory = null;
@@ -89,7 +93,7 @@ public final class DashWidevineOfflineTest extends ActivityInstrumentationTestCa
     testRunner.run();
 
     // Renew license after playback should still work
-    offlineLicenseKeySetId = offlineLicenseHelper.renew(offlineLicenseKeySetId);
+    offlineLicenseKeySetId = offlineLicenseHelper.renewLicense(offlineLicenseKeySetId);
     Assert.assertNotNull(offlineLicenseKeySetId);
   }
 
@@ -164,15 +168,18 @@ public final class DashWidevineOfflineTest extends ActivityInstrumentationTestCa
   }
 
   private void downloadLicense() throws InterruptedException, DrmSessionException, IOException {
-    offlineLicenseKeySetId = offlineLicenseHelper.download(
-        httpDataSourceFactory.createDataSource(), DashTestData.WIDEVINE_H264_MANIFEST);
+    DataSource dataSource = httpDataSourceFactory.createDataSource();
+    DashManifest dashManifest = DashUtil.loadManifest(dataSource,
+        DashTestData.WIDEVINE_H264_MANIFEST);
+    DrmInitData drmInitData = DashUtil.loadDrmInitData(dataSource, dashManifest.getPeriod(0));
+    offlineLicenseKeySetId = offlineLicenseHelper.downloadLicense(drmInitData);
     Assert.assertNotNull(offlineLicenseKeySetId);
     Assert.assertTrue(offlineLicenseKeySetId.length > 0);
     testRunner.setOfflineLicenseKeySetId(offlineLicenseKeySetId);
   }
 
   private void releaseLicense() throws DrmSessionException {
-    offlineLicenseHelper.release(offlineLicenseKeySetId);
+    offlineLicenseHelper.releaseLicense(offlineLicenseKeySetId);
     offlineLicenseKeySetId = null;
   }
 
