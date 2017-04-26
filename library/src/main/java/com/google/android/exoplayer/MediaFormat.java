@@ -122,6 +122,11 @@ public final class MediaFormat implements Parcelable {
    */
   public final byte[] projectionData;
 
+  /**
+   * The color metadata associated with the video, helps with accurate color reproduction.
+   */
+  public final ColorInfo colorInfo;
+
   // Audio specific.
 
   /**
@@ -169,7 +174,7 @@ public final class MediaFormat implements Parcelable {
   public static MediaFormat createVideoFormat(String trackId, String mimeType, int bitrate,
       int maxInputSize, long durationUs, int width, int height, List<byte[]> initializationData) {
     return createVideoFormat(trackId, mimeType, bitrate, maxInputSize, durationUs, width, height,
-        initializationData, NO_VALUE, NO_VALUE, null, NO_VALUE);
+        initializationData, NO_VALUE, NO_VALUE, null, NO_VALUE, null);
   }
 
   public static MediaFormat createVideoFormat(String trackId, String mimeType, int bitrate,
@@ -178,17 +183,17 @@ public final class MediaFormat implements Parcelable {
     return new MediaFormat(trackId, mimeType, bitrate, maxInputSize, durationUs, width, height,
         rotationDegrees, pixelWidthHeightRatio, NO_VALUE, NO_VALUE, null, OFFSET_SAMPLE_RELATIVE,
         initializationData, false, NO_VALUE, NO_VALUE, NO_VALUE, NO_VALUE, NO_VALUE, null,
-        NO_VALUE);
+        NO_VALUE, null);
   }
 
   public static MediaFormat createVideoFormat(String trackId, String mimeType, int bitrate,
       int maxInputSize, long durationUs, int width, int height, List<byte[]> initializationData,
       int rotationDegrees, float pixelWidthHeightRatio, byte[] projectionData,
-      int stereoMode) {
+      int stereoMode, ColorInfo colorInfo) {
     return new MediaFormat(trackId, mimeType, bitrate, maxInputSize, durationUs, width, height,
         rotationDegrees, pixelWidthHeightRatio, NO_VALUE, NO_VALUE, null, OFFSET_SAMPLE_RELATIVE,
         initializationData, false, NO_VALUE, NO_VALUE, NO_VALUE, NO_VALUE, NO_VALUE,
-        projectionData, stereoMode);
+        projectionData, stereoMode, colorInfo);
   }
 
   public static MediaFormat createAudioFormat(String trackId, String mimeType, int bitrate,
@@ -204,7 +209,7 @@ public final class MediaFormat implements Parcelable {
     return new MediaFormat(trackId, mimeType, bitrate, maxInputSize, durationUs, NO_VALUE, NO_VALUE,
         NO_VALUE, NO_VALUE, channelCount, sampleRate, language, OFFSET_SAMPLE_RELATIVE,
         initializationData, false, NO_VALUE, NO_VALUE, pcmEncoding, NO_VALUE, NO_VALUE, null,
-        NO_VALUE);
+        NO_VALUE, null);
   }
 
   public static MediaFormat createTextFormat(String trackId, String mimeType, int bitrate,
@@ -217,7 +222,7 @@ public final class MediaFormat implements Parcelable {
       long durationUs, String language, long subsampleOffsetUs) {
     return new MediaFormat(trackId, mimeType, bitrate, NO_VALUE, durationUs, NO_VALUE, NO_VALUE,
         NO_VALUE, NO_VALUE, NO_VALUE, NO_VALUE, language, subsampleOffsetUs, null, false, NO_VALUE,
-        NO_VALUE, NO_VALUE, NO_VALUE, NO_VALUE, null, NO_VALUE);
+        NO_VALUE, NO_VALUE, NO_VALUE, NO_VALUE, null, NO_VALUE, null);
   }
 
   public static MediaFormat createImageFormat(String trackId, String mimeType, int bitrate,
@@ -225,14 +230,14 @@ public final class MediaFormat implements Parcelable {
     return new MediaFormat(trackId, mimeType, bitrate, NO_VALUE, durationUs, NO_VALUE, NO_VALUE,
         NO_VALUE, NO_VALUE, NO_VALUE, NO_VALUE, language, OFFSET_SAMPLE_RELATIVE,
         initializationData, false, NO_VALUE, NO_VALUE, NO_VALUE, NO_VALUE, NO_VALUE, null,
-        NO_VALUE);
+        NO_VALUE, null);
   }
 
   public static MediaFormat createFormatForMimeType(String trackId, String mimeType, int bitrate,
       long durationUs) {
     return new MediaFormat(trackId, mimeType, bitrate, NO_VALUE, durationUs, NO_VALUE, NO_VALUE,
         NO_VALUE, NO_VALUE, NO_VALUE, NO_VALUE, null, OFFSET_SAMPLE_RELATIVE, null, false, NO_VALUE,
-        NO_VALUE, NO_VALUE, NO_VALUE, NO_VALUE, null, NO_VALUE);
+        NO_VALUE, NO_VALUE, NO_VALUE, NO_VALUE, null, NO_VALUE, null);
   }
 
   public static MediaFormat createId3Format() {
@@ -265,6 +270,7 @@ public final class MediaFormat implements Parcelable {
     boolean hasProjectionData = in.readInt() != 0;
     projectionData = hasProjectionData ? in.createByteArray() : null;
     stereoMode = in.readInt();
+    colorInfo = in.readParcelable(ColorInfo.class.getClassLoader());
   }
 
   /* package */ MediaFormat(String trackId, String mimeType, int bitrate, int maxInputSize,
@@ -272,7 +278,7 @@ public final class MediaFormat implements Parcelable {
       int channelCount, int sampleRate, String language, long subsampleOffsetUs,
       List<byte[]> initializationData, boolean adaptive, int maxWidth, int maxHeight,
       int pcmEncoding, int encoderDelay, int encoderPadding, byte[] projectionData,
-      int stereoMode) {
+      int stereoMode, ColorInfo colorInfo) {
     this.trackId = trackId;
     this.mimeType = Assertions.checkNotEmpty(mimeType);
     this.bitrate = bitrate;
@@ -296,41 +302,42 @@ public final class MediaFormat implements Parcelable {
     this.encoderPadding = encoderPadding;
     this.projectionData = projectionData;
     this.stereoMode = stereoMode;
+    this.colorInfo = colorInfo;
   }
 
   public MediaFormat copyWithMaxInputSize(int maxInputSize) {
     return new MediaFormat(trackId, mimeType, bitrate, maxInputSize, durationUs, width, height,
         rotationDegrees, pixelWidthHeightRatio, channelCount, sampleRate, language,
         subsampleOffsetUs, initializationData, adaptive, maxWidth, maxHeight, pcmEncoding,
-        encoderDelay, encoderPadding, projectionData, stereoMode);
+        encoderDelay, encoderPadding, projectionData, stereoMode, colorInfo);
   }
 
   public MediaFormat copyWithMaxVideoDimensions(int maxWidth, int maxHeight) {
     return new MediaFormat(trackId, mimeType, bitrate, maxInputSize, durationUs, width, height,
         rotationDegrees, pixelWidthHeightRatio, channelCount, sampleRate, language,
         subsampleOffsetUs, initializationData, adaptive, maxWidth, maxHeight, pcmEncoding,
-        encoderDelay, encoderPadding, projectionData, stereoMode);
+        encoderDelay, encoderPadding, projectionData, stereoMode, colorInfo);
   }
 
   public MediaFormat copyWithSubsampleOffsetUs(long subsampleOffsetUs) {
     return new MediaFormat(trackId, mimeType, bitrate, maxInputSize, durationUs, width, height,
         rotationDegrees, pixelWidthHeightRatio, channelCount, sampleRate, language,
         subsampleOffsetUs, initializationData, adaptive, maxWidth, maxHeight, pcmEncoding,
-        encoderDelay, encoderPadding, projectionData, stereoMode);
+        encoderDelay, encoderPadding, projectionData, stereoMode, colorInfo);
   }
 
   public MediaFormat copyWithDurationUs(long durationUs) {
     return new MediaFormat(trackId, mimeType, bitrate, maxInputSize, durationUs, width, height,
         rotationDegrees, pixelWidthHeightRatio, channelCount, sampleRate, language,
         subsampleOffsetUs, initializationData, adaptive, maxWidth, maxHeight, pcmEncoding,
-        encoderDelay, encoderPadding, projectionData, stereoMode);
+        encoderDelay, encoderPadding, projectionData, stereoMode, colorInfo);
   }
 
   public MediaFormat copyWithLanguage(String language) {
     return new MediaFormat(trackId, mimeType, bitrate, maxInputSize, durationUs, width, height,
         rotationDegrees, pixelWidthHeightRatio, channelCount, sampleRate, language,
         subsampleOffsetUs, initializationData, adaptive, maxWidth, maxHeight, pcmEncoding,
-        encoderDelay, encoderPadding, projectionData, stereoMode);
+        encoderDelay, encoderPadding, projectionData, stereoMode, colorInfo);
   }
 
   public MediaFormat copyWithFixedTrackInfo(String trackId, int bitrate, int width, int height,
@@ -338,20 +345,20 @@ public final class MediaFormat implements Parcelable {
     return new MediaFormat(trackId, mimeType, bitrate, maxInputSize, durationUs, width, height,
         rotationDegrees, pixelWidthHeightRatio, channelCount, sampleRate, language,
         subsampleOffsetUs, initializationData, adaptive, NO_VALUE, NO_VALUE, pcmEncoding,
-        encoderDelay, encoderPadding, projectionData, stereoMode);
+        encoderDelay, encoderPadding, projectionData, stereoMode, colorInfo);
   }
 
   public MediaFormat copyAsAdaptive(String trackId) {
     return new MediaFormat(trackId, mimeType, NO_VALUE, NO_VALUE, durationUs, NO_VALUE, NO_VALUE,
         NO_VALUE, NO_VALUE, NO_VALUE, NO_VALUE, null, OFFSET_SAMPLE_RELATIVE, null, true, maxWidth,
-        maxHeight, NO_VALUE, NO_VALUE, NO_VALUE, null, stereoMode);
+        maxHeight, NO_VALUE, NO_VALUE, NO_VALUE, null, stereoMode, colorInfo);
   }
 
   public MediaFormat copyWithGaplessInfo(int encoderDelay, int encoderPadding) {
     return new MediaFormat(trackId, mimeType, bitrate, maxInputSize, durationUs, width, height,
         rotationDegrees, pixelWidthHeightRatio, channelCount, sampleRate, language,
         subsampleOffsetUs, initializationData, adaptive, maxWidth, maxHeight, pcmEncoding,
-        encoderDelay, encoderPadding, projectionData, stereoMode);
+        encoderDelay, encoderPadding, projectionData, stereoMode, colorInfo);
   }
 
   /**
@@ -380,6 +387,7 @@ public final class MediaFormat implements Parcelable {
       if (durationUs != C.UNKNOWN_TIME_US) {
         format.setLong(android.media.MediaFormat.KEY_DURATION, durationUs);
       }
+      maybeSetColorInfoV24(format, colorInfo);
       frameworkMediaFormat = format;
     }
     return frameworkMediaFormat;
@@ -459,6 +467,7 @@ public final class MediaFormat implements Parcelable {
         || !Util.areEqual(trackId, other.trackId) || !Util.areEqual(language, other.language)
         || !Util.areEqual(mimeType, other.mimeType)
         || initializationData.size() != other.initializationData.size()
+        || !Util.areEqual(colorInfo, other.colorInfo)
         || !Arrays.equals(projectionData, other.projectionData)
         || stereoMode != other.stereoMode) {
       return false;
@@ -469,6 +478,19 @@ public final class MediaFormat implements Parcelable {
       }
     }
     return true;
+  }
+
+  @TargetApi(24)
+  private static void maybeSetColorInfoV24(android.media.MediaFormat format, ColorInfo colorInfo) {
+    if (colorInfo == null) {
+      return;
+    }
+    maybeSetIntegerV16(format,
+        android.media.MediaFormat.KEY_COLOR_TRANSFER, colorInfo.colorTransfer);
+    maybeSetIntegerV16(format, android.media.MediaFormat.KEY_COLOR_STANDARD, colorInfo.colorSpace);
+    maybeSetIntegerV16(format, android.media.MediaFormat.KEY_COLOR_RANGE, colorInfo.colorRange);
+    maybeSetByteBufferV16(format,
+        android.media.MediaFormat.KEY_HDR_STATIC_INFO, colorInfo.hdrStaticInfo);
   }
 
   @TargetApi(16)
@@ -484,6 +506,14 @@ public final class MediaFormat implements Parcelable {
       int value) {
     if (value != NO_VALUE) {
       format.setInteger(key, value);
+    }
+  }
+
+  @TargetApi(16)
+  private static void maybeSetByteBufferV16(android.media.MediaFormat format, String key,
+      byte[] value) {
+    if (value != null) {
+      format.setByteBuffer(key, ByteBuffer.wrap(value));
     }
   }
 
@@ -521,6 +551,7 @@ public final class MediaFormat implements Parcelable {
       dest.writeByteArray(projectionData);
     }
     dest.writeInt(stereoMode);
+    dest.writeParcelable(colorInfo, flags);
   }
 
   public static final Creator<MediaFormat> CREATOR = new Creator<MediaFormat>() {

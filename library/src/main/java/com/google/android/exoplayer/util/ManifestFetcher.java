@@ -104,8 +104,11 @@ public class ManifestFetcher<T> implements Loader.Callback {
 
   }
 
+  public static final int DEFAULT_MIN_LOADABLE_RETRY_COUNT = 3;
+
   private final UriLoadable.Parser<T> parser;
   private final UriDataSource uriDataSource;
+  private final int minLoadableRetryCount;
   private final Handler eventHandler;
   private final EventListener eventListener;
 
@@ -144,11 +147,29 @@ public class ManifestFetcher<T> implements Loader.Callback {
    */
   public ManifestFetcher(String manifestUri, UriDataSource uriDataSource,
       UriLoadable.Parser<T> parser, Handler eventHandler, EventListener eventListener) {
+    this(manifestUri, uriDataSource, parser, eventHandler, eventListener,
+        DEFAULT_MIN_LOADABLE_RETRY_COUNT);
+  }
+
+  /**
+   * @param manifestUri The manifest location.
+   * @param uriDataSource The {@link UriDataSource} to use when loading the manifest.
+   * @param parser A parser to parse the loaded manifest data.
+   * @param eventHandler A handler to use when delivering events to {@code eventListener}. May be
+   *     null if delivery of events is not required.
+   * @param eventListener A listener of events. May be null if delivery of events is not required.
+   * @param minLoadableRetryCount The minimum number of times that the source should retry a load
+   *     before propagating an error.
+   */
+  public ManifestFetcher(String manifestUri, UriDataSource uriDataSource,
+      UriLoadable.Parser<T> parser, Handler eventHandler, EventListener eventListener,
+      int minLoadableRetryCount) {
     this.parser = parser;
     this.manifestUri = manifestUri;
     this.uriDataSource = uriDataSource;
     this.eventHandler = eventHandler;
     this.eventListener = eventListener;
+    this.minLoadableRetryCount = minLoadableRetryCount;
   }
 
   /**
@@ -211,8 +232,8 @@ public class ManifestFetcher<T> implements Loader.Callback {
    *     manifest.
    */
   public void maybeThrowError() throws ManifestIOException {
-    // Don't throw an exception until at least 1 retry attempt has been made.
-    if (loadException == null || loadExceptionCount <= 1) {
+    // Don't throw an exception until at least minLoadableRetryCount retry attempts has been made.
+    if (loadException == null || loadExceptionCount <= minLoadableRetryCount) {
       return;
     }
     throw loadException;

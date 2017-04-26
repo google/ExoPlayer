@@ -49,7 +49,7 @@ git clone https://chromium.googlesource.com/libyuv/libyuv libyuv
 cd "${VP9_EXT_PATH}/jni/libvpx" && \
 git checkout tags/v1.6.1 -b v1.6.1 && \
 cd "${VP9_EXT_PATH}/jni/libyuv" && \
-git checkout e2611a73
+git checkout 996a2bbd
 ```
 
 * Run a script that generates necessary configuration files for libvpx:

@@ -43,9 +43,11 @@ public final class MediaFormatTest extends TestCase {
   }
 
   public void testParcelable() {
+    ColorInfo colorInfo =  new ColorInfo(C.COLOR_SPACE_BT709,
+        C.COLOR_RANGE_LIMITED, C.COLOR_TRANSFER_SDR, new byte[] {1, 2, 3, 4, 5, 6, 7});
     MediaFormat formatToParcel = new MediaFormat("id", MimeTypes.VIDEO_H264, 1024, 2048,
         C.UNKNOWN_TIME_US, 1920, 1080, 90, 2, 6, 44100, "und", MediaFormat.OFFSET_SAMPLE_RELATIVE,
-        INIT_DATA, false, 5000, 5001, 5002, 5003, 5004, null, C.STEREO_MODE_TOP_BOTTOM);
+        INIT_DATA, false, 5000, 5001, 5002, 5003, 5004, null, C.STEREO_MODE_TOP_BOTTOM, colorInfo);
 
     Parcel parcel = Parcel.obtain();
     formatToParcel.writeToParcel(parcel, 0);

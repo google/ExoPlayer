@@ -1,5 +1,11 @@
 # Release notes #
 
+### r1.5.16 ###
+
+* VP9 extension: Reduced binary size.
+* FLAC extension: Enabled 64 bit targets and fixed proguard config.
+* Misc bugfixes.
+
 ### r1.5.15 ###
 
 * SmoothStreaming: Fixed handling of start_time placeholder

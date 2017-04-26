@@ -18,6 +18,7 @@ package com.google.android.exoplayer.extractor.webm;
 import android.util.Pair;
 import android.util.SparseArray;
 import com.google.android.exoplayer.C;
+import com.google.android.exoplayer.ColorInfo;
 import com.google.android.exoplayer.MediaFormat;
 import com.google.android.exoplayer.ParserException;
 import com.google.android.exoplayer.drm.DrmInitData;
@@ -54,6 +55,16 @@ import java.util.UUID;
  * <a href="http://wiki.webmproject.org/encryption/webm-encryption-rfc">here</a>.
  */
 public final class WebmExtractor implements Extractor {
+
+  /**
+   * Flag to disable seeking for cues.
+   * <p>
+   * Normally (i.e. when this flag is not set) the extractor will seek to the cues element if its
+   * position is specified in the seek head and if it's after the first cluster. Setting this flag
+   * disables seeking to the cues element. If the cues element is after the first cluster then the
+   * media is treated as being unseekable.
+   */
+  public static final int FLAG_DISABLE_SEEK_FOR_CUES = 1;
 
   private static final int BLOCK_STATE_START = 0;
   private static final int BLOCK_STATE_HEADER = 1;
@@ -154,6 +165,23 @@ public final class WebmExtractor implements Extractor {
   private static final int ID_PROJECTION = 0x7670;
   private static final int ID_PROJECTION_PRIVATE = 0x7672;
   private static final int ID_STEREO_MODE = 0x53B8;
+  private static final int ID_COLOUR = 0x55B0;
+  private static final int ID_COLOUR_RANGE = 0x55B9;
+  private static final int ID_COLOUR_TRANSFER = 0x55BA;
+  private static final int ID_COLOUR_PRIMARIES = 0x55BB;
+  private static final int ID_MAX_CLL = 0x55BC;
+  private static final int ID_MAX_FALL = 0x55BD;
+  private static final int ID_MASTERING_METADATA = 0x55D0;
+  private static final int ID_PRIMARY_R_CHROMATICITY_X = 0x55D1;
+  private static final int ID_PRIMARY_R_CHROMATICITY_Y = 0x55D2;
+  private static final int ID_PRIMARY_G_CHROMATICITY_X = 0x55D3;
+  private static final int ID_PRIMARY_G_CHROMATICITY_Y = 0x55D4;
+  private static final int ID_PRIMARY_B_CHROMATICITY_X = 0x55D5;
+  private static final int ID_PRIMARY_B_CHROMATICITY_Y = 0x55D6;
+  private static final int ID_WHITE_POINT_CHROMATICITY_X = 0x55D7;
+  private static final int ID_WHITE_POINT_CHROMATICITY_Y = 0x55D8;
+  private static final int ID_LUMNINANCE_MAX = 0x55D9;
+  private static final int ID_LUMNINANCE_MIN = 0x55DA;
   private static final int LACING_NONE = 0;
   private static final int LACING_XIPH = 1;
   private static final int LACING_FIXED_SIZE = 2;
@@ -207,6 +235,7 @@ public final class WebmExtractor implements Extractor {
   private final EbmlReader reader;
   private final VarintReader varintReader;
   private final SparseArray<Track> tracks;
+  private final boolean seekForCuesEnabled;
 
   // Temporary arrays.
   private final ParsableByteArray nalStartCode;
@@ -274,12 +303,20 @@ public final class WebmExtractor implements Extractor {
   private ExtractorOutput extractorOutput;
 
   public WebmExtractor() {
-    this(new DefaultEbmlReader());
+    this(new DefaultEbmlReader(), 0);
   }
 
-  /* package */ WebmExtractor(EbmlReader reader) {
+  /**
+   * @param flags Flags that control the extractor's behavior.
+   */
+  public WebmExtractor(int flags) {
+    this(new DefaultEbmlReader(), flags);
+  }
+
+  /* package */ WebmExtractor(EbmlReader reader, int flags) {
     this.reader = reader;
     this.reader.init(new InnerEbmlReaderOutput());
+    seekForCuesEnabled = (flags & FLAG_DISABLE_SEEK_FOR_CUES) == 0;
     varintReader = new VarintReader();
     tracks = new SparseArray<>();
     scratch = new ParsableByteArray(4);
@@ -353,6 +390,8 @@ public final class WebmExtractor implements Extractor {
       case ID_CUE_TRACK_POSITIONS:
       case ID_BLOCK_GROUP:
       case ID_PROJECTION:
+      case ID_COLOUR:
+      case ID_MASTERING_METADATA:
         return EbmlReader.TYPE_MASTER;
       case ID_EBML_READ_VERSION:
       case ID_DOC_TYPE_READ_VERSION:
@@ -381,6 +420,11 @@ public final class WebmExtractor implements Extractor {
       case ID_CUE_CLUSTER_POSITION:
       case ID_REFERENCE_BLOCK:
       case ID_STEREO_MODE:
+      case ID_COLOUR_RANGE:
+      case ID_COLOUR_TRANSFER:
+      case ID_COLOUR_PRIMARIES:
+      case ID_MAX_CLL:
+      case ID_MAX_FALL:
         return EbmlReader.TYPE_UNSIGNED_INT;
       case ID_DOC_TYPE:
       case ID_CODEC_ID:
@@ -396,6 +440,16 @@ public final class WebmExtractor implements Extractor {
         return EbmlReader.TYPE_BINARY;
       case ID_DURATION:
       case ID_SAMPLING_FREQUENCY:
+      case ID_PRIMARY_R_CHROMATICITY_X:
+      case ID_PRIMARY_R_CHROMATICITY_Y:
+      case ID_PRIMARY_G_CHROMATICITY_X:
+      case ID_PRIMARY_G_CHROMATICITY_Y:
+      case ID_PRIMARY_B_CHROMATICITY_X:
+      case ID_PRIMARY_B_CHROMATICITY_Y:
+      case ID_WHITE_POINT_CHROMATICITY_X:
+      case ID_WHITE_POINT_CHROMATICITY_Y:
+      case ID_LUMNINANCE_MAX:
+      case ID_LUMNINANCE_MIN:
         return EbmlReader.TYPE_FLOAT;
       default:
         return EbmlReader.TYPE_UNKNOWN;
@@ -430,7 +484,7 @@ public final class WebmExtractor implements Extractor {
       case ID_CLUSTER:
         if (!sentSeekMap) {
           // We need to build cues before parsing the cluster.
-          if (cuesContentPosition != UNKNOWN) {
+          if (seekForCuesEnabled && cuesContentPosition != UNKNOWN) {
             // We know where the Cues element is located. Seek to request it.
             seekForCues = true;
           } else {
@@ -453,6 +507,9 @@ public final class WebmExtractor implements Extractor {
       case ID_TRACK_ENTRY:
         currentTrack = new Track();
         return;
+      case ID_MASTERING_METADATA:
+        currentTrack.hasColorInfo = true;
+        break;
       default:
         return;
     }
@@ -660,6 +717,60 @@ public final class WebmExtractor implements Extractor {
             break;
         }
         return;
+      case ID_COLOUR_PRIMARIES:
+        currentTrack.hasColorInfo = true;
+        switch ((int) value) {
+          case 1:
+            currentTrack.colorSpace = C.COLOR_SPACE_BT709;
+            break;
+          case 4:  // BT.470M.
+          case 5:  // BT.470BG.
+          case 6:  // SMPTE 170M.
+          case 7:  // SMPTE 240M.
+            currentTrack.colorSpace = C.COLOR_SPACE_BT601;
+            break;
+          case 9:
+            currentTrack.colorSpace = C.COLOR_SPACE_BT2020;
+            break;
+          default:
+            break;
+        }
+        break;
+      case ID_COLOUR_TRANSFER:
+        switch ((int) value) {
+          case 1:  // BT.709.
+          case 6:  // SMPTE 170M.
+          case 7:  // SMPTE 240M.
+            currentTrack.colorTransfer = C.COLOR_TRANSFER_SDR;
+            break;
+          case 16:
+            currentTrack.colorTransfer = C.COLOR_TRANSFER_ST2084;
+            break;
+          case 18:
+            currentTrack.colorTransfer = C.COLOR_TRANSFER_HLG;
+            break;
+          default:
+            break;
+        }
+        break;
+      case ID_COLOUR_RANGE:
+        switch((int) value) {
+          case 1:  // Broadcast range.
+            currentTrack.colorRange = C.COLOR_RANGE_LIMITED;
+            break;
+          case 2:
+            currentTrack.colorRange = C.COLOR_RANGE_FULL;
+            break;
+          default:
+            break;
+        }
+        break;
+      case ID_MAX_CLL:
+        currentTrack.maxContentLuminance = (int) value;
+        break;
+      case ID_MAX_FALL:
+        currentTrack.maxFrameAverageLuminance = (int) value;
+        break;
       default:
         return;
     }
@@ -673,6 +784,36 @@ public final class WebmExtractor implements Extractor {
       case ID_SAMPLING_FREQUENCY:
         currentTrack.sampleRate = (int) value;
         return;
+      case ID_PRIMARY_R_CHROMATICITY_X:
+        currentTrack.primaryRChromaticityX = (float) value;
+        break;
+      case ID_PRIMARY_R_CHROMATICITY_Y:
+        currentTrack.primaryRChromaticityY = (float) value;
+        break;
+      case ID_PRIMARY_G_CHROMATICITY_X:
+        currentTrack.primaryGChromaticityX = (float) value;
+        break;
+      case ID_PRIMARY_G_CHROMATICITY_Y:
+        currentTrack.primaryGChromaticityY = (float) value;
+        break;
+      case ID_PRIMARY_B_CHROMATICITY_X:
+        currentTrack.primaryBChromaticityX = (float) value;
+        break;
+      case ID_PRIMARY_B_CHROMATICITY_Y:
+        currentTrack.primaryBChromaticityY = (float) value;
+        break;
+      case ID_WHITE_POINT_CHROMATICITY_X:
+        currentTrack.whitePointChromaticityX = (float) value;
+        break;
+      case ID_WHITE_POINT_CHROMATICITY_Y:
+        currentTrack.whitePointChromaticityY = (float) value;
+        break;
+      case ID_LUMNINANCE_MAX:
+        currentTrack.maxMasteringLuminance = (float) value;
+        break;
+      case ID_LUMNINANCE_MIN:
+        currentTrack.minMasteringLuminance = (float) value;
+        break;
       default:
         return;
     }
@@ -1285,6 +1426,16 @@ public final class WebmExtractor implements Extractor {
   private static final class Track {
 
     private static final int DISPLAY_UNIT_PIXELS = 0;
+    private static final int MAX_CHROMATICITY = 50000;  // Defined in CTA-861.3.
+    /**
+     * Default max content light level (CLL) that should be encoded into hdrStaticInfo.
+     */
+    private static final int DEFAULT_MAX_CLL = 1000;  // nits.
+
+    /**
+     * Default frame-average light level (FALL) that should be encoded into hdrStaticInfo.
+     */
+    private static final int DEFAULT_MAX_FALL = 200;  // nits.
 
     // Common elements.
     public String codecId;
@@ -1304,6 +1455,22 @@ public final class WebmExtractor implements Extractor {
     public int displayUnit = DISPLAY_UNIT_PIXELS;
     public byte[] projectionData = null;
     public int stereoMode = MediaFormat.NO_VALUE;
+    public boolean hasColorInfo = false;
+    public int colorSpace = MediaFormat.NO_VALUE;
+    public int colorTransfer = MediaFormat.NO_VALUE;
+    public int colorRange = MediaFormat.NO_VALUE;
+    public int maxContentLuminance = DEFAULT_MAX_CLL;
+    public int maxFrameAverageLuminance = DEFAULT_MAX_FALL;
+    public float primaryRChromaticityX = MediaFormat.NO_VALUE;
+    public float primaryRChromaticityY = MediaFormat.NO_VALUE;
+    public float primaryGChromaticityX = MediaFormat.NO_VALUE;
+    public float primaryGChromaticityY = MediaFormat.NO_VALUE;
+    public float primaryBChromaticityX = MediaFormat.NO_VALUE;
+    public float primaryBChromaticityY = MediaFormat.NO_VALUE;
+    public float whitePointChromaticityX = MediaFormat.NO_VALUE;
+    public float whitePointChromaticityY = MediaFormat.NO_VALUE;
+    public float maxMasteringLuminance = MediaFormat.NO_VALUE;
+    public float minMasteringLuminance = MediaFormat.NO_VALUE;
 
     // Audio elements. Initially set to their default values.
     public int channelCount = 1;
@@ -1453,9 +1620,14 @@ public final class WebmExtractor implements Extractor {
         if (displayWidth != MediaFormat.NO_VALUE && displayHeight != MediaFormat.NO_VALUE) {
           pixelWidthHeightRatio = ((float) (height * displayWidth)) / (width * displayHeight);
         }
+        ColorInfo colorInfo = null;
+        if (hasColorInfo) {
+          byte[] hdrStaticInfo = getHdrStaticInfo();
+          colorInfo = new ColorInfo(colorSpace, colorRange, colorTransfer, hdrStaticInfo);
+        }
         format = MediaFormat.createVideoFormat(Integer.toString(trackId), mimeType,
             MediaFormat.NO_VALUE, maxInputSize, durationUs, width, height, initializationData,
-            MediaFormat.NO_VALUE, pixelWidthHeightRatio, projectionData, stereoMode);
+            MediaFormat.NO_VALUE, pixelWidthHeightRatio, projectionData, stereoMode, colorInfo);
       } else if (MimeTypes.APPLICATION_SUBRIP.equals(mimeType)) {
         format = MediaFormat.createTextFormat(Integer.toString(trackId), mimeType,
             MediaFormat.NO_VALUE, durationUs, language);
@@ -1469,6 +1641,42 @@ public final class WebmExtractor implements Extractor {
 
       this.output = output.track(number);
       this.output.format(format);
+    }
+
+    /**
+     * Returns the HDR Static Info as defined in CTA-861.3.
+     */
+    private byte[] getHdrStaticInfo() {
+      // Are all fields present.
+      if (primaryRChromaticityX == MediaFormat.NO_VALUE
+          || primaryRChromaticityY == MediaFormat.NO_VALUE
+          || primaryGChromaticityX == MediaFormat.NO_VALUE
+          || primaryGChromaticityY == MediaFormat.NO_VALUE
+          || primaryBChromaticityX == MediaFormat.NO_VALUE
+          || primaryBChromaticityY == MediaFormat.NO_VALUE
+          || whitePointChromaticityX == MediaFormat.NO_VALUE
+          || whitePointChromaticityY == MediaFormat.NO_VALUE
+          || maxMasteringLuminance == MediaFormat.NO_VALUE
+          || minMasteringLuminance == MediaFormat.NO_VALUE) {
+        return null;
+      }
+
+      byte[] hdrStaticInfoData = new byte[25];
+      ByteBuffer hdrStaticInfo = ByteBuffer.wrap(hdrStaticInfoData);
+      hdrStaticInfo.put((byte) 0);  // Type.
+      hdrStaticInfo.putShort((short) ((primaryRChromaticityX * MAX_CHROMATICITY) + 0.5f));
+      hdrStaticInfo.putShort((short) ((primaryRChromaticityY * MAX_CHROMATICITY) + 0.5f));
+      hdrStaticInfo.putShort((short) ((primaryGChromaticityX * MAX_CHROMATICITY)  + 0.5f));
+      hdrStaticInfo.putShort((short) ((primaryGChromaticityY * MAX_CHROMATICITY) + 0.5f));
+      hdrStaticInfo.putShort((short) ((primaryBChromaticityX * MAX_CHROMATICITY) + 0.5f));
+      hdrStaticInfo.putShort((short) ((primaryBChromaticityY * MAX_CHROMATICITY) + 0.5f));
+      hdrStaticInfo.putShort((short) ((whitePointChromaticityX * MAX_CHROMATICITY) + 0.5f));
+      hdrStaticInfo.putShort((short) ((whitePointChromaticityY * MAX_CHROMATICITY) + 0.5f));
+      hdrStaticInfo.putShort((short) (maxMasteringLuminance + 0.5f));
+      hdrStaticInfo.putShort((short) (minMasteringLuminance + 0.5f));
+      hdrStaticInfo.putShort((short) maxContentLuminance);
+      hdrStaticInfo.putShort((short) maxFrameAverageLuminance);
+      return hdrStaticInfoData;
     }
 
     /**
