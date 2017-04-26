@@ -18,39 +18,37 @@ package com.google.android.exoplayer2.playbacktests.util;
 import android.annotation.TargetApi;
 import android.content.Context;
 import android.os.Handler;
+import com.google.android.exoplayer2.DefaultRenderersFactory;
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.Format;
-import com.google.android.exoplayer2.LoadControl;
 import com.google.android.exoplayer2.Renderer;
-import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
 import com.google.android.exoplayer2.drm.DrmSessionManager;
 import com.google.android.exoplayer2.drm.FrameworkMediaCrypto;
 import com.google.android.exoplayer2.mediacodec.MediaCodecSelector;
-import com.google.android.exoplayer2.trackselection.TrackSelector;
 import com.google.android.exoplayer2.video.MediaCodecVideoRenderer;
 import com.google.android.exoplayer2.video.VideoRendererEventListener;
 import java.util.ArrayList;
 
 /**
- * A debug extension of {@link SimpleExoPlayer}. Provides video buffer timestamp assertions.
+ * A debug extension of {@link DefaultRenderersFactory}. Provides a video renderer that performs
+ * video buffer timestamp assertions.
  */
 @TargetApi(16)
-public class DebugSimpleExoPlayer extends SimpleExoPlayer {
+public class DebugRenderersFactory extends DefaultRenderersFactory {
 
-  public DebugSimpleExoPlayer(Context context, TrackSelector trackSelector,
-      LoadControl loadControl, DrmSessionManager<FrameworkMediaCrypto> drmSessionManager) {
-    super(context, trackSelector, loadControl, drmSessionManager,
-        SimpleExoPlayer.EXTENSION_RENDERER_MODE_OFF, 0);
+  public DebugRenderersFactory(Context context,
+      DrmSessionManager<FrameworkMediaCrypto> drmSessionManager) {
+    super(context, drmSessionManager, DefaultRenderersFactory.EXTENSION_RENDERER_MODE_OFF, 0);
   }
 
   @Override
-  protected void buildVideoRenderers(Context context, Handler mainHandler,
-      DrmSessionManager<FrameworkMediaCrypto> drmSessionManager,
-      @ExtensionRendererMode int extensionRendererMode, VideoRendererEventListener eventListener,
-      long allowedVideoJoiningTimeMs, ArrayList<Renderer> out) {
+  protected void buildVideoRenderers(Context context,
+      DrmSessionManager<FrameworkMediaCrypto> drmSessionManager, long allowedVideoJoiningTimeMs,
+      Handler eventHandler, VideoRendererEventListener eventListener,
+      @ExtensionRendererMode int extensionRendererMode, ArrayList<Renderer> out) {
     out.add(new DebugMediaCodecVideoRenderer(context, MediaCodecSelector.DEFAULT,
-        allowedVideoJoiningTimeMs, mainHandler, drmSessionManager, eventListener,
+        allowedVideoJoiningTimeMs, drmSessionManager, eventHandler, eventListener,
         MAX_DROPPED_VIDEO_FRAME_COUNT_TO_NOTIFY));
   }
 
@@ -70,9 +68,9 @@ public class DebugSimpleExoPlayer extends SimpleExoPlayer {
     private int minimumInsertIndex;
 
     public DebugMediaCodecVideoRenderer(Context context, MediaCodecSelector mediaCodecSelector,
-        long allowedJoiningTimeMs, Handler eventHandler,
-        DrmSessionManager<FrameworkMediaCrypto> drmSessionManager,
-        VideoRendererEventListener eventListener, int maxDroppedFrameCountToNotify) {
+        long allowedJoiningTimeMs, DrmSessionManager<FrameworkMediaCrypto> drmSessionManager,
+        Handler eventHandler, VideoRendererEventListener eventListener,
+        int maxDroppedFrameCountToNotify) {
       super(context, mediaCodecSelector, allowedJoiningTimeMs, drmSessionManager, false,
           eventHandler, eventListener, maxDroppedFrameCountToNotify);
     }
