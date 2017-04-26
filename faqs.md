@@ -48,9 +48,9 @@ MPEG-TS file that lacks AUDs or IDR keyframes. If you need to play such files,
 you can do so using [FLAG_DETECT_ACCESS_UNITS][] and
 [FLAG_ALLOW_NON_IDR_KEYFRAMES][] respectively. These flags can be set on a
 DefaultExtractorsFactory using [setTsExtractorFlags][]. Use of
-FLAG_DETECT_ACCESS_UNITS has no side effects other than being computationally
+`FLAG_DETECT_ACCESS_UNITS` has no side effects other than being computationally
 expensive relative to AUD based frame boundary detection. Use of
-FLAG_ALLOW_NON_IDR_KEYFRAMES may result in temporary visual corruption at the
+`FLAG_ALLOW_NON_IDR_KEYFRAMES` may result in temporary visual corruption at the
 start of playback and immediately after seeks when playing some MPEG-TS files.
 
 #### Why do some streams fail with HTTP response code 301 or 302? ####
@@ -63,10 +63,12 @@ is for cross-protocol redirects. A cross-protocol redirect is one that redirects
 from HTTPS to HTTP or vice-versa (or less commonly, between another pair of
 protocols). You can test whether a URL causes a cross-protocol redirect using
 the [wget][] command line tool as follows:
-```wget "https://yourserver.com/test.mp3" 2>&1  | grep Location
+```
+wget "https://yourserver.com/test.mp3" 2>&1  | grep Location
 ```
 The output should look something like this:
-```$ wget "https://yourserver.com/test.mp3" 2>&1  | grep Location
+```
+$ wget "https://yourserver.com/test.mp3" 2>&1  | grep Location
 Location: https://second.com/test.mp3 [following]
 Location: http://third.com/test.mp3 [following]
 ```
@@ -161,6 +163,7 @@ physical devices rather than emulators.
 [FLAG_ALLOW_NON_IDR_KEYFRAMES]: https://google.github.io/ExoPlayer/doc/reference/com/google/android/exoplayer2/extractor/ts/DefaultTsPayloadReaderFactory.html#FLAG_ALLOW_NON_IDR_KEYFRAMES
 [setTsExtractorFlags]: https://google.github.io/ExoPlayer/doc/reference/com/google/android/exoplayer2/extractor/DefaultExtractorsFactory#setTsExtractorFlags-int-
 [Wikipedia]: https://en.wikipedia.org/wiki/List_of_HTTP_status_codes
+[wget]: https://www.gnu.org/software/wget/manual/wget.html
 [DefaultHttpDataSourceFactory]: http://google.github.io/ExoPlayer/doc/reference/com/google/android/exoplayer2/upstream/DefaultHttpDataSourceFactory.html
 [isCurrentWindowDynamic]: https://google.github.io/ExoPlayer/doc/reference/com/google/android/exoplayer2/ExoPlayer.html#isCurrentWindowDynamic--
 [foreground service]: https://developer.android.com/guide/components/services.html#Foreground
