@@ -8,6 +8,7 @@ weight: 5
 * [Why are some media files not seekable?][]
 * [Why do some MPEG-TS files fail to play?][]
 * [Why do some streams fail with HTTP response code 301 or 302?][]
+* [Why do some streams fail with UnrecognizedInputFormatException?][]
 * [How can I query whether the stream being played is a live stream?][]
 * [How do I keep audio playing when my app is backgrounded?][]
 * [How do I get smooth animation/scrolling of video?][]
@@ -86,6 +87,27 @@ accept an `allowCrossProtocolRedirects` argument for this purpose, as do other
 `HttpDataSource.Factory` implementations. Set these arguments to true to enable
 cross-protocol redirects.
 
+#### Why do some streams fail with UnrecognizedInputFormatException? ####
+
+This question relates to playback failures of the form:
+```
+UnrecognizedInputFormatException: None of the available extractors
+(MatroskaExtractor, FragmentedMp4Extractor, ...) could read the stream.
+```
+There are two possible causes of this failure. The most common cause is that
+you're trying to play DASH (mpd), HLS (m3u8) or SmoothStreaming (ism, isml)
+content using `ExtractorMediaSource`. To play such streams you must use the
+correct `MediaSource` implementations, which are `DashMediaSource`,
+`HlsMediaSource` and `SsMediaSource` respectively. If you don't know the type of
+the media then [Util.inferContentType][] can often be used, as demonstrated by
+`PlayerActivity` in the ExoPlayer demo app.
+
+The second, less common cause, is that ExoPlayer does not support the container
+format of the media that you're trying to play. In this case the failure is
+working as intended, however feel free to submit a feature request to our
+[issue tracker][], including details of the container format and a test stream.
+Please search for an existing feature request before submitting a new one.
+
 #### How can I query whether the stream being played is a live stream? ####
 
 You can query ExoPlayer's [isCurrentWindowDynamic][] method. A dynamic window
@@ -150,6 +172,7 @@ physical devices rather than emulators.
 [Why are some media files not seekable?]: #why-are-some-media-files-not-seekable
 [Why do some MPEG-TS files fail to play?]: #why-do-some-mpeg-ts-files-fail-to-play
 [Why do some streams fail with HTTP response code 301 or 302?]: #why-do-some-streams-fail-with-http-response-code-301-or-302
+[Why do some streams fail with UnrecognizedInputFormatException?]: #why-do-some-streams-fail-with-unrecognizedinputformatexception
 [How can I query whether the stream being played is a live stream?]: #how-can-i-query-whether-the-stream-being-played-is-a-live-stream
 [How do I keep audio playing when my app is backgrounded?]: #how-do-i-keep-audio-playing-when-my-app-is-backgrounded
 [How do I get smooth animation/scrolling of video?]: #how-do-i-get-smooth-animationscrolling-of-video
@@ -164,7 +187,9 @@ physical devices rather than emulators.
 [setTsExtractorFlags]: https://google.github.io/ExoPlayer/doc/reference/com/google/android/exoplayer2/extractor/DefaultExtractorsFactory#setTsExtractorFlags-int-
 [Wikipedia]: https://en.wikipedia.org/wiki/List_of_HTTP_status_codes
 [wget]: https://www.gnu.org/software/wget/manual/wget.html
-[DefaultHttpDataSourceFactory]: http://google.github.io/ExoPlayer/doc/reference/com/google/android/exoplayer2/upstream/DefaultHttpDataSourceFactory.html
+[DefaultHttpDataSourceFactory]: https://google.github.io/ExoPlayer/doc/reference/com/google/android/exoplayer2/upstream/DefaultHttpDataSourceFactory.html
+[Util.inferContentType]: https://google.github.io/ExoPlayer/doc/reference/com/google/android/exoplayer2/util/Util.html#inferContentType-android.net.Uri-
+[issue tracker]: https://github.com/google/ExoPlayer/issues
 [isCurrentWindowDynamic]: https://google.github.io/ExoPlayer/doc/reference/com/google/android/exoplayer2/ExoPlayer.html#isCurrentWindowDynamic--
 [foreground service]: https://developer.android.com/guide/components/services.html#Foreground
 [WifiLock]: https://developer.android.com/reference/android/net/wifi/WifiManager.WifiLock.html
