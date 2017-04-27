@@ -867,7 +867,8 @@ public class DefaultTrackSelector extends MappingTrackSelector {
   }
 
   protected static boolean formatHasLanguage(Format format, String language) {
-    return TextUtils.equals(language, Util.normalizeLanguageCode(format.language));
+    return language != null
+        && TextUtils.equals(language, Util.normalizeLanguageCode(format.language));
   }
 
   // Viewport size util methods.
