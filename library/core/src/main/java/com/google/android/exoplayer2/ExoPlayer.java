@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2;
 
+import android.support.annotation.IntDef;
 import android.support.annotation.Nullable;
 import com.google.android.exoplayer2.audio.MediaCodecAudioRenderer;
 import com.google.android.exoplayer2.metadata.MetadataRenderer;
@@ -30,6 +31,8 @@ import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
 import com.google.android.exoplayer2.trackselection.TrackSelector;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.video.MediaCodecVideoRenderer;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 
 /**
  * An extensible media player exposing traditional high-level media player functionality, such as
@@ -250,6 +253,17 @@ public interface ExoPlayer {
    * The player has finished playing the media.
    */
   int STATE_ENDED = 4;
+
+  /**
+   * Repeat modes for playback.
+   */
+  @Retention(RetentionPolicy.SOURCE)
+  @IntDef({REPEAT_MODE_OFF})
+  @interface RepeatMode {}
+  /**
+   * Normal playback without repetition.
+   */
+  int REPEAT_MODE_OFF = 0;
 
   /**
    * Register a listener to receive events from the player. The listener's methods will be called on

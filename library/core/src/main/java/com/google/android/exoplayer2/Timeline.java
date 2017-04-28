@@ -137,6 +137,54 @@ public abstract class Timeline {
   public abstract int getWindowCount();
 
   /**
+   * Returns the index of the window after the window at index {@code windowIndex} depending on the
+   * {@code repeatMode}.
+   *
+   * @param windowIndex Index of a window in the timeline.
+   * @param repeatMode A repeat mode.
+   * @return The index of the next window, or {@link C#INDEX_UNSET} if this is the last window.
+   */
+  public int getNextWindowIndex(int windowIndex, @ExoPlayer.RepeatMode int repeatMode) {
+    return windowIndex == getWindowCount() - 1 ? C.INDEX_UNSET : windowIndex + 1;
+  }
+
+  /**
+   * Returns the index of the window before the window at index {@code windowIndex} depending on the
+   * {@code repeatMode}.
+   *
+   * @param windowIndex Index of a window in the timeline.
+   * @param repeatMode A repeat mode.
+   * @return The index of the previous window, or {@link C#INDEX_UNSET} if this is the first window.
+   */
+  public int getPreviousWindowIndex(int windowIndex, @ExoPlayer.RepeatMode int repeatMode) {
+    return windowIndex == 0 ? C.INDEX_UNSET : windowIndex - 1;
+  }
+
+  /**
+   * Returns whether the given window is the last window of the timeline depending on the
+   * {@code repeatMode}.
+   *
+   * @param windowIndex A window index.
+   * @param repeatMode A repeat mode.
+   * @return Whether the window of the given index is the last window of the timeline.
+   */
+  public final boolean isLastWindow(int windowIndex, @ExoPlayer.RepeatMode int repeatMode) {
+    return getNextWindowIndex(windowIndex, repeatMode) == C.INDEX_UNSET;
+  }
+
+  /**
+   * Returns whether the given window is the first window of the timeline depending on the
+   * {@code repeatMode}.
+   *
+   * @param windowIndex A window index.
+   * @param repeatMode A repeat mode.
+   * @return Whether the window of the given index is the first window of the timeline.
+   */
+  public final boolean isFirstWindow(int windowIndex, @ExoPlayer.RepeatMode int repeatMode) {
+    return getPreviousWindowIndex(windowIndex, repeatMode) == C.INDEX_UNSET;
+  }
+
+  /**
    * Populates a {@link Window} with data for the window at the specified index. Does not populate
    * {@link Window#id}.
    *
@@ -179,6 +227,44 @@ public abstract class Timeline {
    * Returns the number of periods in the timeline.
    */
   public abstract int getPeriodCount();
+
+  /**
+   * Returns the index of the period after the period at index {@code periodIndex} depending on the
+   * {@code repeatMode}.
+   *
+   * @param periodIndex Index of a period in the timeline.
+   * @param period A {@link Period} to be used internally. Must not be null.
+   * @param window A {@link Window} to be used internally. Must not be null.
+   * @param repeatMode A repeat mode.
+   * @return The index of the next period, or {@link C#INDEX_UNSET} if this is the last period.
+   */
+  public final int getNextPeriodIndex(int periodIndex, Period period, Window window,
+      @ExoPlayer.RepeatMode int repeatMode) {
+    int windowIndex = getPeriod(periodIndex, period).windowIndex;
+    if (getWindow(windowIndex, window).lastPeriodIndex == periodIndex) {
+      int nextWindowIndex = getNextWindowIndex(windowIndex, repeatMode);
+      if (nextWindowIndex == C.INDEX_UNSET) {
+        return C.INDEX_UNSET;
+      }
+      return getWindow(nextWindowIndex, window).firstPeriodIndex;
+    }
+    return periodIndex + 1;
+  }
+
+  /**
+   * Returns whether the given period is the last period of the timeline depending on the
+   * {@code repeatMode}.
+   *
+   * @param periodIndex A period index.
+   * @param period A {@link Period} to be used internally. Must not be null.
+   * @param window A {@link Window} to be used internally. Must not be null.
+   * @param repeatMode A repeat mode.
+   * @return Whether the period of the given index is the last period of the timeline.
+   */
+  public final boolean isLastPeriod(int periodIndex, Period period, Window window,
+      @ExoPlayer.RepeatMode int repeatMode) {
+    return getNextPeriodIndex(periodIndex, period, window, repeatMode) == C.INDEX_UNSET;
+  }
 
   /**
    * Populates a {@link Period} with data for the period at the specified index. Does not populate
