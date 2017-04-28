@@ -529,8 +529,10 @@ public class PlaybackControlView extends FrameLayout {
       int windowIndex = player.getCurrentWindowIndex();
       timeline.getWindow(windowIndex, window);
       isSeekable = window.isSeekable;
-      enablePrevious = windowIndex > 0 || isSeekable || !window.isDynamic;
-      enableNext = (windowIndex < timeline.getWindowCount() - 1) || window.isDynamic;
+      enablePrevious = !timeline.isFirstWindow(windowIndex, ExoPlayer.REPEAT_MODE_OFF)
+          || isSeekable || !window.isDynamic;
+      enableNext = !timeline.isLastWindow(windowIndex, ExoPlayer.REPEAT_MODE_OFF)
+          || window.isDynamic;
       if (timeline.getPeriod(player.getCurrentPeriodIndex(), period).isAd) {
         // Always hide player controls during ads.
         hide();
@@ -680,9 +682,12 @@ public class PlaybackControlView extends FrameLayout {
     }
     int windowIndex = player.getCurrentWindowIndex();
     timeline.getWindow(windowIndex, window);
-    if (windowIndex > 0 && (player.getCurrentPosition() <= MAX_POSITION_FOR_SEEK_TO_PREVIOUS
+    int previousWindowIndex = timeline.getPreviousWindowIndex(windowIndex,
+        ExoPlayer.REPEAT_MODE_OFF);
+    if (previousWindowIndex != C.INDEX_UNSET
+        && (player.getCurrentPosition() <= MAX_POSITION_FOR_SEEK_TO_PREVIOUS
         || (window.isDynamic && !window.isSeekable))) {
-      seekTo(windowIndex - 1, C.TIME_UNSET);
+      seekTo(previousWindowIndex, C.TIME_UNSET);
     } else {
       seekTo(0);
     }
@@ -694,8 +699,9 @@ public class PlaybackControlView extends FrameLayout {
       return;
     }
     int windowIndex = player.getCurrentWindowIndex();
-    if (windowIndex < timeline.getWindowCount() - 1) {
-      seekTo(windowIndex + 1, C.TIME_UNSET);
+    int nextWindowIndex = timeline.getNextWindowIndex(windowIndex, ExoPlayer.REPEAT_MODE_OFF);
+    if (nextWindowIndex != C.INDEX_UNSET) {
+      seekTo(nextWindowIndex, C.TIME_UNSET);
     } else if (timeline.getWindow(windowIndex, window, false).isDynamic) {
       seekTo(windowIndex, C.TIME_UNSET);
     }
