@@ -163,9 +163,15 @@ public final class DebugTextViewHelper implements Runnable, ExoPlayer.EventListe
     if (format == null) {
       return "";
     }
+    float par = format.pixelWidthHeightRatio;
+    String parInfo = "";
+    if (par != Format.NO_VALUE && (int) par != 1) {
+      // Add pixel aspect ratio only when it's useful
+      parInfo = " par:" + format.pixelWidthHeightRatio;
+    }
     return "\n" + format.sampleMimeType + "(id:" + format.id + " r:" + format.width + "x"
-        + format.height + getDecoderCountersBufferCountString(player.getVideoDecoderCounters())
-        + ")";
+        + format.height + parInfo
+        + getDecoderCountersBufferCountString(player.getVideoDecoderCounters()) + ")";
   }
 
   private String getAudioString() {
