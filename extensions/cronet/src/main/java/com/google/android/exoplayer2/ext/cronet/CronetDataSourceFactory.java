@@ -22,7 +22,6 @@ import com.google.android.exoplayer2.upstream.HttpDataSource.Factory;
 import com.google.android.exoplayer2.upstream.TransferListener;
 import com.google.android.exoplayer2.util.Predicate;
 import java.util.concurrent.Executor;
-import org.chromium.net.CronetEngine;
 
 /**
  * A {@link Factory} that produces {@link CronetDataSource}.
@@ -34,13 +33,14 @@ public final class CronetDataSourceFactory extends BaseFactory {
    */
   public static final int DEFAULT_CONNECT_TIMEOUT_MILLIS =
       CronetDataSource.DEFAULT_CONNECT_TIMEOUT_MILLIS;
+
   /**
    * The default read timeout, in milliseconds.
    */
   public static final int DEFAULT_READ_TIMEOUT_MILLIS =
       CronetDataSource.DEFAULT_READ_TIMEOUT_MILLIS;
 
-  private final CronetEngine cronetEngine;
+  private final CronetEngineFactory cronetEngineFactory;
   private final Executor executor;
   private final Predicate<String> contentTypePredicate;
   private final TransferListener<? super DataSource> transferListener;
@@ -48,18 +48,18 @@ public final class CronetDataSourceFactory extends BaseFactory {
   private final int readTimeoutMs;
   private final boolean resetTimeoutOnRedirects;
 
-  public CronetDataSourceFactory(CronetEngine cronetEngine,
+  public CronetDataSourceFactory(CronetEngineFactory cronetEngineFactory,
       Executor executor, Predicate<String> contentTypePredicate,
       TransferListener<? super DataSource> transferListener) {
-    this(cronetEngine, executor, contentTypePredicate, transferListener,
+    this(cronetEngineFactory, executor, contentTypePredicate, transferListener,
         DEFAULT_CONNECT_TIMEOUT_MILLIS, DEFAULT_READ_TIMEOUT_MILLIS, false);
   }
 
-  public CronetDataSourceFactory(CronetEngine cronetEngine,
+  public CronetDataSourceFactory(CronetEngineFactory cronetEngineFactory,
       Executor executor, Predicate<String> contentTypePredicate,
       TransferListener<? super DataSource> transferListener, int connectTimeoutMs,
       int readTimeoutMs, boolean resetTimeoutOnRedirects) {
-    this.cronetEngine = cronetEngine;
+    this.cronetEngineFactory = cronetEngineFactory;
     this.executor = executor;
     this.contentTypePredicate = contentTypePredicate;
     this.transferListener = transferListener;
@@ -71,8 +71,9 @@ public final class CronetDataSourceFactory extends BaseFactory {
   @Override
   protected CronetDataSource createDataSourceInternal(HttpDataSource.RequestProperties
       defaultRequestProperties) {
-    return new CronetDataSource(cronetEngine, executor, contentTypePredicate, transferListener,
-        connectTimeoutMs, readTimeoutMs, resetTimeoutOnRedirects, defaultRequestProperties);
+    return new CronetDataSource(cronetEngineFactory.createCronetEngine(), executor,
+        contentTypePredicate, transferListener, connectTimeoutMs, readTimeoutMs,
+        resetTimeoutOnRedirects, defaultRequestProperties);
   }
 
 }
