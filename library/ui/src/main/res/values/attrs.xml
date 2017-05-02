@@ -68,7 +68,9 @@
     <attr name="scrubber_disabled_size" format="dimension"/>
     <attr name="scrubber_dragged_size" format="dimension"/>
     <attr name="played_color" format="color"/>
+    <attr name="scrubber_color" format="color"/>
     <attr name="buffered_color" format="color"/>
+    <attr name="unplayed_color" format="color"/>
     <attr name="ad_marker_color" format="color"/>
   </declare-styleable>
 
