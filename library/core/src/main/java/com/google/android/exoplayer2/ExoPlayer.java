@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2;
 
+import android.os.Looper;
 import android.support.annotation.IntDef;
 import android.support.annotation.Nullable;
 import com.google.android.exoplayer2.audio.MediaCodecAudioRenderer;
@@ -91,7 +92,9 @@ import java.lang.annotation.RetentionPolicy;
  * thread. The application's main thread is ideal. Accessing an instance from multiple threads is
  * discouraged, however if an application does wish to do this then it may do so provided that it
  * ensures accesses are synchronized.</li>
- * <li>Registered listeners are called on the thread that created the ExoPlayer instance.</li>
+ * <li>Registered listeners are called on the thread that created the ExoPlayer instance, unless
+ * the thread that created the ExoPlayer instance does not have a {@link Looper}. In that case,
+ * registered listeners will be called on the application's main thread.</li>
  * <li>An internal playback thread is responsible for playback. Injected player components such as
  * Renderers, MediaSources, TrackSelectors and LoadControls are called by the player on this
  * thread.</li>
@@ -267,7 +270,8 @@ public interface ExoPlayer {
 
   /**
    * Register a listener to receive events from the player. The listener's methods will be called on
-   * the thread that was used to construct the player.
+   * the thread that was used to construct the player. However, if the thread used to construct the
+   * player does not have a {@link Looper}, then the listener will be called on the main thread.
    *
    * @param listener The listener to register.
    */
