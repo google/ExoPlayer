@@ -113,8 +113,8 @@ public interface ExoPlayer {
      * Called when the timeline and/or manifest has been refreshed.
      * <p>
      * Note that if the timeline has changed then a position discontinuity may also have occurred.
-     * For example the current period index may have changed as a result of periods being added or
-     * removed from the timeline. The will <em>not</em> be reported via a separate call to
+     * For example, the current period index may have changed as a result of periods being added or
+     * removed from the timeline. This will <em>not</em> be reported via a separate call to
      * {@link #onPositionDiscontinuity()}.
      *
      * @param timeline The latest timeline. Never null, but may be empty.
