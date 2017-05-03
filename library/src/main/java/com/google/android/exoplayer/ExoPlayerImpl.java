@@ -223,6 +223,12 @@ import java.util.concurrent.CopyOnWriteArraySet;
         }
         break;
       }
+      case ExoPlayerImplInternal.MSG_SEEK_COMPLETE: {
+        for (Listener listener : listeners) {
+          listener.onPlayerSeekComplete();
+        }
+        break;
+      }
     }
   }
 

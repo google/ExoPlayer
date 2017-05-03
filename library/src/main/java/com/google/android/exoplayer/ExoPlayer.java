@@ -175,6 +175,11 @@ public interface ExoPlayer {
      * @param error The error.
      */
     void onPlayerError(ExoPlaybackException error);
+
+    /**
+     * Invoked when seek completes.
+     */
+    void onPlayerSeekComplete();
   }
 
   /**
