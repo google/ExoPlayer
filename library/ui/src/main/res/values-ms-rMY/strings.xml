@@ -22,4 +22,7 @@
   <string name="exo_controls_stop_description">"Berhenti"</string>
   <string name="exo_controls_rewind_description">"Gulung semula"</string>
   <string name="exo_controls_fastforward_description">"Mara laju"</string>
+  <string name="exo_controls_repeat_all_description">"Ulang semua"</string>
+  <string name="exo_controls_repeat_off_description">"Tiada ulangan"</string>
+  <string name="exo_controls_repeat_one_description">"Ulangan"</string>
 </resources>

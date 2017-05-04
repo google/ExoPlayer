@@ -22,4 +22,7 @@
   <string name="exo_controls_stop_description">"Dayandır"</string>
   <string name="exo_controls_rewind_description">"Geri sarıma"</string>
   <string name="exo_controls_fastforward_description">"Sürətlə irəli"</string>
+  <string name="exo_controls_repeat_all_description">"Bütün təkrarlayın"</string>
+  <string name="exo_controls_repeat_one_description">"Təkrar bir"</string>
+  <string name="exo_controls_repeat_off_description">"Heç bir təkrar"</string>
 </resources>

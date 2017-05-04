@@ -22,4 +22,7 @@
   <string name="exo_controls_stop_description">"Apturēt"</string>
   <string name="exo_controls_rewind_description">"Attīt atpakaļ"</string>
   <string name="exo_controls_fastforward_description">"Ātri patīt"</string>
+  <string name="exo_controls_repeat_all_description">"Atkārtot visu"</string>
+  <string name="exo_controls_repeat_off_description">"Neatkārtot nevienu"</string>
+  <string name="exo_controls_repeat_one_description">"Atkārtot vienu"</string>
 </resources>

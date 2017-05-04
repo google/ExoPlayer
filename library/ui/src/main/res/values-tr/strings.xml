@@ -22,4 +22,7 @@
   <string name="exo_controls_stop_description">"Durdur"</string>
   <string name="exo_controls_rewind_description">"Geri sar"</string>
   <string name="exo_controls_fastforward_description">"İleri sar"</string>
+  <string name="exo_controls_repeat_all_description">"Tümünü Tekrarla"</string>
+  <string name="exo_controls_repeat_off_description">"Hiçbirini Tekrarlama"</string>
+  <string name="exo_controls_repeat_one_description">"Birini Tekrarla"</string>
 </resources>
