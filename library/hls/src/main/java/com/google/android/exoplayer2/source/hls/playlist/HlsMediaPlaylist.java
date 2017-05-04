@@ -91,12 +91,14 @@ public final class HlsMediaPlaylist extends HlsPlaylist {
   public final boolean hasProgramDateTime;
   public final Segment initializationSegment;
   public final List<Segment> segments;
+  public final List<String> dateRanges;
   public final long durationUs;
 
   public HlsMediaPlaylist(@PlaylistType int playlistType, String baseUri, long startOffsetUs,
       long startTimeUs, boolean hasDiscontinuitySequence, int discontinuitySequence,
       int mediaSequence, int version, long targetDurationUs, boolean hasEndTag,
-      boolean hasProgramDateTime, Segment initializationSegment, List<Segment> segments) {
+      boolean hasProgramDateTime, Segment initializationSegment, List<Segment> segments,
+      List<String> dateRanges) {
     super(baseUri);
     this.playlistType = playlistType;
     this.startTimeUs = startTimeUs;
@@ -117,6 +119,7 @@ public final class HlsMediaPlaylist extends HlsPlaylist {
     }
     this.startOffsetUs = startOffsetUs == C.TIME_UNSET ? C.TIME_UNSET
         : startOffsetUs >= 0 ? startOffsetUs : durationUs + startOffsetUs;
+    this.dateRanges = Collections.unmodifiableList(dateRanges);
   }
 
   /**
@@ -155,7 +158,7 @@ public final class HlsMediaPlaylist extends HlsPlaylist {
   public HlsMediaPlaylist copyWith(long startTimeUs, int discontinuitySequence) {
     return new HlsMediaPlaylist(playlistType, baseUri, startOffsetUs, startTimeUs, true,
         discontinuitySequence, mediaSequence, version, targetDurationUs, hasEndTag,
-        hasProgramDateTime, initializationSegment, segments);
+        hasProgramDateTime, initializationSegment, segments, dateRanges);
   }
 
   /**
@@ -170,7 +173,7 @@ public final class HlsMediaPlaylist extends HlsPlaylist {
     }
     return new HlsMediaPlaylist(playlistType, baseUri, startOffsetUs, startTimeUs,
         hasDiscontinuitySequence, discontinuitySequence, mediaSequence, version, targetDurationUs,
-        true, hasProgramDateTime, initializationSegment, segments);
+        true, hasProgramDateTime, initializationSegment, segments, dateRanges);
   }
 
 }
