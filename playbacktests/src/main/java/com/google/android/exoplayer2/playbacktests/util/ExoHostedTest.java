@@ -214,6 +214,11 @@ public abstract class ExoHostedTest implements HostedTest, ExoPlayer.EventListen
   }
 
   @Override
+  public void onRepeatModeChanged(int repeatMode) {
+    // Do nothing.
+  }
+
+  @Override
   public final void onPlayerError(ExoPlaybackException error) {
     playerWasPrepared = true;
     playerError = error;

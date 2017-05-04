@@ -155,6 +155,13 @@ public interface ExoPlayer {
     void onPlayerStateChanged(boolean playWhenReady, int playbackState);
 
     /**
+     * Called when the value of {@link #getRepeatMode()} changes.
+     *
+     * @param repeatMode The {@link RepeatMode} used for playback.
+     */
+    void onRepeatModeChanged(@RepeatMode int repeatMode);
+
+    /**
      * Called when an error occurs. The playback state will transition to {@link #STATE_IDLE}
      * immediately after this method is called. The player instance can still be used, and
      * {@link #release()} must still be called on the player should it no longer be required.
@@ -262,7 +269,7 @@ public interface ExoPlayer {
    */
   @Retention(RetentionPolicy.SOURCE)
   @IntDef({REPEAT_MODE_OFF})
-  @interface RepeatMode {}
+  public @interface RepeatMode {}
   /**
    * Normal playback without repetition.
    */
@@ -327,6 +334,20 @@ public interface ExoPlayer {
    * @return Whether playback will proceed when ready.
    */
   boolean getPlayWhenReady();
+
+  /**
+   * Sets the {@link RepeatMode} to be used for playback.
+   *
+   * @param repeatMode A repeat mode.
+   */
+  void setRepeatMode(@RepeatMode int repeatMode);
+
+  /**
+   * Returns the current {@link RepeatMode} used for playback.
+   *
+   * @return The current repeat mode.
+   */
+  @RepeatMode int getRepeatMode();
 
   /**
    * Whether the player is currently loading the source.

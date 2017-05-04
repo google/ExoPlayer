@@ -425,6 +425,11 @@ public class PlayerActivity extends Activity implements OnClickListener, ExoPlay
   }
 
   @Override
+  public void onRepeatModeChanged(int repeatMode) {
+    // Do nothing.
+  }
+
+  @Override
   public void onPositionDiscontinuity() {
     if (needRetrySource) {
       // This will only occur if the user has performed a seek whilst in the error state. Update the
