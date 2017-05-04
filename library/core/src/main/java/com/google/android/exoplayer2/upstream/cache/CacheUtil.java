@@ -64,7 +64,7 @@ public final class CacheUtil {
   }
 
   /**
-   * Returns already cached and missing bytes in the {@cache} for the data defined by {@code
+   * Returns already cached and missing bytes in the {@code cache} for the data defined by {@code
    * dataSpec}.
    *
    * @param dataSpec Defines the data to be checked.
