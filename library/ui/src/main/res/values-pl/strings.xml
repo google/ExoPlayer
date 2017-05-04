@@ -22,4 +22,7 @@
   <string name="exo_controls_stop_description">"Zatrzymaj"</string>
   <string name="exo_controls_rewind_description">"Przewiń do tyłu"</string>
   <string name="exo_controls_fastforward_description">"Przewiń do przodu"</string>
+  <string name="exo_controls_repeat_all_description">"Powtórz wszystkie"</string>
+  <string name="exo_controls_repeat_off_description">"Nie powtarzaj"</string>
+  <string name="exo_controls_repeat_one_description">"Powtórz jeden"</string>
 </resources>

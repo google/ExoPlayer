@@ -22,4 +22,7 @@
   <string name="exo_controls_stop_description">"Seis"</string>
   <string name="exo_controls_rewind_description">"Kelaa taakse"</string>
   <string name="exo_controls_fastforward_description">"Kelaa eteen"</string>
+  <string name="exo_controls_repeat_all_description">"Toista kaikki"</string>
+  <string name="exo_controls_repeat_off_description">"Toista ei mitään"</string>
+  <string name="exo_controls_repeat_one_description">"Toista yksi"</string>
 </resources>

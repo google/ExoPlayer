@@ -22,4 +22,7 @@
   <string name="exo_controls_stop_description">"നിര്‍ത്തുക"</string>
   <string name="exo_controls_rewind_description">"റിവൈൻഡുചെയ്യുക"</string>
   <string name="exo_controls_fastforward_description">"വേഗത്തിലുള്ള കൈമാറൽ"</string>
+  <string name="exo_controls_repeat_all_description">"എല്ലാം ആവർത്തിക്കുക"</string>
+  <string name="exo_controls_repeat_off_description">"ഒന്നും ആവർത്തിക്കരുത്"</string>
+  <string name="exo_controls_repeat_one_description">"ഒന്ന് ആവർത്തിക്കുക"</string>
 </resources>

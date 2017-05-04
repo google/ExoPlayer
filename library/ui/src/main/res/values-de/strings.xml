@@ -22,4 +22,7 @@
   <string name="exo_controls_stop_description">"Beenden"</string>
   <string name="exo_controls_rewind_description">"Zurückspulen"</string>
   <string name="exo_controls_fastforward_description">"Vorspulen"</string>
+  <string name="exo_controls_repeat_all_description">"Alle wiederholen"</string>
+  <string name="exo_controls_repeat_off_description">"Keinen Titel wiederholen"</string>
+  <string name="exo_controls_repeat_one_description">"Einen Titel wiederholen"</string>
 </resources>

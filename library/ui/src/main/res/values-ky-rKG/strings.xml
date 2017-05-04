@@ -22,4 +22,7 @@
   <string name="exo_controls_stop_description">"Токтотуу"</string>
   <string name="exo_controls_rewind_description">"Артка түрүү"</string>
   <string name="exo_controls_fastforward_description">"Алдыга түрүү"</string>
+  <string name="exo_controls_repeat_all_description">"Баарын кайталоо"</string>
+  <string name="exo_controls_repeat_off_description">"Эч бирин кайталабоо"</string>
+  <string name="exo_controls_repeat_one_description">"Бирөөнү кайталоо"</string>
 </resources>

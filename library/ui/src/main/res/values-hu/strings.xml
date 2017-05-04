@@ -22,4 +22,7 @@
   <string name="exo_controls_stop_description">"Leállítás"</string>
   <string name="exo_controls_rewind_description">"Visszatekerés"</string>
   <string name="exo_controls_fastforward_description">"Előretekerés"</string>
+  <string name="exo_controls_repeat_all_description">"Összes ismétlése"</string>
+  <string name="exo_controls_repeat_off_description">"Nincs ismétlés"</string>
+  <string name="exo_controls_repeat_one_description">"Egy ismétlése"</string>
 </resources>

@@ -22,4 +22,7 @@
   <string name="exo_controls_stop_description">"நிறுத்து"</string>
   <string name="exo_controls_rewind_description">"மீண்டும் காட்டு"</string>
   <string name="exo_controls_fastforward_description">"வேகமாக முன்செல்"</string>
+  <string name="exo_controls_repeat_all_description">"அனைத்தையும் மீண்டும் இயக்கு"</string>
+  <string name="exo_controls_repeat_off_description">"எதையும் மீண்டும் இயக்காதே"</string>
+  <string name="exo_controls_repeat_one_description">"ஒன்றை மட்டும் மீண்டும் இயக்கு"</string>
 </resources>

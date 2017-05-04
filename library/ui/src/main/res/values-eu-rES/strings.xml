@@ -22,4 +22,7 @@
   <string name="exo_controls_stop_description">"Gelditu"</string>
   <string name="exo_controls_rewind_description">"Atzeratu"</string>
   <string name="exo_controls_fastforward_description">"Aurreratu"</string>
+  <string name="exo_controls_repeat_all_description">"Errepikatu guztiak"</string>
+  <string name="exo_controls_repeat_off_description">"Ez errepikatu"</string>
+  <string name="exo_controls_repeat_one_description">"Errepikatu bat"</string>
 </resources>

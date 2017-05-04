@@ -22,4 +22,7 @@
   <string name="exo_controls_stop_description">"बंद करें"</string>
   <string name="exo_controls_rewind_description">"रिवाइंड करें"</string>
   <string name="exo_controls_fastforward_description">"फ़ास्ट फ़ॉरवर्ड"</string>
+  <string name="exo_controls_repeat_all_description">"सभी को दोहराएं"</string>
+  <string name="exo_controls_repeat_off_description">"कुछ भी न दोहराएं"</string>
+  <string name="exo_controls_repeat_one_description">"एक दोहराएं"</string>
 </resources>
