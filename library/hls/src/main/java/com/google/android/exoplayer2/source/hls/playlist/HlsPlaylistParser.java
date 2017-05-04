@@ -57,6 +57,7 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
   private static final String TAG_ENDLIST = "#EXT-X-ENDLIST";
   private static final String TAG_KEY = "#EXT-X-KEY";
   private static final String TAG_BYTERANGE = "#EXT-X-BYTERANGE";
+  private static final String TAG_DATERANGE = "#EXT-X-DATERANGE";
 
   private static final String TYPE_AUDIO = "AUDIO";
   private static final String TYPE_VIDEO = "VIDEO";
@@ -263,6 +264,7 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
     boolean hasEndTag = false;
     Segment initializationSegment = null;
     List<Segment> segments = new ArrayList<>();
+    List<String> dateRanges = new ArrayList<>();
 
     long segmentDurationUs = 0;
     boolean hasDiscontinuitySequence = false;
@@ -343,6 +345,8 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
               C.msToUs(Util.parseXsDateTime(line.substring(line.indexOf(':') + 1)));
           playlistStartTimeUs = programDatetimeUs - segmentStartTimeUs;
         }
+      } else if (line.startsWith(TAG_DATERANGE)) {
+        dateRanges.add(line);
       } else if (!line.startsWith("#")) {
         String segmentEncryptionIV;
         if (!isEncrypted) {
@@ -371,7 +375,8 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
     }
     return new HlsMediaPlaylist(playlistType, baseUri, startOffsetUs, playlistStartTimeUs,
         hasDiscontinuitySequence, playlistDiscontinuitySequence, mediaSequence, version,
-        targetDurationUs, hasEndTag, playlistStartTimeUs != 0, initializationSegment, segments);
+        targetDurationUs, hasEndTag, playlistStartTimeUs != 0, initializationSegment, segments,
+        dateRanges);
   }
 
   private static String parseStringAttr(String line, Pattern pattern) throws ParserException {
