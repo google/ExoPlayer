@@ -112,6 +112,7 @@ import java.io.IOException;
   private static final int MSG_SOURCE_CONTINUE_LOADING_REQUESTED = 9;
   private static final int MSG_TRACK_SELECTION_INVALIDATED = 10;
   private static final int MSG_CUSTOM = 11;
+  private static final int MSG_SET_REPEAT_MODE = 12;
 
   private static final int PREPARING_SOURCE_INTERVAL_MS = 10;
   private static final int RENDERING_INTERVAL_MS = 10;
@@ -155,6 +156,7 @@ import java.io.IOException;
   private boolean rebuffering;
   private boolean isLoading;
   private int state;
+  private @ExoPlayer.RepeatMode int repeatMode;
   private int customMessagesSent;
   private int customMessagesProcessed;
   private long elapsedRealtimeUs;
@@ -170,12 +172,13 @@ import java.io.IOException;
   private Timeline timeline;
 
   public ExoPlayerImplInternal(Renderer[] renderers, TrackSelector trackSelector,
-      LoadControl loadControl, boolean playWhenReady, Handler eventHandler,
-      PlaybackInfo playbackInfo, ExoPlayer player) {
+      LoadControl loadControl, boolean playWhenReady, @ExoPlayer.RepeatMode int repeatMode,
+      Handler eventHandler, PlaybackInfo playbackInfo, ExoPlayer player) {
     this.renderers = renderers;
     this.trackSelector = trackSelector;
     this.loadControl = loadControl;
     this.playWhenReady = playWhenReady;
+    this.repeatMode = repeatMode;
     this.eventHandler = eventHandler;
     this.state = ExoPlayer.STATE_IDLE;
     this.playbackInfo = playbackInfo;
@@ -208,6 +211,10 @@ import java.io.IOException;
 
   public void setPlayWhenReady(boolean playWhenReady) {
     handler.obtainMessage(MSG_SET_PLAY_WHEN_READY, playWhenReady ? 1 : 0, 0).sendToTarget();
+  }
+
+  public void setRepeatMode(@ExoPlayer.RepeatMode int repeatMode) {
+    handler.obtainMessage(MSG_SET_REPEAT_MODE, repeatMode, 0).sendToTarget();
   }
 
   public void seekTo(Timeline timeline, int windowIndex, long positionUs) {
@@ -302,6 +309,10 @@ import java.io.IOException;
         }
         case MSG_SET_PLAY_WHEN_READY: {
           setPlayWhenReadyInternal(msg.arg1 != 0);
+          return true;
+        }
+        case MSG_SET_REPEAT_MODE: {
+          setRepeatModeInternal(msg.arg1);
           return true;
         }
         case MSG_DO_SOME_WORK: {
@@ -409,6 +420,10 @@ import java.io.IOException;
         handler.sendEmptyMessage(MSG_DO_SOME_WORK);
       }
     }
+  }
+
+  private void setRepeatModeInternal(@ExoPlayer.RepeatMode int repeatMode) {
+    this.repeatMode = repeatMode;
   }
 
   private void startRenderers() throws ExoPlaybackException {
@@ -959,8 +974,7 @@ import java.io.IOException;
     while (periodHolder.next != null) {
       MediaPeriodHolder previousPeriodHolder = periodHolder;
       periodHolder = periodHolder.next;
-      periodIndex = timeline.getNextPeriodIndex(periodIndex, period, window,
-          ExoPlayer.REPEAT_MODE_OFF);
+      periodIndex = timeline.getNextPeriodIndex(periodIndex, period, window, repeatMode);
       boolean isLastPeriod = isLastPeriod(periodIndex);
       timeline.getPeriod(periodIndex, period, true);
       if (periodHolder.uid.equals(period.uid)) {
@@ -1022,8 +1036,7 @@ import java.io.IOException;
     int newPeriodIndex = C.INDEX_UNSET;
     int maxIterations = oldTimeline.getPeriodCount();
     for (int i = 0; i < maxIterations && newPeriodIndex == C.INDEX_UNSET; i++) {
-      oldPeriodIndex = oldTimeline.getNextPeriodIndex(oldPeriodIndex, period, window,
-          ExoPlayer.REPEAT_MODE_OFF);
+      oldPeriodIndex = oldTimeline.getNextPeriodIndex(oldPeriodIndex, period, window, repeatMode);
       newPeriodIndex = newTimeline.getIndexOfPeriod(
           oldTimeline.getPeriod(oldPeriodIndex, period, true).uid);
     }
@@ -1033,7 +1046,7 @@ import java.io.IOException;
   private boolean isLastPeriod(int periodIndex) {
     int windowIndex = timeline.getPeriod(periodIndex, period).windowIndex;
     return !timeline.getWindow(windowIndex, window).isDynamic
-        && timeline.isLastPeriod(periodIndex, period, window, ExoPlayer.REPEAT_MODE_OFF);
+        && timeline.isLastPeriod(periodIndex, period, window, repeatMode);
   }
 
   /**
@@ -1247,7 +1260,7 @@ import java.io.IOException;
         return;
       }
       newLoadingPeriodIndex = timeline.getNextPeriodIndex(loadingPeriodHolder.index, period, window,
-          ExoPlayer.REPEAT_MODE_OFF);
+          repeatMode);
     }
 
     if (newLoadingPeriodIndex >= timeline.getPeriodCount()) {

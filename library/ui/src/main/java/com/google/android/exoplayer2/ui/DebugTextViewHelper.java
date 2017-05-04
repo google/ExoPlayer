@@ -87,6 +87,11 @@ public final class DebugTextViewHelper implements Runnable, ExoPlayer.EventListe
   }
 
   @Override
+  public void onRepeatModeChanged(int repeatMode) {
+    // Do nothing.
+  }
+
+  @Override
   public void onPositionDiscontinuity() {
     updateAndPost();
   }

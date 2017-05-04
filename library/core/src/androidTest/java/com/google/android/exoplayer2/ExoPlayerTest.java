@@ -341,6 +341,11 @@ public final class ExoPlayerTest extends TestCase {
     }
 
     @Override
+    public void onRepeatModeChanged(int repeatMode) {
+      // Do nothing.
+    }
+
+    @Override
     public void onTimelineChanged(Timeline timeline, Object manifest) {
       sourceInfos.add(Pair.create(timeline, manifest));
       sourceInfoCountDownLatch.countDown();

@@ -51,6 +51,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
 
   private boolean tracksSelected;
   private boolean playWhenReady;
+  @RepeatMode int repeatMode;
   private int playbackState;
   private int pendingSeekAcks;
   private int pendingPrepareAcks;
@@ -83,6 +84,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
     this.renderers = Assertions.checkNotNull(renderers);
     this.trackSelector = Assertions.checkNotNull(trackSelector);
     this.playWhenReady = false;
+    this.repeatMode = REPEAT_MODE_OFF;
     this.playbackState = STATE_IDLE;
     this.listeners = new CopyOnWriteArraySet<>();
     emptyTrackSelections = new TrackSelectionArray(new TrackSelection[renderers.length]);
@@ -101,7 +103,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
     };
     playbackInfo = new ExoPlayerImplInternal.PlaybackInfo(0, 0);
     internalPlayer = new ExoPlayerImplInternal(renderers, trackSelector, loadControl, playWhenReady,
-        eventHandler, playbackInfo, this);
+        repeatMode, eventHandler, playbackInfo, this);
   }
 
   @Override
@@ -162,6 +164,22 @@ import java.util.concurrent.CopyOnWriteArraySet;
   @Override
   public boolean getPlayWhenReady() {
     return playWhenReady;
+  }
+
+  @Override
+  public void setRepeatMode(@RepeatMode int repeatMode) {
+    if (this.repeatMode != repeatMode) {
+      this.repeatMode = repeatMode;
+      internalPlayer.setRepeatMode(repeatMode);
+      for (EventListener listener : listeners) {
+        listener.onRepeatModeChanged(repeatMode);
+      }
+    }
+  }
+
+  @Override
+  public @RepeatMode int getRepeatMode() {
+    return repeatMode;
   }
 
   @Override

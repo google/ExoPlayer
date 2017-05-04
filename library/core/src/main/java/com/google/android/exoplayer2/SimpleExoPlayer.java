@@ -515,6 +515,16 @@ public class SimpleExoPlayer implements ExoPlayer {
   }
 
   @Override
+  public @RepeatMode int getRepeatMode() {
+    return player.getRepeatMode();
+  }
+
+  @Override
+  public void setRepeatMode(@RepeatMode int repeatMode) {
+    player.setRepeatMode(repeatMode);
+  }
+
+  @Override
   public boolean isLoading() {
     return player.isLoading();
   }

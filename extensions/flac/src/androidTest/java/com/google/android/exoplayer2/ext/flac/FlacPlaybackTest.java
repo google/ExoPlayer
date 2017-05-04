@@ -126,6 +126,11 @@ public class FlacPlaybackTest extends InstrumentationTestCase {
       }
     }
 
+    @Override
+    public void onRepeatModeChanged(int repeatMode) {
+      // Do nothing.
+    }
+
     private void releasePlayerAndQuitLooper() {
       player.release();
       Looper.myLooper().quit();

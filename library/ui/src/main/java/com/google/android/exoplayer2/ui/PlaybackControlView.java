@@ -529,10 +529,9 @@ public class PlaybackControlView extends FrameLayout {
       int windowIndex = player.getCurrentWindowIndex();
       timeline.getWindow(windowIndex, window);
       isSeekable = window.isSeekable;
-      enablePrevious = !timeline.isFirstWindow(windowIndex, ExoPlayer.REPEAT_MODE_OFF)
+      enablePrevious = !timeline.isFirstWindow(windowIndex, player.getRepeatMode())
           || isSeekable || !window.isDynamic;
-      enableNext = !timeline.isLastWindow(windowIndex, ExoPlayer.REPEAT_MODE_OFF)
-          || window.isDynamic;
+      enableNext = !timeline.isLastWindow(windowIndex, player.getRepeatMode()) || window.isDynamic;
       if (timeline.getPeriod(player.getCurrentPeriodIndex(), period).isAd) {
         // Always hide player controls during ads.
         hide();
@@ -682,8 +681,7 @@ public class PlaybackControlView extends FrameLayout {
     }
     int windowIndex = player.getCurrentWindowIndex();
     timeline.getWindow(windowIndex, window);
-    int previousWindowIndex = timeline.getPreviousWindowIndex(windowIndex,
-        ExoPlayer.REPEAT_MODE_OFF);
+    int previousWindowIndex = timeline.getPreviousWindowIndex(windowIndex, player.getRepeatMode());
     if (previousWindowIndex != C.INDEX_UNSET
         && (player.getCurrentPosition() <= MAX_POSITION_FOR_SEEK_TO_PREVIOUS
         || (window.isDynamic && !window.isSeekable))) {
@@ -699,7 +697,7 @@ public class PlaybackControlView extends FrameLayout {
       return;
     }
     int windowIndex = player.getCurrentWindowIndex();
-    int nextWindowIndex = timeline.getNextWindowIndex(windowIndex, ExoPlayer.REPEAT_MODE_OFF);
+    int nextWindowIndex = timeline.getNextWindowIndex(windowIndex, player.getRepeatMode());
     if (nextWindowIndex != C.INDEX_UNSET) {
       seekTo(nextWindowIndex, C.TIME_UNSET);
     } else if (timeline.getWindow(windowIndex, window, false).isDynamic) {
@@ -906,6 +904,11 @@ public class PlaybackControlView extends FrameLayout {
     public void onPlayerStateChanged(boolean playWhenReady, int playbackState) {
       updatePlayPauseButton();
       updateProgress();
+    }
+
+    @Override
+    public void onRepeatModeChanged(int repeatMode) {
+      // Do nothing.
     }
 
     @Override
