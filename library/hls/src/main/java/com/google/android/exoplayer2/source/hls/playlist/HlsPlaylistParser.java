@@ -29,6 +29,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
@@ -69,6 +70,8 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
 
   private static final String BOOLEAN_TRUE = "YES";
   private static final String BOOLEAN_FALSE = "NO";
+
+  private static final String ATTR_CLOSED_CAPTIONS_NONE = "CLOSED-CAPTIONS=NONE";
 
   private static final Pattern REGEX_BANDWIDTH = Pattern.compile("BANDWIDTH=(\\d+)\\b");
   private static final Pattern REGEX_CODECS = Pattern.compile("CODECS=\"(.+?)\"");
@@ -173,7 +176,8 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
     ArrayList<HlsMasterPlaylist.HlsUrl> audios = new ArrayList<>();
     ArrayList<HlsMasterPlaylist.HlsUrl> subtitles = new ArrayList<>();
     Format muxedAudioFormat = null;
-    ArrayList<Format> muxedCaptionFormats = new ArrayList<>();
+    List<Format> muxedCaptionFormats = null;
+    boolean noClosedCaptions = false;
 
     String line;
     while (iterator.hasNext()) {
@@ -210,6 +214,9 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
               mimeType = MimeTypes.APPLICATION_CEA708;
               accessibilityChannel = Integer.parseInt(instreamId.substring(7));
             }
+            if (muxedCaptionFormats == null) {
+              muxedCaptionFormats = new ArrayList<>();
+            }
             muxedCaptionFormats.add(Format.createTextContainerFormat(id, null, mimeType, null,
                 Format.NO_VALUE, selectionFlags, language, accessibilityChannel));
             break;
@@ -221,6 +228,7 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
         int bitrate = parseIntAttr(line, REGEX_BANDWIDTH);
         String codecs = parseOptionalStringAttr(line, REGEX_CODECS);
         String resolutionString = parseOptionalStringAttr(line, REGEX_RESOLUTION);
+        noClosedCaptions |= line.contains(ATTR_CLOSED_CAPTIONS_NONE);
         int width;
         int height;
         if (resolutionString != null) {
@@ -242,6 +250,9 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
             0);
         variants.add(new HlsMasterPlaylist.HlsUrl(line, format));
       }
+    }
+    if (noClosedCaptions) {
+      muxedCaptionFormats = Collections.emptyList();
     }
     return new HlsMasterPlaylist(baseUri, variants, audios, subtitles, muxedAudioFormat,
         muxedCaptionFormats);
