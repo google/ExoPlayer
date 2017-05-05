@@ -23,6 +23,7 @@ import com.google.android.exoplayer2.util.MimeTypes;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.nio.charset.Charset;
+import java.util.Collections;
 import java.util.List;
 import junit.framework.TestCase;
 
@@ -56,8 +57,13 @@ public class HlsMasterPlaylistParserTest extends TestCase {
 
   private static final String MASTER_PLAYLIST_WITH_CC = " #EXTM3U \n"
       + "#EXT-X-MEDIA:TYPE=CLOSED-CAPTIONS,LANGUAGE=\"es\",NAME=\"Eng\",INSTREAM-ID=\"SERVICE4\"\n"
-      + "\n"
       + "#EXT-X-STREAM-INF:BANDWIDTH=1280000,CODECS=\"mp4a.40.2,avc1.66.30\",RESOLUTION=304x128\n"
+      + "http://example.com/low.m3u8\n";
+
+  private static final String MASTER_PLAYLIST_WITHOUT_CC = " #EXTM3U \n"
+      + "#EXT-X-MEDIA:TYPE=CLOSED-CAPTIONS,LANGUAGE=\"es\",NAME=\"Eng\",INSTREAM-ID=\"SERVICE4\"\n"
+      + "#EXT-X-STREAM-INF:BANDWIDTH=1280000,CODECS=\"mp4a.40.2,avc1.66.30\",RESOLUTION=304x128,"
+      + "CLOSED-CAPTIONS=NONE\n"
       + "http://example.com/low.m3u8\n";
 
   public void testParseMasterPlaylist() throws IOException{
@@ -66,6 +72,7 @@ public class HlsMasterPlaylistParserTest extends TestCase {
     List<HlsMasterPlaylist.HlsUrl> variants = masterPlaylist.variants;
     assertNotNull(variants);
     assertEquals(5, variants.size());
+    assertNull(masterPlaylist.muxedCaptionFormats);
 
     assertEquals(1280000, variants.get(0).format.bitrate);
     assertNotNull(variants.get(0).format.codecs);
@@ -115,6 +122,11 @@ public class HlsMasterPlaylistParserTest extends TestCase {
     assertEquals(MimeTypes.APPLICATION_CEA708, closedCaptionFormat.sampleMimeType);
     assertEquals(4, closedCaptionFormat.accessibilityChannel);
     assertEquals("es", closedCaptionFormat.language);
+  }
+
+  public void testPlaylistWithoutClosedCaptions() throws IOException {
+    HlsMasterPlaylist playlist = parseMasterPlaylist(PLAYLIST_URI, MASTER_PLAYLIST_WITHOUT_CC);
+    assertEquals(Collections.emptyList(), playlist.muxedCaptionFormats);
   }
 
   private static HlsMasterPlaylist parseMasterPlaylist(String uri, String playlistString)

@@ -111,7 +111,8 @@ import java.util.Locale;
    * @param timestampAdjusterProvider A provider of {@link TimestampAdjuster} instances. If
    *     multiple {@link HlsChunkSource}s are used for a single playback, they should all share the
    *     same provider.
-   * @param muxedCaptionFormats List of muxed caption {@link Format}s.
+   * @param muxedCaptionFormats List of muxed caption {@link Format}s. Null if no closed caption
+   *     information is available in the master playlist.
    */
   public HlsChunkSource(HlsPlaylistTracker playlistTracker, HlsUrl[] variants,
       HlsDataSourceFactory dataSourceFactory, TimestampAdjusterProvider timestampAdjusterProvider,
