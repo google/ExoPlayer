@@ -222,9 +222,9 @@ public final class TtmlDecoder extends SimpleSubtitleDecoder {
   /**
    * Parses a region declaration.
    * <p>
-   * If the region defines an origin and/or extent, it is required that they're defined as
-   * percentages of the viewport. Region declarations that define origin and/or extent in other
-   * formats are unsupported, and null is returned.
+   * If the region defines an origin and extent, it is required that they're defined as percentages
+   * of the viewport. Region declarations that define origin and extent in other formats are
+   * unsupported, and null is returned.
    */
   private TtmlRegion parseRegionAttributes(XmlPullParser xmlParser) {
     String regionId = XmlPullParserUtil.getAttributeValue(xmlParser, TtmlNode.ATTR_ID);
@@ -250,9 +250,13 @@ public final class TtmlDecoder extends SimpleSubtitleDecoder {
         return null;
       }
     } else {
+      Log.w(TAG, "Ignoring region without an origin");
+      return null;
+      // TODO: Should default to top left as below in this case, but need to fix
+      // https://github.com/google/ExoPlayer/issues/2953 first.
       // Origin is omitted. Default to top left.
-      position = 0;
-      line = 0;
+      // position = 0;
+      // line = 0;
     }
 
     float width;
@@ -273,9 +277,13 @@ public final class TtmlDecoder extends SimpleSubtitleDecoder {
         return null;
       }
     } else {
+      Log.w(TAG, "Ignoring region without an extent");
+      return null;
+      // TODO: Should default to extent of parent as below in this case, but need to fix
+      // https://github.com/google/ExoPlayer/issues/2953 first.
       // Extent is omitted. Default to extent of parent.
-      width = 1;
-      height = 1;
+      // width = 1;
+      // height = 1;
     }
 
     @Cue.AnchorType int lineAnchor = Cue.ANCHOR_TYPE_START;
