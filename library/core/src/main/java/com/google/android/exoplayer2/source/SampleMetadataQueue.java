@@ -55,7 +55,6 @@ import com.google.android.exoplayer2.util.Util;
   private int relativeStartIndex;
   private int readPosition;
 
-  private long nextOffset;
   private long largestDequeuedTimestampUs;
   private long largestQueuedTimestampUs;
   private boolean upstreamKeyframeRequired;
@@ -249,8 +248,6 @@ import com.google.android.exoplayer2.util.Util;
 
     largestDequeuedTimestampUs = Math.max(largestDequeuedTimestampUs, buffer.timeUs);
     readPosition++;
-    nextOffset = extrasHolder.offset + extrasHolder.size;
-
     return C.RESULT_BUFFER_READ;
   }
 
@@ -298,7 +295,6 @@ import com.google.android.exoplayer2.util.Util;
     }
 
     readPosition += sampleCountToKeyframe;
-    nextOffset = offsets[(relativeStartIndex + readPosition) % capacity];
     return true;
   }
 
@@ -310,8 +306,6 @@ import com.google.android.exoplayer2.util.Util;
       return;
     }
     readPosition = length;
-    int relativeLastSampleIndex = (relativeStartIndex + readPosition - 1) % capacity;
-    nextOffset = offsets[relativeLastSampleIndex] + sizes[relativeLastSampleIndex];
   }
 
   /**
@@ -331,7 +325,12 @@ import com.google.android.exoplayer2.util.Util;
       relativeStartIndex -= capacity;
     }
     readPosition = 0;
-    return length == 0 ? nextOffset : offsets[relativeStartIndex];
+    if (length == 0) {
+      int relativeLastDiscardedIndex = (relativeStartIndex - 1 + capacity) % capacity;
+      return offsets[relativeLastDiscardedIndex] + sizes[relativeLastDiscardedIndex];
+    } else {
+      return offsets[relativeStartIndex];
+    }
   }
 
   // Called by the loading thread.
