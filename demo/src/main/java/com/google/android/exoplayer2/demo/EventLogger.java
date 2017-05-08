@@ -470,6 +470,10 @@ import java.util.Locale;
     switch (repeatMode) {
       case ExoPlayer.REPEAT_MODE_OFF:
         return "OFF";
+      case ExoPlayer.REPEAT_MODE_ONE:
+        return "ONE";
+      case ExoPlayer.REPEAT_MODE_ALL:
+        return "ALL";
       default:
         return "?";
     }

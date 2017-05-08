@@ -268,12 +268,20 @@ public interface ExoPlayer {
    * Repeat modes for playback.
    */
   @Retention(RetentionPolicy.SOURCE)
-  @IntDef({REPEAT_MODE_OFF})
+  @IntDef({REPEAT_MODE_OFF, REPEAT_MODE_ONE, REPEAT_MODE_ALL})
   public @interface RepeatMode {}
   /**
    * Normal playback without repetition.
    */
   int REPEAT_MODE_OFF = 0;
+  /**
+   * "Repeat One" mode to repeat the currently playing window infinitely.
+   */
+  int REPEAT_MODE_ONE = 1;
+  /**
+   * "Repeat All" mode to repeat the entire timeline infinitely.
+   */
+  int REPEAT_MODE_ALL = 2;
 
   /**
    * Register a listener to receive events from the player. The listener's methods will be called on
