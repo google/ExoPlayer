@@ -374,8 +374,8 @@ import java.util.Arrays;
   }
 
   private short interpolate(short[] in, int inPos, int oldSampleRate, int newSampleRate) {
-    short left = in[inPos * numChannels];
-    short right = in[inPos * numChannels + numChannels];
+    short left = in[inPos];
+    short right = in[inPos + numChannels];
     int position = newRatePosition * oldSampleRate;
     int leftPosition = oldRatePosition * newSampleRate;
     int rightPosition = (oldRatePosition + 1) * newSampleRate;
@@ -402,7 +402,7 @@ import java.util.Arrays;
         enlargeOutputBufferIfNeeded(1);
         for (int i = 0; i < numChannels; i++) {
           outputBuffer[numOutputSamples * numChannels + i] =
-              interpolate(pitchBuffer, position + i, oldSampleRate, newSampleRate);
+              interpolate(pitchBuffer, position * numChannels + i, oldSampleRate, newSampleRate);
         }
         newRatePosition++;
         numOutputSamples++;
