@@ -15,7 +15,6 @@
  */
 package com.google.android.exoplayer2.source;
 
-import android.util.Pair;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.Timeline;
@@ -91,7 +90,7 @@ public final class LoopingMediaSource implements MediaSource {
     childSource.releaseSource();
   }
 
-  private static final class LoopingTimeline extends Timeline {
+  private static final class LoopingTimeline extends AbstractConcatenatedTimeline {
 
     private final Timeline childTimeline;
     private final int childPeriodCount;
@@ -113,46 +112,39 @@ public final class LoopingMediaSource implements MediaSource {
     }
 
     @Override
-    public Window getWindow(int windowIndex, Window window, boolean setIds,
-        long defaultPositionProjectionUs) {
-      childTimeline.getWindow(windowIndex % childWindowCount, window, setIds,
-          defaultPositionProjectionUs);
-      int periodIndexOffset = (windowIndex / childWindowCount) * childPeriodCount;
-      window.firstPeriodIndex += periodIndexOffset;
-      window.lastPeriodIndex += periodIndexOffset;
-      return window;
-    }
-
-    @Override
     public int getPeriodCount() {
       return childPeriodCount * loopCount;
     }
 
     @Override
-    public Period getPeriod(int periodIndex, Period period, boolean setIds) {
-      childTimeline.getPeriod(periodIndex % childPeriodCount, period, setIds);
-      int loopCount = (periodIndex / childPeriodCount);
-      period.windowIndex += loopCount * childWindowCount;
-      if (setIds) {
-        period.uid = Pair.create(loopCount, period.uid);
-      }
-      return period;
+    protected Timeline getChild(int childIndex) {
+      return childTimeline;
     }
 
     @Override
-    public int getIndexOfPeriod(Object uid) {
-      if (!(uid instanceof Pair)) {
-        return C.INDEX_UNSET;
-      }
-      Pair<?, ?> loopCountAndChildUid = (Pair<?, ?>) uid;
-      if (!(loopCountAndChildUid.first instanceof Integer)) {
-        return C.INDEX_UNSET;
-      }
-      int loopCount = (Integer) loopCountAndChildUid.first;
-      int periodIndexOffset = loopCount * childPeriodCount;
-      return childTimeline.getIndexOfPeriod(loopCountAndChildUid.second) + periodIndexOffset;
+    protected int getChildCount() {
+      return loopCount;
     }
 
+    @Override
+    protected int getChildIndexForPeriod(int periodIndex) {
+      return periodIndex / childPeriodCount;
+    }
+
+    @Override
+    protected int getFirstPeriodIndexInChild(int childIndex) {
+      return childIndex * childPeriodCount;
+    }
+
+    @Override
+    protected int getChildIndexForWindow(int windowIndex) {
+      return windowIndex / childWindowCount;
+    }
+
+    @Override
+    protected int getFirstWindowIndexInChild(int childIndex) {
+      return childIndex * childWindowCount;
+    }
   }
 
   private static final class InfinitelyLoopingTimeline extends Timeline {
@@ -169,14 +161,16 @@ public final class LoopingMediaSource implements MediaSource {
     }
 
     @Override
-    public int getNextWindowIndex(int currentWindowIndex, @ExoPlayer.RepeatMode int repeatMode) {
-      return currentWindowIndex < getWindowCount() - 1 ? currentWindowIndex + 1 : 0;
+    public int getNextWindowIndex(int windowIndex, @ExoPlayer.RepeatMode int repeatMode) {
+      int childNextWindowIndex = childTimeline.getNextWindowIndex(windowIndex, repeatMode);
+      return childNextWindowIndex == C.INDEX_UNSET ? 0 : childNextWindowIndex;
     }
 
     @Override
-    public int getPreviousWindowIndex(int currentWindowIndex,
-        @ExoPlayer.RepeatMode int repeatMode) {
-      return currentWindowIndex > 0 ? currentWindowIndex - 1 : getWindowCount() - 1;
+    public int getPreviousWindowIndex(int windowIndex, @ExoPlayer.RepeatMode int repeatMode) {
+      int childPreviousWindowIndex = childTimeline.getPreviousWindowIndex(windowIndex, repeatMode);
+      return childPreviousWindowIndex == C.INDEX_UNSET ? getWindowCount() - 1
+          : childPreviousWindowIndex;
     }
 
     @Override
