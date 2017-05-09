@@ -92,6 +92,7 @@ import java.util.Locale;
   private boolean isTimestampMaster;
   private byte[] scratchSpace;
   private IOException fatalError;
+  private HlsUrl expectedPlaylistUrl;
 
   private Uri encryptionKeyUri;
   private byte[] encryptionKey;
@@ -142,6 +143,9 @@ import java.util.Locale;
   public void maybeThrowError() throws IOException {
     if (fatalError != null) {
       throw fatalError;
+    }
+    if (expectedPlaylistUrl != null) {
+      playlistTracker.maybeThrowPlaylistRefreshError(expectedPlaylistUrl);
     }
   }
 
@@ -195,6 +199,7 @@ import java.util.Locale;
   public void getNextChunk(HlsMediaChunk previous, long playbackPositionUs, HlsChunkHolder out) {
     int oldVariantIndex = previous == null ? C.INDEX_UNSET
         : trackGroup.indexOf(previous.trackFormat);
+    expectedPlaylistUrl = null;
     // Use start time of the previous chunk rather than its end time because switching format will
     // require downloading overlapping segments.
     long bufferedDurationUs = previous == null ? 0
@@ -208,6 +213,7 @@ import java.util.Locale;
     HlsUrl selectedUrl = variants[selectedVariantIndex];
     if (!playlistTracker.isSnapshotValid(selectedUrl)) {
       out.playlist = selectedUrl;
+      expectedPlaylistUrl = selectedUrl;
       // Retry when playlist is refreshed.
       return;
     }
@@ -247,6 +253,7 @@ import java.util.Locale;
         out.endOfStream = true;
       } else /* Live */ {
         out.playlist = selectedUrl;
+        expectedPlaylistUrl = selectedUrl;
       }
       return;
     }
