@@ -65,13 +65,13 @@ public final class TsExtractor implements Extractor {
    * Modes for the extractor.
    */
   @Retention(RetentionPolicy.SOURCE)
-  @IntDef({MODE_NORMAL, MODE_SINGLE_PMT, MODE_HLS})
+  @IntDef({MODE_MULTI_PMT, MODE_SINGLE_PMT, MODE_HLS})
   public @interface Mode {}
 
   /**
    * Behave as defined in ISO/IEC 13818-1.
    */
-  public static final int MODE_NORMAL = 0;
+  public static final int MODE_MULTI_PMT = 0;
   /**
    * Assume only one PMT will be contained in the stream, even if more are declared by the PAT.
    */
@@ -132,12 +132,23 @@ public final class TsExtractor implements Extractor {
    *     {@code FLAG_*} values that control the behavior of the payload readers.
    */
   public TsExtractor(@Flags int defaultTsPayloadReaderFlags) {
-    this(MODE_NORMAL, new TimestampAdjuster(0),
-        new DefaultTsPayloadReaderFactory(defaultTsPayloadReaderFlags));
+    this(MODE_SINGLE_PMT, defaultTsPayloadReaderFlags);
   }
 
   /**
-   * @param mode Mode for the extractor. One of {@link #MODE_NORMAL}, {@link #MODE_SINGLE_PMT}
+   * @param mode Mode for the extractor. One of {@link #MODE_MULTI_PMT}, {@link #MODE_SINGLE_PMT}
+   *     and {@link #MODE_HLS}.
+   * @param defaultTsPayloadReaderFlags A combination of {@link DefaultTsPayloadReaderFactory}
+   *     {@code FLAG_*} values that control the behavior of the payload readers.
+   */
+  public TsExtractor(@Mode int mode, @Flags int defaultTsPayloadReaderFlags) {
+    this(mode, new TimestampAdjuster(0),
+        new DefaultTsPayloadReaderFactory(defaultTsPayloadReaderFlags));
+  }
+
+
+  /**
+   * @param mode Mode for the extractor. One of {@link #MODE_MULTI_PMT}, {@link #MODE_SINGLE_PMT}
    *     and {@link #MODE_HLS}.
    * @param timestampAdjuster A timestamp adjuster for offsetting and scaling sample timestamps.
    * @param payloadReaderFactory Factory for injecting a custom set of payload readers.
