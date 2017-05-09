@@ -1259,7 +1259,7 @@ import java.io.IOException;
         // We are already buffering the maximum number of periods ahead.
         return;
       }
-      newLoadingPeriodIndex = timeline.getNextPeriodIndex(loadingPeriodHolder.index, period, window,
+      newLoadingPeriodIndex = timeline.getNextPeriodIndex(loadingPeriodIndex, period, window,
           repeatMode);
     }
 
