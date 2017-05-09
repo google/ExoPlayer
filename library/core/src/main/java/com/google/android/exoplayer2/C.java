@@ -83,12 +83,12 @@ public final class C {
   public static final String UTF16_NAME = "UTF-16";
 
   /**
-   * * The name of the serif font family.
+   * The name of the serif font family.
    */
   public static final String SERIF_NAME = "serif";
 
   /**
-   * * The name of the sans-serif font family.
+   * The name of the sans-serif font family.
    */
   public static final String SANS_SERIF_NAME = "sans-serif";
 

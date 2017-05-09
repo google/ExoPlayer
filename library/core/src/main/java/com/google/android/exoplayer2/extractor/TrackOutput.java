@@ -20,11 +20,53 @@ import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.util.ParsableByteArray;
 import java.io.EOFException;
 import java.io.IOException;
+import java.util.Arrays;
 
 /**
  * Receives track level data extracted by an {@link Extractor}.
  */
 public interface TrackOutput {
+
+  /**
+   * Holds data required to decrypt a sample.
+   */
+  final class CryptoData {
+
+    /**
+     * The encryption mode used for the sample.
+     */
+    @C.CryptoMode public final int cryptoMode;
+
+    /**
+     * The encryption key associated with the sample. Its contents must not be modified.
+     */
+    public final byte[] encryptionKey;
+
+    public CryptoData(@C.CryptoMode int cryptoMode, byte[] encryptionKey) {
+      this.cryptoMode = cryptoMode;
+      this.encryptionKey = encryptionKey;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+      if (this == obj) {
+        return true;
+      }
+      if (obj == null || getClass() != obj.getClass()) {
+        return false;
+      }
+      CryptoData other = (CryptoData) obj;
+      return cryptoMode == other.cryptoMode && Arrays.equals(encryptionKey, other.encryptionKey);
+    }
+
+    @Override
+    public int hashCode() {
+      int result = cryptoMode;
+      result = 31 * result + Arrays.hashCode(encryptionKey);
+      return result;
+    }
+
+  }
 
   /**
    * Called when the {@link Format} of the track has been extracted from the stream.
@@ -70,9 +112,9 @@ public interface TrackOutput {
    *     {@link #sampleData(ExtractorInput, int, boolean)} or
    *     {@link #sampleData(ParsableByteArray, int)} since the last byte belonging to the sample
    *     whose metadata is being passed.
-   * @param encryptionKey The encryption key associated with the sample. May be null.
+   * @param encryptionData The encryption data required to decrypt the sample. May be null.
    */
   void sampleMetadata(long timeUs, @C.BufferFlags int flags, int size, int offset,
-      byte[] encryptionKey);
+      CryptoData encryptionData);
 
 }
