@@ -580,11 +580,11 @@ public final class MatroskaExtractor implements Extractor {
         break;
       case ID_CONTENT_ENCODING:
         if (currentTrack.hasContentEncryption) {
-          if (currentTrack.encryptionKeyId == null) {
+          if (currentTrack.cryptoData == null) {
             throw new ParserException("Encrypted Track found but ContentEncKeyID was not found");
           }
-          currentTrack.drmInitData = new DrmInitData(
-              new SchemeData(C.UUID_NIL, MimeTypes.VIDEO_WEBM, currentTrack.encryptionKeyId));
+          currentTrack.drmInitData = new DrmInitData(new SchemeData(C.UUID_NIL,
+              MimeTypes.VIDEO_WEBM, currentTrack.cryptoData.encryptionKey));
         }
         break;
       case ID_CONTENT_ENCODINGS:
@@ -888,8 +888,9 @@ public final class MatroskaExtractor implements Extractor {
         input.readFully(currentTrack.sampleStrippedBytes, 0, contentSize);
         break;
       case ID_CONTENT_ENCRYPTION_KEY_ID:
-        currentTrack.encryptionKeyId = new byte[contentSize];
-        input.readFully(currentTrack.encryptionKeyId, 0, contentSize);
+        byte[] encryptionKey = new byte[contentSize];
+        input.readFully(encryptionKey, 0, contentSize);
+        currentTrack.cryptoData = new TrackOutput.CryptoData(C.CRYPTO_MODE_AES_CTR, encryptionKey);
         break;
       case ID_SIMPLE_BLOCK:
       case ID_BLOCK:
@@ -1033,7 +1034,7 @@ public final class MatroskaExtractor implements Extractor {
     if (CODEC_ID_SUBRIP.equals(track.codecId)) {
       writeSubripSample(track);
     }
-    track.output.sampleMetadata(timeUs, blockFlags, sampleBytesWritten, 0, track.encryptionKeyId);
+    track.output.sampleMetadata(timeUs, blockFlags, sampleBytesWritten, 0, track.cryptoData);
     sampleRead = true;
     resetSample();
   }
@@ -1470,7 +1471,7 @@ public final class MatroskaExtractor implements Extractor {
     public int defaultSampleDurationNs;
     public boolean hasContentEncryption;
     public byte[] sampleStrippedBytes;
-    public byte[] encryptionKeyId;
+    public TrackOutput.CryptoData cryptoData;
     public byte[] codecPrivate;
     public DrmInitData drmInitData;
 
