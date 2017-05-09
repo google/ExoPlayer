@@ -145,7 +145,16 @@ public abstract class Timeline {
    * @return The index of the next window, or {@link C#INDEX_UNSET} if this is the last window.
    */
   public int getNextWindowIndex(int windowIndex, @ExoPlayer.RepeatMode int repeatMode) {
-    return windowIndex == getWindowCount() - 1 ? C.INDEX_UNSET : windowIndex + 1;
+    switch (repeatMode) {
+      case ExoPlayer.REPEAT_MODE_OFF:
+        return windowIndex == getWindowCount() - 1 ? C.INDEX_UNSET : windowIndex + 1;
+      case ExoPlayer.REPEAT_MODE_ONE:
+        return windowIndex;
+      case ExoPlayer.REPEAT_MODE_ALL:
+        return windowIndex == getWindowCount() - 1 ? 0 : windowIndex + 1;
+      default:
+        throw new IllegalStateException();
+    }
   }
 
   /**
@@ -157,7 +166,16 @@ public abstract class Timeline {
    * @return The index of the previous window, or {@link C#INDEX_UNSET} if this is the first window.
    */
   public int getPreviousWindowIndex(int windowIndex, @ExoPlayer.RepeatMode int repeatMode) {
-    return windowIndex == 0 ? C.INDEX_UNSET : windowIndex - 1;
+    switch (repeatMode) {
+      case ExoPlayer.REPEAT_MODE_OFF:
+        return windowIndex == 0 ? C.INDEX_UNSET : windowIndex - 1;
+      case ExoPlayer.REPEAT_MODE_ONE:
+        return windowIndex;
+      case ExoPlayer.REPEAT_MODE_ALL:
+        return windowIndex == 0 ? getWindowCount() - 1 : windowIndex - 1;
+      default:
+        throw new IllegalStateException();
+    }
   }
 
   /**

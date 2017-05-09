@@ -17,6 +17,7 @@ package com.google.android.exoplayer2.source;
 
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlayer;
+import com.google.android.exoplayer2.ExoPlayer.RepeatMode;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.upstream.Allocator;
 import com.google.android.exoplayer2.util.Assertions;
@@ -140,6 +141,16 @@ public final class ClippingMediaSource implements MediaSource, MediaSource.Liste
     @Override
     public int getWindowCount() {
       return 1;
+    }
+
+    @Override
+    public int getNextWindowIndex(int windowIndex, @RepeatMode int repeatMode) {
+      return timeline.getNextWindowIndex(windowIndex, repeatMode);
+    }
+
+    @Override
+    public int getPreviousWindowIndex(int windowIndex, @RepeatMode int repeatMode) {
+      return timeline.getPreviousWindowIndex(windowIndex, repeatMode);
     }
 
     @Override
