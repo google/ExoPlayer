@@ -422,8 +422,49 @@ import java.io.IOException;
     }
   }
 
-  private void setRepeatModeInternal(@ExoPlayer.RepeatMode int repeatMode) {
+  private void setRepeatModeInternal(@ExoPlayer.RepeatMode int repeatMode)
+      throws ExoPlaybackException {
     this.repeatMode = repeatMode;
+    // Check if all existing period holders match the new period order.
+    MediaPeriodHolder lastValidPeriodHolder = playingPeriodHolder != null
+        ? playingPeriodHolder : loadingPeriodHolder;
+    if (lastValidPeriodHolder == null) {
+      return;
+    }
+    boolean seenReadingPeriodHolder = lastValidPeriodHolder == readingPeriodHolder;
+    boolean seenLoadingPeriodHolder = lastValidPeriodHolder == loadingPeriodHolder;
+    int nextPeriodIndex = timeline.getNextPeriodIndex(lastValidPeriodHolder.index, period, window,
+        repeatMode);
+    while (lastValidPeriodHolder.next != null && nextPeriodIndex != C.INDEX_UNSET
+        && lastValidPeriodHolder.next.index == nextPeriodIndex) {
+      lastValidPeriodHolder = lastValidPeriodHolder.next;
+      seenReadingPeriodHolder |= lastValidPeriodHolder == readingPeriodHolder;
+      seenLoadingPeriodHolder |= lastValidPeriodHolder == loadingPeriodHolder;
+      nextPeriodIndex = timeline.getNextPeriodIndex(lastValidPeriodHolder.index, period, window,
+          repeatMode);
+    }
+    // Release all period holder beyond the last one matching the new period order.
+    if (lastValidPeriodHolder.next != null) {
+      releasePeriodHoldersFrom(lastValidPeriodHolder.next);
+      lastValidPeriodHolder.next = null;
+    }
+    // Update isLast flag.
+    lastValidPeriodHolder.isLast = isLastPeriod(lastValidPeriodHolder.index);
+    // Handle cases where loadingPeriodHolder or readingPeriodHolder have been removed.
+    if (!seenLoadingPeriodHolder) {
+      loadingPeriodHolder = lastValidPeriodHolder;
+    }
+    if (!seenReadingPeriodHolder) {
+      // Renderers may have read from a period that's been removed. Seek back to the current
+      // position of the playing period to make sure none of the removed period is played.
+      int playingPeriodIndex = playingPeriodHolder.index;
+      long newPositionUs = seekToPeriodPosition(playingPeriodIndex, playbackInfo.positionUs);
+      playbackInfo = new PlaybackInfo(playingPeriodIndex, newPositionUs);
+    }
+    // Restart buffering if playback has ended and repetition is enabled.
+    if (state == ExoPlayer.STATE_ENDED && repeatMode != ExoPlayer.REPEAT_MODE_OFF) {
+      setState(ExoPlayer.STATE_BUFFERING);
+    }
   }
 
   private void startRenderers() throws ExoPlaybackException {
