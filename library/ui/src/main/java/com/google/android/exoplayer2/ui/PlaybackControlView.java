@@ -664,7 +664,7 @@ public class PlaybackControlView extends FrameLayout {
   }
 
   private void updateRepeatModeButton() {
-    if (!isVisible() || !isAttachedToWindow) {
+    if (!isVisible() || !isAttachedToWindow || repeatToggleButton == null) {
       return;
     }
     if (repeatToggleModes == REPEAT_TOGGLE_MODE_NONE) {
