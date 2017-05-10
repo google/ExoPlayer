@@ -454,7 +454,7 @@ import java.io.IOException;
     if (!seenLoadingPeriodHolder) {
       loadingPeriodHolder = lastValidPeriodHolder;
     }
-    if (!seenReadingPeriodHolder) {
+    if (!seenReadingPeriodHolder && playingPeriodHolder != null) {
       // Renderers may have read from a period that's been removed. Seek back to the current
       // position of the playing period to make sure none of the removed period is played.
       int playingPeriodIndex = playingPeriodHolder.index;
