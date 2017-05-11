@@ -234,7 +234,6 @@ public class PlayerActivity extends Activity implements OnClickListener, ExoPlay
     Intent intent = getIntent();
     boolean needNewPlayer = player == null;
     if (needNewPlayer) {
-      boolean preferExtensionDecoders = intent.getBooleanExtra(PREFER_EXTENSION_DECODERS, false);
       UUID drmSchemeUuid = intent.hasExtra(DRM_SCHEME_UUID_EXTRA)
           ? UUID.fromString(intent.getStringExtra(DRM_SCHEME_UUID_EXTRA)) : null;
       DrmSessionManager<FrameworkMediaCrypto> drmSessionManager = null;
@@ -253,6 +252,7 @@ public class PlayerActivity extends Activity implements OnClickListener, ExoPlay
         }
       }
 
+      boolean preferExtensionDecoders = intent.getBooleanExtra(PREFER_EXTENSION_DECODERS, false);
       @DefaultRenderersFactory.ExtensionRendererMode int extensionRendererMode =
           ((DemoApplication) getApplication()).useExtensionRenderers()
               ? (preferExtensionDecoders ? DefaultRenderersFactory.EXTENSION_RENDERER_MODE_PREFER
