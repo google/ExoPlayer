@@ -343,16 +343,18 @@ public class DefaultTimeBar extends View implements TimeBar {
 
   @Override
   protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-    int measureWidth = MeasureSpec.getSize(widthMeasureSpec);
-    int measureHeight = MeasureSpec.getSize(heightMeasureSpec);
-    setMeasuredDimension(measureWidth, measureHeight);
+    int heightMode = MeasureSpec.getMode(heightMeasureSpec);
+    int heightSize = MeasureSpec.getSize(heightMeasureSpec);
+    int height = heightMode == MeasureSpec.UNSPECIFIED ? touchTargetHeight
+        : heightMode == MeasureSpec.EXACTLY ? heightSize : Math.min(touchTargetHeight, heightSize);
+    setMeasuredDimension(MeasureSpec.getSize(widthMeasureSpec), height);
   }
 
   @Override
   protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
     int width = right - left;
     int height = bottom - top;
-    int barY = height - touchTargetHeight;
+    int barY = (height - touchTargetHeight) / 2;
     int seekLeft = getPaddingLeft();
     int seekRight = width - getPaddingRight();
     int progressY = barY + (touchTargetHeight - barHeight) / 2;
