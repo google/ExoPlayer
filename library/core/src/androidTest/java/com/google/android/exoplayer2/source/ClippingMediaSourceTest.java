@@ -15,20 +15,15 @@
  */
 package com.google.android.exoplayer2.source;
 
-import static org.mockito.Mockito.doAnswer;
-
 import android.test.InstrumentationTestCase;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.Timeline.Period;
 import com.google.android.exoplayer2.Timeline.Window;
-import com.google.android.exoplayer2.source.MediaSource.Listener;
-import com.google.android.exoplayer2.testutil.TestUtil;
-import org.mockito.Mock;
-import org.mockito.Mockito;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
+import com.google.android.exoplayer2.TimelineTest;
+import com.google.android.exoplayer2.TimelineTest.FakeTimeline;
+import com.google.android.exoplayer2.TimelineTest.TimelineVerifier;
 
 /**
  * Unit tests for {@link ClippingMediaSource}.
@@ -38,15 +33,11 @@ public final class ClippingMediaSourceTest extends InstrumentationTestCase {
   private static final long TEST_PERIOD_DURATION_US = 1000000;
   private static final long TEST_CLIP_AMOUNT_US = 300000;
 
-  @Mock
-  private MediaSource mockMediaSource;
-  private Timeline clippedTimeline;
   private Window window;
   private Period period;
 
   @Override
   protected void setUp() throws Exception {
-    TestUtil.setUpMockito(this);
     window = new Timeline.Window();
     period = new Timeline.Period();
   }
@@ -109,35 +100,28 @@ public final class ClippingMediaSourceTest extends InstrumentationTestCase {
         clippedTimeline.getPeriod(0, period).getDurationUs());
   }
 
-  /**
-   * Wraps the specified timeline in a {@link ClippingMediaSource} and returns the clipped timeline.
-   */
-  private Timeline getClippedTimeline(Timeline timeline, long startMs, long endMs) {
-    mockMediaSourceSourceWithTimeline(timeline);
-    new ClippingMediaSource(mockMediaSource, startMs, endMs).prepareSource(null, true,
-        new Listener() {
-          @Override
-          public void onSourceInfoRefreshed(Timeline timeline, Object manifest) {
-            clippedTimeline = timeline;
-          }
-        });
-    return clippedTimeline;
+  public void testWindowAndPeriodIndices() {
+    Timeline timeline = new FakeTimeline(1, 111);
+    Timeline clippedTimeline = getClippedTimeline(timeline, TEST_CLIP_AMOUNT_US,
+        TEST_PERIOD_DURATION_US - TEST_CLIP_AMOUNT_US);
+    new TimelineVerifier(clippedTimeline)
+        .assertWindowIds(111)
+        .assertPeriodCounts(1)
+        .assertPreviousWindowIndices(ExoPlayer.REPEAT_MODE_OFF, C.INDEX_UNSET)
+        .assertPreviousWindowIndices(ExoPlayer.REPEAT_MODE_ONE, 0)
+        .assertPreviousWindowIndices(ExoPlayer.REPEAT_MODE_ALL, 0)
+        .assertNextWindowIndices(ExoPlayer.REPEAT_MODE_OFF, C.INDEX_UNSET)
+        .assertNextWindowIndices(ExoPlayer.REPEAT_MODE_ONE, 0)
+        .assertNextWindowIndices(ExoPlayer.REPEAT_MODE_ALL, 0);
   }
 
   /**
-   * Returns a mock {@link MediaSource} with the specified {@link Timeline} in its source info.
+   * Wraps the specified timeline in a {@link ClippingMediaSource} and returns the clipped timeline.
    */
-  private MediaSource mockMediaSourceSourceWithTimeline(final Timeline timeline) {
-    doAnswer(new Answer<Void>() {
-      @Override
-      public Void answer(InvocationOnMock invocation) throws Throwable {
-        MediaSource.Listener listener = (MediaSource.Listener) invocation.getArguments()[2];
-        listener.onSourceInfoRefreshed(timeline, null);
-        return null;
-      }
-    }).when(mockMediaSource).prepareSource(Mockito.any(ExoPlayer.class), Mockito.anyBoolean(),
-        Mockito.any(MediaSource.Listener.class));
-    return mockMediaSource;
+  private static Timeline getClippedTimeline(Timeline timeline, long startMs, long endMs) {
+    MediaSource mediaSource = TimelineTest.stubMediaSourceSourceWithTimeline(timeline);
+    return TimelineTest.extractTimelineFromMediaSource(
+        new ClippingMediaSource(mediaSource, startMs, endMs));
   }
 
 }
