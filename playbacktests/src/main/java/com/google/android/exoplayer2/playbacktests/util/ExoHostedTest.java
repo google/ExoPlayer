@@ -19,11 +19,13 @@ import android.os.Handler;
 import android.os.SystemClock;
 import android.util.Log;
 import android.view.Surface;
-import com.google.android.exoplayer2.DefaultLoadControl;
+import com.google.android.exoplayer2.DefaultRenderersFactory;
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.ExoPlayerFactory;
 import com.google.android.exoplayer2.Format;
+import com.google.android.exoplayer2.PlaybackParameters;
+import com.google.android.exoplayer2.RenderersFactory;
 import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.audio.AudioRendererEventListener;
@@ -224,6 +226,11 @@ public abstract class ExoHostedTest implements HostedTest, ExoPlayer.EventListen
   }
 
   @Override
+  public final void onPlaybackParametersChanged(PlaybackParameters playbackParameters) {
+    // Do nothing.
+  }
+
+  @Override
   public final void onTimelineChanged(Timeline timeline, Object manifest) {
     // Do nothing.
   }
@@ -320,9 +327,9 @@ public abstract class ExoHostedTest implements HostedTest, ExoPlayer.EventListen
   protected SimpleExoPlayer buildExoPlayer(HostActivity host, Surface surface,
       MappingTrackSelector trackSelector,
       DrmSessionManager<FrameworkMediaCrypto> drmSessionManager) {
-    SimpleExoPlayer player = ExoPlayerFactory.newSimpleInstance(host, trackSelector,
-        new DefaultLoadControl(), drmSessionManager, SimpleExoPlayer.EXTENSION_RENDERER_MODE_OFF,
-        0);
+    RenderersFactory renderersFactory = new DefaultRenderersFactory(host, drmSessionManager,
+        DefaultRenderersFactory.EXTENSION_RENDERER_MODE_OFF, 0);
+    SimpleExoPlayer player = ExoPlayerFactory.newSimpleInstance(renderersFactory, trackSelector);
     player.setVideoSurface(surface);
     return player;
   }

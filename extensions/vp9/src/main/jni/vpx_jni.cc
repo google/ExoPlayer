@@ -20,8 +20,9 @@
 #include <android/log.h>
 
 #include <algorithm>
-#include <cstdlib>
 #include <cstdio>
+#include <cstdlib>
+#include <cstring>
 #include <new>
 
 #include "libyuv.h"  // NOLINT

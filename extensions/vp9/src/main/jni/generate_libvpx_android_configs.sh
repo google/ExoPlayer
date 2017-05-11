@@ -68,7 +68,7 @@ limit=$((${#arch[@]} - 1))
 # everything else will be removed.
 allowed_files="libvpx_srcs.txt vpx_config.c vpx_config.h vpx_scale_rtcd.h"
 allowed_files+=" vp8_rtcd.h vp9_rtcd.h vpx_version.h vpx_config.asm"
-allowed_files+=" vpx_dsp_rtcd.h"
+allowed_files+=" vpx_dsp_rtcd.h libvpx.ver"
 
 remove_trailing_whitespace() {
   perl -pi -e 's/\s\+$//' "$@"

@@ -30,17 +30,39 @@ repositories {
 }
 ```
 
-Next, include the following in your module's `build.gradle` file:
+Next add a gradle compile dependency to the `build.gradle` file of your app
+module. The following will add a dependency to the full ExoPlayer library:
 
 ```gradle
-compile 'com.google.android.exoplayer:exoplayer:rX.X.X'
+compile 'com.google.android.exoplayer:exoplayer:r2.X.X'
 ```
 
-where `rX.X.X` is the your preferred version. For the latest version, see the
-project's [Releases][]. For more details, see the project on [Bintray][].
+where `r2.X.X` is your preferred version. Alternatively, you can depend on only
+the library modules that you actually need. For example the following will add
+dependencies on the Core, DASH and UI library modules, as might be required for
+an app that plays DASH content:
 
-[Releases]: https://github.com/google/ExoPlayer/releases
-[Bintray]: https://bintray.com/google/exoplayer/exoplayer/view
+```gradle
+compile 'com.google.android.exoplayer:exoplayer-core:r2.X.X'
+compile 'com.google.android.exoplayer:exoplayer-dash:r2.X.X'
+compile 'com.google.android.exoplayer:exoplayer-ui:r2.X.X'
+```
+
+The available modules are listed below. Adding a dependency to the full
+ExoPlayer library is equivalent to adding dependencies on all of the modules
+individually.
+
+* `exoplayer-core`: Core functionality (required).
+* `exoplayer-dash`: Support for DASH content.
+* `exoplayer-hls`: Support for HLS content.
+* `exoplayer-smoothstreaming`: Support for SmoothStreaming content.
+* `exoplayer-ui`: UI components and resources for use with ExoPlayer.
+
+For more details, see the project on [Bintray][]. For information about the
+latest versions, see the [Release notes][].
+
+[Bintray]: https://bintray.com/google/exoplayer
+[Release notes]: https://github.com/google/ExoPlayer/blob/release-v2/RELEASENOTES.md
 
 ## Developing ExoPlayer ##
 

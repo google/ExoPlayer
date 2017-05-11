@@ -24,9 +24,14 @@ android {
 }
 
 dependencies {
-    compile project(':library')
+    compile project(':library-core')
     compile 'com.google.vr:sdk-audio:1.30.0'
 }
+
+ext {
+    javadocTitle = 'GVR extension'
+}
+apply from: '../../javadoc_library.gradle'
 
 ext {
     releaseArtifact = 'extension-gvr'
