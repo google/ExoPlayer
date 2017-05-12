@@ -429,6 +429,7 @@ public final class MediaCodecUtil {
       case CodecProfileLevel.AVCLevel42: return 8704 * 16 * 16;
       case CodecProfileLevel.AVCLevel5: return 22080 * 16 * 16;
       case CodecProfileLevel.AVCLevel51: return 36864 * 16 * 16;
+      case CodecProfileLevel.AVCLevel52: return 36864 * 16 * 16;
       default: return -1;
     }
   }
