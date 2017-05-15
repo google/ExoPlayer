@@ -1016,11 +1016,10 @@ import java.io.IOException;
       MediaPeriodHolder previousPeriodHolder = periodHolder;
       periodHolder = periodHolder.next;
       periodIndex = timeline.getNextPeriodIndex(periodIndex, period, window, repeatMode);
-      boolean isLastPeriod = isLastPeriod(periodIndex);
-      timeline.getPeriod(periodIndex, period, true);
-      if (periodHolder.uid.equals(period.uid)) {
+      if (periodIndex != C.INDEX_UNSET
+          && periodHolder.uid.equals(timeline.getPeriod(periodIndex, period, true).uid)) {
         // The holder is consistent with the new timeline. Update its index and continue.
-        periodHolder.setIndex(periodIndex, isLastPeriod);
+        periodHolder.setIndex(periodIndex, isLastPeriod(periodIndex));
         seenReadingPeriod |= (periodHolder == readingPeriodHolder);
       } else {
         // The holder is inconsistent with the new timeline.
