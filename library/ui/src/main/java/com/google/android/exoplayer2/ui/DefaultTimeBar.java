@@ -465,12 +465,10 @@ public class DefaultTimeBar extends View implements TimeBar {
     scrubberBar.set(progressBar);
     long newScrubberTime = scrubbing ? scrubPosition : position;
     if (duration > 0) {
-      int bufferedPixelWidth =
-          (int) ((progressBar.width() * bufferedPosition) / duration);
-      bufferedBar.right = progressBar.left + bufferedPixelWidth;
-      int scrubberPixelPosition =
-          (int) ((progressBar.width() * newScrubberTime) / duration);
-      scrubberBar.right = progressBar.left + scrubberPixelPosition;
+      int bufferedPixelWidth = (int) ((progressBar.width() * bufferedPosition) / duration);
+      bufferedBar.right = Math.min(progressBar.left + bufferedPixelWidth, progressBar.right);
+      int scrubberPixelPosition = (int) ((progressBar.width() * newScrubberTime) / duration);
+      scrubberBar.right = Math.min(progressBar.left + scrubberPixelPosition, progressBar.right);
     } else {
       bufferedBar.right = progressBar.left;
       scrubberBar.right = progressBar.left;
