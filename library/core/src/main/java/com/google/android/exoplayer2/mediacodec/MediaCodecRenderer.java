@@ -237,7 +237,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
   }
 
   @Override
-  public final int supportsMixedMimeTypeAdaptation() throws ExoPlaybackException {
+  public final int supportsMixedMimeTypeAdaptation() {
     return ADAPTIVE_NOT_SEAMLESS;
   }
 
