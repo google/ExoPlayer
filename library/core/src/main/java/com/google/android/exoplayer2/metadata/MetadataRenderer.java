@@ -153,7 +153,6 @@ public final class MetadataRenderer extends BaseRenderer implements Callback {
   protected void onDisabled() {
     flushPendingMetadata();
     decoder = null;
-    super.onDisabled();
   }
 
   @Override
