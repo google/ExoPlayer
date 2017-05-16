@@ -254,7 +254,6 @@ public final class TextRenderer extends BaseRenderer implements Callback {
     streamFormat = null;
     clearOutput();
     releaseDecoder();
-    super.onDisabled();
   }
 
   @Override
