@@ -43,7 +43,7 @@ public final class CronetDataSourceFactory extends BaseFactory {
   public static final int DEFAULT_READ_TIMEOUT_MILLIS =
       CronetDataSource.DEFAULT_READ_TIMEOUT_MILLIS;
 
-  private final CronetEngineFactory cronetEngineFactory;
+  private final CronetEngineWrapper cronetEngineWrapper;
   private final Executor executor;
   private final Predicate<String> contentTypePredicate;
   private final TransferListener<? super DataSource> transferListener;
@@ -55,14 +55,14 @@ public final class CronetDataSourceFactory extends BaseFactory {
   /**
    * Constructs a CronetDataSourceFactory.
    * <p>
-   * If the {@link CronetEngineFactory} fails to provide a suitable {@link CronetEngine}, the
-   * provided fallback {@link HttpDataSource.Factory} will be used instead.
+   * If the {@link CronetEngineWrapper} fails to provide a {@link CronetEngine}, the provided
+   * fallback {@link HttpDataSource.Factory} will be used instead.
    *
    * Sets {@link CronetDataSource#DEFAULT_CONNECT_TIMEOUT_MILLIS} as the connection timeout, {@link
    * CronetDataSource#DEFAULT_READ_TIMEOUT_MILLIS} as the read timeout and disables
    * cross-protocol redirects.
    *
-   * @param cronetEngineFactory A {@link CronetEngineFactory}.
+   * @param cronetEngineWrapper A {@link CronetEngineWrapper}.
    * @param executor The {@link java.util.concurrent.Executor} that will perform the requests.
    * @param contentTypePredicate An optional {@link Predicate}. If a content type is rejected by the
    *     predicate then an {@link InvalidContentTypeException} is thrown from
@@ -71,25 +71,25 @@ public final class CronetDataSourceFactory extends BaseFactory {
    * @param fallbackFactory A {@link HttpDataSource.Factory} which is used as a fallback in case
    *     no suitable CronetEngine can be build.
    */
-  public CronetDataSourceFactory(CronetEngineFactory cronetEngineFactory,
+  public CronetDataSourceFactory(CronetEngineWrapper cronetEngineWrapper,
       Executor executor, Predicate<String> contentTypePredicate,
       TransferListener<? super DataSource> transferListener,
       HttpDataSource.Factory fallbackFactory) {
-    this(cronetEngineFactory, executor, contentTypePredicate, transferListener,
+    this(cronetEngineWrapper, executor, contentTypePredicate, transferListener,
         DEFAULT_CONNECT_TIMEOUT_MILLIS, DEFAULT_READ_TIMEOUT_MILLIS, false, fallbackFactory);
   }
 
   /**
    * Constructs a CronetDataSourceFactory.
    * <p>
-   * If the {@link CronetEngineFactory} fails to provide a suitable {@link CronetEngine}, a
+   * If the {@link CronetEngineWrapper} fails to provide a {@link CronetEngine}, a
    * {@link DefaultHttpDataSourceFactory} will be used instead.
    *
    * Sets {@link CronetDataSource#DEFAULT_CONNECT_TIMEOUT_MILLIS} as the connection timeout, {@link
    * CronetDataSource#DEFAULT_READ_TIMEOUT_MILLIS} as the read timeout and disables
    * cross-protocol redirects.
    *
-   * @param cronetEngineFactory A {@link CronetEngineFactory}.
+   * @param cronetEngineWrapper A {@link CronetEngineWrapper}.
    * @param executor The {@link java.util.concurrent.Executor} that will perform the requests.
    * @param contentTypePredicate An optional {@link Predicate}. If a content type is rejected by the
    *     predicate then an {@link InvalidContentTypeException} is thrown from
@@ -97,10 +97,10 @@ public final class CronetDataSourceFactory extends BaseFactory {
    * @param transferListener An optional listener.
    * @param userAgent A user agent used to create a fallback HttpDataSource if needed.
    */
-  public CronetDataSourceFactory(CronetEngineFactory cronetEngineFactory,
+  public CronetDataSourceFactory(CronetEngineWrapper cronetEngineWrapper,
       Executor executor, Predicate<String> contentTypePredicate,
       TransferListener<? super DataSource> transferListener, String userAgent) {
-    this(cronetEngineFactory, executor, contentTypePredicate, transferListener,
+    this(cronetEngineWrapper, executor, contentTypePredicate, transferListener,
         DEFAULT_CONNECT_TIMEOUT_MILLIS, DEFAULT_READ_TIMEOUT_MILLIS, false,
         new DefaultHttpDataSourceFactory(userAgent, transferListener,
             DEFAULT_CONNECT_TIMEOUT_MILLIS, DEFAULT_READ_TIMEOUT_MILLIS, false));
@@ -109,10 +109,10 @@ public final class CronetDataSourceFactory extends BaseFactory {
   /**
    * Constructs a CronetDataSourceFactory.
    * <p>
-   * If the {@link CronetEngineFactory} fails to provide a suitable {@link CronetEngine}, a
+   * If the {@link CronetEngineWrapper} fails to provide a {@link CronetEngine}, a
    * {@link DefaultHttpDataSourceFactory} will be used instead.
    *
-   * @param cronetEngineFactory A {@link CronetEngineFactory}.
+   * @param cronetEngineWrapper A {@link CronetEngineWrapper}.
    * @param executor The {@link java.util.concurrent.Executor} that will perform the requests.
    * @param contentTypePredicate An optional {@link Predicate}. If a content type is rejected by the
    *     predicate then an {@link InvalidContentTypeException} is thrown from
@@ -123,11 +123,11 @@ public final class CronetDataSourceFactory extends BaseFactory {
    * @param resetTimeoutOnRedirects Whether the connect timeout is reset when a redirect occurs.
    * @param userAgent A user agent used to create a fallback HttpDataSource if needed.
    */
-  public CronetDataSourceFactory(CronetEngineFactory cronetEngineFactory,
+  public CronetDataSourceFactory(CronetEngineWrapper cronetEngineWrapper,
       Executor executor, Predicate<String> contentTypePredicate,
       TransferListener<? super DataSource> transferListener, int connectTimeoutMs,
       int readTimeoutMs, boolean resetTimeoutOnRedirects, String userAgent) {
-    this(cronetEngineFactory, executor, contentTypePredicate, transferListener,
+    this(cronetEngineWrapper, executor, contentTypePredicate, transferListener,
         DEFAULT_CONNECT_TIMEOUT_MILLIS, DEFAULT_READ_TIMEOUT_MILLIS, resetTimeoutOnRedirects,
         new DefaultHttpDataSourceFactory(userAgent, transferListener, connectTimeoutMs,
             readTimeoutMs, resetTimeoutOnRedirects));
@@ -136,10 +136,10 @@ public final class CronetDataSourceFactory extends BaseFactory {
   /**
    * Constructs a CronetDataSourceFactory.
    * <p>
-   * If the {@link CronetEngineFactory} fails to provide a suitable {@link CronetEngine}, the
-   * provided fallback {@link HttpDataSource.Factory} will be used instead.
+   * If the {@link CronetEngineWrapper} fails to provide a {@link CronetEngine}, the provided
+   * fallback {@link HttpDataSource.Factory} will be used instead.
    *
-   * @param cronetEngineFactory A {@link CronetEngineFactory}.
+   * @param cronetEngineWrapper A {@link CronetEngineWrapper}.
    * @param executor The {@link java.util.concurrent.Executor} that will perform the requests.
    * @param contentTypePredicate An optional {@link Predicate}. If a content type is rejected by the
    *     predicate then an {@link InvalidContentTypeException} is thrown from
@@ -151,12 +151,12 @@ public final class CronetDataSourceFactory extends BaseFactory {
    * @param fallbackFactory A {@link HttpDataSource.Factory} which is used as a fallback in case
    *     no suitable CronetEngine can be build.
    */
-  public CronetDataSourceFactory(CronetEngineFactory cronetEngineFactory,
+  public CronetDataSourceFactory(CronetEngineWrapper cronetEngineWrapper,
       Executor executor, Predicate<String> contentTypePredicate,
       TransferListener<? super DataSource> transferListener, int connectTimeoutMs,
       int readTimeoutMs, boolean resetTimeoutOnRedirects,
       HttpDataSource.Factory fallbackFactory) {
-    this.cronetEngineFactory = cronetEngineFactory;
+    this.cronetEngineWrapper = cronetEngineWrapper;
     this.executor = executor;
     this.contentTypePredicate = contentTypePredicate;
     this.transferListener = transferListener;
@@ -169,13 +169,12 @@ public final class CronetDataSourceFactory extends BaseFactory {
   @Override
   protected HttpDataSource createDataSourceInternal(HttpDataSource.RequestProperties
       defaultRequestProperties) {
-    CronetEngine cronetEngine = cronetEngineFactory.createCronetEngine();
+    CronetEngine cronetEngine = cronetEngineWrapper.getCronetEngine();
     if (cronetEngine == null) {
       return fallbackFactory.createDataSource();
     }
-    return new CronetDataSource(cronetEngineFactory.createCronetEngine(), executor,
-        contentTypePredicate, transferListener, connectTimeoutMs, readTimeoutMs,
-        resetTimeoutOnRedirects, defaultRequestProperties);
+    return new CronetDataSource(cronetEngine, executor, contentTypePredicate, transferListener,
+        connectTimeoutMs, readTimeoutMs, resetTimeoutOnRedirects, defaultRequestProperties);
   }
 
 }
