@@ -218,10 +218,74 @@ public final class ExoPlayerTest extends TestCase {
         Pair.create(timeline, thirdSourceManifest));
   }
 
+  public void testRepeatModeChanges() throws Exception {
+    Timeline timeline = new FakeTimeline(
+        new TimelineWindowDefinition(true, false, 100000),
+        new TimelineWindowDefinition(true, false, 100000),
+        new TimelineWindowDefinition(true, false, 100000));
+    final int[] actionSchedule = { // 0 -> 1
+        ExoPlayer.REPEAT_MODE_ONE, // 1 -> 1
+        ExoPlayer.REPEAT_MODE_OFF, // 1 -> 2
+        -1, // 2 -> ended
+        ExoPlayer.REPEAT_MODE_ONE, // ended -> 2
+        ExoPlayer.REPEAT_MODE_ALL, // 2 -> 0
+        ExoPlayer.REPEAT_MODE_ONE, // 0 -> 0
+        -1, // 0 -> 0
+        ExoPlayer.REPEAT_MODE_OFF, // 0 -> 1
+        -1, // 1 -> 2
+        -1, // 2 -> ended
+        -1
+    };
+    int[] expectedWindowIndices = {1, 1, 2, 2, 2, 0, 0, 0, 1, 2, 2};
+    final LinkedList<Integer> windowIndices = new LinkedList<>();
+    final CountDownLatch actionCounter = new CountDownLatch(actionSchedule.length);
+    PlayerWrapper playerWrapper = new PlayerWrapper() {
+      @SuppressWarnings("ResourceType")
+      private void executeAction() {
+        int actionIndex = actionSchedule.length - (int) actionCounter.getCount();
+        if (actionSchedule[actionIndex] != -1) {
+          player.setRepeatMode(actionSchedule[actionIndex]);
+        }
+        windowIndices.add(player.getCurrentWindowIndex());
+        actionCounter.countDown();
+      }
+
+      @Override
+      public void onPlayerStateChanged(boolean playWhenReady, int playbackState) {
+        super.onPlayerStateChanged(playWhenReady, playbackState);
+        if (playbackState == ExoPlayer.STATE_ENDED) {
+          executeAction();
+        }
+      }
+
+      @Override
+      public void onPositionDiscontinuity() {
+        super.onPositionDiscontinuity();
+        executeAction();
+      }
+    };
+    MediaSource mediaSource = new FakeMediaSource(timeline, null, TEST_VIDEO_FORMAT);
+    FakeRenderer renderer = new FakeRenderer(TEST_VIDEO_FORMAT);
+    playerWrapper.setup(mediaSource, renderer);
+    boolean finished = actionCounter.await(TIMEOUT_MS, TimeUnit.MILLISECONDS);
+    playerWrapper.release();
+    assertTrue("Test playback timed out waiting for action schedule to end.", finished);
+    if (playerWrapper.exception != null) {
+      throw playerWrapper.exception;
+    }
+    assertEquals(expectedWindowIndices.length, windowIndices.size());
+    for (int i = 0; i < expectedWindowIndices.length; i++) {
+      assertEquals(expectedWindowIndices[i], windowIndices.get(i).intValue());
+    }
+    assertEquals(9, playerWrapper.positionDiscontinuityCount);
+    assertTrue(renderer.isEnded);
+    playerWrapper.assertSourceInfosEquals(Pair.create(timeline, null));
+  }
+
   /**
    * Wraps a player with its own handler thread.
    */
-  private static final class PlayerWrapper implements ExoPlayer.EventListener {
+  private static class PlayerWrapper implements ExoPlayer.EventListener {
 
     private final CountDownLatch sourceInfoCountDownLatch;
     private final CountDownLatch endedCountDownLatch;
@@ -229,7 +293,7 @@ public final class ExoPlayerTest extends TestCase {
     private final Handler handler;
     private final LinkedList<Pair<Timeline, Object>> sourceInfos;
 
-    private ExoPlayer player;
+    /* package */ ExoPlayer player;
     private TrackGroupArray trackGroups;
     private Exception exception;
 
@@ -580,7 +644,6 @@ public final class ExoPlayerTest extends TestCase {
     @Override
     public long seekToUs(long positionUs) {
       assertTrue(preparedPeriod);
-      assertEquals(0, positionUs);
       return positionUs;
     }
 
