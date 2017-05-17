@@ -18,8 +18,8 @@ pass the `ImaAdsMediaSource` to `ExoPlayer.prepare`.
 
 You can try the IMA extension in the ExoPlayer demo app. To do this you must
 select and build one of the `withExtensions` build variants of the demo app in
-Android Studio. In the app you can find IMA test content in the "IMA sample ad
-tags" section.
+Android Studio. You can find IMA test content in the "IMA sample ad tags"
+section of the demo app.
 
 [sample ad tags]: https://developers.google.com/interactive-media-ads/docs/sdks/android/tags
 
