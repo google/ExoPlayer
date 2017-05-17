@@ -52,6 +52,7 @@ dependencies {
     compile project(':library-ui')
     withExtensionsCompile project(path: ':extension-ffmpeg')
     withExtensionsCompile project(path: ':extension-flac')
+    withExtensionsCompile project(path: ':extension-ima')
     withExtensionsCompile project(path: ':extension-opus')
     withExtensionsCompile project(path: ':extension-vp9')
 }
