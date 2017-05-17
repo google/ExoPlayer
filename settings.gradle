@@ -23,6 +23,7 @@ include ':playbacktests'
 include ':extension-ffmpeg'
 include ':extension-flac'
 include ':extension-gvr'
+include ':extension-ima'
 include ':extension-okhttp'
 include ':extension-opus'
 include ':extension-vp9'
@@ -38,6 +39,7 @@ project(':library-ui').projectDir = new File(settingsDir, 'library/ui')
 project(':extension-ffmpeg').projectDir = new File(settingsDir, 'extensions/ffmpeg')
 project(':extension-flac').projectDir = new File(settingsDir, 'extensions/flac')
 project(':extension-gvr').projectDir = new File(settingsDir, 'extensions/gvr')
+project(':extension-ima').projectDir = new File(settingsDir, 'extensions/ima')
 project(':extension-okhttp').projectDir = new File(settingsDir, 'extensions/okhttp')
 project(':extension-opus').projectDir = new File(settingsDir, 'extensions/opus')
 project(':extension-vp9').projectDir = new File(settingsDir, 'extensions/vp9')

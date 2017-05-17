@@ -16,6 +16,7 @@
 package com.google.android.exoplayer2.demo;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
@@ -26,7 +27,9 @@ import android.text.TextUtils;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -69,6 +72,7 @@ import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DefaultBandwidthMeter;
 import com.google.android.exoplayer2.upstream.HttpDataSource;
 import com.google.android.exoplayer2.util.Util;
+import java.lang.reflect.Constructor;
 import java.net.CookieHandler;
 import java.net.CookieManager;
 import java.net.CookiePolicy;
@@ -92,6 +96,7 @@ public class PlayerActivity extends Activity implements OnClickListener, ExoPlay
       "com.google.android.exoplayer.demo.action.VIEW_LIST";
   public static final String URI_LIST_EXTRA = "uri_list";
   public static final String EXTENSION_LIST_EXTRA = "extension_list";
+  public static final String AD_TAG_URI_EXTRA = "ad_tag_uri";
 
   private static final DefaultBandwidthMeter BANDWIDTH_METER = new DefaultBandwidthMeter();
   private static final CookieManager DEFAULT_COOKIE_MANAGER;
@@ -312,6 +317,26 @@ public class PlayerActivity extends Activity implements OnClickListener, ExoPlay
       }
       MediaSource mediaSource = mediaSources.length == 1 ? mediaSources[0]
           : new ConcatenatingMediaSource(mediaSources);
+      String adTagUriString = intent.getStringExtra(AD_TAG_URI_EXTRA);
+      if (adTagUriString != null) {
+        Uri adTagUri = Uri.parse(adTagUriString);
+        ViewGroup adOverlayViewGroup = new FrameLayout(this);
+        // Load the extension source using reflection so that demo app doesn't have to depend on it.
+        try {
+          Class<?> clazz = Class.forName("com.google.android.exoplayer2.ext.ima.ImaAdsMediaSource");
+          Constructor<?> constructor = clazz.getConstructor(MediaSource.class,
+              DataSource.Factory.class, Context.class, Uri.class, ViewGroup.class);
+          mediaSource = (MediaSource) constructor.newInstance(mediaSource,
+              mediaDataSourceFactory, this, adTagUri, adOverlayViewGroup);
+          // The demo app has a non-null overlay frame layout.
+          simpleExoPlayerView.getOverlayFrameLayout().addView(adOverlayViewGroup);
+          // Show a multi-window time bar, which will include ad break position markers.
+          simpleExoPlayerView.setShowMultiWindowTimeBar(true);
+        } catch (Exception e) {
+          // Throw if the media source class was not found, or there was an error instantiating it.
+          showToast(R.string.ima_not_loaded);
+        }
+      }
       boolean haveResumePosition = resumeWindow != C.INDEX_UNSET;
       if (haveResumePosition) {
         player.seekTo(resumeWindow, resumePosition);
