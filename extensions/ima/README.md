@@ -16,6 +16,11 @@ along with a `ViewGroup` that is on top of the player and the ad tag URI to
 show. The IMA documentation includes some [sample ad tags][] for testing. Then
 pass the `ImaAdsMediaSource` to `ExoPlayer.prepare`.
 
+You can try the IMA extension in the ExoPlayer demo app. To do this you must
+select and build one of the `withExtensions` build variants of the demo app in
+Android Studio. In the app you can find test content in the "IMA sample ad tags"
+section.
+
 [sample ad tags]: https://developers.google.com/interactive-media-ads/docs/sdks/android/tags
 
 ## Known issues ##
