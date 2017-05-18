@@ -39,6 +39,8 @@ public final class H264Reader implements ElementaryStreamReader {
   private static final int NAL_UNIT_TYPE_SPS = 7; // Sequence parameter set
   private static final int NAL_UNIT_TYPE_PPS = 8; // Picture parameter set
 
+  private static final int SEI_TYPE_RECOVERY_POINT = 6;
+
   private final SeiReader seiReader;
   private final boolean allowNonIdrKeyframes;
   private final boolean detectAccessUnits;
@@ -201,11 +203,48 @@ public final class H264Reader implements ElementaryStreamReader {
     }
     if (sei.endNalUnit(discardPadding)) {
       int unescapedLength = NalUnitUtil.unescapeStream(sei.nalData, sei.nalLength);
+      checkRecoveryPoint(sei.nalData, sei.nalLength);
       seiWrapper.reset(sei.nalData, unescapedLength);
       seiWrapper.setPosition(4); // NAL prefix and nal_unit() header.
       seiReader.consume(pesTimeUs, seiWrapper);
     }
     sampleReader.endNalUnit(position, offset);
+  }
+
+  /**
+   * ITU-T H.264: 7.3.2.3.1 Supplemental enhancement information message syntax .
+   */
+  private void checkRecoveryPoint(byte[] data, int length) {
+    ParsableNalUnitBitArray bitArray = new ParsableNalUnitBitArray(data, 0, length);
+    int type = 0;
+    int size = 0;
+    int ffByte = 0;
+
+    bitArray.skipBits(24);
+    do {
+      if (!bitArray.canReadBits(8))
+        return;
+      ffByte = bitArray.readBits(8);
+      type += ffByte;
+    } while (ffByte == 255 /* equal to 0xFF */);
+	if (type != SEI_TYPE_RECOVERY_POINT)
+      return;
+
+    do {
+      if (!bitArray.canReadBits(8))
+        return;
+      ffByte = bitArray.readBits(8);
+      size += ffByte;
+    } while (ffByte == 255 /* equal to 0xFF */);
+
+    // Read the slice header using the syntax defined in ITU-T Recommendation H.264 (2013)
+    // subsection 7.3.3.
+    if (!bitArray.canReadExpGolombCodedNum()) {
+      return;
+    }
+    int recoveryFrameCount = bitArray.readUnsignedExpGolombCodedInt();
+    if (recoveryFrameCount >= 0)
+      sampleReader.setRecoveryFrameCount(recoveryFrameCount);
   }
 
   /**
@@ -243,6 +282,7 @@ public final class H264Reader implements ElementaryStreamReader {
     private long samplePosition;
     private long sampleTimeUs;
     private boolean sampleIsKeyframe;
+    private int recoveryFrameCount; 
 
     public SampleReader(TrackOutput output, boolean allowNonIdrKeyframes,
         boolean detectAccessUnits) {
@@ -274,6 +314,7 @@ public final class H264Reader implements ElementaryStreamReader {
       isFilling = false;
       readingSample = false;
       sliceHeader.clear();
+      recoveryFrameCount = -1;
     }
 
     public void startNalUnit(long position, int type, long pesTimeUs) {
@@ -429,13 +470,19 @@ public final class H264Reader implements ElementaryStreamReader {
         readingSample = true;
       }
       sampleIsKeyframe |= nalUnitType == NAL_UNIT_TYPE_IDR || (allowNonIdrKeyframes
-          && nalUnitType == NAL_UNIT_TYPE_NON_IDR && sliceHeader.isISlice());
+          && nalUnitType == NAL_UNIT_TYPE_NON_IDR && sliceHeader.isISlice()) || 
+          (recoveryFrameCount >= 0);
+      recoveryFrameCount = -1;
     }
 
     private void outputSample(int offset) {
       @C.BufferFlags int flags = sampleIsKeyframe ? C.BUFFER_FLAG_KEY_FRAME : 0;
       int size = (int) (nalUnitStartPosition - samplePosition);
       output.sampleMetadata(sampleTimeUs, flags, size, offset, null);
+    }
+
+    public void setRecoveryFrameCount(int recoveryFrameCount) {
+      this.recoveryFrameCount = recoveryFrameCount;
     }
 
     private static final class SliceHeaderData {
