@@ -227,7 +227,8 @@ public final class H264Reader implements ElementaryStreamReader {
       ffByte = bitArray.readBits(8);
       type += ffByte;
     } while (ffByte == 255 /* equal to 0xFF */);
-	if (type != SEI_TYPE_RECOVERY_POINT)
+
+    if (type != SEI_TYPE_RECOVERY_POINT)
       return;
 
     do {
