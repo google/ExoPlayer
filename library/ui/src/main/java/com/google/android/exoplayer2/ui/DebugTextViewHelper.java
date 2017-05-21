@@ -23,6 +23,7 @@ import com.google.android.exoplayer2.PlaybackParameters;
 import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.decoder.DecoderCounters;
+import com.google.android.exoplayer2.drm.DrmInitData;
 import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
 
@@ -113,6 +114,11 @@ public final class DebugTextViewHelper implements Runnable, ExoPlayer.EventListe
 
   @Override
   public void onTracksChanged(TrackGroupArray tracks, TrackSelectionArray selections) {
+    // Do nothing.
+  }
+
+  @Override
+  public void onPreAcquireSession(DrmInitData drmInitData) {
     // Do nothing.
   }
 

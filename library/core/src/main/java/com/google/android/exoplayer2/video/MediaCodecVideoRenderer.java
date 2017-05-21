@@ -369,6 +369,11 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
   }
 
   @Override
+  protected void onPreAcquireSession(DrmInitData drmInitData) {
+    eventDispatcher.preAcquireSession(drmInitData);
+  }
+
+  @Override
   protected void onQueueInputBuffer(DecoderInputBuffer buffer) {
     if (Util.SDK_INT < 23 && tunneling) {
       maybeNotifyRenderedFirstFrame();

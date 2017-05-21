@@ -19,6 +19,7 @@ import android.os.Handler;
 import android.os.HandlerThread;
 import android.util.Pair;
 import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
+import com.google.android.exoplayer2.drm.DrmInitData;
 import com.google.android.exoplayer2.source.MediaPeriod;
 import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.source.SampleStream;
@@ -418,6 +419,11 @@ public final class ExoPlayerTest extends TestCase {
     @Override
     public void onTracksChanged(TrackGroupArray trackGroups, TrackSelectionArray trackSelections) {
       this.trackGroups = trackGroups;
+    }
+
+    @Override
+    public void onPreAcquireSession(DrmInitData drmInitData) {
+      // Do nothing.
     }
 
     @Override

@@ -29,6 +29,7 @@ import android.view.SurfaceView;
 import android.view.TextureView;
 import com.google.android.exoplayer2.audio.AudioRendererEventListener;
 import com.google.android.exoplayer2.decoder.DecoderCounters;
+import com.google.android.exoplayer2.drm.DrmInitData;
 import com.google.android.exoplayer2.metadata.Metadata;
 import com.google.android.exoplayer2.metadata.MetadataRenderer;
 import com.google.android.exoplayer2.source.MediaSource;
@@ -494,6 +495,10 @@ public class SimpleExoPlayer implements ExoPlayer {
     return player.getPlaybackState();
   }
 
+  @Override public void preAcquireSession(DrmInitData drmInitData) {
+    // Do nothing.
+  }
+
   @Override
   public void prepare(MediaSource mediaSource) {
     player.prepare(mediaSource);
@@ -725,6 +730,14 @@ public class SimpleExoPlayer implements ExoPlayer {
       videoFormat = format;
       if (videoDebugListener != null) {
         videoDebugListener.onVideoInputFormatChanged(format);
+      }
+    }
+
+    @Override
+    public void onPreAcquireSession(DrmInitData drmInitData) {
+      player.preAcquireSession(drmInitData);
+      if (videoDebugListener != null) {
+        videoDebugListener.onPreAcquireSession(drmInitData);
       }
     }
 

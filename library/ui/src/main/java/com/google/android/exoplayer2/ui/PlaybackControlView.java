@@ -35,6 +35,7 @@ import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.PlaybackParameters;
 import com.google.android.exoplayer2.Timeline;
+import com.google.android.exoplayer2.drm.DrmInitData;
 import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
 import com.google.android.exoplayer2.util.Assertions;
@@ -1103,6 +1104,11 @@ public class PlaybackControlView extends FrameLayout {
 
     @Override
     public void onTracksChanged(TrackGroupArray tracks, TrackSelectionArray selections) {
+      // Do nothing.
+    }
+
+    @Override
+    public void onPreAcquireSession(DrmInitData drmInitData) {
       // Do nothing.
     }
 

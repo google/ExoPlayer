@@ -31,6 +31,7 @@ import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.audio.AudioRendererEventListener;
 import com.google.android.exoplayer2.audio.AudioTrack;
 import com.google.android.exoplayer2.decoder.DecoderCounters;
+import com.google.android.exoplayer2.drm.DrmInitData;
 import com.google.android.exoplayer2.drm.DrmSessionManager;
 import com.google.android.exoplayer2.drm.FrameworkMediaCrypto;
 import com.google.android.exoplayer2.playbacktests.util.HostActivity.HostedTest;
@@ -227,6 +228,10 @@ public abstract class ExoHostedTest implements HostedTest, ExoPlayer.EventListen
 
   @Override
   public final void onPositionDiscontinuity() {
+    // Do nothing.
+  }
+
+  @Override public void onPreAcquireSession(DrmInitData drmInitData) {
     // Do nothing.
   }
 

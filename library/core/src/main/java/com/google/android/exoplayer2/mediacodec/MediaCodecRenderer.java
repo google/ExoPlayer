@@ -31,6 +31,7 @@ import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.FormatHolder;
 import com.google.android.exoplayer2.decoder.DecoderCounters;
 import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
+import com.google.android.exoplayer2.drm.DrmInitData;
 import com.google.android.exoplayer2.drm.DrmSession;
 import com.google.android.exoplayer2.drm.DrmSessionManager;
 import com.google.android.exoplayer2.drm.FrameworkMediaCrypto;
@@ -771,6 +772,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
           throw ExoPlaybackException.createForRenderer(
               new IllegalStateException("Media requires a DrmSessionManager"), getIndex());
         }
+        onPreAcquireSession(format.drmInitData);
         pendingDrmSession = drmSessionManager.acquireSession(Looper.myLooper(), format.drmInitData);
         if (pendingDrmSession == drmSession) {
           drmSessionManager.releaseSession(pendingDrmSession);
@@ -820,6 +822,17 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
    * @param buffer The buffer to be queued.
    */
   protected void onQueueInputBuffer(DecoderInputBuffer buffer) {
+    // Do nothing.
+  }
+
+  /**
+   * Called before acquires a {@link DrmSession}.
+   * <p>
+   * The default implementation is a no-op.
+   *
+   * @param drmInitData DRM initialization data.
+   */
+  protected void onPreAcquireSession(DrmInitData drmInitData) {
     // Do nothing.
   }
 
