@@ -160,25 +160,25 @@ public class CacheDataSourceTest extends InstrumentationTestCase {
 
   private void assertReadData(CacheDataSource cacheDataSource, boolean unknownLength, int position,
       int length) throws IOException {
-    int actualLength = TEST_DATA.length - position;
+    int testDataLength = TEST_DATA.length - position;
     if (length != C.LENGTH_UNSET) {
-      actualLength = Math.min(actualLength, length);
+      testDataLength = Math.min(testDataLength, length);
     }
-    assertEquals(unknownLength ? length : actualLength,
+    assertEquals(unknownLength ? length : testDataLength,
         cacheDataSource.open(new DataSpec(Uri.EMPTY, position, length, KEY_1)));
 
     byte[] buffer = new byte[100];
-    int index = 0;
+    int totalBytesRead = 0;
     while (true) {
-      int read = cacheDataSource.read(buffer, index, buffer.length - index);
+      int read = cacheDataSource.read(buffer, totalBytesRead, buffer.length - totalBytesRead);
       if (read == C.RESULT_END_OF_INPUT) {
         break;
       }
-      index += read;
+      totalBytesRead += read;
     }
-    assertEquals(actualLength, index);
-    MoreAsserts.assertEquals(Arrays.copyOfRange(TEST_DATA, position, position + actualLength),
-        Arrays.copyOf(buffer, index));
+    assertEquals(testDataLength, totalBytesRead);
+    MoreAsserts.assertEquals(Arrays.copyOfRange(TEST_DATA, position, position + testDataLength),
+        Arrays.copyOf(buffer, totalBytesRead));
 
     cacheDataSource.close();
   }
