@@ -170,8 +170,8 @@ public final class ConcatenatingMediaSource implements MediaSource {
       for (int i = 0; i < timelines.length; i++) {
         Timeline timeline = timelines[i];
         periodCount += timeline.getPeriodCount();
-        Assertions.checkState(periodCount <= Integer.MAX_VALUE,
-            "ConcatenatingMediaSource children contain too many periods");
+        Assertions.checkState("ConcatenatingMediaSource children contain too many periods",
+            periodCount <= Integer.MAX_VALUE);
         sourcePeriodOffsets[i] = (int) periodCount;
         windowCount += timeline.getWindowCount();
         sourceWindowOffsets[i] = windowCount;

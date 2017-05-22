@@ -41,12 +41,12 @@ public final class Assertions {
   /**
    * Throws {@link IllegalArgumentException} if {@code expression} evaluates to false.
    *
-   * @param expression The expression to evaluate.
    * @param errorMessage The exception message if an exception is thrown. The message is converted
    *     to a {@link String} using {@link String#valueOf(Object)}.
+   * @param expression The expression to evaluate.
    * @throws IllegalArgumentException If {@code expression} is false.
    */
-  public static void checkArgument(boolean expression, Object errorMessage) {
+  public static void checkArgument(Object errorMessage, boolean expression) {
     if (ExoPlayerLibraryInfo.ASSERTIONS_ENABLED && !expression) {
       throw new IllegalArgumentException(String.valueOf(errorMessage));
     }
@@ -83,12 +83,12 @@ public final class Assertions {
   /**
    * Throws {@link IllegalStateException} if {@code expression} evaluates to false.
    *
-   * @param expression The expression to evaluate.
    * @param errorMessage The exception message if an exception is thrown. The message is converted
    *     to a {@link String} using {@link String#valueOf(Object)}.
+   * @param expression The expression to evaluate.
    * @throws IllegalStateException If {@code expression} is false.
    */
-  public static void checkState(boolean expression, Object errorMessage) {
+  public static void checkState(Object errorMessage, boolean expression) {
     if (ExoPlayerLibraryInfo.ASSERTIONS_ENABLED && !expression) {
       throw new IllegalStateException(String.valueOf(errorMessage));
     }
@@ -113,13 +113,13 @@ public final class Assertions {
    * Throws {@link NullPointerException} if {@code reference} is null.
    *
    * @param <T> The type of the reference.
-   * @param reference The reference.
    * @param errorMessage The exception message to use if the check fails. The message is converted
    *     to a string using {@link String#valueOf(Object)}.
+   * @param reference The reference.
    * @return The non-null reference that was validated.
    * @throws NullPointerException If {@code reference} is null.
    */
-  public static <T> T checkNotNull(T reference, Object errorMessage) {
+  public static <T> T checkNotNull(Object errorMessage, T reference) {
     if (ExoPlayerLibraryInfo.ASSERTIONS_ENABLED && reference == null) {
       throw new NullPointerException(String.valueOf(errorMessage));
     }
@@ -143,13 +143,13 @@ public final class Assertions {
   /**
    * Throws {@link IllegalArgumentException} if {@code string} is null or zero length.
    *
-   * @param string The string to check.
    * @param errorMessage The exception message to use if the check fails. The message is converted
    *     to a string using {@link String#valueOf(Object)}.
+   * @param string The string to check.
    * @return The non-null, non-empty string that was validated.
    * @throws IllegalArgumentException If {@code string} is null or 0-length.
    */
-  public static String checkNotEmpty(String string, Object errorMessage) {
+  public static String checkNotEmpty(Object errorMessage, String string) {
     if (ExoPlayerLibraryInfo.ASSERTIONS_ENABLED && TextUtils.isEmpty(string)) {
       throw new IllegalArgumentException(String.valueOf(errorMessage));
     }

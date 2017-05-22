@@ -36,7 +36,7 @@ public final class LibraryLoader {
    * {@link #isAvailable()}.
    */
   public synchronized void setLibraries(String... libraries) {
-    Assertions.checkState(!loadAttempted, "Cannot set libraries after loading");
+    Assertions.checkState("Cannot set libraries after loading", !loadAttempted);
     nativeLibraries = libraries;
   }
 

@@ -226,11 +226,11 @@ public final class DummySurface extends Surface {
 
     private void initInternal(boolean secure) {
       EGLDisplay display = eglGetDisplay(EGL_DEFAULT_DISPLAY);
-      Assertions.checkState(display != null, "eglGetDisplay failed");
+      Assertions.checkState("eglGetDisplay failed", display != null);
 
       int[] version = new int[2];
       boolean eglInitialized = eglInitialize(display, version, 0, version, 1);
-      Assertions.checkState(eglInitialized, "eglInitialize failed");
+      Assertions.checkState("eglInitialize failed", eglInitialized);
 
       int[] eglAttributes = new int[] {
           EGL_RENDERABLE_TYPE, EGL_OPENGL_ES2_BIT,
@@ -247,8 +247,8 @@ public final class DummySurface extends Surface {
       int[] numConfigs = new int[1];
       boolean eglChooseConfigSuccess = eglChooseConfig(display, eglAttributes, 0, configs, 0, 1,
           numConfigs, 0);
-      Assertions.checkState(eglChooseConfigSuccess && numConfigs[0] > 0 && configs[0] != null,
-          "eglChooseConfig failed");
+      Assertions.checkState("eglChooseConfig failed",
+          eglChooseConfigSuccess && numConfigs[0] > 0 && configs[0] != null);
 
       EGLConfig config = configs[0];
       int[] glAttributes;
@@ -264,7 +264,7 @@ public final class DummySurface extends Surface {
       }
       EGLContext context = eglCreateContext(display, config, android.opengl.EGL14.EGL_NO_CONTEXT,
           glAttributes, 0);
-      Assertions.checkState(context != null, "eglCreateContext failed");
+      Assertions.checkState("eglCreateContext failed", context != null);
 
       int[] pbufferAttributes;
       if (secure) {
@@ -280,10 +280,10 @@ public final class DummySurface extends Surface {
             EGL_NONE};
       }
       EGLSurface pbuffer = eglCreatePbufferSurface(display, config, pbufferAttributes, 0);
-      Assertions.checkState(pbuffer != null, "eglCreatePbufferSurface failed");
+      Assertions.checkState("eglCreatePbufferSurface failed", pbuffer != null);
 
       boolean eglMadeCurrent = eglMakeCurrent(display, pbuffer, pbuffer, context);
-      Assertions.checkState(eglMadeCurrent, "eglMakeCurrent failed");
+      Assertions.checkState("eglMakeCurrent failed", eglMadeCurrent);
 
       glGenTextures(1, textureIdHolder, 0);
       surfaceTexture = new SurfaceTexture(textureIdHolder[0]);
