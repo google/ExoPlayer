@@ -51,8 +51,7 @@ config[3]+=" --disable-sse3 --disable-ssse3 --disable-sse4_1 --disable-avx"
 config[3]+=" --disable-avx2 --enable-pic"
 
 arch[4]="arm64-v8a"
-config[4]="--force-target=armv8-android-gcc --sdk-path=$ndk --disable-neon"
-config[4]+=" --disable-neon-asm"
+config[4]="--force-target=armv8-android-gcc --sdk-path=$ndk --enable-neon"
 
 arch[5]="x86_64"
 config[5]="--force-target=x86_64-android-gcc --sdk-path=$ndk --disable-sse2"

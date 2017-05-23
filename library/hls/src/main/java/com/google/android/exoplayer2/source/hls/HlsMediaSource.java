@@ -84,7 +84,7 @@ public final class HlsMediaSource implements MediaSource,
 
   @Override
   public void maybeThrowSourceInfoRefreshError() throws IOException {
-    playlistTracker.maybeThrowPlaylistRefreshError();
+    playlistTracker.maybeThrowPrimaryPlaylistRefreshError();
   }
 
   @Override

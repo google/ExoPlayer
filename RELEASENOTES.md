@@ -1,5 +1,28 @@
 # Release notes #
 
+### r2.4.1 ###
+
+* Stability: Avoid OutOfMemoryError in extractors when parsing malformed media
+  ([#2780](https://github.com/google/ExoPlayer/issues/2780)).
+* Stability: Avoid native crash on Galaxy Nexus. Avoid unnecessarily large codec
+  input buffer allocations on all devices
+  ([#2607](https://github.com/google/ExoPlayer/issues/2607)).
+* Variable speed playback: Fix interpolation for rate/pitch adjustment
+  ([#2774](https://github.com/google/ExoPlayer/issues/2774)).
+* HLS: Include EXT-X-DATERANGE tags in HlsMediaPlaylist.
+* HLS: Don't expose CEA-608 track if CLOSED-CAPTIONS=NONE
+  ([#2743](https://github.com/google/ExoPlayer/issues/2743)).
+* HLS: Correctly propagate errors loading the media playlist
+  ([#2623](https://github.com/google/ExoPlayer/issues/2623)).
+* UI: DefaultTimeBar enhancements and bug fixes
+  ([#2740](https://github.com/google/ExoPlayer/issues/2740)).
+* Ogg: Fix failure to play some Ogg files
+  ([#2782](https://github.com/google/ExoPlayer/issues/2782)).
+* Captions: Don't select text tack with no language by default.
+* Captions: TTML positioning fixes
+  ([#2824](https://github.com/google/ExoPlayer/issues/2824)).
+* Misc bugfixes.
+
 ### r2.4.0 ###
 
 * New modular library structure. You can read more about depending on individual

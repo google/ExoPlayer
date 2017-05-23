@@ -488,7 +488,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
     }
     if (format == null) {
       // We don't have a format yet, so try and read one.
-      buffer.clear();
+      flagsOnlyBuffer.clear();
       int result = readSource(formatHolder, flagsOnlyBuffer, true);
       if (result == C.RESULT_FORMAT_READ) {
         onInputFormatChanged(formatHolder.format);

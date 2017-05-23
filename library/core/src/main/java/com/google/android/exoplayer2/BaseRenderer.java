@@ -142,9 +142,9 @@ public abstract class BaseRenderer implements Renderer, RendererCapabilities {
   public final void disable() {
     Assertions.checkState(state == STATE_ENABLED);
     state = STATE_DISABLED;
-    onDisabled();
     stream = null;
     streamIsFinal = false;
+    onDisabled();
   }
 
   // RendererCapabilities implementation.
@@ -300,8 +300,6 @@ public abstract class BaseRenderer implements Renderer, RendererCapabilities {
 
   /**
    * Returns whether the upstream source is ready.
-   *
-   * @return Whether the source is ready.
    */
   protected final boolean isSourceReady() {
     return readEndOfStream ? streamIsFinal : stream.isReady();

@@ -92,7 +92,8 @@ import java.util.concurrent.CopyOnWriteArraySet;
     trackGroups = TrackGroupArray.EMPTY;
     trackSelections = emptyTrackSelections;
     playbackParameters = PlaybackParameters.DEFAULT;
-    eventHandler = new Handler() {
+    Looper eventLooper = Looper.myLooper() != null ? Looper.myLooper() : Looper.getMainLooper();
+    eventHandler = new Handler(eventLooper) {
       @Override
       public void handleMessage(Message msg) {
         ExoPlayerImpl.this.handleEvent(msg);
