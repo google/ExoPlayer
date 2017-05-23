@@ -102,8 +102,8 @@ public final class LoopingMediaSource implements MediaSource {
       childPeriodCount = childTimeline.getPeriodCount();
       childWindowCount = childTimeline.getWindowCount();
       this.loopCount = loopCount;
-      Assertions.checkState("LoopingMediaSource contains too many periods",
-          loopCount <= Integer.MAX_VALUE / childPeriodCount);
+      Assertions.checkState(loopCount <= Integer.MAX_VALUE / childPeriodCount,
+          "LoopingMediaSource contains too many periods");
     }
 
     @Override

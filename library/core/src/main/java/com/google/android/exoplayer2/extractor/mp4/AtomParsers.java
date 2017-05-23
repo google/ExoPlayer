@@ -593,7 +593,7 @@ import java.util.List;
     for (int i = 0; i < numberOfEntries; i++) {
       int childStartPosition = stsd.getPosition();
       int childAtomSize = stsd.readInt();
-      Assertions.checkArgument("childAtomSize should be positive", childAtomSize > 0);
+      Assertions.checkArgument(childAtomSize > 0, "childAtomSize should be positive");
       int childAtomType = stsd.readInt();
       if (childAtomType == Atom.TYPE_avc1 || childAtomType == Atom.TYPE_avc3
           || childAtomType == Atom.TYPE_encv || childAtomType == Atom.TYPE_mp4v
@@ -693,7 +693,7 @@ import java.util.List;
         // Handle optional terminating four zero bytes in MOV files.
         break;
       }
-      Assertions.checkArgument("childAtomSize should be positive", childAtomSize > 0);
+      Assertions.checkArgument(childAtomSize > 0, "childAtomSize should be positive");
       int childAtomType = parent.readInt();
       if (childAtomType == Atom.TYPE_avcC) {
         Assertions.checkState(mimeType == null);
@@ -877,7 +877,7 @@ import java.util.List;
     while (childPosition - position < size) {
       parent.setPosition(childPosition);
       int childAtomSize = parent.readInt();
-      Assertions.checkArgument("childAtomSize should be positive", childAtomSize > 0);
+      Assertions.checkArgument(childAtomSize > 0, "childAtomSize should be positive");
       int childAtomType = parent.readInt();
       if (childAtomType == Atom.TYPE_esds || (isQuickTime && childAtomType == Atom.TYPE_wave)) {
         int esdsAtomPosition = childAtomType == Atom.TYPE_esds ? childPosition
@@ -936,7 +936,7 @@ import java.util.List;
     while (childAtomPosition - position < size) {
       parent.setPosition(childAtomPosition);
       int childAtomSize = parent.readInt();
-      Assertions.checkArgument("childAtomSize should be positive", childAtomSize > 0);
+      Assertions.checkArgument(childAtomSize > 0, "childAtomSize should be positive");
       int childType = parent.readInt();
       if (childType == Atom.TYPE_esds) {
         return childAtomPosition;
@@ -1032,7 +1032,7 @@ import java.util.List;
     while (childPosition - position < size) {
       parent.setPosition(childPosition);
       int childAtomSize = parent.readInt();
-      Assertions.checkArgument("childAtomSize should be positive", childAtomSize > 0);
+      Assertions.checkArgument(childAtomSize > 0, "childAtomSize should be positive");
       int childAtomType = parent.readInt();
       if (childAtomType == Atom.TYPE_sinf) {
         Pair<Integer, TrackEncryptionBox> result = parseSinfFromParent(parent, childPosition,
@@ -1071,8 +1071,8 @@ import java.util.List;
     }
 
     if (isCencScheme) {
-      Assertions.checkArgument("frma atom is mandatory", dataFormat != null);
-      Assertions.checkArgument("schi->tenc atom is mandatory", trackEncryptionBox != null);
+      Assertions.checkArgument(dataFormat != null, "frma atom is mandatory");
+      Assertions.checkArgument(trackEncryptionBox != null, "schi->tenc atom is mandatory");
       return Pair.create(dataFormat, trackEncryptionBox);
     } else {
       return null;
@@ -1157,7 +1157,7 @@ import java.util.List;
       length = chunkOffsets.readUnsignedIntToInt();
       stsc.setPosition(Atom.FULL_HEADER_SIZE);
       remainingSamplesPerChunkChanges = stsc.readUnsignedIntToInt();
-      Assertions.checkState("first_chunk must be 1", stsc.readInt() == 1);
+      Assertions.checkState(stsc.readInt() == 1, "first_chunk must be 1");
       index = C.INDEX_UNSET;
     }
 
