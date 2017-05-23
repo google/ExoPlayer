@@ -20,6 +20,7 @@ import android.graphics.SurfaceTexture;
 import android.media.MediaCodec;
 import android.media.PlaybackParams;
 import android.os.Handler;
+import android.os.Looper;
 import android.support.annotation.Nullable;
 import android.util.Log;
 import android.view.Surface;
@@ -111,8 +112,10 @@ public class SimpleExoPlayer implements ExoPlayer {
   protected SimpleExoPlayer(RenderersFactory renderersFactory, TrackSelector trackSelector,
       LoadControl loadControl) {
     componentListener = new ComponentListener();
-    renderers = renderersFactory.createRenderers(new Handler(), componentListener,
-        componentListener, componentListener, componentListener);
+    Looper eventLooper = Looper.myLooper() != null ? Looper.myLooper() : Looper.getMainLooper();
+    Handler eventHandler = new Handler(eventLooper);
+    renderers = renderersFactory.createRenderers(eventHandler, componentListener, componentListener,
+        componentListener, componentListener);
 
     // Obtain counts of video and audio renderers.
     int videoRendererCount = 0;

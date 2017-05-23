@@ -376,7 +376,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
   }
 
   @Override
-  protected void onOutputFormatChanged(MediaCodec codec, android.media.MediaFormat outputFormat) {
+  protected void onOutputFormatChanged(MediaCodec codec, MediaFormat outputFormat) {
     boolean hasCrop = outputFormat.containsKey(KEY_CROP_RIGHT)
         && outputFormat.containsKey(KEY_CROP_LEFT) && outputFormat.containsKey(KEY_CROP_BOTTOM)
         && outputFormat.containsKey(KEY_CROP_TOP);
@@ -408,11 +408,9 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
   @Override
   protected boolean canReconfigureCodec(MediaCodec codec, boolean codecIsAdaptive,
       Format oldFormat, Format newFormat) {
-    return areAdaptationCompatible(oldFormat, newFormat)
+    return areAdaptationCompatible(codecIsAdaptive, oldFormat, newFormat)
         && newFormat.width <= codecMaxValues.width && newFormat.height <= codecMaxValues.height
-        && newFormat.maxInputSize <= codecMaxValues.inputSize
-        && (codecIsAdaptive
-        || (oldFormat.width == newFormat.width && oldFormat.height == newFormat.height));
+        && newFormat.maxInputSize <= codecMaxValues.inputSize;
   }
 
   @Override
@@ -664,7 +662,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
     }
     boolean haveUnknownDimensions = false;
     for (Format streamFormat : streamFormats) {
-      if (areAdaptationCompatible(format, streamFormat)) {
+      if (areAdaptationCompatible(codecInfo.adaptive, format, streamFormat)) {
         haveUnknownDimensions |= (streamFormat.width == Format.NO_VALUE
             || streamFormat.height == Format.NO_VALUE);
         maxWidth = Math.max(maxWidth, streamFormat.width);
@@ -817,17 +815,19 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
   }
 
   /**
-   * Returns whether an adaptive codec with suitable {@link CodecMaxValues} will support adaptation
-   * between two {@link Format}s.
+   * Returns whether a codec with suitable {@link CodecMaxValues} will support adaptation between
+   * two {@link Format}s.
    *
+   * @param codecIsAdaptive Whether the codec supports seamless resolution switches.
    * @param first The first format.
    * @param second The second format.
-   * @return Whether an adaptive codec with suitable {@link CodecMaxValues} will support adaptation
-   *     between two {@link Format}s.
+   * @return Whether the codec will support adaptation between the two {@link Format}s.
    */
-  private static boolean areAdaptationCompatible(Format first, Format second) {
+  private static boolean areAdaptationCompatible(boolean codecIsAdaptive, Format first,
+      Format second) {
     return first.sampleMimeType.equals(second.sampleMimeType)
-        && getRotationDegrees(first) == getRotationDegrees(second);
+        && getRotationDegrees(first) == getRotationDegrees(second)
+        && (codecIsAdaptive || (first.width == second.width && first.height == second.height));
   }
 
   private static float getPixelWidthHeightRatio(Format format) {

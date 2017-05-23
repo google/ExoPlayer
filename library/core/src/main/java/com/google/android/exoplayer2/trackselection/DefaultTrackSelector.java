@@ -24,6 +24,7 @@ import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.RendererCapabilities;
 import com.google.android.exoplayer2.source.TrackGroup;
 import com.google.android.exoplayer2.source.TrackGroupArray;
+import com.google.android.exoplayer2.upstream.BandwidthMeter;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Util;
 import java.util.ArrayList;
@@ -376,10 +377,21 @@ public class DefaultTrackSelector extends MappingTrackSelector {
   private final AtomicReference<Parameters> paramsReference;
 
   /**
-   * Constructs an instance that does not support adaptive tracks.
+   * Constructs an instance that does not support adaptive track selection.
    */
   public DefaultTrackSelector() {
-    this(null);
+    this((TrackSelection.Factory) null);
+  }
+
+  /**
+   * Constructs an instance that supports adaptive track selection. Adaptive track selections use
+   * the provided {@link BandwidthMeter} to determine which individual track should be used during
+   * playback.
+   *
+   * @param bandwidthMeter The {@link BandwidthMeter}.
+   */
+  public DefaultTrackSelector(BandwidthMeter bandwidthMeter) {
+    this(new AdaptiveTrackSelection.Factory(bandwidthMeter));
   }
 
   /**
@@ -867,7 +879,8 @@ public class DefaultTrackSelector extends MappingTrackSelector {
   }
 
   protected static boolean formatHasLanguage(Format format, String language) {
-    return TextUtils.equals(language, Util.normalizeLanguageCode(format.language));
+    return language != null
+        && TextUtils.equals(language, Util.normalizeLanguageCode(format.language));
   }
 
   // Viewport size util methods.
