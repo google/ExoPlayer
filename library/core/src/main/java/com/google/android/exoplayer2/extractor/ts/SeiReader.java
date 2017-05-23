@@ -48,9 +48,9 @@ import java.util.List;
       TrackOutput output = extractorOutput.track(idGenerator.getTrackId(), C.TRACK_TYPE_TEXT);
       Format channelFormat = closedCaptionFormats.get(i);
       String channelMimeType = channelFormat.sampleMimeType;
-      Assertions.checkArgument("Invalid closed caption mime type provided: " + channelMimeType,
-          MimeTypes.APPLICATION_CEA608.equals(channelMimeType)
-          || MimeTypes.APPLICATION_CEA708.equals(channelMimeType));
+      Assertions.checkArgument(MimeTypes.APPLICATION_CEA608.equals(channelMimeType)
+          || MimeTypes.APPLICATION_CEA708.equals(channelMimeType),
+          "Invalid closed caption mime type provided: " + channelMimeType);
       output.format(Format.createTextSampleFormat(idGenerator.getFormatId(), channelMimeType, null,
           Format.NO_VALUE, channelFormat.selectionFlags, channelFormat.language,
           channelFormat.accessibilityChannel, null));

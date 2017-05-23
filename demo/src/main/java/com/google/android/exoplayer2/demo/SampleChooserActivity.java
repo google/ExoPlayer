@@ -200,17 +200,17 @@ public class SampleChooserActivity extends Activity {
             extension = reader.nextString();
             break;
           case "drm_scheme":
-            Assertions.checkState("Invalid attribute on nested item: drm_scheme", !insidePlaylist);
+            Assertions.checkState(!insidePlaylist, "Invalid attribute on nested item: drm_scheme");
             drmUuid = getDrmUuid(reader.nextString());
             break;
           case "drm_license_url":
-            Assertions.checkState("Invalid attribute on nested item: drm_license_url",
-                !insidePlaylist);
+            Assertions.checkState(!insidePlaylist,
+                "Invalid attribute on nested item: drm_license_url");
             drmLicenseUrl = reader.nextString();
             break;
           case "drm_key_request_properties":
-            Assertions.checkState("Invalid attribute on nested item: drm_key_request_properties",
-                !insidePlaylist);
+            Assertions.checkState(!insidePlaylist,
+                "Invalid attribute on nested item: drm_key_request_properties");
             ArrayList<String> drmKeyRequestPropertiesList = new ArrayList<>();
             reader.beginObject();
             while (reader.hasNext()) {
@@ -221,12 +221,12 @@ public class SampleChooserActivity extends Activity {
             drmKeyRequestProperties = drmKeyRequestPropertiesList.toArray(new String[0]);
             break;
           case "prefer_extension_decoders":
-            Assertions.checkState("Invalid attribute on nested item: prefer_extension_decoders",
-                !insidePlaylist);
+            Assertions.checkState(!insidePlaylist,
+                "Invalid attribute on nested item: prefer_extension_decoders");
             preferExtensionDecoders = reader.nextBoolean();
             break;
           case "playlist":
-            Assertions.checkState("Invalid nesting of playlists", !insidePlaylist);
+            Assertions.checkState(!insidePlaylist, "Invalid nesting of playlists");
             playlistSamples = new ArrayList<>();
             reader.beginArray();
             while (reader.hasNext()) {

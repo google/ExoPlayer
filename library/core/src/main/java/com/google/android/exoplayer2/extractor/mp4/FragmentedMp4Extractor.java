@@ -388,7 +388,7 @@ public final class FragmentedMp4Extractor implements Extractor {
   }
 
   private void onMoovContainerAtomRead(ContainerAtom moov) throws ParserException {
-    Assertions.checkState("Unexpected moov box.", sideloadedTrack == null);
+    Assertions.checkState(sideloadedTrack == null, "Unexpected moov box.");
 
     DrmInitData drmInitData = getDrmInitDataFromAtoms(moov.leafChildren);
 
