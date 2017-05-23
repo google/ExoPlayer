@@ -62,11 +62,16 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
   private static final int[] STANDARD_LONG_EDGE_VIDEO_PX = new int[] {
       1920, 1600, 1440, 1280, 960, 854, 640, 540, 480};
 
+  // Generally there is zero or one pending output stream offset. We track more offsets to allow for
+  // pending output streams that have fewer frames than the codec latency.
+  private static final int MAX_PENDING_OUTPUT_STREAM_OFFSET_COUNT = 10;
+
   private final VideoFrameReleaseTimeHelper frameReleaseTimeHelper;
   private final EventDispatcher eventDispatcher;
   private final long allowedJoiningTimeMs;
   private final int maxDroppedFramesToNotify;
   private final boolean deviceNeedsAutoFrcWorkaround;
+  private final long[] pendingOutputStreamOffsetsUs;
 
   private Format[] streamFormats;
   private CodecMaxValues codecMaxValues;
@@ -94,6 +99,9 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
   private boolean tunneling;
   private int tunnelingAudioSessionId;
   /* package */ OnFrameRenderedListenerV23 tunnelingOnFrameRenderedListener;
+
+  private long outputStreamOffsetUs;
+  private int pendingOutputStreamOffsetCount;
 
   /**
    * @param context A context.
@@ -160,6 +168,8 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
     frameReleaseTimeHelper = new VideoFrameReleaseTimeHelper(context);
     eventDispatcher = new EventDispatcher(eventHandler, eventListener);
     deviceNeedsAutoFrcWorkaround = deviceNeedsAutoFrcWorkaround();
+    pendingOutputStreamOffsetsUs = new long[MAX_PENDING_OUTPUT_STREAM_OFFSET_COUNT];
+    outputStreamOffsetUs = C.TIME_UNSET;
     joiningDeadlineMs = C.TIME_UNSET;
     currentWidth = Format.NO_VALUE;
     currentHeight = Format.NO_VALUE;
@@ -219,9 +229,20 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
   }
 
   @Override
-  protected void onStreamChanged(Format[] formats) throws ExoPlaybackException {
+  protected void onStreamChanged(Format[] formats, long offsetUs) throws ExoPlaybackException {
     streamFormats = formats;
-    super.onStreamChanged(formats);
+    if (outputStreamOffsetUs == C.TIME_UNSET) {
+      outputStreamOffsetUs = offsetUs;
+    } else {
+      if (pendingOutputStreamOffsetCount == pendingOutputStreamOffsetsUs.length) {
+        Log.w(TAG, "Too many stream changes, so dropping offset: "
+            + pendingOutputStreamOffsetsUs[pendingOutputStreamOffsetCount - 1]);
+      } else {
+        pendingOutputStreamOffsetCount++;
+      }
+      pendingOutputStreamOffsetsUs[pendingOutputStreamOffsetCount - 1] = offsetUs;
+    }
+    super.onStreamChanged(formats, offsetUs);
   }
 
   @Override
@@ -229,6 +250,10 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
     super.onPositionReset(positionUs, joining);
     clearRenderedFirstFrame();
     consecutiveDroppedFrameCount = 0;
+    if (pendingOutputStreamOffsetCount != 0) {
+      outputStreamOffsetUs = pendingOutputStreamOffsetsUs[pendingOutputStreamOffsetCount - 1];
+      pendingOutputStreamOffsetCount = 0;
+    }
     if (joining) {
       setJoiningDeadlineMs();
     } else {
@@ -275,6 +300,8 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
     currentHeight = Format.NO_VALUE;
     currentPixelWidthHeightRatio = Format.NO_VALUE;
     pendingPixelWidthHeightRatio = Format.NO_VALUE;
+    outputStreamOffsetUs = C.TIME_UNSET;
+    pendingOutputStreamOffsetCount = 0;
     clearReportedVideoSize();
     clearRenderedFirstFrame();
     frameReleaseTimeHelper.disable();
@@ -417,16 +444,24 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
   protected boolean processOutputBuffer(long positionUs, long elapsedRealtimeUs, MediaCodec codec,
       ByteBuffer buffer, int bufferIndex, int bufferFlags, long bufferPresentationTimeUs,
       boolean shouldSkip) {
+    while (pendingOutputStreamOffsetCount != 0
+        && bufferPresentationTimeUs >= pendingOutputStreamOffsetsUs[0]) {
+      outputStreamOffsetUs = pendingOutputStreamOffsetsUs[0];
+      pendingOutputStreamOffsetCount--;
+      System.arraycopy(pendingOutputStreamOffsetsUs, 1, pendingOutputStreamOffsetsUs, 0,
+          pendingOutputStreamOffsetCount);
+    }
+    long presentationTimeUs = bufferPresentationTimeUs - outputStreamOffsetUs;
     if (shouldSkip) {
-      skipOutputBuffer(codec, bufferIndex);
+      skipOutputBuffer(codec, bufferIndex, presentationTimeUs);
       return true;
     }
 
     if (!renderedFirstFrame) {
       if (Util.SDK_INT >= 21) {
-        renderOutputBufferV21(codec, bufferIndex, System.nanoTime());
+        renderOutputBufferV21(codec, bufferIndex, presentationTimeUs, System.nanoTime());
       } else {
-        renderOutputBuffer(codec, bufferIndex);
+        renderOutputBuffer(codec, bufferIndex, presentationTimeUs);
       }
       return true;
     }
@@ -450,14 +485,14 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
 
     if (shouldDropOutputBuffer(earlyUs, elapsedRealtimeUs)) {
       // We're more than 30ms late rendering the frame.
-      dropOutputBuffer(codec, bufferIndex);
+      dropOutputBuffer(codec, bufferIndex, presentationTimeUs);
       return true;
     }
 
     if (Util.SDK_INT >= 21) {
       // Let the underlying framework time the release.
       if (earlyUs < 50000) {
-        renderOutputBufferV21(codec, bufferIndex, adjustedReleaseTimeNs);
+        renderOutputBufferV21(codec, bufferIndex, presentationTimeUs, adjustedReleaseTimeNs);
         return true;
       }
     } else {
@@ -473,7 +508,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
             Thread.currentThread().interrupt();
           }
         }
-        renderOutputBuffer(codec, bufferIndex);
+        renderOutputBuffer(codec, bufferIndex, presentationTimeUs);
         return true;
       }
     }
@@ -495,16 +530,30 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
     return earlyUs < -30000;
   }
 
-  private void skipOutputBuffer(MediaCodec codec, int bufferIndex) {
+  /**
+   * Skips the output buffer with the specified index.
+   *
+   * @param codec The codec that owns the output buffer.
+   * @param index The index of the output buffer to skip.
+   * @param presentationTimeUs The presentation time of the output buffer, in microseconds.
+   */
+  protected void skipOutputBuffer(MediaCodec codec, int index, long presentationTimeUs) {
     TraceUtil.beginSection("skipVideoBuffer");
-    codec.releaseOutputBuffer(bufferIndex, false);
+    codec.releaseOutputBuffer(index, false);
     TraceUtil.endSection();
     decoderCounters.skippedOutputBufferCount++;
   }
 
-  private void dropOutputBuffer(MediaCodec codec, int bufferIndex) {
+  /**
+   * Drops the output buffer with the specified index.
+   *
+   * @param codec The codec that owns the output buffer.
+   * @param index The index of the output buffer to drop.
+   * @param presentationTimeUs The presentation time of the output buffer, in microseconds.
+   */
+  protected void dropOutputBuffer(MediaCodec codec, int index, long presentationTimeUs) {
     TraceUtil.beginSection("dropVideoBuffer");
-    codec.releaseOutputBuffer(bufferIndex, false);
+    codec.releaseOutputBuffer(index, false);
     TraceUtil.endSection();
     decoderCounters.droppedOutputBufferCount++;
     droppedFrames++;
@@ -516,21 +565,39 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
     }
   }
 
-  private void renderOutputBuffer(MediaCodec codec, int bufferIndex) {
+  /**
+   * Renders the output buffer with the specified index. This method is only called if the platform
+   * API version of the device is less than 21.
+   *
+   * @param codec The codec that owns the output buffer.
+   * @param index The index of the output buffer to drop.
+   * @param presentationTimeUs The presentation time of the output buffer, in microseconds.
+   */
+  protected void renderOutputBuffer(MediaCodec codec, int index, long presentationTimeUs) {
     maybeNotifyVideoSizeChanged();
     TraceUtil.beginSection("releaseOutputBuffer");
-    codec.releaseOutputBuffer(bufferIndex, true);
+    codec.releaseOutputBuffer(index, true);
     TraceUtil.endSection();
     decoderCounters.renderedOutputBufferCount++;
     consecutiveDroppedFrameCount = 0;
     maybeNotifyRenderedFirstFrame();
   }
 
+  /**
+   * Renders the output buffer with the specified index. This method is only called if the platform
+   * API version of the device is 21 or later.
+   *
+   * @param codec The codec that owns the output buffer.
+   * @param index The index of the output buffer to drop.
+   * @param presentationTimeUs The presentation time of the output buffer, in microseconds.
+   * @param releaseTimeNs The wallclock time at which the frame should be displayed, in nanoseconds.
+   */
   @TargetApi(21)
-  private void renderOutputBufferV21(MediaCodec codec, int bufferIndex, long releaseTimeNs) {
+  protected void renderOutputBufferV21(MediaCodec codec, int index, long presentationTimeUs,
+      long releaseTimeNs) {
     maybeNotifyVideoSizeChanged();
     TraceUtil.beginSection("releaseOutputBuffer");
-    codec.releaseOutputBuffer(bufferIndex, releaseTimeNs);
+    codec.releaseOutputBuffer(index, releaseTimeNs);
     TraceUtil.endSection();
     decoderCounters.renderedOutputBufferCount++;
     consecutiveDroppedFrameCount = 0;
