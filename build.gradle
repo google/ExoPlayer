@@ -16,7 +16,7 @@ buildscript {
         jcenter()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:2.3.0'
+        classpath 'com.android.tools.build:gradle:2.3.1'
         classpath 'com.novoda:bintray-release:0.4.0'
     }
     // Workaround for the following test coverage issue. Remove when fixed:
