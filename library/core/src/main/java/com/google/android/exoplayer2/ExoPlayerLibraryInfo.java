@@ -24,13 +24,13 @@ public interface ExoPlayerLibraryInfo {
    * The version of the library expressed as a string, for example "1.2.3".
    */
   // Intentionally hardcoded. Do not derive from other constants (e.g. VERSION_INT) or vice versa.
-  String VERSION = "2.4.0";
+  String VERSION = "2.4.1";
 
   /**
    * The version of the library expressed as {@code "ExoPlayerLib/" + VERSION}.
    */
   // Intentionally hardcoded. Do not derive from other constants (e.g. VERSION) or vice versa.
-  String VERSION_SLASHY = "ExoPlayerLib/2.4.0";
+  String VERSION_SLASHY = "ExoPlayerLib/2.4.1";
 
   /**
    * The version of the library expressed as an integer, for example 1002003.
@@ -40,7 +40,7 @@ public interface ExoPlayerLibraryInfo {
    * integer version 123045006 (123-045-006).
    */
   // Intentionally hardcoded. Do not derive from other constants (e.g. VERSION) or vice versa.
-  int VERSION_INT = 2004000;
+  int VERSION_INT = 2004001;
 
   /**
    * Whether the library was compiled with {@link com.google.android.exoplayer2.util.Assertions}
