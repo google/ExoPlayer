@@ -213,10 +213,10 @@ import java.util.concurrent.CopyOnWriteArraySet;
       maskingPeriodIndex = 0;
     } else {
       timeline.getWindow(windowIndex, window);
-      long resolvedPositionMs =
-          positionMs == C.TIME_UNSET ? window.getDefaultPositionUs() : positionMs;
+      long resolvedPositionUs =
+          positionMs == C.TIME_UNSET ? window.getDefaultPositionUs() : C.msToUs(positionMs);
       int periodIndex = window.firstPeriodIndex;
-      long periodPositionUs = window.getPositionInFirstPeriodUs() + C.msToUs(resolvedPositionMs);
+      long periodPositionUs = window.getPositionInFirstPeriodUs() + resolvedPositionUs;
       long periodDurationUs = timeline.getPeriod(periodIndex, period).getDurationUs();
       while (periodDurationUs != C.TIME_UNSET && periodPositionUs >= periodDurationUs
           && periodIndex < window.lastPeriodIndex) {
