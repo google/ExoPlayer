@@ -111,8 +111,7 @@ import java.util.List;
    */
   private static final boolean ENABLE_PRELOADING = true;
 
-  private static final String IMA_SDK_SETTINGS_PLAYER_TYPE =
-      "google/com.google.android.exoplayer2.ext.ima";
+  private static final String IMA_SDK_SETTINGS_PLAYER_TYPE = "google/exo.ext.ima";
   private static final String IMA_SDK_SETTINGS_PLAYER_VERSION = ExoPlayerLibraryInfo.VERSION;
 
   /**
