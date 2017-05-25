@@ -296,17 +296,19 @@ import java.util.LinkedList;
       return C.RESULT_NOTHING_READ;
     }
 
-    while (mediaChunks.size() > 1 && finishedReadingChunk(mediaChunks.getFirst())) {
-      mediaChunks.removeFirst();
+    if (!mediaChunks.isEmpty()) {
+      while (mediaChunks.size() > 1 && finishedReadingChunk(mediaChunks.getFirst())) {
+        mediaChunks.removeFirst();
+      }
+      HlsMediaChunk currentChunk = mediaChunks.getFirst();
+      Format trackFormat = currentChunk.trackFormat;
+      if (!trackFormat.equals(downstreamTrackFormat)) {
+        eventDispatcher.downstreamFormatChanged(trackType, trackFormat,
+            currentChunk.trackSelectionReason, currentChunk.trackSelectionData,
+            currentChunk.startTimeUs);
+      }
+      downstreamTrackFormat = trackFormat;
     }
-    HlsMediaChunk currentChunk = mediaChunks.getFirst();
-    Format trackFormat = currentChunk.trackFormat;
-    if (!trackFormat.equals(downstreamTrackFormat)) {
-      eventDispatcher.downstreamFormatChanged(trackType, trackFormat,
-          currentChunk.trackSelectionReason, currentChunk.trackSelectionData,
-          currentChunk.startTimeUs);
-    }
-    downstreamTrackFormat = trackFormat;
 
     return sampleQueues.valueAt(group).readData(formatHolder, buffer, requireFormat,
         loadingFinished, lastSeekPositionUs);
@@ -348,6 +350,7 @@ import java.util.LinkedList;
     nextChunkHolder.clear();
 
     if (endOfStream) {
+      pendingResetPositionUs = C.TIME_UNSET;
       loadingFinished = true;
       return true;
     }

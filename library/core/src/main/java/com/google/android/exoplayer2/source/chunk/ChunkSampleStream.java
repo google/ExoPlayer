@@ -336,6 +336,7 @@ public class ChunkSampleStream<T extends ChunkSource> implements SampleStream, S
     nextChunkHolder.clear();
 
     if (endOfStream) {
+      pendingResetPositionUs = C.TIME_UNSET;
       loadingFinished = true;
       return true;
     }
@@ -389,18 +390,20 @@ public class ChunkSampleStream<T extends ChunkSource> implements SampleStream, S
   }
 
   private void discardDownstreamMediaChunks(int primaryStreamReadIndex) {
-    while (mediaChunks.size() > 1
-        && mediaChunks.get(1).getFirstSampleIndex(0) <= primaryStreamReadIndex) {
-      mediaChunks.removeFirst();
+    if (!mediaChunks.isEmpty()) {
+      while (mediaChunks.size() > 1
+          && mediaChunks.get(1).getFirstSampleIndex(0) <= primaryStreamReadIndex) {
+        mediaChunks.removeFirst();
+      }
+      BaseMediaChunk currentChunk = mediaChunks.getFirst();
+      Format trackFormat = currentChunk.trackFormat;
+      if (!trackFormat.equals(primaryDownstreamTrackFormat)) {
+        eventDispatcher.downstreamFormatChanged(primaryTrackType, trackFormat,
+            currentChunk.trackSelectionReason, currentChunk.trackSelectionData,
+            currentChunk.startTimeUs);
+      }
+      primaryDownstreamTrackFormat = trackFormat;
     }
-    BaseMediaChunk currentChunk = mediaChunks.getFirst();
-    Format trackFormat = currentChunk.trackFormat;
-    if (!trackFormat.equals(primaryDownstreamTrackFormat)) {
-      eventDispatcher.downstreamFormatChanged(primaryTrackType, trackFormat,
-          currentChunk.trackSelectionReason, currentChunk.trackSelectionData,
-          currentChunk.startTimeUs);
-    }
-    primaryDownstreamTrackFormat = trackFormat;
   }
 
   /**
