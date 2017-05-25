@@ -625,9 +625,9 @@ public final class DashMediaSource implements MediaSource {
     private final long windowDefaultStartPositionUs;
     private final DashManifest manifest;
 
-    public DashTimeline(long presentationStartTimeMs, long windowStartTimeMs,
-        int firstPeriodId, long offsetInFirstPeriodUs, long windowDurationUs,
-        long windowDefaultStartPositionUs, DashManifest manifest) {
+    public DashTimeline(long presentationStartTimeMs, long windowStartTimeMs, int firstPeriodId,
+        long offsetInFirstPeriodUs, long windowDurationUs, long windowDefaultStartPositionUs,
+        DashManifest manifest) {
       this.presentationStartTimeMs = presentationStartTimeMs;
       this.windowStartTimeMs = windowStartTimeMs;
       this.firstPeriodId = firstPeriodId;
