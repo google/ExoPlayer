@@ -61,6 +61,7 @@ public final class MimeTypes {
   public static final String AUDIO_AMR_WB = BASE_TYPE_AUDIO + "/amr-wb";
   public static final String AUDIO_FLAC = BASE_TYPE_AUDIO + "/x-flac";
   public static final String AUDIO_ALAC = BASE_TYPE_AUDIO + "/alac";
+  public static final String AUDIO_UNKNOWN = BASE_TYPE_AUDIO + "/x-unknown";
 
   public static final String TEXT_VTT = BASE_TYPE_TEXT + "/vtt";
 
