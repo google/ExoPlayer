@@ -513,6 +513,8 @@ public class DefaultDrmSessionManager<T extends ExoMediaCrypto> implements DrmSe
         }
         break;
       case MODE_RELEASE:
+        // It's not necessary to restore the key (and open a session to do that) before releasing it
+        // but this serves as a good sanity/fast-failure check.
         if (restoreKeys()) {
           postKeyRequest(offlineLicenseKeySetId, MediaDrm.KEY_TYPE_RELEASE);
         }
