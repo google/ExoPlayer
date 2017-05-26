@@ -92,6 +92,231 @@ package com.google.android.exoplayer2;
 public abstract class Timeline {
 
   /**
+   * Holds information about a window in a {@link Timeline}. A window defines a region of media
+   * currently available for playback along with additional information such as whether seeking is
+   * supported within the window. See {@link Timeline} for more details. The figure below shows some
+   * of the information defined by a window, as well as how this information relates to
+   * corresponding {@link Period}s in the timeline.
+   * <p align="center">
+   *   <img src="doc-files/timeline-window.svg" alt="Information defined by a timeline window">
+   * </p>
+   */
+  public static final class Window {
+
+    /**
+     * An identifier for the window. Not necessarily unique.
+     */
+    public Object id;
+
+    /**
+     * The start time of the presentation to which this window belongs in milliseconds since the
+     * epoch, or {@link C#TIME_UNSET} if unknown or not applicable. For informational purposes only.
+     */
+    public long presentationStartTimeMs;
+
+    /**
+     * The window's start time in milliseconds since the epoch, or {@link C#TIME_UNSET} if unknown
+     * or not applicable. For informational purposes only.
+     */
+    public long windowStartTimeMs;
+
+    /**
+     * Whether it's possible to seek within this window.
+     */
+    public boolean isSeekable;
+
+    /**
+     * Whether this window may change when the timeline is updated.
+     */
+    public boolean isDynamic;
+
+    /**
+     * The index of the first period that belongs to this window.
+     */
+    public int firstPeriodIndex;
+
+    /**
+     * The index of the last period that belongs to this window.
+     */
+    public int lastPeriodIndex;
+
+    /**
+     * The default position relative to the start of the window at which to begin playback, in
+     * microseconds. May be {@link C#TIME_UNSET} if and only if the window was populated with a
+     * non-zero default position projection, and if the specified projection cannot be performed
+     * whilst remaining within the bounds of the window.
+     */
+    public long defaultPositionUs;
+
+    /**
+     * The duration of this window in microseconds, or {@link C#TIME_UNSET} if unknown.
+     */
+    public long durationUs;
+
+    /**
+     * The position of the start of this window relative to the start of the first period belonging
+     * to it, in microseconds.
+     */
+    public long positionInFirstPeriodUs;
+
+    /**
+     * Sets the data held by this window.
+     */
+    public Window set(Object id, long presentationStartTimeMs, long windowStartTimeMs,
+        boolean isSeekable, boolean isDynamic, long defaultPositionUs, long durationUs,
+        int firstPeriodIndex, int lastPeriodIndex, long positionInFirstPeriodUs) {
+      this.id = id;
+      this.presentationStartTimeMs = presentationStartTimeMs;
+      this.windowStartTimeMs = windowStartTimeMs;
+      this.isSeekable = isSeekable;
+      this.isDynamic = isDynamic;
+      this.defaultPositionUs = defaultPositionUs;
+      this.durationUs = durationUs;
+      this.firstPeriodIndex = firstPeriodIndex;
+      this.lastPeriodIndex = lastPeriodIndex;
+      this.positionInFirstPeriodUs = positionInFirstPeriodUs;
+      return this;
+    }
+
+    /**
+     * Returns the default position relative to the start of the window at which to begin playback,
+     * in milliseconds. May be {@link C#TIME_UNSET} if and only if the window was populated with a
+     * non-zero default position projection, and if the specified projection cannot be performed
+     * whilst remaining within the bounds of the window.
+     */
+    public long getDefaultPositionMs() {
+      return C.usToMs(defaultPositionUs);
+    }
+
+    /**
+     * Returns the default position relative to the start of the window at which to begin playback,
+     * in microseconds. May be {@link C#TIME_UNSET} if and only if the window was populated with a
+     * non-zero default position projection, and if the specified projection cannot be performed
+     * whilst remaining within the bounds of the window.
+     */
+    public long getDefaultPositionUs() {
+      return defaultPositionUs;
+    }
+
+    /**
+     * Returns the duration of the window in milliseconds, or {@link C#TIME_UNSET} if unknown.
+     */
+    public long getDurationMs() {
+      return C.usToMs(durationUs);
+    }
+
+    /**
+     * Returns the duration of this window in microseconds, or {@link C#TIME_UNSET} if unknown.
+     */
+    public long getDurationUs() {
+      return durationUs;
+    }
+
+    /**
+     * Returns the position of the start of this window relative to the start of the first period
+     * belonging to it, in milliseconds.
+     */
+    public long getPositionInFirstPeriodMs() {
+      return C.usToMs(positionInFirstPeriodUs);
+    }
+
+    /**
+     * Returns the position of the start of this window relative to the start of the first period
+     * belonging to it, in microseconds.
+     */
+    public long getPositionInFirstPeriodUs() {
+      return positionInFirstPeriodUs;
+    }
+
+  }
+
+  /**
+   * Holds information about a period in a {@link Timeline}. A period defines a single logical piece
+   * of media, for example a a media file. See {@link Timeline} for more details. The figure below
+   * shows some of the information defined by a period, as well as how this information relates to a
+   * corresponding {@link Window} in the timeline.
+   * <p align="center">
+   *   <img src="doc-files/timeline-period.svg" alt="Information defined by a period">
+   * </p>
+   */
+  public static final class Period {
+
+    /**
+     * An identifier for the period. Not necessarily unique.
+     */
+    public Object id;
+
+    /**
+     * A unique identifier for the period.
+     */
+    public Object uid;
+
+    /**
+     * The index of the window to which this period belongs.
+     */
+    public int windowIndex;
+
+    /**
+     * The duration of this period in microseconds, or {@link C#TIME_UNSET} if unknown.
+     */
+    public long durationUs;
+
+    /**
+     * Whether this period contains an ad.
+     */
+    public boolean isAd;
+
+    private long positionInWindowUs;
+
+    /**
+     * Sets the data held by this period.
+     */
+    public Period set(Object id, Object uid, int windowIndex, long durationUs,
+        long positionInWindowUs, boolean isAd) {
+      this.id = id;
+      this.uid = uid;
+      this.windowIndex = windowIndex;
+      this.durationUs = durationUs;
+      this.positionInWindowUs = positionInWindowUs;
+      this.isAd = isAd;
+      return this;
+    }
+
+    /**
+     * Returns the duration of the period in milliseconds, or {@link C#TIME_UNSET} if unknown.
+     */
+    public long getDurationMs() {
+      return C.usToMs(durationUs);
+    }
+
+    /**
+     * Returns the duration of this period in microseconds, or {@link C#TIME_UNSET} if unknown.
+     */
+    public long getDurationUs() {
+      return durationUs;
+    }
+
+    /**
+     * Returns the position of the start of this period relative to the start of the window to which
+     * it belongs, in milliseconds. May be negative if the start of the period is not within the
+     * window.
+     */
+    public long getPositionInWindowMs() {
+      return C.usToMs(positionInWindowUs);
+    }
+
+    /**
+     * Returns the position of the start of this period relative to the start of the window to which
+     * it belongs, in microseconds. May be negative if the start of the period is not within the
+     * window.
+     */
+    public long getPositionInWindowUs() {
+      return positionInWindowUs;
+    }
+
+  }
+
+  /**
    * An empty timeline.
    */
   public static final Timeline EMPTY = new Timeline() {
@@ -316,230 +541,5 @@ public abstract class Timeline {
    * @return The index of the period, or {@link C#INDEX_UNSET} if the period was not found.
    */
   public abstract int getIndexOfPeriod(Object uid);
-
-  /**
-   * Holds information about a window in a {@link Timeline}. A window defines a region of media
-   * currently available for playback along with additional information such as whether seeking is
-   * supported within the window. See {@link Timeline} for more details. The figure below shows some
-   * of the information defined by a window, as well as how this information relates to
-   * corresponding {@link Period}s in the timeline.
-   * <p align="center">
-   *   <img src="doc-files/timeline-window.svg" alt="Information defined by a timeline window">
-   * </p>
-   */
-  public static final class Window {
-
-    /**
-     * An identifier for the window. Not necessarily unique.
-     */
-    public Object id;
-
-    /**
-     * The start time of the presentation to which this window belongs in milliseconds since the
-     * epoch, or {@link C#TIME_UNSET} if unknown or not applicable. For informational purposes only.
-     */
-    public long presentationStartTimeMs;
-
-    /**
-     * The window's start time in milliseconds since the epoch, or {@link C#TIME_UNSET} if unknown
-     * or not applicable. For informational purposes only.
-     */
-    public long windowStartTimeMs;
-
-    /**
-     * Whether it's possible to seek within this window.
-     */
-    public boolean isSeekable;
-
-    /**
-     * Whether this window may change when the timeline is updated.
-     */
-    public boolean isDynamic;
-
-    /**
-     * The index of the first period that belongs to this window.
-     */
-    public int firstPeriodIndex;
-
-    /**
-     * The index of the last period that belongs to this window.
-     */
-    public int lastPeriodIndex;
-
-    /**
-     * The default position relative to the start of the window at which to begin playback, in
-     * microseconds. May be {@link C#TIME_UNSET} if and only if the window was populated with a
-     * non-zero default position projection, and if the specified projection cannot be performed
-     * whilst remaining within the bounds of the window.
-     */
-    public long defaultPositionUs;
-
-    /**
-     * The duration of this window in microseconds, or {@link C#TIME_UNSET} if unknown.
-     */
-    public long durationUs;
-
-    /**
-     * The position of the start of this window relative to the start of the first period belonging
-     * to it, in microseconds.
-     */
-    public long positionInFirstPeriodUs;
-
-    /**
-     * Sets the data held by this window.
-     */
-    public Window set(Object id, long presentationStartTimeMs, long windowStartTimeMs,
-        boolean isSeekable, boolean isDynamic, long defaultPositionUs, long durationUs,
-        int firstPeriodIndex, int lastPeriodIndex, long positionInFirstPeriodUs) {
-      this.id = id;
-      this.presentationStartTimeMs = presentationStartTimeMs;
-      this.windowStartTimeMs = windowStartTimeMs;
-      this.isSeekable = isSeekable;
-      this.isDynamic = isDynamic;
-      this.defaultPositionUs = defaultPositionUs;
-      this.durationUs = durationUs;
-      this.firstPeriodIndex = firstPeriodIndex;
-      this.lastPeriodIndex = lastPeriodIndex;
-      this.positionInFirstPeriodUs = positionInFirstPeriodUs;
-      return this;
-    }
-
-    /**
-     * Returns the default position relative to the start of the window at which to begin playback,
-     * in milliseconds. May be {@link C#TIME_UNSET} if and only if the window was populated with a
-     * non-zero default position projection, and if the specified projection cannot be performed
-     * whilst remaining within the bounds of the window.
-     */
-    public long getDefaultPositionMs() {
-      return C.usToMs(defaultPositionUs);
-    }
-
-    /**
-     * Returns the default position relative to the start of the window at which to begin playback,
-     * in microseconds. May be {@link C#TIME_UNSET} if and only if the window was populated with a
-     * non-zero default position projection, and if the specified projection cannot be performed
-     * whilst remaining within the bounds of the window.
-     */
-    public long getDefaultPositionUs() {
-      return defaultPositionUs;
-    }
-
-    /**
-     * Returns the duration of the window in milliseconds, or {@link C#TIME_UNSET} if unknown.
-     */
-    public long getDurationMs() {
-      return C.usToMs(durationUs);
-    }
-
-    /**
-     * Returns the duration of this window in microseconds, or {@link C#TIME_UNSET} if unknown.
-     */
-    public long getDurationUs() {
-      return durationUs;
-    }
-
-    /**
-     * Returns the position of the start of this window relative to the start of the first period
-     * belonging to it, in milliseconds.
-     */
-    public long getPositionInFirstPeriodMs() {
-      return C.usToMs(positionInFirstPeriodUs);
-    }
-
-    /**
-     * Returns the position of the start of this window relative to the start of the first period
-     * belonging to it, in microseconds.
-     */
-    public long getPositionInFirstPeriodUs() {
-      return positionInFirstPeriodUs;
-    }
-
-  }
-
-  /**
-   * Holds information about a period in a {@link Timeline}. A period defines a single logical piece
-   * of media, for example a a media file. See {@link Timeline} for more details. The figure below
-   * shows some of the information defined by a period, as well as how this information relates to a
-   * corresponding {@link Window} in the timeline.
-   * <p align="center">
-   *   <img src="doc-files/timeline-period.svg" alt="Information defined by a period">
-   * </p>
-   */
-  public static final class Period {
-
-    /**
-     * An identifier for the period. Not necessarily unique.
-     */
-    public Object id;
-
-    /**
-     * A unique identifier for the period.
-     */
-    public Object uid;
-
-    /**
-     * The index of the window to which this period belongs.
-     */
-    public int windowIndex;
-
-    /**
-     * The duration of this period in microseconds, or {@link C#TIME_UNSET} if unknown.
-     */
-    public long durationUs;
-
-    /**
-     * Whether this period contains an ad.
-     */
-    public boolean isAd;
-
-    private long positionInWindowUs;
-
-    /**
-     * Sets the data held by this period.
-     */
-    public Period set(Object id, Object uid, int windowIndex, long durationUs,
-        long positionInWindowUs, boolean isAd) {
-      this.id = id;
-      this.uid = uid;
-      this.windowIndex = windowIndex;
-      this.durationUs = durationUs;
-      this.positionInWindowUs = positionInWindowUs;
-      this.isAd = isAd;
-      return this;
-    }
-
-    /**
-     * Returns the duration of the period in milliseconds, or {@link C#TIME_UNSET} if unknown.
-     */
-    public long getDurationMs() {
-      return C.usToMs(durationUs);
-    }
-
-    /**
-     * Returns the duration of this period in microseconds, or {@link C#TIME_UNSET} if unknown.
-     */
-    public long getDurationUs() {
-      return durationUs;
-    }
-
-    /**
-     * Returns the position of the start of this period relative to the start of the window to which
-     * it belongs, in milliseconds. May be negative if the start of the period is not within the
-     * window.
-     */
-    public long getPositionInWindowMs() {
-      return C.usToMs(positionInWindowUs);
-    }
-
-    /**
-     * Returns the position of the start of this period relative to the start of the window to which
-     * it belongs, in microseconds. May be negative if the start of the period is not within the
-     * window.
-     */
-    public long getPositionInWindowUs() {
-      return positionInWindowUs;
-    }
-
-  }
 
 }
