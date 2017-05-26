@@ -16,6 +16,7 @@
 package com.google.android.exoplayer2.extractor.mkv;
 
 import android.support.annotation.IntDef;
+import android.util.Log;
 import android.util.SparseArray;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
@@ -83,6 +84,8 @@ public final class MatroskaExtractor implements Extractor {
    * media is treated as being unseekable.
    */
   public static final int FLAG_DISABLE_SEEK_FOR_CUES = 1;
+
+  private static final String TAG = "MatroskaExtractor";
 
   private static final int UNSET_ENTRY_ID = -1;
 
@@ -1558,7 +1561,12 @@ public final class MatroskaExtractor implements Extractor {
           break;
         case CODEC_ID_FOURCC:
           initializationData = parseFourCcVc1Private(new ParsableByteArray(codecPrivate));
-          mimeType = initializationData == null ? MimeTypes.VIDEO_UNKNOWN : MimeTypes.VIDEO_VC1;
+          if (initializationData != null) {
+            mimeType = MimeTypes.VIDEO_VC1;
+          } else {
+            Log.w(TAG, "Unsupported FourCC. Setting mimeType to " + MimeTypes.VIDEO_UNKNOWN);
+            mimeType = MimeTypes.VIDEO_UNKNOWN;
+          }
           break;
         case CODEC_ID_THEORA:
           // TODO: This can be set to the real mimeType if/when we work out what initializationData
@@ -1614,19 +1622,27 @@ public final class MatroskaExtractor implements Extractor {
           break;
         case CODEC_ID_ACM:
           mimeType = MimeTypes.AUDIO_RAW;
-          if (!parseMsAcmCodecPrivate(new ParsableByteArray(codecPrivate))) {
-            throw new ParserException("Non-PCM MS/ACM is unsupported");
-          }
-          pcmEncoding = Util.getPcmEncoding(audioBitDepth);
-          if (pcmEncoding == C.ENCODING_INVALID) {
-            throw new ParserException("Unsupported PCM bit depth: " + audioBitDepth);
+          if (parseMsAcmCodecPrivate(new ParsableByteArray(codecPrivate))) {
+            pcmEncoding = Util.getPcmEncoding(audioBitDepth);
+            if (pcmEncoding == C.ENCODING_INVALID) {
+              pcmEncoding = Format.NO_VALUE;
+              mimeType = MimeTypes.AUDIO_UNKNOWN;
+              Log.w(TAG, "Unsupported PCM bit depth: " + audioBitDepth + ". Setting mimeType to "
+                  + mimeType);
+            }
+          } else {
+            mimeType = MimeTypes.AUDIO_UNKNOWN;
+            Log.w(TAG, "Non-PCM MS/ACM is unsupported. Setting mimeType to " + mimeType);
           }
           break;
         case CODEC_ID_PCM_INT_LIT:
           mimeType = MimeTypes.AUDIO_RAW;
           pcmEncoding = Util.getPcmEncoding(audioBitDepth);
           if (pcmEncoding == C.ENCODING_INVALID) {
-            throw new ParserException("Unsupported PCM bit depth: " + audioBitDepth);
+            pcmEncoding = Format.NO_VALUE;
+            mimeType = MimeTypes.AUDIO_UNKNOWN;
+            Log.w(TAG, "Unsupported PCM bit depth: " + audioBitDepth + ". Setting mimeType to "
+                + mimeType);
           }
           break;
         case CODEC_ID_SUBRIP:
