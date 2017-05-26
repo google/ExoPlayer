@@ -52,6 +52,7 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
   private static final String TAG_DISCONTINUITY_SEQUENCE = "#EXT-X-DISCONTINUITY-SEQUENCE";
   private static final String TAG_PROGRAM_DATE_TIME = "#EXT-X-PROGRAM-DATE-TIME";
   private static final String TAG_INIT_SEGMENT = "#EXT-X-MAP";
+  private static final String TAG_INDEPENDENT_SEGMENTS = "#EXT-X-INDEPENDENT-SEGMENTS";
   private static final String TAG_MEDIA_DURATION = "#EXTINF";
   private static final String TAG_MEDIA_SEQUENCE = "#EXT-X-MEDIA-SEQUENCE";
   private static final String TAG_START = "#EXT-X-START";
@@ -272,6 +273,7 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
     int mediaSequence = 0;
     int version = 1; // Default version == 1.
     long targetDurationUs = C.TIME_UNSET;
+    boolean hasIndependentSegmentsTag = false;
     boolean hasEndTag = false;
     Segment initializationSegment = null;
     List<Segment> segments = new ArrayList<>();
@@ -380,14 +382,16 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
           segmentByteRangeOffset += segmentByteRangeLength;
         }
         segmentByteRangeLength = C.LENGTH_UNSET;
+      } else if (line.equals(TAG_INDEPENDENT_SEGMENTS)) {
+        hasIndependentSegmentsTag = true;
       } else if (line.equals(TAG_ENDLIST)) {
         hasEndTag = true;
       }
     }
     return new HlsMediaPlaylist(playlistType, baseUri, startOffsetUs, playlistStartTimeUs,
         hasDiscontinuitySequence, playlistDiscontinuitySequence, mediaSequence, version,
-        targetDurationUs, hasEndTag, playlistStartTimeUs != 0, initializationSegment, segments,
-        dateRanges);
+        targetDurationUs, hasIndependentSegmentsTag, hasEndTag, playlistStartTimeUs != 0,
+        initializationSegment, segments, dateRanges);
   }
 
   private static String parseStringAttr(String line, Pattern pattern) throws ParserException {
