@@ -115,12 +115,12 @@ public class DashManifestParserTest extends InstrumentationTestCase {
             buildCea708AccessibilityDescriptors("Wrong format")));
   }
 
-  private static List<SchemeValuePair> buildCea608AccessibilityDescriptors(String value) {
-    return Collections.singletonList(new SchemeValuePair("urn:scte:dash:cc:cea-608:2015", value));
+  private static List<Descriptor> buildCea608AccessibilityDescriptors(String value) {
+    return Collections.singletonList(new Descriptor("urn:scte:dash:cc:cea-608:2015", value, null));
   }
 
-  private static List<SchemeValuePair> buildCea708AccessibilityDescriptors(String value) {
-    return Collections.singletonList(new SchemeValuePair("urn:scte:dash:cc:cea-708:2015", value));
+  private static List<Descriptor> buildCea708AccessibilityDescriptors(String value) {
+    return Collections.singletonList(new Descriptor("urn:scte:dash:cc:cea-708:2015", value, null));
   }
 
 }

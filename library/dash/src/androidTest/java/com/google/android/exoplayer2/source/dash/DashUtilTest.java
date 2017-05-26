@@ -62,7 +62,7 @@ public final class DashUtilTest extends TestCase {
   }
 
   private static AdaptationSet newAdaptationSets(Representation... representations) {
-    return new AdaptationSet(0, C.TRACK_TYPE_VIDEO, Arrays.asList(representations), null);
+    return new AdaptationSet(0, C.TRACK_TYPE_VIDEO, Arrays.asList(representations), null, null);
   }
 
   private static Representation newRepresentations(DrmInitData drmInitData) {
