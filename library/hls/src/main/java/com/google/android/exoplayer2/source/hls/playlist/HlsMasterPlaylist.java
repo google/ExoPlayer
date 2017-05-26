@@ -88,16 +88,18 @@ public final class HlsMasterPlaylist extends HlsPlaylist {
   public final List<Format> muxedCaptionFormats;
 
   /**
-   * @param baseUri The base uri. Used to resolve relative paths.
+   * @param baseUri See {@link #baseUri}.
+   * @param tags See {@link #tags}.
    * @param variants See {@link #variants}.
    * @param audios See {@link #audios}.
    * @param subtitles See {@link #subtitles}.
    * @param muxedAudioFormat See {@link #muxedAudioFormat}.
    * @param muxedCaptionFormats See {@link #muxedCaptionFormats}.
    */
-  public HlsMasterPlaylist(String baseUri, List<HlsUrl> variants, List<HlsUrl> audios,
-      List<HlsUrl> subtitles, Format muxedAudioFormat, List<Format> muxedCaptionFormats) {
-    super(baseUri);
+  public HlsMasterPlaylist(String baseUri, List<String> tags, List<HlsUrl> variants,
+      List<HlsUrl> audios, List<HlsUrl> subtitles, Format muxedAudioFormat,
+      List<Format> muxedCaptionFormats) {
+    super(baseUri, tags);
     this.variants = Collections.unmodifiableList(variants);
     this.audios = Collections.unmodifiableList(audios);
     this.subtitles = Collections.unmodifiableList(subtitles);
@@ -115,7 +117,8 @@ public final class HlsMasterPlaylist extends HlsPlaylist {
   public static HlsMasterPlaylist createSingleVariantMasterPlaylist(String variantUrl) {
     List<HlsUrl> variant = Collections.singletonList(HlsUrl.createMediaPlaylistHlsUrl(variantUrl));
     List<HlsUrl> emptyList = Collections.emptyList();
-    return new HlsMasterPlaylist(null, variant, emptyList, emptyList, null, null);
+    return new HlsMasterPlaylist(null, Collections.<String>emptyList(), variant, emptyList,
+        emptyList, null, null);
   }
 
 }
