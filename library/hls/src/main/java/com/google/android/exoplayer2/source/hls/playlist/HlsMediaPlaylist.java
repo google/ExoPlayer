@@ -70,7 +70,7 @@ public final class HlsMediaPlaylist extends HlsPlaylist {
   }
 
   /**
-   * Type of the playlist as specified by #EXT-X-PLAYLIST-TYPE.
+   * Type of the playlist as defined by #EXT-X-PLAYLIST-TYPE.
    */
   @Retention(RetentionPolicy.SOURCE)
   @IntDef({PLAYLIST_TYPE_UNKNOWN, PLAYLIST_TYPE_VOD, PLAYLIST_TYPE_EVENT})
@@ -79,28 +79,86 @@ public final class HlsMediaPlaylist extends HlsPlaylist {
   public static final int PLAYLIST_TYPE_VOD = 1;
   public static final int PLAYLIST_TYPE_EVENT = 2;
 
+  /**
+   * The type of the playlist. See {@link PlaylistType}.
+   */
   @PlaylistType public final int playlistType;
+  /**
+   * The start offset as defined by #EXT-X-START in microseconds.
+   */
   public final long startOffsetUs;
+  /**
+   * The start time of the playlist in playback timebase in microseconds.
+   */
   public final long startTimeUs;
+  /**
+   * Whether the playlist contains the #EXT-X-DISCONTINUITY-SEQUENCE tag.
+   */
   public final boolean hasDiscontinuitySequence;
+  /**
+   * The discontinuity sequence number.
+   */
   public final int discontinuitySequence;
+  /**
+   * The media sequence number as defined by #EXT-X-MEDIA-SEQUENCE.
+   */
   public final int mediaSequence;
+  /**
+   * The compatibility version as defined by #EXT-X-VERSION.
+   */
   public final int version;
+  /**
+   * The target duration as defined by #EXT-X-TARGETDURATION in microseconds.
+   */
   public final long targetDurationUs;
+  /**
+   * Whether the playlist contains the #EXT-X-INDEPENDENT-SEGMENTS tag.
+   */
   public final boolean hasIndependentSegmentsTag;
+  /**
+   * Whether the playlist contains the #EXT-X-ENDLIST tag.
+   */
   public final boolean hasEndTag;
+  /**
+   * Whether the playlist contains a #EXT-X-PROGRAM-DATE-TIME tag.
+   */
   public final boolean hasProgramDateTime;
+  /**
+   * The initialization segment as defined by #EXT-X-MAP.
+   */
   public final Segment initializationSegment;
+  /**
+   * The list of segments in the playlist.
+   */
   public final List<Segment> segments;
-  public final List<String> dateRanges;
+  /**
+   * The total duration of the playlist in microseconds.
+   */
   public final long durationUs;
 
-  public HlsMediaPlaylist(@PlaylistType int playlistType, String baseUri, long startOffsetUs,
-      long startTimeUs, boolean hasDiscontinuitySequence, int discontinuitySequence,
-      int mediaSequence, int version, long targetDurationUs, boolean hasIndependentSegmentsTag,
-      boolean hasEndTag, boolean hasProgramDateTime, Segment initializationSegment,
-      List<Segment> segments, List<String> dateRanges) {
-    super(baseUri);
+  /**
+   * @param playlistType See {@link #playlistType}.
+   * @param baseUri See {@link #baseUri}.
+   * @param tags See {@link #tags}.
+   * @param startOffsetUs See {@link #startOffsetUs}.
+   * @param startTimeUs See {@link #startTimeUs}.
+   * @param hasDiscontinuitySequence See {@link #hasDiscontinuitySequence}.
+   * @param discontinuitySequence See {@link #discontinuitySequence}.
+   * @param mediaSequence See {@link #mediaSequence}.
+   * @param version See {@link #version}.
+   * @param targetDurationUs See {@link #targetDurationUs}.
+   * @param hasIndependentSegmentsTag See {@link #hasIndependentSegmentsTag}.
+   * @param hasEndTag See {@link #hasEndTag}.
+   * @param hasProgramDateTime See {@link #hasProgramDateTime}.
+   * @param initializationSegment See {@link #initializationSegment}.
+   * @param segments See {@link #segments}.
+   */
+  public HlsMediaPlaylist(@PlaylistType int playlistType, String baseUri, List<String> tags,
+      long startOffsetUs, long startTimeUs, boolean hasDiscontinuitySequence,
+      int discontinuitySequence, int mediaSequence, int version, long targetDurationUs,
+      boolean hasIndependentSegmentsTag, boolean hasEndTag, boolean hasProgramDateTime,
+      Segment initializationSegment, List<Segment> segments) {
+    super(baseUri, tags);
     this.playlistType = playlistType;
     this.startTimeUs = startTimeUs;
     this.hasDiscontinuitySequence = hasDiscontinuitySequence;
@@ -121,7 +179,6 @@ public final class HlsMediaPlaylist extends HlsPlaylist {
     }
     this.startOffsetUs = startOffsetUs == C.TIME_UNSET ? C.TIME_UNSET
         : startOffsetUs >= 0 ? startOffsetUs : durationUs + startOffsetUs;
-    this.dateRanges = Collections.unmodifiableList(dateRanges);
   }
 
   /**
@@ -144,6 +201,11 @@ public final class HlsMediaPlaylist extends HlsPlaylist {
         || (segmentCount == otherSegmentCount && hasEndTag && !other.hasEndTag);
   }
 
+  /**
+   * Returns the result of adding the duration of the playlist to its start time.
+   *
+   * @return The result of adding the duration of the playlist to its start time.
+   */
   public long getEndTimeUs() {
     return startTimeUs + durationUs;
   }
@@ -158,9 +220,9 @@ public final class HlsMediaPlaylist extends HlsPlaylist {
    * @return The playlist.
    */
   public HlsMediaPlaylist copyWith(long startTimeUs, int discontinuitySequence) {
-    return new HlsMediaPlaylist(playlistType, baseUri, startOffsetUs, startTimeUs, true,
+    return new HlsMediaPlaylist(playlistType, baseUri, tags, startOffsetUs, startTimeUs, true,
         discontinuitySequence, mediaSequence, version, targetDurationUs, hasIndependentSegmentsTag,
-        hasEndTag, hasProgramDateTime, initializationSegment, segments, dateRanges);
+        hasEndTag, hasProgramDateTime, initializationSegment, segments);
   }
 
   /**
@@ -173,10 +235,9 @@ public final class HlsMediaPlaylist extends HlsPlaylist {
     if (this.hasEndTag) {
       return this;
     }
-    return new HlsMediaPlaylist(playlistType, baseUri, startOffsetUs, startTimeUs,
+    return new HlsMediaPlaylist(playlistType, baseUri, tags, startOffsetUs, startTimeUs,
         hasDiscontinuitySequence, discontinuitySequence, mediaSequence, version, targetDurationUs,
-        hasIndependentSegmentsTag, true, hasProgramDateTime, initializationSegment, segments,
-        dateRanges);
+        hasIndependentSegmentsTag, true, hasProgramDateTime, initializationSegment, segments);
   }
 
 }

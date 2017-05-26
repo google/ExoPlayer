@@ -43,6 +43,8 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
 
   private static final String PLAYLIST_HEADER = "#EXTM3U";
 
+  private static final String TAG_PREFIX = "#EXT";
+
   private static final String TAG_VERSION = "#EXT-X-VERSION";
   private static final String TAG_PLAYLIST_TYPE = "#EXT-X-PLAYLIST-TYPE";
   private static final String TAG_STREAM_INF = "#EXT-X-STREAM-INF";
@@ -59,7 +61,6 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
   private static final String TAG_ENDLIST = "#EXT-X-ENDLIST";
   private static final String TAG_KEY = "#EXT-X-KEY";
   private static final String TAG_BYTERANGE = "#EXT-X-BYTERANGE";
-  private static final String TAG_DATERANGE = "#EXT-X-DATERANGE";
 
   private static final String TYPE_AUDIO = "AUDIO";
   private static final String TYPE_VIDEO = "VIDEO";
@@ -176,6 +177,7 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
     ArrayList<HlsMasterPlaylist.HlsUrl> variants = new ArrayList<>();
     ArrayList<HlsMasterPlaylist.HlsUrl> audios = new ArrayList<>();
     ArrayList<HlsMasterPlaylist.HlsUrl> subtitles = new ArrayList<>();
+    ArrayList<String> tags = new ArrayList<>();
     Format muxedAudioFormat = null;
     List<Format> muxedCaptionFormats = null;
     boolean noClosedCaptions = false;
@@ -183,6 +185,12 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
     String line;
     while (iterator.hasNext()) {
       line = iterator.next();
+
+      if (line.startsWith(TAG_PREFIX)) {
+        // We expose all tags through the playlist.
+        tags.add(line);
+      }
+
       if (line.startsWith(TAG_MEDIA)) {
         @C.SelectionFlags int selectionFlags = parseSelectionFlags(line);
         String uri = parseOptionalStringAttr(line, REGEX_URI);
@@ -255,7 +263,7 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
     if (noClosedCaptions) {
       muxedCaptionFormats = Collections.emptyList();
     }
-    return new HlsMasterPlaylist(baseUri, variants, audios, subtitles, muxedAudioFormat,
+    return new HlsMasterPlaylist(baseUri, tags, variants, audios, subtitles, muxedAudioFormat,
         muxedCaptionFormats);
   }
 
@@ -277,7 +285,7 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
     boolean hasEndTag = false;
     Segment initializationSegment = null;
     List<Segment> segments = new ArrayList<>();
-    List<String> dateRanges = new ArrayList<>();
+    List<String> tags = new ArrayList<>();
 
     long segmentDurationUs = 0;
     boolean hasDiscontinuitySequence = false;
@@ -296,6 +304,12 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
     String line;
     while (iterator.hasNext()) {
       line = iterator.next();
+
+      if (line.startsWith(TAG_PREFIX)) {
+        // We expose all tags through the playlist.
+        tags.add(line);
+      }
+
       if (line.startsWith(TAG_PLAYLIST_TYPE)) {
         String playlistTypeString = parseStringAttr(line, REGEX_PLAYLIST_TYPE);
         if ("VOD".equals(playlistTypeString)) {
@@ -358,8 +372,6 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
               C.msToUs(Util.parseXsDateTime(line.substring(line.indexOf(':') + 1)));
           playlistStartTimeUs = programDatetimeUs - segmentStartTimeUs;
         }
-      } else if (line.startsWith(TAG_DATERANGE)) {
-        dateRanges.add(line);
       } else if (!line.startsWith("#")) {
         String segmentEncryptionIV;
         if (!isEncrypted) {
@@ -388,10 +400,10 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
         hasEndTag = true;
       }
     }
-    return new HlsMediaPlaylist(playlistType, baseUri, startOffsetUs, playlistStartTimeUs,
+    return new HlsMediaPlaylist(playlistType, baseUri, tags, startOffsetUs, playlistStartTimeUs,
         hasDiscontinuitySequence, playlistDiscontinuitySequence, mediaSequence, version,
         targetDurationUs, hasIndependentSegmentsTag, hasEndTag, playlistStartTimeUs != 0,
-        initializationSegment, segments, dateRanges);
+        initializationSegment, segments);
   }
 
   private static String parseStringAttr(String line, Pattern pattern) throws ParserException {
