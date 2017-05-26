@@ -51,7 +51,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
 
   private boolean tracksSelected;
   private boolean playWhenReady;
-  @RepeatMode int repeatMode;
+  private @RepeatMode int repeatMode;
   private int playbackState;
   private int pendingSeekAcks;
   private int pendingPrepareAcks;
