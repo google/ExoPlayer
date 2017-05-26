@@ -222,8 +222,9 @@ import java.util.Locale;
     // Select the chunk.
     int chunkMediaSequence;
     if (previous == null || switchingVariant) {
-      long targetPositionUs = previous == null ? playbackPositionUs : previous.startTimeUs;
-      if (!mediaPlaylist.hasEndTag && targetPositionUs > mediaPlaylist.getEndTimeUs()) {
+      long targetPositionUs = previous == null ? playbackPositionUs
+          : mediaPlaylist.hasIndependentSegmentsTag ? previous.endTimeUs : previous.startTimeUs;
+      if (!mediaPlaylist.hasEndTag && targetPositionUs >= mediaPlaylist.getEndTimeUs()) {
         // If the playlist is too old to contain the chunk, we need to refresh it.
         chunkMediaSequence = mediaPlaylist.mediaSequence + mediaPlaylist.segments.size();
       } else {
