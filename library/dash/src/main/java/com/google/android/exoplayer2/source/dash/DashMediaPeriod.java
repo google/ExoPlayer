@@ -30,8 +30,8 @@ import com.google.android.exoplayer2.source.chunk.ChunkSampleStream;
 import com.google.android.exoplayer2.source.chunk.ChunkSampleStream.EmbeddedSampleStream;
 import com.google.android.exoplayer2.source.dash.manifest.AdaptationSet;
 import com.google.android.exoplayer2.source.dash.manifest.DashManifest;
+import com.google.android.exoplayer2.source.dash.manifest.Descriptor;
 import com.google.android.exoplayer2.source.dash.manifest.Representation;
-import com.google.android.exoplayer2.source.dash.manifest.SchemeValuePair;
 import com.google.android.exoplayer2.trackselection.TrackSelection;
 import com.google.android.exoplayer2.upstream.Allocator;
 import com.google.android.exoplayer2.upstream.LoaderErrorThrower;
@@ -319,9 +319,9 @@ import java.util.List;
   }
 
   private static boolean hasCea608Track(AdaptationSet adaptationSet) {
-    List<SchemeValuePair> descriptors = adaptationSet.accessibilityDescriptors;
+    List<Descriptor> descriptors = adaptationSet.accessibilityDescriptors;
     for (int i = 0; i < descriptors.size(); i++) {
-      SchemeValuePair descriptor = descriptors.get(i);
+      Descriptor descriptor = descriptors.get(i);
       if ("urn:scte:dash:cc:cea-608:2015".equals(descriptor.schemeIdUri)) {
         return true;
       }
