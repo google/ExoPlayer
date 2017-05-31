@@ -220,11 +220,13 @@ public class DefaultTimeBar extends View implements TimeBar {
   public void setPosition(long position) {
     this.position = position;
     setContentDescription(getProgressText());
+    update();
   }
 
   @Override
   public void setBufferedPosition(long bufferedPosition) {
     this.bufferedPosition = bufferedPosition;
+    update();
   }
 
   @Override
@@ -235,6 +237,7 @@ public class DefaultTimeBar extends View implements TimeBar {
     } else {
       updateScrubberState();
     }
+    update();
   }
 
   @Override
@@ -242,6 +245,7 @@ public class DefaultTimeBar extends View implements TimeBar {
     Assertions.checkArgument(adBreakCount == 0 || adBreakTimesMs != null);
     this.adBreakCount = adBreakCount;
     this.adBreakTimesMs = adBreakTimesMs;
+    update();
   }
 
   @Override
