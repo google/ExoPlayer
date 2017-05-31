@@ -323,8 +323,6 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
           playlistType = HlsMediaPlaylist.PLAYLIST_TYPE_VOD;
         } else if ("EVENT".equals(playlistTypeString)) {
           playlistType = HlsMediaPlaylist.PLAYLIST_TYPE_EVENT;
-        } else {
-          throw new ParserException("Illegal playlist type: " + playlistTypeString);
         }
       } else if (line.startsWith(TAG_START)) {
         startOffsetUs = (long) (parseDoubleAttr(line, REGEX_TIME_OFFSET) * C.MICROS_PER_SECOND);
