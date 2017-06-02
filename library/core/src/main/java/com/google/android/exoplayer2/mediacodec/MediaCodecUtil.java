@@ -99,7 +99,7 @@ public final class MediaCodecUtil {
 
   /**
    * Returns information about a decoder suitable for audio passthrough.
-   **
+   *
    * @return A {@link MediaCodecInfo} describing the decoder, or null if no suitable decoder
    *     exists.
    */
