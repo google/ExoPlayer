@@ -67,6 +67,10 @@ public final class DashStreamingTest extends ActivityInstrumentationTestCase2<Ho
       .enableRenderer(DashTestRunner.AUDIO_RENDERER_INDEX)
       .disableRenderer(DashTestRunner.AUDIO_RENDERER_INDEX)
       .enableRenderer(DashTestRunner.AUDIO_RENDERER_INDEX)
+      // Wait 10 seconds, detach the surface, wait another 10 seconds and attach it again.
+      .delay(10000).clearVideoSurface()
+      .delay(10000).setVideoSurface()
+      // Wait 10 seconds, then seek to near end.
       .delay(10000).seek(120000)
       .build();
   

@@ -653,10 +653,8 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
   }
 
   private boolean shouldUseDummySurface(boolean codecIsSecure) {
-    // TODO: Work out when we can safely uncomment the secure case below. This case is currently
-    // broken on Galaxy S8 [Internal: b/37197802].
-    return Util.SDK_INT >= 23 && !tunneling
-        && (!codecIsSecure /* || DummySurface.SECURE_SUPPORTED */);
+    return Util.SDK_INT >= 23 && !tunneling && (!codecIsSecure
+        || (DummySurface.SECURE_SUPPORTED && !deviceNeedsSecureDummySurfaceWorkaround()));
   }
 
   private void setJoiningDeadlineMs() {
@@ -921,6 +919,18 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
 
   private static void setVideoScalingMode(MediaCodec codec, int scalingMode) {
     codec.setVideoScalingMode(scalingMode);
+  }
+
+  /**
+   * Returns whether the device is known to fail outputting from a secure decoder to a secure
+   * surface texture.
+   * <p>
+   * If true is returned then use of {@link DummySurface} is disabled for secure playbacks.
+   */
+  private static boolean deviceNeedsSecureDummySurfaceWorkaround() {
+    // See [Internal: b/37197802].
+    return Util.SDK_INT == 24
+        && (Util.MODEL.startsWith("SM-G950") || Util.MODEL.startsWith("SM-G955"));
   }
 
   /**
