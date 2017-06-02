@@ -23,11 +23,12 @@ import com.google.android.exoplayer2.util.Assertions;
 import java.io.IOException;
 
 /**
- * Loops a {@link MediaSource}.
+ * Loops a {@link MediaSource} a specified number of times.
+ * <p>
+ * Note: To loop a {@link MediaSource} indefinitely, it is usually better to use
+ * {@link ExoPlayer#setRepeatMode(int)}.
  */
 public final class LoopingMediaSource implements MediaSource {
-
-  private static final String TAG = "LoopingMediaSource";
 
   private final MediaSource childSource;
   private final int loopCount;
@@ -35,7 +36,8 @@ public final class LoopingMediaSource implements MediaSource {
   private int childPeriodCount;
 
   /**
-   * Loops the provided source indefinitely.
+   * Loops the provided source indefinitely. Note that it is usually better to use
+   * {@link ExoPlayer#setRepeatMode(int)}.
    *
    * @param childSource The {@link MediaSource} to loop.
    */
