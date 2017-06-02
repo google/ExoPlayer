@@ -314,36 +314,36 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
       }
     }
 
-    MediaCodecInfo codecInfo = null;
-    try {
-      codecInfo = getDecoderInfo(mediaCodecSelector, format, drmSessionRequiresSecureDecoder);
-      if (codecInfo == null && drmSessionRequiresSecureDecoder) {
-        // The drm session indicates that a secure decoder is required, but the device does not have
-        // one. Assuming that supportsFormat indicated support for the media being played, we know
-        // that it does not require a secure output path. Most CDM implementations allow playback to
-        // proceed with a non-secure decoder in this case, so we try our luck.
-        codecInfo = getDecoderInfo(mediaCodecSelector, format, false);
-        if (codecInfo != null) {
-          Log.w(TAG, "Drm session requires secure decoder for " + mimeType + ", but "
-              + "no secure decoder available. Trying to proceed with " + codecInfo.name + ".");
-        }
-      }
-    } catch (DecoderQueryException e) {
-      throwDecoderInitError(new DecoderInitializationException(format, e,
-          drmSessionRequiresSecureDecoder, DecoderInitializationException.DECODER_QUERY_ERROR));
-    }
-
     if (codecInfo == null) {
-      throwDecoderInitError(new DecoderInitializationException(format, null,
-          drmSessionRequiresSecureDecoder,
-          DecoderInitializationException.NO_SUITABLE_DECODER_ERROR));
+      try {
+        codecInfo = getDecoderInfo(mediaCodecSelector, format, drmSessionRequiresSecureDecoder);
+        if (codecInfo == null && drmSessionRequiresSecureDecoder) {
+          // The drm session indicates that a secure decoder is required, but the device does not
+          // have one. Assuming that supportsFormat indicated support for the media being played, we
+          // know that it does not require a secure output path. Most CDM implementations allow
+          // playback to proceed with a non-secure decoder in this case, so we try our luck.
+          codecInfo = getDecoderInfo(mediaCodecSelector, format, false);
+          if (codecInfo != null) {
+            Log.w(TAG, "Drm session requires secure decoder for " + mimeType + ", but "
+                + "no secure decoder available. Trying to proceed with " + codecInfo.name + ".");
+          }
+        }
+      } catch (DecoderQueryException e) {
+        throwDecoderInitError(new DecoderInitializationException(format, e,
+            drmSessionRequiresSecureDecoder, DecoderInitializationException.DECODER_QUERY_ERROR));
+      }
+
+      if (codecInfo == null) {
+        throwDecoderInitError(new DecoderInitializationException(format, null,
+            drmSessionRequiresSecureDecoder,
+            DecoderInitializationException.NO_SUITABLE_DECODER_ERROR));
+      }
     }
 
     if (!shouldInitCodec(codecInfo)) {
       return;
     }
 
-    this.codecInfo = codecInfo;
     String codecName = codecInfo.name;
     codecNeedsDiscardToSpsWorkaround = codecNeedsDiscardToSpsWorkaround(codecName, format);
     codecNeedsFlushWorkaround = codecNeedsFlushWorkaround(codecName);
