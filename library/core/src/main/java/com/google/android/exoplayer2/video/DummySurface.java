@@ -255,8 +255,8 @@ public final class DummySurface extends Surface {
       if (secure) {
         glAttributes = new int[] {
             EGL_CONTEXT_CLIENT_VERSION, 2,
-            EGL_PROTECTED_CONTENT_EXT,
-            EGL_TRUE, EGL_NONE};
+            EGL_PROTECTED_CONTENT_EXT, EGL_TRUE,
+            EGL_NONE};
       } else {
         glAttributes = new int[] {
             EGL_CONTEXT_CLIENT_VERSION, 2,

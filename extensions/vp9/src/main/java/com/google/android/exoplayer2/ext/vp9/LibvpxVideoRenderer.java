@@ -255,7 +255,7 @@ public final class LibvpxVideoRenderer extends BaseRenderer {
 
     if (outputMode == VpxDecoder.OUTPUT_MODE_NONE) {
       // Skip frames in sync with playback, so we'll be at the right frame if the mode changes.
-      if (outputBuffer.timeUs <= positionUs) {
+      if (isBufferLate(outputBuffer.timeUs - positionUs)) {
         skipBuffer();
         return true;
       }
@@ -280,7 +280,6 @@ public final class LibvpxVideoRenderer extends BaseRenderer {
     return false;
   }
 
-
   /**
    * Returns whether the current frame should be dropped.
    *
@@ -293,10 +292,8 @@ public final class LibvpxVideoRenderer extends BaseRenderer {
    */
   protected boolean shouldDropOutputBuffer(long outputBufferTimeUs, long nextOutputBufferTimeUs,
       long positionUs, long joiningDeadlineMs) {
-     // Drop the frame if we're joining and are more than 30ms late, or if we have the next frame
-     // and that's also late. Else we'll render what we have.
-    return (joiningDeadlineMs != C.TIME_UNSET && outputBufferTimeUs < positionUs - 30000)
-        || (nextOutputBufferTimeUs != C.TIME_UNSET && nextOutputBufferTimeUs < positionUs);
+    return isBufferLate(outputBufferTimeUs - positionUs)
+        && (joiningDeadlineMs != C.TIME_UNSET || nextOutputBufferTimeUs != C.TIME_UNSET);
   }
 
   private void renderBuffer() {
@@ -653,6 +650,11 @@ public final class LibvpxVideoRenderer extends BaseRenderer {
       droppedFrames = 0;
       droppedFrameAccumulationStartTimeMs = now;
     }
+  }
+
+  private static boolean isBufferLate(long earlyUs) {
+    // Class a buffer as late if it should have been presented more than 30ms ago.
+    return earlyUs < -30000;
   }
 
 }

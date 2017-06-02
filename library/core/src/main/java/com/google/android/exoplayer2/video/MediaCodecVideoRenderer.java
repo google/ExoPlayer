@@ -40,6 +40,7 @@ import com.google.android.exoplayer2.mediacodec.MediaCodecRenderer;
 import com.google.android.exoplayer2.mediacodec.MediaCodecSelector;
 import com.google.android.exoplayer2.mediacodec.MediaCodecUtil;
 import com.google.android.exoplayer2.mediacodec.MediaCodecUtil.DecoderQueryException;
+import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.TraceUtil;
 import com.google.android.exoplayer2.util.Util;
@@ -77,6 +78,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
   private CodecMaxValues codecMaxValues;
 
   private Surface surface;
+  private Surface dummySurface;
   @C.VideoScalingMode
   private int scalingMode;
   private boolean renderedFirstFrame;
@@ -263,7 +265,8 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
 
   @Override
   public boolean isReady() {
-    if ((renderedFirstFrame || super.shouldInitCodec()) && super.isReady()) {
+    if (super.isReady() && (renderedFirstFrame || (dummySurface != null && surface == dummySurface)
+        || getCodec() == null)) {
       // Ready. If we were joining then we've now joined, so clear the joining deadline.
       joiningDeadlineMs = C.TIME_UNSET;
       return true;
@@ -306,6 +309,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
     clearRenderedFirstFrame();
     frameReleaseTimeHelper.disable();
     tunnelingOnFrameRenderedListener = null;
+    tunneling = false;
     try {
       super.onDisabled();
     } finally {
@@ -330,6 +334,18 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
   }
 
   private void setSurface(Surface surface) throws ExoPlaybackException {
+    if (surface == null) {
+      // Use a dummy surface if possible.
+      if (dummySurface != null) {
+        surface = dummySurface;
+      } else {
+        MediaCodecInfo codecInfo = getCodecInfo();
+        if (codecInfo != null && shouldUseDummySurface(codecInfo.secure)) {
+          dummySurface = DummySurface.newInstanceV17(codecInfo.secure);
+          surface = dummySurface;
+        }
+      }
+    }
     // We only need to update the codec if the surface has changed.
     if (this.surface != surface) {
       this.surface = surface;
@@ -343,7 +359,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
           maybeInitCodec();
         }
       }
-      if (surface != null) {
+      if (surface != null && surface != dummySurface) {
         // If we know the video size, report it again immediately.
         maybeRenotifyVideoSizeChanged();
         // We haven't rendered to the new surface yet.
@@ -356,17 +372,17 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
         clearReportedVideoSize();
         clearRenderedFirstFrame();
       }
-    } else if (surface != null) {
-      // The surface is unchanged and non-null. If we know the video size and/or have already
-      // rendered to the surface, report these again immediately.
+    } else if (surface != null && surface != dummySurface) {
+      // The surface is set and unchanged. If we know the video size and/or have already rendered to
+      // the surface, report these again immediately.
       maybeRenotifyVideoSizeChanged();
       maybeRenotifyRenderedFirstFrame();
     }
   }
 
   @Override
-  protected boolean shouldInitCodec() {
-    return super.shouldInitCodec() && surface != null && surface.isValid();
+  protected boolean shouldInitCodec(MediaCodecInfo codecInfo) {
+    return surface != null || shouldUseDummySurface(codecInfo.secure);
   }
 
   @Override
@@ -375,9 +391,31 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
     codecMaxValues = getCodecMaxValues(codecInfo, format, streamFormats);
     MediaFormat mediaFormat = getMediaFormat(format, codecMaxValues, deviceNeedsAutoFrcWorkaround,
         tunnelingAudioSessionId);
+    if (surface == null) {
+      Assertions.checkState(shouldUseDummySurface(codecInfo.secure));
+      if (dummySurface == null) {
+        dummySurface = DummySurface.newInstanceV17(codecInfo.secure);
+      }
+      surface = dummySurface;
+    }
     codec.configure(mediaFormat, surface, crypto, 0);
     if (Util.SDK_INT >= 23 && tunneling) {
       tunnelingOnFrameRenderedListener = new OnFrameRenderedListenerV23(codec);
+    }
+  }
+
+  @Override
+  protected void releaseCodec() {
+    try {
+      super.releaseCodec();
+    } finally {
+      if (dummySurface != null) {
+        if (surface == dummySurface) {
+          surface = null;
+        }
+        dummySurface.release();
+        dummySurface = null;
+      }
     }
   }
 
@@ -452,9 +490,20 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
           pendingOutputStreamOffsetCount);
     }
     long presentationTimeUs = bufferPresentationTimeUs - outputStreamOffsetUs;
+
     if (shouldSkip) {
       skipOutputBuffer(codec, bufferIndex, presentationTimeUs);
       return true;
+    }
+
+    long earlyUs = bufferPresentationTimeUs - positionUs;
+    if (surface == dummySurface) {
+      // Skip frames in sync with playback, so we'll be at the right frame if the mode changes.
+      if (isBufferLate(earlyUs)) {
+        skipOutputBuffer(codec, bufferIndex, presentationTimeUs);
+        return true;
+      }
+      return false;
     }
 
     if (!renderedFirstFrame) {
@@ -470,9 +519,10 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
       return false;
     }
 
-    // Compute how many microseconds it is until the buffer's presentation time.
+    // Fine-grained adjustment of earlyUs based on the elapsed time since the start of the current
+    // iteration of the rendering loop.
     long elapsedSinceStartOfLoopUs = (SystemClock.elapsedRealtime() * 1000) - elapsedRealtimeUs;
-    long earlyUs = bufferPresentationTimeUs - positionUs - elapsedSinceStartOfLoopUs;
+    earlyUs -= elapsedSinceStartOfLoopUs;
 
     // Compute the buffer's desired release time in nanoseconds.
     long systemTimeNs = System.nanoTime();
@@ -484,7 +534,6 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
     earlyUs = (adjustedReleaseTimeNs - systemTimeNs) / 1000;
 
     if (shouldDropOutputBuffer(earlyUs, elapsedRealtimeUs)) {
-      // We're more than 30ms late rendering the frame.
       dropOutputBuffer(codec, bufferIndex, presentationTimeUs);
       return true;
     }
@@ -526,8 +575,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
    *     measured at the start of the current iteration of the rendering loop.
    */
   protected boolean shouldDropOutputBuffer(long earlyUs, long elapsedRealtimeUs) {
-    // Drop the frame if we're more than 30ms late rendering the frame.
-    return earlyUs < -30000;
+    return isBufferLate(earlyUs);
   }
 
   /**
@@ -604,6 +652,13 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
     maybeNotifyRenderedFirstFrame();
   }
 
+  private boolean shouldUseDummySurface(boolean codecIsSecure) {
+    // TODO: Work out when we can safely uncomment the secure case below. This case is currently
+    // broken on Galaxy S8 [Internal: b/37197802].
+    return Util.SDK_INT >= 23 && !tunneling
+        && (!codecIsSecure /* || DummySurface.SECURE_SUPPORTED */);
+  }
+
   private void setJoiningDeadlineMs() {
     joiningDeadlineMs = allowedJoiningTimeMs > 0
         ? (SystemClock.elapsedRealtime() + allowedJoiningTimeMs) : C.TIME_UNSET;
@@ -672,6 +727,11 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
       droppedFrames = 0;
       droppedFrameAccumulationStartTimeMs = now;
     }
+  }
+
+  private static boolean isBufferLate(long earlyUs) {
+    // Class a buffer as late if it should have been presented more than 30ms ago.
+    return earlyUs < -30000;
   }
 
   @SuppressLint("InlinedApi")
