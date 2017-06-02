@@ -16,7 +16,9 @@
 package com.google.android.exoplayer2.playbacktests.util;
 
 import android.util.Log;
+import android.view.Surface;
 import com.google.android.exoplayer2.ExoPlayer;
+import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.trackselection.MappingTrackSelector;
 
 /**
@@ -41,19 +43,24 @@ public abstract class Action {
    *
    * @param player The player to which the action should be applied.
    * @param trackSelector The track selector to which the action should be applied.
+   * @param surface The surface to use when applying actions.
    */
-  public final void doAction(ExoPlayer player, MappingTrackSelector trackSelector) {
+  public final void doAction(SimpleExoPlayer player, MappingTrackSelector trackSelector,
+      Surface surface) {
     Log.i(tag, description);
-    doActionImpl(player, trackSelector);
+    doActionImpl(player, trackSelector, surface);
   }
 
   /**
-   * Called by {@link #doAction(ExoPlayer, MappingTrackSelector)} do actually perform the action.
+   * Called by {@link #doAction(SimpleExoPlayer, MappingTrackSelector, Surface)} do perform the
+   * action.
    *
    * @param player The player to which the action should be applied.
    * @param trackSelector The track selector to which the action should be applied.
+   * @param surface The surface to use when applying actions.
    */
-  protected abstract void doActionImpl(ExoPlayer player, MappingTrackSelector trackSelector);
+  protected abstract void doActionImpl(SimpleExoPlayer player, MappingTrackSelector trackSelector,
+      Surface surface);
 
   /**
    * Calls {@link ExoPlayer#seekTo(long)}.
@@ -72,7 +79,8 @@ public abstract class Action {
     }
 
     @Override
-    protected void doActionImpl(ExoPlayer player, MappingTrackSelector trackSelector) {
+    protected void doActionImpl(SimpleExoPlayer player, MappingTrackSelector trackSelector,
+        Surface surface) {
       player.seekTo(positionMs);
     }
 
@@ -91,7 +99,8 @@ public abstract class Action {
     }
 
     @Override
-    protected void doActionImpl(ExoPlayer player, MappingTrackSelector trackSelector) {
+    protected void doActionImpl(SimpleExoPlayer player, MappingTrackSelector trackSelector,
+        Surface surface) {
       player.stop();
     }
 
@@ -114,7 +123,8 @@ public abstract class Action {
     }
 
     @Override
-    protected void doActionImpl(ExoPlayer player, MappingTrackSelector trackSelector) {
+    protected void doActionImpl(SimpleExoPlayer player, MappingTrackSelector trackSelector,
+        Surface surface) {
       player.setPlayWhenReady(playWhenReady);
     }
 
@@ -140,10 +150,52 @@ public abstract class Action {
     }
 
     @Override
-    protected void doActionImpl(ExoPlayer player, MappingTrackSelector trackSelector) {
+    protected void doActionImpl(SimpleExoPlayer player, MappingTrackSelector trackSelector,
+        Surface surface) {
       trackSelector.setRendererDisabled(rendererIndex, disabled);
     }
 
   }
+
+  /**
+   * Calls {@link SimpleExoPlayer#clearVideoSurface()}.
+   */
+  public static final class ClearVideoSurface extends Action {
+
+    /**
+     * @param tag A tag to use for logging.
+     */
+    public ClearVideoSurface(String tag) {
+      super(tag, "ClearVideoSurface");
+    }
+
+    @Override
+    protected void doActionImpl(SimpleExoPlayer player, MappingTrackSelector trackSelector,
+        Surface surface) {
+      player.clearVideoSurface();
+    }
+
+  }
+
+  /**
+   * Calls {@link SimpleExoPlayer#setVideoSurface(Surface)}.
+   */
+  public static final class SetVideoSurface extends Action {
+
+    /**
+     * @param tag A tag to use for logging.
+     */
+    public SetVideoSurface(String tag) {
+      super(tag, "SetVideoSurface");
+    }
+
+    @Override
+    protected void doActionImpl(SimpleExoPlayer player, MappingTrackSelector trackSelector,
+        Surface surface) {
+      player.setVideoSurface(surface);
+    }
+
+  }
+
 
 }
