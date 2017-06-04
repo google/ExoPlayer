@@ -76,7 +76,7 @@ public final class DummySurface extends Surface {
     if (Util.SDK_INT >= 17) {
       EGLDisplay display = eglGetDisplay(EGL_DEFAULT_DISPLAY);
       String extensions = EGL14.eglQueryString(display, EGL10.EGL_EXTENSIONS);
-      SECURE_SUPPORTED = extensions.contains("EGL_EXT_protected_content");
+      SECURE_SUPPORTED = extensions != null && extensions.contains("EGL_EXT_protected_content");
     } else {
       SECURE_SUPPORTED = false;
     }
