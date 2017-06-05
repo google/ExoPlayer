@@ -639,7 +639,8 @@ public class DefaultTrackSelector extends MappingTrackSelector {
             continue;
           }
           int trackScore = isWithinConstraints ? 2 : 1;
-          if (isSupported(trackFormatSupport[trackIndex], false)) {
+          boolean isWithinCapabilities = isSupported(trackFormatSupport[trackIndex], false);
+          if (isWithinCapabilities) {
             trackScore += WITHIN_RENDERER_CAPABILITIES_BONUS;
           }
           boolean selectTrack = trackScore > selectedTrackScore;
@@ -655,7 +656,8 @@ public class DefaultTrackSelector extends MappingTrackSelector {
             } else {
               comparisonResult = compareFormatValues(format.bitrate, selectedBitrate);
             }
-            selectTrack = isWithinConstraints ? comparisonResult > 0 : comparisonResult < 0;
+            selectTrack = isWithinCapabilities && isWithinConstraints
+                ? comparisonResult > 0 : comparisonResult < 0;
           }
           if (selectTrack) {
             selectedGroup = trackGroup;
