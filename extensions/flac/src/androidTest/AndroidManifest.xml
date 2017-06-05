@@ -28,7 +28,6 @@
 
   <instrumentation
       android:targetPackage="com.google.android.exoplayer2.ext.flac.test"
-      android:name="android.test.InstrumentationTestRunner"
-      tools:replace="android:targetPackage"/>
+      android:name="android.test.InstrumentationTestRunner"/>
 
 </manifest>
