@@ -1,5 +1,19 @@
 # Release notes #
 
+### r2.4.2 ###
+
+* Stability: Work around Nexus 10 reboot when playing certain content
+  ([2806](https://github.com/google/ExoPlayer/issues/2806)).
+* MP3: Correctly treat MP3s with INFO headers as constant bitrate
+  ([2895](https://github.com/google/ExoPlayer/issues/2895)).
+* HLS: Use average rather than peak bandwidth when available
+  ([#2863](https://github.com/google/ExoPlayer/issues/2863)).
+* SmoothStreaming: Fix timeline for live streams
+  ([#2760](https://github.com/google/ExoPlayer/issues/2760)).
+* UI: Fix DefaultTimeBar invalidation
+  ([#2871](https://github.com/google/ExoPlayer/issues/2871)).
+* Misc bugfixes.
+
 ### r2.4.1 ###
 
 * Stability: Avoid OutOfMemoryError in extractors when parsing malformed media
