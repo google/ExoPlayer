@@ -156,13 +156,13 @@ public class AdaptiveTrackSelection extends BaseTrackSelection {
     long nowMs = SystemClock.elapsedRealtime();
     // Get the current and ideal selections.
     int currentSelectedIndex = selectedIndex;
-    Format currentFormat = getSelectedFormat();
     int idealSelectedIndex = determineIdealSelectedIndex(nowMs);
-    Format idealFormat = getFormat(idealSelectedIndex);
     // Assume we can switch to the ideal selection.
     selectedIndex = idealSelectedIndex;
     // Revert back to the current selection if conditions are not suitable for switching.
-    if (currentFormat != null && !isBlacklisted(selectedIndex, nowMs)) {
+    if (!isBlacklisted(currentSelectedIndex, nowMs)) {
+      Format currentFormat = getFormat(currentSelectedIndex);
+      Format idealFormat = getFormat(idealSelectedIndex);
       if (idealFormat.bitrate > currentFormat.bitrate
           && bufferedDurationUs < minDurationForQualityIncreaseUs) {
         // The ideal track is a higher quality, but we have insufficient buffer to safely switch
