@@ -442,7 +442,7 @@ public class DefaultTimeBar extends View implements TimeBar {
       parent.requestDisallowInterceptTouchEvent(true);
     }
     if (listener != null) {
-      listener.onScrubStart(this);
+      listener.onScrubStart(this, getScrubberPosition());
     }
   }
 
