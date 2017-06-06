@@ -895,6 +895,9 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
           // maximum input size, so use the default value.
           return Format.NO_VALUE;
         }
+        if ("Galaxy Nexus".equals(Util.MODEL)) {
+          return Format.NO_VALUE;
+        }
         // Round up width/height to an integer number of macroblocks.
         maxPixels = Util.ceilDivide(width, 16) * Util.ceilDivide(height, 16) * 16 * 16;
         minCompressionRatio = 2;
