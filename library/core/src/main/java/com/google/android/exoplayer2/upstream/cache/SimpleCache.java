@@ -110,7 +110,8 @@ public final class SimpleCache implements Cache {
   @Override
   public synchronized NavigableSet<CacheSpan> getCachedSpans(String key) {
     CachedContent cachedContent = index.get(key);
-    return cachedContent == null ? null : new TreeSet<CacheSpan>(cachedContent.getSpans());
+    return cachedContent == null || cachedContent.isEmpty() ? null
+        : new TreeSet<CacheSpan>(cachedContent.getSpans());
   }
 
   @Override
