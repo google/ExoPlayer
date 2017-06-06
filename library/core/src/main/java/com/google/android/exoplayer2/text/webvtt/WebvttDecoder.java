@@ -81,7 +81,10 @@ public final class WebvttDecoder extends SimpleSubtitleDecoder {
         }
       } else if (event == EVENT_CUE) {
         if (cueParser.parseCue(parsableWebvttData, webvttCueBuilder, definedStyles)) {
-          subtitles.add(webvttCueBuilder.build());
+          WebvttCue[] cue = webvttCueBuilder.build();
+          for (int i = 0; i < cue.length; i++) {
+            subtitles.add(cue[i]);
+          }
           webvttCueBuilder.reset();
         }
       }

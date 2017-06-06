@@ -51,6 +51,9 @@ import java.util.regex.Pattern;
 
   private static final Pattern CUE_SETTING_PATTERN = Pattern.compile("(\\S+?):(\\S+)");
 
+  public static final Pattern CUE_TIMESTAMP = Pattern
+      .compile("\\d{2}:\\d{2}:\\d{2}.\\d{3}");
+
   private static final char CHAR_LESS_THAN = '<';
   private static final char CHAR_GREATER_THAN = '>';
   private static final char CHAR_SLASH = '/';
@@ -168,6 +171,13 @@ import java.util.regex.Pattern;
           boolean isVoidTag = markup.charAt(pos - 2) == CHAR_SLASH;
           String fullTagExpression = markup.substring(ltPos + (isClosingTag ? 2 : 1),
               isVoidTag ? pos - 2 : pos - 1);
+
+          Matcher cueHeaderMatcher = WebvttCueParser.CUE_TIMESTAMP.matcher(fullTagExpression);
+          if (cueHeaderMatcher.matches()) {
+            long result = WebvttParserUtil.parseTimestampUs(fullTagExpression);
+            builder.addCueTimeStamp(result, spannedText.toString());
+          }
+		  
           String tagName = getTagName(fullTagExpression);
           if (tagName == null || !isSupportedTag(tagName)) {
             continue;
