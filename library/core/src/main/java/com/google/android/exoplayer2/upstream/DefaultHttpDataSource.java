@@ -29,9 +29,14 @@ import java.io.InterruptedIOException;
 import java.io.OutputStream;
 import java.lang.reflect.Method;
 import java.net.HttpURLConnection;
+import java.net.InetAddress;
+import java.net.NetworkInterface;
 import java.net.NoRouteToHostException;
 import java.net.ProtocolException;
+import java.net.Proxy;
+import java.net.SocketException;
 import java.net.URL;
+import java.net.UnknownHostException;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
@@ -390,7 +395,12 @@ public class DefaultHttpDataSource implements HttpDataSource {
    */
   private HttpURLConnection makeConnection(URL url, byte[] postBody, long position,
       long length, boolean allowGzip, boolean followRedirects) throws IOException {
-    HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+    HttpURLConnection connection;
+    if (isLocalAddress(url)) {
+      connection = (HttpURLConnection) url.openConnection(Proxy.NO_PROXY);
+    } else {
+      connection = (HttpURLConnection) url.openConnection();
+    }
     connection.setConnectTimeout(connectTimeoutMillis);
     connection.setReadTimeout(readTimeoutMillis);
     if (defaultRequestProperties != null) {
@@ -643,4 +653,43 @@ public class DefaultHttpDataSource implements HttpDataSource {
     }
   }
 
+  /**
+   *  Check if a given URL is a local address
+   *
+   *  @param url The url to connect to.
+   *  @return true if the url is a local address or loopback address, false otherwise.
+   */
+  private boolean isLocalAddress(URL url) {
+    String sHost;
+    InetAddress addr;
+    try {
+      sHost = url.getHost();
+    } catch (Exception e) {
+      sHost = null;
+    }
+
+    if (sHost == null) {
+      return false;
+    }
+
+    try {
+      addr = InetAddress.getByName(sHost);
+    } catch (UnknownHostException ex) {
+      addr = null;
+    }
+
+    if (addr == null) {
+      return false;
+    }
+
+    if (addr.isAnyLocalAddress() || addr.isLoopbackAddress()) {
+      return true;
+    }
+
+    try {
+      return NetworkInterface.getByInetAddress(addr) != null;
+    } catch (SocketException e) {
+      return false;
+    }
+  }
 }
