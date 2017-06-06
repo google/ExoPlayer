@@ -382,10 +382,14 @@ public final class TsExtractor implements Extractor {
     private static final int TS_PMT_DESC_DVBSUBS = 0x59;
 
     private final ParsableBitArray pmtScratch;
+    private final SparseArray<TsPayloadReader> trackIdToReaderScratch;
+    private final SparseIntArray trackIdToPidScratch;
     private final int pid;
 
     public PmtReader(int pid) {
       pmtScratch = new ParsableBitArray(new byte[5]);
+      trackIdToReaderScratch = new SparseArray<>();
+      trackIdToPidScratch = new SparseIntArray();
       this.pid = pid;
     }
 
@@ -436,6 +440,8 @@ public final class TsExtractor implements Extractor {
             new TrackIdGenerator(programNumber, TS_STREAM_TYPE_ID3, MAX_PID_PLUS_ONE));
       }
 
+      trackIdToReaderScratch.clear();
+      trackIdToPidScratch.clear();
       int remainingEntriesLength = sectionData.bytesLeft();
       while (remainingEntriesLength > 0) {
         sectionData.readBytes(pmtScratch, 5);
@@ -454,23 +460,30 @@ public final class TsExtractor implements Extractor {
         if (trackIds.get(trackId)) {
           continue;
         }
-        trackIds.put(trackId, true);
 
-        TsPayloadReader reader;
-        if (mode == MODE_HLS && streamType == TS_STREAM_TYPE_ID3) {
-          reader = id3Reader;
-        } else {
-          reader = payloadReaderFactory.createPayloadReader(streamType, esInfo);
-          if (reader != null) {
+        TsPayloadReader reader = mode == MODE_HLS && streamType == TS_STREAM_TYPE_ID3 ? id3Reader
+            : payloadReaderFactory.createPayloadReader(streamType, esInfo);
+        if (mode != MODE_HLS
+            || elementaryPid < trackIdToPidScratch.get(trackId, MAX_PID_PLUS_ONE)) {
+          trackIdToPidScratch.put(trackId, elementaryPid);
+          trackIdToReaderScratch.put(trackId, reader);
+        }
+      }
+
+      int trackIdCount = trackIdToPidScratch.size();
+      for (int i = 0; i < trackIdCount; i++) {
+        int trackId = trackIdToPidScratch.keyAt(i);
+        trackIds.put(trackId, true);
+        TsPayloadReader reader = trackIdToReaderScratch.valueAt(i);
+        if (reader != null) {
+          if (reader != id3Reader) {
             reader.init(timestampAdjuster, output,
                 new TrackIdGenerator(programNumber, trackId, MAX_PID_PLUS_ONE));
           }
-        }
-
-        if (reader != null) {
-          tsPayloadReaders.put(elementaryPid, reader);
+          tsPayloadReaders.put(trackIdToPidScratch.valueAt(i), reader);
         }
       }
+
       if (mode == MODE_HLS) {
         if (!tracksEnded) {
           output.endTracks();
