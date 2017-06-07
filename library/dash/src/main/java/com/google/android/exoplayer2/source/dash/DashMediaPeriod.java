@@ -273,7 +273,7 @@ import java.util.List;
       AdaptationSet firstAdaptationSet = adaptationSets.get(adaptationSetIndices[0]);
       int primaryTrackGroupIndex = trackGroupCount;
       boolean hasEventMessageTrack = primaryGroupHasEventMessageTrackFlags[i];
-      boolean hasCea608Track = primaryGroupHasEventMessageTrackFlags[i];
+      boolean hasCea608Track = primaryGroupHasCea608TrackFlags[i];
 
       trackGroups[trackGroupCount] = new TrackGroup(formats);
       trackGroupInfos[trackGroupCount++] = new TrackGroupInfo(firstAdaptationSet.type,
