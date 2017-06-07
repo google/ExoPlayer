@@ -24,7 +24,8 @@ android {
 }
 
 dependencies {
-    compile project(':library-core')
+    androidTestCompile project(':library-core')
     androidTestCompile project(':library-dash')
     androidTestCompile project(':library-hls')
+    androidTestCompile project(':testutils')
 }
