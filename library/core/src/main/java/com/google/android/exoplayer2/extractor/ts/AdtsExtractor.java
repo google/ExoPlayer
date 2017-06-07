@@ -23,6 +23,7 @@ import com.google.android.exoplayer2.extractor.ExtractorsFactory;
 import com.google.android.exoplayer2.extractor.PositionHolder;
 import com.google.android.exoplayer2.extractor.SeekMap;
 import com.google.android.exoplayer2.extractor.ts.TsPayloadReader.TrackIdGenerator;
+import com.google.android.exoplayer2.util.HLSEncryptInfo;
 import com.google.android.exoplayer2.util.ParsableBitArray;
 import com.google.android.exoplayer2.util.ParsableByteArray;
 import com.google.android.exoplayer2.util.Util;
@@ -61,6 +62,11 @@ public final class AdtsExtractor implements Extractor {
   private AdtsReader reader;
   private boolean startedPacket;
 
+  private  int mMode = C.TS_STREAM_TYPE_AAC;
+  private  String encryptionMethod;
+  private  byte[] encryptionKey;
+  private  byte[] encryptionIv;
+
   public AdtsExtractor() {
     this(0);
   }
@@ -68,6 +74,18 @@ public final class AdtsExtractor implements Extractor {
   public AdtsExtractor(long firstSampleTimestampUs) {
     this.firstSampleTimestampUs = firstSampleTimestampUs;
     packetBuffer = new ParsableByteArray(MAX_PACKET_SIZE);
+  }
+
+  public AdtsExtractor(long firstSampleTimestampUs, HLSEncryptInfo hlsEncryptInfo) {
+    this.firstSampleTimestampUs = firstSampleTimestampUs;
+    packetBuffer = new ParsableByteArray(MAX_PACKET_SIZE);
+    this.encryptionMethod = hlsEncryptInfo.encryptionMethod;
+    this.encryptionKey = hlsEncryptInfo.encryptionKey;
+    this.encryptionIv = hlsEncryptInfo.encryptionIv;
+    if ( encryptionMethod != null && encryptionMethod.equals(C.ENCRYPTION_METHOD_SAMPLE_AES)) {
+      this.mMode = C.TS_STREAM_TYPE_AAC_ADTS_SAMPLE_AES;
+    }
+
   }
 
   @Override
@@ -127,7 +145,8 @@ public final class AdtsExtractor implements Extractor {
 
   @Override
   public void init(ExtractorOutput output) {
-    reader = new AdtsReader(true);
+
+    reader = new AdtsReader(true, mMode, encryptionKey, encryptionIv);
     reader.createTracks(output, new TrackIdGenerator(0, 1));
     output.endTracks();
     output.seekMap(new SeekMap.Unseekable(C.TIME_UNSET));

@@ -32,6 +32,7 @@ import com.google.android.exoplayer2.trackselection.BaseTrackSelection;
 import com.google.android.exoplayer2.trackselection.TrackSelection;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DataSpec;
+import com.google.android.exoplayer2.util.HLSEncryptInfo;
 import com.google.android.exoplayer2.util.TimestampAdjuster;
 import com.google.android.exoplayer2.util.UriUtil;
 import com.google.android.exoplayer2.util.Util;
@@ -92,12 +93,13 @@ import java.util.Locale;
   private boolean isTimestampMaster;
   private byte[] scratchSpace;
   private IOException fatalError;
-  private HlsUrl expectedPlaylistUrl;
 
   private Uri encryptionKeyUri;
   private byte[] encryptionKey;
   private String encryptionIvString;
   private byte[] encryptionIv;
+
+
 
   // Note: The track group in the selection is typically *not* equal to trackGroup. This is due to
   // the way in which HlsSampleStreamWrapper generates track groups. Use only index based methods
@@ -112,8 +114,7 @@ import java.util.Locale;
    * @param timestampAdjusterProvider A provider of {@link TimestampAdjuster} instances. If
    *     multiple {@link HlsChunkSource}s are used for a single playback, they should all share the
    *     same provider.
-   * @param muxedCaptionFormats List of muxed caption {@link Format}s. Null if no closed caption
-   *     information is available in the master playlist.
+   * @param muxedCaptionFormats List of muxed caption {@link Format}s.
    */
   public HlsChunkSource(HlsPlaylistTracker playlistTracker, HlsUrl[] variants,
       HlsDataSourceFactory dataSourceFactory, TimestampAdjusterProvider timestampAdjusterProvider,
@@ -143,9 +144,6 @@ import java.util.Locale;
   public void maybeThrowError() throws IOException {
     if (fatalError != null) {
       throw fatalError;
-    }
-    if (expectedPlaylistUrl != null) {
-      playlistTracker.maybeThrowPlaylistRefreshError(expectedPlaylistUrl);
     }
   }
 
@@ -199,7 +197,6 @@ import java.util.Locale;
   public void getNextChunk(HlsMediaChunk previous, long playbackPositionUs, HlsChunkHolder out) {
     int oldVariantIndex = previous == null ? C.INDEX_UNSET
         : trackGroup.indexOf(previous.trackFormat);
-    expectedPlaylistUrl = null;
     // Use start time of the previous chunk rather than its end time because switching format will
     // require downloading overlapping segments.
     long bufferedDurationUs = previous == null ? 0
@@ -213,7 +210,6 @@ import java.util.Locale;
     HlsUrl selectedUrl = variants[selectedVariantIndex];
     if (!playlistTracker.isSnapshotValid(selectedUrl)) {
       out.playlist = selectedUrl;
-      expectedPlaylistUrl = selectedUrl;
       // Retry when playlist is refreshed.
       return;
     }
@@ -253,7 +249,6 @@ import java.util.Locale;
         out.endOfStream = true;
       } else /* Live */ {
         out.playlist = selectedUrl;
-        expectedPlaylistUrl = selectedUrl;
       }
       return;
     }
@@ -264,14 +259,23 @@ import java.util.Locale;
     // Check if encryption is specified.
     if (segment.isEncrypted) {
       Uri keyUri = UriUtil.resolveToUri(mediaPlaylist.baseUri, segment.encryptionKeyUri);
-      if (!keyUri.equals(encryptionKeyUri)) {
-        // Encryption is specified and the key has changed.
-        out.chunk = newEncryptionKeyChunk(keyUri, segment.encryptionIV, selectedVariantIndex,
-            trackSelection.getSelectionReason(), trackSelection.getSelectionData());
-        return;
+
+      if (
+              ((segment.hlsEncryptInfo.encryptionKeyFormat == null) && segment.hlsEncryptInfo.encryptionMethod.equals(C.ENCRYPTION_METHOD_SAMPLE_AES))
+           || segment.hlsEncryptInfo.encryptionMethod.equals(C.ENCRYPTION_METHOD_AES_128)
+              ) {
+
+        if (!keyUri.equals(encryptionKeyUri)) {
+          // Encryption is specified and the key has changed.
+          out.chunk = newEncryptionKeyChunk(keyUri, segment.encryptionIV, selectedVariantIndex,
+                  trackSelection.getSelectionReason(), trackSelection.getSelectionData());
+          encryptionKeyUri = keyUri;
+          return;
+        }
       }
+
       if (!Util.areEqual(segment.encryptionIV, encryptionIvString)) {
-        setEncryptionData(keyUri, segment.encryptionIV, encryptionKey);
+        setEncryptionData(keyUri, segment.encryptionIV, encryptionKey, (segment.hlsEncryptInfo != null) ? segment.hlsEncryptInfo.encryptionMethod : null);
       }
     } else {
       clearEncryptionData();
@@ -299,7 +303,7 @@ import java.util.Locale;
     out.chunk = new HlsMediaChunk(mediaDataSource, dataSpec, initDataSpec, selectedUrl,
         muxedCaptionFormats, trackSelection.getSelectionReason(), trackSelection.getSelectionData(),
         startTimeUs, startTimeUs + segment.durationUs, chunkMediaSequence, discontinuitySequence,
-        isTimestampMaster, timestampAdjuster, previous, encryptionKey, encryptionIv);
+        isTimestampMaster, timestampAdjuster, previous, encryptionKey, encryptionIv, segment.hlsEncryptInfo);
   }
 
   /**
@@ -355,7 +359,6 @@ import java.util.Locale;
     return new EncryptionKeyChunk(encryptionDataSource, dataSpec, variants[variantIndex].format,
         trackSelectionReason, trackSelectionData, scratchSpace, iv);
   }
-
   private void setEncryptionData(Uri keyUri, String iv, byte[] secretKey) {
     String trimmedIv;
     if (iv.toLowerCase(Locale.getDefault()).startsWith("0x")) {
@@ -368,12 +371,18 @@ import java.util.Locale;
     byte[] ivDataWithPadding = new byte[16];
     int offset = ivData.length > 16 ? ivData.length - 16 : 0;
     System.arraycopy(ivData, offset, ivDataWithPadding, ivDataWithPadding.length - ivData.length
-        + offset, ivData.length - offset);
+            + offset, ivData.length - offset);
 
     encryptionKeyUri = keyUri;
     encryptionKey = secretKey;
     encryptionIvString = iv;
     encryptionIv = ivDataWithPadding;
+  }
+
+
+  private void setEncryptionData(Uri keyUri, String iv, byte[] secretKey, String method) {
+    setEncryptionData(keyUri, iv, secretKey);
+
   }
 
   private void clearEncryptionData() {
