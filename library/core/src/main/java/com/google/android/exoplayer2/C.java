@@ -22,643 +22,907 @@ import android.media.AudioManager;
 import android.media.MediaCodec;
 import android.media.MediaFormat;
 import android.support.annotation.IntDef;
+import android.util.Log;
 import android.view.Surface;
+
+import com.google.android.exoplayer2.util.Assertions;
+import com.google.android.exoplayer2.util.ParsableByteArray;
 import com.google.android.exoplayer2.util.Util;
+
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.security.SecureRandom;
 import java.util.UUID;
+import java.util.Vector;
+
+import javax.crypto.Cipher;
+import javax.crypto.KeyGenerator;
+import javax.crypto.SecretKey;
+import javax.crypto.spec.IvParameterSpec;
+import javax.crypto.spec.SecretKeySpec;
+
+import static java.lang.Math.min;
 
 /**
  * Defines constants used by the library.
  */
 public final class C {
 
-  private C() {}
+    private C() {
+    }
 
-  /**
-   * Special constant representing a time corresponding to the end of a source. Suitable for use in
-   * any time base.
-   */
-  public static final long TIME_END_OF_SOURCE = Long.MIN_VALUE;
 
-  /**
-   * Special constant representing an unset or unknown time or duration. Suitable for use in any
-   * time base.
-   */
-  public static final long TIME_UNSET = Long.MIN_VALUE + 1;
+    public static final int AES_BLOCK_LENGTH_BYTES = 16;
 
-  /**
-   * Represents an unset or unknown index.
-   */
-  public static final int INDEX_UNSET = -1;
+    public static final int TS_STREAM_TYPE_H262 = 0x02;
+    public static final int TS_STREAM_TYPE_H264 = 0x1B;
+    public static final int TS_STREAM_TYPE_H265 = 0x24;
+    public static final int TS_STREAM_TYPE_SAMPLE_AES_H264 = 0xDB;
+    public static final int TS_STREAM_TYPE_SAMPLE_AES_H265 = 0xE4;
 
-  /**
-   * Represents an unset or unknown position.
-   */
-  public static final int POSITION_UNSET = -1;
+    public static final int NAL_UNIT_TYPE_SEI = 6; // Supplemental enhancement information
+    public static final int NAL_UNIT_TYPE_SPS = 7; // Sequence parameter set
+    public static final int NAL_UNIT_TYPE_PPS = 8; // Picture parameter set
 
-  /**
-   * Represents an unset or unknown length.
-   */
-  public static final int LENGTH_UNSET = -1;
+    public static final int NAL_UNIT_TYPE_NON_IDR = 1; // Coded slice of a non-IDR picture
+    public static final int NAL_UNIT_TYPE_PARTITION_A = 2; // Coded slice data partition A
+    public static final int NAL_UNIT_TYPE_IDR = 5; // Coded slice of an IDR picture
+    public static final int NAL_UNIT_TYPE_AUD = 9; // Access unit delimiter
 
-  /**
-   * The number of microseconds in one second.
-   */
-  public static final long MICROS_PER_SECOND = 1000000L;
+    public static final int NAL_UNIT_TYPE_SLICE = 1;
+    public static final String ENCRYPTION_METHOD_SAMPLE_AES = "SAMPLE-AES";
+    public static final String ENCRYPTION_METHOD_AES_128 = "AES-128";
 
-  /**
-   * The number of nanoseconds in one second.
-   */
-  public static final long NANOS_PER_SECOND = 1000000000L;
+    public static final int TS_STREAM_TYPE_AAC_ADTS_SAMPLE_AES = 0xcf;
+    public static final int TS_STREAM_TYPE_AC3_SAMPLE_AES = 0xc1;
+    public static final int TS_STREAM_TYPE_EAC3_SAMPLE_AES = 0xc2;
 
-  /**
-   * The name of the UTF-8 charset.
-   */
-  public static final String UTF8_NAME = "UTF-8";
+    public static final int TS_STREAM_TYPE_AAC = 0x0F;
+    public static final int TS_STREAM_TYPE_AC3 = 0x81;
+    public static final int TS_STREAM_TYPE_DTS = 0x8A;
 
-  /**
-   * The name of the UTF-16 charset.
-   */
-  public static final String UTF16_NAME = "UTF-16";
 
-  /**
-   * * The name of the serif font family.
-   */
-  public static final String SERIF_NAME = "serif";
+    /**
+     * Special constant representing a time corresponding to the end of a source. Suitable for use in
+     * any time base.
+     */
+    public static final long TIME_END_OF_SOURCE = Long.MIN_VALUE;
 
-  /**
-   * * The name of the sans-serif font family.
-   */
-  public static final String SANS_SERIF_NAME = "sans-serif";
+    /**
+     * Special constant representing an unset or unknown time or duration. Suitable for use in any
+     * time base.
+     */
+    public static final long TIME_UNSET = Long.MIN_VALUE + 1;
 
-  /**
-   * Crypto modes for a codec.
-   */
-  @Retention(RetentionPolicy.SOURCE)
-  @IntDef({CRYPTO_MODE_UNENCRYPTED, CRYPTO_MODE_AES_CTR, CRYPTO_MODE_AES_CBC})
-  public @interface CryptoMode {}
-  /**
-   * @see MediaCodec#CRYPTO_MODE_UNENCRYPTED
-   */
-  @SuppressWarnings("InlinedApi")
-  public static final int CRYPTO_MODE_UNENCRYPTED = MediaCodec.CRYPTO_MODE_UNENCRYPTED;
-  /**
-   * @see MediaCodec#CRYPTO_MODE_AES_CTR
-   */
-  @SuppressWarnings("InlinedApi")
-  public static final int CRYPTO_MODE_AES_CTR = MediaCodec.CRYPTO_MODE_AES_CTR;
-  /**
-   * @see MediaCodec#CRYPTO_MODE_AES_CBC
-   */
-  @SuppressWarnings("InlinedApi")
-  public static final int CRYPTO_MODE_AES_CBC = MediaCodec.CRYPTO_MODE_AES_CBC;
+    /**
+     * Represents an unset or unknown index.
+     */
+    public static final int INDEX_UNSET = -1;
 
-  /**
-   * Represents an unset {@link android.media.AudioTrack} session identifier. Equal to
-   * {@link AudioManager#AUDIO_SESSION_ID_GENERATE}.
-   */
-  @SuppressWarnings("InlinedApi")
-  public static final int AUDIO_SESSION_ID_UNSET = AudioManager.AUDIO_SESSION_ID_GENERATE;
+    /**
+     * Represents an unset or unknown position.
+     */
+    public static final int POSITION_UNSET = -1;
 
-  /**
-   * Represents an audio encoding, or an invalid or unset value.
-   */
-  @Retention(RetentionPolicy.SOURCE)
-  @IntDef({Format.NO_VALUE, ENCODING_INVALID, ENCODING_PCM_8BIT, ENCODING_PCM_16BIT,
-      ENCODING_PCM_24BIT, ENCODING_PCM_32BIT, ENCODING_AC3, ENCODING_E_AC3, ENCODING_DTS,
-      ENCODING_DTS_HD})
-  public @interface Encoding {}
+    /**
+     * Represents an unset or unknown length.
+     */
+    public static final int LENGTH_UNSET = -1;
 
-  /**
-   * Represents a PCM audio encoding, or an invalid or unset value.
-   */
-  @Retention(RetentionPolicy.SOURCE)
-  @IntDef({Format.NO_VALUE, ENCODING_INVALID, ENCODING_PCM_8BIT, ENCODING_PCM_16BIT,
-      ENCODING_PCM_24BIT, ENCODING_PCM_32BIT})
-  public @interface PcmEncoding {}
-  /**
-   * @see AudioFormat#ENCODING_INVALID
-   */
-  public static final int ENCODING_INVALID = AudioFormat.ENCODING_INVALID;
-  /**
-   * @see AudioFormat#ENCODING_PCM_8BIT
-   */
-  public static final int ENCODING_PCM_8BIT = AudioFormat.ENCODING_PCM_8BIT;
-  /**
-   * @see AudioFormat#ENCODING_PCM_16BIT
-   */
-  public static final int ENCODING_PCM_16BIT = AudioFormat.ENCODING_PCM_16BIT;
-  /**
-   * PCM encoding with 24 bits per sample.
-   */
-  public static final int ENCODING_PCM_24BIT = 0x80000000;
-  /**
-   * PCM encoding with 32 bits per sample.
-   */
-  public static final int ENCODING_PCM_32BIT = 0x40000000;
-  /**
-   * @see AudioFormat#ENCODING_AC3
-   */
-  @SuppressWarnings("InlinedApi")
-  public static final int ENCODING_AC3 = AudioFormat.ENCODING_AC3;
-  /**
-   * @see AudioFormat#ENCODING_E_AC3
-   */
-  @SuppressWarnings("InlinedApi")
-  public static final int ENCODING_E_AC3 = AudioFormat.ENCODING_E_AC3;
-  /**
-   * @see AudioFormat#ENCODING_DTS
-   */
-  @SuppressWarnings("InlinedApi")
-  public static final int ENCODING_DTS = AudioFormat.ENCODING_DTS;
-  /**
-   * @see AudioFormat#ENCODING_DTS_HD
-   */
-  @SuppressWarnings("InlinedApi")
-  public static final int ENCODING_DTS_HD = AudioFormat.ENCODING_DTS_HD;
+    /**
+     * The number of microseconds in one second.
+     */
+    public static final long MICROS_PER_SECOND = 1000000L;
 
-  /**
-   * @see AudioFormat#CHANNEL_OUT_7POINT1_SURROUND
-   */
-  @SuppressWarnings({"InlinedApi", "deprecation"})
-  public static final int CHANNEL_OUT_7POINT1_SURROUND = Util.SDK_INT < 23
-      ? AudioFormat.CHANNEL_OUT_7POINT1 : AudioFormat.CHANNEL_OUT_7POINT1_SURROUND;
+    /**
+     * The number of nanoseconds in one second.
+     */
+    public static final long NANOS_PER_SECOND = 1000000000L;
 
-  /**
-   * Stream types for an {@link android.media.AudioTrack}.
-   */
-  @Retention(RetentionPolicy.SOURCE)
-  @IntDef({STREAM_TYPE_ALARM, STREAM_TYPE_MUSIC, STREAM_TYPE_NOTIFICATION, STREAM_TYPE_RING,
-      STREAM_TYPE_SYSTEM, STREAM_TYPE_VOICE_CALL})
-  public @interface StreamType {}
-  /**
-   * @see AudioManager#STREAM_ALARM
-   */
-  public static final int STREAM_TYPE_ALARM = AudioManager.STREAM_ALARM;
-  /**
-   * @see AudioManager#STREAM_MUSIC
-   */
-  public static final int STREAM_TYPE_MUSIC = AudioManager.STREAM_MUSIC;
-  /**
-   * @see AudioManager#STREAM_NOTIFICATION
-   */
-  public static final int STREAM_TYPE_NOTIFICATION = AudioManager.STREAM_NOTIFICATION;
-  /**
-   * @see AudioManager#STREAM_RING
-   */
-  public static final int STREAM_TYPE_RING = AudioManager.STREAM_RING;
-  /**
-   * @see AudioManager#STREAM_SYSTEM
-   */
-  public static final int STREAM_TYPE_SYSTEM = AudioManager.STREAM_SYSTEM;
-  /**
-   * @see AudioManager#STREAM_VOICE_CALL
-   */
-  public static final int STREAM_TYPE_VOICE_CALL = AudioManager.STREAM_VOICE_CALL;
-  /**
-   * The default stream type used by audio renderers.
-   */
-  public static final int STREAM_TYPE_DEFAULT = STREAM_TYPE_MUSIC;
+    /**
+     * The name of the UTF-8 charset.
+     */
+    public static final String UTF8_NAME = "UTF-8";
 
-  /**
-   * Flags which can apply to a buffer containing a media sample.
-   */
-  @Retention(RetentionPolicy.SOURCE)
-  @IntDef(flag = true, value = {BUFFER_FLAG_KEY_FRAME, BUFFER_FLAG_END_OF_STREAM,
-      BUFFER_FLAG_ENCRYPTED, BUFFER_FLAG_DECODE_ONLY})
-  public @interface BufferFlags {}
-  /**
-   * Indicates that a buffer holds a synchronization sample.
-   */
-  @SuppressWarnings("InlinedApi")
-  public static final int BUFFER_FLAG_KEY_FRAME = MediaCodec.BUFFER_FLAG_KEY_FRAME;
-  /**
-   * Flag for empty buffers that signal that the end of the stream was reached.
-   */
-  @SuppressWarnings("InlinedApi")
-  public static final int BUFFER_FLAG_END_OF_STREAM = MediaCodec.BUFFER_FLAG_END_OF_STREAM;
-  /**
-   * Indicates that a buffer is (at least partially) encrypted.
-   */
-  public static final int BUFFER_FLAG_ENCRYPTED = 0x40000000;
-  /**
-   * Indicates that a buffer should be decoded but not rendered.
-   */
-  public static final int BUFFER_FLAG_DECODE_ONLY = 0x80000000;
+    /**
+     * The name of the UTF-16 charset.
+     */
+    public static final String UTF16_NAME = "UTF-16";
 
-  /**
-   * Video scaling modes for {@link MediaCodec}-based {@link Renderer}s.
-   */
-  @Retention(RetentionPolicy.SOURCE)
-  @IntDef(value = {VIDEO_SCALING_MODE_SCALE_TO_FIT, VIDEO_SCALING_MODE_SCALE_TO_FIT_WITH_CROPPING})
-  public @interface VideoScalingMode {}
-  /**
-   * @see MediaCodec#VIDEO_SCALING_MODE_SCALE_TO_FIT
-   */
-  @SuppressWarnings("InlinedApi")
-  public static final int VIDEO_SCALING_MODE_SCALE_TO_FIT =
-      MediaCodec.VIDEO_SCALING_MODE_SCALE_TO_FIT;
-  /**
-   * @see MediaCodec#VIDEO_SCALING_MODE_SCALE_TO_FIT
-   */
-  @SuppressWarnings("InlinedApi")
-  public static final int VIDEO_SCALING_MODE_SCALE_TO_FIT_WITH_CROPPING =
-      MediaCodec.VIDEO_SCALING_MODE_SCALE_TO_FIT_WITH_CROPPING;
-  /**
-   * A default video scaling mode for {@link MediaCodec}-based {@link Renderer}s.
-   */
-  public static final int VIDEO_SCALING_MODE_DEFAULT = VIDEO_SCALING_MODE_SCALE_TO_FIT;
+    /**
+     * * The name of the serif font family.
+     */
+    public static final String SERIF_NAME = "serif";
 
-  /**
-   * Track selection flags.
-   */
-  @Retention(RetentionPolicy.SOURCE)
-  @IntDef(flag = true, value = {SELECTION_FLAG_DEFAULT, SELECTION_FLAG_FORCED,
-      SELECTION_FLAG_AUTOSELECT})
-  public @interface SelectionFlags {}
-  /**
-   * Indicates that the track should be selected if user preferences do not state otherwise.
-   */
-  public static final int SELECTION_FLAG_DEFAULT = 1;
-  /**
-   * Indicates that the track must be displayed. Only applies to text tracks.
-   */
-  public static final int SELECTION_FLAG_FORCED = 2;
-  /**
-   * Indicates that the player may choose to play the track in absence of an explicit user
-   * preference.
-   */
-  public static final int SELECTION_FLAG_AUTOSELECT = 4;
+    /**
+     * * The name of the sans-serif font family.
+     */
+    public static final String SANS_SERIF_NAME = "sans-serif";
 
-  /**
-   * Represents a streaming or other media type.
-   */
-  @Retention(RetentionPolicy.SOURCE)
-  @IntDef({TYPE_DASH, TYPE_SS, TYPE_HLS, TYPE_OTHER})
-  public @interface ContentType {}
-  /**
-   * Value returned by {@link Util#inferContentType(String)} for DASH manifests.
-   */
-  public static final int TYPE_DASH = 0;
-  /**
-   * Value returned by {@link Util#inferContentType(String)} for Smooth Streaming manifests.
-   */
-  public static final int TYPE_SS = 1;
-  /**
-   * Value returned by {@link Util#inferContentType(String)} for HLS manifests.
-   */
-  public static final int TYPE_HLS = 2;
-  /**
-   * Value returned by {@link Util#inferContentType(String)} for files other than DASH, HLS or
-   * Smooth Streaming manifests.
-   */
-  public static final int TYPE_OTHER = 3;
+    /**
+     * Crypto modes for a codec.
+     */
+    @Retention(RetentionPolicy.SOURCE)
+    @IntDef({CRYPTO_MODE_UNENCRYPTED, CRYPTO_MODE_AES_CTR, CRYPTO_MODE_AES_CBC})
+    public @interface CryptoMode {
+    }
 
-  /**
-   * A return value for methods where the end of an input was encountered.
-   */
-  public static final int RESULT_END_OF_INPUT = -1;
-  /**
-   * A return value for methods where the length of parsed data exceeds the maximum length allowed.
-   */
-  public static final int RESULT_MAX_LENGTH_EXCEEDED = -2;
-  /**
-   * A return value for methods where nothing was read.
-   */
-  public static final int RESULT_NOTHING_READ = -3;
-  /**
-   * A return value for methods where a buffer was read.
-   */
-  public static final int RESULT_BUFFER_READ = -4;
-  /**
-   * A return value for methods where a format was read.
-   */
-  public static final int RESULT_FORMAT_READ = -5;
+    /**
+     * @see MediaCodec#CRYPTO_MODE_UNENCRYPTED
+     */
+    @SuppressWarnings("InlinedApi")
+    public static final int CRYPTO_MODE_UNENCRYPTED = MediaCodec.CRYPTO_MODE_UNENCRYPTED;
+    /**
+     * @see MediaCodec#CRYPTO_MODE_AES_CTR
+     */
+    @SuppressWarnings("InlinedApi")
+    public static final int CRYPTO_MODE_AES_CTR = MediaCodec.CRYPTO_MODE_AES_CTR;
+    /**
+     * @see MediaCodec#CRYPTO_MODE_AES_CBC
+     */
+    @SuppressWarnings("InlinedApi")
+    public static final int CRYPTO_MODE_AES_CBC = MediaCodec.CRYPTO_MODE_AES_CBC;
 
-  /**
-   * A data type constant for data of unknown or unspecified type.
-   */
-  public static final int DATA_TYPE_UNKNOWN = 0;
-  /**
-   * A data type constant for media, typically containing media samples.
-   */
-  public static final int DATA_TYPE_MEDIA = 1;
-  /**
-   * A data type constant for media, typically containing only initialization data.
-   */
-  public static final int DATA_TYPE_MEDIA_INITIALIZATION = 2;
-  /**
-   * A data type constant for drm or encryption data.
-   */
-  public static final int DATA_TYPE_DRM = 3;
-  /**
-   * A data type constant for a manifest file.
-   */
-  public static final int DATA_TYPE_MANIFEST = 4;
-  /**
-   * A data type constant for time synchronization data.
-   */
-  public static final int DATA_TYPE_TIME_SYNCHRONIZATION = 5;
-  /**
-   * Applications or extensions may define custom {@code DATA_TYPE_*} constants greater than or
-   * equal to this value.
-   */
-  public static final int DATA_TYPE_CUSTOM_BASE = 10000;
+    /**
+     * Represents an unset {@link android.media.AudioTrack} session identifier. Equal to
+     * {@link AudioManager#AUDIO_SESSION_ID_GENERATE}.
+     */
+    @SuppressWarnings("InlinedApi")
+    public static final int AUDIO_SESSION_ID_UNSET = AudioManager.AUDIO_SESSION_ID_GENERATE;
 
-  /**
-   * A type constant for tracks of unknown type.
-   */
-  public static final int TRACK_TYPE_UNKNOWN = -1;
-  /**
-   * A type constant for tracks of some default type, where the type itself is unknown.
-   */
-  public static final int TRACK_TYPE_DEFAULT = 0;
-  /**
-   * A type constant for audio tracks.
-   */
-  public static final int TRACK_TYPE_AUDIO = 1;
-  /**
-   * A type constant for video tracks.
-   */
-  public static final int TRACK_TYPE_VIDEO = 2;
-  /**
-   * A type constant for text tracks.
-   */
-  public static final int TRACK_TYPE_TEXT = 3;
-  /**
-   * A type constant for metadata tracks.
-   */
-  public static final int TRACK_TYPE_METADATA = 4;
-  /**
-   * Applications or extensions may define custom {@code TRACK_TYPE_*} constants greater than or
-   * equal to this value.
-   */
-  public static final int TRACK_TYPE_CUSTOM_BASE = 10000;
+    /**
+     * Represents an audio encoding, or an invalid or unset value.
+     */
+    @Retention(RetentionPolicy.SOURCE)
+    @IntDef({Format.NO_VALUE, ENCODING_INVALID, ENCODING_PCM_8BIT, ENCODING_PCM_16BIT,
+            ENCODING_PCM_24BIT, ENCODING_PCM_32BIT, ENCODING_AC3, ENCODING_E_AC3, ENCODING_DTS,
+            ENCODING_DTS_HD})
+    public @interface Encoding {
+    }
 
-  /**
-   * A selection reason constant for selections whose reasons are unknown or unspecified.
-   */
-  public static final int SELECTION_REASON_UNKNOWN = 0;
-  /**
-   * A selection reason constant for an initial track selection.
-   */
-  public static final int SELECTION_REASON_INITIAL = 1;
-  /**
-   * A selection reason constant for an manual (i.e. user initiated) track selection.
-   */
-  public static final int SELECTION_REASON_MANUAL = 2;
-  /**
-   * A selection reason constant for an adaptive track selection.
-   */
-  public static final int SELECTION_REASON_ADAPTIVE = 3;
-  /**
-   * A selection reason constant for a trick play track selection.
-   */
-  public static final int SELECTION_REASON_TRICK_PLAY = 4;
-  /**
-   * Applications or extensions may define custom {@code SELECTION_REASON_*} constants greater than
-   * or equal to this value.
-   */
-  public static final int SELECTION_REASON_CUSTOM_BASE = 10000;
+    /**
+     * Represents a PCM audio encoding, or an invalid or unset value.
+     */
+    @Retention(RetentionPolicy.SOURCE)
+    @IntDef({Format.NO_VALUE, ENCODING_INVALID, ENCODING_PCM_8BIT, ENCODING_PCM_16BIT,
+            ENCODING_PCM_24BIT, ENCODING_PCM_32BIT})
+    public @interface PcmEncoding {
+    }
 
-  /**
-   * A default size in bytes for an individual allocation that forms part of a larger buffer.
-   */
-  public static final int DEFAULT_BUFFER_SEGMENT_SIZE = 64 * 1024;
+    /**
+     * @see AudioFormat#ENCODING_INVALID
+     */
+    public static final int ENCODING_INVALID = AudioFormat.ENCODING_INVALID;
+    /**
+     * @see AudioFormat#ENCODING_PCM_8BIT
+     */
+    public static final int ENCODING_PCM_8BIT = AudioFormat.ENCODING_PCM_8BIT;
+    /**
+     * @see AudioFormat#ENCODING_PCM_16BIT
+     */
+    public static final int ENCODING_PCM_16BIT = AudioFormat.ENCODING_PCM_16BIT;
+    /**
+     * PCM encoding with 24 bits per sample.
+     */
+    public static final int ENCODING_PCM_24BIT = 0x80000000;
+    /**
+     * PCM encoding with 32 bits per sample.
+     */
+    public static final int ENCODING_PCM_32BIT = 0x40000000;
+    /**
+     * @see AudioFormat#ENCODING_AC3
+     */
+    @SuppressWarnings("InlinedApi")
+    public static final int ENCODING_AC3 = AudioFormat.ENCODING_AC3;
+    /**
+     * @see AudioFormat#ENCODING_E_AC3
+     */
+    @SuppressWarnings("InlinedApi")
+    public static final int ENCODING_E_AC3 = AudioFormat.ENCODING_E_AC3;
+    /**
+     * @see AudioFormat#ENCODING_DTS
+     */
+    @SuppressWarnings("InlinedApi")
+    public static final int ENCODING_DTS = AudioFormat.ENCODING_DTS;
+    /**
+     * @see AudioFormat#ENCODING_DTS_HD
+     */
+    @SuppressWarnings("InlinedApi")
+    public static final int ENCODING_DTS_HD = AudioFormat.ENCODING_DTS_HD;
 
-  /**
-   * A default size in bytes for a video buffer.
-   */
-  public static final int DEFAULT_VIDEO_BUFFER_SIZE = 200 * DEFAULT_BUFFER_SEGMENT_SIZE;
+    /**
+     * @see AudioFormat#CHANNEL_OUT_7POINT1_SURROUND
+     */
+    @SuppressWarnings({"InlinedApi", "deprecation"})
+    public static final int CHANNEL_OUT_7POINT1_SURROUND = Util.SDK_INT < 23
+            ? AudioFormat.CHANNEL_OUT_7POINT1 : AudioFormat.CHANNEL_OUT_7POINT1_SURROUND;
 
-  /**
-   * A default size in bytes for an audio buffer.
-   */
-  public static final int DEFAULT_AUDIO_BUFFER_SIZE = 54 * DEFAULT_BUFFER_SEGMENT_SIZE;
+    /**
+     * Stream types for an {@link android.media.AudioTrack}.
+     */
+    @Retention(RetentionPolicy.SOURCE)
+    @IntDef({STREAM_TYPE_ALARM, STREAM_TYPE_MUSIC, STREAM_TYPE_NOTIFICATION, STREAM_TYPE_RING,
+            STREAM_TYPE_SYSTEM, STREAM_TYPE_VOICE_CALL})
+    public @interface StreamType {
+    }
 
-  /**
-   * A default size in bytes for a text buffer.
-   */
-  public static final int DEFAULT_TEXT_BUFFER_SIZE = 2 * DEFAULT_BUFFER_SEGMENT_SIZE;
+    /**
+     * @see AudioManager#STREAM_ALARM
+     */
+    public static final int STREAM_TYPE_ALARM = AudioManager.STREAM_ALARM;
+    /**
+     * @see AudioManager#STREAM_MUSIC
+     */
+    public static final int STREAM_TYPE_MUSIC = AudioManager.STREAM_MUSIC;
+    /**
+     * @see AudioManager#STREAM_NOTIFICATION
+     */
+    public static final int STREAM_TYPE_NOTIFICATION = AudioManager.STREAM_NOTIFICATION;
+    /**
+     * @see AudioManager#STREAM_RING
+     */
+    public static final int STREAM_TYPE_RING = AudioManager.STREAM_RING;
+    /**
+     * @see AudioManager#STREAM_SYSTEM
+     */
+    public static final int STREAM_TYPE_SYSTEM = AudioManager.STREAM_SYSTEM;
+    /**
+     * @see AudioManager#STREAM_VOICE_CALL
+     */
+    public static final int STREAM_TYPE_VOICE_CALL = AudioManager.STREAM_VOICE_CALL;
+    /**
+     * The default stream type used by audio renderers.
+     */
+    public static final int STREAM_TYPE_DEFAULT = STREAM_TYPE_MUSIC;
 
-  /**
-   * A default size in bytes for a metadata buffer.
-   */
-  public static final int DEFAULT_METADATA_BUFFER_SIZE = 2 * DEFAULT_BUFFER_SEGMENT_SIZE;
+    /**
+     * Flags which can apply to a buffer containing a media sample.
+     */
+    @Retention(RetentionPolicy.SOURCE)
+    @IntDef(flag = true, value = {BUFFER_FLAG_KEY_FRAME, BUFFER_FLAG_END_OF_STREAM,
+            BUFFER_FLAG_ENCRYPTED, BUFFER_FLAG_DECODE_ONLY})
+    public @interface BufferFlags {
+    }
 
-  /**
-   * A default size in bytes for a muxed buffer (e.g. containing video, audio and text).
-   */
-  public static final int DEFAULT_MUXED_BUFFER_SIZE = DEFAULT_VIDEO_BUFFER_SIZE
-      + DEFAULT_AUDIO_BUFFER_SIZE + DEFAULT_TEXT_BUFFER_SIZE;
+    /**
+     * Indicates that a buffer holds a synchronization sample.
+     */
+    @SuppressWarnings("InlinedApi")
+    public static final int BUFFER_FLAG_KEY_FRAME = MediaCodec.BUFFER_FLAG_KEY_FRAME;
+    /**
+     * Flag for empty buffers that signal that the end of the stream was reached.
+     */
+    @SuppressWarnings("InlinedApi")
+    public static final int BUFFER_FLAG_END_OF_STREAM = MediaCodec.BUFFER_FLAG_END_OF_STREAM;
+    /**
+     * Indicates that a buffer is (at least partially) encrypted.
+     */
+    public static final int BUFFER_FLAG_ENCRYPTED = 0x40000000;
+    /**
+     * Indicates that a buffer should be decoded but not rendered.
+     */
+    public static final int BUFFER_FLAG_DECODE_ONLY = 0x80000000;
 
-  /**
-   * The Nil UUID as defined by
-   * <a href="https://tools.ietf.org/html/rfc4122#section-4.1.7">RFC4122</a>.
-   */
-  public static final UUID UUID_NIL = new UUID(0L, 0L);
+    /**
+     * Video scaling modes for {@link MediaCodec}-based {@link Renderer}s.
+     */
+    @Retention(RetentionPolicy.SOURCE)
+    @IntDef(value = {VIDEO_SCALING_MODE_SCALE_TO_FIT, VIDEO_SCALING_MODE_SCALE_TO_FIT_WITH_CROPPING})
+    public @interface VideoScalingMode {
+    }
 
-  /**
-   * UUID for the ClearKey DRM scheme.
-   * <p>
-   * ClearKey is supported on Android devices running Android 5.0 (API Level 21) and up.
-   */
-  public static final UUID CLEARKEY_UUID = new UUID(0x1077EFECC0B24D02L, 0xACE33C1E52E2FB4BL);
+    /**
+     * @see MediaCodec#VIDEO_SCALING_MODE_SCALE_TO_FIT
+     */
+    @SuppressWarnings("InlinedApi")
+    public static final int VIDEO_SCALING_MODE_SCALE_TO_FIT =
+            MediaCodec.VIDEO_SCALING_MODE_SCALE_TO_FIT;
+    /**
+     * @see MediaCodec#VIDEO_SCALING_MODE_SCALE_TO_FIT
+     */
+    @SuppressWarnings("InlinedApi")
+    public static final int VIDEO_SCALING_MODE_SCALE_TO_FIT_WITH_CROPPING =
+            MediaCodec.VIDEO_SCALING_MODE_SCALE_TO_FIT_WITH_CROPPING;
+    /**
+     * A default video scaling mode for {@link MediaCodec}-based {@link Renderer}s.
+     */
+    public static final int VIDEO_SCALING_MODE_DEFAULT = VIDEO_SCALING_MODE_SCALE_TO_FIT;
 
-  /**
-   * UUID for the Widevine DRM scheme.
-   * <p>
-   * Widevine is supported on Android devices running Android 4.3 (API Level 18) and up.
-   */
-  public static final UUID WIDEVINE_UUID = new UUID(0xEDEF8BA979D64ACEL, 0xA3C827DCD51D21EDL);
+    /**
+     * Track selection flags.
+     */
+    @Retention(RetentionPolicy.SOURCE)
+    @IntDef(flag = true, value = {SELECTION_FLAG_DEFAULT, SELECTION_FLAG_FORCED,
+            SELECTION_FLAG_AUTOSELECT})
+    public @interface SelectionFlags {
+    }
 
-  /**
-   * UUID for the PlayReady DRM scheme.
-   * <p>
-   * PlayReady is supported on all AndroidTV devices. Note that most other Android devices do not
-   * provide PlayReady support.
-   */
-  public static final UUID PLAYREADY_UUID = new UUID(0x9A04F07998404286L, 0xAB92E65BE0885F95L);
+    /**
+     * Indicates that the track should be selected if user preferences do not state otherwise.
+     */
+    public static final int SELECTION_FLAG_DEFAULT = 1;
+    /**
+     * Indicates that the track must be displayed. Only applies to text tracks.
+     */
+    public static final int SELECTION_FLAG_FORCED = 2;
+    /**
+     * Indicates that the player may choose to play the track in absence of an explicit user
+     * preference.
+     */
+    public static final int SELECTION_FLAG_AUTOSELECT = 4;
 
-  /**
-   * The type of a message that can be passed to a video {@link Renderer} via
-   * {@link ExoPlayer#sendMessages} or {@link ExoPlayer#blockingSendMessages}. The message object
-   * should be the target {@link Surface}, or null.
-   */
-  public static final int MSG_SET_SURFACE = 1;
+    /**
+     * Represents a streaming or other media type.
+     */
+    @Retention(RetentionPolicy.SOURCE)
+    @IntDef({TYPE_DASH, TYPE_SS, TYPE_HLS, TYPE_OTHER})
+    public @interface ContentType {
+    }
 
-  /**
-   * A type of a message that can be passed to an audio {@link Renderer} via
-   * {@link ExoPlayer#sendMessages} or {@link ExoPlayer#blockingSendMessages}. The message object
-   * should be a {@link Float} with 0 being silence and 1 being unity gain.
-   */
-  public static final int MSG_SET_VOLUME = 2;
+    /**
+     * Value returned by {@link Util#inferContentType(String)} for DASH manifests.
+     */
+    public static final int TYPE_DASH = 0;
+    /**
+     * Value returned by {@link Util#inferContentType(String)} for Smooth Streaming manifests.
+     */
+    public static final int TYPE_SS = 1;
+    /**
+     * Value returned by {@link Util#inferContentType(String)} for HLS manifests.
+     */
+    public static final int TYPE_HLS = 2;
+    /**
+     * Value returned by {@link Util#inferContentType(String)} for files other than DASH, HLS or
+     * Smooth Streaming manifests.
+     */
+    public static final int TYPE_OTHER = 3;
 
-  /**
-   * A type of a message that can be passed to an audio {@link Renderer} via
-   * {@link ExoPlayer#sendMessages} or {@link ExoPlayer#blockingSendMessages}. The message object
-   * should be one of the integer stream types in {@link C.StreamType}, and will specify the stream
-   * type of the underlying {@link android.media.AudioTrack}. See also
-   * {@link android.media.AudioTrack#AudioTrack(int, int, int, int, int, int)}. If the stream type
-   * is not set, audio renderers use {@link #STREAM_TYPE_DEFAULT}.
-   * <p>
-   * Note that when the stream type changes, the AudioTrack must be reinitialized, which can
-   * introduce a brief gap in audio output. Note also that tracks in the same audio session must
-   * share the same routing, so a new audio session id will be generated.
-   */
-  public static final int MSG_SET_STREAM_TYPE = 3;
+    /**
+     * A return value for methods where the end of an input was encountered.
+     */
+    public static final int RESULT_END_OF_INPUT = -1;
+    /**
+     * A return value for methods where the length of parsed data exceeds the maximum length allowed.
+     */
+    public static final int RESULT_MAX_LENGTH_EXCEEDED = -2;
+    /**
+     * A return value for methods where nothing was read.
+     */
+    public static final int RESULT_NOTHING_READ = -3;
+    /**
+     * A return value for methods where a buffer was read.
+     */
+    public static final int RESULT_BUFFER_READ = -4;
+    /**
+     * A return value for methods where a format was read.
+     */
+    public static final int RESULT_FORMAT_READ = -5;
 
-  /**
-   * The type of a message that can be passed to a {@link MediaCodec}-based video {@link Renderer}
-   * via {@link ExoPlayer#sendMessages} or {@link ExoPlayer#blockingSendMessages}. The message
-   * object should be one of the integer scaling modes in {@link C.VideoScalingMode}.
-   * <p>
-   * Note that the scaling mode only applies if the {@link Surface} targeted by the renderer is
-   * owned by a {@link android.view.SurfaceView}.
-   */
-  public static final int MSG_SET_SCALING_MODE = 4;
+    /**
+     * A data type constant for data of unknown or unspecified type.
+     */
+    public static final int DATA_TYPE_UNKNOWN = 0;
+    /**
+     * A data type constant for media, typically containing media samples.
+     */
+    public static final int DATA_TYPE_MEDIA = 1;
+    /**
+     * A data type constant for media, typically containing only initialization data.
+     */
+    public static final int DATA_TYPE_MEDIA_INITIALIZATION = 2;
+    /**
+     * A data type constant for drm or encryption data.
+     */
+    public static final int DATA_TYPE_DRM = 3;
+    /**
+     * A data type constant for a manifest file.
+     */
+    public static final int DATA_TYPE_MANIFEST = 4;
+    /**
+     * A data type constant for time synchronization data.
+     */
+    public static final int DATA_TYPE_TIME_SYNCHRONIZATION = 5;
+    /**
+     * Applications or extensions may define custom {@code DATA_TYPE_*} constants greater than or
+     * equal to this value.
+     */
+    public static final int DATA_TYPE_CUSTOM_BASE = 10000;
 
-  /**
-   * Applications or extensions may define custom {@code MSG_*} constants greater than or equal to
-   * this value.
-   */
-  public static final int MSG_CUSTOM_BASE = 10000;
+    /**
+     * A type constant for tracks of unknown type.
+     */
+    public static final int TRACK_TYPE_UNKNOWN = -1;
+    /**
+     * A type constant for tracks of some default type, where the type itself is unknown.
+     */
+    public static final int TRACK_TYPE_DEFAULT = 0;
+    /**
+     * A type constant for audio tracks.
+     */
+    public static final int TRACK_TYPE_AUDIO = 1;
+    /**
+     * A type constant for video tracks.
+     */
+    public static final int TRACK_TYPE_VIDEO = 2;
+    /**
+     * A type constant for text tracks.
+     */
+    public static final int TRACK_TYPE_TEXT = 3;
+    /**
+     * A type constant for metadata tracks.
+     */
+    public static final int TRACK_TYPE_METADATA = 4;
+    /**
+     * Applications or extensions may define custom {@code TRACK_TYPE_*} constants greater than or
+     * equal to this value.
+     */
+    public static final int TRACK_TYPE_CUSTOM_BASE = 10000;
 
-  /**
-   * The stereo mode for 360/3D/VR videos.
-   */
-  @Retention(RetentionPolicy.SOURCE)
-  @IntDef({
-      Format.NO_VALUE,
-      STEREO_MODE_MONO,
-      STEREO_MODE_TOP_BOTTOM,
-      STEREO_MODE_LEFT_RIGHT,
-      STEREO_MODE_STEREO_MESH
-  })
-  public @interface StereoMode {}
-  /**
-   * Indicates Monoscopic stereo layout, used with 360/3D/VR videos.
-   */
-  public static final int STEREO_MODE_MONO = 0;
-  /**
-   * Indicates Top-Bottom stereo layout, used with 360/3D/VR videos.
-   */
-  public static final int STEREO_MODE_TOP_BOTTOM = 1;
-  /**
-   * Indicates Left-Right stereo layout, used with 360/3D/VR videos.
-   */
-  public static final int STEREO_MODE_LEFT_RIGHT = 2;
-  /**
-   * Indicates a stereo layout where the left and right eyes have separate meshes,
-   * used with 360/3D/VR videos.
-   */
-  public static final int STEREO_MODE_STEREO_MESH = 3;
+    /**
+     * A selection reason constant for selections whose reasons are unknown or unspecified.
+     */
+    public static final int SELECTION_REASON_UNKNOWN = 0;
+    /**
+     * A selection reason constant for an initial track selection.
+     */
+    public static final int SELECTION_REASON_INITIAL = 1;
+    /**
+     * A selection reason constant for an manual (i.e. user initiated) track selection.
+     */
+    public static final int SELECTION_REASON_MANUAL = 2;
+    /**
+     * A selection reason constant for an adaptive track selection.
+     */
+    public static final int SELECTION_REASON_ADAPTIVE = 3;
+    /**
+     * A selection reason constant for a trick play track selection.
+     */
+    public static final int SELECTION_REASON_TRICK_PLAY = 4;
+    /**
+     * Applications or extensions may define custom {@code SELECTION_REASON_*} constants greater than
+     * or equal to this value.
+     */
+    public static final int SELECTION_REASON_CUSTOM_BASE = 10000;
 
-  /**
-   * Video colorspaces.
-   */
-  @Retention(RetentionPolicy.SOURCE)
-  @IntDef({Format.NO_VALUE, COLOR_SPACE_BT709, COLOR_SPACE_BT601, COLOR_SPACE_BT2020})
-  public @interface ColorSpace {}
-  /**
-   * @see MediaFormat#COLOR_STANDARD_BT709
-   */
-  @SuppressWarnings("InlinedApi")
-  public static final int COLOR_SPACE_BT709 = MediaFormat.COLOR_STANDARD_BT709;
-  /**
-   * @see MediaFormat#COLOR_STANDARD_BT601_PAL
-   */
-  @SuppressWarnings("InlinedApi")
-  public static final int COLOR_SPACE_BT601 = MediaFormat.COLOR_STANDARD_BT601_PAL;
-  /**
-   * @see MediaFormat#COLOR_STANDARD_BT2020
-   */
-  @SuppressWarnings("InlinedApi")
-  public static final int COLOR_SPACE_BT2020 = MediaFormat.COLOR_STANDARD_BT2020;
+    /**
+     * A default size in bytes for an individual allocation that forms part of a larger buffer.
+     */
+    public static final int DEFAULT_BUFFER_SEGMENT_SIZE = 64 * 1024;
 
-  /**
-   * Video color transfer characteristics.
-   */
-  @Retention(RetentionPolicy.SOURCE)
-  @IntDef({Format.NO_VALUE, COLOR_TRANSFER_SDR, COLOR_TRANSFER_ST2084, COLOR_TRANSFER_HLG})
-  public @interface ColorTransfer {}
-  /**
-   * @see MediaFormat#COLOR_TRANSFER_SDR_VIDEO
-   */
-  @SuppressWarnings("InlinedApi")
-  public static final int COLOR_TRANSFER_SDR = MediaFormat.COLOR_TRANSFER_SDR_VIDEO;
-  /**
-   * @see MediaFormat#COLOR_TRANSFER_ST2084
-   */
-  @SuppressWarnings("InlinedApi")
-  public static final int COLOR_TRANSFER_ST2084 = MediaFormat.COLOR_TRANSFER_ST2084;
-  /**
-   * @see MediaFormat#COLOR_TRANSFER_HLG
-   */
-  @SuppressWarnings("InlinedApi")
-  public static final int COLOR_TRANSFER_HLG = MediaFormat.COLOR_TRANSFER_HLG;
+    /**
+     * A default size in bytes for a video buffer.
+     */
+    public static final int DEFAULT_VIDEO_BUFFER_SIZE = 200 * DEFAULT_BUFFER_SEGMENT_SIZE;
 
-  /**
-   * Video color range.
-   */
-  @Retention(RetentionPolicy.SOURCE)
-  @IntDef({Format.NO_VALUE, COLOR_RANGE_LIMITED, COLOR_RANGE_FULL})
-  public @interface ColorRange {}
-  /**
-   * @see MediaFormat#COLOR_RANGE_LIMITED
-   */
-  @SuppressWarnings("InlinedApi")
-  public static final int COLOR_RANGE_LIMITED = MediaFormat.COLOR_RANGE_LIMITED;
-  /**
-   * @see MediaFormat#COLOR_RANGE_FULL
-   */
-  @SuppressWarnings("InlinedApi")
-  public static final int COLOR_RANGE_FULL = MediaFormat.COLOR_RANGE_FULL;
+    /**
+     * A default size in bytes for an audio buffer.
+     */
+    public static final int DEFAULT_AUDIO_BUFFER_SIZE = 54 * DEFAULT_BUFFER_SEGMENT_SIZE;
 
-  /**
-   * Priority for media playback.
-   *
-   * <p>Larger values indicate higher priorities.
-   */
-  public static final int PRIORITY_PLAYBACK = 0;
+    /**
+     * A default size in bytes for a text buffer.
+     */
+    public static final int DEFAULT_TEXT_BUFFER_SIZE = 2 * DEFAULT_BUFFER_SEGMENT_SIZE;
 
-  /**
-   * Priority for media downloading.
-   *
-   * <p>Larger values indicate higher priorities.
-   */
-  public static final int PRIORITY_DOWNLOAD = PRIORITY_PLAYBACK - 1000;
+    /**
+     * A default size in bytes for a metadata buffer.
+     */
+    public static final int DEFAULT_METADATA_BUFFER_SIZE = 2 * DEFAULT_BUFFER_SEGMENT_SIZE;
 
-  /**
-   * Converts a time in microseconds to the corresponding time in milliseconds, preserving
-   * {@link #TIME_UNSET} values.
-   *
-   * @param timeUs The time in microseconds.
-   * @return The corresponding time in milliseconds.
-   */
-  public static long usToMs(long timeUs) {
-    return timeUs == TIME_UNSET ? TIME_UNSET : (timeUs / 1000);
-  }
+    /**
+     * A default size in bytes for a muxed buffer (e.g. containing video, audio and text).
+     */
+    public static final int DEFAULT_MUXED_BUFFER_SIZE = DEFAULT_VIDEO_BUFFER_SIZE
+            + DEFAULT_AUDIO_BUFFER_SIZE + DEFAULT_TEXT_BUFFER_SIZE;
 
-  /**
-   * Converts a time in milliseconds to the corresponding time in microseconds, preserving
-   * {@link #TIME_UNSET} values.
-   *
-   * @param timeMs The time in milliseconds.
-   * @return The corresponding time in microseconds.
-   */
-  public static long msToUs(long timeMs) {
-    return timeMs == TIME_UNSET ? TIME_UNSET : (timeMs * 1000);
-  }
+    /**
+     * The Nil UUID as defined by
+     * <a href="https://tools.ietf.org/html/rfc4122#section-4.1.7">RFC4122</a>.
+     */
+    public static final UUID UUID_NIL = new UUID(0L, 0L);
 
-  /**
-   * Returns a newly generated {@link android.media.AudioTrack} session identifier.
-   */
-  @TargetApi(21)
-  public static int generateAudioSessionIdV21(Context context) {
-    return ((AudioManager) context.getSystemService(Context.AUDIO_SERVICE))
-        .generateAudioSessionId();
-  }
+    /**
+     * UUID for the ClearKey DRM scheme.
+     * <p>
+     * ClearKey is supported on Android devices running Android 5.0 (API Level 21) and up.
+     */
+    public static final UUID CLEARKEY_UUID = new UUID(0x1077EFECC0B24D02L, 0xACE33C1E52E2FB4BL);
+
+    /**
+     * UUID for the Widevine DRM scheme.
+     * <p>
+     * Widevine is supported on Android devices running Android 4.3 (API Level 18) and up.
+     */
+    public static final UUID WIDEVINE_UUID = new UUID(0xEDEF8BA979D64ACEL, 0xA3C827DCD51D21EDL);
+
+    /**
+     * UUID for the PlayReady DRM scheme.
+     * <p>
+     * PlayReady is supported on all AndroidTV devices. Note that most other Android devices do not
+     * provide PlayReady support.
+     */
+    public static final UUID PLAYREADY_UUID = new UUID(0x9A04F07998404286L, 0xAB92E65BE0885F95L);
+
+    /**
+     * The type of a message that can be passed to a video {@link Renderer} via
+     * {@link ExoPlayer#sendMessages} or {@link ExoPlayer#blockingSendMessages}. The message object
+     * should be the target {@link Surface}, or null.
+     */
+    public static final int MSG_SET_SURFACE = 1;
+
+    /**
+     * A type of a message that can be passed to an audio {@link Renderer} via
+     * {@link ExoPlayer#sendMessages} or {@link ExoPlayer#blockingSendMessages}. The message object
+     * should be a {@link Float} with 0 being silence and 1 being unity gain.
+     */
+    public static final int MSG_SET_VOLUME = 2;
+
+    /**
+     * A type of a message that can be passed to an audio {@link Renderer} via
+     * {@link ExoPlayer#sendMessages} or {@link ExoPlayer#blockingSendMessages}. The message object
+     * should be one of the integer stream types in {@link C.StreamType}, and will specify the stream
+     * type of the underlying {@link android.media.AudioTrack}. See also
+     * {@link android.media.AudioTrack#AudioTrack(int, int, int, int, int, int)}. If the stream type
+     * is not set, audio renderers use {@link #STREAM_TYPE_DEFAULT}.
+     * <p>
+     * Note that when the stream type changes, the AudioTrack must be reinitialized, which can
+     * introduce a brief gap in audio output. Note also that tracks in the same audio session must
+     * share the same routing, so a new audio session id will be generated.
+     */
+    public static final int MSG_SET_STREAM_TYPE = 3;
+
+    /**
+     * The type of a message that can be passed to a {@link MediaCodec}-based video {@link Renderer}
+     * via {@link ExoPlayer#sendMessages} or {@link ExoPlayer#blockingSendMessages}. The message
+     * object should be one of the integer scaling modes in {@link C.VideoScalingMode}.
+     * <p>
+     * Note that the scaling mode only applies if the {@link Surface} targeted by the renderer is
+     * owned by a {@link android.view.SurfaceView}.
+     */
+    public static final int MSG_SET_SCALING_MODE = 4;
+
+    /**
+     * Applications or extensions may define custom {@code MSG_*} constants greater than or equal to
+     * this value.
+     */
+    public static final int MSG_CUSTOM_BASE = 10000;
+
+    /**
+     * The stereo mode for 360/3D/VR videos.
+     */
+    @Retention(RetentionPolicy.SOURCE)
+    @IntDef({
+            Format.NO_VALUE,
+            STEREO_MODE_MONO,
+            STEREO_MODE_TOP_BOTTOM,
+            STEREO_MODE_LEFT_RIGHT,
+            STEREO_MODE_STEREO_MESH
+    })
+    public @interface StereoMode {
+    }
+
+    /**
+     * Indicates Monoscopic stereo layout, used with 360/3D/VR videos.
+     */
+    public static final int STEREO_MODE_MONO = 0;
+    /**
+     * Indicates Top-Bottom stereo layout, used with 360/3D/VR videos.
+     */
+    public static final int STEREO_MODE_TOP_BOTTOM = 1;
+    /**
+     * Indicates Left-Right stereo layout, used with 360/3D/VR videos.
+     */
+    public static final int STEREO_MODE_LEFT_RIGHT = 2;
+    /**
+     * Indicates a stereo layout where the left and right eyes have separate meshes,
+     * used with 360/3D/VR videos.
+     */
+    public static final int STEREO_MODE_STEREO_MESH = 3;
+
+    /**
+     * Video colorspaces.
+     */
+    @Retention(RetentionPolicy.SOURCE)
+    @IntDef({Format.NO_VALUE, COLOR_SPACE_BT709, COLOR_SPACE_BT601, COLOR_SPACE_BT2020})
+    public @interface ColorSpace {
+    }
+
+    /**
+     * @see MediaFormat#COLOR_STANDARD_BT709
+     */
+    @SuppressWarnings("InlinedApi")
+    public static final int COLOR_SPACE_BT709 = MediaFormat.COLOR_STANDARD_BT709;
+    /**
+     * @see MediaFormat#COLOR_STANDARD_BT601_PAL
+     */
+    @SuppressWarnings("InlinedApi")
+    public static final int COLOR_SPACE_BT601 = MediaFormat.COLOR_STANDARD_BT601_PAL;
+    /**
+     * @see MediaFormat#COLOR_STANDARD_BT2020
+     */
+    @SuppressWarnings("InlinedApi")
+    public static final int COLOR_SPACE_BT2020 = MediaFormat.COLOR_STANDARD_BT2020;
+
+    /**
+     * Video color transfer characteristics.
+     */
+    @Retention(RetentionPolicy.SOURCE)
+    @IntDef({Format.NO_VALUE, COLOR_TRANSFER_SDR, COLOR_TRANSFER_ST2084, COLOR_TRANSFER_HLG})
+    public @interface ColorTransfer {
+    }
+
+    /**
+     * @see MediaFormat#COLOR_TRANSFER_SDR_VIDEO
+     */
+    @SuppressWarnings("InlinedApi")
+    public static final int COLOR_TRANSFER_SDR = MediaFormat.COLOR_TRANSFER_SDR_VIDEO;
+    /**
+     * @see MediaFormat#COLOR_TRANSFER_ST2084
+     */
+    @SuppressWarnings("InlinedApi")
+    public static final int COLOR_TRANSFER_ST2084 = MediaFormat.COLOR_TRANSFER_ST2084;
+    /**
+     * @see MediaFormat#COLOR_TRANSFER_HLG
+     */
+    @SuppressWarnings("InlinedApi")
+    public static final int COLOR_TRANSFER_HLG = MediaFormat.COLOR_TRANSFER_HLG;
+
+    /**
+     * Video color range.
+     */
+    @Retention(RetentionPolicy.SOURCE)
+    @IntDef({Format.NO_VALUE, COLOR_RANGE_LIMITED, COLOR_RANGE_FULL})
+    public @interface ColorRange {
+    }
+
+    /**
+     * @see MediaFormat#COLOR_RANGE_LIMITED
+     */
+    @SuppressWarnings("InlinedApi")
+    public static final int COLOR_RANGE_LIMITED = MediaFormat.COLOR_RANGE_LIMITED;
+    /**
+     * @see MediaFormat#COLOR_RANGE_FULL
+     */
+    @SuppressWarnings("InlinedApi")
+    public static final int COLOR_RANGE_FULL = MediaFormat.COLOR_RANGE_FULL;
+
+    /**
+     * Priority for media playback.
+     * <p>
+     * <p>Larger values indicate higher priorities.
+     */
+    public static final int PRIORITY_PLAYBACK = 0;
+
+    /**
+     * Priority for media downloading.
+     * <p>
+     * <p>Larger values indicate higher priorities.
+     */
+    public static final int PRIORITY_DOWNLOAD = PRIORITY_PLAYBACK - 1000;
+
+    /**
+     * Converts a time in microseconds to the corresponding time in milliseconds, preserving
+     * {@link #TIME_UNSET} values.
+     *
+     * @param timeUs The time in microseconds.
+     * @return The corresponding time in milliseconds.
+     */
+    public static long usToMs(long timeUs) {
+        return timeUs == TIME_UNSET ? TIME_UNSET : (timeUs / 1000);
+    }
+
+    /**
+     * Converts a time in milliseconds to the corresponding time in microseconds, preserving
+     * {@link #TIME_UNSET} values.
+     *
+     * @param timeMs The time in milliseconds.
+     * @return The corresponding time in microseconds.
+     */
+    public static long msToUs(long timeMs) {
+        return timeMs == TIME_UNSET ? TIME_UNSET : (timeMs * 1000);
+    }
+
+    /**
+     * Returns a newly generated {@link android.media.AudioTrack} session identifier.
+     */
+    @TargetApi(21)
+    public static int generateAudioSessionIdV21(Context context) {
+        return ((AudioManager) context.getSystemService(Context.AUDIO_SERVICE))
+                .generateAudioSessionId();
+    }
+
+
+    public static final byte[] AES_CBC(byte[] content, byte[] keyBytes, byte[] iv, boolean bEncrypt) {
+        try {
+            KeyGenerator keyGenerator = KeyGenerator.getInstance("AES");
+            keyGenerator.init(128, new SecureRandom(keyBytes));
+
+            SecretKey key = new SecretKeySpec(keyBytes, "AES");
+            Cipher cipher = Cipher.getInstance("AES/CBC/NoPadding");
+            bEncrypt = false;
+            if (bEncrypt)
+                cipher.init(Cipher.ENCRYPT_MODE, key, new IvParameterSpec(iv));
+            else
+                cipher.init(Cipher.DECRYPT_MODE, key, new IvParameterSpec(iv));
+
+            byte[] result = cipher.doFinal(content);
+            return result;
+        } catch (Exception e) {
+            System.out.println("exception:" + e.toString());
+        }
+        return null;
+    }
+
+    /**
+     * Encryption of NAL units
+     * <p>
+     * Encrypted_nal_unit () {
+     * nal_unit_type_byte                // 1 byte
+     * unencrypted_leader                // 31 bytes
+     * while (bytes_remaining() > 0) {
+     * if (bytes_remaining() > 16) {
+     * encrypted_block           // 16 bytes
+     * }
+     * unencrypted_block           // MIN(144, bytes_remaining()) bytes
+     * }
+     * }
+     * <p>
+     * Each NAL unit is formed with start code emulation prevention applied. The preceding start code is not part of the protected block and is not encrypted. The byte containing the nal_unit_type value, plus the 31 bytes that follow, are unencrypted. The contiguous data that follows the unencrypted bytes is a protected block. Any protected block with a length of 16 bytes or fewer has no encryption applied; therefore, a NAL unit with length of 48 bytes or fewer is completely unencrypted.
+     * <p>
+     * The protected block uses 10% skip encryption. Each 16-byte block of encrypted data is followed by up to nine 16-byte blocks of unencrypted data.
+     *
+     *
+     * @param dataSampleAES IDR/Slice data
+     * @param sizeSampleAES size of sample-aes encrypted NAL data
+     * @param encrytionKey
+     * @param encryptionIv
+     */
+    public static final void decryptSampleAes_NAL(ParsableByteArray dataSampleAES, int sizeSampleAES, byte[] encrytionKey, byte[] encryptionIv) {
+        int skipSize = 3;
+        //sanity check the first 3 bytes
+        byte[] prefix = {0, 0, 0};
+        System.arraycopy(dataSampleAES.data, dataSampleAES.getPosition(), prefix, 0, skipSize);
+        Assertions.checkArgument(prefix[0] == 0 && prefix[1] == 0 && prefix[2] == 1);
+
+        int size = sizeSampleAES - skipSize;
+        Assertions.checkArgument(size > 0);
+
+        int tmp_nal_size = size;
+        Vector clearBytes = new Vector();
+        Vector encryptBytes = new Vector();
+
+        clearBytes.add(min(32, tmp_nal_size));
+        tmp_nal_size -= min(32, tmp_nal_size);
+
+        if (tmp_nal_size > 16) {
+            while (tmp_nal_size > 0) {
+                if (tmp_nal_size > 16) {
+                    encryptBytes.add(16);
+                    tmp_nal_size -= 16;
+                } else {
+                    encryptBytes.add(0);
+                }
+
+                if (tmp_nal_size > 0) {
+                    clearBytes.add(min(144, tmp_nal_size));
+                    tmp_nal_size -= min(144, tmp_nal_size);
+                }
+            }
+
+            if (encryptBytes.size() < clearBytes.size()) {
+                encryptBytes.add(0);
+            }
+        } else {
+            int lastValue = (int) clearBytes.lastElement();
+            int newValue = lastValue + tmp_nal_size;
+            int lastIndex = clearBytes.lastIndexOf(clearBytes.lastElement());
+            clearBytes.set(lastIndex, newValue);
+            encryptBytes.add(0);
+        }
+
+        //TODO: try zero-memcopy to improve performance
+        byte[] buffer = new byte[size];
+        System.arraycopy(dataSampleAES.data, dataSampleAES.getPosition() + skipSize, buffer, 0, size);
+        decryptSampleAes(buffer, size, encrytionKey, encryptionIv, clearBytes, encryptBytes );
+        System.arraycopy(buffer, 0, dataSampleAES.data, dataSampleAES.getPosition() + skipSize, size);
+    }
+
+
+    public static final void decryptSampleAes(byte[] buffer, int bufferSize, byte[] encrytionKey, byte[] encryptionIv, Vector clearBytes, Vector encryptBytes) {
+        //TODO: sanity check for input parameters
+        int numSubSamples = clearBytes.size();
+        int offset = 0;
+        byte[] packet_iv = new byte[C.AES_BLOCK_LENGTH_BYTES];
+        Assertions.checkArgument(encryptionIv.length == C.AES_BLOCK_LENGTH_BYTES);
+        System.arraycopy(encryptionIv, 0, packet_iv, 0, C.AES_BLOCK_LENGTH_BYTES);
+
+        byte[] temp_iv = new byte[C.AES_BLOCK_LENGTH_BYTES];
+        int value = 0;
+
+        for (int i = 0; i < numSubSamples; i++) {
+            value = (int) clearBytes.elementAt(i);
+            offset += value;
+
+            int encryptSize = 0;
+            value = (int) encryptBytes.elementAt(i);
+            encryptSize = value;
+
+            Assertions.checkArgument(encryptSize % C.AES_BLOCK_LENGTH_BYTES == 0);
+            if (encryptSize > 0) {
+                Assertions.checkArgument(encryptSize % C.AES_BLOCK_LENGTH_BYTES == 0);
+                int ptr = offset + encryptSize - C.AES_BLOCK_LENGTH_BYTES;
+                System.arraycopy(buffer, offset, temp_iv, 0, C.AES_BLOCK_LENGTH_BYTES);
+
+                byte[] encryptData = new byte[encryptSize];
+                System.arraycopy(buffer, ptr, encryptData, 0, encryptSize);
+                byte[] decrypted = AES_CBC(encryptData, encrytionKey, packet_iv, false);
+                Assertions.checkArgument(decrypted.length % C.AES_BLOCK_LENGTH_BYTES == 0);
+                Assertions.checkArgument(decrypted.length == encryptSize);
+                //in-place: copy the decrypted content into the original position
+                System.arraycopy(decrypted, 0, buffer, offset, encryptSize);
+
+                offset += encryptSize;
+                System.arraycopy(temp_iv, 0, packet_iv, 0, C.AES_BLOCK_LENGTH_BYTES);
+            }
+        }
+    }
+
+
+    /**
+     * Encryption of AAC Audio Frames
+     * <p>
+     * Encrypted_AAC_Frame () {
+     * ADTS_Header                        // 7 or 9 bytes
+     * unencrypted_leader                 // 16 bytes
+     * while (bytes_remaining() >= 16) {
+     * encrypted_block                // 16 bytes
+     * }
+     * unencrypted_trailer                // 0-15 bytes
+     * }
+     * <p>
+     * The ADTS header, which can be 7 or 9 bytes long, plus the first 16 bytes of the frame after it, are unencrypted. The contiguous data section that follows is encrypted. The size, in bytes, of the encrypted section must be an integer multiple of 16 and is possibly zero. The AAC frame ends with 0 to 15 unencrypted bytes. Start code emulation prevention is not performed on the encrypted frame.
+     *
+     * @param dataSampleAES IDR/Slice data, not used, use the sampleData directly to avoid data copy
+     * @param sizeSampleAES
+     */
+    public static final void decryptSampleAes_Audio(ParsableByteArray dataSampleAES, int sizeSampleAES, byte[] encrytionKey, byte[] encryptionIv) {
+        //TODO: sanity check for input parameters
+        int size = sizeSampleAES;
+        Assertions.checkArgument(size > 0);
+        if (size < 32)
+            return;
+
+        int tmp_nal_size = size;
+        Vector clearBytes = new Vector(2);
+        Vector encryptBytes = new Vector(2);
+
+        int audio_frame_size = size;
+        int index = 0;
+        int value = 0;
+
+        value = min(16, audio_frame_size);
+        clearBytes.add(value);
+
+        audio_frame_size -= value;
+
+        encryptBytes.add(audio_frame_size / 16 * 16);
+        index++;
+
+        audio_frame_size = audio_frame_size % 16;
+        if (audio_frame_size > 0) {
+            clearBytes.add(audio_frame_size);
+            encryptBytes.add(0);
+            index++;
+        }
+
+        //TODO: try zero-memcopy to improve performance
+        byte[] buffer = new byte[size];
+        System.arraycopy(dataSampleAES.data, dataSampleAES.getPosition(), buffer, 0, size);
+        decryptSampleAes(buffer, size, encrytionKey, encryptionIv, clearBytes, encryptBytes );
+        System.arraycopy(buffer, 0, dataSampleAES.data, dataSampleAES.getPosition(), size);
+    }
 
 }

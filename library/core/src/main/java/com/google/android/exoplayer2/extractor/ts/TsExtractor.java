@@ -17,6 +17,7 @@ package com.google.android.exoplayer2.extractor.ts;
 
 import android.support.annotation.IntDef;
 import android.util.SparseArray;
+import android.util.Log;
 import android.util.SparseBooleanArray;
 import android.util.SparseIntArray;
 import com.google.android.exoplayer2.C;
@@ -32,6 +33,7 @@ import com.google.android.exoplayer2.extractor.ts.TsPayloadReader.DvbSubtitleInf
 import com.google.android.exoplayer2.extractor.ts.TsPayloadReader.EsInfo;
 import com.google.android.exoplayer2.extractor.ts.TsPayloadReader.TrackIdGenerator;
 import com.google.android.exoplayer2.util.Assertions;
+import com.google.android.exoplayer2.util.HLSEncryptInfo;
 import com.google.android.exoplayer2.util.ParsableBitArray;
 import com.google.android.exoplayer2.util.ParsableByteArray;
 import com.google.android.exoplayer2.util.TimestampAdjuster;
@@ -56,6 +58,7 @@ public final class TsExtractor implements Extractor {
 
     @Override
     public Extractor[] createExtractors() {
+      Log.d("TsExtractor", "createExtractors");
       return new Extractor[] {new TsExtractor()};
     }
 
@@ -65,13 +68,13 @@ public final class TsExtractor implements Extractor {
    * Modes for the extractor.
    */
   @Retention(RetentionPolicy.SOURCE)
-  @IntDef({MODE_MULTI_PMT, MODE_SINGLE_PMT, MODE_HLS})
+  @IntDef({MODE_NORMAL, MODE_SINGLE_PMT, MODE_HLS})
   public @interface Mode {}
 
   /**
    * Behave as defined in ISO/IEC 13818-1.
    */
-  public static final int MODE_MULTI_PMT = 0;
+  public static final int MODE_NORMAL = 0;
   /**
    * Assume only one PMT will be contained in the stream, even if more are declared by the PAT.
    */
@@ -81,6 +84,8 @@ public final class TsExtractor implements Extractor {
    * continuity counters.
    */
   public static final int MODE_HLS = 2;
+
+
 
   public static final int TS_STREAM_TYPE_MPA = 0x03;
   public static final int TS_STREAM_TYPE_MPA_LSF = 0x04;
@@ -92,10 +97,12 @@ public final class TsExtractor implements Extractor {
   public static final int TS_STREAM_TYPE_H262 = 0x02;
   public static final int TS_STREAM_TYPE_H264 = 0x1B;
   public static final int TS_STREAM_TYPE_H265 = 0x24;
+
   public static final int TS_STREAM_TYPE_ID3 = 0x15;
   public static final int TS_STREAM_TYPE_SPLICE_INFO = 0x86;
   public static final int TS_STREAM_TYPE_DVBSUBS = 0x59;
 
+  private static final String TAG = "TsExtractor";
   private static final int TS_PACKET_SIZE = 188;
   private static final int TS_SYNC_BYTE = 0x47; // First byte of each TS packet.
   private static final int TS_PAT_PID = 0;
@@ -105,10 +112,25 @@ public final class TsExtractor implements Extractor {
   private static final long E_AC3_FORMAT_IDENTIFIER = Util.getIntegerCodeForString("EAC3");
   private static final long HEVC_FORMAT_IDENTIFIER = Util.getIntegerCodeForString("HEVC");
 
+    private static final long ZAVC_FORMAT_IDENTIFIER = Util.getIntegerCodeForString("ZAVC");
+
   private static final int BUFFER_PACKET_COUNT = 5; // Should be at least 2
   private static final int BUFFER_SIZE = TS_PACKET_SIZE * BUFFER_PACKET_COUNT;
 
   @Mode private final int mode;
+
+    private static int mMode = TS_STREAM_TYPE_H264;
+  //private  String encryptionMethod;
+  //2017-6-3,zhouwg, add it
+ // private  byte[] encryptionKey;
+  //private  byte[] encryptionIv;
+  //2017-6-5,zhouwg, add it
+ // private String encryptionKeyFormat;
+
+  //2017-6-7,zhouwg, add it
+  private HLSEncryptInfo hlsEncryptInfo;
+
+
   private final List<TimestampAdjuster> timestampAdjusters;
   private final ParsableByteArray tsPacketBuffer;
   private final ParsableBitArray tsScratch;
@@ -127,28 +149,33 @@ public final class TsExtractor implements Extractor {
     this(0);
   }
 
+  public TsExtractor(int mode, int defaultTsPayloadReaderFlags) {
+    this(mode, new TimestampAdjuster(0),
+            new DefaultTsPayloadReaderFactory(defaultTsPayloadReaderFlags));
+  }
   /**
    * @param defaultTsPayloadReaderFlags A combination of {@link DefaultTsPayloadReaderFactory}
    *     {@code FLAG_*} values that control the behavior of the payload readers.
    */
   public TsExtractor(@Flags int defaultTsPayloadReaderFlags) {
-    this(MODE_SINGLE_PMT, defaultTsPayloadReaderFlags);
-  }
-
-  /**
-   * @param mode Mode for the extractor. One of {@link #MODE_MULTI_PMT}, {@link #MODE_SINGLE_PMT}
-   *     and {@link #MODE_HLS}.
-   * @param defaultTsPayloadReaderFlags A combination of {@link DefaultTsPayloadReaderFactory}
-   *     {@code FLAG_*} values that control the behavior of the payload readers.
-   */
-  public TsExtractor(@Mode int mode, @Flags int defaultTsPayloadReaderFlags) {
-    this(mode, new TimestampAdjuster(0),
+    this(MODE_NORMAL, new TimestampAdjuster(0),
         new DefaultTsPayloadReaderFactory(defaultTsPayloadReaderFlags));
   }
 
+  //2017-6-3,zhouwg, add it
+  public TsExtractor(@Mode int mode, TimestampAdjuster timestampAdjuster,
+                     TsPayloadReader.Factory payloadReaderFactory, HLSEncryptInfo hlsEncryptInfo) {
+    this(mode, timestampAdjuster, payloadReaderFactory);
 
+    //this.encryptionMethod = encryptionMethod;
+    //this.encryptionKeyFormat = encryptionKeyFormat;
+    //this.encryptionIv = encryptionIv;
+    //this.encryptionKey = encryptionKey;
+    this.hlsEncryptInfo = hlsEncryptInfo;
+
+  }
   /**
-   * @param mode Mode for the extractor. One of {@link #MODE_MULTI_PMT}, {@link #MODE_SINGLE_PMT}
+   * @param mode Mode for the extractor. One of {@link #MODE_NORMAL}, {@link #MODE_SINGLE_PMT}
    *     and {@link #MODE_HLS}.
    * @param timestampAdjuster A timestamp adjuster for offsetting and scaling sample timestamps.
    * @param payloadReaderFactory Factory for injecting a custom set of payload readers.
@@ -169,6 +196,11 @@ public final class TsExtractor implements Extractor {
     tsPayloadReaders = new SparseArray<>();
     continuityCounters = new SparseIntArray();
     resetPayloadReaders();
+
+    //2017-6-3,zhouwg
+    //encryptionMethod = "";
+    //encryptionIv = new byte[16];
+    //encryptionKey = new byte[16];
   }
 
   // Extractor implementation.
@@ -381,6 +413,9 @@ public final class TsExtractor implements Extractor {
     private static final int TS_PMT_DESC_DTS = 0x7B;
     private static final int TS_PMT_DESC_DVBSUBS = 0x59;
 
+      //2017-5-26,zhouwg, add it
+    private static final int TS_PMT_DESC_SAMPLE_AES_H264 = 15;
+
     private final ParsableBitArray pmtScratch;
     private final int pid;
 
@@ -430,10 +465,10 @@ public final class TsExtractor implements Extractor {
       if (mode == MODE_HLS && id3Reader == null) {
         // Setup an ID3 track regardless of whether there's a corresponding entry, in case one
         // appears intermittently during playback. See [Internal: b/20261500].
-        EsInfo dummyEsInfo = new EsInfo(TS_STREAM_TYPE_ID3, null, null, new byte[0]);
-        id3Reader = payloadReaderFactory.createPayloadReader(TS_STREAM_TYPE_ID3, dummyEsInfo);
-        id3Reader.init(timestampAdjuster, output,
-            new TrackIdGenerator(programNumber, TS_STREAM_TYPE_ID3, MAX_PID_PLUS_ONE));
+        //EsInfo dummyEsInfo = new EsInfo(TS_STREAM_TYPE_ID3, null, null, new byte[0]);
+        //id3Reader = payloadReaderFactory.createPayloadReader(TS_STREAM_TYPE_ID3, dummyEsInfo);
+       // id3Reader.init(timestampAdjuster, output,
+         //   new TrackIdGenerator(programNumber, TS_STREAM_TYPE_ID3, MAX_PID_PLUS_ONE));
       }
 
       int remainingEntriesLength = sectionData.bytesLeft();
@@ -445,8 +480,18 @@ public final class TsExtractor implements Extractor {
         pmtScratch.skipBits(4); // reserved
         int esInfoLength = pmtScratch.readBits(12); // ES_info_length.
         EsInfo esInfo = readEsInfo(sectionData, esInfoLength);
-        if (streamType == 0x06) {
+        if (streamType == 0x06) {//STREAMTYPE_EAC3_DVB
           streamType = esInfo.streamType;
+        }
+
+        if (streamType == C.TS_STREAM_TYPE_SAMPLE_AES_H264) {
+          Log.d(TAG, "SAMPLE_AES H264");
+            mMode = C.TS_STREAM_TYPE_SAMPLE_AES_H264;
+        }
+        //2017-6-3,zhouwg
+        if (streamType == C.TS_STREAM_TYPE_AAC_ADTS_SAMPLE_AES) {
+          Log.d(TAG, "SAMPLE_AES AAC");
+          mMode = C.TS_STREAM_TYPE_AAC_ADTS_SAMPLE_AES;
         }
         remainingEntriesLength -= esInfoLength + 5;
 
@@ -460,7 +505,7 @@ public final class TsExtractor implements Extractor {
         if (mode == MODE_HLS && streamType == TS_STREAM_TYPE_ID3) {
           reader = id3Reader;
         } else {
-          reader = payloadReaderFactory.createPayloadReader(streamType, esInfo);
+          reader = payloadReaderFactory.createPayloadReader(streamType, esInfo, hlsEncryptInfo);
           if (reader != null) {
             reader.init(timestampAdjuster, output,
                 new TrackIdGenerator(programNumber, trackId, MAX_PID_PLUS_ONE));
@@ -471,6 +516,9 @@ public final class TsExtractor implements Extractor {
           tsPayloadReaders.put(elementaryPid, reader);
         }
       }
+
+
+
       if (mode == MODE_HLS) {
         if (!tracksEnded) {
           output.endTracks();
@@ -506,14 +554,16 @@ public final class TsExtractor implements Extractor {
         int descriptorLength = data.readUnsignedByte();
         int positionOfNextDescriptor = data.getPosition() + descriptorLength;
         if (descriptorTag == TS_PMT_DESC_REGISTRATION) { // registration_descriptor
-          long formatIdentifier = data.readUnsignedInt();
-          if (formatIdentifier == AC3_FORMAT_IDENTIFIER) {
-            streamType = TS_STREAM_TYPE_AC3;
-          } else if (formatIdentifier == E_AC3_FORMAT_IDENTIFIER) {
-            streamType = TS_STREAM_TYPE_E_AC3;
-          } else if (formatIdentifier == HEVC_FORMAT_IDENTIFIER) {
-            streamType = TS_STREAM_TYPE_H265;
-          }
+            long formatIdentifier = data.readUnsignedInt();
+            if (formatIdentifier == AC3_FORMAT_IDENTIFIER) {
+                streamType = TS_STREAM_TYPE_AC3;
+            } else if (formatIdentifier == E_AC3_FORMAT_IDENTIFIER) {
+                streamType = TS_STREAM_TYPE_E_AC3;
+            } else if (formatIdentifier == HEVC_FORMAT_IDENTIFIER) {
+              streamType = TS_STREAM_TYPE_H265;
+            }
+        //} else if (descriptorTag == TS_PMT_DESC_SAMPLE_AES_H264)  { //TODO:hardcode here
+        //    streamType = C.TS_STREAM_TYPE_SAMPLE_AES_H264;
         } else if (descriptorTag == TS_PMT_DESC_AC3) { // AC-3_descriptor in DVB (ETSI EN 300 468)
           streamType = TS_STREAM_TYPE_AC3;
         } else if (descriptorTag == TS_PMT_DESC_EAC3) { // enhanced_AC-3_descriptor
