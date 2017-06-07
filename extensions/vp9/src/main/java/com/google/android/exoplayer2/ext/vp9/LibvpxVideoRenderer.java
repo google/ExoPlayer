@@ -71,7 +71,7 @@ public final class LibvpxVideoRenderer extends BaseRenderer {
   private DecoderCounters decoderCounters;
   private Format format;
   private VpxDecoder decoder;
-  private DecoderInputBuffer inputBuffer;
+  private VpxInputBuffer inputBuffer;
   private VpxOutputBuffer outputBuffer;
   private VpxOutputBuffer nextOutputBuffer;
   private DrmSession<ExoMediaCrypto> drmSession;
@@ -394,6 +394,7 @@ public final class LibvpxVideoRenderer extends BaseRenderer {
       return false;
     }
     inputBuffer.flip();
+    inputBuffer.colorInfo = formatHolder.format.colorInfo;
     decoder.queueInputBuffer(inputBuffer);
     decoderCounters.inputBufferCount++;
     inputBuffer = null;
