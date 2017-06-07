@@ -13,17 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.android.exoplayer2.playbacktests.util;
+package com.google.android.exoplayer2.testutil;
 
 import android.os.Handler;
 import android.view.Surface;
 import com.google.android.exoplayer2.SimpleExoPlayer;
-import com.google.android.exoplayer2.playbacktests.util.Action.ClearVideoSurface;
-import com.google.android.exoplayer2.playbacktests.util.Action.Seek;
-import com.google.android.exoplayer2.playbacktests.util.Action.SetPlayWhenReady;
-import com.google.android.exoplayer2.playbacktests.util.Action.SetRendererDisabled;
-import com.google.android.exoplayer2.playbacktests.util.Action.SetVideoSurface;
-import com.google.android.exoplayer2.playbacktests.util.Action.Stop;
+import com.google.android.exoplayer2.testutil.Action.ClearVideoSurface;
+import com.google.android.exoplayer2.testutil.Action.Seek;
+import com.google.android.exoplayer2.testutil.Action.SetPlayWhenReady;
+import com.google.android.exoplayer2.testutil.Action.SetRendererDisabled;
+import com.google.android.exoplayer2.testutil.Action.SetVideoSurface;
+import com.google.android.exoplayer2.testutil.Action.Stop;
 import com.google.android.exoplayer2.trackselection.MappingTrackSelector;
 
 /**

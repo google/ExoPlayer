@@ -22,6 +22,7 @@ android {
         targetSdkVersion project.ext.targetSdkVersion
     }
 
+    // Workaround to prevent circular dependency on project :testutils.
     sourceSets {
         androidTest {
             java.srcDirs += "../../testutils/src/main/java/"

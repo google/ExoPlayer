@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.android.exoplayer2.playbacktests.util;
+package com.google.android.exoplayer2.testutil;
 
 import static junit.framework.Assert.fail;
 
@@ -32,7 +32,6 @@ import android.view.Surface;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.Window;
-import com.google.android.exoplayer2.playbacktests.R;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Util;
 
@@ -142,8 +141,9 @@ public final class HostActivity extends Activity implements SurfaceHolder.Callba
   public void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     requestWindowFeature(Window.FEATURE_NO_TITLE);
-    setContentView(R.layout.host_activity);
-    surfaceView = (SurfaceView) findViewById(R.id.surface_view);
+    setContentView(getResources().getIdentifier("host_activity", "layout", getPackageName()));
+    surfaceView = (SurfaceView) findViewById(
+        getResources().getIdentifier("surface_view", "id", getPackageName()));
     surfaceView.getHolder().addCallback(this);
     mainHandler = new Handler();
     checkCanStopRunnable = new CheckCanStopRunnable();

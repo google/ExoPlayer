@@ -22,12 +22,6 @@ android {
         targetSdkVersion project.ext.targetSdkVersion
     }
 
-    sourceSets {
-        androidTest {
-            java.srcDirs += "../../testutils/src/main/java/"
-        }
-    }
-
     buildTypes {
         debug {
             testCoverageEnabled = true
@@ -38,6 +32,7 @@ android {
 dependencies {
     compile project(':library-core')
     compile 'com.android.support:support-annotations:' + supportLibraryVersion
+    androidTestCompile project(':testutils')
     androidTestCompile 'com.google.dexmaker:dexmaker:' + dexmakerVersion
     androidTestCompile 'com.google.dexmaker:dexmaker-mockito:' + dexmakerVersion
     androidTestCompile 'org.mockito:mockito-core:' + mockitoVersion
