@@ -261,14 +261,25 @@ import java.util.Locale;
     // Handle encryption.
     HlsMediaPlaylist.Segment segment = mediaPlaylist.segments.get(chunkIndex);
 
+
+
+
+
+
     // Check if encryption is specified.
     if (segment.isEncrypted) {
       Uri keyUri = UriUtil.resolveToUri(mediaPlaylist.baseUri, segment.encryptionKeyUri);
-      if (!keyUri.equals(encryptionKeyUri)) {
-        // Encryption is specified and the key has changed.
-        out.chunk = newEncryptionKeyChunk(keyUri, segment.encryptionIV, selectedVariantIndex,
-            trackSelection.getSelectionReason(), trackSelection.getSelectionData());
-        return;
+      if (
+            ((segment.hlsEncryptInfo.encryptionKeyFormat == null) && segment.hlsEncryptInfo.encryptionMethod.equals(C.ENCRYPTION_METHOD_SAMPLE_AES))
+                    || segment.hlsEncryptInfo.encryptionMethod.equals(C.ENCRYPTION_METHOD_AES_128)
+            ){
+            if(!keyUri.equals(encryptionKeyUri)){
+            // Encryption is specified and the key has changed.
+            out.chunk=newEncryptionKeyChunk(keyUri,segment.encryptionIV,selectedVariantIndex,
+            trackSelection.getSelectionReason(),trackSelection.getSelectionData());
+            encryptionKeyUri=keyUri;
+            return;
+            }
       }
       if (!Util.areEqual(segment.encryptionIV, encryptionIvString)) {
         setEncryptionData(keyUri, segment.encryptionIV, encryptionKey);
@@ -299,7 +310,7 @@ import java.util.Locale;
     out.chunk = new HlsMediaChunk(mediaDataSource, dataSpec, initDataSpec, selectedUrl,
         muxedCaptionFormats, trackSelection.getSelectionReason(), trackSelection.getSelectionData(),
         startTimeUs, startTimeUs + segment.durationUs, chunkMediaSequence, discontinuitySequence,
-        isTimestampMaster, timestampAdjuster, previous, encryptionKey, encryptionIv);
+        isTimestampMaster, timestampAdjuster, previous, encryptionKey, encryptionIv, segment.hlsEncryptInfo);
   }
 
   /**

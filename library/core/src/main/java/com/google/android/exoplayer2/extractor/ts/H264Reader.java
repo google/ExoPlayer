@@ -21,6 +21,8 @@ import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.extractor.ExtractorOutput;
 import com.google.android.exoplayer2.extractor.TrackOutput;
 import com.google.android.exoplayer2.extractor.ts.TsPayloadReader.TrackIdGenerator;
+import com.google.android.exoplayer2.util.Assertions;
+import com.google.android.exoplayer2.util.HLSEncryptInfo;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.NalUnitUtil;
 import com.google.android.exoplayer2.util.NalUnitUtil.SpsData;
@@ -61,6 +63,15 @@ public final class H264Reader implements ElementaryStreamReader {
   // Scratch variables to avoid allocations.
   private final ParsableByteArray seiWrapper;
 
+  private ParsableByteArray sampleData;
+  private int writtenSampleSize;
+  private int mMode = C.TS_STREAM_TYPE_H264;
+  private byte[] encryptionKey;
+  private byte[] encryptionIv;
+  private HLSEncryptInfo hlsEncryptInfo;
+
+  private boolean bFirstSample;
+
   /**
    * @param seiReader An SEI reader for consuming closed caption channels.
    * @param allowNonIdrKeyframes Whether to treat samples consisting of non-IDR I slices as
@@ -77,6 +88,20 @@ public final class H264Reader implements ElementaryStreamReader {
     pps = new NalUnitTargetBuffer(NAL_UNIT_TYPE_PPS, 128);
     sei = new NalUnitTargetBuffer(NAL_UNIT_TYPE_SEI, 128);
     seiWrapper = new ParsableByteArray();
+
+    bFirstSample = true;
+    sampleData = new ParsableByteArray();
+    writtenSampleSize = 0;
+  }
+
+  public H264Reader(SeiReader seiReader, boolean allowNonIdrKeyframes, boolean detectAccessUnits, int streamType, HLSEncryptInfo hlsEncryptInfo) {
+    this(seiReader, allowNonIdrKeyframes, detectAccessUnits);
+    this.mMode = streamType;
+    this.hlsEncryptInfo = hlsEncryptInfo;
+    if (hlsEncryptInfo != null) {
+      this.encryptionIv = hlsEncryptInfo.encryptionIv;
+      this.encryptionKey = hlsEncryptInfo.encryptionKey;
+    }
   }
 
   @Override
@@ -108,10 +133,28 @@ public final class H264Reader implements ElementaryStreamReader {
     int offset = data.getPosition();
     int limit = data.limit();
     byte[] dataArray = data.data;
+    int size = data.bytesLeft();
 
     // Append the data to the buffer.
     totalBytesWritten += data.bytesLeft();
-    output.sampleData(data, data.bytesLeft());
+    data.setPosition(offset + size);
+
+    if (bFirstSample) {
+      bFirstSample = false;
+      sampleData.reset(size);
+      System.arraycopy(data.data, offset, sampleData.data, sampleData.getPosition(), size);
+    } else {
+      int curLeft = sampleData.bytesLeft();
+      byte[] leftData = new byte[curLeft];
+      if (curLeft > 0) {
+        System.arraycopy(sampleData.data, sampleData.getPosition(), leftData, 0, curLeft);
+      }
+      sampleData.reset(curLeft + size);
+      if (curLeft > 0) {
+        System.arraycopy(leftData, 0, sampleData.data, 0, curLeft);
+      }
+      System.arraycopy(data.data, offset, sampleData.data, curLeft, size);
+    }
 
     // Scan the appended data, processing NAL units as they are encountered
     while (true) {
@@ -137,7 +180,7 @@ public final class H264Reader implements ElementaryStreamReader {
       // Indicate the end of the previous NAL unit. If the length to the start of the next unit
       // is negative then we wrote too many bytes to the NAL buffers. Discard the excess bytes
       // when notifying that the unit has ended.
-      endNalUnit(absolutePosition, bytesWrittenPastPosition,
+      endNalUnit(nalUnitType, absolutePosition, bytesWrittenPastPosition,
           lengthToNalUnit < 0 ? -lengthToNalUnit : 0, pesTimeUs);
       // Indicate the start of the next NAL unit.
       startNalUnit(absolutePosition, nalUnitType, pesTimeUs);
@@ -169,7 +212,7 @@ public final class H264Reader implements ElementaryStreamReader {
     sampleReader.appendToNalUnit(dataArray, offset, limit);
   }
 
-  private void endNalUnit(long position, int offset, int discardPadding, long pesTimeUs) {
+  private void endNalUnit(int curNALType, long position, int offset, int discardPadding, long pesTimeUs) {
     if (!hasOutputFormat || sampleReader.needsSpsPps()) {
       sps.endNalUnit(discardPadding);
       pps.endNalUnit(discardPadding);
@@ -205,13 +248,13 @@ public final class H264Reader implements ElementaryStreamReader {
       seiWrapper.setPosition(4); // NAL prefix and nal_unit() header.
       seiReader.consume(pesTimeUs, seiWrapper);
     }
-    sampleReader.endNalUnit(position, offset);
+    sampleReader.endNalUnit(curNALType, position, offset);
   }
 
   /**
    * Consumes a stream of NAL units and outputs samples.
    */
-  private static final class SampleReader {
+  private final class SampleReader {
 
     private static final int DEFAULT_BUFFER_SIZE = 128;
 
@@ -415,13 +458,36 @@ public final class H264Reader implements ElementaryStreamReader {
       isFilling = false;
     }
 
-    public void endNalUnit(long position, int offset) {
+    public void endNalUnit(int curNALUnitType, long position, int offset) {
+
+      int size = (int) (position - nalUnitStartPosition);
+      Assertions.checkArgument(size > 0);
+
+      if (mMode == C.TS_STREAM_TYPE_SAMPLE_AES_H264) {
+        int previousNALUnitType = nalUnitType;
+        if (curNALUnitType == 5 && curNALUnitType == previousNALUnitType) {
+          C.decryptSampleAes_NAL(sampleData, size, encryptionKey, encryptionIv);
+        }
+        if (curNALUnitType == 1 && curNALUnitType == previousNALUnitType) {
+          C.decryptSampleAes_NAL(sampleData, size, encryptionKey, encryptionIv);
+        }
+
+        if (curNALUnitType == C.NAL_UNIT_TYPE_AUD) {
+          if ((previousNALUnitType == C.NAL_UNIT_TYPE_IDR) || (previousNALUnitType == C.NAL_UNIT_TYPE_SLICE)) {
+            C.decryptSampleAes_NAL(sampleData, size, encryptionKey, encryptionIv);
+          }
+        }
+      }
+
+      output.sampleData(sampleData, size);
+      writtenSampleSize += size;
+
       if (nalUnitType == NAL_UNIT_TYPE_AUD
           || (detectAccessUnits && sliceHeader.isFirstVclNalUnitOfPicture(previousSliceHeader))) {
         // If the NAL unit ending is the start of a new sample, output the previous one.
         if (readingSample) {
           int nalUnitLength = (int) (position - nalUnitStartPosition);
-          outputSample(offset + nalUnitLength);
+          outputSample((int) (writtenSampleSize - totalBytesWritten) + offset + nalUnitLength);
         }
         samplePosition = nalUnitStartPosition;
         sampleTimeUs = nalUnitTimeUs;
@@ -438,7 +504,7 @@ public final class H264Reader implements ElementaryStreamReader {
       output.sampleMetadata(sampleTimeUs, flags, size, offset, null);
     }
 
-    private static final class SliceHeaderData {
+    private final class SliceHeaderData {
 
       private static final int SLICE_TYPE_I = 2;
       private static final int SLICE_TYPE_ALL_I = 7;

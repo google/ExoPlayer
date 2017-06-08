@@ -34,6 +34,7 @@ import com.google.android.exoplayer2.source.chunk.MediaChunk;
 import com.google.android.exoplayer2.source.hls.playlist.HlsMasterPlaylist.HlsUrl;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DataSpec;
+import com.google.android.exoplayer2.util.HLSEncryptInfo;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.ParsableByteArray;
 import com.google.android.exoplayer2.util.TimestampAdjuster;
@@ -100,6 +101,12 @@ import java.util.concurrent.atomic.AtomicInteger;
   private volatile boolean loadCanceled;
   private volatile boolean loadCompleted;
 
+  private final byte[] encryptionKey;
+  private final byte[] encryptionIv;
+  private final HLSEncryptInfo hlsEncryptInfo;
+
+
+
   /**
    * @param dataSource The source from which the data should be loaded.
    * @param dataSpec Defines the data to be loaded.
@@ -124,8 +131,8 @@ import java.util.concurrent.atomic.AtomicInteger;
       Object trackSelectionData, long startTimeUs, long endTimeUs, int chunkIndex,
       int discontinuitySequenceNumber, boolean isMasterTimestampSource,
       TimestampAdjuster timestampAdjuster, HlsMediaChunk previousChunk, byte[] encryptionKey,
-      byte[] encryptionIv) {
-    super(buildDataSource(dataSource, encryptionKey, encryptionIv), dataSpec, hlsUrl.format,
+      byte[] encryptionIv, HLSEncryptInfo hlsEncryptInfo) {
+    super(buildDataSource(dataSource, encryptionKey, encryptionIv, hlsEncryptInfo), dataSpec, hlsUrl.format,
         trackSelectionReason, trackSelectionData, startTimeUs, endTimeUs, chunkIndex);
     this.discontinuitySequenceNumber = discontinuitySequenceNumber;
     this.initDataSpec = initDataSpec;
@@ -135,6 +142,13 @@ import java.util.concurrent.atomic.AtomicInteger;
     this.timestampAdjuster = timestampAdjuster;
     // Note: this.dataSource and dataSource may be different.
     this.isEncrypted = this.dataSource instanceof Aes128DataSource;
+
+    this.encryptionKey = encryptionKey;
+    this.encryptionIv = encryptionIv;
+    hlsEncryptInfo.encryptionKey = encryptionKey;
+    hlsEncryptInfo.encryptionIv = encryptionIv;
+    this.hlsEncryptInfo = hlsEncryptInfo;
+
     lastPathSegment = dataSpec.uri.getLastPathSegment();
     isPackedAudio = lastPathSegment.endsWith(AAC_FILE_EXTENSION)
         || lastPathSegment.endsWith(AC3_FILE_EXTENSION)
@@ -331,11 +345,12 @@ import java.util.concurrent.atomic.AtomicInteger;
    * order to decrypt the loaded data. Else returns the original.
    */
   private static DataSource buildDataSource(DataSource dataSource, byte[] encryptionKey,
-      byte[] encryptionIv) {
-    if (encryptionKey == null || encryptionIv == null) {
-      return dataSource;
-    }
-    return new Aes128DataSource(dataSource, encryptionKey, encryptionIv);
+      byte[] encryptionIv, HLSEncryptInfo hlsEncryptInfo) {
+
+    if (hlsEncryptInfo.encryptionMethod != null && hlsEncryptInfo.encryptionMethod.equals("AES-128"))
+      return new Aes128DataSource(dataSource, encryptionKey, encryptionIv);
+
+    return dataSource;
   }
 
   private Extractor createExtractor() {
@@ -378,7 +393,7 @@ import java.util.concurrent.atomic.AtomicInteger;
         }
       }
       extractor = new TsExtractor(TsExtractor.MODE_HLS, timestampAdjuster,
-          new DefaultTsPayloadReaderFactory(esReaderFactoryFlags, closedCaptionFormats));
+          new DefaultTsPayloadReaderFactory(esReaderFactoryFlags, closedCaptionFormats), hlsEncryptInfo);
     }
     if (usingNewExtractor) {
       extractor.init(extractorOutput);
@@ -389,7 +404,7 @@ import java.util.concurrent.atomic.AtomicInteger;
   private Extractor buildPackedAudioExtractor(long startTimeUs) {
     Extractor extractor;
     if (lastPathSegment.endsWith(AAC_FILE_EXTENSION)) {
-      extractor = new AdtsExtractor(startTimeUs);
+      extractor = new AdtsExtractor(startTimeUs, hlsEncryptInfo);
     } else if (lastPathSegment.endsWith(AC3_FILE_EXTENSION)
         || lastPathSegment.endsWith(EC3_FILE_EXTENSION)) {
       extractor = new Ac3Extractor(startTimeUs);
