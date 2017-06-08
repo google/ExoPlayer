@@ -465,10 +465,10 @@ public final class H264Reader implements ElementaryStreamReader {
 
       if (mMode == C.TS_STREAM_TYPE_SAMPLE_AES_H264) {
         int previousNALUnitType = nalUnitType;
-        if (curNALUnitType == 5 && curNALUnitType == previousNALUnitType) {
+        if (curNALUnitType == C.NAL_UNIT_TYPE_IDR && curNALUnitType == previousNALUnitType) {
           C.decryptSampleAes_NAL(sampleData, size, encryptionKey, encryptionIv);
         }
-        if (curNALUnitType == 1 && curNALUnitType == previousNALUnitType) {
+        if (curNALUnitType == C.NAL_UNIT_TYPE_SLICE && curNALUnitType == previousNALUnitType) {
           C.decryptSampleAes_NAL(sampleData, size, encryptionKey, encryptionIv);
         }
 
