@@ -23,6 +23,7 @@ import android.support.annotation.Nullable;
 import android.util.Log;
 import com.google.android.exoplayer2.ExoPlayerImplInternal.PlaybackInfo;
 import com.google.android.exoplayer2.ExoPlayerImplInternal.SourceInfo;
+import com.google.android.exoplayer2.drm.DrmInitData;
 import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.trackselection.TrackSelection;
@@ -119,6 +120,12 @@ import java.util.concurrent.CopyOnWriteArraySet;
   @Override
   public int getPlaybackState() {
     return playbackState;
+  }
+
+  @Override public void preAcquireSession(DrmInitData drmInitData) {
+    for (EventListener listener : listeners) {
+      listener.onPreAcquireSession(drmInitData);
+    }
   }
 
   @Override

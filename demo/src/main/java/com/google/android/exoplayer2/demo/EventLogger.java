@@ -28,6 +28,7 @@ import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.audio.AudioRendererEventListener;
 import com.google.android.exoplayer2.decoder.DecoderCounters;
 import com.google.android.exoplayer2.drm.DefaultDrmSessionManager;
+import com.google.android.exoplayer2.drm.DrmInitData;
 import com.google.android.exoplayer2.metadata.Metadata;
 import com.google.android.exoplayer2.metadata.MetadataRenderer;
 import com.google.android.exoplayer2.metadata.emsg.EventMessage;
@@ -203,6 +204,11 @@ import java.util.Locale;
       Log.d(TAG, "  ]");
     }
     Log.d(TAG, "]");
+  }
+
+  @Override
+  public void onPreAcquireSession(DrmInitData drmInitData) {
+    Log.d(TAG, "preAcquireSession [" + getSessionTimeString() + "]");
   }
 
   // MetadataRenderer.Output

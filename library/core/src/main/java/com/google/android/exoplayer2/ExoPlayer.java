@@ -19,6 +19,8 @@ import android.os.Looper;
 import android.support.annotation.IntDef;
 import android.support.annotation.Nullable;
 import com.google.android.exoplayer2.audio.MediaCodecAudioRenderer;
+import com.google.android.exoplayer2.drm.DrmInitData;
+import com.google.android.exoplayer2.drm.DrmSession;
 import com.google.android.exoplayer2.metadata.MetadataRenderer;
 import com.google.android.exoplayer2.source.ConcatenatingMediaSource;
 import com.google.android.exoplayer2.source.ExtractorMediaSource;
@@ -136,6 +138,13 @@ public interface ExoPlayer {
      *     of length {@link #getRendererCount()}, but may contain null elements.
      */
     void onTracksChanged(TrackGroupArray trackGroups, TrackSelectionArray trackSelections);
+
+    /**
+     * Called before acquires a {@link DrmSession}.
+     *
+     * @param drmInitData DRM initialization data.
+     */
+    void onPreAcquireSession(DrmInitData drmInitData);
 
     /**
      * Called when the player starts or stops loading the source.
@@ -305,6 +314,13 @@ public interface ExoPlayer {
    * @return One of the {@code STATE} constants defined in this interface.
    */
   int getPlaybackState();
+
+  /**
+   * Called before acquires a {@link DrmSession}.
+   *
+   * @param drmInitData DRM initialization data.
+   */
+  void preAcquireSession(DrmInitData drmInitData);
 
   /**
    * Prepares the player to play the provided {@link MediaSource}. Equivalent to

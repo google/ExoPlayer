@@ -22,6 +22,8 @@ import android.view.TextureView;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.Renderer;
 import com.google.android.exoplayer2.decoder.DecoderCounters;
+import com.google.android.exoplayer2.drm.DrmInitData;
+import com.google.android.exoplayer2.drm.DrmSession;
 import com.google.android.exoplayer2.util.Assertions;
 
 /**
@@ -54,6 +56,13 @@ public interface VideoRendererEventListener {
    * @param format The new format.
    */
   void onVideoInputFormatChanged(Format format);
+
+  /**
+   * Called before acquires a {@link DrmSession}.
+   *
+   * @param drmInitData DRM initialization data.
+   */
+  void onPreAcquireSession(DrmInitData drmInitData);
 
   /**
    * Called to report the number of frames dropped by the renderer. Dropped frames are reported
@@ -161,6 +170,20 @@ public interface VideoRendererEventListener {
           @Override
           public void run() {
             listener.onVideoInputFormatChanged(format);
+          }
+        });
+      }
+    }
+
+    /**
+     * Invokes {@link VideoRendererEventListener#onPreAcquireSession(DrmInitData)}.
+     */
+    public void preAcquireSession(final DrmInitData drmInitData) {
+      if (listener != null) {
+        handler.post(new Runnable() {
+          @Override
+          public void run() {
+            listener.onPreAcquireSession(drmInitData);
           }
         });
       }

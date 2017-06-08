@@ -39,6 +39,7 @@ import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.PlaybackParameters;
 import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.Timeline;
+import com.google.android.exoplayer2.drm.DrmInitData;
 import com.google.android.exoplayer2.metadata.Metadata;
 import com.google.android.exoplayer2.metadata.id3.ApicFrame;
 import com.google.android.exoplayer2.source.TrackGroupArray;
@@ -802,6 +803,11 @@ public final class SimpleExoPlayerView extends FrameLayout {
     @Override
     public void onTracksChanged(TrackGroupArray tracks, TrackSelectionArray selections) {
       updateForCurrentTrackSelections();
+    }
+
+    @Override
+    public void onPreAcquireSession(DrmInitData drmInitData) {
+      // Do nothing.
     }
 
     // ExoPlayer.EventListener implementation
