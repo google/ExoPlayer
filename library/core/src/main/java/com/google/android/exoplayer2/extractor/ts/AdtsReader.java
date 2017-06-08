@@ -24,28 +24,14 @@ import com.google.android.exoplayer2.extractor.DummyTrackOutput;
 import com.google.android.exoplayer2.extractor.ExtractorOutput;
 import com.google.android.exoplayer2.extractor.TrackOutput;
 import com.google.android.exoplayer2.extractor.ts.TsPayloadReader.TrackIdGenerator;
-import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.CodecSpecificDataUtil;
 import com.google.android.exoplayer2.util.HLSEncryptInfo;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.ParsableBitArray;
 import com.google.android.exoplayer2.util.ParsableByteArray;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.security.SecureRandom;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Vector;
-
-import javax.crypto.Cipher;
-import javax.crypto.KeyGenerator;
-import javax.crypto.SecretKey;
-import javax.crypto.spec.IvParameterSpec;
-import javax.crypto.spec.SecretKeySpec;
-
-import static java.lang.Math.min;
 
 /**
  * Parses a continuous ADTS byte stream and extracts individual frames.
@@ -100,13 +86,10 @@ public final class AdtsReader implements ElementaryStreamReader {
     private TrackOutput currentOutput;
     private long currentSampleDuration;
 
-
     private int mMode = C.TS_STREAM_TYPE_AAC;
     private String encryptionMethod;
     private byte[] encryptionKey;
     private byte[] encryptionIv;
-
-
     private ParsableByteArray sampleData;
     private int writtenSampleSize;
     private boolean bMyCode;
@@ -121,24 +104,6 @@ public final class AdtsReader implements ElementaryStreamReader {
         this(exposeId3, null);
     }
 
-    public AdtsReader(boolean exposeId3, String language, int streamType, HLSEncryptInfo hlsEncryptInfo) {
-        this(exposeId3, language);
-
-
-        this.mMode = streamType;
-        this.encryptionKey = hlsEncryptInfo.encryptionKey;
-        this.encryptionIv = hlsEncryptInfo.encryptionIv;
-    }
-
-
-    public AdtsReader(boolean exposeId3, int streamType, byte[] encryptionKey, byte[] encryptionIv) {
-        this(exposeId3, null);
-
-        this.mMode = streamType;
-        this.encryptionKey = encryptionKey;
-        this.encryptionIv = encryptionIv;
-    }
-
     /**
      * @param exposeId3 True if the reader should expose ID3 information.
      * @param language  Track language.
@@ -150,13 +115,30 @@ public final class AdtsReader implements ElementaryStreamReader {
         this.exposeId3 = exposeId3;
         this.language = language;
 
-
         bMyCode = false;//TODO:original code could handle AAC audio well, need further investigation here
         bParseID3 = false;
         bFirstSample = true;
-        sampleData = new ParsableByteArray();//TODO: it will "eat" huge memory, only used in dev stage, should use better mechnism
-        writtenSampleSize = 0;
+        sampleData = new ParsableByteArray();
         totalBytesWritten = 0;
+    }
+
+    public AdtsReader(boolean exposeId3, String language, int streamType, HLSEncryptInfo hlsEncryptInfo) {
+        this(exposeId3, language);
+
+        this.mMode = streamType;
+        this.encryptionKey = hlsEncryptInfo.encryptionKey;
+        this.encryptionIv = hlsEncryptInfo.encryptionIv;
+    }
+
+    /*
+      support pure sample-aes aac audio content
+     */
+    public AdtsReader(boolean exposeId3, int streamType, byte[] encryptionKey, byte[] encryptionIv) {
+        this(exposeId3, null);
+
+        this.mMode = streamType;
+        this.encryptionKey = encryptionKey;
+        this.encryptionIv = encryptionIv;
     }
 
     @Override
@@ -186,33 +168,6 @@ public final class AdtsReader implements ElementaryStreamReader {
 
     @Override
     public void consume(ParsableByteArray data) {
-        int offset = data.getPosition();
-        int limit = data.limit();
-        int size = data.bytesLeft();
-
-        totalBytesWritten += data.bytesLeft();
-
-        if (bMyCode) {
-            if (bFirstSample) {
-                bFirstSample = false;
-                sampleData.reset((int) totalBytesWritten);
-                System.arraycopy(data.data, offset, sampleData.data, sampleData.getPosition(), size);
-
-            } else {
-                int curLeft = sampleData.bytesLeft();
-                byte[] leftData = new byte[curLeft];
-                if (curLeft > 0) {
-                    System.arraycopy(sampleData.data, sampleData.getPosition(), leftData, 0, curLeft);
-                }
-                sampleData.reset(curLeft + size);
-                if (curLeft > 0) {
-                    System.arraycopy(leftData, 0, sampleData.data, 0, curLeft);
-                }
-                System.arraycopy(data.data, offset, sampleData.data, curLeft, size);
-
-            }
-        }
-
         while (data.bytesLeft() > 0) {
             switch (state) {
                 case STATE_FINDING_SAMPLE:
@@ -273,7 +228,6 @@ public final class AdtsReader implements ElementaryStreamReader {
     private void setReadingId3HeaderState() {
         state = STATE_READING_ID3_HEADER;
         bytesRead = ID3_IDENTIFIER.length;
-        bParseID3 = true;
         sampleSize = 0;
         id3HeaderBuffer.setPosition(0);
     }
@@ -313,7 +267,6 @@ public final class AdtsReader implements ElementaryStreamReader {
         byte[] adtsData = pesBuffer.data;
         int position = pesBuffer.getPosition();
         int endOffset = pesBuffer.limit();
-        bParseID3 = false;
         while (position < endOffset) {
             int data = adtsData[position++] & 0xFF;
             if (matchState == MATCH_STATE_FF && data >= 0xF0 && data != 0xFF) {
@@ -335,7 +288,6 @@ public final class AdtsReader implements ElementaryStreamReader {
                 case MATCH_STATE_ID | '3':
                     setReadingId3HeaderState();
                     pesBuffer.setPosition(position);
-                    bParseID3 = true;
                     return;
                 default:
                     if (matchState != MATCH_STATE_START) {
@@ -359,31 +311,6 @@ public final class AdtsReader implements ElementaryStreamReader {
         setReadingSampleState(id3Output, 0, ID3_HEADER_SIZE,
                 id3HeaderBuffer.readSynchSafeInt() + ID3_HEADER_SIZE);
     }
-/**
- * ADTS帧结构：
-
- header     body
-
- ADTS帧首部结构：
- 序号 	域 	                  长度（bits） 	说明
- 1 	    Syncword 	                  12 	all bits must be 1
- 2 	    MPEG version 	              1 	0 for MPEG-4, 1 for MPEG-2
- 3 	    Layer 	                      2 	always 0
- 4 	    Protection Absent 	          1 	et to 1 if there is no CRC and 0 if there is CRC
- 5 	    Profile 	                  2 	the MPEG-4 Audio Object Type minus 1
- 6 	    MPEG-4 Sampling Frequency Index 	4 	MPEG-4 Sampling Frequency Index (15 is forbidden)
- 7 	    Private Stream 	              1 	set to 0 when encoding, ignore when decoding
- 8 	    MPEG-4 Channel Configuration  3 	MPEG-4 Channel Configuration (in the case of 0, the channel configuration is sent via an inband PCE)
- 9 	    Originality 	              1 	set to 0 when encoding, ignore when decoding
- 10 	Home 	                      1 	set to 0 when encoding, ignore when decoding
- 11 	Copyrighted Stream 	          1 	set to 0 when encoding, ignore when decoding
- 12 	Copyrighted Start 	          1 	set to 0 when encoding, ignore when decoding
- 13 	Frame Length 	              13 	this value must include 7 or 9 bytes of header length:
- FrameLength = (ProtectionAbsent == 1 ? 7 : 9) + size(AACFrame)
- 14 	Buffer Fullness 	          11 	buffer fullness
- 15 	Number of AAC Frames 	      2 	number of AAC frames (RDBs) in ADTS frame minus 1, for maximum compatibility always use 1 AAC frame per ADTS frame
- 16 	CRC 	                      16 	CRC if protection absent is 0
- */
 
     /**
      * Parses the sample header.
@@ -418,7 +345,7 @@ public final class AdtsReader implements ElementaryStreamReader {
 
             Format format = Format.createAudioSampleFormat(formatId, MimeTypes.AUDIO_AAC, null,
                     Format.NO_VALUE, Format.NO_VALUE, audioParams.second, audioParams.first,
-                    Collections.singletonList(audioSpecificConfig), null, 0, language, mMode);
+                    Collections.singletonList(audioSpecificConfig), null, 0, language);
             // In this class a sample is an access unit, but the MediaFormat sample rate specifies the
             // number of PCM audio samples per second.
             sampleDurationUs = (C.MICROS_PER_SECOND * 1024) / format.sampleRate;
@@ -441,10 +368,8 @@ public final class AdtsReader implements ElementaryStreamReader {
      * Reads the rest of the sample
      */
     private void readSample(ParsableByteArray data) {
-
         int skipSize = 0;
         int realSampleSize = 0;
-
 
         int headerSize = 2 /* the sync word */ + HEADER_SIZE;
         if (hasCrc) {
@@ -452,7 +377,6 @@ public final class AdtsReader implements ElementaryStreamReader {
         }
 
         int bytesToRead = Math.min(data.bytesLeft(), sampleSize - bytesRead);
-
 
         if (bMyCode) {
             //Assertions.checkArgument(data.getPosition() );
@@ -463,7 +387,6 @@ public final class AdtsReader implements ElementaryStreamReader {
         }
 
         if (!bMyCode) {
-
             currentOutput.sampleData(data, bytesToRead);
             writtenSampleSize += bytesToRead;
         } else {
@@ -505,4 +428,6 @@ public final class AdtsReader implements ElementaryStreamReader {
         }
 
     }
+
+
 }

@@ -42,15 +42,10 @@ public final class HlsMediaPlaylist extends HlsPlaylist {
     public final boolean isEncrypted;
     public final String encryptionKeyUri;
     public final String encryptionIV;
-
     public final long byterangeOffset;
     public final long byterangeLength;
 
-
     public final HLSEncryptInfo hlsEncryptInfo;
-
-
-
 
 
     public Segment(String uri, long byterangeOffset, long byterangeLength) {
@@ -58,16 +53,18 @@ public final class HlsMediaPlaylist extends HlsPlaylist {
     }
 
     public Segment(String uri, long durationUs, int relativeDiscontinuitySequence,
-                   long relativeStartTimeUs, HLSEncryptInfo hlsEncryptInfo, long byterangeOffset, long byterangeLength) {
+        long relativeStartTimeUs, HLSEncryptInfo hlsEncryptInfo,
+        long byterangeOffset, long byterangeLength) {
+
       this.url = uri;
       this.durationUs = durationUs;
       this.relativeDiscontinuitySequence = relativeDiscontinuitySequence;
       this.relativeStartTimeUs = relativeStartTimeUs;
+
       this.hlsEncryptInfo = hlsEncryptInfo;
       this.isEncrypted = (hlsEncryptInfo != null) ? hlsEncryptInfo.isEncrypted : false;
       this.encryptionKeyUri = (hlsEncryptInfo != null) ? hlsEncryptInfo.encryptionKeyUri : null;
       this.encryptionIV = (hlsEncryptInfo != null) ? hlsEncryptInfo.encryptionIvString : null;
-
       this.byterangeOffset = byterangeOffset;
       this.byterangeLength = byterangeLength;
     }
@@ -102,12 +99,14 @@ public final class HlsMediaPlaylist extends HlsPlaylist {
   public final boolean hasProgramDateTime;
   public final Segment initializationSegment;
   public final List<Segment> segments;
+  public final List<String> dateRanges;
   public final long durationUs;
 
   public HlsMediaPlaylist(@PlaylistType int playlistType, String baseUri, long startOffsetUs,
       long startTimeUs, boolean hasDiscontinuitySequence, int discontinuitySequence,
       int mediaSequence, int version, long targetDurationUs, boolean hasEndTag,
-      boolean hasProgramDateTime, Segment initializationSegment, List<Segment> segments) {
+      boolean hasProgramDateTime, Segment initializationSegment, List<Segment> segments,
+      List<String> dateRanges) {
     super(baseUri);
     this.playlistType = playlistType;
     this.startTimeUs = startTimeUs;
@@ -128,6 +127,7 @@ public final class HlsMediaPlaylist extends HlsPlaylist {
     }
     this.startOffsetUs = startOffsetUs == C.TIME_UNSET ? C.TIME_UNSET
         : startOffsetUs >= 0 ? startOffsetUs : durationUs + startOffsetUs;
+    this.dateRanges = Collections.unmodifiableList(dateRanges);
   }
 
   /**
@@ -166,7 +166,7 @@ public final class HlsMediaPlaylist extends HlsPlaylist {
   public HlsMediaPlaylist copyWith(long startTimeUs, int discontinuitySequence) {
     return new HlsMediaPlaylist(playlistType, baseUri, startOffsetUs, startTimeUs, true,
         discontinuitySequence, mediaSequence, version, targetDurationUs, hasEndTag,
-        hasProgramDateTime, initializationSegment, segments);
+        hasProgramDateTime, initializationSegment, segments, dateRanges);
   }
 
   /**
@@ -181,7 +181,7 @@ public final class HlsMediaPlaylist extends HlsPlaylist {
     }
     return new HlsMediaPlaylist(playlistType, baseUri, startOffsetUs, startTimeUs,
         hasDiscontinuitySequence, discontinuitySequence, mediaSequence, version, targetDurationUs,
-        true, hasProgramDateTime, initializationSegment, segments);
+        true, hasProgramDateTime, initializationSegment, segments, dateRanges);
   }
 
 }

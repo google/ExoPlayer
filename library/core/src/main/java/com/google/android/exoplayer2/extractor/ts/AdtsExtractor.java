@@ -62,6 +62,7 @@ public final class AdtsExtractor implements Extractor {
   private AdtsReader reader;
   private boolean startedPacket;
 
+
   private  int mMode = C.TS_STREAM_TYPE_AAC;
   private  String encryptionMethod;
   private  byte[] encryptionKey;
@@ -87,6 +88,7 @@ public final class AdtsExtractor implements Extractor {
     }
 
   }
+
 
   @Override
   public boolean sniff(ExtractorInput input) throws IOException, InterruptedException {
@@ -145,7 +147,7 @@ public final class AdtsExtractor implements Extractor {
 
   @Override
   public void init(ExtractorOutput output) {
-
+    //support pure sample-aes aac content
     reader = new AdtsReader(true, mMode, encryptionKey, encryptionIv);
     reader.createTracks(output, new TrackIdGenerator(0, 1));
     output.endTracks();

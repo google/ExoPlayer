@@ -1,11 +1,7 @@
 package com.google.android.exoplayer2.util;
 
-/**
- * Created by zhou.weiguo on 07-06-2017.
- */
 
 public final class HLSEncryptInfo {
-    private static final String TAG = "HLSEncryptInfo";
 
     public String encryptionMethod;
     public String encryptionKeyUri;

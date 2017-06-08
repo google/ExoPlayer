@@ -40,6 +40,7 @@ import com.google.android.exoplayer2.util.ParsableByteArray;
 import com.google.android.exoplayer2.util.TimestampAdjuster;
 import com.google.android.exoplayer2.util.Util;
 import java.io.IOException;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -80,13 +81,6 @@ import java.util.concurrent.atomic.AtomicInteger;
   private final DataSource initDataSource;
   private final DataSpec initDataSpec;
   private final boolean isEncrypted;
-
-
-  private final byte[] encryptionKey;
-  private final byte[] encryptionIv;
-
-  private final HLSEncryptInfo hlsEncryptInfo;
-
   private final boolean isMasterTimestampSource;
   private final TimestampAdjuster timestampAdjuster;
   private final String lastPathSegment;
@@ -107,12 +101,19 @@ import java.util.concurrent.atomic.AtomicInteger;
   private volatile boolean loadCanceled;
   private volatile boolean loadCompleted;
 
+  private final byte[] encryptionKey;
+  private final byte[] encryptionIv;
+  private final HLSEncryptInfo hlsEncryptInfo;
+
+
+
   /**
    * @param dataSource The source from which the data should be loaded.
    * @param dataSpec Defines the data to be loaded.
    * @param initDataSpec Defines the initialization data to be fed to new extractors. May be null.
    * @param hlsUrl The url of the playlist from which this chunk was obtained.
-   * @param muxedCaptionFormats List of muxed caption {@link Format}s.
+   * @param muxedCaptionFormats List of muxed caption {@link Format}s. Null if no closed caption
+   *     information is available in the master playlist.
    * @param trackSelectionReason See {@link #trackSelectionReason}.
    * @param trackSelectionData See {@link #trackSelectionData}.
    * @param startTimeUs The start time of the chunk in microseconds.
@@ -140,13 +141,13 @@ import java.util.concurrent.atomic.AtomicInteger;
     this.isMasterTimestampSource = isMasterTimestampSource;
     this.timestampAdjuster = timestampAdjuster;
     // Note: this.dataSource and dataSource may be different.
-    this.isEncrypted = this.dataSource instanceof Aes128DataSource; //TODO: this.isEncrypted = hlsEncryptInfo.isEncrypted;
+    this.isEncrypted = this.dataSource instanceof Aes128DataSource;
+
     this.encryptionKey = encryptionKey;
     this.encryptionIv = encryptionIv;
     hlsEncryptInfo.encryptionKey = encryptionKey;
     hlsEncryptInfo.encryptionIv = encryptionIv;
     this.hlsEncryptInfo = hlsEncryptInfo;
-
 
     lastPathSegment = dataSpec.uri.getLastPathSegment();
     isPackedAudio = lastPathSegment.endsWith(AAC_FILE_EXTENSION)
@@ -345,17 +346,9 @@ import java.util.concurrent.atomic.AtomicInteger;
    */
   private static DataSource buildDataSource(DataSource dataSource, byte[] encryptionKey,
       byte[] encryptionIv, HLSEncryptInfo hlsEncryptInfo) {
-   /*
-    if (encryptionKey == null || encryptionIv == null) {
-      return dataSource;
-    }
-    return new Aes128DataSource(dataSource, encryptionKey, encryptionIv);
-   */
-    if (encryptionKey == null || encryptionIv == null) {
-    } else {
-      if (hlsEncryptInfo.encryptionMethod != null && hlsEncryptInfo.encryptionMethod.equals("AES-128"))
-        return new Aes128DataSource(dataSource, encryptionKey, encryptionIv);
-    }
+
+    if (hlsEncryptInfo.encryptionMethod != null && hlsEncryptInfo.encryptionMethod.equals("AES-128"))
+      return new Aes128DataSource(dataSource, encryptionKey, encryptionIv);
 
     return dataSource;
   }
@@ -380,9 +373,12 @@ import java.util.concurrent.atomic.AtomicInteger;
       // This flag ensures the change of pid between streams does not affect the sample queues.
       @DefaultTsPayloadReaderFactory.Flags
       int esReaderFactoryFlags = DefaultTsPayloadReaderFactory.FLAG_IGNORE_SPLICE_INFO_STREAM;
-      if (!muxedCaptionFormats.isEmpty()) {
+      List<Format> closedCaptionFormats = muxedCaptionFormats;
+      if (closedCaptionFormats != null) {
         // The playlist declares closed caption renditions, we should ignore descriptors.
         esReaderFactoryFlags |= DefaultTsPayloadReaderFactory.FLAG_OVERRIDE_CAPTION_DESCRIPTORS;
+      } else {
+        closedCaptionFormats = Collections.emptyList();
       }
       String codecs = trackFormat.codecs;
       if (!TextUtils.isEmpty(codecs)) {
@@ -396,10 +392,8 @@ import java.util.concurrent.atomic.AtomicInteger;
           esReaderFactoryFlags |= DefaultTsPayloadReaderFactory.FLAG_IGNORE_H264_STREAM;
         }
       }
-
-
       extractor = new TsExtractor(TsExtractor.MODE_HLS, timestampAdjuster,
-          new DefaultTsPayloadReaderFactory(esReaderFactoryFlags, muxedCaptionFormats), hlsEncryptInfo);
+          new DefaultTsPayloadReaderFactory(esReaderFactoryFlags, closedCaptionFormats), hlsEncryptInfo);
     }
     if (usingNewExtractor) {
       extractor.init(extractorOutput);
