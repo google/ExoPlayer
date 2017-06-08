@@ -18,6 +18,7 @@ package com.google.android.exoplayer2.extractor.ts;
 import android.util.SparseArray;
 import com.google.android.exoplayer2.extractor.ExtractorOutput;
 import com.google.android.exoplayer2.extractor.TrackOutput;
+import com.google.android.exoplayer2.util.HLSEncryptInfo;
 import com.google.android.exoplayer2.util.ParsableByteArray;
 import com.google.android.exoplayer2.util.TimestampAdjuster;
 import java.util.Collections;
@@ -51,7 +52,7 @@ public interface TsPayloadReader {
      * @return A {@link TsPayloadReader} for the packet stream carried by the provided pid.
      *     {@code null} if the stream is not supported.
      */
-    TsPayloadReader createPayloadReader(int streamType, EsInfo esInfo);
+    TsPayloadReader createPayloadReader(int streamType, EsInfo esInfo, HLSEncryptInfo hlsEncryptInfo);
 
   }
 

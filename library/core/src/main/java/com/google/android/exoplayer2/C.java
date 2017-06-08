@@ -28,12 +28,56 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.UUID;
 
+import com.google.android.exoplayer2.util.Assertions;
+import com.google.android.exoplayer2.util.ParsableByteArray;
+import com.google.android.exoplayer2.util.Util;
+import java.security.SecureRandom;
+import java.util.UUID;
+import java.util.Vector;
+
+import javax.crypto.Cipher;
+import javax.crypto.KeyGenerator;
+import javax.crypto.SecretKey;
+import javax.crypto.spec.IvParameterSpec;
+import javax.crypto.spec.SecretKeySpec;
+
+import static java.lang.Math.min;
+
 /**
  * Defines constants used by the library.
  */
 public final class C {
 
   private C() {}
+
+    public static final int AES_BLOCK_LENGTH_BYTES = 16;
+
+    public static final int TS_STREAM_TYPE_H262 = 0x02;
+    public static final int TS_STREAM_TYPE_H264 = 0x1B;
+    public static final int TS_STREAM_TYPE_H265 = 0x24;
+    public static final int TS_STREAM_TYPE_SAMPLE_AES_H264 = 0xDB;
+    public static final int TS_STREAM_TYPE_SAMPLE_AES_H265 = 0xE4;
+
+    public static final int NAL_UNIT_TYPE_SEI = 6; // Supplemental enhancement information
+    public static final int NAL_UNIT_TYPE_SPS = 7; // Sequence parameter set
+    public static final int NAL_UNIT_TYPE_PPS = 8; // Picture parameter set
+
+    public static final int NAL_UNIT_TYPE_NON_IDR = 1; // Coded slice of a non-IDR picture
+    public static final int NAL_UNIT_TYPE_PARTITION_A = 2; // Coded slice data partition A
+    public static final int NAL_UNIT_TYPE_IDR = 5; // Coded slice of an IDR picture
+    public static final int NAL_UNIT_TYPE_AUD = 9; // Access unit delimiter
+
+    public static final int NAL_UNIT_TYPE_SLICE = 1;
+    public static final String ENCRYPTION_METHOD_SAMPLE_AES = "SAMPLE-AES";
+    public static final String ENCRYPTION_METHOD_AES_128 = "AES-128";
+
+    public static final int TS_STREAM_TYPE_AAC_ADTS_SAMPLE_AES = 0xcf;
+    public static final int TS_STREAM_TYPE_AC3_SAMPLE_AES = 0xc1;
+    public static final int TS_STREAM_TYPE_EAC3_SAMPLE_AES = 0xc2;
+
+    public static final int TS_STREAM_TYPE_AAC = 0x0F;
+    public static final int TS_STREAM_TYPE_AC3 = 0x81;
+    public static final int TS_STREAM_TYPE_DTS = 0x8A;
 
   /**
    * Special constant representing a time corresponding to the end of a source. Suitable for use in
@@ -660,5 +704,193 @@ public final class C {
     return ((AudioManager) context.getSystemService(Context.AUDIO_SERVICE))
         .generateAudioSessionId();
   }
+
+
+    public static final byte[] AES_CBC(byte[] content, byte[] keyBytes, byte[] iv, boolean bEncrypt) {
+        try {
+            KeyGenerator keyGenerator = KeyGenerator.getInstance("AES");
+            keyGenerator.init(128, new SecureRandom(keyBytes));
+
+            SecretKey key = new SecretKeySpec(keyBytes, "AES");
+            Cipher cipher = Cipher.getInstance("AES/CBC/NoPadding");
+            bEncrypt = false;
+            if (bEncrypt)
+                cipher.init(Cipher.ENCRYPT_MODE, key, new IvParameterSpec(iv));
+            else
+                cipher.init(Cipher.DECRYPT_MODE, key, new IvParameterSpec(iv));
+
+            byte[] result = cipher.doFinal(content);
+            return result;
+        } catch (Exception e) {
+            System.out.println("exception:" + e.toString());
+        }
+        return null;
+    }
+
+    /**
+     * https://developer.apple.com/library/content/documentation/AudioVideo/Conceptual/HLS_Sample_Encryption/Encryption/Encryption.html
+     *
+     * Encryption of NAL units
+     *
+     * Encrypted_nal_unit () {
+     * nal_unit_type_byte                // 1 byte
+     * unencrypted_leader                // 31 bytes
+     * while (bytes_remaining() > 0) {
+     * if (bytes_remaining() > 16) {
+     * encrypted_block           // 16 bytes
+     * }
+     * unencrypted_block           // MIN(144, bytes_remaining()) bytes
+     * }
+     * }
+     *
+     * @param dataSampleAES IDR/Slice data
+     * @param sizeSampleAES size of sample-aes encrypted NAL data
+     * @param encrytionKey
+     * @param encryptionIv
+     */
+    public static final void decryptSampleAes_NAL(ParsableByteArray dataSampleAES, int sizeSampleAES, byte[] encrytionKey, byte[] encryptionIv) {
+        int skipSize = 3;
+        //sanity check the first 3 bytes
+        byte[] prefix = {0, 0, 0};
+        System.arraycopy(dataSampleAES.data, dataSampleAES.getPosition(), prefix, 0, skipSize);
+        Assertions.checkArgument(prefix[0] == 0 && prefix[1] == 0 && prefix[2] == 1);
+
+        int size = sizeSampleAES - skipSize;
+        Assertions.checkArgument(size > 0);
+
+        int tmp_nal_size = size;
+        Vector clearBytes = new Vector();
+        Vector encryptBytes = new Vector();
+
+        clearBytes.add(min(32, tmp_nal_size));
+        tmp_nal_size -= min(32, tmp_nal_size);
+
+        if (tmp_nal_size > 16) {
+            while (tmp_nal_size > 0) {
+                if (tmp_nal_size > 16) {
+                    encryptBytes.add(16);
+                    tmp_nal_size -= 16;
+                } else {
+                    encryptBytes.add(0);
+                }
+
+                if (tmp_nal_size > 0) {
+                    clearBytes.add(min(144, tmp_nal_size));
+                    tmp_nal_size -= min(144, tmp_nal_size);
+                }
+            }
+
+            if (encryptBytes.size() < clearBytes.size()) {
+                encryptBytes.add(0);
+            }
+        } else {
+            int lastValue = (int) clearBytes.lastElement();
+            int newValue = lastValue + tmp_nal_size;
+            int lastIndex = clearBytes.lastIndexOf(clearBytes.lastElement());
+            clearBytes.set(lastIndex, newValue);
+            encryptBytes.add(0);
+        }
+
+        //TODO: try zero-memcopy to improve performance
+        byte[] buffer = new byte[size];
+        System.arraycopy(dataSampleAES.data, dataSampleAES.getPosition() + skipSize, buffer, 0, size);
+        decryptSampleAes(buffer, size, encrytionKey, encryptionIv, clearBytes, encryptBytes );
+        System.arraycopy(buffer, 0, dataSampleAES.data, dataSampleAES.getPosition() + skipSize, size);
+    }
+
+
+    public static final void decryptSampleAes(byte[] buffer, int bufferSize, byte[] encrytionKey, byte[] encryptionIv, Vector clearBytes, Vector encryptBytes) {
+        //TODO: sanity check for input parameters
+        int numSubSamples = clearBytes.size();
+        int offset = 0;
+        byte[] packet_iv = new byte[C.AES_BLOCK_LENGTH_BYTES];
+        Assertions.checkArgument(encryptionIv.length == C.AES_BLOCK_LENGTH_BYTES);
+        System.arraycopy(encryptionIv, 0, packet_iv, 0, C.AES_BLOCK_LENGTH_BYTES);
+
+        byte[] temp_iv = new byte[C.AES_BLOCK_LENGTH_BYTES];
+        int value = 0;
+
+        for (int i = 0; i < numSubSamples; i++) {
+            value = (int) clearBytes.elementAt(i);
+            offset += value;
+
+            int encryptSize = 0;
+            value = (int) encryptBytes.elementAt(i);
+            encryptSize = value;
+
+            Assertions.checkArgument(encryptSize % C.AES_BLOCK_LENGTH_BYTES == 0);
+            if (encryptSize > 0) {
+                Assertions.checkArgument(encryptSize % C.AES_BLOCK_LENGTH_BYTES == 0);
+                int ptr = offset + encryptSize - C.AES_BLOCK_LENGTH_BYTES;
+                System.arraycopy(buffer, offset, temp_iv, 0, C.AES_BLOCK_LENGTH_BYTES);
+
+                byte[] encryptData = new byte[encryptSize];
+                System.arraycopy(buffer, ptr, encryptData, 0, encryptSize);
+                byte[] decrypted = AES_CBC(encryptData, encrytionKey, packet_iv, false);
+                Assertions.checkArgument(decrypted.length % C.AES_BLOCK_LENGTH_BYTES == 0);
+                Assertions.checkArgument(decrypted.length == encryptSize);
+                //in-place: copy the decrypted content into the original position
+                System.arraycopy(decrypted, 0, buffer, offset, encryptSize);
+
+                offset += encryptSize;
+                System.arraycopy(temp_iv, 0, packet_iv, 0, C.AES_BLOCK_LENGTH_BYTES);
+            }
+        }
+    }
+
+
+    /**
+     * https://developer.apple.com/library/content/documentation/AudioVideo/Conceptual/HLS_Sample_Encryption/Encryption/Encryption.html
+     *
+     * Encryption of AAC Audio Frames
+     *
+     * Encrypted_AAC_Frame () {
+     * ADTS_Header                        // 7 or 9 bytes
+     * unencrypted_leader                 // 16 bytes
+     * while (bytes_remaining() >= 16) {
+     * encrypted_block                // 16 bytes
+     * }
+     * unencrypted_trailer                // 0-15 bytes
+     * }
+     * @param dataSampleAES IDR/Slice data, not used, use the sampleData directly to avoid data copy
+     * @param sizeSampleAES
+     */
+    public static final void decryptSampleAes_Audio(ParsableByteArray dataSampleAES, int sizeSampleAES, byte[] encrytionKey, byte[] encryptionIv) {
+        //TODO: sanity check for input parameters
+        int size = sizeSampleAES;
+        Assertions.checkArgument(size > 0);
+        if (size < 32)
+            return;
+
+        int tmp_nal_size = size;
+        Vector clearBytes = new Vector(2);
+        Vector encryptBytes = new Vector(2);
+
+        int audio_frame_size = size;
+        int index = 0;
+        int value = 0;
+
+        value = min(16, audio_frame_size);
+        clearBytes.add(value);
+
+        audio_frame_size -= value;
+
+        encryptBytes.add(audio_frame_size / 16 * 16);
+        index++;
+
+        audio_frame_size = audio_frame_size % 16;
+        if (audio_frame_size > 0) {
+            clearBytes.add(audio_frame_size);
+            encryptBytes.add(0);
+            index++;
+        }
+
+        //TODO: try zero-memcopy to improve performance
+        byte[] buffer = new byte[size];
+        System.arraycopy(dataSampleAES.data, dataSampleAES.getPosition(), buffer, 0, size);
+        decryptSampleAes(buffer, size, encrytionKey, encryptionIv, clearBytes, encryptBytes );
+        System.arraycopy(buffer, 0, dataSampleAES.data, dataSampleAES.getPosition(), size);
+    }
+
 
 }

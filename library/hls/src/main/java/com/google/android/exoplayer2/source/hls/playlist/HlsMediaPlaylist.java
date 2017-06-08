@@ -18,6 +18,8 @@ package com.google.android.exoplayer2.source.hls.playlist;
 import android.support.annotation.IntDef;
 import android.support.annotation.NonNull;
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.util.HLSEncryptInfo;
+
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.Collections;
@@ -43,20 +45,26 @@ public final class HlsMediaPlaylist extends HlsPlaylist {
     public final long byterangeOffset;
     public final long byterangeLength;
 
+    public final HLSEncryptInfo hlsEncryptInfo;
+
+
     public Segment(String uri, long byterangeOffset, long byterangeLength) {
-      this(uri, 0, -1, C.TIME_UNSET, false, null, null, byterangeOffset, byterangeLength);
+      this(uri, 0, -1, C.TIME_UNSET, null, byterangeOffset, byterangeLength);
     }
 
     public Segment(String uri, long durationUs, int relativeDiscontinuitySequence,
-        long relativeStartTimeUs, boolean isEncrypted, String encryptionKeyUri, String encryptionIV,
+        long relativeStartTimeUs, HLSEncryptInfo hlsEncryptInfo,
         long byterangeOffset, long byterangeLength) {
+
       this.url = uri;
       this.durationUs = durationUs;
       this.relativeDiscontinuitySequence = relativeDiscontinuitySequence;
       this.relativeStartTimeUs = relativeStartTimeUs;
-      this.isEncrypted = isEncrypted;
-      this.encryptionKeyUri = encryptionKeyUri;
-      this.encryptionIV = encryptionIV;
+
+      this.hlsEncryptInfo = hlsEncryptInfo;
+      this.isEncrypted = (hlsEncryptInfo != null) ? hlsEncryptInfo.isEncrypted : false;
+      this.encryptionKeyUri = (hlsEncryptInfo != null) ? hlsEncryptInfo.encryptionKeyUri : null;
+      this.encryptionIV = (hlsEncryptInfo != null) ? hlsEncryptInfo.encryptionIvString : null;
       this.byterangeOffset = byterangeOffset;
       this.byterangeLength = byterangeLength;
     }
