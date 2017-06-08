@@ -4,7 +4,7 @@
     "samples": [
 
       {
-        "name": "sample-aes pure video",
+        "name": "sample-aes pure video-h264",
         "uri": "http://10.86.107.208/test/Test/SampleAes/mlb_sample_aes/zwg_sample_aes_test_purevideo.m3u8"
       }
 
