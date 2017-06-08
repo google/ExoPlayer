@@ -282,7 +282,7 @@ import java.util.LinkedList;
   // SampleStream implementation.
 
   /* package */ boolean isReady(int group) {
-    return loadingFinished || (!isPendingReset() && !sampleQueues.valueAt(group).isEmpty());
+    return loadingFinished || (!isPendingReset() && sampleQueues.valueAt(group).hasNextSample());
   }
 
   /* package */ void maybeThrowError() throws IOException {

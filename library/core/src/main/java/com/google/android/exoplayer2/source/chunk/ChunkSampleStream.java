@@ -228,7 +228,7 @@ public class ChunkSampleStream<T extends ChunkSource> implements SampleStream, S
 
   @Override
   public boolean isReady() {
-    return loadingFinished || (!isPendingReset() && !primarySampleQueue.isEmpty());
+    return loadingFinished || (!isPendingReset() && primarySampleQueue.hasNextSample());
   }
 
   @Override
@@ -451,7 +451,7 @@ public class ChunkSampleStream<T extends ChunkSource> implements SampleStream, S
 
     @Override
     public boolean isReady() {
-      return loadingFinished || (!isPendingReset() && !sampleQueue.isEmpty());
+      return loadingFinished || (!isPendingReset() && sampleQueue.hasNextSample());
     }
 
     @Override

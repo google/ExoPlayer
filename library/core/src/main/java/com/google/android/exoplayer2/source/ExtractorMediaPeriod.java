@@ -323,7 +323,7 @@ import java.io.IOException;
   // SampleStream methods.
 
   /* package */ boolean isReady(int track) {
-    return loadingFinished || (!isPendingReset() && !sampleQueues.valueAt(track).isEmpty());
+    return loadingFinished || (!isPendingReset() && sampleQueues.valueAt(track).hasNextSample());
   }
 
   /* package */ void maybeThrowError() throws IOException {

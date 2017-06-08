@@ -180,10 +180,10 @@ public final class DefaultTrackOutput implements TrackOutput {
   }
 
   /**
-   * Returns whether the buffer is empty.
+   * Returns whether a sample is available to be read.
    */
-  public boolean isEmpty() {
-    return metadataQueue.isEmpty();
+  public boolean hasNextSample() {
+    return metadataQueue.hasNextSample();
   }
 
   /**
