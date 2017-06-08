@@ -51,10 +51,10 @@ import com.google.android.exoplayer2.util.Util;
   private CryptoData[] cryptoDatas;
   private Format[] formats;
 
-  private int queueSize;
-  private int absoluteReadIndex;
-  private int relativeReadIndex;
-  private int relativeWriteIndex;
+  private int length;
+  private int absoluteStartIndex;
+  private int relativeStartIndex;
+  private int relativeEndIndex;
 
   private long largestDequeuedTimestampUs;
   private long largestQueuedTimestampUs;
@@ -79,10 +79,10 @@ import com.google.android.exoplayer2.util.Util;
   }
 
   public void clearSampleData() {
-    absoluteReadIndex = 0;
-    relativeReadIndex = 0;
-    relativeWriteIndex = 0;
-    queueSize = 0;
+    absoluteStartIndex = 0;
+    relativeStartIndex = 0;
+    relativeEndIndex = 0;
+    length = 0;
     upstreamKeyframeRequired = true;
   }
 
@@ -97,7 +97,7 @@ import com.google.android.exoplayer2.util.Util;
    * Returns the current absolute write index.
    */
   public int getWriteIndex() {
-    return absoluteReadIndex + queueSize;
+    return absoluteStartIndex + length;
   }
 
   /**
@@ -108,30 +108,30 @@ import com.google.android.exoplayer2.util.Util;
    */
   public long discardUpstreamSamples(int discardFromIndex) {
     int discardCount = getWriteIndex() - discardFromIndex;
-    Assertions.checkArgument(0 <= discardCount && discardCount <= queueSize);
+    Assertions.checkArgument(0 <= discardCount && discardCount <= length);
 
     if (discardCount == 0) {
-      if (absoluteReadIndex == 0) {
-        // queueSize == absoluteReadIndex == 0, so nothing has been written to the queue.
+      if (absoluteStartIndex == 0) {
+        // length == absoluteStartIndex == 0, so nothing has been written to the queue.
         return 0;
       }
-      int lastWriteIndex = (relativeWriteIndex == 0 ? capacity : relativeWriteIndex) - 1;
+      int lastWriteIndex = (relativeEndIndex == 0 ? capacity : relativeEndIndex) - 1;
       return offsets[lastWriteIndex] + sizes[lastWriteIndex];
     }
 
-    queueSize -= discardCount;
-    relativeWriteIndex = (relativeWriteIndex + capacity - discardCount) % capacity;
+    length -= discardCount;
+    relativeEndIndex = (relativeEndIndex + capacity - discardCount) % capacity;
     // Update the largest queued timestamp, assuming that the timestamps prior to a keyframe are
     // always less than the timestamp of the keyframe itself, and of subsequent frames.
     largestQueuedTimestampUs = Long.MIN_VALUE;
-    for (int i = queueSize - 1; i >= 0; i--) {
-      int sampleIndex = (relativeReadIndex + i) % capacity;
+    for (int i = length - 1; i >= 0; i--) {
+      int sampleIndex = (relativeStartIndex + i) % capacity;
       largestQueuedTimestampUs = Math.max(largestQueuedTimestampUs, timesUs[sampleIndex]);
       if ((flags[sampleIndex] & C.BUFFER_FLAG_KEY_FRAME) != 0) {
         break;
       }
     }
-    return offsets[relativeWriteIndex];
+    return offsets[relativeEndIndex];
   }
 
   public void sourceId(int sourceId) {
@@ -144,22 +144,22 @@ import com.google.android.exoplayer2.util.Util;
    * Returns the current absolute read index.
    */
   public int getReadIndex() {
-    return absoluteReadIndex;
+    return absoluteStartIndex;
   }
 
   /**
-   * Peeks the source id of the next sample, or the current upstream source id if the queue is
-   * empty.
+   * Peeks the source id of the next sample, or the current upstream source id if
+   * {@link #hasNextSample()} is {@code false}.
    */
   public int peekSourceId() {
-    return queueSize == 0 ? upstreamSourceId : sourceIds[relativeReadIndex];
+    return hasNextSample() ? sourceIds[relativeStartIndex] : upstreamSourceId;
   }
 
   /**
-   * Returns whether the queue is empty.
+   * Returns whether a sample is available to be read.
    */
-  public synchronized boolean isEmpty() {
-    return queueSize == 0;
+  public synchronized boolean hasNextSample() {
+    return length != 0;
   }
 
   /**
@@ -209,7 +209,7 @@ import com.google.android.exoplayer2.util.Util;
   public synchronized int readData(FormatHolder formatHolder, DecoderInputBuffer buffer,
       boolean formatRequired, boolean loadingFinished, Format downstreamFormat,
       SampleExtrasHolder extrasHolder) {
-    if (queueSize == 0) {
+    if (!hasNextSample()) {
       if (loadingFinished) {
         buffer.setFlags(C.BUFFER_FLAG_END_OF_STREAM);
         return C.RESULT_BUFFER_READ;
@@ -222,8 +222,8 @@ import com.google.android.exoplayer2.util.Util;
       }
     }
 
-    if (formatRequired || formats[relativeReadIndex] != downstreamFormat) {
-      formatHolder.format = formats[relativeReadIndex];
+    if (formatRequired || formats[relativeStartIndex] != downstreamFormat) {
+      formatHolder.format = formats[relativeStartIndex];
       return C.RESULT_FORMAT_READ;
     }
 
@@ -231,22 +231,22 @@ import com.google.android.exoplayer2.util.Util;
       return C.RESULT_NOTHING_READ;
     }
 
-    buffer.timeUs = timesUs[relativeReadIndex];
-    buffer.setFlags(flags[relativeReadIndex]);
-    extrasHolder.size = sizes[relativeReadIndex];
-    extrasHolder.offset = offsets[relativeReadIndex];
-    extrasHolder.cryptoData = cryptoDatas[relativeReadIndex];
+    buffer.timeUs = timesUs[relativeStartIndex];
+    buffer.setFlags(flags[relativeStartIndex]);
+    extrasHolder.size = sizes[relativeStartIndex];
+    extrasHolder.offset = offsets[relativeStartIndex];
+    extrasHolder.cryptoData = cryptoDatas[relativeStartIndex];
 
     largestDequeuedTimestampUs = Math.max(largestDequeuedTimestampUs, buffer.timeUs);
-    queueSize--;
-    relativeReadIndex++;
-    absoluteReadIndex++;
-    if (relativeReadIndex == capacity) {
+    length--;
+    relativeStartIndex++;
+    absoluteStartIndex++;
+    if (relativeStartIndex == capacity) {
       // Wrap around.
-      relativeReadIndex = 0;
+      relativeStartIndex = 0;
     }
 
-    extrasHolder.nextOffset = queueSize > 0 ? offsets[relativeReadIndex]
+    extrasHolder.nextOffset = length > 0 ? offsets[relativeStartIndex]
         : extrasHolder.offset + extrasHolder.size;
     return C.RESULT_BUFFER_READ;
   }
@@ -258,14 +258,14 @@ import com.google.android.exoplayer2.util.Util;
    *     dropping of data is required.
    */
   public synchronized long skipAll() {
-    if (queueSize == 0) {
+    if (!hasNextSample()) {
       return C.POSITION_UNSET;
     }
 
-    int lastSampleIndex = (relativeReadIndex + queueSize - 1) % capacity;
-    relativeReadIndex = (relativeReadIndex + queueSize) % capacity;
-    absoluteReadIndex += queueSize;
-    queueSize = 0;
+    int lastSampleIndex = (relativeStartIndex + length - 1) % capacity;
+    relativeStartIndex = (relativeStartIndex + length) % capacity;
+    absoluteStartIndex += length;
+    length = 0;
     return offsets[lastSampleIndex] + sizes[lastSampleIndex];
   }
 
@@ -281,7 +281,7 @@ import com.google.android.exoplayer2.util.Util;
    *     {@link C#POSITION_UNSET} otherwise.
    */
   public synchronized long skipToKeyframeBefore(long timeUs, boolean allowTimeBeyondBuffer) {
-    if (queueSize == 0 || timeUs < timesUs[relativeReadIndex]) {
+    if (!hasNextSample() || timeUs < timesUs[relativeStartIndex]) {
       return C.POSITION_UNSET;
     }
 
@@ -294,8 +294,8 @@ import com.google.android.exoplayer2.util.Util;
     // a binary search would yield any real benefit.
     int sampleCount = 0;
     int sampleCountToKeyframe = -1;
-    int searchIndex = relativeReadIndex;
-    while (searchIndex != relativeWriteIndex) {
+    int searchIndex = relativeStartIndex;
+    while (searchIndex != relativeEndIndex) {
       if (timesUs[searchIndex] > timeUs) {
         // We've gone too far.
         break;
@@ -311,10 +311,10 @@ import com.google.android.exoplayer2.util.Util;
       return C.POSITION_UNSET;
     }
 
-    relativeReadIndex = (relativeReadIndex + sampleCountToKeyframe) % capacity;
-    absoluteReadIndex += sampleCountToKeyframe;
-    queueSize -= sampleCountToKeyframe;
-    return offsets[relativeReadIndex];
+    relativeStartIndex = (relativeStartIndex + sampleCountToKeyframe) % capacity;
+    absoluteStartIndex += sampleCountToKeyframe;
+    length -= sampleCountToKeyframe;
+    return offsets[relativeStartIndex];
   }
 
   // Called by the loading thread.
@@ -344,16 +344,16 @@ import com.google.android.exoplayer2.util.Util;
     }
     Assertions.checkState(!upstreamFormatRequired);
     commitSampleTimestamp(timeUs);
-    timesUs[relativeWriteIndex] = timeUs;
-    offsets[relativeWriteIndex] = offset;
-    sizes[relativeWriteIndex] = size;
-    flags[relativeWriteIndex] = sampleFlags;
-    cryptoDatas[relativeWriteIndex] = cryptoData;
-    formats[relativeWriteIndex] = upstreamFormat;
-    sourceIds[relativeWriteIndex] = upstreamSourceId;
+    timesUs[relativeEndIndex] = timeUs;
+    offsets[relativeEndIndex] = offset;
+    sizes[relativeEndIndex] = size;
+    flags[relativeEndIndex] = sampleFlags;
+    cryptoDatas[relativeEndIndex] = cryptoData;
+    formats[relativeEndIndex] = upstreamFormat;
+    sourceIds[relativeEndIndex] = upstreamSourceId;
     // Increment the write index.
-    queueSize++;
-    if (queueSize == capacity) {
+    length++;
+    if (length == capacity) {
       // Increase the capacity.
       int newCapacity = capacity + SAMPLE_CAPACITY_INCREMENT;
       int[] newSourceIds = new int[newCapacity];
@@ -363,15 +363,15 @@ import com.google.android.exoplayer2.util.Util;
       int[] newSizes = new int[newCapacity];
       CryptoData[] newCryptoDatas = new CryptoData[newCapacity];
       Format[] newFormats = new Format[newCapacity];
-      int beforeWrap = capacity - relativeReadIndex;
-      System.arraycopy(offsets, relativeReadIndex, newOffsets, 0, beforeWrap);
-      System.arraycopy(timesUs, relativeReadIndex, newTimesUs, 0, beforeWrap);
-      System.arraycopy(flags, relativeReadIndex, newFlags, 0, beforeWrap);
-      System.arraycopy(sizes, relativeReadIndex, newSizes, 0, beforeWrap);
-      System.arraycopy(cryptoDatas, relativeReadIndex, newCryptoDatas, 0, beforeWrap);
-      System.arraycopy(formats, relativeReadIndex, newFormats, 0, beforeWrap);
-      System.arraycopy(sourceIds, relativeReadIndex, newSourceIds, 0, beforeWrap);
-      int afterWrap = relativeReadIndex;
+      int beforeWrap = capacity - relativeStartIndex;
+      System.arraycopy(offsets, relativeStartIndex, newOffsets, 0, beforeWrap);
+      System.arraycopy(timesUs, relativeStartIndex, newTimesUs, 0, beforeWrap);
+      System.arraycopy(flags, relativeStartIndex, newFlags, 0, beforeWrap);
+      System.arraycopy(sizes, relativeStartIndex, newSizes, 0, beforeWrap);
+      System.arraycopy(cryptoDatas, relativeStartIndex, newCryptoDatas, 0, beforeWrap);
+      System.arraycopy(formats, relativeStartIndex, newFormats, 0, beforeWrap);
+      System.arraycopy(sourceIds, relativeStartIndex, newSourceIds, 0, beforeWrap);
+      int afterWrap = relativeStartIndex;
       System.arraycopy(offsets, 0, newOffsets, beforeWrap, afterWrap);
       System.arraycopy(timesUs, 0, newTimesUs, beforeWrap, afterWrap);
       System.arraycopy(flags, 0, newFlags, beforeWrap, afterWrap);
@@ -386,15 +386,15 @@ import com.google.android.exoplayer2.util.Util;
       cryptoDatas = newCryptoDatas;
       formats = newFormats;
       sourceIds = newSourceIds;
-      relativeReadIndex = 0;
-      relativeWriteIndex = capacity;
-      queueSize = capacity;
+      relativeStartIndex = 0;
+      relativeEndIndex = capacity;
+      length = capacity;
       capacity = newCapacity;
     } else {
-      relativeWriteIndex++;
-      if (relativeWriteIndex == capacity) {
+      relativeEndIndex++;
+      if (relativeEndIndex == capacity) {
         // Wrap around.
-        relativeWriteIndex = 0;
+        relativeEndIndex = 0;
       }
     }
   }
@@ -414,12 +414,12 @@ import com.google.android.exoplayer2.util.Util;
     if (largestDequeuedTimestampUs >= timeUs) {
       return false;
     }
-    int retainCount = queueSize;
+    int retainCount = length;
     while (retainCount > 0
-        && timesUs[(relativeReadIndex + retainCount - 1) % capacity] >= timeUs) {
+        && timesUs[(relativeStartIndex + retainCount - 1) % capacity] >= timeUs) {
       retainCount--;
     }
-    discardUpstreamSamples(absoluteReadIndex + retainCount);
+    discardUpstreamSamples(absoluteStartIndex + retainCount);
     return true;
   }
 
