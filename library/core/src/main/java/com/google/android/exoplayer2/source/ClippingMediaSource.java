@@ -69,9 +69,9 @@ public final class ClippingMediaSource implements MediaSource, MediaSource.Liste
   }
 
   @Override
-  public MediaPeriod createPeriod(int index, Allocator allocator, long positionUs) {
-    ClippingMediaPeriod mediaPeriod = new ClippingMediaPeriod(
-        mediaSource.createPeriod(index, allocator, startUs + positionUs));
+  public MediaPeriod createPeriod(int index, Allocator allocator) {
+    ClippingMediaPeriod mediaPeriod =
+        new ClippingMediaPeriod(mediaSource.createPeriod(index, allocator));
     mediaPeriods.add(mediaPeriod);
     mediaPeriod.setClipping(clippingTimeline.startUs, clippingTimeline.endUs);
     return mediaPeriod;

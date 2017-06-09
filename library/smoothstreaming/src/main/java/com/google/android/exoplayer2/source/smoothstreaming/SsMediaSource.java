@@ -222,7 +222,7 @@ public final class SsMediaSource implements MediaSource,
   }
 
   @Override
-  public MediaPeriod createPeriod(int index, Allocator allocator, long positionUs) {
+  public MediaPeriod createPeriod(int index, Allocator allocator) {
     Assertions.checkArgument(index == 0);
     SsMediaPeriod period = new SsMediaPeriod(manifest, chunkSourceFactory, minLoadableRetryCount,
         eventDispatcher, manifestLoaderErrorThrower, allocator);

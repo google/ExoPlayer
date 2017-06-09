@@ -116,10 +116,10 @@ public final class MergingMediaSource implements MediaSource {
   }
 
   @Override
-  public MediaPeriod createPeriod(int index, Allocator allocator, long positionUs) {
+  public MediaPeriod createPeriod(int index, Allocator allocator) {
     MediaPeriod[] periods = new MediaPeriod[mediaSources.length];
     for (int i = 0; i < periods.length; i++) {
-      periods[i] = mediaSources[i].createPeriod(index, allocator, positionUs);
+      periods[i] = mediaSources[i].createPeriod(index, allocator);
     }
     return new MergingMediaPeriod(periods);
   }

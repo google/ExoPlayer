@@ -64,10 +64,9 @@ public interface MediaSource {
    *
    * @param index The index of the period.
    * @param allocator An {@link Allocator} from which to obtain media buffer allocations.
-   * @param positionUs The player's current playback position.
    * @return A new {@link MediaPeriod}.
    */
-  MediaPeriod createPeriod(int index, Allocator allocator, long positionUs);
+  MediaPeriod createPeriod(int index, Allocator allocator);
 
   /**
    * Releases the period.

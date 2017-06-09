@@ -95,7 +95,7 @@ public final class SingleSampleMediaSource implements MediaSource {
   }
 
   @Override
-  public MediaPeriod createPeriod(int index, Allocator allocator, long positionUs) {
+  public MediaPeriod createPeriod(int index, Allocator allocator) {
     Assertions.checkArgument(index == 0);
     return new SingleSampleMediaPeriod(uri, dataSourceFactory, format, minLoadableRetryCount,
         eventHandler, eventListener, eventSourceId);
