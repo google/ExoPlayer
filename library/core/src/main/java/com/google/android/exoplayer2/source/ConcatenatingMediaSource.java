@@ -91,11 +91,11 @@ public final class ConcatenatingMediaSource implements MediaSource {
   }
 
   @Override
-  public MediaPeriod createPeriod(int index, Allocator allocator, long positionUs) {
+  public MediaPeriod createPeriod(int index, Allocator allocator) {
     int sourceIndex = timeline.getChildIndexForPeriod(index);
     int periodIndexInSource = index - timeline.getFirstPeriodIndexInChild(sourceIndex);
-    MediaPeriod mediaPeriod = mediaSources[sourceIndex].createPeriod(periodIndexInSource, allocator,
-        positionUs);
+    MediaPeriod mediaPeriod =
+        mediaSources[sourceIndex].createPeriod(periodIndexInSource, allocator);
     sourceIndexByMediaPeriod.put(mediaPeriod, sourceIndex);
     return mediaPeriod;
   }

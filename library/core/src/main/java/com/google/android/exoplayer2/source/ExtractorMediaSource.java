@@ -156,7 +156,7 @@ public final class ExtractorMediaSource implements MediaSource, MediaSource.List
   }
 
   @Override
-  public MediaPeriod createPeriod(int index, Allocator allocator, long positionUs) {
+  public MediaPeriod createPeriod(int index, Allocator allocator) {
     Assertions.checkArgument(index == 0);
     return new ExtractorMediaPeriod(uri, dataSourceFactory.createDataSource(),
         extractorsFactory.createExtractors(), minLoadableRetryCount, eventHandler, eventListener,

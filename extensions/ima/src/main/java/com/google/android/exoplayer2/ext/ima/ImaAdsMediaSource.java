@@ -159,12 +159,12 @@ public final class ImaAdsMediaSource implements MediaSource {
   }
 
   @Override
-  public MediaPeriod createPeriod(int index, Allocator allocator, long positionUs) {
+  public MediaPeriod createPeriod(int index, Allocator allocator) {
     if (timeline.isPeriodAd(index)) {
       int adBreakIndex = timeline.getAdBreakIndex(index);
       int adIndexInAdBreak = timeline.getAdIndexInAdBreak(index);
       if (adIndexInAdBreak >= adBreakMediaSources[adBreakIndex].length) {
-        DeferredMediaPeriod deferredPeriod = new DeferredMediaPeriod(0, allocator, positionUs);
+        DeferredMediaPeriod deferredPeriod = new DeferredMediaPeriod(0, allocator);
         if (adIndexInAdBreak >= adBreakDeferredMediaPeriods[adBreakIndex].length) {
           adBreakDeferredMediaPeriods[adBreakIndex] = Arrays.copyOf(
               adBreakDeferredMediaPeriods[adBreakIndex], adIndexInAdBreak + 1);
@@ -174,15 +174,13 @@ public final class ImaAdsMediaSource implements MediaSource {
       }
 
       MediaSource adBreakMediaSource = adBreakMediaSources[adBreakIndex][adIndexInAdBreak];
-      MediaPeriod adBreakMediaPeriod = adBreakMediaSource.createPeriod(0, allocator, positionUs);
+      MediaPeriod adBreakMediaPeriod = adBreakMediaSource.createPeriod(0, allocator);
       mediaSourceByMediaPeriod.put(adBreakMediaPeriod, adBreakMediaSource);
       return adBreakMediaPeriod;
     } else {
       long startUs = timeline.getContentStartTimeUs(index);
       long endUs = timeline.getContentEndTimeUs(index);
-      long contentStartUs = startUs + positionUs;
-      MediaPeriod contentMediaPeriod = contentMediaSource.createPeriod(0, allocator,
-          contentStartUs);
+      MediaPeriod contentMediaPeriod = contentMediaSource.createPeriod(0, allocator);
       ClippingMediaPeriod clippingPeriod = new ClippingMediaPeriod(contentMediaPeriod);
       clippingPeriod.setClipping(startUs, endUs == C.TIME_UNSET ? C.TIME_END_OF_SOURCE : endUs);
       mediaSourceByMediaPeriod.put(contentMediaPeriod, contentMediaSource);
@@ -436,29 +434,29 @@ public final class ImaAdsMediaSource implements MediaSource {
 
     private final int index;
     private final Allocator allocator;
-    private final long positionUs;
 
     public MediaPeriod mediaPeriod;
     private MediaPeriod.Callback callback;
+    private long positionUs;
 
-    public DeferredMediaPeriod(int index, Allocator allocator, long positionUs) {
+    public DeferredMediaPeriod(int index, Allocator allocator) {
       this.index = index;
       this.allocator = allocator;
-      this.positionUs = positionUs;
     }
 
     public void setMediaSource(MediaSource mediaSource) {
-      mediaPeriod = mediaSource.createPeriod(index, allocator, positionUs);
+      mediaPeriod = mediaSource.createPeriod(index, allocator);
       if (callback != null) {
-        mediaPeriod.prepare(this);
+        mediaPeriod.prepare(this, positionUs);
       }
     }
 
     @Override
-    public void prepare(Callback callback) {
+    public void prepare(Callback callback, long positionUs) {
       this.callback = callback;
+      this.positionUs = positionUs;
       if (mediaPeriod != null) {
-        mediaPeriod.prepare(this);
+        mediaPeriod.prepare(this, positionUs);
       }
     }
 

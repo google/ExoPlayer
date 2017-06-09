@@ -68,9 +68,9 @@ public final class ClippingMediaPeriod implements MediaPeriod, MediaPeriod.Callb
   }
 
   @Override
-  public void prepare(MediaPeriod.Callback callback) {
+  public void prepare(MediaPeriod.Callback callback, long positionUs) {
     this.callback = callback;
-    mediaPeriod.prepare(this);
+    mediaPeriod.prepare(this, startUs + positionUs);
   }
 
   @Override

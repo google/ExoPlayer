@@ -87,7 +87,7 @@ public class TimelineTest extends TestCase {
       }
 
       @Override
-      public MediaPeriod createPeriod(int index, Allocator allocator, long positionUs) {
+      public MediaPeriod createPeriod(int index, Allocator allocator) {
         return null;
       }
 

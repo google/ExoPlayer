@@ -51,7 +51,6 @@ public final class HlsMediaPeriod implements MediaPeriod, HlsSampleStreamWrapper
   private final IdentityHashMap<SampleStream, Integer> streamWrapperIndices;
   private final TimestampAdjusterProvider timestampAdjusterProvider;
   private final Handler continueLoadingHandler;
-  private final long preparePositionUs;
 
   private Callback callback;
   private int pendingPrepareCount;
@@ -62,8 +61,7 @@ public final class HlsMediaPeriod implements MediaPeriod, HlsSampleStreamWrapper
   private CompositeSequenceableLoader sequenceableLoader;
 
   public HlsMediaPeriod(HlsPlaylistTracker playlistTracker, HlsDataSourceFactory dataSourceFactory,
-      int minLoadableRetryCount, EventDispatcher eventDispatcher, Allocator allocator,
-      long positionUs) {
+      int minLoadableRetryCount, EventDispatcher eventDispatcher, Allocator allocator) {
     this.playlistTracker = playlistTracker;
     this.dataSourceFactory = dataSourceFactory;
     this.minLoadableRetryCount = minLoadableRetryCount;
@@ -72,7 +70,6 @@ public final class HlsMediaPeriod implements MediaPeriod, HlsSampleStreamWrapper
     streamWrapperIndices = new IdentityHashMap<>();
     timestampAdjusterProvider = new TimestampAdjusterProvider();
     continueLoadingHandler = new Handler();
-    preparePositionUs = positionUs;
   }
 
   public void release() {
@@ -86,10 +83,10 @@ public final class HlsMediaPeriod implements MediaPeriod, HlsSampleStreamWrapper
   }
 
   @Override
-  public void prepare(Callback callback) {
+  public void prepare(Callback callback, long positionUs) {
     playlistTracker.addListener(this);
     this.callback = callback;
-    buildAndPrepareSampleStreamWrappers();
+    buildAndPrepareSampleStreamWrappers(positionUs);
   }
 
   @Override
@@ -285,7 +282,7 @@ public final class HlsMediaPeriod implements MediaPeriod, HlsSampleStreamWrapper
 
   // Internal methods.
 
-  private void buildAndPrepareSampleStreamWrappers() {
+  private void buildAndPrepareSampleStreamWrappers(long positionUs) {
     HlsMasterPlaylist masterPlaylist = playlistTracker.getMasterPlaylist();
     // Build the default stream wrapper.
     List<HlsUrl> selectedVariants = new ArrayList<>(masterPlaylist.variants);
@@ -322,7 +319,7 @@ public final class HlsMediaPeriod implements MediaPeriod, HlsSampleStreamWrapper
     HlsUrl[] variants = new HlsMasterPlaylist.HlsUrl[selectedVariants.size()];
     selectedVariants.toArray(variants);
     HlsSampleStreamWrapper sampleStreamWrapper = buildSampleStreamWrapper(C.TRACK_TYPE_DEFAULT,
-        variants, masterPlaylist.muxedAudioFormat, masterPlaylist.muxedCaptionFormats);
+        variants, masterPlaylist.muxedAudioFormat, masterPlaylist.muxedCaptionFormats, positionUs);
     sampleStreamWrappers[currentWrapperIndex++] = sampleStreamWrapper;
     sampleStreamWrapper.setIsTimestampMaster(true);
     sampleStreamWrapper.continuePreparing();
@@ -332,7 +329,7 @@ public final class HlsMediaPeriod implements MediaPeriod, HlsSampleStreamWrapper
     // Build audio stream wrappers.
     for (int i = 0; i < audioRenditions.size(); i++) {
       sampleStreamWrapper = buildSampleStreamWrapper(C.TRACK_TYPE_AUDIO,
-          new HlsUrl[] {audioRenditions.get(i)}, null, Collections.<Format>emptyList());
+          new HlsUrl[] {audioRenditions.get(i)}, null, Collections.<Format>emptyList(), positionUs);
       sampleStreamWrappers[currentWrapperIndex++] = sampleStreamWrapper;
       sampleStreamWrapper.continuePreparing();
     }
@@ -341,18 +338,18 @@ public final class HlsMediaPeriod implements MediaPeriod, HlsSampleStreamWrapper
     for (int i = 0; i < subtitleRenditions.size(); i++) {
       HlsUrl url = subtitleRenditions.get(i);
       sampleStreamWrapper = buildSampleStreamWrapper(C.TRACK_TYPE_TEXT, new HlsUrl[] {url}, null,
-          Collections.<Format>emptyList());
+          Collections.<Format>emptyList(), positionUs);
       sampleStreamWrapper.prepareSingleTrack(url.format);
       sampleStreamWrappers[currentWrapperIndex++] = sampleStreamWrapper;
     }
   }
 
   private HlsSampleStreamWrapper buildSampleStreamWrapper(int trackType, HlsUrl[] variants,
-      Format muxedAudioFormat, List<Format> muxedCaptionFormats) {
+      Format muxedAudioFormat, List<Format> muxedCaptionFormats, long positionUs) {
     HlsChunkSource defaultChunkSource = new HlsChunkSource(playlistTracker, variants,
         dataSourceFactory, timestampAdjusterProvider, muxedCaptionFormats);
-    return new HlsSampleStreamWrapper(trackType, this, defaultChunkSource, allocator,
-        preparePositionUs, muxedAudioFormat, minLoadableRetryCount, eventDispatcher);
+    return new HlsSampleStreamWrapper(trackType, this, defaultChunkSource, allocator, positionUs,
+        muxedAudioFormat, minLoadableRetryCount, eventDispatcher);
   }
 
   private void continuePreparingOrLoading() {

@@ -535,11 +535,10 @@ public final class ExoPlayerTest extends TestCase {
     }
 
     @Override
-    public MediaPeriod createPeriod(int index, Allocator allocator, long positionUs) {
+    public MediaPeriod createPeriod(int index, Allocator allocator) {
       Assertions.checkIndex(index, 0, timeline.getPeriodCount());
       assertTrue(preparedSource);
       assertFalse(releasedSource);
-      assertEquals(0, positionUs);
       FakeMediaPeriod mediaPeriod = new FakeMediaPeriod(trackGroupArray);
       activeMediaPeriods.add(mediaPeriod);
       return mediaPeriod;
@@ -583,8 +582,9 @@ public final class ExoPlayerTest extends TestCase {
     }
 
     @Override
-    public void prepare(Callback callback) {
+    public void prepare(Callback callback, long positionUs) {
       assertFalse(preparedPeriod);
+      assertEquals(0, positionUs);
       preparedPeriod = true;
       callback.onPrepared(this);
     }

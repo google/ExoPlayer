@@ -1352,7 +1352,7 @@ import java.io.IOException;
       loadingPeriodHolder.next = newPeriodHolder;
     }
     loadingPeriodHolder = newPeriodHolder;
-    loadingPeriodHolder.mediaPeriod.prepare(this);
+    loadingPeriodHolder.mediaPeriod.prepare(this, newLoadingPeriodStartPositionUs);
     setIsLoading(true);
   }
 
@@ -1528,8 +1528,7 @@ import java.io.IOException;
       this.startPositionUs = startPositionUs;
       sampleStreams = new SampleStream[renderers.length];
       mayRetainStreamFlags = new boolean[renderers.length];
-      mediaPeriod = mediaSource.createPeriod(periodIndex, loadControl.getAllocator(),
-          startPositionUs);
+      mediaPeriod = mediaSource.createPeriod(periodIndex, loadControl.getAllocator());
     }
 
     public long toRendererTime(long periodTimeUs) {
