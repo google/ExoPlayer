@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.source;
 
+import android.support.annotation.Nullable;
 import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.upstream.Allocator;
@@ -34,9 +35,9 @@ public interface MediaSource {
      * Called when manifest and/or timeline has been refreshed.
      *
      * @param timeline The source's timeline.
-     * @param manifest The loaded manifest.
+     * @param manifest The loaded manifest. May be null.
      */
-    void onSourceInfoRefreshed(Timeline timeline, Object manifest);
+    void onSourceInfoRefreshed(Timeline timeline, @Nullable Object manifest);
 
   }
 
