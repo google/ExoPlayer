@@ -92,7 +92,7 @@ public final class ConcatenatingMediaSource implements MediaSource {
 
   @Override
   public MediaPeriod createPeriod(int index, Allocator allocator) {
-    int sourceIndex = timeline.getChildIndexForPeriod(index);
+    int sourceIndex = timeline.getChildIndexByPeriodIndex(index);
     int periodIndexInSource = index - timeline.getFirstPeriodIndexInChild(sourceIndex);
     MediaPeriod mediaPeriod =
         mediaSources[sourceIndex].createPeriod(periodIndexInSource, allocator);
@@ -209,32 +209,43 @@ public final class ConcatenatingMediaSource implements MediaSource {
     }
 
     @Override
-    protected int getChildCount() {
-      return timelines.length;
+    protected void getChildDataByPeriodIndex(int periodIndex, ChildDataHolder childData) {
+      int childIndex = getChildIndexByPeriodIndex(periodIndex);
+      getChildDataByChildIndex(childIndex, childData);
     }
 
     @Override
-    protected Timeline getChild(int childIndex) {
-      return timelines[childIndex];
+    protected void getChildDataByWindowIndex(int windowIndex, ChildDataHolder childData) {
+      int childIndex = Util.binarySearchFloor(sourceWindowOffsets, windowIndex, true, false) + 1;
+      getChildDataByChildIndex(childIndex, childData);
     }
 
     @Override
-    protected int getChildIndexForPeriod(int periodIndex) {
+    protected boolean getChildDataByChildUid(Object childUid, ChildDataHolder childData) {
+      if (!(childUid instanceof Integer)) {
+        return false;
+      }
+      int childIndex = (Integer) childUid;
+      getChildDataByChildIndex(childIndex, childData);
+      return true;
+    }
+
+    private void getChildDataByChildIndex(int childIndex, ChildDataHolder childData) {
+      childData.timeline = timelines[childIndex];
+      childData.firstPeriodIndexInChild = getFirstPeriodIndexInChild(childIndex);
+      childData.firstWindowIndexInChild = getFirstWindowIndexInChild(childIndex);
+      childData.uid = childIndex;
+    }
+
+    private int getChildIndexByPeriodIndex(int periodIndex) {
       return Util.binarySearchFloor(sourcePeriodOffsets, periodIndex, true, false) + 1;
     }
 
-    @Override
-    protected int getFirstPeriodIndexInChild(int childIndex) {
+    private int getFirstPeriodIndexInChild(int childIndex) {
       return childIndex == 0 ? 0 : sourcePeriodOffsets[childIndex - 1];
     }
 
-    @Override
-    protected int getChildIndexForWindow(int windowIndex) {
-      return Util.binarySearchFloor(sourceWindowOffsets, windowIndex, true, false) + 1;
-    }
-
-    @Override
-    protected int getFirstWindowIndexInChild(int childIndex) {
+    private int getFirstWindowIndexInChild(int childIndex) {
       return childIndex == 0 ? 0 : sourceWindowOffsets[childIndex - 1];
     }
 
