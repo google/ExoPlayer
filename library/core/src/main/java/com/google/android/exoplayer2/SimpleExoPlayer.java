@@ -221,8 +221,9 @@ public class SimpleExoPlayer implements ExoPlayer {
     if (surfaceHolder == null) {
       setVideoSurfaceInternal(null, false);
     } else {
-      setVideoSurfaceInternal(surfaceHolder.getSurface(), false);
       surfaceHolder.addCallback(componentListener);
+      Surface surface = surfaceHolder.getSurface();
+      setVideoSurfaceInternal(surface != null && surface.isValid() ? surface : null, false);
     }
   }
 
@@ -273,9 +274,9 @@ public class SimpleExoPlayer implements ExoPlayer {
       if (textureView.getSurfaceTextureListener() != null) {
         Log.w(TAG, "Replacing existing SurfaceTextureListener.");
       }
+      textureView.setSurfaceTextureListener(componentListener);
       SurfaceTexture surfaceTexture = textureView.getSurfaceTexture();
       setVideoSurfaceInternal(surfaceTexture == null ? null : new Surface(surfaceTexture), true);
-      textureView.setSurfaceTextureListener(componentListener);
     }
   }
 
