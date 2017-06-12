@@ -274,11 +274,21 @@ public final class MediaCodecInfo {
       logNoSupport("channelCount.aCaps");
       return false;
     }
-    if (audioCapabilities.getMaxInputChannelCount() < channelCount) {
-      logNoSupport("channelCount.support, " + channelCount);
+    if ((audioCapabilities.getMaxInputChannelCount() < channelCount) && !channelCountNeedsDeviceSpecificWorkaround()) {
+      logNoSupport("channelCount.support, " + channelCount + ", getMaxInputChannelCount: " + audioCapabilities.getMaxInputChannelCount());
       return false;
     }
     return true;
+  }
+
+  private boolean channelCountNeedsDeviceSpecificWorkaround() {
+    // HTC 10 and M9 have a Dolby decoder, but it reports MaxInputChannelCount of 1, so ignore that
+    if ((mimeType.equals(MimeTypes.AUDIO_E_AC3) || mimeType.equals(MimeTypes.AUDIO_AC3))
+      && (Util.DEVICE.equals("htc_pmewl") // HTC 10 HTC6545LVW
+      || Util.DEVICE.equals("htc_himaulatt"))) { // HTC One M9
+      return true;
+    }
+    return false;
   }
 
   private void logNoSupport(String message) {
@@ -325,5 +335,4 @@ public final class MediaCodecInfo {
         ? capabilities.isSizeSupported(width, height)
         : capabilities.areSizeAndRateSupported(width, height, frameRate);
   }
-
 }
