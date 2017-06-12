@@ -775,7 +775,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
    * @return Suitable {@link CodecMaxValues}.
    * @throws DecoderQueryException If an error occurs querying {@code codecInfo}.
    */
-  private static CodecMaxValues getCodecMaxValues(MediaCodecInfo codecInfo, Format format,
+  protected CodecMaxValues getCodecMaxValues(MediaCodecInfo codecInfo, Format format,
       Format[] streamFormats) throws DecoderQueryException {
     int maxWidth = format.width;
     int maxHeight = format.height;
@@ -975,7 +975,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
     return format.rotationDegrees == Format.NO_VALUE ? 0 : format.rotationDegrees;
   }
 
-  private static final class CodecMaxValues {
+  protected static final class CodecMaxValues {
 
     public final int width;
     public final int height;
