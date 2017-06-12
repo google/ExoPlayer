@@ -506,7 +506,7 @@ public final class ImaAdsMediaSource implements MediaSource {
 
     @Override
     public boolean continueLoading(long positionUs) {
-      return mediaPeriod.continueLoading(positionUs);
+      return mediaPeriod != null && mediaPeriod.continueLoading(positionUs);
     }
 
     // MediaPeriod.Callback implementation.
