@@ -205,8 +205,6 @@ public class PlayerActivity extends Activity implements OnClickListener, ExoPlay
 
   @Override
   public boolean dispatchKeyEvent(KeyEvent event) {
-    // Show the controls on any key event.
-    simpleExoPlayerView.showController();
     // If the event was not handled then see if the player view can handle it as a media key event.
     return super.dispatchKeyEvent(event) || simpleExoPlayerView.dispatchMediaKeyEvent(event);
   }
