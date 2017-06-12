@@ -1198,7 +1198,7 @@ import java.io.IOException;
     maybeUpdateLoadingPeriod();
     if (loadingPeriodHolder == null || loadingPeriodHolder.isFullyBuffered()) {
       setIsLoading(false);
-    } else if (loadingPeriodHolder != null && loadingPeriodHolder.needsContinueLoading) {
+    } else if (loadingPeriodHolder != null && !isLoading) {
       maybeContinueLoading();
     }
 
@@ -1394,10 +1394,7 @@ import java.io.IOException;
       boolean continueLoading = loadControl.shouldContinueLoading(bufferedDurationUs);
       setIsLoading(continueLoading);
       if (continueLoading) {
-        loadingPeriodHolder.needsContinueLoading = false;
         loadingPeriodHolder.mediaPeriod.continueLoading(loadingPeriodPositionUs);
-      } else {
-        loadingPeriodHolder.needsContinueLoading = true;
       }
     }
   }
@@ -1506,7 +1503,6 @@ import java.io.IOException;
     public boolean prepared;
     public boolean hasEnabledTracks;
     public MediaPeriodHolder next;
-    public boolean needsContinueLoading;
     public TrackSelectorResult trackSelectorResult;
 
     private final Renderer[] renderers;
