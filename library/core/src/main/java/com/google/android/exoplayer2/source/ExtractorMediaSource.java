@@ -72,6 +72,12 @@ public final class ExtractorMediaSource implements MediaSource, MediaSource.List
    */
   public static final int MIN_RETRY_COUNT_DEFAULT_FOR_MEDIA = -1;
 
+  /**
+   * The default number of bytes that should be loaded between each each invocation of
+   * {@link MediaPeriod.Callback#onContinueLoadingRequested(SequenceableLoader)}.
+   */
+  public static final int DEFAULT_LOADING_CHECK_INTERVAL_BYTES = 1024 * 1024;
+
   private final Uri uri;
   private final DataSource.Factory dataSourceFactory;
   private final ExtractorsFactory extractorsFactory;
@@ -80,6 +86,7 @@ public final class ExtractorMediaSource implements MediaSource, MediaSource.List
   private final EventListener eventListener;
   private final Timeline.Period period;
   private final String customCacheKey;
+  private final int continueLoadingCheckIntervalBytes;
 
   private MediaSource.Listener sourceListener;
   private Timeline timeline;
@@ -96,8 +103,7 @@ public final class ExtractorMediaSource implements MediaSource, MediaSource.List
    */
   public ExtractorMediaSource(Uri uri, DataSource.Factory dataSourceFactory,
       ExtractorsFactory extractorsFactory, Handler eventHandler, EventListener eventListener) {
-    this(uri, dataSourceFactory, extractorsFactory, MIN_RETRY_COUNT_DEFAULT_FOR_MEDIA, eventHandler,
-        eventListener, null);
+    this(uri, dataSourceFactory, extractorsFactory, eventHandler, eventListener, null);
   }
 
   /**
@@ -115,7 +121,7 @@ public final class ExtractorMediaSource implements MediaSource, MediaSource.List
       ExtractorsFactory extractorsFactory, Handler eventHandler, EventListener eventListener,
       String customCacheKey) {
     this(uri, dataSourceFactory, extractorsFactory, MIN_RETRY_COUNT_DEFAULT_FOR_MEDIA, eventHandler,
-        eventListener, customCacheKey);
+        eventListener, customCacheKey, DEFAULT_LOADING_CHECK_INTERVAL_BYTES);
   }
 
   /**
@@ -129,10 +135,12 @@ public final class ExtractorMediaSource implements MediaSource, MediaSource.List
    * @param eventListener A listener of events. May be null if delivery of events is not required.
    * @param customCacheKey A custom key that uniquely identifies the original stream. Used for cache
    *     indexing. May be null.
+   * @param continueLoadingCheckIntervalBytes The number of bytes that should be loaded between each
+   *     invocation of {@link MediaPeriod.Callback#onContinueLoadingRequested(SequenceableLoader)}.
    */
   public ExtractorMediaSource(Uri uri, DataSource.Factory dataSourceFactory,
       ExtractorsFactory extractorsFactory, int minLoadableRetryCount, Handler eventHandler,
-      EventListener eventListener, String customCacheKey) {
+      EventListener eventListener, String customCacheKey, int continueLoadingCheckIntervalBytes) {
     this.uri = uri;
     this.dataSourceFactory = dataSourceFactory;
     this.extractorsFactory = extractorsFactory;
@@ -140,6 +148,7 @@ public final class ExtractorMediaSource implements MediaSource, MediaSource.List
     this.eventHandler = eventHandler;
     this.eventListener = eventListener;
     this.customCacheKey = customCacheKey;
+    this.continueLoadingCheckIntervalBytes = continueLoadingCheckIntervalBytes;
     period = new Timeline.Period();
   }
 
@@ -160,7 +169,7 @@ public final class ExtractorMediaSource implements MediaSource, MediaSource.List
     Assertions.checkArgument(index == 0);
     return new ExtractorMediaPeriod(uri, dataSourceFactory.createDataSource(),
         extractorsFactory.createExtractors(), minLoadableRetryCount, eventHandler, eventListener,
-        this, allocator, customCacheKey);
+        this, allocator, customCacheKey, continueLoadingCheckIntervalBytes);
   }
 
   @Override
