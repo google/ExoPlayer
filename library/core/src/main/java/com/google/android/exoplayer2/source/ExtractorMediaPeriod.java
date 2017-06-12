@@ -64,6 +64,7 @@ import java.io.IOException;
   private final MediaSource.Listener sourceListener;
   private final Allocator allocator;
   private final String customCacheKey;
+  private final long continueLoadingCheckIntervalBytes;
   private final Loader loader;
   private final ExtractorHolder extractorHolder;
   private final ConditionVariable loadCondition;
@@ -105,11 +106,13 @@ import java.io.IOException;
    * @param allocator An {@link Allocator} from which to obtain media buffer allocations.
    * @param customCacheKey A custom key that uniquely identifies the original stream. Used for cache
    *     indexing. May be null.
+   * @param continueLoadingCheckIntervalBytes The number of bytes that should be loaded between each
+   *     invocation of {@link Callback#onContinueLoadingRequested(SequenceableLoader)}.
    */
   public ExtractorMediaPeriod(Uri uri, DataSource dataSource, Extractor[] extractors,
       int minLoadableRetryCount, Handler eventHandler,
       ExtractorMediaSource.EventListener eventListener, MediaSource.Listener sourceListener,
-      Allocator allocator, String customCacheKey) {
+      Allocator allocator, String customCacheKey, int continueLoadingCheckIntervalBytes) {
     this.uri = uri;
     this.dataSource = dataSource;
     this.minLoadableRetryCount = minLoadableRetryCount;
@@ -118,6 +121,7 @@ import java.io.IOException;
     this.sourceListener = sourceListener;
     this.allocator = allocator;
     this.customCacheKey = customCacheKey;
+    this.continueLoadingCheckIntervalBytes = continueLoadingCheckIntervalBytes;
     loader = new Loader("Loader:ExtractorMediaPeriod");
     extractorHolder = new ExtractorHolder(extractors, this);
     loadCondition = new ConditionVariable();
@@ -585,12 +589,6 @@ import java.io.IOException;
    */
   /* package */ final class ExtractingLoadable implements Loadable {
 
-    /**
-     * The number of bytes that should be loaded between each each invocation of
-     * {@link Callback#onContinueLoadingRequested(SequenceableLoader)}.
-     */
-    private static final int CONTINUE_LOADING_CHECK_INTERVAL_BYTES = 1024 * 1024;
-
     private final Uri uri;
     private final DataSource dataSource;
     private final ExtractorHolder extractorHolder;
@@ -650,7 +648,7 @@ import java.io.IOException;
           while (result == Extractor.RESULT_CONTINUE && !loadCanceled) {
             loadCondition.block();
             result = extractor.read(input, positionHolder);
-            if (input.getPosition() > position + CONTINUE_LOADING_CHECK_INTERVAL_BYTES) {
+            if (input.getPosition() > position + continueLoadingCheckIntervalBytes) {
               position = input.getPosition();
               loadCondition.close();
               handler.post(onContinueLoadingRequestedRunnable);
