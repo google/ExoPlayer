@@ -119,34 +119,34 @@ public final class LoopingMediaSource implements MediaSource {
     }
 
     @Override
-    protected Timeline getChild(int childIndex) {
-      return childTimeline;
+    protected void getChildDataByPeriodIndex(int periodIndex, ChildDataHolder childData) {
+      int childIndex = periodIndex / childPeriodCount;
+      getChildDataByChildIndex(childIndex, childData);
     }
 
     @Override
-    protected int getChildCount() {
-      return loopCount;
+    protected void getChildDataByWindowIndex(int windowIndex, ChildDataHolder childData) {
+      int childIndex = windowIndex / childWindowCount;
+      getChildDataByChildIndex(childIndex, childData);
     }
 
     @Override
-    protected int getChildIndexForPeriod(int periodIndex) {
-      return periodIndex / childPeriodCount;
+    protected boolean getChildDataByChildUid(Object childUid, ChildDataHolder childData) {
+      if (!(childUid instanceof Integer)) {
+        return false;
+      }
+      int childIndex = (Integer) childUid;
+      getChildDataByChildIndex(childIndex, childData);
+      return true;
     }
 
-    @Override
-    protected int getFirstPeriodIndexInChild(int childIndex) {
-      return childIndex * childPeriodCount;
+    private void getChildDataByChildIndex(int childIndex, ChildDataHolder childData) {
+      childData.timeline = childTimeline;
+      childData.firstPeriodIndexInChild = childIndex * childPeriodCount;
+      childData.firstWindowIndexInChild = childIndex * childWindowCount;
+      childData.uid = childIndex;
     }
 
-    @Override
-    protected int getChildIndexForWindow(int windowIndex) {
-      return windowIndex / childWindowCount;
-    }
-
-    @Override
-    protected int getFirstWindowIndexInChild(int childIndex) {
-      return childIndex * childWindowCount;
-    }
   }
 
   private static final class InfinitelyLoopingTimeline extends Timeline {
@@ -195,5 +195,7 @@ public final class LoopingMediaSource implements MediaSource {
     public int getIndexOfPeriod(Object uid) {
       return childTimeline.getIndexOfPeriod(uid);
     }
+
   }
+
 }
