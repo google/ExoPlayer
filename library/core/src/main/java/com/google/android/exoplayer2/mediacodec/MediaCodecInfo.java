@@ -274,18 +274,21 @@ public final class MediaCodecInfo {
       logNoSupport("channelCount.aCaps");
       return false;
     }
-    if ((audioCapabilities.getMaxInputChannelCount() < channelCount) && !channelCountNeedsDeviceSpecificWorkaround()) {
+    if ((audioCapabilities.getMaxInputChannelCount() < channelCount) && !channelCountNeedsCustomDecoderWorkaround(channelCount)) {
       logNoSupport("channelCount.support, " + channelCount + ", getMaxInputChannelCount: " + audioCapabilities.getMaxInputChannelCount());
       return false;
     }
     return true;
   }
 
-  private boolean channelCountNeedsDeviceSpecificWorkaround() {
-    // HTC 10 and M9 have a Dolby decoder, but it reports MaxInputChannelCount of 1, so ignore that
-    if ((mimeType.equals(MimeTypes.AUDIO_E_AC3) || mimeType.equals(MimeTypes.AUDIO_AC3))
-      && (Util.DEVICE.equals("htc_pmewl") // HTC 10 HTC6545LVW
-      || Util.DEVICE.equals("htc_himaulatt"))) { // HTC One M9
+  private boolean channelCountNeedsCustomDecoderWorkaround(int channelCount) {
+    // ATSC Standard: Digital Audio Compression (AC-3, E-AC-3), Doc. A/52:2015 24 November 2012
+    // For AC3, section 5.4.2.3 indicates a max of 5 channels, but this does not include the LFE which is the lfeon flag defined in 5.4.2.7. So, 6 channels total.
+    if (mimeType.equals(MimeTypes.AUDIO_AC3) && channelCount <= 6) {
+      return true;
+    }
+    // For EAC3, section E.3.8.2: "The maximum number of channels rendered for a single program is 16". This seems to include the LFE channel.
+    else if (mimeType.equals(MimeTypes.AUDIO_E_AC3) && channelCount <= 16) {
       return true;
     }
     return false;
