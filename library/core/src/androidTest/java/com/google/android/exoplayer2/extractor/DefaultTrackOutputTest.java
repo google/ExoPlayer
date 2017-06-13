@@ -251,6 +251,68 @@ public class DefaultTrackOutputTest extends TestCase {
     assertNoSamplesToRead(TEST_FORMAT_2);
   }
 
+  public void testDiscardUpstream() {
+    writeTestData();
+    trackOutput.discardUpstreamSamples(8);
+    assertAllocationCount(10);
+    trackOutput.discardUpstreamSamples(7);
+    assertAllocationCount(9);
+    trackOutput.discardUpstreamSamples(6);
+    assertAllocationCount(8); // Byte not belonging to sample prevents 7.
+    trackOutput.discardUpstreamSamples(5);
+    assertAllocationCount(5);
+    trackOutput.discardUpstreamSamples(4);
+    assertAllocationCount(4);
+    trackOutput.discardUpstreamSamples(3);
+    assertAllocationCount(3);
+    trackOutput.discardUpstreamSamples(2);
+    assertAllocationCount(3); // Byte not belonging to sample prevents 2.
+    trackOutput.discardUpstreamSamples(1);
+    assertAllocationCount(2); // Byte not belonging to sample prevents 1.
+    trackOutput.discardUpstreamSamples(0);
+    assertAllocationCount(1); // Byte not belonging to sample prevents 0.
+    assertReadFormat(false, TEST_FORMAT_2);
+    assertNoSamplesToRead(TEST_FORMAT_2);
+  }
+
+  public void testDiscardUpstreamMulti() {
+    writeTestData();
+    trackOutput.discardUpstreamSamples(4);
+    assertAllocationCount(4);
+    trackOutput.discardUpstreamSamples(0);
+    assertAllocationCount(1); // Byte not belonging to sample prevents 0.
+    assertReadFormat(false, TEST_FORMAT_2);
+    assertNoSamplesToRead(TEST_FORMAT_2);
+  }
+
+  public void testDiscardUpstreamBeforeRead() {
+    writeTestData();
+    trackOutput.discardUpstreamSamples(4);
+    assertAllocationCount(4);
+    assertReadTestData(null, 0, 4);
+    assertReadFormat(false, TEST_FORMAT_2);
+    assertNoSamplesToRead(TEST_FORMAT_2);
+  }
+
+  public void testDiscardUpstreamAfterRead() {
+    writeTestData();
+    assertReadTestData(null, 0, 3);
+    trackOutput.discardUpstreamSamples(8);
+    assertAllocationCount(7);
+    trackOutput.discardUpstreamSamples(7);
+    assertAllocationCount(6);
+    trackOutput.discardUpstreamSamples(6);
+    assertAllocationCount(5); // Byte not belonging to sample prevents 4.
+    trackOutput.discardUpstreamSamples(5);
+    assertAllocationCount(2);
+    trackOutput.discardUpstreamSamples(4);
+    assertAllocationCount(1);
+    trackOutput.discardUpstreamSamples(3);
+    assertAllocationCount(0);
+    assertReadFormat(false, TEST_FORMAT_2);
+    assertNoSamplesToRead(TEST_FORMAT_2);
+  }
+
   // Internal methods.
 
   /**
@@ -293,8 +355,20 @@ public class DefaultTrackOutputTest extends TestCase {
    * @param firstSampleIndex The index of the first sample that's expected to be read.
    */
   private void assertReadTestData(Format startFormat, int firstSampleIndex) {
+    assertReadTestData(startFormat, firstSampleIndex,
+        TEST_SAMPLE_TIMESTAMPS.length - firstSampleIndex);
+  }
+
+  /**
+   * Asserts correct reading of standard test data from {@code trackOutput}.
+   *
+   * @param startFormat The format of the last sample previously read from {@code trackOutput}.
+   * @param firstSampleIndex The index of the first sample that's expected to be read.
+   * @param sampleCount The number of samples to read.
+   */
+  private void assertReadTestData(Format startFormat, int firstSampleIndex, int sampleCount) {
     Format format = startFormat;
-    for (int i = firstSampleIndex; i < TEST_SAMPLE_TIMESTAMPS.length; i++) {
+    for (int i = firstSampleIndex; i < firstSampleIndex + sampleCount; i++) {
       // Use equals() on the read side despite using referential equality on the write side, since
       // trackOutput de-duplicates written formats using equals().
       if (!TEST_SAMPLE_FORMATS[i].equals(format)) {

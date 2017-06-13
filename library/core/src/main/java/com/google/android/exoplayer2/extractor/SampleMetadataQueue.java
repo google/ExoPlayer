@@ -111,8 +111,8 @@ import com.google.android.exoplayer2.util.Util;
     Assertions.checkArgument(0 <= discardCount && discardCount <= length);
 
     if (discardCount == 0) {
-      if (absoluteStartIndex == 0) {
-        // length == absoluteStartIndex == 0, so nothing has been written to the queue.
+      if (absoluteStartIndex == 0 && length == 0) {
+        // Nothing has been written to the queue.
         return 0;
       }
       int lastWriteIndex = (relativeEndIndex == 0 ? capacity : relativeEndIndex) - 1;
