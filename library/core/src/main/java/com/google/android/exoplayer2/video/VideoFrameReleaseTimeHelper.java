@@ -61,7 +61,7 @@ public final class VideoFrameReleaseTimeHelper {
   }
 
   /**
-   * Constructs an instance that smoothes frame release timestamps and aligns them with the default
+   * Constructs an instance that smooths frame release timestamps and aligns them with the default
    * display's vsync signal.
    *
    * @param context A context from which information about the default display can be retrieved.
