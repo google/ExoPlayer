@@ -152,7 +152,7 @@ public interface TsPayloadReader {
 
     /**
      * Returns the last generated format id, with the format {@code "programNumber/trackId"}. If no
-     *    {@code programNumber} was provided, the {@code trackId} alone is used as format id. Must be
+     * {@code programNumber} was provided, the {@code trackId} alone is used as format id. Must be
      * called after the first {@link #generateNewId()} call.
      *
      * @return The last generated format id, with the format {@code "programNumber/trackId"}. If no
@@ -178,7 +178,7 @@ public interface TsPayloadReader {
    * @param timestampAdjuster A timestamp adjuster for offsetting and scaling sample timestamps.
    * @param extractorOutput The {@link ExtractorOutput} that receives the extracted data.
    * @param idGenerator A {@link PesReader.TrackIdGenerator} that generates unique track ids for the
-   *      {@link TrackOutput}s.
+   *     {@link TrackOutput}s.
    */
   void init(TimestampAdjuster timestampAdjuster, ExtractorOutput extractorOutput,
        TrackIdGenerator idGenerator);

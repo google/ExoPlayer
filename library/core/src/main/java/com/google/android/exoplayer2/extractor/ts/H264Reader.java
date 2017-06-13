@@ -75,9 +75,9 @@ public final class H264Reader implements ElementaryStreamReader {
   /**
    * @param seiReader An SEI reader for consuming closed caption channels.
    * @param allowNonIdrKeyframes Whether to treat samples consisting of non-IDR I slices as
-   *      synchronization samples (key-frames).
+   *     synchronization samples (key-frames).
    * @param detectAccessUnits Whether to split the input stream into access units (samples) based on
-   *      slice headers. Pass {@code false} if the stream contains access unit delimiters (AUDs).
+   *     slice headers. Pass {@code false} if the stream contains access unit delimiters (AUDs).
    */
   public H264Reader(SeiReader seiReader, boolean allowNonIdrKeyframes, boolean detectAccessUnits) {
     this.seiReader = seiReader;

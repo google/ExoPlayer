@@ -101,10 +101,10 @@ public final class HlsMediaPlaylist extends HlsPlaylist {
   public final long durationUs;
 
   public HlsMediaPlaylist(@PlaylistType int playlistType, String baseUri, long startOffsetUs,
-       long startTimeUs, boolean hasDiscontinuitySequence, int discontinuitySequence,
-       int mediaSequence, int version, long targetDurationUs, boolean hasEndTag,
-       boolean hasProgramDateTime, Segment initializationSegment, List<Segment> segments,
-       List<String> dateRanges) {
+      long startTimeUs, boolean hasDiscontinuitySequence, int discontinuitySequence,
+      int mediaSequence, int version, long targetDurationUs, boolean hasEndTag,
+      boolean hasProgramDateTime, Segment initializationSegment, List<Segment> segments,
+      List<String> dateRanges) {
     super(baseUri);
     this.playlistType = playlistType;
     this.startTimeUs = startTimeUs;

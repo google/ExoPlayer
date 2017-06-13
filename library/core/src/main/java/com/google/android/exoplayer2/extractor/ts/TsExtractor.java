@@ -141,7 +141,7 @@ public final class TsExtractor implements Extractor {
 
   /**
    * @param mode Mode for the extractor. One of {@link #MODE_MULTI_PMT}, {@link #MODE_SINGLE_PMT}
-   *      and {@link #MODE_HLS}.
+   *     and {@link #MODE_HLS}.
    * @param defaultTsPayloadReaderFlags A combination of {@link DefaultTsPayloadReaderFactory}
    *     {@code FLAG_*} values that control the behavior of the payload readers.
    */
@@ -153,7 +153,7 @@ public final class TsExtractor implements Extractor {
 
   /**
    * @param mode Mode for the extractor. One of {@link #MODE_MULTI_PMT}, {@link #MODE_SINGLE_PMT}
-   *      and {@link #MODE_HLS}.
+   *     and {@link #MODE_HLS}.
    * @param timestampAdjuster A timestamp adjuster for offsetting and scaling sample timestamps.
    * @param payloadReaderFactory Factory for injecting a custom set of payload readers.
    */

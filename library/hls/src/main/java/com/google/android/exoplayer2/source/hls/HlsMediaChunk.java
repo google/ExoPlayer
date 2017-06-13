@@ -112,7 +112,7 @@ import java.util.concurrent.atomic.AtomicInteger;
    * @param initDataSpec Defines the initialization data to be fed to new extractors. May be null.
    * @param hlsUrl The url of the playlist from which this chunk was obtained.
    * @param muxedCaptionFormats List of muxed caption {@link Format}s. Null if no closed caption
-   *      information is available in the master playlist.
+   *     information is available in the master playlist.
    * @param trackSelectionReason See {@link #trackSelectionReason}.
    * @param trackSelectionData See {@link #trackSelectionData}.
    * @param startTimeUs The start time of the chunk in microseconds.
@@ -126,11 +126,11 @@ import java.util.concurrent.atomic.AtomicInteger;
    * @param encryptionIv For AES encryption chunks, the encryption initialization vector.
    */
   public HlsMediaChunk(DataSource dataSource, DataSpec dataSpec, DataSpec initDataSpec,
-       HlsUrl hlsUrl, List<Format> muxedCaptionFormats, int trackSelectionReason,
-       Object trackSelectionData, long startTimeUs, long endTimeUs, int chunkIndex,
-       int discontinuitySequenceNumber, boolean isMasterTimestampSource,
-       TimestampAdjuster timestampAdjuster, HlsMediaChunk previousChunk, byte[] encryptionKey,
-       byte[] encryptionIv, HLSEncryptInfo hlsEncryptInfo) {
+      HlsUrl hlsUrl, List<Format> muxedCaptionFormats, int trackSelectionReason,
+      Object trackSelectionData, long startTimeUs, long endTimeUs, int chunkIndex,
+      int discontinuitySequenceNumber, boolean isMasterTimestampSource,
+      TimestampAdjuster timestampAdjuster, HlsMediaChunk previousChunk, byte[] encryptionKey,
+      byte[] encryptionIv, HLSEncryptInfo hlsEncryptInfo) {
     super(buildDataSource(dataSource, encryptionKey, encryptionIv, hlsEncryptInfo), dataSpec, hlsUrl.format,
         trackSelectionReason, trackSelectionData, startTimeUs, endTimeUs, chunkIndex);
     this.discontinuitySequenceNumber = discontinuitySequenceNumber;
