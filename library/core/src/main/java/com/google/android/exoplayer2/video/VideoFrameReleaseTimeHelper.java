@@ -72,7 +72,7 @@ public final class VideoFrameReleaseTimeHelper {
   private VideoFrameReleaseTimeHelper(double defaultDisplayRefreshRate,
       boolean useDefaultDisplayVsync) {
     this.useDefaultDisplayVsync = useDefaultDisplayVsync;
-    if (useDefaultDisplayVsync) {
+    if (useDefaultDisplayVsync && defaultDisplayRefreshRate > 0f) {
       vsyncSampler = VSyncSampler.getInstance();
       vsyncDurationNs = (long) (C.NANOS_PER_SECOND / defaultDisplayRefreshRate);
       vsyncOffsetNs = (vsyncDurationNs * VSYNC_OFFSET_PERCENTAGE) / 100;
@@ -202,7 +202,7 @@ public final class VideoFrameReleaseTimeHelper {
 
   private static float getDefaultDisplayRefreshRate(Context context) {
     WindowManager manager = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
-    return manager.getDefaultDisplay().getRefreshRate();
+    return manager.getDefaultDisplay() != null ? manager.getDefaultDisplay().getRefreshRate() : 0f;
   }
 
   /**
