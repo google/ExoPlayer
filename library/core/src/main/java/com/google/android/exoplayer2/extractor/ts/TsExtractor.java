@@ -402,7 +402,7 @@ public final class TsExtractor implements Extractor {
 
     @Override
     public void init(TimestampAdjuster timestampAdjuster, ExtractorOutput extractorOutput,
-         TrackIdGenerator idGenerator) {
+        TrackIdGenerator idGenerator) {
       // Do nothing.
     }
 

@@ -68,7 +68,7 @@ public interface TsPayloadReader {
 
     /**
      * @param streamType The type of the stream as defined by the
-     *      {@link TsExtractor}{@code .TS_STREAM_TYPE_*}.
+     *     {@link TsExtractor}{@code .TS_STREAM_TYPE_*}.
      * @param language The language of the stream, as defined by ISO/IEC 13818-1, section 2.6.18.
      * @param dvbSubtitleInfos Information about DVB subtitles associated to the stream.
      * @param descriptorBytes The descriptor bytes associated to the stream.
