@@ -19,7 +19,6 @@ import android.support.annotation.IntDef;
 import android.util.SparseArray;
 import android.util.SparseBooleanArray;
 import android.util.SparseIntArray;
-
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.extractor.Extractor;
 import com.google.android.exoplayer2.extractor.ExtractorInput;
@@ -38,7 +37,6 @@ import com.google.android.exoplayer2.util.ParsableBitArray;
 import com.google.android.exoplayer2.util.ParsableByteArray;
 import com.google.android.exoplayer2.util.TimestampAdjuster;
 import com.google.android.exoplayer2.util.Util;
-
 import java.io.IOException;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -59,7 +57,7 @@ public final class TsExtractor implements Extractor {
 
     @Override
     public Extractor[] createExtractors() {
-      return new Extractor[]{new TsExtractor()};
+      return new Extractor[] {new TsExtractor()};
     }
 
   };
@@ -69,8 +67,7 @@ public final class TsExtractor implements Extractor {
    */
   @Retention(RetentionPolicy.SOURCE)
   @IntDef({MODE_MULTI_PMT, MODE_SINGLE_PMT, MODE_HLS})
-  public @interface Mode {
-  }
+  public @interface Mode {}
 
   /**
    * Behave as defined in ISO/IEC 13818-1.
@@ -112,8 +109,7 @@ public final class TsExtractor implements Extractor {
   private static final int BUFFER_PACKET_COUNT = 5; // Should be at least 2
   private static final int BUFFER_SIZE = TS_PACKET_SIZE * BUFFER_PACKET_COUNT;
 
-  @Mode
-  private final int mode;
+  @Mode private final int mode;
   private final List<TimestampAdjuster> timestampAdjusters;
   private final ParsableByteArray tsPacketBuffer;
   private final ParsableBitArray tsScratch;
@@ -137,17 +133,17 @@ public final class TsExtractor implements Extractor {
 
   /**
    * @param defaultTsPayloadReaderFlags A combination of {@link DefaultTsPayloadReaderFactory}
-   *                                    {@code FLAG_*} values that control the behavior of the payload readers.
+   *     {@code FLAG_*} values that control the behavior of the payload readers.
    */
   public TsExtractor(@Flags int defaultTsPayloadReaderFlags) {
     this(MODE_SINGLE_PMT, defaultTsPayloadReaderFlags);
   }
 
   /**
-   * @param mode                        Mode for the extractor. One of {@link #MODE_MULTI_PMT}, {@link #MODE_SINGLE_PMT}
-   *                                    and {@link #MODE_HLS}.
+   * @param mode Mode for the extractor. One of {@link #MODE_MULTI_PMT}, {@link #MODE_SINGLE_PMT}
+   *      and {@link #MODE_HLS}.
    * @param defaultTsPayloadReaderFlags A combination of {@link DefaultTsPayloadReaderFactory}
-   *                                    {@code FLAG_*} values that control the behavior of the payload readers.
+   *     {@code FLAG_*} values that control the behavior of the payload readers.
    */
   public TsExtractor(@Mode int mode, @Flags int defaultTsPayloadReaderFlags) {
     this(mode, new TimestampAdjuster(0),
@@ -156,13 +152,13 @@ public final class TsExtractor implements Extractor {
 
 
   /**
-   * @param mode                 Mode for the extractor. One of {@link #MODE_MULTI_PMT}, {@link #MODE_SINGLE_PMT}
-   *                             and {@link #MODE_HLS}.
-   * @param timestampAdjuster    A timestamp adjuster for offsetting and scaling sample timestamps.
+   * @param mode Mode for the extractor. One of {@link #MODE_MULTI_PMT}, {@link #MODE_SINGLE_PMT}
+   *      and {@link #MODE_HLS}.
+   * @param timestampAdjuster A timestamp adjuster for offsetting and scaling sample timestamps.
    * @param payloadReaderFactory Factory for injecting a custom set of payload readers.
    */
   public TsExtractor(@Mode int mode, TimestampAdjuster timestampAdjuster,
-                     TsPayloadReader.Factory payloadReaderFactory) {
+       TsPayloadReader.Factory payloadReaderFactory) {
     this.payloadReaderFactory = Assertions.checkNotNull(payloadReaderFactory);
     this.mode = mode;
     if (mode == MODE_SINGLE_PMT || mode == MODE_HLS) {
@@ -180,7 +176,7 @@ public final class TsExtractor implements Extractor {
   }
 
   public TsExtractor(@Mode int mode, TimestampAdjuster timestampAdjuster,
-                     TsPayloadReader.Factory payloadReaderFactory, HLSEncryptInfo hlsEncryptInfo) {
+       TsPayloadReader.Factory payloadReaderFactory, HLSEncryptInfo hlsEncryptInfo) {
     this(mode, timestampAdjuster, payloadReaderFactory);
 
     this.hlsEncryptInfo = hlsEncryptInfo;
@@ -348,7 +344,7 @@ public final class TsExtractor implements Extractor {
 
     @Override
     public void init(TimestampAdjuster timestampAdjuster, ExtractorOutput extractorOutput,
-                     TrackIdGenerator idGenerator) {
+         TrackIdGenerator idGenerator) {
       // Do nothing.
     }
 
@@ -406,7 +402,7 @@ public final class TsExtractor implements Extractor {
 
     @Override
     public void init(TimestampAdjuster timestampAdjuster, ExtractorOutput extractorOutput,
-                     TrackIdGenerator idGenerator) {
+         TrackIdGenerator idGenerator) {
       // Do nothing.
     }
 
@@ -506,7 +502,7 @@ public final class TsExtractor implements Extractor {
      * Returns the stream info read from the available descriptors. Sets {@code data}'s position to
      * the end of the descriptors.
      *
-     * @param data   A buffer with its position set to the start of the first descriptor.
+     * @param data A buffer with its position set to the start of the first descriptor.
      * @param length The length of descriptors to read from the current position in {@code data}.
      * @return The stream info read from the available descriptors.
      */

@@ -27,7 +27,6 @@ import com.google.android.exoplayer2.util.HLSEncryptInfo;
 import com.google.android.exoplayer2.util.ParsableBitArray;
 import com.google.android.exoplayer2.util.ParsableByteArray;
 import com.google.android.exoplayer2.util.Util;
-
 import java.io.IOException;
 
 /**
@@ -43,7 +42,7 @@ public final class AdtsExtractor implements Extractor {
 
     @Override
     public Extractor[] createExtractors() {
-      return new Extractor[]{new AdtsExtractor()};
+      return new Extractor[] {new AdtsExtractor()};
     }
 
   };
@@ -62,7 +61,6 @@ public final class AdtsExtractor implements Extractor {
   // Accessed only by the loading thread.
   private AdtsReader reader;
   private boolean startedPacket;
-
 
   private int mMode = C.TS_STREAM_TYPE_AAC;
   private String encryptionMethod;

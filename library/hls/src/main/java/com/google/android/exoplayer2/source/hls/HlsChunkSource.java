@@ -17,7 +17,6 @@ package com.google.android.exoplayer2.source.hls;
 
 import android.net.Uri;
 import android.os.SystemClock;
-
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.source.BehindLiveWindowException;
@@ -36,7 +35,6 @@ import com.google.android.exoplayer2.upstream.DataSpec;
 import com.google.android.exoplayer2.util.TimestampAdjuster;
 import com.google.android.exoplayer2.util.UriUtil;
 import com.google.android.exoplayer2.util.Util;
-
 import java.io.IOException;
 import java.math.BigInteger;
 import java.util.Arrays;
@@ -107,19 +105,19 @@ import java.util.Locale;
   private TrackSelection trackSelection;
 
   /**
-   * @param playlistTracker           The {@link HlsPlaylistTracker} from which to obtain media playlists.
-   * @param variants                  The available variants.
-   * @param dataSourceFactory         An {@link HlsDataSourceFactory} to create {@link DataSource}s for the
-   *                                  chunks.
+   * @param playlistTracker The {@link HlsPlaylistTracker} from which to obtain media playlists.
+   * @param variants The available variants.
+   * @param dataSourceFactory An {@link HlsDataSourceFactory} to create {@link DataSource}s for the
+   *       chunks.
    * @param timestampAdjusterProvider A provider of {@link TimestampAdjuster} instances. If
-   *                                  multiple {@link HlsChunkSource}s are used for a single playback, they should all share the
-   *                                  same provider.
-   * @param muxedCaptionFormats       List of muxed caption {@link Format}s. Null if no closed caption
-   *                                  information is available in the master playlist.
+   *      multiple {@link HlsChunkSource}s are used for a single playback, they should all share the
+   *      same provider.
+   * @param muxedCaptionFormats List of muxed caption {@link Format}s. Null if no closed caption
+   *      information is available in the master playlist.
    */
   public HlsChunkSource(HlsPlaylistTracker playlistTracker, HlsUrl[] variants,
-                        HlsDataSourceFactory dataSourceFactory, TimestampAdjusterProvider timestampAdjusterProvider,
-                        List<Format> muxedCaptionFormats) {
+       HlsDataSourceFactory dataSourceFactory, TimestampAdjusterProvider timestampAdjusterProvider,
+       List<Format> muxedCaptionFormats) {
     this.playlistTracker = playlistTracker;
     this.variants = variants;
     this.timestampAdjusterProvider = timestampAdjusterProvider;
@@ -178,7 +176,7 @@ import java.util.Locale;
    * Sets whether this chunk source is responsible for initializing timestamp adjusters.
    *
    * @param isTimestampMaster True if this chunk source is responsible for initializing timestamp
-   *                          adjusters.
+   *      adjusters.
    */
   public void setIsTimestampMaster(boolean isTimestampMaster) {
     this.isTimestampMaster = isTimestampMaster;
@@ -192,11 +190,11 @@ import java.util.Locale;
    * the end of the stream has not been reached, {@link HlsChunkHolder#playlist} is set to
    * contain the {@link HlsUrl} that refers to the playlist that needs refreshing.
    *
-   * @param previous           The most recently loaded media chunk.
+   * @param previous The most recently loaded media chunk.
    * @param playbackPositionUs The current playback position. If {@code previous} is null then this
-   *                           parameter is the position from which playback is expected to start (or restart) and hence
-   *                           should be interpreted as a seek position.
-   * @param out                A holder to populate.
+   *      parameter is the position from which playback is expected to start (or restart) and hence
+   *      should be interpreted as a seek position.
+   * @param out A holder to populate.
    */
   public void getNextChunk(HlsMediaChunk previous, long playbackPositionUs, HlsChunkHolder out) {
     int oldVariantIndex = previous == null ? C.INDEX_UNSET
@@ -329,9 +327,9 @@ import java.util.Locale;
    * Called when the {@link HlsSampleStreamWrapper} encounters an error loading a chunk obtained
    * from this source.
    *
-   * @param chunk      The chunk whose load encountered the error.
+   * @param chunk The chunk whose load encountered the error.
    * @param cancelable Whether the load can be canceled.
-   * @param error      The error.
+   * @param error The error.
    * @return Whether the load should be canceled.
    */
   public boolean onChunkLoadError(Chunk chunk, boolean cancelable, IOException error) {
@@ -342,7 +340,7 @@ import java.util.Locale;
   /**
    * Called when a playlist is blacklisted.
    *
-   * @param url         The url that references the blacklisted playlist.
+   * @param url The url that references the blacklisted playlist.
    * @param blacklistMs The amount of milliseconds for which the playlist was blacklisted.
    */
   public void onPlaylistBlacklisted(HlsUrl url, long blacklistMs) {
@@ -358,7 +356,7 @@ import java.util.Locale;
   // Private methods.
 
   private EncryptionKeyChunk newEncryptionKeyChunk(Uri keyUri, String iv, int variantIndex,
-                                                   int trackSelectionReason, Object trackSelectionData) {
+       int trackSelectionReason, Object trackSelectionData) {
     DataSpec dataSpec = new DataSpec(keyUri, 0, C.LENGTH_UNSET, null, DataSpec.FLAG_ALLOW_GZIP);
     return new EncryptionKeyChunk(encryptionDataSource, dataSpec, variants[variantIndex].format,
         trackSelectionReason, trackSelectionData, scratchSpace, iv);
@@ -446,7 +444,7 @@ import java.util.Locale;
     private byte[] result;
 
     public EncryptionKeyChunk(DataSource dataSource, DataSpec dataSpec, Format trackFormat,
-                              int trackSelectionReason, Object trackSelectionData, byte[] scratchSpace, String iv) {
+         int trackSelectionReason, Object trackSelectionData, byte[] scratchSpace, String iv) {
       super(dataSource, dataSpec, C.DATA_TYPE_DRM, trackFormat, trackSelectionReason,
           trackSelectionData, scratchSpace);
       this.iv = iv;

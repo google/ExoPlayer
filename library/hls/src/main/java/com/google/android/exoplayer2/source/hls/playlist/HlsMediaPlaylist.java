@@ -17,10 +17,8 @@ package com.google.android.exoplayer2.source.hls.playlist;
 
 import android.support.annotation.IntDef;
 import android.support.annotation.NonNull;
-
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.util.HLSEncryptInfo;
-
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.Collections;
@@ -48,15 +46,13 @@ public final class HlsMediaPlaylist extends HlsPlaylist {
 
     public final HLSEncryptInfo hlsEncryptInfo;
 
-
     public Segment(String uri, long byterangeOffset, long byterangeLength) {
       this(uri, 0, -1, C.TIME_UNSET, null, byterangeOffset, byterangeLength);
     }
 
     public Segment(String uri, long durationUs, int relativeDiscontinuitySequence,
-                   long relativeStartTimeUs, HLSEncryptInfo hlsEncryptInfo,
-                   long byterangeOffset, long byterangeLength) {
-
+        long relativeStartTimeUs, HLSEncryptInfo hlsEncryptInfo,
+        long byterangeOffset, long byterangeLength) {
       this.url = uri;
       this.durationUs = durationUs;
       this.relativeDiscontinuitySequence = relativeDiscontinuitySequence;
@@ -83,15 +79,13 @@ public final class HlsMediaPlaylist extends HlsPlaylist {
    */
   @Retention(RetentionPolicy.SOURCE)
   @IntDef({PLAYLIST_TYPE_UNKNOWN, PLAYLIST_TYPE_VOD, PLAYLIST_TYPE_EVENT})
-  public @interface PlaylistType {
-  }
+  public @interface PlaylistType { }
 
   public static final int PLAYLIST_TYPE_UNKNOWN = 0;
   public static final int PLAYLIST_TYPE_VOD = 1;
   public static final int PLAYLIST_TYPE_EVENT = 2;
 
-  @PlaylistType
-  public final int playlistType;
+  @PlaylistType public final int playlistType;
   public final long startOffsetUs;
   public final long startTimeUs;
   public final boolean hasDiscontinuitySequence;
@@ -107,10 +101,10 @@ public final class HlsMediaPlaylist extends HlsPlaylist {
   public final long durationUs;
 
   public HlsMediaPlaylist(@PlaylistType int playlistType, String baseUri, long startOffsetUs,
-                          long startTimeUs, boolean hasDiscontinuitySequence, int discontinuitySequence,
-                          int mediaSequence, int version, long targetDurationUs, boolean hasEndTag,
-                          boolean hasProgramDateTime, Segment initializationSegment, List<Segment> segments,
-                          List<String> dateRanges) {
+       long startTimeUs, boolean hasDiscontinuitySequence, int discontinuitySequence,
+       int mediaSequence, int version, long targetDurationUs, boolean hasEndTag,
+       boolean hasProgramDateTime, Segment initializationSegment, List<Segment> segments,
+       List<String> dateRanges) {
     super(baseUri);
     this.playlistType = playlistType;
     this.startTimeUs = startTimeUs;
@@ -163,7 +157,7 @@ public final class HlsMediaPlaylist extends HlsPlaylist {
    * and {@code hasDiscontinuitySequence} values. The first two are set to the specified values,
    * {@code hasDiscontinuitySequence} is set to true.
    *
-   * @param startTimeUs           The start time for the returned playlist.
+   * @param startTimeUs The start time for the returned playlist.
    * @param discontinuitySequence The discontinuity sequence for the returned playlist.
    * @return The playlist.
    */
