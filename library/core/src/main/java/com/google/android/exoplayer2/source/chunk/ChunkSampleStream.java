@@ -19,8 +19,8 @@ import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.FormatHolder;
 import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
-import com.google.android.exoplayer2.extractor.DefaultTrackOutput;
 import com.google.android.exoplayer2.source.AdaptiveMediaSourceEventListener.EventDispatcher;
+import com.google.android.exoplayer2.source.SampleQueue;
 import com.google.android.exoplayer2.source.SampleStream;
 import com.google.android.exoplayer2.source.SequenceableLoader;
 import com.google.android.exoplayer2.upstream.Allocator;
@@ -49,8 +49,8 @@ public class ChunkSampleStream<T extends ChunkSource> implements SampleStream, S
   private final ChunkHolder nextChunkHolder;
   private final LinkedList<BaseMediaChunk> mediaChunks;
   private final List<BaseMediaChunk> readOnlyMediaChunks;
-  private final DefaultTrackOutput primarySampleQueue;
-  private final DefaultTrackOutput[] embeddedSampleQueues;
+  private final SampleQueue primarySampleQueue;
+  private final SampleQueue[] embeddedSampleQueues;
   private final BaseMediaChunkOutput mediaChunkOutput;
 
   private Format primaryDownstreamTrackFormat;
@@ -85,19 +85,19 @@ public class ChunkSampleStream<T extends ChunkSource> implements SampleStream, S
     readOnlyMediaChunks = Collections.unmodifiableList(mediaChunks);
 
     int embeddedTrackCount = embeddedTrackTypes == null ? 0 : embeddedTrackTypes.length;
-    embeddedSampleQueues = new DefaultTrackOutput[embeddedTrackCount];
+    embeddedSampleQueues = new SampleQueue[embeddedTrackCount];
     embeddedTracksSelected = new boolean[embeddedTrackCount];
     int[] trackTypes = new int[1 + embeddedTrackCount];
-    DefaultTrackOutput[] sampleQueues = new DefaultTrackOutput[1 + embeddedTrackCount];
+    SampleQueue[] sampleQueues = new SampleQueue[1 + embeddedTrackCount];
 
-    primarySampleQueue = new DefaultTrackOutput(allocator);
+    primarySampleQueue = new SampleQueue(allocator);
     trackTypes[0] = primaryTrackType;
     sampleQueues[0] = primarySampleQueue;
 
     for (int i = 0; i < embeddedTrackCount; i++) {
-      DefaultTrackOutput trackOutput = new DefaultTrackOutput(allocator);
-      embeddedSampleQueues[i] = trackOutput;
-      sampleQueues[i + 1] = trackOutput;
+      SampleQueue sampleQueue = new SampleQueue(allocator);
+      embeddedSampleQueues[i] = sampleQueue;
+      sampleQueues[i + 1] = sampleQueue;
       trackTypes[i + 1] = embeddedTrackTypes[i];
     }
 
@@ -192,7 +192,7 @@ public class ChunkSampleStream<T extends ChunkSource> implements SampleStream, S
       }
       // TODO: For this to work correctly, the embedded streams must not discard anything from their
       // sample queues beyond the current read position of the primary stream.
-      for (DefaultTrackOutput embeddedSampleQueue : embeddedSampleQueues) {
+      for (SampleQueue embeddedSampleQueue : embeddedSampleQueues) {
         embeddedSampleQueue.skipToKeyframeBefore(positionUs, true);
       }
     } else {
@@ -204,7 +204,7 @@ public class ChunkSampleStream<T extends ChunkSource> implements SampleStream, S
         loader.cancelLoading();
       } else {
         primarySampleQueue.reset(true);
-        for (DefaultTrackOutput embeddedSampleQueue : embeddedSampleQueues) {
+        for (SampleQueue embeddedSampleQueue : embeddedSampleQueues) {
           embeddedSampleQueue.reset(true);
         }
       }
@@ -218,7 +218,7 @@ public class ChunkSampleStream<T extends ChunkSource> implements SampleStream, S
    */
   public void release() {
     primarySampleQueue.disable();
-    for (DefaultTrackOutput embeddedSampleQueue : embeddedSampleQueues) {
+    for (SampleQueue embeddedSampleQueue : embeddedSampleQueues) {
       embeddedSampleQueue.disable();
     }
     loader.release();
@@ -280,7 +280,7 @@ public class ChunkSampleStream<T extends ChunkSource> implements SampleStream, S
         loadable.bytesLoaded());
     if (!released) {
       primarySampleQueue.reset(true);
-      for (DefaultTrackOutput embeddedSampleQueue : embeddedSampleQueues) {
+      for (SampleQueue embeddedSampleQueue : embeddedSampleQueues) {
         embeddedSampleQueue.reset(true);
       }
       callback.onContinueLoadingRequested(this);
@@ -439,10 +439,10 @@ public class ChunkSampleStream<T extends ChunkSource> implements SampleStream, S
 
     public final ChunkSampleStream<T> parent;
 
-    private final DefaultTrackOutput sampleQueue;
+    private final SampleQueue sampleQueue;
     private final int index;
 
-    public EmbeddedSampleStream(ChunkSampleStream<T> parent, DefaultTrackOutput sampleQueue,
+    public EmbeddedSampleStream(ChunkSampleStream<T> parent, SampleQueue sampleQueue,
         int index) {
       this.parent = parent;
       this.sampleQueue = sampleQueue;
