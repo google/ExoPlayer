@@ -23,27 +23,20 @@ import android.media.MediaCodec;
 import android.media.MediaFormat;
 import android.support.annotation.IntDef;
 import android.view.Surface;
-
 import com.google.android.exoplayer2.util.Util;
-
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.UUID;
 
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.ParsableByteArray;
-import com.google.android.exoplayer2.util.Util;
-
 import java.security.SecureRandom;
-import java.util.UUID;
 import java.util.Vector;
-
 import javax.crypto.Cipher;
 import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
-
 import static java.lang.Math.min;
 
 /**
@@ -51,8 +44,7 @@ import static java.lang.Math.min;
  */
 public final class C {
 
-  private C() {
-  }
+  private C() {}
 
   public static final int AES_BLOCK_LENGTH_BYTES = 16;
 
@@ -145,9 +137,7 @@ public final class C {
    */
   @Retention(RetentionPolicy.SOURCE)
   @IntDef({CRYPTO_MODE_UNENCRYPTED, CRYPTO_MODE_AES_CTR, CRYPTO_MODE_AES_CBC})
-  public @interface CryptoMode {
-  }
-
+  public @interface CryptoMode {}
   /**
    * @see MediaCodec#CRYPTO_MODE_UNENCRYPTED
    */
@@ -178,8 +168,7 @@ public final class C {
   @IntDef({Format.NO_VALUE, ENCODING_INVALID, ENCODING_PCM_8BIT, ENCODING_PCM_16BIT,
       ENCODING_PCM_24BIT, ENCODING_PCM_32BIT, ENCODING_AC3, ENCODING_E_AC3, ENCODING_DTS,
       ENCODING_DTS_HD})
-  public @interface Encoding {
-  }
+  public @interface Encoding {}
 
   /**
    * Represents a PCM audio encoding, or an invalid or unset value.
@@ -187,9 +176,7 @@ public final class C {
   @Retention(RetentionPolicy.SOURCE)
   @IntDef({Format.NO_VALUE, ENCODING_INVALID, ENCODING_PCM_8BIT, ENCODING_PCM_16BIT,
       ENCODING_PCM_24BIT, ENCODING_PCM_32BIT})
-  public @interface PcmEncoding {
-  }
-
+  public @interface PcmEncoding {}
   /**
    * @see AudioFormat#ENCODING_INVALID
    */
@@ -244,9 +231,7 @@ public final class C {
   @Retention(RetentionPolicy.SOURCE)
   @IntDef({STREAM_TYPE_ALARM, STREAM_TYPE_MUSIC, STREAM_TYPE_NOTIFICATION, STREAM_TYPE_RING,
       STREAM_TYPE_SYSTEM, STREAM_TYPE_VOICE_CALL})
-  public @interface StreamType {
-  }
-
+  public @interface StreamType {}
   /**
    * @see AudioManager#STREAM_ALARM
    */
@@ -282,9 +267,7 @@ public final class C {
   @Retention(RetentionPolicy.SOURCE)
   @IntDef(flag = true, value = {BUFFER_FLAG_KEY_FRAME, BUFFER_FLAG_END_OF_STREAM,
       BUFFER_FLAG_ENCRYPTED, BUFFER_FLAG_DECODE_ONLY})
-  public @interface BufferFlags {
-  }
-
+  public @interface BufferFlags {}
   /**
    * Indicates that a buffer holds a synchronization sample.
    */
@@ -309,9 +292,7 @@ public final class C {
    */
   @Retention(RetentionPolicy.SOURCE)
   @IntDef(value = {VIDEO_SCALING_MODE_SCALE_TO_FIT, VIDEO_SCALING_MODE_SCALE_TO_FIT_WITH_CROPPING})
-  public @interface VideoScalingMode {
-  }
-
+  public @interface VideoScalingMode {}
   /**
    * @see MediaCodec#VIDEO_SCALING_MODE_SCALE_TO_FIT
    */
@@ -335,9 +316,7 @@ public final class C {
   @Retention(RetentionPolicy.SOURCE)
   @IntDef(flag = true, value = {SELECTION_FLAG_DEFAULT, SELECTION_FLAG_FORCED,
       SELECTION_FLAG_AUTOSELECT})
-  public @interface SelectionFlags {
-  }
-
+  public @interface SelectionFlags {}
   /**
    * Indicates that the track should be selected if user preferences do not state otherwise.
    */
@@ -357,9 +336,7 @@ public final class C {
    */
   @Retention(RetentionPolicy.SOURCE)
   @IntDef({TYPE_DASH, TYPE_SS, TYPE_HLS, TYPE_OTHER})
-  public @interface ContentType {
-  }
-
+  public @interface ContentType {}
   /**
    * Value returned by {@link Util#inferContentType(String)} for DASH manifests.
    */
@@ -599,9 +576,7 @@ public final class C {
       STEREO_MODE_LEFT_RIGHT,
       STEREO_MODE_STEREO_MESH
   })
-  public @interface StereoMode {
-  }
-
+  public @interface StereoMode {}
   /**
    * Indicates Monoscopic stereo layout, used with 360/3D/VR videos.
    */
@@ -625,9 +600,7 @@ public final class C {
    */
   @Retention(RetentionPolicy.SOURCE)
   @IntDef({Format.NO_VALUE, COLOR_SPACE_BT709, COLOR_SPACE_BT601, COLOR_SPACE_BT2020})
-  public @interface ColorSpace {
-  }
-
+  public @interface ColorSpace {}
   /**
    * @see MediaFormat#COLOR_STANDARD_BT709
    */
@@ -649,9 +622,7 @@ public final class C {
    */
   @Retention(RetentionPolicy.SOURCE)
   @IntDef({Format.NO_VALUE, COLOR_TRANSFER_SDR, COLOR_TRANSFER_ST2084, COLOR_TRANSFER_HLG})
-  public @interface ColorTransfer {
-  }
-
+  public @interface ColorTransfer {}
   /**
    * @see MediaFormat#COLOR_TRANSFER_SDR_VIDEO
    */
@@ -673,9 +644,7 @@ public final class C {
    */
   @Retention(RetentionPolicy.SOURCE)
   @IntDef({Format.NO_VALUE, COLOR_RANGE_LIMITED, COLOR_RANGE_FULL})
-  public @interface ColorRange {
-  }
-
+  public @interface ColorRange {}
   /**
    * @see MediaFormat#COLOR_RANGE_LIMITED
    */
@@ -689,14 +658,14 @@ public final class C {
 
   /**
    * Priority for media playback.
-   * <p>
+   *
    * <p>Larger values indicate higher priorities.
    */
   public static final int PRIORITY_PLAYBACK = 0;
 
   /**
    * Priority for media downloading.
-   * <p>
+   *
    * <p>Larger values indicate higher priorities.
    */
   public static final int PRIORITY_DOWNLOAD = PRIORITY_PLAYBACK - 1000;
@@ -731,7 +700,6 @@ public final class C {
     return ((AudioManager) context.getSystemService(Context.AUDIO_SERVICE))
         .generateAudioSessionId();
   }
-
 
   public static final byte[] AES_CBC(byte[] content, byte[] keyBytes, byte[] iv, boolean bEncrypt) {
     try {
@@ -919,6 +887,5 @@ public final class C {
     decryptSampleAes(buffer, size, encrytionKey, encryptionIv, clearBytes, encryptBytes);
     System.arraycopy(buffer, 0, dataSampleAES.data, dataSampleAES.getPosition(), size);
   }
-
 
 }
