@@ -163,14 +163,8 @@ public final class DebugTextViewHelper implements Runnable, ExoPlayer.EventListe
     if (format == null) {
       return "";
     }
-    float par = format.pixelWidthHeightRatio;
-    String parInfo = "";
-    if (par != Format.NO_VALUE && (int) par != 1) {
-      // Add pixel aspect ratio only when it's useful
-      parInfo = " par:" + format.pixelWidthHeightRatio;
-    }
     return "\n" + format.sampleMimeType + "(id:" + format.id + " r:" + format.width + "x"
-        + format.height + parInfo
+        + format.height + getPixelAspectRatioString(format.pixelWidthHeightRatio)
         + getDecoderCountersBufferCountString(player.getVideoDecoderCounters()) + ")";
   }
 
@@ -193,6 +187,11 @@ public final class DebugTextViewHelper implements Runnable, ExoPlayer.EventListe
         + " sb:" + counters.skippedOutputBufferCount
         + " db:" + counters.droppedOutputBufferCount
         + " mcdb:" + counters.maxConsecutiveDroppedOutputBufferCount;
+  }
+
+  private static String getPixelAspectRatioString(float pixelAspectRatio) {
+    return pixelAspectRatio == Format.NO_VALUE || pixelAspectRatio == 1f ? ""
+        : (" par:" + String.format("%.02f", pixelAspectRatio));
   }
 
 }
