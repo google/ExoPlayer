@@ -108,7 +108,7 @@ import java.util.Locale;
    * @param playlistTracker The {@link HlsPlaylistTracker} from which to obtain media playlists.
    * @param variants The available variants.
    * @param dataSourceFactory An {@link HlsDataSourceFactory} to create {@link DataSource}s for the
-   *      chunks.
+   *     chunks.
    * @param timestampAdjusterProvider A provider of {@link TimestampAdjuster} instances. If
    *     multiple {@link HlsChunkSource}s are used for a single playback, they should all share the
    *     same provider.

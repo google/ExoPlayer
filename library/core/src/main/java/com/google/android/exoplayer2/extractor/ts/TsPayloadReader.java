@@ -74,7 +74,7 @@ public interface TsPayloadReader {
      * @param descriptorBytes The descriptor bytes associated to the stream.
      */
     public EsInfo(int streamType, String language, List<DvbSubtitleInfo> dvbSubtitleInfos,
-         byte[] descriptorBytes) {
+        byte[] descriptorBytes) {
       this.streamType = streamType;
       this.language = language;
       this.dvbSubtitleInfos = dvbSubtitleInfos == null ? Collections.<DvbSubtitleInfo>emptyList()
@@ -181,7 +181,7 @@ public interface TsPayloadReader {
    *     {@link TrackOutput}s.
    */
   void init(TimestampAdjuster timestampAdjuster, ExtractorOutput extractorOutput,
-       TrackIdGenerator idGenerator);
+      TrackIdGenerator idGenerator);
 
   /**
    * Notifies the reader that a seek has occurred.

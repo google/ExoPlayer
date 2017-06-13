@@ -79,8 +79,7 @@ public final class HlsMediaPlaylist extends HlsPlaylist {
    */
   @Retention(RetentionPolicy.SOURCE)
   @IntDef({PLAYLIST_TYPE_UNKNOWN, PLAYLIST_TYPE_VOD, PLAYLIST_TYPE_EVENT})
-  public @interface PlaylistType { }
-
+  public @interface PlaylistType {}
   public static final int PLAYLIST_TYPE_UNKNOWN = 0;
   public static final int PLAYLIST_TYPE_VOD = 1;
   public static final int PLAYLIST_TYPE_EVENT = 2;

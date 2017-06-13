@@ -288,7 +288,7 @@ public final class H264Reader implements ElementaryStreamReader {
     private boolean sampleIsKeyframe;
 
     public SampleReader(TrackOutput output, boolean allowNonIdrKeyframes,
-         boolean detectAccessUnits) {
+        boolean detectAccessUnits) {
       this.output = output;
       this.allowNonIdrKeyframes = allowNonIdrKeyframes;
       this.detectAccessUnits = detectAccessUnits;
@@ -538,9 +538,9 @@ public final class H264Reader implements ElementaryStreamReader {
       }
 
       public void setAll(SpsData spsData, int nalRefIdc, int sliceType, int frameNum,
-           int picParameterSetId, boolean fieldPicFlag, boolean bottomFieldFlagPresent,
-           boolean bottomFieldFlag, boolean idrPicFlag, int idrPicId, int picOrderCntLsb,
-           int deltaPicOrderCntBottom, int deltaPicOrderCnt0, int deltaPicOrderCnt1) {
+          int picParameterSetId, boolean fieldPicFlag, boolean bottomFieldFlagPresent,
+          boolean bottomFieldFlag, boolean idrPicFlag, int idrPicId, int picOrderCntLsb,
+          int deltaPicOrderCntBottom, int deltaPicOrderCnt0, int deltaPicOrderCnt1) {
         this.spsData = spsData;
         this.nalRefIdc = nalRefIdc;
         this.sliceType = sliceType;

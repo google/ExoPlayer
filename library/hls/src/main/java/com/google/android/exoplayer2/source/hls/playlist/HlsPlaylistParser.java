@@ -378,7 +378,8 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
         }
         hlsEncryptInfo = new HLSEncryptInfo(isEncrypted, encryptionMethod, encryptionKeyUri, segmentEncryptionIV, null, null);
         segments.add(new Segment(line, segmentDurationUs, relativeDiscontinuitySequence,
-            segmentStartTimeUs, hlsEncryptInfo, segmentByteRangeOffset, segmentByteRangeLength));
+            segmentStartTimeUs, hlsEncryptInfo,
+            segmentByteRangeOffset, segmentByteRangeLength));
         segmentStartTimeUs += segmentDurationUs;
         segmentDurationUs = 0;
         if (segmentByteRangeLength != C.LENGTH_UNSET) {

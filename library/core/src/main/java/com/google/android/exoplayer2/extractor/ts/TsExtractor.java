@@ -158,7 +158,7 @@ public final class TsExtractor implements Extractor {
    * @param payloadReaderFactory Factory for injecting a custom set of payload readers.
    */
   public TsExtractor(@Mode int mode, TimestampAdjuster timestampAdjuster,
-       TsPayloadReader.Factory payloadReaderFactory) {
+      TsPayloadReader.Factory payloadReaderFactory) {
     this.payloadReaderFactory = Assertions.checkNotNull(payloadReaderFactory);
     this.mode = mode;
     if (mode == MODE_SINGLE_PMT || mode == MODE_HLS) {
@@ -344,7 +344,7 @@ public final class TsExtractor implements Extractor {
 
     @Override
     public void init(TimestampAdjuster timestampAdjuster, ExtractorOutput extractorOutput,
-         TrackIdGenerator idGenerator) {
+        TrackIdGenerator idGenerator) {
       // Do nothing.
     }
 

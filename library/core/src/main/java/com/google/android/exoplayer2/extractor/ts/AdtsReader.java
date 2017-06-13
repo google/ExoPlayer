@@ -258,7 +258,7 @@ public final class AdtsReader implements ElementaryStreamReader {
    * @param sampleSize Size of the sample
    */
   private void setReadingSampleState(TrackOutput outputToUse, long currentSampleDuration,
-       int priorReadBytes, int sampleSize) {
+      int priorReadBytes, int sampleSize) {
     state = STATE_READING_SAMPLE;
     bytesRead = priorReadBytes;
     this.currentOutput = outputToUse;
