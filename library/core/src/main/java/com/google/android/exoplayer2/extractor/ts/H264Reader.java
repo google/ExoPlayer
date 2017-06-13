@@ -16,6 +16,7 @@
 package com.google.android.exoplayer2.extractor.ts;
 
 import android.util.SparseArray;
+
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.extractor.ExtractorOutput;
@@ -28,6 +29,7 @@ import com.google.android.exoplayer2.util.NalUnitUtil;
 import com.google.android.exoplayer2.util.NalUnitUtil.SpsData;
 import com.google.android.exoplayer2.util.ParsableByteArray;
 import com.google.android.exoplayer2.util.ParsableNalUnitBitArray;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -73,11 +75,11 @@ public final class H264Reader implements ElementaryStreamReader {
   private boolean bFirstSample;
 
   /**
-   * @param seiReader An SEI reader for consuming closed caption channels.
+   * @param seiReader            An SEI reader for consuming closed caption channels.
    * @param allowNonIdrKeyframes Whether to treat samples consisting of non-IDR I slices as
-   *     synchronization samples (key-frames).
-   * @param detectAccessUnits Whether to split the input stream into access units (samples) based on
-   *     slice headers. Pass {@code false} if the stream contains access unit delimiters (AUDs).
+   *                             synchronization samples (key-frames).
+   * @param detectAccessUnits    Whether to split the input stream into access units (samples) based on
+   *                             slice headers. Pass {@code false} if the stream contains access unit delimiters (AUDs).
    */
   public H264Reader(SeiReader seiReader, boolean allowNonIdrKeyframes, boolean detectAccessUnits) {
     this.seiReader = seiReader;
@@ -288,7 +290,7 @@ public final class H264Reader implements ElementaryStreamReader {
     private boolean sampleIsKeyframe;
 
     public SampleReader(TrackOutput output, boolean allowNonIdrKeyframes,
-        boolean detectAccessUnits) {
+                        boolean detectAccessUnits) {
       this.output = output;
       this.allowNonIdrKeyframes = allowNonIdrKeyframes;
       this.detectAccessUnits = detectAccessUnits;
@@ -325,8 +327,8 @@ public final class H264Reader implements ElementaryStreamReader {
       nalUnitStartPosition = position;
       if ((allowNonIdrKeyframes && nalUnitType == NAL_UNIT_TYPE_NON_IDR)
           || (detectAccessUnits && (nalUnitType == NAL_UNIT_TYPE_IDR
-              || nalUnitType == NAL_UNIT_TYPE_NON_IDR
-              || nalUnitType == NAL_UNIT_TYPE_PARTITION_A))) {
+          || nalUnitType == NAL_UNIT_TYPE_NON_IDR
+          || nalUnitType == NAL_UNIT_TYPE_PARTITION_A))) {
         // Store the previous header and prepare to populate the new one.
         SliceHeaderData newSliceHeader = previousSliceHeader;
         previousSliceHeader = sliceHeader;
@@ -340,9 +342,9 @@ public final class H264Reader implements ElementaryStreamReader {
     /**
      * Called to pass stream data. The data passed should not include the 3 byte start code.
      *
-     * @param data Holds the data being passed.
+     * @param data   Holds the data being passed.
      * @param offset The offset of the data in {@code data}.
-     * @param limit The limit (exclusive) of the data in {@code data}.
+     * @param limit  The limit (exclusive) of the data in {@code data}.
      */
     public void appendToNalUnit(byte[] data, int offset, int limit) {
       if (!isFilling) {
@@ -538,9 +540,9 @@ public final class H264Reader implements ElementaryStreamReader {
       }
 
       public void setAll(SpsData spsData, int nalRefIdc, int sliceType, int frameNum,
-          int picParameterSetId, boolean fieldPicFlag, boolean bottomFieldFlagPresent,
-          boolean bottomFieldFlag, boolean idrPicFlag, int idrPicId, int picOrderCntLsb,
-          int deltaPicOrderCntBottom, int deltaPicOrderCnt0, int deltaPicOrderCnt1) {
+                         int picParameterSetId, boolean fieldPicFlag, boolean bottomFieldFlagPresent,
+                         boolean bottomFieldFlag, boolean idrPicFlag, int idrPicId, int picOrderCntLsb,
+                         int deltaPicOrderCntBottom, int deltaPicOrderCnt0, int deltaPicOrderCnt1) {
         this.spsData = spsData;
         this.nalRefIdc = nalRefIdc;
         this.sliceType = sliceType;
@@ -568,14 +570,14 @@ public final class H264Reader implements ElementaryStreamReader {
         return isComplete && (!other.isComplete || frameNum != other.frameNum
             || picParameterSetId != other.picParameterSetId || fieldPicFlag != other.fieldPicFlag
             || (bottomFieldFlagPresent && other.bottomFieldFlagPresent
-                && bottomFieldFlag != other.bottomFieldFlag)
+            && bottomFieldFlag != other.bottomFieldFlag)
             || (nalRefIdc != other.nalRefIdc && (nalRefIdc == 0 || other.nalRefIdc == 0))
             || (spsData.picOrderCountType == 0 && other.spsData.picOrderCountType == 0
-                && (picOrderCntLsb != other.picOrderCntLsb
-                    || deltaPicOrderCntBottom != other.deltaPicOrderCntBottom))
+            && (picOrderCntLsb != other.picOrderCntLsb
+            || deltaPicOrderCntBottom != other.deltaPicOrderCntBottom))
             || (spsData.picOrderCountType == 1 && other.spsData.picOrderCountType == 1
-                && (deltaPicOrderCnt0 != other.deltaPicOrderCnt0
-                    || deltaPicOrderCnt1 != other.deltaPicOrderCnt1))
+            && (deltaPicOrderCnt0 != other.deltaPicOrderCnt0
+            || deltaPicOrderCnt1 != other.deltaPicOrderCnt1))
             || idrPicFlag != other.idrPicFlag
             || (idrPicFlag && other.idrPicFlag && idrPicId != other.idrPicId));
       }

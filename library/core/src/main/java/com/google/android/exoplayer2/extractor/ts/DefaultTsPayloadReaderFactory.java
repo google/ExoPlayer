@@ -17,6 +17,7 @@ package com.google.android.exoplayer2.extractor.ts;
 
 import android.support.annotation.IntDef;
 import android.util.SparseArray;
+
 import com.google.android.exoplayer2.util.HLSEncryptInfo;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
@@ -24,6 +25,7 @@ import com.google.android.exoplayer2.extractor.ts.TsPayloadReader.EsInfo;
 import com.google.android.exoplayer2.extractor.ts.TsPayloadReader.Factory;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.ParsableByteArray;
+
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.ArrayList;
@@ -42,7 +44,9 @@ public final class DefaultTsPayloadReaderFactory implements Factory {
   @IntDef(flag = true, value = {FLAG_ALLOW_NON_IDR_KEYFRAMES, FLAG_IGNORE_AAC_STREAM,
       FLAG_IGNORE_H264_STREAM, FLAG_DETECT_ACCESS_UNITS, FLAG_IGNORE_SPLICE_INFO_STREAM,
       FLAG_OVERRIDE_CAPTION_DESCRIPTORS})
-  public @interface Flags {}
+  public @interface Flags {
+  }
+
   public static final int FLAG_ALLOW_NON_IDR_KEYFRAMES = 1;
   public static final int FLAG_IGNORE_AAC_STREAM = 1 << 1;
   public static final int FLAG_IGNORE_H264_STREAM = 1 << 2;
@@ -52,7 +56,8 @@ public final class DefaultTsPayloadReaderFactory implements Factory {
 
   private static final int DESCRIPTOR_TAG_CAPTION_SERVICE = 0x86;
 
-  @Flags private final int flags;
+  @Flags
+  private final int flags;
   private final List<Format> closedCaptionFormats;
 
   public DefaultTsPayloadReaderFactory() {
@@ -61,21 +66,21 @@ public final class DefaultTsPayloadReaderFactory implements Factory {
 
   /**
    * @param flags A combination of {@code FLAG_*} values that control the behavior of the created
-   *     readers.
+   *              readers.
    */
   public DefaultTsPayloadReaderFactory(@Flags int flags) {
     this(flags, Collections.<Format>emptyList());
   }
 
   /**
-   * @param flags A combination of {@code FLAG_*} values that control the behavior of the created
-   *     readers.
+   * @param flags                A combination of {@code FLAG_*} values that control the behavior of the created
+   *                             readers.
    * @param closedCaptionFormats {@link Format}s to be exposed by payload readers for streams with
-   *     embedded closed captions when no caption service descriptors are provided. If
-   *     {@link #FLAG_OVERRIDE_CAPTION_DESCRIPTORS} is set, {@code closedCaptionFormats} overrides
-   *     any descriptor information. If not set, and {@code closedCaptionFormats} is empty, a
-   *     closed caption track with {@link Format#accessibilityChannel} {@link Format#NO_VALUE} will
-   *     be exposed.
+   *                             embedded closed captions when no caption service descriptors are provided. If
+   *                             {@link #FLAG_OVERRIDE_CAPTION_DESCRIPTORS} is set, {@code closedCaptionFormats} overrides
+   *                             any descriptor information. If not set, and {@code closedCaptionFormats} is empty, a
+   *                             closed caption track with {@link Format#accessibilityChannel} {@link Format#NO_VALUE} will
+   *                             be exposed.
    */
   public DefaultTsPayloadReaderFactory(@Flags int flags, List<Format> closedCaptionFormats) {
     this.flags = flags;
@@ -98,7 +103,7 @@ public final class DefaultTsPayloadReaderFactory implements Factory {
       case TsExtractor.TS_STREAM_TYPE_MPA_LSF:
         return new PesReader(new MpegAudioReader(esInfo.language));
       case TsExtractor.TS_STREAM_TYPE_AAC:
-          case C.TS_STREAM_TYPE_AAC_ADTS_SAMPLE_AES:
+      case C.TS_STREAM_TYPE_AAC_ADTS_SAMPLE_AES:
         return isSet(FLAG_IGNORE_AAC_STREAM)
             ? null : new PesReader(new AdtsReader(false, esInfo.language, streamType, hlsEncryptInfo));
       case TsExtractor.TS_STREAM_TYPE_AC3:
@@ -110,10 +115,10 @@ public final class DefaultTsPayloadReaderFactory implements Factory {
       case TsExtractor.TS_STREAM_TYPE_H262:
         return new PesReader(new H262Reader());
       case TsExtractor.TS_STREAM_TYPE_H264:
-        case C.TS_STREAM_TYPE_SAMPLE_AES_H264:
+      case C.TS_STREAM_TYPE_SAMPLE_AES_H264:
         return isSet(FLAG_IGNORE_H264_STREAM) ? null
             : new PesReader(new H264Reader(buildSeiReader(esInfo),
-                isSet(FLAG_ALLOW_NON_IDR_KEYFRAMES), isSet(FLAG_DETECT_ACCESS_UNITS),streamType,hlsEncryptInfo));
+            isSet(FLAG_ALLOW_NON_IDR_KEYFRAMES), isSet(FLAG_DETECT_ACCESS_UNITS), streamType, hlsEncryptInfo));
       case TsExtractor.TS_STREAM_TYPE_H265:
         return new PesReader(new H265Reader(buildSeiReader(esInfo)));
       case TsExtractor.TS_STREAM_TYPE_SPLICE_INFO:

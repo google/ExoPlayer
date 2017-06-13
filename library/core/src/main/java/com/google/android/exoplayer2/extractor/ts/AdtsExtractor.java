@@ -27,6 +27,7 @@ import com.google.android.exoplayer2.util.HLSEncryptInfo;
 import com.google.android.exoplayer2.util.ParsableBitArray;
 import com.google.android.exoplayer2.util.ParsableByteArray;
 import com.google.android.exoplayer2.util.Util;
+
 import java.io.IOException;
 
 /**
@@ -42,7 +43,7 @@ public final class AdtsExtractor implements Extractor {
 
     @Override
     public Extractor[] createExtractors() {
-      return new Extractor[] {new AdtsExtractor()};
+      return new Extractor[]{new AdtsExtractor()};
     }
 
   };
@@ -63,10 +64,10 @@ public final class AdtsExtractor implements Extractor {
   private boolean startedPacket;
 
 
-  private  int mMode = C.TS_STREAM_TYPE_AAC;
-  private  String encryptionMethod;
-  private  byte[] encryptionKey;
-  private  byte[] encryptionIv;
+  private int mMode = C.TS_STREAM_TYPE_AAC;
+  private String encryptionMethod;
+  private byte[] encryptionKey;
+  private byte[] encryptionIv;
 
   public AdtsExtractor() {
     this(0);
@@ -83,7 +84,7 @@ public final class AdtsExtractor implements Extractor {
     this.encryptionMethod = hlsEncryptInfo.encryptionMethod;
     this.encryptionKey = hlsEncryptInfo.encryptionKey;
     this.encryptionIv = hlsEncryptInfo.encryptionIv;
-    if ( encryptionMethod != null && encryptionMethod.equals(C.ENCRYPTION_METHOD_SAMPLE_AES)) {
+    if (encryptionMethod != null && encryptionMethod.equals(C.ENCRYPTION_METHOD_SAMPLE_AES)) {
       this.mMode = C.TS_STREAM_TYPE_AAC_ADTS_SAMPLE_AES;
     }
 

@@ -16,11 +16,13 @@
 package com.google.android.exoplayer2.extractor.ts;
 
 import android.util.SparseArray;
+
 import com.google.android.exoplayer2.extractor.ExtractorOutput;
 import com.google.android.exoplayer2.extractor.TrackOutput;
 import com.google.android.exoplayer2.util.HLSEncryptInfo;
 import com.google.android.exoplayer2.util.ParsableByteArray;
 import com.google.android.exoplayer2.util.TimestampAdjuster;
+
 import java.util.Collections;
 import java.util.List;
 
@@ -48,9 +50,9 @@ public interface TsPayloadReader {
      * May return null if the stream type is not supported.
      *
      * @param streamType Stream type value as defined in the PMT entry or associated descriptors.
-     * @param esInfo Information associated to the elementary stream provided in the PMT.
+     * @param esInfo     Information associated to the elementary stream provided in the PMT.
      * @return A {@link TsPayloadReader} for the packet stream carried by the provided pid.
-     *     {@code null} if the stream is not supported.
+     * {@code null} if the stream is not supported.
      */
     TsPayloadReader createPayloadReader(int streamType, EsInfo esInfo, HLSEncryptInfo hlsEncryptInfo);
 
@@ -67,14 +69,14 @@ public interface TsPayloadReader {
     public final byte[] descriptorBytes;
 
     /**
-     * @param streamType The type of the stream as defined by the
-     *     {@link TsExtractor}{@code .TS_STREAM_TYPE_*}.
-     * @param language The language of the stream, as defined by ISO/IEC 13818-1, section 2.6.18.
+     * @param streamType       The type of the stream as defined by the
+     *                         {@link TsExtractor}{@code .TS_STREAM_TYPE_*}.
+     * @param language         The language of the stream, as defined by ISO/IEC 13818-1, section 2.6.18.
      * @param dvbSubtitleInfos Information about DVB subtitles associated to the stream.
-     * @param descriptorBytes The descriptor bytes associated to the stream.
+     * @param descriptorBytes  The descriptor bytes associated to the stream.
      */
     public EsInfo(int streamType, String language, List<DvbSubtitleInfo> dvbSubtitleInfos,
-        byte[] descriptorBytes) {
+                  byte[] descriptorBytes) {
       this.streamType = streamType;
       this.language = language;
       this.dvbSubtitleInfos = dvbSubtitleInfos == null ? Collections.<DvbSubtitleInfo>emptyList()
@@ -94,8 +96,8 @@ public interface TsPayloadReader {
     public final byte[] initializationData;
 
     /**
-     * @param language The ISO 639-2 three character language.
-     * @param type The subtitling type.
+     * @param language           The ISO 639-2 three character language.
+     * @param type               The subtitling type.
      * @param initializationData The composition and ancillary page ids.
      */
     public DvbSubtitleInfo(String language, int type, byte[] initializationData) {
@@ -156,8 +158,8 @@ public interface TsPayloadReader {
      * called after the first {@link #generateNewId()} call.
      *
      * @return The last generated format id, with the format {@code "programNumber/trackId"}. If no
-     *     {@code programNumber} was provided, the {@code trackId} alone is used as
-     *     format id.
+     * {@code programNumber} was provided, the {@code trackId} alone is used as
+     * format id.
      */
     public String getFormatId() {
       maybeThrowUninitializedError();
@@ -176,12 +178,12 @@ public interface TsPayloadReader {
    * Initializes the payload reader.
    *
    * @param timestampAdjuster A timestamp adjuster for offsetting and scaling sample timestamps.
-   * @param extractorOutput The {@link ExtractorOutput} that receives the extracted data.
-   * @param idGenerator A {@link PesReader.TrackIdGenerator} that generates unique track ids for the
-   *     {@link TrackOutput}s.
+   * @param extractorOutput   The {@link ExtractorOutput} that receives the extracted data.
+   * @param idGenerator       A {@link PesReader.TrackIdGenerator} that generates unique track ids for the
+   *                          {@link TrackOutput}s.
    */
   void init(TimestampAdjuster timestampAdjuster, ExtractorOutput extractorOutput,
-      TrackIdGenerator idGenerator);
+            TrackIdGenerator idGenerator);
 
   /**
    * Notifies the reader that a seek has occurred.
@@ -195,7 +197,7 @@ public interface TsPayloadReader {
   /**
    * Consumes the payload of a TS packet.
    *
-   * @param data The TS packet. The position will be set to the start of the payload.
+   * @param data                      The TS packet. The position will be set to the start of the payload.
    * @param payloadUnitStartIndicator Whether payloadUnitStartIndicator was set on the TS packet.
    */
   void consume(ParsableByteArray data, boolean payloadUnitStartIndicator);

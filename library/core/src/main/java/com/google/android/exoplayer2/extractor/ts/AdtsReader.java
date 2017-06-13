@@ -17,6 +17,7 @@ package com.google.android.exoplayer2.extractor.ts;
 
 import android.util.Log;
 import android.util.Pair;
+
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.extractor.DummyTrackOutput;
@@ -28,6 +29,7 @@ import com.google.android.exoplayer2.util.HLSEncryptInfo;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.ParsableBitArray;
 import com.google.android.exoplayer2.util.ParsableByteArray;
+
 import java.util.Arrays;
 import java.util.Collections;
 
@@ -104,7 +106,7 @@ public final class AdtsReader implements ElementaryStreamReader {
 
   /**
    * @param exposeId3 True if the reader should expose ID3 information.
-   * @param language Track language.
+   * @param language  Track language.
    */
   public AdtsReader(boolean exposeId3, String language) {
     adtsScratch = new ParsableBitArray(new byte[HEADER_SIZE + CRC_SIZE]);
@@ -217,8 +219,8 @@ public final class AdtsReader implements ElementaryStreamReader {
    * Continues a read from the provided {@code source} into a given {@code target}. It's assumed
    * that the data should be written into {@code target} starting from an offset of zero.
    *
-   * @param source The source from which to read.
-   * @param target The target into which data is to be read.
+   * @param source       The source from which to read.
+   * @param target       The target into which data is to be read.
    * @param targetLength The target length of the read.
    * @return Whether the target length was reached.
    */
@@ -252,13 +254,13 @@ public final class AdtsReader implements ElementaryStreamReader {
   /**
    * Sets the state to STATE_READING_SAMPLE.
    *
-   * @param outputToUse TrackOutput object to write the sample to
+   * @param outputToUse           TrackOutput object to write the sample to
    * @param currentSampleDuration Duration of the sample to be read
-   * @param priorReadBytes Size of prior read bytes
-   * @param sampleSize Size of the sample
+   * @param priorReadBytes        Size of prior read bytes
+   * @param sampleSize            Size of the sample
    */
   private void setReadingSampleState(TrackOutput outputToUse, long currentSampleDuration,
-      int priorReadBytes, int sampleSize) {
+                                     int priorReadBytes, int sampleSize) {
     state = STATE_READING_SAMPLE;
     bytesRead = priorReadBytes;
     this.currentOutput = outputToUse;
