@@ -91,6 +91,13 @@ public class DefaultTrackOutputTest extends TestCase {
     inputBuffer = null;
   }
 
+  public void testDisableReleasesAllocations() {
+    writeTestData();
+    assertAllocationCount(10);
+    trackOutput.disable();
+    assertAllocationCount(0);
+  }
+
   public void testReadWithoutWrite() {
     assertNoSamplesToRead(null);
   }
