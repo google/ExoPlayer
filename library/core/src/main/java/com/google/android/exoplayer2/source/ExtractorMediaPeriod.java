@@ -23,14 +23,13 @@ import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.FormatHolder;
 import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
 import com.google.android.exoplayer2.extractor.DefaultExtractorInput;
-import com.google.android.exoplayer2.extractor.DefaultTrackOutput;
-import com.google.android.exoplayer2.extractor.DefaultTrackOutput.UpstreamFormatChangedListener;
 import com.google.android.exoplayer2.extractor.Extractor;
 import com.google.android.exoplayer2.extractor.ExtractorInput;
 import com.google.android.exoplayer2.extractor.ExtractorOutput;
 import com.google.android.exoplayer2.extractor.PositionHolder;
 import com.google.android.exoplayer2.extractor.SeekMap;
 import com.google.android.exoplayer2.extractor.TrackOutput;
+import com.google.android.exoplayer2.source.SampleQueue.UpstreamFormatChangedListener;
 import com.google.android.exoplayer2.trackselection.TrackSelection;
 import com.google.android.exoplayer2.upstream.Allocator;
 import com.google.android.exoplayer2.upstream.DataSource;
@@ -71,7 +70,7 @@ import java.io.IOException;
   private final Runnable maybeFinishPrepareRunnable;
   private final Runnable onContinueLoadingRequestedRunnable;
   private final Handler handler;
-  private final SparseArray<DefaultTrackOutput> sampleQueues;
+  private final SparseArray<SampleQueue> sampleQueues;
 
   private Callback callback;
   private SeekMap seekMap;
@@ -345,7 +344,7 @@ import java.io.IOException;
   }
 
   /* package */ void skipData(int track, long positionUs) {
-    DefaultTrackOutput sampleQueue = sampleQueues.valueAt(track);
+    SampleQueue sampleQueue = sampleQueues.valueAt(track);
     if (loadingFinished && positionUs > sampleQueue.getLargestQueuedTimestampUs()) {
       sampleQueue.skipAll();
     } else {
@@ -402,9 +401,9 @@ import java.io.IOException;
 
   @Override
   public TrackOutput track(int id, int type) {
-    DefaultTrackOutput trackOutput = sampleQueues.get(id);
+    SampleQueue trackOutput = sampleQueues.get(id);
     if (trackOutput == null) {
-      trackOutput = new DefaultTrackOutput(allocator);
+      trackOutput = new SampleQueue(allocator);
       trackOutput.setUpstreamFormatChangeListener(this);
       sampleQueues.put(id, trackOutput);
     }

@@ -13,14 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.android.exoplayer2.extractor;
+package com.google.android.exoplayer2.source;
 
 import android.support.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.FormatHolder;
 import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
-import com.google.android.exoplayer2.extractor.SampleMetadataQueue.SampleExtrasHolder;
+import com.google.android.exoplayer2.extractor.ExtractorInput;
+import com.google.android.exoplayer2.extractor.TrackOutput;
+import com.google.android.exoplayer2.source.SampleMetadataQueue.SampleExtrasHolder;
 import com.google.android.exoplayer2.upstream.Allocation;
 import com.google.android.exoplayer2.upstream.Allocator;
 import com.google.android.exoplayer2.util.ParsableByteArray;
@@ -30,10 +32,9 @@ import java.nio.ByteBuffer;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
- * A {@link TrackOutput} that buffers extracted samples in a queue and allows for consumption from
- * that queue.
+ * A queue of media samples.
  */
-public final class DefaultTrackOutput implements TrackOutput {
+public final class SampleQueue implements TrackOutput {
 
   /**
    * A listener for changes to the upstream format.
@@ -81,7 +82,7 @@ public final class DefaultTrackOutput implements TrackOutput {
   /**
    * @param allocator An {@link Allocator} from which allocations for sample data can be obtained.
    */
-  public DefaultTrackOutput(Allocator allocator) {
+  public SampleQueue(Allocator allocator) {
     this.allocator = allocator;
     allocationLength = allocator.getIndividualAllocationLength();
     metadataQueue = new SampleMetadataQueue();
