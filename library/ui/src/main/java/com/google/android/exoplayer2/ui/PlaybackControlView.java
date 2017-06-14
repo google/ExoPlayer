@@ -875,7 +875,7 @@ public class PlaybackControlView extends FrameLayout {
       OnClickListener {
 
     @Override
-    public void onScrubStart(TimeBar timeBar) {
+    public void onScrubStart(TimeBar timeBar, long position) {
       removeCallbacks(hideAction);
       scrubbing = true;
     }

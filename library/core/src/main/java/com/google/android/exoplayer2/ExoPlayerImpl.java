@@ -305,10 +305,10 @@ import java.util.concurrent.CopyOnWriteArraySet;
     if (timeline.isEmpty()) {
       return 0;
     }
-    long bufferedPosition = getBufferedPosition();
+    long position = getBufferedPosition();
     long duration = getDuration();
-    return (bufferedPosition == C.TIME_UNSET || duration == C.TIME_UNSET) ? 0
-        : (int) (duration == 0 ? 100 : (bufferedPosition * 100) / duration);
+    return position == C.TIME_UNSET || duration == C.TIME_UNSET ? 0
+        : (duration == 0 ? 100 : Util.constrainValue((int) ((position * 100) / duration), 0, 100));
   }
 
   @Override

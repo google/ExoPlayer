@@ -160,6 +160,55 @@ public final class MediaCodecUtil {
     return decoderInfos;
   }
 
+  /**
+   * Returns the maximum frame size supported by the default H264 decoder.
+   *
+   * @return The maximum frame size for an H264 stream that can be decoded on the device.
+   */
+  public static int maxH264DecodableFrameSize() throws DecoderQueryException {
+    if (maxH264DecodableFrameSize == -1) {
+      int result = 0;
+      MediaCodecInfo decoderInfo = getDecoderInfo(MimeTypes.VIDEO_H264, false);
+      if (decoderInfo != null) {
+        for (CodecProfileLevel profileLevel : decoderInfo.getProfileLevels()) {
+          result = Math.max(avcLevelToMaxFrameSize(profileLevel.level), result);
+        }
+        // We assume support for at least 480p (SDK_INT >= 21) or 360p (SDK_INT < 21), which are
+        // the levels mandated by the Android CDD.
+        result = Math.max(result, Util.SDK_INT >= 21 ? (720 * 480) : (480 * 360));
+      }
+      maxH264DecodableFrameSize = result;
+    }
+    return maxH264DecodableFrameSize;
+  }
+
+  /**
+   * Returns profile and level (as defined by {@link CodecProfileLevel}) corresponding to the given
+   * codec description string (as defined by RFC 6381).
+   *
+   * @param codec A codec description string, as defined by RFC 6381.
+   * @return A pair (profile constant, level constant) if {@code codec} is well-formed and
+   *     recognized, or null otherwise
+   */
+  public static Pair<Integer, Integer> getCodecProfileAndLevel(String codec) {
+    if (codec == null) {
+      return null;
+    }
+    String[] parts = codec.split("\\.");
+    switch (parts[0]) {
+      case CODEC_ID_HEV1:
+      case CODEC_ID_HVC1:
+        return getHevcProfileAndLevel(codec, parts);
+      case CODEC_ID_AVC1:
+      case CODEC_ID_AVC2:
+        return getAvcProfileAndLevel(codec, parts);
+      default:
+        return null;
+    }
+  }
+
+  // Internal methods.
+
   private static List<MediaCodecInfo> getDecoderInfosInternal(
       CodecKey key, MediaCodecListCompat mediaCodecList) throws DecoderQueryException {
     try {
@@ -177,12 +226,14 @@ public final class MediaCodecUtil {
               try {
                 CodecCapabilities capabilities = codecInfo.getCapabilitiesForType(supportedType);
                 boolean secure = mediaCodecList.isSecurePlaybackSupported(mimeType, capabilities);
+                boolean forceDisableAdaptive = codecNeedsDisableAdaptationWorkaround(codecName);
                 if ((secureDecodersExplicit && key.secure == secure)
                     || (!secureDecodersExplicit && !key.secure)) {
-                  decoderInfos.add(MediaCodecInfo.newInstance(codecName, mimeType, capabilities));
+                  decoderInfos.add(MediaCodecInfo.newInstance(codecName, mimeType, capabilities,
+                      forceDisableAdaptive));
                 } else if (!secureDecodersExplicit && secure) {
                   decoderInfos.add(MediaCodecInfo.newInstance(codecName + ".secure", mimeType,
-                      capabilities));
+                      capabilities, forceDisableAdaptive));
                   // It only makes sense to have one synthesized secure decoder, return immediately.
                   return decoderInfos;
                 }
@@ -289,50 +340,16 @@ public final class MediaCodecUtil {
   }
 
   /**
-   * Returns the maximum frame size supported by the default H264 decoder.
+   * Returns whether the decoder is known to fail when adapting, despite advertising itself as an
+   * adaptive decoder.
    *
-   * @return The maximum frame size for an H264 stream that can be decoded on the device.
+   * @param name The decoder name.
+   * @return True if the decoder is known to fail when adapting.
    */
-  public static int maxH264DecodableFrameSize() throws DecoderQueryException {
-    if (maxH264DecodableFrameSize == -1) {
-      int result = 0;
-      MediaCodecInfo decoderInfo = getDecoderInfo(MimeTypes.VIDEO_H264, false);
-      if (decoderInfo != null) {
-        for (CodecProfileLevel profileLevel : decoderInfo.getProfileLevels()) {
-          result = Math.max(avcLevelToMaxFrameSize(profileLevel.level), result);
-        }
-        // We assume support for at least 480p (SDK_INT >= 21) or 360p (SDK_INT < 21), which are
-        // the levels mandated by the Android CDD.
-        result = Math.max(result, Util.SDK_INT >= 21 ? (720 * 480) : (480 * 360));
-      }
-      maxH264DecodableFrameSize = result;
-    }
-    return maxH264DecodableFrameSize;
-  }
-
-  /**
-   * Returns profile and level (as defined by {@link CodecProfileLevel}) corresponding to the given
-   * codec description string (as defined by RFC 6381).
-   *
-   * @param codec A codec description string, as defined by RFC 6381.
-   * @return A pair (profile constant, level constant) if {@code codec} is well-formed and
-   *     recognized, or null otherwise
-   */
-  public static Pair<Integer, Integer> getCodecProfileAndLevel(String codec) {
-    if (codec == null) {
-      return null;
-    }
-    String[] parts = codec.split("\\.");
-    switch (parts[0]) {
-      case CODEC_ID_HEV1:
-      case CODEC_ID_HVC1:
-        return getHevcProfileAndLevel(codec, parts);
-      case CODEC_ID_AVC1:
-      case CODEC_ID_AVC2:
-        return getAvcProfileAndLevel(codec, parts);
-      default:
-        return null;
-    }
+  private static boolean codecNeedsDisableAdaptationWorkaround(String name) {
+    return Util.SDK_INT <= 22
+        && (Util.MODEL.equals("ODROID-XU3") || Util.MODEL.equals("Nexus 10"))
+        && ("OMX.Exynos.AVC.Decoder".equals(name) || "OMX.Exynos.AVC.Decoder.secure".equals(name));
   }
 
   private static Pair<Integer, Integer> getHevcProfileAndLevel(String codec, String[] parts) {

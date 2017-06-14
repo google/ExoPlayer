@@ -73,7 +73,9 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
 
   private static final String ATTR_CLOSED_CAPTIONS_NONE = "CLOSED-CAPTIONS=NONE";
 
-  private static final Pattern REGEX_BANDWIDTH = Pattern.compile("BANDWIDTH=(\\d+)\\b");
+  private static final Pattern REGEX_AVERAGE_BANDWIDTH =
+      Pattern.compile("AVERAGE-BANDWIDTH=(\\d+)\\b");
+  private static final Pattern REGEX_BANDWIDTH = Pattern.compile("[^-]BANDWIDTH=(\\d+)\\b");
   private static final Pattern REGEX_CODECS = Pattern.compile("CODECS=\"(.+?)\"");
   private static final Pattern REGEX_RESOLUTION = Pattern.compile("RESOLUTION=(\\d+x\\d+)");
   private static final Pattern REGEX_TARGET_DURATION = Pattern.compile(TAG_TARGET_DURATION
@@ -226,6 +228,11 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
         }
       } else if (line.startsWith(TAG_STREAM_INF)) {
         int bitrate = parseIntAttr(line, REGEX_BANDWIDTH);
+        String averageBandwidthString = parseOptionalStringAttr(line, REGEX_AVERAGE_BANDWIDTH);
+        if (averageBandwidthString != null) {
+          // If available, the average bandwidth attribute is used as the variant's bitrate.
+          bitrate = Integer.parseInt(averageBandwidthString);
+        }
         String codecs = parseOptionalStringAttr(line, REGEX_CODECS);
         String resolutionString = parseOptionalStringAttr(line, REGEX_RESOLUTION);
         noClosedCaptions |= line.contains(ATTR_CLOSED_CAPTIONS_NONE);
@@ -300,8 +307,6 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
           playlistType = HlsMediaPlaylist.PLAYLIST_TYPE_VOD;
         } else if ("EVENT".equals(playlistTypeString)) {
           playlistType = HlsMediaPlaylist.PLAYLIST_TYPE_EVENT;
-        } else {
-          throw new ParserException("Illegal playlist type: " + playlistTypeString);
         }
       } else if (line.startsWith(TAG_START)) {
         startOffsetUs = (long) (parseDoubleAttr(line, REGEX_TIME_OFFSET) * C.MICROS_PER_SECOND);
@@ -390,14 +395,6 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
         dateRanges);
   }
 
-  private static String parseStringAttr(String line, Pattern pattern) throws ParserException {
-    Matcher matcher = pattern.matcher(line);
-    if (matcher.find() && matcher.groupCount() == 1) {
-      return matcher.group(1);
-    }
-    throw new ParserException("Couldn't match " + pattern.pattern() + " in " + line);
-  }
-
   private static int parseIntAttr(String line, Pattern pattern) throws ParserException {
     return Integer.parseInt(parseStringAttr(line, pattern));
   }
@@ -408,10 +405,15 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
 
   private static String parseOptionalStringAttr(String line, Pattern pattern) {
     Matcher matcher = pattern.matcher(line);
-    if (matcher.find()) {
+    return matcher.find() ? matcher.group(1) : null;
+  }
+
+  private static String parseStringAttr(String line, Pattern pattern) throws ParserException {
+    Matcher matcher = pattern.matcher(line);
+    if (matcher.find() && matcher.groupCount() == 1) {
       return matcher.group(1);
     }
-    return null;
+    throw new ParserException("Couldn't match " + pattern.pattern() + " in " + line);
   }
 
   private static boolean parseBooleanAttribute(String line, Pattern pattern, boolean defaultValue) {
