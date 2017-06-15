@@ -73,37 +73,52 @@ public class TimelineTest extends TestCase {
   }
 
   /**
-   * Returns a stub {@link MediaSource} with the specified {@link Timeline} in its source info.
+   * Stub media source which returns a provided timeline as source info and keeps track if it is
+   * prepared and released.
    */
-  public static MediaSource stubMediaSourceSourceWithTimeline(final Timeline timeline) {
-    return new MediaSource() {
-      @Override
-      public void prepareSource(ExoPlayer player, boolean isTopLevelSource, Listener listener) {
-        listener.onSourceInfoRefreshed(timeline, null);
-      }
+  public static class StubMediaSource implements MediaSource {
+    private final Timeline timeline;
 
-      @Override
-      public void maybeThrowSourceInfoRefreshError() throws IOException {
-      }
+    private boolean isPrepared;
+    private volatile boolean isReleased;
 
-      @Override
-      public MediaPeriod createPeriod(int index, Allocator allocator) {
-        return null;
-      }
+    public StubMediaSource(Timeline timeline) {
+      this.timeline = timeline;
+    }
 
-      @Override
-      public void releasePeriod(MediaPeriod mediaPeriod) {
-      }
+    @Override
+    public void prepareSource(ExoPlayer player, boolean isTopLevelSource, Listener listener) {
+      assertFalse(isPrepared);
+      listener.onSourceInfoRefreshed(timeline, null);
+      isPrepared = true;
+    }
 
-      @Override
-      public void releaseSource() {
-      }
-    };
+    @Override
+    public void maybeThrowSourceInfoRefreshError() throws IOException {
+    }
+
+    @Override
+    public MediaPeriod createPeriod(int index, Allocator allocator) {
+      return null;
+    }
+
+    @Override
+    public void releasePeriod(MediaPeriod mediaPeriod) {
+    }
+
+    @Override
+    public void releaseSource() {
+      assertTrue(isPrepared);
+      isReleased = true;
+    }
+
+    public void assertReleased() {
+      assertTrue(isReleased);
+    }
   }
 
   /**
-   * Works in conjunction with {@code stubMediaSourceSourceWithTimeline} to extract the Timeline
-   * from a media source.
+   * Extracts the timeline from a media source.
    */
   public static Timeline extractTimelineFromMediaSource(MediaSource mediaSource) {
     class TimelineListener implements Listener {
