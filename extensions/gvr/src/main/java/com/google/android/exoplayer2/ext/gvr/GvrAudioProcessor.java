@@ -82,6 +82,9 @@ public final class GvrAudioProcessor implements AudioProcessor {
     maybeReleaseGvrAudioSurround();
     int surroundFormat;
     switch (channelCount) {
+      case 1:
+        surroundFormat = GvrAudioSurround.SurroundFormat.SURROUND_MONO;
+        break;
       case 2:
         surroundFormat = GvrAudioSurround.SurroundFormat.SURROUND_STEREO;
         break;
