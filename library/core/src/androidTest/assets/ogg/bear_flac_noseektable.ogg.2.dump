@@ -8,7 +8,7 @@ track 0:
     bitrate = -1
     id = null
     containerMimeType = null
-    sampleMimeType = audio/x-flac
+    sampleMimeType = audio/flac
     maxInputSize = 768000
     width = -1
     height = -1
