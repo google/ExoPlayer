@@ -23,6 +23,7 @@ import com.google.android.exoplayer2.Timeline.Period;
 import com.google.android.exoplayer2.Timeline.Window;
 import com.google.android.exoplayer2.TimelineTest;
 import com.google.android.exoplayer2.TimelineTest.FakeTimeline;
+import com.google.android.exoplayer2.TimelineTest.StubMediaSource;
 import com.google.android.exoplayer2.TimelineTest.TimelineVerifier;
 
 /**
@@ -119,7 +120,7 @@ public final class ClippingMediaSourceTest extends InstrumentationTestCase {
    * Wraps the specified timeline in a {@link ClippingMediaSource} and returns the clipped timeline.
    */
   private static Timeline getClippedTimeline(Timeline timeline, long startMs, long endMs) {
-    MediaSource mediaSource = TimelineTest.stubMediaSourceSourceWithTimeline(timeline);
+    MediaSource mediaSource = new StubMediaSource(timeline);
     return TimelineTest.extractTimelineFromMediaSource(
         new ClippingMediaSource(mediaSource, startMs, endMs));
   }

@@ -20,6 +20,7 @@ import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.TimelineTest;
 import com.google.android.exoplayer2.TimelineTest.FakeTimeline;
+import com.google.android.exoplayer2.TimelineTest.StubMediaSource;
 import com.google.android.exoplayer2.TimelineTest.TimelineVerifier;
 import junit.framework.TestCase;
 
@@ -33,9 +34,9 @@ public class LoopingMediaSourceTest extends TestCase {
   public LoopingMediaSourceTest() {
     multiWindowTimeline = TimelineTest.extractTimelineFromMediaSource(
         new ConcatenatingMediaSource(
-            TimelineTest.stubMediaSourceSourceWithTimeline(new FakeTimeline(1, 111)),
-            TimelineTest.stubMediaSourceSourceWithTimeline(new FakeTimeline(1, 222)),
-            TimelineTest.stubMediaSourceSourceWithTimeline(new FakeTimeline(1, 333))));
+            new StubMediaSource(new FakeTimeline(1, 111)),
+            new StubMediaSource(new FakeTimeline(1, 222)),
+            new StubMediaSource(new FakeTimeline(1, 333))));
   }
 
   public void testSingleLoop() {
@@ -83,7 +84,7 @@ public class LoopingMediaSourceTest extends TestCase {
    * the looping timeline.
    */
   private static Timeline getLoopingTimeline(Timeline timeline, int loopCount) {
-    MediaSource mediaSource = TimelineTest.stubMediaSourceSourceWithTimeline(timeline);
+    MediaSource mediaSource = new StubMediaSource(timeline);
     return TimelineTest.extractTimelineFromMediaSource(
         new LoopingMediaSource(mediaSource, loopCount));
   }
