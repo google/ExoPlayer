@@ -75,7 +75,6 @@ public final class SampleQueue implements TrackOutput {
   private Format lastUnadjustedFormat;
   private long sampleOffsetUs;
   private long totalBytesWritten;
-  private int lastAllocationOffset;
   private boolean pendingSplice;
   private UpstreamFormatChangedListener upstreamFormatChangeListener;
 
@@ -89,7 +88,6 @@ public final class SampleQueue implements TrackOutput {
     extrasHolder = new SampleExtrasHolder();
     scratch = new ParsableByteArray(INITIAL_SCRATCH_SIZE);
     state = new AtomicInteger();
-    lastAllocationOffset = allocationLength;
     firstAllocationNode = new AllocationNode(0, allocationLength);
     writeAllocationNode = firstAllocationNode;
   }
@@ -166,7 +164,6 @@ public final class SampleQueue implements TrackOutput {
       writeAllocationNode = newWriteAllocationNode;
       writeAllocationNode.next = new AllocationNode(writeAllocationNode.endPosition,
           allocationLength);
-      lastAllocationOffset = (int) (absolutePosition - writeAllocationNode.startPosition);
     }
   }
 
@@ -388,12 +385,11 @@ public final class SampleQueue implements TrackOutput {
     int remaining = length;
     dropDownstreamTo(absolutePosition);
     while (remaining > 0) {
-      int positionInAllocation = (int) (absolutePosition - firstAllocationNode.startPosition);
-      int toCopy = Math.min(remaining, allocationLength - positionInAllocation);
+      int toCopy = Math.min(remaining, (int) (firstAllocationNode.endPosition - absolutePosition));
       Allocation allocation = firstAllocationNode.allocation;
-      target.put(allocation.data, allocation.translateOffset(positionInAllocation), toCopy);
-      absolutePosition += toCopy;
+      target.put(allocation.data, firstAllocationNode.translateOffset(absolutePosition), toCopy);
       remaining -= toCopy;
+      absolutePosition += toCopy;
       if (absolutePosition == firstAllocationNode.endPosition) {
         allocator.release(allocation);
         firstAllocationNode = firstAllocationNode.clear();
@@ -409,16 +405,15 @@ public final class SampleQueue implements TrackOutput {
    * @param length The number of bytes to read.
    */
   private void readData(long absolutePosition, byte[] target, int length) {
-    int bytesRead = 0;
+    int remaining = length;
     dropDownstreamTo(absolutePosition);
-    while (bytesRead < length) {
-      int positionInAllocation = (int) (absolutePosition - firstAllocationNode.startPosition);
-      int toCopy = Math.min(length - bytesRead, allocationLength - positionInAllocation);
+    while (remaining > 0) {
+      int toCopy = Math.min(remaining, (int) (firstAllocationNode.endPosition - absolutePosition));
       Allocation allocation = firstAllocationNode.allocation;
-      System.arraycopy(allocation.data, allocation.translateOffset(positionInAllocation), target,
-          bytesRead, toCopy);
+      System.arraycopy(allocation.data, firstAllocationNode.translateOffset(absolutePosition),
+          target, length - remaining, toCopy);
+      remaining -= toCopy;
       absolutePosition += toCopy;
-      bytesRead += toCopy;
       if (absolutePosition == firstAllocationNode.endPosition) {
         allocator.release(allocation);
         firstAllocationNode = firstAllocationNode.clear();
@@ -488,18 +483,16 @@ public final class SampleQueue implements TrackOutput {
       return bytesSkipped;
     }
     try {
-      length = prepareForAppend(length);
-      Allocation writeAllocation = writeAllocationNode.allocation;
-      int bytesAppended = input.read(writeAllocation.data,
-          writeAllocation.translateOffset(lastAllocationOffset), length);
+      length = preAppend(length);
+      int bytesAppended = input.read(writeAllocationNode.allocation.data,
+          writeAllocationNode.translateOffset(totalBytesWritten), length);
       if (bytesAppended == C.RESULT_END_OF_INPUT) {
         if (allowEndOfInput) {
           return C.RESULT_END_OF_INPUT;
         }
         throw new EOFException();
       }
-      lastAllocationOffset += bytesAppended;
-      totalBytesWritten += bytesAppended;
+      postAppend(bytesAppended);
       return bytesAppended;
     } finally {
       endWriteOperation();
@@ -513,13 +506,11 @@ public final class SampleQueue implements TrackOutput {
       return;
     }
     while (length > 0) {
-      int thisAppendLength = prepareForAppend(length);
-      Allocation writeAllocation = writeAllocationNode.allocation;
-      buffer.readBytes(writeAllocation.data, writeAllocation.translateOffset(lastAllocationOffset),
-          thisAppendLength);
-      lastAllocationOffset += thisAppendLength;
-      totalBytesWritten += thisAppendLength;
-      length -= thisAppendLength;
+      int bytesAppended = preAppend(length);
+      buffer.readBytes(writeAllocationNode.allocation.data,
+          writeAllocationNode.translateOffset(totalBytesWritten), bytesAppended);
+      length -= bytesAppended;
+      postAppend(bytesAppended);
     }
     endWriteOperation();
   }
@@ -567,7 +558,6 @@ public final class SampleQueue implements TrackOutput {
     firstAllocationNode = new AllocationNode(0, allocationLength);
     writeAllocationNode = firstAllocationNode;
     totalBytesWritten = 0;
-    lastAllocationOffset = allocationLength;
     allocator.trim();
   }
 
@@ -595,19 +585,31 @@ public final class SampleQueue implements TrackOutput {
   }
 
   /**
-   * Prepares the rolling sample buffer for an append of up to {@code length} bytes, returning the
-   * number of bytes that can actually be appended.
+   * Called before writing sample data to {@link #writeAllocationNode}. May cause
+   * {@link #writeAllocationNode} to be initialized.
+   *
+   * @param length The number of bytes that the caller wishes to write.
+   * @return The number of bytes that the caller is permitted to write, which may be less than
+   *     {@code length}.
    */
-  private int prepareForAppend(int length) {
-    if (lastAllocationOffset == allocationLength) {
-      lastAllocationOffset = 0;
-      if (writeAllocationNode.wasInitialized) {
-        writeAllocationNode = writeAllocationNode.next;
-      }
+  private int preAppend(int length) {
+    if (!writeAllocationNode.wasInitialized) {
       writeAllocationNode.initialize(allocator.allocate(),
           new AllocationNode(writeAllocationNode.endPosition, allocationLength));
     }
-    return Math.min(length, allocationLength - lastAllocationOffset);
+    return Math.min(length, (int) (writeAllocationNode.endPosition - totalBytesWritten));
+  }
+
+  /**
+   * Called after writing sample data. May cause {@link #writeAllocationNode} to be advanced.
+   *
+   * @param length The number of bytes that were written.
+   */
+  private void postAppend(int length) {
+    totalBytesWritten += length;
+    if (totalBytesWritten == writeAllocationNode.endPosition) {
+      writeAllocationNode = writeAllocationNode.next;
+    }
   }
 
   /**
@@ -674,6 +676,17 @@ public final class SampleQueue implements TrackOutput {
       this.allocation = allocation;
       this.next = next;
       wasInitialized = true;
+    }
+
+    /**
+     * Gets the offset into the {@link #allocation}'s {@link Allocation#data} that corresponds to
+     * the specified absolute position.
+     *
+     * @param absolutePosition The absolute position.
+     * @return The corresponding offset into the allocation's data.
+     */
+    public int translateOffset(long absolutePosition) {
+      return (int) (absolutePosition - startPosition) + allocation.offset;
     }
 
     /**
