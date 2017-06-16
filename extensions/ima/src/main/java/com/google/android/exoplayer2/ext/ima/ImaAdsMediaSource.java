@@ -181,7 +181,7 @@ public final class ImaAdsMediaSource implements MediaSource {
       long startUs = timeline.getContentStartTimeUs(index);
       long endUs = timeline.getContentEndTimeUs(index);
       MediaPeriod contentMediaPeriod = contentMediaSource.createPeriod(0, allocator);
-      ClippingMediaPeriod clippingPeriod = new ClippingMediaPeriod(contentMediaPeriod);
+      ClippingMediaPeriod clippingPeriod = new ClippingMediaPeriod(contentMediaPeriod, true);
       clippingPeriod.setClipping(startUs, endUs == C.TIME_UNSET ? C.TIME_END_OF_SOURCE : endUs);
       mediaSourceByMediaPeriod.put(contentMediaPeriod, contentMediaSource);
       return clippingPeriod;
