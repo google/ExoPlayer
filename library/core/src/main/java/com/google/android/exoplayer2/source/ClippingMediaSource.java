@@ -34,6 +34,7 @@ public final class ClippingMediaSource implements MediaSource, MediaSource.Liste
   private final MediaSource mediaSource;
   private final long startUs;
   private final long endUs;
+  private final boolean enableInitialDiscontinuity;
   private final ArrayList<ClippingMediaPeriod> mediaPeriods;
 
   private MediaSource.Listener sourceListener;
@@ -50,10 +51,31 @@ public final class ClippingMediaSource implements MediaSource, MediaSource.Liste
    *     from the specified start point up to the end of the source.
    */
   public ClippingMediaSource(MediaSource mediaSource, long startPositionUs, long endPositionUs) {
+    this(mediaSource, startPositionUs, endPositionUs, true);
+  }
+
+  /**
+   * Creates a new clipping source that wraps the specified source.
+   * <p>
+   * If the start point is guaranteed to be a key frame, pass {@code false} to
+   * {@code enableInitialPositionDiscontinuity} to suppress an initial discontinuity when a period
+   * is first read from.
+   *
+   * @param mediaSource The single-period, non-dynamic source to wrap.
+   * @param startPositionUs The start position within {@code mediaSource}'s timeline at which to
+   *     start providing samples, in microseconds.
+   * @param endPositionUs The end position within {@code mediaSource}'s timeline at which to stop
+   *     providing samples, in microseconds. Specify {@link C#TIME_END_OF_SOURCE} to provide samples
+   *     from the specified start point up to the end of the source.
+   * @param enableInitialDiscontinuity Whether the initial discontinuity should be enabled.
+   */
+  public ClippingMediaSource(MediaSource mediaSource, long startPositionUs, long endPositionUs,
+      boolean enableInitialDiscontinuity) {
     Assertions.checkArgument(startPositionUs >= 0);
     this.mediaSource = Assertions.checkNotNull(mediaSource);
     startUs = startPositionUs;
     endUs = endPositionUs;
+    this.enableInitialDiscontinuity = enableInitialDiscontinuity;
     mediaPeriods = new ArrayList<>();
   }
 
@@ -70,8 +92,8 @@ public final class ClippingMediaSource implements MediaSource, MediaSource.Liste
 
   @Override
   public MediaPeriod createPeriod(int index, Allocator allocator) {
-    ClippingMediaPeriod mediaPeriod =
-        new ClippingMediaPeriod(mediaSource.createPeriod(index, allocator));
+    ClippingMediaPeriod mediaPeriod = new ClippingMediaPeriod(
+        mediaSource.createPeriod(index, allocator), enableInitialDiscontinuity);
     mediaPeriods.add(mediaPeriod);
     mediaPeriod.setClipping(clippingTimeline.startUs, clippingTimeline.endUs);
     return mediaPeriod;

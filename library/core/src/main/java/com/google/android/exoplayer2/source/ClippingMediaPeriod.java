@@ -47,19 +47,6 @@ public final class ClippingMediaPeriod implements MediaPeriod, MediaPeriod.Callb
    * <p>
    * The clipping start/end positions must be specified by calling {@link #setClipping(long, long)}
    * on the playback thread before preparation completes.
-   *
-   * @param mediaPeriod The media period to clip.
-   */
-  public ClippingMediaPeriod(MediaPeriod mediaPeriod) {
-    this(mediaPeriod, true);
-  }
-
-  /**
-   * Creates a new clipping media period that provides a clipped view of the specified
-   * {@link MediaPeriod}'s sample streams.
-   * <p>
-   * The clipping start/end positions must be specified by calling {@link #setClipping(long, long)}
-   * on the playback thread before preparation completes.
    * <p>
    * If the start point is guaranteed to be a key frame, pass {@code false} to {@code
    * enableInitialPositionDiscontinuity} to suppress an initial discontinuity when the period is
