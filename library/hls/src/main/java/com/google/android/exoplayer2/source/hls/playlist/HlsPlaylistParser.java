@@ -121,8 +121,18 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
         if (line.isEmpty()) {
           // Do nothing.
         } else if (line.startsWith(TAG_STREAM_INF)) {
-          extraLines.add(line);
-          return parseMasterPlaylist(new LineIterator(extraLines, reader), uri.toString());
+          String nextLine ;
+          while((nextLine = reader.readLine()) != null){
+            nextLine = nextLine.trim();
+            if(!nextLine.startsWith("#")){
+              extraLines.add(line);
+              extraLines.add(nextLine);
+              return parseMasterPlaylist(new LineIterator(extraLines, reader), uri.toString());
+            }
+            if(nextLine.startsWith(TAG_STREAM_INF)){
+              line = nextLine;
+            }
+          }
         } else if (line.startsWith(TAG_TARGET_DURATION)
             || line.startsWith(TAG_MEDIA_SEQUENCE)
             || line.startsWith(TAG_MEDIA_DURATION)
