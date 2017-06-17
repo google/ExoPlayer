@@ -71,7 +71,7 @@ public final class ContentDataSource implements DataSource {
     try {
       uri = dataSpec.uri;
       assetFileDescriptor = resolver.openAssetFileDescriptor(uri, "r");
-      inputStream = new FileInputStream(assetFileDescriptor.getFileDescriptor());
+      inputStream = assetFileDescriptor.createInputStream();
       long skipped = inputStream.skip(dataSpec.position);
       if (skipped < dataSpec.position) {
         // We expect the skip to be satisfied in full. If it isn't then we're probably trying to
