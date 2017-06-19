@@ -25,7 +25,7 @@ import com.google.android.exoplayer2.util.Util;
 /**
  * The default {@link LoadControl} implementation.
  */
-public final class DefaultLoadControl implements LoadControl {
+public class DefaultLoadControl implements LoadControl {
 
   /**
    * The default minimum duration of media that the player will attempt to ensure is buffered at all
