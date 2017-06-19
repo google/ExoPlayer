@@ -35,7 +35,6 @@ import com.google.android.exoplayer2.util.Util;
 
     public int size;
     public long offset;
-    public long nextOffset;
     public CryptoData cryptoData;
 
   }
@@ -54,8 +53,9 @@ import com.google.android.exoplayer2.util.Util;
   private int length;
   private int absoluteStartIndex;
   private int relativeStartIndex;
-  private int relativeEndIndex;
+  private int readPosition;
 
+  private long nextOffset;
   private long largestDequeuedTimestampUs;
   private long largestQueuedTimestampUs;
   private boolean upstreamKeyframeRequired;
@@ -79,10 +79,10 @@ import com.google.android.exoplayer2.util.Util;
   }
 
   public void clearSampleData() {
+    length = 0;
     absoluteStartIndex = 0;
     relativeStartIndex = 0;
-    relativeEndIndex = 0;
-    length = 0;
+    readPosition = 0;
     upstreamKeyframeRequired = true;
   }
 
@@ -108,8 +108,9 @@ import com.google.android.exoplayer2.util.Util;
    */
   public long discardUpstreamSamples(int discardFromIndex) {
     int discardCount = getWriteIndex() - discardFromIndex;
-    Assertions.checkArgument(0 <= discardCount && discardCount <= length);
+    Assertions.checkArgument(0 <= discardCount && discardCount <= (length - readPosition));
 
+    int relativeEndIndex = (relativeStartIndex + length) % capacity;
     if (discardCount == 0) {
       if (absoluteStartIndex == 0 && length == 0) {
         // Nothing has been written to the queue.
@@ -144,7 +145,7 @@ import com.google.android.exoplayer2.util.Util;
    * Returns the current absolute read index.
    */
   public int getReadIndex() {
-    return absoluteStartIndex;
+    return absoluteStartIndex + readPosition;
   }
 
   /**
@@ -152,14 +153,15 @@ import com.google.android.exoplayer2.util.Util;
    * {@link #hasNextSample()} is {@code false}.
    */
   public int peekSourceId() {
-    return hasNextSample() ? sourceIds[relativeStartIndex] : upstreamSourceId;
+    int relativeReadIndex = (relativeStartIndex + readPosition) % capacity;
+    return hasNextSample() ? sourceIds[relativeReadIndex] : upstreamSourceId;
   }
 
   /**
    * Returns whether a sample is available to be read.
    */
   public synchronized boolean hasNextSample() {
-    return length != 0;
+    return readPosition != length;
   }
 
   /**
@@ -182,6 +184,13 @@ import com.google.android.exoplayer2.util.Util;
    */
   public synchronized long getLargestQueuedTimestampUs() {
     return Math.max(largestDequeuedTimestampUs, largestQueuedTimestampUs);
+  }
+
+  /**
+   * Rewinds the read position to the first sample retained in the queue.
+   */
+  public synchronized void rewind() {
+    readPosition = 0;
   }
 
   /**
@@ -222,8 +231,9 @@ import com.google.android.exoplayer2.util.Util;
       }
     }
 
-    if (formatRequired || formats[relativeStartIndex] != downstreamFormat) {
-      formatHolder.format = formats[relativeStartIndex];
+    int relativeReadIndex = (relativeStartIndex + readPosition) % capacity;
+    if (formatRequired || formats[relativeReadIndex] != downstreamFormat) {
+      formatHolder.format = formats[relativeReadIndex];
       return C.RESULT_FORMAT_READ;
     }
 
@@ -231,62 +241,37 @@ import com.google.android.exoplayer2.util.Util;
       return C.RESULT_NOTHING_READ;
     }
 
-    buffer.timeUs = timesUs[relativeStartIndex];
-    buffer.setFlags(flags[relativeStartIndex]);
-    extrasHolder.size = sizes[relativeStartIndex];
-    extrasHolder.offset = offsets[relativeStartIndex];
-    extrasHolder.cryptoData = cryptoDatas[relativeStartIndex];
+    buffer.timeUs = timesUs[relativeReadIndex];
+    buffer.setFlags(flags[relativeReadIndex]);
+    extrasHolder.size = sizes[relativeReadIndex];
+    extrasHolder.offset = offsets[relativeReadIndex];
+    extrasHolder.cryptoData = cryptoDatas[relativeReadIndex];
 
     largestDequeuedTimestampUs = Math.max(largestDequeuedTimestampUs, buffer.timeUs);
-    length--;
-    relativeStartIndex++;
-    absoluteStartIndex++;
-    if (relativeStartIndex == capacity) {
-      // Wrap around.
-      relativeStartIndex = 0;
-    }
+    readPosition++;
+    nextOffset = extrasHolder.offset + extrasHolder.size;
 
-    extrasHolder.nextOffset = length > 0 ? offsets[relativeStartIndex]
-        : extrasHolder.offset + extrasHolder.size;
     return C.RESULT_BUFFER_READ;
   }
 
   /**
-   * Skips all samples in the buffer.
-   *
-   * @return The offset up to which data should be dropped, or {@link C#POSITION_UNSET} if no
-   *     dropping of data is required.
-   */
-  public synchronized long skipAll() {
-    if (!hasNextSample()) {
-      return C.POSITION_UNSET;
-    }
-
-    int lastSampleIndex = (relativeStartIndex + length - 1) % capacity;
-    relativeStartIndex = (relativeStartIndex + length) % capacity;
-    absoluteStartIndex += length;
-    length = 0;
-    return offsets[lastSampleIndex] + sizes[lastSampleIndex];
-  }
-
-  /**
-   * Attempts to locate the keyframe before or at the specified time. If
+   * Attempts to advance the read position to the keyframe before or at the specified time. If
    * {@code allowTimeBeyondBuffer} is {@code false} then it is also required that {@code timeUs}
    * falls within the buffer.
    *
    * @param timeUs The seek time.
    * @param allowTimeBeyondBuffer Whether the skip can succeed if {@code timeUs} is beyond the end
    *     of the buffer.
-   * @return The offset of the keyframe's data if the keyframe was present.
-   *     {@link C#POSITION_UNSET} otherwise.
+   * @return Whether the read position was advanced to the keyframe before or at the specified time.
    */
-  public synchronized long skipToKeyframeBefore(long timeUs, boolean allowTimeBeyondBuffer) {
-    if (!hasNextSample() || timeUs < timesUs[relativeStartIndex]) {
-      return C.POSITION_UNSET;
+  public synchronized boolean skipToKeyframeBefore(long timeUs, boolean allowTimeBeyondBuffer) {
+    int relativeReadIndex = (relativeStartIndex + readPosition) % capacity;
+    if (!hasNextSample() || timeUs < timesUs[relativeReadIndex]) {
+      return false;
     }
 
     if (timeUs > largestQueuedTimestampUs && !allowTimeBeyondBuffer) {
-      return C.POSITION_UNSET;
+      return false;
     }
 
     // This could be optimized to use a binary search, however in practice callers to this method
@@ -294,7 +279,8 @@ import com.google.android.exoplayer2.util.Util;
     // a binary search would yield any real benefit.
     int sampleCount = 0;
     int sampleCountToKeyframe = -1;
-    int searchIndex = relativeStartIndex;
+    int searchIndex = relativeReadIndex;
+    int relativeEndIndex = (relativeStartIndex + length) % capacity;
     while (searchIndex != relativeEndIndex) {
       if (timesUs[searchIndex] > timeUs) {
         // We've gone too far.
@@ -308,13 +294,44 @@ import com.google.android.exoplayer2.util.Util;
     }
 
     if (sampleCountToKeyframe == -1) {
-      return C.POSITION_UNSET;
+      return false;
     }
 
-    relativeStartIndex = (relativeStartIndex + sampleCountToKeyframe) % capacity;
-    absoluteStartIndex += sampleCountToKeyframe;
-    length -= sampleCountToKeyframe;
-    return offsets[relativeStartIndex];
+    readPosition += sampleCountToKeyframe;
+    nextOffset = offsets[(relativeStartIndex + readPosition) % capacity];
+    return true;
+  }
+
+  /**
+   * Skips all samples in the buffer.
+   */
+  public synchronized void skipAll() {
+    if (!hasNextSample()) {
+      return;
+    }
+    readPosition = length;
+    int relativeLastSampleIndex = (relativeStartIndex + readPosition - 1) % capacity;
+    nextOffset = offsets[relativeLastSampleIndex] + sizes[relativeLastSampleIndex];
+  }
+
+  /**
+   * Discards all samples in the buffer prior to the read position.
+   *
+   * @return The offset up to which data should be dropped, or {@link C#POSITION_UNSET} if no
+   *     dropping of data is required.
+   */
+  public synchronized long discardToRead() {
+    if (readPosition == 0) {
+      return C.POSITION_UNSET;
+    }
+    length -= readPosition;
+    absoluteStartIndex += readPosition;
+    relativeStartIndex += readPosition;
+    if (relativeStartIndex >= capacity) {
+      relativeStartIndex -= capacity;
+    }
+    readPosition = 0;
+    return length == 0 ? nextOffset : offsets[relativeStartIndex];
   }
 
   // Called by the loading thread.
@@ -344,6 +361,8 @@ import com.google.android.exoplayer2.util.Util;
     }
     Assertions.checkState(!upstreamFormatRequired);
     commitSampleTimestamp(timeUs);
+
+    int relativeEndIndex = (relativeStartIndex + length) % capacity;
     timesUs[relativeEndIndex] = timeUs;
     offsets[relativeEndIndex] = offset;
     sizes[relativeEndIndex] = size;
@@ -351,7 +370,7 @@ import com.google.android.exoplayer2.util.Util;
     cryptoDatas[relativeEndIndex] = cryptoData;
     formats[relativeEndIndex] = upstreamFormat;
     sourceIds[relativeEndIndex] = upstreamSourceId;
-    // Increment the write index.
+
     length++;
     if (length == capacity) {
       // Increase the capacity.
@@ -387,15 +406,8 @@ import com.google.android.exoplayer2.util.Util;
       formats = newFormats;
       sourceIds = newSourceIds;
       relativeStartIndex = 0;
-      relativeEndIndex = capacity;
       length = capacity;
       capacity = newCapacity;
-    } else {
-      relativeEndIndex++;
-      if (relativeEndIndex == capacity) {
-        // Wrap around.
-        relativeEndIndex = 0;
-      }
     }
   }
 
@@ -415,7 +427,7 @@ import com.google.android.exoplayer2.util.Util;
       return false;
     }
     int retainCount = length;
-    while (retainCount > 0
+    while (retainCount > readPosition
         && timesUs[(relativeStartIndex + retainCount - 1) % capacity] >= timeUs) {
       retainCount--;
     }
