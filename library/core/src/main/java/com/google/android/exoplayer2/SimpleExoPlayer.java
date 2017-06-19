@@ -481,6 +481,11 @@ public class SimpleExoPlayer implements ExoPlayer {
   // ExoPlayer implementation
 
   @Override
+  public Looper getPlaybackLooper() {
+    return player.getPlaybackLooper();
+  }
+
+  @Override
   public void addListener(EventListener listener) {
     player.addListener(listener);
   }
