@@ -101,6 +101,17 @@ public final class HostActivity extends Activity implements SurfaceHolder.Callba
    *     is exceeded then the test will fail.
    */
   public void runTest(final HostedTest hostedTest, long timeoutMs) {
+    runTest(hostedTest, timeoutMs, true);
+  }
+
+  /**
+   * Executes a {@link HostedTest} inside the host.
+   *
+   * @param hostedTest The test to execute.
+   * @param timeoutMs The number of milliseconds to wait for the test to finish.
+   * @param failOnTimeout Whether the test fails when the timeout is exceeded.
+   */
+  public void runTest(final HostedTest hostedTest, long timeoutMs, boolean failOnTimeout) {
     Assertions.checkArgument(timeoutMs > 0);
     Assertions.checkState(Thread.currentThread() != getMainLooper().getThread());
 
@@ -131,7 +142,11 @@ public final class HostActivity extends Activity implements SurfaceHolder.Callba
     } else {
       String message = "Test timed out after " + timeoutMs + " ms.";
       Log.e(TAG, message);
-      fail(message);
+      if (failOnTimeout) {
+        fail(message);
+      }
+      maybeStopHostedTest();
+      hostedTestStoppedCondition.block();
     }
   }
 
