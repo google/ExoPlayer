@@ -17,6 +17,7 @@ package com.google.android.exoplayer2;
 
 import android.os.Handler;
 import android.os.HandlerThread;
+import android.os.Looper;
 import android.os.Message;
 import android.os.Process;
 import android.os.SystemClock;
@@ -268,6 +269,10 @@ import java.io.IOException;
       }
     }
     internalPlaybackThread.quit();
+  }
+
+  public Looper getPlaybackLooper() {
+    return internalPlaybackThread.getLooper();
   }
 
   // MediaSource.Listener implementation.

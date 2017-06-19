@@ -284,6 +284,13 @@ public interface ExoPlayer {
   int REPEAT_MODE_ALL = 2;
 
   /**
+   * Gets the {@link Looper} associated with the playback thread.
+   *
+   * @return The {@link Looper} associated with the playback thread.
+   */
+  Looper getPlaybackLooper();
+
+  /**
    * Register a listener to receive events from the player. The listener's methods will be called on
    * the thread that was used to construct the player. However, if the thread used to construct the
    * player does not have a {@link Looper}, then the listener will be called on the main thread.
