@@ -31,6 +31,7 @@ import com.google.android.exoplayer2.C;
 @TargetApi(16)
 public final class VideoFrameReleaseTimeHelper {
 
+  private static final double DISPLAY_REFRESH_RATE_UNKNOWN = -1;
   private static final long CHOREOGRAPHER_SAMPLE_DELAY_MILLIS = 500;
   private static final long MAX_ALLOWED_DRIFT_NS = 20000000;
 
@@ -52,27 +53,26 @@ public final class VideoFrameReleaseTimeHelper {
   private long frameCount;
 
   /**
-   * Constructs an instance that smoothes frame release timestamps but does not align them with
+   * Constructs an instance that smooths frame release timestamps but does not align them with
    * the default display's vsync signal.
    */
   public VideoFrameReleaseTimeHelper() {
-    this(-1 /* Value unused */, false);
+    this(DISPLAY_REFRESH_RATE_UNKNOWN);
   }
 
   /**
-   * Constructs an instance that smoothes frame release timestamps and aligns them with the default
+   * Constructs an instance that smooths frame release timestamps and aligns them with the default
    * display's vsync signal.
    *
    * @param context A context from which information about the default display can be retrieved.
    */
   public VideoFrameReleaseTimeHelper(Context context) {
-    this(getDefaultDisplayRefreshRate(context), true);
+    this(getDefaultDisplayRefreshRate(context));
   }
 
-  private VideoFrameReleaseTimeHelper(double defaultDisplayRefreshRate,
-      boolean useDefaultDisplayVsync) {
-    this.useDefaultDisplayVsync = useDefaultDisplayVsync;
-    if (useDefaultDisplayVsync && defaultDisplayRefreshRate > 0f) {
+  private VideoFrameReleaseTimeHelper(double defaultDisplayRefreshRate) {
+    useDefaultDisplayVsync = defaultDisplayRefreshRate != DISPLAY_REFRESH_RATE_UNKNOWN;
+    if (useDefaultDisplayVsync) {
       vsyncSampler = VSyncSampler.getInstance();
       vsyncDurationNs = (long) (C.NANOS_PER_SECOND / defaultDisplayRefreshRate);
       vsyncOffsetNs = (vsyncDurationNs * VSYNC_OFFSET_PERCENTAGE) / 100;
@@ -200,9 +200,10 @@ public final class VideoFrameReleaseTimeHelper {
     return snappedAfterDiff < snappedBeforeDiff ? snappedAfterNs : snappedBeforeNs;
   }
 
-  private static float getDefaultDisplayRefreshRate(Context context) {
+  private static double getDefaultDisplayRefreshRate(Context context) {
     WindowManager manager = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
-    return manager.getDefaultDisplay() != null ? manager.getDefaultDisplay().getRefreshRate() : 0f;
+    return manager.getDefaultDisplay() != null ? manager.getDefaultDisplay().getRefreshRate()
+        : DISPLAY_REFRESH_RATE_UNKNOWN;
   }
 
   /**

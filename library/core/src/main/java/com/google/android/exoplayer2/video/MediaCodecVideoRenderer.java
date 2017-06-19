@@ -67,6 +67,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
   // pending output streams that have fewer frames than the codec latency.
   private static final int MAX_PENDING_OUTPUT_STREAM_OFFSET_COUNT = 10;
 
+  private final Context context;
   private final VideoFrameReleaseTimeHelper frameReleaseTimeHelper;
   private final EventDispatcher eventDispatcher;
   private final long allowedJoiningTimeMs;
@@ -167,6 +168,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
     super(C.TRACK_TYPE_VIDEO, mediaCodecSelector, drmSessionManager, playClearSamplesWithoutKeys);
     this.allowedJoiningTimeMs = allowedJoiningTimeMs;
     this.maxDroppedFramesToNotify = maxDroppedFramesToNotify;
+    this.context = context.getApplicationContext();
     frameReleaseTimeHelper = new VideoFrameReleaseTimeHelper(context);
     eventDispatcher = new EventDispatcher(eventHandler, eventListener);
     deviceNeedsAutoFrcWorkaround = deviceNeedsAutoFrcWorkaround();
@@ -341,7 +343,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
       } else {
         MediaCodecInfo codecInfo = getCodecInfo();
         if (codecInfo != null && shouldUseDummySurface(codecInfo.secure)) {
-          dummySurface = DummySurface.newInstanceV17(codecInfo.secure);
+          dummySurface = DummySurface.newInstanceV17(context, codecInfo.secure);
           surface = dummySurface;
         }
       }
@@ -394,7 +396,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
     if (surface == null) {
       Assertions.checkState(shouldUseDummySurface(codecInfo.secure));
       if (dummySurface == null) {
-        dummySurface = DummySurface.newInstanceV17(codecInfo.secure);
+        dummySurface = DummySurface.newInstanceV17(context, codecInfo.secure);
       }
       surface = dummySurface;
     }
@@ -653,8 +655,8 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
   }
 
   private boolean shouldUseDummySurface(boolean codecIsSecure) {
-    return Util.SDK_INT >= 23 && !tunneling && (!codecIsSecure
-        || (DummySurface.SECURE_SUPPORTED && !deviceNeedsSecureDummySurfaceWorkaround()));
+    return Util.SDK_INT >= 23 && !tunneling
+        && (!codecIsSecure || DummySurface.isSecureSupported(context));
   }
 
   private void setJoiningDeadlineMs() {
@@ -919,18 +921,6 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
 
   private static void setVideoScalingMode(MediaCodec codec, int scalingMode) {
     codec.setVideoScalingMode(scalingMode);
-  }
-
-  /**
-   * Returns whether the device is known to fail outputting from a secure decoder to a secure
-   * surface texture.
-   * <p>
-   * If true is returned then use of {@link DummySurface} is disabled for secure playbacks.
-   */
-  private static boolean deviceNeedsSecureDummySurfaceWorkaround() {
-    // See [Internal: b/37197802].
-    return Util.SDK_INT == 24
-        && (Util.MODEL.startsWith("SM-G950") || Util.MODEL.startsWith("SM-G955"));
   }
 
   /**

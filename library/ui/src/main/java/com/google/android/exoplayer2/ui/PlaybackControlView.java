@@ -959,11 +959,7 @@ public class PlaybackControlView extends FrameLayout {
 
   @Override
   public boolean dispatchKeyEvent(KeyEvent event) {
-    boolean handled = dispatchMediaKeyEvent(event) || super.dispatchKeyEvent(event);
-    if (handled) {
-      show();
-    }
-    return handled;
+    return dispatchMediaKeyEvent(event) || super.dispatchKeyEvent(event);
   }
 
   /**
@@ -1005,7 +1001,6 @@ public class PlaybackControlView extends FrameLayout {
           break;
       }
     }
-    show();
     return true;
   }
 

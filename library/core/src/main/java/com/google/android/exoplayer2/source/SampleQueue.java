@@ -13,27 +13,28 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.android.exoplayer2.extractor;
+package com.google.android.exoplayer2.source;
 
+import android.support.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.FormatHolder;
 import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
-import com.google.android.exoplayer2.extractor.SampleMetadataQueue.SampleExtrasHolder;
+import com.google.android.exoplayer2.extractor.ExtractorInput;
+import com.google.android.exoplayer2.extractor.TrackOutput;
+import com.google.android.exoplayer2.source.SampleMetadataQueue.SampleExtrasHolder;
 import com.google.android.exoplayer2.upstream.Allocation;
 import com.google.android.exoplayer2.upstream.Allocator;
 import com.google.android.exoplayer2.util.ParsableByteArray;
 import java.io.EOFException;
 import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
- * A {@link TrackOutput} that buffers extracted samples in a queue and allows for consumption from
- * that queue.
+ * A queue of media samples.
  */
-public final class DefaultTrackOutput implements TrackOutput {
+public final class SampleQueue implements TrackOutput {
 
   /**
    * A listener for changes to the upstream format.
@@ -57,15 +58,16 @@ public final class DefaultTrackOutput implements TrackOutput {
 
   private final Allocator allocator;
   private final int allocationLength;
-
   private final SampleMetadataQueue metadataQueue;
-  private final LinkedBlockingDeque<Allocation> dataQueue;
   private final SampleExtrasHolder extrasHolder;
   private final ParsableByteArray scratch;
   private final AtomicInteger state;
 
+  // References into the linked list of allocations.
+  private AllocationNode firstAllocationNode;
+  private AllocationNode writeAllocationNode;
+
   // Accessed only by the consuming thread.
-  private long totalBytesDropped;
   private Format downstreamFormat;
 
   // Accessed only by the loading thread (or the consuming thread when there is no loading thread).
@@ -73,23 +75,21 @@ public final class DefaultTrackOutput implements TrackOutput {
   private Format lastUnadjustedFormat;
   private long sampleOffsetUs;
   private long totalBytesWritten;
-  private Allocation lastAllocation;
-  private int lastAllocationOffset;
   private boolean pendingSplice;
   private UpstreamFormatChangedListener upstreamFormatChangeListener;
 
   /**
    * @param allocator An {@link Allocator} from which allocations for sample data can be obtained.
    */
-  public DefaultTrackOutput(Allocator allocator) {
+  public SampleQueue(Allocator allocator) {
     this.allocator = allocator;
     allocationLength = allocator.getIndividualAllocationLength();
     metadataQueue = new SampleMetadataQueue();
-    dataQueue = new LinkedBlockingDeque<>();
     extrasHolder = new SampleExtrasHolder();
     scratch = new ParsableByteArray(INITIAL_SCRATCH_SIZE);
     state = new AtomicInteger();
-    lastAllocationOffset = allocationLength;
+    firstAllocationNode = new AllocationNode(0, allocationLength);
+    writeAllocationNode = firstAllocationNode;
   }
 
   // Called by the consuming thread, but only when there is no loading thread.
@@ -149,23 +149,22 @@ public final class DefaultTrackOutput implements TrackOutput {
    * @param absolutePosition The absolute position (inclusive) from which to discard data.
    */
   private void dropUpstreamFrom(long absolutePosition) {
-    int relativePosition = (int) (absolutePosition - totalBytesDropped);
-    // Calculate the index of the allocation containing the position, and the offset within it.
-    int allocationIndex = relativePosition / allocationLength;
-    int allocationOffset = relativePosition % allocationLength;
-    // We want to discard any allocations after the one at allocationIdnex.
-    int allocationDiscardCount = dataQueue.size() - allocationIndex - 1;
-    if (allocationOffset == 0) {
-      // If the allocation at allocationIndex is empty, we should discard that one too.
-      allocationDiscardCount++;
+    if (absolutePosition == firstAllocationNode.startPosition) {
+      clearAllocationNodes(firstAllocationNode);
+      firstAllocationNode = new AllocationNode(absolutePosition, allocationLength);
+      writeAllocationNode = firstAllocationNode;
+    } else {
+      AllocationNode newWriteAllocationNode = firstAllocationNode;
+      AllocationNode currentNode = firstAllocationNode.next;
+      while (absolutePosition > currentNode.startPosition) {
+        newWriteAllocationNode = currentNode;
+        currentNode = currentNode.next;
+      }
+      clearAllocationNodes(currentNode);
+      writeAllocationNode = newWriteAllocationNode;
+      writeAllocationNode.next = new AllocationNode(writeAllocationNode.endPosition,
+          allocationLength);
     }
-    // Discard the allocations.
-    for (int i = 0; i < allocationDiscardCount; i++) {
-      allocator.release(dataQueue.removeLast());
-    }
-    // Update lastAllocation and lastAllocationOffset to reflect the new position.
-    lastAllocation = dataQueue.peekLast();
-    lastAllocationOffset = allocationOffset == 0 ? allocationLength : allocationOffset;
   }
 
   // Called by the consuming thread.
@@ -384,14 +383,17 @@ public final class DefaultTrackOutput implements TrackOutput {
    */
   private void readData(long absolutePosition, ByteBuffer target, int length) {
     int remaining = length;
+    dropDownstreamTo(absolutePosition);
     while (remaining > 0) {
-      dropDownstreamTo(absolutePosition);
-      int positionInAllocation = (int) (absolutePosition - totalBytesDropped);
-      int toCopy = Math.min(remaining, allocationLength - positionInAllocation);
-      Allocation allocation = dataQueue.peek();
-      target.put(allocation.data, allocation.translateOffset(positionInAllocation), toCopy);
-      absolutePosition += toCopy;
+      int toCopy = Math.min(remaining, (int) (firstAllocationNode.endPosition - absolutePosition));
+      Allocation allocation = firstAllocationNode.allocation;
+      target.put(allocation.data, firstAllocationNode.translateOffset(absolutePosition), toCopy);
       remaining -= toCopy;
+      absolutePosition += toCopy;
+      if (absolutePosition == firstAllocationNode.endPosition) {
+        allocator.release(allocation);
+        firstAllocationNode = firstAllocationNode.clear();
+      }
     }
   }
 
@@ -403,16 +405,19 @@ public final class DefaultTrackOutput implements TrackOutput {
    * @param length The number of bytes to read.
    */
   private void readData(long absolutePosition, byte[] target, int length) {
-    int bytesRead = 0;
-    while (bytesRead < length) {
-      dropDownstreamTo(absolutePosition);
-      int positionInAllocation = (int) (absolutePosition - totalBytesDropped);
-      int toCopy = Math.min(length - bytesRead, allocationLength - positionInAllocation);
-      Allocation allocation = dataQueue.peek();
-      System.arraycopy(allocation.data, allocation.translateOffset(positionInAllocation), target,
-          bytesRead, toCopy);
+    int remaining = length;
+    dropDownstreamTo(absolutePosition);
+    while (remaining > 0) {
+      int toCopy = Math.min(remaining, (int) (firstAllocationNode.endPosition - absolutePosition));
+      Allocation allocation = firstAllocationNode.allocation;
+      System.arraycopy(allocation.data, firstAllocationNode.translateOffset(absolutePosition),
+          target, length - remaining, toCopy);
+      remaining -= toCopy;
       absolutePosition += toCopy;
-      bytesRead += toCopy;
+      if (absolutePosition == firstAllocationNode.endPosition) {
+        allocator.release(allocation);
+        firstAllocationNode = firstAllocationNode.clear();
+      }
     }
   }
 
@@ -423,11 +428,9 @@ public final class DefaultTrackOutput implements TrackOutput {
    * @param absolutePosition The absolute position up to which allocations can be discarded.
    */
   private void dropDownstreamTo(long absolutePosition) {
-    int relativePosition = (int) (absolutePosition - totalBytesDropped);
-    int allocationIndex = relativePosition / allocationLength;
-    for (int i = 0; i < allocationIndex; i++) {
-      allocator.release(dataQueue.remove());
-      totalBytesDropped += allocationLength;
+    while (absolutePosition >= firstAllocationNode.endPosition) {
+      allocator.release(firstAllocationNode.allocation);
+      firstAllocationNode = firstAllocationNode.clear();
     }
   }
 
@@ -480,17 +483,16 @@ public final class DefaultTrackOutput implements TrackOutput {
       return bytesSkipped;
     }
     try {
-      length = prepareForAppend(length);
-      int bytesAppended = input.read(lastAllocation.data,
-          lastAllocation.translateOffset(lastAllocationOffset), length);
+      length = preAppend(length);
+      int bytesAppended = input.read(writeAllocationNode.allocation.data,
+          writeAllocationNode.translateOffset(totalBytesWritten), length);
       if (bytesAppended == C.RESULT_END_OF_INPUT) {
         if (allowEndOfInput) {
           return C.RESULT_END_OF_INPUT;
         }
         throw new EOFException();
       }
-      lastAllocationOffset += bytesAppended;
-      totalBytesWritten += bytesAppended;
+      postAppend(bytesAppended);
       return bytesAppended;
     } finally {
       endWriteOperation();
@@ -504,12 +506,11 @@ public final class DefaultTrackOutput implements TrackOutput {
       return;
     }
     while (length > 0) {
-      int thisAppendLength = prepareForAppend(length);
-      buffer.readBytes(lastAllocation.data, lastAllocation.translateOffset(lastAllocationOffset),
-          thisAppendLength);
-      lastAllocationOffset += thisAppendLength;
-      totalBytesWritten += thisAppendLength;
-      length -= thisAppendLength;
+      int bytesAppended = preAppend(length);
+      buffer.readBytes(writeAllocationNode.allocation.data,
+          writeAllocationNode.translateOffset(totalBytesWritten), bytesAppended);
+      length -= bytesAppended;
+      postAppend(bytesAppended);
     }
     endWriteOperation();
   }
@@ -553,26 +554,62 @@ public final class DefaultTrackOutput implements TrackOutput {
 
   private void clearSampleData() {
     metadataQueue.clearSampleData();
-    allocator.release(dataQueue.toArray(new Allocation[dataQueue.size()]));
-    dataQueue.clear();
-    allocator.trim();
-    totalBytesDropped = 0;
+    clearAllocationNodes(firstAllocationNode);
+    firstAllocationNode = new AllocationNode(0, allocationLength);
+    writeAllocationNode = firstAllocationNode;
     totalBytesWritten = 0;
-    lastAllocation = null;
-    lastAllocationOffset = allocationLength;
+    allocator.trim();
   }
 
   /**
-   * Prepares the rolling sample buffer for an append of up to {@code length} bytes, returning the
-   * number of bytes that can actually be appended.
+   * Clears allocation nodes starting from {@code fromNode}.
+   *
+   * @param fromNode The node from which to clear.
    */
-  private int prepareForAppend(int length) {
-    if (lastAllocationOffset == allocationLength) {
-      lastAllocationOffset = 0;
-      lastAllocation = allocator.allocate();
-      dataQueue.add(lastAllocation);
+  private void clearAllocationNodes(AllocationNode fromNode) {
+    if (!fromNode.wasInitialized) {
+      return;
     }
-    return Math.min(length, allocationLength - lastAllocationOffset);
+    // Bulk release allocations for performance (it's significantly faster when using
+    // DefaultAllocator because the allocator's lock only needs to be acquired and released once)
+    // [Internal: See b/29542039].
+    int allocationCount = (writeAllocationNode.wasInitialized ? 1 : 0)
+        + ((int) (writeAllocationNode.startPosition - fromNode.startPosition) / allocationLength);
+    Allocation[] allocationsToRelease = new Allocation[allocationCount];
+    AllocationNode currentNode = fromNode;
+    for (int i = 0; i < allocationsToRelease.length; i++) {
+      allocationsToRelease[i] = currentNode.allocation;
+      currentNode = currentNode.clear();
+    }
+    allocator.release(allocationsToRelease);
+  }
+
+  /**
+   * Called before writing sample data to {@link #writeAllocationNode}. May cause
+   * {@link #writeAllocationNode} to be initialized.
+   *
+   * @param length The number of bytes that the caller wishes to write.
+   * @return The number of bytes that the caller is permitted to write, which may be less than
+   *     {@code length}.
+   */
+  private int preAppend(int length) {
+    if (!writeAllocationNode.wasInitialized) {
+      writeAllocationNode.initialize(allocator.allocate(),
+          new AllocationNode(writeAllocationNode.endPosition, allocationLength));
+    }
+    return Math.min(length, (int) (writeAllocationNode.endPosition - totalBytesWritten));
+  }
+
+  /**
+   * Called after writing sample data. May cause {@link #writeAllocationNode} to be advanced.
+   *
+   * @param length The number of bytes that were written.
+   */
+  private void postAppend(int length) {
+    totalBytesWritten += length;
+    if (totalBytesWritten == writeAllocationNode.endPosition) {
+      writeAllocationNode = writeAllocationNode.next;
+    }
   }
 
   /**
@@ -590,6 +627,78 @@ public final class DefaultTrackOutput implements TrackOutput {
       format = format.copyWithSubsampleOffsetUs(format.subsampleOffsetUs + sampleOffsetUs);
     }
     return format;
+  }
+
+  /**
+   * A node in a linked list of {@link Allocation}s held by the output.
+   */
+  private static final class AllocationNode {
+
+    /**
+     * The absolute position of the start of the data (inclusive).
+     */
+    public final long startPosition;
+    /**
+     * The absolute position of the end of the data (exclusive).
+     */
+    public final long endPosition;
+    /**
+     * Whether the node has been initialized. Remains true after {@link #clear()}.
+     */
+    public boolean wasInitialized;
+    /**
+     * The {@link Allocation}, or {@code null} if the node is not initialized.
+     */
+    @Nullable public Allocation allocation;
+    /**
+     * The next {@link AllocationNode} in the list, or {@code null} if the node has not been
+     * initialized. Remains set after {@link #clear()}.
+     */
+    @Nullable public AllocationNode next;
+
+    /**
+     * @param startPosition See {@link #startPosition}.
+     * @param allocationLength The length of the {@link Allocation} with which this node will be
+     *     initialized.
+     */
+    public AllocationNode(long startPosition, int allocationLength) {
+      this.startPosition = startPosition;
+      this.endPosition = startPosition + allocationLength;
+    }
+
+    /**
+     * Initializes the node.
+     *
+     * @param allocation The node's {@link Allocation}.
+     * @param next The next {@link AllocationNode}.
+     */
+    public void initialize(Allocation allocation, AllocationNode next) {
+      this.allocation = allocation;
+      this.next = next;
+      wasInitialized = true;
+    }
+
+    /**
+     * Gets the offset into the {@link #allocation}'s {@link Allocation#data} that corresponds to
+     * the specified absolute position.
+     *
+     * @param absolutePosition The absolute position.
+     * @return The corresponding offset into the allocation's data.
+     */
+    public int translateOffset(long absolutePosition) {
+      return (int) (absolutePosition - startPosition) + allocation.offset;
+    }
+
+    /**
+     * Clears {@link #allocation}.
+     *
+     * @return The next {@link AllocationNode}, for convenience.
+     */
+    public AllocationNode clear() {
+      allocation = null;
+      return next;
+    }
+
   }
 
 }
