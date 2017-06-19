@@ -22,6 +22,7 @@ import android.net.Uri;
 import com.google.android.exoplayer2.C;
 import java.io.EOFException;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 
@@ -71,6 +72,9 @@ public final class ContentDataSource implements DataSource {
     try {
       uri = dataSpec.uri;
       assetFileDescriptor = resolver.openAssetFileDescriptor(uri, "r");
+      if (assetFileDescriptor == null) {
+        throw new FileNotFoundException("Could not open file descriptor for: " + uri);
+      }
       inputStream = new FileInputStream(assetFileDescriptor.getFileDescriptor());
       long skipped = inputStream.skip(dataSpec.position);
       if (skipped < dataSpec.position) {
