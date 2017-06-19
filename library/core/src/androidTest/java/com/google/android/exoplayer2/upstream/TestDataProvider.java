@@ -29,6 +29,10 @@ public class TestDataProvider extends ContentProvider {
   @Nullable
   @Override
   public AssetFileDescriptor openAssetFile(@NonNull final Uri uri, @NonNull final String mode) throws FileNotFoundException {
+    if (uri.equals(AndroidDataSourceConstants.NULL_DESCRIPTOR_URI)) {
+      return null;
+    }
+
     try {
       Context context = getContext();
       assertNotNull(context);
