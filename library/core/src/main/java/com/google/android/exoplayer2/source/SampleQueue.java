@@ -227,7 +227,8 @@ public final class SampleQueue implements TrackOutput {
    * Skips all samples currently in the buffer.
    */
   public void skipAll() {
-    long nextOffset = metadataQueue.skipAll();
+    metadataQueue.skipAll();
+    long nextOffset = metadataQueue.discardToRead();
     if (nextOffset != C.POSITION_UNSET) {
       dropDownstreamTo(nextOffset);
     }
@@ -245,12 +246,16 @@ public final class SampleQueue implements TrackOutput {
    * @return Whether the skip was successful.
    */
   public boolean skipToKeyframeBefore(long timeUs, boolean allowTimeBeyondBuffer) {
-    long nextOffset = metadataQueue.skipToKeyframeBefore(timeUs, allowTimeBeyondBuffer);
-    if (nextOffset == C.POSITION_UNSET) {
+    boolean success = metadataQueue.skipToKeyframeBefore(timeUs, allowTimeBeyondBuffer);
+    if (success) {
+      long nextOffset = metadataQueue.discardToRead();
+      if (nextOffset != C.POSITION_UNSET) {
+        dropDownstreamTo(nextOffset);
+      }
+      return true;
+    } else {
       return false;
     }
-    dropDownstreamTo(nextOffset);
-    return true;
   }
 
   /**
@@ -290,7 +295,10 @@ public final class SampleQueue implements TrackOutput {
           buffer.ensureSpaceForWrite(extrasHolder.size);
           readData(extrasHolder.offset, buffer.data, extrasHolder.size);
           // Advance the read head.
-          dropDownstreamTo(extrasHolder.nextOffset);
+          long nextOffset = metadataQueue.discardToRead();
+          if (nextOffset != C.POSITION_UNSET) {
+            dropDownstreamTo(nextOffset);
+          }
         }
         return C.RESULT_BUFFER_READ;
       case C.RESULT_NOTHING_READ:
