@@ -71,7 +71,7 @@ public final class ContentDataSource implements DataSource {
     try {
       uri = dataSpec.uri;
       assetFileDescriptor = resolver.openAssetFileDescriptor(uri, "r");
-      inputStream = assetFileDescriptor.createInputStream();
+      inputStream = new FileInputStream(assetFileDescriptor.getFileDescriptor());
       long skipped = inputStream.skip(dataSpec.position);
       if (skipped < dataSpec.position) {
         // We expect the skip to be satisfied in full. If it isn't then we're probably trying to
@@ -81,12 +81,16 @@ public final class ContentDataSource implements DataSource {
       if (dataSpec.length != C.LENGTH_UNSET) {
         bytesRemaining = dataSpec.length;
       } else {
-        bytesRemaining = inputStream.available();
-        if (bytesRemaining == 0) {
-          // FileInputStream.available() returns 0 if the remaining length cannot be determined, or
-          // if it's greater than Integer.MAX_VALUE. We don't know the true length in either case,
-          // so treat as unbounded.
-          bytesRemaining = C.LENGTH_UNSET;
+        bytesRemaining = assetFileDescriptor.getLength();
+        if (bytesRemaining == AssetFileDescriptor.UNKNOWN_LENGTH) {
+          // The asset must extend to the end of the file.
+          bytesRemaining = inputStream.available();
+          if (bytesRemaining == 0) {
+            // FileInputStream.available() returns 0 if the remaining length cannot be determined, or
+            // if it's greater than Integer.MAX_VALUE. We don't know the true length in either case,
+            // so treat as unbounded.
+            bytesRemaining = C.LENGTH_UNSET;
+          }
         }
       }
     } catch (IOException e) {
