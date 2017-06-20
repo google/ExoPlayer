@@ -418,7 +418,7 @@ public final class MatroskaExtractor implements Extractor {
     reader.reset();
     varintReader.reset();
     resetSample();
-    samplesTrueHD.resetFull();
+    samplesTrueHD.reset();
   }
 
   @Override
@@ -1086,9 +1086,7 @@ public final class MatroskaExtractor implements Extractor {
 
   private void commitSampleToOutput(Track track, long timeUs) {
     if (CODEC_ID_TRUEHD.equals(track.codecId)) {
-      if (samplesTrueHD.shouldFlushSampleMetadata(timeUs) || lastReadResult == RESULT_END_OF_INPUT) {
-        samplesTrueHD.commit();
-      }
+        samplesTrueHD.commit(timeUs, lastReadResult == RESULT_END_OF_INPUT);
     }
     else {
       if (CODEC_ID_SUBRIP.equals(track.codecId)) {
@@ -1266,9 +1264,8 @@ public final class MatroskaExtractor implements Extractor {
         }
       }
     } else {
-      if (CODEC_ID_TRUEHD.equals(track.codecId)
-       && !samplesTrueHD.shouldUse(input, size, blockFlags, track))
-        return;
+      if (CODEC_ID_TRUEHD.equals(track.codecId))
+        samplesTrueHD.testSample(input, size, blockFlags, track);
 
       while (sampleBytesRead < size) {
         readToOutput(input, output, size - sampleBytesRead);
@@ -1956,14 +1953,19 @@ public final class MatroskaExtractor implements Extractor {
     private int samplesSize;
     private long timeUs;
     private @C.BufferFlags int blockFlags;
-    private boolean mustStartWithSyncFrame;
+    private boolean gotSyncFrame;
+    private boolean letFirstIn;
     private Track track;
 
     TrueHDSampleHolder() {
-      resetFull();
+      reset();
     }
 
-    private void reset() {
+    private boolean isFirstSampleCheck() {
+      return counter == 1;
+    }
+
+    private void resetCounters() {
       track = null;
       counter = 0;
       samplesSize = 0;
@@ -1971,47 +1973,41 @@ public final class MatroskaExtractor implements Extractor {
       blockFlags = 0;
     }
 
-    void resetFull() {
-      mustStartWithSyncFrame = true;
-      reset();
+    void reset() {
+      gotSyncFrame = false;
+      letFirstIn = true;
+      resetCounters();
     }
 
-    boolean shouldUse(ExtractorInput input, int size, @C.BufferFlags int blockFlags, Track track)
+    void testSample(ExtractorInput input, int size, @C.BufferFlags int blockFlags, Track track)
             throws IOException, InterruptedException {
       samplesSize += size;
       ++counter;
       if (isFirstSampleCheck())
         this.blockFlags = blockFlags;
-      if (mustStartWithSyncFrame) {
+      if (!gotSyncFrame) {
         byte[] bytes = new byte[12];
         input.peekFully(bytes, 0, 12);
         input.resetPeekPosition();
-        if (0 < Ac3Util.parseTrueHDSyncframeAudioSampleCount(ByteBuffer.wrap(bytes).order(ByteOrder.LITTLE_ENDIAN)))
-          mustStartWithSyncFrame = false;
-        else {
-          resetFull();
-          return false;
+        if (0 < Ac3Util.parseTrueHDSyncframeAudioSampleCount(ByteBuffer.wrap(bytes).order(ByteOrder.LITTLE_ENDIAN))) {
+          gotSyncFrame = true;
+          letFirstIn = false;
         }
       }
       this.track = track;
-      return true;
     }
 
-    boolean shouldFlushSampleMetadata(long timeUs) {
+    boolean commit(long timeUs, boolean forceCommit) {
       if (isFirstSampleCheck())
         this.timeUs = timeUs;
-      return counter == Ac3Util.TRUEHD_SAMPLE_COMMIT_COUNT;
-    }
 
-    private boolean isFirstSampleCheck() {
-      return counter == 1;
-    }
-
-    void commit() {
-      if (track != null && samplesSize > 0) {
-        track.output.sampleMetadata(timeUs, blockFlags, samplesSize, 0, track.cryptoData);
+      boolean commit = counter == Ac3Util.TRUEHD_SAMPLE_COMMIT_COUNT || letFirstIn || forceCommit;
+      if (commit) {
+        if (track != null && samplesSize > 0)
+          track.output.sampleMetadata(this.timeUs, blockFlags, samplesSize, 0, track.cryptoData);
+        resetCounters();
       }
-      reset();
+      return commit;
     }
   }
 
