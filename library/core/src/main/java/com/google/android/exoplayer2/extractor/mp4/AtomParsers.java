@@ -615,10 +615,10 @@ import java.util.List;
           || childAtomType == Atom.TYPE_wvtt || childAtomType == Atom.TYPE_stpp
           || childAtomType == Atom.TYPE_c608) {
         parseTextSampleEntry(stsd, childAtomType, childStartPosition, childAtomSize, trackId,
-            language, drmInitData, out);
+            language, out);
       } else if (childAtomType == Atom.TYPE_camm) {
         out.format = Format.createSampleFormat(Integer.toString(trackId),
-            MimeTypes.APPLICATION_CAMERA_MOTION, null, Format.NO_VALUE, drmInitData);
+            MimeTypes.APPLICATION_CAMERA_MOTION, null, Format.NO_VALUE, null);
       }
       stsd.setPosition(childStartPosition + childAtomSize);
     }
@@ -626,8 +626,7 @@ import java.util.List;
   }
 
   private static void parseTextSampleEntry(ParsableByteArray parent, int atomType, int position,
-      int atomSize, int trackId, String language, DrmInitData drmInitData, StsdData out)
-      throws ParserException {
+      int atomSize, int trackId, String language, StsdData out) throws ParserException {
     parent.setPosition(position + Atom.HEADER_SIZE + StsdData.STSD_HEADER_SIZE);
 
     // Default values.
@@ -658,8 +657,7 @@ import java.util.List;
     }
 
     out.format = Format.createTextSampleFormat(Integer.toString(trackId), mimeType, null,
-        Format.NO_VALUE, 0, language, Format.NO_VALUE, drmInitData, subsampleOffsetUs,
-        initializationData);
+        Format.NO_VALUE, 0, language, Format.NO_VALUE, null, subsampleOffsetUs, initializationData);
   }
 
   private static void parseVideoSampleEntry(ParsableByteArray parent, int atomType, int position,
@@ -677,7 +675,14 @@ import java.util.List;
     int childPosition = parent.getPosition();
     if (atomType == Atom.TYPE_encv) {
       atomType = parseSampleEntryEncryptionData(parent, position, size, out, entryIndex);
+      TrackEncryptionBox encryptionBox = out.trackEncryptionBoxes[entryIndex];
+      String schemeType = encryptionBox != null ? encryptionBox.schemeType : null;
+      if (schemeType != null) {
+        drmInitData = drmInitData.copyWithSchemeType(schemeType);
+      }
       parent.setPosition(childPosition);
+    } else {
+      drmInitData = null;
     }
 
     List<byte[]> initializationData = null;
@@ -846,7 +851,14 @@ import java.util.List;
     int childPosition = parent.getPosition();
     if (atomType == Atom.TYPE_enca) {
       atomType = parseSampleEntryEncryptionData(parent, position, size, out, entryIndex);
+      TrackEncryptionBox encryptionBox = out.trackEncryptionBoxes[entryIndex];
+      String schemeType = encryptionBox != null ? encryptionBox.schemeType : null;
+      if (schemeType != null) {
+        drmInitData = drmInitData.copyWithSchemeType(schemeType);
+      }
       parent.setPosition(childPosition);
+    } else {
+      drmInitData = null;
     }
 
     // If the atom type determines a MIME type, set it immediately.
@@ -1051,9 +1063,9 @@ import java.util.List;
   private static Pair<Integer, TrackEncryptionBox> parseSinfFromParent(ParsableByteArray parent,
       int position, int size) {
     int childPosition = position + Atom.HEADER_SIZE;
-
-    boolean isCencScheme = false;
-    TrackEncryptionBox trackEncryptionBox = null;
+    int schemeInformationBoxPosition = C.POSITION_UNSET;
+    int schemeInformationBoxSize = 0;
+    String schemeType = null;
     Integer dataFormat = null;
     while (childPosition - position < size) {
       parent.setPosition(childPosition);
@@ -1063,24 +1075,30 @@ import java.util.List;
         dataFormat = parent.readInt();
       } else if (childAtomType == Atom.TYPE_schm) {
         parent.skipBytes(4);
-        isCencScheme = parent.readInt() == TYPE_cenc;
+        // scheme_type field. Defined in ISO/IEC 23001-7:2016, section 4.1.
+        schemeType = parent.readString(4);
       } else if (childAtomType == Atom.TYPE_schi) {
-        trackEncryptionBox = parseSchiFromParent(parent, childPosition, childAtomSize);
+        schemeInformationBoxPosition = childPosition;
+        schemeInformationBoxSize = childAtomSize;
       }
       childPosition += childAtomSize;
     }
 
-    if (isCencScheme) {
+    if (schemeType != null) {
       Assertions.checkArgument(dataFormat != null, "frma atom is mandatory");
-      Assertions.checkArgument(trackEncryptionBox != null, "schi->tenc atom is mandatory");
-      return Pair.create(dataFormat, trackEncryptionBox);
+      Assertions.checkArgument(schemeInformationBoxPosition != C.POSITION_UNSET,
+          "schi atom is mandatory");
+      TrackEncryptionBox encryptionBox = parseSchiFromParent(parent, schemeInformationBoxPosition,
+          schemeInformationBoxSize, schemeType);
+      Assertions.checkArgument(encryptionBox != null, "tenc atom is mandatory");
+      return Pair.create(dataFormat, encryptionBox);
     } else {
       return null;
     }
   }
 
   private static TrackEncryptionBox parseSchiFromParent(ParsableByteArray parent, int position,
-      int size) {
+      int size, String schemeType) {
     int childPosition = position + Atom.HEADER_SIZE;
     while (childPosition - position < size) {
       parent.setPosition(childPosition);
@@ -1092,7 +1110,8 @@ import java.util.List;
         int defaultInitVectorSize = parent.readUnsignedByte();
         byte[] defaultKeyId = new byte[16];
         parent.readBytes(defaultKeyId, 0, defaultKeyId.length);
-        return new TrackEncryptionBox(defaultIsEncrypted, defaultInitVectorSize, defaultKeyId);
+        return new TrackEncryptionBox(defaultIsEncrypted, schemeType, defaultInitVectorSize,
+            defaultKeyId);
       }
       childPosition += childAtomSize;
     }

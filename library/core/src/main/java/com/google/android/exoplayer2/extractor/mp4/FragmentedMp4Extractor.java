@@ -559,11 +559,12 @@ public final class FragmentedMp4Extractor implements Extractor {
 
     parseTruns(traf, trackBundle, decodeTime, flags);
 
+    TrackEncryptionBox encryptionBox = trackBundle.track
+        .getSampleDescriptionEncryptionBox(fragment.header.sampleDescriptionIndex);
+
     LeafAtom saiz = traf.getLeafAtomOfType(Atom.TYPE_saiz);
     if (saiz != null) {
-      TrackEncryptionBox trackEncryptionBox = trackBundle.track
-          .sampleDescriptionEncryptionBoxes[fragment.header.sampleDescriptionIndex];
-      parseSaiz(trackEncryptionBox, saiz.data, fragment);
+      parseSaiz(encryptionBox, saiz.data, fragment);
     }
 
     LeafAtom saio = traf.getLeafAtomOfType(Atom.TYPE_saio);
@@ -579,7 +580,8 @@ public final class FragmentedMp4Extractor implements Extractor {
     LeafAtom sbgp = traf.getLeafAtomOfType(Atom.TYPE_sbgp);
     LeafAtom sgpd = traf.getLeafAtomOfType(Atom.TYPE_sgpd);
     if (sbgp != null && sgpd != null) {
-      parseSgpd(sbgp.data, sgpd.data, fragment);
+      parseSgpd(sbgp.data, sgpd.data, encryptionBox != null ? encryptionBox.schemeType : null,
+          fragment);
     }
 
     int leafChildrenSize = traf.leafChildren.size();
@@ -868,8 +870,8 @@ public final class FragmentedMp4Extractor implements Extractor {
     out.fillEncryptionData(senc);
   }
 
-  private static void parseSgpd(ParsableByteArray sbgp, ParsableByteArray sgpd, TrackFragment out)
-      throws ParserException {
+  private static void parseSgpd(ParsableByteArray sbgp, ParsableByteArray sgpd, String schemeType,
+      TrackFragment out) throws ParserException {
     sbgp.setPosition(Atom.HEADER_SIZE);
     int sbgpFullAtom = sbgp.readInt();
     if (sbgp.readInt() != SAMPLE_GROUP_TYPE_seig) {
@@ -910,7 +912,7 @@ public final class FragmentedMp4Extractor implements Extractor {
     byte[] keyId = new byte[16];
     sgpd.readBytes(keyId, 0, keyId.length);
     out.definesEncryptionData = true;
-    out.trackEncryptionBox = new TrackEncryptionBox(isProtected, initVectorSize, keyId);
+    out.trackEncryptionBox = new TrackEncryptionBox(isProtected, schemeType, initVectorSize, keyId);
   }
 
   /**
@@ -1135,7 +1137,7 @@ public final class FragmentedMp4Extractor implements Extractor {
     if (fragment.definesEncryptionData) {
       encryptionBox = fragment.trackEncryptionBox != null
           ? fragment.trackEncryptionBox
-          : track.sampleDescriptionEncryptionBoxes[fragment.header.sampleDescriptionIndex];
+          : track.getSampleDescriptionEncryptionBox(fragment.header.sampleDescriptionIndex);
       if (encryptionBox != currentTrackBundle.cachedEncryptionBox) {
         cryptoData = new TrackOutput.CryptoData(C.CRYPTO_MODE_AES_CTR, encryptionBox.keyId);
       } else {
@@ -1205,7 +1207,7 @@ public final class FragmentedMp4Extractor implements Extractor {
     int sampleDescriptionIndex = trackFragment.header.sampleDescriptionIndex;
     TrackEncryptionBox encryptionBox = trackFragment.trackEncryptionBox != null
         ? trackFragment.trackEncryptionBox
-        : trackBundle.track.sampleDescriptionEncryptionBoxes[sampleDescriptionIndex];
+        : trackBundle.track.getSampleDescriptionEncryptionBox(sampleDescriptionIndex);
     int vectorSize = encryptionBox.initializationVectorSize;
     boolean subsampleEncryption = trackFragment
         .sampleHasSubsampleEncryptionTable[trackBundle.currentSampleIndex];
@@ -1245,7 +1247,7 @@ public final class FragmentedMp4Extractor implements Extractor {
         if (uuid == null) {
           Log.w(TAG, "Skipped pssh atom (failed to extract uuid)");
         } else {
-          schemeDatas.add(new SchemeData(uuid, MimeTypes.VIDEO_MP4, psshData));
+          schemeDatas.add(new SchemeData(uuid, null, MimeTypes.VIDEO_MP4, psshData));
         }
       }
     }
@@ -1325,8 +1327,12 @@ public final class FragmentedMp4Extractor implements Extractor {
     }
 
     public void updateDrmInitData(DrmInitData drmInitData) {
-      output.format(track.format.copyWithDrmInitData(drmInitData));
+      TrackEncryptionBox encryptionBox =
+          track.getSampleDescriptionEncryptionBox(fragment.header.sampleDescriptionIndex);
+      String schemeType = encryptionBox != null ? encryptionBox.schemeType : null;
+      output.format(track.format.copyWithDrmInitData(drmInitData.copyWithSchemeType(schemeType)));
     }
+
   }
 
 }
