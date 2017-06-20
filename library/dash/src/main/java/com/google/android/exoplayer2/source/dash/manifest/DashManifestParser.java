@@ -343,6 +343,7 @@ public class DashManifestParser extends DefaultHandler
       IOException {
     String schemeIdUri = xpp.getAttributeValue(null, "schemeIdUri");
     boolean isPlayReady = "urn:uuid:9a04f079-9840-4286-ab92-e65be0885f95".equals(schemeIdUri);
+    String schemeType = xpp.getAttributeValue(null, "value");
     byte[] data = null;
     UUID uuid = null;
     boolean requiresSecureDecoder = false;
@@ -368,8 +369,8 @@ public class DashManifestParser extends DefaultHandler
         requiresSecureDecoder = robustnessLevel != null && robustnessLevel.startsWith("HW");
       }
     } while (!XmlPullParserUtil.isEndTag(xpp, "ContentProtection"));
-    return data != null ? new SchemeData(uuid, MimeTypes.VIDEO_MP4, data, requiresSecureDecoder)
-        : null;
+    return data != null
+        ? new SchemeData(uuid, schemeType, MimeTypes.VIDEO_MP4, data, requiresSecureDecoder) : null;
   }
 
   /**

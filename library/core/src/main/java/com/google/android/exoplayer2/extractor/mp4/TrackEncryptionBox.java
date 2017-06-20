@@ -15,6 +15,8 @@
  */
 package com.google.android.exoplayer2.extractor.mp4;
 
+import android.support.annotation.Nullable;
+
 /**
  * Encapsulates information parsed from a track encryption (tenc) box or sample group description 
  * (sgpd) box in an MP4 stream.
@@ -27,6 +29,11 @@ public final class TrackEncryptionBox {
   public final boolean isEncrypted;
 
   /**
+   * The protection scheme type, as defined by the 'schm' box, or null if unknown.
+   */
+  @Nullable public final String schemeType;
+
+  /**
    * The initialization vector size in bytes for the samples in the corresponding sample group.
    */
   public final int initializationVectorSize;
@@ -37,13 +44,15 @@ public final class TrackEncryptionBox {
   public final byte[] keyId;
 
   /**
-   * @param isEncrypted Indicates the encryption state of the samples in the sample group.
-   * @param initializationVectorSize The initialization vector size in bytes for the samples in the
-   *     corresponding sample group.
-   * @param keyId The key identifier for the samples in the corresponding sample group.
+   * @param isEncrypted See {@link #isEncrypted}.
+   * @param schemeType See {@link #schemeType}.
+   * @param initializationVectorSize See {@link #initializationVectorSize}.
+   * @param keyId See {@link #keyId}.
    */
-  public TrackEncryptionBox(boolean isEncrypted, int initializationVectorSize, byte[] keyId) {
+  public TrackEncryptionBox(boolean isEncrypted, @Nullable String schemeType,
+      int initializationVectorSize, byte[] keyId) {
     this.isEncrypted = isEncrypted;
+    this.schemeType = schemeType;
     this.initializationVectorSize = initializationVectorSize;
     this.keyId = keyId;
   }

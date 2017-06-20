@@ -69,7 +69,7 @@ import java.util.ArrayList;
     if (protectionElement != null) {
       byte[] keyId = getProtectionElementKeyId(protectionElement.data);
       trackEncryptionBoxes = new TrackEncryptionBox[] {
-          new TrackEncryptionBox(true, INITIALIZATION_VECTOR_SIZE, keyId)};
+          new TrackEncryptionBox(true, null, INITIALIZATION_VECTOR_SIZE, keyId)};
     } else {
       trackEncryptionBoxes = null;
     }

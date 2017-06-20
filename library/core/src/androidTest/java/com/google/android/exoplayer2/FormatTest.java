@@ -53,9 +53,9 @@ public final class FormatTest extends TestCase {
   }
 
   public void testParcelable() {
-    DrmInitData.SchemeData DRM_DATA_1 = new DrmInitData.SchemeData(WIDEVINE_UUID, VIDEO_MP4,
+    DrmInitData.SchemeData DRM_DATA_1 = new DrmInitData.SchemeData(WIDEVINE_UUID, "cenc", VIDEO_MP4,
         TestUtil.buildTestData(128, 1 /* data seed */));
-    DrmInitData.SchemeData DRM_DATA_2 = new DrmInitData.SchemeData(C.UUID_NIL, VIDEO_WEBM,
+    DrmInitData.SchemeData DRM_DATA_2 = new DrmInitData.SchemeData(C.UUID_NIL, null, VIDEO_WEBM,
         TestUtil.buildTestData(128, 1 /* data seed */));
     DrmInitData drmInitData = new DrmInitData(DRM_DATA_1, DRM_DATA_2);
     byte[] projectionData = new byte[] {1, 2, 3};
