@@ -977,15 +977,15 @@ public final class Util {
     int expectedLength = length - percentCharacterCount * 2;
     StringBuilder builder = new StringBuilder(expectedLength);
     Matcher matcher = ESCAPED_CHARACTER_PATTERN.matcher(fileName);
-    int endOfLastMatch = 0;
+    int startOfNotEscaped = 0;
     while (percentCharacterCount > 0 && matcher.find()) {
       char unescapedCharacter = (char) Integer.parseInt(matcher.group(1), 16);
-      builder.append(fileName, endOfLastMatch, matcher.start()).append(unescapedCharacter);
-      endOfLastMatch = matcher.end();
+      builder.append(fileName, startOfNotEscaped, matcher.start()).append(unescapedCharacter);
+      startOfNotEscaped = matcher.end();
       percentCharacterCount--;
     }
-    if (endOfLastMatch < length) {
-      builder.append(fileName, endOfLastMatch, length);
+    if (startOfNotEscaped < length) {
+      builder.append(fileName, startOfNotEscaped, length);
     }
     if (builder.length() != expectedLength) {
       return null;
