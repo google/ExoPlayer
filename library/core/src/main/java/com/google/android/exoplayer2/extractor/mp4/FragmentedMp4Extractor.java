@@ -1128,24 +1128,18 @@ public final class FragmentedMp4Extractor implements Extractor {
       sampleTimeUs = timestampAdjuster.adjustSampleTimestamp(sampleTimeUs);
     }
 
-    @C.BufferFlags int sampleFlags = (fragment.definesEncryptionData ? C.BUFFER_FLAG_ENCRYPTED : 0)
-        | (fragment.sampleIsSyncFrameTable[sampleIndex] ? C.BUFFER_FLAG_KEY_FRAME : 0);
+    @C.BufferFlags int sampleFlags = fragment.sampleIsSyncFrameTable[sampleIndex]
+        ? C.BUFFER_FLAG_KEY_FRAME : 0;
 
     // Encryption data.
     TrackOutput.CryptoData cryptoData = null;
-    TrackEncryptionBox encryptionBox = null;
     if (fragment.definesEncryptionData) {
-      encryptionBox = fragment.trackEncryptionBox != null
+      sampleFlags |= C.BUFFER_FLAG_ENCRYPTED;
+      TrackEncryptionBox encryptionBox = fragment.trackEncryptionBox != null
           ? fragment.trackEncryptionBox
           : track.getSampleDescriptionEncryptionBox(fragment.header.sampleDescriptionIndex);
-      if (encryptionBox != currentTrackBundle.cachedEncryptionBox) {
-        cryptoData = new TrackOutput.CryptoData(C.CRYPTO_MODE_AES_CTR, encryptionBox.keyId);
-      } else {
-        cryptoData = currentTrackBundle.cachedCryptoData;
-      }
+      cryptoData = encryptionBox.cryptoData;
     }
-    currentTrackBundle.cachedCryptoData = cryptoData;
-    currentTrackBundle.cachedEncryptionBox = encryptionBox;
 
     output.sampleMetadata(sampleTimeUs, sampleFlags, sampleSize, 0, cryptoData);
 
@@ -1301,10 +1295,6 @@ public final class FragmentedMp4Extractor implements Extractor {
     public int currentSampleInTrackRun;
     public int currentTrackRunIndex;
 
-    // Auxiliary references.
-    public TrackOutput.CryptoData cachedCryptoData;
-    public TrackEncryptionBox cachedEncryptionBox;
-
     public TrackBundle(TrackOutput output) {
       fragment = new TrackFragment();
       this.output = output;
@@ -1322,8 +1312,6 @@ public final class FragmentedMp4Extractor implements Extractor {
       currentSampleIndex = 0;
       currentTrackRunIndex = 0;
       currentSampleInTrackRun = 0;
-      cachedCryptoData = null;
-      cachedEncryptionBox = null;
     }
 
     public void updateDrmInitData(DrmInitData drmInitData) {

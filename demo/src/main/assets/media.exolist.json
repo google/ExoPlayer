@@ -138,26 +138,50 @@
         "uri": "https://storage.googleapis.com/wvmedia/clear/h264/tears/tears_uhd.mpd"
       },
       {
-        "name": "WV: Secure SD & HD (MP4,H264)",
+        "name": "WV: Secure SD & HD (cenc,MP4,H264)",
         "uri": "https://storage.googleapis.com/wvmedia/cenc/h264/tears/tears.mpd",
         "drm_scheme": "widevine",
         "drm_license_url": "https://proxy.uat.widevine.com/proxy?provider=widevine_test"
       },
       {
-        "name": "WV: Secure SD (MP4,H264)",
+        "name": "WV: Secure SD (cenc,MP4,H264)",
         "uri": "https://storage.googleapis.com/wvmedia/cenc/h264/tears/tears_sd.mpd",
         "drm_scheme": "widevine",
         "drm_license_url": "https://proxy.uat.widevine.com/proxy?provider=widevine_test"
       },
       {
-        "name": "WV: Secure HD (MP4,H264)",
+        "name": "WV: Secure HD (cenc,MP4,H264)",
         "uri": "https://storage.googleapis.com/wvmedia/cenc/h264/tears/tears_hd.mpd",
         "drm_scheme": "widevine",
         "drm_license_url": "https://proxy.uat.widevine.com/proxy?provider=widevine_test"
       },
       {
-        "name": "WV: Secure UHD (MP4,H264)",
+        "name": "WV: Secure UHD (cenc,MP4,H264)",
         "uri": "https://storage.googleapis.com/wvmedia/cenc/h264/tears/tears_uhd.mpd",
+        "drm_scheme": "widevine",
+        "drm_license_url": "https://proxy.uat.widevine.com/proxy?provider=widevine_test"
+      },
+      {
+        "name": "WV: Secure SD & HD (cbc1,MP4,H264)",
+        "uri": "https://storage.googleapis.com/wvmedia/cbc1/h264/tears/tears_aes_cbc1.mpd",
+        "drm_scheme": "widevine",
+        "drm_license_url": "https://proxy.uat.widevine.com/proxy?provider=widevine_test"
+      },
+      {
+        "name": "WV: Secure SD (cbc1,MP4,H264)",
+        "uri": "https://storage.googleapis.com/wvmedia/cbc1/h264/tears/tears_aes_cbc1_sd.mpd",
+        "drm_scheme": "widevine",
+        "drm_license_url": "https://proxy.uat.widevine.com/proxy?provider=widevine_test"
+      },
+      {
+        "name": "WV: Secure HD (cbc1,MP4,H264)",
+        "uri": "https://storage.googleapis.com/wvmedia/cbc1/h264/tears/tears_aes_cbc1_hd.mpd",
+        "drm_scheme": "widevine",
+        "drm_license_url": "https://proxy.uat.widevine.com/proxy?provider=widevine_test"
+      },
+      {
+        "name": "WV: Secure UHD (cbc1,MP4,H264)",
+        "uri": "https://storage.googleapis.com/wvmedia/cbc1/h264/tears/tears_aes_cbc1_uhd.mpd",
         "drm_scheme": "widevine",
         "drm_license_url": "https://proxy.uat.widevine.com/proxy?provider=widevine_test"
       }
