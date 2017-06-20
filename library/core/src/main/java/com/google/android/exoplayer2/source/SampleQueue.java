@@ -65,6 +65,7 @@ public final class SampleQueue implements TrackOutput {
 
   // References into the linked list of allocations.
   private AllocationNode firstAllocationNode;
+  private AllocationNode readAllocationNode;
   private AllocationNode writeAllocationNode;
 
   // Accessed only by the consuming thread.
@@ -89,6 +90,7 @@ public final class SampleQueue implements TrackOutput {
     scratch = new ParsableByteArray(INITIAL_SCRATCH_SIZE);
     state = new AtomicInteger();
     firstAllocationNode = new AllocationNode(0, allocationLength);
+    readAllocationNode = firstAllocationNode;
     writeAllocationNode = firstAllocationNode;
   }
 
@@ -135,35 +137,33 @@ public final class SampleQueue implements TrackOutput {
   /**
    * Discards samples from the write side of the buffer.
    *
-   * @param discardFromIndex The absolute index of the first sample to be discarded.
+   * @param discardFromIndex The absolute index of the first sample to be discarded. Must be in the
+   *     range [{@link #getReadIndex()}, {@link #getWriteIndex()}].
    */
   public void discardUpstreamSamples(int discardFromIndex) {
     totalBytesWritten = metadataQueue.discardUpstreamSamples(discardFromIndex);
-    dropUpstreamFrom(totalBytesWritten);
-  }
-
-  /**
-   * Discards data from the write side of the buffer. Data is discarded from the specified absolute
-   * position. Any allocations that are fully discarded are returned to the allocator.
-   *
-   * @param absolutePosition The absolute position (inclusive) from which to discard data.
-   */
-  private void dropUpstreamFrom(long absolutePosition) {
-    if (absolutePosition == firstAllocationNode.startPosition) {
+    if (totalBytesWritten == firstAllocationNode.startPosition) {
       clearAllocationNodes(firstAllocationNode);
-      firstAllocationNode = new AllocationNode(absolutePosition, allocationLength);
+      firstAllocationNode = new AllocationNode(totalBytesWritten, allocationLength);
+      readAllocationNode = firstAllocationNode;
       writeAllocationNode = firstAllocationNode;
     } else {
-      AllocationNode newWriteAllocationNode = firstAllocationNode;
-      AllocationNode currentNode = firstAllocationNode.next;
-      while (absolutePosition > currentNode.startPosition) {
-        newWriteAllocationNode = currentNode;
-        currentNode = currentNode.next;
+      // Find the last node containing at least 1 byte of data that we need to keep.
+      AllocationNode lastNodeToKeep = firstAllocationNode;
+      while (totalBytesWritten > lastNodeToKeep.endPosition) {
+        lastNodeToKeep = lastNodeToKeep.next;
       }
-      clearAllocationNodes(currentNode);
-      writeAllocationNode = newWriteAllocationNode;
-      writeAllocationNode.next = new AllocationNode(writeAllocationNode.endPosition,
-          allocationLength);
+      // Discard all subsequent nodes.
+      AllocationNode firstNodeToDiscard = lastNodeToKeep.next;
+      clearAllocationNodes(firstNodeToDiscard);
+      // Reset the successor of the last node to be an uninitialized node.
+      lastNodeToKeep.next = new AllocationNode(lastNodeToKeep.endPosition, allocationLength);
+      // Update writeAllocationNode and readAllocationNode as necessary.
+      writeAllocationNode = totalBytesWritten == lastNodeToKeep.endPosition ? lastNodeToKeep.next
+          : lastNodeToKeep;
+      if (readAllocationNode == firstNodeToDiscard) {
+        readAllocationNode = lastNodeToKeep.next;
+      }
     }
   }
 
@@ -228,6 +228,7 @@ public final class SampleQueue implements TrackOutput {
    */
   public void skipAll() {
     metadataQueue.skipAll();
+    // TODO - Remove the following block and expose explicit discard operations.
     long nextOffset = metadataQueue.discardToRead();
     if (nextOffset != C.POSITION_UNSET) {
       dropDownstreamTo(nextOffset);
@@ -248,6 +249,7 @@ public final class SampleQueue implements TrackOutput {
   public boolean skipToKeyframeBefore(long timeUs, boolean allowTimeBeyondBuffer) {
     boolean success = metadataQueue.skipToKeyframeBefore(timeUs, allowTimeBeyondBuffer);
     if (success) {
+      // TODO - Remove the following block and expose explicit discard operations.
       long nextOffset = metadataQueue.discardToRead();
       if (nextOffset != C.POSITION_UNSET) {
         dropDownstreamTo(nextOffset);
@@ -294,7 +296,7 @@ public final class SampleQueue implements TrackOutput {
           // Write the sample data into the holder.
           buffer.ensureSpaceForWrite(extrasHolder.size);
           readData(extrasHolder.offset, buffer.data, extrasHolder.size);
-          // Advance the read head.
+          // TODO - Remove the following block and expose explicit discard operations.
           long nextOffset = metadataQueue.discardToRead();
           if (nextOffset != C.POSITION_UNSET) {
             dropDownstreamTo(nextOffset);
@@ -390,17 +392,16 @@ public final class SampleQueue implements TrackOutput {
    * @param length The number of bytes to read.
    */
   private void readData(long absolutePosition, ByteBuffer target, int length) {
+    advanceReadTo(absolutePosition);
     int remaining = length;
-    dropDownstreamTo(absolutePosition);
     while (remaining > 0) {
-      int toCopy = Math.min(remaining, (int) (firstAllocationNode.endPosition - absolutePosition));
-      Allocation allocation = firstAllocationNode.allocation;
-      target.put(allocation.data, firstAllocationNode.translateOffset(absolutePosition), toCopy);
+      int toCopy = Math.min(remaining, (int) (readAllocationNode.endPosition - absolutePosition));
+      Allocation allocation = readAllocationNode.allocation;
+      target.put(allocation.data, readAllocationNode.translateOffset(absolutePosition), toCopy);
       remaining -= toCopy;
       absolutePosition += toCopy;
-      if (absolutePosition == firstAllocationNode.endPosition) {
-        allocator.release(allocation);
-        firstAllocationNode = firstAllocationNode.clear();
+      if (absolutePosition == readAllocationNode.endPosition) {
+        readAllocationNode = readAllocationNode.next;
       }
     }
   }
@@ -413,27 +414,38 @@ public final class SampleQueue implements TrackOutput {
    * @param length The number of bytes to read.
    */
   private void readData(long absolutePosition, byte[] target, int length) {
+    advanceReadTo(absolutePosition);
     int remaining = length;
-    dropDownstreamTo(absolutePosition);
     while (remaining > 0) {
-      int toCopy = Math.min(remaining, (int) (firstAllocationNode.endPosition - absolutePosition));
-      Allocation allocation = firstAllocationNode.allocation;
-      System.arraycopy(allocation.data, firstAllocationNode.translateOffset(absolutePosition),
+      int toCopy = Math.min(remaining, (int) (readAllocationNode.endPosition - absolutePosition));
+      Allocation allocation = readAllocationNode.allocation;
+      System.arraycopy(allocation.data, readAllocationNode.translateOffset(absolutePosition),
           target, length - remaining, toCopy);
       remaining -= toCopy;
       absolutePosition += toCopy;
-      if (absolutePosition == firstAllocationNode.endPosition) {
-        allocator.release(allocation);
-        firstAllocationNode = firstAllocationNode.clear();
+      if (absolutePosition == readAllocationNode.endPosition) {
+        readAllocationNode = readAllocationNode.next;
       }
     }
   }
 
   /**
-   * Discard any allocations that hold data prior to the specified absolute position, returning
-   * them to the allocator.
+   * Advances {@link #readAllocationNode} to the specified absolute position.
    *
-   * @param absolutePosition The absolute position up to which allocations can be discarded.
+   * @param absolutePosition The position to which {@link #readAllocationNode} should be advanced.
+   */
+  private void advanceReadTo(long absolutePosition) {
+    while (absolutePosition >= readAllocationNode.endPosition) {
+      readAllocationNode = readAllocationNode.next;
+    }
+  }
+
+  /**
+   * Advances {@link #firstAllocationNode} to the specified absolute position. Nodes that are
+   * advanced over are cleared, and their underlying allocations are returned to the allocator.
+   *
+   * @param absolutePosition The position to which {@link #firstAllocationNode} should be advanced.
+   *     Must never exceed the absolute position of the next sample to be read.
    */
   private void dropDownstreamTo(long absolutePosition) {
     while (absolutePosition >= firstAllocationNode.endPosition) {
@@ -564,6 +576,7 @@ public final class SampleQueue implements TrackOutput {
     metadataQueue.clearSampleData();
     clearAllocationNodes(firstAllocationNode);
     firstAllocationNode = new AllocationNode(0, allocationLength);
+    readAllocationNode = firstAllocationNode;
     writeAllocationNode = firstAllocationNode;
     totalBytesWritten = 0;
     allocator.trim();
