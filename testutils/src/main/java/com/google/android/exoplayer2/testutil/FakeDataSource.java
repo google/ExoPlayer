@@ -49,6 +49,10 @@ import java.util.HashMap;
  * until the source is closed. If the source is closed and re-opened having encountered an error,
  * that error will not be thrown again.
  *
+ * <p>Actions are inserted by calling {@link FakeData#appendReadAction(Runnable)}. An actions is
+ * triggered when the reading reaches action's position. This can be used to make sure the code is
+ * in a certain state while testing.
+ *
  * <p>Example usage:
  *
  * <pre>
@@ -165,6 +169,9 @@ public final class FakeDataSource implements DataSource {
         } else {
           currentSegmentIndex++;
         }
+      } else if (current.isActionSegment()) {
+        currentSegmentIndex++;
+        current.action.run();
       } else {
         // Read at most bytesRemaining.
         readLength = (int) Math.min(readLength, bytesRemaining);
@@ -217,19 +224,39 @@ public final class FakeDataSource implements DataSource {
     public final IOException exception;
     public final byte[] data;
     public final int length;
+    public final Runnable action;
 
     private boolean exceptionThrown;
     private boolean exceptionCleared;
     private int bytesRead;
 
-    public Segment(byte[] data, IOException exception) {
+    public Segment(byte[] data) {
       this.data = data;
+      this.length = data.length;
+      this.exception = null;
+      this.action = null;
+    }
+
+    public Segment(IOException exception) {
+      this.data = null;
+      this.length = 0;
       this.exception = exception;
-      length = data != null ? data.length : 0;
+      this.action = null;
+    }
+
+    public Segment(Runnable action) {
+      this.data = null;
+      this.length = 0;
+      this.exception = null;
+      this.action = action;
     }
 
     public boolean isErrorSegment() {
       return exception != null;
+    }
+
+    public boolean isActionSegment() {
+      return action != null;
     }
 
   }
@@ -270,7 +297,7 @@ public final class FakeDataSource implements DataSource {
      */
     public FakeData appendReadData(byte[] data) {
       Assertions.checkState(data != null && data.length > 0);
-      segments.add(new Segment(data, null));
+      segments.add(new Segment(data));
       return this;
     }
 
@@ -278,7 +305,15 @@ public final class FakeDataSource implements DataSource {
      * Appends an error in the underlying data.
      */
     public FakeData appendReadError(IOException exception) {
-      segments.add(new Segment(null, exception));
+      segments.add(new Segment(exception));
+      return this;
+    }
+
+    /**
+     * Appends an action.
+     */
+    public FakeData appendReadAction(Runnable action) {
+      segments.add(new Segment(action));
       return this;
     }
 
