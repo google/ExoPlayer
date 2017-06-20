@@ -133,6 +133,9 @@ public class SampleQueueTest extends TestCase {
     assertReadFormat(true, TEST_FORMAT_1);
     // Otherwise should read the sample.
     assertSampleRead(1000, true, TEST_DATA, 0, ALLOCATION_SIZE);
+    // Allocation should still be held.
+    assertAllocationCount(1);
+    sampleQueue.discardToRead();
     // The allocation should have been released.
     assertAllocationCount(0);
 
@@ -147,6 +150,9 @@ public class SampleQueueTest extends TestCase {
     assertReadFormat(true, TEST_FORMAT_1);
     // Read the sample.
     assertSampleRead(2000, false, TEST_DATA, 0, ALLOCATION_SIZE - 1);
+    // Allocation should still be held.
+    assertAllocationCount(1);
+    sampleQueue.discardToRead();
     // The last byte written to the sample queue may belong to a sample whose metadata has yet to be
     // written, so an allocation should still be held.
     assertAllocationCount(1);
@@ -158,6 +164,9 @@ public class SampleQueueTest extends TestCase {
     assertReadFormat(true, TEST_FORMAT_1);
     // Read the sample.
     assertSampleRead(3000, false, TEST_DATA, ALLOCATION_SIZE - 1, 1);
+    // Allocation should still be held.
+    assertAllocationCount(1);
+    sampleQueue.discardToRead();
     // The allocation should have been released.
     assertAllocationCount(0);
   }
@@ -168,6 +177,8 @@ public class SampleQueueTest extends TestCase {
         sampleQueue.getLargestQueuedTimestampUs());
     assertAllocationCount(10);
     assertReadTestData();
+    assertAllocationCount(10);
+    sampleQueue.discardToRead();
     assertAllocationCount(0);
   }
 
@@ -177,12 +188,42 @@ public class SampleQueueTest extends TestCase {
     assertAllocationCount(20);
     assertReadTestData(TEST_FORMAT_2);
     assertReadTestData(TEST_FORMAT_2);
+    assertAllocationCount(20);
+    sampleQueue.discardToRead();
     assertAllocationCount(0);
+  }
+
+  public void testReadMultiWithRewind() {
+    writeTestData();
+    assertReadTestData();
+    assertEquals(8, sampleQueue.getReadIndex());
+    assertAllocationCount(10);
+    // Rewind.
+    sampleQueue.rewind();
+    assertAllocationCount(10);
+    // Read again.
+    assertEquals(0, sampleQueue.getReadIndex());
+    assertReadTestData();
+  }
+
+  public void testRewindAfterDiscard() {
+    writeTestData();
+    assertReadTestData();
+    sampleQueue.discardToRead();
+    assertAllocationCount(0);
+    // Rewind.
+    sampleQueue.rewind();
+    assertAllocationCount(0);
+    // Can't read again.
+    assertEquals(8, sampleQueue.getReadIndex());
+    assertReadEndOfStream(false);
   }
 
   public void testSkipAll() {
     writeTestData();
-    sampleQueue.skipAll();
+    sampleQueue.skipAll2();
+    assertAllocationCount(10);
+    sampleQueue.discardToRead();
     assertAllocationCount(0);
     // Despite skipping all samples, we should still read the last format, since this is the
     // expected format for a subsequent sample.
@@ -194,7 +235,9 @@ public class SampleQueueTest extends TestCase {
   public void testSkipAllRetainsUnassignedData() {
     sampleQueue.format(TEST_FORMAT_1);
     sampleQueue.sampleData(new ParsableByteArray(TEST_DATA), ALLOCATION_SIZE);
-    sampleQueue.skipAll();
+    sampleQueue.skipAll2();
+    assertAllocationCount(1);
+    sampleQueue.discardToRead();
     // Skipping shouldn't discard data that may belong to a sample whose metadata has yet to be
     // written.
     assertAllocationCount(1);
@@ -207,12 +250,14 @@ public class SampleQueueTest extends TestCase {
     // Once the metadata has been written, check the sample can be read as expected.
     assertSampleRead(0, true, TEST_DATA, 0, ALLOCATION_SIZE);
     assertNoSamplesToRead(TEST_FORMAT_1);
+    assertAllocationCount(1);
+    sampleQueue.discardToRead();
     assertAllocationCount(0);
   }
 
   public void testSkipToKeyframeBeforeBuffer() {
     writeTestData();
-    boolean result = sampleQueue.skipToKeyframeBefore(TEST_SAMPLE_TIMESTAMPS[0] - 1, false);
+    boolean result = sampleQueue.skipToKeyframeBefore2(TEST_SAMPLE_TIMESTAMPS[0] - 1, false);
     // Should fail and have no effect.
     assertFalse(result);
     assertReadTestData();
@@ -221,7 +266,7 @@ public class SampleQueueTest extends TestCase {
 
   public void testSkipToKeyframeStartOfBuffer() {
     writeTestData();
-    boolean result = sampleQueue.skipToKeyframeBefore(TEST_SAMPLE_TIMESTAMPS[0], false);
+    boolean result = sampleQueue.skipToKeyframeBefore2(TEST_SAMPLE_TIMESTAMPS[0], false);
     // Should succeed but have no effect (we're already at the first frame).
     assertTrue(result);
     assertReadTestData();
@@ -230,7 +275,7 @@ public class SampleQueueTest extends TestCase {
 
   public void testSkipToKeyframeEndOfBuffer() {
     writeTestData();
-    boolean result = sampleQueue.skipToKeyframeBefore(
+    boolean result = sampleQueue.skipToKeyframeBefore2(
         TEST_SAMPLE_TIMESTAMPS[TEST_SAMPLE_TIMESTAMPS.length - 1], false);
     // Should succeed and skip to 2nd keyframe.
     assertTrue(result);
@@ -240,7 +285,7 @@ public class SampleQueueTest extends TestCase {
 
   public void testSkipToKeyframeAfterBuffer() {
     writeTestData();
-    boolean result = sampleQueue.skipToKeyframeBefore(
+    boolean result = sampleQueue.skipToKeyframeBefore2(
         TEST_SAMPLE_TIMESTAMPS[TEST_SAMPLE_TIMESTAMPS.length - 1] + 1, false);
     // Should fail and have no effect.
     assertFalse(result);
@@ -250,7 +295,7 @@ public class SampleQueueTest extends TestCase {
 
   public void testSkipToKeyframeAfterBufferAllowed() {
     writeTestData();
-    boolean result = sampleQueue.skipToKeyframeBefore(
+    boolean result = sampleQueue.skipToKeyframeBefore2(
         TEST_SAMPLE_TIMESTAMPS[TEST_SAMPLE_TIMESTAMPS.length - 1] + 1, true);
     // Should succeed and skip to 2nd keyframe.
     assertTrue(result);
@@ -305,6 +350,8 @@ public class SampleQueueTest extends TestCase {
     writeTestData();
     assertReadTestData(null, 0, 3);
     sampleQueue.discardUpstreamSamples(8);
+    assertAllocationCount(10);
+    sampleQueue.discardToRead();
     assertAllocationCount(7);
     sampleQueue.discardUpstreamSamples(7);
     assertAllocationCount(6);
@@ -359,6 +406,7 @@ public class SampleQueueTest extends TestCase {
    * Asserts correct reading of standard test data from {@code sampleQueue}.
    *
    * @param startFormat The format of the last sample previously read from {@code sampleQueue}.
+   * @param firstSampleIndex The index of the first sample that's expected to be read.
    */
   private void assertReadTestData(Format startFormat, int firstSampleIndex) {
     assertReadTestData(startFormat, firstSampleIndex,
@@ -428,7 +476,7 @@ public class SampleQueueTest extends TestCase {
    */
   private void assertReadNothing(boolean formatRequired) {
     clearFormatHolderAndInputBuffer();
-    int result = sampleQueue.readData(formatHolder, inputBuffer, formatRequired, false, 0);
+    int result = sampleQueue.readData2(formatHolder, inputBuffer, formatRequired, false, 0);
     assertEquals(C.RESULT_NOTHING_READ, result);
     // formatHolder should not be populated.
     assertNull(formatHolder.format);
@@ -445,7 +493,7 @@ public class SampleQueueTest extends TestCase {
    */
   private void assertReadEndOfStream(boolean formatRequired) {
     clearFormatHolderAndInputBuffer();
-    int result = sampleQueue.readData(formatHolder, inputBuffer, formatRequired, true, 0);
+    int result = sampleQueue.readData2(formatHolder, inputBuffer, formatRequired, true, 0);
     assertEquals(C.RESULT_BUFFER_READ, result);
     // formatHolder should not be populated.
     assertNull(formatHolder.format);
@@ -465,7 +513,7 @@ public class SampleQueueTest extends TestCase {
    */
   private void assertReadFormat(boolean formatRequired, Format format) {
     clearFormatHolderAndInputBuffer();
-    int result = sampleQueue.readData(formatHolder, inputBuffer, formatRequired, false, 0);
+    int result = sampleQueue.readData2(formatHolder, inputBuffer, formatRequired, false, 0);
     assertEquals(C.RESULT_FORMAT_READ, result);
     // formatHolder should be populated.
     assertEquals(format, formatHolder.format);
@@ -487,7 +535,7 @@ public class SampleQueueTest extends TestCase {
   private void assertSampleRead(long timeUs, boolean isKeyframe, byte[] sampleData, int offset,
       int length) {
     clearFormatHolderAndInputBuffer();
-    int result = sampleQueue.readData(formatHolder, inputBuffer, false, false, 0);
+    int result = sampleQueue.readData2(formatHolder, inputBuffer, false, false, 0);
     assertEquals(C.RESULT_BUFFER_READ, result);
     // formatHolder should not be populated.
     assertNull(formatHolder.format);

@@ -224,15 +224,48 @@ public final class SampleQueue implements TrackOutput {
   }
 
   /**
-   * Skips all samples currently in the buffer.
+   * Rewinds the read position to the first sample in the queue.
    */
-  public void skipAll() {
-    metadataQueue.skipAll();
-    // TODO - Remove the following block and expose explicit discard operations.
+  public void rewind() {
+    metadataQueue.rewind();
+    readAllocationNode = firstAllocationNode;
+  }
+
+  /**
+   * Discards samples up to the current read position.
+   */
+  public void discardToRead() {
     long nextOffset = metadataQueue.discardToRead();
     if (nextOffset != C.POSITION_UNSET) {
       dropDownstreamTo(nextOffset);
     }
+  }
+
+  /**
+   * @deprecated Use {@link #skipAll2()} followed by {@link #discardToRead()}.
+   */
+  @Deprecated
+  public void skipAll() {
+    skipAll2();
+    discardToRead();
+  }
+
+  /**
+   * Skips all samples currently in the buffer.
+   */
+  public void skipAll2() {
+    metadataQueue.skipAll();
+  }
+
+  /**
+   * @deprecated Use {@link #skipToKeyframeBefore2(long, boolean)} followed by
+   *     {@link #discardToRead()}.
+   */
+  @Deprecated
+  public boolean skipToKeyframeBefore(long timeUs, boolean allowTimeBeyondBuffer) {
+    boolean success = skipToKeyframeBefore2(timeUs, allowTimeBeyondBuffer);
+    discardToRead();
+    return success;
   }
 
   /**
@@ -246,18 +279,21 @@ public final class SampleQueue implements TrackOutput {
    *     of the buffer.
    * @return Whether the skip was successful.
    */
-  public boolean skipToKeyframeBefore(long timeUs, boolean allowTimeBeyondBuffer) {
-    boolean success = metadataQueue.skipToKeyframeBefore(timeUs, allowTimeBeyondBuffer);
-    if (success) {
-      // TODO - Remove the following block and expose explicit discard operations.
-      long nextOffset = metadataQueue.discardToRead();
-      if (nextOffset != C.POSITION_UNSET) {
-        dropDownstreamTo(nextOffset);
-      }
-      return true;
-    } else {
-      return false;
-    }
+  public boolean skipToKeyframeBefore2(long timeUs, boolean allowTimeBeyondBuffer) {
+    return metadataQueue.skipToKeyframeBefore(timeUs, allowTimeBeyondBuffer);
+  }
+
+  /**
+   * @deprecated Use {@link #readData2(FormatHolder, DecoderInputBuffer, boolean, boolean, long)}
+   *     followed by {@link #discardToRead()}.
+   */
+  @Deprecated
+  public int readData(FormatHolder formatHolder, DecoderInputBuffer buffer, boolean formatRequired,
+      boolean loadingFinished, long decodeOnlyUntilUs) {
+    int result = readData2(formatHolder, buffer, formatRequired, loadingFinished,
+        decodeOnlyUntilUs);
+    discardToRead();
+    return result;
   }
 
   /**
@@ -276,7 +312,7 @@ public final class SampleQueue implements TrackOutput {
    * @return The result, which can be {@link C#RESULT_NOTHING_READ}, {@link C#RESULT_FORMAT_READ} or
    *     {@link C#RESULT_BUFFER_READ}.
    */
-  public int readData(FormatHolder formatHolder, DecoderInputBuffer buffer, boolean formatRequired,
+  public int readData2(FormatHolder formatHolder, DecoderInputBuffer buffer, boolean formatRequired,
       boolean loadingFinished, long decodeOnlyUntilUs) {
     int result = metadataQueue.readData(formatHolder, buffer, formatRequired, loadingFinished,
         downstreamFormat, extrasHolder);
@@ -296,11 +332,6 @@ public final class SampleQueue implements TrackOutput {
           // Write the sample data into the holder.
           buffer.ensureSpaceForWrite(extrasHolder.size);
           readData(extrasHolder.offset, buffer.data, extrasHolder.size);
-          // TODO - Remove the following block and expose explicit discard operations.
-          long nextOffset = metadataQueue.discardToRead();
-          if (nextOffset != C.POSITION_UNSET) {
-            dropDownstreamTo(nextOffset);
-          }
         }
         return C.RESULT_BUFFER_READ;
       case C.RESULT_NOTHING_READ:
