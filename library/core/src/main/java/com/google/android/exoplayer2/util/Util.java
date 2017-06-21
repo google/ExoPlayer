@@ -34,7 +34,6 @@ import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlayerLibraryInfo;
 import com.google.android.exoplayer2.ParserException;
 import com.google.android.exoplayer2.upstream.DataSource;
-import com.google.android.exoplayer2.upstream.DataSpec;
 import java.io.ByteArrayOutputStream;
 import java.io.Closeable;
 import java.io.File;
@@ -678,25 +677,6 @@ public final class Util {
       intArray[i] = list.get(i);
     }
     return intArray;
-  }
-
-  /**
-   * Given a {@link DataSpec} and a number of bytes already loaded, returns a {@link DataSpec}
-   * that represents the remainder of the data.
-   *
-   * @param dataSpec The original {@link DataSpec}.
-   * @param bytesLoaded The number of bytes already loaded.
-   * @return A {@link DataSpec} that represents the remainder of the data.
-   */
-  public static DataSpec getRemainderDataSpec(DataSpec dataSpec, int bytesLoaded) {
-    if (bytesLoaded == 0) {
-      return dataSpec;
-    } else {
-      long remainingLength = dataSpec.length == C.LENGTH_UNSET ? C.LENGTH_UNSET
-          : dataSpec.length - bytesLoaded;
-      return new DataSpec(dataSpec.uri, dataSpec.position + bytesLoaded, remainingLength,
-          dataSpec.key, dataSpec.flags);
-    }
   }
 
   /**
