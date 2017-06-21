@@ -15,6 +15,8 @@
  */
 package com.google.android.exoplayer2.upstream.cache;
 
+import static com.google.android.exoplayer2.testutil.CacheAsserts.assertCacheEmpty;
+
 import android.net.Uri;
 import android.test.InstrumentationTestCase;
 import android.test.MoreAsserts;
@@ -38,27 +40,29 @@ public class CacheDataSourceTest extends InstrumentationTestCase {
   private static final String KEY_1 = "key 1";
   private static final String KEY_2 = "key 2";
 
-  private File cacheDir;
-  private SimpleCache simpleCache;
+  private File tempFolder;
+  private SimpleCache cache;
 
   @Override
-  protected void setUp() throws Exception {
-    cacheDir = Util.createTempDirectory(getInstrumentation().getContext(), "ExoPlayerTest");
-    simpleCache = new SimpleCache(cacheDir, new NoOpCacheEvictor());
+  public void setUp() throws Exception {
+    super.setUp();
+    tempFolder = Util.createTempDirectory(getInstrumentation().getContext(), "ExoPlayerTest");
+    cache = new SimpleCache(tempFolder, new NoOpCacheEvictor());
   }
 
   @Override
-  protected void tearDown() throws Exception {
-    Util.recursiveDelete(cacheDir);
+  public void tearDown() throws Exception {
+    Util.recursiveDelete(tempFolder);
+    super.tearDown();
   }
 
   public void testMaxCacheFileSize() throws Exception {
     CacheDataSource cacheDataSource = createCacheDataSource(false, false);
     assertReadDataContentLength(cacheDataSource, false, false);
-    File[] files = cacheDir.listFiles();
-    for (File file : files) {
-      if (!file.getName().equals(CachedContentIndex.FILE_NAME)) {
-        assertTrue(file.length() <= MAX_CACHE_FILE_SIZE);
+    for (String key : cache.getKeys()) {
+      for (CacheSpan cacheSpan : cache.getCachedSpans(key)) {
+        assertTrue(cacheSpan.length <= MAX_CACHE_FILE_SIZE);
+        assertTrue(cacheSpan.file.length() <= MAX_CACHE_FILE_SIZE);
       }
     }
   }
@@ -104,7 +108,7 @@ public class CacheDataSourceTest extends InstrumentationTestCase {
     // Read partial at EOS but don't cross it so length is unknown
     CacheDataSource cacheDataSource = createCacheDataSource(false, true);
     assertReadData(cacheDataSource, true, TEST_DATA.length - 2, 2);
-    assertEquals(C.LENGTH_UNSET, simpleCache.getContentLength(KEY_1));
+    assertEquals(C.LENGTH_UNSET, cache.getContentLength(KEY_1));
 
     // Now do an unbounded request for whole data. This will cause a bounded request from upstream.
     // End of data from upstream shouldn't be mixed up with EOS and cause length set wrong.
@@ -124,13 +128,13 @@ public class CacheDataSourceTest extends InstrumentationTestCase {
     CacheDataSource cacheDataSource = createCacheDataSource(false, true,
         CacheDataSource.FLAG_IGNORE_CACHE_FOR_UNSET_LENGTH_REQUESTS);
     assertReadData(cacheDataSource, true, 0, C.LENGTH_UNSET);
-    MoreAsserts.assertEmpty(simpleCache.getKeys());
+    MoreAsserts.assertEmpty(cache.getKeys());
   }
 
   public void testReadOnlyCache() throws Exception {
     CacheDataSource cacheDataSource = createCacheDataSource(false, false, 0, null);
     assertReadDataContentLength(cacheDataSource, false, false);
-    assertEquals(0, cacheDir.list().length);
+    assertCacheEmpty(cache);
   }
 
   private void assertCacheAndRead(boolean unboundedRequest, boolean simulateUnknownLength)
@@ -155,7 +159,7 @@ public class CacheDataSourceTest extends InstrumentationTestCase {
     assertReadData(cacheDataSource, unknownLength, 0, length);
     assertEquals("When the range specified, CacheDataSource doesn't reach EOS so shouldn't cache "
         + "content length", !unboundedRequest ? C.LENGTH_UNSET : TEST_DATA.length,
-        simpleCache.getContentLength(KEY_1));
+        cache.getContentLength(KEY_1));
   }
 
   private void assertReadData(CacheDataSource cacheDataSource, boolean unknownLength, int position,
@@ -192,7 +196,7 @@ public class CacheDataSourceTest extends InstrumentationTestCase {
   private CacheDataSource createCacheDataSource(boolean setReadException,
       boolean simulateUnknownLength, @CacheDataSource.Flags int flags) {
     return createCacheDataSource(setReadException, simulateUnknownLength, flags,
-        new CacheDataSink(simpleCache, MAX_CACHE_FILE_SIZE));
+        new CacheDataSink(cache, MAX_CACHE_FILE_SIZE));
   }
 
   private CacheDataSource createCacheDataSource(boolean setReadException,
@@ -204,7 +208,7 @@ public class CacheDataSourceTest extends InstrumentationTestCase {
     if (setReadException) {
       fakeData.appendReadError(new IOException("Shouldn't read from upstream"));
     }
-    return new CacheDataSource(simpleCache, upstream, new FileDataSource(), cacheWriteDataSink,
+    return new CacheDataSource(cache, upstream, new FileDataSource(), cacheWriteDataSink,
         flags, null);
   }
 
