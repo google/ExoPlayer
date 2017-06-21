@@ -343,26 +343,36 @@ public final class FakeDataSource implements DataSource {
       dataMap = new HashMap<>();
     }
 
+    /** Sets the default data, overwrites if there is one already. */
     public FakeData newDefaultData() {
       defaultData = new FakeData(this, null);
       return defaultData;
     }
 
+    /** Sets random data with the given {@code length} for the given {@code uri}. */
+    public FakeDataSet setRandomData(String uri, int length) {
+      return setData(uri, TestUtil.buildTestData(length));
+    }
+
+    /** Sets the given {@code data} for the given {@code uri}. */
+    public FakeDataSet setData(String uri, byte[] data) {
+      return newData(uri).appendReadData(data).endData();
+    }
+
+    /** Returns a new {@link FakeData} with the given {@code uri}. */
     public FakeData newData(String uri) {
       FakeData data = new FakeData(this, uri);
       dataMap.put(uri, data);
       return data;
     }
 
-    public FakeDataSet setData(String uri, byte[] data) {
-      return newData(uri).appendReadData(data).endData();
-    }
-
+    /** Returns the data for the given {@code uri}, or {@code defaultData} if no data is set. */
     public FakeData getData(String uri) {
       FakeData data = dataMap.get(uri);
       return data != null ? data : defaultData;
     }
 
+    /** Returns a list of all data including {@code defaultData}. */
     public ArrayList<FakeData> getAllData() {
       ArrayList<FakeData> fakeDatas = new ArrayList<>(dataMap.values());
       if (defaultData != null) {
