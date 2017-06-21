@@ -55,7 +55,7 @@ import com.google.android.exoplayer2.util.Util;
   private int relativeStartIndex;
   private int readPosition;
 
-  private long largestDequeuedTimestampUs;
+  private long largestDiscardedTimestampUs;
   private long largestQueuedTimestampUs;
   private boolean upstreamKeyframeRequired;
   private boolean upstreamFormatRequired;
@@ -71,7 +71,7 @@ import com.google.android.exoplayer2.util.Util;
     sizes = new int[capacity];
     cryptoDatas = new CryptoData[capacity];
     formats = new Format[capacity];
-    largestDequeuedTimestampUs = Long.MIN_VALUE;
+    largestDiscardedTimestampUs = Long.MIN_VALUE;
     largestQueuedTimestampUs = Long.MIN_VALUE;
     upstreamFormatRequired = true;
     upstreamKeyframeRequired = true;
@@ -88,7 +88,7 @@ import com.google.android.exoplayer2.util.Util;
   // Called by the consuming thread, but only when there is no loading thread.
 
   public void resetLargestParsedTimestamps() {
-    largestDequeuedTimestampUs = Long.MIN_VALUE;
+    largestDiscardedTimestampUs = Long.MIN_VALUE;
     largestQueuedTimestampUs = Long.MIN_VALUE;
   }
 
@@ -121,16 +121,8 @@ import com.google.android.exoplayer2.util.Util;
 
     length -= discardCount;
     relativeEndIndex = (relativeEndIndex + capacity - discardCount) % capacity;
-    // Update the largest queued timestamp, assuming that the timestamps prior to a keyframe are
-    // always less than the timestamp of the keyframe itself, and of subsequent frames.
-    largestQueuedTimestampUs = Long.MIN_VALUE;
-    for (int i = length - 1; i >= 0; i--) {
-      int sampleIndex = (relativeStartIndex + i) % capacity;
-      largestQueuedTimestampUs = Math.max(largestQueuedTimestampUs, timesUs[sampleIndex]);
-      if ((flags[sampleIndex] & C.BUFFER_FLAG_KEY_FRAME) != 0) {
-        break;
-      }
-    }
+    largestQueuedTimestampUs = Math.max(largestDiscardedTimestampUs,
+        getLargestTimestamp(relativeStartIndex, length));
     return offsets[relativeEndIndex];
   }
 
@@ -182,7 +174,7 @@ import com.google.android.exoplayer2.util.Util;
    *     samples have been queued.
    */
   public synchronized long getLargestQueuedTimestampUs() {
-    return Math.max(largestDequeuedTimestampUs, largestQueuedTimestampUs);
+    return largestQueuedTimestampUs;
   }
 
   /**
@@ -246,7 +238,6 @@ import com.google.android.exoplayer2.util.Util;
     extrasHolder.offset = offsets[relativeReadIndex];
     extrasHolder.cryptoData = cryptoDatas[relativeReadIndex];
 
-    largestDequeuedTimestampUs = Math.max(largestDequeuedTimestampUs, buffer.timeUs);
     readPosition++;
     return C.RESULT_BUFFER_READ;
   }
@@ -420,14 +411,16 @@ import com.google.android.exoplayer2.util.Util;
   }
 
   /**
-   * Attempts to discard samples from the tail of the queue to allow samples starting from the
-   * specified timestamp to be spliced in.
+   * Attempts to discard samples from the end of the queue to allow samples starting from the
+   * specified timestamp to be spliced in. Samples will not be discarded prior to the read position.
    *
    * @param timeUs The timestamp at which the splice occurs.
    * @return Whether the splice was successful.
    */
   public synchronized boolean attemptSplice(long timeUs) {
-    if (largestDequeuedTimestampUs >= timeUs) {
+    long largestReadTimestampUs = Math.max(largestDiscardedTimestampUs,
+        getLargestTimestamp(relativeStartIndex, readPosition));
+    if (largestReadTimestampUs >= timeUs) {
       return false;
     }
     int retainCount = length;
@@ -476,6 +469,8 @@ import com.google.android.exoplayer2.util.Util;
    *     {@link C#POSITION_UNSET} if no discarding of data is necessary.
    */
   private long discardSamples(int discardCount) {
+    largestDiscardedTimestampUs = Math.max(largestDiscardedTimestampUs,
+        getLargestTimestamp(relativeStartIndex, discardCount));
     length -= discardCount;
     absoluteStartIndex += discardCount;
     relativeStartIndex += discardCount;
@@ -492,6 +487,26 @@ import com.google.android.exoplayer2.util.Util;
     } else {
       return offsets[relativeStartIndex];
     }
+  }
+
+  /**
+   * Finds the largest timestamp in the specified range, assuming that the timestamps prior to a
+   * keyframe are always less than the timestamp of the keyframe itself, and of subsequent frames.
+   *
+   * @param relativeStartIndex The relative index from which to start searching.
+   * @param length The length of the range being searched.
+   * @return The largest timestamp, or {@link Long#MIN_VALUE} if {@code length <= 0}.
+   */
+  private long getLargestTimestamp(int relativeStartIndex, int length) {
+    long largestTimestampUs = Long.MIN_VALUE;
+    for (int i = length - 1; i >= 0; i--) {
+      int sampleIndex = (relativeStartIndex + i) % capacity;
+      largestTimestampUs = Math.max(largestTimestampUs, timesUs[sampleIndex]);
+      if ((flags[sampleIndex] & C.BUFFER_FLAG_KEY_FRAME) != 0) {
+        break;
+      }
+    }
+    return largestTimestampUs;
   }
 
 }
