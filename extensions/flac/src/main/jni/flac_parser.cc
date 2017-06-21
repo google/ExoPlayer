@@ -23,6 +23,8 @@
 #include <cassert>
 #include <cstdlib>
 
+#include <string.h> /* for memset() */
+
 #define LOG_TAG "FLACParser"
 #define ALOGE(...) \
   ((void)__android_log_print(ANDROID_LOG_ERROR, LOG_TAG, __VA_ARGS__))
