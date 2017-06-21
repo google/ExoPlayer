@@ -1083,6 +1083,10 @@ import java.io.IOException;
     int maxIterations = oldTimeline.getPeriodCount();
     for (int i = 0; i < maxIterations && newPeriodIndex == C.INDEX_UNSET; i++) {
       oldPeriodIndex = oldTimeline.getNextPeriodIndex(oldPeriodIndex, period, window, repeatMode);
+      if (oldPeriodIndex == C.INDEX_UNSET) {
+        // We've reached the end of the old timeline.
+        break;
+      }
       newPeriodIndex = newTimeline.getIndexOfPeriod(
           oldTimeline.getPeriod(oldPeriodIndex, period, true).uid);
     }
