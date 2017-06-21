@@ -232,65 +232,84 @@ public final class SampleQueue implements TrackOutput {
   }
 
   /**
-   * Discards samples up to the current read position.
+   * Discards up to but not including the sample immediately before or at the specified time.
+   *
+   * @param timeUs The time to discard to.
+   * @param toKeyframe If true then discards samples up to the keyframe before or at the specified
+   *     time, rather than any sample before or at that time.
+   * @param stopAtReadPosition If true then samples are only discarded if they're before the
+   *     read position. If false then samples at and beyond the read position may be discarded, in
+   *     which case the read position is advanced to the first remaining sample.
    */
-  public void discardToRead() {
-    long nextOffset = metadataQueue.discardToRead();
-    if (nextOffset != C.POSITION_UNSET) {
-      dropDownstreamTo(nextOffset);
-    }
+  public void discardTo(long timeUs, boolean toKeyframe, boolean stopAtReadPosition) {
+    discardDownstreamTo(metadataQueue.discardTo(timeUs, toKeyframe, stopAtReadPosition));
   }
 
   /**
-   * @deprecated Use {@link #skipAll2()} followed by {@link #discardToRead()}.
+   * Discards up to but not including the read position.
+   */
+  public void discardToRead() {
+    discardDownstreamTo(metadataQueue.discardToRead());
+  }
+
+  /**
+   * Discards to the end of the queue. The read position is also advanced.
+   */
+  public void discardToEnd() {
+    discardDownstreamTo(metadataQueue.discardToEnd());
+  }
+
+  /**
+   * @deprecated Use {@link #advanceToEnd()} followed by {@link #discardToRead()}.
    */
   @Deprecated
   public void skipAll() {
-    skipAll2();
+    advanceToEnd();
     discardToRead();
   }
 
   /**
-   * Skips all samples currently in the buffer.
+   * Advances the read position to the end of the queue.
    */
-  public void skipAll2() {
-    metadataQueue.skipAll();
+  public void advanceToEnd() {
+    metadataQueue.advanceToEnd();
   }
 
   /**
-   * @deprecated Use {@link #skipToKeyframeBefore2(long, boolean)} followed by
+   * @deprecated Use {@link #advanceTo(long, boolean, boolean)} followed by
    *     {@link #discardToRead()}.
    */
   @Deprecated
   public boolean skipToKeyframeBefore(long timeUs, boolean allowTimeBeyondBuffer) {
-    boolean success = skipToKeyframeBefore2(timeUs, allowTimeBeyondBuffer);
+    boolean success = advanceTo(timeUs, true, allowTimeBeyondBuffer);
     discardToRead();
     return success;
   }
 
   /**
-   * Attempts to skip to the keyframe before or at the specified time. Succeeds only if the buffer
-   * contains a keyframe with a timestamp of {@code timeUs} or earlier. If
-   * {@code allowTimeBeyondBuffer} is {@code false} then it is also required that {@code timeUs}
-   * falls within the buffer.
+   * Attempts to advance the read position to the sample before or at the specified time.
    *
-   * @param timeUs The seek time.
-   * @param allowTimeBeyondBuffer Whether the skip can succeed if {@code timeUs} is beyond the end
-   *     of the buffer.
-   * @return Whether the skip was successful.
+   * @param timeUs The time to advance to.
+   * @param toKeyframe If true then attempts to advance to the keyframe before or at the specified
+   *     time, rather than to any sample before or at that time.
+   * @param allowTimeBeyondBuffer Whether the operation can succeed if {@code timeUs} is beyond the
+   *     end of the buffer, by advancing the read position to the last sample (or keyframe) in the
+   *     buffer.
+   * @return Whether the operation was a success. A successful advance is one in which the read
+   *     position was unchanged or advanced, and is now at a sample meeting the specified criteria.
    */
-  public boolean skipToKeyframeBefore2(long timeUs, boolean allowTimeBeyondBuffer) {
-    return metadataQueue.skipToKeyframeBefore(timeUs, allowTimeBeyondBuffer);
+  public boolean advanceTo(long timeUs, boolean toKeyframe, boolean allowTimeBeyondBuffer) {
+    return metadataQueue.advanceTo(timeUs, toKeyframe, allowTimeBeyondBuffer);
   }
 
   /**
-   * @deprecated Use {@link #readData2(FormatHolder, DecoderInputBuffer, boolean, boolean, long)}
+   * @deprecated Use {@link #read(FormatHolder, DecoderInputBuffer, boolean, boolean, long)}
    *     followed by {@link #discardToRead()}.
    */
   @Deprecated
   public int readData(FormatHolder formatHolder, DecoderInputBuffer buffer, boolean formatRequired,
       boolean loadingFinished, long decodeOnlyUntilUs) {
-    int result = readData2(formatHolder, buffer, formatRequired, loadingFinished,
+    int result = read(formatHolder, buffer, formatRequired, loadingFinished,
         decodeOnlyUntilUs);
     discardToRead();
     return result;
@@ -312,9 +331,9 @@ public final class SampleQueue implements TrackOutput {
    * @return The result, which can be {@link C#RESULT_NOTHING_READ}, {@link C#RESULT_FORMAT_READ} or
    *     {@link C#RESULT_BUFFER_READ}.
    */
-  public int readData2(FormatHolder formatHolder, DecoderInputBuffer buffer, boolean formatRequired,
+  public int read(FormatHolder formatHolder, DecoderInputBuffer buffer, boolean formatRequired,
       boolean loadingFinished, long decodeOnlyUntilUs) {
-    int result = metadataQueue.readData(formatHolder, buffer, formatRequired, loadingFinished,
+    int result = metadataQueue.read(formatHolder, buffer, formatRequired, loadingFinished,
         downstreamFormat, extrasHolder);
     switch (result) {
       case C.RESULT_FORMAT_READ:
@@ -472,16 +491,26 @@ public final class SampleQueue implements TrackOutput {
   }
 
   /**
-   * Advances {@link #firstAllocationNode} to the specified absolute position. Nodes that are
-   * advanced over are cleared, and their underlying allocations are returned to the allocator.
+   * Advances {@link #firstAllocationNode} to the specified absolute position.
+   * {@link #readAllocationNode} is also advanced if necessary to avoid it falling behind
+   * {@link #firstAllocationNode}. Nodes that have been advanced past are cleared, and their
+   * underlying allocations are returned to the allocator.
    *
    * @param absolutePosition The position to which {@link #firstAllocationNode} should be advanced.
-   *     Must never exceed the absolute position of the next sample to be read.
+   *     May be {@link C#POSITION_UNSET}, in which case calling this method is a no-op.
    */
-  private void dropDownstreamTo(long absolutePosition) {
+  private void discardDownstreamTo(long absolutePosition) {
+    if (absolutePosition == C.POSITION_UNSET) {
+      return;
+    }
     while (absolutePosition >= firstAllocationNode.endPosition) {
       allocator.release(firstAllocationNode.allocation);
       firstAllocationNode = firstAllocationNode.clear();
+    }
+    // If we discarded the node referenced by readAllocationNode then we need to advance it to the
+    // first remaining node.
+    if (readAllocationNode.startPosition < firstAllocationNode.startPosition) {
+      readAllocationNode = firstAllocationNode;
     }
   }
 
@@ -742,13 +771,15 @@ public final class SampleQueue implements TrackOutput {
     }
 
     /**
-     * Clears {@link #allocation}.
+     * Clears {@link #allocation} and {@link #next}.
      *
-     * @return The next {@link AllocationNode}, for convenience.
+     * @return The cleared next {@link AllocationNode}.
      */
     public AllocationNode clear() {
       allocation = null;
-      return next;
+      AllocationNode temp = next;
+      next = null;
+      return temp;
     }
 
   }
