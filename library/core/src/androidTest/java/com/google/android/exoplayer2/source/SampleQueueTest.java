@@ -421,6 +421,43 @@ public class SampleQueueTest extends TestCase {
     assertNoSamplesToRead(TEST_FORMAT_2);
   }
 
+  public void testLargestQueuedTimestampWithDiscardUpstream() {
+    writeTestData();
+    assertEquals(LAST_SAMPLE_TIMESTAMP, sampleQueue.getLargestQueuedTimestampUs());
+    sampleQueue.discardUpstreamSamples(TEST_SAMPLE_TIMESTAMPS.length - 1);
+    // Discarding from upstream should reduce the largest timestamp.
+    assertEquals(TEST_SAMPLE_TIMESTAMPS[TEST_SAMPLE_TIMESTAMPS.length - 2],
+        sampleQueue.getLargestQueuedTimestampUs());
+    sampleQueue.discardUpstreamSamples(0);
+    // Discarding everything from upstream without reading should unset the largest timestamp.
+    assertEquals(Long.MIN_VALUE, sampleQueue.getLargestQueuedTimestampUs());
+  }
+
+  public void testLargestQueuedTimestampWithDiscardUpstreamDecodeOrder() {
+    long[] decodeOrderTimestamps = new long[] {0, 3000, 2000, 1000, 4000, 7000, 6000, 5000};
+    writeTestData(TEST_DATA, TEST_SAMPLE_SIZES, TEST_SAMPLE_OFFSETS, decodeOrderTimestamps,
+        TEST_SAMPLE_FORMATS, TEST_SAMPLE_FLAGS);
+    assertEquals(7000, sampleQueue.getLargestQueuedTimestampUs());
+    sampleQueue.discardUpstreamSamples(TEST_SAMPLE_TIMESTAMPS.length - 2);
+    // Discarding the last two samples should not change the largest timestamp, due to the decode
+    // ordering of the timestamps.
+    assertEquals(7000, sampleQueue.getLargestQueuedTimestampUs());
+    sampleQueue.discardUpstreamSamples(TEST_SAMPLE_TIMESTAMPS.length - 3);
+    // Once a third sample is discarded, the largest timestamp should have changed.
+    assertEquals(4000, sampleQueue.getLargestQueuedTimestampUs());
+    sampleQueue.discardUpstreamSamples(0);
+    // Discarding everything from upstream without reading should unset the largest timestamp.
+    assertEquals(Long.MIN_VALUE, sampleQueue.getLargestQueuedTimestampUs());
+  }
+
+  public void testLargestQueuedTimestampWithRead() {
+    writeTestData();
+    assertEquals(LAST_SAMPLE_TIMESTAMP, sampleQueue.getLargestQueuedTimestampUs());
+    assertReadTestData();
+    // Reading everything should not reduce the largest timestamp.
+    assertEquals(LAST_SAMPLE_TIMESTAMP, sampleQueue.getLargestQueuedTimestampUs());
+  }
+
   // Internal methods.
 
   /**
@@ -428,15 +465,27 @@ public class SampleQueueTest extends TestCase {
    */
   @SuppressWarnings("ReferenceEquality")
   private void writeTestData() {
-    sampleQueue.sampleData(new ParsableByteArray(TEST_DATA), TEST_DATA.length);
+    writeTestData(TEST_DATA, TEST_SAMPLE_SIZES, TEST_SAMPLE_OFFSETS, TEST_SAMPLE_TIMESTAMPS,
+        TEST_SAMPLE_FORMATS, TEST_SAMPLE_FLAGS);
+  }
+
+  /**
+   * Writes the specified test data to {@code sampleQueue}.
+   *
+   *
+   */
+  @SuppressWarnings("ReferenceEquality")
+  private void writeTestData(byte[] data, int[] sampleSizes, int[] sampleOffsets,
+      long[] sampleTimestamps, Format[] sampleFormats, int[] sampleFlags) {
+    sampleQueue.sampleData(new ParsableByteArray(data), data.length);
     Format format = null;
-    for (int i = 0; i < TEST_SAMPLE_TIMESTAMPS.length; i++) {
-      if (TEST_SAMPLE_FORMATS[i] != format) {
-        sampleQueue.format(TEST_SAMPLE_FORMATS[i]);
-        format = TEST_SAMPLE_FORMATS[i];
+    for (int i = 0; i < sampleTimestamps.length; i++) {
+      if (sampleFormats[i] != format) {
+        sampleQueue.format(sampleFormats[i]);
+        format = sampleFormats[i];
       }
-      sampleQueue.sampleMetadata(TEST_SAMPLE_TIMESTAMPS[i], TEST_SAMPLE_FLAGS[i],
-          TEST_SAMPLE_SIZES[i], TEST_SAMPLE_OFFSETS[i], null);
+      sampleQueue.sampleMetadata(sampleTimestamps[i], sampleFlags[i], sampleSizes[i],
+          sampleOffsets[i], null);
     }
   }
 
