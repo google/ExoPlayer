@@ -214,7 +214,7 @@ import com.google.android.exoplayer2.util.Util;
    *     or {@link C#RESULT_BUFFER_READ}.
    */
   @SuppressWarnings("ReferenceEquality")
-  public synchronized int readData(FormatHolder formatHolder, DecoderInputBuffer buffer,
+  public synchronized int read(FormatHolder formatHolder, DecoderInputBuffer buffer,
       boolean formatRequired, boolean loadingFinished, Format downstreamFormat,
       SampleExtrasHolder extrasHolder) {
     if (!hasNextSample()) {
@@ -252,56 +252,36 @@ import com.google.android.exoplayer2.util.Util;
   }
 
   /**
-   * Attempts to advance the read position to the keyframe before or at the specified time. If
-   * {@code allowTimeBeyondBuffer} is {@code false} then it is also required that {@code timeUs}
-   * falls within the buffer.
+   * Attempts to advance the read position to the sample before or at the specified time.
    *
-   * @param timeUs The seek time.
-   * @param allowTimeBeyondBuffer Whether the skip can succeed if {@code timeUs} is beyond the end
-   *     of the buffer.
-   * @return Whether the read position was advanced to the keyframe before or at the specified time.
+   * @param timeUs The time to advance to.
+   * @param toKeyframe If true then attempts to advance to the keyframe before or at the specified
+   *     time, rather than to any sample before or at that time.
+   * @param allowTimeBeyondBuffer Whether the operation can succeed if {@code timeUs} is beyond the
+   *     end of the buffer, by advancing the read position to the last sample (or keyframe) in the
+   *     buffer.
+   * @return Whether the operation was a success. A successful advance is one in which the read
+   *     position was unchanged or advanced, and is now at a sample meeting the specified criteria.
    */
-  public synchronized boolean skipToKeyframeBefore(long timeUs, boolean allowTimeBeyondBuffer) {
+  public synchronized boolean advanceTo(long timeUs, boolean toKeyframe,
+      boolean allowTimeBeyondBuffer) {
     int relativeReadIndex = (relativeStartIndex + readPosition) % capacity;
-    if (!hasNextSample() || timeUs < timesUs[relativeReadIndex]) {
+    if (!hasNextSample() || timeUs < timesUs[relativeReadIndex]
+        || (timeUs > largestQueuedTimestampUs && !allowTimeBeyondBuffer)) {
       return false;
     }
-
-    if (timeUs > largestQueuedTimestampUs && !allowTimeBeyondBuffer) {
+    int offset = findSampleBefore(relativeReadIndex, length - readPosition, timeUs, toKeyframe);
+    if (offset == -1) {
       return false;
     }
-
-    // This could be optimized to use a binary search, however in practice callers to this method
-    // often pass times near to the start of the buffer. Hence it's unclear whether switching to
-    // a binary search would yield any real benefit.
-    int sampleCount = 0;
-    int sampleCountToKeyframe = -1;
-    int searchIndex = relativeReadIndex;
-    int relativeEndIndex = (relativeStartIndex + length) % capacity;
-    while (searchIndex != relativeEndIndex) {
-      if (timesUs[searchIndex] > timeUs) {
-        // We've gone too far.
-        break;
-      } else if ((flags[searchIndex] & C.BUFFER_FLAG_KEY_FRAME) != 0) {
-        // We've found a keyframe, and we're still before the seek position.
-        sampleCountToKeyframe = sampleCount;
-      }
-      searchIndex = (searchIndex + 1) % capacity;
-      sampleCount++;
-    }
-
-    if (sampleCountToKeyframe == -1) {
-      return false;
-    }
-
-    readPosition += sampleCountToKeyframe;
+    readPosition += offset;
     return true;
   }
 
   /**
-   * Skips all samples in the buffer.
+   * Advances the read position to the end of the queue.
    */
-  public synchronized void skipAll() {
+  public synchronized void advanceToEnd() {
     if (!hasNextSample()) {
       return;
     }
@@ -309,28 +289,53 @@ import com.google.android.exoplayer2.util.Util;
   }
 
   /**
-   * Discards all samples in the buffer prior to the read position.
+   * Discards up to but not including the sample immediately before or at the specified time.
    *
-   * @return The offset up to which data should be dropped, or {@link C#POSITION_UNSET} if no
-   *     dropping of data is required.
+   * @param timeUs The time to discard up to.
+   * @param toKeyframe If true then discards samples up to the keyframe before or at the specified
+   *     time, rather than just any sample before or at that time.
+   * @param stopAtReadPosition If true then samples are only discarded if they're before the read
+   *     position. If false then samples at and beyond the read position may be discarded, in which
+   *     case the read position is advanced to the first remaining sample.
+   * @return The corresponding offset up to which data should be discarded, or
+   *     {@link C#POSITION_UNSET} if no discarding of data is necessary.
+   */
+  public synchronized long discardTo(long timeUs, boolean toKeyframe, boolean stopAtReadPosition) {
+    if (length == 0 || timeUs < timesUs[relativeStartIndex]) {
+      return C.POSITION_UNSET;
+    }
+    int searchLength = stopAtReadPosition && readPosition != length ? readPosition + 1 : length;
+    int discardCount = findSampleBefore(relativeStartIndex, searchLength, timeUs, toKeyframe);
+    if (discardCount == -1) {
+      return C.POSITION_UNSET;
+    }
+    return discardSamples(discardCount);
+  }
+
+  /**
+   * Discards samples up to but not including the read position.
+   *
+   * @return The corresponding offset up to which data should be discarded, or
+   *     {@link C#POSITION_UNSET} if no discarding of data is necessary.
    */
   public synchronized long discardToRead() {
     if (readPosition == 0) {
       return C.POSITION_UNSET;
     }
-    length -= readPosition;
-    absoluteStartIndex += readPosition;
-    relativeStartIndex += readPosition;
-    if (relativeStartIndex >= capacity) {
-      relativeStartIndex -= capacity;
-    }
-    readPosition = 0;
+    return discardSamples(readPosition);
+  }
+
+  /**
+   * Discards all samples in the queue. The read position is also advanced.
+   *
+   * @return The corresponding offset up to which data should be discarded, or
+   *     {@link C#POSITION_UNSET} if no discarding of data is necessary.
+   */
+  public synchronized long discardToEnd() {
     if (length == 0) {
-      int relativeLastDiscardedIndex = (relativeStartIndex - 1 + capacity) % capacity;
-      return offsets[relativeLastDiscardedIndex] + sizes[relativeLastDiscardedIndex];
-    } else {
-      return offsets[relativeStartIndex];
+      return C.POSITION_UNSET;
     }
+    return discardSamples(length);
   }
 
   // Called by the loading thread.
@@ -432,6 +437,61 @@ import com.google.android.exoplayer2.util.Util;
     }
     discardUpstreamSamples(absoluteStartIndex + retainCount);
     return true;
+  }
+
+  // Internal methods.
+
+  /**
+   * Finds the sample in the specified range that's before or at the specified time. If
+   * {@code keyframe} is {@code true} then the sample is additionally required to be a keyframe.
+   *
+   * @param relativeStartIndex The relative index from which to start searching.
+   * @param length The length of the range being searched.
+   * @param timeUs The specified time.
+   * @param keyframe Whether only keyframes should be considered.
+   * @return The offset from {@code relativeStartIndex} to the found sample, or -1 if no matching
+   *     sample was found.
+   */
+  private int findSampleBefore(int relativeStartIndex, int length, long timeUs, boolean keyframe) {
+    // This could be optimized to use a binary search, however in practice callers to this method
+    // normally pass times near to the start of the search region. Hence it's unclear whether
+    // switching to a binary search would yield any real benefit.
+    int sampleCountToTarget = -1;
+    int searchIndex = relativeStartIndex;
+    for (int i = 0; i < length && timesUs[searchIndex] <= timeUs; i++) {
+      if (!keyframe || (flags[searchIndex] & C.BUFFER_FLAG_KEY_FRAME) != 0) {
+        // We've found a suitable sample.
+        sampleCountToTarget = i;
+      }
+      searchIndex = (searchIndex + 1) % capacity;
+    }
+    return sampleCountToTarget;
+  }
+
+  /**
+   * Discards the specified number of samples.
+   *
+   * @param discardCount The number of samples to discard.
+   * @return The corresponding offset up to which data should be discarded, or
+   *     {@link C#POSITION_UNSET} if no discarding of data is necessary.
+   */
+  private long discardSamples(int discardCount) {
+    length -= discardCount;
+    absoluteStartIndex += discardCount;
+    relativeStartIndex += discardCount;
+    if (relativeStartIndex >= capacity) {
+      relativeStartIndex -= capacity;
+    }
+    readPosition -= discardCount;
+    if (readPosition < 0) {
+      readPosition = 0;
+    }
+    if (length == 0) {
+      int relativeLastDiscardedIndex = (relativeStartIndex - 1 + capacity) % capacity;
+      return offsets[relativeLastDiscardedIndex] + sizes[relativeLastDiscardedIndex];
+    } else {
+      return offsets[relativeStartIndex];
+    }
   }
 
 }
