@@ -96,7 +96,8 @@ import java.util.List;
         parsableExtraData.setPosition(extraData.length - 4);
         sampleRate = parsableExtraData.readUnsignedIntToInt();
       }
-      hasOutputFormat = true;
+      if (!"truehd".equals(codecName) || sampleRate > 0)
+        hasOutputFormat = true;
     }
     outputBuffer.data.position(0);
     outputBuffer.data.limit(result);
