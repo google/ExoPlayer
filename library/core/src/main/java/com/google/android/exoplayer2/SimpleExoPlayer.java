@@ -750,12 +750,12 @@ public class SimpleExoPlayer implements ExoPlayer {
     }
 
     @Override
-    public void onRenderedFirstFrame(Surface surface) {
+    public void onRenderedFirstFrame(Surface surface, long framePosition) {
       if (videoListener != null && SimpleExoPlayer.this.surface == surface) {
         videoListener.onRenderedFirstFrame();
       }
       if (videoDebugListener != null) {
-        videoDebugListener.onRenderedFirstFrame(surface);
+        videoDebugListener.onRenderedFirstFrame(surface, framePosition);
       }
     }
 

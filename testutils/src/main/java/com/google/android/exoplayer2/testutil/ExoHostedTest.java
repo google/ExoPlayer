@@ -313,7 +313,7 @@ public abstract class ExoHostedTest implements HostedTest, ExoPlayer.EventListen
   }
 
   @Override
-  public void onRenderedFirstFrame(Surface surface) {
+  public void onRenderedFirstFrame(Surface surface, long framePosition) {
     // Do nothing.
   }
 
