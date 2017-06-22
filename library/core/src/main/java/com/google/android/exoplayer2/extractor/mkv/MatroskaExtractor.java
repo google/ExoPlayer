@@ -893,7 +893,8 @@ public final class MatroskaExtractor implements Extractor {
       case ID_CONTENT_ENCRYPTION_KEY_ID:
         byte[] encryptionKey = new byte[contentSize];
         input.readFully(encryptionKey, 0, contentSize);
-        currentTrack.cryptoData = new TrackOutput.CryptoData(C.CRYPTO_MODE_AES_CTR, encryptionKey);
+        currentTrack.cryptoData = new TrackOutput.CryptoData(C.CRYPTO_MODE_AES_CTR, encryptionKey,
+            0, 0); // We assume patternless AES-CTR.
         break;
       case ID_SIMPLE_BLOCK:
       case ID_BLOCK:

@@ -1105,13 +1105,30 @@ import java.util.List;
       int childAtomSize = parent.readInt();
       int childAtomType = parent.readInt();
       if (childAtomType == Atom.TYPE_tenc) {
-        parent.skipBytes(6);
-        boolean defaultIsEncrypted = parent.readUnsignedByte() == 1;
-        int defaultInitVectorSize = parent.readUnsignedByte();
+        int fullAtom = parent.readInt();
+        int version = Atom.parseFullAtomVersion(fullAtom);
+        parent.skipBytes(1); // reserved = 0.
+        int defaultCryptByteBlock = 0;
+        int defaultSkipByteBlock = 0;
+        if (version == 0) {
+          parent.skipBytes(1); // reserved = 0.
+        } else /* version 1 or greater */ {
+          int patternByte = parent.readUnsignedByte();
+          defaultCryptByteBlock = (patternByte & 0xF0) >> 4;
+          defaultSkipByteBlock = patternByte & 0x0F;
+        }
+        boolean defaultIsProtected = parent.readUnsignedByte() == 1;
+        int defaultPerSampleIvSize = parent.readUnsignedByte();
         byte[] defaultKeyId = new byte[16];
         parent.readBytes(defaultKeyId, 0, defaultKeyId.length);
-        return new TrackEncryptionBox(defaultIsEncrypted, schemeType, defaultInitVectorSize,
-            defaultKeyId);
+        byte[] constantIv = null;
+        if (defaultIsProtected && defaultPerSampleIvSize == 0) {
+          int constantIvSize = parent.readUnsignedByte();
+          constantIv = new byte[constantIvSize];
+          parent.readBytes(constantIv, 0, constantIvSize);
+        }
+        return new TrackEncryptionBox(defaultIsProtected, schemeType, defaultPerSampleIvSize,
+            defaultKeyId, defaultCryptByteBlock, defaultSkipByteBlock, constantIv);
       }
       childPosition += childAtomSize;
     }

@@ -68,8 +68,9 @@ import java.util.ArrayList;
     ProtectionElement protectionElement = manifest.protectionElement;
     if (protectionElement != null) {
       byte[] keyId = getProtectionElementKeyId(protectionElement.data);
+      // We assume pattern encryption does not apply.
       trackEncryptionBoxes = new TrackEncryptionBox[] {
-          new TrackEncryptionBox(true, null, INITIALIZATION_VECTOR_SIZE, keyId)};
+          new TrackEncryptionBox(true, null, INITIALIZATION_VECTOR_SIZE, keyId, 0, 0, null)};
     } else {
       trackEncryptionBoxes = null;
     }

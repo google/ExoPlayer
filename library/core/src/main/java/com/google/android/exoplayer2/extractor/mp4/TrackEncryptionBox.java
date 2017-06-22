@@ -19,6 +19,7 @@ import android.support.annotation.Nullable;
 import android.util.Log;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.extractor.TrackOutput;
+import com.google.android.exoplayer2.util.Assertions;
 
 /**
  * Encapsulates information parsed from a track encryption (tenc) box or sample group description 
@@ -49,19 +50,31 @@ public final class TrackEncryptionBox {
    */
   public final int initializationVectorSize;
 
+  /**
+   * If {@link #initializationVectorSize} is 0, holds the default initialization vector as defined
+   * in the track encryption box or sample group description box. Null otherwise.
+   */
+  public final byte[] defaultInitializationVector;
 
   /**
    * @param isEncrypted See {@link #isEncrypted}.
    * @param schemeType See {@link #schemeType}.
    * @param initializationVectorSize See {@link #initializationVectorSize}.
    * @param keyId See {@link TrackOutput.CryptoData#encryptionKey}.
+   * @param defaultEncryptedBlocks See {@link TrackOutput.CryptoData#encryptedBlocks}.
+   * @param defaultClearBlocks See {@link TrackOutput.CryptoData#clearBlocks}.
+   * @param defaultInitializationVector See {@link #defaultInitializationVector}.
    */
   public TrackEncryptionBox(boolean isEncrypted, @Nullable String schemeType,
-      int initializationVectorSize, byte[] keyId) {
+      int initializationVectorSize, byte[] keyId, int defaultEncryptedBlocks,
+      int defaultClearBlocks, @Nullable byte[] defaultInitializationVector) {
+    Assertions.checkArgument(initializationVectorSize == 0 ^ defaultInitializationVector == null);
     this.isEncrypted = isEncrypted;
     this.schemeType = schemeType;
     this.initializationVectorSize = initializationVectorSize;
-    cryptoData = new TrackOutput.CryptoData(schemeToCryptoMode(schemeType), keyId);
+    this.defaultInitializationVector = defaultInitializationVector;
+    cryptoData = new TrackOutput.CryptoData(schemeToCryptoMode(schemeType), keyId,
+        defaultEncryptedBlocks, defaultClearBlocks);
   }
 
   @C.CryptoMode
@@ -72,8 +85,10 @@ public final class TrackEncryptionBox {
     }
     switch (schemeType) {
       case "cenc":
+      case "cens":
         return C.CRYPTO_MODE_AES_CTR;
       case "cbc1":
+      case "cbcs":
         return C.CRYPTO_MODE_AES_CBC;
       default:
         Log.w(TAG, "Unsupported protection scheme type '" + schemeType + "'. Assuming AES-CTR "
