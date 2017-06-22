@@ -184,6 +184,30 @@
         "uri": "https://storage.googleapis.com/wvmedia/cbc1/h264/tears/tears_aes_cbc1_uhd.mpd",
         "drm_scheme": "widevine",
         "drm_license_url": "https://proxy.uat.widevine.com/proxy?provider=widevine_test"
+      },
+      {
+        "name": "WV: Secure SD & HD (cbcs,MP4,H264)",
+        "uri": "https://storage.googleapis.com/wvmedia/cbcs/h264/tears/tears_aes_cbcs.mpd",
+        "drm_scheme": "widevine",
+        "drm_license_url": "https://proxy.uat.widevine.com/proxy?provider=widevine_test"
+      },
+      {
+        "name": "WV: Secure SD (cbcs,MP4,H264)",
+        "uri": "https://storage.googleapis.com/wvmedia/cbcs/h264/tears/tears_aes_cbcs_sd.mpd",
+        "drm_scheme": "widevine",
+        "drm_license_url": "https://proxy.uat.widevine.com/proxy?provider=widevine_test"
+      },
+      {
+        "name": "WV: Secure HD (cbcs,MP4,H264)",
+        "uri": "https://storage.googleapis.com/wvmedia/cbcs/h264/tears/tears_aes_cbcs_hd.mpd",
+        "drm_scheme": "widevine",
+        "drm_license_url": "https://proxy.uat.widevine.com/proxy?provider=widevine_test"
+      },
+      {
+        "name": "WV: Secure UHD (cbcs,MP4,H264)",
+        "uri": "https://storage.googleapis.com/wvmedia/cbcs/h264/tears/tears_aes_cbcs_uhd.mpd",
+        "drm_scheme": "widevine",
+        "drm_license_url": "https://proxy.uat.widevine.com/proxy?provider=widevine_test"
       }
     ]
   },

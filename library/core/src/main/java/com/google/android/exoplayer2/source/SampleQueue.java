@@ -426,7 +426,8 @@ public final class SampleQueue implements TrackOutput {
     // Populate the cryptoInfo.
     CryptoData cryptoData = extrasHolder.cryptoData;
     buffer.cryptoInfo.set(subsampleCount, clearDataSizes, encryptedDataSizes,
-        cryptoData.encryptionKey, buffer.cryptoInfo.iv, cryptoData.cryptoMode);
+        cryptoData.encryptionKey, buffer.cryptoInfo.iv, cryptoData.cryptoMode,
+        cryptoData.encryptedBlocks, cryptoData.clearBlocks);
 
     // Adjust the offset and size to take into account the bytes read.
     int bytesRead = (int) (offset - extrasHolder.offset);
