@@ -114,7 +114,7 @@ import com.google.android.exoplayer2.util.Util;
     if (length == 0) {
       return 0;
     } else {
-      int relativeLastWriteIndex = (relativeStartIndex + length - 1) % capacity;
+      int relativeLastWriteIndex = getRelativeIndex(length - 1);
       return offsets[relativeLastWriteIndex] + sizes[relativeLastWriteIndex];
     }
   }
@@ -139,7 +139,7 @@ import com.google.android.exoplayer2.util.Util;
    * @return The source id.
    */
   public int peekSourceId() {
-    int relativeReadIndex = (relativeStartIndex + readPosition) % capacity;
+    int relativeReadIndex = getRelativeIndex(readPosition);
     return hasNextSample() ? sourceIds[relativeReadIndex] : upstreamSourceId;
   }
 
@@ -217,7 +217,7 @@ import com.google.android.exoplayer2.util.Util;
       }
     }
 
-    int relativeReadIndex = (relativeStartIndex + readPosition) % capacity;
+    int relativeReadIndex = getRelativeIndex(readPosition);
     if (formatRequired || formats[relativeReadIndex] != downstreamFormat) {
       formatHolder.format = formats[relativeReadIndex];
       return C.RESULT_FORMAT_READ;
@@ -251,7 +251,7 @@ import com.google.android.exoplayer2.util.Util;
    */
   public synchronized boolean advanceTo(long timeUs, boolean toKeyframe,
       boolean allowTimeBeyondBuffer) {
-    int relativeReadIndex = (relativeStartIndex + readPosition) % capacity;
+    int relativeReadIndex = getRelativeIndex(readPosition);
     if (!hasNextSample() || timeUs < timesUs[relativeReadIndex]
         || (timeUs > largestQueuedTimestampUs && !allowTimeBeyondBuffer)) {
       return false;
@@ -352,7 +352,7 @@ import com.google.android.exoplayer2.util.Util;
     Assertions.checkState(!upstreamFormatRequired);
     commitSampleTimestamp(timeUs);
 
-    int relativeEndIndex = (relativeStartIndex + length) % capacity;
+    int relativeEndIndex = getRelativeIndex(length);
     timesUs[relativeEndIndex] = timeUs;
     offsets[relativeEndIndex] = offset;
     sizes[relativeEndIndex] = size;
@@ -422,9 +422,13 @@ import com.google.android.exoplayer2.util.Util;
       return false;
     }
     int retainCount = length;
-    while (retainCount > readPosition
-        && timesUs[(relativeStartIndex + retainCount - 1) % capacity] >= timeUs) {
+    int relativeSampleIndex = getRelativeIndex(length - 1);
+    while (retainCount > readPosition && timesUs[relativeSampleIndex] >= timeUs) {
       retainCount--;
+      relativeSampleIndex--;
+      if (relativeSampleIndex == -1) {
+        relativeSampleIndex = capacity - 1;
+      }
     }
     discardUpstreamSamples(absoluteStartIndex + retainCount);
     return true;
@@ -454,7 +458,10 @@ import com.google.android.exoplayer2.util.Util;
         // We've found a suitable sample.
         sampleCountToTarget = i;
       }
-      searchIndex = (searchIndex + 1) % capacity;
+      searchIndex++;
+      if (searchIndex == capacity) {
+        searchIndex = 0;
+      }
     }
     return sampleCountToTarget;
   }
@@ -493,18 +500,35 @@ import com.google.android.exoplayer2.util.Util;
    * the keyframe itself, and of subsequent frames.
    *
    * @param length The length of the range being searched.
-   * @return The largest timestamp, or {@link Long#MIN_VALUE} if {@code length <= 0}.
+   * @return The largest timestamp, or {@link Long#MIN_VALUE} if {@code length == 0}.
    */
   private long getLargestTimestamp(int length) {
+    if (length == 0) {
+      return Long.MIN_VALUE;
+    }
     long largestTimestampUs = Long.MIN_VALUE;
-    for (int i = length - 1; i >= 0; i--) {
-      int sampleIndex = (relativeStartIndex + i) % capacity;
-      largestTimestampUs = Math.max(largestTimestampUs, timesUs[sampleIndex]);
-      if ((flags[sampleIndex] & C.BUFFER_FLAG_KEY_FRAME) != 0) {
+    int relativeSampleIndex = getRelativeIndex(length - 1);
+    for (int i = 0; i < length; i++) {
+      largestTimestampUs = Math.max(largestTimestampUs, timesUs[relativeSampleIndex]);
+      if ((flags[relativeSampleIndex] & C.BUFFER_FLAG_KEY_FRAME) != 0) {
         break;
+      }
+      relativeSampleIndex--;
+      if (relativeSampleIndex == -1) {
+        relativeSampleIndex = capacity - 1;
       }
     }
     return largestTimestampUs;
+  }
+
+   /**
+    * Returns the relative index for a given offset from the start of the queue.
+    *
+    * @param offset The offset, which must be in the range [0, length].
+    */
+  private int getRelativeIndex(int offset) {
+    int relativeIndex = relativeStartIndex + offset;
+    return relativeIndex < capacity ? relativeIndex : relativeIndex - capacity;
   }
 
 }
