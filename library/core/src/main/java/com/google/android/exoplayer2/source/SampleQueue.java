@@ -120,8 +120,7 @@ public final class SampleQueue implements TrackOutput {
   }
 
   /**
-   * Indicates that samples subsequently queued to the buffer should be spliced into those already
-   * queued.
+   * Indicates samples that are subsequently queued should be spliced into those already queued.
    */
   public void splice() {
     pendingSplice = true;
@@ -135,14 +134,14 @@ public final class SampleQueue implements TrackOutput {
   }
 
   /**
-   * Discards samples from the write side of the buffer.
+   * Discards samples from the write side of the queue.
    *
    * @param discardFromIndex The absolute index of the first sample to be discarded. Must be in the
    *     range [{@link #getReadIndex()}, {@link #getWriteIndex()}].
    */
   public void discardUpstreamSamples(int discardFromIndex) {
     totalBytesWritten = metadataQueue.discardUpstreamSamples(discardFromIndex);
-    if (totalBytesWritten == firstAllocationNode.startPosition) {
+    if (totalBytesWritten == 0 || totalBytesWritten == firstAllocationNode.startPosition) {
       clearAllocationNodes(firstAllocationNode);
       firstAllocationNode = new AllocationNode(totalBytesWritten, allocationLength);
       readAllocationNode = firstAllocationNode;
@@ -193,8 +192,8 @@ public final class SampleQueue implements TrackOutput {
   }
 
   /**
-   * Peeks the source id of the next sample, or the current upstream source id if the buffer is
-   * empty.
+   * Peeks the source id of the next sample to be read, or the current upstream source id if the
+   * queue is empty or if the read position is at the end of the queue.
    *
    * @return The source id.
    */
@@ -293,8 +292,7 @@ public final class SampleQueue implements TrackOutput {
    * @param toKeyframe If true then attempts to advance to the keyframe before or at the specified
    *     time, rather than to any sample before or at that time.
    * @param allowTimeBeyondBuffer Whether the operation can succeed if {@code timeUs} is beyond the
-   *     end of the buffer, by advancing the read position to the last sample (or keyframe) in the
-   *     buffer.
+   *     end of the queue, by advancing the read position to the last sample (or keyframe).
    * @return Whether the operation was a success. A successful advance is one in which the read
    *     position was unchanged or advanced, and is now at a sample meeting the specified criteria.
    */
@@ -528,7 +526,7 @@ public final class SampleQueue implements TrackOutput {
 
   /**
    * Sets an offset that will be added to the timestamps (and sub-sample timestamps) of samples
-   * subsequently queued to the buffer.
+   * that are subsequently queued.
    *
    * @param sampleOffsetUs The timestamp offset in microseconds.
    */

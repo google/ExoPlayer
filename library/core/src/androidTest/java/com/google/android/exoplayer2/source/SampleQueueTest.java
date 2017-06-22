@@ -364,7 +364,7 @@ public class SampleQueueTest extends TestCase {
     sampleQueue.discardUpstreamSamples(7);
     assertAllocationCount(9);
     sampleQueue.discardUpstreamSamples(6);
-    assertAllocationCount(8); // Byte not belonging to sample prevents 7.
+    assertAllocationCount(7);
     sampleQueue.discardUpstreamSamples(5);
     assertAllocationCount(5);
     sampleQueue.discardUpstreamSamples(4);
@@ -372,11 +372,11 @@ public class SampleQueueTest extends TestCase {
     sampleQueue.discardUpstreamSamples(3);
     assertAllocationCount(3);
     sampleQueue.discardUpstreamSamples(2);
-    assertAllocationCount(3); // Byte not belonging to sample prevents 2.
+    assertAllocationCount(2);
     sampleQueue.discardUpstreamSamples(1);
-    assertAllocationCount(2); // Byte not belonging to sample prevents 1.
+    assertAllocationCount(1);
     sampleQueue.discardUpstreamSamples(0);
-    assertAllocationCount(1); // Byte not belonging to sample prevents 0.
+    assertAllocationCount(0);
     assertReadFormat(false, TEST_FORMAT_2);
     assertNoSamplesToRead(TEST_FORMAT_2);
   }
@@ -386,7 +386,7 @@ public class SampleQueueTest extends TestCase {
     sampleQueue.discardUpstreamSamples(4);
     assertAllocationCount(4);
     sampleQueue.discardUpstreamSamples(0);
-    assertAllocationCount(1); // Byte not belonging to sample prevents 0.
+    assertAllocationCount(0);
     assertReadFormat(false, TEST_FORMAT_2);
     assertNoSamplesToRead(TEST_FORMAT_2);
   }
@@ -410,7 +410,7 @@ public class SampleQueueTest extends TestCase {
     sampleQueue.discardUpstreamSamples(7);
     assertAllocationCount(6);
     sampleQueue.discardUpstreamSamples(6);
-    assertAllocationCount(5); // Byte not belonging to sample prevents 4.
+    assertAllocationCount(4);
     sampleQueue.discardUpstreamSamples(5);
     assertAllocationCount(2);
     sampleQueue.discardUpstreamSamples(4);

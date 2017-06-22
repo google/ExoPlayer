@@ -100,30 +100,23 @@ import com.google.android.exoplayer2.util.Util;
   }
 
   /**
-   * Discards samples from the write side of the buffer.
+   * Discards samples from the write side of the queue.
    *
    * @param discardFromIndex The absolute index of the first sample to be discarded.
-   * @return The reduced total number of bytes written, after the samples have been discarded.
+   * @return The reduced total number of bytes written after the samples have been discarded, or 0
+   *     if the queue is now empty.
    */
   public long discardUpstreamSamples(int discardFromIndex) {
     int discardCount = getWriteIndex() - discardFromIndex;
     Assertions.checkArgument(0 <= discardCount && discardCount <= (length - readPosition));
-
-    int relativeEndIndex = (relativeStartIndex + length) % capacity;
-    if (discardCount == 0) {
-      if (absoluteStartIndex == 0 && length == 0) {
-        // Nothing has been written to the queue.
-        return 0;
-      }
-      int lastWriteIndex = (relativeEndIndex == 0 ? capacity : relativeEndIndex) - 1;
-      return offsets[lastWriteIndex] + sizes[lastWriteIndex];
-    }
-
     length -= discardCount;
-    relativeEndIndex = (relativeEndIndex + capacity - discardCount) % capacity;
-    largestQueuedTimestampUs = Math.max(largestDiscardedTimestampUs,
-        getLargestTimestamp(relativeStartIndex, length));
-    return offsets[relativeEndIndex];
+    largestQueuedTimestampUs = Math.max(largestDiscardedTimestampUs, getLargestTimestamp(length));
+    if (length == 0) {
+      return 0;
+    } else {
+      int relativeLastWriteIndex = (relativeStartIndex + length - 1) % capacity;
+      return offsets[relativeLastWriteIndex] + sizes[relativeLastWriteIndex];
+    }
   }
 
   public void sourceId(int sourceId) {
@@ -140,8 +133,10 @@ import com.google.android.exoplayer2.util.Util;
   }
 
   /**
-   * Peeks the source id of the next sample, or the current upstream source id if
-   * {@link #hasNextSample()} is {@code false}.
+   * Peeks the source id of the next sample to be read, or the current upstream source id if the
+   * queue is empty or if the read position is at the end of the queue.
+   *
+   * @return The source id.
    */
   public int peekSourceId() {
     int relativeReadIndex = (relativeStartIndex + readPosition) % capacity;
@@ -249,8 +244,8 @@ import com.google.android.exoplayer2.util.Util;
    * @param toKeyframe If true then attempts to advance to the keyframe before or at the specified
    *     time, rather than to any sample before or at that time.
    * @param allowTimeBeyondBuffer Whether the operation can succeed if {@code timeUs} is beyond the
-   *     end of the buffer, by advancing the read position to the last sample (or keyframe) in the
-   *     buffer.
+   *     end of the queue, by advancing the read position to the last sample (or keyframe) in the
+   *     queue.
    * @return Whether the operation was a success. A successful advance is one in which the read
    *     position was unchanged or advanced, and is now at a sample meeting the specified criteria.
    */
@@ -418,8 +413,11 @@ import com.google.android.exoplayer2.util.Util;
    * @return Whether the splice was successful.
    */
   public synchronized boolean attemptSplice(long timeUs) {
+    if (length == 0) {
+      return timeUs > largestDiscardedTimestampUs;
+    }
     long largestReadTimestampUs = Math.max(largestDiscardedTimestampUs,
-        getLargestTimestamp(relativeStartIndex, readPosition));
+        getLargestTimestamp(readPosition));
     if (largestReadTimestampUs >= timeUs) {
       return false;
     }
@@ -470,7 +468,7 @@ import com.google.android.exoplayer2.util.Util;
    */
   private long discardSamples(int discardCount) {
     largestDiscardedTimestampUs = Math.max(largestDiscardedTimestampUs,
-        getLargestTimestamp(relativeStartIndex, discardCount));
+        getLargestTimestamp(discardCount));
     length -= discardCount;
     absoluteStartIndex += discardCount;
     relativeStartIndex += discardCount;
@@ -482,22 +480,22 @@ import com.google.android.exoplayer2.util.Util;
       readPosition = 0;
     }
     if (length == 0) {
-      int relativeLastDiscardedIndex = (relativeStartIndex - 1 + capacity) % capacity;
-      return offsets[relativeLastDiscardedIndex] + sizes[relativeLastDiscardedIndex];
+      int relativeLastDiscardIndex = (relativeStartIndex == 0 ? capacity : relativeStartIndex) - 1;
+      return offsets[relativeLastDiscardIndex] + sizes[relativeLastDiscardIndex];
     } else {
       return offsets[relativeStartIndex];
     }
   }
 
   /**
-   * Finds the largest timestamp in the specified range, assuming that the timestamps prior to a
-   * keyframe are always less than the timestamp of the keyframe itself, and of subsequent frames.
+   * Finds the largest timestamp of any sample from the start of the queue up to the specified
+   * length, assuming that the timestamps prior to a keyframe are always less than the timestamp of
+   * the keyframe itself, and of subsequent frames.
    *
-   * @param relativeStartIndex The relative index from which to start searching.
    * @param length The length of the range being searched.
    * @return The largest timestamp, or {@link Long#MIN_VALUE} if {@code length <= 0}.
    */
-  private long getLargestTimestamp(int relativeStartIndex, int length) {
+  private long getLargestTimestamp(int length) {
     long largestTimestampUs = Long.MIN_VALUE;
     for (int i = length - 1; i >= 0; i--) {
       int sampleIndex = (relativeStartIndex + i) % capacity;
