@@ -76,8 +76,9 @@ public final class ContentDataSource implements DataSource {
         throw new FileNotFoundException("Could not open file descriptor for: " + uri);
       }
       inputStream = new FileInputStream(assetFileDescriptor.getFileDescriptor());
-      long skipped = inputStream.skip(dataSpec.position);
-      if (skipped < dataSpec.position) {
+      long assertStartOffset = assetFileDescriptor.getStartOffset();
+      long skipped = inputStream.skip(assertStartOffset + dataSpec.position) - assertStartOffset;
+      if (skipped != dataSpec.position) {
         // We expect the skip to be satisfied in full. If it isn't then we're probably trying to
         // skip beyond the end of the data.
         throw new EOFException();
