@@ -29,32 +29,28 @@ import okhttp3.Call;
 public final class OkHttpDataSourceFactory extends BaseFactory {
 
   private final Call.Factory callFactory;
-  private final String userAgent;
   private final TransferListener<? super DataSource> listener;
   private final CacheControl cacheControl;
 
   /**
    * @param callFactory A {@link Call.Factory} (typically an {@link okhttp3.OkHttpClient}) for use
    *     by the sources created by the factory.
-   * @param userAgent The User-Agent string that should be used.
    * @param listener An optional listener.
    */
-  public OkHttpDataSourceFactory(Call.Factory callFactory, String userAgent,
+  public OkHttpDataSourceFactory(Call.Factory callFactory,
       TransferListener<? super DataSource> listener) {
-    this(callFactory, userAgent, listener, null);
+    this(callFactory, listener, null);
   }
 
   /**
    * @param callFactory A {@link Call.Factory} (typically an {@link okhttp3.OkHttpClient}) for use
    *     by the sources created by the factory.
-   * @param userAgent The User-Agent string that should be used.
    * @param listener An optional listener.
    * @param cacheControl An optional {@link CacheControl} for setting the Cache-Control header.
    */
-  public OkHttpDataSourceFactory(Call.Factory callFactory, String userAgent,
+  public OkHttpDataSourceFactory(Call.Factory callFactory,
       TransferListener<? super DataSource> listener, CacheControl cacheControl) {
     this.callFactory = callFactory;
-    this.userAgent = userAgent;
     this.listener = listener;
     this.cacheControl = cacheControl;
   }
@@ -62,7 +58,7 @@ public final class OkHttpDataSourceFactory extends BaseFactory {
   @Override
   protected OkHttpDataSource createDataSourceInternal(
       HttpDataSource.RequestProperties defaultRequestProperties) {
-    return new OkHttpDataSource(callFactory, userAgent, null, listener, cacheControl,
+    return new OkHttpDataSource(callFactory, null, listener, cacheControl,
         defaultRequestProperties);
   }
 
