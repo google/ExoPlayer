@@ -15,6 +15,8 @@
  */
 package com.google.android.exoplayer2.ext.okhttp;
 
+import android.support.annotation.Nullable;
+
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.HttpDataSource;
 import com.google.android.exoplayer2.upstream.HttpDataSource.BaseFactory;
@@ -36,10 +38,10 @@ public final class OkHttpDataSourceFactory extends BaseFactory {
   /**
    * @param callFactory A {@link Call.Factory} (typically an {@link okhttp3.OkHttpClient}) for use
    *     by the sources created by the factory.
-   * @param userAgent The User-Agent string that should be used.
+   * @param userAgent An optional User-Agent string that should be used.
    * @param listener An optional listener.
    */
-  public OkHttpDataSourceFactory(Call.Factory callFactory, String userAgent,
+  public OkHttpDataSourceFactory(Call.Factory callFactory, @Nullable String userAgent,
       TransferListener<? super DataSource> listener) {
     this(callFactory, userAgent, listener, null);
   }
@@ -47,11 +49,12 @@ public final class OkHttpDataSourceFactory extends BaseFactory {
   /**
    * @param callFactory A {@link Call.Factory} (typically an {@link okhttp3.OkHttpClient}) for use
    *     by the sources created by the factory.
-   * @param userAgent The User-Agent string that should be used.
+   * @param userAgent An optional User-Agent string that should be used.
    * @param listener An optional listener.
    * @param cacheControl An optional {@link CacheControl} for setting the Cache-Control header.
    */
-  public OkHttpDataSourceFactory(Call.Factory callFactory, String userAgent,
+  public OkHttpDataSourceFactory(Call.Factory callFactory,
+                                 @Nullable String userAgent,
       TransferListener<? super DataSource> listener, CacheControl cacheControl) {
     this.callFactory = callFactory;
     this.userAgent = userAgent;
