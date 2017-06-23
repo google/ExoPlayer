@@ -91,9 +91,9 @@ public final class ContentDataSource implements DataSource {
           // The asset must extend to the end of the file.
           bytesRemaining = inputStream.available();
           if (bytesRemaining == 0) {
-            // FileInputStream.available() returns 0 if the remaining length cannot be determined, or
-            // if it's greater than Integer.MAX_VALUE. We don't know the true length in either case,
-            // so treat as unbounded.
+            // FileInputStream.available() returns 0 if the remaining length cannot be determined,
+            // or if it's greater than Integer.MAX_VALUE. We don't know the true length in either
+            // case, so treat as unbounded.
             bytesRemaining = C.LENGTH_UNSET;
           }
         }
