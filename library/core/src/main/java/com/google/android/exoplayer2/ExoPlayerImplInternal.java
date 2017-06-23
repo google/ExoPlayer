@@ -1315,7 +1315,7 @@ import java.io.IOException;
           repeatMode);
     }
 
-    if (newLoadingPeriodIndex >= timeline.getPeriodCount()) {
+    if (newLoadingPeriodIndex == C.INDEX_UNSET) {
       // The next period is not available yet.
       mediaSource.maybeThrowSourceInfoRefreshError();
       return;
