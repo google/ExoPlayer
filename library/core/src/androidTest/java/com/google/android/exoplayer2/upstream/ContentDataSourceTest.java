@@ -33,6 +33,7 @@ import java.io.IOException;
  */
 public final class ContentDataSourceTest extends InstrumentationTestCase {
 
+  private static final String AUTHORITY = "com.google.android.exoplayer2.core.test";
   private static final String DATA_PATH = "binary/1024_incrementing_bytes.mp3";
   private static final long DATA_LENGTH = 1024;
 
@@ -40,7 +41,7 @@ public final class ContentDataSourceTest extends InstrumentationTestCase {
     ContentDataSource dataSource = new ContentDataSource(getInstrumentation().getContext());
     Uri contentUri = new Uri.Builder()
         .scheme(ContentResolver.SCHEME_CONTENT)
-        .authority(TestContentProvider.AUTHORITY)
+        .authority(AUTHORITY)
         .path(DATA_PATH).build();
     DataSpec dataSpec = new DataSpec(contentUri);
     try {
@@ -57,7 +58,7 @@ public final class ContentDataSourceTest extends InstrumentationTestCase {
     ContentDataSource dataSource = new ContentDataSource(getInstrumentation().getContext());
     Uri contentUri = new Uri.Builder()
         .scheme(ContentResolver.SCHEME_CONTENT)
-        .authority(TestContentProvider.AUTHORITY)
+        .authority(AUTHORITY)
         .build();
     DataSpec dataSpec = new DataSpec(contentUri);
     try {
@@ -70,9 +71,10 @@ public final class ContentDataSourceTest extends InstrumentationTestCase {
     }
   }
 
+  /**
+   * A {@link ContentProvider} for the test.
+   */
   public static final class TestContentProvider extends ContentProvider {
-
-    private static final String AUTHORITY = "com.google.android.exoplayer2.core.test";
 
     @Override
     public boolean onCreate() {
