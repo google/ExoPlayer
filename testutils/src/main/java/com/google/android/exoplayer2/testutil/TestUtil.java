@@ -22,6 +22,7 @@ import com.google.android.exoplayer2.extractor.Extractor;
 import com.google.android.exoplayer2.extractor.PositionHolder;
 import com.google.android.exoplayer2.extractor.SeekMap;
 import com.google.android.exoplayer2.testutil.FakeExtractorInput.SimulatedIOException;
+import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Util;
 import java.io.IOException;
@@ -62,6 +63,22 @@ public class TestUtil {
         // Ignore.
       }
     }
+  }
+
+  public static byte[] readToEnd(DataSource dataSource) throws IOException {
+    byte[] data = new byte[1024];
+    int position = 0;
+    int bytesRead = 0;
+    while (bytesRead != C.RESULT_END_OF_INPUT) {
+      if (position == data.length) {
+        data = Arrays.copyOf(data, data.length * 2);
+      }
+      bytesRead = dataSource.read(data, position, data.length - position);
+      if (bytesRead != C.RESULT_END_OF_INPUT) {
+        position += bytesRead;
+      }
+    }
+    return Arrays.copyOf(data, position);
   }
 
   public static FakeExtractorOutput consumeTestData(Extractor extractor, FakeExtractorInput input,

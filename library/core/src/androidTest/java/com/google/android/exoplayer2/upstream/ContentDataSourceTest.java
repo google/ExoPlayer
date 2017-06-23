@@ -1,40 +1,127 @@
+/*
+ * Copyright (C) 2017 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package com.google.android.exoplayer2.upstream;
 
+import android.content.ContentProvider;
 import android.content.ContentResolver;
-import android.content.Context;
+import android.content.ContentValues;
+import android.content.res.AssetFileDescriptor;
+import android.database.Cursor;
 import android.net.Uri;
+import android.support.annotation.NonNull;
 import android.test.InstrumentationTestCase;
+import android.test.MoreAsserts;
+import com.google.android.exoplayer2.testutil.TestUtil;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 
-import static com.google.android.exoplayer2.upstream.AndroidDataSourceConstants.NULL_DESCRIPTOR_URI;
-import static com.google.android.exoplayer2.upstream.AndroidDataSourceConstants.SAMPLE_MP4_BYTES;
-import static com.google.android.exoplayer2.upstream.AndroidDataSourceConstants.SAMPLE_MP4_PATH;
-import static com.google.android.exoplayer2.upstream.AndroidDataSourceConstants.TEST_DATA_PROVIDER_AUTHORITY;
+/**
+ * Unit tests for {@link ContentDataSource}.
+ */
+public final class ContentDataSourceTest extends InstrumentationTestCase {
 
-public class ContentDataSourceTest extends InstrumentationTestCase {
+  private static final String DATA_PATH = "binary/1024_incrementing_bytes.mp3";
+  private static final long DATA_LENGTH = 1024;
 
-  public void testValidContentDataSource() throws Exception {
-    Context context = getInstrumentation().getContext();
-    ContentDataSource dataSource = new ContentDataSource(context);
+  public void testReadValidUri() throws Exception {
+    ContentDataSource dataSource = new ContentDataSource(getInstrumentation().getContext());
     Uri contentUri = new Uri.Builder()
-            .scheme(ContentResolver.SCHEME_CONTENT)
-            .authority(TEST_DATA_PROVIDER_AUTHORITY)
-            .path(SAMPLE_MP4_PATH).build();
+        .scheme(ContentResolver.SCHEME_CONTENT)
+        .authority(TestContentProvider.AUTHORITY)
+        .path(DATA_PATH).build();
     DataSpec dataSpec = new DataSpec(contentUri);
-    long sourceLengthBytes = dataSource.open(dataSpec);
-
-    assertEquals(SAMPLE_MP4_BYTES, sourceLengthBytes);
-  }
-
-  public void testNullContentDataSource() throws Exception {
-    Context context = getInstrumentation().getContext();
-    ContentDataSource dataSource = new ContentDataSource(context);
-    DataSpec dataSpec = new DataSpec(NULL_DESCRIPTOR_URI);
-
     try {
-      dataSource.open(dataSpec);
-      fail("Expected exception not thrown.");
-    } catch (ContentDataSource.ContentDataSourceException e) {
-      // Expected.
+      long length = dataSource.open(dataSpec);
+      assertEquals(DATA_LENGTH, length);
+      byte[] readData = TestUtil.readToEnd(dataSource);
+      MoreAsserts.assertEquals(TestUtil.getByteArray(getInstrumentation(), DATA_PATH), readData);
+    } finally {
+      dataSource.close();
     }
   }
+
+  public void testReadInvalidUri() throws Exception {
+    ContentDataSource dataSource = new ContentDataSource(getInstrumentation().getContext());
+    Uri contentUri = new Uri.Builder()
+        .scheme(ContentResolver.SCHEME_CONTENT)
+        .authority(TestContentProvider.AUTHORITY)
+        .build();
+    DataSpec dataSpec = new DataSpec(contentUri);
+    try {
+      dataSource.open(dataSpec);
+      fail();
+    } catch (ContentDataSource.ContentDataSourceException e) {
+      // Expected.
+    } finally {
+      dataSource.close();
+    }
+  }
+
+  public static final class TestContentProvider extends ContentProvider {
+
+    private static final String AUTHORITY = "com.google.android.exoplayer2.core.test";
+
+    @Override
+    public boolean onCreate() {
+      return true;
+    }
+
+    @Override
+    public Cursor query(@NonNull Uri uri, String[] projection, String selection,
+        String[] selectionArgs, String sortOrder) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public AssetFileDescriptor openAssetFile(@NonNull Uri uri, @NonNull String mode)
+        throws FileNotFoundException {
+      if (uri.getPath() == null) {
+        return null;
+      }
+      try {
+        return getContext().getAssets().openFd(uri.getPath().replaceFirst("/", ""));
+      } catch (IOException e) {
+        FileNotFoundException exception = new FileNotFoundException(e.getMessage());
+        exception.initCause(e);
+        throw exception;
+      }
+    }
+
+    @Override
+    public String getType(@NonNull Uri uri) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public Uri insert(@NonNull Uri uri, ContentValues values) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public int delete(@NonNull Uri uri, String selection,
+        String[] selectionArgs) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public int update(@NonNull Uri uri, ContentValues values,
+        String selection, String[] selectionArgs) {
+      throw new UnsupportedOperationException();
+    }
+
+  }
+
 }
