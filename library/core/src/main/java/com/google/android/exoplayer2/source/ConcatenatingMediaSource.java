@@ -231,10 +231,8 @@ public final class ConcatenatingMediaSource implements MediaSource {
     }
 
     private void getChildDataByChildIndex(int childIndex, ChildDataHolder childData) {
-      childData.timeline = timelines[childIndex];
-      childData.firstPeriodIndexInChild = getFirstPeriodIndexInChild(childIndex);
-      childData.firstWindowIndexInChild = getFirstWindowIndexInChild(childIndex);
-      childData.uid = childIndex;
+      childData.setData(timelines[childIndex], getFirstPeriodIndexInChild(childIndex),
+          getFirstWindowIndexInChild(childIndex), childIndex);
     }
 
     private int getChildIndexByPeriodIndex(int periodIndex) {

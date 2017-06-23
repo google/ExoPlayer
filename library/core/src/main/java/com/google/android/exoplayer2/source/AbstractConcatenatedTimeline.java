@@ -28,7 +28,7 @@ import com.google.android.exoplayer2.Timeline;
   /**
    * Meta data of a child timeline.
    */
-  protected static class ChildDataHolder {
+  protected static final class ChildDataHolder {
 
     /**
      * Child timeline.
@@ -49,6 +49,22 @@ import com.google.android.exoplayer2.Timeline;
      * UID of child timeline.
      */
     public Object uid;
+
+    /**
+     * Set child holder data.
+     *
+     * @param timeline Child timeline.
+     * @param firstPeriodIndexInChild First period index belonging to the child timeline.
+     * @param firstWindowIndexInChild First window index belonging to the child timeline.
+     * @param uid UID of child timeline.
+     */
+    public void setData(Timeline timeline, int firstPeriodIndexInChild, int firstWindowIndexInChild,
+        Object uid) {
+      this.timeline = timeline;
+      this.firstPeriodIndexInChild = firstPeriodIndexInChild;
+      this.firstWindowIndexInChild = firstWindowIndexInChild;
+      this.uid = uid;
+    }
 
   }
 

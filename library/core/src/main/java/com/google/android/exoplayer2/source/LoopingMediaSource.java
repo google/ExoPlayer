@@ -141,10 +141,8 @@ public final class LoopingMediaSource implements MediaSource {
     }
 
     private void getChildDataByChildIndex(int childIndex, ChildDataHolder childData) {
-      childData.timeline = childTimeline;
-      childData.firstPeriodIndexInChild = childIndex * childPeriodCount;
-      childData.firstWindowIndexInChild = childIndex * childWindowCount;
-      childData.uid = childIndex;
+      childData.setData(childTimeline, childIndex * childPeriodCount, childIndex * childWindowCount,
+          childIndex);
     }
 
   }
