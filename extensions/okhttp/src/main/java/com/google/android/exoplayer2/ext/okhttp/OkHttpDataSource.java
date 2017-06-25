@@ -16,6 +16,8 @@
 package com.google.android.exoplayer2.ext.okhttp;
 
 import android.net.Uri;
+import android.support.annotation.Nullable;
+
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.upstream.DataSourceException;
 import com.google.android.exoplayer2.upstream.DataSpec;
@@ -67,11 +69,11 @@ public class OkHttpDataSource implements HttpDataSource {
   /**
    * @param callFactory A {@link Call.Factory} (typically an {@link okhttp3.OkHttpClient}) for use
    *     by the source.
-   * @param userAgent The User-Agent string that should be used.
+   * @param userAgent An optional User-Agent string that should be used.
    * @param contentTypePredicate An optional {@link Predicate}. If a content type is rejected by the
    *     predicate then a InvalidContentTypeException} is thrown from {@link #open(DataSpec)}.
    */
-  public OkHttpDataSource(Call.Factory callFactory, String userAgent,
+  public OkHttpDataSource(Call.Factory callFactory, @Nullable String userAgent,
       Predicate<String> contentTypePredicate) {
     this(callFactory, userAgent, contentTypePredicate, null);
   }
@@ -79,13 +81,13 @@ public class OkHttpDataSource implements HttpDataSource {
   /**
    * @param callFactory A {@link Call.Factory} (typically an {@link okhttp3.OkHttpClient}) for use
    *     by the source.
-   * @param userAgent The User-Agent string that should be used.
+   * @param userAgent An optional User-Agent string that should be used.
    * @param contentTypePredicate An optional {@link Predicate}. If a content type is rejected by the
    *     predicate then a {@link InvalidContentTypeException} is thrown from
    *     {@link #open(DataSpec)}.
    * @param listener An optional listener.
    */
-  public OkHttpDataSource(Call.Factory callFactory, String userAgent,
+  public OkHttpDataSource(Call.Factory callFactory, @Nullable String userAgent,
       Predicate<String> contentTypePredicate, TransferListener<? super OkHttpDataSource> listener) {
     this(callFactory, userAgent, contentTypePredicate, listener, null, null);
   }
@@ -93,7 +95,7 @@ public class OkHttpDataSource implements HttpDataSource {
   /**
    * @param callFactory A {@link Call.Factory} (typically an {@link okhttp3.OkHttpClient}) for use
    *     by the source.
-   * @param userAgent The User-Agent string that should be used.
+   * @param userAgent An optional User-Agent string that should be used.
    * @param contentTypePredicate An optional {@link Predicate}. If a content type is rejected by the
    *     predicate then a {@link InvalidContentTypeException} is thrown from
    *     {@link #open(DataSpec)}.
@@ -102,11 +104,11 @@ public class OkHttpDataSource implements HttpDataSource {
    * @param defaultRequestProperties The optional default {@link RequestProperties} to be sent to
    *    the server as HTTP headers on every request.
    */
-  public OkHttpDataSource(Call.Factory callFactory, String userAgent,
+  public OkHttpDataSource(Call.Factory callFactory, @Nullable String userAgent,
       Predicate<String> contentTypePredicate, TransferListener<? super OkHttpDataSource> listener,
       CacheControl cacheControl, RequestProperties defaultRequestProperties) {
     this.callFactory = Assertions.checkNotNull(callFactory);
-    this.userAgent = Assertions.checkNotEmpty(userAgent);
+    this.userAgent = userAgent;
     this.contentTypePredicate = contentTypePredicate;
     this.listener = listener;
     this.cacheControl = cacheControl;
@@ -280,7 +282,10 @@ public class OkHttpDataSource implements HttpDataSource {
       }
       builder.addHeader("Range", rangeRequest);
     }
-    builder.addHeader("User-Agent", userAgent);
+    if (userAgent != null) {
+      builder.addHeader("User-Agent", userAgent);
+    }
+
     if (!allowGzip) {
       builder.addHeader("Accept-Encoding", "identity");
     }
