@@ -23,7 +23,6 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.test.InstrumentationTestCase;
-import android.test.MoreAsserts;
 import com.google.android.exoplayer2.testutil.TestUtil;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -35,7 +34,6 @@ public final class ContentDataSourceTest extends InstrumentationTestCase {
 
   private static final String AUTHORITY = "com.google.android.exoplayer2.core.test";
   private static final String DATA_PATH = "binary/1024_incrementing_bytes.mp3";
-  private static final long DATA_LENGTH = 1024;
 
   public void testReadValidUri() throws Exception {
     ContentDataSource dataSource = new ContentDataSource(getInstrumentation().getContext());
@@ -44,14 +42,8 @@ public final class ContentDataSourceTest extends InstrumentationTestCase {
         .authority(AUTHORITY)
         .path(DATA_PATH).build();
     DataSpec dataSpec = new DataSpec(contentUri);
-    try {
-      long length = dataSource.open(dataSpec);
-      assertEquals(DATA_LENGTH, length);
-      byte[] readData = TestUtil.readToEnd(dataSource);
-      MoreAsserts.assertEquals(TestUtil.getByteArray(getInstrumentation(), DATA_PATH), readData);
-    } finally {
-      dataSource.close();
-    }
+    TestUtil.assertDataSourceContent(dataSource, dataSpec,
+        TestUtil.getByteArray(getInstrumentation(), DATA_PATH));
   }
 
   public void testReadInvalidUri() throws Exception {
@@ -66,6 +58,7 @@ public final class ContentDataSourceTest extends InstrumentationTestCase {
       fail();
     } catch (ContentDataSource.ContentDataSourceException e) {
       // Expected.
+      assertTrue(e.getCause() instanceof FileNotFoundException);
     } finally {
       dataSource.close();
     }
