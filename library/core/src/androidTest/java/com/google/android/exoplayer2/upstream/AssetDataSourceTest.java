@@ -15,10 +15,8 @@
  */
 package com.google.android.exoplayer2.upstream;
 
-import android.content.Context;
 import android.net.Uri;
 import android.test.InstrumentationTestCase;
-import android.test.MoreAsserts;
 import com.google.android.exoplayer2.testutil.TestUtil;
 
 /**
@@ -27,36 +25,19 @@ import com.google.android.exoplayer2.testutil.TestUtil;
 public final class AssetDataSourceTest extends InstrumentationTestCase {
 
   private static final String DATA_PATH = "binary/1024_incrementing_bytes.mp3";
-  private static final long DATA_LENGTH = 1024;
 
   public void testReadFileUri() throws Exception {
-    Context context = getInstrumentation().getContext();
-    AssetDataSource dataSource = new AssetDataSource(context);
-    Uri assetUri = Uri.parse("file:///android_asset/" + DATA_PATH);
-    DataSpec dataSpec = new DataSpec(assetUri);
-    try {
-      long length = dataSource.open(dataSpec);
-      assertEquals(DATA_LENGTH, length);
-      byte[] readData = TestUtil.readToEnd(dataSource);
-      MoreAsserts.assertEquals(TestUtil.getByteArray(getInstrumentation(), DATA_PATH), readData);
-    } finally {
-      dataSource.close();
-    }
+    AssetDataSource dataSource = new AssetDataSource(getInstrumentation().getContext());
+    DataSpec dataSpec = new DataSpec(Uri.parse("file:///android_asset/" + DATA_PATH));
+    TestUtil.assertDataSourceContent(dataSource, dataSpec,
+        TestUtil.getByteArray(getInstrumentation(), DATA_PATH));
   }
 
   public void testReadAssetUri() throws Exception {
-    Context context = getInstrumentation().getContext();
-    AssetDataSource dataSource = new AssetDataSource(context);
-    Uri assetUri = Uri.parse("asset:///" + DATA_PATH);
-    DataSpec dataSpec = new DataSpec(assetUri);
-    try {
-      long length = dataSource.open(dataSpec);
-      assertEquals(DATA_LENGTH, length);
-      byte[] readData = TestUtil.readToEnd(dataSource);
-      MoreAsserts.assertEquals(TestUtil.getByteArray(getInstrumentation(), DATA_PATH), readData);
-    } finally {
-      dataSource.close();
-    }
+    AssetDataSource dataSource = new AssetDataSource(getInstrumentation().getContext());
+    DataSpec dataSpec = new DataSpec(Uri.parse("asset:///" + DATA_PATH));
+    TestUtil.assertDataSourceContent(dataSource, dataSpec,
+        TestUtil.getByteArray(getInstrumentation(), DATA_PATH));
   }
 
 }
