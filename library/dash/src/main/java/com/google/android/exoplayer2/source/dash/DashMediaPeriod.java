@@ -188,7 +188,7 @@ import java.util.List;
   @Override
   public void discardBuffer(long positionUs) {
     for (ChunkSampleStream<DashChunkSource> sampleStream : sampleStreams) {
-      sampleStream.discardUnselectedEmbeddedTracksTo(positionUs);
+      sampleStream.discardEmbeddedTracksTo(positionUs);
     }
   }
 
