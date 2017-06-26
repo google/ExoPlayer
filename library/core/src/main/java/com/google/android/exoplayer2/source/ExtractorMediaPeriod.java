@@ -47,7 +47,8 @@ import java.io.IOException;
  * A {@link MediaPeriod} that extracts data using an {@link Extractor}.
  */
 /* package */ final class ExtractorMediaPeriod implements MediaPeriod, ExtractorOutput,
-    Loader.Callback<ExtractorMediaPeriod.ExtractingLoadable>, UpstreamFormatChangedListener {
+    Loader.Callback<ExtractorMediaPeriod.ExtractingLoadable>, Loader.ReleaseCallback,
+    UpstreamFormatChangedListener {
 
   /**
    * When the source's duration is unknown, it is calculated by adding this value to the largest
@@ -146,19 +147,25 @@ import java.io.IOException;
   }
 
   public void release() {
-    final ExtractorHolder extractorHolder = this.extractorHolder;
-    loader.release(new Runnable() {
-      @Override
-      public void run() {
-        extractorHolder.release();
-        int trackCount = sampleQueues.size();
-        for (int i = 0; i < trackCount; i++) {
-          sampleQueues.valueAt(i).disable();
-        }
+    boolean releasedSynchronously = loader.release(this);
+    if (!releasedSynchronously) {
+      // Discard as much as we can synchronously.
+      int trackCount = sampleQueues.size();
+      for (int i = 0; i < trackCount; i++) {
+        sampleQueues.valueAt(i).discardToEnd();
       }
-    });
+    }
     handler.removeCallbacksAndMessages(null);
     released = true;
+  }
+
+  @Override
+  public void onLoaderReleased() {
+    extractorHolder.release();
+    int trackCount = sampleQueues.size();
+    for (int i = 0; i < trackCount; i++) {
+      sampleQueues.valueAt(i).reset(true);
+    }
   }
 
   @Override
@@ -182,19 +189,21 @@ import java.io.IOException;
   public long selectTracks(TrackSelection[] selections, boolean[] mayRetainStreamFlags,
       SampleStream[] streams, boolean[] streamResetFlags, long positionUs) {
     Assertions.checkState(prepared);
-    // Disable old tracks.
+    int oldEnabledTrackCount = enabledTrackCount;
+    // Deselect old tracks.
     for (int i = 0; i < selections.length; i++) {
       if (streams[i] != null && (selections[i] == null || !mayRetainStreamFlags[i])) {
         int track = ((SampleStreamImpl) streams[i]).track;
         Assertions.checkState(trackEnabledStates[track]);
         enabledTrackCount--;
         trackEnabledStates[track] = false;
-        sampleQueues.valueAt(track).disable();
         streams[i] = null;
       }
     }
-    // Enable new tracks.
-    boolean selectedNewTracks = false;
+    // We'll always need to seek if this is a first selection to a non-zero position, or if we're
+    // making a selection having previously disabled all tracks.
+    boolean seekRequired = seenFirstTrackSelection ? oldEnabledTrackCount == 0 : positionUs != 0;
+    // Select new tracks.
     for (int i = 0; i < selections.length; i++) {
       if (streams[i] == null && selections[i] != null) {
         TrackSelection selection = selections[i];
@@ -206,16 +215,12 @@ import java.io.IOException;
         trackEnabledStates[track] = true;
         streams[i] = new SampleStreamImpl(track);
         streamResetFlags[i] = true;
-        selectedNewTracks = true;
-      }
-    }
-    if (!seenFirstTrackSelection) {
-      // At the time of the first track selection all queues will be enabled, so we need to disable
-      // any that are no longer required.
-      int trackCount = sampleQueues.size();
-      for (int i = 0; i < trackCount; i++) {
-        if (!trackEnabledStates[i]) {
-          sampleQueues.valueAt(i).disable();
+        // If there's still a chance of avoiding a seek, try and seek within the sample queue.
+        if (!seekRequired) {
+          SampleQueue sampleQueue = sampleQueues.valueAt(i);
+          sampleQueue.rewind();
+          seekRequired = !sampleQueue.advanceTo(positionUs, true, true)
+              && sampleQueue.getReadIndex() != 0;
         }
       }
     }
@@ -224,7 +229,7 @@ import java.io.IOException;
       if (loader.isLoading()) {
         loader.cancelLoading();
       }
-    } else if (seenFirstTrackSelection ? selectedNewTracks : positionUs != 0) {
+    } else if (seekRequired) {
       positionUs = seekToUs(positionUs);
       // We'll need to reset renderers consuming from all streams due to the seek.
       for (int i = 0; i < streams.length; i++) {
@@ -239,7 +244,10 @@ import java.io.IOException;
 
   @Override
   public void discardBuffer(long positionUs) {
-    // Do nothing.
+    int trackCount = sampleQueues.size();
+    for (int i = 0; i < trackCount; i++) {
+      sampleQueues.valueAt(i).discardTo(positionUs, false, trackEnabledStates[i]);
+    }
   }
 
   @Override
@@ -303,9 +311,13 @@ import java.io.IOException;
     // If we're not pending a reset, see if we can seek within the sample queues.
     boolean seekInsideBuffer = !isPendingReset();
     for (int i = 0; seekInsideBuffer && i < trackCount; i++) {
-      if (trackEnabledStates[i]) {
-        seekInsideBuffer = sampleQueues.valueAt(i).skipToKeyframeBefore(positionUs, false);
-      }
+      SampleQueue sampleQueue = sampleQueues.valueAt(i);
+      sampleQueue.rewind();
+      // TODO: For sparse tracks (e.g. text, metadata) this may return false when an in-buffer
+      // seek should be allowed. If there are non-sparse tracks (e.g. video, audio) for which
+      // in-buffer seeking is successful, we should perform an in-buffer seek unconditionally.
+      seekInsideBuffer = sampleQueue.advanceTo(positionUs, true, false);
+      sampleQueue.discardToRead();
     }
     // If we failed to seek within the sample queues, we need to restart.
     if (!seekInsideBuffer) {
@@ -338,17 +350,16 @@ import java.io.IOException;
     if (notifyReset || isPendingReset()) {
       return C.RESULT_NOTHING_READ;
     }
-
-    return sampleQueues.valueAt(track).readData(formatHolder, buffer, formatRequired,
+    return sampleQueues.valueAt(track).read(formatHolder, buffer, formatRequired,
         loadingFinished, lastSeekPositionUs);
   }
 
   /* package */ void skipData(int track, long positionUs) {
     SampleQueue sampleQueue = sampleQueues.valueAt(track);
     if (loadingFinished && positionUs > sampleQueue.getLargestQueuedTimestampUs()) {
-      sampleQueue.skipAll();
+      sampleQueue.advanceToEnd();
     } else {
-      sampleQueue.skipToKeyframeBefore(positionUs, true);
+      sampleQueue.advanceTo(positionUs, true, true);
     }
   }
 
@@ -372,12 +383,15 @@ import java.io.IOException;
   @Override
   public void onLoadCanceled(ExtractingLoadable loadable, long elapsedRealtimeMs,
       long loadDurationMs, boolean released) {
+    if (released) {
+      return;
+    }
     copyLengthFromLoader(loadable);
-    if (!released && enabledTrackCount > 0) {
-      int trackCount = sampleQueues.size();
-      for (int i = 0; i < trackCount; i++) {
-        sampleQueues.valueAt(i).reset(trackEnabledStates[i]);
-      }
+    int trackCount = sampleQueues.size();
+    for (int i = 0; i < trackCount; i++) {
+      sampleQueues.valueAt(i).reset(true);
+    }
+    if (enabledTrackCount > 0) {
       callback.onContinueLoadingRequested(this);
     }
   }
@@ -508,7 +522,7 @@ import java.io.IOException;
       notifyReset = prepared;
       int trackCount = sampleQueues.size();
       for (int i = 0; i < trackCount; i++) {
-        sampleQueues.valueAt(i).reset(!prepared || trackEnabledStates[i]);
+        sampleQueues.valueAt(i).reset(true);
       }
       loadable.setLoadPosition(0, 0);
     }
