@@ -217,7 +217,7 @@ import java.util.Arrays;
         streamResetFlags[i] = true;
         // If there's still a chance of avoiding a seek, try and seek within the sample queue.
         if (!seekRequired) {
-          SampleQueue sampleQueue = sampleQueues[i];
+          SampleQueue sampleQueue = sampleQueues[track];
           sampleQueue.rewind();
           seekRequired = !sampleQueue.advanceTo(positionUs, true, true)
               && sampleQueue.getReadIndex() != 0;
