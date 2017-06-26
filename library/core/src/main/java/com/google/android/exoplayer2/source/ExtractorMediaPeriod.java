@@ -17,7 +17,6 @@ package com.google.android.exoplayer2.source;
 
 import android.net.Uri;
 import android.os.Handler;
-import android.util.SparseArray;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.FormatHolder;
@@ -42,6 +41,7 @@ import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.Util;
 import java.io.EOFException;
 import java.io.IOException;
+import java.util.Arrays;
 
 /**
  * A {@link MediaPeriod} that extracts data using an {@link Extractor}.
@@ -71,11 +71,12 @@ import java.io.IOException;
   private final Runnable maybeFinishPrepareRunnable;
   private final Runnable onContinueLoadingRequestedRunnable;
   private final Handler handler;
-  private final SparseArray<SampleQueue> sampleQueues;
 
   private Callback callback;
   private SeekMap seekMap;
-  private boolean tracksBuilt;
+  private SampleQueue[] sampleQueues;
+  private int[] sampleQueueTrackIds;
+  private boolean sampleQueuesBuilt;
   private boolean prepared;
 
   private boolean seenFirstTrackSelection;
@@ -140,19 +141,19 @@ import java.io.IOException;
       }
     };
     handler = new Handler();
-
+    sampleQueueTrackIds = new int[0];
+    sampleQueues = new SampleQueue[0];
     pendingResetPositionUs = C.TIME_UNSET;
-    sampleQueues = new SparseArray<>();
     length = C.LENGTH_UNSET;
   }
 
   public void release() {
     boolean releasedSynchronously = loader.release(this);
-    if (!releasedSynchronously) {
-      // Discard as much as we can synchronously.
-      int trackCount = sampleQueues.size();
-      for (int i = 0; i < trackCount; i++) {
-        sampleQueues.valueAt(i).discardToEnd();
+    if (prepared && !releasedSynchronously) {
+      // Discard as much as we can synchronously. We only do this if we're prepared, since
+      // otherwise sampleQueues may still be being modified by the loading thread.
+      for (SampleQueue sampleQueue : sampleQueues) {
+        sampleQueue.discardToEnd();
       }
     }
     handler.removeCallbacksAndMessages(null);
@@ -162,9 +163,8 @@ import java.io.IOException;
   @Override
   public void onLoaderReleased() {
     extractorHolder.release();
-    int trackCount = sampleQueues.size();
-    for (int i = 0; i < trackCount; i++) {
-      sampleQueues.valueAt(i).reset(true);
+    for (SampleQueue sampleQueue : sampleQueues) {
+      sampleQueue.reset(true);
     }
   }
 
@@ -217,7 +217,7 @@ import java.io.IOException;
         streamResetFlags[i] = true;
         // If there's still a chance of avoiding a seek, try and seek within the sample queue.
         if (!seekRequired) {
-          SampleQueue sampleQueue = sampleQueues.valueAt(i);
+          SampleQueue sampleQueue = sampleQueues[i];
           sampleQueue.rewind();
           seekRequired = !sampleQueue.advanceTo(positionUs, true, true)
               && sampleQueue.getReadIndex() != 0;
@@ -244,9 +244,9 @@ import java.io.IOException;
 
   @Override
   public void discardBuffer(long positionUs) {
-    int trackCount = sampleQueues.size();
+    int trackCount = sampleQueues.length;
     for (int i = 0; i < trackCount; i++) {
-      sampleQueues.valueAt(i).discardTo(positionUs, false, trackEnabledStates[i]);
+      sampleQueues[i].discardTo(positionUs, false, trackEnabledStates[i]);
     }
   }
 
@@ -288,11 +288,11 @@ import java.io.IOException;
     if (haveAudioVideoTracks) {
       // Ignore non-AV tracks, which may be sparse or poorly interleaved.
       largestQueuedTimestampUs = Long.MAX_VALUE;
-      int trackCount = sampleQueues.size();
+      int trackCount = sampleQueues.length;
       for (int i = 0; i < trackCount; i++) {
         if (trackIsAudioVideoFlags[i]) {
           largestQueuedTimestampUs = Math.min(largestQueuedTimestampUs,
-              sampleQueues.valueAt(i).getLargestQueuedTimestampUs());
+              sampleQueues[i].getLargestQueuedTimestampUs());
         }
       }
     } else {
@@ -307,11 +307,11 @@ import java.io.IOException;
     // Treat all seeks into non-seekable media as being to t=0.
     positionUs = seekMap.isSeekable() ? positionUs : 0;
     lastSeekPositionUs = positionUs;
-    int trackCount = sampleQueues.size();
     // If we're not pending a reset, see if we can seek within the sample queues.
     boolean seekInsideBuffer = !isPendingReset();
+    int trackCount = sampleQueues.length;
     for (int i = 0; seekInsideBuffer && i < trackCount; i++) {
-      SampleQueue sampleQueue = sampleQueues.valueAt(i);
+      SampleQueue sampleQueue = sampleQueues[i];
       sampleQueue.rewind();
       // TODO: For sparse tracks (e.g. text, metadata) this may return false when an in-buffer
       // seek should be allowed. If there are non-sparse tracks (e.g. video, audio) for which
@@ -327,7 +327,7 @@ import java.io.IOException;
         loader.cancelLoading();
       } else {
         for (int i = 0; i < trackCount; i++) {
-          sampleQueues.valueAt(i).reset(trackEnabledStates[i]);
+          sampleQueues[i].reset(trackEnabledStates[i]);
         }
       }
     }
@@ -338,7 +338,7 @@ import java.io.IOException;
   // SampleStream methods.
 
   /* package */ boolean isReady(int track) {
-    return loadingFinished || (!isPendingReset() && sampleQueues.valueAt(track).hasNextSample());
+    return loadingFinished || (!isPendingReset() && sampleQueues[track].hasNextSample());
   }
 
   /* package */ void maybeThrowError() throws IOException {
@@ -350,12 +350,12 @@ import java.io.IOException;
     if (notifyReset || isPendingReset()) {
       return C.RESULT_NOTHING_READ;
     }
-    return sampleQueues.valueAt(track).read(formatHolder, buffer, formatRequired,
-        loadingFinished, lastSeekPositionUs);
+    return sampleQueues[track].read(formatHolder, buffer, formatRequired, loadingFinished,
+        lastSeekPositionUs);
   }
 
   /* package */ void skipData(int track, long positionUs) {
-    SampleQueue sampleQueue = sampleQueues.valueAt(track);
+    SampleQueue sampleQueue = sampleQueues[track];
     if (loadingFinished && positionUs > sampleQueue.getLargestQueuedTimestampUs()) {
       sampleQueue.advanceToEnd();
     } else {
@@ -387,9 +387,8 @@ import java.io.IOException;
       return;
     }
     copyLengthFromLoader(loadable);
-    int trackCount = sampleQueues.size();
-    for (int i = 0; i < trackCount; i++) {
-      sampleQueues.valueAt(i).reset(true);
+    for (SampleQueue sampleQueue : sampleQueues) {
+      sampleQueue.reset(true);
     }
     if (enabledTrackCount > 0) {
       callback.onContinueLoadingRequested(this);
@@ -415,18 +414,24 @@ import java.io.IOException;
 
   @Override
   public TrackOutput track(int id, int type) {
-    SampleQueue trackOutput = sampleQueues.get(id);
-    if (trackOutput == null) {
-      trackOutput = new SampleQueue(allocator);
-      trackOutput.setUpstreamFormatChangeListener(this);
-      sampleQueues.put(id, trackOutput);
+    int trackCount = sampleQueues.length;
+    for (int i = 0; i < trackCount; i++) {
+      if (sampleQueueTrackIds[i] == id) {
+        return sampleQueues[i];
+      }
     }
+    SampleQueue trackOutput = new SampleQueue(allocator);
+    trackOutput.setUpstreamFormatChangeListener(this);
+    sampleQueueTrackIds = Arrays.copyOf(sampleQueueTrackIds, trackCount + 1);
+    sampleQueueTrackIds[trackCount] = id;
+    sampleQueues = Arrays.copyOf(sampleQueues, trackCount + 1);
+    sampleQueues[trackCount] = trackOutput;
     return trackOutput;
   }
 
   @Override
   public void endTracks() {
-    tracksBuilt = true;
+    sampleQueuesBuilt = true;
     handler.post(maybeFinishPrepareRunnable);
   }
 
@@ -446,22 +451,22 @@ import java.io.IOException;
   // Internal methods.
 
   private void maybeFinishPrepare() {
-    if (released || prepared || seekMap == null || !tracksBuilt) {
+    if (released || prepared || seekMap == null || !sampleQueuesBuilt) {
       return;
     }
-    int trackCount = sampleQueues.size();
-    for (int i = 0; i < trackCount; i++) {
-      if (sampleQueues.valueAt(i).getUpstreamFormat() == null) {
+    for (SampleQueue sampleQueue : sampleQueues) {
+      if (sampleQueue.getUpstreamFormat() == null) {
         return;
       }
     }
     loadCondition.close();
+    int trackCount = sampleQueues.length;
     TrackGroup[] trackArray = new TrackGroup[trackCount];
     trackIsAudioVideoFlags = new boolean[trackCount];
     trackEnabledStates = new boolean[trackCount];
     durationUs = seekMap.getDurationUs();
     for (int i = 0; i < trackCount; i++) {
-      Format trackFormat = sampleQueues.valueAt(i).getUpstreamFormat();
+      Format trackFormat = sampleQueues[i].getUpstreamFormat();
       trackArray[i] = new TrackGroup(trackFormat);
       String mimeType = trackFormat.sampleMimeType;
       boolean isAudioVideo = MimeTypes.isVideo(mimeType) || MimeTypes.isAudio(mimeType);
@@ -520,9 +525,8 @@ import java.io.IOException;
       // a new load.
       lastSeekPositionUs = 0;
       notifyReset = prepared;
-      int trackCount = sampleQueues.size();
-      for (int i = 0; i < trackCount; i++) {
-        sampleQueues.valueAt(i).reset(true);
+      for (SampleQueue sampleQueue : sampleQueues) {
+        sampleQueue.reset(true);
       }
       loadable.setLoadPosition(0, 0);
     }
@@ -530,19 +534,17 @@ import java.io.IOException;
 
   private int getExtractedSamplesCount() {
     int extractedSamplesCount = 0;
-    int trackCount = sampleQueues.size();
-    for (int i = 0; i < trackCount; i++) {
-      extractedSamplesCount += sampleQueues.valueAt(i).getWriteIndex();
+    for (SampleQueue sampleQueue : sampleQueues) {
+      extractedSamplesCount += sampleQueue.getWriteIndex();
     }
     return extractedSamplesCount;
   }
 
   private long getLargestQueuedTimestampUs() {
     long largestQueuedTimestampUs = Long.MIN_VALUE;
-    int trackCount = sampleQueues.size();
-    for (int i = 0; i < trackCount; i++) {
+    for (SampleQueue sampleQueue : sampleQueues) {
       largestQueuedTimestampUs = Math.max(largestQueuedTimestampUs,
-          sampleQueues.valueAt(i).getLargestQueuedTimestampUs());
+          sampleQueue.getLargestQueuedTimestampUs());
     }
     return largestQueuedTimestampUs;
   }
