@@ -430,35 +430,39 @@ import java.io.IOException;
   private void setRepeatModeInternal(@ExoPlayer.RepeatMode int repeatMode)
       throws ExoPlaybackException {
     this.repeatMode = repeatMode;
-    // Check if all existing period holders match the new period order.
+
+    // Find the last existing period holder that matches the new period order.
     MediaPeriodHolder lastValidPeriodHolder = playingPeriodHolder != null
         ? playingPeriodHolder : loadingPeriodHolder;
     if (lastValidPeriodHolder == null) {
       return;
     }
-    boolean seenReadingPeriodHolder = lastValidPeriodHolder == readingPeriodHolder;
-    boolean seenLoadingPeriodHolder = lastValidPeriodHolder == loadingPeriodHolder;
     int nextPeriodIndex = timeline.getNextPeriodIndex(lastValidPeriodHolder.periodIndex, period,
         window, repeatMode);
     while (lastValidPeriodHolder.next != null && nextPeriodIndex != C.INDEX_UNSET
         && lastValidPeriodHolder.next.periodIndex == nextPeriodIndex) {
       lastValidPeriodHolder = lastValidPeriodHolder.next;
-      seenReadingPeriodHolder |= lastValidPeriodHolder == readingPeriodHolder;
-      seenLoadingPeriodHolder |= lastValidPeriodHolder == loadingPeriodHolder;
       nextPeriodIndex = timeline.getNextPeriodIndex(lastValidPeriodHolder.periodIndex, period,
           window, repeatMode);
     }
-    // Release all period holder beyond the last one matching the new period order.
+
+    // Release any period holders that don't match the new period order.
+    int loadingPeriodHolderIndex = loadingPeriodHolder.index;
+    int readingPeriodHolderIndex =
+        readingPeriodHolder != null ? readingPeriodHolder.index : C.INDEX_UNSET;
     if (lastValidPeriodHolder.next != null) {
       releasePeriodHoldersFrom(lastValidPeriodHolder.next);
       lastValidPeriodHolder.next = null;
     }
-    // Update isFinal flag.
     lastValidPeriodHolder.isFinal = isFinalPeriod(lastValidPeriodHolder.periodIndex);
+
     // Handle cases where loadingPeriodHolder or readingPeriodHolder have been removed.
+    boolean seenLoadingPeriodHolder = loadingPeriodHolderIndex <= lastValidPeriodHolder.index;
     if (!seenLoadingPeriodHolder) {
       loadingPeriodHolder = lastValidPeriodHolder;
     }
+    boolean seenReadingPeriodHolder = readingPeriodHolderIndex != C.INDEX_UNSET
+        && readingPeriodHolderIndex <= lastValidPeriodHolder.index;
     if (!seenReadingPeriodHolder && playingPeriodHolder != null) {
       // Renderers may have read from a period that's been removed. Seek back to the current
       // position of the playing period to make sure none of the removed period is played.
@@ -466,6 +470,7 @@ import java.io.IOException;
       long newPositionUs = seekToPeriodPosition(playingPeriodIndex, playbackInfo.positionUs);
       playbackInfo = new PlaybackInfo(playingPeriodIndex, newPositionUs);
     }
+
     // Restart buffering if playback has ended and repetition is enabled.
     if (state == ExoPlayer.STATE_ENDED && repeatMode != ExoPlayer.REPEAT_MODE_OFF) {
       setState(ExoPlayer.STATE_BUFFERING);
@@ -1011,7 +1016,6 @@ import java.io.IOException;
 
     // The current period is in the new timeline. Update the holder and playbackInfo.
     periodHolder.setPeriodIndex(periodIndex, isFinalPeriod(periodIndex));
-    boolean seenReadingPeriod = periodHolder == readingPeriodHolder;
     if (periodIndex != playbackInfo.periodIndex) {
       playbackInfo = playbackInfo.copyWithPeriodIndex(periodIndex);
     }
@@ -1026,10 +1030,11 @@ import java.io.IOException;
           && periodHolder.uid.equals(timeline.getPeriod(periodIndex, period, true).uid)) {
         // The holder is consistent with the new timeline. Update its index and continue.
         periodHolder.setPeriodIndex(periodIndex, isFinalPeriod(periodIndex));
-        seenReadingPeriod |= (periodHolder == readingPeriodHolder);
       } else {
         // The holder is inconsistent with the new timeline.
-        if (!seenReadingPeriod) {
+        boolean seenReadingPeriodHolder =
+            readingPeriodHolder != null && readingPeriodHolder.index < periodHolder.index;
+        if (!seenReadingPeriodHolder) {
           // Renderers may have read from a period that's been removed. Seek back to the current
           // position of the playing period to make sure none of the removed period is played.
           periodIndex = playingPeriodHolder.periodIndex;
