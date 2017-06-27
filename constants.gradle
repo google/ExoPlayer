@@ -11,7 +11,7 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-ext {
+project.ext {
     // Important: ExoPlayer specifies a minSdkVersion of 9 because various
     // components provided by the library may be of use on older devices.
     // However, please note that the core media playback functionality provided
@@ -25,4 +25,8 @@ ext {
     dexmakerVersion = '1.2'
     mockitoVersion = '1.9.5'
     releaseVersion = 'r2.4.2'
+    modulePrefix = ':';
+    if (gradle.ext.has('exoplayerModulePrefix')) {
+        modulePrefix += gradle.ext.exoplayerModulePrefix
+    }
 }

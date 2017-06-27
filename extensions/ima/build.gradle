@@ -1,4 +1,4 @@
-apply from: '../../version_constants.gradle'
+apply from: '../../constants.gradle'
 apply plugin: 'com.android.library'
 
 android {
@@ -13,7 +13,7 @@ android {
 }
 
 dependencies {
-    compile project(':library-core')
+    compile project(modulePrefix + 'library-core')
     compile 'com.android.support:support-annotations:' + supportLibraryVersion
     compile 'com.google.ads.interactivemedia.v3:interactivemedia:3.6.0'
     compile 'com.google.android.gms:play-services-ads:10.2.4'
@@ -28,7 +28,7 @@ dependencies {
     // will become unnecessary when the support-v4 dependency in the chain above
     // has been updated to 24.2.0 or later.
     compile 'com.android.support:support-v4:' + supportLibraryVersion
-    androidTestCompile project(':library')
+    androidTestCompile project(modulePrefix + 'library')
     androidTestCompile 'com.google.dexmaker:dexmaker:' + dexmakerVersion
     androidTestCompile 'com.google.dexmaker:dexmaker-mockito:' + dexmakerVersion
     androidTestCompile 'org.mockito:mockito-core:' + mockitoVersion
