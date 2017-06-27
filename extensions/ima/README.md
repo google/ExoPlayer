@@ -9,6 +9,14 @@ alongside content.
 [IMA]: https://developers.google.com/interactive-media-ads/docs/sdks/android/
 [MediaSource]: https://github.com/google/ExoPlayer/blob/release-v2/library/core/src/main/java/com/google/android/exoplayer2/source/MediaSource.java
 
+## Getting the extension ##
+
+To use this extension you need to clone the ExoPlayer repository and depend on
+its modules locally. Instructions for doing this can be found in ExoPlayer's
+[top level README][].
+
+[top level README]: https://github.com/google/ExoPlayer/blob/release-v2/README.md
+
 ## Using the extension ##
 
 Pass a single-window content `MediaSource` to `ImaAdsMediaSource`'s constructor,
@@ -21,6 +29,7 @@ select and build one of the `withExtensions` build variants of the demo app in
 Android Studio. You can find IMA test content in the "IMA sample ad tags"
 section of the app.
 
+[top level README]: https://github.com/google/ExoPlayer/blob/release-v2/README.md
 [sample ad tags]: https://developers.google.com/interactive-media-ads/docs/sdks/android/tags
 
 ## Known issues ##
