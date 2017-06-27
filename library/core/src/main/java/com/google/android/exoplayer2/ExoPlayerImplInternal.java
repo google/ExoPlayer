@@ -50,21 +50,25 @@ import java.io.IOException;
    */
   public static final class PlaybackInfo {
 
-    public final int periodIndex;
+    public final MediaPeriodId periodId;
     public final long startPositionUs;
 
     public volatile long positionUs;
     public volatile long bufferedPositionUs;
 
     public PlaybackInfo(int periodIndex, long startPositionUs) {
-      this.periodIndex = periodIndex;
+      this(new MediaPeriodId(periodIndex), startPositionUs);
+    }
+
+    public PlaybackInfo(MediaPeriodId periodId, long startPositionUs) {
+      this.periodId = periodId;
       this.startPositionUs = startPositionUs;
       positionUs = startPositionUs;
       bufferedPositionUs = startPositionUs;
     }
 
-    public PlaybackInfo copyWithPeriodIndex(int periodIndex) {
-      PlaybackInfo playbackInfo = new PlaybackInfo(periodIndex, startPositionUs);
+    public PlaybackInfo copyWithPeriodId(MediaPeriodId periodId) {
+      PlaybackInfo playbackInfo = new PlaybackInfo(periodId.periodIndex, startPositionUs);
       playbackInfo.positionUs = positionUs;
       playbackInfo.bufferedPositionUs = bufferedPositionUs;
       return playbackInfo;
@@ -654,7 +658,7 @@ import java.io.IOException;
     long periodPositionUs = periodPosition.second;
 
     try {
-      if (periodIndex == playbackInfo.periodIndex
+      if (periodIndex == playbackInfo.periodId.periodIndex
           && ((periodPositionUs / 1000) == (playbackInfo.positionUs / 1000))) {
         // Seek position equals the current position. Do nothing.
         return;
@@ -1017,8 +1021,8 @@ import java.io.IOException;
 
     // The current period is in the new timeline. Update the holder and playbackInfo.
     periodHolder.setPeriodIndex(periodIndex, isFinalPeriod(periodIndex));
-    if (periodIndex != playbackInfo.periodIndex) {
-      playbackInfo = playbackInfo.copyWithPeriodIndex(periodIndex);
+    if (periodIndex != playbackInfo.periodId.periodIndex) {
+      playbackInfo = playbackInfo.copyWithPeriodId(new MediaPeriodId(periodIndex));
     }
 
     // If there are subsequent holders, update the index for each of them. If we find a holder
@@ -1301,7 +1305,7 @@ import java.io.IOException;
   private void maybeUpdateLoadingPeriod() throws IOException {
     int newLoadingPeriodIndex;
     if (loadingPeriodHolder == null) {
-      newLoadingPeriodIndex = playbackInfo.periodIndex;
+      newLoadingPeriodIndex = playbackInfo.periodId.periodIndex;
     } else {
       int loadingPeriodIndex = loadingPeriodHolder.periodIndex;
       if (loadingPeriodHolder.isFinal || !loadingPeriodHolder.isFullyBuffered()
