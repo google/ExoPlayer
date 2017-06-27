@@ -159,7 +159,8 @@ public final class ImaAdsMediaSource implements MediaSource {
   }
 
   @Override
-  public MediaPeriod createPeriod(int index, Allocator allocator) {
+  public MediaPeriod createPeriod(MediaPeriodId id, Allocator allocator) {
+    int index = id.periodIndex;
     if (timeline.isPeriodAd(index)) {
       int adBreakIndex = timeline.getAdBreakIndex(index);
       int adIndexInAdBreak = timeline.getAdIndexInAdBreak(index);
@@ -174,13 +175,15 @@ public final class ImaAdsMediaSource implements MediaSource {
       }
 
       MediaSource adBreakMediaSource = adBreakMediaSources[adBreakIndex][adIndexInAdBreak];
-      MediaPeriod adBreakMediaPeriod = adBreakMediaSource.createPeriod(0, allocator);
+      MediaPeriod adBreakMediaPeriod =
+          adBreakMediaSource.createPeriod(new MediaPeriodId(0), allocator);
       mediaSourceByMediaPeriod.put(adBreakMediaPeriod, adBreakMediaSource);
       return adBreakMediaPeriod;
     } else {
       long startUs = timeline.getContentStartTimeUs(index);
       long endUs = timeline.getContentEndTimeUs(index);
-      MediaPeriod contentMediaPeriod = contentMediaSource.createPeriod(0, allocator);
+      MediaPeriod contentMediaPeriod =
+          contentMediaSource.createPeriod(new MediaPeriodId(0), allocator);
       ClippingMediaPeriod clippingPeriod = new ClippingMediaPeriod(contentMediaPeriod, true);
       clippingPeriod.setClipping(startUs, endUs == C.TIME_UNSET ? C.TIME_END_OF_SOURCE : endUs);
       mediaSourceByMediaPeriod.put(contentMediaPeriod, contentMediaSource);
@@ -445,7 +448,7 @@ public final class ImaAdsMediaSource implements MediaSource {
     }
 
     public void setMediaSource(MediaSource mediaSource) {
-      mediaPeriod = mediaSource.createPeriod(index, allocator);
+      mediaPeriod = mediaSource.createPeriod(new MediaPeriodId(index), allocator);
       if (callback != null) {
         mediaPeriod.prepare(this, positionUs);
       }

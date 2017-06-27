@@ -26,6 +26,7 @@ import android.util.Pair;
 import com.google.android.exoplayer2.ExoPlayer.ExoPlayerMessage;
 import com.google.android.exoplayer2.source.MediaPeriod;
 import com.google.android.exoplayer2.source.MediaSource;
+import com.google.android.exoplayer2.source.MediaSource.MediaPeriodId;
 import com.google.android.exoplayer2.source.SampleStream;
 import com.google.android.exoplayer2.trackselection.TrackSelection;
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
@@ -1543,7 +1544,8 @@ import java.io.IOException;
       this.startPositionUs = startPositionUs;
       sampleStreams = new SampleStream[renderers.length];
       mayRetainStreamFlags = new boolean[renderers.length];
-      mediaPeriod = mediaSource.createPeriod(periodIndex, loadControl.getAllocator());
+      mediaPeriod = mediaSource.createPeriod(new MediaPeriodId(periodIndex),
+          loadControl.getAllocator());
     }
 
     public long toRendererTime(long periodTimeUs) {

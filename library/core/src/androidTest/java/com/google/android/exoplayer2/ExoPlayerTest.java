@@ -535,8 +535,8 @@ public final class ExoPlayerTest extends TestCase {
     }
 
     @Override
-    public MediaPeriod createPeriod(int index, Allocator allocator) {
-      Assertions.checkIndex(index, 0, timeline.getPeriodCount());
+    public MediaPeriod createPeriod(MediaPeriodId id, Allocator allocator) {
+      Assertions.checkIndex(id.periodIndex, 0, timeline.getPeriodCount());
       assertTrue(preparedSource);
       assertFalse(releasedSource);
       FakeMediaPeriod mediaPeriod = new FakeMediaPeriod(trackGroupArray);
