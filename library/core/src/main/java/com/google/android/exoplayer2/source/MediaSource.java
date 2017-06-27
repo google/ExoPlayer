@@ -42,6 +42,27 @@ public interface MediaSource {
   }
 
   /**
+   * Identifier for a {@link MediaPeriod}.
+   */
+  final class MediaPeriodId {
+
+    /**
+     * The timeline period index.
+     */
+    public final int periodIndex;
+
+    /**
+     * Creates a media period identifier for the specified period in the timeline.
+     *
+     * @param periodIndex The timeline period index.
+     */
+    public MediaPeriodId(int periodIndex) {
+      this.periodIndex = periodIndex;
+    }
+
+  }
+
+  /**
    * Starts preparation of the source.
    *
    * @param player The player for which this source is being prepared.
@@ -59,15 +80,15 @@ public interface MediaSource {
   void maybeThrowSourceInfoRefreshError() throws IOException;
 
   /**
-   * Returns a new {@link MediaPeriod} corresponding to the period at the specified {@code index}.
-   * This method may be called multiple times with the same index without an intervening call to
+   * Returns a new {@link MediaPeriod} identified by {@code periodId}. This method may be called
+   * multiple times with the same period identifier without an intervening call to
    * {@link #releasePeriod(MediaPeriod)}.
    *
-   * @param index The index of the period.
+   * @param id The identifier of the period.
    * @param allocator An {@link Allocator} from which to obtain media buffer allocations.
    * @return A new {@link MediaPeriod}.
    */
-  MediaPeriod createPeriod(int index, Allocator allocator);
+  MediaPeriod createPeriod(MediaPeriodId id, Allocator allocator);
 
   /**
    * Releases the period.
