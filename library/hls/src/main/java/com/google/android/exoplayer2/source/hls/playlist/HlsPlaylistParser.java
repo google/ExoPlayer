@@ -30,6 +30,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
@@ -176,6 +177,7 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
 
   private static HlsMasterPlaylist parseMasterPlaylist(LineIterator iterator, String baseUri)
       throws IOException {
+    HashSet<String> variantUrls = new HashSet<>();
     ArrayList<HlsMasterPlaylist.HlsUrl> variants = new ArrayList<>();
     ArrayList<HlsMasterPlaylist.HlsUrl> audios = new ArrayList<>();
     ArrayList<HlsMasterPlaylist.HlsUrl> subtitles = new ArrayList<>();
@@ -260,11 +262,13 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
           width = Format.NO_VALUE;
           height = Format.NO_VALUE;
         }
-        line = iterator.next();
-        Format format = Format.createVideoContainerFormat(Integer.toString(variants.size()),
-            MimeTypes.APPLICATION_M3U8, null, codecs, bitrate, width, height, Format.NO_VALUE, null,
-            0);
-        variants.add(new HlsMasterPlaylist.HlsUrl(line, format));
+        line = iterator.next(); // #EXT-X-STREAM-INF's URI.
+        if (variantUrls.add(line)) {
+          Format format = Format.createVideoContainerFormat(Integer.toString(variants.size()),
+              MimeTypes.APPLICATION_M3U8, null, codecs, bitrate, width, height, Format.NO_VALUE,
+              null, 0);
+          variants.add(new HlsMasterPlaylist.HlsUrl(line, format));
+        }
       }
     }
     if (noClosedCaptions) {
