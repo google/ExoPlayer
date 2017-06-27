@@ -24,6 +24,7 @@ import android.util.Log;
 import com.google.android.exoplayer2.ExoPlayerImplInternal.PlaybackInfo;
 import com.google.android.exoplayer2.ExoPlayerImplInternal.SourceInfo;
 import com.google.android.exoplayer2.source.MediaSource;
+import com.google.android.exoplayer2.source.MediaSource.MediaPeriodId;
 import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.trackselection.TrackSelection;
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
@@ -299,7 +300,14 @@ import java.util.concurrent.CopyOnWriteArraySet;
     if (timeline.isEmpty()) {
       return C.TIME_UNSET;
     }
-    return timeline.getWindow(getCurrentWindowIndex(), window).getDurationMs();
+    if (isPlayingAd()) {
+      MediaPeriodId periodId = playbackInfo.periodId;
+      timeline.getPeriod(periodId.periodIndex, period);
+      long adDurationUs = period.getAdDurationUs(periodId.adGroupIndex, periodId.adIndexInAdGroup);
+      return C.usToMs(adDurationUs);
+    } else {
+      return timeline.getWindow(getCurrentWindowIndex(), window).getDurationMs();
+    }
   }
 
   @Override
@@ -461,6 +469,12 @@ import java.util.concurrent.CopyOnWriteArraySet;
       default:
         throw new IllegalStateException();
     }
+  }
+
+  // TODO: Add to the public ExoPlayer interface.
+
+  private boolean isPlayingAd() {
+    return pendingSeekAcks == 0 && playbackInfo.periodId.adGroupIndex != C.INDEX_UNSET;
   }
 
 }

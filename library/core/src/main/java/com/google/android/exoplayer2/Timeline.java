@@ -235,7 +235,7 @@ public abstract class Timeline {
 
   /**
    * Holds information about a period in a {@link Timeline}. A period defines a single logical piece
-   * of media, for example a a media file. See {@link Timeline} for more details. The figure below
+   * of media, for example a media file. See {@link Timeline} for more details. The figure below
    * shows some of the information defined by a period, as well as how this information relates to a
    * corresponding {@link Window} in the timeline.
    * <p align="center">
@@ -264,24 +264,77 @@ public abstract class Timeline {
      */
     public long durationUs;
 
+    // TODO: Remove this flag now that in-period ads are supported.
+
     /**
      * Whether this period contains an ad.
      */
     public boolean isAd;
 
     private long positionInWindowUs;
+    private long[] adGroupTimesUs;
+    private boolean[] hasPlayedAdGroup;
+    private int[] adCounts;
+    private boolean[][] isAdAvailable;
+    private long[][] adDurationsUs;
 
     /**
      * Sets the data held by this period.
+     *
+     * @param id An identifier for the period. Not necessarily unique.
+     * @param uid A unique identifier for the period.
+     * @param windowIndex The index of the window to which this period belongs.
+     * @param durationUs The duration of this period in microseconds, or {@link C#TIME_UNSET} if
+     *     unknown.
+     * @param positionInWindowUs The position of the start of this period relative to the start of
+     *     the window to which it belongs, in milliseconds. May be negative if the start of the
+     *     period is not within the window.
+     * @param isAd Whether this period is an ad.
+     * @return This period, for convenience.
      */
     public Period set(Object id, Object uid, int windowIndex, long durationUs,
         long positionInWindowUs, boolean isAd) {
+      return set(id, uid, windowIndex, durationUs, positionInWindowUs, isAd, null, null, null, null,
+          null);
+    }
+
+    /**
+     * Sets the data held by this period.
+     *
+     * @param id An identifier for the period. Not necessarily unique.
+     * @param uid A unique identifier for the period.
+     * @param windowIndex The index of the window to which this period belongs.
+     * @param durationUs The duration of this period in microseconds, or {@link C#TIME_UNSET} if
+     *     unknown.
+     * @param positionInWindowUs The position of the start of this period relative to the start of
+     *     the window to which it belongs, in milliseconds. May be negative if the start of the
+     *     period is not within the window.
+     * @param isAd Whether this period is an ad.
+     * @param adGroupTimesUs The times of ad groups relative to the start of the period, in
+     *     microseconds. A final element with the value {@link C#TIME_END_OF_SOURCE} indicates that
+     *     the period has a postroll ad.
+     * @param hasPlayedAdGroup Whether each ad group has been played.
+     * @param adCounts The number of ads in each ad group. An element may be {@link C#LENGTH_UNSET}
+     *     if the number of ads is not yet known.
+     * @param isAdAvailable Whether each ad in each ad group is available.
+     * @param adDurationsUs The duration of each ad in each ad group, in microseconds. An element
+     *     may be {@link C#TIME_UNSET} if the duration is not yet known.
+     * @return This period, for convenience.
+     */
+    public Period set(Object id, Object uid, int windowIndex, long durationUs,
+        long positionInWindowUs, boolean isAd, long[] adGroupTimesUs, boolean[] hasPlayedAdGroup,
+        int[] adCounts, boolean[][] isAdAvailable, long[][] adDurationsUs) {
       this.id = id;
       this.uid = uid;
       this.windowIndex = windowIndex;
       this.durationUs = durationUs;
       this.positionInWindowUs = positionInWindowUs;
       this.isAd = isAd;
+      this.adGroupTimesUs = adGroupTimesUs;
+      this.hasPlayedAdGroup = hasPlayedAdGroup;
+      this.adCounts = adCounts;
+      this.isAdAvailable = isAdAvailable;
+      this.adDurationsUs = adDurationsUs;
       return this;
     }
 
@@ -315,6 +368,128 @@ public abstract class Timeline {
      */
     public long getPositionInWindowUs() {
       return positionInWindowUs;
+    }
+
+    /**
+     * Returns the number of ad groups in the period.
+     */
+    public int getAdGroupCount() {
+      return adGroupTimesUs == null ? 0 : adGroupTimesUs.length;
+    }
+
+    /**
+     * Returns the time of the ad group at index {@code adGroupIndex} in the period, in
+     * microseconds.
+     *
+     * @param adGroupIndex The ad group index.
+     * @return The time of the ad group at the index, in microseconds.
+     */
+    public long getAdGroupTimeUs(int adGroupIndex) {
+      if (adGroupTimesUs == null) {
+        throw new IndexOutOfBoundsException();
+      }
+      return adGroupTimesUs[adGroupIndex];
+    }
+
+    /**
+     * Returns whether the ad group at index {@code adGroupIndex} has been played.
+     *
+     * @param adGroupIndex The ad group index.
+     * @return Whether the ad group at index {@code adGroupIndex} has been played.
+     */
+    public boolean hasPlayedAdGroup(int adGroupIndex) {
+      if (hasPlayedAdGroup == null) {
+        throw new IndexOutOfBoundsException();
+      }
+      return hasPlayedAdGroup[adGroupIndex];
+    }
+
+    /**
+     * Returns the index of the ad group at or before {@code positionUs}, if that ad group is
+     * unplayed. Returns {@link C#INDEX_UNSET} if the ad group before {@code positionUs} has been
+     * played, or if there is no such ad group.
+     *
+     * @param positionUs The position at or before which to find an ad group, in microseconds.
+     * @return The index of the ad group, or {@link C#INDEX_UNSET}.
+     */
+    public int getAdGroupIndexForPositionUs(long positionUs) {
+      if (adGroupTimesUs == null) {
+        return C.INDEX_UNSET;
+      }
+      // Use a linear search as the array elements may not be increasing due to TIME_END_OF_SOURCE.
+      // In practice we expect there to be few ad groups so the search shouldn't be expensive.
+      int index = adGroupTimesUs.length - 1;
+      while (index >= 0 && (adGroupTimesUs[index] == C.TIME_END_OF_SOURCE
+          || adGroupTimesUs[index] > positionUs)) {
+        index--;
+      }
+      return index >= 0 && !hasPlayedAdGroup(index) ? index : C.INDEX_UNSET;
+    }
+
+    /**
+     * Returns the index of the next unplayed ad group after {@code positionUs}. Returns
+     * {@link C#INDEX_UNSET} if there is no such ad group.
+     *
+     * @param positionUs The position after which to find an ad group, in microseconds.
+     * @return The index of the ad group, or {@link C#INDEX_UNSET}.
+     */
+    public int getAdGroupIndexAfterPositionUs(long positionUs) {
+      if (adGroupTimesUs == null) {
+        return C.INDEX_UNSET;
+      }
+      // Use a linear search as the array elements may not be increasing due to TIME_END_OF_SOURCE.
+      // In practice we expect there to be few ad groups so the search shouldn't be expensive.
+      int index = 0;
+      while (index < adGroupTimesUs.length && adGroupTimesUs[index] != C.TIME_END_OF_SOURCE
+          && (positionUs >= adGroupTimesUs[index] || hasPlayedAdGroup(index))) {
+        index++;
+      }
+      return index < adGroupTimesUs.length ? index : C.INDEX_UNSET;
+    }
+
+    /**
+     * Returns the number of ads in the ad group at index {@code adGroupIndex}, or
+     * {@link C#LENGTH_UNSET} if not yet known.
+     *
+     * @param adGroupIndex The ad group index.
+     * @return The number of ads in the ad group, or {@link C#LENGTH_UNSET} if not yet known.
+     */
+    public int getAdCountInAdGroup(int adGroupIndex) {
+      if (adCounts == null) {
+        throw new IndexOutOfBoundsException();
+      }
+      return adCounts[adGroupIndex];
+    }
+
+    /**
+     * Returns whether the URL for the specified ad is known.
+     *
+     * @param adGroupIndex The ad group index.
+     * @param adIndexInAdGroup The ad index in the ad group.
+     * @return Whether the URL for the specified ad is known.
+     */
+    public boolean isAdAvailable(int adGroupIndex, int adIndexInAdGroup) {
+      return isAdAvailable != null && adGroupIndex < isAdAvailable.length
+          && adIndexInAdGroup < isAdAvailable[adGroupIndex].length
+          && isAdAvailable[adGroupIndex][adIndexInAdGroup];
+    }
+
+    /**
+     * Returns the duration of the ad at index {@code adIndexInAdGroup} in the ad group at
+     * {@code adGroupIndex}, in microseconds, or {@link C#TIME_UNSET} if not yet known.
+     *
+     * @param adGroupIndex The ad group index.
+     * @param adIndexInAdGroup The ad index in the ad group.
+     * @return The duration of the ad, or {@link C#TIME_UNSET} if not yet known.
+     */
+    public long getAdDurationUs(int adGroupIndex, int adIndexInAdGroup) {
+      if (adDurationsUs == null) {
+        throw new IndexOutOfBoundsException();
+      }
+      if (adIndexInAdGroup >= adDurationsUs[adGroupIndex].length) {
+        return C.TIME_UNSET;
+      }
+      return adDurationsUs[adGroupIndex][adIndexInAdGroup];
     }
 
   }

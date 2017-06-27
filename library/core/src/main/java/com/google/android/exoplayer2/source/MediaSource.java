@@ -48,21 +48,27 @@ public interface MediaSource {
   final class MediaPeriodId {
 
     /**
+     * Value for unset media period identifiers.
+     */
+    public static final MediaPeriodId UNSET =
+        new MediaPeriodId(C.INDEX_UNSET, C.INDEX_UNSET, C.INDEX_UNSET);
+
+    /**
      * The timeline period index.
      */
     public final int periodIndex;
 
     /**
-     * If the media period is in an ad break, the index of the ad break in the period.
+     * If the media period is in an ad group, the index of the ad group in the period.
      * {@link C#INDEX_UNSET} otherwise.
      */
-    public final int adBreakIndex;
+    public final int adGroupIndex;
 
     /**
-     * If the media period is in an ad break, the index of the ad in its ad break in the period.
+     * If the media period is in an ad group, the index of the ad in its ad group in the period.
      * {@link C#INDEX_UNSET} otherwise.
      */
-    public final int adIndexInAdBreak;
+    public final int adIndexInAdGroup;
 
     /**
      * Creates a media period identifier for the specified period in the timeline.
@@ -70,10 +76,59 @@ public interface MediaSource {
      * @param periodIndex The timeline period index.
      */
     public MediaPeriodId(int periodIndex) {
-      // TODO: Allow creation of MediaPeriodIds for ad breaks.
+      this(periodIndex, C.INDEX_UNSET, C.INDEX_UNSET);
+    }
+
+    /**
+     * Creates a media period identifier that identifies an ad within an ad group at the specified
+     * timeline period.
+     *
+     * @param periodIndex The index of the timeline period that contains the ad group.
+     * @param adGroupIndex The index of the ad group.
+     * @param adIndexInAdGroup The index of the ad in the ad group.
+     */
+    public MediaPeriodId(int periodIndex, int adGroupIndex, int adIndexInAdGroup) {
       this.periodIndex = periodIndex;
-      adBreakIndex = C.INDEX_UNSET;
-      adIndexInAdBreak = C.INDEX_UNSET;
+      this.adGroupIndex = adGroupIndex;
+      this.adIndexInAdGroup = adIndexInAdGroup;
+    }
+
+    /**
+     * Returns a copy of this period identifier but with {@code newPeriodIndex} as its period index.
+     */
+    public MediaPeriodId copyWithPeriodIndex(int newPeriodIndex) {
+      return periodIndex == newPeriodIndex ? this
+          : new MediaPeriodId(newPeriodIndex, adGroupIndex, adIndexInAdGroup);
+    }
+
+    /**
+     * Returns whether this period identifier identifies an ad in an ad group in a period.
+     */
+    public boolean isAd() {
+      return adGroupIndex != C.INDEX_UNSET;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+      if (this == obj) {
+        return true;
+      }
+      if (obj == null || getClass() != obj.getClass()) {
+        return false;
+      }
+
+      MediaPeriodId periodId = (MediaPeriodId) obj;
+      return periodIndex == periodId.periodIndex && adGroupIndex == periodId.adGroupIndex
+          && adIndexInAdGroup == periodId.adIndexInAdGroup;
+    }
+
+    @Override
+    public int hashCode() {
+      int result = 17;
+      result = 31 * result + periodIndex;
+      result = 31 * result + adGroupIndex;
+      result = 31 * result + adIndexInAdGroup;
+      return result;
     }
 
   }
