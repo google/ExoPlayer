@@ -199,7 +199,7 @@ public final class FakeDataSource implements DataSource {
     Assertions.checkState(opened);
     opened = false;
     uri = null;
-    if (currentSegmentIndex < fakeData.segments.size()) {
+    if (fakeData != null && currentSegmentIndex < fakeData.segments.size()) {
       Segment current = fakeData.segments.get(currentSegmentIndex);
       if (current.isErrorSegment() && current.exceptionThrown) {
         current.exceptionCleared = true;
