@@ -11,7 +11,7 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-apply from: '../version_constants.gradle'
+apply from: '../constants.gradle'
 apply plugin: 'com.android.application'
 
 android {
@@ -46,14 +46,14 @@ android {
 }
 
 dependencies {
-    compile project(':library-core')
-    compile project(':library-dash')
-    compile project(':library-hls')
-    compile project(':library-smoothstreaming')
-    compile project(':library-ui')
-    withExtensionsCompile project(path: ':extension-ffmpeg')
-    withExtensionsCompile project(path: ':extension-flac')
-    withExtensionsCompile project(path: ':extension-ima')
-    withExtensionsCompile project(path: ':extension-opus')
-    withExtensionsCompile project(path: ':extension-vp9')
+    compile project(modulePrefix + 'library-core')
+    compile project(modulePrefix + 'library-dash')
+    compile project(modulePrefix + 'library-hls')
+    compile project(modulePrefix + 'library-smoothstreaming')
+    compile project(modulePrefix + 'library-ui')
+    withExtensionsCompile project(path: modulePrefix + 'extension-ffmpeg')
+    withExtensionsCompile project(path: modulePrefix + 'extension-flac')
+    withExtensionsCompile project(path: modulePrefix + 'extension-ima')
+    withExtensionsCompile project(path: modulePrefix + 'extension-opus')
+    withExtensionsCompile project(path: modulePrefix + 'extension-vp9')
 }
