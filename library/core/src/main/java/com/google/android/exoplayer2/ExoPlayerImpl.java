@@ -281,7 +281,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
     if (timeline.isEmpty() || pendingSeekAcks > 0) {
       return maskingPeriodIndex;
     } else {
-      return playbackInfo.periodIndex;
+      return playbackInfo.periodId.periodIndex;
     }
   }
 
@@ -290,7 +290,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
     if (timeline.isEmpty() || pendingSeekAcks > 0) {
       return maskingWindowIndex;
     } else {
-      return timeline.getPeriod(playbackInfo.periodIndex, period).windowIndex;
+      return timeline.getPeriod(playbackInfo.periodId.periodIndex, period).windowIndex;
     }
   }
 
@@ -307,7 +307,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
     if (timeline.isEmpty() || pendingSeekAcks > 0) {
       return maskingWindowPositionMs;
     } else {
-      timeline.getPeriod(playbackInfo.periodIndex, period);
+      timeline.getPeriod(playbackInfo.periodId.periodIndex, period);
       return period.getPositionInWindowMs() + C.usToMs(playbackInfo.positionUs);
     }
   }
@@ -318,7 +318,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
     if (timeline.isEmpty() || pendingSeekAcks > 0) {
       return maskingWindowPositionMs;
     } else {
-      timeline.getPeriod(playbackInfo.periodIndex, period);
+      timeline.getPeriod(playbackInfo.periodId.periodIndex, period);
       return period.getPositionInWindowMs() + C.usToMs(playbackInfo.bufferedPositionUs);
     }
   }

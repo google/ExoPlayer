@@ -16,6 +16,7 @@
 package com.google.android.exoplayer2.source;
 
 import android.support.annotation.Nullable;
+import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.upstream.Allocator;
@@ -52,12 +53,27 @@ public interface MediaSource {
     public final int periodIndex;
 
     /**
+     * If the media period is in an ad break, the index of the ad break in the period.
+     * {@link C#INDEX_UNSET} otherwise.
+     */
+    public final int adBreakIndex;
+
+    /**
+     * If the media period is in an ad break, the index of the ad in its ad break in the period.
+     * {@link C#INDEX_UNSET} otherwise.
+     */
+    public final int adIndexInAdBreak;
+
+    /**
      * Creates a media period identifier for the specified period in the timeline.
      *
      * @param periodIndex The timeline period index.
      */
     public MediaPeriodId(int periodIndex) {
+      // TODO: Allow creation of MediaPeriodIds for ad breaks.
       this.periodIndex = periodIndex;
+      adBreakIndex = C.INDEX_UNSET;
+      adIndexInAdBreak = C.INDEX_UNSET;
     }
 
   }
