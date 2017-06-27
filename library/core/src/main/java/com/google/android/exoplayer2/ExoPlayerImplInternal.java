@@ -1128,7 +1128,7 @@ import java.io.IOException;
     // Map the SeekPosition to a position in the corresponding timeline.
     Pair<Integer, Long> periodPosition;
     try {
-      periodPosition = getPeriodPosition(seekTimeline, seekPosition.windowIndex,
+      periodPosition = seekTimeline.getPeriodPosition(window, period, seekPosition.windowIndex,
           seekPosition.windowPositionUs);
     } catch (IndexOutOfBoundsException e) {
       // The window index of the seek position was outside the bounds of the timeline.
@@ -1157,53 +1157,11 @@ import java.io.IOException;
   }
 
   /**
-   * Calls {@link #getPeriodPosition(Timeline, int, long)} using the current timeline.
+   * Calls {@link Timeline#getPeriodPosition(Timeline.Window, Timeline.Period, int, long)} using the
+   * current timeline.
    */
   private Pair<Integer, Long> getPeriodPosition(int windowIndex, long windowPositionUs) {
-    return getPeriodPosition(timeline, windowIndex, windowPositionUs);
-  }
-
-  /**
-   * Calls {@link #getPeriodPosition(Timeline, int, long, long)} with a zero default position
-   * projection.
-   */
-  private Pair<Integer, Long> getPeriodPosition(Timeline timeline, int windowIndex,
-      long windowPositionUs) {
-    return getPeriodPosition(timeline, windowIndex, windowPositionUs, 0);
-  }
-
-  /**
-   * Converts (windowIndex, windowPositionUs) to the corresponding (periodIndex, periodPositionUs).
-   *
-   * @param timeline The timeline containing the window.
-   * @param windowIndex The window index.
-   * @param windowPositionUs The window time, or {@link C#TIME_UNSET} to use the window's default
-   *     start position.
-   * @param defaultPositionProjectionUs If {@code windowPositionUs} is {@link C#TIME_UNSET}, the
-   *     duration into the future by which the window's position should be projected.
-   * @return The corresponding (periodIndex, periodPositionUs), or null if {@code #windowPositionUs}
-   *     is {@link C#TIME_UNSET}, {@code defaultPositionProjectionUs} is non-zero, and the window's
-   *     position could not be projected by {@code defaultPositionProjectionUs}.
-   */
-  private Pair<Integer, Long> getPeriodPosition(Timeline timeline, int windowIndex,
-      long windowPositionUs, long defaultPositionProjectionUs) {
-    Assertions.checkIndex(windowIndex, 0, timeline.getWindowCount());
-    timeline.getWindow(windowIndex, window, false, defaultPositionProjectionUs);
-    if (windowPositionUs == C.TIME_UNSET) {
-      windowPositionUs = window.getDefaultPositionUs();
-      if (windowPositionUs == C.TIME_UNSET) {
-        return null;
-      }
-    }
-    int periodIndex = window.firstPeriodIndex;
-    long periodPositionUs = window.getPositionInFirstPeriodUs() + windowPositionUs;
-    long periodDurationUs = timeline.getPeriod(periodIndex, period).getDurationUs();
-    while (periodDurationUs != C.TIME_UNSET && periodPositionUs >= periodDurationUs
-        && periodIndex < window.lastPeriodIndex) {
-      periodPositionUs -= periodDurationUs;
-      periodDurationUs = timeline.getPeriod(++periodIndex, period).getDurationUs();
-    }
-    return Pair.create(periodIndex, periodPositionUs);
+    return timeline.getPeriodPosition(window, period, windowIndex, windowPositionUs);
   }
 
   private void updatePeriods() throws ExoPlaybackException, IOException {
@@ -1349,8 +1307,8 @@ import java.io.IOException;
         long defaultPositionProjectionUs = loadingPeriodHolder.getRendererOffset()
             + timeline.getPeriod(loadingPeriodHolder.periodIndex, period).getDurationUs()
             - rendererPositionUs;
-        Pair<Integer, Long> defaultPosition = getPeriodPosition(timeline, newLoadingWindowIndex,
-            C.TIME_UNSET, Math.max(0, defaultPositionProjectionUs));
+        Pair<Integer, Long> defaultPosition = timeline.getPeriodPosition(window, period,
+            newLoadingWindowIndex, C.TIME_UNSET, Math.max(0, defaultPositionProjectionUs));
         if (defaultPosition == null) {
           return;
         }
