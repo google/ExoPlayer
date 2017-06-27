@@ -11,14 +11,22 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-apply plugin: 'bintray-release'
+if (project.ext.has("exoplayerPublishEnabled")
+        && project.ext.exoplayerPublishEnabled) {
+    apply plugin: 'bintray-release'
+    publish {
+        artifactId = releaseArtifact
+        description = releaseDescription
+        version = releaseVersion
+        repoName = getBintrayRepo()
+        userOrg = 'google'
+        groupId = 'com.google.android.exoplayer'
+        website = 'https://github.com/google/ExoPlayer'
+    }
+}
 
-publish {
-    artifactId = releaseArtifact
-    description = releaseDescription
-    repoName = releaseRepoName
-    userOrg = releaseUserOrg
-    groupId = releaseGroupId
-    version = releaseVersion
-    website = releaseWebsite
+def getBintrayRepo() {
+    boolean publicRepo = hasProperty('publicRepo') &&
+        property('publicRepo').toBoolean()
+    return publicRepo ? 'exoplayer' : 'exoplayer-test'
 }
