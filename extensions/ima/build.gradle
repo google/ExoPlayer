@@ -1,3 +1,4 @@
+apply from: '../../version_constants.gradle'
 apply plugin: 'com.android.library'
 
 android {
