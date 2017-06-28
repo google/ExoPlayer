@@ -797,6 +797,85 @@ public final class Util {
   }
 
   /**
+   * Returns the {@link C.AudioUsage} corresponding to the specified {@link C.StreamType}.
+   */
+  @C.AudioUsage
+  public static int getAudioUsageForStreamType(@C.StreamType int streamType) {
+    switch (streamType) {
+      case C.STREAM_TYPE_ALARM:
+        return C.USAGE_ALARM;
+      case C.STREAM_TYPE_DTMF:
+        return C.USAGE_VOICE_COMMUNICATION_SIGNALLING;
+      case C.STREAM_TYPE_NOTIFICATION:
+        return C.USAGE_NOTIFICATION;
+      case C.STREAM_TYPE_RING:
+        return C.USAGE_NOTIFICATION_RINGTONE;
+      case C.STREAM_TYPE_SYSTEM:
+        return C.USAGE_ASSISTANCE_SONIFICATION;
+      case C.STREAM_TYPE_VOICE_CALL:
+        return C.USAGE_VOICE_COMMUNICATION;
+      case C.STREAM_TYPE_USE_DEFAULT:
+      case C.STREAM_TYPE_MUSIC:
+      default:
+        return C.USAGE_MEDIA;
+    }
+  }
+
+  /**
+   * Returns the {@link C.AudioContentType} corresponding to the specified {@link C.StreamType}.
+   */
+  @C.AudioContentType
+  public static int getAudioContentTypeForStreamType(@C.StreamType int streamType) {
+    switch (streamType) {
+      case C.STREAM_TYPE_ALARM:
+      case C.STREAM_TYPE_DTMF:
+      case C.STREAM_TYPE_NOTIFICATION:
+      case C.STREAM_TYPE_RING:
+      case C.STREAM_TYPE_SYSTEM:
+        return C.CONTENT_TYPE_SONIFICATION;
+      case C.STREAM_TYPE_VOICE_CALL:
+        return C.CONTENT_TYPE_SPEECH;
+      case C.STREAM_TYPE_USE_DEFAULT:
+      case C.STREAM_TYPE_MUSIC:
+      default:
+        return C.CONTENT_TYPE_MUSIC;
+    }
+  }
+
+  /**
+   * Returns the {@link C.StreamType} corresponding to the specified {@link C.AudioUsage}.
+   */
+  @C.StreamType
+  public static int getStreamTypeForAudioUsage(@C.AudioUsage int usage) {
+    switch (usage) {
+      case C.USAGE_MEDIA:
+      case C.USAGE_GAME:
+      case C.USAGE_ASSISTANCE_NAVIGATION_GUIDANCE:
+        return C.STREAM_TYPE_MUSIC;
+      case C.USAGE_ASSISTANCE_SONIFICATION:
+        return C.STREAM_TYPE_SYSTEM;
+      case C.USAGE_VOICE_COMMUNICATION:
+        return C.STREAM_TYPE_VOICE_CALL;
+      case C.USAGE_VOICE_COMMUNICATION_SIGNALLING:
+        return C.STREAM_TYPE_DTMF;
+      case C.USAGE_ALARM:
+        return C.STREAM_TYPE_ALARM;
+      case C.USAGE_NOTIFICATION_RINGTONE:
+        return C.STREAM_TYPE_RING;
+      case C.USAGE_NOTIFICATION:
+      case C.USAGE_NOTIFICATION_COMMUNICATION_REQUEST:
+      case C.USAGE_NOTIFICATION_COMMUNICATION_INSTANT:
+      case C.USAGE_NOTIFICATION_COMMUNICATION_DELAYED:
+      case C.USAGE_NOTIFICATION_EVENT:
+        return C.STREAM_TYPE_NOTIFICATION;
+      case C.USAGE_ASSISTANCE_ACCESSIBILITY:
+      case C.USAGE_UNKNOWN:
+      default:
+        return C.STREAM_TYPE_DEFAULT;
+    }
+  }
+
+  /**
    * Makes a best guess to infer the type from a {@link Uri}.
    *
    * @param uri The {@link Uri}.
