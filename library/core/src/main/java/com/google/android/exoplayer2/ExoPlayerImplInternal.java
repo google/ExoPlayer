@@ -596,7 +596,8 @@ import java.io.IOException;
       stopRenderers();
     } else if (state == ExoPlayer.STATE_BUFFERING) {
       boolean isNewlyReady = enabledRenderers.length > 0
-          ? (allRenderersReadyOrEnded && haveSufficientBuffer(rebuffering))
+          ? (allRenderersReadyOrEnded
+              && loadingPeriodHolder.haveSufficientBuffer(rebuffering, rendererPositionUs))
           : isTimelineReady(playingPeriodDurationUs);
       if (isNewlyReady) {
         setState(ExoPlayer.STATE_READY);
@@ -951,21 +952,6 @@ import java.io.IOException;
         || playbackInfo.positionUs < playingPeriodDurationUs
         || (playingPeriodHolder.next != null
         && (playingPeriodHolder.next.prepared || playingPeriodHolder.next.info.id.isAd()));
-  }
-
-  private boolean haveSufficientBuffer(boolean rebuffering) {
-    long loadingPeriodBufferedPositionUs = !loadingPeriodHolder.prepared
-        ? loadingPeriodHolder.info.startPositionUs
-        : loadingPeriodHolder.mediaPeriod.getBufferedPositionUs();
-    if (loadingPeriodBufferedPositionUs == C.TIME_END_OF_SOURCE) {
-      if (loadingPeriodHolder.info.isFinal) {
-        return true;
-      }
-      loadingPeriodBufferedPositionUs = loadingPeriodHolder.info.durationUs;
-    }
-    return loadControl.shouldStartPlayback(
-        loadingPeriodBufferedPositionUs - loadingPeriodHolder.toPeriodTime(rendererPositionUs),
-        rebuffering);
   }
 
   private void maybeThrowPeriodPrepareError() throws IOException {
@@ -1373,18 +1359,10 @@ import java.io.IOException;
   }
 
   private void maybeContinueLoading() {
-    long nextLoadPositionUs = !loadingPeriodHolder.prepared ? 0
-        : loadingPeriodHolder.mediaPeriod.getNextLoadPositionUs();
-    if (nextLoadPositionUs == C.TIME_END_OF_SOURCE) {
-      setIsLoading(false);
-    } else {
-      long loadingPeriodPositionUs = loadingPeriodHolder.toPeriodTime(rendererPositionUs);
-      long bufferedDurationUs = nextLoadPositionUs - loadingPeriodPositionUs;
-      boolean continueLoading = loadControl.shouldContinueLoading(bufferedDurationUs);
-      setIsLoading(continueLoading);
-      if (continueLoading) {
-        loadingPeriodHolder.mediaPeriod.continueLoading(loadingPeriodPositionUs);
-      }
+    boolean continueLoading = loadingPeriodHolder.shouldContinueLoading(rendererPositionUs);
+    setIsLoading(continueLoading);
+    if (continueLoading) {
+      loadingPeriodHolder.continueLoading(rendererPositionUs);
     }
   }
 
@@ -1540,11 +1518,40 @@ import java.io.IOException;
           && (!hasEnabledTracks || mediaPeriod.getBufferedPositionUs() == C.TIME_END_OF_SOURCE);
     }
 
+    public boolean haveSufficientBuffer(boolean rebuffering, long rendererPositionUs) {
+      long bufferedPositionUs = !prepared ? info.startPositionUs
+          : mediaPeriod.getBufferedPositionUs();
+      if (bufferedPositionUs == C.TIME_END_OF_SOURCE) {
+        if (info.isFinal) {
+          return true;
+        }
+        bufferedPositionUs = info.durationUs;
+      }
+      return loadControl.shouldStartPlayback(bufferedPositionUs - toPeriodTime(rendererPositionUs),
+          rebuffering);
+    }
+
     public void handlePrepared() throws ExoPlaybackException {
       prepared = true;
       selectTracks();
       long newStartPositionUs = updatePeriodTrackSelection(info.startPositionUs, false);
       info = info.copyWithStartPositionUs(newStartPositionUs);
+    }
+
+    public boolean shouldContinueLoading(long rendererPositionUs) {
+      long nextLoadPositionUs = !prepared ? 0 : mediaPeriod.getNextLoadPositionUs();
+      if (nextLoadPositionUs == C.TIME_END_OF_SOURCE) {
+        return false;
+      } else {
+        long loadingPeriodPositionUs = toPeriodTime(rendererPositionUs);
+        long bufferedDurationUs = nextLoadPositionUs - loadingPeriodPositionUs;
+        return loadControl.shouldContinueLoading(bufferedDurationUs);
+      }
+    }
+
+    public void continueLoading(long rendererPositionUs) {
+      long loadingPeriodPositionUs = toPeriodTime(rendererPositionUs);
+      mediaPeriod.continueLoading(loadingPeriodPositionUs);
     }
 
     public boolean selectTracks() throws ExoPlaybackException {
