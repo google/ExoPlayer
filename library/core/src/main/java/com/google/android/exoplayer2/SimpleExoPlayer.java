@@ -662,6 +662,21 @@ public class SimpleExoPlayer implements ExoPlayer {
     return player.isCurrentWindowSeekable();
   }
 
+  @Override
+  public boolean isPlayingAd() {
+    return player.isPlayingAd();
+  }
+
+  @Override
+  public int getCurrentAdGroupIndex() {
+    return player.getCurrentAdGroupIndex();
+  }
+
+  @Override
+  public int getCurrentAdIndexInAdGroup() {
+    return player.getCurrentAdIndexInAdGroup();
+  }
+
   // Internal methods.
 
   private void removeSurfaceCallbacks() {

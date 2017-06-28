@@ -84,7 +84,7 @@ public interface TimeBar {
    *     ad breaks in milliseconds. May be {@code null} if there are no ad breaks.
    * @param adBreakCount The number of ad breaks.
    */
-  void setAdBreakTimesMs(@Nullable long[] adBreakTimesMs, int adBreakCount);
+  void setAdGroupTimesMs(@Nullable long[] adBreakTimesMs, int adBreakCount);
 
   /**
    * Listener for scrubbing events.

@@ -546,4 +546,21 @@ public interface ExoPlayer {
    */
   boolean isCurrentWindowSeekable();
 
+  /**
+   * Returns whether the player is currently playing an ad.
+   */
+  boolean isPlayingAd();
+
+  /**
+   * If {@link #isPlayingAd()} returns true, returns the index of the ad group in the period
+   * currently being played. Returns {@link C#INDEX_UNSET} otherwise.
+   */
+  int getCurrentAdGroupIndex();
+
+  /**
+   * If {@link #isPlayingAd()} returns true, returns the index of the ad in its ad group. Returns
+   * {@link C#INDEX_UNSET} otherwise.
+   */
+  int getCurrentAdIndexInAdGroup();
+
 }
