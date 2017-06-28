@@ -73,10 +73,10 @@ public class DefaultTimeBar extends View implements TimeBar {
   private final Rect bufferedBar;
   private final Rect scrubberBar;
   private final Paint playedPaint;
-  private final Paint scrubberPaint;
   private final Paint bufferedPaint;
   private final Paint unplayedPaint;
   private final Paint adMarkerPaint;
+  private final Paint scrubberPaint;
   private final int barHeight;
   private final int touchTargetHeight;
   private final int adMarkerWidth;
@@ -115,10 +115,11 @@ public class DefaultTimeBar extends View implements TimeBar {
     bufferedBar = new Rect();
     scrubberBar = new Rect();
     playedPaint = new Paint();
-    scrubberPaint = new Paint();
     bufferedPaint = new Paint();
     unplayedPaint = new Paint();
     adMarkerPaint = new Paint();
+    scrubberPaint = new Paint();
+    scrubberPaint.setAntiAlias(true);
 
     // Calculate the dimensions and paints for drawn elements.
     Resources res = context.getResources();

@@ -495,6 +495,7 @@ public final class SimpleExoPlayerView extends FrameLayout {
 
   @Override
   public boolean dispatchKeyEvent(KeyEvent event) {
+    maybeShowController(true);
     return dispatchMediaKeyEvent(event) || super.dispatchKeyEvent(event);
   }
 
@@ -506,11 +507,7 @@ public final class SimpleExoPlayerView extends FrameLayout {
    * @return Whether the key event was handled.
    */
   public boolean dispatchMediaKeyEvent(KeyEvent event) {
-    boolean handled = useController && controller.dispatchMediaKeyEvent(event);
-    if (handled) {
-      maybeShowController(true);
-    }
-    return handled;
+    return useController && controller.dispatchMediaKeyEvent(event);
   }
 
   /**
