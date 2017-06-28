@@ -353,6 +353,21 @@ import java.util.concurrent.CopyOnWriteArraySet;
   }
 
   @Override
+  public boolean isPlayingAd() {
+    return pendingSeekAcks == 0 && playbackInfo.periodId.adGroupIndex != C.INDEX_UNSET;
+  }
+
+  @Override
+  public int getCurrentAdGroupIndex() {
+    return pendingSeekAcks == 0 ? playbackInfo.periodId.adGroupIndex : C.INDEX_UNSET;
+  }
+
+  @Override
+  public int getCurrentAdIndexInAdGroup() {
+    return pendingSeekAcks == 0 ? playbackInfo.periodId.adIndexInAdGroup : C.INDEX_UNSET;
+  }
+
+  @Override
   public int getRendererCount() {
     return renderers.length;
   }
@@ -469,12 +484,6 @@ import java.util.concurrent.CopyOnWriteArraySet;
       default:
         throw new IllegalStateException();
     }
-  }
-
-  // TODO: Add to the public ExoPlayer interface.
-
-  private boolean isPlayingAd() {
-    return pendingSeekAcks == 0 && playbackInfo.periodId.adGroupIndex != C.INDEX_UNSET;
   }
 
 }

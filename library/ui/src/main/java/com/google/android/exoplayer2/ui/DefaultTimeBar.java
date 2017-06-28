@@ -102,8 +102,8 @@ public class DefaultTimeBar extends View implements TimeBar {
   private long duration;
   private long position;
   private long bufferedPosition;
-  private int adBreakCount;
-  private long[] adBreakTimesMs;
+  private int adGroupCount;
+  private long[] adGroupTimesMs;
 
   /**
    * Creates a new time bar.
@@ -241,10 +241,10 @@ public class DefaultTimeBar extends View implements TimeBar {
   }
 
   @Override
-  public void setAdBreakTimesMs(@Nullable long[] adBreakTimesMs, int adBreakCount) {
-    Assertions.checkArgument(adBreakCount == 0 || adBreakTimesMs != null);
-    this.adBreakCount = adBreakCount;
-    this.adBreakTimesMs = adBreakTimesMs;
+  public void setAdGroupTimesMs(@Nullable long[] adGroupTimesMs, int adGroupCount) {
+    Assertions.checkArgument(adGroupCount == 0 || adGroupTimesMs != null);
+    this.adGroupCount = adGroupCount;
+    this.adGroupTimesMs = adGroupTimesMs;
     update();
   }
 
@@ -529,10 +529,10 @@ public class DefaultTimeBar extends View implements TimeBar {
       canvas.drawRect(scrubberBar.left, barTop, scrubberBar.right, barBottom, playedPaint);
     }
     int adMarkerOffset = adMarkerWidth / 2;
-    for (int i = 0; i < adBreakCount; i++) {
-      long adBreakTimeMs = Util.constrainValue(adBreakTimesMs[i], 0, duration);
+    for (int i = 0; i < adGroupCount; i++) {
+      long adGroupTimeMs = Util.constrainValue(adGroupTimesMs[i], 0, duration);
       int markerPositionOffset =
-          (int) (progressBar.width() * adBreakTimeMs / duration) - adMarkerOffset;
+          (int) (progressBar.width() * adGroupTimeMs / duration) - adMarkerOffset;
       int markerLeft = progressBar.left + Math.min(progressBar.width() - adMarkerWidth,
           Math.max(0, markerPositionOffset));
       canvas.drawRect(markerLeft, barTop, markerLeft + adMarkerWidth, barBottom, adMarkerPaint);
