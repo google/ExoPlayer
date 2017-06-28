@@ -27,6 +27,7 @@ import android.view.Surface;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.TextureView;
+import com.google.android.exoplayer2.audio.AudioAttributes;
 import com.google.android.exoplayer2.audio.AudioRendererEventListener;
 import com.google.android.exoplayer2.decoder.DecoderCounters;
 import com.google.android.exoplayer2.metadata.Metadata;
@@ -37,6 +38,7 @@ import com.google.android.exoplayer2.text.Cue;
 import com.google.android.exoplayer2.text.TextRenderer;
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
 import com.google.android.exoplayer2.trackselection.TrackSelector;
+import com.google.android.exoplayer2.util.Util;
 import com.google.android.exoplayer2.video.VideoRendererEventListener;
 import java.util.List;
 
@@ -105,8 +107,7 @@ public class SimpleExoPlayer implements ExoPlayer {
   private DecoderCounters videoDecoderCounters;
   private DecoderCounters audioDecoderCounters;
   private int audioSessionId;
-  @C.StreamType
-  private int audioStreamType;
+  private AudioAttributes audioAttributes;
   private float audioVolume;
 
   protected SimpleExoPlayer(RenderersFactory renderersFactory, TrackSelector trackSelector,
@@ -136,7 +137,7 @@ public class SimpleExoPlayer implements ExoPlayer {
     // Set initial values.
     audioVolume = 1;
     audioSessionId = C.AUDIO_SESSION_ID_UNSET;
-    audioStreamType = C.STREAM_TYPE_DEFAULT;
+    audioAttributes = AudioAttributes.DEFAULT;
     videoScalingMode = C.VIDEO_SCALING_MODE_DEFAULT;
 
     // Build the player and associated objects.
@@ -293,33 +294,70 @@ public class SimpleExoPlayer implements ExoPlayer {
   }
 
   /**
-   * Sets the stream type for audio playback (see {@link C.StreamType} and
-   * {@link android.media.AudioTrack#AudioTrack(int, int, int, int, int, int)}). If the stream type
-   * is not set, audio renderers use {@link C#STREAM_TYPE_DEFAULT}.
+   * Sets the stream type for audio playback, used by the underlying audio track.
    * <p>
-   * Note that when the stream type changes, the AudioTrack must be reinitialized, which can
-   * introduce a brief gap in audio output. Note also that tracks in the same audio session must
-   * share the same routing, so a new audio session id will be generated.
+   * Setting the stream type during playback may introduce a short gap in audio output as the audio
+   * track is recreated. A new audio session id will also be generated.
+   * <p>
+   * Calling this method overwrites any attributes set previously by calling
+   * {@link #setAudioAttributes(AudioAttributes)}.
    *
-   * @param audioStreamType The stream type for audio playback.
+   * @deprecated Use {@link #setAudioAttributes(AudioAttributes)}.
+   * @param streamType The stream type for audio playback.
    */
-  public void setAudioStreamType(@C.StreamType int audioStreamType) {
-    this.audioStreamType = audioStreamType;
+  @Deprecated
+  public void setAudioStreamType(@C.StreamType int streamType) {
+    @C.AudioUsage int usage = Util.getAudioUsageForStreamType(streamType);
+    @C.AudioContentType int contentType = Util.getAudioContentTypeForStreamType(streamType);
+    AudioAttributes audioAttributes =
+        new AudioAttributes.Builder().setUsage(usage).setContentType(contentType).build();
+    setAudioAttributes(audioAttributes);
+  }
+
+  /**
+   * Returns the stream type for audio playback.
+   *
+   * @deprecated Use {@link #getAudioAttributes()}.
+   */
+  @Deprecated
+  public @C.StreamType int getAudioStreamType() {
+    return Util.getStreamTypeForAudioUsage(audioAttributes.usage);
+  }
+
+  /**
+   * Sets the attributes for audio playback, used by the underlying audio track. If not set, the
+   * default audio attributes will be used. They are suitable for general media playback.
+   * <p>
+   * Setting the audio attributes during playback may introduce a short gap in audio output as the
+   * audio track is recreated. A new audio session id will also be generated.
+   * <p>
+   * If tunneling is enabled by the track selector, the specified audio attributes will be ignored,
+   * but they will take effect if audio is later played without tunneling.
+   * <p>
+   * If the device is running a build before platform API version 21, audio attributes cannot be set
+   * directly on the underlying audio track. In this case, the usage will be mapped onto an
+   * equivalent stream type using {@link Util#getStreamTypeForAudioUsage(int)}.
+   *
+   * @param audioAttributes The attributes to use for audio playback.
+   */
+  public void setAudioAttributes(AudioAttributes audioAttributes) {
+    this.audioAttributes = audioAttributes;
     ExoPlayerMessage[] messages = new ExoPlayerMessage[audioRendererCount];
     int count = 0;
     for (Renderer renderer : renderers) {
       if (renderer.getTrackType() == C.TRACK_TYPE_AUDIO) {
-        messages[count++] = new ExoPlayerMessage(renderer, C.MSG_SET_STREAM_TYPE, audioStreamType);
+        messages[count++] = new ExoPlayerMessage(renderer, C.MSG_SET_AUDIO_ATTRIBUTES,
+            audioAttributes);
       }
     }
     player.sendMessages(messages);
   }
 
   /**
-   * Returns the stream type for audio playback.
+   * Returns the attributes for audio playback.
    */
-  public @C.StreamType int getAudioStreamType() {
-    return audioStreamType;
+  public AudioAttributes getAudioAttributes() {
+    return audioAttributes;
   }
 
   /**

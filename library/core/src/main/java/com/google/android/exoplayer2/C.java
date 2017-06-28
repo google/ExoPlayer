@@ -189,13 +189,17 @@ public final class C {
    * Stream types for an {@link android.media.AudioTrack}.
    */
   @Retention(RetentionPolicy.SOURCE)
-  @IntDef({STREAM_TYPE_ALARM, STREAM_TYPE_MUSIC, STREAM_TYPE_NOTIFICATION, STREAM_TYPE_RING,
-      STREAM_TYPE_SYSTEM, STREAM_TYPE_VOICE_CALL})
+  @IntDef({STREAM_TYPE_ALARM, STREAM_TYPE_DTMF, STREAM_TYPE_MUSIC, STREAM_TYPE_NOTIFICATION,
+      STREAM_TYPE_RING, STREAM_TYPE_SYSTEM, STREAM_TYPE_VOICE_CALL, STREAM_TYPE_USE_DEFAULT})
   public @interface StreamType {}
   /**
    * @see AudioManager#STREAM_ALARM
    */
   public static final int STREAM_TYPE_ALARM = AudioManager.STREAM_ALARM;
+  /**
+   * @see AudioManager#STREAM_DTMF
+   */
+  public static final int STREAM_TYPE_DTMF = AudioManager.STREAM_DTMF;
   /**
    * @see AudioManager#STREAM_MUSIC
    */
@@ -217,9 +221,162 @@ public final class C {
    */
   public static final int STREAM_TYPE_VOICE_CALL = AudioManager.STREAM_VOICE_CALL;
   /**
+   * @see AudioManager#USE_DEFAULT_STREAM_TYPE
+   */
+  public static final int STREAM_TYPE_USE_DEFAULT = AudioManager.USE_DEFAULT_STREAM_TYPE;
+  /**
    * The default stream type used by audio renderers.
    */
   public static final int STREAM_TYPE_DEFAULT = STREAM_TYPE_MUSIC;
+
+  /**
+   * Content types for {@link com.google.android.exoplayer2.audio.AudioAttributes}.
+   */
+  @Retention(RetentionPolicy.SOURCE)
+  @IntDef({CONTENT_TYPE_MOVIE, CONTENT_TYPE_MUSIC, CONTENT_TYPE_SONIFICATION, CONTENT_TYPE_SPEECH,
+      CONTENT_TYPE_UNKNOWN})
+  public @interface AudioContentType {}
+  /**
+   * @see android.media.AudioAttributes#CONTENT_TYPE_MOVIE
+   */
+  @SuppressWarnings("InlinedApi")
+  public static final int CONTENT_TYPE_MOVIE = android.media.AudioAttributes.CONTENT_TYPE_MOVIE;
+  /**
+   * @see android.media.AudioAttributes#CONTENT_TYPE_MUSIC
+   */
+  @SuppressWarnings("InlinedApi")
+  public static final int CONTENT_TYPE_MUSIC = android.media.AudioAttributes.CONTENT_TYPE_MUSIC;
+  /**
+   * @see android.media.AudioAttributes#CONTENT_TYPE_SONIFICATION
+   */
+  @SuppressWarnings("InlinedApi")
+  public static final int CONTENT_TYPE_SONIFICATION =
+      android.media.AudioAttributes.CONTENT_TYPE_SONIFICATION;
+  /**
+   * @see android.media.AudioAttributes#CONTENT_TYPE_SPEECH
+   */
+  @SuppressWarnings("InlinedApi")
+  public static final int CONTENT_TYPE_SPEECH =
+      android.media.AudioAttributes.CONTENT_TYPE_SPEECH;
+  /**
+   * @see android.media.AudioAttributes#CONTENT_TYPE_UNKNOWN
+   */
+  @SuppressWarnings("InlinedApi")
+  public static final int CONTENT_TYPE_UNKNOWN =
+      android.media.AudioAttributes.CONTENT_TYPE_UNKNOWN;
+
+  /**
+   * Flags for {@link com.google.android.exoplayer2.audio.AudioAttributes}.
+   * <p>
+   * Note that {@code FLAG_HW_AV_SYNC} is not available because the player takes care of setting the
+   * flag when tunneling is enabled via a track selector.
+   */
+  @Retention(RetentionPolicy.SOURCE)
+  @IntDef(flag = true, value = {FLAG_AUDIBILITY_ENFORCED})
+  public @interface AudioFlags {}
+  /**
+   * @see android.media.AudioAttributes#FLAG_AUDIBILITY_ENFORCED
+   */
+  @SuppressWarnings("InlinedApi")
+  public static final int FLAG_AUDIBILITY_ENFORCED =
+      android.media.AudioAttributes.FLAG_AUDIBILITY_ENFORCED;
+
+  /**
+   * Usage types for {@link com.google.android.exoplayer2.audio.AudioAttributes}.
+   */
+  @Retention(RetentionPolicy.SOURCE)
+  @IntDef({USAGE_ALARM, USAGE_ASSISTANCE_ACCESSIBILITY, USAGE_ASSISTANCE_NAVIGATION_GUIDANCE,
+      USAGE_ASSISTANCE_SONIFICATION, USAGE_GAME, USAGE_MEDIA, USAGE_NOTIFICATION,
+      USAGE_NOTIFICATION_COMMUNICATION_DELAYED, USAGE_NOTIFICATION_COMMUNICATION_INSTANT,
+      USAGE_NOTIFICATION_COMMUNICATION_REQUEST, USAGE_NOTIFICATION_EVENT,
+      USAGE_NOTIFICATION_RINGTONE, USAGE_UNKNOWN, USAGE_VOICE_COMMUNICATION,
+      USAGE_VOICE_COMMUNICATION_SIGNALLING})
+  public @interface AudioUsage {}
+  /**
+   * @see android.media.AudioAttributes#USAGE_ALARM
+   */
+  @SuppressWarnings("InlinedApi")
+  public static final int USAGE_ALARM = android.media.AudioAttributes.USAGE_ALARM;
+  /**
+   * @see android.media.AudioAttributes#USAGE_ASSISTANCE_ACCESSIBILITY
+   */
+  @SuppressWarnings("InlinedApi")
+  public static final int USAGE_ASSISTANCE_ACCESSIBILITY =
+      android.media.AudioAttributes.USAGE_ASSISTANCE_ACCESSIBILITY;
+  /**
+   * @see android.media.AudioAttributes#USAGE_ASSISTANCE_NAVIGATION_GUIDANCE
+   */
+  @SuppressWarnings("InlinedApi")
+  public static final int USAGE_ASSISTANCE_NAVIGATION_GUIDANCE =
+      android.media.AudioAttributes.USAGE_ASSISTANCE_NAVIGATION_GUIDANCE;
+  /**
+   * @see android.media.AudioAttributes#USAGE_ASSISTANCE_SONIFICATION
+   */
+  @SuppressWarnings("InlinedApi")
+  public static final int USAGE_ASSISTANCE_SONIFICATION =
+      android.media.AudioAttributes.USAGE_ASSISTANCE_SONIFICATION;
+  /**
+   * @see android.media.AudioAttributes#USAGE_GAME
+   */
+  @SuppressWarnings("InlinedApi")
+  public static final int USAGE_GAME = android.media.AudioAttributes.USAGE_GAME;
+  /**
+   * @see android.media.AudioAttributes#USAGE_MEDIA
+   */
+  @SuppressWarnings("InlinedApi")
+  public static final int USAGE_MEDIA = android.media.AudioAttributes.USAGE_MEDIA;
+  /**
+   * @see android.media.AudioAttributes#USAGE_NOTIFICATION
+   */
+  @SuppressWarnings("InlinedApi")
+  public static final int USAGE_NOTIFICATION = android.media.AudioAttributes.USAGE_NOTIFICATION;
+  /**
+   * @see android.media.AudioAttributes#USAGE_NOTIFICATION_COMMUNICATION_DELAYED
+   */
+  @SuppressWarnings("InlinedApi")
+  public static final int USAGE_NOTIFICATION_COMMUNICATION_DELAYED =
+      android.media.AudioAttributes.USAGE_NOTIFICATION_COMMUNICATION_DELAYED;
+  /**
+   * @see android.media.AudioAttributes#USAGE_NOTIFICATION_COMMUNICATION_INSTANT
+   */
+  @SuppressWarnings("InlinedApi")
+  public static final int USAGE_NOTIFICATION_COMMUNICATION_INSTANT =
+      android.media.AudioAttributes.USAGE_NOTIFICATION_COMMUNICATION_INSTANT;
+  /**
+   * @see android.media.AudioAttributes#USAGE_NOTIFICATION_COMMUNICATION_REQUEST
+   */
+  @SuppressWarnings("InlinedApi")
+  public static final int USAGE_NOTIFICATION_COMMUNICATION_REQUEST =
+      android.media.AudioAttributes.USAGE_NOTIFICATION_COMMUNICATION_REQUEST;
+  /**
+   * @see android.media.AudioAttributes#USAGE_NOTIFICATION_EVENT
+   */
+  @SuppressWarnings("InlinedApi")
+  public static final int USAGE_NOTIFICATION_EVENT =
+      android.media.AudioAttributes.USAGE_NOTIFICATION_EVENT;
+  /**
+   * @see android.media.AudioAttributes#USAGE_NOTIFICATION_RINGTONE
+   */
+  @SuppressWarnings("InlinedApi")
+  public static final int USAGE_NOTIFICATION_RINGTONE =
+      android.media.AudioAttributes.USAGE_NOTIFICATION_RINGTONE;
+  /**
+   * @see android.media.AudioAttributes#USAGE_UNKNOWN
+   */
+  @SuppressWarnings("InlinedApi")
+  public static final int USAGE_UNKNOWN = android.media.AudioAttributes.USAGE_UNKNOWN;
+  /**
+   * @see android.media.AudioAttributes#USAGE_VOICE_COMMUNICATION
+   */
+  @SuppressWarnings("InlinedApi")
+  public static final int USAGE_VOICE_COMMUNICATION =
+      android.media.AudioAttributes.USAGE_VOICE_COMMUNICATION;
+  /**
+   * @see android.media.AudioAttributes#USAGE_VOICE_COMMUNICATION_SIGNALLING
+   */
+  @SuppressWarnings("InlinedApi")
+  public static final int USAGE_VOICE_COMMUNICATION_SIGNALLING =
+      android.media.AudioAttributes.USAGE_VOICE_COMMUNICATION_SIGNALLING;
 
   /**
    * Flags which can apply to a buffer containing a media sample.
@@ -498,16 +655,25 @@ public final class C {
   /**
    * A type of a message that can be passed to an audio {@link Renderer} via
    * {@link ExoPlayer#sendMessages} or {@link ExoPlayer#blockingSendMessages}. The message object
-   * should be one of the integer stream types in {@link C.StreamType}, and will specify the stream
-   * type of the underlying {@link android.media.AudioTrack}. See also
-   * {@link android.media.AudioTrack#AudioTrack(int, int, int, int, int, int)}. If the stream type
-   * is not set, audio renderers use {@link #STREAM_TYPE_DEFAULT}.
+   * should be an {@link com.google.android.exoplayer2.audio.AudioAttributes} instance that will
+   * configure the underlying audio track. If not set, the default audio attributes will be used.
+   * They are suitable for general media playback.
    * <p>
-   * Note that when the stream type changes, the AudioTrack must be reinitialized, which can
-   * introduce a brief gap in audio output. Note also that tracks in the same audio session must
-   * share the same routing, so a new audio session id will be generated.
+   * Setting the audio attributes during playback may introduce a short gap in audio output as the
+   * audio track is recreated. A new audio session id will also be generated.
+   * <p>
+   * If tunneling is enabled by the track selector, the specified audio attributes will be ignored,
+   * but they will take effect if audio is later played without tunneling.
+   * <p>
+   * If the device is running a build before platform API version 21, audio attributes cannot be set
+   * directly on the underlying audio track. In this case, the usage will be mapped onto an
+   * equivalent stream type using {@link Util#getStreamTypeForAudioUsage(int)}.
+   * <p>
+   * To get audio attributes that are equivalent to a legacy stream type, pass the stream type to
+   * {@link Util#getAudioUsageForStreamType(int)} and use the returned {@link C.AudioUsage} to build
+   * an audio attributes instance.
    */
-  public static final int MSG_SET_STREAM_TYPE = 3;
+  public static final int MSG_SET_AUDIO_ATTRIBUTES = 3;
 
   /**
    * The type of a message that can be passed to a {@link MediaCodec}-based video {@link Renderer}
