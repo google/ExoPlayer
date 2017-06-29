@@ -32,6 +32,7 @@ import com.google.android.exoplayer2.FormatHolder;
 import com.google.android.exoplayer2.decoder.DecoderCounters;
 import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
 import com.google.android.exoplayer2.drm.DrmSession;
+import com.google.android.exoplayer2.drm.DrmSession.DrmSessionException;
 import com.google.android.exoplayer2.drm.DrmSessionManager;
 import com.google.android.exoplayer2.drm.FrameworkMediaCrypto;
 import com.google.android.exoplayer2.mediacodec.MediaCodecUtil.DecoderQueryException;
@@ -298,20 +299,20 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
 
     drmSession = pendingDrmSession;
     String mimeType = format.sampleMimeType;
-    MediaCrypto mediaCrypto = null;
+    MediaCrypto wrappedMediaCrypto = null;
     boolean drmSessionRequiresSecureDecoder = false;
     if (drmSession != null) {
-      @DrmSession.State int drmSessionState = drmSession.getState();
-      if (drmSessionState == DrmSession.STATE_ERROR) {
-        throw ExoPlaybackException.createForRenderer(drmSession.getError(), getIndex());
-      } else if (drmSessionState == DrmSession.STATE_OPENED
-          || drmSessionState == DrmSession.STATE_OPENED_WITH_KEYS) {
-        mediaCrypto = drmSession.getMediaCrypto().getWrappedMediaCrypto();
-        drmSessionRequiresSecureDecoder = drmSession.requiresSecureDecoderComponent(mimeType);
-      } else {
+      FrameworkMediaCrypto mediaCrypto = drmSession.getMediaCrypto();
+      if (mediaCrypto == null) {
+        DrmSessionException drmError = drmSession.getError();
+        if (drmError != null) {
+          throw ExoPlaybackException.createForRenderer(drmError, getIndex());
+        }
         // The drm session isn't open yet.
         return;
       }
+      wrappedMediaCrypto = mediaCrypto.getWrappedMediaCrypto();
+      drmSessionRequiresSecureDecoder = mediaCrypto.requiresSecureDecoderComponent(mimeType);
     }
 
     if (codecInfo == null) {
@@ -358,7 +359,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
       codec = MediaCodec.createByCodecName(codecName);
       TraceUtil.endSection();
       TraceUtil.beginSection("configureCodec");
-      configureCodec(codecInfo, codec, format, mediaCrypto);
+      configureCodec(codecInfo, codec, format, wrappedMediaCrypto);
       TraceUtil.endSection();
       TraceUtil.beginSection("startCodec");
       codec.start();
@@ -736,15 +737,14 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
   }
 
   private boolean shouldWaitForKeys(boolean bufferEncrypted) throws ExoPlaybackException {
-    if (drmSession == null) {
+    if (drmSession == null || (!bufferEncrypted && playClearSamplesWithoutKeys)) {
       return false;
     }
     @DrmSession.State int drmSessionState = drmSession.getState();
     if (drmSessionState == DrmSession.STATE_ERROR) {
       throw ExoPlaybackException.createForRenderer(drmSession.getError(), getIndex());
     }
-    return drmSessionState != DrmSession.STATE_OPENED_WITH_KEYS
-        && (bufferEncrypted || !playClearSamplesWithoutKeys);
+    return drmSessionState != DrmSession.STATE_OPENED_WITH_KEYS;
   }
 
   /**

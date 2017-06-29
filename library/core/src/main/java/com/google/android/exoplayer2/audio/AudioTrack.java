@@ -1463,7 +1463,7 @@ public final class AudioTrack {
   @TargetApi(21)
   private int writeNonBlockingWithAvSyncV21(android.media.AudioTrack audioTrack,
       ByteBuffer buffer, int size, long presentationTimeUs) {
-    // TODO: Uncomment this when [Internal ref b/33627517] is clarified or fixed.
+    // TODO: Uncomment this when [Internal ref: b/33627517] is clarified or fixed.
     // if (Util.SDK_INT >= 23) {
     //   // The underlying platform AudioTrack writes AV sync headers directly.
     //   return audioTrack.write(buffer, size, WRITE_NON_BLOCKING, presentationTimeUs * 1000);

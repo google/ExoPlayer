@@ -30,6 +30,7 @@ import com.google.android.exoplayer2.FormatHolder;
 import com.google.android.exoplayer2.decoder.DecoderCounters;
 import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
 import com.google.android.exoplayer2.drm.DrmSession;
+import com.google.android.exoplayer2.drm.DrmSession.DrmSessionException;
 import com.google.android.exoplayer2.drm.DrmSessionManager;
 import com.google.android.exoplayer2.drm.ExoMediaCrypto;
 import com.google.android.exoplayer2.util.Assertions;
@@ -185,42 +186,21 @@ public final class LibvpxVideoRenderer extends BaseRenderer {
       }
     }
 
-    // We have a format.
-    drmSession = pendingDrmSession;
-    ExoMediaCrypto mediaCrypto = null;
-    if (drmSession != null) {
-      int drmSessionState = drmSession.getState();
-      if (drmSessionState == DrmSession.STATE_ERROR) {
-        throw ExoPlaybackException.createForRenderer(drmSession.getError(), getIndex());
-      } else if (drmSessionState == DrmSession.STATE_OPENED
-          || drmSessionState == DrmSession.STATE_OPENED_WITH_KEYS) {
-        mediaCrypto = drmSession.getMediaCrypto();
-      } else {
-        // The drm session isn't open yet.
-        return;
-      }
-    }
-    try {
-      if (decoder == null) {
-        // If we don't have a decoder yet, we need to instantiate one.
-        long codecInitializingTimestamp = SystemClock.elapsedRealtime();
-        TraceUtil.beginSection("createVpxDecoder");
-        decoder = new VpxDecoder(NUM_BUFFERS, NUM_BUFFERS, INITIAL_INPUT_BUFFER_SIZE, mediaCrypto);
-        decoder.setOutputMode(outputMode);
+    // If we don't have a decoder yet, we need to instantiate one.
+    maybeInitDecoder();
+
+    if (decoder != null) {
+      try {
+        // Rendering loop.
+        TraceUtil.beginSection("drainAndFeed");
+        while (drainOutputBuffer(positionUs)) {}
+        while (feedInputBuffer()) {}
         TraceUtil.endSection();
-        long codecInitializedTimestamp = SystemClock.elapsedRealtime();
-        eventDispatcher.decoderInitialized(decoder.getName(), codecInitializedTimestamp,
-            codecInitializedTimestamp - codecInitializingTimestamp);
-        decoderCounters.decoderInitCount++;
+      } catch (VpxDecoderException e) {
+        throw ExoPlaybackException.createForRenderer(e, getIndex());
       }
-      TraceUtil.beginSection("drainAndFeed");
-      while (drainOutputBuffer(positionUs)) {}
-      while (feedInputBuffer()) {}
-      TraceUtil.endSection();
-    } catch (VpxDecoderException e) {
-      throw ExoPlaybackException.createForRenderer(e, getIndex());
+      decoderCounters.ensureUpdated();
     }
-    decoderCounters.ensureUpdated();
   }
 
   private boolean drainOutputBuffer(long positionUs) throws VpxDecoderException {
@@ -399,15 +379,14 @@ public final class LibvpxVideoRenderer extends BaseRenderer {
   }
 
   private boolean shouldWaitForKeys(boolean bufferEncrypted) throws ExoPlaybackException {
-    if (drmSession == null) {
+    if (drmSession == null || (!bufferEncrypted && playClearSamplesWithoutKeys)) {
       return false;
     }
-    int drmSessionState = drmSession.getState();
+    @DrmSession.State int drmSessionState = drmSession.getState();
     if (drmSessionState == DrmSession.STATE_ERROR) {
       throw ExoPlaybackException.createForRenderer(drmSession.getError(), getIndex());
     }
-    return drmSessionState != DrmSession.STATE_OPENED_WITH_KEYS
-        && (bufferEncrypted || !playClearSamplesWithoutKeys);
+    return drmSessionState != DrmSession.STATE_OPENED_WITH_KEYS;
   }
 
   private void flushDecoder() {
@@ -513,6 +492,40 @@ public final class LibvpxVideoRenderer extends BaseRenderer {
           eventDispatcher.disabled(decoderCounters);
         }
       }
+    }
+  }
+
+  private void maybeInitDecoder() throws ExoPlaybackException {
+    if (decoder != null) {
+      return;
+    }
+
+    drmSession = pendingDrmSession;
+    ExoMediaCrypto mediaCrypto = null;
+    if (drmSession != null) {
+      mediaCrypto = drmSession.getMediaCrypto();
+      if (mediaCrypto == null) {
+        DrmSessionException drmError = drmSession.getError();
+        if (drmError != null) {
+          throw ExoPlaybackException.createForRenderer(drmError, getIndex());
+        }
+        // The drm session isn't open yet.
+        return;
+      }
+    }
+
+    try {
+      long codecInitializingTimestamp = SystemClock.elapsedRealtime();
+      TraceUtil.beginSection("createVpxDecoder");
+      decoder = new VpxDecoder(NUM_BUFFERS, NUM_BUFFERS, INITIAL_INPUT_BUFFER_SIZE, mediaCrypto);
+      decoder.setOutputMode(outputMode);
+      TraceUtil.endSection();
+      long codecInitializedTimestamp = SystemClock.elapsedRealtime();
+      eventDispatcher.decoderInitialized(decoder.getName(), codecInitializedTimestamp,
+          codecInitializedTimestamp - codecInitializingTimestamp);
+      decoderCounters.decoderInitCount++;
+    } catch (VpxDecoderException e) {
+      throw ExoPlaybackException.createForRenderer(e, getIndex());
     }
   }
 
