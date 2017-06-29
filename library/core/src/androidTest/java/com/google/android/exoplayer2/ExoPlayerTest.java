@@ -226,42 +226,28 @@ public final class ExoPlayerTest extends TestCase {
     final int[] actionSchedule = { // 0 -> 1
         ExoPlayer.REPEAT_MODE_ONE, // 1 -> 1
         ExoPlayer.REPEAT_MODE_OFF, // 1 -> 2
-        -1, // 2 -> ended
-        ExoPlayer.REPEAT_MODE_ONE, // ended -> 2
+        ExoPlayer.REPEAT_MODE_ONE, // 2 -> 2
         ExoPlayer.REPEAT_MODE_ALL, // 2 -> 0
         ExoPlayer.REPEAT_MODE_ONE, // 0 -> 0
         -1, // 0 -> 0
         ExoPlayer.REPEAT_MODE_OFF, // 0 -> 1
         -1, // 1 -> 2
-        -1, // 2 -> ended
-        -1
+        -1  // 2 -> ended
     };
-    int[] expectedWindowIndices = {1, 1, 2, 2, 2, 0, 0, 0, 1, 2, 2};
+    int[] expectedWindowIndices = {1, 1, 2, 2, 0, 0, 0, 1, 2};
     final LinkedList<Integer> windowIndices = new LinkedList<>();
     final CountDownLatch actionCounter = new CountDownLatch(actionSchedule.length);
     PlayerWrapper playerWrapper = new PlayerWrapper() {
+      @Override
       @SuppressWarnings("ResourceType")
-      private void executeAction() {
+      public void onPositionDiscontinuity() {
+        super.onPositionDiscontinuity();
         int actionIndex = actionSchedule.length - (int) actionCounter.getCount();
         if (actionSchedule[actionIndex] != -1) {
           player.setRepeatMode(actionSchedule[actionIndex]);
         }
         windowIndices.add(player.getCurrentWindowIndex());
         actionCounter.countDown();
-      }
-
-      @Override
-      public void onPlayerStateChanged(boolean playWhenReady, int playbackState) {
-        super.onPlayerStateChanged(playWhenReady, playbackState);
-        if (playbackState == ExoPlayer.STATE_ENDED) {
-          executeAction();
-        }
-      }
-
-      @Override
-      public void onPositionDiscontinuity() {
-        super.onPositionDiscontinuity();
-        executeAction();
       }
     };
     MediaSource mediaSource = new FakeMediaSource(timeline, null, TEST_VIDEO_FORMAT);

@@ -488,11 +488,6 @@ import java.io.IOException;
       long newPositionUs = seekToPeriodPosition(periodId, playbackInfo.positionUs);
       playbackInfo = new PlaybackInfo(periodId, newPositionUs);
     }
-
-    // Restart buffering if playback has ended and repetition is enabled.
-    if (state == ExoPlayer.STATE_ENDED && repeatMode != ExoPlayer.REPEAT_MODE_OFF) {
-      setState(ExoPlayer.STATE_BUFFERING);
-    }
   }
 
   private void startRenderers() throws ExoPlaybackException {
