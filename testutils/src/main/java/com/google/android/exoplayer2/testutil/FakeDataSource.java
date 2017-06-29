@@ -63,11 +63,11 @@ import java.util.HashMap;
  *       .newDefaultData()
  *         .appendReadData(defaultData)
  *         .endData()
- *       .setData("http:///1", data1)
+ *       .setData("http://1", data1)
  *       .newData("test_file")
  *         .appendReadError(new IOException())
- *         .appendReadData(data2);
- *    // No need to call endData at the end
+ *         .appendReadData(data2)
+ *         .endData();
  * </pre>
  */
 public final class FakeDataSource implements DataSource {
@@ -139,7 +139,7 @@ public final class FakeDataSource implements DataSource {
           (int) Math.min(Math.max(0, dataSpec.position - scannedLength), segment.length);
       scannedLength += segment.length;
       findingCurrentSegmentIndex &= segment.isErrorSegment() ? segment.exceptionCleared
-          : segment.bytesRead == segment.length;
+          : (!segment.isActionSegment() && segment.bytesRead == segment.length);
       if (findingCurrentSegmentIndex) {
         currentSegmentIndex++;
       }
