@@ -89,7 +89,6 @@ public class DefaultTimeBar extends View implements TimeBar {
   private final Formatter formatter;
   private final Runnable stopScrubbingRunnable;
 
-  private int scrubberSize;
   private OnScrubListener listener;
   private int keyCountIncrement;
   private long keyTimeIncrement;
@@ -184,7 +183,6 @@ public class DefaultTimeBar extends View implements TimeBar {
         stopScrubbing(false);
       }
     };
-    scrubberSize = scrubberEnabledSize;
     scrubberPadding =
         (Math.max(scrubberDisabledSize, Math.max(scrubberEnabledSize, scrubberDraggedSize)) + 1)
             / 2;
@@ -234,8 +232,6 @@ public class DefaultTimeBar extends View implements TimeBar {
     this.duration = duration;
     if (scrubbing && duration == C.TIME_UNSET) {
       stopScrubbing(true);
-    } else {
-      updateScrubberState();
     }
     update();
   }
@@ -251,7 +247,6 @@ public class DefaultTimeBar extends View implements TimeBar {
   @Override
   public void setEnabled(boolean enabled) {
     super.setEnabled(enabled);
-    updateScrubberState();
     if (scrubbing && !enabled) {
       stopScrubbing(true);
     }
@@ -436,7 +431,6 @@ public class DefaultTimeBar extends View implements TimeBar {
 
   private void startScrubbing() {
     scrubbing = true;
-    updateScrubberState();
     ViewParent parent = getParent();
     if (parent != null) {
       parent.requestDisallowInterceptTouchEvent(true);
@@ -452,16 +446,10 @@ public class DefaultTimeBar extends View implements TimeBar {
     if (parent != null) {
       parent.requestDisallowInterceptTouchEvent(false);
     }
-    updateScrubberState();
     invalidate();
     if (listener != null) {
       listener.onScrubStop(this, getScrubberPosition(), canceled);
     }
-  }
-
-  private void updateScrubberState() {
-    scrubberSize = scrubbing ? scrubberDraggedSize
-        : (isEnabled() && duration >= 0 ? scrubberEnabledSize : scrubberDisabledSize);
   }
 
   private void update() {
@@ -543,6 +531,8 @@ public class DefaultTimeBar extends View implements TimeBar {
     if (duration <= 0) {
       return;
     }
+    int scrubberSize = (scrubbing || isFocused()) ? scrubberDraggedSize
+        : (isEnabled() ? scrubberEnabledSize : scrubberDisabledSize);
     int playheadRadius = scrubberSize / 2;
     int playheadCenter = Util.constrainValue(scrubberBar.right, scrubberBar.left,
         progressBar.right);
