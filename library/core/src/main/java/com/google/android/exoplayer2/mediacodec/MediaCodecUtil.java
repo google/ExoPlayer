@@ -56,8 +56,10 @@ public final class MediaCodecUtil {
   }
 
   private static final String TAG = "MediaCodecUtil";
+  private static final String GOOGLE_RAW_DECODER_NAME = "OMX.google.raw.decoder";
+  private static final String MTK_RAW_DECODER_NAME = "OMX.MTK.AUDIO.DECODER.RAW";
   private static final MediaCodecInfo PASSTHROUGH_DECODER_INFO =
-      MediaCodecInfo.newPassthroughInstance("OMX.google.raw.decoder");
+      MediaCodecInfo.newPassthroughInstance(GOOGLE_RAW_DECODER_NAME);
   private static final Pattern PROFILE_PATTERN = Pattern.compile("^\\D?(\\d+)$");
 
   private static final HashMap<CodecKey, List<MediaCodecInfo>> decoderInfosCache = new HashMap<>();
@@ -155,6 +157,7 @@ public final class MediaCodecUtil {
             + ". Assuming: " + decoderInfos.get(0).name);
       }
     }
+    applyWorkarounds(decoderInfos);
     decoderInfos = Collections.unmodifiableList(decoderInfos);
     decoderInfosCache.put(key, decoderInfos);
     return decoderInfos;
@@ -337,6 +340,27 @@ public final class MediaCodecUtil {
     }
 
     return true;
+  }
+
+  /**
+   * Modifies a list of {@link MediaCodecInfo}s to apply workarounds where we know better than the
+   * platform.
+   *
+   * @param decoderInfos The list to modify.
+   */
+  private static void applyWorkarounds(List<MediaCodecInfo> decoderInfos) {
+    if (Util.SDK_INT < 26 && decoderInfos.size() > 1
+        && MTK_RAW_DECODER_NAME.equals(decoderInfos.get(0).name)) {
+      // Prefer the Google raw decoder over the MediaTek one [Internal: b/62337687].
+      for (int i = 1; i < decoderInfos.size(); i++) {
+        MediaCodecInfo decoderInfo = decoderInfos.get(i);
+        if (GOOGLE_RAW_DECODER_NAME.equals(decoderInfo.name)) {
+          decoderInfos.remove(i);
+          decoderInfos.add(0, decoderInfo);
+          break;
+        }
+      }
+    }
   }
 
   /**
