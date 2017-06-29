@@ -63,7 +63,7 @@ public class TimelineTest extends TestCase {
 
     @Override
     public Period getPeriod(int periodIndex, Period period, boolean setIds) {
-      return period.set(new int[] { id, periodIndex }, null, 0, WINDOW_DURATION_US, 0, false);
+      return period.set(new int[] { id, periodIndex }, null, 0, WINDOW_DURATION_US, 0);
     }
 
     @Override

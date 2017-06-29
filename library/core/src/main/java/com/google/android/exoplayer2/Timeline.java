@@ -264,13 +264,6 @@ public abstract class Timeline {
      */
     public long durationUs;
 
-    // TODO: Remove this flag now that in-period ads are supported.
-
-    /**
-     * Whether this period contains an ad.
-     */
-    public boolean isAd;
-
     private long positionInWindowUs;
     private long[] adGroupTimesUs;
     private boolean[] hasPlayedAdGroup;
@@ -289,12 +282,11 @@ public abstract class Timeline {
      * @param positionInWindowUs The position of the start of this period relative to the start of
      *     the window to which it belongs, in milliseconds. May be negative if the start of the
      *     period is not within the window.
-     * @param isAd Whether this period is an ad.
      * @return This period, for convenience.
      */
     public Period set(Object id, Object uid, int windowIndex, long durationUs,
-        long positionInWindowUs, boolean isAd) {
-      return set(id, uid, windowIndex, durationUs, positionInWindowUs, isAd, null, null, null, null,
+        long positionInWindowUs) {
+      return set(id, uid, windowIndex, durationUs, positionInWindowUs, null, null, null, null,
           null);
     }
 
@@ -309,7 +301,6 @@ public abstract class Timeline {
      * @param positionInWindowUs The position of the start of this period relative to the start of
      *     the window to which it belongs, in milliseconds. May be negative if the start of the
      *     period is not within the window.
-     * @param isAd Whether this period is an ad.
      * @param adGroupTimesUs The times of ad groups relative to the start of the period, in
      *     microseconds. A final element with the value {@link C#TIME_END_OF_SOURCE} indicates that
      *     the period has a postroll ad.
@@ -322,14 +313,13 @@ public abstract class Timeline {
      * @return This period, for convenience.
      */
     public Period set(Object id, Object uid, int windowIndex, long durationUs,
-        long positionInWindowUs, boolean isAd, long[] adGroupTimesUs, boolean[] hasPlayedAdGroup,
-        int[] adCounts, boolean[][] isAdAvailable, long[][] adDurationsUs) {
+        long positionInWindowUs, long[] adGroupTimesUs, boolean[] hasPlayedAdGroup, int[] adCounts,
+        boolean[][] isAdAvailable, long[][] adDurationsUs) {
       this.id = id;
       this.uid = uid;
       this.windowIndex = windowIndex;
       this.durationUs = durationUs;
       this.positionInWindowUs = positionInWindowUs;
-      this.isAd = isAd;
       this.adGroupTimesUs = adGroupTimesUs;
       this.hasPlayedAdGroup = hasPlayedAdGroup;
       this.adCounts = adCounts;

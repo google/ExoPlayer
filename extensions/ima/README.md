@@ -36,9 +36,6 @@ section of the app.
 
 This is a preview version with some known issues:
 
-* Seeking is not yet ad aware. This means that it's possible to seek back into
-  ads that have already been played, and also seek past midroll ads without
-  them being played. Seeking will be made ad aware for the first stable release.
 * Midroll ads are not yet fully supported. `playAd` and `AD_STARTED` events are
   sometimes delayed, meaning that midroll ads take a long time to start and the
   ad overlay does not show immediately.

@@ -78,13 +78,13 @@ public interface TimeBar {
   void setDuration(long duration);
 
   /**
-   * Sets the times of ad breaks.
+   * Sets the times of ad groups.
    *
-   * @param adBreakTimesMs An array where the first {@code adBreakCount} elements are the times of
-   *     ad breaks in milliseconds. May be {@code null} if there are no ad breaks.
-   * @param adBreakCount The number of ad breaks.
+   * @param adGroupTimesMs An array where the first {@code adGroupCount} elements are the times of
+   *     ad groups in milliseconds. May be {@code null} if there are no ad groups.
+   * @param adGroupCount The number of ad groups.
    */
-  void setAdGroupTimesMs(@Nullable long[] adBreakTimesMs, int adBreakCount);
+  void setAdGroupTimesMs(@Nullable long[] adGroupTimesMs, int adGroupCount);
 
   /**
    * Listener for scrubbing events.
