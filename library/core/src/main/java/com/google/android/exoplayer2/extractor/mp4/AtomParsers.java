@@ -681,9 +681,11 @@ import java.util.List;
         drmInitData = drmInitData.copyWithSchemeType(schemeType);
       }
       parent.setPosition(childPosition);
-    } else {
-      drmInitData = null;
     }
+//    TODO: Uncomment the following part when b/63092960 is fixed.
+//    else {
+//      drmInitData = null;
+//    }
 
     List<byte[]> initializationData = null;
     String mimeType = null;
@@ -857,9 +859,11 @@ import java.util.List;
         drmInitData = drmInitData.copyWithSchemeType(schemeType);
       }
       parent.setPosition(childPosition);
-    } else {
-      drmInitData = null;
     }
+//    TODO: Uncomment the following part when b/63092960 is fixed.
+//    else {
+//      drmInitData = null;
+//    }
 
     // If the atom type determines a MIME type, set it immediately.
     String mimeType = null;
