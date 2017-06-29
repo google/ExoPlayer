@@ -20,20 +20,14 @@ import android.net.Uri;
 import android.os.Handler;
 import android.os.Looper;
 import android.view.ViewGroup;
-import com.google.ads.interactivemedia.v3.api.Ad;
-import com.google.ads.interactivemedia.v3.api.AdPodInfo;
 import com.google.ads.interactivemedia.v3.api.ImaSdkSettings;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.extractor.DefaultExtractorsFactory;
-import com.google.android.exoplayer2.source.ClippingMediaPeriod;
 import com.google.android.exoplayer2.source.ExtractorMediaSource;
 import com.google.android.exoplayer2.source.MediaPeriod;
 import com.google.android.exoplayer2.source.MediaSource;
-import com.google.android.exoplayer2.source.SampleStream;
-import com.google.android.exoplayer2.source.TrackGroupArray;
-import com.google.android.exoplayer2.trackselection.TrackSelection;
 import com.google.android.exoplayer2.upstream.Allocator;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.util.Assertions;
@@ -56,7 +50,8 @@ public final class ImaAdsMediaSource implements MediaSource {
   private final ImaSdkSettings imaSdkSettings;
   private final Handler mainHandler;
   private final AdListener adLoaderListener;
-  private final Map<MediaPeriod, MediaSource> mediaSourceByMediaPeriod;
+  private final Map<MediaPeriod, MediaSource> adMediaSourceByMediaPeriod;
+  private final Timeline.Period period;
 
   private Handler playerHandler;
   private ExoPlayer player;
@@ -65,13 +60,12 @@ public final class ImaAdsMediaSource implements MediaSource {
   // Accessed on the player thread.
   private Timeline contentTimeline;
   private Object contentManifest;
-  private long[] adBreakTimesUs;
-  private boolean[] playedAdBreak;
-  private Ad[][] adBreakAds;
-  private Timeline[][] adBreakTimelines;
-  private MediaSource[][] adBreakMediaSources;
-  private DeferredMediaPeriod[][] adBreakDeferredMediaPeriods;
-  private AdTimeline timeline;
+  private long[] adGroupTimesUs;
+  private boolean[] hasPlayedAdGroup;
+  private int[] adCounts;
+  private MediaSource[][] adGroupMediaSources;
+  private boolean[][] isAdAvailable;
+  private long[][] adDurationsUs;
   private MediaSource.Listener listener;
   private IOException adLoadError;
 
@@ -120,8 +114,11 @@ public final class ImaAdsMediaSource implements MediaSource {
     this.imaSdkSettings = imaSdkSettings;
     mainHandler = new Handler(Looper.getMainLooper());
     adLoaderListener = new AdListener();
-    mediaSourceByMediaPeriod = new HashMap<>();
-    adBreakMediaSources = new MediaSource[0][];
+    adMediaSourceByMediaPeriod = new HashMap<>();
+    period = new Timeline.Period();
+    adGroupMediaSources = new MediaSource[0][];
+    isAdAvailable = new boolean[0][];
+    adDurationsUs = new long[0][];
   }
 
   @Override
@@ -151,7 +148,7 @@ public final class ImaAdsMediaSource implements MediaSource {
       throw adLoadError;
     }
     contentMediaSource.maybeThrowSourceInfoRefreshError();
-    for (MediaSource[] mediaSources : adBreakMediaSources) {
+    for (MediaSource[] mediaSources : adGroupMediaSources) {
       for (MediaSource mediaSource : mediaSources) {
         mediaSource.maybeThrowSourceInfoRefreshError();
       }
@@ -160,49 +157,23 @@ public final class ImaAdsMediaSource implements MediaSource {
 
   @Override
   public MediaPeriod createPeriod(MediaPeriodId id, Allocator allocator) {
-    int index = id.periodIndex;
-    if (timeline.isPeriodAd(index)) {
-      int adBreakIndex = timeline.getAdBreakIndex(index);
-      int adIndexInAdBreak = timeline.getAdIndexInAdBreak(index);
-      if (adIndexInAdBreak >= adBreakMediaSources[adBreakIndex].length) {
-        DeferredMediaPeriod deferredPeriod = new DeferredMediaPeriod(0, allocator);
-        if (adIndexInAdBreak >= adBreakDeferredMediaPeriods[adBreakIndex].length) {
-          adBreakDeferredMediaPeriods[adBreakIndex] = Arrays.copyOf(
-              adBreakDeferredMediaPeriods[adBreakIndex], adIndexInAdBreak + 1);
-        }
-        adBreakDeferredMediaPeriods[adBreakIndex][adIndexInAdBreak] = deferredPeriod;
-        return deferredPeriod;
-      }
-
-      MediaSource adBreakMediaSource = adBreakMediaSources[adBreakIndex][adIndexInAdBreak];
-      MediaPeriod adBreakMediaPeriod =
-          adBreakMediaSource.createPeriod(new MediaPeriodId(0), allocator);
-      mediaSourceByMediaPeriod.put(adBreakMediaPeriod, adBreakMediaSource);
-      return adBreakMediaPeriod;
+    if (id.isAd()) {
+      MediaSource mediaSource = adGroupMediaSources[id.adGroupIndex][id.adIndexInAdGroup];
+      MediaPeriod mediaPeriod = mediaSource.createPeriod(new MediaPeriodId(0), allocator);
+      adMediaSourceByMediaPeriod.put(mediaPeriod, mediaSource);
+      return mediaPeriod;
     } else {
-      long startUs = timeline.getContentStartTimeUs(index);
-      long endUs = timeline.getContentEndTimeUs(index);
-      MediaPeriod contentMediaPeriod =
-          contentMediaSource.createPeriod(new MediaPeriodId(0), allocator);
-      ClippingMediaPeriod clippingPeriod = new ClippingMediaPeriod(contentMediaPeriod, true);
-      clippingPeriod.setClipping(startUs, endUs == C.TIME_UNSET ? C.TIME_END_OF_SOURCE : endUs);
-      mediaSourceByMediaPeriod.put(contentMediaPeriod, contentMediaSource);
-      return clippingPeriod;
+      return contentMediaSource.createPeriod(id, allocator);
     }
   }
 
   @Override
   public void releasePeriod(MediaPeriod mediaPeriod) {
-    if (mediaPeriod instanceof DeferredMediaPeriod) {
-      mediaPeriod = ((DeferredMediaPeriod) mediaPeriod).mediaPeriod;
-      if (mediaPeriod == null) {
-        // Nothing to do.
-        return;
-      }
-    } else if (mediaPeriod instanceof ClippingMediaPeriod) {
-      mediaPeriod = ((ClippingMediaPeriod) mediaPeriod).mediaPeriod;
+    if (adMediaSourceByMediaPeriod.containsKey(mediaPeriod)) {
+      adMediaSourceByMediaPeriod.remove(mediaPeriod).releasePeriod(mediaPeriod);
+    } else {
+      contentMediaSource.releasePeriod(mediaPeriod);
     }
-    mediaSourceByMediaPeriod.remove(mediaPeriod).releasePeriod(mediaPeriod);
   }
 
   @Override
@@ -210,7 +181,7 @@ public final class ImaAdsMediaSource implements MediaSource {
     released = true;
     adLoadError = null;
     contentMediaSource.releaseSource();
-    for (MediaSource[] mediaSources : adBreakMediaSources) {
+    for (MediaSource[] mediaSources : adGroupMediaSources) {
       for (MediaSource mediaSource : mediaSources) {
         mediaSource.releaseSource();
       }
@@ -229,19 +200,19 @@ public final class ImaAdsMediaSource implements MediaSource {
 
   // Internal methods.
 
-  private void onAdBreakTimesUsLoaded(long[] adBreakTimesUs) {
-    Assertions.checkState(this.adBreakTimesUs == null);
-    this.adBreakTimesUs = adBreakTimesUs;
-    int adBreakCount = adBreakTimesUs.length;
-    adBreakAds = new Ad[adBreakCount][];
-    Arrays.fill(adBreakAds, new Ad[0]);
-    adBreakTimelines = new Timeline[adBreakCount][];
-    Arrays.fill(adBreakTimelines, new Timeline[0]);
-    adBreakMediaSources = new MediaSource[adBreakCount][];
-    Arrays.fill(adBreakMediaSources, new MediaSource[0]);
-    adBreakDeferredMediaPeriods = new DeferredMediaPeriod[adBreakCount][];
-    Arrays.fill(adBreakDeferredMediaPeriods, new DeferredMediaPeriod[0]);
-    playedAdBreak = new boolean[adBreakCount];
+  private void onAdGroupTimesUsLoaded(long[] adGroupTimesUs) {
+    Assertions.checkState(this.adGroupTimesUs == null);
+    int adGroupCount = adGroupTimesUs.length;
+    this.adGroupTimesUs = adGroupTimesUs;
+    hasPlayedAdGroup = new boolean[adGroupCount];
+    adCounts = new int[adGroupCount];
+    Arrays.fill(adCounts, C.LENGTH_UNSET);
+    adGroupMediaSources = new MediaSource[adGroupCount][];
+    Arrays.fill(adGroupMediaSources, new MediaSource[0]);
+    isAdAvailable = new boolean[adGroupCount][];
+    Arrays.fill(isAdAvailable, new boolean[0]);
+    adDurationsUs = new long[adGroupCount][];
+    Arrays.fill(adDurationsUs, new long[0]);
     maybeUpdateSourceInfo();
   }
 
@@ -251,98 +222,51 @@ public final class ImaAdsMediaSource implements MediaSource {
     maybeUpdateSourceInfo();
   }
 
-  private void onAdUriLoaded(final int adBreakIndex, final int adIndexInAdBreak, Uri uri) {
+  private void onAdGroupPlayedToEnd(int adGroupIndex) {
+    hasPlayedAdGroup[adGroupIndex] = true;
+    maybeUpdateSourceInfo();
+  }
+
+  private void onAdUriLoaded(final int adGroupIndex, final int adIndexInAdGroup, Uri uri) {
     MediaSource adMediaSource = new ExtractorMediaSource(uri, dataSourceFactory,
         new DefaultExtractorsFactory(), mainHandler, adLoaderListener);
-    if (adBreakMediaSources[adBreakIndex].length <= adIndexInAdBreak) {
-      int adCount = adIndexInAdBreak + 1;
-      adBreakMediaSources[adBreakIndex] = Arrays.copyOf(adBreakMediaSources[adBreakIndex], adCount);
-      adBreakTimelines[adBreakIndex] = Arrays.copyOf(adBreakTimelines[adBreakIndex], adCount);
+    int oldAdCount = adGroupMediaSources[adGroupIndex].length;
+    if (adIndexInAdGroup >= oldAdCount) {
+      int adCount = adIndexInAdGroup + 1;
+      adGroupMediaSources[adGroupIndex] = Arrays.copyOf(adGroupMediaSources[adGroupIndex], adCount);
+      isAdAvailable[adGroupIndex] = Arrays.copyOf(isAdAvailable[adGroupIndex], adCount);
+      adDurationsUs[adGroupIndex] = Arrays.copyOf(adDurationsUs[adGroupIndex], adCount);
+      Arrays.fill(adDurationsUs[adGroupIndex], oldAdCount, adCount, C.TIME_UNSET);
     }
-    adBreakMediaSources[adBreakIndex][adIndexInAdBreak] = adMediaSource;
-    if (adIndexInAdBreak < adBreakDeferredMediaPeriods[adBreakIndex].length
-        && adBreakDeferredMediaPeriods[adBreakIndex][adIndexInAdBreak] != null) {
-      adBreakDeferredMediaPeriods[adBreakIndex][adIndexInAdBreak].setMediaSource(
-          adBreakMediaSources[adBreakIndex][adIndexInAdBreak]);
-      mediaSourceByMediaPeriod.put(
-          adBreakDeferredMediaPeriods[adBreakIndex][adIndexInAdBreak].mediaPeriod, adMediaSource);
-    }
+    adGroupMediaSources[adGroupIndex][adIndexInAdGroup] = adMediaSource;
+    isAdAvailable[adGroupIndex][adIndexInAdGroup] = true;
     adMediaSource.prepareSource(player, false, new Listener() {
       @Override
       public void onSourceInfoRefreshed(Timeline timeline, Object manifest) {
-        onAdSourceInfoRefreshed(adBreakIndex, adIndexInAdBreak, timeline);
+        onAdSourceInfoRefreshed(adGroupIndex, adIndexInAdGroup, timeline);
       }
     });
   }
 
-  private void onAdSourceInfoRefreshed(int adBreakIndex, int adIndexInAdBreak, Timeline timeline) {
-    adBreakTimelines[adBreakIndex][adIndexInAdBreak] = timeline;
+  private void onAdSourceInfoRefreshed(int adGroupIndex, int adIndexInAdGroup, Timeline timeline) {
+    Assertions.checkArgument(timeline.getPeriodCount() == 1);
+    adDurationsUs[adGroupIndex][adIndexInAdGroup] = timeline.getPeriod(0, period).getDurationUs();
     maybeUpdateSourceInfo();
   }
 
-  private void onAdLoaded(int adBreakIndex, int adIndexInAdBreak, Ad ad) {
-    if (adBreakAds[adBreakIndex].length <= adIndexInAdBreak) {
-      int adCount = adIndexInAdBreak + 1;
-      adBreakAds[adBreakIndex] = Arrays.copyOf(adBreakAds[adBreakIndex], adCount);
+  private void onAdGroupLoaded(int adGroupIndex, int adCountInAdGroup) {
+    if (adCounts[adGroupIndex] == C.LENGTH_UNSET) {
+      adCounts[adGroupIndex] = adCountInAdGroup;
+      maybeUpdateSourceInfo();
     }
-    adBreakAds[adBreakIndex][adIndexInAdBreak] = ad;
-    maybeUpdateSourceInfo();
   }
 
   private void maybeUpdateSourceInfo() {
-    if (adBreakTimesUs == null || contentTimeline == null) {
-      // We don't have enough information to start building the timeline yet.
-      return;
+    if (adGroupTimesUs != null && contentTimeline != null) {
+      SinglePeriodAdTimeline timeline = new SinglePeriodAdTimeline(contentTimeline, adGroupTimesUs,
+          hasPlayedAdGroup, adCounts, isAdAvailable, adDurationsUs);
+      listener.onSourceInfoRefreshed(timeline, contentManifest);
     }
-
-    AdTimeline.Builder builder = new AdTimeline.Builder(contentTimeline);
-    int count = adBreakTimesUs.length;
-    boolean preroll = adBreakTimesUs[0] == 0;
-    boolean postroll = adBreakTimesUs[count - 1] == C.TIME_UNSET;
-    int midrollCount = count - (preroll ? 1 : 0) - (postroll ? 1 : 0);
-
-    int adBreakIndex = 0;
-    long contentTimeUs = 0;
-    if (preroll) {
-      addAdBreak(builder, adBreakIndex++);
-    }
-    for (int i = 0; i < midrollCount; i++) {
-      long startTimeUs = contentTimeUs;
-      contentTimeUs = adBreakTimesUs[adBreakIndex];
-      builder.addContent(startTimeUs, contentTimeUs);
-      addAdBreak(builder, adBreakIndex++);
-    }
-    builder.addContent(contentTimeUs, C.TIME_UNSET);
-    if (postroll) {
-      addAdBreak(builder, adBreakIndex);
-    }
-
-    timeline = builder.build();
-    listener.onSourceInfoRefreshed(timeline, contentManifest);
-  }
-
-  private void addAdBreak(AdTimeline.Builder builder, int adBreakIndex) {
-    int adCount = adBreakMediaSources[adBreakIndex].length;
-    AdPodInfo adPodInfo = null;
-    for (int adIndex = 0; adIndex < adCount; adIndex++) {
-      Timeline adTimeline = adBreakTimelines[adBreakIndex][adIndex];
-      long adDurationUs = adTimeline != null
-          ? adTimeline.getPeriod(0, new Timeline.Period()).getDurationUs() : C.TIME_UNSET;
-      Ad ad = adIndex < adBreakAds[adBreakIndex].length
-          ? adBreakAds[adBreakIndex][adIndex] : null;
-      builder.addAdPeriod(ad, adBreakIndex, adIndex, adDurationUs);
-      if (ad != null) {
-        adPodInfo = ad.getAdPodInfo();
-      }
-    }
-    if (adPodInfo == null || adPodInfo.getTotalAds() > adCount) {
-      // We don't know how many ads are in the ad break, or they have not loaded yet.
-      builder.addAdPeriod(null, adBreakIndex, adCount, C.TIME_UNSET);
-    }
-  }
-
-  private void onAdBreakPlayedToEnd(int adBreakIndex) {
-    playedAdBreak[adBreakIndex] = true;
   }
 
   /**
@@ -352,7 +276,7 @@ public final class ImaAdsMediaSource implements MediaSource {
       ExtractorMediaSource.EventListener {
 
     @Override
-    public void onAdBreakTimesUsLoaded(final long[] adBreakTimesUs) {
+    public void onAdGroupTimesUsLoaded(final long[] adGroupTimesUs) {
       if (released) {
         return;
       }
@@ -362,13 +286,13 @@ public final class ImaAdsMediaSource implements MediaSource {
           if (released) {
             return;
           }
-          ImaAdsMediaSource.this.onAdBreakTimesUsLoaded(adBreakTimesUs);
+          ImaAdsMediaSource.this.onAdGroupTimesUsLoaded(adGroupTimesUs);
         }
       });
     }
 
     @Override
-    public void onUriLoaded(final int adBreakIndex, final int adIndexInAdBreak, final Uri uri) {
+    public void onAdGroupPlayedToEnd(final int adGroupIndex) {
       if (released) {
         return;
       }
@@ -378,13 +302,13 @@ public final class ImaAdsMediaSource implements MediaSource {
           if (released) {
             return;
           }
-          ImaAdsMediaSource.this.onAdUriLoaded(adBreakIndex, adIndexInAdBreak, uri);
+          ImaAdsMediaSource.this.onAdGroupPlayedToEnd(adGroupIndex);
         }
       });
     }
 
     @Override
-    public void onAdLoaded(final int adBreakIndex, final int adIndexInAdBreak, final Ad ad) {
+    public void onAdUriLoaded(final int adGroupIndex, final int adIndexInAdGroup, final Uri uri) {
       if (released) {
         return;
       }
@@ -394,13 +318,13 @@ public final class ImaAdsMediaSource implements MediaSource {
           if (released) {
             return;
           }
-          ImaAdsMediaSource.this.onAdLoaded(adBreakIndex, adIndexInAdBreak, ad);
+          ImaAdsMediaSource.this.onAdUriLoaded(adGroupIndex, adIndexInAdGroup, uri);
         }
       });
     }
 
     @Override
-    public void onAdBreakPlayedToEnd(final int adBreakIndex) {
+    public void onAdGroupLoaded(final int adGroupIndex, final int adCountInAdGroup) {
       if (released) {
         return;
       }
@@ -410,7 +334,7 @@ public final class ImaAdsMediaSource implements MediaSource {
           if (released) {
             return;
           }
-          ImaAdsMediaSource.this.onAdBreakPlayedToEnd(adBreakIndex);
+          ImaAdsMediaSource.this.onAdGroupLoaded(adGroupIndex, adCountInAdGroup);
         }
       });
     }
@@ -429,101 +353,6 @@ public final class ImaAdsMediaSource implements MediaSource {
           adLoadError = error;
         }
       });
-    }
-
-  }
-
-  private static final class DeferredMediaPeriod implements MediaPeriod, MediaPeriod.Callback {
-
-    private final int index;
-    private final Allocator allocator;
-
-    public MediaPeriod mediaPeriod;
-    private MediaPeriod.Callback callback;
-    private long positionUs;
-
-    public DeferredMediaPeriod(int index, Allocator allocator) {
-      this.index = index;
-      this.allocator = allocator;
-    }
-
-    public void setMediaSource(MediaSource mediaSource) {
-      mediaPeriod = mediaSource.createPeriod(new MediaPeriodId(index), allocator);
-      if (callback != null) {
-        mediaPeriod.prepare(this, positionUs);
-      }
-    }
-
-    @Override
-    public void prepare(Callback callback, long positionUs) {
-      this.callback = callback;
-      this.positionUs = positionUs;
-      if (mediaPeriod != null) {
-        mediaPeriod.prepare(this, positionUs);
-      }
-    }
-
-    @Override
-    public void maybeThrowPrepareError() throws IOException {
-      if (mediaPeriod != null) {
-        mediaPeriod.maybeThrowPrepareError();
-      }
-    }
-
-    @Override
-    public TrackGroupArray getTrackGroups() {
-      return mediaPeriod.getTrackGroups();
-    }
-
-    @Override
-    public long selectTracks(TrackSelection[] selections, boolean[] mayRetainStreamFlags,
-        SampleStream[] streams, boolean[] streamResetFlags, long positionUs) {
-      return mediaPeriod.selectTracks(selections, mayRetainStreamFlags, streams, streamResetFlags,
-          positionUs);
-    }
-
-    @Override
-    public void discardBuffer(long positionUs) {
-      // Do nothing.
-    }
-
-    @Override
-    public long readDiscontinuity() {
-      return mediaPeriod.readDiscontinuity();
-    }
-
-    @Override
-    public long getBufferedPositionUs() {
-      return mediaPeriod.getBufferedPositionUs();
-    }
-
-    @Override
-    public long seekToUs(long positionUs) {
-      return mediaPeriod.seekToUs(positionUs);
-    }
-
-    @Override
-    public long getNextLoadPositionUs() {
-      return mediaPeriod.getNextLoadPositionUs();
-    }
-
-    @Override
-    public boolean continueLoading(long positionUs) {
-      return mediaPeriod != null && mediaPeriod.continueLoading(positionUs);
-    }
-
-    // MediaPeriod.Callback implementation.
-
-    @Override
-    public void onPrepared(MediaPeriod mediaPeriod) {
-      Assertions.checkArgument(this.mediaPeriod == mediaPeriod);
-      callback.onPrepared(this);
-    }
-
-    @Override
-    public void onContinueLoadingRequested(MediaPeriod mediaPeriod) {
-      Assertions.checkArgument(this.mediaPeriod == mediaPeriod);
-      callback.onContinueLoadingRequested(this);
     }
 
   }

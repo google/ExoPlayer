@@ -758,24 +758,24 @@ public final class C {
 
   /**
    * Converts a time in microseconds to the corresponding time in milliseconds, preserving
-   * {@link #TIME_UNSET} values.
+   * {@link #TIME_UNSET} and {@link #TIME_END_OF_SOURCE} values.
    *
    * @param timeUs The time in microseconds.
    * @return The corresponding time in milliseconds.
    */
   public static long usToMs(long timeUs) {
-    return timeUs == TIME_UNSET ? TIME_UNSET : (timeUs / 1000);
+    return (timeUs == TIME_UNSET || timeUs == TIME_END_OF_SOURCE) ? timeUs : (timeUs / 1000);
   }
 
   /**
    * Converts a time in milliseconds to the corresponding time in microseconds, preserving
-   * {@link #TIME_UNSET} values.
+   * {@link #TIME_UNSET} values and {@link #TIME_END_OF_SOURCE} values.
    *
    * @param timeMs The time in milliseconds.
    * @return The corresponding time in microseconds.
    */
   public static long msToUs(long timeMs) {
-    return timeMs == TIME_UNSET ? TIME_UNSET : (timeMs * 1000);
+    return (timeMs == TIME_UNSET || timeMs == TIME_END_OF_SOURCE) ? timeMs : (timeMs * 1000);
   }
 
   /**
