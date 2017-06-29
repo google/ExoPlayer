@@ -63,7 +63,7 @@ public class TimelineTest extends TestCase {
 
     @Override
     public Period getPeriod(int periodIndex, Period period, boolean setIds) {
-      return period.set(new int[] { id, periodIndex }, null, 0, WINDOW_DURATION_US, 0);
+      return period.set(periodIndex, null, 0, WINDOW_DURATION_US, 0);
     }
 
     @Override
@@ -148,12 +148,33 @@ public class TimelineTest extends TestCase {
       this.timeline = timeline;
     }
 
-    public TimelineVerifier assertWindowIds(int... expectedWindowIds) {
+    public TimelineVerifier assertEmpty() {
+      assertWindowIds();
+      assertPeriodCounts();
+      return this;
+    }
+
+    /**
+     * @param expectedWindowIds A list of expected window IDs. If an ID is unknown or not important
+     *     {@code null} can be passed to skip this window.
+     */
+    public TimelineVerifier assertWindowIds(Object... expectedWindowIds) {
       Window window = new Window();
       assertEquals(expectedWindowIds.length, timeline.getWindowCount());
       for (int i = 0; i < timeline.getWindowCount(); i++) {
         timeline.getWindow(i, window, true);
-        assertEquals(expectedWindowIds[i], window.id);
+        if (expectedWindowIds[i] != null) {
+          assertEquals(expectedWindowIds[i], window.id);
+        }
+      }
+      return this;
+    }
+
+    public TimelineVerifier assertWindowIsDynamic(boolean... windowIsDynamic) {
+      Window window = new Window();
+      for (int i = 0; i < timeline.getWindowCount(); i++) {
+        timeline.getWindow(i, window, true);
+        assertEquals(windowIsDynamic[i], window.isDynamic);
       }
       return this;
     }
@@ -199,7 +220,6 @@ public class TimelineTest extends TestCase {
           expectedWindowIndex++;
         }
         assertEquals(expectedWindowIndex, period.windowIndex);
-        assertEquals(i - accumulatedPeriodCounts[expectedWindowIndex], ((int[]) period.id)[1]);
         if (i < accumulatedPeriodCounts[expectedWindowIndex + 1] - 1) {
           assertEquals(i + 1, timeline.getNextPeriodIndex(i, period, window,
               ExoPlayer.REPEAT_MODE_OFF));
@@ -233,9 +253,7 @@ public class TimelineTest extends TestCase {
   }
 
   public void testEmptyTimeline() {
-    new TimelineVerifier(Timeline.EMPTY)
-        .assertWindowIds()
-        .assertPeriodCounts();
+    new TimelineVerifier(Timeline.EMPTY).assertEmpty();
   }
 
   public void testSinglePeriodTimeline() {
