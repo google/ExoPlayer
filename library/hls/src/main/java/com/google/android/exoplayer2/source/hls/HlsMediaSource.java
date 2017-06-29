@@ -111,6 +111,9 @@ public final class HlsMediaSource implements MediaSource,
   @Override
   public void onPrimaryPlaylistRefreshed(HlsMediaPlaylist playlist) {
     SinglePeriodTimeline timeline;
+    long presentationStartTimeMs = playlist.hasProgramDateTime ? 0 : C.TIME_UNSET;
+    long windowStartTimeMs = playlist.hasProgramDateTime ? C.usToMs(playlist.startTimeUs)
+        : C.TIME_UNSET;
     long windowDefaultStartPositionUs = playlist.startOffsetUs;
     if (playlistTracker.isLive()) {
       long periodDurationUs = playlist.hasEndTag ? (playlist.startTimeUs + playlist.durationUs)
@@ -120,14 +123,16 @@ public final class HlsMediaSource implements MediaSource,
         windowDefaultStartPositionUs = segments.isEmpty() ? 0
             : segments.get(Math.max(0, segments.size() - 3)).relativeStartTimeUs;
       }
-      timeline = new SinglePeriodTimeline(periodDurationUs, playlist.durationUs,
-          playlist.startTimeUs, windowDefaultStartPositionUs, true, !playlist.hasEndTag);
+      timeline = new SinglePeriodTimeline(presentationStartTimeMs, windowStartTimeMs,
+          periodDurationUs, playlist.durationUs, playlist.startTimeUs, windowDefaultStartPositionUs,
+          true, !playlist.hasEndTag);
     } else /* not live */ {
       if (windowDefaultStartPositionUs == C.TIME_UNSET) {
         windowDefaultStartPositionUs = 0;
       }
-      timeline = new SinglePeriodTimeline(playlist.startTimeUs + playlist.durationUs,
-          playlist.durationUs, playlist.startTimeUs, windowDefaultStartPositionUs, true, false);
+      timeline = new SinglePeriodTimeline(presentationStartTimeMs, windowStartTimeMs,
+          playlist.startTimeUs + playlist.durationUs, playlist.durationUs, playlist.startTimeUs,
+          windowDefaultStartPositionUs, true, false);
     }
     sourceListener.onSourceInfoRefreshed(timeline,
         new HlsManifest(playlistTracker.getMasterPlaylist(), playlist));
