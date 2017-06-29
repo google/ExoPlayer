@@ -618,7 +618,7 @@ import java.io.IOException;
 
     if ((playWhenReady && state == ExoPlayer.STATE_READY) || state == ExoPlayer.STATE_BUFFERING) {
       scheduleNextWork(operationStartTimeMs, RENDERING_INTERVAL_MS);
-    } else if (enabledRenderers.length != 0) {
+    } else if (enabledRenderers.length != 0 && state != ExoPlayer.STATE_ENDED) {
       scheduleNextWork(operationStartTimeMs, IDLE_INTERVAL_MS);
     } else {
       handler.removeMessages(MSG_DO_SOME_WORK);
@@ -831,7 +831,7 @@ import java.io.IOException;
       for (ExoPlayerMessage message : messages) {
         message.target.handleMessage(message.messageType, message.message);
       }
-      if (mediaSource != null) {
+      if (state == ExoPlayer.STATE_READY || state == ExoPlayer.STATE_BUFFERING) {
         // The message may have caused something to change that now requires us to do work.
         handler.sendEmptyMessage(MSG_DO_SOME_WORK);
       }
