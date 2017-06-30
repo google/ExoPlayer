@@ -36,9 +36,8 @@ section of the app.
 
 This is a preview version with some known issues:
 
-* Midroll ads are not yet fully supported. `playAd` and `AD_STARTED` events are
-  sometimes delayed, meaning that midroll ads take a long time to start and the
-  ad overlay does not show immediately.
 * Tapping the 'More info' button on an ad in the demo app will pause the
   activity, which destroys the ImaAdsMediaSource. Played ad breaks will be
   shown to the user again if the demo app returns to the foreground.
+* Ad loading timeouts are currently propagated as player errors, rather than
+  being silently handled by resuming content.
