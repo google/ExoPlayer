@@ -16,19 +16,14 @@
 package com.google.android.exoplayer2.testutil;
 
 import static junit.framework.Assert.assertEquals;
-import static junit.framework.Assert.assertFalse;
-import static junit.framework.Assert.assertTrue;
 
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.Timeline.Period;
 import com.google.android.exoplayer2.Timeline.Window;
-import com.google.android.exoplayer2.source.MediaPeriod;
 import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.source.MediaSource.Listener;
-import com.google.android.exoplayer2.upstream.Allocator;
-import java.io.IOException;
 
 /**
  * Unit test for {@link Timeline}.
@@ -76,51 +71,6 @@ public final class TimelineAsserts {
     @Override
     public int getIndexOfPeriod(Object uid) {
       return C.INDEX_UNSET;
-    }
-  }
-
-  /**
-   * Stub media source which returns a provided timeline as source info and keeps track if it is
-   * prepared and released.
-   */
-  public static class StubMediaSource implements MediaSource {
-    private final Timeline timeline;
-
-    private boolean isPrepared;
-    private volatile boolean isReleased;
-
-    public StubMediaSource(Timeline timeline) {
-      this.timeline = timeline;
-    }
-
-    @Override
-    public void prepareSource(ExoPlayer player, boolean isTopLevelSource, Listener listener) {
-      assertFalse(isPrepared);
-      listener.onSourceInfoRefreshed(timeline, null);
-      isPrepared = true;
-    }
-
-    @Override
-    public void maybeThrowSourceInfoRefreshError() throws IOException {
-    }
-
-    @Override
-    public MediaPeriod createPeriod(MediaPeriodId id, Allocator allocator) {
-      return null;
-    }
-
-    @Override
-    public void releasePeriod(MediaPeriod mediaPeriod) {
-    }
-
-    @Override
-    public void releaseSource() {
-      assertTrue(isPrepared);
-      isReleased = true;
-    }
-
-    public void assertReleased() {
-      assertTrue(isReleased);
     }
   }
 

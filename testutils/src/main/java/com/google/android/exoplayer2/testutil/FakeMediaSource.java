@@ -29,8 +29,8 @@ import java.util.ArrayList;
 import junit.framework.Assert;
 
 /**
- * Fake {@link MediaSource} that provides a given timeline (which must have one period). Creating
- * the period will return a {@link FakeMediaPeriod}.
+ * Fake {@link MediaSource} that provides a given timeline. Creating the period will return a
+ * {@link FakeMediaPeriod} with a {@link TrackGroupArray} using the given {@link Format}s.
  */
 public class FakeMediaSource implements MediaSource {
 
@@ -51,6 +51,10 @@ public class FakeMediaSource implements MediaSource {
     }
     trackGroupArray = new TrackGroupArray(trackGroups);
     activeMediaPeriods = new ArrayList<>();
+  }
+
+  public void assertReleased() {
+    Assert.assertTrue(releasedSource);
   }
 
   @Override

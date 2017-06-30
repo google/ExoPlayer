@@ -25,9 +25,9 @@ import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.PlaybackParameters;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.source.MediaSource.Listener;
+import com.google.android.exoplayer2.testutil.FakeMediaSource;
 import com.google.android.exoplayer2.testutil.TimelineAsserts;
 import com.google.android.exoplayer2.testutil.TimelineAsserts.FakeTimeline;
-import com.google.android.exoplayer2.testutil.TimelineAsserts.StubMediaSource;
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
 import com.google.android.exoplayer2.upstream.Allocator;
 import java.io.IOException;
@@ -46,7 +46,7 @@ public final class DynamicConcatenatingMediaSourceTest extends TestCase {
 
   public void testPlaylistChangesAfterPreparation() throws InterruptedException {
     timeline = null;
-    TimelineAsserts.StubMediaSource[] childSources = createMediaSources(7);
+    FakeMediaSource[] childSources = createMediaSources(7);
     DynamicConcatenatingMediaSource mediaSource = new DynamicConcatenatingMediaSource();
     prepareAndListenToTimelineUpdates(mediaSource);
     waitForTimelineUpdate();
@@ -132,7 +132,7 @@ public final class DynamicConcatenatingMediaSourceTest extends TestCase {
 
   public void testPlaylistChangesBeforePreparation() throws InterruptedException {
     timeline = null;
-    TimelineAsserts.StubMediaSource[] childSources = createMediaSources(4);
+    FakeMediaSource[] childSources = createMediaSources(4);
     DynamicConcatenatingMediaSource mediaSource = new DynamicConcatenatingMediaSource();
     mediaSource.addMediaSource(childSources[0]);
     mediaSource.addMediaSource(childSources[1]);
@@ -155,7 +155,7 @@ public final class DynamicConcatenatingMediaSourceTest extends TestCase {
 
   public void testPlaylistWithLazyMediaSource() throws InterruptedException {
     timeline = null;
-    TimelineAsserts.StubMediaSource[] childSources = createMediaSources(2);
+    FakeMediaSource[] childSources = createMediaSources(2);
     LazyMediaSource[] lazySources = new LazyMediaSource[4];
     for (int i = 0; i < 4; i++) {
       lazySources[i] = new LazyMediaSource();
@@ -207,7 +207,7 @@ public final class DynamicConcatenatingMediaSourceTest extends TestCase {
 
   public void testIllegalArguments() {
     DynamicConcatenatingMediaSource mediaSource = new DynamicConcatenatingMediaSource();
-    MediaSource validSource = new StubMediaSource(new FakeTimeline(1, 1));
+    MediaSource validSource = new FakeMediaSource(new FakeTimeline(1, 1), null);
 
     // Null sources.
     try {
@@ -234,7 +234,10 @@ public final class DynamicConcatenatingMediaSourceTest extends TestCase {
       // Expected.
     }
 
-    mediaSources = new MediaSource[] { new StubMediaSource(new FakeTimeline(1, 1)), validSource};
+    mediaSources = new MediaSource[] {
+        new FakeMediaSource(new FakeTimeline(1, 1), null),
+        validSource
+    };
     try {
       mediaSource.addMediaSources(Arrays.asList(mediaSources));
       fail("Duplicate mediaSource not allowed.");
@@ -267,10 +270,10 @@ public final class DynamicConcatenatingMediaSourceTest extends TestCase {
     timelineUpdated = false;
   }
 
-  private TimelineAsserts.StubMediaSource[] createMediaSources(int count) {
-    TimelineAsserts.StubMediaSource[] sources = new TimelineAsserts.StubMediaSource[count];
+  private FakeMediaSource[] createMediaSources(int count) {
+    FakeMediaSource[] sources = new FakeMediaSource[count];
     for (int i = 0; i < count; i++) {
-      sources[i] = new TimelineAsserts.StubMediaSource(new FakeTimeline(i + 1, (i + 1) * 111));
+      sources[i] = new FakeMediaSource(new FakeTimeline(i + 1, (i + 1) * 111), null);
     }
     return sources;
   }
