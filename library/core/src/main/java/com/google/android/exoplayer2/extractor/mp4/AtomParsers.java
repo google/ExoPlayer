@@ -674,18 +674,19 @@ import java.util.List;
 
     int childPosition = parent.getPosition();
     if (atomType == Atom.TYPE_encv) {
-      atomType = parseSampleEntryEncryptionData(parent, position, size, out, entryIndex);
-      TrackEncryptionBox encryptionBox = out.trackEncryptionBoxes[entryIndex];
-      String schemeType = encryptionBox != null ? encryptionBox.schemeType : null;
-      if (schemeType != null) {
-        drmInitData = drmInitData.copyWithSchemeType(schemeType);
+      Pair<Integer, TrackEncryptionBox> sampleEntryEncryptionData = parseSampleEntryEncryptionData(
+          parent, position, size);
+      if (sampleEntryEncryptionData != null) {
+        atomType = sampleEntryEncryptionData.first;
+        drmInitData = drmInitData.copyWithSchemeType(sampleEntryEncryptionData.second.schemeType);
+        out.trackEncryptionBoxes[entryIndex] = sampleEntryEncryptionData.second;
       }
       parent.setPosition(childPosition);
     }
-//    TODO: Uncomment the following part when b/63092960 is fixed.
-//    else {
-//      drmInitData = null;
-//    }
+    // TODO: Uncomment when [Internal: b/63092960] is fixed.
+    // else {
+    //   drmInitData = null;
+    // }
 
     List<byte[]> initializationData = null;
     String mimeType = null;
@@ -852,18 +853,19 @@ import java.util.List;
 
     int childPosition = parent.getPosition();
     if (atomType == Atom.TYPE_enca) {
-      atomType = parseSampleEntryEncryptionData(parent, position, size, out, entryIndex);
-      TrackEncryptionBox encryptionBox = out.trackEncryptionBoxes[entryIndex];
-      String schemeType = encryptionBox != null ? encryptionBox.schemeType : null;
-      if (schemeType != null) {
-        drmInitData = drmInitData.copyWithSchemeType(schemeType);
+      Pair<Integer, TrackEncryptionBox> sampleEntryEncryptionData = parseSampleEntryEncryptionData(
+          parent, position, size);
+      if (sampleEntryEncryptionData != null) {
+        atomType = sampleEntryEncryptionData.first;
+        drmInitData = drmInitData.copyWithSchemeType(sampleEntryEncryptionData.second.schemeType);
+        out.trackEncryptionBoxes[entryIndex] = sampleEntryEncryptionData.second;
       }
       parent.setPosition(childPosition);
     }
-//    TODO: Uncomment the following part when b/63092960 is fixed.
-//    else {
-//      drmInitData = null;
-//    }
+    // TODO: Uncomment when [Internal: b/63092960] is fixed.
+    // else {
+    //   drmInitData = null;
+    // }
 
     // If the atom type determines a MIME type, set it immediately.
     String mimeType = null;
@@ -1039,11 +1041,12 @@ import java.util.List;
   }
 
   /**
-   * Parses encryption data from an audio/video sample entry, populating {@code out} and returning
-   * the unencrypted atom type, or 0 if no common encryption sinf atom was present.
+   * Parses encryption data from an audio/video sample entry, returning a pair consisting of the
+   * unencrypted atom type and a {@link TrackEncryptionBox}. Null is returned if no common
+   * encryption sinf atom was present.
    */
-  private static int parseSampleEntryEncryptionData(ParsableByteArray parent, int position,
-      int size, StsdData out, int entryIndex) {
+  private static Pair<Integer, TrackEncryptionBox> parseSampleEntryEncryptionData(
+      ParsableByteArray parent, int position, int size) {
     int childPosition = parent.getPosition();
     while (childPosition - position < size) {
       parent.setPosition(childPosition);
@@ -1054,14 +1057,12 @@ import java.util.List;
         Pair<Integer, TrackEncryptionBox> result = parseSinfFromParent(parent, childPosition,
             childAtomSize);
         if (result != null) {
-          out.trackEncryptionBoxes[entryIndex] = result.second;
-          return result.first;
+          return result;
         }
       }
       childPosition += childAtomSize;
     }
-    // This enca/encv box does not have a data format so return an invalid atom type.
-    return 0;
+    return null;
   }
 
   private static Pair<Integer, TrackEncryptionBox> parseSinfFromParent(ParsableByteArray parent,
