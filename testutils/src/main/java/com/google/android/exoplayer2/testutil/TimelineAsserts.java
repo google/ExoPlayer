@@ -201,9 +201,9 @@ public final class TimelineAsserts {
   }
 
   /**
-   * Asserts that period counts for each window are set correctly. Also asserts the correct setting
-   * of {@link Window}.firstPeriodIndex, {@link Window}.lastPeriodIndex, and the behavior of
-   * {@link Timeline}.getNextPeriodIndex.
+   * Asserts that period counts for each window are set correctly. Also asserts that
+   * {@link Window#firstPeriodIndex} and {@link Window#lastPeriodIndex} are set correctly, and it
+   * asserts the correct behavior of {@link Timeline#getNextWindowIndex(int, int)}.
    */
   public static void assertPeriodCounts(Timeline timeline, int... expectedPeriodCounts) {
     int windowCount = timeline.getWindowCount();
