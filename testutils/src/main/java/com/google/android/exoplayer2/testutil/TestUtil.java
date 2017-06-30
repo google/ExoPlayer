@@ -17,11 +17,14 @@ package com.google.android.exoplayer2.testutil;
 
 import android.app.Instrumentation;
 import android.test.InstrumentationTestCase;
+import android.test.MoreAsserts;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.extractor.Extractor;
 import com.google.android.exoplayer2.extractor.PositionHolder;
 import com.google.android.exoplayer2.extractor.SeekMap;
 import com.google.android.exoplayer2.testutil.FakeExtractorInput.SimulatedIOException;
+import com.google.android.exoplayer2.upstream.DataSource;
+import com.google.android.exoplayer2.upstream.DataSpec;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Util;
 import java.io.IOException;
@@ -62,6 +65,22 @@ public class TestUtil {
         // Ignore.
       }
     }
+  }
+
+  public static byte[] readToEnd(DataSource dataSource) throws IOException {
+    byte[] data = new byte[1024];
+    int position = 0;
+    int bytesRead = 0;
+    while (bytesRead != C.RESULT_END_OF_INPUT) {
+      if (position == data.length) {
+        data = Arrays.copyOf(data, data.length * 2);
+      }
+      bytesRead = dataSource.read(data, position, data.length - position);
+      if (bytesRead != C.RESULT_END_OF_INPUT) {
+        position += bytesRead;
+      }
+    }
+    return Arrays.copyOf(data, position);
   }
 
   public static FakeExtractorOutput consumeTestData(Extractor extractor, FakeExtractorInput input,
@@ -370,6 +389,26 @@ public class TestUtil {
         return; // Pass!
       }
       throw throwable;
+    }
+  }
+
+  /**
+   * Asserts that data read from a {@link DataSource} matches {@code expected}.
+   *
+   * @param dataSource The {@link DataSource} through which to read.
+   * @param dataSpec The {@link DataSpec} to use when opening the {@link DataSource}.
+   * @param expectedData The expected data.
+   * @throws IOException If an error occurs reading fom the {@link DataSource}.
+   */
+  public static void assertDataSourceContent(DataSource dataSource, DataSpec dataSpec,
+      byte[] expectedData) throws IOException {
+    try {
+      long length = dataSource.open(dataSpec);
+      Assert.assertEquals(length, expectedData.length);
+      byte[] readData = TestUtil.readToEnd(dataSource);
+      MoreAsserts.assertEquals(expectedData, readData);
+    } finally {
+      dataSource.close();
     }
   }
 

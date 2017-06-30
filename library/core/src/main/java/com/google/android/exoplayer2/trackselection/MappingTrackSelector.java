@@ -304,10 +304,10 @@ public abstract class MappingTrackSelector extends TrackSelector {
         trackSelections[i] = null;
       } else {
         TrackGroupArray rendererTrackGroup = rendererTrackGroupArrays[i];
-        Map<TrackGroupArray, SelectionOverride> overrides = selectionOverrides.get(i);
-        SelectionOverride override = overrides == null ? null : overrides.get(rendererTrackGroup);
-        if (override != null) {
-          trackSelections[i] = override.createTrackSelection(rendererTrackGroup);
+        if (hasSelectionOverride(i, rendererTrackGroup)) {
+          SelectionOverride override = selectionOverrides.get(i).get(rendererTrackGroup);
+          trackSelections[i] = override == null ? null
+              : override.createTrackSelection(rendererTrackGroup);
         }
       }
     }
