@@ -15,19 +15,8 @@ android {
 dependencies {
     compile project(modulePrefix + 'library-core')
     compile 'com.android.support:support-annotations:' + supportLibraryVersion
-    compile 'com.google.ads.interactivemedia.v3:interactivemedia:3.6.0'
-    compile 'com.google.android.gms:play-services-ads:10.2.4'
-    // There exists a dependency chain:
-    //   com.google.android.gms:play-services-ads:10.2.4
-    //   |-> com.google.android.gms:play-services-ads-lite:10.2.4
-    //       |-> com.google.android.gms:play-services-basement:10.2.4
-    //           |-> com.android.support:support-v4:24.0.0
-    // The support-v4:24.0.0 module directly includes older versions of the same
-    // classes as com.android.support:support-annotations. We need to manually
-    // force it to the version we're using to avoid a compilation failure. This
-    // will become unnecessary when the support-v4 dependency in the chain above
-    // has been updated to 24.2.0 or later.
-    compile 'com.android.support:support-v4:' + supportLibraryVersion
+    compile 'com.google.ads.interactivemedia.v3:interactivemedia:3.7.4'
+    compile 'com.google.android.gms:play-services-ads:11.0.1'
     androidTestCompile project(modulePrefix + 'library')
     androidTestCompile 'com.google.dexmaker:dexmaker:' + dexmakerVersion
     androidTestCompile 'com.google.dexmaker:dexmaker-mockito:' + dexmakerVersion
