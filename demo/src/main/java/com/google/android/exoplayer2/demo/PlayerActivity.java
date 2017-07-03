@@ -235,7 +235,7 @@ public class PlayerActivity extends Activity implements OnClickListener, ExoPlay
     boolean needNewPlayer = player == null;
     if (needNewPlayer) {
       TrackSelection.Factory adaptiveTrackSelectionFactory =
-          new AdaptiveTrackSelection.Factory(BANDWIDTH_METER);
+          new FrugalAdaptiveTrackSelection.Factory(BANDWIDTH_METER);
       trackSelector = new DefaultTrackSelector(adaptiveTrackSelectionFactory);
       trackSelectionHelper = new TrackSelectionHelper(trackSelector, adaptiveTrackSelectionFactory);
       lastSeenTrackGroupArray = null;
