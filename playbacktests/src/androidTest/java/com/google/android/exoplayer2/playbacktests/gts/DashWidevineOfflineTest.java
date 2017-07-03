@@ -56,14 +56,14 @@ public final class DashWidevineOfflineTest extends ActivityInstrumentationTestCa
     testRunner = new DashTestRunner(TAG, getActivity(), getInstrumentation())
         .setStreamName("test_widevine_h264_fixed_offline")
         .setManifestUrl(DashTestData.WIDEVINE_H264_MANIFEST)
-        .setWidevineMimeType(MimeTypes.VIDEO_H264)
+        .setWidevineInfo(MimeTypes.VIDEO_H264, true)
         .setFullPlaybackNoSeeking(true)
         .setCanIncludeAdditionalVideoFormats(false)
         .setAudioVideoFormats(DashTestData.WIDEVINE_AAC_AUDIO_REPRESENTATION_ID,
             DashTestData.WIDEVINE_H264_CDD_FIXED);
 
     boolean useL1Widevine = DashTestRunner.isL1WidevineAvailable(MimeTypes.VIDEO_H264);
-    String widevineLicenseUrl = DashTestData.getWidevineLicenseUrl(useL1Widevine);
+    String widevineLicenseUrl = DashTestData.getWidevineLicenseUrl(true, useL1Widevine);
     httpDataSourceFactory = new DefaultHttpDataSourceFactory(USER_AGENT);
     offlineLicenseHelper = OfflineLicenseHelper.newWidevineInstance(widevineLicenseUrl,
         httpDataSourceFactory);
