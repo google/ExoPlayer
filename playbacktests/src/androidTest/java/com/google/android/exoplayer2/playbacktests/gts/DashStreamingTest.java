@@ -345,7 +345,7 @@ public final class DashStreamingTest extends ActivityInstrumentationTestCase2<Ho
     testRunner
         .setStreamName("test_widevine_h264_fixed")
         .setManifestUrl(DashTestData.WIDEVINE_H264_MANIFEST)
-        .setWidevineMimeType(MimeTypes.VIDEO_H264)
+        .setWidevineInfo(MimeTypes.VIDEO_H264, true)
         .setFullPlaybackNoSeeking(true)
         .setCanIncludeAdditionalVideoFormats(false)
         .setAudioVideoFormats(DashTestData.WIDEVINE_AAC_AUDIO_REPRESENTATION_ID,
@@ -361,7 +361,7 @@ public final class DashStreamingTest extends ActivityInstrumentationTestCase2<Ho
     testRunner
         .setStreamName("test_widevine_h264_adaptive")
         .setManifestUrl(DashTestData.WIDEVINE_H264_MANIFEST)
-        .setWidevineMimeType(MimeTypes.VIDEO_H264)
+        .setWidevineInfo(MimeTypes.VIDEO_H264, true)
         .setFullPlaybackNoSeeking(true)
         .setCanIncludeAdditionalVideoFormats(true)
         .setAudioVideoFormats(DashTestData.WIDEVINE_AAC_AUDIO_REPRESENTATION_ID,
@@ -377,7 +377,7 @@ public final class DashStreamingTest extends ActivityInstrumentationTestCase2<Ho
     testRunner
         .setStreamName("test_widevine_h264_adaptive_with_seeking")
         .setManifestUrl(DashTestData.WIDEVINE_H264_MANIFEST)
-        .setWidevineMimeType(MimeTypes.VIDEO_H264)
+        .setWidevineInfo(MimeTypes.VIDEO_H264, true)
         .setFullPlaybackNoSeeking(false)
         .setCanIncludeAdditionalVideoFormats(true)
         .setActionSchedule(SEEKING_SCHEDULE)
@@ -394,7 +394,7 @@ public final class DashStreamingTest extends ActivityInstrumentationTestCase2<Ho
     testRunner
         .setStreamName("test_widevine_h264_adaptive_with_renderer_disabling")
         .setManifestUrl(DashTestData.WIDEVINE_H264_MANIFEST)
-        .setWidevineMimeType(MimeTypes.VIDEO_H264)
+        .setWidevineInfo(MimeTypes.VIDEO_H264, true)
         .setFullPlaybackNoSeeking(false)
         .setCanIncludeAdditionalVideoFormats(true)
         .setActionSchedule(RENDERER_DISABLING_SCHEDULE)
@@ -413,7 +413,7 @@ public final class DashStreamingTest extends ActivityInstrumentationTestCase2<Ho
     testRunner
         .setStreamName("test_widevine_h265_fixed")
         .setManifestUrl(DashTestData.WIDEVINE_H265_MANIFEST)
-        .setWidevineMimeType(MimeTypes.VIDEO_H265)
+        .setWidevineInfo(MimeTypes.VIDEO_H265, true)
         .setFullPlaybackNoSeeking(true)
         .setCanIncludeAdditionalVideoFormats(false)
         .setAudioVideoFormats(DashTestData.WIDEVINE_AAC_AUDIO_REPRESENTATION_ID,
@@ -429,7 +429,7 @@ public final class DashStreamingTest extends ActivityInstrumentationTestCase2<Ho
     testRunner
         .setStreamName("test_widevine_h265_adaptive")
         .setManifestUrl(DashTestData.WIDEVINE_H265_MANIFEST)
-        .setWidevineMimeType(MimeTypes.VIDEO_H265)
+        .setWidevineInfo(MimeTypes.VIDEO_H265, true)
         .setFullPlaybackNoSeeking(true)
         .setCanIncludeAdditionalVideoFormats(true)
         .setAudioVideoFormats(DashTestData.WIDEVINE_AAC_AUDIO_REPRESENTATION_ID,
@@ -445,7 +445,7 @@ public final class DashStreamingTest extends ActivityInstrumentationTestCase2<Ho
     testRunner
         .setStreamName("test_widevine_h265_adaptive_with_seeking")
         .setManifestUrl(DashTestData.WIDEVINE_H265_MANIFEST)
-        .setWidevineMimeType(MimeTypes.VIDEO_H265)
+        .setWidevineInfo(MimeTypes.VIDEO_H265, true)
         .setFullPlaybackNoSeeking(false)
         .setCanIncludeAdditionalVideoFormats(true)
         .setActionSchedule(SEEKING_SCHEDULE)
@@ -462,7 +462,7 @@ public final class DashStreamingTest extends ActivityInstrumentationTestCase2<Ho
     testRunner
         .setStreamName("test_widevine_h265_adaptive_with_renderer_disabling")
         .setManifestUrl(DashTestData.WIDEVINE_H265_MANIFEST)
-        .setWidevineMimeType(MimeTypes.VIDEO_H265)
+        .setWidevineInfo(MimeTypes.VIDEO_H265, true)
         .setFullPlaybackNoSeeking(false)
         .setCanIncludeAdditionalVideoFormats(true)
         .setActionSchedule(RENDERER_DISABLING_SCHEDULE)
@@ -481,7 +481,7 @@ public final class DashStreamingTest extends ActivityInstrumentationTestCase2<Ho
     testRunner
         .setStreamName("test_widevine_vp9_fixed_360p")
         .setManifestUrl(DashTestData.WIDEVINE_VP9_MANIFEST)
-        .setWidevineMimeType(MimeTypes.VIDEO_VP9)
+        .setWidevineInfo(MimeTypes.VIDEO_VP9, true)
         .setFullPlaybackNoSeeking(true)
         .setCanIncludeAdditionalVideoFormats(false)
         .setAudioVideoFormats(DashTestData.WIDEVINE_VP9_AAC_AUDIO_REPRESENTATION_ID,
@@ -497,7 +497,7 @@ public final class DashStreamingTest extends ActivityInstrumentationTestCase2<Ho
     testRunner
         .setStreamName("test_widevine_vp9_adaptive")
         .setManifestUrl(DashTestData.WIDEVINE_VP9_MANIFEST)
-        .setWidevineMimeType(MimeTypes.VIDEO_VP9)
+        .setWidevineInfo(MimeTypes.VIDEO_VP9, true)
         .setFullPlaybackNoSeeking(true)
         .setCanIncludeAdditionalVideoFormats(true)
         .setAudioVideoFormats(DashTestData.WIDEVINE_VP9_AAC_AUDIO_REPRESENTATION_ID,
@@ -513,7 +513,7 @@ public final class DashStreamingTest extends ActivityInstrumentationTestCase2<Ho
     testRunner
         .setStreamName("test_widevine_vp9_adaptive_with_seeking")
         .setManifestUrl(DashTestData.WIDEVINE_VP9_MANIFEST)
-        .setWidevineMimeType(MimeTypes.VIDEO_VP9)
+        .setWidevineInfo(MimeTypes.VIDEO_VP9, true)
         .setFullPlaybackNoSeeking(false)
         .setCanIncludeAdditionalVideoFormats(true)
         .setActionSchedule(SEEKING_SCHEDULE)
@@ -530,7 +530,7 @@ public final class DashStreamingTest extends ActivityInstrumentationTestCase2<Ho
     testRunner
         .setStreamName("test_widevine_vp9_adaptive_with_renderer_disabling")
         .setManifestUrl(DashTestData.WIDEVINE_VP9_MANIFEST)
-        .setWidevineMimeType(MimeTypes.VIDEO_VP9)
+        .setWidevineInfo(MimeTypes.VIDEO_VP9, true)
         .setFullPlaybackNoSeeking(false)
         .setCanIncludeAdditionalVideoFormats(true)
         .setActionSchedule(RENDERER_DISABLING_SCHEDULE)
@@ -550,7 +550,7 @@ public final class DashStreamingTest extends ActivityInstrumentationTestCase2<Ho
     testRunner
         .setStreamName("test_widevine_23fps_h264_fixed")
         .setManifestUrl(DashTestData.WIDEVINE_H264_23_MANIFEST)
-        .setWidevineMimeType(MimeTypes.VIDEO_H264)
+        .setWidevineInfo(MimeTypes.VIDEO_H264, true)
         .setFullPlaybackNoSeeking(true)
         .setCanIncludeAdditionalVideoFormats(false)
         .setAudioVideoFormats(DashTestData.WIDEVINE_AAC_AUDIO_REPRESENTATION_ID,
@@ -567,7 +567,7 @@ public final class DashStreamingTest extends ActivityInstrumentationTestCase2<Ho
     testRunner
         .setStreamName("test_widevine_24fps_h264_fixed")
         .setManifestUrl(DashTestData.WIDEVINE_H264_24_MANIFEST)
-        .setWidevineMimeType(MimeTypes.VIDEO_H264)
+        .setWidevineInfo(MimeTypes.VIDEO_H264, true)
         .setFullPlaybackNoSeeking(true)
         .setCanIncludeAdditionalVideoFormats(false)
         .setAudioVideoFormats(DashTestData.WIDEVINE_AAC_AUDIO_REPRESENTATION_ID,
@@ -584,7 +584,7 @@ public final class DashStreamingTest extends ActivityInstrumentationTestCase2<Ho
     testRunner
         .setStreamName("test_widevine_29fps_h264_fixed")
         .setManifestUrl(DashTestData.WIDEVINE_H264_29_MANIFEST)
-        .setWidevineMimeType(MimeTypes.VIDEO_H264)
+        .setWidevineInfo(MimeTypes.VIDEO_H264, true)
         .setFullPlaybackNoSeeking(true)
         .setCanIncludeAdditionalVideoFormats(false)
         .setAudioVideoFormats(DashTestData.WIDEVINE_AAC_AUDIO_REPRESENTATION_ID,

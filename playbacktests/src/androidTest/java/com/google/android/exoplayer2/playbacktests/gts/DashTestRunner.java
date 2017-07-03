@@ -169,9 +169,10 @@ public final class DashTestRunner {
     return this;
   }
 
-  public DashTestRunner setWidevineMimeType(String mimeType) {
+  public DashTestRunner setWidevineInfo(String mimeType, boolean videoIdRequiredInLicenseUrl) {
     this.useL1Widevine = isL1WidevineAvailable(mimeType);
-    this.widevineLicenseUrl = DashTestData.getWidevineLicenseUrl(useL1Widevine);
+    this.widevineLicenseUrl = DashTestData.getWidevineLicenseUrl(videoIdRequiredInLicenseUrl,
+        useL1Widevine);
     return this;
   }
 
