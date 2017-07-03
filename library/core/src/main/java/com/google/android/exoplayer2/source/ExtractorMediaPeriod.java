@@ -150,8 +150,8 @@ import java.util.Arrays;
   public void release() {
     boolean releasedSynchronously = loader.release(this);
     if (prepared && !releasedSynchronously) {
-      // Discard as much as we can synchronously. We only do this if we're prepared, since
-      // otherwise sampleQueues may still be being modified by the loading thread.
+      // Discard as much as we can synchronously. We only do this if we're prepared, since otherwise
+      // sampleQueues may still be being modified by the loading thread.
       for (SampleQueue sampleQueue : sampleQueues) {
         sampleQueue.discardToEnd();
       }
@@ -164,7 +164,7 @@ import java.util.Arrays;
   public void onLoaderReleased() {
     extractorHolder.release();
     for (SampleQueue sampleQueue : sampleQueues) {
-      sampleQueue.reset(true);
+      sampleQueue.reset();
     }
   }
 
@@ -227,7 +227,15 @@ import java.util.Arrays;
     if (enabledTrackCount == 0) {
       notifyReset = false;
       if (loader.isLoading()) {
+        // Discard as much as we can synchronously.
+        for (SampleQueue sampleQueue : sampleQueues) {
+          sampleQueue.discardToEnd();
+        }
         loader.cancelLoading();
+      } else {
+        for (SampleQueue sampleQueue : sampleQueues) {
+          sampleQueue.reset();
+        }
       }
     } else if (seekRequired) {
       positionUs = seekToUs(positionUs);
@@ -327,7 +335,7 @@ import java.util.Arrays;
         loader.cancelLoading();
       } else {
         for (int i = 0; i < trackCount; i++) {
-          sampleQueues[i].reset(trackEnabledStates[i]);
+          sampleQueues[i].reset();
         }
       }
     }
@@ -388,7 +396,7 @@ import java.util.Arrays;
     }
     copyLengthFromLoader(loadable);
     for (SampleQueue sampleQueue : sampleQueues) {
-      sampleQueue.reset(true);
+      sampleQueue.reset();
     }
     if (enabledTrackCount > 0) {
       callback.onContinueLoadingRequested(this);
@@ -526,7 +534,7 @@ import java.util.Arrays;
       lastSeekPositionUs = 0;
       notifyReset = prepared;
       for (SampleQueue sampleQueue : sampleQueues) {
-        sampleQueue.reset(true);
+        sampleQueue.reset();
       }
       loadable.setLoadPosition(0, 0);
     }

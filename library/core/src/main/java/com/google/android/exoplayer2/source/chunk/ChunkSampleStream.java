@@ -203,9 +203,9 @@ public class ChunkSampleStream<T extends ChunkSource> implements SampleStream, S
       if (loader.isLoading()) {
         loader.cancelLoading();
       } else {
-        primarySampleQueue.reset(true);
+        primarySampleQueue.reset();
         for (SampleQueue embeddedSampleQueue : embeddedSampleQueues) {
-          embeddedSampleQueue.reset(true);
+          embeddedSampleQueue.reset();
         }
       }
     }
@@ -229,9 +229,9 @@ public class ChunkSampleStream<T extends ChunkSource> implements SampleStream, S
 
   @Override
   public void onLoaderReleased() {
-    primarySampleQueue.reset(true);
+    primarySampleQueue.reset();
     for (SampleQueue embeddedSampleQueue : embeddedSampleQueues) {
-      embeddedSampleQueue.reset(true);
+      embeddedSampleQueue.reset();
     }
   }
 
@@ -295,9 +295,9 @@ public class ChunkSampleStream<T extends ChunkSource> implements SampleStream, S
         loadable.startTimeUs, loadable.endTimeUs, elapsedRealtimeMs, loadDurationMs,
         loadable.bytesLoaded());
     if (!released) {
-      primarySampleQueue.reset(true);
+      primarySampleQueue.reset();
       for (SampleQueue embeddedSampleQueue : embeddedSampleQueues) {
-        embeddedSampleQueue.reset(true);
+        embeddedSampleQueue.reset();
       }
       callback.onContinueLoadingRequested(this);
     }

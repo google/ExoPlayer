@@ -98,9 +98,15 @@ public final class SampleQueue implements TrackOutput {
 
   /**
    * Resets the output.
-   *
-   * @param enable Whether the output should be enabled. False if it should be disabled.
    */
+  public void reset() {
+    reset(true);
+  }
+
+  /**
+   * @deprecated Use {@link #reset()}. Don't disable sample queues.
+   */
+  @Deprecated
   public void reset(boolean enable) {
     int previousState = state.getAndSet(enable ? STATE_ENABLED : STATE_DISABLED);
     clearSampleData();
@@ -169,8 +175,9 @@ public final class SampleQueue implements TrackOutput {
   // Called by the consuming thread.
 
   /**
-   * Disables buffering of sample data and metadata.
+   * @deprecated Don't disable sample queues.
    */
+  @Deprecated
   public void disable() {
     if (state.getAndSet(STATE_DISABLED) == STATE_ENABLED) {
       clearSampleData();
