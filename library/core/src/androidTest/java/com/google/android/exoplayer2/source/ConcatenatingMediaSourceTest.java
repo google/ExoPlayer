@@ -21,6 +21,7 @@ import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.testutil.FakeMediaSource;
 import com.google.android.exoplayer2.testutil.FakeTimeline;
 import com.google.android.exoplayer2.testutil.FakeTimeline.TimelineWindowDefinition;
+import com.google.android.exoplayer2.testutil.TestUtil;
 import com.google.android.exoplayer2.testutil.TimelineAsserts;
 import junit.framework.TestCase;
 
@@ -105,7 +106,7 @@ public final class ConcatenatingMediaSourceTest extends TestCase {
     for (int i = 0; i < timelines.length; i++) {
       mediaSources[i] = new FakeMediaSource(timelines[i], null);
     }
-    return TimelineAsserts.extractTimelineFromMediaSource(
+    return TestUtil.extractTimelineFromMediaSource(
         new ConcatenatingMediaSource(isRepeatOneAtomic, mediaSources));
   }
 
