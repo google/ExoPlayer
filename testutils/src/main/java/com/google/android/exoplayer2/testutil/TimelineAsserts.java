@@ -33,48 +33,6 @@ public final class TimelineAsserts {
   private TimelineAsserts() {}
 
   /**
-   * Fake timeline with multiple periods and user-defined window id.
-   */
-  public static final class FakeTimeline extends Timeline {
-
-    private static final int WINDOW_DURATION_US = 1000000;
-
-    private final int periodCount;
-    private final int id;
-
-    public FakeTimeline(int periodCount, int id) {
-      this.periodCount = periodCount;
-      this.id = id;
-    }
-
-    @Override
-    public int getWindowCount() {
-      return 1;
-    }
-
-    @Override
-    public Window getWindow(int windowIndex, Window window, boolean setIds,
-        long defaultPositionProjectionUs) {
-      return window.set(id, 0, 0, true, false, 0, WINDOW_DURATION_US, 0, periodCount - 1, 0);
-    }
-
-    @Override
-    public int getPeriodCount() {
-      return periodCount;
-    }
-
-    @Override
-    public Period getPeriod(int periodIndex, Period period, boolean setIds) {
-      return period.set(periodIndex, null, 0, WINDOW_DURATION_US, 0);
-    }
-
-    @Override
-    public int getIndexOfPeriod(Object uid) {
-      return C.INDEX_UNSET;
-    }
-  }
-
-  /**
    * Extracts the timeline from a media source.
    */
   public static Timeline extractTimelineFromMediaSource(MediaSource mediaSource) {

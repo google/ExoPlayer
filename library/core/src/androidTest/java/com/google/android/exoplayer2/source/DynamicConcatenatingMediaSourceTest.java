@@ -26,8 +26,9 @@ import com.google.android.exoplayer2.PlaybackParameters;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.source.MediaSource.Listener;
 import com.google.android.exoplayer2.testutil.FakeMediaSource;
+import com.google.android.exoplayer2.testutil.FakeTimeline;
+import com.google.android.exoplayer2.testutil.FakeTimeline.TimelineWindowDefinition;
 import com.google.android.exoplayer2.testutil.TimelineAsserts;
-import com.google.android.exoplayer2.testutil.TimelineAsserts.FakeTimeline;
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
 import com.google.android.exoplayer2.upstream.Allocator;
 import java.io.IOException;
@@ -175,7 +176,7 @@ public final class DynamicConcatenatingMediaSourceTest extends TestCase {
     TimelineAsserts.assertWindowIds(timeline, 111, null);
     TimelineAsserts.assertWindowIsDynamic(timeline, false, true);
 
-    lazySources[1].triggerTimelineUpdate(new FakeTimeline(9, 999));
+    lazySources[1].triggerTimelineUpdate(createFakeTimeline(8));
     waitForTimelineUpdate();
     TimelineAsserts.assertPeriodCounts(timeline, 1, 9);
     TimelineAsserts.assertWindowIds(timeline, 111, 999);
@@ -194,7 +195,7 @@ public final class DynamicConcatenatingMediaSourceTest extends TestCase {
     TimelineAsserts.assertWindowIds(timeline, null, 111, 222, 999);
     TimelineAsserts.assertWindowIsDynamic(timeline, true, false, false, false);
 
-    lazySources[3].triggerTimelineUpdate(new FakeTimeline(8, 888));
+    lazySources[3].triggerTimelineUpdate(createFakeTimeline(7));
     waitForTimelineUpdate();
     TimelineAsserts.assertPeriodCounts(timeline, 8, 1, 2, 9);
     TimelineAsserts.assertWindowIds(timeline, 888, 111, 222, 999);
@@ -207,7 +208,7 @@ public final class DynamicConcatenatingMediaSourceTest extends TestCase {
 
   public void testIllegalArguments() {
     DynamicConcatenatingMediaSource mediaSource = new DynamicConcatenatingMediaSource();
-    MediaSource validSource = new FakeMediaSource(new FakeTimeline(1, 1), null);
+    MediaSource validSource = new FakeMediaSource(createFakeTimeline(1), null);
 
     // Null sources.
     try {
@@ -235,9 +236,7 @@ public final class DynamicConcatenatingMediaSourceTest extends TestCase {
     }
 
     mediaSources = new MediaSource[] {
-        new FakeMediaSource(new FakeTimeline(1, 1), null),
-        validSource
-    };
+        new FakeMediaSource(createFakeTimeline(2), null), validSource };
     try {
       mediaSource.addMediaSources(Arrays.asList(mediaSources));
       fail("Duplicate mediaSource not allowed.");
@@ -270,12 +269,16 @@ public final class DynamicConcatenatingMediaSourceTest extends TestCase {
     timelineUpdated = false;
   }
 
-  private FakeMediaSource[] createMediaSources(int count) {
+  private static FakeMediaSource[] createMediaSources(int count) {
     FakeMediaSource[] sources = new FakeMediaSource[count];
     for (int i = 0; i < count; i++) {
-      sources[i] = new FakeMediaSource(new FakeTimeline(i + 1, (i + 1) * 111), null);
+      sources[i] = new FakeMediaSource(createFakeTimeline(i), null);
     }
     return sources;
+  }
+
+  private static FakeTimeline createFakeTimeline(int index) {
+    return new FakeTimeline(new TimelineWindowDefinition(index + 1, (index + 1) * 111));
   }
 
   private static class LazyMediaSource implements MediaSource {

@@ -15,8 +15,9 @@
  */
 package com.google.android.exoplayer2;
 
+import com.google.android.exoplayer2.testutil.FakeTimeline;
+import com.google.android.exoplayer2.testutil.FakeTimeline.TimelineWindowDefinition;
 import com.google.android.exoplayer2.testutil.TimelineAsserts;
-import com.google.android.exoplayer2.testutil.TimelineAsserts.FakeTimeline;
 import junit.framework.TestCase;
 
 /**
@@ -29,7 +30,7 @@ public class TimelineTest extends TestCase {
   }
 
   public void testSinglePeriodTimeline() {
-    Timeline timeline = new FakeTimeline(1, 111);
+    Timeline timeline = new FakeTimeline(new TimelineWindowDefinition(1, 111));
     TimelineAsserts.assertWindowIds(timeline, 111);
     TimelineAsserts.assertPeriodCounts(timeline, 1);
     TimelineAsserts.assertPreviousWindowIndices(timeline, ExoPlayer.REPEAT_MODE_OFF, C.INDEX_UNSET);
@@ -41,7 +42,7 @@ public class TimelineTest extends TestCase {
   }
 
   public void testMultiPeriodTimeline() {
-    Timeline timeline = new FakeTimeline(5, 111);
+    Timeline timeline = new FakeTimeline(new TimelineWindowDefinition(5, 111));
     TimelineAsserts.assertWindowIds(timeline, 111);
     TimelineAsserts.assertPeriodCounts(timeline, 5);
     TimelineAsserts.assertPreviousWindowIndices(timeline, ExoPlayer.REPEAT_MODE_OFF, C.INDEX_UNSET);
