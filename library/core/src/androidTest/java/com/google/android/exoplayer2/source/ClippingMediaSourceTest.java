@@ -22,8 +22,9 @@ import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.Timeline.Period;
 import com.google.android.exoplayer2.Timeline.Window;
 import com.google.android.exoplayer2.testutil.FakeMediaSource;
+import com.google.android.exoplayer2.testutil.FakeTimeline;
+import com.google.android.exoplayer2.testutil.FakeTimeline.TimelineWindowDefinition;
 import com.google.android.exoplayer2.testutil.TimelineAsserts;
-import com.google.android.exoplayer2.testutil.TimelineAsserts.FakeTimeline;
 
 /**
  * Unit tests for {@link ClippingMediaSource}.
@@ -101,7 +102,8 @@ public final class ClippingMediaSourceTest extends InstrumentationTestCase {
   }
 
   public void testWindowAndPeriodIndices() {
-    Timeline timeline = new FakeTimeline(1, 111);
+    Timeline timeline = new FakeTimeline(
+        new TimelineWindowDefinition(1, 111, true, false, TEST_PERIOD_DURATION_US));
     Timeline clippedTimeline = getClippedTimeline(timeline, TEST_CLIP_AMOUNT_US,
         TEST_PERIOD_DURATION_US - TEST_CLIP_AMOUNT_US);
     TimelineAsserts.assertWindowIds(clippedTimeline, 111);
