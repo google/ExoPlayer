@@ -19,9 +19,12 @@ import android.app.Instrumentation;
 import android.test.InstrumentationTestCase;
 import android.test.MoreAsserts;
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.extractor.Extractor;
 import com.google.android.exoplayer2.extractor.PositionHolder;
 import com.google.android.exoplayer2.extractor.SeekMap;
+import com.google.android.exoplayer2.source.MediaSource;
+import com.google.android.exoplayer2.source.MediaSource.Listener;
 import com.google.android.exoplayer2.testutil.FakeExtractorInput.SimulatedIOException;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DataSpec;
@@ -216,6 +219,32 @@ public class TestUtil {
 
   private static FakeExtractorInput newExtractorInput(byte[] data) {
     return new FakeExtractorInput.Builder().setData(data).build();
+  }
+
+  /**
+   * Extracts the timeline from a media source.
+   */
+  public static Timeline extractTimelineFromMediaSource(MediaSource mediaSource) {
+    class TimelineListener implements Listener {
+      private Timeline timeline;
+      @Override
+      public synchronized void onSourceInfoRefreshed(Timeline timeline, Object manifest) {
+        this.timeline = timeline;
+        this.notify();
+      }
+    }
+    TimelineListener listener = new TimelineListener();
+    mediaSource.prepareSource(null, true, listener);
+    synchronized (listener) {
+      while (listener.timeline == null) {
+        try {
+          listener.wait();
+        } catch (InterruptedException e) {
+          Assert.fail(e.getMessage());
+        }
+      }
+    }
+    return listener.timeline;
   }
 
   /**

@@ -22,8 +22,6 @@ import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.Timeline.Period;
 import com.google.android.exoplayer2.Timeline.Window;
-import com.google.android.exoplayer2.source.MediaSource;
-import com.google.android.exoplayer2.source.MediaSource.Listener;
 
 /**
  * Unit test for {@link Timeline}.
@@ -31,22 +29,6 @@ import com.google.android.exoplayer2.source.MediaSource.Listener;
 public final class TimelineAsserts {
 
   private TimelineAsserts() {}
-
-  /**
-   * Extracts the timeline from a media source.
-   */
-  public static Timeline extractTimelineFromMediaSource(MediaSource mediaSource) {
-    class TimelineListener implements Listener {
-      private Timeline timeline;
-      @Override
-      public void onSourceInfoRefreshed(Timeline timeline, Object manifest) {
-        this.timeline = timeline;
-      }
-    }
-    TimelineListener listener = new TimelineListener();
-    mediaSource.prepareSource(null, true, listener);
-    return listener.timeline;
-  }
 
   /**
    * Assert that timeline is empty (i.e. has no windows or periods).
