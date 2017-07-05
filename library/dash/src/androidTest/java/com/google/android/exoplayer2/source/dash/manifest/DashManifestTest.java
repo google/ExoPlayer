@@ -30,8 +30,6 @@ import junit.framework.TestCase;
 public class DashManifestTest extends TestCase {
 
   private static final UtcTimingElement DUMMY_UTC_TIMING = new UtcTimingElement("", "");
-  private static final List<SchemeValuePair> DUMMY_ACCESSIBILITY_DESCRIPTORS =
-      Collections.emptyList();
   private static final SingleSegmentBase DUMMY_SEGMENT_BASE = new SingleSegmentBase();
   private static final Format DUMMY_FORMAT = Format.createSampleFormat("", "", 0);
 
@@ -190,8 +188,7 @@ public class DashManifestTest extends TestCase {
   }
 
   private static AdaptationSet newAdaptationSet(int seed, Representation... representations) {
-    return new AdaptationSet(++seed, ++seed, Arrays.asList(representations),
-        DUMMY_ACCESSIBILITY_DESCRIPTORS);
+    return new AdaptationSet(++seed, ++seed, Arrays.asList(representations), null, null);
   }
 
 }

@@ -22,4 +22,7 @@
   <string name="exo_controls_stop_description">"To‘xtatish"</string>
   <string name="exo_controls_rewind_description">"Orqaga o‘tkazish"</string>
   <string name="exo_controls_fastforward_description">"Oldinga o‘tkazish"</string>
+  <string name="exo_controls_repeat_all_description">"Barchasini takrorlash"</string>
+  <string name="exo_controls_repeat_off_description">"Takrorlamaslik"</string>
+  <string name="exo_controls_repeat_one_description">"Bir marta takrorlash"</string>
 </resources>

@@ -26,9 +26,12 @@ import com.google.android.exoplayer2.util.Assertions;
 public final class FrameworkMediaCrypto implements ExoMediaCrypto {
 
   private final MediaCrypto mediaCrypto;
+  private final boolean forceAllowInsecureDecoderComponents;
 
-  /* package */ FrameworkMediaCrypto(MediaCrypto mediaCrypto) {
+  /* package */ FrameworkMediaCrypto(MediaCrypto mediaCrypto,
+      boolean forceAllowInsecureDecoderComponents) {
     this.mediaCrypto = Assertions.checkNotNull(mediaCrypto);
+    this.forceAllowInsecureDecoderComponents = forceAllowInsecureDecoderComponents;
   }
 
   public MediaCrypto getWrappedMediaCrypto() {
@@ -37,7 +40,8 @@ public final class FrameworkMediaCrypto implements ExoMediaCrypto {
 
   @Override
   public boolean requiresSecureDecoderComponent(String mimeType) {
-    return mediaCrypto.requiresSecureDecoderComponent(mimeType);
+    return !forceAllowInsecureDecoderComponents
+        && mediaCrypto.requiresSecureDecoderComponent(mimeType);
   }
 
 }

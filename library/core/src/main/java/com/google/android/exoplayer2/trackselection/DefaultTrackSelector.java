@@ -24,6 +24,7 @@ import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.RendererCapabilities;
 import com.google.android.exoplayer2.source.TrackGroup;
 import com.google.android.exoplayer2.source.TrackGroupArray;
+import com.google.android.exoplayer2.upstream.BandwidthMeter;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Util;
 import java.util.ArrayList;
@@ -376,10 +377,21 @@ public class DefaultTrackSelector extends MappingTrackSelector {
   private final AtomicReference<Parameters> paramsReference;
 
   /**
-   * Constructs an instance that does not support adaptive tracks.
+   * Constructs an instance that does not support adaptive track selection.
    */
   public DefaultTrackSelector() {
-    this(null);
+    this((TrackSelection.Factory) null);
+  }
+
+  /**
+   * Constructs an instance that supports adaptive track selection. Adaptive track selections use
+   * the provided {@link BandwidthMeter} to determine which individual track should be used during
+   * playback.
+   *
+   * @param bandwidthMeter The {@link BandwidthMeter}.
+   */
+  public DefaultTrackSelector(BandwidthMeter bandwidthMeter) {
+    this(new AdaptiveTrackSelection.Factory(bandwidthMeter));
   }
 
   /**
@@ -424,35 +436,48 @@ public class DefaultTrackSelector extends MappingTrackSelector {
     int rendererCount = rendererCapabilities.length;
     TrackSelection[] rendererTrackSelections = new TrackSelection[rendererCount];
     Parameters params = paramsReference.get();
-    boolean videoTrackAndRendererPresent = false;
 
+    boolean seenVideoRendererWithMappedTracks = false;
+    boolean selectedVideoTracks = false;
     for (int i = 0; i < rendererCount; i++) {
       if (C.TRACK_TYPE_VIDEO == rendererCapabilities[i].getTrackType()) {
-        rendererTrackSelections[i] = selectVideoTrack(rendererCapabilities[i],
-            rendererTrackGroupArrays[i], rendererFormatSupports[i], params.maxVideoWidth,
-            params.maxVideoHeight, params.maxVideoBitrate, params.allowNonSeamlessAdaptiveness,
-            params.allowMixedMimeAdaptiveness, params.viewportWidth, params.viewportHeight,
-            params.orientationMayChange, adaptiveTrackSelectionFactory,
-            params.exceedVideoConstraintsIfNecessary, params.exceedRendererCapabilitiesIfNecessary);
-        videoTrackAndRendererPresent |= rendererTrackGroupArrays[i].length > 0;
+        if (!selectedVideoTracks) {
+          rendererTrackSelections[i] = selectVideoTrack(rendererCapabilities[i],
+              rendererTrackGroupArrays[i], rendererFormatSupports[i], params.maxVideoWidth,
+              params.maxVideoHeight, params.maxVideoBitrate, params.allowNonSeamlessAdaptiveness,
+              params.allowMixedMimeAdaptiveness, params.viewportWidth, params.viewportHeight,
+              params.orientationMayChange, adaptiveTrackSelectionFactory,
+              params.exceedVideoConstraintsIfNecessary,
+              params.exceedRendererCapabilitiesIfNecessary);
+          selectedVideoTracks = rendererTrackSelections[i] != null;
+        }
+        seenVideoRendererWithMappedTracks |= rendererTrackGroupArrays[i].length > 0;
       }
     }
 
+    boolean selectedAudioTracks = false;
+    boolean selectedTextTracks = false;
     for (int i = 0; i < rendererCount; i++) {
       switch (rendererCapabilities[i].getTrackType()) {
         case C.TRACK_TYPE_VIDEO:
           // Already done. Do nothing.
           break;
         case C.TRACK_TYPE_AUDIO:
-          rendererTrackSelections[i] = selectAudioTrack(rendererTrackGroupArrays[i],
-              rendererFormatSupports[i], params.preferredAudioLanguage,
-              params.exceedRendererCapabilitiesIfNecessary, params.allowMixedMimeAdaptiveness,
-              videoTrackAndRendererPresent ? null : adaptiveTrackSelectionFactory);
+          if (!selectedAudioTracks) {
+            rendererTrackSelections[i] = selectAudioTrack(rendererTrackGroupArrays[i],
+                rendererFormatSupports[i], params.preferredAudioLanguage,
+                params.exceedRendererCapabilitiesIfNecessary, params.allowMixedMimeAdaptiveness,
+                seenVideoRendererWithMappedTracks ? null : adaptiveTrackSelectionFactory);
+            selectedAudioTracks = rendererTrackSelections[i] != null;
+          }
           break;
         case C.TRACK_TYPE_TEXT:
-          rendererTrackSelections[i] = selectTextTrack(rendererTrackGroupArrays[i],
-              rendererFormatSupports[i], params.preferredTextLanguage,
-              params.preferredAudioLanguage, params.exceedRendererCapabilitiesIfNecessary);
+          if (!selectedTextTracks) {
+            rendererTrackSelections[i] = selectTextTrack(rendererTrackGroupArrays[i],
+                rendererFormatSupports[i], params.preferredTextLanguage,
+                params.preferredAudioLanguage, params.exceedRendererCapabilitiesIfNecessary);
+            selectedTextTracks = rendererTrackSelections[i] != null;
+          }
           break;
         default:
           rendererTrackSelections[i] = selectOtherTrack(rendererCapabilities[i].getTrackType(),
@@ -614,7 +639,8 @@ public class DefaultTrackSelector extends MappingTrackSelector {
             continue;
           }
           int trackScore = isWithinConstraints ? 2 : 1;
-          if (isSupported(trackFormatSupport[trackIndex], false)) {
+          boolean isWithinCapabilities = isSupported(trackFormatSupport[trackIndex], false);
+          if (isWithinCapabilities) {
             trackScore += WITHIN_RENDERER_CAPABILITIES_BONUS;
           }
           boolean selectTrack = trackScore > selectedTrackScore;
@@ -630,7 +656,8 @@ public class DefaultTrackSelector extends MappingTrackSelector {
             } else {
               comparisonResult = compareFormatValues(format.bitrate, selectedBitrate);
             }
-            selectTrack = isWithinConstraints ? comparisonResult > 0 : comparisonResult < 0;
+            selectTrack = isWithinCapabilities && isWithinConstraints
+                ? comparisonResult > 0 : comparisonResult < 0;
           }
           if (selectTrack) {
             selectedGroup = trackGroup;
@@ -867,7 +894,8 @@ public class DefaultTrackSelector extends MappingTrackSelector {
   }
 
   protected static boolean formatHasLanguage(Format format, String language) {
-    return TextUtils.equals(language, Util.normalizeLanguageCode(format.language));
+    return language != null
+        && TextUtils.equals(language, Util.normalizeLanguageCode(format.language));
   }
 
   // Viewport size util methods.

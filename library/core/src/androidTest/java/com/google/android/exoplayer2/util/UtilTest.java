@@ -146,6 +146,7 @@ public class UtilTest extends TestCase {
     assertEquals(1411161535000L, Util.parseXsDateTime("2014-09-19T13:18:55-08:00"));
     assertEquals(1411161535000L, Util.parseXsDateTime("2014-09-19T13:18:55-0800"));
     assertEquals(1411161535000L, Util.parseXsDateTime("2014-09-19T13:18:55.000-0800"));
+    assertEquals(1411161535000L, Util.parseXsDateTime("2014-09-19T13:18:55.000-800"));
   }
 
   public void testUnescapeInvalidFileName() {

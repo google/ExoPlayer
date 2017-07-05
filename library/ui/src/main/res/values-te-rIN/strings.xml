@@ -22,4 +22,7 @@
   <string name="exo_controls_stop_description">"ఆపివేయి"</string>
   <string name="exo_controls_rewind_description">"రివైండ్ చేయి"</string>
   <string name="exo_controls_fastforward_description">"వేగంగా ఫార్వార్డ్ చేయి"</string>
+  <string name="exo_controls_repeat_all_description">"అన్నీ పునరావృతం చేయి"</string>
+  <string name="exo_controls_repeat_off_description">"ఏదీ పునరావృతం చేయవద్దు"</string>
+  <string name="exo_controls_repeat_one_description">"ఒకదాన్ని పునరావృతం చేయి"</string>
 </resources>

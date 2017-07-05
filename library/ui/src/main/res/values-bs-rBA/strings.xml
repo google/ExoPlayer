@@ -22,4 +22,7 @@
   <string name="exo_controls_stop_description">"Zaustavi"</string>
   <string name="exo_controls_rewind_description">"Premotaj"</string>
   <string name="exo_controls_fastforward_description">"Ubrzaj"</string>
+  <string name="exo_controls_repeat_all_description">"Ponovite sve"</string>
+  <string name="exo_controls_repeat_off_description">"Ne ponavljaju"</string>
+  <string name="exo_controls_repeat_one_description">"Ponovite jedan"</string>
 </resources>

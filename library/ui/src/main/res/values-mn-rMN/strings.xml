@@ -22,4 +22,7 @@
   <string name="exo_controls_stop_description">"Зогсоох"</string>
   <string name="exo_controls_rewind_description">"Буцааж хураах"</string>
   <string name="exo_controls_fastforward_description">"Хурдан урагшлуулах"</string>
+  <string name="exo_controls_repeat_all_description">"Бүгдийг давтах"</string>
+  <string name="exo_controls_repeat_off_description">"Алийг нь ч давтахгүй"</string>
+  <string name="exo_controls_repeat_one_description">"Нэгийг давтах"</string>
 </resources>

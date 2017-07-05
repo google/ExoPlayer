@@ -22,4 +22,7 @@
   <string name="exo_controls_stop_description">"Atura"</string>
   <string name="exo_controls_rewind_description">"Rebobina"</string>
   <string name="exo_controls_fastforward_description">"Avança ràpidament"</string>
+  <string name="exo_controls_repeat_all_description">"Repeteix-ho tot"</string>
+  <string name="exo_controls_repeat_off_description">"No en repeteixis cap"</string>
+  <string name="exo_controls_repeat_one_description">"Repeteix-ne un"</string>
 </resources>

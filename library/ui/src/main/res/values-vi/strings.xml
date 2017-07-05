@@ -22,4 +22,7 @@
   <string name="exo_controls_stop_description">"Ngừng"</string>
   <string name="exo_controls_rewind_description">"Tua lại"</string>
   <string name="exo_controls_fastforward_description">"Tua đi"</string>
+  <string name="exo_controls_repeat_all_description">"Lặp lại tất cả"</string>
+  <string name="exo_controls_repeat_off_description">"Không lặp lại"</string>
+  <string name="exo_controls_repeat_one_description">"Lặp lại một mục"</string>
 </resources>

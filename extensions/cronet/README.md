@@ -11,13 +11,10 @@ The Cronet Extension is an [HttpDataSource][] implementation using [Cronet][].
 
 ## Build Instructions ##
 
-* Checkout ExoPlayer along with Extensions:
-
-```
-git clone https://github.com/google/ExoPlayer.git
-```
-
-* Get the Cronet libraries:
+To use this extension you need to clone the ExoPlayer repository and depend on
+its modules locally. Instructions for doing this can be found in ExoPlayer's
+[top level README][]. In addition, it's necessary to get the Cronet libraries
+and enable the extension:
 
 1. Find the latest Cronet release [here][] and navigate to its `Release/cronet`
    directory
@@ -27,6 +24,12 @@ git clone https://github.com/google/ExoPlayer.git
 1. Copy the content of the downloaded `libs` directory into the `jniLibs`
    directory of this extension
 
-* In ExoPlayer's `settings.gradle` file, uncomment the Cronet extension
+* In your `settings.gradle` file, add the following line before the line that
+  applies `core_settings.gradle`:
 
+```gradle
+gradle.ext.exoplayerIncludeCronetExtension = true;
+```
+
+[top level README]: https://github.com/google/ExoPlayer/blob/release-v2/README.md
 [here]: https://console.cloud.google.com/storage/browser/chromium-cronet/android

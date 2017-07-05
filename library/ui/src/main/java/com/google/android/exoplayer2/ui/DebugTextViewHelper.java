@@ -87,6 +87,11 @@ public final class DebugTextViewHelper implements Runnable, ExoPlayer.EventListe
   }
 
   @Override
+  public void onRepeatModeChanged(int repeatMode) {
+    // Do nothing.
+  }
+
+  @Override
   public void onPositionDiscontinuity() {
     updateAndPost();
   }
@@ -159,8 +164,8 @@ public final class DebugTextViewHelper implements Runnable, ExoPlayer.EventListe
       return "";
     }
     return "\n" + format.sampleMimeType + "(id:" + format.id + " r:" + format.width + "x"
-        + format.height + getDecoderCountersBufferCountString(player.getVideoDecoderCounters())
-        + ")";
+        + format.height + getPixelAspectRatioString(format.pixelWidthHeightRatio)
+        + getDecoderCountersBufferCountString(player.getVideoDecoderCounters()) + ")";
   }
 
   private String getAudioString() {
@@ -182,6 +187,11 @@ public final class DebugTextViewHelper implements Runnable, ExoPlayer.EventListe
         + " sb:" + counters.skippedOutputBufferCount
         + " db:" + counters.droppedOutputBufferCount
         + " mcdb:" + counters.maxConsecutiveDroppedOutputBufferCount;
+  }
+
+  private static String getPixelAspectRatioString(float pixelAspectRatio) {
+    return pixelAspectRatio == Format.NO_VALUE || pixelAspectRatio == 1f ? ""
+        : (" par:" + String.format("%.02f", pixelAspectRatio));
   }
 
 }

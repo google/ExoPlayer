@@ -22,4 +22,7 @@
   <string name="exo_controls_stop_description">"Arrêter"</string>
   <string name="exo_controls_rewind_description">"Reculer"</string>
   <string name="exo_controls_fastforward_description">"Avance rapide"</string>
+  <string name="exo_controls_repeat_all_description">"Tout lire en boucle"</string>
+  <string name="exo_controls_repeat_off_description">"Aucune répétition"</string>
+  <string name="exo_controls_repeat_one_description">"Répéter un élément"</string>
 </resources>

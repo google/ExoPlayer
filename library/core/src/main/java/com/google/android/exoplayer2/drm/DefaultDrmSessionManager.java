@@ -222,7 +222,6 @@ public class DefaultDrmSessionManager<T extends ExoMediaCrypto> implements DrmSe
     this.eventHandler = eventHandler;
     this.eventListener = eventListener;
     mediaDrm.setOnEventListener(new MediaDrmEventListener());
-    state = STATE_CLOSED;
     mode = MODE_PLAYBACK;
   }
 
@@ -358,7 +357,7 @@ public class DefaultDrmSessionManager<T extends ExoMediaCrypto> implements DrmSe
     if (--openCount != 0) {
       return;
     }
-    state = STATE_CLOSED;
+    state = STATE_RELEASED;
     provisioningInProgress = false;
     mediaDrmHandler.removeCallbacksAndMessages(null);
     postResponseHandler.removeCallbacksAndMessages(null);
@@ -385,34 +384,18 @@ public class DefaultDrmSessionManager<T extends ExoMediaCrypto> implements DrmSe
   }
 
   @Override
-  public final T getMediaCrypto() {
-    if (state != STATE_OPENED && state != STATE_OPENED_WITH_KEYS) {
-      throw new IllegalStateException();
-    }
-    return mediaCrypto;
-  }
-
-  @Override
-  public boolean requiresSecureDecoderComponent(String mimeType) {
-    if (state != STATE_OPENED && state != STATE_OPENED_WITH_KEYS) {
-      throw new IllegalStateException();
-    }
-    return mediaCrypto.requiresSecureDecoderComponent(mimeType);
-  }
-
-  @Override
   public final DrmSessionException getError() {
     return state == STATE_ERROR ? lastException : null;
   }
 
   @Override
+  public final T getMediaCrypto() {
+    return mediaCrypto;
+  }
+
+  @Override
   public Map<String, String> queryKeyStatus() {
-    // User may call this method rightfully even if state == STATE_ERROR. So only check if there is
-    // a sessionId
-    if (sessionId == null) {
-      throw new IllegalStateException();
-    }
-    return mediaDrm.queryKeyStatus(sessionId);
+    return sessionId == null ? null : mediaDrm.queryKeyStatus(sessionId);
   }
 
   @Override
@@ -513,6 +496,8 @@ public class DefaultDrmSessionManager<T extends ExoMediaCrypto> implements DrmSe
         }
         break;
       case MODE_RELEASE:
+        // It's not necessary to restore the key (and open a session to do that) before releasing it
+        // but this serves as a good sanity/fast-failure check.
         if (restoreKeys()) {
           postKeyRequest(offlineLicenseKeySetId, MediaDrm.KEY_TYPE_RELEASE);
         }

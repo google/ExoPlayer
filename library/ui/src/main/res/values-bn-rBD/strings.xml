@@ -22,4 +22,7 @@
   <string name="exo_controls_stop_description">"থামান"</string>
   <string name="exo_controls_rewind_description">"গুটিয়ে নিন"</string>
   <string name="exo_controls_fastforward_description">"দ্রুত সামনে এগোন"</string>
+  <string name="exo_controls_repeat_all_description">"সবগুলির পুনরাবৃত্তি করুন"</string>
+  <string name="exo_controls_repeat_off_description">"একটিরও পুনরাবৃত্তি করবেন না"</string>
+  <string name="exo_controls_repeat_one_description">"একটির পুনরাবৃত্তি করুন"</string>
 </resources>

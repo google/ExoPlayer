@@ -22,4 +22,7 @@
   <string name="exo_controls_stop_description">"បញ្ឈប់"</string>
   <string name="exo_controls_rewind_description">"ខា​ថយក្រោយ"</string>
   <string name="exo_controls_fastforward_description">"ទៅ​មុខ​​​រហ័ស"</string>
+  <string name="exo_controls_repeat_all_description">"ធ្វើ​ម្ដង​ទៀត​ទាំងអស់"</string>
+  <string name="exo_controls_repeat_off_description">"មិន​ធ្វើ​ឡើង​វិញ"</string>
+  <string name="exo_controls_repeat_one_description">"ធ្វើ​​ឡើងវិញ​ម្ដង"</string>
 </resources>

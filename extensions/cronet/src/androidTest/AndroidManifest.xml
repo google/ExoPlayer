@@ -28,7 +28,6 @@
 
   <instrumentation
       android:name="android.test.InstrumentationTestRunner"
-      android:targetPackage="com.google.android.exoplayer.ext.cronet"
-      tools:replace="android:targetPackage"/>
+      android:targetPackage="com.google.android.exoplayer.ext.cronet"/>
 
 </manifest>

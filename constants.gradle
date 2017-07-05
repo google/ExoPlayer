@@ -1,0 +1,32 @@
+// Copyright (C) 2017 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+project.ext {
+    // Important: ExoPlayer specifies a minSdkVersion of 9 because various
+    // components provided by the library may be of use on older devices.
+    // However, please note that the core media playback functionality provided
+    // by the library requires API level 16 or greater.
+    minSdkVersion = 9
+    compileSdkVersion = 25
+    targetSdkVersion = 25
+    buildToolsVersion = '25'
+    testSupportLibraryVersion = '0.5'
+    supportLibraryVersion = '25.3.1'
+    dexmakerVersion = '1.2'
+    mockitoVersion = '1.9.5'
+    releaseVersion = 'r2.4.3'
+    modulePrefix = ':';
+    if (gradle.ext.has('exoplayerModulePrefix')) {
+        modulePrefix += gradle.ext.exoplayerModulePrefix
+    }
+}

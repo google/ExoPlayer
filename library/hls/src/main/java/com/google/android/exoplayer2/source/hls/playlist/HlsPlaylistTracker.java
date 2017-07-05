@@ -41,6 +41,38 @@ import java.util.List;
 public final class HlsPlaylistTracker implements Loader.Callback<ParsingLoadable<HlsPlaylist>> {
 
   /**
+   * Thrown when a playlist is considered to be stuck due to a server side error.
+   */
+  public static final class PlaylistStuckException extends IOException {
+
+    /**
+     * The url of the stuck playlist.
+     */
+    public final String url;
+
+    private PlaylistStuckException(String url) {
+      this.url = url;
+    }
+
+  }
+
+  /**
+   * Thrown when the media sequence of a new snapshot indicates the server has reset.
+   */
+  public static final class PlaylistResetException extends IOException {
+
+    /**
+     * The url of the reset playlist.
+     */
+    public final String url;
+
+    private PlaylistResetException(String url) {
+      this.url = url;
+    }
+
+  }
+
+  /**
    * Listener for primary playlist changes.
    */
   public interface PrimaryPlaylistListener {
@@ -75,6 +107,11 @@ public final class HlsPlaylistTracker implements Loader.Callback<ParsingLoadable
 
   }
 
+  /**
+   * Coefficient applied on the target duration of a playlist to determine the amount of time after
+   * which an unchanging playlist is considered stuck.
+   */
+  private static final double PLAYLIST_STUCK_TARGET_DURATION_COEFFICIENT = 3.5;
   /**
    * The minimum number of milliseconds that a url is kept as primary url, if no
    * {@link #getPlaylistSnapshot} call is made for that url.
@@ -200,16 +237,27 @@ public final class HlsPlaylistTracker implements Loader.Callback<ParsingLoadable
   }
 
   /**
-   * If the tracker is having trouble refreshing the primary playlist or loading an irreplaceable
-   * playlist, this method throws the underlying error. Otherwise, does nothing.
+   * If the tracker is having trouble refreshing the master playlist or the primary playlist, this
+   * method throws the underlying error. Otherwise, does nothing.
    *
    * @throws IOException The underlying error.
    */
-  public void maybeThrowPlaylistRefreshError() throws IOException {
+  public void maybeThrowPrimaryPlaylistRefreshError() throws IOException {
     initialPlaylistLoader.maybeThrowError();
     if (primaryHlsUrl != null) {
-      playlistBundles.get(primaryHlsUrl).mediaPlaylistLoader.maybeThrowError();
+      maybeThrowPlaylistRefreshError(primaryHlsUrl);
     }
+  }
+
+  /**
+   * If the playlist is having trouble refreshing the playlist referenced by the given
+   * {@link HlsUrl}, this method throws the underlying error.
+   *
+   * @param url The {@link HlsUrl}.
+   * @throws IOException The underyling error.
+   */
+  public void maybeThrowPlaylistRefreshError(HlsUrl url) throws IOException {
+    playlistBundles.get(url).maybeThrowPlaylistRefreshError();
   }
 
   /**
@@ -430,9 +478,11 @@ public final class HlsPlaylistTracker implements Loader.Callback<ParsingLoadable
 
     private HlsMediaPlaylist playlistSnapshot;
     private long lastSnapshotLoadMs;
+    private long lastSnapshotChangeMs;
     private long lastSnapshotAccessTimeMs;
     private long blacklistUntilMs;
     private boolean pendingRefresh;
+    private IOException playlistError;
 
     public MediaPlaylistBundle(HlsUrl playlistUrl, long initialLastSnapshotAccessTimeMs) {
       this.playlistUrl = playlistUrl;
@@ -472,6 +522,13 @@ public final class HlsPlaylistTracker implements Loader.Callback<ParsingLoadable
       }
     }
 
+    public void maybeThrowPlaylistRefreshError() throws IOException {
+      mediaPlaylistLoader.maybeThrowError();
+      if (playlistError != null) {
+        throw playlistError;
+      }
+    }
+
     // Loader.Callback implementation.
 
     @Override
@@ -483,8 +540,7 @@ public final class HlsPlaylistTracker implements Loader.Callback<ParsingLoadable
         eventDispatcher.loadCompleted(loadable.dataSpec, C.DATA_TYPE_MANIFEST, elapsedRealtimeMs,
             loadDurationMs, loadable.bytesLoaded());
       } else {
-        onLoadError(loadable, elapsedRealtimeMs, loadDurationMs,
-            new ParserException("Loaded playlist has unexpected type."));
+        playlistError = new ParserException("Loaded playlist has unexpected type.");
       }
     }
 
@@ -506,10 +562,7 @@ public final class HlsPlaylistTracker implements Loader.Callback<ParsingLoadable
       }
       boolean shouldRetry = true;
       if (ChunkedTrackBlacklistUtil.shouldBlacklist(error)) {
-        blacklistUntilMs =
-            SystemClock.elapsedRealtime() + ChunkedTrackBlacklistUtil.DEFAULT_TRACK_BLACKLIST_MS;
-        notifyPlaylistBlacklisting(playlistUrl,
-            ChunkedTrackBlacklistUtil.DEFAULT_TRACK_BLACKLIST_MS);
+        blacklistPlaylist();
         shouldRetry = primaryHlsUrl == playlistUrl && !maybeSelectNewPrimaryUrl();
       }
       return shouldRetry ? Loader.RETRY : Loader.DONT_RETRY;
@@ -527,20 +580,40 @@ public final class HlsPlaylistTracker implements Loader.Callback<ParsingLoadable
 
     private void processLoadedPlaylist(HlsMediaPlaylist loadedPlaylist) {
       HlsMediaPlaylist oldPlaylist = playlistSnapshot;
-      lastSnapshotLoadMs = SystemClock.elapsedRealtime();
+      long currentTimeMs = SystemClock.elapsedRealtime();
+      lastSnapshotLoadMs = currentTimeMs;
       playlistSnapshot = getLatestPlaylistSnapshot(oldPlaylist, loadedPlaylist);
       long refreshDelayUs = C.TIME_UNSET;
       if (playlistSnapshot != oldPlaylist) {
+        playlistError = null;
+        lastSnapshotChangeMs = currentTimeMs;
         if (onPlaylistUpdated(playlistUrl, playlistSnapshot)) {
           refreshDelayUs = playlistSnapshot.targetDurationUs;
         }
       } else if (!playlistSnapshot.hasEndTag) {
+        if (currentTimeMs - lastSnapshotChangeMs
+            > C.usToMs(playlistSnapshot.targetDurationUs)
+                * PLAYLIST_STUCK_TARGET_DURATION_COEFFICIENT) {
+          // The playlist seems to be stuck, we blacklist it.
+          playlistError = new PlaylistStuckException(playlistUrl.url);
+          blacklistPlaylist();
+        } else if (loadedPlaylist.mediaSequence + loadedPlaylist.segments.size()
+            < playlistSnapshot.mediaSequence) {
+          // The media sequence has jumped backwards. The server has likely reset.
+          playlistError = new PlaylistResetException(playlistUrl.url);
+        }
         refreshDelayUs = playlistSnapshot.targetDurationUs / 2;
       }
       if (refreshDelayUs != C.TIME_UNSET) {
         // See HLS spec v20, section 6.3.4 for more information on media playlist refreshing.
         pendingRefresh = playlistRefreshHandler.postDelayed(this, C.usToMs(refreshDelayUs));
       }
+    }
+
+    private void blacklistPlaylist() {
+      blacklistUntilMs = SystemClock.elapsedRealtime()
+          + ChunkedTrackBlacklistUtil.DEFAULT_TRACK_BLACKLIST_MS;
+      notifyPlaylistBlacklisting(playlistUrl, ChunkedTrackBlacklistUtil.DEFAULT_TRACK_BLACKLIST_MS);
     }
 
   }

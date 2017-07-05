@@ -38,18 +38,18 @@ import com.google.android.exoplayer2.drm.HttpMediaDrmCallback;
 import com.google.android.exoplayer2.drm.MediaDrmCallback;
 import com.google.android.exoplayer2.drm.UnsupportedDrmException;
 import com.google.android.exoplayer2.mediacodec.MediaCodecUtil;
-import com.google.android.exoplayer2.playbacktests.util.ActionSchedule;
-import com.google.android.exoplayer2.playbacktests.util.DebugRenderersFactory;
-import com.google.android.exoplayer2.playbacktests.util.DecoderCountersUtil;
-import com.google.android.exoplayer2.playbacktests.util.ExoHostedTest;
-import com.google.android.exoplayer2.playbacktests.util.HostActivity;
-import com.google.android.exoplayer2.playbacktests.util.HostActivity.HostedTest;
-import com.google.android.exoplayer2.playbacktests.util.MetricsLogger;
 import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.source.TrackGroup;
 import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.source.dash.DashMediaSource;
 import com.google.android.exoplayer2.source.dash.DefaultDashChunkSource;
+import com.google.android.exoplayer2.testutil.ActionSchedule;
+import com.google.android.exoplayer2.testutil.DebugRenderersFactory;
+import com.google.android.exoplayer2.testutil.DecoderCountersUtil;
+import com.google.android.exoplayer2.testutil.ExoHostedTest;
+import com.google.android.exoplayer2.testutil.HostActivity;
+import com.google.android.exoplayer2.testutil.HostActivity.HostedTest;
+import com.google.android.exoplayer2.testutil.MetricsLogger;
 import com.google.android.exoplayer2.trackselection.FixedTrackSelection;
 import com.google.android.exoplayer2.trackselection.MappingTrackSelector;
 import com.google.android.exoplayer2.trackselection.RandomTrackSelection;
@@ -169,9 +169,10 @@ public final class DashTestRunner {
     return this;
   }
 
-  public DashTestRunner setWidevineMimeType(String mimeType) {
+  public DashTestRunner setWidevineInfo(String mimeType, boolean videoIdRequiredInLicenseUrl) {
     this.useL1Widevine = isL1WidevineAvailable(mimeType);
-    this.widevineLicenseUrl = DashTestData.getWidevineLicenseUrl(useL1Widevine);
+    this.widevineLicenseUrl = DashTestData.getWidevineLicenseUrl(videoIdRequiredInLicenseUrl,
+        useL1Widevine);
     return this;
   }
 
