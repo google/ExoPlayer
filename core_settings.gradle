@@ -31,6 +31,7 @@ include modulePrefix + 'extension-ima'
 include modulePrefix + 'extension-okhttp'
 include modulePrefix + 'extension-opus'
 include modulePrefix + 'extension-vp9'
+include modulePrefix + 'extension-rtmp'
 
 project(modulePrefix + 'library').projectDir = new File(rootDir, 'library/all')
 project(modulePrefix + 'library-core').projectDir = new File(rootDir, 'library/core')
@@ -46,6 +47,7 @@ project(modulePrefix + 'extension-ima').projectDir = new File(rootDir, 'extensio
 project(modulePrefix + 'extension-okhttp').projectDir = new File(rootDir, 'extensions/okhttp')
 project(modulePrefix + 'extension-opus').projectDir = new File(rootDir, 'extensions/opus')
 project(modulePrefix + 'extension-vp9').projectDir = new File(rootDir, 'extensions/vp9')
+project(modulePrefix + 'extension-rtmp').projectDir = new File(rootDir, 'extensions/rtmp')
 
 if (gradle.ext.has('exoplayerIncludeCronetExtension')
         && gradle.ext.exoplayerIncludeCronetExtension) {

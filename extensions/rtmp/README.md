@@ -2,33 +2,26 @@
 
 ## Description ##
 
-The RTMP Extension is an [DataSource][] implementation for playing [RTMP][] streaming using
-[Librtmp Client for Android].
-
-## Using the extension ##
-
-When building [MediaSource][], inject `RtmpDataSourceFactory` like this:
-
-```java
-private MediaSource buildMediaSource(Uri uri, String overrideExtension) {
-  int type = TextUtils.isEmpty(overrideExtension) ? Util.inferContentType(uri)
-      : Util.inferContentType("." + overrideExtension);
-  switch (type) {
-
-    // ... other types cases
-
-    case C.TYPE_OTHER:
-      DataSource.Factory factory = uri.getScheme().equals("rtmp") ? new RtmpDataSourceFactory() : mediaDataSourceFactory;
-      return new ExtractorMediaSource(uri, factory, new DefaultExtractorsFactory(), mainHandler, eventLogger);
-    default: {
-      throw new IllegalStateException("Unsupported type: " + type);
-    }
-  }
-}
-```
-
+The RTMP Extension is a [DataSource][] implementation for playing [RTMP][]
+streams using [LibRtmp Client for Android][].
 
 [DataSource]: https://google.github.io/ExoPlayer/doc/reference/com/google/android/exoplayer2/upstream/DataSource.html
 [RTMP]: https://en.wikipedia.org/wiki/Real-Time_Messaging_Protocol
-[Librtmp Client for Android]: https://github.com/ant-media/LibRtmp-Client-for-Android
-[MediaSource]: https://google.github.io/ExoPlayer/doc/reference/com/google/android/exoplayer2/source/MediaSource.html
+[LibRtmp Client for Android]: https://github.com/ant-media/LibRtmp-Client-for-Android
+
+## Using the extension ##
+
+The easiest way to use the extension is to add it as a gradle dependency:
+
+```gradle
+compile 'com.google.android.exoplayer:extension-rtmp:rX.X.X'
+```
+
+where `rX.X.X` is the version, which must match the version of the ExoPlayer
+library being used.
+
+Alternatively, you can clone the ExoPlayer repository and depend on the module
+locally. Instructions for doing this can be found in ExoPlayer's
+[top level README][].
+
+[top level README]: https://github.com/google/ExoPlayer/blob/release-v2/README.md

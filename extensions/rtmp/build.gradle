@@ -11,6 +11,7 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+apply from: '../../constants.gradle'
 apply plugin: 'com.android.library'
 
 android {
@@ -18,12 +19,14 @@ android {
     buildToolsVersion project.ext.buildToolsVersion
 
     defaultConfig {
-        minSdkVersion 16
+        // TODO: Lower minSdkVersion as much as possible once this issue in LibRtmp is fixed:
+        // https://github.com/ant-media/LibRtmp-Client-for-Android/issues/39
+        minSdkVersion 21
         targetSdkVersion project.ext.targetSdkVersion
     }
 }
 
 dependencies {
     compile project(':library-core')
-    compile 'net.butterflytv.utils:rtmp-client:0.2.6.1'
+    compile 'net.butterflytv.utils:rtmp-client:0.2.7.1'
 }
