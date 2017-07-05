@@ -11,6 +11,7 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+apply from: '../../constants.gradle'
 apply plugin: 'com.android.library'
 
 android {
@@ -29,11 +30,11 @@ android {
 }
 
 dependencies {
-    compile project(':library-core')
+    compile project(modulePrefix + 'library-core')
     compile files('libs/cronet_api.jar')
     compile files('libs/cronet_impl_common_java.jar')
     compile files('libs/cronet_impl_native_java.jar')
-    androidTestCompile project(':library')
+    androidTestCompile project(modulePrefix + 'library')
     androidTestCompile 'com.google.dexmaker:dexmaker:' + dexmakerVersion
     androidTestCompile 'com.google.dexmaker:dexmaker-mockito:' + dexmakerVersion
     androidTestCompile 'org.mockito:mockito-core:' + mockitoVersion

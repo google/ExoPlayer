@@ -16,6 +16,7 @@
 package com.google.android.exoplayer2.ext.vp9;
 
 import com.google.android.exoplayer2.decoder.OutputBuffer;
+import com.google.android.exoplayer2.video.ColorInfo;
 import java.nio.ByteBuffer;
 
 /**
@@ -37,6 +38,8 @@ import java.nio.ByteBuffer;
   public ByteBuffer data;
   public int width;
   public int height;
+  public ColorInfo colorInfo;
+
   /**
    * YUV planes for YUV mode.
    */

@@ -58,4 +58,6 @@
 
   <string name="sample_list_load_error">One or more sample lists failed to load</string>
 
+  <string name="ima_not_loaded">Playing sample without ads, as the IMA extension was not loaded</string>
+
 </resources>

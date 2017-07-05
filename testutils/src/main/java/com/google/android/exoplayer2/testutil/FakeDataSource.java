@@ -49,6 +49,10 @@ import java.util.HashMap;
  * until the source is closed. If the source is closed and re-opened having encountered an error,
  * that error will not be thrown again.
  *
+ * <p>Actions are inserted by calling {@link FakeData#appendReadAction(Runnable)}. An actions is
+ * triggered when the reading reaches action's position. This can be used to make sure the code is
+ * in a certain state while testing.
+ *
  * <p>Example usage:
  *
  * <pre>
@@ -59,11 +63,11 @@ import java.util.HashMap;
  *       .newDefaultData()
  *         .appendReadData(defaultData)
  *         .endData()
- *       .setData("http:///1", data1)
+ *       .setData("http://1", data1)
  *       .newData("test_file")
  *         .appendReadError(new IOException())
- *         .appendReadData(data2);
- *    // No need to call endData at the end
+ *         .appendReadData(data2)
+ *         .endData();
  * </pre>
  */
 public final class FakeDataSource implements DataSource {
@@ -135,7 +139,7 @@ public final class FakeDataSource implements DataSource {
           (int) Math.min(Math.max(0, dataSpec.position - scannedLength), segment.length);
       scannedLength += segment.length;
       findingCurrentSegmentIndex &= segment.isErrorSegment() ? segment.exceptionCleared
-          : segment.bytesRead == segment.length;
+          : (!segment.isActionSegment() && segment.bytesRead == segment.length);
       if (findingCurrentSegmentIndex) {
         currentSegmentIndex++;
       }
@@ -165,6 +169,9 @@ public final class FakeDataSource implements DataSource {
         } else {
           currentSegmentIndex++;
         }
+      } else if (current.isActionSegment()) {
+        currentSegmentIndex++;
+        current.action.run();
       } else {
         // Read at most bytesRemaining.
         readLength = (int) Math.min(readLength, bytesRemaining);
@@ -192,7 +199,7 @@ public final class FakeDataSource implements DataSource {
     Assertions.checkState(opened);
     opened = false;
     uri = null;
-    if (currentSegmentIndex < fakeData.segments.size()) {
+    if (fakeData != null && currentSegmentIndex < fakeData.segments.size()) {
       Segment current = fakeData.segments.get(currentSegmentIndex);
       if (current.isErrorSegment() && current.exceptionThrown) {
         current.exceptionCleared = true;
@@ -217,19 +224,39 @@ public final class FakeDataSource implements DataSource {
     public final IOException exception;
     public final byte[] data;
     public final int length;
+    public final Runnable action;
 
     private boolean exceptionThrown;
     private boolean exceptionCleared;
     private int bytesRead;
 
-    public Segment(byte[] data, IOException exception) {
+    public Segment(byte[] data) {
       this.data = data;
+      this.length = data.length;
+      this.exception = null;
+      this.action = null;
+    }
+
+    public Segment(IOException exception) {
+      this.data = null;
+      this.length = 0;
       this.exception = exception;
-      length = data != null ? data.length : 0;
+      this.action = null;
+    }
+
+    public Segment(Runnable action) {
+      this.data = null;
+      this.length = 0;
+      this.exception = null;
+      this.action = action;
     }
 
     public boolean isErrorSegment() {
       return exception != null;
+    }
+
+    public boolean isActionSegment() {
+      return action != null;
     }
 
   }
@@ -270,7 +297,7 @@ public final class FakeDataSource implements DataSource {
      */
     public FakeData appendReadData(byte[] data) {
       Assertions.checkState(data != null && data.length > 0);
-      segments.add(new Segment(data, null));
+      segments.add(new Segment(data));
       return this;
     }
 
@@ -278,7 +305,15 @@ public final class FakeDataSource implements DataSource {
      * Appends an error in the underlying data.
      */
     public FakeData appendReadError(IOException exception) {
-      segments.add(new Segment(null, exception));
+      segments.add(new Segment(exception));
+      return this;
+    }
+
+    /**
+     * Appends an action.
+     */
+    public FakeData appendReadAction(Runnable action) {
+      segments.add(new Segment(action));
       return this;
     }
 
@@ -308,26 +343,36 @@ public final class FakeDataSource implements DataSource {
       dataMap = new HashMap<>();
     }
 
+    /** Sets the default data, overwrites if there is one already. */
     public FakeData newDefaultData() {
       defaultData = new FakeData(this, null);
       return defaultData;
     }
 
+    /** Sets random data with the given {@code length} for the given {@code uri}. */
+    public FakeDataSet setRandomData(String uri, int length) {
+      return setData(uri, TestUtil.buildTestData(length));
+    }
+
+    /** Sets the given {@code data} for the given {@code uri}. */
+    public FakeDataSet setData(String uri, byte[] data) {
+      return newData(uri).appendReadData(data).endData();
+    }
+
+    /** Returns a new {@link FakeData} with the given {@code uri}. */
     public FakeData newData(String uri) {
       FakeData data = new FakeData(this, uri);
       dataMap.put(uri, data);
       return data;
     }
 
-    public FakeDataSet setData(String uri, byte[] data) {
-      return newData(uri).appendReadData(data).endData();
-    }
-
+    /** Returns the data for the given {@code uri}, or {@code defaultData} if no data is set. */
     public FakeData getData(String uri) {
       FakeData data = dataMap.get(uri);
       return data != null ? data : defaultData;
     }
 
+    /** Returns a list of all data including {@code defaultData}. */
     public ArrayList<FakeData> getAllData() {
       ArrayList<FakeData> fakeDatas = new ArrayList<>(dataMap.values());
       if (defaultData != null) {

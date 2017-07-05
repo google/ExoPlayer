@@ -65,13 +65,13 @@ public final class TsExtractor implements Extractor {
    * Modes for the extractor.
    */
   @Retention(RetentionPolicy.SOURCE)
-  @IntDef({MODE_NORMAL, MODE_SINGLE_PMT, MODE_HLS})
+  @IntDef({MODE_MULTI_PMT, MODE_SINGLE_PMT, MODE_HLS})
   public @interface Mode {}
 
   /**
    * Behave as defined in ISO/IEC 13818-1.
    */
-  public static final int MODE_NORMAL = 0;
+  public static final int MODE_MULTI_PMT = 0;
   /**
    * Assume only one PMT will be contained in the stream, even if more are declared by the PAT.
    */
@@ -132,12 +132,23 @@ public final class TsExtractor implements Extractor {
    *     {@code FLAG_*} values that control the behavior of the payload readers.
    */
   public TsExtractor(@Flags int defaultTsPayloadReaderFlags) {
-    this(MODE_NORMAL, new TimestampAdjuster(0),
-        new DefaultTsPayloadReaderFactory(defaultTsPayloadReaderFlags));
+    this(MODE_SINGLE_PMT, defaultTsPayloadReaderFlags);
   }
 
   /**
-   * @param mode Mode for the extractor. One of {@link #MODE_NORMAL}, {@link #MODE_SINGLE_PMT}
+   * @param mode Mode for the extractor. One of {@link #MODE_MULTI_PMT}, {@link #MODE_SINGLE_PMT}
+   *     and {@link #MODE_HLS}.
+   * @param defaultTsPayloadReaderFlags A combination of {@link DefaultTsPayloadReaderFactory}
+   *     {@code FLAG_*} values that control the behavior of the payload readers.
+   */
+  public TsExtractor(@Mode int mode, @Flags int defaultTsPayloadReaderFlags) {
+    this(mode, new TimestampAdjuster(0),
+        new DefaultTsPayloadReaderFactory(defaultTsPayloadReaderFlags));
+  }
+
+
+  /**
+   * @param mode Mode for the extractor. One of {@link #MODE_MULTI_PMT}, {@link #MODE_SINGLE_PMT}
    *     and {@link #MODE_HLS}.
    * @param timestampAdjuster A timestamp adjuster for offsetting and scaling sample timestamps.
    * @param payloadReaderFactory Factory for injecting a custom set of payload readers.
@@ -371,10 +382,14 @@ public final class TsExtractor implements Extractor {
     private static final int TS_PMT_DESC_DVBSUBS = 0x59;
 
     private final ParsableBitArray pmtScratch;
+    private final SparseArray<TsPayloadReader> trackIdToReaderScratch;
+    private final SparseIntArray trackIdToPidScratch;
     private final int pid;
 
     public PmtReader(int pid) {
       pmtScratch = new ParsableBitArray(new byte[5]);
+      trackIdToReaderScratch = new SparseArray<>();
+      trackIdToPidScratch = new SparseIntArray();
       this.pid = pid;
     }
 
@@ -425,6 +440,8 @@ public final class TsExtractor implements Extractor {
             new TrackIdGenerator(programNumber, TS_STREAM_TYPE_ID3, MAX_PID_PLUS_ONE));
       }
 
+      trackIdToReaderScratch.clear();
+      trackIdToPidScratch.clear();
       int remainingEntriesLength = sectionData.bytesLeft();
       while (remainingEntriesLength > 0) {
         sectionData.readBytes(pmtScratch, 5);
@@ -443,23 +460,30 @@ public final class TsExtractor implements Extractor {
         if (trackIds.get(trackId)) {
           continue;
         }
-        trackIds.put(trackId, true);
 
-        TsPayloadReader reader;
-        if (mode == MODE_HLS && streamType == TS_STREAM_TYPE_ID3) {
-          reader = id3Reader;
-        } else {
-          reader = payloadReaderFactory.createPayloadReader(streamType, esInfo);
-          if (reader != null) {
+        TsPayloadReader reader = mode == MODE_HLS && streamType == TS_STREAM_TYPE_ID3 ? id3Reader
+            : payloadReaderFactory.createPayloadReader(streamType, esInfo);
+        if (mode != MODE_HLS
+            || elementaryPid < trackIdToPidScratch.get(trackId, MAX_PID_PLUS_ONE)) {
+          trackIdToPidScratch.put(trackId, elementaryPid);
+          trackIdToReaderScratch.put(trackId, reader);
+        }
+      }
+
+      int trackIdCount = trackIdToPidScratch.size();
+      for (int i = 0; i < trackIdCount; i++) {
+        int trackId = trackIdToPidScratch.keyAt(i);
+        trackIds.put(trackId, true);
+        TsPayloadReader reader = trackIdToReaderScratch.valueAt(i);
+        if (reader != null) {
+          if (reader != id3Reader) {
             reader.init(timestampAdjuster, output,
                 new TrackIdGenerator(programNumber, trackId, MAX_PID_PLUS_ONE));
           }
-        }
-
-        if (reader != null) {
-          tsPayloadReaders.put(elementaryPid, reader);
+          tsPayloadReaders.put(trackIdToPidScratch.valueAt(i), reader);
         }
       }
+
       if (mode == MODE_HLS) {
         if (!tracksEnded) {
           output.endTracks();

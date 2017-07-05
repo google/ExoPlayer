@@ -22,4 +22,7 @@
   <string name="exo_controls_stop_description">"הפסק"</string>
   <string name="exo_controls_rewind_description">"הרץ אחורה"</string>
   <string name="exo_controls_fastforward_description">"הרץ קדימה"</string>
+  <string name="exo_controls_repeat_all_description">"חזור על הכל"</string>
+  <string name="exo_controls_repeat_off_description">"אל תחזור על כלום"</string>
+  <string name="exo_controls_repeat_one_description">"חזור על פריט אחד"</string>
 </resources>

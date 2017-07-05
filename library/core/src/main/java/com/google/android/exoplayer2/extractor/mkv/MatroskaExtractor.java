@@ -16,6 +16,7 @@
 package com.google.android.exoplayer2.extractor.mkv;
 
 import android.support.annotation.IntDef;
+import android.util.Log;
 import android.util.SparseArray;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
@@ -83,6 +84,8 @@ public final class MatroskaExtractor implements Extractor {
    * media is treated as being unseekable.
    */
   public static final int FLAG_DISABLE_SEEK_FOR_CUES = 1;
+
+  private static final String TAG = "MatroskaExtractor";
 
   private static final int UNSET_ENTRY_ID = -1;
 
@@ -580,11 +583,11 @@ public final class MatroskaExtractor implements Extractor {
         break;
       case ID_CONTENT_ENCODING:
         if (currentTrack.hasContentEncryption) {
-          if (currentTrack.encryptionKeyId == null) {
+          if (currentTrack.cryptoData == null) {
             throw new ParserException("Encrypted Track found but ContentEncKeyID was not found");
           }
-          currentTrack.drmInitData = new DrmInitData(
-              new SchemeData(C.UUID_NIL, MimeTypes.VIDEO_WEBM, currentTrack.encryptionKeyId));
+          currentTrack.drmInitData = new DrmInitData(new SchemeData(C.UUID_NIL, null,
+              MimeTypes.VIDEO_WEBM, currentTrack.cryptoData.encryptionKey));
         }
         break;
       case ID_CONTENT_ENCODINGS:
@@ -888,8 +891,10 @@ public final class MatroskaExtractor implements Extractor {
         input.readFully(currentTrack.sampleStrippedBytes, 0, contentSize);
         break;
       case ID_CONTENT_ENCRYPTION_KEY_ID:
-        currentTrack.encryptionKeyId = new byte[contentSize];
-        input.readFully(currentTrack.encryptionKeyId, 0, contentSize);
+        byte[] encryptionKey = new byte[contentSize];
+        input.readFully(encryptionKey, 0, contentSize);
+        currentTrack.cryptoData = new TrackOutput.CryptoData(C.CRYPTO_MODE_AES_CTR, encryptionKey,
+            0, 0); // We assume patternless AES-CTR.
         break;
       case ID_SIMPLE_BLOCK:
       case ID_BLOCK:
@@ -1033,7 +1038,7 @@ public final class MatroskaExtractor implements Extractor {
     if (CODEC_ID_SUBRIP.equals(track.codecId)) {
       writeSubripSample(track);
     }
-    track.output.sampleMetadata(timeUs, blockFlags, sampleBytesWritten, 0, track.encryptionKeyId);
+    track.output.sampleMetadata(timeUs, blockFlags, sampleBytesWritten, 0, track.cryptoData);
     sampleRead = true;
     resetSample();
   }
@@ -1470,7 +1475,7 @@ public final class MatroskaExtractor implements Extractor {
     public int defaultSampleDurationNs;
     public boolean hasContentEncryption;
     public byte[] sampleStrippedBytes;
-    public byte[] encryptionKeyId;
+    public TrackOutput.CryptoData cryptoData;
     public byte[] codecPrivate;
     public DrmInitData drmInitData;
 
@@ -1558,7 +1563,12 @@ public final class MatroskaExtractor implements Extractor {
           break;
         case CODEC_ID_FOURCC:
           initializationData = parseFourCcVc1Private(new ParsableByteArray(codecPrivate));
-          mimeType = initializationData == null ? MimeTypes.VIDEO_UNKNOWN : MimeTypes.VIDEO_VC1;
+          if (initializationData != null) {
+            mimeType = MimeTypes.VIDEO_VC1;
+          } else {
+            Log.w(TAG, "Unsupported FourCC. Setting mimeType to " + MimeTypes.VIDEO_UNKNOWN);
+            mimeType = MimeTypes.VIDEO_UNKNOWN;
+          }
           break;
         case CODEC_ID_THEORA:
           // TODO: This can be set to the real mimeType if/when we work out what initializationData
@@ -1614,19 +1624,27 @@ public final class MatroskaExtractor implements Extractor {
           break;
         case CODEC_ID_ACM:
           mimeType = MimeTypes.AUDIO_RAW;
-          if (!parseMsAcmCodecPrivate(new ParsableByteArray(codecPrivate))) {
-            throw new ParserException("Non-PCM MS/ACM is unsupported");
-          }
-          pcmEncoding = Util.getPcmEncoding(audioBitDepth);
-          if (pcmEncoding == C.ENCODING_INVALID) {
-            throw new ParserException("Unsupported PCM bit depth: " + audioBitDepth);
+          if (parseMsAcmCodecPrivate(new ParsableByteArray(codecPrivate))) {
+            pcmEncoding = Util.getPcmEncoding(audioBitDepth);
+            if (pcmEncoding == C.ENCODING_INVALID) {
+              pcmEncoding = Format.NO_VALUE;
+              mimeType = MimeTypes.AUDIO_UNKNOWN;
+              Log.w(TAG, "Unsupported PCM bit depth: " + audioBitDepth + ". Setting mimeType to "
+                  + mimeType);
+            }
+          } else {
+            mimeType = MimeTypes.AUDIO_UNKNOWN;
+            Log.w(TAG, "Non-PCM MS/ACM is unsupported. Setting mimeType to " + mimeType);
           }
           break;
         case CODEC_ID_PCM_INT_LIT:
           mimeType = MimeTypes.AUDIO_RAW;
           pcmEncoding = Util.getPcmEncoding(audioBitDepth);
           if (pcmEncoding == C.ENCODING_INVALID) {
-            throw new ParserException("Unsupported PCM bit depth: " + audioBitDepth);
+            pcmEncoding = Format.NO_VALUE;
+            mimeType = MimeTypes.AUDIO_UNKNOWN;
+            Log.w(TAG, "Unsupported PCM bit depth: " + audioBitDepth + ". Setting mimeType to "
+                + mimeType);
           }
           break;
         case CODEC_ID_SUBRIP:

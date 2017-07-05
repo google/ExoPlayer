@@ -24,6 +24,7 @@ import android.util.Log;
 import com.google.android.exoplayer2.ExoPlayerImplInternal.PlaybackInfo;
 import com.google.android.exoplayer2.ExoPlayerImplInternal.SourceInfo;
 import com.google.android.exoplayer2.source.MediaSource;
+import com.google.android.exoplayer2.source.MediaSource.MediaPeriodId;
 import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.trackselection.TrackSelection;
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
@@ -51,6 +52,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
 
   private boolean tracksSelected;
   private boolean playWhenReady;
+  private @RepeatMode int repeatMode;
   private int playbackState;
   private int pendingSeekAcks;
   private int pendingPrepareAcks;
@@ -83,6 +85,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
     this.renderers = Assertions.checkNotNull(renderers);
     this.trackSelector = Assertions.checkNotNull(trackSelector);
     this.playWhenReady = false;
+    this.repeatMode = REPEAT_MODE_OFF;
     this.playbackState = STATE_IDLE;
     this.listeners = new CopyOnWriteArraySet<>();
     emptyTrackSelections = new TrackSelectionArray(new TrackSelection[renderers.length]);
@@ -92,7 +95,8 @@ import java.util.concurrent.CopyOnWriteArraySet;
     trackGroups = TrackGroupArray.EMPTY;
     trackSelections = emptyTrackSelections;
     playbackParameters = PlaybackParameters.DEFAULT;
-    eventHandler = new Handler() {
+    Looper eventLooper = Looper.myLooper() != null ? Looper.myLooper() : Looper.getMainLooper();
+    eventHandler = new Handler(eventLooper) {
       @Override
       public void handleMessage(Message msg) {
         ExoPlayerImpl.this.handleEvent(msg);
@@ -100,7 +104,12 @@ import java.util.concurrent.CopyOnWriteArraySet;
     };
     playbackInfo = new ExoPlayerImplInternal.PlaybackInfo(0, 0);
     internalPlayer = new ExoPlayerImplInternal(renderers, trackSelector, loadControl, playWhenReady,
-        eventHandler, playbackInfo, this);
+        repeatMode, eventHandler, playbackInfo, this);
+  }
+
+  @Override
+  public Looper getPlaybackLooper() {
+    return internalPlayer.getPlaybackLooper();
   }
 
   @Override
@@ -164,6 +173,22 @@ import java.util.concurrent.CopyOnWriteArraySet;
   }
 
   @Override
+  public void setRepeatMode(@RepeatMode int repeatMode) {
+    if (this.repeatMode != repeatMode) {
+      this.repeatMode = repeatMode;
+      internalPlayer.setRepeatMode(repeatMode);
+      for (EventListener listener : listeners) {
+        listener.onRepeatModeChanged(repeatMode);
+      }
+    }
+  }
+
+  @Override
+  public @RepeatMode int getRepeatMode() {
+    return repeatMode;
+  }
+
+  @Override
   public boolean isLoading() {
     return isLoading;
   }
@@ -194,10 +219,10 @@ import java.util.concurrent.CopyOnWriteArraySet;
       maskingPeriodIndex = 0;
     } else {
       timeline.getWindow(windowIndex, window);
-      long resolvedPositionMs =
-          positionMs == C.TIME_UNSET ? window.getDefaultPositionUs() : positionMs;
+      long resolvedPositionUs =
+          positionMs == C.TIME_UNSET ? window.getDefaultPositionUs() : C.msToUs(positionMs);
       int periodIndex = window.firstPeriodIndex;
-      long periodPositionUs = window.getPositionInFirstPeriodUs() + C.msToUs(resolvedPositionMs);
+      long periodPositionUs = window.getPositionInFirstPeriodUs() + resolvedPositionUs;
       long periodDurationUs = timeline.getPeriod(periodIndex, period).getDurationUs();
       while (periodDurationUs != C.TIME_UNSET && periodPositionUs >= periodDurationUs
           && periodIndex < window.lastPeriodIndex) {
@@ -257,7 +282,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
     if (timeline.isEmpty() || pendingSeekAcks > 0) {
       return maskingPeriodIndex;
     } else {
-      return playbackInfo.periodIndex;
+      return playbackInfo.periodId.periodIndex;
     }
   }
 
@@ -266,7 +291,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
     if (timeline.isEmpty() || pendingSeekAcks > 0) {
       return maskingWindowIndex;
     } else {
-      return timeline.getPeriod(playbackInfo.periodIndex, period).windowIndex;
+      return timeline.getPeriod(playbackInfo.periodId.periodIndex, period).windowIndex;
     }
   }
 
@@ -275,7 +300,14 @@ import java.util.concurrent.CopyOnWriteArraySet;
     if (timeline.isEmpty()) {
       return C.TIME_UNSET;
     }
-    return timeline.getWindow(getCurrentWindowIndex(), window).getDurationMs();
+    if (isPlayingAd()) {
+      MediaPeriodId periodId = playbackInfo.periodId;
+      timeline.getPeriod(periodId.periodIndex, period);
+      long adDurationUs = period.getAdDurationUs(periodId.adGroupIndex, periodId.adIndexInAdGroup);
+      return C.usToMs(adDurationUs);
+    } else {
+      return timeline.getWindow(getCurrentWindowIndex(), window).getDurationMs();
+    }
   }
 
   @Override
@@ -283,7 +315,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
     if (timeline.isEmpty() || pendingSeekAcks > 0) {
       return maskingWindowPositionMs;
     } else {
-      timeline.getPeriod(playbackInfo.periodIndex, period);
+      timeline.getPeriod(playbackInfo.periodId.periodIndex, period);
       return period.getPositionInWindowMs() + C.usToMs(playbackInfo.positionUs);
     }
   }
@@ -294,7 +326,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
     if (timeline.isEmpty() || pendingSeekAcks > 0) {
       return maskingWindowPositionMs;
     } else {
-      timeline.getPeriod(playbackInfo.periodIndex, period);
+      timeline.getPeriod(playbackInfo.periodId.periodIndex, period);
       return period.getPositionInWindowMs() + C.usToMs(playbackInfo.bufferedPositionUs);
     }
   }
@@ -304,10 +336,10 @@ import java.util.concurrent.CopyOnWriteArraySet;
     if (timeline.isEmpty()) {
       return 0;
     }
-    long bufferedPosition = getBufferedPosition();
+    long position = getBufferedPosition();
     long duration = getDuration();
-    return (bufferedPosition == C.TIME_UNSET || duration == C.TIME_UNSET) ? 0
-        : (int) (duration == 0 ? 100 : (bufferedPosition * 100) / duration);
+    return position == C.TIME_UNSET || duration == C.TIME_UNSET ? 0
+        : (duration == 0 ? 100 : Util.constrainValue((int) ((position * 100) / duration), 0, 100));
   }
 
   @Override
@@ -318,6 +350,21 @@ import java.util.concurrent.CopyOnWriteArraySet;
   @Override
   public boolean isCurrentWindowSeekable() {
     return !timeline.isEmpty() && timeline.getWindow(getCurrentWindowIndex(), window).isSeekable;
+  }
+
+  @Override
+  public boolean isPlayingAd() {
+    return pendingSeekAcks == 0 && playbackInfo.periodId.adGroupIndex != C.INDEX_UNSET;
+  }
+
+  @Override
+  public int getCurrentAdGroupIndex() {
+    return pendingSeekAcks == 0 ? playbackInfo.periodId.adGroupIndex : C.INDEX_UNSET;
+  }
+
+  @Override
+  public int getCurrentAdIndexInAdGroup() {
+    return pendingSeekAcks == 0 ? playbackInfo.periodId.adIndexInAdGroup : C.INDEX_UNSET;
   }
 
   @Override

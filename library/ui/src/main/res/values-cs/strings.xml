@@ -22,4 +22,7 @@
   <string name="exo_controls_stop_description">"Zastavit"</string>
   <string name="exo_controls_rewind_description">"Přetočit zpět"</string>
   <string name="exo_controls_fastforward_description">"Přetočit vpřed"</string>
+  <string name="exo_controls_repeat_all_description">"Opakovat vše"</string>
+  <string name="exo_controls_repeat_off_description">"Neopakovat"</string>
+  <string name="exo_controls_repeat_one_description">"Opakovat jednu položku"</string>
 </resources>

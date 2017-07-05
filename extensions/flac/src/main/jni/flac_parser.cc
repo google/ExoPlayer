@@ -22,6 +22,7 @@
 
 #include <cassert>
 #include <cstdlib>
+#include <cstring>
 
 #define LOG_TAG "FLACParser"
 #define ALOGE(...) \

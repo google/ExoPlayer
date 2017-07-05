@@ -88,6 +88,14 @@ import java.util.List;
  *         <li>Default: {@code true}</li>
  *       </ul>
  *   </li>
+ *   <li><b>{@code auto_show}</b> - Whether the playback controls are automatically shown when
+ *       playback starts, pauses, ends, or fails. If set to false, the playback controls can be
+ *       manually operated with {@link #showController()} and {@link #hideController()}.
+ *       <ul>
+ *         <li>Corresponding method: {@link #setControllerAutoShow(boolean)}</li>
+ *         <li>Default: {@code true}</li>
+ *       </ul>
+ *   </li>
  *   <li><b>{@code resize_mode}</b> - Controls how video and album art is resized within the view.
  *       Valid values are {@code fit}, {@code fixed_width}, {@code fixed_height} and {@code fill}.
  *       <ul>
@@ -198,6 +206,7 @@ public final class SimpleExoPlayerView extends FrameLayout {
   private boolean useArtwork;
   private Bitmap defaultArtwork;
   private int controllerShowTimeoutMs;
+  private boolean controllerAutoShow;
   private boolean controllerHideOnTouch;
 
   public SimpleExoPlayerView(Context context) {
@@ -238,6 +247,7 @@ public final class SimpleExoPlayerView extends FrameLayout {
     int resizeMode = AspectRatioFrameLayout.RESIZE_MODE_FIT;
     int controllerShowTimeoutMs = PlaybackControlView.DEFAULT_SHOW_TIMEOUT_MS;
     boolean controllerHideOnTouch = true;
+    boolean controllerAutoShow = true;
     if (attrs != null) {
       TypedArray a = context.getTheme().obtainStyledAttributes(attrs,
           R.styleable.SimpleExoPlayerView, 0, 0);
@@ -254,6 +264,8 @@ public final class SimpleExoPlayerView extends FrameLayout {
             controllerShowTimeoutMs);
         controllerHideOnTouch = a.getBoolean(R.styleable.SimpleExoPlayerView_hide_on_touch,
             controllerHideOnTouch);
+        controllerAutoShow = a.getBoolean(R.styleable.SimpleExoPlayerView_auto_show,
+            controllerAutoShow);
       } finally {
         a.recycle();
       }
@@ -317,6 +329,7 @@ public final class SimpleExoPlayerView extends FrameLayout {
     }
     this.controllerShowTimeoutMs = controller != null ? controllerShowTimeoutMs : 0;
     this.controllerHideOnTouch = controllerHideOnTouch;
+    this.controllerAutoShow = controllerAutoShow;
     this.useController = useController && controller != null;
     hideController();
   }
@@ -480,6 +493,12 @@ public final class SimpleExoPlayerView extends FrameLayout {
     }
   }
 
+  @Override
+  public boolean dispatchKeyEvent(KeyEvent event) {
+    maybeShowController(true);
+    return dispatchMediaKeyEvent(event) || super.dispatchKeyEvent(event);
+  }
+
   /**
    * Called to process media key events. Any {@link KeyEvent} can be passed but only media key
    * events will be handled. Does nothing if playback controls are disabled.
@@ -493,11 +512,13 @@ public final class SimpleExoPlayerView extends FrameLayout {
 
   /**
    * Shows the playback controls. Does nothing if playback controls are disabled.
+   *
+   * <p>The playback controls are automatically hidden during playback after
+   * {{@link #getControllerShowTimeoutMs()}}. They are shown indefinitely when playback has not
+   * started yet, is paused, has ended or failed.
    */
   public void showController() {
-    if (useController) {
-      maybeShowController(true);
-    }
+    showController(shouldShowControllerIndefinitely());
   }
 
   /**
@@ -551,6 +572,26 @@ public final class SimpleExoPlayerView extends FrameLayout {
   }
 
   /**
+   * Returns whether the playback controls are automatically shown when playback starts, pauses,
+   * ends, or fails. If set to false, the playback controls can be manually operated with {@link
+   * #showController()} and {@link #hideController()}.
+   */
+  public boolean getControllerAutoShow() {
+    return controllerAutoShow;
+  }
+
+  /**
+   * Sets whether the playback controls are automatically shown when playback starts, pauses, ends,
+   * or fails. If set to false, the playback controls can be manually operated with {@link
+   * #showController()} and {@link #hideController()}.
+   *
+   * @param controllerAutoShow Whether the playback controls are allowed to show automatically.
+   */
+  public void setControllerAutoShow(boolean controllerAutoShow) {
+    this.controllerAutoShow = controllerAutoShow;
+  }
+
+  /**
    * Set the {@link PlaybackControlView.VisibilityListener}.
    *
    * @param listener The listener to be notified about visibility changes.
@@ -589,6 +630,16 @@ public final class SimpleExoPlayerView extends FrameLayout {
   public void setFastForwardIncrementMs(int fastForwardMs) {
     Assertions.checkState(controller != null);
     controller.setFastForwardIncrementMs(fastForwardMs);
+  }
+
+  /**
+   * Sets which repeat toggle modes are enabled.
+   *
+   * @param repeatToggleModes A set of {@link PlaybackControlView.RepeatToggleModes}.
+   */
+  public void setRepeatToggleModes(@PlaybackControlView.RepeatToggleModes int repeatToggleModes) {
+    Assertions.checkState(controller != null);
+    controller.setRepeatToggleModes(repeatToggleModes);
   }
 
   /**
@@ -654,18 +705,34 @@ public final class SimpleExoPlayerView extends FrameLayout {
     return true;
   }
 
+  /**
+   * Shows the playback controls, but only if forced or shown indefinitely.
+   */
   private void maybeShowController(boolean isForced) {
-    if (!useController || player == null) {
-      return;
+    if (useController) {
+      boolean wasShowingIndefinitely = controller.isVisible() && controller.getShowTimeoutMs() <= 0;
+      boolean shouldShowIndefinitely = shouldShowControllerIndefinitely();
+      if (isForced || wasShowingIndefinitely || shouldShowIndefinitely) {
+        showController(shouldShowIndefinitely);
+      }
+    }
+  }
+
+  private boolean shouldShowControllerIndefinitely() {
+    if (player == null) {
+      return true;
     }
     int playbackState = player.getPlaybackState();
-    boolean showIndefinitely = playbackState == ExoPlayer.STATE_IDLE
-        || playbackState == ExoPlayer.STATE_ENDED || !player.getPlayWhenReady();
-    boolean wasShowingIndefinitely = controller.isVisible() && controller.getShowTimeoutMs() <= 0;
-    controller.setShowTimeoutMs(showIndefinitely ? 0 : controllerShowTimeoutMs);
-    if (isForced || showIndefinitely || wasShowingIndefinitely) {
-      controller.show();
+    return controllerAutoShow && (playbackState == ExoPlayer.STATE_IDLE
+        || playbackState == ExoPlayer.STATE_ENDED || !player.getPlayWhenReady());
+  }
+
+  private void showController(boolean showIndefinitely) {
+    if (!useController) {
+      return;
     }
+    controller.setShowTimeoutMs(showIndefinitely ? 0 : controllerShowTimeoutMs);
+    controller.show();
   }
 
   private void updateForCurrentTrackSelections() {
@@ -804,6 +871,11 @@ public final class SimpleExoPlayerView extends FrameLayout {
     @Override
     public void onPlayerStateChanged(boolean playWhenReady, int playbackState) {
       maybeShowController(false);
+    }
+
+    @Override
+    public void onRepeatModeChanged(int repeatMode) {
+      // Do nothing.
     }
 
     @Override

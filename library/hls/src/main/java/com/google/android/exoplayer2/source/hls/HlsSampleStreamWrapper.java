@@ -22,11 +22,11 @@ import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.FormatHolder;
 import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
-import com.google.android.exoplayer2.extractor.DefaultTrackOutput;
-import com.google.android.exoplayer2.extractor.DefaultTrackOutput.UpstreamFormatChangedListener;
 import com.google.android.exoplayer2.extractor.ExtractorOutput;
 import com.google.android.exoplayer2.extractor.SeekMap;
 import com.google.android.exoplayer2.source.AdaptiveMediaSourceEventListener.EventDispatcher;
+import com.google.android.exoplayer2.source.SampleQueue;
+import com.google.android.exoplayer2.source.SampleQueue.UpstreamFormatChangedListener;
 import com.google.android.exoplayer2.source.SampleStream;
 import com.google.android.exoplayer2.source.SequenceableLoader;
 import com.google.android.exoplayer2.source.TrackGroup;
@@ -81,7 +81,7 @@ import java.util.LinkedList;
   private final Loader loader;
   private final EventDispatcher eventDispatcher;
   private final HlsChunkSource.HlsChunkHolder nextChunkHolder;
-  private final SparseArray<DefaultTrackOutput> sampleQueues;
+  private final SparseArray<SampleQueue> sampleQueues;
   private final LinkedList<HlsMediaChunk> mediaChunks;
   private final Runnable maybeFinishPrepareRunnable;
   private final Handler handler;
@@ -282,7 +282,7 @@ import java.util.LinkedList;
   // SampleStream implementation.
 
   /* package */ boolean isReady(int group) {
-    return loadingFinished || (!isPendingReset() && !sampleQueues.valueAt(group).isEmpty());
+    return loadingFinished || (!isPendingReset() && sampleQueues.valueAt(group).hasNextSample());
   }
 
   /* package */ void maybeThrowError() throws IOException {
@@ -296,24 +296,26 @@ import java.util.LinkedList;
       return C.RESULT_NOTHING_READ;
     }
 
-    while (mediaChunks.size() > 1 && finishedReadingChunk(mediaChunks.getFirst())) {
-      mediaChunks.removeFirst();
+    if (!mediaChunks.isEmpty()) {
+      while (mediaChunks.size() > 1 && finishedReadingChunk(mediaChunks.getFirst())) {
+        mediaChunks.removeFirst();
+      }
+      HlsMediaChunk currentChunk = mediaChunks.getFirst();
+      Format trackFormat = currentChunk.trackFormat;
+      if (!trackFormat.equals(downstreamTrackFormat)) {
+        eventDispatcher.downstreamFormatChanged(trackType, trackFormat,
+            currentChunk.trackSelectionReason, currentChunk.trackSelectionData,
+            currentChunk.startTimeUs);
+      }
+      downstreamTrackFormat = trackFormat;
     }
-    HlsMediaChunk currentChunk = mediaChunks.getFirst();
-    Format trackFormat = currentChunk.trackFormat;
-    if (!trackFormat.equals(downstreamTrackFormat)) {
-      eventDispatcher.downstreamFormatChanged(trackType, trackFormat,
-          currentChunk.trackSelectionReason, currentChunk.trackSelectionData,
-          currentChunk.startTimeUs);
-    }
-    downstreamTrackFormat = trackFormat;
 
     return sampleQueues.valueAt(group).readData(formatHolder, buffer, requireFormat,
         loadingFinished, lastSeekPositionUs);
   }
 
   /* package */ void skipData(int group, long positionUs) {
-    DefaultTrackOutput sampleQueue = sampleQueues.valueAt(group);
+    SampleQueue sampleQueue = sampleQueues.valueAt(group);
     if (loadingFinished && positionUs > sampleQueue.getLargestQueuedTimestampUs()) {
       sampleQueue.skipAll();
     } else {
@@ -348,6 +350,7 @@ import java.util.LinkedList;
     nextChunkHolder.clear();
 
     if (endOfStream) {
+      pendingResetPositionUs = C.TIME_UNSET;
       loadingFinished = true;
       return true;
     }
@@ -468,15 +471,15 @@ import java.util.LinkedList;
   // ExtractorOutput implementation. Called by the loading thread.
 
   @Override
-  public DefaultTrackOutput track(int id, int type) {
+  public SampleQueue track(int id, int type) {
     if (sampleQueues.indexOfKey(id) >= 0) {
       return sampleQueues.get(id);
     }
-    DefaultTrackOutput trackOutput = new DefaultTrackOutput(allocator);
-    trackOutput.setUpstreamFormatChangeListener(this);
-    trackOutput.sourceId(upstreamChunkUid);
-    sampleQueues.put(id, trackOutput);
-    return trackOutput;
+    SampleQueue sampleQueue = new SampleQueue(allocator);
+    sampleQueue.setUpstreamFormatChangeListener(this);
+    sampleQueue.sourceId(upstreamChunkUid);
+    sampleQueues.put(id, sampleQueue);
+    return sampleQueue;
   }
 
   @Override

@@ -30,5 +30,6 @@ track 1:
     time = 0
     flags = 1073741824
     data = length 39, hash B7FE77F4
+    crypto mode = 1
     encryption key = length 16, hash 4CE944CF
 tracksEnded = true

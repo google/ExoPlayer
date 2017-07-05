@@ -22,4 +22,7 @@
   <string name="exo_controls_stop_description">"አቁም"</string>
   <string name="exo_controls_rewind_description">"ወደኋላ አጠንጥን"</string>
   <string name="exo_controls_fastforward_description">"በፍጥነት አሳልፍ"</string>
+  <string name="exo_controls_repeat_all_description">"ሁሉንም ድገም"</string>
+  <string name="exo_controls_repeat_off_description">"ምንም አትድገም"</string>
+  <string name="exo_controls_repeat_one_description">"አንዱን ድገም"</string>
 </resources>

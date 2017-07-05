@@ -55,8 +55,10 @@ public interface MediaPeriod extends SequenceableLoader {
    *
    * @param callback Callback to receive updates from this period, including being notified when
    *     preparation completes.
+   * @param positionUs The position in microseconds relative to the start of the period at which to
+   *     start loading data.
    */
-  void prepare(Callback callback);
+  void prepare(Callback callback, long positionUs);
 
   /**
    * Throws an error that's preventing the period from becoming prepared. Does nothing if no such
@@ -106,6 +108,8 @@ public interface MediaPeriod extends SequenceableLoader {
 
   /**
    * Discards buffered media up to the specified position.
+   * <p>
+   * This method should only be called after the period has been prepared.
    *
    * @param positionUs The position in microseconds.
    */
@@ -116,6 +120,8 @@ public interface MediaPeriod extends SequenceableLoader {
    * <p>
    * After this method has returned a value other than {@link C#TIME_UNSET}, all
    * {@link SampleStream}s provided by the period are guaranteed to start from a key frame.
+   * <p>
+   * This method should only be called after the period has been prepared.
    *
    * @return If a discontinuity was read then the playback position in microseconds after the
    *     discontinuity. Else {@link C#TIME_UNSET}.
@@ -162,9 +168,9 @@ public interface MediaPeriod extends SequenceableLoader {
    * This method may be called both during and after the period has been prepared.
    * <p>
    * A period may call {@link Callback#onContinueLoadingRequested(SequenceableLoader)} on the
-   * {@link Callback} passed to {@link #prepare(Callback)} to request that this method be called
-   * when the period is permitted to continue loading data. A period may do this both during and
-   * after preparation.
+   * {@link Callback} passed to {@link #prepare(Callback, long)} to request that this method be
+   * called when the period is permitted to continue loading data. A period may do this both during
+   * and after preparation.
    *
    * @param positionUs The current playback position.
    * @return True if progress was made, meaning that {@link #getNextLoadPositionUs()} will return

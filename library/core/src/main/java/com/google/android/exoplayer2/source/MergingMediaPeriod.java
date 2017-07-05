@@ -44,11 +44,11 @@ import java.util.IdentityHashMap;
   }
 
   @Override
-  public void prepare(Callback callback) {
+  public void prepare(Callback callback, long positionUs) {
     this.callback = callback;
     pendingChildPrepareCount = periods.length;
     for (MediaPeriod period : periods) {
-      period.prepare(this);
+      period.prepare(this, positionUs);
     }
   }
 

@@ -16,6 +16,7 @@
 package com.google.android.exoplayer2.extractor.mp4;
 
 import android.support.annotation.IntDef;
+import android.support.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import java.lang.annotation.Retention;
@@ -78,11 +79,6 @@ public final class Track {
   @Transformation public final int sampleTransformation;
 
   /**
-   * Track encryption boxes for the different track sample descriptions. Entries may be null.
-   */
-  public final TrackEncryptionBox[] sampleDescriptionEncryptionBoxes;
-
-  /**
    * Durations of edit list segments in the movie timescale. Null if there is no edit list.
    */
   public final long[] editListDurations;
@@ -98,9 +94,11 @@ public final class Track {
    */
   public final int nalUnitLengthFieldLength;
 
+  @Nullable private final TrackEncryptionBox[] sampleDescriptionEncryptionBoxes;
+
   public Track(int id, int type, long timescale, long movieTimescale, long durationUs,
       Format format, @Transformation int sampleTransformation,
-      TrackEncryptionBox[] sampleDescriptionEncryptionBoxes, int nalUnitLengthFieldLength,
+      @Nullable TrackEncryptionBox[] sampleDescriptionEncryptionBoxes, int nalUnitLengthFieldLength,
       long[] editListDurations, long[] editListMediaTimes) {
     this.id = id;
     this.type = type;
@@ -113,6 +111,18 @@ public final class Track {
     this.nalUnitLengthFieldLength = nalUnitLengthFieldLength;
     this.editListDurations = editListDurations;
     this.editListMediaTimes = editListMediaTimes;
+  }
+
+  /**
+   * Returns the {@link TrackEncryptionBox} for the given sample description index.
+   *
+   * @param sampleDescriptionIndex The given sample description index
+   * @return The {@link TrackEncryptionBox} for the given sample description index. Maybe null if no
+   *     such entry exists.
+   */
+  public TrackEncryptionBox getSampleDescriptionEncryptionBox(int sampleDescriptionIndex) {
+    return sampleDescriptionEncryptionBoxes == null ? null
+        : sampleDescriptionEncryptionBoxes[sampleDescriptionIndex];
   }
 
 }

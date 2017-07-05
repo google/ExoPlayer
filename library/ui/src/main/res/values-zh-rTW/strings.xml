@@ -22,4 +22,7 @@
   <string name="exo_controls_stop_description">"停止"</string>
   <string name="exo_controls_rewind_description">"倒轉"</string>
   <string name="exo_controls_fastforward_description">"快轉"</string>
+  <string name="exo_controls_repeat_all_description">"重複播放所有媒體項目"</string>
+  <string name="exo_controls_repeat_off_description">"不重複播放"</string>
+  <string name="exo_controls_repeat_one_description">"重複播放單一媒體項目"</string>
 </resources>
