@@ -79,6 +79,7 @@
     <attr name="buffered_color" format="color"/>
     <attr name="unplayed_color" format="color"/>
     <attr name="ad_marker_color" format="color"/>
+    <attr name="played_ad_marker_color" format="color"/>
   </declare-styleable>
 
 </resources>

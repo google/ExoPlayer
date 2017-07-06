@@ -76,6 +76,7 @@ public class DefaultTimeBar extends View implements TimeBar {
   private final Paint bufferedPaint;
   private final Paint unplayedPaint;
   private final Paint adMarkerPaint;
+  private final Paint playedAdMarkerPaint;
   private final Paint scrubberPaint;
   private final int barHeight;
   private final int touchTargetHeight;
@@ -103,6 +104,7 @@ public class DefaultTimeBar extends View implements TimeBar {
   private long bufferedPosition;
   private int adGroupCount;
   private long[] adGroupTimesMs;
+  private boolean[] playedAdGroups;
 
   /**
    * Creates a new time bar.
@@ -117,6 +119,7 @@ public class DefaultTimeBar extends View implements TimeBar {
     bufferedPaint = new Paint();
     unplayedPaint = new Paint();
     adMarkerPaint = new Paint();
+    playedAdMarkerPaint = new Paint();
     scrubberPaint = new Paint();
     scrubberPaint.setAntiAlias(true);
 
@@ -155,11 +158,14 @@ public class DefaultTimeBar extends View implements TimeBar {
             getDefaultUnplayedColor(playedColor));
         int adMarkerColor = a.getInt(R.styleable.DefaultTimeBar_ad_marker_color,
             DEFAULT_AD_MARKER_COLOR);
+        int playedAdMarkerColor = a.getInt(R.styleable.DefaultTimeBar_played_ad_marker_color,
+            getDefaultPlayedAdMarkerColor(adMarkerColor));
         playedPaint.setColor(playedColor);
         scrubberPaint.setColor(scrubberColor);
         bufferedPaint.setColor(bufferedColor);
         unplayedPaint.setColor(unplayedColor);
         adMarkerPaint.setColor(adMarkerColor);
+        playedAdMarkerPaint.setColor(playedAdMarkerColor);
       } finally {
         a.recycle();
       }
@@ -238,10 +244,13 @@ public class DefaultTimeBar extends View implements TimeBar {
   }
 
   @Override
-  public void setAdGroupTimesMs(@Nullable long[] adGroupTimesMs, int adGroupCount) {
-    Assertions.checkArgument(adGroupCount == 0 || adGroupTimesMs != null);
+  public void setAdGroupTimesMs(@Nullable long[] adGroupTimesMs, @Nullable boolean[] playedAdGroups,
+      int adGroupCount) {
+    Assertions.checkArgument(adGroupCount == 0
+        || (adGroupTimesMs != null && playedAdGroups != null));
     this.adGroupCount = adGroupCount;
     this.adGroupTimesMs = adGroupTimesMs;
+    this.playedAdGroups = playedAdGroups;
     update();
   }
 
@@ -524,7 +533,8 @@ public class DefaultTimeBar extends View implements TimeBar {
           (int) (progressBar.width() * adGroupTimeMs / duration) - adMarkerOffset;
       int markerLeft = progressBar.left + Math.min(progressBar.width() - adMarkerWidth,
           Math.max(0, markerPositionOffset));
-      canvas.drawRect(markerLeft, barTop, markerLeft + adMarkerWidth, barBottom, adMarkerPaint);
+      Paint paint = playedAdGroups[i] ? playedAdMarkerPaint : adMarkerPaint;
+      canvas.drawRect(markerLeft, barTop, markerLeft + adMarkerWidth, barBottom, paint);
     }
   }
 
@@ -588,6 +598,10 @@ public class DefaultTimeBar extends View implements TimeBar {
 
   private static int getDefaultBufferedColor(int playedColor) {
     return 0xCC000000 | (playedColor & 0x00FFFFFF);
+  }
+
+  private static int getDefaultPlayedAdMarkerColor(int adMarkerColor) {
+    return 0x33000000 | (adMarkerColor & 0x00FFFFFF);
   }
 
 }
