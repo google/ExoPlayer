@@ -313,6 +313,7 @@ public class PlaybackControlView extends FrameLayout {
   private @RepeatToggleModes int repeatToggleModes;
   private long hideAtMs;
   private long[] adGroupTimesMs;
+  private boolean[] playedAdGroups;
 
   private final Runnable updateProgressAction = new Runnable() {
     @Override
@@ -364,6 +365,7 @@ public class PlaybackControlView extends FrameLayout {
     formatBuilder = new StringBuilder();
     formatter = new Formatter(formatBuilder, Locale.getDefault());
     adGroupTimesMs = new long[0];
+    playedAdGroups = new boolean[0];
     componentListener = new ComponentListener();
     controlDispatcher = DEFAULT_CONTROL_DISPATCHER;
 
@@ -724,10 +726,6 @@ public class PlaybackControlView extends FrameLayout {
             }
             for (int adGroupIndex = 0; adGroupIndex < period.getAdGroupCount(); adGroupIndex++) {
               long adGroupTimeUs = period.getAdGroupTimeUs(adGroupIndex);
-              if (period.hasPlayedAdGroup(adGroupIndex)) {
-                // Don't show played ad groups.
-                continue;
-              }
               if (adGroupTimeUs == C.TIME_END_OF_SOURCE) {
                 adGroupTimeUs = periodDurationUs;
               }
@@ -736,10 +734,13 @@ public class PlaybackControlView extends FrameLayout {
               }
               if (adGroupTimeUs >= 0 && adGroupTimeUs <= window.durationUs) {
                 if (adGroupTimesMsCount == adGroupTimesMs.length) {
-                  adGroupTimesMs = Arrays.copyOf(adGroupTimesMs,
-                      adGroupTimesMs.length == 0 ? 1 : adGroupTimesMs.length * 2);
+                  int newLength = adGroupTimesMs.length == 0 ? 1 : adGroupTimesMs.length * 2;
+                  adGroupTimesMs = Arrays.copyOf(adGroupTimesMs, newLength);
+                  playedAdGroups = Arrays.copyOf(playedAdGroups, newLength);
                 }
-                adGroupTimesMs[adGroupTimesMsCount++] = C.usToMs(durationUs + adGroupTimeUs);
+                adGroupTimesMs[adGroupTimesMsCount] = C.usToMs(durationUs + adGroupTimeUs);
+                playedAdGroups[adGroupTimesMsCount] = period.hasPlayedAdGroup(adGroupIndex);
+                adGroupTimesMsCount++;
               }
             }
             if (i < periodIndex) {
@@ -757,7 +758,7 @@ public class PlaybackControlView extends FrameLayout {
           bufferedPosition += player.getBufferedPosition();
         }
         if (timeBar != null) {
-          timeBar.setAdGroupTimesMs(adGroupTimesMs, adGroupTimesMsCount);
+          timeBar.setAdGroupTimesMs(adGroupTimesMs, playedAdGroups, adGroupTimesMsCount);
         }
       } else {
         position = player.getCurrentPosition();

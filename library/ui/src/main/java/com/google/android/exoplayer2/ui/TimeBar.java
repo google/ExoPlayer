@@ -78,13 +78,17 @@ public interface TimeBar {
   void setDuration(long duration);
 
   /**
-   * Sets the times of ad groups.
+   * Sets the times of ad groups and whether each ad group has been played.
    *
    * @param adGroupTimesMs An array where the first {@code adGroupCount} elements are the times of
    *     ad groups in milliseconds. May be {@code null} if there are no ad groups.
+   * @param playedAdGroups An array where the first {@code adGroupCount} elements indicate whether
+   *     the corresponding ad groups have been played. May be {@code null} if there are no ad
+   *     groups.
    * @param adGroupCount The number of ad groups.
    */
-  void setAdGroupTimesMs(@Nullable long[] adGroupTimesMs, int adGroupCount);
+  void setAdGroupTimesMs(@Nullable long[] adGroupTimesMs, @Nullable boolean[] playedAdGroups,
+      int adGroupCount);
 
   /**
    * Listener for scrubbing events.
