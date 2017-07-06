@@ -21,6 +21,7 @@ import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.extractor.ExtractorOutput;
 import com.google.android.exoplayer2.extractor.TrackOutput;
 import com.google.android.exoplayer2.extractor.ts.TsPayloadReader.TrackIdGenerator;
+import com.google.android.exoplayer2.text.cea.CeaUtil;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.NalUnitUtil;
 import com.google.android.exoplayer2.util.NalUnitUtil.SpsData;
@@ -203,7 +204,7 @@ public final class H264Reader implements ElementaryStreamReader {
       int unescapedLength = NalUnitUtil.unescapeStream(sei.nalData, sei.nalLength);
       seiWrapper.reset(sei.nalData, unescapedLength);
       seiWrapper.setPosition(4); // NAL prefix and nal_unit() header.
-      seiReader.consume(pesTimeUs, seiWrapper);
+      seiReader.consume(pesTimeUs, seiWrapper, CeaUtil.MODE_H264);
     }
     sampleReader.endNalUnit(position, offset);
   }

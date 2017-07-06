@@ -25,6 +25,10 @@ import com.google.android.exoplayer2.util.ParsableByteArray;
  */
 public final class CeaUtil {
 
+  public static final int MODE_H262 = 1;
+  public static final int MODE_H264 = 2;
+  public static final int MODE_H265 = MODE_H264;
+
   private static final String TAG = "CeaUtil";
 
   private static final int PAYLOAD_TYPE_CC = 4;
@@ -32,6 +36,26 @@ public final class CeaUtil {
   private static final int PROVIDER_CODE = 0x31;
   private static final int USER_ID = 0x47413934; // "GA94"
   private static final int USER_DATA_TYPE_CODE = 0x3;
+
+  public static void consume(long presentationTimeUs, ParsableByteArray buffer,
+      TrackOutput[] outputs, int mode) {
+    switch (mode) {
+      case MODE_H262:
+        consumeUserData(presentationTimeUs, buffer, outputs);
+        break;
+      case MODE_H264:
+        consumeSei(presentationTimeUs, buffer, outputs);
+        break;
+      default:
+        Log.w(TAG, "Unknown mode: " + mode);
+        break;
+    }
+  }
+
+  public static void consume(long presentationTimeUs, ParsableByteArray buffer,
+      TrackOutput[] outputs) {
+    consume(presentationTimeUs, buffer, outputs, MODE_H264);
+  }
 
   /**
    * Consumes the unescaped content of an SEI NAL unit, writing the content of any CEA-608 messages
@@ -41,7 +65,7 @@ public final class CeaUtil {
    * @param seiBuffer The unescaped SEI NAL unit data, excluding the NAL unit start code and type.
    * @param outputs The outputs to which any samples should be written.
    */
-  public static void consume(long presentationTimeUs, ParsableByteArray seiBuffer,
+  private static void consumeSei(long presentationTimeUs, ParsableByteArray seiBuffer,
       TrackOutput[] outputs) {
     while (seiBuffer.bytesLeft() > 1 /* last byte will be rbsp_trailing_bits */) {
       int payloadType = readNon255TerminatedValue(seiBuffer);
@@ -55,25 +79,40 @@ public final class CeaUtil {
         // Ignore country_code (1) + provider_code (2) + user_identifier (4)
         // + user_data_type_code (1).
         seiBuffer.skipBytes(8);
-        // Ignore first three bits: reserved (1) + process_cc_data_flag (1) + zero_bit (1).
-        int ccCount = seiBuffer.readUnsignedByte() & 0x1F;
-        // Ignore em_data (1)
-        seiBuffer.skipBytes(1);
-        // Each data packet consists of 24 bits: marker bits (5) + cc_valid (1) + cc_type (2)
-        // + cc_data_1 (8) + cc_data_2 (8).
-        int sampleLength = ccCount * 3;
-        int sampleStartPosition = seiBuffer.getPosition();
-        for (TrackOutput output : outputs) {
-          seiBuffer.setPosition(sampleStartPosition);
-          output.sampleData(seiBuffer, sampleLength);
-          output.sampleMetadata(presentationTimeUs, C.BUFFER_FLAG_KEY_FRAME, sampleLength, 0, null);
-        }
+        // Consume closed-captions data.
+        int ccCount = consumeCea608Data(presentationTimeUs, seiBuffer, outputs);
         // Ignore trailing information in SEI, if any.
         seiBuffer.skipBytes(payloadSize - (10 + ccCount * 3));
       } else {
         seiBuffer.skipBytes(payloadSize);
       }
     }
+  }
+
+  private static void consumeUserData(long presentationTimeUs, ParsableByteArray userDataBuffer,
+      TrackOutput[] outputs) {
+    if (isUserDataCea608(userDataBuffer)) {
+      userDataBuffer.skipBytes(5);
+      consumeCea608Data(presentationTimeUs, userDataBuffer, outputs);
+    }
+  }
+
+  private static int consumeCea608Data(long presentationTimeUs, ParsableByteArray buffer,
+      TrackOutput[] outputs) {
+    // Ignore first three bits: reserved (1) + process_cc_data_flag (1) + zero_bit (1).
+    int ccCount = buffer.readUnsignedByte() & 0x1F;
+    // Ignore em_data (1)
+    buffer.skipBytes(1);
+    // Each data packet consists of 24 bits: marker bits (5) + cc_valid (1) + cc_type (2)
+    // + cc_data_1 (8) + cc_data_2 (8).
+    int sampleLength = ccCount * 3;
+    int sampleStartPosition = buffer.getPosition();
+    for (TrackOutput output : outputs) {
+      buffer.setPosition(sampleStartPosition);
+      output.sampleData(buffer, sampleLength);
+      output.sampleMetadata(presentationTimeUs, C.BUFFER_FLAG_KEY_FRAME, sampleLength, 0, null);
+    }
+    return ccCount;
   }
 
   /**
@@ -120,6 +159,18 @@ public final class CeaUtil {
     payload.setPosition(startPosition);
     return countryCode == COUNTRY_CODE && providerCode == PROVIDER_CODE
         && userIdentifier == USER_ID && userDataTypeCode == USER_DATA_TYPE_CODE;
+  }
+
+  private static boolean isUserDataCea608(ParsableByteArray userData) {
+    if (userData.bytesLeft() < 5) {
+      // Need at least 5 bytes: USER_ID + USER_DATA_TYPE_CODE
+      return false;
+    }
+    int startPosition = userData.getPosition();
+    int userIdentifier = userData.readInt();
+    int userDataTypeCode = userData.readUnsignedByte();
+    userData.setPosition(startPosition);
+    return userIdentifier == USER_ID && userDataTypeCode == USER_DATA_TYPE_CODE;
   }
 
   private CeaUtil() {}
