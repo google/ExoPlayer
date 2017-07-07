@@ -159,7 +159,7 @@ public final class TsExtractorTest extends InstrumentationTestCase {
         esReader = new CustomEsReader(esInfo.language);
         return new PesReader(esReader);
       } else {
-        return defaultFactory.createPayloadReader(streamType, esInfo);
+        return defaultFactory.createPayloadReader(streamType, esInfo, null);
       }
     }
 

@@ -473,7 +473,7 @@ public final class TsExtractor implements Extractor {
         }
 
         TsPayloadReader reader = mode == MODE_HLS && streamType == TS_STREAM_TYPE_ID3 ? id3Reader
-            : payloadReaderFactory.createPayloadReader(streamType, esInfo);
+            : payloadReaderFactory.createPayloadReader(streamType, esInfo, null);
         if (mode != MODE_HLS
             || elementaryPid < trackIdToPidScratch.get(trackId, MAX_PID_PLUS_ONE)) {
           trackIdToPidScratch.put(trackId, elementaryPid);

@@ -820,7 +820,7 @@ public final class C {
         System.arraycopy(buffer, offset, temp_iv, 0, C.AES_BLOCK_LENGTH_BYTES);
 
         byte[] encryptData = new byte[encryptSize];
-        System.arraycopy(buffer, ptr, encryptData, 0, encryptSize);
+        System.arraycopy(buffer, offset, encryptData, 0, encryptSize);
         byte[] decrypted = AES_CBC(encryptData, encrytionKey, packet_iv, false);
         Assertions.checkArgument(decrypted.length % C.AES_BLOCK_LENGTH_BYTES == 0);
         Assertions.checkArgument(decrypted.length == encryptSize);
