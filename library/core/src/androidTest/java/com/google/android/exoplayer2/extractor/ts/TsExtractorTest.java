@@ -29,6 +29,7 @@ import com.google.android.exoplayer2.testutil.FakeExtractorInput;
 import com.google.android.exoplayer2.testutil.FakeExtractorOutput;
 import com.google.android.exoplayer2.testutil.FakeTrackOutput;
 import com.google.android.exoplayer2.testutil.TestUtil;
+import com.google.android.exoplayer2.util.HLSEncryptInfo;
 import com.google.android.exoplayer2.util.ParsableByteArray;
 import com.google.android.exoplayer2.util.TimestampAdjuster;
 import java.io.ByteArrayOutputStream;
@@ -154,12 +155,12 @@ public final class TsExtractorTest extends InstrumentationTestCase {
     }
 
     @Override
-    public TsPayloadReader createPayloadReader(int streamType, EsInfo esInfo) {
+    public TsPayloadReader createPayloadReader(int streamType, EsInfo esInfo, HLSEncryptInfo hlsEncryptInfo) {
       if (provideCustomEsReader && streamType == 3) {
         esReader = new CustomEsReader(esInfo.language);
         return new PesReader(esReader);
       } else {
-        return defaultFactory.createPayloadReader(streamType, esInfo, null);
+        return defaultFactory.createPayloadReader(streamType, esInfo, hlsEncryptInfo);
       }
     }
 
