@@ -64,8 +64,6 @@ public final class SonicAudioProcessor implements AudioProcessor {
   private long outputBytes;
   private boolean inputEnded;
 
-  private boolean isActive = true;
-
   /**
    * Creates a new Sonic audio processor.
    */
@@ -116,16 +114,9 @@ public final class SonicAudioProcessor implements AudioProcessor {
   }
 
   @Override
-  public boolean configure(int sampleRateHz, int channelCount, @Encoding int encoding,
-      @C.PcmEncoding int outputEncoding)
+  public boolean configure(int sampleRateHz, int channelCount, @Encoding int encoding)
       throws UnhandledFormatException {
-    isActive = true;
     if (encoding != C.ENCODING_PCM_16BIT) {
-      if (encoding == C.ENCODING_PCM_24BIT || encoding == C.ENCODING_PCM_32BIT ||
-         encoding == C.ENCODING_PCM_FLOAT) {
-        isActive = false;
-        return false;
-      }
       throw new UnhandledFormatException(sampleRateHz, channelCount, encoding);
     }
     if (this.sampleRateHz == sampleRateHz && this.channelCount == channelCount) {
@@ -138,7 +129,7 @@ public final class SonicAudioProcessor implements AudioProcessor {
 
   @Override
   public boolean isActive() {
-    return isActive && (Math.abs(speed - 1f) >= CLOSE_THRESHOLD || Math.abs(pitch - 1f) >= CLOSE_THRESHOLD);
+    return (Math.abs(speed - 1f) >= CLOSE_THRESHOLD || Math.abs(pitch - 1f) >= CLOSE_THRESHOLD);
   }
 
   @Override
