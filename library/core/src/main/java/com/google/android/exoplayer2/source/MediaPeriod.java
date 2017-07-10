@@ -106,6 +106,8 @@ public interface MediaPeriod extends SequenceableLoader {
 
   /**
    * Discards buffered media up to the specified position.
+   * <p>
+   * This method should only be called after the period has been prepared.
    *
    * @param positionUs The position in microseconds.
    */
@@ -116,6 +118,8 @@ public interface MediaPeriod extends SequenceableLoader {
    * <p>
    * After this method has returned a value other than {@link C#TIME_UNSET}, all
    * {@link SampleStream}s provided by the period are guaranteed to start from a key frame.
+   * <p>
+   * This method should only be called after the period has been prepared.
    *
    * @return If a discontinuity was read then the playback position in microseconds after the
    *     discontinuity. Else {@link C#TIME_UNSET}.

@@ -1,11 +1,29 @@
 # Release notes #
 
+### r2.4.3 ###
+
+* Audio: Workaround custom audio decoders misreporting their maximum supported
+  channel counts ([#2940](https://github.com/google/ExoPlayer/issues/2940)).
+* Audio: Workaround for broken MediaTek raw decoder on some devices
+  ([#2873](https://github.com/google/ExoPlayer/issues/2873)).
+* Captions: Fix TTML captions appearing at the top of the screen
+  ([#2953](https://github.com/google/ExoPlayer/issues/2953)).
+* Captions: Fix handling of some DVB subtitles
+  ([#2957](https://github.com/google/ExoPlayer/issues/2957)).
+* Track selection: Fix setSelectionOverride(index, tracks, null)
+  ([#2988](https://github.com/google/ExoPlayer/issues/2988)).
+* GVR extension: Add support for mono input
+  ([#2710](https://github.com/google/ExoPlayer/issues/2710)).
+* FLAC extension: Fix failing build
+  ([#2977](https://github.com/google/ExoPlayer/pull/2977)).
+* Misc bugfixes.
+
 ### r2.4.2 ###
 
 * Stability: Work around Nexus 10 reboot when playing certain content
-  ([2806](https://github.com/google/ExoPlayer/issues/2806)).
+  ([#2806](https://github.com/google/ExoPlayer/issues/2806)).
 * MP3: Correctly treat MP3s with INFO headers as constant bitrate
-  ([2895](https://github.com/google/ExoPlayer/issues/2895)).
+  ([#2895](https://github.com/google/ExoPlayer/issues/2895)).
 * HLS: Use average rather than peak bandwidth when available
   ([#2863](https://github.com/google/ExoPlayer/issues/2863)).
 * SmoothStreaming: Fix timeline for live streams
