@@ -281,7 +281,6 @@ public final class AudioTrack {
   private final AudioCapabilities audioCapabilities;
   private final ChannelMappingAudioProcessor channelMappingAudioProcessor;
   private final SonicAudioProcessor sonicAudioProcessor;
-  private final AudioProcessor[] hqAvailableAudioProcessors;
   private final AudioProcessor[] availableAudioProcessors;
   private final Listener listener;
   private final ConditionVariable releasingConditionVariable;
@@ -360,20 +359,6 @@ public final class AudioTrack {
    */
   public AudioTrack(AudioCapabilities audioCapabilities, AudioProcessor[] audioProcessors,
       Listener listener) {
-    this(audioCapabilities, audioProcessors, new AudioProcessor[0], listener);
-  }
-
-  /**
-   * @param audioCapabilities The audio capabilities for playback on this device. May be null if the
-   *     default capabilities (no encoded audio passthrough support) should be assumed.
-   * @param audioProcessors An array of {@link AudioProcessor}s that will process PCM audio before
-   *     output. May be empty.
-   * @param hqAudioProcessors An array of {@link AudioProcessor}s that will process PCM audio before
-   *     output when in HQ PCM Float output. May be empty.
-   * @param listener Listener for audio track events.
-   */
-  public AudioTrack(AudioCapabilities audioCapabilities, AudioProcessor[] audioProcessors,
-      AudioProcessor[] hqAudioProcessors, Listener listener) {
     this.audioCapabilities = audioCapabilities;
     this.listener = listener;
     releasingConditionVariable = new ConditionVariable(true);
@@ -392,14 +377,12 @@ public final class AudioTrack {
     }
     channelMappingAudioProcessor = new ChannelMappingAudioProcessor();
     sonicAudioProcessor = new SonicAudioProcessor();
-    hqAvailableAudioProcessors = new AudioProcessor[1 + hqAudioProcessors.length];
-    hqAvailableAudioProcessors[0] = new FloatResamplingAudioProcessor();
-    System.arraycopy(hqAudioProcessors, 0, hqAvailableAudioProcessors, 1, hqAudioProcessors.length);
-    availableAudioProcessors = new AudioProcessor[3 + audioProcessors.length];
+    availableAudioProcessors = new AudioProcessor[4 + audioProcessors.length];
     availableAudioProcessors[0] = new ResamplingAudioProcessor();
-    availableAudioProcessors[1] = channelMappingAudioProcessor;
-    System.arraycopy(audioProcessors, 0, availableAudioProcessors, 2, audioProcessors.length);
-    availableAudioProcessors[2 + audioProcessors.length] = sonicAudioProcessor;
+    availableAudioProcessors[1] = new FloatResamplingAudioProcessor();
+    availableAudioProcessors[2] = channelMappingAudioProcessor;
+    System.arraycopy(audioProcessors, 0, availableAudioProcessors, 3, audioProcessors.length);
+    availableAudioProcessors[3 + audioProcessors.length] = sonicAudioProcessor;
     playheadOffsets = new long[MAX_PLAYHEAD_OFFSET_COUNT];
     volume = 1.0f;
     startMediaTimeState = START_NOT_SET;
@@ -515,14 +498,10 @@ public final class AudioTrack {
     if (!passthrough) {
       pcmFrameSize = Util.getPcmFrameSize(pcmEncoding, channelCount);
       channelMappingAudioProcessor.setChannelMap(outputChannels);
-      AudioProcessor[] processors;
-      if (C.ENCODING_PCM_FLOAT == outputEncoding)
-        processors = hqAvailableAudioProcessors;
-      else
-        processors = availableAudioProcessors;
-      for (AudioProcessor audioProcessor : processors) {
+      for (AudioProcessor audioProcessor : availableAudioProcessors) {
         try {
-          flush |= audioProcessor.configure(sampleRate, channelCount, encoding);
+          if (outputEncoding == audioProcessor.getOutputEncoding())
+            flush |= audioProcessor.configure(sampleRate, channelCount, encoding);
         } catch (AudioProcessor.UnhandledFormatException e) {
           throw new ConfigurationException(e);
         }
@@ -639,11 +618,8 @@ public final class AudioTrack {
 
   private void resetAudioProcessors() {
     ArrayList<AudioProcessor> newAudioProcessors = new ArrayList<>();
-
-    AudioProcessor[] processors = outputEncoding == C.ENCODING_PCM_FLOAT ?
-     hqAvailableAudioProcessors : availableAudioProcessors;
-    for (AudioProcessor audioProcessor : processors) {
-      if (audioProcessor.isActive()) {
+    for (AudioProcessor audioProcessor : availableAudioProcessors) {
+      if (outputEncoding == audioProcessor.getOutputEncoding() && audioProcessor.isActive()) {
         newAudioProcessors.add(audioProcessor);
       } else {
         audioProcessor.flush();
@@ -1220,9 +1196,6 @@ public final class AudioTrack {
     reset();
     releaseKeepSessionIdAudioTrack();
     for (AudioProcessor audioProcessor : availableAudioProcessors) {
-      audioProcessor.reset();
-    }
-    for (AudioProcessor audioProcessor : hqAvailableAudioProcessors) {
       audioProcessor.reset();
     }
     audioSessionId = C.AUDIO_SESSION_ID_UNSET;
