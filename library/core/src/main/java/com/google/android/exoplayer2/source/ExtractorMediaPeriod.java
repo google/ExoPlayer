@@ -219,6 +219,10 @@ import java.util.Arrays;
         if (!seekRequired) {
           SampleQueue sampleQueue = sampleQueues[track];
           sampleQueue.rewind();
+          // A seek can be avoided if we're able to advance to the current playback position in the
+          // sample queue, or if we haven't read anything from the queue since the previous seek
+          // (this case is common for sparse tracks such as metadata tracks). In all other cases a
+          // seek is required.
           seekRequired = !sampleQueue.advanceTo(positionUs, true, true)
               && sampleQueue.getReadIndex() != 0;
         }

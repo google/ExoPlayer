@@ -47,7 +47,7 @@ import java.util.LinkedList;
  * {@link SampleStream}s from which the loaded media can be consumed.
  */
 /* package */ final class HlsSampleStreamWrapper implements Loader.Callback<Chunk>,
-    SequenceableLoader, ExtractorOutput, UpstreamFormatChangedListener {
+    Loader.ReleaseCallback, SequenceableLoader, ExtractorOutput, UpstreamFormatChangedListener {
 
   /**
    * A callback to be notified of events.
@@ -165,21 +165,42 @@ import java.util.LinkedList;
     return trackGroups;
   }
 
+  /**
+   * Called by the parent {@link HlsMediaPeriod} when a track selection occurs.
+   *
+   * @param selections The renderer track selections.
+   * @param mayRetainStreamFlags Flags indicating whether the existing sample stream can be retained
+   *     for each selection. A {@code true} value indicates that the selection is unchanged, and
+   *     that the caller does not require that the sample stream be recreated.
+   * @param streams The existing sample streams, which will be updated to reflect the provided
+   *     selections.
+   * @param streamResetFlags Will be updated to indicate new sample streams, and sample streams that
+   *     have been retained but with the requirement that the consuming renderer be reset.
+   * @param positionUs The current playback position in microseconds.
+   * @param seenFirstTrackSelection Whether we've already had the first track selection, meaning
+   *     this is a subsequent selection.
+   * @param seekRequired Whether the parent {@link HlsMediaPeriod} is already guaranteed to perform
+   *     a seek as part of the track selection
+   * @return Whether this wrapper requires the parent {@link HlsMediaPeriod} to perform a seek as
+   *     part of the track selection.
+   */
   public boolean selectTracks(TrackSelection[] selections, boolean[] mayRetainStreamFlags,
-      SampleStream[] streams, boolean[] streamResetFlags, boolean isFirstTrackSelection) {
+      SampleStream[] streams, boolean[] streamResetFlags, long positionUs,
+      boolean seenFirstTrackSelection, boolean seekRequired) {
     Assertions.checkState(prepared);
-    // Disable old tracks.
+    int oldEnabledTrackCount = enabledTrackCount;
+    // Deselect old tracks.
     for (int i = 0; i < selections.length; i++) {
       if (streams[i] != null && (selections[i] == null || !mayRetainStreamFlags[i])) {
         int group = ((HlsSampleStream) streams[i]).group;
         setTrackGroupEnabledState(group, false);
-        sampleQueues.valueAt(group).disable();
         streams[i] = null;
       }
     }
-    // Enable new tracks.
+    // We'll always need to seek if we're making a selection having previously disabled all tracks.
+    seekRequired |= seenFirstTrackSelection && oldEnabledTrackCount == 0;
+    // Select new tracks.
     TrackSelection primaryTrackSelection = null;
-    boolean selectedNewTracks = false;
     for (int i = 0; i < selections.length; i++) {
       if (streams[i] == null && selections[i] != null) {
         TrackSelection selection = selections[i];
@@ -191,37 +212,60 @@ import java.util.LinkedList;
         }
         streams[i] = new HlsSampleStream(this, group);
         streamResetFlags[i] = true;
-        selectedNewTracks = true;
-      }
-    }
-    if (isFirstTrackSelection) {
-      // At the time of the first track selection all queues will be enabled, so we need to disable
-      // any that are no longer required.
-      int sampleQueueCount = sampleQueues.size();
-      for (int i = 0; i < sampleQueueCount; i++) {
-        if (!groupEnabledStates[i]) {
-          sampleQueues.valueAt(i).disable();
-        }
-      }
-      if (primaryTrackSelection != null && !mediaChunks.isEmpty()) {
-        primaryTrackSelection.updateSelectedTrack(0);
-        int chunkIndex = chunkSource.getTrackGroup().indexOf(mediaChunks.getLast().trackFormat);
-        if (primaryTrackSelection.getSelectedIndexInTrackGroup() != chunkIndex) {
-          // The loaded preparation chunk does match the selection. We discard it.
-          seekTo(lastSeekPositionUs);
+        // If there's still a chance of avoiding a seek, try and seek within the sample queue.
+        if (!seekRequired) {
+          SampleQueue sampleQueue = sampleQueues.valueAt(group);
+          sampleQueue.rewind();
+          // A seek can be avoided if we're able to advance to the current playback position in the
+          // sample queue, or if we haven't read anything from the queue since the previous seek
+          // (this case is common for sparse tracks such as metadata tracks). In all other cases a
+          // seek is required.
+          seekRequired = !sampleQueue.advanceTo(positionUs, true, true)
+              && sampleQueue.getReadIndex() != 0;
         }
       }
     }
-    // Cancel requests if necessary.
+
     if (enabledTrackCount == 0) {
       chunkSource.reset();
       downstreamTrackFormat = null;
       mediaChunks.clear();
+      int sampleQueueCount = sampleQueues.size();
       if (loader.isLoading()) {
+        // Discard as much as we can synchronously.
+        for (int i = 0; i < sampleQueueCount; i++) {
+          sampleQueues.valueAt(i).discardToEnd();
+        }
         loader.cancelLoading();
+      } else {
+        for (int i = 0; i < sampleQueueCount; i++) {
+          sampleQueues.valueAt(i).reset();
+        }
+      }
+      return false;
+    }
+
+    // If this is the first selection and the chunk loaded during preparation does not match the
+    // selection, we call seekTo to discard it. Note that if seekRequired is true then the wrapping
+    // HlsMediaPeriod will call seekTo regardless, and so we do not need to perform the selection
+    // check here.
+    if (!seekRequired && !seenFirstTrackSelection && primaryTrackSelection != null
+        && !mediaChunks.isEmpty()) {
+      primaryTrackSelection.updateSelectedTrack(0);
+      int chunkIndex = chunkSource.getTrackGroup().indexOf(mediaChunks.getLast().trackFormat);
+      if (primaryTrackSelection.getSelectedIndexInTrackGroup() != chunkIndex) {
+        // The loaded preparation chunk does not match the selection, so discard it.
+        seekTo(positionUs);
       }
     }
-    return selectedNewTracks;
+    return seekRequired;
+  }
+
+  public void discardBuffer(long positionUs) {
+    int sampleQueueCount = sampleQueues.size();
+    for (int i = 0; i < sampleQueueCount; i++) {
+      sampleQueues.valueAt(i).discardTo(positionUs, false, groupEnabledStates[i]);
+    }
   }
 
   public void seekTo(long positionUs) {
@@ -234,7 +278,7 @@ import java.util.LinkedList;
     } else {
       int sampleQueueCount = sampleQueues.size();
       for (int i = 0; i < sampleQueueCount; i++) {
-        sampleQueues.valueAt(i).reset(groupEnabledStates[i]);
+        sampleQueues.valueAt(i).reset();
       }
     }
   }
@@ -262,13 +306,25 @@ import java.util.LinkedList;
   }
 
   public void release() {
-    int sampleQueueCount = sampleQueues.size();
-    for (int i = 0; i < sampleQueueCount; i++) {
-      sampleQueues.valueAt(i).disable();
+    boolean releasedSynchronously = loader.release(this);
+    if (prepared && !releasedSynchronously) {
+      // Discard as much as we can synchronously. We only do this if we're prepared, since otherwise
+      // sampleQueues may still be being modified by the loading thread.
+      int sampleQueueCount = sampleQueues.size();
+      for (int i = 0; i < sampleQueueCount; i++) {
+        sampleQueues.valueAt(i).discardToEnd();
+      }
     }
-    loader.release();
     handler.removeCallbacksAndMessages(null);
     released = true;
+  }
+
+  @Override
+  public void onLoaderReleased() {
+    int sampleQueueCount = sampleQueues.size();
+    for (int i = 0; i < sampleQueueCount; i++) {
+      sampleQueues.valueAt(i).reset();
+    }
   }
 
   public void setIsTimestampMaster(boolean isTimestampMaster) {
@@ -310,16 +366,16 @@ import java.util.LinkedList;
       downstreamTrackFormat = trackFormat;
     }
 
-    return sampleQueues.valueAt(group).readData(formatHolder, buffer, requireFormat,
-        loadingFinished, lastSeekPositionUs);
+    return sampleQueues.valueAt(group).read(formatHolder, buffer, requireFormat, loadingFinished,
+        lastSeekPositionUs);
   }
 
   /* package */ void skipData(int group, long positionUs) {
     SampleQueue sampleQueue = sampleQueues.valueAt(group);
     if (loadingFinished && positionUs > sampleQueue.getLargestQueuedTimestampUs()) {
-      sampleQueue.skipAll();
+      sampleQueue.advanceToEnd();
     } else {
-      sampleQueue.skipToKeyframeBefore(positionUs, true);
+      sampleQueue.advanceTo(positionUs, true, true);
     }
   }
 
@@ -408,9 +464,11 @@ import java.util.LinkedList;
     if (!released) {
       int sampleQueueCount = sampleQueues.size();
       for (int i = 0; i < sampleQueueCount; i++) {
-        sampleQueues.valueAt(i).reset(groupEnabledStates[i]);
+        sampleQueues.valueAt(i).reset();
       }
-      callback.onContinueLoadingRequested(this);
+      if (enabledTrackCount > 0) {
+        callback.onContinueLoadingRequested(this);
+      }
     }
   }
 

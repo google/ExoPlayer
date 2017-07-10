@@ -53,6 +53,7 @@ public final class HlsMediaPeriod implements MediaPeriod, HlsSampleStreamWrapper
   private final Handler continueLoadingHandler;
 
   private Callback callback;
+  private long preparePositionUs;
   private int pendingPrepareCount;
   private boolean seenFirstTrackSelection;
   private TrackGroupArray trackGroups;
@@ -84,8 +85,9 @@ public final class HlsMediaPeriod implements MediaPeriod, HlsSampleStreamWrapper
 
   @Override
   public void prepare(Callback callback, long positionUs) {
-    playlistTracker.addListener(this);
     this.callback = callback;
+    playlistTracker.addListener(this);
+    preparePositionUs = positionUs;
     buildAndPrepareSampleStreamWrappers(positionUs);
   }
 
@@ -123,7 +125,9 @@ public final class HlsMediaPeriod implements MediaPeriod, HlsSampleStreamWrapper
         }
       }
     }
-    boolean selectedNewTracks = false;
+    // We'll always need to seek if this is a first selection to a position other than the prepare
+    // position.
+    boolean seekRequired = !seenFirstTrackSelection && positionUs != preparePositionUs;
     streamWrapperIndices.clear();
     // Select tracks for each child, copying the resulting streams back into a new streams array.
     SampleStream[] newStreams = new SampleStream[selections.length];
@@ -136,8 +140,8 @@ public final class HlsMediaPeriod implements MediaPeriod, HlsSampleStreamWrapper
         childStreams[j] = streamChildIndices[j] == i ? streams[j] : null;
         childSelections[j] = selectionChildIndices[j] == i ? selections[j] : null;
       }
-      selectedNewTracks |= sampleStreamWrappers[i].selectTracks(childSelections,
-          mayRetainStreamFlags, childStreams, streamResetFlags, !seenFirstTrackSelection);
+      seekRequired |= sampleStreamWrappers[i].selectTracks(childSelections, mayRetainStreamFlags,
+          childStreams, streamResetFlags, positionUs, seenFirstTrackSelection, seekRequired);
       boolean wrapperEnabled = false;
       for (int j = 0; j < selections.length; j++) {
         if (selectionChildIndices[j] == i) {
@@ -173,7 +177,7 @@ public final class HlsMediaPeriod implements MediaPeriod, HlsSampleStreamWrapper
     }
 
     sequenceableLoader = new CompositeSequenceableLoader(enabledSampleStreamWrappers);
-    if (seenFirstTrackSelection && selectedNewTracks) {
+    if (seekRequired) {
       seekToUs(positionUs);
       // We'll need to reset renderers consuming from all streams due to the seek.
       for (int i = 0; i < selections.length; i++) {
@@ -188,7 +192,9 @@ public final class HlsMediaPeriod implements MediaPeriod, HlsSampleStreamWrapper
 
   @Override
   public void discardBuffer(long positionUs) {
-    // Do nothing.
+    for (HlsSampleStreamWrapper sampleStreamWrapper : enabledSampleStreamWrappers) {
+      sampleStreamWrapper.discardBuffer(positionUs);
+    }
   }
 
   @Override

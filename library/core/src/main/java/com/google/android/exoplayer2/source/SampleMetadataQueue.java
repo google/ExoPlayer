@@ -83,11 +83,6 @@ import com.google.android.exoplayer2.util.Util;
     relativeStartIndex = 0;
     readPosition = 0;
     upstreamKeyframeRequired = true;
-  }
-
-  // Called by the consuming thread, but only when there is no loading thread.
-
-  public void resetLargestParsedTimestamps() {
     largestDiscardedTimestampUs = Long.MIN_VALUE;
     largestQueuedTimestampUs = Long.MIN_VALUE;
   }
