@@ -85,6 +85,24 @@ public final class DynamicConcatenatingMediaSourceTest extends TestCase {
     TimelineAsserts.assertPeriodCounts(timeline, 2, 4, 1, 5, 6, 7, 3);
     TimelineAsserts.assertWindowIds(timeline, 222, 444, 111, 555, 666, 777, 333);
 
+    // Move sources.
+    mediaSource.moveMediaSource(2, 3);
+    waitForTimelineUpdate();
+    TimelineAsserts.assertPeriodCounts(timeline, 2, 4, 5, 1, 6, 7, 3);
+    TimelineAsserts.assertWindowIds(timeline, 222, 444, 555, 111, 666, 777, 333);
+    mediaSource.moveMediaSource(3, 2);
+    waitForTimelineUpdate();
+    TimelineAsserts.assertPeriodCounts(timeline, 2, 4, 1, 5, 6, 7, 3);
+    TimelineAsserts.assertWindowIds(timeline, 222, 444, 111, 555, 666, 777, 333);
+    mediaSource.moveMediaSource(0, 6);
+    waitForTimelineUpdate();
+    TimelineAsserts.assertPeriodCounts(timeline, 4, 1, 5, 6, 7, 3, 2);
+    TimelineAsserts.assertWindowIds(timeline, 444, 111, 555, 666, 777, 333, 222);
+    mediaSource.moveMediaSource(6, 0);
+    waitForTimelineUpdate();
+    TimelineAsserts.assertPeriodCounts(timeline, 2, 4, 1, 5, 6, 7, 3);
+    TimelineAsserts.assertWindowIds(timeline, 222, 444, 111, 555, 666, 777, 333);
+
     // Remove in the middle.
     mediaSource.removeMediaSource(3);
     waitForTimelineUpdate();
@@ -138,7 +156,9 @@ public final class DynamicConcatenatingMediaSourceTest extends TestCase {
     mediaSource.addMediaSource(childSources[0]);
     mediaSource.addMediaSource(childSources[1]);
     mediaSource.addMediaSource(0, childSources[2]);
-    mediaSource.removeMediaSource(1);
+    mediaSource.moveMediaSource(0, 2);
+    mediaSource.removeMediaSource(0);
+    mediaSource.moveMediaSource(1, 0);
     mediaSource.addMediaSource(1, childSources[3]);
     assertNull(timeline);
 
