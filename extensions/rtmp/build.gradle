@@ -27,6 +27,6 @@ android {
 }
 
 dependencies {
-    compile project(':library-core')
+    compile project(modulePrefix + 'library-core')
     compile 'net.butterflytv.utils:rtmp-client:0.2.7.1'
 }
