@@ -79,8 +79,7 @@ AVCodecContext *createContext(JNIEnv *env, AVCodec *codec,
  * Decodes the packet into the output buffer, returning the number of bytes
  * written, or a negative value in the case of an error.
  */
-int decodePacket(AVCodecContext *context, AVPacket *packet,
-                 uint8_t *outputBuffer, int outputSize, jboolean use32BitFloatOutput);
+int decodePacket(AVCodecContext *context, AVPacket *packet, uint8_t *outputBuffer, int outputSize);
 
 /**
  * Outputs a log message describing the avcodec error number.
@@ -119,7 +118,7 @@ DECODER_FUNC(jlong, ffmpegInitialize, jstring codecName, jbyteArray extraData, j
 }
 
 DECODER_FUNC(jint, ffmpegDecode, jlong context, jobject inputData,
-    jint inputSize, jobject outputData, jint outputSize, jboolean use32BitFloatOutput) {
+    jint inputSize, jobject outputData, jint outputSize) {
   if (!context) {
     LOGE("Context must be non-NULL.");
     return -1;
@@ -142,8 +141,7 @@ DECODER_FUNC(jint, ffmpegDecode, jlong context, jobject inputData,
   av_init_packet(&packet);
   packet.data = inputBuffer;
   packet.size = inputSize;
-  return decodePacket((AVCodecContext *) context, &packet, outputBuffer,
-                      outputSize, use32BitFloatOutput);
+  return decodePacket((AVCodecContext *) context, &packet, outputBuffer, outputSize);
 }
 
 DECODER_FUNC(jint, ffmpegGetChannelCount, jlong context) {
@@ -162,7 +160,7 @@ DECODER_FUNC(jint, ffmpegGetSampleRate, jlong context) {
   return ((AVCodecContext *) context)->sample_rate;
 }
 
-DECODER_FUNC(jlong, ffmpegReset, jlong jContext, jbyteArray extraData, jboolean use32BitFloatOutput) {
+DECODER_FUNC(jlong, ffmpegReset, jlong jContext, jbyteArray extraData) {
   AVCodecContext *context = (AVCodecContext *) jContext;
   if (!context) {
     LOGE("Tried to reset without a context.");
@@ -171,6 +169,8 @@ DECODER_FUNC(jlong, ffmpegReset, jlong jContext, jbyteArray extraData, jboolean 
 
   AVCodecID codecId = context->codec_id;
   if (codecId == AV_CODEC_ID_TRUEHD) {
+
+    const bool use32BitFloatOutput = context->request_sample_fmt == OUTPUT_FORMAT_32FLOAT;
     // Release and recreate the context if the codec is TrueHD.
     // TODO: Figure out why flushing doesn't work for this codec.
     releaseContext(context);
@@ -232,7 +232,7 @@ AVCodecContext *createContext(JNIEnv *env, AVCodec *codec,
 }
 
 int decodePacket(AVCodecContext *context, AVPacket *packet,
-                 uint8_t *outputBuffer, int outputSize, jboolean use32BitFloatOutput) {
+                 uint8_t *outputBuffer, int outputSize) {
   int result = 0;
   // Queue input data.
   result = avcodec_send_packet(context, packet);
@@ -277,7 +277,7 @@ int decodePacket(AVCodecContext *context, AVPacket *packet,
       av_opt_set_int(resampleContext, "in_sample_rate", sampleRate, 0);
       av_opt_set_int(resampleContext, "out_sample_rate", sampleRate, 0);
       av_opt_set_int(resampleContext, "in_sample_fmt", sampleFormat, 0);
-      av_opt_set_int(resampleContext, "out_sample_fmt", use32BitFloatOutput ? OUTPUT_FORMAT_32FLOAT : OUTPUT_FORMAT, 0);
+      av_opt_set_int(resampleContext, "out_sample_fmt", context->request_sample_fmt, 0);
       result = avresample_open(resampleContext);
       if (result < 0) {
         logError("avresample_open", result);
@@ -287,7 +287,7 @@ int decodePacket(AVCodecContext *context, AVPacket *packet,
       context->opaque = resampleContext;
     }
     int inSampleSize = av_get_bytes_per_sample(sampleFormat);
-    int outSampleSize = av_get_bytes_per_sample(use32BitFloatOutput ? OUTPUT_FORMAT_32FLOAT : OUTPUT_FORMAT);
+    int outSampleSize = av_get_bytes_per_sample(context->request_sample_fmt);
     int outSamples = avresample_get_out_samples(resampleContext, sampleCount);
     int bufferOutSize = outSampleSize * channelCount * outSamples;
     if (outSize + bufferOutSize > outputSize) {

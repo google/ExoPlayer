@@ -39,7 +39,6 @@ import java.util.List;
 
   private long nativeContext; // May be reassigned on resetting the codec.
   private boolean hasOutputFormat;
-  private final boolean use32BitFloatOutput;
   private final int outputBufferSize;
   private volatile int channelCount;
   private volatile int sampleRate;
@@ -53,7 +52,6 @@ import java.util.List;
     }
     codecName = FfmpegLibrary.getCodecName(mimeType);
     extraData = getExtraData(mimeType, initializationData);
-    this.use32BitFloatOutput = use32BitFloatOutput;
     outputBufferSize = use32BitFloatOutput ? OUTPUT_BUFFER_SIZE_32BIT : OUTPUT_BUFFER_SIZE;
     nativeContext = ffmpegInitialize(codecName, extraData, use32BitFloatOutput);
     if (nativeContext == 0) {
@@ -81,7 +79,7 @@ import java.util.List;
   public FfmpegDecoderException decode(DecoderInputBuffer inputBuffer,
       SimpleOutputBuffer outputBuffer, boolean reset) {
     if (reset) {
-      nativeContext = ffmpegReset(nativeContext, extraData, use32BitFloatOutput);
+      nativeContext = ffmpegReset(nativeContext, extraData);
       if (nativeContext == 0) {
         return new FfmpegDecoderException("Error resetting (see logcat).");
       }
@@ -89,8 +87,7 @@ import java.util.List;
     ByteBuffer inputData = inputBuffer.data;
     int inputSize = inputData.limit();
     ByteBuffer outputData = outputBuffer.init(inputBuffer.timeUs, outputBufferSize);
-    int result = ffmpegDecode(nativeContext, inputData, inputSize, outputData, outputBufferSize,
-     use32BitFloatOutput);
+    int result = ffmpegDecode(nativeContext, inputData, inputSize, outputData, outputBufferSize);
     if (result < 0) {
       return new FfmpegDecoderException("Error decoding (see logcat). Code: " + result);
     }
@@ -163,10 +160,10 @@ import java.util.List;
 
   private native long ffmpegInitialize(String codecName, byte[] extraData, boolean use32BitFloatOutput);
   private native int ffmpegDecode(long context, ByteBuffer inputData, int inputSize,
-      ByteBuffer outputData, int outputSize, boolean use32BitFloatOutput);
+      ByteBuffer outputData, int outputSize);
   private native int ffmpegGetChannelCount(long context);
   private native int ffmpegGetSampleRate(long context);
-  private native long ffmpegReset(long context, byte[] extraData, boolean use32BitFloatOutput);
+  private native long ffmpegReset(long context, byte[] extraData);
   private native void ffmpegRelease(long context);
 
 }
