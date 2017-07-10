@@ -29,7 +29,6 @@ import com.google.android.exoplayer2.util.ParsableByteArray;
 import java.io.EOFException;
 import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * A queue of media samples.
@@ -52,16 +51,11 @@ public final class SampleQueue implements TrackOutput {
 
   private static final int INITIAL_SCRATCH_SIZE = 32;
 
-  private static final int STATE_ENABLED = 0;
-  private static final int STATE_ENABLED_WRITING = 1;
-  private static final int STATE_DISABLED = 2;
-
   private final Allocator allocator;
   private final int allocationLength;
   private final SampleMetadataQueue metadataQueue;
   private final SampleExtrasHolder extrasHolder;
   private final ParsableByteArray scratch;
-  private final AtomicInteger state;
 
   // References into the linked list of allocations.
   private AllocationNode firstAllocationNode;
@@ -88,7 +82,6 @@ public final class SampleQueue implements TrackOutput {
     metadataQueue = new SampleMetadataQueue();
     extrasHolder = new SampleExtrasHolder();
     scratch = new ParsableByteArray(INITIAL_SCRATCH_SIZE);
-    state = new AtomicInteger();
     firstAllocationNode = new AllocationNode(0, allocationLength);
     readAllocationNode = firstAllocationNode;
     writeAllocationNode = firstAllocationNode;
@@ -100,20 +93,13 @@ public final class SampleQueue implements TrackOutput {
    * Resets the output.
    */
   public void reset() {
-    reset(true);
-  }
-
-  /**
-   * @deprecated Use {@link #reset()}. Don't disable sample queues.
-   */
-  @Deprecated
-  public void reset(boolean enable) {
-    int previousState = state.getAndSet(enable ? STATE_ENABLED : STATE_DISABLED);
-    clearSampleData();
-    metadataQueue.resetLargestParsedTimestamps();
-    if (previousState == STATE_DISABLED) {
-      downstreamFormat = null;
-    }
+    metadataQueue.clearSampleData();
+    clearAllocationNodes(firstAllocationNode);
+    firstAllocationNode = new AllocationNode(0, allocationLength);
+    readAllocationNode = firstAllocationNode;
+    writeAllocationNode = firstAllocationNode;
+    totalBytesWritten = 0;
+    allocator.trim();
   }
 
   /**
@@ -173,16 +159,6 @@ public final class SampleQueue implements TrackOutput {
   }
 
   // Called by the consuming thread.
-
-  /**
-   * @deprecated Don't disable sample queues.
-   */
-  @Deprecated
-  public void disable() {
-    if (state.getAndSet(STATE_DISABLED) == STATE_ENABLED) {
-      clearSampleData();
-    }
-  }
 
   /**
    * Returns whether a sample is available to be read.
@@ -266,30 +242,10 @@ public final class SampleQueue implements TrackOutput {
   }
 
   /**
-   * @deprecated Use {@link #advanceToEnd()} followed by {@link #discardToRead()}.
-   */
-  @Deprecated
-  public void skipAll() {
-    advanceToEnd();
-    discardToRead();
-  }
-
-  /**
    * Advances the read position to the end of the queue.
    */
   public void advanceToEnd() {
     metadataQueue.advanceToEnd();
-  }
-
-  /**
-   * @deprecated Use {@link #advanceTo(long, boolean, boolean)} followed by
-   *     {@link #discardToRead()}.
-   */
-  @Deprecated
-  public boolean skipToKeyframeBefore(long timeUs, boolean allowTimeBeyondBuffer) {
-    boolean success = advanceTo(timeUs, true, allowTimeBeyondBuffer);
-    discardToRead();
-    return success;
   }
 
   /**
@@ -305,19 +261,6 @@ public final class SampleQueue implements TrackOutput {
    */
   public boolean advanceTo(long timeUs, boolean toKeyframe, boolean allowTimeBeyondBuffer) {
     return metadataQueue.advanceTo(timeUs, toKeyframe, allowTimeBeyondBuffer);
-  }
-
-  /**
-   * @deprecated Use {@link #read(FormatHolder, DecoderInputBuffer, boolean, boolean, long)}
-   *     followed by {@link #discardToRead()}.
-   */
-  @Deprecated
-  public int readData(FormatHolder formatHolder, DecoderInputBuffer buffer, boolean formatRequired,
-      boolean loadingFinished, long decodeOnlyUntilUs) {
-    int result = read(formatHolder, buffer, formatRequired, loadingFinished,
-        decodeOnlyUntilUs);
-    discardToRead();
-    return result;
   }
 
   /**
@@ -558,39 +501,21 @@ public final class SampleQueue implements TrackOutput {
   @Override
   public int sampleData(ExtractorInput input, int length, boolean allowEndOfInput)
       throws IOException, InterruptedException {
-    if (!startWriteOperation()) {
-      int bytesSkipped = input.skip(length);
-      if (bytesSkipped == C.RESULT_END_OF_INPUT) {
-        if (allowEndOfInput) {
-          return C.RESULT_END_OF_INPUT;
-        }
-        throw new EOFException();
+    length = preAppend(length);
+    int bytesAppended = input.read(writeAllocationNode.allocation.data,
+        writeAllocationNode.translateOffset(totalBytesWritten), length);
+    if (bytesAppended == C.RESULT_END_OF_INPUT) {
+      if (allowEndOfInput) {
+        return C.RESULT_END_OF_INPUT;
       }
-      return bytesSkipped;
+      throw new EOFException();
     }
-    try {
-      length = preAppend(length);
-      int bytesAppended = input.read(writeAllocationNode.allocation.data,
-          writeAllocationNode.translateOffset(totalBytesWritten), length);
-      if (bytesAppended == C.RESULT_END_OF_INPUT) {
-        if (allowEndOfInput) {
-          return C.RESULT_END_OF_INPUT;
-        }
-        throw new EOFException();
-      }
-      postAppend(bytesAppended);
-      return bytesAppended;
-    } finally {
-      endWriteOperation();
-    }
+    postAppend(bytesAppended);
+    return bytesAppended;
   }
 
   @Override
   public void sampleData(ParsableByteArray buffer, int length) {
-    if (!startWriteOperation()) {
-      buffer.skipBytes(length);
-      return;
-    }
     while (length > 0) {
       int bytesAppended = preAppend(length);
       buffer.readBytes(writeAllocationNode.allocation.data,
@@ -598,7 +523,6 @@ public final class SampleQueue implements TrackOutput {
       length -= bytesAppended;
       postAppend(bytesAppended);
     }
-    endWriteOperation();
   }
 
   @Override
@@ -607,46 +531,18 @@ public final class SampleQueue implements TrackOutput {
     if (pendingFormatAdjustment) {
       format(lastUnadjustedFormat);
     }
-    if (!startWriteOperation()) {
-      metadataQueue.commitSampleTimestamp(timeUs);
-      return;
-    }
-    try {
-      if (pendingSplice) {
-        if ((flags & C.BUFFER_FLAG_KEY_FRAME) == 0 || !metadataQueue.attemptSplice(timeUs)) {
-          return;
-        }
-        pendingSplice = false;
+    if (pendingSplice) {
+      if ((flags & C.BUFFER_FLAG_KEY_FRAME) == 0 || !metadataQueue.attemptSplice(timeUs)) {
+        return;
       }
-      timeUs += sampleOffsetUs;
-      long absoluteOffset = totalBytesWritten - size - offset;
-      metadataQueue.commitSample(timeUs, flags, absoluteOffset, size, cryptoData);
-    } finally {
-      endWriteOperation();
+      pendingSplice = false;
     }
+    timeUs += sampleOffsetUs;
+    long absoluteOffset = totalBytesWritten - size - offset;
+    metadataQueue.commitSample(timeUs, flags, absoluteOffset, size, cryptoData);
   }
 
   // Private methods.
-
-  private boolean startWriteOperation() {
-    return state.compareAndSet(STATE_ENABLED, STATE_ENABLED_WRITING);
-  }
-
-  private void endWriteOperation() {
-    if (!state.compareAndSet(STATE_ENABLED_WRITING, STATE_ENABLED)) {
-      clearSampleData();
-    }
-  }
-
-  private void clearSampleData() {
-    metadataQueue.clearSampleData();
-    clearAllocationNodes(firstAllocationNode);
-    firstAllocationNode = new AllocationNode(0, allocationLength);
-    readAllocationNode = firstAllocationNode;
-    writeAllocationNode = firstAllocationNode;
-    totalBytesWritten = 0;
-    allocator.trim();
-  }
 
   /**
    * Clears allocation nodes starting from {@code fromNode}.
