@@ -80,7 +80,7 @@ import java.util.Arrays;
   private boolean prepared;
 
   private boolean seenFirstTrackSelection;
-  private boolean notifyReset;
+  private boolean notifyDiscontinuity;
   private int enabledTrackCount;
   private TrackGroupArray tracks;
   private long durationUs;
@@ -229,7 +229,7 @@ import java.util.Arrays;
       }
     }
     if (enabledTrackCount == 0) {
-      notifyReset = false;
+      notifyDiscontinuity = false;
       if (loader.isLoading()) {
         // Discard as much as we can synchronously.
         for (SampleQueue sampleQueue : sampleQueues) {
@@ -282,8 +282,8 @@ import java.util.Arrays;
 
   @Override
   public long readDiscontinuity() {
-    if (notifyReset) {
-      notifyReset = false;
+    if (notifyDiscontinuity) {
+      notifyDiscontinuity = false;
       return lastSeekPositionUs;
     }
     return C.TIME_UNSET;
@@ -319,18 +319,9 @@ import java.util.Arrays;
     // Treat all seeks into non-seekable media as being to t=0.
     positionUs = seekMap.isSeekable() ? positionUs : 0;
     lastSeekPositionUs = positionUs;
+    notifyDiscontinuity = false;
     // If we're not pending a reset, see if we can seek within the sample queues.
-    boolean seekInsideBuffer = !isPendingReset();
-    int trackCount = sampleQueues.length;
-    for (int i = 0; seekInsideBuffer && i < trackCount; i++) {
-      SampleQueue sampleQueue = sampleQueues[i];
-      sampleQueue.rewind();
-      // TODO: For sparse tracks (e.g. text, metadata) this may return false when an in-buffer
-      // seek should be allowed. If there are non-sparse tracks (e.g. video, audio) for which
-      // in-buffer seeking is successful, we should perform an in-buffer seek unconditionally.
-      seekInsideBuffer = sampleQueue.advanceTo(positionUs, true, false);
-      sampleQueue.discardToRead();
-    }
+    boolean seekInsideBuffer = !isPendingReset() && seekInsideBufferUs(positionUs);
     // If we failed to seek within the sample queues, we need to restart.
     if (!seekInsideBuffer) {
       pendingResetPositionUs = positionUs;
@@ -338,12 +329,11 @@ import java.util.Arrays;
       if (loader.isLoading()) {
         loader.cancelLoading();
       } else {
-        for (int i = 0; i < trackCount; i++) {
-          sampleQueues[i].reset();
+        for (SampleQueue sampleQueue : sampleQueues) {
+          sampleQueue.reset();
         }
       }
     }
-    notifyReset = false;
     return positionUs;
   }
 
@@ -359,7 +349,7 @@ import java.util.Arrays;
 
   /* package */ int readData(int track, FormatHolder formatHolder, DecoderInputBuffer buffer,
       boolean formatRequired) {
-    if (notifyReset || isPendingReset()) {
+    if (notifyDiscontinuity || isPendingReset()) {
       return C.RESULT_NOTHING_READ;
     }
     return sampleQueues[track].read(formatHolder, buffer, formatRequired, loadingFinished,
@@ -536,12 +526,36 @@ import java.util.Arrays;
       // previous load finished, so it's necessary to load from the start whenever commencing
       // a new load.
       lastSeekPositionUs = 0;
-      notifyReset = prepared;
+      notifyDiscontinuity = prepared;
       for (SampleQueue sampleQueue : sampleQueues) {
         sampleQueue.reset();
       }
       loadable.setLoadPosition(0, 0);
     }
+  }
+
+  /**
+   * Attempts to seek to the specified position within the sample queues.
+   *
+   * @param positionUs The seek position in microseconds.
+   * @return Whether the in-buffer seek was successful.
+   */
+  private boolean seekInsideBufferUs(long positionUs) {
+    int trackCount = sampleQueues.length;
+    for (int i = 0; i < trackCount; i++) {
+      SampleQueue sampleQueue = sampleQueues[i];
+      sampleQueue.rewind();
+      boolean seekInsideQueue = sampleQueue.advanceTo(positionUs, true, false);
+      // If we have AV tracks then an in-buffer seek is successful if the seek into every AV queue
+      // is successful. We ignore whether seeks within non-AV queues are successful in this case, as
+      // they may be sparse or poorly interleaved. If we only have non-AV tracks then a seek is
+      // successful only if the seek into every queue succeeds.
+      if (!seekInsideQueue && (trackIsAudioVideoFlags[i] || !haveAudioVideoTracks)) {
+        return false;
+      }
+      sampleQueue.discardToRead();
+    }
+    return true;
   }
 
   private int getExtractedSamplesCount() {
