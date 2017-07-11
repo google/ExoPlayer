@@ -73,6 +73,7 @@ import com.google.android.exoplayer2.upstream.DefaultBandwidthMeter;
 import com.google.android.exoplayer2.upstream.HttpDataSource;
 import com.google.android.exoplayer2.util.Util;
 import java.lang.reflect.Constructor;
+import java.lang.reflect.Method;
 import java.net.CookieHandler;
 import java.net.CookieManager;
 import java.net.CookiePolicy;
@@ -123,6 +124,12 @@ public class PlayerActivity extends Activity implements OnClickListener, ExoPlay
   private boolean shouldAutoPlay;
   private int resumeWindow;
   private long resumePosition;
+
+  // Fields used only for ad playback. The ads loader is loaded via reflection.
+
+  private Object imaAdsLoader; // com.google.android.exoplayer2.ext.ima.ImaAdsLoader
+  private Uri loadedAdTagUri;
+  private ViewGroup adOverlayViewGroup;
 
   // Activity lifecycle
 
@@ -188,6 +195,12 @@ public class PlayerActivity extends Activity implements OnClickListener, ExoPlay
     if (Util.SDK_INT > 23) {
       releasePlayer();
     }
+  }
+
+  @Override
+  public void onDestroy() {
+    super.onDestroy();
+    releaseAdsLoader();
   }
 
   @Override
@@ -317,20 +330,19 @@ public class PlayerActivity extends Activity implements OnClickListener, ExoPlay
       String adTagUriString = intent.getStringExtra(AD_TAG_URI_EXTRA);
       if (adTagUriString != null) {
         Uri adTagUri = Uri.parse(adTagUriString);
-        ViewGroup adOverlayViewGroup = new FrameLayout(this);
-        // Load the extension source using reflection so that demo app doesn't have to depend on it.
+        if (!adTagUri.equals(loadedAdTagUri)) {
+          releaseAdsLoader();
+          loadedAdTagUri = adTagUri;
+        }
         try {
-          Class<?> clazz = Class.forName("com.google.android.exoplayer2.ext.ima.ImaAdsMediaSource");
-          Constructor<?> constructor = clazz.getConstructor(MediaSource.class,
-              DataSource.Factory.class, Context.class, Uri.class, ViewGroup.class);
-          mediaSource = (MediaSource) constructor.newInstance(mediaSource,
-              mediaDataSourceFactory, this, adTagUri, adOverlayViewGroup);
+          mediaSource = createAdsMediaSource(mediaSource, Uri.parse(adTagUriString));
           // The demo app has a non-null overlay frame layout.
           simpleExoPlayerView.getOverlayFrameLayout().addView(adOverlayViewGroup);
         } catch (Exception e) {
-          // Throw if the media source class was not found, or there was an error instantiating it.
           showToast(R.string.ima_not_loaded);
         }
+      } else {
+        releaseAdsLoader();
       }
       boolean haveResumePosition = resumeWindow != C.INDEX_UNSET;
       if (haveResumePosition) {
@@ -427,6 +439,47 @@ public class PlayerActivity extends Activity implements OnClickListener, ExoPlay
   private HttpDataSource.Factory buildHttpDataSourceFactory(boolean useBandwidthMeter) {
     return ((DemoApplication) getApplication())
         .buildHttpDataSourceFactory(useBandwidthMeter ? BANDWIDTH_METER : null);
+  }
+
+  /**
+   * Returns an ads media source, reusing the ads loader if one exists.
+   *
+   * @throws Exception Thrown if it was not possible to create an ads media source, for example, due
+   *     to a missing dependency.
+   */
+  private MediaSource createAdsMediaSource(MediaSource mediaSource, Uri adTagUri) throws Exception {
+    // Load the extension source using reflection so the demo app doesn't have to depend on it.
+    // The ads loader is reused for multiple playbacks, so that ad playback can resume.
+    Class<?> loaderClass = Class.forName("com.google.android.exoplayer2.ext.ima.ImaAdsLoader");
+    if (imaAdsLoader == null) {
+      imaAdsLoader = loaderClass.getConstructor(Context.class, Uri.class)
+          .newInstance(this, adTagUri);
+      adOverlayViewGroup = new FrameLayout(this);
+      // The demo app has a non-null overlay frame layout.
+      simpleExoPlayerView.getOverlayFrameLayout().addView(adOverlayViewGroup);
+    }
+    Class<?> sourceClass =
+        Class.forName("com.google.android.exoplayer2.ext.ima.ImaAdsMediaSource");
+    Constructor<?> constructor = sourceClass.getConstructor(MediaSource.class,
+        DataSource.Factory.class, loaderClass, ViewGroup.class);
+    return (MediaSource) constructor.newInstance(mediaSource, mediaDataSourceFactory, imaAdsLoader,
+        adOverlayViewGroup);
+  }
+
+  private void releaseAdsLoader() {
+    if (imaAdsLoader != null) {
+      try {
+        Class<?> loaderClass = Class.forName("com.google.android.exoplayer2.ext.ima.ImaAdsLoader");
+        Method releaseMethod = loaderClass.getMethod("release");
+        releaseMethod.invoke(imaAdsLoader);
+      } catch (Exception e) {
+        // Should never happen.
+        throw new IllegalStateException(e);
+      }
+      imaAdsLoader = null;
+      loadedAdTagUri = null;
+      simpleExoPlayerView.getOverlayFrameLayout().removeAllViews();
+    }
   }
 
   // ExoPlayer.EventListener implementation
