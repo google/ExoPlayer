@@ -84,11 +84,11 @@ public final class TrackEncryptionBox {
       return C.CRYPTO_MODE_AES_CTR;
     }
     switch (schemeType) {
-      case "cenc":
-      case "cens":
+      case C.CENC_TYPE_cenc:
+      case C.CENC_TYPE_cens:
         return C.CRYPTO_MODE_AES_CTR;
-      case "cbc1":
-      case "cbcs":
+      case C.CENC_TYPE_cbc1:
+      case C.CENC_TYPE_cbcs:
         return C.CRYPTO_MODE_AES_CBC;
       default:
         Log.w(TAG, "Unsupported protection scheme type '" + schemeType + "'. Assuming AES-CTR "
