@@ -181,8 +181,7 @@ import com.google.android.exoplayer2.source.MediaSource.MediaPeriodId;
     if (currentPeriodId.isAd()) {
       int currentAdGroupIndex = currentPeriodId.adGroupIndex;
       timeline.getPeriod(currentPeriodId.periodIndex, period);
-      int adCountInCurrentAdGroup = period.getAdGroupCount() == C.LENGTH_UNSET ? C.LENGTH_UNSET
-          : period.getAdCountInAdGroup(currentAdGroupIndex);
+      int adCountInCurrentAdGroup = period.getAdCountInAdGroup(currentAdGroupIndex);
       if (adCountInCurrentAdGroup == C.LENGTH_UNSET) {
         return null;
       }
@@ -206,7 +205,7 @@ import com.google.android.exoplayer2.source.MediaSource.MediaPeriodId;
     } else {
       // Check if the postroll ad should be played.
       int adGroupCount = period.getAdGroupCount();
-      if (adGroupCount == C.LENGTH_UNSET || adGroupCount == 0
+      if (adGroupCount == 0
           || period.getAdGroupTimeUs(adGroupCount - 1) != C.TIME_END_OF_SOURCE
           || period.hasPlayedAdGroup(adGroupCount - 1)
           || !period.isAdAvailable(adGroupCount - 1, 0)) {
@@ -301,9 +300,6 @@ import com.google.android.exoplayer2.source.MediaSource.MediaPeriodId;
     int adGroupCount = timeline.getPeriod(id.periodIndex, period).getAdGroupCount();
     if (adGroupCount == 0) {
       return true;
-    }
-    if (adGroupCount == C.LENGTH_UNSET) {
-      return false;
     }
     int lastAdGroupIndex = adGroupCount - 1;
     boolean periodHasPostrollAd = period.getAdGroupTimeUs(lastAdGroupIndex) == C.TIME_END_OF_SOURCE;

@@ -49,7 +49,7 @@ public final class ImaAdsMediaSource implements MediaSource {
   private final ViewGroup adUiViewGroup;
   private final ImaSdkSettings imaSdkSettings;
   private final Handler mainHandler;
-  private final AdListener adLoaderListener;
+  private final AdsLoaderListener adsLoaderListener;
   private final Map<MediaPeriod, MediaSource> adMediaSourceByMediaPeriod;
   private final Timeline.Period period;
 
@@ -60,11 +60,8 @@ public final class ImaAdsMediaSource implements MediaSource {
   // Accessed on the player thread.
   private Timeline contentTimeline;
   private Object contentManifest;
-  private long[] adGroupTimesUs;
-  private boolean[] hasPlayedAdGroup;
-  private int[] adCounts;
+  private AdPlaybackState adPlaybackState;
   private MediaSource[][] adGroupMediaSources;
-  private boolean[][] isAdAvailable;
   private long[][] adDurationsUs;
   private MediaSource.Listener listener;
   private IOException adLoadError;
@@ -113,11 +110,10 @@ public final class ImaAdsMediaSource implements MediaSource {
     this.adUiViewGroup = adUiViewGroup;
     this.imaSdkSettings = imaSdkSettings;
     mainHandler = new Handler(Looper.getMainLooper());
-    adLoaderListener = new AdListener();
+    adsLoaderListener = new AdsLoaderListener();
     adMediaSourceByMediaPeriod = new HashMap<>();
     period = new Timeline.Period();
     adGroupMediaSources = new MediaSource[0][];
-    isAdAvailable = new boolean[0][];
     adDurationsUs = new long[0][];
   }
 
@@ -131,7 +127,7 @@ public final class ImaAdsMediaSource implements MediaSource {
       @Override
       public void run() {
         imaAdsLoader = new ImaAdsLoader(context, adTagUri, adUiViewGroup, imaSdkSettings,
-            ImaAdsMediaSource.this.player, adLoaderListener);
+            ImaAdsMediaSource.this.player, adsLoaderListener);
       }
     });
     contentMediaSource.prepareSource(player, false, new Listener() {
@@ -158,7 +154,29 @@ public final class ImaAdsMediaSource implements MediaSource {
   @Override
   public MediaPeriod createPeriod(MediaPeriodId id, Allocator allocator) {
     if (id.isAd()) {
-      MediaSource mediaSource = adGroupMediaSources[id.adGroupIndex][id.adIndexInAdGroup];
+      final int adGroupIndex = id.adGroupIndex;
+      final int adIndexInAdGroup = id.adIndexInAdGroup;
+      if (adGroupMediaSources[adGroupIndex].length <= adIndexInAdGroup) {
+        MediaSource adMediaSource = new ExtractorMediaSource(
+            adPlaybackState.adUris[id.adGroupIndex][id.adIndexInAdGroup], dataSourceFactory,
+            new DefaultExtractorsFactory(), mainHandler, adsLoaderListener);
+        int oldAdCount = adGroupMediaSources[id.adGroupIndex].length;
+        if (adIndexInAdGroup >= oldAdCount) {
+          int adCount = adIndexInAdGroup + 1;
+          adGroupMediaSources[adGroupIndex] =
+              Arrays.copyOf(adGroupMediaSources[adGroupIndex], adCount);
+          adDurationsUs[adGroupIndex] = Arrays.copyOf(adDurationsUs[adGroupIndex], adCount);
+          Arrays.fill(adDurationsUs[adGroupIndex], oldAdCount, adCount, C.TIME_UNSET);
+        }
+        adGroupMediaSources[adGroupIndex][adIndexInAdGroup] = adMediaSource;
+        adMediaSource.prepareSource(player, false, new Listener() {
+          @Override
+          public void onSourceInfoRefreshed(Timeline timeline, Object manifest) {
+            onAdSourceInfoRefreshed(adGroupIndex, adIndexInAdGroup, timeline);
+          }
+        });
+      }
+      MediaSource mediaSource = adGroupMediaSources[adGroupIndex][adIndexInAdGroup];
       MediaPeriod mediaPeriod = mediaSource.createPeriod(new MediaPeriodId(0), allocator);
       adMediaSourceByMediaPeriod.put(mediaPeriod, mediaSource);
       return mediaPeriod;
@@ -200,19 +218,14 @@ public final class ImaAdsMediaSource implements MediaSource {
 
   // Internal methods.
 
-  private void onAdGroupTimesUsLoaded(long[] adGroupTimesUs) {
-    Assertions.checkState(this.adGroupTimesUs == null);
-    int adGroupCount = adGroupTimesUs.length;
-    this.adGroupTimesUs = adGroupTimesUs;
-    hasPlayedAdGroup = new boolean[adGroupCount];
-    adCounts = new int[adGroupCount];
-    Arrays.fill(adCounts, C.LENGTH_UNSET);
-    adGroupMediaSources = new MediaSource[adGroupCount][];
-    Arrays.fill(adGroupMediaSources, new MediaSource[0]);
-    isAdAvailable = new boolean[adGroupCount][];
-    Arrays.fill(isAdAvailable, new boolean[0]);
-    adDurationsUs = new long[adGroupCount][];
-    Arrays.fill(adDurationsUs, new long[0]);
+  private void onAdPlaybackState(AdPlaybackState adPlaybackState) {
+    if (this.adPlaybackState == null) {
+      adGroupMediaSources = new MediaSource[adPlaybackState.adGroupCount][];
+      Arrays.fill(adGroupMediaSources, new MediaSource[0]);
+      adDurationsUs = new long[adPlaybackState.adGroupCount][];
+      Arrays.fill(adDurationsUs, new long[0]);
+    }
+    this.adPlaybackState = adPlaybackState;
     maybeUpdateSourceInfo();
   }
 
@@ -222,49 +235,17 @@ public final class ImaAdsMediaSource implements MediaSource {
     maybeUpdateSourceInfo();
   }
 
-  private void onAdGroupPlayedToEnd(int adGroupIndex) {
-    hasPlayedAdGroup[adGroupIndex] = true;
-    maybeUpdateSourceInfo();
-  }
-
-  private void onAdUriLoaded(final int adGroupIndex, final int adIndexInAdGroup, Uri uri) {
-    MediaSource adMediaSource = new ExtractorMediaSource(uri, dataSourceFactory,
-        new DefaultExtractorsFactory(), mainHandler, adLoaderListener);
-    int oldAdCount = adGroupMediaSources[adGroupIndex].length;
-    if (adIndexInAdGroup >= oldAdCount) {
-      int adCount = adIndexInAdGroup + 1;
-      adGroupMediaSources[adGroupIndex] = Arrays.copyOf(adGroupMediaSources[adGroupIndex], adCount);
-      isAdAvailable[adGroupIndex] = Arrays.copyOf(isAdAvailable[adGroupIndex], adCount);
-      adDurationsUs[adGroupIndex] = Arrays.copyOf(adDurationsUs[adGroupIndex], adCount);
-      Arrays.fill(adDurationsUs[adGroupIndex], oldAdCount, adCount, C.TIME_UNSET);
-    }
-    adGroupMediaSources[adGroupIndex][adIndexInAdGroup] = adMediaSource;
-    isAdAvailable[adGroupIndex][adIndexInAdGroup] = true;
-    adMediaSource.prepareSource(player, false, new Listener() {
-      @Override
-      public void onSourceInfoRefreshed(Timeline timeline, Object manifest) {
-        onAdSourceInfoRefreshed(adGroupIndex, adIndexInAdGroup, timeline);
-      }
-    });
-  }
-
   private void onAdSourceInfoRefreshed(int adGroupIndex, int adIndexInAdGroup, Timeline timeline) {
     Assertions.checkArgument(timeline.getPeriodCount() == 1);
     adDurationsUs[adGroupIndex][adIndexInAdGroup] = timeline.getPeriod(0, period).getDurationUs();
     maybeUpdateSourceInfo();
   }
 
-  private void onAdGroupLoaded(int adGroupIndex, int adCountInAdGroup) {
-    if (adCounts[adGroupIndex] == C.LENGTH_UNSET) {
-      adCounts[adGroupIndex] = adCountInAdGroup;
-      maybeUpdateSourceInfo();
-    }
-  }
-
   private void maybeUpdateSourceInfo() {
-    if (adGroupTimesUs != null && contentTimeline != null) {
-      SinglePeriodAdTimeline timeline = new SinglePeriodAdTimeline(contentTimeline, adGroupTimesUs,
-          hasPlayedAdGroup, adCounts, isAdAvailable, adDurationsUs);
+    if (adPlaybackState != null && contentTimeline != null) {
+      SinglePeriodAdTimeline timeline = new SinglePeriodAdTimeline(contentTimeline,
+          adPlaybackState.adGroupTimesUs, adPlaybackState.adCounts, adPlaybackState.adsLoadedCounts,
+          adPlaybackState.adsPlayedCounts, adDurationsUs);
       listener.onSourceInfoRefreshed(timeline, contentManifest);
     }
   }
@@ -272,11 +253,11 @@ public final class ImaAdsMediaSource implements MediaSource {
   /**
    * Listener for ad loading events. All methods are called on the main thread.
    */
-  private final class AdListener implements ImaAdsLoader.EventListener,
+  private final class AdsLoaderListener implements ImaAdsLoader.EventListener,
       ExtractorMediaSource.EventListener {
 
     @Override
-    public void onAdGroupTimesUsLoaded(final long[] adGroupTimesUs) {
+    public void onAdPlaybackState(final AdPlaybackState adPlaybackState) {
       if (released) {
         return;
       }
@@ -286,55 +267,7 @@ public final class ImaAdsMediaSource implements MediaSource {
           if (released) {
             return;
           }
-          ImaAdsMediaSource.this.onAdGroupTimesUsLoaded(adGroupTimesUs);
-        }
-      });
-    }
-
-    @Override
-    public void onAdGroupPlayedToEnd(final int adGroupIndex) {
-      if (released) {
-        return;
-      }
-      playerHandler.post(new Runnable() {
-        @Override
-        public void run() {
-          if (released) {
-            return;
-          }
-          ImaAdsMediaSource.this.onAdGroupPlayedToEnd(adGroupIndex);
-        }
-      });
-    }
-
-    @Override
-    public void onAdUriLoaded(final int adGroupIndex, final int adIndexInAdGroup, final Uri uri) {
-      if (released) {
-        return;
-      }
-      playerHandler.post(new Runnable() {
-        @Override
-        public void run() {
-          if (released) {
-            return;
-          }
-          ImaAdsMediaSource.this.onAdUriLoaded(adGroupIndex, adIndexInAdGroup, uri);
-        }
-      });
-    }
-
-    @Override
-    public void onAdGroupLoaded(final int adGroupIndex, final int adCountInAdGroup) {
-      if (released) {
-        return;
-      }
-      playerHandler.post(new Runnable() {
-        @Override
-        public void run() {
-          if (released) {
-            return;
-          }
-          ImaAdsMediaSource.this.onAdGroupLoaded(adGroupIndex, adCountInAdGroup);
+          ImaAdsMediaSource.this.onAdPlaybackState(adPlaybackState);
         }
       });
     }
