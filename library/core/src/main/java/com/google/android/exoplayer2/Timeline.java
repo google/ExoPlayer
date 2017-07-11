@@ -266,9 +266,9 @@ public abstract class Timeline {
 
     private long positionInWindowUs;
     private long[] adGroupTimesUs;
-    private boolean[] hasPlayedAdGroup;
     private int[] adCounts;
-    private boolean[][] isAdAvailable;
+    private int[] adsLoadedCounts;
+    private int[] adsPlayedCounts;
     private long[][] adDurationsUs;
 
     /**
@@ -304,26 +304,26 @@ public abstract class Timeline {
      * @param adGroupTimesUs The times of ad groups relative to the start of the period, in
      *     microseconds. A final element with the value {@link C#TIME_END_OF_SOURCE} indicates that
      *     the period has a postroll ad.
-     * @param hasPlayedAdGroup Whether each ad group has been played.
      * @param adCounts The number of ads in each ad group. An element may be {@link C#LENGTH_UNSET}
      *     if the number of ads is not yet known.
-     * @param isAdAvailable Whether each ad in each ad group is available.
+     * @param adsLoadedCounts The number of ads loaded so far in each ad group.
+     * @param adsPlayedCounts The number of ads played so far in each ad group.
      * @param adDurationsUs The duration of each ad in each ad group, in microseconds. An element
      *     may be {@link C#TIME_UNSET} if the duration is not yet known.
      * @return This period, for convenience.
      */
     public Period set(Object id, Object uid, int windowIndex, long durationUs,
-        long positionInWindowUs, long[] adGroupTimesUs, boolean[] hasPlayedAdGroup, int[] adCounts,
-        boolean[][] isAdAvailable, long[][] adDurationsUs) {
+        long positionInWindowUs, long[] adGroupTimesUs, int[] adCounts, int[] adsLoadedCounts,
+        int[] adsPlayedCounts, long[][] adDurationsUs) {
       this.id = id;
       this.uid = uid;
       this.windowIndex = windowIndex;
       this.durationUs = durationUs;
       this.positionInWindowUs = positionInWindowUs;
       this.adGroupTimesUs = adGroupTimesUs;
-      this.hasPlayedAdGroup = hasPlayedAdGroup;
       this.adCounts = adCounts;
-      this.isAdAvailable = isAdAvailable;
+      this.adsLoadedCounts = adsLoadedCounts;
+      this.adsPlayedCounts = adsPlayedCounts;
       this.adDurationsUs = adDurationsUs;
       return this;
     }
@@ -375,9 +375,6 @@ public abstract class Timeline {
      * @return The time of the ad group at the index, in microseconds.
      */
     public long getAdGroupTimeUs(int adGroupIndex) {
-      if (adGroupTimesUs == null) {
-        throw new IndexOutOfBoundsException();
-      }
       return adGroupTimesUs[adGroupIndex];
     }
 
@@ -388,10 +385,8 @@ public abstract class Timeline {
      * @return Whether the ad group at index {@code adGroupIndex} has been played.
      */
     public boolean hasPlayedAdGroup(int adGroupIndex) {
-      if (hasPlayedAdGroup == null) {
-        throw new IndexOutOfBoundsException();
-      }
-      return hasPlayedAdGroup[adGroupIndex];
+      return adCounts[adGroupIndex] != C.INDEX_UNSET
+          && adsPlayedCounts[adGroupIndex] == adCounts[adGroupIndex];
     }
 
     /**
@@ -445,9 +440,6 @@ public abstract class Timeline {
      * @return The number of ads in the ad group, or {@link C#LENGTH_UNSET} if not yet known.
      */
     public int getAdCountInAdGroup(int adGroupIndex) {
-      if (adCounts == null) {
-        throw new IndexOutOfBoundsException();
-      }
       return adCounts[adGroupIndex];
     }
 
@@ -459,9 +451,7 @@ public abstract class Timeline {
      * @return Whether the URL for the specified ad is known.
      */
     public boolean isAdAvailable(int adGroupIndex, int adIndexInAdGroup) {
-      return isAdAvailable != null && adGroupIndex < isAdAvailable.length
-          && adIndexInAdGroup < isAdAvailable[adGroupIndex].length
-          && isAdAvailable[adGroupIndex][adIndexInAdGroup];
+      return adIndexInAdGroup < adsLoadedCounts[adGroupIndex];
     }
 
     /**
@@ -473,9 +463,6 @@ public abstract class Timeline {
      * @return The duration of the ad, or {@link C#TIME_UNSET} if not yet known.
      */
     public long getAdDurationUs(int adGroupIndex, int adIndexInAdGroup) {
-      if (adDurationsUs == null) {
-        throw new IndexOutOfBoundsException();
-      }
       if (adIndexInAdGroup >= adDurationsUs[adGroupIndex].length) {
         return C.TIME_UNSET;
       }

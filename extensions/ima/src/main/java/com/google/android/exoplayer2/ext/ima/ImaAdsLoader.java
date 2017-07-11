@@ -66,35 +66,11 @@ import java.util.List;
   public interface EventListener {
 
     /**
-     * Called when the times of ad groups are known.
+     * Called when the ad playback state has been updated.
      *
-     * @param adGroupTimesUs The times of ad groups, in microseconds.
+     * @param adPlaybackState The new ad playback state.
      */
-    void onAdGroupTimesUsLoaded(long[] adGroupTimesUs);
-
-    /**
-     * Called when an ad group has been played to the end.
-     *
-     * @param adGroupIndex The index of the ad group.
-     */
-    void onAdGroupPlayedToEnd(int adGroupIndex);
-
-    /**
-     * Called when the URI for the media of an ad has been loaded.
-     *
-     * @param adGroupIndex The index of the ad group containing the ad with the media URI.
-     * @param adIndexInAdGroup The index of the ad in its ad group.
-     * @param uri The URI for the ad's media.
-     */
-    void onAdUriLoaded(int adGroupIndex, int adIndexInAdGroup, Uri uri);
-
-    /**
-     * Called when an ad group has loaded.
-     *
-     * @param adGroupIndex The index of the ad group containing the ad.
-     * @param adCountInAdGroup The number of ads in the ad group.
-     */
-    void onAdGroupLoaded(int adGroupIndex, int adCountInAdGroup);
+    void onAdPlaybackState(AdPlaybackState adPlaybackState);
 
     /**
      * Called when there was an error loading ads.
@@ -126,10 +102,9 @@ import java.util.List;
   private final AdsLoader adsLoader;
 
   private AdsManager adsManager;
-  private long[] adGroupTimesUs;
-  private int[] adsLoadedInAdGroup;
   private Timeline timeline;
   private long contentDurationMs;
+  private AdPlaybackState adPlaybackState;
 
   private boolean released;
 
@@ -263,9 +238,9 @@ import java.util.List;
         Log.d(TAG, "Initialized without preloading");
       }
     }
-    adGroupTimesUs = getAdGroupTimesUs(adsManager.getAdCuePoints());
-    adsLoadedInAdGroup = new int[adGroupTimesUs.length];
-    eventListener.onAdGroupTimesUsLoaded(adGroupTimesUs);
+    long[] adGroupTimesUs = getAdGroupTimesUs(adsManager.getAdCuePoints());
+    adPlaybackState = new AdPlaybackState(adGroupTimesUs);
+    updateAdPlaybackState();
   }
 
   // AdEvent.AdEventListener implementation.
@@ -285,7 +260,7 @@ import java.util.List;
         // The ad position is not always accurate when using preloading. See [Internal: b/62613240].
         AdPodInfo adPodInfo = ad.getAdPodInfo();
         int podIndex = adPodInfo.getPodIndex();
-        adGroupIndex = podIndex == -1 ? adGroupTimesUs.length - 1 : podIndex;
+        adGroupIndex = podIndex == -1 ? adPlaybackState.adGroupCount - 1 : podIndex;
         int adPosition = adPodInfo.getAdPosition();
         int adCountInAdGroup = adPodInfo.getTotalAds();
         adsManager.start();
@@ -293,7 +268,8 @@ import java.util.List;
           Log.d(TAG, "Loaded ad " + adPosition + " of " + adCountInAdGroup + " in ad group "
               + adGroupIndex);
         }
-        eventListener.onAdGroupLoaded(adGroupIndex, adCountInAdGroup);
+        adPlaybackState.setAdCount(adGroupIndex, adCountInAdGroup);
+        updateAdPlaybackState();
         break;
       case CONTENT_PAUSE_REQUESTED:
         // After CONTENT_PAUSE_REQUESTED, IMA will playAd/pauseAd/stopAd to show one or more ads
@@ -332,7 +308,7 @@ import java.util.List;
       return new VideoProgressUpdate(pendingContentPositionMs, contentDurationMs);
     }
     if (fakeContentProgressElapsedRealtimeMs != C.TIME_UNSET) {
-      long adGroupTimeMs = C.usToMs(adGroupTimesUs[adGroupIndex]);
+      long adGroupTimeMs = C.usToMs(adPlaybackState.adGroupTimesUs[adGroupIndex]);
       if (adGroupTimeMs == C.TIME_END_OF_SOURCE) {
         adGroupTimeMs = contentDurationMs;
       }
@@ -357,11 +333,11 @@ import java.util.List;
 
   @Override
   public void loadAd(String adUriString) {
-    int adIndexInAdGroup = adsLoadedInAdGroup[adGroupIndex]++;
     if (DEBUG) {
-      Log.d(TAG, "loadAd at index " + adIndexInAdGroup + " in ad group " + adGroupIndex);
+      Log.d(TAG, "loadAd in ad group " + adGroupIndex);
     }
-    eventListener.onAdUriLoaded(adGroupIndex, adIndexInAdGroup, Uri.parse(adUriString));
+    adPlaybackState.addAdUri(adGroupIndex, Uri.parse(adUriString));
+    updateAdPlaybackState();
   }
 
   @Override
@@ -518,7 +494,7 @@ import java.util.List;
       // IMA hasn't sent CONTENT_PAUSE_REQUESTED yet, so fake the content position.
       Assertions.checkState(fakeContentProgressElapsedRealtimeMs == C.TIME_UNSET);
       fakeContentProgressElapsedRealtimeMs = SystemClock.elapsedRealtime();
-      if (adGroupIndex == adGroupTimesUs.length - 1) {
+      if (adGroupIndex == adPlaybackState.adGroupCount - 1) {
         adsLoader.contentComplete();
         if (DEBUG) {
           Log.d(TAG, "adsLoader.contentComplete");
@@ -569,8 +545,9 @@ import java.util.List;
   private void stopAdInternal() {
     Assertions.checkState(playingAd);
     player.setPlayWhenReady(false);
+    adPlaybackState.playedAd(adGroupIndex);
+    updateAdPlaybackState();
     if (!player.isPlayingAd()) {
-      eventListener.onAdGroupPlayedToEnd(adGroupIndex);
       adGroupIndex = C.INDEX_UNSET;
     }
     clearFlags();
@@ -593,6 +570,10 @@ import java.util.List;
       }
       sentContentComplete = true;
     }
+  }
+
+  private void updateAdPlaybackState() {
+    eventListener.onAdPlaybackState(adPlaybackState.copy());
   }
 
   private static long[] getAdGroupTimesUs(List<Float> cuePoints) {

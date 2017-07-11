@@ -26,9 +26,9 @@ public final class SinglePeriodAdTimeline extends Timeline {
 
   private final Timeline contentTimeline;
   private final long[] adGroupTimesUs;
-  private final boolean[] hasPlayedAdGroup;
   private final int[] adCounts;
-  private final boolean[][] isAdAvailable;
+  private final int[] adsLoadedCounts;
+  private final int[] adsPlayedCounts;
   private final long[][] adDurationsUs;
 
   /**
@@ -39,23 +39,22 @@ public final class SinglePeriodAdTimeline extends Timeline {
    * @param adGroupTimesUs The times of ad groups relative to the start of the period, in
    *     microseconds. A final element with the value {@link C#TIME_END_OF_SOURCE} indicates that
    *     the period has a postroll ad.
-   * @param hasPlayedAdGroup Whether each ad group has been played.
    * @param adCounts The number of ads in each ad group. An element may be {@link C#LENGTH_UNSET}
    *     if the number of ads is not yet known.
-   * @param isAdAvailable Whether each ad in each ad group is available.
+   * @param adsLoadedCounts The number of ads loaded so far in each ad group.
+   * @param adsPlayedCounts The number of ads played so far in each ad group.
    * @param adDurationsUs The duration of each ad in each ad group, in microseconds. An element
    *     may be {@link C#TIME_UNSET} if the duration is not yet known.
    */
-  public SinglePeriodAdTimeline(Timeline contentTimeline, long[] adGroupTimesUs,
-      boolean[] hasPlayedAdGroup, int[] adCounts, boolean[][] isAdAvailable,
-      long[][] adDurationsUs) {
+  public SinglePeriodAdTimeline(Timeline contentTimeline, long[] adGroupTimesUs, int[] adCounts,
+      int[] adsLoadedCounts, int[] adsPlayedCounts, long[][] adDurationsUs) {
     Assertions.checkState(contentTimeline.getPeriodCount() == 1);
     Assertions.checkState(contentTimeline.getWindowCount() == 1);
     this.contentTimeline = contentTimeline;
     this.adGroupTimesUs = adGroupTimesUs;
-    this.hasPlayedAdGroup = hasPlayedAdGroup;
     this.adCounts = adCounts;
-    this.isAdAvailable = isAdAvailable;
+    this.adsLoadedCounts = adsLoadedCounts;
+    this.adsPlayedCounts = adsPlayedCounts;
     this.adDurationsUs = adDurationsUs;
   }
 
@@ -79,8 +78,8 @@ public final class SinglePeriodAdTimeline extends Timeline {
   public Period getPeriod(int periodIndex, Period period, boolean setIds) {
     contentTimeline.getPeriod(periodIndex, period, setIds);
     period.set(period.id, period.uid, period.windowIndex, period.durationUs,
-        period.getPositionInWindowUs(), adGroupTimesUs, hasPlayedAdGroup, adCounts,
-        isAdAvailable, adDurationsUs);
+        period.getPositionInWindowUs(), adGroupTimesUs, adCounts, adsLoadedCounts, adsPlayedCounts,
+        adDurationsUs);
     return period;
   }
 
