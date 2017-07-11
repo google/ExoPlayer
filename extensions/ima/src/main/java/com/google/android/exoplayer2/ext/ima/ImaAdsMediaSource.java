@@ -15,12 +15,9 @@
  */
 package com.google.android.exoplayer2.ext.ima;
 
-import android.content.Context;
-import android.net.Uri;
 import android.os.Handler;
 import android.os.Looper;
 import android.view.ViewGroup;
-import com.google.ads.interactivemedia.v3.api.ImaSdkSettings;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.Timeline;
@@ -44,10 +41,8 @@ public final class ImaAdsMediaSource implements MediaSource {
 
   private final MediaSource contentMediaSource;
   private final DataSource.Factory dataSourceFactory;
-  private final Context context;
-  private final Uri adTagUri;
+  private final ImaAdsLoader imaAdsLoader;
   private final ViewGroup adUiViewGroup;
-  private final ImaSdkSettings imaSdkSettings;
   private final Handler mainHandler;
   private final AdsLoaderListener adsLoaderListener;
   private final Map<MediaPeriod, MediaSource> adMediaSourceByMediaPeriod;
@@ -66,49 +61,20 @@ public final class ImaAdsMediaSource implements MediaSource {
   private MediaSource.Listener listener;
   private IOException adLoadError;
 
-  // Accessed on the main thread.
-  private ImaAdsLoader imaAdsLoader;
-
   /**
    * Constructs a new source that inserts ads linearly with the content specified by
    * {@code contentMediaSource}.
    *
    * @param contentMediaSource The {@link MediaSource} providing the content to play.
    * @param dataSourceFactory Factory for data sources used to load ad media.
-   * @param context The context.
-   * @param adTagUri The {@link Uri} of an ad tag compatible with the Android IMA SDK. See
-   *     https://developers.google.com/interactive-media-ads/docs/sdks/android/compatibility for
-   *     more information.
-   * @param adUiViewGroup A {@link ViewGroup} on top of the player that will show any ad user
-   *     interface.
+   * @param imaAdsLoader The loader for ads.
    */
   public ImaAdsMediaSource(MediaSource contentMediaSource, DataSource.Factory dataSourceFactory,
-      Context context, Uri adTagUri, ViewGroup adUiViewGroup) {
-    this(contentMediaSource, dataSourceFactory, context, adTagUri, adUiViewGroup, null);
-  }
-
-  /**
-   * Constructs a new source that inserts ads linearly with the content specified by
-   * {@code contentMediaSource}.
-   *
-   * @param contentMediaSource The {@link MediaSource} providing the content to play.
-   * @param dataSourceFactory Factory for data sources used to load ad media.
-   * @param context The context.
-   * @param adTagUri The {@link Uri} of an ad tag compatible with the Android IMA SDK. See
-   *     https://developers.google.com/interactive-media-ads/docs/sdks/android/compatibility for
-   *     more information.
-   * @param adUiViewGroup A {@link ViewGroup} on top of the player that will show any ad UI.
-   * @param imaSdkSettings {@link ImaSdkSettings} used to configure the IMA SDK, or {@code null} to
-   *     use the default settings. If set, the player type and version fields may be overwritten.
-   */
-  public ImaAdsMediaSource(MediaSource contentMediaSource, DataSource.Factory dataSourceFactory,
-      Context context, Uri adTagUri, ViewGroup adUiViewGroup, ImaSdkSettings imaSdkSettings) {
+      ImaAdsLoader imaAdsLoader, ViewGroup adUiViewGroup) {
     this.contentMediaSource = contentMediaSource;
     this.dataSourceFactory = dataSourceFactory;
-    this.context = context;
-    this.adTagUri = adTagUri;
+    this.imaAdsLoader = imaAdsLoader;
     this.adUiViewGroup = adUiViewGroup;
-    this.imaSdkSettings = imaSdkSettings;
     mainHandler = new Handler(Looper.getMainLooper());
     adsLoaderListener = new AdsLoaderListener();
     adMediaSourceByMediaPeriod = new HashMap<>();
@@ -118,22 +84,21 @@ public final class ImaAdsMediaSource implements MediaSource {
   }
 
   @Override
-  public void prepareSource(ExoPlayer player, boolean isTopLevelSource, Listener listener) {
+  public void prepareSource(final ExoPlayer player, boolean isTopLevelSource, Listener listener) {
     Assertions.checkArgument(isTopLevelSource);
     this.listener = listener;
     this.player = player;
     playerHandler = new Handler();
-    mainHandler.post(new Runnable() {
-      @Override
-      public void run() {
-        imaAdsLoader = new ImaAdsLoader(context, adTagUri, adUiViewGroup, imaSdkSettings,
-            ImaAdsMediaSource.this.player, adsLoaderListener);
-      }
-    });
     contentMediaSource.prepareSource(player, false, new Listener() {
       @Override
       public void onSourceInfoRefreshed(Timeline timeline, Object manifest) {
         ImaAdsMediaSource.this.onContentSourceInfoRefreshed(timeline, manifest);
+      }
+    });
+    mainHandler.post(new Runnable() {
+      @Override
+      public void run() {
+        imaAdsLoader.attachPlayer(player, adsLoaderListener, adUiViewGroup);
       }
     });
   }
@@ -146,7 +111,9 @@ public final class ImaAdsMediaSource implements MediaSource {
     contentMediaSource.maybeThrowSourceInfoRefreshError();
     for (MediaSource[] mediaSources : adGroupMediaSources) {
       for (MediaSource mediaSource : mediaSources) {
-        mediaSource.maybeThrowSourceInfoRefreshError();
+        if (mediaSource != null) {
+          mediaSource.maybeThrowSourceInfoRefreshError();
+        }
       }
     }
   }
@@ -201,17 +168,15 @@ public final class ImaAdsMediaSource implements MediaSource {
     contentMediaSource.releaseSource();
     for (MediaSource[] mediaSources : adGroupMediaSources) {
       for (MediaSource mediaSource : mediaSources) {
-        mediaSource.releaseSource();
+        if (mediaSource != null) {
+          mediaSource.releaseSource();
+        }
       }
     }
     mainHandler.post(new Runnable() {
       @Override
       public void run() {
-        // TODO: The source will be released when the application is paused/stopped, which can occur
-        // if the user taps on the ad. In this case, we should keep the ads manager alive but pause
-        // it, instead of destroying it.
-        imaAdsLoader.release();
-        imaAdsLoader = null;
+        imaAdsLoader.detachPlayer();
       }
     });
   }

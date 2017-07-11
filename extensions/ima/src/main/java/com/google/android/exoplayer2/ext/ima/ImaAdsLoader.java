@@ -54,7 +54,7 @@ import java.util.List;
 /**
  * Loads ads using the IMA SDK. All methods are called on the main thread.
  */
-/* package */ final class ImaAdsLoader implements ExoPlayer.EventListener, VideoAdPlayer,
+public final class ImaAdsLoader implements ExoPlayer.EventListener, VideoAdPlayer,
     ContentProgressProvider, AdErrorListener, AdsLoadedListener, AdEventListener {
 
   private static final boolean DEBUG = false;
@@ -95,18 +95,22 @@ import java.util.List;
    */
   private static final long END_OF_CONTENT_POSITION_THRESHOLD_MS = 5000;
 
-  private final EventListener eventListener;
-  private final ExoPlayer player;
+  private final Uri adTagUri;
   private final Timeline.Period period;
   private final List<VideoAdPlayerCallback> adCallbacks;
+  private final ImaSdkFactory imaSdkFactory;
+  private final AdDisplayContainer adDisplayContainer;
   private final AdsLoader adsLoader;
+
+  private EventListener eventListener;
+  private ExoPlayer player;
+  private VideoProgressUpdate lastContentProgress;
+  private VideoProgressUpdate lastAdProgress;
 
   private AdsManager adsManager;
   private Timeline timeline;
   private long contentDurationMs;
   private AdPlaybackState adPlaybackState;
-
-  private boolean released;
 
   // Fields tracking IMA's state.
 
@@ -163,46 +167,80 @@ import java.util.List;
    * @param adTagUri The {@link Uri} of an ad tag compatible with the Android IMA SDK. See
    *     https://developers.google.com/interactive-media-ads/docs/sdks/android/compatibility for
    *     more information.
-   * @param adUiViewGroup A {@link ViewGroup} on top of the player that will show any ad UI.
+   */
+  public ImaAdsLoader(Context context, Uri adTagUri) {
+    this(context, adTagUri, null);
+  }
+
+  /**
+   * Creates a new IMA ads loader.
+   *
+   * @param context The context.
+   * @param adTagUri The {@link Uri} of an ad tag compatible with the Android IMA SDK. See
+   *     https://developers.google.com/interactive-media-ads/docs/sdks/android/compatibility for
+   *     more information.
    * @param imaSdkSettings {@link ImaSdkSettings} used to configure the IMA SDK, or {@code null} to
    *     use the default settings. If set, the player type and version fields may be overwritten.
-   * @param player The player instance that will play the loaded ad schedule.
-   * @param eventListener Listener for ad loader events.
    */
-  public ImaAdsLoader(Context context, Uri adTagUri, ViewGroup adUiViewGroup,
-      ImaSdkSettings imaSdkSettings, ExoPlayer player, EventListener eventListener) {
-    this.eventListener = eventListener;
-    this.player = player;
+  public ImaAdsLoader(Context context, Uri adTagUri, ImaSdkSettings imaSdkSettings) {
+    this.adTagUri = adTagUri;
     period = new Timeline.Period();
     adCallbacks = new ArrayList<>(1);
-
-    fakeContentProgressElapsedRealtimeMs = C.TIME_UNSET;
-    pendingContentPositionMs = C.TIME_UNSET;
-    adGroupIndex = C.INDEX_UNSET;
-    contentDurationMs = C.TIME_UNSET;
-
-    player.addListener(this);
-
-    ImaSdkFactory imaSdkFactory = ImaSdkFactory.getInstance();
-    AdDisplayContainer adDisplayContainer = imaSdkFactory.createAdDisplayContainer();
+    imaSdkFactory = ImaSdkFactory.getInstance();
+    adDisplayContainer = imaSdkFactory.createAdDisplayContainer();
     adDisplayContainer.setPlayer(this);
-    adDisplayContainer.setAdContainer(adUiViewGroup);
-
     if (imaSdkSettings == null) {
       imaSdkSettings = imaSdkFactory.createImaSdkSettings();
     }
     imaSdkSettings.setPlayerType(IMA_SDK_SETTINGS_PLAYER_TYPE);
     imaSdkSettings.setPlayerVersion(IMA_SDK_SETTINGS_PLAYER_VERSION);
-
-    AdsRequest request = imaSdkFactory.createAdsRequest();
-    request.setAdTagUrl(adTagUri.toString());
-    request.setAdDisplayContainer(adDisplayContainer);
-    request.setContentProgressProvider(this);
-
     adsLoader = imaSdkFactory.createAdsLoader(context, imaSdkSettings);
     adsLoader.addAdErrorListener(this);
     adsLoader.addAdsLoadedListener(this);
-    adsLoader.requestAds(request);
+    fakeContentProgressElapsedRealtimeMs = C.TIME_UNSET;
+    pendingContentPositionMs = C.TIME_UNSET;
+    adGroupIndex = C.INDEX_UNSET;
+    contentDurationMs = C.TIME_UNSET;
+  }
+
+  /**
+   * Attaches a player that will play ads loaded using this instance.
+   *
+   * @param player The player instance that will play the loaded ads.
+   * @param eventListener Listener for ads loader events.
+   * @param adUiViewGroup A {@link ViewGroup} on top of the player that will show any ad UI.
+   */
+  public void attachPlayer(ExoPlayer player, EventListener eventListener, ViewGroup adUiViewGroup) {
+    this.player = player;
+    this.eventListener = eventListener;
+    lastAdProgress = null;
+    lastContentProgress = null;
+    adDisplayContainer.setAdContainer(adUiViewGroup);
+    player.addListener(this);
+    if (adPlaybackState != null) {
+      eventListener.onAdPlaybackState(adPlaybackState);
+      // TODO: Call adsManager.resume if an ad is playing.
+    } else if (adTagUri != null) {
+      requestAds();
+    }
+  }
+
+  /**
+   * Detaches any attached player and event listener. To attach a new player, call
+   * {@link #attachPlayer(ExoPlayer, EventListener, ViewGroup)}. Call {@link #release()} to release
+   * all resources associated with this instance.
+   */
+  public void detachPlayer() {
+    if (player != null) {
+      if (adsManager != null && player.isPlayingAd()) {
+        adsManager.pause();
+      }
+      lastAdProgress = getAdProgress();
+      lastContentProgress = getContentProgress();
+      player.removeListener(this);
+      player = null;
+    }
+    eventListener = null;
   }
 
   /**
@@ -212,9 +250,8 @@ import java.util.List;
     if (adsManager != null) {
       adsManager.destroy();
       adsManager = null;
+      detachPlayer();
     }
-    player.removeListener(this);
-    released = true;
   }
 
   // AdsLoader.AdsLoadedListener implementation.
@@ -251,8 +288,8 @@ import java.util.List;
     if (DEBUG) {
       Log.d(TAG, "onAdEvent " + adEvent.getType());
     }
-    if (released) {
-      // The ads manager may pass CONTENT_RESUME_REQUESTED after it is destroyed.
+    if (adsManager == null) {
+      Log.w(TAG, "Dropping ad event while detached: " + adEvent);
       return;
     }
     switch (adEvent.getType()) {
@@ -274,11 +311,15 @@ import java.util.List;
       case CONTENT_PAUSE_REQUESTED:
         // After CONTENT_PAUSE_REQUESTED, IMA will playAd/pauseAd/stopAd to show one or more ads
         // before sending CONTENT_RESUME_REQUESTED.
-        pauseContentInternal();
+        if (player != null) {
+          pauseContentInternal();
+        }
         break;
       case SKIPPED: // Fall through.
       case CONTENT_RESUME_REQUESTED:
-        resumeContentInternal();
+        if (player != null) {
+          resumeContentInternal();
+        }
         break;
       case ALL_ADS_COMPLETED:
         // Do nothing. The ads manager will be released when the source is released.
@@ -294,8 +335,10 @@ import java.util.List;
     if (DEBUG) {
       Log.d(TAG, "onAdError " + adErrorEvent);
     }
-    IOException exception = new IOException("Ad error: " + adErrorEvent, adErrorEvent.getError());
-    eventListener.onLoadError(exception);
+    if (eventListener != null) {
+      IOException exception = new IOException("Ad error: " + adErrorEvent, adErrorEvent.getError());
+      eventListener.onLoadError(exception);
+    }
     // TODO: Provide a timeline to the player if it doesn't have one yet, so the content can play.
   }
 
@@ -303,32 +346,36 @@ import java.util.List;
 
   @Override
   public VideoProgressUpdate getContentProgress() {
-    if (pendingContentPositionMs != C.TIME_UNSET) {
+    if (player == null) {
+      return lastContentProgress;
+    } else if (pendingContentPositionMs != C.TIME_UNSET) {
       sentPendingContentPositionMs = true;
       return new VideoProgressUpdate(pendingContentPositionMs, contentDurationMs);
-    }
-    if (fakeContentProgressElapsedRealtimeMs != C.TIME_UNSET) {
+    } else if (fakeContentProgressElapsedRealtimeMs != C.TIME_UNSET) {
       long adGroupTimeMs = C.usToMs(adPlaybackState.adGroupTimesUs[adGroupIndex]);
       if (adGroupTimeMs == C.TIME_END_OF_SOURCE) {
         adGroupTimeMs = contentDurationMs;
       }
       long elapsedSinceEndMs = SystemClock.elapsedRealtime() - fakeContentProgressElapsedRealtimeMs;
       return new VideoProgressUpdate(adGroupTimeMs + elapsedSinceEndMs, contentDurationMs);
-    }
-    if (player.isPlayingAd() || contentDurationMs == C.TIME_UNSET) {
+    } else if (player.isPlayingAd() || contentDurationMs == C.TIME_UNSET) {
       return VideoProgressUpdate.VIDEO_TIME_NOT_READY;
+    } else {
+      return new VideoProgressUpdate(player.getCurrentPosition(), contentDurationMs);
     }
-    return new VideoProgressUpdate(player.getCurrentPosition(), contentDurationMs);
   }
 
   // VideoAdPlayer implementation.
 
   @Override
   public VideoProgressUpdate getAdProgress() {
-    if (!player.isPlayingAd()) {
+    if (player == null) {
+      return lastAdProgress;
+    } else if (!player.isPlayingAd()) {
       return VideoProgressUpdate.VIDEO_TIME_NOT_READY;
+    } else {
+      return new VideoProgressUpdate(player.getCurrentPosition(), player.getDuration());
     }
-    return new VideoProgressUpdate(player.getCurrentPosition(), player.getDuration());
   }
 
   @Override
@@ -352,6 +399,7 @@ import java.util.List;
 
   @Override
   public void playAd() {
+    Assertions.checkState(player != null);
     if (DEBUG) {
       Log.d(TAG, "playAd");
     }
@@ -379,6 +427,7 @@ import java.util.List;
 
   @Override
   public void stopAd() {
+    Assertions.checkState(player != null);
     if (!playingAd) {
       if (DEBUG) {
         Log.d(TAG, "Ignoring unexpected stopAd");
@@ -396,7 +445,7 @@ import java.util.List;
     if (DEBUG) {
       Log.d(TAG, "pauseAd");
     }
-    if (released || !playingAd) {
+    if (player == null || !playingAd) {
       // This method is called after content is resumed, and may also be called after release.
       return;
     }
@@ -513,9 +562,14 @@ import java.util.List;
 
   // Internal methods.
 
-  /**
-   * Resumes the player, ensuring the current period is a content period by seeking if necessary.
-   */
+  private void requestAds() {
+    AdsRequest request = imaSdkFactory.createAdsRequest();
+    request.setAdTagUrl(adTagUri.toString());
+    request.setAdDisplayContainer(adDisplayContainer);
+    request.setContentProgressProvider(this);
+    adsLoader.requestAds(request);
+  }
+
   private void resumeContentInternal() {
     if (contentDurationMs != C.TIME_UNSET) {
       if (playingAd) {
@@ -573,7 +627,10 @@ import java.util.List;
   }
 
   private void updateAdPlaybackState() {
-    eventListener.onAdPlaybackState(adPlaybackState.copy());
+    // Ignore updates while detached. When a player is attached it will receive the latest state.
+    if (eventListener != null) {
+      eventListener.onAdPlaybackState(adPlaybackState.copy());
+    }
   }
 
   private static long[] getAdGroupTimesUs(List<Float> cuePoints) {
