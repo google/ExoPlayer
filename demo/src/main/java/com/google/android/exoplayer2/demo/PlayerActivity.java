@@ -386,8 +386,8 @@ public class PlayerActivity extends Activity implements OnClickListener, ExoPlay
             keyRequestPropertiesArray[i + 1]);
       }
     }
-    return new DefaultDrmSessionManager<>(uuid,
-        FrameworkMediaDrm.newInstance(uuid), drmCallback, null, mainHandler, eventLogger);
+    return new DefaultDrmSessionManager<>(uuid, FrameworkMediaDrm.newInstance(uuid), drmCallback,
+        null, mainHandler, eventLogger);
   }
 
   private void releasePlayer() {

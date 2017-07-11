@@ -579,6 +579,26 @@ public final class C {
       + DEFAULT_AUDIO_BUFFER_SIZE + DEFAULT_TEXT_BUFFER_SIZE;
 
   /**
+   * "cenc" scheme type name as defined in ISO/IEC 23001-7:2016.
+   */
+  public static final String CENC_TYPE_cenc = "cenc";
+
+  /**
+   * "cbc1" scheme type name as defined in ISO/IEC 23001-7:2016.
+   */
+  public static final String CENC_TYPE_cbc1 = "cbc1";
+
+  /**
+   * "cens" scheme type name as defined in ISO/IEC 23001-7:2016.
+   */
+  public static final String CENC_TYPE_cens = "cens";
+
+  /**
+   * "cbcs" scheme type name as defined in ISO/IEC 23001-7:2016.
+   */
+  public static final String CENC_TYPE_cbcs = "cbcs";
+
+  /**
    * The Nil UUID as defined by
    * <a href="https://tools.ietf.org/html/rfc4122#section-4.1.7">RFC4122</a>.
    */
