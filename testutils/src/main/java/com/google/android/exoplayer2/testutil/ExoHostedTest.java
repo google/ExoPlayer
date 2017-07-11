@@ -78,6 +78,7 @@ public abstract class ExoHostedTest implements HostedTest, ExoPlayer.EventListen
   private SimpleExoPlayer player;
   private Surface surface;
   private ExoPlaybackException playerError;
+  private ExoPlayer.EventListener playerEventListener;
   private boolean playerWasPrepared;
   private boolean playerFinished;
   private boolean playing;
@@ -129,6 +130,16 @@ public abstract class ExoHostedTest implements HostedTest, ExoPlayer.EventListen
     }
   }
 
+  /**
+   * Sets an {@link ExoPlayer.EventListener} to listen for ExoPlayer events during the test.
+   */
+  public final void setEventListener(ExoPlayer.EventListener eventListener) {
+    this.playerEventListener = eventListener;
+    if (player != null) {
+      player.addListener(eventListener);
+    }
+  }
+
   // HostedTest implementation
 
   @Override
@@ -141,6 +152,9 @@ public abstract class ExoHostedTest implements HostedTest, ExoPlayer.EventListen
     DrmSessionManager<FrameworkMediaCrypto> drmSessionManager = buildDrmSessionManager(userAgent);
     player = buildExoPlayer(host, surface, trackSelector, drmSessionManager);
     player.prepare(buildSource(host, Util.getUserAgent(host, userAgent), bandwidthMeter));
+    if (playerEventListener != null) {
+      player.addListener(playerEventListener);
+    }
     player.addListener(this);
     player.setAudioDebugListener(this);
     player.setVideoDebugListener(this);
