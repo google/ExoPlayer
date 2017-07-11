@@ -327,8 +327,6 @@ public class PlayerActivity extends Activity implements OnClickListener, ExoPlay
               mediaDataSourceFactory, this, adTagUri, adOverlayViewGroup);
           // The demo app has a non-null overlay frame layout.
           simpleExoPlayerView.getOverlayFrameLayout().addView(adOverlayViewGroup);
-          // Show a multi-window time bar, which will include ad position markers.
-          simpleExoPlayerView.setShowMultiWindowTimeBar(true);
         } catch (Exception e) {
           // Throw if the media source class was not found, or there was an error instantiating it.
           showToast(R.string.ima_not_loaded);
