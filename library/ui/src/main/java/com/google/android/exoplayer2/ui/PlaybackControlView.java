@@ -695,7 +695,7 @@ public class PlaybackControlView extends FrameLayout {
       return;
     }
     multiWindowTimeBar = showMultiWindowTimeBar
-        && canShowMultiWindowTimeBar(player.getCurrentTimeline(), period);
+        && canShowMultiWindowTimeBar(player.getCurrentTimeline(), window);
   }
 
   private void updateProgress() {
@@ -707,63 +707,61 @@ public class PlaybackControlView extends FrameLayout {
     long bufferedPosition = 0;
     long duration = 0;
     if (player != null) {
-      if (multiWindowTimeBar) {
-        Timeline timeline = player.getCurrentTimeline();
-        int windowCount = timeline.getWindowCount();
-        int periodIndex = player.getCurrentPeriodIndex();
-        long positionUs = 0;
-        long bufferedPositionUs = 0;
-        long durationUs = 0;
-        int adGroupTimesMsCount = 0;
-        for (int i = 0; i < windowCount; i++) {
+      long currentWindowTimeBarOffsetUs = 0;
+      long durationUs = 0;
+      int adGroupCount = 0;
+      Timeline timeline = player.getCurrentTimeline();
+      if (!timeline.isEmpty()) {
+        int currentWindowIndex = player.getCurrentWindowIndex();
+        int firstWindowIndex = multiWindowTimeBar ? 0 : currentWindowIndex;
+        int lastWindowIndex =
+            multiWindowTimeBar ? timeline.getWindowCount() - 1 : currentWindowIndex;
+        for (int i = firstWindowIndex; i <= lastWindowIndex; i++) {
+          if (i == currentWindowIndex) {
+            currentWindowTimeBarOffsetUs = durationUs;
+          }
           timeline.getWindow(i, window);
+          if (window.durationUs == C.TIME_UNSET) {
+            Assertions.checkState(!multiWindowTimeBar);
+            break;
+          }
           for (int j = window.firstPeriodIndex; j <= window.lastPeriodIndex; j++) {
-            long periodDurationUs = timeline.getPeriod(j, period).getDurationUs();
-            Assertions.checkState(periodDurationUs != C.TIME_UNSET);
-            long periodDurationInWindowUs = periodDurationUs;
-            if (j == window.firstPeriodIndex) {
-              periodDurationInWindowUs -= window.positionInFirstPeriodUs;
-            }
-            for (int adGroupIndex = 0; adGroupIndex < period.getAdGroupCount(); adGroupIndex++) {
-              long adGroupTimeUs = period.getAdGroupTimeUs(adGroupIndex);
-              if (adGroupTimeUs == C.TIME_END_OF_SOURCE) {
-                adGroupTimeUs = periodDurationUs;
+            timeline.getPeriod(j, period);
+            int periodAdGroupCount = period.getAdGroupCount();
+            for (int adGroupIndex = 0; adGroupIndex < periodAdGroupCount; adGroupIndex++) {
+              long adGroupTimeInPeriodUs = period.getAdGroupTimeUs(adGroupIndex);
+              if (adGroupTimeInPeriodUs == C.TIME_END_OF_SOURCE) {
+                if (period.durationUs == C.TIME_UNSET) {
+                  // Don't show ad markers for postrolls in periods with unknown duration.
+                  continue;
+                }
+                adGroupTimeInPeriodUs = period.durationUs;
               }
-              if (j == window.firstPeriodIndex) {
-                adGroupTimeUs -= window.positionInFirstPeriodUs;
-              }
-              if (adGroupTimeUs >= 0 && adGroupTimeUs <= window.durationUs) {
-                if (adGroupTimesMsCount == adGroupTimesMs.length) {
+              long adGroupTimeInWindowUs = adGroupTimeInPeriodUs + period.getPositionInWindowUs();
+              if (adGroupTimeInWindowUs >= 0 && adGroupTimeInWindowUs <= window.durationUs) {
+                if (adGroupCount == adGroupTimesMs.length) {
                   int newLength = adGroupTimesMs.length == 0 ? 1 : adGroupTimesMs.length * 2;
                   adGroupTimesMs = Arrays.copyOf(adGroupTimesMs, newLength);
                   playedAdGroups = Arrays.copyOf(playedAdGroups, newLength);
                 }
-                adGroupTimesMs[adGroupTimesMsCount] = C.usToMs(durationUs + adGroupTimeUs);
-                playedAdGroups[adGroupTimesMsCount] = period.hasPlayedAdGroup(adGroupIndex);
-                adGroupTimesMsCount++;
+                adGroupTimesMs[adGroupCount] = C.usToMs(durationUs + adGroupTimeInWindowUs);
+                playedAdGroups[adGroupCount] = period.hasPlayedAdGroup(adGroupIndex);
+                adGroupCount++;
               }
             }
-            if (i < periodIndex) {
-              positionUs += periodDurationInWindowUs;
-              bufferedPositionUs += periodDurationInWindowUs;
-            }
-            durationUs += periodDurationInWindowUs;
           }
+          durationUs += window.durationUs;
         }
-        position = C.usToMs(positionUs);
-        bufferedPosition = C.usToMs(bufferedPositionUs);
-        duration = C.usToMs(durationUs);
-        if (!player.isPlayingAd()) {
-          position += player.getCurrentPosition();
-          bufferedPosition += player.getBufferedPosition();
-        }
-        if (timeBar != null) {
-          timeBar.setAdGroupTimesMs(adGroupTimesMs, playedAdGroups, adGroupTimesMsCount);
-        }
-      } else {
-        position = player.getCurrentPosition();
-        bufferedPosition = player.getBufferedPosition();
-        duration = player.getDuration();
+      }
+      duration = C.usToMs(durationUs);
+      position = C.usToMs(currentWindowTimeBarOffsetUs);
+      bufferedPosition = C.usToMs(currentWindowTimeBarOffsetUs);
+      if (!player.isPlayingAd()) {
+        position += player.getCurrentPosition();
+        bufferedPosition += player.getBufferedPosition();
+      }
+      if (timeBar != null) {
+        timeBar.setAdGroupTimesMs(adGroupTimesMs, playedAdGroups, adGroupCount);
       }
     }
     if (durationView != null) {
@@ -909,38 +907,28 @@ public class PlaybackControlView extends FrameLayout {
     }
   }
 
-  private void seekToTimeBarPosition(long timebarPositionMs) {
-    if (multiWindowTimeBar) {
-      Timeline timeline = player.getCurrentTimeline();
+  private void seekToTimeBarPosition(long positionMs) {
+    int windowIndex;
+    Timeline timeline = player.getCurrentTimeline();
+    if (multiWindowTimeBar && !timeline.isEmpty()) {
       int windowCount = timeline.getWindowCount();
-      long remainingMs = timebarPositionMs;
-      for (int i = 0; i < windowCount; i++) {
-        timeline.getWindow(i, window);
-        for (int j = window.firstPeriodIndex; j <= window.lastPeriodIndex; j++) {
-          long periodDurationMs = timeline.getPeriod(j, period).getDurationMs();
-          if (periodDurationMs == C.TIME_UNSET) {
-            // Should never happen as canShowMultiWindowTimeBar is true.
-            throw new IllegalStateException();
-          }
-          if (j == window.firstPeriodIndex) {
-            periodDurationMs -= window.getPositionInFirstPeriodMs();
-          }
-          if (i == windowCount - 1 && j == window.lastPeriodIndex
-              && remainingMs >= periodDurationMs) {
-            // Seeking past the end of the last window should seek to the end of the timeline.
-            seekTo(i, window.getDurationMs());
-            return;
-          }
-          if (remainingMs < periodDurationMs) {
-            seekTo(i, period.getPositionInWindowMs() + remainingMs);
-            return;
-          }
-          remainingMs -= periodDurationMs;
+      windowIndex = 0;
+      while (true) {
+        long windowDurationMs = timeline.getWindow(windowIndex, window).getDurationMs();
+        if (positionMs < windowDurationMs) {
+          break;
+        } else if (windowIndex == windowCount - 1) {
+          // Seeking past the end of the last window should seek to the end of the timeline.
+          positionMs = windowDurationMs;
+          break;
         }
+        positionMs -= windowDurationMs;
+        windowIndex++;
       }
     } else {
-      seekTo(timebarPositionMs);
+      windowIndex = player.getCurrentWindowIndex();
     }
+    seekTo(windowIndex, positionMs);
   }
 
   @Override
@@ -1028,16 +1016,16 @@ public class PlaybackControlView extends FrameLayout {
    * Returns whether the specified {@code timeline} can be shown on a multi-window time bar.
    *
    * @param timeline The {@link Timeline} to check.
-   * @param period A scratch {@link Timeline.Period} instance.
+   * @param window A scratch {@link Timeline.Window} instance.
    * @return Whether the specified timeline can be shown on a multi-window time bar.
    */
-  private static boolean canShowMultiWindowTimeBar(Timeline timeline, Timeline.Period period) {
+  private static boolean canShowMultiWindowTimeBar(Timeline timeline, Timeline.Window window) {
     if (timeline.getWindowCount() > MAX_WINDOWS_FOR_MULTI_WINDOW_TIME_BAR) {
       return false;
     }
-    int periodCount = timeline.getPeriodCount();
-    for (int i = 0; i < periodCount; i++) {
-      if (timeline.getPeriod(i, period).durationUs == C.TIME_UNSET) {
+    int windowCount = timeline.getWindowCount();
+    for (int i = 0; i < windowCount; i++) {
+      if (timeline.getWindow(i, window).durationUs == C.TIME_UNSET) {
         return false;
       }
     }
