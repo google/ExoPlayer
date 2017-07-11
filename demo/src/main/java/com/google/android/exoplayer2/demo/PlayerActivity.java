@@ -336,8 +336,6 @@ public class PlayerActivity extends Activity implements OnClickListener, ExoPlay
         }
         try {
           mediaSource = createAdsMediaSource(mediaSource, Uri.parse(adTagUriString));
-          // The demo app has a non-null overlay frame layout.
-          simpleExoPlayerView.getOverlayFrameLayout().addView(adOverlayViewGroup);
         } catch (Exception e) {
           showToast(R.string.ima_not_loaded);
         }

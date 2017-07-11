@@ -119,15 +119,15 @@ public final class ImaAdsLoader implements ExoPlayer.EventListener, VideoAdPlaye
    */
   private int adGroupIndex;
   /**
-   * If {@link #playingAdGroupIndex} is set, stores whether IMA has called {@link #playAd()} and not
+   * If {@link #playingAd} is set, stores whether IMA has called {@link #playAd()} and not
    * {@link #stopAd()}.
    */
-  private boolean playingAd;
+  private boolean imaPlayingAd;
   /**
-   * If {@link #playingAdGroupIndex} is set, stores whether IMA has called {@link #pauseAd()} since
-   * a preceding call to {@link #playAd()} for the current ad.
+   * If {@link #playingAd} is set, stores whether IMA has called {@link #pauseAd()} since a
+   * preceding call to {@link #playAd()} for the current ad.
    */
-  private boolean pausedInAd;
+  private boolean imaPausedInAd;
   /**
    * Whether {@link AdsLoader#contentComplete()} has been called since starting ad playback.
    */
@@ -136,9 +136,9 @@ public final class ImaAdsLoader implements ExoPlayer.EventListener, VideoAdPlaye
   // Fields tracking the player/loader state.
 
   /**
-   * If the player is playing an ad, stores the ad group index. {@link C#INDEX_UNSET} otherwise.
+   * Whether the player is playing an ad.
    */
-  private int playingAdGroupIndex;
+  private boolean playingAd;
   /**
    * If the player is playing an ad, stores the ad index in its ad group. {@link C#INDEX_UNSET}
    * otherwise.
@@ -151,6 +151,11 @@ public final class ImaAdsLoader implements ExoPlayer.EventListener, VideoAdPlaye
    * determine a fake, increasing content position. {@link C#TIME_UNSET} otherwise.
    */
   private long fakeContentProgressElapsedRealtimeMs;
+  /**
+   * If {@link #fakeContentProgressElapsedRealtimeMs} is set, stores the offset from which the
+   * content progress should increase. {@link C#TIME_UNSET} otherwise.
+   */
+  private long fakeContentProgressOffsetMs;
   /**
    * Stores the pending content position when a seek operation was intercepted to play an ad.
    */
@@ -198,6 +203,7 @@ public final class ImaAdsLoader implements ExoPlayer.EventListener, VideoAdPlaye
     adsLoader.addAdErrorListener(this);
     adsLoader.addAdsLoadedListener(this);
     fakeContentProgressElapsedRealtimeMs = C.TIME_UNSET;
+    fakeContentProgressOffsetMs = C.TIME_UNSET;
     pendingContentPositionMs = C.TIME_UNSET;
     adGroupIndex = C.INDEX_UNSET;
     contentDurationMs = C.TIME_UNSET;
@@ -210,7 +216,8 @@ public final class ImaAdsLoader implements ExoPlayer.EventListener, VideoAdPlaye
    * @param eventListener Listener for ads loader events.
    * @param adUiViewGroup A {@link ViewGroup} on top of the player that will show any ad UI.
    */
-  public void attachPlayer(ExoPlayer player, EventListener eventListener, ViewGroup adUiViewGroup) {
+  /* package */ void attachPlayer(ExoPlayer player, EventListener eventListener,
+      ViewGroup adUiViewGroup) {
     this.player = player;
     this.eventListener = eventListener;
     lastAdProgress = null;
@@ -230,7 +237,7 @@ public final class ImaAdsLoader implements ExoPlayer.EventListener, VideoAdPlaye
    * {@link #attachPlayer(ExoPlayer, EventListener, ViewGroup)}. Call {@link #release()} to release
    * all resources associated with this instance.
    */
-  public void detachPlayer() {
+  /* package */ void detachPlayer() {
     if (player != null) {
       if (adsManager != null && player.isPlayingAd()) {
         adsManager.pause();
@@ -352,12 +359,9 @@ public final class ImaAdsLoader implements ExoPlayer.EventListener, VideoAdPlaye
       sentPendingContentPositionMs = true;
       return new VideoProgressUpdate(pendingContentPositionMs, contentDurationMs);
     } else if (fakeContentProgressElapsedRealtimeMs != C.TIME_UNSET) {
-      long adGroupTimeMs = C.usToMs(adPlaybackState.adGroupTimesUs[adGroupIndex]);
-      if (adGroupTimeMs == C.TIME_END_OF_SOURCE) {
-        adGroupTimeMs = contentDurationMs;
-      }
       long elapsedSinceEndMs = SystemClock.elapsedRealtime() - fakeContentProgressElapsedRealtimeMs;
-      return new VideoProgressUpdate(adGroupTimeMs + elapsedSinceEndMs, contentDurationMs);
+      long fakePositionMs = fakeContentProgressOffsetMs + elapsedSinceEndMs;
+      return new VideoProgressUpdate(fakePositionMs, contentDurationMs);
     } else if (player.isPlayingAd() || contentDurationMs == C.TIME_UNSET) {
       return VideoProgressUpdate.VIDEO_TIME_NOT_READY;
     } else {
@@ -403,7 +407,7 @@ public final class ImaAdsLoader implements ExoPlayer.EventListener, VideoAdPlaye
     if (DEBUG) {
       Log.d(TAG, "playAd");
     }
-    if (playingAd && !pausedInAd) {
+    if (imaPlayingAd && !imaPausedInAd) {
       // Work around an issue where IMA does not always call stopAd before resuming content.
       // See [Internal: b/38354028].
       if (DEBUG) {
@@ -412,13 +416,13 @@ public final class ImaAdsLoader implements ExoPlayer.EventListener, VideoAdPlaye
       stopAdInternal();
     }
     player.setPlayWhenReady(true);
-    if (!playingAd) {
-      playingAd = true;
+    if (!imaPlayingAd) {
+      imaPlayingAd = true;
       for (VideoAdPlayerCallback callback : adCallbacks) {
         callback.onPlay();
       }
-    } else if (pausedInAd) {
-      pausedInAd = false;
+    } else if (imaPausedInAd) {
+      imaPausedInAd = false;
       for (VideoAdPlayerCallback callback : adCallbacks) {
         callback.onResume();
       }
@@ -428,7 +432,7 @@ public final class ImaAdsLoader implements ExoPlayer.EventListener, VideoAdPlaye
   @Override
   public void stopAd() {
     Assertions.checkState(player != null);
-    if (!playingAd) {
+    if (!imaPlayingAd) {
       if (DEBUG) {
         Log.d(TAG, "Ignoring unexpected stopAd");
       }
@@ -445,11 +449,11 @@ public final class ImaAdsLoader implements ExoPlayer.EventListener, VideoAdPlaye
     if (DEBUG) {
       Log.d(TAG, "pauseAd");
     }
-    if (player == null || !playingAd) {
+    if (player == null || !imaPlayingAd) {
       // This method is called after content is resumed, and may also be called after release.
       return;
     }
-    pausedInAd = true;
+    imaPausedInAd = true;
     player.setPlayWhenReady(false);
     for (VideoAdPlayerCallback callback : adCallbacks) {
       callback.onPause();
@@ -473,10 +477,8 @@ public final class ImaAdsLoader implements ExoPlayer.EventListener, VideoAdPlaye
     Assertions.checkArgument(timeline.getPeriodCount() == 1);
     this.timeline = timeline;
     contentDurationMs = C.usToMs(timeline.getPeriod(0, period).durationUs);
-    if (player.isPlayingAd()) {
-      playingAdGroupIndex = player.getCurrentAdGroupIndex();
-      playingAdIndexInAdGroup = player.getCurrentAdIndexInAdGroup();
-    }
+    playingAd = player.isPlayingAd();
+    playingAdIndexInAdGroup = playingAd ? player.getCurrentAdIndexInAdGroup() : C.INDEX_UNSET;
   }
 
   @Override
@@ -491,9 +493,9 @@ public final class ImaAdsLoader implements ExoPlayer.EventListener, VideoAdPlaye
 
   @Override
   public void onPlayerStateChanged(boolean playWhenReady, int playbackState) {
-    if (!playingAd && playbackState == ExoPlayer.STATE_BUFFERING && playWhenReady) {
+    if (!imaPlayingAd && playbackState == ExoPlayer.STATE_BUFFERING && playWhenReady) {
       checkForContentComplete();
-    } else if (playingAd && playbackState == ExoPlayer.STATE_ENDED) {
+    } else if (imaPlayingAd && playbackState == ExoPlayer.STATE_ENDED) {
       // IMA is waiting for the ad playback to finish so invoke the callback now.
       // Either CONTENT_RESUME_REQUESTED will be passed next, or playAd will be called again.
       for (VideoAdPlayerCallback callback : adCallbacks) {
@@ -518,7 +520,9 @@ public final class ImaAdsLoader implements ExoPlayer.EventListener, VideoAdPlaye
 
   @Override
   public void onPositionDiscontinuity() {
-    if (!player.isPlayingAd() && playingAdGroupIndex == C.INDEX_UNSET) {
+    boolean wasPlayingAd = playingAd;
+    playingAd = player.isPlayingAd();
+    if (!playingAd && !wasPlayingAd) {
       long positionUs = C.msToUs(player.getCurrentPosition());
       int adGroupIndex = timeline.getPeriod(0, period).getAdGroupIndexForPositionUs(positionUs);
       if (adGroupIndex != C.INDEX_UNSET) {
@@ -528,31 +532,29 @@ public final class ImaAdsLoader implements ExoPlayer.EventListener, VideoAdPlaye
       return;
     }
 
-    boolean adFinished = (!player.isPlayingAd() && playingAdGroupIndex != C.INDEX_UNSET)
-        || (player.isPlayingAd() && playingAdIndexInAdGroup != player.getCurrentAdIndexInAdGroup());
-    if (adFinished) {
-      // IMA is waiting for the ad playback to finish so invoke the callback now.
-      // Either CONTENT_RESUME_REQUESTED will be passed next, or playAd will be called again.
-      for (VideoAdPlayerCallback callback : adCallbacks) {
-        callback.onEnded();
+    if (!sentContentComplete) {
+      boolean adFinished =
+          !playingAd || playingAdIndexInAdGroup != player.getCurrentAdIndexInAdGroup();
+      if (adFinished) {
+        // IMA is waiting for the ad playback to finish so invoke the callback now.
+        // Either CONTENT_RESUME_REQUESTED will be passed next, or playAd will be called again.
+        for (VideoAdPlayerCallback callback : adCallbacks) {
+          callback.onEnded();
+        }
       }
-    }
-
-    if (player.isPlayingAd() && playingAdGroupIndex == C.INDEX_UNSET) {
-      player.setPlayWhenReady(false);
-      // IMA hasn't sent CONTENT_PAUSE_REQUESTED yet, so fake the content position.
-      Assertions.checkState(fakeContentProgressElapsedRealtimeMs == C.TIME_UNSET);
-      fakeContentProgressElapsedRealtimeMs = SystemClock.elapsedRealtime();
-      if (adGroupIndex == adPlaybackState.adGroupCount - 1) {
-        adsLoader.contentComplete();
-        if (DEBUG) {
-          Log.d(TAG, "adsLoader.contentComplete");
+      if (playingAd && !wasPlayingAd) {
+        player.setPlayWhenReady(false);
+        int adGroupIndex = player.getCurrentAdGroupIndex();
+        // IMA hasn't sent CONTENT_PAUSE_REQUESTED yet, so fake the content position.
+        Assertions.checkState(fakeContentProgressElapsedRealtimeMs == C.TIME_UNSET);
+        fakeContentProgressElapsedRealtimeMs = SystemClock.elapsedRealtime();
+        fakeContentProgressOffsetMs = C.usToMs(adPlaybackState.adGroupTimesUs[adGroupIndex]);
+        if (fakeContentProgressOffsetMs == C.TIME_END_OF_SOURCE) {
+          fakeContentProgressOffsetMs = contentDurationMs;
         }
       }
     }
-    boolean isPlayingAd = player.isPlayingAd();
-    playingAdGroupIndex = isPlayingAd ? player.getCurrentAdGroupIndex() : C.INDEX_UNSET;
-    playingAdIndexInAdGroup = isPlayingAd ? player.getCurrentAdIndexInAdGroup() : C.INDEX_UNSET;
+    playingAdIndexInAdGroup = playingAd ? player.getCurrentAdIndexInAdGroup() : C.INDEX_UNSET;
   }
 
   @Override
@@ -572,7 +574,7 @@ public final class ImaAdsLoader implements ExoPlayer.EventListener, VideoAdPlaye
 
   private void resumeContentInternal() {
     if (contentDurationMs != C.TIME_UNSET) {
-      if (playingAd) {
+      if (imaPlayingAd) {
         // Work around an issue where IMA does not always call stopAd before resuming content.
         // See [Internal: b/38354028].
         if (DEBUG) {
@@ -592,12 +594,13 @@ public final class ImaAdsLoader implements ExoPlayer.EventListener, VideoAdPlaye
     }
     // IMA is requesting to pause content, so stop faking the content position.
     fakeContentProgressElapsedRealtimeMs = C.TIME_UNSET;
+    fakeContentProgressOffsetMs = C.TIME_UNSET;
     player.setPlayWhenReady(false);
     clearFlags();
   }
 
   private void stopAdInternal() {
-    Assertions.checkState(playingAd);
+    Assertions.checkState(imaPlayingAd);
     player.setPlayWhenReady(false);
     adPlaybackState.playedAd(adGroupIndex);
     updateAdPlaybackState();
@@ -610,8 +613,8 @@ public final class ImaAdsLoader implements ExoPlayer.EventListener, VideoAdPlaye
   private void clearFlags() {
     // If an ad is displayed, these flags will be updated in response to playAd/pauseAd/stopAd until
     // the content is resumed.
-    playingAd = false;
-    pausedInAd = false;
+    imaPlayingAd = false;
+    imaPausedInAd = false;
   }
 
   private void checkForContentComplete() {
