@@ -16,7 +16,7 @@ dependencies {
     compile project(modulePrefix + 'library-core')
     compile 'com.android.support:support-annotations:' + supportLibraryVersion
     compile 'com.google.ads.interactivemedia.v3:interactivemedia:3.7.4'
-    compile 'com.google.android.gms:play-services-ads:11.0.1'
+    compile 'com.google.android.gms:play-services-ads:11.0.2'
     androidTestCompile project(modulePrefix + 'library')
     androidTestCompile 'com.google.dexmaker:dexmaker:' + dexmakerVersion
     androidTestCompile 'com.google.dexmaker:dexmaker-mockito:' + dexmakerVersion
