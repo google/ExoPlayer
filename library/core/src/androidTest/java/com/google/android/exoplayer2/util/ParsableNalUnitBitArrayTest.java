@@ -95,7 +95,7 @@ public final class ParsableNalUnitBitArrayTest extends TestCase {
     ParsableNalUnitBitArray array =
         new ParsableNalUnitBitArray(createByteArray(0, 0, 3, 128, 0), 0, 5);
     assertFalse(array.canReadExpGolombCodedNum());
-    array.skipBits(1);
+    array.skipBit();
     assertTrue(array.canReadExpGolombCodedNum());
     assertEquals(32767, array.readUnsignedExpGolombCodedInt());
     assertFalse(array.canReadBits(1));
