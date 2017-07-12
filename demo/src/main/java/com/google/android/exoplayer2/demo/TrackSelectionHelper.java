@@ -136,7 +136,6 @@ import java.util.Arrays;
     root.addView(defaultView);
 
     // Per-track views.
-    boolean haveSupportedTracks = false;
     boolean haveAdaptiveTracks = false;
     trackViews = new CheckedTextView[trackGroups.length][];
     for (int groupIndex = 0; groupIndex < trackGroups.length; groupIndex++) {
@@ -159,7 +158,6 @@ import java.util.Arrays;
           trackView.setFocusable(true);
           trackView.setTag(Pair.create(groupIndex, trackIndex));
           trackView.setOnClickListener(this);
-          haveSupportedTracks = true;
         } else {
           trackView.setFocusable(false);
           trackView.setEnabled(false);
@@ -169,10 +167,7 @@ import java.util.Arrays;
       }
     }
 
-    if (!haveSupportedTracks) {
-      // Indicate that the default selection will be nothing.
-      defaultView.setText(R.string.selection_default_none);
-    } else if (haveAdaptiveTracks) {
+    if (haveAdaptiveTracks) {
       // View for using random adaptation.
       enableRandomAdaptationView = (CheckedTextView) inflater.inflate(
           android.R.layout.simple_list_item_multiple_choice, root, false);
