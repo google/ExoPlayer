@@ -30,8 +30,6 @@
 
   <string name="selection_default">Default</string>
 
-  <string name="selection_default_none">Default (none)</string>
-
   <string name="unexpected_intent_action">Unexpected intent action: <xliff:g id="action">%1$s</xliff:g></string>
 
   <string name="enable_random_adaptation">Enable random adaptation</string>
