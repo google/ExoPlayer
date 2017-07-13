@@ -715,6 +715,11 @@ public class SimpleExoPlayer implements ExoPlayer {
     return player.getCurrentAdIndexInAdGroup();
   }
 
+  @Override
+  public long getContentPosition() {
+    return player.getContentPosition();
+  }
+
   // Internal methods.
 
   private void removeSurfaceCallbacks() {

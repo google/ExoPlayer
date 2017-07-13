@@ -563,4 +563,11 @@ public interface ExoPlayer {
    */
   int getCurrentAdIndexInAdGroup();
 
+  /**
+   * If {@link #isPlayingAd()} returns {@code true}, returns the content position that will be
+   * played once all ads in the ad group have finished playing, in milliseconds. If there is no ad
+   * playing, the returned position is the same as that returned by {@link #getCurrentPosition()}.
+   */
+  long getContentPosition();
+
 }
