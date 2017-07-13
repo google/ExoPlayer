@@ -270,6 +270,7 @@ public abstract class Timeline {
     private int[] adsLoadedCounts;
     private int[] adsPlayedCounts;
     private long[][] adDurationsUs;
+    private long adResumePositionUs;
 
     /**
      * Sets the data held by this period.
@@ -287,7 +288,7 @@ public abstract class Timeline {
     public Period set(Object id, Object uid, int windowIndex, long durationUs,
         long positionInWindowUs) {
       return set(id, uid, windowIndex, durationUs, positionInWindowUs, null, null, null, null,
-          null);
+          null, C.TIME_UNSET);
     }
 
     /**
@@ -310,11 +311,13 @@ public abstract class Timeline {
      * @param adsPlayedCounts The number of ads played so far in each ad group.
      * @param adDurationsUs The duration of each ad in each ad group, in microseconds. An element
      *     may be {@link C#TIME_UNSET} if the duration is not yet known.
+     * @param adResumePositionUs The position offset in the first unplayed ad at which to begin
+     *     playback, in microseconds.
      * @return This period, for convenience.
      */
     public Period set(Object id, Object uid, int windowIndex, long durationUs,
         long positionInWindowUs, long[] adGroupTimesUs, int[] adCounts, int[] adsLoadedCounts,
-        int[] adsPlayedCounts, long[][] adDurationsUs) {
+        int[] adsPlayedCounts, long[][] adDurationsUs, long adResumePositionUs) {
       this.id = id;
       this.uid = uid;
       this.windowIndex = windowIndex;
@@ -325,6 +328,7 @@ public abstract class Timeline {
       this.adsLoadedCounts = adsLoadedCounts;
       this.adsPlayedCounts = adsPlayedCounts;
       this.adDurationsUs = adDurationsUs;
+      this.adResumePositionUs = adResumePositionUs;
       return this;
     }
 
@@ -477,6 +481,14 @@ public abstract class Timeline {
         return C.TIME_UNSET;
       }
       return adDurationsUs[adGroupIndex][adIndexInAdGroup];
+    }
+
+    /**
+     * Returns the position offset in the first unplayed ad at which to begin playback, in
+     * microseconds.
+     */
+    public long getAdResumePositionUs() {
+      return adResumePositionUs;
     }
 
   }

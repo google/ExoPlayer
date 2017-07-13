@@ -300,8 +300,10 @@ import com.google.android.exoplayer2.source.MediaSource.MediaPeriodId;
     boolean isLastInTimeline = isLastInTimeline(id, isLastInPeriod);
     long durationUs = timeline.getPeriod(id.periodIndex, period)
         .getAdDurationUs(id.adGroupIndex, id.adIndexInAdGroup);
-    return new MediaPeriodInfo(id, 0, C.TIME_END_OF_SOURCE, contentPositionUs, durationUs,
-        isLastInPeriod, isLastInTimeline);
+    long startPositionUs = adIndexInAdGroup == period.getPlayedAdCount(adGroupIndex)
+        ? period.getAdResumePositionUs() : 0;
+    return new MediaPeriodInfo(id, startPositionUs, C.TIME_END_OF_SOURCE, contentPositionUs,
+        durationUs, isLastInPeriod, isLastInTimeline);
   }
 
   private MediaPeriodInfo getMediaPeriodInfoForContent(int periodIndex, long startPositionUs,

@@ -30,6 +30,7 @@ public final class SinglePeriodAdTimeline extends Timeline {
   private final int[] adsLoadedCounts;
   private final int[] adsPlayedCounts;
   private final long[][] adDurationsUs;
+  private final long adResumePositionUs;
 
   /**
    * Creates a new timeline with a single period containing the specified ads.
@@ -45,9 +46,12 @@ public final class SinglePeriodAdTimeline extends Timeline {
    * @param adsPlayedCounts The number of ads played so far in each ad group.
    * @param adDurationsUs The duration of each ad in each ad group, in microseconds. An element
    *     may be {@link C#TIME_UNSET} if the duration is not yet known.
+   * @param adResumePositionUs The position offset in the earliest unplayed ad at which to begin
+   *     playback, in microseconds.
    */
   public SinglePeriodAdTimeline(Timeline contentTimeline, long[] adGroupTimesUs, int[] adCounts,
-      int[] adsLoadedCounts, int[] adsPlayedCounts, long[][] adDurationsUs) {
+      int[] adsLoadedCounts, int[] adsPlayedCounts, long[][] adDurationsUs,
+      long adResumePositionUs) {
     Assertions.checkState(contentTimeline.getPeriodCount() == 1);
     Assertions.checkState(contentTimeline.getWindowCount() == 1);
     this.contentTimeline = contentTimeline;
@@ -56,6 +60,7 @@ public final class SinglePeriodAdTimeline extends Timeline {
     this.adsLoadedCounts = adsLoadedCounts;
     this.adsPlayedCounts = adsPlayedCounts;
     this.adDurationsUs = adDurationsUs;
+    this.adResumePositionUs = adResumePositionUs;
   }
 
   @Override
@@ -79,7 +84,7 @@ public final class SinglePeriodAdTimeline extends Timeline {
     contentTimeline.getPeriod(periodIndex, period, setIds);
     period.set(period.id, period.uid, period.windowIndex, period.durationUs,
         period.getPositionInWindowUs(), adGroupTimesUs, adCounts, adsLoadedCounts, adsPlayedCounts,
-        adDurationsUs);
+        adDurationsUs, adResumePositionUs);
     return period;
   }
 
