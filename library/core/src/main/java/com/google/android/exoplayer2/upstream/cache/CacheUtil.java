@@ -228,6 +228,9 @@ public final class CacheUtil {
         priorityTaskManager.proceed(priority);
       }
       try {
+        if (Thread.interrupted()) {
+          throw new InterruptedException();
+        }
         // Create a new dataSpec setting length to C.LENGTH_UNSET to prevent getting an error in
         // case the given length exceeds the end of input.
         dataSpec = new DataSpec(dataSpec.uri, dataSpec.postBody, absoluteStreamPosition,
