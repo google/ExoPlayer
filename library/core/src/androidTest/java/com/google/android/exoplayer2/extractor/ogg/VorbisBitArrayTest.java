@@ -25,36 +25,26 @@ public final class VorbisBitArrayTest extends TestCase {
 
   public void testReadBit() {
     VorbisBitArray bitArray = new VorbisBitArray(TestUtil.createByteArray(0x5c, 0x50));
-
     assertFalse(bitArray.readBit());
     assertFalse(bitArray.readBit());
     assertTrue(bitArray.readBit());
     assertTrue(bitArray.readBit());
-
     assertTrue(bitArray.readBit());
     assertFalse(bitArray.readBit());
     assertTrue(bitArray.readBit());
     assertFalse(bitArray.readBit());
-
     assertFalse(bitArray.readBit());
     assertFalse(bitArray.readBit());
     assertFalse(bitArray.readBit());
     assertFalse(bitArray.readBit());
-
     assertTrue(bitArray.readBit());
     assertFalse(bitArray.readBit());
     assertTrue(bitArray.readBit());
     assertFalse(bitArray.readBit());
-
-    try {
-      assertFalse(bitArray.readBit());
-      fail();
-    } catch (IllegalStateException e) {/* ignored */}
   }
 
   public void testSkipBits() {
     VorbisBitArray bitArray = new VorbisBitArray(TestUtil.createByteArray(0xF0, 0x0F));
-
     bitArray.skipBits(10);
     assertEquals(10, bitArray.getPosition());
     assertTrue(bitArray.readBit());
@@ -64,27 +54,10 @@ public final class VorbisBitArrayTest extends TestCase {
     assertEquals(14, bitArray.getPosition());
     assertFalse(bitArray.readBit());
     assertFalse(bitArray.readBit());
-    try {
-      bitArray.readBit();
-      fail();
-    } catch (IllegalStateException e) {
-      // ignored
-    }
-  }
-
-
-  public void testSkipBitsThrowsErrorIfEOB() {
-    VorbisBitArray bitArray = new VorbisBitArray(TestUtil.createByteArray(0xF0, 0x0F));
-
-    try {
-      bitArray.skipBits(17);
-      fail();
-    } catch (IllegalStateException e) {/* ignored */}
   }
 
   public void testGetPosition() throws Exception {
     VorbisBitArray bitArray = new VorbisBitArray(TestUtil.createByteArray(0xF0, 0x0F));
-
     assertEquals(0, bitArray.getPosition());
     bitArray.readBit();
     assertEquals(1, bitArray.getPosition());
@@ -96,35 +69,11 @@ public final class VorbisBitArrayTest extends TestCase {
 
   public void testSetPosition() throws Exception {
     VorbisBitArray bitArray = new VorbisBitArray(TestUtil.createByteArray(0xF0, 0x0F));
-
     assertEquals(0, bitArray.getPosition());
     bitArray.setPosition(4);
     assertEquals(4, bitArray.getPosition());
-
     bitArray.setPosition(15);
     assertFalse(bitArray.readBit());
-    try {
-      bitArray.readBit();
-      fail();
-    } catch (IllegalStateException e) {/* ignored */}
-
-  }
-  public void testSetPositionIllegalPositions() throws Exception {
-    VorbisBitArray bitArray = new VorbisBitArray(TestUtil.createByteArray(0xF0, 0x0F));
-
-    try {
-      bitArray.setPosition(16);
-      fail();
-    } catch (IllegalArgumentException e) {
-      assertEquals(0, bitArray.getPosition());
-    }
-
-    try {
-      bitArray.setPosition(-1);
-      fail();
-    } catch (IllegalArgumentException e) {
-      assertEquals(0, bitArray.getPosition());
-    }
   }
 
   public void testReadInt32() {
@@ -136,13 +85,11 @@ public final class VorbisBitArrayTest extends TestCase {
 
   public void testReadBits() throws Exception {
     VorbisBitArray bitArray = new VorbisBitArray(TestUtil.createByteArray(0x03, 0x22));
-
     assertEquals(3, bitArray.readBits(2));
     bitArray.skipBits(6);
     assertEquals(2, bitArray.readBits(2));
     bitArray.skipBits(2);
     assertEquals(2, bitArray.readBits(2));
-
     bitArray.reset();
     assertEquals(0x2203, bitArray.readBits(16));
   }
@@ -156,7 +103,6 @@ public final class VorbisBitArrayTest extends TestCase {
 
   public void testReadBitsBeyondByteBoundaries() throws Exception {
     VorbisBitArray bitArray = new VorbisBitArray(TestUtil.createByteArray(0xFF, 0x0F, 0xFF, 0x0F));
-
     assertEquals(0x0FFF0FFF, bitArray.readBits(32));
 
     bitArray.reset();
@@ -188,83 +134,6 @@ public final class VorbisBitArrayTest extends TestCase {
     assertEquals(0, bitArray.getPosition());
     bitArray.readBit();
     assertEquals(1, bitArray.getPosition());
-
-    try {
-      bitArray.readBits(24);
-      fail();
-    } catch (IllegalStateException e) {
-      assertEquals(1, bitArray.getPosition());
-    }
-  }
-
-  public void testLimit() {
-    VorbisBitArray bitArray = new VorbisBitArray(TestUtil.createByteArray(0xc0, 0x02), 1);
-
-    try {
-      bitArray.skipBits(9);
-      fail();
-    } catch (IllegalStateException e) {
-      assertEquals(0, bitArray.getPosition());
-    }
-
-    try {
-      bitArray.readBits(9);
-      fail();
-    } catch (IllegalStateException e) {
-      assertEquals(0, bitArray.getPosition());
-    }
-
-    int byteValue = bitArray.readBits(8);
-    assertEquals(0xc0, byteValue);
-    assertEquals(8, bitArray.getPosition());
-    try {
-      bitArray.readBit();
-      fail();
-    } catch (IllegalStateException e) {
-      assertEquals(8, bitArray.getPosition());
-    }
-  }
-
-  public void testBitsLeft() {
-    VorbisBitArray bitArray = new VorbisBitArray(TestUtil.createByteArray(0xc0, 0x02));
-
-    assertEquals(16, bitArray.bitsLeft());
-    assertEquals(bitArray.limit(), bitArray.getPosition() + bitArray.bitsLeft());
-
-    bitArray.skipBits(1);
-    assertEquals(15, bitArray.bitsLeft());
-    assertEquals(bitArray.limit(), bitArray.getPosition() + bitArray.bitsLeft());
-
-    bitArray.skipBits(3);
-    assertEquals(12, bitArray.bitsLeft());
-    assertEquals(bitArray.limit(), bitArray.getPosition() + bitArray.bitsLeft());
-
-    bitArray.setPosition(6);
-    assertEquals(10, bitArray.bitsLeft());
-    assertEquals(bitArray.limit(), bitArray.getPosition() + bitArray.bitsLeft());
-
-    bitArray.skipBits(1);
-    assertEquals(9, bitArray.bitsLeft());
-    assertEquals(bitArray.limit(), bitArray.getPosition() + bitArray.bitsLeft());
-
-    bitArray.skipBits(1);
-    assertEquals(8, bitArray.bitsLeft());
-    assertEquals(bitArray.limit(), bitArray.getPosition() + bitArray.bitsLeft());
-
-    bitArray.readBits(4);
-    assertEquals(4, bitArray.bitsLeft());
-    assertEquals(bitArray.limit(), bitArray.getPosition() + bitArray.bitsLeft());
-
-    bitArray.readBits(4);
-    assertEquals(0, bitArray.bitsLeft());
-    assertEquals(bitArray.limit(), bitArray.getPosition() + bitArray.bitsLeft());
-
-    try {
-      bitArray.readBit();
-      fail();
-    } catch (IllegalStateException e) {
-      assertEquals(0, bitArray.bitsLeft());
-    }
   }
 
 }
