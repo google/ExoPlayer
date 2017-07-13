@@ -572,15 +572,25 @@ public final class ImaAdsLoader implements Player.EventListener, VideoAdPlayer,
       return;
     }
     if (!playingAd && !player.isPlayingAd()) {
-      long positionUs = C.msToUs(player.getCurrentPosition());
-      int adGroupIndex = timeline.getPeriod(0, period).getAdGroupIndexForPositionUs(positionUs);
-      if (adGroupIndex != C.INDEX_UNSET) {
-        sentPendingContentPositionMs = false;
-        pendingContentPositionMs = player.getCurrentPosition();
+      checkForContentComplete();
+      if (sentContentComplete) {
+        for (int i = 0; i < adPlaybackState.adGroupCount; i++) {
+          if (adPlaybackState.adGroupTimesUs[i] != C.TIME_END_OF_SOURCE) {
+            adPlaybackState.playedAdGroup(i);
+          }
+        }
+        updateAdPlaybackState();
+      } else {
+        long positionMs = player.getCurrentPosition();
+        timeline.getPeriod(0, period);
+        if (period.getAdGroupIndexForPositionUs(C.msToUs(positionMs)) != C.INDEX_UNSET) {
+          sentPendingContentPositionMs = false;
+          pendingContentPositionMs = positionMs;
+        }
       }
-      return;
+    } else {
+      updateImaStateForPlayerState();
     }
-    updateImaStateForPlayerState();
   }
 
   @Override
@@ -672,8 +682,8 @@ public final class ImaAdsLoader implements Player.EventListener, VideoAdPlayer,
   }
 
   private void checkForContentComplete() {
-    if (contentDurationMs != C.TIME_UNSET
-        && player.getCurrentPosition() + END_OF_CONTENT_POSITION_THRESHOLD_MS >= contentDurationMs
+    if (contentDurationMs != C.TIME_UNSET && pendingContentPositionMs == C.TIME_UNSET
+        && player.getContentPosition() + END_OF_CONTENT_POSITION_THRESHOLD_MS >= contentDurationMs
         && !sentContentComplete) {
       adsLoader.contentComplete();
       if (DEBUG) {
