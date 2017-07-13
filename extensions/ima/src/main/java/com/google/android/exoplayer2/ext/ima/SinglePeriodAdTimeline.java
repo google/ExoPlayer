@@ -23,7 +23,7 @@ import com.google.android.exoplayer2.util.Assertions;
 /**
  * A {@link Timeline} for sources that have ads.
  */
-public final class SinglePeriodAdTimeline extends ForwardingTimeline {
+/* package */ final class SinglePeriodAdTimeline extends ForwardingTimeline {
 
   private final long[] adGroupTimesUs;
   private final int[] adCounts;
