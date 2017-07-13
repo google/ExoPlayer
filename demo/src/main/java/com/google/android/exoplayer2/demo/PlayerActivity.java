@@ -406,8 +406,7 @@ public class PlayerActivity extends Activity implements OnClickListener, ExoPlay
 
   private void updateResumePosition() {
     resumeWindow = player.getCurrentWindowIndex();
-    resumePosition = player.isCurrentWindowSeekable() ? Math.max(0, player.getContentPosition())
-        : C.TIME_UNSET;
+    resumePosition = Math.max(0, player.getContentPosition());
   }
 
   private void clearResumePosition() {
