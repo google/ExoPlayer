@@ -226,7 +226,9 @@ public final class ImaAdsLoader implements ExoPlayer.EventListener, VideoAdPlaye
     player.addListener(this);
     if (adPlaybackState != null) {
       eventListener.onAdPlaybackState(adPlaybackState);
-      // TODO: Call adsManager.resume if an ad is playing.
+      if (playingAd) {
+        adsManager.resume();
+      }
     } else if (adTagUri != null) {
       requestAds();
     }
@@ -239,7 +241,8 @@ public final class ImaAdsLoader implements ExoPlayer.EventListener, VideoAdPlaye
    */
   /* package */ void detachPlayer() {
     if (player != null) {
-      if (adsManager != null && player.isPlayingAd()) {
+      if (adsManager != null && playingAd) {
+        adPlaybackState.setAdResumePositionUs(C.msToUs(player.getCurrentPosition()));
         adsManager.pause();
       }
       lastAdProgress = getAdProgress();
@@ -449,12 +452,14 @@ public final class ImaAdsLoader implements ExoPlayer.EventListener, VideoAdPlaye
     if (DEBUG) {
       Log.d(TAG, "pauseAd");
     }
-    if (player == null || !imaPlayingAd) {
-      // This method is called after content is resumed, and may also be called after release.
+    if (!imaPlayingAd) {
+      // This method is called after content is resumed.
       return;
     }
     imaPausedInAd = true;
-    player.setPlayWhenReady(false);
+    if (player != null) {
+      player.setPlayWhenReady(false);
+    }
     for (VideoAdPlayerCallback callback : adCallbacks) {
       callback.onPause();
     }

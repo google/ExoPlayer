@@ -210,7 +210,7 @@ public final class ImaAdsMediaSource implements MediaSource {
     if (adPlaybackState != null && contentTimeline != null) {
       SinglePeriodAdTimeline timeline = new SinglePeriodAdTimeline(contentTimeline,
           adPlaybackState.adGroupTimesUs, adPlaybackState.adCounts, adPlaybackState.adsLoadedCounts,
-          adPlaybackState.adsPlayedCounts, adDurationsUs);
+          adPlaybackState.adsPlayedCounts, adDurationsUs, adPlaybackState.adResumePositionUs);
       listener.onSourceInfoRefreshed(timeline, contentManifest);
     }
   }

@@ -52,6 +52,11 @@ import java.util.Arrays;
   public final Uri[][] adUris;
 
   /**
+   * The position offset in the first unplayed ad at which to begin playback, in microseconds.
+   */
+  public long adResumePositionUs;
+
+  /**
    * Creates a new ad playback state with the specified ad group times.
    *
    * @param adGroupTimesUs The times of ad groups in microseconds. A final element with the value
@@ -69,12 +74,13 @@ import java.util.Arrays;
   }
 
   private AdPlaybackState(long[] adGroupTimesUs, int[] adCounts, int[] adsLoadedCounts,
-      int[] adsPlayedCounts, Uri[][] adUris) {
+      int[] adsPlayedCounts, Uri[][] adUris, long adResumePositionUs) {
     this.adGroupTimesUs = adGroupTimesUs;
     this.adCounts = adCounts;
     this.adsLoadedCounts = adsLoadedCounts;
     this.adsPlayedCounts = adsPlayedCounts;
     this.adUris = adUris;
+    this.adResumePositionUs = adResumePositionUs;
     adGroupCount = adGroupTimesUs.length;
   }
 
@@ -87,10 +93,8 @@ import java.util.Arrays;
       adUris[i] = Arrays.copyOf(this.adUris[i], this.adUris[i].length);
     }
     return new AdPlaybackState(Arrays.copyOf(adGroupTimesUs, adGroupCount),
-        Arrays.copyOf(adCounts, adGroupCount),
-        Arrays.copyOf(adsLoadedCounts, adGroupCount),
-        Arrays.copyOf(adsPlayedCounts, adGroupCount),
-        adUris);
+        Arrays.copyOf(adCounts, adGroupCount), Arrays.copyOf(adsLoadedCounts, adGroupCount),
+        Arrays.copyOf(adsPlayedCounts, adGroupCount), adUris, adResumePositionUs);
   }
 
   /**
@@ -114,7 +118,15 @@ import java.util.Arrays;
    * Marks the last ad in the specified ad group as played.
    */
   public void playedAd(int adGroupIndex) {
+    adResumePositionUs = 0;
     adsPlayedCounts[adGroupIndex]++;
+  }
+
+  /**
+   * Sets the position offset in the first unplayed ad at which to begin playback, in microseconds.
+   */
+  public void setAdResumePositionUs(long adResumePositionUs) {
+    this.adResumePositionUs = adResumePositionUs;
   }
 
 }
