@@ -368,6 +368,16 @@ import java.util.concurrent.CopyOnWriteArraySet;
   }
 
   @Override
+  public long getContentPosition() {
+    if (isPlayingAd()) {
+      timeline.getPeriod(playbackInfo.periodId.periodIndex, period);
+      return period.getPositionInWindowMs() + C.usToMs(playbackInfo.contentPositionUs);
+    } else {
+      return getCurrentPosition();
+    }
+  }
+
+  @Override
   public int getRendererCount() {
     return renderers.length;
   }

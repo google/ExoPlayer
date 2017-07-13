@@ -537,6 +537,11 @@ public final class DynamicConcatenatingMediaSourceTest extends TestCase {
     }
 
     @Override
+    public long getContentPosition() {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
     public boolean handleMessage(Message msg) {
       ExoPlayerMessage[] messages = (ExoPlayerMessage[]) msg.obj;
       for (ExoPlayerMessage message : messages) {

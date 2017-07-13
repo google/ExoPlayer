@@ -379,6 +379,16 @@ public abstract class Timeline {
     }
 
     /**
+     * Returns the number of ads that have been played in the specified ad group in the period.
+     *
+     * @param adGroupIndex The ad group index.
+     * @return The number of ads that have been played.
+     */
+    public int getPlayedAdCount(int adGroupIndex) {
+      return adsPlayedCounts[adGroupIndex];
+    }
+
+    /**
      * Returns whether the ad group at index {@code adGroupIndex} has been played.
      *
      * @param adGroupIndex The ad group index.
