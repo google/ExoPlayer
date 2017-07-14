@@ -755,8 +755,11 @@ public class PlaybackControlView extends FrameLayout {
       }
       duration = C.usToMs(durationUs);
       position = C.usToMs(currentWindowTimeBarOffsetUs);
-      bufferedPosition = C.usToMs(currentWindowTimeBarOffsetUs);
-      if (!player.isPlayingAd()) {
+      bufferedPosition = position;
+      if (player.isPlayingAd()) {
+        position += player.getContentPosition();
+        bufferedPosition = position;
+      } else {
         position += player.getCurrentPosition();
         bufferedPosition += player.getBufferedPosition();
       }
