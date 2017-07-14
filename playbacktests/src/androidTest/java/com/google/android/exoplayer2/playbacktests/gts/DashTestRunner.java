@@ -323,9 +323,9 @@ public final class DashTestRunner {
       metricsLogger.logMetric(MetricsLogger.KEY_TEST_NAME, streamName);
       metricsLogger.logMetric(MetricsLogger.KEY_IS_CDD_LIMITED_RETRY, isCddLimitedRetry);
       metricsLogger.logMetric(MetricsLogger.KEY_FRAMES_DROPPED_COUNT,
-          videoCounters.droppedOutputBufferCount);
+          videoCounters.droppedBufferCount);
       metricsLogger.logMetric(MetricsLogger.KEY_MAX_CONSECUTIVE_FRAMES_DROPPED_COUNT,
-          videoCounters.maxConsecutiveDroppedOutputBufferCount);
+          videoCounters.maxConsecutiveDroppedBufferCount);
       metricsLogger.logMetric(MetricsLogger.KEY_FRAMES_SKIPPED_COUNT,
           videoCounters.skippedOutputBufferCount);
       metricsLogger.logMetric(MetricsLogger.KEY_FRAMES_RENDERED_COUNT,
@@ -343,20 +343,20 @@ public final class DashTestRunner {
             .assertSkippedOutputBufferCount(tag + VIDEO_TAG_SUFFIX, videoCounters, 0);
         // We allow one fewer output buffer due to the way that MediaCodecRenderer and the
         // underlying decoders handle the end of stream. This should be tightened up in the future.
-        DecoderCountersUtil.assertTotalOutputBufferCount(tag + AUDIO_TAG_SUFFIX, audioCounters,
+        DecoderCountersUtil.assertTotalBufferCount(tag + AUDIO_TAG_SUFFIX, audioCounters,
             audioCounters.inputBufferCount - 1, audioCounters.inputBufferCount);
-        DecoderCountersUtil.assertTotalOutputBufferCount(tag + VIDEO_TAG_SUFFIX, videoCounters,
+        DecoderCountersUtil.assertTotalBufferCount(tag + VIDEO_TAG_SUFFIX, videoCounters,
             videoCounters.inputBufferCount - 1, videoCounters.inputBufferCount);
       }
       try {
         int droppedFrameLimit = (int) Math.ceil(MAX_DROPPED_VIDEO_FRAME_FRACTION
-            * DecoderCountersUtil.getTotalOutputBuffers(videoCounters));
+            * DecoderCountersUtil.getTotalBufferCount(videoCounters));
         // Assert that performance is acceptable.
         // Assert that total dropped frames were within limit.
-        DecoderCountersUtil.assertDroppedOutputBufferLimit(tag + VIDEO_TAG_SUFFIX, videoCounters,
+        DecoderCountersUtil.assertDroppedBufferLimit(tag + VIDEO_TAG_SUFFIX, videoCounters,
             droppedFrameLimit);
         // Assert that consecutive dropped frames were within limit.
-        DecoderCountersUtil.assertConsecutiveDroppedOutputBufferLimit(tag + VIDEO_TAG_SUFFIX,
+        DecoderCountersUtil.assertConsecutiveDroppedBufferLimit(tag + VIDEO_TAG_SUFFIX,
             videoCounters, MAX_CONSECUTIVE_DROPPED_VIDEO_FRAMES);
       } catch (AssertionFailedError e) {
         if (trackSelector.includedAdditionalVideoFormats) {

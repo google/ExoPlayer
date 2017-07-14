@@ -700,11 +700,11 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
    * @param droppedBufferCount The number of additional dropped buffers.
    */
   protected void updateDroppedBufferCounters(int droppedBufferCount) {
-    decoderCounters.droppedOutputBufferCount += droppedBufferCount;
+    decoderCounters.droppedBufferCount += droppedBufferCount;
     droppedFrames += droppedBufferCount;
     consecutiveDroppedFrameCount += droppedBufferCount;
-    decoderCounters.maxConsecutiveDroppedOutputBufferCount = Math.max(consecutiveDroppedFrameCount,
-        decoderCounters.maxConsecutiveDroppedOutputBufferCount);
+    decoderCounters.maxConsecutiveDroppedBufferCount = Math.max(consecutiveDroppedFrameCount,
+        decoderCounters.maxConsecutiveDroppedBufferCount);
     if (droppedFrames >= maxDroppedFramesToNotify) {
       maybeNotifyDroppedFrames();
     }
