@@ -320,18 +320,18 @@ import java.util.Arrays;
     positionUs = seekMap.isSeekable() ? positionUs : 0;
     lastSeekPositionUs = positionUs;
     notifyDiscontinuity = false;
-    // If we're not pending a reset, see if we can seek within the sample queues.
-    boolean seekInsideBuffer = !isPendingReset() && seekInsideBufferUs(positionUs);
-    // If we failed to seek within the sample queues, we need to restart.
-    if (!seekInsideBuffer) {
-      pendingResetPositionUs = positionUs;
-      loadingFinished = false;
-      if (loader.isLoading()) {
-        loader.cancelLoading();
-      } else {
-        for (SampleQueue sampleQueue : sampleQueues) {
-          sampleQueue.reset();
-        }
+    // If we're not pending a reset, see if we can seek within the buffer.
+    if (!isPendingReset() && seekInsideBufferUs(positionUs)) {
+      return positionUs;
+    }
+    // We were unable to seek within the buffer, so need to reset.
+    pendingResetPositionUs = positionUs;
+    loadingFinished = false;
+    if (loader.isLoading()) {
+      loader.cancelLoading();
+    } else {
+      for (SampleQueue sampleQueue : sampleQueues) {
+        sampleQueue.reset();
       }
     }
     return positionUs;
