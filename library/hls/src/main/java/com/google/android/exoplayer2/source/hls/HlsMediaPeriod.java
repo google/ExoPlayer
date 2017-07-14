@@ -33,6 +33,7 @@ import com.google.android.exoplayer2.upstream.Allocator;
 import com.google.android.exoplayer2.util.Assertions;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.IdentityHashMap;
 import java.util.List;
@@ -53,9 +54,7 @@ public final class HlsMediaPeriod implements MediaPeriod, HlsSampleStreamWrapper
   private final Handler continueLoadingHandler;
 
   private Callback callback;
-  private long preparePositionUs;
   private int pendingPrepareCount;
-  private boolean seenFirstTrackSelection;
   private TrackGroupArray trackGroups;
   private HlsSampleStreamWrapper[] sampleStreamWrappers;
   private HlsSampleStreamWrapper[] enabledSampleStreamWrappers;
@@ -71,15 +70,15 @@ public final class HlsMediaPeriod implements MediaPeriod, HlsSampleStreamWrapper
     streamWrapperIndices = new IdentityHashMap<>();
     timestampAdjusterProvider = new TimestampAdjusterProvider();
     continueLoadingHandler = new Handler();
+    sampleStreamWrappers = new HlsSampleStreamWrapper[0];
+    enabledSampleStreamWrappers = new HlsSampleStreamWrapper[0];
   }
 
   public void release() {
     playlistTracker.removeListener(this);
     continueLoadingHandler.removeCallbacksAndMessages(null);
-    if (sampleStreamWrappers != null) {
-      for (HlsSampleStreamWrapper sampleStreamWrapper : sampleStreamWrappers) {
-        sampleStreamWrapper.release();
-      }
+    for (HlsSampleStreamWrapper sampleStreamWrapper : sampleStreamWrappers) {
+      sampleStreamWrapper.release();
     }
   }
 
@@ -87,16 +86,13 @@ public final class HlsMediaPeriod implements MediaPeriod, HlsSampleStreamWrapper
   public void prepare(Callback callback, long positionUs) {
     this.callback = callback;
     playlistTracker.addListener(this);
-    preparePositionUs = positionUs;
     buildAndPrepareSampleStreamWrappers(positionUs);
   }
 
   @Override
   public void maybeThrowPrepareError() throws IOException {
-    if (sampleStreamWrappers != null) {
-      for (HlsSampleStreamWrapper sampleStreamWrapper : sampleStreamWrappers) {
-        sampleStreamWrapper.maybeThrowPrepareError();
-      }
+    for (HlsSampleStreamWrapper sampleStreamWrapper : sampleStreamWrappers) {
+      sampleStreamWrapper.maybeThrowPrepareError();
     }
   }
 
@@ -125,23 +121,24 @@ public final class HlsMediaPeriod implements MediaPeriod, HlsSampleStreamWrapper
         }
       }
     }
-    // We'll always need to seek if this is a first selection to a position other than the prepare
-    // position.
-    boolean seekRequired = !seenFirstTrackSelection && positionUs != preparePositionUs;
+
+    boolean forceReset = false;
     streamWrapperIndices.clear();
     // Select tracks for each child, copying the resulting streams back into a new streams array.
     SampleStream[] newStreams = new SampleStream[selections.length];
     SampleStream[] childStreams = new SampleStream[selections.length];
     TrackSelection[] childSelections = new TrackSelection[selections.length];
-    ArrayList<HlsSampleStreamWrapper> enabledSampleStreamWrapperList = new ArrayList<>(
-        sampleStreamWrappers.length);
+    int newEnabledSampleStreamWrapperCount = 0;
+    HlsSampleStreamWrapper[] newEnabledSampleStreamWrappers =
+        new HlsSampleStreamWrapper[sampleStreamWrappers.length];
     for (int i = 0; i < sampleStreamWrappers.length; i++) {
       for (int j = 0; j < selections.length; j++) {
         childStreams[j] = streamChildIndices[j] == i ? streams[j] : null;
         childSelections[j] = selectionChildIndices[j] == i ? selections[j] : null;
       }
-      seekRequired |= sampleStreamWrappers[i].selectTracks(childSelections, mayRetainStreamFlags,
-          childStreams, streamResetFlags, positionUs, seenFirstTrackSelection, seekRequired);
+      HlsSampleStreamWrapper sampleStreamWrapper = sampleStreamWrappers[i];
+      boolean wasReset = sampleStreamWrapper.selectTracks(childSelections, mayRetainStreamFlags,
+          childStreams, streamResetFlags, positionUs, forceReset);
       boolean wrapperEnabled = false;
       for (int j = 0; j < selections.length; j++) {
         if (selectionChildIndices[j] == i) {
@@ -156,37 +153,29 @@ public final class HlsMediaPeriod implements MediaPeriod, HlsSampleStreamWrapper
         }
       }
       if (wrapperEnabled) {
-        enabledSampleStreamWrapperList.add(sampleStreamWrappers[i]);
+        newEnabledSampleStreamWrappers[newEnabledSampleStreamWrapperCount] = sampleStreamWrapper;
+        if (newEnabledSampleStreamWrapperCount++ == 0) {
+          // The first enabled wrapper is responsible for initializing timestamp adjusters. This
+          // way, if enabled, variants are responsible. Else audio renditions. Else text renditions.
+          sampleStreamWrapper.setIsTimestampMaster(true);
+          if (wasReset || enabledSampleStreamWrappers.length == 0
+              || sampleStreamWrapper != enabledSampleStreamWrappers[0]) {
+            // The wrapper responsible for initializing the timestamp adjusters was reset or
+            // changed. We need to reset the timestamp adjuster provider and all other wrappers.
+            timestampAdjusterProvider.reset();
+            forceReset = true;
+          }
+        } else {
+          sampleStreamWrapper.setIsTimestampMaster(false);
+        }
       }
     }
     // Copy the new streams back into the streams array.
     System.arraycopy(newStreams, 0, streams, 0, newStreams.length);
     // Update the local state.
-    enabledSampleStreamWrappers = new HlsSampleStreamWrapper[enabledSampleStreamWrapperList.size()];
-    enabledSampleStreamWrapperList.toArray(enabledSampleStreamWrappers);
-
-    // The first enabled sample stream wrapper is responsible for intializing the timestamp
-    // adjuster. This way, if present, variants are responsible. Otherwise, audio renditions are.
-    // If only subtitles are present, then text renditions are used for timestamp adjustment
-    // initialization.
-    if (enabledSampleStreamWrappers.length > 0) {
-      enabledSampleStreamWrappers[0].setIsTimestampMaster(true);
-      for (int i = 1; i < enabledSampleStreamWrappers.length; i++) {
-        enabledSampleStreamWrappers[i].setIsTimestampMaster(false);
-      }
-    }
-
+    enabledSampleStreamWrappers = Arrays.copyOf(newEnabledSampleStreamWrappers,
+        newEnabledSampleStreamWrapperCount);
     sequenceableLoader = new CompositeSequenceableLoader(enabledSampleStreamWrappers);
-    if (seekRequired) {
-      seekToUs(positionUs);
-      // We'll need to reset renderers consuming from all streams due to the seek.
-      for (int i = 0; i < selections.length; i++) {
-        if (streams[i] != null) {
-          streamResetFlags[i] = true;
-        }
-      }
-    }
-    seenFirstTrackSelection = true;
     return positionUs;
   }
 
@@ -226,9 +215,16 @@ public final class HlsMediaPeriod implements MediaPeriod, HlsSampleStreamWrapper
 
   @Override
   public long seekToUs(long positionUs) {
-    timestampAdjusterProvider.reset();
-    for (HlsSampleStreamWrapper sampleStreamWrapper : enabledSampleStreamWrappers) {
-      sampleStreamWrapper.seekTo(positionUs);
+    if (enabledSampleStreamWrappers.length > 0) {
+      // We need to reset all wrappers if the one responsible for initializing timestamp adjusters
+      // is reset. Else each wrapper can decide whether to reset independently.
+      boolean forceReset = enabledSampleStreamWrappers[0].seekToUs(positionUs, false);
+      for (int i = 1; i < enabledSampleStreamWrappers.length; i++) {
+        enabledSampleStreamWrappers[i].seekToUs(positionUs, forceReset);
+      }
+      if (forceReset) {
+        timestampAdjusterProvider.reset();
+      }
     }
     return positionUs;
   }
@@ -348,6 +344,9 @@ public final class HlsMediaPeriod implements MediaPeriod, HlsSampleStreamWrapper
       sampleStreamWrapper.prepareSingleTrack(url.format);
       sampleStreamWrappers[currentWrapperIndex++] = sampleStreamWrapper;
     }
+
+    // All wrappers are enabled during preparation.
+    enabledSampleStreamWrappers = sampleStreamWrappers;
   }
 
   private HlsSampleStreamWrapper buildSampleStreamWrapper(int trackType, HlsUrl[] variants,
