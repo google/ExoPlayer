@@ -678,7 +678,8 @@ import java.util.List;
           parent, position, size);
       if (sampleEntryEncryptionData != null) {
         atomType = sampleEntryEncryptionData.first;
-        drmInitData = drmInitData.copyWithSchemeType(sampleEntryEncryptionData.second.schemeType);
+        drmInitData = drmInitData == null ? null
+            : drmInitData.copyWithSchemeType(sampleEntryEncryptionData.second.schemeType);
         out.trackEncryptionBoxes[entryIndex] = sampleEntryEncryptionData.second;
       }
       parent.setPosition(childPosition);
@@ -857,7 +858,8 @@ import java.util.List;
           parent, position, size);
       if (sampleEntryEncryptionData != null) {
         atomType = sampleEntryEncryptionData.first;
-        drmInitData = drmInitData.copyWithSchemeType(sampleEntryEncryptionData.second.schemeType);
+        drmInitData = drmInitData == null ? null
+            : drmInitData.copyWithSchemeType(sampleEntryEncryptionData.second.schemeType);
         out.trackEncryptionBoxes[entryIndex] = sampleEntryEncryptionData.second;
       }
       parent.setPosition(childPosition);
