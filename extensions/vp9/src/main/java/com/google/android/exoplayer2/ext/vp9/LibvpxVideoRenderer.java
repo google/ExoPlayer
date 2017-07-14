@@ -342,11 +342,11 @@ public final class LibvpxVideoRenderer extends BaseRenderer {
   }
 
   private void dropBuffer() {
-    decoderCounters.droppedOutputBufferCount++;
+    decoderCounters.droppedBufferCount++;
     droppedFrames++;
     consecutiveDroppedFrameCount++;
-    decoderCounters.maxConsecutiveDroppedOutputBufferCount = Math.max(
-        consecutiveDroppedFrameCount, decoderCounters.maxConsecutiveDroppedOutputBufferCount);
+    decoderCounters.maxConsecutiveDroppedBufferCount = Math.max(
+        consecutiveDroppedFrameCount, decoderCounters.maxConsecutiveDroppedBufferCount);
     if (droppedFrames == maxDroppedFramesToNotify) {
       maybeNotifyDroppedFrames();
     }
