@@ -111,7 +111,8 @@ public final class DashUtil {
    *
    * @param dataSource The source from which the data should be loaded.
    * @param representation The representation which initialization chunk belongs to.
-   * @return {@link ChunkIndex} of the given representation.
+   * @return The {@link ChunkIndex} of the given representation, or null if no initialization or
+   *     index data exists.
    * @throws IOException Thrown when there is an error while loading.
    * @throws InterruptedException Thrown if the thread was interrupted.
    */
