@@ -1326,7 +1326,7 @@ import java.io.IOException;
     }
 
     long rendererPositionOffsetUs = loadingPeriodHolder == null
-        ? (info.startPositionUs + RENDERER_TIMESTAMP_OFFSET_US)
+        ? RENDERER_TIMESTAMP_OFFSET_US
         : (loadingPeriodHolder.getRendererOffset() + loadingPeriodHolder.info.durationUs);
     int holderIndex = loadingPeriodHolder == null ? 0 : loadingPeriodHolder.index + 1;
     Object uid = timeline.getPeriod(info.id.periodIndex, period, true).uid;
@@ -1515,7 +1515,8 @@ import java.io.IOException;
     }
 
     public long getRendererOffset() {
-      return rendererPositionOffsetUs - info.startPositionUs;
+      return index == 0 ? rendererPositionOffsetUs
+          : (rendererPositionOffsetUs - info.startPositionUs);
     }
 
     public boolean isFullyBuffered() {
