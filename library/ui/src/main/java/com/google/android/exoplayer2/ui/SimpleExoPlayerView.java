@@ -49,6 +49,7 @@ import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
 import com.google.android.exoplayer2.ui.AspectRatioFrameLayout.ResizeMode;
 import com.google.android.exoplayer2.ui.PlaybackControlView.ControlDispatcher;
 import com.google.android.exoplayer2.util.Assertions;
+import com.google.android.exoplayer2.util.RepeatModeUtil;
 import com.google.android.exoplayer2.util.Util;
 import java.util.List;
 
@@ -637,9 +638,9 @@ public final class SimpleExoPlayerView extends FrameLayout {
   /**
    * Sets which repeat toggle modes are enabled.
    *
-   * @param repeatToggleModes A set of {@link PlaybackControlView.RepeatToggleModes}.
+   * @param repeatToggleModes A set of {@link RepeatModeUtil.RepeatToggleModes}.
    */
-  public void setRepeatToggleModes(@PlaybackControlView.RepeatToggleModes int repeatToggleModes) {
+  public void setRepeatToggleModes(@RepeatModeUtil.RepeatToggleModes int repeatToggleModes) {
     Assertions.checkState(controller != null);
     controller.setRepeatToggleModes(repeatToggleModes);
   }

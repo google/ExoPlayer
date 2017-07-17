@@ -28,6 +28,7 @@ include modulePrefix + 'extension-ffmpeg'
 include modulePrefix + 'extension-flac'
 include modulePrefix + 'extension-gvr'
 include modulePrefix + 'extension-ima'
+include modulePrefix + 'extension-mediasession'
 include modulePrefix + 'extension-okhttp'
 include modulePrefix + 'extension-opus'
 include modulePrefix + 'extension-vp9'
@@ -44,6 +45,7 @@ project(modulePrefix + 'extension-ffmpeg').projectDir = new File(rootDir, 'exten
 project(modulePrefix + 'extension-flac').projectDir = new File(rootDir, 'extensions/flac')
 project(modulePrefix + 'extension-gvr').projectDir = new File(rootDir, 'extensions/gvr')
 project(modulePrefix + 'extension-ima').projectDir = new File(rootDir, 'extensions/ima')
+project(modulePrefix + 'extension-mediasession').projectDir = new File(rootDir, 'extensions/mediasession')
 project(modulePrefix + 'extension-okhttp').projectDir = new File(rootDir, 'extensions/okhttp')
 project(modulePrefix + 'extension-opus').projectDir = new File(rootDir, 'extensions/opus')
 project(modulePrefix + 'extension-vp9').projectDir = new File(rootDir, 'extensions/vp9')
