@@ -67,7 +67,7 @@ import java.util.List;
  *         .endData();
  * </pre>
  */
-public final class FakeDataSet {
+public class FakeDataSet {
 
   /** Container of fake data to be served by a {@link FakeDataSource}. */
   public static final class FakeData {
