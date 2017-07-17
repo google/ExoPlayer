@@ -21,8 +21,8 @@ import static com.google.android.exoplayer2.testutil.CacheAsserts.assertCachedDa
 import android.net.Uri;
 import android.test.InstrumentationTestCase;
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.testutil.FakeDataSet;
 import com.google.android.exoplayer2.testutil.FakeDataSource;
-import com.google.android.exoplayer2.testutil.FakeDataSource.FakeDataSet;
 import com.google.android.exoplayer2.testutil.TestUtil;
 import com.google.android.exoplayer2.upstream.DataSpec;
 import com.google.android.exoplayer2.upstream.cache.CacheUtil.CachingCounters;

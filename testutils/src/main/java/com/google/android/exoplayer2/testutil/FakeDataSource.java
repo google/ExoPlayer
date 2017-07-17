@@ -17,58 +17,18 @@ package com.google.android.exoplayer2.testutil;
 
 import android.net.Uri;
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.testutil.FakeDataSet.FakeData;
+import com.google.android.exoplayer2.testutil.FakeDataSet.FakeData.Segment;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DataSourceException;
 import com.google.android.exoplayer2.upstream.DataSpec;
 import com.google.android.exoplayer2.util.Assertions;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
 
 /**
  * A fake {@link DataSource} capable of simulating various scenarios. It uses a {@link FakeDataSet}
  * instance which determines the response to data access calls.
- *
- * <p>Multiple fake data can be defined by {@link FakeDataSet#setData(String, byte[])} and {@link
- * FakeDataSet#newData(String)} methods. It's also possible to define a default data by {@link
- * FakeDataSet#newDefaultData()}.
- *
- * <p>{@link FakeDataSet#newData(String)} and {@link FakeDataSet#newDefaultData()} return a {@link
- * FakeData} instance which can be used to define specific results during {@link #read(byte[], int,
- * int)} calls.
- *
- * <p>The data that will be read from the source can be constructed by calling {@link
- * FakeData#appendReadData(byte[])} Calls to {@link #read(byte[], int, int)} will not span the
- * boundaries between arrays passed to successive calls, and hence the boundaries control the
- * positions at which read requests to the source may only be partially satisfied.
- *
- * <p>Errors can be inserted by calling {@link FakeData#appendReadError(IOException)}. An inserted
- * error will be thrown from the first call to {@link #read(byte[], int, int)} that attempts to read
- * from the corresponding position, and from all subsequent calls to {@link #read(byte[], int, int)}
- * until the source is closed. If the source is closed and re-opened having encountered an error,
- * that error will not be thrown again.
- *
- * <p>Actions are inserted by calling {@link FakeData#appendReadAction(Runnable)}. An actions is
- * triggered when the reading reaches action's position. This can be used to make sure the code is
- * in a certain state while testing.
- *
- * <p>Example usage:
- *
- * <pre>
- *   // Create a FakeDataSource then add default data and two FakeData
- *   // "test_file" throws an IOException when tried to be read until closed and reopened.
- *   FakeDataSource fakeDataSource = new FakeDataSource();
- *   fakeDataSource.getDataSet()
- *       .newDefaultData()
- *         .appendReadData(defaultData)
- *         .endData()
- *       .setData("http://1", data1)
- *       .newData("test_file")
- *         .appendReadError(new IOException())
- *         .appendReadData(data2)
- *         .endData();
- * </pre>
  */
 public final class FakeDataSource implements DataSource {
 
@@ -117,7 +77,7 @@ public final class FakeDataSource implements DataSource {
     }
 
     long totalLength = 0;
-    for (Segment segment : fakeData.segments) {
+    for (Segment segment : fakeData.getSegments()) {
       totalLength += segment.length;
     }
 
@@ -134,7 +94,7 @@ public final class FakeDataSource implements DataSource {
     boolean findingCurrentSegmentIndex = true;
     currentSegmentIndex = 0;
     int scannedLength = 0;
-    for (Segment segment : fakeData.segments) {
+    for (Segment segment : fakeData.getSegments()) {
       segment.bytesRead =
           (int) Math.min(Math.max(0, dataSpec.position - scannedLength), segment.length);
       scannedLength += segment.length;
@@ -147,7 +107,7 @@ public final class FakeDataSource implements DataSource {
     // Configure bytesRemaining, and return.
     if (dataSpec.length == C.LENGTH_UNSET) {
       bytesRemaining = totalLength - dataSpec.position;
-      return fakeData.simulateUnknownLength ? C.LENGTH_UNSET : bytesRemaining;
+      return fakeData.isSimulatingUnknownLength() ? C.LENGTH_UNSET : bytesRemaining;
     } else {
       bytesRemaining = dataSpec.length;
       return bytesRemaining;
@@ -158,10 +118,10 @@ public final class FakeDataSource implements DataSource {
   public int read(byte[] buffer, int offset, int readLength) throws IOException {
     Assertions.checkState(opened);
     while (true) {
-      if (currentSegmentIndex == fakeData.segments.size() || bytesRemaining == 0) {
+      if (currentSegmentIndex == fakeData.getSegments().size() || bytesRemaining == 0) {
         return C.RESULT_END_OF_INPUT;
       }
-      Segment current = fakeData.segments.get(currentSegmentIndex);
+      Segment current = fakeData.getSegments().get(currentSegmentIndex);
       if (current.isErrorSegment()) {
         if (!current.exceptionCleared) {
           current.exceptionThrown = true;
@@ -199,8 +159,8 @@ public final class FakeDataSource implements DataSource {
     Assertions.checkState(opened);
     opened = false;
     uri = null;
-    if (fakeData != null && currentSegmentIndex < fakeData.segments.size()) {
-      Segment current = fakeData.segments.get(currentSegmentIndex);
+    if (fakeData != null && currentSegmentIndex < fakeData.getSegments().size()) {
+      Segment current = fakeData.getSegments().get(currentSegmentIndex);
       if (current.isErrorSegment() && current.exceptionThrown) {
         current.exceptionCleared = true;
       }
@@ -219,167 +179,5 @@ public final class FakeDataSource implements DataSource {
     return dataSpecs;
   }
 
-  private static class Segment {
-
-    public final IOException exception;
-    public final byte[] data;
-    public final int length;
-    public final Runnable action;
-
-    private boolean exceptionThrown;
-    private boolean exceptionCleared;
-    private int bytesRead;
-
-    public Segment(byte[] data) {
-      this.data = data;
-      this.length = data.length;
-      this.exception = null;
-      this.action = null;
-    }
-
-    public Segment(IOException exception) {
-      this.data = null;
-      this.length = 0;
-      this.exception = exception;
-      this.action = null;
-    }
-
-    public Segment(Runnable action) {
-      this.data = null;
-      this.length = 0;
-      this.exception = null;
-      this.action = action;
-    }
-
-    public boolean isErrorSegment() {
-      return exception != null;
-    }
-
-    public boolean isActionSegment() {
-      return action != null;
-    }
-
-  }
-
-  /** Container of fake data to be served by a {@link FakeDataSource}. */
-  public static final class FakeData {
-
-    /** Uri of the data or null if this is the default FakeData. */
-    public final String uri;
-    private final ArrayList<Segment> segments;
-    private final FakeDataSet dataSet;
-    private boolean simulateUnknownLength;
-
-    private FakeData(FakeDataSet dataSet, String uri) {
-      this.uri = uri;
-      this.segments = new ArrayList<>();
-      this.dataSet = dataSet;
-    }
-
-    /** Returns the {@link FakeDataSet} this FakeData belongs to. */
-    public FakeDataSet endData() {
-      return dataSet;
-    }
-
-    /**
-     * When set, {@link FakeDataSource#open(DataSpec)} will behave as though the source is unable to
-     * determine the length of the underlying data. Hence the return value will always be equal to
-     * the {@link DataSpec#length} of the argument, including the case where the length is equal to
-     * {@link C#LENGTH_UNSET}.
-     */
-    public FakeData setSimulateUnknownLength(boolean simulateUnknownLength) {
-      this.simulateUnknownLength = simulateUnknownLength;
-      return this;
-    }
-
-    /**
-     * Appends to the underlying data.
-     */
-    public FakeData appendReadData(byte[] data) {
-      Assertions.checkState(data != null && data.length > 0);
-      segments.add(new Segment(data));
-      return this;
-    }
-
-    /**
-     * Appends an error in the underlying data.
-     */
-    public FakeData appendReadError(IOException exception) {
-      segments.add(new Segment(exception));
-      return this;
-    }
-
-    /**
-     * Appends an action.
-     */
-    public FakeData appendReadAction(Runnable action) {
-      segments.add(new Segment(action));
-      return this;
-    }
-
-    /** Returns the whole data added by {@link #appendReadData(byte[])}. */
-    public byte[] getData() {
-      ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-      for (Segment segment : segments) {
-        if (segment.data != null) {
-          try {
-            outputStream.write(segment.data);
-          } catch (IOException e) {
-            throw new IllegalStateException(e);
-          }
-        }
-      }
-      return outputStream.toByteArray();
-    }
-  }
-
-  /** A set of {@link FakeData} instances. */
-  public static final class FakeDataSet {
-
-    private final HashMap<String, FakeData> dataMap;
-    private FakeData defaultData;
-
-    public FakeDataSet() {
-      dataMap = new HashMap<>();
-    }
-
-    /** Sets the default data, overwrites if there is one already. */
-    public FakeData newDefaultData() {
-      defaultData = new FakeData(this, null);
-      return defaultData;
-    }
-
-    /** Sets random data with the given {@code length} for the given {@code uri}. */
-    public FakeDataSet setRandomData(String uri, int length) {
-      return setData(uri, TestUtil.buildTestData(length));
-    }
-
-    /** Sets the given {@code data} for the given {@code uri}. */
-    public FakeDataSet setData(String uri, byte[] data) {
-      return newData(uri).appendReadData(data).endData();
-    }
-
-    /** Returns a new {@link FakeData} with the given {@code uri}. */
-    public FakeData newData(String uri) {
-      FakeData data = new FakeData(this, uri);
-      dataMap.put(uri, data);
-      return data;
-    }
-
-    /** Returns the data for the given {@code uri}, or {@code defaultData} if no data is set. */
-    public FakeData getData(String uri) {
-      FakeData data = dataMap.get(uri);
-      return data != null ? data : defaultData;
-    }
-
-    /** Returns a list of all data including {@code defaultData}. */
-    public ArrayList<FakeData> getAllData() {
-      ArrayList<FakeData> fakeDatas = new ArrayList<>(dataMap.values());
-      if (defaultData != null) {
-        fakeDatas.add(defaultData);
-      }
-      return fakeDatas;
-    }
-  }
 
 }
