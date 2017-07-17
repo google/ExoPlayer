@@ -80,33 +80,37 @@ public class FakeDataSet {
       public final IOException exception;
       public final byte[] data;
       public final int length;
+      public final long byteOffset;
       public final Runnable action;
 
       public boolean exceptionThrown;
       public boolean exceptionCleared;
       public int bytesRead;
 
-      private Segment(byte[] data) {
-        this(data, data.length, null, null);
+      private Segment(byte[] data, Segment previousSegment) {
+        this(data, data.length, null, null, previousSegment);
       }
 
-      private Segment(int length) {
-        this(null, length, null, null);
+      private Segment(int length, Segment previousSegment) {
+        this(null, length, null, null, previousSegment);
       }
 
-      private Segment(IOException exception) {
-        this(null, 0, exception, null);
+      private Segment(IOException exception, Segment previousSegment) {
+        this(null, 0, exception, null, previousSegment);
       }
 
-      private Segment(Runnable action) {
-        this(null, 0, null, action);
+      private Segment(Runnable action, Segment previousSegment) {
+        this(null, 0, null, action, previousSegment);
       }
 
-      private Segment(byte[] data, int length, IOException exception, Runnable action) {
+      private Segment(byte[] data, int length, IOException exception, Runnable action,
+          Segment previousSegment) {
         this.exception = exception;
         this.action = action;
         this.data = data;
         this.length = length;
+        this.byteOffset = previousSegment == null ? 0
+            : previousSegment.byteOffset + previousSegment.length;
       }
 
       public boolean isErrorSegment() {
@@ -152,7 +156,7 @@ public class FakeDataSet {
      */
     public FakeData appendReadData(byte[] data) {
       Assertions.checkState(data != null && data.length > 0);
-      segments.add(new Segment(data));
+      segments.add(new Segment(data, getLastSegment()));
       return this;
     }
 
@@ -162,7 +166,7 @@ public class FakeDataSet {
      */
     public FakeData appendReadData(int length) {
       Assertions.checkState(length > 0);
-      segments.add(new Segment(length));
+      segments.add(new Segment(length, getLastSegment()));
       return this;
     }
 
@@ -170,7 +174,7 @@ public class FakeDataSet {
      * Appends an error in the underlying data.
      */
     public FakeData appendReadError(IOException exception) {
-      segments.add(new Segment(exception));
+      segments.add(new Segment(exception, getLastSegment()));
       return this;
     }
 
@@ -178,7 +182,7 @@ public class FakeDataSet {
      * Appends an action.
      */
     public FakeData appendReadAction(Runnable action) {
-      segments.add(new Segment(action));
+      segments.add(new Segment(action, getLastSegment()));
       return this;
     }
 
@@ -206,6 +210,12 @@ public class FakeDataSet {
     public boolean isSimulatingUnknownLength() {
       return simulateUnknownLength;
     }
+
+    private Segment getLastSegment() {
+      int count = segments.size();
+      return count > 0 ? segments.get(count - 1) : null;
+    }
+
   }
 
   private final HashMap<String, FakeData> dataMap;
