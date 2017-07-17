@@ -22,7 +22,6 @@ import android.content.res.Resources;
 import android.content.res.TypedArray;
 import android.graphics.drawable.Drawable;
 import android.os.SystemClock;
-import android.support.annotation.IntDef;
 import android.util.AttributeSet;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -39,9 +38,8 @@ import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
 import com.google.android.exoplayer2.util.Assertions;
+import com.google.android.exoplayer2.util.RepeatModeUtil;
 import com.google.android.exoplayer2.util.Util;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
 import java.util.Arrays;
 import java.util.Formatter;
 import java.util.Locale;
@@ -82,7 +80,7 @@ import java.util.Locale;
  *       {@code all}, or {@code one|all}.
  *       <ul>
  *         <li>Corresponding method: {@link #setRepeatToggleModes(int)}</li>
- *         <li>Default: {@link #DEFAULT_REPEAT_TOGGLE_MODES}</li>
+ *         <li>Default: {@link PlaybackControlView#DEFAULT_REPEAT_TOGGLE_MODES}</li>
  *       </ul>
  *   </li>
  *   <li><b>{@code controller_layout_id}</b> - Specifies the id of the layout to be inflated. See
@@ -249,30 +247,11 @@ public class PlaybackControlView extends FrameLayout {
 
   };
 
-  /**
-   * Set of repeat toggle modes. Can be combined using bit-wise operations.
-   */
-  @Retention(RetentionPolicy.SOURCE)
-  @IntDef(flag = true, value = {REPEAT_TOGGLE_MODE_NONE, REPEAT_TOGGLE_MODE_ONE,
-      REPEAT_TOGGLE_MODE_ALL})
-  public @interface RepeatToggleModes {}
-  /**
-   * All repeat mode buttons disabled.
-   */
-  public static final int REPEAT_TOGGLE_MODE_NONE = 0;
-  /**
-   * "Repeat One" button enabled.
-   */
-  public static final int REPEAT_TOGGLE_MODE_ONE = 1;
-  /**
-   * "Repeat All" button enabled.
-   */
-  public static final int REPEAT_TOGGLE_MODE_ALL = 2;
-
   public static final int DEFAULT_FAST_FORWARD_MS = 15000;
   public static final int DEFAULT_REWIND_MS = 5000;
   public static final int DEFAULT_SHOW_TIMEOUT_MS = 5000;
-  public static final @RepeatToggleModes int DEFAULT_REPEAT_TOGGLE_MODES = REPEAT_TOGGLE_MODE_NONE;
+  public static final @RepeatModeUtil.RepeatToggleModes int DEFAULT_REPEAT_TOGGLE_MODES
+      = RepeatModeUtil.REPEAT_TOGGLE_MODE_NONE;
 
   /**
    * The maximum number of windows that can be shown in a multi-window time bar.
@@ -315,7 +294,7 @@ public class PlaybackControlView extends FrameLayout {
   private int rewindMs;
   private int fastForwardMs;
   private int showTimeoutMs;
-  private @RepeatToggleModes int repeatToggleModes;
+  private @RepeatModeUtil.RepeatToggleModes int repeatToggleModes;
   private long hideAtMs;
   private long[] adGroupTimesMs;
   private boolean[] playedAdGroups;
@@ -424,8 +403,8 @@ public class PlaybackControlView extends FrameLayout {
   }
 
   @SuppressWarnings("ResourceType")
-  private static @RepeatToggleModes int getRepeatToggleModes(TypedArray a,
-      @RepeatToggleModes int repeatToggleModes) {
+  private static @RepeatModeUtil.RepeatToggleModes int getRepeatToggleModes(TypedArray a,
+      @RepeatModeUtil.RepeatToggleModes int repeatToggleModes) {
     return a.getInt(R.styleable.PlaybackControlView_repeat_toggle_modes, repeatToggleModes);
   }
 
@@ -535,28 +514,28 @@ public class PlaybackControlView extends FrameLayout {
   /**
    * Returns which repeat toggle modes are enabled.
    *
-   * @return The currently enabled {@link RepeatToggleModes}.
+   * @return The currently enabled {@link RepeatModeUtil.RepeatToggleModes}.
    */
-  public @RepeatToggleModes int getRepeatToggleModes() {
+  public @RepeatModeUtil.RepeatToggleModes int getRepeatToggleModes() {
     return repeatToggleModes;
   }
 
   /**
    * Sets which repeat toggle modes are enabled.
    *
-   * @param repeatToggleModes A set of {@link RepeatToggleModes}.
+   * @param repeatToggleModes A set of {@link RepeatModeUtil.RepeatToggleModes}.
    */
-  public void setRepeatToggleModes(@RepeatToggleModes int repeatToggleModes) {
+  public void setRepeatToggleModes(@RepeatModeUtil.RepeatToggleModes int repeatToggleModes) {
     this.repeatToggleModes = repeatToggleModes;
     if (player != null) {
       @ExoPlayer.RepeatMode int currentMode = player.getRepeatMode();
-      if (repeatToggleModes == REPEAT_TOGGLE_MODE_NONE
+      if (repeatToggleModes == RepeatModeUtil.REPEAT_TOGGLE_MODE_NONE
           && currentMode != ExoPlayer.REPEAT_MODE_OFF) {
         controlDispatcher.dispatchSetRepeatMode(player, ExoPlayer.REPEAT_MODE_OFF);
-      } else if (repeatToggleModes == REPEAT_TOGGLE_MODE_ONE
+      } else if (repeatToggleModes == RepeatModeUtil.REPEAT_TOGGLE_MODE_ONE
           && currentMode == ExoPlayer.REPEAT_MODE_ALL) {
         controlDispatcher.dispatchSetRepeatMode(player, ExoPlayer.REPEAT_MODE_ONE);
-      } else if (repeatToggleModes == REPEAT_TOGGLE_MODE_ALL
+      } else if (repeatToggleModes == RepeatModeUtil.REPEAT_TOGGLE_MODE_ALL
           && currentMode == ExoPlayer.REPEAT_MODE_ONE) {
         controlDispatcher.dispatchSetRepeatMode(player, ExoPlayer.REPEAT_MODE_ALL);
       }
@@ -674,7 +653,7 @@ public class PlaybackControlView extends FrameLayout {
     if (!isVisible() || !isAttachedToWindow || repeatToggleButton == null) {
       return;
     }
-    if (repeatToggleModes == REPEAT_TOGGLE_MODE_NONE) {
+    if (repeatToggleModes == RepeatModeUtil.REPEAT_TOGGLE_MODE_NONE) {
       repeatToggleButton.setVisibility(View.GONE);
       return;
     }
@@ -856,30 +835,6 @@ public class PlaybackControlView extends FrameLayout {
       seekTo(nextWindowIndex, C.TIME_UNSET);
     } else if (timeline.getWindow(windowIndex, window, false).isDynamic) {
       seekTo(windowIndex, C.TIME_UNSET);
-    }
-  }
-
-  private @ExoPlayer.RepeatMode int getNextRepeatMode() {
-    @ExoPlayer.RepeatMode int currentMode = player.getRepeatMode();
-    for (int offset = 1; offset <= 2; offset++) {
-      @ExoPlayer.RepeatMode int proposedMode = (currentMode + offset) % 3;
-      if (isRepeatModeEnabled(proposedMode)) {
-        return proposedMode;
-      }
-    }
-    return currentMode;
-  }
-
-  private boolean isRepeatModeEnabled(@ExoPlayer.RepeatMode int repeatMode) {
-    switch (repeatMode) {
-      case ExoPlayer.REPEAT_MODE_OFF:
-        return true;
-      case ExoPlayer.REPEAT_MODE_ONE:
-        return (repeatToggleModes & REPEAT_TOGGLE_MODE_ONE) != 0;
-      case ExoPlayer.REPEAT_MODE_ALL:
-        return (repeatToggleModes & REPEAT_TOGGLE_MODE_ALL) != 0;
-      default:
-        return false;
     }
   }
 
@@ -1126,7 +1081,8 @@ public class PlaybackControlView extends FrameLayout {
         } else if (pauseButton == view) {
           controlDispatcher.dispatchSetPlayWhenReady(player, false);
         } else if (repeatToggleButton == view) {
-          controlDispatcher.dispatchSetRepeatMode(player, getNextRepeatMode());
+          controlDispatcher.dispatchSetRepeatMode(player, RepeatModeUtil.getNextRepeatMode(
+              player.getRepeatMode(), repeatToggleModes));
         }
       }
       hideAfterTimeout();
