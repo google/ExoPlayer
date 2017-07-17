@@ -75,11 +75,13 @@ public final class FakeMediaPeriod implements MediaPeriod {
     for (int i = 0; i < rendererCount; i++) {
       if (streams[i] == null && selections[i] != null) {
         TrackSelection selection = selections[i];
-        Assert.assertEquals(1, selection.length());
-        Assert.assertEquals(0, selection.getIndexInTrackGroup(0));
+        Assert.assertTrue(1 <= selection.length());
         TrackGroup trackGroup = selection.getTrackGroup();
         Assert.assertTrue(trackGroupArray.indexOf(trackGroup) != C.INDEX_UNSET);
-        streams[i] = new FakeSampleStream(trackGroup.getFormat(0));
+        int indexInTrackGroup = selection.getIndexInTrackGroup(selection.getSelectedIndex());
+        Assert.assertTrue(0 <= indexInTrackGroup);
+        Assert.assertTrue(indexInTrackGroup < trackGroup.length);
+        streams[i] = new FakeSampleStream(selection.getSelectedFormat());
         streamResetFlags[i] = true;
       }
     }

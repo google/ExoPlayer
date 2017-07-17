@@ -57,7 +57,7 @@ public final class ExoPlayerTest extends TestCase {
     ExoPlayerWrapper playerWrapper = new ExoPlayerWrapper();
     Timeline timeline = Timeline.EMPTY;
     MediaSource mediaSource = new FakeMediaSource(timeline, null);
-    FakeRenderer renderer = new FakeRenderer(null);
+    FakeRenderer renderer = new FakeRenderer();
     playerWrapper.setup(mediaSource, renderer);
     playerWrapper.blockUntilEnded(TIMEOUT_MS);
     assertEquals(0, playerWrapper.positionDiscontinuityCount);

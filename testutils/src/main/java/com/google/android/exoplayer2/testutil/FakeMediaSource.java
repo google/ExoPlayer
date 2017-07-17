@@ -42,15 +42,23 @@ public class FakeMediaSource implements MediaSource {
   private boolean preparedSource;
   private boolean releasedSource;
 
+  /**
+   * Creates a {@link FakeMediaSource}. This media source creates {@link FakeMediaPeriod}s with a
+   * {@link TrackGroupArray} using the given {@link Format}s.
+   */
   public FakeMediaSource(Timeline timeline, Object manifest, Format... formats) {
+    this(timeline, manifest, buildTrackGroupArray(formats));
+  }
+
+  /**
+   * Creates a {@link FakeMediaSource}. This media source creates {@link FakeMediaPeriod}s with the
+   * given {@link TrackGroupArray}.
+   */
+  public FakeMediaSource(Timeline timeline, Object manifest, TrackGroupArray trackGroupArray) {
     this.timeline = timeline;
     this.manifest = manifest;
-    TrackGroup[] trackGroups = new TrackGroup[formats.length];
-    for (int i = 0; i < formats.length; i++) {
-      trackGroups[i] = new TrackGroup(formats[i]);
-    }
-    trackGroupArray = new TrackGroupArray(trackGroups);
-    activeMediaPeriods = new ArrayList<>();
+    this.activeMediaPeriods = new ArrayList<>();
+    this.trackGroupArray = trackGroupArray;
   }
 
   public void assertReleased() {
@@ -96,4 +104,11 @@ public class FakeMediaSource implements MediaSource {
     releasedSource = true;
   }
 
+  private static TrackGroupArray buildTrackGroupArray(Format... formats) {
+    TrackGroup[] trackGroups = new TrackGroup[formats.length];
+    for (int i = 0; i < formats.length; i++) {
+      trackGroups[i] = new TrackGroup(formats[i]);
+    }
+    return new TrackGroupArray(trackGroups);
+  }
 }

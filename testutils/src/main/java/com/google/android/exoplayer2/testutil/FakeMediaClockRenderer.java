@@ -24,8 +24,8 @@ import com.google.android.exoplayer2.util.MediaClock;
  */
 public abstract class FakeMediaClockRenderer extends FakeRenderer implements MediaClock {
 
-  public FakeMediaClockRenderer(Format expectedFormat) {
-    super(expectedFormat);
+  public FakeMediaClockRenderer(Format... expectedFormats) {
+    super(expectedFormats);
   }
 
   @Override
