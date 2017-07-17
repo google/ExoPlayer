@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.ext.ffmpeg;
 
+import com.google.android.exoplayer2.ExoPlayerLibraryInfo;
 import com.google.android.exoplayer2.util.LibraryLoader;
 import com.google.android.exoplayer2.util.MimeTypes;
 
@@ -22,6 +23,10 @@ import com.google.android.exoplayer2.util.MimeTypes;
  * Configures and queries the underlying native library.
  */
 public final class FfmpegLibrary {
+
+  static {
+    ExoPlayerLibraryInfo.registerModule("goog.exo.ffmpeg");
+  }
 
   private static final LibraryLoader LOADER =
       new LibraryLoader("avutil", "avresample", "avcodec", "ffmpeg");

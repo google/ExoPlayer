@@ -20,6 +20,7 @@ import android.os.ConditionVariable;
 import android.text.TextUtils;
 import android.util.Log;
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.ExoPlayerLibraryInfo;
 import com.google.android.exoplayer2.upstream.DataSourceException;
 import com.google.android.exoplayer2.upstream.DataSpec;
 import com.google.android.exoplayer2.upstream.HttpDataSource;
@@ -72,6 +73,10 @@ public class CronetDataSource extends UrlRequest.Callback implements HttpDataSou
       this.cronetConnectionStatus = cronetConnectionStatus;
     }
 
+  }
+
+  static {
+    ExoPlayerLibraryInfo.registerModule("goog.exo.cronet");
   }
 
   /**
