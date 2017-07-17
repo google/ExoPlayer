@@ -80,7 +80,8 @@ import java.util.concurrent.CopyOnWriteArraySet;
    */
   @SuppressLint("HandlerLeak")
   public ExoPlayerImpl(Renderer[] renderers, TrackSelector trackSelector, LoadControl loadControl) {
-    Log.i(TAG, "Init " + ExoPlayerLibraryInfo.VERSION_SLASHY + " [" + Util.DEVICE_DEBUG_INFO + "]");
+    Log.i(TAG, "Init " + Integer.toHexString(System.identityHashCode(this)) + " ["
+        + ExoPlayerLibraryInfo.VERSION_SLASHY + "] [" + Util.DEVICE_DEBUG_INFO + "]");
     Assertions.checkState(renderers.length > 0);
     this.renderers = Assertions.checkNotNull(renderers);
     this.trackSelector = Assertions.checkNotNull(trackSelector);
@@ -263,6 +264,9 @@ import java.util.concurrent.CopyOnWriteArraySet;
 
   @Override
   public void release() {
+    Log.i(TAG, "Release " + Integer.toHexString(System.identityHashCode(this)) + " ["
+        + ExoPlayerLibraryInfo.VERSION_SLASHY + "] [" + Util.DEVICE_DEBUG_INFO + "] ["
+        + ExoPlayerLibraryInfo.registeredModules() + "]");
     internalPlayer.release();
     eventHandler.removeCallbacksAndMessages(null);
   }

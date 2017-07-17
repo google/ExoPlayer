@@ -22,6 +22,7 @@ import android.util.Log;
 import android.util.SparseArray;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlayer;
+import com.google.android.exoplayer2.ExoPlayerLibraryInfo;
 import com.google.android.exoplayer2.ParserException;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.source.AdaptiveMediaSourceEventListener;
@@ -51,6 +52,10 @@ import java.util.TimeZone;
  * A DASH {@link MediaSource}.
  */
 public final class DashMediaSource implements MediaSource {
+
+  static {
+    ExoPlayerLibraryInfo.registerModule("goog.exo.dash");
+  }
 
   /**
    * The default minimum number of times to retry loading data prior to failing.

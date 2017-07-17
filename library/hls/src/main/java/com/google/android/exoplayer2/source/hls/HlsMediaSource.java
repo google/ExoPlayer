@@ -19,6 +19,7 @@ import android.net.Uri;
 import android.os.Handler;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlayer;
+import com.google.android.exoplayer2.ExoPlayerLibraryInfo;
 import com.google.android.exoplayer2.source.AdaptiveMediaSourceEventListener;
 import com.google.android.exoplayer2.source.AdaptiveMediaSourceEventListener.EventDispatcher;
 import com.google.android.exoplayer2.source.MediaPeriod;
@@ -37,6 +38,10 @@ import java.util.List;
  */
 public final class HlsMediaSource implements MediaSource,
     HlsPlaylistTracker.PrimaryPlaylistListener {
+
+  static {
+    ExoPlayerLibraryInfo.registerModule("goog.exo.hls");
+  }
 
   /**
    * The default minimum number of times to retry loading data prior to failing.

@@ -57,9 +57,6 @@ import java.util.List;
 public final class ImaAdsLoader implements ExoPlayer.EventListener, VideoAdPlayer,
     ContentProgressProvider, AdErrorListener, AdsLoadedListener, AdEventListener {
 
-  private static final boolean DEBUG = false;
-  private static final String TAG = "ImaAdsLoader";
-
   /**
    * Listener for ad loader events. All methods are called on the main thread.
    */
@@ -80,6 +77,13 @@ public final class ImaAdsLoader implements ExoPlayer.EventListener, VideoAdPlaye
     void onLoadError(IOException error);
 
   }
+
+  static {
+    ExoPlayerLibraryInfo.registerModule("goog.exo.ima");
+  }
+
+  private static final boolean DEBUG = false;
+  private static final String TAG = "ImaAdsLoader";
 
   /**
    * Whether to enable preloading of ads in {@link AdsRenderingSettings}.

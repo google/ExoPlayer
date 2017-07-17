@@ -33,6 +33,7 @@ import android.widget.TextView;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.ExoPlayer;
+import com.google.android.exoplayer2.ExoPlayerLibraryInfo;
 import com.google.android.exoplayer2.PlaybackParameters;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.source.TrackGroupArray;
@@ -164,6 +165,10 @@ import java.util.Locale;
  * of {@code exo_playback_control_view.xml} for only the instance on which the attribute is set.
  */
 public class PlaybackControlView extends FrameLayout {
+
+  static {
+    ExoPlayerLibraryInfo.registerModule("goog.exo.ui");
+  }
 
   /**
    * Listener to be notified about changes of the visibility of the UI control.

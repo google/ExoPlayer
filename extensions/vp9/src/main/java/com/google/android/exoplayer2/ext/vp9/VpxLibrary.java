@@ -15,12 +15,17 @@
  */
 package com.google.android.exoplayer2.ext.vp9;
 
+import com.google.android.exoplayer2.ExoPlayerLibraryInfo;
 import com.google.android.exoplayer2.util.LibraryLoader;
 
 /**
  * Configures and queries the underlying native library.
  */
 public final class VpxLibrary {
+
+  static {
+    ExoPlayerLibraryInfo.registerModule("goog.exo.vpx");
+  }
 
   private static final LibraryLoader LOADER = new LibraryLoader("vpx", "vpxJNI");
 
@@ -70,4 +75,5 @@ public final class VpxLibrary {
   private static native String vpxGetVersion();
   private static native String vpxGetBuildConfig();
   public static native boolean vpxIsSecureDecodeSupported();
+
 }

@@ -15,12 +15,17 @@
  */
 package com.google.android.exoplayer2.ext.opus;
 
+import com.google.android.exoplayer2.ExoPlayerLibraryInfo;
 import com.google.android.exoplayer2.util.LibraryLoader;
 
 /**
  * Configures and queries the underlying native library.
  */
 public final class OpusLibrary {
+
+  static {
+    ExoPlayerLibraryInfo.registerModule("goog.exo.opus");
+  }
 
   private static final LibraryLoader LOADER = new LibraryLoader("opus", "opusJNI");
 

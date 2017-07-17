@@ -19,6 +19,7 @@ import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.ExoPlayerLibraryInfo;
 import com.google.android.exoplayer2.upstream.DataSourceException;
 import com.google.android.exoplayer2.upstream.DataSpec;
 import com.google.android.exoplayer2.upstream.HttpDataSource;
@@ -44,6 +45,10 @@ import okhttp3.Response;
  * An {@link HttpDataSource} that delegates to Square's {@link Call.Factory}.
  */
 public class OkHttpDataSource implements HttpDataSource {
+
+  static {
+    ExoPlayerLibraryInfo.registerModule("goog.exo.okhttp");
+  }
 
   private static final AtomicReference<byte[]> skipBufferReference = new AtomicReference<>();
 
