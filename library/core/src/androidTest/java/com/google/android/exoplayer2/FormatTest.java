@@ -94,10 +94,10 @@ public final class FormatTest extends TestCase {
         500, 128, 5, 44100, INIT_DATA, null, 0, null));
     testConversionToFrameworkMediaFormatV16(Format.createAudioSampleFormat(null, "audio/xyz", null,
         500, Format.NO_VALUE, 5, 44100, null, null, 0, null));
-    testConversionToFrameworkMediaFormatV16(Format.createTextSampleFormat(null, "text/xyz", null,
-        Format.NO_VALUE, 0, "eng", null));
-    testConversionToFrameworkMediaFormatV16(Format.createTextSampleFormat(null, "text/xyz", null,
-        Format.NO_VALUE, 0, null, null));
+    testConversionToFrameworkMediaFormatV16(Format.createTextSampleFormat(null, "text/xyz", 0,
+        "eng"));
+    testConversionToFrameworkMediaFormatV16(Format.createTextSampleFormat(null, "text/xyz", 0,
+        null));
   }
 
   @SuppressLint("InlinedApi")

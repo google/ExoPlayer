@@ -287,7 +287,7 @@ import java.util.List;
       }
       if (hasCea608Track) {
         Format format = Format.createTextSampleFormat(firstAdaptationSet.id + ":cea608",
-            MimeTypes.APPLICATION_CEA608, null, Format.NO_VALUE, 0, null, null);
+            MimeTypes.APPLICATION_CEA608, 0, null);
         trackGroups[trackGroupCount] = new TrackGroup(format);
         trackGroupInfos[trackGroupCount++] = new TrackGroupInfo(C.TRACK_TYPE_TEXT,
             adaptationSetIndices, primaryTrackGroupIndex, false, false, false);

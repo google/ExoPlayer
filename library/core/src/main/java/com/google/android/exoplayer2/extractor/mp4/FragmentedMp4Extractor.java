@@ -464,8 +464,8 @@ public final class FragmentedMp4Extractor implements Extractor {
     if ((flags & FLAG_ENABLE_CEA608_TRACK) != 0 && cea608TrackOutputs == null) {
       TrackOutput cea608TrackOutput = extractorOutput.track(trackBundles.size() + 1,
           C.TRACK_TYPE_TEXT);
-      cea608TrackOutput.format(Format.createTextSampleFormat(null, MimeTypes.APPLICATION_CEA608,
-          null, Format.NO_VALUE, 0, null, null));
+      cea608TrackOutput.format(Format.createTextSampleFormat(null, MimeTypes.APPLICATION_CEA608, 0,
+          null));
       cea608TrackOutputs = new TrackOutput[] {cea608TrackOutput};
     }
   }
