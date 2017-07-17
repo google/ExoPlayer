@@ -1762,8 +1762,8 @@ public final class MatroskaExtractor implements Extractor {
             drmInitData);
       } else if (MimeTypes.APPLICATION_SUBRIP.equals(mimeType)) {
         type = C.TRACK_TYPE_TEXT;
-        format = Format.createTextSampleFormat(Integer.toString(trackId), mimeType, null,
-            Format.NO_VALUE, selectionFlags, language, drmInitData);
+        format = Format.createTextSampleFormat(Integer.toString(trackId), mimeType, selectionFlags,
+            language, drmInitData);
       } else if (MimeTypes.TEXT_SSA.equals(mimeType)) {
         type = C.TRACK_TYPE_TEXT;
         initializationData = new ArrayList<>(2);
