@@ -249,8 +249,8 @@ public final class ImaAdsLoader implements ExoPlayer.EventListener, VideoAdPlaye
       lastContentProgress = getContentProgress();
       player.removeListener(this);
       player = null;
+      eventListener = null;
     }
-    eventListener = null;
   }
 
   /**
@@ -345,11 +345,14 @@ public final class ImaAdsLoader implements ExoPlayer.EventListener, VideoAdPlaye
     if (DEBUG) {
       Log.d(TAG, "onAdError " + adErrorEvent);
     }
+    if (adsManager == null) {
+      adPlaybackState = new AdPlaybackState(new long[0]);
+      updateAdPlaybackState();
+    }
     if (eventListener != null) {
       IOException exception = new IOException("Ad error: " + adErrorEvent, adErrorEvent.getError());
       eventListener.onLoadError(exception);
     }
-    // TODO: Provide a timeline to the player if it doesn't have one yet, so the content can play.
   }
 
   // ContentProgressProvider implementation.
@@ -498,6 +501,10 @@ public final class ImaAdsLoader implements ExoPlayer.EventListener, VideoAdPlaye
 
   @Override
   public void onPlayerStateChanged(boolean playWhenReady, int playbackState) {
+    if (adsManager == null) {
+      return;
+    }
+
     if (!imaPlayingAd && playbackState == ExoPlayer.STATE_BUFFERING && playWhenReady) {
       checkForContentComplete();
     } else if (imaPlayingAd && playbackState == ExoPlayer.STATE_ENDED) {
@@ -525,6 +532,10 @@ public final class ImaAdsLoader implements ExoPlayer.EventListener, VideoAdPlaye
 
   @Override
   public void onPositionDiscontinuity() {
+    if (adsManager == null) {
+      return;
+    }
+
     boolean wasPlayingAd = playingAd;
     playingAd = player.isPlayingAd();
     if (!playingAd && !wasPlayingAd) {

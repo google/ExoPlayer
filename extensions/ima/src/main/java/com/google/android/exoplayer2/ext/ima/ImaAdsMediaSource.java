@@ -17,6 +17,8 @@ package com.google.android.exoplayer2.ext.ima;
 
 import android.os.Handler;
 import android.os.Looper;
+import android.support.annotation.Nullable;
+import android.util.Log;
 import android.view.ViewGroup;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlayer;
@@ -39,6 +41,22 @@ import java.util.Map;
  */
 public final class ImaAdsMediaSource implements MediaSource {
 
+  /**
+   * Listener for events relating to ad loading.
+   */
+  public interface AdsListener {
+
+    /**
+     * Called if there was an error loading ads. The media source will load the content without ads
+     * if ads can't be loaded, so listen for this event if you need to implement additional handling
+     * (for example, stopping the player).
+     */
+    void onAdLoadError(IOException error);
+
+  }
+
+  private static final String TAG = "ImaAdsMediaSource";
+
   private final MediaSource contentMediaSource;
   private final DataSource.Factory dataSourceFactory;
   private final ImaAdsLoader imaAdsLoader;
@@ -47,6 +65,10 @@ public final class ImaAdsMediaSource implements MediaSource {
   private final AdsLoaderListener adsLoaderListener;
   private final Map<MediaPeriod, MediaSource> adMediaSourceByMediaPeriod;
   private final Timeline.Period period;
+  @Nullable
+  private final Handler eventHandler;
+  @Nullable
+  private final AdsListener eventListener;
 
   private Handler playerHandler;
   private ExoPlayer player;
@@ -59,7 +81,6 @@ public final class ImaAdsMediaSource implements MediaSource {
   private MediaSource[][] adGroupMediaSources;
   private long[][] adDurationsUs;
   private MediaSource.Listener listener;
-  private IOException adLoadError;
 
   /**
    * Constructs a new source that inserts ads linearly with the content specified by
@@ -68,13 +89,33 @@ public final class ImaAdsMediaSource implements MediaSource {
    * @param contentMediaSource The {@link MediaSource} providing the content to play.
    * @param dataSourceFactory Factory for data sources used to load ad media.
    * @param imaAdsLoader The loader for ads.
+   * @param adUiViewGroup A {@link ViewGroup} on top of the player that will show any ad UI.
    */
   public ImaAdsMediaSource(MediaSource contentMediaSource, DataSource.Factory dataSourceFactory,
       ImaAdsLoader imaAdsLoader, ViewGroup adUiViewGroup) {
+    this(contentMediaSource, dataSourceFactory, imaAdsLoader, adUiViewGroup, null, null);
+  }
+
+  /**
+   * Constructs a new source that inserts ads linearly with the content specified by
+   * {@code contentMediaSource}.
+   *
+   * @param contentMediaSource The {@link MediaSource} providing the content to play.
+   * @param dataSourceFactory Factory for data sources used to load ad media.
+   * @param imaAdsLoader The loader for ads.
+   * @param adUiViewGroup A {@link ViewGroup} on top of the player that will show any ad UI.
+   * @param eventHandler A handler for events. May be null if delivery of events is not required.
+   * @param eventListener A listener of events. May be null if delivery of events is not required.
+   */
+  public ImaAdsMediaSource(MediaSource contentMediaSource, DataSource.Factory dataSourceFactory,
+      ImaAdsLoader imaAdsLoader, ViewGroup adUiViewGroup, @Nullable Handler eventHandler,
+      @Nullable AdsListener eventListener) {
     this.contentMediaSource = contentMediaSource;
     this.dataSourceFactory = dataSourceFactory;
     this.imaAdsLoader = imaAdsLoader;
     this.adUiViewGroup = adUiViewGroup;
+    this.eventHandler = eventHandler;
+    this.eventListener = eventListener;
     mainHandler = new Handler(Looper.getMainLooper());
     adsLoaderListener = new AdsLoaderListener();
     adMediaSourceByMediaPeriod = new HashMap<>();
@@ -105,9 +146,6 @@ public final class ImaAdsMediaSource implements MediaSource {
 
   @Override
   public void maybeThrowSourceInfoRefreshError() throws IOException {
-    if (adLoadError != null) {
-      throw adLoadError;
-    }
     contentMediaSource.maybeThrowSourceInfoRefreshError();
     for (MediaSource[] mediaSources : adGroupMediaSources) {
       for (MediaSource mediaSource : mediaSources) {
@@ -120,7 +158,7 @@ public final class ImaAdsMediaSource implements MediaSource {
 
   @Override
   public MediaPeriod createPeriod(MediaPeriodId id, Allocator allocator) {
-    if (id.isAd()) {
+    if (adPlaybackState.adGroupCount > 0 && id.isAd()) {
       final int adGroupIndex = id.adGroupIndex;
       final int adIndexInAdGroup = id.adIndexInAdGroup;
       if (adGroupMediaSources[adGroupIndex].length <= adIndexInAdGroup) {
@@ -164,7 +202,6 @@ public final class ImaAdsMediaSource implements MediaSource {
   @Override
   public void releaseSource() {
     released = true;
-    adLoadError = null;
     contentMediaSource.releaseSource();
     for (MediaSource[] mediaSources : adGroupMediaSources) {
       for (MediaSource mediaSource : mediaSources) {
@@ -194,6 +231,20 @@ public final class ImaAdsMediaSource implements MediaSource {
     maybeUpdateSourceInfo();
   }
 
+  private void onLoadError(final IOException error) {
+    Log.w(TAG, "Ad load error", error);
+    if (eventHandler != null && eventListener != null) {
+      eventHandler.post(new Runnable() {
+        @Override
+        public void run() {
+          if (!released) {
+            eventListener.onAdLoadError(error);
+          }
+        }
+      });
+    }
+  }
+
   private void onContentSourceInfoRefreshed(Timeline timeline, Object manifest) {
     contentTimeline = timeline;
     contentManifest = manifest;
@@ -208,9 +259,10 @@ public final class ImaAdsMediaSource implements MediaSource {
 
   private void maybeUpdateSourceInfo() {
     if (adPlaybackState != null && contentTimeline != null) {
-      SinglePeriodAdTimeline timeline = new SinglePeriodAdTimeline(contentTimeline,
-          adPlaybackState.adGroupTimesUs, adPlaybackState.adCounts, adPlaybackState.adsLoadedCounts,
-          adPlaybackState.adsPlayedCounts, adDurationsUs, adPlaybackState.adResumePositionUs);
+      Timeline timeline = adPlaybackState.adGroupCount == 0 ? contentTimeline
+          : new SinglePeriodAdTimeline(contentTimeline, adPlaybackState.adGroupTimesUs,
+              adPlaybackState.adCounts, adPlaybackState.adsLoadedCounts,
+              adPlaybackState.adsPlayedCounts, adDurationsUs, adPlaybackState.adResumePositionUs);
       listener.onSourceInfoRefreshed(timeline, contentManifest);
     }
   }
@@ -248,7 +300,7 @@ public final class ImaAdsMediaSource implements MediaSource {
           if (released) {
             return;
           }
-          adLoadError = error;
+          ImaAdsMediaSource.this.onLoadError(error);
         }
       });
     }
