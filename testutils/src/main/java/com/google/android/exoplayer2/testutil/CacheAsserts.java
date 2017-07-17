@@ -19,8 +19,7 @@ import static junit.framework.Assert.assertEquals;
 
 import android.net.Uri;
 import android.test.MoreAsserts;
-import com.google.android.exoplayer2.testutil.FakeDataSource.FakeData;
-import com.google.android.exoplayer2.testutil.FakeDataSource.FakeDataSet;
+import com.google.android.exoplayer2.testutil.FakeDataSet.FakeData;
 import com.google.android.exoplayer2.upstream.DataSourceInputStream;
 import com.google.android.exoplayer2.upstream.DataSpec;
 import com.google.android.exoplayer2.upstream.DummyDataSource;
