@@ -42,6 +42,7 @@ public class CacheUtilTest extends InstrumentationTestCase {
    * create a proxy for it.
    */
   public abstract static class AbstractFakeCache implements Cache {
+
     // This array is set to alternating length of cached and not cached regions in tests:
     // spansAndGaps = {<length of 1st cached region>, <length of 1st not cached region>,
     //    <length of 2nd cached region>, <length of 2nd not cached region>, ... }
@@ -50,7 +51,7 @@ public class CacheUtilTest extends InstrumentationTestCase {
     private long contentLength;
 
     private void init() {
-      spansAndGaps = new int[]{};
+      spansAndGaps = new int[] {};
       contentLength = C.LENGTH_UNSET;
     }
 
@@ -116,46 +117,35 @@ public class CacheUtilTest extends InstrumentationTestCase {
         CacheUtil.getKey(new DataSpec(testUri, 0, C.LENGTH_UNSET, null)));
   }
 
-  public void testGetCachedCachingCounters() throws Exception {
-    DataSpec dataSpec = new DataSpec(Uri.parse("test"));
-    CachingCounters counters = CacheUtil.getCached(dataSpec, mockCache, null);
-    // getCached should create a CachingCounters and return it
-    assertNotNull(counters);
-
-    CachingCounters newCounters = CacheUtil.getCached(dataSpec, mockCache, counters);
-    // getCached should set and return given CachingCounters
-    assertEquals(counters, newCounters);
-  }
-
   public void testGetCachedNoData() throws Exception {
-    CachingCounters counters =
-        CacheUtil.getCached(new DataSpec(Uri.parse("test")), mockCache, null);
+    CachingCounters counters = new CachingCounters();
+    CacheUtil.getCached(new DataSpec(Uri.parse("test")), mockCache, counters);
 
     assertCounters(counters, 0, 0, C.LENGTH_UNSET);
   }
 
   public void testGetCachedDataUnknownLength() throws Exception {
     // Mock there is 100 bytes cached at the beginning
-    mockCache.spansAndGaps = new int[]{100};
-    CachingCounters counters =
-        CacheUtil.getCached(new DataSpec(Uri.parse("test")), mockCache, null);
+    mockCache.spansAndGaps = new int[] {100};
+    CachingCounters counters = new CachingCounters();
+    CacheUtil.getCached(new DataSpec(Uri.parse("test")), mockCache, counters);
 
     assertCounters(counters, 100, 0, C.LENGTH_UNSET);
   }
 
   public void testGetCachedNoDataKnownLength() throws Exception {
     mockCache.contentLength = 1000;
-    CachingCounters counters =
-        CacheUtil.getCached(new DataSpec(Uri.parse("test")), mockCache, null);
+    CachingCounters counters = new CachingCounters();
+    CacheUtil.getCached(new DataSpec(Uri.parse("test")), mockCache, counters);
 
     assertCounters(counters, 0, 0, 1000);
   }
 
   public void testGetCached() throws Exception {
     mockCache.contentLength = 1000;
-    mockCache.spansAndGaps = new int[]{100, 100, 200};
-    CachingCounters counters =
-        CacheUtil.getCached(new DataSpec(Uri.parse("test")), mockCache, null);
+    mockCache.spansAndGaps = new int[] {100, 100, 200};
+    CachingCounters counters = new CachingCounters();
+    CacheUtil.getCached(new DataSpec(Uri.parse("test")), mockCache, counters);
 
     assertCounters(counters, 300, 0, 1000);
   }
@@ -164,8 +154,8 @@ public class CacheUtilTest extends InstrumentationTestCase {
     FakeDataSet fakeDataSet = new FakeDataSet().setRandomData("test_data", 100);
     FakeDataSource dataSource = new FakeDataSource(fakeDataSet);
 
-    CachingCounters counters =
-        CacheUtil.cache(new DataSpec(Uri.parse("test_data")), cache, dataSource, null);
+    CachingCounters counters = new CachingCounters();
+    CacheUtil.cache(new DataSpec(Uri.parse("test_data")), cache, dataSource, counters);
 
     assertCounters(counters, 0, 100, 100);
     assertCachedData(cache, fakeDataSet);
@@ -177,7 +167,8 @@ public class CacheUtilTest extends InstrumentationTestCase {
 
     Uri testUri = Uri.parse("test_data");
     DataSpec dataSpec = new DataSpec(testUri, 10, 20, null);
-    CachingCounters counters = CacheUtil.cache(dataSpec, cache, dataSource, null);
+    CachingCounters counters = new CachingCounters();
+    CacheUtil.cache(dataSpec, cache, dataSource, counters);
 
     assertCounters(counters, 0, 20, 20);
 
@@ -194,7 +185,8 @@ public class CacheUtilTest extends InstrumentationTestCase {
     FakeDataSource dataSource = new FakeDataSource(fakeDataSet);
 
     DataSpec dataSpec = new DataSpec(Uri.parse("test_data"));
-    CachingCounters counters = CacheUtil.cache(dataSpec, cache, dataSource, null);
+    CachingCounters counters = new CachingCounters();
+    CacheUtil.cache(dataSpec, cache, dataSource, counters);
 
     assertCounters(counters, 0, 100, 100);
     assertCachedData(cache, fakeDataSet);
@@ -208,7 +200,8 @@ public class CacheUtilTest extends InstrumentationTestCase {
 
     Uri testUri = Uri.parse("test_data");
     DataSpec dataSpec = new DataSpec(testUri, 10, 20, null);
-    CachingCounters counters = CacheUtil.cache(dataSpec, cache, dataSource, null);
+    CachingCounters counters = new CachingCounters();
+    CacheUtil.cache(dataSpec, cache, dataSource, counters);
 
     assertCounters(counters, 0, 20, 20);
 
@@ -224,7 +217,8 @@ public class CacheUtilTest extends InstrumentationTestCase {
 
     Uri testUri = Uri.parse("test_data");
     DataSpec dataSpec = new DataSpec(testUri, 0, 1000, null);
-    CachingCounters counters = CacheUtil.cache(dataSpec, cache, dataSource, null);
+    CachingCounters counters = new CachingCounters();
+    CacheUtil.cache(dataSpec, cache, dataSource, counters);
 
     assertCounters(counters, 0, 100, 1000);
     assertCachedData(cache, fakeDataSet);
@@ -288,10 +282,10 @@ public class CacheUtilTest extends InstrumentationTestCase {
   }
 
   private static void assertCounters(CachingCounters counters, int alreadyCachedBytes,
-      int downloadedBytes, int totalBytes) {
+      int newlyCachedBytes, int contentLength) {
     assertEquals(alreadyCachedBytes, counters.alreadyCachedBytes);
-    assertEquals(downloadedBytes, counters.downloadedBytes);
-    assertEquals(totalBytes, counters.totalBytes);
+    assertEquals(newlyCachedBytes, counters.newlyCachedBytes);
+    assertEquals(contentLength, counters.contentLength);
   }
 
 }
