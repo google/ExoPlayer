@@ -123,7 +123,7 @@ public final class ImaAdsLoader implements ExoPlayer.EventListener, VideoAdPlaye
    */
   private int adGroupIndex;
   /**
-   * Whether IMA has send an ad event to pause content since the last resume content event.
+   * Whether IMA has sent an ad event to pause content since the last resume content event.
    */
   private boolean imaPausedContent;
   /**
