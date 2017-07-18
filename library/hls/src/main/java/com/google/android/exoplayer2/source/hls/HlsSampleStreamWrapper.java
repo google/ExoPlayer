@@ -105,6 +105,7 @@ import java.util.LinkedList;
 
   private long lastSeekPositionUs;
   private long pendingResetPositionUs;
+  private boolean pendingResetUpstreamFormats;
   private boolean seenFirstTrackSelection;
   private boolean loadingFinished;
 
@@ -233,6 +234,7 @@ import java.util.LinkedList;
     if (enabledTrackCount == 0) {
       chunkSource.reset();
       downstreamTrackFormat = null;
+      pendingResetUpstreamFormats |= !seenFirstTrackSelection;
       mediaChunks.clear();
       if (loader.isLoading()) {
         // Discard as much as we can synchronously.
@@ -241,20 +243,20 @@ import java.util.LinkedList;
         }
         loader.cancelLoading();
       } else {
-        for (SampleQueue sampleQueue : sampleQueues) {
-          sampleQueue.reset();
-        }
+        resetSampleQueues();
       }
     } else {
-      if (!forceReset && !seenFirstTrackSelection && primaryTrackSelection != null
-          && !mediaChunks.isEmpty()) {
+      if (!seenFirstTrackSelection && primaryTrackSelection != null && !mediaChunks.isEmpty()) {
         primaryTrackSelection.updateSelectedTrack(0);
         int chunkIndex = chunkSource.getTrackGroup().indexOf(mediaChunks.getLast().trackFormat);
         if (primaryTrackSelection.getSelectedIndexInTrackGroup() != chunkIndex) {
           // This is the first selection and the chunk loaded during preparation does not match the
-          // selection. We need to reset to discard it.
+          // selection. We need to reset to discard it. We also need to ensure that the upstream
+          // formats are cleared from the sample queues so that they cannot be read. This is
+          // necessary because the consuming renderers may not support these formats.
           forceReset = true;
           seekRequired = true;
+          pendingResetUpstreamFormats = true;
         }
       }
       if (seekRequired) {
@@ -300,9 +302,7 @@ import java.util.LinkedList;
     if (loader.isLoading()) {
       loader.cancelLoading();
     } else {
-      for (SampleQueue sampleQueue : sampleQueues) {
-        sampleQueue.reset();
-      }
+      resetSampleQueues();
     }
     return true;
   }
@@ -343,9 +343,7 @@ import java.util.LinkedList;
 
   @Override
   public void onLoaderReleased() {
-    for (SampleQueue sampleQueue : sampleQueues) {
-      sampleQueue.reset();
-    }
+    resetSampleQueues();
   }
 
   public void setIsTimestampMaster(boolean isTimestampMaster) {
@@ -408,6 +406,13 @@ import java.util.LinkedList;
       }
     }
     return true;
+  }
+
+  private void resetSampleQueues() {
+    for (SampleQueue sampleQueue : sampleQueues) {
+      sampleQueue.reset(pendingResetUpstreamFormats);
+    }
+    pendingResetUpstreamFormats = false;
   }
 
   // SequenceableLoader implementation
@@ -483,9 +488,7 @@ import java.util.LinkedList;
         loadable.trackSelectionReason, loadable.trackSelectionData, loadable.startTimeUs,
         loadable.endTimeUs, elapsedRealtimeMs, loadDurationMs, loadable.bytesLoaded());
     if (!released) {
-      for (SampleQueue sampleQueue : sampleQueues) {
-        sampleQueue.reset();
-      }
+      resetSampleQueues();
       if (enabledTrackCount > 0) {
         callback.onContinueLoadingRequested(this);
       }
