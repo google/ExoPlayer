@@ -28,7 +28,6 @@ import com.google.android.exoplayer2.upstream.TransferListener;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Clock;
 import com.google.android.exoplayer2.util.Predicate;
-import com.google.android.exoplayer2.util.SystemClock;
 import java.io.IOException;
 import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
@@ -169,7 +168,7 @@ public class CronetDataSource extends UrlRequest.Callback implements HttpDataSou
       int connectTimeoutMs, int readTimeoutMs, boolean resetTimeoutOnRedirects,
       RequestProperties defaultRequestProperties) {
     this(cronetEngine, executor, contentTypePredicate, listener, connectTimeoutMs,
-        readTimeoutMs, resetTimeoutOnRedirects, new SystemClock(), defaultRequestProperties);
+        readTimeoutMs, resetTimeoutOnRedirects, Clock.DEFAULT, defaultRequestProperties);
   }
 
   /* package */ CronetDataSource(CronetEngine cronetEngine, Executor executor,
