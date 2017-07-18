@@ -123,6 +123,10 @@ public final class ImaAdsLoader implements ExoPlayer.EventListener, VideoAdPlaye
    */
   private int adGroupIndex;
   /**
+   * Whether IMA has send an ad event to pause content since the last resume content event.
+   */
+  private boolean imaPausedContent;
+  /**
    * If {@link #playingAd} is set, stores whether IMA has called {@link #playAd()} and not
    * {@link #stopAd()}.
    */
@@ -230,7 +234,7 @@ public final class ImaAdsLoader implements ExoPlayer.EventListener, VideoAdPlaye
     player.addListener(this);
     if (adPlaybackState != null) {
       eventListener.onAdPlaybackState(adPlaybackState);
-      if (playingAd) {
+      if (imaPausedContent) {
         adsManager.resume();
       }
     } else if (adTagUri != null) {
@@ -245,7 +249,7 @@ public final class ImaAdsLoader implements ExoPlayer.EventListener, VideoAdPlaye
    */
   /* package */ void detachPlayer() {
     if (player != null) {
-      if (adsManager != null && playingAd) {
+      if (adsManager != null && imaPausedContent) {
         adPlaybackState.setAdResumePositionUs(C.msToUs(player.getCurrentPosition()));
         adsManager.pause();
       }
@@ -303,7 +307,7 @@ public final class ImaAdsLoader implements ExoPlayer.EventListener, VideoAdPlaye
       Log.d(TAG, "onAdEvent " + adEvent.getType());
     }
     if (adsManager == null) {
-      Log.w(TAG, "Dropping ad event while detached: " + adEvent);
+      Log.w(TAG, "Dropping ad event after release: " + adEvent);
       return;
     }
     switch (adEvent.getType()) {
@@ -325,12 +329,14 @@ public final class ImaAdsLoader implements ExoPlayer.EventListener, VideoAdPlaye
       case CONTENT_PAUSE_REQUESTED:
         // After CONTENT_PAUSE_REQUESTED, IMA will playAd/pauseAd/stopAd to show one or more ads
         // before sending CONTENT_RESUME_REQUESTED.
+        imaPausedContent = true;
         if (player != null) {
           pauseContentInternal();
         }
         break;
       case SKIPPED: // Fall through.
       case CONTENT_RESUME_REQUESTED:
+        imaPausedContent = false;
         if (player != null) {
           resumeContentInternal();
         }
@@ -372,7 +378,7 @@ public final class ImaAdsLoader implements ExoPlayer.EventListener, VideoAdPlaye
       long elapsedSinceEndMs = SystemClock.elapsedRealtime() - fakeContentProgressElapsedRealtimeMs;
       long fakePositionMs = fakeContentProgressOffsetMs + elapsedSinceEndMs;
       return new VideoProgressUpdate(fakePositionMs, contentDurationMs);
-    } else if (player.isPlayingAd() || contentDurationMs == C.TIME_UNSET) {
+    } else if (playingAd || contentDurationMs == C.TIME_UNSET) {
       return VideoProgressUpdate.VIDEO_TIME_NOT_READY;
     } else {
       return new VideoProgressUpdate(player.getCurrentPosition(), contentDurationMs);
@@ -385,7 +391,7 @@ public final class ImaAdsLoader implements ExoPlayer.EventListener, VideoAdPlaye
   public VideoProgressUpdate getAdProgress() {
     if (player == null) {
       return lastAdProgress;
-    } else if (!player.isPlayingAd()) {
+    } else if (!playingAd) {
       return VideoProgressUpdate.VIDEO_TIME_NOT_READY;
     } else {
       return new VideoProgressUpdate(player.getCurrentPosition(), player.getDuration());
@@ -413,19 +419,22 @@ public final class ImaAdsLoader implements ExoPlayer.EventListener, VideoAdPlaye
 
   @Override
   public void playAd() {
-    Assertions.checkState(player != null);
     if (DEBUG) {
       Log.d(TAG, "playAd");
+    }
+    if (player == null) {
+      // Sometimes messages from IMA arrive after detaching the player. See [Internal: b/63801642].
+      Log.w(TAG, "Unexpected playAd while detached");
     }
     if (imaPlayingAd && !imaPausedInAd) {
       // Work around an issue where IMA does not always call stopAd before resuming content.
       // See [Internal: b/38354028].
-      if (DEBUG) {
-        Log.d(TAG, "Unexpected playAd without stopAd");
-      }
+      Log.w(TAG, "Unexpected playAd without stopAd");
       stopAdInternal();
     }
-    player.setPlayWhenReady(true);
+    if (player != null) {
+      player.setPlayWhenReady(true);
+    }
     if (!imaPlayingAd) {
       imaPlayingAd = true;
       for (VideoAdPlayerCallback callback : adCallbacks) {
@@ -441,15 +450,16 @@ public final class ImaAdsLoader implements ExoPlayer.EventListener, VideoAdPlaye
 
   @Override
   public void stopAd() {
-    Assertions.checkState(player != null);
-    if (!imaPlayingAd) {
-      if (DEBUG) {
-        Log.d(TAG, "Ignoring unexpected stopAd");
-      }
-      return;
-    }
     if (DEBUG) {
       Log.d(TAG, "stopAd");
+    }
+    if (player == null) {
+      // Sometimes messages from IMA arrive after detaching the player. See [Internal: b/63801642].
+      Log.w(TAG, "Unexpected stopAd while detached");
+    }
+    if (!imaPlayingAd) {
+      Log.w(TAG, "Unexpected stopAd");
+      return;
     }
     stopAdInternal();
   }
@@ -527,7 +537,7 @@ public final class ImaAdsLoader implements ExoPlayer.EventListener, VideoAdPlaye
 
   @Override
   public void onPlayerError(ExoPlaybackException error) {
-    if (player.isPlayingAd()) {
+    if (playingAd) {
       for (VideoAdPlayerCallback callback : adCallbacks) {
         callback.onError();
       }
@@ -539,10 +549,9 @@ public final class ImaAdsLoader implements ExoPlayer.EventListener, VideoAdPlaye
     if (adsManager == null) {
       return;
     }
-
     boolean wasPlayingAd = playingAd;
     playingAd = player.isPlayingAd();
-    if (!playingAd && !wasPlayingAd) {
+    if (!wasPlayingAd && !playingAd) {
       long positionUs = C.msToUs(player.getCurrentPosition());
       int adGroupIndex = timeline.getPeriod(0, period).getAdGroupIndexForPositionUs(positionUs);
       if (adGroupIndex != C.INDEX_UNSET) {
@@ -551,7 +560,6 @@ public final class ImaAdsLoader implements ExoPlayer.EventListener, VideoAdPlaye
       }
       return;
     }
-
     if (!sentContentComplete) {
       boolean adFinished =
           !playingAd || playingAdIndexInAdGroup != player.getCurrentAdIndexInAdGroup();
@@ -621,10 +629,12 @@ public final class ImaAdsLoader implements ExoPlayer.EventListener, VideoAdPlaye
 
   private void stopAdInternal() {
     Assertions.checkState(imaPlayingAd);
-    player.setPlayWhenReady(false);
+    if (player != null) {
+      player.setPlayWhenReady(false);
+    }
     adPlaybackState.playedAd(adGroupIndex);
     updateAdPlaybackState();
-    if (!player.isPlayingAd()) {
+    if (!playingAd) {
       adGroupIndex = C.INDEX_UNSET;
     }
     clearFlags();
