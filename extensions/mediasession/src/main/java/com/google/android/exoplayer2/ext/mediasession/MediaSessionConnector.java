@@ -46,7 +46,7 @@ import java.util.Map;
 
 /**
  * Mediates between a {@link MediaSessionCompat} and an {@link SimpleExoPlayer} instance set with
- * {@link #setPlayer(SimpleExoPlayer)}.
+ * {@link #setPlayer(SimpleExoPlayer, CustomActionProvider...)}.
  * <p>
  * By default the {@code MediaSessionConnector} listens for {@link #DEFAULT_PLAYBACK_ACTIONS} sent
  * by a media controller and realizes these actions by calling appropriate ExoPlayer methods.
@@ -216,21 +216,19 @@ public final class MediaSessionConnector {
     /**
      * Called when a custom action provided by this provider is sent to the media session.
      *
-     * @param player The player for which to process the custom action.
      * @param action The name of the action which was sent by a media controller.
      * @param extras Optional extras sent by a media controller.
      */
-    void onCustomAction(SimpleExoPlayer player, String action, Bundle extras);
+    void onCustomAction(String action, Bundle extras);
 
     /**
      * Returns a {@link PlaybackStateCompat.CustomAction} which will be published to the
      * media session by the connector or {@code null} if this action should not be published at the
      * given player state.
      *
-     * @param player The player for which to provide actions.
      * @return The custom action to be included in the session playback state or {@code null}.
      */
-    PlaybackStateCompat.CustomAction getCustomAction(SimpleExoPlayer player);
+    PlaybackStateCompat.CustomAction getCustomAction();
   }
 
   /**
@@ -253,9 +251,9 @@ public final class MediaSessionConnector {
   private final boolean doMaintainMetadata;
   private final ExoPlayerEventListener exoPlayerEventListener;
   private final MediaSessionCallback mediaSessionCallback;
-  private final CustomActionProvider[] customActionProviders;
 
   private SimpleExoPlayer player;
+  private CustomActionProvider[] customActionProviders;
   private int currentWindowIndex;
   private long playbackActions;
   private long fastForwardIncrementMs;
@@ -283,9 +281,6 @@ public final class MediaSessionConnector {
   /**
    * Creates a {@code MediaSessionConnector} with {@link CustomActionProvider}s.
    * <p>
-   * The order in which the {@link CustomActionProvider}s are passed to the constructor determines
-   * the order of the actions published with the playback state of the session.
-   * <p>
    * If you choose to pass {@code false} for {@code doMaintainMetadata} you need to maintain the
    * metadata of the media session yourself (provide at least the duration to allow clients to show
    * a progress bar).
@@ -296,17 +291,12 @@ public final class MediaSessionConnector {
    * @param mediaSession The {@link MediaSessionCompat} to connect to.
    * @param doMaintainMetadata Sets whether the connector should maintain the metadata of the
    *     session.
-   * @param customActionProviders {@link CustomActionProvider}s to publish and handle custom
-   *     actions.
    */
-  public MediaSessionConnector(MediaSessionCompat mediaSession,  boolean doMaintainMetadata,
-      CustomActionProvider... customActionProviders) {
+  public MediaSessionConnector(MediaSessionCompat mediaSession,  boolean doMaintainMetadata) {
     this.mediaSession = mediaSession;
     this.handler = new Handler(Looper.myLooper() != null ? Looper.myLooper()
         : Looper.getMainLooper());
     this.doMaintainMetadata = doMaintainMetadata;
-    this.customActionProviders = customActionProviders != null ? customActionProviders
-        : new CustomActionProvider[0];
     mediaSession.setFlags(MediaSessionCompat.FLAG_HANDLES_MEDIA_BUTTONS
         | MediaSessionCompat.FLAG_HANDLES_TRANSPORT_CONTROLS);
     mediaController = mediaSession.getController();
@@ -323,15 +313,22 @@ public final class MediaSessionConnector {
    * <p>
    * The media session callback is set if the {@code player} is not {@code null} and the callback is
    * removed if the {@code player} is {@code null}.
+   * <p>
+   * The order in which any {@link CustomActionProvider}s are passed determines the order of the
+   * actions published with the playback state of the session.
    *
    * @param player The player to be connected to the {@code MediaSession}.
+   * @param customActionProviders Optional {@link CustomActionProvider}s to publish and handle
+   *     custom actions.
    */
-  public void setPlayer(SimpleExoPlayer player) {
+  public void setPlayer(SimpleExoPlayer player, CustomActionProvider... customActionProviders) {
     if (this.player != null) {
       this.player.removeListener(exoPlayerEventListener);
       mediaSession.setCallback(null);
     }
     this.player = player;
+    this.customActionProviders = (player != null && customActionProviders != null)
+        ? customActionProviders : new CustomActionProvider[0];
     if (player != null) {
       mediaSession.setCallback(mediaSessionCallback, handler);
       player.addListener(exoPlayerEventListener);
@@ -472,8 +469,7 @@ public final class MediaSessionConnector {
 
     Map<String, CustomActionProvider> currentActions = new HashMap<>();
     for (CustomActionProvider customActionProvider : customActionProviders) {
-      PlaybackStateCompat.CustomAction customAction = customActionProvider
-          .getCustomAction(player);
+      PlaybackStateCompat.CustomAction customAction = customActionProvider.getCustomAction();
       if (customAction != null) {
         currentActions.put(customAction.getAction(), customActionProvider);
         builder.addCustomAction(customAction);
@@ -735,7 +731,7 @@ public final class MediaSessionConnector {
     public void onCustomAction(@NonNull String action, @Nullable Bundle extras) {
       Map<String, CustomActionProvider> actionMap = customActionMap;
       if (actionMap.containsKey(action)) {
-        actionMap.get(action).onCustomAction(player, action, extras);
+        actionMap.get(action).onCustomAction(action, extras);
         updateMediaSessionPlaybackState();
       }
     }
