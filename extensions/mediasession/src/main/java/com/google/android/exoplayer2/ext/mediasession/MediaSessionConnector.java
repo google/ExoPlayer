@@ -35,6 +35,7 @@ import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.ExoPlayerLibraryInfo;
 import com.google.android.exoplayer2.PlaybackParameters;
+import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.source.TrackGroupArray;
@@ -484,7 +485,7 @@ public final class MediaSessionConnector {
         Pair<Integer, String> message = errorMessageProvider.getErrorMessage(playbackException);
         builder.setErrorMessage(message.first, message.second);
       }
-      if (player.getPlaybackState() != ExoPlayer.STATE_IDLE) {
+      if (player.getPlaybackState() != Player.STATE_IDLE) {
         playbackException = null;
       }
     }
@@ -507,7 +508,7 @@ public final class MediaSessionConnector {
     if (queue == null || queue.size() < 2) {
       removePlaybackActions(PlaybackStateCompat.ACTION_SKIP_TO_NEXT
           | PlaybackStateCompat.ACTION_SKIP_TO_PREVIOUS);
-    } else if (player.getRepeatMode() != ExoPlayer.REPEAT_MODE_OFF) {
+    } else if (player.getRepeatMode() != Player.REPEAT_MODE_OFF) {
       addPlaybackActions(PlaybackStateCompat.ACTION_SKIP_TO_NEXT
           | PlaybackStateCompat.ACTION_SKIP_TO_PREVIOUS);
     } else if (activeQueueItemId == queue.get(0).getQueueId()) {
@@ -576,11 +577,11 @@ public final class MediaSessionConnector {
 
   private int mapPlaybackState(int exoPlayerPlaybackState, boolean playWhenReady) {
     switch (exoPlayerPlaybackState) {
-      case ExoPlayer.STATE_BUFFERING:
+      case Player.STATE_BUFFERING:
         return PlaybackStateCompat.STATE_BUFFERING;
-      case ExoPlayer.STATE_READY:
+      case Player.STATE_READY:
         return playWhenReady ? PlaybackStateCompat.STATE_PLAYING : PlaybackStateCompat.STATE_PAUSED;
-      case ExoPlayer.STATE_ENDED:
+      case Player.STATE_ENDED:
         return PlaybackStateCompat.STATE_PAUSED;
       default:
         return PlaybackStateCompat.STATE_NONE;
@@ -599,7 +600,7 @@ public final class MediaSessionConnector {
     return playbackPreparer != null && isActionPublished(action);
   }
 
-  private class ExoPlayerEventListener implements ExoPlayer.EventListener {
+  private class ExoPlayerEventListener implements Player.EventListener {
     @Override
     public void onTimelineChanged(Timeline timeline, Object manifest) {
       if (queueNavigator != null) {
@@ -625,9 +626,9 @@ public final class MediaSessionConnector {
     }
 
     @Override
-    public void onRepeatModeChanged(@ExoPlayer.RepeatMode int repeatMode) {
-      mediaSession.setRepeatMode(repeatMode == ExoPlayer.REPEAT_MODE_ONE
-          ? PlaybackStateCompat.REPEAT_MODE_ONE : repeatMode == ExoPlayer.REPEAT_MODE_ALL
+    public void onRepeatModeChanged(@Player.RepeatMode int repeatMode) {
+      mediaSession.setRepeatMode(repeatMode == Player.REPEAT_MODE_ONE
+          ? PlaybackStateCompat.REPEAT_MODE_ONE : repeatMode == Player.REPEAT_MODE_ALL
           ? PlaybackStateCompat.REPEAT_MODE_ALL : PlaybackStateCompat.REPEAT_MODE_NONE);
       updateMediaSessionPlaybackState();
     }

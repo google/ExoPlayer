@@ -23,6 +23,7 @@ import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.PlaybackParameters;
+import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.source.MediaSource.Listener;
 import com.google.android.exoplayer2.testutil.FakeMediaSource;
@@ -352,12 +353,12 @@ public final class DynamicConcatenatingMediaSourceTest extends TestCase {
     }
 
     @Override
-    public void addListener(EventListener listener) {
+    public void addListener(Player.EventListener listener) {
       throw new UnsupportedOperationException();
     }
 
     @Override
-    public void removeListener(EventListener listener) {
+    public void removeListener(Player.EventListener listener) {
       throw new UnsupportedOperationException();
     }
 

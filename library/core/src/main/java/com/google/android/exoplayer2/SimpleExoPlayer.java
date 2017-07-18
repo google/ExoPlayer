@@ -524,12 +524,12 @@ public class SimpleExoPlayer implements ExoPlayer {
   }
 
   @Override
-  public void addListener(EventListener listener) {
+  public void addListener(Player.EventListener listener) {
     player.addListener(listener);
   }
 
   @Override
-  public void removeListener(EventListener listener) {
+  public void removeListener(Player.EventListener listener) {
     player.removeListener(listener);
   }
 
