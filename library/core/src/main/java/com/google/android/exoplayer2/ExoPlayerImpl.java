@@ -46,7 +46,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
   private final TrackSelectionArray emptyTrackSelections;
   private final Handler eventHandler;
   private final ExoPlayerImplInternal internalPlayer;
-  private final CopyOnWriteArraySet<EventListener> listeners;
+  private final CopyOnWriteArraySet<Player.EventListener> listeners;
   private final Timeline.Window window;
   private final Timeline.Period period;
 
@@ -114,12 +114,12 @@ import java.util.concurrent.CopyOnWriteArraySet;
   }
 
   @Override
-  public void addListener(EventListener listener) {
+  public void addListener(Player.EventListener listener) {
     listeners.add(listener);
   }
 
   @Override
-  public void removeListener(EventListener listener) {
+  public void removeListener(Player.EventListener listener) {
     listeners.remove(listener);
   }
 
@@ -139,7 +139,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
       if (!timeline.isEmpty() || manifest != null) {
         timeline = Timeline.EMPTY;
         manifest = null;
-        for (EventListener listener : listeners) {
+        for (Player.EventListener listener : listeners) {
           listener.onTimelineChanged(timeline, manifest);
         }
       }
@@ -148,7 +148,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
         trackGroups = TrackGroupArray.EMPTY;
         trackSelections = emptyTrackSelections;
         trackSelector.onSelectionActivated(null);
-        for (EventListener listener : listeners) {
+        for (Player.EventListener listener : listeners) {
           listener.onTracksChanged(trackGroups, trackSelections);
         }
       }
@@ -162,7 +162,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
     if (this.playWhenReady != playWhenReady) {
       this.playWhenReady = playWhenReady;
       internalPlayer.setPlayWhenReady(playWhenReady);
-      for (EventListener listener : listeners) {
+      for (Player.EventListener listener : listeners) {
         listener.onPlayerStateChanged(playWhenReady, playbackState);
       }
     }
@@ -178,7 +178,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
     if (this.repeatMode != repeatMode) {
       this.repeatMode = repeatMode;
       internalPlayer.setRepeatMode(repeatMode);
-      for (EventListener listener : listeners) {
+      for (Player.EventListener listener : listeners) {
         listener.onRepeatModeChanged(repeatMode);
       }
     }
@@ -238,7 +238,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
     } else {
       maskingWindowPositionMs = positionMs;
       internalPlayer.seekTo(timeline, windowIndex, C.msToUs(positionMs));
-      for (EventListener listener : listeners) {
+      for (Player.EventListener listener : listeners) {
         listener.onPositionDiscontinuity();
       }
     }
@@ -420,14 +420,14 @@ import java.util.concurrent.CopyOnWriteArraySet;
       }
       case ExoPlayerImplInternal.MSG_STATE_CHANGED: {
         playbackState = msg.arg1;
-        for (EventListener listener : listeners) {
+        for (Player.EventListener listener : listeners) {
           listener.onPlayerStateChanged(playWhenReady, playbackState);
         }
         break;
       }
       case ExoPlayerImplInternal.MSG_LOADING_CHANGED: {
         isLoading = msg.arg1 != 0;
-        for (EventListener listener : listeners) {
+        for (Player.EventListener listener : listeners) {
           listener.onLoadingChanged(isLoading);
         }
         break;
@@ -439,7 +439,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
           trackGroups = trackSelectorResult.groups;
           trackSelections = trackSelectorResult.selections;
           trackSelector.onSelectionActivated(trackSelectorResult.info);
-          for (EventListener listener : listeners) {
+          for (Player.EventListener listener : listeners) {
             listener.onTracksChanged(trackGroups, trackSelections);
           }
         }
@@ -449,7 +449,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
         if (--pendingSeekAcks == 0) {
           playbackInfo = (ExoPlayerImplInternal.PlaybackInfo) msg.obj;
           if (msg.arg1 != 0) {
-            for (EventListener listener : listeners) {
+            for (Player.EventListener listener : listeners) {
               listener.onPositionDiscontinuity();
             }
           }
@@ -459,7 +459,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
       case ExoPlayerImplInternal.MSG_POSITION_DISCONTINUITY: {
         if (pendingSeekAcks == 0) {
           playbackInfo = (ExoPlayerImplInternal.PlaybackInfo) msg.obj;
-          for (EventListener listener : listeners) {
+          for (Player.EventListener listener : listeners) {
             listener.onPositionDiscontinuity();
           }
         }
@@ -472,7 +472,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
           timeline = sourceInfo.timeline;
           manifest = sourceInfo.manifest;
           playbackInfo = sourceInfo.playbackInfo;
-          for (EventListener listener : listeners) {
+          for (Player.EventListener listener : listeners) {
             listener.onTimelineChanged(timeline, manifest);
           }
         }
@@ -482,7 +482,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
         PlaybackParameters playbackParameters = (PlaybackParameters) msg.obj;
         if (!this.playbackParameters.equals(playbackParameters)) {
           this.playbackParameters = playbackParameters;
-          for (EventListener listener : listeners) {
+          for (Player.EventListener listener : listeners) {
             listener.onPlaybackParametersChanged(playbackParameters);
           }
         }
@@ -490,7 +490,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
       }
       case ExoPlayerImplInternal.MSG_ERROR: {
         ExoPlaybackException exception = (ExoPlaybackException) msg.obj;
-        for (EventListener listener : listeners) {
+        for (Player.EventListener listener : listeners) {
           listener.onPlayerError(exception);
         }
         break;

@@ -31,9 +31,10 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlaybackException;
-import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.ExoPlayerLibraryInfo;
 import com.google.android.exoplayer2.PlaybackParameters;
+import com.google.android.exoplayer2.Player;
+import com.google.android.exoplayer2.Player.RepeatMode;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
@@ -45,7 +46,7 @@ import java.util.Formatter;
 import java.util.Locale;
 
 /**
- * A view for controlling {@link ExoPlayer} instances.
+ * A view for controlling {@link Player} instances.
  * <p>
  * A PlaybackControlView can be customized by setting attributes (or calling corresponding methods),
  * overriding the view's layout file or by specifying a custom view layout file, as outlined below.
@@ -183,7 +184,7 @@ public class PlaybackControlView extends FrameLayout {
   }
 
   /**
-   * Dispatches operations to the player.
+   * Dispatches operations to the {@link Player}.
    * <p>
    * Implementations may choose to suppress (e.g. prevent playback from resuming if audio focus is
    * denied) or modify (e.g. change the seek position to prevent a user from seeking past a
@@ -192,33 +193,34 @@ public class PlaybackControlView extends FrameLayout {
   public interface ControlDispatcher {
 
     /**
-     * Dispatches a {@link ExoPlayer#setPlayWhenReady(boolean)} operation.
+     * Dispatches a {@link Player#setPlayWhenReady(boolean)} operation.
      *
-     * @param player The player to which the operation should be dispatched.
+     * @param player The {@link Player} to which the operation should be dispatched.
      * @param playWhenReady Whether playback should proceed when ready.
      * @return True if the operation was dispatched. False if suppressed.
      */
-    boolean dispatchSetPlayWhenReady(ExoPlayer player, boolean playWhenReady);
+    boolean dispatchSetPlayWhenReady(Player player, boolean playWhenReady);
 
     /**
-     * Dispatches a {@link ExoPlayer#seekTo(int, long)} operation.
+     * Dispatches a {@link Player#seekTo(int, long)} operation.
      *
-     * @param player The player to which the operation should be dispatched.
+     * @param player The {@link Player} to which the operation should be dispatched.
      * @param windowIndex The index of the window.
      * @param positionMs The seek position in the specified window, or {@link C#TIME_UNSET} to seek
      *     to the window's default position.
      * @return True if the operation was dispatched. False if suppressed.
      */
-    boolean dispatchSeekTo(ExoPlayer player, int windowIndex, long positionMs);
+    boolean dispatchSeekTo(Player player, int windowIndex, long positionMs);
 
     /**
-     * Dispatches a {@link ExoPlayer#setRepeatMode(int)} operation.
+     * Dispatches a {@link Player#setRepeatMode(int)} operation.
      *
-     * @param player The player to which the operation should be dispatched.
+     * @param player The {@link Player} to which the operation should be dispatched.
      * @param repeatMode The repeat mode.
      * @return True if the operation was dispatched. False if suppressed.
      */
-    boolean dispatchSetRepeatMode(ExoPlayer player, @ExoPlayer.RepeatMode int repeatMode);
+    boolean dispatchSetRepeatMode(Player player, @RepeatMode int repeatMode);
+
   }
 
   /**
@@ -228,19 +230,19 @@ public class PlaybackControlView extends FrameLayout {
   public static final ControlDispatcher DEFAULT_CONTROL_DISPATCHER = new ControlDispatcher() {
 
     @Override
-    public boolean dispatchSetPlayWhenReady(ExoPlayer player, boolean playWhenReady) {
+    public boolean dispatchSetPlayWhenReady(Player player, boolean playWhenReady) {
       player.setPlayWhenReady(playWhenReady);
       return true;
     }
 
     @Override
-    public boolean dispatchSeekTo(ExoPlayer player, int windowIndex, long positionMs) {
+    public boolean dispatchSeekTo(Player player, int windowIndex, long positionMs) {
       player.seekTo(windowIndex, positionMs);
       return true;
     }
 
     @Override
-    public boolean dispatchSetRepeatMode(ExoPlayer player, @ExoPlayer.RepeatMode int repeatMode) {
+    public boolean dispatchSetRepeatMode(Player player, @RepeatMode int repeatMode) {
       player.setRepeatMode(repeatMode);
       return true;
     }
@@ -283,7 +285,7 @@ public class PlaybackControlView extends FrameLayout {
   private final String repeatOneButtonContentDescription;
   private final String repeatAllButtonContentDescription;
 
-  private ExoPlayer player;
+  private Player player;
   private ControlDispatcher controlDispatcher;
   private VisibilityListener visibilityListener;
 
@@ -409,18 +411,19 @@ public class PlaybackControlView extends FrameLayout {
   }
 
   /**
-   * Returns the player currently being controlled by this view, or null if no player is set.
+   * Returns the {@link Player} currently being controlled by this view, or null if no player is
+   * set.
    */
-  public ExoPlayer getPlayer() {
+  public Player getPlayer() {
     return player;
   }
 
   /**
-   * Sets the {@link ExoPlayer} to control.
+   * Sets the {@link Player} to control.
    *
-   * @param player The {@code ExoPlayer} to control.
+   * @param player The {@link Player} to control.
    */
-  public void setPlayer(ExoPlayer player) {
+  public void setPlayer(Player player) {
     if (this.player == player) {
       return;
     }
@@ -528,16 +531,16 @@ public class PlaybackControlView extends FrameLayout {
   public void setRepeatToggleModes(@RepeatModeUtil.RepeatToggleModes int repeatToggleModes) {
     this.repeatToggleModes = repeatToggleModes;
     if (player != null) {
-      @ExoPlayer.RepeatMode int currentMode = player.getRepeatMode();
+      @Player.RepeatMode int currentMode = player.getRepeatMode();
       if (repeatToggleModes == RepeatModeUtil.REPEAT_TOGGLE_MODE_NONE
-          && currentMode != ExoPlayer.REPEAT_MODE_OFF) {
-        controlDispatcher.dispatchSetRepeatMode(player, ExoPlayer.REPEAT_MODE_OFF);
+          && currentMode != Player.REPEAT_MODE_OFF) {
+        controlDispatcher.dispatchSetRepeatMode(player, Player.REPEAT_MODE_OFF);
       } else if (repeatToggleModes == RepeatModeUtil.REPEAT_TOGGLE_MODE_ONE
-          && currentMode == ExoPlayer.REPEAT_MODE_ALL) {
-        controlDispatcher.dispatchSetRepeatMode(player, ExoPlayer.REPEAT_MODE_ONE);
+          && currentMode == Player.REPEAT_MODE_ALL) {
+        controlDispatcher.dispatchSetRepeatMode(player, Player.REPEAT_MODE_ONE);
       } else if (repeatToggleModes == RepeatModeUtil.REPEAT_TOGGLE_MODE_ALL
-          && currentMode == ExoPlayer.REPEAT_MODE_ONE) {
-        controlDispatcher.dispatchSetRepeatMode(player, ExoPlayer.REPEAT_MODE_ALL);
+          && currentMode == Player.REPEAT_MODE_ONE) {
+        controlDispatcher.dispatchSetRepeatMode(player, Player.REPEAT_MODE_ALL);
       }
     }
   }
@@ -658,15 +661,15 @@ public class PlaybackControlView extends FrameLayout {
       return;
     }
     switch (player.getRepeatMode()) {
-      case ExoPlayer.REPEAT_MODE_OFF:
+      case Player.REPEAT_MODE_OFF:
         repeatToggleButton.setImageDrawable(repeatOffButtonDrawable);
         repeatToggleButton.setContentDescription(repeatOffButtonContentDescription);
         break;
-      case ExoPlayer.REPEAT_MODE_ONE:
+      case Player.REPEAT_MODE_ONE:
         repeatToggleButton.setImageDrawable(repeatOneButtonDrawable);
         repeatToggleButton.setContentDescription(repeatOneButtonContentDescription);
         break;
-      case ExoPlayer.REPEAT_MODE_ALL:
+      case Player.REPEAT_MODE_ALL:
         repeatToggleButton.setImageDrawable(repeatAllButtonDrawable);
         repeatToggleButton.setContentDescription(repeatAllButtonContentDescription);
         break;
@@ -765,10 +768,10 @@ public class PlaybackControlView extends FrameLayout {
 
     // Cancel any pending updates and schedule a new one if necessary.
     removeCallbacks(updateProgressAction);
-    int playbackState = player == null ? ExoPlayer.STATE_IDLE : player.getPlaybackState();
-    if (playbackState != ExoPlayer.STATE_IDLE && playbackState != ExoPlayer.STATE_ENDED) {
+    int playbackState = player == null ? Player.STATE_IDLE : player.getPlaybackState();
+    if (playbackState != Player.STATE_IDLE && playbackState != Player.STATE_ENDED) {
       long delayMs;
-      if (player.getPlayWhenReady() && playbackState == ExoPlayer.STATE_READY) {
+      if (player.getPlayWhenReady() && playbackState == Player.STATE_READY) {
         delayMs = 1000 - (position % 1000);
         if (delayMs < 200) {
           delayMs += 1000;
@@ -995,7 +998,7 @@ public class PlaybackControlView extends FrameLayout {
     return true;
   }
 
-  private final class ComponentListener implements ExoPlayer.EventListener, TimeBar.OnScrubListener,
+  private final class ComponentListener implements Player.EventListener, TimeBar.OnScrubListener,
       OnClickListener {
 
     @Override

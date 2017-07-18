@@ -19,6 +19,7 @@ import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.media.session.PlaybackStateCompat;
 import com.google.android.exoplayer2.ExoPlayer;
+import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.util.RepeatModeUtil;
 
 /**
@@ -81,15 +82,15 @@ public final class RepeatModeActionProvider implements MediaSessionConnector.Cus
     CharSequence actionLabel;
     int iconResourceId;
     switch (player.getRepeatMode()) {
-      case ExoPlayer.REPEAT_MODE_ONE:
+      case Player.REPEAT_MODE_ONE:
         actionLabel = repeatOneDescription;
         iconResourceId = R.drawable.exo_media_action_repeat_one;
         break;
-      case ExoPlayer.REPEAT_MODE_ALL:
+      case Player.REPEAT_MODE_ALL:
         actionLabel = repeatAllDescription;
         iconResourceId = R.drawable.exo_media_action_repeat_all;
         break;
-      case ExoPlayer.REPEAT_MODE_OFF:
+      case Player.REPEAT_MODE_OFF:
       default:
         actionLabel = repeatOffDescription;
         iconResourceId = R.drawable.exo_media_action_repeat_off;
