@@ -129,16 +129,6 @@ public interface MediaPeriod extends SequenceableLoader {
   long readDiscontinuity();
 
   /**
-   * Returns an estimate of the position up to which data is buffered for the enabled tracks.
-   * <p>
-   * This method should only be called when at least one track is selected.
-   *
-   * @return An estimate of the absolute position in microseconds up to which data is buffered, or
-   *     {@link C#TIME_END_OF_SOURCE} if the track is fully buffered.
-   */
-  long getBufferedPositionUs();
-
-  /**
    * Attempts to seek to the specified position in microseconds.
    * <p>
    * After this method has been called, all {@link SampleStream}s provided by the period are
@@ -152,6 +142,17 @@ public interface MediaPeriod extends SequenceableLoader {
   long seekToUs(long positionUs);
 
   // SequenceableLoader interface. Overridden to provide more specific documentation.
+
+  /**
+   * Returns an estimate of the position up to which data is buffered for the enabled tracks.
+   * <p>
+   * This method should only be called when at least one track is selected.
+   *
+   * @return An estimate of the absolute position in microseconds up to which data is buffered, or
+   *     {@link C#TIME_END_OF_SOURCE} if the track is fully buffered.
+   */
+  @Override
+  long getBufferedPositionUs();
 
   /**
    * Returns the next load time, or {@link C#TIME_END_OF_SOURCE} if loading has finished.

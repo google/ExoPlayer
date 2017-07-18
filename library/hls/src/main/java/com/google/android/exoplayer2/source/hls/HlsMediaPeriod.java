@@ -203,14 +203,7 @@ public final class HlsMediaPeriod implements MediaPeriod, HlsSampleStreamWrapper
 
   @Override
   public long getBufferedPositionUs() {
-    long bufferedPositionUs = Long.MAX_VALUE;
-    for (HlsSampleStreamWrapper sampleStreamWrapper : enabledSampleStreamWrappers) {
-      long rendererBufferedPositionUs = sampleStreamWrapper.getBufferedPositionUs();
-      if (rendererBufferedPositionUs != C.TIME_END_OF_SOURCE) {
-        bufferedPositionUs = Math.min(bufferedPositionUs, rendererBufferedPositionUs);
-      }
-    }
-    return bufferedPositionUs == Long.MAX_VALUE ? C.TIME_END_OF_SOURCE : bufferedPositionUs;
+    return sequenceableLoader.getBufferedPositionUs();
   }
 
   @Override
