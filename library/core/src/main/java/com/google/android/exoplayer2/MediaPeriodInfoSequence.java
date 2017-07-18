@@ -223,8 +223,9 @@ import com.google.android.exoplayer2.source.MediaSource.MediaPeriodId;
           || !period.isAdAvailable(adGroupCount - 1, 0)) {
         return null;
       }
+      long contentDurationUs = period.getDurationUs();
       return getMediaPeriodInfoForAd(currentPeriodId.periodIndex, adGroupCount - 1, 0,
-          currentMediaPeriodInfo.endPositionUs);
+          contentDurationUs);
     }
   }
 
