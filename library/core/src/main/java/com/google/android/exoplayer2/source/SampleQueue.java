@@ -90,10 +90,22 @@ public final class SampleQueue implements TrackOutput {
   // Called by the consuming thread, but only when there is no loading thread.
 
   /**
-   * Resets the output.
+   * Resets the output without clearing the upstream format. Equivalent to {@code reset(false)}.
    */
   public void reset() {
-    metadataQueue.clearSampleData();
+    reset(false);
+  }
+
+  /**
+   * Resets the output.
+   *
+   * @param resetUpstreamFormat Whether the upstream format should be cleared. If set to false,
+   *     samples queued after the reset (and before a subsequent call to {@link #format(Format)})
+   *     are assumed to have the current upstream format. If set to true, {@link #format(Format)}
+   *     must be called after the reset before any more samples can be queued.
+   */
+  public void reset(boolean resetUpstreamFormat) {
+    metadataQueue.reset(resetUpstreamFormat);
     clearAllocationNodes(firstAllocationNode);
     firstAllocationNode = new AllocationNode(0, allocationLength);
     readAllocationNode = firstAllocationNode;
