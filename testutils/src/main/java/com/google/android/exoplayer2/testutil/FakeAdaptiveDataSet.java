@@ -42,6 +42,7 @@ public final class FakeAdaptiveDataSet extends FakeDataSet {
 
   }
 
+  private final long chunkCount;
   private final long chunkDurationUs;
   private final long lastChunkDurationUs;
 
@@ -66,6 +67,11 @@ public final class FakeAdaptiveDataSet extends FakeDataSet {
       }
     }
     this.lastChunkDurationUs = lastChunkDurationUs == 0 ? chunkDurationUs : lastChunkDurationUs;
+    this.chunkCount = lastChunkDurationUs == 0 ? fullChunks : fullChunks + 1;
+  }
+
+  public long getChunkCount() {
+    return chunkCount;
   }
 
   public String getUri(int trackSelectionIndex) {
@@ -73,7 +79,7 @@ public final class FakeAdaptiveDataSet extends FakeDataSet {
   }
 
   public long getChunkDuration(int chunkIndex) {
-    return chunkIndex == getAllData().size() - 1 ? lastChunkDurationUs : chunkDurationUs;
+    return chunkIndex == getChunkCount() - 1 ? lastChunkDurationUs : chunkDurationUs;
   }
 
   public long getStartTime(int chunkIndex) {
