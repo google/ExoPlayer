@@ -19,14 +19,23 @@ android {
     buildToolsVersion project.ext.buildToolsVersion
 
     defaultConfig {
-        // TODO: Lower minSdkVersion as much as possible once this issue in LibRtmp is fixed:
-        // https://github.com/ant-media/LibRtmp-Client-for-Android/issues/39
-        minSdkVersion 21
+        minSdkVersion 15
         targetSdkVersion project.ext.targetSdkVersion
     }
 }
 
 dependencies {
     compile project(modulePrefix + 'library-core')
-    compile 'net.butterflytv.utils:rtmp-client:0.2.7.1'
+    compile 'net.butterflytv.utils:rtmp-client:0.2.8'
 }
+
+ext {
+    javadocTitle = 'RTMP extension'
+}
+apply from: '../../javadoc_library.gradle'
+
+ext {
+    releaseArtifact = 'extension-rtmp'
+    releaseDescription = 'RTMP extension for ExoPlayer.'
+}
+apply from: '../../publish.gradle'
