@@ -144,6 +144,10 @@ public final class ImaAdsLoader implements ExoPlayer.EventListener, VideoAdPlaye
   // Fields tracking the player/loader state.
 
   /**
+   * Whether the player's play when ready flag has temporarily been set to true for playing ads.
+   */
+  private boolean playWhenReadyOverriddenForAds;
+  /**
    * Whether the player is playing an ad.
    */
   private boolean playingAd;
@@ -243,22 +247,20 @@ public final class ImaAdsLoader implements ExoPlayer.EventListener, VideoAdPlaye
   }
 
   /**
-   * Detaches any attached player and event listener. To attach a new player, call
+   * Detaches the attached player and event listener. To attach a new player, call
    * {@link #attachPlayer(ExoPlayer, EventListener, ViewGroup)}. Call {@link #release()} to release
    * all resources associated with this instance.
    */
   /* package */ void detachPlayer() {
-    if (player != null) {
-      if (adsManager != null && imaPausedContent) {
-        adPlaybackState.setAdResumePositionUs(C.msToUs(player.getCurrentPosition()));
-        adsManager.pause();
-      }
-      lastAdProgress = getAdProgress();
-      lastContentProgress = getContentProgress();
-      player.removeListener(this);
-      player = null;
-      eventListener = null;
+    if (adsManager != null && imaPausedContent) {
+      adPlaybackState.setAdResumePositionUs(C.msToUs(player.getCurrentPosition()));
+      adsManager.pause();
     }
+    lastAdProgress = getAdProgress();
+    lastContentProgress = getContentProgress();
+    player.removeListener(this);
+    player = null;
+    eventListener = null;
   }
 
   /**
@@ -268,7 +270,9 @@ public final class ImaAdsLoader implements ExoPlayer.EventListener, VideoAdPlaye
     if (adsManager != null) {
       adsManager.destroy();
       adsManager = null;
-      detachPlayer();
+      if (player != null) {
+        detachPlayer();
+      }
     }
   }
 
@@ -330,16 +334,12 @@ public final class ImaAdsLoader implements ExoPlayer.EventListener, VideoAdPlaye
         // After CONTENT_PAUSE_REQUESTED, IMA will playAd/pauseAd/stopAd to show one or more ads
         // before sending CONTENT_RESUME_REQUESTED.
         imaPausedContent = true;
-        if (player != null) {
-          pauseContentInternal();
-        }
+        pauseContentInternal();
         break;
       case SKIPPED: // Fall through.
       case CONTENT_RESUME_REQUESTED:
         imaPausedContent = false;
-        if (player != null) {
-          resumeContentInternal();
-        }
+        resumeContentInternal();
         break;
       case ALL_ADS_COMPLETED:
         // Do nothing. The ads manager will be released when the source is released.
@@ -425,15 +425,15 @@ public final class ImaAdsLoader implements ExoPlayer.EventListener, VideoAdPlaye
     if (player == null) {
       // Sometimes messages from IMA arrive after detaching the player. See [Internal: b/63801642].
       Log.w(TAG, "Unexpected playAd while detached");
+    } else if (!player.getPlayWhenReady()) {
+      playWhenReadyOverriddenForAds = true;
+      player.setPlayWhenReady(true);
     }
     if (imaPlayingAd && !imaPausedInAd) {
       // Work around an issue where IMA does not always call stopAd before resuming content.
       // See [Internal: b/38354028].
       Log.w(TAG, "Unexpected playAd without stopAd");
       stopAdInternal();
-    }
-    if (player != null) {
-      player.setPlayWhenReady(true);
     }
     if (!imaPlayingAd) {
       imaPlayingAd = true;
@@ -474,9 +474,6 @@ public final class ImaAdsLoader implements ExoPlayer.EventListener, VideoAdPlaye
       return;
     }
     imaPausedInAd = true;
-    if (player != null) {
-      player.setPlayWhenReady(false);
-    }
     for (VideoAdPlayerCallback callback : adCallbacks) {
       callback.onPause();
     }
@@ -560,6 +557,10 @@ public final class ImaAdsLoader implements ExoPlayer.EventListener, VideoAdPlaye
       }
       return;
     }
+    if (!playingAd && playWhenReadyOverriddenForAds) {
+      playWhenReadyOverriddenForAds = false;
+      player.setPlayWhenReady(false);
+    }
     if (!sentContentComplete) {
       boolean adFinished =
           !playingAd || playingAdIndexInAdGroup != player.getCurrentAdIndexInAdGroup();
@@ -571,7 +572,6 @@ public final class ImaAdsLoader implements ExoPlayer.EventListener, VideoAdPlaye
         }
       }
       if (playingAd && !wasPlayingAd) {
-        player.setPlayWhenReady(false);
         int adGroupIndex = player.getCurrentAdGroupIndex();
         // IMA hasn't sent CONTENT_PAUSE_REQUESTED yet, so fake the content position.
         Assertions.checkState(fakeContentProgressElapsedRealtimeMs == C.TIME_UNSET);
@@ -601,17 +601,14 @@ public final class ImaAdsLoader implements ExoPlayer.EventListener, VideoAdPlaye
   }
 
   private void resumeContentInternal() {
-    if (contentDurationMs != C.TIME_UNSET) {
-      if (imaPlayingAd) {
-        // Work around an issue where IMA does not always call stopAd before resuming content.
-        // See [Internal: b/38354028].
-        if (DEBUG) {
-          Log.d(TAG, "Unexpected CONTENT_RESUME_REQUESTED without stopAd");
-        }
-        stopAdInternal();
+    if (contentDurationMs != C.TIME_UNSET && imaPlayingAd) {
+      // Work around an issue where IMA does not always call stopAd before resuming content.
+      // See [Internal: b/38354028].
+      if (DEBUG) {
+        Log.d(TAG, "Unexpected CONTENT_RESUME_REQUESTED without stopAd");
       }
+      stopAdInternal();
     }
-    player.setPlayWhenReady(true);
     clearFlags();
   }
 
@@ -623,15 +620,11 @@ public final class ImaAdsLoader implements ExoPlayer.EventListener, VideoAdPlaye
     // IMA is requesting to pause content, so stop faking the content position.
     fakeContentProgressElapsedRealtimeMs = C.TIME_UNSET;
     fakeContentProgressOffsetMs = C.TIME_UNSET;
-    player.setPlayWhenReady(false);
     clearFlags();
   }
 
   private void stopAdInternal() {
     Assertions.checkState(imaPlayingAd);
-    if (player != null) {
-      player.setPlayWhenReady(false);
-    }
     adPlaybackState.playedAd(adGroupIndex);
     updateAdPlaybackState();
     if (!playingAd) {
