@@ -51,6 +51,21 @@ import java.util.Arrays;
     UpstreamFormatChangedListener {
 
   /**
+   * Listener for information about the period.
+   */
+  interface Listener {
+
+    /**
+     * Called when the duration or ability to seek within the period changes.
+     *
+     * @param durationUs The duration of the period, or {@link C#TIME_UNSET}.
+     * @param isSeekable Whether the period is seekable.
+     */
+    void onSourceInfoRefreshed(long durationUs, boolean isSeekable);
+
+  }
+
+  /**
    * When the source's duration is unknown, it is calculated by adding this value to the largest
    * sample timestamp seen when buffering completes.
    */
@@ -61,7 +76,7 @@ import java.util.Arrays;
   private final int minLoadableRetryCount;
   private final Handler eventHandler;
   private final ExtractorMediaSource.EventListener eventListener;
-  private final MediaSource.Listener sourceListener;
+  private final Listener listener;
   private final Allocator allocator;
   private final String customCacheKey;
   private final long continueLoadingCheckIntervalBytes;
@@ -103,7 +118,7 @@ import java.util.Arrays;
    * @param minLoadableRetryCount The minimum number of times to retry if a loading error occurs.
    * @param eventHandler A handler for events. May be null if delivery of events is not required.
    * @param eventListener A listener of events. May be null if delivery of events is not required.
-   * @param sourceListener A listener to notify when the timeline has been loaded.
+   * @param listener A listener to notify when information about the period changes.
    * @param allocator An {@link Allocator} from which to obtain media buffer allocations.
    * @param customCacheKey A custom key that uniquely identifies the original stream. Used for cache
    *     indexing. May be null.
@@ -112,14 +127,14 @@ import java.util.Arrays;
    */
   public ExtractorMediaPeriod(Uri uri, DataSource dataSource, Extractor[] extractors,
       int minLoadableRetryCount, Handler eventHandler,
-      ExtractorMediaSource.EventListener eventListener, MediaSource.Listener sourceListener,
+      ExtractorMediaSource.EventListener eventListener, Listener listener,
       Allocator allocator, String customCacheKey, int continueLoadingCheckIntervalBytes) {
     this.uri = uri;
     this.dataSource = dataSource;
     this.minLoadableRetryCount = minLoadableRetryCount;
     this.eventHandler = eventHandler;
     this.eventListener = eventListener;
-    this.sourceListener = sourceListener;
+    this.listener = listener;
     this.allocator = allocator;
     this.customCacheKey = customCacheKey;
     this.continueLoadingCheckIntervalBytes = continueLoadingCheckIntervalBytes;
@@ -376,8 +391,7 @@ import java.util.Arrays;
       long largestQueuedTimestampUs = getLargestQueuedTimestampUs();
       durationUs = largestQueuedTimestampUs == Long.MIN_VALUE ? 0
           : largestQueuedTimestampUs + DEFAULT_LAST_SAMPLE_DURATION_US;
-      sourceListener.onSourceInfoRefreshed(
-          new SinglePeriodTimeline(durationUs, seekMap.isSeekable()), null);
+      listener.onSourceInfoRefreshed(durationUs, seekMap.isSeekable());
     }
     callback.onContinueLoadingRequested(this);
   }
@@ -477,8 +491,7 @@ import java.util.Arrays;
     }
     tracks = new TrackGroupArray(trackArray);
     prepared = true;
-    sourceListener.onSourceInfoRefreshed(
-        new SinglePeriodTimeline(durationUs, seekMap.isSeekable()), null);
+    listener.onSourceInfoRefreshed(durationUs, seekMap.isSeekable());
     callback.onPrepared(this);
   }
 

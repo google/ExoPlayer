@@ -39,7 +39,7 @@ import java.io.IOException;
  * <p>
  * Note that the built-in extractors for AAC, MPEG PS/TS and FLV streams do not support seeking.
  */
-public final class ExtractorMediaSource implements MediaSource, MediaSource.Listener {
+public final class ExtractorMediaSource implements MediaSource, ExtractorMediaPeriod.Listener {
 
   /**
    * Listener of {@link ExtractorMediaSource} events.
@@ -89,8 +89,8 @@ public final class ExtractorMediaSource implements MediaSource, MediaSource.List
   private final int continueLoadingCheckIntervalBytes;
 
   private MediaSource.Listener sourceListener;
-  private Timeline timeline;
-  private boolean timelineHasDuration;
+  private long timelineDurationUs;
+  private boolean timelineIsSeekable;
 
   /**
    * @param uri The {@link Uri} of the media stream.
@@ -155,8 +155,7 @@ public final class ExtractorMediaSource implements MediaSource, MediaSource.List
   @Override
   public void prepareSource(ExoPlayer player, boolean isTopLevelSource, Listener listener) {
     sourceListener = listener;
-    timeline = new SinglePeriodTimeline(C.TIME_UNSET, false);
-    listener.onSourceInfoRefreshed(timeline, null);
+    notifySourceInfoRefreshed(C.TIME_UNSET, false);
   }
 
   @Override
@@ -182,19 +181,27 @@ public final class ExtractorMediaSource implements MediaSource, MediaSource.List
     sourceListener = null;
   }
 
-  // MediaSource.Listener implementation.
+  // ExtractorMediaPeriod.Listener implementation.
 
   @Override
-  public void onSourceInfoRefreshed(Timeline newTimeline, Object manifest) {
-    long newTimelineDurationUs = newTimeline.getPeriod(0, period).getDurationUs();
-    boolean newTimelineHasDuration = newTimelineDurationUs != C.TIME_UNSET;
-    if (timelineHasDuration && !newTimelineHasDuration) {
-      // Suppress source info changes that would make the duration unknown when it is already known.
+  public void onSourceInfoRefreshed(long durationUs, boolean isSeekable) {
+    // If we already have the duration from a previous source info refresh, use it.
+    durationUs = durationUs == C.TIME_UNSET ? timelineDurationUs : durationUs;
+    if (timelineDurationUs == durationUs && timelineIsSeekable == isSeekable
+        || (timelineDurationUs != C.TIME_UNSET && durationUs == C.TIME_UNSET)) {
+      // Suppress no-op source info changes.
       return;
     }
-    timeline = newTimeline;
-    timelineHasDuration = newTimelineHasDuration;
-    sourceListener.onSourceInfoRefreshed(timeline, null);
+    notifySourceInfoRefreshed(durationUs, isSeekable);
+  }
+
+  // Internal methods.
+
+  private void notifySourceInfoRefreshed(long durationUs, boolean isSeekable) {
+    timelineDurationUs = durationUs;
+    timelineIsSeekable = isSeekable;
+    sourceListener.onSourceInfoRefreshed(
+        new SinglePeriodTimeline(timelineDurationUs, timelineIsSeekable), null);
   }
 
 }
