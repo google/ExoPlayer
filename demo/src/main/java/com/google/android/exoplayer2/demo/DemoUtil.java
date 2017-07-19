@@ -38,14 +38,14 @@ import java.util.Locale;
           buildResolutionString(format), buildBitrateString(format)), buildTrackIdString(format)),
           buildSampleMimeTypeString(format));
     } else if (MimeTypes.isAudio(format.sampleMimeType)) {
-      trackName = joinWithSeparator(joinWithSeparator(joinWithSeparator(joinWithSeparator(
+      trackName = joinWithSeparator(joinWithSeparator(joinWithSeparator(joinWithSeparator(joinWithSeparator(
           buildLanguageString(format), buildAudioPropertyString(format)),
           buildBitrateString(format)), buildTrackIdString(format)),
-          buildSampleMimeTypeString(format));
+          buildSampleMimeTypeString(format)), buildLabelString(format));
     } else {
-      trackName = joinWithSeparator(joinWithSeparator(joinWithSeparator(buildLanguageString(format),
+      trackName = joinWithSeparator(joinWithSeparator(joinWithSeparator(joinWithSeparator(buildLanguageString(format),
           buildBitrateString(format)), buildTrackIdString(format)),
-          buildSampleMimeTypeString(format));
+          buildSampleMimeTypeString(format)), buildLabelString(format));
     }
     return trackName.length() == 0 ? "unknown" : trackName;
   }
@@ -63,6 +63,11 @@ import java.util.Locale;
   private static String buildLanguageString(Format format) {
     return TextUtils.isEmpty(format.language) || "und".equals(format.language) ? ""
         : format.language;
+  }
+
+  private static String buildLabelString(Format format) {
+    return TextUtils.isEmpty(format.label) || "und".equals(format.label) ? ""
+        : format.label;
   }
 
   private static String buildBitrateString(Format format) {
