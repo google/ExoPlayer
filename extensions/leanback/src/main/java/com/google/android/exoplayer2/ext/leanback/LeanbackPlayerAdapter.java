@@ -26,7 +26,6 @@ import android.view.Surface;
 import android.view.SurfaceHolder;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlaybackException;
-import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.ExoPlayerLibraryInfo;
 import com.google.android.exoplayer2.PlaybackParameters;
 import com.google.android.exoplayer2.Player;
@@ -37,7 +36,7 @@ import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
 import com.google.android.exoplayer2.util.ErrorMessageProvider;
 
 /**
- * Leanback {@link PlayerAdapter} implementation for {@link SimpleExoPlayer}.
+ * Leanback {@code PlayerAdapter} implementation for {@link SimpleExoPlayer}.
  */
 public final class LeanbackPlayerAdapter extends PlayerAdapter {
 
@@ -48,58 +47,49 @@ public final class LeanbackPlayerAdapter extends PlayerAdapter {
   private final Context context;
   private final SimpleExoPlayer player;
   private final Handler handler;
-  private final Runnable updatePlayerRunnable = new Runnable() {
-      @Override
-      public void run() {
-          getCallback().onCurrentPositionChanged(LeanbackPlayerAdapter.this);
-          getCallback().onBufferedPositionChanged(LeanbackPlayerAdapter.this);
-          handler.postDelayed(this, updatePeriod);
-      }
-  };
+  private final ComponentListener componentListener;
+  private final Runnable updatePlayerRunnable;
 
+  private ErrorMessageProvider<? super ExoPlaybackException> errorMessageProvider;
   private SurfaceHolderGlueHost surfaceHolderGlueHost;
   private boolean initialized;
   private boolean hasSurface;
   private boolean isBuffering;
-  private ErrorMessageProvider<? super ExoPlaybackException> errorMessageProvider;
-  private final int updatePeriod;
-  private final ExoPlayerEventListenerImpl exoPlayerListener = new ExoPlayerEventListenerImpl();
-  private final SimpleExoPlayer.VideoListener videoListener = new SimpleExoPlayer.VideoListener() {
-        @Override
-      public void onVideoSizeChanged(int width, int height, int unappliedRotationDegrees,
-          float pixelWidthHeightRatio) {
-            getCallback().onVideoSizeChanged(LeanbackPlayerAdapter.this, width, height);
-      }
-
-      @Override
-      public void onRenderedFirstFrame() {
-      }
-  };
 
   /**
-   * Constructor.
-   * Users are responsible for managing {@link SimpleExoPlayer} lifecycle. You must
-   * stop/release the player once you're done playing the media.
+   * Builds an instance. Note that the {@code PlayerAdapter} does not manage the lifecycle of the
+   * {@link SimpleExoPlayer} instance. The caller remains responsible for releasing the player when
+   * it's no longer required.
    *
    * @param context The current context (activity).
    * @param player Instance of your exoplayer that needs to be configured.
+   * @param updatePeriodMs The delay between player control updates, in milliseconds.
    */
-  public LeanbackPlayerAdapter(Context context, SimpleExoPlayer player, int updatePeriod) {
+  public LeanbackPlayerAdapter(Context context, SimpleExoPlayer player, final int updatePeriodMs) {
     this.context = context;
     this.player = player;
-    this.handler = new Handler();
-    this.updatePeriod = updatePeriod;
+    handler = new Handler();
+    componentListener = new ComponentListener();
+    updatePlayerRunnable = new Runnable() {
+      @Override
+      public void run() {
+        Callback callback = getCallback();
+        callback.onCurrentPositionChanged(LeanbackPlayerAdapter.this);
+        callback.onBufferedPositionChanged(LeanbackPlayerAdapter.this);
+        handler.postDelayed(this, updatePeriodMs);
+      }
+    };
   }
 
   @Override
   public void onAttachedToHost(PlaybackGlueHost host) {
     if (host instanceof SurfaceHolderGlueHost) {
       surfaceHolderGlueHost = ((SurfaceHolderGlueHost) host);
-      surfaceHolderGlueHost.setSurfaceHolderCallback(new VideoPlayerSurfaceHolderCallback());
+      surfaceHolderGlueHost.setSurfaceHolderCallback(componentListener);
     }
     notifyListeners();
-    player.addListener(exoPlayerListener);
-    player.addVideoListener(videoListener);
+    player.addListener(componentListener);
+    player.addVideoListener(componentListener);
   }
 
   private void notifyListeners() {
@@ -110,15 +100,14 @@ public final class LeanbackPlayerAdapter extends PlayerAdapter {
     boolean hasEnded = playbackState == Player.STATE_ENDED;
 
     initialized = isInitialized;
+    Callback callback = getCallback();
     if (oldIsPrepared != isPrepared()) {
-      getCallback().onPreparedStateChanged(this);
+      callback.onPreparedStateChanged(this);
     }
-
-    getCallback().onPlayStateChanged(this);
-    getCallback().onBufferingStateChanged(this, isBuffering || !initialized);
-
+    callback.onPlayStateChanged(this);
+    callback.onBufferingStateChanged(this, isBuffering || !initialized);
     if (hasEnded) {
-      getCallback().onPlayCompleted(this);
+      callback.onPlayCompleted(this);
     }
   }
 
@@ -134,8 +123,8 @@ public final class LeanbackPlayerAdapter extends PlayerAdapter {
 
   @Override
   public void onDetachedFromHost() {
-    player.removeListener(exoPlayerListener);
-    player.removeVideoListener(videoListener);
+    player.removeListener(componentListener);
+    player.removeVideoListener(componentListener);
     if (surfaceHolderGlueHost != null) {
       surfaceHolderGlueHost.setSurfaceHolderCallback(null);
       surfaceHolderGlueHost = null;
@@ -151,10 +140,9 @@ public final class LeanbackPlayerAdapter extends PlayerAdapter {
   @Override
   public void setProgressUpdatingEnabled(final boolean enabled) {
     handler.removeCallbacks(updatePlayerRunnable);
-    if (!enabled) {
-      return;
+    if (enabled) {
+      handler.post(updatePlayerRunnable);
     }
-    handler.postDelayed(updatePlayerRunnable, updatePeriod);
   }
 
   @Override
@@ -164,8 +152,8 @@ public final class LeanbackPlayerAdapter extends PlayerAdapter {
 
   @Override
   public long getDuration() {
-    long duration = player.getDuration();
-    return duration != C.TIME_UNSET ? duration : -1;
+    long durationMs = player.getDuration();
+    return durationMs != C.TIME_UNSET ? durationMs : -1;
   }
 
   @Override
@@ -176,7 +164,7 @@ public final class LeanbackPlayerAdapter extends PlayerAdapter {
   @Override
   public void play() {
     if (player.getPlaybackState() == Player.STATE_ENDED) {
-      seekTo(0);
+      player.seekToDefaultPosition();
     }
     player.setPlayWhenReady(true);
     getCallback().onPlayStateChanged(this);
@@ -198,10 +186,6 @@ public final class LeanbackPlayerAdapter extends PlayerAdapter {
     return player.getBufferedPosition();
   }
 
-  /**
-   * @return True if ExoPlayer is ready and got a SurfaceHolder if
-   * {@link PlaybackGlueHost} provides SurfaceHolder.
-   */
   @Override
   public boolean isPrepared() {
     return initialized && (surfaceHolderGlueHost == null || hasSurface);
@@ -213,10 +197,11 @@ public final class LeanbackPlayerAdapter extends PlayerAdapter {
     getCallback().onPreparedStateChanged(this);
   }
 
-  /**
-   * Implements {@link SurfaceHolder.Callback} that can then be set on the {@link PlaybackGlueHost}.
-   */
-  private final class VideoPlayerSurfaceHolderCallback implements SurfaceHolder.Callback {
+  private final class ComponentListener implements Player.EventListener,
+      SimpleExoPlayer.VideoListener, SurfaceHolder.Callback {
+
+    // SurfaceHolder.Callback implementation.
+
     @Override
     public void surfaceCreated(SurfaceHolder surfaceHolder) {
       setVideoSurface(surfaceHolder.getSurface());
@@ -224,67 +209,82 @@ public final class LeanbackPlayerAdapter extends PlayerAdapter {
 
     @Override
     public void surfaceChanged(SurfaceHolder surfaceHolder, int i, int i1, int i2) {
+      // Do nothing.
     }
 
     @Override
     public void surfaceDestroyed(SurfaceHolder surfaceHolder) {
       setVideoSurface(null);
     }
-  }
 
-  private final class ExoPlayerEventListenerImpl implements ExoPlayer.EventListener {
+    // Player.EventListener implementation.
 
     @Override
     public void onPlayerStateChanged(boolean playWhenReady, int playbackState) {
-      LeanbackPlayerAdapter.this.notifyListeners();
+      notifyListeners();
     }
 
     @Override
     public void onPlayerError(ExoPlaybackException exception) {
+      Callback callback = getCallback();
       if (errorMessageProvider != null) {
-        Pair<Integer, String> message = errorMessageProvider.getErrorMessage(exception);
-        if (message != null) {
-          getCallback().onError(LeanbackPlayerAdapter.this,
-              message.first,
-              message.second);
-            return;
-        }
+        Pair<Integer, String> errorMessage = errorMessageProvider.getErrorMessage(exception);
+        callback.onError(LeanbackPlayerAdapter.this, errorMessage.first, errorMessage.second);
+      } else {
+        callback.onError(LeanbackPlayerAdapter.this, exception.type, context.getString(
+            R.string.lb_media_player_error, exception.type, exception.rendererIndex));
       }
-      getCallback().onError(LeanbackPlayerAdapter.this,
-          exception.type,
-          context.getString(R.string.lb_media_player_error,
-          exception.type,
-          exception.rendererIndex));
     }
 
     @Override
     public void onLoadingChanged(boolean isLoading) {
+      // Do nothing.
     }
 
     @Override
     public void onTimelineChanged(Timeline timeline, Object manifest) {
-      getCallback().onDurationChanged(LeanbackPlayerAdapter.this);
-      getCallback().onCurrentPositionChanged(LeanbackPlayerAdapter.this);
-      getCallback().onBufferedPositionChanged(LeanbackPlayerAdapter.this);
+      Callback callback = getCallback();
+      callback.onDurationChanged(LeanbackPlayerAdapter.this);
+      callback.onCurrentPositionChanged(LeanbackPlayerAdapter.this);
+      callback.onBufferedPositionChanged(LeanbackPlayerAdapter.this);
     }
 
     @Override
     public void onTracksChanged(TrackGroupArray trackGroups, TrackSelectionArray trackSelections) {
+      // Do nothing.
     }
 
     @Override
     public void onPositionDiscontinuity() {
-      getCallback().onCurrentPositionChanged(LeanbackPlayerAdapter.this);
-      getCallback().onBufferedPositionChanged(LeanbackPlayerAdapter.this);
+      Callback callback = getCallback();
+      callback.onCurrentPositionChanged(LeanbackPlayerAdapter.this);
+      callback.onBufferedPositionChanged(LeanbackPlayerAdapter.this);
     }
 
     @Override
     public void onPlaybackParametersChanged(PlaybackParameters params) {
+      // Do nothing.
     }
 
     @Override
     public void onRepeatModeChanged(int repeatMode) {
+      // Do nothing.
     }
+
+    // SimpleExoplayerView.Callback implementation.
+
+    @Override
+    public void onVideoSizeChanged(int width, int height, int unappliedRotationDegrees,
+        float pixelWidthHeightRatio) {
+      getCallback().onVideoSizeChanged(LeanbackPlayerAdapter.this, width, height);
+    }
+
+    @Override
+    public void onRenderedFirstFrame() {
+      // Do nothing.
+    }
+
   }
+
 }
 
