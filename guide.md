@@ -266,23 +266,24 @@ Given a video file and a separate subtitle file, `MergingMediaSource` can be
 used to merge them into a single source for playback.
 
 {% highlight java %}
+// Build the video MediaSource.
 MediaSource videoSource = new ExtractorMediaSource(videoUri, ...);
+// Build the subtitle MediaSource.
 MediaSource subtitleSource = new SingleSampleMediaSource(subtitleUri, ...);
 // Plays the video with the sideloaded subtitle.
 MergingMediaSource mergedSource =
     new MergingMediaSource(videoSource, subtitleSource);
 {% endhighlight %}
 
-### Seamlessly looping a video ###
+### Seamlessly looping a video a fixed number of times ###
 
-A video can be seamlessly looped using a `LoopingMediaSource`. The following
-example loops a video indefinitely. It’s also possible to specify a finite loop
-count when creating a `LoopingMediaSource`.
+A video can be seamlessly looped a fixed number of times using a
+`LoopingMediaSource`. The following example plays a video twice.
 
 {% highlight java %}
 MediaSource source = new ExtractorMediaSource(videoUri, ...);
-// Loops the video indefinitely.
-LoopingMediaSource loopingSource = new LoopingMediaSource(source);
+// Plays the video twice.
+LoopingMediaSource loopingSource = new LoopingMediaSource(source, 2);
 {% endhighlight %}
 
 ### Seamlessly playing a sequence of videos ###
@@ -307,8 +308,8 @@ ConcatenatingMediaSource concatenatedSource =
 
 It’s possible to further combine composite `MediaSource`s for more unusual use
 cases. Given two videos A and B, the following example shows how
-`LoopingMediaSource` and `ConcatenatingMediaSource` can be used together to loop
-the sequence (A,A,B) indefinitely.
+`LoopingMediaSource` and `ConcatenatingMediaSource` can be used together to play
+the sequence (A,A,B).
 
 {% highlight java %}
 MediaSource firstSource = new ExtractorMediaSource(firstVideoUri, ...);
@@ -318,8 +319,6 @@ LoopingMediaSource firstSourceTwice = new LoopingMediaSource(firstSource, 2);
 // Plays the first video twice, then the second video.
 ConcatenatingMediaSource concatenatedSource =
     new ConcatenatingMediaSource(firstSourceTwice, secondSource);
-// Loops the sequence indefinitely.
-LoopingMediaSource compositeSource = new LoopingMediaSource(concatenatedSource);
 {% endhighlight %}
 
 The following example is equivalent, demonstrating that there can be more than
@@ -331,9 +330,6 @@ MediaSource secondSource = new ExtractorMediaSource(secondVideoUri, ...);
 // Plays the first video twice, then the second video.
 ConcatenatingMediaSource concatenatedSource =
     new ConcatenatingMediaSource(firstSource, firstSource, secondSource);
-// Loops the sequence indefinitely.
-LoopingMediaSource compositeSource = new LoopingMediaSource(concatenatedSource);
-
 {% endhighlight %}
 
 {% include infobox.html content="It is important to avoid using the same
@@ -398,6 +394,11 @@ library. Here are some use cases for building custom components:
 * `Renderer` &ndash; You may want to implement a custom `Renderer` to handle a
   media type not supported by the default implementations provided by the
   library.
+* `TrackSelector` &ndash; Implementing a custom `TrackSelector` allows an app
+  developer to change the way in which tracks exposed by a `MediaSource` are
+  selected for consumption by each of the available `Renderer`s.
+* `LoadControl` &ndash; Implementing a custom `LoadControl` allows an app
+  developer to change the player's buffering policy.
 * `Extractor` &ndash; If you need to support a container format not currently
   supported by the library, consider implementing a custom `Extractor` class,
   which can then be used to together with `ExtractorMediaSource` to play media
@@ -406,13 +407,11 @@ library. Here are some use cases for building custom components:
   appropriate if you wish to obtain media samples to feed to renderers in a
   custom way, or if you wish to implement custom `MediaSource` compositing
   behavior.
-* `TrackSelector` &ndash; Implementing a custom `TrackSelector` allows an app
-  developer to change the way in which tracks exposed by a `MediaSource` are
-  selected for consumption by each of the available `Renderer`s.
 * `DataSource` &ndash; ExoPlayer’s upstream package already contains a number of
   `DataSource` implementations for different use cases. You may want to
   implement you own `DataSource` class to load data in another way, such as over
-  a custom protocol, using a custom HTTP stack, or through a persistent cache.
+  a custom protocol, using a custom HTTP stack, or from a custom persistent
+  cache.
 
 ### Customization guidelines ###
 

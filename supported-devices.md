@@ -37,3 +37,13 @@ be found
   because such cables cannot carry audio. Hence this issue can be safely
   ignored. We suggest using a realistic end user setup (e.g., the device
   connected to a TV using a standard HDMI cable) for development and testing.
+* **Emulators** - Some Android eumulators do not properly implement components
+  of Android's media stack, and as a result do not support ExoPlayer. This is an
+  issue with the emulator, not with ExoPlayer. Android's official emulator
+  ("Virtual Devices" in Android Studio) supports ExoPlayer provided the system
+  image has an API level of at least 23. System images with earlier API levels
+  do not support ExoPlayer. The level of support provided by third party
+  emulators varies. Issues running ExoPlayer on third party emulators should be
+  reported to the developer of the emulator rather than to the ExoPlayer team.
+  Where possible, we recommend testing media applications on physical devices
+  rather than emulators.

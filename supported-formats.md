@@ -22,7 +22,8 @@ the highest, these are:
   level of support ExoPlayer provides.
 
 The following sections define ExoPlayer's support at each level, from highest to
-lowest.
+lowest. Support for standalone subtitle formats is also described at the bottom
+of this page.
 
 ## Adaptive streaming ##
 
@@ -164,3 +165,19 @@ for an example command line to `configure`.
 
 [Flac extension]: https://github.com/google/ExoPlayer/tree/release-v2/extensions/flac
 [FFmpeg extension]: https://github.com/google/ExoPlayer/tree/release-v2/extensions/ffmpeg
+
+## Standalone subtitle formats ##
+
+ExoPlayer supports standalone subtitle files in a variety of formats. Subtitle
+files can be side-loaded as described in the [Developer guide][].
+
+| Container format | Supported    | Comment              |
+|------------------|:------------:|:---------------------|
+| WebVTT | YES ||
+| TTML | YES ||
+| SMPTE-TT | YES | Use `MimeType.APPLICATION_TTML`|
+| SubRip | YES ||
+| SubStationAlpha (SSA) | YES ||
+| ASS | YES | Use `MimeType.TEXT_SSA` |
+
+[Developer guide]: https://google.github.io/ExoPlayer/guide.html#side-loading-a-subtitle-file
