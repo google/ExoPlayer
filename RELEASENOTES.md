@@ -1,5 +1,16 @@
 # Release notes #
 
+### r2.4.4 ###
+
+* HLS/MPEG-TS: Some initial optimizations of MPEG-TS extractor performance
+  ([#3040](https://github.com/google/ExoPlayer/issues/3040)).
+* HLS: Fix propagation of format identifier for CEA-608
+  ([#3033](https://github.com/google/ExoPlayer/issues/3033)).
+* HLS: Detect playlist stuck and reset conditions
+  ([#2872](https://github.com/google/ExoPlayer/issues/2872)).
+* Video: Fix video dimension reporting on some devices
+  ([#3007](https://github.com/google/ExoPlayer/issues/3007)).
+
 ### r2.4.3 ###
 
 * Audio: Workaround custom audio decoders misreporting their maximum supported

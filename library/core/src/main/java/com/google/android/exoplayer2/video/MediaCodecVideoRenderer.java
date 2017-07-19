@@ -578,9 +578,10 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
   }
 
   private void maybeNotifyVideoSizeChanged() {
-    if (reportedWidth != currentWidth || reportedHeight != currentHeight
+    if ((currentWidth != Format.NO_VALUE || currentHeight != Format.NO_VALUE)
+      && (reportedWidth != currentWidth || reportedHeight != currentHeight
         || reportedUnappliedRotationDegrees != currentUnappliedRotationDegrees
-        || reportedPixelWidthHeightRatio != currentPixelWidthHeightRatio) {
+        || reportedPixelWidthHeightRatio != currentPixelWidthHeightRatio)) {
       eventDispatcher.videoSizeChanged(currentWidth, currentHeight, currentUnappliedRotationDegrees,
           currentPixelWidthHeightRatio);
       reportedWidth = currentWidth;
@@ -592,8 +593,8 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
 
   private void maybeRenotifyVideoSizeChanged() {
     if (reportedWidth != Format.NO_VALUE || reportedHeight != Format.NO_VALUE) {
-      eventDispatcher.videoSizeChanged(currentWidth, currentHeight, currentUnappliedRotationDegrees,
-          currentPixelWidthHeightRatio);
+      eventDispatcher.videoSizeChanged(reportedWidth, reportedHeight,
+          reportedUnappliedRotationDegrees, reportedPixelWidthHeightRatio);
     }
   }
 
