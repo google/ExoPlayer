@@ -323,16 +323,23 @@ import com.google.android.exoplayer2.source.MediaSource.MediaPeriodId;
     if (adGroupCount == 0) {
       return true;
     }
+
     int lastAdGroupIndex = adGroupCount - 1;
-    boolean periodHasPostrollAd = period.getAdGroupTimeUs(lastAdGroupIndex) == C.TIME_END_OF_SOURCE;
-    if (!id.isAd()) {
-      return !periodHasPostrollAd && endPositionUs == C.TIME_END_OF_SOURCE;
-    } else if (periodHasPostrollAd && id.adGroupIndex == lastAdGroupIndex) {
-      int adCountInLastAdGroup = period.getAdCountInAdGroup(lastAdGroupIndex);
-      return adCountInLastAdGroup != C.LENGTH_UNSET
-          && id.adIndexInAdGroup == adCountInLastAdGroup - 1;
+    boolean isAd = id.isAd();
+    if (period.getAdGroupTimeUs(lastAdGroupIndex) != C.TIME_END_OF_SOURCE) {
+      // There's no postroll ad.
+      return !isAd && endPositionUs == C.TIME_END_OF_SOURCE;
     }
-    return false;
+
+    int postrollAdCount = period.getAdCountInAdGroup(lastAdGroupIndex);
+    if (postrollAdCount == C.LENGTH_UNSET) {
+      // We won't know if this is the last ad until we know how many postroll ads there are.
+      return false;
+    }
+
+    boolean isLastAd = isAd && id.adGroupIndex == lastAdGroupIndex
+        && id.adIndexInAdGroup == postrollAdCount - 1;
+    return isLastAd || (!isAd && period.getPlayedAdCount(lastAdGroupIndex) == postrollAdCount);
   }
 
   private boolean isLastInTimeline(MediaPeriodId id, boolean isLastMediaPeriodInPeriod) {
