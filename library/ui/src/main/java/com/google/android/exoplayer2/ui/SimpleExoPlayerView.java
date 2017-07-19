@@ -574,7 +574,8 @@ public final class SimpleExoPlayerView extends FrameLayout {
   /**
    * Sets the rewind increment in milliseconds.
    *
-   * @param rewindMs The rewind increment in milliseconds.
+   * @param rewindMs The rewind increment in milliseconds. A non-positive value will cause the
+   *     rewind button to be disabled.
    */
   public void setRewindIncrementMs(int rewindMs) {
     Assertions.checkState(controller != null);
@@ -584,7 +585,8 @@ public final class SimpleExoPlayerView extends FrameLayout {
   /**
    * Sets the fast forward increment in milliseconds.
    *
-   * @param fastForwardMs The fast forward increment in milliseconds.
+   * @param fastForwardMs The fast forward increment in milliseconds. A non-positive value will
+   *     cause the fast forward button to be disabled.
    */
   public void setFastForwardIncrementMs(int fastForwardMs) {
     Assertions.checkState(controller != null);
