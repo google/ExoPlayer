@@ -117,7 +117,7 @@ public final class DefaultExtractorsFactory implements ExtractorsFactory {
   /**
    * Sets the mode for {@link TsExtractor} instances created by the factory.
    *
-   * @see TsExtractor#TsExtractor(int, TimestampAdjuster, TsPayloadReader.Factory).
+   * @see TsExtractor#TsExtractor(int, TimestampAdjuster, TsPayloadReader.Factory)
    * @param mode The mode to use.
    * @return The factory, for convenience.
    */

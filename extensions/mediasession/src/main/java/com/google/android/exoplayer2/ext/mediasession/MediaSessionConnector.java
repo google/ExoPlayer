@@ -164,7 +164,7 @@ public final class MediaSessionConnector {
      */
     long getActiveQueueItemId(@Nullable ExoPlayer player);
     /**
-     * See {@link MediaSessionCompat.Callback#onSkipToPrevious()).
+     * See {@link MediaSessionCompat.Callback#onSkipToPrevious()}.
      */
     void onSkipToPrevious(ExoPlayer player);
     /**
@@ -200,7 +200,7 @@ public final class MediaSessionConnector {
      */
     void onRemoveQueueItem(ExoPlayer player, MediaDescriptionCompat description);
     /**
-     * See {@link MediaSessionCompat.Callback#onRemoveQueueItemAt(int index)).
+     * See {@link MediaSessionCompat.Callback#onRemoveQueueItemAt(int index)}.
      */
     void onRemoveQueueItemAt(ExoPlayer player, int index);
     /**
