@@ -27,12 +27,12 @@ public interface Clock {
   Clock DEFAULT = new SystemClock();
 
   /**
-   * @see android.os.SystemClock#elapsedRealtime().
+   * @see android.os.SystemClock#elapsedRealtime()
    */
   long elapsedRealtime();
 
   /**
-   * @see android.os.SystemClock#sleep(long).
+   * @see android.os.SystemClock#sleep(long)
    */
   void sleep(long sleepTimeMs);
 

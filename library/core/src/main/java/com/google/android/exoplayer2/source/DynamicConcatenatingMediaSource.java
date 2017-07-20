@@ -82,7 +82,7 @@ public final class DynamicConcatenatingMediaSource implements MediaSource, ExoPl
    * Adds a {@link MediaSource} to the playlist.
    *
    * @param index The index at which the new {@link MediaSource} will be inserted. This index must
-   *     be in the range of 0 <= index <= {@link #getSize()}.
+   *     be in the range of 0 &lt;= index &lt;= {@link #getSize()}.
    * @param mediaSource The {@link MediaSource} to be added to the list.
    */
   public synchronized void addMediaSource(int index, MediaSource mediaSource) {
@@ -108,7 +108,7 @@ public final class DynamicConcatenatingMediaSource implements MediaSource, ExoPl
    * Adds multiple {@link MediaSource}s to the playlist.
    *
    * @param index The index at which the new {@link MediaSource}s will be inserted. This index must
-   *     be in the range of 0 <= index <= {@link #getSize()}.
+   *     be in the range of 0 &lt;= index &lt;= {@link #getSize()}.
    * @param mediaSources A collection of {@link MediaSource}s to be added to the list. The media
    *     sources are added in the order in which they appear in this collection.
    */
@@ -128,7 +128,7 @@ public final class DynamicConcatenatingMediaSource implements MediaSource, ExoPl
    * Removes a {@link MediaSource} from the playlist.
    *
    * @param index The index at which the media source will be removed. This index must be in the
-   *     range of 0 <= index < {@link #getSize()}.
+   *     range of 0 &lt;= index &lt; {@link #getSize()}.
    */
   public synchronized void removeMediaSource(int index) {
     mediaSourcesPublic.remove(index);
@@ -141,9 +141,9 @@ public final class DynamicConcatenatingMediaSource implements MediaSource, ExoPl
    * Moves an existing {@link MediaSource} within the playlist.
    *
    * @param currentIndex The current index of the media source in the playlist. This index must be
-   *     in the range of 0 <= index < {@link #getSize()}.
+   *     in the range of 0 &lt;= index &lt; {@link #getSize()}.
    * @param newIndex The target index of the media source in the playlist. This index must be in the
-   *     range of 0 <= index < {@link #getSize()}.
+   *     range of 0 &lt;= index &lt; {@link #getSize()}.
    */
   public synchronized void moveMediaSource(int currentIndex, int newIndex) {
     if (currentIndex == newIndex) {
@@ -166,7 +166,7 @@ public final class DynamicConcatenatingMediaSource implements MediaSource, ExoPl
   /**
    * Returns the {@link MediaSource} at a specified index.
    *
-   * @param index A index in the range of 0 <= index <= {@link #getSize()}.
+   * @param index A index in the range of 0 &lt;= index &lt;= {@link #getSize()}.
    * @return The {@link MediaSource} at this index.
    */
   public synchronized MediaSource getMediaSource(int index) {
