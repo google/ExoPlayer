@@ -20,6 +20,7 @@ import android.util.SparseArray;
 import android.util.SparseBooleanArray;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlaybackException;
+import com.google.android.exoplayer2.Renderer;
 import com.google.android.exoplayer2.RendererCapabilities;
 import com.google.android.exoplayer2.RendererConfiguration;
 import com.google.android.exoplayer2.source.TrackGroup;
@@ -31,7 +32,8 @@ import java.util.Map;
 
 /**
  * Base class for {@link TrackSelector}s that first establish a mapping between {@link TrackGroup}s
- * and renderers, and then from that mapping create a {@link TrackSelection} for each renderer.
+ * and {@link Renderer}s, and then from that mapping create a {@link TrackSelection} for each
+ * renderer.
  */
 public abstract class MappingTrackSelector extends TrackSelector {
 
