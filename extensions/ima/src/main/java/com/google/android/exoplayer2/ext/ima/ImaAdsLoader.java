@@ -337,7 +337,6 @@ public final class ImaAdsLoader implements Player.EventListener, VideoAdPlayer,
         imaPausedContent = true;
         pauseContentInternal();
         break;
-      case SKIPPED: // Fall through.
       case CONTENT_RESUME_REQUESTED:
         imaPausedContent = false;
         resumeContentInternal();
@@ -432,9 +431,8 @@ public final class ImaAdsLoader implements Player.EventListener, VideoAdPlayer,
     }
     if (imaPlayingAd && !imaPausedInAd) {
       // Work around an issue where IMA does not always call stopAd before resuming content.
-      // See [Internal: b/38354028].
+      // See [Internal: b/38354028, b/63320878].
       Log.w(TAG, "Unexpected playAd without stopAd");
-      stopAdInternal();
     }
     if (!imaPlayingAd) {
       imaPlayingAd = true;
@@ -497,8 +495,7 @@ public final class ImaAdsLoader implements Player.EventListener, VideoAdPlayer,
     Assertions.checkArgument(timeline.getPeriodCount() == 1);
     this.timeline = timeline;
     contentDurationMs = C.usToMs(timeline.getPeriod(0, period).durationUs);
-    playingAd = player.isPlayingAd();
-    playingAdIndexInAdGroup = playingAd ? player.getCurrentAdIndexInAdGroup() : C.INDEX_UNSET;
+    updateImaStateForPlayerState();
   }
 
   @Override
@@ -547,9 +544,7 @@ public final class ImaAdsLoader implements Player.EventListener, VideoAdPlayer,
     if (adsManager == null) {
       return;
     }
-    boolean wasPlayingAd = playingAd;
-    playingAd = player.isPlayingAd();
-    if (!wasPlayingAd && !playingAd) {
+    if (!playingAd && !player.isPlayingAd()) {
       long positionUs = C.msToUs(player.getCurrentPosition());
       int adGroupIndex = timeline.getPeriod(0, period).getAdGroupIndexForPositionUs(positionUs);
       if (adGroupIndex != C.INDEX_UNSET) {
@@ -558,32 +553,7 @@ public final class ImaAdsLoader implements Player.EventListener, VideoAdPlayer,
       }
       return;
     }
-    if (!playingAd && playWhenReadyOverriddenForAds) {
-      playWhenReadyOverriddenForAds = false;
-      player.setPlayWhenReady(false);
-    }
-    if (!sentContentComplete) {
-      boolean adFinished =
-          !playingAd || playingAdIndexInAdGroup != player.getCurrentAdIndexInAdGroup();
-      if (adFinished) {
-        // IMA is waiting for the ad playback to finish so invoke the callback now.
-        // Either CONTENT_RESUME_REQUESTED will be passed next, or playAd will be called again.
-        for (VideoAdPlayerCallback callback : adCallbacks) {
-          callback.onEnded();
-        }
-      }
-      if (playingAd && !wasPlayingAd) {
-        int adGroupIndex = player.getCurrentAdGroupIndex();
-        // IMA hasn't sent CONTENT_PAUSE_REQUESTED yet, so fake the content position.
-        Assertions.checkState(fakeContentProgressElapsedRealtimeMs == C.TIME_UNSET);
-        fakeContentProgressElapsedRealtimeMs = SystemClock.elapsedRealtime();
-        fakeContentProgressOffsetMs = C.usToMs(adPlaybackState.adGroupTimesUs[adGroupIndex]);
-        if (fakeContentProgressOffsetMs == C.TIME_END_OF_SOURCE) {
-          fakeContentProgressOffsetMs = contentDurationMs;
-        }
-      }
-    }
-    playingAdIndexInAdGroup = playingAd ? player.getCurrentAdIndexInAdGroup() : C.INDEX_UNSET;
+    updateImaStateForPlayerState();
   }
 
   @Override
@@ -601,14 +571,47 @@ public final class ImaAdsLoader implements Player.EventListener, VideoAdPlayer,
     adsLoader.requestAds(request);
   }
 
+  private void updateImaStateForPlayerState() {
+    boolean wasPlayingAd = playingAd;
+    playingAd = player.isPlayingAd();
+    if (!playingAd && playWhenReadyOverriddenForAds) {
+      playWhenReadyOverriddenForAds = false;
+      player.setPlayWhenReady(false);
+    }
+    if (!sentContentComplete) {
+      boolean adFinished = (wasPlayingAd && !playingAd)
+          || playingAdIndexInAdGroup != player.getCurrentAdIndexInAdGroup();
+      if (adFinished) {
+        // IMA is waiting for the ad playback to finish so invoke the callback now.
+        // Either CONTENT_RESUME_REQUESTED will be passed next, or playAd will be called again.
+        for (VideoAdPlayerCallback callback : adCallbacks) {
+          callback.onEnded();
+        }
+      }
+      if (!wasPlayingAd && playingAd) {
+        int adGroupIndex = player.getCurrentAdGroupIndex();
+        // IMA hasn't sent CONTENT_PAUSE_REQUESTED yet, so fake the content position.
+        Assertions.checkState(fakeContentProgressElapsedRealtimeMs == C.TIME_UNSET);
+        fakeContentProgressElapsedRealtimeMs = SystemClock.elapsedRealtime();
+        fakeContentProgressOffsetMs = C.usToMs(adPlaybackState.adGroupTimesUs[adGroupIndex]);
+        if (fakeContentProgressOffsetMs == C.TIME_END_OF_SOURCE) {
+          fakeContentProgressOffsetMs = contentDurationMs;
+        }
+      }
+    }
+    playingAdIndexInAdGroup = playingAd ? player.getCurrentAdIndexInAdGroup() : C.INDEX_UNSET;
+  }
+
   private void resumeContentInternal() {
-    if (contentDurationMs != C.TIME_UNSET && imaPlayingAd) {
-      // Work around an issue where IMA does not always call stopAd before resuming content.
-      // See [Internal: b/38354028].
+    if (imaPlayingAd) {
       if (DEBUG) {
         Log.d(TAG, "Unexpected CONTENT_RESUME_REQUESTED without stopAd");
       }
-      stopAdInternal();
+    }
+    if (playingAd && adGroupIndex != C.INDEX_UNSET) {
+      adPlaybackState.playedAdGroup(adGroupIndex);
+      adGroupIndex = C.INDEX_UNSET;
+      updateAdPlaybackState();
     }
     clearFlags();
   }
