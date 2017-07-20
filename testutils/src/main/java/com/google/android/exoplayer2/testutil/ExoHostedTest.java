@@ -25,6 +25,7 @@ import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.ExoPlayerFactory;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.PlaybackParameters;
+import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.RenderersFactory;
 import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.Timeline;
@@ -51,7 +52,7 @@ import junit.framework.Assert;
 /**
  * A {@link HostedTest} for {@link ExoPlayer} playback tests.
  */
-public abstract class ExoHostedTest implements HostedTest, ExoPlayer.EventListener,
+public abstract class ExoHostedTest implements HostedTest, Player.EventListener,
     AudioRendererEventListener, VideoRendererEventListener {
 
   static {
@@ -78,7 +79,7 @@ public abstract class ExoHostedTest implements HostedTest, ExoPlayer.EventListen
   private SimpleExoPlayer player;
   private Surface surface;
   private ExoPlaybackException playerError;
-  private ExoPlayer.EventListener playerEventListener;
+  private Player.EventListener playerEventListener;
   private boolean playerWasPrepared;
   private boolean playerFinished;
   private boolean playing;
@@ -131,9 +132,9 @@ public abstract class ExoHostedTest implements HostedTest, ExoPlayer.EventListen
   }
 
   /**
-   * Sets an {@link ExoPlayer.EventListener} to listen for ExoPlayer events during the test.
+   * Sets an {@link Player.EventListener} to listen for ExoPlayer events during the test.
    */
-  public final void setEventListener(ExoPlayer.EventListener eventListener) {
+  public final void setEventListener(Player.EventListener eventListener) {
     this.playerEventListener = eventListener;
     if (player != null) {
       player.addListener(eventListener);
@@ -200,7 +201,7 @@ public abstract class ExoHostedTest implements HostedTest, ExoPlayer.EventListen
     assertPassed(audioDecoderCounters, videoDecoderCounters);
   }
 
-  // ExoPlayer.EventListener
+  // Player.EventListener
 
   @Override
   public void onLoadingChanged(boolean isLoading) {
@@ -215,12 +216,12 @@ public abstract class ExoHostedTest implements HostedTest, ExoPlayer.EventListen
   @Override
   public final void onPlayerStateChanged(boolean playWhenReady, int playbackState) {
     Log.d(tag, "state [" + playWhenReady + ", " + playbackState + "]");
-    playerWasPrepared |= playbackState != ExoPlayer.STATE_IDLE;
-    if (playbackState == ExoPlayer.STATE_ENDED
-        || (playbackState == ExoPlayer.STATE_IDLE && playerWasPrepared)) {
+    playerWasPrepared |= playbackState != Player.STATE_IDLE;
+    if (playbackState == Player.STATE_ENDED
+        || (playbackState == Player.STATE_IDLE && playerWasPrepared)) {
       playerFinished = true;
     }
-    boolean playing = playWhenReady && playbackState == ExoPlayer.STATE_READY;
+    boolean playing = playWhenReady && playbackState == Player.STATE_READY;
     if (!this.playing && playing) {
       lastPlayingStartTimeMs = SystemClock.elapsedRealtime();
     } else if (this.playing && !playing) {

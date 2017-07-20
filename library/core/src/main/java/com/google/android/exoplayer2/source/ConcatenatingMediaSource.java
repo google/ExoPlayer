@@ -16,6 +16,7 @@
 package com.google.android.exoplayer2.source;
 
 import com.google.android.exoplayer2.ExoPlayer;
+import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.upstream.Allocator;
 import com.google.android.exoplayer2.util.Assertions;
@@ -51,8 +52,7 @@ public final class ConcatenatingMediaSource implements MediaSource {
 
   /**
    * @param isRepeatOneAtomic Whether the concatenated media source shall be treated as atomic
-   *     (i.e., repeated in its entirety) when repeat mode is set to
-   *     {@code ExoPlayer.REPEAT_MODE_ONE}.
+   *     (i.e., repeated in its entirety) when repeat mode is set to {@code Player.REPEAT_MODE_ONE}.
    * @param mediaSources The {@link MediaSource}s to concatenate. It is valid for the same
    *     {@link MediaSource} instance to be present more than once in the array.
    */
@@ -193,17 +193,17 @@ public final class ConcatenatingMediaSource implements MediaSource {
     }
 
     @Override
-    public int getNextWindowIndex(int windowIndex, @ExoPlayer.RepeatMode int repeatMode) {
-      if (isRepeatOneAtomic && repeatMode == ExoPlayer.REPEAT_MODE_ONE) {
-        repeatMode = ExoPlayer.REPEAT_MODE_ALL;
+    public int getNextWindowIndex(int windowIndex, @Player.RepeatMode int repeatMode) {
+      if (isRepeatOneAtomic && repeatMode == Player.REPEAT_MODE_ONE) {
+        repeatMode = Player.REPEAT_MODE_ALL;
       }
       return super.getNextWindowIndex(windowIndex, repeatMode);
     }
 
     @Override
-    public int getPreviousWindowIndex(int windowIndex, @ExoPlayer.RepeatMode int repeatMode) {
-      if (isRepeatOneAtomic && repeatMode == ExoPlayer.REPEAT_MODE_ONE) {
-        repeatMode = ExoPlayer.REPEAT_MODE_ALL;
+    public int getPreviousWindowIndex(int windowIndex, @Player.RepeatMode int repeatMode) {
+      if (isRepeatOneAtomic && repeatMode == Player.REPEAT_MODE_ONE) {
+        repeatMode = Player.REPEAT_MODE_ALL;
       }
       return super.getPreviousWindowIndex(windowIndex, repeatMode);
     }

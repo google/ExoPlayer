@@ -17,7 +17,7 @@ package com.google.android.exoplayer2.source;
 
 import android.util.Pair;
 import com.google.android.exoplayer2.C;
-import com.google.android.exoplayer2.ExoPlayer;
+import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.Timeline;
 
 /**
@@ -75,19 +75,19 @@ import com.google.android.exoplayer2.Timeline;
   }
 
   @Override
-  public int getNextWindowIndex(int windowIndex, @ExoPlayer.RepeatMode int repeatMode) {
+  public int getNextWindowIndex(int windowIndex, @Player.RepeatMode int repeatMode) {
     getChildDataByWindowIndex(windowIndex, childDataHolder);
     int firstWindowIndexInChild = childDataHolder.firstWindowIndexInChild;
     int nextWindowIndexInChild = childDataHolder.timeline.getNextWindowIndex(
         windowIndex - firstWindowIndexInChild,
-        repeatMode == ExoPlayer.REPEAT_MODE_ALL ? ExoPlayer.REPEAT_MODE_OFF : repeatMode);
+        repeatMode == Player.REPEAT_MODE_ALL ? Player.REPEAT_MODE_OFF : repeatMode);
     if (nextWindowIndexInChild != C.INDEX_UNSET) {
       return firstWindowIndexInChild + nextWindowIndexInChild;
     } else {
       firstWindowIndexInChild += childDataHolder.timeline.getWindowCount();
       if (firstWindowIndexInChild < getWindowCount()) {
         return firstWindowIndexInChild;
-      } else if (repeatMode == ExoPlayer.REPEAT_MODE_ALL) {
+      } else if (repeatMode == Player.REPEAT_MODE_ALL) {
         return 0;
       } else {
         return C.INDEX_UNSET;
@@ -96,18 +96,18 @@ import com.google.android.exoplayer2.Timeline;
   }
 
   @Override
-  public int getPreviousWindowIndex(int windowIndex, @ExoPlayer.RepeatMode int repeatMode) {
+  public int getPreviousWindowIndex(int windowIndex, @Player.RepeatMode int repeatMode) {
     getChildDataByWindowIndex(windowIndex, childDataHolder);
     int firstWindowIndexInChild = childDataHolder.firstWindowIndexInChild;
     int previousWindowIndexInChild = childDataHolder.timeline.getPreviousWindowIndex(
         windowIndex - firstWindowIndexInChild,
-        repeatMode == ExoPlayer.REPEAT_MODE_ALL ? ExoPlayer.REPEAT_MODE_OFF : repeatMode);
+        repeatMode == Player.REPEAT_MODE_ALL ? Player.REPEAT_MODE_OFF : repeatMode);
     if (previousWindowIndexInChild != C.INDEX_UNSET) {
       return firstWindowIndexInChild + previousWindowIndexInChild;
     } else {
       if (firstWindowIndexInChild > 0) {
         return firstWindowIndexInChild - 1;
-      } else if (repeatMode == ExoPlayer.REPEAT_MODE_ALL) {
+      } else if (repeatMode == Player.REPEAT_MODE_ALL) {
         return getWindowCount() - 1;
       } else {
         return C.INDEX_UNSET;

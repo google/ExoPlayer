@@ -172,7 +172,7 @@ import java.io.IOException;
   private boolean rebuffering;
   private boolean isLoading;
   private int state;
-  private @ExoPlayer.RepeatMode int repeatMode;
+  private @Player.RepeatMode int repeatMode;
   private int customMessagesSent;
   private int customMessagesProcessed;
   private long elapsedRealtimeUs;
@@ -188,7 +188,7 @@ import java.io.IOException;
   private Timeline timeline;
 
   public ExoPlayerImplInternal(Renderer[] renderers, TrackSelector trackSelector,
-      LoadControl loadControl, boolean playWhenReady, @ExoPlayer.RepeatMode int repeatMode,
+      LoadControl loadControl, boolean playWhenReady, @Player.RepeatMode int repeatMode,
       Handler eventHandler, PlaybackInfo playbackInfo, ExoPlayer player) {
     this.renderers = renderers;
     this.trackSelector = trackSelector;
@@ -196,7 +196,7 @@ import java.io.IOException;
     this.playWhenReady = playWhenReady;
     this.repeatMode = repeatMode;
     this.eventHandler = eventHandler;
-    this.state = ExoPlayer.STATE_IDLE;
+    this.state = Player.STATE_IDLE;
     this.playbackInfo = playbackInfo;
     this.player = player;
 
@@ -230,7 +230,7 @@ import java.io.IOException;
     handler.obtainMessage(MSG_SET_PLAY_WHEN_READY, playWhenReady ? 1 : 0, 0).sendToTarget();
   }
 
-  public void setRepeatMode(@ExoPlayer.RepeatMode int repeatMode) {
+  public void setRepeatMode(@Player.RepeatMode int repeatMode) {
     handler.obtainMessage(MSG_SET_REPEAT_MODE, repeatMode, 0).sendToTarget();
   }
 
@@ -423,7 +423,7 @@ import java.io.IOException;
     }
     this.mediaSource = mediaSource;
     mediaSource.prepareSource(player, true, this);
-    setState(ExoPlayer.STATE_BUFFERING);
+    setState(Player.STATE_BUFFERING);
     handler.sendEmptyMessage(MSG_DO_SOME_WORK);
   }
 
@@ -434,16 +434,16 @@ import java.io.IOException;
       stopRenderers();
       updatePlaybackPositions();
     } else {
-      if (state == ExoPlayer.STATE_READY) {
+      if (state == Player.STATE_READY) {
         startRenderers();
         handler.sendEmptyMessage(MSG_DO_SOME_WORK);
-      } else if (state == ExoPlayer.STATE_BUFFERING) {
+      } else if (state == Player.STATE_BUFFERING) {
         handler.sendEmptyMessage(MSG_DO_SOME_WORK);
       }
     }
   }
 
-  private void setRepeatModeInternal(@ExoPlayer.RepeatMode int repeatMode)
+  private void setRepeatModeInternal(@Player.RepeatMode int repeatMode)
       throws ExoPlaybackException {
     this.repeatMode = repeatMode;
     mediaPeriodInfoSequence.setRepeatMode(repeatMode);
@@ -594,38 +594,38 @@ import java.io.IOException;
         && (playingPeriodDurationUs == C.TIME_UNSET
         || playingPeriodDurationUs <= playbackInfo.positionUs)
         && playingPeriodHolder.info.isFinal) {
-      setState(ExoPlayer.STATE_ENDED);
+      setState(Player.STATE_ENDED);
       stopRenderers();
-    } else if (state == ExoPlayer.STATE_BUFFERING) {
+    } else if (state == Player.STATE_BUFFERING) {
       boolean isNewlyReady = enabledRenderers.length > 0
           ? (allRenderersReadyOrEnded
               && loadingPeriodHolder.haveSufficientBuffer(rebuffering, rendererPositionUs))
           : isTimelineReady(playingPeriodDurationUs);
       if (isNewlyReady) {
-        setState(ExoPlayer.STATE_READY);
+        setState(Player.STATE_READY);
         if (playWhenReady) {
           startRenderers();
         }
       }
-    } else if (state == ExoPlayer.STATE_READY) {
+    } else if (state == Player.STATE_READY) {
       boolean isStillReady = enabledRenderers.length > 0 ? allRenderersReadyOrEnded
           : isTimelineReady(playingPeriodDurationUs);
       if (!isStillReady) {
         rebuffering = playWhenReady;
-        setState(ExoPlayer.STATE_BUFFERING);
+        setState(Player.STATE_BUFFERING);
         stopRenderers();
       }
     }
 
-    if (state == ExoPlayer.STATE_BUFFERING) {
+    if (state == Player.STATE_BUFFERING) {
       for (Renderer renderer : enabledRenderers) {
         renderer.maybeThrowStreamError();
       }
     }
 
-    if ((playWhenReady && state == ExoPlayer.STATE_READY) || state == ExoPlayer.STATE_BUFFERING) {
+    if ((playWhenReady && state == Player.STATE_READY) || state == Player.STATE_BUFFERING) {
       scheduleNextWork(operationStartTimeMs, RENDERING_INTERVAL_MS);
-    } else if (enabledRenderers.length != 0 && state != ExoPlayer.STATE_ENDED) {
+    } else if (enabledRenderers.length != 0 && state != Player.STATE_ENDED) {
       scheduleNextWork(operationStartTimeMs, IDLE_INTERVAL_MS);
     } else {
       handler.removeMessages(MSG_DO_SOME_WORK);
@@ -661,7 +661,7 @@ import java.io.IOException;
       // Set the internal position to (0,TIME_UNSET) so that a subsequent seek to (0,0) isn't
       // ignored.
       playbackInfo = new PlaybackInfo(0, C.TIME_UNSET);
-      setState(ExoPlayer.STATE_ENDED);
+      setState(Player.STATE_ENDED);
       // Reset, but retain the source so that it can still be used should a seek occur.
       resetInternal(false);
       return;
@@ -697,7 +697,7 @@ import java.io.IOException;
       throws ExoPlaybackException {
     stopRenderers();
     rebuffering = false;
-    setState(ExoPlayer.STATE_BUFFERING);
+    setState(Player.STATE_BUFFERING);
 
     MediaPeriodHolder newPlayingPeriodHolder = null;
     if (playingPeriodHolder == null) {
@@ -787,13 +787,13 @@ import java.io.IOException;
   private void stopInternal() {
     resetInternal(true);
     loadControl.onStopped();
-    setState(ExoPlayer.STATE_IDLE);
+    setState(Player.STATE_IDLE);
   }
 
   private void releaseInternal() {
     resetInternal(true);
     loadControl.onReleased();
-    setState(ExoPlayer.STATE_IDLE);
+    setState(Player.STATE_IDLE);
     synchronized (this) {
       released = true;
       notifyAll();
@@ -838,7 +838,7 @@ import java.io.IOException;
       for (ExoPlayerMessage message : messages) {
         message.target.handleMessage(message.messageType, message.message);
       }
-      if (state == ExoPlayer.STATE_READY || state == ExoPlayer.STATE_BUFFERING) {
+      if (state == Player.STATE_READY || state == Player.STATE_BUFFERING) {
         // The message may have caused something to change that now requires us to do work.
         handler.sendEmptyMessage(MSG_DO_SOME_WORK);
       }
@@ -1114,7 +1114,7 @@ import java.io.IOException;
     notifySourceInfoRefresh(manifest, processedInitialSeekCount);
     // Set the internal position to (0,TIME_UNSET) so that a subsequent seek to (0,0) isn't ignored.
     playbackInfo = new PlaybackInfo(0, C.TIME_UNSET);
-    setState(ExoPlayer.STATE_ENDED);
+    setState(Player.STATE_ENDED);
     // Reset, but retain the source so that it can still be used should a seek occur.
     resetInternal(false);
   }
@@ -1427,7 +1427,7 @@ import java.io.IOException;
           RendererConfiguration rendererConfiguration =
               playingPeriodHolder.trackSelectorResult.rendererConfigurations[i];
           // The renderer needs enabling with its new track selection.
-          boolean playing = playWhenReady && state == ExoPlayer.STATE_READY;
+          boolean playing = playWhenReady && state == Player.STATE_READY;
           // Consider as joining only if the renderer was previously disabled.
           boolean joining = !rendererWasEnabledFlags[i] && playing;
           // Build an array of formats contained by the selection.

@@ -43,6 +43,7 @@ import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.ExoPlayerLibraryInfo;
 import com.google.android.exoplayer2.PlaybackParameters;
+import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
@@ -54,7 +55,7 @@ import java.util.List;
 /**
  * Loads ads using the IMA SDK. All methods are called on the main thread.
  */
-public final class ImaAdsLoader implements ExoPlayer.EventListener, VideoAdPlayer,
+public final class ImaAdsLoader implements Player.EventListener, VideoAdPlayer,
     ContentProgressProvider, AdErrorListener, AdsLoadedListener, AdEventListener {
 
   /**
@@ -107,7 +108,7 @@ public final class ImaAdsLoader implements ExoPlayer.EventListener, VideoAdPlaye
   private final AdsLoader adsLoader;
 
   private EventListener eventListener;
-  private ExoPlayer player;
+  private Player player;
   private VideoProgressUpdate lastContentProgress;
   private VideoProgressUpdate lastAdProgress;
 
@@ -485,7 +486,7 @@ public final class ImaAdsLoader implements ExoPlayer.EventListener, VideoAdPlaye
     throw new IllegalStateException();
   }
 
-  // ExoPlayer.EventListener implementation.
+  // Player.EventListener implementation.
 
   @Override
   public void onTimelineChanged(Timeline timeline, Object manifest) {
@@ -516,9 +517,9 @@ public final class ImaAdsLoader implements ExoPlayer.EventListener, VideoAdPlaye
       return;
     }
 
-    if (!imaPlayingAd && playbackState == ExoPlayer.STATE_BUFFERING && playWhenReady) {
+    if (!imaPlayingAd && playbackState == Player.STATE_BUFFERING && playWhenReady) {
       checkForContentComplete();
-    } else if (imaPlayingAd && playbackState == ExoPlayer.STATE_ENDED) {
+    } else if (imaPlayingAd && playbackState == Player.STATE_ENDED) {
       // IMA is waiting for the ad playback to finish so invoke the callback now.
       // Either CONTENT_RESUME_REQUESTED will be passed next, or playAd will be called again.
       for (VideoAdPlayerCallback callback : adCallbacks) {

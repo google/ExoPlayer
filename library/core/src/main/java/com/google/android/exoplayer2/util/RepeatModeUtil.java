@@ -16,9 +16,7 @@
 package com.google.android.exoplayer2.util;
 
 import android.support.annotation.IntDef;
-
-import com.google.android.exoplayer2.ExoPlayer;
-
+import com.google.android.exoplayer2.Player;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
@@ -58,10 +56,10 @@ public final class RepeatModeUtil {
    * @param enabledModes Bitmask of enabled modes.
    * @return The next repeat mode.
    */
-  public static @ExoPlayer.RepeatMode int getNextRepeatMode(
-      @ExoPlayer.RepeatMode int currentMode, int enabledModes) {
+  public static @Player.RepeatMode int getNextRepeatMode(@Player.RepeatMode int currentMode,
+      int enabledModes) {
     for (int offset = 1; offset <= 2; offset++) {
-      @ExoPlayer.RepeatMode int proposedMode = (currentMode + offset) % 3;
+      @Player.RepeatMode int proposedMode = (currentMode + offset) % 3;
       if (isRepeatModeEnabled(proposedMode, enabledModes)) {
         return proposedMode;
       }
@@ -76,14 +74,13 @@ public final class RepeatModeUtil {
    * @param enabledModes The bitmask representing the enabled modes.
    * @return {@code true} if enabled.
    */
-  public static boolean isRepeatModeEnabled(@ExoPlayer.RepeatMode int repeatMode,
-      int enabledModes) {
+  public static boolean isRepeatModeEnabled(@Player.RepeatMode int repeatMode, int enabledModes) {
     switch (repeatMode) {
-      case ExoPlayer.REPEAT_MODE_OFF:
+      case Player.REPEAT_MODE_OFF:
         return true;
-      case ExoPlayer.REPEAT_MODE_ONE:
+      case Player.REPEAT_MODE_ONE:
         return (enabledModes & REPEAT_TOGGLE_MODE_ONE) != 0;
-      case ExoPlayer.REPEAT_MODE_ALL:
+      case Player.REPEAT_MODE_ALL:
         return (enabledModes & REPEAT_TOGGLE_MODE_ALL) != 0;
       default:
         return false;

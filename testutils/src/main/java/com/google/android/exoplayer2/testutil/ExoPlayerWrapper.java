@@ -22,6 +22,7 @@ import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.ExoPlayerFactory;
 import com.google.android.exoplayer2.PlaybackParameters;
+import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.Renderer;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.source.MediaSource;
@@ -37,7 +38,7 @@ import junit.framework.Assert;
 /**
  * Wraps a player with its own handler thread.
  */
-public class ExoPlayerWrapper implements ExoPlayer.EventListener {
+public class ExoPlayerWrapper implements Player.EventListener {
 
   private final CountDownLatch sourceInfoCountDownLatch;
   private final CountDownLatch endedCountDownLatch;
@@ -142,7 +143,7 @@ public class ExoPlayerWrapper implements ExoPlayer.EventListener {
     }
   }
 
-  // ExoPlayer.EventListener implementation.
+  // Player.EventListener implementation.
 
   @Override
   public void onLoadingChanged(boolean isLoading) {
@@ -151,7 +152,7 @@ public class ExoPlayerWrapper implements ExoPlayer.EventListener {
 
   @Override
   public void onPlayerStateChanged(boolean playWhenReady, int playbackState) {
-    if (playbackState == ExoPlayer.STATE_ENDED) {
+    if (playbackState == Player.STATE_ENDED) {
       endedCountDownLatch.countDown();
     }
   }

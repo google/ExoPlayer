@@ -17,9 +17,9 @@ package com.google.android.exoplayer2.ui;
 
 import android.widget.TextView;
 import com.google.android.exoplayer2.ExoPlaybackException;
-import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.PlaybackParameters;
+import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.decoder.DecoderCounters;
@@ -30,7 +30,7 @@ import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
  * A helper class for periodically updating a {@link TextView} with debug information obtained from
  * a {@link SimpleExoPlayer}.
  */
-public final class DebugTextViewHelper implements Runnable, ExoPlayer.EventListener {
+public final class DebugTextViewHelper implements Runnable, Player.EventListener {
 
   private static final int REFRESH_INTERVAL_MS = 1000;
 
@@ -74,7 +74,7 @@ public final class DebugTextViewHelper implements Runnable, ExoPlayer.EventListe
     textView.removeCallbacks(this);
   }
 
-  // ExoPlayer.EventListener implementation.
+  // Player.EventListener implementation.
 
   @Override
   public void onLoadingChanged(boolean isLoading) {
@@ -135,16 +135,16 @@ public final class DebugTextViewHelper implements Runnable, ExoPlayer.EventListe
   private String getPlayerStateString() {
     String text = "playWhenReady:" + player.getPlayWhenReady() + " playbackState:";
     switch (player.getPlaybackState()) {
-      case ExoPlayer.STATE_BUFFERING:
+      case Player.STATE_BUFFERING:
         text += "buffering";
         break;
-      case ExoPlayer.STATE_ENDED:
+      case Player.STATE_ENDED:
         text += "ended";
         break;
-      case ExoPlayer.STATE_IDLE:
+      case Player.STATE_IDLE:
         text += "idle";
         break;
-      case ExoPlayer.STATE_READY:
+      case Player.STATE_READY:
         text += "ready";
         break;
       default:
