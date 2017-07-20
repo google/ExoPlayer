@@ -32,11 +32,9 @@ import android.support.v4.media.session.PlaybackStateCompat;
 import android.util.Pair;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlaybackException;
-import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.ExoPlayerLibraryInfo;
 import com.google.android.exoplayer2.PlaybackParameters;
 import com.google.android.exoplayer2.Player;
-import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
@@ -46,8 +44,8 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Mediates between a {@link MediaSessionCompat} and an {@link SimpleExoPlayer} instance set with
- * {@link #setPlayer(SimpleExoPlayer, CustomActionProvider...)}.
+ * Mediates between a {@link MediaSessionCompat} and an {@link Player} instance set with
+ * {@link #setPlayer(Player, PlaybackPreparer, CustomActionProvider...)}.
  * <p>
  * By default the {@code MediaSessionConnector} listens for {@link #DEFAULT_PLAYBACK_ACTIONS} sent
  * by a media controller and realizes these actions by calling appropriate ExoPlayer methods.
@@ -110,28 +108,32 @@ public final class MediaSessionConnector {
    * Normally preparing playback includes preparing the player with a
    * {@link com.google.android.exoplayer2.source.MediaSource} and setting up the media session queue
    * with a corresponding list of queue items.
+   * <p>
+   * The {@link PlaybackPreparer} handles the media actions {@code ACTION_PREPARE},
+   * {@code ACTION_PREPARE_FROM_MEDIA_ID}, {@code ACTION_PREPARE_FROM_URI} and
+   * {@code ACTION_PREPARE_FROM_SEARCH}.
    */
   public interface PlaybackPreparer extends PlaybackActionSupport {
     /**
      * See {@link MediaSessionCompat.Callback#onPrepare()}.
      */
-    void onPrepare(ExoPlayer player);
+    void onPrepare();
     /**
      * See {@link MediaSessionCompat.Callback#onPrepareFromMediaId(String, Bundle)}.
      */
-    void onPrepareFromMediaId(ExoPlayer player, String mediaId, Bundle extras);
+    void onPrepareFromMediaId(String mediaId, Bundle extras);
     /**
      * See {@link MediaSessionCompat.Callback#onPrepareFromSearch(String, Bundle)}.
      */
-    void onPrepareFromSearch(ExoPlayer player, String query, Bundle extras);
+    void onPrepareFromSearch(String query, Bundle extras);
     /**
      * See {@link MediaSessionCompat.Callback#onPrepareFromUri(Uri, Bundle)}.
      */
-    void onPrepareFromUri(ExoPlayer player, Uri uri, Bundle extras);
+    void onPrepareFromUri(Uri uri, Bundle extras);
     /**
      * See {@link MediaSessionCompat.Callback#onCommand(String, Bundle, ResultReceiver)}.
      */
-    void onCommand(ExoPlayer player, String command, Bundle extras, ResultReceiver cb);
+    void onCommand(String command, Bundle extras, ResultReceiver cb);
   }
 
   /**
@@ -144,13 +146,13 @@ public final class MediaSessionConnector {
      *
      * @param player The player of which the timeline has changed.
      */
-    void onTimelineChanged(ExoPlayer player);
+    void onTimelineChanged(Player player);
     /**
      * Called when the current window index changed.
      *
      * @param player The player of which the current window index of the timeline has changed.
      */
-    void onCurrentWindowIndexChanged(ExoPlayer player);
+    void onCurrentWindowIndexChanged(Player player);
     /**
      * Gets the id of the currently active queue item or
      * {@link MediaSessionCompat.QueueItem#UNKNOWN_ID} if the active item is unknown.
@@ -162,23 +164,23 @@ public final class MediaSessionConnector {
      * @param player The player connected to the media session.
      * @return The id of the active queue item.
      */
-    long getActiveQueueItemId(@Nullable ExoPlayer player);
+    long getActiveQueueItemId(@Nullable Player player);
     /**
      * See {@link MediaSessionCompat.Callback#onSkipToPrevious()}.
      */
-    void onSkipToPrevious(ExoPlayer player);
+    void onSkipToPrevious(Player player);
     /**
      * See {@link MediaSessionCompat.Callback#onSkipToQueueItem(long)}.
      */
-    void onSkipToQueueItem(ExoPlayer player, long id);
+    void onSkipToQueueItem(Player player, long id);
     /**
      * See {@link MediaSessionCompat.Callback#onSkipToNext()}.
      */
-    void onSkipToNext(ExoPlayer player);
+    void onSkipToNext(Player player);
     /**
      * See {@link MediaSessionCompat.Callback#onSetShuffleModeEnabled(boolean)}.
      */
-    void onSetShuffleModeEnabled(ExoPlayer player, boolean enabled);
+    void onSetShuffleModeEnabled(Player player, boolean enabled);
   }
 
   /**
@@ -188,25 +190,25 @@ public final class MediaSessionConnector {
     /**
      * See {@link MediaSessionCompat.Callback#onAddQueueItem(MediaDescriptionCompat description)}.
      */
-    void onAddQueueItem(ExoPlayer player, MediaDescriptionCompat description);
+    void onAddQueueItem(Player player, MediaDescriptionCompat description);
     /**
      * See {@link MediaSessionCompat.Callback#onAddQueueItem(MediaDescriptionCompat description,
      * int index)}.
      */
-    void onAddQueueItem(ExoPlayer player, MediaDescriptionCompat description, int index);
+    void onAddQueueItem(Player player, MediaDescriptionCompat description, int index);
     /**
      * See {@link MediaSessionCompat.Callback#onRemoveQueueItem(MediaDescriptionCompat
      * description)}.
      */
-    void onRemoveQueueItem(ExoPlayer player, MediaDescriptionCompat description);
+    void onRemoveQueueItem(Player player, MediaDescriptionCompat description);
     /**
      * See {@link MediaSessionCompat.Callback#onRemoveQueueItemAt(int index)}.
      */
-    void onRemoveQueueItemAt(ExoPlayer player, int index);
+    void onRemoveQueueItemAt(Player player, int index);
     /**
      * See {@link MediaSessionCompat.Callback#onSetRating(RatingCompat)}.
      */
-    void onSetRating(ExoPlayer player, RatingCompat rating);
+    void onSetRating(Player player, RatingCompat rating);
   }
 
   /**
@@ -253,7 +255,7 @@ public final class MediaSessionConnector {
   private final ExoPlayerEventListener exoPlayerEventListener;
   private final MediaSessionCallback mediaSessionCallback;
 
-  private SimpleExoPlayer player;
+  private Player player;
   private CustomActionProvider[] customActionProviders;
   private int currentWindowIndex;
   private long playbackActions;
@@ -319,14 +321,17 @@ public final class MediaSessionConnector {
    * actions published with the playback state of the session.
    *
    * @param player The player to be connected to the {@code MediaSession}.
+   * @param playbackPreparer The playback preparer for the player.
    * @param customActionProviders Optional {@link CustomActionProvider}s to publish and handle
    *     custom actions.
    */
-  public void setPlayer(SimpleExoPlayer player, CustomActionProvider... customActionProviders) {
+  public void setPlayer(Player player, PlaybackPreparer playbackPreparer,
+      CustomActionProvider... customActionProviders) {
     if (this.player != null) {
       this.player.removeListener(exoPlayerEventListener);
       mediaSession.setCallback(null);
     }
+    setPlaybackPreparer(playbackPreparer);
     this.player = player;
     this.customActionProviders = (player != null && customActionProviders != null)
         ? customActionProviders : new CustomActionProvider[0];
@@ -441,16 +446,7 @@ public final class MediaSessionConnector {
     }
   }
 
-  /**
-   * Sets the {@link PlaybackPreparer} to which preparation commands sent by a media
-   * controller are delegated.
-   * <p>
-   * Required to work properly with Android Auto which requires
-   * {@link PlaybackStateCompat#ACTION_PREPARE_FROM_MEDIA_ID}.
-   *
-   * @param playbackPreparer The preparer to delegate to.
-   */
-  public void setPlaybackPreparer(PlaybackPreparer playbackPreparer) {
+  private void setPlaybackPreparer(PlaybackPreparer playbackPreparer) {
     if (this.playbackPreparer != null) {
       removePlaybackActions(this.playbackPreparer.getSupportedPlaybackActions());
     }
@@ -740,7 +736,7 @@ public final class MediaSessionConnector {
     @Override
     public void onCommand(String command, Bundle extras, ResultReceiver cb) {
       if (playbackPreparer != null) {
-        playbackPreparer.onCommand(player, command, extras, cb);
+        playbackPreparer.onCommand(command, extras, cb);
       }
     }
 
@@ -749,7 +745,7 @@ public final class MediaSessionConnector {
       if (canDispatchToPlaybackPreparer(PlaybackStateCompat.ACTION_PREPARE)) {
         player.stop();
         player.setPlayWhenReady(false);
-        playbackPreparer.onPrepare(player);
+        playbackPreparer.onPrepare();
       }
     }
 
@@ -758,7 +754,7 @@ public final class MediaSessionConnector {
       if (canDispatchToPlaybackPreparer(PlaybackStateCompat.ACTION_PREPARE_FROM_MEDIA_ID)) {
         player.stop();
         player.setPlayWhenReady(false);
-        playbackPreparer.onPrepareFromMediaId(player, mediaId, extras);
+        playbackPreparer.onPrepareFromMediaId(mediaId, extras);
       }
     }
 
@@ -767,7 +763,7 @@ public final class MediaSessionConnector {
       if (canDispatchToPlaybackPreparer(PlaybackStateCompat.ACTION_PREPARE_FROM_SEARCH)) {
         player.stop();
         player.setPlayWhenReady(false);
-        playbackPreparer.onPrepareFromSearch(player, query, extras);
+        playbackPreparer.onPrepareFromSearch(query, extras);
       }
     }
 
@@ -776,7 +772,7 @@ public final class MediaSessionConnector {
       if (canDispatchToPlaybackPreparer(PlaybackStateCompat.ACTION_PREPARE_FROM_URI)) {
         player.stop();
         player.setPlayWhenReady(false);
-        playbackPreparer.onPrepareFromUri(player, uri, extras);
+        playbackPreparer.onPrepareFromUri(uri, extras);
       }
     }
 
@@ -785,7 +781,7 @@ public final class MediaSessionConnector {
       if (canDispatchToPlaybackPreparer(PlaybackStateCompat.ACTION_PLAY_FROM_MEDIA_ID)) {
         player.stop();
         player.setPlayWhenReady(true);
-        playbackPreparer.onPrepareFromMediaId(player, mediaId, extras);
+        playbackPreparer.onPrepareFromMediaId(mediaId, extras);
       }
     }
 
@@ -794,7 +790,7 @@ public final class MediaSessionConnector {
       if (canDispatchToPlaybackPreparer(PlaybackStateCompat.ACTION_PLAY_FROM_SEARCH)) {
         player.stop();
         player.setPlayWhenReady(true);
-        playbackPreparer.onPrepareFromSearch(player, query, extras);
+        playbackPreparer.onPrepareFromSearch(query, extras);
       }
     }
 
@@ -803,7 +799,7 @@ public final class MediaSessionConnector {
       if (canDispatchToPlaybackPreparer(PlaybackStateCompat.ACTION_PLAY_FROM_URI)) {
         player.stop();
         player.setPlayWhenReady(true);
-        playbackPreparer.onPrepareFromUri(player, uri, extras);
+        playbackPreparer.onPrepareFromUri(uri, extras);
       }
     }
 
