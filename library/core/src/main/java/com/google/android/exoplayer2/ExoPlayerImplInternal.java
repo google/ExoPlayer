@@ -1054,6 +1054,19 @@ import java.io.IOException;
       return;
     }
 
+    // If playing an ad, check that it hasn't been marked as played. If it has, skip forward.
+    if (playbackInfo.periodId.isAd()) {
+      MediaPeriodId periodId = mediaPeriodInfoSequence.resolvePeriodPositionForAds(periodIndex,
+          playbackInfo.contentPositionUs);
+      if (!periodId.isAd() || periodId.adIndexInAdGroup != playbackInfo.periodId.adIndexInAdGroup) {
+        long newPositionUs = seekToPeriodPosition(periodId, playbackInfo.contentPositionUs);
+        long contentPositionUs = periodId.isAd() ? playbackInfo.contentPositionUs : C.TIME_UNSET;
+        playbackInfo = new PlaybackInfo(periodId, newPositionUs, contentPositionUs);
+        notifySourceInfoRefresh(manifest, processedInitialSeekCount);
+        return;
+      }
+    }
+
     // The current period is in the new timeline. Update the holder and playbackInfo.
     periodHolder = updatePeriodInfo(periodHolder, periodIndex);
     if (periodIndex != playbackInfo.periodId.periodIndex) {

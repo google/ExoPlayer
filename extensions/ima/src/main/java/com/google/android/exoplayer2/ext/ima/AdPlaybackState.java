@@ -123,6 +123,17 @@ import java.util.Arrays;
   }
 
   /**
+   * Marks all ads in the specified ad group as played.
+   */
+  public void playedAdGroup(int adGroupIndex) {
+    adResumePositionUs = 0;
+    if (adCounts[adGroupIndex] == C.LENGTH_UNSET) {
+      adCounts[adGroupIndex] = 0;
+    }
+    adsPlayedCounts[adGroupIndex] = adCounts[adGroupIndex];
+  }
+
+  /**
    * Sets the position offset in the first unplayed ad at which to begin playback, in microseconds.
    */
   public void setAdResumePositionUs(long adResumePositionUs) {
