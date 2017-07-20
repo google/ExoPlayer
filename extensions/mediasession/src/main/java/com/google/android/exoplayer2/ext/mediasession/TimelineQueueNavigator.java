@@ -20,7 +20,7 @@ import android.support.v4.media.MediaDescriptionCompat;
 import android.support.v4.media.session.MediaSessionCompat;
 import android.support.v4.media.session.PlaybackStateCompat;
 import com.google.android.exoplayer2.C;
-import com.google.android.exoplayer2.ExoPlayer;
+import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.util.Util;
 
@@ -30,7 +30,7 @@ import java.util.List;
 
 /**
  * An abstract implementation of the {@link MediaSessionConnector.QueueNavigator} that's based on an
- * {@link ExoPlayer}'s current {@link Timeline} and maps the timeline of the player to the media
+ * {@link Player}'s current {@link Timeline} and maps the timeline of the player to the media
  * session queue.
  */
 public abstract class TimelineQueueNavigator implements MediaSessionConnector.QueueNavigator {
@@ -87,22 +87,22 @@ public abstract class TimelineQueueNavigator implements MediaSessionConnector.Qu
   }
 
   @Override
-  public void onTimelineChanged(ExoPlayer player) {
+  public void onTimelineChanged(Player player) {
     publishFloatingQueueWindow(player);
   }
 
   @Override
-  public void onCurrentWindowIndexChanged(ExoPlayer player) {
+  public void onCurrentWindowIndexChanged(Player player) {
     publishFloatingQueueWindow(player);
   }
 
   @Override
-  public final long getActiveQueueItemId(@Nullable ExoPlayer player) {
+  public final long getActiveQueueItemId(@Nullable Player player) {
     return activeQueueItemId;
   }
 
   @Override
-  public final void onSkipToPrevious(ExoPlayer player) {
+  public final void onSkipToPrevious(Player player) {
     Timeline timeline = player.getCurrentTimeline();
     if (timeline.isEmpty()) {
       return;
@@ -118,7 +118,7 @@ public abstract class TimelineQueueNavigator implements MediaSessionConnector.Qu
   }
 
   @Override
-  public final void onSkipToQueueItem(ExoPlayer player, long id) {
+  public final void onSkipToQueueItem(Player player, long id) {
     Timeline timeline = player.getCurrentTimeline();
     if (timeline.isEmpty()) {
       return;
@@ -130,7 +130,7 @@ public abstract class TimelineQueueNavigator implements MediaSessionConnector.Qu
   }
 
   @Override
-  public final void onSkipToNext(ExoPlayer player) {
+  public final void onSkipToNext(Player player) {
     Timeline timeline = player.getCurrentTimeline();
     if (timeline.isEmpty()) {
       return;
@@ -143,11 +143,11 @@ public abstract class TimelineQueueNavigator implements MediaSessionConnector.Qu
   }
 
   @Override
-  public void onSetShuffleModeEnabled(ExoPlayer player, boolean enabled) {
+  public void onSetShuffleModeEnabled(Player player, boolean enabled) {
     // TODO: Implement this.
   }
 
-  private void publishFloatingQueueWindow(ExoPlayer player) {
+  private void publishFloatingQueueWindow(Player player) {
     if (player.getCurrentTimeline().isEmpty()) {
       mediaSession.setQueue(Collections.<MediaSessionCompat.QueueItem>emptyList());
       activeQueueItemId = MediaSessionCompat.QueueItem.UNKNOWN_ID;

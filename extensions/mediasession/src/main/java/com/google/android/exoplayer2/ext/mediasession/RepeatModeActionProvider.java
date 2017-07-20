@@ -18,7 +18,6 @@ package com.google.android.exoplayer2.ext.mediasession;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.media.session.PlaybackStateCompat;
-import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.util.RepeatModeUtil;
 
@@ -32,7 +31,7 @@ public final class RepeatModeActionProvider implements MediaSessionConnector.Cus
   private static final int DEFAULT_REPEAT_MODES = RepeatModeUtil.REPEAT_TOGGLE_MODE_ONE
       | RepeatModeUtil.REPEAT_TOGGLE_MODE_ALL;
 
-  private final ExoPlayer player;
+  private final Player player;
   @RepeatModeUtil.RepeatToggleModes
   private final int repeatToggleModes;
   private final CharSequence repeatAllDescription;
@@ -48,7 +47,7 @@ public final class RepeatModeActionProvider implements MediaSessionConnector.Cus
    * @param context The context.
    * @param player The player on which to toggle the repeat mode.
    */
-  public RepeatModeActionProvider(Context context, ExoPlayer player) {
+  public RepeatModeActionProvider(Context context, Player player) {
     this(context, player, DEFAULT_REPEAT_MODES);
   }
 
@@ -59,7 +58,7 @@ public final class RepeatModeActionProvider implements MediaSessionConnector.Cus
    * @param player The player on which to toggle the repeat mode.
    * @param repeatToggleModes The toggle modes to enable.
    */
-  public RepeatModeActionProvider(Context context, ExoPlayer player,
+  public RepeatModeActionProvider(Context context, Player player,
       @RepeatModeUtil.RepeatToggleModes int repeatToggleModes) {
     this.player = player;
     this.repeatToggleModes = repeatToggleModes;
