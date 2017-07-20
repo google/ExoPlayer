@@ -17,6 +17,7 @@ package com.google.android.exoplayer2.source;
 
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlayer;
+import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.upstream.Allocator;
 import com.google.android.exoplayer2.util.Assertions;
@@ -161,13 +162,13 @@ public final class LoopingMediaSource implements MediaSource {
     }
 
     @Override
-    public int getNextWindowIndex(int windowIndex, @ExoPlayer.RepeatMode int repeatMode) {
+    public int getNextWindowIndex(int windowIndex, @Player.RepeatMode int repeatMode) {
       int childNextWindowIndex = childTimeline.getNextWindowIndex(windowIndex, repeatMode);
       return childNextWindowIndex == C.INDEX_UNSET ? 0 : childNextWindowIndex;
     }
 
     @Override
-    public int getPreviousWindowIndex(int windowIndex, @ExoPlayer.RepeatMode int repeatMode) {
+    public int getPreviousWindowIndex(int windowIndex, @Player.RepeatMode int repeatMode) {
       int childPreviousWindowIndex = childTimeline.getPreviousWindowIndex(windowIndex, repeatMode);
       return childPreviousWindowIndex == C.INDEX_UNSET ? getWindowCount() - 1
           : childPreviousWindowIndex;

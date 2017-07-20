@@ -216,13 +216,13 @@ public final class ExoPlayerTest extends TestCase {
         new TimelineWindowDefinition(true, false, 100000),
         new TimelineWindowDefinition(true, false, 100000));
     final int[] actionSchedule = { // 0 -> 1
-        ExoPlayer.REPEAT_MODE_ONE, // 1 -> 1
-        ExoPlayer.REPEAT_MODE_OFF, // 1 -> 2
-        ExoPlayer.REPEAT_MODE_ONE, // 2 -> 2
-        ExoPlayer.REPEAT_MODE_ALL, // 2 -> 0
-        ExoPlayer.REPEAT_MODE_ONE, // 0 -> 0
+        Player.REPEAT_MODE_ONE, // 1 -> 1
+        Player.REPEAT_MODE_OFF, // 1 -> 2
+        Player.REPEAT_MODE_ONE, // 2 -> 2
+        Player.REPEAT_MODE_ALL, // 2 -> 0
+        Player.REPEAT_MODE_ONE, // 0 -> 0
         -1, // 0 -> 0
-        ExoPlayer.REPEAT_MODE_OFF, // 0 -> 1
+        Player.REPEAT_MODE_OFF, // 0 -> 1
         -1, // 1 -> 2
         -1  // 2 -> ended
     };

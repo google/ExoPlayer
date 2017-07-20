@@ -18,7 +18,7 @@ package com.google.android.exoplayer2.testutil;
 import static junit.framework.Assert.assertEquals;
 
 import com.google.android.exoplayer2.C;
-import com.google.android.exoplayer2.ExoPlayer;
+import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.Timeline.Period;
 import com.google.android.exoplayer2.Timeline.Window;
@@ -71,7 +71,7 @@ public final class TimelineAsserts {
    * mode.
    */
   public static void assertPreviousWindowIndices(Timeline timeline,
-      @ExoPlayer.RepeatMode int repeatMode, int... expectedPreviousWindowIndices) {
+      @Player.RepeatMode int repeatMode, int... expectedPreviousWindowIndices) {
     for (int i = 0; i < timeline.getWindowCount(); i++) {
       assertEquals(expectedPreviousWindowIndices[i],
           timeline.getPreviousWindowIndex(i, repeatMode));
@@ -82,8 +82,8 @@ public final class TimelineAsserts {
    * Asserts that next window indices for each window are set correctly depending on the repeat
    * mode.
    */
-  public static void assertNextWindowIndices(Timeline timeline,
-      @ExoPlayer.RepeatMode int repeatMode, int... expectedNextWindowIndices) {
+  public static void assertNextWindowIndices(Timeline timeline, @Player.RepeatMode int repeatMode,
+      int... expectedNextWindowIndices) {
     for (int i = 0; i < timeline.getWindowCount(); i++) {
       assertEquals(expectedNextWindowIndices[i],
           timeline.getNextWindowIndex(i, repeatMode));
@@ -119,19 +119,16 @@ public final class TimelineAsserts {
       }
       assertEquals(expectedWindowIndex, period.windowIndex);
       if (i < accumulatedPeriodCounts[expectedWindowIndex + 1] - 1) {
-        assertEquals(i + 1, timeline.getNextPeriodIndex(i, period, window,
-            ExoPlayer.REPEAT_MODE_OFF));
-        assertEquals(i + 1, timeline.getNextPeriodIndex(i, period, window,
-            ExoPlayer.REPEAT_MODE_ONE));
-        assertEquals(i + 1, timeline.getNextPeriodIndex(i, period, window,
-            ExoPlayer.REPEAT_MODE_ALL));
+        assertEquals(i + 1, timeline.getNextPeriodIndex(i, period, window, Player.REPEAT_MODE_OFF));
+        assertEquals(i + 1, timeline.getNextPeriodIndex(i, period, window, Player.REPEAT_MODE_ONE));
+        assertEquals(i + 1, timeline.getNextPeriodIndex(i, period, window, Player.REPEAT_MODE_ALL));
       } else {
         int nextWindowOff = timeline.getNextWindowIndex(expectedWindowIndex,
-            ExoPlayer.REPEAT_MODE_OFF);
+            Player.REPEAT_MODE_OFF);
         int nextWindowOne = timeline.getNextWindowIndex(expectedWindowIndex,
-            ExoPlayer.REPEAT_MODE_ONE);
+            Player.REPEAT_MODE_ONE);
         int nextWindowAll = timeline.getNextWindowIndex(expectedWindowIndex,
-            ExoPlayer.REPEAT_MODE_ALL);
+            Player.REPEAT_MODE_ALL);
         int nextPeriodOff = nextWindowOff == C.INDEX_UNSET ? C.INDEX_UNSET
             : accumulatedPeriodCounts[nextWindowOff];
         int nextPeriodOne = nextWindowOne == C.INDEX_UNSET ? C.INDEX_UNSET
@@ -139,11 +136,11 @@ public final class TimelineAsserts {
         int nextPeriodAll = nextWindowAll == C.INDEX_UNSET ? C.INDEX_UNSET
             : accumulatedPeriodCounts[nextWindowAll];
         assertEquals(nextPeriodOff, timeline.getNextPeriodIndex(i, period, window,
-            ExoPlayer.REPEAT_MODE_OFF));
+            Player.REPEAT_MODE_OFF));
         assertEquals(nextPeriodOne, timeline.getNextPeriodIndex(i, period, window,
-            ExoPlayer.REPEAT_MODE_ONE));
+            Player.REPEAT_MODE_ONE));
         assertEquals(nextPeriodAll, timeline.getNextPeriodIndex(i, period, window,
-            ExoPlayer.REPEAT_MODE_ALL));
+            Player.REPEAT_MODE_ALL));
       }
     }
   }

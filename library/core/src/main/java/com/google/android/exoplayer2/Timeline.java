@@ -559,13 +559,13 @@ public abstract class Timeline {
    * @param repeatMode A repeat mode.
    * @return The index of the next window, or {@link C#INDEX_UNSET} if this is the last window.
    */
-  public int getNextWindowIndex(int windowIndex, @ExoPlayer.RepeatMode int repeatMode) {
+  public int getNextWindowIndex(int windowIndex, @Player.RepeatMode int repeatMode) {
     switch (repeatMode) {
-      case ExoPlayer.REPEAT_MODE_OFF:
+      case Player.REPEAT_MODE_OFF:
         return windowIndex == getWindowCount() - 1 ? C.INDEX_UNSET : windowIndex + 1;
-      case ExoPlayer.REPEAT_MODE_ONE:
+      case Player.REPEAT_MODE_ONE:
         return windowIndex;
-      case ExoPlayer.REPEAT_MODE_ALL:
+      case Player.REPEAT_MODE_ALL:
         return windowIndex == getWindowCount() - 1 ? 0 : windowIndex + 1;
       default:
         throw new IllegalStateException();
@@ -580,13 +580,13 @@ public abstract class Timeline {
    * @param repeatMode A repeat mode.
    * @return The index of the previous window, or {@link C#INDEX_UNSET} if this is the first window.
    */
-  public int getPreviousWindowIndex(int windowIndex, @ExoPlayer.RepeatMode int repeatMode) {
+  public int getPreviousWindowIndex(int windowIndex, @Player.RepeatMode int repeatMode) {
     switch (repeatMode) {
-      case ExoPlayer.REPEAT_MODE_OFF:
+      case Player.REPEAT_MODE_OFF:
         return windowIndex == 0 ? C.INDEX_UNSET : windowIndex - 1;
-      case ExoPlayer.REPEAT_MODE_ONE:
+      case Player.REPEAT_MODE_ONE:
         return windowIndex;
-      case ExoPlayer.REPEAT_MODE_ALL:
+      case Player.REPEAT_MODE_ALL:
         return windowIndex == 0 ? getWindowCount() - 1 : windowIndex - 1;
       default:
         throw new IllegalStateException();
@@ -601,7 +601,7 @@ public abstract class Timeline {
    * @param repeatMode A repeat mode.
    * @return Whether the window of the given index is the last window of the timeline.
    */
-  public final boolean isLastWindow(int windowIndex, @ExoPlayer.RepeatMode int repeatMode) {
+  public final boolean isLastWindow(int windowIndex, @Player.RepeatMode int repeatMode) {
     return getNextWindowIndex(windowIndex, repeatMode) == C.INDEX_UNSET;
   }
 
@@ -613,7 +613,7 @@ public abstract class Timeline {
    * @param repeatMode A repeat mode.
    * @return Whether the window of the given index is the first window of the timeline.
    */
-  public final boolean isFirstWindow(int windowIndex, @ExoPlayer.RepeatMode int repeatMode) {
+  public final boolean isFirstWindow(int windowIndex, @Player.RepeatMode int repeatMode) {
     return getPreviousWindowIndex(windowIndex, repeatMode) == C.INDEX_UNSET;
   }
 
@@ -672,7 +672,7 @@ public abstract class Timeline {
    * @return The index of the next period, or {@link C#INDEX_UNSET} if this is the last period.
    */
   public final int getNextPeriodIndex(int periodIndex, Period period, Window window,
-      @ExoPlayer.RepeatMode int repeatMode) {
+      @Player.RepeatMode int repeatMode) {
     int windowIndex = getPeriod(periodIndex, period).windowIndex;
     if (getWindow(windowIndex, window).lastPeriodIndex == periodIndex) {
       int nextWindowIndex = getNextWindowIndex(windowIndex, repeatMode);
@@ -695,7 +695,7 @@ public abstract class Timeline {
    * @return Whether the period of the given index is the last period of the timeline.
    */
   public final boolean isLastPeriod(int periodIndex, Period period, Window window,
-      @ExoPlayer.RepeatMode int repeatMode) {
+      @Player.RepeatMode int repeatMode) {
     return getNextPeriodIndex(periodIndex, period, window, repeatMode) == C.INDEX_UNSET;
   }
 

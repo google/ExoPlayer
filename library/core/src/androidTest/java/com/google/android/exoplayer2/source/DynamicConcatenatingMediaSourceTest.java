@@ -120,14 +120,13 @@ public final class DynamicConcatenatingMediaSourceTest extends TestCase {
     }
 
     // Assert correct next and previous indices behavior after some insertions and removals.
-    TimelineAsserts.assertNextWindowIndices(timeline, ExoPlayer.REPEAT_MODE_OFF,
-        1, 2, C.INDEX_UNSET);
-    TimelineAsserts.assertNextWindowIndices(timeline, ExoPlayer.REPEAT_MODE_ONE, 0, 1, 2);
-    TimelineAsserts.assertNextWindowIndices(timeline, ExoPlayer.REPEAT_MODE_ALL, 1, 2, 0);
-    TimelineAsserts.assertPreviousWindowIndices(timeline, ExoPlayer.REPEAT_MODE_OFF,
-        C.INDEX_UNSET, 0, 1);
-    TimelineAsserts.assertPreviousWindowIndices(timeline, ExoPlayer.REPEAT_MODE_ONE, 0, 1, 2);
-    TimelineAsserts.assertPreviousWindowIndices(timeline, ExoPlayer.REPEAT_MODE_ALL, 2, 0, 1);
+    TimelineAsserts.assertNextWindowIndices(timeline, Player.REPEAT_MODE_OFF, 1, 2, C.INDEX_UNSET);
+    TimelineAsserts.assertNextWindowIndices(timeline, Player.REPEAT_MODE_ONE, 0, 1, 2);
+    TimelineAsserts.assertNextWindowIndices(timeline, Player.REPEAT_MODE_ALL, 1, 2, 0);
+    TimelineAsserts.assertPreviousWindowIndices(
+        timeline, Player.REPEAT_MODE_OFF, C.INDEX_UNSET, 0, 1);
+    TimelineAsserts.assertPreviousWindowIndices(timeline, Player.REPEAT_MODE_ONE, 0, 1, 2);
+    TimelineAsserts.assertPreviousWindowIndices(timeline, Player.REPEAT_MODE_ALL, 2, 0, 1);
 
     // Remove at front of queue.
     mediaSource.removeMediaSource(0);

@@ -35,8 +35,8 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlaybackException;
-import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.PlaybackParameters;
+import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.metadata.Metadata;
@@ -726,8 +726,8 @@ public final class SimpleExoPlayerView extends FrameLayout {
       return true;
     }
     int playbackState = player.getPlaybackState();
-    return controllerAutoShow && (playbackState == ExoPlayer.STATE_IDLE
-        || playbackState == ExoPlayer.STATE_ENDED || !player.getPlayWhenReady());
+    return controllerAutoShow && (playbackState == Player.STATE_IDLE
+        || playbackState == Player.STATE_ENDED || !player.getPlayWhenReady());
   }
 
   private void showController(boolean showIndefinitely) {
@@ -830,7 +830,7 @@ public final class SimpleExoPlayerView extends FrameLayout {
   }
 
   private final class ComponentListener implements SimpleExoPlayer.VideoListener,
-      TextRenderer.Output, ExoPlayer.EventListener {
+      TextRenderer.Output, Player.EventListener {
 
     // TextRenderer.Output implementation
 
@@ -864,7 +864,7 @@ public final class SimpleExoPlayerView extends FrameLayout {
       updateForCurrentTrackSelections();
     }
 
-    // ExoPlayer.EventListener implementation
+    // Player.EventListener implementation
 
     @Override
     public void onLoadingChanged(boolean isLoading) {
