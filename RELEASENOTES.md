@@ -1,5 +1,57 @@
 # Release notes #
 
+### r2.5.0-beta1 ###
+
+* IMA extension: Wraps the Google Interactive Media Ads (IMA) SDK to provide an
+  easy and seamless way of incorporating display ads into ExoPlayer playbacks.
+  You can read more about the IMA extension *A link to a blog post about this
+  extension will be added here prior to the stable 2.5.0 release.*
+* MediaSession extension: Provides an easy to to connect ExoPlayer with
+  MediaSessionCompat in the Android Support Library. *A link to a blog post
+  about this extension will be added here prior to the stable 2.5.0 release.*
+* RTMP extension: An extension for playing streams over RTMP.
+* Build: Made it easier for application developers to depend on a local checkout
+  of ExoPlayer. You can learn how to do this
+  [here](https://medium.com/google-exoplayer/howto-2-depend-on-a-local-checkout-of-exoplayer-bcd7f8531720).
+* Core playback improvements:
+  * Eliminated re-buffering when changing audio and text track selections during
+    playback of progressive streams
+    ([#2926](https://github.com/google/ExoPlayer/issues/2926)).
+  * New DynamicConcatenatingMediaSource class to support playback of dynamic
+    playlists. *A link to a blog post about DynamicConcatenatingMediaSource will
+    be added here prior to the stable 2.5.0 release.*
+  * New ExoPlayer.setRepeatMode method for dynamic toggling of repeat mode
+    during playback. Use of setRepeatMode should be preferred to
+    LoopingMediaSource for most looping use cases. You can read more about
+    setRepeatMode
+    [here](https://medium.com/google-exoplayer/repeat-modes-in-exoplayer-19dd85f036d3).
+  * Eliminated jank when switching video playback from one Surface to another on
+    API level 23+ for unencrypted content, and on devices that support the
+    EGL_EXT_protected_content OpenGL extension for protected content
+    ([#677](https://github.com/google/ExoPlayer/issues/677)).
+  * Enabled ExoPlayer instantiation on background threads without Loopers.
+    Events from such players are delivered on the application's main thread.
+* HLS improvements:
+  * Optimized adaptive switches for playlists that specify the
+    EXT-X-INDEPENDENT-SEGMENTS tag.
+  * Optimized in-buffer seeking
+    ([#551](https://github.com/google/ExoPlayer/issues/551)).
+  * Eliminated re-buffering when changing audio and text track selections during
+    playback, provided the new selection does not require switching to different
+    renditions ([#2718](https://github.com/google/ExoPlayer/issues/2718)).
+  * Exposed all media playlist tags in ExoPlayer's MediaPlaylist object.
+* DASH: Support for seamless switching across streams in different AdaptationSet
+  elements ([#2431](https://github.com/google/ExoPlayer/issues/2431)).
+* DRM: Support for additional crypto schemes (cbc1, cbcs and cens) on
+  API level 24+ ([#1989](https://github.com/google/ExoPlayer/issues/1989)).
+* Captions: Initial support for SSA/ASS subtitles
+  ([#889](https://github.com/google/ExoPlayer/issues/889)).
+* AndroidTV: Fixed issue where tunneled video playback would not start on some
+  devices ([#2985](https://github.com/google/ExoPlayer/issues/2985)).
+* Cronet extension: Support for a user-defined fallback if Cronet library is not
+  present.
+* Misc bugfixes.
+
 ### r2.4.4 ###
 
 * HLS/MPEG-TS: Some initial optimizations of MPEG-TS extractor performance
