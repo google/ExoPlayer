@@ -47,11 +47,11 @@ import java.util.Map;
  * Mediates between a {@link MediaSessionCompat} and an {@link Player} instance set with
  * {@link #setPlayer(Player, PlaybackPreparer, CustomActionProvider...)}.
  * <p>
- * By default the {@code MediaSessionConnector} listens for {@link #DEFAULT_PLAYBACK_ACTIONS} sent
- * by a media controller and realizes these actions by calling appropriate ExoPlayer methods.
- * Further, the state of ExoPlayer will be synced automatically with the {@link PlaybackStateCompat}
- * of the media session to broadcast state transitions to clients. You can optionally extend this
- * behaviour by providing various collaborators.
+ * The {@code MediaSessionConnector} listens for media actions sent by a media controller and
+ * realizes these actions by calling appropriate ExoPlayer methods. Further, the state of ExoPlayer
+ * will be synced automatically with the {@link PlaybackStateCompat} of the media session to
+ * broadcast state transitions to clients. You can optionally extend this behaviour by providing
+ * various collaborators.
  * <p>
  * Media actions to initiate media playback ({@code PlaybackStateCompat#ACTION_PREPARE_*} and
  * {@code PlaybackStateCompat#ACTION_PLAY_*} need to be handled by a {@link PlaybackPreparer} which
@@ -75,31 +75,7 @@ public final class MediaSessionConnector {
     ExoPlayerLibraryInfo.registerModule("goog.exo.mediasession");
   }
 
-  /**
-   * Actions that are published to the media session by default
-   * ({@code PlaybackStateCompat.ACTION_PLAY_PAUSE}, {@code PlaybackStateCompat.ACTION_PLAY},
-   * {@code PlaybackStateCompat.ACTION_PAUSE}, {@code PlaybackStateCompat.ACTION_FAST_FORWARD},
-   * {@code PlaybackStateCompat.ACTION_REWIND}).
-   */
-  public static final long DEFAULT_PLAYBACK_ACTIONS = PlaybackStateCompat.ACTION_PLAY_PAUSE
-      | PlaybackStateCompat.ACTION_PLAY | PlaybackStateCompat.ACTION_PAUSE
-      | PlaybackStateCompat.ACTION_FAST_FORWARD | PlaybackStateCompat.ACTION_REWIND;
-
   public static final String EXTRAS_PITCH = "EXO_PITCH";
-
-  public static final long DEFAULT_FAST_FORWARD_MS = 15000;
-  public static final long DEFAULT_REWIND_MS = 5000;
-
-  /**
-   * Interface of components taking responsibility of a set of media session playback actions
-   * ({@code PlaybackStateCompat#ACTION_*}).
-   */
-  public interface PlaybackActionSupport {
-    /**
-     * Returns the bit mask of the playback actions supported by this component.
-     */
-    long getSupportedPlaybackActions();
-  }
 
   /**
    * Interface to which media controller commands regarding preparing playback for a given media
@@ -108,12 +84,30 @@ public final class MediaSessionConnector {
    * Normally preparing playback includes preparing the player with a
    * {@link com.google.android.exoplayer2.source.MediaSource} and setting up the media session queue
    * with a corresponding list of queue items.
-   * <p>
-   * The {@link PlaybackPreparer} handles the media actions {@code ACTION_PREPARE},
-   * {@code ACTION_PREPARE_FROM_MEDIA_ID}, {@code ACTION_PREPARE_FROM_URI} and
-   * {@code ACTION_PREPARE_FROM_SEARCH}.
    */
-  public interface PlaybackPreparer extends PlaybackActionSupport {
+  public interface PlaybackPreparer {
+
+    long ACTIONS = PlaybackStateCompat.ACTION_PREPARE
+        | PlaybackStateCompat.ACTION_PREPARE_FROM_MEDIA_ID
+        | PlaybackStateCompat.ACTION_PREPARE_FROM_SEARCH
+        | PlaybackStateCompat.ACTION_PREPARE_FROM_URI
+        | PlaybackStateCompat.ACTION_PLAY_FROM_MEDIA_ID
+        | PlaybackStateCompat.ACTION_PLAY_FROM_SEARCH
+        | PlaybackStateCompat.ACTION_PLAY_FROM_URI;
+
+    /**
+     * Returns the actions which are supported by the preparer. The supported actions must be a
+     * bitmask combined out of {@link PlaybackStateCompat#ACTION_PREPARE},
+     * {@link PlaybackStateCompat#ACTION_PREPARE_FROM_MEDIA_ID},
+     * {@link PlaybackStateCompat#ACTION_PREPARE_FROM_SEARCH},
+     * {@link PlaybackStateCompat#ACTION_PREPARE_FROM_URI},
+     * {@link PlaybackStateCompat#ACTION_PLAY_FROM_MEDIA_ID},
+     * {@link PlaybackStateCompat#ACTION_PLAY_FROM_SEARCH} and
+     * {@link PlaybackStateCompat#ACTION_PLAY_FROM_URI}.
+     *
+     * @return The bitmask of the supported media actions.
+     */
+    long getSupportedPrepareActions();
     /**
      * See {@link MediaSessionCompat.Callback#onPrepare()}.
      */
@@ -137,10 +131,73 @@ public final class MediaSessionConnector {
   }
 
   /**
-   * Navigator to handle queue navigation commands and maintain the media session queue with
+   * Controller to handle playback actions.
+   */
+  public interface PlaybackController {
+
+    long ACTIONS = PlaybackStateCompat.ACTION_PLAY_PAUSE | PlaybackStateCompat.ACTION_PLAY
+        | PlaybackStateCompat.ACTION_PAUSE | PlaybackStateCompat.ACTION_SEEK_TO
+        | PlaybackStateCompat.ACTION_FAST_FORWARD | PlaybackStateCompat.ACTION_REWIND
+        | PlaybackStateCompat.ACTION_STOP;
+
+    /**
+     * Returns the actions which are supported by the controller. The supported actions must be a
+     * bitmask combined out of {@link PlaybackStateCompat#ACTION_PLAY_PAUSE},
+     * {@link PlaybackStateCompat#ACTION_PLAY}, {@link PlaybackStateCompat#ACTION_PAUSE},
+     * {@link PlaybackStateCompat#ACTION_SEEK_TO}, {@link PlaybackStateCompat#ACTION_FAST_FORWARD},
+     * {@link PlaybackStateCompat#ACTION_REWIND} and {@link PlaybackStateCompat#ACTION_STOP}.
+     *
+     * @param player The player.
+     * @return The bitmask of the supported media actions.
+     */
+    long getSupportedPlaybackActions(@Nullable Player player);
+    /**
+     * See {@link MediaSessionCompat.Callback#onPlay()}.
+     */
+    void onPlay(Player player);
+    /**
+     * See {@link MediaSessionCompat.Callback#onPause()}.
+     */
+    void onPause(Player player);
+    /**
+     * See {@link MediaSessionCompat.Callback#onSeekTo(long)}.
+     */
+    void onSeekTo(Player player, long position);
+    /**
+     * See {@link MediaSessionCompat.Callback#onFastForward()}.
+     */
+    void onFastForward(Player player);
+    /**
+     * See {@link MediaSessionCompat.Callback#onRewind()}.
+     */
+    void onRewind(Player player);
+    /**
+     * See {@link MediaSessionCompat.Callback#onStop()}.
+     */
+    void onStop(Player player);
+  }
+
+  /**
+   * Navigator to handle queue navigation actions and maintain the media session queue with
    * {#link MediaSessionCompat#setQueue(List)} to provide the active queue item to the connector.
    */
-  public interface QueueNavigator extends PlaybackActionSupport {
+  public interface QueueNavigator {
+
+    long ACTIONS = PlaybackStateCompat.ACTION_SKIP_TO_QUEUE_ITEM
+        | PlaybackStateCompat.ACTION_SKIP_TO_NEXT | PlaybackStateCompat.ACTION_SKIP_TO_PREVIOUS
+        | PlaybackStateCompat.ACTION_SET_SHUFFLE_MODE_ENABLED;
+
+    /**
+     * Returns the actions which are supported by the navigator. The supported actions must be a
+     * bitmask combined out of {@link PlaybackStateCompat#ACTION_SKIP_TO_QUEUE_ITEM},
+     * {@link PlaybackStateCompat#ACTION_SKIP_TO_NEXT},
+     * {@link PlaybackStateCompat#ACTION_SKIP_TO_PREVIOUS},
+     * {@link PlaybackStateCompat#ACTION_SET_SHUFFLE_MODE_ENABLED}.
+     *
+     * @param player The {@link Player}.
+     * @return The bitmask of the supported media actions.
+     */
+    long getSupportedQueueNavigatorActions(@Nullable Player player);
     /**
      * Called when the timeline of the player has changed.
      *
@@ -186,7 +243,17 @@ public final class MediaSessionConnector {
   /**
    * Editor to manipulate the queue.
    */
-  public interface QueueEditor extends PlaybackActionSupport {
+  public interface QueueEditor {
+
+    long ACTIONS = PlaybackStateCompat.ACTION_SET_RATING;
+
+    /**
+     * Returns {@link PlaybackStateCompat#ACTION_SET_RATING} or {@code 0}. The Media API does
+     * not declare action constants for adding and removing queue items.
+     *
+     * @param player The {@link Player}.
+     */
+    long getSupportedQueueEditorActions(@Nullable Player player);
     /**
      * See {@link MediaSessionCompat.Callback#onAddQueueItem(MediaDescriptionCompat description)}.
      */
@@ -254,13 +321,11 @@ public final class MediaSessionConnector {
   private final boolean doMaintainMetadata;
   private final ExoPlayerEventListener exoPlayerEventListener;
   private final MediaSessionCallback mediaSessionCallback;
+  private final PlaybackController playbackController;
 
   private Player player;
   private CustomActionProvider[] customActionProviders;
   private int currentWindowIndex;
-  private long playbackActions;
-  private long fastForwardIncrementMs;
-  private long rewindIncrementMs;
   private Map<String, CustomActionProvider> customActionMap;
   private ErrorMessageProvider errorMessageProvider;
   private PlaybackPreparer playbackPreparer;
@@ -270,7 +335,7 @@ public final class MediaSessionConnector {
 
   /**
    * Creates a {@code MediaSessionConnector}. This is equivalent to calling
-   * {@code #MediaSessionConnector(mediaSession, true)}.
+   * {@code #MediaSessionConnector(mediaSession, new DefaultPlaybackController)}.
    * <p>
    * Constructing the {@link MediaSessionConnector} needs to be done on the same thread as
    * constructing the player instance.
@@ -278,7 +343,22 @@ public final class MediaSessionConnector {
    * @param mediaSession The {@link MediaSessionCompat} to connect to.
    */
   public MediaSessionConnector(MediaSessionCompat mediaSession) {
-    this(mediaSession, true);
+    this(mediaSession, new DefaultPlaybackController());
+  }
+
+  /**
+   * Creates a {@code MediaSessionConnector}. This is equivalent to calling
+   * {@code #MediaSessionConnector(mediaSession, playbackController, true)}.
+   * <p>
+   * Constructing the {@link MediaSessionConnector} needs to be done on the same thread as
+   * constructing the player instance.
+   *
+   * @param mediaSession The {@link MediaSessionCompat} to connect to.
+   * @param playbackController The {@link PlaybackController}.
+   */
+  public MediaSessionConnector(MediaSessionCompat mediaSession,
+      PlaybackController playbackController) {
+    this(mediaSession, playbackController, true);
   }
 
   /**
@@ -292,11 +372,14 @@ public final class MediaSessionConnector {
    * constructing the player instance.
    *
    * @param mediaSession The {@link MediaSessionCompat} to connect to.
+   * @param playbackController The {@link PlaybackController}.
    * @param doMaintainMetadata Sets whether the connector should maintain the metadata of the
    *     session.
    */
-  public MediaSessionConnector(MediaSessionCompat mediaSession,  boolean doMaintainMetadata) {
+  public MediaSessionConnector(MediaSessionCompat mediaSession,
+      PlaybackController playbackController, boolean doMaintainMetadata) {
     this.mediaSession = mediaSession;
+    this.playbackController = playbackController;
     this.handler = new Handler(Looper.myLooper() != null ? Looper.myLooper()
         : Looper.getMainLooper());
     this.doMaintainMetadata = doMaintainMetadata;
@@ -305,10 +388,7 @@ public final class MediaSessionConnector {
     mediaController = mediaSession.getController();
     mediaSessionCallback = new MediaSessionCallback();
     exoPlayerEventListener = new ExoPlayerEventListener();
-    playbackActions = DEFAULT_PLAYBACK_ACTIONS;
     customActionMap = Collections.emptyMap();
-    fastForwardIncrementMs = DEFAULT_FAST_FORWARD_MS;
-    rewindIncrementMs = DEFAULT_REWIND_MS;
   }
 
   /**
@@ -344,68 +424,6 @@ public final class MediaSessionConnector {
   }
 
   /**
-   * Sets the fast forward increment in milliseconds. A positive value will cause the
-   * {@link PlaybackStateCompat#ACTION_FAST_FORWARD} playback action to be added. A zero or a
-   * negative value will cause it to be removed.
-   *
-   * @param fastForwardIncrementMs The fast forward increment in milliseconds.
-   */
-  public void setFastForwardIncrementMs(long fastForwardIncrementMs) {
-    this.fastForwardIncrementMs = fastForwardIncrementMs;
-    if (fastForwardIncrementMs > 0) {
-      addPlaybackActions(PlaybackStateCompat.ACTION_FAST_FORWARD);
-    } else {
-      removePlaybackActions(PlaybackStateCompat.ACTION_FAST_FORWARD);
-    }
-  }
-
-  /**
-   * Sets the rewind increment in milliseconds. A positive value will cause the
-   * {@link PlaybackStateCompat#ACTION_REWIND} playback action to be added. A zero or a
-   * negative value will cause it to be removed.
-   *
-   * @param rewindIncrementMs The rewind increment in milliseconds.
-   */
-  public void setRewindIncrementMs(long rewindIncrementMs) {
-    this.rewindIncrementMs = rewindIncrementMs;
-    if (rewindIncrementMs > 0) {
-      addPlaybackActions(PlaybackStateCompat.ACTION_REWIND);
-    } else {
-      removePlaybackActions(PlaybackStateCompat.ACTION_REWIND);
-    }
-  }
-
-  /**
-   * Adds playback actions. The playback actions that are enabled by default are those in
-   * {@link MediaSessionConnector#DEFAULT_PLAYBACK_ACTIONS}. See {@link PlaybackStateCompat} for
-   * available playback action constants.
-   *
-   * @param playbackActions The playback actions to add.
-   */
-  public void addPlaybackActions(long playbackActions) {
-    this.playbackActions |= playbackActions;
-  }
-
-  /**
-   * Removes playback actions. The playback actions that are enabled by default are those in
-   * {@link MediaSessionConnector#DEFAULT_PLAYBACK_ACTIONS}.
-   *
-   * @param playbackActions The playback actions to remove.
-   */
-  public void removePlaybackActions(long playbackActions) {
-    this.playbackActions &= ~playbackActions;
-  }
-
-  /**
-   * Sets the playback actions. The playback actions that are enabled by default are overridden.
-   *
-   * @param playbackActions The playback actions to publish.
-   */
-  public void setPlaybackActions(long playbackActions) {
-    this.playbackActions = playbackActions;
-  }
-
-  /**
    * Sets the optional {@link ErrorMessageProvider}.
    *
    * @param errorMessageProvider The {@link ErrorMessageProvider}.
@@ -415,20 +433,14 @@ public final class MediaSessionConnector {
   }
 
   /**
-   * Sets the {@link QueueNavigator} to handle queue navigation for the media actions
-   * {@code ACTION_SKIP_TO_NEXT}, {@code ACTION_SKIP_TO_PREVIOUS},
-   * {@code ACTION_SKIP_TO_QUEUE_ITEM} and {@code ACTION_SET_SHUFFLE_MODE_ENABLED}.
+   * Sets the {@link QueueNavigator} to handle queue navigation actions {@code ACTION_SKIP_TO_NEXT},
+   * {@code ACTION_SKIP_TO_PREVIOUS}, {@code ACTION_SKIP_TO_QUEUE_ITEM} and
+   * {@code ACTION_SET_SHUFFLE_MODE_ENABLED}.
    *
    * @param queueNavigator The navigator to handle queue navigation.
    */
   public void setQueueNavigator(QueueNavigator queueNavigator) {
-    if (this.queueNavigator != null) {
-      removePlaybackActions(this.queueNavigator.getSupportedPlaybackActions());
-    }
     this.queueNavigator = queueNavigator;
-    if (queueNavigator != null) {
-      addPlaybackActions(queueNavigator.getSupportedPlaybackActions());
-    }
   }
 
   /**
@@ -437,29 +449,17 @@ public final class MediaSessionConnector {
    * @param queueEditor The editor to handle queue manipulation actions.
    */
   public void setQueueEditor(QueueEditor queueEditor) {
-    if (this.queueEditor != null) {
-      removePlaybackActions(this.queueEditor.getSupportedPlaybackActions());
-    }
     this.queueEditor = queueEditor;
-    if (queueEditor != null) {
-      addPlaybackActions(queueEditor.getSupportedPlaybackActions());
-    }
   }
 
   private void setPlaybackPreparer(PlaybackPreparer playbackPreparer) {
-    if (this.playbackPreparer != null) {
-      removePlaybackActions(this.playbackPreparer.getSupportedPlaybackActions());
-    }
     this.playbackPreparer = playbackPreparer;
-    if (playbackPreparer != null) {
-      addPlaybackActions(playbackPreparer.getSupportedPlaybackActions());
-    }
   }
 
   private void updateMediaSessionPlaybackState() {
     PlaybackStateCompat.Builder builder = new PlaybackStateCompat.Builder();
     if (player == null) {
-      builder.setActions(0).setState(PlaybackStateCompat.STATE_NONE, 0, 0, 0);
+      builder.setActions(buildPlaybackActions()).setState(PlaybackStateCompat.STATE_NONE, 0, 0, 0);
       mediaSession.setPlaybackState(builder.build());
       return;
     }
@@ -487,10 +487,9 @@ public final class MediaSessionConnector {
     }
     long activeQueueItemId = queueNavigator != null ? queueNavigator.getActiveQueueItemId(player)
         : MediaSessionCompat.QueueItem.UNKNOWN_ID;
-    updatePlaybackActions(activeQueueItemId);
     Bundle extras = new Bundle();
     extras.putFloat(EXTRAS_PITCH, player.getPlaybackParameters().pitch);
-    builder.setActions(playbackActions)
+    builder.setActions(buildPlaybackActions())
         .setActiveQueueItemId(activeQueueItemId)
         .setBufferedPosition(player.getBufferedPosition())
         .setState(sessionPlaybackState, player.getCurrentPosition(),
@@ -499,24 +498,23 @@ public final class MediaSessionConnector {
     mediaSession.setPlaybackState(builder.build());
   }
 
-  private void updatePlaybackActions(long activeQueueItemId) {
-    List<MediaSessionCompat.QueueItem> queue = mediaController.getQueue();
-    if (queue == null || queue.size() < 2) {
-      removePlaybackActions(PlaybackStateCompat.ACTION_SKIP_TO_NEXT
-          | PlaybackStateCompat.ACTION_SKIP_TO_PREVIOUS);
-    } else if (player.getRepeatMode() != Player.REPEAT_MODE_OFF) {
-      addPlaybackActions(PlaybackStateCompat.ACTION_SKIP_TO_NEXT
-          | PlaybackStateCompat.ACTION_SKIP_TO_PREVIOUS);
-    } else if (activeQueueItemId == queue.get(0).getQueueId()) {
-      removePlaybackActions(PlaybackStateCompat.ACTION_SKIP_TO_PREVIOUS);
-      addPlaybackActions(PlaybackStateCompat.ACTION_SKIP_TO_NEXT);
-    } else if (activeQueueItemId == queue.get(queue.size() - 1).getQueueId()) {
-      removePlaybackActions(PlaybackStateCompat.ACTION_SKIP_TO_NEXT);
-      addPlaybackActions(PlaybackStateCompat.ACTION_SKIP_TO_PREVIOUS);
-    } else {
-      addPlaybackActions(PlaybackStateCompat.ACTION_SKIP_TO_NEXT
-          | PlaybackStateCompat.ACTION_SKIP_TO_PREVIOUS);
+  private long buildPlaybackActions() {
+    long actions = 0;
+    if (playbackController != null) {
+      actions |= (PlaybackController.ACTIONS & playbackController
+          .getSupportedPlaybackActions(player));
     }
+    if (playbackPreparer != null) {
+      actions |= (PlaybackPreparer.ACTIONS & playbackPreparer.getSupportedPrepareActions());
+    }
+    if (queueNavigator != null) {
+      actions |= (QueueNavigator.ACTIONS & queueNavigator.getSupportedQueueNavigatorActions(
+          player));
+    }
+    if (queueEditor != null) {
+      actions |= (QueueEditor.ACTIONS & queueEditor.getSupportedQueueEditorActions(player));
+    }
+    return actions;
   }
 
   private void updateMediaSessionMetadata() {
@@ -584,16 +582,24 @@ public final class MediaSessionConnector {
     }
   }
 
-  private boolean isActionPublished(long action) {
-    return (playbackActions & action) != 0;
+  private boolean canDispatchToPlaybackPreparer(long action) {
+    return playbackPreparer != null && (playbackPreparer.getSupportedPrepareActions()
+        & PlaybackPreparer.ACTIONS & action) != 0;
+  }
+
+  private boolean canDispatchToPlaybackController(long action) {
+    return playbackController != null && (playbackController.getSupportedPlaybackActions(player)
+        & PlaybackController.ACTIONS & action) != 0;
   }
 
   private boolean canDispatchToQueueNavigator(long action) {
-    return queueNavigator != null && isActionPublished(action);
+    return queueNavigator != null && (queueNavigator.getSupportedQueueNavigatorActions(player)
+        & QueueNavigator.ACTIONS & action) != 0;
   }
 
-  private boolean canDispatchToPlaybackPreparer(long action) {
-    return playbackPreparer != null && isActionPublished(action);
+  private boolean canDispatchToQueueEditor(long action) {
+    return queueEditor != null && (queueEditor.getSupportedQueueEditorActions(player)
+        & QueueEditor.ACTIONS & action) != 0;
   }
 
   private class ExoPlayerEventListener implements Player.EventListener {
@@ -658,37 +664,44 @@ public final class MediaSessionConnector {
 
     @Override
     public void onPlay() {
-      player.setPlayWhenReady(true);
+      if (canDispatchToPlaybackController(PlaybackStateCompat.ACTION_PLAY)) {
+        playbackController.onPlay(player);
+      }
     }
 
     @Override
     public void onPause() {
-      player.setPlayWhenReady(false);
+      if (canDispatchToPlaybackController(PlaybackStateCompat.ACTION_PAUSE)) {
+        playbackController.onPause(player);
+      }
     }
 
     @Override
     public void onSeekTo(long position) {
-      long duration = player.getDuration();
-      if (duration != C.TIME_UNSET) {
-        position = Math.min(position, duration);
+      if (canDispatchToPlaybackController(PlaybackStateCompat.ACTION_SEEK_TO)) {
+        playbackController.onSeekTo(player, position);
       }
-      player.seekTo(Math.max(position, 0));
     }
 
     @Override
     public void onFastForward() {
-      if (fastForwardIncrementMs <= 0) {
-        return;
+      if (canDispatchToPlaybackController(PlaybackStateCompat.ACTION_FAST_FORWARD)) {
+        playbackController.onFastForward(player);
       }
-      onSeekTo(player.getCurrentPosition() + fastForwardIncrementMs);
     }
 
     @Override
     public void onRewind() {
-      if (rewindIncrementMs <= 0) {
-        return;
+      if (canDispatchToPlaybackController(PlaybackStateCompat.ACTION_REWIND)) {
+        playbackController.onRewind(player);
       }
-      onSeekTo(player.getCurrentPosition() - rewindIncrementMs);
+    }
+
+    @Override
+    public void onStop() {
+      if (canDispatchToPlaybackController(PlaybackStateCompat.ACTION_STOP)) {
+        playbackController.onStop(player);
+      }
     }
 
     @Override
@@ -709,13 +722,6 @@ public final class MediaSessionConnector {
     public void onSkipToQueueItem(long id) {
       if (canDispatchToQueueNavigator(PlaybackStateCompat.ACTION_SKIP_TO_QUEUE_ITEM)) {
         queueNavigator.onSkipToQueueItem(player, id);
-      }
-    }
-
-    @Override
-    public void onStop() {
-      if (isActionPublished(PlaybackStateCompat.ACTION_STOP)) {
-        player.stop();
       }
     }
 
@@ -840,7 +846,7 @@ public final class MediaSessionConnector {
 
     @Override
     public void onSetRating(RatingCompat rating) {
-      if (queueEditor != null && isActionPublished(PlaybackStateCompat.ACTION_SET_RATING)) {
+      if (canDispatchToQueueEditor(PlaybackStateCompat.ACTION_SET_RATING)) {
         queueEditor.onSetRating(player, rating);
       }
     }

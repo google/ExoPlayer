@@ -39,7 +39,7 @@ public abstract class TimelineQueueNavigator implements MediaSessionConnector.Qu
   public static final int DEFAULT_MAX_QUEUE_SIZE = 10;
 
   private final MediaSessionCompat mediaSession;
-  private final int maxQueueSize;
+  protected final int maxQueueSize;
 
   private long activeQueueItemId;
 
@@ -80,19 +80,42 @@ public abstract class TimelineQueueNavigator implements MediaSessionConnector.Qu
    */
   public abstract MediaDescriptionCompat getMediaDescription(int windowIndex);
 
+  /**
+   * Supports the following media actions: {@code PlaybackStateCompat.ACTION_SKIP_TO_NEXT |
+   * PlaybackStateCompat.ACTION_SKIP_TO_PREVIOUS | PlaybackStateCompat.ACTION_SKIP_TO_QUEUE_ITEM}.
+   *
+   * @return The bit mask of the supported media actions.
+   */
   @Override
-  public long getSupportedPlaybackActions() {
-    return PlaybackStateCompat.ACTION_SKIP_TO_NEXT | PlaybackStateCompat.ACTION_SKIP_TO_PREVIOUS
-        | PlaybackStateCompat.ACTION_SKIP_TO_QUEUE_ITEM;
+  public long getSupportedQueueNavigatorActions(Player player) {
+    if (player == null || player.getCurrentTimeline().getWindowCount() < 2) {
+      return 0;
+    }
+    if (player.getRepeatMode() != Player.REPEAT_MODE_OFF) {
+      return PlaybackStateCompat.ACTION_SKIP_TO_NEXT | PlaybackStateCompat.ACTION_SKIP_TO_PREVIOUS
+          | PlaybackStateCompat.ACTION_SKIP_TO_QUEUE_ITEM;
+    }
+
+    int currentWindowIndex = player.getCurrentWindowIndex();
+    long actions;
+    if (currentWindowIndex == 0) {
+      actions = PlaybackStateCompat.ACTION_SKIP_TO_NEXT;
+    } else if (currentWindowIndex == player.getCurrentTimeline().getWindowCount() - 1) {
+      actions = PlaybackStateCompat.ACTION_SKIP_TO_PREVIOUS;
+    } else {
+      actions = PlaybackStateCompat.ACTION_SKIP_TO_NEXT
+          | PlaybackStateCompat.ACTION_SKIP_TO_PREVIOUS;
+    }
+    return actions | PlaybackStateCompat.ACTION_SKIP_TO_QUEUE_ITEM;
   }
 
   @Override
-  public void onTimelineChanged(Player player) {
+  public final void onTimelineChanged(Player player) {
     publishFloatingQueueWindow(player);
   }
 
   @Override
-  public void onCurrentWindowIndexChanged(Player player) {
+  public final void onCurrentWindowIndexChanged(Player player) {
     if (activeQueueItemId == MediaSessionCompat.QueueItem.UNKNOWN_ID
         || player.getCurrentTimeline().getWindowCount() > maxQueueSize) {
       publishFloatingQueueWindow(player);
@@ -107,7 +130,7 @@ public abstract class TimelineQueueNavigator implements MediaSessionConnector.Qu
   }
 
   @Override
-  public final void onSkipToPrevious(Player player) {
+  public void onSkipToPrevious(Player player) {
     Timeline timeline = player.getCurrentTimeline();
     if (timeline.isEmpty()) {
       return;
@@ -123,7 +146,7 @@ public abstract class TimelineQueueNavigator implements MediaSessionConnector.Qu
   }
 
   @Override
-  public final void onSkipToQueueItem(Player player, long id) {
+  public void onSkipToQueueItem(Player player, long id) {
     Timeline timeline = player.getCurrentTimeline();
     if (timeline.isEmpty()) {
       return;
@@ -135,7 +158,7 @@ public abstract class TimelineQueueNavigator implements MediaSessionConnector.Qu
   }
 
   @Override
-  public final void onSkipToNext(Player player) {
+  public void onSkipToNext(Player player) {
     Timeline timeline = player.getCurrentTimeline();
     if (timeline.isEmpty()) {
       return;
