@@ -18,8 +18,11 @@ package com.google.android.exoplayer2;
 import android.os.Looper;
 import com.google.android.exoplayer2.audio.MediaCodecAudioRenderer;
 import com.google.android.exoplayer2.metadata.MetadataRenderer;
+import com.google.android.exoplayer2.source.ClippingMediaSource;
 import com.google.android.exoplayer2.source.ConcatenatingMediaSource;
+import com.google.android.exoplayer2.source.DynamicConcatenatingMediaSource;
 import com.google.android.exoplayer2.source.ExtractorMediaSource;
+import com.google.android.exoplayer2.source.LoopingMediaSource;
 import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.source.MergingMediaSource;
 import com.google.android.exoplayer2.source.SingleSampleMediaSource;
@@ -30,11 +33,10 @@ import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.video.MediaCodecVideoRenderer;
 
 /**
- * An extensible media player exposing traditional high-level media player functionality, such as
- * the ability to buffer media, play, pause and seek. Instances can be obtained from
+ * An extensible media player that plays {@link MediaSource}s. Instances can be obtained from
  * {@link ExoPlayerFactory}.
  *
- * <h3>Player composition</h3>
+ * <h3>Player components</h3>
  * <p>ExoPlayer is designed to make few assumptions about (and hence impose few restrictions on) the
  * type of the media being played, how and where it is stored, and how it is rendered. Rather than
  * implementing the loading and rendering of media directly, ExoPlayer implementations delegate this
@@ -42,18 +44,20 @@ import com.google.android.exoplayer2.video.MediaCodecVideoRenderer;
  * Components common to all ExoPlayer implementations are:
  * <ul>
  *   <li>A <b>{@link MediaSource}</b> that defines the media to be played, loads the media, and from
- *   which the loaded media can be read. A MediaSource is injected via {@link #prepare} at the start
- *   of playback. The library modules provide default implementations for regular media files
- *   ({@link ExtractorMediaSource}), DASH (DashMediaSource), SmoothStreaming (SsMediaSource) and HLS
- *   (HlsMediaSource), implementations for merging ({@link MergingMediaSource}) and concatenating
- *   ({@link ConcatenatingMediaSource}) other MediaSources, and an implementation for loading single
- *   samples ({@link SingleSampleMediaSource}) most often used for side-loaded subtitle and closed
- *   caption files.</li>
+ *   which the loaded media can be read. A MediaSource is injected via {@link #prepare(MediaSource)}
+ *   at the start of playback. The library modules provide default implementations for regular media
+ *   files ({@link ExtractorMediaSource}), DASH (DashMediaSource), SmoothStreaming (SsMediaSource)
+ *   and HLS (HlsMediaSource), an implementation for loading single media samples
+ *   ({@link SingleSampleMediaSource}) that's most often used for side-loaded subtitle files, and
+ *   implementations for building more complex MediaSources from simpler ones
+ *   ({@link MergingMediaSource}, {@link ConcatenatingMediaSource},
+ *   {@link DynamicConcatenatingMediaSource}, {@link LoopingMediaSource} and
+ *   {@link ClippingMediaSource}).</li>
  *   <li><b>{@link Renderer}</b>s that render individual components of the media. The library
  *   provides default implementations for common media types ({@link MediaCodecVideoRenderer},
  *   {@link MediaCodecAudioRenderer}, {@link TextRenderer} and {@link MetadataRenderer}). A Renderer
- *   consumes media of its corresponding type from the MediaSource being played. Renderers are
- *   injected when the player is created.</li>
+ *   consumes media from the MediaSource being played. Renderers are injected when the player is
+ *   created.</li>
  *   <li>A <b>{@link TrackSelector}</b> that selects tracks provided by the MediaSource to be
  *   consumed by each of the available Renderers. The library provides a default implementation
  *   ({@link DefaultTrackSelector}) suitable for most use cases. A TrackSelector is injected when
@@ -66,14 +70,14 @@ import com.google.android.exoplayer2.video.MediaCodecVideoRenderer;
  * <p>An ExoPlayer can be built using the default components provided by the library, but may also
  * be built using custom implementations if non-standard behaviors are required. For example a
  * custom LoadControl could be injected to change the player's buffering strategy, or a custom
- * Renderer could be injected to use a video codec not supported natively by Android.
+ * Renderer could be injected to add support for a video codec not supported natively by Android.
  *
  * <p>The concept of injecting components that implement pieces of player functionality is present
  * throughout the library. The default component implementations listed above delegate work to
  * further injected components. This allows many sub-components to be individually replaced with
  * custom implementations. For example the default MediaSource implementations require one or more
  * {@link DataSource} factories to be injected via their constructors. By providing a custom factory
- * it's possible to load data from a non-standard source or through a different network stack.
+ * it's possible to load data from a non-standard source, or through a different network stack.
  *
  * <h3>Threading model</h3>
  * <p>The figure below shows ExoPlayer's threading model.</p>
@@ -99,7 +103,7 @@ import com.google.android.exoplayer2.video.MediaCodecVideoRenderer;
  * thread via a second message queue. The application thread consumes messages from the queue,
  * updating the application visible state and calling corresponding listener methods.</li>
  * <li>Injected player components may use additional background threads. For example a MediaSource
- * may use a background thread to load data. These are implementation specific.</li>
+ * may use background threads to load data. These are implementation specific.</li>
  * </ul>
  */
 public interface ExoPlayer extends Player {
