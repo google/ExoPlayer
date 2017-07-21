@@ -16,6 +16,7 @@
 package com.google.android.exoplayer2.ext.opus;
 
 import android.os.Handler;
+import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.audio.AudioProcessor;
 import com.google.android.exoplayer2.audio.AudioRendererEventListener;
@@ -31,6 +32,8 @@ public final class LibopusAudioRenderer extends SimpleDecoderAudioRenderer {
 
   private static final int NUM_BUFFERS = 16;
   private static final int INITIAL_INPUT_BUFFER_SIZE = 960 * 6;
+
+  private OpusDecoder decoder;
 
   public LibopusAudioRenderer() {
     this(null, null);
@@ -69,8 +72,16 @@ public final class LibopusAudioRenderer extends SimpleDecoderAudioRenderer {
   @Override
   protected OpusDecoder createDecoder(Format format, ExoMediaCrypto mediaCrypto)
       throws OpusDecoderException {
-    return new OpusDecoder(NUM_BUFFERS, NUM_BUFFERS, INITIAL_INPUT_BUFFER_SIZE,
+    decoder = new OpusDecoder(NUM_BUFFERS, NUM_BUFFERS, INITIAL_INPUT_BUFFER_SIZE,
         format.initializationData, mediaCrypto);
+    return decoder;
+  }
+
+  @Override
+  protected Format getOutputFormat() {
+    return Format.createAudioSampleFormat(null, MimeTypes.AUDIO_RAW, null, Format.NO_VALUE,
+        Format.NO_VALUE, decoder.getChannelCount(), decoder.getSampleRate(), C.ENCODING_PCM_16BIT,
+        null, null, 0, null);
   }
 
 }
