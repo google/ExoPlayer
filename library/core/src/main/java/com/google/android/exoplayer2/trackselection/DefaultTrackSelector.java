@@ -33,9 +33,7 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 
 /**
- * A {@link MappingTrackSelector} that allows configuration of common parameters. It is safe to call
- * the methods of this class from the application thread. See {@link Parameters#Parameters()} for
- * default selection parameters.
+ * A {@link MappingTrackSelector} suitable for most use cases.
  */
 public class DefaultTrackSelector extends MappingTrackSelector {
 
