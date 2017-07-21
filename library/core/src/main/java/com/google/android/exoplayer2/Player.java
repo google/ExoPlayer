@@ -24,7 +24,23 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
 /**
- * An interface for media players.
+ * A media player interface defining traditional high-level functionality, such as the ability to
+ * play, pause, seek and query properties of the currently playing media.
+ * <p>
+ * Some important properties of media players that implement this interface are:
+ * <ul>
+ *     <li>They can provide a {@link Timeline} representing the structure of the media being played,
+ *     which can be obtained by calling {@link #getCurrentTimeline()}.</li>
+ *     <li>They can provide a {@link TrackGroupArray} defining the currently available tracks,
+ *     which can be obtained by calling {@link #getCurrentTrackGroups()}.</li>
+ *     <li>They contain a number of renderers, each of which is able to render tracks of a single
+ *     type (e.g. audio, video or text). The number of renderers and their respective track types
+ *     can be obtained by calling {@link #getRendererCount()} and {@link #getRendererType(int)}.
+ *     </li>
+ *     <li>They can provide a {@link TrackSelectionArray} defining which of the currently available
+ *     tracks are selected to be rendered by each renderer. This can be obtained by calling
+ *     {@link #getCurrentTrackSelections()}}.</li>
+ * </ul>
  */
 public interface Player {
 
@@ -50,8 +66,8 @@ public interface Player {
      * Called when the available or selected tracks change.
      *
      * @param trackGroups The available tracks. Never null, but may be of length zero.
-     * @param trackSelections The track selections for each {@link Renderer}. Never null and always
-     *     of length {@link #getRendererCount()}, but may contain null elements.
+     * @param trackSelections The track selections for each renderer. Never null and always of
+     *     length {@link #getRendererCount()}, but may contain null elements.
      */
     void onTracksChanged(TrackGroupArray trackGroups, TrackSelectionArray trackSelections);
 
@@ -112,18 +128,17 @@ public interface Player {
   }
 
   /**
-   * The player does not have a source to play, so it is neither buffering nor ready to play.
+   * The player does not have any media to play.
    */
   int STATE_IDLE = 1;
   /**
-   * The player not able to immediately play from the current position. The cause is
-   * {@link Renderer} specific, but this state typically occurs when more data needs to be
-   * loaded to be ready to play, or more data needs to be buffered for playback to resume.
+   * The player is not able to immediately play from its current position. This state typically
+   * occurs when more data needs to be loaded.
    */
   int STATE_BUFFERING = 2;
   /**
-   * The player is able to immediately play from the current position. The player will be playing if
-   * {@link #getPlayWhenReady()} returns true, and paused otherwise.
+   * The player is able to immediately play from its current position. The player will be playing if
+   * {@link #getPlayWhenReady()} is true, and paused otherwise.
    */
   int STATE_READY = 3;
   /**
