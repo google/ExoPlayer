@@ -93,7 +93,12 @@ public abstract class TimelineQueueNavigator implements MediaSessionConnector.Qu
 
   @Override
   public void onCurrentWindowIndexChanged(Player player) {
-    publishFloatingQueueWindow(player);
+    if (activeQueueItemId == MediaSessionCompat.QueueItem.UNKNOWN_ID
+        || player.getCurrentTimeline().getWindowCount() > maxQueueSize) {
+      publishFloatingQueueWindow(player);
+    } else if (!player.getCurrentTimeline().isEmpty()) {
+      activeQueueItemId = player.getCurrentWindowIndex();
+    }
   }
 
   @Override
