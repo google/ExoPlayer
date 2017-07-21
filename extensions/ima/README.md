@@ -28,25 +28,30 @@ locally. Instructions for doing this can be found in ExoPlayer's
 
 ## Using the extension ##
 
-Pass a single-window content `MediaSource` to `ImaAdsMediaSource`'s constructor,
-along with a `ViewGroup` that is on top of the player and the ad tag URI to
-show. The IMA documentation includes some [sample ad tags][] for testing. Then
-pass the `ImaAdsMediaSource` to `ExoPlayer.prepare`.
+To play ads alongside a single-window content `MediaSource`, prepare the player
+with an `ImaAdsMediaSource` constructed using an `ImaAdsLoader`, the content
+`MediaSource` and an overlay `ViewGroup` on top of the player. Pass an ad tag
+URI from your ad campaign when creating the `ImaAdsLoader`. The IMA
+documentation includes some [sample ad tags][] for testing.
+
+Resuming the player after entering the background requires some special handling
+when playing ads. The player and its media source are released on entering the
+background, and are recreated when the player returns to the foreground. When
+playing ads it is necessary to persist ad playback state while in the background
+by keeping a reference to the `ImaAdsLoader`. Reuse it when resuming playback of
+the same content/ads by passing it in when constructing the new
+`ImaAdsMediaSource`. It is also important to persist the player position when
+entering the background by storing the value of `player.getContentPosition()`.
+On returning to the foreground, seek to that position before preparing the new
+player instance. Finally, it is important to call `ImaAdsLoader.release()` when
+playback of the content/ads has finished and will not be resumed.
 
 You can try the IMA extension in the ExoPlayer demo app. To do this you must
 select and build one of the `withExtensions` build variants of the demo app in
 Android Studio. You can find IMA test content in the "IMA sample ad tags"
-section of the app.
+section of the app. The demo app's `PlayerActivity` also shows how to persist
+the `ImaAdsLoader` instance and the player position when backgrounded during ad
+playback.
 
 [top level README]: https://github.com/google/ExoPlayer/blob/release-v2/README.md
 [sample ad tags]: https://developers.google.com/interactive-media-ads/docs/sdks/android/tags
-
-## Known issues ##
-
-This is a preview version with some known issues:
-
-* Tapping the 'More info' button on an ad in the demo app will pause the
-  activity, which destroys the ImaAdsMediaSource. Played ad breaks will be
-  shown to the user again if the demo app returns to the foreground.
-* Ad loading timeouts are currently propagated as player errors, rather than
-  being silently handled by resuming content.
