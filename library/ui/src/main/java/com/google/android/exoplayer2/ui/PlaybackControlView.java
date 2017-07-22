@@ -660,6 +660,11 @@ public class PlaybackControlView extends FrameLayout {
       repeatToggleButton.setVisibility(View.GONE);
       return;
     }
+    if (player == null) {
+      setButtonEnabled(false, repeatToggleButton);
+      return;
+    }
+    setButtonEnabled(true, repeatToggleButton);
     switch (player.getRepeatMode()) {
       case Player.REPEAT_MODE_OFF:
         repeatToggleButton.setImageDrawable(repeatOffButtonDrawable);
