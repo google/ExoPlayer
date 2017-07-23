@@ -148,12 +148,12 @@ public class PlayerActivity extends Activity implements OnClickListener, EventLi
     setContentView(R.layout.player_activity);
     View rootView = findViewById(R.id.root);
     rootView.setOnClickListener(this);
-    debugRootView = (LinearLayout) findViewById(R.id.controls_root);
-    debugTextView = (TextView) findViewById(R.id.debug_text_view);
-    retryButton = (Button) findViewById(R.id.retry_button);
+    debugRootView = findViewById(R.id.controls_root);
+    debugTextView = findViewById(R.id.debug_text_view);
+    retryButton = findViewById(R.id.retry_button);
     retryButton.setOnClickListener(this);
 
-    simpleExoPlayerView = (SimpleExoPlayerView) findViewById(R.id.player_view);
+    simpleExoPlayerView = findViewById(R.id.player_view);
     simpleExoPlayerView.setControllerVisibilityListener(this);
     simpleExoPlayerView.requestFocus();
   }

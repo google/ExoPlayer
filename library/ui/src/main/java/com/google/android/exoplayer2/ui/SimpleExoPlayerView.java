@@ -286,7 +286,7 @@ public final class SimpleExoPlayerView extends FrameLayout {
     setDescendantFocusability(FOCUS_AFTER_DESCENDANTS);
 
     // Content frame.
-    contentFrame = (AspectRatioFrameLayout) findViewById(R.id.exo_content_frame);
+    contentFrame = findViewById(R.id.exo_content_frame);
     if (contentFrame != null) {
       setResizeModeRaw(contentFrame, resizeMode);
     }
@@ -307,24 +307,24 @@ public final class SimpleExoPlayerView extends FrameLayout {
     }
 
     // Overlay frame layout.
-    overlayFrameLayout = (FrameLayout) findViewById(R.id.exo_overlay);
+    overlayFrameLayout = findViewById(R.id.exo_overlay);
 
     // Artwork view.
-    artworkView = (ImageView) findViewById(R.id.exo_artwork);
+    artworkView = findViewById(R.id.exo_artwork);
     this.useArtwork = useArtwork && artworkView != null;
     if (defaultArtworkId != 0) {
       defaultArtwork = BitmapFactory.decodeResource(context.getResources(), defaultArtworkId);
     }
 
     // Subtitle view.
-    subtitleView = (SubtitleView) findViewById(R.id.exo_subtitles);
+    subtitleView = findViewById(R.id.exo_subtitles);
     if (subtitleView != null) {
       subtitleView.setUserDefaultStyle();
       subtitleView.setUserDefaultTextSize();
     }
 
     // Playback control view.
-    PlaybackControlView customController = (PlaybackControlView) findViewById(R.id.exo_controller);
+    PlaybackControlView customController = findViewById(R.id.exo_controller);
     View controllerPlaceholder = findViewById(R.id.exo_controller_placeholder);
     if (customController != null) {
       this.controller = customController;

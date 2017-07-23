@@ -374,9 +374,9 @@ public class PlaybackControlView extends FrameLayout {
     LayoutInflater.from(context).inflate(controllerLayoutId, this);
     setDescendantFocusability(FOCUS_AFTER_DESCENDANTS);
 
-    durationView = (TextView) findViewById(R.id.exo_duration);
-    positionView = (TextView) findViewById(R.id.exo_position);
-    timeBar = (TimeBar) findViewById(R.id.exo_progress);
+    durationView = findViewById(R.id.exo_duration);
+    positionView = findViewById(R.id.exo_position);
+    timeBar = findViewById(R.id.exo_progress);
     if (timeBar != null) {
       timeBar.setListener(componentListener);
     }
@@ -404,7 +404,7 @@ public class PlaybackControlView extends FrameLayout {
     if (fastForwardButton != null) {
       fastForwardButton.setOnClickListener(componentListener);
     }
-    repeatToggleButton = (ImageView) findViewById(R.id.exo_repeat_toggle);
+    repeatToggleButton = findViewById(R.id.exo_repeat_toggle);
     if (repeatToggleButton != null) {
       repeatToggleButton.setOnClickListener(componentListener);
     }

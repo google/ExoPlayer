@@ -49,12 +49,12 @@ public class MainActivity extends AppCompatActivity {
 
     setContentView(R.layout.main_activity);
 
-    simpleExoPlayerView = (SimpleExoPlayerView) findViewById(R.id.player_view);
+    simpleExoPlayerView = findViewById(R.id.player_view);
     simpleExoPlayerView.requestFocus();
 
-    castControlView = (PlaybackControlView) findViewById(R.id.cast_control_view);
+    castControlView = findViewById(R.id.cast_control_view);
 
-    ListView sampleList = (ListView) findViewById(R.id.sample_list);
+    ListView sampleList = findViewById(R.id.sample_list);
     sampleList.setAdapter(new SampleListAdapter());
     sampleList.setOnItemClickListener(new SampleClickListener());
   }
