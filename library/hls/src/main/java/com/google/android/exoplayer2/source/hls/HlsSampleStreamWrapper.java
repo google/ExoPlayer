@@ -38,6 +38,7 @@ import com.google.android.exoplayer2.upstream.Allocator;
 import com.google.android.exoplayer2.upstream.Loader;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.MimeTypes;
+import com.google.android.exoplayer2.util.Util;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.LinkedList;
@@ -204,8 +205,11 @@ import java.util.LinkedList;
     // having previously disabled all tracks.
     boolean seekRequired = forceReset
         || (seenFirstTrackSelection ? oldEnabledTrackCount == 0 : positionUs != lastSeekPositionUs);
+    // Get the old (i.e. current before the loop below executes) primary track selection. The new
+    // primary selection will equal the old one unless it's changed in the loop.
+    TrackSelection oldPrimaryTrackSelection = chunkSource.getTrackSelection();
+    TrackSelection primaryTrackSelection = oldPrimaryTrackSelection;
     // Select new tracks.
-    TrackSelection primaryTrackSelection = null;
     for (int i = 0; i < selections.length; i++) {
       if (streams[i] == null && selections[i] != null) {
         TrackSelection selection = selections[i];
@@ -234,7 +238,6 @@ import java.util.LinkedList;
     if (enabledTrackCount == 0) {
       chunkSource.reset();
       downstreamTrackFormat = null;
-      pendingResetUpstreamFormats |= !seenFirstTrackSelection;
       mediaChunks.clear();
       if (loader.isLoading()) {
         // Discard as much as we can synchronously.
@@ -246,14 +249,24 @@ import java.util.LinkedList;
         resetSampleQueues();
       }
     } else {
-      if (!seenFirstTrackSelection && primaryTrackSelection != null && !mediaChunks.isEmpty()) {
-        primaryTrackSelection.updateSelectedTrack(0);
-        int chunkIndex = chunkSource.getTrackGroup().indexOf(mediaChunks.getLast().trackFormat);
-        if (primaryTrackSelection.getSelectedIndexInTrackGroup() != chunkIndex) {
-          // This is the first selection and the chunk loaded during preparation does not match the
-          // selection. We need to reset to discard it. We also need to ensure that the upstream
-          // formats are cleared from the sample queues so that they cannot be read. This is
-          // necessary because the consuming renderers may not support these formats.
+      if (!mediaChunks.isEmpty()
+          && !Util.areEqual(primaryTrackSelection, oldPrimaryTrackSelection)) {
+        // The primary track selection has changed and we have buffered media. The buffered media
+        // may need to be discarded.
+        boolean primarySampleQueueDirty = false;
+        if (!seenFirstTrackSelection) {
+          primaryTrackSelection.updateSelectedTrack(0);
+          int chunkIndex = chunkSource.getTrackGroup().indexOf(mediaChunks.getLast().trackFormat);
+          if (primaryTrackSelection.getSelectedIndexInTrackGroup() != chunkIndex) {
+            // This is the first selection and the chunk loaded during preparation does not match
+            // the initially selected format.
+            primarySampleQueueDirty = true;
+          }
+        } else {
+          // The primary sample queue contains media buffered for the old primary track selection.
+          primarySampleQueueDirty = true;
+        }
+        if (primarySampleQueueDirty) {
           forceReset = true;
           seekRequired = true;
           pendingResetUpstreamFormats = true;

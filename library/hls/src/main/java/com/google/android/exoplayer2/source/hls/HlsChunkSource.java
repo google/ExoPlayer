@@ -166,6 +166,13 @@ import java.util.Locale;
   }
 
   /**
+   * Returns the current track selection.
+   */
+  public TrackSelection getTrackSelection() {
+    return trackSelection;
+  }
+
+  /**
    * Resets the source.
    */
   public void reset() {
