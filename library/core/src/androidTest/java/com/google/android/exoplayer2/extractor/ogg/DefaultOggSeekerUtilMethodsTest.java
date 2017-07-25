@@ -34,7 +34,7 @@ public class DefaultOggSeekerUtilMethodsTest extends TestCase {
     FakeExtractorInput extractorInput = TestData.createInput(
         TestUtil.joinByteArrays(
             TestUtil.buildTestData(4000, random),
-            new byte[]{'O', 'g', 'g', 'S'},
+            new byte[] {'O', 'g', 'g', 'S'},
             TestUtil.buildTestData(4000, random)
         ), false);
     skipToNextPage(extractorInput);
@@ -45,7 +45,7 @@ public class DefaultOggSeekerUtilMethodsTest extends TestCase {
     FakeExtractorInput extractorInput = TestData.createInput(
         TestUtil.joinByteArrays(
             TestUtil.buildTestData(2046, random),
-            new byte[]{'O', 'g', 'g', 'S'},
+            new byte[] {'O', 'g', 'g', 'S'},
             TestUtil.buildTestData(4000, random)
         ), false);
     skipToNextPage(extractorInput);
@@ -55,7 +55,7 @@ public class DefaultOggSeekerUtilMethodsTest extends TestCase {
   public void testSkipToNextPageInputShorterThanPeekLength() throws Exception {
     FakeExtractorInput extractorInput = TestData.createInput(
         TestUtil.joinByteArrays(
-            new byte[]{'x', 'O', 'g', 'g', 'S'}
+            new byte[] {'x', 'O', 'g', 'g', 'S'}
         ), false);
     skipToNextPage(extractorInput);
     assertEquals(1, extractorInput.getPosition());
@@ -63,7 +63,7 @@ public class DefaultOggSeekerUtilMethodsTest extends TestCase {
 
   public void testSkipToNextPageNoMatch() throws Exception {
     FakeExtractorInput extractorInput = TestData.createInput(
-        new byte[]{'g', 'g', 'S', 'O', 'g', 'g'}, false);
+        new byte[] {'g', 'g', 'S', 'O', 'g', 'g'}, false);
     try {
       skipToNextPage(extractorInput);
       fail();
