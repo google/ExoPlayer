@@ -690,7 +690,9 @@ public class DashManifestParser extends DefaultHandler
       throws XmlPullParserException, IOException {
     String schemeIdUri = parseString(xpp, "schemeIdUri", null);
     int audioChannels = "urn:mpeg:dash:23003:3:audio_channel_configuration:2011".equals(schemeIdUri)
-        ? parseInt(xpp, "value", Format.NO_VALUE) : Format.NO_VALUE;
+        ? parseInt(xpp, "value", Format.NO_VALUE) :
+        ("tag:dolby.com,2014:dash:audio_channel_configuration:2011".equals(schemeIdUri)
+        ? parseDolbyChannelConfiguration(xpp, "value", Format.NO_VALUE) : Format.NO_VALUE);
     do {
       xpp.next();
     } while (!XmlPullParserUtil.isEndTag(xpp, "AudioChannelConfiguration"));
@@ -899,6 +901,33 @@ public class DashManifestParser extends DefaultHandler
   protected static String parseString(XmlPullParser xpp, String name, String defaultValue) {
     String value = xpp.getAttributeValue(null, name);
     return value == null ? defaultValue : value;
+  }
+
+  protected static int parseDolbyChannelConfiguration(XmlPullParser xpp, String name,
+      int defaultValue) {
+    String value = xpp.getAttributeValue(null, name).toUpperCase();
+    int channels;
+    if (value == null) {
+      return defaultValue;
+    }
+    // TODO: Parse other channel configurations
+    switch (value) {
+      case "4000":
+        channels = 1;
+        break;
+      case "A000":
+        channels = 2;
+        break;
+      case "F801":
+        channels = 6;
+        break;
+      case "FA01":
+        channels = 8;
+        break;
+      default:
+        channels = defaultValue;
+    }
+    return channels;
   }
 
   private static final class RepresentationInfo {
