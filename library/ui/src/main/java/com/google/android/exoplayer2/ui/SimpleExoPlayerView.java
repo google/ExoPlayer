@@ -168,6 +168,15 @@ import java.util.List;
  *        <li>Type: {@link View}</li>
  *       </ul>
  *   </li>
+ *   <li><b>{@code exo_controller}</b> - An already inflated instance of
+ *       {@link PlaybackControlView}. Allows you to use your own {@link PlaybackControlView} instead
+ *       of default. Note: attrs such as rewind_increment will not be passed through to this
+ *       instance and should be set at creation. {@code exo_controller_placeholder} will be ignored
+ *       if this is set.
+ *       <ul>
+ *        <li>Type: {@link View}</li>
+ *       </ul>
+ *   </li>
  *   <li><b>{@code exo_overlay}</b> - A {@link FrameLayout} positioned on top of the player which
  *       the app can access via {@link #getOverlayFrameLayout()}, provided for convenience.
  *       <ul>
@@ -315,8 +324,11 @@ public final class SimpleExoPlayerView extends FrameLayout {
     }
 
     // Playback control view.
+    PlaybackControlView customController = (PlaybackControlView) findViewById(R.id.exo_controller);
     View controllerPlaceholder = findViewById(R.id.exo_controller_placeholder);
-    if (controllerPlaceholder != null) {
+    if (customController != null) {
+      this.controller = customController;
+    } else if (controllerPlaceholder != null) {
       // Note: rewindMs and fastForwardMs are passed via attrs, so we don't need to make explicit
       // calls to set them.
       this.controller = new PlaybackControlView(context, attrs);
