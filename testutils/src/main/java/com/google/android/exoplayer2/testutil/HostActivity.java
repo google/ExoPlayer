@@ -24,7 +24,6 @@ import android.net.wifi.WifiManager;
 import android.net.wifi.WifiManager.WifiLock;
 import android.os.Bundle;
 import android.os.ConditionVariable;
-import android.os.Handler;
 import android.os.PowerManager;
 import android.os.PowerManager.WakeLock;
 import android.util.Log;
@@ -57,17 +56,19 @@ public final class HostActivity extends Activity implements SurfaceHolder.Callba
     void onStart(HostActivity host, Surface surface);
 
     /**
-     * Called on the main thread to check whether the test is ready to be stopped.
+     * Called on the main thread to block until the test has stopped or {@link #onStop()} is called.
      *
-     * @return Whether the test is ready to be stopped.
+     * @param timeoutMs The maximum time to block in milliseconds.
+     * @return Whether the test has stopped successful.
      */
-    boolean canStop();
+    boolean blockUntilEnded(long timeoutMs);
 
     /**
      * Called on the main thread when the test is stopped.
      * <p>
-     * The test will be stopped if {@link #canStop()} returns true, if the {@link HostActivity} has
-     * been paused, or if the {@link HostActivity}'s {@link Surface} has been destroyed.
+     * The test will be stopped when {@link #blockUntilEnded(long)} returns, if the
+     * {@link HostActivity} has been paused, or if the {@link HostActivity}'s {@link Surface} has
+     * been destroyed.
      */
     void onStop();
 
@@ -85,13 +86,10 @@ public final class HostActivity extends Activity implements SurfaceHolder.Callba
   private WakeLock wakeLock;
   private WifiLock wifiLock;
   private SurfaceView surfaceView;
-  private Handler mainHandler;
-  private CheckCanStopRunnable checkCanStopRunnable;
 
   private HostedTest hostedTest;
-  private ConditionVariable hostedTestStoppedCondition;
   private boolean hostedTestStarted;
-  private boolean hostedTestFinished;
+  private boolean forcedFinished;
 
   /**
    * Executes a {@link HostedTest} inside the host.
@@ -100,7 +98,7 @@ public final class HostActivity extends Activity implements SurfaceHolder.Callba
    * @param timeoutMs The number of milliseconds to wait for the test to finish. If the timeout
    *     is exceeded then the test will fail.
    */
-  public void runTest(final HostedTest hostedTest, long timeoutMs) {
+  public void runTest(HostedTest hostedTest, long timeoutMs) {
     runTest(hostedTest, timeoutMs, true);
   }
 
@@ -111,27 +109,31 @@ public final class HostActivity extends Activity implements SurfaceHolder.Callba
    * @param timeoutMs The number of milliseconds to wait for the test to finish.
    * @param failOnTimeout Whether the test fails when the timeout is exceeded.
    */
-  public void runTest(final HostedTest hostedTest, long timeoutMs, boolean failOnTimeout) {
+  public void runTest(HostedTest hostedTest, long timeoutMs, boolean failOnTimeout) {
     Assertions.checkArgument(timeoutMs > 0);
     Assertions.checkState(Thread.currentThread() != getMainLooper().getThread());
 
     Assertions.checkState(this.hostedTest == null);
     this.hostedTest = Assertions.checkNotNull(hostedTest);
-    hostedTestStoppedCondition = new ConditionVariable();
     hostedTestStarted = false;
-    hostedTestFinished = false;
+    forcedFinished = false;
 
+    final ConditionVariable testStarted = new ConditionVariable();
     runOnUiThread(new Runnable() {
       @Override
       public void run() {
         maybeStartHostedTest();
+        testStarted.open();
       }
     });
+    testStarted.block();
 
-    if (hostedTestStoppedCondition.block(timeoutMs)) {
-      if (hostedTestFinished) {
+    if (hostedTest.blockUntilEnded(timeoutMs)) {
+      hostedTest.onStop();
+      if (!forcedFinished) {
         Log.d(TAG, "Test finished. Checking pass conditions.");
         hostedTest.onFinished();
+        this.hostedTest = null;
         Log.d(TAG, "Pass conditions checked.");
       } else {
         String message = "Test released before it finished. Activity may have been paused whilst "
@@ -146,7 +148,6 @@ public final class HostActivity extends Activity implements SurfaceHolder.Callba
         fail(message);
       }
       maybeStopHostedTest();
-      hostedTestStoppedCondition.block();
     }
   }
 
@@ -160,8 +161,6 @@ public final class HostActivity extends Activity implements SurfaceHolder.Callba
     surfaceView = (SurfaceView) findViewById(
         getResources().getIdentifier("surface_view", "id", getPackageName()));
     surfaceView.getHolder().addCallback(this);
-    mainHandler = new Handler();
-    checkCanStopRunnable = new CheckCanStopRunnable();
   }
 
   @Override
@@ -225,50 +224,20 @@ public final class HostActivity extends Activity implements SurfaceHolder.Callba
       hostedTestStarted = true;
       Log.d(TAG, "Starting test.");
       hostedTest.onStart(this, surface);
-      checkCanStopRunnable.startChecking();
     }
   }
 
   private void maybeStopHostedTest() {
     if (hostedTest != null && hostedTestStarted) {
+      forcedFinished = true;
       hostedTest.onStop();
       hostedTest = null;
-      mainHandler.removeCallbacks(checkCanStopRunnable);
-      // We post opening of the stopped condition so that any events posted to the main thread as a
-      // result of hostedTest.onStop() are guaranteed to be handled before hostedTest.onFinished()
-      // is called from runTest.
-      mainHandler.post(new Runnable() {
-        @Override
-        public void run() {
-          hostedTestStoppedCondition.open();
-        }
-      });
     }
   }
 
   @SuppressLint("InlinedApi")
   private static int getWifiLockMode() {
     return Util.SDK_INT < 12 ? WifiManager.WIFI_MODE_FULL : WifiManager.WIFI_MODE_FULL_HIGH_PERF;
-  }
-
-  private final class CheckCanStopRunnable implements Runnable {
-
-    private static final long CHECK_INTERVAL_MS = 1000;
-
-    private void startChecking() {
-      mainHandler.post(this);
-    }
-
-    @Override
-    public void run() {
-      if (hostedTest.canStop()) {
-        hostedTestFinished = true;
-        maybeStopHostedTest();
-      } else {
-        mainHandler.postDelayed(this, CHECK_INTERVAL_MS);
-      }
-    }
-
   }
 
 }

@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.testutil;
 
+import android.os.ConditionVariable;
 import android.os.Handler;
 import android.os.SystemClock;
 import android.util.Log;
@@ -72,6 +73,7 @@ public abstract class ExoHostedTest implements HostedTest, Player.EventListener,
   private final long expectedPlayingTimeMs;
   private final DecoderCounters videoDecoderCounters;
   private final DecoderCounters audioDecoderCounters;
+  private final ConditionVariable playerFinished;
 
   private ActionSchedule pendingSchedule;
   private Handler actionHandler;
@@ -81,7 +83,7 @@ public abstract class ExoHostedTest implements HostedTest, Player.EventListener,
   private ExoPlaybackException playerError;
   private Player.EventListener playerEventListener;
   private boolean playerWasPrepared;
-  private boolean playerFinished;
+
   private boolean playing;
   private long totalPlayingTimeMs;
   private long lastPlayingStartTimeMs;
@@ -114,8 +116,9 @@ public abstract class ExoHostedTest implements HostedTest, Player.EventListener,
     this.tag = tag;
     this.expectedPlayingTimeMs = expectedPlayingTimeMs;
     this.failOnPlayerError = failOnPlayerError;
-    videoDecoderCounters = new DecoderCounters();
-    audioDecoderCounters = new DecoderCounters();
+    this.playerFinished = new ConditionVariable();
+    this.videoDecoderCounters = new DecoderCounters();
+    this.audioDecoderCounters = new DecoderCounters();
   }
 
   /**
@@ -169,8 +172,8 @@ public abstract class ExoHostedTest implements HostedTest, Player.EventListener,
   }
 
   @Override
-  public final boolean canStop() {
-    return playerFinished;
+  public final boolean blockUntilEnded(long timeoutMs) {
+    return playerFinished.block(timeoutMs);
   }
 
   @Override
@@ -219,7 +222,7 @@ public abstract class ExoHostedTest implements HostedTest, Player.EventListener,
     playerWasPrepared |= playbackState != Player.STATE_IDLE;
     if (playbackState == Player.STATE_ENDED
         || (playbackState == Player.STATE_IDLE && playerWasPrepared)) {
-      playerFinished = true;
+      playerFinished.open();
     }
     boolean playing = playWhenReady && playbackState == Player.STATE_READY;
     if (!this.playing && playing) {
