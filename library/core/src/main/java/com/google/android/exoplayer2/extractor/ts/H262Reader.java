@@ -51,7 +51,7 @@ public final class H262Reader implements ElementaryStreamReader {
   // State that should be reset on seek.
   private final boolean[] prefixFlags;
   private final CsdBuffer csdBuffer;
-  private boolean foundFirstFrameInGroup;
+  private boolean foundPicture;
   private long totalBytesWritten;
 
   // Per packet state that gets reset at the start of each packet.
@@ -60,8 +60,8 @@ public final class H262Reader implements ElementaryStreamReader {
 
   // Per sample state that gets reset at the start of each frame.
   private boolean isKeyframe;
-  private long framePosition;
-  private long frameTimeUs;
+  private long samplePosition;
+  private long sampleTimeUs;
 
   public H262Reader() {
     prefixFlags = new boolean[4];
@@ -73,7 +73,8 @@ public final class H262Reader implements ElementaryStreamReader {
     NalUnitUtil.clearPrefixFlags(prefixFlags);
     csdBuffer.reset();
     pesPtsUsAvailable = false;
-    foundFirstFrameInGroup = false;
+    foundPicture = false;
+    samplePosition = C.POSITION_UNSET;
     totalBytesWritten = 0;
   }
 
@@ -136,23 +137,26 @@ public final class H262Reader implements ElementaryStreamReader {
         }
       }
 
-      if (hasOutputFormat && (startCodeValue == START_GROUP || startCodeValue == START_PICTURE)) {
+      if (hasOutputFormat && (startCodeValue == START_PICTURE || startCodeValue == START_SEQUENCE_HEADER)) {
         int bytesWrittenPastStartCode = limit - startCodeOffset;
-        if (foundFirstFrameInGroup) {
+        boolean resetSample = (samplePosition == C.POSITION_UNSET);
+        if (foundPicture) {
           @C.BufferFlags int flags = isKeyframe ? C.BUFFER_FLAG_KEY_FRAME : 0;
-          int size = (int) (totalBytesWritten - framePosition) - bytesWrittenPastStartCode;
-          output.sampleMetadata(frameTimeUs, flags, size, bytesWrittenPastStartCode, null);
+          int size = (int) (totalBytesWritten - samplePosition) - bytesWrittenPastStartCode;
+          output.sampleMetadata(sampleTimeUs, flags, size, bytesWrittenPastStartCode, null);
           isKeyframe = false;
+          resetSample = true;
         }
-        if (startCodeValue == START_GROUP) {
-          foundFirstFrameInGroup = false;
-          isKeyframe = true;
-        } else /* startCodeValue == START_PICTURE */ {
-          frameTimeUs = pesPtsUsAvailable ? pesTimeUs : (frameTimeUs + frameDurationUs);
-          framePosition = totalBytesWritten - bytesWrittenPastStartCode;
+        foundPicture = (startCodeValue == START_PICTURE);
+        if (resetSample) {
+          samplePosition = totalBytesWritten - bytesWrittenPastStartCode;
+          sampleTimeUs = (pesPtsUsAvailable ? pesTimeUs : sampleTimeUs + frameDurationUs);
           pesPtsUsAvailable = false;
-          foundFirstFrameInGroup = true;
         }
+      }
+
+      if (hasOutputFormat && startCodeValue == START_GROUP) {
+        isKeyframe = true;
       }
 
       offset = startCodeOffset;
