@@ -83,11 +83,21 @@ public final class CodecSpecificDataUtil {
   /**
    * Parses an AudioSpecificConfig, as defined in ISO 14496-3 1.6.2.1
    *
-   * @param audioSpecificConfig The AudioSpecificConfig to parse.
+   * @param audioSpecificConfig A byte array containing the AudioSpecificConfig to parse.
    * @return A pair consisting of the sample rate in Hz and the channel count.
    */
   public static Pair<Integer, Integer> parseAacAudioSpecificConfig(byte[] audioSpecificConfig) {
-    ParsableBitArray bitArray = new ParsableBitArray(audioSpecificConfig);
+    return parseAacAudioSpecificConfig(new ParsableBitArray(audioSpecificConfig));
+  }
+
+  /**
+   * Parses an AudioSpecificConfig, as defined in ISO 14496-3 1.6.2.1
+   *
+   * @param bitArray A {@link ParsableBitArray} containing the AudioSpecificConfig to parse. The
+   *     position is advanced to the end of the AudioSpecificConfig.
+   * @return A pair consisting of the sample rate in Hz and the channel count.
+   */
+  public static Pair<Integer, Integer> parseAacAudioSpecificConfig(ParsableBitArray bitArray) {
     int audioObjectType = getAacAudioObjectType(bitArray);
     int sampleRate = getAacSamplingFrequency(bitArray);
     int channelConfiguration = bitArray.readBits(4);
@@ -104,6 +114,39 @@ public final class CodecSpecificDataUtil {
         channelConfiguration = bitArray.readBits(4);
       }
     }
+
+    switch (audioObjectType) {
+      case 1:
+      case 2:
+      case 3:
+      case 4:
+      case 6:
+      case 7:
+      case 17:
+      case 19:
+      case 20:
+      case 21:
+      case 22:
+      case 23:
+        parseGaSpecificConfig(bitArray, audioObjectType, channelConfiguration);
+        break;
+      default:
+        throw new UnsupportedOperationException();
+    }
+    switch (audioObjectType) {
+      case 17:
+      case 19:
+      case 20:
+      case 21:
+      case 22:
+      case 23:
+        int epConfig = bitArray.readBits(2);
+        if (epConfig == 2 || epConfig == 3) {
+          throw new UnsupportedOperationException();
+        }
+        break;
+    }
+    // For supported containers, bits_to_decode() is always 0.
     int channelCount = AUDIO_SPECIFIC_CONFIG_CHANNEL_COUNT_TABLE[channelConfiguration];
     Assertions.checkArgument(channelCount != AUDIO_SPECIFIC_CONFIG_CHANNEL_CONFIGURATION_INVALID);
     return Pair.create(sampleRate, channelCount);
@@ -267,6 +310,34 @@ public final class CodecSpecificDataUtil {
       samplingFrequency = AUDIO_SPECIFIC_CONFIG_SAMPLING_RATE_TABLE[frequencyIndex];
     }
     return samplingFrequency;
+  }
+
+  private static void parseGaSpecificConfig(ParsableBitArray bitArray, int audioObjectType,
+      int channelConfiguration) {
+    bitArray.skipBits(1); // frameLengthFlag.
+    boolean dependsOnCoreDecoder = bitArray.readBit();
+    if (dependsOnCoreDecoder) {
+      bitArray.skipBits(14); // coreCoderDelay.
+    }
+    boolean extensionFlag = bitArray.readBit();
+    if (channelConfiguration == 0) {
+      throw new UnsupportedOperationException(); // TODO: Implement programConfigElement();
+    }
+    if (audioObjectType == 6 || audioObjectType == 20) {
+      bitArray.skipBits(3); // layerNr.
+    }
+    if (extensionFlag) {
+      if (audioObjectType == 22) {
+        bitArray.skipBits(16); // numOfSubFrame (5), layer_length(11).
+      }
+      if (audioObjectType == 17 || audioObjectType == 19 || audioObjectType == 20
+          || audioObjectType == 23) {
+        // aacSectionDataResilienceFlag, aacScalefactorDataResilienceFlag,
+        // aacSpectralDataResilienceFlag.
+        bitArray.skipBits(3);
+      }
+      bitArray.skipBits(1); // extensionFlag3.
+    }
   }
 
 }
