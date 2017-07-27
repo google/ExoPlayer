@@ -18,6 +18,7 @@ package com.google.android.exoplayer2.ext.vp9;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.os.Handler;
+import android.os.Looper;
 import android.os.SystemClock;
 import android.view.Surface;
 import com.google.android.exoplayer2.BaseRenderer;
@@ -28,8 +29,13 @@ import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.FormatHolder;
 import com.google.android.exoplayer2.decoder.DecoderCounters;
 import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
+import com.google.android.exoplayer2.drm.DrmSession;
+import com.google.android.exoplayer2.drm.DrmSessionManager;
+import com.google.android.exoplayer2.drm.ExoMediaCrypto;
+import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.TraceUtil;
+import com.google.android.exoplayer2.util.Util;
 import com.google.android.exoplayer2.video.VideoRendererEventListener;
 import com.google.android.exoplayer2.video.VideoRendererEventListener.EventDispatcher;
 
@@ -56,8 +62,11 @@ public final class LibvpxVideoRenderer extends BaseRenderer {
   private final boolean scaleToFit;
   private final long allowedJoiningTimeMs;
   private final int maxDroppedFramesToNotify;
+  private final boolean playClearSamplesWithoutKeys;
   private final EventDispatcher eventDispatcher;
   private final FormatHolder formatHolder;
+  private final DecoderInputBuffer flagsOnlyBuffer;
+  private final DrmSessionManager<ExoMediaCrypto> drmSessionManager;
 
   private DecoderCounters decoderCounters;
   private Format format;
@@ -65,6 +74,8 @@ public final class LibvpxVideoRenderer extends BaseRenderer {
   private DecoderInputBuffer inputBuffer;
   private VpxOutputBuffer outputBuffer;
   private VpxOutputBuffer nextOutputBuffer;
+  private DrmSession<ExoMediaCrypto> drmSession;
+  private DrmSession<ExoMediaCrypto> pendingDrmSession;
 
   private Bitmap bitmap;
   private boolean renderedFirstFrame;
@@ -72,11 +83,12 @@ public final class LibvpxVideoRenderer extends BaseRenderer {
   private Surface surface;
   private VpxOutputBufferRenderer outputBufferRenderer;
   private int outputMode;
+  private boolean waitingForKeys;
 
   private boolean inputStreamEnded;
   private boolean outputStreamEnded;
-  private int previousWidth;
-  private int previousHeight;
+  private int reportedWidth;
+  private int reportedHeight;
 
   private long droppedFrameAccumulationStartTimeMs;
   private int droppedFrames;
@@ -104,14 +116,41 @@ public final class LibvpxVideoRenderer extends BaseRenderer {
   public LibvpxVideoRenderer(boolean scaleToFit, long allowedJoiningTimeMs,
       Handler eventHandler, VideoRendererEventListener eventListener,
       int maxDroppedFramesToNotify) {
+    this(scaleToFit, allowedJoiningTimeMs, eventHandler, eventListener, maxDroppedFramesToNotify,
+        null, false);
+  }
+
+  /**
+   * @param scaleToFit Whether video frames should be scaled to fit when rendering.
+   * @param allowedJoiningTimeMs The maximum duration in milliseconds for which this video renderer
+   *     can attempt to seamlessly join an ongoing playback.
+   * @param eventHandler A handler to use when delivering events to {@code eventListener}. May be
+   *     null if delivery of events is not required.
+   * @param eventListener A listener of events. May be null if delivery of events is not required.
+   * @param maxDroppedFramesToNotify The maximum number of frames that can be dropped between
+   *     invocations of {@link VideoRendererEventListener#onDroppedFrames(int, long)}.
+   * @param drmSessionManager For use with encrypted media. May be null if support for encrypted
+   *     media is not required.
+   * @param playClearSamplesWithoutKeys Encrypted media may contain clear (un-encrypted) regions.
+   *     For example a media file may start with a short clear region so as to allow playback to
+   *     begin in parallel with key acquisition. This parameter specifies whether the renderer is
+   *     permitted to play clear regions of encrypted media files before {@code drmSessionManager}
+   *     has obtained the keys necessary to decrypt encrypted regions of the media.
+   */
+  public LibvpxVideoRenderer(boolean scaleToFit, long allowedJoiningTimeMs,
+      Handler eventHandler, VideoRendererEventListener eventListener,
+      int maxDroppedFramesToNotify, DrmSessionManager<ExoMediaCrypto> drmSessionManager,
+      boolean playClearSamplesWithoutKeys) {
     super(C.TRACK_TYPE_VIDEO);
     this.scaleToFit = scaleToFit;
     this.allowedJoiningTimeMs = allowedJoiningTimeMs;
     this.maxDroppedFramesToNotify = maxDroppedFramesToNotify;
-    joiningDeadlineMs = -1;
-    previousWidth = -1;
-    previousHeight = -1;
+    this.drmSessionManager = drmSessionManager;
+    this.playClearSamplesWithoutKeys = playClearSamplesWithoutKeys;
+    joiningDeadlineMs = C.TIME_UNSET;
+    clearReportedVideoSize();
     formatHolder = new FormatHolder();
+    flagsOnlyBuffer = DecoderInputBuffer.newFlagsOnlyInstance();
     eventDispatcher = new EventDispatcher(eventHandler, eventListener);
     outputMode = VpxDecoder.OUTPUT_MODE_NONE;
   }
@@ -128,35 +167,58 @@ public final class LibvpxVideoRenderer extends BaseRenderer {
       return;
     }
 
-    // Try and read a format if we don't have one already.
-    if (format == null && !readFormat()) {
-      // We can't make progress without one.
-      return;
+    if (format == null) {
+      // We don't have a format yet, so try and read one.
+      flagsOnlyBuffer.clear();
+      int result = readSource(formatHolder, flagsOnlyBuffer, true);
+      if (result == C.RESULT_FORMAT_READ) {
+        onInputFormatChanged(formatHolder.format);
+      } else if (result == C.RESULT_BUFFER_READ) {
+        // End of stream read having not read a format.
+        Assertions.checkState(flagsOnlyBuffer.isEndOfStream());
+        inputStreamEnded = true;
+        outputStreamEnded = true;
+        return;
+      } else {
+        // We still don't have a format and can't make progress without one.
+        return;
+      }
     }
 
-    if (isRendererAvailable()) {
-      try {
-        if (decoder == null) {
-          // If we don't have a decoder yet, we need to instantiate one.
-          long codecInitializingTimestamp = SystemClock.elapsedRealtime();
-          TraceUtil.beginSection("createVpxDecoder");
-          decoder = new VpxDecoder(NUM_BUFFERS, NUM_BUFFERS, INITIAL_INPUT_BUFFER_SIZE);
-          decoder.setOutputMode(outputMode);
-          TraceUtil.endSection();
-          long codecInitializedTimestamp = SystemClock.elapsedRealtime();
-          eventDispatcher.decoderInitialized(decoder.getName(), codecInitializedTimestamp,
-              codecInitializedTimestamp - codecInitializingTimestamp);
-          decoderCounters.decoderInitCount++;
-        }
-        TraceUtil.beginSection("drainAndFeed");
-        while (drainOutputBuffer(positionUs)) {}
-        while (feedInputBuffer()) {}
-        TraceUtil.endSection();
-      } catch (VpxDecoderException e) {
-        throw ExoPlaybackException.createForRenderer(e, getIndex());
+    // We have a format.
+    drmSession = pendingDrmSession;
+    ExoMediaCrypto mediaCrypto = null;
+    if (drmSession != null) {
+      int drmSessionState = drmSession.getState();
+      if (drmSessionState == DrmSession.STATE_ERROR) {
+        throw ExoPlaybackException.createForRenderer(drmSession.getError(), getIndex());
+      } else if (drmSessionState == DrmSession.STATE_OPENED
+          || drmSessionState == DrmSession.STATE_OPENED_WITH_KEYS) {
+        mediaCrypto = drmSession.getMediaCrypto();
+      } else {
+        // The drm session isn't open yet.
+        return;
       }
-    } else {
-      skipToKeyframeBefore(positionUs);
+    }
+    try {
+      if (decoder == null) {
+        // If we don't have a decoder yet, we need to instantiate one.
+        long codecInitializingTimestamp = SystemClock.elapsedRealtime();
+        TraceUtil.beginSection("createVpxDecoder");
+        decoder = new VpxDecoder(NUM_BUFFERS, NUM_BUFFERS, INITIAL_INPUT_BUFFER_SIZE, mediaCrypto);
+        decoder.setOutputMode(outputMode);
+        TraceUtil.endSection();
+        long codecInitializedTimestamp = SystemClock.elapsedRealtime();
+        eventDispatcher.decoderInitialized(decoder.getName(), codecInitializedTimestamp,
+            codecInitializedTimestamp - codecInitializingTimestamp);
+        decoderCounters.decoderInitCount++;
+      }
+      TraceUtil.beginSection("drainAndFeed");
+      while (drainOutputBuffer(positionUs)) {}
+      while (feedInputBuffer()) {}
+      TraceUtil.endSection();
+    } catch (VpxDecoderException e) {
+      throw ExoPlaybackException.createForRenderer(e, getIndex());
     }
     decoderCounters.ensureUpdated();
   }
@@ -191,27 +253,26 @@ public final class LibvpxVideoRenderer extends BaseRenderer {
       return false;
     }
 
-    // Drop the frame if we're joining and are more than 30ms late, or if we have the next frame
-    // and that's also late. Else we'll render what we have.
-    if ((joiningDeadlineMs != -1 && outputBuffer.timeUs < positionUs - 30000)
-        || (nextOutputBuffer != null && !nextOutputBuffer.isEndOfStream()
-        && nextOutputBuffer.timeUs < positionUs)) {
-      decoderCounters.droppedOutputBufferCount++;
-      droppedFrames++;
-      consecutiveDroppedFrameCount++;
-      decoderCounters.maxConsecutiveDroppedOutputBufferCount = Math.max(
-          consecutiveDroppedFrameCount,
-          decoderCounters.maxConsecutiveDroppedOutputBufferCount);
-      if (droppedFrames == maxDroppedFramesToNotify) {
-        maybeNotifyDroppedFrames();
+    if (outputMode == VpxDecoder.OUTPUT_MODE_NONE) {
+      // Skip frames in sync with playback, so we'll be at the right frame if the mode changes.
+      if (outputBuffer.timeUs <= positionUs) {
+        skipBuffer();
+        return true;
       }
-      outputBuffer.release();
-      outputBuffer = null;
+      return false;
+    }
+
+    final long nextOutputBufferTimeUs =
+        nextOutputBuffer != null && !nextOutputBuffer.isEndOfStream()
+            ? nextOutputBuffer.timeUs : C.TIME_UNSET;
+    if (shouldDropOutputBuffer(
+        outputBuffer.timeUs, nextOutputBufferTimeUs, positionUs, joiningDeadlineMs)) {
+      dropBuffer();
       return true;
     }
 
-    // If we have not rendered any frame so far (either initially or immediately following a seek),
-    // render one frame irrespective of the state or current position.
+    // If we have yet to render a frame to the current output (either initially or immediately
+    // following a seek), render one irrespective of the state or current position.
     if (!renderedFirstFrame
         || (getState() == STATE_STARTED && outputBuffer.timeUs <= positionUs + 30000)) {
       renderBuffer();
@@ -219,27 +280,63 @@ public final class LibvpxVideoRenderer extends BaseRenderer {
     return false;
   }
 
+
+  /**
+   * Returns whether the current frame should be dropped.
+   *
+   * @param outputBufferTimeUs The timestamp of the current output buffer.
+   * @param nextOutputBufferTimeUs The timestamp of the next output buffer or
+   *     {@link C#TIME_UNSET} if the next output buffer is unavailable.
+   * @param positionUs The current playback position.
+   * @param joiningDeadlineMs The joining deadline.
+   * @return Returns whether to drop the current output buffer.
+   */
+  protected boolean shouldDropOutputBuffer(long outputBufferTimeUs, long nextOutputBufferTimeUs,
+      long positionUs, long joiningDeadlineMs) {
+     // Drop the frame if we're joining and are more than 30ms late, or if we have the next frame
+     // and that's also late. Else we'll render what we have.
+    return (joiningDeadlineMs != C.TIME_UNSET && outputBufferTimeUs < positionUs - 30000)
+        || (nextOutputBufferTimeUs != C.TIME_UNSET && nextOutputBufferTimeUs < positionUs);
+  }
+
   private void renderBuffer() {
-    decoderCounters.renderedOutputBufferCount++;
-    consecutiveDroppedFrameCount = 0;
-    maybeNotifyVideoSizeChanged(outputBuffer.width, outputBuffer.height);
-    if (outputBuffer.mode == VpxDecoder.OUTPUT_MODE_RGB && surface != null) {
-      renderRgbFrame(outputBuffer, scaleToFit);
-      if (!renderedFirstFrame) {
-        renderedFirstFrame = true;
-        eventDispatcher.renderedFirstFrame(surface);
-      }
-      outputBuffer.release();
-    } else if (outputBuffer.mode == VpxDecoder.OUTPUT_MODE_YUV && outputBufferRenderer != null) {
-      // The renderer will release the buffer.
-      outputBufferRenderer.setOutputBuffer(outputBuffer);
-      if (!renderedFirstFrame) {
-        renderedFirstFrame = true;
-        eventDispatcher.renderedFirstFrame(null);
-      }
+    int bufferMode = outputBuffer.mode;
+    boolean renderRgb = bufferMode == VpxDecoder.OUTPUT_MODE_RGB && surface != null;
+    boolean renderYuv = bufferMode == VpxDecoder.OUTPUT_MODE_YUV && outputBufferRenderer != null;
+    if (!renderRgb && !renderYuv) {
+      dropBuffer();
     } else {
-      outputBuffer.release();
+      maybeNotifyVideoSizeChanged(outputBuffer.width, outputBuffer.height);
+      if (renderRgb) {
+        renderRgbFrame(outputBuffer, scaleToFit);
+        outputBuffer.release();
+      } else /* renderYuv */ {
+        outputBufferRenderer.setOutputBuffer(outputBuffer);
+        // The renderer will release the buffer.
+      }
+      outputBuffer = null;
+      consecutiveDroppedFrameCount = 0;
+      decoderCounters.renderedOutputBufferCount++;
+      maybeNotifyRenderedFirstFrame();
     }
+  }
+
+  private void dropBuffer() {
+    decoderCounters.droppedOutputBufferCount++;
+    droppedFrames++;
+    consecutiveDroppedFrameCount++;
+    decoderCounters.maxConsecutiveDroppedOutputBufferCount = Math.max(
+        consecutiveDroppedFrameCount, decoderCounters.maxConsecutiveDroppedOutputBufferCount);
+    if (droppedFrames == maxDroppedFramesToNotify) {
+      maybeNotifyDroppedFrames();
+    }
+    outputBuffer.release();
+    outputBuffer = null;
+  }
+
+  private void skipBuffer() {
+    decoderCounters.skippedOutputBufferCount++;
+    outputBuffer.release();
     outputBuffer = null;
   }
 
@@ -258,7 +355,7 @@ public final class LibvpxVideoRenderer extends BaseRenderer {
     surface.unlockCanvasAndPost(canvas);
   }
 
-  private boolean feedInputBuffer() throws VpxDecoderException {
+  private boolean feedInputBuffer() throws VpxDecoderException, ExoPlaybackException {
     if (inputStreamEnded) {
       return false;
     }
@@ -270,7 +367,14 @@ public final class LibvpxVideoRenderer extends BaseRenderer {
       }
     }
 
-    int result = readSource(formatHolder, inputBuffer);
+    int result;
+    if (waitingForKeys) {
+      // We've already read an encrypted sample into buffer, and are waiting for keys.
+      result = C.RESULT_BUFFER_READ;
+    } else {
+      result = readSource(formatHolder, inputBuffer, false);
+    }
+
     if (result == C.RESULT_NOTHING_READ) {
       return false;
     }
@@ -284,6 +388,11 @@ public final class LibvpxVideoRenderer extends BaseRenderer {
       inputBuffer = null;
       return false;
     }
+    boolean bufferEncrypted = inputBuffer.isEncrypted();
+    waitingForKeys = shouldWaitForKeys(bufferEncrypted);
+    if (waitingForKeys) {
+      return false;
+    }
     inputBuffer.flip();
     decoder.queueInputBuffer(inputBuffer);
     decoderCounters.inputBufferCount++;
@@ -291,8 +400,21 @@ public final class LibvpxVideoRenderer extends BaseRenderer {
     return true;
   }
 
+  private boolean shouldWaitForKeys(boolean bufferEncrypted) throws ExoPlaybackException {
+    if (drmSession == null) {
+      return false;
+    }
+    int drmSessionState = drmSession.getState();
+    if (drmSessionState == DrmSession.STATE_ERROR) {
+      throw ExoPlaybackException.createForRenderer(drmSession.getError(), getIndex());
+    }
+    return drmSessionState != DrmSession.STATE_OPENED_WITH_KEYS
+        && (bufferEncrypted || !playClearSamplesWithoutKeys);
+  }
+
   private void flushDecoder() {
     inputBuffer = null;
+    waitingForKeys = false;
     if (outputBuffer != null) {
       outputBuffer.release();
       outputBuffer = null;
@@ -311,12 +433,15 @@ public final class LibvpxVideoRenderer extends BaseRenderer {
 
   @Override
   public boolean isReady() {
+    if (waitingForKeys) {
+      return false;
+    }
     if (format != null && (isSourceReady() || outputBuffer != null)
-        && (renderedFirstFrame || !isRendererAvailable())) {
+        && (renderedFirstFrame || outputMode == VpxDecoder.OUTPUT_MODE_NONE)) {
       // Ready. If we were joining then we've now joined, so clear the joining deadline.
-      joiningDeadlineMs = -1;
+      joiningDeadlineMs = C.TIME_UNSET;
       return true;
-    } else if (joiningDeadlineMs == -1) {
+    } else if (joiningDeadlineMs == C.TIME_UNSET) {
       // Not joining.
       return false;
     } else if (SystemClock.elapsedRealtime() < joiningDeadlineMs) {
@@ -324,7 +449,7 @@ public final class LibvpxVideoRenderer extends BaseRenderer {
       return true;
     } else {
       // The joining deadline has been exceeded. Give up and clear the deadline.
-      joiningDeadlineMs = -1;
+      joiningDeadlineMs = C.TIME_UNSET;
       return false;
     }
   }
@@ -339,13 +464,16 @@ public final class LibvpxVideoRenderer extends BaseRenderer {
   protected void onPositionReset(long positionUs, boolean joining) {
     inputStreamEnded = false;
     outputStreamEnded = false;
-    renderedFirstFrame = false;
+    clearRenderedFirstFrame();
     consecutiveDroppedFrameCount = 0;
     if (decoder != null) {
       flushDecoder();
     }
-    joiningDeadlineMs = joining && allowedJoiningTimeMs > 0
-        ? (SystemClock.elapsedRealtime() + allowedJoiningTimeMs) : -1;
+    if (joining) {
+      setJoiningDeadlineMs();
+    } else {
+      joiningDeadlineMs = C.TIME_UNSET;
+    }
   }
 
   @Override
@@ -356,7 +484,7 @@ public final class LibvpxVideoRenderer extends BaseRenderer {
 
   @Override
   protected void onStopped() {
-    joiningDeadlineMs = -1;
+    joiningDeadlineMs = C.TIME_UNSET;
     maybeNotifyDroppedFrames();
   }
 
@@ -365,11 +493,28 @@ public final class LibvpxVideoRenderer extends BaseRenderer {
     inputBuffer = null;
     outputBuffer = null;
     format = null;
+    waitingForKeys = false;
+    clearReportedVideoSize();
+    clearRenderedFirstFrame();
     try {
       releaseDecoder();
     } finally {
-      decoderCounters.ensureUpdated();
-      eventDispatcher.disabled(decoderCounters);
+      try {
+        if (drmSession != null) {
+          drmSessionManager.releaseSession(drmSession);
+        }
+      } finally {
+        try {
+          if (pendingDrmSession != null && pendingDrmSession != drmSession) {
+            drmSessionManager.releaseSession(pendingDrmSession);
+          }
+        } finally {
+          drmSession = null;
+          pendingDrmSession = null;
+          decoderCounters.ensureUpdated();
+          eventDispatcher.disabled(decoderCounters);
+        }
+      }
     }
   }
 
@@ -378,75 +523,124 @@ public final class LibvpxVideoRenderer extends BaseRenderer {
       decoder.release();
       decoder = null;
       decoderCounters.decoderReleaseCount++;
+      waitingForKeys = false;
+      if (drmSession != null && pendingDrmSession != drmSession) {
+        try {
+          drmSessionManager.releaseSession(drmSession);
+        } finally {
+          drmSession = null;
+        }
+      }
     }
   }
 
-  private boolean readFormat() {
-    int result = readSource(formatHolder, null);
-    if (result == C.RESULT_FORMAT_READ) {
-      onInputFormatChanged(formatHolder.format);
-      return true;
-    }
-    return false;
-  }
-
-  private void onInputFormatChanged(Format newFormat) {
+  private void onInputFormatChanged(Format newFormat) throws ExoPlaybackException {
+    Format oldFormat = format;
     format = newFormat;
+
+    boolean drmInitDataChanged = !Util.areEqual(format.drmInitData, oldFormat == null ? null
+        : oldFormat.drmInitData);
+    if (drmInitDataChanged) {
+      if (format.drmInitData != null) {
+        if (drmSessionManager == null) {
+          throw ExoPlaybackException.createForRenderer(
+              new IllegalStateException("Media requires a DrmSessionManager"), getIndex());
+        }
+        pendingDrmSession = drmSessionManager.acquireSession(Looper.myLooper(), format.drmInitData);
+        if (pendingDrmSession == drmSession) {
+          drmSessionManager.releaseSession(pendingDrmSession);
+        }
+      } else {
+        pendingDrmSession = null;
+      }
+    }
+
     eventDispatcher.inputFormatChanged(format);
   }
 
   @Override
   public void handleMessage(int messageType, Object message) throws ExoPlaybackException {
     if (messageType == C.MSG_SET_SURFACE) {
-      setSurface((Surface) message);
+      setOutput((Surface) message, null);
     } else if (messageType == MSG_SET_OUTPUT_BUFFER_RENDERER) {
-      setOutputBufferRenderer((VpxOutputBufferRenderer) message);
+      setOutput(null, (VpxOutputBufferRenderer) message);
     } else {
       super.handleMessage(messageType, message);
     }
   }
 
-  private void setSurface(Surface surface) {
-    if (this.surface == surface) {
-      return;
-    }
-    renderedFirstFrame = false;
-    this.surface = surface;
-    outputBufferRenderer = null;
-    outputMode = (surface != null) ? VpxDecoder.OUTPUT_MODE_RGB : VpxDecoder.OUTPUT_MODE_NONE;
-    updateDecoder();
-  }
-
-  private void setOutputBufferRenderer(VpxOutputBufferRenderer outputBufferRenderer) {
-    if (this.outputBufferRenderer == outputBufferRenderer) {
-      return;
-    }
-    this.outputBufferRenderer = outputBufferRenderer;
-    surface = null;
-    outputMode = (outputBufferRenderer != null) ? VpxDecoder.OUTPUT_MODE_YUV
-        : VpxDecoder.OUTPUT_MODE_NONE;
-    updateDecoder();
-  }
-
-  private void updateDecoder() {
-    if (decoder != null) {
-      if (outputMode == VpxDecoder.OUTPUT_MODE_NONE) {
-        releaseDecoder();
+  private void setOutput(Surface surface, VpxOutputBufferRenderer outputBufferRenderer) {
+    // At most one output may be non-null. Both may be null if the output is being cleared.
+    Assertions.checkState(surface == null || outputBufferRenderer == null);
+    if (this.surface != surface || this.outputBufferRenderer != outputBufferRenderer) {
+      // The output has changed.
+      this.surface = surface;
+      this.outputBufferRenderer = outputBufferRenderer;
+      outputMode = outputBufferRenderer != null ? VpxDecoder.OUTPUT_MODE_YUV
+          : surface != null ? VpxDecoder.OUTPUT_MODE_RGB : VpxDecoder.OUTPUT_MODE_NONE;
+      if (outputMode != VpxDecoder.OUTPUT_MODE_NONE) {
+        if (decoder != null) {
+          decoder.setOutputMode(outputMode);
+        }
+        // If we know the video size, report it again immediately.
+        maybeRenotifyVideoSizeChanged();
+        // We haven't rendered to the new output yet.
+        clearRenderedFirstFrame();
+        if (getState() == STATE_STARTED) {
+          setJoiningDeadlineMs();
+        }
       } else {
-        decoder.setOutputMode(outputMode);
+        // The output has been removed. We leave the outputMode of the underlying decoder unchanged
+        // in anticipation that a subsequent output will likely be of the same type.
+        clearReportedVideoSize();
+        clearRenderedFirstFrame();
       }
+    } else if (outputMode != VpxDecoder.OUTPUT_MODE_NONE) {
+      // The output is unchanged and non-null. If we know the video size and/or have already
+      // rendered to the output, report these again immediately.
+      maybeRenotifyVideoSizeChanged();
+      maybeRenotifyRenderedFirstFrame();
     }
   }
 
-  private boolean isRendererAvailable() {
-    return surface != null || outputBufferRenderer != null;
+  private void setJoiningDeadlineMs() {
+    joiningDeadlineMs = allowedJoiningTimeMs > 0
+        ? (SystemClock.elapsedRealtime() + allowedJoiningTimeMs) : C.TIME_UNSET;
   }
 
-  private void maybeNotifyVideoSizeChanged(final int width, final int height) {
-    if (previousWidth != width || previousHeight != height) {
-      previousWidth = width;
-      previousHeight = height;
+  private void clearRenderedFirstFrame() {
+    renderedFirstFrame = false;
+  }
+
+  private void maybeNotifyRenderedFirstFrame() {
+    if (!renderedFirstFrame) {
+      renderedFirstFrame = true;
+      eventDispatcher.renderedFirstFrame(surface);
+    }
+  }
+
+  private void maybeRenotifyRenderedFirstFrame() {
+    if (renderedFirstFrame) {
+      eventDispatcher.renderedFirstFrame(surface);
+    }
+  }
+
+  private void clearReportedVideoSize() {
+    reportedWidth = Format.NO_VALUE;
+    reportedHeight = Format.NO_VALUE;
+  }
+
+  private void maybeNotifyVideoSizeChanged(int width, int height) {
+    if (reportedWidth != width || reportedHeight != height) {
+      reportedWidth = width;
+      reportedHeight = height;
       eventDispatcher.videoSizeChanged(width, height, 0, 1);
+    }
+  }
+
+  private void maybeRenotifyVideoSizeChanged() {
+    if (reportedWidth != Format.NO_VALUE || reportedHeight != Format.NO_VALUE) {
+      eventDispatcher.videoSizeChanged(reportedWidth, reportedHeight, 0, 1);
     }
   }
 

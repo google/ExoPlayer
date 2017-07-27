@@ -16,8 +16,7 @@
 
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
 
-  <!-- The user visible name of the application. [CHAR LIMIT=20] -->
-  <string name="application_name">ExoPlayer2 Demo</string>
+  <string name="application_name">ExoPlayer</string>
 
   <string name="video">Video</string>
 
@@ -30,8 +29,6 @@
   <string name="selection_disabled">Disabled</string>
 
   <string name="selection_default">Default</string>
-
-  <string name="selection_default_none">Default (none)</string>
 
   <string name="unexpected_intent_action">Unexpected intent action: <xliff:g id="action">%1$s</xliff:g></string>
 

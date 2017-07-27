@@ -18,14 +18,14 @@ package com.google.android.exoplayer2.demo;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
-import android.text.TextUtils;
+import android.content.res.TypedArray;
 import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckedTextView;
-import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.RendererCapabilities;
 import com.google.android.exoplayer2.source.TrackGroup;
 import com.google.android.exoplayer2.source.TrackGroupArray;
@@ -35,9 +35,7 @@ import com.google.android.exoplayer2.trackselection.MappingTrackSelector.MappedT
 import com.google.android.exoplayer2.trackselection.MappingTrackSelector.SelectionOverride;
 import com.google.android.exoplayer2.trackselection.RandomTrackSelection;
 import com.google.android.exoplayer2.trackselection.TrackSelection;
-import com.google.android.exoplayer2.util.MimeTypes;
 import java.util.Arrays;
-import java.util.Locale;
 
 /**
  * Helper class for displaying track selection dialogs.
@@ -49,7 +47,7 @@ import java.util.Locale;
   private static final TrackSelection.Factory RANDOM_FACTORY = new RandomTrackSelection.Factory();
 
   private final MappingTrackSelector selector;
-  private final TrackSelection.Factory adaptiveVideoTrackSelectionFactory;
+  private final TrackSelection.Factory adaptiveTrackSelectionFactory;
 
   private MappedTrackInfo trackInfo;
   private int rendererIndex;
@@ -65,13 +63,13 @@ import java.util.Locale;
 
   /**
    * @param selector The track selector.
-   * @param adaptiveVideoTrackSelectionFactory A factory for adaptive video {@link TrackSelection}s,
-   *     or null if the selection helper should not support adaptive video.
+   * @param adaptiveTrackSelectionFactory A factory for adaptive {@link TrackSelection}s, or null
+   *     if the selection helper should not support adaptive tracks.
    */
   public TrackSelectionHelper(MappingTrackSelector selector,
-      TrackSelection.Factory adaptiveVideoTrackSelectionFactory) {
+      TrackSelection.Factory adaptiveTrackSelectionFactory) {
     this.selector = selector;
-    this.adaptiveVideoTrackSelectionFactory = adaptiveVideoTrackSelectionFactory;
+    this.adaptiveTrackSelectionFactory = adaptiveTrackSelectionFactory;
   }
 
   /**
@@ -90,7 +88,7 @@ import java.util.Locale;
     trackGroups = trackInfo.getTrackGroups(rendererIndex);
     trackGroupsAdaptive = new boolean[trackGroups.length];
     for (int i = 0; i < trackGroups.length; i++) {
-      trackGroupsAdaptive[i] = adaptiveVideoTrackSelectionFactory != null
+      trackGroupsAdaptive[i] = adaptiveTrackSelectionFactory != null
           && trackInfo.getAdaptiveSupport(rendererIndex, i, false)
               != RendererCapabilities.ADAPTIVE_NOT_SUPPORTED
           && trackGroups.get(i).length > 1;
@@ -100,7 +98,7 @@ import java.util.Locale;
 
     AlertDialog.Builder builder = new AlertDialog.Builder(activity);
     builder.setTitle(title)
-        .setView(buildView(LayoutInflater.from(builder.getContext())))
+        .setView(buildView(builder.getContext()))
         .setPositiveButton(android.R.string.ok, this)
         .setNegativeButton(android.R.string.cancel, null)
         .create()
@@ -108,13 +106,20 @@ import java.util.Locale;
   }
 
   @SuppressLint("InflateParams")
-  private View buildView(LayoutInflater inflater) {
+  private View buildView(Context context) {
+    LayoutInflater inflater = LayoutInflater.from(context);
     View view = inflater.inflate(R.layout.track_selection_dialog, null);
     ViewGroup root = (ViewGroup) view.findViewById(R.id.root);
+
+    TypedArray attributeArray = context.getTheme().obtainStyledAttributes(
+        new int[] {android.R.attr.selectableItemBackground});
+    int selectableItemBackgroundResourceId = attributeArray.getResourceId(0, 0);
+    attributeArray.recycle();
 
     // View for disabling the renderer.
     disableView = (CheckedTextView) inflater.inflate(
         android.R.layout.simple_list_item_single_choice, root, false);
+    disableView.setBackgroundResource(selectableItemBackgroundResourceId);
     disableView.setText(R.string.selection_disabled);
     disableView.setFocusable(true);
     disableView.setOnClickListener(this);
@@ -123,6 +128,7 @@ import java.util.Locale;
     // View for clearing the override to allow the selector to use its default selection logic.
     defaultView = (CheckedTextView) inflater.inflate(
         android.R.layout.simple_list_item_single_choice, root, false);
+    defaultView.setBackgroundResource(selectableItemBackgroundResourceId);
     defaultView.setText(R.string.selection_default);
     defaultView.setFocusable(true);
     defaultView.setOnClickListener(this);
@@ -130,7 +136,6 @@ import java.util.Locale;
     root.addView(defaultView);
 
     // Per-track views.
-    boolean haveSupportedTracks = false;
     boolean haveAdaptiveTracks = false;
     trackViews = new CheckedTextView[trackGroups.length][];
     for (int groupIndex = 0; groupIndex < trackGroups.length; groupIndex++) {
@@ -146,13 +151,13 @@ import java.util.Locale;
             : android.R.layout.simple_list_item_single_choice;
         CheckedTextView trackView = (CheckedTextView) inflater.inflate(
             trackViewLayoutId, root, false);
-        trackView.setText(buildTrackName(group.getFormat(trackIndex)));
+        trackView.setBackgroundResource(selectableItemBackgroundResourceId);
+        trackView.setText(DemoUtil.buildTrackName(group.getFormat(trackIndex)));
         if (trackInfo.getTrackFormatSupport(rendererIndex, groupIndex, trackIndex)
             == RendererCapabilities.FORMAT_HANDLED) {
           trackView.setFocusable(true);
           trackView.setTag(Pair.create(groupIndex, trackIndex));
           trackView.setOnClickListener(this);
-          haveSupportedTracks = true;
         } else {
           trackView.setFocusable(false);
           trackView.setEnabled(false);
@@ -162,13 +167,11 @@ import java.util.Locale;
       }
     }
 
-    if (!haveSupportedTracks) {
-      // Indicate that the default selection will be nothing.
-      defaultView.setText(R.string.selection_default_none);
-    } else if (haveAdaptiveTracks) {
+    if (haveAdaptiveTracks) {
       // View for using random adaptation.
       enableRandomAdaptationView = (CheckedTextView) inflater.inflate(
           android.R.layout.simple_list_item_multiple_choice, root, false);
+      enableRandomAdaptationView.setBackgroundResource(selectableItemBackgroundResourceId);
       enableRandomAdaptationView.setText(R.string.enable_random_adaptation);
       enableRandomAdaptationView.setOnClickListener(this);
       root.addView(inflater.inflate(R.layout.list_divider, root, false));
@@ -259,7 +262,7 @@ import java.util.Locale;
 
   private void setOverride(int group, int[] tracks, boolean enableRandomAdaptation) {
     TrackSelection.Factory factory = tracks.length == 1 ? FIXED_FACTORY
-        : (enableRandomAdaptation ? RANDOM_FACTORY : adaptiveVideoTrackSelectionFactory);
+        : (enableRandomAdaptation ? RANDOM_FACTORY : adaptiveTrackSelectionFactory);
     override = new SelectionOverride(factory, group, tracks);
   }
 
@@ -282,52 +285,6 @@ import java.util.Locale;
       }
     }
     return tracks;
-  }
-
-  // Track name construction.
-
-  private static String buildTrackName(Format format) {
-    String trackName;
-    if (MimeTypes.isVideo(format.sampleMimeType)) {
-      trackName = joinWithSeparator(joinWithSeparator(buildResolutionString(format),
-          buildBitrateString(format)), buildTrackIdString(format));
-    } else if (MimeTypes.isAudio(format.sampleMimeType)) {
-      trackName = joinWithSeparator(joinWithSeparator(joinWithSeparator(buildLanguageString(format),
-          buildAudioPropertyString(format)), buildBitrateString(format)),
-          buildTrackIdString(format));
-    } else {
-      trackName = joinWithSeparator(joinWithSeparator(buildLanguageString(format),
-          buildBitrateString(format)), buildTrackIdString(format));
-    }
-    return trackName.length() == 0 ? "unknown" : trackName;
-  }
-
-  private static String buildResolutionString(Format format) {
-    return format.width == Format.NO_VALUE || format.height == Format.NO_VALUE
-        ? "" : format.width + "x" + format.height;
-  }
-
-  private static String buildAudioPropertyString(Format format) {
-    return format.channelCount == Format.NO_VALUE || format.sampleRate == Format.NO_VALUE
-        ? "" : format.channelCount + "ch, " + format.sampleRate + "Hz";
-  }
-
-  private static String buildLanguageString(Format format) {
-    return TextUtils.isEmpty(format.language) || "und".equals(format.language) ? ""
-        : format.language;
-  }
-
-  private static String buildBitrateString(Format format) {
-    return format.bitrate == Format.NO_VALUE ? ""
-        : String.format(Locale.US, "%.2fMbit", format.bitrate / 1000000f);
-  }
-
-  private static String joinWithSeparator(String first, String second) {
-    return first.length() == 0 ? second : (second.length() == 0 ? first : first + ", " + second);
-  }
-
-  private static String buildTrackIdString(Format format) {
-    return format.id == null ? "" : ("id:" + format.id);
   }
 
 }

@@ -15,38 +15,58 @@
  */
 package com.google.android.exoplayer2.ext.okhttp;
 
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import com.google.android.exoplayer2.upstream.DataSource;
+import com.google.android.exoplayer2.upstream.HttpDataSource;
+import com.google.android.exoplayer2.upstream.HttpDataSource.BaseFactory;
 import com.google.android.exoplayer2.upstream.HttpDataSource.Factory;
 import com.google.android.exoplayer2.upstream.TransferListener;
 import okhttp3.CacheControl;
-import okhttp3.OkHttpClient;
+import okhttp3.Call;
 
 /**
  * A {@link Factory} that produces {@link OkHttpDataSource}.
  */
-public final class OkHttpDataSourceFactory implements Factory {
+public final class OkHttpDataSourceFactory extends BaseFactory {
 
-  private final OkHttpClient client;
-  private final String userAgent;
-  private final TransferListener<? super DataSource> transferListener;
-  private final CacheControl cacheControl;
+  @NonNull private final Call.Factory callFactory;
+  @Nullable private final String userAgent;
+  @Nullable private final TransferListener<? super DataSource> listener;
+  @Nullable private final CacheControl cacheControl;
 
-  public OkHttpDataSourceFactory(OkHttpClient client, String userAgent,
-      TransferListener<? super DataSource> transferListener) {
-    this(client, userAgent, transferListener, null);
+  /**
+   * @param callFactory A {@link Call.Factory} (typically an {@link okhttp3.OkHttpClient}) for use
+   *     by the sources created by the factory.
+   * @param userAgent An optional User-Agent string.
+   * @param listener An optional listener.
+   */
+  public OkHttpDataSourceFactory(@NonNull Call.Factory callFactory, @Nullable String userAgent,
+      @Nullable TransferListener<? super DataSource> listener) {
+    this(callFactory, userAgent, listener, null);
   }
 
-  public OkHttpDataSourceFactory(OkHttpClient client, String userAgent,
-      TransferListener<? super DataSource> transferListener, CacheControl cacheControl) {
-    this.client = client;
+  /**
+   * @param callFactory A {@link Call.Factory} (typically an {@link okhttp3.OkHttpClient}) for use
+   *     by the sources created by the factory.
+   * @param userAgent An optional User-Agent string.
+   * @param listener An optional listener.
+   * @param cacheControl An optional {@link CacheControl} for setting the Cache-Control header.
+   */
+  public OkHttpDataSourceFactory(@NonNull Call.Factory callFactory, @Nullable String userAgent,
+      @Nullable TransferListener<? super DataSource> listener,
+      @Nullable CacheControl cacheControl) {
+    this.callFactory = callFactory;
     this.userAgent = userAgent;
-    this.transferListener = transferListener;
+    this.listener = listener;
     this.cacheControl = cacheControl;
   }
 
   @Override
-  public OkHttpDataSource createDataSource() {
-    return new OkHttpDataSource(client, userAgent, null, transferListener, cacheControl);
+  protected OkHttpDataSource createDataSourceInternal(
+      HttpDataSource.RequestProperties defaultRequestProperties) {
+    return new OkHttpDataSource(callFactory, userAgent, null, listener, cacheControl,
+        defaultRequestProperties);
   }
 
 }

@@ -24,30 +24,35 @@ android {
 
     buildTypes {
         release {
-            minifyEnabled false
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
+            shrinkResources true
+            minifyEnabled true
+            proguardFiles getDefaultProguardFile('proguard-android.txt')
         }
         debug {
             jniDebuggable = true
-            debuggable = true
         }
     }
 
     lintOptions {
-        abortOnError false
+        // The demo app does not have translations.
+        disable 'MissingTranslation'
     }
 
     productFlavors {
-        demo
-        demoExt
+        noExtensions
+        withExtensions
     }
     buildToolsVersion '25.0.0'
 }
 
 dependencies {
-    compile project(':library')
-    demoExtCompile project(path: ':extension-ffmpeg')
-    demoExtCompile project(path: ':extension-flac')
-    demoExtCompile project(path: ':extension-opus')
-    demoExtCompile project(path: ':extension-vp9')
+    compile project(':library-core')
+    compile project(':library-dash')
+    compile project(':library-hls')
+    compile project(':library-smoothstreaming')
+    compile project(':library-ui')
+    withExtensionsCompile project(path: ':extension-ffmpeg')
+    withExtensionsCompile project(path: ':extension-flac')
+    withExtensionsCompile project(path: ':extension-opus')
+    withExtensionsCompile project(path: ':extension-vp9')
 }

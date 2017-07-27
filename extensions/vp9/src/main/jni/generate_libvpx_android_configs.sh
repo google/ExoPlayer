@@ -40,7 +40,7 @@ config[0]+=" --enable-neon-asm"
 
 arch[1]="armeabi"
 config[1]="--target=armv7-android-gcc --sdk-path=$ndk --disable-neon"
-config[1]+=" --disable-neon-asm --disable-media"
+config[1]+=" --disable-neon-asm"
 
 arch[2]="mips"
 config[2]="--force-target=mips32-android-gcc --sdk-path=$ndk"
@@ -51,8 +51,7 @@ config[3]+=" --disable-sse3 --disable-ssse3 --disable-sse4_1 --disable-avx"
 config[3]+=" --disable-avx2 --enable-pic"
 
 arch[4]="arm64-v8a"
-config[4]="--force-target=armv8-android-gcc --sdk-path=$ndk --disable-neon"
-config[4]+=" --disable-neon-asm"
+config[4]="--force-target=armv8-android-gcc --sdk-path=$ndk --enable-neon"
 
 arch[5]="x86_64"
 config[5]="--force-target=x86_64-android-gcc --sdk-path=$ndk --disable-sse2"
@@ -68,7 +67,7 @@ limit=$((${#arch[@]} - 1))
 # everything else will be removed.
 allowed_files="libvpx_srcs.txt vpx_config.c vpx_config.h vpx_scale_rtcd.h"
 allowed_files+=" vp8_rtcd.h vp9_rtcd.h vpx_version.h vpx_config.asm"
-allowed_files+=" vpx_dsp_rtcd.h"
+allowed_files+=" vpx_dsp_rtcd.h libvpx.ver"
 
 remove_trailing_whitespace() {
   perl -pi -e 's/\s\+$//' "$@"
@@ -78,12 +77,12 @@ convert_asm() {
   for i in $(seq 0 ${limit}); do
     while read file; do
       case "${file}" in
-        *.asm.s)
+        *.asm.[sS])
           # Some files may already have been processed (there are duplicated
           # .asm.s files for vp8 in the armeabi/armeabi-v7a configurations).
           file="libvpx/${file}"
           if [[ ! -e "${file}" ]]; then
-            asm_file="${file%.s}"
+            asm_file="${file%.[sS]}"
             cat "${asm_file}" | libvpx/build/make/ads2gas.pl > "${file}"
             remove_trailing_whitespace "${file}"
             rm "${asm_file}"
@@ -105,7 +104,11 @@ for i in $(seq 0 ${limit}); do
   echo "configure ${config[${i}]} ${common_params}"
   ../../libvpx/configure ${config[${i}]} ${common_params}
   rm -f libvpx_srcs.txt
-  make libvpx_srcs.txt
+  for f in ${allowed_files}; do
+    # the build system supports multiple different configurations. avoid
+    # failing out when, for example, vp8_rtcd.h is not part of a configuration
+    make "${f}" || true
+  done
 
   # remove files that aren't needed
   rm -rf !(${allowed_files// /|})

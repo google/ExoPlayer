@@ -232,7 +232,7 @@ public final class HostActivity extends Activity implements SurfaceHolder.Callba
   }
 
   @SuppressLint("InlinedApi")
-  private static final int getWifiLockMode() {
+  private static int getWifiLockMode() {
     return Util.SDK_INT < 12 ? WifiManager.WIFI_MODE_FULL : WifiManager.WIFI_MODE_FULL_HIGH_PERF;
   }
 

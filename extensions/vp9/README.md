@@ -40,6 +40,18 @@ git clone https://chromium.googlesource.com/webm/libvpx libvpx && \
 git clone https://chromium.googlesource.com/libyuv/libyuv libyuv
 ```
 
+* Checkout the appropriate branches of libvpx and libyuv (the scripts and
+  makefiles bundled in this repo are known to work only at these versions of the
+  libraries - we will update this periodically as newer versions of
+  libvpx/libyuv are released):
+
+```
+cd "${VP9_EXT_PATH}/jni/libvpx" && \
+git checkout tags/v1.6.1 -b v1.6.1 && \
+cd "${VP9_EXT_PATH}/jni/libyuv" && \
+git checkout 996a2bbd
+```
+
 * Run a script that generates necessary configuration files for libvpx:
 
 ```
@@ -79,5 +91,7 @@ dependencies {
     `generate_libvpx_android_configs.sh`
   * Clean and re-build the project.
 * If you want to use your own version of libvpx or libyuv, place it in
-  `${VP9_EXT_PATH}/jni/libvpx` or `${VP9_EXT_PATH}/jni/libyuv` respectively.
+  `${VP9_EXT_PATH}/jni/libvpx` or `${VP9_EXT_PATH}/jni/libyuv` respectively. But
+  please note that `generate_libvpx_android_configs.sh` and the makefiles need
+  to be modified to work with arbitrary versions of libvpx and libyuv.
 

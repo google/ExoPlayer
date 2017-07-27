@@ -26,4 +26,8 @@ public final class OpusDecoderException extends AudioDecoderException {
     super(message);
   }
 
+  /* package */ OpusDecoderException(String message, Throwable cause) {
+    super(message, cause);
+  }
+
 }

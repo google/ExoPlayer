@@ -19,6 +19,7 @@ import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
 import com.google.android.exoplayer2.decoder.SimpleDecoder;
 import com.google.android.exoplayer2.decoder.SimpleOutputBuffer;
 import com.google.android.exoplayer2.util.MimeTypes;
+import com.google.android.exoplayer2.util.ParsableByteArray;
 import java.nio.ByteBuffer;
 import java.util.List;
 
@@ -88,6 +89,13 @@ import java.util.List;
     if (!hasOutputFormat) {
       channelCount = ffmpegGetChannelCount(nativeContext);
       sampleRate = ffmpegGetSampleRate(nativeContext);
+      if (sampleRate == 0 && "alac".equals(codecName)) {
+        // ALAC decoder did not set the sample rate in earlier versions of FFMPEG.
+        // See https://trac.ffmpeg.org/ticket/6096
+        ParsableByteArray parsableExtraData = new ParsableByteArray(extraData);
+        parsableExtraData.setPosition(extraData.length - 4);
+        sampleRate = parsableExtraData.readUnsignedIntToInt();
+      }
       hasOutputFormat = true;
     }
     outputBuffer.data.position(0);
@@ -123,6 +131,7 @@ import java.util.List;
   private static byte[] getExtraData(String mimeType, List<byte[]> initializationData) {
     switch (mimeType) {
       case MimeTypes.AUDIO_AAC:
+      case MimeTypes.AUDIO_ALAC:
       case MimeTypes.AUDIO_OPUS:
         return initializationData.get(0);
       case MimeTypes.AUDIO_VORBIS:

@@ -59,12 +59,15 @@ jint JNI_OnLoad(JavaVM* vm, void* reserved) {
 }
 
 static const int kBytesPerSample = 2;  // opus fixed point uses 16 bit samples.
+static const int kMaxOpusOutputPacketSizeSamples = 960 * 6;
 static int channelCount;
+static int errorCode;
 
 DECODER_FUNC(jlong, opusInit, jint sampleRate, jint channelCount,
      jint numStreams, jint numCoupled, jint gain, jbyteArray jStreamMap) {
   int status = OPUS_INVALID_STATE;
   ::channelCount = channelCount;
+  errorCode = 0;
   jbyte* streamMapBytes = env->GetByteArrayElements(jStreamMap, 0);
   uint8_t* streamMap = reinterpret_cast<uint8_t*>(streamMapBytes);
   OpusMSDecoder* decoder = opus_multistream_decoder_create(
@@ -90,16 +93,14 @@ DECODER_FUNC(jlong, opusInit, jint sampleRate, jint channelCount,
 }
 
 DECODER_FUNC(jint, opusDecode, jlong jDecoder, jlong jTimeUs,
-     jobject jInputBuffer, jint inputSize, jobject jOutputBuffer,
-     jint sampleRate) {
+     jobject jInputBuffer, jint inputSize, jobject jOutputBuffer) {
   OpusMSDecoder* decoder = reinterpret_cast<OpusMSDecoder*>(jDecoder);
   const uint8_t* inputBuffer =
       reinterpret_cast<const uint8_t*>(
           env->GetDirectBufferAddress(jInputBuffer));
 
-  const int32_t inputSampleCount =
-      opus_packet_get_nb_samples(inputBuffer, inputSize, sampleRate);
-  const jint outputSize = inputSampleCount * kBytesPerSample * channelCount;
+  const jint outputSize =
+      kMaxOpusOutputPacketSizeSamples * kBytesPerSample * channelCount;
 
   env->CallObjectMethod(jOutputBuffer, outputBufferInit, jTimeUs, outputSize);
   const jobject jOutputBufferData = env->CallObjectMethod(jOutputBuffer,
@@ -108,9 +109,23 @@ DECODER_FUNC(jint, opusDecode, jlong jDecoder, jlong jTimeUs,
   int16_t* outputBufferData = reinterpret_cast<int16_t*>(
       env->GetDirectBufferAddress(jOutputBufferData));
   int sampleCount = opus_multistream_decode(decoder, inputBuffer, inputSize,
-      outputBufferData, outputSize, 0);
+      outputBufferData, kMaxOpusOutputPacketSizeSamples, 0);
+  // record error code
+  errorCode = (sampleCount < 0) ? sampleCount : 0;
   return (sampleCount < 0) ? sampleCount
       : sampleCount * kBytesPerSample * channelCount;
+}
+
+DECODER_FUNC(jint, opusSecureDecode, jlong jDecoder, jlong jTimeUs,
+     jobject jInputBuffer, jint inputSize, jobject jOutputBuffer,
+     jint sampleRate, jobject mediaCrypto, jint inputMode, jbyteArray key,
+     jbyteArray javaIv, jint inputNumSubSamples, jintArray numBytesOfClearData,
+     jintArray numBytesOfEncryptedData) {
+  // Doesn't support
+  // Java client should have checked vpxSupportSecureDecode
+  // and avoid calling this
+  // return -2 (DRM Error)
+  return -2;
 }
 
 DECODER_FUNC(void, opusClose, jlong jDecoder) {
@@ -123,8 +138,17 @@ DECODER_FUNC(void, opusReset, jlong jDecoder) {
   opus_multistream_decoder_ctl(decoder, OPUS_RESET_STATE);
 }
 
-DECODER_FUNC(jstring, opusGetErrorMessage, jint errorCode) {
+DECODER_FUNC(jstring, opusGetErrorMessage, jlong jContext) {
   return env->NewStringUTF(opus_strerror(errorCode));
+}
+
+DECODER_FUNC(jint, opusGetErrorCode, jlong jContext) {
+  return errorCode;
+}
+
+LIBRARY_FUNC(jstring, opusIsSecureDecodeSupported) {
+  // Doesn't support
+  return 0;
 }
 
 LIBRARY_FUNC(jstring, opusGetVersion) {

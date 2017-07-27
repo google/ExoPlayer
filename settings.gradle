@@ -12,23 +12,35 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 include ':library'
+include ':library-core'
+include ':library-dash'
+include ':library-hls'
+include ':library-smoothstreaming'
+include ':library-ui'
 include ':testutils'
 include ':demo'
 include ':playbacktests'
+include ':extension-ffmpeg'
+include ':extension-flac'
+include ':extension-gvr'
+include ':extension-okhttp'
 include ':extension-opus'
 include ':extension-vp9'
-include ':extension-okhttp'
-include ':extension-flac'
-include ':extension-ffmpeg'
 // Uncomment the following line to use the Cronet Extension.
 // include ':extension-cronet'
 
-
+project(':library').projectDir = new File(settingsDir, 'library/all')
+project(':library-core').projectDir = new File(settingsDir, 'library/core')
+project(':library-dash').projectDir = new File(settingsDir, 'library/dash')
+project(':library-hls').projectDir = new File(settingsDir, 'library/hls')
+project(':library-smoothstreaming').projectDir = new File(settingsDir, 'library/smoothstreaming')
+project(':library-ui').projectDir = new File(settingsDir, 'library/ui')
+project(':extension-ffmpeg').projectDir = new File(settingsDir, 'extensions/ffmpeg')
+project(':extension-flac').projectDir = new File(settingsDir, 'extensions/flac')
+project(':extension-gvr').projectDir = new File(settingsDir, 'extensions/gvr')
+project(':extension-okhttp').projectDir = new File(settingsDir, 'extensions/okhttp')
 project(':extension-opus').projectDir = new File(settingsDir, 'extensions/opus')
 project(':extension-vp9').projectDir = new File(settingsDir, 'extensions/vp9')
-project(':extension-okhttp').projectDir = new File(settingsDir, 'extensions/okhttp')
-project(':extension-flac').projectDir = new File(settingsDir, 'extensions/flac')
-project(':extension-ffmpeg').projectDir = new File(settingsDir, 'extensions/ffmpeg')
 // Uncomment the following line to use the Cronet Extension.
 // See extensions/cronet/README.md for details.
 // project(':extension-cronet').projectDir = new File(settingsDir, 'extensions/cronet')

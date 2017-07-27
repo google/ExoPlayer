@@ -17,17 +17,19 @@ package com.google.android.exoplayer2.ext.opus;
 
 import android.content.Context;
 import android.net.Uri;
-import android.os.Handler;
 import android.os.Looper;
 import android.test.InstrumentationTestCase;
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.ExoPlayerFactory;
+import com.google.android.exoplayer2.PlaybackParameters;
 import com.google.android.exoplayer2.Renderer;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.extractor.mkv.MatroskaExtractor;
 import com.google.android.exoplayer2.source.ExtractorMediaSource;
+import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
+import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
 
 /**
@@ -72,7 +74,7 @@ public class OpusPlaybackTest extends InstrumentationTestCase {
     public void run() {
       Looper.prepare();
       LibopusAudioRenderer audioRenderer = new LibopusAudioRenderer();
-      DefaultTrackSelector trackSelector = new DefaultTrackSelector(new Handler());
+      DefaultTrackSelector trackSelector = new DefaultTrackSelector();
       player = ExoPlayerFactory.newInstance(new Renderer[] {audioRenderer}, trackSelector);
       player.addListener(this);
       ExtractorMediaSource mediaSource = new ExtractorMediaSource(
@@ -92,7 +94,17 @@ public class OpusPlaybackTest extends InstrumentationTestCase {
     }
 
     @Override
+    public void onTracksChanged(TrackGroupArray trackGroups, TrackSelectionArray trackSelections) {
+      // Do nothing.
+    }
+
+    @Override
     public void onPositionDiscontinuity() {
+      // Do nothing.
+    }
+
+    @Override
+    public void onPlaybackParametersChanged(PlaybackParameters playbackParameters) {
       // Do nothing.
     }
 

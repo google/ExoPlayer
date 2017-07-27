@@ -23,7 +23,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
 import junit.framework.Assert;
-import junit.framework.TestCase;
 
 /**
  * A fake {@link ExtractorOutput}.
@@ -37,8 +36,6 @@ public final class FakeExtractorOutput implements ExtractorOutput, Dumper.Dumpab
    */
   private static final boolean WRITE_DUMP = false;
 
-  private final boolean allowDuplicateTrackIds;
-
   public final SparseArray<FakeTrackOutput> trackOutputs;
 
   public int numberOfTracks;
@@ -46,23 +43,17 @@ public final class FakeExtractorOutput implements ExtractorOutput, Dumper.Dumpab
   public SeekMap seekMap;
 
   public FakeExtractorOutput() {
-    this(false);
-  }
-
-  public FakeExtractorOutput(boolean allowDuplicateTrackIds) {
-    this.allowDuplicateTrackIds = allowDuplicateTrackIds;
     trackOutputs = new SparseArray<>();
   }
 
   @Override
-  public FakeTrackOutput track(int trackId) {
-    FakeTrackOutput output = trackOutputs.get(trackId);
+  public FakeTrackOutput track(int id, int type) {
+    FakeTrackOutput output = trackOutputs.get(id);
     if (output == null) {
+      Assert.assertFalse(tracksEnded);
       numberOfTracks++;
       output = new FakeTrackOutput();
-      trackOutputs.put(trackId, output);
-    } else {
-      TestCase.assertTrue("Duplicate track id: " + trackId, allowDuplicateTrackIds);
+      trackOutputs.put(id, output);
     }
     return output;
   }
