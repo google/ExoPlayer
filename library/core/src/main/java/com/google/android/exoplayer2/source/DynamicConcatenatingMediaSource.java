@@ -186,8 +186,8 @@ public final class DynamicConcatenatingMediaSource implements MediaSource, ExoPl
 
   @Override
   public void maybeThrowSourceInfoRefreshError() throws IOException {
-    for (MediaSourceHolder mediaSourceHolder : mediaSourceHolders) {
-      mediaSourceHolder.mediaSource.maybeThrowSourceInfoRefreshError();
+    for (int i = 0; i < mediaSourceHolders.size(); i++) {
+      mediaSourceHolders.get(i).mediaSource.maybeThrowSourceInfoRefreshError();
     }
   }
 
@@ -221,8 +221,8 @@ public final class DynamicConcatenatingMediaSource implements MediaSource, ExoPl
 
   @Override
   public void releaseSource() {
-    for (MediaSourceHolder mediaSourceHolder : mediaSourceHolders) {
-      mediaSourceHolder.mediaSource.releaseSource();
+    for (int i = 0; i < mediaSourceHolders.size(); i++) {
+      mediaSourceHolders.get(i).mediaSource.releaseSource();
     }
   }
 
