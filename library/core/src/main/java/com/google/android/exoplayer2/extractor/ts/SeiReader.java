@@ -59,8 +59,8 @@ import java.util.List;
     }
   }
 
-  public void consume(long pesTimeUs, ParsableByteArray seiBuffer) {
-    CeaUtil.consume(pesTimeUs, seiBuffer, outputs);
+  public void consume(long pesTimeUs, ParsableByteArray seiBuffer, int mode) {
+    CeaUtil.consume(pesTimeUs, seiBuffer, outputs, mode);
   }
 
 }

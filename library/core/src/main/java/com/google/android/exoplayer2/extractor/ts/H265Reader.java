@@ -21,6 +21,7 @@ import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.extractor.ExtractorOutput;
 import com.google.android.exoplayer2.extractor.TrackOutput;
 import com.google.android.exoplayer2.extractor.ts.TsPayloadReader.TrackIdGenerator;
+import com.google.android.exoplayer2.text.cea.CeaUtil;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.NalUnitUtil;
 import com.google.android.exoplayer2.util.ParsableByteArray;
@@ -201,7 +202,7 @@ public final class H265Reader implements ElementaryStreamReader {
 
       // Skip the NAL prefix and type.
       seiWrapper.skipBytes(5);
-      seiReader.consume(pesTimeUs, seiWrapper);
+      seiReader.consume(pesTimeUs, seiWrapper, CeaUtil.MODE_H265);
     }
     if (suffixSei.endNalUnit(discardPadding)) {
       int unescapedLength = NalUnitUtil.unescapeStream(suffixSei.nalData, suffixSei.nalLength);
@@ -209,7 +210,7 @@ public final class H265Reader implements ElementaryStreamReader {
 
       // Skip the NAL prefix and type.
       seiWrapper.skipBytes(5);
-      seiReader.consume(pesTimeUs, seiWrapper);
+      seiReader.consume(pesTimeUs, seiWrapper, CeaUtil.MODE_H265);
     }
   }
 
