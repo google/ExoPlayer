@@ -118,8 +118,8 @@ public final class HlsMasterPlaylist extends HlsPlaylist {
    *     urls.
    */
   public HlsMasterPlaylist copy(List<String> renditionUrls) {
-    return new HlsMasterPlaylist(baseUri, tags, copyRenditionList(variants, renditionUrls),
-        copyRenditionList(audios, renditionUrls), copyRenditionList(subtitles, renditionUrls),
+    return new HlsMasterPlaylist(baseUri, tags, copyRenditionsList(variants, renditionUrls),
+        copyRenditionsList(audios, renditionUrls), copyRenditionsList(subtitles, renditionUrls),
         muxedAudioFormat, muxedCaptionFormats);
   }
 
@@ -136,15 +136,15 @@ public final class HlsMasterPlaylist extends HlsPlaylist {
         emptyList, null, null);
   }
 
-  private static List<HlsUrl> copyRenditionList(List<HlsUrl> variants, List<String> variantUrls) {
-    List<HlsUrl> copyVariants = new ArrayList<>();
-    for (int i = 0; i < variants.size(); i++) {
-      HlsUrl variant = variants.get(i);
-      if (variantUrls.contains(variant.url)) {
-        copyVariants.add(variant);
+  private static List<HlsUrl> copyRenditionsList(List<HlsUrl> renditions, List<String> urls) {
+    List<HlsUrl> copiedRenditions = new ArrayList<>(urls.size());
+    for (int i = 0; i < renditions.size(); i++) {
+      HlsUrl rendition = renditions.get(i);
+      if (urls.contains(rendition.url)) {
+        copiedRenditions.add(rendition);
       }
     }
-    return copyVariants;
+    return copiedRenditions;
   }
 
 }
