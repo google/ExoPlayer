@@ -28,6 +28,12 @@
     "name": "Widevine DASH Policy Tests (GTS)",
     "samples": [
       {
+        "name": "StreamUK",
+        "uri": "https://open.http.mp.streamamg.com/p/3000015/sp/300001500/playManifest/entryId/0_l5boqylc/format/mpegdash/protocol/https/a.mpd",
+        "drm_scheme": "widevine",
+        "drm_license_url": "https://widevine-dash.ezdrm.com/proxy?pX=63F0EB&entry_id=0_l5boqylc&izsession=34&partner_id=3000015"
+      },
+      {
         "name": "WV: HDCP not specified",
         "uri": "https://storage.googleapis.com/wvmedia/cenc/h264/tears/tears.mpd",
         "drm_scheme": "widevine",

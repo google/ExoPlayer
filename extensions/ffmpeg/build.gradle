@@ -37,6 +37,7 @@ android {
         jniLibs.srcDir 'src/main/libs'
         jni.srcDirs = [] // Disable the automatic ndk-build call by Android Studio.
     }
+    buildToolsVersion '25.0.0'
 }
 
 dependencies {

@@ -49,6 +49,7 @@ android {
             java.srcDirs += "../testutils/src/main/java/"
         }
     }
+    buildToolsVersion '25.0.0'
 }
 
 dependencies {

@@ -213,6 +213,16 @@ public final class DashMediaSource implements MediaSource {
 
     int periodCount = manifest == null ? 0 : manifest.getPeriodCount();
     int removedPeriodCount = 0;
+
+    //Fix for redirect Manifest files with a location and no periods.
+    // Follow the location to the new manifest and continue as normal
+    if(newManifest.location !=null && newManifest.getPeriodCount() ==0)
+    {
+      this.manifestUri = newManifest.location;
+      startLoadingManifest();
+      return;
+    }
+
     long newFirstPeriodStartTimeMs = newManifest.getPeriod(0).startMs;
     while (removedPeriodCount < periodCount
         && manifest.getPeriod(removedPeriodCount).startMs < newFirstPeriodStartTimeMs) {
