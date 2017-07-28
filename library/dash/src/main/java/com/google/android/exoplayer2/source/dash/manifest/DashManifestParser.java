@@ -162,7 +162,7 @@ public class DashManifestParser extends DefaultHandler
       }
     }
 
-    if (periods.isEmpty()) {
+    if (periods.isEmpty() && location == null) {
       throw new ParserException("No periods found.");
     }
 

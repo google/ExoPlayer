@@ -26,6 +26,7 @@ android {
         // See: https://github.com/square/okio/issues/58
         warning 'InvalidPackage'
     }
+    buildToolsVersion '25.0.0'
 }
 
 dependencies {
