@@ -87,9 +87,13 @@ public final class ParsableBitArrayTest extends TestCase {
     result[1] = 0;
     testArray.readBits(result, 1, 0);
     assertEquals(0, result[1]);
+    // Test reading a number of bits divisible by 8.
+    testArray.setPosition(0);
+    testArray.readBits(result, 0, 16);
+    assertEquals(TEST_DATA[0], result[0]);
+    assertEquals(TEST_DATA[1], result[1]);
     // Test least significant bits are unmodified.
     result[1] = (byte) 0xFF;
-    testArray.setPosition(16);
     testArray.readBits(result, 0, 9);
     assertEquals(0x5F, result[0]);
     assertEquals(0x7F, result[1]);
