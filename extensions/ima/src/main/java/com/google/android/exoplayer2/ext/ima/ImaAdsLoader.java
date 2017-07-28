@@ -61,7 +61,7 @@ public final class ImaAdsLoader implements Player.EventListener, VideoAdPlayer,
   /**
    * Listener for ad loader events. All methods are called on the main thread.
    */
-  public interface EventListener {
+  /* package */ interface EventListener {
 
     /**
      * Called when the ad playback state has been updated.
@@ -76,6 +76,16 @@ public final class ImaAdsLoader implements Player.EventListener, VideoAdPlayer,
      * @param error The error.
      */
     void onLoadError(IOException error);
+
+    /**
+     * Called when the user clicks through an ad (for example, following a 'learn more' link).
+     */
+    void onAdClicked();
+
+    /**
+     * Called when the user taps a non-clickthrough part of an ad.
+     */
+    void onAdTapped();
 
   }
 
@@ -336,6 +346,16 @@ public final class ImaAdsLoader implements Player.EventListener, VideoAdPlayer,
         // before sending CONTENT_RESUME_REQUESTED.
         imaPausedContent = true;
         pauseContentInternal();
+        break;
+      case TAPPED:
+        if (eventListener != null) {
+          eventListener.onAdTapped();
+        }
+        break;
+      case CLICKED:
+        if (eventListener != null) {
+          eventListener.onAdClicked();
+        }
         break;
       case CONTENT_RESUME_REQUESTED:
         imaPausedContent = false;
