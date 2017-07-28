@@ -192,6 +192,9 @@ public final class ParsableBitArray {
     }
     // Trailing bits.
     int bitsLeft = numBits & 7 /* numBits % 8 */;
+    if (bitsLeft == 0) {
+      return;
+    }
     buffer[to] &= 0xFF >> bitsLeft; // Set to 0 the bits that are going to be overwritten.
     if (bitOffset + bitsLeft > 8) {
       // We read the rest of data[byteOffset] and increase byteOffset.
