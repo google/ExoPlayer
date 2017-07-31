@@ -64,7 +64,7 @@ public final class MediaCodecInfo {
   /**
    * Whether the decoder is secure.
    *
-   * @see CodecCapabilities#isFeatureRequired(String)
+   * @see CodecCapabilities#isFeatureSupported(String)
    * @see CodecCapabilities#FEATURE_SecurePlayback
    */
   public final boolean secure;
