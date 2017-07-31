@@ -187,6 +187,10 @@ public final class ImaAdsLoader implements Player.EventListener, VideoAdPlayer,
    * Whether {@link #getContentProgress()} has sent {@link #pendingContentPositionMs} to IMA.
    */
   private boolean sentPendingContentPositionMs;
+  /**
+   * Whether {@link #release()} has been called.
+   */
+  private boolean released;
 
   /**
    * Creates a new IMA ads loader.
@@ -252,7 +256,7 @@ public final class ImaAdsLoader implements Player.EventListener, VideoAdPlayer,
       if (imaPausedContent) {
         adsManager.resume();
       }
-    } else if (adTagUri != null) {
+    } else {
       requestAds();
     }
   }
@@ -278,12 +282,10 @@ public final class ImaAdsLoader implements Player.EventListener, VideoAdPlayer,
    * Releases the loader. Must be called when the instance is no longer needed.
    */
   public void release() {
+    released = true;
     if (adsManager != null) {
       adsManager.destroy();
       adsManager = null;
-      if (player != null) {
-        detachPlayer();
-      }
     }
   }
 
@@ -291,7 +293,12 @@ public final class ImaAdsLoader implements Player.EventListener, VideoAdPlayer,
 
   @Override
   public void onAdsManagerLoaded(AdsManagerLoadedEvent adsManagerLoadedEvent) {
-    adsManager = adsManagerLoadedEvent.getAdsManager();
+    AdsManager adsManager = adsManagerLoadedEvent.getAdsManager();
+    if (released) {
+      adsManager.destroy();
+      return;
+    }
+    this.adsManager = adsManager;
     adsManager.addAdErrorListener(this);
     adsManager.addAdEventListener(this);
     if (ENABLE_PRELOADING) {
