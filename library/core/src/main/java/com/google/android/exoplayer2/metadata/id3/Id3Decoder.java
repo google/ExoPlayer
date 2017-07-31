@@ -757,7 +757,7 @@ public final class Id3Decoder implements MetadataDecoder {
       // Invalid or zero length range.
       return new byte[0];
     }
-    return Arrays.copyOfRange(data, from, data.length);
+    return Arrays.copyOfRange(data, from, to);
   }
 
   private static final class Id3Header {
