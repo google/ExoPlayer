@@ -258,45 +258,45 @@ public class SampleQueueTest extends TestCase {
 
   public void testAdvanceToBeforeBuffer() {
     writeTestData();
-    boolean result = sampleQueue.advanceTo(TEST_SAMPLE_TIMESTAMPS[0] - 1, true, false);
+    int skipCount = sampleQueue.advanceTo(TEST_SAMPLE_TIMESTAMPS[0] - 1, true, false);
     // Should fail and have no effect.
-    assertFalse(result);
+    assertEquals(SampleQueue.ADVANCE_FAILED, skipCount);
     assertReadTestData();
     assertNoSamplesToRead(TEST_FORMAT_2);
   }
 
   public void testAdvanceToStartOfBuffer() {
     writeTestData();
-    boolean result = sampleQueue.advanceTo(TEST_SAMPLE_TIMESTAMPS[0], true, false);
+    int skipCount = sampleQueue.advanceTo(TEST_SAMPLE_TIMESTAMPS[0], true, false);
     // Should succeed but have no effect (we're already at the first frame).
-    assertTrue(result);
+    assertEquals(0, skipCount);
     assertReadTestData();
     assertNoSamplesToRead(TEST_FORMAT_2);
   }
 
   public void testAdvanceToEndOfBuffer() {
     writeTestData();
-    boolean result = sampleQueue.advanceTo(LAST_SAMPLE_TIMESTAMP, true, false);
-    // Should succeed and skip to 2nd keyframe.
-    assertTrue(result);
+    int skipCount = sampleQueue.advanceTo(LAST_SAMPLE_TIMESTAMP, true, false);
+    // Should succeed and skip to 2nd keyframe (the 4th frame).
+    assertEquals(4, skipCount);
     assertReadTestData(null, TEST_DATA_SECOND_KEYFRAME_INDEX);
     assertNoSamplesToRead(TEST_FORMAT_2);
   }
 
   public void testAdvanceToAfterBuffer() {
     writeTestData();
-    boolean result = sampleQueue.advanceTo(LAST_SAMPLE_TIMESTAMP + 1, true, false);
+    int skipCount = sampleQueue.advanceTo(LAST_SAMPLE_TIMESTAMP + 1, true, false);
     // Should fail and have no effect.
-    assertFalse(result);
+    assertEquals(SampleQueue.ADVANCE_FAILED, skipCount);
     assertReadTestData();
     assertNoSamplesToRead(TEST_FORMAT_2);
   }
 
   public void testAdvanceToAfterBufferAllowed() {
     writeTestData();
-    boolean result = sampleQueue.advanceTo(LAST_SAMPLE_TIMESTAMP + 1, true, true);
-    // Should succeed and skip to 2nd keyframe.
-    assertTrue(result);
+    int skipCount = sampleQueue.advanceTo(LAST_SAMPLE_TIMESTAMP + 1, true, true);
+    // Should succeed and skip to 2nd keyframe (the 4th frame).
+    assertEquals(4, skipCount);
     assertReadTestData(null, TEST_DATA_SECOND_KEYFRAME_INDEX);
     assertNoSamplesToRead(TEST_FORMAT_2);
   }

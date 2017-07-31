@@ -296,9 +296,10 @@ public abstract class BaseRenderer implements Renderer, RendererCapabilities {
    * {@code positionUs} is beyond it.
    *
    * @param positionUs The position in microseconds.
+   * @return The number of samples that were skipped.
    */
-  protected void skipSource(long positionUs) {
-    stream.skipData(positionUs - streamOffsetUs);
+  protected int skipSource(long positionUs) {
+    return stream.skipData(positionUs - streamOffsetUs);
   }
 
   /**
