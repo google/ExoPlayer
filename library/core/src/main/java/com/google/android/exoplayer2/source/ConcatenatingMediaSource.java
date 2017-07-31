@@ -57,6 +57,9 @@ public final class ConcatenatingMediaSource implements MediaSource {
    *     {@link MediaSource} instance to be present more than once in the array.
    */
   public ConcatenatingMediaSource(boolean isRepeatOneAtomic, MediaSource... mediaSources) {
+    for (MediaSource mediaSource : mediaSources) {
+      Assertions.checkNotNull(mediaSource);
+    }
     this.mediaSources = mediaSources;
     this.isRepeatOneAtomic = isRepeatOneAtomic;
     timelines = new Timeline[mediaSources.length];
