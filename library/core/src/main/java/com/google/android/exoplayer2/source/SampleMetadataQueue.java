@@ -253,32 +253,35 @@ import com.google.android.exoplayer2.util.Util;
    * @param allowTimeBeyondBuffer Whether the operation can succeed if {@code timeUs} is beyond the
    *     end of the queue, by advancing the read position to the last sample (or keyframe) in the
    *     queue.
-   * @return Whether the operation was a success. A successful advance is one in which the read
-   *     position was unchanged or advanced, and is now at a sample meeting the specified criteria.
+   * @return The number of samples that were skipped if the operation was successful, which may be
+   *     equal to 0, or {@link SampleQueue#ADVANCE_FAILED} if the operation was not successful. A
+   *     successful advance is one in which the read position was unchanged or advanced, and is now
+   *     at a sample meeting the specified criteria.
    */
-  public synchronized boolean advanceTo(long timeUs, boolean toKeyframe,
+  public synchronized int advanceTo(long timeUs, boolean toKeyframe,
       boolean allowTimeBeyondBuffer) {
     int relativeReadIndex = getRelativeIndex(readPosition);
     if (!hasNextSample() || timeUs < timesUs[relativeReadIndex]
         || (timeUs > largestQueuedTimestampUs && !allowTimeBeyondBuffer)) {
-      return false;
+      return SampleQueue.ADVANCE_FAILED;
     }
     int offset = findSampleBefore(relativeReadIndex, length - readPosition, timeUs, toKeyframe);
     if (offset == -1) {
-      return false;
+      return SampleQueue.ADVANCE_FAILED;
     }
     readPosition += offset;
-    return true;
+    return offset;
   }
 
   /**
    * Advances the read position to the end of the queue.
+   *
+   * @return The number of samples that were skipped.
    */
-  public synchronized void advanceToEnd() {
-    if (!hasNextSample()) {
-      return;
-    }
+  public synchronized int advanceToEnd() {
+    int skipCount = length - readPosition;
     readPosition = length;
+    return skipCount;
   }
 
   /**

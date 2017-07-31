@@ -238,7 +238,7 @@ import java.util.Arrays;
           // sample queue, or if we haven't read anything from the queue since the previous seek
           // (this case is common for sparse tracks such as metadata tracks). In all other cases a
           // seek is required.
-          seekRequired = !sampleQueue.advanceTo(positionUs, true, true)
+          seekRequired = sampleQueue.advanceTo(positionUs, true, true) == SampleQueue.ADVANCE_FAILED
               && sampleQueue.getReadIndex() != 0;
         }
       }
@@ -371,12 +371,13 @@ import java.util.Arrays;
         lastSeekPositionUs);
   }
 
-  /* package */ void skipData(int track, long positionUs) {
+  /* package */ int skipData(int track, long positionUs) {
     SampleQueue sampleQueue = sampleQueues[track];
     if (loadingFinished && positionUs > sampleQueue.getLargestQueuedTimestampUs()) {
-      sampleQueue.advanceToEnd();
+      return sampleQueue.advanceToEnd();
     } else {
-      sampleQueue.advanceTo(positionUs, true, true);
+      int skipCount = sampleQueue.advanceTo(positionUs, true, true);
+      return skipCount == SampleQueue.ADVANCE_FAILED ? 0 : skipCount;
     }
   }
 
@@ -558,7 +559,8 @@ import java.util.Arrays;
     for (int i = 0; i < trackCount; i++) {
       SampleQueue sampleQueue = sampleQueues[i];
       sampleQueue.rewind();
-      boolean seekInsideQueue = sampleQueue.advanceTo(positionUs, true, false);
+      boolean seekInsideQueue = sampleQueue.advanceTo(positionUs, true, false)
+          != SampleQueue.ADVANCE_FAILED;
       // If we have AV tracks then an in-buffer seek is successful if the seek into every AV queue
       // is successful. We ignore whether seeks within non-AV queues are successful in this case, as
       // they may be sparse or poorly interleaved. If we only have non-AV tracks then a seek is
@@ -632,8 +634,8 @@ import java.util.Arrays;
     }
 
     @Override
-    public void skipData(long positionUs) {
-      ExtractorMediaPeriod.this.skipData(track, positionUs);
+    public int skipData(long positionUs) {
+      return ExtractorMediaPeriod.this.skipData(track, positionUs);
     }
 
   }
