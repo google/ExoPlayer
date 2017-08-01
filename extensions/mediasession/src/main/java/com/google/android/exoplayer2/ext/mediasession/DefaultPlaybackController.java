@@ -21,40 +21,50 @@ import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Player;
 
 /**
- * A default implementation of the {@link MediaSessionConnector.PlaybackController}. You can safely
- * override any method for instance to intercept calls for a given action.
+ * A default implementation of {@link MediaSessionConnector.PlaybackController}.
+ * <p>
+ * Methods can be safely overridden by subclasses to intercept calls for given actions.
  */
 public class DefaultPlaybackController implements MediaSessionConnector.PlaybackController {
+
+  /**
+   * The default fast forward increment, in milliseconds.
+   */
+  public static final int DEFAULT_FAST_FORWARD_MS = 15000;
+  /**
+   * The default rewind increment, in milliseconds.
+   */
+  public static final int DEFAULT_REWIND_MS = 5000;
 
   private static final long BASE_ACTIONS = PlaybackStateCompat.ACTION_PLAY_PAUSE
       | PlaybackStateCompat.ACTION_PLAY | PlaybackStateCompat.ACTION_PAUSE
       | PlaybackStateCompat.ACTION_STOP;
 
-  protected final long fastForwardIncrementMs;
   protected final long rewindIncrementMs;
+  protected final long fastForwardIncrementMs;
 
   /**
-   * Creates a new {@link DefaultPlaybackController}. This is equivalent to calling
-   * {@code DefaultPlaybackController(15000L, 5000L)}.
+   * Creates a new instance.
+   * <p>
+   * Equivalent to {@code DefaultPlaybackController(
+   *     DefaultPlaybackController.DEFAULT_REWIND_MS,
+   *     DefaultPlaybackController.DEFAULT_FAST_FORWARD_MS)}.
    */
   public DefaultPlaybackController() {
-    this(15000L, 5000L);
+    this(DEFAULT_REWIND_MS, DEFAULT_FAST_FORWARD_MS);
   }
 
   /**
-   * Creates a new {@link DefaultPlaybackController} and sets the fast forward and rewind increments
-   * in milliseconds.
+   * Creates a new instance with the given fast forward and rewind increments.
    *
-   * @param fastForwardIncrementMs A positive value will cause the
-   *     {@link PlaybackStateCompat#ACTION_FAST_FORWARD} playback action to be added. A zero or a
-   *     negative value will cause it to be removed.
-   * @param rewindIncrementMs A positive value will cause the
-   *     {@link PlaybackStateCompat#ACTION_REWIND} playback action to be added. A zero or a
-   *     negative value will cause it to be removed.
+   * @param rewindIncrementMs The rewind increment in milliseconds. A zero or negative value will
+   *     cause the rewind action to be disabled.
+   * @param fastForwardIncrementMs The fast forward increment in milliseconds. A zero or negative
+   *     value will cause the fast forward action to be removed.
    */
-  public DefaultPlaybackController(long fastForwardIncrementMs, long rewindIncrementMs) {
-    this.fastForwardIncrementMs = fastForwardIncrementMs;
+  public DefaultPlaybackController(long rewindIncrementMs, long fastForwardIncrementMs) {
     this.rewindIncrementMs = rewindIncrementMs;
+    this.fastForwardIncrementMs = fastForwardIncrementMs;
   }
 
   @Override
