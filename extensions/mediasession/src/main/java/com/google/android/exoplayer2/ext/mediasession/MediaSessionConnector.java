@@ -44,30 +44,27 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Mediates between a {@link MediaSessionCompat} and an {@link Player} instance set with
- * {@link #setPlayer(Player, PlaybackPreparer, CustomActionProvider...)}.
+ * Connects a {@link MediaSessionCompat} to a {@link Player}.
  * <p>
- * The {@code MediaSessionConnector} listens for media actions sent by a media controller and
- * realizes these actions by calling appropriate ExoPlayer methods. Further, the state of ExoPlayer
- * will be synced automatically with the {@link PlaybackStateCompat} of the media session to
- * broadcast state transitions to clients. You can optionally extend this behaviour by providing
- * various collaborators.
- * <p>
- * Media actions to initiate media playback ({@code PlaybackStateCompat#ACTION_PREPARE_*} and
- * {@code PlaybackStateCompat#ACTION_PLAY_*} need to be handled by a {@link PlaybackPreparer} which
- * build a {@link com.google.android.exoplayer2.source.MediaSource} to prepare ExoPlayer. Deploy
- * your preparer by calling {@link #setPlaybackPreparer(PlaybackPreparer)}.
- * <p>
- * To support a media session queue and navigation within this queue, you can set a
- * {@link QueueNavigator} to maintain the queue yourself and implement queue navigation commands
- * (like 'skip to next') sent by controllers. It's recommended to use the
- * {@link TimelineQueueNavigator} to allow users navigating the windows of the ExoPlayer timeline.
- * <p>
- * If you want to allow media controllers to manipulate the queue, implement a {@link QueueEditor}
- * and deploy it with {@link #setQueueEditor(QueueEditor)}.
- * <p>
- * Set an {@link ErrorMessageProvider} to provide an error code and a human readable error message
- * to be broadcast to controllers.
+ * The connector listens for actions sent by the media session's controller and implements these
+ * actions by calling appropriate ExoPlayer methods. The playback state of the media session is
+ * automatically synced with the player. The connector can also be optionally extended by providing
+ * various collaborators:
+ * <ul>
+ *   <li>Actions to initiate media playback ({@code PlaybackStateCompat#ACTION_PREPARE_*} and
+ *   {@code PlaybackStateCompat#ACTION_PLAY_*}) can be handled by a {@link PlaybackPreparer} passed
+ *   when calling {@link #setPlayer(Player, PlaybackPreparer, CustomActionProvider...)}. Custom
+ *   actions can be handled by passing one or more {@link CustomActionProvider}s in a similar way.
+ *   </li>
+ *   <li>To enable a media queue and navigation within it, you can set a {@link QueueNavigator} by
+ *   calling {@link #setQueueNavigator(QueueNavigator)}. Use of {@link TimelineQueueNavigator} is
+ *   recommended for most use cases.</li>
+ *   <li>To enable editing of the media queue, you can set a {@link QueueEditor} by calling
+ *   {@link #setQueueEditor(QueueEditor)}.</li>
+ *   <li>An {@link ErrorMessageProvider} for providing human readable error messages and
+ *   corresponding error codes can be set by calling
+ *   {@link #setErrorMessageProvider(ErrorMessageProvider)}.</li>
+ * </ul>
  */
 public final class MediaSessionConnector {
 
@@ -78,12 +75,7 @@ public final class MediaSessionConnector {
   public static final String EXTRAS_PITCH = "EXO_PITCH";
 
   /**
-   * Interface to which media controller commands regarding preparing playback for a given media
-   * clip are delegated to.
-   * <p>
-   * Normally preparing playback includes preparing the player with a
-   * {@link com.google.android.exoplayer2.source.MediaSource} and setting up the media session queue
-   * with a corresponding list of queue items.
+   * Interface to which playback preparation actions are delegated.
    */
   public interface PlaybackPreparer {
 
@@ -131,7 +123,7 @@ public final class MediaSessionConnector {
   }
 
   /**
-   * Controller to handle playback actions.
+   * Interface to which playback actions are delegated.
    */
   public interface PlaybackController {
 
@@ -178,8 +170,8 @@ public final class MediaSessionConnector {
   }
 
   /**
-   * Navigator to handle queue navigation actions and maintain the media session queue with
-   * {#link MediaSessionCompat#setQueue(List)} to provide the active queue item to the connector.
+   * Handles queue navigation actions, and updates the media session queue by calling
+   * {@code MediaSessionCompat.setQueue()}.
    */
   public interface QueueNavigator {
 
@@ -211,7 +203,7 @@ public final class MediaSessionConnector {
      */
     void onCurrentWindowIndexChanged(Player player);
     /**
-     * Gets the id of the currently active queue item or
+     * Gets the id of the currently active queue item, or
      * {@link MediaSessionCompat.QueueItem#UNKNOWN_ID} if the active item is unknown.
      * <p>
      * To let the connector publish metadata for the active queue item, the queue item with the
@@ -241,7 +233,7 @@ public final class MediaSessionConnector {
   }
 
   /**
-   * Editor to manipulate the queue.
+   * Handles media session queue edits.
    */
   public interface QueueEditor {
 
@@ -302,12 +294,12 @@ public final class MediaSessionConnector {
   }
 
   /**
-   * Provides an user readable error code and a message for {@link ExoPlaybackException}s.
+   * Converts an exception into an error code and a user readable error message.
    */
   public interface ErrorMessageProvider {
     /**
-     * Returns a pair of an error code and a user readable error message for a given
-     * {@link ExoPlaybackException}.
+     * Returns a pair consisting of an error code and a user readable error message for a given
+     * exception.
      */
     Pair<Integer, String> getErrorMessage(ExoPlaybackException playbackException);
   }
@@ -316,6 +308,7 @@ public final class MediaSessionConnector {
    * The wrapped {@link MediaSessionCompat}.
    */
   public final MediaSessionCompat mediaSession;
+
   private final MediaControllerCompat mediaController;
   private final Handler handler;
   private final boolean doMaintainMetadata;
@@ -334,11 +327,10 @@ public final class MediaSessionConnector {
   private ExoPlaybackException playbackException;
 
   /**
-   * Creates a {@code MediaSessionConnector}. This is equivalent to calling
-   * {@code #MediaSessionConnector(mediaSession, new DefaultPlaybackController)}.
+   * Creates an instance. Must be called on the same thread that is used to construct the player
+   * instances passed to {@link #setPlayer(Player, PlaybackPreparer, CustomActionProvider...)}.
    * <p>
-   * Constructing the {@link MediaSessionConnector} needs to be done on the same thread as
-   * constructing the player instance.
+   * Equivalent to {@code MediaSessionConnector(mediaSession, new DefaultPlaybackController())}.
    *
    * @param mediaSession The {@link MediaSessionCompat} to connect to.
    */
@@ -347,14 +339,13 @@ public final class MediaSessionConnector {
   }
 
   /**
-   * Creates a {@code MediaSessionConnector}. This is equivalent to calling
-   * {@code #MediaSessionConnector(mediaSession, playbackController, true)}.
+   * Creates an instance. Must be called on the same thread that is used to construct the player
+   * instances passed to {@link #setPlayer(Player, PlaybackPreparer, CustomActionProvider...)}.
    * <p>
-   * Constructing the {@link MediaSessionConnector} needs to be done on the same thread as
-   * constructing the player instance.
+   * Equivalent to {@code MediaSessionConnector(mediaSession, playbackController, true)}.
    *
    * @param mediaSession The {@link MediaSessionCompat} to connect to.
-   * @param playbackController The {@link PlaybackController}.
+   * @param playbackController A {@link PlaybackController} for handling playback actions.
    */
   public MediaSessionConnector(MediaSessionCompat mediaSession,
       PlaybackController playbackController) {
@@ -362,19 +353,14 @@ public final class MediaSessionConnector {
   }
 
   /**
-   * Creates a {@code MediaSessionConnector} with {@link CustomActionProvider}s.
-   * <p>
-   * If you choose to pass {@code false} for {@code doMaintainMetadata} you need to maintain the
-   * metadata of the media session yourself (provide at least the duration to allow clients to show
-   * a progress bar).
-   * <p>
-   * Constructing the {@link MediaSessionConnector} needs to be done on the same thread as
-   * constructing the player instance.
+   * Creates an instance. Must be called on the same thread that is used to construct the player
+   * instances passed to {@link #setPlayer(Player, PlaybackPreparer, CustomActionProvider...)}.
    *
    * @param mediaSession The {@link MediaSessionCompat} to connect to.
-   * @param playbackController The {@link PlaybackController}.
-   * @param doMaintainMetadata Sets whether the connector should maintain the metadata of the
-   *     session.
+   * @param playbackController A {@link PlaybackController} for handling playback actions.
+   * @param doMaintainMetadata Whether the connector should maintain the metadata of the session. If
+   *     {@code false}, you need to maintain the metadata of the media session yourself (provide at
+   *     least the duration to allow clients to show a progress bar).
    */
   public MediaSessionConnector(MediaSessionCompat mediaSession,
       PlaybackController playbackController, boolean doMaintainMetadata) {
@@ -392,17 +378,14 @@ public final class MediaSessionConnector {
   }
 
   /**
-   * Sets the player to which media commands sent by a media controller are delegated.
-   * <p>
-   * The media session callback is set if the {@code player} is not {@code null} and the callback is
-   * removed if the {@code player} is {@code null}.
+   * Sets the player to be connected to the media session.
    * <p>
    * The order in which any {@link CustomActionProvider}s are passed determines the order of the
    * actions published with the playback state of the session.
    *
    * @param player The player to be connected to the {@code MediaSession}.
-   * @param playbackPreparer The playback preparer for the player.
-   * @param customActionProviders Optional {@link CustomActionProvider}s to publish and handle
+   * @param playbackPreparer An optional {@link PlaybackPreparer} for preparing the player.
+   * @param customActionProviders An optional {@link CustomActionProvider}s to publish and handle
    *     custom actions.
    */
   public void setPlayer(Player player, PlaybackPreparer playbackPreparer,
@@ -411,7 +394,7 @@ public final class MediaSessionConnector {
       this.player.removeListener(exoPlayerEventListener);
       mediaSession.setCallback(null);
     }
-    setPlaybackPreparer(playbackPreparer);
+    this.playbackPreparer = playbackPreparer;
     this.player = player;
     this.customActionProviders = (player != null && customActionProviders != null)
         ? customActionProviders : new CustomActionProvider[0];
@@ -424,9 +407,9 @@ public final class MediaSessionConnector {
   }
 
   /**
-   * Sets the optional {@link ErrorMessageProvider}.
+   * Sets the {@link ErrorMessageProvider}.
    *
-   * @param errorMessageProvider The {@link ErrorMessageProvider}.
+   * @param errorMessageProvider The error message provider.
    */
   public void setErrorMessageProvider(ErrorMessageProvider errorMessageProvider) {
     this.errorMessageProvider = errorMessageProvider;
@@ -437,23 +420,19 @@ public final class MediaSessionConnector {
    * {@code ACTION_SKIP_TO_PREVIOUS}, {@code ACTION_SKIP_TO_QUEUE_ITEM} and
    * {@code ACTION_SET_SHUFFLE_MODE_ENABLED}.
    *
-   * @param queueNavigator The navigator to handle queue navigation.
+   * @param queueNavigator The queue navigator.
    */
   public void setQueueNavigator(QueueNavigator queueNavigator) {
     this.queueNavigator = queueNavigator;
   }
 
   /**
-   * Sets the queue editor to handle commands to manipulate the queue sent by a media controller.
+   * Sets the {@link QueueEditor} to handle queue edits sent by the media controller.
    *
-   * @param queueEditor The editor to handle queue manipulation actions.
+   * @param queueEditor The queue editor.
    */
   public void setQueueEditor(QueueEditor queueEditor) {
     this.queueEditor = queueEditor;
-  }
-
-  private void setPlaybackPreparer(PlaybackPreparer playbackPreparer) {
-    this.playbackPreparer = playbackPreparer;
   }
 
   private void updateMediaSessionPlaybackState() {
@@ -603,6 +582,7 @@ public final class MediaSessionConnector {
   }
 
   private class ExoPlayerEventListener implements Player.EventListener {
+
     @Override
     public void onTimelineChanged(Timeline timeline, Object manifest) {
       if (queueNavigator != null) {

@@ -29,9 +29,8 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * An abstract implementation of the {@link MediaSessionConnector.QueueNavigator} that's based on an
- * {@link Player}'s current {@link Timeline} and maps the timeline of the player to the media
- * session queue.
+ * An abstract implementation of the {@link MediaSessionConnector.QueueNavigator} that maps the
+ * windows of a {@link Player}'s {@link Timeline} to the media session queue.
  */
 public abstract class TimelineQueueNavigator implements MediaSessionConnector.QueueNavigator {
 
@@ -44,10 +43,9 @@ public abstract class TimelineQueueNavigator implements MediaSessionConnector.Qu
   private long activeQueueItemId;
 
   /**
-   * Creates a new timeline queue navigator for a given {@link MediaSessionCompat}.
+   * Creates an instance for a given {@link MediaSessionCompat}.
    * <p>
-   * This is equivalent to calling
-   * {@code #TimelineQueueNavigator(mediaSession, DEFAULT_MAX_QUEUE_SIZE)}.
+   * Equivalent to {@code TimelineQueueNavigator(mediaSession, DEFAULT_MAX_QUEUE_SIZE)}.
    *
    * @param mediaSession The {@link MediaSessionCompat}.
    */
@@ -56,12 +54,11 @@ public abstract class TimelineQueueNavigator implements MediaSessionConnector.Qu
   }
 
   /**
-   * Creates a new timeline queue navigator for a given {@link MediaSessionCompat} and a maximum
-   * queue size of {@code maxQueueSize}.
+   * Creates an instance for a given {@link MediaSessionCompat} and maximum queue size.
    * <p>
-   * If the actual queue size is larger than {@code maxQueueSize} a floating window of
-   * {@code maxQueueSize} is applied and moved back and forth when the user is navigating within the
-   * queue.
+   * If the number of windows in the {@link Player}'s {@link Timeline} exceeds {@code maxQueueSize},
+   * the media session queue will correspond to {@code maxQueueSize} windows centered on the one
+   * currently being played.
    *
    * @param mediaSession The {@link MediaSessionCompat}.
    * @param maxQueueSize The maximum queue size.
@@ -80,12 +77,6 @@ public abstract class TimelineQueueNavigator implements MediaSessionConnector.Qu
    */
   public abstract MediaDescriptionCompat getMediaDescription(int windowIndex);
 
-  /**
-   * Supports the following media actions: {@code PlaybackStateCompat.ACTION_SKIP_TO_NEXT |
-   * PlaybackStateCompat.ACTION_SKIP_TO_PREVIOUS | PlaybackStateCompat.ACTION_SKIP_TO_QUEUE_ITEM}.
-   *
-   * @return The bit mask of the supported media actions.
-   */
   @Override
   public long getSupportedQueueNavigatorActions(Player player) {
     if (player == null || player.getCurrentTimeline().getWindowCount() < 2) {
