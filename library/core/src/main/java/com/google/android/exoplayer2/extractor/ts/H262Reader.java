@@ -257,7 +257,7 @@ public final class H262Reader implements ElementaryStreamReader {
     public boolean onStartCode(int startCodeValue, int bytesAlreadyPassed) {
       if (isFilling) {
         if (sequenceExtensionPosition == 0 && startCodeValue == START_EXTENSION) {
-          sequenceExtensionPosition = length;
+          sequenceExtensionPosition = length - bytesAlreadyPassed;
         } else {
           length -= bytesAlreadyPassed;
           isFilling = false;
