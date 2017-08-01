@@ -137,9 +137,10 @@ public final class H262Reader implements ElementaryStreamReader {
         }
       }
 
-      if (hasOutputFormat && (startCodeValue == START_PICTURE || startCodeValue == START_SEQUENCE_HEADER)) {
+      if (hasOutputFormat
+          && (startCodeValue == START_PICTURE || startCodeValue == START_SEQUENCE_HEADER)) {
         int bytesWrittenPastStartCode = limit - startCodeOffset;
-        boolean resetSample = (samplePosition == C.POSITION_UNSET);
+        boolean resetSample = samplePosition == C.POSITION_UNSET;
         if (foundPicture) {
           @C.BufferFlags int flags = isKeyframe ? C.BUFFER_FLAG_KEY_FRAME : 0;
           int size = (int) (totalBytesWritten - samplePosition) - bytesWrittenPastStartCode;
@@ -147,7 +148,7 @@ public final class H262Reader implements ElementaryStreamReader {
           isKeyframe = false;
           resetSample = true;
         }
-        foundPicture = (startCodeValue == START_PICTURE);
+        foundPicture = startCodeValue == START_PICTURE;
         if (resetSample) {
           samplePosition = totalBytesWritten - bytesWrittenPastStartCode;
           sampleTimeUs = (pesPtsUsAvailable ? pesTimeUs : sampleTimeUs + frameDurationUs);

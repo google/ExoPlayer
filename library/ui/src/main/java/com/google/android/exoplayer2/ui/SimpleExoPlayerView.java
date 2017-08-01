@@ -126,7 +126,8 @@ import java.util.List;
  *         <li>Default: {@code R.id.exo_playback_control_view}</li>
  *       </ul>
  *   <li>All attributes that can be set on a {@link PlaybackControlView} can also be set on a
- *       SimpleExoPlayerView, and will be propagated to the inflated {@link PlaybackControlView}.
+ *       SimpleExoPlayerView, and will be propagated to the inflated {@link PlaybackControlView}
+ *       unless the layout is overridden to specify a custom {@code exo_controller} (see below).
  *   </li>
  * </ul>
  *
@@ -163,18 +164,17 @@ import java.util.List;
  *       </ul>
  *   </li>
  *   <li><b>{@code exo_controller_placeholder}</b> - A placeholder that's replaced with the inflated
- *       {@link PlaybackControlView}.
+ *       {@link PlaybackControlView}. Ignored if an {@code exo_controller} view exists.
  *       <ul>
  *        <li>Type: {@link View}</li>
  *       </ul>
  *   </li>
- *   <li><b>{@code exo_controller}</b> - An already inflated instance of
- *       {@link PlaybackControlView}. Allows you to use your own {@link PlaybackControlView} instead
- *       of default. Note: attrs such as rewind_increment will not be passed through to this
- *       instance and should be set at creation. {@code exo_controller_placeholder} will be ignored
- *       if this is set.
+ *   <li><b>{@code exo_controller}</b> - An already inflated {@link PlaybackControlView}. Allows use
+ *       of a custom extension of {@link PlaybackControlView}. Note that attributes such as
+ *       {@code rewind_increment} will not be automatically propagated through to this instance. If
+ *       a view exists with this id, any {@code exo_controller_placeholder} view will be ignored.
  *       <ul>
- *        <li>Type: {@link View}</li>
+ *        <li>Type: {@link PlaybackControlView}</li>
  *       </ul>
  *   </li>
  *   <li><b>{@code exo_overlay}</b> - A {@link FrameLayout} positioned on top of the player which
