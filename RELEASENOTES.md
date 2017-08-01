@@ -1,11 +1,11 @@
 # Release notes #
 
-### r2.5.0-beta1 ###
+### r2.5.0 (beta) ###
 
 * IMA extension: Wraps the Google Interactive Media Ads (IMA) SDK to provide an
   easy and seamless way of incorporating display ads into ExoPlayer playbacks.
-  You can read more about the IMA extension *A link to a blog post about this
-  extension will be added here prior to the stable 2.5.0 release.*
+  You can read more about the IMA extension
+  [here](https://medium.com/google-exoplayer/playing-ads-with-exoplayer-and-ima-868dfd767ea).
 * MediaSession extension: Provides an easy to to connect ExoPlayer with
   MediaSessionCompat in the Android Support Library. *A link to a blog post
   about this extension will be added here prior to the stable 2.5.0 release.*
@@ -48,6 +48,8 @@
   ([#889](https://github.com/google/ExoPlayer/issues/889)).
 * AndroidTV: Fixed issue where tunneled video playback would not start on some
   devices ([#2985](https://github.com/google/ExoPlayer/issues/2985)).
+* MPEG-TS: Fixed segmentation issue when parsing H262
+  ([#2891](https://github.com/google/ExoPlayer/issues/2891)).
 * Cronet extension: Support for a user-defined fallback if Cronet library is not
   present.
 * Misc bugfixes.
