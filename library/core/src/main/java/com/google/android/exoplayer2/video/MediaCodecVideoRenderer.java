@@ -378,7 +378,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
       // The surface is set and unchanged. If we know the video size and/or have already rendered to
       // the surface, report these again immediately.
       maybeRenotifyVideoSizeChanged();
-      maybeRenotifyRenderedFirstFrame();
+      maybeRenotifyRenderedFirstFrame(0);
     }
   }
 
@@ -438,7 +438,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
   @Override
   protected void onQueueInputBuffer(DecoderInputBuffer buffer) {
     if (Util.SDK_INT < 23 && tunneling) {
-      maybeNotifyRenderedFirstFrame();
+      maybeNotifyRenderedFirstFrame(0);
     }
   }
 
@@ -630,7 +630,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
     TraceUtil.endSection();
     decoderCounters.renderedOutputBufferCount++;
     consecutiveDroppedFrameCount = 0;
-    maybeNotifyRenderedFirstFrame();
+    maybeNotifyRenderedFirstFrame(presentationTimeUs / 1000);
   }
 
   /**
@@ -651,7 +651,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
     TraceUtil.endSection();
     decoderCounters.renderedOutputBufferCount++;
     consecutiveDroppedFrameCount = 0;
-    maybeNotifyRenderedFirstFrame();
+    maybeNotifyRenderedFirstFrame(presentationTimeUs / 1000);
   }
 
   private boolean shouldUseDummySurface(boolean codecIsSecure) {
@@ -679,16 +679,16 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
     }
   }
 
-  /* package */ void maybeNotifyRenderedFirstFrame() {
+  /* package */ void maybeNotifyRenderedFirstFrame(long framePosition) {
     if (!renderedFirstFrame) {
       renderedFirstFrame = true;
-      eventDispatcher.renderedFirstFrame(surface);
+      eventDispatcher.renderedFirstFrame(surface, framePosition);
     }
   }
 
-  private void maybeRenotifyRenderedFirstFrame() {
+  private void maybeRenotifyRenderedFirstFrame(long framePosition) {
     if (renderedFirstFrame) {
-      eventDispatcher.renderedFirstFrame(surface);
+      eventDispatcher.renderedFirstFrame(surface, framePosition);
     }
   }
 
@@ -993,7 +993,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
         // Stale event.
         return;
       }
-      maybeNotifyRenderedFirstFrame();
+      maybeNotifyRenderedFirstFrame(presentationTimeUs / 1000);
     }
 
   }

@@ -326,7 +326,7 @@ public final class LibvpxVideoRenderer extends BaseRenderer {
       outputBuffer = null;
       consecutiveDroppedFrameCount = 0;
       decoderCounters.renderedOutputBufferCount++;
-      maybeNotifyRenderedFirstFrame();
+      maybeNotifyRenderedFirstFrame(0);
     }
   }
 
@@ -667,7 +667,7 @@ public final class LibvpxVideoRenderer extends BaseRenderer {
       // The output is unchanged and non-null. If we know the video size and/or have already
       // rendered to the output, report these again immediately.
       maybeRenotifyVideoSizeChanged();
-      maybeRenotifyRenderedFirstFrame();
+      maybeRenotifyRenderedFirstFrame(0);
     }
   }
 
@@ -680,16 +680,16 @@ public final class LibvpxVideoRenderer extends BaseRenderer {
     renderedFirstFrame = false;
   }
 
-  private void maybeNotifyRenderedFirstFrame() {
+  private void maybeNotifyRenderedFirstFrame(long framePosition) {
     if (!renderedFirstFrame) {
       renderedFirstFrame = true;
-      eventDispatcher.renderedFirstFrame(surface);
+      eventDispatcher.renderedFirstFrame(surface, framePosition);
     }
   }
 
-  private void maybeRenotifyRenderedFirstFrame() {
+  private void maybeRenotifyRenderedFirstFrame(long framePosition) {
     if (renderedFirstFrame) {
-      eventDispatcher.renderedFirstFrame(surface);
+      eventDispatcher.renderedFirstFrame(surface, framePosition);
     }
   }
 
