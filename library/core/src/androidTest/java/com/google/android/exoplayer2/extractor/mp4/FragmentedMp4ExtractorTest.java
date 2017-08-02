@@ -27,13 +27,13 @@ import com.google.android.exoplayer2.testutil.ExtractorAsserts.ExtractorFactory;
 public final class FragmentedMp4ExtractorTest extends InstrumentationTestCase {
 
   public void testSample() throws Exception {
-    ExtractorAsserts
-        .assertOutput(getExtractorFactory(), "mp4/sample_fragmented.mp4", getInstrumentation());
+    ExtractorAsserts.assertBehavior(getExtractorFactory(), "mp4/sample_fragmented.mp4",
+        getInstrumentation());
   }
 
   public void testSampleWithSeiPayloadParsing() throws Exception {
     // Enabling the CEA-608 track enables SEI payload parsing.
-    ExtractorAsserts.assertOutput(
+    ExtractorAsserts.assertBehavior(
         getExtractorFactory(FragmentedMp4Extractor.FLAG_ENABLE_CEA608_TRACK),
         "mp4/sample_fragmented_sei.mp4", getInstrumentation());
   }
