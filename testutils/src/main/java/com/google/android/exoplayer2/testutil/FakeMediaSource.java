@@ -34,7 +34,7 @@ import junit.framework.Assert;
  */
 public class FakeMediaSource implements MediaSource {
 
-  private final Timeline timeline;
+  protected final Timeline timeline;
   private final Object manifest;
   private final TrackGroupArray trackGroupArray;
   private final ArrayList<FakeMediaPeriod> activeMediaPeriods;
@@ -82,7 +82,7 @@ public class FakeMediaSource implements MediaSource {
     Assertions.checkIndex(id.periodIndex, 0, timeline.getPeriodCount());
     Assert.assertTrue(preparedSource);
     Assert.assertFalse(releasedSource);
-    FakeMediaPeriod mediaPeriod = new FakeMediaPeriod(trackGroupArray);
+    FakeMediaPeriod mediaPeriod = createFakeMediaPeriod(id, trackGroupArray, allocator);
     activeMediaPeriods.add(mediaPeriod);
     return mediaPeriod;
   }
@@ -102,6 +102,11 @@ public class FakeMediaSource implements MediaSource {
     Assert.assertFalse(releasedSource);
     Assert.assertTrue(activeMediaPeriods.isEmpty());
     releasedSource = true;
+  }
+
+  protected FakeMediaPeriod createFakeMediaPeriod(MediaPeriodId id, TrackGroupArray trackGroupArray,
+      Allocator allocator) {
+    return new FakeMediaPeriod(trackGroupArray);
   }
 
   private static TrackGroupArray buildTrackGroupArray(Format... formats) {

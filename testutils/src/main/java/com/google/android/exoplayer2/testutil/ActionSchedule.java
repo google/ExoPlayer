@@ -18,13 +18,22 @@ package com.google.android.exoplayer2.testutil;
 import android.os.Handler;
 import android.view.Surface;
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.ExoPlayer;
+import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.SimpleExoPlayer;
+import com.google.android.exoplayer2.Timeline;
+import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.testutil.Action.ClearVideoSurface;
+import com.google.android.exoplayer2.testutil.Action.ExecuteRunnable;
+import com.google.android.exoplayer2.testutil.Action.PrepareSource;
 import com.google.android.exoplayer2.testutil.Action.Seek;
 import com.google.android.exoplayer2.testutil.Action.SetPlayWhenReady;
 import com.google.android.exoplayer2.testutil.Action.SetRendererDisabled;
+import com.google.android.exoplayer2.testutil.Action.SetRepeatMode;
 import com.google.android.exoplayer2.testutil.Action.SetVideoSurface;
 import com.google.android.exoplayer2.testutil.Action.Stop;
+import com.google.android.exoplayer2.testutil.Action.WaitForPositionDiscontinuity;
+import com.google.android.exoplayer2.testutil.Action.WaitForTimelineChanged;
 import com.google.android.exoplayer2.trackselection.MappingTrackSelector;
 
 /**
@@ -179,6 +188,63 @@ public final class ActionSchedule {
       return apply(new SetVideoSurface(tag));
     }
 
+    /**
+     * Schedules a new source preparation action to be executed.
+     *
+     * @return The builder, for convenience.
+     */
+    public Builder prepareSource(MediaSource mediaSource) {
+      return apply(new PrepareSource(tag, mediaSource));
+    }
+
+    /**
+     * Schedules a new source preparation action to be executed.
+     * @see ExoPlayer#prepare(MediaSource, boolean, boolean).
+     *
+     * @return The builder, for convenience.
+     */
+    public Builder prepareSource(MediaSource mediaSource, boolean resetPosition,
+        boolean resetState) {
+      return apply(new PrepareSource(tag, mediaSource, resetPosition, resetState));
+    }
+
+    /**
+     * Schedules a repeat mode setting action to be executed.
+     *
+     * @return The builder, for convenience.
+     */
+    public Builder setRepeatMode(@Player.RepeatMode int repeatMode) {
+      return apply(new SetRepeatMode(tag, repeatMode));
+    }
+
+    /**
+     * Schedules a delay until the timeline changed to a specified expected timeline.
+     *
+     * @param expectedTimeline The expected timeline to wait for.
+     * @return The builder, for convenience.
+     */
+    public Builder waitForTimelineChanged(Timeline expectedTimeline) {
+      return apply(new WaitForTimelineChanged(tag, expectedTimeline));
+    }
+
+    /**
+     * Schedules a delay until the next position discontinuity.
+     *
+     * @return The builder, for convenience.
+     */
+    public Builder waitForPositionDiscontinuity() {
+      return apply(new WaitForPositionDiscontinuity(tag));
+    }
+
+    /**
+     * Schedules a {@link Runnable} to be executed.
+     *
+     * @return The builder, for convenience.
+     */
+    public Builder executeRunnable(Runnable runnable) {
+      return apply(new ExecuteRunnable(tag, runnable));
+    }
+
     public ActionSchedule build() {
       return new ActionSchedule(rootNode);
     }
@@ -195,7 +261,7 @@ public final class ActionSchedule {
   /**
    * Wraps an {@link Action}, allowing a delay and a next {@link Action} to be specified.
    */
-  private static final class ActionNode implements Runnable {
+  /* package */ static final class ActionNode implements Runnable {
 
     private final Action action;
     private final long delayMs;
@@ -257,10 +323,7 @@ public final class ActionSchedule {
 
     @Override
     public void run() {
-      action.doAction(player, trackSelector, surface);
-      if (next != null) {
-        next.schedule(player, trackSelector, surface, mainHandler);
-      }
+      action.doActionAndScheduleNext(player, trackSelector, surface, mainHandler, next);
       if (repeatIntervalMs != C.TIME_UNSET) {
         mainHandler.postDelayed(this, repeatIntervalMs);
       }

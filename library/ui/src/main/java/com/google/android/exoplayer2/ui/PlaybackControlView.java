@@ -249,11 +249,23 @@ public class PlaybackControlView extends FrameLayout {
 
   };
 
+  /**
+   * The default fast forward increment, in milliseconds.
+   */
   public static final int DEFAULT_FAST_FORWARD_MS = 15000;
+  /**
+   * The default rewind increment, in milliseconds.
+   */
   public static final int DEFAULT_REWIND_MS = 5000;
+  /**
+   * The default show timeout, in milliseconds.
+   */
   public static final int DEFAULT_SHOW_TIMEOUT_MS = 5000;
-  public static final @RepeatModeUtil.RepeatToggleModes int DEFAULT_REPEAT_TOGGLE_MODES
-      = RepeatModeUtil.REPEAT_TOGGLE_MODE_NONE;
+  /**
+   * The default repeat toggle modes.
+   */
+  public static final @RepeatModeUtil.RepeatToggleModes int DEFAULT_REPEAT_TOGGLE_MODES =
+      RepeatModeUtil.REPEAT_TOGGLE_MODE_NONE;
 
   /**
    * The maximum number of windows that can be shown in a multi-window time bar.
@@ -660,6 +672,11 @@ public class PlaybackControlView extends FrameLayout {
       repeatToggleButton.setVisibility(View.GONE);
       return;
     }
+    if (player == null) {
+      setButtonEnabled(false, repeatToggleButton);
+      return;
+    }
+    setButtonEnabled(true, repeatToggleButton);
     switch (player.getRepeatMode()) {
       case Player.REPEAT_MODE_OFF:
         repeatToggleButton.setImageDrawable(repeatOffButtonDrawable);
