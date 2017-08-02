@@ -26,7 +26,7 @@ import com.google.android.exoplayer2.testutil.ExtractorAsserts.ExtractorFactory;
 public final class WavExtractorTest extends InstrumentationTestCase {
 
   public void testSample() throws Exception {
-    ExtractorAsserts.assertOutput(new ExtractorFactory() {
+    ExtractorAsserts.assertBehavior(new ExtractorFactory() {
       @Override
       public Extractor create() {
         return new WavExtractor();

@@ -30,7 +30,7 @@ import com.google.android.exoplayer2.util.MimeTypes;
 public final class RawCcExtractorTest extends InstrumentationTestCase {
 
   public void testRawCcSample() throws Exception {
-    ExtractorAsserts.assertOutput(
+    ExtractorAsserts.assertBehavior(
         new ExtractorFactory() {
           @Override
           public Extractor create() {

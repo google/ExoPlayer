@@ -26,7 +26,7 @@ import com.google.android.exoplayer2.testutil.ExtractorAsserts.ExtractorFactory;
 public final class MatroskaExtractorTest extends InstrumentationTestCase {
 
   public void testMkvSample() throws Exception {
-    ExtractorAsserts.assertOutput(new ExtractorFactory() {
+    ExtractorAsserts.assertBehavior(new ExtractorFactory() {
       @Override
       public Extractor create() {
         return new MatroskaExtractor();
@@ -35,7 +35,7 @@ public final class MatroskaExtractorTest extends InstrumentationTestCase {
   }
 
   public void testWebmSubsampleEncryption() throws Exception {
-    ExtractorAsserts.assertOutput(new ExtractorFactory() {
+    ExtractorAsserts.assertBehavior(new ExtractorFactory() {
       @Override
       public Extractor create() {
         return new MatroskaExtractor();
@@ -44,7 +44,7 @@ public final class MatroskaExtractorTest extends InstrumentationTestCase {
   }
 
   public void testWebmSubsampleEncryptionWithAltrefFrames() throws Exception {
-    ExtractorAsserts.assertOutput(new ExtractorFactory() {
+    ExtractorAsserts.assertBehavior(new ExtractorFactory() {
       @Override
       public Extractor create() {
         return new MatroskaExtractor();
