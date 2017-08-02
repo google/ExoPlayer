@@ -73,7 +73,7 @@ public abstract class ExoHostedTest implements HostedTest, Player.EventListener,
   private final long expectedPlayingTimeMs;
   private final DecoderCounters videoDecoderCounters;
   private final DecoderCounters audioDecoderCounters;
-  private final ConditionVariable playerFinished;
+  private final ConditionVariable testFinished;
 
   private ActionSchedule pendingSchedule;
   private Handler actionHandler;
@@ -116,7 +116,7 @@ public abstract class ExoHostedTest implements HostedTest, Player.EventListener,
     this.tag = tag;
     this.expectedPlayingTimeMs = expectedPlayingTimeMs;
     this.failOnPlayerError = failOnPlayerError;
-    this.playerFinished = new ConditionVariable();
+    this.testFinished = new ConditionVariable();
     this.videoDecoderCounters = new DecoderCounters();
     this.audioDecoderCounters = new DecoderCounters();
   }
@@ -172,16 +172,13 @@ public abstract class ExoHostedTest implements HostedTest, Player.EventListener,
   }
 
   @Override
-  public final boolean blockUntilEnded(long timeoutMs) {
-    return playerFinished.block(timeoutMs);
+  public final boolean blockUntilStopped(long timeoutMs) {
+    return testFinished.block(timeoutMs);
   }
 
   @Override
-  public final void onStop() {
-    actionHandler.removeCallbacksAndMessages(null);
-    sourceDurationMs = player.getDuration();
-    player.release();
-    player = null;
+  public final boolean forceStop() {
+    return stopTest();
   }
 
   @Override
@@ -222,7 +219,7 @@ public abstract class ExoHostedTest implements HostedTest, Player.EventListener,
     playerWasPrepared |= playbackState != Player.STATE_IDLE;
     if (playbackState == Player.STATE_ENDED
         || (playbackState == Player.STATE_IDLE && playerWasPrepared)) {
-      playerFinished.open();
+      stopTest();
     }
     boolean playing = playWhenReady && playbackState == Player.STATE_READY;
     if (!this.playing && playing) {
@@ -336,6 +333,25 @@ public abstract class ExoHostedTest implements HostedTest, Player.EventListener,
   }
 
   // Internal logic
+
+  private boolean stopTest() {
+    if (player == null) {
+      return false;
+    }
+    actionHandler.removeCallbacksAndMessages(null);
+    sourceDurationMs = player.getDuration();
+    player.release();
+    player = null;
+    // We post opening of the finished condition so that any events posted to the main thread as a
+    // result of player.release() are guaranteed to be handled before the test returns.
+    actionHandler.post(new Runnable() {
+      @Override
+      public void run() {
+        testFinished.open();
+      }
+    });
+    return true;
+  }
 
   protected DrmSessionManager<FrameworkMediaCrypto> buildDrmSessionManager(String userAgent) {
     // Do nothing. Interested subclasses may override.
