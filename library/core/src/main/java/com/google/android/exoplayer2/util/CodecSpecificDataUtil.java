@@ -17,6 +17,7 @@ package com.google.android.exoplayer2.util;
 
 import android.util.Pair;
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.ParserException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -85,8 +86,10 @@ public final class CodecSpecificDataUtil {
    *
    * @param audioSpecificConfig A byte array containing the AudioSpecificConfig to parse.
    * @return A pair consisting of the sample rate in Hz and the channel count.
+   * @throws ParserException If the AudioSpecificConfig cannot be parsed as it's not supported.
    */
-  public static Pair<Integer, Integer> parseAacAudioSpecificConfig(byte[] audioSpecificConfig) {
+  public static Pair<Integer, Integer> parseAacAudioSpecificConfig(byte[] audioSpecificConfig)
+      throws ParserException {
     return parseAacAudioSpecificConfig(new ParsableBitArray(audioSpecificConfig));
   }
 
@@ -96,8 +99,10 @@ public final class CodecSpecificDataUtil {
    * @param bitArray A {@link ParsableBitArray} containing the AudioSpecificConfig to parse. The
    *     position is advanced to the end of the AudioSpecificConfig.
    * @return A pair consisting of the sample rate in Hz and the channel count.
+   * @throws ParserException If the AudioSpecificConfig cannot be parsed as it's not supported.
    */
-  public static Pair<Integer, Integer> parseAacAudioSpecificConfig(ParsableBitArray bitArray) {
+  public static Pair<Integer, Integer> parseAacAudioSpecificConfig(ParsableBitArray bitArray)
+      throws ParserException {
     int audioObjectType = getAacAudioObjectType(bitArray);
     int sampleRate = getAacSamplingFrequency(bitArray);
     int channelConfiguration = bitArray.readBits(4);
@@ -131,7 +136,7 @@ public final class CodecSpecificDataUtil {
         parseGaSpecificConfig(bitArray, audioObjectType, channelConfiguration);
         break;
       default:
-        throw new UnsupportedOperationException();
+        throw new ParserException("Unsupported audio object type: " + audioObjectType);
     }
     switch (audioObjectType) {
       case 17:
@@ -142,7 +147,7 @@ public final class CodecSpecificDataUtil {
       case 23:
         int epConfig = bitArray.readBits(2);
         if (epConfig == 2 || epConfig == 3) {
-          throw new UnsupportedOperationException();
+          throw new ParserException("Unsupported epConfig: " + epConfig);
         }
         break;
     }

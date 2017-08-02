@@ -19,6 +19,7 @@ import android.support.annotation.Nullable;
 import android.util.Pair;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
+import com.google.android.exoplayer2.ParserException;
 import com.google.android.exoplayer2.extractor.ExtractorOutput;
 import com.google.android.exoplayer2.extractor.TrackOutput;
 import com.google.android.exoplayer2.extractor.ts.TsPayloadReader.TrackIdGenerator;
@@ -98,7 +99,7 @@ public final class LatmReader implements ElementaryStreamReader {
   }
 
   @Override
-  public void consume(ParsableByteArray data) {
+  public void consume(ParsableByteArray data) throws ParserException {
     int bytesToRead;
     while (data.bytesLeft() > 0) {
       switch (state) {
@@ -148,7 +149,7 @@ public final class LatmReader implements ElementaryStreamReader {
    *
    * @param data A {@link ParsableBitArray} containing the AudioMuxElement's bytes.
    */
-  private void parseAudioMuxElement(ParsableBitArray data) {
+  private void parseAudioMuxElement(ParsableBitArray data) throws ParserException {
     boolean useSameStreamMux = data.readBit();
     if (!useSameStreamMux) {
       streamMuxRead = true;
@@ -159,7 +160,7 @@ public final class LatmReader implements ElementaryStreamReader {
 
     if (audioMuxVersionA == 0) {
       if (numSubframes != 0) {
-        throw new UnsupportedOperationException();
+        throw new ParserException();
       }
       int muxSlotLengthBytes = parsePayloadLengthInfo(data);
       parsePayloadMux(data, muxSlotLengthBytes);
@@ -167,14 +168,14 @@ public final class LatmReader implements ElementaryStreamReader {
         data.skipBits((int) otherDataLenBits);
       }
     } else {
-      throw new UnsupportedOperationException(); // Not defined by ISO/IEC 14496-3:2009.
+      throw new ParserException(); // Not defined by ISO/IEC 14496-3:2009.
     }
   }
 
   /**
    * Parses a StreamMuxConfig as defined in ISO/IEC 14496-3:2009 Section 1.7.3.1, Table 1.42.
    */
-  private void parseStreamMuxConfig(ParsableBitArray data) {
+  private void parseStreamMuxConfig(ParsableBitArray data) throws ParserException {
     audioMuxVersion = data.readBits(1);
     audioMuxVersionA = audioMuxVersion == 1 ? data.readBits(1) : 0;
     if (audioMuxVersionA == 0) {
@@ -182,13 +183,13 @@ public final class LatmReader implements ElementaryStreamReader {
         latmGetValue(data); // Skip taraBufferFullness.
       }
       if (!data.readBit()) {
-        throw new UnsupportedOperationException();
+        throw new ParserException();
       }
       numSubframes = data.readBits(6);
       int numProgram = data.readBits(4);
       int numLayer = data.readBits(3);
       if (numProgram != 0 || numLayer != 0) {
-        throw new UnsupportedOperationException();
+        throw new ParserException();
       }
       if (audioMuxVersion == 0) {
         int startPosition = data.getPosition();
@@ -228,7 +229,7 @@ public final class LatmReader implements ElementaryStreamReader {
         data.skipBits(8); // crcCheckSum.
       }
     } else {
-      throw new UnsupportedOperationException(); // This is not defined by ISO/IEC 14496-3:2009.
+      throw new ParserException(); // This is not defined by ISO/IEC 14496-3:2009.
     }
   }
 
@@ -253,7 +254,7 @@ public final class LatmReader implements ElementaryStreamReader {
     }
   }
 
-  private int parseAudioSpecificConfig(ParsableBitArray data) {
+  private int parseAudioSpecificConfig(ParsableBitArray data) throws ParserException {
     int bitsLeft = data.bitsLeft();
     Pair<Integer, Integer> config = CodecSpecificDataUtil.parseAacAudioSpecificConfig(data);
     sampleRateHz = config.first;
@@ -261,7 +262,7 @@ public final class LatmReader implements ElementaryStreamReader {
     return bitsLeft - data.bitsLeft();
   }
 
-  private int parsePayloadLengthInfo(ParsableBitArray data) {
+  private int parsePayloadLengthInfo(ParsableBitArray data) throws ParserException {
     int muxSlotLengthBytes = 0;
     // Assuming single program and single layer.
     if (frameLengthType == 0) {
@@ -272,7 +273,7 @@ public final class LatmReader implements ElementaryStreamReader {
       } while (tmp == 255);
       return muxSlotLengthBytes;
     } else {
-      throw new UnsupportedOperationException();
+      throw new ParserException();
     }
   }
 
