@@ -45,7 +45,7 @@ public final class TsExtractorTest extends InstrumentationTestCase {
   private static final int TS_SYNC_BYTE = 0x47; // First byte of each TS packet.
 
   public void testSample() throws Exception {
-    ExtractorAsserts.assertOutput(new ExtractorFactory() {
+    ExtractorAsserts.assertBehavior(new ExtractorFactory() {
       @Override
       public Extractor create() {
         return new TsExtractor();

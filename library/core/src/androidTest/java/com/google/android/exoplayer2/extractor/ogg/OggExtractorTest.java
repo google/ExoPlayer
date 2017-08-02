@@ -36,20 +36,21 @@ public final class OggExtractorTest extends InstrumentationTestCase {
   };
 
   public void testOpus() throws Exception {
-    ExtractorAsserts.assertOutput(OGG_EXTRACTOR_FACTORY, "ogg/bear.opus", getInstrumentation());
+    ExtractorAsserts.assertBehavior(OGG_EXTRACTOR_FACTORY, "ogg/bear.opus", getInstrumentation());
   }
 
   public void testFlac() throws Exception {
-    ExtractorAsserts.assertOutput(OGG_EXTRACTOR_FACTORY, "ogg/bear_flac.ogg", getInstrumentation());
+    ExtractorAsserts.assertBehavior(OGG_EXTRACTOR_FACTORY, "ogg/bear_flac.ogg",
+        getInstrumentation());
   }
 
   public void testFlacNoSeektable() throws Exception {
-    ExtractorAsserts.assertOutput(OGG_EXTRACTOR_FACTORY, "ogg/bear_flac_noseektable.ogg",
+    ExtractorAsserts.assertBehavior(OGG_EXTRACTOR_FACTORY, "ogg/bear_flac_noseektable.ogg",
         getInstrumentation());
   }
 
   public void testVorbis() throws Exception {
-    ExtractorAsserts.assertOutput(OGG_EXTRACTOR_FACTORY, "ogg/bear_vorbis.ogg",
+    ExtractorAsserts.assertBehavior(OGG_EXTRACTOR_FACTORY, "ogg/bear_vorbis.ogg",
         getInstrumentation());
   }
 
