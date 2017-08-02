@@ -51,17 +51,17 @@ public final class H262Reader implements ElementaryStreamReader {
   // State that should be reset on seek.
   private final boolean[] prefixFlags;
   private final CsdBuffer csdBuffer;
-  private boolean foundPicture;
   private long totalBytesWritten;
+  private boolean startedFirstSample;
 
   // Per packet state that gets reset at the start of each packet.
   private long pesTimeUs;
-  private boolean pesPtsUsAvailable;
 
-  // Per sample state that gets reset at the start of each frame.
-  private boolean isKeyframe;
+  // Per sample state that gets reset at the start of each sample.
   private long samplePosition;
   private long sampleTimeUs;
+  private boolean sampleIsKeyframe;
+  private boolean sampleHasPicture;
 
   public H262Reader() {
     prefixFlags = new boolean[4];
@@ -72,10 +72,8 @@ public final class H262Reader implements ElementaryStreamReader {
   public void seek() {
     NalUnitUtil.clearPrefixFlags(prefixFlags);
     csdBuffer.reset();
-    pesPtsUsAvailable = false;
-    foundPicture = false;
-    samplePosition = C.POSITION_UNSET;
     totalBytesWritten = 0;
+    startedFirstSample = false;
   }
 
   @Override
@@ -87,10 +85,7 @@ public final class H262Reader implements ElementaryStreamReader {
 
   @Override
   public void packetStarted(long pesTimeUs, boolean dataAlignmentIndicator) {
-    pesPtsUsAvailable = pesTimeUs != C.TIME_UNSET;
-    if (pesPtsUsAvailable) {
-      this.pesTimeUs = pesTimeUs;
-    }
+    this.pesTimeUs = pesTimeUs;
   }
 
   @Override
@@ -136,27 +131,26 @@ public final class H262Reader implements ElementaryStreamReader {
         }
       }
 
-      if (hasOutputFormat
-          && (startCodeValue == START_PICTURE || startCodeValue == START_SEQUENCE_HEADER)) {
+      if (startCodeValue == START_PICTURE || startCodeValue == START_SEQUENCE_HEADER) {
         int bytesWrittenPastStartCode = limit - startCodeOffset;
-        boolean resetSample = samplePosition == C.POSITION_UNSET;
-        if (foundPicture) {
-          @C.BufferFlags int flags = isKeyframe ? C.BUFFER_FLAG_KEY_FRAME : 0;
+        if (startedFirstSample && sampleHasPicture && hasOutputFormat) {
+          // Output the sample.
+          @C.BufferFlags int flags = sampleIsKeyframe ? C.BUFFER_FLAG_KEY_FRAME : 0;
           int size = (int) (totalBytesWritten - samplePosition) - bytesWrittenPastStartCode;
           output.sampleMetadata(sampleTimeUs, flags, size, bytesWrittenPastStartCode, null);
-          isKeyframe = false;
-          resetSample = true;
         }
-        foundPicture = startCodeValue == START_PICTURE;
-        if (resetSample) {
+        if (!startedFirstSample || sampleHasPicture) {
+          // Start the next sample.
           samplePosition = totalBytesWritten - bytesWrittenPastStartCode;
-          sampleTimeUs = (pesPtsUsAvailable ? pesTimeUs : sampleTimeUs + frameDurationUs);
-          pesPtsUsAvailable = false;
+          sampleTimeUs = pesTimeUs != C.TIME_UNSET ? pesTimeUs
+              : (startedFirstSample ? (sampleTimeUs + frameDurationUs) : 0);
+          sampleIsKeyframe = false;
+          pesTimeUs = C.TIME_UNSET;
+          startedFirstSample = true;
         }
-      }
-
-      if (hasOutputFormat && startCodeValue == START_GROUP) {
-        isKeyframe = true;
+        sampleHasPicture = startCodeValue == START_PICTURE;
+      } else if (startCodeValue == START_GROUP) {
+        sampleIsKeyframe = true;
       }
 
       offset = startCodeOffset + 3;
