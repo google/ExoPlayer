@@ -397,6 +397,7 @@ public final class DynamicConcatenatingMediaSource implements MediaSource, ExoPl
 
     public ConcatenatedTimeline(Collection<MediaSourceHolder> mediaSourceHolders, int windowCount,
         int periodCount) {
+      super(mediaSourceHolders.size());
       this.windowCount = windowCount;
       this.periodCount = periodCount;
       int childCount = mediaSourceHolders.size();
@@ -416,28 +417,42 @@ public final class DynamicConcatenatingMediaSource implements MediaSource, ExoPl
     }
 
     @Override
-    protected void getChildDataByPeriodIndex(int periodIndex, ChildDataHolder childDataHolder) {
-      int index = Util.binarySearchFloor(firstPeriodInChildIndices, periodIndex, true, false);
-      setChildData(index, childDataHolder);
+    protected int getChildIndexByPeriodIndex(int periodIndex) {
+      return Util.binarySearchFloor(firstPeriodInChildIndices, periodIndex, true, false);
     }
 
     @Override
-    protected void getChildDataByWindowIndex(int windowIndex, ChildDataHolder childDataHolder) {
-      int index = Util.binarySearchFloor(firstWindowInChildIndices, windowIndex, true, false);
-      setChildData(index, childDataHolder);
+    protected int getChildIndexByWindowIndex(int windowIndex) {
+      return Util.binarySearchFloor(firstWindowInChildIndices, windowIndex, true, false);
     }
 
     @Override
-    protected boolean getChildDataByChildUid(Object childUid, ChildDataHolder childDataHolder) {
+    protected int getChildIndexByChildUid(Object childUid) {
       if (!(childUid instanceof Integer)) {
-        return false;
+        return C.INDEX_UNSET;
       }
       int index = childIndexByUid.get((int) childUid, -1);
-      if (index == -1) {
-        return false;
-      }
-      setChildData(index, childDataHolder);
-      return true;
+      return index == -1 ? C.INDEX_UNSET : index;
+    }
+
+    @Override
+    protected Timeline getTimelineByChildIndex(int childIndex) {
+      return timelines[childIndex];
+    }
+
+    @Override
+    protected int getFirstPeriodIndexByChildIndex(int childIndex) {
+      return firstPeriodInChildIndices[childIndex];
+    }
+
+    @Override
+    protected int getFirstWindowIndexByChildIndex(int childIndex) {
+      return firstWindowInChildIndices[childIndex];
+    }
+
+    @Override
+    protected Object getChildUidByChildIndex(int childIndex) {
+      return uids[childIndex];
     }
 
     @Override
@@ -450,10 +465,6 @@ public final class DynamicConcatenatingMediaSource implements MediaSource, ExoPl
       return periodCount;
     }
 
-    private void setChildData(int srcIndex, ChildDataHolder dest) {
-      dest.setData(timelines[srcIndex], firstPeriodInChildIndices[srcIndex],
-          firstWindowInChildIndices[srcIndex], uids[srcIndex]);
-    }
   }
 
   private static final class DeferredTimeline extends Timeline {

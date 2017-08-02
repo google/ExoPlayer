@@ -101,6 +101,7 @@ public final class LoopingMediaSource implements MediaSource {
     private final int loopCount;
 
     public LoopingTimeline(Timeline childTimeline, int loopCount) {
+      super(loopCount);
       this.childTimeline = childTimeline;
       childPeriodCount = childTimeline.getPeriodCount();
       childWindowCount = childTimeline.getWindowCount();
@@ -120,30 +121,41 @@ public final class LoopingMediaSource implements MediaSource {
     }
 
     @Override
-    protected void getChildDataByPeriodIndex(int periodIndex, ChildDataHolder childData) {
-      int childIndex = periodIndex / childPeriodCount;
-      getChildDataByChildIndex(childIndex, childData);
+    protected int getChildIndexByPeriodIndex(int periodIndex) {
+      return periodIndex / childPeriodCount;
     }
 
     @Override
-    protected void getChildDataByWindowIndex(int windowIndex, ChildDataHolder childData) {
-      int childIndex = windowIndex / childWindowCount;
-      getChildDataByChildIndex(childIndex, childData);
+    protected int getChildIndexByWindowIndex(int windowIndex) {
+      return windowIndex / childWindowCount;
     }
 
     @Override
-    protected boolean getChildDataByChildUid(Object childUid, ChildDataHolder childData) {
+    protected int getChildIndexByChildUid(Object childUid) {
       if (!(childUid instanceof Integer)) {
-        return false;
+        return C.INDEX_UNSET;
       }
-      int childIndex = (Integer) childUid;
-      getChildDataByChildIndex(childIndex, childData);
-      return true;
+      return (Integer) childUid;
     }
 
-    private void getChildDataByChildIndex(int childIndex, ChildDataHolder childData) {
-      childData.setData(childTimeline, childIndex * childPeriodCount, childIndex * childWindowCount,
-          childIndex);
+    @Override
+    protected Timeline getTimelineByChildIndex(int childIndex) {
+      return childTimeline;
+    }
+
+    @Override
+    protected int getFirstPeriodIndexByChildIndex(int childIndex) {
+      return childIndex * childPeriodCount;
+    }
+
+    @Override
+    protected int getFirstWindowIndexByChildIndex(int childIndex) {
+      return childIndex * childWindowCount;
+    }
+
+    @Override
+    protected Object getChildUidByChildIndex(int childIndex) {
+      return childIndex;
     }
 
   }

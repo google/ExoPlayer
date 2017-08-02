@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.source;
 
+import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.Timeline;
@@ -97,7 +98,7 @@ public final class ConcatenatingMediaSource implements MediaSource {
   public MediaPeriod createPeriod(MediaPeriodId id, Allocator allocator) {
     int sourceIndex = timeline.getChildIndexByPeriodIndex(id.periodIndex);
     MediaPeriodId periodIdInSource =
-        new MediaPeriodId(id.periodIndex - timeline.getFirstPeriodIndexInChild(sourceIndex));
+        new MediaPeriodId(id.periodIndex - timeline.getFirstPeriodIndexByChildIndex(sourceIndex));
     MediaPeriod mediaPeriod = mediaSources[sourceIndex].createPeriod(periodIdInSource, allocator);
     sourceIndexByMediaPeriod.put(mediaPeriod, sourceIndex);
     return mediaPeriod;
@@ -166,6 +167,7 @@ public final class ConcatenatingMediaSource implements MediaSource {
     private final boolean isRepeatOneAtomic;
 
     public ConcatenatedTimeline(Timeline[] timelines, boolean isRepeatOneAtomic) {
+      super(timelines.length);
       int[] sourcePeriodOffsets = new int[timelines.length];
       int[] sourceWindowOffsets = new int[timelines.length];
       long periodCount = 0;
@@ -212,42 +214,41 @@ public final class ConcatenatingMediaSource implements MediaSource {
     }
 
     @Override
-    protected void getChildDataByPeriodIndex(int periodIndex, ChildDataHolder childData) {
-      int childIndex = getChildIndexByPeriodIndex(periodIndex);
-      getChildDataByChildIndex(childIndex, childData);
-    }
-
-    @Override
-    protected void getChildDataByWindowIndex(int windowIndex, ChildDataHolder childData) {
-      int childIndex = Util.binarySearchFloor(sourceWindowOffsets, windowIndex, true, false) + 1;
-      getChildDataByChildIndex(childIndex, childData);
-    }
-
-    @Override
-    protected boolean getChildDataByChildUid(Object childUid, ChildDataHolder childData) {
-      if (!(childUid instanceof Integer)) {
-        return false;
-      }
-      int childIndex = (Integer) childUid;
-      getChildDataByChildIndex(childIndex, childData);
-      return true;
-    }
-
-    private void getChildDataByChildIndex(int childIndex, ChildDataHolder childData) {
-      childData.setData(timelines[childIndex], getFirstPeriodIndexInChild(childIndex),
-          getFirstWindowIndexInChild(childIndex), childIndex);
-    }
-
-    private int getChildIndexByPeriodIndex(int periodIndex) {
+    protected int getChildIndexByPeriodIndex(int periodIndex) {
       return Util.binarySearchFloor(sourcePeriodOffsets, periodIndex, true, false) + 1;
     }
 
-    private int getFirstPeriodIndexInChild(int childIndex) {
+    @Override
+    protected int getChildIndexByWindowIndex(int windowIndex) {
+      return Util.binarySearchFloor(sourceWindowOffsets, windowIndex, true, false) + 1;
+    }
+
+    @Override
+    protected int getChildIndexByChildUid(Object childUid) {
+      if (!(childUid instanceof Integer)) {
+        return C.INDEX_UNSET;
+      }
+      return (Integer) childUid;
+    }
+
+    @Override
+    protected Timeline getTimelineByChildIndex(int childIndex) {
+      return timelines[childIndex];
+    }
+
+    @Override
+    protected int getFirstPeriodIndexByChildIndex(int childIndex) {
       return childIndex == 0 ? 0 : sourcePeriodOffsets[childIndex - 1];
     }
 
-    private int getFirstWindowIndexInChild(int childIndex) {
+    @Override
+    protected int getFirstWindowIndexByChildIndex(int childIndex) {
       return childIndex == 0 ? 0 : sourceWindowOffsets[childIndex - 1];
+    }
+
+    @Override
+    protected Object getChildUidByChildIndex(int childIndex) {
+      return childIndex;
     }
 
   }
