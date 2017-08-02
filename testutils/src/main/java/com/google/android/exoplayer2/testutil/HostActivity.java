@@ -56,21 +56,20 @@ public final class HostActivity extends Activity implements SurfaceHolder.Callba
     void onStart(HostActivity host, Surface surface);
 
     /**
-     * Called on the main thread to block until the test has stopped or {@link #onStop()} is called.
+     * Called on the main thread to block until the test has stopped or {@link #forceStop()} is
+     * called.
      *
      * @param timeoutMs The maximum time to block in milliseconds.
      * @return Whether the test has stopped successful.
      */
-    boolean blockUntilEnded(long timeoutMs);
+    boolean blockUntilStopped(long timeoutMs);
 
     /**
-     * Called on the main thread when the test is stopped.
-     * <p>
-     * The test will be stopped when {@link #blockUntilEnded(long)} returns, if the
-     * {@link HostActivity} has been paused, or if the {@link HostActivity}'s {@link Surface} has
-     * been destroyed.
+     * Called on the main thread to force stop the test (if it is not stopped already).
+     *
+     * @return Whether the test was forced stopped.
      */
-    void onStop();
+    boolean forceStop();
 
     /**
      * Called on the test thread after the test has finished and been stopped.
@@ -89,7 +88,8 @@ public final class HostActivity extends Activity implements SurfaceHolder.Callba
 
   private HostedTest hostedTest;
   private boolean hostedTestStarted;
-  private boolean forcedFinished;
+  private ConditionVariable hostedTestStartedCondition;
+  private boolean forcedStopped;
 
   /**
    * Executes a {@link HostedTest} inside the host.
@@ -109,34 +109,31 @@ public final class HostActivity extends Activity implements SurfaceHolder.Callba
    * @param timeoutMs The number of milliseconds to wait for the test to finish.
    * @param failOnTimeout Whether the test fails when the timeout is exceeded.
    */
-  public void runTest(HostedTest hostedTest, long timeoutMs, boolean failOnTimeout) {
+  public void runTest(final HostedTest hostedTest, long timeoutMs, boolean failOnTimeout) {
     Assertions.checkArgument(timeoutMs > 0);
     Assertions.checkState(Thread.currentThread() != getMainLooper().getThread());
-
     Assertions.checkState(this.hostedTest == null);
-    this.hostedTest = Assertions.checkNotNull(hostedTest);
+    Assertions.checkNotNull(hostedTest);
+    hostedTestStartedCondition = new ConditionVariable();
+    forcedStopped = false;
     hostedTestStarted = false;
-    forcedFinished = false;
 
-    final ConditionVariable testStarted = new ConditionVariable();
     runOnUiThread(new Runnable() {
       @Override
       public void run() {
+        HostActivity.this.hostedTest = hostedTest;
         maybeStartHostedTest();
-        testStarted.open();
       }
     });
-    testStarted.block();
+    hostedTestStartedCondition.block();
 
-    if (hostedTest.blockUntilEnded(timeoutMs)) {
-      hostedTest.onStop();
-      if (!forcedFinished) {
-        Log.d(TAG, "Test finished. Checking pass conditions.");
+    if (hostedTest.blockUntilStopped(timeoutMs)) {
+      if (!forcedStopped) {
+        Log.d(TAG, "Checking test pass conditions.");
         hostedTest.onFinished();
-        this.hostedTest = null;
         Log.d(TAG, "Pass conditions checked.");
       } else {
-        String message = "Test released before it finished. Activity may have been paused whilst "
+        String message = "Test force stopped. Activity may have been paused whilst "
             + "test was in progress.";
         Log.e(TAG, message);
         fail(message);
@@ -147,8 +144,8 @@ public final class HostActivity extends Activity implements SurfaceHolder.Callba
       if (failOnTimeout) {
         fail(message);
       }
-      maybeStopHostedTest();
     }
+    this.hostedTest = null;
   }
 
   // Activity lifecycle
@@ -173,12 +170,6 @@ public final class HostActivity extends Activity implements SurfaceHolder.Callba
     wakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, TAG);
     wakeLock.acquire();
     super.onStart();
-  }
-
-  @Override
-  public void onResume() {
-    super.onResume();
-    maybeStartHostedTest();
   }
 
   @Override
@@ -224,14 +215,13 @@ public final class HostActivity extends Activity implements SurfaceHolder.Callba
       hostedTestStarted = true;
       Log.d(TAG, "Starting test.");
       hostedTest.onStart(this, surface);
+      hostedTestStartedCondition.open();
     }
   }
 
   private void maybeStopHostedTest() {
-    if (hostedTest != null && hostedTestStarted) {
-      forcedFinished = true;
-      hostedTest.onStop();
-      hostedTest = null;
+    if (hostedTest != null && hostedTestStarted && !forcedStopped) {
+      forcedStopped = hostedTest.forceStop();
     }
   }
 
