@@ -28,7 +28,7 @@ import com.google.android.exoplayer2.testutil.ExtractorAsserts.ExtractorFactory;
 public final class Mp4ExtractorTest extends InstrumentationTestCase {
 
   public void testMp4Sample() throws Exception {
-    ExtractorAsserts.assertOutput(new ExtractorFactory() {
+    ExtractorAsserts.assertBehavior(new ExtractorFactory() {
       @Override
       public Extractor create() {
         return new Mp4Extractor();

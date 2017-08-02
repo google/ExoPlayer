@@ -159,13 +159,17 @@ public final class FlacExtractor implements Extractor {
     if (position == 0) {
       metadataParsed = false;
     }
-    decoderJni.reset(position);
+    if (decoderJni != null) {
+      decoderJni.reset(position);
+    }
   }
 
   @Override
   public void release() {
-    decoderJni.release();
-    decoderJni = null;
+    if (decoderJni != null) {
+      decoderJni.release();
+      decoderJni = null;
+    }
   }
 
 }
