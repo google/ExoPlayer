@@ -39,7 +39,6 @@ import java.io.IOException;
 import java.math.BigInteger;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Locale;
 
 /**
  * Source of Hls (possibly adaptive) chunks.
@@ -366,7 +365,7 @@ import java.util.Locale;
 
   private void setEncryptionData(Uri keyUri, String iv, byte[] secretKey) {
     String trimmedIv;
-    if (iv.toLowerCase(Locale.getDefault()).startsWith("0x")) {
+    if (Util.toLowerInvariant(iv).startsWith("0x")) {
       trimmedIv = iv.substring(2);
     } else {
       trimmedIv = iv;
