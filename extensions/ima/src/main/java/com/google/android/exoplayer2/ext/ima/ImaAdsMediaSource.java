@@ -50,6 +50,8 @@ public final class ImaAdsMediaSource implements MediaSource {
      * Called if there was an error loading ads. The media source will load the content without ads
      * if ads can't be loaded, so listen for this event if you need to implement additional handling
      * (for example, stopping the player).
+     *
+     * @param error The error.
      */
     void onAdLoadError(IOException error);
 
