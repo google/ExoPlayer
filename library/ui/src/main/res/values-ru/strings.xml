@@ -25,4 +25,5 @@
   <string name="exo_controls_repeat_all_description">"Повторять все"</string>
   <string name="exo_controls_repeat_off_description">"Не повторять"</string>
   <string name="exo_controls_repeat_one_description">"Повторять один элемент"</string>
+  <string name="exo_controls_shuffle_description">"Перемешать"</string>
 </resources>

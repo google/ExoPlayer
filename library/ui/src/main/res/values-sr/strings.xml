@@ -25,4 +25,5 @@
   <string name="exo_controls_repeat_all_description">"Понови све"</string>
   <string name="exo_controls_repeat_off_description">"Понављање је искључено"</string>
   <string name="exo_controls_repeat_one_description">"Понови једну"</string>
+  <string name="exo_controls_shuffle_description">"Пусти насумично"</string>
 </resources>

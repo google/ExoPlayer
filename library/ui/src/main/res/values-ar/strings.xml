@@ -25,4 +25,5 @@
   <string name="exo_controls_repeat_all_description">"تكرار الكل"</string>
   <string name="exo_controls_repeat_off_description">"عدم التكرار"</string>
   <string name="exo_controls_repeat_one_description">"تكرار مقطع واحد"</string>
+  <string name="exo_controls_shuffle_description">"ترتيب عشوائي"</string>
 </resources>
