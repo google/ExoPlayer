@@ -160,51 +160,23 @@ public final class LoopingMediaSource implements MediaSource {
 
   }
 
-  private static final class InfinitelyLoopingTimeline extends Timeline {
+  private static final class InfinitelyLoopingTimeline extends ForwardingTimeline {
 
-    private final Timeline childTimeline;
-
-    public InfinitelyLoopingTimeline(Timeline childTimeline) {
-      this.childTimeline = childTimeline;
-    }
-
-    @Override
-    public int getWindowCount() {
-      return childTimeline.getWindowCount();
+    public InfinitelyLoopingTimeline(Timeline timeline) {
+      super(timeline);
     }
 
     @Override
     public int getNextWindowIndex(int windowIndex, @Player.RepeatMode int repeatMode) {
-      int childNextWindowIndex = childTimeline.getNextWindowIndex(windowIndex, repeatMode);
+      int childNextWindowIndex = timeline.getNextWindowIndex(windowIndex, repeatMode);
       return childNextWindowIndex == C.INDEX_UNSET ? 0 : childNextWindowIndex;
     }
 
     @Override
     public int getPreviousWindowIndex(int windowIndex, @Player.RepeatMode int repeatMode) {
-      int childPreviousWindowIndex = childTimeline.getPreviousWindowIndex(windowIndex, repeatMode);
+      int childPreviousWindowIndex = timeline.getPreviousWindowIndex(windowIndex, repeatMode);
       return childPreviousWindowIndex == C.INDEX_UNSET ? getWindowCount() - 1
           : childPreviousWindowIndex;
-    }
-
-    @Override
-    public Window getWindow(int windowIndex, Window window, boolean setIds,
-        long defaultPositionProjectionUs) {
-      return childTimeline.getWindow(windowIndex, window, setIds, defaultPositionProjectionUs);
-    }
-
-    @Override
-    public int getPeriodCount() {
-      return childTimeline.getPeriodCount();
-    }
-
-    @Override
-    public Period getPeriod(int periodIndex, Period period, boolean setIds) {
-      return childTimeline.getPeriod(periodIndex, period, setIds);
-    }
-
-    @Override
-    public int getIndexOfPeriod(Object uid) {
-      return childTimeline.getIndexOfPeriod(uid);
     }
 
   }
