@@ -52,6 +52,8 @@
   ([#2891](https://github.com/google/ExoPlayer/issues/2891)).
 * Cronet extension: Support for a user-defined fallback if Cronet library is not
   present.
+* Fix buffer too small IllegalStateException issue affecting some composite
+  media playbacks ([#2900](https://github.com/google/ExoPlayer/issues/2900)).
 * Misc bugfixes.
 
 ### r2.4.4 ###
