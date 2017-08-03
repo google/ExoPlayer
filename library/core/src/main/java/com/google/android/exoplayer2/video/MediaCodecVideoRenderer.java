@@ -477,7 +477,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
       Format oldFormat, Format newFormat) {
     return areAdaptationCompatible(codecIsAdaptive, oldFormat, newFormat)
         && newFormat.width <= codecMaxValues.width && newFormat.height <= codecMaxValues.height
-        && newFormat.maxInputSize <= codecMaxValues.inputSize;
+        && getMaxInputSize(newFormat) <= codecMaxValues.inputSize;
   }
 
   @Override
@@ -854,18 +854,27 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
   }
 
   /**
-   * Returns a maximum input size for a given format.
+   * Returns a maximum input buffer size for a given format.
    *
    * @param format The format.
-   * @return A maximum input size in bytes, or {@link Format#NO_VALUE} if a maximum could not be
-   *     determined.
+   * @return A maximum input buffer size in bytes, or {@link Format#NO_VALUE} if a maximum could not
+   *     be determined.
    */
   private static int getMaxInputSize(Format format) {
     if (format.maxInputSize != Format.NO_VALUE) {
-      // The format defines an explicit maximum input size.
-      return format.maxInputSize;
+      // The format defines an explicit maximum input size. Add the total size of initialization
+      // data buffers, as they may need to be queued in the same input buffer as the largest sample.
+      int totalInitializationDataSize = 0;
+      int initializationDataCount = format.initializationData.size();
+      for (int i = 0; i < initializationDataCount; i++) {
+        totalInitializationDataSize += format.initializationData.get(i).length;
+      }
+      return format.maxInputSize + totalInitializationDataSize;
+    } else {
+      // Calculated maximum input sizes are overestimates, so it's not necessary to add the size of
+      // initialization data.
+      return getMaxInputSize(format.sampleMimeType, format.width, format.height);
     }
-    return getMaxInputSize(format.sampleMimeType, format.width, format.height);
   }
 
   /**
