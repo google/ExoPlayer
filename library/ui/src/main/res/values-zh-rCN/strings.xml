@@ -25,4 +25,5 @@
   <string name="exo_controls_repeat_all_description">"重复播放全部"</string>
   <string name="exo_controls_repeat_off_description">"不重复播放"</string>
   <string name="exo_controls_repeat_one_description">"重复播放单个视频"</string>
+  <string name="exo_controls_shuffle_description">"随机播放"</string>
 </resources>

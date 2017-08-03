@@ -25,4 +25,5 @@
   <string name="exo_controls_repeat_all_description">"Toista kaikki"</string>
   <string name="exo_controls_repeat_off_description">"Toista ei mitään"</string>
   <string name="exo_controls_repeat_one_description">"Toista yksi"</string>
+  <string name="exo_controls_shuffle_description">"Toista satunnaisesti"</string>
 </resources>

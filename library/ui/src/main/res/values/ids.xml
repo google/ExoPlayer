@@ -28,6 +28,7 @@
   <item name="exo_ffwd" type="id"/>
   <item name="exo_prev" type="id"/>
   <item name="exo_next" type="id"/>
+  <item name="exo_shuffle" type="id"/>
   <item name="exo_repeat_toggle" type="id"/>
   <item name="exo_duration" type="id"/>
   <item name="exo_position" type="id"/>

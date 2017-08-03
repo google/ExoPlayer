@@ -25,4 +25,5 @@
   <string name="exo_controls_repeat_all_description">"Барлығын қайталау"</string>
   <string name="exo_controls_repeat_off_description">"Ешқайсысын қайталамау"</string>
   <string name="exo_controls_repeat_one_description">"Біреуін қайталау"</string>
+  <string name="exo_controls_shuffle_description">"Кездейсоқ ретпен ойнату"</string>
 </resources>

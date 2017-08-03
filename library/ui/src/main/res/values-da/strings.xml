@@ -25,4 +25,5 @@
   <string name="exo_controls_repeat_all_description">"Gentag alle"</string>
   <string name="exo_controls_repeat_off_description">"Gentag ingen"</string>
   <string name="exo_controls_repeat_one_description">"Gentag en"</string>
+  <string name="exo_controls_shuffle_description">"Bland"</string>
 </resources>

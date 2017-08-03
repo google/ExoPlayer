@@ -25,4 +25,5 @@
   <string name="exo_controls_repeat_all_description">"تکرار همه"</string>
   <string name="exo_controls_repeat_off_description">"تکرار هیچ‌کدام"</string>
   <string name="exo_controls_repeat_one_description">"یک‌بار تکرار"</string>
+  <string name="exo_controls_shuffle_description">"پخش درهم"</string>
 </resources>

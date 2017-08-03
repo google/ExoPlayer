@@ -25,4 +25,5 @@
   <string name="exo_controls_repeat_all_description">"Alles herhalen"</string>
   <string name="exo_controls_repeat_off_description">"Niet herhalen"</string>
   <string name="exo_controls_repeat_one_description">"Eén herhalen"</string>
+  <string name="exo_controls_shuffle_description">"Shuffle"</string>
 </resources>

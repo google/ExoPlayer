@@ -25,4 +25,5 @@
   <string name="exo_controls_repeat_all_description">"חזור על הכל"</string>
   <string name="exo_controls_repeat_off_description">"אל תחזור על כלום"</string>
   <string name="exo_controls_repeat_one_description">"חזור על פריט אחד"</string>
+  <string name="exo_controls_shuffle_description">"ערבב"</string>
 </resources>

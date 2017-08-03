@@ -25,4 +25,5 @@
   <string name="exo_controls_repeat_all_description">"Opakovať všetko"</string>
   <string name="exo_controls_repeat_off_description">"Neopakovať"</string>
   <string name="exo_controls_repeat_one_description">"Opakovať jednu položku"</string>
+  <string name="exo_controls_shuffle_description">"Náhodne prehrávať"</string>
 </resources>
