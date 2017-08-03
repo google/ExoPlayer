@@ -95,7 +95,7 @@ import com.google.android.exoplayer2.util.Assertions;
  * of the on-demand stream ends, playback of the live stream will start from its default position
  * near the live edge.
  *
- * <h3 id="single-file">On-demand stream with mid-roll ads</h3>
+ * <h3 id="single-file-midrolls">On-demand stream with mid-roll ads</h3>
  * <p align="center">
  *   <img src="doc-files/timeline-single-file-midrolls.svg" alt="Example timeline for an on-demand
  *       stream with mid-roll ad groups">

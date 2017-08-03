@@ -895,7 +895,7 @@ public final class Util {
    */
   @C.ContentType
   public static int inferContentType(String fileName) {
-    fileName = fileName.toLowerCase();
+    fileName = Util.toLowerInvariant(fileName);
     if (fileName.endsWith(".mpd")) {
       return C.TYPE_DASH;
     } else if (fileName.endsWith(".m3u8")) {
