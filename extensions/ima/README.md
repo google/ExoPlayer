@@ -7,7 +7,7 @@ The IMA extension is a [MediaSource][] implementation wrapping the
 alongside content.
 
 [IMA]: https://developers.google.com/interactive-media-ads/docs/sdks/android/
-[MediaSource]: https://github.com/google/ExoPlayer/blob/release-v2/library/core/src/main/java/com/google/android/exoplayer2/source/MediaSource.java
+[MediaSource]: https://google.github.io/ExoPlayer/doc/reference/index.html?com/google/android/exoplayer2/source/MediaSource.html
 
 ## Getting the extension ##
 
