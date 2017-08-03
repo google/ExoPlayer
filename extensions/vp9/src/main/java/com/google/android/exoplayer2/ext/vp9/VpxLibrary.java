@@ -35,6 +35,8 @@ public final class VpxLibrary {
    * Override the names of the Vpx native libraries. If an application wishes to call this method,
    * it must do so before calling any other method defined by this class, and before instantiating a
    * {@link LibvpxVideoRenderer} instance.
+   *
+   * @param libraries The names of the Vpx native libraries.
    */
   public static void setLibraries(String... libraries) {
     LOADER.setLibraries(libraries);
