@@ -61,6 +61,11 @@ public final class GvrAudioProcessor implements AudioProcessor {
   /**
    * Updates the listener head orientation. May be called on any thread. See
    * {@code GvrAudioSurround.updateNativeOrientation}.
+   *
+   * @param w The w component of the quaternion.
+   * @param x The x component of the quaternion.
+   * @param y The y component of the quaternion.
+   * @param z The z component of the quaternion.
    */
   public synchronized void updateOrientation(float w, float x, float y, float z) {
     this.w = w;
