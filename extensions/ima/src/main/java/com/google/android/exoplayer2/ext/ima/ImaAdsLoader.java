@@ -26,6 +26,7 @@ import com.google.ads.interactivemedia.v3.api.AdErrorEvent;
 import com.google.ads.interactivemedia.v3.api.AdErrorEvent.AdErrorListener;
 import com.google.ads.interactivemedia.v3.api.AdEvent;
 import com.google.ads.interactivemedia.v3.api.AdEvent.AdEventListener;
+import com.google.ads.interactivemedia.v3.api.AdEvent.AdEventType;
 import com.google.ads.interactivemedia.v3.api.AdPodInfo;
 import com.google.ads.interactivemedia.v3.api.AdsLoader;
 import com.google.ads.interactivemedia.v3.api.AdsLoader.AdsLoadedListener;
@@ -51,6 +52,7 @@ import com.google.android.exoplayer2.util.Assertions;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Loads ads using the IMA SDK. All methods are called on the main thread.
@@ -324,14 +326,21 @@ public final class ImaAdsLoader implements Player.EventListener, VideoAdPlayer,
 
   @Override
   public void onAdEvent(AdEvent adEvent) {
-    Ad ad = adEvent.getAd();
-    if (DEBUG) {
-      Log.d(TAG, "onAdEvent " + adEvent.getType());
+    AdEventType adEventType = adEvent.getType();
+    boolean isLogAdEvent = adEventType == AdEventType.LOG;
+    if (DEBUG || isLogAdEvent) {
+      Log.w(TAG, "onAdEvent: " + adEventType);
+      if (isLogAdEvent) {
+        for (Map.Entry<String, String> entry : adEvent.getAdData().entrySet()) {
+          Log.w(TAG, "  " + entry.getKey() + ": " + entry.getValue());
+        }
+      }
     }
     if (adsManager == null) {
       Log.w(TAG, "Dropping ad event after release: " + adEvent);
       return;
     }
+    Ad ad = adEvent.getAd();
     switch (adEvent.getType()) {
       case LOADED:
         // The ad position is not always accurate when using preloading. See [Internal: b/62613240].
