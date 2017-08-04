@@ -30,7 +30,14 @@ import com.google.android.exoplayer2.util.MimeTypes;
  */
 public final class FfmpegAudioRenderer extends SimpleDecoderAudioRenderer {
 
+  /**
+   * The number of input and output buffers.
+   */
   private static final int NUM_BUFFERS = 16;
+  /**
+   * The initial input buffer size. Input buffers are reallocated dynamically if this value is
+   * insufficient.
+   */
   private static final int INITIAL_INPUT_BUFFER_SIZE = 960 * 6;
 
   private FfmpegDecoder decoder;
