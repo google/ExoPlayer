@@ -119,7 +119,7 @@ public class PlayerActivity extends Activity implements OnClickListener, EventLi
   private DefaultTrackSelector trackSelector;
   private TrackSelectionHelper trackSelectionHelper;
   private DebugTextViewHelper debugViewHelper;
-  private boolean needRetrySource;
+  private boolean inErrorState;
   private TrackGroupArray lastSeenTrackGroupArray;
 
   private boolean shouldAutoPlay;
@@ -297,60 +297,58 @@ public class PlayerActivity extends Activity implements OnClickListener, EventLi
       debugViewHelper = new DebugTextViewHelper(player, debugTextView);
       debugViewHelper.start();
     }
-    if (needNewPlayer || needRetrySource) {
-      String action = intent.getAction();
-      Uri[] uris;
-      String[] extensions;
-      if (ACTION_VIEW.equals(action)) {
-        uris = new Uri[] {intent.getData()};
-        extensions = new String[] {intent.getStringExtra(EXTENSION_EXTRA)};
-      } else if (ACTION_VIEW_LIST.equals(action)) {
-        String[] uriStrings = intent.getStringArrayExtra(URI_LIST_EXTRA);
-        uris = new Uri[uriStrings.length];
-        for (int i = 0; i < uriStrings.length; i++) {
-          uris[i] = Uri.parse(uriStrings[i]);
-        }
-        extensions = intent.getStringArrayExtra(EXTENSION_LIST_EXTRA);
-        if (extensions == null) {
-          extensions = new String[uriStrings.length];
-        }
-      } else {
-        showToast(getString(R.string.unexpected_intent_action, action));
-        return;
+    String action = intent.getAction();
+    Uri[] uris;
+    String[] extensions;
+    if (ACTION_VIEW.equals(action)) {
+      uris = new Uri[]{intent.getData()};
+      extensions = new String[]{intent.getStringExtra(EXTENSION_EXTRA)};
+    } else if (ACTION_VIEW_LIST.equals(action)) {
+      String[] uriStrings = intent.getStringArrayExtra(URI_LIST_EXTRA);
+      uris = new Uri[uriStrings.length];
+      for (int i = 0; i < uriStrings.length; i++) {
+        uris[i] = Uri.parse(uriStrings[i]);
       }
-      if (Util.maybeRequestReadExternalStoragePermission(this, uris)) {
-        // The player will be reinitialized if the permission is granted.
-        return;
+      extensions = intent.getStringArrayExtra(EXTENSION_LIST_EXTRA);
+      if (extensions == null) {
+        extensions = new String[uriStrings.length];
       }
-      MediaSource[] mediaSources = new MediaSource[uris.length];
-      for (int i = 0; i < uris.length; i++) {
-        mediaSources[i] = buildMediaSource(uris[i], extensions[i]);
-      }
-      MediaSource mediaSource = mediaSources.length == 1 ? mediaSources[0]
-          : new ConcatenatingMediaSource(mediaSources);
-      String adTagUriString = intent.getStringExtra(AD_TAG_URI_EXTRA);
-      if (adTagUriString != null) {
-        Uri adTagUri = Uri.parse(adTagUriString);
-        if (!adTagUri.equals(loadedAdTagUri)) {
-          releaseAdsLoader();
-          loadedAdTagUri = adTagUri;
-        }
-        try {
-          mediaSource = createAdsMediaSource(mediaSource, Uri.parse(adTagUriString));
-        } catch (Exception e) {
-          showToast(R.string.ima_not_loaded);
-        }
-      } else {
-        releaseAdsLoader();
-      }
-      boolean haveResumePosition = resumeWindow != C.INDEX_UNSET;
-      if (haveResumePosition) {
-        player.seekTo(resumeWindow, resumePosition);
-      }
-      player.prepare(mediaSource, !haveResumePosition, false);
-      needRetrySource = false;
-      updateButtonVisibilities();
+    } else {
+      showToast(getString(R.string.unexpected_intent_action, action));
+      return;
     }
+    if (Util.maybeRequestReadExternalStoragePermission(this, uris)) {
+      // The player will be reinitialized if the permission is granted.
+      return;
+    }
+    MediaSource[] mediaSources = new MediaSource[uris.length];
+    for (int i = 0; i < uris.length; i++) {
+      mediaSources[i] = buildMediaSource(uris[i], extensions[i]);
+    }
+    MediaSource mediaSource = mediaSources.length == 1 ? mediaSources[0]
+        : new ConcatenatingMediaSource(mediaSources);
+    String adTagUriString = intent.getStringExtra(AD_TAG_URI_EXTRA);
+    if (adTagUriString != null) {
+      Uri adTagUri = Uri.parse(adTagUriString);
+      if (!adTagUri.equals(loadedAdTagUri)) {
+        releaseAdsLoader();
+        loadedAdTagUri = adTagUri;
+      }
+      try {
+        mediaSource = createAdsMediaSource(mediaSource, Uri.parse(adTagUriString));
+      } catch (Exception e) {
+        showToast(R.string.ima_not_loaded);
+      }
+    } else {
+      releaseAdsLoader();
+    }
+    boolean haveResumePosition = resumeWindow != C.INDEX_UNSET;
+    if (haveResumePosition) {
+      player.seekTo(resumeWindow, resumePosition);
+    }
+    player.prepare(mediaSource, !haveResumePosition, false);
+    inErrorState = false;
+    updateButtonVisibilities();
   }
 
   private MediaSource buildMediaSource(Uri uri, String overrideExtension) {
@@ -502,7 +500,7 @@ public class PlayerActivity extends Activity implements OnClickListener, EventLi
 
   @Override
   public void onPositionDiscontinuity() {
-    if (needRetrySource) {
+    if (inErrorState) {
       // This will only occur if the user has performed a seek whilst in the error state. Update the
       // resume position so that if the user then retries, playback will resume from the position to
       // which they seeked.
@@ -548,7 +546,7 @@ public class PlayerActivity extends Activity implements OnClickListener, EventLi
     if (errorString != null) {
       showToast(errorString);
     }
-    needRetrySource = true;
+    inErrorState = true;
     if (isBehindLiveWindow(e)) {
       clearResumePosition();
       initializePlayer();
@@ -584,7 +582,7 @@ public class PlayerActivity extends Activity implements OnClickListener, EventLi
   private void updateButtonVisibilities() {
     debugRootView.removeAllViews();
 
-    retryButton.setVisibility(needRetrySource ? View.VISIBLE : View.GONE);
+    retryButton.setVisibility(inErrorState ? View.VISIBLE : View.GONE);
     debugRootView.addView(retryButton);
 
     if (player == null) {
