@@ -1011,20 +1011,20 @@ import java.io.IOException;
       return;
     }
 
+    int playingPeriodIndex = playbackInfo.periodId.periodIndex;
     MediaPeriodHolder periodHolder = playingPeriodHolder != null ? playingPeriodHolder
         : loadingPeriodHolder;
-    if (periodHolder == null) {
-      // We don't have any period holders, so we're done.
+    if (periodHolder == null && playingPeriodIndex >= oldTimeline.getPeriodCount()) {
       notifySourceInfoRefresh(manifest, processedInitialSeekCount);
       return;
     }
-
-    int periodIndex = timeline.getIndexOfPeriod(periodHolder.uid);
+    Object playingPeriodUid = periodHolder == null
+        ? oldTimeline.getPeriod(playingPeriodIndex, period, true).uid : periodHolder.uid;
+    int periodIndex = timeline.getIndexOfPeriod(playingPeriodUid);
     if (periodIndex == C.INDEX_UNSET) {
       // We didn't find the current period in the new timeline. Attempt to resolve a subsequent
       // period whose window we can restart from.
-      int newPeriodIndex = resolveSubsequentPeriod(periodHolder.info.id.periodIndex, oldTimeline,
-          timeline);
+      int newPeriodIndex = resolveSubsequentPeriod(playingPeriodIndex, oldTimeline, timeline);
       if (newPeriodIndex == C.INDEX_UNSET) {
         // We failed to resolve a suitable restart position.
         handleSourceInfoRefreshEndedPlayback(manifest, processedInitialSeekCount);
@@ -1036,17 +1036,19 @@ import java.io.IOException;
       newPeriodIndex = defaultPosition.first;
       long newPositionUs = defaultPosition.second;
       timeline.getPeriod(newPeriodIndex, period, true);
-      // Clear the index of each holder that doesn't contain the default position. If a holder
-      // contains the default position then update its index so it can be re-used when seeking.
-      Object newPeriodUid = period.uid;
-      periodHolder.info = periodHolder.info.copyWithPeriodIndex(C.INDEX_UNSET);
-      while (periodHolder.next != null) {
-        periodHolder = periodHolder.next;
-        if (periodHolder.uid.equals(newPeriodUid)) {
-          periodHolder.info = mediaPeriodInfoSequence.getUpdatedMediaPeriodInfo(periodHolder.info,
-              newPeriodIndex);
-        } else {
-          periodHolder.info = periodHolder.info.copyWithPeriodIndex(C.INDEX_UNSET);
+      if (periodHolder != null) {
+        // Clear the index of each holder that doesn't contain the default position. If a holder
+        // contains the default position then update its index so it can be re-used when seeking.
+        Object newPeriodUid = period.uid;
+        periodHolder.info = periodHolder.info.copyWithPeriodIndex(C.INDEX_UNSET);
+        while (periodHolder.next != null) {
+          periodHolder = periodHolder.next;
+          if (periodHolder.uid.equals(newPeriodUid)) {
+            periodHolder.info = mediaPeriodInfoSequence.getUpdatedMediaPeriodInfo(periodHolder.info,
+                newPeriodIndex);
+          } else {
+            periodHolder.info = periodHolder.info.copyWithPeriodIndex(C.INDEX_UNSET);
+          }
         }
       }
       // Actually do the seek.
@@ -1057,8 +1059,13 @@ import java.io.IOException;
       return;
     }
 
-    // If playing an ad, check that it hasn't been marked as played. If it has, skip forward.
+    // The current period is in the new timeline. Update the playback info.
+    if (periodIndex != playingPeriodIndex) {
+      playbackInfo = playbackInfo.copyWithPeriodIndex(periodIndex);
+    }
+
     if (playbackInfo.periodId.isAd()) {
+      // Check that the playing ad hasn't been marked as played. If it has, skip forward.
       MediaPeriodId periodId = mediaPeriodInfoSequence.resolvePeriodPositionForAds(periodIndex,
           playbackInfo.contentPositionUs);
       if (!periodId.isAd() || periodId.adIndexInAdGroup != playbackInfo.periodId.adIndexInAdGroup) {
@@ -1070,14 +1077,15 @@ import java.io.IOException;
       }
     }
 
-    // The current period is in the new timeline. Update the holder and playbackInfo.
-    periodHolder = updatePeriodInfo(periodHolder, periodIndex);
-    if (periodIndex != playbackInfo.periodId.periodIndex) {
-      playbackInfo = playbackInfo.copyWithPeriodIndex(periodIndex);
+    if (periodHolder == null) {
+      // We don't have any period holders, so we're done.
+      notifySourceInfoRefresh(manifest, processedInitialSeekCount);
+      return;
     }
 
-    // If there are subsequent holders, update the index for each of them. If we find a holder
-    // that's inconsistent with the new timeline then take appropriate action.
+    // Update the holder indices. If we find a subsequent holder that's inconsistent with the new
+    // timeline then take appropriate action.
+    periodHolder = updatePeriodInfo(periodHolder, periodIndex);
     while (periodHolder.next != null) {
       MediaPeriodHolder previousPeriodHolder = periodHolder;
       periodHolder = periodHolder.next;
