@@ -36,6 +36,7 @@ public final class FfmpegAudioRenderer extends SimpleDecoderAudioRenderer {
   private static final int INITIAL_INPUT_BUFFER_SIZE = 960 * 6;
 
   private FfmpegDecoder decoder;
+  private @C.PcmEncoding int originalPCMDepth;
   private AudioCapabilities capabilities = null;
 
   public FfmpegAudioRenderer() { this(null, null, null); }
@@ -72,9 +73,10 @@ public final class FfmpegAudioRenderer extends SimpleDecoderAudioRenderer {
   @Override
   protected FfmpegDecoder createDecoder(Format format, ExoMediaCrypto mediaCrypto)
       throws FfmpegDecoderException {
+    originalPCMDepth = format.pcmEncoding;
     decoder = new FfmpegDecoder(NUM_BUFFERS, NUM_BUFFERS, INITIAL_INPUT_BUFFER_SIZE,
         format.sampleMimeType, format.initializationData,
-        Util.canHandle32BitFloatAudio(capabilities, format.channelCount));
+        Util.shouldUse32BitFloatAudio(capabilities, originalPCMDepth, format.channelCount));
     return decoder;
   }
 
@@ -83,7 +85,7 @@ public final class FfmpegAudioRenderer extends SimpleDecoderAudioRenderer {
     int channelCount = decoder.getChannelCount();
     int sampleRate = decoder.getSampleRate();
     @C.PcmEncoding int pcmEncoding = C.ENCODING_PCM_16BIT;
-    if (Util.canHandle32BitFloatAudio(capabilities, channelCount))
+    if (Util.shouldUse32BitFloatAudio(capabilities, originalPCMDepth, channelCount))
       pcmEncoding = C.ENCODING_PCM_FLOAT;
     return Format.createAudioSampleFormat(null, MimeTypes.AUDIO_RAW, null, Format.NO_VALUE,
         Format.NO_VALUE, channelCount, sampleRate, pcmEncoding, null, null, 0, null);

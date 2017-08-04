@@ -493,7 +493,8 @@ public final class AudioTrack {
       throws ConfigurationException {
     boolean passthrough = !MimeTypes.AUDIO_RAW.equals(mimeType);
     @C.Encoding int encoding = passthrough ? getEncodingForMimeType(mimeType) : pcmEncoding;
-    outputEncoding = passthrough ? encoding : getPCMEncodingForSource(encoding, channelCount);
+    outputEncoding = passthrough ? encoding : getPCMEncodingForSource(encoding, pcmEncoding,
+     channelCount);
     boolean flush = false;
     if (!passthrough) {
       pcmFrameSize = Util.getPcmFrameSize(pcmEncoding, channelCount);
@@ -1453,12 +1454,13 @@ public final class AudioTrack {
     }
   }
 
-  private @C.PcmEncoding int getPCMEncodingForSource(@C.Encoding int encoding, int channelCount) {
+  private @C.PcmEncoding int getPCMEncodingForSource(@C.Encoding int encoding,
+   @C.PcmEncoding int originalEncoding, int channelCount) {
     switch (encoding) {
       case C.ENCODING_PCM_24BIT:
       case C.ENCODING_PCM_32BIT:
       case C.ENCODING_PCM_FLOAT:
-        if (Util.canHandle32BitFloatAudio(audioCapabilities, channelCount))
+        if (Util.shouldUse32BitFloatAudio(audioCapabilities, originalEncoding, channelCount))
           return C.ENCODING_PCM_FLOAT;
       case C.ENCODING_PCM_8BIT:
       case C.ENCODING_PCM_16BIT:

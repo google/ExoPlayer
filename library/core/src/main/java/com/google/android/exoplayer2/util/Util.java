@@ -859,10 +859,24 @@ public final class Util {
    *
    * @param capabilities The audio capabilities of the device.
    * @param channelCount The channel count.
+   * @param encodingDepth Set bit depth of encoded format
    */
-  public static boolean canHandle32BitFloatAudio(AudioCapabilities capabilities, int channelCount) {
-    return (capabilities != null && capabilities.supportsEncoding(C.ENCODING_PCM_FLOAT)
-     && ((Util.SDK_INT > 20 && channelCount <= 2) || (Util.SDK_INT >= 24)));
+  public static boolean shouldUse32BitFloatAudio(AudioCapabilities capabilities,
+   @C.PcmEncoding int encodingDepth, int channelCount) {
+    switch (encodingDepth) {
+      case C.ENCODING_PCM_24BIT:
+      case C.ENCODING_PCM_32BIT:
+      case C.ENCODING_PCM_FLOAT:
+        return (capabilities != null && capabilities.supportsEncoding(C.ENCODING_PCM_FLOAT)
+         && ((Util.SDK_INT > 20 && channelCount <= 2) || (Util.SDK_INT >= 24)));
+
+      case C.ENCODING_PCM_8BIT:
+      case C.ENCODING_PCM_16BIT:
+      case C.ENCODING_INVALID:
+      case Format.NO_VALUE:
+      default:
+        return false;
+    }
   }
 
   /**
