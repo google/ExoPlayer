@@ -986,26 +986,29 @@ import java.io.IOException;
           // The seek position was valid for the timeline that it was performed into, but the
           // timeline has changed and a suitable seek position could not be resolved in the new one.
           handleSourceInfoRefreshEndedPlayback(manifest, processedInitialSeekCount);
-          return;
+        } else {
+          int periodIndex = periodPosition.first;
+          long positionUs = periodPosition.second;
+          MediaPeriodId periodId =
+              mediaPeriodInfoSequence.resolvePeriodPositionForAds(periodIndex, positionUs);
+          playbackInfo = new PlaybackInfo(periodId, periodId.isAd() ? 0 : positionUs, positionUs);
+          notifySourceInfoRefresh(manifest, processedInitialSeekCount);
         }
-        int periodIndex = periodPosition.first;
-        long positionUs = periodPosition.second;
-        MediaPeriodId periodId =
-            mediaPeriodInfoSequence.resolvePeriodPositionForAds(periodIndex, positionUs);
-        playbackInfo = new PlaybackInfo(periodId, periodId.isAd() ? 0 : positionUs, positionUs);
       } else if (playbackInfo.startPositionUs == C.TIME_UNSET) {
         if (timeline.isEmpty()) {
           handleSourceInfoRefreshEndedPlayback(manifest, processedInitialSeekCount);
-          return;
+        } else {
+          Pair<Integer, Long> defaultPosition = getPeriodPosition(0, C.TIME_UNSET);
+          int periodIndex = defaultPosition.first;
+          long startPositionUs = defaultPosition.second;
+          MediaPeriodId periodId = mediaPeriodInfoSequence.resolvePeriodPositionForAds(periodIndex,
+              startPositionUs);
+          playbackInfo = new PlaybackInfo(periodId, periodId.isAd() ? 0 : startPositionUs,
+              startPositionUs);
+          notifySourceInfoRefresh(manifest, processedInitialSeekCount);
         }
-        Pair<Integer, Long> defaultPosition = getPeriodPosition(0, C.TIME_UNSET);
-        int periodIndex = defaultPosition.first;
-        long startPositionUs = defaultPosition.second;
-        MediaPeriodId periodId = mediaPeriodInfoSequence.resolvePeriodPositionForAds(periodIndex,
-            startPositionUs);
-        playbackInfo = new PlaybackInfo(periodId, periodId.isAd() ? 0 : startPositionUs,
-            startPositionUs);
       }
+      return;
     }
 
     MediaPeriodHolder periodHolder = playingPeriodHolder != null ? playingPeriodHolder
