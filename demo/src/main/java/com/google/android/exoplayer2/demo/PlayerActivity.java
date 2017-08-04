@@ -264,13 +264,19 @@ public class PlayerActivity extends Activity implements OnClickListener, EventLi
       if (drmSchemeUuid != null) {
         String drmLicenseUrl = intent.getStringExtra(DRM_LICENSE_URL);
         String[] keyRequestPropertiesArray = intent.getStringArrayExtra(DRM_KEY_REQUEST_PROPERTIES);
-        try {
-          drmSessionManager = buildDrmSessionManager(drmSchemeUuid, drmLicenseUrl,
-              keyRequestPropertiesArray);
-        } catch (UnsupportedDrmException e) {
-          int errorStringId = Util.SDK_INT < 18 ? R.string.error_drm_not_supported
-              : (e.reason == UnsupportedDrmException.REASON_UNSUPPORTED_SCHEME
-                  ? R.string.error_drm_unsupported_scheme : R.string.error_drm_unknown);
+        int errorStringId = R.string.error_drm_unknown;
+        if (Util.SDK_INT < 18) {
+          errorStringId = R.string.error_drm_not_supported;
+        } else {
+          try {
+            drmSessionManager = buildDrmSessionManagerV18(drmSchemeUuid, drmLicenseUrl,
+                keyRequestPropertiesArray);
+          } catch (UnsupportedDrmException e) {
+            errorStringId = e.reason == UnsupportedDrmException.REASON_UNSUPPORTED_SCHEME
+                ? R.string.error_drm_unsupported_scheme : R.string.error_drm_unknown;
+          }
+        }
+        if (drmSessionManager == null) {
           showToast(errorStringId);
           return;
         }
@@ -372,11 +378,8 @@ public class PlayerActivity extends Activity implements OnClickListener, EventLi
     }
   }
 
-  private DrmSessionManager<FrameworkMediaCrypto> buildDrmSessionManager(UUID uuid,
+  private DrmSessionManager<FrameworkMediaCrypto> buildDrmSessionManagerV18(UUID uuid,
       String licenseUrl, String[] keyRequestPropertiesArray) throws UnsupportedDrmException {
-    if (Util.SDK_INT < 18) {
-      return null;
-    }
     HttpMediaDrmCallback drmCallback = new HttpMediaDrmCallback(licenseUrl,
         buildHttpDataSourceFactory(false));
     if (keyRequestPropertiesArray != null) {
