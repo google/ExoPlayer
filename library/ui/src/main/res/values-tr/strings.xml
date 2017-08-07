@@ -25,4 +25,5 @@
   <string name="exo_controls_repeat_all_description">"Tümünü Tekrarla"</string>
   <string name="exo_controls_repeat_off_description">"Hiçbirini Tekrarlama"</string>
   <string name="exo_controls_repeat_one_description">"Birini Tekrarla"</string>
+  <string name="exo_controls_shuffle_description">"Karıştır"</string>
 </resources>

@@ -37,6 +37,12 @@ public final class DecoderCounters {
    */
   public int inputBufferCount;
   /**
+   * The number of skipped input buffers.
+   * <p>
+   * A skipped input buffer is an input buffer that was deliberately not sent to the decoder.
+   */
+  public int skippedInputBufferCount;
+  /**
    * The number of rendered output buffers.
    */
   public int renderedOutputBufferCount;
@@ -79,6 +85,7 @@ public final class DecoderCounters {
     decoderInitCount += other.decoderInitCount;
     decoderReleaseCount += other.decoderReleaseCount;
     inputBufferCount += other.inputBufferCount;
+    skippedInputBufferCount += other.skippedInputBufferCount;
     renderedOutputBufferCount += other.renderedOutputBufferCount;
     skippedOutputBufferCount += other.skippedOutputBufferCount;
     droppedOutputBufferCount += other.droppedOutputBufferCount;

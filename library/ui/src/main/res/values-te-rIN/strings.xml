@@ -25,4 +25,5 @@
   <string name="exo_controls_repeat_all_description">"అన్నీ పునరావృతం చేయి"</string>
   <string name="exo_controls_repeat_off_description">"ఏదీ పునరావృతం చేయవద్దు"</string>
   <string name="exo_controls_repeat_one_description">"ఒకదాన్ని పునరావృతం చేయి"</string>
+  <string name="exo_controls_shuffle_description">"షఫుల్ చేయి"</string>
 </resources>

@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.testutil;
 
+import android.os.ConditionVariable;
 import android.os.Handler;
 import android.os.SystemClock;
 import android.util.Log;
@@ -72,6 +73,7 @@ public abstract class ExoHostedTest implements HostedTest, Player.EventListener,
   private final long expectedPlayingTimeMs;
   private final DecoderCounters videoDecoderCounters;
   private final DecoderCounters audioDecoderCounters;
+  private final ConditionVariable testFinished;
 
   private ActionSchedule pendingSchedule;
   private Handler actionHandler;
@@ -81,7 +83,7 @@ public abstract class ExoHostedTest implements HostedTest, Player.EventListener,
   private ExoPlaybackException playerError;
   private Player.EventListener playerEventListener;
   private boolean playerWasPrepared;
-  private boolean playerFinished;
+
   private boolean playing;
   private long totalPlayingTimeMs;
   private long lastPlayingStartTimeMs;
@@ -114,8 +116,9 @@ public abstract class ExoHostedTest implements HostedTest, Player.EventListener,
     this.tag = tag;
     this.expectedPlayingTimeMs = expectedPlayingTimeMs;
     this.failOnPlayerError = failOnPlayerError;
-    videoDecoderCounters = new DecoderCounters();
-    audioDecoderCounters = new DecoderCounters();
+    this.testFinished = new ConditionVariable();
+    this.videoDecoderCounters = new DecoderCounters();
+    this.audioDecoderCounters = new DecoderCounters();
   }
 
   /**
@@ -169,16 +172,13 @@ public abstract class ExoHostedTest implements HostedTest, Player.EventListener,
   }
 
   @Override
-  public final boolean canStop() {
-    return playerFinished;
+  public final boolean blockUntilStopped(long timeoutMs) {
+    return testFinished.block(timeoutMs);
   }
 
   @Override
-  public final void onStop() {
-    actionHandler.removeCallbacksAndMessages(null);
-    sourceDurationMs = player.getDuration();
-    player.release();
-    player = null;
+  public final boolean forceStop() {
+    return stopTest();
   }
 
   @Override
@@ -219,7 +219,7 @@ public abstract class ExoHostedTest implements HostedTest, Player.EventListener,
     playerWasPrepared |= playbackState != Player.STATE_IDLE;
     if (playbackState == Player.STATE_ENDED
         || (playbackState == Player.STATE_IDLE && playerWasPrepared)) {
-      playerFinished = true;
+      stopTest();
     }
     boolean playing = playWhenReady && playbackState == Player.STATE_READY;
     if (!this.playing && playing) {
@@ -333,6 +333,25 @@ public abstract class ExoHostedTest implements HostedTest, Player.EventListener,
   }
 
   // Internal logic
+
+  private boolean stopTest() {
+    if (player == null) {
+      return false;
+    }
+    actionHandler.removeCallbacksAndMessages(null);
+    sourceDurationMs = player.getDuration();
+    player.release();
+    player = null;
+    // We post opening of the finished condition so that any events posted to the main thread as a
+    // result of player.release() are guaranteed to be handled before the test returns.
+    actionHandler.post(new Runnable() {
+      @Override
+      public void run() {
+        testFinished.open();
+      }
+    });
+    return true;
+  }
 
   protected DrmSessionManager<FrameworkMediaCrypto> buildDrmSessionManager(String userAgent) {
     // Do nothing. Interested subclasses may override.

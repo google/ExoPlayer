@@ -25,4 +25,5 @@
   <string name="exo_controls_repeat_all_description">"Korda kõike"</string>
   <string name="exo_controls_repeat_off_description">"Ära korda midagi"</string>
   <string name="exo_controls_repeat_one_description">"Korda ühte"</string>
+  <string name="exo_controls_shuffle_description">"Esita juhuslikus järjekorras"</string>
 </resources>

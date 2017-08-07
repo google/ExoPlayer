@@ -25,4 +25,5 @@
   <string name="exo_controls_repeat_all_description">"Repeteix-ho tot"</string>
   <string name="exo_controls_repeat_off_description">"No en repeteixis cap"</string>
   <string name="exo_controls_repeat_one_description">"Repeteix-ne un"</string>
+  <string name="exo_controls_shuffle_description">"Reprodueix aleatòriament"</string>
 </resources>

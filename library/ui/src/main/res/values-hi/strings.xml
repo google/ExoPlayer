@@ -25,4 +25,5 @@
   <string name="exo_controls_repeat_all_description">"सभी को दोहराएं"</string>
   <string name="exo_controls_repeat_off_description">"कुछ भी न दोहराएं"</string>
   <string name="exo_controls_repeat_one_description">"एक दोहराएं"</string>
+  <string name="exo_controls_shuffle_description">"शफ़ल करें"</string>
 </resources>

@@ -25,4 +25,5 @@
   <string name="exo_controls_repeat_all_description">"Повтори ги сите"</string>
   <string name="exo_controls_repeat_off_description">"Не повторувај ниту една"</string>
   <string name="exo_controls_repeat_one_description">"Повтори една"</string>
+  <string name="exo_controls_shuffle_description">"По случаен избор"</string>
 </resources>

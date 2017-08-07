@@ -19,6 +19,7 @@ import android.util.Log;
 import android.util.Pair;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
+import com.google.android.exoplayer2.ParserException;
 import com.google.android.exoplayer2.extractor.DummyTrackOutput;
 import com.google.android.exoplayer2.extractor.ExtractorOutput;
 import com.google.android.exoplayer2.extractor.TrackOutput;
@@ -128,7 +129,7 @@ public final class AdtsReader implements ElementaryStreamReader {
   }
 
   @Override
-  public void consume(ParsableByteArray data) {
+  public void consume(ParsableByteArray data) throws ParserException {
     while (data.bytesLeft() > 0) {
       switch (state) {
         case STATE_FINDING_SAMPLE:
@@ -276,7 +277,7 @@ public final class AdtsReader implements ElementaryStreamReader {
   /**
    * Parses the sample header.
    */
-  private void parseAdtsHeader() {
+  private void parseAdtsHeader() throws ParserException {
     adtsScratch.setPosition(0);
 
     if (!hasOutputFormat) {
