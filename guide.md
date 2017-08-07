@@ -46,16 +46,20 @@ ExoPlayer has a number of advantages over Android's built in MediaPlayer:
 * Support for advanced HLS features, such as correct handling of
   `#EXT-X-DISCONTINUITY` tags.
 * The ability to seamlessly merge, concatenate and loop media.
+* The ability to update the player along with your application. Because
+  ExoPlayer is a library that you include in your application apk, you have
+  control over which version you use and you can easily update to a newer
+  version as part of a regular application update.
+* Fewer device specific issues and less variation in behavior across different
+  devices and versions of Android.
+* Support for Widevine common encryption on Android 4.4 (API level 19) and
+  higher.
 * The ability to customize and extend the player to suit your use case.
   ExoPlayer is designed specifically with this in mind, and allows many
   components to be replaced with custom implementations.
-* Easily update the player along with your application. Because ExoPlayer is a
-  library that you include in your application apk, you have control over which
-  version you use and you can easily update to a newer version as part of a
-  regular application update.
-* Fewer device specific issues.
-* Support for Widevine common encryption on Android 4.4 (API level 19) and
-  higher.
+* The ability to quickly integrate with a number of additional libraries using
+  official extensions. For example the [IMA extension][] makes it easy to
+  monetize your content using the [Interactive Media Ads SDK][].
 
 It's important to note that there are also some disadvantages:
 
@@ -269,13 +273,22 @@ used to merge them into a single source for playback.
 // Build the video MediaSource.
 MediaSource videoSource = new ExtractorMediaSource(videoUri, ...);
 // Build the subtitle MediaSource.
-MediaSource subtitleSource = new SingleSampleMediaSource(subtitleUri, ...);
+Format subtitleFormat = Format.createTextSampleFormat(
+    id, // An identifier for the track. May be null.
+    MimeTypes.APPLICATION_SUBRIP, // The mime type. Must be set correctly.
+    selectionFlags, // Selection flags for the track.
+    language); // The subtitle language. May be null.
+MediaSource subtitleSource = new SingleSampleMediaSource(
+    subtitleUri, dataSourceFactory, subtitleFormat, C.TIME_UNSET);
 // Plays the video with the sideloaded subtitle.
 MergingMediaSource mergedSource =
     new MergingMediaSource(videoSource, subtitleSource);
 {% endhighlight %}
 
 ### Seamlessly looping a video a fixed number of times ###
+
+{% include infobox.html content="To loop indefinitely, it is usually better to
+use `ExoPlayer.setRepeatMode` instead of `LoopingMediaSource`." %}
 
 A video can be seamlessly looped a fixed number of times using a
 `LoopingMediaSource`. The following example plays a video twice.
@@ -448,6 +461,8 @@ additional schemes such as PlayReady. All Android TV devices support PlayReady.
 `DrmSessionManager` can be created and injected when instantiating the player.
 
 [Supported formats]: https://google.github.io/ExoPlayer/supported-formats.html
+[IMA extension]: https://github.com/google/ExoPlayer/tree/release-v2/extensions/ima
+[Interactive Media Ads SDK]: https://developers.google.com/interactive-media-ads
 [ExoPlayer library]: https://github.com/google/ExoPlayer/tree/release-v2/library
 [Demo app]: https://github.com/google/ExoPlayer/tree/release-v2/demo
 [`MediaPlayer`]: {{ site.sdkurl }}/android/media/MediaPlayer.html

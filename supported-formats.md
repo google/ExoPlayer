@@ -175,9 +175,9 @@ files can be side-loaded as described in the [Developer guide][].
 |------------------|:------------:|:---------------------|
 | WebVTT | YES ||
 | TTML | YES ||
-| SMPTE-TT | YES | Use `MimeType.APPLICATION_TTML`|
+| SMPTE-TT | YES | Use MimeTypes.APPLICATION_TTML |
 | SubRip | YES ||
 | SubStationAlpha (SSA) | YES ||
-| ASS | YES | Use `MimeType.TEXT_SSA` |
+| ASS | YES | Use MimeTypes.TEXT_SSA |
 
 [Developer guide]: https://google.github.io/ExoPlayer/guide.html#side-loading-a-subtitle-file
