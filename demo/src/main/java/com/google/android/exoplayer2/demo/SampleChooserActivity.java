@@ -184,6 +184,7 @@ public class SampleChooserActivity extends Activity {
       String[] drmKeyRequestProperties = null;
       boolean preferExtensionDecoders = false;
       ArrayList<UriSample> playlistSamples = null;
+      String adTagUri = null;
 
       reader.beginObject();
       while (reader.hasNext()) {
@@ -233,6 +234,9 @@ public class SampleChooserActivity extends Activity {
             }
             reader.endArray();
             break;
+          case "ad_tag_uri":
+            adTagUri = reader.nextString();
+            break;
           default:
             throw new ParserException("Unsupported attribute name: " + name);
         }
@@ -246,7 +250,7 @@ public class SampleChooserActivity extends Activity {
             preferExtensionDecoders, playlistSamplesArray);
       } else {
         return new UriSample(sampleName, drmUuid, drmLicenseUrl, drmKeyRequestProperties,
-            preferExtensionDecoders, uri, extension);
+            preferExtensionDecoders, uri, extension, adTagUri);
       }
     }
 
@@ -402,13 +406,15 @@ public class SampleChooserActivity extends Activity {
 
     public final String uri;
     public final String extension;
+    public final String adTagUri;
 
     public UriSample(String name, UUID drmSchemeUuid, String drmLicenseUrl,
         String[] drmKeyRequestProperties, boolean preferExtensionDecoders, String uri,
-        String extension) {
+        String extension, String adTagUri) {
       super(name, drmSchemeUuid, drmLicenseUrl, drmKeyRequestProperties, preferExtensionDecoders);
       this.uri = uri;
       this.extension = extension;
+      this.adTagUri = adTagUri;
     }
 
     @Override
@@ -416,6 +422,7 @@ public class SampleChooserActivity extends Activity {
       return super.buildIntent(context)
           .setData(Uri.parse(uri))
           .putExtra(PlayerActivity.EXTENSION_EXTRA, extension)
+          .putExtra(PlayerActivity.AD_TAG_URI_EXTRA, adTagUri)
           .setAction(PlayerActivity.ACTION_VIEW);
     }
 

@@ -22,4 +22,7 @@
   <string name="exo_controls_stop_description">"Тоқтату"</string>
   <string name="exo_controls_rewind_description">"Кері айналдыру"</string>
   <string name="exo_controls_fastforward_description">"Жылдам алға айналдыру"</string>
+  <string name="exo_controls_repeat_all_description">"Барлығын қайталау"</string>
+  <string name="exo_controls_repeat_off_description">"Ешқайсысын қайталамау"</string>
+  <string name="exo_controls_repeat_one_description">"Біреуін қайталау"</string>
 </resources>

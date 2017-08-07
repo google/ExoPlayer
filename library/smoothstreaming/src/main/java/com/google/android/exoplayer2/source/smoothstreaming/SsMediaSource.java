@@ -20,6 +20,7 @@ import android.os.Handler;
 import android.os.SystemClock;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlayer;
+import com.google.android.exoplayer2.ExoPlayerLibraryInfo;
 import com.google.android.exoplayer2.ParserException;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.source.AdaptiveMediaSourceEventListener;
@@ -45,6 +46,10 @@ import java.util.ArrayList;
  */
 public final class SsMediaSource implements MediaSource,
     Loader.Callback<ParsingLoadable<SsManifest>> {
+
+  static {
+    ExoPlayerLibraryInfo.registerModule("goog.exo.smoothstreaming");
+  }
 
   /**
    * The default minimum number of times to retry loading data prior to failing.
@@ -222,8 +227,8 @@ public final class SsMediaSource implements MediaSource,
   }
 
   @Override
-  public MediaPeriod createPeriod(int index, Allocator allocator, long positionUs) {
-    Assertions.checkArgument(index == 0);
+  public MediaPeriod createPeriod(MediaPeriodId id, Allocator allocator) {
+    Assertions.checkArgument(id.periodIndex == 0);
     SsMediaPeriod period = new SsMediaPeriod(manifest, chunkSourceFactory, minLoadableRetryCount,
         eventDispatcher, manifestLoaderErrorThrower, allocator);
     mediaPeriods.add(period);

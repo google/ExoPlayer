@@ -31,16 +31,16 @@ import junit.framework.TestCase;
  */
 public class DrmInitDataTest extends TestCase {
 
-  private static final SchemeData DATA_1 =
-      new SchemeData(WIDEVINE_UUID, VIDEO_MP4, TestUtil.buildTestData(128, 1 /* data seed */));
-  private static final SchemeData DATA_2 =
-      new SchemeData(PLAYREADY_UUID, VIDEO_MP4, TestUtil.buildTestData(128, 2 /* data seed */));
-  private static final SchemeData DATA_1B =
-      new SchemeData(WIDEVINE_UUID, VIDEO_MP4, TestUtil.buildTestData(128, 1 /* data seed */));
-  private static final SchemeData DATA_2B =
-      new SchemeData(PLAYREADY_UUID, VIDEO_MP4, TestUtil.buildTestData(128, 2 /* data seed */));
-  private static final SchemeData DATA_UNIVERSAL =
-      new SchemeData(C.UUID_NIL, VIDEO_MP4, TestUtil.buildTestData(128, 3 /* data seed */));
+  private static final SchemeData DATA_1 = new SchemeData(WIDEVINE_UUID, "cbc1", VIDEO_MP4,
+      TestUtil.buildTestData(128, 1 /* data seed */));
+  private static final SchemeData DATA_2 = new SchemeData(PLAYREADY_UUID,  null, VIDEO_MP4,
+      TestUtil.buildTestData(128, 2 /* data seed */));
+  private static final SchemeData DATA_1B = new SchemeData(WIDEVINE_UUID, "cbc1", VIDEO_MP4,
+      TestUtil.buildTestData(128, 1 /* data seed */));
+  private static final SchemeData DATA_2B = new SchemeData(PLAYREADY_UUID, null, VIDEO_MP4,
+      TestUtil.buildTestData(128, 2 /* data seed */));
+  private static final SchemeData DATA_UNIVERSAL = new SchemeData(C.UUID_NIL, null, VIDEO_MP4,
+      TestUtil.buildTestData(128, 3 /* data seed */));
 
   public void testParcelable() {
     DrmInitData drmInitDataToParcel = new DrmInitData(DATA_1, DATA_2);

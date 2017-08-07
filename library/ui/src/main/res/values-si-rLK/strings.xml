@@ -22,4 +22,7 @@
   <string name="exo_controls_stop_description">"නතර කරන්න"</string>
   <string name="exo_controls_rewind_description">"නැවත ඔතන්න"</string>
   <string name="exo_controls_fastforward_description">"වේගයෙන් ඉදිරියට යන"</string>
+  <string name="exo_controls_repeat_all_description">"සියලු නැවත"</string>
+  <string name="exo_controls_repeat_off_description">"කිසිවක් නැවත"</string>
+  <string name="exo_controls_repeat_one_description">"නැවත නැවත එක්"</string>
 </resources>

@@ -19,6 +19,7 @@ import android.net.Uri;
 import android.os.Handler;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlayer;
+import com.google.android.exoplayer2.ExoPlayerLibraryInfo;
 import com.google.android.exoplayer2.source.AdaptiveMediaSourceEventListener;
 import com.google.android.exoplayer2.source.AdaptiveMediaSourceEventListener.EventDispatcher;
 import com.google.android.exoplayer2.source.MediaPeriod;
@@ -37,6 +38,10 @@ import java.util.List;
  */
 public final class HlsMediaSource implements MediaSource,
     HlsPlaylistTracker.PrimaryPlaylistListener {
+
+  static {
+    ExoPlayerLibraryInfo.registerModule("goog.exo.hls");
+  }
 
   /**
    * The default minimum number of times to retry loading data prior to failing.
@@ -88,10 +93,10 @@ public final class HlsMediaSource implements MediaSource,
   }
 
   @Override
-  public MediaPeriod createPeriod(int index, Allocator allocator, long positionUs) {
-    Assertions.checkArgument(index == 0);
+  public MediaPeriod createPeriod(MediaPeriodId id, Allocator allocator) {
+    Assertions.checkArgument(id.periodIndex == 0);
     return new HlsMediaPeriod(playlistTracker, dataSourceFactory, minLoadableRetryCount,
-        eventDispatcher, allocator, positionUs);
+        eventDispatcher, allocator);
   }
 
   @Override
@@ -111,6 +116,9 @@ public final class HlsMediaSource implements MediaSource,
   @Override
   public void onPrimaryPlaylistRefreshed(HlsMediaPlaylist playlist) {
     SinglePeriodTimeline timeline;
+    long presentationStartTimeMs = playlist.hasProgramDateTime ? 0 : C.TIME_UNSET;
+    long windowStartTimeMs = playlist.hasProgramDateTime ? C.usToMs(playlist.startTimeUs)
+        : C.TIME_UNSET;
     long windowDefaultStartPositionUs = playlist.startOffsetUs;
     if (playlistTracker.isLive()) {
       long periodDurationUs = playlist.hasEndTag ? (playlist.startTimeUs + playlist.durationUs)
@@ -120,14 +128,16 @@ public final class HlsMediaSource implements MediaSource,
         windowDefaultStartPositionUs = segments.isEmpty() ? 0
             : segments.get(Math.max(0, segments.size() - 3)).relativeStartTimeUs;
       }
-      timeline = new SinglePeriodTimeline(periodDurationUs, playlist.durationUs,
-          playlist.startTimeUs, windowDefaultStartPositionUs, true, !playlist.hasEndTag);
+      timeline = new SinglePeriodTimeline(presentationStartTimeMs, windowStartTimeMs,
+          periodDurationUs, playlist.durationUs, playlist.startTimeUs, windowDefaultStartPositionUs,
+          true, !playlist.hasEndTag);
     } else /* not live */ {
       if (windowDefaultStartPositionUs == C.TIME_UNSET) {
         windowDefaultStartPositionUs = 0;
       }
-      timeline = new SinglePeriodTimeline(playlist.startTimeUs + playlist.durationUs,
-          playlist.durationUs, playlist.startTimeUs, windowDefaultStartPositionUs, true, false);
+      timeline = new SinglePeriodTimeline(presentationStartTimeMs, windowStartTimeMs,
+          playlist.startTimeUs + playlist.durationUs, playlist.durationUs, playlist.startTimeUs,
+          windowDefaultStartPositionUs, true, false);
     }
     sourceListener.onSourceInfoRefreshed(timeline,
         new HlsManifest(playlistTracker.getMasterPlaylist(), playlist));

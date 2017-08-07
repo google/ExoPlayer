@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 apply plugin: 'com.android.library'
+apply from: '../../constants.gradle'
 
 android {
     compileSdkVersion project.ext.compileSdkVersion
@@ -22,6 +23,7 @@ android {
         targetSdkVersion project.ext.targetSdkVersion
     }
 
+    // Workaround to prevent circular dependency on project :testutils.
     sourceSets {
         androidTest {
             java.srcDirs += "../../testutils/src/main/java/"
@@ -29,9 +31,11 @@ android {
     }
 
     buildTypes {
-        debug {
-            testCoverageEnabled = true
-        }
+        // Re-enable test coverage when the following issue is fixed:
+        // https://issuetracker.google.com/issues/37019591
+        // debug {
+        //    testCoverageEnabled = true
+        // }
     }
 }
 

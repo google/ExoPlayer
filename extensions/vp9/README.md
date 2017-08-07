@@ -1,20 +1,19 @@
-# ExoPlayer VP9 Extension #
+# ExoPlayer VP9 extension #
 
 ## Description ##
 
-The VP9 Extension is a [Renderer][] implementation that helps you bundle libvpx
+The VP9 extension is a [Renderer][] implementation that helps you bundle libvpx
 (the VP9 decoding library) into your app and use it along with ExoPlayer to play
 VP9 video on Android devices.
 
 [Renderer]: https://google.github.io/ExoPlayer/doc/reference/com/google/android/exoplayer2/Renderer.html
 
-## Build Instructions ##
+## Build instructions ##
 
-* Checkout ExoPlayer along with Extensions:
-
-```
-git clone https://github.com/google/ExoPlayer.git
-```
+To use this extension you need to clone the ExoPlayer repository and depend on
+its modules locally. Instructions for doing this can be found in ExoPlayer's
+[top level README][]. In addition, it's necessary to build the extension's
+native components as follows:
 
 * Set the following environment variables:
 
@@ -25,8 +24,6 @@ VP9_EXT_PATH="${EXOPLAYER_ROOT}/extensions/vp9/src/main"
 ```
 
 * Download the [Android NDK][] and set its location in an environment variable:
-
-[Android NDK]: https://developer.android.com/tools/sdk/ndk/index.html
 
 ```
 NDK_PATH="<path to Android NDK>"
@@ -66,23 +63,8 @@ cd "${VP9_EXT_PATH}"/jni && \
 ${NDK_PATH}/ndk-build APP_ABI=all -j4
 ```
 
-* In your project, you can add a dependency to the VP9 Extension by using a the
-  following rule:
-
-```
-// in settings.gradle
-include ':..:ExoPlayer:library'
-include ':..:ExoPlayer:extension-vp9'
-
-// in build.gradle
-dependencies {
-    compile project(':..:ExoPlayer:library')
-    compile project(':..:ExoPlayer:extension-vp9')
-}
-```
-
-* Now, when you build your app, the VP9 extension will be built and the native
-  libraries will be packaged along with the APK.
+[top level README]: https://github.com/google/ExoPlayer/blob/release-v2/README.md
+[Android NDK]: https://developer.android.com/tools/sdk/ndk/index.html
 
 ## Notes ##
 
@@ -94,4 +76,3 @@ dependencies {
   `${VP9_EXT_PATH}/jni/libvpx` or `${VP9_EXT_PATH}/jni/libyuv` respectively. But
   please note that `generate_libvpx_android_configs.sh` and the makefiles need
   to be modified to work with arbitrary versions of libvpx and libyuv.
-

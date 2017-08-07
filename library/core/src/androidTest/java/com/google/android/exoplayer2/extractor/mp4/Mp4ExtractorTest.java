@@ -18,7 +18,8 @@ package com.google.android.exoplayer2.extractor.mp4;
 import android.annotation.TargetApi;
 import android.test.InstrumentationTestCase;
 import com.google.android.exoplayer2.extractor.Extractor;
-import com.google.android.exoplayer2.testutil.TestUtil;
+import com.google.android.exoplayer2.testutil.ExtractorAsserts;
+import com.google.android.exoplayer2.testutil.ExtractorAsserts.ExtractorFactory;
 
 /**
  * Tests for {@link Mp4Extractor}.
@@ -27,7 +28,7 @@ import com.google.android.exoplayer2.testutil.TestUtil;
 public final class Mp4ExtractorTest extends InstrumentationTestCase {
 
   public void testMp4Sample() throws Exception {
-    TestUtil.assertOutput(new TestUtil.ExtractorFactory() {
+    ExtractorAsserts.assertBehavior(new ExtractorFactory() {
       @Override
       public Extractor create() {
         return new Mp4Extractor();

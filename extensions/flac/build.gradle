@@ -11,6 +11,7 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+apply from: '../../constants.gradle'
 apply plugin: 'com.android.library'
 
 android {
@@ -30,8 +31,8 @@ android {
 }
 
 dependencies {
-    compile project(':library-core')
-    androidTestCompile project(':testutils')
+    compile project(modulePrefix + 'library-core')
+    androidTestCompile project(modulePrefix + 'testutils')
 }
 
 ext {

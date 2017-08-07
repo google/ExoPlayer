@@ -17,9 +17,10 @@ package com.google.android.exoplayer2.extractor.ogg;
 
 import android.test.InstrumentationTestCase;
 import com.google.android.exoplayer2.extractor.Extractor;
+import com.google.android.exoplayer2.testutil.ExtractorAsserts;
+import com.google.android.exoplayer2.testutil.ExtractorAsserts.ExtractorFactory;
 import com.google.android.exoplayer2.testutil.FakeExtractorInput;
 import com.google.android.exoplayer2.testutil.TestUtil;
-import com.google.android.exoplayer2.testutil.TestUtil.ExtractorFactory;
 import java.io.IOException;
 
 /**
@@ -35,20 +36,22 @@ public final class OggExtractorTest extends InstrumentationTestCase {
   };
 
   public void testOpus() throws Exception {
-    TestUtil.assertOutput(OGG_EXTRACTOR_FACTORY, "ogg/bear.opus", getInstrumentation());
+    ExtractorAsserts.assertBehavior(OGG_EXTRACTOR_FACTORY, "ogg/bear.opus", getInstrumentation());
   }
 
   public void testFlac() throws Exception {
-    TestUtil.assertOutput(OGG_EXTRACTOR_FACTORY, "ogg/bear_flac.ogg", getInstrumentation());
+    ExtractorAsserts.assertBehavior(OGG_EXTRACTOR_FACTORY, "ogg/bear_flac.ogg",
+        getInstrumentation());
   }
 
   public void testFlacNoSeektable() throws Exception {
-    TestUtil.assertOutput(OGG_EXTRACTOR_FACTORY, "ogg/bear_flac_noseektable.ogg",
+    ExtractorAsserts.assertBehavior(OGG_EXTRACTOR_FACTORY, "ogg/bear_flac_noseektable.ogg",
         getInstrumentation());
   }
 
   public void testVorbis() throws Exception {
-    TestUtil.assertOutput(OGG_EXTRACTOR_FACTORY, "ogg/bear_vorbis.ogg", getInstrumentation());
+    ExtractorAsserts.assertBehavior(OGG_EXTRACTOR_FACTORY, "ogg/bear_vorbis.ogg",
+        getInstrumentation());
   }
 
   public void testSniffVorbis() throws Exception {

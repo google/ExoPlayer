@@ -61,6 +61,14 @@ public final class MediaCodecInfo {
    */
   public final boolean tunneling;
 
+  /**
+   * Whether the decoder is secure.
+   *
+   * @see CodecCapabilities#isFeatureSupported(String)
+   * @see CodecCapabilities#FEATURE_SecurePlayback
+   */
+  public final boolean secure;
+
   private final String mimeType;
   private final CodecCapabilities capabilities;
 
@@ -71,7 +79,7 @@ public final class MediaCodecInfo {
    * @return The created instance.
    */
   public static MediaCodecInfo newPassthroughInstance(String name) {
-    return new MediaCodecInfo(name, null, null, false);
+    return new MediaCodecInfo(name, null, null, false, false);
   }
 
   /**
@@ -84,7 +92,7 @@ public final class MediaCodecInfo {
    */
   public static MediaCodecInfo newInstance(String name, String mimeType,
       CodecCapabilities capabilities) {
-    return new MediaCodecInfo(name, mimeType, capabilities, false);
+    return new MediaCodecInfo(name, mimeType, capabilities, false, false);
   }
 
   /**
@@ -94,20 +102,22 @@ public final class MediaCodecInfo {
    * @param mimeType A mime type supported by the {@link MediaCodec}.
    * @param capabilities The capabilities of the {@link MediaCodec} for the specified mime type.
    * @param forceDisableAdaptive Whether {@link #adaptive} should be forced to {@code false}.
+   * @param forceSecure Whether {@link #secure} should be forced to {@code true}.
    * @return The created instance.
    */
   public static MediaCodecInfo newInstance(String name, String mimeType,
-      CodecCapabilities capabilities, boolean forceDisableAdaptive) {
-    return new MediaCodecInfo(name, mimeType, capabilities, forceDisableAdaptive);
+      CodecCapabilities capabilities, boolean forceDisableAdaptive, boolean forceSecure) {
+    return new MediaCodecInfo(name, mimeType, capabilities, forceDisableAdaptive, forceSecure);
   }
 
   private MediaCodecInfo(String name, String mimeType, CodecCapabilities capabilities,
-      boolean forceDisableAdaptive) {
+      boolean forceDisableAdaptive, boolean forceSecure) {
     this.name = Assertions.checkNotNull(name);
     this.mimeType = mimeType;
     this.capabilities = capabilities;
     adaptive = !forceDisableAdaptive && capabilities != null && isAdaptive(capabilities);
     tunneling = capabilities != null && isTunneling(capabilities);
+    secure = forceSecure || (capabilities != null && isSecure(capabilities));
   }
 
   /**
@@ -176,12 +186,12 @@ public final class MediaCodecInfo {
       logNoSupport("sizeAndRate.vCaps");
       return false;
     }
-    if (!areSizeAndRateSupported(videoCapabilities, width, height, frameRate)) {
+    if (!areSizeAndRateSupportedV21(videoCapabilities, width, height, frameRate)) {
       // Capabilities are known to be inaccurately reported for vertical resolutions on some devices
       // (b/31387661). If the video is vertical and the capabilities indicate support if the width
       // and height are swapped, we assume that the vertical resolution is also supported.
       if (width >= height
-          || !areSizeAndRateSupported(videoCapabilities, height, width, frameRate)) {
+          || !areSizeAndRateSupportedV21(videoCapabilities, height, width, frameRate)) {
         logNoSupport("sizeAndRate.support, " + width + "x" + height + "x" + frameRate);
         return false;
       }
@@ -326,14 +336,6 @@ public final class MediaCodecInfo {
     return capabilities.isFeatureSupported(CodecCapabilities.FEATURE_AdaptivePlayback);
   }
 
-  @TargetApi(21)
-  private static boolean areSizeAndRateSupported(VideoCapabilities capabilities, int width,
-      int height, double frameRate) {
-    return frameRate == Format.NO_VALUE || frameRate <= 0
-        ? capabilities.isSizeSupported(width, height)
-        : capabilities.areSizeAndRateSupported(width, height, frameRate);
-  }
-
   private static boolean isTunneling(CodecCapabilities capabilities) {
     return Util.SDK_INT >= 21 && isTunnelingV21(capabilities);
   }
@@ -341,6 +343,23 @@ public final class MediaCodecInfo {
   @TargetApi(21)
   private static boolean isTunnelingV21(CodecCapabilities capabilities) {
     return capabilities.isFeatureSupported(CodecCapabilities.FEATURE_TunneledPlayback);
+  }
+
+  private static boolean isSecure(CodecCapabilities capabilities) {
+    return Util.SDK_INT >= 21 && isSecureV21(capabilities);
+  }
+
+  @TargetApi(21)
+  private static boolean isSecureV21(CodecCapabilities capabilities) {
+    return capabilities.isFeatureSupported(CodecCapabilities.FEATURE_SecurePlayback);
+  }
+
+  @TargetApi(21)
+  private static boolean areSizeAndRateSupportedV21(VideoCapabilities capabilities, int width,
+      int height, double frameRate) {
+    return frameRate == Format.NO_VALUE || frameRate <= 0
+        ? capabilities.isSizeSupported(width, height)
+        : capabilities.areSizeAndRateSupported(width, height, frameRate);
   }
 
 }

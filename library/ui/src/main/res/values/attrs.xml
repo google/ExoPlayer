@@ -34,12 +34,18 @@
   <attr name="fastforward_increment" format="integer"/>
   <attr name="player_layout_id" format="reference"/>
   <attr name="controller_layout_id" format="reference"/>
+  <attr name="repeat_toggle_modes">
+    <flag name="none" value="0"/>
+    <flag name="one" value="1"/>
+    <flag name="all" value="2"/>
+  </attr>
 
   <declare-styleable name="SimpleExoPlayerView">
     <attr name="use_artwork" format="boolean"/>
     <attr name="default_artwork" format="reference"/>
     <attr name="use_controller" format="boolean"/>
     <attr name="hide_on_touch" format="boolean"/>
+    <attr name="auto_show" format="boolean"/>
     <attr name="resize_mode"/>
     <attr name="surface_type"/>
     <attr name="show_timeout"/>
@@ -57,6 +63,7 @@
     <attr name="show_timeout"/>
     <attr name="rewind_increment"/>
     <attr name="fastforward_increment"/>
+    <attr name="repeat_toggle_modes"/>
     <attr name="controller_layout_id"/>
   </declare-styleable>
 
@@ -72,6 +79,7 @@
     <attr name="buffered_color" format="color"/>
     <attr name="unplayed_color" format="color"/>
     <attr name="ad_marker_color" format="color"/>
+    <attr name="played_ad_marker_color" format="color"/>
   </declare-styleable>
 
 </resources>

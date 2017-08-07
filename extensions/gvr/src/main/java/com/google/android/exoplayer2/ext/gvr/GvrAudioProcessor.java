@@ -16,6 +16,7 @@
 package com.google.android.exoplayer2.ext.gvr;
 
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.ExoPlayerLibraryInfo;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.audio.AudioProcessor;
 import com.google.vr.sdk.audio.GvrAudioSurround;
@@ -27,6 +28,10 @@ import java.nio.ByteOrder;
  * surround sound and ambisonic soundfields.
  */
 public final class GvrAudioProcessor implements AudioProcessor {
+
+  static {
+    ExoPlayerLibraryInfo.registerModule("goog.exo.gvr");
+  }
 
   private static final int FRAMES_PER_OUTPUT_BUFFER = 1024;
   private static final int OUTPUT_CHANNEL_COUNT = 2;
@@ -56,6 +61,11 @@ public final class GvrAudioProcessor implements AudioProcessor {
   /**
    * Updates the listener head orientation. May be called on any thread. See
    * {@code GvrAudioSurround.updateNativeOrientation}.
+   *
+   * @param w The w component of the quaternion.
+   * @param x The x component of the quaternion.
+   * @param y The y component of the quaternion.
+   * @param z The z component of the quaternion.
    */
   public synchronized void updateOrientation(float w, float x, float y, float z) {
     this.w = w;

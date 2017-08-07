@@ -22,6 +22,7 @@ import android.util.Log;
 import android.util.SparseArray;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlayer;
+import com.google.android.exoplayer2.ExoPlayerLibraryInfo;
 import com.google.android.exoplayer2.ParserException;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.source.AdaptiveMediaSourceEventListener;
@@ -51,6 +52,10 @@ import java.util.TimeZone;
  * A DASH {@link MediaSource}.
  */
 public final class DashMediaSource implements MediaSource {
+
+  static {
+    ExoPlayerLibraryInfo.registerModule("goog.exo.dash");
+  }
 
   /**
    * The default minimum number of times to retry loading data prior to failing.
@@ -281,7 +286,8 @@ public final class DashMediaSource implements MediaSource {
   }
 
   @Override
-  public MediaPeriod createPeriod(int periodIndex, Allocator allocator, long positionUs) {
+  public MediaPeriod createPeriod(MediaPeriodId periodId, Allocator allocator) {
+    int periodIndex = periodId.periodIndex;
     EventDispatcher periodEventDispatcher = eventDispatcher.copyWithMediaTimeOffsetMs(
         manifest.getPeriod(periodIndex).startMs);
     DashMediaPeriod mediaPeriod = new DashMediaPeriod(firstPeriodId + periodIndex, manifest,
@@ -627,9 +633,9 @@ public final class DashMediaSource implements MediaSource {
     private final long windowDefaultStartPositionUs;
     private final DashManifest manifest;
 
-    public DashTimeline(long presentationStartTimeMs, long windowStartTimeMs,
-        int firstPeriodId, long offsetInFirstPeriodUs, long windowDurationUs,
-        long windowDefaultStartPositionUs, DashManifest manifest) {
+    public DashTimeline(long presentationStartTimeMs, long windowStartTimeMs, int firstPeriodId,
+        long offsetInFirstPeriodUs, long windowDurationUs, long windowDefaultStartPositionUs,
+        DashManifest manifest) {
       this.presentationStartTimeMs = presentationStartTimeMs;
       this.windowStartTimeMs = windowStartTimeMs;
       this.firstPeriodId = firstPeriodId;
@@ -652,7 +658,7 @@ public final class DashMediaSource implements MediaSource {
           + Assertions.checkIndex(periodIndex, 0, manifest.getPeriodCount()) : null;
       return period.set(id, uid, 0, manifest.getPeriodDurationUs(periodIndex),
           C.msToUs(manifest.getPeriod(periodIndex).startMs - manifest.getPeriod(0).startMs)
-              - offsetInFirstPeriodUs, false);
+              - offsetInFirstPeriodUs);
     }
 
     @Override

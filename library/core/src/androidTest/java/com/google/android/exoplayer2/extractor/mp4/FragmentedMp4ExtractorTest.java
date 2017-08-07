@@ -18,7 +18,8 @@ package com.google.android.exoplayer2.extractor.mp4;
 import android.test.InstrumentationTestCase;
 import com.google.android.exoplayer2.ParserException;
 import com.google.android.exoplayer2.extractor.Extractor;
-import com.google.android.exoplayer2.testutil.TestUtil;
+import com.google.android.exoplayer2.testutil.ExtractorAsserts;
+import com.google.android.exoplayer2.testutil.ExtractorAsserts.ExtractorFactory;
 
 /**
  * Unit test for {@link FragmentedMp4Extractor}.
@@ -26,26 +27,28 @@ import com.google.android.exoplayer2.testutil.TestUtil;
 public final class FragmentedMp4ExtractorTest extends InstrumentationTestCase {
 
   public void testSample() throws Exception {
-    TestUtil.assertOutput(getExtractorFactory(), "mp4/sample_fragmented.mp4", getInstrumentation());
+    ExtractorAsserts.assertBehavior(getExtractorFactory(), "mp4/sample_fragmented.mp4",
+        getInstrumentation());
   }
 
   public void testSampleWithSeiPayloadParsing() throws Exception {
     // Enabling the CEA-608 track enables SEI payload parsing.
-    TestUtil.assertOutput(getExtractorFactory(FragmentedMp4Extractor.FLAG_ENABLE_CEA608_TRACK),
+    ExtractorAsserts.assertBehavior(
+        getExtractorFactory(FragmentedMp4Extractor.FLAG_ENABLE_CEA608_TRACK),
         "mp4/sample_fragmented_sei.mp4", getInstrumentation());
   }
 
   public void testAtomWithZeroSize() throws Exception {
-    TestUtil.assertThrows(getExtractorFactory(), "mp4/sample_fragmented_zero_size_atom.mp4",
+    ExtractorAsserts.assertThrows(getExtractorFactory(), "mp4/sample_fragmented_zero_size_atom.mp4",
         getInstrumentation(), ParserException.class);
   }
 
-  private static TestUtil.ExtractorFactory getExtractorFactory() {
+  private static ExtractorFactory getExtractorFactory() {
     return getExtractorFactory(0);
   }
 
-  private static TestUtil.ExtractorFactory getExtractorFactory(final int flags) {
-    return new TestUtil.ExtractorFactory() {
+  private static ExtractorFactory getExtractorFactory(final int flags) {
+    return new ExtractorFactory() {
       @Override
       public Extractor create() {
         return new FragmentedMp4Extractor(flags, null);

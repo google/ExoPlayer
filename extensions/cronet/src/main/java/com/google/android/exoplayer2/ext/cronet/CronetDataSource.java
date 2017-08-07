@@ -20,6 +20,7 @@ import android.os.ConditionVariable;
 import android.text.TextUtils;
 import android.util.Log;
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.ExoPlayerLibraryInfo;
 import com.google.android.exoplayer2.upstream.DataSourceException;
 import com.google.android.exoplayer2.upstream.DataSpec;
 import com.google.android.exoplayer2.upstream.HttpDataSource;
@@ -27,7 +28,6 @@ import com.google.android.exoplayer2.upstream.TransferListener;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Clock;
 import com.google.android.exoplayer2.util.Predicate;
-import com.google.android.exoplayer2.util.SystemClock;
 import java.io.IOException;
 import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
@@ -72,6 +72,10 @@ public class CronetDataSource extends UrlRequest.Callback implements HttpDataSou
       this.cronetConnectionStatus = cronetConnectionStatus;
     }
 
+  }
+
+  static {
+    ExoPlayerLibraryInfo.registerModule("goog.exo.cronet");
   }
 
   /**
@@ -127,7 +131,11 @@ public class CronetDataSource extends UrlRequest.Callback implements HttpDataSou
 
   /**
    * @param cronetEngine A CronetEngine.
-   * @param executor The {@link java.util.concurrent.Executor} that will perform the requests.
+   * @param executor The {@link java.util.concurrent.Executor} that will handle responses.
+   *     This may be a direct executor (i.e. executes tasks on the calling thread) in order
+   *     to avoid a thread hop from Cronet's internal network thread to the response handling
+   *     thread. However, to avoid slowing down overall network performance, care must be taken
+   *     to make sure response handling is a fast operation when using a direct executor.
    * @param contentTypePredicate An optional {@link Predicate}. If a content type is rejected by the
    *     predicate then an {@link InvalidContentTypeException} is thrown from
    *     {@link #open(DataSpec)}.
@@ -141,7 +149,11 @@ public class CronetDataSource extends UrlRequest.Callback implements HttpDataSou
 
   /**
    * @param cronetEngine A CronetEngine.
-   * @param executor The {@link java.util.concurrent.Executor} that will perform the requests.
+   * @param executor The {@link java.util.concurrent.Executor} that will handle responses.
+   *     This may be a direct executor (i.e. executes tasks on the calling thread) in order
+   *     to avoid a thread hop from Cronet's internal network thread to the response handling
+   *     thread. However, to avoid slowing down overall network performance, care must be taken
+   *     to make sure response handling is a fast operation when using a direct executor.
    * @param contentTypePredicate An optional {@link Predicate}. If a content type is rejected by the
    *     predicate then an {@link InvalidContentTypeException} is thrown from
    *     {@link #open(DataSpec)}.
@@ -156,7 +168,7 @@ public class CronetDataSource extends UrlRequest.Callback implements HttpDataSou
       int connectTimeoutMs, int readTimeoutMs, boolean resetTimeoutOnRedirects,
       RequestProperties defaultRequestProperties) {
     this(cronetEngine, executor, contentTypePredicate, listener, connectTimeoutMs,
-        readTimeoutMs, resetTimeoutOnRedirects, new SystemClock(), defaultRequestProperties);
+        readTimeoutMs, resetTimeoutOnRedirects, Clock.DEFAULT, defaultRequestProperties);
   }
 
   /* package */ CronetDataSource(CronetEngine cronetEngine, Executor executor,
@@ -416,8 +428,8 @@ public class CronetDataSource extends UrlRequest.Callback implements HttpDataSou
   // Internal methods.
 
   private UrlRequest buildRequest(DataSpec dataSpec) throws OpenException {
-    UrlRequest.Builder requestBuilder = cronetEngine.newUrlRequestBuilder(dataSpec.uri.toString(),
-        this, executor);
+    UrlRequest.Builder requestBuilder = cronetEngine.newUrlRequestBuilder(
+        dataSpec.uri.toString(), this, executor).allowDirectExecutor();
     // Set the headers.
     boolean isContentTypeHeaderSet = false;
     if (defaultRequestProperties != null) {

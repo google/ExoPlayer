@@ -25,6 +25,8 @@ import com.google.android.exoplayer2.extractor.PositionHolder;
 import com.google.android.exoplayer2.extractor.TrackOutput;
 import com.google.android.exoplayer2.extractor.ts.TsPayloadReader.EsInfo;
 import com.google.android.exoplayer2.extractor.ts.TsPayloadReader.TrackIdGenerator;
+import com.google.android.exoplayer2.testutil.ExtractorAsserts;
+import com.google.android.exoplayer2.testutil.ExtractorAsserts.ExtractorFactory;
 import com.google.android.exoplayer2.testutil.FakeExtractorInput;
 import com.google.android.exoplayer2.testutil.FakeExtractorOutput;
 import com.google.android.exoplayer2.testutil.FakeTrackOutput;
@@ -43,7 +45,7 @@ public final class TsExtractorTest extends InstrumentationTestCase {
   private static final int TS_SYNC_BYTE = 0x47; // First byte of each TS packet.
 
   public void testSample() throws Exception {
-    TestUtil.assertOutput(new TestUtil.ExtractorFactory() {
+    ExtractorAsserts.assertBehavior(new ExtractorFactory() {
       @Override
       public Extractor create() {
         return new TsExtractor();
@@ -65,7 +67,7 @@ public final class TsExtractorTest extends InstrumentationTestCase {
     writeJunkData(out, random.nextInt(TS_PACKET_SIZE - 1) + 1);
     fileData = out.toByteArray();
 
-    TestUtil.assertOutput(new TestUtil.ExtractorFactory() {
+    ExtractorAsserts.assertOutput(new ExtractorFactory() {
       @Override
       public Extractor create() {
         return new TsExtractor();

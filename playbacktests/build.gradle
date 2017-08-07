@@ -11,6 +11,7 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+apply from: '../constants.gradle'
 apply plugin: 'com.android.library'
 
 android {
@@ -24,7 +25,8 @@ android {
 }
 
 dependencies {
-    compile project(':library-core')
-    androidTestCompile project(':library-dash')
-    androidTestCompile project(':library-hls')
+    androidTestCompile project(modulePrefix + 'library-core')
+    androidTestCompile project(modulePrefix + 'library-dash')
+    androidTestCompile project(modulePrefix + 'library-hls')
+    androidTestCompile project(modulePrefix + 'testutils')
 }

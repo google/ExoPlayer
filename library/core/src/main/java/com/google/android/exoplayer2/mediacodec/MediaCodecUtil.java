@@ -101,7 +101,7 @@ public final class MediaCodecUtil {
 
   /**
    * Returns information about a decoder suitable for audio passthrough.
-   **
+   *
    * @return A {@link MediaCodecInfo} describing the decoder, or null if no suitable decoder
    *     exists.
    */
@@ -233,10 +233,10 @@ public final class MediaCodecUtil {
                 if ((secureDecodersExplicit && key.secure == secure)
                     || (!secureDecodersExplicit && !key.secure)) {
                   decoderInfos.add(MediaCodecInfo.newInstance(codecName, mimeType, capabilities,
-                      forceDisableAdaptive));
+                      forceDisableAdaptive, false));
                 } else if (!secureDecodersExplicit && secure) {
                   decoderInfos.add(MediaCodecInfo.newInstance(codecName + ".secure", mimeType,
-                      capabilities, forceDisableAdaptive));
+                      capabilities, forceDisableAdaptive, true));
                   // It only makes sense to have one synthesized secure decoder, return immediately.
                   return decoderInfos;
                 }

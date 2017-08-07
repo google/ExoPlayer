@@ -20,9 +20,9 @@ import android.util.Log;
 import android.view.Surface;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlaybackException;
-import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.PlaybackParameters;
+import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.RendererCapabilities;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.audio.AudioRendererEventListener;
@@ -55,8 +55,8 @@ import java.util.Locale;
 /**
  * Logs player events using {@link Log}.
  */
-/* package */ final class EventLogger implements ExoPlayer.EventListener,
-    AudioRendererEventListener, VideoRendererEventListener, AdaptiveMediaSourceEventListener,
+/* package */ final class EventLogger implements Player.EventListener, AudioRendererEventListener,
+    VideoRendererEventListener, AdaptiveMediaSourceEventListener,
     ExtractorMediaSource.EventListener, DefaultDrmSessionManager.EventListener,
     MetadataRenderer.Output {
 
@@ -82,7 +82,7 @@ import java.util.Locale;
     startTimeMs = SystemClock.elapsedRealtime();
   }
 
-  // ExoPlayer.EventListener
+  // Player.EventListener
 
   @Override
   public void onLoadingChanged(boolean isLoading) {
@@ -93,6 +93,11 @@ import java.util.Locale;
   public void onPlayerStateChanged(boolean playWhenReady, int state) {
     Log.d(TAG, "state [" + getSessionTimeString() + ", " + playWhenReady + ", "
         + getStateString(state) + "]");
+  }
+
+  @Override
+  public void onRepeatModeChanged(@Player.RepeatMode int repeatMode) {
+    Log.d(TAG, "repeatMode [" + getRepeatModeString(repeatMode) + "]");
   }
 
   @Override
@@ -276,7 +281,7 @@ import java.util.Locale;
   @Override
   public void onVideoSizeChanged(int width, int height, int unappliedRotationDegrees,
       float pixelWidthHeightRatio) {
-    // Do nothing.
+    Log.d(TAG, "videoSizeChanged [" + width + ", " + height + "]");
   }
 
   @Override
@@ -407,13 +412,13 @@ import java.util.Locale;
 
   private static String getStateString(int state) {
     switch (state) {
-      case ExoPlayer.STATE_BUFFERING:
+      case Player.STATE_BUFFERING:
         return "B";
-      case ExoPlayer.STATE_ENDED:
+      case Player.STATE_ENDED:
         return "E";
-      case ExoPlayer.STATE_IDLE:
+      case Player.STATE_IDLE:
         return "I";
-      case ExoPlayer.STATE_READY:
+      case Player.STATE_READY:
         return "R";
       default:
         return "?";
@@ -461,4 +466,16 @@ import java.util.Locale;
     return enabled ? "[X]" : "[ ]";
   }
 
+  private static String getRepeatModeString(@Player.RepeatMode int repeatMode) {
+    switch (repeatMode) {
+      case Player.REPEAT_MODE_OFF:
+        return "OFF";
+      case Player.REPEAT_MODE_ONE:
+        return "ONE";
+      case Player.REPEAT_MODE_ALL:
+        return "ALL";
+      default:
+        return "?";
+    }
+  }
 }

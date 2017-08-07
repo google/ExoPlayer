@@ -22,4 +22,7 @@
   <string name="exo_controls_stop_description">"Avbryt"</string>
   <string name="exo_controls_rewind_description">"Spola tillbaka"</string>
   <string name="exo_controls_fastforward_description">"Snabbspola framåt"</string>
+  <string name="exo_controls_repeat_all_description">"Upprepa alla"</string>
+  <string name="exo_controls_repeat_off_description">"Upprepa inga"</string>
+  <string name="exo_controls_repeat_one_description">"Upprepa en"</string>
 </resources>

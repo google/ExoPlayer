@@ -22,4 +22,7 @@
   <string name="exo_controls_stop_description">"Зупинити"</string>
   <string name="exo_controls_rewind_description">"Перемотати назад"</string>
   <string name="exo_controls_fastforward_description">"Перемотати вперед"</string>
+  <string name="exo_controls_repeat_all_description">"Повторити все"</string>
+  <string name="exo_controls_repeat_off_description">"Не повторювати"</string>
+  <string name="exo_controls_repeat_one_description">"Повторити один елемент"</string>
 </resources>

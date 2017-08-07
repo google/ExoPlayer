@@ -22,4 +22,7 @@
   <string name="exo_controls_stop_description">"Opriți"</string>
   <string name="exo_controls_rewind_description">"Derulați"</string>
   <string name="exo_controls_fastforward_description">"Derulați rapid înainte"</string>
+  <string name="exo_controls_repeat_all_description">"Repetați toate"</string>
+  <string name="exo_controls_repeat_off_description">"Repetați niciuna"</string>
+  <string name="exo_controls_repeat_one_description">"Repetați unul"</string>
 </resources>

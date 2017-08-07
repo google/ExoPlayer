@@ -22,4 +22,7 @@
   <string name="exo_controls_stop_description">"Διακοπή"</string>
   <string name="exo_controls_rewind_description">"Επαναφορά"</string>
   <string name="exo_controls_fastforward_description">"Γρήγορη προώθηση"</string>
+  <string name="exo_controls_repeat_all_description">"Επανάληψη όλων"</string>
+  <string name="exo_controls_repeat_off_description">"Καμία επανάληψη"</string>
+  <string name="exo_controls_repeat_one_description">"Επανάληψη ενός στοιχείου"</string>
 </resources>
