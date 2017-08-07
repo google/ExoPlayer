@@ -155,6 +155,9 @@ public final class ParsableBitArray {
    * @return An integer whose bottom n bits hold the read data.
    */
   public int readBits(int numBits) {
+    if (numBits == 0) {
+      return 0;
+    }
     int returnValue = 0;
     bitOffset += numBits;
     while (bitOffset > 8) {

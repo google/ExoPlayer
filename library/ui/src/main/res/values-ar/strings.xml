@@ -22,4 +22,7 @@
   <string name="exo_controls_stop_description">"إيقاف"</string>
   <string name="exo_controls_rewind_description">"إرجاع"</string>
   <string name="exo_controls_fastforward_description">"تقديم سريع"</string>
+  <string name="exo_controls_repeat_all_description">"تكرار الكل"</string>
+  <string name="exo_controls_repeat_off_description">"عدم التكرار"</string>
+  <string name="exo_controls_repeat_one_description">"تكرار مقطع واحد"</string>
 </resources>

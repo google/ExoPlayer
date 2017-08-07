@@ -19,7 +19,8 @@ import android.annotation.TargetApi;
 import android.test.InstrumentationTestCase;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.extractor.Extractor;
-import com.google.android.exoplayer2.testutil.TestUtil;
+import com.google.android.exoplayer2.testutil.ExtractorAsserts;
+import com.google.android.exoplayer2.testutil.ExtractorAsserts.ExtractorFactory;
 import com.google.android.exoplayer2.util.MimeTypes;
 
 /**
@@ -29,8 +30,8 @@ import com.google.android.exoplayer2.util.MimeTypes;
 public final class RawCcExtractorTest extends InstrumentationTestCase {
 
   public void testRawCcSample() throws Exception {
-    TestUtil.assertOutput(
-        new TestUtil.ExtractorFactory() {
+    ExtractorAsserts.assertBehavior(
+        new ExtractorFactory() {
           @Override
           public Extractor create() {
             return new RawCcExtractor(

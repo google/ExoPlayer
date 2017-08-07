@@ -22,4 +22,7 @@
   <string name="exo_controls_stop_description">"Interrompi"</string>
   <string name="exo_controls_rewind_description">"Riavvolgi"</string>
   <string name="exo_controls_fastforward_description">"Avanti veloce"</string>
+  <string name="exo_controls_repeat_all_description">"Ripeti tutti"</string>
+  <string name="exo_controls_repeat_off_description">"Non ripetere nessuno"</string>
+  <string name="exo_controls_repeat_one_description">"Ripeti uno"</string>
 </resources>

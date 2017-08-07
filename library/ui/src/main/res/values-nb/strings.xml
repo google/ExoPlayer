@@ -22,4 +22,7 @@
   <string name="exo_controls_stop_description">"Stopp"</string>
   <string name="exo_controls_rewind_description">"Tilbakespoling"</string>
   <string name="exo_controls_fastforward_description">"Fremoverspoling"</string>
+  <string name="exo_controls_repeat_all_description">"Gjenta alle"</string>
+  <string name="exo_controls_repeat_off_description">"Ikke gjenta noen"</string>
+  <string name="exo_controls_repeat_one_description">"Gjenta én"</string>
 </resources>

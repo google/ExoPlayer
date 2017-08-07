@@ -124,6 +124,7 @@ public final class CronetDataSourceTest {
     when(mockCronetEngine.newUrlRequestBuilder(
             anyString(), any(UrlRequest.Callback.class), any(Executor.class)))
         .thenReturn(mockUrlRequestBuilder);
+    when(mockUrlRequestBuilder.allowDirectExecutor()).thenReturn(mockUrlRequestBuilder);
     when(mockUrlRequestBuilder.build()).thenReturn(mockUrlRequest);
     mockStatusResponse();
 
@@ -681,6 +682,15 @@ public final class CronetDataSourceTest {
     } catch (IOException e) {
       // Expected.
     }
+  }
+
+  @Test
+  public void testAllowDirectExecutor() throws HttpDataSourceException {
+    testDataSpec = new DataSpec(Uri.parse(TEST_URL), 1000, 5000, null);
+    mockResponseStartSuccess();
+
+    dataSourceUnderTest.open(testDataSpec);
+    verify(mockUrlRequestBuilder).allowDirectExecutor();
   }
 
   // Helper methods.

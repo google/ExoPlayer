@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.ext.ffmpeg;
 
+import com.google.android.exoplayer2.ExoPlayerLibraryInfo;
 import com.google.android.exoplayer2.util.LibraryLoader;
 import com.google.android.exoplayer2.util.MimeTypes;
 
@@ -22,6 +23,10 @@ import com.google.android.exoplayer2.util.MimeTypes;
  * Configures and queries the underlying native library.
  */
 public final class FfmpegLibrary {
+
+  static {
+    ExoPlayerLibraryInfo.registerModule("goog.exo.ffmpeg");
+  }
 
   private static final LibraryLoader LOADER =
       new LibraryLoader("avutil", "avresample", "avcodec", "ffmpeg");
@@ -32,6 +37,8 @@ public final class FfmpegLibrary {
    * Override the names of the FFmpeg native libraries. If an application wishes to call this
    * method, it must do so before calling any other method defined by this class, and before
    * instantiating a {@link FfmpegAudioRenderer} instance.
+   *
+   * @param libraries The names of the FFmpeg native libraries.
    */
   public static void setLibraries(String... libraries) {
     LOADER.setLibraries(libraries);
@@ -53,6 +60,8 @@ public final class FfmpegLibrary {
 
   /**
    * Returns whether the underlying library supports the specified MIME type.
+   *
+   * @param mimeType The MIME type to check.
    */
   public static boolean supportsFormat(String mimeType) {
     if (!isAvailable()) {

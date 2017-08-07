@@ -197,6 +197,20 @@ import java.util.List;
     opusClose(nativeDecoderContext);
   }
 
+  /**
+   * Returns the channel count of output audio.
+   */
+  public int getChannelCount() {
+    return channelCount;
+  }
+
+  /**
+   * Returns the sample rate of output audio.
+   */
+  public int getSampleRate() {
+    return SAMPLE_RATE;
+  }
+
   private static int nsToSamples(long ns) {
     return (int) (ns * SAMPLE_RATE / 1000000000);
   }

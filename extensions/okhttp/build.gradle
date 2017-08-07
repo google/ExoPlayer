@@ -11,6 +11,7 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+apply from: '../../constants.gradle'
 apply plugin: 'com.android.library'
 
 android {
@@ -29,8 +30,8 @@ android {
 }
 
 dependencies {
-    compile project(':library-core')
-    compile('com.squareup.okhttp3:okhttp:3.6.0') {
+    compile project(modulePrefix + 'library-core')
+    compile('com.squareup.okhttp3:okhttp:3.8.1') {
         exclude group: 'org.json'
     }
 }

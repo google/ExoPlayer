@@ -22,4 +22,7 @@
   <string name="exo_controls_stop_description">"Запри"</string>
   <string name="exo_controls_rewind_description">"Премотај назад"</string>
   <string name="exo_controls_fastforward_description">"Брзо премотај напред"</string>
+  <string name="exo_controls_repeat_all_description">"Повтори ги сите"</string>
+  <string name="exo_controls_repeat_off_description">"Не повторувај ниту една"</string>
+  <string name="exo_controls_repeat_one_description">"Повтори една"</string>
 </resources>

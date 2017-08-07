@@ -41,6 +41,8 @@ import static android.opengl.GLES20.glDeleteTextures;
 import static android.opengl.GLES20.glGenTextures;
 
 import android.annotation.TargetApi;
+import android.content.Context;
+import android.content.pm.PackageManager;
 import android.graphics.SurfaceTexture;
 import android.graphics.SurfaceTexture.OnFrameAvailableListener;
 import android.opengl.EGL14;
@@ -68,19 +70,8 @@ public final class DummySurface extends Surface {
 
   private static final int EGL_PROTECTED_CONTENT_EXT = 0x32C0;
 
-  /**
-   * Whether the device supports secure dummy surfaces.
-   */
-  public static final boolean SECURE_SUPPORTED;
-  static {
-    if (Util.SDK_INT >= 17) {
-      EGLDisplay display = eglGetDisplay(EGL_DEFAULT_DISPLAY);
-      String extensions = EGL14.eglQueryString(display, EGL10.EGL_EXTENSIONS);
-      SECURE_SUPPORTED = extensions != null && extensions.contains("EGL_EXT_protected_content");
-    } else {
-      SECURE_SUPPORTED = false;
-    }
-  }
+  private static boolean secureSupported;
+  private static boolean secureSupportedInitialized;
 
   /**
    * Whether the surface is secure.
@@ -91,17 +82,39 @@ public final class DummySurface extends Surface {
   private boolean threadReleased;
 
   /**
+   * Returns whether the device supports secure dummy surfaces.
+   *
+   * @param context Any {@link Context}.
+   * @return Whether the device supports secure dummy surfaces.
+   */
+  public static synchronized boolean isSecureSupported(Context context) {
+    if (!secureSupportedInitialized) {
+      if (Util.SDK_INT >= 17) {
+        EGLDisplay display = eglGetDisplay(EGL_DEFAULT_DISPLAY);
+        String extensions = EGL14.eglQueryString(display, EGL10.EGL_EXTENSIONS);
+        secureSupported = extensions != null && extensions.contains("EGL_EXT_protected_content")
+            && !deviceNeedsSecureDummySurfaceWorkaround(context);
+      }
+      secureSupportedInitialized = true;
+    }
+    return secureSupported;
+  }
+
+  /**
    * Returns a newly created dummy surface. The surface must be released by calling {@link #release}
    * when it's no longer required.
    * <p>
    * Must only be called if {@link Util#SDK_INT} is 17 or higher.
    *
+   * @param context Any {@link Context}.
    * @param secure Whether a secure surface is required. Must only be requested if
-   *     {@link #SECURE_SUPPORTED} is {@code true}.
+   *     {@link #isSecureSupported(Context)} returns {@code true}.
+   * @throws IllegalStateException If a secure surface is requested on a device for which
+   *     {@link #isSecureSupported(Context)} returns {@code false}.
    */
-  public static DummySurface newInstanceV17(boolean secure) {
+  public static DummySurface newInstanceV17(Context context, boolean secure) {
     assertApiLevel17OrHigher();
-    Assertions.checkState(!secure || SECURE_SUPPORTED);
+    Assertions.checkState(!secure || isSecureSupported(context));
     DummySurfaceThread thread = new DummySurfaceThread();
     return thread.init(secure);
   }
@@ -131,6 +144,23 @@ public final class DummySurface extends Surface {
     if (Util.SDK_INT < 17) {
       throw new UnsupportedOperationException("Unsupported prior to API level 17");
     }
+  }
+
+  /**
+   * Returns whether the device is known to advertise secure surface textures but not implement them
+   * correctly.
+   *
+   * @param context Any {@link Context}.
+   */
+  private static boolean deviceNeedsSecureDummySurfaceWorkaround(Context context) {
+    return Util.SDK_INT == 24
+        && (Util.MODEL.startsWith("SM-G950") || Util.MODEL.startsWith("SM-G955"))
+        && !hasVrModeHighPerformanceSystemFeatureV24(context.getPackageManager());
+  }
+
+  @TargetApi(24)
+  private static boolean hasVrModeHighPerformanceSystemFeatureV24(PackageManager packageManager) {
+    return packageManager.hasSystemFeature(PackageManager.FEATURE_VR_MODE_HIGH_PERFORMANCE);
   }
 
   private static class DummySurfaceThread extends HandlerThread implements OnFrameAvailableListener,
@@ -255,8 +285,8 @@ public final class DummySurface extends Surface {
       if (secure) {
         glAttributes = new int[] {
             EGL_CONTEXT_CLIENT_VERSION, 2,
-            EGL_PROTECTED_CONTENT_EXT,
-            EGL_TRUE, EGL_NONE};
+            EGL_PROTECTED_CONTENT_EXT, EGL_TRUE,
+            EGL_NONE};
       } else {
         glAttributes = new int[] {
             EGL_CONTEXT_CLIENT_VERSION, 2,

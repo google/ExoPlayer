@@ -15,28 +15,20 @@
  */
 package com.google.android.exoplayer2;
 
-import android.os.Handler;
-import android.os.HandlerThread;
 import android.util.Pair;
-import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
-import com.google.android.exoplayer2.source.MediaPeriod;
 import com.google.android.exoplayer2.source.MediaSource;
-import com.google.android.exoplayer2.source.SampleStream;
 import com.google.android.exoplayer2.source.TrackGroup;
 import com.google.android.exoplayer2.source.TrackGroupArray;
-import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
-import com.google.android.exoplayer2.trackselection.TrackSelection;
-import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
-import com.google.android.exoplayer2.upstream.Allocator;
-import com.google.android.exoplayer2.util.Assertions;
-import com.google.android.exoplayer2.util.MediaClock;
+import com.google.android.exoplayer2.testutil.ExoPlayerWrapper;
+import com.google.android.exoplayer2.testutil.FakeMediaClockRenderer;
+import com.google.android.exoplayer2.testutil.FakeMediaSource;
+import com.google.android.exoplayer2.testutil.FakeRenderer;
+import com.google.android.exoplayer2.testutil.FakeTimeline;
+import com.google.android.exoplayer2.testutil.FakeTimeline.TimelineWindowDefinition;
 import com.google.android.exoplayer2.util.MimeTypes;
-import java.io.IOException;
-import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 import junit.framework.TestCase;
 
 /**
@@ -62,10 +54,10 @@ public final class ExoPlayerTest extends TestCase {
    * error.
    */
   public void testPlayEmptyTimeline() throws Exception {
-    PlayerWrapper playerWrapper = new PlayerWrapper();
+    ExoPlayerWrapper playerWrapper = new ExoPlayerWrapper();
     Timeline timeline = Timeline.EMPTY;
     MediaSource mediaSource = new FakeMediaSource(timeline, null);
-    FakeRenderer renderer = new FakeRenderer(null);
+    FakeRenderer renderer = new FakeRenderer();
     playerWrapper.setup(mediaSource, renderer);
     playerWrapper.blockUntilEnded(TIMEOUT_MS);
     assertEquals(0, playerWrapper.positionDiscontinuityCount);
@@ -79,7 +71,7 @@ public final class ExoPlayerTest extends TestCase {
    * Tests playback of a source that exposes a single period.
    */
   public void testPlaySinglePeriodTimeline() throws Exception {
-    PlayerWrapper playerWrapper = new PlayerWrapper();
+    ExoPlayerWrapper playerWrapper = new ExoPlayerWrapper();
     Timeline timeline = new FakeTimeline(new TimelineWindowDefinition(false, false, 0));
     Object manifest = new Object();
     MediaSource mediaSource = new FakeMediaSource(timeline, manifest, TEST_VIDEO_FORMAT);
@@ -98,7 +90,7 @@ public final class ExoPlayerTest extends TestCase {
    * Tests playback of a source that exposes three periods.
    */
   public void testPlayMultiPeriodTimeline() throws Exception {
-    PlayerWrapper playerWrapper = new PlayerWrapper();
+    ExoPlayerWrapper playerWrapper = new ExoPlayerWrapper();
     Timeline timeline = new FakeTimeline(
         new TimelineWindowDefinition(false, false, 0),
         new TimelineWindowDefinition(false, false, 0),
@@ -119,7 +111,7 @@ public final class ExoPlayerTest extends TestCase {
    * source.
    */
   public void testReadAheadToEndDoesNotResetRenderer() throws Exception {
-    final PlayerWrapper playerWrapper = new PlayerWrapper();
+    final ExoPlayerWrapper playerWrapper = new ExoPlayerWrapper();
     Timeline timeline = new FakeTimeline(
         new TimelineWindowDefinition(false, false, 10),
         new TimelineWindowDefinition(false, false, 10),
@@ -166,7 +158,7 @@ public final class ExoPlayerTest extends TestCase {
   }
 
   public void testRepreparationGivesFreshSourceInfo() throws Exception {
-    PlayerWrapper playerWrapper = new PlayerWrapper();
+    ExoPlayerWrapper playerWrapper = new ExoPlayerWrapper();
     Timeline timeline = new FakeTimeline(new TimelineWindowDefinition(false, false, 0));
     FakeRenderer renderer = new FakeRenderer(TEST_VIDEO_FORMAT);
 
@@ -218,501 +210,54 @@ public final class ExoPlayerTest extends TestCase {
         Pair.create(timeline, thirdSourceManifest));
   }
 
-  /**
-   * Wraps a player with its own handler thread.
-   */
-  private static final class PlayerWrapper implements ExoPlayer.EventListener {
-
-    private final CountDownLatch sourceInfoCountDownLatch;
-    private final CountDownLatch endedCountDownLatch;
-    private final HandlerThread playerThread;
-    private final Handler handler;
-    private final LinkedList<Pair<Timeline, Object>> sourceInfos;
-
-    private ExoPlayer player;
-    private TrackGroupArray trackGroups;
-    private Exception exception;
-
-    // Written only on the main thread.
-    private volatile int positionDiscontinuityCount;
-
-    public PlayerWrapper() {
-      sourceInfoCountDownLatch = new CountDownLatch(1);
-      endedCountDownLatch = new CountDownLatch(1);
-      playerThread = new HandlerThread("ExoPlayerTest thread");
-      playerThread.start();
-      handler = new Handler(playerThread.getLooper());
-      sourceInfos = new LinkedList<>();
-    }
-
-    // Called on the test thread.
-
-    public void blockUntilEnded(long timeoutMs) throws Exception {
-      if (!endedCountDownLatch.await(timeoutMs, TimeUnit.MILLISECONDS)) {
-        exception = new TimeoutException("Test playback timed out waiting for playback to end.");
-      }
-      release();
-      // Throw any pending exception (from playback, timing out or releasing).
-      if (exception != null) {
-        throw exception;
-      }
-    }
-
-    public void blockUntilSourceInfoRefreshed(long timeoutMs) throws Exception {
-      if (!sourceInfoCountDownLatch.await(timeoutMs, TimeUnit.MILLISECONDS)) {
-        throw new TimeoutException("Test playback timed out waiting for source info.");
-      }
-    }
-
-    public void setup(final MediaSource mediaSource, final Renderer... renderers) {
-      handler.post(new Runnable() {
-        @Override
-        public void run() {
-          try {
-            player = ExoPlayerFactory.newInstance(renderers, new DefaultTrackSelector());
-            player.addListener(PlayerWrapper.this);
-            player.setPlayWhenReady(true);
-            player.prepare(mediaSource);
-          } catch (Exception e) {
-            handleError(e);
-          }
+  public void testRepeatModeChanges() throws Exception {
+    Timeline timeline = new FakeTimeline(
+        new TimelineWindowDefinition(true, false, 100000),
+        new TimelineWindowDefinition(true, false, 100000),
+        new TimelineWindowDefinition(true, false, 100000));
+    final int[] actionSchedule = { // 0 -> 1
+        Player.REPEAT_MODE_ONE, // 1 -> 1
+        Player.REPEAT_MODE_OFF, // 1 -> 2
+        Player.REPEAT_MODE_ONE, // 2 -> 2
+        Player.REPEAT_MODE_ALL, // 2 -> 0
+        Player.REPEAT_MODE_ONE, // 0 -> 0
+        -1, // 0 -> 0
+        Player.REPEAT_MODE_OFF, // 0 -> 1
+        -1, // 1 -> 2
+        -1  // 2 -> ended
+    };
+    int[] expectedWindowIndices = {1, 1, 2, 2, 0, 0, 0, 1, 2};
+    final LinkedList<Integer> windowIndices = new LinkedList<>();
+    final CountDownLatch actionCounter = new CountDownLatch(actionSchedule.length);
+    ExoPlayerWrapper playerWrapper = new ExoPlayerWrapper() {
+      @Override
+      @SuppressWarnings("ResourceType")
+      public void onPositionDiscontinuity() {
+        super.onPositionDiscontinuity();
+        int actionIndex = actionSchedule.length - (int) actionCounter.getCount();
+        if (actionSchedule[actionIndex] != -1) {
+          player.setRepeatMode(actionSchedule[actionIndex]);
         }
-      });
-    }
-
-    public void prepare(final MediaSource mediaSource) {
-      handler.post(new Runnable() {
-        @Override
-        public void run() {
-          try {
-            player.prepare(mediaSource);
-          } catch (Exception e) {
-            handleError(e);
-          }
-        }
-      });
-    }
-
-    public void release() throws InterruptedException {
-      handler.post(new Runnable() {
-        @Override
-        public void run() {
-          try {
-            if (player != null) {
-              player.release();
-            }
-          } catch (Exception e) {
-            handleError(e);
-          } finally {
-            playerThread.quit();
-          }
-        }
-      });
-      playerThread.join();
-    }
-
-    private void handleError(Exception exception) {
-      if (this.exception == null) {
-        this.exception = exception;
+        windowIndices.add(player.getCurrentWindowIndex());
+        actionCounter.countDown();
       }
-      endedCountDownLatch.countDown();
+    };
+    MediaSource mediaSource = new FakeMediaSource(timeline, null, TEST_VIDEO_FORMAT);
+    FakeRenderer renderer = new FakeRenderer(TEST_VIDEO_FORMAT);
+    playerWrapper.setup(mediaSource, renderer);
+    boolean finished = actionCounter.await(TIMEOUT_MS, TimeUnit.MILLISECONDS);
+    playerWrapper.release();
+    assertTrue("Test playback timed out waiting for action schedule to end.", finished);
+    if (playerWrapper.exception != null) {
+      throw playerWrapper.exception;
     }
-
-    @SafeVarargs
-    public final void assertSourceInfosEquals(Pair<Timeline, Object>... sourceInfos) {
-      assertEquals(sourceInfos.length, this.sourceInfos.size());
-      for (Pair<Timeline, Object> sourceInfo : sourceInfos) {
-        assertEquals(sourceInfo, this.sourceInfos.remove());
-      }
+    assertEquals(expectedWindowIndices.length, windowIndices.size());
+    for (int i = 0; i < expectedWindowIndices.length; i++) {
+      assertEquals(expectedWindowIndices[i], windowIndices.get(i).intValue());
     }
-
-    // ExoPlayer.EventListener implementation.
-
-    @Override
-    public void onLoadingChanged(boolean isLoading) {
-      // Do nothing.
-    }
-
-    @Override
-    public void onPlayerStateChanged(boolean playWhenReady, int playbackState) {
-      if (playbackState == ExoPlayer.STATE_ENDED) {
-        endedCountDownLatch.countDown();
-      }
-    }
-
-    @Override
-    public void onTimelineChanged(Timeline timeline, Object manifest) {
-      sourceInfos.add(Pair.create(timeline, manifest));
-      sourceInfoCountDownLatch.countDown();
-    }
-
-    @Override
-    public void onTracksChanged(TrackGroupArray trackGroups, TrackSelectionArray trackSelections) {
-      this.trackGroups = trackGroups;
-    }
-
-    @Override
-    public void onPlayerError(ExoPlaybackException exception) {
-      handleError(exception);
-    }
-
-    @SuppressWarnings("NonAtomicVolatileUpdate")
-    @Override
-    public void onPositionDiscontinuity() {
-      positionDiscontinuityCount++;
-    }
-
-    @Override
-    public void onPlaybackParametersChanged(PlaybackParameters playbackParameters) {
-      // Do nothing.
-    }
-
-  }
-
-  private static final class TimelineWindowDefinition {
-
-    public final boolean isSeekable;
-    public final boolean isDynamic;
-    public final long durationUs;
-
-    public TimelineWindowDefinition(boolean isSeekable, boolean isDynamic, long durationUs) {
-      this.isSeekable = isSeekable;
-      this.isDynamic = isDynamic;
-      this.durationUs = durationUs;
-    }
-
-  }
-
-  private static final class FakeTimeline extends Timeline {
-
-    private final TimelineWindowDefinition[] windowDefinitions;
-
-    public FakeTimeline(TimelineWindowDefinition... windowDefinitions) {
-      this.windowDefinitions = windowDefinitions;
-    }
-
-    @Override
-    public int getWindowCount() {
-      return windowDefinitions.length;
-    }
-
-    @Override
-    public Window getWindow(int windowIndex, Window window, boolean setIds,
-        long defaultPositionProjectionUs) {
-      TimelineWindowDefinition windowDefinition = windowDefinitions[windowIndex];
-      Object id = setIds ? windowIndex : null;
-      return window.set(id, C.TIME_UNSET, C.TIME_UNSET, windowDefinition.isSeekable,
-          windowDefinition.isDynamic, 0, windowDefinition.durationUs, windowIndex, windowIndex, 0);
-    }
-
-    @Override
-    public int getPeriodCount() {
-      return windowDefinitions.length;
-    }
-
-    @Override
-    public Period getPeriod(int periodIndex, Period period, boolean setIds) {
-      TimelineWindowDefinition windowDefinition = windowDefinitions[periodIndex];
-      Object id = setIds ? periodIndex : null;
-      return period.set(id, id, periodIndex, windowDefinition.durationUs, 0, false);
-    }
-
-    @Override
-    public int getIndexOfPeriod(Object uid) {
-      if (!(uid instanceof Integer)) {
-        return C.INDEX_UNSET;
-      }
-      int index = (Integer) uid;
-      return index >= 0 && index < windowDefinitions.length ? index : C.INDEX_UNSET;
-    }
-
-  }
-
-  /**
-   * Fake {@link MediaSource} that provides a given timeline (which must have one period). Creating
-   * the period will return a {@link FakeMediaPeriod}.
-   */
-  private static class FakeMediaSource implements MediaSource {
-
-    private final Timeline timeline;
-    private final Object manifest;
-    private final TrackGroupArray trackGroupArray;
-    private final ArrayList<FakeMediaPeriod> activeMediaPeriods;
-
-    private boolean preparedSource;
-    private boolean releasedSource;
-
-    public FakeMediaSource(Timeline timeline, Object manifest, Format... formats) {
-      this.timeline = timeline;
-      this.manifest = manifest;
-      TrackGroup[] trackGroups = new TrackGroup[formats.length];
-      for (int i = 0; i < formats.length; i++) {
-        trackGroups[i] = new TrackGroup(formats[i]);
-      }
-      trackGroupArray = new TrackGroupArray(trackGroups);
-      activeMediaPeriods = new ArrayList<>();
-    }
-
-    @Override
-    public void prepareSource(ExoPlayer player, boolean isTopLevelSource, Listener listener) {
-      assertFalse(preparedSource);
-      preparedSource = true;
-      listener.onSourceInfoRefreshed(timeline, manifest);
-    }
-
-    @Override
-    public void maybeThrowSourceInfoRefreshError() throws IOException {
-      assertTrue(preparedSource);
-    }
-
-    @Override
-    public MediaPeriod createPeriod(int index, Allocator allocator, long positionUs) {
-      Assertions.checkIndex(index, 0, timeline.getPeriodCount());
-      assertTrue(preparedSource);
-      assertFalse(releasedSource);
-      assertEquals(0, positionUs);
-      FakeMediaPeriod mediaPeriod = new FakeMediaPeriod(trackGroupArray);
-      activeMediaPeriods.add(mediaPeriod);
-      return mediaPeriod;
-    }
-
-    @Override
-    public void releasePeriod(MediaPeriod mediaPeriod) {
-      assertTrue(preparedSource);
-      assertFalse(releasedSource);
-      FakeMediaPeriod fakeMediaPeriod = (FakeMediaPeriod) mediaPeriod;
-      assertTrue(activeMediaPeriods.remove(fakeMediaPeriod));
-      fakeMediaPeriod.release();
-    }
-
-    @Override
-    public void releaseSource() {
-      assertTrue(preparedSource);
-      assertFalse(releasedSource);
-      assertTrue(activeMediaPeriods.isEmpty());
-      releasedSource = true;
-    }
-
-  }
-
-  /**
-   * Fake {@link MediaPeriod} that provides one track with a given {@link Format}. Selecting that
-   * track will give the player a {@link FakeSampleStream}.
-   */
-  private static final class FakeMediaPeriod implements MediaPeriod {
-
-    private final TrackGroupArray trackGroupArray;
-
-    private boolean preparedPeriod;
-
-    public FakeMediaPeriod(TrackGroupArray trackGroupArray) {
-      this.trackGroupArray = trackGroupArray;
-    }
-
-    public void release() {
-      preparedPeriod = false;
-    }
-
-    @Override
-    public void prepare(Callback callback) {
-      assertFalse(preparedPeriod);
-      preparedPeriod = true;
-      callback.onPrepared(this);
-    }
-
-    @Override
-    public void maybeThrowPrepareError() throws IOException {
-      assertTrue(preparedPeriod);
-    }
-
-    @Override
-    public TrackGroupArray getTrackGroups() {
-      assertTrue(preparedPeriod);
-      return trackGroupArray;
-    }
-
-    @Override
-    public long selectTracks(TrackSelection[] selections, boolean[] mayRetainStreamFlags,
-        SampleStream[] streams, boolean[] streamResetFlags, long positionUs) {
-      assertTrue(preparedPeriod);
-      int rendererCount = selections.length;
-      for (int i = 0; i < rendererCount; i++) {
-        if (streams[i] != null && (selections[i] == null || !mayRetainStreamFlags[i])) {
-          streams[i] = null;
-        }
-      }
-      for (int i = 0; i < rendererCount; i++) {
-        if (streams[i] == null && selections[i] != null) {
-          TrackSelection selection = selections[i];
-          assertEquals(1, selection.length());
-          assertEquals(0, selection.getIndexInTrackGroup(0));
-          TrackGroup trackGroup = selection.getTrackGroup();
-          assertTrue(trackGroupArray.indexOf(trackGroup) != C.INDEX_UNSET);
-          streams[i] = new FakeSampleStream(trackGroup.getFormat(0));
-          streamResetFlags[i] = true;
-        }
-      }
-      return 0;
-    }
-
-    @Override
-    public void discardBuffer(long positionUs) {
-      // Do nothing.
-    }
-
-    @Override
-    public long readDiscontinuity() {
-      assertTrue(preparedPeriod);
-      return C.TIME_UNSET;
-    }
-
-    @Override
-    public long getBufferedPositionUs() {
-      assertTrue(preparedPeriod);
-      return C.TIME_END_OF_SOURCE;
-    }
-
-    @Override
-    public long seekToUs(long positionUs) {
-      assertTrue(preparedPeriod);
-      assertEquals(0, positionUs);
-      return positionUs;
-    }
-
-    @Override
-    public long getNextLoadPositionUs() {
-      assertTrue(preparedPeriod);
-      return C.TIME_END_OF_SOURCE;
-    }
-
-    @Override
-    public boolean continueLoading(long positionUs) {
-      assertTrue(preparedPeriod);
-      return false;
-    }
-
-  }
-
-  /**
-   * Fake {@link SampleStream} that outputs a given {@link Format} then sets the end of stream flag
-   * on its input buffer.
-   */
-  private static final class FakeSampleStream implements SampleStream {
-
-    private final Format format;
-
-    private boolean readFormat;
-
-    public FakeSampleStream(Format format) {
-      this.format = format;
-    }
-
-    @Override
-    public boolean isReady() {
-      return true;
-    }
-
-    @Override
-    public int readData(FormatHolder formatHolder, DecoderInputBuffer buffer,
-        boolean formatRequired) {
-      if (formatRequired || !readFormat) {
-        formatHolder.format = format;
-        readFormat = true;
-        return C.RESULT_FORMAT_READ;
-      } else {
-        buffer.setFlags(C.BUFFER_FLAG_END_OF_STREAM);
-        return C.RESULT_BUFFER_READ;
-      }
-    }
-
-    @Override
-    public void maybeThrowError() throws IOException {
-      // Do nothing.
-    }
-
-    @Override
-    public void skipData(long positionUs) {
-      // Do nothing.
-    }
-
-  }
-
-  /**
-   * Fake {@link Renderer} that supports any format with the matching MIME type. The renderer
-   * verifies that it reads a given {@link Format}.
-   */
-  private static class FakeRenderer extends BaseRenderer {
-
-    private final Format expectedFormat;
-
-    public int positionResetCount;
-    public int formatReadCount;
-    public int bufferReadCount;
-    public boolean isEnded;
-
-    public FakeRenderer(Format expectedFormat) {
-      super(expectedFormat == null ? C.TRACK_TYPE_UNKNOWN
-          : MimeTypes.getTrackType(expectedFormat.sampleMimeType));
-      this.expectedFormat = expectedFormat;
-    }
-
-    @Override
-    protected void onPositionReset(long positionUs, boolean joining) throws ExoPlaybackException {
-      positionResetCount++;
-      isEnded = false;
-    }
-
-    @Override
-    public void render(long positionUs, long elapsedRealtimeUs) throws ExoPlaybackException {
-      if (isEnded) {
-        return;
-      }
-
-      // Verify the format matches the expected format.
-      FormatHolder formatHolder = new FormatHolder();
-      DecoderInputBuffer buffer =
-          new DecoderInputBuffer(DecoderInputBuffer.BUFFER_REPLACEMENT_MODE_NORMAL);
-      int result = readSource(formatHolder, buffer, false);
-      if (result == C.RESULT_FORMAT_READ) {
-        formatReadCount++;
-        assertEquals(expectedFormat, formatHolder.format);
-      } else if (result == C.RESULT_BUFFER_READ) {
-        bufferReadCount++;
-        if (buffer.isEndOfStream()) {
-          isEnded = true;
-        }
-      }
-    }
-
-    @Override
-    public boolean isReady() {
-      return isSourceReady();
-    }
-
-    @Override
-    public boolean isEnded() {
-      return isEnded;
-    }
-
-    @Override
-    public int supportsFormat(Format format) throws ExoPlaybackException {
-      return getTrackType() == MimeTypes.getTrackType(format.sampleMimeType) ? FORMAT_HANDLED
-          : FORMAT_UNSUPPORTED_TYPE;
-    }
-
-  }
-
-  private abstract static class FakeMediaClockRenderer extends FakeRenderer implements MediaClock {
-
-    public FakeMediaClockRenderer(Format expectedFormat) {
-      super(expectedFormat);
-    }
-
-    @Override
-    public MediaClock getMediaClock() {
-      return this;
-    }
-
+    assertEquals(9, playerWrapper.positionDiscontinuityCount);
+    assertTrue(renderer.isEnded);
+    playerWrapper.assertSourceInfosEquals(Pair.create(timeline, null));
   }
 
 }

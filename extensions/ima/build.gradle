@@ -1,0 +1,42 @@
+apply from: '../../constants.gradle'
+apply plugin: 'com.android.library'
+
+android {
+    compileSdkVersion project.ext.compileSdkVersion
+    buildToolsVersion project.ext.buildToolsVersion
+
+    defaultConfig {
+        minSdkVersion 14
+        targetSdkVersion project.ext.targetSdkVersion
+        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+    }
+}
+
+dependencies {
+    compile project(modulePrefix + 'library-core')
+    // This dependency is necessary to force the supportLibraryVersion of
+    // com.android.support:support-v4 to be used. Else an older version (25.2.0) is included via:
+    // com.google.android.gms:play-services-ads:11.0.2
+    // |-- com.google.android.gms:play-services-ads-lite:[11.0.2] -> 11.0.2
+    //   |-- com.google.android.gms:play-services-basement:[11.0.2] -> 11.0.2
+    //     |-- com.android.support:support-v4:25.2.0
+    compile 'com.android.support:support-v4:' + supportLibraryVersion
+    compile 'com.google.ads.interactivemedia.v3:interactivemedia:3.7.4'
+    compile 'com.google.android.gms:play-services-ads:11.0.2'
+    androidTestCompile project(modulePrefix + 'library')
+    androidTestCompile 'com.google.dexmaker:dexmaker:' + dexmakerVersion
+    androidTestCompile 'com.google.dexmaker:dexmaker-mockito:' + dexmakerVersion
+    androidTestCompile 'org.mockito:mockito-core:' + mockitoVersion
+    androidTestCompile 'com.android.support.test:runner:' + testSupportLibraryVersion
+}
+
+ext {
+    javadocTitle = 'IMA extension'
+}
+apply from: '../../javadoc_library.gradle'
+
+ext {
+    releaseArtifact = 'extension-ima'
+    releaseDescription = 'Interactive Media Ads extension for ExoPlayer.'
+}
+apply from: '../../publish.gradle'

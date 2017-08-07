@@ -125,25 +125,25 @@ public final class CssParserTest extends InstrumentationTestCase {
     String stringInput = " lorem:ipsum\n{dolor}#sit,amet;lorem:ipsum\r\t\f\ndolor(())\n";
     ParsableByteArray input = new ParsableByteArray(Util.getUtf8Bytes(stringInput));
     StringBuilder builder = new StringBuilder();
-    assertEquals(CssParser.parseNextToken(input, builder), "lorem");
-    assertEquals(CssParser.parseNextToken(input, builder), ":");
-    assertEquals(CssParser.parseNextToken(input, builder), "ipsum");
-    assertEquals(CssParser.parseNextToken(input, builder), "{");
-    assertEquals(CssParser.parseNextToken(input, builder), "dolor");
-    assertEquals(CssParser.parseNextToken(input, builder), "}");
-    assertEquals(CssParser.parseNextToken(input, builder), "#sit");
-    assertEquals(CssParser.parseNextToken(input, builder), ",");
-    assertEquals(CssParser.parseNextToken(input, builder), "amet");
-    assertEquals(CssParser.parseNextToken(input, builder), ";");
-    assertEquals(CssParser.parseNextToken(input, builder), "lorem");
-    assertEquals(CssParser.parseNextToken(input, builder), ":");
-    assertEquals(CssParser.parseNextToken(input, builder), "ipsum");
-    assertEquals(CssParser.parseNextToken(input, builder), "dolor");
-    assertEquals(CssParser.parseNextToken(input, builder), "(");
-    assertEquals(CssParser.parseNextToken(input, builder), "(");
-    assertEquals(CssParser.parseNextToken(input, builder), ")");
-    assertEquals(CssParser.parseNextToken(input, builder), ")");
-    assertEquals(CssParser.parseNextToken(input, builder), null);
+    assertEquals("lorem", CssParser.parseNextToken(input, builder));
+    assertEquals(":", CssParser.parseNextToken(input, builder));
+    assertEquals("ipsum", CssParser.parseNextToken(input, builder));
+    assertEquals("{", CssParser.parseNextToken(input, builder));
+    assertEquals("dolor", CssParser.parseNextToken(input, builder));
+    assertEquals("}", CssParser.parseNextToken(input, builder));
+    assertEquals("#sit", CssParser.parseNextToken(input, builder));
+    assertEquals(",", CssParser.parseNextToken(input, builder));
+    assertEquals("amet", CssParser.parseNextToken(input, builder));
+    assertEquals(";", CssParser.parseNextToken(input, builder));
+    assertEquals("lorem", CssParser.parseNextToken(input, builder));
+    assertEquals(":", CssParser.parseNextToken(input, builder));
+    assertEquals("ipsum", CssParser.parseNextToken(input, builder));
+    assertEquals("dolor", CssParser.parseNextToken(input, builder));
+    assertEquals("(", CssParser.parseNextToken(input, builder));
+    assertEquals("(", CssParser.parseNextToken(input, builder));
+    assertEquals(")", CssParser.parseNextToken(input, builder));
+    assertEquals(")", CssParser.parseNextToken(input, builder));
+    assertEquals(null, CssParser.parseNextToken(input, builder));
   }
 
   public void testStyleScoreSystem() {

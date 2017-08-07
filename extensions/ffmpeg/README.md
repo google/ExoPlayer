@@ -1,4 +1,4 @@
-# FfmpegAudioRenderer #
+# ExoPlayer FFmpeg extension #
 
 ## Description ##
 
@@ -9,11 +9,10 @@ audio.
 
 ## Build instructions ##
 
-* Checkout ExoPlayer along with Extensions
-
-```
-git clone https://github.com/google/ExoPlayer.git
-```
+To use this extension you need to clone the ExoPlayer repository and depend on
+its modules locally. Instructions for doing this can be found in ExoPlayer's
+[top level README][]. In addition, it's necessary to build the extension's
+native components as follows:
 
 * Set the following environment variables:
 
@@ -24,8 +23,6 @@ FFMPEG_EXT_PATH="${EXOPLAYER_ROOT}/extensions/ffmpeg/src/main"
 ```
 
 * Download the [Android NDK][] and set its location in an environment variable:
-
-[Android NDK]: https://developer.android.com/tools/sdk/ndk/index.html
 
 ```
 NDK_PATH="<path to Android NDK>"
@@ -106,20 +103,5 @@ cd "${FFMPEG_EXT_PATH}"/jni && \
 ${NDK_PATH}/ndk-build APP_ABI="armeabi-v7a arm64-v8a x86" -j4
 ```
 
-* In your project, you can add a dependency on the extension by using a rule
-  like this:
-
-```
-// in settings.gradle
-include ':..:ExoPlayer:library'
-include ':..:ExoPlayer:extension-ffmpeg'
-
-// in build.gradle
-dependencies {
-    compile project(':..:ExoPlayer:library')
-    compile project(':..:ExoPlayer:extension-ffmpeg')
-}
-```
-
-* Now, when you build your app, the extension will be built and the native
-  libraries will be packaged along with the APK.
+[top level README]: https://github.com/google/ExoPlayer/blob/release-v2/README.md
+[Android NDK]: https://developer.android.com/tools/sdk/ndk/index.html

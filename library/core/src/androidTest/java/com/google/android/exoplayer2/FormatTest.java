@@ -53,9 +53,9 @@ public final class FormatTest extends TestCase {
   }
 
   public void testParcelable() {
-    DrmInitData.SchemeData DRM_DATA_1 = new DrmInitData.SchemeData(WIDEVINE_UUID, VIDEO_MP4,
+    DrmInitData.SchemeData DRM_DATA_1 = new DrmInitData.SchemeData(WIDEVINE_UUID, "cenc", VIDEO_MP4,
         TestUtil.buildTestData(128, 1 /* data seed */));
-    DrmInitData.SchemeData DRM_DATA_2 = new DrmInitData.SchemeData(C.UUID_NIL, VIDEO_WEBM,
+    DrmInitData.SchemeData DRM_DATA_2 = new DrmInitData.SchemeData(C.UUID_NIL, null, VIDEO_WEBM,
         TestUtil.buildTestData(128, 1 /* data seed */));
     DrmInitData drmInitData = new DrmInitData(DRM_DATA_1, DRM_DATA_2);
     byte[] projectionData = new byte[] {1, 2, 3};
@@ -94,10 +94,10 @@ public final class FormatTest extends TestCase {
         500, 128, 5, 44100, INIT_DATA, null, 0, null));
     testConversionToFrameworkMediaFormatV16(Format.createAudioSampleFormat(null, "audio/xyz", null,
         500, Format.NO_VALUE, 5, 44100, null, null, 0, null));
-    testConversionToFrameworkMediaFormatV16(Format.createTextSampleFormat(null, "text/xyz", null,
-        Format.NO_VALUE, 0, "eng", null));
-    testConversionToFrameworkMediaFormatV16(Format.createTextSampleFormat(null, "text/xyz", null,
-        Format.NO_VALUE, 0, null, null));
+    testConversionToFrameworkMediaFormatV16(Format.createTextSampleFormat(null, "text/xyz", 0,
+        "eng"));
+    testConversionToFrameworkMediaFormatV16(Format.createTextSampleFormat(null, "text/xyz", 0,
+        null));
   }
 
   @SuppressLint("InlinedApi")

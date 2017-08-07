@@ -22,4 +22,7 @@
   <string name="exo_controls_stop_description">"Դադարեցնել"</string>
   <string name="exo_controls_rewind_description">"Հետ փաթաթել"</string>
   <string name="exo_controls_fastforward_description">"Արագ առաջ անցնել"</string>
+  <string name="exo_controls_repeat_all_description">"կրկնել այն ամենը"</string>
+  <string name="exo_controls_repeat_off_description">"Չկրկնել"</string>
+  <string name="exo_controls_repeat_one_description">"Կրկնել մեկը"</string>
 </resources>

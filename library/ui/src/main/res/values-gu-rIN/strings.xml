@@ -22,4 +22,7 @@
   <string name="exo_controls_stop_description">"રોકો"</string>
   <string name="exo_controls_rewind_description">"રીવાઇન્ડ કરો"</string>
   <string name="exo_controls_fastforward_description">"ઝડપી ફોરવર્ડ કરો"</string>
+  <string name="exo_controls_repeat_all_description">"બધા પુનરાવર્તન કરો"</string>
+  <string name="exo_controls_repeat_off_description">"કંઈ પુનરાવર્તન કરો"</string>
+  <string name="exo_controls_repeat_one_description">"એક પુનરાવર્તન કરો"</string>
 </resources>

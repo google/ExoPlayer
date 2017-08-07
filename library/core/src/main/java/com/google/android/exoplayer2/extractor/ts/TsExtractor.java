@@ -105,8 +105,8 @@ public final class TsExtractor implements Extractor {
   private static final long E_AC3_FORMAT_IDENTIFIER = Util.getIntegerCodeForString("EAC3");
   private static final long HEVC_FORMAT_IDENTIFIER = Util.getIntegerCodeForString("HEVC");
 
-  private static final int BUFFER_PACKET_COUNT = 5; // Should be at least 2
-  private static final int BUFFER_SIZE = TS_PACKET_SIZE * BUFFER_PACKET_COUNT;
+  private static final int BUFFER_SIZE = TS_PACKET_SIZE * 50;
+  private static final int SNIFF_TS_PACKET_COUNT = 5;
 
   @Mode private final int mode;
   private final List<TimestampAdjuster> timestampAdjusters;
@@ -174,10 +174,10 @@ public final class TsExtractor implements Extractor {
   @Override
   public boolean sniff(ExtractorInput input) throws IOException, InterruptedException {
     byte[] buffer = tsPacketBuffer.data;
-    input.peekFully(buffer, 0, BUFFER_SIZE);
+    input.peekFully(buffer, 0, TS_PACKET_SIZE * SNIFF_TS_PACKET_COUNT);
     for (int j = 0; j < TS_PACKET_SIZE; j++) {
       for (int i = 0; true; i++) {
-        if (i == BUFFER_PACKET_COUNT) {
+        if (i == SNIFF_TS_PACKET_COUNT) {
           input.skipFully(j);
           return true;
         }
@@ -216,7 +216,8 @@ public final class TsExtractor implements Extractor {
   public int read(ExtractorInput input, PositionHolder seekPosition)
       throws IOException, InterruptedException {
     byte[] data = tsPacketBuffer.data;
-    // Shift bytes to the start of the buffer if there isn't enough space left at the end
+
+    // Shift bytes to the start of the buffer if there isn't enough space left at the end.
     if (BUFFER_SIZE - tsPacketBuffer.getPosition() < TS_PACKET_SIZE) {
       int bytesLeft = tsPacketBuffer.bytesLeft();
       if (bytesLeft > 0) {
@@ -224,7 +225,8 @@ public final class TsExtractor implements Extractor {
       }
       tsPacketBuffer.reset(data, bytesLeft);
     }
-    // Read more bytes until there is at least one packet size
+
+    // Read more bytes until we have at least one packet.
     while (tsPacketBuffer.bytesLeft() < TS_PACKET_SIZE) {
       int limit = tsPacketBuffer.limit();
       int read = input.read(data, limit, BUFFER_SIZE - limit);
@@ -234,8 +236,7 @@ public final class TsExtractor implements Extractor {
       tsPacketBuffer.setLimit(limit + read);
     }
 
-    // Note: see ISO/IEC 13818-1, section 2.4.3.2 for detailed information on the format of
-    // the header.
+    // Note: See ISO/IEC 13818-1, section 2.4.3.2 for details of the header format.
     final int limit = tsPacketBuffer.limit();
     int position = tsPacketBuffer.getPosition();
     while (position < limit && data[position] != TS_SYNC_BYTE) {
@@ -553,6 +554,5 @@ public final class TsExtractor implements Extractor {
     }
 
   }
-
 
 }

@@ -96,7 +96,7 @@ public abstract class BaseRenderer implements Renderer, RendererCapabilities {
     this.stream = stream;
     readEndOfStream = false;
     streamOffsetUs = offsetUs;
-    onStreamChanged(formats);
+    onStreamChanged(formats, offsetUs);
   }
 
   @Override
@@ -183,16 +183,19 @@ public abstract class BaseRenderer implements Renderer, RendererCapabilities {
    * The default implementation is a no-op.
    *
    * @param formats The enabled formats.
+   * @param offsetUs The offset that will be added to the timestamps of buffers read via
+   *     {@link #readSource(FormatHolder, DecoderInputBuffer, boolean)} so that decoder input
+   *     buffers have monotonically increasing timestamps.
    * @throws ExoPlaybackException If an error occurs.
    */
-  protected void onStreamChanged(Format[] formats) throws ExoPlaybackException {
+  protected void onStreamChanged(Format[] formats, long offsetUs) throws ExoPlaybackException {
     // Do nothing.
   }
 
   /**
    * Called when the position is reset. This occurs when the renderer is enabled after
-   * {@link #onStreamChanged(Format[])} has been called, and also when a position discontinuity
-   * is encountered.
+   * {@link #onStreamChanged(Format[], long)} has been called, and also when a position
+   * discontinuity is encountered.
    * <p>
    * After a position reset, the renderer's {@link SampleStream} is guaranteed to provide samples
    * starting from a key frame.

@@ -28,7 +28,7 @@
       tools:ignore="MissingApplicationIcon,HardcodedDebugMode">
     <uses-library android:name="android.test.runner"/>
 
-    <activity android:name="com.google.android.exoplayer2.playbacktests.util.HostActivity"
+    <activity android:name="com.google.android.exoplayer2.testutil.HostActivity"
         android:configChanges="keyboardHidden|orientation|screenSize"
         android:label="ExoPlayerTest"/>
 
@@ -36,7 +36,6 @@
 
   <instrumentation
       android:targetPackage="com.google.android.exoplayer2.playbacktests"
-      android:name="android.test.InstrumentationTestRunner"
-      tools:replace="android:targetPackage"/>
+      android:name="android.test.InstrumentationTestRunner"/>
 
 </manifest>

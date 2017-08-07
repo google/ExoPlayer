@@ -22,4 +22,7 @@
   <string name="exo_controls_stop_description">"Stop"</string>
   <string name="exo_controls_rewind_description">"Spoel terug"</string>
   <string name="exo_controls_fastforward_description">"Vinnig vorentoe"</string>
+  <string name="exo_controls_repeat_all_description">"Herhaal alles"</string>
+  <string name="exo_controls_repeat_off_description">"Herhaal niks"</string>
+  <string name="exo_controls_repeat_one_description">"Herhaal een"</string>
 </resources>

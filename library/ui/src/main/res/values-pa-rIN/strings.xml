@@ -22,4 +22,7 @@
   <string name="exo_controls_stop_description">"ਰੋਕੋ"</string>
   <string name="exo_controls_rewind_description">"ਰੀਵਾਈਂਡ ਕਰੋ"</string>
   <string name="exo_controls_fastforward_description">"ਅੱਗੇ ਭੇਜੋ"</string>
+  <string name="exo_controls_repeat_all_description">"ਸਭ ਨੂੰ ਦੁਹਰਾਓ"</string>
+  <string name="exo_controls_repeat_off_description">"ਕੋਈ ਵੀ ਨਹੀਂ ਦੁਹਰਾਓ"</string>
+  <string name="exo_controls_repeat_one_description">"ਇੱਕ ਦੁਹਰਾਓ"</string>
 </resources>

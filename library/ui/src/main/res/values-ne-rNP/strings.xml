@@ -22,4 +22,7 @@
   <string name="exo_controls_stop_description">"रोक्नुहोस्"</string>
   <string name="exo_controls_rewind_description">"दोहोर्याउनुहोस्"</string>
   <string name="exo_controls_fastforward_description">"फास्ट फर्वार्ड"</string>
+  <string name="exo_controls_repeat_all_description">"सबै दोहोर्याउनुहोस्"</string>
+  <string name="exo_controls_repeat_off_description">"कुनै पनि नदोहोर्याउनुहोस्"</string>
+  <string name="exo_controls_repeat_one_description">"एउटा दोहोर्याउनुहोस्"</string>
 </resources>
