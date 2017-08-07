@@ -5,8 +5,11 @@ com.google.android.exoplayer2.drm
 com.google.android.exoplayer2.ext.ffmpeg
 com.google.android.exoplayer2.ext.flac
 com.google.android.exoplayer2.ext.gvr
+com.google.android.exoplayer2.ext.ima
+com.google.android.exoplayer2.ext.mediasession
 com.google.android.exoplayer2.ext.okhttp
 com.google.android.exoplayer2.ext.opus
+com.google.android.exoplayer2.ext.rtmp
 com.google.android.exoplayer2.ext.vp9
 com.google.android.exoplayer2.extractor
 com.google.android.exoplayer2.extractor.flv
@@ -33,6 +36,7 @@ com.google.android.exoplayer2.source.smoothstreaming.manifest
 com.google.android.exoplayer2.text
 com.google.android.exoplayer2.text.cea
 com.google.android.exoplayer2.text.dvb
+com.google.android.exoplayer2.text.ssa
 com.google.android.exoplayer2.text.subrip
 com.google.android.exoplayer2.text.ttml
 com.google.android.exoplayer2.text.tx3g
