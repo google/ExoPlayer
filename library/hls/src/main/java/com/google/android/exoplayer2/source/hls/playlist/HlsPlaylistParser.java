@@ -81,6 +81,7 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
   private static final Pattern REGEX_BANDWIDTH = Pattern.compile("[^-]BANDWIDTH=(\\d+)\\b");
   private static final Pattern REGEX_CODECS = Pattern.compile("CODECS=\"(.+?)\"");
   private static final Pattern REGEX_RESOLUTION = Pattern.compile("RESOLUTION=(\\d+x\\d+)");
+  private static final Pattern REGEX_FRAME_RATE = Pattern.compile("FRAME-RATE=([\\d\\.]+)\\b");
   private static final Pattern REGEX_TARGET_DURATION = Pattern.compile(TAG_TARGET_DURATION
       + ":(\\d+)\\b");
   private static final Pattern REGEX_VERSION = Pattern.compile(TAG_VERSION + ":(\\d+)\\b");
@@ -238,6 +239,7 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
             break;
         }
       } else if (line.startsWith(TAG_STREAM_INF)) {
+        noClosedCaptions |= line.contains(ATTR_CLOSED_CAPTIONS_NONE);
         int bitrate = parseIntAttr(line, REGEX_BANDWIDTH);
         String averageBandwidthString = parseOptionalStringAttr(line, REGEX_AVERAGE_BANDWIDTH);
         if (averageBandwidthString != null) {
@@ -246,7 +248,6 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
         }
         String codecs = parseOptionalStringAttr(line, REGEX_CODECS);
         String resolutionString = parseOptionalStringAttr(line, REGEX_RESOLUTION);
-        noClosedCaptions |= line.contains(ATTR_CLOSED_CAPTIONS_NONE);
         int width;
         int height;
         if (resolutionString != null) {
@@ -262,11 +263,15 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
           width = Format.NO_VALUE;
           height = Format.NO_VALUE;
         }
+        float frameRate = Format.NO_VALUE;
+        String frameRateString = parseOptionalStringAttr(line, REGEX_FRAME_RATE);
+        if (frameRateString != null) {
+          frameRate = Float.parseFloat(frameRateString);
+        }
         line = iterator.next(); // #EXT-X-STREAM-INF's URI.
         if (variantUrls.add(line)) {
           Format format = Format.createVideoContainerFormat(Integer.toString(variants.size()),
-              MimeTypes.APPLICATION_M3U8, null, codecs, bitrate, width, height, Format.NO_VALUE,
-              null, 0);
+              MimeTypes.APPLICATION_M3U8, null, codecs, bitrate, width, height, frameRate, null, 0);
           variants.add(new HlsMasterPlaylist.HlsUrl(line, format));
         }
       }
