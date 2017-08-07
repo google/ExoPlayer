@@ -811,43 +811,43 @@ public final class Cea708Decoder extends CeaDecoder {
     private static final int PEN_OFFSET_NORMAL = 1;
 
     // The window style properties are specified in the CEA-708 specification.
-    private static final int[] WINDOW_STYLE_JUSTIFICATION = new int[]{
+    private static final int[] WINDOW_STYLE_JUSTIFICATION = new int[] {
         JUSTIFICATION_LEFT, JUSTIFICATION_LEFT, JUSTIFICATION_LEFT,
         JUSTIFICATION_LEFT, JUSTIFICATION_LEFT, JUSTIFICATION_CENTER,
         JUSTIFICATION_LEFT
     };
-    private static final int[] WINDOW_STYLE_PRINT_DIRECTION = new int[]{
+    private static final int[] WINDOW_STYLE_PRINT_DIRECTION = new int[] {
         DIRECTION_LEFT_TO_RIGHT, DIRECTION_LEFT_TO_RIGHT, DIRECTION_LEFT_TO_RIGHT,
         DIRECTION_LEFT_TO_RIGHT, DIRECTION_LEFT_TO_RIGHT, DIRECTION_LEFT_TO_RIGHT,
         DIRECTION_TOP_TO_BOTTOM
     };
-    private static final int[] WINDOW_STYLE_SCROLL_DIRECTION = new int[]{
+    private static final int[] WINDOW_STYLE_SCROLL_DIRECTION = new int[] {
         DIRECTION_BOTTOM_TO_TOP, DIRECTION_BOTTOM_TO_TOP, DIRECTION_BOTTOM_TO_TOP,
         DIRECTION_BOTTOM_TO_TOP, DIRECTION_BOTTOM_TO_TOP, DIRECTION_BOTTOM_TO_TOP,
         DIRECTION_RIGHT_TO_LEFT
     };
-    private static final boolean[] WINDOW_STYLE_WORD_WRAP = new boolean[]{
+    private static final boolean[] WINDOW_STYLE_WORD_WRAP = new boolean[] {
         false, false, false, true, true, true, false
     };
-    private static final int[] WINDOW_STYLE_FILL = new int[]{
+    private static final int[] WINDOW_STYLE_FILL = new int[] {
         COLOR_SOLID_BLACK, COLOR_TRANSPARENT, COLOR_SOLID_BLACK, COLOR_SOLID_BLACK,
         COLOR_TRANSPARENT, COLOR_SOLID_BLACK, COLOR_SOLID_BLACK
     };
 
     // The pen style properties are specified in the CEA-708 specification.
-    private static final int[] PEN_STYLE_FONT_STYLE = new int[]{
+    private static final int[] PEN_STYLE_FONT_STYLE = new int[] {
         PEN_FONT_STYLE_DEFAULT, PEN_FONT_STYLE_MONOSPACED_WITH_SERIFS,
         PEN_FONT_STYLE_PROPORTIONALLY_SPACED_WITH_SERIFS, PEN_FONT_STYLE_MONOSPACED_WITHOUT_SERIFS,
         PEN_FONT_STYLE_PROPORTIONALLY_SPACED_WITHOUT_SERIFS,
         PEN_FONT_STYLE_MONOSPACED_WITHOUT_SERIFS,
         PEN_FONT_STYLE_PROPORTIONALLY_SPACED_WITHOUT_SERIFS
     };
-    private static final int[] PEN_STYLE_EDGE_TYPE = new int[]{
+    private static final int[] PEN_STYLE_EDGE_TYPE = new int[] {
         BORDER_AND_EDGE_TYPE_NONE, BORDER_AND_EDGE_TYPE_NONE, BORDER_AND_EDGE_TYPE_NONE,
         BORDER_AND_EDGE_TYPE_NONE, BORDER_AND_EDGE_TYPE_NONE, BORDER_AND_EDGE_TYPE_UNIFORM,
         BORDER_AND_EDGE_TYPE_UNIFORM
     };
-    private static final int[] PEN_STYLE_BACKGROUND = new int[]{
+    private static final int[] PEN_STYLE_BACKGROUND = new int[] {
         COLOR_SOLID_BLACK, COLOR_SOLID_BLACK, COLOR_SOLID_BLACK, COLOR_SOLID_BLACK,
         COLOR_SOLID_BLACK, COLOR_TRANSPARENT, COLOR_TRANSPARENT};
 

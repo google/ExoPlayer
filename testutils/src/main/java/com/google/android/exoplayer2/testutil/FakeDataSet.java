@@ -162,8 +162,8 @@ public class FakeDataSet {
     }
 
     /**
-     * Appends data of the specified length. No actual data is available and this data should not
-     * be read.
+     * Appends a data segment of the specified length. No actual data is available and the
+     * {@link FakeDataSource} will perform no copy operations when this data is read.
      */
     public FakeData appendReadData(int length) {
       Assertions.checkState(length > 0);

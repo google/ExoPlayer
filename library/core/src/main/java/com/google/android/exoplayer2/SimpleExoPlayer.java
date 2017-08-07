@@ -141,7 +141,7 @@ public class SimpleExoPlayer implements ExoPlayer {
     videoScalingMode = C.VIDEO_SCALING_MODE_DEFAULT;
 
     // Build the player and associated objects.
-    player = new ExoPlayerImpl(renderers, trackSelector, loadControl);
+    player = createExoPlayerImpl(renderers, trackSelector, loadControl);
   }
 
   /**
@@ -722,6 +722,19 @@ public class SimpleExoPlayer implements ExoPlayer {
   }
 
   // Internal methods.
+
+  /**
+   * Creates the ExoPlayer implementation used by this {@link SimpleExoPlayer}.
+   *
+   * @param renderers The {@link Renderer}s that will be used by the instance.
+   * @param trackSelector The {@link TrackSelector} that will be used by the instance.
+   * @param loadControl The {@link LoadControl} that will be used by the instance.
+   * @return A new {@link ExoPlayer} instance.
+   */
+  protected ExoPlayer createExoPlayerImpl(Renderer[] renderers, TrackSelector trackSelector,
+      LoadControl loadControl) {
+    return new ExoPlayerImpl(renderers, trackSelector, loadControl);
+  }
 
   private void removeSurfaceCallbacks() {
     if (textureView != null) {

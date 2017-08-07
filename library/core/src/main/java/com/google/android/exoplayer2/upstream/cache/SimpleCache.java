@@ -22,7 +22,6 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.LinkedList;
 import java.util.NavigableSet;
 import java.util.Set;
 import java.util.TreeSet;
@@ -308,7 +307,7 @@ public final class SimpleCache implements Cache {
    * no longer exist.
    */
   private void removeStaleSpansAndCachedContents() throws CacheException {
-    LinkedList<CacheSpan> spansToBeRemoved = new LinkedList<>();
+    ArrayList<CacheSpan> spansToBeRemoved = new ArrayList<>();
     for (CachedContent cachedContent : index.getAll()) {
       for (CacheSpan span : cachedContent.getSpans()) {
         if (!span.file.exists()) {
@@ -316,9 +315,9 @@ public final class SimpleCache implements Cache {
         }
       }
     }
-    for (CacheSpan span : spansToBeRemoved) {
+    for (int i = 0; i < spansToBeRemoved.size(); i++) {
       // Remove span but not CachedContent to prevent multiple index.store() calls.
-      removeSpan(span, false);
+      removeSpan(spansToBeRemoved.get(i), false);
     }
     index.removeEmpty();
     index.store();

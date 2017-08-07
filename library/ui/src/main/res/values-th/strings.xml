@@ -25,4 +25,5 @@
   <string name="exo_controls_repeat_all_description">"เล่นซ้ำทั้งหมด"</string>
   <string name="exo_controls_repeat_off_description">"ไม่เล่นซ้ำ"</string>
   <string name="exo_controls_repeat_one_description">"เล่นซ้ำรายการเดียว"</string>
+  <string name="exo_controls_shuffle_description">"สุ่มเพลง"</string>
 </resources>

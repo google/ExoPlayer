@@ -14,7 +14,6 @@ package com.google.android.exoplayer2.ext.mediasession;
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.media.session.PlaybackStateCompat;

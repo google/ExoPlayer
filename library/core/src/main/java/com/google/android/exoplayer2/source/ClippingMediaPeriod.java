@@ -286,8 +286,8 @@ public final class ClippingMediaPeriod implements MediaPeriod, MediaPeriod.Callb
     }
 
     @Override
-    public void skipData(long positionUs) {
-      stream.skipData(startUs + positionUs);
+    public int skipData(long positionUs) {
+      return stream.skipData(startUs + positionUs);
     }
 
   }

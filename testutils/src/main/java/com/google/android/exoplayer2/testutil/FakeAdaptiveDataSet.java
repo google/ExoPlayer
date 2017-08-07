@@ -17,11 +17,11 @@ package com.google.android.exoplayer2.testutil;
 
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
-import com.google.android.exoplayer2.trackselection.TrackSelection;
+import com.google.android.exoplayer2.source.TrackGroup;
 
 /**
  * Fake data set emulating the data of an adaptive media source.
- * It provides chunk data for all {@link Format}s in the given {@link TrackSelection}.
+ * It provides chunk data for all {@link Format}s in the given {@link TrackGroup}.
  */
 public final class FakeAdaptiveDataSet extends FakeDataSet {
 
@@ -36,8 +36,8 @@ public final class FakeAdaptiveDataSet extends FakeDataSet {
       this.chunkDurationUs = chunkDurationUs;
     }
 
-    public FakeAdaptiveDataSet createDataSet(TrackSelection trackSelection, long mediaDurationUs) {
-      return new FakeAdaptiveDataSet(trackSelection, mediaDurationUs, chunkDurationUs);
+    public FakeAdaptiveDataSet createDataSet(TrackGroup trackGroup, long mediaDurationUs) {
+      return new FakeAdaptiveDataSet(trackGroup, mediaDurationUs, chunkDurationUs);
     }
 
   }
@@ -46,15 +46,14 @@ public final class FakeAdaptiveDataSet extends FakeDataSet {
   private final long chunkDurationUs;
   private final long lastChunkDurationUs;
 
-  public FakeAdaptiveDataSet(TrackSelection trackSelection, long mediaDurationUs,
-      long chunkDurationUs) {
+  public FakeAdaptiveDataSet(TrackGroup trackGroup, long mediaDurationUs, long chunkDurationUs) {
     this.chunkDurationUs = chunkDurationUs;
-    int selectionCount = trackSelection.length();
+    int trackCount = trackGroup.length;
     long lastChunkDurationUs = mediaDurationUs % chunkDurationUs;
     int fullChunks = (int) (mediaDurationUs / chunkDurationUs);
-    for (int i = 0; i < selectionCount; i++) {
+    for (int i = 0; i < trackCount; i++) {
       String uri = getUri(i);
-      Format format = trackSelection.getFormat(i);
+      Format format = trackGroup.getFormat(i);
       int chunkLength = (int) (format.bitrate * chunkDurationUs / (8 * C.MICROS_PER_SECOND));
       FakeData newData = this.newData(uri);
       for (int j = 0; j < fullChunks; j++) {
@@ -74,8 +73,8 @@ public final class FakeAdaptiveDataSet extends FakeDataSet {
     return chunkCount;
   }
 
-  public String getUri(int trackSelectionIndex) {
-    return "fake://adaptive.media/" + Integer.toString(trackSelectionIndex);
+  public String getUri(int trackIndex) {
+    return "fake://adaptive.media/" + trackIndex;
   }
 
   public long getChunkDuration(int chunkIndex) {
