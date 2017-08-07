@@ -815,7 +815,7 @@ public final class FragmentedMp4Extractor implements Extractor {
         // here, because unsigned integers will still be parsed correctly (unless their top bit is
         // set, which is never true in practice because sample offsets are always small).
         int sampleOffset = trun.readInt();
-        sampleCompositionTimeOffsetTable[i] = (int) ((sampleOffset * 1000) / timescale);
+        sampleCompositionTimeOffsetTable[i] = (int) ((sampleOffset * 1000L) / timescale);
       } else {
         sampleCompositionTimeOffsetTable[i] = 0;
       }
