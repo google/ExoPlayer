@@ -1,15 +1,13 @@
-# ExoPlayer Cronet Extension #
+# ExoPlayer Cronet extension #
 
 ## Description ##
 
-[Cronet][] is Chromium's Networking stack packaged as a library.
-
-The Cronet Extension is an [HttpDataSource][] implementation using [Cronet][].
+The Cronet extension is an [HttpDataSource][] implementation using [Cronet][].
 
 [HttpDataSource]: https://google.github.io/ExoPlayer/doc/reference/com/google/android/exoplayer/upstream/HttpDataSource.html
 [Cronet]: https://chromium.googlesource.com/chromium/src/+/master/components/cronet?autodive=0%2F%2F
 
-## Build Instructions ##
+## Build instructions ##
 
 To use this extension you need to clone the ExoPlayer repository and depend on
 its modules locally. Instructions for doing this can be found in ExoPlayer's
@@ -33,3 +31,28 @@ gradle.ext.exoplayerIncludeCronetExtension = true;
 
 [top level README]: https://github.com/google/ExoPlayer/blob/release-v2/README.md
 [here]: https://console.cloud.google.com/storage/browser/chromium-cronet/android
+
+## Using the extension ##
+
+ExoPlayer requests data through `DataSource` instances. These instances are
+either instantiated and injected from application code, or obtained from
+instances of `DataSource.Factory` that are instantiated and injected from
+application code.
+
+If your application only needs to play http(s) content, using the Cronet
+extension is as simple as updating any `DataSource`s and `DataSource.Factory`
+instantiations in your application code to use `CronetDataSource` and
+`CronetDataSourceFactory` respectively. If your application also needs to play
+non-http(s) content such as local files, use
+```
+new DefaultDataSource(
+    ...
+    new CronetDataSource(...) /* baseDataSource argument */);
+```
+and
+```
+new DefaultDataSourceFactory(
+    ...
+    new CronetDataSourceFactory(...) /* baseDataSourceFactory argument */);
+```
+respectively.

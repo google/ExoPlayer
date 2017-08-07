@@ -1,4 +1,4 @@
-# FfmpegAudioRenderer #
+# ExoPlayer FFmpeg extension #
 
 ## Description ##
 
