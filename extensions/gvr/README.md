@@ -1,4 +1,4 @@
-# ExoPlayer GVR Extension #
+# ExoPlayer GVR extension #
 
 ## Description ##
 

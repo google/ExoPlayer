@@ -1,8 +1,8 @@
-# ExoPlayer RTMP Extension #
+# ExoPlayer RTMP extension #
 
 ## Description ##
 
-The RTMP Extension is a [DataSource][] implementation for playing [RTMP][]
+The RTMP extension is a [DataSource][] implementation for playing [RTMP][]
 streams using [LibRtmp Client for Android][].
 
 [DataSource]: https://google.github.io/ExoPlayer/doc/reference/com/google/android/exoplayer2/upstream/DataSource.html
