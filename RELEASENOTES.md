@@ -1,14 +1,13 @@
 # Release notes #
 
-### r2.5.0 (beta) ###
+### r2.5.0 ###
 
 * IMA extension: Wraps the Google Interactive Media Ads (IMA) SDK to provide an
   easy and seamless way of incorporating display ads into ExoPlayer playbacks.
   You can read more about the IMA extension
   [here](https://medium.com/google-exoplayer/playing-ads-with-exoplayer-and-ima-868dfd767ea).
 * MediaSession extension: Provides an easy to to connect ExoPlayer with
-  MediaSessionCompat in the Android Support Library. *A link to a blog post
-  about this extension will be added here prior to the stable 2.5.0 release.*
+  MediaSessionCompat in the Android Support Library.
 * RTMP extension: An extension for playing streams over RTMP.
 * Build: Made it easier for application developers to depend on a local checkout
   of ExoPlayer. You can learn how to do this
@@ -18,8 +17,7 @@
     playback of progressive streams
     ([#2926](https://github.com/google/ExoPlayer/issues/2926)).
   * New DynamicConcatenatingMediaSource class to support playback of dynamic
-    playlists. *A link to a blog post about DynamicConcatenatingMediaSource will
-    be added here prior to the stable 2.5.0 release.*
+    playlists.
   * New ExoPlayer.setRepeatMode method for dynamic toggling of repeat mode
     during playback. Use of setRepeatMode should be preferred to
     LoopingMediaSource for most looping use cases. You can read more about
