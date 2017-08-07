@@ -276,7 +276,8 @@ public class SimpleExoPlayer implements ExoPlayer {
         Log.w(TAG, "Replacing existing SurfaceTextureListener.");
       }
       textureView.setSurfaceTextureListener(componentListener);
-      SurfaceTexture surfaceTexture = textureView.getSurfaceTexture();
+      SurfaceTexture surfaceTexture = textureView.isAvailable() ? textureView.getSurfaceTexture()
+          : null;
       setVideoSurfaceInternal(surfaceTexture == null ? null : new Surface(surfaceTexture), true);
     }
   }
