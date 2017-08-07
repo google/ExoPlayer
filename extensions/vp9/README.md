@@ -1,14 +1,14 @@
-# ExoPlayer VP9 Extension #
+# ExoPlayer VP9 extension #
 
 ## Description ##
 
-The VP9 Extension is a [Renderer][] implementation that helps you bundle libvpx
+The VP9 extension is a [Renderer][] implementation that helps you bundle libvpx
 (the VP9 decoding library) into your app and use it along with ExoPlayer to play
 VP9 video on Android devices.
 
 [Renderer]: https://google.github.io/ExoPlayer/doc/reference/com/google/android/exoplayer2/Renderer.html
 
-## Build Instructions ##
+## Build instructions ##
 
 To use this extension you need to clone the ExoPlayer repository and depend on
 its modules locally. Instructions for doing this can be found in ExoPlayer's
