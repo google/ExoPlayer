@@ -975,11 +975,10 @@ import java.io.IOException;
     mediaPeriodInfoSequence.setTimeline(timeline);
     Object manifest = timelineAndManifest.second;
 
-    int processedInitialSeekCount = 0;
     if (oldTimeline == null) {
       if (pendingInitialSeekCount > 0) {
         Pair<Integer, Long> periodPosition = resolveSeekPosition(pendingSeekPosition);
-        processedInitialSeekCount = pendingInitialSeekCount;
+        int processedInitialSeekCount = pendingInitialSeekCount;
         pendingInitialSeekCount = 0;
         pendingSeekPosition = null;
         if (periodPosition == null) {
@@ -996,7 +995,7 @@ import java.io.IOException;
         }
       } else if (playbackInfo.startPositionUs == C.TIME_UNSET) {
         if (timeline.isEmpty()) {
-          handleSourceInfoRefreshEndedPlayback(manifest, processedInitialSeekCount);
+          handleSourceInfoRefreshEndedPlayback(manifest);
         } else {
           Pair<Integer, Long> defaultPosition = getPeriodPosition(0, C.TIME_UNSET);
           int periodIndex = defaultPosition.first;
@@ -1005,8 +1004,10 @@ import java.io.IOException;
               startPositionUs);
           playbackInfo = new PlaybackInfo(periodId, periodId.isAd() ? 0 : startPositionUs,
               startPositionUs);
-          notifySourceInfoRefresh(manifest, processedInitialSeekCount);
+          notifySourceInfoRefresh(manifest);
         }
+      } else {
+        notifySourceInfoRefresh(manifest);
       }
       return;
     }
@@ -1015,7 +1016,7 @@ import java.io.IOException;
     MediaPeriodHolder periodHolder = playingPeriodHolder != null ? playingPeriodHolder
         : loadingPeriodHolder;
     if (periodHolder == null && playingPeriodIndex >= oldTimeline.getPeriodCount()) {
-      notifySourceInfoRefresh(manifest, processedInitialSeekCount);
+      notifySourceInfoRefresh(manifest);
       return;
     }
     Object playingPeriodUid = periodHolder == null
@@ -1027,7 +1028,7 @@ import java.io.IOException;
       int newPeriodIndex = resolveSubsequentPeriod(playingPeriodIndex, oldTimeline, timeline);
       if (newPeriodIndex == C.INDEX_UNSET) {
         // We failed to resolve a suitable restart position.
-        handleSourceInfoRefreshEndedPlayback(manifest, processedInitialSeekCount);
+        handleSourceInfoRefreshEndedPlayback(manifest);
         return;
       }
       // We resolved a subsequent period. Seek to the default position in the corresponding window.
@@ -1055,7 +1056,7 @@ import java.io.IOException;
       MediaPeriodId periodId = new MediaPeriodId(newPeriodIndex);
       newPositionUs = seekToPeriodPosition(periodId, newPositionUs);
       playbackInfo = new PlaybackInfo(periodId, newPositionUs);
-      notifySourceInfoRefresh(manifest, processedInitialSeekCount);
+      notifySourceInfoRefresh(manifest);
       return;
     }
 
@@ -1072,14 +1073,14 @@ import java.io.IOException;
         long newPositionUs = seekToPeriodPosition(periodId, playbackInfo.contentPositionUs);
         long contentPositionUs = periodId.isAd() ? playbackInfo.contentPositionUs : C.TIME_UNSET;
         playbackInfo = new PlaybackInfo(periodId, newPositionUs, contentPositionUs);
-        notifySourceInfoRefresh(manifest, processedInitialSeekCount);
+        notifySourceInfoRefresh(manifest);
         return;
       }
     }
 
     if (periodHolder == null) {
       // We don't have any period holders, so we're done.
-      notifySourceInfoRefresh(manifest, processedInitialSeekCount);
+      notifySourceInfoRefresh(manifest);
       return;
     }
 
@@ -1117,7 +1118,7 @@ import java.io.IOException;
       }
     }
 
-    notifySourceInfoRefresh(manifest, processedInitialSeekCount);
+    notifySourceInfoRefresh(manifest);
   }
 
   private MediaPeriodHolder updatePeriodInfo(MediaPeriodHolder periodHolder, int periodIndex) {
@@ -1131,6 +1132,10 @@ import java.io.IOException;
     }
   }
 
+  private void handleSourceInfoRefreshEndedPlayback(Object manifest) {
+    handleSourceInfoRefreshEndedPlayback(manifest, 0);
+  }
+
   private void handleSourceInfoRefreshEndedPlayback(Object manifest,
       int processedInitialSeekCount) {
     // Set the playback position to (0,0) for notifying the eventHandler.
@@ -1141,6 +1146,10 @@ import java.io.IOException;
     setState(Player.STATE_ENDED);
     // Reset, but retain the source so that it can still be used should a seek occur.
     resetInternal(false);
+  }
+
+  private void notifySourceInfoRefresh(Object manifest) {
+    notifySourceInfoRefresh(manifest, 0);
   }
 
   private void notifySourceInfoRefresh(Object manifest, int processedInitialSeekCount) {

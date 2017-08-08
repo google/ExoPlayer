@@ -48,7 +48,9 @@ public final class ClippingMediaSource implements MediaSource, MediaSource.Liste
    *     start providing samples, in microseconds.
    * @param endPositionUs The end position within {@code mediaSource}'s timeline at which to stop
    *     providing samples, in microseconds. Specify {@link C#TIME_END_OF_SOURCE} to provide samples
-   *     from the specified start point up to the end of the source.
+   *     from the specified start point up to the end of the source. Specifying a position that
+   *     exceeds the {@code mediaSource}'s duration will also result in the end of the source not
+   *     being clipped.
    */
   public ClippingMediaSource(MediaSource mediaSource, long startPositionUs, long endPositionUs) {
     this(mediaSource, startPositionUs, endPositionUs, true);
@@ -66,7 +68,9 @@ public final class ClippingMediaSource implements MediaSource, MediaSource.Liste
    *     start providing samples, in microseconds.
    * @param endPositionUs The end position within {@code mediaSource}'s timeline at which to stop
    *     providing samples, in microseconds. Specify {@link C#TIME_END_OF_SOURCE} to provide samples
-   *     from the specified start point up to the end of the source.
+   *     from the specified start point up to the end of the source. Specifying a position that
+   *     exceeds the {@code mediaSource}'s duration will also result in the end of the source not
+   *     being clipped.
    * @param enableInitialDiscontinuity Whether the initial discontinuity should be enabled.
    */
   public ClippingMediaSource(MediaSource mediaSource, long startPositionUs, long endPositionUs,
@@ -149,8 +153,10 @@ public final class ClippingMediaSource implements MediaSource, MediaSource.Liste
       Assertions.checkArgument(!window.isDynamic);
       long resolvedEndUs = endUs == C.TIME_END_OF_SOURCE ? window.durationUs : endUs;
       if (window.durationUs != C.TIME_UNSET) {
+        if (resolvedEndUs > window.durationUs) {
+          resolvedEndUs = window.durationUs;
+        }
         Assertions.checkArgument(startUs == 0 || window.isSeekable);
-        Assertions.checkArgument(resolvedEndUs <= window.durationUs);
         Assertions.checkArgument(startUs <= resolvedEndUs);
       }
       Period period = timeline.getPeriod(0, new Period());
