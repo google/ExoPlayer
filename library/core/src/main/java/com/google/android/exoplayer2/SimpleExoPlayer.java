@@ -749,12 +749,12 @@ public class SimpleExoPlayer implements ExoPlayer {
       }
     }
     if (this.surface != null && this.surface != surface) {
-      // If we created this surface, we are responsible for releasing it.
+      // We're replacing a surface. Block to ensure that it's not accessed after the method returns.
+      player.blockingSendMessages(messages);
+      // If we created the previous surface, we are responsible for releasing it.
       if (this.ownsSurface) {
         this.surface.release();
       }
-      // We're replacing a surface. Block to ensure that it's not accessed after the method returns.
-      player.blockingSendMessages(messages);
     } else {
       player.sendMessages(messages);
     }
