@@ -1,5 +1,12 @@
 # Release notes #
 
+### r2.5.1 ###
+
+* Fix an issue that could cause the reported playback position to stop advancing
+  in some cases.
+* Fix an issue where a Surface could be released whilst still in use by the
+  player.
+
 ### r2.5.0 ###
 
 * IMA extension: Wraps the Google Interactive Media Ads (IMA) SDK to provide an
