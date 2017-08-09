@@ -38,6 +38,7 @@ import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
+import com.google.android.exoplayer2.util.ErrorMessageProvider;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -294,17 +295,6 @@ public final class MediaSessionConnector {
   }
 
   /**
-   * Converts an exception into an error code and a user readable error message.
-   */
-  public interface ErrorMessageProvider {
-    /**
-     * Returns a pair consisting of an error code and a user readable error message for a given
-     * exception.
-     */
-    Pair<Integer, String> getErrorMessage(ExoPlaybackException playbackException);
-  }
-
-  /**
    * The wrapped {@link MediaSessionCompat}.
    */
   public final MediaSessionCompat mediaSession;
@@ -320,7 +310,7 @@ public final class MediaSessionConnector {
   private CustomActionProvider[] customActionProviders;
   private int currentWindowIndex;
   private Map<String, CustomActionProvider> customActionMap;
-  private ErrorMessageProvider errorMessageProvider;
+  private ErrorMessageProvider<? super ExoPlaybackException> errorMessageProvider;
   private PlaybackPreparer playbackPreparer;
   private QueueNavigator queueNavigator;
   private QueueEditor queueEditor;
@@ -411,7 +401,8 @@ public final class MediaSessionConnector {
    *
    * @param errorMessageProvider The error message provider.
    */
-  public void setErrorMessageProvider(ErrorMessageProvider errorMessageProvider) {
+  public void setErrorMessageProvider(
+      ErrorMessageProvider<? super ExoPlaybackException> errorMessageProvider) {
     this.errorMessageProvider = errorMessageProvider;
   }
 
