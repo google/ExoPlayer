@@ -185,6 +185,22 @@ public final class OfflineLicenseHelper<T extends ExoMediaCrypto> {
     }
     return licenseDurationRemainingSec;
   }
+  
+  public byte[] getPropertyByteArray(String key) {
+    return drmSessionManager.getPropertyByteArray(key);
+  }
+
+  public void setPropertyByteArray(String key, byte[] value) {
+    drmSessionManager.setPropertyByteArray(key, value);
+  }
+
+  public String getPropertyString(String key) {
+    return drmSessionManager.getPropertyString(key);
+  }
+
+  public void setPropertyString(String key, String value) {
+    drmSessionManager.setPropertyString(key, value);
+  }
 
   private byte[] blockingKeyRequest(@Mode int licenseMode, byte[] offlineLicenseKeySetId,
       DrmInitData drmInitData) throws DrmSessionException {
