@@ -47,7 +47,7 @@ import java.util.Map;
  * Connects a {@link MediaSessionCompat} to a {@link Player}.
  * <p>
  * The connector listens for actions sent by the media session's controller and implements these
- * actions by calling appropriate ExoPlayer methods. The playback state of the media session is
+ * actions by calling appropriate player methods. The playback state of the media session is
  * automatically synced with the player. The connector can also be optionally extended by providing
  * various collaborators:
  * <ul>
