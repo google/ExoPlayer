@@ -668,10 +668,15 @@ public final class SimpleExoPlayerView extends FrameLayout {
   }
 
   /**
-   * Gets the view onto which video is rendered. This is either a {@link SurfaceView} (default)
-   * or a {@link TextureView} if the {@code use_texture_view} view attribute has been set to true.
+   * Gets the view onto which video is rendered. This is a:
+   * <ul>
+   *   <li>{@link SurfaceView} by default, or if the {@code surface_type} attribute is set to
+   *   {@code surface_view}.</li>
+   *   <li>{@link TextureView} if {@code surface_type} is {@code texture_view}.</li>
+   *   <li>{@code null} if {@code surface_type} is {@code none}.</li>
+   * </ul>
    *
-   * @return Either a {@link SurfaceView} or a {@link TextureView}.
+   * @return The {@link SurfaceView}, {@link TextureView} or {@code null}.
    */
   public View getVideoSurfaceView() {
     return surfaceView;
