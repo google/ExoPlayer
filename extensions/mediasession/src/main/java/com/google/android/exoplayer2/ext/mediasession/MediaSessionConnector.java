@@ -74,6 +74,10 @@ public final class MediaSessionConnector {
   }
 
   public static final String EXTRAS_PITCH = "EXO_PITCH";
+  private static final int BASE_MEDIA_SESSION_FLAGS = MediaSessionCompat.FLAG_HANDLES_MEDIA_BUTTONS
+      | MediaSessionCompat.FLAG_HANDLES_TRANSPORT_CONTROLS;
+  private static final int EDITOR_MEDIA_SESSION_FLAGS = BASE_MEDIA_SESSION_FLAGS
+      | MediaSessionCompat.FLAG_HANDLES_QUEUE_COMMANDS;
 
   /**
    * Interface to which playback preparation actions are delegated.
@@ -308,7 +312,6 @@ public final class MediaSessionConnector {
 
   private Player player;
   private CustomActionProvider[] customActionProviders;
-  private int currentWindowIndex;
   private Map<String, CustomActionProvider> customActionMap;
   private ErrorMessageProvider<? super ExoPlaybackException> errorMessageProvider;
   private PlaybackPreparer playbackPreparer;
@@ -359,8 +362,7 @@ public final class MediaSessionConnector {
     this.handler = new Handler(Looper.myLooper() != null ? Looper.myLooper()
         : Looper.getMainLooper());
     this.doMaintainMetadata = doMaintainMetadata;
-    mediaSession.setFlags(MediaSessionCompat.FLAG_HANDLES_MEDIA_BUTTONS
-        | MediaSessionCompat.FLAG_HANDLES_TRANSPORT_CONTROLS);
+    mediaSession.setFlags(BASE_MEDIA_SESSION_FLAGS);
     mediaController = mediaSession.getController();
     mediaSessionCallback = new MediaSessionCallback();
     exoPlayerEventListener = new ExoPlayerEventListener();
@@ -424,6 +426,8 @@ public final class MediaSessionConnector {
    */
   public void setQueueEditor(QueueEditor queueEditor) {
     this.queueEditor = queueEditor;
+    mediaSession.setFlags(queueEditor == null ? BASE_MEDIA_SESSION_FLAGS
+        : EDITOR_MEDIA_SESSION_FLAGS);
   }
 
   private void updateMediaSessionPlaybackState() {
@@ -574,11 +578,20 @@ public final class MediaSessionConnector {
 
   private class ExoPlayerEventListener implements Player.EventListener {
 
+    private int currentWindowIndex;
+    private int currentWindowCount;
+
     @Override
     public void onTimelineChanged(Timeline timeline, Object manifest) {
       if (queueNavigator != null) {
         queueNavigator.onTimelineChanged(player);
       }
+      int windowCount = player.getCurrentTimeline().getWindowCount();
+      if (currentWindowCount != windowCount) {
+        // active queue item and queue navigation actions may need to be updated
+        updateMediaSessionPlaybackState();
+      }
+      currentWindowCount = windowCount;
       currentWindowIndex = player.getCurrentWindowIndex();
       updateMediaSessionMetadata();
     }
