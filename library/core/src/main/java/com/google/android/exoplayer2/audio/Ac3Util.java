@@ -39,6 +39,10 @@ public final class Ac3Util {
      */
     public final String mimeType;
     /**
+     * The type of the bitstream, only for AUDIO_E_AC3
+     */
+    public final int streamType;
+    /**
      * The audio sampling rate in Hz.
      */
     public final int sampleRate;
@@ -55,9 +59,10 @@ public final class Ac3Util {
      */
     public final int sampleCount;
 
-    private Ac3SyncFrameInfo(String mimeType, int channelCount, int sampleRate, int frameSize,
-        int sampleCount) {
+    private Ac3SyncFrameInfo(String mimeType, int streamType, int channelCount, int sampleRate,
+        int frameSize, int sampleCount) {
       this.mimeType = mimeType;
+      this.streamType = streamType;
       this.channelCount = channelCount;
       this.sampleRate = sampleRate;
       this.frameSize = frameSize;
@@ -102,6 +107,13 @@ public final class Ac3Util {
       121, 139, 174, 208, 243, 278, 348, 417, 487, 557, 696, 835, 975, 1114, 1253, 1393};
 
   /**
+   * Stream type. See ETSI TS 102 366 E.1.3.1.1.
+   */
+  public static final int STREAM_TYPE_UNDEFINED = -1;
+  public static final int STREAM_TYPE_TYPE0 = 0;
+  public static final int STREAM_TYPE_TYPE1 = 1;
+
+  /**
    * Returns the AC-3 format given {@code data} containing the AC3SpecificBox according to
    * ETSI TS 102 366 Annex F. The reading position of {@code data} will be modified.
    *
@@ -138,14 +150,27 @@ public final class Ac3Util {
       String language, DrmInitData drmInitData) {
     data.skipBytes(2); // data_rate, num_ind_sub
 
-    // Read only the first substream.
-    // TODO: Read later substreams?
+    // Read only the first independent substream.
+    // TODO: Read later independent substreams?
     int fscod = (data.readUnsignedByte() & 0xC0) >> 6;
     int sampleRate = SAMPLE_RATE_BY_FSCOD[fscod];
     int nextByte = data.readUnsignedByte();
     int channelCount = CHANNEL_COUNT_BY_ACMOD[(nextByte & 0x0E) >> 1];
     if ((nextByte & 0x01) != 0) { // lfeon
       channelCount++;
+    }
+
+    // Read only the first dependent substream.
+    // TODO: Read later dependent substreams?
+    nextByte = data.readUnsignedByte();
+    int numDepSub = ((nextByte & 0x1E) >> 1);
+    if (numDepSub > 0) {
+      int lowByteChanLoc = data.readUnsignedByte();
+      // Read Lrs/Rrs pair
+      // TODO: Read other channel configuration
+      if ((lowByteChanLoc & 0x02) != 0) {
+        channelCount += 2;
+      }
     }
     return Format.createAudioSampleFormat(trackId, MimeTypes.AUDIO_E_AC3, null, Format.NO_VALUE,
         Format.NO_VALUE, channelCount, sampleRate, null, drmInitData, 0, language);
@@ -164,13 +189,16 @@ public final class Ac3Util {
     boolean isEac3 = data.readBits(5) == 16;
     data.setPosition(initialPosition);
     String mimeType;
+    int streamType;
     int sampleRate;
     int acmod;
     int frameSize;
     int sampleCount;
     if (isEac3) {
       mimeType = MimeTypes.AUDIO_E_AC3;
-      data.skipBits(16 + 2 + 3); // syncword, strmtype, substreamid
+      data.skipBits(16); // syncword
+      streamType = data.readBits(2);
+      data.skipBits(3); // substreamid
       frameSize = (data.readBits(11) + 1) * 2;
       int fscod = data.readBits(2);
       int audioBlocks;
@@ -187,6 +215,7 @@ public final class Ac3Util {
     } else /* is AC-3 */ {
       mimeType = MimeTypes.AUDIO_AC3;
       data.skipBits(16 + 16); // syncword, crc1
+      streamType = STREAM_TYPE_UNDEFINED; // AC-3 stream hasn't streamType
       int fscod = data.readBits(2);
       int frmsizecod = data.readBits(6);
       frameSize = getAc3SyncframeSize(fscod, frmsizecod);
@@ -206,7 +235,8 @@ public final class Ac3Util {
     }
     boolean lfeon = data.readBit();
     int channelCount = CHANNEL_COUNT_BY_ACMOD[acmod] + (lfeon ? 1 : 0);
-    return new Ac3SyncFrameInfo(mimeType, channelCount, sampleRate, frameSize, sampleCount);
+    return new Ac3SyncFrameInfo(mimeType, streamType, channelCount, sampleRate,
+        frameSize, sampleCount);
   }
 
   /**
