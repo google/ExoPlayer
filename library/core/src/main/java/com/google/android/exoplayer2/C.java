@@ -605,11 +605,18 @@ public final class C {
   public static final UUID UUID_NIL = new UUID(0L, 0L);
 
   /**
+   * UUID for the W3C
+   * <a href="https://w3c.github.io/encrypted-media/format-registry/initdata/cenc.html">Common PSSH
+   * box</a>.
+   */
+  public static final UUID COMMON_PSSH_UUID = new UUID(0x1077EFECC0B24D02L, 0xACE33C1E52E2FB4BL);
+
+  /**
    * UUID for the ClearKey DRM scheme.
    * <p>
    * ClearKey is supported on Android devices running Android 5.0 (API Level 21) and up.
    */
-  public static final UUID CLEARKEY_UUID = new UUID(0x1077EFECC0B24D02L, 0xACE33C1E52E2FB4BL);
+  public static final UUID CLEARKEY_UUID = new UUID(0xE2719D58A985B3C9L, 0x781AB030AF78D30EL);
 
   /**
    * UUID for the Widevine DRM scheme.
