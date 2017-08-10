@@ -216,6 +216,8 @@ public class DefaultDrmSessionManager<T extends ExoMediaCrypto> implements DrmSe
   public DefaultDrmSessionManager(UUID uuid, ExoMediaDrm<T> mediaDrm, MediaDrmCallback callback,
       HashMap<String, String> optionalKeyRequestParameters, Handler eventHandler,
       EventListener eventListener) {
+    Assertions.checkNotNull(uuid);
+    Assertions.checkArgument(!C.COMMON_PSSH_UUID.equals(uuid), "Use C.CLEARKEY_UUID instead");
     this.uuid = uuid;
     this.mediaDrm = mediaDrm;
     this.callback = callback;
@@ -346,6 +348,10 @@ public class DefaultDrmSessionManager<T extends ExoMediaCrypto> implements DrmSe
 
     if (offlineLicenseKeySetId == null) {
       SchemeData schemeData = drmInitData.get(uuid);
+      if (schemeData == null && C.CLEARKEY_UUID.equals(uuid)) {
+        // If present, the Common PSSH box should be used for ClearKey.
+        schemeData = drmInitData.get(C.COMMON_PSSH_UUID);
+      }
       if (schemeData == null) {
         onError(new IllegalStateException("Media does not support uuid: " + uuid));
         return this;
