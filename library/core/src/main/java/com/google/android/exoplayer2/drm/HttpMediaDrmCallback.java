@@ -39,29 +39,29 @@ import java.util.UUID;
 public final class HttpMediaDrmCallback implements MediaDrmCallback {
 
   private final HttpDataSource.Factory dataSourceFactory;
-  private final String defaultLicenseUrl;
-  private final boolean forceDefaultLicenseUrl;
+  private final String defaultUrl;
   private final Map<String, String> keyRequestProperties;
 
   /**
-   * @param defaultLicenseUrl The default license URL.
+   * @param defaultUrl The default license URL.
    * @param dataSourceFactory A factory from which to obtain {@link HttpDataSource} instances.
    */
-  public HttpMediaDrmCallback(String defaultLicenseUrl, HttpDataSource.Factory dataSourceFactory) {
-    this(defaultLicenseUrl, false, dataSourceFactory, null);
+  public HttpMediaDrmCallback(String defaultUrl, HttpDataSource.Factory dataSourceFactory) {
+    this(defaultUrl, dataSourceFactory, null);
   }
 
   /**
-   * @param defaultLicenseUrl The default license URL.
-   * @param forceDefaultLicenseUrl Whether to force use of {@code defaultLicenseUrl} even for key
-   *     requests that include their own license URL.
+   * @deprecated Use {@link HttpMediaDrmCallback#HttpMediaDrmCallback(String, Factory)}. Request
+   *     properties can be set by calling {@link #setKeyRequestProperty(String, String)}.
+   * @param defaultUrl The default license URL.
    * @param dataSourceFactory A factory from which to obtain {@link HttpDataSource} instances.
+   * @param keyRequestProperties Request properties to set when making key requests, or null.
    */
-  public HttpMediaDrmCallback(String defaultLicenseUrl, boolean forceDefaultLicenseUrl,
-      HttpDataSource.Factory dataSourceFactory, Map<String, String> keyRequestProperties) {
+  @Deprecated
+  public HttpMediaDrmCallback(String defaultUrl, HttpDataSource.Factory dataSourceFactory,
+      Map<String, String> keyRequestProperties) {
     this.dataSourceFactory = dataSourceFactory;
-    this.defaultLicenseUrl = defaultLicenseUrl;
-    this.forceDefaultLicenseUrl = forceDefaultLicenseUrl;
+    this.defaultUrl = defaultUrl;
     this.keyRequestProperties = new HashMap<>();
     if (keyRequestProperties != null) {
       this.keyRequestProperties.putAll(keyRequestProperties);
@@ -112,8 +112,8 @@ public final class HttpMediaDrmCallback implements MediaDrmCallback {
   @Override
   public byte[] executeKeyRequest(UUID uuid, KeyRequest request) throws Exception {
     String url = request.getDefaultUrl();
-    if (forceDefaultLicenseUrl || TextUtils.isEmpty(url)) {
-      url = defaultLicenseUrl;
+    if (TextUtils.isEmpty(url)) {
+      url = defaultUrl;
     }
     Map<String, String> requestProperties = new HashMap<>();
     // Add standard request properties for supported schemes.

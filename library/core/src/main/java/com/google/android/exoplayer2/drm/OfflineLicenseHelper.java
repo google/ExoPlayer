@@ -43,44 +43,23 @@ public final class OfflineLicenseHelper<T extends ExoMediaCrypto> {
    * Instantiates a new instance which uses Widevine CDM. Call {@link #release()} when the instance
    * is no longer required.
    *
-   * @param defaultLicenseUrl The default license URL.
+   * @param licenseUrl The default license URL.
    * @param httpDataSourceFactory A factory from which to obtain {@link HttpDataSource} instances.
    * @return A new instance which uses Widevine CDM.
    * @throws UnsupportedDrmException If the Widevine DRM scheme is unsupported or cannot be
    *     instantiated.
    */
   public static OfflineLicenseHelper<FrameworkMediaCrypto> newWidevineInstance(
-      String defaultLicenseUrl, Factory httpDataSourceFactory)
-      throws UnsupportedDrmException {
-    return newWidevineInstance(defaultLicenseUrl, false, httpDataSourceFactory, null);
+      String licenseUrl, Factory httpDataSourceFactory) throws UnsupportedDrmException {
+    return newWidevineInstance(
+        new HttpMediaDrmCallback(licenseUrl, httpDataSourceFactory), null);
   }
 
   /**
    * Instantiates a new instance which uses Widevine CDM. Call {@link #release()} when the instance
    * is no longer required.
    *
-   * @param defaultLicenseUrl The default license URL.
-   * @param forceDefaultLicenseUrl Whether to force use of {@code defaultLicenseUrl} even for key
-   *     requests that include their own license URL.
-   * @param httpDataSourceFactory A factory from which to obtain {@link HttpDataSource} instances.
-   * @return A new instance which uses Widevine CDM.
-   * @throws UnsupportedDrmException If the Widevine DRM scheme is unsupported or cannot be
-   *     instantiated.
-   */
-  public static OfflineLicenseHelper<FrameworkMediaCrypto> newWidevineInstance(
-      String defaultLicenseUrl, boolean forceDefaultLicenseUrl, Factory httpDataSourceFactory)
-      throws UnsupportedDrmException {
-    return newWidevineInstance(defaultLicenseUrl, forceDefaultLicenseUrl, httpDataSourceFactory,
-        null);
-  }
-
-  /**
-   * Instantiates a new instance which uses Widevine CDM. Call {@link #release()} when the instance
-   * is no longer required.
-   *
-   * @param defaultLicenseUrl The default license URL.
-   * @param forceDefaultLicenseUrl Whether to force use of {@code defaultLicenseUrl} even for key
-   *     requests that include their own license URL.
+   * @param callback Performs key and provisioning requests.
    * @param optionalKeyRequestParameters An optional map of parameters to pass as the last argument
    *     to {@link MediaDrm#getKeyRequest(byte[], byte[], String, int, HashMap)}. May be null.
    * @return A new instance which uses Widevine CDM.
@@ -90,12 +69,10 @@ public final class OfflineLicenseHelper<T extends ExoMediaCrypto> {
    *     MediaDrmCallback, HashMap, Handler, EventListener)
    */
   public static OfflineLicenseHelper<FrameworkMediaCrypto> newWidevineInstance(
-      String defaultLicenseUrl, boolean forceDefaultLicenseUrl, Factory httpDataSourceFactory,
-      HashMap<String, String> optionalKeyRequestParameters)
+      MediaDrmCallback callback, HashMap<String, String> optionalKeyRequestParameters)
       throws UnsupportedDrmException {
-    return new OfflineLicenseHelper<>(FrameworkMediaDrm.newInstance(C.WIDEVINE_UUID),
-        new HttpMediaDrmCallback(defaultLicenseUrl, forceDefaultLicenseUrl, httpDataSourceFactory,
-        null), optionalKeyRequestParameters);
+    return new OfflineLicenseHelper<>(FrameworkMediaDrm.newInstance(C.WIDEVINE_UUID), callback,
+        optionalKeyRequestParameters);
   }
 
   /**
