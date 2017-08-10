@@ -17,7 +17,6 @@ package com.google.android.exoplayer2.testutil;
 
 import static junit.framework.Assert.fail;
 
-import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
 import android.net.wifi.WifiManager;
@@ -32,7 +31,6 @@ import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.Window;
 import com.google.android.exoplayer2.util.Assertions;
-import com.google.android.exoplayer2.util.Util;
 
 /**
  * A host activity for performing playback tests.
@@ -164,7 +162,7 @@ public final class HostActivity extends Activity implements SurfaceHolder.Callba
   public void onStart() {
     Context appContext = getApplicationContext();
     WifiManager wifiManager = (WifiManager) appContext.getSystemService(Context.WIFI_SERVICE);
-    wifiLock = wifiManager.createWifiLock(getWifiLockMode(), TAG);
+    wifiLock = wifiManager.createWifiLock(WifiManager.WIFI_MODE_FULL_HIGH_PERF, TAG);
     wifiLock.acquire();
     PowerManager powerManager = (PowerManager) appContext.getSystemService(Context.POWER_SERVICE);
     wakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, TAG);
@@ -223,11 +221,6 @@ public final class HostActivity extends Activity implements SurfaceHolder.Callba
     if (hostedTest != null && hostedTestStarted && !forcedStopped) {
       forcedStopped = hostedTest.forceStop();
     }
-  }
-
-  @SuppressLint("InlinedApi")
-  private static int getWifiLockMode() {
-    return Util.SDK_INT < 12 ? WifiManager.WIFI_MODE_FULL : WifiManager.WIFI_MODE_FULL_HIGH_PERF;
   }
 
 }
