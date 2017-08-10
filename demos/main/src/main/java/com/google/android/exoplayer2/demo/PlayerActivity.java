@@ -294,9 +294,9 @@ public class PlayerActivity extends Activity implements OnClickListener, EventLi
       player = ExoPlayerFactory.newSimpleInstance(renderersFactory, trackSelector);
       player.addListener(this);
       player.addListener(eventLogger);
+      player.addMetadataOutput(eventLogger);
       player.setAudioDebugListener(eventLogger);
       player.setVideoDebugListener(eventLogger);
-      player.setMetadataOutput(eventLogger);
 
       simpleExoPlayerView.setPlayer(player);
       player.setPlayWhenReady(shouldAutoPlay);
