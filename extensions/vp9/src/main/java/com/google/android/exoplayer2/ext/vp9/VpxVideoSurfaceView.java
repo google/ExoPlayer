@@ -15,7 +15,6 @@
  */
 package com.google.android.exoplayer2.ext.vp9;
 
-import android.annotation.TargetApi;
 import android.content.Context;
 import android.opengl.GLSurfaceView;
 import android.util.AttributeSet;
@@ -23,7 +22,6 @@ import android.util.AttributeSet;
 /**
  * A GLSurfaceView extension that scales itself to the given aspect ratio.
  */
-@TargetApi(11)
 public class VpxVideoSurfaceView extends GLSurfaceView implements VpxOutputBufferRenderer {
 
   private final VpxRenderer renderer;
