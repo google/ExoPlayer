@@ -448,6 +448,12 @@ import java.util.concurrent.CopyOnWriteArraySet;
       case ExoPlayerImplInternal.MSG_SEEK_ACK: {
         if (--pendingSeekAcks == 0) {
           playbackInfo = (ExoPlayerImplInternal.PlaybackInfo) msg.obj;
+          if (timeline.isEmpty()) {
+            // Update the masking variables, which are used when the timeline is empty.
+            maskingPeriodIndex = 0;
+            maskingWindowIndex = 0;
+            maskingWindowPositionMs = 0;
+          }
           if (msg.arg1 != 0) {
             for (Player.EventListener listener : listeners) {
               listener.onPositionDiscontinuity();
@@ -472,6 +478,12 @@ import java.util.concurrent.CopyOnWriteArraySet;
           timeline = sourceInfo.timeline;
           manifest = sourceInfo.manifest;
           playbackInfo = sourceInfo.playbackInfo;
+          if (pendingSeekAcks == 0 && timeline.isEmpty()) {
+            // Update the masking variables, which are used when the timeline is empty.
+            maskingPeriodIndex = 0;
+            maskingWindowIndex = 0;
+            maskingWindowPositionMs = 0;
+          }
           for (Player.EventListener listener : listeners) {
             listener.onTimelineChanged(timeline, manifest);
           }
