@@ -690,9 +690,9 @@ public class DashManifestParser extends DefaultHandler
       throws XmlPullParserException, IOException {
     String schemeIdUri = parseString(xpp, "schemeIdUri", null);
     int audioChannels = "urn:mpeg:dash:23003:3:audio_channel_configuration:2011".equals(schemeIdUri)
-        ? parseInt(xpp, "value", Format.NO_VALUE) :
-        ("tag:dolby.com,2014:dash:audio_channel_configuration:2011".equals(schemeIdUri)
-        ? parseDolbyChannelConfiguration(xpp, "value", Format.NO_VALUE) : Format.NO_VALUE);
+        ? parseInt(xpp, "value", Format.NO_VALUE)
+        : ("tag:dolby.com,2014:dash:audio_channel_configuration:2011".equals(schemeIdUri)
+        ? parseDolbyChannelConfiguration(xpp) : Format.NO_VALUE);
     do {
       xpp.next();
     } while (!XmlPullParserUtil.isEndTag(xpp, "AudioChannelConfiguration"));
@@ -903,31 +903,32 @@ public class DashManifestParser extends DefaultHandler
     return value == null ? defaultValue : value;
   }
 
-  protected static int parseDolbyChannelConfiguration(XmlPullParser xpp, String name,
-      int defaultValue) {
-    String value = Util.toLowerInvariant(xpp.getAttributeValue(null, name));
+  /**
+   * Parses the number of channels from the value attribute of an AudioElementConfiguration with
+   * schemeIdUri "tag:dolby.com,2014:dash:audio_channel_configuration:2011", as defined by table E.5
+   * in ETSI TS 102 366.
+   *
+   * @param xpp The parser from which to read.
+   * @return The parsed number of channels, or {@link Format#NO_VALUE} if the channel count could
+   *     not be parsed.
+   */
+  protected static int parseDolbyChannelConfiguration(XmlPullParser xpp) {
+    String value = Util.toLowerInvariant(xpp.getAttributeValue(null, "value"));
     if (value == null) {
-      return defaultValue;
+      return Format.NO_VALUE;
     }
-    int channels;
-    // TODO: Parse other channel configurations
     switch (value) {
       case "4000":
-        channels = 1;
-        break;
+        return 1;
       case "a000":
-        channels = 2;
-        break;
+        return 2;
       case "f801":
-        channels = 6;
-        break;
+        return 6;
       case "fa01":
-        channels = 8;
-        break;
+        return 8;
       default:
-        channels = defaultValue;
+        return Format.NO_VALUE;
     }
-    return channels;
   }
 
   private static final class RepresentationInfo {
