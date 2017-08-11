@@ -24,7 +24,6 @@ import com.google.android.exoplayer2.drm.ExoMediaDrm.ProvisionRequest;
 import com.google.android.exoplayer2.upstream.DataSourceInputStream;
 import com.google.android.exoplayer2.upstream.DataSpec;
 import com.google.android.exoplayer2.upstream.HttpDataSource;
-import com.google.android.exoplayer2.upstream.HttpDataSource.Factory;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Util;
 import java.io.IOException;
@@ -39,33 +38,33 @@ import java.util.UUID;
 public final class HttpMediaDrmCallback implements MediaDrmCallback {
 
   private final HttpDataSource.Factory dataSourceFactory;
-  private final String defaultUrl;
+  private final String defaultLicenseUrl;
+  private final boolean forceDefaultLicenseUrl;
   private final Map<String, String> keyRequestProperties;
 
   /**
-   * @param defaultUrl The default license URL.
+   * @param defaultLicenseUrl The default license URL. Used for key requests that do not specify
+   *     their own license URL.
    * @param dataSourceFactory A factory from which to obtain {@link HttpDataSource} instances.
    */
-  public HttpMediaDrmCallback(String defaultUrl, HttpDataSource.Factory dataSourceFactory) {
-    this(defaultUrl, dataSourceFactory, null);
+  public HttpMediaDrmCallback(String defaultLicenseUrl, HttpDataSource.Factory dataSourceFactory) {
+    this(defaultLicenseUrl, false, dataSourceFactory);
   }
 
   /**
-   * @deprecated Use {@link HttpMediaDrmCallback#HttpMediaDrmCallback(String, Factory)}. Request
-   *     properties can be set by calling {@link #setKeyRequestProperty(String, String)}.
-   * @param defaultUrl The default license URL.
+   * @param defaultLicenseUrl The default license URL. Used for key requests that do not specify
+   *     their own license URL, or for all key requests if {@code forceDefaultLicenseUrl} is
+   *     set to true.
+   * @param forceDefaultLicenseUrl Whether to use {@code defaultLicenseUrl} for key requests that
+   *     include their own license URL.
    * @param dataSourceFactory A factory from which to obtain {@link HttpDataSource} instances.
-   * @param keyRequestProperties Request properties to set when making key requests, or null.
    */
-  @Deprecated
-  public HttpMediaDrmCallback(String defaultUrl, HttpDataSource.Factory dataSourceFactory,
-      Map<String, String> keyRequestProperties) {
+  public HttpMediaDrmCallback(String defaultLicenseUrl, boolean forceDefaultLicenseUrl,
+      HttpDataSource.Factory dataSourceFactory) {
     this.dataSourceFactory = dataSourceFactory;
-    this.defaultUrl = defaultUrl;
+    this.defaultLicenseUrl = defaultLicenseUrl;
+    this.forceDefaultLicenseUrl = forceDefaultLicenseUrl;
     this.keyRequestProperties = new HashMap<>();
-    if (keyRequestProperties != null) {
-      this.keyRequestProperties.putAll(keyRequestProperties);
-    }
   }
 
   /**
@@ -112,8 +111,8 @@ public final class HttpMediaDrmCallback implements MediaDrmCallback {
   @Override
   public byte[] executeKeyRequest(UUID uuid, KeyRequest request) throws Exception {
     String url = request.getDefaultUrl();
-    if (TextUtils.isEmpty(url)) {
-      url = defaultUrl;
+    if (forceDefaultLicenseUrl || TextUtils.isEmpty(url)) {
+      url = defaultLicenseUrl;
     }
     Map<String, String> requestProperties = new HashMap<>();
     // Add standard request properties for supported schemes.
