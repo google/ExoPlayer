@@ -154,7 +154,7 @@ public final class DummySurface extends Surface {
    */
   private static boolean deviceNeedsSecureDummySurfaceWorkaround(Context context) {
     return Util.SDK_INT == 24
-        && (Util.MODEL.startsWith("SM-G950") || Util.MODEL.startsWith("SM-G955"))
+        && "samsung".equals(Util.MANUFACTURER)
         && !hasVrModeHighPerformanceSystemFeatureV24(context.getPackageManager());
   }
 
