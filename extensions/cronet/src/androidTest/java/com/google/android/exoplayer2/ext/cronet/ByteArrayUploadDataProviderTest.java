@@ -21,11 +21,8 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.MockitoAnnotations.initMocks;
 
-import android.annotation.TargetApi;
-import android.os.Build.VERSION_CODES;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.runner.AndroidJUnit4;
-
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
@@ -67,7 +64,6 @@ public final class ByteArrayUploadDataProviderTest {
     assertArrayEquals(TEST_DATA, byteBuffer.array());
   }
 
-  @TargetApi(VERSION_CODES.GINGERBREAD)
   @Test
   public void testReadPartialBuffer() throws IOException {
     byte[] firstHalf = Arrays.copyOfRange(TEST_DATA, 0, TEST_DATA.length / 2);
