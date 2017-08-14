@@ -547,6 +547,7 @@ public class DefaultTimeBar extends View implements TimeBar {
     int playheadRadius = scrubberSize / 2;
     int playheadCenter = Util.constrainValue(scrubberBar.right, scrubberBar.left,
         progressBar.right);
+    scrubberPaint.setAntiAlias(true);
     canvas.drawCircle(playheadCenter, scrubberBar.centerY(), playheadRadius, scrubberPaint);
   }
 
