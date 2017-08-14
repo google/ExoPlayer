@@ -3,7 +3,7 @@
 ## Description ##
 
 This [Leanback][] Extension provides a [PlayerAdapter][] implementation for
-Exoplayer.
+ExoPlayer.
 
 [PlayerAdapter]: https://developer.android.com/reference/android/support/v17/leanback/media/PlayerAdapter.html
 [Leanback]: https://developer.android.com/reference/android/support/v17/leanback/package-summary.html

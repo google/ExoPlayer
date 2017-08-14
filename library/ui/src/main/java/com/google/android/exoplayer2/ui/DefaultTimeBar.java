@@ -378,7 +378,6 @@ public class DefaultTimeBar extends View implements TimeBar {
     super.onSizeChanged(width, height, oldWidth, oldHeight);
   }
 
-  @TargetApi(14)
   @Override
   public void onInitializeAccessibilityEvent(AccessibilityEvent event) {
     super.onInitializeAccessibilityEvent(event);
