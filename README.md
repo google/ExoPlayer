@@ -32,6 +32,7 @@ the `build.gradle` file in the root of your project:
 ```gradle
 repositories {
     jcenter()
+    maven { url 'https://maven.google.com' }
 }
 ```
 
