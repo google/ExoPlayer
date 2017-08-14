@@ -311,7 +311,7 @@ public class DefaultDrmSessionManager<T extends ExoMediaCrypto> implements DrmSe
 
   @Override
   public boolean canAcquireSession(@NonNull DrmInitData drmInitData) {
-    SchemeData schemeData = drmInitData.get(uuid);
+    SchemeData schemeData = getSchemeData(drmInitData);
     if (schemeData == null) {
       // No data for this manager's scheme.
       return false;
@@ -347,11 +347,7 @@ public class DefaultDrmSessionManager<T extends ExoMediaCrypto> implements DrmSe
     postRequestHandler = new PostRequestHandler(requestHandlerThread.getLooper());
 
     if (offlineLicenseKeySetId == null) {
-      SchemeData schemeData = drmInitData.get(uuid);
-      if (schemeData == null && C.CLEARKEY_UUID.equals(uuid)) {
-        // If present, the Common PSSH box should be used for ClearKey.
-        schemeData = drmInitData.get(C.COMMON_PSSH_UUID);
-      }
+      SchemeData schemeData = getSchemeData(drmInitData);
       if (schemeData == null) {
         onError(new IllegalStateException("Media does not support uuid: " + uuid));
         return this;
@@ -625,6 +621,21 @@ public class DefaultDrmSessionManager<T extends ExoMediaCrypto> implements DrmSe
     if (state != STATE_OPENED_WITH_KEYS) {
       state = STATE_ERROR;
     }
+  }
+
+  /**
+   * Extracts {@link SchemeData} suitable for this manager.
+   *
+   * @param drmInitData The {@link DrmInitData} from which to extract the {@link SchemeData}.
+   * @return The extracted {@link SchemeData}, or null if no suitable data is present.
+   */
+  private SchemeData getSchemeData(DrmInitData drmInitData) {
+    SchemeData schemeData = drmInitData.get(uuid);
+    if (schemeData == null && C.CLEARKEY_UUID.equals(uuid)) {
+      // If present, the Common PSSH box should be used for ClearKey.
+      schemeData = drmInitData.get(C.COMMON_PSSH_UUID);
+    }
+    return schemeData;
   }
 
   @SuppressLint("HandlerLeak")
