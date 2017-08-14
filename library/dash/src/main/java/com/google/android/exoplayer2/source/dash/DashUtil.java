@@ -31,9 +31,9 @@ import com.google.android.exoplayer2.source.dash.manifest.Period;
 import com.google.android.exoplayer2.source.dash.manifest.RangedUri;
 import com.google.android.exoplayer2.source.dash.manifest.Representation;
 import com.google.android.exoplayer2.upstream.DataSource;
-import com.google.android.exoplayer2.upstream.DataSourceInputStream;
 import com.google.android.exoplayer2.upstream.DataSpec;
 import com.google.android.exoplayer2.upstream.HttpDataSource;
+import com.google.android.exoplayer2.upstream.ParsingLoadable;
 import com.google.android.exoplayer2.util.MimeTypes;
 import java.io.IOException;
 import java.util.List;
@@ -47,21 +47,18 @@ public final class DashUtil {
    * Loads a DASH manifest.
    *
    * @param dataSource The {@link HttpDataSource} from which the manifest should be read.
-   * @param manifestUri The URI of the manifest to be read.
+   * @param uri The {@link Uri} of the manifest to be read.
    * @return An instance of {@link DashManifest}.
    * @throws IOException Thrown when there is an error while loading.
    */
-  public static DashManifest loadManifest(DataSource dataSource, String manifestUri)
+  public static DashManifest loadManifest(DataSource dataSource, Uri uri)
       throws IOException {
-    DataSourceInputStream inputStream = new DataSourceInputStream(dataSource,
-        new DataSpec(Uri.parse(manifestUri), DataSpec.FLAG_ALLOW_CACHING_UNKNOWN_LENGTH));
-    try {
-      inputStream.open();
-      DashManifestParser parser = new DashManifestParser();
-      return parser.parse(dataSource.getUri(), inputStream);
-    } finally {
-      inputStream.close();
-    }
+    DataSpec dataSpec = new DataSpec(uri,
+        DataSpec.FLAG_ALLOW_CACHING_UNKNOWN_LENGTH | DataSpec.FLAG_ALLOW_GZIP);
+    ParsingLoadable<DashManifest> loadable = new ParsingLoadable<>(dataSource, dataSpec,
+        C.DATA_TYPE_MANIFEST, new DashManifestParser());
+    loadable.load();
+    return loadable.getResult();
   }
 
   /**
