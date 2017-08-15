@@ -34,6 +34,7 @@ import static android.opengl.EGL14.EGL_WINDOW_BIT;
 import static android.opengl.EGL14.eglChooseConfig;
 import static android.opengl.EGL14.eglCreateContext;
 import static android.opengl.EGL14.eglCreatePbufferSurface;
+import static android.opengl.EGL14.eglDestroyContext;
 import static android.opengl.EGL14.eglGetDisplay;
 import static android.opengl.EGL14.eglInitialize;
 import static android.opengl.EGL14.eglMakeCurrent;
@@ -164,6 +165,8 @@ public final class DummySurface extends Surface {
     private static final int MSG_RELEASE = 3;
 
     private final int[] textureIdHolder;
+    private EGLContext context;
+    private EGLDisplay display;
     private Handler handler;
     private SurfaceTexture surfaceTexture;
 
@@ -248,7 +251,7 @@ public final class DummySurface extends Surface {
     }
 
     private void initInternal(boolean secure) {
-      EGLDisplay display = eglGetDisplay(EGL_DEFAULT_DISPLAY);
+      display = eglGetDisplay(EGL_DEFAULT_DISPLAY);
       Assertions.checkState(display != null, "eglGetDisplay failed");
 
       int[] version = new int[2];
@@ -285,8 +288,8 @@ public final class DummySurface extends Surface {
             EGL_CONTEXT_CLIENT_VERSION, 2,
             EGL_NONE};
       }
-      EGLContext context = eglCreateContext(display, config, android.opengl.EGL14.EGL_NO_CONTEXT,
-          glAttributes, 0);
+      context = eglCreateContext(display, config, android.opengl.EGL14.EGL_NO_CONTEXT, glAttributes,
+          0);
       Assertions.checkState(context != null, "eglCreateContext failed");
 
       int[] pbufferAttributes;
@@ -316,11 +319,18 @@ public final class DummySurface extends Surface {
 
     private void releaseInternal() {
       try {
-        surfaceTexture.release();
+        if (surfaceTexture != null) {
+          surfaceTexture.release();
+          glDeleteTextures(1, textureIdHolder, 0);
+        }
       } finally {
+        if (context != null) {
+          eglDestroyContext(display, context);
+        }
+        display = null;
+        context = null;
         surface = null;
         surfaceTexture = null;
-        glDeleteTextures(1, textureIdHolder, 0);
       }
     }
 
