@@ -20,18 +20,21 @@ and extend, and can be updated through Play Store application updates.
 
 ## Using ExoPlayer ##
 
-ExoPlayer modules can be obtained via jCenter. It's also possible to clone the
+ExoPlayer modules can be obtained via JCenter. It's also possible to clone the
 repository and depend on the modules locally.
 
-### Via jCenter ###
+### Via JCenter ###
 
 The easiest way to get started using ExoPlayer is to add it as a gradle
-dependency. You need to make sure you have the jcenter repository included in
-the `build.gradle` file in the root of your project:
+dependency. You need to make sure you have the JCenter and Google Maven
+repositories included in the `build.gradle` file in the root of your project:
 
 ```gradle
 repositories {
     jcenter()
+    maven {
+        url "https://maven.google.com"
+    }
 }
 ```
 
