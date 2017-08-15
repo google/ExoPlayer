@@ -11,17 +11,7 @@ of surround sound and ambisonic soundfields.
 
 ## Getting the extension ##
 
-The easiest way to use the extension is to add it as a gradle dependency. You
-need to make sure you have the jcenter repository included in the `build.gradle`
-file in the root of your project:
-
-```gradle
-repositories {
-    jcenter()
-}
-```
-
-Next, include the following in your module's `build.gradle` file:
+The easiest way to use the extension is to add it as a gradle dependency:
 
 ```gradle
 compile 'com.google.android.exoplayer:extension-gvr:rX.X.X'
