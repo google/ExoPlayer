@@ -21,6 +21,7 @@ import android.media.MediaCrypto;
 import android.media.MediaFormat;
 import android.media.audiofx.Virtualizer;
 import android.os.Handler;
+import android.support.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.Format;
@@ -72,7 +73,7 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
    *     has obtained the keys necessary to decrypt encrypted regions of the media.
    */
   public MediaCodecAudioRenderer(MediaCodecSelector mediaCodecSelector,
-      DrmSessionManager<FrameworkMediaCrypto> drmSessionManager,
+      @Nullable DrmSessionManager<FrameworkMediaCrypto> drmSessionManager,
       boolean playClearSamplesWithoutKeys) {
     this(mediaCodecSelector, drmSessionManager, playClearSamplesWithoutKeys, null, null);
   }
@@ -83,8 +84,8 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
    *     null if delivery of events is not required.
    * @param eventListener A listener of events. May be null if delivery of events is not required.
    */
-  public MediaCodecAudioRenderer(MediaCodecSelector mediaCodecSelector, Handler eventHandler,
-      AudioRendererEventListener eventListener) {
+  public MediaCodecAudioRenderer(MediaCodecSelector mediaCodecSelector,
+      @Nullable Handler eventHandler, @Nullable AudioRendererEventListener eventListener) {
     this(mediaCodecSelector, null, true, eventHandler, eventListener);
   }
 
@@ -102,9 +103,9 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
    * @param eventListener A listener of events. May be null if delivery of events is not required.
    */
   public MediaCodecAudioRenderer(MediaCodecSelector mediaCodecSelector,
-      DrmSessionManager<FrameworkMediaCrypto> drmSessionManager,
-      boolean playClearSamplesWithoutKeys, Handler eventHandler,
-      AudioRendererEventListener eventListener) {
+      @Nullable DrmSessionManager<FrameworkMediaCrypto> drmSessionManager,
+      boolean playClearSamplesWithoutKeys, @Nullable Handler eventHandler,
+      @Nullable AudioRendererEventListener eventListener) {
     this(mediaCodecSelector, drmSessionManager, playClearSamplesWithoutKeys, eventHandler,
         eventListener, null);
   }
@@ -127,10 +128,10 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
    *     output.
    */
   public MediaCodecAudioRenderer(MediaCodecSelector mediaCodecSelector,
-      DrmSessionManager<FrameworkMediaCrypto> drmSessionManager,
-      boolean playClearSamplesWithoutKeys, Handler eventHandler,
-      AudioRendererEventListener eventListener, AudioCapabilities audioCapabilities,
-      AudioProcessor... audioProcessors) {
+      @Nullable DrmSessionManager<FrameworkMediaCrypto> drmSessionManager,
+      boolean playClearSamplesWithoutKeys, @Nullable Handler eventHandler,
+      @Nullable AudioRendererEventListener eventListener,
+      @Nullable AudioCapabilities audioCapabilities, AudioProcessor... audioProcessors) {
     super(C.TRACK_TYPE_AUDIO, mediaCodecSelector, drmSessionManager, playClearSamplesWithoutKeys);
     audioTrack = new AudioTrack(audioCapabilities, audioProcessors, new AudioTrackListener());
     eventDispatcher = new EventDispatcher(eventHandler, eventListener);
