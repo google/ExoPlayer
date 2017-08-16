@@ -26,6 +26,7 @@ import android.media.MediaFormat;
 import android.os.Handler;
 import android.os.SystemClock;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.util.Log;
 import android.view.Surface;
 import com.google.android.exoplayer2.C;
@@ -137,8 +138,8 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
    *     invocations of {@link VideoRendererEventListener#onDroppedFrames(int, long)}.
    */
   public MediaCodecVideoRenderer(Context context, MediaCodecSelector mediaCodecSelector,
-      long allowedJoiningTimeMs, Handler eventHandler, VideoRendererEventListener eventListener,
-      int maxDroppedFrameCountToNotify) {
+      long allowedJoiningTimeMs, @Nullable Handler eventHandler,
+      @Nullable VideoRendererEventListener eventListener, int maxDroppedFrameCountToNotify) {
     this(context, mediaCodecSelector, allowedJoiningTimeMs, null, false, eventHandler,
         eventListener, maxDroppedFrameCountToNotify);
   }
@@ -162,9 +163,10 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
    *     invocations of {@link VideoRendererEventListener#onDroppedFrames(int, long)}.
    */
   public MediaCodecVideoRenderer(Context context, MediaCodecSelector mediaCodecSelector,
-      long allowedJoiningTimeMs, DrmSessionManager<FrameworkMediaCrypto> drmSessionManager,
-      boolean playClearSamplesWithoutKeys, Handler eventHandler,
-      VideoRendererEventListener eventListener, int maxDroppedFramesToNotify) {
+      long allowedJoiningTimeMs,
+      @Nullable DrmSessionManager<FrameworkMediaCrypto> drmSessionManager,
+      boolean playClearSamplesWithoutKeys, @Nullable Handler eventHandler,
+      @Nullable VideoRendererEventListener eventListener, int maxDroppedFramesToNotify) {
     super(C.TRACK_TYPE_VIDEO, mediaCodecSelector, drmSessionManager, playClearSamplesWithoutKeys);
     this.allowedJoiningTimeMs = allowedJoiningTimeMs;
     this.maxDroppedFramesToNotify = maxDroppedFramesToNotify;

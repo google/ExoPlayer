@@ -169,7 +169,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
   private static final int ADAPTATION_WORKAROUND_SLICE_WIDTH_HEIGHT = 32;
 
   private final MediaCodecSelector mediaCodecSelector;
-  private final DrmSessionManager<FrameworkMediaCrypto> drmSessionManager;
+  @Nullable private final DrmSessionManager<FrameworkMediaCrypto> drmSessionManager;
   private final boolean playClearSamplesWithoutKeys;
   private final DecoderInputBuffer buffer;
   private final DecoderInputBuffer flagsOnlyBuffer;
@@ -223,7 +223,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
    *     has obtained the keys necessary to decrypt encrypted regions of the media.
    */
   public MediaCodecRenderer(int trackType, MediaCodecSelector mediaCodecSelector,
-      DrmSessionManager<FrameworkMediaCrypto> drmSessionManager,
+      @Nullable DrmSessionManager<FrameworkMediaCrypto> drmSessionManager,
       boolean playClearSamplesWithoutKeys) {
     super(trackType);
     Assertions.checkState(Util.SDK_INT >= 16);
@@ -1090,7 +1090,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
    * @param drmInitData {@link DrmInitData} of the format to check for support.
    * @return Whether the encryption scheme is supported, or true if {@code drmInitData} is null.
    */
-  private static boolean isDrmSchemeSupported(DrmSessionManager drmSessionManager,
+  private static boolean isDrmSchemeSupported(@Nullable DrmSessionManager drmSessionManager,
       @Nullable DrmInitData drmInitData) {
     if (drmInitData == null) {
       // Content is unencrypted.
