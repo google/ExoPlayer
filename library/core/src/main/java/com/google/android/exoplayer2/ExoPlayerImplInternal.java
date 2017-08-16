@@ -263,12 +263,17 @@ import java.io.IOException;
     }
     int messageNumber = customMessagesSent++;
     handler.obtainMessage(MSG_CUSTOM, messages).sendToTarget();
+    boolean wasInterrupted = false;
     while (customMessagesProcessed <= messageNumber) {
       try {
         wait();
       } catch (InterruptedException e) {
-        Thread.currentThread().interrupt();
+        wasInterrupted = true;
       }
+    }
+    if (wasInterrupted) {
+      // Restore the interrupted status.
+      Thread.currentThread().interrupt();
     }
   }
 
@@ -277,12 +282,17 @@ import java.io.IOException;
       return;
     }
     handler.sendEmptyMessage(MSG_RELEASE);
+    boolean wasInterrupted = false;
     while (!released) {
       try {
         wait();
       } catch (InterruptedException e) {
-        Thread.currentThread().interrupt();
+        wasInterrupted = true;
       }
+    }
+    if (wasInterrupted) {
+      // Restore the interrupted status.
+      Thread.currentThread().interrupt();
     }
     internalPlaybackThread.quit();
   }
