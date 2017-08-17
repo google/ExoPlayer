@@ -1,9 +1,7 @@
 # ExoPlayer Opus extension #
 
-## Description ##
-
-The Opus extension provides `LibopusAudioRenderer`, which uses
-libopus (the Opus decoding library) to decode Opus audio.
+The Opus extension provides `LibopusAudioRenderer`, which uses libopus (the Opus
+decoding library) to decode Opus audio.
 
 ## Build instructions ##
 
@@ -86,3 +84,10 @@ Note: These instructions assume you're using `DefaultTrackSelector`. If you have
 a custom track selector the choice of `Renderer` is up to your implementation,
 so you need to make sure you are passing an `LibopusAudioRenderer` to the
 player, then implement your own logic to use the renderer for a given track.
+
+## Links ##
+
+* [Javadoc][]: Classes matching `com.google.android.exoplayer2.ext.opus.*`
+  belong to this module.
+
+[Javadoc]: https://google.github.io/ExoPlayer/doc/reference/index.html

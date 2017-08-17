@@ -1,7 +1,5 @@
 # ExoPlayer FFmpeg extension #
 
-## Description ##
-
 The FFmpeg extension provides `FfmpegAudioRenderer`, which uses FFmpeg for
 decoding and can render audio encoded in a variety of formats.
 
@@ -140,3 +138,10 @@ then implement your own logic to use the renderer for a given track.
 [Android NDK]: https://developer.android.com/tools/sdk/ndk/index.html
 [#2781]: https://github.com/google/ExoPlayer/issues/2781
 [Supported formats]: https://google.github.io/ExoPlayer/supported-formats.html#ffmpeg-extension
+
+## Links ##
+
+* [Javadoc][]: Classes matching `com.google.android.exoplayer2.ext.ffmpeg.*`
+  belong to this module.
+
+[Javadoc]: https://google.github.io/ExoPlayer/doc/reference/index.html

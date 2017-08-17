@@ -1,7 +1,5 @@
 # ExoPlayer IMA extension #
 
-## Description ##
-
 The IMA extension is a [MediaSource][] implementation wrapping the
 [Interactive Media Ads SDK for Android][IMA]. You can use it to insert ads
 alongside content.
@@ -55,3 +53,10 @@ playback.
 
 [top level README]: https://github.com/google/ExoPlayer/blob/release-v2/README.md
 [sample ad tags]: https://developers.google.com/interactive-media-ads/docs/sdks/android/tags
+
+## Links ##
+
+* [Javadoc][]: Classes matching `com.google.android.exoplayer2.ext.ima.*`
+  belong to this module.
+
+[Javadoc]: https://google.github.io/ExoPlayer/doc/reference/index.html
