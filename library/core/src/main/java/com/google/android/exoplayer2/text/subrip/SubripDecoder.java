@@ -69,8 +69,13 @@ public final class SubripDecoder extends SimpleSubtitleDecoder {
       // Read and parse the timing line.
       boolean haveEndTimecode = false;
       currentLine = subripData.readLine();
-      Matcher matcher = currentLine == null ? null : SUBRIP_TIMING_LINE.matcher(currentLine);
-      if (matcher != null && matcher.matches()) {
+      if (currentLine == null) {
+        Log.w(TAG, "Unexpected end");
+        break;
+      }
+
+      Matcher matcher = SUBRIP_TIMING_LINE.matcher(currentLine);
+      if (matcher.matches()) {
         cueTimesUs.add(parseTimecode(matcher, 1));
         if (!TextUtils.isEmpty(matcher.group(6))) {
           haveEndTimecode = true;
