@@ -1,9 +1,7 @@
 # ExoPlayer VP9 extension #
 
-## Description ##
-
-The VP9 extension provides `LibvpxVideoRenderer`, which uses
-libvpx (the VPx decoding library) to decode VP9 video.
+The VP9 extension provides `LibvpxVideoRenderer`, which uses libvpx (the VPx
+decoding library) to decode VP9 video.
 
 ## Build instructions ##
 
@@ -110,3 +108,10 @@ performed using a GL shader. To enable this mode, send the renderer a message of
 type `LibvpxVideoRenderer.MSG_SET_OUTPUT_BUFFER_RENDERER` with the
 `VpxVideoSurfaceView` as its object, instead of sending `MSG_SET_SURFACE` with a
 `Surface`.
+
+## Links ##
+
+* [Javadoc][]: Classes matching `com.google.android.exoplayer2.ext.vp9.*`
+  belong to this module.
+
+[Javadoc]: https://google.github.io/ExoPlayer/doc/reference/index.html
