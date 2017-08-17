@@ -1,7 +1,5 @@
 # ExoPlayer Cronet extension #
 
-## Description ##
-
 The Cronet extension is an [HttpDataSource][] implementation using [Cronet][].
 
 [HttpDataSource]: https://google.github.io/ExoPlayer/doc/reference/com/google/android/exoplayer/upstream/HttpDataSource.html
@@ -56,3 +54,10 @@ new DefaultDataSourceFactory(
     new CronetDataSourceFactory(...) /* baseDataSourceFactory argument */);
 ```
 respectively.
+
+## Links ##
+
+* [Javadoc][]: Classes matching `com.google.android.exoplayer2.ext.cronet.*`
+  belong to this module.
+
+[Javadoc]: https://google.github.io/ExoPlayer/doc/reference/index.html

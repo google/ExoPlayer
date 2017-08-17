@@ -1,6 +1,4 @@
-# ExoPlayer Leanback Extension #
-
-## Description ##
+# ExoPlayer Leanback extension #
 
 This [Leanback][] Extension provides a [PlayerAdapter][] implementation for
 ExoPlayer.
@@ -24,3 +22,10 @@ locally. Instructions for doing this can be found in ExoPlayer's
 [top level README][].
 
 [top level README]: https://github.com/google/ExoPlayer/blob/release-v2/README.md
+
+## Links ##
+
+* [Javadoc][]: Classes matching `com.google.android.exoplayer2.ext.leanback.*`
+  belong to this module.
+
+[Javadoc]: https://google.github.io/ExoPlayer/doc/reference/index.html
