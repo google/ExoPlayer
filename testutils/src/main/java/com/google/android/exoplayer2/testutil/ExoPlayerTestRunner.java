@@ -29,12 +29,12 @@ import com.google.android.exoplayer2.RenderersFactory;
 import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.audio.AudioRendererEventListener;
-import com.google.android.exoplayer2.metadata.MetadataRenderer;
+import com.google.android.exoplayer2.metadata.MetadataOutput;
 import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.testutil.ExoPlayerTestRunner.Builder.PlayerFactory;
 import com.google.android.exoplayer2.testutil.FakeTimeline.TimelineWindowDefinition;
-import com.google.android.exoplayer2.text.TextRenderer.Output;
+import com.google.android.exoplayer2.text.TextOutput;
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
 import com.google.android.exoplayer2.trackselection.MappingTrackSelector;
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
@@ -164,8 +164,8 @@ public final class ExoPlayerTestRunner implements Player.EventListener {
           @Override
           public Renderer[] createRenderers(Handler eventHandler,
               VideoRendererEventListener videoRendererEventListener,
-              AudioRendererEventListener audioRendererEventListener, Output textRendererOutput,
-              MetadataRenderer.Output metadataRendererOutput) {
+              AudioRendererEventListener audioRendererEventListener, TextOutput textRendererOutput,
+              MetadataOutput metadataRendererOutput) {
             return renderers;
           }
         };

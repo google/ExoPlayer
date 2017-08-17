@@ -33,18 +33,10 @@ import java.util.Arrays;
 public final class MetadataRenderer extends BaseRenderer implements Callback {
 
   /**
-   * Receives output from a {@link MetadataRenderer}.
+   * @deprecated Use {@link MetadataOutput}.
    */
-  public interface Output {
-
-    /**
-     * Called each time there is a metadata associated with current playback time.
-     *
-     * @param metadata The metadata.
-     */
-    void onMetadata(Metadata metadata);
-
-  }
+  @Deprecated
+  public interface Output extends MetadataOutput {}
 
   private static final int MSG_INVOKE_RENDERER = 0;
   // TODO: Holding multiple pending metadata objects is temporary mitigation against
@@ -53,7 +45,7 @@ public final class MetadataRenderer extends BaseRenderer implements Callback {
   private static final int MAX_PENDING_METADATA_COUNT = 5;
 
   private final MetadataDecoderFactory decoderFactory;
-  private final Output output;
+  private final MetadataOutput output;
   private final Handler outputHandler;
   private final FormatHolder formatHolder;
   private final MetadataInputBuffer buffer;
@@ -73,7 +65,7 @@ public final class MetadataRenderer extends BaseRenderer implements Callback {
    *     {@link android.app.Activity#getMainLooper()}. Null may be passed if the output should be
    *     called directly on the player's internal rendering thread.
    */
-  public MetadataRenderer(Output output, Looper outputLooper) {
+  public MetadataRenderer(MetadataOutput output, Looper outputLooper) {
     this(output, outputLooper, MetadataDecoderFactory.DEFAULT);
   }
 
@@ -86,7 +78,7 @@ public final class MetadataRenderer extends BaseRenderer implements Callback {
    *     called directly on the player's internal rendering thread.
    * @param decoderFactory A factory from which to obtain {@link MetadataDecoder} instances.
    */
-  public MetadataRenderer(Output output, Looper outputLooper,
+  public MetadataRenderer(MetadataOutput output, Looper outputLooper,
       MetadataDecoderFactory decoderFactory) {
     super(C.TRACK_TYPE_METADATA);
     this.output = Assertions.checkNotNull(output);
