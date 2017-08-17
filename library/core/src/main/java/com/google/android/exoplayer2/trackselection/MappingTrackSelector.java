@@ -199,6 +199,7 @@ public abstract class MappingTrackSelector extends TrackSelector {
      * @param trackIndex The index of the track within the track group.
      * @return One of {@link RendererCapabilities#FORMAT_HANDLED},
      *     {@link RendererCapabilities#FORMAT_EXCEEDS_CAPABILITIES},
+     *     {@link RendererCapabilities#FORMAT_UNSUPPORTED_DRM},
      *     {@link RendererCapabilities#FORMAT_UNSUPPORTED_SUBTYPE} and
      *     {@link RendererCapabilities#FORMAT_UNSUPPORTED_TYPE}.
      */
@@ -214,6 +215,7 @@ public abstract class MappingTrackSelector extends TrackSelector {
      * Tracks for which {@link #getTrackFormatSupport(int, int, int)} returns
      * {@link RendererCapabilities#FORMAT_HANDLED} are always considered.
      * Tracks for which {@link #getTrackFormatSupport(int, int, int)} returns
+     * {@link RendererCapabilities#FORMAT_UNSUPPORTED_DRM},
      * {@link RendererCapabilities#FORMAT_UNSUPPORTED_TYPE} or
      * {@link RendererCapabilities#FORMAT_UNSUPPORTED_SUBTYPE} are never considered.
      * Tracks for which {@link #getTrackFormatSupport(int, int, int)} returns
@@ -615,12 +617,12 @@ public abstract class MappingTrackSelector extends TrackSelector {
   /**
    * Finds the renderer to which the provided {@link TrackGroup} should be mapped.
    * <p>
-   * A {@link TrackGroup} is mapped to the renderer that reports
-   * {@link RendererCapabilities#FORMAT_HANDLED} support for one or more of the tracks in the group,
-   * or {@link RendererCapabilities#FORMAT_EXCEEDS_CAPABILITIES} if no such renderer exists, or
-   * {@link RendererCapabilities#FORMAT_UNSUPPORTED_SUBTYPE} if again no such renderer exists. In
-   * the case that two or more renderers report the same level of support, the renderer with the
-   * lowest index is associated.
+   * A {@link TrackGroup} is mapped to the renderer that reports the highest of (listed in
+   * decreasing order of support) {@link RendererCapabilities#FORMAT_HANDLED},
+   * {@link RendererCapabilities#FORMAT_EXCEEDS_CAPABILITIES},
+   * {@link RendererCapabilities#FORMAT_UNSUPPORTED_DRM} and
+   * {@link RendererCapabilities#FORMAT_UNSUPPORTED_SUBTYPE}. In the case that two or more renderers
+   * report the same level of support, the renderer with the lowest index is associated.
    * <p>
    * If all renderers report {@link RendererCapabilities#FORMAT_UNSUPPORTED_TYPE} for all of the
    * tracks in the group, then {@code renderers.length} is returned to indicate that the group was
