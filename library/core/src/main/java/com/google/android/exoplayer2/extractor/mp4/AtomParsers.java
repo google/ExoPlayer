@@ -1027,6 +1027,10 @@ import java.util.List;
       case 0xAB:
         mimeType = MimeTypes.AUDIO_DTS_HD;
         return Pair.create(mimeType, null);
+      case 0x60: /* Visual 13818-2 Simple Profile */
+      case 0x61: /* Visual 13818-2 Main Profile */
+        mimeType = MimeTypes.VIDEO_MPEG2;
+        break;
       default:
         mimeType = null;
         break;
