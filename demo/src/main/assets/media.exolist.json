@@ -1,5 +1,14 @@
 [
   {
+    "name" : "RnD",
+    "samples": [
+      {
+        "name" : "Test 1",
+        "uri" : "https://bitdash-a.akamaihd.net/content/sintel/hls/playlist.m3u8"
+      }
+    ]
+  },
+  {
     "name": "YouTube DASH",
     "samples": [
       {
