@@ -1,7 +1,5 @@
 # ExoPlayer Flac extension #
 
-## Description ##
-
 The Flac extension provides `FlacExtractor` and `LibflacAudioRenderer`, which
 use libFLAC (the Flac decoding library) to extract and decode FLAC audio.
 
@@ -82,3 +80,10 @@ Note: These instructions assume you're using `DefaultTrackSelector`. If you have
 a custom track selector the choice of `Renderer` is up to your implementation,
 so you need to make sure you are passing an `LibflacAudioRenderer` to the
 player, then implement your own logic to use the renderer for a given track.
+
+## Links ##
+
+* [Javadoc][]: Classes matching `com.google.android.exoplayer2.ext.flac.*`
+  belong to this module.
+
+[Javadoc]: https://google.github.io/ExoPlayer/doc/reference/index.html
