@@ -43,7 +43,7 @@ import com.google.android.exoplayer2.metadata.Metadata;
 import com.google.android.exoplayer2.metadata.id3.ApicFrame;
 import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.text.Cue;
-import com.google.android.exoplayer2.text.TextRenderer;
+import com.google.android.exoplayer2.text.TextOutput;
 import com.google.android.exoplayer2.trackselection.TrackSelection;
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
 import com.google.android.exoplayer2.ui.AspectRatioFrameLayout.ResizeMode;
@@ -844,10 +844,10 @@ public final class SimpleExoPlayerView extends FrameLayout {
     aspectRatioFrame.setResizeMode(resizeMode);
   }
 
-  private final class ComponentListener implements SimpleExoPlayer.VideoListener,
-      TextRenderer.Output, Player.EventListener {
+  private final class ComponentListener implements TextOutput, SimpleExoPlayer.VideoListener,
+      Player.EventListener {
 
-    // TextRenderer.Output implementation
+    // TextOutput implementation
 
     @Override
     public void onCues(List<Cue> cues) {
@@ -856,7 +856,7 @@ public final class SimpleExoPlayerView extends FrameLayout {
       }
     }
 
-    // SimpleExoPlayer.VideoListener implementation
+    // SimpleExoPlayer.VideoInfoListener implementation
 
     @Override
     public void onVideoSizeChanged(int width, int height, int unappliedRotationDegrees,

@@ -28,7 +28,9 @@ import com.google.android.exoplayer2.audio.MediaCodecAudioRenderer;
 import com.google.android.exoplayer2.drm.DrmSessionManager;
 import com.google.android.exoplayer2.drm.FrameworkMediaCrypto;
 import com.google.android.exoplayer2.mediacodec.MediaCodecSelector;
+import com.google.android.exoplayer2.metadata.MetadataOutput;
 import com.google.android.exoplayer2.metadata.MetadataRenderer;
+import com.google.android.exoplayer2.text.TextOutput;
 import com.google.android.exoplayer2.text.TextRenderer;
 import com.google.android.exoplayer2.trackselection.TrackSelector;
 import com.google.android.exoplayer2.video.MediaCodecVideoRenderer;
@@ -137,8 +139,8 @@ public class DefaultRenderersFactory implements RenderersFactory {
   @Override
   public Renderer[] createRenderers(Handler eventHandler,
       VideoRendererEventListener videoRendererEventListener,
-      AudioRendererEventListener audioRendererEventListener, TextRenderer.Output textRendererOutput,
-      MetadataRenderer.Output metadataRendererOutput) {
+      AudioRendererEventListener audioRendererEventListener,
+      TextOutput textRendererOutput, MetadataOutput metadataRendererOutput) {
     ArrayList<Renderer> renderersList = new ArrayList<>();
     buildVideoRenderers(context, drmSessionManager, allowedVideoJoiningTimeMs,
         eventHandler, videoRendererEventListener, extensionRendererMode, renderersList);
@@ -283,8 +285,8 @@ public class DefaultRenderersFactory implements RenderersFactory {
    * @param extensionRendererMode The extension renderer mode.
    * @param out An array to which the built renderers should be appended.
    */
-  protected void buildTextRenderers(Context context, TextRenderer.Output output,
-      Looper outputLooper, @ExtensionRendererMode int extensionRendererMode,
+  protected void buildTextRenderers(Context context, TextOutput output, Looper outputLooper,
+      @ExtensionRendererMode int extensionRendererMode,
       ArrayList<Renderer> out) {
     out.add(new TextRenderer(output, outputLooper));
   }
@@ -299,9 +301,8 @@ public class DefaultRenderersFactory implements RenderersFactory {
    * @param extensionRendererMode The extension renderer mode.
    * @param out An array to which the built renderers should be appended.
    */
-  protected void buildMetadataRenderers(Context context, MetadataRenderer.Output output,
-      Looper outputLooper, @ExtensionRendererMode int extensionRendererMode,
-      ArrayList<Renderer> out) {
+  protected void buildMetadataRenderers(Context context, MetadataOutput output, Looper outputLooper,
+      @ExtensionRendererMode int extensionRendererMode, ArrayList<Renderer> out) {
     out.add(new MetadataRenderer(output, outputLooper));
   }
 
