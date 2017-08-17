@@ -141,9 +141,32 @@ public final class OfflineLicenseHelper<T extends ExoMediaCrypto> {
         optionalKeyRequestParameters, new Handler(handlerThread.getLooper()), eventListener);
   }
 
-  /** Releases the helper. Should be called when the helper is no longer required. */
-  public void release() {
-    handlerThread.quit();
+  /**
+   * @see DefaultDrmSessionManager#getPropertyByteArray
+   */
+  public synchronized byte[] getPropertyByteArray(String key) {
+    return drmSessionManager.getPropertyByteArray(key);
+  }
+
+  /**
+   * @see DefaultDrmSessionManager#setPropertyByteArray
+   */
+  public synchronized void setPropertyByteArray(String key, byte[] value) {
+    drmSessionManager.setPropertyByteArray(key, value);
+  }
+
+  /**
+   * @see DefaultDrmSessionManager#getPropertyString
+   */
+  public synchronized String getPropertyString(String key) {
+    return drmSessionManager.getPropertyString(key);
+  }
+
+  /**
+   * @see DefaultDrmSessionManager#setPropertyString
+   */
+  public synchronized void setPropertyString(String key, String value) {
+    drmSessionManager.setPropertyString(key, value);
   }
 
   /**
@@ -210,21 +233,12 @@ public final class OfflineLicenseHelper<T extends ExoMediaCrypto> {
     }
     return licenseDurationRemainingSec;
   }
-  
-  public byte[] getPropertyByteArray(String key) {
-    return drmSessionManager.getPropertyByteArray(key);
-  }
 
-  public void setPropertyByteArray(String key, byte[] value) {
-    drmSessionManager.setPropertyByteArray(key, value);
-  }
-
-  public String getPropertyString(String key) {
-    return drmSessionManager.getPropertyString(key);
-  }
-
-  public void setPropertyString(String key, String value) {
-    drmSessionManager.setPropertyString(key, value);
+  /**
+   * Releases the helper. Should be called when the helper is no longer required.
+   */
+  public void release() {
+    handlerThread.quit();
   }
 
   private byte[] blockingKeyRequest(@Mode int licenseMode, byte[] offlineLicenseKeySetId,
