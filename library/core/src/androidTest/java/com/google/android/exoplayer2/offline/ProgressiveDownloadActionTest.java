@@ -16,7 +16,6 @@
 package com.google.android.exoplayer2.offline;
 
 import android.test.InstrumentationTestCase;
-import com.google.android.exoplayer2.offline.DownloadAction.Serializer;
 import com.google.android.exoplayer2.testutil.TestUtil;
 import com.google.android.exoplayer2.upstream.DummyDataSource;
 import com.google.android.exoplayer2.upstream.cache.Cache;
@@ -101,24 +100,22 @@ public class ProgressiveDownloadActionTest extends InstrumentationTestCase {
 
   public void testSerializerGetType() throws Exception {
     ProgressiveDownloadAction action = new ProgressiveDownloadAction("uri", null, false);
-    Serializer serializer = action.getSerializer();
-    assertNotNull(serializer.getType());
+    assertNotNull(action.getType());
   }
 
   public void testSerializerWriteRead() throws Exception {
-    doTestSerializationRoundtrip(new ProgressiveDownloadAction("uri1", null, false));
-    doTestSerializationRoundtrip(new ProgressiveDownloadAction("uri2", "key", true));
+    doTestSerializationRoundTrip(new ProgressiveDownloadAction("uri1", null, false));
+    doTestSerializationRoundTrip(new ProgressiveDownloadAction("uri2", "key", true));
   }
 
-  private void doTestSerializationRoundtrip(ProgressiveDownloadAction action1) throws IOException {
-    Serializer serializer = action1.getSerializer();
+  private void doTestSerializationRoundTrip(ProgressiveDownloadAction action1) throws IOException {
     ByteArrayOutputStream out = new ByteArrayOutputStream();
     DataOutputStream output = new DataOutputStream(out);
-    serializer.writeToStream(output, action1);
+    action1.writeToStream(output);
 
     ByteArrayInputStream in = new ByteArrayInputStream(out.toByteArray());
     DataInputStream input = new DataInputStream(in);
-    DownloadAction action2 = serializer.readFromStream(input);
+    DownloadAction action2 = ProgressiveDownloadAction.DESERIALIZER.readFromStream(input);
 
     assertEquals(action1, action2);
   }
