@@ -74,6 +74,10 @@ public final class C {
   public static final long NANOS_PER_SECOND = 1000000000L;
 
   /**
+   * The name of the ASCII charset.
+   */
+  public static final String ASCII_NAME = "US-ASCII";
+  /**
    * The name of the UTF-8 charset.
    */
   public static final String UTF8_NAME = "UTF-8";
