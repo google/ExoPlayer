@@ -594,30 +594,6 @@ public abstract class Timeline {
   }
 
   /**
-   * Returns whether the given window is the last window of the timeline depending on the
-   * {@code repeatMode}.
-   *
-   * @param windowIndex A window index.
-   * @param repeatMode A repeat mode.
-   * @return Whether the window of the given index is the last window of the timeline.
-   */
-  public final boolean isLastWindow(int windowIndex, @Player.RepeatMode int repeatMode) {
-    return getNextWindowIndex(windowIndex, repeatMode) == C.INDEX_UNSET;
-  }
-
-  /**
-   * Returns whether the given window is the first window of the timeline depending on the
-   * {@code repeatMode}.
-   *
-   * @param windowIndex A window index.
-   * @param repeatMode A repeat mode.
-   * @return Whether the window of the given index is the first window of the timeline.
-   */
-  public final boolean isFirstWindow(int windowIndex, @Player.RepeatMode int repeatMode) {
-    return getPreviousWindowIndex(windowIndex, repeatMode) == C.INDEX_UNSET;
-  }
-
-  /**
    * Populates a {@link Window} with data for the window at the specified index. Does not populate
    * {@link Window#id}.
    *
