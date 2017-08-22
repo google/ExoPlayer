@@ -132,6 +132,11 @@ public class FlacPlaybackTest extends InstrumentationTestCase {
       // Do nothing.
     }
 
+    @Override
+    public void onShuffleModeEnabledChanged(boolean shuffleModeEnabled) {
+      // Do nothing.
+    }
+
     private void releasePlayerAndQuitLooper() {
       player.release();
       Looper.myLooper().quit();

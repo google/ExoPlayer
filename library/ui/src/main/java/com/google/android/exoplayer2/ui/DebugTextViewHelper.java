@@ -94,6 +94,11 @@ public final class DebugTextViewHelper implements Runnable, Player.EventListener
   }
 
   @Override
+  public void onShuffleModeEnabledChanged(boolean shuffleModeEnabled) {
+    // Do nothing.
+  }
+
+  @Override
   public void onPositionDiscontinuity() {
     updateAndPost();
   }

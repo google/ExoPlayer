@@ -195,6 +195,9 @@ import java.util.concurrent.CopyOnWriteArraySet;
   public void setShuffleModeEnabled(boolean shuffleModeEnabled) {
     if (this.shuffleModeEnabled != shuffleModeEnabled) {
       this.shuffleModeEnabled = shuffleModeEnabled;
+      for (Player.EventListener listener : listeners) {
+        listener.onShuffleModeEnabledChanged(shuffleModeEnabled);
+      }
     }
   }
 
@@ -527,3 +530,4 @@ import java.util.concurrent.CopyOnWriteArraySet;
   }
 
 }
+

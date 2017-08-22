@@ -620,6 +620,11 @@ public final class MediaSessionConnector {
     }
 
     @Override
+    public void onShuffleModeEnabledChanged(boolean shuffleModeEnabled) {
+      // TODO: Support shuffle mode in MediaSessionConnector.
+    }
+
+    @Override
     public void onPlayerError(ExoPlaybackException error) {
       playbackException = error;
       updateMediaSessionPlaybackState();

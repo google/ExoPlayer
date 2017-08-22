@@ -95,6 +95,13 @@ public interface Player {
     void onRepeatModeChanged(@RepeatMode int repeatMode);
 
     /**
+     * Called when the value of {@link #getShuffleModeEnabled()} changes.
+     *
+     * @param shuffleModeEnabled Whether shuffling of windows is enabled.
+     */
+    void onShuffleModeEnabledChanged(boolean shuffleModeEnabled);
+
+    /**
      * Called when an error occurs. The playback state will transition to {@link #STATE_IDLE}
      * immediately after this method is called. The player instance can still be used, and
      * {@link #release()} must still be called on the player should it no longer be required.

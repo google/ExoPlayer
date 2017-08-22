@@ -361,6 +361,11 @@ public final class ExoPlayerTestRunner implements Player.EventListener {
   }
 
   @Override
+  public void onShuffleModeEnabledChanged(boolean shuffleModeEnabled) {
+    // Do nothing.
+  }
+
+  @Override
   public void onPlayerError(ExoPlaybackException error) {
     handleException(exception);
   }

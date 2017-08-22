@@ -236,6 +236,11 @@ public abstract class ExoHostedTest implements HostedTest, Player.EventListener,
   }
 
   @Override
+  public void onShuffleModeEnabledChanged(boolean shuffleModeEnabled) {
+    // Do nothing.
+  }
+
+  @Override
   public final void onPlayerError(ExoPlaybackException error) {
     playerWasPrepared = true;
     playerError = error;

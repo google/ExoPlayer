@@ -271,6 +271,11 @@ public final class LeanbackPlayerAdapter extends PlayerAdapter {
       // Do nothing.
     }
 
+    @Override
+    public void onShuffleModeEnabledChanged(boolean shuffleModeEnabled) {
+      // Do nothing.
+    }
+
     // SimpleExoplayerView.Callback implementation.
 
     @Override
