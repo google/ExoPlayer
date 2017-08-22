@@ -53,6 +53,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
   private boolean tracksSelected;
   private boolean playWhenReady;
   private @RepeatMode int repeatMode;
+  private boolean shuffleModeEnabled;
   private int playbackState;
   private int pendingSeekAcks;
   private int pendingPrepareAcks;
@@ -87,6 +88,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
     this.trackSelector = Assertions.checkNotNull(trackSelector);
     this.playWhenReady = false;
     this.repeatMode = Player.REPEAT_MODE_OFF;
+    this.shuffleModeEnabled = false;
     this.playbackState = Player.STATE_IDLE;
     this.listeners = new CopyOnWriteArraySet<>();
     emptyTrackSelections = new TrackSelectionArray(new TrackSelection[renderers.length]);
@@ -187,6 +189,18 @@ import java.util.concurrent.CopyOnWriteArraySet;
   @Override
   public @RepeatMode int getRepeatMode() {
     return repeatMode;
+  }
+
+  @Override
+  public void setShuffleModeEnabled(boolean shuffleModeEnabled) {
+    if (this.shuffleModeEnabled != shuffleModeEnabled) {
+      this.shuffleModeEnabled = shuffleModeEnabled;
+    }
+  }
+
+  @Override
+  public boolean getShuffleModeEnabled() {
+    return shuffleModeEnabled;
   }
 
   @Override

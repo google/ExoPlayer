@@ -220,6 +220,18 @@ public interface Player {
   @RepeatMode int getRepeatMode();
 
   /**
+   * Sets whether shuffling of windows is enabled.
+   *
+   * @param shuffleModeEnabled Whether shuffling is enabled.
+   */
+  void setShuffleModeEnabled(boolean shuffleModeEnabled);
+
+  /**
+   * Returns whether shuffling of windows is enabled.
+   */
+  boolean getShuffleModeEnabled();
+
+  /**
    * Whether the player is currently loading the source.
    *
    * @return Whether the player is currently loading the source.

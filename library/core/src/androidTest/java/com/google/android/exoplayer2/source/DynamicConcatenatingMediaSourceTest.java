@@ -397,6 +397,16 @@ public final class DynamicConcatenatingMediaSourceTest extends TestCase {
     }
 
     @Override
+    public void setShuffleModeEnabled(boolean shuffleModeEnabled) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public boolean getShuffleModeEnabled() {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
     public boolean isLoading() {
       throw new UnsupportedOperationException();
     }
