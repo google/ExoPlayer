@@ -502,6 +502,11 @@ public class PlayerActivity extends Activity implements OnClickListener, EventLi
   }
 
   @Override
+  public void onShuffleModeEnabledChanged(boolean shuffleModeEnabled) {
+    // Do nothing.
+  }
+
+  @Override
   public void onPositionDiscontinuity() {
     if (inErrorState) {
       // This will only occur if the user has performed a seek whilst in the error state. Update the

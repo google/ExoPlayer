@@ -567,6 +567,11 @@ public final class ImaAdsLoader implements Player.EventListener, VideoAdPlayer,
   }
 
   @Override
+  public void onShuffleModeEnabledChanged(boolean shuffleModeEnabled) {
+    // Do nothing.
+  }
+
+  @Override
   public void onPlayerError(ExoPlaybackException error) {
     if (playingAd) {
       for (int i = 0; i < adCallbacks.size(); i++) {

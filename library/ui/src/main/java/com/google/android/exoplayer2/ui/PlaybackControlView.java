@@ -1080,6 +1080,11 @@ public class PlaybackControlView extends FrameLayout {
     }
 
     @Override
+    public void onShuffleModeEnabledChanged(boolean shuffleModeEnabled) {
+      // TODO: Update UI.
+    }
+
+    @Override
     public void onPositionDiscontinuity() {
       updateNavigation();
       updateProgress();

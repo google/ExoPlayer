@@ -100,6 +100,11 @@ import java.util.Locale;
   }
 
   @Override
+  public void onShuffleModeEnabledChanged(boolean shuffleModeEnabled) {
+    Log.d(TAG, "shuffleModeEnabled [" + shuffleModeEnabled + "]");
+  }
+
+  @Override
   public void onPositionDiscontinuity() {
     Log.d(TAG, "positionDiscontinuity");
   }

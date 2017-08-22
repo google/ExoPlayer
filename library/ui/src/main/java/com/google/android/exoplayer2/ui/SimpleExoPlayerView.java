@@ -897,6 +897,11 @@ public final class SimpleExoPlayerView extends FrameLayout {
     }
 
     @Override
+    public void onShuffleModeEnabledChanged(boolean shuffleModeEnabled) {
+      // Do nothing.
+    }
+
+    @Override
     public void onPlayerError(ExoPlaybackException e) {
       // Do nothing.
     }
