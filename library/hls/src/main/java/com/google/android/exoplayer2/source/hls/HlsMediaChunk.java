@@ -32,6 +32,7 @@ import com.google.android.exoplayer2.metadata.id3.Id3Decoder;
 import com.google.android.exoplayer2.metadata.id3.PrivFrame;
 import com.google.android.exoplayer2.source.chunk.MediaChunk;
 import com.google.android.exoplayer2.source.hls.playlist.HlsMasterPlaylist.HlsUrl;
+import com.google.android.exoplayer2.source.hls.playlist.HlsMediaPlaylist;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DataSpec;
 import com.google.android.exoplayer2.util.MimeTypes;
@@ -116,16 +117,19 @@ import java.util.concurrent.atomic.AtomicInteger;
    * @param isMasterTimestampSource True if the chunk can initialize the timestamp adjuster.
    * @param timestampAdjuster Adjuster corresponding to the provided discontinuity sequence number.
    * @param previousChunk The {@link HlsMediaChunk} that preceded this one. May be null.
-   * @param encryptionKey For AES encryption chunks, the encryption key.
-   * @param encryptionIv For AES encryption chunks, the encryption initialization vector.
+   * @param keyFormat A string describing the format for {@code keyData}, or null if the chunk is
+   *     not encrypted.
+   * @param keyData Data specifying how to obtain the keys to decrypt the chunk, or null if the
+   *     chunk is not encrypted.
+   * @param encryptionIv The AES initialization vector, or null if the chunk is not encrypted.
    */
   public HlsMediaChunk(DataSource dataSource, DataSpec dataSpec, DataSpec initDataSpec,
       HlsUrl hlsUrl, List<Format> muxedCaptionFormats, int trackSelectionReason,
       Object trackSelectionData, long startTimeUs, long endTimeUs, int chunkIndex,
       int discontinuitySequenceNumber, boolean isMasterTimestampSource,
-      TimestampAdjuster timestampAdjuster, HlsMediaChunk previousChunk, byte[] encryptionKey,
-      byte[] encryptionIv) {
-    super(buildDataSource(dataSource, encryptionKey, encryptionIv), dataSpec, hlsUrl.format,
+      TimestampAdjuster timestampAdjuster, HlsMediaChunk previousChunk, String keyFormat,
+      byte[] keyData, byte[] encryptionIv) {
+    super(buildDataSource(dataSource, keyFormat, keyData, encryptionIv), dataSpec, hlsUrl.format,
         trackSelectionReason, trackSelectionData, startTimeUs, endTimeUs, chunkIndex);
     this.discontinuitySequenceNumber = discontinuitySequenceNumber;
     this.initDataSpec = initDataSpec;
@@ -327,15 +331,16 @@ import java.util.concurrent.atomic.AtomicInteger;
   // Internal factory methods.
 
   /**
-   * If the content is encrypted, returns an {@link Aes128DataSource} that wraps the original in
-   * order to decrypt the loaded data. Else returns the original.
+   * If the content is encrypted using the "identity" key format, returns an
+   * {@link Aes128DataSource} that wraps the original in order to decrypt the loaded data. Else
+   * returns the original.
    */
-  private static DataSource buildDataSource(DataSource dataSource, byte[] encryptionKey,
+  private static DataSource buildDataSource(DataSource dataSource, String keyFormat, byte[] keyData,
       byte[] encryptionIv) {
-    if (encryptionKey == null || encryptionIv == null) {
-      return dataSource;
+    if (HlsMediaPlaylist.KEYFORMAT_IDENTITY.equals(keyFormat)) {
+      return new Aes128DataSource(dataSource, keyData, encryptionIv);
     }
-    return new Aes128DataSource(dataSource, encryptionKey, encryptionIv);
+    return dataSource;
   }
 
   private Extractor createExtractor() {

@@ -306,7 +306,8 @@ import java.util.List;
     out.chunk = new HlsMediaChunk(mediaDataSource, dataSpec, initDataSpec, selectedUrl,
         muxedCaptionFormats, trackSelection.getSelectionReason(), trackSelection.getSelectionData(),
         startTimeUs, startTimeUs + segment.durationUs, chunkMediaSequence, discontinuitySequence,
-        isTimestampMaster, timestampAdjuster, previous, encryptionKey, encryptionIv);
+        isTimestampMaster, timestampAdjuster, previous, segment.keyFormat, encryptionKey,
+        encryptionIv);
   }
 
   /**
