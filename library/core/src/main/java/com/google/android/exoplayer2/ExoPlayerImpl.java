@@ -107,7 +107,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
     };
     playbackInfo = new ExoPlayerImplInternal.PlaybackInfo(0, 0);
     internalPlayer = new ExoPlayerImplInternal(renderers, trackSelector, loadControl, playWhenReady,
-        repeatMode, eventHandler, playbackInfo, this);
+        repeatMode, shuffleModeEnabled, eventHandler, playbackInfo, this);
   }
 
   @Override
@@ -195,6 +195,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
   public void setShuffleModeEnabled(boolean shuffleModeEnabled) {
     if (this.shuffleModeEnabled != shuffleModeEnabled) {
       this.shuffleModeEnabled = shuffleModeEnabled;
+      internalPlayer.setShuffleModeEnabled(shuffleModeEnabled);
       for (Player.EventListener listener : listeners) {
         listener.onShuffleModeEnabledChanged(shuffleModeEnabled);
       }
@@ -530,4 +531,3 @@ import java.util.concurrent.CopyOnWriteArraySet;
   }
 
 }
-
