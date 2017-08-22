@@ -69,7 +69,8 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
   private static final String TYPE_CLOSED_CAPTIONS = "CLOSED-CAPTIONS";
 
   private static final String METHOD_NONE = "NONE";
-  private static final String METHOD_AES128 = "AES-128";
+  private static final String METHOD_AES_128 = "AES-128";
+  private static final String METHOD_SAMPLE_AES = "SAMPLE-AES";
 
   private static final String BOOLEAN_TRUE = "YES";
   private static final String BOOLEAN_FALSE = "NO";
@@ -97,7 +98,8 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
   private static final Pattern REGEX_ATTR_BYTERANGE =
       Pattern.compile("BYTERANGE=\"(\\d+(?:@\\d+)?)\\b\"");
   private static final Pattern REGEX_METHOD = Pattern.compile("METHOD=(" + METHOD_NONE + "|"
-      + METHOD_AES128 + ")");
+      + METHOD_AES_128 + "|" + METHOD_SAMPLE_AES + ")");
+  private static final Pattern REGEX_KEYFORMAT = Pattern.compile("KEYFORMAT=\"(.+?)\"");
   private static final Pattern REGEX_URI = Pattern.compile("URI=\"(.+?)\"");
   private static final Pattern REGEX_IV = Pattern.compile("IV=([^,.*]+)");
   private static final Pattern REGEX_TYPE = Pattern.compile("TYPE=(" + TYPE_AUDIO + "|" + TYPE_VIDEO
@@ -314,6 +316,7 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
     int segmentMediaSequence = 0;
 
     boolean isEncrypted = false;
+    String keyFormat = null;
     String encryptionKeyUri = null;
     String encryptionIV = null;
 
@@ -360,11 +363,16 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
             (long) (parseDoubleAttr(line, REGEX_MEDIA_DURATION) * C.MICROS_PER_SECOND);
       } else if (line.startsWith(TAG_KEY)) {
         String method = parseStringAttr(line, REGEX_METHOD);
-        isEncrypted = METHOD_AES128.equals(method);
+        isEncrypted = METHOD_AES_128.equals(method) || METHOD_SAMPLE_AES.equals(method);
         if (isEncrypted) {
+          keyFormat = parseOptionalStringAttr(line, REGEX_KEYFORMAT);
+          if (keyFormat == null) {
+            keyFormat = HlsMediaPlaylist.KEYFORMAT_IDENTITY;
+          }
           encryptionKeyUri = parseStringAttr(line, REGEX_URI);
           encryptionIV = parseOptionalStringAttr(line, REGEX_IV);
         } else {
+          keyFormat = null;
           encryptionKeyUri = null;
           encryptionIV = null;
         }
@@ -400,7 +408,7 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
           segmentByteRangeOffset = 0;
         }
         segments.add(new Segment(line, segmentDurationUs, relativeDiscontinuitySequence,
-            segmentStartTimeUs, isEncrypted, encryptionKeyUri, segmentEncryptionIV,
+            segmentStartTimeUs, isEncrypted, keyFormat, encryptionKeyUri, segmentEncryptionIV,
             segmentByteRangeOffset, segmentByteRangeLength));
         segmentStartTimeUs += segmentDurationUs;
         segmentDurationUs = 0;

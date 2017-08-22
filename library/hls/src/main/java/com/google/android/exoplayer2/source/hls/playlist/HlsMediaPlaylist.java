@@ -54,6 +54,10 @@ public final class HlsMediaPlaylist extends HlsPlaylist {
      */
     public final boolean isEncrypted;
     /**
+     * The key format as defined by #EXT-X-KEY, or null if the segment is not encrypted.
+     */
+    public final String keyFormat;
+    /**
      * The encryption key uri as defined by #EXT-X-KEY, or null if the segment is not encrypted.
      */
     public final String encryptionKeyUri;
@@ -73,7 +77,7 @@ public final class HlsMediaPlaylist extends HlsPlaylist {
     public final long byterangeLength;
 
     public Segment(String uri, long byterangeOffset, long byterangeLength) {
-      this(uri, 0, -1, C.TIME_UNSET, false, null, null, byterangeOffset, byterangeLength);
+      this(uri, 0, -1, C.TIME_UNSET, false, null, null, null, byterangeOffset, byterangeLength);
     }
 
     /**
@@ -82,19 +86,21 @@ public final class HlsMediaPlaylist extends HlsPlaylist {
      * @param relativeDiscontinuitySequence See {@link #relativeDiscontinuitySequence}.
      * @param relativeStartTimeUs See {@link #relativeStartTimeUs}.
      * @param isEncrypted See {@link #isEncrypted}.
+     * @param keyFormat See {@link #keyFormat}.
      * @param encryptionKeyUri See {@link #encryptionKeyUri}.
      * @param encryptionIV See {@link #encryptionIV}.
      * @param byterangeOffset See {@link #byterangeOffset}.
      * @param byterangeLength See {@link #byterangeLength}.
      */
     public Segment(String url, long durationUs, int relativeDiscontinuitySequence,
-        long relativeStartTimeUs, boolean isEncrypted, String encryptionKeyUri, String encryptionIV,
-        long byterangeOffset, long byterangeLength) {
+        long relativeStartTimeUs, boolean isEncrypted, String keyFormat, String encryptionKeyUri,
+        String encryptionIV, long byterangeOffset, long byterangeLength) {
       this.url = url;
       this.durationUs = durationUs;
       this.relativeDiscontinuitySequence = relativeDiscontinuitySequence;
       this.relativeStartTimeUs = relativeStartTimeUs;
       this.isEncrypted = isEncrypted;
+      this.keyFormat = keyFormat;
       this.encryptionKeyUri = encryptionKeyUri;
       this.encryptionIV = encryptionIV;
       this.byterangeOffset = byterangeOffset;
@@ -110,7 +116,12 @@ public final class HlsMediaPlaylist extends HlsPlaylist {
   }
 
   /**
-   * Type of the playlist as defined by #EXT-X-PLAYLIST-TYPE.
+   * The identity key format, as defined by #EXT-X-KEY.
+   */
+  public static final String KEYFORMAT_IDENTITY = "identity";
+
+  /**
+   * Type of the playlist, as defined by #EXT-X-PLAYLIST-TYPE.
    */
   @Retention(RetentionPolicy.SOURCE)
   @IntDef({PLAYLIST_TYPE_UNKNOWN, PLAYLIST_TYPE_VOD, PLAYLIST_TYPE_EVENT})
