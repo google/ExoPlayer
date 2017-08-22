@@ -155,6 +155,16 @@ public class FakeSimpleExoPlayer extends SimpleExoPlayer {
     }
 
     @Override
+    public void setShuffleModeEnabled(boolean shuffleModeEnabled) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public boolean getShuffleModeEnabled() {
+      return false;
+    }
+
+    @Override
     public boolean isLoading() {
       return isLoading;
     }

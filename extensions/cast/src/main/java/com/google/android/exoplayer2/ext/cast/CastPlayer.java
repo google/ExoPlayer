@@ -331,6 +331,17 @@ public final class CastPlayer implements Player {
   }
 
   @Override
+  public void setShuffleModeEnabled(boolean shuffleModeEnabled) {
+    // TODO: Support shuffle mode.
+  }
+
+  @Override
+  public boolean getShuffleModeEnabled() {
+    // TODO: Support shuffle mode.
+    return false;
+  }
+
+  @Override
   public TrackSelectionArray getCurrentTrackSelections() {
     return currentTrackSelection;
   }

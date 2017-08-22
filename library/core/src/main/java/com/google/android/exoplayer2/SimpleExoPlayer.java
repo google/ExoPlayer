@@ -643,6 +643,16 @@ public class SimpleExoPlayer implements ExoPlayer {
   }
 
   @Override
+  public void setShuffleModeEnabled(boolean shuffleModeEnabled) {
+    player.setShuffleModeEnabled(shuffleModeEnabled);
+  }
+
+  @Override
+  public boolean getShuffleModeEnabled() {
+    return player.getShuffleModeEnabled();
+  }
+
+  @Override
   public boolean isLoading() {
     return player.isLoading();
   }
