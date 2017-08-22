@@ -102,8 +102,8 @@ import com.google.android.exoplayer2.source.MediaSource.MediaPeriodId;
   private final Timeline.Window window;
 
   private Timeline timeline;
-  @RepeatMode
-  private int repeatMode;
+  private @RepeatMode int repeatMode;
+  private boolean shuffleModeEnabled;
 
   /**
    * Creates a new media period info sequence.
@@ -127,6 +127,14 @@ import com.google.android.exoplayer2.source.MediaSource.MediaPeriodId;
    */
   public void setRepeatMode(@RepeatMode int repeatMode) {
     this.repeatMode = repeatMode;
+  }
+
+  /**
+   * Sets whether shuffling is enabled. Call {@link #getUpdatedMediaPeriodInfo} to update period
+   * information taking into account the shuffle mode.
+   */
+  public void setShuffleModeEnabled(boolean shuffleModeEnabled) {
+    this.shuffleModeEnabled = shuffleModeEnabled;
   }
 
   /**
