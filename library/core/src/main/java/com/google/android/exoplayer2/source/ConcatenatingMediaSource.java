@@ -19,7 +19,7 @@ import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.Timeline;
-import com.google.android.exoplayer2.source.ShuffleOrder.UnshuffledShuffleOrder;
+import com.google.android.exoplayer2.source.ShuffleOrder.DefaultShuffleOrder;
 import com.google.android.exoplayer2.upstream.Allocator;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Util;
@@ -39,10 +39,11 @@ public final class ConcatenatingMediaSource implements MediaSource {
   private final Object[] manifests;
   private final Map<MediaPeriod, Integer> sourceIndexByMediaPeriod;
   private final boolean[] duplicateFlags;
-  private final boolean isRepeatOneAtomic;
+  private final boolean isAtomic;
 
   private Listener listener;
   private ConcatenatedTimeline timeline;
+  private ShuffleOrder shuffleOrder;
 
   /**
    * @param mediaSources The {@link MediaSource}s to concatenate. It is valid for the same
@@ -53,17 +54,33 @@ public final class ConcatenatingMediaSource implements MediaSource {
   }
 
   /**
-   * @param isRepeatOneAtomic Whether the concatenated media source shall be treated as atomic
-   *     (i.e., repeated in its entirety) when repeat mode is set to {@code Player.REPEAT_MODE_ONE}.
+   * @param isAtomic Whether the concatenated media source shall be treated as atomic,
+   *     i.e., treated as a single item for repeating and shuffling.
    * @param mediaSources The {@link MediaSource}s to concatenate. It is valid for the same
    *     {@link MediaSource} instance to be present more than once in the array.
    */
-  public ConcatenatingMediaSource(boolean isRepeatOneAtomic, MediaSource... mediaSources) {
+  public ConcatenatingMediaSource(boolean isAtomic, MediaSource... mediaSources) {
+    this(isAtomic, new DefaultShuffleOrder(mediaSources.length), mediaSources);
+  }
+
+  /**
+   * @param isAtomic Whether the concatenated media source shall be treated as atomic,
+   *     i.e., treated as a single item for repeating and shuffling.
+   * @param shuffleOrder The {@link ShuffleOrder} to use when shuffling the child media sources. The
+   *     number of elements in the shuffle order must match the number of concatenated
+   *     {@link MediaSource}s.
+   * @param mediaSources The {@link MediaSource}s to concatenate. It is valid for the same
+   *     {@link MediaSource} instance to be present more than once in the array.
+   */
+  public ConcatenatingMediaSource(boolean isAtomic, ShuffleOrder shuffleOrder,
+      MediaSource... mediaSources) {
     for (MediaSource mediaSource : mediaSources) {
       Assertions.checkNotNull(mediaSource);
     }
+    Assertions.checkArgument(shuffleOrder.getLength() == mediaSources.length);
     this.mediaSources = mediaSources;
-    this.isRepeatOneAtomic = isRepeatOneAtomic;
+    this.isAtomic = isAtomic;
+    this.shuffleOrder = shuffleOrder;
     timelines = new Timeline[mediaSources.length];
     manifests = new Object[mediaSources.length];
     sourceIndexByMediaPeriod = new HashMap<>();
@@ -139,7 +156,7 @@ public final class ConcatenatingMediaSource implements MediaSource {
         return;
       }
     }
-    timeline = new ConcatenatedTimeline(timelines.clone(), isRepeatOneAtomic);
+    timeline = new ConcatenatedTimeline(timelines.clone(), isAtomic, shuffleOrder);
     listener.onSourceInfoRefreshed(timeline, manifests.clone());
   }
 
@@ -165,10 +182,10 @@ public final class ConcatenatingMediaSource implements MediaSource {
     private final Timeline[] timelines;
     private final int[] sourcePeriodOffsets;
     private final int[] sourceWindowOffsets;
-    private final boolean isRepeatOneAtomic;
+    private final boolean isAtomic;
 
-    public ConcatenatedTimeline(Timeline[] timelines, boolean isRepeatOneAtomic) {
-      super(new UnshuffledShuffleOrder(timelines.length));
+    public ConcatenatedTimeline(Timeline[] timelines, boolean isAtomic, ShuffleOrder shuffleOrder) {
+      super(shuffleOrder);
       int[] sourcePeriodOffsets = new int[timelines.length];
       int[] sourceWindowOffsets = new int[timelines.length];
       long periodCount = 0;
@@ -185,7 +202,7 @@ public final class ConcatenatingMediaSource implements MediaSource {
       this.timelines = timelines;
       this.sourcePeriodOffsets = sourcePeriodOffsets;
       this.sourceWindowOffsets = sourceWindowOffsets;
-      this.isRepeatOneAtomic = isRepeatOneAtomic;
+      this.isAtomic = isAtomic;
     }
 
     @Override
@@ -201,19 +218,29 @@ public final class ConcatenatingMediaSource implements MediaSource {
     @Override
     public int getNextWindowIndex(int windowIndex, @Player.RepeatMode int repeatMode,
         boolean shuffleModeEnabled) {
-      if (isRepeatOneAtomic && repeatMode == Player.REPEAT_MODE_ONE) {
+      if (isAtomic && repeatMode == Player.REPEAT_MODE_ONE) {
         repeatMode = Player.REPEAT_MODE_ALL;
       }
-      return super.getNextWindowIndex(windowIndex, repeatMode, shuffleModeEnabled);
+      return super.getNextWindowIndex(windowIndex, repeatMode, !isAtomic && shuffleModeEnabled);
     }
 
     @Override
     public int getPreviousWindowIndex(int windowIndex, @Player.RepeatMode int repeatMode,
         boolean shuffleModeEnabled) {
-      if (isRepeatOneAtomic && repeatMode == Player.REPEAT_MODE_ONE) {
+      if (isAtomic && repeatMode == Player.REPEAT_MODE_ONE) {
         repeatMode = Player.REPEAT_MODE_ALL;
       }
-      return super.getPreviousWindowIndex(windowIndex, repeatMode, shuffleModeEnabled);
+      return super.getPreviousWindowIndex(windowIndex, repeatMode, !isAtomic && shuffleModeEnabled);
+    }
+
+    @Override
+    public int getLastWindowIndex(boolean shuffleModeEnabled) {
+      return super.getLastWindowIndex(!isAtomic && shuffleModeEnabled);
+    }
+
+    @Override
+    public int getFirstWindowIndex(boolean shuffleModeEnabled) {
+      return super.getFirstWindowIndex(!isAtomic && shuffleModeEnabled);
     }
 
     @Override
@@ -257,3 +284,4 @@ public final class ConcatenatingMediaSource implements MediaSource {
   }
 
 }
+
