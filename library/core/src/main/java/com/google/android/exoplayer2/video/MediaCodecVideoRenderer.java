@@ -737,28 +737,6 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
     return earlyUs < -30000;
   }
 
-  @SuppressLint("InlinedApi")
-  private static MediaFormat getMediaFormat(Format format, CodecMaxValues codecMaxValues,
-      boolean deviceNeedsAutoFrcWorkaround, int tunnelingAudioSessionId) {
-    MediaFormat frameworkMediaFormat = format.getFrameworkMediaFormatV16();
-    // Set the maximum adaptive video dimensions.
-    frameworkMediaFormat.setInteger(MediaFormat.KEY_MAX_WIDTH, codecMaxValues.width);
-    frameworkMediaFormat.setInteger(MediaFormat.KEY_MAX_HEIGHT, codecMaxValues.height);
-    // Set the maximum input size.
-    if (codecMaxValues.inputSize != Format.NO_VALUE) {
-      frameworkMediaFormat.setInteger(MediaFormat.KEY_MAX_INPUT_SIZE, codecMaxValues.inputSize);
-    }
-    // Set FRC workaround.
-    if (deviceNeedsAutoFrcWorkaround) {
-      frameworkMediaFormat.setInteger("auto-frc", 0);
-    }
-    // Configure tunneling if enabled.
-    if (tunnelingAudioSessionId != C.AUDIO_SESSION_ID_UNSET) {
-      configureTunnelingV21(frameworkMediaFormat, tunnelingAudioSessionId);
-    }
-    return frameworkMediaFormat;
-  }
-
   @TargetApi(23)
   private static void setOutputSurfaceV23(MediaCodec codec, Surface surface) {
     codec.setOutputSurface(surface);
@@ -812,6 +790,40 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
       }
     }
     return new CodecMaxValues(maxWidth, maxHeight, maxInputSize);
+  }
+
+  /**
+   * Returns the framework {@link MediaFormat} that should be used to configure the decoder when
+   * playing media in the specified input format.
+   *
+   * @param format The format of input media.
+   * @param codecMaxValues The codec's maximum supported values.
+   * @param deviceNeedsAutoFrcWorkaround Whether the device is known to enable frame-rate conversion
+   *     logic that negatively impacts ExoPlayer.
+   * @param tunnelingAudioSessionId The audio session id to use for tunneling, or
+   *     {@link C#AUDIO_SESSION_ID_UNSET} if tunneling should not be enabled.
+   * @return The framework {@link MediaFormat} that should be used to configure the decoder.
+   */
+  @SuppressLint("InlinedApi")
+  protected MediaFormat getMediaFormat(Format format, CodecMaxValues codecMaxValues,
+      boolean deviceNeedsAutoFrcWorkaround, int tunnelingAudioSessionId) {
+    MediaFormat frameworkMediaFormat = format.getFrameworkMediaFormatV16();
+    // Set the maximum adaptive video dimensions.
+    frameworkMediaFormat.setInteger(MediaFormat.KEY_MAX_WIDTH, codecMaxValues.width);
+    frameworkMediaFormat.setInteger(MediaFormat.KEY_MAX_HEIGHT, codecMaxValues.height);
+    // Set the maximum input size.
+    if (codecMaxValues.inputSize != Format.NO_VALUE) {
+      frameworkMediaFormat.setInteger(MediaFormat.KEY_MAX_INPUT_SIZE, codecMaxValues.inputSize);
+    }
+    // Set FRC workaround.
+    if (deviceNeedsAutoFrcWorkaround) {
+      frameworkMediaFormat.setInteger("auto-frc", 0);
+    }
+    // Configure tunneling if enabled.
+    if (tunnelingAudioSessionId != C.AUDIO_SESSION_ID_UNSET) {
+      configureTunnelingV21(frameworkMediaFormat, tunnelingAudioSessionId);
+    }
+    return frameworkMediaFormat;
   }
 
   /**
