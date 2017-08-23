@@ -23,7 +23,7 @@ import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.ExoPlayer.ExoPlayerComponent;
 import com.google.android.exoplayer2.ExoPlayer.ExoPlayerMessage;
 import com.google.android.exoplayer2.Timeline;
-import com.google.android.exoplayer2.source.ShuffleOrder.UnshuffledShuffleOrder;
+import com.google.android.exoplayer2.source.ShuffleOrder.DefaultShuffleOrder;
 import com.google.android.exoplayer2.trackselection.TrackSelection;
 import com.google.android.exoplayer2.upstream.Allocator;
 import com.google.android.exoplayer2.util.Assertions;
@@ -58,11 +58,26 @@ public final class DynamicConcatenatingMediaSource implements MediaSource, ExoPl
 
   private ExoPlayer player;
   private Listener listener;
+  private ShuffleOrder shuffleOrder;
   private boolean preventListenerNotification;
   private int windowCount;
   private int periodCount;
 
+  /**
+   * Creates a new dynamic concatenating media source.
+   */
   public DynamicConcatenatingMediaSource() {
+    this(new DefaultShuffleOrder(0));
+  }
+
+  /**
+   * Creates a new dynamic concatenating media source with a custom shuffle order.
+   *
+   * @param shuffleOrder The {@link ShuffleOrder} to use when shuffling the child media sources.
+   *     This shuffle order must be empty.
+   */
+  public DynamicConcatenatingMediaSource(ShuffleOrder shuffleOrder) {
+    this.shuffleOrder = shuffleOrder;
     this.mediaSourceByMediaPeriod = new IdentityHashMap<>();
     this.mediaSourcesPublic = new ArrayList<>();
     this.mediaSourceHolders = new ArrayList<>();
@@ -180,6 +195,7 @@ public final class DynamicConcatenatingMediaSource implements MediaSource, ExoPl
     this.player = player;
     this.listener = listener;
     preventListenerNotification = true;
+    shuffleOrder = shuffleOrder.cloneAndInsert(0, mediaSourcesPublic.size());
     addMediaSourcesInternal(0, mediaSourcesPublic);
     preventListenerNotification = false;
     maybeNotifyListener();
@@ -234,21 +250,26 @@ public final class DynamicConcatenatingMediaSource implements MediaSource, ExoPl
     switch (messageType) {
       case MSG_ADD: {
         Pair<Integer, MediaSource> messageData = (Pair<Integer, MediaSource>) message;
+        shuffleOrder = shuffleOrder.cloneAndInsert(messageData.first, 1);
         addMediaSourceInternal(messageData.first, messageData.second);
         break;
       }
       case MSG_ADD_MULTIPLE: {
         Pair<Integer, Collection<MediaSource>> messageData =
             (Pair<Integer, Collection<MediaSource>>) message;
+        shuffleOrder = shuffleOrder.cloneAndInsert(messageData.first, messageData.second.size());
         addMediaSourcesInternal(messageData.first, messageData.second);
         break;
       }
       case MSG_REMOVE: {
+        shuffleOrder = shuffleOrder.cloneAndRemove((Integer) message);
         removeMediaSourceInternal((Integer) message);
         break;
       }
       case MSG_MOVE: {
         Pair<Integer, Integer> messageData = (Pair<Integer, Integer>) message;
+        shuffleOrder = shuffleOrder.cloneAndRemove(messageData.first);
+        shuffleOrder = shuffleOrder.cloneAndInsert(messageData.second, 1);
         moveMediaSourceInternal(messageData.first, messageData.second);
         break;
       }
@@ -262,8 +283,8 @@ public final class DynamicConcatenatingMediaSource implements MediaSource, ExoPl
 
   private void maybeNotifyListener() {
     if (!preventListenerNotification) {
-      listener.onSourceInfoRefreshed(
-          new ConcatenatedTimeline(mediaSourceHolders, windowCount, periodCount), null);
+      listener.onSourceInfoRefreshed(new ConcatenatedTimeline(mediaSourceHolders, windowCount,
+          periodCount, shuffleOrder), null);
     }
   }
 
@@ -397,8 +418,8 @@ public final class DynamicConcatenatingMediaSource implements MediaSource, ExoPl
     private final SparseIntArray childIndexByUid;
 
     public ConcatenatedTimeline(Collection<MediaSourceHolder> mediaSourceHolders, int windowCount,
-        int periodCount) {
-      super(new UnshuffledShuffleOrder(mediaSourceHolders.size()));
+        int periodCount, ShuffleOrder shuffleOrder) {
+      super(shuffleOrder);
       this.windowCount = windowCount;
       this.periodCount = periodCount;
       int childCount = mediaSourceHolders.size();
@@ -638,3 +659,4 @@ public final class DynamicConcatenatingMediaSource implements MediaSource, ExoPl
   }
 
 }
+

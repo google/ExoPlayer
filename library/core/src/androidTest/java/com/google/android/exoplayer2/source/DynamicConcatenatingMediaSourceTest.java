@@ -27,6 +27,7 @@ import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.source.MediaSource.Listener;
 import com.google.android.exoplayer2.testutil.FakeMediaSource;
+import com.google.android.exoplayer2.testutil.FakeShuffleOrder;
 import com.google.android.exoplayer2.testutil.FakeTimeline;
 import com.google.android.exoplayer2.testutil.FakeTimeline.TimelineWindowDefinition;
 import com.google.android.exoplayer2.testutil.TimelineAsserts;
@@ -49,7 +50,8 @@ public final class DynamicConcatenatingMediaSourceTest extends TestCase {
   public void testPlaylistChangesAfterPreparation() throws InterruptedException {
     timeline = null;
     FakeMediaSource[] childSources = createMediaSources(7);
-    DynamicConcatenatingMediaSource mediaSource = new DynamicConcatenatingMediaSource();
+    DynamicConcatenatingMediaSource mediaSource = new DynamicConcatenatingMediaSource(
+        new FakeShuffleOrder(0));
     prepareAndListenToTimelineUpdates(mediaSource);
     waitForTimelineUpdate();
     TimelineAsserts.assertEmpty(timeline);
@@ -128,6 +130,18 @@ public final class DynamicConcatenatingMediaSourceTest extends TestCase {
         C.INDEX_UNSET, 0, 1);
     TimelineAsserts.assertPreviousWindowIndices(timeline, Player.REPEAT_MODE_ONE, false, 0, 1, 2);
     TimelineAsserts.assertPreviousWindowIndices(timeline, Player.REPEAT_MODE_ALL, false, 2, 0, 1);
+    assertEquals(0, timeline.getFirstWindowIndex(false));
+    assertEquals(timeline.getWindowCount() - 1, timeline.getLastWindowIndex(false));
+    TimelineAsserts.assertNextWindowIndices(timeline, Player.REPEAT_MODE_OFF, true,
+        C.INDEX_UNSET, 0, 1);
+    TimelineAsserts.assertNextWindowIndices(timeline, Player.REPEAT_MODE_ONE, true, 0, 1, 2);
+    TimelineAsserts.assertNextWindowIndices(timeline, Player.REPEAT_MODE_ALL, true, 2, 0, 1);
+    TimelineAsserts.assertPreviousWindowIndices(timeline, Player.REPEAT_MODE_OFF, true,
+        1, 2, C.INDEX_UNSET);
+    TimelineAsserts.assertPreviousWindowIndices(timeline, Player.REPEAT_MODE_ONE, true, 0, 1, 2);
+    TimelineAsserts.assertPreviousWindowIndices(timeline, Player.REPEAT_MODE_ALL, true, 1, 2, 0);
+    assertEquals(timeline.getWindowCount() - 1, timeline.getFirstWindowIndex(true));
+    assertEquals(0, timeline.getLastWindowIndex(true));
 
     // Remove at front of queue.
     mediaSource.removeMediaSource(0);
@@ -153,7 +167,8 @@ public final class DynamicConcatenatingMediaSourceTest extends TestCase {
   public void testPlaylistChangesBeforePreparation() throws InterruptedException {
     timeline = null;
     FakeMediaSource[] childSources = createMediaSources(4);
-    DynamicConcatenatingMediaSource mediaSource = new DynamicConcatenatingMediaSource();
+    DynamicConcatenatingMediaSource mediaSource = new DynamicConcatenatingMediaSource(
+        new FakeShuffleOrder(0));
     mediaSource.addMediaSource(childSources[0]);
     mediaSource.addMediaSource(childSources[1]);
     mediaSource.addMediaSource(0, childSources[2]);
@@ -168,6 +183,14 @@ public final class DynamicConcatenatingMediaSourceTest extends TestCase {
     assertNotNull(timeline);
     TimelineAsserts.assertPeriodCounts(timeline, 3, 4, 2);
     TimelineAsserts.assertWindowIds(timeline, 333, 444, 222);
+    TimelineAsserts.assertNextWindowIndices(timeline, Player.REPEAT_MODE_OFF, false,
+        1, 2, C.INDEX_UNSET);
+    TimelineAsserts.assertPreviousWindowIndices(timeline, Player.REPEAT_MODE_OFF, false,
+        C.INDEX_UNSET, 0, 1);
+    TimelineAsserts.assertNextWindowIndices(timeline, Player.REPEAT_MODE_OFF, true,
+        C.INDEX_UNSET, 0, 1);
+    TimelineAsserts.assertPreviousWindowIndices(timeline, Player.REPEAT_MODE_OFF, true,
+        1, 2, C.INDEX_UNSET);
 
     mediaSource.releaseSource();
     for (int i = 1; i < 4; i++) {
