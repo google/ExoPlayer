@@ -488,7 +488,7 @@ import java.io.IOException;
     }
     while (true) {
       int nextPeriodIndex = timeline.getNextPeriodIndex(lastValidPeriodHolder.info.id.periodIndex,
-          period, window, repeatMode);
+          period, window, repeatMode, false);
       while (lastValidPeriodHolder.next != null
           && !lastValidPeriodHolder.info.isLastInTimelinePeriod) {
         lastValidPeriodHolder = lastValidPeriodHolder.next;
@@ -1122,7 +1122,7 @@ import java.io.IOException;
     while (periodHolder.next != null) {
       MediaPeriodHolder previousPeriodHolder = periodHolder;
       periodHolder = periodHolder.next;
-      periodIndex = timeline.getNextPeriodIndex(periodIndex, period, window, repeatMode);
+      periodIndex = timeline.getNextPeriodIndex(periodIndex, period, window, repeatMode, false);
       if (periodIndex != C.INDEX_UNSET
           && periodHolder.uid.equals(timeline.getPeriod(periodIndex, period, true).uid)) {
         // The holder is consistent with the new timeline. Update its index and continue.
@@ -1204,7 +1204,8 @@ import java.io.IOException;
     int newPeriodIndex = C.INDEX_UNSET;
     int maxIterations = oldTimeline.getPeriodCount();
     for (int i = 0; i < maxIterations && newPeriodIndex == C.INDEX_UNSET; i++) {
-      oldPeriodIndex = oldTimeline.getNextPeriodIndex(oldPeriodIndex, period, window, repeatMode);
+      oldPeriodIndex = oldTimeline.getNextPeriodIndex(oldPeriodIndex, period, window, repeatMode,
+          false);
       if (oldPeriodIndex == C.INDEX_UNSET) {
         // We've reached the end of the old timeline.
         break;

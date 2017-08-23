@@ -675,9 +675,11 @@ public class PlaybackControlView extends FrameLayout {
       timeline.getWindow(windowIndex, window);
       isSeekable = window.isSeekable;
       enablePrevious = isSeekable || !window.isDynamic
-          || timeline.getPreviousWindowIndex(windowIndex, player.getRepeatMode()) != C.INDEX_UNSET;
+          || timeline.getPreviousWindowIndex(windowIndex, player.getRepeatMode(), false)
+              != C.INDEX_UNSET;
       enableNext = window.isDynamic
-          || timeline.getNextWindowIndex(windowIndex, player.getRepeatMode()) != C.INDEX_UNSET;
+          || timeline.getNextWindowIndex(windowIndex, player.getRepeatMode(), false)
+              != C.INDEX_UNSET;
       if (player.isPlayingAd()) {
         // Always hide player controls during ads.
         hide();
@@ -861,7 +863,8 @@ public class PlaybackControlView extends FrameLayout {
     }
     int windowIndex = player.getCurrentWindowIndex();
     timeline.getWindow(windowIndex, window);
-    int previousWindowIndex = timeline.getPreviousWindowIndex(windowIndex, player.getRepeatMode());
+    int previousWindowIndex = timeline.getPreviousWindowIndex(windowIndex, player.getRepeatMode(),
+        false);
     if (previousWindowIndex != C.INDEX_UNSET
         && (player.getCurrentPosition() <= MAX_POSITION_FOR_SEEK_TO_PREVIOUS
         || (window.isDynamic && !window.isSeekable))) {
@@ -877,7 +880,7 @@ public class PlaybackControlView extends FrameLayout {
       return;
     }
     int windowIndex = player.getCurrentWindowIndex();
-    int nextWindowIndex = timeline.getNextWindowIndex(windowIndex, player.getRepeatMode());
+    int nextWindowIndex = timeline.getNextWindowIndex(windowIndex, player.getRepeatMode(), false);
     if (nextWindowIndex != C.INDEX_UNSET) {
       seekTo(nextWindowIndex, C.TIME_UNSET);
     } else if (timeline.getWindow(windowIndex, window, false).isDynamic) {

@@ -32,12 +32,14 @@ import com.google.android.exoplayer2.Timeline;
   }
 
   @Override
-  public int getNextWindowIndex(int windowIndex, @Player.RepeatMode int repeatMode) {
+  public int getNextWindowIndex(int windowIndex, @Player.RepeatMode int repeatMode,
+      boolean shuffleModeEnabled) {
     int childIndex = getChildIndexByWindowIndex(windowIndex);
     int firstWindowIndexInChild = getFirstWindowIndexByChildIndex(childIndex);
     int nextWindowIndexInChild = getTimelineByChildIndex(childIndex).getNextWindowIndex(
         windowIndex - firstWindowIndexInChild,
-        repeatMode == Player.REPEAT_MODE_ALL ? Player.REPEAT_MODE_OFF : repeatMode);
+        repeatMode == Player.REPEAT_MODE_ALL ? Player.REPEAT_MODE_OFF : repeatMode,
+        shuffleModeEnabled);
     if (nextWindowIndexInChild != C.INDEX_UNSET) {
       return firstWindowIndexInChild + nextWindowIndexInChild;
     } else {
@@ -53,12 +55,14 @@ import com.google.android.exoplayer2.Timeline;
   }
 
   @Override
-  public int getPreviousWindowIndex(int windowIndex, @Player.RepeatMode int repeatMode) {
+  public int getPreviousWindowIndex(int windowIndex, @Player.RepeatMode int repeatMode,
+      boolean shuffleModeEnabled) {
     int childIndex = getChildIndexByWindowIndex(windowIndex);
     int firstWindowIndexInChild = getFirstWindowIndexByChildIndex(childIndex);
     int previousWindowIndexInChild = getTimelineByChildIndex(childIndex).getPreviousWindowIndex(
         windowIndex - firstWindowIndexInChild,
-        repeatMode == Player.REPEAT_MODE_ALL ? Player.REPEAT_MODE_OFF : repeatMode);
+        repeatMode == Player.REPEAT_MODE_ALL ? Player.REPEAT_MODE_OFF : repeatMode,
+        shuffleModeEnabled);
     if (previousWindowIndexInChild != C.INDEX_UNSET) {
       return firstWindowIndexInChild + previousWindowIndexInChild;
     } else {

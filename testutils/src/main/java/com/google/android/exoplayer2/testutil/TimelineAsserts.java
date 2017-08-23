@@ -74,7 +74,7 @@ public final class TimelineAsserts {
       @Player.RepeatMode int repeatMode, int... expectedPreviousWindowIndices) {
     for (int i = 0; i < timeline.getWindowCount(); i++) {
       assertEquals(expectedPreviousWindowIndices[i],
-          timeline.getPreviousWindowIndex(i, repeatMode));
+          timeline.getPreviousWindowIndex(i, repeatMode, false));
     }
   }
 
@@ -86,14 +86,14 @@ public final class TimelineAsserts {
       int... expectedNextWindowIndices) {
     for (int i = 0; i < timeline.getWindowCount(); i++) {
       assertEquals(expectedNextWindowIndices[i],
-          timeline.getNextWindowIndex(i, repeatMode));
+          timeline.getNextWindowIndex(i, repeatMode, false));
     }
   }
 
   /**
    * Asserts that period counts for each window are set correctly. Also asserts that
    * {@link Window#firstPeriodIndex} and {@link Window#lastPeriodIndex} are set correctly, and it
-   * asserts the correct behavior of {@link Timeline#getNextWindowIndex(int, int)}.
+   * asserts the correct behavior of {@link Timeline#getNextWindowIndex(int, int, boolean)}.
    */
   public static void assertPeriodCounts(Timeline timeline, int... expectedPeriodCounts) {
     int windowCount = timeline.getWindowCount();
@@ -119,16 +119,19 @@ public final class TimelineAsserts {
       }
       assertEquals(expectedWindowIndex, period.windowIndex);
       if (i < accumulatedPeriodCounts[expectedWindowIndex + 1] - 1) {
-        assertEquals(i + 1, timeline.getNextPeriodIndex(i, period, window, Player.REPEAT_MODE_OFF));
-        assertEquals(i + 1, timeline.getNextPeriodIndex(i, period, window, Player.REPEAT_MODE_ONE));
-        assertEquals(i + 1, timeline.getNextPeriodIndex(i, period, window, Player.REPEAT_MODE_ALL));
+        assertEquals(i + 1, timeline.getNextPeriodIndex(i, period, window, Player.REPEAT_MODE_OFF,
+            false));
+        assertEquals(i + 1, timeline.getNextPeriodIndex(i, period, window, Player.REPEAT_MODE_ONE,
+            false));
+        assertEquals(i + 1, timeline.getNextPeriodIndex(i, period, window, Player.REPEAT_MODE_ALL,
+            false));
       } else {
         int nextWindowOff = timeline.getNextWindowIndex(expectedWindowIndex,
-            Player.REPEAT_MODE_OFF);
+            Player.REPEAT_MODE_OFF, false);
         int nextWindowOne = timeline.getNextWindowIndex(expectedWindowIndex,
-            Player.REPEAT_MODE_ONE);
+            Player.REPEAT_MODE_ONE, false);
         int nextWindowAll = timeline.getNextWindowIndex(expectedWindowIndex,
-            Player.REPEAT_MODE_ALL);
+            Player.REPEAT_MODE_ALL, false);
         int nextPeriodOff = nextWindowOff == C.INDEX_UNSET ? C.INDEX_UNSET
             : accumulatedPeriodCounts[nextWindowOff];
         int nextPeriodOne = nextWindowOne == C.INDEX_UNSET ? C.INDEX_UNSET
@@ -136,11 +139,11 @@ public final class TimelineAsserts {
         int nextPeriodAll = nextWindowAll == C.INDEX_UNSET ? C.INDEX_UNSET
             : accumulatedPeriodCounts[nextWindowAll];
         assertEquals(nextPeriodOff, timeline.getNextPeriodIndex(i, period, window,
-            Player.REPEAT_MODE_OFF));
+            Player.REPEAT_MODE_OFF, false));
         assertEquals(nextPeriodOne, timeline.getNextPeriodIndex(i, period, window,
-            Player.REPEAT_MODE_ONE));
+            Player.REPEAT_MODE_ONE, false));
         assertEquals(nextPeriodAll, timeline.getNextPeriodIndex(i, period, window,
-            Player.REPEAT_MODE_ALL));
+            Player.REPEAT_MODE_ALL, false));
       }
     }
   }

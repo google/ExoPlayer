@@ -127,7 +127,7 @@ public abstract class TimelineQueueNavigator implements MediaSessionConnector.Qu
       return;
     }
     int previousWindowIndex = timeline.getPreviousWindowIndex(player.getCurrentWindowIndex(),
-        player.getRepeatMode());
+        player.getRepeatMode(), false);
     if (player.getCurrentPosition() > MAX_POSITION_FOR_SEEK_TO_PREVIOUS
         || previousWindowIndex == C.INDEX_UNSET) {
       player.seekTo(0);
@@ -155,7 +155,7 @@ public abstract class TimelineQueueNavigator implements MediaSessionConnector.Qu
       return;
     }
     int nextWindowIndex = timeline.getNextWindowIndex(player.getCurrentWindowIndex(),
-        player.getRepeatMode());
+        player.getRepeatMode(), false);
     if (nextWindowIndex != C.INDEX_UNSET) {
       player.seekTo(nextWindowIndex, C.TIME_UNSET);
     }
