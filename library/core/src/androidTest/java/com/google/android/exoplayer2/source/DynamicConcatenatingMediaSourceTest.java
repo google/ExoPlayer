@@ -503,6 +503,16 @@ public final class DynamicConcatenatingMediaSourceTest extends TestCase {
     }
 
     @Override
+    public int getNextWindowIndex() {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public int getPreviousWindowIndex() {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
     public long getDuration() {
       throw new UnsupportedOperationException();
     }

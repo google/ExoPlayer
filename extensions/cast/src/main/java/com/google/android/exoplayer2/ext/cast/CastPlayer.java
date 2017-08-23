@@ -372,6 +372,16 @@ public final class CastPlayer implements Player {
   }
 
   @Override
+  public int getNextWindowIndex() {
+    return C.INDEX_UNSET;
+  }
+
+  @Override
+  public int getPreviousWindowIndex() {
+    return C.INDEX_UNSET;
+  }
+
+  @Override
   public long getDuration() {
     return currentTimeline.isEmpty() ? C.TIME_UNSET
         : currentTimeline.getWindow(0, window).getDurationMs();

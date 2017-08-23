@@ -364,6 +364,20 @@ public interface Player {
   int getCurrentWindowIndex();
 
   /**
+   * Returns the index of the next timeline window to be played, which may depend on the current
+   * repeat mode and whether shuffle mode is enabled. Returns {@link C#INDEX_UNSET} if the window
+   * currently being played is the last window.
+   */
+  int getNextWindowIndex();
+
+  /**
+   * Returns the index of the previous timeline window to be played, which may depend on the current
+   * repeat mode and whether shuffle mode is enabled. Returns {@link C#INDEX_UNSET} if the window
+   * currently being played is the first window.
+   */
+  int getPreviousWindowIndex();
+
+  /**
    * Returns the duration of the current window in milliseconds, or {@link C#TIME_UNSET} if the
    * duration is not known.
    */

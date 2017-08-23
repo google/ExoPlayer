@@ -318,6 +318,18 @@ import java.util.concurrent.CopyOnWriteArraySet;
   }
 
   @Override
+  public int getNextWindowIndex() {
+    return timeline.getNextWindowIndex(getCurrentWindowIndex(), getRepeatMode(),
+        getShuffleModeEnabled());
+  }
+
+  @Override
+  public int getPreviousWindowIndex() {
+    return timeline.getPreviousWindowIndex(getCurrentWindowIndex(), getRepeatMode(),
+        getShuffleModeEnabled());
+  }
+
+  @Override
   public long getDuration() {
     if (timeline.isEmpty()) {
       return C.TIME_UNSET;

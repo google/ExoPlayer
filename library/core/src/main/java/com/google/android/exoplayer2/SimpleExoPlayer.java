@@ -755,6 +755,16 @@ public class SimpleExoPlayer implements ExoPlayer {
   }
 
   @Override
+  public int getNextWindowIndex() {
+    return player.getNextWindowIndex();
+  }
+
+  @Override
+  public int getPreviousWindowIndex() {
+    return player.getPreviousWindowIndex();
+  }
+
+  @Override
   public long getDuration() {
     return player.getDuration();
   }
