@@ -137,6 +137,12 @@ public final class HostActivity extends Activity implements SurfaceHolder.Callba
         fail(message);
       }
     } else {
+      runOnUiThread(new Runnable() {
+        @Override
+        public void run() {
+          hostedTest.forceStop();
+        }
+      });
       String message = "Test timed out after " + timeoutMs + " ms.";
       Log.e(TAG, message);
       if (failOnTimeout) {
