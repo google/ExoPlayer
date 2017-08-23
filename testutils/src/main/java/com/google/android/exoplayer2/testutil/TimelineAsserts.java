@@ -67,26 +67,27 @@ public final class TimelineAsserts {
   }
 
   /**
-   * Asserts that previous window indices for each window are set correctly depending on the repeat
-   * mode.
+   * Asserts that previous window indices for each window depending on the repeat mode and the
+   * shuffle mode are equal to the given sequence.
    */
   public static void assertPreviousWindowIndices(Timeline timeline,
-      @Player.RepeatMode int repeatMode, int... expectedPreviousWindowIndices) {
+      @Player.RepeatMode int repeatMode, boolean shuffleModeEnabled,
+      int... expectedPreviousWindowIndices) {
     for (int i = 0; i < timeline.getWindowCount(); i++) {
       assertEquals(expectedPreviousWindowIndices[i],
-          timeline.getPreviousWindowIndex(i, repeatMode, false));
+          timeline.getPreviousWindowIndex(i, repeatMode, shuffleModeEnabled));
     }
   }
 
   /**
-   * Asserts that next window indices for each window are set correctly depending on the repeat
-   * mode.
+   * Asserts that next window indices for each window depending on the repeat mode and the
+   * shuffle mode are equal to the given sequence.
    */
   public static void assertNextWindowIndices(Timeline timeline, @Player.RepeatMode int repeatMode,
-      int... expectedNextWindowIndices) {
+      boolean shuffleModeEnabled, int... expectedNextWindowIndices) {
     for (int i = 0; i < timeline.getWindowCount(); i++) {
       assertEquals(expectedNextWindowIndices[i],
-          timeline.getNextWindowIndex(i, repeatMode, false));
+          timeline.getNextWindowIndex(i, repeatMode, shuffleModeEnabled));
     }
   }
 
@@ -118,34 +119,20 @@ public final class TimelineAsserts {
         expectedWindowIndex++;
       }
       assertEquals(expectedWindowIndex, period.windowIndex);
-      if (i < accumulatedPeriodCounts[expectedWindowIndex + 1] - 1) {
-        assertEquals(i + 1, timeline.getNextPeriodIndex(i, period, window, Player.REPEAT_MODE_OFF,
-            false));
-        assertEquals(i + 1, timeline.getNextPeriodIndex(i, period, window, Player.REPEAT_MODE_ONE,
-            false));
-        assertEquals(i + 1, timeline.getNextPeriodIndex(i, period, window, Player.REPEAT_MODE_ALL,
-            false));
-      } else {
-        int nextWindowOff = timeline.getNextWindowIndex(expectedWindowIndex,
-            Player.REPEAT_MODE_OFF, false);
-        int nextWindowOne = timeline.getNextWindowIndex(expectedWindowIndex,
-            Player.REPEAT_MODE_ONE, false);
-        int nextWindowAll = timeline.getNextWindowIndex(expectedWindowIndex,
-            Player.REPEAT_MODE_ALL, false);
-        int nextPeriodOff = nextWindowOff == C.INDEX_UNSET ? C.INDEX_UNSET
-            : accumulatedPeriodCounts[nextWindowOff];
-        int nextPeriodOne = nextWindowOne == C.INDEX_UNSET ? C.INDEX_UNSET
-            : accumulatedPeriodCounts[nextWindowOne];
-        int nextPeriodAll = nextWindowAll == C.INDEX_UNSET ? C.INDEX_UNSET
-            : accumulatedPeriodCounts[nextWindowAll];
-        assertEquals(nextPeriodOff, timeline.getNextPeriodIndex(i, period, window,
-            Player.REPEAT_MODE_OFF, false));
-        assertEquals(nextPeriodOne, timeline.getNextPeriodIndex(i, period, window,
-            Player.REPEAT_MODE_ONE, false));
-        assertEquals(nextPeriodAll, timeline.getNextPeriodIndex(i, period, window,
-            Player.REPEAT_MODE_ALL, false));
+      for (@Player.RepeatMode int repeatMode
+          : new int[] { Player.REPEAT_MODE_OFF, Player.REPEAT_MODE_ONE, Player.REPEAT_MODE_ALL }) {
+        if (i < accumulatedPeriodCounts[expectedWindowIndex + 1] - 1) {
+          assertEquals(i + 1, timeline.getNextPeriodIndex(i, period, window, repeatMode, false));
+        } else {
+          int nextWindow = timeline.getNextWindowIndex(expectedWindowIndex, repeatMode, false);
+          int nextPeriod = nextWindow == C.INDEX_UNSET ? C.INDEX_UNSET
+              : accumulatedPeriodCounts[nextWindow];
+          assertEquals(nextPeriod, timeline.getNextPeriodIndex(i, period, window, repeatMode,
+              false));
+        }
       }
     }
   }
 
 }
+
