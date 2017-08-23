@@ -23,6 +23,7 @@ import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.ExoPlayer.ExoPlayerComponent;
 import com.google.android.exoplayer2.ExoPlayer.ExoPlayerMessage;
 import com.google.android.exoplayer2.Timeline;
+import com.google.android.exoplayer2.source.ShuffleOrder.UnshuffledShuffleOrder;
 import com.google.android.exoplayer2.trackselection.TrackSelection;
 import com.google.android.exoplayer2.upstream.Allocator;
 import com.google.android.exoplayer2.util.Assertions;
@@ -397,7 +398,7 @@ public final class DynamicConcatenatingMediaSource implements MediaSource, ExoPl
 
     public ConcatenatedTimeline(Collection<MediaSourceHolder> mediaSourceHolders, int windowCount,
         int periodCount) {
-      super(mediaSourceHolders.size());
+      super(new UnshuffledShuffleOrder(mediaSourceHolders.size()));
       this.windowCount = windowCount;
       this.periodCount = periodCount;
       int childCount = mediaSourceHolders.size();
