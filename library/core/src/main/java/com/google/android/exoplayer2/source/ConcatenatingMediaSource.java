@@ -19,6 +19,7 @@ import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.Timeline;
+import com.google.android.exoplayer2.source.ShuffleOrder.UnshuffledShuffleOrder;
 import com.google.android.exoplayer2.upstream.Allocator;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Util;
@@ -167,7 +168,7 @@ public final class ConcatenatingMediaSource implements MediaSource {
     private final boolean isRepeatOneAtomic;
 
     public ConcatenatedTimeline(Timeline[] timelines, boolean isRepeatOneAtomic) {
-      super(timelines.length);
+      super(new UnshuffledShuffleOrder(timelines.length));
       int[] sourcePeriodOffsets = new int[timelines.length];
       int[] sourceWindowOffsets = new int[timelines.length];
       long periodCount = 0;

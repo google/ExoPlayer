@@ -26,9 +26,17 @@ import com.google.android.exoplayer2.Timeline;
 /* package */ abstract class AbstractConcatenatedTimeline extends Timeline {
 
   private final int childCount;
+  private final ShuffleOrder shuffleOrder;
 
-  public AbstractConcatenatedTimeline(int childCount) {
-    this.childCount = childCount;
+  /**
+   * Sets up a concatenated timeline with a shuffle order of child timelines.
+   *
+   * @param shuffleOrder A shuffle order of child timelines. The number of child timelines must
+   *     match the number of elements in the shuffle order.
+   */
+  public AbstractConcatenatedTimeline(ShuffleOrder shuffleOrder) {
+    this.shuffleOrder = shuffleOrder;
+    this.childCount = shuffleOrder.getLength();
   }
 
   @Override
@@ -42,16 +50,17 @@ import com.google.android.exoplayer2.Timeline;
         shuffleModeEnabled);
     if (nextWindowIndexInChild != C.INDEX_UNSET) {
       return firstWindowIndexInChild + nextWindowIndexInChild;
-    } else {
-      int nextChildIndex = childIndex + 1;
-      if (nextChildIndex < childCount) {
-        return getFirstWindowIndexByChildIndex(nextChildIndex);
-      } else if (repeatMode == Player.REPEAT_MODE_ALL) {
-        return 0;
-      } else {
-        return C.INDEX_UNSET;
-      }
     }
+    int nextChildIndex = shuffleModeEnabled ? shuffleOrder.getNextIndex(childIndex)
+        : childIndex + 1;
+    if (nextChildIndex != C.INDEX_UNSET && nextChildIndex < childCount) {
+      return getFirstWindowIndexByChildIndex(nextChildIndex)
+          + getTimelineByChildIndex(nextChildIndex).getFirstWindowIndex(shuffleModeEnabled);
+    }
+    if (repeatMode == Player.REPEAT_MODE_ALL) {
+      return getFirstWindowIndex(shuffleModeEnabled);
+    }
+    return C.INDEX_UNSET;
   }
 
   @Override
@@ -65,15 +74,31 @@ import com.google.android.exoplayer2.Timeline;
         shuffleModeEnabled);
     if (previousWindowIndexInChild != C.INDEX_UNSET) {
       return firstWindowIndexInChild + previousWindowIndexInChild;
-    } else {
-      if (firstWindowIndexInChild > 0) {
-        return firstWindowIndexInChild - 1;
-      } else if (repeatMode == Player.REPEAT_MODE_ALL) {
-        return getWindowCount() - 1;
-      } else {
-        return C.INDEX_UNSET;
-      }
     }
+    int previousChildIndex = shuffleModeEnabled ? shuffleOrder.getPreviousIndex(childIndex)
+        : childIndex - 1;
+    if (previousChildIndex != C.INDEX_UNSET && previousChildIndex >= 0) {
+      return getFirstWindowIndexByChildIndex(previousChildIndex)
+          + getTimelineByChildIndex(previousChildIndex).getLastWindowIndex(shuffleModeEnabled);
+    }
+    if (repeatMode == Player.REPEAT_MODE_ALL) {
+      return getLastWindowIndex(shuffleModeEnabled);
+    }
+    return C.INDEX_UNSET;
+  }
+
+  @Override
+  public int getLastWindowIndex(boolean shuffleModeEnabled) {
+    int lastChildIndex = shuffleModeEnabled ? shuffleOrder.getLastIndex() : childCount - 1;
+    return getFirstWindowIndexByChildIndex(lastChildIndex)
+        + getTimelineByChildIndex(lastChildIndex).getLastWindowIndex(shuffleModeEnabled);
+  }
+
+  @Override
+  public int getFirstWindowIndex(boolean shuffleModeEnabled) {
+    int firstChildIndex = shuffleModeEnabled ? shuffleOrder.getFirstIndex() : 0;
+    return getFirstWindowIndexByChildIndex(firstChildIndex)
+        + getTimelineByChildIndex(firstChildIndex).getFirstWindowIndex(shuffleModeEnabled);
   }
 
   @Override
