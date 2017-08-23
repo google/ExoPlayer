@@ -167,14 +167,18 @@ public final class LoopingMediaSource implements MediaSource {
     }
 
     @Override
-    public int getNextWindowIndex(int windowIndex, @Player.RepeatMode int repeatMode) {
-      int childNextWindowIndex = timeline.getNextWindowIndex(windowIndex, repeatMode);
+    public int getNextWindowIndex(int windowIndex, @Player.RepeatMode int repeatMode,
+        boolean shuffleModeEnabled) {
+      int childNextWindowIndex = timeline.getNextWindowIndex(windowIndex, repeatMode,
+          shuffleModeEnabled);
       return childNextWindowIndex == C.INDEX_UNSET ? 0 : childNextWindowIndex;
     }
 
     @Override
-    public int getPreviousWindowIndex(int windowIndex, @Player.RepeatMode int repeatMode) {
-      int childPreviousWindowIndex = timeline.getPreviousWindowIndex(windowIndex, repeatMode);
+    public int getPreviousWindowIndex(int windowIndex, @Player.RepeatMode int repeatMode,
+        boolean shuffleModeEnabled) {
+      int childPreviousWindowIndex = timeline.getPreviousWindowIndex(windowIndex, repeatMode,
+          shuffleModeEnabled);
       return childPreviousWindowIndex == C.INDEX_UNSET ? getWindowCount() - 1
           : childPreviousWindowIndex;
     }

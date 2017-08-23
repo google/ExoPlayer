@@ -198,19 +198,21 @@ public final class ConcatenatingMediaSource implements MediaSource {
     }
 
     @Override
-    public int getNextWindowIndex(int windowIndex, @Player.RepeatMode int repeatMode) {
+    public int getNextWindowIndex(int windowIndex, @Player.RepeatMode int repeatMode,
+        boolean shuffleModeEnabled) {
       if (isRepeatOneAtomic && repeatMode == Player.REPEAT_MODE_ONE) {
         repeatMode = Player.REPEAT_MODE_ALL;
       }
-      return super.getNextWindowIndex(windowIndex, repeatMode);
+      return super.getNextWindowIndex(windowIndex, repeatMode, shuffleModeEnabled);
     }
 
     @Override
-    public int getPreviousWindowIndex(int windowIndex, @Player.RepeatMode int repeatMode) {
+    public int getPreviousWindowIndex(int windowIndex, @Player.RepeatMode int repeatMode,
+        boolean shuffleModeEnabled) {
       if (isRepeatOneAtomic && repeatMode == Player.REPEAT_MODE_ONE) {
         repeatMode = Player.REPEAT_MODE_ALL;
       }
-      return super.getPreviousWindowIndex(windowIndex, repeatMode);
+      return super.getPreviousWindowIndex(windowIndex, repeatMode, shuffleModeEnabled);
     }
 
     @Override
