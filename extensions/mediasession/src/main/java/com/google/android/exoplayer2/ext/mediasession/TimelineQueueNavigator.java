@@ -160,8 +160,8 @@ public abstract class TimelineQueueNavigator implements MediaSessionConnector.Qu
   }
 
   @Override
-  public void onSetShuffleModeEnabled(Player player, boolean enabled) {
-    player.setShuffleModeEnabled(enabled);
+  public void onSetShuffleMode(Player player, int shuffleMode) {
+    player.setShuffleModeEnabled(shuffleMode == PlaybackStateCompat.SHUFFLE_MODE_ALL);
   }
 
   private void publishFloatingQueueWindow(Player player) {
