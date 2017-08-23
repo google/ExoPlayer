@@ -126,8 +126,7 @@ public abstract class TimelineQueueNavigator implements MediaSessionConnector.Qu
     if (timeline.isEmpty()) {
       return;
     }
-    int previousWindowIndex = timeline.getPreviousWindowIndex(player.getCurrentWindowIndex(),
-        player.getRepeatMode(), false);
+    int previousWindowIndex = player.getPreviousWindowIndex();
     if (player.getCurrentPosition() > MAX_POSITION_FOR_SEEK_TO_PREVIOUS
         || previousWindowIndex == C.INDEX_UNSET) {
       player.seekTo(0);
@@ -154,8 +153,7 @@ public abstract class TimelineQueueNavigator implements MediaSessionConnector.Qu
     if (timeline.isEmpty()) {
       return;
     }
-    int nextWindowIndex = timeline.getNextWindowIndex(player.getCurrentWindowIndex(),
-        player.getRepeatMode(), false);
+    int nextWindowIndex = player.getNextWindowIndex();
     if (nextWindowIndex != C.INDEX_UNSET) {
       player.seekTo(nextWindowIndex, C.TIME_UNSET);
     }
@@ -186,3 +184,4 @@ public abstract class TimelineQueueNavigator implements MediaSessionConnector.Qu
   }
 
 }
+

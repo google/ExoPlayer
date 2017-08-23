@@ -251,6 +251,16 @@ public class FakeSimpleExoPlayer extends SimpleExoPlayer {
     }
 
     @Override
+    public int getNextWindowIndex() {
+      return C.INDEX_UNSET;
+    }
+
+    @Override
+    public int getPreviousWindowIndex() {
+      return C.INDEX_UNSET;
+    }
+
+    @Override
     public long getDuration() {
       return C.usToMs(durationUs);
     }
