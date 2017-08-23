@@ -232,9 +232,9 @@ public final class MediaSessionConnector {
      */
     void onSkipToNext(Player player);
     /**
-     * See {@link MediaSessionCompat.Callback#onSetShuffleModeEnabled(boolean)}.
+     * See {@link MediaSessionCompat.Callback#onSetShuffleMode(int)}.
      */
-    void onSetShuffleModeEnabled(Player player, boolean enabled);
+    void onSetShuffleMode(Player player, int shuffleMode);
   }
 
   /**
@@ -803,15 +803,15 @@ public final class MediaSessionConnector {
     @Override
     public void onSetShuffleModeEnabled(boolean enabled) {
       if (canDispatchToQueueNavigator(PlaybackStateCompat.ACTION_SET_SHUFFLE_MODE_ENABLED)) {
-        queueNavigator.onSetShuffleModeEnabled(player, enabled);
+        queueNavigator.onSetShuffleMode(player, enabled
+            ? PlaybackStateCompat.SHUFFLE_MODE_ALL : PlaybackStateCompat.SHUFFLE_MODE_NONE);
       }
     }
 
     @Override
     public void onSetShuffleMode(int shuffleMode) {
       if (canDispatchToQueueNavigator(PlaybackStateCompat.ACTION_SET_SHUFFLE_MODE_ENABLED)) {
-        queueNavigator.onSetShuffleModeEnabled(player,
-            shuffleMode != PlaybackStateCompat.SHUFFLE_MODE_NONE);
+        queueNavigator.onSetShuffleMode(player, shuffleMode);
       }
     }
 
