@@ -285,6 +285,29 @@ public abstract class Action {
   }
 
   /**
+   * Calls {@link Player#setShuffleModeEnabled(boolean)}.
+   */
+  public static final class SetShuffleModeEnabled extends Action {
+
+    private final boolean shuffleModeEnabled;
+
+    /**
+     * @param tag A tag to use for logging.
+     */
+    public SetShuffleModeEnabled(String tag, boolean shuffleModeEnabled) {
+      super(tag, "SetShuffleModeEnabled:" + shuffleModeEnabled);
+      this.shuffleModeEnabled = shuffleModeEnabled;
+    }
+
+    @Override
+    protected void doActionImpl(SimpleExoPlayer player, MappingTrackSelector trackSelector,
+        Surface surface) {
+      player.setShuffleModeEnabled(shuffleModeEnabled);
+    }
+
+  }
+
+  /**
    * Waits for {@link Player.EventListener#onTimelineChanged(Timeline, Object)}.
    */
   public static final class WaitForTimelineChanged extends Action {
