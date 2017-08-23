@@ -162,7 +162,7 @@ import com.google.android.exoplayer2.source.MediaSource.MediaPeriodId;
     // timeline is updated, to avoid repeatedly checking the same timeline.
     if (currentMediaPeriodInfo.isLastInTimelinePeriod) {
       int nextPeriodIndex = timeline.getNextPeriodIndex(currentMediaPeriodInfo.id.periodIndex,
-          period, window, repeatMode, false);
+          period, window, repeatMode, shuffleModeEnabled);
       if (nextPeriodIndex == C.INDEX_UNSET) {
         // We can't create a next period yet.
         return null;
@@ -353,7 +353,7 @@ import com.google.android.exoplayer2.source.MediaSource.MediaPeriodId;
   private boolean isLastInTimeline(MediaPeriodId id, boolean isLastMediaPeriodInPeriod) {
     int windowIndex = timeline.getPeriod(id.periodIndex, period).windowIndex;
     return !timeline.getWindow(windowIndex, window).isDynamic
-        && timeline.isLastPeriod(id.periodIndex, period, window, repeatMode, false)
+        && timeline.isLastPeriod(id.periodIndex, period, window, repeatMode, shuffleModeEnabled)
         && isLastMediaPeriodInPeriod;
   }
 
