@@ -171,7 +171,8 @@ public final class LoopingMediaSource implements MediaSource {
         boolean shuffleModeEnabled) {
       int childNextWindowIndex = timeline.getNextWindowIndex(windowIndex, repeatMode,
           shuffleModeEnabled);
-      return childNextWindowIndex == C.INDEX_UNSET ? 0 : childNextWindowIndex;
+      return childNextWindowIndex == C.INDEX_UNSET ? getFirstWindowIndex(shuffleModeEnabled)
+          : childNextWindowIndex;
     }
 
     @Override
@@ -179,7 +180,7 @@ public final class LoopingMediaSource implements MediaSource {
         boolean shuffleModeEnabled) {
       int childPreviousWindowIndex = timeline.getPreviousWindowIndex(windowIndex, repeatMode,
           shuffleModeEnabled);
-      return childPreviousWindowIndex == C.INDEX_UNSET ? getWindowCount() - 1
+      return childPreviousWindowIndex == C.INDEX_UNSET ? getLastWindowIndex(shuffleModeEnabled)
           : childPreviousWindowIndex;
     }
 
