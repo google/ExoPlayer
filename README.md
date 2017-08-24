@@ -71,12 +71,12 @@ individually.
 In addition to library modules, ExoPlayer has multiple extension modules that
 depend on external libraries to provide additional functionality. Some
 extensions are available from JCenter, whereas others must be built manaully.
-Browse the [extensions directory] and their individual READMEs for details.
+Browse the [extensions directory][] and their individual READMEs for details.
 
 More information on the library and extension modules that are available from
 JCenter can be found on [Bintray][].
 
-[extensions directory][]: https://github.com/google/ExoPlayer/tree/release-v2/extensions/
+[extensions directory]: https://github.com/google/ExoPlayer/tree/release-v2/extensions/
 [Bintray]: https://bintray.com/google/exoplayer
 
 ### Locally ###
