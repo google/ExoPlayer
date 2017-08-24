@@ -87,6 +87,9 @@ public final class DynamicConcatenatingMediaSource implements MediaSource, ExoPl
 
   /**
    * Appends a {@link MediaSource} to the playlist.
+   * <p>
+   * Note: {@link MediaSource} instances are not designed to be re-used. If you want to add the same
+   * piece of media multiple times, use a new instance each time.
    *
    * @param mediaSource The {@link MediaSource} to be added to the list.
    */
@@ -96,6 +99,9 @@ public final class DynamicConcatenatingMediaSource implements MediaSource, ExoPl
 
   /**
    * Adds a {@link MediaSource} to the playlist.
+   * <p>
+   * Note: {@link MediaSource} instances are not designed to be re-used. If you want to add the same
+   * piece of media multiple times, use a new instance each time.
    *
    * @param index The index at which the new {@link MediaSource} will be inserted. This index must
    *     be in the range of 0 &lt;= index &lt;= {@link #getSize()}.
@@ -112,6 +118,9 @@ public final class DynamicConcatenatingMediaSource implements MediaSource, ExoPl
 
   /**
    * Appends multiple {@link MediaSource}s to the playlist.
+   * <p>
+   * Note: {@link MediaSource} instances are not designed to be re-used. If you want to add the same
+   * piece of media multiple times, use a new instance each time.
    *
    * @param mediaSources A collection of {@link MediaSource}s to be added to the list. The media
    *     sources are added in the order in which they appear in this collection.
@@ -122,6 +131,9 @@ public final class DynamicConcatenatingMediaSource implements MediaSource, ExoPl
 
   /**
    * Adds multiple {@link MediaSource}s to the playlist.
+   * <p>
+   * Note: {@link MediaSource} instances are not designed to be re-used. If you want to add the same
+   * piece of media multiple times, use a new instance each time.
    *
    * @param index The index at which the new {@link MediaSource}s will be inserted. This index must
    *     be in the range of 0 &lt;= index &lt;= {@link #getSize()}.
@@ -142,6 +154,10 @@ public final class DynamicConcatenatingMediaSource implements MediaSource, ExoPl
 
   /**
    * Removes a {@link MediaSource} from the playlist.
+   * <p>
+   * Note: {@link MediaSource} instances are not designed to be re-used, and so the instance being
+   * removed should not be re-added. If you want to move the instance use
+   * {@link #moveMediaSource(int, int)} instead.
    *
    * @param index The index at which the media source will be removed. This index must be in the
    *     range of 0 &lt;= index &lt; {@link #getSize()}.

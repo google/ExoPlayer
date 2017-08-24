@@ -211,12 +211,18 @@ public interface ExoPlayer extends Player {
   /**
    * Prepares the player to play the provided {@link MediaSource}. Equivalent to
    * {@code prepare(mediaSource, true, true)}.
+   * <p>
+   * Note: {@link MediaSource} instances are not designed to be re-used. If you want to prepare a
+   * player more than once with the same piece of media, use a new instance each time.
    */
   void prepare(MediaSource mediaSource);
 
   /**
    * Prepares the player to play the provided {@link MediaSource}, optionally resetting the playback
    * position the default position in the first {@link Timeline.Window}.
+   * <p>
+   * Note: {@link MediaSource} instances are not designed to be re-used. If you want to prepare a
+   * player more than once with the same piece of media, use a new instance each time.
    *
    * @param mediaSource The {@link MediaSource} to play.
    * @param resetPosition Whether the playback position should be reset to the default position in
