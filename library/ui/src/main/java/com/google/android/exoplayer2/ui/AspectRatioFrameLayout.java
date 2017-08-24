@@ -32,7 +32,7 @@ public final class AspectRatioFrameLayout extends FrameLayout {
    * Resize modes for {@link AspectRatioFrameLayout}.
    */
   @Retention(RetentionPolicy.SOURCE)
-  @IntDef({RESIZE_MODE_FIT, RESIZE_MODE_FIXED_WIDTH, RESIZE_MODE_FIXED_HEIGHT, RESIZE_MODE_FILL, RESIZE_MODE_CROP})
+  @IntDef({RESIZE_MODE_FIT, RESIZE_MODE_FIXED_WIDTH, RESIZE_MODE_FIXED_HEIGHT, RESIZE_MODE_FILL, RESIZE_MODE_ASPECT_FILL})
   public @interface ResizeMode {}
 
   /**
@@ -52,9 +52,9 @@ public final class AspectRatioFrameLayout extends FrameLayout {
    */
   public static final int RESIZE_MODE_FILL = 3;
   /**
-   * The height or width is increased or decreased to crop and to obtain the desired aspect ratio.
+   * Either height or width is increased to obtain the desired aspect ratio.
    */
-  public static final int RESIZE_MODE_CROP = 4;
+  public static final int RESIZE_MODE_ASPECT_FILL = 4;
 
   /**
    * The {@link FrameLayout} will not resize itself if the fractional difference between its natural
@@ -145,7 +145,7 @@ public final class AspectRatioFrameLayout extends FrameLayout {
       case RESIZE_MODE_FIXED_HEIGHT:
         width = (int) (height * videoAspectRatio);
         break;
-      case RESIZE_MODE_CROP:
+      case RESIZE_MODE_ASPECT_FILL:
         if (videoAspectRatio > viewAspectRatio) {
           width = (int) (height * videoAspectRatio);
         } else {
