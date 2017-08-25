@@ -84,6 +84,12 @@ import java.util.Locale;
  *         <li>Default: {@link PlaybackControlView#DEFAULT_REPEAT_TOGGLE_MODES}</li>
  *       </ul>
  *   </li>
+ *   <li><b>{@code show_shuffle_button}</b> - Whether the shuffle button is shown.
+ *       <ul>
+ *         <li>Corresponding method: {@link #setShowShuffleButton(boolean)}</li>
+ *         <li>Default: false</li>
+ *       </ul>
+ *   </li>
  *   <li><b>{@code controller_layout_id}</b> - Specifies the id of the layout to be inflated. See
  *       below for more details.
  *       <ul>
@@ -132,6 +138,11 @@ import java.util.Locale;
  *       </ul>
  *   </li>
  *   <li><b>{@code exo_repeat_toggle}</b> - The repeat toggle button.
+ *       <ul>
+ *         <li>Type: {@link View}</li>
+ *       </ul>
+ *   </li>
+ *   <li><b>{@code exo_shuffle}</b> - The shuffle button.
  *       <ul>
  *         <li>Type: {@link View}</li>
  *       </ul>
@@ -221,6 +232,15 @@ public class PlaybackControlView extends FrameLayout {
      */
     boolean dispatchSetRepeatMode(Player player, @RepeatMode int repeatMode);
 
+    /**
+     * Dispatches a {@link Player#setShuffleModeEnabled(boolean)} operation.
+     *
+     * @param player The {@link Player} to which the operation should be dispatched.
+     * @param shuffleModeEnabled Whether shuffling is enabled.
+     * @return True if the operation was dispatched. False if suppressed.
+     */
+    boolean dispatchSetShuffleModeEnabled(Player player, boolean shuffleModeEnabled);
+
   }
 
   /**
@@ -244,6 +264,12 @@ public class PlaybackControlView extends FrameLayout {
     @Override
     public boolean dispatchSetRepeatMode(Player player, @RepeatMode int repeatMode) {
       player.setRepeatMode(repeatMode);
+      return true;
+    }
+
+    @Override
+    public boolean dispatchSetShuffleModeEnabled(Player player, boolean shuffleModeEnabled) {
+      player.setShuffleModeEnabled(shuffleModeEnabled);
       return true;
     }
 
@@ -282,6 +308,7 @@ public class PlaybackControlView extends FrameLayout {
   private final View fastForwardButton;
   private final View rewindButton;
   private final ImageView repeatToggleButton;
+  private final View shuffleButton;
   private final TextView durationView;
   private final TextView positionView;
   private final TimeBar timeBar;
@@ -309,6 +336,7 @@ public class PlaybackControlView extends FrameLayout {
   private int fastForwardMs;
   private int showTimeoutMs;
   private @RepeatModeUtil.RepeatToggleModes int repeatToggleModes;
+  private boolean showShuffleButton;
   private long hideAtMs;
   private long[] adGroupTimesMs;
   private boolean[] playedAdGroups;
@@ -345,6 +373,7 @@ public class PlaybackControlView extends FrameLayout {
     fastForwardMs = DEFAULT_FAST_FORWARD_MS;
     showTimeoutMs = DEFAULT_SHOW_TIMEOUT_MS;
     repeatToggleModes = DEFAULT_REPEAT_TOGGLE_MODES;
+    showShuffleButton = false;
     if (attrs != null) {
       TypedArray a = context.getTheme().obtainStyledAttributes(attrs,
           R.styleable.PlaybackControlView, 0, 0);
@@ -356,6 +385,8 @@ public class PlaybackControlView extends FrameLayout {
         controllerLayoutId = a.getResourceId(R.styleable.PlaybackControlView_controller_layout_id,
             controllerLayoutId);
         repeatToggleModes = getRepeatToggleModes(a, repeatToggleModes);
+        showShuffleButton = a.getBoolean(R.styleable.PlaybackControlView_show_shuffle_button,
+            showShuffleButton);
       } finally {
         a.recycle();
       }
@@ -407,6 +438,10 @@ public class PlaybackControlView extends FrameLayout {
     repeatToggleButton = findViewById(R.id.exo_repeat_toggle);
     if (repeatToggleButton != null) {
       repeatToggleButton.setOnClickListener(componentListener);
+    }
+    shuffleButton = findViewById(R.id.exo_shuffle);
+    if (shuffleButton != null) {
+      shuffleButton.setOnClickListener(componentListener);
     }
     Resources resources = context.getResources();
     repeatOffButtonDrawable = resources.getDrawable(R.drawable.exo_controls_repeat_off);
@@ -585,6 +620,23 @@ public class PlaybackControlView extends FrameLayout {
   }
 
   /**
+   * Returns whether the shuffle button is shown.
+   */
+  public boolean getShowShuffleButton() {
+    return showShuffleButton;
+  }
+
+  /**
+   * Sets whether the shuffle button is shown.
+   *
+   * @param showShuffleButton Whether the shuffle button is shown.
+   */
+  public void setShowShuffleButton(boolean showShuffleButton) {
+    this.showShuffleButton = showShuffleButton;
+    updateShuffleButton();
+  }
+
+  /**
    * Shows the playback controls. If {@link #getShowTimeoutMs()} is positive then the controls will
    * be automatically hidden after this duration of time has elapsed without user input.
    */
@@ -639,6 +691,7 @@ public class PlaybackControlView extends FrameLayout {
     updatePlayPauseButton();
     updateNavigation();
     updateRepeatModeButton();
+    updateShuffleButton();
     updateProgress();
   }
 
@@ -719,6 +772,21 @@ public class PlaybackControlView extends FrameLayout {
         break;
     }
     repeatToggleButton.setVisibility(View.VISIBLE);
+  }
+
+  private void updateShuffleButton() {
+    if (!isVisible() || !isAttachedToWindow || shuffleButton == null) {
+      return;
+    }
+    if (!showShuffleButton) {
+      shuffleButton.setVisibility(View.GONE);
+    } else if (player == null) {
+      setButtonEnabled(false, shuffleButton);
+    } else {
+      shuffleButton.setAlpha(player.getShuffleModeEnabled() ? 1f : 0.3f);
+      shuffleButton.setEnabled(true);
+      shuffleButton.setVisibility(View.VISIBLE);
+    }
   }
 
   private void updateTimeBarMode() {
@@ -1080,7 +1148,8 @@ public class PlaybackControlView extends FrameLayout {
 
     @Override
     public void onShuffleModeEnabledChanged(boolean shuffleModeEnabled) {
-      // TODO: Update UI.
+      updateShuffleButton();
+      updateNavigation();
     }
 
     @Override
@@ -1134,6 +1203,8 @@ public class PlaybackControlView extends FrameLayout {
         } else if (repeatToggleButton == view) {
           controlDispatcher.dispatchSetRepeatMode(player, RepeatModeUtil.getNextRepeatMode(
               player.getRepeatMode(), repeatToggleModes));
+        } else if (shuffleButton == view) {
+          controlDispatcher.dispatchSetShuffleModeEnabled(player, !player.getShuffleModeEnabled());
         }
       }
       hideAfterTimeout();

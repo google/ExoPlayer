@@ -656,6 +656,16 @@ public final class SimpleExoPlayerView extends FrameLayout {
   }
 
   /**
+   * Sets whether the shuffle button is shown.
+   *
+   * @param showShuffleButton Whether the shuffle button is shown.
+   */
+  public void setShowShuffleButton(boolean showShuffleButton) {
+    Assertions.checkState(controller != null);
+    controller.setShowShuffleButton(showShuffleButton);
+  }
+
+  /**
    * Sets whether the time bar should show all windows, as opposed to just the current one.
    *
    * @param showMultiWindowTimeBar Whether to show all windows.
