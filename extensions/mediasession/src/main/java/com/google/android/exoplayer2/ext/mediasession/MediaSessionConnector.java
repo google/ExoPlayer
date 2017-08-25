@@ -80,9 +80,23 @@ public final class MediaSessionConnector {
       | MediaSessionCompat.FLAG_HANDLES_QUEUE_COMMANDS;
 
   /**
+   * Receiver of media commands sent by a media controller.
+   */
+  public interface CommandReceiver {
+    /**
+     * Returns the commands the receiver handles, or {@code null} if no commands need to be handled.
+     */
+    String[] getCommands();
+    /**
+     * See {@link MediaSessionCompat.Callback#onCommand(String, Bundle, ResultReceiver)}.
+     */
+    void onCommand(Player player, String command, Bundle extras, ResultReceiver cb);
+  }
+
+  /**
    * Interface to which playback preparation actions are delegated.
    */
-  public interface PlaybackPreparer {
+  public interface PlaybackPreparer extends CommandReceiver {
 
     long ACTIONS = PlaybackStateCompat.ACTION_PREPARE
         | PlaybackStateCompat.ACTION_PREPARE_FROM_MEDIA_ID
@@ -121,16 +135,12 @@ public final class MediaSessionConnector {
      * See {@link MediaSessionCompat.Callback#onPrepareFromUri(Uri, Bundle)}.
      */
     void onPrepareFromUri(Uri uri, Bundle extras);
-    /**
-     * See {@link MediaSessionCompat.Callback#onCommand(String, Bundle, ResultReceiver)}.
-     */
-    void onCommand(String command, Bundle extras, ResultReceiver cb);
   }
 
   /**
    * Interface to which playback actions are delegated.
    */
-  public interface PlaybackController {
+  public interface PlaybackController extends CommandReceiver {
 
     long ACTIONS = PlaybackStateCompat.ACTION_PLAY_PAUSE | PlaybackStateCompat.ACTION_PLAY
         | PlaybackStateCompat.ACTION_PAUSE | PlaybackStateCompat.ACTION_SEEK_TO
@@ -178,7 +188,7 @@ public final class MediaSessionConnector {
    * Handles queue navigation actions, and updates the media session queue by calling
    * {@code MediaSessionCompat.setQueue()}.
    */
-  public interface QueueNavigator {
+  public interface QueueNavigator extends CommandReceiver {
 
     long ACTIONS = PlaybackStateCompat.ACTION_SKIP_TO_QUEUE_ITEM
         | PlaybackStateCompat.ACTION_SKIP_TO_NEXT | PlaybackStateCompat.ACTION_SKIP_TO_PREVIOUS
@@ -240,7 +250,7 @@ public final class MediaSessionConnector {
   /**
    * Handles media session queue edits.
    */
-  public interface QueueEditor {
+  public interface QueueEditor extends CommandReceiver {
 
     long ACTIONS = PlaybackStateCompat.ACTION_SET_RATING;
 
@@ -309,6 +319,7 @@ public final class MediaSessionConnector {
   private final ExoPlayerEventListener exoPlayerEventListener;
   private final MediaSessionCallback mediaSessionCallback;
   private final PlaybackController playbackController;
+  private final Map<String, CommandReceiver> commandMap;
 
   private Player player;
   private CustomActionProvider[] customActionProviders;
@@ -328,7 +339,7 @@ public final class MediaSessionConnector {
    * @param mediaSession The {@link MediaSessionCompat} to connect to.
    */
   public MediaSessionConnector(MediaSessionCompat mediaSession) {
-    this(mediaSession, new DefaultPlaybackController());
+    this(mediaSession, null);
   }
 
   /**
@@ -350,7 +361,8 @@ public final class MediaSessionConnector {
    * instances passed to {@link #setPlayer(Player, PlaybackPreparer, CustomActionProvider...)}.
    *
    * @param mediaSession The {@link MediaSessionCompat} to connect to.
-   * @param playbackController A {@link PlaybackController} for handling playback actions.
+   * @param playbackController A {@link PlaybackController} for handling playback actions, or
+   *     {@code null} if the connector should handle playback actions directly.
    * @param doMaintainMetadata Whether the connector should maintain the metadata of the session. If
    *     {@code false}, you need to maintain the metadata of the media session yourself (provide at
    *     least the duration to allow clients to show a progress bar).
@@ -358,7 +370,8 @@ public final class MediaSessionConnector {
   public MediaSessionConnector(MediaSessionCompat mediaSession,
       PlaybackController playbackController, boolean doMaintainMetadata) {
     this.mediaSession = mediaSession;
-    this.playbackController = playbackController;
+    this.playbackController = playbackController != null ? playbackController
+        : new DefaultPlaybackController();
     this.handler = new Handler(Looper.myLooper() != null ? Looper.myLooper()
         : Looper.getMainLooper());
     this.doMaintainMetadata = doMaintainMetadata;
@@ -367,6 +380,8 @@ public final class MediaSessionConnector {
     mediaSessionCallback = new MediaSessionCallback();
     exoPlayerEventListener = new ExoPlayerEventListener();
     customActionMap = Collections.emptyMap();
+    commandMap = new HashMap<>();
+    registerCommandReceiver(playbackController);
   }
 
   /**
@@ -386,8 +401,12 @@ public final class MediaSessionConnector {
       this.player.removeListener(exoPlayerEventListener);
       mediaSession.setCallback(null);
     }
-    this.playbackPreparer = playbackPreparer;
+    unregisterCommandReceiver(this.playbackPreparer);
+
     this.player = player;
+    this.playbackPreparer = playbackPreparer;
+    registerCommandReceiver(playbackPreparer);
+
     this.customActionProviders = (player != null && customActionProviders != null)
         ? customActionProviders : new CustomActionProvider[0];
     if (player != null) {
@@ -416,7 +435,9 @@ public final class MediaSessionConnector {
    * @param queueNavigator The queue navigator.
    */
   public void setQueueNavigator(QueueNavigator queueNavigator) {
+    unregisterCommandReceiver(this.queueNavigator);
     this.queueNavigator = queueNavigator;
+    registerCommandReceiver(queueNavigator);
   }
 
   /**
@@ -425,9 +446,27 @@ public final class MediaSessionConnector {
    * @param queueEditor The queue editor.
    */
   public void setQueueEditor(QueueEditor queueEditor) {
+    unregisterCommandReceiver(this.queueEditor);
     this.queueEditor = queueEditor;
+    registerCommandReceiver(queueEditor);
     mediaSession.setFlags(queueEditor == null ? BASE_MEDIA_SESSION_FLAGS
         : EDITOR_MEDIA_SESSION_FLAGS);
+  }
+
+  private void registerCommandReceiver(CommandReceiver commandReceiver) {
+    if (commandReceiver != null && commandReceiver.getCommands() != null) {
+      for (String command : commandReceiver.getCommands()) {
+        commandMap.put(command, commandReceiver);
+      }
+    }
+  }
+
+  private void unregisterCommandReceiver(CommandReceiver commandReceiver) {
+    if (commandReceiver != null && commandReceiver.getCommands() != null) {
+      for (String command : commandReceiver.getCommands()) {
+        commandMap.remove(command);
+      }
+    }
   }
 
   private void updateMediaSessionPlaybackState() {
@@ -473,11 +512,8 @@ public final class MediaSessionConnector {
   }
 
   private long buildPlaybackActions() {
-    long actions = 0;
-    if (playbackController != null) {
-      actions |= (PlaybackController.ACTIONS & playbackController
-          .getSupportedPlaybackActions(player));
-    }
+    long actions = (PlaybackController.ACTIONS
+        & playbackController.getSupportedPlaybackActions(player));
     if (playbackPreparer != null) {
       actions |= (PlaybackPreparer.ACTIONS & playbackPreparer.getSupportedPrepareActions());
     }
@@ -562,7 +598,7 @@ public final class MediaSessionConnector {
   }
 
   private boolean canDispatchToPlaybackController(long action) {
-    return playbackController != null && (playbackController.getSupportedPlaybackActions(player)
+    return (playbackController.getSupportedPlaybackActions(player)
         & PlaybackController.ACTIONS & action) != 0;
   }
 
@@ -583,10 +619,15 @@ public final class MediaSessionConnector {
 
     @Override
     public void onTimelineChanged(Timeline timeline, Object manifest) {
+      int windowCount = player.getCurrentTimeline().getWindowCount();
+      int windowIndex = player.getCurrentWindowIndex();
       if (queueNavigator != null) {
         queueNavigator.onTimelineChanged(player);
+        updateMediaSessionPlaybackState();
+      } else if (currentWindowCount != windowCount || currentWindowIndex != windowIndex) {
+        // active queue item and queue navigation actions may need to be updated
+        updateMediaSessionPlaybackState();
       }
-      int windowCount = player.getCurrentTimeline().getWindowCount();
       if (currentWindowCount != windowCount) {
         // active queue item and queue navigation actions may need to be updated
         updateMediaSessionPlaybackState();
@@ -638,8 +679,8 @@ public final class MediaSessionConnector {
         if (queueNavigator != null) {
           queueNavigator.onCurrentWindowIndexChanged(player);
         }
-        updateMediaSessionMetadata();
         currentWindowIndex = player.getCurrentWindowIndex();
+        updateMediaSessionMetadata();
       }
       updateMediaSessionPlaybackState();
     }
@@ -732,8 +773,9 @@ public final class MediaSessionConnector {
 
     @Override
     public void onCommand(String command, Bundle extras, ResultReceiver cb) {
-      if (playbackPreparer != null) {
-        playbackPreparer.onCommand(command, extras, cb);
+      CommandReceiver commandReceiver = commandMap.get(command);
+      if (commandReceiver != null) {
+        commandReceiver.onCommand(player, command, extras, cb);
       }
     }
 

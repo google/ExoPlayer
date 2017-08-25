@@ -15,6 +15,8 @@
  */
 package com.google.android.exoplayer2.ext.mediasession;
 
+import android.os.Bundle;
+import android.os.ResultReceiver;
 import android.support.v4.media.session.PlaybackStateCompat;
 
 import com.google.android.exoplayer2.C;
@@ -123,6 +125,16 @@ public class DefaultPlaybackController implements MediaSessionConnector.Playback
   @Override
   public void onStop(Player player) {
     player.stop();
+  }
+
+  @Override
+  public String[] getCommands() {
+    return null;
+  }
+
+  @Override
+  public void onCommand(Player player, String command, Bundle extras, ResultReceiver cb) {
+    // Do nothing.
   }
 
 }
