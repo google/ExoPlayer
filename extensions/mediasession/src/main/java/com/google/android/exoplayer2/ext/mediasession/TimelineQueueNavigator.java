@@ -15,6 +15,8 @@
  */
 package com.google.android.exoplayer2.ext.mediasession;
 
+import android.os.Bundle;
+import android.os.ResultReceiver;
 import android.support.annotation.Nullable;
 import android.support.v4.media.MediaDescriptionCompat;
 import android.support.v4.media.session.MediaSessionCompat;
@@ -162,6 +164,18 @@ public abstract class TimelineQueueNavigator implements MediaSessionConnector.Qu
   @Override
   public void onSetShuffleMode(Player player, int shuffleMode) {
     player.setShuffleModeEnabled(shuffleMode == PlaybackStateCompat.SHUFFLE_MODE_ALL);
+  }
+
+  // CommandReceiver implementation.
+
+  @Override
+  public String[] getCommands() {
+    return null;
+  }
+
+  @Override
+  public void onCommand(Player player, String command, Bundle extras, ResultReceiver cb) {
+    // Do nothing.
   }
 
   private void publishFloatingQueueWindow(Player player) {
