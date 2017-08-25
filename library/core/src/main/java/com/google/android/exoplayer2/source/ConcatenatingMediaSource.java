@@ -90,15 +90,19 @@ public final class ConcatenatingMediaSource implements MediaSource {
   @Override
   public void prepareSource(ExoPlayer player, boolean isTopLevelSource, Listener listener) {
     this.listener = listener;
-    for (int i = 0; i < mediaSources.length; i++) {
-      if (!duplicateFlags[i]) {
-        final int index = i;
-        mediaSources[i].prepareSource(player, false, new Listener() {
-          @Override
-          public void onSourceInfoRefreshed(Timeline timeline, Object manifest) {
-            handleSourceInfoRefreshed(index, timeline, manifest);
-          }
-        });
+    if (mediaSources.length == 0) {
+      listener.onSourceInfoRefreshed(Timeline.EMPTY, null);
+    } else {
+      for (int i = 0; i < mediaSources.length; i++) {
+        if (!duplicateFlags[i]) {
+          final int index = i;
+          mediaSources[i].prepareSource(player, false, new Listener() {
+            @Override
+            public void onSourceInfoRefreshed(Timeline timeline, Object manifest) {
+              handleSourceInfoRefreshed(index, timeline, manifest);
+            }
+          });
+        }
       }
     }
   }
@@ -245,12 +249,12 @@ public final class ConcatenatingMediaSource implements MediaSource {
 
     @Override
     protected int getChildIndexByPeriodIndex(int periodIndex) {
-      return Util.binarySearchFloor(sourcePeriodOffsets, periodIndex, true, false) + 1;
+      return Util.binarySearchFloor(sourcePeriodOffsets, periodIndex + 1, false, false) + 1;
     }
 
     @Override
     protected int getChildIndexByWindowIndex(int windowIndex) {
-      return Util.binarySearchFloor(sourceWindowOffsets, windowIndex, true, false) + 1;
+      return Util.binarySearchFloor(sourceWindowOffsets, windowIndex + 1, false, false) + 1;
     }
 
     @Override

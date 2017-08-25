@@ -606,10 +606,11 @@ public abstract class Timeline {
    * enabled.
    *
    * @param shuffleModeEnabled Whether shuffling is enabled.
-   * @return The index of the last window in the playback order.
+   * @return The index of the last window in the playback order, or {@link C#INDEX_UNSET} if the
+   *     timeline is empty.
    */
   public int getLastWindowIndex(boolean shuffleModeEnabled) {
-    return getWindowCount() - 1;
+    return isEmpty() ? C.INDEX_UNSET : getWindowCount() - 1;
   }
 
   /**
@@ -617,10 +618,11 @@ public abstract class Timeline {
    * enabled.
    *
    * @param shuffleModeEnabled Whether shuffling is enabled.
-   * @return The index of the first window in the playback order.
+   * @return The index of the first window in the playback order, or {@link C#INDEX_UNSET} if the
+   *     timeline is empty.
    */
   public int getFirstWindowIndex(boolean shuffleModeEnabled) {
-    return 0;
+    return isEmpty() ? C.INDEX_UNSET : 0;
   }
 
   /**

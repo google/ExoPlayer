@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.source;
 
+import android.os.ConditionVariable;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Looper;
@@ -25,7 +26,10 @@ import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.PlaybackParameters;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.Timeline;
+import com.google.android.exoplayer2.source.MediaPeriod.Callback;
 import com.google.android.exoplayer2.source.MediaSource.Listener;
+import com.google.android.exoplayer2.source.MediaSource.MediaPeriodId;
+import com.google.android.exoplayer2.testutil.FakeMediaPeriod;
 import com.google.android.exoplayer2.testutil.FakeMediaSource;
 import com.google.android.exoplayer2.testutil.FakeShuffleOrder;
 import com.google.android.exoplayer2.testutil.FakeTimeline;
@@ -53,13 +57,13 @@ public final class DynamicConcatenatingMediaSourceTest extends TestCase {
     DynamicConcatenatingMediaSource mediaSource = new DynamicConcatenatingMediaSource(
         new FakeShuffleOrder(0));
     prepareAndListenToTimelineUpdates(mediaSource);
+    assertNotNull(timeline);
     waitForTimelineUpdate();
     TimelineAsserts.assertEmpty(timeline);
 
     // Add first source.
     mediaSource.addMediaSource(childSources[0]);
     waitForTimelineUpdate();
-    assertNotNull(timeline);
     TimelineAsserts.assertPeriodCounts(timeline, 1);
     TimelineAsserts.assertWindowIds(timeline, 111);
 
@@ -143,6 +147,9 @@ public final class DynamicConcatenatingMediaSourceTest extends TestCase {
     assertEquals(timeline.getWindowCount() - 1, timeline.getFirstWindowIndex(true));
     assertEquals(0, timeline.getLastWindowIndex(true));
 
+    // Assert all periods can be prepared.
+    assertAllPeriodsCanBeCreatedPreparedAndReleased(mediaSource, timeline.getPeriodCount());
+
     // Remove at front of queue.
     mediaSource.removeMediaSource(0);
     waitForTimelineUpdate();
@@ -192,6 +199,7 @@ public final class DynamicConcatenatingMediaSourceTest extends TestCase {
     TimelineAsserts.assertPreviousWindowIndices(timeline, Player.REPEAT_MODE_OFF, true,
         1, 2, C.INDEX_UNSET);
 
+    assertAllPeriodsCanBeCreatedPreparedAndReleased(mediaSource, timeline.getPeriodCount());
     mediaSource.releaseSource();
     for (int i = 1; i < 4; i++) {
       childSources[i].assertReleased();
@@ -225,8 +233,9 @@ public final class DynamicConcatenatingMediaSourceTest extends TestCase {
     TimelineAsserts.assertPeriodCounts(timeline, 1, 9);
     TimelineAsserts.assertWindowIds(timeline, 111, 999);
     TimelineAsserts.assertWindowIsDynamic(timeline, false, false);
+    assertAllPeriodsCanBeCreatedPreparedAndReleased(mediaSource, timeline.getPeriodCount());
 
-    //Add lazy sources after preparation
+    //Add lazy sources after preparation (and also try to prepare media period from lazy source).
     mediaSource.addMediaSource(1, lazySources[2]);
     waitForTimelineUpdate();
     mediaSource.addMediaSource(2, childSources[1]);
@@ -239,15 +248,88 @@ public final class DynamicConcatenatingMediaSourceTest extends TestCase {
     TimelineAsserts.assertWindowIds(timeline, null, 111, 222, 999);
     TimelineAsserts.assertWindowIsDynamic(timeline, true, false, false, false);
 
+    MediaPeriod lazyPeriod = mediaSource.createPeriod(new MediaPeriodId(0), null);
+    assertNotNull(lazyPeriod);
+    final ConditionVariable lazyPeriodPrepared = new ConditionVariable();
+    lazyPeriod.prepare(new Callback() {
+      @Override
+      public void onPrepared(MediaPeriod mediaPeriod) {
+        lazyPeriodPrepared.open();
+      }
+      @Override
+      public void onContinueLoadingRequested(MediaPeriod source) {}
+    }, 0);
+    assertFalse(lazyPeriodPrepared.block(1));
+    MediaPeriod secondLazyPeriod = mediaSource.createPeriod(new MediaPeriodId(0), null);
+    assertNotNull(secondLazyPeriod);
+    mediaSource.releasePeriod(secondLazyPeriod);
+
     lazySources[3].triggerTimelineUpdate(createFakeTimeline(7));
     waitForTimelineUpdate();
     TimelineAsserts.assertPeriodCounts(timeline, 8, 1, 2, 9);
     TimelineAsserts.assertWindowIds(timeline, 888, 111, 222, 999);
     TimelineAsserts.assertWindowIsDynamic(timeline, false, false, false, false);
+    assertTrue(lazyPeriodPrepared.block(TIMEOUT_MS));
+    mediaSource.releasePeriod(lazyPeriod);
 
     mediaSource.releaseSource();
     childSources[0].assertReleased();
     childSources[1].assertReleased();
+  }
+
+  public void testEmptyTimelineMediaSource() throws InterruptedException {
+    timeline = null;
+    DynamicConcatenatingMediaSource mediaSource = new DynamicConcatenatingMediaSource(
+        new FakeShuffleOrder(0));
+    prepareAndListenToTimelineUpdates(mediaSource);
+    assertNotNull(timeline);
+    waitForTimelineUpdate();
+    TimelineAsserts.assertEmpty(timeline);
+
+    mediaSource.addMediaSource(new FakeMediaSource(Timeline.EMPTY, null));
+    waitForTimelineUpdate();
+    TimelineAsserts.assertEmpty(timeline);
+
+    mediaSource.addMediaSources(Arrays.asList(new MediaSource[] {
+        new FakeMediaSource(Timeline.EMPTY, null), new FakeMediaSource(Timeline.EMPTY, null),
+        new FakeMediaSource(Timeline.EMPTY, null), new FakeMediaSource(Timeline.EMPTY, null),
+        new FakeMediaSource(Timeline.EMPTY, null), new FakeMediaSource(Timeline.EMPTY, null)
+    }));
+    waitForTimelineUpdate();
+    TimelineAsserts.assertEmpty(timeline);
+
+    // Insert non-empty media source to leave empty sources at the start, the end, and the middle
+    // (with single and multiple empty sources in a row).
+    MediaSource[] mediaSources = createMediaSources(3);
+    mediaSource.addMediaSource(1, mediaSources[0]);
+    waitForTimelineUpdate();
+    mediaSource.addMediaSource(4, mediaSources[1]);
+    waitForTimelineUpdate();
+    mediaSource.addMediaSource(6, mediaSources[2]);
+    waitForTimelineUpdate();
+    TimelineAsserts.assertWindowIds(timeline, 111, 222, 333);
+    TimelineAsserts.assertPeriodCounts(timeline, 1, 2, 3);
+    TimelineAsserts.assertPreviousWindowIndices(timeline, Player.REPEAT_MODE_OFF, false,
+        C.INDEX_UNSET, 0, 1);
+    TimelineAsserts.assertPreviousWindowIndices(timeline, Player.REPEAT_MODE_ONE, false, 0, 1, 2);
+    TimelineAsserts.assertPreviousWindowIndices(timeline, Player.REPEAT_MODE_ALL, false, 2, 0, 1);
+    TimelineAsserts.assertNextWindowIndices(timeline, Player.REPEAT_MODE_OFF, false,
+        1, 2, C.INDEX_UNSET);
+    TimelineAsserts.assertNextWindowIndices(timeline, Player.REPEAT_MODE_ONE, false, 0, 1, 2);
+    TimelineAsserts.assertNextWindowIndices(timeline, Player.REPEAT_MODE_ALL, false, 1, 2, 0);
+    TimelineAsserts.assertPreviousWindowIndices(timeline, Player.REPEAT_MODE_OFF, true,
+        1, 2, C.INDEX_UNSET);
+    TimelineAsserts.assertPreviousWindowIndices(timeline, Player.REPEAT_MODE_ONE, true, 0, 1, 2);
+    TimelineAsserts.assertPreviousWindowIndices(timeline, Player.REPEAT_MODE_ALL, true, 1, 2, 0);
+    TimelineAsserts.assertNextWindowIndices(timeline, Player.REPEAT_MODE_OFF, true,
+        C.INDEX_UNSET, 0, 1);
+    TimelineAsserts.assertNextWindowIndices(timeline, Player.REPEAT_MODE_ONE, true, 0, 1, 2);
+    TimelineAsserts.assertNextWindowIndices(timeline, Player.REPEAT_MODE_ALL, true, 2, 0, 1);
+    assertEquals(0, timeline.getFirstWindowIndex(false));
+    assertEquals(2, timeline.getLastWindowIndex(false));
+    assertEquals(2, timeline.getFirstWindowIndex(true));
+    assertEquals(0, timeline.getLastWindowIndex(true));
+    assertAllPeriodsCanBeCreatedPreparedAndReleased(mediaSource, timeline.getPeriodCount());
   }
 
   public void testIllegalArguments() {
@@ -325,6 +407,28 @@ public final class DynamicConcatenatingMediaSourceTest extends TestCase {
     return new FakeTimeline(new TimelineWindowDefinition(index + 1, (index + 1) * 111));
   }
 
+  private static void assertAllPeriodsCanBeCreatedPreparedAndReleased(MediaSource mediaSource,
+      int periodCount) {
+    for (int i = 0; i < periodCount; i++) {
+      MediaPeriod mediaPeriod = mediaSource.createPeriod(new MediaPeriodId(i), null);
+      assertNotNull(mediaPeriod);
+      final ConditionVariable mediaPeriodPrepared = new ConditionVariable();
+      mediaPeriod.prepare(new Callback() {
+        @Override
+        public void onPrepared(MediaPeriod mediaPeriod) {
+          mediaPeriodPrepared.open();
+        }
+        @Override
+        public void onContinueLoadingRequested(MediaPeriod source) {}
+      }, 0);
+      assertTrue(mediaPeriodPrepared.block(TIMEOUT_MS));
+      MediaPeriod secondMediaPeriod = mediaSource.createPeriod(new MediaPeriodId(i), null);
+      assertNotNull(secondMediaPeriod);
+      mediaSource.releasePeriod(secondMediaPeriod);
+      mediaSource.releasePeriod(mediaPeriod);
+    }
+  }
+
   private static class LazyMediaSource implements MediaSource {
 
     private Listener listener;
@@ -344,7 +448,7 @@ public final class DynamicConcatenatingMediaSourceTest extends TestCase {
 
     @Override
     public MediaPeriod createPeriod(MediaPeriodId id, Allocator allocator) {
-      return null;
+      return new FakeMediaPeriod(TrackGroupArray.EMPTY);
     }
 
     @Override

@@ -36,6 +36,10 @@ public final class TimelineAsserts {
   public static void assertEmpty(Timeline timeline) {
     assertWindowIds(timeline);
     assertPeriodCounts(timeline);
+    for (boolean shuffled : new boolean[] {false, true}) {
+      assertEquals(C.INDEX_UNSET, timeline.getFirstWindowIndex(shuffled));
+      assertEquals(C.INDEX_UNSET, timeline.getLastWindowIndex(shuffled));
+    }
   }
 
   /**
@@ -119,8 +123,9 @@ public final class TimelineAsserts {
         expectedWindowIndex++;
       }
       assertEquals(expectedWindowIndex, period.windowIndex);
+      assertEquals(i, timeline.getIndexOfPeriod(period.uid));
       for (@Player.RepeatMode int repeatMode
-          : new int[] { Player.REPEAT_MODE_OFF, Player.REPEAT_MODE_ONE, Player.REPEAT_MODE_ALL }) {
+          : new int[] {Player.REPEAT_MODE_OFF, Player.REPEAT_MODE_ONE, Player.REPEAT_MODE_ALL}) {
         if (i < accumulatedPeriodCounts[expectedWindowIndex + 1] - 1) {
           assertEquals(i + 1, timeline.getNextPeriodIndex(i, period, window, repeatMode, false));
         } else {
