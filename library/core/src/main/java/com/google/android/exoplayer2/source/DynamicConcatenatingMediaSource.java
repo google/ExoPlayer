@@ -395,7 +395,14 @@ public final class DynamicConcatenatingMediaSource implements MediaSource, ExoPl
   private int findMediaSourceHolderByPeriodIndex(int periodIndex) {
     query.firstPeriodIndexInChild = periodIndex;
     int index = Collections.binarySearch(mediaSourceHolders, query);
-    return index >= 0 ? index : -index - 2;
+    if (index < 0) {
+      return -index - 2;
+    }
+    while (index < mediaSourceHolders.size() - 1
+        && mediaSourceHolders.get(index + 1).firstPeriodIndexInChild == periodIndex) {
+      index++;
+    }
+    return index;
   }
 
   private static final class MediaSourceHolder implements Comparable<MediaSourceHolder> {
@@ -456,12 +463,12 @@ public final class DynamicConcatenatingMediaSource implements MediaSource, ExoPl
 
     @Override
     protected int getChildIndexByPeriodIndex(int periodIndex) {
-      return Util.binarySearchFloor(firstPeriodInChildIndices, periodIndex, true, false);
+      return Util.binarySearchFloor(firstPeriodInChildIndices, periodIndex + 1, false, false);
     }
 
     @Override
     protected int getChildIndexByWindowIndex(int windowIndex) {
-      return Util.binarySearchFloor(firstWindowInChildIndices, windowIndex, true, false);
+      return Util.binarySearchFloor(firstWindowInChildIndices, windowIndex + 1, false, false);
     }
 
     @Override

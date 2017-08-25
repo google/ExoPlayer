@@ -31,11 +31,24 @@ import junit.framework.TestCase;
  */
 public final class ConcatenatingMediaSourceTest extends TestCase {
 
+  public void testEmptyConcatenation() {
+    for (boolean atomic : new boolean[] {false, true}) {
+      Timeline timeline = getConcatenatedTimeline(atomic);
+      TimelineAsserts.assertEmpty(timeline);
+
+      timeline = getConcatenatedTimeline(atomic, Timeline.EMPTY);
+      TimelineAsserts.assertEmpty(timeline);
+
+      timeline = getConcatenatedTimeline(atomic, Timeline.EMPTY, Timeline.EMPTY, Timeline.EMPTY);
+      TimelineAsserts.assertEmpty(timeline);
+    }
+  }
+
   public void testSingleMediaSource() {
     Timeline timeline = getConcatenatedTimeline(false, createFakeTimeline(3, 111));
     TimelineAsserts.assertWindowIds(timeline, 111);
     TimelineAsserts.assertPeriodCounts(timeline, 3);
-    for (boolean shuffled : new boolean[] { false, true }) {
+    for (boolean shuffled : new boolean[] {false, true}) {
       TimelineAsserts.assertPreviousWindowIndices(timeline, Player.REPEAT_MODE_OFF, shuffled,
           C.INDEX_UNSET);
       TimelineAsserts.assertPreviousWindowIndices(timeline, Player.REPEAT_MODE_ONE, shuffled, 0);
@@ -49,7 +62,7 @@ public final class ConcatenatingMediaSourceTest extends TestCase {
     timeline = getConcatenatedTimeline(true, createFakeTimeline(3, 111));
     TimelineAsserts.assertWindowIds(timeline, 111);
     TimelineAsserts.assertPeriodCounts(timeline, 3);
-    for (boolean shuffled : new boolean[] { false, true }) {
+    for (boolean shuffled : new boolean[] {false, true}) {
       TimelineAsserts.assertPreviousWindowIndices(timeline, Player.REPEAT_MODE_OFF, shuffled,
           C.INDEX_UNSET);
       TimelineAsserts.assertPreviousWindowIndices(timeline, Player.REPEAT_MODE_ONE, shuffled, 0);
@@ -91,7 +104,7 @@ public final class ConcatenatingMediaSourceTest extends TestCase {
     timeline = getConcatenatedTimeline(true, timelines);
     TimelineAsserts.assertWindowIds(timeline, 111, 222, 333);
     TimelineAsserts.assertPeriodCounts(timeline, 3, 1, 3);
-    for (boolean shuffled : new boolean[] { false, true }) {
+    for (boolean shuffled : new boolean[] {false, true}) {
       TimelineAsserts.assertPreviousWindowIndices(timeline, Player.REPEAT_MODE_OFF, shuffled,
           C.INDEX_UNSET, 0, 1);
       TimelineAsserts.assertPreviousWindowIndices(timeline, Player.REPEAT_MODE_ONE, shuffled,
@@ -133,6 +146,54 @@ public final class ConcatenatingMediaSourceTest extends TestCase {
         C.INDEX_UNSET, 0, 3, 1);
     TimelineAsserts.assertNextWindowIndices(timeline, Player.REPEAT_MODE_ONE, true, 0, 1, 3, 2);
     TimelineAsserts.assertNextWindowIndices(timeline, Player.REPEAT_MODE_ALL, true, 2, 0, 3, 1);
+  }
+
+  public void testEmptyTimelineMediaSources() {
+    // Empty timelines in the front, back, and the middle (single and multiple in a row).
+    Timeline[] timelines = { Timeline.EMPTY, createFakeTimeline(1, 111), Timeline.EMPTY,
+        Timeline.EMPTY, createFakeTimeline(2, 222), Timeline.EMPTY, createFakeTimeline(3, 333),
+        Timeline.EMPTY };
+    Timeline timeline = getConcatenatedTimeline(false, timelines);
+    TimelineAsserts.assertWindowIds(timeline, 111, 222, 333);
+    TimelineAsserts.assertPeriodCounts(timeline, 1, 2, 3);
+    TimelineAsserts.assertPreviousWindowIndices(timeline, Player.REPEAT_MODE_OFF, false,
+        C.INDEX_UNSET, 0, 1);
+    TimelineAsserts.assertPreviousWindowIndices(timeline, Player.REPEAT_MODE_ONE, false, 0, 1, 2);
+    TimelineAsserts.assertPreviousWindowIndices(timeline, Player.REPEAT_MODE_ALL, false, 2, 0, 1);
+    TimelineAsserts.assertNextWindowIndices(timeline, Player.REPEAT_MODE_OFF, false,
+        1, 2, C.INDEX_UNSET);
+    TimelineAsserts.assertNextWindowIndices(timeline, Player.REPEAT_MODE_ONE, false, 0, 1, 2);
+    TimelineAsserts.assertNextWindowIndices(timeline, Player.REPEAT_MODE_ALL, false, 1, 2, 0);
+    TimelineAsserts.assertPreviousWindowIndices(timeline, Player.REPEAT_MODE_OFF, true,
+        1, 2, C.INDEX_UNSET);
+    TimelineAsserts.assertPreviousWindowIndices(timeline, Player.REPEAT_MODE_ONE, true, 0, 1, 2);
+    TimelineAsserts.assertPreviousWindowIndices(timeline, Player.REPEAT_MODE_ALL, true, 1, 2, 0);
+    TimelineAsserts.assertNextWindowIndices(timeline, Player.REPEAT_MODE_OFF, true,
+        C.INDEX_UNSET, 0, 1);
+    TimelineAsserts.assertNextWindowIndices(timeline, Player.REPEAT_MODE_ONE, true, 0, 1, 2);
+    TimelineAsserts.assertNextWindowIndices(timeline, Player.REPEAT_MODE_ALL, true, 2, 0, 1);
+    assertEquals(0, timeline.getFirstWindowIndex(false));
+    assertEquals(2, timeline.getLastWindowIndex(false));
+    assertEquals(2, timeline.getFirstWindowIndex(true));
+    assertEquals(0, timeline.getLastWindowIndex(true));
+
+    timeline = getConcatenatedTimeline(true, timelines);
+    TimelineAsserts.assertWindowIds(timeline, 111, 222, 333);
+    TimelineAsserts.assertPeriodCounts(timeline, 1, 2, 3);
+    for (boolean shuffled : new boolean[] {false, true}) {
+      TimelineAsserts.assertPreviousWindowIndices(timeline, Player.REPEAT_MODE_OFF, shuffled,
+          C.INDEX_UNSET, 0, 1);
+      TimelineAsserts.assertPreviousWindowIndices(timeline, Player.REPEAT_MODE_ONE, shuffled,
+          2, 0, 1);
+      TimelineAsserts.assertPreviousWindowIndices(timeline, Player.REPEAT_MODE_ALL, shuffled,
+          2, 0, 1);
+      TimelineAsserts.assertNextWindowIndices(timeline, Player.REPEAT_MODE_OFF, shuffled,
+          1, 2, C.INDEX_UNSET);
+      TimelineAsserts.assertNextWindowIndices(timeline, Player.REPEAT_MODE_ONE, shuffled, 1, 2, 0);
+      TimelineAsserts.assertNextWindowIndices(timeline, Player.REPEAT_MODE_ALL, shuffled, 1, 2, 0);
+      assertEquals(0, timeline.getFirstWindowIndex(shuffled));
+      assertEquals(2, timeline.getLastWindowIndex(shuffled));
+    }
   }
 
   /**
