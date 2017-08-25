@@ -39,12 +39,10 @@ import com.google.android.exoplayer2.testutil.FakeDataSet;
 import com.google.android.exoplayer2.testutil.FakeDataSource.Factory;
 import com.google.android.exoplayer2.upstream.cache.NoOpCacheEvictor;
 import com.google.android.exoplayer2.upstream.cache.SimpleCache;
-import com.google.android.exoplayer2.util.ClosedSource;
 import com.google.android.exoplayer2.util.Util;
 import java.io.File;
 
 /** Unit tests for {@link HlsDownloader}. */
-@ClosedSource(reason = "Not ready yet")
 public class HlsDownloaderTest extends InstrumentationTestCase {
 
   private SimpleCache cache;

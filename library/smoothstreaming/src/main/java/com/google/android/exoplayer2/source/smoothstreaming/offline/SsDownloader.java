@@ -26,7 +26,6 @@ import com.google.android.exoplayer2.source.smoothstreaming.manifest.TrackKey;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DataSpec;
 import com.google.android.exoplayer2.upstream.ParsingLoadable;
-import com.google.android.exoplayer2.util.ClosedSource;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -60,7 +59,6 @@ import java.util.List;
  *     new CacheDataSource(cache, factory.createDataSource(), CacheDataSource.FLAG_BLOCK_ON_CACHE);}
  * </pre>
  */
-@ClosedSource(reason = "Not ready yet")
 public final class SsDownloader extends SegmentDownloader<SsManifest, TrackKey> {
 
   /**

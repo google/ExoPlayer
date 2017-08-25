@@ -17,13 +17,11 @@ package com.google.android.exoplayer2.offline;
 
 import android.support.annotation.Nullable;
 import com.google.android.exoplayer2.C;
-import com.google.android.exoplayer2.util.ClosedSource;
 import java.io.IOException;
 
 /**
  * An interface for stream downloaders.
  */
-@ClosedSource(reason = "Not ready yet")
 public interface Downloader {
 
   /**

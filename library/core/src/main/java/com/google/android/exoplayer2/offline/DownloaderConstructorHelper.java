@@ -27,11 +27,9 @@ import com.google.android.exoplayer2.upstream.cache.Cache;
 import com.google.android.exoplayer2.upstream.cache.CacheDataSink;
 import com.google.android.exoplayer2.upstream.cache.CacheDataSource;
 import com.google.android.exoplayer2.util.Assertions;
-import com.google.android.exoplayer2.util.ClosedSource;
 import com.google.android.exoplayer2.util.PriorityTaskManager;
 
 /** A helper class that holds necessary parameters for {@link Downloader} construction. */
-@ClosedSource(reason = "Not ready yet")
 public final class DownloaderConstructorHelper {
 
   private final Cache cache;
