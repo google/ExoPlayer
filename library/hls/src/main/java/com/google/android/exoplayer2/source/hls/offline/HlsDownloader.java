@@ -27,7 +27,6 @@ import com.google.android.exoplayer2.source.hls.playlist.HlsPlaylistParser;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DataSpec;
 import com.google.android.exoplayer2.upstream.ParsingLoadable;
-import com.google.android.exoplayer2.util.ClosedSource;
 import com.google.android.exoplayer2.util.UriUtil;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -41,7 +40,6 @@ import java.util.List;
  * #selectRepresentations(Object[])}. As key, string form of the rendition's url is used. The urls
  * can be absolute or relative to the master playlist url.
  */
-@ClosedSource(reason = "Not ready yet")
 public final class HlsDownloader extends SegmentDownloader<HlsMasterPlaylist, String> {
 
   /**

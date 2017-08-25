@@ -15,11 +15,9 @@
  */
 package com.google.android.exoplayer2.offline;
 
-import com.google.android.exoplayer2.util.ClosedSource;
 import java.io.IOException;
 
 /** Thrown on an error during downloading. */
-@ClosedSource(reason = "Not ready yet")
 public final class DownloadException extends IOException {
 
   /** @param message The message for the exception. */

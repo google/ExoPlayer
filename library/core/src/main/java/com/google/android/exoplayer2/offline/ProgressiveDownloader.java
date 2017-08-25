@@ -23,14 +23,12 @@ import com.google.android.exoplayer2.upstream.cache.Cache;
 import com.google.android.exoplayer2.upstream.cache.CacheDataSource;
 import com.google.android.exoplayer2.upstream.cache.CacheUtil;
 import com.google.android.exoplayer2.upstream.cache.CacheUtil.CachingCounters;
-import com.google.android.exoplayer2.util.ClosedSource;
 import com.google.android.exoplayer2.util.PriorityTaskManager;
 import java.io.IOException;
 
 /**
  * A downloader for progressive media streams.
  */
-@ClosedSource(reason = "Not ready yet")
 public final class ProgressiveDownloader implements Downloader {
 
   private static final int BUFFER_SIZE_BYTES = 128 * 1024;

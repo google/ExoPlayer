@@ -32,7 +32,6 @@ import com.google.android.exoplayer2.upstream.cache.CacheDataSource;
 import com.google.android.exoplayer2.upstream.cache.CacheDataSourceFactory;
 import com.google.android.exoplayer2.upstream.cache.NoOpCacheEvictor;
 import com.google.android.exoplayer2.upstream.cache.SimpleCache;
-import com.google.android.exoplayer2.util.ClosedSource;
 import com.google.android.exoplayer2.util.Util;
 import java.io.File;
 import java.io.IOException;
@@ -43,7 +42,6 @@ import java.util.List;
 /**
  * Tests downloaded DASH playbacks.
  */
-@ClosedSource(reason = "Not ready yet")
 public final class DashDownloadTest extends ActivityInstrumentationTestCase2<HostActivity> {
 
   private static final String TAG = "DashDownloadTest";

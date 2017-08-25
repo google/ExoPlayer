@@ -15,12 +15,9 @@
  */
 package com.google.android.exoplayer2.source.hls.offline;
 
-import com.google.android.exoplayer2.util.ClosedSource;
-
 /**
  * Data for HLS downloading tests.
  */
-@ClosedSource(reason = "Not ready yet")
 /* package */ interface HlsDownloadTestData {
 
   String MASTER_PLAYLIST_URI = "test.m3u8";

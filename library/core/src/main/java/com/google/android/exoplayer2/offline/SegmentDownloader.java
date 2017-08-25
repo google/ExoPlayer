@@ -25,7 +25,6 @@ import com.google.android.exoplayer2.upstream.cache.Cache;
 import com.google.android.exoplayer2.upstream.cache.CacheDataSource;
 import com.google.android.exoplayer2.upstream.cache.CacheUtil;
 import com.google.android.exoplayer2.upstream.cache.CacheUtil.CachingCounters;
-import com.google.android.exoplayer2.util.ClosedSource;
 import com.google.android.exoplayer2.util.PriorityTaskManager;
 import java.io.IOException;
 import java.util.Collections;
@@ -40,7 +39,6 @@ import java.util.List;
  * @param <M> The type of the manifest object.
  * @param <K> The type of the representation key object.
  */
-@ClosedSource(reason = "Not ready yet")
 public abstract class SegmentDownloader<M, K> implements Downloader {
 
   /** Smallest unit of content to be downloaded. */
