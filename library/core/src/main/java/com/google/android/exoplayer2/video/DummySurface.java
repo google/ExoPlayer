@@ -34,6 +34,7 @@ import static android.opengl.EGL14.EGL_WINDOW_BIT;
 import static android.opengl.EGL14.eglChooseConfig;
 import static android.opengl.EGL14.eglCreateContext;
 import static android.opengl.EGL14.eglCreatePbufferSurface;
+import static android.opengl.EGL14.eglDestroyContext;
 import static android.opengl.EGL14.eglGetDisplay;
 import static android.opengl.EGL14.eglInitialize;
 import static android.opengl.EGL14.eglMakeCurrent;
@@ -42,7 +43,6 @@ import static android.opengl.GLES20.glGenTextures;
 
 import android.annotation.TargetApi;
 import android.content.Context;
-import android.content.pm.PackageManager;
 import android.graphics.SurfaceTexture;
 import android.graphics.SurfaceTexture.OnFrameAvailableListener;
 import android.opengl.EGL14;
@@ -152,15 +152,9 @@ public final class DummySurface extends Surface {
    *
    * @param context Any {@link Context}.
    */
+  @SuppressWarnings("unused") // Context may be needed in the future for better targeting.
   private static boolean deviceNeedsSecureDummySurfaceWorkaround(Context context) {
-    return Util.SDK_INT == 24
-        && (Util.MODEL.startsWith("SM-G950") || Util.MODEL.startsWith("SM-G955"))
-        && !hasVrModeHighPerformanceSystemFeatureV24(context.getPackageManager());
-  }
-
-  @TargetApi(24)
-  private static boolean hasVrModeHighPerformanceSystemFeatureV24(PackageManager packageManager) {
-    return packageManager.hasSystemFeature(PackageManager.FEATURE_VR_MODE_HIGH_PERFORMANCE);
+    return Util.SDK_INT == 24 && "samsung".equals(Util.MANUFACTURER);
   }
 
   private static class DummySurfaceThread extends HandlerThread implements OnFrameAvailableListener,
@@ -171,6 +165,8 @@ public final class DummySurface extends Surface {
     private static final int MSG_RELEASE = 3;
 
     private final int[] textureIdHolder;
+    private EGLContext context;
+    private EGLDisplay display;
     private Handler handler;
     private SurfaceTexture surfaceTexture;
 
@@ -255,7 +251,7 @@ public final class DummySurface extends Surface {
     }
 
     private void initInternal(boolean secure) {
-      EGLDisplay display = eglGetDisplay(EGL_DEFAULT_DISPLAY);
+      display = eglGetDisplay(EGL_DEFAULT_DISPLAY);
       Assertions.checkState(display != null, "eglGetDisplay failed");
 
       int[] version = new int[2];
@@ -292,8 +288,8 @@ public final class DummySurface extends Surface {
             EGL_CONTEXT_CLIENT_VERSION, 2,
             EGL_NONE};
       }
-      EGLContext context = eglCreateContext(display, config, android.opengl.EGL14.EGL_NO_CONTEXT,
-          glAttributes, 0);
+      context = eglCreateContext(display, config, android.opengl.EGL14.EGL_NO_CONTEXT, glAttributes,
+          0);
       Assertions.checkState(context != null, "eglCreateContext failed");
 
       int[] pbufferAttributes;
@@ -323,11 +319,18 @@ public final class DummySurface extends Surface {
 
     private void releaseInternal() {
       try {
-        surfaceTexture.release();
+        if (surfaceTexture != null) {
+          surfaceTexture.release();
+          glDeleteTextures(1, textureIdHolder, 0);
+        }
       } finally {
+        if (context != null) {
+          eglDestroyContext(display, context);
+        }
+        display = null;
+        context = null;
         surface = null;
         surfaceTexture = null;
-        glDeleteTextures(1, textureIdHolder, 0);
       }
     }
 

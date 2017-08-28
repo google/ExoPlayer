@@ -38,6 +38,7 @@ import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
+import com.google.android.exoplayer2.util.ErrorMessageProvider;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -47,7 +48,7 @@ import java.util.Map;
  * Connects a {@link MediaSessionCompat} to a {@link Player}.
  * <p>
  * The connector listens for actions sent by the media session's controller and implements these
- * actions by calling appropriate ExoPlayer methods. The playback state of the media session is
+ * actions by calling appropriate player methods. The playback state of the media session is
  * automatically synced with the player. The connector can also be optionally extended by providing
  * various collaborators:
  * <ul>
@@ -73,6 +74,10 @@ public final class MediaSessionConnector {
   }
 
   public static final String EXTRAS_PITCH = "EXO_PITCH";
+  private static final int BASE_MEDIA_SESSION_FLAGS = MediaSessionCompat.FLAG_HANDLES_MEDIA_BUTTONS
+      | MediaSessionCompat.FLAG_HANDLES_TRANSPORT_CONTROLS;
+  private static final int EDITOR_MEDIA_SESSION_FLAGS = BASE_MEDIA_SESSION_FLAGS
+      | MediaSessionCompat.FLAG_HANDLES_QUEUE_COMMANDS;
 
   /**
    * Interface to which playback preparation actions are delegated.
@@ -294,17 +299,6 @@ public final class MediaSessionConnector {
   }
 
   /**
-   * Converts an exception into an error code and a user readable error message.
-   */
-  public interface ErrorMessageProvider {
-    /**
-     * Returns a pair consisting of an error code and a user readable error message for a given
-     * exception.
-     */
-    Pair<Integer, String> getErrorMessage(ExoPlaybackException playbackException);
-  }
-
-  /**
    * The wrapped {@link MediaSessionCompat}.
    */
   public final MediaSessionCompat mediaSession;
@@ -318,9 +312,8 @@ public final class MediaSessionConnector {
 
   private Player player;
   private CustomActionProvider[] customActionProviders;
-  private int currentWindowIndex;
   private Map<String, CustomActionProvider> customActionMap;
-  private ErrorMessageProvider errorMessageProvider;
+  private ErrorMessageProvider<? super ExoPlaybackException> errorMessageProvider;
   private PlaybackPreparer playbackPreparer;
   private QueueNavigator queueNavigator;
   private QueueEditor queueEditor;
@@ -369,8 +362,7 @@ public final class MediaSessionConnector {
     this.handler = new Handler(Looper.myLooper() != null ? Looper.myLooper()
         : Looper.getMainLooper());
     this.doMaintainMetadata = doMaintainMetadata;
-    mediaSession.setFlags(MediaSessionCompat.FLAG_HANDLES_MEDIA_BUTTONS
-        | MediaSessionCompat.FLAG_HANDLES_TRANSPORT_CONTROLS);
+    mediaSession.setFlags(BASE_MEDIA_SESSION_FLAGS);
     mediaController = mediaSession.getController();
     mediaSessionCallback = new MediaSessionCallback();
     exoPlayerEventListener = new ExoPlayerEventListener();
@@ -411,7 +403,8 @@ public final class MediaSessionConnector {
    *
    * @param errorMessageProvider The error message provider.
    */
-  public void setErrorMessageProvider(ErrorMessageProvider errorMessageProvider) {
+  public void setErrorMessageProvider(
+      ErrorMessageProvider<? super ExoPlaybackException> errorMessageProvider) {
     this.errorMessageProvider = errorMessageProvider;
   }
 
@@ -433,6 +426,8 @@ public final class MediaSessionConnector {
    */
   public void setQueueEditor(QueueEditor queueEditor) {
     this.queueEditor = queueEditor;
+    mediaSession.setFlags(queueEditor == null ? BASE_MEDIA_SESSION_FLAGS
+        : EDITOR_MEDIA_SESSION_FLAGS);
   }
 
   private void updateMediaSessionPlaybackState() {
@@ -583,11 +578,20 @@ public final class MediaSessionConnector {
 
   private class ExoPlayerEventListener implements Player.EventListener {
 
+    private int currentWindowIndex;
+    private int currentWindowCount;
+
     @Override
     public void onTimelineChanged(Timeline timeline, Object manifest) {
       if (queueNavigator != null) {
         queueNavigator.onTimelineChanged(player);
       }
+      int windowCount = player.getCurrentTimeline().getWindowCount();
+      if (currentWindowCount != windowCount) {
+        // active queue item and queue navigation actions may need to be updated
+        updateMediaSessionPlaybackState();
+      }
+      currentWindowCount = windowCount;
       currentWindowIndex = player.getCurrentWindowIndex();
       updateMediaSessionMetadata();
     }
@@ -612,6 +616,13 @@ public final class MediaSessionConnector {
       mediaSession.setRepeatMode(repeatMode == Player.REPEAT_MODE_ONE
           ? PlaybackStateCompat.REPEAT_MODE_ONE : repeatMode == Player.REPEAT_MODE_ALL
           ? PlaybackStateCompat.REPEAT_MODE_ALL : PlaybackStateCompat.REPEAT_MODE_NONE);
+      updateMediaSessionPlaybackState();
+    }
+
+    @Override
+    public void onShuffleModeEnabledChanged(boolean shuffleModeEnabled) {
+      mediaSession.setShuffleMode(shuffleModeEnabled ? PlaybackStateCompat.SHUFFLE_MODE_ALL
+          : PlaybackStateCompat.SHUFFLE_MODE_NONE);
       updateMediaSessionPlaybackState();
     }
 
@@ -793,6 +804,14 @@ public final class MediaSessionConnector {
     public void onSetShuffleModeEnabled(boolean enabled) {
       if (canDispatchToQueueNavigator(PlaybackStateCompat.ACTION_SET_SHUFFLE_MODE_ENABLED)) {
         queueNavigator.onSetShuffleModeEnabled(player, enabled);
+      }
+    }
+
+    @Override
+    public void onSetShuffleMode(int shuffleMode) {
+      if (canDispatchToQueueNavigator(PlaybackStateCompat.ACTION_SET_SHUFFLE_MODE_ENABLED)) {
+        queueNavigator.onSetShuffleModeEnabled(player,
+            shuffleMode != PlaybackStateCompat.SHUFFLE_MODE_NONE);
       }
     }
 

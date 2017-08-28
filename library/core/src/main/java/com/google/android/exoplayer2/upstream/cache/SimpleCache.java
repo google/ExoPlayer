@@ -22,7 +22,6 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.LinkedList;
 import java.util.NavigableSet;
 import java.util.Set;
 import java.util.TreeSet;
@@ -61,10 +60,24 @@ public final class SimpleCache implements Cache {
    *     The key must be 16 bytes long.
    */
   public SimpleCache(File cacheDir, CacheEvictor evictor, byte[] secretKey) {
+    this(cacheDir, evictor, secretKey, secretKey != null);
+  }
+
+  /**
+   * Constructs the cache. The cache will delete any unrecognized files from the directory. Hence
+   * the directory cannot be used to store other files.
+   *
+   * @param cacheDir A dedicated cache directory.
+   * @param evictor The evictor to be used.
+   * @param secretKey If not null, cache keys will be stored encrypted on filesystem using AES/CBC.
+   *     The key must be 16 bytes long.
+   * @param encrypt When false, a plaintext index will be written.
+   */
+  public SimpleCache(File cacheDir, CacheEvictor evictor, byte[] secretKey, boolean encrypt) {
     this.cacheDir = cacheDir;
     this.evictor = evictor;
     this.lockedSpans = new HashMap<>();
-    this.index = new CachedContentIndex(cacheDir, secretKey);
+    this.index = new CachedContentIndex(cacheDir, secretKey, encrypt);
     this.listeners = new HashMap<>();
     // Start cache initialization.
     final ConditionVariable conditionVariable = new ConditionVariable();
@@ -308,7 +321,7 @@ public final class SimpleCache implements Cache {
    * no longer exist.
    */
   private void removeStaleSpansAndCachedContents() throws CacheException {
-    LinkedList<CacheSpan> spansToBeRemoved = new LinkedList<>();
+    ArrayList<CacheSpan> spansToBeRemoved = new ArrayList<>();
     for (CachedContent cachedContent : index.getAll()) {
       for (CacheSpan span : cachedContent.getSpans()) {
         if (!span.file.exists()) {
@@ -316,9 +329,9 @@ public final class SimpleCache implements Cache {
         }
       }
     }
-    for (CacheSpan span : spansToBeRemoved) {
+    for (int i = 0; i < spansToBeRemoved.size(); i++) {
       // Remove span but not CachedContent to prevent multiple index.store() calls.
-      removeSpan(span, false);
+      removeSpan(spansToBeRemoved.get(i), false);
     }
     index.removeEmpty();
     index.store();

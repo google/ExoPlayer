@@ -25,16 +25,15 @@ import com.google.android.exoplayer2.extractor.mkv.MatroskaExtractor;
 import com.google.android.exoplayer2.extractor.mp4.FragmentedMp4Extractor;
 import com.google.android.exoplayer2.source.chunk.ChunkExtractorWrapper;
 import com.google.android.exoplayer2.source.chunk.InitializationChunk;
-import com.google.android.exoplayer2.source.dash.manifest.AdaptationSet;
 import com.google.android.exoplayer2.source.dash.manifest.DashManifest;
 import com.google.android.exoplayer2.source.dash.manifest.DashManifestParser;
 import com.google.android.exoplayer2.source.dash.manifest.Period;
 import com.google.android.exoplayer2.source.dash.manifest.RangedUri;
 import com.google.android.exoplayer2.source.dash.manifest.Representation;
 import com.google.android.exoplayer2.upstream.DataSource;
-import com.google.android.exoplayer2.upstream.DataSourceInputStream;
 import com.google.android.exoplayer2.upstream.DataSpec;
 import com.google.android.exoplayer2.upstream.HttpDataSource;
+import com.google.android.exoplayer2.upstream.ParsingLoadable;
 import com.google.android.exoplayer2.util.MimeTypes;
 import java.io.IOException;
 import java.util.List;
@@ -48,66 +47,21 @@ public final class DashUtil {
    * Loads a DASH manifest.
    *
    * @param dataSource The {@link HttpDataSource} from which the manifest should be read.
-   * @param manifestUri The URI of the manifest to be read.
+   * @param uri The {@link Uri} of the manifest to be read.
    * @return An instance of {@link DashManifest}.
    * @throws IOException Thrown when there is an error while loading.
    */
-  public static DashManifest loadManifest(DataSource dataSource, String manifestUri)
+  public static DashManifest loadManifest(DataSource dataSource, Uri uri)
       throws IOException {
-    DataSourceInputStream inputStream = new DataSourceInputStream(dataSource,
-        new DataSpec(Uri.parse(manifestUri), DataSpec.FLAG_ALLOW_CACHING_UNKNOWN_LENGTH));
-    try {
-      inputStream.open();
-      DashManifestParser parser = new DashManifestParser();
-      return parser.parse(dataSource.getUri(), inputStream);
-    } finally {
-      inputStream.close();
-    }
+    DataSpec dataSpec = new DataSpec(uri,
+        DataSpec.FLAG_ALLOW_CACHING_UNKNOWN_LENGTH | DataSpec.FLAG_ALLOW_GZIP);
+    ParsingLoadable<DashManifest> loadable = new ParsingLoadable<>(dataSource, dataSpec,
+        C.DATA_TYPE_MANIFEST, new DashManifestParser());
+    loadable.load();
+    return loadable.getResult();
   }
 
   /**
-   * Loads {@link DrmInitData} for a given manifest.
-   *
-   * @param dataSource The {@link HttpDataSource} from which data should be loaded.
-   * @param dashManifest The {@link DashManifest} of the DASH content.
-   * @return The loaded {@link DrmInitData}.
-   */
-  public static DrmInitData loadDrmInitData(DataSource dataSource, DashManifest dashManifest)
-      throws IOException, InterruptedException {
-    // Prefer drmInitData obtained from the manifest over drmInitData obtained from the stream,
-    // as per DASH IF Interoperability Recommendations V3.0, 7.5.3.
-    if (dashManifest.getPeriodCount() < 1) {
-      return null;
-    }
-    Period period = dashManifest.getPeriod(0);
-    int adaptationSetIndex = period.getAdaptationSetIndex(C.TRACK_TYPE_VIDEO);
-    if (adaptationSetIndex == C.INDEX_UNSET) {
-      adaptationSetIndex = period.getAdaptationSetIndex(C.TRACK_TYPE_AUDIO);
-      if (adaptationSetIndex == C.INDEX_UNSET) {
-        return null;
-      }
-    }
-    AdaptationSet adaptationSet = period.adaptationSets.get(adaptationSetIndex);
-    if (adaptationSet.representations.isEmpty()) {
-      return null;
-    }
-    Representation representation = adaptationSet.representations.get(0);
-    DrmInitData drmInitData = representation.format.drmInitData;
-    if (drmInitData == null) {
-      Format sampleFormat = DashUtil.loadSampleFormat(dataSource, representation);
-      if (sampleFormat != null) {
-        drmInitData = sampleFormat.drmInitData;
-      }
-      if (drmInitData == null) {
-        return null;
-      }
-    }
-    return drmInitData;
-  }
-
-  /**
-   * Loads initialization data for the {@code representation} and returns the sample {@link
-   * Format}.
    * Loads {@link DrmInitData} for a given period in a DASH manifest.
    *
    * @param dataSource The {@link HttpDataSource} from which data should be loaded.
@@ -157,7 +111,8 @@ public final class DashUtil {
    *
    * @param dataSource The source from which the data should be loaded.
    * @param representation The representation which initialization chunk belongs to.
-   * @return {@link ChunkIndex} of the given representation.
+   * @return The {@link ChunkIndex} of the given representation, or null if no initialization or
+   *     index data exists.
    * @throws IOException Thrown when there is an error while loading.
    * @throws InterruptedException Thrown if the thread was interrupted.
    */

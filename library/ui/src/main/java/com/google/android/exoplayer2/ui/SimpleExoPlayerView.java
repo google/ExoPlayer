@@ -43,7 +43,7 @@ import com.google.android.exoplayer2.metadata.Metadata;
 import com.google.android.exoplayer2.metadata.id3.ApicFrame;
 import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.text.Cue;
-import com.google.android.exoplayer2.text.TextRenderer;
+import com.google.android.exoplayer2.text.TextOutput;
 import com.google.android.exoplayer2.trackselection.TrackSelection;
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
 import com.google.android.exoplayer2.ui.AspectRatioFrameLayout.ResizeMode;
@@ -379,9 +379,7 @@ public final class SimpleExoPlayerView extends FrameLayout {
   }
 
   /**
-   * Set the {@link SimpleExoPlayer} to use. The {@link SimpleExoPlayer#setTextOutput} and
-   * {@link SimpleExoPlayer#setVideoListener} method of the player will be called and previous
-   * assignments are overridden.
+   * Set the {@link SimpleExoPlayer} to use.
    * <p>
    * To transition a {@link SimpleExoPlayer} from targeting one view to another, it's recommended to
    * use {@link #switchTargetView(SimpleExoPlayer, SimpleExoPlayerView, SimpleExoPlayerView)} rather
@@ -397,8 +395,8 @@ public final class SimpleExoPlayerView extends FrameLayout {
     }
     if (this.player != null) {
       this.player.removeListener(componentListener);
-      this.player.clearTextOutput(componentListener);
-      this.player.clearVideoListener(componentListener);
+      this.player.removeTextOutput(componentListener);
+      this.player.removeVideoListener(componentListener);
       if (surfaceView instanceof TextureView) {
         this.player.clearVideoTextureView((TextureView) surfaceView);
       } else if (surfaceView instanceof SurfaceView) {
@@ -418,8 +416,8 @@ public final class SimpleExoPlayerView extends FrameLayout {
       } else if (surfaceView instanceof SurfaceView) {
         player.setVideoSurfaceView((SurfaceView) surfaceView);
       }
-      player.setVideoListener(componentListener);
-      player.setTextOutput(componentListener);
+      player.addVideoListener(componentListener);
+      player.addTextOutput(componentListener);
       player.addListener(componentListener);
       maybeShowController(false);
       updateForCurrentTrackSelections();
@@ -668,10 +666,15 @@ public final class SimpleExoPlayerView extends FrameLayout {
   }
 
   /**
-   * Gets the view onto which video is rendered. This is either a {@link SurfaceView} (default)
-   * or a {@link TextureView} if the {@code use_texture_view} view attribute has been set to true.
+   * Gets the view onto which video is rendered. This is a:
+   * <ul>
+   *   <li>{@link SurfaceView} by default, or if the {@code surface_type} attribute is set to
+   *   {@code surface_view}.</li>
+   *   <li>{@link TextureView} if {@code surface_type} is {@code texture_view}.</li>
+   *   <li>{@code null} if {@code surface_type} is {@code none}.</li>
+   * </ul>
    *
-   * @return Either a {@link SurfaceView} or a {@link TextureView}.
+   * @return The {@link SurfaceView}, {@link TextureView} or {@code null}.
    */
   public View getVideoSurfaceView() {
     return surfaceView;
@@ -841,10 +844,10 @@ public final class SimpleExoPlayerView extends FrameLayout {
     aspectRatioFrame.setResizeMode(resizeMode);
   }
 
-  private final class ComponentListener implements SimpleExoPlayer.VideoListener,
-      TextRenderer.Output, Player.EventListener {
+  private final class ComponentListener implements TextOutput, SimpleExoPlayer.VideoListener,
+      Player.EventListener {
 
-    // TextRenderer.Output implementation
+    // TextOutput implementation
 
     @Override
     public void onCues(List<Cue> cues) {
@@ -853,7 +856,7 @@ public final class SimpleExoPlayerView extends FrameLayout {
       }
     }
 
-    // SimpleExoPlayer.VideoListener implementation
+    // SimpleExoPlayer.VideoInfoListener implementation
 
     @Override
     public void onVideoSizeChanged(int width, int height, int unappliedRotationDegrees,
@@ -890,6 +893,11 @@ public final class SimpleExoPlayerView extends FrameLayout {
 
     @Override
     public void onRepeatModeChanged(int repeatMode) {
+      // Do nothing.
+    }
+
+    @Override
+    public void onShuffleModeEnabledChanged(boolean shuffleModeEnabled) {
       // Do nothing.
     }
 

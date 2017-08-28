@@ -472,13 +472,13 @@ public final class ImaAdsLoader implements Player.EventListener, VideoAdPlayer,
     }
     if (!imaPlayingAd) {
       imaPlayingAd = true;
-      for (VideoAdPlayerCallback callback : adCallbacks) {
-        callback.onPlay();
+      for (int i = 0; i < adCallbacks.size(); i++) {
+        adCallbacks.get(i).onPlay();
       }
     } else if (imaPausedInAd) {
       imaPausedInAd = false;
-      for (VideoAdPlayerCallback callback : adCallbacks) {
-        callback.onResume();
+      for (int i = 0; i < adCallbacks.size(); i++) {
+        adCallbacks.get(i).onResume();
       }
     }
   }
@@ -509,8 +509,8 @@ public final class ImaAdsLoader implements Player.EventListener, VideoAdPlayer,
       return;
     }
     imaPausedInAd = true;
-    for (VideoAdPlayerCallback callback : adCallbacks) {
-      callback.onPause();
+    for (int i = 0; i < adCallbacks.size(); i++) {
+      adCallbacks.get(i).onPause();
     }
   }
 
@@ -555,8 +555,8 @@ public final class ImaAdsLoader implements Player.EventListener, VideoAdPlayer,
     } else if (imaPlayingAd && playbackState == Player.STATE_ENDED) {
       // IMA is waiting for the ad playback to finish so invoke the callback now.
       // Either CONTENT_RESUME_REQUESTED will be passed next, or playAd will be called again.
-      for (VideoAdPlayerCallback callback : adCallbacks) {
-        callback.onEnded();
+      for (int i = 0; i < adCallbacks.size(); i++) {
+        adCallbacks.get(i).onEnded();
       }
     }
   }
@@ -567,10 +567,15 @@ public final class ImaAdsLoader implements Player.EventListener, VideoAdPlayer,
   }
 
   @Override
+  public void onShuffleModeEnabledChanged(boolean shuffleModeEnabled) {
+    // Do nothing.
+  }
+
+  @Override
   public void onPlayerError(ExoPlaybackException error) {
     if (playingAd) {
-      for (VideoAdPlayerCallback callback : adCallbacks) {
-        callback.onError();
+      for (int i = 0; i < adCallbacks.size(); i++) {
+        adCallbacks.get(i).onError();
       }
     }
   }
@@ -630,8 +635,8 @@ public final class ImaAdsLoader implements Player.EventListener, VideoAdPlayer,
       if (adFinished) {
         // IMA is waiting for the ad playback to finish so invoke the callback now.
         // Either CONTENT_RESUME_REQUESTED will be passed next, or playAd will be called again.
-        for (VideoAdPlayerCallback callback : adCallbacks) {
-          callback.onEnded();
+        for (int i = 0; i < adCallbacks.size(); i++) {
+          adCallbacks.get(i).onEnded();
         }
       }
       if (!wasPlayingAd && playingAd) {

@@ -25,4 +25,5 @@
   <string name="exo_controls_repeat_all_description">"ធ្វើ​ម្ដង​ទៀត​ទាំងអស់"</string>
   <string name="exo_controls_repeat_off_description">"មិន​ធ្វើ​ឡើង​វិញ"</string>
   <string name="exo_controls_repeat_one_description">"ធ្វើ​​ឡើងវិញ​ម្ដង"</string>
+  <string name="exo_controls_shuffle_description">"ច្របល់"</string>
 </resources>

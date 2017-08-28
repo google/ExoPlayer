@@ -25,4 +25,5 @@
   <string name="exo_controls_repeat_all_description">"Phinda konke"</string>
   <string name="exo_controls_repeat_off_description">"Ungaphindi lutho"</string>
   <string name="exo_controls_repeat_one_description">"Phida okukodwa"</string>
+  <string name="exo_controls_shuffle_description">"Shova"</string>
 </resources>

@@ -50,8 +50,8 @@ import java.io.IOException;
   }
 
   @Override
-  public void skipData(long positionUs) {
-    sampleStreamWrapper.skipData(group, positionUs);
+  public int skipData(long positionUs) {
+    return sampleStreamWrapper.skipData(group, positionUs);
   }
 
 }

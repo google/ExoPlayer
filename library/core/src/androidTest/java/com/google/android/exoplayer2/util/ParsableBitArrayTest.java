@@ -16,7 +16,6 @@
 package com.google.android.exoplayer2.util;
 
 import android.test.MoreAsserts;
-
 import junit.framework.TestCase;
 
 /**
@@ -27,8 +26,14 @@ public final class ParsableBitArrayTest extends TestCase {
   private static final byte[] TEST_DATA = new byte[] {0x3C, (byte) 0xD2, (byte) 0x5F, (byte) 0x01,
       (byte) 0xFF, (byte) 0x14, (byte) 0x60, (byte) 0x99};
 
+  private ParsableBitArray testArray;
+
+  @Override
+  public void setUp() {
+    testArray = new ParsableBitArray(TEST_DATA);
+  }
+
   public void testReadAllBytes() {
-    ParsableBitArray testArray = new ParsableBitArray(TEST_DATA);
     byte[] bytesRead = new byte[TEST_DATA.length];
     testArray.readBytes(bytesRead, 0, TEST_DATA.length);
     MoreAsserts.assertEquals(TEST_DATA, bytesRead);
@@ -37,13 +42,12 @@ public final class ParsableBitArrayTest extends TestCase {
   }
 
   public void testReadBit() {
-    ParsableBitArray testArray = new ParsableBitArray(TEST_DATA);
-    assertReadBitsToEnd(0, testArray);
+    assertReadBitsToEnd(0);
   }
 
   public void testReadBits() {
-    ParsableBitArray testArray = new ParsableBitArray(TEST_DATA);
     assertEquals(getTestDataBits(0, 5), testArray.readBits(5));
+    assertEquals(getTestDataBits(5, 0), testArray.readBits(0));
     assertEquals(getTestDataBits(5, 3), testArray.readBits(3));
     assertEquals(getTestDataBits(8, 16), testArray.readBits(16));
     assertEquals(getTestDataBits(24, 3), testArray.readBits(3));
@@ -52,67 +56,101 @@ public final class ParsableBitArrayTest extends TestCase {
     assertEquals(getTestDataBits(50, 14), testArray.readBits(14));
   }
 
+  public void testReadBitsToByteArray() {
+    byte[] result = new byte[TEST_DATA.length];
+    // Test read within byte boundaries.
+    testArray.readBits(result, 0, 6);
+    assertEquals(TEST_DATA[0] & 0xFC, result[0]);
+    // Test read across byte boundaries.
+    testArray.readBits(result, 0, 8);
+    assertEquals(((TEST_DATA[0] & 0x03) << 6) | ((TEST_DATA[1] & 0xFC) >> 2), result[0]);
+    // Test reading across multiple bytes.
+    testArray.readBits(result, 1, 50);
+    for (int i = 1; i < 7; i++) {
+      assertEquals((byte) (((TEST_DATA[i] & 0x03) << 6) | ((TEST_DATA[i + 1] & 0xFC) >> 2)),
+          result[i]);
+    }
+    assertEquals((byte) (TEST_DATA[7] & 0x03) << 6, result[7]);
+    assertEquals(0, testArray.bitsLeft());
+    // Test read last buffer byte across input data bytes.
+    testArray.setPosition(31);
+    result[3] = 0;
+    testArray.readBits(result, 3, 3);
+    assertEquals((byte) 0xE0, result[3]);
+    // Test read bits in the middle of a input data byte.
+    result[0] = 0;
+    assertEquals(34, testArray.getPosition());
+    testArray.readBits(result, 0, 3);
+    assertEquals((byte) 0xE0, result[0]);
+    // Test read 0 bits.
+    testArray.setPosition(32);
+    result[1] = 0;
+    testArray.readBits(result, 1, 0);
+    assertEquals(0, result[1]);
+    // Test reading a number of bits divisible by 8.
+    testArray.setPosition(0);
+    testArray.readBits(result, 0, 16);
+    assertEquals(TEST_DATA[0], result[0]);
+    assertEquals(TEST_DATA[1], result[1]);
+    // Test least significant bits are unmodified.
+    result[1] = (byte) 0xFF;
+    testArray.readBits(result, 0, 9);
+    assertEquals(0x5F, result[0]);
+    assertEquals(0x7F, result[1]);
+  }
+
   public void testRead32BitsByteAligned() {
-    ParsableBitArray testArray = new ParsableBitArray(TEST_DATA);
     assertEquals(getTestDataBits(0, 32), testArray.readBits(32));
     assertEquals(getTestDataBits(32, 32), testArray.readBits(32));
   }
 
   public void testRead32BitsNonByteAligned() {
-    ParsableBitArray testArray = new ParsableBitArray(TEST_DATA);
     assertEquals(getTestDataBits(0, 5), testArray.readBits(5));
     assertEquals(getTestDataBits(5, 32), testArray.readBits(32));
   }
 
   public void testSkipBytes() {
-    ParsableBitArray testArray = new ParsableBitArray(TEST_DATA);
     testArray.skipBytes(2);
-    assertReadBitsToEnd(16, testArray);
+    assertReadBitsToEnd(16);
   }
 
   public void testSkipBitsByteAligned() {
-    ParsableBitArray testArray = new ParsableBitArray(TEST_DATA);
     testArray.skipBits(16);
-    assertReadBitsToEnd(16, testArray);
+    assertReadBitsToEnd(16);
   }
 
   public void testSkipBitsNonByteAligned() {
-    ParsableBitArray testArray = new ParsableBitArray(TEST_DATA);
     testArray.skipBits(5);
-    assertReadBitsToEnd(5, testArray);
+    assertReadBitsToEnd(5);
   }
 
   public void testSetPositionByteAligned() {
-    ParsableBitArray testArray = new ParsableBitArray(TEST_DATA);
     testArray.setPosition(16);
-    assertReadBitsToEnd(16, testArray);
+    assertReadBitsToEnd(16);
   }
 
   public void testSetPositionNonByteAligned() {
-    ParsableBitArray testArray = new ParsableBitArray(TEST_DATA);
     testArray.setPosition(5);
-    assertReadBitsToEnd(5, testArray);
+    assertReadBitsToEnd(5);
   }
 
   public void testByteAlignFromNonByteAligned() {
-    ParsableBitArray testArray = new ParsableBitArray(TEST_DATA);
     testArray.setPosition(11);
     testArray.byteAlign();
     assertEquals(2, testArray.getBytePosition());
     assertEquals(16, testArray.getPosition());
-    assertReadBitsToEnd(16, testArray);
+    assertReadBitsToEnd(16);
   }
 
   public void testByteAlignFromByteAligned() {
-    ParsableBitArray testArray = new ParsableBitArray(TEST_DATA);
     testArray.setPosition(16);
     testArray.byteAlign(); // Should be a no-op.
     assertEquals(2, testArray.getBytePosition());
     assertEquals(16, testArray.getPosition());
-    assertReadBitsToEnd(16, testArray);
+    assertReadBitsToEnd(16);
   }
 
-  private static void assertReadBitsToEnd(int expectedStartPosition, ParsableBitArray testArray) {
+  private void assertReadBitsToEnd(int expectedStartPosition) {
     int position = testArray.getPosition();
     assertEquals(expectedStartPosition, position);
     for (int i = position; i < TEST_DATA.length * 8; i++) {

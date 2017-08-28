@@ -94,6 +94,11 @@ public final class DebugTextViewHelper implements Runnable, Player.EventListener
   }
 
   @Override
+  public void onShuffleModeEnabledChanged(boolean shuffleModeEnabled) {
+    // Do nothing.
+  }
+
+  @Override
   public void onPositionDiscontinuity() {
     updateAndPost();
   }
@@ -186,8 +191,9 @@ public final class DebugTextViewHelper implements Runnable, Player.EventListener
       return "";
     }
     counters.ensureUpdated();
-    return " rb:" + counters.renderedOutputBufferCount
+    return " sib:" + counters.skippedInputBufferCount
         + " sb:" + counters.skippedOutputBufferCount
+        + " rb:" + counters.renderedOutputBufferCount
         + " db:" + counters.droppedOutputBufferCount
         + " mcdb:" + counters.maxConsecutiveDroppedOutputBufferCount;
   }

@@ -16,6 +16,7 @@
 package com.google.android.exoplayer2.playbacktests.gts;
 
 import android.media.MediaDrm.MediaDrmStateException;
+import android.net.Uri;
 import android.test.ActivityInstrumentationTestCase2;
 import android.util.Pair;
 import com.google.android.exoplayer2.drm.DrmInitData;
@@ -170,7 +171,7 @@ public final class DashWidevineOfflineTest extends ActivityInstrumentationTestCa
   private void downloadLicense() throws InterruptedException, DrmSessionException, IOException {
     DataSource dataSource = httpDataSourceFactory.createDataSource();
     DashManifest dashManifest = DashUtil.loadManifest(dataSource,
-        DashTestData.WIDEVINE_H264_MANIFEST);
+        Uri.parse(DashTestData.WIDEVINE_H264_MANIFEST));
     DrmInitData drmInitData = DashUtil.loadDrmInitData(dataSource, dashManifest.getPeriod(0));
     offlineLicenseKeySetId = offlineLicenseHelper.downloadLicense(drmInitData);
     Assert.assertNotNull(offlineLicenseKeySetId);

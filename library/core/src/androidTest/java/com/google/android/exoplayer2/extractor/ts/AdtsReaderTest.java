@@ -16,6 +16,7 @@
 package com.google.android.exoplayer2.extractor.ts;
 
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.ParserException;
 import com.google.android.exoplayer2.extractor.ts.TsPayloadReader.TrackIdGenerator;
 import com.google.android.exoplayer2.testutil.FakeExtractorOutput;
 import com.google.android.exoplayer2.testutil.FakeTrackOutput;
@@ -154,20 +155,20 @@ public class AdtsReaderTest extends TestCase {
     }
   }
 
-  public void testAdtsDataOnly() throws Exception {
+  public void testAdtsDataOnly() throws ParserException {
     data.setPosition(ID3_DATA_1.length + ID3_DATA_2.length);
     feed();
     assertSampleCounts(0, 1);
     adtsOutput.assertSample(0, ADTS_CONTENT, 0, C.BUFFER_FLAG_KEY_FRAME, null);
   }
 
-  private void feedLimited(int limit) {
+  private void feedLimited(int limit) throws ParserException {
     maybeStartPacket();
     data.setLimit(limit);
     feed();
   }
 
-  private void feed() {
+  private void feed() throws ParserException {
     maybeStartPacket();
     adtsReader.consume(data);
   }

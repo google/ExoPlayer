@@ -22,6 +22,7 @@ import android.media.AudioManager;
 import android.media.AudioTimestamp;
 import android.os.ConditionVariable;
 import android.os.SystemClock;
+import android.support.annotation.Nullable;
 import android.util.Log;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.PlaybackParameters;
@@ -277,7 +278,7 @@ public final class AudioTrack {
    */
   public static boolean failOnSpuriousAudioTimestamp = false;
 
-  private final AudioCapabilities audioCapabilities;
+  @Nullable private final AudioCapabilities audioCapabilities;
   private final ChannelMappingAudioProcessor channelMappingAudioProcessor;
   private final SonicAudioProcessor sonicAudioProcessor;
   private final AudioProcessor[] availableAudioProcessors;
@@ -355,7 +356,7 @@ public final class AudioTrack {
    *     output. May be empty.
    * @param listener Listener for audio track events.
    */
-  public AudioTrack(AudioCapabilities audioCapabilities, AudioProcessor[] audioProcessors,
+  public AudioTrack(@Nullable AudioCapabilities audioCapabilities, AudioProcessor[] audioProcessors,
       Listener listener) {
     this.audioCapabilities = audioCapabilities;
     this.listener = listener;

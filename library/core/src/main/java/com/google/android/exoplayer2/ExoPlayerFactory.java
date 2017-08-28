@@ -16,6 +16,7 @@
 package com.google.android.exoplayer2;
 
 import android.content.Context;
+import android.support.annotation.Nullable;
 import com.google.android.exoplayer2.drm.DrmSessionManager;
 import com.google.android.exoplayer2.drm.FrameworkMediaCrypto;
 import com.google.android.exoplayer2.trackselection.TrackSelector;
@@ -54,7 +55,8 @@ public final class ExoPlayerFactory {
    */
   @Deprecated
   public static SimpleExoPlayer newSimpleInstance(Context context, TrackSelector trackSelector,
-      LoadControl loadControl, DrmSessionManager<FrameworkMediaCrypto> drmSessionManager) {
+      LoadControl loadControl,
+      @Nullable DrmSessionManager<FrameworkMediaCrypto> drmSessionManager) {
     RenderersFactory renderersFactory = new DefaultRenderersFactory(context, drmSessionManager);
     return newSimpleInstance(renderersFactory, trackSelector, loadControl);
   }
@@ -74,7 +76,7 @@ public final class ExoPlayerFactory {
    */
   @Deprecated
   public static SimpleExoPlayer newSimpleInstance(Context context, TrackSelector trackSelector,
-      LoadControl loadControl, DrmSessionManager<FrameworkMediaCrypto> drmSessionManager,
+      LoadControl loadControl, @Nullable DrmSessionManager<FrameworkMediaCrypto> drmSessionManager,
       @DefaultRenderersFactory.ExtensionRendererMode int extensionRendererMode) {
     RenderersFactory renderersFactory = new DefaultRenderersFactory(context, drmSessionManager,
         extensionRendererMode);
@@ -98,7 +100,7 @@ public final class ExoPlayerFactory {
    */
   @Deprecated
   public static SimpleExoPlayer newSimpleInstance(Context context, TrackSelector trackSelector,
-      LoadControl loadControl, DrmSessionManager<FrameworkMediaCrypto> drmSessionManager,
+      LoadControl loadControl, @Nullable DrmSessionManager<FrameworkMediaCrypto> drmSessionManager,
       @DefaultRenderersFactory.ExtensionRendererMode int extensionRendererMode,
       long allowedVideoJoiningTimeMs) {
     RenderersFactory renderersFactory = new DefaultRenderersFactory(context, drmSessionManager,

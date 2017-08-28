@@ -128,6 +128,7 @@ import java.io.IOException;
   private static final int MSG_TRACK_SELECTION_INVALIDATED = 10;
   private static final int MSG_CUSTOM = 11;
   private static final int MSG_SET_REPEAT_MODE = 12;
+  private static final int MSG_SET_SHUFFLE_ENABLED = 13;
 
   private static final int PREPARING_SOURCE_INTERVAL_MS = 10;
   private static final int RENDERING_INTERVAL_MS = 10;
@@ -173,6 +174,7 @@ import java.io.IOException;
   private boolean isLoading;
   private int state;
   private @Player.RepeatMode int repeatMode;
+  private boolean shuffleModeEnabled;
   private int customMessagesSent;
   private int customMessagesProcessed;
   private long elapsedRealtimeUs;
@@ -189,12 +191,14 @@ import java.io.IOException;
 
   public ExoPlayerImplInternal(Renderer[] renderers, TrackSelector trackSelector,
       LoadControl loadControl, boolean playWhenReady, @Player.RepeatMode int repeatMode,
-      Handler eventHandler, PlaybackInfo playbackInfo, ExoPlayer player) {
+      boolean shuffleModeEnabled, Handler eventHandler, PlaybackInfo playbackInfo,
+      ExoPlayer player) {
     this.renderers = renderers;
     this.trackSelector = trackSelector;
     this.loadControl = loadControl;
     this.playWhenReady = playWhenReady;
     this.repeatMode = repeatMode;
+    this.shuffleModeEnabled = shuffleModeEnabled;
     this.eventHandler = eventHandler;
     this.state = Player.STATE_IDLE;
     this.playbackInfo = playbackInfo;
@@ -234,6 +238,10 @@ import java.io.IOException;
     handler.obtainMessage(MSG_SET_REPEAT_MODE, repeatMode, 0).sendToTarget();
   }
 
+  public void setShuffleModeEnabled(boolean shuffleModeEnabled) {
+    handler.obtainMessage(MSG_SET_SHUFFLE_ENABLED, shuffleModeEnabled ? 1 : 0, 0).sendToTarget();
+  }
+
   public void seekTo(Timeline timeline, int windowIndex, long positionUs) {
     handler.obtainMessage(MSG_SEEK_TO, new SeekPosition(timeline, windowIndex, positionUs))
         .sendToTarget();
@@ -263,12 +271,17 @@ import java.io.IOException;
     }
     int messageNumber = customMessagesSent++;
     handler.obtainMessage(MSG_CUSTOM, messages).sendToTarget();
+    boolean wasInterrupted = false;
     while (customMessagesProcessed <= messageNumber) {
       try {
         wait();
       } catch (InterruptedException e) {
-        Thread.currentThread().interrupt();
+        wasInterrupted = true;
       }
+    }
+    if (wasInterrupted) {
+      // Restore the interrupted status.
+      Thread.currentThread().interrupt();
     }
   }
 
@@ -277,12 +290,17 @@ import java.io.IOException;
       return;
     }
     handler.sendEmptyMessage(MSG_RELEASE);
+    boolean wasInterrupted = false;
     while (!released) {
       try {
         wait();
       } catch (InterruptedException e) {
-        Thread.currentThread().interrupt();
+        wasInterrupted = true;
       }
+    }
+    if (wasInterrupted) {
+      // Restore the interrupted status.
+      Thread.currentThread().interrupt();
     }
     internalPlaybackThread.quit();
   }
@@ -334,6 +352,10 @@ import java.io.IOException;
         }
         case MSG_SET_REPEAT_MODE: {
           setRepeatModeInternal(msg.arg1);
+          return true;
+        }
+        case MSG_SET_SHUFFLE_ENABLED: {
+          setShuffleModeEnabledInternal(msg.arg1 != 0);
           return true;
         }
         case MSG_DO_SOME_WORK: {
@@ -447,7 +469,17 @@ import java.io.IOException;
       throws ExoPlaybackException {
     this.repeatMode = repeatMode;
     mediaPeriodInfoSequence.setRepeatMode(repeatMode);
+    validateExistingPeriodHolders();
+  }
 
+  private void setShuffleModeEnabledInternal(boolean shuffleModeEnabled)
+      throws ExoPlaybackException {
+    this.shuffleModeEnabled = shuffleModeEnabled;
+    mediaPeriodInfoSequence.setShuffleModeEnabled(shuffleModeEnabled);
+    validateExistingPeriodHolders();
+  }
+
+  private void validateExistingPeriodHolders() throws ExoPlaybackException {
     // Find the last existing period holder that matches the new period order.
     MediaPeriodHolder lastValidPeriodHolder = playingPeriodHolder != null
         ? playingPeriodHolder : loadingPeriodHolder;

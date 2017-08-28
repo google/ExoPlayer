@@ -175,6 +175,43 @@ public final class ParsableBitArray {
   }
 
   /**
+   * Reads {@code numBits} bits into {@code buffer}.
+   *
+   * @param buffer The array into which the read data should be written. The trailing
+   *     {@code numBits % 8} bits are written into the most significant bits of the last modified
+   *     {@code buffer} byte. The remaining ones are unmodified.
+   * @param offset The offset in {@code buffer} at which the read data should be written.
+   * @param numBits The number of bits to read.
+   */
+  public void readBits(byte[] buffer, int offset, int numBits) {
+    // Whole bytes.
+    int to = offset + (numBits >> 3) /* numBits / 8 */;
+    for (int i = offset; i < to; i++) {
+      buffer[i] = (byte) (data[byteOffset++] << bitOffset);
+      buffer[i] |= (data[byteOffset] & 0xFF) >> (8 - bitOffset);
+    }
+    // Trailing bits.
+    int bitsLeft = numBits & 7 /* numBits % 8 */;
+    if (bitsLeft == 0) {
+      return;
+    }
+    buffer[to] &= 0xFF >> bitsLeft; // Set to 0 the bits that are going to be overwritten.
+    if (bitOffset + bitsLeft > 8) {
+      // We read the rest of data[byteOffset] and increase byteOffset.
+      buffer[to] |= (byte) ((data[byteOffset++] & 0xFF) << bitOffset);
+      bitOffset -= 8;
+    }
+    bitOffset += bitsLeft;
+    int lastDataByteTrailingBits = (data[byteOffset] & 0xFF) >> (8 - bitOffset);
+    buffer[to] |= (byte) (lastDataByteTrailingBits << (8 - bitsLeft));
+    if (bitOffset == 8) {
+      bitOffset = 0;
+      byteOffset++;
+    }
+    assertValidOffset();
+  }
+
+  /**
    * Aligns the position to the next byte boundary. Does nothing if the position is already aligned.
    */
   public void byteAlign() {

@@ -229,7 +229,7 @@ import java.util.LinkedList;
           // sample queue, or if we haven't read anything from the queue since the previous seek
           // (this case is common for sparse tracks such as metadata tracks). In all other cases a
           // seek is required.
-          seekRequired = !sampleQueue.advanceTo(positionUs, true, true)
+          seekRequired = sampleQueue.advanceTo(positionUs, true, true) == SampleQueue.ADVANCE_FAILED
               && sampleQueue.getReadIndex() != 0;
         }
       }
@@ -320,6 +320,7 @@ import java.util.LinkedList;
     return true;
   }
 
+  @Override
   public long getBufferedPositionUs() {
     if (loadingFinished) {
       return C.TIME_END_OF_SOURCE;
@@ -402,12 +403,13 @@ import java.util.LinkedList;
         lastSeekPositionUs);
   }
 
-  /* package */ void skipData(int trackGroupIndex, long positionUs) {
+  /* package */ int skipData(int trackGroupIndex, long positionUs) {
     SampleQueue sampleQueue = sampleQueues[trackGroupIndex];
     if (loadingFinished && positionUs > sampleQueue.getLargestQueuedTimestampUs()) {
-      sampleQueue.advanceToEnd();
+      return sampleQueue.advanceToEnd();
     } else {
-      sampleQueue.advanceTo(positionUs, true, true);
+      int skipCount = sampleQueue.advanceTo(positionUs, true, true);
+      return skipCount == SampleQueue.ADVANCE_FAILED ? 0 : skipCount;
     }
   }
 
@@ -760,7 +762,8 @@ import java.util.LinkedList;
     for (int i = 0; i < trackCount; i++) {
       SampleQueue sampleQueue = sampleQueues[i];
       sampleQueue.rewind();
-      boolean seekInsideQueue = sampleQueue.advanceTo(positionUs, true, false);
+      boolean seekInsideQueue = sampleQueue.advanceTo(positionUs, true, false)
+          != SampleQueue.ADVANCE_FAILED;
       // If we have AV tracks then an in-queue seek is successful if the seek into every AV queue
       // is successful. We ignore whether seeks within non-AV queues are successful in this case, as
       // they may be sparse or poorly interleaved. If we only have non-AV tracks then a seek is
