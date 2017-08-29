@@ -60,7 +60,7 @@ public final class DrmInitData implements Comparator<SchemeData>, Parcelable {
     if (cloneSchemeDatas) {
       schemeDatas = schemeDatas.clone();
     }
-    // Sorting ensures that universal scheme data(i.e. data that applies to all schemes) is matched
+    // Sorting ensures that universal scheme data (i.e. data that applies to all schemes) is matched
     // last. It's also required by the equals and hashcode implementations.
     Arrays.sort(schemeDatas, this);
     // Check for no duplicates.

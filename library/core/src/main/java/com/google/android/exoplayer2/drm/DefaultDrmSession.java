@@ -226,7 +226,7 @@ import java.util.UUID;
 
     try {
       sessionId = mediaDrm.openSession();
-      mediaCrypto = mediaDrm.createMediaCrypto(uuid, sessionId);
+      mediaCrypto = mediaDrm.createMediaCrypto(sessionId);
       state = STATE_OPENED;
       return true;
     } catch (NotProvisionedException e) {
