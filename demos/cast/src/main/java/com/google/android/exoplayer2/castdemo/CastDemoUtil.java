@@ -52,17 +52,17 @@ import java.util.List;
     /**
      * The mime type of the media sample, as required by {@link MediaInfo#setContentType}.
      */
-    public final String type;
+    public final String mimeType;
 
     /**
      * @param uri See {@link #uri}.
      * @param name See {@link #name}.
-     * @param type See {@link #type}.
+     * @param mimeType See {@link #mimeType}.
      */
-    public Sample(String uri, String name, String type) {
+    public Sample(String uri, String name, String mimeType) {
       this.uri = uri;
       this.name = name;
-      this.type = type;
+      this.mimeType = mimeType;
     }
 
     @Override
