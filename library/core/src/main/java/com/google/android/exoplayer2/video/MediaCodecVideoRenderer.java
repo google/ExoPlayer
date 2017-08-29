@@ -186,7 +186,8 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
   }
 
   @Override
-  protected int supportsFormat(MediaCodecSelector mediaCodecSelector, Format format)
+  protected int supportsFormat(MediaCodecSelector mediaCodecSelector,
+      DrmSessionManager<FrameworkMediaCrypto> drmSessionManager, Format format)
       throws DecoderQueryException {
     String mimeType = format.sampleMimeType;
     if (!MimeTypes.isVideo(mimeType)) {
@@ -202,9 +203,12 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
     MediaCodecInfo decoderInfo = mediaCodecSelector.getDecoderInfo(mimeType,
         requiresSecureDecryption);
     if (decoderInfo == null) {
-      return FORMAT_UNSUPPORTED_SUBTYPE;
+      return requiresSecureDecryption && mediaCodecSelector.getDecoderInfo(mimeType, false) != null
+          ? FORMAT_UNSUPPORTED_DRM : FORMAT_UNSUPPORTED_SUBTYPE;
     }
-
+    if (!supportsFormatDrm(drmSessionManager, drmInitData)) {
+      return FORMAT_UNSUPPORTED_DRM;
+    }
     boolean decoderCapable = decoderInfo.isCodecSupported(format.codecs);
     if (decoderCapable && format.width > 0 && format.height > 0) {
       if (Util.SDK_INT >= 21) {
