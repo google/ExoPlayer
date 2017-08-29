@@ -16,12 +16,10 @@
 package com.google.android.exoplayer2.source.dash.offline;
 
 import android.net.Uri;
-import com.google.android.exoplayer2.util.ClosedSource;
 
 /**
  * Data for DASH downloading tests.
  */
-@ClosedSource(reason = "Not ready yet")
 /* package */ interface DashDownloadTestData {
 
   Uri TEST_MPD_URI = Uri.parse("test.mpd");
