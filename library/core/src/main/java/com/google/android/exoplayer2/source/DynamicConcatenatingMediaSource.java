@@ -198,7 +198,7 @@ public final class DynamicConcatenatingMediaSource implements MediaSource, ExoPl
   /**
    * Returns the {@link MediaSource} at a specified index.
    *
-   * @param index A index in the range of 0 &lt;= index &lt;= {@link #getSize()}.
+   * @param index An index in the range of 0 &lt;= index &lt;= {@link #getSize()}.
    * @return The {@link MediaSource} at this index.
    */
   public synchronized MediaSource getMediaSource(int index) {
