@@ -45,21 +45,12 @@ public final class ChunkExtractorWrapper implements ExtractorOutput {
      * <p>
      * The same {@link TrackOutput} is returned if multiple calls are made with the same {@code id}.
      *
-     * @param id The track identifier.
-     * @param type The track type. Typically one of the {@link com.google.android.exoplayer2.C}
-     *     {@code TRACK_TYPE_*} constants.
+     * @param id A track identifier.
+     * @param type The type of the track. Typically one of the
+     *     {@link com.google.android.exoplayer2.C} {@code TRACK_TYPE_*} constants.
      * @return The {@link TrackOutput} for the given track identifier.
      */
     TrackOutput track(int id, int type);
-
-    /**
-     * Returns whether the specified type corresponds to the primary track.
-     *
-     * @param type The track type. Typically one of the {@link com.google.android.exoplayer2.C}
-     *     {@code TRACK_TYPE_*} constants.
-     * @return Whether {@code type} corresponds to the primary track.
-     */
-    boolean isPrimaryTrack(int type);
 
   }
 
@@ -155,7 +146,6 @@ public final class ChunkExtractorWrapper implements ExtractorOutput {
     private final Format manifestFormat;
 
     public Format sampleFormat;
-    private boolean isPrimaryTrack;
     private TrackOutput trackOutput;
 
     public BindingTrackOutput(int id, int type, Format manifestFormat) {
@@ -169,17 +159,17 @@ public final class ChunkExtractorWrapper implements ExtractorOutput {
         trackOutput = new DummyTrackOutput();
         return;
       }
-      isPrimaryTrack = trackOutputProvider.isPrimaryTrack(type);
       trackOutput = trackOutputProvider.track(id, type);
-      if (sampleFormat != null) {
+      if (trackOutput != null) {
         trackOutput.format(sampleFormat);
       }
     }
 
     @Override
     public void format(Format format) {
-      // TODO: Non-primary tracks should be copied with data from their own manifest formats.
-      sampleFormat = isPrimaryTrack ? format.copyWithManifestFormatInfo(manifestFormat) : format;
+      // TODO: This should only happen for the primary track. Additional metadata/text tracks need
+      // to be copied with different manifest derived formats.
+      sampleFormat = format.copyWithManifestFormatInfo(manifestFormat);
       trackOutput.format(sampleFormat);
     }
 

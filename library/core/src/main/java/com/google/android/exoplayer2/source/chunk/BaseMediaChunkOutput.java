@@ -15,7 +15,6 @@
  */
 package com.google.android.exoplayer2.source.chunk;
 
-import android.support.annotation.Nullable;
 import android.util.Log;
 import com.google.android.exoplayer2.extractor.DummyTrackOutput;
 import com.google.android.exoplayer2.extractor.TrackOutput;
@@ -33,23 +32,12 @@ import com.google.android.exoplayer2.source.chunk.ChunkExtractorWrapper.TrackOut
   private final SampleQueue[] sampleQueues;
 
   /**
-   * @param primaryTrackType The type of the primary track.
-   * @param primarySampleQueue The primary track sample queues.
-   * @param embeddedTrackTypes The types of any embedded tracks, or null.
-   * @param embeddedSampleQueues The track sample queues for any embedded tracks, or null.
+   * @param trackTypes The track types of the individual track outputs.
+   * @param sampleQueues The individual sample queues.
    */
-  @SuppressWarnings("ConstantConditions")
-  public BaseMediaChunkOutput(int primaryTrackType, SampleQueue primarySampleQueue,
-      @Nullable int[] embeddedTrackTypes, @Nullable SampleQueue[] embeddedSampleQueues) {
-    int embeddedTrackCount = embeddedTrackTypes == null ? 0 : embeddedTrackTypes.length;
-    trackTypes = new int[1 + embeddedTrackCount];
-    sampleQueues = new SampleQueue[1 + embeddedTrackCount];
-    trackTypes[0] = primaryTrackType;
-    sampleQueues[0] = primarySampleQueue;
-    for (int i = 0; i < embeddedTrackCount; i++) {
-      trackTypes[i + 1] = embeddedTrackTypes[i];
-      sampleQueues[i + 1] = embeddedSampleQueues[i];
-    }
+  public BaseMediaChunkOutput(int[] trackTypes, SampleQueue[] sampleQueues) {
+    this.trackTypes = trackTypes;
+    this.sampleQueues = sampleQueues;
   }
 
   @Override
@@ -61,11 +49,6 @@ import com.google.android.exoplayer2.source.chunk.ChunkExtractorWrapper.TrackOut
     }
     Log.e(TAG, "Unmatched track of type: " + type);
     return new DummyTrackOutput();
-  }
-
-  @Override
-  public boolean isPrimaryTrack(int type) {
-    return type == trackTypes[0];
   }
 
   /**
