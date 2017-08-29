@@ -34,7 +34,6 @@ import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.ExoPlayerLibraryInfo;
 import com.google.android.exoplayer2.PlaybackParameters;
 import com.google.android.exoplayer2.Player;
-import com.google.android.exoplayer2.Player.RepeatMode;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
@@ -181,6 +180,12 @@ public class PlaybackControlView extends FrameLayout {
   }
 
   /**
+   * @deprecated Use {@link com.google.android.exoplayer2.ControlDispatcher}.
+   */
+  @Deprecated
+  public interface ControlDispatcher extends com.google.android.exoplayer2.ControlDispatcher {}
+
+  /**
    * Listener to be notified about changes of the visibility of the UI control.
    */
   public interface VisibilityListener {
@@ -194,86 +199,13 @@ public class PlaybackControlView extends FrameLayout {
 
   }
 
+  private static final class DefaultControlDispatcher
+      extends com.google.android.exoplayer2.DefaultControlDispatcher implements ControlDispatcher {}
   /**
-   * Dispatches operations to the {@link Player}.
-   * <p>
-   * Implementations may choose to suppress (e.g. prevent playback from resuming if audio focus is
-   * denied) or modify (e.g. change the seek position to prevent a user from seeking past a
-   * non-skippable advert) operations.
+   * @deprecated Use {@link com.google.android.exoplayer2.DefaultControlDispatcher}.
    */
-  public interface ControlDispatcher {
-
-    /**
-     * Dispatches a {@link Player#setPlayWhenReady(boolean)} operation.
-     *
-     * @param player The {@link Player} to which the operation should be dispatched.
-     * @param playWhenReady Whether playback should proceed when ready.
-     * @return True if the operation was dispatched. False if suppressed.
-     */
-    boolean dispatchSetPlayWhenReady(Player player, boolean playWhenReady);
-
-    /**
-     * Dispatches a {@link Player#seekTo(int, long)} operation.
-     *
-     * @param player The {@link Player} to which the operation should be dispatched.
-     * @param windowIndex The index of the window.
-     * @param positionMs The seek position in the specified window, or {@link C#TIME_UNSET} to seek
-     *     to the window's default position.
-     * @return True if the operation was dispatched. False if suppressed.
-     */
-    boolean dispatchSeekTo(Player player, int windowIndex, long positionMs);
-
-    /**
-     * Dispatches a {@link Player#setRepeatMode(int)} operation.
-     *
-     * @param player The {@link Player} to which the operation should be dispatched.
-     * @param repeatMode The repeat mode.
-     * @return True if the operation was dispatched. False if suppressed.
-     */
-    boolean dispatchSetRepeatMode(Player player, @RepeatMode int repeatMode);
-
-    /**
-     * Dispatches a {@link Player#setShuffleModeEnabled(boolean)} operation.
-     *
-     * @param player The {@link Player} to which the operation should be dispatched.
-     * @param shuffleModeEnabled Whether shuffling is enabled.
-     * @return True if the operation was dispatched. False if suppressed.
-     */
-    boolean dispatchSetShuffleModeEnabled(Player player, boolean shuffleModeEnabled);
-
-  }
-
-  /**
-   * Default {@link ControlDispatcher} that dispatches operations to the player without
-   * modification.
-   */
-  public static final ControlDispatcher DEFAULT_CONTROL_DISPATCHER = new ControlDispatcher() {
-
-    @Override
-    public boolean dispatchSetPlayWhenReady(Player player, boolean playWhenReady) {
-      player.setPlayWhenReady(playWhenReady);
-      return true;
-    }
-
-    @Override
-    public boolean dispatchSeekTo(Player player, int windowIndex, long positionMs) {
-      player.seekTo(windowIndex, positionMs);
-      return true;
-    }
-
-    @Override
-    public boolean dispatchSetRepeatMode(Player player, @RepeatMode int repeatMode) {
-      player.setRepeatMode(repeatMode);
-      return true;
-    }
-
-    @Override
-    public boolean dispatchSetShuffleModeEnabled(Player player, boolean shuffleModeEnabled) {
-      player.setShuffleModeEnabled(shuffleModeEnabled);
-      return true;
-    }
-
-  };
+  @Deprecated
+  public static final ControlDispatcher DEFAULT_CONTROL_DISPATCHER = new DefaultControlDispatcher();
 
   /**
    * The default fast forward increment, in milliseconds.
@@ -325,7 +257,7 @@ public class PlaybackControlView extends FrameLayout {
   private final String repeatAllButtonContentDescription;
 
   private Player player;
-  private ControlDispatcher controlDispatcher;
+  private com.google.android.exoplayer2.ControlDispatcher controlDispatcher;
   private VisibilityListener visibilityListener;
 
   private boolean isAttachedToWindow;
@@ -400,7 +332,7 @@ public class PlaybackControlView extends FrameLayout {
     extraAdGroupTimesMs = new long[0];
     extraPlayedAdGroups = new boolean[0];
     componentListener = new ComponentListener();
-    controlDispatcher = DEFAULT_CONTROL_DISPATCHER;
+    controlDispatcher = new com.google.android.exoplayer2.DefaultControlDispatcher();
 
     LayoutInflater.from(context).inflate(controllerLayoutId, this);
     setDescendantFocusability(FOCUS_AFTER_DESCENDANTS);
@@ -534,14 +466,15 @@ public class PlaybackControlView extends FrameLayout {
   }
 
   /**
-   * Sets the {@link ControlDispatcher}.
+   * Sets the {@link com.google.android.exoplayer2.ControlDispatcher}.
    *
-   * @param controlDispatcher The {@link ControlDispatcher}, or null to use
-   *     {@link #DEFAULT_CONTROL_DISPATCHER}.
+   * @param controlDispatcher The {@link com.google.android.exoplayer2.ControlDispatcher}, or null
+   *     to use {@link com.google.android.exoplayer2.DefaultControlDispatcher}.
    */
-  public void setControlDispatcher(ControlDispatcher controlDispatcher) {
-    this.controlDispatcher = controlDispatcher == null ? DEFAULT_CONTROL_DISPATCHER
-        : controlDispatcher;
+  public void setControlDispatcher(
+      @Nullable com.google.android.exoplayer2.ControlDispatcher controlDispatcher) {
+    this.controlDispatcher = controlDispatcher == null
+        ? new com.google.android.exoplayer2.DefaultControlDispatcher() : controlDispatcher;
   }
 
   /**
