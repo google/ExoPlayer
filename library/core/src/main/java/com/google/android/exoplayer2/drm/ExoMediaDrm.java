@@ -22,7 +22,6 @@ import android.media.NotProvisionedException;
 import android.media.ResourceBusyException;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.UUID;
 
 /**
  * Used to obtain keys for decrypting protected media streams. See {@link android.media.MediaDrm}.
@@ -137,11 +136,10 @@ public interface ExoMediaDrm<T extends ExoMediaCrypto> {
   /**
    * @see android.media.MediaCrypto#MediaCrypto(UUID, byte[])
    *
-   * @param uuid The UUID of the crypto scheme.
    * @param initData Opaque initialization data specific to the crypto scheme.
    * @return An object extends {@link ExoMediaCrypto}, using opaque crypto scheme specific data.
    * @throws MediaCryptoException
    */
-  T createMediaCrypto(UUID uuid, byte[] initData) throws MediaCryptoException;
+  T createMediaCrypto(byte[] initData) throws MediaCryptoException;
 
 }
