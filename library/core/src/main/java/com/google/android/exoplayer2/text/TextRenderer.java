@@ -117,9 +117,13 @@ public final class TextRenderer extends BaseRenderer implements Callback {
 
   @Override
   public int supportsFormat(Format format) {
-    return decoderFactory.supportsFormat(format) ? FORMAT_HANDLED
-        : (MimeTypes.isText(format.sampleMimeType) ? FORMAT_UNSUPPORTED_SUBTYPE
-        : FORMAT_UNSUPPORTED_TYPE);
+    if (decoderFactory.supportsFormat(format)) {
+      return supportsFormatDrm(null, format.drmInitData) ? FORMAT_HANDLED : FORMAT_UNSUPPORTED_DRM;
+    } else if (MimeTypes.isText(format.sampleMimeType)) {
+      return FORMAT_UNSUPPORTED_SUBTYPE;
+    } else {
+      return FORMAT_UNSUPPORTED_TYPE;
+    }
   }
 
   @Override

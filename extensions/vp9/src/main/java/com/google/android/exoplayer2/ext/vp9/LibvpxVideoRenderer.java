@@ -194,8 +194,12 @@ public final class LibvpxVideoRenderer extends BaseRenderer {
 
   @Override
   public int supportsFormat(Format format) {
-    return VpxLibrary.isAvailable() && MimeTypes.VIDEO_VP9.equalsIgnoreCase(format.sampleMimeType)
-        ? (FORMAT_HANDLED | ADAPTIVE_SEAMLESS) : FORMAT_UNSUPPORTED_TYPE;
+    if (!VpxLibrary.isAvailable() || !MimeTypes.VIDEO_VP9.equalsIgnoreCase(format.sampleMimeType)) {
+      return FORMAT_UNSUPPORTED_TYPE;
+    } else if (!supportsFormatDrm(drmSessionManager, format.drmInitData)) {
+      return FORMAT_UNSUPPORTED_DRM;
+    }
+    return FORMAT_HANDLED | ADAPTIVE_SEAMLESS;
   }
 
   @Override

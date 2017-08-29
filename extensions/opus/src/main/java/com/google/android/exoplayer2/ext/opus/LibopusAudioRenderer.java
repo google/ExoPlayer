@@ -71,9 +71,16 @@ public final class LibopusAudioRenderer extends SimpleDecoderAudioRenderer {
   }
 
   @Override
-  protected int supportsFormatInternal(Format format) {
-    return OpusLibrary.isAvailable() && MimeTypes.AUDIO_OPUS.equalsIgnoreCase(format.sampleMimeType)
-        ? FORMAT_HANDLED : FORMAT_UNSUPPORTED_TYPE;
+  protected int supportsFormatInternal(DrmSessionManager<ExoMediaCrypto> drmSessionManager,
+      Format format) {
+    if (!OpusLibrary.isAvailable()
+        || !MimeTypes.AUDIO_OPUS.equalsIgnoreCase(format.sampleMimeType)) {
+      return FORMAT_UNSUPPORTED_TYPE;
+    } else if (!supportsFormatDrm(drmSessionManager, format.drmInitData)) {
+      return FORMAT_UNSUPPORTED_DRM;
+    } else {
+      return FORMAT_HANDLED;
+    }
   }
 
   @Override
