@@ -46,8 +46,10 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Stack;
 import java.util.UUID;
 
@@ -1262,24 +1264,55 @@ public final class FragmentedMp4Extractor implements Extractor {
 
   /** Returns DrmInitData from leaf atoms. */
   private static DrmInitData getDrmInitDataFromAtoms(List<Atom.LeafAtom> leafChildren) {
-    ArrayList<SchemeData> schemeDatas = null;
+    HashMap<UUID, Pair<Integer, byte[]>> initDatas = null;
     int leafChildrenSize = leafChildren.size();
     for (int i = 0; i < leafChildrenSize; i++) {
       LeafAtom child = leafChildren.get(i);
       if (child.type == Atom.TYPE_pssh) {
-        if (schemeDatas == null) {
-          schemeDatas = new ArrayList<>();
+        if (initDatas == null) {
+          initDatas = new HashMap<>();
         }
         byte[] psshData = child.data.data;
         UUID uuid = PsshAtomUtil.parseUuid(psshData);
+        int version = PsshAtomUtil.parseVersion(psshData);
         if (uuid == null) {
           Log.w(TAG, "Skipped pssh atom (failed to extract uuid)");
         } else {
-          schemeDatas.add(new SchemeData(uuid, null, MimeTypes.VIDEO_MP4, psshData));
+          if (!initDatas.containsKey(uuid)) {
+            initDatas.put(uuid, Pair.create(version, psshData));
+          } else {
+            int currentVersion = initDatas.get(uuid).first;
+            if (version == currentVersion) {
+              /* Use first matching one as per section 2.1 of the W3C working group note:
+               * "cenc" Initialization Data Format  [15 September 2016]
+               *
+               * https://www.w3.org/TR/eme-initdata-cenc/
+               */
+              Log.w(TAG, "Found multiple pssh atoms with uuid " + uuid + " and version " + version
+                      + " - using first matching atom");
+            } else if (version > currentVersion) {
+              Log.d(TAG, "Found pssh atom version " + version + " for uuid " + uuid
+                      + ", overwriting version " + currentVersion);
+              initDatas.put(uuid, Pair.create(version, psshData));
+            } else {
+              Log.d(TAG, "Skipped pssh atom version " + version + " for uuid " + uuid
+                      + " - already have version " + currentVersion);
+            }
+          }
         }
       }
     }
-    return schemeDatas == null ? null : new DrmInitData(schemeDatas);
+
+    if (initDatas != null) {
+      List<SchemeData> schemeDatas = new ArrayList<>(initDatas.size());
+      for(Map.Entry<UUID, Pair<Integer, byte[]>> entry : initDatas.entrySet()) {
+        schemeDatas.add(
+                new SchemeData(entry.getKey(), null, MimeTypes.VIDEO_MP4, entry.getValue().second));
+      }
+      return new DrmInitData(schemeDatas);
+    }
+
+    return null;
   }
 
   /** Returns whether the extractor should decode a leaf atom with type {@code atom}. */
