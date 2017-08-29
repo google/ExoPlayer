@@ -72,9 +72,11 @@ public final class DashUtil {
    */
   public static DrmInitData loadDrmInitData(DataSource dataSource, Period period)
       throws IOException, InterruptedException {
-    Representation representation = getFirstRepresentation(period, C.TRACK_TYPE_VIDEO);
+    int primaryTrackType = C.TRACK_TYPE_VIDEO;
+    Representation representation = getFirstRepresentation(period, primaryTrackType);
     if (representation == null) {
-      representation = getFirstRepresentation(period, C.TRACK_TYPE_AUDIO);
+      primaryTrackType = C.TRACK_TYPE_AUDIO;
+      representation = getFirstRepresentation(period, primaryTrackType);
       if (representation == null) {
         return null;
       }
@@ -85,7 +87,7 @@ public final class DashUtil {
       // as per DASH IF Interoperability Recommendations V3.0, 7.5.3.
       return drmInitData;
     }
-    Format sampleFormat = DashUtil.loadSampleFormat(dataSource, representation);
+    Format sampleFormat = DashUtil.loadSampleFormat(dataSource, primaryTrackType, representation);
     return sampleFormat == null ? null : sampleFormat.drmInitData;
   }
 
@@ -93,15 +95,17 @@ public final class DashUtil {
    * Loads initialization data for the {@code representation} and returns the sample {@link Format}.
    *
    * @param dataSource The source from which the data should be loaded.
+   * @param trackType The type of the representation. Typically one of the
+   *     {@link com.google.android.exoplayer2.C} {@code TRACK_TYPE_*} constants.
    * @param representation The representation which initialization chunk belongs to.
    * @return the sample {@link Format} of the given representation.
    * @throws IOException Thrown when there is an error while loading.
    * @throws InterruptedException Thrown if the thread was interrupted.
    */
-  public static Format loadSampleFormat(DataSource dataSource, Representation representation)
-      throws IOException, InterruptedException {
-    ChunkExtractorWrapper extractorWrapper = loadInitializationData(dataSource, representation,
-        false);
+  public static Format loadSampleFormat(DataSource dataSource, int trackType,
+      Representation representation) throws IOException, InterruptedException {
+    ChunkExtractorWrapper extractorWrapper = loadInitializationData(dataSource, trackType,
+        representation, false);
     return extractorWrapper == null ? null : extractorWrapper.getSampleFormats()[0];
   }
 
@@ -110,16 +114,18 @@ public final class DashUtil {
    * ChunkIndex}.
    *
    * @param dataSource The source from which the data should be loaded.
+   * @param trackType The type of the representation. Typically one of the
+   *     {@link com.google.android.exoplayer2.C} {@code TRACK_TYPE_*} constants.
    * @param representation The representation which initialization chunk belongs to.
    * @return The {@link ChunkIndex} of the given representation, or null if no initialization or
    *     index data exists.
    * @throws IOException Thrown when there is an error while loading.
    * @throws InterruptedException Thrown if the thread was interrupted.
    */
-  public static ChunkIndex loadChunkIndex(DataSource dataSource, Representation representation)
-      throws IOException, InterruptedException {
-    ChunkExtractorWrapper extractorWrapper = loadInitializationData(dataSource, representation,
-        true);
+  public static ChunkIndex loadChunkIndex(DataSource dataSource, int trackType,
+      Representation representation) throws IOException, InterruptedException {
+    ChunkExtractorWrapper extractorWrapper = loadInitializationData(dataSource, trackType,
+        representation, true);
     return extractorWrapper == null ? null : (ChunkIndex) extractorWrapper.getSeekMap();
   }
 
@@ -128,6 +134,8 @@ public final class DashUtil {
    * returns a {@link ChunkExtractorWrapper} which contains the output.
    *
    * @param dataSource The source from which the data should be loaded.
+   * @param trackType The type of the representation. Typically one of the
+   *     {@link com.google.android.exoplayer2.C} {@code TRACK_TYPE_*} constants.
    * @param representation The representation which initialization chunk belongs to.
    * @param loadIndex Whether to load index data too.
    * @return A {@link ChunkExtractorWrapper} for the {@code representation}, or null if no
@@ -135,14 +143,13 @@ public final class DashUtil {
    * @throws IOException Thrown when there is an error while loading.
    * @throws InterruptedException Thrown if the thread was interrupted.
    */
-  private static ChunkExtractorWrapper loadInitializationData(DataSource dataSource,
-      Representation representation, boolean loadIndex)
-      throws IOException, InterruptedException {
+  private static ChunkExtractorWrapper loadInitializationData(DataSource dataSource, int trackType,
+      Representation representation, boolean loadIndex) throws IOException, InterruptedException {
     RangedUri initializationUri = representation.getInitializationUri();
     if (initializationUri == null) {
       return null;
     }
-    ChunkExtractorWrapper extractorWrapper = newWrappedExtractor(representation.format);
+    ChunkExtractorWrapper extractorWrapper = newWrappedExtractor(trackType, representation.format);
     RangedUri requestUri;
     if (loadIndex) {
       RangedUri indexUri = representation.getIndexUri();
@@ -174,12 +181,12 @@ public final class DashUtil {
     initializationChunk.load();
   }
 
-  private static ChunkExtractorWrapper newWrappedExtractor(Format format) {
+  private static ChunkExtractorWrapper newWrappedExtractor(int trackType, Format format) {
     String mimeType = format.containerMimeType;
     boolean isWebm = mimeType.startsWith(MimeTypes.VIDEO_WEBM)
         || mimeType.startsWith(MimeTypes.AUDIO_WEBM);
     Extractor extractor = isWebm ? new MatroskaExtractor() : new FragmentedMp4Extractor();
-    return new ChunkExtractorWrapper(extractor, format);
+    return new ChunkExtractorWrapper(extractor, trackType, format);
   }
 
   private static Representation getFirstRepresentation(Period period, int type) {
