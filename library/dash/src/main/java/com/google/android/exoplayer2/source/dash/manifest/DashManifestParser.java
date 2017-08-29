@@ -347,6 +347,16 @@ public class DashManifestParser extends DefaultHandler
     byte[] data = null;
     UUID uuid = null;
     boolean requiresSecureDecoder = false;
+
+    if ("urn:mpeg:dash:mp4protection:2011".equals(schemeIdUri)) {
+      String defaultKid = xpp.getAttributeValue(null, "cenc:default_KID");
+      if (defaultKid != null) {
+        UUID keyId = UUID.fromString(defaultKid);
+        data = PsshAtomUtil.buildPsshAtom(C.COMMON_PSSH_UUID, new UUID[] {keyId}, null);
+        uuid = C.COMMON_PSSH_UUID;
+      }
+    }
+
     do {
       xpp.next();
       if (data == null && XmlPullParserUtil.isStartTag(xpp, "cenc:pssh")
