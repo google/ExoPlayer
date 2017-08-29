@@ -87,15 +87,21 @@ public class ChunkSampleStream<T extends ChunkSource> implements SampleStream, S
     int embeddedTrackCount = embeddedTrackTypes == null ? 0 : embeddedTrackTypes.length;
     embeddedSampleQueues = new SampleQueue[embeddedTrackCount];
     embeddedTracksSelected = new boolean[embeddedTrackCount];
+    int[] trackTypes = new int[1 + embeddedTrackCount];
+    SampleQueue[] sampleQueues = new SampleQueue[1 + embeddedTrackCount];
 
     primarySampleQueue = new SampleQueue(allocator);
+    trackTypes[0] = primaryTrackType;
+    sampleQueues[0] = primarySampleQueue;
+
     for (int i = 0; i < embeddedTrackCount; i++) {
       SampleQueue sampleQueue = new SampleQueue(allocator);
       embeddedSampleQueues[i] = sampleQueue;
+      sampleQueues[i + 1] = sampleQueue;
+      trackTypes[i + 1] = embeddedTrackTypes[i];
     }
 
-    mediaChunkOutput = new BaseMediaChunkOutput(primaryTrackType, primarySampleQueue,
-        embeddedTrackTypes, embeddedSampleQueues);
+    mediaChunkOutput = new BaseMediaChunkOutput(trackTypes, sampleQueues);
     pendingResetPositionUs = positionUs;
     lastSeekPositionUs = positionUs;
   }
