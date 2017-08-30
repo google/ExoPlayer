@@ -253,7 +253,7 @@ public final class Util {
    * @return The code points encoding using UTF-8.
    */
   public static byte[] getUtf8Bytes(String value) {
-    return value.getBytes(Charset.defaultCharset()); // UTF-8 is the default on Android.
+    return value.getBytes(Charset.forName(C.UTF8_NAME));
   }
 
   /**
