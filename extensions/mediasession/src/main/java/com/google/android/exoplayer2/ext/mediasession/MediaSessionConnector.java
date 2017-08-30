@@ -39,6 +39,8 @@ import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
 import com.google.android.exoplayer2.util.ErrorMessageProvider;
+import com.google.android.exoplayer2.util.RepeatModeUtil;
+
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -73,6 +75,13 @@ public final class MediaSessionConnector {
     ExoPlayerLibraryInfo.registerModule("goog.exo.mediasession");
   }
 
+  /**
+   * The default repeat toggle modes which is the bitmask of
+   * {@link RepeatModeUtil#REPEAT_TOGGLE_MODE_ONE} and
+   * {@link RepeatModeUtil#REPEAT_TOGGLE_MODE_ALL}.
+   */
+  public static final @RepeatModeUtil.RepeatToggleModes int DEFAULT_REPEAT_TOGGLE_MODES =
+      RepeatModeUtil.REPEAT_TOGGLE_MODE_ONE | RepeatModeUtil.REPEAT_TOGGLE_MODE_ALL;
   public static final String EXTRAS_PITCH = "EXO_PITCH";
   private static final int BASE_MEDIA_SESSION_FLAGS = MediaSessionCompat.FLAG_HANDLES_MEDIA_BUTTONS
       | MediaSessionCompat.FLAG_HANDLES_TRANSPORT_CONTROLS;
@@ -145,14 +154,17 @@ public final class MediaSessionConnector {
     long ACTIONS = PlaybackStateCompat.ACTION_PLAY_PAUSE | PlaybackStateCompat.ACTION_PLAY
         | PlaybackStateCompat.ACTION_PAUSE | PlaybackStateCompat.ACTION_SEEK_TO
         | PlaybackStateCompat.ACTION_FAST_FORWARD | PlaybackStateCompat.ACTION_REWIND
-        | PlaybackStateCompat.ACTION_STOP;
+        | PlaybackStateCompat.ACTION_STOP | PlaybackStateCompat.ACTION_SET_REPEAT_MODE
+        | PlaybackStateCompat.ACTION_SET_SHUFFLE_MODE_ENABLED;
 
     /**
      * Returns the actions which are supported by the controller. The supported actions must be a
      * bitmask combined out of {@link PlaybackStateCompat#ACTION_PLAY_PAUSE},
      * {@link PlaybackStateCompat#ACTION_PLAY}, {@link PlaybackStateCompat#ACTION_PAUSE},
      * {@link PlaybackStateCompat#ACTION_SEEK_TO}, {@link PlaybackStateCompat#ACTION_FAST_FORWARD},
-     * {@link PlaybackStateCompat#ACTION_REWIND} and {@link PlaybackStateCompat#ACTION_STOP}.
+     * {@link PlaybackStateCompat#ACTION_REWIND}, {@link PlaybackStateCompat#ACTION_STOP},
+     * {@link PlaybackStateCompat#ACTION_SET_REPEAT_MODE} and
+     * {@link PlaybackStateCompat#ACTION_SET_SHUFFLE_MODE_ENABLED}.
      *
      * @param player The player.
      * @return The bitmask of the supported media actions.
@@ -182,6 +194,14 @@ public final class MediaSessionConnector {
      * See {@link MediaSessionCompat.Callback#onStop()}.
      */
     void onStop(Player player);
+    /**
+     * See {@link MediaSessionCompat.Callback#onSetShuffleMode(int)}.
+     */
+    void onSetShuffleMode(Player player, int shuffleMode);
+    /**
+     * See {@link MediaSessionCompat.Callback#onSetRepeatMode(int)}.
+     */
+    void onSetRepeatMode(Player player, int repeatMode);
   }
 
   /**
@@ -191,15 +211,13 @@ public final class MediaSessionConnector {
   public interface QueueNavigator extends CommandReceiver {
 
     long ACTIONS = PlaybackStateCompat.ACTION_SKIP_TO_QUEUE_ITEM
-        | PlaybackStateCompat.ACTION_SKIP_TO_NEXT | PlaybackStateCompat.ACTION_SKIP_TO_PREVIOUS
-        | PlaybackStateCompat.ACTION_SET_SHUFFLE_MODE_ENABLED;
+        | PlaybackStateCompat.ACTION_SKIP_TO_NEXT | PlaybackStateCompat.ACTION_SKIP_TO_PREVIOUS;
 
     /**
      * Returns the actions which are supported by the navigator. The supported actions must be a
      * bitmask combined out of {@link PlaybackStateCompat#ACTION_SKIP_TO_QUEUE_ITEM},
      * {@link PlaybackStateCompat#ACTION_SKIP_TO_NEXT},
-     * {@link PlaybackStateCompat#ACTION_SKIP_TO_PREVIOUS},
-     * {@link PlaybackStateCompat#ACTION_SET_SHUFFLE_MODE_ENABLED}.
+     * {@link PlaybackStateCompat#ACTION_SKIP_TO_PREVIOUS}.
      *
      * @param player The {@link Player}.
      * @return The bitmask of the supported media actions.
@@ -241,10 +259,6 @@ public final class MediaSessionConnector {
      * See {@link MediaSessionCompat.Callback#onSkipToNext()}.
      */
     void onSkipToNext(Player player);
-    /**
-     * See {@link MediaSessionCompat.Callback#onSetShuffleMode(int)}.
-     */
-    void onSetShuffleMode(Player player, int shuffleMode);
   }
 
   /**
@@ -429,8 +443,7 @@ public final class MediaSessionConnector {
 
   /**
    * Sets the {@link QueueNavigator} to handle queue navigation actions {@code ACTION_SKIP_TO_NEXT},
-   * {@code ACTION_SKIP_TO_PREVIOUS}, {@code ACTION_SKIP_TO_QUEUE_ITEM} and
-   * {@code ACTION_SET_SHUFFLE_MODE_ENABLED}.
+   * {@code ACTION_SKIP_TO_PREVIOUS} and {@code ACTION_SKIP_TO_QUEUE_ITEM}.
    *
    * @param queueNavigator The queue navigator.
    */
@@ -737,6 +750,28 @@ public final class MediaSessionConnector {
     }
 
     @Override
+    public void onSetShuffleModeEnabled(boolean enabled) {
+      if (canDispatchToPlaybackController(PlaybackStateCompat.ACTION_SET_SHUFFLE_MODE_ENABLED)) {
+        playbackController.onSetShuffleMode(player, enabled
+            ? PlaybackStateCompat.SHUFFLE_MODE_ALL : PlaybackStateCompat.SHUFFLE_MODE_NONE);
+      }
+    }
+
+    @Override
+    public void onSetShuffleMode(int shuffleMode) {
+      if (canDispatchToPlaybackController(PlaybackStateCompat.ACTION_SET_SHUFFLE_MODE_ENABLED)) {
+        playbackController.onSetShuffleMode(player, shuffleMode);
+      }
+    }
+
+    @Override
+    public void onSetRepeatMode(int repeatMode) {
+      if (canDispatchToPlaybackController(PlaybackStateCompat.ACTION_SET_REPEAT_MODE)) {
+        playbackController.onSetRepeatMode(player, repeatMode);
+      }
+    }
+
+    @Override
     public void onSkipToNext() {
       if (canDispatchToQueueNavigator(PlaybackStateCompat.ACTION_SKIP_TO_NEXT)) {
         queueNavigator.onSkipToNext(player);
@@ -755,11 +790,6 @@ public final class MediaSessionConnector {
       if (canDispatchToQueueNavigator(PlaybackStateCompat.ACTION_SKIP_TO_QUEUE_ITEM)) {
         queueNavigator.onSkipToQueueItem(player, id);
       }
-    }
-
-    @Override
-    public void onSetRepeatMode(int repeatMode) {
-      // implemented as custom action
     }
 
     @Override
@@ -839,21 +869,6 @@ public final class MediaSessionConnector {
         player.stop();
         player.setPlayWhenReady(true);
         playbackPreparer.onPrepareFromUri(uri, extras);
-      }
-    }
-
-    @Override
-    public void onSetShuffleModeEnabled(boolean enabled) {
-      if (canDispatchToQueueNavigator(PlaybackStateCompat.ACTION_SET_SHUFFLE_MODE_ENABLED)) {
-        queueNavigator.onSetShuffleMode(player, enabled
-            ? PlaybackStateCompat.SHUFFLE_MODE_ALL : PlaybackStateCompat.SHUFFLE_MODE_NONE);
-      }
-    }
-
-    @Override
-    public void onSetShuffleMode(int shuffleMode) {
-      if (canDispatchToQueueNavigator(PlaybackStateCompat.ACTION_SET_SHUFFLE_MODE_ENABLED)) {
-        queueNavigator.onSetShuffleMode(player, shuffleMode);
       }
     }
 

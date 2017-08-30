@@ -161,11 +161,6 @@ public abstract class TimelineQueueNavigator implements MediaSessionConnector.Qu
     }
   }
 
-  @Override
-  public void onSetShuffleMode(Player player, int shuffleMode) {
-    player.setShuffleModeEnabled(shuffleMode == PlaybackStateCompat.SHUFFLE_MODE_ALL);
-  }
-
   // CommandReceiver implementation.
 
   @Override
