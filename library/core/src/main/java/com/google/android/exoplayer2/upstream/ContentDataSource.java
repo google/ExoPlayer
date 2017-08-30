@@ -76,8 +76,8 @@ public final class ContentDataSource implements DataSource {
         throw new FileNotFoundException("Could not open file descriptor for: " + uri);
       }
       inputStream = new FileInputStream(assetFileDescriptor.getFileDescriptor());
-      long assertStartOffset = assetFileDescriptor.getStartOffset();
-      long skipped = inputStream.skip(assertStartOffset + dataSpec.position) - assertStartOffset;
+      long assetStartOffset = assetFileDescriptor.getStartOffset();
+      long skipped = inputStream.skip(assetStartOffset + dataSpec.position) - assetStartOffset;
       if (skipped != dataSpec.position) {
         // We expect the skip to be satisfied in full. If it isn't then we're probably trying to
         // skip beyond the end of the data.
@@ -86,8 +86,8 @@ public final class ContentDataSource implements DataSource {
       if (dataSpec.length != C.LENGTH_UNSET) {
         bytesRemaining = dataSpec.length;
       } else {
-        bytesRemaining = assetFileDescriptor.getLength();
-        if (bytesRemaining == AssetFileDescriptor.UNKNOWN_LENGTH) {
+        long assetFileDescriptorLength = assetFileDescriptor.getLength();
+        if (assetFileDescriptorLength == AssetFileDescriptor.UNKNOWN_LENGTH) {
           // The asset must extend to the end of the file.
           bytesRemaining = inputStream.available();
           if (bytesRemaining == 0) {
@@ -96,6 +96,8 @@ public final class ContentDataSource implements DataSource {
             // case, so treat as unbounded.
             bytesRemaining = C.LENGTH_UNSET;
           }
+        } else {
+          bytesRemaining = assetFileDescriptorLength - skipped;
         }
       }
     } catch (IOException e) {
