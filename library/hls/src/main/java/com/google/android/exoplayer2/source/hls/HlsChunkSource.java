@@ -206,10 +206,9 @@ import java.util.List;
     int oldVariantIndex = previous == null ? C.INDEX_UNSET
         : trackGroup.indexOf(previous.trackFormat);
     expectedPlaylistUrl = null;
-    // Use start time of the previous chunk rather than its end time because switching format will
-    // require downloading overlapping segments.
+    // Use end time instead because bufferedDurationUs will always be zero for 30s segment
     long bufferedDurationUs = previous == null ? 0
-        : Math.max(0, previous.startTimeUs - playbackPositionUs);
+        : Math.max(0, previous.endTimeUs - playbackPositionUs);
 
     // Select the variant.
     trackSelection.updateSelectedTrack(bufferedDurationUs);
