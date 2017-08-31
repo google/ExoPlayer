@@ -88,7 +88,7 @@ public class AdaptiveTrackSelection extends BaseTrackSelection {
   }
 
   public static final int DEFAULT_MAX_INITIAL_BITRATE = 800000;
-  public static final int DEFAULT_MIN_DURATION_FOR_QUALITY_INCREASE_MS = 10000;
+  public static final int DEFAULT_MIN_DURATION_FOR_QUALITY_INCREASE_MS = 4000;
   public static final int DEFAULT_MAX_DURATION_FOR_QUALITY_DECREASE_MS = 25000;
   public static final int DEFAULT_MIN_DURATION_TO_RETAIN_AFTER_DISCARD_MS = 25000;
   public static final float DEFAULT_BANDWIDTH_FRACTION = 0.75f;
