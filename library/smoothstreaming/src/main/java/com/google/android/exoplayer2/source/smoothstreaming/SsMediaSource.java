@@ -192,9 +192,7 @@ public final class SsMediaSource implements MediaSource,
       AdaptiveMediaSourceEventListener eventListener) {
     Assertions.checkState(manifest == null || !manifest.isLive);
     this.manifest = manifest;
-    this.manifestUri = manifestUri == null ? null
-        : Util.toLowerInvariant(manifestUri.getLastPathSegment()).equals("manifest") ? manifestUri
-            : Uri.withAppendedPath(manifestUri, "Manifest");
+    this.manifestUri = manifestUri == null ? null : lastPathSegment.contains("manifest") && lastPathSegment.contains("(") && lastPathSegment.contains(")")) ? manifestUri : lastPathSegment.equals("manifest") ? manifestUri : Uri.withAppendedPath(manifestUri, "Manifest");
     this.manifestDataSourceFactory = manifestDataSourceFactory;
     this.manifestParser = manifestParser;
     this.chunkSourceFactory = chunkSourceFactory;
