@@ -197,12 +197,12 @@ DECODER_FUNC(jint, vpxGetFrame, jlong jContext, jobject jOutputBuffer) {
     const int32_t uvHeight = (img->d_h + 1) / 2;
     const uint64_t yLength = img->stride[VPX_PLANE_Y] * img->d_h;
     const uint64_t uvLength = img->stride[VPX_PLANE_U] * uvHeight;
-    int sample = 0;
     if (img->fmt == VPX_IMG_FMT_I42016) {  // HBD planar 420.
       // Note: The stride for BT2020 is twice of what we use so this is wasting
       // memory. The long term goal however is to upload half-float/short so
       // it's not important to optimize the stride at this time.
       // Y
+      int sampleY = 0;
       for (int y = 0; y < img->d_h; y++) {
         const uint16_t* srcBase = reinterpret_cast<uint16_t*>(
             img->planes[VPX_PLANE_Y] + img->stride[VPX_PLANE_Y] * y);
@@ -210,12 +210,14 @@ DECODER_FUNC(jint, vpxGetFrame, jlong jContext, jobject jOutputBuffer) {
         for (int x = 0; x < img->d_w; x++) {
           // Lightweight dither. Carryover the remainder of each 10->8 bit
           // conversion to the next pixel.
-          sample += *srcBase++;
-          *destBase++ = sample >> 2;
-          sample = sample & 3;  // Remainder.
+          sampleY += *srcBase++;
+          *destBase++ = sampleY >> 2;
+          sampleY = sampleY & 3;  // Remainder.
         }
       }
       // UV
+      int sampleU = 0;
+      int sampleV = 0;
       const int32_t uvWidth = (img->d_w + 1) / 2;
       for (int y = 0; y < uvHeight; y++) {
         const uint16_t* srcUBase = reinterpret_cast<uint16_t*>(
@@ -228,11 +230,12 @@ DECODER_FUNC(jint, vpxGetFrame, jlong jContext, jobject jOutputBuffer) {
         for (int x = 0; x < uvWidth; x++) {
           // Lightweight dither. Carryover the remainder of each 10->8 bit
           // conversion to the next pixel.
-          sample += *srcUBase++;
-          *destUBase++ = sample >> 2;
-          sample = (*srcVBase++) + (sample & 3);  // srcV + previousRemainder.
-          *destVBase++ = sample >> 2;
-          sample = sample & 3;  // Remainder.
+          sampleU += *srcUBase++;
+          *destUBase++ = sampleU >> 2;
+          sampleU = sampleU & 3;  // Remainder.
+          sampleV += *srcVBase++;
+          *destVBase++ = sampleV >> 2;
+          sampleV = sampleV & 3;  // Remainder.
         }
       }
     } else {
