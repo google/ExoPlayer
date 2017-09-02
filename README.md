@@ -99,7 +99,7 @@ depend on them as you would on any other local module, for example:
 ```gradle
 compile project(':exoplayer-library-core')
 compile project(':exoplayer-library-dash')
-compile project(':exoplayer-library-ui)
+compile project(':exoplayer-library-ui')
 ```
 
 ## Developing ExoPlayer ##
