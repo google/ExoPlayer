@@ -38,7 +38,7 @@ NDK_PATH="<path to Android NDK>"
 
 ```
 cd "${FLAC_EXT_PATH}/jni" && \
-curl http://downloads.xiph.org/releases/flac/flac-1.3.1.tar.xz | tar xJ && \
+curl https://ftp.osuosl.org/pub/xiph/releases/flac/flac-1.3.1.tar.xz | tar xJ && \
 mv flac-1.3.1 flac
 ```
 
