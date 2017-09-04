@@ -90,12 +90,7 @@ public final class DummySurface extends Surface {
    */
   public static synchronized boolean isSecureSupported(Context context) {
     if (!secureSupportedInitialized) {
-      if (Util.SDK_INT >= 17) {
-        EGLDisplay display = eglGetDisplay(EGL_DEFAULT_DISPLAY);
-        String extensions = EGL14.eglQueryString(display, EGL10.EGL_EXTENSIONS);
-        secureSupported = extensions != null && extensions.contains("EGL_EXT_protected_content")
-            && !deviceNeedsSecureDummySurfaceWorkaround(context);
-      }
+      secureSupported = Util.SDK_INT >= 24 && enableSecureDummySurfaceV24(context);
       secureSupportedInitialized = true;
     }
     return secureSupported;
@@ -148,20 +143,28 @@ public final class DummySurface extends Surface {
   }
 
   /**
-   * Returns whether the device is known to advertise secure surface textures but not implement them
-   * correctly.
+   * Returns whether use of secure dummy surfaces should be enabled.
    *
    * @param context Any {@link Context}.
    */
-  private static boolean deviceNeedsSecureDummySurfaceWorkaround(Context context) {
-    return (Util.SDK_INT == 24 && "samsung".equals(Util.MANUFACTURER))
-        || (Util.SDK_INT < 26
-            && !hasVrModeHighPerformanceSystemFeatureV24(context.getPackageManager()));
-  }
-
   @TargetApi(24)
-  private static boolean hasVrModeHighPerformanceSystemFeatureV24(PackageManager packageManager) {
-    return packageManager.hasSystemFeature(PackageManager.FEATURE_VR_MODE_HIGH_PERFORMANCE);
+  private static boolean enableSecureDummySurfaceV24(Context context) {
+    EGLDisplay display = eglGetDisplay(EGL_DEFAULT_DISPLAY);
+    String eglExtensions = EGL14.eglQueryString(display, EGL10.EGL_EXTENSIONS);
+    if (eglExtensions == null || !eglExtensions.contains("EGL_EXT_protected_content")) {
+      // EGL_EXT_protected_content is required to enable secure dummy surfaces.
+      return false;
+    }
+    if (Util.SDK_INT == 24 && "samsung".equals(Util.MANUFACTURER)) {
+      // Samsung devices running API level 24 are known to be broken [Internal: b/37197802].
+      return false;
+    }
+    if (Util.SDK_INT < 26 && !context.getPackageManager().hasSystemFeature(
+        PackageManager.FEATURE_VR_MODE_HIGH_PERFORMANCE)) {
+      // Pre API level 26 devices were not well tested unless they supported VR mode.
+      return false;
+    }
+    return true;
   }
 
   private static class DummySurfaceThread extends HandlerThread implements OnFrameAvailableListener,
