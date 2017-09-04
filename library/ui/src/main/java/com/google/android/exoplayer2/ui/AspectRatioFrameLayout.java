@@ -32,7 +32,8 @@ public final class AspectRatioFrameLayout extends FrameLayout {
    * Resize modes for {@link AspectRatioFrameLayout}.
    */
   @Retention(RetentionPolicy.SOURCE)
-  @IntDef({RESIZE_MODE_FIT, RESIZE_MODE_FIXED_WIDTH, RESIZE_MODE_FIXED_HEIGHT, RESIZE_MODE_FILL, RESIZE_MODE_ZOOM})
+  @IntDef({RESIZE_MODE_FIT, RESIZE_MODE_FIXED_WIDTH, RESIZE_MODE_FIXED_HEIGHT, RESIZE_MODE_FILL,
+      RESIZE_MODE_ZOOM})
   public @interface ResizeMode {}
 
   /**
@@ -52,7 +53,7 @@ public final class AspectRatioFrameLayout extends FrameLayout {
    */
   public static final int RESIZE_MODE_FILL = 3;
   /**
-   * Either height or width is increased to obtain the desired aspect ratio.
+   * Either the width or height is increased to obtain the desired aspect ratio.
    */
   public static final int RESIZE_MODE_ZOOM = 4;
 
@@ -89,7 +90,7 @@ public final class AspectRatioFrameLayout extends FrameLayout {
   }
 
   /**
-   * Set the aspect ratio that this view should satisfy.
+   * Sets the aspect ratio that this view should satisfy.
    *
    * @param widthHeightRatio The width to height ratio.
    */
@@ -101,12 +102,10 @@ public final class AspectRatioFrameLayout extends FrameLayout {
   }
 
   /**
-   * Gets the resize mode.
-   *
-   * @return The resize mode.
+   * Returns the resize mode.
    */
-  public int getResizeMode() {
-    return this.resizeMode;
+  public @ResizeMode int getResizeMode() {
+    return resizeMode;
   }
 
   /**
@@ -146,7 +145,7 @@ public final class AspectRatioFrameLayout extends FrameLayout {
         width = (int) (height * videoAspectRatio);
         break;
       case RESIZE_MODE_ZOOM:
-        if (videoAspectRatio > viewAspectRatio) {
+        if (aspectDeformation > 0) {
           width = (int) (height * videoAspectRatio);
         } else {
           height = (int) (width / videoAspectRatio);
