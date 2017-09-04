@@ -43,7 +43,6 @@ import static android.opengl.GLES20.glGenTextures;
 
 import android.annotation.TargetApi;
 import android.content.Context;
-import android.content.pm.PackageManager;
 import android.graphics.SurfaceTexture;
 import android.graphics.SurfaceTexture.OnFrameAvailableListener;
 import android.opengl.EGL14;
@@ -153,16 +152,9 @@ public final class DummySurface extends Surface {
    *
    * @param context Any {@link Context}.
    */
-  @SuppressWarnings("unused")
+  @SuppressWarnings("unused") // Context may be needed in the future for better targeting.
   private static boolean deviceNeedsSecureDummySurfaceWorkaround(Context context) {
-    return (Util.SDK_INT == 24 && "samsung".equals(Util.MANUFACTURER))
-            || (Util.SDK_INT >= 24 && Util.SDK_INT < 26
-              && !hasVrModeHighPerformanceSystemFeatureV24(context.getPackageManager()));
-  }
-
-  @TargetApi(24)
-  private static boolean hasVrModeHighPerformanceSystemFeatureV24(PackageManager packageManager) {
-    return packageManager.hasSystemFeature(PackageManager.FEATURE_VR_MODE_HIGH_PERFORMANCE);
+    return Util.SDK_INT == 24 && "samsung".equals(Util.MANUFACTURER);
   }
 
   private static class DummySurfaceThread extends HandlerThread implements OnFrameAvailableListener,
