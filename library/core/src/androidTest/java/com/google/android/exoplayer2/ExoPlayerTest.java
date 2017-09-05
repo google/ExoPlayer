@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2;
 
+import com.google.android.exoplayer2.source.ConcatenatingMediaSource;
 import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.source.TrackGroup;
 import com.google.android.exoplayer2.source.TrackGroupArray;
@@ -24,6 +25,7 @@ import com.google.android.exoplayer2.testutil.ExoPlayerTestRunner.Builder;
 import com.google.android.exoplayer2.testutil.FakeMediaClockRenderer;
 import com.google.android.exoplayer2.testutil.FakeMediaSource;
 import com.google.android.exoplayer2.testutil.FakeRenderer;
+import com.google.android.exoplayer2.testutil.FakeShuffleOrder;
 import com.google.android.exoplayer2.testutil.FakeTimeline;
 import com.google.android.exoplayer2.testutil.FakeTimeline.TimelineWindowDefinition;
 import java.util.concurrent.CountDownLatch;
@@ -231,6 +233,29 @@ public final class ExoPlayerTest extends TestCase {
         .build().start().blockUntilEnded(TIMEOUT_MS);
     testRunner.assertPlayedPeriodIndices(0, 1, 1, 2, 2, 0, 0, 0, 1, 2);
     testRunner.assertTimelinesEqual(timeline);
+    assertTrue(renderer.isEnded);
+  }
+
+  public void testShuffleModeEnabledChanges() throws Exception {
+    Timeline fakeTimeline = new FakeTimeline(new TimelineWindowDefinition(true, false, 100000));
+    MediaSource[] fakeMediaSources = {
+        new FakeMediaSource(fakeTimeline, null, Builder.VIDEO_FORMAT),
+        new FakeMediaSource(fakeTimeline, null, Builder.VIDEO_FORMAT),
+        new FakeMediaSource(fakeTimeline, null, Builder.VIDEO_FORMAT)
+    };
+    ConcatenatingMediaSource mediaSource = new ConcatenatingMediaSource(false,
+        new FakeShuffleOrder(3), fakeMediaSources);
+    FakeRenderer renderer = new FakeRenderer(Builder.VIDEO_FORMAT);
+    ActionSchedule actionSchedule = new ActionSchedule.Builder("testShuffleModeEnabled")
+        .setRepeatMode(Player.REPEAT_MODE_ALL).waitForPositionDiscontinuity() // 0 -> 1
+        .setShuffleModeEnabled(true).waitForPositionDiscontinuity()           // 1 -> 0
+        .waitForPositionDiscontinuity().waitForPositionDiscontinuity()        // 0 -> 2 -> 1
+        .setShuffleModeEnabled(false).setRepeatMode(Player.REPEAT_MODE_OFF)   // 1 -> 2 -> end
+        .build();
+    ExoPlayerTestRunner testRunner = new ExoPlayerTestRunner.Builder()
+        .setMediaSource(mediaSource).setRenderers(renderer).setActionSchedule(actionSchedule)
+        .build().start().blockUntilEnded(TIMEOUT_MS);
+    testRunner.assertPlayedPeriodIndices(0, 1, 0, 2, 1, 2);
     assertTrue(renderer.isEnded);
   }
 

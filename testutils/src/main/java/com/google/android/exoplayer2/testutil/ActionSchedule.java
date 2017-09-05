@@ -30,6 +30,7 @@ import com.google.android.exoplayer2.testutil.Action.Seek;
 import com.google.android.exoplayer2.testutil.Action.SetPlayWhenReady;
 import com.google.android.exoplayer2.testutil.Action.SetRendererDisabled;
 import com.google.android.exoplayer2.testutil.Action.SetRepeatMode;
+import com.google.android.exoplayer2.testutil.Action.SetShuffleModeEnabled;
 import com.google.android.exoplayer2.testutil.Action.SetVideoSurface;
 import com.google.android.exoplayer2.testutil.Action.Stop;
 import com.google.android.exoplayer2.testutil.Action.WaitForPositionDiscontinuity;
@@ -215,6 +216,15 @@ public final class ActionSchedule {
      */
     public Builder setRepeatMode(@Player.RepeatMode int repeatMode) {
       return apply(new SetRepeatMode(tag, repeatMode));
+    }
+
+    /**
+     * Schedules a shuffle setting action to be executed.
+     *
+     * @return The builder, for convenience.
+     */
+    public Builder setShuffleModeEnabled(boolean shuffleModeEnabled) {
+      return apply(new SetShuffleModeEnabled(tag, shuffleModeEnabled));
     }
 
     /**

@@ -37,6 +37,9 @@ import com.google.android.exoplayer2.ui.PlaybackControlView;
 import com.google.android.exoplayer2.ui.SimpleExoPlayerView;
 import com.google.android.exoplayer2.upstream.DefaultBandwidthMeter;
 import com.google.android.exoplayer2.upstream.DefaultHttpDataSourceFactory;
+import com.google.android.gms.cast.MediaInfo;
+import com.google.android.gms.cast.MediaMetadata;
+import com.google.android.gms.cast.MediaQueueItem;
 import com.google.android.gms.cast.framework.CastContext;
 
 /**
@@ -95,12 +98,12 @@ import com.google.android.gms.cast.framework.CastContext;
       boolean playWhenReady) {
     this.currentSample = currentSample;
     if (playbackLocation == PLAYBACK_REMOTE) {
-        castPlayer.load(currentSample.name, currentSample.uri, currentSample.type, positionMs,
-            playWhenReady);
+      castPlayer.loadItem(buildMediaQueueItem(currentSample), positionMs);
+      castPlayer.setPlayWhenReady(playWhenReady);
     } else /* playbackLocation == PLAYBACK_LOCAL */ {
+      exoPlayer.prepare(buildMediaSource(currentSample), true, true);
       exoPlayer.setPlayWhenReady(playWhenReady);
       exoPlayer.seekTo(positionMs);
-      exoPlayer.prepare(buildMediaSource(currentSample), true, true);
     }
   }
 
@@ -143,9 +146,18 @@ import com.google.android.gms.cast.framework.CastContext;
 
   // Internal methods.
 
+  private static MediaQueueItem buildMediaQueueItem(CastDemoUtil.Sample sample) {
+    MediaMetadata movieMetadata = new MediaMetadata(MediaMetadata.MEDIA_TYPE_MOVIE);
+    movieMetadata.putString(MediaMetadata.KEY_TITLE, sample.name);
+    MediaInfo mediaInfo = new MediaInfo.Builder(sample.uri)
+        .setStreamType(MediaInfo.STREAM_TYPE_BUFFERED).setContentType(sample.mimeType)
+        .setMetadata(movieMetadata).build();
+    return new MediaQueueItem.Builder(mediaInfo).build();
+  }
+
   private static MediaSource buildMediaSource(CastDemoUtil.Sample sample) {
     Uri uri = Uri.parse(sample.uri);
-    switch (sample.type) {
+    switch (sample.mimeType) {
       case CastDemoUtil.MIME_TYPE_SS:
         return new SsMediaSource(uri, DATA_SOURCE_FACTORY,
             new DefaultSsChunkSource.Factory(DATA_SOURCE_FACTORY), null, null);
@@ -158,7 +170,7 @@ import com.google.android.gms.cast.framework.CastContext;
         return new ExtractorMediaSource(uri, DATA_SOURCE_FACTORY, new DefaultExtractorsFactory(),
             null, null);
       default: {
-        throw new IllegalStateException("Unsupported type: " + sample.type);
+        throw new IllegalStateException("Unsupported type: " + sample.mimeType);
       }
     }
   }
@@ -177,14 +189,16 @@ import com.google.android.gms.cast.framework.CastContext;
       castControlView.show();
     }
 
-    long playbackPositionMs = 0;
-    boolean playWhenReady = true;
-    if (exoPlayer != null) {
+    long playbackPositionMs;
+    boolean playWhenReady;
+    if (this.playbackLocation == PLAYBACK_LOCAL) {
       playbackPositionMs = exoPlayer.getCurrentPosition();
       playWhenReady = exoPlayer.getPlayWhenReady();
-    } else if (this.playbackLocation == PLAYBACK_REMOTE) {
+      exoPlayer.stop();
+    } else /* this.playbackLocation == PLAYBACK_REMOTE */ {
       playbackPositionMs = castPlayer.getCurrentPosition();
       playWhenReady = castPlayer.getPlayWhenReady();
+      castPlayer.stop();
     }
 
     this.playbackLocation = playbackLocation;

@@ -19,6 +19,7 @@ import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.Timeline;
+import com.google.android.exoplayer2.source.ShuffleOrder.UnshuffledShuffleOrder;
 import com.google.android.exoplayer2.upstream.Allocator;
 import com.google.android.exoplayer2.util.Assertions;
 import java.io.IOException;
@@ -101,13 +102,15 @@ public final class LoopingMediaSource implements MediaSource {
     private final int loopCount;
 
     public LoopingTimeline(Timeline childTimeline, int loopCount) {
-      super(loopCount);
+      super(new UnshuffledShuffleOrder(loopCount));
       this.childTimeline = childTimeline;
       childPeriodCount = childTimeline.getPeriodCount();
       childWindowCount = childTimeline.getWindowCount();
       this.loopCount = loopCount;
-      Assertions.checkState(loopCount <= Integer.MAX_VALUE / childPeriodCount,
-          "LoopingMediaSource contains too many periods");
+      if (childPeriodCount > 0) {
+        Assertions.checkState(loopCount <= Integer.MAX_VALUE / childPeriodCount,
+            "LoopingMediaSource contains too many periods");
+      }
     }
 
     @Override
@@ -167,15 +170,20 @@ public final class LoopingMediaSource implements MediaSource {
     }
 
     @Override
-    public int getNextWindowIndex(int windowIndex, @Player.RepeatMode int repeatMode) {
-      int childNextWindowIndex = timeline.getNextWindowIndex(windowIndex, repeatMode);
-      return childNextWindowIndex == C.INDEX_UNSET ? 0 : childNextWindowIndex;
+    public int getNextWindowIndex(int windowIndex, @Player.RepeatMode int repeatMode,
+        boolean shuffleModeEnabled) {
+      int childNextWindowIndex = timeline.getNextWindowIndex(windowIndex, repeatMode,
+          shuffleModeEnabled);
+      return childNextWindowIndex == C.INDEX_UNSET ? getFirstWindowIndex(shuffleModeEnabled)
+          : childNextWindowIndex;
     }
 
     @Override
-    public int getPreviousWindowIndex(int windowIndex, @Player.RepeatMode int repeatMode) {
-      int childPreviousWindowIndex = timeline.getPreviousWindowIndex(windowIndex, repeatMode);
-      return childPreviousWindowIndex == C.INDEX_UNSET ? getWindowCount() - 1
+    public int getPreviousWindowIndex(int windowIndex, @Player.RepeatMode int repeatMode,
+        boolean shuffleModeEnabled) {
+      int childPreviousWindowIndex = timeline.getPreviousWindowIndex(windowIndex, repeatMode,
+          shuffleModeEnabled);
+      return childPreviousWindowIndex == C.INDEX_UNSET ? getLastWindowIndex(shuffleModeEnabled)
           : childPreviousWindowIndex;
     }
 

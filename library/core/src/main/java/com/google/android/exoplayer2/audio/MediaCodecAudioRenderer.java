@@ -27,6 +27,7 @@ import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.PlaybackParameters;
 import com.google.android.exoplayer2.audio.AudioRendererEventListener.EventDispatcher;
+import com.google.android.exoplayer2.drm.DrmInitData;
 import com.google.android.exoplayer2.drm.DrmSessionManager;
 import com.google.android.exoplayer2.drm.FrameworkMediaCrypto;
 import com.google.android.exoplayer2.mediacodec.MediaCodecInfo;
@@ -138,19 +139,34 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
   }
 
   @Override
-  protected int supportsFormat(MediaCodecSelector mediaCodecSelector, Format format)
+  protected int supportsFormat(MediaCodecSelector mediaCodecSelector,
+      DrmSessionManager<FrameworkMediaCrypto> drmSessionManager, Format format)
       throws DecoderQueryException {
     String mimeType = format.sampleMimeType;
     if (!MimeTypes.isAudio(mimeType)) {
       return FORMAT_UNSUPPORTED_TYPE;
     }
     int tunnelingSupport = Util.SDK_INT >= 21 ? TUNNELING_SUPPORTED : TUNNELING_NOT_SUPPORTED;
-    if (allowPassthrough(mimeType) && mediaCodecSelector.getPassthroughDecoderInfo() != null) {
+    boolean supportsFormatDrm = supportsFormatDrm(drmSessionManager, format.drmInitData);
+    if (supportsFormatDrm && allowPassthrough(mimeType)
+        && mediaCodecSelector.getPassthroughDecoderInfo() != null) {
       return ADAPTIVE_NOT_SEAMLESS | tunnelingSupport | FORMAT_HANDLED;
     }
-    MediaCodecInfo decoderInfo = mediaCodecSelector.getDecoderInfo(mimeType, false);
+    boolean requiresSecureDecryption = false;
+    DrmInitData drmInitData = format.drmInitData;
+    if (drmInitData != null) {
+      for (int i = 0; i < drmInitData.schemeDataCount; i++) {
+        requiresSecureDecryption |= drmInitData.get(i).requiresSecureDecryption;
+      }
+    }
+    MediaCodecInfo decoderInfo = mediaCodecSelector.getDecoderInfo(mimeType,
+        requiresSecureDecryption);
     if (decoderInfo == null) {
-      return FORMAT_UNSUPPORTED_SUBTYPE;
+      return requiresSecureDecryption && mediaCodecSelector.getDecoderInfo(mimeType, false) != null
+          ? FORMAT_UNSUPPORTED_DRM : FORMAT_UNSUPPORTED_SUBTYPE;
+    }
+    if (!supportsFormatDrm) {
+      return FORMAT_UNSUPPORTED_DRM;
     }
     // Note: We assume support for unknown sampleRate and channelCount.
     boolean decoderCapable = Util.SDK_INT < 21

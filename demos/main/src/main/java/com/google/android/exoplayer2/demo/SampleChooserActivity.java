@@ -90,7 +90,7 @@ public class SampleChooserActivity extends Activity {
       Toast.makeText(getApplicationContext(), R.string.sample_list_load_error, Toast.LENGTH_LONG)
           .show();
     }
-    ExpandableListView sampleList = (ExpandableListView) findViewById(R.id.sample_list);
+    ExpandableListView sampleList = findViewById(R.id.sample_list);
     sampleList.setAdapter(new SampleAdapter(this, groups));
     sampleList.setOnChildClickListener(new OnChildClickListener() {
       @Override

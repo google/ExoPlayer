@@ -6,6 +6,14 @@ The OkHttp extension is an [HttpDataSource][] implementation using Square's
 [HttpDataSource]: https://google.github.io/ExoPlayer/doc/reference/com/google/android/exoplayer2/upstream/HttpDataSource.html
 [OkHttp]: https://square.github.io/okhttp/
 
+## License note ##
+
+Please note that whilst the code in this repository is licensed under
+[Apache 2.0][], using this extension requires depending on OkHttp, which is
+licensed separately.
+
+[Apache 2.0]: https://github.com/google/ExoPlayer/blob/release-v2/LICENSE
+
 ## Getting the extension ##
 
 The easiest way to use the extension is to add it as a gradle dependency:

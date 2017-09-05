@@ -488,7 +488,7 @@ import java.io.IOException;
     }
     while (true) {
       int nextPeriodIndex = timeline.getNextPeriodIndex(lastValidPeriodHolder.info.id.periodIndex,
-          period, window, repeatMode);
+          period, window, repeatMode, shuffleModeEnabled);
       while (lastValidPeriodHolder.next != null
           && !lastValidPeriodHolder.info.isLastInTimelinePeriod) {
         lastValidPeriodHolder = lastValidPeriodHolder.next;
@@ -686,13 +686,15 @@ import java.io.IOException;
 
     Pair<Integer, Long> periodPosition = resolveSeekPosition(seekPosition);
     if (periodPosition == null) {
+      int firstPeriodIndex = timeline.isEmpty() ? 0 : timeline.getWindow(
+          timeline.getFirstWindowIndex(shuffleModeEnabled), window).firstPeriodIndex;
       // The seek position was valid for the timeline that it was performed into, but the
       // timeline has changed and a suitable seek position could not be resolved in the new one.
-      playbackInfo = new PlaybackInfo(0, 0);
+      playbackInfo = new PlaybackInfo(firstPeriodIndex, 0);
       eventHandler.obtainMessage(MSG_SEEK_ACK, 1, 0, playbackInfo).sendToTarget();
-      // Set the internal position to (0,TIME_UNSET) so that a subsequent seek to (0,0) isn't
-      // ignored.
-      playbackInfo = new PlaybackInfo(0, C.TIME_UNSET);
+      // Set the internal position to (firstPeriodIndex,TIME_UNSET) so that a subsequent seek to
+      // (firstPeriodIndex,0) isn't ignored.
+      playbackInfo = new PlaybackInfo(firstPeriodIndex, C.TIME_UNSET);
       setState(Player.STATE_ENDED);
       // Reset, but retain the source so that it can still be used should a seek occur.
       resetInternal(false);
@@ -1029,7 +1031,8 @@ import java.io.IOException;
         if (timeline.isEmpty()) {
           handleSourceInfoRefreshEndedPlayback(manifest);
         } else {
-          Pair<Integer, Long> defaultPosition = getPeriodPosition(0, C.TIME_UNSET);
+          Pair<Integer, Long> defaultPosition = getPeriodPosition(
+              timeline.getFirstWindowIndex(shuffleModeEnabled), C.TIME_UNSET);
           int periodIndex = defaultPosition.first;
           long startPositionUs = defaultPosition.second;
           MediaPeriodId periodId = mediaPeriodInfoSequence.resolvePeriodPositionForAds(periodIndex,
@@ -1122,7 +1125,8 @@ import java.io.IOException;
     while (periodHolder.next != null) {
       MediaPeriodHolder previousPeriodHolder = periodHolder;
       periodHolder = periodHolder.next;
-      periodIndex = timeline.getNextPeriodIndex(periodIndex, period, window, repeatMode);
+      periodIndex = timeline.getNextPeriodIndex(periodIndex, period, window, repeatMode,
+          shuffleModeEnabled);
       if (periodIndex != C.INDEX_UNSET
           && periodHolder.uid.equals(timeline.getPeriod(periodIndex, period, true).uid)) {
         // The holder is consistent with the new timeline. Update its index and continue.
@@ -1170,11 +1174,14 @@ import java.io.IOException;
 
   private void handleSourceInfoRefreshEndedPlayback(Object manifest,
       int processedInitialSeekCount) {
-    // Set the playback position to (0,0) for notifying the eventHandler.
-    playbackInfo = new PlaybackInfo(0, 0);
+    int firstPeriodIndex = timeline.isEmpty() ? 0 : timeline.getWindow(
+        timeline.getFirstWindowIndex(shuffleModeEnabled), window).firstPeriodIndex;
+    // Set the playback position to (firstPeriodIndex,0) for notifying the eventHandler.
+    playbackInfo = new PlaybackInfo(firstPeriodIndex, 0);
     notifySourceInfoRefresh(manifest, processedInitialSeekCount);
-    // Set the internal position to (0,TIME_UNSET) so that a subsequent seek to (0,0) isn't ignored.
-    playbackInfo = new PlaybackInfo(0, C.TIME_UNSET);
+    // Set the internal position to (firstPeriodIndex,TIME_UNSET) so that a subsequent seek to
+    // (firstPeriodIndex,0) isn't ignored.
+    playbackInfo = new PlaybackInfo(firstPeriodIndex, C.TIME_UNSET);
     setState(Player.STATE_ENDED);
     // Reset, but retain the source so that it can still be used should a seek occur.
     resetInternal(false);
@@ -1204,7 +1211,8 @@ import java.io.IOException;
     int newPeriodIndex = C.INDEX_UNSET;
     int maxIterations = oldTimeline.getPeriodCount();
     for (int i = 0; i < maxIterations && newPeriodIndex == C.INDEX_UNSET; i++) {
-      oldPeriodIndex = oldTimeline.getNextPeriodIndex(oldPeriodIndex, period, window, repeatMode);
+      oldPeriodIndex = oldTimeline.getNextPeriodIndex(oldPeriodIndex, period, window, repeatMode,
+          shuffleModeEnabled);
       if (oldPeriodIndex == C.INDEX_UNSET) {
         // We've reached the end of the old timeline.
         break;

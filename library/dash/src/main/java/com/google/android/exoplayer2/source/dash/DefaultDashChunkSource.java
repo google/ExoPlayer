@@ -134,8 +134,8 @@ public class DefaultDashChunkSource implements DashChunkSource {
     representationHolders = new RepresentationHolder[trackSelection.length()];
     for (int i = 0; i < representationHolders.length; i++) {
       Representation representation = representations.get(trackSelection.getIndexInTrackGroup(i));
-      representationHolders[i] = new RepresentationHolder(periodDurationUs, representation,
-          enableEventMessageTrack, enableCea608Track);
+      representationHolders[i] = new RepresentationHolder(periodDurationUs, trackType,
+          representation, enableEventMessageTrack, enableCea608Track);
     }
   }
 
@@ -390,8 +390,8 @@ public class DefaultDashChunkSource implements DashChunkSource {
     private long periodDurationUs;
     private int segmentNumShift;
 
-    /* package */ RepresentationHolder(long periodDurationUs, Representation representation,
-        boolean enableEventMessageTrack, boolean enableCea608Track) {
+    /* package */ RepresentationHolder(long periodDurationUs, int trackType,
+        Representation representation, boolean enableEventMessageTrack, boolean enableCea608Track) {
       this.periodDurationUs = periodDurationUs;
       this.representation = representation;
       String containerMimeType = representation.format.containerMimeType;
@@ -415,7 +415,7 @@ public class DefaultDashChunkSource implements DashChunkSource {
         }
         // Prefer drmInitData obtained from the manifest over drmInitData obtained from the stream,
         // as per DASH IF Interoperability Recommendations V3.0, 7.5.3.
-        extractorWrapper = new ChunkExtractorWrapper(extractor, representation.format);
+        extractorWrapper = new ChunkExtractorWrapper(extractor, trackType, representation.format);
       }
       segmentIndex = representation.getIndex();
     }

@@ -15,15 +15,23 @@
  */
 package com.google.android.exoplayer2.util;
 
+import static com.google.common.truth.Truth.assertThat;
+import static java.nio.charset.Charset.forName;
+import static junit.framework.TestCase.fail;
+
 import java.nio.ByteBuffer;
-import java.nio.charset.Charset;
 import java.util.Arrays;
-import junit.framework.TestCase;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.robolectric.RobolectricTestRunner;
+import org.robolectric.annotation.Config;
 
 /**
  * Tests for {@link ParsableByteArray}.
  */
-public class ParsableByteArrayTest extends TestCase {
+@RunWith(RobolectricTestRunner.class)
+@Config(sdk = Config.TARGET_SDK, manifest = Config.NONE)
+public final class ParsableByteArrayTest {
 
   private static final byte[] TEST_DATA =
       new byte[] {0x0F, (byte) 0xFF, (byte) 0x42, (byte) 0x0F, 0x00, 0x00, 0x00, 0x00};
@@ -34,6 +42,7 @@ public class ParsableByteArrayTest extends TestCase {
     return testArray;
   }
 
+  @Test
   public void testReadShort() {
     testReadShort((short) -1);
     testReadShort((short) 0);
@@ -48,17 +57,18 @@ public class ParsableByteArrayTest extends TestCase {
     int readValue = testArray.readShort();
 
     // Assert that the value we read was the value we wrote.
-    assertEquals(testValue, readValue);
+    assertThat(readValue).isEqualTo(testValue);
     // And that the position advanced as expected.
-    assertEquals(2, testArray.getPosition());
+    assertThat(testArray.getPosition()).isEqualTo(2);
 
     // And that skipping back and reading gives the same results.
     testArray.skipBytes(-2);
     readValue = testArray.readShort();
-    assertEquals(testValue, readValue);
-    assertEquals(2, testArray.getPosition());
+    assertThat(readValue).isEqualTo(testValue);
+    assertThat(testArray.getPosition()).isEqualTo(2);
   }
 
+  @Test
   public void testReadInt() {
     testReadInt(0);
     testReadInt(1);
@@ -73,17 +83,18 @@ public class ParsableByteArrayTest extends TestCase {
     int readValue = testArray.readInt();
 
     // Assert that the value we read was the value we wrote.
-    assertEquals(testValue, readValue);
+    assertThat(readValue).isEqualTo(testValue);
     // And that the position advanced as expected.
-    assertEquals(4, testArray.getPosition());
+    assertThat(testArray.getPosition()).isEqualTo(4);
 
     // And that skipping back and reading gives the same results.
     testArray.skipBytes(-4);
     readValue = testArray.readInt();
-    assertEquals(testValue, readValue);
-    assertEquals(4, testArray.getPosition());
+    assertThat(readValue).isEqualTo(testValue);
+    assertThat(testArray.getPosition()).isEqualTo(4);
   }
 
+  @Test
   public void testReadUnsignedInt() {
     testReadUnsignedInt(0);
     testReadUnsignedInt(1);
@@ -98,17 +109,18 @@ public class ParsableByteArrayTest extends TestCase {
     long readValue = testArray.readUnsignedInt();
 
     // Assert that the value we read was the value we wrote.
-    assertEquals(testValue, readValue);
+    assertThat(readValue).isEqualTo(testValue);
     // And that the position advanced as expected.
-    assertEquals(4, testArray.getPosition());
+    assertThat(testArray.getPosition()).isEqualTo(4);
 
     // And that skipping back and reading gives the same results.
     testArray.skipBytes(-4);
     readValue = testArray.readUnsignedInt();
-    assertEquals(testValue, readValue);
-    assertEquals(4, testArray.getPosition());
+    assertThat(readValue).isEqualTo(testValue);
+    assertThat(testArray.getPosition()).isEqualTo(4);
   }
 
+  @Test
   public void testReadUnsignedIntToInt() {
     testReadUnsignedIntToInt(0);
     testReadUnsignedIntToInt(1);
@@ -133,17 +145,18 @@ public class ParsableByteArrayTest extends TestCase {
     int readValue = testArray.readUnsignedIntToInt();
 
     // Assert that the value we read was the value we wrote.
-    assertEquals(testValue, readValue);
+    assertThat(readValue).isEqualTo(testValue);
     // And that the position advanced as expected.
-    assertEquals(4, testArray.getPosition());
+    assertThat(testArray.getPosition()).isEqualTo(4);
 
     // And that skipping back and reading gives the same results.
     testArray.skipBytes(-4);
     readValue = testArray.readUnsignedIntToInt();
-    assertEquals(testValue, readValue);
-    assertEquals(4, testArray.getPosition());
+    assertThat(readValue).isEqualTo(testValue);
+    assertThat(testArray.getPosition()).isEqualTo(4);
   }
 
+  @Test
   public void testReadUnsignedLongToLong() {
     testReadUnsignedLongToLong(0);
     testReadUnsignedLongToLong(1);
@@ -168,17 +181,18 @@ public class ParsableByteArrayTest extends TestCase {
     long readValue = testArray.readUnsignedLongToLong();
 
     // Assert that the value we read was the value we wrote.
-    assertEquals(testValue, readValue);
+    assertThat(readValue).isEqualTo(testValue);
     // And that the position advanced as expected.
-    assertEquals(8, testArray.getPosition());
+    assertThat(testArray.getPosition()).isEqualTo(8);
 
     // And that skipping back and reading gives the same results.
     testArray.skipBytes(-8);
     readValue = testArray.readUnsignedLongToLong();
-    assertEquals(testValue, readValue);
-    assertEquals(8, testArray.getPosition());
+    assertThat(readValue).isEqualTo(testValue);
+    assertThat(testArray.getPosition()).isEqualTo(8);
   }
 
+  @Test
   public void testReadLong() {
     testReadLong(0);
     testReadLong(1);
@@ -193,33 +207,35 @@ public class ParsableByteArrayTest extends TestCase {
     long readValue = testArray.readLong();
 
     // Assert that the value we read was the value we wrote.
-    assertEquals(testValue, readValue);
+    assertThat(readValue).isEqualTo(testValue);
     // And that the position advanced as expected.
-    assertEquals(8, testArray.getPosition());
+    assertThat(testArray.getPosition()).isEqualTo(8);
 
     // And that skipping back and reading gives the same results.
     testArray.skipBytes(-8);
     readValue = testArray.readLong();
-    assertEquals(testValue, readValue);
-    assertEquals(8, testArray.getPosition());
+    assertThat(readValue).isEqualTo(testValue);
+    assertThat(testArray.getPosition()).isEqualTo(8);
   }
 
+  @Test
   public void testReadingMovesPosition() {
     ParsableByteArray parsableByteArray = getTestDataArray();
 
     // Given an array at the start
-    assertEquals(0, parsableByteArray.getPosition());
+    assertThat(parsableByteArray.getPosition()).isEqualTo(0);
     // When reading an integer, the position advances
     parsableByteArray.readUnsignedInt();
-    assertEquals(4, parsableByteArray.getPosition());
+    assertThat(parsableByteArray.getPosition()).isEqualTo(4);
   }
 
+  @Test
   public void testOutOfBoundsThrows() {
     ParsableByteArray parsableByteArray = getTestDataArray();
 
     // Given an array at the end
     parsableByteArray.readUnsignedLongToLong();
-    assertEquals(TEST_DATA.length, parsableByteArray.getPosition());
+    assertThat(parsableByteArray.getPosition()).isEqualTo(TEST_DATA.length);
     // Then reading more data throws.
     try {
       parsableByteArray.readUnsignedInt();
@@ -229,6 +245,7 @@ public class ParsableByteArrayTest extends TestCase {
     }
   }
 
+  @Test
   public void testModificationsAffectParsableArray() {
     ParsableByteArray parsableByteArray = getTestDataArray();
 
@@ -238,9 +255,10 @@ public class ParsableByteArrayTest extends TestCase {
     data[0] = (byte) (TEST_DATA[0] + 1);
     parsableByteArray.setPosition(0);
     // Then the parsed value changes.
-    assertFalse(parsableByteArray.readUnsignedInt() == readValue);
+    assertThat(parsableByteArray.readUnsignedInt()).isNotEqualTo(readValue);
   }
 
+  @Test
   public void testReadingUnsignedLongWithMsbSetThrows() {
     ParsableByteArray parsableByteArray = getTestDataArray();
 
@@ -256,80 +274,89 @@ public class ParsableByteArrayTest extends TestCase {
     }
   }
 
+  @Test
   public void testReadUnsignedFixedPoint1616() {
     ParsableByteArray parsableByteArray = getTestDataArray();
 
     // When reading the integer part of a 16.16 fixed point value
     int value = parsableByteArray.readUnsignedFixedPoint1616();
     // Then the read value is equal to the array elements interpreted as a short.
-    assertEquals((0xFF & TEST_DATA[0]) << 8 | (TEST_DATA[1] & 0xFF), value);
-    assertEquals(4, parsableByteArray.getPosition());
+    assertThat(value).isEqualTo((0xFF & TEST_DATA[0]) << 8 | (TEST_DATA[1] & 0xFF));
+    assertThat(parsableByteArray.getPosition()).isEqualTo(4);
   }
 
+  @Test
   public void testReadingBytesReturnsCopy() {
     ParsableByteArray parsableByteArray = getTestDataArray();
 
     // When reading all the bytes back
     int length = parsableByteArray.limit();
-    assertEquals(TEST_DATA.length, length);
+    assertThat(length).isEqualTo(TEST_DATA.length);
     byte[] copy = new byte[length];
     parsableByteArray.readBytes(copy, 0, length);
     // Then the array elements are the same.
-    assertTrue(Arrays.equals(parsableByteArray.data, copy));
+    assertThat(copy).isEqualTo(parsableByteArray.data);
   }
 
+  @Test
   public void testReadLittleEndianLong() {
     ParsableByteArray byteArray = new ParsableByteArray(new byte[] {
         0x01, 0x00, 0x00, 0x00,
         0x00, 0x00, 0x00, (byte) 0xFF
     });
-    assertEquals(0xFF00000000000001L, byteArray.readLittleEndianLong());
-    assertEquals(8, byteArray.getPosition());
+    assertThat(byteArray.readLittleEndianLong()).isEqualTo(0xFF00000000000001L);
+    assertThat(byteArray.getPosition()).isEqualTo(8);
   }
 
+  @Test
   public void testReadLittleEndianUnsignedInt() {
     ParsableByteArray byteArray = new ParsableByteArray(new byte[] {
         0x10, 0x00, 0x00, (byte) 0xFF
     });
-    assertEquals(0xFF000010L, byteArray.readLittleEndianUnsignedInt());
-    assertEquals(4, byteArray.getPosition());
+    assertThat(byteArray.readLittleEndianUnsignedInt()).isEqualTo(0xFF000010L);
+    assertThat(byteArray.getPosition()).isEqualTo(4);
   }
 
+  @Test
   public void testReadLittleEndianInt() {
     ParsableByteArray byteArray = new ParsableByteArray(new byte[] {
         0x01, 0x00, 0x00, (byte) 0xFF
     });
-    assertEquals(0xFF000001, byteArray.readLittleEndianInt());
-    assertEquals(4, byteArray.getPosition());
+    assertThat(byteArray.readLittleEndianInt()).isEqualTo(0xFF000001);
+    assertThat(byteArray.getPosition()).isEqualTo(4);
   }
 
+  @Test
   public void testReadLittleEndianUnsignedInt24() {
     byte[] data = { 0x01, 0x02, (byte) 0xFF };
     ParsableByteArray byteArray = new ParsableByteArray(data);
-    assertEquals(0xFF0201, byteArray.readLittleEndianUnsignedInt24());
-    assertEquals(3, byteArray.getPosition());
+    assertThat(byteArray.readLittleEndianUnsignedInt24()).isEqualTo(0xFF0201);
+    assertThat(byteArray.getPosition()).isEqualTo(3);
   }
 
+  @Test
   public void testReadLittleEndianUnsignedShort() {
     ParsableByteArray byteArray = new ParsableByteArray(new byte[] {
         0x01, (byte) 0xFF, 0x02, (byte) 0xFF
     });
-    assertEquals(0xFF01, byteArray.readLittleEndianUnsignedShort());
-    assertEquals(2, byteArray.getPosition());
-    assertEquals(0xFF02, byteArray.readLittleEndianUnsignedShort());
-    assertEquals(4, byteArray.getPosition());
+    assertThat(byteArray.readLittleEndianUnsignedShort()).isEqualTo(0xFF01);
+    assertThat(byteArray.getPosition()).isEqualTo(2);
+    assertThat(byteArray.readLittleEndianUnsignedShort()).isEqualTo(0xFF02);
+    assertThat(byteArray.getPosition()).isEqualTo(4);
   }
 
+  @Test
   public void testReadLittleEndianShort() {
     ParsableByteArray byteArray = new ParsableByteArray(new byte[] {
         0x01, (byte) 0xFF, 0x02, (byte) 0xFF
     });
-    assertEquals((short) 0xFF01, byteArray.readLittleEndianShort());
-    assertEquals(2, byteArray.getPosition());
-    assertEquals((short) 0xFF02, byteArray.readLittleEndianShort());
-    assertEquals(4, byteArray.getPosition());
+    assertThat(byteArray.readLittleEndianShort()).isEqualTo((short) 0xFF01);
+    assertThat(byteArray.getPosition()).isEqualTo(2);
+    assertThat(byteArray.readLittleEndianShort()).isEqualTo((short) 0xFF02);
+    assertThat(byteArray.getPosition()).isEqualTo(4);
   }
 
+  @Test
   public void testReadString() {
     byte[] data = {
         (byte) 0xC3, (byte) 0xA4, (byte) 0x20,
@@ -341,17 +368,19 @@ public class ParsableByteArrayTest extends TestCase {
         (byte) 0xE8, (byte) 0xB0, (byte) 0xA2, (byte) 0x20,
     };
     ParsableByteArray byteArray = new ParsableByteArray(data);
-    assertEquals("ä ö ® π √ ± 谢 ", byteArray.readString(data.length));
-    assertEquals(data.length, byteArray.getPosition());
+    assertThat(byteArray.readString(data.length)).isEqualTo("ä ö ® π √ ± 谢 ");
+    assertThat(byteArray.getPosition()).isEqualTo(data.length);
   }
 
+  @Test
   public void testReadAsciiString() {
     byte[] data = new byte[] {'t', 'e', 's', 't'};
     ParsableByteArray testArray = new ParsableByteArray(data);
-    assertEquals("test", testArray.readString(data.length, Charset.forName("US-ASCII")));
-    assertEquals(data.length, testArray.getPosition());
+    assertThat(testArray.readString(data.length, forName("US-ASCII"))).isEqualTo("test");
+    assertThat(testArray.getPosition()).isEqualTo(data.length);
   }
 
+  @Test
   public void testReadStringOutOfBoundsDoesNotMovePosition() {
     byte[] data = {
         (byte) 0xC3, (byte) 0xA4, (byte) 0x20
@@ -361,132 +390,141 @@ public class ParsableByteArrayTest extends TestCase {
       byteArray.readString(data.length + 1);
       fail();
     } catch (StringIndexOutOfBoundsException e) {
-      assertEquals(0, byteArray.getPosition());
+      assertThat(byteArray.getPosition()).isEqualTo(0);
     }
   }
 
+  @Test
   public void testReadEmptyString() {
     byte[] bytes = new byte[0];
     ParsableByteArray parser = new ParsableByteArray(bytes);
-    assertNull(parser.readLine());
+    assertThat(parser.readLine()).isNull();
   }
 
+  @Test
   public void testReadNullTerminatedStringWithLengths() {
     byte[] bytes = new byte[] {
         'f', 'o', 'o', 0, 'b', 'a', 'r', 0
     };
     // Test with lengths that match NUL byte positions.
     ParsableByteArray parser = new ParsableByteArray(bytes);
-    assertEquals("foo", parser.readNullTerminatedString(4));
-    assertEquals(4, parser.getPosition());
-    assertEquals("bar", parser.readNullTerminatedString(4));
-    assertEquals(8, parser.getPosition());
-    assertNull(parser.readNullTerminatedString());
+    assertThat(parser.readNullTerminatedString(4)).isEqualTo("foo");
+    assertThat(parser.getPosition()).isEqualTo(4);
+    assertThat(parser.readNullTerminatedString(4)).isEqualTo("bar");
+    assertThat(parser.getPosition()).isEqualTo(8);
+    assertThat(parser.readNullTerminatedString()).isNull();
     // Test with lengths that do not match NUL byte positions.
     parser = new ParsableByteArray(bytes);
-    assertEquals("fo", parser.readNullTerminatedString(2));
-    assertEquals(2, parser.getPosition());
-    assertEquals("o", parser.readNullTerminatedString(2));
-    assertEquals(4, parser.getPosition());
-    assertEquals("bar", parser.readNullTerminatedString(3));
-    assertEquals(7, parser.getPosition());
-    assertEquals("", parser.readNullTerminatedString(1));
-    assertEquals(8, parser.getPosition());
-    assertNull(parser.readNullTerminatedString());
+    assertThat(parser.readNullTerminatedString(2)).isEqualTo("fo");
+    assertThat(parser.getPosition()).isEqualTo(2);
+    assertThat(parser.readNullTerminatedString(2)).isEqualTo("o");
+    assertThat(parser.getPosition()).isEqualTo(4);
+    assertThat(parser.readNullTerminatedString(3)).isEqualTo("bar");
+    assertThat(parser.getPosition()).isEqualTo(7);
+    assertThat(parser.readNullTerminatedString(1)).isEqualTo("");
+    assertThat(parser.getPosition()).isEqualTo(8);
+    assertThat(parser.readNullTerminatedString()).isNull();
     // Test with limit at NUL
     parser = new ParsableByteArray(bytes, 4);
-    assertEquals("foo", parser.readNullTerminatedString(4));
-    assertEquals(4, parser.getPosition());
-    assertNull(parser.readNullTerminatedString());
+    assertThat(parser.readNullTerminatedString(4)).isEqualTo("foo");
+    assertThat(parser.getPosition()).isEqualTo(4);
+    assertThat(parser.readNullTerminatedString()).isNull();
     // Test with limit before NUL
     parser = new ParsableByteArray(bytes, 3);
-    assertEquals("foo", parser.readNullTerminatedString(3));
-    assertEquals(3, parser.getPosition());
-    assertNull(parser.readNullTerminatedString());
+    assertThat(parser.readNullTerminatedString(3)).isEqualTo("foo");
+    assertThat(parser.getPosition()).isEqualTo(3);
+    assertThat(parser.readNullTerminatedString()).isNull();
   }
 
+  @Test
   public void testReadNullTerminatedString() {
     byte[] bytes = new byte[] {
         'f', 'o', 'o', 0, 'b', 'a', 'r', 0
     };
     // Test normal case.
     ParsableByteArray parser = new ParsableByteArray(bytes);
-    assertEquals("foo", parser.readNullTerminatedString());
-    assertEquals(4, parser.getPosition());
-    assertEquals("bar", parser.readNullTerminatedString());
-    assertEquals(8, parser.getPosition());
-    assertNull(parser.readNullTerminatedString());
+    assertThat(parser.readNullTerminatedString()).isEqualTo("foo");
+    assertThat(parser.getPosition()).isEqualTo(4);
+    assertThat(parser.readNullTerminatedString()).isEqualTo("bar");
+    assertThat(parser.getPosition()).isEqualTo(8);
+    assertThat(parser.readNullTerminatedString()).isNull();
     // Test with limit at NUL.
     parser = new ParsableByteArray(bytes, 4);
-    assertEquals("foo", parser.readNullTerminatedString());
-    assertEquals(4, parser.getPosition());
-    assertNull(parser.readNullTerminatedString());
+    assertThat(parser.readNullTerminatedString()).isEqualTo("foo");
+    assertThat(parser.getPosition()).isEqualTo(4);
+    assertThat(parser.readNullTerminatedString()).isNull();
     // Test with limit before NUL.
     parser = new ParsableByteArray(bytes, 3);
-    assertEquals("foo", parser.readNullTerminatedString());
-    assertEquals(3, parser.getPosition());
-    assertNull(parser.readNullTerminatedString());
+    assertThat(parser.readNullTerminatedString()).isEqualTo("foo");
+    assertThat(parser.getPosition()).isEqualTo(3);
+    assertThat(parser.readNullTerminatedString()).isNull();
   }
 
+  @Test
   public void testReadNullTerminatedStringWithoutEndingNull() {
     byte[] bytes = new byte[] {
         'f', 'o', 'o', 0, 'b', 'a', 'r'
     };
     ParsableByteArray parser = new ParsableByteArray(bytes);
-    assertEquals("foo", parser.readNullTerminatedString());
-    assertEquals("bar", parser.readNullTerminatedString());
-    assertNull(parser.readNullTerminatedString());
+    assertThat(parser.readNullTerminatedString()).isEqualTo("foo");
+    assertThat(parser.readNullTerminatedString()).isEqualTo("bar");
+    assertThat(parser.readNullTerminatedString()).isNull();
   }
 
+  @Test
   public void testReadSingleLineWithoutEndingTrail() {
     byte[] bytes = new byte[] {
       'f', 'o', 'o'
     };
     ParsableByteArray parser = new ParsableByteArray(bytes);
-    assertEquals("foo", parser.readLine());
-    assertNull(parser.readLine());
+    assertThat(parser.readLine()).isEqualTo("foo");
+    assertThat(parser.readLine()).isNull();
   }
 
+  @Test
   public void testReadSingleLineWithEndingLf() {
     byte[] bytes = new byte[] {
       'f', 'o', 'o', '\n'
     };
     ParsableByteArray parser = new ParsableByteArray(bytes);
-    assertEquals("foo", parser.readLine());
-    assertNull(parser.readLine());
+    assertThat(parser.readLine()).isEqualTo("foo");
+    assertThat(parser.readLine()).isNull();
   }
 
+  @Test
   public void testReadTwoLinesWithCrFollowedByLf() {
     byte[] bytes = new byte[] {
       'f', 'o', 'o', '\r', '\n', 'b', 'a', 'r'
     };
     ParsableByteArray parser = new ParsableByteArray(bytes);
-    assertEquals("foo", parser.readLine());
-    assertEquals("bar", parser.readLine());
-    assertNull(parser.readLine());
+    assertThat(parser.readLine()).isEqualTo("foo");
+    assertThat(parser.readLine()).isEqualTo("bar");
+    assertThat(parser.readLine()).isNull();
   }
 
+  @Test
   public void testReadThreeLinesWithEmptyLine() {
     byte[] bytes = new byte[] {
       'f', 'o', 'o', '\r', '\n', '\r', 'b', 'a', 'r'
     };
     ParsableByteArray parser = new ParsableByteArray(bytes);
-    assertEquals("foo", parser.readLine());
-    assertEquals("", parser.readLine());
-    assertEquals("bar", parser.readLine());
-    assertNull(parser.readLine());
+    assertThat(parser.readLine()).isEqualTo("foo");
+    assertThat(parser.readLine()).isEqualTo("");
+    assertThat(parser.readLine()).isEqualTo("bar");
+    assertThat(parser.readLine()).isNull();
   }
 
+  @Test
   public void testReadFourLinesWithLfFollowedByCr() {
     byte[] bytes = new byte[] {
       'f', 'o', 'o', '\n', '\r', '\r', 'b', 'a', 'r', '\r', '\n'
     };
     ParsableByteArray parser = new ParsableByteArray(bytes);
-    assertEquals("foo", parser.readLine());
-    assertEquals("", parser.readLine());
-    assertEquals("", parser.readLine());
-    assertEquals("bar", parser.readLine());
-    assertNull(parser.readLine());
+    assertThat(parser.readLine()).isEqualTo("foo");
+    assertThat(parser.readLine()).isEqualTo("");
+    assertThat(parser.readLine()).isEqualTo("");
+    assertThat(parser.readLine()).isEqualTo("bar");
+    assertThat(parser.readLine()).isNull();
   }
 
 }

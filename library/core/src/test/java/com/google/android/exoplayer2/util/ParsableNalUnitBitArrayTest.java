@@ -16,34 +16,43 @@
 package com.google.android.exoplayer2.util;
 
 import static com.google.android.exoplayer2.testutil.TestUtil.createByteArray;
+import static com.google.common.truth.Truth.assertThat;
+import static org.junit.Assert.fail;
 
-import junit.framework.TestCase;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.robolectric.RobolectricTestRunner;
+import org.robolectric.annotation.Config;
 
 /**
  * Tests for {@link ParsableNalUnitBitArray}.
  */
-public final class ParsableNalUnitBitArrayTest extends TestCase {
+@RunWith(RobolectricTestRunner.class)
+@Config(sdk = Config.TARGET_SDK, manifest = Config.NONE)
+public final class ParsableNalUnitBitArrayTest {
 
   private static final byte[] NO_ESCAPING_TEST_DATA = createByteArray(0, 3, 0, 1, 3, 0, 0);
   private static final byte[] ALL_ESCAPING_TEST_DATA = createByteArray(0, 0, 3, 0, 0, 3, 0, 0, 3);
   private static final byte[] MIX_TEST_DATA = createByteArray(255, 0, 0, 3, 255, 0, 0, 127);
 
+  @Test
   public void testReadNoEscaping() {
     ParsableNalUnitBitArray array =
         new ParsableNalUnitBitArray(NO_ESCAPING_TEST_DATA, 0, NO_ESCAPING_TEST_DATA.length);
-    assertEquals(0x000300, array.readBits(24));
-    assertEquals(0, array.readBits(7));
-    assertTrue(array.readBit());
-    assertEquals(0x030000, array.readBits(24));
-    assertFalse(array.canReadBits(1));
-    assertFalse(array.canReadBits(8));
+    assertThat(array.readBits(24)).isEqualTo(0x000300);
+    assertThat(array.readBits(7)).isEqualTo(0);
+    assertThat(array.readBit()).isTrue();
+    assertThat(array.readBits(24)).isEqualTo(0x030000);
+    assertThat(array.canReadBits(1)).isFalse();
+    assertThat(array.canReadBits(8)).isFalse();
   }
 
+  @Test
   public void testReadNoEscapingTruncated() {
     ParsableNalUnitBitArray array = new ParsableNalUnitBitArray(NO_ESCAPING_TEST_DATA, 0, 4);
-    assertTrue(array.canReadBits(32));
+    assertThat(array.canReadBits(32)).isTrue();
     array.skipBits(32);
-    assertFalse(array.canReadBits(1));
+    assertThat(array.canReadBits(1)).isFalse();
     try {
       array.readBit();
       fail();
@@ -52,37 +61,40 @@ public final class ParsableNalUnitBitArrayTest extends TestCase {
     }
   }
 
+  @Test
   public void testReadAllEscaping() {
     ParsableNalUnitBitArray array =
         new ParsableNalUnitBitArray(ALL_ESCAPING_TEST_DATA, 0, ALL_ESCAPING_TEST_DATA.length);
-    assertTrue(array.canReadBits(48));
-    assertFalse(array.canReadBits(49));
-    assertEquals(0, array.readBits(15));
-    assertFalse(array.readBit());
-    assertEquals(0, array.readBits(17));
-    assertEquals(0, array.readBits(15));
+    assertThat(array.canReadBits(48)).isTrue();
+    assertThat(array.canReadBits(49)).isFalse();
+    assertThat(array.readBits(15)).isEqualTo(0);
+    assertThat(array.readBit()).isFalse();
+    assertThat(array.readBits(17)).isEqualTo(0);
+    assertThat(array.readBits(15)).isEqualTo(0);
   }
 
+  @Test
   public void testReadMix() {
     ParsableNalUnitBitArray array =
         new ParsableNalUnitBitArray(MIX_TEST_DATA, 0, MIX_TEST_DATA.length);
-    assertTrue(array.canReadBits(56));
-    assertFalse(array.canReadBits(57));
-    assertEquals(127, array.readBits(7));
-    assertEquals(2, array.readBits(2));
-    assertEquals(3, array.readBits(17));
-    assertEquals(126, array.readBits(7));
-    assertEquals(127, array.readBits(23));
-    assertFalse(array.canReadBits(1));
+    assertThat(array.canReadBits(56)).isTrue();
+    assertThat(array.canReadBits(57)).isFalse();
+    assertThat(array.readBits(7)).isEqualTo(127);
+    assertThat(array.readBits(2)).isEqualTo(2);
+    assertThat(array.readBits(17)).isEqualTo(3);
+    assertThat(array.readBits(7)).isEqualTo(126);
+    assertThat(array.readBits(23)).isEqualTo(127);
+    assertThat(array.canReadBits(1)).isFalse();
   }
 
+  @Test
   public void testReadExpGolomb() {
     ParsableNalUnitBitArray array = new ParsableNalUnitBitArray(createByteArray(0x9E), 0, 1);
-    assertTrue(array.canReadExpGolombCodedNum());
-    assertEquals(0, array.readUnsignedExpGolombCodedInt());
-    assertEquals(6, array.readUnsignedExpGolombCodedInt());
-    assertEquals(0, array.readUnsignedExpGolombCodedInt());
-    assertFalse(array.canReadExpGolombCodedNum());
+    assertThat(array.canReadExpGolombCodedNum()).isTrue();
+    assertThat(array.readUnsignedExpGolombCodedInt()).isEqualTo(0);
+    assertThat(array.readUnsignedExpGolombCodedInt()).isEqualTo(6);
+    assertThat(array.readUnsignedExpGolombCodedInt()).isEqualTo(0);
+    assertThat(array.canReadExpGolombCodedNum()).isFalse();
     try {
       array.readUnsignedExpGolombCodedInt();
       fail();
@@ -91,24 +103,26 @@ public final class ParsableNalUnitBitArrayTest extends TestCase {
     }
   }
 
+  @Test
   public void testReadExpGolombWithEscaping() {
     ParsableNalUnitBitArray array =
         new ParsableNalUnitBitArray(createByteArray(0, 0, 3, 128, 0), 0, 5);
-    assertFalse(array.canReadExpGolombCodedNum());
+    assertThat(array.canReadExpGolombCodedNum()).isFalse();
     array.skipBit();
-    assertTrue(array.canReadExpGolombCodedNum());
-    assertEquals(32767, array.readUnsignedExpGolombCodedInt());
-    assertFalse(array.canReadBits(1));
+    assertThat(array.canReadExpGolombCodedNum()).isTrue();
+    assertThat(array.readUnsignedExpGolombCodedInt()).isEqualTo(32767);
+    assertThat(array.canReadBits(1)).isFalse();
   }
 
+  @Test
   public void testReset() {
     ParsableNalUnitBitArray array = new ParsableNalUnitBitArray(createByteArray(0, 0), 0, 2);
-    assertFalse(array.canReadExpGolombCodedNum());
-    assertTrue(array.canReadBits(16));
-    assertFalse(array.canReadBits(17));
+    assertThat(array.canReadExpGolombCodedNum()).isFalse();
+    assertThat(array.canReadBits(16)).isTrue();
+    assertThat(array.canReadBits(17)).isFalse();
     array.reset(createByteArray(0, 0, 3, 0), 0, 4);
-    assertTrue(array.canReadBits(24));
-    assertFalse(array.canReadBits(25));
+    assertThat(array.canReadBits(24)).isTrue();
+    assertThat(array.canReadBits(25)).isFalse();
   }
 
 }

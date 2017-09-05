@@ -181,7 +181,7 @@ public class TestUtil {
       byte[] expectedData) throws IOException {
     try {
       long length = dataSource.open(dataSpec);
-      Assert.assertEquals(length, expectedData.length);
+      Assert.assertEquals(expectedData.length, length);
       byte[] readData = TestUtil.readToEnd(dataSource);
       MoreAsserts.assertEquals(expectedData, readData);
     } finally {

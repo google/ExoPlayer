@@ -628,7 +628,7 @@ public final class MatroskaExtractor implements Extractor {
           if (currentTrack.cryptoData == null) {
             throw new ParserException("Encrypted Track found but ContentEncKeyID was not found");
           }
-          currentTrack.drmInitData = new DrmInitData(new SchemeData(C.UUID_NIL, null,
+          currentTrack.drmInitData = new DrmInitData(new SchemeData(C.UUID_NIL,
               MimeTypes.VIDEO_WEBM, currentTrack.cryptoData.encryptionKey));
         }
         break;

@@ -15,39 +15,51 @@
  */
 package com.google.android.exoplayer2.util;
 
-import android.test.InstrumentationTestCase;
+import static com.google.common.truth.Truth.assertThat;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.robolectric.RobolectricTestRunner;
+import org.robolectric.RuntimeEnvironment;
+import org.robolectric.annotation.Config;
 
 /**
  * Tests {@link AtomicFile}.
  */
-public class AtomicFileTest extends InstrumentationTestCase {
+@RunWith(RobolectricTestRunner.class)
+@Config(sdk = Config.TARGET_SDK, manifest = Config.NONE)
+public final class AtomicFileTest {
 
   private File tempFolder;
   private File file;
   private AtomicFile atomicFile;
 
-  @Override
+  @Before
   public void setUp() throws Exception {
-    tempFolder = Util.createTempDirectory(getInstrumentation().getContext(), "ExoPlayerTest");
+    tempFolder = Util.createTempDirectory(RuntimeEnvironment.application, "ExoPlayerTest");
     file = new File(tempFolder, "atomicFile");
     atomicFile = new AtomicFile(file);
   }
 
-  @Override
-  protected void tearDown() throws Exception {
+  @After
+  public void tearDown() throws Exception {
     Util.recursiveDelete(tempFolder);
   }
 
+  @Test
   public void testDelete() throws Exception {
-    assertTrue(file.createNewFile());
+    assertThat(file.createNewFile()).isTrue();
     atomicFile.delete();
-    assertFalse(file.exists());
+    assertThat(file.exists()).isFalse();
   }
 
+  @Test
   public void testWriteRead() throws Exception {
     OutputStream output = atomicFile.startWrite();
     output.write(5);
@@ -77,8 +89,8 @@ public class AtomicFileTest extends InstrumentationTestCase {
 
   private void assertRead() throws IOException {
     InputStream input = atomicFile.openRead();
-    assertEquals(5, input.read());
-    assertEquals(-1, input.read());
+    assertThat(input.read()).isEqualTo(5);
+    assertThat(input.read()).isEqualTo(-1);
     input.close();
   }
 

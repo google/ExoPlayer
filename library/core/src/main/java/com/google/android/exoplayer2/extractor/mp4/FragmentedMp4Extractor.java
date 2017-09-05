@@ -1307,7 +1307,7 @@ public final class FragmentedMp4Extractor implements Extractor {
       List<SchemeData> schemeDatas = new ArrayList<>(initDatas.size());
       for(Map.Entry<UUID, Pair<Integer, byte[]>> entry : initDatas.entrySet()) {
         schemeDatas.add(
-                new SchemeData(entry.getKey(), null, MimeTypes.VIDEO_MP4, entry.getValue().second));
+                new SchemeData(entry.getKey(), MimeTypes.VIDEO_MP4, entry.getValue().second));
       }
       return new DrmInitData(schemeDatas);
     }

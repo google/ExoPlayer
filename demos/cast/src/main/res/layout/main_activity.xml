@@ -35,7 +35,8 @@
       android:id="@+id/cast_control_view"
       android:layout_width="match_parent"
       android:layout_height="0dp"
-      app:show_timeout="-1"
       android:layout_weight="2"
-      android:visibility="gone"/>
+      android:visibility="gone"
+      app:repeat_toggle_modes="all|one"
+      app:show_timeout="-1"/>
 </LinearLayout>

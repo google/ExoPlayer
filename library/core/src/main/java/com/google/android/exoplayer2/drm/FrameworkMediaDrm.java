@@ -37,6 +37,7 @@ import java.util.UUID;
 @TargetApi(18)
 public final class FrameworkMediaDrm implements ExoMediaDrm<FrameworkMediaCrypto> {
 
+  private final UUID uuid;
   private final MediaDrm mediaDrm;
 
   /**
@@ -59,10 +60,9 @@ public final class FrameworkMediaDrm implements ExoMediaDrm<FrameworkMediaCrypto
   private FrameworkMediaDrm(UUID uuid) throws UnsupportedSchemeException {
     Assertions.checkNotNull(uuid);
     Assertions.checkArgument(!C.COMMON_PSSH_UUID.equals(uuid), "Use C.CLEARKEY_UUID instead");
-    if (Util.SDK_INT < 27 && C.CLEARKEY_UUID.equals(uuid)) {
-      // ClearKey had to be accessed using the Common PSSH UUID prior to API level 27.
-      uuid = C.COMMON_PSSH_UUID;
-    }
+    // ClearKey had to be accessed using the Common PSSH UUID prior to API level 27.
+    uuid = Util.SDK_INT < 27 && C.CLEARKEY_UUID.equals(uuid) ? C.COMMON_PSSH_UUID : uuid;
+    this.uuid = uuid;
     this.mediaDrm = new MediaDrm(uuid);
   }
 
@@ -169,8 +169,7 @@ public final class FrameworkMediaDrm implements ExoMediaDrm<FrameworkMediaCrypto
   }
 
   @Override
-  public FrameworkMediaCrypto createMediaCrypto(UUID uuid, byte[] initData)
-      throws MediaCryptoException {
+  public FrameworkMediaCrypto createMediaCrypto(byte[] initData) throws MediaCryptoException {
     // Work around a bug prior to Lollipop where L1 Widevine forced into L3 mode would still
     // indicate that it required secure video decoders [Internal ref: b/11428937].
     boolean forceAllowInsecureDecoderComponents = Util.SDK_INT < 21

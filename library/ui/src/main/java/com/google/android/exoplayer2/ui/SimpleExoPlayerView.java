@@ -34,6 +34,8 @@ import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.ControlDispatcher;
+import com.google.android.exoplayer2.DefaultControlDispatcher;
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.PlaybackParameters;
 import com.google.android.exoplayer2.Player;
@@ -47,7 +49,6 @@ import com.google.android.exoplayer2.text.TextOutput;
 import com.google.android.exoplayer2.trackselection.TrackSelection;
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
 import com.google.android.exoplayer2.ui.AspectRatioFrameLayout.ResizeMode;
-import com.google.android.exoplayer2.ui.PlaybackControlView.ControlDispatcher;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.RepeatModeUtil;
 import com.google.android.exoplayer2.util.Util;
@@ -286,7 +287,7 @@ public final class SimpleExoPlayerView extends FrameLayout {
     setDescendantFocusability(FOCUS_AFTER_DESCENDANTS);
 
     // Content frame.
-    contentFrame = (AspectRatioFrameLayout) findViewById(R.id.exo_content_frame);
+    contentFrame = findViewById(R.id.exo_content_frame);
     if (contentFrame != null) {
       setResizeModeRaw(contentFrame, resizeMode);
     }
@@ -307,24 +308,24 @@ public final class SimpleExoPlayerView extends FrameLayout {
     }
 
     // Overlay frame layout.
-    overlayFrameLayout = (FrameLayout) findViewById(R.id.exo_overlay);
+    overlayFrameLayout = findViewById(R.id.exo_overlay);
 
     // Artwork view.
-    artworkView = (ImageView) findViewById(R.id.exo_artwork);
+    artworkView = findViewById(R.id.exo_artwork);
     this.useArtwork = useArtwork && artworkView != null;
     if (defaultArtworkId != 0) {
       defaultArtwork = BitmapFactory.decodeResource(context.getResources(), defaultArtworkId);
     }
 
     // Subtitle view.
-    subtitleView = (SubtitleView) findViewById(R.id.exo_subtitles);
+    subtitleView = findViewById(R.id.exo_subtitles);
     if (subtitleView != null) {
       subtitleView.setUserDefaultStyle();
       subtitleView.setUserDefaultTextSize();
     }
 
     // Playback control view.
-    PlaybackControlView customController = (PlaybackControlView) findViewById(R.id.exo_controller);
+    PlaybackControlView customController = findViewById(R.id.exo_controller);
     View controllerPlaceholder = findViewById(R.id.exo_controller_placeholder);
     if (customController != null) {
       this.controller = customController;
@@ -616,9 +617,9 @@ public final class SimpleExoPlayerView extends FrameLayout {
    * Sets the {@link ControlDispatcher}.
    *
    * @param controlDispatcher The {@link ControlDispatcher}, or null to use
-   *     {@link PlaybackControlView#DEFAULT_CONTROL_DISPATCHER}.
+   *     {@link DefaultControlDispatcher}.
    */
-  public void setControlDispatcher(ControlDispatcher controlDispatcher) {
+  public void setControlDispatcher(@Nullable ControlDispatcher controlDispatcher) {
     Assertions.checkState(controller != null);
     controller.setControlDispatcher(controlDispatcher);
   }
@@ -653,6 +654,16 @@ public final class SimpleExoPlayerView extends FrameLayout {
   public void setRepeatToggleModes(@RepeatModeUtil.RepeatToggleModes int repeatToggleModes) {
     Assertions.checkState(controller != null);
     controller.setRepeatToggleModes(repeatToggleModes);
+  }
+
+  /**
+   * Sets whether the shuffle button is shown.
+   *
+   * @param showShuffleButton Whether the shuffle button is shown.
+   */
+  public void setShowShuffleButton(boolean showShuffleButton) {
+    Assertions.checkState(controller != null);
+    controller.setShowShuffleButton(showShuffleButton);
   }
 
   /**

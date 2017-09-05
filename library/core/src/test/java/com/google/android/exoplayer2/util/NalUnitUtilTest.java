@@ -16,15 +16,21 @@
 package com.google.android.exoplayer2.util;
 
 import static com.google.android.exoplayer2.testutil.TestUtil.createByteArray;
+import static com.google.common.truth.Truth.assertThat;
 
 import java.nio.ByteBuffer;
 import java.util.Arrays;
-import junit.framework.TestCase;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.robolectric.RobolectricTestRunner;
+import org.robolectric.annotation.Config;
 
 /**
  * Tests for {@link NalUnitUtil}.
  */
-public class NalUnitUtilTest extends TestCase {
+@RunWith(RobolectricTestRunner.class)
+@Config(sdk = Config.TARGET_SDK, manifest = Config.NONE)
+public final class NalUnitUtilTest {
 
   private static final int TEST_PARTIAL_NAL_POSITION = 4;
   private static final int TEST_NAL_POSITION = 10;
@@ -33,26 +39,28 @@ public class NalUnitUtilTest extends TestCase {
       0x00, 0x0F, 0x47, 0x8B, 0x16, 0xCB);
   private static final int SPS_TEST_DATA_OFFSET = 3;
 
+  @Test
   public void testFindNalUnit() {
     byte[] data = buildTestData();
 
     // Should find NAL unit.
     int result = NalUnitUtil.findNalUnit(data, 0, data.length, null);
-    assertEquals(TEST_NAL_POSITION, result);
+    assertThat(result).isEqualTo(TEST_NAL_POSITION);
     // Should find NAL unit whose prefix ends one byte before the limit.
     result = NalUnitUtil.findNalUnit(data, 0, TEST_NAL_POSITION + 4, null);
-    assertEquals(TEST_NAL_POSITION, result);
+    assertThat(result).isEqualTo(TEST_NAL_POSITION);
     // Shouldn't find NAL unit whose prefix ends at the limit (since the limit is exclusive).
     result = NalUnitUtil.findNalUnit(data, 0, TEST_NAL_POSITION + 3, null);
-    assertEquals(TEST_NAL_POSITION + 3, result);
+    assertThat(result).isEqualTo(TEST_NAL_POSITION + 3);
     // Should find NAL unit whose prefix starts at the offset.
     result = NalUnitUtil.findNalUnit(data, TEST_NAL_POSITION, data.length, null);
-    assertEquals(TEST_NAL_POSITION, result);
+    assertThat(result).isEqualTo(TEST_NAL_POSITION);
     // Shouldn't find NAL unit whose prefix starts one byte past the offset.
     result = NalUnitUtil.findNalUnit(data, TEST_NAL_POSITION + 1, data.length, null);
-    assertEquals(data.length, result);
+    assertThat(result).isEqualTo(data.length);
   }
 
+  @Test
   public void testFindNalUnitWithPrefix() {
     byte[] data = buildTestData();
 
@@ -61,9 +69,9 @@ public class NalUnitUtilTest extends TestCase {
     byte[] data1 = Arrays.copyOfRange(data, 0, TEST_NAL_POSITION + 1);
     byte[] data2 = Arrays.copyOfRange(data, TEST_NAL_POSITION + 1, data.length);
     int result = NalUnitUtil.findNalUnit(data1, 0, data1.length, prefixFlags);
-    assertEquals(data1.length, result);
+    assertThat(result).isEqualTo(data1.length);
     result = NalUnitUtil.findNalUnit(data2, 0, data2.length, prefixFlags);
-    assertEquals(-1, result);
+    assertThat(result).isEqualTo(-1);
     assertPrefixFlagsCleared(prefixFlags);
 
     // First three bytes of NAL unit in data1, rest in data2.
@@ -71,9 +79,9 @@ public class NalUnitUtilTest extends TestCase {
     data1 = Arrays.copyOfRange(data, 0, TEST_NAL_POSITION + 3);
     data2 = Arrays.copyOfRange(data, TEST_NAL_POSITION + 3, data.length);
     result = NalUnitUtil.findNalUnit(data1, 0, data1.length, prefixFlags);
-    assertEquals(data1.length, result);
+    assertThat(result).isEqualTo(data1.length);
     result = NalUnitUtil.findNalUnit(data2, 0, data2.length, prefixFlags);
-    assertEquals(-3, result);
+    assertThat(result).isEqualTo(-3);
     assertPrefixFlagsCleared(prefixFlags);
 
     // First byte of NAL unit in data1, second byte in data2, rest in data3.
@@ -82,11 +90,11 @@ public class NalUnitUtilTest extends TestCase {
     data2 = Arrays.copyOfRange(data, TEST_NAL_POSITION + 1, TEST_NAL_POSITION + 2);
     byte[] data3 = Arrays.copyOfRange(data, TEST_NAL_POSITION + 2, data.length);
     result = NalUnitUtil.findNalUnit(data1, 0, data1.length, prefixFlags);
-    assertEquals(data1.length, result);
+    assertThat(result).isEqualTo(data1.length);
     result = NalUnitUtil.findNalUnit(data2, 0, data2.length, prefixFlags);
-    assertEquals(data2.length, result);
+    assertThat(result).isEqualTo(data2.length);
     result = NalUnitUtil.findNalUnit(data3, 0, data3.length, prefixFlags);
-    assertEquals(-2, result);
+    assertThat(result).isEqualTo(-2);
     assertPrefixFlagsCleared(prefixFlags);
 
     // NAL unit split with one byte in four arrays.
@@ -96,13 +104,13 @@ public class NalUnitUtilTest extends TestCase {
     data3 = Arrays.copyOfRange(data, TEST_NAL_POSITION + 2, TEST_NAL_POSITION + 3);
     byte[] data4 = Arrays.copyOfRange(data, TEST_NAL_POSITION + 2, data.length);
     result = NalUnitUtil.findNalUnit(data1, 0, data1.length, prefixFlags);
-    assertEquals(data1.length, result);
+    assertThat(result).isEqualTo(data1.length);
     result = NalUnitUtil.findNalUnit(data2, 0, data2.length, prefixFlags);
-    assertEquals(data2.length, result);
+    assertThat(result).isEqualTo(data2.length);
     result = NalUnitUtil.findNalUnit(data3, 0, data3.length, prefixFlags);
-    assertEquals(data3.length, result);
+    assertThat(result).isEqualTo(data3.length);
     result = NalUnitUtil.findNalUnit(data4, 0, data4.length, prefixFlags);
-    assertEquals(-3, result);
+    assertThat(result).isEqualTo(-3);
     assertPrefixFlagsCleared(prefixFlags);
 
     // NAL unit entirely in data2. data1 ends with partial prefix.
@@ -110,27 +118,29 @@ public class NalUnitUtilTest extends TestCase {
     data1 = Arrays.copyOfRange(data, 0, TEST_PARTIAL_NAL_POSITION + 2);
     data2 = Arrays.copyOfRange(data, TEST_PARTIAL_NAL_POSITION + 2, data.length);
     result = NalUnitUtil.findNalUnit(data1, 0, data1.length, prefixFlags);
-    assertEquals(data1.length, result);
+    assertThat(result).isEqualTo(data1.length);
     result = NalUnitUtil.findNalUnit(data2, 0, data2.length, prefixFlags);
-    assertEquals(4, result);
+    assertThat(result).isEqualTo(4);
     assertPrefixFlagsCleared(prefixFlags);
   }
 
+  @Test
   public void testParseSpsNalUnit() {
     NalUnitUtil.SpsData data = NalUnitUtil.parseSpsNalUnit(SPS_TEST_DATA, SPS_TEST_DATA_OFFSET,
         SPS_TEST_DATA.length);
-    assertEquals(640, data.width);
-    assertEquals(360, data.height);
-    assertFalse(data.deltaPicOrderAlwaysZeroFlag);
-    assertTrue(data.frameMbsOnlyFlag);
-    assertEquals(4, data.frameNumLength);
-    assertEquals(6, data.picOrderCntLsbLength);
-    assertEquals(0, data.seqParameterSetId);
-    assertEquals(1.0f, data.pixelWidthAspectRatio);
-    assertEquals(0, data.picOrderCountType);
-    assertFalse(data.separateColorPlaneFlag);
+    assertThat(data.width).isEqualTo(640);
+    assertThat(data.height).isEqualTo(360);
+    assertThat(data.deltaPicOrderAlwaysZeroFlag).isFalse();
+    assertThat(data.frameMbsOnlyFlag).isTrue();
+    assertThat(data.frameNumLength).isEqualTo(4);
+    assertThat(data.picOrderCntLsbLength).isEqualTo(6);
+    assertThat(data.seqParameterSetId).isEqualTo(0);
+    assertThat(data.pixelWidthAspectRatio).isEqualTo(1.0f);
+    assertThat(data.picOrderCountType).isEqualTo(0);
+    assertThat(data.separateColorPlaneFlag).isFalse();
   }
 
+  @Test
   public void testUnescapeDoesNotModifyBuffersWithoutStartCodes() {
     assertUnescapeDoesNotModify("");
     assertUnescapeDoesNotModify("0000");
@@ -138,11 +148,13 @@ public class NalUnitUtilTest extends TestCase {
     assertUnescapeDoesNotModify("000004");
   }
 
+  @Test
   public void testUnescapeModifiesBuffersWithStartCodes() {
     assertUnescapeMatchesExpected("00000301", "000001");
     assertUnescapeMatchesExpected("0000030200000300", "000002000000");
   }
 
+  @Test
   public void testDiscardToSps() {
     assertDiscardToSpsMatchesExpected("", "");
     assertDiscardToSpsMatchesExpected("00", "");
@@ -176,7 +188,7 @@ public class NalUnitUtilTest extends TestCase {
   }
 
   private static void assertPrefixFlagsCleared(boolean[] flags) {
-    assertEquals(false, flags[0] || flags[1] || flags[2]);
+    assertThat(flags[0] || flags[1] || flags[2]).isEqualTo(false);
   }
 
   private static void assertUnescapeDoesNotModify(String input) {
@@ -187,10 +199,10 @@ public class NalUnitUtilTest extends TestCase {
     byte[] bitstream = Util.getBytesFromHexString(input);
     byte[] expectedOutputBitstream = Util.getBytesFromHexString(expectedOutput);
     int count = NalUnitUtil.unescapeStream(bitstream, bitstream.length);
-    assertEquals(expectedOutputBitstream.length, count);
+    assertThat(count).isEqualTo(expectedOutputBitstream.length);
     byte[] outputBitstream = new byte[count];
     System.arraycopy(bitstream, 0, outputBitstream, 0, count);
-    assertTrue(Arrays.equals(expectedOutputBitstream, outputBitstream));
+    assertThat(outputBitstream).isEqualTo(expectedOutputBitstream);
   }
 
   private static void assertDiscardToSpsMatchesExpected(String input, String expectedOutput) {
@@ -199,8 +211,7 @@ public class NalUnitUtilTest extends TestCase {
     ByteBuffer buffer = ByteBuffer.wrap(bitstream);
     buffer.position(buffer.limit());
     NalUnitUtil.discardToSps(buffer);
-    assertTrue(Arrays.equals(expectedOutputBitstream,
-        Arrays.copyOf(buffer.array(), buffer.position())));
+    assertThat(Arrays.copyOf(buffer.array(), buffer.position())).isEqualTo(expectedOutputBitstream);
   }
 
 }

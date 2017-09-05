@@ -15,18 +15,25 @@
  */
 package com.google.android.exoplayer2.util;
 
-import android.test.MoreAsserts;
+import static com.google.common.truth.Truth.assertThat;
+
 import java.io.ByteArrayOutputStream;
-import junit.framework.TestCase;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.robolectric.RobolectricTestRunner;
+import org.robolectric.annotation.Config;
 
 /**
  * Tests {@link ReusableBufferedOutputStream}.
  */
-public class ReusableBufferedOutputStreamTest extends TestCase {
+@RunWith(RobolectricTestRunner.class)
+@Config(sdk = Config.TARGET_SDK, manifest = Config.NONE)
+public final class ReusableBufferedOutputStreamTest {
 
   private static final byte[] TEST_DATA_1 = "test data 1".getBytes();
   private static final byte[] TEST_DATA_2 = "2 test data".getBytes();
 
+  @Test
   public void testReset() throws Exception {
     ByteArrayOutputStream byteArrayOutputStream1 = new ByteArrayOutputStream(1000);
     ReusableBufferedOutputStream outputStream = new ReusableBufferedOutputStream(
@@ -39,8 +46,8 @@ public class ReusableBufferedOutputStreamTest extends TestCase {
     outputStream.write(TEST_DATA_2);
     outputStream.close();
 
-    MoreAsserts.assertEquals(TEST_DATA_1, byteArrayOutputStream1.toByteArray());
-    MoreAsserts.assertEquals(TEST_DATA_2, byteArrayOutputStream2.toByteArray());
+    assertThat(byteArrayOutputStream1.toByteArray()).isEqualTo(TEST_DATA_1);
+    assertThat(byteArrayOutputStream2.toByteArray()).isEqualTo(TEST_DATA_2);
   }
 
 }

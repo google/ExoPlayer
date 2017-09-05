@@ -15,21 +15,29 @@
  */
 package com.google.android.exoplayer2;
 
+import static com.google.common.truth.Truth.assertThat;
+
 import android.annotation.SuppressLint;
 import android.media.MediaCodec;
-import junit.framework.TestCase;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.robolectric.RobolectricTestRunner;
+import org.robolectric.annotation.Config;
 
 /**
  * Unit test for {@link C}.
  */
-public class CTest extends TestCase {
+@RunWith(RobolectricTestRunner.class)
+@Config(sdk = Config.TARGET_SDK, manifest = Config.NONE)
+public class CTest {
 
   @SuppressLint("InlinedApi")
-  public static void testConstants() {
+  @Test
+  public void testConstants() {
     // Sanity check that constant values match those defined by the platform.
-    assertEquals(MediaCodec.BUFFER_FLAG_KEY_FRAME, C.BUFFER_FLAG_KEY_FRAME);
-    assertEquals(MediaCodec.BUFFER_FLAG_END_OF_STREAM, C.BUFFER_FLAG_END_OF_STREAM);
-    assertEquals(MediaCodec.CRYPTO_MODE_AES_CTR, C.CRYPTO_MODE_AES_CTR);
+    assertThat(C.BUFFER_FLAG_KEY_FRAME).isEqualTo(MediaCodec.BUFFER_FLAG_KEY_FRAME);
+    assertThat(C.BUFFER_FLAG_END_OF_STREAM).isEqualTo(MediaCodec.BUFFER_FLAG_END_OF_STREAM);
+    assertThat(C.CRYPTO_MODE_AES_CTR).isEqualTo(MediaCodec.CRYPTO_MODE_AES_CTR);
   }
 
 }

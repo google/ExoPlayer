@@ -18,6 +18,7 @@ package com.google.android.exoplayer2;
 import static com.google.android.exoplayer2.C.WIDEVINE_UUID;
 import static com.google.android.exoplayer2.util.MimeTypes.VIDEO_MP4;
 import static com.google.android.exoplayer2.util.MimeTypes.VIDEO_WEBM;
+import static com.google.common.truth.Truth.assertThat;
 
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
@@ -35,12 +36,17 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import junit.framework.TestCase;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.robolectric.RobolectricTestRunner;
+import org.robolectric.annotation.Config;
 
 /**
  * Unit test for {@link Format}.
  */
-public final class FormatTest extends TestCase {
+@RunWith(RobolectricTestRunner.class)
+@Config(sdk = Config.TARGET_SDK, manifest = Config.NONE)
+public final class FormatTest {
 
   private static final List<byte[]> INIT_DATA;
   static {
@@ -52,12 +58,13 @@ public final class FormatTest extends TestCase {
     INIT_DATA = Collections.unmodifiableList(initData);
   }
 
+  @Test
   public void testParcelable() {
-    DrmInitData.SchemeData DRM_DATA_1 = new DrmInitData.SchemeData(WIDEVINE_UUID, "cenc", VIDEO_MP4,
+    DrmInitData.SchemeData drmData1 = new DrmInitData.SchemeData(WIDEVINE_UUID, VIDEO_MP4,
         TestUtil.buildTestData(128, 1 /* data seed */));
-    DrmInitData.SchemeData DRM_DATA_2 = new DrmInitData.SchemeData(C.UUID_NIL, null, VIDEO_WEBM,
+    DrmInitData.SchemeData drmData2 = new DrmInitData.SchemeData(C.UUID_NIL, VIDEO_WEBM,
         TestUtil.buildTestData(128, 1 /* data seed */));
-    DrmInitData drmInitData = new DrmInitData(DRM_DATA_1, DRM_DATA_2);
+    DrmInitData drmInitData = new DrmInitData(drmData1, drmData2);
     byte[] projectionData = new byte[] {1, 2, 3};
     Metadata metadata = new Metadata(
         new TextInformationFrame("id1", "description1", "value1"),
@@ -75,11 +82,12 @@ public final class FormatTest extends TestCase {
     parcel.setDataPosition(0);
 
     Format formatFromParcel = Format.CREATOR.createFromParcel(parcel);
-    assertEquals(formatToParcel, formatFromParcel);
+    assertThat(formatFromParcel).isEqualTo(formatToParcel);
 
     parcel.recycle();
   }
 
+  @Test
   public void testConversionToFrameworkMediaFormat() {
     if (Util.SDK_INT < 16) {
       // Test doesn't apply.
@@ -104,7 +112,7 @@ public final class FormatTest extends TestCase {
   @TargetApi(16)
   private static void testConversionToFrameworkMediaFormatV16(Format in) {
     MediaFormat out = in.getFrameworkMediaFormatV16();
-    assertEquals(in.sampleMimeType, out.getString(MediaFormat.KEY_MIME));
+    assertThat(out.getString(MediaFormat.KEY_MIME)).isEqualTo(in.sampleMimeType);
     assertOptionalV16(out, MediaFormat.KEY_LANGUAGE, in.language);
     assertOptionalV16(out, MediaFormat.KEY_MAX_INPUT_SIZE, in.maxInputSize);
     assertOptionalV16(out, MediaFormat.KEY_WIDTH, in.width);
@@ -117,34 +125,34 @@ public final class FormatTest extends TestCase {
       byte[] originalData = in.initializationData.get(i);
       ByteBuffer frameworkBuffer = out.getByteBuffer("csd-" + i);
       byte[] frameworkData = Arrays.copyOf(frameworkBuffer.array(), frameworkBuffer.limit());
-      assertTrue(Arrays.equals(originalData, frameworkData));
+      assertThat(frameworkData).isEqualTo(originalData);
     }
   }
 
   @TargetApi(16)
   private static void assertOptionalV16(MediaFormat format, String key, String value) {
     if (value == null) {
-      assertFalse(format.containsKey(key));
+      assertThat(format.containsKey(key)).isEqualTo(false);
     } else {
-      assertEquals(value, format.getString(key));
+      assertThat(format.getString(key)).isEqualTo(value);
     }
   }
 
   @TargetApi(16)
   private static void assertOptionalV16(MediaFormat format, String key, int value) {
     if (value == Format.NO_VALUE) {
-      assertFalse(format.containsKey(key));
+      assertThat(format.containsKey(key)).isEqualTo(false);
     } else {
-      assertEquals(value, format.getInteger(key));
+      assertThat(format.getInteger(key)).isEqualTo(value);
     }
   }
 
   @TargetApi(16)
   private static void assertOptionalV16(MediaFormat format, String key, float value) {
     if (value == Format.NO_VALUE) {
-      assertFalse(format.containsKey(key));
+      assertThat(format.containsKey(key)).isEqualTo(false);
     } else {
-      assertEquals(value, format.getFloat(key));
+      assertThat(format.getFloat(key)).isEqualTo(value);
     }
   }
 

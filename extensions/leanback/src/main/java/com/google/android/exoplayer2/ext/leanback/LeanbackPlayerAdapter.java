@@ -17,6 +17,7 @@ package com.google.android.exoplayer2.ext.leanback;
 
 import android.content.Context;
 import android.os.Handler;
+import android.support.annotation.Nullable;
 import android.support.v17.leanback.R;
 import android.support.v17.leanback.media.PlaybackGlueHost;
 import android.support.v17.leanback.media.PlayerAdapter;
@@ -25,6 +26,8 @@ import android.util.Pair;
 import android.view.Surface;
 import android.view.SurfaceHolder;
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.ControlDispatcher;
+import com.google.android.exoplayer2.DefaultControlDispatcher;
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.ExoPlayerLibraryInfo;
 import com.google.android.exoplayer2.PlaybackParameters;
@@ -48,13 +51,13 @@ public final class LeanbackPlayerAdapter extends PlayerAdapter {
   private final SimpleExoPlayer player;
   private final Handler handler;
   private final ComponentListener componentListener;
-  private final Runnable updatePlayerRunnable;
+  private final Runnable updateProgressRunnable;
 
+  private ControlDispatcher controlDispatcher;
   private ErrorMessageProvider<? super ExoPlaybackException> errorMessageProvider;
   private SurfaceHolderGlueHost surfaceHolderGlueHost;
-  private boolean initialized;
   private boolean hasSurface;
-  private boolean isBuffering;
+  private boolean lastNotifiedPreparedState;
 
   /**
    * Builds an instance. Note that the {@code PlayerAdapter} does not manage the lifecycle of the
@@ -70,7 +73,8 @@ public final class LeanbackPlayerAdapter extends PlayerAdapter {
     this.player = player;
     handler = new Handler();
     componentListener = new ComponentListener();
-    updatePlayerRunnable = new Runnable() {
+    controlDispatcher = new DefaultControlDispatcher();
+    updateProgressRunnable = new Runnable() {
       @Override
       public void run() {
         Callback callback = getCallback();
@@ -81,34 +85,15 @@ public final class LeanbackPlayerAdapter extends PlayerAdapter {
     };
   }
 
-  @Override
-  public void onAttachedToHost(PlaybackGlueHost host) {
-    if (host instanceof SurfaceHolderGlueHost) {
-      surfaceHolderGlueHost = ((SurfaceHolderGlueHost) host);
-      surfaceHolderGlueHost.setSurfaceHolderCallback(componentListener);
-    }
-    notifyListeners();
-    player.addListener(componentListener);
-    player.addVideoListener(componentListener);
-  }
-
-  private void notifyListeners() {
-    boolean oldIsPrepared = isPrepared();
-    int playbackState = player.getPlaybackState();
-    boolean isInitialized = playbackState != Player.STATE_IDLE;
-    isBuffering = playbackState == Player.STATE_BUFFERING;
-    boolean hasEnded = playbackState == Player.STATE_ENDED;
-
-    initialized = isInitialized;
-    Callback callback = getCallback();
-    if (oldIsPrepared != isPrepared()) {
-      callback.onPreparedStateChanged(this);
-    }
-    callback.onPlayStateChanged(this);
-    callback.onBufferingStateChanged(this, isBuffering || !initialized);
-    if (hasEnded) {
-      callback.onPlayCompleted(this);
-    }
+  /**
+   * Sets the {@link ControlDispatcher}.
+   *
+   * @param controlDispatcher The {@link ControlDispatcher}, or null to use
+   *     {@link DefaultControlDispatcher}.
+   */
+  public void setControlDispatcher(@Nullable ControlDispatcher controlDispatcher) {
+    this.controlDispatcher = controlDispatcher == null ? new DefaultControlDispatcher()
+        : controlDispatcher;
   }
 
   /**
@@ -121,6 +106,19 @@ public final class LeanbackPlayerAdapter extends PlayerAdapter {
     this.errorMessageProvider = errorMessageProvider;
   }
 
+  // PlayerAdapter implementation.
+
+  @Override
+  public void onAttachedToHost(PlaybackGlueHost host) {
+    if (host instanceof SurfaceHolderGlueHost) {
+      surfaceHolderGlueHost = ((SurfaceHolderGlueHost) host);
+      surfaceHolderGlueHost.setSurfaceHolderCallback(componentListener);
+    }
+    notifyStateChanged();
+    player.addListener(componentListener);
+    player.addVideoListener(componentListener);
+  }
+
   @Override
   public void onDetachedFromHost() {
     player.removeListener(componentListener);
@@ -129,56 +127,59 @@ public final class LeanbackPlayerAdapter extends PlayerAdapter {
       surfaceHolderGlueHost.setSurfaceHolderCallback(null);
       surfaceHolderGlueHost = null;
     }
-    initialized = false;
     hasSurface = false;
     Callback callback = getCallback();
     callback.onBufferingStateChanged(this, false);
     callback.onPlayStateChanged(this);
-    callback.onPreparedStateChanged(this);
+    maybeNotifyPreparedStateChanged(callback);
   }
 
   @Override
-  public void setProgressUpdatingEnabled(final boolean enabled) {
-    handler.removeCallbacks(updatePlayerRunnable);
+  public void setProgressUpdatingEnabled(boolean enabled) {
+    handler.removeCallbacks(updateProgressRunnable);
     if (enabled) {
-      handler.post(updatePlayerRunnable);
+      handler.post(updateProgressRunnable);
     }
   }
 
   @Override
   public boolean isPlaying() {
-    return initialized && player.getPlayWhenReady();
+    int playbackState = player.getPlaybackState();
+    return playbackState != Player.STATE_IDLE && playbackState != Player.STATE_ENDED
+        && player.getPlayWhenReady();
   }
 
   @Override
   public long getDuration() {
     long durationMs = player.getDuration();
-    return durationMs != C.TIME_UNSET ? durationMs : -1;
+    return durationMs == C.TIME_UNSET ? -1 : durationMs;
   }
 
   @Override
   public long getCurrentPosition() {
-    return initialized ? player.getCurrentPosition() : -1;
+    return player.getPlaybackState() == Player.STATE_IDLE ? -1 : player.getCurrentPosition();
   }
 
   @Override
   public void play() {
     if (player.getPlaybackState() == Player.STATE_ENDED) {
-      player.seekToDefaultPosition();
+      controlDispatcher.dispatchSeekTo(player, player.getCurrentWindowIndex(), C.TIME_UNSET);
     }
-    player.setPlayWhenReady(true);
-    getCallback().onPlayStateChanged(this);
+    if (controlDispatcher.dispatchSetPlayWhenReady(player, true)) {
+      getCallback().onPlayStateChanged(this);
+    }
   }
 
   @Override
   public void pause() {
-    player.setPlayWhenReady(false);
-    getCallback().onPlayStateChanged(this);
+    if (controlDispatcher.dispatchSetPlayWhenReady(player, false)) {
+      getCallback().onPlayStateChanged(this);
+    }
   }
 
   @Override
   public void seekTo(long positionMs) {
-    player.seekTo(positionMs);
+    controlDispatcher.dispatchSeekTo(player, player.getCurrentWindowIndex(), positionMs);
   }
 
   @Override
@@ -188,13 +189,35 @@ public final class LeanbackPlayerAdapter extends PlayerAdapter {
 
   @Override
   public boolean isPrepared() {
-    return initialized && (surfaceHolderGlueHost == null || hasSurface);
+    return player.getPlaybackState() != Player.STATE_IDLE
+        && (surfaceHolderGlueHost == null || hasSurface);
   }
 
-  private void setVideoSurface(Surface surface) {
+  // Internal methods.
+
+  /* package */ void setVideoSurface(Surface surface) {
     hasSurface = surface != null;
     player.setVideoSurface(surface);
-    getCallback().onPreparedStateChanged(this);
+    maybeNotifyPreparedStateChanged(getCallback());
+  }
+
+  /* package */ void notifyStateChanged() {
+    int playbackState = player.getPlaybackState();
+    Callback callback = getCallback();
+    maybeNotifyPreparedStateChanged(callback);
+    callback.onPlayStateChanged(this);
+    callback.onBufferingStateChanged(this, playbackState == Player.STATE_BUFFERING);
+    if (playbackState == Player.STATE_ENDED) {
+      callback.onPlayCompleted(this);
+    }
+  }
+
+  private void maybeNotifyPreparedStateChanged(Callback callback) {
+    boolean isPrepared = isPrepared();
+    if (lastNotifiedPreparedState != isPrepared) {
+      lastNotifiedPreparedState = isPrepared;
+      callback.onPreparedStateChanged(this);
+    }
   }
 
   private final class ComponentListener implements Player.EventListener,
@@ -208,7 +231,7 @@ public final class LeanbackPlayerAdapter extends PlayerAdapter {
     }
 
     @Override
-    public void surfaceChanged(SurfaceHolder surfaceHolder, int i, int i1, int i2) {
+    public void surfaceChanged(SurfaceHolder surfaceHolder, int format, int width, int height) {
       // Do nothing.
     }
 
@@ -221,7 +244,7 @@ public final class LeanbackPlayerAdapter extends PlayerAdapter {
 
     @Override
     public void onPlayerStateChanged(boolean playWhenReady, int playbackState) {
-      notifyListeners();
+      notifyStateChanged();
     }
 
     @Override
@@ -292,4 +315,3 @@ public final class LeanbackPlayerAdapter extends PlayerAdapter {
   }
 
 }
-
