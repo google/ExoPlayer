@@ -1,4 +1,3 @@
-package com.google.android.exoplayer2.ext.mediasession;
 /*
  * Copyright (c) 2017 The Android Open Source Project
  *
@@ -14,6 +13,8 @@ package com.google.android.exoplayer2.ext.mediasession;
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.google.android.exoplayer2.ext.mediasession;
+
 import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.media.session.PlaybackStateCompat;

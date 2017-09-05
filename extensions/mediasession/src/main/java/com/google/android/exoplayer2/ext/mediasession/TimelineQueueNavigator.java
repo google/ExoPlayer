@@ -25,7 +25,6 @@ import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.util.Util;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
