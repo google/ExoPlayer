@@ -339,15 +339,19 @@ public class PlaybackControlView extends FrameLayout {
   }
 
   public PlaybackControlView(Context context, AttributeSet attrs, int defStyleAttr) {
-    super(context, attrs, defStyleAttr);
+    this(context, attrs, defStyleAttr, attrs);
+  }
 
+  public PlaybackControlView(Context context, AttributeSet attrs, int defStyleAttr,
+      AttributeSet playbackAttrs) {
+    super(context, attrs, defStyleAttr);
     int controllerLayoutId = R.layout.exo_playback_control_view;
     rewindMs = DEFAULT_REWIND_MS;
     fastForwardMs = DEFAULT_FAST_FORWARD_MS;
     showTimeoutMs = DEFAULT_SHOW_TIMEOUT_MS;
     repeatToggleModes = DEFAULT_REPEAT_TOGGLE_MODES;
-    if (attrs != null) {
-      TypedArray a = context.getTheme().obtainStyledAttributes(attrs,
+    if (playbackAttrs != null) {
+      TypedArray a = context.getTheme().obtainStyledAttributes(playbackAttrs,
           R.styleable.PlaybackControlView, 0, 0);
       try {
         rewindMs = a.getInt(R.styleable.PlaybackControlView_rewind_increment, rewindMs);
