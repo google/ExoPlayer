@@ -78,6 +78,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
 
   private Format[] streamFormats;
   private CodecMaxValues codecMaxValues;
+  private boolean codecNeedsSetOutputSurfaceWorkaround;
 
   private Surface surface;
   private Surface dummySurface;
@@ -360,7 +361,8 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
       int state = getState();
       if (state == STATE_ENABLED || state == STATE_STARTED) {
         MediaCodec codec = getCodec();
-        if (Util.SDK_INT >= 23 && codec != null && surface != null) {
+        if (Util.SDK_INT >= 23 && codec != null && surface != null
+            && !codecNeedsSetOutputSurfaceWorkaround) {
           setOutputSurfaceV23(codec, surface);
         } else {
           releaseCodec();
@@ -431,6 +433,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
   protected void onCodecInitialized(String name, long initializedTimestampMs,
       long initializationDurationMs) {
     eventDispatcher.decoderInitialized(name, initializedTimestampMs, initializationDurationMs);
+    codecNeedsSetOutputSurfaceWorkaround = codecNeedsSetOutputSurfaceWorkaround(name);
   }
 
   @Override
@@ -967,6 +970,18 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
     // implementation causes ExoPlayer's reported playback position to drift out of sync. Captions
     // also lose sync [Internal: b/26453592].
     return Util.SDK_INT <= 22 && "foster".equals(Util.DEVICE) && "NVIDIA".equals(Util.MANUFACTURER);
+  }
+
+  /**
+   * Returns whether the device is known to implement {@link MediaCodec#setOutputSurface(Surface)}
+   * incorrectly.
+   * <p>
+   * If true is returned then we fall back to releasing and re-instantiating the codec instead.
+   */
+  private static boolean codecNeedsSetOutputSurfaceWorkaround(String name) {
+    // Work around https://github.com/google/ExoPlayer/issues/3236
+    return ("deb".equals(Util.DEVICE) || "flo".equals(Util.DEVICE))
+        && "OMX.qcom.video.decoder.avc".equals(name);
   }
 
   /**
