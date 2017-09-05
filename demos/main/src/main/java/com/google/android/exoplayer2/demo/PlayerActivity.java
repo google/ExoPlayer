@@ -89,6 +89,7 @@ public class PlayerActivity extends Activity implements OnClickListener, EventLi
   public static final String DRM_SCHEME_UUID_EXTRA = "drm_scheme_uuid";
   public static final String DRM_LICENSE_URL = "drm_license_url";
   public static final String DRM_KEY_REQUEST_PROPERTIES = "drm_key_request_properties";
+  public static final String DRM_MULTI_SESSION = "drm_multi_session";
   public static final String PREFER_EXTENSION_DECODERS = "prefer_extension_decoders";
 
   public static final String ACTION_VIEW = "com.google.android.exoplayer.demo.action.VIEW";
@@ -264,13 +265,14 @@ public class PlayerActivity extends Activity implements OnClickListener, EventLi
       if (drmSchemeUuid != null) {
         String drmLicenseUrl = intent.getStringExtra(DRM_LICENSE_URL);
         String[] keyRequestPropertiesArray = intent.getStringArrayExtra(DRM_KEY_REQUEST_PROPERTIES);
+        boolean multiSession = intent.getBooleanExtra(DRM_MULTI_SESSION, false);
         int errorStringId = R.string.error_drm_unknown;
         if (Util.SDK_INT < 18) {
           errorStringId = R.string.error_drm_not_supported;
         } else {
           try {
             drmSessionManager = buildDrmSessionManagerV18(drmSchemeUuid, drmLicenseUrl,
-                keyRequestPropertiesArray);
+                keyRequestPropertiesArray, multiSession);
           } catch (UnsupportedDrmException e) {
             errorStringId = e.reason == UnsupportedDrmException.REASON_UNSUPPORTED_SCHEME
                 ? R.string.error_drm_unsupported_scheme : R.string.error_drm_unknown;
@@ -379,7 +381,8 @@ public class PlayerActivity extends Activity implements OnClickListener, EventLi
   }
 
   private DrmSessionManager<FrameworkMediaCrypto> buildDrmSessionManagerV18(UUID uuid,
-      String licenseUrl, String[] keyRequestPropertiesArray) throws UnsupportedDrmException {
+      String licenseUrl, String[] keyRequestPropertiesArray, boolean multiSession)
+      throws UnsupportedDrmException {
     HttpMediaDrmCallback drmCallback = new HttpMediaDrmCallback(licenseUrl,
         buildHttpDataSourceFactory(false));
     if (keyRequestPropertiesArray != null) {
@@ -389,7 +392,7 @@ public class PlayerActivity extends Activity implements OnClickListener, EventLi
       }
     }
     return new DefaultDrmSessionManager<>(uuid, FrameworkMediaDrm.newInstance(uuid), drmCallback,
-        null, mainHandler, eventLogger);
+        null, mainHandler, eventLogger, multiSession);
   }
 
   private void releasePlayer() {
