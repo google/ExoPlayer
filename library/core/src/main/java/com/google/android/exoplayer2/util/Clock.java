@@ -15,6 +15,8 @@
  */
 package com.google.android.exoplayer2.util;
 
+import android.os.Handler;
+
 /**
  * An interface through which system clocks can be read. The {@link #DEFAULT} implementation
  * must be used for all non-test cases.
@@ -35,5 +37,15 @@ public interface Clock {
    * @see android.os.SystemClock#sleep(long)
    */
   void sleep(long sleepTimeMs);
+
+  /**
+   * Post a {@link Runnable} on a {@link Handler} thread with a delay measured by this clock.
+   * @see Handler#postDelayed(Runnable, long)
+   *
+   * @param handler The {@link Handler} to post the {@code runnable} on.
+   * @param runnable A {@link Runnable} to be posted.
+   * @param delayMs The delay in milliseconds as measured by this clock.
+   */
+  void postDelayed(Handler handler, Runnable runnable, long delayMs);
 
 }
