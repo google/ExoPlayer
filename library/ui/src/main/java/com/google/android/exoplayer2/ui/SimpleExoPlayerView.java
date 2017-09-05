@@ -240,7 +240,7 @@ public final class SimpleExoPlayerView extends FrameLayout {
       controller = null;
       componentListener = null;
       overlayFrameLayout = null;
-      ImageView logo = new ImageView(context, attrs);
+      ImageView logo = new ImageView(context);
       if (Util.SDK_INT >= 23) {
         configureEditModeLogoV23(getResources(), logo);
       } else {
@@ -330,9 +330,9 @@ public final class SimpleExoPlayerView extends FrameLayout {
     if (customController != null) {
       this.controller = customController;
     } else if (controllerPlaceholder != null) {
-      // Note: rewindMs and fastForwardMs are passed via attrs, so we don't need to make explicit
-      // calls to set them.
-      this.controller = new PlaybackControlView(context, attrs);
+      // Propagate attrs as playbackAttrs so that PlaybackControlView's custom attributes are
+      // transferred, but standard FrameLayout attributes (e.g. background) are not.
+      this.controller = new PlaybackControlView(context, null, 0, attrs);
       controller.setLayoutParams(controllerPlaceholder.getLayoutParams());
       ViewGroup parent = ((ViewGroup) controllerPlaceholder.getParent());
       int controllerIndex = parent.indexOfChild(controllerPlaceholder);
