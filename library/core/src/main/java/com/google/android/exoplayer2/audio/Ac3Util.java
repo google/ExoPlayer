@@ -125,13 +125,6 @@ public final class Ac3Util {
       121, 139, 174, 208, 243, 278, 348, 417, 487, 557, 696, 835, 975, 1114, 1253, 1393};
 
   /**
-   * Stream type. See ETSI TS 102 366 E.1.3.1.1.
-   */
-  public static final int STREAM_TYPE_UNDEFINED = -1;
-  public static final int STREAM_TYPE_TYPE0 = 0;
-  public static final int STREAM_TYPE_TYPE1 = 1;
-
-  /**
    * Returns the AC-3 format given {@code data} containing the AC3SpecificBox according to
    * ETSI TS 102 366 Annex F. The reading position of {@code data} will be modified.
    *
@@ -231,7 +224,6 @@ public final class Ac3Util {
     } else /* is AC-3 */ {
       mimeType = MimeTypes.AUDIO_AC3;
       data.skipBits(16 + 16); // syncword, crc1
-      streamType = STREAM_TYPE_UNDEFINED; // AC-3 stream hasn't streamType
       int fscod = data.readBits(2);
       int frmsizecod = data.readBits(6);
       frameSize = getAc3SyncframeSize(fscod, frmsizecod);
