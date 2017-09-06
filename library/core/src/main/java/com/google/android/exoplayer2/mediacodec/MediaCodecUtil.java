@@ -283,13 +283,13 @@ public final class MediaCodecUtil {
       return false;
     }
 
-    // Work around https://github.com/google/ExoPlayer/issues/398
+    // Work around https://github.com/google/ExoPlayer/issues/398.
     if (Util.SDK_INT < 18 && "OMX.SEC.MP3.Decoder".equals(name)) {
       return false;
     }
 
     // Work around https://github.com/google/ExoPlayer/issues/1528 and
-    // https://github.com/google/ExoPlayer/issues/3171
+    // https://github.com/google/ExoPlayer/issues/3171.
     if (Util.SDK_INT < 18 && "OMX.MTK.AUDIO.DECODER.AAC".equals(name)
         && ("a70".equals(Util.DEVICE)
             || ("Xiaomi".equals(Util.MANUFACTURER) && Util.DEVICE.startsWith("HM")))) {
@@ -325,7 +325,7 @@ public final class MediaCodecUtil {
       return false;
     }
 
-    // Work around https://github.com/google/ExoPlayer/issues/548
+    // Work around https://github.com/google/ExoPlayer/issues/548.
     // VP8 decoder on Samsung Galaxy S3/S4/S4 Mini/Tab 3/Note 2 does not render video.
     if (Util.SDK_INT <= 19
         && "OMX.SEC.vp8.dec".equals(name) && "samsung".equals(Util.MANUFACTURER)

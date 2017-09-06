@@ -1147,7 +1147,7 @@ import java.util.List;
   }
 
   /**
-   * Parses the proj box from sv3d box, as specified by https://github.com/google/spatial-media
+   * Parses the proj box from sv3d box, as specified by https://github.com/google/spatial-media.
    */
   private static byte[] parseProjFromParent(ParsableByteArray parent, int position, int size) {
     int childPosition = position + Atom.HEADER_SIZE;

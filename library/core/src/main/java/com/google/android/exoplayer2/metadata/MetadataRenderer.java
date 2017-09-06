@@ -40,8 +40,8 @@ public final class MetadataRenderer extends BaseRenderer implements Callback {
 
   private static final int MSG_INVOKE_RENDERER = 0;
   // TODO: Holding multiple pending metadata objects is temporary mitigation against
-  // https://github.com/google/ExoPlayer/issues/1874
-  // It should be removed once this issue has been addressed.
+  // https://github.com/google/ExoPlayer/issues/1874. It should be removed once this issue has been
+  // addressed.
   private static final int MAX_PENDING_METADATA_COUNT = 5;
 
   private final MetadataDecoderFactory decoderFactory;
