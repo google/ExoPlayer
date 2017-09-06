@@ -178,6 +178,10 @@ public class SampleChooserActivity extends Activity {
     private Sample readEntry(JsonReader reader, boolean insidePlaylist) throws IOException {
       String sampleName = null;
       String uri = null;
+      String vendor = null;
+      boolean feedback_events = false;
+      String burst_uri = null;
+      String retransmission_uri = null;
       String extension = null;
       UUID drmUuid = null;
       String drmLicenseUrl = null;
@@ -195,6 +199,18 @@ public class SampleChooserActivity extends Activity {
             break;
           case "uri":
             uri = reader.nextString();
+            break;
+          case "vendor":
+            vendor = reader.nextString();
+            break;
+          case "feedback_events":
+            feedback_events = "yes".equalsIgnoreCase(reader.nextString()) ? true : false;
+            break;
+          case "burst_uri":
+            burst_uri = reader.nextString();
+            break;
+          case "retransmission_uri":
+            retransmission_uri = reader.nextString();
             break;
           case "extension":
             extension = reader.nextString();
@@ -250,7 +266,8 @@ public class SampleChooserActivity extends Activity {
             preferExtensionDecoders, playlistSamplesArray);
       } else {
         return new UriSample(sampleName, drmUuid, drmLicenseUrl, drmKeyRequestProperties,
-            preferExtensionDecoders, uri, extension, adTagUri);
+            preferExtensionDecoders, uri, vendor, feedback_events, burst_uri, retransmission_uri,
+                extension, adTagUri);
       }
     }
 
@@ -405,14 +422,23 @@ public class SampleChooserActivity extends Activity {
   private static final class UriSample extends Sample {
 
     public final String uri;
+    public final String vendor;
+    public final boolean feedback_events;
+    public final String burst_uri;
+    public final String retransmission_uri;
     public final String extension;
     public final String adTagUri;
 
     public UriSample(String name, UUID drmSchemeUuid, String drmLicenseUrl,
         String[] drmKeyRequestProperties, boolean preferExtensionDecoders, String uri,
-        String extension, String adTagUri) {
+        String vendor, boolean feedback_events, String burst_uri,  String retransmission_uri,
+                     String extension, String adTagUri) {
       super(name, drmSchemeUuid, drmLicenseUrl, drmKeyRequestProperties, preferExtensionDecoders);
       this.uri = uri;
+      this.vendor = vendor;
+      this.feedback_events =feedback_events;
+      this.burst_uri = burst_uri;
+      this.retransmission_uri = retransmission_uri;
       this.extension = extension;
       this.adTagUri = adTagUri;
     }
@@ -421,6 +447,10 @@ public class SampleChooserActivity extends Activity {
     public Intent buildIntent(Context context) {
       return super.buildIntent(context)
           .setData(Uri.parse(uri))
+          .putExtra(PlayerActivity.VENDOR_EXTRA, vendor)
+          .putExtra(PlayerActivity.FEEDBACK_EVENTS_EXTRA, feedback_events)
+          .putExtra(PlayerActivity.BURST_URI_EXTRA, burst_uri)
+          .putExtra(PlayerActivity.RETRANSMISSION_URI_EXTRA, retransmission_uri)
           .putExtra(PlayerActivity.EXTENSION_EXTRA, extension)
           .putExtra(PlayerActivity.AD_TAG_URI_EXTRA, adTagUri)
           .setAction(PlayerActivity.ACTION_VIEW);
