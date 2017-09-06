@@ -432,7 +432,7 @@ public final class SimpleExoPlayerView extends FrameLayout {
   public void setVisibility(int visibility) {
     super.setVisibility(visibility);
     if (surfaceView instanceof SurfaceView) {
-      // Work around https://github.com/google/ExoPlayer/issues/3160
+      // Work around https://github.com/google/ExoPlayer/issues/3160.
       surfaceView.setVisibility(visibility);
     }
   }
