@@ -17,7 +17,6 @@ package com.google.android.exoplayer2.drm;
 
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
-import android.media.MediaDrm;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
@@ -40,7 +39,7 @@ import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
- * A {@link DrmSessionManager} that supports playbacks using {@link MediaDrm}.
+ * A {@link DrmSessionManager} that supports playbacks using {@link ExoMediaDrm}.
  */
 @TargetApi(18)
 public class DefaultDrmSessionManager<T extends ExoMediaCrypto> implements DrmSessionManager<T>,
@@ -120,7 +119,7 @@ public class DefaultDrmSessionManager<T extends ExoMediaCrypto> implements DrmSe
    *
    * @param callback Performs key and provisioning requests.
    * @param optionalKeyRequestParameters An optional map of parameters to pass as the last argument
-   *     to {@link MediaDrm#getKeyRequest(byte[], byte[], String, int, HashMap)}. May be null.
+   *     to {@link ExoMediaDrm#getKeyRequest(byte[], byte[], String, int, HashMap)}. May be null.
    * @param eventHandler A handler to use when delivering events to {@code eventListener}. May be
    *     null if delivery of events is not required.
    * @param eventListener A listener of events. May be null if delivery of events is not required.
@@ -166,7 +165,7 @@ public class DefaultDrmSessionManager<T extends ExoMediaCrypto> implements DrmSe
    * @param uuid The UUID of the drm scheme.
    * @param callback Performs key and provisioning requests.
    * @param optionalKeyRequestParameters An optional map of parameters to pass as the last argument
-   *     to {@link MediaDrm#getKeyRequest(byte[], byte[], String, int, HashMap)}. May be null.
+   *     to {@link ExoMediaDrm#getKeyRequest(byte[], byte[], String, int, HashMap)}. May be null.
    * @param eventHandler A handler to use when delivering events to {@code eventListener}. May be
    *     null if delivery of events is not required.
    * @param eventListener A listener of events. May be null if delivery of events is not required.
@@ -184,7 +183,7 @@ public class DefaultDrmSessionManager<T extends ExoMediaCrypto> implements DrmSe
    * @param mediaDrm An underlying {@link ExoMediaDrm} for use by the manager.
    * @param callback Performs key and provisioning requests.
    * @param optionalKeyRequestParameters An optional map of parameters to pass as the last argument
-   *     to {@link MediaDrm#getKeyRequest(byte[], byte[], String, int, HashMap)}. May be null.
+   *     to {@link ExoMediaDrm#getKeyRequest(byte[], byte[], String, int, HashMap)}. May be null.
    * @param eventHandler A handler to use when delivering events to {@code eventListener}. May be
    *     null if delivery of events is not required.
    * @param eventListener A listener of events. May be null if delivery of events is not required.
@@ -201,7 +200,7 @@ public class DefaultDrmSessionManager<T extends ExoMediaCrypto> implements DrmSe
    * @param mediaDrm An underlying {@link ExoMediaDrm} for use by the manager.
    * @param callback Performs key and provisioning requests.
    * @param optionalKeyRequestParameters An optional map of parameters to pass as the last argument
-   *     to {@link MediaDrm#getKeyRequest(byte[], byte[], String, int, HashMap)}. May be null.
+   *     to {@link ExoMediaDrm#getKeyRequest(byte[], byte[], String, int, HashMap)}. May be null.
    * @param eventHandler A handler to use when delivering events to {@code eventListener}. May be
    *     null if delivery of events is not required.
    * @param eventListener A listener of events. May be null if delivery of events is not required.
@@ -230,7 +229,7 @@ public class DefaultDrmSessionManager<T extends ExoMediaCrypto> implements DrmSe
   }
 
   /**
-   * Provides access to {@link MediaDrm#getPropertyString(String)}.
+   * Provides access to {@link ExoMediaDrm#getPropertyString(String)}.
    * <p>
    * This method may be called when the manager is in any state.
    *
@@ -242,7 +241,7 @@ public class DefaultDrmSessionManager<T extends ExoMediaCrypto> implements DrmSe
   }
 
   /**
-   * Provides access to {@link MediaDrm#setPropertyString(String, String)}.
+   * Provides access to {@link ExoMediaDrm#setPropertyString(String, String)}.
    * <p>
    * This method may be called when the manager is in any state.
    *
@@ -254,7 +253,7 @@ public class DefaultDrmSessionManager<T extends ExoMediaCrypto> implements DrmSe
   }
 
   /**
-   * Provides access to {@link MediaDrm#getPropertyByteArray(String)}.
+   * Provides access to {@link ExoMediaDrm#getPropertyByteArray(String)}.
    * <p>
    * This method may be called when the manager is in any state.
    *
@@ -266,7 +265,7 @@ public class DefaultDrmSessionManager<T extends ExoMediaCrypto> implements DrmSe
   }
 
   /**
-   * Provides access to {@link MediaDrm#setPropertyByteArray(String, byte[])}.
+   * Provides access to {@link ExoMediaDrm#setPropertyByteArray(String, byte[])}.
    * <p>
    * This method may be called when the manager is in any state.
    *
