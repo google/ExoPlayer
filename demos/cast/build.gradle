@@ -15,7 +15,7 @@ apply from: '../../constants.gradle'
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion project.ext.compileSdkVersion
+    compileSdkVersion 25
     buildToolsVersion project.ext.buildToolsVersion
 
     defaultConfig {
@@ -42,10 +42,4 @@ android {
 }
 
 dependencies {
-    compile project(modulePrefix + 'library-core')
-    compile project(modulePrefix + 'library-dash')
-    compile project(modulePrefix + 'library-hls')
-    compile project(modulePrefix + 'library-smoothstreaming')
-    compile project(modulePrefix + 'library-ui')
-    compile project(modulePrefix + 'extension-cast')
 }

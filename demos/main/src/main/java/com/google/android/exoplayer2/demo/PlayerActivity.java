@@ -72,7 +72,10 @@ import com.google.android.exoplayer2.ui.SimpleExoPlayerView;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DefaultBandwidthMeter;
 import com.google.android.exoplayer2.upstream.HttpDataSource;
+import com.google.android.exoplayer2.upstream.RtpDataSource;
 import com.google.android.exoplayer2.util.Util;
+import com.google.android.exoplayer2.util.rtp.RtpExtractorsFactory;
+
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.net.CookieHandler;
@@ -93,6 +96,10 @@ public class PlayerActivity extends Activity implements OnClickListener, EventLi
 
   public static final String ACTION_VIEW = "com.google.android.exoplayer.demo.action.VIEW";
   public static final String EXTENSION_EXTRA = "extension";
+  public static final String VENDOR_EXTRA = "vendor";
+  public static final String FEEDBACK_EVENTS_EXTRA = "feedback_events";
+  public static final String BURST_URI_EXTRA = "burst_uri";
+  public static final String RETRANSMISSION_URI_EXTRA = "retransmission_uri";
 
   public static final String ACTION_VIEW_LIST =
       "com.google.android.exoplayer.demo.action.VIEW_LIST";
@@ -329,8 +336,13 @@ public class PlayerActivity extends Activity implements OnClickListener, EventLi
     }
     MediaSource[] mediaSources = new MediaSource[uris.length];
     for (int i = 0; i < uris.length; i++) {
-      mediaSources[i] = buildMediaSource(uris[i], extensions[i]);
+      mediaSources[i] = buildMediaSource(uris[i], extensions[i],
+              intent.getStringExtra(VENDOR_EXTRA),
+              intent.getBooleanExtra(FEEDBACK_EVENTS_EXTRA, false),
+              intent.getStringExtra(BURST_URI_EXTRA),
+              intent.getStringExtra(RETRANSMISSION_URI_EXTRA));
     }
+
     MediaSource mediaSource = mediaSources.length == 1 ? mediaSources[0]
         : new ConcatenatingMediaSource(mediaSources);
     String adTagUriString = intent.getStringExtra(AD_TAG_URI_EXTRA);
@@ -357,7 +369,9 @@ public class PlayerActivity extends Activity implements OnClickListener, EventLi
     updateButtonVisibilities();
   }
 
-  private MediaSource buildMediaSource(Uri uri, String overrideExtension) {
+  private MediaSource buildMediaSource(Uri uri, String overrideExtension, String vendor,
+                                       boolean feedback_events, String burst_uri,
+                                       String retransmission_uri) {
     int type = TextUtils.isEmpty(overrideExtension) ? Util.inferContentType(uri)
         : Util.inferContentType("." + overrideExtension);
     switch (type) {
@@ -370,6 +384,13 @@ public class PlayerActivity extends Activity implements OnClickListener, EventLi
       case C.TYPE_HLS:
         return new HlsMediaSource(uri, mediaDataSourceFactory, mainHandler, eventLogger);
       case C.TYPE_OTHER:
+                if (uri.getScheme().equals("rtp")) {
+                  return new ExtractorMediaSource(uri, buildRtpDataSourceFactory(true, vendor,
+                                  feedback_events, burst_uri,retransmission_uri), new RtpExtractorsFactory(),
+                                  mainHandler, eventLogger);
+
+                }
+
         return new ExtractorMediaSource(uri, mediaDataSourceFactory, new DefaultExtractorsFactory(),
             mainHandler, eventLogger);
       default: {
@@ -438,6 +459,22 @@ public class PlayerActivity extends Activity implements OnClickListener, EventLi
   private HttpDataSource.Factory buildHttpDataSourceFactory(boolean useBandwidthMeter) {
     return ((DemoApplication) getApplication())
         .buildHttpDataSourceFactory(useBandwidthMeter ? BANDWIDTH_METER : null);
+  }
+
+  /**
+   +   * Returns a new RtpDataSource factory.
+   +   *
+   +   * @param useBandwidthMeter Whether to set {@link #BANDWIDTH_METER} as a listener to the new
+   +   *     DataSource factory.
+   +   * @param vendor RTP distribution and feedback vendor architecture identifier.
+   +   * @return A new RtpDataSource factory.
+   +   */
+  private RtpDataSource.Factory buildRtpDataSourceFactory(boolean useBandwidthMeter, String vendor,
+                                                          boolean feedback_events, String burst_uri,
+                                                          String retransmission_uri) {
+    return ((DemoApplication) getApplication())
+            .buildRtpDataSourceFactory(useBandwidthMeter ? BANDWIDTH_METER : null, vendor,
+                    feedback_events, burst_uri, retransmission_uri);
   }
 
   /**
