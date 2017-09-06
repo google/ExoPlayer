@@ -18,7 +18,6 @@ package com.google.android.exoplayer2.drm;
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.media.DeniedByServerException;
-import android.media.MediaDrm;
 import android.media.NotProvisionedException;
 import android.os.Handler;
 import android.os.HandlerThread;
@@ -36,7 +35,7 @@ import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
- * A {@link DrmSession} that supports playbacks using {@link MediaDrm}.
+ * A {@link DrmSession} that supports playbacks using {@link ExoMediaDrm}.
  */
 @TargetApi(18)
 /* package */ class DefaultDrmSession<T extends ExoMediaCrypto> implements DrmSession<T> {
@@ -227,8 +226,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
         onError(e);
       }
     } catch (Exception e) {
-      // MediaCryptoException
-      // ResourceBusyException only available on 19+
       onError(e);
     }
 
@@ -278,7 +275,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
       case DefaultDrmSessionManager.MODE_PLAYBACK:
       case DefaultDrmSessionManager.MODE_QUERY:
         if (offlineLicenseKeySetId == null) {
-          postKeyRequest(MediaDrm.KEY_TYPE_STREAMING);
+          postKeyRequest(ExoMediaDrm.KEY_TYPE_STREAMING);
         } else {
           if (restoreKeys()) {
             long licenseDurationRemainingSec = getLicenseDurationRemainingSec();
@@ -286,7 +283,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
                 && licenseDurationRemainingSec <= MAX_LICENSE_DURATION_TO_RENEW) {
               Log.d(TAG, "Offline license has expired or will expire soon. "
                   + "Remaining seconds: " + licenseDurationRemainingSec);
-              postKeyRequest(MediaDrm.KEY_TYPE_OFFLINE);
+              postKeyRequest(ExoMediaDrm.KEY_TYPE_OFFLINE);
             } else if (licenseDurationRemainingSec <= 0) {
               onError(new KeysExpiredException());
             } else {
@@ -305,11 +302,11 @@ import java.util.concurrent.atomic.AtomicBoolean;
         break;
       case DefaultDrmSessionManager.MODE_DOWNLOAD:
         if (offlineLicenseKeySetId == null) {
-          postKeyRequest(MediaDrm.KEY_TYPE_OFFLINE);
+          postKeyRequest(ExoMediaDrm.KEY_TYPE_OFFLINE);
         } else {
           // Renew
           if (restoreKeys()) {
-            postKeyRequest(MediaDrm.KEY_TYPE_OFFLINE);
+            postKeyRequest(ExoMediaDrm.KEY_TYPE_OFFLINE);
           }
         }
         break;
@@ -317,7 +314,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
         // It's not necessary to restore the key (and open a session to do that) before releasing it
         // but this serves as a good sanity/fast-failure check.
         if (restoreKeys()) {
-          postKeyRequest(MediaDrm.KEY_TYPE_RELEASE);
+          postKeyRequest(ExoMediaDrm.KEY_TYPE_RELEASE);
         }
         break;
       default:
@@ -345,7 +342,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
   }
 
   private void postKeyRequest(int type) {
-    byte[] scope = type == MediaDrm.KEY_TYPE_RELEASE ? offlineLicenseKeySetId : sessionId;
+    byte[] scope = type == ExoMediaDrm.KEY_TYPE_RELEASE ? offlineLicenseKeySetId : sessionId;
     try {
       KeyRequest request = mediaDrm.getKeyRequest(scope, initData, mimeType, type,
           optionalKeyRequestParameters);
@@ -439,16 +436,16 @@ import java.util.concurrent.atomic.AtomicBoolean;
       return;
     }
     switch (what) {
-      case MediaDrm.EVENT_KEY_REQUIRED:
+      case ExoMediaDrm.EVENT_KEY_REQUIRED:
         doLicense();
         break;
-      case MediaDrm.EVENT_KEY_EXPIRED:
+      case ExoMediaDrm.EVENT_KEY_EXPIRED:
         // When an already expired key is loaded MediaDrm sends this event immediately. Ignore
         // this event if the state isn't STATE_OPENED_WITH_KEYS yet which means we're still
         // waiting for key response.
         onKeysExpired();
         break;
-      case MediaDrm.EVENT_PROVISION_REQUIRED:
+      case ExoMediaDrm.EVENT_PROVISION_REQUIRED:
         state = STATE_OPENED;
         postProvisionRequest();
         break;

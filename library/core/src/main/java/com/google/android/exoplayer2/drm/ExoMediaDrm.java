@@ -15,18 +15,53 @@
  */
 package com.google.android.exoplayer2.drm;
 
+import android.annotation.TargetApi;
 import android.media.DeniedByServerException;
 import android.media.MediaCryptoException;
 import android.media.MediaDrm;
+import android.media.MediaDrmException;
 import android.media.NotProvisionedException;
-import android.media.ResourceBusyException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
 /**
  * Used to obtain keys for decrypting protected media streams. See {@link android.media.MediaDrm}.
  */
+@TargetApi(18)
 public interface ExoMediaDrm<T extends ExoMediaCrypto> {
+
+  /**
+   * @see MediaDrm#EVENT_KEY_REQUIRED
+   */
+  @SuppressWarnings("InlinedApi")
+  int EVENT_KEY_REQUIRED = MediaDrm.EVENT_KEY_REQUIRED;
+  /**
+   * @see MediaDrm#EVENT_KEY_EXPIRED
+   */
+  @SuppressWarnings("InlinedApi")
+  int EVENT_KEY_EXPIRED = MediaDrm.EVENT_KEY_EXPIRED;
+  /**
+   * @see MediaDrm#EVENT_PROVISION_REQUIRED
+   */
+  @SuppressWarnings("InlinedApi")
+  int EVENT_PROVISION_REQUIRED = MediaDrm.EVENT_PROVISION_REQUIRED;
+
+  /**
+   * @see MediaDrm#KEY_TYPE_STREAMING
+   */
+  @SuppressWarnings("InlinedApi")
+  int KEY_TYPE_STREAMING = MediaDrm.KEY_TYPE_STREAMING;
+  /**
+   * @see MediaDrm#KEY_TYPE_OFFLINE
+   */
+  @SuppressWarnings("InlinedApi")
+  int KEY_TYPE_OFFLINE = MediaDrm.KEY_TYPE_OFFLINE;
+  /**
+   * @see MediaDrm#KEY_TYPE_RELEASE
+   */
+  @SuppressWarnings("InlinedApi")
+  int KEY_TYPE_RELEASE = MediaDrm.KEY_TYPE_RELEASE;
 
   /**
    * @see android.media.MediaDrm.OnEventListener
@@ -69,7 +104,7 @@ public interface ExoMediaDrm<T extends ExoMediaCrypto> {
   /**
    * @see MediaDrm#openSession()
    */
-  byte[] openSession() throws NotProvisionedException, ResourceBusyException;
+  byte[] openSession() throws MediaDrmException;
 
   /**
    * @see MediaDrm#closeSession(byte[])

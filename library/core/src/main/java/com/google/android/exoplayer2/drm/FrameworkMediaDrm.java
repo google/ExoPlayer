@@ -20,8 +20,8 @@ import android.media.DeniedByServerException;
 import android.media.MediaCrypto;
 import android.media.MediaCryptoException;
 import android.media.MediaDrm;
+import android.media.MediaDrmException;
 import android.media.NotProvisionedException;
-import android.media.ResourceBusyException;
 import android.media.UnsupportedSchemeException;
 import android.support.annotation.NonNull;
 import com.google.android.exoplayer2.C;
@@ -79,7 +79,7 @@ public final class FrameworkMediaDrm implements ExoMediaDrm<FrameworkMediaCrypto
   }
 
   @Override
-  public byte[] openSession() throws NotProvisionedException, ResourceBusyException {
+  public byte[] openSession() throws MediaDrmException {
     return mediaDrm.openSession();
   }
 
