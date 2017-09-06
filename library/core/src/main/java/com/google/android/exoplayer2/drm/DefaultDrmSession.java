@@ -58,29 +58,29 @@ import java.util.concurrent.atomic.AtomicBoolean;
   private static final int MSG_KEYS = 1;
   private static final int MAX_LICENSE_DURATION_TO_RENEW = 60;
 
-  private final Handler eventHandler;
-  private final DefaultDrmSessionManager.EventListener eventListener;
   private final ExoMediaDrm<T> mediaDrm;
-  private final HashMap<String, String> optionalKeyRequestParameters;
-  /* package */ final MediaDrmCallback callback;
-  /* package */ final UUID uuid;
-  /* package */ PostResponseHandler postResponseHandler;
-  private HandlerThread requestHandlerThread;
-  private Handler postRequestHandler;
-
-  @DefaultDrmSessionManager.Mode
-  private final int mode;
-  private int openCount;
-  private final AtomicBoolean provisioningInProgress;
-  private final EventListener sessionEventListener;
-  @DrmSession.State
-  private int state;
-  private T mediaCrypto;
-  private DrmSessionException lastException;
   private final byte[] initData;
   private final String mimeType;
+  private final @DefaultDrmSessionManager.Mode int mode;
+  private final HashMap<String, String> optionalKeyRequestParameters;
+  private final Handler eventHandler;
+  private final DefaultDrmSessionManager.EventListener eventListener;
+  private final AtomicBoolean provisioningInProgress;
+  private final EventListener sessionEventListener;
+
+  /* package */ final MediaDrmCallback callback;
+  /* package */ final UUID uuid;
+
+  private @DrmSession.State int state;
+  private int openCount;
+  private HandlerThread requestHandlerThread;
+  private Handler postRequestHandler;
+  private T mediaCrypto;
+  private DrmSessionException lastException;
   private byte[] sessionId;
   private byte[] offlineLicenseKeySetId;
+
+  /* package */ PostResponseHandler postResponseHandler;
 
   /**
    * Instantiates a new DRM session.
