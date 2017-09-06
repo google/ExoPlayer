@@ -98,7 +98,7 @@ public final class ClippingMediaSource implements MediaSource, MediaSource.Liste
     ClippingMediaPeriod mediaPeriod = new ClippingMediaPeriod(
         mediaSource.createPeriod(id, allocator), enableInitialDiscontinuity);
     mediaPeriods.add(mediaPeriod);
-    mediaPeriod.setClipping(clippingTimeline.startUs, clippingTimeline.endUs);
+    mediaPeriod.setClipping(startUs, endUs);
     return mediaPeriod;
   }
 
@@ -119,9 +119,6 @@ public final class ClippingMediaSource implements MediaSource, MediaSource.Liste
   public void onSourceInfoRefreshed(Timeline timeline, Object manifest) {
     clippingTimeline = new ClippingTimeline(timeline, startUs, endUs);
     sourceListener.onSourceInfoRefreshed(clippingTimeline, manifest);
-    long startUs = clippingTimeline.startUs;
-    long endUs = clippingTimeline.endUs == C.TIME_UNSET ? C.TIME_END_OF_SOURCE
-        : clippingTimeline.endUs;
     int count = mediaPeriods.size();
     for (int i = 0; i < count; i++) {
       mediaPeriods.get(i).setClipping(startUs, endUs);
