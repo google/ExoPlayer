@@ -34,12 +34,30 @@ public final class Ac3Util {
   public static final class Ac3SyncFrameInfo {
 
     /**
+     * Undefined AC3 stream type.
+     */
+    public static final int STREAM_TYPE_UNDEFINED = -1;
+    /**
+     * Type 0 AC3 stream type. See ETSI TS 102 366 E.1.3.1.1.
+     */
+    public static final int STREAM_TYPE_TYPE0 = 0;
+    /**
+     * Type 1 AC3 stream type. See ETSI TS 102 366 E.1.3.1.1.
+     */
+    public static final int STREAM_TYPE_TYPE1 = 1;
+    /**
+     * Type 2 AC3 stream type. See ETSI TS 102 366 E.1.3.1.1.
+     */
+    public static final int STREAM_TYPE_TYPE2 = 2;
+
+    /**
      * The sample mime type of the bitstream. One of {@link MimeTypes#AUDIO_AC3} and
      * {@link MimeTypes#AUDIO_E_AC3}.
      */
     public final String mimeType;
     /**
-     * The type of the bitstream, only for AUDIO_E_AC3
+     * The type of the stream if {@link #mimeType} is {@link MimeTypes#AUDIO_E_AC3}, or
+     * {@link #STREAM_TYPE_UNDEFINED} otherwise.
      */
     public final int streamType;
     /**
@@ -150,8 +168,7 @@ public final class Ac3Util {
       String language, DrmInitData drmInitData) {
     data.skipBytes(2); // data_rate, num_ind_sub
 
-    // Read only the first independent substream.
-    // TODO: Read later independent substreams?
+    // Read the first independent substream.
     int fscod = (data.readUnsignedByte() & 0xC0) >> 6;
     int sampleRate = SAMPLE_RATE_BY_FSCOD[fscod];
     int nextByte = data.readUnsignedByte();
@@ -160,8 +177,7 @@ public final class Ac3Util {
       channelCount++;
     }
 
-    // Read only the first dependent substream.
-    // TODO: Read later dependent substreams?
+    // Read the first dependent substream.
     nextByte = data.readUnsignedByte();
     int numDepSub = ((nextByte & 0x1E) >> 1);
     if (numDepSub > 0) {
@@ -189,7 +205,7 @@ public final class Ac3Util {
     boolean isEac3 = data.readBits(5) == 16;
     data.setPosition(initialPosition);
     String mimeType;
-    int streamType;
+    int streamType = Ac3SyncFrameInfo.STREAM_TYPE_UNDEFINED;
     int sampleRate;
     int acmod;
     int frameSize;
@@ -235,8 +251,8 @@ public final class Ac3Util {
     }
     boolean lfeon = data.readBit();
     int channelCount = CHANNEL_COUNT_BY_ACMOD[acmod] + (lfeon ? 1 : 0);
-    return new Ac3SyncFrameInfo(mimeType, streamType, channelCount, sampleRate,
-        frameSize, sampleCount);
+    return new Ac3SyncFrameInfo(mimeType, streamType, channelCount, sampleRate, frameSize,
+        sampleCount);
   }
 
   /**

@@ -17,14 +17,14 @@ package com.google.android.exoplayer2.ext.ima;
 
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Timeline;
+import com.google.android.exoplayer2.source.ForwardingTimeline;
 import com.google.android.exoplayer2.util.Assertions;
 
 /**
  * A {@link Timeline} for sources that have ads.
  */
-public final class SinglePeriodAdTimeline extends Timeline {
+/* package */ final class SinglePeriodAdTimeline extends ForwardingTimeline {
 
-  private final Timeline contentTimeline;
   private final long[] adGroupTimesUs;
   private final int[] adCounts;
   private final int[] adsLoadedCounts;
@@ -52,9 +52,9 @@ public final class SinglePeriodAdTimeline extends Timeline {
   public SinglePeriodAdTimeline(Timeline contentTimeline, long[] adGroupTimesUs, int[] adCounts,
       int[] adsLoadedCounts, int[] adsPlayedCounts, long[][] adDurationsUs,
       long adResumePositionUs) {
+    super(contentTimeline);
     Assertions.checkState(contentTimeline.getPeriodCount() == 1);
     Assertions.checkState(contentTimeline.getWindowCount() == 1);
-    this.contentTimeline = contentTimeline;
     this.adGroupTimesUs = adGroupTimesUs;
     this.adCounts = adCounts;
     this.adsLoadedCounts = adsLoadedCounts;
@@ -64,33 +64,12 @@ public final class SinglePeriodAdTimeline extends Timeline {
   }
 
   @Override
-  public int getWindowCount() {
-    return 1;
-  }
-
-  @Override
-  public Window getWindow(int windowIndex, Window window, boolean setIds,
-      long defaultPositionProjectionUs) {
-    return contentTimeline.getWindow(windowIndex, window, setIds, defaultPositionProjectionUs);
-  }
-
-  @Override
-  public int getPeriodCount() {
-    return 1;
-  }
-
-  @Override
   public Period getPeriod(int periodIndex, Period period, boolean setIds) {
-    contentTimeline.getPeriod(periodIndex, period, setIds);
+    timeline.getPeriod(periodIndex, period, setIds);
     period.set(period.id, period.uid, period.windowIndex, period.durationUs,
         period.getPositionInWindowUs(), adGroupTimesUs, adCounts, adsLoadedCounts, adsPlayedCounts,
         adDurationsUs, adResumePositionUs);
     return period;
-  }
-
-  @Override
-  public int getIndexOfPeriod(Object uid) {
-    return contentTimeline.getIndexOfPeriod(uid);
   }
 
 }

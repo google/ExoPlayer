@@ -23,6 +23,7 @@ import com.google.android.exoplayer2.text.SimpleSubtitleDecoder;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.LongArray;
 import com.google.android.exoplayer2.util.ParsableByteArray;
+import com.google.android.exoplayer2.util.Util;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -132,7 +133,7 @@ public final class SsaDecoder extends SimpleSubtitleDecoder {
     formatEndIndex = C.INDEX_UNSET;
     formatTextIndex = C.INDEX_UNSET;
     for (int i = 0; i < formatKeyCount; i++) {
-      String key = values[i].trim().toLowerCase();
+      String key = Util.toLowerInvariant(values[i].trim());
       switch (key) {
         case "start":
           formatStartIndex = i;

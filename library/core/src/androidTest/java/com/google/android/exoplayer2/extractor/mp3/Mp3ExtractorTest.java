@@ -26,7 +26,7 @@ import com.google.android.exoplayer2.testutil.ExtractorAsserts.ExtractorFactory;
 public final class Mp3ExtractorTest extends InstrumentationTestCase {
 
   public void testMp3Sample() throws Exception {
-    ExtractorAsserts.assertOutput(new ExtractorFactory() {
+    ExtractorAsserts.assertBehavior(new ExtractorFactory() {
       @Override
       public Extractor create() {
         return new Mp3Extractor();
@@ -35,7 +35,7 @@ public final class Mp3ExtractorTest extends InstrumentationTestCase {
   }
 
   public void testTrimmedMp3Sample() throws Exception {
-    ExtractorAsserts.assertOutput(new ExtractorFactory() {
+    ExtractorAsserts.assertBehavior(new ExtractorFactory() {
       @Override
       public Extractor create() {
         return new Mp3Extractor();

@@ -17,6 +17,7 @@ package com.google.android.exoplayer2.audio;
 
 import android.os.Handler;
 import android.os.SystemClock;
+import android.support.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.Renderer;
@@ -84,15 +85,16 @@ public interface AudioRendererEventListener {
    */
   final class EventDispatcher {
 
-    private final Handler handler;
-    private final AudioRendererEventListener listener;
+    @Nullable private final Handler handler;
+    @Nullable private final AudioRendererEventListener listener;
 
     /**
      * @param handler A handler for dispatching events, or null if creating a dummy instance.
      * @param listener The listener to which events should be dispatched, or null if creating a
      *     dummy instance.
      */
-    public EventDispatcher(Handler handler, AudioRendererEventListener listener) {
+    public EventDispatcher(@Nullable Handler handler,
+        @Nullable AudioRendererEventListener listener) {
       this.handler = listener != null ? Assertions.checkNotNull(handler) : null;
       this.listener = listener;
     }

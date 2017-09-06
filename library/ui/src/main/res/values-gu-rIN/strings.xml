@@ -25,4 +25,5 @@
   <string name="exo_controls_repeat_all_description">"બધા પુનરાવર્તન કરો"</string>
   <string name="exo_controls_repeat_off_description">"કંઈ પુનરાવર્તન કરો"</string>
   <string name="exo_controls_repeat_one_description">"એક પુનરાવર્તન કરો"</string>
+  <string name="exo_controls_shuffle_description">"શફલ કરો"</string>
 </resources>

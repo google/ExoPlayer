@@ -50,8 +50,20 @@ public final class ImaAdsMediaSource implements MediaSource {
      * Called if there was an error loading ads. The media source will load the content without ads
      * if ads can't be loaded, so listen for this event if you need to implement additional handling
      * (for example, stopping the player).
+     *
+     * @param error The error.
      */
     void onAdLoadError(IOException error);
+
+    /**
+     * Called when the user clicks through an ad (for example, following a 'learn more' link).
+     */
+    void onAdClicked();
+
+    /**
+     * Called when the user taps a non-clickthrough part of an ad.
+     */
+    void onAdTapped();
 
   }
 
@@ -303,6 +315,34 @@ public final class ImaAdsMediaSource implements MediaSource {
           ImaAdsMediaSource.this.onLoadError(error);
         }
       });
+    }
+
+    @Override
+    public void onAdClicked() {
+      if (eventHandler != null && eventListener != null) {
+        eventHandler.post(new Runnable() {
+          @Override
+          public void run() {
+            if (!released) {
+              eventListener.onAdClicked();
+            }
+          }
+        });
+      }
+    }
+
+    @Override
+    public void onAdTapped() {
+      if (eventHandler != null && eventListener != null) {
+        eventHandler.post(new Runnable() {
+          @Override
+          public void run() {
+            if (!released) {
+              eventListener.onAdTapped();
+            }
+          }
+        });
+      }
     }
 
   }

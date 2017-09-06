@@ -23,9 +23,12 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.test.InstrumentationTestCase;
+import android.test.MoreAsserts;
+import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.testutil.TestUtil;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.Arrays;
 
 /**
  * Unit tests for {@link ContentDataSource}.
@@ -34,6 +37,9 @@ public final class ContentDataSourceTest extends InstrumentationTestCase {
 
   private static final String AUTHORITY = "com.google.android.exoplayer2.core.test";
   private static final String DATA_PATH = "binary/1024_incrementing_bytes.mp3";
+
+  private static final int TEST_DATA_OFFSET = 1;
+  private static final int TEST_DATA_LENGTH = 1023;
 
   public void testReadValidUri() throws Exception {
     ContentDataSource dataSource = new ContentDataSource(getInstrumentation().getContext());
@@ -59,6 +65,27 @@ public final class ContentDataSourceTest extends InstrumentationTestCase {
     } catch (ContentDataSource.ContentDataSourceException e) {
       // Expected.
       assertTrue(e.getCause() instanceof FileNotFoundException);
+    } finally {
+      dataSource.close();
+    }
+  }
+
+  public void testReadFromOffsetToEndOfInput() throws Exception {
+    ContentDataSource dataSource = new ContentDataSource(getInstrumentation().getContext());
+    Uri contentUri = new Uri.Builder()
+        .scheme(ContentResolver.SCHEME_CONTENT)
+        .authority(AUTHORITY)
+        .path(DATA_PATH).build();
+    try {
+      DataSpec dataSpec = new DataSpec(contentUri, TEST_DATA_OFFSET, C.LENGTH_UNSET, null);
+      long length = dataSource.open(dataSpec);
+      assertEquals(TEST_DATA_LENGTH, length);
+      byte[] expectedData = Arrays.copyOfRange(
+          TestUtil.getByteArray(getInstrumentation(), DATA_PATH), TEST_DATA_OFFSET,
+          TEST_DATA_OFFSET + TEST_DATA_LENGTH);
+      byte[] readData = TestUtil.readToEnd(dataSource);
+      MoreAsserts.assertEquals(expectedData, readData);
+      assertEquals(C.RESULT_END_OF_INPUT, dataSource.read(new byte[1], 0, 1));
     } finally {
       dataSource.close();
     }

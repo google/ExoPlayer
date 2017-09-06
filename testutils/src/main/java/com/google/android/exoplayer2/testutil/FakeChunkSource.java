@@ -50,7 +50,8 @@ public final class FakeChunkSource implements ChunkSource {
     }
 
     public FakeChunkSource createChunkSource(TrackSelection trackSelection, long durationUs) {
-      FakeAdaptiveDataSet dataSet = dataSetFactory.createDataSet(trackSelection, durationUs);
+      FakeAdaptiveDataSet dataSet =
+          dataSetFactory.createDataSet(trackSelection.getTrackGroup(), durationUs);
       dataSourceFactory.setFakeDataSet(dataSet);
       DataSource dataSource = dataSourceFactory.createDataSource();
       return new FakeChunkSource(trackSelection, dataSource, dataSet);
@@ -91,7 +92,8 @@ public final class FakeChunkSource implements ChunkSource {
       Format selectedFormat = trackSelection.getSelectedFormat();
       long startTimeUs = dataSet.getStartTime(chunkIndex);
       long endTimeUs = startTimeUs + dataSet.getChunkDuration(chunkIndex);
-      String uri = dataSet.getUri(trackSelection.getSelectedIndex());
+      int trackGroupIndex = trackSelection.getIndexInTrackGroup(trackSelection.getSelectedIndex());
+      String uri = dataSet.getUri(trackGroupIndex);
       Segment fakeDataChunk = dataSet.getData(uri).getSegments().get(chunkIndex);
       DataSpec dataSpec = new DataSpec(Uri.parse(uri), fakeDataChunk.byteOffset,
           fakeDataChunk.length, null);

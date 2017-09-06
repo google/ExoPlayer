@@ -35,6 +35,8 @@ public final class OpusLibrary {
    * Override the names of the Opus native libraries. If an application wishes to call this method,
    * it must do so before calling any other method defined by this class, and before instantiating a
    * {@link LibopusAudioRenderer} instance.
+   *
+   * @param libraries The names of the Opus native libraries.
    */
   public static void setLibraries(String... libraries) {
     LOADER.setLibraries(libraries);

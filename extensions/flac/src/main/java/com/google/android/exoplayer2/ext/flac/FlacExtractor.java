@@ -15,6 +15,8 @@
  */
 package com.google.android.exoplayer2.ext.flac;
 
+import static com.google.android.exoplayer2.util.Util.getPcmEncoding;
+
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.extractor.Extractor;
@@ -122,10 +124,20 @@ public final class FlacExtractor implements Extractor {
         }
 
       });
-
-      Format mediaFormat = Format.createAudioSampleFormat(null, MimeTypes.AUDIO_RAW, null,
-          streamInfo.bitRate(), Format.NO_VALUE, streamInfo.channels, streamInfo.sampleRate,
-          C.ENCODING_PCM_16BIT, null, null, 0, null);
+      Format mediaFormat =
+          Format.createAudioSampleFormat(
+              null,
+              MimeTypes.AUDIO_RAW,
+              null,
+              streamInfo.bitRate(),
+              Format.NO_VALUE,
+              streamInfo.channels,
+              streamInfo.sampleRate,
+              getPcmEncoding(streamInfo.bitsPerSample),
+              null,
+              null,
+              0,
+              null);
       trackOutput.format(mediaFormat);
 
       outputBuffer = new ParsableByteArray(streamInfo.maxDecodedFrameSize());
@@ -159,13 +171,17 @@ public final class FlacExtractor implements Extractor {
     if (position == 0) {
       metadataParsed = false;
     }
-    decoderJni.reset(position);
+    if (decoderJni != null) {
+      decoderJni.reset(position);
+    }
   }
 
   @Override
   public void release() {
-    decoderJni.release();
-    decoderJni = null;
+    if (decoderJni != null) {
+      decoderJni.release();
+      decoderJni = null;
+    }
   }
 
 }

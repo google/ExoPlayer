@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.google.android.exoplayer2.drm;
 
 import static org.mockito.Matchers.any;
@@ -154,7 +153,7 @@ public class OfflineLicenseHelperTest extends InstrumentationTestCase {
   }
 
   private static DrmInitData newDrmInitData() {
-    return new DrmInitData(new SchemeData(C.WIDEVINE_UUID, "cenc", "mimeType",
+    return new DrmInitData(new SchemeData(C.WIDEVINE_UUID, "mimeType",
         new byte[] {1, 4, 7, 0, 3, 6}));
   }
 

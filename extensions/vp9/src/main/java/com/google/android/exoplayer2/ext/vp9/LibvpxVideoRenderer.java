@@ -77,11 +77,18 @@ public final class LibvpxVideoRenderer extends BaseRenderer {
   public static final int MSG_SET_OUTPUT_BUFFER_RENDERER = C.MSG_CUSTOM_BASE;
 
   /**
-   * The number of input buffers and the number of output buffers. The renderer may limit the
-   * minimum possible value due to requiring multiple output buffers to be dequeued at a time for it
-   * to make progress.
+   * The number of input buffers.
    */
-  private static final int NUM_BUFFERS = 16;
+  private static final int NUM_INPUT_BUFFERS = 8;
+  /**
+   * The number of output buffers. The renderer may limit the minimum possible value due to
+   * requiring multiple output buffers to be dequeued at a time for it to make progress.
+   */
+  private static final int NUM_OUTPUT_BUFFERS = 16;
+  /**
+   * The initial input buffer size. Input buffers are reallocated dynamically if this value is
+   * insufficient.
+   */
   private static final int INITIAL_INPUT_BUFFER_SIZE = 768 * 1024; // Value based on cs/SoftVpx.cpp.
 
   private final boolean scaleToFit;
@@ -187,8 +194,12 @@ public final class LibvpxVideoRenderer extends BaseRenderer {
 
   @Override
   public int supportsFormat(Format format) {
-    return VpxLibrary.isAvailable() && MimeTypes.VIDEO_VP9.equalsIgnoreCase(format.sampleMimeType)
-        ? (FORMAT_HANDLED | ADAPTIVE_SEAMLESS) : FORMAT_UNSUPPORTED_TYPE;
+    if (!VpxLibrary.isAvailable() || !MimeTypes.VIDEO_VP9.equalsIgnoreCase(format.sampleMimeType)) {
+      return FORMAT_UNSUPPORTED_TYPE;
+    } else if (!supportsFormatDrm(drmSessionManager, format.drmInitData)) {
+      return FORMAT_UNSUPPORTED_DRM;
+    }
+    return FORMAT_HANDLED | ADAPTIVE_SEAMLESS;
   }
 
   @Override
@@ -564,7 +575,8 @@ public final class LibvpxVideoRenderer extends BaseRenderer {
     try {
       long codecInitializingTimestamp = SystemClock.elapsedRealtime();
       TraceUtil.beginSection("createVpxDecoder");
-      decoder = new VpxDecoder(NUM_BUFFERS, NUM_BUFFERS, INITIAL_INPUT_BUFFER_SIZE, mediaCrypto);
+      decoder = new VpxDecoder(NUM_INPUT_BUFFERS, NUM_OUTPUT_BUFFERS, INITIAL_INPUT_BUFFER_SIZE,
+          mediaCrypto);
       decoder.setOutputMode(outputMode);
       TraceUtil.endSection();
       long codecInitializedTimestamp = SystemClock.elapsedRealtime();

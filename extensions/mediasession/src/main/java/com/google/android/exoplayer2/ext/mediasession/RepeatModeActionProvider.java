@@ -14,11 +14,9 @@ package com.google.android.exoplayer2.ext.mediasession;
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.media.session.PlaybackStateCompat;
-import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.util.RepeatModeUtil;
 
@@ -28,11 +26,8 @@ import com.google.android.exoplayer2.util.RepeatModeUtil;
 public final class RepeatModeActionProvider implements MediaSessionConnector.CustomActionProvider {
 
   private static final String ACTION_REPEAT_MODE = "ACTION_EXO_REPEAT_MODE";
-  @RepeatModeUtil.RepeatToggleModes
-  private static final int DEFAULT_REPEAT_MODES = RepeatModeUtil.REPEAT_TOGGLE_MODE_ONE
-      | RepeatModeUtil.REPEAT_TOGGLE_MODE_ALL;
 
-  private final ExoPlayer player;
+  private final Player player;
   @RepeatModeUtil.RepeatToggleModes
   private final int repeatToggleModes;
   private final CharSequence repeatAllDescription;
@@ -40,26 +35,26 @@ public final class RepeatModeActionProvider implements MediaSessionConnector.Cus
   private final CharSequence repeatOffDescription;
 
   /**
-   * Creates a new {@link RepeatModeActionProvider}.
+   * Creates a new instance.
    * <p>
-   * This is equivalent to calling the two argument constructor with
-   * {@code RepeatModeUtil#REPEAT_TOGGLE_MODE_ONE | RepeatModeUtil#REPEAT_TOGGLE_MODE_ALL}.
+   * Equivalent to {@code RepeatModeActionProvider(context, player,
+   *     MediaSessionConnector.DEFAULT_REPEAT_TOGGLE_MODES)}.
    *
    * @param context The context.
    * @param player The player on which to toggle the repeat mode.
    */
-  public RepeatModeActionProvider(Context context, ExoPlayer player) {
-    this(context, player, DEFAULT_REPEAT_MODES);
+  public RepeatModeActionProvider(Context context, Player player) {
+    this(context, player, MediaSessionConnector.DEFAULT_REPEAT_TOGGLE_MODES);
   }
 
   /**
-   * Creates a new {@link RepeatModeActionProvider} for the given repeat toggle modes.
+   * Creates a new instance enabling the given repeat toggle modes.
    *
    * @param context The context.
    * @param player The player on which to toggle the repeat mode.
    * @param repeatToggleModes The toggle modes to enable.
    */
-  public RepeatModeActionProvider(Context context, ExoPlayer player,
+  public RepeatModeActionProvider(Context context, Player player,
       @RepeatModeUtil.RepeatToggleModes int repeatToggleModes) {
     this.player = player;
     this.repeatToggleModes = repeatToggleModes;

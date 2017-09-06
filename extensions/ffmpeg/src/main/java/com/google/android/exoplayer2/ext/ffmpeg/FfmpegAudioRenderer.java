@@ -22,6 +22,7 @@ import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.audio.AudioProcessor;
 import com.google.android.exoplayer2.audio.AudioRendererEventListener;
 import com.google.android.exoplayer2.audio.SimpleDecoderAudioRenderer;
+import com.google.android.exoplayer2.drm.DrmSessionManager;
 import com.google.android.exoplayer2.drm.ExoMediaCrypto;
 import com.google.android.exoplayer2.util.MimeTypes;
 
@@ -30,7 +31,14 @@ import com.google.android.exoplayer2.util.MimeTypes;
  */
 public final class FfmpegAudioRenderer extends SimpleDecoderAudioRenderer {
 
+  /**
+   * The number of input and output buffers.
+   */
   private static final int NUM_BUFFERS = 16;
+  /**
+   * The initial input buffer size. Input buffers are reallocated dynamically if this value is
+   * insufficient.
+   */
   private static final int INITIAL_INPUT_BUFFER_SIZE = 960 * 6;
 
   private FfmpegDecoder decoder;
@@ -51,13 +59,18 @@ public final class FfmpegAudioRenderer extends SimpleDecoderAudioRenderer {
   }
 
   @Override
-  protected int supportsFormatInternal(Format format) {
-    if (!FfmpegLibrary.isAvailable()) {
+  protected int supportsFormatInternal(DrmSessionManager<ExoMediaCrypto> drmSessionManager,
+      Format format) {
+    String sampleMimeType = format.sampleMimeType;
+    if (!FfmpegLibrary.isAvailable() || !MimeTypes.isAudio(sampleMimeType)) {
       return FORMAT_UNSUPPORTED_TYPE;
+    } else if (!FfmpegLibrary.supportsFormat(sampleMimeType)) {
+      return FORMAT_UNSUPPORTED_SUBTYPE;
+    } else if (!supportsFormatDrm(drmSessionManager, format.drmInitData)) {
+      return FORMAT_UNSUPPORTED_DRM;
+    } else {
+      return FORMAT_HANDLED;
     }
-    String mimeType = format.sampleMimeType;
-    return FfmpegLibrary.supportsFormat(mimeType) ? FORMAT_HANDLED
-        : MimeTypes.isAudio(mimeType) ? FORMAT_UNSUPPORTED_SUBTYPE : FORMAT_UNSUPPORTED_TYPE;
   }
 
   @Override

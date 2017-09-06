@@ -29,18 +29,18 @@ public final class CommonEncryptionDrmTest extends ActivityInstrumentationTestCa
   private static final String TAG = "CencDrmTest";
 
   private static final String URL_cenc =
-      "https://storage.googleapis.com/wvmedia/cenc/h264/tears/tears.mpd";
+      "https://storage.googleapis.com/exoplayer-test-media-1/gts/tears-cenc.mpd";
   private static final String URL_cbc1 =
-      "https://storage.googleapis.com/wvmedia/cbc1/h264/tears/tears_aes_cbc1.mpd";
+      "https://storage.googleapis.com/exoplayer-test-media-1/gts/tears-aes-cbc1.mpd";
   private static final String URL_cbcs =
-      "https://storage.googleapis.com/wvmedia/cbcs/h264/tears/tears_aes_cbcs.mpd";
+      "https://storage.googleapis.com/exoplayer-test-media-1/gts/tears-aes-cbcs.mpd";
   private static final String ID_AUDIO = "0";
   private static final String[] IDS_VIDEO = new String[] {"1", "2"};
 
   // Seeks help reproduce playback issues in certain devices.
   private static final ActionSchedule ACTION_SCHEDULE_WITH_SEEKS = new ActionSchedule.Builder(TAG)
       .delay(30000).seek(300000).delay(10000).seek(270000).delay(10000).seek(200000).delay(10000)
-      .stop().build();
+      .seek(732000).build();
 
   private DashTestRunner testRunner;
 

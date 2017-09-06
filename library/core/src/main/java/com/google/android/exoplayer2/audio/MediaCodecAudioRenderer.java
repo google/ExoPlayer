@@ -21,11 +21,13 @@ import android.media.MediaCrypto;
 import android.media.MediaFormat;
 import android.media.audiofx.Virtualizer;
 import android.os.Handler;
+import android.support.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.PlaybackParameters;
 import com.google.android.exoplayer2.audio.AudioRendererEventListener.EventDispatcher;
+import com.google.android.exoplayer2.drm.DrmInitData;
 import com.google.android.exoplayer2.drm.DrmSessionManager;
 import com.google.android.exoplayer2.drm.FrameworkMediaCrypto;
 import com.google.android.exoplayer2.mediacodec.MediaCodecInfo;
@@ -72,7 +74,7 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
    *     has obtained the keys necessary to decrypt encrypted regions of the media.
    */
   public MediaCodecAudioRenderer(MediaCodecSelector mediaCodecSelector,
-      DrmSessionManager<FrameworkMediaCrypto> drmSessionManager,
+      @Nullable DrmSessionManager<FrameworkMediaCrypto> drmSessionManager,
       boolean playClearSamplesWithoutKeys) {
     this(mediaCodecSelector, drmSessionManager, playClearSamplesWithoutKeys, null, null);
   }
@@ -83,8 +85,8 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
    *     null if delivery of events is not required.
    * @param eventListener A listener of events. May be null if delivery of events is not required.
    */
-  public MediaCodecAudioRenderer(MediaCodecSelector mediaCodecSelector, Handler eventHandler,
-      AudioRendererEventListener eventListener) {
+  public MediaCodecAudioRenderer(MediaCodecSelector mediaCodecSelector,
+      @Nullable Handler eventHandler, @Nullable AudioRendererEventListener eventListener) {
     this(mediaCodecSelector, null, true, eventHandler, eventListener);
   }
 
@@ -102,9 +104,9 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
    * @param eventListener A listener of events. May be null if delivery of events is not required.
    */
   public MediaCodecAudioRenderer(MediaCodecSelector mediaCodecSelector,
-      DrmSessionManager<FrameworkMediaCrypto> drmSessionManager,
-      boolean playClearSamplesWithoutKeys, Handler eventHandler,
-      AudioRendererEventListener eventListener) {
+      @Nullable DrmSessionManager<FrameworkMediaCrypto> drmSessionManager,
+      boolean playClearSamplesWithoutKeys, @Nullable Handler eventHandler,
+      @Nullable AudioRendererEventListener eventListener) {
     this(mediaCodecSelector, drmSessionManager, playClearSamplesWithoutKeys, eventHandler,
         eventListener, null);
   }
@@ -127,29 +129,44 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
    *     output.
    */
   public MediaCodecAudioRenderer(MediaCodecSelector mediaCodecSelector,
-      DrmSessionManager<FrameworkMediaCrypto> drmSessionManager,
-      boolean playClearSamplesWithoutKeys, Handler eventHandler,
-      AudioRendererEventListener eventListener, AudioCapabilities audioCapabilities,
-      AudioProcessor... audioProcessors) {
+      @Nullable DrmSessionManager<FrameworkMediaCrypto> drmSessionManager,
+      boolean playClearSamplesWithoutKeys, @Nullable Handler eventHandler,
+      @Nullable AudioRendererEventListener eventListener,
+      @Nullable AudioCapabilities audioCapabilities, AudioProcessor... audioProcessors) {
     super(C.TRACK_TYPE_AUDIO, mediaCodecSelector, drmSessionManager, playClearSamplesWithoutKeys);
     audioTrack = new AudioTrack(audioCapabilities, audioProcessors, new AudioTrackListener());
     eventDispatcher = new EventDispatcher(eventHandler, eventListener);
   }
 
   @Override
-  protected int supportsFormat(MediaCodecSelector mediaCodecSelector, Format format)
+  protected int supportsFormat(MediaCodecSelector mediaCodecSelector,
+      DrmSessionManager<FrameworkMediaCrypto> drmSessionManager, Format format)
       throws DecoderQueryException {
     String mimeType = format.sampleMimeType;
     if (!MimeTypes.isAudio(mimeType)) {
       return FORMAT_UNSUPPORTED_TYPE;
     }
     int tunnelingSupport = Util.SDK_INT >= 21 ? TUNNELING_SUPPORTED : TUNNELING_NOT_SUPPORTED;
-    if (allowPassthrough(mimeType) && mediaCodecSelector.getPassthroughDecoderInfo() != null) {
+    boolean supportsFormatDrm = supportsFormatDrm(drmSessionManager, format.drmInitData);
+    if (supportsFormatDrm && allowPassthrough(mimeType)
+        && mediaCodecSelector.getPassthroughDecoderInfo() != null) {
       return ADAPTIVE_NOT_SEAMLESS | tunnelingSupport | FORMAT_HANDLED;
     }
-    MediaCodecInfo decoderInfo = mediaCodecSelector.getDecoderInfo(mimeType, false);
+    boolean requiresSecureDecryption = false;
+    DrmInitData drmInitData = format.drmInitData;
+    if (drmInitData != null) {
+      for (int i = 0; i < drmInitData.schemeDataCount; i++) {
+        requiresSecureDecryption |= drmInitData.get(i).requiresSecureDecryption;
+      }
+    }
+    MediaCodecInfo decoderInfo = mediaCodecSelector.getDecoderInfo(mimeType,
+        requiresSecureDecryption);
     if (decoderInfo == null) {
-      return FORMAT_UNSUPPORTED_SUBTYPE;
+      return requiresSecureDecryption && mediaCodecSelector.getDecoderInfo(mimeType, false) != null
+          ? FORMAT_UNSUPPORTED_DRM : FORMAT_UNSUPPORTED_SUBTYPE;
+    }
+    if (!supportsFormatDrm) {
+      return FORMAT_UNSUPPORTED_DRM;
     }
     // Note: We assume support for unknown sampleRate and channelCount.
     boolean decoderCapable = Util.SDK_INT < 21

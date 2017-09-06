@@ -253,7 +253,7 @@ public final class Util {
    * @return The code points encoding using UTF-8.
    */
   public static byte[] getUtf8Bytes(String value) {
-    return value.getBytes(Charset.defaultCharset()); // UTF-8 is the default on Android.
+    return value.getBytes(Charset.forName(C.UTF8_NAME));
   }
 
   /**
@@ -895,7 +895,7 @@ public final class Util {
    */
   @C.ContentType
   public static int inferContentType(String fileName) {
-    fileName = fileName.toLowerCase();
+    fileName = Util.toLowerInvariant(fileName);
     if (fileName.endsWith(".mpd")) {
       return C.TYPE_DASH;
     } else if (fileName.endsWith(".m3u8")) {

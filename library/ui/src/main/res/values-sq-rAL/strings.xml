@@ -25,4 +25,5 @@
   <string name="exo_controls_repeat_all_description">"Përsërit të gjithë"</string>
   <string name="exo_controls_repeat_off_description">"Përsëritni asnjë"</string>
   <string name="exo_controls_repeat_one_description">"Përsëritni një"</string>
+  <string name="exo_controls_shuffle_description">"Përziej"</string>
 </resources>

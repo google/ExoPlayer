@@ -25,4 +25,5 @@
   <string name="exo_controls_repeat_all_description">"გამეორება ყველა"</string>
   <string name="exo_controls_repeat_off_description">"გაიმეორეთ არცერთი"</string>
   <string name="exo_controls_repeat_one_description">"გაიმეორეთ ერთი"</string>
+  <string name="exo_controls_shuffle_description">"არეულად დაკვრა"</string>
 </resources>

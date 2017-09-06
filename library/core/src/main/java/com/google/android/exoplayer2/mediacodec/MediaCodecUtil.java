@@ -288,9 +288,11 @@ public final class MediaCodecUtil {
       return false;
     }
 
-    // Work around https://github.com/google/ExoPlayer/issues/1528
+    // Work around https://github.com/google/ExoPlayer/issues/1528 and
+    // https://github.com/google/ExoPlayer/issues/3171
     if (Util.SDK_INT < 18 && "OMX.MTK.AUDIO.DECODER.AAC".equals(name)
-        && "a70".equals(Util.DEVICE)) {
+        && ("a70".equals(Util.DEVICE)
+            || ("Xiaomi".equals(Util.MANUFACTURER) && Util.DEVICE.startsWith("HM")))) {
       return false;
     }
 

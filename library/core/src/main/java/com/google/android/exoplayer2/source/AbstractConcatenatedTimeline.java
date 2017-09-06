@@ -17,7 +17,7 @@ package com.google.android.exoplayer2.source;
 
 import android.util.Pair;
 import com.google.android.exoplayer2.C;
-import com.google.android.exoplayer2.ExoPlayer;
+import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.Timeline;
 
 /**
@@ -25,104 +25,123 @@ import com.google.android.exoplayer2.Timeline;
  */
 /* package */ abstract class AbstractConcatenatedTimeline extends Timeline {
 
+  private final int childCount;
+  private final ShuffleOrder shuffleOrder;
+
   /**
-   * Meta data of a child timeline.
+   * Sets up a concatenated timeline with a shuffle order of child timelines.
+   *
+   * @param shuffleOrder A shuffle order of child timelines. The number of child timelines must
+   *     match the number of elements in the shuffle order.
    */
-  protected static final class ChildDataHolder {
-
-    /**
-     * Child timeline.
-     */
-    public Timeline timeline;
-
-    /**
-     * First period index belonging to the child timeline.
-     */
-    public int firstPeriodIndexInChild;
-
-    /**
-     * First window index belonging to the child timeline.
-     */
-    public int firstWindowIndexInChild;
-
-    /**
-     * UID of child timeline.
-     */
-    public Object uid;
-
-    /**
-     * Set child holder data.
-     *
-     * @param timeline Child timeline.
-     * @param firstPeriodIndexInChild First period index belonging to the child timeline.
-     * @param firstWindowIndexInChild First window index belonging to the child timeline.
-     * @param uid UID of child timeline.
-     */
-    public void setData(Timeline timeline, int firstPeriodIndexInChild, int firstWindowIndexInChild,
-        Object uid) {
-      this.timeline = timeline;
-      this.firstPeriodIndexInChild = firstPeriodIndexInChild;
-      this.firstWindowIndexInChild = firstWindowIndexInChild;
-      this.uid = uid;
-    }
-
-  }
-
-  private final ChildDataHolder childDataHolder;
-
-  public AbstractConcatenatedTimeline() {
-    childDataHolder = new ChildDataHolder();
+  public AbstractConcatenatedTimeline(ShuffleOrder shuffleOrder) {
+    this.shuffleOrder = shuffleOrder;
+    this.childCount = shuffleOrder.getLength();
   }
 
   @Override
-  public int getNextWindowIndex(int windowIndex, @ExoPlayer.RepeatMode int repeatMode) {
-    getChildDataByWindowIndex(windowIndex, childDataHolder);
-    int firstWindowIndexInChild = childDataHolder.firstWindowIndexInChild;
-    int nextWindowIndexInChild = childDataHolder.timeline.getNextWindowIndex(
+  public int getNextWindowIndex(int windowIndex, @Player.RepeatMode int repeatMode,
+      boolean shuffleModeEnabled) {
+    // Find next window within current child.
+    int childIndex = getChildIndexByWindowIndex(windowIndex);
+    int firstWindowIndexInChild = getFirstWindowIndexByChildIndex(childIndex);
+    int nextWindowIndexInChild = getTimelineByChildIndex(childIndex).getNextWindowIndex(
         windowIndex - firstWindowIndexInChild,
-        repeatMode == ExoPlayer.REPEAT_MODE_ALL ? ExoPlayer.REPEAT_MODE_OFF : repeatMode);
+        repeatMode == Player.REPEAT_MODE_ALL ? Player.REPEAT_MODE_OFF : repeatMode,
+        shuffleModeEnabled);
     if (nextWindowIndexInChild != C.INDEX_UNSET) {
       return firstWindowIndexInChild + nextWindowIndexInChild;
-    } else {
-      firstWindowIndexInChild += childDataHolder.timeline.getWindowCount();
-      if (firstWindowIndexInChild < getWindowCount()) {
-        return firstWindowIndexInChild;
-      } else if (repeatMode == ExoPlayer.REPEAT_MODE_ALL) {
-        return 0;
-      } else {
-        return C.INDEX_UNSET;
-      }
     }
+    // If not found, find first window of next non-empty child.
+    int nextChildIndex = getNextChildIndex(childIndex, shuffleModeEnabled);
+    while (nextChildIndex != C.INDEX_UNSET && getTimelineByChildIndex(nextChildIndex).isEmpty()) {
+      nextChildIndex = getNextChildIndex(nextChildIndex, shuffleModeEnabled);
+    }
+    if (nextChildIndex != C.INDEX_UNSET) {
+      return getFirstWindowIndexByChildIndex(nextChildIndex)
+          + getTimelineByChildIndex(nextChildIndex).getFirstWindowIndex(shuffleModeEnabled);
+    }
+    // If not found, this is the last window.
+    if (repeatMode == Player.REPEAT_MODE_ALL) {
+      return getFirstWindowIndex(shuffleModeEnabled);
+    }
+    return C.INDEX_UNSET;
   }
 
   @Override
-  public int getPreviousWindowIndex(int windowIndex, @ExoPlayer.RepeatMode int repeatMode) {
-    getChildDataByWindowIndex(windowIndex, childDataHolder);
-    int firstWindowIndexInChild = childDataHolder.firstWindowIndexInChild;
-    int previousWindowIndexInChild = childDataHolder.timeline.getPreviousWindowIndex(
+  public int getPreviousWindowIndex(int windowIndex, @Player.RepeatMode int repeatMode,
+      boolean shuffleModeEnabled) {
+    // Find previous window within current child.
+    int childIndex = getChildIndexByWindowIndex(windowIndex);
+    int firstWindowIndexInChild = getFirstWindowIndexByChildIndex(childIndex);
+    int previousWindowIndexInChild = getTimelineByChildIndex(childIndex).getPreviousWindowIndex(
         windowIndex - firstWindowIndexInChild,
-        repeatMode == ExoPlayer.REPEAT_MODE_ALL ? ExoPlayer.REPEAT_MODE_OFF : repeatMode);
+        repeatMode == Player.REPEAT_MODE_ALL ? Player.REPEAT_MODE_OFF : repeatMode,
+        shuffleModeEnabled);
     if (previousWindowIndexInChild != C.INDEX_UNSET) {
       return firstWindowIndexInChild + previousWindowIndexInChild;
-    } else {
-      if (firstWindowIndexInChild > 0) {
-        return firstWindowIndexInChild - 1;
-      } else if (repeatMode == ExoPlayer.REPEAT_MODE_ALL) {
-        return getWindowCount() - 1;
-      } else {
+    }
+    // If not found, find last window of previous non-empty child.
+    int previousChildIndex = getPreviousChildIndex(childIndex, shuffleModeEnabled);
+    while (previousChildIndex != C.INDEX_UNSET
+        && getTimelineByChildIndex(previousChildIndex).isEmpty()) {
+      previousChildIndex = getPreviousChildIndex(previousChildIndex, shuffleModeEnabled);
+    }
+    if (previousChildIndex != C.INDEX_UNSET) {
+      return getFirstWindowIndexByChildIndex(previousChildIndex)
+          + getTimelineByChildIndex(previousChildIndex).getLastWindowIndex(shuffleModeEnabled);
+    }
+    // If not found, this is the first window.
+    if (repeatMode == Player.REPEAT_MODE_ALL) {
+      return getLastWindowIndex(shuffleModeEnabled);
+    }
+    return C.INDEX_UNSET;
+  }
+
+  @Override
+  public int getLastWindowIndex(boolean shuffleModeEnabled) {
+    if (childCount == 0) {
+      return C.INDEX_UNSET;
+    }
+    // Find last non-empty child.
+    int lastChildIndex = shuffleModeEnabled ? shuffleOrder.getLastIndex() : childCount - 1;
+    while (getTimelineByChildIndex(lastChildIndex).isEmpty()) {
+      lastChildIndex = getPreviousChildIndex(lastChildIndex, shuffleModeEnabled);
+      if (lastChildIndex == C.INDEX_UNSET) {
+        // All children are empty.
         return C.INDEX_UNSET;
       }
     }
+    return getFirstWindowIndexByChildIndex(lastChildIndex)
+        + getTimelineByChildIndex(lastChildIndex).getLastWindowIndex(shuffleModeEnabled);
+  }
+
+  @Override
+  public int getFirstWindowIndex(boolean shuffleModeEnabled) {
+    if (childCount == 0) {
+      return C.INDEX_UNSET;
+    }
+    // Find first non-empty child.
+    int firstChildIndex = shuffleModeEnabled ? shuffleOrder.getFirstIndex() : 0;
+    while (getTimelineByChildIndex(firstChildIndex).isEmpty()) {
+      firstChildIndex = getNextChildIndex(firstChildIndex, shuffleModeEnabled);
+      if (firstChildIndex == C.INDEX_UNSET) {
+        // All children are empty.
+        return C.INDEX_UNSET;
+      }
+    }
+    return getFirstWindowIndexByChildIndex(firstChildIndex)
+        + getTimelineByChildIndex(firstChildIndex).getFirstWindowIndex(shuffleModeEnabled);
   }
 
   @Override
   public final Window getWindow(int windowIndex, Window window, boolean setIds,
       long defaultPositionProjectionUs) {
-    getChildDataByWindowIndex(windowIndex, childDataHolder);
-    int firstWindowIndexInChild = childDataHolder.firstWindowIndexInChild;
-    int firstPeriodIndexInChild = childDataHolder.firstPeriodIndexInChild;
-    childDataHolder.timeline.getWindow(windowIndex - firstWindowIndexInChild, window, setIds,
-        defaultPositionProjectionUs);
+    int childIndex = getChildIndexByWindowIndex(windowIndex);
+    int firstWindowIndexInChild = getFirstWindowIndexByChildIndex(childIndex);
+    int firstPeriodIndexInChild = getFirstPeriodIndexByChildIndex(childIndex);
+    getTimelineByChildIndex(childIndex).getWindow(windowIndex - firstWindowIndexInChild, window,
+        setIds, defaultPositionProjectionUs);
     window.firstPeriodIndex += firstPeriodIndexInChild;
     window.lastPeriodIndex += firstPeriodIndexInChild;
     return window;
@@ -130,13 +149,14 @@ import com.google.android.exoplayer2.Timeline;
 
   @Override
   public final Period getPeriod(int periodIndex, Period period, boolean setIds) {
-    getChildDataByPeriodIndex(periodIndex, childDataHolder);
-    int firstWindowIndexInChild = childDataHolder.firstWindowIndexInChild;
-    int firstPeriodIndexInChild = childDataHolder.firstPeriodIndexInChild;
-    childDataHolder.timeline.getPeriod(periodIndex - firstPeriodIndexInChild, period, setIds);
+    int childIndex = getChildIndexByPeriodIndex(periodIndex);
+    int firstWindowIndexInChild = getFirstWindowIndexByChildIndex(childIndex);
+    int firstPeriodIndexInChild = getFirstPeriodIndexByChildIndex(childIndex);
+    getTimelineByChildIndex(childIndex).getPeriod(periodIndex - firstPeriodIndexInChild, period,
+        setIds);
     period.windowIndex += firstWindowIndexInChild;
     if (setIds) {
-      period.uid = Pair.create(childDataHolder.uid, period.uid);
+      period.uid = Pair.create(getChildUidByChildIndex(childIndex), period.uid);
     }
     return period;
   }
@@ -149,37 +169,74 @@ import com.google.android.exoplayer2.Timeline;
     Pair<?, ?> childUidAndPeriodUid = (Pair<?, ?>) uid;
     Object childUid = childUidAndPeriodUid.first;
     Object periodUid = childUidAndPeriodUid.second;
-    if (!getChildDataByChildUid(childUid, childDataHolder)) {
+    int childIndex = getChildIndexByChildUid(childUid);
+    if (childIndex == C.INDEX_UNSET) {
       return C.INDEX_UNSET;
     }
-    int periodIndexInChild = childDataHolder.timeline.getIndexOfPeriod(periodUid);
+    int periodIndexInChild = getTimelineByChildIndex(childIndex).getIndexOfPeriod(periodUid);
     return periodIndexInChild == C.INDEX_UNSET ? C.INDEX_UNSET
-        : childDataHolder.firstPeriodIndexInChild + periodIndexInChild;
+        : getFirstPeriodIndexByChildIndex(childIndex) + periodIndexInChild;
   }
 
   /**
-   * Populates {@link ChildDataHolder} for the child timeline containing the given period index.
+   * Returns the index of the child timeline containing the given period index.
    *
    * @param periodIndex A valid period index within the bounds of the timeline.
-   * @param childData A data holder to be populated.
    */
-  protected abstract void getChildDataByPeriodIndex(int periodIndex, ChildDataHolder childData);
+  protected abstract int getChildIndexByPeriodIndex(int periodIndex);
 
   /**
-   * Populates {@link ChildDataHolder} for the child timeline containing the given window index.
+   * Returns the index of the child timeline containing the given window index.
    *
    * @param windowIndex A valid window index within the bounds of the timeline.
-   * @param childData A data holder to be populated.
    */
-  protected abstract void getChildDataByWindowIndex(int windowIndex, ChildDataHolder childData);
+  protected abstract int getChildIndexByWindowIndex(int windowIndex);
 
   /**
-   * Populates {@link ChildDataHolder} for the child timeline with the given UID.
+   * Returns the index of the child timeline with the given UID or {@link C#INDEX_UNSET} if not
+   * found.
    *
    * @param childUid A child UID.
-   * @param childData A data holder to be populated.
-   * @return Whether a child with the given UID was found.
+   * @return Index of child timeline or {@link C#INDEX_UNSET} if UID was not found.
    */
-  protected abstract boolean getChildDataByChildUid(Object childUid, ChildDataHolder childData);
+  protected abstract int getChildIndexByChildUid(Object childUid);
+
+  /**
+   * Returns the child timeline for the child with the given index.
+   *
+   * @param childIndex A valid child index within the bounds of the timeline.
+   */
+  protected abstract Timeline getTimelineByChildIndex(int childIndex);
+
+  /**
+   * Returns the first period index belonging to the child timeline with the given index.
+   *
+   * @param childIndex A valid child index within the bounds of the timeline.
+   */
+  protected abstract int getFirstPeriodIndexByChildIndex(int childIndex);
+
+  /**
+   * Returns the first window index belonging to the child timeline with the given index.
+   *
+   * @param childIndex A valid child index within the bounds of the timeline.
+   */
+  protected abstract int getFirstWindowIndexByChildIndex(int childIndex);
+
+  /**
+   * Returns the UID of the child timeline with the given index.
+   *
+   * @param childIndex A valid child index within the bounds of the timeline.
+   */
+  protected abstract Object getChildUidByChildIndex(int childIndex);
+
+  private int getNextChildIndex(int childIndex, boolean shuffleModeEnabled) {
+    return shuffleModeEnabled ? shuffleOrder.getNextIndex(childIndex)
+        : childIndex < childCount - 1 ? childIndex + 1 : C.INDEX_UNSET;
+  }
+
+  private int getPreviousChildIndex(int childIndex, boolean shuffleModeEnabled) {
+    return shuffleModeEnabled ? shuffleOrder.getPreviousIndex(childIndex)
+        : childIndex > 0 ? childIndex - 1 : C.INDEX_UNSET;
+  }
 
 }

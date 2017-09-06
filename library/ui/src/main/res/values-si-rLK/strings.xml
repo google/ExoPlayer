@@ -25,4 +25,5 @@
   <string name="exo_controls_repeat_all_description">"සියලු නැවත"</string>
   <string name="exo_controls_repeat_off_description">"කිසිවක් නැවත"</string>
   <string name="exo_controls_repeat_one_description">"නැවත නැවත එක්"</string>
+  <string name="exo_controls_shuffle_description">"කලවම් කරන්න"</string>
 </resources>

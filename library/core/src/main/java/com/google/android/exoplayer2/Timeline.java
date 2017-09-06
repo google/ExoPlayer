@@ -19,17 +19,20 @@ import android.util.Pair;
 import com.google.android.exoplayer2.util.Assertions;
 
 /**
- * A representation of media currently available for playback.
- * <p>
- * Timeline instances are immutable. For cases where the available media is changing dynamically
- * (e.g. live streams) a timeline provides a snapshot of the media currently available.
+ * A flexible representation of the structure of media. A timeline is able to represent the
+ * structure of a wide variety of media, from simple cases like a single media file through to
+ * complex compositions of media such as playlists and streams with inserted ads. Instances are
+ * immutable. For cases where media is changing dynamically (e.g. live streams), a timeline provides
+ * a snapshot of the current state.
  * <p>
  * A timeline consists of related {@link Period}s and {@link Window}s. A period defines a single
- * logical piece of media, for example a media file. A window spans one or more periods, defining
- * the region within those periods that's currently available for playback along with additional
- * information such as whether seeking is supported within the window. Each window defines a default
- * position, which is the position from which playback will start when the player starts playing the
- * window. The following examples illustrate timelines for various use cases.
+ * logical piece of media, for example a media file. It may also define groups of ads inserted into
+ * the media, along with information about whether those ads have been loaded and played. A window
+ * spans one or more periods, defining the region within those periods that's currently available
+ * for playback along with additional information such as whether seeking is supported within the
+ * window. Each window defines a default position, which is the position from which playback will
+ * start when the player starts playing the window. The following examples illustrate timelines for
+ * various use cases.
  *
  * <h3 id="single-file">Single media file or on-demand stream</h3>
  * <p align="center">
@@ -78,28 +81,36 @@ import com.google.android.exoplayer2.util.Assertions;
  *       with multiple periods">
  * </p>
  * This case arises when a live stream is explicitly divided into separate periods, for example at
- * content and advert boundaries. This case is similar to the <a href="#live-limited">Live stream
- * with limited availability</a> case, except that the window may span more than one period.
- * Multiple periods are also possible in the indefinite availability case.
+ * content boundaries. This case is similar to the <a href="#live-limited">Live stream with limited
+ * availability</a> case, except that the window may span more than one period. Multiple periods are
+ * also possible in the indefinite availability case.
  *
- * <h3>On-demand pre-roll followed by live stream</h3>
+ * <h3>On-demand stream followed by live stream</h3>
  * <p align="center">
- *   <img src="doc-files/timeline-advanced.svg" alt="Example timeline for an on-demand pre-roll
+ *   <img src="doc-files/timeline-advanced.svg" alt="Example timeline for an on-demand stream
  *       followed by a live stream">
  * </p>
  * This case is the concatenation of the <a href="#single-file">Single media file or on-demand
  * stream</a> and <a href="#multi-period">Live stream with multiple periods</a> cases. When playback
- * of the pre-roll ends, playback of the live stream will start from its default position near the
- * live edge.
+ * of the on-demand stream ends, playback of the live stream will start from its default position
+ * near the live edge.
+ *
+ * <h3 id="single-file-midrolls">On-demand stream with mid-roll ads</h3>
+ * <p align="center">
+ *   <img src="doc-files/timeline-single-file-midrolls.svg" alt="Example timeline for an on-demand
+ *       stream with mid-roll ad groups">
+ * </p>
+ * This case includes mid-roll ad groups, which are defined as part of the timeline's single period.
+ * The period can be queried for information about the ad groups and the ads they contain.
  */
 public abstract class Timeline {
 
   /**
    * Holds information about a window in a {@link Timeline}. A window defines a region of media
    * currently available for playback along with additional information such as whether seeking is
-   * supported within the window. See {@link Timeline} for more details. The figure below shows some
-   * of the information defined by a window, as well as how this information relates to
-   * corresponding {@link Period}s in the timeline.
+   * supported within the window. The figure below shows some of the information defined by a
+   * window, as well as how this information relates to corresponding {@link Period}s in the
+   * timeline.
    * <p align="center">
    *   <img src="doc-files/timeline-window.svg" alt="Information defined by a timeline window">
    * </p>
@@ -235,9 +246,11 @@ public abstract class Timeline {
 
   /**
    * Holds information about a period in a {@link Timeline}. A period defines a single logical piece
-   * of media, for example a media file. See {@link Timeline} for more details. The figure below
-   * shows some of the information defined by a period, as well as how this information relates to a
-   * corresponding {@link Window} in the timeline.
+   * of media, for example a media file. It may also define groups of ads inserted into the media,
+   * along with information about whether those ads have been loaded and played.
+   * <p>
+   * The figure below shows some of the information defined by a period, as well as how this
+   * information relates to a corresponding {@link Window} in the timeline.
    * <p align="center">
    *   <img src="doc-files/timeline-period.svg" alt="Information defined by a period">
    * </p>
@@ -540,20 +553,24 @@ public abstract class Timeline {
 
   /**
    * Returns the index of the window after the window at index {@code windowIndex} depending on the
-   * {@code repeatMode}.
+   * {@code repeatMode} and whether shuffling is enabled.
    *
    * @param windowIndex Index of a window in the timeline.
    * @param repeatMode A repeat mode.
+   * @param shuffleModeEnabled Whether shuffling is enabled.
    * @return The index of the next window, or {@link C#INDEX_UNSET} if this is the last window.
    */
-  public int getNextWindowIndex(int windowIndex, @ExoPlayer.RepeatMode int repeatMode) {
+  public int getNextWindowIndex(int windowIndex, @Player.RepeatMode int repeatMode,
+      boolean shuffleModeEnabled) {
     switch (repeatMode) {
-      case ExoPlayer.REPEAT_MODE_OFF:
-        return windowIndex == getWindowCount() - 1 ? C.INDEX_UNSET : windowIndex + 1;
-      case ExoPlayer.REPEAT_MODE_ONE:
+      case Player.REPEAT_MODE_OFF:
+        return windowIndex == getLastWindowIndex(shuffleModeEnabled)  ? C.INDEX_UNSET
+            : windowIndex + 1;
+      case Player.REPEAT_MODE_ONE:
         return windowIndex;
-      case ExoPlayer.REPEAT_MODE_ALL:
-        return windowIndex == getWindowCount() - 1 ? 0 : windowIndex + 1;
+      case Player.REPEAT_MODE_ALL:
+        return windowIndex == getLastWindowIndex(shuffleModeEnabled)
+            ? getFirstWindowIndex(shuffleModeEnabled) : windowIndex + 1;
       default:
         throw new IllegalStateException();
     }
@@ -561,47 +578,51 @@ public abstract class Timeline {
 
   /**
    * Returns the index of the window before the window at index {@code windowIndex} depending on the
-   * {@code repeatMode}.
+   * {@code repeatMode} and whether shuffling is enabled.
    *
    * @param windowIndex Index of a window in the timeline.
    * @param repeatMode A repeat mode.
+   * @param shuffleModeEnabled Whether shuffling is enabled.
    * @return The index of the previous window, or {@link C#INDEX_UNSET} if this is the first window.
    */
-  public int getPreviousWindowIndex(int windowIndex, @ExoPlayer.RepeatMode int repeatMode) {
+  public int getPreviousWindowIndex(int windowIndex, @Player.RepeatMode int repeatMode,
+      boolean shuffleModeEnabled) {
     switch (repeatMode) {
-      case ExoPlayer.REPEAT_MODE_OFF:
-        return windowIndex == 0 ? C.INDEX_UNSET : windowIndex - 1;
-      case ExoPlayer.REPEAT_MODE_ONE:
+      case Player.REPEAT_MODE_OFF:
+        return windowIndex == getFirstWindowIndex(shuffleModeEnabled) ? C.INDEX_UNSET
+            : windowIndex - 1;
+      case Player.REPEAT_MODE_ONE:
         return windowIndex;
-      case ExoPlayer.REPEAT_MODE_ALL:
-        return windowIndex == 0 ? getWindowCount() - 1 : windowIndex - 1;
+      case Player.REPEAT_MODE_ALL:
+        return windowIndex == getFirstWindowIndex(shuffleModeEnabled)
+            ? getLastWindowIndex(shuffleModeEnabled) : windowIndex - 1;
       default:
         throw new IllegalStateException();
     }
   }
 
   /**
-   * Returns whether the given window is the last window of the timeline depending on the
-   * {@code repeatMode}.
+   * Returns the index of the last window in the playback order depending on whether shuffling is
+   * enabled.
    *
-   * @param windowIndex A window index.
-   * @param repeatMode A repeat mode.
-   * @return Whether the window of the given index is the last window of the timeline.
+   * @param shuffleModeEnabled Whether shuffling is enabled.
+   * @return The index of the last window in the playback order, or {@link C#INDEX_UNSET} if the
+   *     timeline is empty.
    */
-  public final boolean isLastWindow(int windowIndex, @ExoPlayer.RepeatMode int repeatMode) {
-    return getNextWindowIndex(windowIndex, repeatMode) == C.INDEX_UNSET;
+  public int getLastWindowIndex(boolean shuffleModeEnabled) {
+    return isEmpty() ? C.INDEX_UNSET : getWindowCount() - 1;
   }
 
   /**
-   * Returns whether the given window is the first window of the timeline depending on the
-   * {@code repeatMode}.
+   * Returns the index of the first window in the playback order depending on whether shuffling is
+   * enabled.
    *
-   * @param windowIndex A window index.
-   * @param repeatMode A repeat mode.
-   * @return Whether the window of the given index is the first window of the timeline.
+   * @param shuffleModeEnabled Whether shuffling is enabled.
+   * @return The index of the first window in the playback order, or {@link C#INDEX_UNSET} if the
+   *     timeline is empty.
    */
-  public final boolean isFirstWindow(int windowIndex, @ExoPlayer.RepeatMode int repeatMode) {
-    return getPreviousWindowIndex(windowIndex, repeatMode) == C.INDEX_UNSET;
+  public int getFirstWindowIndex(boolean shuffleModeEnabled) {
+    return isEmpty() ? C.INDEX_UNSET : 0;
   }
 
   /**
@@ -625,7 +646,7 @@ public abstract class Timeline {
    *     null. The caller should pass false for efficiency reasons unless the field is required.
    * @return The populated {@link Window}, for convenience.
    */
-  public Window getWindow(int windowIndex, Window window, boolean setIds) {
+  public final Window getWindow(int windowIndex, Window window, boolean setIds) {
     return getWindow(windowIndex, window, setIds, 0);
   }
 
@@ -650,19 +671,20 @@ public abstract class Timeline {
 
   /**
    * Returns the index of the period after the period at index {@code periodIndex} depending on the
-   * {@code repeatMode}.
+   * {@code repeatMode} and whether shuffling is enabled.
    *
    * @param periodIndex Index of a period in the timeline.
    * @param period A {@link Period} to be used internally. Must not be null.
    * @param window A {@link Window} to be used internally. Must not be null.
    * @param repeatMode A repeat mode.
+   * @param shuffleModeEnabled Whether shuffling is enabled.
    * @return The index of the next period, or {@link C#INDEX_UNSET} if this is the last period.
    */
   public final int getNextPeriodIndex(int periodIndex, Period period, Window window,
-      @ExoPlayer.RepeatMode int repeatMode) {
+      @Player.RepeatMode int repeatMode, boolean shuffleModeEnabled) {
     int windowIndex = getPeriod(periodIndex, period).windowIndex;
     if (getWindow(windowIndex, window).lastPeriodIndex == periodIndex) {
-      int nextWindowIndex = getNextWindowIndex(windowIndex, repeatMode);
+      int nextWindowIndex = getNextWindowIndex(windowIndex, repeatMode, shuffleModeEnabled);
       if (nextWindowIndex == C.INDEX_UNSET) {
         return C.INDEX_UNSET;
       }
@@ -673,17 +695,19 @@ public abstract class Timeline {
 
   /**
    * Returns whether the given period is the last period of the timeline depending on the
-   * {@code repeatMode}.
+   * {@code repeatMode} and whether shuffling is enabled.
    *
    * @param periodIndex A period index.
    * @param period A {@link Period} to be used internally. Must not be null.
    * @param window A {@link Window} to be used internally. Must not be null.
    * @param repeatMode A repeat mode.
+   * @param shuffleModeEnabled Whether shuffling is enabled.
    * @return Whether the period of the given index is the last period of the timeline.
    */
   public final boolean isLastPeriod(int periodIndex, Period period, Window window,
-      @ExoPlayer.RepeatMode int repeatMode) {
-    return getNextPeriodIndex(periodIndex, period, window, repeatMode) == C.INDEX_UNSET;
+      @Player.RepeatMode int repeatMode, boolean shuffleModeEnabled) {
+    return getNextPeriodIndex(periodIndex, period, window, repeatMode, shuffleModeEnabled)
+        == C.INDEX_UNSET;
   }
 
   /**

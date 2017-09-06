@@ -29,9 +29,10 @@ import com.google.android.exoplayer2.util.ParsableByteArray;
 import java.io.IOException;
 
 /**
- * An {@link Extractor} wrapper for loading chunks containing a single track.
+ * An {@link Extractor} wrapper for loading chunks that contain a single primary track, and possibly
+ * additional embedded tracks.
  * <p>
- * The wrapper allows switching of the {@link TrackOutput} that receives parsed data.
+ * The wrapper allows switching of the {@link TrackOutput}s that receive parsed data.
  */
 public final class ChunkExtractorWrapper implements ExtractorOutput {
 
@@ -56,7 +57,8 @@ public final class ChunkExtractorWrapper implements ExtractorOutput {
 
   public final Extractor extractor;
 
-  private final Format manifestFormat;
+  private final int primaryTrackType;
+  private final Format primaryTrackManifestFormat;
   private final SparseArray<BindingTrackOutput> bindingTrackOutputs;
 
   private boolean extractorInitialized;
@@ -66,12 +68,16 @@ public final class ChunkExtractorWrapper implements ExtractorOutput {
 
   /**
    * @param extractor The extractor to wrap.
-   * @param manifestFormat A manifest defined {@link Format} whose data should be merged into any
-   *     sample {@link Format} output from the {@link Extractor}.
+   * @param primaryTrackType The type of the primary track. Typically one of the
+   *     {@link com.google.android.exoplayer2.C} {@code TRACK_TYPE_*} constants.
+   * @param primaryTrackManifestFormat A manifest defined {@link Format} whose data should be merged
+   *     into any sample {@link Format} output from the {@link Extractor} for the primary track.
    */
-  public ChunkExtractorWrapper(Extractor extractor, Format manifestFormat) {
+  public ChunkExtractorWrapper(Extractor extractor, int primaryTrackType,
+      Format primaryTrackManifestFormat) {
     this.extractor = extractor;
-    this.manifestFormat = manifestFormat;
+    this.primaryTrackType = primaryTrackType;
+    this.primaryTrackManifestFormat = primaryTrackManifestFormat;
     bindingTrackOutputs = new SparseArray<>();
   }
 
@@ -90,8 +96,8 @@ public final class ChunkExtractorWrapper implements ExtractorOutput {
   }
 
   /**
-   * Initializes the extractor to output to the provided {@link TrackOutput}, and configures it to
-   * receive data from a new chunk.
+   * Initializes the wrapper to output to {@link TrackOutput}s provided by the specified
+   * {@link TrackOutputProvider}, and configures the extractor to receive data from a new chunk.
    *
    * @param trackOutputProvider The provider of {@link TrackOutput}s that will receive sample data.
    */
@@ -116,7 +122,9 @@ public final class ChunkExtractorWrapper implements ExtractorOutput {
     if (bindingTrackOutput == null) {
       // Assert that if we're seeing a new track we have not seen endTracks.
       Assertions.checkState(sampleFormats == null);
-      bindingTrackOutput = new BindingTrackOutput(id, type, manifestFormat);
+      // TODO: Manifest formats for embedded tracks should also be passed here.
+      bindingTrackOutput = new BindingTrackOutput(id, type,
+          type == primaryTrackType ? primaryTrackManifestFormat : null);
       bindingTrackOutput.bind(trackOutputProvider);
       bindingTrackOutputs.put(id, bindingTrackOutput);
     }
@@ -160,16 +168,15 @@ public final class ChunkExtractorWrapper implements ExtractorOutput {
         return;
       }
       trackOutput = trackOutputProvider.track(id, type);
-      if (trackOutput != null) {
+      if (sampleFormat != null) {
         trackOutput.format(sampleFormat);
       }
     }
 
     @Override
     public void format(Format format) {
-      // TODO: This should only happen for the primary track. Additional metadata/text tracks need
-      // to be copied with different manifest derived formats.
-      sampleFormat = format.copyWithManifestFormatInfo(manifestFormat);
+      sampleFormat = manifestFormat != null ? format.copyWithManifestFormatInfo(manifestFormat)
+          : format;
       trackOutput.format(sampleFormat);
     }
 

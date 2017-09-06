@@ -290,7 +290,7 @@ public final class TtmlDecoder extends SimpleSubtitleDecoder {
     String displayAlign = XmlPullParserUtil.getAttributeValue(xmlParser,
         TtmlNode.ATTR_TTS_DISPLAY_ALIGN);
     if (displayAlign != null) {
-      switch (displayAlign.toLowerCase()) {
+      switch (Util.toLowerInvariant(displayAlign)) {
         case "center":
           lineAnchor = Cue.ANCHOR_TYPE_MIDDLE;
           line += height / 2;
