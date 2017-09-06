@@ -349,8 +349,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
     if (timeline.isEmpty() || pendingSeekAcks > 0) {
       return maskingWindowPositionMs;
     } else {
-      timeline.getPeriod(playbackInfo.periodId.periodIndex, period);
-      return period.getPositionInWindowMs() + C.usToMs(playbackInfo.positionUs);
+      return playbackInfoPositionUsToWindowPositionMs(playbackInfo.positionUs);
     }
   }
 
@@ -360,8 +359,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
     if (timeline.isEmpty() || pendingSeekAcks > 0) {
       return maskingWindowPositionMs;
     } else {
-      timeline.getPeriod(playbackInfo.periodId.periodIndex, period);
-      return period.getPositionInWindowMs() + C.usToMs(playbackInfo.bufferedPositionUs);
+      return playbackInfoPositionUsToWindowPositionMs(playbackInfo.bufferedPositionUs);
     }
   }
 
@@ -388,7 +386,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
 
   @Override
   public boolean isPlayingAd() {
-    return pendingSeekAcks == 0 && playbackInfo.periodId.adGroupIndex != C.INDEX_UNSET;
+    return pendingSeekAcks == 0 && playbackInfo.periodId.isAd();
   }
 
   @Override
@@ -540,6 +538,15 @@ import java.util.concurrent.CopyOnWriteArraySet;
       default:
         throw new IllegalStateException();
     }
+  }
+
+  private long playbackInfoPositionUsToWindowPositionMs(long positionUs) {
+    long positionMs = C.usToMs(positionUs);
+    if (!playbackInfo.periodId.isAd()) {
+      timeline.getPeriod(playbackInfo.periodId.periodIndex, period);
+      positionMs += period.getPositionInWindowMs();
+    }
+    return positionMs;
   }
 
 }

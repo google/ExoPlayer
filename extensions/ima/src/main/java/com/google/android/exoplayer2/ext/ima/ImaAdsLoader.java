@@ -430,7 +430,9 @@ public final class ImaAdsLoader implements Player.EventListener, VideoAdPlayer,
     } else if (!playingAd) {
       return VideoProgressUpdate.VIDEO_TIME_NOT_READY;
     } else {
-      return new VideoProgressUpdate(player.getCurrentPosition(), player.getDuration());
+      long adDuration = player.getDuration();
+      return adDuration == C.TIME_UNSET ? VideoProgressUpdate.VIDEO_TIME_NOT_READY
+          : new VideoProgressUpdate(player.getCurrentPosition(), adDuration);
     }
   }
 
