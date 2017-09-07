@@ -17,11 +17,11 @@ package com.google.android.exoplayer2.upstream.cache;
 
 import android.test.InstrumentationTestCase;
 import com.google.android.exoplayer2.extractor.ChunkIndex;
-import com.google.android.exoplayer2.testutil.TestUtil;
 import com.google.android.exoplayer2.util.Util;
 import java.io.File;
 import java.io.IOException;
 import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
 
 /**
  * Tests for {@link CachedRegionTracker}.
@@ -46,10 +46,9 @@ public final class CachedRegionTrackerTest extends InstrumentationTestCase {
 
   @Override
   protected void setUp() throws Exception {
-    TestUtil.setUpMockito(this);
+    setUpMockito(this);
 
     tracker = new CachedRegionTracker(cache, CACHE_KEY, CHUNK_INDEX);
-
     cacheDir = Util.createTempDirectory(getInstrumentation().getContext(), "ExoPlayerTest");
     index = new CachedContentIndex(cacheDir);
   }
@@ -122,6 +121,16 @@ public final class CachedRegionTrackerTest extends InstrumentationTestCase {
 
   private CacheSpan newCacheSpan(int position, int length) throws IOException {
     return SimpleCacheSpanTest.createCacheSpan(index, cacheDir, CACHE_KEY, position, length, 0);
+  }
+
+  /**
+   * Sets up Mockito for an instrumentation test.
+   */
+  private static void setUpMockito(InstrumentationTestCase instrumentationTestCase) {
+    // Workaround for https://code.google.com/p/dexmaker/issues/detail?id=2.
+    System.setProperty("dexmaker.dexcache",
+        instrumentationTestCase.getInstrumentation().getTargetContext().getCacheDir().getPath());
+    MockitoAnnotations.initMocks(instrumentationTestCase);
   }
 
 }
