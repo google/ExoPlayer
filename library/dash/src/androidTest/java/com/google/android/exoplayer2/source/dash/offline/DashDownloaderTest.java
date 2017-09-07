@@ -27,6 +27,7 @@ import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.offline.DownloadException;
 import com.google.android.exoplayer2.offline.Downloader.ProgressListener;
 import com.google.android.exoplayer2.offline.DownloaderConstructorHelper;
+import com.google.android.exoplayer2.source.dash.MockitoUtil;
 import com.google.android.exoplayer2.source.dash.manifest.DashManifest;
 import com.google.android.exoplayer2.source.dash.manifest.RepresentationKey;
 import com.google.android.exoplayer2.testutil.FakeDataSet;
@@ -54,7 +55,7 @@ public class DashDownloaderTest extends InstrumentationTestCase {
   @Override
   public void setUp() throws Exception {
     super.setUp();
-    TestUtil.setUpMockito(this);
+    MockitoUtil.setUpMockito(this);
     tempFolder = Util.createTempDirectory(getInstrumentation().getContext(), "ExoPlayerTest");
     cache = new SimpleCache(tempFolder, new NoOpCacheEvictor());
   }
