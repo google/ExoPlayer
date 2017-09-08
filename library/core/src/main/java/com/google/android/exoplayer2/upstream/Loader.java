@@ -420,7 +420,9 @@ public final class Loader implements LoaderErrorThrower {
 
     @Override
     public void run() {
-      sendEmptyMessage(0);
+      if (getLooper().getThread().isAlive()) {
+        sendEmptyMessage(0);
+      }
     }
 
     @Override
