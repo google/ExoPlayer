@@ -35,6 +35,7 @@ import static android.opengl.EGL14.eglChooseConfig;
 import static android.opengl.EGL14.eglCreateContext;
 import static android.opengl.EGL14.eglCreatePbufferSurface;
 import static android.opengl.EGL14.eglDestroyContext;
+import static android.opengl.EGL14.eglDestroySurface;
 import static android.opengl.EGL14.eglGetDisplay;
 import static android.opengl.EGL14.eglInitialize;
 import static android.opengl.EGL14.eglMakeCurrent;
@@ -175,8 +176,9 @@ public final class DummySurface extends Surface {
     private static final int MSG_RELEASE = 3;
 
     private final int[] textureIdHolder;
-    private EGLContext context;
     private EGLDisplay display;
+    private EGLContext context;
+    private EGLSurface pbuffer;
     private Handler handler;
     private SurfaceTexture surfaceTexture;
 
@@ -315,7 +317,7 @@ public final class DummySurface extends Surface {
             EGL_HEIGHT, 1,
             EGL_NONE};
       }
-      EGLSurface pbuffer = eglCreatePbufferSurface(display, config, pbufferAttributes, 0);
+      pbuffer = eglCreatePbufferSurface(display, config, pbufferAttributes, 0);
       Assertions.checkState(pbuffer != null, "eglCreatePbufferSurface failed");
 
       boolean eglMadeCurrent = eglMakeCurrent(display, pbuffer, pbuffer, context);
@@ -334,11 +336,15 @@ public final class DummySurface extends Surface {
           glDeleteTextures(1, textureIdHolder, 0);
         }
       } finally {
+        if (pbuffer != null) {
+          eglDestroySurface(display, pbuffer);
+        }
         if (context != null) {
           eglDestroyContext(display, context);
         }
-        display = null;
+        pbuffer = null;
         context = null;
+        display = null;
         surface = null;
         surfaceTexture = null;
       }
