@@ -4,9 +4,6 @@ title: Developer guide
 weight: 1
 ---
 
-{% include infobox.html content="This guide is for ExoPlayer 2.x. If you're
-still using 1.x, you can find the old developer guide [here](guide-v1.html)." %}
-
 <div id="table-of-contents">
 <div id="table-of-contents-header">Contents</div>
 <div markdown="1">
@@ -124,12 +121,14 @@ These steps are outlined in more detail below. For a complete example, refer to
 
 ### Add ExoPlayer as a dependency ###
 
-The first step to getting started is to make sure you have the jcenter
-repository included in the `build.gradle` file in the root of your project.
+The first step to getting started is to make sure you have the JCenter and
+Google repositories included in the `build.gradle` file in the root of your
+project.
 
 ```gradle
 repositories {
     jcenter()
+    google()
 }
 ```
 
@@ -151,9 +150,9 @@ compile 'com.google.android.exoplayer:exoplayer-dash:r2.X.X'
 compile 'com.google.android.exoplayer:exoplayer-ui:r2.X.X'
 ```
 
-The available modules are listed below. Adding a dependency to the full
-ExoPlayer library is equivalent to adding dependencies on all of the modules
-individually.
+The available library modules are listed below. Adding a dependency to the full
+ExoPlayer library is equivalent to adding dependencies on all of the library
+modules individually.
 
 * `exoplayer-core`: Core functionality (required).
 * `exoplayer-dash`: Support for DASH content.
@@ -161,8 +160,10 @@ individually.
 * `exoplayer-smoothstreaming`: Support for SmoothStreaming content.
 * `exoplayer-ui`: UI components and resources for use with ExoPlayer.
 
-For more details, see the project on [Bintray][]. For information about the
-latest versions, see the [Release notes][].
+In addition to library modules, ExoPlayer has multiple extension modules that
+depend on external libraries to provide additional functionality. These are
+beyond the scope of this guide. Browse the [extensions directory][] and their
+individual READMEs for details.
 
 ### Creating the player ###
 
@@ -235,10 +236,15 @@ MediaSource videoSource = new ExtractorMediaSource(mp4VideoUri,
 player.prepare(videoSource);
 {% endhighlight %}
 
+### Controlling the player ###
+
 Once the player has been prepared, playback can be controlled by calling methods
 on the player. For example `setPlayWhenReady` can be used to start and pause
-playback, and the various `seekTo` methods can be used to seek within the media.
-If the player was bound to a `SimpleExoPlayerView` or `PlaybackControlView` then
+playback, the various `seekTo` methods can be used to seek within the media,
+`setRepeatMode` can be used to control if and how the media is looped, and
+`setPlaybackParameters` can be used to adjust the playback speed and pitch.
+
+If the player is bound to a `SimpleExoPlayerView` or `PlaybackControlView` then
 user interaction with these components will cause corresponding methods on the
 player to be invoked.
 
@@ -256,13 +262,18 @@ SmoothStreaming (`SsMediaSource`), HLS (`HlsMediaSource`) and regular media
 files (`ExtractorMediaSource`). Examples of how to instantiate all four can be
 found in `PlayerActivity` in the ExoPlayer demo app.
 
+{% include infobox.html content="`MediaSource` instances are not designed to be
+re-used. If you want to prepare a player more than once with the same piece of
+media, use a new instance each time. %}
+
 In addition to the MediaSource implementations described above, the ExoPlayer
-library also provides `MergingMediaSource`, `LoopingMediaSource` and
-`ConcatenatingMediaSource`. These `MediaSource` implementations enable more
-complex playback functionality through composition. Some of the common use cases
-are described below. Note that although the following examples are described in
-the context of video playback, they apply equally to audio only playback too,
-and indeed to the playback of any supported media type(s).
+library also provides `MergingMediaSource`, `LoopingMediaSource`,
+`ConcatenatingMediaSource` and `DynamicConcatenatingMediaSource`. These
+`MediaSource` implementations enable more complex playback functionality through
+composition. Some of the common use cases are described below. Note that
+although the following examples are described in the context of video playback,
+they apply equally to audio only playback too, and indeed to the playback of any
+supported media type(s).
 
 ### Side-loading a subtitle file ###
 
@@ -317,6 +328,16 @@ ConcatenatingMediaSource concatenatedSource =
     new ConcatenatingMediaSource(firstSource, secondSource);
 {% endhighlight %}
 
+`DynamicConcatenatingMediaSource` is similar to `ConcatenatingMediaSource`,
+except that it allows `MediaSource`s to be dynamically added, removed and moved
+both before and during playback. `DynamicConcatenatingMediaSource` is
+well suited to playlist use cases where the user is able to modify the playlist
+during playback.
+
+{% include infobox.html content="A `MediaSource` instance should not be added
+more than once to a `DynamicConcatenatingMediaSource`, or be re-added having
+previously been removed. Use a new instance instead. %}
+
 ### Advanced composition ###
 
 It’s possible to further combine composite `MediaSource`s for more unusual use
@@ -357,27 +378,27 @@ equivalent `MediaSource` instances in a composition is allowed." %}
 
 During playback, your app can listen for events generated by ExoPlayer that
 indicate the overall state of the player. These events are useful as triggers
-for updating the app user interface such as playback controls. Many ExoPlayer
+for updating user interface components such as playback controls. Many ExoPlayer
 components also report their own component specific low level events, which can
 be useful for performance monitoring.
 
 ### High level events ###
 
-ExoPlayer allows instances of `ExoPlayer.EventListener` to be added and removed
-using its `addListener` and `removeListener` methods. Registered listeners
-are notified of changes in playback state, as well as when errors occur that
-cause playback to fail.
+ExoPlayer allows `EventListener`s to be added and removed by calling the
+`addListener` and `removeListener` methods. Registered listeners are notified of
+changes in playback state, as well as when errors occur that cause playback to
+fail.
 
 Developers who implement custom playback controls should register a listener and
 use it to update their controls as the player’s state changes. An app should
 also show an appropriate error to the user if playback fails.
 
 When using `SimpleExoPlayer`, additional listeners can be set on the player. In
-particular `setVideoListener` allows an application to receive events related to
+particular `addVideoListener` allows an application to receive events related to
 video rendering that may be useful for adjusting the UI (e.g., the aspect ratio
-of the `Surface` onto which video is being rendered). Other listeners can be set
-to on a `SimpleExoPlayer` to receive debugging information, for example by
-calling `setVideoDebugListener` and `setAudioDebugListener`.
+of the `Surface` onto which video is being rendered). Listeners can also be set
+to receive debugging information, for example by calling `setVideoDebugListener`
+and `setAudioDebugListener`.
 
 ### Low level events ###
 
@@ -458,7 +479,8 @@ security, although many devices also support L1). Some devices may support
 additional schemes such as PlayReady. All Android TV devices support PlayReady.
 
 `PlayerActivity` in the ExoPlayer demo app demonstrates how a
-`DrmSessionManager` can be created and injected when instantiating the player.
+`DefaultDrmSessionManager` can be created and injected when instantiating the
+player.
 
 [Supported formats]: https://google.github.io/ExoPlayer/supported-formats.html
 [IMA extension]: https://github.com/google/ExoPlayer/tree/release-v2/extensions/ima
@@ -469,5 +491,4 @@ additional schemes such as PlayReady. All Android TV devices support PlayReady.
 [`MediaCodec`]: {{ site.sdkurl }}/android/media/MediaCodec.html
 [`AudioTrack`]: {{ site.sdkurl }}/android/media/AudioTrack.html
 [`MediaDrm`]: {{ site.sdkurl }}/android/media/MediaDrm.html
-[Bintray]: https://bintray.com/google/exoplayer
-[Release notes]: https://github.com/google/ExoPlayer/blob/release-v2/RELEASENOTES.md
+[extensions directory]: https://github.com/google/ExoPlayer/tree/release-v2/extensions/

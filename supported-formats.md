@@ -49,7 +49,7 @@ audio and video sample formats must also be supported (see the
 | **Metadata** |||
 | EMSG metadata | YES | Embedded in FMP4 |
 | **Content protection** |||
-| Widevine CENC | YES | API 19 and higher; "cenc" scheme only |
+| Widevine | YES | API 19+ ("cenc" scheme) and 24+ ("cbcs", "cbc1" and "cens") |
 | PlayReady SL2000 | YES | Android TV only |
 
 ### SmoothStreaming ###
@@ -71,8 +71,8 @@ video sample formats must also be supported (see the
 
 ### HLS ###
 
-ExoPlayer supports HLS with the MPEG-TS, ADTS and MP3 container formats. The
-contained audio and video sample formats must also be supported (see the
+ExoPlayer supports HLS with the MPEG-TS, FMP4, ADTS and MP3 container formats.
+The contained audio and video sample formats must also be supported (see the
 [sample formats](#sample-formats) section for details). Note that we recommend
 using DASH (or SmoothStreaming) rather than HLS where possible. You can read
 about some of the benefits of DASH
@@ -93,7 +93,7 @@ about some of the benefits of DASH
 | **Content protection** |||
 | AES-128 | YES ||
 | Sample AES-128 | NO ||
-| Widevine | NO | Future support planned for API 24 and higher |
+| Widevine | NO | Future support planned for API 24+ |
 
 ## Standalone container formats ##
 
