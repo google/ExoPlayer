@@ -319,8 +319,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
     if (timeline.isEmpty() || pendingSeekAcks > 0) {
       return maskingWindowPositionMs;
     } else {
-      timeline.getPeriod(playbackInfo.periodId.periodIndex, period);
-      return period.getPositionInWindowMs() + C.usToMs(playbackInfo.positionUs);
+      return playbackInfoPositionUsToWindowPositionMs(playbackInfo.positionUs);
     }
   }
 
@@ -330,8 +329,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
     if (timeline.isEmpty() || pendingSeekAcks > 0) {
       return maskingWindowPositionMs;
     } else {
-      timeline.getPeriod(playbackInfo.periodId.periodIndex, period);
-      return period.getPositionInWindowMs() + C.usToMs(playbackInfo.bufferedPositionUs);
+      return playbackInfoPositionUsToWindowPositionMs(playbackInfo.bufferedPositionUs);
     }
   }
 
@@ -358,7 +356,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
 
   @Override
   public boolean isPlayingAd() {
-    return pendingSeekAcks == 0 && playbackInfo.periodId.adGroupIndex != C.INDEX_UNSET;
+    return pendingSeekAcks == 0 && playbackInfo.periodId.isAd();
   }
 
   @Override
@@ -448,6 +446,12 @@ import java.util.concurrent.CopyOnWriteArraySet;
       case ExoPlayerImplInternal.MSG_SEEK_ACK: {
         if (--pendingSeekAcks == 0) {
           playbackInfo = (ExoPlayerImplInternal.PlaybackInfo) msg.obj;
+          if (timeline.isEmpty()) {
+            // Update the masking variables, which are used when the timeline is empty.
+            maskingPeriodIndex = 0;
+            maskingWindowIndex = 0;
+            maskingWindowPositionMs = 0;
+          }
           if (msg.arg1 != 0) {
             for (Player.EventListener listener : listeners) {
               listener.onPositionDiscontinuity();
@@ -472,6 +476,12 @@ import java.util.concurrent.CopyOnWriteArraySet;
           timeline = sourceInfo.timeline;
           manifest = sourceInfo.manifest;
           playbackInfo = sourceInfo.playbackInfo;
+          if (pendingSeekAcks == 0 && timeline.isEmpty()) {
+            // Update the masking variables, which are used when the timeline is empty.
+            maskingPeriodIndex = 0;
+            maskingWindowIndex = 0;
+            maskingWindowPositionMs = 0;
+          }
           for (Player.EventListener listener : listeners) {
             listener.onTimelineChanged(timeline, manifest);
           }
@@ -498,6 +508,15 @@ import java.util.concurrent.CopyOnWriteArraySet;
       default:
         throw new IllegalStateException();
     }
+  }
+
+  private long playbackInfoPositionUsToWindowPositionMs(long positionUs) {
+    long positionMs = C.usToMs(positionUs);
+    if (!playbackInfo.periodId.isAd()) {
+      timeline.getPeriod(playbackInfo.periodId.periodIndex, period);
+      positionMs += period.getPositionInWindowMs();
+    }
+    return positionMs;
   }
 
 }

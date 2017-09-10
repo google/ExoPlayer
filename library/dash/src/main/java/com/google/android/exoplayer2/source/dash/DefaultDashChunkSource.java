@@ -85,14 +85,14 @@ public class DefaultDashChunkSource implements DashChunkSource {
   private final int[] adaptationSetIndices;
   private final TrackSelection trackSelection;
   private final int trackType;
-  private final RepresentationHolder[] representationHolders;
   private final DataSource dataSource;
   private final long elapsedRealtimeOffsetMs;
   private final int maxSegmentsPerLoad;
 
+  protected final RepresentationHolder[] representationHolders;
+
   private DashManifest manifest;
   private int periodIndex;
-
   private IOException fatalError;
   private boolean missingLastSegment;
 
@@ -377,9 +377,12 @@ public class DefaultDashChunkSource implements DashChunkSource {
 
   // Protected classes.
 
+  /**
+   * Holds information about a single {@link Representation}.
+   */
   protected static final class RepresentationHolder {
 
-    public final ChunkExtractorWrapper extractorWrapper;
+    /* package */ final ChunkExtractorWrapper extractorWrapper;
 
     public Representation representation;
     public DashSegmentIndex segmentIndex;
@@ -387,7 +390,7 @@ public class DefaultDashChunkSource implements DashChunkSource {
     private long periodDurationUs;
     private int segmentNumShift;
 
-    public RepresentationHolder(long periodDurationUs, Representation representation,
+    /* package */ RepresentationHolder(long periodDurationUs, Representation representation,
         boolean enableEventMessageTrack, boolean enableCea608Track) {
       this.periodDurationUs = periodDurationUs;
       this.representation = representation;
@@ -417,8 +420,8 @@ public class DefaultDashChunkSource implements DashChunkSource {
       segmentIndex = representation.getIndex();
     }
 
-    public void updateRepresentation(long newPeriodDurationUs, Representation newRepresentation)
-        throws BehindLiveWindowException{
+    /* package */ void updateRepresentation(long newPeriodDurationUs,
+        Representation newRepresentation) throws BehindLiveWindowException {
       DashSegmentIndex oldIndex = representation.getIndex();
       DashSegmentIndex newIndex = newRepresentation.getIndex();
 

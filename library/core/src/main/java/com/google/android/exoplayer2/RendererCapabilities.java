@@ -24,7 +24,7 @@ public interface RendererCapabilities {
 
   /**
    * A mask to apply to the result of {@link #supportsFormat(Format)} to obtain one of
-   * {@link #FORMAT_HANDLED}, {@link #FORMAT_EXCEEDS_CAPABILITIES},
+   * {@link #FORMAT_HANDLED}, {@link #FORMAT_EXCEEDS_CAPABILITIES}, {@link #FORMAT_UNSUPPORTED_DRM},
    * {@link #FORMAT_UNSUPPORTED_SUBTYPE} and {@link #FORMAT_UNSUPPORTED_TYPE}.
    */
   int FORMAT_SUPPORT_MASK = 0b111;
@@ -117,8 +117,8 @@ public interface RendererCapabilities {
    * the bitwise OR of three properties:
    * <ul>
    * <li>The level of support for the format itself. One of {@link #FORMAT_HANDLED},
-   * {@link #FORMAT_EXCEEDS_CAPABILITIES}, {@link #FORMAT_UNSUPPORTED_SUBTYPE} and
-   * {@link #FORMAT_UNSUPPORTED_TYPE}.</li>
+   * {@link #FORMAT_EXCEEDS_CAPABILITIES}, {@link #FORMAT_UNSUPPORTED_DRM},
+   * {@link #FORMAT_UNSUPPORTED_SUBTYPE} and {@link #FORMAT_UNSUPPORTED_TYPE}.</li>
    * <li>The level of support for adapting from the format to another format of the same mime type.
    * One of {@link #ADAPTIVE_SEAMLESS}, {@link #ADAPTIVE_NOT_SEAMLESS} and
    * {@link #ADAPTIVE_NOT_SUPPORTED}.</li>

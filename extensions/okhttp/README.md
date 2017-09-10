@@ -1,7 +1,5 @@
 # ExoPlayer OkHttp extension #
 
-## Description ##
-
 The OkHttp extension is an [HttpDataSource][] implementation using Square's
 [OkHttp][].
 
@@ -49,3 +47,10 @@ new DefaultDataSourceFactory(
     new OkHttpDataSourceFactory(...) /* baseDataSourceFactory argument */);
 ```
 respectively.
+
+## Links ##
+
+* [Javadoc][]: Classes matching `com.google.android.exoplayer2.ext.okhttp.*`
+  belong to this module.
+
+[Javadoc]: https://google.github.io/ExoPlayer/doc/reference/index.html

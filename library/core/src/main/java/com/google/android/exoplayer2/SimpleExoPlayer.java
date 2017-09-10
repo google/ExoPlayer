@@ -41,6 +41,7 @@ import com.google.android.exoplayer2.trackselection.TrackSelector;
 import com.google.android.exoplayer2.util.Util;
 import com.google.android.exoplayer2.video.VideoRendererEventListener;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArraySet;
 
 /**
  * An {@link ExoPlayer} implementation that uses default {@link Renderer} components. Instances can
@@ -87,6 +88,9 @@ public class SimpleExoPlayer implements ExoPlayer {
 
   private final ExoPlayer player;
   private final ComponentListener componentListener;
+  private final CopyOnWriteArraySet<VideoListener> videoListeners;
+  private final CopyOnWriteArraySet<TextRenderer.Output> textOutputs;
+  private final CopyOnWriteArraySet<MetadataRenderer.Output> metadataOutputs;
   private final int videoRendererCount;
   private final int audioRendererCount;
 
@@ -99,9 +103,6 @@ public class SimpleExoPlayer implements ExoPlayer {
   private int videoScalingMode;
   private SurfaceHolder surfaceHolder;
   private TextureView textureView;
-  private TextRenderer.Output textOutput;
-  private MetadataRenderer.Output metadataOutput;
-  private VideoListener videoListener;
   private AudioRendererEventListener audioDebugListener;
   private VideoRendererEventListener videoDebugListener;
   private DecoderCounters videoDecoderCounters;
@@ -113,6 +114,9 @@ public class SimpleExoPlayer implements ExoPlayer {
   protected SimpleExoPlayer(RenderersFactory renderersFactory, TrackSelector trackSelector,
       LoadControl loadControl) {
     componentListener = new ComponentListener();
+    videoListeners = new CopyOnWriteArraySet<>();
+    textOutputs = new CopyOnWriteArraySet<>();
+    metadataOutputs = new CopyOnWriteArraySet<>();
     Looper eventLooper = Looper.myLooper() != null ? Looper.myLooper() : Looper.getMainLooper();
     Handler eventHandler = new Handler(eventLooper);
     renderers = renderersFactory.createRenderers(eventHandler, componentListener, componentListener,
@@ -440,63 +444,132 @@ public class SimpleExoPlayer implements ExoPlayer {
   }
 
   /**
-   * Sets a listener to receive video events.
+   * Adds a listener to receive video events.
+   *
+   * @param listener The listener to register.
+   */
+  public void addVideoListener(VideoListener listener) {
+    videoListeners.add(listener);
+  }
+
+  /**
+   * Removes a listener of video events.
+   *
+   * @param listener The listener to unregister.
+   */
+  public void removeVideoListener(VideoListener listener) {
+    videoListeners.remove(listener);
+  }
+
+  /**
+   * Sets a listener to receive video events, removing all existing listeners.
    *
    * @param listener The listener.
+   * @deprecated Use {@link #addVideoListener(VideoListener)}.
    */
+  @Deprecated
   public void setVideoListener(VideoListener listener) {
-    videoListener = listener;
+    videoListeners.clear();
+    if (listener != null) {
+      addVideoListener(listener);
+    }
   }
 
   /**
-   * Clears the listener receiving video events if it matches the one passed. Else does nothing.
+   * Equivalent to {@link #removeVideoListener(VideoListener)}.
    *
    * @param listener The listener to clear.
+   * @deprecated Use {@link #removeVideoListener(VideoListener)}.
    */
+  @Deprecated
   public void clearVideoListener(VideoListener listener) {
-    if (videoListener == listener) {
-      videoListener = null;
-    }
+    removeVideoListener(listener);
   }
 
   /**
-   * Sets an output to receive text events.
+   * Registers an output to receive text events.
+   *
+   * @param listener The output to register.
+   */
+  public void addTextOutput(TextRenderer.Output listener) {
+    textOutputs.add(listener);
+  }
+
+  /**
+   * Removes a text output.
+   *
+   * @param listener The output to remove.
+   */
+  public void removeTextOutput(TextRenderer.Output listener) {
+    textOutputs.remove(listener);
+  }
+
+  /**
+   * Sets an output to receive text events, removing all existing outputs.
    *
    * @param output The output.
+   * @deprecated Use {@link #addTextOutput(TextRenderer.Output)}.
    */
+  @Deprecated
   public void setTextOutput(TextRenderer.Output output) {
-    textOutput = output;
-  }
-
-  /**
-   * Clears the output receiving text events if it matches the one passed. Else does nothing.
-   *
-   * @param output The output to clear.
-   */
-  public void clearTextOutput(TextRenderer.Output output) {
-    if (textOutput == output) {
-      textOutput = null;
+    textOutputs.clear();
+    if (output != null) {
+      addTextOutput(output);
     }
   }
 
   /**
-   * Sets a listener to receive metadata events.
+   * Equivalent to {@link #removeTextOutput(TextRenderer.Output)}.
+   *
+   * @param output The output to clear.
+   * @deprecated Use {@link #removeTextOutput(TextRenderer.Output)}.
+   */
+  @Deprecated
+  public void clearTextOutput(TextRenderer.Output output) {
+    removeTextOutput(output);
+  }
+
+  /**
+   * Registers an output to receive metadata events.
+   *
+   * @param listener The output to register.
+   */
+  public void addMetadataOutput(MetadataRenderer.Output listener) {
+    metadataOutputs.add(listener);
+  }
+
+  /**
+   * Removes a metadata output.
+   *
+   * @param listener The output to remove.
+   */
+  public void removeMetadataOutput(MetadataRenderer.Output listener) {
+    metadataOutputs.remove(listener);
+  }
+
+  /**
+   * Sets an output to receive metadata events, removing all existing outputs.
    *
    * @param output The output.
+   * @deprecated Use {@link #addMetadataOutput(MetadataRenderer.Output)}.
    */
+  @Deprecated
   public void setMetadataOutput(MetadataRenderer.Output output) {
-    metadataOutput = output;
+    metadataOutputs.clear();
+    if (output != null) {
+      addMetadataOutput(output);
+    }
   }
 
   /**
-   * Clears the output receiving metadata events if it matches the one passed. Else does nothing.
+   * Equivalent to {@link #removeMetadataOutput(MetadataRenderer.Output)}.
    *
    * @param output The output to clear.
+   * @deprecated Use {@link #removeMetadataOutput(MetadataRenderer.Output)}.
    */
+  @Deprecated
   public void clearMetadataOutput(MetadataRenderer.Output output) {
-    if (metadataOutput == output) {
-      metadataOutput = null;
-    }
+    removeMetadataOutput(output);
   }
 
   /**
@@ -803,7 +876,7 @@ public class SimpleExoPlayer implements ExoPlayer {
     @Override
     public void onVideoSizeChanged(int width, int height, int unappliedRotationDegrees,
         float pixelWidthHeightRatio) {
-      if (videoListener != null) {
+      for (VideoListener videoListener : videoListeners) {
         videoListener.onVideoSizeChanged(width, height, unappliedRotationDegrees,
             pixelWidthHeightRatio);
       }
@@ -815,8 +888,10 @@ public class SimpleExoPlayer implements ExoPlayer {
 
     @Override
     public void onRenderedFirstFrame(Surface surface) {
-      if (videoListener != null && SimpleExoPlayer.this.surface == surface) {
-        videoListener.onRenderedFirstFrame();
+      if (SimpleExoPlayer.this.surface == surface) {
+        for (VideoListener videoListener : videoListeners) {
+          videoListener.onRenderedFirstFrame();
+        }
       }
       if (videoDebugListener != null) {
         videoDebugListener.onRenderedFirstFrame(surface);
@@ -889,7 +964,7 @@ public class SimpleExoPlayer implements ExoPlayer {
 
     @Override
     public void onCues(List<Cue> cues) {
-      if (textOutput != null) {
+      for (TextRenderer.Output textOutput : textOutputs) {
         textOutput.onCues(cues);
       }
     }
@@ -898,7 +973,7 @@ public class SimpleExoPlayer implements ExoPlayer {
 
     @Override
     public void onMetadata(Metadata metadata) {
-      if (metadataOutput != null) {
+      for (MetadataRenderer.Output metadataOutput : metadataOutputs) {
         metadataOutput.onMetadata(metadata);
       }
     }

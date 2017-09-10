@@ -39,9 +39,15 @@ android {
         disable 'MissingTranslation'
     }
 
+    flavorDimensions "extensions"
+
     productFlavors {
-        noExtensions
-        withExtensions
+        noExtensions {
+            dimension "extensions"
+        }
+        withExtensions {
+            dimension "extensions"
+        }
     }
 }
 
@@ -56,4 +62,5 @@ dependencies {
     withExtensionsCompile project(path: modulePrefix + 'extension-ima')
     withExtensionsCompile project(path: modulePrefix + 'extension-opus')
     withExtensionsCompile project(path: modulePrefix + 'extension-vp9')
+    withExtensionsCompile project(path: modulePrefix + 'extension-rtmp')
 }
