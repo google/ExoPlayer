@@ -129,7 +129,7 @@ public final class SonicAudioProcessor implements AudioProcessor {
 
   @Override
   public boolean isActive() {
-    return Math.abs(speed - 1f) >= CLOSE_THRESHOLD || Math.abs(pitch - 1f) >= CLOSE_THRESHOLD;
+    return (Math.abs(speed - 1f) >= CLOSE_THRESHOLD || Math.abs(pitch - 1f) >= CLOSE_THRESHOLD);
   }
 
   @Override

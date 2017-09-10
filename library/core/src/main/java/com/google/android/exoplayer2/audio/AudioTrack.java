@@ -26,6 +26,7 @@ import android.support.annotation.Nullable;
 import android.util.Log;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.PlaybackParameters;
+import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.Util;
@@ -376,11 +377,12 @@ public final class AudioTrack {
     }
     channelMappingAudioProcessor = new ChannelMappingAudioProcessor();
     sonicAudioProcessor = new SonicAudioProcessor();
-    availableAudioProcessors = new AudioProcessor[3 + audioProcessors.length];
+    availableAudioProcessors = new AudioProcessor[4 + audioProcessors.length];
     availableAudioProcessors[0] = new ResamplingAudioProcessor();
-    availableAudioProcessors[1] = channelMappingAudioProcessor;
-    System.arraycopy(audioProcessors, 0, availableAudioProcessors, 2, audioProcessors.length);
-    availableAudioProcessors[2 + audioProcessors.length] = sonicAudioProcessor;
+    availableAudioProcessors[1] = new FloatResamplingAudioProcessor();
+    availableAudioProcessors[2] = channelMappingAudioProcessor;
+    System.arraycopy(audioProcessors, 0, availableAudioProcessors, 3, audioProcessors.length);
+    availableAudioProcessors[3 + audioProcessors.length] = sonicAudioProcessor;
     playheadOffsets = new long[MAX_PLAYHEAD_OFFSET_COUNT];
     volume = 1.0f;
     startMediaTimeState = START_NOT_SET;
@@ -491,13 +493,16 @@ public final class AudioTrack {
       throws ConfigurationException {
     boolean passthrough = !MimeTypes.AUDIO_RAW.equals(mimeType);
     @C.Encoding int encoding = passthrough ? getEncodingForMimeType(mimeType) : pcmEncoding;
+    outputEncoding = passthrough ? encoding : getPCMEncodingForSource(encoding, pcmEncoding,
+     channelCount);
     boolean flush = false;
     if (!passthrough) {
       pcmFrameSize = Util.getPcmFrameSize(pcmEncoding, channelCount);
       channelMappingAudioProcessor.setChannelMap(outputChannels);
       for (AudioProcessor audioProcessor : availableAudioProcessors) {
         try {
-          flush |= audioProcessor.configure(sampleRate, channelCount, encoding);
+          if (outputEncoding == audioProcessor.getOutputEncoding())
+            flush |= audioProcessor.configure(sampleRate, channelCount, encoding);
         } catch (AudioProcessor.UnhandledFormatException e) {
           throw new ConfigurationException(e);
         }
@@ -509,6 +514,7 @@ public final class AudioTrack {
       if (flush) {
         resetAudioProcessors();
       }
+
     }
 
     int channelConfig;
@@ -574,8 +580,12 @@ public final class AudioTrack {
     this.passthrough = passthrough;
     this.sampleRate = sampleRate;
     this.channelConfig = channelConfig;
-    outputEncoding = passthrough ? encoding : C.ENCODING_PCM_16BIT;
-    outputPcmFrameSize = Util.getPcmFrameSize(C.ENCODING_PCM_16BIT, channelCount);
+    @C.PcmEncoding int getPcmFrameEncoding = C.ENCODING_INVALID;
+    if (passthrough || outputEncoding == C.ENCODING_PCM_16BIT)
+      getPcmFrameEncoding = C.ENCODING_PCM_16BIT;
+    else if (outputEncoding == C.ENCODING_PCM_FLOAT)
+      getPcmFrameEncoding = C.ENCODING_PCM_FLOAT;
+    outputPcmFrameSize = Util.getPcmFrameSize(getPcmFrameEncoding, channelCount);
 
     if (specifiedBufferSize != 0) {
       bufferSize = specifiedBufferSize;
@@ -610,7 +620,7 @@ public final class AudioTrack {
   private void resetAudioProcessors() {
     ArrayList<AudioProcessor> newAudioProcessors = new ArrayList<>();
     for (AudioProcessor audioProcessor : availableAudioProcessors) {
-      if (audioProcessor.isActive()) {
+      if (outputEncoding == audioProcessor.getOutputEncoding() && audioProcessor.isActive()) {
         newAudioProcessors.add(audioProcessor);
       } else {
         audioProcessor.flush();
@@ -971,7 +981,7 @@ public final class AudioTrack {
    * @return The active playback parameters.
    */
   public PlaybackParameters setPlaybackParameters(PlaybackParameters playbackParameters) {
-    if (passthrough) {
+    if (passthrough || outputEncoding != sonicAudioProcessor.getOutputEncoding()) {
       // The playback parameters are always the default in passthrough mode.
       this.playbackParameters = PlaybackParameters.DEFAULT;
       return this.playbackParameters;
@@ -1440,6 +1450,29 @@ public final class AudioTrack {
         return C.ENCODING_DTS_HD;
       default:
         return C.ENCODING_INVALID;
+    }
+  }
+
+  private @C.PcmEncoding int getPCMEncodingForSource(@C.Encoding int encoding,
+   @C.PcmEncoding int originalEncoding, int channelCount) {
+    switch (encoding) {
+      case C.ENCODING_PCM_24BIT:
+      case C.ENCODING_PCM_32BIT:
+      case C.ENCODING_PCM_FLOAT:
+        if (Util.shouldUse32BitFloatAudio(audioCapabilities, originalEncoding, channelCount))
+          return C.ENCODING_PCM_FLOAT;
+      case C.ENCODING_PCM_8BIT:
+      case C.ENCODING_PCM_16BIT:
+        return C.ENCODING_PCM_16BIT;
+      case C.ENCODING_AC3:
+      case C.ENCODING_E_AC3:
+      case C.ENCODING_DTS:
+      case C.ENCODING_DTS_HD:
+      case Format.NO_VALUE:
+      case C.ENCODING_INVALID:
+      default:
+        // Never happens.
+        throw new IllegalStateException();
     }
   }
 

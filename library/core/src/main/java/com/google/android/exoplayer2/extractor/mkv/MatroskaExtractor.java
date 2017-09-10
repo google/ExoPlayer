@@ -1666,20 +1666,25 @@ public final class MatroskaExtractor implements Extractor {
           break;
         case CODEC_ID_E_AC3:
           mimeType = MimeTypes.AUDIO_E_AC3;
+          pcmEncoding = Util.getPcmEncoding(audioBitDepth);
           break;
         case CODEC_ID_TRUEHD:
           mimeType = MimeTypes.AUDIO_TRUEHD;
+          pcmEncoding = Util.getPcmEncoding(audioBitDepth);
           break;
         case CODEC_ID_DTS:
         case CODEC_ID_DTS_EXPRESS:
           mimeType = MimeTypes.AUDIO_DTS;
+          pcmEncoding = Util.getPcmEncoding(audioBitDepth);
           break;
         case CODEC_ID_DTS_LOSSLESS:
           mimeType = MimeTypes.AUDIO_DTS_HD;
+          pcmEncoding = Util.getPcmEncoding(audioBitDepth);
           break;
         case CODEC_ID_FLAC:
           mimeType = MimeTypes.AUDIO_FLAC;
           initializationData = Collections.singletonList(codecPrivate);
+          pcmEncoding = Util.getPcmEncoding(audioBitDepth);
           break;
         case CODEC_ID_ACM:
           mimeType = MimeTypes.AUDIO_RAW;

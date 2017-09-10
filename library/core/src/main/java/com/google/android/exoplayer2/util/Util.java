@@ -32,7 +32,9 @@ import android.view.Display;
 import android.view.WindowManager;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlayerLibraryInfo;
+import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.ParserException;
+import com.google.android.exoplayer2.audio.AudioCapabilities;
 import com.google.android.exoplayer2.upstream.DataSource;
 import java.io.ByteArrayOutputStream;
 import java.io.Closeable;
@@ -790,7 +792,10 @@ public final class Util {
       case C.ENCODING_PCM_24BIT:
         return channelCount * 3;
       case C.ENCODING_PCM_32BIT:
+      case C.ENCODING_PCM_FLOAT:
         return channelCount * 4;
+      case C.ENCODING_INVALID:
+      case Format.NO_VALUE:
       default:
         throw new IllegalArgumentException();
     }
@@ -905,6 +910,31 @@ public final class Util {
       return C.TYPE_SS;
     } else {
       return C.TYPE_OTHER;
+    }
+  }
+
+  /**
+   * Returns the whether the device can output 32bit float audio
+   *
+   * @param capabilities The audio capabilities of the device.
+   * @param channelCount The channel count.
+   * @param encodingDepth Set bit depth of encoded format
+   */
+  public static boolean shouldUse32BitFloatAudio(AudioCapabilities capabilities,
+   @C.PcmEncoding int encodingDepth, int channelCount) {
+    switch (encodingDepth) {
+      case C.ENCODING_PCM_24BIT:
+      case C.ENCODING_PCM_32BIT:
+      case C.ENCODING_PCM_FLOAT:
+        return (capabilities != null && capabilities.supportsEncoding(C.ENCODING_PCM_FLOAT)
+         && ((Util.SDK_INT > 20 && channelCount <= 2) || (Util.SDK_INT >= 24)));
+
+      case C.ENCODING_PCM_8BIT:
+      case C.ENCODING_PCM_16BIT:
+      case C.ENCODING_INVALID:
+      case Format.NO_VALUE:
+      default:
+        return false;
     }
   }
 
