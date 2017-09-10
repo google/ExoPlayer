@@ -1,19 +1,16 @@
 # ExoPlayer VP9 extension #
 
-## Description ##
-
-The VP9 extension is a [Renderer][] implementation that helps you bundle libvpx
-(the VP9 decoding library) into your app and use it along with ExoPlayer to play
-VP9 video on Android devices.
-
-[Renderer]: https://google.github.io/ExoPlayer/doc/reference/com/google/android/exoplayer2/Renderer.html
+The VP9 extension provides `LibvpxVideoRenderer`, which uses libvpx (the VPx
+decoding library) to decode VP9 video.
 
 ## Build instructions ##
 
 To use this extension you need to clone the ExoPlayer repository and depend on
 its modules locally. Instructions for doing this can be found in ExoPlayer's
-[top level README][]. In addition, it's necessary to build the extension's
-native components as follows:
+[top level README][].
+
+In addition, it's necessary to build the extension's native components as
+follows:
 
 * Set the following environment variables:
 
@@ -76,3 +73,45 @@ ${NDK_PATH}/ndk-build APP_ABI=all -j4
   `${VP9_EXT_PATH}/jni/libvpx` or `${VP9_EXT_PATH}/jni/libyuv` respectively. But
   please note that `generate_libvpx_android_configs.sh` and the makefiles need
   to be modified to work with arbitrary versions of libvpx and libyuv.
+
+## Using the extension ##
+
+Once you've followed the instructions above to check out, build and depend on
+the extension, the next step is to tell ExoPlayer to use `LibvpxVideoRenderer`.
+How you do this depends on which player API you're using:
+
+* If you're passing a `DefaultRenderersFactory` to
+  `ExoPlayerFactory.newSimpleInstance`, you can enable using the extension by
+  setting the `extensionRendererMode` parameter of the `DefaultRenderersFactory`
+  constructor to `EXTENSION_RENDERER_MODE_ON`. This will use
+  `LibvpxVideoRenderer` for playback if `MediaCodecVideoRenderer` doesn't
+  support decoding the input VP9 stream. Pass `EXTENSION_RENDERER_MODE_PREFER`
+  to give `LibvpxVideoRenderer` priority over `MediaCodecVideoRenderer`.
+* If you've subclassed `DefaultRenderersFactory`, add a `LibvpxVideoRenderer`
+  to the output list in `buildVideoRenderers`. ExoPlayer will use the first
+  `Renderer` in the list that supports the input media format.
+* If you've implemented your own `RenderersFactory`, return a
+  `LibvpxVideoRenderer` instance from `createRenderers`. ExoPlayer will use the
+  first `Renderer` in the returned array that supports the input media format.
+* If you're using `ExoPlayerFactory.newInstance`, pass a `LibvpxVideoRenderer`
+  in the array of `Renderer`s. ExoPlayer will use the first `Renderer` in the
+  list that supports the input media format.
+
+Note: These instructions assume you're using `DefaultTrackSelector`. If you have
+a custom track selector the choice of `Renderer` is up to your implementation,
+so you need to make sure you are passing an `LibvpxVideoRenderer` to the
+player, then implement your own logic to use the renderer for a given track.
+
+`LibvpxVideoRenderer` can optionally output to a `VpxVideoSurfaceView` when not
+being used via `SimpleExoPlayer`, in which case color space conversion will be
+performed using a GL shader. To enable this mode, send the renderer a message of
+type `LibvpxVideoRenderer.MSG_SET_OUTPUT_BUFFER_RENDERER` with the
+`VpxVideoSurfaceView` as its object, instead of sending `MSG_SET_SURFACE` with a
+`Surface`.
+
+## Links ##
+
+* [Javadoc][]: Classes matching `com.google.android.exoplayer2.ext.vp9.*`
+  belong to this module.
+
+[Javadoc]: https://google.github.io/ExoPlayer/doc/reference/index.html

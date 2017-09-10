@@ -85,6 +85,7 @@ public final class MimeTypes {
   public static final String APPLICATION_CAMERA_MOTION = BASE_TYPE_APPLICATION + "/x-camera-motion";
   public static final String APPLICATION_EMSG = BASE_TYPE_APPLICATION + "/x-emsg";
   public static final String APPLICATION_DVBSUBS = BASE_TYPE_APPLICATION + "/dvbsubs";
+  public static final String APPLICATION_EXIF = BASE_TYPE_APPLICATION + "/x-exif";
 
   private MimeTypes() {}
 
@@ -184,9 +185,9 @@ public final class MimeTypes {
       return MimeTypes.VIDEO_H264;
     } else if (codec.startsWith("hev1") || codec.startsWith("hvc1")) {
       return MimeTypes.VIDEO_H265;
-    } else if (codec.startsWith("vp9")) {
+    } else if (codec.startsWith("vp9") || codec.startsWith("vp09")) {
       return MimeTypes.VIDEO_VP9;
-    } else if (codec.startsWith("vp8")) {
+    } else if (codec.startsWith("vp8") || codec.startsWith("vp08")) {
       return MimeTypes.VIDEO_VP8;
     } else if (codec.startsWith("mp4a")) {
       return MimeTypes.AUDIO_AAC;

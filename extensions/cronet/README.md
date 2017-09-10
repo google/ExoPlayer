@@ -1,10 +1,8 @@
 # ExoPlayer Cronet extension #
 
-## Description ##
-
 The Cronet extension is an [HttpDataSource][] implementation using [Cronet][].
 
-[HttpDataSource]: https://google.github.io/ExoPlayer/doc/reference/com/google/android/exoplayer/upstream/HttpDataSource.html
+[HttpDataSource]: https://google.github.io/ExoPlayer/doc/reference/com/google/android/exoplayer2/upstream/HttpDataSource.html
 [Cronet]: https://chromium.googlesource.com/chromium/src/+/master/components/cronet?autodive=0%2F%2F
 
 ## Build instructions ##
@@ -22,12 +20,9 @@ and enable the extension:
 1. Copy the content of the downloaded `libs` directory into the `jniLibs`
    directory of this extension
 
-* In your `settings.gradle` file, add the following line before the line that
-  applies `core_settings.gradle`:
-
-```gradle
-gradle.ext.exoplayerIncludeCronetExtension = true;
-```
+* In your `settings.gradle` file, add
+  `gradle.ext.exoplayerIncludeCronetExtension = true` before the line that
+  applies `core_settings.gradle`.
 
 [top level README]: https://github.com/google/ExoPlayer/blob/release-v2/README.md
 [here]: https://console.cloud.google.com/storage/browser/chromium-cronet/android
@@ -56,3 +51,10 @@ new DefaultDataSourceFactory(
     new CronetDataSourceFactory(...) /* baseDataSourceFactory argument */);
 ```
 respectively.
+
+## Links ##
+
+* [Javadoc][]: Classes matching `com.google.android.exoplayer2.ext.cronet.*`
+  belong to this module.
+
+[Javadoc]: https://google.github.io/ExoPlayer/doc/reference/index.html

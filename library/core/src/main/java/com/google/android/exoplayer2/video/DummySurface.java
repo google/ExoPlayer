@@ -34,6 +34,8 @@ import static android.opengl.EGL14.EGL_WINDOW_BIT;
 import static android.opengl.EGL14.eglChooseConfig;
 import static android.opengl.EGL14.eglCreateContext;
 import static android.opengl.EGL14.eglCreatePbufferSurface;
+import static android.opengl.EGL14.eglDestroyContext;
+import static android.opengl.EGL14.eglDestroySurface;
 import static android.opengl.EGL14.eglGetDisplay;
 import static android.opengl.EGL14.eglInitialize;
 import static android.opengl.EGL14.eglMakeCurrent;
@@ -89,12 +91,7 @@ public final class DummySurface extends Surface {
    */
   public static synchronized boolean isSecureSupported(Context context) {
     if (!secureSupportedInitialized) {
-      if (Util.SDK_INT >= 17) {
-        EGLDisplay display = eglGetDisplay(EGL_DEFAULT_DISPLAY);
-        String extensions = EGL14.eglQueryString(display, EGL10.EGL_EXTENSIONS);
-        secureSupported = extensions != null && extensions.contains("EGL_EXT_protected_content")
-            && !deviceNeedsSecureDummySurfaceWorkaround(context);
-      }
+      secureSupported = Util.SDK_INT >= 24 && enableSecureDummySurfaceV24(context);
       secureSupportedInitialized = true;
     }
     return secureSupported;
@@ -147,20 +144,28 @@ public final class DummySurface extends Surface {
   }
 
   /**
-   * Returns whether the device is known to advertise secure surface textures but not implement them
-   * correctly.
+   * Returns whether use of secure dummy surfaces should be enabled.
    *
    * @param context Any {@link Context}.
    */
-  private static boolean deviceNeedsSecureDummySurfaceWorkaround(Context context) {
-    return Util.SDK_INT == 24
-        && (Util.MODEL.startsWith("SM-G950") || Util.MODEL.startsWith("SM-G955"))
-        && !hasVrModeHighPerformanceSystemFeatureV24(context.getPackageManager());
-  }
-
   @TargetApi(24)
-  private static boolean hasVrModeHighPerformanceSystemFeatureV24(PackageManager packageManager) {
-    return packageManager.hasSystemFeature(PackageManager.FEATURE_VR_MODE_HIGH_PERFORMANCE);
+  private static boolean enableSecureDummySurfaceV24(Context context) {
+    EGLDisplay display = eglGetDisplay(EGL_DEFAULT_DISPLAY);
+    String eglExtensions = EGL14.eglQueryString(display, EGL10.EGL_EXTENSIONS);
+    if (eglExtensions == null || !eglExtensions.contains("EGL_EXT_protected_content")) {
+      // EGL_EXT_protected_content is required to enable secure dummy surfaces.
+      return false;
+    }
+    if (Util.SDK_INT == 24 && "samsung".equals(Util.MANUFACTURER)) {
+      // Samsung devices running API level 24 are known to be broken [Internal: b/37197802].
+      return false;
+    }
+    if (Util.SDK_INT < 26 && !context.getPackageManager().hasSystemFeature(
+        PackageManager.FEATURE_VR_MODE_HIGH_PERFORMANCE)) {
+      // Pre API level 26 devices were not well tested unless they supported VR mode.
+      return false;
+    }
+    return true;
   }
 
   private static class DummySurfaceThread extends HandlerThread implements OnFrameAvailableListener,
@@ -171,6 +176,9 @@ public final class DummySurface extends Surface {
     private static final int MSG_RELEASE = 3;
 
     private final int[] textureIdHolder;
+    private EGLDisplay display;
+    private EGLContext context;
+    private EGLSurface pbuffer;
     private Handler handler;
     private SurfaceTexture surfaceTexture;
 
@@ -255,7 +263,7 @@ public final class DummySurface extends Surface {
     }
 
     private void initInternal(boolean secure) {
-      EGLDisplay display = eglGetDisplay(EGL_DEFAULT_DISPLAY);
+      display = eglGetDisplay(EGL_DEFAULT_DISPLAY);
       Assertions.checkState(display != null, "eglGetDisplay failed");
 
       int[] version = new int[2];
@@ -292,8 +300,8 @@ public final class DummySurface extends Surface {
             EGL_CONTEXT_CLIENT_VERSION, 2,
             EGL_NONE};
       }
-      EGLContext context = eglCreateContext(display, config, android.opengl.EGL14.EGL_NO_CONTEXT,
-          glAttributes, 0);
+      context = eglCreateContext(display, config, android.opengl.EGL14.EGL_NO_CONTEXT, glAttributes,
+          0);
       Assertions.checkState(context != null, "eglCreateContext failed");
 
       int[] pbufferAttributes;
@@ -309,7 +317,7 @@ public final class DummySurface extends Surface {
             EGL_HEIGHT, 1,
             EGL_NONE};
       }
-      EGLSurface pbuffer = eglCreatePbufferSurface(display, config, pbufferAttributes, 0);
+      pbuffer = eglCreatePbufferSurface(display, config, pbufferAttributes, 0);
       Assertions.checkState(pbuffer != null, "eglCreatePbufferSurface failed");
 
       boolean eglMadeCurrent = eglMakeCurrent(display, pbuffer, pbuffer, context);
@@ -323,11 +331,22 @@ public final class DummySurface extends Surface {
 
     private void releaseInternal() {
       try {
-        surfaceTexture.release();
+        if (surfaceTexture != null) {
+          surfaceTexture.release();
+          glDeleteTextures(1, textureIdHolder, 0);
+        }
       } finally {
+        if (pbuffer != null) {
+          eglDestroySurface(display, pbuffer);
+        }
+        if (context != null) {
+          eglDestroyContext(display, context);
+        }
+        pbuffer = null;
+        context = null;
+        display = null;
         surface = null;
         surfaceTexture = null;
-        glDeleteTextures(1, textureIdHolder, 0);
       }
     }
 

@@ -28,7 +28,9 @@ import java.util.Map;
 @TargetApi(16)
 public interface DrmSession<T extends ExoMediaCrypto> {
 
-  /** Wraps the throwable which is the cause of the error state. */
+  /**
+   * Wraps the throwable which is the cause of the error state.
+   */
   class DrmSessionException extends Exception {
 
     public DrmSessionException(Throwable cause) {

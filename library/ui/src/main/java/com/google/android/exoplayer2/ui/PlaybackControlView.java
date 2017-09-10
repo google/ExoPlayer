@@ -22,6 +22,7 @@ import android.content.res.Resources;
 import android.content.res.TypedArray;
 import android.graphics.drawable.Drawable;
 import android.os.SystemClock;
+import android.support.annotation.Nullable;
 import android.util.AttributeSet;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -312,6 +313,8 @@ public class PlaybackControlView extends FrameLayout {
   private long hideAtMs;
   private long[] adGroupTimesMs;
   private boolean[] playedAdGroups;
+  private long[] extraAdGroupTimesMs;
+  private boolean[] extraPlayedAdGroups;
 
   private final Runnable updateProgressAction = new Runnable() {
     @Override
@@ -336,15 +339,19 @@ public class PlaybackControlView extends FrameLayout {
   }
 
   public PlaybackControlView(Context context, AttributeSet attrs, int defStyleAttr) {
-    super(context, attrs, defStyleAttr);
+    this(context, attrs, defStyleAttr, attrs);
+  }
 
+  public PlaybackControlView(Context context, AttributeSet attrs, int defStyleAttr,
+      AttributeSet playbackAttrs) {
+    super(context, attrs, defStyleAttr);
     int controllerLayoutId = R.layout.exo_playback_control_view;
     rewindMs = DEFAULT_REWIND_MS;
     fastForwardMs = DEFAULT_FAST_FORWARD_MS;
     showTimeoutMs = DEFAULT_SHOW_TIMEOUT_MS;
     repeatToggleModes = DEFAULT_REPEAT_TOGGLE_MODES;
-    if (attrs != null) {
-      TypedArray a = context.getTheme().obtainStyledAttributes(attrs,
+    if (playbackAttrs != null) {
+      TypedArray a = context.getTheme().obtainStyledAttributes(playbackAttrs,
           R.styleable.PlaybackControlView, 0, 0);
       try {
         rewindMs = a.getInt(R.styleable.PlaybackControlView_rewind_increment, rewindMs);
@@ -364,6 +371,8 @@ public class PlaybackControlView extends FrameLayout {
     formatter = new Formatter(formatBuilder, Locale.getDefault());
     adGroupTimesMs = new long[0];
     playedAdGroups = new boolean[0];
+    extraAdGroupTimesMs = new long[0];
+    extraPlayedAdGroups = new boolean[0];
     componentListener = new ComponentListener();
     controlDispatcher = DEFAULT_CONTROL_DISPATCHER;
 
@@ -460,6 +469,29 @@ public class PlaybackControlView extends FrameLayout {
   public void setShowMultiWindowTimeBar(boolean showMultiWindowTimeBar) {
     this.showMultiWindowTimeBar = showMultiWindowTimeBar;
     updateTimeBarMode();
+  }
+
+  /**
+   * Sets the millisecond positions of extra ad markers relative to the start of the window (or
+   * timeline, if in multi-window mode) and whether each extra ad has been played or not. The
+   * markers are shown in addition to any ad markers for ads in the player's timeline.
+   *
+   * @param extraAdGroupTimesMs The millisecond timestamps of the extra ad markers to show, or
+   *     {@code null} to show no extra ad markers.
+   * @param extraPlayedAdGroups Whether each ad has been played, or {@code null} to show no extra ad
+   *     markers.
+   */
+  public void setExtraAdGroupMarkers(@Nullable long[] extraAdGroupTimesMs,
+      @Nullable boolean[] extraPlayedAdGroups) {
+    if (extraAdGroupTimesMs == null) {
+      this.extraAdGroupTimesMs = new long[0];
+      this.extraPlayedAdGroups = new boolean[0];
+    } else {
+      Assertions.checkArgument(extraAdGroupTimesMs.length == extraPlayedAdGroups.length);
+      this.extraAdGroupTimesMs = extraAdGroupTimesMs;
+      this.extraPlayedAdGroups = extraPlayedAdGroups;
+    }
+    updateProgress();
   }
 
   /**
@@ -647,9 +679,10 @@ public class PlaybackControlView extends FrameLayout {
       int windowIndex = player.getCurrentWindowIndex();
       timeline.getWindow(windowIndex, window);
       isSeekable = window.isSeekable;
-      enablePrevious = !timeline.isFirstWindow(windowIndex, player.getRepeatMode())
-          || isSeekable || !window.isDynamic;
-      enableNext = !timeline.isLastWindow(windowIndex, player.getRepeatMode()) || window.isDynamic;
+      enablePrevious = isSeekable || !window.isDynamic
+          || timeline.getPreviousWindowIndex(windowIndex, player.getRepeatMode()) != C.INDEX_UNSET;
+      enableNext = window.isDynamic
+          || timeline.getNextWindowIndex(windowIndex, player.getRepeatMode()) != C.INDEX_UNSET;
       if (player.isPlayingAd()) {
         // Always hide player controls during ads.
         hide();
@@ -768,7 +801,15 @@ public class PlaybackControlView extends FrameLayout {
         bufferedPosition += player.getBufferedPosition();
       }
       if (timeBar != null) {
-        timeBar.setAdGroupTimesMs(adGroupTimesMs, playedAdGroups, adGroupCount);
+        int extraAdGroupCount = extraAdGroupTimesMs.length;
+        int totalAdGroupCount = adGroupCount + extraAdGroupCount;
+        if (totalAdGroupCount > adGroupTimesMs.length) {
+          adGroupTimesMs = Arrays.copyOf(adGroupTimesMs, totalAdGroupCount);
+          playedAdGroups = Arrays.copyOf(playedAdGroups, totalAdGroupCount);
+        }
+        System.arraycopy(extraAdGroupTimesMs, 0, adGroupTimesMs, adGroupCount, extraAdGroupCount);
+        System.arraycopy(extraPlayedAdGroups, 0, playedAdGroups, adGroupCount, extraAdGroupCount);
+        timeBar.setAdGroupTimesMs(adGroupTimesMs, playedAdGroups, totalAdGroupCount);
       }
     }
     if (durationView != null) {

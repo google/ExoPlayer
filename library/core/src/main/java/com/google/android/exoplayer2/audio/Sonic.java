@@ -241,7 +241,7 @@ import java.util.Arrays;
       for (int i = 0; i < period; i++) {
         short sVal = samples[position + i];
         short pVal = samples[position + period + i];
-        diff += sVal >= pVal ? sVal - pVal : pVal - sVal;
+        diff += Math.abs(sVal - pVal);
       }
       // Note that the highest number of samples we add into diff will be less than 256, since we
       // skip samples. Thus, diff is a 24 bit number, and we can safely multiply by numSamples

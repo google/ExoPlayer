@@ -431,6 +431,8 @@ import java.util.Locale;
         return "YES";
       case RendererCapabilities.FORMAT_EXCEEDS_CAPABILITIES:
         return "NO_EXCEEDS_CAPABILITIES";
+      case RendererCapabilities.FORMAT_UNSUPPORTED_DRM:
+        return "NO_UNSUPPORTED_DRM";
       case RendererCapabilities.FORMAT_UNSUPPORTED_SUBTYPE:
         return "NO_UNSUPPORTED_TYPE";
       case RendererCapabilities.FORMAT_UNSUPPORTED_TYPE:
