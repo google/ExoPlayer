@@ -1,5 +1,31 @@
 # Release notes #
 
+### r2.5.2 ###
+
+* IMA extension: Fix issue where ad playback could end prematurely for some
+  content types ([#3180](https://github.com/google/ExoPlayer/issues/3180)).
+* RTMP extension: Fix SIGABRT on fast RTMP stream restart
+  ([#3156](https://github.com/google/ExoPlayer/issues/3156)).
+* UI: Allow app to manually specify ad markers
+  ([#3184](https://github.com/google/ExoPlayer/issues/3184)).
+* DASH: Expose segment indices to subclasses of DefaultDashChunkSource
+  ([#3037](https://github.com/google/ExoPlayer/issues/3037)).
+* Captions: Added robustness against malformed WebVTT captions
+  ([#3228](https://github.com/google/ExoPlayer/issues/3228)).
+* DRM: Support forcing a specific license URL.
+* Fix playback error when seeking in media loaded through content:// URIs
+  ([#3216](https://github.com/google/ExoPlayer/issues/3216)).
+* Fix issue playing MP4s in which the last atom specifies a size of zero
+  ([#3191](https://github.com/google/ExoPlayer/issues/3191)).
+* Workaround playback failures on some Xiaomi devices
+  ([#3171](https://github.com/google/ExoPlayer/issues/3171)).
+* Workaround SIGSEGV issue on some devices when setting and swapping surface for
+  secure playbacks ([#3215](https://github.com/google/ExoPlayer/issues/3215)).
+* Workaround for Nexus 7 issue when swapping output surface
+  ([#3236](https://github.com/google/ExoPlayer/issues/3236)).
+* Workaround for SimpleExoPlayerView's surface not being hidden properly
+  ([#3160](https://github.com/google/ExoPlayer/issues/3160)).
+
 ### r2.5.1 ###
 
 * Fix an issue that could cause the reported playback position to stop advancing
