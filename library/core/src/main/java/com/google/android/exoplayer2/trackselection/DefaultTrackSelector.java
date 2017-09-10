@@ -767,7 +767,8 @@ public class DefaultTrackSelector extends MappingTrackSelector {
    * @throws ExoPlaybackException If an error occurs while selecting the tracks.
    */
   protected TrackSelection selectAudioTrack(TrackGroupArray groups, int[][] formatSupport,
-      Parameters params, TrackSelection.Factory adaptiveTrackSelectionFactory) {
+      Parameters params, TrackSelection.Factory adaptiveTrackSelectionFactory)
+      throws ExoPlaybackException {
     int selectedGroupIndex = C.INDEX_UNSET;
     int selectedTrackIndex = C.INDEX_UNSET;
     int selectedTrackScore = 0;
@@ -893,7 +894,7 @@ public class DefaultTrackSelector extends MappingTrackSelector {
    * @throws ExoPlaybackException If an error occurs while selecting the tracks.
    */
   protected TrackSelection selectTextTrack(TrackGroupArray groups, int[][] formatSupport,
-      Parameters params) {
+      Parameters params) throws ExoPlaybackException {
     TrackGroup selectedGroup = null;
     int selectedTrackIndex = 0;
     int selectedTrackScore = 0;
@@ -960,7 +961,7 @@ public class DefaultTrackSelector extends MappingTrackSelector {
    * @throws ExoPlaybackException If an error occurs while selecting the tracks.
    */
   protected TrackSelection selectOtherTrack(int trackType, TrackGroupArray groups,
-      int[][] formatSupport, Parameters params) {
+      int[][] formatSupport, Parameters params) throws ExoPlaybackException {
     TrackGroup selectedGroup = null;
     int selectedTrackIndex = 0;
     int selectedTrackScore = 0;
