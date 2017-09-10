@@ -264,7 +264,7 @@ found in `PlayerActivity` in the ExoPlayer demo app.
 
 {% include infobox.html content="`MediaSource` instances are not designed to be
 re-used. If you want to prepare a player more than once with the same piece of
-media, use a new instance each time. %}
+media, use a new instance each time." %}
 
 In addition to the MediaSource implementations described above, the ExoPlayer
 library also provides `MergingMediaSource`, `LoopingMediaSource`,
@@ -336,7 +336,7 @@ during playback.
 
 {% include infobox.html content="A `MediaSource` instance should not be added
 more than once to a `DynamicConcatenatingMediaSource`, or be re-added having
-previously been removed. Use a new instance instead. %}
+previously been removed. Use a new instance instead." %}
 
 ### Advanced composition ###
 
