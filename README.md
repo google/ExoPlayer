@@ -28,15 +28,13 @@ repository and depend on the modules locally.
 ### From JCenter ###
 
 The easiest way to get started using ExoPlayer is to add it as a gradle
-dependency. You need to make sure you have the JCenter and Google Maven
-repositories included in the `build.gradle` file in the root of your project:
+dependency. You need to make sure you have the JCenter and Google repositories
+included in the `build.gradle` file in the root of your project:
 
 ```gradle
 repositories {
     jcenter()
-    maven {
-        url "https://maven.google.com"
-    }
+    google()
 }
 ```
 
