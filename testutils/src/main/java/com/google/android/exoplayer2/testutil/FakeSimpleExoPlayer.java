@@ -69,8 +69,8 @@ public class FakeSimpleExoPlayer extends SimpleExoPlayer {
     return player;
   }
 
-  private class FakeExoPlayer implements ExoPlayer, MediaSource.Listener, MediaPeriod.Callback,
-      Runnable {
+  private static class FakeExoPlayer implements ExoPlayer, MediaSource.Listener,
+      MediaPeriod.Callback, Runnable {
 
     private final Renderer[] renderers;
     private final TrackSelector trackSelector;
@@ -201,12 +201,20 @@ public class FakeSimpleExoPlayer extends SimpleExoPlayer {
 
     @Override
     public void stop() {
-      throw new UnsupportedOperationException();
+      playbackHandler.post(new Runnable() {
+        @Override
+        public void run () {
+          playbackHandler.removeCallbacksAndMessages(null);
+          releaseMedia();
+          changePlaybackState(Player.STATE_IDLE);
+        }
+      });
     }
 
     @Override
     public void release() {
-      playbackThread.quit();
+      stop();
+      playbackThread.quitSafely();
     }
 
     @Override
@@ -534,6 +542,17 @@ public class FakeSimpleExoPlayer extends SimpleExoPlayer {
           }
         }
       });
+    }
+
+    private void releaseMedia() {
+      if (mediaSource != null) {
+        if (mediaPeriod != null) {
+          mediaSource.releasePeriod(mediaPeriod);
+          mediaPeriod = null;
+        }
+        mediaSource.releaseSource();
+        mediaSource = null;
+      }
     }
 
   }
