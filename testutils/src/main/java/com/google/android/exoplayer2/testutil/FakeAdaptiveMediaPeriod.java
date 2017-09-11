@@ -54,6 +54,14 @@ public class FakeAdaptiveMediaPeriod extends FakeMediaPeriod
   }
 
   @Override
+  public void release() {
+    super.release();
+    for (ChunkSampleStream<FakeChunkSource> sampleStream : sampleStreams) {
+      sampleStream.release();
+    }
+  }
+
+  @Override
   public void prepare(Callback callback, long positionUs) {
     super.prepare(callback, positionUs);
     this.callback = callback;
