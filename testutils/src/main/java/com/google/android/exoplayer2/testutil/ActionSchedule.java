@@ -18,7 +18,6 @@ package com.google.android.exoplayer2.testutil;
 import android.os.Handler;
 import android.view.Surface;
 import com.google.android.exoplayer2.C;
-import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.Timeline;
@@ -211,7 +210,7 @@ public final class ActionSchedule {
 
     /**
      * Schedules a new source preparation action to be executed.
-     * @see ExoPlayer#prepare(MediaSource, boolean, boolean).
+     * @see com.google.android.exoplayer2.ExoPlayer#prepare(MediaSource, boolean, boolean).
      *
      * @return The builder, for convenience.
      */
@@ -350,7 +349,13 @@ public final class ActionSchedule {
     public void run() {
       action.doActionAndScheduleNext(player, trackSelector, surface, mainHandler, next);
       if (repeatIntervalMs != C.TIME_UNSET) {
-        clock.postDelayed(mainHandler, this, repeatIntervalMs);
+        clock.postDelayed(mainHandler, new Runnable() {
+            @Override
+            public void run() {
+              action.doActionAndScheduleNext(player, trackSelector, surface, mainHandler, null);
+              clock.postDelayed(mainHandler, this, repeatIntervalMs);
+            }
+          }, repeatIntervalMs);
       }
     }
 
