@@ -14,9 +14,7 @@
 buildscript {
     repositories {
         jcenter()
-        maven {
-            url "https://maven.google.com"
-        }
+        google()
     }
     dependencies {
         classpath 'com.android.tools.build:gradle:3.0.0-beta4'
@@ -34,9 +32,7 @@ buildscript {
 allprojects {
     repositories {
         jcenter()
-        maven {
-            url "https://maven.google.com"
-        }
+        google()
     }
     project.ext {
         exoplayerPublishEnabled = true

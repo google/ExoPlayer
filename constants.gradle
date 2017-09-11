@@ -21,8 +21,8 @@ project.ext {
     targetSdkVersion = 26
     buildToolsVersion = '26'
     testSupportLibraryVersion = '0.5'
-    supportLibraryVersion = '26.0.1'
-    playServicesLibraryVersion = '11.0.2'
+    supportLibraryVersion = '26.0.2'
+    playServicesLibraryVersion = '11.2.0'
     dexmakerVersion = '1.2'
     mockitoVersion = '1.9.5'
     junitVersion = '4.12'
