@@ -63,6 +63,17 @@ public final class ParsableBitArray {
   }
 
   /**
+   * Sets this instance's data, position and limit to match the provided {@code parsableByteArray}.
+   * Any modifications to the underlying data array will be visible in both instances
+   *
+   * @param parsableByteArray The {@link ParsableByteArray}.
+   */
+  public void reset(ParsableByteArray parsableByteArray) {
+    reset(parsableByteArray.data, parsableByteArray.limit());
+    setPosition(parsableByteArray.getPosition() * 8);
+  }
+
+  /**
    * Updates the instance to wrap {@code data}, and resets the position to zero.
    *
    * @param data The array to wrap.
