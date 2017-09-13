@@ -78,6 +78,8 @@ public abstract class SimpleDecoderAudioRenderer extends BaseRenderer implements
 
   private DecoderCounters decoderCounters;
   private Format inputFormat;
+  private int encoderDelay;
+  private int encoderPadding;
   private SimpleDecoder<DecoderInputBuffer, ? extends SimpleOutputBuffer,
         ? extends AudioDecoderException> decoder;
   private DecoderInputBuffer inputBuffer;
@@ -308,7 +310,7 @@ public abstract class SimpleDecoderAudioRenderer extends BaseRenderer implements
     if (audioTrackNeedsConfigure) {
       Format outputFormat = getOutputFormat();
       audioTrack.configure(outputFormat.sampleMimeType, outputFormat.channelCount,
-          outputFormat.sampleRate, outputFormat.pcmEncoding, 0);
+          outputFormat.sampleRate, outputFormat.pcmEncoding, 0, null, encoderDelay, encoderPadding);
       audioTrackNeedsConfigure = false;
     }
 
@@ -586,6 +588,9 @@ public abstract class SimpleDecoderAudioRenderer extends BaseRenderer implements
       maybeInitDecoder();
       audioTrackNeedsConfigure = true;
     }
+
+    encoderDelay = newFormat.encoderDelay == Format.NO_VALUE ? 0 : newFormat.encoderDelay;
+    encoderPadding = newFormat.encoderPadding == Format.NO_VALUE ? 0 : newFormat.encoderPadding;
 
     eventDispatcher.inputFormatChanged(newFormat);
   }

@@ -40,21 +40,23 @@ import java.util.LinkedList;
  * playback position smoothing, non-blocking writes and reconfiguration.
  * <p>
  * Before starting playback, specify the input format by calling
- * {@link #configure(String, int, int, int, int)}. Optionally call {@link #setAudioSessionId(int)},
- * {@link #setAudioAttributes(AudioAttributes)}, {@link #enableTunnelingV21(int)} and
- * {@link #disableTunneling()} to configure audio playback. These methods may be called after
- * writing data to the track, in which case it will be reinitialized as required.
+ * {@link #configure(String, int, int, int, int, int[], int, int)}. Optionally call
+ * {@link #setAudioSessionId(int)}, {@link #setAudioAttributes(AudioAttributes)},
+ * {@link #enableTunnelingV21(int)} and {@link #disableTunneling()} to configure audio playback.
+ * These methods may be called after writing data to the track, in which case it will be
+ * reinitialized as required.
  * <p>
  * Call {@link #handleBuffer(ByteBuffer, long)} to write data, and {@link #handleDiscontinuity()}
  * when the data being fed is discontinuous. Call {@link #play()} to start playing the written data.
  * <p>
- * Call {@link #configure(String, int, int, int, int)} whenever the input format changes. The track
- * will be reinitialized on the next call to {@link #handleBuffer(ByteBuffer, long)}.
+ * Call {@link #configure(String, int, int, int, int, int[], int, int)} whenever the input format
+ * changes. The track will be reinitialized on the next call to
+ * {@link #handleBuffer(ByteBuffer, long)}.
  * <p>
  * Calling {@link #reset()} releases the underlying {@link android.media.AudioTrack} (and so does
- * calling {@link #configure(String, int, int, int, int)} unless the format is unchanged). It is
- * safe to call {@link #handleBuffer(ByteBuffer, long)} after {@link #reset()} without calling
- * {@link #configure(String, int, int, int, int)}.
+ * calling {@link #configure(String, int, int, int, int, int[], int, int)} unless the format is
+ * unchanged). It is safe to call {@link #handleBuffer(ByteBuffer, long)} after {@link #reset()}
+ * without calling {@link #configure(String, int, int, int, int, int[], int, int)}.
  * <p>
  * Call {@link #playToEndOfStream()} repeatedly to play out all data when no more input buffers will
  * be provided via {@link #handleBuffer(ByteBuffer, long)} until the next {@link #reset}. Call
@@ -280,6 +282,7 @@ public final class AudioTrack {
 
   @Nullable private final AudioCapabilities audioCapabilities;
   private final ChannelMappingAudioProcessor channelMappingAudioProcessor;
+  private final TrimmingAudioProcessor trimmingAudioProcessor;
   private final SonicAudioProcessor sonicAudioProcessor;
   private final AudioProcessor[] availableAudioProcessors;
   private final Listener listener;
@@ -375,12 +378,14 @@ public final class AudioTrack {
       audioTrackUtil = new AudioTrackUtil();
     }
     channelMappingAudioProcessor = new ChannelMappingAudioProcessor();
+    trimmingAudioProcessor = new TrimmingAudioProcessor();
     sonicAudioProcessor = new SonicAudioProcessor();
-    availableAudioProcessors = new AudioProcessor[3 + audioProcessors.length];
+    availableAudioProcessors = new AudioProcessor[4 + audioProcessors.length];
     availableAudioProcessors[0] = new ResamplingAudioProcessor();
     availableAudioProcessors[1] = channelMappingAudioProcessor;
-    System.arraycopy(audioProcessors, 0, availableAudioProcessors, 2, audioProcessors.length);
-    availableAudioProcessors[2 + audioProcessors.length] = sonicAudioProcessor;
+    availableAudioProcessors[2] = trimmingAudioProcessor;
+    System.arraycopy(audioProcessors, 0, availableAudioProcessors, 3, audioProcessors.length);
+    availableAudioProcessors[3 + audioProcessors.length] = sonicAudioProcessor;
     playheadOffsets = new long[MAX_PLAYHEAD_OFFSET_COUNT];
     volume = 1.0f;
     startMediaTimeState = START_NOT_SET;
@@ -461,39 +466,27 @@ public final class AudioTrack {
    *     {@link C#ENCODING_PCM_32BIT}.
    * @param specifiedBufferSize A specific size for the playback buffer in bytes, or 0 to infer a
    *     suitable buffer size automatically.
-   * @throws ConfigurationException If an error occurs configuring the track.
-   */
-  public void configure(String mimeType, int channelCount, int sampleRate,
-      @C.PcmEncoding int pcmEncoding, int specifiedBufferSize) throws ConfigurationException {
-    configure(mimeType, channelCount, sampleRate, pcmEncoding, specifiedBufferSize, null);
-  }
-
-  /**
-   * Configures (or reconfigures) the audio track.
-   *
-   * @param mimeType The mime type.
-   * @param channelCount The number of channels.
-   * @param sampleRate The sample rate in Hz.
-   * @param pcmEncoding For PCM formats, the encoding used. One of {@link C#ENCODING_PCM_16BIT},
-   *     {@link C#ENCODING_PCM_16BIT}, {@link C#ENCODING_PCM_24BIT} and
-   *     {@link C#ENCODING_PCM_32BIT}.
-   * @param specifiedBufferSize A specific size for the playback buffer in bytes, or 0 to infer a
-   *     suitable buffer size automatically.
    * @param outputChannels A mapping from input to output channels that is applied to this track's
    *     input as a preprocessing step, if handling PCM input. Specify {@code null} to leave the
    *     input unchanged. Otherwise, the element at index {@code i} specifies index of the input
    *     channel to map to output channel {@code i} when preprocessing input buffers. After the
    *     map is applied the audio data will have {@code outputChannels.length} channels.
+   * @param trimStartSamples The number of audio samples to trim from the start of data written to
+   *     the track after this call.
+   * @param trimEndSamples The number of audio samples to trim from data written to the track
+   *     immediately preceding the next call to {@link #reset()} or
+   *     {@link #configure(String, int, int, int, int, int[], int, int)}.
    * @throws ConfigurationException If an error occurs configuring the track.
    */
   public void configure(String mimeType, int channelCount, int sampleRate,
-      @C.PcmEncoding int pcmEncoding, int specifiedBufferSize, int[] outputChannels)
-      throws ConfigurationException {
+      @C.PcmEncoding int pcmEncoding, int specifiedBufferSize, @Nullable int[] outputChannels,
+      int trimStartSamples, int trimEndSamples) throws ConfigurationException {
     boolean passthrough = !MimeTypes.AUDIO_RAW.equals(mimeType);
     @C.Encoding int encoding = passthrough ? getEncodingForMimeType(mimeType) : pcmEncoding;
     boolean flush = false;
     if (!passthrough) {
       pcmFrameSize = Util.getPcmFrameSize(pcmEncoding, channelCount);
+      trimmingAudioProcessor.setTrimSampleCount(trimStartSamples, trimEndSamples);
       channelMappingAudioProcessor.setChannelMap(outputChannels);
       for (AudioProcessor audioProcessor : availableAudioProcessors) {
         try {
@@ -689,7 +682,8 @@ public final class AudioTrack {
    * Returns whether the data was handled in full. If the data was not handled in full then the same
    * {@link ByteBuffer} must be provided to subsequent calls until it has been fully consumed,
    * except in the case of an interleaving call to {@link #reset()} (or an interleaving call to
-   * {@link #configure(String, int, int, int, int)} that caused the track to be reset).
+   * {@link #configure(String, int, int, int, int, int[], int, int)} that caused the track to be
+   * reset).
    *
    * @param buffer The buffer containing audio data.
    * @param presentationTimeUs The presentation timestamp of the buffer in microseconds.

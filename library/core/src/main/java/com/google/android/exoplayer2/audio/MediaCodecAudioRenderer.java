@@ -53,6 +53,8 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
   private android.media.MediaFormat passthroughMediaFormat;
   private int pcmEncoding;
   private int channelCount;
+  private int encoderDelay;
+  private int encoderPadding;
   private long currentPositionUs;
   private boolean allowPositionDiscontinuity;
 
@@ -134,8 +136,8 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
       @Nullable AudioRendererEventListener eventListener,
       @Nullable AudioCapabilities audioCapabilities, AudioProcessor... audioProcessors) {
     super(C.TRACK_TYPE_AUDIO, mediaCodecSelector, drmSessionManager, playClearSamplesWithoutKeys);
-    audioTrack = new AudioTrack(audioCapabilities, audioProcessors, new AudioTrackListener());
     eventDispatcher = new EventDispatcher(eventHandler, eventListener);
+    audioTrack = new AudioTrack(audioCapabilities, audioProcessors, new AudioTrackListener());
   }
 
   @Override
@@ -240,6 +242,8 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
     pcmEncoding = MimeTypes.AUDIO_RAW.equals(newFormat.sampleMimeType) ? newFormat.pcmEncoding
         : C.ENCODING_PCM_16BIT;
     channelCount = newFormat.channelCount;
+    encoderDelay = newFormat.encoderDelay != Format.NO_VALUE ? newFormat.encoderDelay : 0;
+    encoderPadding = newFormat.encoderPadding != Format.NO_VALUE ? newFormat.encoderPadding : 0;
   }
 
   @Override
@@ -262,7 +266,8 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
     }
 
     try {
-      audioTrack.configure(mimeType, channelCount, sampleRate, pcmEncoding, 0, channelMap);
+      audioTrack.configure(mimeType, channelCount, sampleRate, pcmEncoding, 0, channelMap,
+          encoderDelay, encoderPadding);
     } catch (AudioTrack.ConfigurationException e) {
       throw ExoPlaybackException.createForRenderer(e, getIndex());
     }
