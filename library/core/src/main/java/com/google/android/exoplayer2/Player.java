@@ -55,7 +55,7 @@ public interface Player {
      * Note that if the timeline has changed then a position discontinuity may also have occurred.
      * For example, the current period index may have changed as a result of periods being added or
      * removed from the timeline. This will <em>not</em> be reported via a separate call to
-     * {@link #onPositionDiscontinuity()}.
+     * {@link #onPositionDiscontinuity(int)}.
      *
      * @param timeline The latest timeline. Never null, but may be empty.
      * @param manifest The latest manifest. May be null.
@@ -119,8 +119,10 @@ public interface Player {
      * <p>
      * When a position discontinuity occurs as a result of a change to the timeline this method is
      * <em>not</em> called. {@link #onTimelineChanged(Timeline, Object)} is called in this case.
+     *
+     * @param reason The {@link DiscontinuityReason} responsible for the discontinuity.
      */
-    void onPositionDiscontinuity();
+    void onPositionDiscontinuity(@DiscontinuityReason int reason);
 
     /**
      * Called when the current playback parameters change. The playback parameters may change due to
@@ -171,6 +173,27 @@ public interface Player {
    * "Repeat All" mode to repeat the entire timeline infinitely.
    */
   int REPEAT_MODE_ALL = 2;
+
+  /**
+   * Reasons for position discontinuities.
+   */
+  @Retention(RetentionPolicy.SOURCE)
+  @IntDef({DISCONTINUITY_REASON_PERIOD_TRANSITION, DISCONTINUITY_REASON_SEEK,
+      DISCONTINUITY_REASON_INTERNAL})
+  public @interface DiscontinuityReason {}
+  /**
+   * Automatic playback transition from one period in the timeline to the next. The period index may
+   * be the same as it was before the discontinuity in case the current period is repeated.
+   */
+  int DISCONTINUITY_REASON_PERIOD_TRANSITION = 0;
+  /**
+   * Seek within the current period or to another period.
+   */
+  int DISCONTINUITY_REASON_SEEK = 1;
+  /**
+   * Discontinuity introduced internally by the source.
+   */
+  int DISCONTINUITY_REASON_INTERNAL = 2;
 
   /**
    * Register a listener to receive events from the player. The listener's methods will be called on

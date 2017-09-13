@@ -374,7 +374,7 @@ public final class ExoPlayerTestRunner implements Player.EventListener {
   }
 
   @Override
-  public void onPositionDiscontinuity() {
+  public void onPositionDiscontinuity(@Player.DiscontinuityReason int reason) {
     positionDiscontinuityCount++;
     periodIndices.add(player.getCurrentPeriodIndex());
   }

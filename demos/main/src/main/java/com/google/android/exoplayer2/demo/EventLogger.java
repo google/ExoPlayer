@@ -105,8 +105,8 @@ import java.util.Locale;
   }
 
   @Override
-  public void onPositionDiscontinuity() {
-    Log.d(TAG, "positionDiscontinuity");
+  public void onPositionDiscontinuity(@Player.DiscontinuityReason int reason) {
+    Log.d(TAG, "positionDiscontinuity [" + getDiscontinuityReasonString(reason) + "]");
   }
 
   @Override
@@ -480,6 +480,19 @@ import java.util.Locale;
         return "ONE";
       case Player.REPEAT_MODE_ALL:
         return "ALL";
+      default:
+        return "?";
+    }
+  }
+
+  private static String getDiscontinuityReasonString(@Player.DiscontinuityReason int reason) {
+    switch (reason) {
+      case Player.DISCONTINUITY_REASON_PERIOD_TRANSITION:
+        return "PERIOD_TRANSITION";
+      case Player.DISCONTINUITY_REASON_SEEK:
+        return "SEEK";
+      case Player.DISCONTINUITY_REASON_INTERNAL:
+        return "INTERNAL";
       default:
         return "?";
     }

@@ -510,7 +510,7 @@ public class PlayerActivity extends Activity implements OnClickListener, EventLi
   }
 
   @Override
-  public void onPositionDiscontinuity() {
+  public void onPositionDiscontinuity(@Player.DiscontinuityReason int reason) {
     if (inErrorState) {
       // This will only occur if the user has performed a seek whilst in the error state. Update the
       // resume position so that if the user then retries, playback will resume from the position to

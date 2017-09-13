@@ -248,7 +248,7 @@ public abstract class ExoHostedTest implements HostedTest, Player.EventListener,
   }
 
   @Override
-  public final void onPositionDiscontinuity() {
+  public final void onPositionDiscontinuity(@Player.DiscontinuityReason int reason) {
     // Do nothing.
   }
 

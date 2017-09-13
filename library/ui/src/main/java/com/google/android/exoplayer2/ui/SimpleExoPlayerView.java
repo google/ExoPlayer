@@ -927,7 +927,7 @@ public final class SimpleExoPlayerView extends FrameLayout {
     }
 
     @Override
-    public void onPositionDiscontinuity() {
+    public void onPositionDiscontinuity(@Player.DiscontinuityReason int reason) {
       // Do nothing.
     }
 

@@ -368,7 +368,7 @@ public abstract class Action {
         final ActionNode nextAction) {
       player.addListener(new PlayerListener() {
         @Override
-        public void onPositionDiscontinuity() {
+        public void onPositionDiscontinuity(@Player.DiscontinuityReason int reason) {
           player.removeListener(this);
           nextAction.schedule(player, trackSelector, surface, handler);
         }
@@ -445,7 +445,7 @@ public abstract class Action {
     }
 
     @Override
-    public void onPositionDiscontinuity() {
+    public void onPositionDiscontinuity(@Player.DiscontinuityReason int reason) {
 
     }
 

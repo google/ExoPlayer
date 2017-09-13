@@ -257,7 +257,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
       maskingWindowPositionMs = positionMs;
       internalPlayer.seekTo(timeline, windowIndex, C.msToUs(positionMs));
       for (Player.EventListener listener : listeners) {
-        listener.onPositionDiscontinuity();
+        listener.onPositionDiscontinuity(DISCONTINUITY_REASON_SEEK);
       }
     }
   }
@@ -484,7 +484,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
           }
           if (msg.arg1 != 0) {
             for (Player.EventListener listener : listeners) {
-              listener.onPositionDiscontinuity();
+              listener.onPositionDiscontinuity(DISCONTINUITY_REASON_SEEK);
             }
           }
         }
@@ -494,7 +494,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
         if (pendingSeekAcks == 0) {
           playbackInfo = (ExoPlayerImplInternal.PlaybackInfo) msg.obj;
           for (Player.EventListener listener : listeners) {
-            listener.onPositionDiscontinuity();
+            listener.onPositionDiscontinuity(DISCONTINUITY_REASON_PERIOD_TRANSITION);
           }
         }
         break;

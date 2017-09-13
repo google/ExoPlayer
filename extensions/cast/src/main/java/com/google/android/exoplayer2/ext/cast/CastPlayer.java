@@ -336,7 +336,7 @@ public final class CastPlayer implements Player {
       pendingSeekWindowIndex = windowIndex;
       pendingSeekPositionMs = positionMs;
       for (EventListener listener : listeners) {
-        listener.onPositionDiscontinuity();
+        listener.onPositionDiscontinuity(Player.DISCONTINUITY_REASON_SEEK);
       }
     }
   }
@@ -539,7 +539,7 @@ public final class CastPlayer implements Player {
     if (this.currentWindowIndex != currentWindowIndex) {
       this.currentWindowIndex = currentWindowIndex;
       for (EventListener listener : listeners) {
-        listener.onPositionDiscontinuity();
+        listener.onPositionDiscontinuity(DISCONTINUITY_REASON_PERIOD_TRANSITION);
       }
     }
     if (updateTracksAndSelections()) {

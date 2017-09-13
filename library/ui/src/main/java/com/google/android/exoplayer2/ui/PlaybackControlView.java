@@ -1090,7 +1090,7 @@ public class PlaybackControlView extends FrameLayout {
     }
 
     @Override
-    public void onPositionDiscontinuity() {
+    public void onPositionDiscontinuity(@Player.DiscontinuityReason int reason) {
       updateNavigation();
       updateProgress();
     }
@@ -1150,4 +1150,3 @@ public class PlaybackControlView extends FrameLayout {
   }
 
 }
-

@@ -583,7 +583,7 @@ public final class ImaAdsLoader implements Player.EventListener, VideoAdPlayer,
   }
 
   @Override
-  public void onPositionDiscontinuity() {
+  public void onPositionDiscontinuity(@Player.DiscontinuityReason int reason) {
     if (adsManager == null) {
       return;
     }

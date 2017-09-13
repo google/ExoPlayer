@@ -686,7 +686,7 @@ public final class MediaSessionConnector {
     }
 
     @Override
-    public void onPositionDiscontinuity() {
+    public void onPositionDiscontinuity(@Player.DiscontinuityReason int reason) {
       if (currentWindowIndex != player.getCurrentWindowIndex()) {
         if (queueNavigator != null) {
           queueNavigator.onCurrentWindowIndexChanged(player);

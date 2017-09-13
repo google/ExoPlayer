@@ -99,7 +99,7 @@ public final class DebugTextViewHelper implements Runnable, Player.EventListener
   }
 
   @Override
-  public void onPositionDiscontinuity() {
+  public void onPositionDiscontinuity(@Player.DiscontinuityReason int reason) {
     updateAndPost();
   }
 
