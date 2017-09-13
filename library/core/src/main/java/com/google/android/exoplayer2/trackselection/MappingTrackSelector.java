@@ -573,6 +573,8 @@ public abstract class MappingTrackSelector extends TrackSelector {
       }
     }
 
+    boolean[] rendererEnabled = determineEnabledRenderers(rendererCapabilities, trackSelections);
+
     // Package up the track information and selections.
     MappedTrackInfo mappedTrackInfo = new MappedTrackInfo(rendererTrackTypes,
         rendererTrackGroupArrays, mixedMimeTypeAdaptationSupport, rendererFormatSupports,
@@ -583,14 +585,26 @@ public abstract class MappingTrackSelector extends TrackSelector {
     RendererConfiguration[] rendererConfigurations =
         new RendererConfiguration[rendererCapabilities.length];
     for (int i = 0; i < rendererCapabilities.length; i++) {
-      rendererConfigurations[i] = trackSelections[i] != null ? RendererConfiguration.DEFAULT : null;
+      rendererConfigurations[i] = rendererEnabled[i] ? RendererConfiguration.DEFAULT : null;
     }
     // Configure audio and video renderers to use tunneling if appropriate.
     maybeConfigureRenderersForTunneling(rendererCapabilities, rendererTrackGroupArrays,
         rendererFormatSupports, rendererConfigurations, trackSelections, tunnelingAudioSessionId);
 
-    return new TrackSelectorResult(trackGroups, new TrackSelectionArray(trackSelections),
-        mappedTrackInfo, rendererConfigurations);
+    return new TrackSelectorResult(trackGroups, rendererEnabled,
+        new TrackSelectionArray(trackSelections), mappedTrackInfo, rendererConfigurations);
+  }
+
+  private boolean[] determineEnabledRenderers(RendererCapabilities[] rendererCapabilities,
+      TrackSelection[] trackSelections) {
+    boolean[] rendererEnabled = new boolean[trackSelections.length];
+    for (int i = 0; i < rendererEnabled.length; i++) {
+      boolean forceRendererDisabled = rendererDisabledFlags.get(i);
+      rendererEnabled[i] = !forceRendererDisabled
+          && (rendererCapabilities[i].getTrackType() == C.TRACK_TYPE_NONE
+          || trackSelections[i] != null);
+    }
+    return rendererEnabled;
   }
 
   @Override
