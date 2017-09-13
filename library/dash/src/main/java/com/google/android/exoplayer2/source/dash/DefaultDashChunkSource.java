@@ -95,6 +95,7 @@ public class DefaultDashChunkSource implements DashChunkSource {
   private int periodIndex;
   private IOException fatalError;
   private boolean missingLastSegment;
+  private long liveEdgeTimeUs;
 
   /**
    * @param manifestLoaderErrorThrower Throws errors affecting loading of manifests.
@@ -130,6 +131,7 @@ public class DefaultDashChunkSource implements DashChunkSource {
     this.maxSegmentsPerLoad = maxSegmentsPerLoad;
 
     long periodDurationUs = manifest.getPeriodDurationUs(periodIndex);
+    liveEdgeTimeUs = C.TIME_UNSET;
     List<Representation> representations = getRepresentations();
     representationHolders = new RepresentationHolder[trackSelection.length()];
     for (int i = 0; i < representationHolders.length; i++) {
@@ -179,7 +181,8 @@ public class DefaultDashChunkSource implements DashChunkSource {
     }
 
     long bufferedDurationUs = previous != null ? (previous.endTimeUs - playbackPositionUs) : 0;
-    trackSelection.updateSelectedTrack(bufferedDurationUs);
+    long timeToLiveEdgeUs = resolveTimeToLiveEdgeUs(playbackPositionUs, previous == null);
+    trackSelection.updateSelectedTrack(bufferedDurationUs, timeToLiveEdgeUs);
 
     RepresentationHolder representationHolder =
         representationHolders[trackSelection.getSelectedIndex()];
@@ -203,7 +206,6 @@ public class DefaultDashChunkSource implements DashChunkSource {
       }
     }
 
-    long nowUs = getNowUnixTimeUs();
     int availableSegmentCount = representationHolder.getSegmentCount();
     if (availableSegmentCount == 0) {
       // The index doesn't define any segments.
@@ -216,20 +218,22 @@ public class DefaultDashChunkSource implements DashChunkSource {
     if (availableSegmentCount == DashSegmentIndex.INDEX_UNBOUNDED) {
       // The index is itself unbounded. We need to use the current time to calculate the range of
       // available segments.
-      long liveEdgeTimeUs = nowUs - manifest.availabilityStartTime * 1000;
-      long periodStartUs = manifest.getPeriod(periodIndex).startMs * 1000;
+      long liveEdgeTimeUs = getNowUnixTimeUs() - C.msToUs(manifest.availabilityStartTime);
+      long periodStartUs = C.msToUs(manifest.getPeriod(periodIndex).startMs);
       long liveEdgeTimeInPeriodUs = liveEdgeTimeUs - periodStartUs;
       if (manifest.timeShiftBufferDepth != C.TIME_UNSET) {
-        long bufferDepthUs = manifest.timeShiftBufferDepth * 1000;
+        long bufferDepthUs = C.msToUs(manifest.timeShiftBufferDepth);
         firstAvailableSegmentNum = Math.max(firstAvailableSegmentNum,
             representationHolder.getSegmentNum(liveEdgeTimeInPeriodUs - bufferDepthUs));
       }
-      // getSegmentNum(liveEdgeTimestampUs) will not be completed yet, so subtract one to get the
+      // getSegmentNum(liveEdgeTimeInPeriodUs) will not be completed yet, so subtract one to get the
       // index of the last completed segment.
       lastAvailableSegmentNum = representationHolder.getSegmentNum(liveEdgeTimeInPeriodUs) - 1;
     } else {
       lastAvailableSegmentNum = firstAvailableSegmentNum + availableSegmentCount - 1;
     }
+
+    updateLiveEdgeTimeUs(representationHolder, lastAvailableSegmentNum);
 
     int segmentNum;
     if (previous == null) {
@@ -311,6 +315,19 @@ public class DefaultDashChunkSource implements DashChunkSource {
     return representations;
   }
 
+  private void updateLiveEdgeTimeUs(RepresentationHolder representationHolder,
+      int lastAvailableSegmentNum) {
+    if (manifest.dynamic) {
+      DashSegmentIndex segmentIndex = representationHolder.representation.getIndex();
+      long lastSegmentDurationUs = segmentIndex.getDurationUs(lastAvailableSegmentNum,
+          manifest.getPeriodDurationUs(periodIndex));
+      liveEdgeTimeUs = segmentIndex.getTimeUs(lastAvailableSegmentNum)
+          + lastSegmentDurationUs;
+    } else {
+      liveEdgeTimeUs = C.TIME_UNSET;
+    }
+  }
+
   private long getNowUnixTimeUs() {
     if (elapsedRealtimeOffsetMs != 0) {
       return (SystemClock.elapsedRealtime() + elapsedRealtimeOffsetMs) * 1000;
@@ -373,6 +390,12 @@ public class DefaultDashChunkSource implements DashChunkSource {
           trackSelectionData, startTimeUs, endTimeUs, firstSegmentNum, segmentCount,
           sampleOffsetUs, representationHolder.extractorWrapper);
     }
+  }
+
+  private long resolveTimeToLiveEdgeUs(long playbackPositionUs, boolean isAfterPositionReset) {
+    boolean resolveTimeToLiveEdgePossible = manifest.dynamic
+        && !isAfterPositionReset && liveEdgeTimeUs != C.TIME_UNSET;
+    return resolveTimeToLiveEdgePossible ? liveEdgeTimeUs - playbackPositionUs : C.TIME_UNSET;
   }
 
   // Protected classes.
