@@ -92,7 +92,6 @@ import java.util.LinkedList;
   private boolean prepared;
   private int enabledTrackCount;
   private Format downstreamTrackFormat;
-  private int upstreamChunkUid;
   private boolean released;
 
   // Tracks are complicated in HLS. See documentation of buildTracks for details.
@@ -255,7 +254,7 @@ import java.util.LinkedList;
         // may need to be discarded.
         boolean primarySampleQueueDirty = false;
         if (!seenFirstTrackSelection) {
-          primaryTrackSelection.updateSelectedTrack(0);
+          primaryTrackSelection.updateSelectedTrack(0, C.TIME_UNSET);
           int chunkIndex = chunkSource.getTrackGroup().indexOf(mediaChunks.getLast().trackFormat);
           if (primaryTrackSelection.getSelectedIndexInTrackGroup() != chunkIndex) {
             // This is the first selection and the chunk loaded during preparation does not match
@@ -553,7 +552,6 @@ import java.util.LinkedList;
    *     samples already queued to the wrapper.
    */
   public void init(int chunkUid, boolean shouldSpliceIn) {
-    upstreamChunkUid = chunkUid;
     for (SampleQueue sampleQueue : sampleQueues) {
       sampleQueue.sourceId(chunkUid);
     }

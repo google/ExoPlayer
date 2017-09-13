@@ -16,6 +16,7 @@
 package com.google.android.exoplayer2.testutil;
 
 import android.net.Uri;
+import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.source.chunk.Chunk;
 import com.google.android.exoplayer2.source.chunk.ChunkHolder;
@@ -83,7 +84,7 @@ public final class FakeChunkSource implements ChunkSource {
   @Override
   public void getNextChunk(MediaChunk previous, long playbackPositionUs, ChunkHolder out) {
     long bufferedDurationUs = previous != null ? (previous.endTimeUs - playbackPositionUs) : 0;
-    trackSelection.updateSelectedTrack(bufferedDurationUs);
+    trackSelection.updateSelectedTrack(bufferedDurationUs, C.TIME_UNSET);
     int chunkIndex = previous == null ? dataSet.getChunkIndexByPosition(playbackPositionUs)
         : previous.getNextChunkIndex();
     if (chunkIndex >= dataSet.getChunkCount()) {

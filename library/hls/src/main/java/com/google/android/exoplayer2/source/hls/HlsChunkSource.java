@@ -103,6 +103,7 @@ import java.util.List;
   // the way in which HlsSampleStreamWrapper generates track groups. Use only index based methods
   // in TrackSelection to avoid unexpected behavior.
   private TrackSelection trackSelection;
+  private long liveEdgeTimeUs;
 
   /**
    * @param playlistTracker The {@link HlsPlaylistTracker} from which to obtain media playlists.
@@ -122,6 +123,7 @@ import java.util.List;
     this.variants = variants;
     this.timestampAdjusterProvider = timestampAdjusterProvider;
     this.muxedCaptionFormats = muxedCaptionFormats;
+    liveEdgeTimeUs = C.TIME_UNSET;
     Format[] variantFormats = new Format[variants.length];
     int[] initialTrackSelection = new int[variants.length];
     for (int i = 0; i < variants.length; i++) {
@@ -214,7 +216,8 @@ import java.util.List;
         (independentSegments ? previous.endTimeUs : previous.startTimeUs) - playbackPositionUs);
 
     // Select the variant.
-    trackSelection.updateSelectedTrack(bufferedDurationUs);
+    long timeToLiveEdgeUs = resolveTimeToLiveEdgeUs(playbackPositionUs, previous == null);
+    trackSelection.updateSelectedTrack(bufferedDurationUs, timeToLiveEdgeUs);
     int selectedVariantIndex = trackSelection.getSelectedIndexInTrackGroup();
 
     boolean switchingVariant = oldVariantIndex != selectedVariantIndex;
@@ -227,6 +230,8 @@ import java.util.List;
     }
     HlsMediaPlaylist mediaPlaylist = playlistTracker.getPlaylistSnapshot(selectedUrl);
     independentSegments = mediaPlaylist.hasIndependentSegmentsTag;
+
+    updateLiveEdgeTimeUs(mediaPlaylist);
 
     // Select the chunk.
     int chunkMediaSequence;
@@ -360,6 +365,16 @@ import java.util.List;
 
   // Private methods.
 
+  private long resolveTimeToLiveEdgeUs(long playbackPositionUs, boolean isAfterPositionReset) {
+    final boolean resolveTimeToLiveEdgePossible = !isAfterPositionReset
+        && liveEdgeTimeUs != C.TIME_UNSET;
+    return resolveTimeToLiveEdgePossible ? liveEdgeTimeUs - playbackPositionUs : C.TIME_UNSET;
+  }
+
+  private void updateLiveEdgeTimeUs(HlsMediaPlaylist mediaPlaylist) {
+    liveEdgeTimeUs = mediaPlaylist.hasEndTag ? C.TIME_UNSET : mediaPlaylist.getEndTimeUs();
+  }
+
   private EncryptionKeyChunk newEncryptionKeyChunk(Uri keyUri, String iv, int variantIndex,
       int trackSelectionReason, Object trackSelectionData) {
     DataSpec dataSpec = new DataSpec(keyUri, 0, C.LENGTH_UNSET, null, DataSpec.FLAG_ALLOW_GZIP);
@@ -409,7 +424,7 @@ import java.util.List;
     }
 
     @Override
-    public void updateSelectedTrack(long bufferedDurationUs) {
+    public void updateSelectedTrack(long bufferedDurationUs, long availableDurationUs) {
       long nowMs = SystemClock.elapsedRealtime();
       if (!isBlacklisted(selectedIndex, nowMs)) {
         return;
