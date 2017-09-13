@@ -520,6 +520,10 @@ public final class C {
    */
   public static final int TRACK_TYPE_METADATA = 4;
   /**
+   * A type constant for a dummy or empty track.
+   */
+  public static final int TRACK_TYPE_NONE = 5;
+  /**
    * Applications or extensions may define custom {@code TRACK_TYPE_*} constants greater than or
    * equal to this value.
    */
