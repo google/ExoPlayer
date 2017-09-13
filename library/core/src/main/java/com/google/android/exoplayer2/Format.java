@@ -529,8 +529,6 @@ public final class Format implements Parcelable {
     maybeSetIntegerV16(format, "rotation-degrees", rotationDegrees);
     maybeSetIntegerV16(format, MediaFormat.KEY_CHANNEL_COUNT, channelCount);
     maybeSetIntegerV16(format, MediaFormat.KEY_SAMPLE_RATE, sampleRate);
-    maybeSetIntegerV16(format, "encoder-delay", encoderDelay);
-    maybeSetIntegerV16(format, "encoder-padding", encoderPadding);
     for (int i = 0; i < initializationData.size(); i++) {
       format.setByteBuffer("csd-" + i, ByteBuffer.wrap(initializationData.get(i)));
     }
