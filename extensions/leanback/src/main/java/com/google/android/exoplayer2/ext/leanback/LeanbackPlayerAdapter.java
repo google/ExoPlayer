@@ -32,6 +32,7 @@ import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.ExoPlayerLibraryInfo;
 import com.google.android.exoplayer2.PlaybackParameters;
 import com.google.android.exoplayer2.Player;
+import com.google.android.exoplayer2.Player.DiscontinuityReason;
 import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.source.TrackGroupArray;
@@ -278,7 +279,7 @@ public final class LeanbackPlayerAdapter extends PlayerAdapter {
     }
 
     @Override
-    public void onPositionDiscontinuity() {
+    public void onPositionDiscontinuity(@DiscontinuityReason int reason) {
       Callback callback = getCallback();
       callback.onCurrentPositionChanged(LeanbackPlayerAdapter.this);
       callback.onBufferedPositionChanged(LeanbackPlayerAdapter.this);

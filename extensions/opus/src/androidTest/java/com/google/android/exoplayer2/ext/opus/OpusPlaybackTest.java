@@ -100,7 +100,7 @@ public class OpusPlaybackTest extends InstrumentationTestCase {
     }
 
     @Override
-    public void onPositionDiscontinuity() {
+    public void onPositionDiscontinuity(@Player.DiscontinuityReason int reason) {
       // Do nothing.
     }
 
