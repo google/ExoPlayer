@@ -24,6 +24,7 @@ import android.support.annotation.IntDef;
 import android.support.annotation.NonNull;
 import android.text.TextUtils;
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.drm.DefaultDrmSession.ProvisioningManager;
 import com.google.android.exoplayer2.drm.DrmInitData.SchemeData;
 import com.google.android.exoplayer2.drm.ExoMediaDrm.OnEventListener;
 import com.google.android.exoplayer2.extractor.mp4.PsshAtomUtil;
@@ -36,14 +37,13 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * A {@link DrmSessionManager} that supports playbacks using {@link ExoMediaDrm}.
  */
 @TargetApi(18)
 public class DefaultDrmSessionManager<T extends ExoMediaCrypto> implements DrmSessionManager<T>,
-    DefaultDrmSession.EventListener {
+    ProvisioningManager<T> {
 
   /**
    * Listener of {@link DefaultDrmSessionManager} events.
@@ -107,7 +107,7 @@ public class DefaultDrmSessionManager<T extends ExoMediaCrypto> implements DrmSe
   private final boolean multiSession;
 
   private final List<DefaultDrmSession<T>> sessions;
-  private final AtomicBoolean provisioningInProgress;
+  private final List<DefaultDrmSession<T>> provisioningSessions;
 
   private Looper playbackLooper;
   private int mode;
@@ -223,7 +223,7 @@ public class DefaultDrmSessionManager<T extends ExoMediaCrypto> implements DrmSe
     this.multiSession = multiSession;
     mode = MODE_PLAYBACK;
     sessions = new ArrayList<>();
-    provisioningInProgress = new AtomicBoolean(false);
+    provisioningSessions = new ArrayList<>();
     if (multiSession) {
       mediaDrm.setPropertyString("sessionSharing", "enable");
     }
@@ -363,17 +363,21 @@ public class DefaultDrmSessionManager<T extends ExoMediaCrypto> implements DrmSe
       }
     }
 
-    for (DefaultDrmSession<T> s : sessions) {
-      if (!multiSession || s.canReuse(initData)) {
-        session = s;
-        break;
+    if (!multiSession) {
+      // Look for an existing session to use.
+      for (DefaultDrmSession<T> existingSession : sessions) {
+        if (existingSession.hasInitData(initData)) {
+          session = existingSession;
+          break;
+        }
       }
     }
 
     if (session == null) {
-      session = new DefaultDrmSession<T>(uuid, mediaDrm, initData, mimeType, mode,
+      // Create a new session.
+      session = new DefaultDrmSession<>(uuid, mediaDrm, this, initData, mimeType, mode,
           offlineLicenseKeySetId, optionalKeyRequestParameters, callback, playbackLooper,
-          eventHandler, eventListener, provisioningInProgress, this);
+          eventHandler, eventListener);
       sessions.add(session);
     }
     session.acquire();
@@ -385,15 +389,43 @@ public class DefaultDrmSessionManager<T extends ExoMediaCrypto> implements DrmSe
     DefaultDrmSession<T> drmSession = (DefaultDrmSession<T>) session;
     if (drmSession.release()) {
       sessions.remove(drmSession);
+      if (provisioningSessions.size() > 1 && provisioningSessions.get(0) == drmSession) {
+        // Other sessions were waiting for the released session to complete a provision operation.
+        // We need to have one of those sessions perform the provision operation instead.
+        provisioningSessions.get(1).provision();
+      }
+      provisioningSessions.remove(drmSession);
+    }
+  }
+
+  // ProvisioningManager implementation.
+
+  @Override
+  public void provisionRequired(DefaultDrmSession<T> session) {
+    provisioningSessions.add(session);
+    if (provisioningSessions.size() == 1) {
+      // This is the first session requesting provisioning, so have it perform the operation.
+      session.provision();
     }
   }
 
   @Override
   public void onProvisionCompleted() {
-    for (DefaultDrmSession<T> session : sessions) {
+    for (DefaultDrmSession<T> session : provisioningSessions) {
       session.onProvisionCompleted();
     }
+    provisioningSessions.clear();
   }
+
+  @Override
+  public void onProvisionError(Exception error) {
+    for (DefaultDrmSession<T> session : provisioningSessions) {
+      session.onProvisionError(error);
+    }
+    provisioningSessions.clear();
+  }
+
+  // Internal methods.
 
   /**
    * Extracts {@link SchemeData} suitable for the given DRM scheme {@link UUID}.

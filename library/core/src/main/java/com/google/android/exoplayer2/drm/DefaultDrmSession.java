@@ -32,7 +32,6 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * A {@link DrmSession} that supports playbacks using {@link ExoMediaDrm}.
@@ -41,12 +40,29 @@ import java.util.concurrent.atomic.AtomicBoolean;
 /* package */ class DefaultDrmSession<T extends ExoMediaCrypto> implements DrmSession<T> {
 
   /**
-   * Listener of {@link DefaultDrmSession} events.
+   * Manages provisioning requests.
    */
-  public interface EventListener {
+  public interface ProvisioningManager<T extends ExoMediaCrypto> {
 
     /**
-     * Called each time provision is completed.
+     * Called when a session requires provisioning. The manager <em>may</em> call
+     * {@link #provision()} to have this session perform the provisioning operation. The manager
+     * <em>will</em> call {@link DefaultDrmSession#onProvisionCompleted()} when provisioning has
+     * completed, or {@link DefaultDrmSession#onProvisionError} if provisioning fails.
+     *
+     * @param session The session.
+     */
+    void provisionRequired(DefaultDrmSession<T> session);
+
+    /**
+     * Called by a session when it fails to perform a provisioning operation.
+     *
+     * @param error The error that occurred.
+     */
+    void onProvisionError(Exception error);
+
+    /**
+     * Called by a session when it successfully completes a provisioning operation.
      */
     void onProvisionCompleted();
 
@@ -59,14 +75,13 @@ import java.util.concurrent.atomic.AtomicBoolean;
   private static final int MAX_LICENSE_DURATION_TO_RENEW = 60;
 
   private final ExoMediaDrm<T> mediaDrm;
+  private final ProvisioningManager<T> provisioningManager;
   private final byte[] initData;
   private final String mimeType;
   private final @DefaultDrmSessionManager.Mode int mode;
   private final HashMap<String, String> optionalKeyRequestParameters;
   private final Handler eventHandler;
   private final DefaultDrmSessionManager.EventListener eventListener;
-  private final AtomicBoolean provisioningInProgress;
-  private final EventListener sessionEventListener;
 
   /* package */ final MediaDrmCallback callback;
   /* package */ final UUID uuid;
@@ -87,6 +102,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
    *
    * @param uuid The UUID of the drm scheme.
    * @param mediaDrm The media DRM.
+   * @param provisioningManager The manager for provisioning.
    * @param initData The DRM init data.
    * @param mode The DRM mode.
    * @param offlineLicenseKeySetId The offlineLicense KeySetId.
@@ -96,13 +112,14 @@ import java.util.concurrent.atomic.AtomicBoolean;
    * @param eventHandler The handler to post listener events.
    * @param eventListener The DRM session manager event listener.
    */
-  public DefaultDrmSession(UUID uuid, ExoMediaDrm<T> mediaDrm, byte[] initData, String mimeType,
+  public DefaultDrmSession(UUID uuid, ExoMediaDrm<T> mediaDrm,
+      ProvisioningManager<T> provisioningManager, byte[] initData, String mimeType,
       @DefaultDrmSessionManager.Mode int mode, byte[] offlineLicenseKeySetId,
       HashMap<String, String> optionalKeyRequestParameters, MediaDrmCallback callback,
       Looper playbackLooper, Handler eventHandler,
-      DefaultDrmSessionManager.EventListener eventListener, AtomicBoolean provisioningInProgress,
-      EventListener sessionEventListener) {
+      DefaultDrmSessionManager.EventListener eventListener) {
     this.uuid = uuid;
+    this.provisioningManager = provisioningManager;
     this.mediaDrm = mediaDrm;
     this.mode = mode;
     this.offlineLicenseKeySetId = offlineLicenseKeySetId;
@@ -111,8 +128,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
     this.eventHandler = eventHandler;
     this.eventListener = eventListener;
-    this.provisioningInProgress = provisioningInProgress;
-    this.sessionEventListener = sessionEventListener;
     state = STATE_OPENING;
 
     postResponseHandler = new PostResponseHandler(playbackLooper);
@@ -164,7 +179,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
     return false;
   }
 
-  public boolean canReuse(byte[] initData) {
+  public boolean hasInitData(byte[] initData) {
     return Arrays.equals(this.initData, initData);
   }
 
@@ -172,7 +187,24 @@ import java.util.concurrent.atomic.AtomicBoolean;
     return Arrays.equals(this.sessionId, sessionId);
   }
 
-  // DrmSession Implementation.
+  // Provisioning implementation.
+
+  public void provision() {
+    ProvisionRequest request = mediaDrm.getProvisionRequest();
+    postRequestHandler.obtainMessage(MSG_PROVISION, request).sendToTarget();
+  }
+
+  public void onProvisionCompleted() {
+    if (openInternal(false)) {
+      doLicense();
+    }
+  }
+
+  public void onProvisionError(Exception error) {
+    onError(error);
+  }
+
+  // DrmSession implementation.
 
   @Override
   @DrmSession.State
@@ -221,7 +253,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
       return true;
     } catch (NotProvisionedException e) {
       if (allowProvisioning) {
-        postProvisionRequest();
+        provisioningManager.provisionRequired(this);
       } else {
         onError(e);
       }
@@ -232,42 +264,25 @@ import java.util.concurrent.atomic.AtomicBoolean;
     return false;
   }
 
-  private void postProvisionRequest() {
-    if (provisioningInProgress.getAndSet(true)) {
+  private void onProvisionResponse(Object response) {
+    if (state != STATE_OPENING && !isOpen()) {
+      // This event is stale.
       return;
     }
-    ProvisionRequest request = mediaDrm.getProvisionRequest();
-    postRequestHandler.obtainMessage(MSG_PROVISION, request).sendToTarget();
-  }
 
-  private void onProvisionResponse(Object response) {
-    provisioningInProgress.set(false);
     if (response instanceof Exception) {
-      onError((Exception) response);
+      provisioningManager.onProvisionError((Exception) response);
       return;
     }
 
     try {
       mediaDrm.provideProvisionResponse((byte[]) response);
     } catch (DeniedByServerException e) {
-      onError(e);
+      provisioningManager.onProvisionError(e);
       return;
     }
 
-    if (sessionEventListener != null) {
-      sessionEventListener.onProvisionCompleted();
-    }
-  }
-
-  public void onProvisionCompleted() {
-    if (state != STATE_OPENING && !isOpen()) {
-      // This event is stale.
-      return;
-    }
-
-    if (openInternal(false)) {
-      doLicense();
-    }
+    provisioningManager.onProvisionCompleted();
   }
 
   private void doLicense() {
@@ -405,7 +420,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
   private void onKeysError(Exception e) {
     if (e instanceof NotProvisionedException) {
-      postProvisionRequest();
+      provisioningManager.provisionRequired(this);
     } else {
       onError(e);
     }
@@ -447,7 +462,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
         break;
       case ExoMediaDrm.EVENT_PROVISION_REQUIRED:
         state = STATE_OPENED;
-        postProvisionRequest();
+        provisioningManager.provisionRequired(this);
         break;
       default:
         break;
