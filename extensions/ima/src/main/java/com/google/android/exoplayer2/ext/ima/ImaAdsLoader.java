@@ -29,7 +29,6 @@ import com.google.ads.interactivemedia.v3.api.AdEvent;
 import com.google.ads.interactivemedia.v3.api.AdEvent.AdEventListener;
 import com.google.ads.interactivemedia.v3.api.AdEvent.AdEventType;
 import com.google.ads.interactivemedia.v3.api.AdPodInfo;
-import com.google.ads.interactivemedia.v3.api.AdsLoader;
 import com.google.ads.interactivemedia.v3.api.AdsLoader.AdsLoadedListener;
 import com.google.ads.interactivemedia.v3.api.AdsManager;
 import com.google.ads.interactivemedia.v3.api.AdsManagerLoadedEvent;
@@ -48,6 +47,8 @@ import com.google.android.exoplayer2.PlaybackParameters;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.source.TrackGroupArray;
+import com.google.android.exoplayer2.source.ads.AdPlaybackState;
+import com.google.android.exoplayer2.source.ads.AdsLoader;
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
 import com.google.android.exoplayer2.util.Assertions;
 import java.io.IOException;
@@ -58,39 +59,8 @@ import java.util.Map;
 /**
  * Loads ads using the IMA SDK. All methods are called on the main thread.
  */
-public final class ImaAdsLoader implements Player.EventListener, VideoAdPlayer,
+public final class ImaAdsLoader implements AdsLoader, Player.EventListener, VideoAdPlayer,
     ContentProgressProvider, AdErrorListener, AdsLoadedListener, AdEventListener {
-
-  /**
-   * Listener for ad loader events. All methods are called on the main thread.
-   */
-  /* package */ interface EventListener {
-
-    /**
-     * Called when the ad playback state has been updated.
-     *
-     * @param adPlaybackState The new ad playback state.
-     */
-    void onAdPlaybackState(AdPlaybackState adPlaybackState);
-
-    /**
-     * Called when there was an error loading ads.
-     *
-     * @param error The error.
-     */
-    void onLoadError(IOException error);
-
-    /**
-     * Called when the user clicks through an ad (for example, following a 'learn more' link).
-     */
-    void onAdClicked();
-
-    /**
-     * Called when the user taps a non-clickthrough part of an ad.
-     */
-    void onAdTapped();
-
-  }
 
   static {
     ExoPlayerLibraryInfo.registerModule("goog.exo.ima");
@@ -126,7 +96,7 @@ public final class ImaAdsLoader implements Player.EventListener, VideoAdPlayer,
   private final List<VideoAdPlayerCallback> adCallbacks;
   private final ImaSdkFactory imaSdkFactory;
   private final AdDisplayContainer adDisplayContainer;
-  private final AdsLoader adsLoader;
+  private final com.google.ads.interactivemedia.v3.api.AdsLoader adsLoader;
 
   private EventListener eventListener;
   private Player player;
@@ -160,7 +130,8 @@ public final class ImaAdsLoader implements Player.EventListener, VideoAdPlayer,
    */
   private boolean imaPausedInAd;
   /**
-   * Whether {@link AdsLoader#contentComplete()} has been called since starting ad playback.
+   * Whether {@link com.google.ads.interactivemedia.v3.api.AdsLoader#contentComplete()} has been
+   * called since starting ad playback.
    */
   private boolean sentContentComplete;
 
@@ -248,15 +219,8 @@ public final class ImaAdsLoader implements Player.EventListener, VideoAdPlayer,
     contentDurationMs = C.TIME_UNSET;
   }
 
-  /**
-   * Attaches a player that will play ads loaded using this instance.
-   *
-   * @param player The player instance that will play the loaded ads.
-   * @param eventListener Listener for ads loader events.
-   * @param adUiViewGroup A {@link ViewGroup} on top of the player that will show any ad UI.
-   */
-  /* package */ void attachPlayer(ExoPlayer player, EventListener eventListener,
-      ViewGroup adUiViewGroup) {
+  @Override
+  public void attachPlayer(ExoPlayer player, EventListener eventListener, ViewGroup adUiViewGroup) {
     this.player = player;
     this.eventListener = eventListener;
     this.adUiViewGroup = adUiViewGroup;
@@ -265,7 +229,7 @@ public final class ImaAdsLoader implements Player.EventListener, VideoAdPlayer,
     adDisplayContainer.setAdContainer(adUiViewGroup);
     player.addListener(this);
     if (adPlaybackState != null) {
-      eventListener.onAdPlaybackState(adPlaybackState);
+      eventListener.onAdPlaybackState(adPlaybackState.copy());
       if (imaPausedContent) {
         adsManager.resume();
       }
@@ -274,12 +238,8 @@ public final class ImaAdsLoader implements Player.EventListener, VideoAdPlayer,
     }
   }
 
-  /**
-   * Detaches the attached player and event listener. To attach a new player, call
-   * {@link #attachPlayer(ExoPlayer, EventListener, ViewGroup)}. Call {@link #release()} to release
-   * all resources associated with this instance.
-   */
-  /* package */ void detachPlayer() {
+  @Override
+  public void detachPlayer() {
     if (adsManager != null && imaPausedContent) {
       adPlaybackState.setAdResumePositionUs(C.msToUs(player.getCurrentPosition()));
       adsManager.pause();
@@ -292,9 +252,7 @@ public final class ImaAdsLoader implements Player.EventListener, VideoAdPlayer,
     adUiViewGroup = null;
   }
 
-  /**
-   * Releases the loader. Must be called when the instance is no longer needed.
-   */
+  @Override
   public void release() {
     released = true;
     if (adsManager != null) {

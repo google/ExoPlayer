@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.android.exoplayer2.ext.ima;
+package com.google.android.exoplayer2.source.ads;
 
 import android.net.Uri;
 import com.google.android.exoplayer2.C;
@@ -22,7 +22,7 @@ import java.util.Arrays;
 /**
  * Represents the structure of ads to play and the state of loaded/played ads.
  */
-/* package */ final class AdPlaybackState {
+public final class AdPlaybackState {
 
   /**
    * The number of ad groups.
