@@ -31,6 +31,7 @@ import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.Window;
 import com.google.android.exoplayer2.util.Assertions;
+import com.google.android.exoplayer2.util.Util;
 
 /**
  * A host activity for performing playback tests.
@@ -179,12 +180,17 @@ public final class HostActivity extends Activity implements SurfaceHolder.Callba
   @Override
   public void onPause() {
     super.onPause();
-    maybeStopHostedTest();
+    if (Util.SDK_INT <= 23) {
+      maybeStopHostedTest();
+    }
   }
 
   @Override
   public void onStop() {
     super.onStop();
+    if (Util.SDK_INT > 23) {
+      maybeStopHostedTest();
+    }
     wakeLock.release();
     wakeLock = null;
     wifiLock.release();
