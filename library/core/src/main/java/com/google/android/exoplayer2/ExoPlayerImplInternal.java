@@ -1355,18 +1355,25 @@ import java.io.IOException;
         } else if (!renderer.isCurrentStreamFinal()) {
           TrackSelection newSelection = newTrackSelectorResult.selections.get(i);
           boolean newRendererEnabled = newTrackSelectorResult.renderersEnabled[i];
+          boolean isNoSampleRenderer = rendererCapabilities[i].getTrackType() == C.TRACK_TYPE_NONE;
           RendererConfiguration oldConfig = oldTrackSelectorResult.rendererConfigurations[i];
           RendererConfiguration newConfig = newTrackSelectorResult.rendererConfigurations[i];
-          if (newRendererEnabled && newConfig.equals(oldConfig)) {
+          if (newRendererEnabled && newConfig.equals(oldConfig) && !isNoSampleRenderer) {
             // Replace the renderer's SampleStream so the transition to playing the next period can
             // be seamless.
+            // This should be avoided for no-sample renderer, because skipping ahead for such
+            // renderer doesn't have any benefit (the renderer does not consume the sample stream),
+            // and it will change the provided rendererOffsetUs while the renderer is still
+            // rendering from the playing media period.
             Format[] formats = getFormats(newSelection);
             renderer.replaceStream(formats, readingPeriodHolder.sampleStreams[i],
                 readingPeriodHolder.getRendererOffset());
           } else {
-            // The renderer will be disabled when transitioning to playing the next period, either
-            // because there's no new selection or because a configuration change is required. Mark
-            // the SampleStream as final to play out any remaining data.
+            // The renderer will be disabled when transitioning to playing the next period, because
+            // there's no new selection, or because a configuration change is required, or because
+            // it's a no-sample renderer for which rendererOffsetUs should be updated only when
+            // starting to play the next period. Mark the SampleStream as final to play out any
+            // remaining data.
             renderer.setCurrentStreamFinal();
           }
         }
