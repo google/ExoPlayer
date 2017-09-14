@@ -98,21 +98,22 @@ public class DefaultDrmSessionManager<T extends ExoMediaCrypto> implements DrmSe
   /** Releases an existing offline license. */
   public static final int MODE_RELEASE = 3;
 
+  private final UUID uuid;
+  private final ExoMediaDrm<T> mediaDrm;
+  private final MediaDrmCallback callback;
+  private final HashMap<String, String> optionalKeyRequestParameters;
   private final Handler eventHandler;
   private final EventListener eventListener;
-  private final ExoMediaDrm<T> mediaDrm;
-  private final HashMap<String, String> optionalKeyRequestParameters;
-  private final MediaDrmCallback callback;
-  private final UUID uuid;
   private final boolean multiSession;
+
+  private final List<DefaultDrmSession<T>> sessions;
+  private final AtomicBoolean provisioningInProgress;
 
   private Looper playbackLooper;
   private int mode;
   private byte[] offlineLicenseKeySetId;
 
-  private final List<DefaultDrmSession<T>> sessions;
-  private final AtomicBoolean provisioningInProgress;
-  /* package */ MediaDrmHandler mediaDrmHandler;
+  /* package */ volatile MediaDrmHandler mediaDrmHandler;
 
   /**
    * Instantiates a new instance using the Widevine scheme.
@@ -226,6 +227,7 @@ public class DefaultDrmSessionManager<T extends ExoMediaCrypto> implements DrmSe
     if (multiSession) {
       mediaDrm.setPropertyString("sessionSharing", "enable");
     }
+    mediaDrm.setOnEventListener(new MediaDrmEventListener());
   }
 
   /**
@@ -334,8 +336,9 @@ public class DefaultDrmSessionManager<T extends ExoMediaCrypto> implements DrmSe
     Assertions.checkState(this.playbackLooper == null || this.playbackLooper == playbackLooper);
     if (sessions.isEmpty()) {
       this.playbackLooper = playbackLooper;
-      mediaDrmHandler = new MediaDrmHandler(playbackLooper);
-      mediaDrm.setOnEventListener(new MediaDrmEventListener());
+      if (mediaDrmHandler == null) {
+        mediaDrmHandler = new MediaDrmHandler(playbackLooper);
+      }
     }
 
     DefaultDrmSession<T> session = null;
@@ -382,13 +385,6 @@ public class DefaultDrmSessionManager<T extends ExoMediaCrypto> implements DrmSe
     DefaultDrmSession<T> drmSession = (DefaultDrmSession<T>) session;
     if (drmSession.release()) {
       sessions.remove(drmSession);
-    }
-
-    if (sessions.isEmpty()) {
-      mediaDrm.setOnEventListener(null);
-      mediaDrmHandler.removeCallbacksAndMessages(null);
-      mediaDrmHandler = null;
-      playbackLooper = null;
     }
   }
 
