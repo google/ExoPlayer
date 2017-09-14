@@ -56,6 +56,8 @@ import com.google.android.exoplayer2.source.ConcatenatingMediaSource;
 import com.google.android.exoplayer2.source.ExtractorMediaSource;
 import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.source.TrackGroupArray;
+import com.google.android.exoplayer2.source.ads.AdsLoader;
+import com.google.android.exoplayer2.source.ads.AdsMediaSource;
 import com.google.android.exoplayer2.source.dash.DashMediaSource;
 import com.google.android.exoplayer2.source.dash.DefaultDashChunkSource;
 import com.google.android.exoplayer2.source.hls.HlsMediaSource;
@@ -73,8 +75,6 @@ import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DefaultBandwidthMeter;
 import com.google.android.exoplayer2.upstream.HttpDataSource;
 import com.google.android.exoplayer2.util.Util;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Method;
 import java.net.CookieHandler;
 import java.net.CookieManager;
 import java.net.CookiePolicy;
@@ -129,9 +129,9 @@ public class PlayerActivity extends Activity implements OnClickListener, EventLi
 
   // Fields used only for ad playback. The ads loader is loaded via reflection.
 
-  private Object imaAdsLoader; // com.google.android.exoplayer2.ext.ima.ImaAdsLoader
+  private AdsLoader adsLoader;
   private Uri loadedAdTagUri;
-  private ViewGroup adOverlayViewGroup;
+  private ViewGroup adUiViewGroup;
 
   // Activity lifecycle
 
@@ -453,32 +453,20 @@ public class PlayerActivity extends Activity implements OnClickListener, EventLi
     // Load the extension source using reflection so the demo app doesn't have to depend on it.
     // The ads loader is reused for multiple playbacks, so that ad playback can resume.
     Class<?> loaderClass = Class.forName("com.google.android.exoplayer2.ext.ima.ImaAdsLoader");
-    if (imaAdsLoader == null) {
-      imaAdsLoader = loaderClass.getConstructor(Context.class, Uri.class)
+    if (adsLoader == null) {
+      adsLoader = (AdsLoader) loaderClass.getConstructor(Context.class, Uri.class)
           .newInstance(this, adTagUri);
-      adOverlayViewGroup = new FrameLayout(this);
+      adUiViewGroup = new FrameLayout(this);
       // The demo app has a non-null overlay frame layout.
-      simpleExoPlayerView.getOverlayFrameLayout().addView(adOverlayViewGroup);
+      simpleExoPlayerView.getOverlayFrameLayout().addView(adUiViewGroup);
     }
-    Class<?> sourceClass =
-        Class.forName("com.google.android.exoplayer2.ext.ima.ImaAdsMediaSource");
-    Constructor<?> constructor = sourceClass.getConstructor(MediaSource.class,
-        DataSource.Factory.class, loaderClass, ViewGroup.class);
-    return (MediaSource) constructor.newInstance(mediaSource, mediaDataSourceFactory, imaAdsLoader,
-        adOverlayViewGroup);
+    return new AdsMediaSource(mediaSource, mediaDataSourceFactory, adsLoader, adUiViewGroup);
   }
 
   private void releaseAdsLoader() {
-    if (imaAdsLoader != null) {
-      try {
-        Class<?> loaderClass = Class.forName("com.google.android.exoplayer2.ext.ima.ImaAdsLoader");
-        Method releaseMethod = loaderClass.getMethod("release");
-        releaseMethod.invoke(imaAdsLoader);
-      } catch (Exception e) {
-        // Should never happen.
-        throw new IllegalStateException(e);
-      }
-      imaAdsLoader = null;
+    if (adsLoader != null) {
+      adsLoader.release();
+      adsLoader = null;
       loadedAdTagUri = null;
       simpleExoPlayerView.getOverlayFrameLayout().removeAllViews();
     }
