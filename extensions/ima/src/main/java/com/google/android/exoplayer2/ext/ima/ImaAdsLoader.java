@@ -20,6 +20,7 @@ import android.net.Uri;
 import android.os.SystemClock;
 import android.util.Log;
 import android.view.ViewGroup;
+import android.webkit.WebView;
 import com.google.ads.interactivemedia.v3.api.Ad;
 import com.google.ads.interactivemedia.v3.api.AdDisplayContainer;
 import com.google.ads.interactivemedia.v3.api.AdErrorEvent;
@@ -112,6 +113,14 @@ public final class ImaAdsLoader implements Player.EventListener, VideoAdPlayer,
    */
   private static final long END_OF_CONTENT_POSITION_THRESHOLD_MS = 5000;
 
+  /**
+   * The "Skip ad" button rendered in the IMA WebView does not gain focus by default and cannot be
+   * clicked via a keypress event. Workaround this issue by calling focus() on the HTML element in
+   * the WebView directly when an ad starts. See [Internal: b/62371030].
+   */
+  private static final String FOCUS_SKIP_BUTTON_WORKAROUND_JS = "javascript:"
+      + "try{ document.getElementsByClassName(\"videoAdUiSkipButton\")[0].focus(); } catch (e) {}";
+
   private final Uri adTagUri;
   private final Timeline.Period period;
   private final List<VideoAdPlayerCallback> adCallbacks;
@@ -121,6 +130,7 @@ public final class ImaAdsLoader implements Player.EventListener, VideoAdPlayer,
 
   private EventListener eventListener;
   private Player player;
+  private ViewGroup adUiViewGroup;
   private VideoProgressUpdate lastContentProgress;
   private VideoProgressUpdate lastAdProgress;
 
@@ -249,6 +259,7 @@ public final class ImaAdsLoader implements Player.EventListener, VideoAdPlayer,
       ViewGroup adUiViewGroup) {
     this.player = player;
     this.eventListener = eventListener;
+    this.adUiViewGroup = adUiViewGroup;
     lastAdProgress = null;
     lastContentProgress = null;
     adDisplayContainer.setAdContainer(adUiViewGroup);
@@ -278,6 +289,7 @@ public final class ImaAdsLoader implements Player.EventListener, VideoAdPlayer,
     player.removeListener(this);
     player = null;
     eventListener = null;
+    adUiViewGroup = null;
   }
 
   /**
@@ -362,6 +374,11 @@ public final class ImaAdsLoader implements Player.EventListener, VideoAdPlayer,
         // before sending CONTENT_RESUME_REQUESTED.
         imaPausedContent = true;
         pauseContentInternal();
+        break;
+      case STARTED:
+        if (ad.isSkippable()) {
+          focusSkipButton();
+        }
         break;
       case TAPPED:
         if (eventListener != null) {
@@ -725,6 +742,15 @@ public final class ImaAdsLoader implements Player.EventListener, VideoAdPlayer,
           cuePoint == -1.0 ? C.TIME_END_OF_SOURCE : (long) (C.MICROS_PER_SECOND * cuePoint);
     }
     return adGroupTimesUs;
+  }
+
+  private void focusSkipButton() {
+    if (playingAd && adUiViewGroup != null && adUiViewGroup.getChildCount() > 0
+        && adUiViewGroup.getChildAt(0) instanceof WebView) {
+      WebView webView = (WebView) (adUiViewGroup.getChildAt(0));
+      webView.requestFocus();
+      webView.loadUrl(FOCUS_SKIP_BUTTON_WORKAROUND_JS);
+    }
   }
 
 }
