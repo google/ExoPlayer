@@ -74,7 +74,9 @@ public final class CommonEncryptionDrmTest extends ActivityInstrumentationTestCa
   }
 
   public void testCbc1SchemeType() {
-    if (Util.SDK_INT < 24) {
+    if (Util.SDK_INT < 25) {
+      // cbc1 support was added in API 24, but it is stable from API 25 onwards.
+      // See [internal: b/65634809].
       // Pass.
       return;
     }
@@ -82,7 +84,9 @@ public final class CommonEncryptionDrmTest extends ActivityInstrumentationTestCa
   }
 
   public void testCbcsSchemeType() {
-    if (Util.SDK_INT < 24) {
+    if (Util.SDK_INT < 25) {
+      // cbcs support was added in API 24, but it is stable from API 25 onwards.
+      // See [internal: b/65634809].
       // Pass.
       return;
     }
