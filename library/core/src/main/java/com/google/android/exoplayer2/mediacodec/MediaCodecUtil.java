@@ -325,7 +325,22 @@ public final class MediaCodecUtil {
       return false;
     }
 
-    // Work around https://github.com/google/ExoPlayer/issues/548
+    // Work around https://github.com/google/ExoPlayer/issues/3249.
+    if (Util.SDK_INT < 24
+        && ("OMX.SEC.aac.dec".equals(name) || "OMX.Exynos.AAC.Decoder".equals(name))
+        && Util.MANUFACTURER.equals("samsung")
+        && (Util.DEVICE.startsWith("zeroflte") // Galaxy S6
+            || Util.DEVICE.startsWith("zerolte") // Galaxy S6 Edge
+            || Util.DEVICE.startsWith("zenlte") // Galaxy S6 Edge+
+            || Util.DEVICE.equals("SC-05G") // Galaxy S6
+            || Util.DEVICE.equals("marinelteatt") // Galaxy S6 Active
+            || Util.DEVICE.equals("404SC") // Galaxy S6 Edge
+            || Util.DEVICE.equals("SC-04G")
+            || Util.DEVICE.equals("SCV31"))) {
+      return false;
+    }
+
+    // Work around https://github.com/google/ExoPlayer/issues/548.
     // VP8 decoder on Samsung Galaxy S3/S4/S4 Mini/Tab 3/Note 2 does not render video.
     if (Util.SDK_INT <= 19
         && "OMX.SEC.vp8.dec".equals(name) && "samsung".equals(Util.MANUFACTURER)
