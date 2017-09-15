@@ -109,7 +109,7 @@ public final class SpliceInfoDecoderTest {
     assertThat(command.programSpliceFlag).isTrue();
     assertThat(command.spliceImmediateFlag).isFalse();
     assertThat(command.programSplicePlaybackPositionUs).isEqualTo(3000000);
-    assertThat(command.breakDuration).isEqualTo(TIME_UNSET);
+    assertThat(command.breakDurationUs).isEqualTo(TIME_UNSET);
     assertThat(command.uniqueProgramId).isEqualTo(16);
     assertThat(command.availNum).isEqualTo(1);
     assertThat(command.availsExpected).isEqualTo(2);
@@ -155,7 +155,7 @@ public final class SpliceInfoDecoderTest {
     assertThat(command.programSpliceFlag).isFalse();
     assertThat(command.spliceImmediateFlag).isFalse();
     assertThat(command.programSplicePlaybackPositionUs).isEqualTo(TIME_UNSET);
-    assertThat(command.breakDuration).isEqualTo(TIME_UNSET);
+    assertThat(command.breakDurationUs).isEqualTo(TIME_UNSET);
     List<SpliceInsertCommand.ComponentSplice> componentSplices = command.componentSpliceList;
     assertThat(componentSplices).hasSize(2);
     assertThat(componentSplices.get(0).componentTag).isEqualTo(16);
