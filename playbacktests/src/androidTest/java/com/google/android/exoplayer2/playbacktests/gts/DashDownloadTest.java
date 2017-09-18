@@ -17,6 +17,7 @@ package com.google.android.exoplayer2.playbacktests.gts;
 
 import android.net.Uri;
 import android.test.ActivityInstrumentationTestCase2;
+import android.util.Log;
 import com.google.android.exoplayer2.offline.Downloader;
 import com.google.android.exoplayer2.offline.Downloader.ProgressListener;
 import com.google.android.exoplayer2.offline.DownloaderConstructorHelper;
@@ -178,8 +179,9 @@ public final class DashDownloadTest extends ActivityInstrumentationTestCase2<Hos
     @Override
     public void onDownloadProgress(Downloader downloader, float downloadPercentage,
         long downloadedBytes) {
-      System.out.printf("onDownloadProgress downloadPercentage = [%g], downloadedData = [%d]%n",
-          downloadPercentage, downloadedBytes);
+      Log.d("DashDownloadTest",
+          String.format("onDownloadProgress downloadPercentage = [%g], downloadedData = [%d]%n",
+          downloadPercentage, downloadedBytes));
       if (downloadPercentage >= stopAt) {
         Thread.currentThread().interrupt();
       }
