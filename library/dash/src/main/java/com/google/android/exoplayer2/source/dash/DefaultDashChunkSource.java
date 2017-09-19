@@ -317,15 +317,8 @@ public class DefaultDashChunkSource implements DashChunkSource {
 
   private void updateLiveEdgeTimeUs(RepresentationHolder representationHolder,
       int lastAvailableSegmentNum) {
-    if (manifest.dynamic) {
-      DashSegmentIndex segmentIndex = representationHolder.representation.getIndex();
-      long lastSegmentDurationUs = segmentIndex.getDurationUs(lastAvailableSegmentNum,
-          manifest.getPeriodDurationUs(periodIndex));
-      liveEdgeTimeUs = segmentIndex.getTimeUs(lastAvailableSegmentNum)
-          + lastSegmentDurationUs;
-    } else {
-      liveEdgeTimeUs = C.TIME_UNSET;
-    }
+    liveEdgeTimeUs = manifest.dynamic
+        ? representationHolder.getSegmentEndTimeUs(lastAvailableSegmentNum) : C.TIME_UNSET;
   }
 
   private long getNowUnixTimeUs() {
