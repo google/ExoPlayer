@@ -18,8 +18,10 @@ package com.google.android.exoplayer2.upstream.cache;
 import static com.google.android.exoplayer2.C.LENGTH_UNSET;
 import static com.google.android.exoplayer2.util.Util.toByteArray;
 import static com.google.common.truth.Truth.assertThat;
+import static org.mockito.Mockito.doAnswer;
 
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.upstream.cache.Cache.CacheException;
 import com.google.android.exoplayer2.util.Util;
 import java.io.File;
 import java.io.FileInputStream;
@@ -29,9 +31,14 @@ import java.util.NavigableSet;
 import java.util.Random;
 import java.util.Set;
 import org.junit.After;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mockito;
+import org.mockito.MockitoAnnotations;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.RuntimeEnvironment;
 import org.robolectric.annotation.Config;
@@ -49,6 +56,7 @@ public class SimpleCacheTest {
 
   @Before
   public void setUp() throws Exception {
+    MockitoAnnotations.initMocks(this);
     cacheDir = Util.createTempDirectory(RuntimeEnvironment.application, "ExoPlayerTest");
   }
 
@@ -209,7 +217,6 @@ public class SimpleCacheTest {
     assertThat(cacheDir.listFiles()).hasLength(0);
   }
 
-
   @Test
   public void testGetCachedBytes() throws Exception {
     SimpleCache simpleCache = getSimpleCache();
@@ -243,6 +250,42 @@ public class SimpleCacheTest {
     assertThat(simpleCache.getCachedBytes(KEY_1, 55, 100)).isEqualTo(-5);
 
     simpleCache.releaseHoleSpan(cacheSpan);
+  }
+
+  /* Tests https://github.com/google/ExoPlayer/issues/3260 case. */
+  @Test
+  public void testExceptionDuringEvictionByLeastRecentlyUsedCacheEvictorNotHang() throws Exception {
+    CachedContentIndex index = Mockito.spy(new CachedContentIndex(cacheDir));
+    SimpleCache simpleCache =
+        new SimpleCache(cacheDir, new LeastRecentlyUsedCacheEvictor(20), index);
+
+    // Add some content.
+    CacheSpan cacheSpan = simpleCache.startReadWrite(KEY_1, 0);
+    addCache(simpleCache, KEY_1, 0, 15);
+
+    // Make index.store() throw exception from now on.
+    doAnswer(new Answer<Object>() {
+      @Override
+      public Object answer(InvocationOnMock invocation) throws Throwable {
+        throw new Cache.CacheException("SimpleCacheTest");
+      }
+    }).when(index).store();
+
+    // Adding more content will make LeastRecentlyUsedCacheEvictor evict previous content.
+    try {
+      addCache(simpleCache, KEY_1, 15, 15);
+      Assert.fail("Exception was expected");
+    } catch (CacheException e) {
+      // do nothing.
+    }
+
+    simpleCache.releaseHoleSpan(cacheSpan);
+
+    // Although store() has failed, it should remove the first span and add the new one.
+    NavigableSet<CacheSpan> cachedSpans = simpleCache.getCachedSpans(KEY_1);
+    assertThat(cachedSpans).isNotNull();
+    assertThat(cachedSpans).hasSize(1);
+    assertThat(cachedSpans.pollFirst().position).isEqualTo(15);
   }
 
   private SimpleCache getSimpleCache() {
