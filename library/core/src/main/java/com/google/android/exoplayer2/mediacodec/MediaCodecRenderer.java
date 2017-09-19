@@ -23,6 +23,7 @@ import android.media.MediaCrypto;
 import android.media.MediaFormat;
 import android.os.Looper;
 import android.os.SystemClock;
+import android.support.annotation.IntDef;
 import android.support.annotation.Nullable;
 import android.util.Log;
 import com.google.android.exoplayer2.BaseRenderer;
@@ -42,6 +43,8 @@ import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.NalUnitUtil;
 import com.google.android.exoplayer2.util.TraceUtil;
 import com.google.android.exoplayer2.util.Util;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
@@ -126,6 +129,10 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
    */
   private static final long MAX_CODEC_HOTSWAP_TIME_MS = 1000;
 
+  @Retention(RetentionPolicy.SOURCE)
+  @IntDef({RECONFIGURATION_STATE_NONE, RECONFIGURATION_STATE_WRITE_PENDING,
+      RECONFIGURATION_STATE_QUEUE_PENDING})
+  private @interface ReconfigurationState {}
   /**
    * There is no pending adaptive reconfiguration work.
    */
@@ -140,6 +147,10 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
    */
   private static final int RECONFIGURATION_STATE_QUEUE_PENDING = 2;
 
+  @Retention(RetentionPolicy.SOURCE)
+  @IntDef({REINITIALIZATION_STATE_NONE, REINITIALIZATION_STATE_SIGNAL_END_OF_STREAM,
+      REINITIALIZATION_STATE_WAIT_END_OF_STREAM})
+  private @interface ReinitializationState {}
   /**
    * The codec does not need to be re-initialized.
    */
@@ -198,8 +209,8 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
   private int outputIndex;
   private boolean shouldSkipOutputBuffer;
   private boolean codecReconfigured;
-  private int codecReconfigurationState;
-  private int codecReinitializationState;
+  private @ReconfigurationState int codecReconfigurationState;
+  private @ReinitializationState int codecReinitializationState;
   private boolean codecReceivedBuffers;
   private boolean codecReceivedEos;
 
