@@ -49,7 +49,7 @@ import javax.crypto.spec.SecretKeySpec;
 /**
  * This class maintains the index of cached content.
  */
-/*package*/ final class CachedContentIndex {
+/*package*/ class CachedContentIndex {
 
   public static final String FILE_NAME = "cached_content_index.exi";
 
