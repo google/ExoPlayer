@@ -1,5 +1,20 @@
 # Release notes #
 
+### r2.5.3 ###
+
+* IMA extension: Support skipping of skippable ads on AndroidTV and other
+  non-touch devices ([#3258](https://github.com/google/ExoPlayer/issues/3258)).
+* HLS: Fix broken WebVTT captions when PTS wraps around
+  ([#2928](https://github.com/google/ExoPlayer/issues/2928)).
+* Captions: Fix issues rendering CEA-608 captions
+  ([#3250](https://github.com/google/ExoPlayer/issues/3250)).
+* Workaround broken AAC decoders on Galaxy S6
+  ([#3249](https://github.com/google/ExoPlayer/issues/3249)).
+* Caching: Fix infinite loop when cache eviction fails
+  ([#3260](https://github.com/google/ExoPlayer/issues/3260)).
+* Caching: Force use of BouncyCastle on JellyBean to fix decryption issue
+  ([#2755](https://github.com/google/ExoPlayer/issues/2755)).
+
 ### r2.5.2 ###
 
 * IMA extension: Fix issue where ad playback could end prematurely for some
