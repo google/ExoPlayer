@@ -294,9 +294,9 @@ public final class TextRenderer extends BaseRenderer implements Callback {
   }
 
   private long getNextEventTime() {
-    return ((nextSubtitleEventIndex == C.INDEX_UNSET)
-        || (nextSubtitleEventIndex >= subtitle.getEventTimeCount())) ? Long.MAX_VALUE
-        : (subtitle.getEventTime(nextSubtitleEventIndex));
+    return nextSubtitleEventIndex == C.INDEX_UNSET
+        || nextSubtitleEventIndex >= subtitle.getEventTimeCount()
+        ? Long.MAX_VALUE : subtitle.getEventTime(nextSubtitleEventIndex);
   }
 
   private void updateOutput(List<Cue> cues) {

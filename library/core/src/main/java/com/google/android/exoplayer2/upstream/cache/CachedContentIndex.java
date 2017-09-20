@@ -49,7 +49,7 @@ import javax.crypto.spec.SecretKeySpec;
 /**
  * This class maintains the index of cached content.
  */
-/*package*/ final class CachedContentIndex {
+/*package*/ class CachedContentIndex {
 
   public static final String FILE_NAME = "cached_content_index.exi";
 
@@ -99,7 +99,7 @@ import javax.crypto.spec.SecretKeySpec;
     if (secretKey != null) {
       Assertions.checkArgument(secretKey.length == 16);
       try {
-        cipher = Cipher.getInstance("AES/CBC/PKCS5PADDING");
+        cipher = getCipher();
         secretKeySpec = new SecretKeySpec(secretKey, "AES");
       } catch (NoSuchAlgorithmException | NoSuchPaddingException e) {
         throw new IllegalStateException(e); // Should never happen.
@@ -352,6 +352,18 @@ import javax.crypto.spec.SecretKeySpec;
     CachedContent cachedContent = new CachedContent(id, key, length);
     addNew(cachedContent);
     return cachedContent;
+  }
+
+  private static Cipher getCipher() throws NoSuchPaddingException, NoSuchAlgorithmException {
+    // Workaround for https://issuetracker.google.com/issues/36976726
+    if (Util.SDK_INT == 18) {
+      try {
+        return Cipher.getInstance("AES/CBC/PKCS5PADDING", "BC");
+      } catch (Throwable ignored) {
+        // ignored
+      }
+    }
+    return Cipher.getInstance("AES/CBC/PKCS5PADDING");
   }
 
   /**
