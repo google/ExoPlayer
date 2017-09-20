@@ -48,7 +48,7 @@ public final class SimpleCache implements Cache {
    * @param evictor The evictor to be used.
    */
   public SimpleCache(File cacheDir, CacheEvictor evictor) {
-    this(cacheDir, evictor, null);
+    this(cacheDir, evictor, null, false);
   }
 
   /**
@@ -75,10 +75,22 @@ public final class SimpleCache implements Cache {
    * @param encrypt When false, a plaintext index will be written.
    */
   public SimpleCache(File cacheDir, CacheEvictor evictor, byte[] secretKey, boolean encrypt) {
+    this(cacheDir, evictor, new CachedContentIndex(cacheDir, secretKey, encrypt));
+  }
+
+  /**
+   * Constructs the cache. The cache will delete any unrecognized files from the directory. Hence
+   * the directory cannot be used to store other files.
+   *
+   * @param cacheDir A dedicated cache directory.
+   * @param evictor The evictor to be used.
+   * @param index The CachedContentIndex to be used.
+   */
+  /*package*/ SimpleCache(File cacheDir, CacheEvictor evictor, CachedContentIndex index) {
     this.cacheDir = cacheDir;
     this.evictor = evictor;
     this.lockedSpans = new HashMap<>();
-    this.index = new CachedContentIndex(cacheDir, secretKey, encrypt);
+    this.index = index;
     this.listeners = new HashMap<>();
     // Start cache initialization.
     final ConditionVariable conditionVariable = new ConditionVariable();
@@ -305,11 +317,14 @@ public final class SimpleCache implements Cache {
       return;
     }
     totalSpace -= span.length;
-    if (removeEmptyCachedContent && cachedContent.isEmpty()) {
-      index.removeEmpty(cachedContent.key);
-      index.store();
+    try {
+      if (removeEmptyCachedContent && cachedContent.isEmpty()) {
+        index.removeEmpty(cachedContent.key);
+        index.store();
+      }
+    } finally {
+      notifySpanRemoved(span);
     }
-    notifySpanRemoved(span);
   }
 
   @Override

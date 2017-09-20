@@ -996,30 +996,30 @@ public class PlaybackControlView extends FrameLayout {
       return false;
     }
     if (event.getAction() == KeyEvent.ACTION_DOWN) {
-      switch (keyCode) {
-        case KeyEvent.KEYCODE_MEDIA_FAST_FORWARD:
-          fastForward();
-          break;
-        case KeyEvent.KEYCODE_MEDIA_REWIND:
-          rewind();
-          break;
-        case KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE:
-          controlDispatcher.dispatchSetPlayWhenReady(player, !player.getPlayWhenReady());
-          break;
-        case KeyEvent.KEYCODE_MEDIA_PLAY:
-          controlDispatcher.dispatchSetPlayWhenReady(player, true);
-          break;
-        case KeyEvent.KEYCODE_MEDIA_PAUSE:
-          controlDispatcher.dispatchSetPlayWhenReady(player, false);
-          break;
-        case KeyEvent.KEYCODE_MEDIA_NEXT:
-          next();
-          break;
-        case KeyEvent.KEYCODE_MEDIA_PREVIOUS:
-          previous();
-          break;
-        default:
-          break;
+      if (keyCode == KeyEvent.KEYCODE_MEDIA_FAST_FORWARD) {
+        fastForward();
+      } else if (keyCode == KeyEvent.KEYCODE_MEDIA_REWIND) {
+        rewind();
+      } else if (event.getRepeatCount() == 0) {
+        switch (keyCode) {
+          case KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE:
+            controlDispatcher.dispatchSetPlayWhenReady(player, !player.getPlayWhenReady());
+            break;
+          case KeyEvent.KEYCODE_MEDIA_PLAY:
+            controlDispatcher.dispatchSetPlayWhenReady(player, true);
+            break;
+          case KeyEvent.KEYCODE_MEDIA_PAUSE:
+            controlDispatcher.dispatchSetPlayWhenReady(player, false);
+            break;
+          case KeyEvent.KEYCODE_MEDIA_NEXT:
+            next();
+            break;
+          case KeyEvent.KEYCODE_MEDIA_PREVIOUS:
+            previous();
+            break;
+          default:
+            break;
+        }
       }
     }
     return true;
