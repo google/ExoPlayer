@@ -8,8 +8,6 @@
   ([#2928](https://github.com/google/ExoPlayer/issues/2928)).
 * Captions: Fix issues rendering CEA-608 captions
   ([#3250](https://github.com/google/ExoPlayer/issues/3250)).
-* Fix adaptive switching for live playbacks close to the live edge
-  ([#3017](https://github.com/google/ExoPlayer/issues/3017)).
 * Workaround broken AAC decoders on Galaxy S6
   ([#3249](https://github.com/google/ExoPlayer/issues/3249)).
 * Caching: Fix infinite loop when cache eviction fails
