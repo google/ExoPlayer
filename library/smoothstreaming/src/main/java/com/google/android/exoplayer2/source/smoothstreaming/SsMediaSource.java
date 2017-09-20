@@ -193,8 +193,8 @@ public final class SsMediaSource implements MediaSource,
     Assertions.checkState(manifest == null || !manifest.isLive);
     this.manifest = manifest;
     this.manifestUri = manifestUri == null ? null
-        : Util.toLowerInvariant(manifestUri.getLastPathSegment()).equals("manifest") ? manifestUri
-            : Uri.withAppendedPath(manifestUri, "Manifest");
+        : Util.toLowerInvariant(manifestUri.getLastPathSegment()).matches("manifest(\\(.+\\))?")
+            ? manifestUri : Uri.withAppendedPath(manifestUri, "Manifest");
     this.manifestDataSourceFactory = manifestDataSourceFactory;
     this.manifestParser = manifestParser;
     this.chunkSourceFactory = chunkSourceFactory;

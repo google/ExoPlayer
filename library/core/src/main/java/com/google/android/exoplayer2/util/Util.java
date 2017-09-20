@@ -900,8 +900,7 @@ public final class Util {
       return C.TYPE_DASH;
     } else if (fileName.endsWith(".m3u8")) {
       return C.TYPE_HLS;
-    } else if (fileName.endsWith(".ism") || fileName.endsWith(".isml")
-        || fileName.endsWith(".ism/manifest") || fileName.endsWith(".isml/manifest")) {
+    } else if (fileName.matches(".*\\.ism(l)?(/manifest(\\(.+\\))?)?")) {
       return C.TYPE_SS;
     } else {
       return C.TYPE_OTHER;
