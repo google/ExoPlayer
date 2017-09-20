@@ -192,9 +192,9 @@ public final class SsMediaSource implements MediaSource,
       AdaptiveMediaSourceEventListener eventListener) {
     Assertions.checkState(manifest == null || !manifest.isLive);
     this.manifest = manifest;
-    this.manifestUri = manifestUri == null ? null
-        : Util.toLowerInvariant(manifestUri.getLastPathSegment()).equals("manifest") ? manifestUri
-            : Uri.withAppendedPath(manifestUri, "Manifest");
+    String lastPathSegment = Util.toLowerInvariant(manifestUri.getLastPathSegment());
+    // Using a regexp here to allow for URLs which contain (..) as their last part, e.g. http://host/content.ism/manifest(filter=0) - see #3230
+    this.manifestUri = manifestUri == null ? null : lastPathSegment.equals("manifest") ? manifestUri : lastPathSegment.matches("manifest\\(.*\\)") ? manifestUri : Uri.withAppendedPath(manifestUri, "Manifest");
     this.manifestDataSourceFactory = manifestDataSourceFactory;
     this.manifestParser = manifestParser;
     this.chunkSourceFactory = chunkSourceFactory;

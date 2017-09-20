@@ -901,7 +901,8 @@ public final class Util {
     } else if (fileName.endsWith(".m3u8")) {
       return C.TYPE_HLS;
     } else if (fileName.endsWith(".ism") || fileName.endsWith(".isml")
-        || fileName.endsWith(".ism/manifest") || fileName.endsWith(".isml/manifest")) {
+        || fileName.endsWith(".ism/manifest") || fileName.endsWith(".isml/manifest")
+            || Uri.parse(fileName).getLastPathSegment().matches("manifest\\(.*\\)")) {
       return C.TYPE_SS;
     } else {
       return C.TYPE_OTHER;
