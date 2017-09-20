@@ -58,7 +58,15 @@ public final class DrmInitData implements Comparator<SchemeData>, Parcelable {
    * @param schemeDatas Scheme initialization data for possibly multiple DRM schemes.
    */
   public DrmInitData(SchemeData... schemeDatas) {
-    this(null, true, schemeDatas);
+    this(null, schemeDatas);
+  }
+
+  /**
+   * @param schemeType The protection scheme type, or null if not applicable or unknown.
+   * @param schemeDatas Scheme initialization data for possibly multiple DRM schemes.
+   */
+  public DrmInitData(@Nullable String schemeType, SchemeData... schemeDatas) {
+    this(schemeType, true, schemeDatas);
   }
 
   private DrmInitData(@Nullable String schemeType, boolean cloneSchemeDatas,

@@ -117,8 +117,9 @@ public final class HlsDownloader extends SegmentDownloader<HlsMasterPlaylist, St
       HlsMediaPlaylist.Segment hlsSegment, HashSet<Uri> encryptionKeyUris)
       throws IOException, InterruptedException {
     long startTimeUs = mediaPlaylist.startTimeUs + hlsSegment.relativeStartTimeUs;
-    if (hlsSegment.isEncrypted) {
-      Uri keyUri = UriUtil.resolveToUri(mediaPlaylist.baseUri, hlsSegment.encryptionKeyUri);
+    if (hlsSegment.fullSegmentEncryptionKeyUri != null) {
+      Uri keyUri = UriUtil.resolveToUri(mediaPlaylist.baseUri,
+          hlsSegment.fullSegmentEncryptionKeyUri);
       if (encryptionKeyUris.add(keyUri)) {
         segments.add(new Segment(startTimeUs, new DataSpec(keyUri)));
       }

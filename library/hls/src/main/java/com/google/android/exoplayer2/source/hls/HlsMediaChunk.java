@@ -18,6 +18,7 @@ package com.google.android.exoplayer2.source.hls;
 import android.text.TextUtils;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
+import com.google.android.exoplayer2.drm.DrmInitData;
 import com.google.android.exoplayer2.extractor.DefaultExtractorInput;
 import com.google.android.exoplayer2.extractor.Extractor;
 import com.google.android.exoplayer2.extractor.ExtractorInput;
@@ -32,7 +33,6 @@ import com.google.android.exoplayer2.metadata.id3.Id3Decoder;
 import com.google.android.exoplayer2.metadata.id3.PrivFrame;
 import com.google.android.exoplayer2.source.chunk.MediaChunk;
 import com.google.android.exoplayer2.source.hls.playlist.HlsMasterPlaylist.HlsUrl;
-import com.google.android.exoplayer2.source.hls.playlist.HlsMediaPlaylist;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DataSpec;
 import com.google.android.exoplayer2.util.MimeTypes;
@@ -88,6 +88,7 @@ import java.util.concurrent.atomic.AtomicInteger;
   private final boolean shouldSpliceIn;
   private final boolean needNewExtractor;
   private final List<Format> muxedCaptionFormats;
+  private final DrmInitData drmInitData;
 
   private final boolean isPackedAudio;
   private final Id3Decoder id3Decoder;
@@ -117,20 +118,21 @@ import java.util.concurrent.atomic.AtomicInteger;
    * @param isMasterTimestampSource True if the chunk can initialize the timestamp adjuster.
    * @param timestampAdjuster Adjuster corresponding to the provided discontinuity sequence number.
    * @param previousChunk The {@link HlsMediaChunk} that preceded this one. May be null.
-   * @param keyFormat A string describing the format for {@code keyData}, or null if the chunk is
-   *     not encrypted.
-   * @param keyData Data specifying how to obtain the keys to decrypt the chunk, or null if the
-   *     chunk is not encrypted.
-   * @param encryptionIv The AES initialization vector, or null if the chunk is not encrypted.
+   * @param drmInitData A {@link DrmInitData} to sideload to the extractor.
+   * @param fullSegmentEncryptionKey The key to decrypt the full segment, or null if the segment is
+   *     not fully encrypted.
+   * @param encryptionIv The AES initialization vector, or null if the segment is not fully
+   *     encrypted.
    */
   public HlsMediaChunk(DataSource dataSource, DataSpec dataSpec, DataSpec initDataSpec,
       HlsUrl hlsUrl, List<Format> muxedCaptionFormats, int trackSelectionReason,
       Object trackSelectionData, long startTimeUs, long endTimeUs, int chunkIndex,
       int discontinuitySequenceNumber, boolean isMasterTimestampSource,
-      TimestampAdjuster timestampAdjuster, HlsMediaChunk previousChunk, String keyFormat,
-      byte[] keyData, byte[] encryptionIv) {
-    super(buildDataSource(dataSource, keyFormat, keyData, encryptionIv), dataSpec, hlsUrl.format,
-        trackSelectionReason, trackSelectionData, startTimeUs, endTimeUs, chunkIndex);
+      TimestampAdjuster timestampAdjuster, HlsMediaChunk previousChunk, DrmInitData drmInitData,
+      byte[] fullSegmentEncryptionKey, byte[] encryptionIv) {
+    super(buildDataSource(dataSource, fullSegmentEncryptionKey, encryptionIv), dataSpec,
+        hlsUrl.format, trackSelectionReason, trackSelectionData, startTimeUs, endTimeUs,
+        chunkIndex);
     this.discontinuitySequenceNumber = discontinuitySequenceNumber;
     this.initDataSpec = initDataSpec;
     this.hlsUrl = hlsUrl;
@@ -139,6 +141,7 @@ import java.util.concurrent.atomic.AtomicInteger;
     this.timestampAdjuster = timestampAdjuster;
     // Note: this.dataSource and dataSource may be different.
     this.isEncrypted = this.dataSource instanceof Aes128DataSource;
+    this.drmInitData = drmInitData;
     lastPathSegment = dataSpec.uri.getLastPathSegment();
     isPackedAudio = lastPathSegment.endsWith(AAC_FILE_EXTENSION)
         || lastPathSegment.endsWith(AC3_FILE_EXTENSION)
@@ -331,14 +334,13 @@ import java.util.concurrent.atomic.AtomicInteger;
   // Internal factory methods.
 
   /**
-   * If the content is encrypted using the "identity" key format, returns an
-   * {@link Aes128DataSource} that wraps the original in order to decrypt the loaded data. Else
-   * returns the original.
+   * If the segment is fully encrypted, returns an {@link Aes128DataSource} that wraps the original
+   * in order to decrypt the loaded data. Else returns the original.
    */
-  private static DataSource buildDataSource(DataSource dataSource, String keyFormat, byte[] keyData,
+  private static DataSource buildDataSource(DataSource dataSource, byte[] fullSegmentEncryptionKey,
       byte[] encryptionIv) {
-    if (HlsMediaPlaylist.KEYFORMAT_IDENTITY.equals(keyFormat)) {
-      return new Aes128DataSource(dataSource, keyData, encryptionIv);
+    if (fullSegmentEncryptionKey != null) {
+      return new Aes128DataSource(dataSource, fullSegmentEncryptionKey, encryptionIv);
     }
     return dataSource;
   }
@@ -357,7 +359,7 @@ import java.util.concurrent.atomic.AtomicInteger;
       extractor = previousExtractor;
     } else if (lastPathSegment.endsWith(MP4_FILE_EXTENSION)
         || lastPathSegment.startsWith(M4_FILE_EXTENSION_PREFIX, lastPathSegment.length() - 4)) {
-      extractor = new FragmentedMp4Extractor(0, timestampAdjuster);
+      extractor = new FragmentedMp4Extractor(0, timestampAdjuster, null, drmInitData);
     } else {
       // MPEG-2 TS segments, but we need a new extractor.
       // This flag ensures the change of pid between streams does not affect the sample queues.

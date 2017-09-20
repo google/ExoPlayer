@@ -276,9 +276,9 @@ import java.util.List;
     // Handle encryption.
     HlsMediaPlaylist.Segment segment = mediaPlaylist.segments.get(chunkIndex);
 
-    // Check if encryption is specified.
-    if (segment.isEncrypted) {
-      Uri keyUri = UriUtil.resolveToUri(mediaPlaylist.baseUri, segment.encryptionKeyUri);
+    // Check if the segment is completely encrypted using the identity key format.
+    if (segment.fullSegmentEncryptionKeyUri != null) {
+      Uri keyUri = UriUtil.resolveToUri(mediaPlaylist.baseUri, segment.fullSegmentEncryptionKeyUri);
       if (!keyUri.equals(encryptionKeyUri)) {
         // Encryption is specified and the key has changed.
         out.chunk = newEncryptionKeyChunk(keyUri, segment.encryptionIV, selectedVariantIndex,
@@ -314,7 +314,7 @@ import java.util.List;
     out.chunk = new HlsMediaChunk(mediaDataSource, dataSpec, initDataSpec, selectedUrl,
         muxedCaptionFormats, trackSelection.getSelectionReason(), trackSelection.getSelectionData(),
         startTimeUs, startTimeUs + segment.durationUs, chunkMediaSequence, discontinuitySequence,
-        isTimestampMaster, timestampAdjuster, previous, segment.keyFormat, encryptionKey,
+        isTimestampMaster, timestampAdjuster, previous, mediaPlaylist.drmInitData, encryptionKey,
         encryptionIv);
   }
 
