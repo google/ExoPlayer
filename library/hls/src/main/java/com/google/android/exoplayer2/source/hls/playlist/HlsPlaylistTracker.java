@@ -351,7 +351,7 @@ public final class HlsPlaylistTracker implements Loader.Callback<ParsingLoadable
     }
     MediaPlaylistBundle currentPrimaryBundle = playlistBundles.get(primaryHlsUrl);
     long primarySnapshotAccessAgeMs =
-        currentPrimaryBundle.lastSnapshotAccessTimeMs - SystemClock.elapsedRealtime();
+        SystemClock.elapsedRealtime() - currentPrimaryBundle.lastSnapshotAccessTimeMs;
     if (primarySnapshotAccessAgeMs > PRIMARY_URL_KEEPALIVE_MS) {
       primaryHlsUrl = url;
       playlistBundles.get(primaryHlsUrl).loadPlaylist();
