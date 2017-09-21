@@ -39,6 +39,11 @@ dependencies {
     androidTestCompile 'com.google.dexmaker:dexmaker:' + dexmakerVersion
     androidTestCompile 'com.google.dexmaker:dexmaker-mockito:' + dexmakerVersion
     androidTestCompile 'org.mockito:mockito-core:' + mockitoVersion
+    testCompile project(modulePrefix + 'testutils')
+    testCompile 'com.google.truth:truth:' + truthVersion
+    testCompile 'junit:junit:' + junitVersion
+    testCompile 'org.mockito:mockito-core:' + mockitoVersion
+    testCompile 'org.robolectric:robolectric:' + robolectricVersion
 }
 
 ext {
