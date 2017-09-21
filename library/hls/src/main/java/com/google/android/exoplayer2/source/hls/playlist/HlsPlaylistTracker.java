@@ -112,11 +112,6 @@ public final class HlsPlaylistTracker implements Loader.Callback<ParsingLoadable
    * which an unchanging playlist is considered stuck.
    */
   private static final double PLAYLIST_STUCK_TARGET_DURATION_COEFFICIENT = 3.5;
-  /**
-   * The minimum number of milliseconds that a url is kept as primary url, if no
-   * {@link #getPlaylistSnapshot} call is made for that url.
-   */
-  private static final long PRIMARY_URL_KEEPALIVE_MS = 15000;
 
   private final Uri initialPlaylistUri;
   private final HlsDataSourceFactory dataSourceFactory;
@@ -206,7 +201,7 @@ public final class HlsPlaylistTracker implements Loader.Callback<ParsingLoadable
    */
   public HlsMediaPlaylist getPlaylistSnapshot(HlsUrl url) {
     HlsMediaPlaylist snapshot = playlistBundles.get(url).getPlaylistSnapshot();
-    if (snapshot != null) {
+    if (url != primaryHlsUrl && snapshot != null ) {
       maybeSetPrimaryUrl(url);
     }
     return snapshot;
@@ -350,13 +345,9 @@ public final class HlsPlaylistTracker implements Loader.Callback<ParsingLoadable
       // the last primary snapshot contains an end tag.
       return;
     }
-    MediaPlaylistBundle currentPrimaryBundle = playlistBundles.get(primaryHlsUrl);
-    long primarySnapshotAccessAgeMs =
-        SystemClock.elapsedRealtime() - currentPrimaryBundle.lastSnapshotAccessTimeMs;
-    if (primarySnapshotAccessAgeMs > PRIMARY_URL_KEEPALIVE_MS) {
-      primaryHlsUrl = url;
-      playlistBundles.get(primaryHlsUrl).loadPlaylist();
-    }
+
+    primaryHlsUrl = url;
+    playlistBundles.get(primaryHlsUrl).loadPlaylist();
   }
 
   private void createBundles(List<HlsUrl> urls) {
