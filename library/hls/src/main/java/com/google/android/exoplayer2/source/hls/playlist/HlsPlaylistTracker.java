@@ -201,7 +201,7 @@ public final class HlsPlaylistTracker implements Loader.Callback<ParsingLoadable
    */
   public HlsMediaPlaylist getPlaylistSnapshot(HlsUrl url) {
     HlsMediaPlaylist snapshot = playlistBundles.get(url).getPlaylistSnapshot();
-    if (url != primaryHlsUrl && snapshot != null ) {
+    if (url != primaryHlsUrl && snapshot != null) {
       maybeSetPrimaryUrl(url);
     }
     return snapshot;
