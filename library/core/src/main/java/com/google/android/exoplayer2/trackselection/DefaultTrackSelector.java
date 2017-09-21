@@ -193,11 +193,7 @@ public class DefaultTrackSelector extends MappingTrackSelector {
     }
 
     /**
-     * Returns an instance with the provided preferred language for audio and forced text tracks.
-     *
-     * @param preferredAudioLanguage The preferred language as defined by RFC 5646. {@code null} to
-     *     select the default track, or first track if there's no default.
-     * @return An instance with the provided preferred language for audio and forced text tracks.
+     * Returns an instance with the provided {@link #preferredAudioLanguage}.
      */
     public Parameters withPreferredAudioLanguage(String preferredAudioLanguage) {
       preferredAudioLanguage = Util.normalizeLanguageCode(preferredAudioLanguage);
@@ -211,11 +207,7 @@ public class DefaultTrackSelector extends MappingTrackSelector {
     }
 
     /**
-     * Returns an instance with the provided preferred language for text tracks.
-     *
-     * @param preferredTextLanguage The preferred language as defined by RFC 5646. {@code null} to
-     *     select the default track, or no track if there's no default.
-     * @return An instance with the provided preferred language for text tracks.
+     * Returns an instance with the provided {@link #preferredTextLanguage}.
      */
     public Parameters withPreferredTextLanguage(String preferredTextLanguage) {
       preferredTextLanguage = Util.normalizeLanguageCode(preferredTextLanguage);
@@ -229,10 +221,7 @@ public class DefaultTrackSelector extends MappingTrackSelector {
     }
 
     /**
-     * Returns an instance with the provided mixed mime adaptiveness allowance.
-     *
-     * @param allowMixedMimeAdaptiveness Whether to allow selections to contain mixed mime types.
-     * @return An instance with the provided mixed mime adaptiveness allowance.
+     * Returns an instance with the provided {@link #allowMixedMimeAdaptiveness}.
      */
     public Parameters withAllowMixedMimeAdaptiveness(boolean allowMixedMimeAdaptiveness) {
       if (allowMixedMimeAdaptiveness == this.allowMixedMimeAdaptiveness) {
@@ -245,10 +234,7 @@ public class DefaultTrackSelector extends MappingTrackSelector {
     }
 
     /**
-     * Returns an instance with the provided seamless adaptiveness allowance.
-     *
-     * @param allowNonSeamlessAdaptiveness Whether non-seamless adaptation is allowed.
-     * @return An instance with the provided seamless adaptiveness allowance.
+     * Returns an instance with the provided {@link #allowNonSeamlessAdaptiveness}.
      */
     public Parameters withAllowNonSeamlessAdaptiveness(boolean allowNonSeamlessAdaptiveness) {
       if (allowNonSeamlessAdaptiveness == this.allowNonSeamlessAdaptiveness) {
@@ -261,11 +247,7 @@ public class DefaultTrackSelector extends MappingTrackSelector {
     }
 
     /**
-     * Returns an instance with the provided max video size.
-     *
-     * @param maxVideoWidth The max video width.
-     * @param maxVideoHeight The max video width.
-     * @return An instance with the provided max video size.
+     * Returns an instance with the provided {@link #maxVideoWidth} and {@link #maxVideoHeight}.
      */
     public Parameters withMaxVideoSize(int maxVideoWidth, int maxVideoHeight) {
       if (maxVideoWidth == this.maxVideoWidth && maxVideoHeight == this.maxVideoHeight) {
@@ -278,10 +260,7 @@ public class DefaultTrackSelector extends MappingTrackSelector {
     }
 
     /**
-     * Returns an instance with the provided max video bitrate.
-     *
-     * @param maxVideoBitrate The max video bitrate.
-     * @return An instance with the provided max video bitrate.
+     * Returns an instance with the provided {@link #maxVideoBitrate}.
      */
     public Parameters withMaxVideoBitrate(int maxVideoBitrate) {
       if (maxVideoBitrate == this.maxVideoBitrate) {
@@ -312,11 +291,7 @@ public class DefaultTrackSelector extends MappingTrackSelector {
     }
 
     /**
-     * Returns an instance with the provided {@code exceedVideoConstraintsIfNecessary} value.
-     *
-     * @param exceedVideoConstraintsIfNecessary Whether to exceed video constraints when no
-     *     selection can be made otherwise.
-     * @return An instance with the provided {@code exceedVideoConstraintsIfNecessary} value.
+     * Returns an instance with the provided {@link #exceedVideoConstraintsIfNecessary}.
      */
     public Parameters withExceedVideoConstraintsIfNecessary(
         boolean exceedVideoConstraintsIfNecessary) {
@@ -330,11 +305,7 @@ public class DefaultTrackSelector extends MappingTrackSelector {
     }
 
     /**
-     * Returns an instance with the provided {@code exceedRendererCapabilitiesIfNecessary} value.
-     *
-     * @param exceedRendererCapabilitiesIfNecessary Whether to exceed renderer capabilities when no
-     *     selection can be made otherwise.
-     * @return An instance with the provided {@code exceedRendererCapabilitiesIfNecessary} value.
+     * Returns an instance with the provided {@link #exceedRendererCapabilitiesIfNecessary}.
      */
     public Parameters withExceedRendererCapabilitiesIfNecessary(
         boolean exceedRendererCapabilitiesIfNecessary) {
@@ -348,12 +319,8 @@ public class DefaultTrackSelector extends MappingTrackSelector {
     }
 
     /**
-     * Returns an instance with the provided viewport size.
-     *
-     * @param viewportWidth Viewport width in pixels.
-     * @param viewportHeight Viewport height in pixels.
-     * @param viewportOrientationMayChange Whether orientation may change during playback.
-     * @return An instance with the provided viewport size.
+     * Returns an instance with the provided {@link #viewportWidth}, {@link #viewportHeight} and
+     * {@link #viewportOrientationMayChange}.
      */
     public Parameters withViewportSize(int viewportWidth, int viewportHeight,
         boolean viewportOrientationMayChange) {
@@ -371,7 +338,7 @@ public class DefaultTrackSelector extends MappingTrackSelector {
      * Returns an instance where the viewport size is obtained from the provided {@link Context}.
      *
      * @param context The context to obtain the viewport size from.
-     * @param viewportOrientationMayChange Whether orientation may change during playback.
+     * @param viewportOrientationMayChange See {@link #viewportOrientationMayChange}.
      * @return An instance where the viewport size is obtained from the provided {@link Context}.
      */
     public Parameters withViewportSizeFromContext(Context context,
