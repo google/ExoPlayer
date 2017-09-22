@@ -135,7 +135,8 @@ public class ProgressiveDownloadActionTest {
 
     ByteArrayInputStream in = new ByteArrayInputStream(out.toByteArray());
     DataInputStream input = new DataInputStream(in);
-    DownloadAction action2 = ProgressiveDownloadAction.DESERIALIZER.readFromStream(input);
+    DownloadAction action2 =
+        ProgressiveDownloadAction.DESERIALIZER.readFromStream(action1.getVersion(), input);
 
     assertThat(action2).isEqualTo(action1);
   }
