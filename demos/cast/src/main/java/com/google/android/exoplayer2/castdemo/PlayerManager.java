@@ -57,7 +57,6 @@ import com.google.android.gms.cast.framework.CastContext;
 
   private final SimpleExoPlayerView exoPlayerView;
   private final PlaybackControlView castControlView;
-  private final CastContext castContext;
   private final SimpleExoPlayer exoPlayer;
   private final CastPlayer castPlayer;
 
@@ -73,14 +72,13 @@ import com.google.android.gms.cast.framework.CastContext;
       Context context) {
     this.exoPlayerView = exoPlayerView;
     this.castControlView = castControlView;
-    castContext = CastContext.getSharedInstance(context);
 
     DefaultTrackSelector trackSelector = new DefaultTrackSelector(BANDWIDTH_METER);
     RenderersFactory renderersFactory = new DefaultRenderersFactory(context, null);
     exoPlayer = ExoPlayerFactory.newSimpleInstance(renderersFactory, trackSelector);
     exoPlayerView.setPlayer(exoPlayer);
 
-    castPlayer = new CastPlayer(castContext);
+    castPlayer = new CastPlayer(CastContext.getSharedInstance(context));
     castPlayer.setSessionAvailabilityListener(this);
     castControlView.setPlayer(castPlayer);
 

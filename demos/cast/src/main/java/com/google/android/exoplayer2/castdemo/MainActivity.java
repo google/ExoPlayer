@@ -17,6 +17,7 @@ package com.google.android.exoplayer2.castdemo;
 
 import android.graphics.Color;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.view.KeyEvent;
 import android.view.Menu;
@@ -129,7 +130,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @Override
-    public View getView(int position, View convertView, ViewGroup parent) {
+    @NonNull
+    public View getView(int position, View convertView, @NonNull ViewGroup parent) {
       View view = super.getView(position, convertView, parent);
       view.setBackgroundColor(Color.WHITE);
       return view;
