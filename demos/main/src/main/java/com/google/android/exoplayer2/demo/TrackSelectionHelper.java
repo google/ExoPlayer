@@ -109,7 +109,7 @@ import java.util.Arrays;
   private View buildView(Context context) {
     LayoutInflater inflater = LayoutInflater.from(context);
     View view = inflater.inflate(R.layout.track_selection_dialog, null);
-    ViewGroup root = (ViewGroup) view.findViewById(R.id.root);
+    ViewGroup root = view.findViewById(R.id.root);
 
     TypedArray attributeArray = context.getTheme().obtainStyledAttributes(
         new int[] {android.R.attr.selectableItemBackground});
