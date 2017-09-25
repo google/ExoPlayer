@@ -4,14 +4,6 @@ title: OEM testing
 weight: 6
 ---
 
-<div id="table-of-contents">
-<div id="table-of-contents-header">Contents</div>
-<div markdown="1">
-* TOC
-{:toc}
-</div>
-</div>
-
 ExoPlayer is used by a large number of Android applications. As an OEM, it's
 important to ensure that ExoPlayer works correctly both on new devices, and on
 new platform builds for existing devices. This page describes compatibility

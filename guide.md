@@ -296,7 +296,7 @@ MergingMediaSource mergedSource =
     new MergingMediaSource(videoSource, subtitleSource);
 {% endhighlight %}
 
-### Seamlessly looping a video a fixed number of times ###
+### Looping a video ###
 
 {% include infobox.html content="To loop indefinitely, it is usually better to
 use `ExoPlayer.setRepeatMode` instead of `LoopingMediaSource`." %}
@@ -310,7 +310,7 @@ MediaSource source = new ExtractorMediaSource(videoUri, ...);
 LoopingMediaSource loopingSource = new LoopingMediaSource(source, 2);
 {% endhighlight %}
 
-### Seamlessly playing a sequence of videos ###
+### Playing a sequence of videos ###
 
 `ConcatenatingMediaSource` enables sequential playback of two or more individual
 `MediaSource`s. The following example plays two videos in sequence. Transitions
