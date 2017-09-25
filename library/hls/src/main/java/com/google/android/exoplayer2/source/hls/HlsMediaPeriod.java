@@ -52,6 +52,7 @@ public final class HlsMediaPeriod implements MediaPeriod, HlsSampleStreamWrapper
   private final IdentityHashMap<SampleStream, Integer> streamWrapperIndices;
   private final TimestampAdjusterProvider timestampAdjusterProvider;
   private final Handler continueLoadingHandler;
+  private final TrackSelection.Factory initialTrackSelectionFactory;
 
   private Callback callback;
   private int pendingPrepareCount;
@@ -61,12 +62,14 @@ public final class HlsMediaPeriod implements MediaPeriod, HlsSampleStreamWrapper
   private CompositeSequenceableLoader sequenceableLoader;
 
   public HlsMediaPeriod(HlsPlaylistTracker playlistTracker, HlsDataSourceFactory dataSourceFactory,
-      int minLoadableRetryCount, EventDispatcher eventDispatcher, Allocator allocator) {
+      int minLoadableRetryCount, EventDispatcher eventDispatcher, Allocator allocator,
+      TrackSelection.Factory initialTrackSelectionFactory) {
     this.playlistTracker = playlistTracker;
     this.dataSourceFactory = dataSourceFactory;
     this.minLoadableRetryCount = minLoadableRetryCount;
     this.eventDispatcher = eventDispatcher;
     this.allocator = allocator;
+    this.initialTrackSelectionFactory = initialTrackSelectionFactory;
     streamWrapperIndices = new IdentityHashMap<>();
     timestampAdjusterProvider = new TimestampAdjusterProvider();
     continueLoadingHandler = new Handler();
@@ -345,7 +348,7 @@ public final class HlsMediaPeriod implements MediaPeriod, HlsSampleStreamWrapper
   private HlsSampleStreamWrapper buildSampleStreamWrapper(int trackType, HlsUrl[] variants,
       Format muxedAudioFormat, List<Format> muxedCaptionFormats, long positionUs) {
     HlsChunkSource defaultChunkSource = new HlsChunkSource(playlistTracker, variants,
-        dataSourceFactory, timestampAdjusterProvider, muxedCaptionFormats);
+        dataSourceFactory, timestampAdjusterProvider, muxedCaptionFormats, initialTrackSelectionFactory);
     return new HlsSampleStreamWrapper(trackType, this, defaultChunkSource, allocator, positionUs,
         muxedAudioFormat, minLoadableRetryCount, eventDispatcher);
   }
