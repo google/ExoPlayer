@@ -200,7 +200,7 @@ public final class HlsPlaylistTracker implements Loader.Callback<ParsingLoadable
    */
   public HlsMediaPlaylist getPlaylistSnapshot(HlsUrl url) {
     HlsMediaPlaylist snapshot = playlistBundles.get(url).getPlaylistSnapshot();
-    if (url != primaryHlsUrl && snapshot != null) {
+    if (snapshot != null) {
       maybeSetPrimaryUrl(url);
     }
     return snapshot;
@@ -338,23 +338,22 @@ public final class HlsPlaylistTracker implements Loader.Callback<ParsingLoadable
   }
 
   private void maybeSetPrimaryUrl(HlsUrl url) {
-    if (!masterPlaylist.variants.contains(url)
+    if (url == primaryHlsUrl
+        || !masterPlaylist.variants.contains(url)
         || (primaryUrlSnapshot != null && primaryUrlSnapshot.hasEndTag)) {
-      // Only allow variant urls to be chosen as primary. Also prevent changing the primary url if
-      // the last primary snapshot contains an end tag.
+      // Ignore if the primary url is unchanged, if the url is not a variant url, or if the last
+      // primary snapshot contains an end tag.
       return;
     }
-
     primaryHlsUrl = url;
     playlistBundles.get(primaryHlsUrl).loadPlaylist();
   }
 
   private void createBundles(List<HlsUrl> urls) {
     int listSize = urls.size();
-    long currentTimeMs = SystemClock.elapsedRealtime();
     for (int i = 0; i < listSize; i++) {
       HlsUrl url = urls.get(i);
-      MediaPlaylistBundle bundle = new MediaPlaylistBundle(url, currentTimeMs);
+      MediaPlaylistBundle bundle = new MediaPlaylistBundle(url);
       playlistBundles.put(url, bundle);
     }
   }
@@ -470,14 +469,12 @@ public final class HlsPlaylistTracker implements Loader.Callback<ParsingLoadable
     private HlsMediaPlaylist playlistSnapshot;
     private long lastSnapshotLoadMs;
     private long lastSnapshotChangeMs;
-    private long lastSnapshotAccessTimeMs;
     private long blacklistUntilMs;
     private boolean pendingRefresh;
     private IOException playlistError;
 
-    public MediaPlaylistBundle(HlsUrl playlistUrl, long initialLastSnapshotAccessTimeMs) {
+    public MediaPlaylistBundle(HlsUrl playlistUrl) {
       this.playlistUrl = playlistUrl;
-      lastSnapshotAccessTimeMs = initialLastSnapshotAccessTimeMs;
       mediaPlaylistLoader = new Loader("HlsPlaylistTracker:MediaPlaylist");
       mediaPlaylistLoadable = new ParsingLoadable<>(
           dataSourceFactory.createDataSource(C.DATA_TYPE_MANIFEST),
@@ -486,7 +483,6 @@ public final class HlsPlaylistTracker implements Loader.Callback<ParsingLoadable
     }
 
     public HlsMediaPlaylist getPlaylistSnapshot() {
-      lastSnapshotAccessTimeMs = SystemClock.elapsedRealtime();
       return playlistSnapshot;
     }
 
