@@ -22,7 +22,6 @@ import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.ExoPlayerFactory;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.LoadControl;
-import com.google.android.exoplayer2.PlaybackParameters;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.Renderer;
 import com.google.android.exoplayer2.RenderersFactory;
@@ -49,7 +48,7 @@ import junit.framework.Assert;
 /**
  * Helper class to run an ExoPlayer test.
  */
-public final class ExoPlayerTestRunner implements Player.EventListener {
+public final class ExoPlayerTestRunner extends Player.DefaultEventListener {
 
   /**
    * Builder to set-up a {@link ExoPlayerTestRunner}. Default fake implementations will be used for
@@ -342,11 +341,6 @@ public final class ExoPlayerTestRunner implements Player.EventListener {
   }
 
   @Override
-  public void onLoadingChanged(boolean isLoading) {
-    // Do nothing.
-  }
-
-  @Override
   public void onPlayerStateChanged(boolean playWhenReady, int playbackState) {
     if (periodIndices.isEmpty() && playbackState == Player.STATE_READY) {
       periodIndices.add(player.getCurrentPeriodIndex());
@@ -359,16 +353,6 @@ public final class ExoPlayerTestRunner implements Player.EventListener {
   }
 
   @Override
-  public void onRepeatModeChanged(@Player.RepeatMode int repeatMode) {
-    // Do nothing.
-  }
-
-  @Override
-  public void onShuffleModeEnabledChanged(boolean shuffleModeEnabled) {
-    // Do nothing.
-  }
-
-  @Override
   public void onPlayerError(ExoPlaybackException error) {
     handleException(exception);
   }
@@ -377,11 +361,6 @@ public final class ExoPlayerTestRunner implements Player.EventListener {
   public void onPositionDiscontinuity(@Player.DiscontinuityReason int reason) {
     positionDiscontinuityCount++;
     periodIndices.add(player.getCurrentPeriodIndex());
-  }
-
-  @Override
-  public void onPlaybackParametersChanged(PlaybackParameters playbackParameters) {
-    // Do nothing.
   }
 
 }

@@ -30,13 +30,9 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
 import com.google.android.exoplayer2.C;
-import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.ExoPlayerLibraryInfo;
-import com.google.android.exoplayer2.PlaybackParameters;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.Timeline;
-import com.google.android.exoplayer2.source.TrackGroupArray;
-import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.RepeatModeUtil;
 import com.google.android.exoplayer2.util.Util;
@@ -1046,8 +1042,8 @@ public class PlaybackControlView extends FrameLayout {
     return true;
   }
 
-  private final class ComponentListener implements Player.EventListener, TimeBar.OnScrubListener,
-      OnClickListener {
+  private final class ComponentListener extends Player.DefaultEventListener implements
+      TimeBar.OnScrubListener, OnClickListener {
 
     @Override
     public void onScrubStart(TimeBar timeBar, long position) {
@@ -1096,30 +1092,10 @@ public class PlaybackControlView extends FrameLayout {
     }
 
     @Override
-    public void onPlaybackParametersChanged(PlaybackParameters playbackParameters) {
-      // Do nothing.
-    }
-
-    @Override
     public void onTimelineChanged(Timeline timeline, Object manifest) {
       updateNavigation();
       updateTimeBarMode();
       updateProgress();
-    }
-
-    @Override
-    public void onLoadingChanged(boolean isLoading) {
-      // Do nothing.
-    }
-
-    @Override
-    public void onTracksChanged(TrackGroupArray tracks, TrackSelectionArray selections) {
-      // Do nothing.
-    }
-
-    @Override
-    public void onPlayerError(ExoPlaybackException error) {
-      // Do nothing.
     }
 
     @Override

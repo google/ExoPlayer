@@ -36,11 +36,8 @@ import android.widget.ImageView;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ControlDispatcher;
 import com.google.android.exoplayer2.DefaultControlDispatcher;
-import com.google.android.exoplayer2.ExoPlaybackException;
-import com.google.android.exoplayer2.PlaybackParameters;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.SimpleExoPlayer;
-import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.metadata.Metadata;
 import com.google.android.exoplayer2.metadata.id3.ApicFrame;
 import com.google.android.exoplayer2.source.TrackGroupArray;
@@ -871,8 +868,8 @@ public final class SimpleExoPlayerView extends FrameLayout {
     aspectRatioFrame.setResizeMode(resizeMode);
   }
 
-  private final class ComponentListener implements TextOutput, SimpleExoPlayer.VideoListener,
-      Player.EventListener {
+  private final class ComponentListener extends Player.DefaultEventListener implements TextOutput,
+      SimpleExoPlayer.VideoListener {
 
     // TextOutput implementation
 
@@ -909,43 +906,8 @@ public final class SimpleExoPlayerView extends FrameLayout {
     // Player.EventListener implementation
 
     @Override
-    public void onLoadingChanged(boolean isLoading) {
-      // Do nothing.
-    }
-
-    @Override
     public void onPlayerStateChanged(boolean playWhenReady, int playbackState) {
       maybeShowController(false);
-    }
-
-    @Override
-    public void onRepeatModeChanged(int repeatMode) {
-      // Do nothing.
-    }
-
-    @Override
-    public void onShuffleModeEnabledChanged(boolean shuffleModeEnabled) {
-      // Do nothing.
-    }
-
-    @Override
-    public void onPlayerError(ExoPlaybackException e) {
-      // Do nothing.
-    }
-
-    @Override
-    public void onPositionDiscontinuity(@Player.DiscontinuityReason int reason) {
-      // Do nothing.
-    }
-
-    @Override
-    public void onPlaybackParametersChanged(PlaybackParameters playbackParameters) {
-      // Do nothing.
-    }
-
-    @Override
-    public void onTimelineChanged(Timeline timeline, Object manifest) {
-      // Do nothing.
     }
 
   }

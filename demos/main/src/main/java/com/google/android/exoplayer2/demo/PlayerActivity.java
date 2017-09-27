@@ -37,11 +37,8 @@ import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.DefaultRenderersFactory;
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.ExoPlayerFactory;
-import com.google.android.exoplayer2.PlaybackParameters;
 import com.google.android.exoplayer2.Player;
-import com.google.android.exoplayer2.Player.EventListener;
 import com.google.android.exoplayer2.SimpleExoPlayer;
-import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.drm.DefaultDrmSessionManager;
 import com.google.android.exoplayer2.drm.DrmSessionManager;
 import com.google.android.exoplayer2.drm.FrameworkMediaCrypto;
@@ -83,7 +80,7 @@ import java.util.UUID;
 /**
  * An activity that plays media using {@link SimpleExoPlayer}.
  */
-public class PlayerActivity extends Activity implements OnClickListener, EventListener,
+public class PlayerActivity extends Activity implements OnClickListener,
     PlaybackControlView.VisibilityListener {
 
   public static final String DRM_SCHEME_UUID_EXTRA = "drm_scheme_uuid";
@@ -294,7 +291,7 @@ public class PlayerActivity extends Activity implements OnClickListener, EventLi
           drmSessionManager, extensionRendererMode);
 
       player = ExoPlayerFactory.newSimpleInstance(renderersFactory, trackSelector);
-      player.addListener(this);
+      player.addListener(new PlayerEventListener());
       player.addListener(eventLogger);
       player.addMetadataOutput(eventLogger);
       player.setAudioDebugListener(eventLogger);
@@ -472,110 +469,6 @@ public class PlayerActivity extends Activity implements OnClickListener, EventLi
     }
   }
 
-  // Player.EventListener implementation
-
-  @Override
-  public void onLoadingChanged(boolean isLoading) {
-    // Do nothing.
-  }
-
-  @Override
-  public void onPlayerStateChanged(boolean playWhenReady, int playbackState) {
-    if (playbackState == Player.STATE_ENDED) {
-      showControls();
-    }
-    updateButtonVisibilities();
-  }
-
-  @Override
-  public void onRepeatModeChanged(int repeatMode) {
-    // Do nothing.
-  }
-
-  @Override
-  public void onShuffleModeEnabledChanged(boolean shuffleModeEnabled) {
-    // Do nothing.
-  }
-
-  @Override
-  public void onPositionDiscontinuity(@Player.DiscontinuityReason int reason) {
-    if (inErrorState) {
-      // This will only occur if the user has performed a seek whilst in the error state. Update the
-      // resume position so that if the user then retries, playback will resume from the position to
-      // which they seeked.
-      updateResumePosition();
-    }
-  }
-
-  @Override
-  public void onPlaybackParametersChanged(PlaybackParameters playbackParameters) {
-    // Do nothing.
-  }
-
-  @Override
-  public void onTimelineChanged(Timeline timeline, Object manifest) {
-    // Do nothing.
-  }
-
-  @Override
-  public void onPlayerError(ExoPlaybackException e) {
-    String errorString = null;
-    if (e.type == ExoPlaybackException.TYPE_RENDERER) {
-      Exception cause = e.getRendererException();
-      if (cause instanceof DecoderInitializationException) {
-        // Special case for decoder initialization failures.
-        DecoderInitializationException decoderInitializationException =
-            (DecoderInitializationException) cause;
-        if (decoderInitializationException.decoderName == null) {
-          if (decoderInitializationException.getCause() instanceof DecoderQueryException) {
-            errorString = getString(R.string.error_querying_decoders);
-          } else if (decoderInitializationException.secureDecoderRequired) {
-            errorString = getString(R.string.error_no_secure_decoder,
-                decoderInitializationException.mimeType);
-          } else {
-            errorString = getString(R.string.error_no_decoder,
-                decoderInitializationException.mimeType);
-          }
-        } else {
-          errorString = getString(R.string.error_instantiating_decoder,
-              decoderInitializationException.decoderName);
-        }
-      }
-    }
-    if (errorString != null) {
-      showToast(errorString);
-    }
-    inErrorState = true;
-    if (isBehindLiveWindow(e)) {
-      clearResumePosition();
-      initializePlayer();
-    } else {
-      updateResumePosition();
-      updateButtonVisibilities();
-      showControls();
-    }
-  }
-
-  @Override
-  @SuppressWarnings("ReferenceEquality")
-  public void onTracksChanged(TrackGroupArray trackGroups, TrackSelectionArray trackSelections) {
-    updateButtonVisibilities();
-    if (trackGroups != lastSeenTrackGroupArray) {
-      MappedTrackInfo mappedTrackInfo = trackSelector.getCurrentMappedTrackInfo();
-      if (mappedTrackInfo != null) {
-        if (mappedTrackInfo.getTrackTypeRendererSupport(C.TRACK_TYPE_VIDEO)
-            == MappedTrackInfo.RENDERER_SUPPORT_UNSUPPORTED_TRACKS) {
-          showToast(R.string.error_unsupported_video);
-        }
-        if (mappedTrackInfo.getTrackTypeRendererSupport(C.TRACK_TYPE_AUDIO)
-            == MappedTrackInfo.RENDERER_SUPPORT_UNSUPPORTED_TRACKS) {
-          showToast(R.string.error_unsupported_audio);
-        }
-      }
-      lastSeenTrackGroupArray = trackGroups;
-    }
-  }
-
   // User controls
 
   private void updateButtonVisibilities() {
@@ -643,6 +536,87 @@ public class PlayerActivity extends Activity implements OnClickListener, EventLi
       cause = cause.getCause();
     }
     return false;
+  }
+
+  private class PlayerEventListener extends Player.DefaultEventListener {
+
+    @Override
+    public void onPlayerStateChanged(boolean playWhenReady, int playbackState) {
+      if (playbackState == Player.STATE_ENDED) {
+        showControls();
+      }
+      updateButtonVisibilities();
+    }
+
+    @Override
+    public void onPositionDiscontinuity(@Player.DiscontinuityReason int reason) {
+      if (inErrorState) {
+        // This will only occur if the user has performed a seek whilst in the error state. Update
+        // the resume position so that if the user then retries, playback will resume from the
+        // position to which they seeked.
+        updateResumePosition();
+      }
+    }
+
+    @Override
+    public void onPlayerError(ExoPlaybackException e) {
+      String errorString = null;
+      if (e.type == ExoPlaybackException.TYPE_RENDERER) {
+        Exception cause = e.getRendererException();
+        if (cause instanceof DecoderInitializationException) {
+          // Special case for decoder initialization failures.
+          DecoderInitializationException decoderInitializationException =
+              (DecoderInitializationException) cause;
+          if (decoderInitializationException.decoderName == null) {
+            if (decoderInitializationException.getCause() instanceof DecoderQueryException) {
+              errorString = getString(R.string.error_querying_decoders);
+            } else if (decoderInitializationException.secureDecoderRequired) {
+              errorString = getString(R.string.error_no_secure_decoder,
+                  decoderInitializationException.mimeType);
+            } else {
+              errorString = getString(R.string.error_no_decoder,
+                  decoderInitializationException.mimeType);
+            }
+          } else {
+            errorString = getString(R.string.error_instantiating_decoder,
+                decoderInitializationException.decoderName);
+          }
+        }
+      }
+      if (errorString != null) {
+        showToast(errorString);
+      }
+      inErrorState = true;
+      if (isBehindLiveWindow(e)) {
+        clearResumePosition();
+        initializePlayer();
+      } else {
+        updateResumePosition();
+        updateButtonVisibilities();
+        showControls();
+      }
+    }
+
+    @Override
+    @SuppressWarnings("ReferenceEquality")
+    public void onTracksChanged(TrackGroupArray trackGroups, TrackSelectionArray trackSelections) {
+      updateButtonVisibilities();
+      if (trackGroups != lastSeenTrackGroupArray) {
+        MappedTrackInfo mappedTrackInfo = trackSelector.getCurrentMappedTrackInfo();
+        if (mappedTrackInfo != null) {
+          if (mappedTrackInfo.getTrackTypeRendererSupport(C.TRACK_TYPE_VIDEO)
+              == MappedTrackInfo.RENDERER_SUPPORT_UNSUPPORTED_TRACKS) {
+            showToast(R.string.error_unsupported_video);
+          }
+          if (mappedTrackInfo.getTrackTypeRendererSupport(C.TRACK_TYPE_AUDIO)
+              == MappedTrackInfo.RENDERER_SUPPORT_UNSUPPORTED_TRACKS) {
+            showToast(R.string.error_unsupported_audio);
+          }
+        }
+        lastSeenTrackGroupArray = trackGroups;
+      }
+    }
+
   }
 
 }

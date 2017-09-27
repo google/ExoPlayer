@@ -36,8 +36,6 @@ import com.google.android.exoplayer2.ExoPlayerLibraryInfo;
 import com.google.android.exoplayer2.PlaybackParameters;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.Timeline;
-import com.google.android.exoplayer2.source.TrackGroupArray;
-import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
 import com.google.android.exoplayer2.util.ErrorMessageProvider;
 import com.google.android.exoplayer2.util.RepeatModeUtil;
 import java.util.Collections;
@@ -624,7 +622,7 @@ public final class MediaSessionConnector {
         & QueueEditor.ACTIONS & action) != 0;
   }
 
-  private class ExoPlayerEventListener implements Player.EventListener {
+  private class ExoPlayerEventListener extends Player.DefaultEventListener {
 
     private int currentWindowIndex;
     private int currentWindowCount;
@@ -647,16 +645,6 @@ public final class MediaSessionConnector {
       currentWindowCount = windowCount;
       currentWindowIndex = player.getCurrentWindowIndex();
       updateMediaSessionMetadata();
-    }
-
-    @Override
-    public void onTracksChanged(TrackGroupArray trackGroups, TrackSelectionArray trackSelections) {
-      // Do nothing.
-    }
-
-    @Override
-    public void onLoadingChanged(boolean isLoading) {
-      // Do nothing.
     }
 
     @Override

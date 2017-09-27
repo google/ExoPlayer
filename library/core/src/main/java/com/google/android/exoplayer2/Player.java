@@ -137,6 +137,58 @@ public interface Player {
   }
 
   /**
+   * {@link EventListener} allowing selective overrides. All methods are implemented as no-ops.
+   */
+  abstract class DefaultEventListener implements EventListener {
+
+    @Override
+    public void onTimelineChanged(Timeline timeline, Object manifest) {
+      // Do nothing.
+    }
+
+    @Override
+    public void onTracksChanged(TrackGroupArray trackGroups, TrackSelectionArray trackSelections) {
+      // Do nothing.
+    }
+
+    @Override
+    public void onLoadingChanged(boolean isLoading) {
+      // Do nothing.
+    }
+
+    @Override
+    public void onPlayerStateChanged(boolean playWhenReady, int playbackState) {
+      // Do nothing.
+    }
+
+    @Override
+    public void onRepeatModeChanged(int repeatMode) {
+      // Do nothing.
+    }
+
+    @Override
+    public void onShuffleModeEnabledChanged(boolean shuffleModeEnabled) {
+      // Do nothing.
+    }
+
+    @Override
+    public void onPlayerError(ExoPlaybackException error) {
+      // Do nothing.
+    }
+
+    @Override
+    public void onPositionDiscontinuity(int reason) {
+      // Do nothing.
+    }
+
+    @Override
+    public void onPlaybackParametersChanged(PlaybackParameters playbackParameters) {
+      // Do nothing.
+    }
+
+  }
+
+  /**
    * The player does not have any media to play.
    */
   int STATE_IDLE = 1;

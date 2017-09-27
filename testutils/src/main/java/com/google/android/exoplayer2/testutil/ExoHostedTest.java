@@ -25,23 +25,19 @@ import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.ExoPlayerFactory;
 import com.google.android.exoplayer2.Format;
-import com.google.android.exoplayer2.PlaybackParameters;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.RenderersFactory;
 import com.google.android.exoplayer2.SimpleExoPlayer;
-import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.audio.AudioRendererEventListener;
 import com.google.android.exoplayer2.audio.AudioTrack;
 import com.google.android.exoplayer2.decoder.DecoderCounters;
 import com.google.android.exoplayer2.drm.DrmSessionManager;
 import com.google.android.exoplayer2.drm.FrameworkMediaCrypto;
 import com.google.android.exoplayer2.source.MediaSource;
-import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.testutil.HostActivity.HostedTest;
 import com.google.android.exoplayer2.trackselection.AdaptiveTrackSelection;
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
 import com.google.android.exoplayer2.trackselection.MappingTrackSelector;
-import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
 import com.google.android.exoplayer2.upstream.BandwidthMeter;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DefaultBandwidthMeter;
@@ -53,7 +49,7 @@ import junit.framework.Assert;
 /**
  * A {@link HostedTest} for {@link ExoPlayer} playback tests.
  */
-public abstract class ExoHostedTest implements HostedTest, Player.EventListener,
+public abstract class ExoHostedTest extends Player.DefaultEventListener implements HostedTest,
     AudioRendererEventListener, VideoRendererEventListener {
 
   static {
@@ -204,16 +200,6 @@ public abstract class ExoHostedTest implements HostedTest, Player.EventListener,
   // Player.EventListener
 
   @Override
-  public void onLoadingChanged(boolean isLoading) {
-    // Do nothing.
-  }
-
-  @Override
-  public void onTracksChanged(TrackGroupArray trackGroups, TrackSelectionArray trackSelections) {
-    // Do nothing.
-  }
-
-  @Override
   public final void onPlayerStateChanged(boolean playWhenReady, int playbackState) {
     Log.d(tag, "state [" + playWhenReady + ", " + playbackState + "]");
     playerWasPrepared |= playbackState != Player.STATE_IDLE;
@@ -231,35 +217,10 @@ public abstract class ExoHostedTest implements HostedTest, Player.EventListener,
   }
 
   @Override
-  public void onRepeatModeChanged(int repeatMode) {
-    // Do nothing.
-  }
-
-  @Override
-  public void onShuffleModeEnabledChanged(boolean shuffleModeEnabled) {
-    // Do nothing.
-  }
-
-  @Override
   public final void onPlayerError(ExoPlaybackException error) {
     playerWasPrepared = true;
     playerError = error;
     onPlayerErrorInternal(error);
-  }
-
-  @Override
-  public final void onPositionDiscontinuity(@Player.DiscontinuityReason int reason) {
-    // Do nothing.
-  }
-
-  @Override
-  public final void onPlaybackParametersChanged(PlaybackParameters playbackParameters) {
-    // Do nothing.
-  }
-
-  @Override
-  public final void onTimelineChanged(Timeline timeline, Object manifest) {
-    // Do nothing.
   }
 
   // AudioRendererEventListener

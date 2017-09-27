@@ -43,13 +43,10 @@ import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.ExoPlayerLibraryInfo;
-import com.google.android.exoplayer2.PlaybackParameters;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.Timeline;
-import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.source.ads.AdPlaybackState;
 import com.google.android.exoplayer2.source.ads.AdsLoader;
-import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
 import com.google.android.exoplayer2.util.Assertions;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -59,8 +56,8 @@ import java.util.Map;
 /**
  * Loads ads using the IMA SDK. All methods are called on the main thread.
  */
-public final class ImaAdsLoader implements AdsLoader, Player.EventListener, VideoAdPlayer,
-    ContentProgressProvider, AdErrorListener, AdsLoadedListener, AdEventListener {
+public final class ImaAdsLoader extends Player.DefaultEventListener implements AdsLoader,
+    VideoAdPlayer, ContentProgressProvider, AdErrorListener, AdsLoadedListener, AdEventListener {
 
   static {
     ExoPlayerLibraryInfo.registerModule("goog.exo.ima");
@@ -512,16 +509,6 @@ public final class ImaAdsLoader implements AdsLoader, Player.EventListener, Vide
   }
 
   @Override
-  public void onTracksChanged(TrackGroupArray trackGroups, TrackSelectionArray trackSelections) {
-    // Do nothing.
-  }
-
-  @Override
-  public void onLoadingChanged(boolean isLoading) {
-    // Do nothing.
-  }
-
-  @Override
   public void onPlayerStateChanged(boolean playWhenReady, int playbackState) {
     if (adsManager == null) {
       return;
@@ -536,16 +523,6 @@ public final class ImaAdsLoader implements AdsLoader, Player.EventListener, Vide
         adCallbacks.get(i).onEnded();
       }
     }
-  }
-
-  @Override
-  public void onRepeatModeChanged(int repeatMode) {
-    // Do nothing.
-  }
-
-  @Override
-  public void onShuffleModeEnabledChanged(boolean shuffleModeEnabled) {
-    // Do nothing.
   }
 
   @Override
@@ -582,11 +559,6 @@ public final class ImaAdsLoader implements AdsLoader, Player.EventListener, Vide
     } else {
       updateImaStateForPlayerState();
     }
-  }
-
-  @Override
-  public void onPlaybackParametersChanged(PlaybackParameters playbackParameters) {
-    // Do nothing.
   }
 
   // Internal methods.
