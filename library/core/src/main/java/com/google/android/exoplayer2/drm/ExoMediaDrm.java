@@ -21,7 +21,9 @@ import android.media.MediaCryptoException;
 import android.media.MediaDrm;
 import android.media.MediaDrmException;
 import android.media.NotProvisionedException;
+import android.os.Handler;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -81,6 +83,31 @@ public interface ExoMediaDrm<T extends ExoMediaCrypto> {
   }
 
   /**
+   * @see android.media.MediaDrm.KeyStatus
+   */
+  interface ExoKeyStatus {
+    int getStatusCode();
+    byte[] getKeyId();
+  }
+
+  /**
+   * @see android.media.MediaDrm.OnKeyStatusChangeListener
+   */
+  interface OnKeyStatusChangeListener<T extends ExoMediaCrypto> {
+    /**
+     * Called when the keys in a session change status, such as when the license is renewed or
+     * expires.
+     *
+     * @param mediaDrm the {@link ExoMediaDrm} object on which the event occurred.
+     * @param sessionId the DRM session ID on which the event occurred.
+     * @param exoKeyInfo a list of {@link ExoKeyStatus} that contains key ID and status.
+     * @param hasNewUsableKey true if new key becomes usable.
+     */
+    void onKeyStatusChange(ExoMediaDrm<? extends T> mediaDrm, byte[] sessionId,
+        List<ExoKeyStatus> exoKeyInfo, boolean hasNewUsableKey);
+  }
+
+  /**
    * @see android.media.MediaDrm.KeyRequest
    */
   interface KeyRequest {
@@ -100,6 +127,11 @@ public interface ExoMediaDrm<T extends ExoMediaCrypto> {
    * @see MediaDrm#setOnEventListener(MediaDrm.OnEventListener)
    */
   void setOnEventListener(OnEventListener<? super T> listener);
+
+  /**
+   * @see MediaDrm#setOnKeyStatusChangeListener(MediaDrm.OnKeyStatusChangeListener, Handler)
+   */
+  void setOnKeyStatusChangeListener(OnKeyStatusChangeListener<? super T> listener);
 
   /**
    * @see MediaDrm#openSession()
