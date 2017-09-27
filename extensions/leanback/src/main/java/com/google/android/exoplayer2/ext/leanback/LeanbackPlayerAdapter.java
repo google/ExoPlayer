@@ -30,13 +30,10 @@ import com.google.android.exoplayer2.ControlDispatcher;
 import com.google.android.exoplayer2.DefaultControlDispatcher;
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.ExoPlayerLibraryInfo;
-import com.google.android.exoplayer2.PlaybackParameters;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.Player.DiscontinuityReason;
 import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.Timeline;
-import com.google.android.exoplayer2.source.TrackGroupArray;
-import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
 import com.google.android.exoplayer2.util.ErrorMessageProvider;
 
 /**
@@ -221,7 +218,7 @@ public final class LeanbackPlayerAdapter extends PlayerAdapter {
     }
   }
 
-  private final class ComponentListener implements Player.EventListener,
+  private final class ComponentListener extends Player.DefaultEventListener implements
       SimpleExoPlayer.VideoListener, SurfaceHolder.Callback {
 
     // SurfaceHolder.Callback implementation.
@@ -261,11 +258,6 @@ public final class LeanbackPlayerAdapter extends PlayerAdapter {
     }
 
     @Override
-    public void onLoadingChanged(boolean isLoading) {
-      // Do nothing.
-    }
-
-    @Override
     public void onTimelineChanged(Timeline timeline, Object manifest) {
       Callback callback = getCallback();
       callback.onDurationChanged(LeanbackPlayerAdapter.this);
@@ -274,30 +266,10 @@ public final class LeanbackPlayerAdapter extends PlayerAdapter {
     }
 
     @Override
-    public void onTracksChanged(TrackGroupArray trackGroups, TrackSelectionArray trackSelections) {
-      // Do nothing.
-    }
-
-    @Override
     public void onPositionDiscontinuity(@DiscontinuityReason int reason) {
       Callback callback = getCallback();
       callback.onCurrentPositionChanged(LeanbackPlayerAdapter.this);
       callback.onBufferedPositionChanged(LeanbackPlayerAdapter.this);
-    }
-
-    @Override
-    public void onPlaybackParametersChanged(PlaybackParameters params) {
-      // Do nothing.
-    }
-
-    @Override
-    public void onRepeatModeChanged(int repeatMode) {
-      // Do nothing.
-    }
-
-    @Override
-    public void onShuffleModeEnabledChanged(boolean shuffleModeEnabled) {
-      // Do nothing.
     }
 
     // SimpleExoplayerView.Callback implementation.
