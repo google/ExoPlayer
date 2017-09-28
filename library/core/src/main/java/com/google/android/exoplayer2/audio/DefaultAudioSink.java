@@ -332,6 +332,7 @@ public final class DefaultAudioSink implements AudioSink {
       }
     }
 
+    positionUs = Math.min(positionUs, framesToDurationUs(getWrittenFrames()));
     return startMediaTimeUs + applySpeedup(positionUs);
   }
 
