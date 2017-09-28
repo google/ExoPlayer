@@ -81,7 +81,7 @@ public class FakeMediaPeriod implements MediaPeriod {
         streamResetFlags[i] = true;
       }
     }
-    return 0;
+    return positionUs;
   }
 
   @Override
