@@ -248,7 +248,7 @@ import java.util.Locale;
   }
 
   @Override
-  public void onAudioTrackUnderrun(int bufferSize, long bufferSizeMs, long elapsedSinceLastFeedMs) {
+  public void onAudioSinkUnderrun(int bufferSize, long bufferSizeMs, long elapsedSinceLastFeedMs) {
     printInternalError("audioTrackUnderrun [" + bufferSize + ", " + bufferSizeMs + ", "
         + elapsedSinceLastFeedMs + "]", null);
   }

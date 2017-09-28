@@ -29,7 +29,7 @@ import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.RenderersFactory;
 import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.audio.AudioRendererEventListener;
-import com.google.android.exoplayer2.audio.AudioTrack;
+import com.google.android.exoplayer2.audio.DefaultAudioSink;
 import com.google.android.exoplayer2.decoder.DecoderCounters;
 import com.google.android.exoplayer2.drm.DrmSessionManager;
 import com.google.android.exoplayer2.drm.FrameworkMediaCrypto;
@@ -53,10 +53,10 @@ public abstract class ExoHostedTest extends Player.DefaultEventListener implemen
     AudioRendererEventListener, VideoRendererEventListener {
 
   static {
-    // ExoPlayer's AudioTrack class is able to work around spurious timestamps reported by the
-    // platform (by ignoring them). Disable this workaround, since we're interested in testing
-    // that the underlying platform is behaving correctly.
-    AudioTrack.failOnSpuriousAudioTimestamp = true;
+    // DefaultAudioSink is able to work around spurious timestamps reported by the platform (by
+    // ignoring them). Disable this workaround, since we're interested in testing that the
+    // underlying platform is behaving correctly.
+    DefaultAudioSink.failOnSpuriousAudioTimestamp = true;
   }
 
   public static final long MAX_PLAYING_TIME_DISCREPANCY_MS = 2000;
@@ -253,7 +253,7 @@ public abstract class ExoHostedTest extends Player.DefaultEventListener implemen
   }
 
   @Override
-  public void onAudioTrackUnderrun(int bufferSize, long bufferSizeMs, long elapsedSinceLastFeedMs) {
+  public void onAudioSinkUnderrun(int bufferSize, long bufferSizeMs, long elapsedSinceLastFeedMs) {
     Log.e(tag, "audioTrackUnderrun [" + bufferSize + ", " + bufferSizeMs + ", "
         + elapsedSinceLastFeedMs + "]", null);
   }

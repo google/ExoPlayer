@@ -976,10 +976,10 @@ public class SimpleExoPlayer implements ExoPlayer {
     }
 
     @Override
-    public void onAudioTrackUnderrun(int bufferSize, long bufferSizeMs,
+    public void onAudioSinkUnderrun(int bufferSize, long bufferSizeMs,
         long elapsedSinceLastFeedMs) {
       if (audioDebugListener != null) {
-        audioDebugListener.onAudioTrackUnderrun(bufferSize, bufferSizeMs, elapsedSinceLastFeedMs);
+        audioDebugListener.onAudioSinkUnderrun(bufferSize, bufferSizeMs, elapsedSinceLastFeedMs);
       }
     }
 
