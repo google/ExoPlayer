@@ -16,6 +16,7 @@
 package com.google.android.exoplayer2.testutil;
 
 import android.os.Handler;
+import android.os.Looper;
 import android.view.Surface;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Player;
@@ -342,7 +343,11 @@ public final class ActionSchedule {
       this.trackSelector = trackSelector;
       this.surface = surface;
       this.mainHandler = mainHandler;
-      clock.postDelayed(mainHandler, this, delayMs);
+      if (delayMs == 0 && Looper.myLooper() == mainHandler.getLooper()) {
+        run();
+      } else {
+        clock.postDelayed(mainHandler, this, delayMs);
+      }
     }
 
     @Override
