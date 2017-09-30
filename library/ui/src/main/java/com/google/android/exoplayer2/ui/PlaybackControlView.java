@@ -825,9 +825,19 @@ public class PlaybackControlView extends FrameLayout {
     if (playbackState != Player.STATE_IDLE && playbackState != Player.STATE_ENDED) {
       long delayMs;
       if (player.getPlayWhenReady() && playbackState == Player.STATE_READY) {
-        delayMs = 1000 - (position % 1000);
-        if (delayMs < 200) {
-          delayMs += 1000;
+        float playbackSpeed = player.getPlaybackParameters().speed;
+        if (playbackSpeed <= 0.1f) {
+          delayMs = 1000;
+        } else if (playbackSpeed <= 5f) {
+          long mediaTimeUpdatePeriodMs = 1000 / Math.max(1, Math.round(1 / playbackSpeed));
+          long mediaTimeDelayMs = mediaTimeUpdatePeriodMs - (position % mediaTimeUpdatePeriodMs);
+          if (mediaTimeDelayMs < (mediaTimeUpdatePeriodMs / 5)) {
+            mediaTimeDelayMs += mediaTimeUpdatePeriodMs;
+          }
+          delayMs = playbackSpeed == 1 ? mediaTimeDelayMs
+              : (long) (mediaTimeDelayMs / playbackSpeed);
+        } else {
+          delayMs = 200;
         }
       } else {
         delayMs = 1000;
