@@ -556,11 +556,17 @@ import java.io.IOException;
     if (periodPositionUs != C.TIME_UNSET) {
       resetRendererPosition(periodPositionUs);
     } else {
-      if (rendererMediaClockSource != null && !rendererMediaClockSource.isEnded()) {
+      // Use the standalone clock if there's no renderer clock, or if the providing renderer has
+      // ended or needs the next sample stream to reenter the ready state. The latter case uses the
+      // standalone clock to avoid getting stuck if tracks in the current period have uneven
+      // durations. See: https://github.com/google/ExoPlayer/issues/1874.
+      if (rendererMediaClockSource == null || rendererMediaClockSource.isEnded()
+          || (!rendererMediaClockSource.isReady()
+              && rendererWaitingForNextStream(rendererMediaClockSource))) {
+        rendererPositionUs = standaloneMediaClock.getPositionUs();
+      } else {
         rendererPositionUs = rendererMediaClock.getPositionUs();
         standaloneMediaClock.setPositionUs(rendererPositionUs);
-      } else {
-        rendererPositionUs = standaloneMediaClock.getPositionUs();
       }
       periodPositionUs = playingPeriodHolder.toPeriodTime(rendererPositionUs);
     }
@@ -597,9 +603,12 @@ import java.io.IOException;
       // invocation of this method.
       renderer.render(rendererPositionUs, elapsedRealtimeUs);
       allRenderersEnded = allRenderersEnded && renderer.isEnded();
-      // Determine whether the renderer is ready (or ended). If it's not, throw an error that's
-      // preventing the renderer from making progress, if such an error exists.
-      boolean rendererReadyOrEnded = renderer.isReady() || renderer.isEnded();
+      // Determine whether the renderer is ready (or ended). We override to assume the renderer is
+      // ready if it needs the next sample stream. This is necessary to avoid getting stuck if
+      // tracks in the current period have uneven durations. See:
+      // https://github.com/google/ExoPlayer/issues/1874
+      boolean rendererReadyOrEnded = renderer.isReady() || renderer.isEnded()
+          || rendererWaitingForNextStream(renderer);
       if (!rendererReadyOrEnded) {
         renderer.maybeThrowStreamError();
       }
@@ -617,7 +626,7 @@ import java.io.IOException;
         // TODO: Make LoadControl, period transition position projection, adaptive track selection
         // and potentially any time-related code in renderers take into account the playback speed.
         this.playbackParameters = playbackParameters;
-        standaloneMediaClock.synchronize(rendererMediaClock);
+        standaloneMediaClock.setPlaybackParameters(playbackParameters);
         eventHandler.obtainMessage(MSG_PLAYBACK_PARAMETERS_CHANGED, playbackParameters)
             .sendToTarget();
       }
@@ -813,9 +822,10 @@ import java.io.IOException;
   }
 
   private void setPlaybackParametersInternal(PlaybackParameters playbackParameters) {
-    playbackParameters = rendererMediaClock != null
-        ? rendererMediaClock.setPlaybackParameters(playbackParameters)
-        : standaloneMediaClock.setPlaybackParameters(playbackParameters);
+    if (rendererMediaClock != null) {
+      playbackParameters = rendererMediaClock.setPlaybackParameters(playbackParameters);
+    }
+    standaloneMediaClock.setPlaybackParameters(playbackParameters);
     this.playbackParameters = playbackParameters;
     eventHandler.obtainMessage(MSG_PLAYBACK_PARAMETERS_CHANGED, playbackParameters).sendToTarget();
   }
@@ -945,12 +955,6 @@ import java.io.IOException;
           if (sampleStream != renderer.getStream()) {
             // We need to disable the renderer.
             if (renderer == rendererMediaClockSource) {
-              // The renderer is providing the media clock.
-              if (sampleStream == null) {
-                // The renderer won't be re-enabled. Sync standaloneMediaClock so that it can take
-                // over timing responsibilities.
-                standaloneMediaClock.synchronize(rendererMediaClock);
-              }
               rendererMediaClock = null;
               rendererMediaClockSource = null;
             }
@@ -1300,8 +1304,8 @@ import java.io.IOException;
       return;
     }
 
-    // Update the playing and reading periods.
-    while (playingPeriodHolder != readingPeriodHolder
+    // Advance the playing period if necessary.
+    while (playWhenReady && playingPeriodHolder != readingPeriodHolder
         && rendererPositionUs >= playingPeriodHolder.next.rendererPositionOffsetUs) {
       // All enabled renderers' streams have been read to the end, and the playback position reached
       // the end of the playing period, so advance playback to the next period.
@@ -1327,55 +1331,60 @@ import java.io.IOException;
       return;
     }
 
+    // Advance the reading period if necessary.
+    if (readingPeriodHolder.next == null || !readingPeriodHolder.next.prepared) {
+      // We don't have a successor to advance the reading period to.
+      return;
+    }
+
     for (int i = 0; i < renderers.length; i++) {
       Renderer renderer = renderers[i];
       SampleStream sampleStream = readingPeriodHolder.sampleStreams[i];
       if (renderer.getStream() != sampleStream
           || (sampleStream != null && !renderer.hasReadStreamToEnd())) {
+        // The current reading period is still being read by at least one renderer.
         return;
       }
     }
 
-    if (readingPeriodHolder.next != null && readingPeriodHolder.next.prepared) {
-      TrackSelectorResult oldTrackSelectorResult = readingPeriodHolder.trackSelectorResult;
-      readingPeriodHolder = readingPeriodHolder.next;
-      TrackSelectorResult newTrackSelectorResult = readingPeriodHolder.trackSelectorResult;
+    TrackSelectorResult oldTrackSelectorResult = readingPeriodHolder.trackSelectorResult;
+    readingPeriodHolder = readingPeriodHolder.next;
+    TrackSelectorResult newTrackSelectorResult = readingPeriodHolder.trackSelectorResult;
 
-      boolean initialDiscontinuity =
-          readingPeriodHolder.mediaPeriod.readDiscontinuity() != C.TIME_UNSET;
-      for (int i = 0; i < renderers.length; i++) {
-        Renderer renderer = renderers[i];
-        boolean rendererWasEnabled = oldTrackSelectorResult.renderersEnabled[i];
-        if (!rendererWasEnabled) {
-          // The renderer was disabled and will be enabled when we play the next period.
-        } else if (initialDiscontinuity) {
-          // The new period starts with a discontinuity, so the renderer will play out all data then
-          // be disabled and re-enabled when it starts playing the next period.
+    boolean initialDiscontinuity =
+        readingPeriodHolder.mediaPeriod.readDiscontinuity() != C.TIME_UNSET;
+    for (int i = 0; i < renderers.length; i++) {
+      Renderer renderer = renderers[i];
+      boolean rendererWasEnabled = oldTrackSelectorResult.renderersEnabled[i];
+      if (!rendererWasEnabled) {
+        // The renderer was disabled and will be enabled when we play the next period.
+      } else if (initialDiscontinuity) {
+        // The new period starts with a discontinuity, so the renderer will play out all data then
+        // be disabled and re-enabled when it starts playing the next period.
+        renderer.setCurrentStreamFinal();
+      } else if (!renderer.isCurrentStreamFinal()) {
+        TrackSelection newSelection = newTrackSelectorResult.selections.get(i);
+        boolean newRendererEnabled = newTrackSelectorResult.renderersEnabled[i];
+        boolean isNoSampleRenderer = rendererCapabilities[i].getTrackType() == C.TRACK_TYPE_NONE;
+        RendererConfiguration oldConfig = oldTrackSelectorResult.rendererConfigurations[i];
+        RendererConfiguration newConfig = newTrackSelectorResult.rendererConfigurations[i];
+        if (newRendererEnabled && newConfig.equals(oldConfig) && !isNoSampleRenderer) {
+          // Replace the renderer's SampleStream so the transition to playing the next period can
+          // be seamless.
+          // This should be avoided for no-sample renderer, because skipping ahead for such
+          // renderer doesn't have any benefit (the renderer does not consume the sample stream),
+          // and it will change the provided rendererOffsetUs while the renderer is still
+          // rendering from the playing media period.
+          Format[] formats = getFormats(newSelection);
+          renderer.replaceStream(formats, readingPeriodHolder.sampleStreams[i],
+              readingPeriodHolder.getRendererOffset());
+        } else {
+          // The renderer will be disabled when transitioning to playing the next period, because
+          // there's no new selection, or because a configuration change is required, or because
+          // it's a no-sample renderer for which rendererOffsetUs should be updated only when
+          // starting to play the next period. Mark the SampleStream as final to play out any
+          // remaining data.
           renderer.setCurrentStreamFinal();
-        } else if (!renderer.isCurrentStreamFinal()) {
-          TrackSelection newSelection = newTrackSelectorResult.selections.get(i);
-          boolean newRendererEnabled = newTrackSelectorResult.renderersEnabled[i];
-          boolean isNoSampleRenderer = rendererCapabilities[i].getTrackType() == C.TRACK_TYPE_NONE;
-          RendererConfiguration oldConfig = oldTrackSelectorResult.rendererConfigurations[i];
-          RendererConfiguration newConfig = newTrackSelectorResult.rendererConfigurations[i];
-          if (newRendererEnabled && newConfig.equals(oldConfig) && !isNoSampleRenderer) {
-            // Replace the renderer's SampleStream so the transition to playing the next period can
-            // be seamless.
-            // This should be avoided for no-sample renderer, because skipping ahead for such
-            // renderer doesn't have any benefit (the renderer does not consume the sample stream),
-            // and it will change the provided rendererOffsetUs while the renderer is still
-            // rendering from the playing media period.
-            Format[] formats = getFormats(newSelection);
-            renderer.replaceStream(formats, readingPeriodHolder.sampleStreams[i],
-                readingPeriodHolder.getRendererOffset());
-          } else {
-            // The renderer will be disabled when transitioning to playing the next period, because
-            // there's no new selection, or because a configuration change is required, or because
-            // it's a no-sample renderer for which rendererOffsetUs should be updated only when
-            // starting to play the next period. Mark the SampleStream as final to play out any
-            // remaining data.
-            renderer.setCurrentStreamFinal();
-          }
         }
       }
     }
@@ -1478,8 +1487,6 @@ import java.io.IOException;
         // needed to play the next period, or because we need to re-enable it as its current stream
         // is final and it's not reading ahead.
         if (renderer == rendererMediaClockSource) {
-          // Sync standaloneMediaClock so that it can take over timing responsibilities.
-          standaloneMediaClock.synchronize(rendererMediaClock);
           rendererMediaClock = null;
           rendererMediaClockSource = null;
         }
@@ -1537,6 +1544,11 @@ import java.io.IOException;
         renderer.start();
       }
     }
+  }
+
+  private boolean rendererWaitingForNextStream(Renderer renderer) {
+    return readingPeriodHolder.next != null && readingPeriodHolder.next.prepared
+        && renderer.hasReadStreamToEnd();
   }
 
   @NonNull
