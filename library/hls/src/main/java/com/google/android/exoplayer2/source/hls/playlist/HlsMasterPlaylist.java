@@ -19,6 +19,7 @@ import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.util.MimeTypes;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 /**
@@ -121,6 +122,25 @@ public final class HlsMasterPlaylist extends HlsPlaylist {
     return new HlsMasterPlaylist(baseUri, tags, copyRenditionsList(variants, renditionUrls),
         copyRenditionsList(audios, renditionUrls), copyRenditionsList(subtitles, renditionUrls),
         muxedAudioFormat, muxedCaptionFormats);
+  }
+
+  /**
+   * Returns a copy of this playlist which includes the variants sorted using the passed comparator. NOTE: the variants
+   * will be sorted in ascending order by default. If you wish to use descending order, you can wrap your comparator in
+   * {@link Collections#reverseOrder(Comparator)}.
+   *
+   * @param variantComparator the comparator to use to sort the variant list.
+   * @return a copy of this playlist which includes the variants sorted using the passed comparator.
+   */
+  public HlsMasterPlaylist copyWithReorderedVariants(Comparator<HlsUrl> variantComparator) {
+    return new HlsMasterPlaylist(baseUri, tags, filterVariants(variants, variantComparator), audios,
+            subtitles, muxedAudioFormat, muxedCaptionFormats);
+  }
+
+  private List<HlsUrl> filterVariants(List<HlsUrl> variants, Comparator<HlsUrl> variantComparator) {
+    List<HlsUrl> reorderedList = new ArrayList<>(variants);
+    Collections.sort(reorderedList, variantComparator);
+    return reorderedList;
   }
 
   /**
