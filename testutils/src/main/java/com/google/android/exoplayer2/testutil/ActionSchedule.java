@@ -33,6 +33,7 @@ import com.google.android.exoplayer2.testutil.Action.SetRepeatMode;
 import com.google.android.exoplayer2.testutil.Action.SetShuffleModeEnabled;
 import com.google.android.exoplayer2.testutil.Action.SetVideoSurface;
 import com.google.android.exoplayer2.testutil.Action.Stop;
+import com.google.android.exoplayer2.testutil.Action.WaitForPlaybackState;
 import com.google.android.exoplayer2.testutil.Action.WaitForPositionDiscontinuity;
 import com.google.android.exoplayer2.testutil.Action.WaitForTimelineChanged;
 import com.google.android.exoplayer2.trackselection.MappingTrackSelector;
@@ -255,6 +256,16 @@ public final class ActionSchedule {
      */
     public Builder waitForPositionDiscontinuity() {
       return apply(new WaitForPositionDiscontinuity(tag));
+    }
+
+    /**
+     * Schedules a delay until the playback state changed to the specified state.
+     *
+     * @param targetPlaybackState The target playback state.
+     * @return The builder, for convenience.
+     */
+    public Builder waitForPlaybackState(int targetPlaybackState) {
+      return apply(new WaitForPlaybackState(tag, targetPlaybackState));
     }
 
     /**

@@ -380,6 +380,49 @@ public abstract class Action {
   }
 
   /**
+   * Waits for a specified playback state, returning either immediately or after a call to
+   * {@link Player.EventListener#onPlayerStateChanged(boolean, int)}.
+   */
+  public static final class WaitForPlaybackState extends Action {
+
+    private final int targetPlaybackState;
+
+    /**
+     * @param tag A tag to use for logging.
+     */
+    public WaitForPlaybackState(String tag, int targetPlaybackState) {
+      super(tag, "WaitForPlaybackState");
+      this.targetPlaybackState = targetPlaybackState;
+    }
+
+    @Override
+    protected void doActionAndScheduleNextImpl(final SimpleExoPlayer player,
+        final MappingTrackSelector trackSelector, final Surface surface, final Handler handler,
+        final ActionNode nextAction) {
+      if (targetPlaybackState == player.getPlaybackState()) {
+        nextAction.schedule(player, trackSelector, surface, handler);
+      } else {
+        player.addListener(new Player.DefaultEventListener() {
+          @Override
+          public void onPlayerStateChanged(boolean playWhenReady, int playbackState) {
+            if (targetPlaybackState == playbackState) {
+              player.removeListener(this);
+              nextAction.schedule(player, trackSelector, surface, handler);
+            }
+          }
+        });
+      }
+    }
+
+    @Override
+    protected void doActionImpl(SimpleExoPlayer player, MappingTrackSelector trackSelector,
+        Surface surface) {
+      // Not triggered.
+    }
+
+  }
+
+  /**
    * Calls {@link Runnable#run()}.
    */
   public static final class ExecuteRunnable extends Action {
