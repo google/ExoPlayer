@@ -41,7 +41,6 @@ import com.google.android.gms.cast.framework.SessionManager;
 import com.google.android.gms.cast.framework.SessionManagerListener;
 import com.google.android.gms.cast.framework.media.RemoteMediaClient;
 import com.google.android.gms.cast.framework.media.RemoteMediaClient.MediaChannelResult;
-import com.google.android.gms.common.api.CommonStatusCodes;
 import com.google.android.gms.common.api.PendingResult;
 import com.google.android.gms.common.api.ResultCallback;
 import java.util.List;
@@ -115,6 +114,7 @@ public final class CastPlayer implements Player {
   private int currentWindowIndex;
   private boolean playWhenReady;
   private long lastReportedPositionMs;
+  private int pendingSeekCount;
   private int pendingSeekWindowIndex;
   private long pendingSeekPositionMs;
 
@@ -333,10 +333,15 @@ public final class CastPlayer implements Player {
       } else {
         remoteMediaClient.seek(positionMs).setResultCallback(seekResultCallback);
       }
+      pendingSeekCount++;
       pendingSeekWindowIndex = windowIndex;
       pendingSeekPositionMs = positionMs;
       for (EventListener listener : listeners) {
         listener.onPositionDiscontinuity(Player.DISCONTINUITY_REASON_SEEK);
+      }
+    } else if (pendingSeekCount == 0) {
+      for (EventListener listener : listeners) {
+        listener.onSeekProcessed();
       }
     }
   }
@@ -536,7 +541,7 @@ public final class CastPlayer implements Player {
       }
     }
     int currentWindowIndex = fetchCurrentWindowIndex(getMediaStatus());
-    if (this.currentWindowIndex != currentWindowIndex) {
+    if (this.currentWindowIndex != currentWindowIndex && pendingSeekCount == 0) {
       this.currentWindowIndex = currentWindowIndex;
       for (EventListener listener : listeners) {
         listener.onPositionDiscontinuity(DISCONTINUITY_REASON_PERIOD_TRANSITION);
@@ -831,18 +836,18 @@ public final class CastPlayer implements Player {
     @Override
     public void onResult(@NonNull MediaChannelResult result) {
       int statusCode = result.getStatus().getStatusCode();
-      if (statusCode == CastStatusCodes.REPLACED) {
-        // A seek was executed before this one completed. Do nothing.
-      } else {
+      if (statusCode != CastStatusCodes.SUCCESS && statusCode != CastStatusCodes.REPLACED) {
+        Log.e(TAG, "Seek failed. Error code " + statusCode + ": "
+            + CastUtils.getLogString(statusCode));
+      }
+      if (--pendingSeekCount == 0) {
         pendingSeekWindowIndex = C.INDEX_UNSET;
         pendingSeekPositionMs = C.TIME_UNSET;
-        if (statusCode != CommonStatusCodes.SUCCESS) {
-          Log.e(TAG, "Seek failed. Error code " + statusCode + ": "
-              + CastUtils.getLogString(statusCode));
+        for (EventListener listener : listeners) {
+          listener.onSeekProcessed();
         }
       }
     }
-
   }
 
 }

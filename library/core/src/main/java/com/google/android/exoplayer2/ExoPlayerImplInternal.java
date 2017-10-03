@@ -701,12 +701,12 @@ import java.io.IOException;
           timeline.getFirstWindowIndex(shuffleModeEnabled), window).firstPeriodIndex;
       // The seek position was valid for the timeline that it was performed into, but the
       // timeline has changed and a suitable seek position could not be resolved in the new one.
-      playbackInfo = new PlaybackInfo(firstPeriodIndex, 0);
-      eventHandler.obtainMessage(MSG_SEEK_ACK, 1, 0, playbackInfo).sendToTarget();
       // Set the internal position to (firstPeriodIndex,TIME_UNSET) so that a subsequent seek to
       // (firstPeriodIndex,0) isn't ignored.
       playbackInfo = new PlaybackInfo(firstPeriodIndex, C.TIME_UNSET);
       setState(Player.STATE_ENDED);
+      eventHandler.obtainMessage(MSG_SEEK_ACK, 1, 0, new PlaybackInfo(firstPeriodIndex, 0))
+          .sendToTarget();
       // Reset, but retain the source so that it can still be used should a seek occur.
       resetInternal(false);
       return;
@@ -1031,7 +1031,7 @@ import java.io.IOException;
           MediaPeriodId periodId =
               mediaPeriodInfoSequence.resolvePeriodPositionForAds(periodIndex, positionUs);
           playbackInfo = new PlaybackInfo(periodId, periodId.isAd() ? 0 : positionUs, positionUs);
-          notifySourceInfoRefresh(manifest, processedInitialSeekCount);
+          notifySourceInfoRefresh(manifest, playbackInfo, processedInitialSeekCount);
         }
       } else if (playbackInfo.startPositionUs == C.TIME_UNSET) {
         if (timeline.isEmpty()) {
@@ -1182,22 +1182,23 @@ import java.io.IOException;
       int processedInitialSeekCount) {
     int firstPeriodIndex = timeline.isEmpty() ? 0 : timeline.getWindow(
         timeline.getFirstWindowIndex(shuffleModeEnabled), window).firstPeriodIndex;
-    // Set the playback position to (firstPeriodIndex,0) for notifying the eventHandler.
-    playbackInfo = new PlaybackInfo(firstPeriodIndex, 0);
-    notifySourceInfoRefresh(manifest, processedInitialSeekCount);
     // Set the internal position to (firstPeriodIndex,TIME_UNSET) so that a subsequent seek to
     // (firstPeriodIndex,0) isn't ignored.
     playbackInfo = new PlaybackInfo(firstPeriodIndex, C.TIME_UNSET);
     setState(Player.STATE_ENDED);
+    // Set the playback position to (firstPeriodIndex,0) for notifying the eventHandler.
+    notifySourceInfoRefresh(manifest, new PlaybackInfo(firstPeriodIndex, 0),
+        processedInitialSeekCount);
     // Reset, but retain the source so that it can still be used should a seek occur.
     resetInternal(false);
   }
 
   private void notifySourceInfoRefresh(Object manifest) {
-    notifySourceInfoRefresh(manifest, 0);
+    notifySourceInfoRefresh(manifest, playbackInfo, 0);
   }
 
-  private void notifySourceInfoRefresh(Object manifest, int processedInitialSeekCount) {
+  private void notifySourceInfoRefresh(Object manifest, PlaybackInfo playbackInfo,
+      int processedInitialSeekCount) {
     eventHandler.obtainMessage(MSG_SOURCE_INFO_REFRESHED,
         new SourceInfo(timeline, manifest, playbackInfo, processedInitialSeekCount)).sendToTarget();
   }

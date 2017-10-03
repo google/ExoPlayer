@@ -209,6 +209,11 @@ import java.util.Locale;
     Log.d(TAG, "]");
   }
 
+  @Override
+  public void onSeekProcessed() {
+    Log.d(TAG, "seekProcessed");
+  }
+
   // MetadataOutput
 
   @Override
