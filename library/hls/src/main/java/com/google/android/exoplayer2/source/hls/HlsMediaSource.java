@@ -17,6 +17,7 @@ package com.google.android.exoplayer2.source.hls;
 
 import android.net.Uri;
 import android.os.Handler;
+
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.ExoPlayerLibraryInfo;
@@ -27,9 +28,11 @@ import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.source.SinglePeriodTimeline;
 import com.google.android.exoplayer2.source.hls.playlist.HlsMediaPlaylist;
 import com.google.android.exoplayer2.source.hls.playlist.HlsPlaylistTracker;
+import com.google.android.exoplayer2.trackselection.TrackSelection;
 import com.google.android.exoplayer2.upstream.Allocator;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.util.Assertions;
+
 import java.io.IOException;
 import java.util.List;
 
@@ -52,6 +55,7 @@ public final class HlsMediaSource implements MediaSource,
   private final HlsDataSourceFactory dataSourceFactory;
   private final int minLoadableRetryCount;
   private final EventDispatcher eventDispatcher;
+  private final TrackSelection.Factory initialTrackSelectionFactory;
 
   private HlsPlaylistTracker playlistTracker;
   private Listener sourceListener;
@@ -66,16 +70,17 @@ public final class HlsMediaSource implements MediaSource,
       int minLoadableRetryCount, Handler eventHandler,
       AdaptiveMediaSourceEventListener eventListener) {
     this(manifestUri, new DefaultHlsDataSourceFactory(dataSourceFactory), minLoadableRetryCount,
-        eventHandler, eventListener);
+        eventHandler, eventListener, null);
   }
 
   public HlsMediaSource(Uri manifestUri, HlsDataSourceFactory dataSourceFactory,
       int minLoadableRetryCount, Handler eventHandler,
-      AdaptiveMediaSourceEventListener eventListener) {
+      AdaptiveMediaSourceEventListener eventListener, TrackSelection.Factory initialTrackSelectionFactory) {
     this.manifestUri = manifestUri;
     this.dataSourceFactory = dataSourceFactory;
     this.minLoadableRetryCount = minLoadableRetryCount;
     eventDispatcher = new EventDispatcher(eventHandler, eventListener);
+    this.initialTrackSelectionFactory = initialTrackSelectionFactory;
   }
 
   @Override
@@ -96,7 +101,7 @@ public final class HlsMediaSource implements MediaSource,
   public MediaPeriod createPeriod(MediaPeriodId id, Allocator allocator) {
     Assertions.checkArgument(id.periodIndex == 0);
     return new HlsMediaPeriod(playlistTracker, dataSourceFactory, minLoadableRetryCount,
-        eventDispatcher, allocator);
+        eventDispatcher, allocator, initialTrackSelectionFactory);
   }
 
   @Override

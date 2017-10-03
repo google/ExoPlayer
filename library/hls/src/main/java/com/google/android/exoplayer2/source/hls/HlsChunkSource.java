@@ -118,7 +118,7 @@ import java.util.List;
    */
   public HlsChunkSource(HlsPlaylistTracker playlistTracker, HlsUrl[] variants,
       HlsDataSourceFactory dataSourceFactory, TimestampAdjusterProvider timestampAdjusterProvider,
-      List<Format> muxedCaptionFormats) {
+      List<Format> muxedCaptionFormats, TrackSelection.Factory initialTrackSelectionFactory) {
     this.playlistTracker = playlistTracker;
     this.variants = variants;
     this.timestampAdjusterProvider = timestampAdjusterProvider;
@@ -133,7 +133,9 @@ import java.util.List;
     mediaDataSource = dataSourceFactory.createDataSource(C.DATA_TYPE_MEDIA);
     encryptionDataSource = dataSourceFactory.createDataSource(C.DATA_TYPE_DRM);
     trackGroup = new TrackGroup(variantFormats);
-    trackSelection = new InitializationTrackSelection(trackGroup, initialTrackSelection);
+    trackSelection = initialTrackSelectionFactory != null ?
+            initialTrackSelectionFactory.createTrackSelection(trackGroup, initialTrackSelection) :
+            new InitializationTrackSelection(trackGroup, initialTrackSelection);
   }
 
   /**
