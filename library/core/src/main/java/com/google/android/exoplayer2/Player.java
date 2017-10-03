@@ -134,6 +134,13 @@ public interface Player {
      */
     void onPlaybackParametersChanged(PlaybackParameters playbackParameters);
 
+    /**
+     * Called when all pending seek requests have been processed by the player. This is guaranteed
+     * to happen after any necessary changes to the player state were reported to
+     * {@link #onPlayerStateChanged(boolean, int)}.
+     */
+    void onSeekProcessed();
+
   }
 
   /**
@@ -183,6 +190,11 @@ public interface Player {
 
     @Override
     public void onPlaybackParametersChanged(PlaybackParameters playbackParameters) {
+      // Do nothing.
+    }
+
+    @Override
+    public void onSeekProcessed() {
       // Do nothing.
     }
 

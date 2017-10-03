@@ -28,6 +28,8 @@ import com.google.android.exoplayer2.testutil.FakeRenderer;
 import com.google.android.exoplayer2.testutil.FakeShuffleOrder;
 import com.google.android.exoplayer2.testutil.FakeTimeline;
 import com.google.android.exoplayer2.testutil.FakeTimeline.TimelineWindowDefinition;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import junit.framework.TestCase;
 
@@ -257,6 +259,40 @@ public final class ExoPlayerTest extends TestCase {
         .build().start().blockUntilEnded(TIMEOUT_MS);
     testRunner.assertPlayedPeriodIndices(0, 1, 0, 2, 1, 2);
     assertTrue(renderer.isEnded);
+  }
+
+  public void testSeekProcessedCallback() throws Exception {
+    Timeline timeline = new FakeTimeline(
+        new TimelineWindowDefinition(true, false, 100000),
+        new TimelineWindowDefinition(true, false, 100000));
+    ActionSchedule actionSchedule = new ActionSchedule.Builder("testSeekProcessedCallback")
+        // Initial seek before timeline preparation finished.
+        .pause().seek(10).waitForPlaybackState(Player.STATE_READY)
+        // Re-seek to same position, start playback and wait until playback reaches second window.
+        .seek(10).play().waitForPositionDiscontinuity()
+        // Seek twice in concession, expecting the first seek to be replaced.
+        .seek(5).seek(60).build();
+    final List<Integer> playbackStatesWhenSeekProcessed = new ArrayList<>();
+    Player.EventListener eventListener = new Player.DefaultEventListener() {
+      private int currentPlaybackState = Player.STATE_IDLE;
+
+      @Override
+      public void onPlayerStateChanged(boolean playWhenReady, int playbackState) {
+        currentPlaybackState = playbackState;
+      }
+
+      @Override
+      public void onSeekProcessed() {
+        playbackStatesWhenSeekProcessed.add(currentPlaybackState);
+      }
+    };
+    new ExoPlayerTestRunner.Builder()
+        .setTimeline(timeline).setEventListener(eventListener).setActionSchedule(actionSchedule)
+        .build().start().blockUntilEnded(TIMEOUT_MS);
+    assertEquals(3, playbackStatesWhenSeekProcessed.size());
+    assertEquals(Player.STATE_BUFFERING, (int) playbackStatesWhenSeekProcessed.get(0));
+    assertEquals(Player.STATE_READY, (int) playbackStatesWhenSeekProcessed.get(1));
+    assertEquals(Player.STATE_BUFFERING, (int) playbackStatesWhenSeekProcessed.get(2));
   }
 
 }
