@@ -18,6 +18,7 @@ package com.google.android.exoplayer2.ext.ima;
 import android.content.Context;
 import android.net.Uri;
 import android.os.SystemClock;
+import android.support.annotation.IntDef;
 import android.util.Log;
 import android.view.ViewGroup;
 import android.webkit.WebView;
@@ -49,6 +50,8 @@ import com.google.android.exoplayer2.source.ads.AdPlaybackState;
 import com.google.android.exoplayer2.source.ads.AdsLoader;
 import com.google.android.exoplayer2.util.Assertions;
 import java.io.IOException;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -88,6 +91,25 @@ public final class ImaAdsLoader extends Player.DefaultEventListener implements A
   private static final String FOCUS_SKIP_BUTTON_WORKAROUND_JS = "javascript:"
       + "try{ document.getElementsByClassName(\"videoAdUiSkipButton\")[0].focus(); } catch (e) {}";
 
+  /**
+   * The state of ad playback based on IMA's calls to {@link #playAd()} and {@link #pauseAd()}.
+   */
+  @Retention(RetentionPolicy.SOURCE)
+  @IntDef({IMA_AD_STATE_NONE, IMA_AD_STATE_PLAYING, IMA_AD_STATE_PAUSED})
+  private @interface ImaAdState {}
+  /**
+   * The ad playback state when IMA is not playing an ad.
+   */
+  private static final int IMA_AD_STATE_NONE = 0;
+  /**
+   * The ad playback state when IMA has called {@link #playAd()} and not {@link #pauseAd()}.
+   */
+  private static final int IMA_AD_STATE_PLAYING = 1;
+  /**
+   * The ad playback state when IMA has called {@link #pauseAd()} while playing an ad.
+   */
+  private static final int IMA_AD_STATE_PAUSED = 2;
+
   private final Uri adTagUri;
   private final Timeline.Period period;
   private final List<VideoAdPlayerCallback> adCallbacks;
@@ -117,15 +139,9 @@ public final class ImaAdsLoader extends Player.DefaultEventListener implements A
    */
   private boolean imaPausedContent;
   /**
-   * If {@link #playingAd} is set, stores whether IMA has called {@link #playAd()} and not
-   * {@link #stopAd()}.
+   * The current ad playback state based on IMA's calls to {@link #playAd()} and {@link #stopAd()}.
    */
-  private boolean imaPlayingAd;
-  /**
-   * If {@link #playingAd} is set, stores whether IMA has called {@link #pauseAd()} since a
-   * preceding call to {@link #playAd()} for the current ad.
-   */
-  private boolean imaPausedInAd;
+  private @ImaAdState int imaAdState;
   /**
    * Whether {@link com.google.ads.interactivemedia.v3.api.AdsLoader#contentComplete()} has been
    * called since starting ad playback.
@@ -439,21 +455,23 @@ public final class ImaAdsLoader extends Player.DefaultEventListener implements A
       playWhenReadyOverriddenForAds = true;
       player.setPlayWhenReady(true);
     }
-    if (imaPlayingAd && !imaPausedInAd) {
-      // Work around an issue where IMA does not always call stopAd before resuming content.
-      // See [Internal: b/38354028, b/63320878].
-      Log.w(TAG, "Unexpected playAd without stopAd");
-    }
-    if (!imaPlayingAd) {
-      imaPlayingAd = true;
-      for (int i = 0; i < adCallbacks.size(); i++) {
-        adCallbacks.get(i).onPlay();
-      }
-    } else if (imaPausedInAd) {
-      imaPausedInAd = false;
-      for (int i = 0; i < adCallbacks.size(); i++) {
-        adCallbacks.get(i).onResume();
-      }
+    switch (imaAdState) {
+      case IMA_AD_STATE_PLAYING:
+        // IMA does not always call stopAd before resuming content.
+        // See [Internal: b/38354028, b/63320878].
+        Log.w(TAG, "Unexpected playAd without stopAd");
+        break;
+      case IMA_AD_STATE_NONE:
+        imaAdState = IMA_AD_STATE_PLAYING;
+        for (int i = 0; i < adCallbacks.size(); i++) {
+          adCallbacks.get(i).onPlay();
+        }
+        break;
+      case IMA_AD_STATE_PAUSED:
+        imaAdState = IMA_AD_STATE_PLAYING;
+        for (int i = 0; i < adCallbacks.size(); i++) {
+          adCallbacks.get(i).onResume();
+        }
     }
   }
 
@@ -466,7 +484,7 @@ public final class ImaAdsLoader extends Player.DefaultEventListener implements A
       // Sometimes messages from IMA arrive after detaching the player. See [Internal: b/63801642].
       Log.w(TAG, "Unexpected stopAd while detached");
     }
-    if (!imaPlayingAd) {
+    if (imaAdState == IMA_AD_STATE_NONE) {
       Log.w(TAG, "Unexpected stopAd");
       return;
     }
@@ -478,11 +496,11 @@ public final class ImaAdsLoader extends Player.DefaultEventListener implements A
     if (DEBUG) {
       Log.d(TAG, "pauseAd");
     }
-    if (!imaPlayingAd) {
+    if (imaAdState == IMA_AD_STATE_NONE) {
       // This method is called after content is resumed.
       return;
     }
-    imaPausedInAd = true;
+    imaAdState = IMA_AD_STATE_PAUSED;
     for (int i = 0; i < adCallbacks.size(); i++) {
       adCallbacks.get(i).onPause();
     }
@@ -514,9 +532,10 @@ public final class ImaAdsLoader extends Player.DefaultEventListener implements A
       return;
     }
 
-    if (!imaPlayingAd && playbackState == Player.STATE_BUFFERING && playWhenReady) {
+    if (imaAdState == IMA_AD_STATE_NONE && playbackState == Player.STATE_BUFFERING
+        && playWhenReady) {
       checkForContentComplete();
-    } else if (imaPlayingAd && playbackState == Player.STATE_ENDED) {
+    } else if (imaAdState != IMA_AD_STATE_NONE && playbackState == Player.STATE_ENDED) {
       // IMA is waiting for the ad playback to finish so invoke the callback now.
       // Either CONTENT_RESUME_REQUESTED will be passed next, or playAd will be called again.
       for (int i = 0; i < adCallbacks.size(); i++) {
@@ -603,7 +622,8 @@ public final class ImaAdsLoader extends Player.DefaultEventListener implements A
   }
 
   private void resumeContentInternal() {
-    if (imaPlayingAd) {
+    if (imaAdState != IMA_AD_STATE_NONE) {
+      imaAdState = IMA_AD_STATE_NONE;
       if (DEBUG) {
         Log.d(TAG, "Unexpected CONTENT_RESUME_REQUESTED without stopAd");
       }
@@ -613,10 +633,10 @@ public final class ImaAdsLoader extends Player.DefaultEventListener implements A
       adGroupIndex = C.INDEX_UNSET;
       updateAdPlaybackState();
     }
-    clearFlags();
   }
 
   private void pauseContentInternal() {
+    imaAdState = IMA_AD_STATE_NONE;
     if (sentPendingContentPositionMs) {
       pendingContentPositionMs = C.TIME_UNSET;
       sentPendingContentPositionMs = false;
@@ -624,24 +644,16 @@ public final class ImaAdsLoader extends Player.DefaultEventListener implements A
     // IMA is requesting to pause content, so stop faking the content position.
     fakeContentProgressElapsedRealtimeMs = C.TIME_UNSET;
     fakeContentProgressOffsetMs = C.TIME_UNSET;
-    clearFlags();
   }
 
   private void stopAdInternal() {
-    Assertions.checkState(imaPlayingAd);
+    Assertions.checkState(imaAdState != IMA_AD_STATE_NONE);
+    imaAdState = IMA_AD_STATE_NONE;
     adPlaybackState.playedAd(adGroupIndex);
     updateAdPlaybackState();
     if (!playingAd) {
       adGroupIndex = C.INDEX_UNSET;
     }
-    clearFlags();
-  }
-
-  private void clearFlags() {
-    // If an ad is displayed, these flags will be updated in response to playAd/pauseAd/stopAd until
-    // the content is resumed.
-    imaPlayingAd = false;
-    imaPausedInAd = false;
   }
 
   private void checkForContentComplete() {
@@ -663,6 +675,15 @@ public final class ImaAdsLoader extends Player.DefaultEventListener implements A
     }
   }
 
+  private void focusSkipButton() {
+    if (playingAd && adUiViewGroup != null && adUiViewGroup.getChildCount() > 0
+        && adUiViewGroup.getChildAt(0) instanceof WebView) {
+      WebView webView = (WebView) (adUiViewGroup.getChildAt(0));
+      webView.requestFocus();
+      webView.loadUrl(FOCUS_SKIP_BUTTON_WORKAROUND_JS);
+    }
+  }
+
   private static long[] getAdGroupTimesUs(List<Float> cuePoints) {
     if (cuePoints.isEmpty()) {
       // If no cue points are specified, there is a preroll ad.
@@ -677,15 +698,6 @@ public final class ImaAdsLoader extends Player.DefaultEventListener implements A
           cuePoint == -1.0 ? C.TIME_END_OF_SOURCE : (long) (C.MICROS_PER_SECOND * cuePoint);
     }
     return adGroupTimesUs;
-  }
-
-  private void focusSkipButton() {
-    if (playingAd && adUiViewGroup != null && adUiViewGroup.getChildCount() > 0
-        && adUiViewGroup.getChildAt(0) instanceof WebView) {
-      WebView webView = (WebView) (adUiViewGroup.getChildAt(0));
-      webView.requestFocus();
-      webView.loadUrl(FOCUS_SKIP_BUTTON_WORKAROUND_JS);
-    }
   }
 
 }
