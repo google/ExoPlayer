@@ -17,6 +17,7 @@ package com.google.android.exoplayer2.playbacktests.gts;
 
 import android.test.ActivityInstrumentationTestCase2;
 import com.google.android.exoplayer2.ExoPlayer;
+import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.mediacodec.MediaCodecInfo;
 import com.google.android.exoplayer2.mediacodec.MediaCodecUtil;
 import com.google.android.exoplayer2.mediacodec.MediaCodecUtil.DecoderQueryException;
@@ -33,12 +34,14 @@ public final class DashStreamingTest extends ActivityInstrumentationTestCase2<Ho
   private static final String TAG = "DashStreamingTest";
 
   private static final ActionSchedule SEEKING_SCHEDULE = new ActionSchedule.Builder(TAG)
+      .waitForPlaybackState(Player.STATE_READY)
       .delay(10000).seekAndWait(15000)
       .delay(10000).seek(30000).seek(31000).seek(32000).seek(33000).seekAndWait(34000)
       .delay(1000).pause().delay(1000).play()
       .delay(1000).pause().seekAndWait(120000).delay(1000).play()
       .build();
   private static final ActionSchedule RENDERER_DISABLING_SCHEDULE = new ActionSchedule.Builder(TAG)
+      .waitForPlaybackState(Player.STATE_READY)
       // Wait 10 seconds, disable the video renderer, wait another 10 seconds and enable it again.
       .delay(10000).disableRenderer(DashTestRunner.VIDEO_RENDERER_INDEX)
       .delay(10000).enableRenderer(DashTestRunner.VIDEO_RENDERER_INDEX)
