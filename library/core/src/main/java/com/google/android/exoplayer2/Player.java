@@ -169,7 +169,7 @@ public interface Player {
     }
 
     @Override
-    public void onRepeatModeChanged(int repeatMode) {
+    public void onRepeatModeChanged(@RepeatMode int repeatMode) {
       // Do nothing.
     }
 
@@ -184,7 +184,7 @@ public interface Player {
     }
 
     @Override
-    public void onPositionDiscontinuity(int reason) {
+    public void onPositionDiscontinuity(@DiscontinuityReason int reason) {
       // Do nothing.
     }
 
