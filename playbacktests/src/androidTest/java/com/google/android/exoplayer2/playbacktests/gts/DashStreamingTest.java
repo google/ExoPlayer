@@ -33,10 +33,10 @@ public final class DashStreamingTest extends ActivityInstrumentationTestCase2<Ho
   private static final String TAG = "DashStreamingTest";
 
   private static final ActionSchedule SEEKING_SCHEDULE = new ActionSchedule.Builder(TAG)
-      .delay(10000).seek(15000)
-      .delay(10000).seek(30000).seek(31000).seek(32000).seek(33000).seek(34000)
+      .delay(10000).seekAndWait(15000)
+      .delay(10000).seek(30000).seek(31000).seek(32000).seek(33000).seekAndWait(34000)
       .delay(1000).pause().delay(1000).play()
-      .delay(1000).pause().seek(120000).delay(1000).play()
+      .delay(1000).pause().seekAndWait(120000).delay(1000).play()
       .build();
   private static final ActionSchedule RENDERER_DISABLING_SCHEDULE = new ActionSchedule.Builder(TAG)
       // Wait 10 seconds, disable the video renderer, wait another 10 seconds and enable it again.

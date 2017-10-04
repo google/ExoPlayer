@@ -423,6 +423,39 @@ public abstract class Action {
   }
 
   /**
+   * Waits for {@link Player.EventListener#onSeekProcessed()}.
+   */
+  public static final class WaitForSeekProcessed extends Action {
+
+    /**
+     * @param tag A tag to use for logging.
+     */
+    public WaitForSeekProcessed(String tag) {
+      super(tag, "WaitForSeekProcessed");
+    }
+
+    @Override
+    protected void doActionAndScheduleNextImpl(final SimpleExoPlayer player,
+        final MappingTrackSelector trackSelector, final Surface surface, final Handler handler,
+        final ActionNode nextAction) {
+      player.addListener(new Player.DefaultEventListener() {
+        @Override
+        public void onSeekProcessed() {
+          player.removeListener(this);
+          nextAction.schedule(player, trackSelector, surface, handler);
+        }
+      });
+    }
+
+    @Override
+    protected void doActionImpl(SimpleExoPlayer player, MappingTrackSelector trackSelector,
+        Surface surface) {
+      // Not triggered.
+    }
+
+  }
+
+  /**
    * Calls {@link Runnable#run()}.
    */
   public static final class ExecuteRunnable extends Action {

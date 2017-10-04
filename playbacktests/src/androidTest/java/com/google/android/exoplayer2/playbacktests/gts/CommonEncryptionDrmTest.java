@@ -39,8 +39,8 @@ public final class CommonEncryptionDrmTest extends ActivityInstrumentationTestCa
 
   // Seeks help reproduce playback issues in certain devices.
   private static final ActionSchedule ACTION_SCHEDULE_WITH_SEEKS = new ActionSchedule.Builder(TAG)
-      .delay(30000).seek(300000).delay(10000).seek(270000).delay(10000).seek(200000).delay(10000)
-      .seek(732000).build();
+      .delay(30000).seekAndWait(300000).delay(10000).seekAndWait(270000).delay(10000)
+      .seekAndWait(200000).delay(10000).seekAndWait(732000).build();
 
   private DashTestRunner testRunner;
 
