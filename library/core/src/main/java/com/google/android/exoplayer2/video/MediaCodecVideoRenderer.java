@@ -25,6 +25,7 @@ import android.media.MediaCrypto;
 import android.media.MediaFormat;
 import android.os.Handler;
 import android.os.SystemClock;
+import android.support.annotation.CallSuper;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.Log;
@@ -85,10 +86,12 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
   @C.VideoScalingMode
   private int scalingMode;
   private boolean renderedFirstFrame;
+  private boolean forceRenderFrame;
   private long joiningDeadlineMs;
   private long droppedFrameAccumulationStartTimeMs;
   private int droppedFrames;
   private int consecutiveDroppedFrameCount;
+  private int buffersInCodecCount;
 
   private int pendingRotationDegrees;
   private float pendingPixelWidthHeightRatio;
@@ -414,11 +417,14 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
     }
   }
 
+  @CallSuper
   @Override
   protected void releaseCodec() {
     try {
       super.releaseCodec();
     } finally {
+      buffersInCodecCount = 0;
+      forceRenderFrame = false;
       if (dummySurface != null) {
         if (surface == dummySurface) {
           surface = null;
@@ -427,6 +433,14 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
         dummySurface = null;
       }
     }
+  }
+
+  @CallSuper
+  @Override
+  protected void flushCodec() throws ExoPlaybackException {
+    super.flushCodec();
+    buffersInCodecCount = 0;
+    forceRenderFrame = false;
   }
 
   @Override
@@ -444,8 +458,15 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
     pendingRotationDegrees = getRotationDegrees(newFormat);
   }
 
+  /**
+   * Called immediately before an input buffer is queued into the codec.
+   *
+   * @param buffer The buffer to be queued.
+   */
+  @CallSuper
   @Override
   protected void onQueueInputBuffer(DecoderInputBuffer buffer) {
+    buffersInCodecCount++;
     if (Util.SDK_INT < 23 && tunneling) {
       maybeNotifyRenderedFirstFrame();
     }
@@ -492,7 +513,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
   @Override
   protected boolean processOutputBuffer(long positionUs, long elapsedRealtimeUs, MediaCodec codec,
       ByteBuffer buffer, int bufferIndex, int bufferFlags, long bufferPresentationTimeUs,
-      boolean shouldSkip) {
+      boolean shouldSkip) throws ExoPlaybackException {
     while (pendingOutputStreamOffsetCount != 0
         && bufferPresentationTimeUs >= pendingOutputStreamOffsetsUs[0]) {
       outputStreamOffsetUs = pendingOutputStreamOffsetsUs[0];
@@ -517,7 +538,8 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
       return false;
     }
 
-    if (!renderedFirstFrame) {
+    if (!renderedFirstFrame || forceRenderFrame) {
+      forceRenderFrame = false;
       if (Util.SDK_INT >= 21) {
         renderOutputBufferV21(codec, bufferIndex, presentationTimeUs, System.nanoTime());
       } else {
@@ -544,7 +566,11 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
         bufferPresentationTimeUs, unadjustedFrameReleaseTimeNs);
     earlyUs = (adjustedReleaseTimeNs - systemTimeNs) / 1000;
 
-    if (shouldDropOutputBuffer(earlyUs, elapsedRealtimeUs)) {
+    if (shouldDropBuffersToKeyframe(earlyUs, elapsedRealtimeUs)
+        && maybeDropBuffersToKeyframe(codec, bufferIndex, presentationTimeUs, positionUs)) {
+      forceRenderFrame = true;
+      return true;
+    } else if (shouldDropOutputBuffer(earlyUs, elapsedRealtimeUs)) {
       dropOutputBuffer(codec, bufferIndex, presentationTimeUs);
       return true;
     }
@@ -578,6 +604,17 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
   }
 
   /**
+   * Called when an output buffer is successfully processed.
+   *
+   * @param presentationTimeUs The timestamp associated with the output buffer.
+   */
+  @CallSuper
+  @Override
+  protected void onProcessedOutputBuffer(long presentationTimeUs) {
+    buffersInCodecCount--;
+  }
+
+  /**
    * Returns whether the buffer being processed should be dropped.
    *
    * @param earlyUs The time until the buffer should be presented in microseconds. A negative value
@@ -587,6 +624,19 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
    */
   protected boolean shouldDropOutputBuffer(long earlyUs, long elapsedRealtimeUs) {
     return isBufferLate(earlyUs);
+  }
+
+  /**
+   * Returns whether to drop all buffers from the buffer being processed to the keyframe at or after
+   * the current playback position, if possible.
+   *
+   * @param earlyUs The time until the current buffer should be presented in microseconds. A
+   *     negative value indicates that the buffer is late.
+   * @param elapsedRealtimeUs {@link android.os.SystemClock#elapsedRealtime()} in microseconds,
+   *     measured at the start of the current iteration of the rendering loop.
+   */
+  protected boolean shouldDropBuffersToKeyframe(long earlyUs, long elapsedRealtimeUs) {
+    return isBufferVeryLate(earlyUs);
   }
 
   /**
@@ -614,12 +664,48 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
     TraceUtil.beginSection("dropVideoBuffer");
     codec.releaseOutputBuffer(index, false);
     TraceUtil.endSection();
-    decoderCounters.droppedOutputBufferCount++;
-    droppedFrames++;
-    consecutiveDroppedFrameCount++;
+    updateDroppedBufferCounters(1);
+  }
+
+  /**
+   * Drops frames from the current output buffer to the next keyframe at or before the playback
+   * position. If no such keyframe exists, as the playback position is inside the same group of
+   * pictures as the buffer being processed, returns {@code false}. Returns {@code true} otherwise.
+   *
+   * @param codec The codec that owns the output buffer.
+   * @param index The index of the output buffer to drop.
+   * @param presentationTimeUs The presentation time of the output buffer, in microseconds.
+   * @param positionUs The current playback position, in microseconds.
+   * @return Whether any buffers were dropped.
+   * @throws ExoPlaybackException If an error occurs flushing the codec.
+   */
+  protected boolean maybeDropBuffersToKeyframe(MediaCodec codec, int index, long presentationTimeUs,
+      long positionUs) throws ExoPlaybackException {
+    int droppedSourceBufferCount = skipSource(positionUs);
+    if (droppedSourceBufferCount == 0) {
+      return false;
+    }
+    decoderCounters.droppedToKeyframeCount++;
+    // We dropped some buffers to catch up, so update the decoder counters and flush the codec,
+    // which releases all pending buffers buffers including the current output buffer.
+    updateDroppedBufferCounters(buffersInCodecCount + droppedSourceBufferCount);
+    flushCodec();
+    return true;
+  }
+
+  /**
+   * Updates decoder counters to reflect that {@code droppedBufferCount} additional buffers were
+   * dropped.
+   *
+   * @param droppedBufferCount The number of additional dropped buffers.
+   */
+  protected void updateDroppedBufferCounters(int droppedBufferCount) {
+    decoderCounters.droppedOutputBufferCount += droppedBufferCount;
+    droppedFrames += droppedBufferCount;
+    consecutiveDroppedFrameCount += droppedBufferCount;
     decoderCounters.maxConsecutiveDroppedOutputBufferCount = Math.max(consecutiveDroppedFrameCount,
         decoderCounters.maxConsecutiveDroppedOutputBufferCount);
-    if (droppedFrames == maxDroppedFramesToNotify) {
+    if (droppedFrames >= maxDroppedFramesToNotify) {
       maybeNotifyDroppedFrames();
     }
   }
@@ -740,8 +826,13 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
   }
 
   private static boolean isBufferLate(long earlyUs) {
-    // Class a buffer as late if it should have been presented more than 30ms ago.
+    // Class a buffer as late if it should have been presented more than 30 ms ago.
     return earlyUs < -30000;
+  }
+
+  private static boolean isBufferVeryLate(long earlyUs) {
+    // Class a buffer as very late if it should have been presented more than 500 ms ago.
+    return earlyUs < -500000;
   }
 
   @TargetApi(23)

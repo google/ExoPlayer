@@ -65,6 +65,14 @@ public final class DecoderCounters {
    * Skipped output buffers are ignored for the purposes of calculating this value.
    */
   public int maxConsecutiveDroppedOutputBufferCount;
+  /**
+   * The number of times all buffers to a keyframe were dropped.
+   * <p>
+   * Each time buffers to a keyframe are dropped, this counter is increased by one, and the dropped
+   * output buffer counters are increased by one (for the current output buffer) plus the number of
+   * buffers dropped from the source to advance to the keyframe.
+   */
+  public int droppedToKeyframeCount;
 
   /**
    * Should be called to ensure counter values are made visible across threads. The playback thread
@@ -91,6 +99,7 @@ public final class DecoderCounters {
     droppedOutputBufferCount += other.droppedOutputBufferCount;
     maxConsecutiveDroppedOutputBufferCount = Math.max(maxConsecutiveDroppedOutputBufferCount,
         other.maxConsecutiveDroppedOutputBufferCount);
+    droppedToKeyframeCount += other.droppedToKeyframeCount;
   }
 
 }
