@@ -19,6 +19,7 @@ import android.media.MediaDrm.MediaDrmStateException;
 import android.net.Uri;
 import android.test.ActivityInstrumentationTestCase2;
 import android.util.Pair;
+import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.drm.DrmInitData;
 import com.google.android.exoplayer2.drm.DrmSession.DrmSessionException;
 import com.google.android.exoplayer2.drm.FrameworkMediaCrypto;
@@ -162,6 +163,7 @@ public final class DashWidevineOfflineTest extends ActivityInstrumentationTestCa
     assertTrue("License duration should be less than 30 sec. "
         + "Server settings might have changed.", licenseDuration < 30);
     ActionSchedule schedule = new ActionSchedule.Builder(TAG)
+        .waitForPlaybackState(Player.STATE_READY)
         .delay(3000).pause().delay(licenseDuration * 1000 + 2000).play().build();
 
     // DefaultDrmSessionManager should renew the license and stream play fine
