@@ -35,6 +35,7 @@ import com.google.android.exoplayer2.testutil.Action.SetVideoSurface;
 import com.google.android.exoplayer2.testutil.Action.Stop;
 import com.google.android.exoplayer2.testutil.Action.WaitForPlaybackState;
 import com.google.android.exoplayer2.testutil.Action.WaitForPositionDiscontinuity;
+import com.google.android.exoplayer2.testutil.Action.WaitForSeekProcessed;
 import com.google.android.exoplayer2.testutil.Action.WaitForTimelineChanged;
 import com.google.android.exoplayer2.trackselection.MappingTrackSelector;
 import com.google.android.exoplayer2.util.Clock;
@@ -136,6 +137,18 @@ public final class ActionSchedule {
      */
     public Builder seek(long positionMs) {
       return apply(new Seek(tag, positionMs));
+    }
+
+    /**
+     * Schedules a seek action to be executed and waits until playback resumes after the seek.
+     *
+     * @param positionMs The seek position.
+     * @return The builder, for convenience.
+     */
+    public Builder seekAndWait(long positionMs) {
+      return apply(new Seek(tag, positionMs))
+          .apply(new WaitForSeekProcessed(tag))
+          .apply(new WaitForPlaybackState(tag, Player.STATE_READY));
     }
 
     /**
