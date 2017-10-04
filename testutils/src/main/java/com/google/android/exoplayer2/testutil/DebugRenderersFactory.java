@@ -124,7 +124,7 @@ public class DebugRenderersFactory extends DefaultRenderersFactory {
     @Override
     protected boolean processOutputBuffer(long positionUs, long elapsedRealtimeUs, MediaCodec codec,
         ByteBuffer buffer, int bufferIndex, int bufferFlags, long bufferPresentationTimeUs,
-        boolean shouldSkip) {
+        boolean shouldSkip) throws ExoPlaybackException {
       if (skipToPositionBeforeRenderingFirstFrame && bufferPresentationTimeUs < positionUs) {
         // After the codec has been initialized, don't render the first frame until we've caught up
         // to the playback position. Else test runs on devices that do not support dummy surface
