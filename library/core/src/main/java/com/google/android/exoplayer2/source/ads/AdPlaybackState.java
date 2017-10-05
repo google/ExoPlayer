@@ -52,6 +52,10 @@ public final class AdPlaybackState {
   public final Uri[][] adUris;
 
   /**
+   * The content duration in microseconds, if known. {@link C#TIME_UNSET} otherwise.
+   */
+  public long contentDurationUs;
+  /**
    * The position offset in the first unplayed ad at which to begin playback, in microseconds.
    */
   public long adResumePositionUs;
@@ -71,15 +75,17 @@ public final class AdPlaybackState {
     adUris = new Uri[adGroupCount][];
     Arrays.fill(adUris, new Uri[0]);
     adsLoadedCounts = new int[adGroupTimesUs.length];
+    contentDurationUs = C.TIME_UNSET;
   }
 
   private AdPlaybackState(long[] adGroupTimesUs, int[] adCounts, int[] adsLoadedCounts,
-      int[] adsPlayedCounts, Uri[][] adUris, long adResumePositionUs) {
+      int[] adsPlayedCounts, Uri[][] adUris, long contentDurationUs, long adResumePositionUs) {
     this.adGroupTimesUs = adGroupTimesUs;
     this.adCounts = adCounts;
     this.adsLoadedCounts = adsLoadedCounts;
     this.adsPlayedCounts = adsPlayedCounts;
     this.adUris = adUris;
+    this.contentDurationUs = contentDurationUs;
     this.adResumePositionUs = adResumePositionUs;
     adGroupCount = adGroupTimesUs.length;
   }
@@ -94,7 +100,8 @@ public final class AdPlaybackState {
     }
     return new AdPlaybackState(Arrays.copyOf(adGroupTimesUs, adGroupCount),
         Arrays.copyOf(adCounts, adGroupCount), Arrays.copyOf(adsLoadedCounts, adGroupCount),
-        Arrays.copyOf(adsPlayedCounts, adGroupCount), adUris, adResumePositionUs);
+        Arrays.copyOf(adsPlayedCounts, adGroupCount), adUris, contentDurationUs,
+        adResumePositionUs);
   }
 
   /**

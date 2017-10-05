@@ -151,10 +151,6 @@ public final class ImaAdsLoader extends Player.DefaultEventListener implements A
   // Fields tracking the player/loader state.
 
   /**
-   * Whether the player's play when ready flag has temporarily been set to true for playing ads.
-   */
-  private boolean playWhenReadyOverriddenForAds;
-  /**
    * Whether the player is playing an ad.
    */
   private boolean playingAd;
@@ -243,7 +239,7 @@ public final class ImaAdsLoader extends Player.DefaultEventListener implements A
     player.addListener(this);
     if (adPlaybackState != null) {
       eventListener.onAdPlaybackState(adPlaybackState.copy());
-      if (imaPausedContent) {
+      if (imaPausedContent && player.getPlayWhenReady()) {
         adsManager.resume();
       }
     } else {
@@ -448,13 +444,6 @@ public final class ImaAdsLoader extends Player.DefaultEventListener implements A
     if (DEBUG) {
       Log.d(TAG, "playAd");
     }
-    if (player == null) {
-      // Sometimes messages from IMA arrive after detaching the player. See [Internal: b/63801642].
-      Log.w(TAG, "Unexpected playAd while detached");
-    } else if (!player.getPlayWhenReady()) {
-      playWhenReadyOverriddenForAds = true;
-      player.setPlayWhenReady(true);
-    }
     switch (imaAdState) {
       case IMA_AD_STATE_PLAYING:
         // IMA does not always call stopAd before resuming content.
@@ -472,6 +461,15 @@ public final class ImaAdsLoader extends Player.DefaultEventListener implements A
         for (int i = 0; i < adCallbacks.size(); i++) {
           adCallbacks.get(i).onResume();
         }
+        break;
+      default:
+        throw new IllegalStateException();
+    }
+    if (player == null) {
+      // Sometimes messages from IMA arrive after detaching the player. See [Internal: b/63801642].
+      Log.w(TAG, "Unexpected playAd while detached");
+    } else if (!player.getPlayWhenReady()) {
+      adsManager.pause();
     }
   }
 
@@ -522,13 +520,27 @@ public final class ImaAdsLoader extends Player.DefaultEventListener implements A
     }
     Assertions.checkArgument(timeline.getPeriodCount() == 1);
     this.timeline = timeline;
-    contentDurationMs = C.usToMs(timeline.getPeriod(0, period).durationUs);
+    long contentDurationUs = timeline.getPeriod(0, period).durationUs;
+    contentDurationMs = C.usToMs(contentDurationUs);
+    if (contentDurationUs != C.TIME_UNSET) {
+      adPlaybackState.contentDurationUs = contentDurationUs;
+    }
     updateImaStateForPlayerState();
   }
 
   @Override
   public void onPlayerStateChanged(boolean playWhenReady, int playbackState) {
     if (adsManager == null) {
+      return;
+    }
+
+    if (imaAdState == IMA_AD_STATE_PLAYING && !playWhenReady) {
+      adsManager.pause();
+      return;
+    }
+
+    if (imaAdState == IMA_AD_STATE_PAUSED && playWhenReady) {
+      adsManager.resume();
       return;
     }
 
@@ -593,10 +605,6 @@ public final class ImaAdsLoader extends Player.DefaultEventListener implements A
   private void updateImaStateForPlayerState() {
     boolean wasPlayingAd = playingAd;
     playingAd = player.isPlayingAd();
-    if (!playingAd && playWhenReadyOverriddenForAds) {
-      playWhenReadyOverriddenForAds = false;
-      player.setPlayWhenReady(false);
-    }
     if (!sentContentComplete) {
       boolean adFinished = (wasPlayingAd && !playingAd)
           || playingAdIndexInAdGroup != player.getCurrentAdIndexInAdGroup();
