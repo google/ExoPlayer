@@ -273,7 +273,8 @@ public final class AdsMediaSource implements MediaSource {
       Timeline timeline = adPlaybackState.adGroupCount == 0 ? contentTimeline
           : new SinglePeriodAdTimeline(contentTimeline, adPlaybackState.adGroupTimesUs,
               adPlaybackState.adCounts, adPlaybackState.adsLoadedCounts,
-              adPlaybackState.adsPlayedCounts, adDurationsUs, adPlaybackState.adResumePositionUs);
+              adPlaybackState.adsPlayedCounts, adDurationsUs, adPlaybackState.adResumePositionUs,
+              adPlaybackState.contentDurationUs);
       listener.onSourceInfoRefreshed(timeline, contentManifest);
     }
   }

@@ -656,17 +656,13 @@ public class PlaybackControlView extends FrameLayout {
     boolean isSeekable = false;
     boolean enablePrevious = false;
     boolean enableNext = false;
-    if (haveNonEmptyTimeline) {
+    if (haveNonEmptyTimeline && !player.isPlayingAd()) {
       int windowIndex = player.getCurrentWindowIndex();
       timeline.getWindow(windowIndex, window);
       isSeekable = window.isSeekable;
       enablePrevious = isSeekable || !window.isDynamic
           || player.getPreviousWindowIndex() != C.INDEX_UNSET;
       enableNext = window.isDynamic || player.getNextWindowIndex() != C.INDEX_UNSET;
-      if (player.isPlayingAd()) {
-        // Always hide player controls during ads.
-        hide();
-      }
     }
     setButtonEnabled(enablePrevious, previousButton);
     setButtonEnabled(enableNext, nextButton);

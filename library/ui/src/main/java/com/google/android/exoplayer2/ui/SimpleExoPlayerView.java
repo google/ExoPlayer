@@ -37,6 +37,7 @@ import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ControlDispatcher;
 import com.google.android.exoplayer2.DefaultControlDispatcher;
 import com.google.android.exoplayer2.Player;
+import com.google.android.exoplayer2.Player.DiscontinuityReason;
 import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.metadata.Metadata;
 import com.google.android.exoplayer2.metadata.id3.ApicFrame;
@@ -751,6 +752,10 @@ public final class SimpleExoPlayerView extends FrameLayout {
    * Shows the playback controls, but only if forced or shown indefinitely.
    */
   private void maybeShowController(boolean isForced) {
+    if (isPlayingAd()) {
+      // Never show the controller if an ad is currently playing.
+      return;
+    }
     if (useController) {
       boolean wasShowingIndefinitely = controller.isVisible() && controller.getShowTimeoutMs() <= 0;
       boolean shouldShowIndefinitely = shouldShowControllerIndefinitely();
@@ -775,6 +780,10 @@ public final class SimpleExoPlayerView extends FrameLayout {
     }
     controller.setShowTimeoutMs(showIndefinitely ? 0 : controllerShowTimeoutMs);
     controller.show();
+  }
+
+  private boolean isPlayingAd() {
+    return player != null && player.isPlayingAd() && player.getPlayWhenReady();
   }
 
   private void updateForCurrentTrackSelections() {
@@ -907,7 +916,18 @@ public final class SimpleExoPlayerView extends FrameLayout {
 
     @Override
     public void onPlayerStateChanged(boolean playWhenReady, int playbackState) {
-      maybeShowController(false);
+      if (isPlayingAd()) {
+        hideController();
+      } else {
+        maybeShowController(false);
+      }
+    }
+
+    @Override
+    public void onPositionDiscontinuity(@DiscontinuityReason int reason) {
+      if (isPlayingAd()) {
+        hideController();
+      }
     }
 
   }

@@ -31,6 +31,7 @@ import com.google.android.exoplayer2.util.Assertions;
   private final int[] adsPlayedCounts;
   private final long[][] adDurationsUs;
   private final long adResumePositionUs;
+  private final long contentDurationUs;
 
   /**
    * Creates a new timeline with a single period containing the specified ads.
@@ -48,10 +49,12 @@ import com.google.android.exoplayer2.util.Assertions;
    *     may be {@link C#TIME_UNSET} if the duration is not yet known.
    * @param adResumePositionUs The position offset in the earliest unplayed ad at which to begin
    *     playback, in microseconds.
+   * @param contentDurationUs The content duration in microseconds, if known. {@link C#TIME_UNSET}
+   *     otherwise.
    */
   public SinglePeriodAdTimeline(Timeline contentTimeline, long[] adGroupTimesUs, int[] adCounts,
-      int[] adsLoadedCounts, int[] adsPlayedCounts, long[][] adDurationsUs,
-      long adResumePositionUs) {
+      int[] adsLoadedCounts, int[] adsPlayedCounts, long[][] adDurationsUs, long adResumePositionUs,
+      long contentDurationUs) {
     super(contentTimeline);
     Assertions.checkState(contentTimeline.getPeriodCount() == 1);
     Assertions.checkState(contentTimeline.getWindowCount() == 1);
@@ -61,6 +64,7 @@ import com.google.android.exoplayer2.util.Assertions;
     this.adsPlayedCounts = adsPlayedCounts;
     this.adDurationsUs = adDurationsUs;
     this.adResumePositionUs = adResumePositionUs;
+    this.contentDurationUs = contentDurationUs;
   }
 
   @Override
@@ -70,6 +74,16 @@ import com.google.android.exoplayer2.util.Assertions;
         period.getPositionInWindowUs(), adGroupTimesUs, adCounts, adsLoadedCounts, adsPlayedCounts,
         adDurationsUs, adResumePositionUs);
     return period;
+  }
+
+  @Override
+  public Window getWindow(int windowIndex, Window window, boolean setIds,
+      long defaultPositionProjectionUs) {
+    window = super.getWindow(windowIndex, window, setIds, defaultPositionProjectionUs);
+    if (window.durationUs == C.TIME_UNSET) {
+      window.durationUs = contentDurationUs;
+    }
+    return window;
   }
 
 }
