@@ -97,6 +97,8 @@ public class DefaultDrmSessionManager<T extends ExoMediaCrypto> implements DrmSe
   public static final int MODE_DOWNLOAD = 2;
   /** Releases an existing offline license. */
   public static final int MODE_RELEASE = 3;
+  /** Number of times to retry for initial provisioning and key request for reporting error. */
+  public static final int INITIAL_DRM_REQUEST_RETRY_COUNT = 3;
 
   private final UUID uuid;
   private final ExoMediaDrm<T> mediaDrm;
@@ -105,6 +107,7 @@ public class DefaultDrmSessionManager<T extends ExoMediaCrypto> implements DrmSe
   private final Handler eventHandler;
   private final EventListener eventListener;
   private final boolean multiSession;
+  private final int initialDrmRequestRetryCount;
 
   private final List<DefaultDrmSession<T>> sessions;
   private final List<DefaultDrmSession<T>> provisioningSessions;
@@ -176,7 +179,8 @@ public class DefaultDrmSessionManager<T extends ExoMediaCrypto> implements DrmSe
       UUID uuid, MediaDrmCallback callback, HashMap<String, String> optionalKeyRequestParameters,
       Handler eventHandler, EventListener eventListener) throws UnsupportedDrmException {
     return new DefaultDrmSessionManager<>(uuid, FrameworkMediaDrm.newInstance(uuid), callback,
-        optionalKeyRequestParameters, eventHandler, eventListener, false);
+        optionalKeyRequestParameters, eventHandler, eventListener, false,
+        INITIAL_DRM_REQUEST_RETRY_COUNT);
   }
 
   /**
@@ -193,7 +197,7 @@ public class DefaultDrmSessionManager<T extends ExoMediaCrypto> implements DrmSe
       HashMap<String, String> optionalKeyRequestParameters, Handler eventHandler,
       EventListener eventListener) {
     this(uuid, mediaDrm, callback, optionalKeyRequestParameters, eventHandler, eventListener,
-        false);
+        false, INITIAL_DRM_REQUEST_RETRY_COUNT);
   }
 
   /**
@@ -211,6 +215,27 @@ public class DefaultDrmSessionManager<T extends ExoMediaCrypto> implements DrmSe
   public DefaultDrmSessionManager(UUID uuid, ExoMediaDrm<T> mediaDrm, MediaDrmCallback callback,
       HashMap<String, String> optionalKeyRequestParameters, Handler eventHandler,
       EventListener eventListener, boolean multiSession) {
+    this(uuid, mediaDrm, callback, optionalKeyRequestParameters, eventHandler, eventListener,
+        multiSession, INITIAL_DRM_REQUEST_RETRY_COUNT);
+  }
+
+  /**
+   * @param uuid The UUID of the drm scheme.
+   * @param mediaDrm An underlying {@link ExoMediaDrm} for use by the manager.
+   * @param callback Performs key and provisioning requests.
+   * @param optionalKeyRequestParameters An optional map of parameters to pass as the last argument
+   *     to {@link ExoMediaDrm#getKeyRequest(byte[], byte[], String, int, HashMap)}. May be null.
+   * @param eventHandler A handler to use when delivering events to {@code eventListener}. May be
+   *     null if delivery of events is not required.
+   * @param eventListener A listener of events. May be null if delivery of events is not required.
+   * @param multiSession A boolean that specify whether multiple key session support is enabled.
+   *     Default is false.
+   * @param initialDrmRequestRetryCount The number of times to retry for initial provisioning and
+   *     key request before reporting error.
+   */
+  public DefaultDrmSessionManager(UUID uuid, ExoMediaDrm<T> mediaDrm, MediaDrmCallback callback,
+      HashMap<String, String> optionalKeyRequestParameters, Handler eventHandler,
+      EventListener eventListener, boolean multiSession, int initialDrmRequestRetryCount) {
     Assertions.checkNotNull(uuid);
     Assertions.checkNotNull(mediaDrm);
     Assertions.checkArgument(!C.COMMON_PSSH_UUID.equals(uuid), "Use C.CLEARKEY_UUID instead");
@@ -221,6 +246,7 @@ public class DefaultDrmSessionManager<T extends ExoMediaCrypto> implements DrmSe
     this.eventHandler = eventHandler;
     this.eventListener = eventListener;
     this.multiSession = multiSession;
+    this.initialDrmRequestRetryCount = initialDrmRequestRetryCount;
     mode = MODE_PLAYBACK;
     sessions = new ArrayList<>();
     provisioningSessions = new ArrayList<>();
@@ -377,7 +403,7 @@ public class DefaultDrmSessionManager<T extends ExoMediaCrypto> implements DrmSe
       // Create a new session.
       session = new DefaultDrmSession<>(uuid, mediaDrm, this, initData, mimeType, mode,
           offlineLicenseKeySetId, optionalKeyRequestParameters, callback, playbackLooper,
-          eventHandler, eventListener);
+          eventHandler, eventListener, initialDrmRequestRetryCount);
       sessions.add(session);
     }
     session.acquire();
