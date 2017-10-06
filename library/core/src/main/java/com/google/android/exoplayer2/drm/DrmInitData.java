@@ -22,6 +22,8 @@ import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.drm.DrmInitData.SchemeData;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Util;
+
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
@@ -78,12 +80,7 @@ public final class DrmInitData implements Comparator<SchemeData>, Parcelable {
     // Sorting ensures that universal scheme data (i.e. data that applies to all schemes) is matched
     // last. It's also required by the equals and hashcode implementations.
     Arrays.sort(schemeDatas, this);
-    // Check for no duplicates.
-    for (int i = 1; i < schemeDatas.length; i++) {
-      if (schemeDatas[i - 1].uuid.equals(schemeDatas[i].uuid)) {
-        throw new IllegalArgumentException("Duplicate data for uuid: " + schemeDatas[i].uuid);
-      }
-    }
+
     this.schemeDatas = schemeDatas;
     schemeDataCount = schemeDatas.length;
   }
@@ -97,9 +94,11 @@ public final class DrmInitData implements Comparator<SchemeData>, Parcelable {
   /**
    * Retrieves data for a given DRM scheme, specified by its UUID.
    *
+   * @deprecated This will only get the first data found for the scheme.
    * @param uuid The DRM scheme's UUID.
    * @return The initialization data for the scheme, or null if the scheme is not supported.
    */
+  @Deprecated
   public SchemeData get(UUID uuid) {
     for (SchemeData schemeData : schemeDatas) {
       if (schemeData.matches(uuid)) {
@@ -112,7 +111,7 @@ public final class DrmInitData implements Comparator<SchemeData>, Parcelable {
   /**
    * Retrieves the {@link SchemeData} at a given index.
    *
-   * @param index index of the scheme to return.
+   * @param index index of the scheme to return. Must not exceed {@link #schemeDataCount}.
    * @return The {@link SchemeData} at the index.
    */
   public SchemeData get(int index) {
