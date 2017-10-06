@@ -86,11 +86,28 @@ public final class PsshAtomUtil {
    *     an unsupported version.
    */
   public static UUID parseUuid(byte[] atom) {
-    Pair<UUID, byte[]> parsedAtom = parsePsshAtom(atom);
+    PsshAtom parsedAtom = parsePsshAtom(atom);
     if (parsedAtom == null) {
       return null;
     }
-    return parsedAtom.first;
+    return parsedAtom.uuid;
+  }
+
+  /**
+   * Parses the version from a PSSH atom. Version 0 and 1 PSSH atoms are supported.
+   * <p>
+   * The UUID is only parsed if the data is a valid PSSH atom.
+   *
+   * @param atom The atom to parse.
+   * @return The parsed UUID. -1 if the input is not a valid PSSH atom, or if the PSSH atom has
+   *     an unsupported version.
+   */
+  public static int parseVersion(byte[] atom) {
+    PsshAtom parsedAtom = parsePsshAtom(atom);
+    if (parsedAtom == null) {
+      return -1;
+    }
+    return parsedAtom.version;
   }
 
   /**
@@ -105,15 +122,15 @@ public final class PsshAtomUtil {
    *     PSSH atom has an unsupported version, or if the PSSH atom does not match the passed UUID.
    */
   public static byte[] parseSchemeSpecificData(byte[] atom, UUID uuid) {
-    Pair<UUID, byte[]> parsedAtom = parsePsshAtom(atom);
+    PsshAtom parsedAtom = parsePsshAtom(atom);
     if (parsedAtom == null) {
       return null;
     }
-    if (uuid != null && !uuid.equals(parsedAtom.first)) {
-      Log.w(TAG, "UUID mismatch. Expected: " + uuid + ", got: " + parsedAtom.first + ".");
+    if (uuid != null && !uuid.equals(parsedAtom.uuid)) {
+      Log.w(TAG, "UUID mismatch. Expected: " + uuid + ", got: " + parsedAtom.uuid + ".");
       return null;
     }
-    return parsedAtom.second;
+    return parsedAtom.data;
   }
 
   /**
@@ -125,7 +142,7 @@ public final class PsshAtomUtil {
    *     not a valid PSSH atom, or if the PSSH atom has an unsupported version.
    */
   // TODO: Support parsing of the key ids for version 1 PSSH atoms.
-  private static Pair<UUID, byte[]> parsePsshAtom(byte[] atom) {
+  private static PsshAtom parsePsshAtom(byte[] atom) {
     ParsableByteArray atomData = new ParsableByteArray(atom);
     if (atomData.limit() < Atom.FULL_HEADER_SIZE + 16 /* UUID */ + 4 /* DataSize */) {
       // Data too short.
@@ -159,7 +176,18 @@ public final class PsshAtomUtil {
     }
     byte[] data = new byte[dataSize];
     atomData.readBytes(data, 0, dataSize);
-    return Pair.create(uuid, data);
+    return new PsshAtom(uuid, atomVersion, data);
   }
 
+  private static class PsshAtom {
+    final UUID uuid;
+    final int version;
+    final byte[] data;
+
+    PsshAtom(final UUID uuid, final int version, final byte[] data) {
+      this.uuid = uuid;
+      this.version = version;
+      this.data = data;
+    }
+  }
 }

@@ -31,6 +31,9 @@ import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Unit test for {@link DrmInitData}.
  */
@@ -97,6 +100,7 @@ public class DrmInitDataTest {
   }
 
   @Test
+  @Deprecated
   public void testGet() {
     // Basic matching.
     DrmInitData testInitData = new DrmInitData(DATA_1, DATA_2);
@@ -124,27 +128,22 @@ public class DrmInitDataTest {
   }
 
   @Test
-  public void testDuplicateSchemeDataRejected() {
-    try {
-      new DrmInitData(DATA_1, DATA_1);
-      fail();
-    } catch (IllegalArgumentException e) {
-      // Expected.
-    }
+  public void testGetByIndex() {
+    DrmInitData testInitData = new DrmInitData(DATA_1, DATA_2);
+    assertThat(getAllSchemeData(testInitData)).containsAllOf(DATA_1, DATA_2);
+  }
 
-    try {
-      new DrmInitData(DATA_1, DATA_1B);
-      fail();
-    } catch (IllegalArgumentException e) {
-      // Expected.
-    }
+  @Test
+  public void testDuplicateSchemeData() {
+    DrmInitData testInitData = new DrmInitData(DATA_1, DATA_1);
+    assertThat(testInitData.schemeDataCount).isEqualTo(2);
 
-    try {
-      new DrmInitData(DATA_1, DATA_2, DATA_1B);
-      fail();
-    } catch (IllegalArgumentException e) {
-      // Expected.
-    }
+    testInitData = new DrmInitData(DATA_1, DATA_2, DATA_1B);
+    assertThat(testInitData.schemeDataCount).isEqualTo(3);
+    assertThat(getAllSchemeData(testInitData)).containsAllOf(DATA_1, DATA_1B, DATA_2);
+    // Deprecated get method should return first entry
+    assertThat(testInitData.get(WIDEVINE_UUID)).isEqualTo(DATA_1);
+    assertThat(testInitData.get(PLAYREADY_UUID)).isEqualTo(DATA_2);
   }
 
   @Test
@@ -160,6 +159,14 @@ public class DrmInitDataTest {
     assertThat(DATA_UNIVERSAL.matches(WIDEVINE_UUID)).isTrue();
     assertThat(DATA_UNIVERSAL.matches(PLAYREADY_UUID)).isTrue();
     assertThat(DATA_UNIVERSAL.matches(UUID_NIL)).isTrue();
+  }
+
+  private List<SchemeData> getAllSchemeData(DrmInitData drmInitData) {
+    ArrayList<SchemeData> schemeDatas = new ArrayList<>();
+    for (int i = 0; i < drmInitData.schemeDataCount; i++) {
+      schemeDatas.add(drmInitData.get(i));
+    }
+    return schemeDatas;
   }
 
 }
