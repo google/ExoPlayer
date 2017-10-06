@@ -1076,10 +1076,15 @@ public final class Util {
 
   /** Creates an empty directory in the directory returned by {@link Context#getCacheDir()}. */
   public static File createTempDirectory(Context context, String prefix) throws IOException {
-    File tempFile = File.createTempFile(prefix, null, context.getCacheDir());
+    File tempFile = createTempFile(context, prefix);
     tempFile.delete(); // Delete the temp file.
     tempFile.mkdir(); // Create a directory with the same name.
     return tempFile;
+  }
+
+  /** Creates a new empty file in the directory returned by {@link Context#getCacheDir()}. */
+  public static File createTempFile(Context context, String prefix) throws IOException {
+    return File.createTempFile(prefix, null, context.getCacheDir());
   }
 
   /**
