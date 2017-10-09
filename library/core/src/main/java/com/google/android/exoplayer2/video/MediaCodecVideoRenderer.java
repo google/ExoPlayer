@@ -532,6 +532,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
     if (surface == dummySurface) {
       // Skip frames in sync with playback, so we'll be at the right frame if the mode changes.
       if (isBufferLate(earlyUs)) {
+        forceRenderFrame = false;
         skipOutputBuffer(codec, bufferIndex, presentationTimeUs);
         return true;
       }
@@ -569,7 +570,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
     if (shouldDropBuffersToKeyframe(earlyUs, elapsedRealtimeUs)
         && maybeDropBuffersToKeyframe(codec, bufferIndex, presentationTimeUs, positionUs)) {
       forceRenderFrame = true;
-      return true;
+      return false;
     } else if (shouldDropOutputBuffer(earlyUs, elapsedRealtimeUs)) {
       dropOutputBuffer(codec, bufferIndex, presentationTimeUs);
       return true;
