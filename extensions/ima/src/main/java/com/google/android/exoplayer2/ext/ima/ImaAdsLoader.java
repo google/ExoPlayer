@@ -228,6 +228,16 @@ public final class ImaAdsLoader extends Player.DefaultEventListener implements A
     contentDurationMs = C.TIME_UNSET;
   }
 
+  /**
+   * Returns the underlying {@code com.google.ads.interactivemedia.v3.api.AdsLoader} wrapped by
+   * this instance.
+   */
+  public com.google.ads.interactivemedia.v3.api.AdsLoader getAdsLoader() {
+    return adsLoader;
+  }
+
+  // AdsLoader implementation.
+
   @Override
   public void attachPlayer(ExoPlayer player, EventListener eventListener, ViewGroup adUiViewGroup) {
     this.player = player;
@@ -270,7 +280,7 @@ public final class ImaAdsLoader extends Player.DefaultEventListener implements A
     }
   }
 
-  // AdsLoader.AdsLoadedListener implementation.
+  // com.google.ads.interactivemedia.v3.api.AdsLoader.AdsLoadedListener implementation.
 
   @Override
   public void onAdsManagerLoaded(AdsManagerLoadedEvent adsManagerLoadedEvent) {
