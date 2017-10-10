@@ -173,7 +173,7 @@ public class DefaultDashChunkSource implements DashChunkSource {
   }
 
   @Override
-  public final void getNextChunk(MediaChunk previous, long playbackPositionUs, ChunkHolder out) {
+  public void getNextChunk(MediaChunk previous, long playbackPositionUs, ChunkHolder out) {
     if (fatalError != null) {
       return;
     }
@@ -300,7 +300,7 @@ public class DefaultDashChunkSource implements DashChunkSource {
         trackSelection.indexOf(chunk.trackFormat), e);
   }
 
-  // Private methods.
+  // Internal methods.
 
   private ArrayList<Representation> getRepresentations() {
     List<AdaptationSet> manifestAdapationSets = manifest.getPeriod(periodIndex).adaptationSets;
@@ -319,7 +319,12 @@ public class DefaultDashChunkSource implements DashChunkSource {
     }
   }
 
-  private static Chunk newInitializationChunk(RepresentationHolder representationHolder,
+  private long resolveTimeToLiveEdgeUs(long playbackPositionUs) {
+    boolean resolveTimeToLiveEdgePossible = manifest.dynamic && liveEdgeTimeUs != C.TIME_UNSET;
+    return resolveTimeToLiveEdgePossible ? liveEdgeTimeUs - playbackPositionUs : C.TIME_UNSET;
+  }
+
+  protected static Chunk newInitializationChunk(RepresentationHolder representationHolder,
       DataSource dataSource, Format trackFormat, int trackSelectionReason,
       Object trackSelectionData, RangedUri initializationUri, RangedUri indexUri) {
     RangedUri requestUri;
@@ -340,7 +345,7 @@ public class DefaultDashChunkSource implements DashChunkSource {
         trackSelectionReason, trackSelectionData, representationHolder.extractorWrapper);
   }
 
-  private static Chunk newMediaChunk(RepresentationHolder representationHolder,
+  protected static Chunk newMediaChunk(RepresentationHolder representationHolder,
       DataSource dataSource, int trackType, Format trackFormat, int trackSelectionReason,
       Object trackSelectionData, int firstSegmentNum, int maxSegmentCount) {
     Representation representation = representationHolder.representation;
