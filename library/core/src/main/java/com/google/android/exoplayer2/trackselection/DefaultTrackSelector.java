@@ -762,10 +762,9 @@ public class DefaultTrackSelector extends MappingTrackSelector {
   protected TrackSelection selectAudioTrack(TrackGroupArray groups, int[][] formatSupport,
       Parameters params, TrackSelection.Factory adaptiveTrackSelectionFactory)
       throws ExoPlaybackException {
-    int selectedGroupIndex = C.INDEX_UNSET;
     int selectedTrackIndex = C.INDEX_UNSET;
-    int selectedTrackScore = 0;
-    int selectedBitrate = Format.NO_VALUE;
+    int selectedGroupIndex = C.INDEX_UNSET;
+    AudioTrackScore selectedTrackScore = null;
     for (int groupIndex = 0; groupIndex < groups.length; groupIndex++) {
       TrackGroup trackGroup = groups.get(groupIndex);
       int[] trackFormatSupport = formatSupport[groupIndex];
@@ -773,15 +772,12 @@ public class DefaultTrackSelector extends MappingTrackSelector {
         if (isSupported(trackFormatSupport[trackIndex],
             params.exceedRendererCapabilitiesIfNecessary)) {
           Format format = trackGroup.getFormat(trackIndex);
-          int trackScore = getAudioTrackScore(trackFormatSupport[trackIndex],
-              params.preferredAudioLanguage, format);
-          if (trackScore > selectedTrackScore
-              || (trackScore == selectedTrackScore && params.forceLowestBitrate
-                  && compareFormatValues(format.bitrate, selectedBitrate) < 0)) {
+          AudioTrackScore trackScore =
+              new AudioTrackScore(format, params, trackFormatSupport[trackIndex]);
+          if (selectedTrackScore == null || trackScore.compareTo(selectedTrackScore) > 0) {
             selectedGroupIndex = groupIndex;
             selectedTrackIndex = trackIndex;
             selectedTrackScore = trackScore;
-            selectedBitrate = format.bitrate;
           }
         }
       }
@@ -802,27 +798,6 @@ public class DefaultTrackSelector extends MappingTrackSelector {
       }
     }
     return new FixedTrackSelection(selectedGroup, selectedTrackIndex);
-  }
-
-  private static int getAudioTrackScore(int formatSupport, String preferredLanguage,
-      Format format) {
-    boolean isDefault = (format.selectionFlags & C.SELECTION_FLAG_DEFAULT) != 0;
-    int trackScore;
-    if (formatHasLanguage(format, preferredLanguage)) {
-      if (isDefault) {
-        trackScore = 4;
-      } else {
-        trackScore = 3;
-      }
-    } else if (isDefault) {
-      trackScore = 2;
-    } else {
-      trackScore = 1;
-    }
-    if (isSupported(formatSupport, false)) {
-      trackScore += WITHIN_RENDERER_CAPABILITIES_BONUS;
-    }
-    return trackScore;
   }
 
   private static int[] getAdaptiveAudioTracks(TrackGroup group, int[] formatSupport,
@@ -1088,6 +1063,103 @@ public class DefaultTrackSelector extends MappingTrackSelector {
       // Vertical letter-boxing along edges.
       return new Point(Util.ceilDivide(viewportHeight * videoWidth, videoHeight), viewportHeight);
     }
+  }
+
+  /**
+   * A representation of how well a track fits with our track selection {@link Parameters}.
+   *
+   * <p>This is used to rank different audio tracks relatively with each other.
+   */
+  private static final class AudioTrackScore implements Comparable<AudioTrackScore> {
+    private final Parameters parameters;
+    private final int withinRendererCapabilitiesScore;
+    private final int matchLanguageScore;
+    private final int defaultSelectionFlagScore;
+    private final int channelCount;
+    private final int sampleRate;
+    private final int bitrate;
+
+    public AudioTrackScore(Format format, Parameters parameters, int formatSupport) {
+      this.parameters = parameters;
+      withinRendererCapabilitiesScore = isSupported(formatSupport, false) ? 1 : 0;
+      matchLanguageScore = formatHasLanguage(format, parameters.preferredAudioLanguage) ? 1 : 0;
+      defaultSelectionFlagScore = (format.selectionFlags & C.SELECTION_FLAG_DEFAULT) != 0 ? 1 : 0;
+      channelCount = format.channelCount;
+      sampleRate = format.sampleRate;
+      bitrate = format.bitrate;
+    }
+
+    /**
+     * Compares the score of the current track format with another {@link AudioTrackScore}.
+     *
+     * @param other The other score to compare to.
+     * @return A positive integer if this score is better than the other. Zero if they are
+     * equal. A negative integer if this score is worse than the other.
+     */
+    @Override
+    public int compareTo(AudioTrackScore other) {
+      if (this.withinRendererCapabilitiesScore != other.withinRendererCapabilitiesScore) {
+        return compareInts(this.withinRendererCapabilitiesScore,
+            other.withinRendererCapabilitiesScore);
+      } else if (this.matchLanguageScore != other.matchLanguageScore) {
+        return compareInts(this.matchLanguageScore, other.matchLanguageScore);
+      } else if (this.defaultSelectionFlagScore != other.defaultSelectionFlagScore) {
+        return compareInts(this.defaultSelectionFlagScore, other.defaultSelectionFlagScore);
+      } else if (parameters.forceLowestBitrate) {
+        return compareInts(other.bitrate, this.bitrate);
+      } else {
+        // If the format are within renderer capabilities, prefer higher values of channel count,
+        // sample rate and bit rate in that order. Otherwise, prefer lower values.
+        int resultSign = withinRendererCapabilitiesScore == 1 ? 1 : -1;
+        if (this.channelCount != other.channelCount) {
+          return resultSign * compareInts(this.channelCount, other.channelCount);
+        } else if (this.sampleRate != other.sampleRate) {
+          return resultSign * compareInts(this.sampleRate, other.sampleRate);
+        }
+        return resultSign * compareInts(this.bitrate, other.bitrate);
+      }
+    }
+
+    @Override
+    public boolean equals(Object o) {
+      if (this == o) {
+        return true;
+      }
+      if (o == null || getClass() != o.getClass()) {
+        return false;
+      }
+
+      AudioTrackScore that = (AudioTrackScore) o;
+
+      return withinRendererCapabilitiesScore == that.withinRendererCapabilitiesScore
+          && matchLanguageScore == that.matchLanguageScore
+          && defaultSelectionFlagScore == that.defaultSelectionFlagScore
+          && channelCount == that.channelCount && sampleRate == that.sampleRate
+          && bitrate == that.bitrate;
+    }
+
+    @Override
+    public int hashCode() {
+      int result = withinRendererCapabilitiesScore;
+      result = 31 * result + matchLanguageScore;
+      result = 31 * result + defaultSelectionFlagScore;
+      result = 31 * result + channelCount;
+      result = 31 * result + sampleRate;
+      result = 31 * result + bitrate;
+      return result;
+    }
+  }
+
+  /**
+   * Compares two integers in a safe way and avoiding potential overflow.
+   *
+   * @param first The first value.
+   * @param second The second value.
+   * @return A negative integer if the first value is less than the second. Zero if they are equal.
+   *     A positive integer if the first value is greater than the second.
+   */
+  private static int compareInts(int first, int second) {
+    return first > second ? 1 : (second > first ? -1 : 0);
   }
 
   private static final class AudioConfigurationTuple {
