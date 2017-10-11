@@ -19,10 +19,10 @@ project.ext {
     minSdkVersion = 14
     compileSdkVersion = 26
     targetSdkVersion = 26
-    buildToolsVersion = '26'
+    buildToolsVersion = '26.0.2'
     testSupportLibraryVersion = '0.5'
-    supportLibraryVersion = '26.0.2'
-    playServicesLibraryVersion = '11.2.0'
+    supportLibraryVersion = '26.1.0'
+    playServicesLibraryVersion = '11.4.2'
     dexmakerVersion = '1.2'
     mockitoVersion = '1.9.5'
     junitVersion = '4.12'
