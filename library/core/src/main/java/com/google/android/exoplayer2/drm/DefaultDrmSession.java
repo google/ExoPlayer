@@ -296,26 +296,24 @@ import java.util.UUID;
       case DefaultDrmSessionManager.MODE_QUERY:
         if (offlineLicenseKeySetId == null) {
           postKeyRequest(ExoMediaDrm.KEY_TYPE_STREAMING, allowRetry);
-        } else {
-          if (restoreKeys()) {
-            long licenseDurationRemainingSec = getLicenseDurationRemainingSec();
-            if (mode == DefaultDrmSessionManager.MODE_PLAYBACK
-                && licenseDurationRemainingSec <= MAX_LICENSE_DURATION_TO_RENEW) {
-              Log.d(TAG, "Offline license has expired or will expire soon. "
-                  + "Remaining seconds: " + licenseDurationRemainingSec);
-              postKeyRequest(ExoMediaDrm.KEY_TYPE_OFFLINE, allowRetry);
-            } else if (licenseDurationRemainingSec <= 0) {
-              onError(new KeysExpiredException());
-            } else {
-              state = STATE_OPENED_WITH_KEYS;
-              if (eventHandler != null && eventListener != null) {
-                eventHandler.post(new Runnable() {
-                  @Override
-                  public void run() {
-                    eventListener.onDrmKeysRestored();
-                  }
-                });
-              }
+        } else if (state == STATE_OPENED_WITH_KEYS || restoreKeys()) {
+          long licenseDurationRemainingSec = getLicenseDurationRemainingSec();
+          if (mode == DefaultDrmSessionManager.MODE_PLAYBACK
+              && licenseDurationRemainingSec <= MAX_LICENSE_DURATION_TO_RENEW) {
+            Log.d(TAG, "Offline license has expired or will expire soon. "
+                + "Remaining seconds: " + licenseDurationRemainingSec);
+            postKeyRequest(ExoMediaDrm.KEY_TYPE_OFFLINE, allowRetry);
+          } else if (licenseDurationRemainingSec <= 0) {
+            onError(new KeysExpiredException());
+          } else {
+            state = STATE_OPENED_WITH_KEYS;
+            if (eventHandler != null && eventListener != null) {
+              eventHandler.post(new Runnable() {
+                @Override
+                public void run() {
+                  eventListener.onDrmKeysRestored();
+                }
+              });
             }
           }
         }
