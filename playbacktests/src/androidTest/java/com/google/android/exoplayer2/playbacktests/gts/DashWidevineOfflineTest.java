@@ -67,8 +67,10 @@ public final class DashWidevineOfflineTest extends ActivityInstrumentationTestCa
     boolean useL1Widevine = DashTestRunner.isL1WidevineAvailable(MimeTypes.VIDEO_H264);
     String widevineLicenseUrl = DashTestData.getWidevineLicenseUrl(true, useL1Widevine);
     httpDataSourceFactory = new DefaultHttpDataSourceFactory(USER_AGENT);
-    offlineLicenseHelper = OfflineLicenseHelper.newWidevineInstance(widevineLicenseUrl,
-        httpDataSourceFactory);
+    if (Util.SDK_INT >= 18) {
+      offlineLicenseHelper = OfflineLicenseHelper.newWidevineInstance(widevineLicenseUrl,
+          httpDataSourceFactory);
+    }
   }
 
   @Override

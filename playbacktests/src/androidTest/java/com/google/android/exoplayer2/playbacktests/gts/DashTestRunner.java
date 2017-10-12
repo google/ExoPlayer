@@ -108,21 +108,23 @@ public final class DashTestRunner {
   private String widevineLicenseUrl;
   private DataSource.Factory dataSourceFactory;
 
-  @TargetApi(18)
   @SuppressWarnings("ResourceType")
   public static boolean isL1WidevineAvailable(String mimeType) {
-    try {
-      // Force L3 if secure decoder is not available.
-      if (MediaCodecUtil.getDecoderInfo(mimeType, true) == null) {
-        return false;
+    if (Util.SDK_INT >= 18) {
+      try {
+        // Force L3 if secure decoder is not available.
+        if (MediaCodecUtil.getDecoderInfo(mimeType, true) == null) {
+          return false;
+        }
+        MediaDrm mediaDrm = MediaDrmBuilder.build();
+        String securityProperty = mediaDrm.getPropertyString(SECURITY_LEVEL_PROPERTY);
+        mediaDrm.release();
+        return WIDEVINE_SECURITY_LEVEL_1.equals(securityProperty);
+      } catch (MediaCodecUtil.DecoderQueryException e) {
+        throw new IllegalStateException(e);
       }
-      MediaDrm mediaDrm = new MediaDrm(WIDEVINE_UUID);
-      String securityProperty = mediaDrm.getPropertyString(SECURITY_LEVEL_PROPERTY);
-      mediaDrm.release();
-      return WIDEVINE_SECURITY_LEVEL_1.equals(securityProperty);
-    } catch (MediaCodecUtil.DecoderQueryException | UnsupportedSchemeException e) {
-      throw new IllegalStateException(e);
     }
+    return false;
   }
 
   public DashTestRunner(String tag, HostActivity activity, Instrumentation instrumentation) {
@@ -453,6 +455,23 @@ public final class DashTestRunner {
     private static boolean isFormatHandled(int formatSupport) {
       return (formatSupport & RendererCapabilities.FORMAT_SUPPORT_MASK)
           == RendererCapabilities.FORMAT_HANDLED;
+    }
+
+  }
+
+  /**
+   * Creates a new {@code MediaDrm} object. The encapsulation ensures that the tests can be
+   * executed for API level < 18.
+   */
+  @TargetApi(18)
+  private static final class MediaDrmBuilder {
+
+    public static MediaDrm build () {
+      try {
+        return new MediaDrm(WIDEVINE_UUID);
+      } catch (UnsupportedSchemeException e) {
+        throw new IllegalStateException(e);
+      }
     }
 
   }

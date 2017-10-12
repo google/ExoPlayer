@@ -322,6 +322,9 @@ public abstract class Action {
     protected void doActionAndScheduleNextImpl(final SimpleExoPlayer player,
         final MappingTrackSelector trackSelector, final Surface surface, final Handler handler,
         final ActionNode nextAction) {
+      if (nextAction == null) {
+        return;
+      }
       Player.EventListener listener = new Player.DefaultEventListener() {
         @Override
         public void onTimelineChanged(Timeline timeline, Object manifest) {
@@ -362,6 +365,9 @@ public abstract class Action {
     protected void doActionAndScheduleNextImpl(final SimpleExoPlayer player,
         final MappingTrackSelector trackSelector, final Surface surface, final Handler handler,
         final ActionNode nextAction) {
+      if (nextAction == null) {
+        return;
+      }
       player.addListener(new Player.DefaultEventListener() {
         @Override
         public void onPositionDiscontinuity(@Player.DiscontinuityReason int reason) {
@@ -399,6 +405,9 @@ public abstract class Action {
     protected void doActionAndScheduleNextImpl(final SimpleExoPlayer player,
         final MappingTrackSelector trackSelector, final Surface surface, final Handler handler,
         final ActionNode nextAction) {
+      if (nextAction == null) {
+        return;
+      }
       if (targetPlaybackState == player.getPlaybackState()) {
         nextAction.schedule(player, trackSelector, surface, handler);
       } else {
@@ -438,6 +447,9 @@ public abstract class Action {
     protected void doActionAndScheduleNextImpl(final SimpleExoPlayer player,
         final MappingTrackSelector trackSelector, final Surface surface, final Handler handler,
         final ActionNode nextAction) {
+      if (nextAction == null) {
+        return;
+      }
       player.addListener(new Player.DefaultEventListener() {
         @Override
         public void onSeekProcessed() {
