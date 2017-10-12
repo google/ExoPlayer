@@ -236,7 +236,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
     tunnelingAudioSessionId = getConfiguration().tunnelingAudioSessionId;
     tunneling = tunnelingAudioSessionId != C.AUDIO_SESSION_ID_UNSET;
     eventDispatcher.enabled(decoderCounters);
-    frameReleaseTimeHelper.enable();
+    frameReleaseTimeHelper.enable(context);
   }
 
   @Override

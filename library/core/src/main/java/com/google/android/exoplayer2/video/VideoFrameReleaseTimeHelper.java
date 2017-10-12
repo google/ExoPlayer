@@ -38,10 +38,10 @@ public final class VideoFrameReleaseTimeHelper {
   private static final long VSYNC_OFFSET_PERCENTAGE = 80;
   private static final int MIN_FRAMES_FOR_ADJUSTMENT = 6;
 
-  private final VSyncSampler vsyncSampler;
-  private final boolean useDefaultDisplayVsync;
-  private final long vsyncDurationNs;
-  private final long vsyncOffsetNs;
+  private VSyncSampler vsyncSampler;
+  private boolean useDefaultDisplayVsync;
+  private long vsyncDurationNs;
+  private long vsyncOffsetNs;
 
   private long lastFramePresentationTimeUs;
   private long adjustedLastFrameTimeNs;
@@ -71,24 +71,16 @@ public final class VideoFrameReleaseTimeHelper {
   }
 
   private VideoFrameReleaseTimeHelper(double defaultDisplayRefreshRate) {
-    useDefaultDisplayVsync = defaultDisplayRefreshRate != DISPLAY_REFRESH_RATE_UNKNOWN;
-    if (useDefaultDisplayVsync) {
-      vsyncSampler = VSyncSampler.getInstance();
-      vsyncDurationNs = (long) (C.NANOS_PER_SECOND / defaultDisplayRefreshRate);
-      vsyncOffsetNs = (vsyncDurationNs * VSYNC_OFFSET_PERCENTAGE) / 100;
-    } else {
-      vsyncSampler = null;
-      vsyncDurationNs = -1; // Value unused.
-      vsyncOffsetNs = -1; // Value unused.
-    }
+    setSync(defaultDisplayRefreshRate);
   }
 
   /**
    * Enables the helper.
    */
-  public void enable() {
+  public void enable(Context context) {
     haveSync = false;
     if (useDefaultDisplayVsync) {
+      setSync(getDefaultDisplayRefreshRate(context));
       vsyncSampler.addObserver();
     }
   }
@@ -99,6 +91,20 @@ public final class VideoFrameReleaseTimeHelper {
   public void disable() {
     if (useDefaultDisplayVsync) {
       vsyncSampler.removeObserver();
+    }
+  }
+
+  private void setSync(double defaultDisplayRefreshRate) {
+
+    useDefaultDisplayVsync = defaultDisplayRefreshRate != DISPLAY_REFRESH_RATE_UNKNOWN;
+    if (useDefaultDisplayVsync) {
+      vsyncSampler = VSyncSampler.getInstance();
+      vsyncDurationNs = (long) (C.NANOS_PER_SECOND / defaultDisplayRefreshRate);
+      vsyncOffsetNs = (vsyncDurationNs * VSYNC_OFFSET_PERCENTAGE) / 100;
+    } else {
+      vsyncSampler = null;
+      vsyncDurationNs = -1; // Value unused.
+      vsyncOffsetNs = -1; // Value unused.
     }
   }
 
