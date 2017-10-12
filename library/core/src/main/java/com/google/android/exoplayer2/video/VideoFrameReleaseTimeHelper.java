@@ -17,6 +17,8 @@ package com.google.android.exoplayer2.video;
 
 import android.annotation.TargetApi;
 import android.content.Context;
+import android.hardware.display.DisplayManager;
+import android.os.Build;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Message;
@@ -31,12 +33,16 @@ import com.google.android.exoplayer2.C;
 @TargetApi(16)
 public final class VideoFrameReleaseTimeHelper {
 
+  private static final int DISPLAY_ID_UNKNOWN = -1;
   private static final double DISPLAY_REFRESH_RATE_UNKNOWN = -1;
   private static final long CHOREOGRAPHER_SAMPLE_DELAY_MILLIS = 500;
   private static final long MAX_ALLOWED_DRIFT_NS = 20000000;
 
   private static final long VSYNC_OFFSET_PERCENTAGE = 80;
   private static final int MIN_FRAMES_FOR_ADJUSTMENT = 6;
+
+  private DisplayManager.DisplayListener displayListener = null;
+  private Context context = null;
 
   private VSyncSampler vsyncSampler;
   private boolean useDefaultDisplayVsync;
@@ -68,6 +74,8 @@ public final class VideoFrameReleaseTimeHelper {
    */
   public VideoFrameReleaseTimeHelper(Context context) {
     this(getDefaultDisplayRefreshRate(context));
+    this.context = context;
+    registerDisplayListener();
   }
 
   private VideoFrameReleaseTimeHelper(double defaultDisplayRefreshRate) {
@@ -77,12 +85,12 @@ public final class VideoFrameReleaseTimeHelper {
   /**
    * Enables the helper.
    */
-  public void enable(Context context) {
+  public void enable() {
     haveSync = false;
     if (useDefaultDisplayVsync) {
-      setSync(getDefaultDisplayRefreshRate(context));
       vsyncSampler.addObserver();
     }
+    registerDisplayListener();
   }
 
   /**
@@ -91,6 +99,29 @@ public final class VideoFrameReleaseTimeHelper {
   public void disable() {
     if (useDefaultDisplayVsync) {
       vsyncSampler.removeObserver();
+    }
+    unregisterDisplayListener();
+  }
+
+  private void registerDisplayListener() {
+    if (displayListener == null && context != null &&
+     Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+      DisplayManager displayManager = context.getSystemService(DisplayManager.class);
+      if (displayManager != null) {
+        displayListener = new DefaultDisplayListener(context);
+        displayManager.registerDisplayListener(displayListener, null);
+      }
+    }
+  }
+
+  private void unregisterDisplayListener() {
+    if (context != null && displayListener != null &&
+     Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+      DisplayManager displayManager = context.getSystemService(DisplayManager.class);
+      if (displayManager != null) {
+        displayManager.unregisterDisplayListener(displayListener);
+        displayListener = null;
+      }
     }
   }
 
@@ -206,10 +237,16 @@ public final class VideoFrameReleaseTimeHelper {
     return snappedAfterDiff < snappedBeforeDiff ? snappedAfterNs : snappedBeforeNs;
   }
 
+  private static int getDefaultDisplayId(Context context) {
+    WindowManager manager = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
+    return manager != null && manager.getDefaultDisplay() != null ?
+     manager.getDefaultDisplay().getDisplayId() : DISPLAY_ID_UNKNOWN;
+  }
+
   private static double getDefaultDisplayRefreshRate(Context context) {
     WindowManager manager = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
-    return manager.getDefaultDisplay() != null ? manager.getDefaultDisplay().getRefreshRate()
-        : DISPLAY_REFRESH_RATE_UNKNOWN;
+    return manager != null && manager.getDefaultDisplay() != null ?
+     manager.getDefaultDisplay().getRefreshRate() : DISPLAY_REFRESH_RATE_UNKNOWN;
   }
 
   /**
@@ -302,6 +339,32 @@ public final class VideoFrameReleaseTimeHelper {
       if (observerCount == 0) {
         choreographer.removeFrameCallback(this);
         sampledVsyncTimeNs = 0;
+      }
+    }
+
+  }
+
+  @TargetApi(17)
+  private class DefaultDisplayListener implements DisplayManager.DisplayListener {
+
+    private final Context context;
+    DefaultDisplayListener(Context context) {
+      this.context = context;
+    }
+
+    @Override
+    public void onDisplayAdded(int displayId) {
+    }
+
+    @Override
+    public void onDisplayRemoved(int displayId) {
+    }
+
+    @Override
+    public void onDisplayChanged(int displayId) {
+      final int defaultDisplayId = getDefaultDisplayId(context);
+      if (displayId == defaultDisplayId || defaultDisplayId == DISPLAY_ID_UNKNOWN) {
+        setSync(getDefaultDisplayRefreshRate(context));
       }
     }
 
