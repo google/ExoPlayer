@@ -218,8 +218,8 @@ public class PlayerActivity extends Activity implements OnClickListener,
 
   @Override
   public boolean dispatchKeyEvent(KeyEvent event) {
-    // If the event was not handled then see if the player view can handle it.
-    return super.dispatchKeyEvent(event) || simpleExoPlayerView.dispatchKeyEvent(event);
+    // See whether the player view wants to handle media or DPAD keys events.
+    return simpleExoPlayerView.dispatchKeyEvent(event) || super.dispatchKeyEvent(event);
   }
 
   // OnClickListener methods
