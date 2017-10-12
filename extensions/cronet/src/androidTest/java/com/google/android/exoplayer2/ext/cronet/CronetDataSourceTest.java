@@ -18,6 +18,7 @@ package com.google.android.exoplayer2.ext.cronet;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
@@ -45,6 +46,7 @@ import com.google.android.exoplayer2.upstream.TransferListener;
 import com.google.android.exoplayer2.util.Clock;
 import com.google.android.exoplayer2.util.Predicate;
 import java.io.IOException;
+import java.net.CookieManager;
 import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
 import java.nio.ByteBuffer;
@@ -102,12 +104,14 @@ public final class CronetDataSourceTest {
   @Mock private CronetEngine mockCronetEngine;
 
   private CronetDataSource dataSourceUnderTest;
+  private boolean redirectCalled;
 
   @Before
   public void setUp() throws Exception {
     System.setProperty("dexmaker.dexcache",
         InstrumentationRegistry.getTargetContext().getCacheDir().getPath());
     initMocks(this);
+    CookieManager cookieManager = new CookieManager();
     dataSourceUnderTest = spy(
         new CronetDataSource(
             mockCronetEngine,
@@ -118,7 +122,8 @@ public final class CronetDataSourceTest {
             TEST_READ_TIMEOUT_MS,
             true, // resetTimeoutOnRedirects
             mockClock,
-            null));
+            null,
+            cookieManager));
     when(mockContentTypePredicate.evaluate(anyString())).thenReturn(true);
     when(mockCronetEngine.newUrlRequestBuilder(
             anyString(), any(UrlRequest.Callback.class), any(Executor.class)))
@@ -138,10 +143,14 @@ public final class CronetDataSourceTest {
   }
 
   private UrlResponseInfo createUrlResponseInfo(int statusCode) {
+    return createUrlResponseInfoWithUrl(TEST_URL, statusCode);
+  }
+
+  private UrlResponseInfo createUrlResponseInfoWithUrl(String url, int statusCode) {
     ArrayList<Map.Entry<String, String>> responseHeaderList = new ArrayList<>();
     responseHeaderList.addAll(testResponseHeader.entrySet());
     return new UrlResponseInfoImpl(
-        Collections.singletonList(TEST_URL),
+        Collections.singletonList(url),
         statusCode,
         null, // httpStatusText
         responseHeaderList,
@@ -150,11 +159,11 @@ public final class CronetDataSourceTest {
         null); // proxyServer
   }
 
-  @Test(expected = IllegalStateException.class)
+  @Test
   public void testOpeningTwiceThrows() throws HttpDataSourceException {
     mockResponseStartSuccess();
     dataSourceUnderTest.open(testDataSpec);
-    dataSourceUnderTest.open(testDataSpec);
+    assertThrows(IllegalStateException.class, () -> dataSourceUnderTest.open(testDataSpec));
   }
 
   @Test
@@ -650,6 +659,27 @@ public final class CronetDataSourceTest {
   }
 
   @Test
+  public void testRedirectParseAndAttachCookie() throws HttpDataSourceException {
+    mockSingleRedirectSuccess();
+
+    testResponseHeader.put("Set-Cookie", "testcookie=testcookie; Path=/video");
+    dataSourceUnderTest.open(testDataSpec);
+    verify(mockUrlRequestBuilder).addHeader(eq("Cookie"), any(String.class));
+    verify(mockUrlRequest, never()).followRedirect();
+    verify(mockUrlRequest, times(2)).start();
+  }
+
+  @Test
+  public void testRedirectNoSetCookieFollowsRedirect() throws HttpDataSourceException {
+    mockSingleRedirectSuccess();
+    mockFollowRedirectSuccess();
+
+    dataSourceUnderTest.open(testDataSpec);
+    verify(mockUrlRequestBuilder, never()).addHeader(eq("Cookie"), any(String.class));
+    verify(mockUrlRequest).followRedirect();
+  }
+
+  @Test
   public void testExceptionFromTransferListener() throws HttpDataSourceException {
     mockResponseStartSuccess();
 
@@ -729,6 +759,38 @@ public final class CronetDataSourceTest {
         return null;
       }
     }).when(mockUrlRequest).start();
+  }
+
+  private void mockSingleRedirectSuccess() {
+    doAnswer(new Answer<Object>() {
+      @Override
+      public Object answer(InvocationOnMock invocation) throws Throwable {
+        if (!redirectCalled) {
+          redirectCalled = true;
+          dataSourceUnderTest.onRedirectReceived(
+              mockUrlRequest,
+              createUrlResponseInfoWithUrl("http://example.com/video", 300),
+              "http://example.com/video/redirect");
+        } else {
+          dataSourceUnderTest.onResponseStarted(
+              mockUrlRequest,
+              testUrlResponseInfo);
+        }
+        return null;
+      }
+    }).when(mockUrlRequest).start();
+  }
+
+  private void mockFollowRedirectSuccess() {
+    doAnswer(new Answer<Object>() {
+      @Override
+      public Object answer(InvocationOnMock invocation) throws Throwable {
+          dataSourceUnderTest.onResponseStarted(
+              mockUrlRequest,
+              testUrlResponseInfo);
+        return null;
+      }
+    }).when(mockUrlRequest).followRedirect();
   }
 
   private void mockResponseStartFailure() {
