@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.ui;
 
+import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.res.Resources;
@@ -521,8 +522,10 @@ public final class SimpleExoPlayerView extends FrameLayout {
       overlayFrameLayout.requestFocus();
       return super.dispatchKeyEvent(event);
     }
+    boolean isDpadWhenControlHidden = isDpadKey(event.getKeyCode()) && useController
+        && !controller.isVisible();
     maybeShowController(true);
-    return dispatchMediaKeyEvent(event) || super.dispatchKeyEvent(event);
+    return isDpadWhenControlHidden || dispatchMediaKeyEvent(event) || super.dispatchKeyEvent(event);
   }
 
   /**
@@ -871,10 +874,18 @@ public final class SimpleExoPlayerView extends FrameLayout {
     logo.setBackgroundColor(resources.getColor(R.color.exo_edit_mode_background_color));
   }
 
-
   @SuppressWarnings("ResourceType")
   private static void setResizeModeRaw(AspectRatioFrameLayout aspectRatioFrame, int resizeMode) {
     aspectRatioFrame.setResizeMode(resizeMode);
+  }
+
+  @SuppressLint("InlinedApi")
+  private boolean isDpadKey(int keyCode) {
+    return keyCode == KeyEvent.KEYCODE_DPAD_UP || keyCode == KeyEvent.KEYCODE_DPAD_UP_RIGHT
+        || keyCode == KeyEvent.KEYCODE_DPAD_RIGHT || keyCode == KeyEvent.KEYCODE_DPAD_DOWN_RIGHT
+        || keyCode == KeyEvent.KEYCODE_DPAD_DOWN || keyCode == KeyEvent.KEYCODE_DPAD_DOWN_LEFT
+        || keyCode == KeyEvent.KEYCODE_DPAD_LEFT || keyCode == KeyEvent.KEYCODE_DPAD_UP_LEFT
+        || keyCode == KeyEvent.KEYCODE_DPAD_CENTER;
   }
 
   private final class ComponentListener extends Player.DefaultEventListener implements TextOutput,
