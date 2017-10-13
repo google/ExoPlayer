@@ -145,15 +145,16 @@ public final class HlsPlaylistTracker implements Loader.Callback<ParsingLoadable
    */
   public HlsPlaylistTracker(Uri initialPlaylistUri, HlsDataSourceFactory dataSourceFactory,
       EventDispatcher eventDispatcher, int minRetryCount,
-      PrimaryPlaylistListener primaryPlaylistListener, ParsingLoadable.Parser<HlsPlaylist> playlistParser) {
+      PrimaryPlaylistListener primaryPlaylistListener,
+      ParsingLoadable.Parser<HlsPlaylist> playlistParser) {
     this.initialPlaylistUri = initialPlaylistUri;
     this.dataSourceFactory = dataSourceFactory;
     this.eventDispatcher = eventDispatcher;
     this.minRetryCount = minRetryCount;
     this.primaryPlaylistListener = primaryPlaylistListener;
+    this.playlistParser = playlistParser;
     listeners = new ArrayList<>();
     initialPlaylistLoader = new Loader("HlsPlaylistTracker:MasterPlaylist");
-    this.playlistParser = playlistParser;
     playlistBundles = new IdentityHashMap<>();
     playlistRefreshHandler = new Handler();
   }
