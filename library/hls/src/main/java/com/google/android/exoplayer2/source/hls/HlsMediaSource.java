@@ -76,13 +76,14 @@ public final class HlsMediaSource implements MediaSource,
   public HlsMediaSource(Uri manifestUri, HlsDataSourceFactory dataSourceFactory,
       int minLoadableRetryCount, Handler eventHandler,
       AdaptiveMediaSourceEventListener eventListener) {
-   this(manifestUri, dataSourceFactory, minLoadableRetryCount, eventHandler, eventListener, new HlsPlaylistParser());
+   this(manifestUri, dataSourceFactory, minLoadableRetryCount, eventHandler, eventListener,
+       new HlsPlaylistParser());
   }
 
   public HlsMediaSource(Uri manifestUri, HlsDataSourceFactory dataSourceFactory,
-                        int minLoadableRetryCount, Handler eventHandler,
-                        AdaptiveMediaSourceEventListener eventListener,
-                        ParsingLoadable.Parser<HlsPlaylist> playlistParser) {
+     int minLoadableRetryCount, Handler eventHandler,
+     AdaptiveMediaSourceEventListener eventListener,
+     ParsingLoadable.Parser<HlsPlaylist> playlistParser) {
     this.manifestUri = manifestUri;
     this.dataSourceFactory = dataSourceFactory;
     this.minLoadableRetryCount = minLoadableRetryCount;
