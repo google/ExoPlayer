@@ -395,7 +395,11 @@ import java.util.List;
       hasSyncSample |= (editedFlags[i] & C.BUFFER_FLAG_KEY_FRAME) != 0;
     }
     if (!hasSyncSample) {
-      throw new ParserException("The edited sample sequence does not contain a sync sample.");
+      // We don't support edit lists where the edited sample sequence doesn't contain a sync sample.
+      // Such edit lists are often (although not always) broken, so we ignore it and continue.
+      Log.w(TAG, "Ignoring edit list: Edited sample sequence does not contain a sync sample.");
+      Util.scaleLargeTimestampsInPlace(timestamps, C.MICROS_PER_SECOND, track.timescale);
+      return new TrackSampleTable(offsets, sizes, maximumSize, timestamps, flags);
     }
 
     return new TrackSampleTable(editedOffsets, editedSizes, editedMaximumSize, editedTimestamps,
