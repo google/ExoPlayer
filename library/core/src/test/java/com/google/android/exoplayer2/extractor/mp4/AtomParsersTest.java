@@ -41,21 +41,31 @@ public final class AtomParsersTest {
       + SAMPLE_COUNT + "0001000200030004");
 
   @Test
+  public void testParseCommonEncryptionSinfFromParentIgnoresUnknownSchemeType() {
+    byte[] cencSinf = new byte[] {
+        0, 0, 0, 24, 115, 105, 110, 102, // size (4), 'sinf' (4)
+        0, 0, 0, 16, 115, 99, 104, 109, // size (4), 'schm' (4)
+        0, 0, 0, 0, 88, 88, 88, 88}; // version (1), flags (3), 'xxxx' (4)
+    assertThat(AtomParsers.parseCommonEncryptionSinfFromParent(
+        new ParsableByteArray(cencSinf), 0, cencSinf.length)).isNull();
+  }
+
+  @Test
   public void testStz2Parsing4BitFieldSize() {
-    verifyParsing(new Atom.LeafAtom(Atom.TYPE_stsz, new ParsableByteArray(FOUR_BIT_STZ2)));
+    verifyStz2Parsing(new Atom.LeafAtom(Atom.TYPE_stsz, new ParsableByteArray(FOUR_BIT_STZ2)));
   }
 
   @Test
   public void testStz2Parsing8BitFieldSize() {
-    verifyParsing(new Atom.LeafAtom(Atom.TYPE_stsz, new ParsableByteArray(EIGHT_BIT_STZ2)));
+    verifyStz2Parsing(new Atom.LeafAtom(Atom.TYPE_stsz, new ParsableByteArray(EIGHT_BIT_STZ2)));
   }
 
   @Test
   public void testStz2Parsing16BitFieldSize() {
-    verifyParsing(new Atom.LeafAtom(Atom.TYPE_stsz, new ParsableByteArray(SIXTEEN_BIT_STZ2)));
+    verifyStz2Parsing(new Atom.LeafAtom(Atom.TYPE_stsz, new ParsableByteArray(SIXTEEN_BIT_STZ2)));
   }
 
-  private void verifyParsing(Atom.LeafAtom stz2Atom) {
+  private static void verifyStz2Parsing(Atom.LeafAtom stz2Atom) {
     AtomParsers.Stz2SampleSizeBox box = new AtomParsers.Stz2SampleSizeBox(stz2Atom);
     assertThat(box.getSampleCount()).isEqualTo(4);
     assertThat(box.isFixedSampleSize()).isFalse();
