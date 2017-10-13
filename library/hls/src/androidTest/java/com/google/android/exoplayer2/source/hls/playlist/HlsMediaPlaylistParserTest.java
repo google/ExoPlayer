@@ -27,7 +27,7 @@ import java.util.Locale;
 import junit.framework.TestCase;
 
 /**
- * Test for {@link HlsMediaPlaylistParserTest}
+ * Test for {@link HlsMediaPlaylistParserTest}.
  */
 public class HlsMediaPlaylistParserTest extends TestCase {
 

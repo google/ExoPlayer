@@ -20,19 +20,17 @@ import static com.google.android.exoplayer2.C.UUID_NIL;
 import static com.google.android.exoplayer2.C.WIDEVINE_UUID;
 import static com.google.android.exoplayer2.util.MimeTypes.VIDEO_MP4;
 import static com.google.common.truth.Truth.assertThat;
-import static org.junit.Assert.fail;
 
 import android.os.Parcel;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.drm.DrmInitData.SchemeData;
 import com.google.android.exoplayer2.testutil.TestUtil;
+import java.util.ArrayList;
+import java.util.List;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Unit test for {@link DrmInitData}.
@@ -101,7 +99,7 @@ public class DrmInitDataTest {
 
   @Test
   @Deprecated
-  public void testGet() {
+  public void testGetByUuid() {
     // Basic matching.
     DrmInitData testInitData = new DrmInitData(DATA_1, DATA_2);
     assertThat(testInitData.get(WIDEVINE_UUID)).isEqualTo(DATA_1);
@@ -134,16 +132,14 @@ public class DrmInitDataTest {
   }
 
   @Test
-  public void testDuplicateSchemeData() {
-    DrmInitData testInitData = new DrmInitData(DATA_1, DATA_1);
+  public void testSchemeDatasWithSameUuid() {
+    DrmInitData testInitData = new DrmInitData(DATA_1, DATA_1B);
     assertThat(testInitData.schemeDataCount).isEqualTo(2);
-
-    testInitData = new DrmInitData(DATA_1, DATA_2, DATA_1B);
-    assertThat(testInitData.schemeDataCount).isEqualTo(3);
-    assertThat(getAllSchemeData(testInitData)).containsAllOf(DATA_1, DATA_1B, DATA_2);
-    // Deprecated get method should return first entry
+    // Deprecated get method should return first entry.
     assertThat(testInitData.get(WIDEVINE_UUID)).isEqualTo(DATA_1);
-    assertThat(testInitData.get(PLAYREADY_UUID)).isEqualTo(DATA_2);
+    // Test retrieval of first and second entry.
+    assertThat(testInitData.get(0)).isEqualTo(DATA_1);
+    assertThat(testInitData.get(1)).isEqualTo(DATA_1B);
   }
 
   @Test
