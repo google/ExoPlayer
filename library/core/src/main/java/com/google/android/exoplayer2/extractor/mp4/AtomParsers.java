@@ -1060,8 +1060,8 @@ import java.util.List;
       Assertions.checkArgument(childAtomSize > 0, "childAtomSize should be positive");
       int childAtomType = parent.readInt();
       if (childAtomType == Atom.TYPE_sinf) {
-        Pair<Integer, TrackEncryptionBox> result = parseSinfFromParent(parent, childPosition,
-            childAtomSize);
+        Pair<Integer, TrackEncryptionBox> result = parseCommonEncryptionSinfFromParent(parent,
+            childPosition, childAtomSize);
         if (result != null) {
           return result;
         }
@@ -1071,8 +1071,8 @@ import java.util.List;
     return null;
   }
 
-  private static Pair<Integer, TrackEncryptionBox> parseSinfFromParent(ParsableByteArray parent,
-      int position, int size) {
+  /* package */ static Pair<Integer, TrackEncryptionBox> parseCommonEncryptionSinfFromParent(
+      ParsableByteArray parent, int position, int size) {
     int childPosition = position + Atom.HEADER_SIZE;
     int schemeInformationBoxPosition = C.POSITION_UNSET;
     int schemeInformationBoxSize = 0;
@@ -1086,7 +1086,7 @@ import java.util.List;
         dataFormat = parent.readInt();
       } else if (childAtomType == Atom.TYPE_schm) {
         parent.skipBytes(4);
-        // scheme_type field. Defined in ISO/IEC 23001-7:2016, section 4.1.
+        // Common encryption scheme_type values are defined in ISO/IEC 23001-7:2016, section 4.1.
         schemeType = parent.readString(4);
       } else if (childAtomType == Atom.TYPE_schi) {
         schemeInformationBoxPosition = childPosition;
@@ -1095,7 +1095,8 @@ import java.util.List;
       childPosition += childAtomSize;
     }
 
-    if (schemeType != null) {
+    if (C.CENC_TYPE_cenc.equals(schemeType) || C.CENC_TYPE_cbc1.equals(schemeType)
+        || C.CENC_TYPE_cens.equals(schemeType) || C.CENC_TYPE_cbcs.equals(schemeType)) {
       Assertions.checkArgument(dataFormat != null, "frma atom is mandatory");
       Assertions.checkArgument(schemeInformationBoxPosition != C.POSITION_UNSET,
           "schi atom is mandatory");
