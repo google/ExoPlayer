@@ -16,16 +16,20 @@
 package com.google.android.exoplayer2.source.hls.playlist;
 
 import android.net.Uri;
+
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.ParserException;
 import com.google.android.exoplayer2.util.MimeTypes;
+
+import junit.framework.TestCase;
+
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
-import junit.framework.TestCase;
 
 /**
  * Test for {@link HlsMasterPlaylistParserTest}
@@ -145,6 +149,44 @@ public class HlsMasterPlaylistParserTest extends TestCase {
   public void testPlaylistWithoutClosedCaptions() throws IOException {
     HlsMasterPlaylist playlist = parseMasterPlaylist(PLAYLIST_URI, MASTER_PLAYLIST_WITHOUT_CC);
     assertEquals(Collections.emptyList(), playlist.muxedCaptionFormats);
+  }
+
+  public void testReorderedVariantCopy() throws IOException {
+    HlsMasterPlaylist playlist = parseMasterPlaylist(PLAYLIST_URI, MASTER_PLAYLIST);
+    HlsMasterPlaylist nonReorderedPlaylist =
+            playlist.copyWithReorderedVariants(new Comparator<HlsMasterPlaylist.HlsUrl>() {
+      @Override
+      public int compare(HlsMasterPlaylist.HlsUrl url1, HlsMasterPlaylist.HlsUrl url2) {
+        return 0;
+      }
+    });
+    assertEquals(playlist.variants, nonReorderedPlaylist.variants);
+    HlsMasterPlaylist.HlsUrl preferred = null;
+    for (HlsMasterPlaylist.HlsUrl url : playlist.variants) {
+      if (preferred == null || url.format.bitrate > preferred.format.bitrate) {
+        preferred = url;
+      }
+    }
+
+    assertNotNull(preferred);
+
+    final Comparator comparator = Collections.reverseOrder(new Comparator<HlsMasterPlaylist.HlsUrl>() {
+      @Override
+      public int compare(HlsMasterPlaylist.HlsUrl url1, HlsMasterPlaylist.HlsUrl url2) {
+        if (url1.format.bitrate > url2.format.bitrate) {
+          return 1;
+        }
+
+        if (url2.format.bitrate > url1.format.bitrate) {
+          return -1;
+        }
+
+        return 0;
+      }
+    });
+    HlsMasterPlaylist reorderedPlaylist = playlist.copyWithReorderedVariants(comparator);
+
+    assertEquals(reorderedPlaylist.variants.get(0), preferred);
   }
 
   private static HlsMasterPlaylist parseMasterPlaylist(String uri, String playlistString)
