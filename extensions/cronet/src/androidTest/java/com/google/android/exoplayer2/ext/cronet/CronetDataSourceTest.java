@@ -18,7 +18,6 @@ package com.google.android.exoplayer2.ext.cronet;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
@@ -163,7 +162,12 @@ public final class CronetDataSourceTest {
   public void testOpeningTwiceThrows() throws HttpDataSourceException {
     mockResponseStartSuccess();
     dataSourceUnderTest.open(testDataSpec);
-    assertThrows(IllegalStateException.class, () -> dataSourceUnderTest.open(testDataSpec));
+    try {
+      dataSourceUnderTest.open(testDataSpec);
+      fail("Expected IllegalStateException.");
+    } catch (IllegalStateException e) {
+      // Expected.
+    }
   }
 
   @Test
