@@ -16,7 +16,6 @@
 package com.google.android.exoplayer2.extractor.mp4;
 
 import android.util.Log;
-import android.util.Pair;
 import com.google.android.exoplayer2.util.ParsableByteArray;
 import java.nio.ByteBuffer;
 import java.util.UUID;
@@ -96,10 +95,10 @@ public final class PsshAtomUtil {
   /**
    * Parses the version from a PSSH atom. Version 0 and 1 PSSH atoms are supported.
    * <p>
-   * The UUID is only parsed if the data is a valid PSSH atom.
+   * The version is only parsed if the data is a valid PSSH atom.
    *
    * @param atom The atom to parse.
-   * @return The parsed UUID. -1 if the input is not a valid PSSH atom, or if the PSSH atom has
+   * @return The parsed version. -1 if the input is not a valid PSSH atom, or if the PSSH atom has
    *     an unsupported version.
    */
   public static int parseVersion(byte[] atom) {
@@ -130,16 +129,15 @@ public final class PsshAtomUtil {
       Log.w(TAG, "UUID mismatch. Expected: " + uuid + ", got: " + parsedAtom.uuid + ".");
       return null;
     }
-    return parsedAtom.data;
+    return parsedAtom.schemeData;
   }
 
   /**
-   * Parses the UUID and scheme specific data from a PSSH atom. Version 0 and 1 PSSH atoms are
-   * supported.
+   * Parses a PSSH atom. Version 0 and 1 PSSH atoms are supported.
    *
    * @param atom The atom to parse.
-   * @return A pair consisting of the parsed UUID and scheme specific data. Null if the input is
-   *     not a valid PSSH atom, or if the PSSH atom has an unsupported version.
+   * @return The parsed PSSH atom. Null if the input is not a valid PSSH atom, or if the PSSH atom
+   *     has an unsupported version.
    */
   // TODO: Support parsing of the key ids for version 1 PSSH atoms.
   private static PsshAtom parsePsshAtom(byte[] atom) {
@@ -179,15 +177,19 @@ public final class PsshAtomUtil {
     return new PsshAtom(uuid, atomVersion, data);
   }
 
+  // TODO: Consider exposing this and making parsePsshAtom public.
   private static class PsshAtom {
-    final UUID uuid;
-    final int version;
-    final byte[] data;
 
-    PsshAtom(final UUID uuid, final int version, final byte[] data) {
+    private final UUID uuid;
+    private final int version;
+    private final byte[] schemeData;
+
+    public PsshAtom(UUID uuid, int version, byte[] schemeData) {
       this.uuid = uuid;
       this.version = version;
-      this.data = data;
+      this.schemeData = schemeData;
     }
+
   }
+
 }

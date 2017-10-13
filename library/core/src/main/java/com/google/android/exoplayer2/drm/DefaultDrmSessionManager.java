@@ -349,14 +349,13 @@ public class DefaultDrmSessionManager<T extends ExoMediaCrypto> implements DrmSe
       // If there is no scheme information, assume patternless AES-CTR.
       return true;
     } else if (C.CENC_TYPE_cbc1.equals(schemeType) || C.CENC_TYPE_cbcs.equals(schemeType)
-            || C.CENC_TYPE_cens.equals(schemeType)) {
+        || C.CENC_TYPE_cens.equals(schemeType)) {
       // AES-CBC and pattern encryption are supported on API 24 onwards.
       return Util.SDK_INT >= 24;
     }
     // Unknown schemes, assume one of them is supported.
     return true;
   }
-
 
   @Override
   public DrmSession<T> acquireSession(Looper playbackLooper, DrmInitData drmInitData) {
@@ -462,34 +461,35 @@ public class DefaultDrmSessionManager<T extends ExoMediaCrypto> implements DrmSe
    * @return The extracted {@link SchemeData}, or null if no suitable data is present.
    */
   private static SchemeData getSchemeData(DrmInitData drmInitData, UUID uuid) {
-    List<SchemeData> schemeDatas = new ArrayList<>();
-    // Look for matching PSSH boxes, or the common box in the case of ClearKey
-    for (int i = 0; i < drmInitData.schemeDataCount; ++i) {
+    // Look for matching scheme data (matching the Common PSSH box for ClearKey).
+    List<SchemeData> matchingSchemeDatas = new ArrayList<>(drmInitData.schemeDataCount);
+    for (int i = 0; i < drmInitData.schemeDataCount; i++) {
       SchemeData schemeData = drmInitData.get(i);
       if (schemeData.matches(uuid)
-              || (C.CLEARKEY_UUID.equals(uuid) && schemeData.matches(C.COMMON_PSSH_UUID))) {
-        schemeDatas.add(schemeData);
+          || (C.CLEARKEY_UUID.equals(uuid) && schemeData.matches(C.COMMON_PSSH_UUID))) {
+        matchingSchemeDatas.add(schemeData);
       }
     }
 
-    if (schemeDatas.isEmpty()) {
+    if (matchingSchemeDatas.isEmpty()) {
       return null;
     }
 
-    // For Widevine, we prefer v1 init data on M and higher, v0 for lower
+    // For Widevine PSSH boxes, prefer V1 boxes from API 23 and V0 before.
     if (C.WIDEVINE_UUID.equals(uuid)) {
-      for (SchemeData schemeData : schemeDatas ) {
-        int version = PsshAtomUtil.parseVersion(schemeData.data);
+      for (int i = 0; i < matchingSchemeDatas.size(); i++) {
+        SchemeData matchingSchemeData = matchingSchemeDatas.get(i);
+        int version = PsshAtomUtil.parseVersion(matchingSchemeData.data);
         if (Util.SDK_INT < 23 && version == 0) {
-          return schemeData;
+          return matchingSchemeData;
         } else if (Util.SDK_INT >= 23 && version == 1) {
-          return schemeData;
+          return matchingSchemeData;
         }
       }
     }
 
-    // If we don't have any special handling for this system, we take the first scheme data found
-    return schemeDatas.get(0);
+    // If we don't have any special handling, prefer the first matching scheme data.
+    return matchingSchemeDatas.get(0);
   }
 
   private static byte[] getSchemeInitData(SchemeData data, UUID uuid) {
