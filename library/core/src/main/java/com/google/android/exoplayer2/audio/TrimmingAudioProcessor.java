@@ -31,6 +31,7 @@ import java.nio.ByteOrder;
   private int trimStartSamples;
   private int trimEndSamples;
   private int channelCount;
+  private int sampleRateHz;
 
   private int pendingTrimStartBytes;
   private ByteBuffer buffer;
@@ -69,6 +70,7 @@ import java.nio.ByteOrder;
       throw new UnhandledFormatException(sampleRateHz, channelCount, encoding);
     }
     this.channelCount = channelCount;
+    this.sampleRateHz = sampleRateHz;
     endBuffer = new byte[trimEndSamples * channelCount * 2];
     endBufferSize = 0;
     pendingTrimStartBytes = trimStartSamples * channelCount * 2;
@@ -90,6 +92,11 @@ import java.nio.ByteOrder;
   @Override
   public int getOutputEncoding() {
     return C.ENCODING_PCM_16BIT;
+  }
+
+  @Override
+  public int getOutputSampleRateHz() {
+    return sampleRateHz;
   }
 
   @Override
@@ -174,6 +181,7 @@ import java.nio.ByteOrder;
     flush();
     buffer = EMPTY_BUFFER;
     channelCount = Format.NO_VALUE;
+    sampleRateHz = Format.NO_VALUE;
     endBuffer = null;
   }
 

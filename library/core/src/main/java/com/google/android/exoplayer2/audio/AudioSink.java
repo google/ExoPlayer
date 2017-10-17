@@ -186,12 +186,12 @@ public interface AudioSink {
   /**
    * Configures (or reconfigures) the sink.
    *
-   * @param mimeType The MIME type of audio data provided in the input buffers.
-   * @param channelCount The number of channels.
-   * @param sampleRate The sample rate in Hz.
-   * @param pcmEncoding For PCM formats, the encoding used. One of {@link C#ENCODING_PCM_16BIT},
-   *     {@link C#ENCODING_PCM_16BIT}, {@link C#ENCODING_PCM_24BIT} and
-   *     {@link C#ENCODING_PCM_32BIT}.
+   * @param inputMimeType The MIME type of audio data provided in the input buffers.
+   * @param inputChannelCount The number of channels.
+   * @param inputSampleRate The sample rate in Hz.
+   * @param inputPcmEncoding For PCM formats, the encoding used. One of
+   *     {@link C#ENCODING_PCM_16BIT}, {@link C#ENCODING_PCM_16BIT}, {@link C#ENCODING_PCM_24BIT}
+   *     and {@link C#ENCODING_PCM_32BIT}.
    * @param specifiedBufferSize A specific size for the playback buffer in bytes, or 0 to infer a
    *     suitable buffer size.
    * @param outputChannels A mapping from input to output channels that is applied to this sink's
@@ -206,9 +206,9 @@ public interface AudioSink {
    *     {@link #configure(String, int, int, int, int, int[], int, int)}.
    * @throws ConfigurationException If an error occurs configuring the sink.
    */
-  void configure(String mimeType, int channelCount, int sampleRate, @C.PcmEncoding int pcmEncoding,
-      int specifiedBufferSize, @Nullable int[] outputChannels, int trimStartSamples,
-      int trimEndSamples) throws ConfigurationException;
+  void configure(String inputMimeType, int inputChannelCount, int inputSampleRate,
+      @C.PcmEncoding int inputPcmEncoding, int specifiedBufferSize, @Nullable int[] outputChannels,
+      int trimStartSamples, int trimEndSamples) throws ConfigurationException;
 
   /**
    * Starts or resumes consuming audio if initialized.

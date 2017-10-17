@@ -20,7 +20,15 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
 /**
- * Interface for audio processors.
+ * Interface for audio processors, which take audio data as input and transform it, potentially
+ * modifying its channel count, encoding and/or sample rate.
+ * <p>
+ * Call {@link #configure(int, int, int)} to configure the processor to receive input audio, then
+ * call {@link #isActive()} to determine whether the processor is active.
+ * {@link #queueInput(ByteBuffer)}, {@link #queueEndOfStream()}, {@link #getOutput()},
+ * {@link #isEnded()}, {@link #getOutputChannelCount()}, {@link #getOutputEncoding()} and
+ * {@link #getOutputSampleRateHz()} may only be called if the processor is active. Call
+ * {@link #reset()} to reset the processor to its unconfigured state.
  */
 public interface AudioProcessor {
 
@@ -46,8 +54,9 @@ public interface AudioProcessor {
    * method, {@link #isActive()} returns whether the processor needs to handle buffers; if not, the
    * processor will not accept any buffers until it is reconfigured. Returns {@code true} if the
    * processor must be flushed, or if the value returned by {@link #isActive()} has changed as a
-   * result of the call. If it's active, {@link #getOutputChannelCount()} and
-   * {@link #getOutputEncoding()} return the processor's output format.
+   * result of the call. If it's active, {@link #getOutputSampleRateHz()},
+   * {@link #getOutputChannelCount()} and {@link #getOutputEncoding()} return the processor's output
+   * format.
    *
    * @param sampleRateHz The sample rate of input audio in Hz.
    * @param channelCount The number of interleaved channels in input audio.
@@ -65,15 +74,26 @@ public interface AudioProcessor {
   boolean isActive();
 
   /**
-   * Returns the number of audio channels in the data output by the processor.
+   * Returns the number of audio channels in the data output by the processor. The value may change
+   * as a result of calling {@link #configure(int, int, int)} and is undefined if the instance is
+   * not active.
    */
   int getOutputChannelCount();
 
   /**
-   * Returns the audio encoding used in the data output by the processor.
+   * Returns the audio encoding used in the data output by the processor. The value may change as a
+   * result of calling {@link #configure(int, int, int)} and is undefined if the instance is not
+   * active.
    */
   @C.Encoding
   int getOutputEncoding();
+
+  /**
+   * Returns the sample rate of audio output by the processor, in hertz. The value may change as a
+   * result of calling {@link #configure(int, int, int)} and is undefined if the instance is not
+   * active.
+   */
+  int getOutputSampleRateHz();
 
   /**
    * Queues audio data between the position and limit of the input {@code buffer} for processing.
@@ -116,7 +136,7 @@ public interface AudioProcessor {
   void flush();
 
   /**
-   * Resets the processor to its initial state.
+   * Resets the processor to its unconfigured state.
    */
   void reset();
 
