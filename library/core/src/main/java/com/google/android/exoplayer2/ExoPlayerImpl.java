@@ -356,17 +356,17 @@ import java.util.concurrent.CopyOnWriteArraySet;
 
   @Override
   public boolean isPlayingAd() {
-    return pendingSeekAcks == 0 && playbackInfo.periodId.isAd();
+    return !timeline.isEmpty() && pendingSeekAcks == 0 && playbackInfo.periodId.isAd();
   }
 
   @Override
   public int getCurrentAdGroupIndex() {
-    return pendingSeekAcks == 0 ? playbackInfo.periodId.adGroupIndex : C.INDEX_UNSET;
+    return isPlayingAd() ? playbackInfo.periodId.adGroupIndex : C.INDEX_UNSET;
   }
 
   @Override
   public int getCurrentAdIndexInAdGroup() {
-    return pendingSeekAcks == 0 ? playbackInfo.periodId.adIndexInAdGroup : C.INDEX_UNSET;
+    return isPlayingAd() ? playbackInfo.periodId.adIndexInAdGroup : C.INDEX_UNSET;
   }
 
   @Override

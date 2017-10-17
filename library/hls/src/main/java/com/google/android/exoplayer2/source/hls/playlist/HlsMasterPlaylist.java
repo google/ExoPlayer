@@ -17,6 +17,7 @@ package com.google.android.exoplayer2.source.hls.playlist;
 
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.util.MimeTypes;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -109,6 +110,20 @@ public final class HlsMasterPlaylist extends HlsPlaylist {
   }
 
   /**
+   * Returns a copy of this playlist which includes only the renditions identified by the given
+   * urls.
+   *
+   * @param renditionUrls List of rendition urls.
+   * @return A copy of this playlist which includes only the renditions identified by the given
+   *     urls.
+   */
+  public HlsMasterPlaylist copy(List<String> renditionUrls) {
+    return new HlsMasterPlaylist(baseUri, tags, copyRenditionsList(variants, renditionUrls),
+        copyRenditionsList(audios, renditionUrls), copyRenditionsList(subtitles, renditionUrls),
+        muxedAudioFormat, muxedCaptionFormats);
+  }
+
+  /**
    * Creates a playlist with a single variant.
    *
    * @param variantUrl The url of the single variant.
@@ -119,6 +134,17 @@ public final class HlsMasterPlaylist extends HlsPlaylist {
     List<HlsUrl> emptyList = Collections.emptyList();
     return new HlsMasterPlaylist(null, Collections.<String>emptyList(), variant, emptyList,
         emptyList, null, null);
+  }
+
+  private static List<HlsUrl> copyRenditionsList(List<HlsUrl> renditions, List<String> urls) {
+    List<HlsUrl> copiedRenditions = new ArrayList<>(urls.size());
+    for (int i = 0; i < renditions.size(); i++) {
+      HlsUrl rendition = renditions.get(i);
+      if (urls.contains(rendition.url)) {
+        copiedRenditions.add(rendition);
+      }
+    }
+    return copiedRenditions;
   }
 
 }

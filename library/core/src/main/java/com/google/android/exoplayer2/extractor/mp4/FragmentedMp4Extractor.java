@@ -74,7 +74,7 @@ public final class FragmentedMp4Extractor implements Extractor {
   @Retention(RetentionPolicy.SOURCE)
   @IntDef(flag = true, value = {FLAG_WORKAROUND_EVERY_VIDEO_FRAME_IS_SYNC_FRAME,
       FLAG_WORKAROUND_IGNORE_TFDT_BOX, FLAG_ENABLE_EMSG_TRACK, FLAG_ENABLE_CEA608_TRACK,
-      FLAG_SIDELOADED})
+      FLAG_SIDELOADED, FLAG_WORKAROUND_IGNORE_EDIT_LISTS})
   public @interface Flags {}
   /**
    * Flag to work around an issue in some video streams where every frame is marked as a sync frame.
@@ -103,6 +103,10 @@ public final class FragmentedMp4Extractor implements Extractor {
    * container.
    */
   private static final int FLAG_SIDELOADED = 16;
+  /**
+   * Flag to ignore any edit lists in the stream.
+   */
+  public static final int FLAG_WORKAROUND_IGNORE_EDIT_LISTS = 32;
 
   private static final String TAG = "FragmentedMp4Extractor";
   private static final int SAMPLE_GROUP_TYPE_seig = Util.getIntegerCodeForString("seig");
@@ -426,7 +430,7 @@ public final class FragmentedMp4Extractor implements Extractor {
       Atom.ContainerAtom atom = moov.containerChildren.get(i);
       if (atom.type == Atom.TYPE_trak) {
         Track track = AtomParsers.parseTrak(atom, moov.getLeafAtomOfType(Atom.TYPE_mvhd), duration,
-            drmInitData, false);
+            drmInitData, (flags & FLAG_WORKAROUND_IGNORE_EDIT_LISTS) != 0, false);
         if (track != null) {
           tracks.put(track.id, track);
         }
