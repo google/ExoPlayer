@@ -67,7 +67,7 @@ public final class CommonEncryptionDrmTest extends ActivityInstrumentationTestCa
     super.tearDown();
   }
 
-  public void testCencSchemeType() {
+  public void testCencSchemeTypeV18() {
     if (Util.SDK_INT < 18) {
       // Pass.
       return;
@@ -75,7 +75,7 @@ public final class CommonEncryptionDrmTest extends ActivityInstrumentationTestCa
     testRunner.setStreamName("test_widevine_h264_scheme_cenc").setManifestUrl(URL_cenc).run();
   }
 
-  public void testCbc1SchemeType() {
+  public void testCbc1SchemeTypeV25() {
     if (Util.SDK_INT < 25) {
       // cbc1 support was added in API 24, but it is stable from API 25 onwards.
       // See [internal: b/65634809].
@@ -85,7 +85,7 @@ public final class CommonEncryptionDrmTest extends ActivityInstrumentationTestCa
     testRunner.setStreamName("test_widevine_h264_scheme_cbc1").setManifestUrl(URL_cbc1).run();
   }
 
-  public void testCbcsSchemeType() {
+  public void testCbcsSchemeTypeV25() {
     if (Util.SDK_INT < 25) {
       // cbcs support was added in API 24, but it is stable from API 25 onwards.
       // See [internal: b/65634809].
@@ -95,7 +95,7 @@ public final class CommonEncryptionDrmTest extends ActivityInstrumentationTestCa
     testRunner.setStreamName("test_widevine_h264_scheme_cbcs").setManifestUrl(URL_cbcs).run();
   }
 
-  public void testCensSchemeType() {
+  public void testCensSchemeTypeV25() {
     // TODO: Implement once content is available. Track [internal: b/31219813].
   }
 

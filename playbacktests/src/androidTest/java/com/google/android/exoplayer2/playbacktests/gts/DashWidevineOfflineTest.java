@@ -89,7 +89,7 @@ public final class DashWidevineOfflineTest extends ActivityInstrumentationTestCa
 
   // Offline license tests
 
-  public void testWidevineOfflineLicense() throws Exception {
+  public void testWidevineOfflineLicenseV22() throws Exception {
     if (Util.SDK_INT < 22) {
       return; // Pass.
     }
@@ -101,7 +101,7 @@ public final class DashWidevineOfflineTest extends ActivityInstrumentationTestCa
     Assert.assertNotNull(offlineLicenseKeySetId);
   }
 
-  public void testWidevineOfflineReleasedLicense() throws Throwable {
+  public void testWidevineOfflineReleasedLicenseV22() throws Throwable {
     if (Util.SDK_INT < 22) {
       return; // Pass.
     }
@@ -127,7 +127,7 @@ public final class DashWidevineOfflineTest extends ActivityInstrumentationTestCa
     }
   }
 
-  public void testWidevineOfflineExpiredLicense() throws Exception {
+  public void testWidevineOfflineExpiredLicenseV22() throws Exception {
     if (Util.SDK_INT < 22) {
       return; // Pass.
     }
@@ -152,7 +152,7 @@ public final class DashWidevineOfflineTest extends ActivityInstrumentationTestCa
     testRunner.run();
   }
 
-  public void testWidevineOfflineLicenseExpiresOnPause() throws Exception {
+  public void testWidevineOfflineLicenseExpiresOnPauseV22() throws Exception {
     if (Util.SDK_INT < 22) {
       return; // Pass.
     }
