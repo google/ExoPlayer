@@ -350,7 +350,7 @@ public final class Cea608Decoder extends CeaDecoder {
         repeatableControlSet = false;
         return true;
       } else {
-        // This is a repeatable command, but we haven't see it yet, so set the repeabable control
+        // This is a repeatable command, but we haven't see it yet, so set the repeatable control
         // flag (to ensure we ignore the next one should it be a duplicate) and continue processing
         // the command.
         repeatableControlSet = true;

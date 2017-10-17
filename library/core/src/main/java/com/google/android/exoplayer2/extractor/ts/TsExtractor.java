@@ -84,7 +84,8 @@ public final class TsExtractor implements Extractor {
 
   public static final int TS_STREAM_TYPE_MPA = 0x03;
   public static final int TS_STREAM_TYPE_MPA_LSF = 0x04;
-  public static final int TS_STREAM_TYPE_AAC = 0x0F;
+  public static final int TS_STREAM_TYPE_AAC_ADTS = 0x0F;
+  public static final int TS_STREAM_TYPE_AAC_LATM = 0x11;
   public static final int TS_STREAM_TYPE_AC3 = 0x81;
   public static final int TS_STREAM_TYPE_DTS = 0x8A;
   public static final int TS_STREAM_TYPE_HDMV_DTS = 0x82;
@@ -262,20 +263,24 @@ public final class TsExtractor implements Extractor {
     boolean adaptationFieldExists = (tsPacketHeader & 0x20) != 0;
     boolean payloadExists = (tsPacketHeader & 0x10) != 0;
 
+    TsPayloadReader payloadReader = payloadExists ? tsPayloadReaders.get(pid) : null;
+    if (payloadReader == null) {
+      tsPacketBuffer.setPosition(endOfPacket);
+      return RESULT_CONTINUE;
+    }
+
     // Discontinuity check.
-    boolean discontinuityFound = false;
     if (mode != MODE_HLS) {
       int continuityCounter = tsPacketHeader & 0xF;
       int previousCounter = continuityCounters.get(pid, continuityCounter - 1);
       continuityCounters.put(pid, continuityCounter);
       if (previousCounter == continuityCounter) {
-        if (payloadExists) {
-          // Duplicate packet found.
-          tsPacketBuffer.setPosition(endOfPacket);
-          return RESULT_CONTINUE;
-        }
+        // Duplicate packet found.
+        tsPacketBuffer.setPosition(endOfPacket);
+        return RESULT_CONTINUE;
       } else if (continuityCounter != ((previousCounter + 1) & 0xF)) {
-        discontinuityFound = true;
+        // Discontinuity found.
+        payloadReader.seek();
       }
     }
 
@@ -286,17 +291,9 @@ public final class TsExtractor implements Extractor {
     }
 
     // Read the payload.
-    if (payloadExists) {
-      TsPayloadReader payloadReader = tsPayloadReaders.get(pid);
-      if (payloadReader != null) {
-        if (discontinuityFound) {
-          payloadReader.seek();
-        }
-        tsPacketBuffer.setLimit(endOfPacket);
-        payloadReader.consume(tsPacketBuffer, payloadUnitStartIndicator);
-        tsPacketBuffer.setLimit(limit);
-      }
-    }
+    tsPacketBuffer.setLimit(endOfPacket);
+    payloadReader.consume(tsPacketBuffer, payloadUnitStartIndicator);
+    tsPacketBuffer.setLimit(limit);
 
     tsPacketBuffer.setPosition(endOfPacket);
     return RESULT_CONTINUE;

@@ -25,4 +25,5 @@
   <string name="exo_controls_repeat_all_description">"Repetați toate"</string>
   <string name="exo_controls_repeat_off_description">"Repetați niciuna"</string>
   <string name="exo_controls_repeat_one_description">"Repetați unul"</string>
+  <string name="exo_controls_shuffle_description">"Redați aleatoriu"</string>
 </resources>

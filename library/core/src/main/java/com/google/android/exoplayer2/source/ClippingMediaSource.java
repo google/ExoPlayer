@@ -17,7 +17,6 @@ package com.google.android.exoplayer2.source;
 
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlayer;
-import com.google.android.exoplayer2.Player.RepeatMode;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.upstream.Allocator;
 import com.google.android.exoplayer2.util.Assertions;
@@ -99,7 +98,7 @@ public final class ClippingMediaSource implements MediaSource, MediaSource.Liste
     ClippingMediaPeriod mediaPeriod = new ClippingMediaPeriod(
         mediaSource.createPeriod(id, allocator), enableInitialDiscontinuity);
     mediaPeriods.add(mediaPeriod);
-    mediaPeriod.setClipping(clippingTimeline.startUs, clippingTimeline.endUs);
+    mediaPeriod.setClipping(startUs, endUs);
     return mediaPeriod;
   }
 
@@ -120,9 +119,6 @@ public final class ClippingMediaSource implements MediaSource, MediaSource.Liste
   public void onSourceInfoRefreshed(Timeline timeline, Object manifest) {
     clippingTimeline = new ClippingTimeline(timeline, startUs, endUs);
     sourceListener.onSourceInfoRefreshed(clippingTimeline, manifest);
-    long startUs = clippingTimeline.startUs;
-    long endUs = clippingTimeline.endUs == C.TIME_UNSET ? C.TIME_END_OF_SOURCE
-        : clippingTimeline.endUs;
     int count = mediaPeriods.size();
     for (int i = 0; i < count; i++) {
       mediaPeriods.get(i).setClipping(startUs, endUs);
@@ -132,9 +128,8 @@ public final class ClippingMediaSource implements MediaSource, MediaSource.Liste
   /**
    * Provides a clipped view of a specified timeline.
    */
-  private static final class ClippingTimeline extends Timeline {
+  private static final class ClippingTimeline extends ForwardingTimeline {
 
-    private final Timeline timeline;
     private final long startUs;
     private final long endUs;
 
@@ -147,6 +142,7 @@ public final class ClippingMediaSource implements MediaSource, MediaSource.Liste
      *     of {@code timeline}, or {@link C#TIME_END_OF_SOURCE} to clip no samples from the end.
      */
     public ClippingTimeline(Timeline timeline, long startUs, long endUs) {
+      super(timeline);
       Assertions.checkArgument(timeline.getWindowCount() == 1);
       Assertions.checkArgument(timeline.getPeriodCount() == 1);
       Window window = timeline.getWindow(0, new Window(), false);
@@ -161,24 +157,8 @@ public final class ClippingMediaSource implements MediaSource, MediaSource.Liste
       }
       Period period = timeline.getPeriod(0, new Period());
       Assertions.checkArgument(period.getPositionInWindowUs() == 0);
-      this.timeline = timeline;
       this.startUs = startUs;
       this.endUs = resolvedEndUs;
-    }
-
-    @Override
-    public int getWindowCount() {
-      return 1;
-    }
-
-    @Override
-    public int getNextWindowIndex(int windowIndex, @RepeatMode int repeatMode) {
-      return timeline.getNextWindowIndex(windowIndex, repeatMode);
-    }
-
-    @Override
-    public int getPreviousWindowIndex(int windowIndex, @RepeatMode int repeatMode) {
-      return timeline.getPreviousWindowIndex(windowIndex, repeatMode);
     }
 
     @Override
@@ -203,20 +183,10 @@ public final class ClippingMediaSource implements MediaSource, MediaSource.Liste
     }
 
     @Override
-    public int getPeriodCount() {
-      return 1;
-    }
-
-    @Override
     public Period getPeriod(int periodIndex, Period period, boolean setIds) {
       period = timeline.getPeriod(0, period, setIds);
       period.durationUs = endUs != C.TIME_UNSET ? endUs - startUs : C.TIME_UNSET;
       return period;
-    }
-
-    @Override
-    public int getIndexOfPeriod(Object uid) {
-      return timeline.getIndexOfPeriod(uid);
     }
 
   }

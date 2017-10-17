@@ -120,14 +120,16 @@ import java.nio.ByteBuffer;
       }
     }
 
-    outputBuffer.init(inputBuffer.timeUs, outputMode);
-    int getFrameResult = vpxGetFrame(vpxDecContext, outputBuffer);
-    if (getFrameResult == 1) {
-      outputBuffer.addFlag(C.BUFFER_FLAG_DECODE_ONLY);
-    } else if (getFrameResult == -1) {
-      return new VpxDecoderException("Buffer initialization failed.");
+    if (!inputBuffer.isDecodeOnly()) {
+      outputBuffer.init(inputBuffer.timeUs, outputMode);
+      int getFrameResult = vpxGetFrame(vpxDecContext, outputBuffer);
+      if (getFrameResult == 1) {
+        outputBuffer.addFlag(C.BUFFER_FLAG_DECODE_ONLY);
+      } else if (getFrameResult == -1) {
+        return new VpxDecoderException("Buffer initialization failed.");
+      }
+      outputBuffer.colorInfo = inputBuffer.colorInfo;
     }
-    outputBuffer.colorInfo = inputBuffer.colorInfo;
     return null;
   }
 

@@ -103,6 +103,7 @@ import java.util.List;
   // the way in which HlsSampleStreamWrapper generates track groups. Use only index based methods
   // in TrackSelection to avoid unexpected behavior.
   private TrackSelection trackSelection;
+  private long liveEdgeTimeUs;
 
   /**
    * @param playlistTracker The {@link HlsPlaylistTracker} from which to obtain media playlists.
@@ -122,6 +123,7 @@ import java.util.List;
     this.variants = variants;
     this.timestampAdjusterProvider = timestampAdjusterProvider;
     this.muxedCaptionFormats = muxedCaptionFormats;
+    liveEdgeTimeUs = C.TIME_UNSET;
     Format[] variantFormats = new Format[variants.length];
     int[] initialTrackSelection = new int[variants.length];
     for (int i = 0; i < variants.length; i++) {
@@ -207,14 +209,25 @@ import java.util.List;
     int oldVariantIndex = previous == null ? C.INDEX_UNSET
         : trackGroup.indexOf(previous.trackFormat);
     expectedPlaylistUrl = null;
-    // Unless segments are known to be independent, switching variant will require downloading
-    // overlapping segments. Hence we use the start time of the previous chunk rather than its end
-    // time for this case.
-    long bufferedDurationUs = previous == null ? 0 : Math.max(0,
-        (independentSegments ? previous.endTimeUs : previous.startTimeUs) - playbackPositionUs);
+    long bufferedDurationUs = previous == null ? 0 : previous.endTimeUs - playbackPositionUs;
+
+    long timeToLiveEdgeUs = resolveTimeToLiveEdgeUs(playbackPositionUs);
+    if (previous != null && !independentSegments) {
+      // Unless segments are known to be independent, switching variant will require downloading
+      // overlapping segments. Hence we will subtract previous chunk's duration from buffered
+      // duration.
+      // This may affect the live-streaming adaptive track selection logic, when we are comparing
+      // buffered duration to time to live edge to decide whether to switch. Therefore,
+      // we will subtract this same amount from timeToLiveEdgeUs as well.
+      long subtractedDurationUs = previous.getDurationUs();
+      bufferedDurationUs = Math.max(0, bufferedDurationUs - subtractedDurationUs);
+      if (timeToLiveEdgeUs != C.TIME_UNSET) {
+        timeToLiveEdgeUs = Math.max(0, timeToLiveEdgeUs - subtractedDurationUs);
+      }
+    }
 
     // Select the variant.
-    trackSelection.updateSelectedTrack(bufferedDurationUs);
+    trackSelection.updateSelectedTrack(bufferedDurationUs, timeToLiveEdgeUs);
     int selectedVariantIndex = trackSelection.getSelectedIndexInTrackGroup();
 
     boolean switchingVariant = oldVariantIndex != selectedVariantIndex;
@@ -227,6 +240,8 @@ import java.util.List;
     }
     HlsMediaPlaylist mediaPlaylist = playlistTracker.getPlaylistSnapshot(selectedUrl);
     independentSegments = mediaPlaylist.hasIndependentSegmentsTag;
+
+    updateLiveEdgeTimeUs(mediaPlaylist);
 
     // Select the chunk.
     int chunkMediaSequence;
@@ -271,9 +286,9 @@ import java.util.List;
     // Handle encryption.
     HlsMediaPlaylist.Segment segment = mediaPlaylist.segments.get(chunkIndex);
 
-    // Check if encryption is specified.
-    if (segment.isEncrypted) {
-      Uri keyUri = UriUtil.resolveToUri(mediaPlaylist.baseUri, segment.encryptionKeyUri);
+    // Check if the segment is completely encrypted using the identity key format.
+    if (segment.fullSegmentEncryptionKeyUri != null) {
+      Uri keyUri = UriUtil.resolveToUri(mediaPlaylist.baseUri, segment.fullSegmentEncryptionKeyUri);
       if (!keyUri.equals(encryptionKeyUri)) {
         // Encryption is specified and the key has changed.
         out.chunk = newEncryptionKeyChunk(keyUri, segment.encryptionIV, selectedVariantIndex,
@@ -309,7 +324,8 @@ import java.util.List;
     out.chunk = new HlsMediaChunk(mediaDataSource, dataSpec, initDataSpec, selectedUrl,
         muxedCaptionFormats, trackSelection.getSelectionReason(), trackSelection.getSelectionData(),
         startTimeUs, startTimeUs + segment.durationUs, chunkMediaSequence, discontinuitySequence,
-        isTimestampMaster, timestampAdjuster, previous, encryptionKey, encryptionIv);
+        isTimestampMaster, timestampAdjuster, previous, mediaPlaylist.drmInitData, encryptionKey,
+        encryptionIv);
   }
 
   /**
@@ -358,6 +374,15 @@ import java.util.List;
   }
 
   // Private methods.
+
+  private long resolveTimeToLiveEdgeUs(long playbackPositionUs) {
+    final boolean resolveTimeToLiveEdgePossible = liveEdgeTimeUs != C.TIME_UNSET;
+    return resolveTimeToLiveEdgePossible ? liveEdgeTimeUs - playbackPositionUs : C.TIME_UNSET;
+  }
+
+  private void updateLiveEdgeTimeUs(HlsMediaPlaylist mediaPlaylist) {
+    liveEdgeTimeUs = mediaPlaylist.hasEndTag ? C.TIME_UNSET : mediaPlaylist.getEndTimeUs();
+  }
 
   private EncryptionKeyChunk newEncryptionKeyChunk(Uri keyUri, String iv, int variantIndex,
       int trackSelectionReason, Object trackSelectionData) {
@@ -408,7 +433,7 @@ import java.util.List;
     }
 
     @Override
-    public void updateSelectedTrack(long bufferedDurationUs) {
+    public void updateSelectedTrack(long bufferedDurationUs, long availableDurationUs) {
       long nowMs = SystemClock.elapsedRealtime();
       if (!isBlacklisted(selectedIndex, nowMs)) {
         return;

@@ -109,13 +109,14 @@ public final class ClippingMediaSourceTest extends InstrumentationTestCase {
         TEST_PERIOD_DURATION_US - TEST_CLIP_AMOUNT_US);
     TimelineAsserts.assertWindowIds(clippedTimeline, 111);
     TimelineAsserts.assertPeriodCounts(clippedTimeline, 1);
-    TimelineAsserts.assertPreviousWindowIndices(
-        clippedTimeline, Player.REPEAT_MODE_OFF, C.INDEX_UNSET);
-    TimelineAsserts.assertPreviousWindowIndices(clippedTimeline, Player.REPEAT_MODE_ONE, 0);
-    TimelineAsserts.assertPreviousWindowIndices(clippedTimeline, Player.REPEAT_MODE_ALL, 0);
-    TimelineAsserts.assertNextWindowIndices(clippedTimeline, Player.REPEAT_MODE_OFF, C.INDEX_UNSET);
-    TimelineAsserts.assertNextWindowIndices(clippedTimeline, Player.REPEAT_MODE_ONE, 0);
-    TimelineAsserts.assertNextWindowIndices(clippedTimeline, Player.REPEAT_MODE_ALL, 0);
+    TimelineAsserts.assertPreviousWindowIndices(clippedTimeline, Player.REPEAT_MODE_OFF, false,
+        C.INDEX_UNSET);
+    TimelineAsserts.assertPreviousWindowIndices(clippedTimeline, Player.REPEAT_MODE_ONE, false, 0);
+    TimelineAsserts.assertPreviousWindowIndices(clippedTimeline, Player.REPEAT_MODE_ALL, false, 0);
+    TimelineAsserts.assertNextWindowIndices(clippedTimeline, Player.REPEAT_MODE_OFF, false,
+        C.INDEX_UNSET);
+    TimelineAsserts.assertNextWindowIndices(clippedTimeline, Player.REPEAT_MODE_ONE, false, 0);
+    TimelineAsserts.assertNextWindowIndices(clippedTimeline, Player.REPEAT_MODE_ALL, false, 0);
   }
 
   /**

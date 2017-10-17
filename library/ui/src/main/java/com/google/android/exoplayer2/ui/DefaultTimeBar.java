@@ -42,13 +42,124 @@ import java.util.Locale;
 
 /**
  * A time bar that shows a current position, buffered position, duration and ad markers.
+ * <p>
+ * A DefaultTimeBar can be customized by setting attributes, as outlined below.
+ *
+ * <h3>Attributes</h3>
+ * The following attributes can be set on a DefaultTimeBar when used in a layout XML file:
+ * <p>
+ * <ul>
+ *   <li><b>{@code bar_height}</b> - Dimension for the height of the time bar.
+ *       <ul>
+ *         <li>Default: {@link #DEFAULT_BAR_HEIGHT_DP}</li>
+ *       </ul>
+ *   </li>
+ *   <li><b>{@code touch_target_height}</b> - Dimension for the height of the area in which touch
+ *       interactions with the time bar are handled. If no height is specified, this also determines
+ *       the height of the view.
+ *       <ul>
+ *         <li>Default: {@link #DEFAULT_TOUCH_TARGET_HEIGHT_DP}</li>
+ *       </ul>
+ *   </li>
+ *   <li><b>{@code ad_marker_width}</b> - Dimension for the width of any ad markers shown on the
+ *       bar. Ad markers are superimposed on the time bar to show the times at which ads will play.
+ *       <ul>
+ *         <li>Default: {@link #DEFAULT_AD_MARKER_WIDTH_DP}</li>
+ *       </ul>
+ *   </li>
+ *   <li><b>{@code scrubber_enabled_size}</b> - Dimension for the diameter of the circular scrubber
+ *       handle when scrubbing is enabled but not in progress. Set to zero if no scrubber handle
+ *       should be shown.
+ *       <ul>
+ *         <li>Default: {@link #DEFAULT_SCRUBBER_ENABLED_SIZE_DP}</li>
+ *       </ul>
+ *   </li>
+ *   <li><b>{@code scrubber_disabled_size}</b> - Dimension for the diameter of the circular scrubber
+ *       handle when scrubbing isn't enabled. Set to zero if no scrubber handle should be shown.
+ *       <ul>
+ *         <li>Default: {@link #DEFAULT_SCRUBBER_DISABLED_SIZE_DP}</li>
+ *       </ul>
+ *   </li>
+ *   <li><b>{@code scrubber_dragged_size}</b> - Dimension for the diameter of the circular scrubber
+ *       handle when scrubbing is in progress. Set to zero if no scrubber handle should be shown.
+ *       <ul>
+ *         <li>Default: {@link #DEFAULT_SCRUBBER_DRAGGED_SIZE_DP}</li>
+ *       </ul>
+ *   </li>
+ *   <li><b>{@code played_color}</b> - Color for the portion of the time bar representing media
+ *       before the current playback position.
+ *       <ul>
+ *         <li>Default: {@link #DEFAULT_PLAYED_COLOR}</li>
+ *       </ul>
+ *   </li>
+ *   <li><b>{@code scrubber_color}</b> - Color for the scrubber handle.
+ *       <ul>
+ *         <li>Default: see {@link #getDefaultScrubberColor(int)}</li>
+ *       </ul>
+ *   </li>
+ *   <li><b>{@code buffered_color}</b> - Color for the portion of the time bar after the current
+ *       played position up to the current buffered position.
+ *       <ul>
+ *         <li>Default: see {@link #getDefaultBufferedColor(int)}</li>
+ *       </ul>
+ *   </li>
+ *   <li><b>{@code unplayed_color}</b> - Color for the portion of the time bar after the current
+ *       buffered position.
+ *       <ul>
+ *         <li>Default: see {@link #getDefaultUnplayedColor(int)}</li>
+ *       </ul>
+ *   </li>
+ *   <li><b>{@code ad_marker_color}</b> - Color for unplayed ad markers.
+ *       <ul>
+ *         <li>Default: {@link #DEFAULT_AD_MARKER_COLOR}</li>
+ *       </ul>
+ *   </li>
+ *   <li><b>{@code played_ad_marker_color}</b> - Color for played ad markers.
+ *       <ul>
+ *         <li>Default: see {@link #getDefaultPlayedAdMarkerColor(int)}</li>
+ *       </ul>
+ *   </li>
+ * </ul>
  */
 public class DefaultTimeBar extends View implements TimeBar {
 
   /**
+   * Default height for the time bar, in dp.
+   */
+  public static final int DEFAULT_BAR_HEIGHT_DP = 4;
+  /**
+   * Default height for the touch target, in dp.
+   */
+  public static final int DEFAULT_TOUCH_TARGET_HEIGHT_DP = 26;
+  /**
+   * Default width for ad markers, in dp.
+   */
+  public static final int DEFAULT_AD_MARKER_WIDTH_DP = 4;
+  /**
+   * Default diameter for the scrubber when enabled, in dp.
+   */
+  public static final int DEFAULT_SCRUBBER_ENABLED_SIZE_DP = 12;
+  /**
+   * Default diameter for the scrubber when disabled, in dp.
+   */
+  public static final int DEFAULT_SCRUBBER_DISABLED_SIZE_DP = 0;
+  /**
+   * Default diameter for the scrubber when dragged, in dp.
+   */
+  public static final int DEFAULT_SCRUBBER_DRAGGED_SIZE_DP = 16;
+  /**
+   * Default color for the played portion of the time bar.
+   */
+  public static final int DEFAULT_PLAYED_COLOR = 0xFFFFFFFF;
+  /**
+   * Default color for ad markers.
+   */
+  public static final int DEFAULT_AD_MARKER_COLOR = 0xB2FFFF00;
+
+  /**
    * The threshold in dps above the bar at which touch events trigger fine scrub mode.
    */
-  private static final int FINE_SCRUB_Y_THRESHOLD = -50;
+  private static final int FINE_SCRUB_Y_THRESHOLD_DP = -50;
   /**
    * The ratio by which times are reduced in fine scrub mode.
    */
@@ -59,14 +170,6 @@ public class DefaultTimeBar extends View implements TimeBar {
    */
   private static final long STOP_SCRUBBING_TIMEOUT_MS = 1000;
   private static final int DEFAULT_INCREMENT_COUNT = 20;
-  private static final int DEFAULT_BAR_HEIGHT = 4;
-  private static final int DEFAULT_TOUCH_TARGET_HEIGHT = 26;
-  private static final int DEFAULT_PLAYED_COLOR = 0xFFFFFFFF;
-  private static final int DEFAULT_AD_MARKER_COLOR = 0xB2FFFF00;
-  private static final int DEFAULT_AD_MARKER_WIDTH = 4;
-  private static final int DEFAULT_SCRUBBER_ENABLED_SIZE = 12;
-  private static final int DEFAULT_SCRUBBER_DISABLED_SIZE = 0;
-  private static final int DEFAULT_SCRUBBER_DRAGGED_SIZE = 16;
 
   private final Rect seekBounds;
   private final Rect progressBar;
@@ -126,13 +229,13 @@ public class DefaultTimeBar extends View implements TimeBar {
     // Calculate the dimensions and paints for drawn elements.
     Resources res = context.getResources();
     DisplayMetrics displayMetrics = res.getDisplayMetrics();
-    fineScrubYThreshold = dpToPx(displayMetrics, FINE_SCRUB_Y_THRESHOLD);
-    int defaultBarHeight = dpToPx(displayMetrics, DEFAULT_BAR_HEIGHT);
-    int defaultTouchTargetHeight = dpToPx(displayMetrics, DEFAULT_TOUCH_TARGET_HEIGHT);
-    int defaultAdMarkerWidth = dpToPx(displayMetrics, DEFAULT_AD_MARKER_WIDTH);
-    int defaultScrubberEnabledSize = dpToPx(displayMetrics, DEFAULT_SCRUBBER_ENABLED_SIZE);
-    int defaultScrubberDisabledSize = dpToPx(displayMetrics, DEFAULT_SCRUBBER_DISABLED_SIZE);
-    int defaultScrubberDraggedSize = dpToPx(displayMetrics, DEFAULT_SCRUBBER_DRAGGED_SIZE);
+    fineScrubYThreshold = dpToPx(displayMetrics, FINE_SCRUB_Y_THRESHOLD_DP);
+    int defaultBarHeight = dpToPx(displayMetrics, DEFAULT_BAR_HEIGHT_DP);
+    int defaultTouchTargetHeight = dpToPx(displayMetrics, DEFAULT_TOUCH_TARGET_HEIGHT_DP);
+    int defaultAdMarkerWidth = dpToPx(displayMetrics, DEFAULT_AD_MARKER_WIDTH_DP);
+    int defaultScrubberEnabledSize = dpToPx(displayMetrics, DEFAULT_SCRUBBER_ENABLED_SIZE_DP);
+    int defaultScrubberDisabledSize = dpToPx(displayMetrics, DEFAULT_SCRUBBER_DISABLED_SIZE_DP);
+    int defaultScrubberDraggedSize = dpToPx(displayMetrics, DEFAULT_SCRUBBER_DRAGGED_SIZE_DP);
     if (attrs != null) {
       TypedArray a = context.getTheme().obtainStyledAttributes(attrs, R.styleable.DefaultTimeBar, 0,
           0);
@@ -378,7 +481,6 @@ public class DefaultTimeBar extends View implements TimeBar {
     super.onSizeChanged(width, height, oldWidth, oldHeight);
   }
 
-  @TargetApi(14)
   @Override
   public void onInitializeAccessibilityEvent(AccessibilityEvent event) {
     super.onInitializeAccessibilityEvent(event);

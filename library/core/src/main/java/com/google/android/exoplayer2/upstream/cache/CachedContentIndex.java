@@ -34,9 +34,9 @@ import java.io.OutputStream;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.Random;
 import java.util.Set;
 import javax.crypto.Cipher;
@@ -188,14 +188,14 @@ import javax.crypto.spec.SecretKeySpec;
 
   /** Removes empty {@link CachedContent} instances from index. */
   public void removeEmpty() {
-    LinkedList<String> cachedContentToBeRemoved = new LinkedList<>();
+    ArrayList<String> cachedContentToBeRemoved = new ArrayList<>();
     for (CachedContent cachedContent : keyToContent.values()) {
       if (cachedContent.isEmpty()) {
         cachedContentToBeRemoved.add(cachedContent.key);
       }
     }
-    for (String key : cachedContentToBeRemoved) {
-      removeEmpty(key);
+    for (int i = 0; i < cachedContentToBeRemoved.size(); i++) {
+      removeEmpty(cachedContentToBeRemoved.get(i));
     }
   }
 

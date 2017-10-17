@@ -74,7 +74,7 @@ public final class FragmentedMp4Extractor implements Extractor {
   @Retention(RetentionPolicy.SOURCE)
   @IntDef(flag = true, value = {FLAG_WORKAROUND_EVERY_VIDEO_FRAME_IS_SYNC_FRAME,
       FLAG_WORKAROUND_IGNORE_TFDT_BOX, FLAG_ENABLE_EMSG_TRACK, FLAG_ENABLE_CEA608_TRACK,
-      FLAG_SIDELOADED})
+      FLAG_SIDELOADED, FLAG_WORKAROUND_IGNORE_EDIT_LISTS})
   public @interface Flags {}
   /**
    * Flag to work around an issue in some video streams where every frame is marked as a sync frame.
@@ -103,6 +103,10 @@ public final class FragmentedMp4Extractor implements Extractor {
    * container.
    */
   private static final int FLAG_SIDELOADED = 16;
+  /**
+   * Flag to ignore any edit lists in the stream.
+   */
+  public static final int FLAG_WORKAROUND_IGNORE_EDIT_LISTS = 32;
 
   private static final String TAG = "FragmentedMp4Extractor";
   private static final int SAMPLE_GROUP_TYPE_seig = Util.getIntegerCodeForString("seig");
@@ -119,6 +123,9 @@ public final class FragmentedMp4Extractor implements Extractor {
   // Workarounds.
   @Flags private final int flags;
   private final Track sideloadedTrack;
+
+  // Manifest DRM data.
+  private final DrmInitData sideloadedDrmInitData;
 
   // Track-linked data bundle, accessible as a whole through trackID.
   private final SparseArray<TrackBundle> trackBundles;
@@ -179,7 +186,7 @@ public final class FragmentedMp4Extractor implements Extractor {
    * @param timestampAdjuster Adjusts sample timestamps. May be null if no adjustment is needed.
    */
   public FragmentedMp4Extractor(@Flags int flags, TimestampAdjuster timestampAdjuster) {
-    this(flags, timestampAdjuster, null);
+    this(flags, timestampAdjuster, null, null);
   }
 
   /**
@@ -187,12 +194,14 @@ public final class FragmentedMp4Extractor implements Extractor {
    * @param timestampAdjuster Adjusts sample timestamps. May be null if no adjustment is needed.
    * @param sideloadedTrack Sideloaded track information, in the case that the extractor
    *     will not receive a moov box in the input data.
+   * @param sideloadedDrmInitData The {@link DrmInitData} to use for encrypted tracks.
    */
   public FragmentedMp4Extractor(@Flags int flags, TimestampAdjuster timestampAdjuster,
-      Track sideloadedTrack) {
+      Track sideloadedTrack, DrmInitData sideloadedDrmInitData) {
     this.flags = flags | (sideloadedTrack != null ? FLAG_SIDELOADED : 0);
     this.timestampAdjuster = timestampAdjuster;
     this.sideloadedTrack = sideloadedTrack;
+    this.sideloadedDrmInitData = sideloadedDrmInitData;
     atomHeader = new ParsableByteArray(Atom.LONG_HEADER_SIZE);
     nalStartCode = new ParsableByteArray(NalUnitUtil.NAL_START_CODE);
     nalPrefix = new ParsableByteArray(5);
@@ -402,7 +411,8 @@ public final class FragmentedMp4Extractor implements Extractor {
   private void onMoovContainerAtomRead(ContainerAtom moov) throws ParserException {
     Assertions.checkState(sideloadedTrack == null, "Unexpected moov box.");
 
-    DrmInitData drmInitData = getDrmInitDataFromAtoms(moov.leafChildren);
+    DrmInitData drmInitData = sideloadedDrmInitData != null ? sideloadedDrmInitData
+        : getDrmInitDataFromAtoms(moov.leafChildren);
 
     // Read declaration of track fragments in the Moov box.
     ContainerAtom mvex = moov.getContainerAtomOfType(Atom.TYPE_mvex);
@@ -426,7 +436,7 @@ public final class FragmentedMp4Extractor implements Extractor {
       Atom.ContainerAtom atom = moov.containerChildren.get(i);
       if (atom.type == Atom.TYPE_trak) {
         Track track = AtomParsers.parseTrak(atom, moov.getLeafAtomOfType(Atom.TYPE_mvhd), duration,
-            drmInitData, false);
+            drmInitData, (flags & FLAG_WORKAROUND_IGNORE_EDIT_LISTS) != 0, false);
         if (track != null) {
           tracks.put(track.id, track);
         }
@@ -456,7 +466,9 @@ public final class FragmentedMp4Extractor implements Extractor {
 
   private void onMoofContainerAtomRead(ContainerAtom moof) throws ParserException {
     parseMoof(moof, trackBundles, flags, extendedTypeScratch);
-    DrmInitData drmInitData = getDrmInitDataFromAtoms(moof.leafChildren);
+    // If drm init data is sideloaded, we ignore pssh boxes.
+    DrmInitData drmInitData = sideloadedDrmInitData != null ? null
+        : getDrmInitDataFromAtoms(moof.leafChildren);
     if (drmInitData != null) {
       int trackCount = trackBundles.size();
       for (int i = 0; i < trackCount; i++) {
@@ -1275,7 +1287,7 @@ public final class FragmentedMp4Extractor implements Extractor {
         if (uuid == null) {
           Log.w(TAG, "Skipped pssh atom (failed to extract uuid)");
         } else {
-          schemeDatas.add(new SchemeData(uuid, null, MimeTypes.VIDEO_MP4, psshData));
+          schemeDatas.add(new SchemeData(uuid, MimeTypes.VIDEO_MP4, psshData));
         }
       }
     }

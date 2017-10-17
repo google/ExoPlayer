@@ -25,4 +25,5 @@
   <string name="exo_controls_repeat_all_description">"Ulangi Semua"</string>
   <string name="exo_controls_repeat_off_description">"Jangan Ulangi"</string>
   <string name="exo_controls_repeat_one_description">"Ulangi Satu"</string>
+  <string name="exo_controls_shuffle_description">"Acak"</string>
 </resources>

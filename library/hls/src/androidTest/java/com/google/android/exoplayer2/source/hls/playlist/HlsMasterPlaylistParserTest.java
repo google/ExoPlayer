@@ -28,7 +28,7 @@ import java.util.List;
 import junit.framework.TestCase;
 
 /**
- * Test for {@link HlsMasterPlaylistParserTest}
+ * Test for {@link HlsMasterPlaylistParserTest}.
  */
 public class HlsMasterPlaylistParserTest extends TestCase {
 
@@ -42,10 +42,10 @@ public class HlsMasterPlaylistParserTest extends TestCase {
       + "#EXT-X-STREAM-INF:BANDWIDTH=1280000,CODECS=\"mp4a.40.2 , avc1.66.30 \"\n"
       + "http://example.com/spaces_in_codecs.m3u8\n"
       + "\n"
-      + "#EXT-X-STREAM-INF:BANDWIDTH=2560000,RESOLUTION=384x160\n"
+      + "#EXT-X-STREAM-INF:BANDWIDTH=2560000,FRAME-RATE=25,RESOLUTION=384x160\n"
       + "http://example.com/mid.m3u8\n"
       + "\n"
-      + "#EXT-X-STREAM-INF:BANDWIDTH=7680000\n"
+      + "#EXT-X-STREAM-INF:BANDWIDTH=7680000,FRAME-RATE=29.997\n"
       + "http://example.com/hi.m3u8\n"
       + "\n"
       + "#EXT-X-STREAM-INF:BANDWIDTH=65000,CODECS=\"mp4a.40.5\"\n"
@@ -96,18 +96,21 @@ public class HlsMasterPlaylistParserTest extends TestCase {
     assertNull(variants.get(2).format.codecs);
     assertEquals(384, variants.get(2).format.width);
     assertEquals(160, variants.get(2).format.height);
+    assertEquals(25.0f, variants.get(2).format.frameRate);
     assertEquals("http://example.com/mid.m3u8", variants.get(2).url);
 
     assertEquals(7680000, variants.get(3).format.bitrate);
     assertNull(variants.get(3).format.codecs);
     assertEquals(Format.NO_VALUE, variants.get(3).format.width);
     assertEquals(Format.NO_VALUE, variants.get(3).format.height);
+    assertEquals(29.997f, variants.get(3).format.frameRate);
     assertEquals("http://example.com/hi.m3u8", variants.get(3).url);
 
     assertEquals(65000, variants.get(4).format.bitrate);
     assertEquals("mp4a.40.5", variants.get(4).format.codecs);
     assertEquals(Format.NO_VALUE, variants.get(4).format.width);
     assertEquals(Format.NO_VALUE, variants.get(4).format.height);
+    assertEquals((float) Format.NO_VALUE, variants.get(4).format.frameRate);
     assertEquals("http://example.com/audio-only.m3u8", variants.get(4).url);
   }
 

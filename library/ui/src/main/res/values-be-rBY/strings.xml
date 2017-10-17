@@ -25,4 +25,5 @@
   <string name="exo_controls_repeat_all_description">"Паўтарыць усё"</string>
   <string name="exo_controls_repeat_off_description">"Паўтараць ні"</string>
   <string name="exo_controls_repeat_one_description">"Паўтарыць адзін"</string>
+  <string name="exo_controls_shuffle_description">"Перамяшаць"</string>
 </resources>

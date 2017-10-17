@@ -17,6 +17,8 @@ package com.google.android.exoplayer2.testutil;
 
 import android.annotation.TargetApi;
 import android.content.Context;
+import android.media.MediaCodec;
+import android.media.MediaCrypto;
 import android.os.Handler;
 import com.google.android.exoplayer2.DefaultRenderersFactory;
 import com.google.android.exoplayer2.ExoPlaybackException;
@@ -25,9 +27,12 @@ import com.google.android.exoplayer2.Renderer;
 import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
 import com.google.android.exoplayer2.drm.DrmSessionManager;
 import com.google.android.exoplayer2.drm.FrameworkMediaCrypto;
+import com.google.android.exoplayer2.mediacodec.MediaCodecInfo;
 import com.google.android.exoplayer2.mediacodec.MediaCodecSelector;
+import com.google.android.exoplayer2.mediacodec.MediaCodecUtil.DecoderQueryException;
 import com.google.android.exoplayer2.video.MediaCodecVideoRenderer;
 import com.google.android.exoplayer2.video.VideoRendererEventListener;
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
 
 /**
@@ -66,6 +71,7 @@ public class DebugRenderersFactory extends DefaultRenderersFactory {
     private int queueSize;
     private int bufferCount;
     private int minimumInsertIndex;
+    private boolean skipToPositionBeforeRenderingFirstFrame;
 
     public DebugMediaCodecVideoRenderer(Context context, MediaCodecSelector mediaCodecSelector,
         long allowedJoiningTimeMs, DrmSessionManager<FrameworkMediaCrypto> drmSessionManager,
@@ -76,9 +82,22 @@ public class DebugRenderersFactory extends DefaultRenderersFactory {
     }
 
     @Override
+    protected void configureCodec(MediaCodecInfo codecInfo, MediaCodec codec, Format format,
+        MediaCrypto crypto) throws DecoderQueryException {
+      // If the codec is being initialized whilst the renderer is started, default behavior is to
+      // render the first frame (i.e. the keyframe before the current position), then drop frames up
+      // to the current playback position. For test runs that place a maximum limit on the number of
+      // dropped frames allowed, this is not desired behavior. Hence we skip (rather than drop)
+      // frames up to the current playback position [Internal: b/66494991].
+      skipToPositionBeforeRenderingFirstFrame = getState() == Renderer.STATE_STARTED;
+      super.configureCodec(codecInfo, codec, format, crypto);
+    }
+
+    @Override
     protected void releaseCodec() {
       super.releaseCodec();
       clearTimestamps();
+      skipToPositionBeforeRenderingFirstFrame = false;
     }
 
     @Override
@@ -100,6 +119,34 @@ public class DebugRenderersFactory extends DefaultRenderersFactory {
       super.onQueueInputBuffer(buffer);
       insertTimestamp(buffer.timeUs);
       maybeShiftTimestampsList();
+    }
+
+    @Override
+    protected boolean processOutputBuffer(long positionUs, long elapsedRealtimeUs, MediaCodec codec,
+        ByteBuffer buffer, int bufferIndex, int bufferFlags, long bufferPresentationTimeUs,
+        boolean shouldSkip) throws ExoPlaybackException {
+      if (skipToPositionBeforeRenderingFirstFrame && bufferPresentationTimeUs < positionUs) {
+        // After the codec has been initialized, don't render the first frame until we've caught up
+        // to the playback position. Else test runs on devices that do not support dummy surface
+        // will drop frames between rendering the first one and catching up [Internal: b/66494991].
+        shouldSkip = true;
+      }
+      return super.processOutputBuffer(positionUs, elapsedRealtimeUs, codec, buffer, bufferIndex,
+          bufferFlags, bufferPresentationTimeUs, shouldSkip);
+    }
+
+    @Override
+    protected void renderOutputBuffer(MediaCodec codec, int index, long presentationTimeUs) {
+      skipToPositionBeforeRenderingFirstFrame = false;
+      super.renderOutputBuffer(codec, index, presentationTimeUs);
+    }
+
+    @TargetApi(21)
+    @Override
+    protected void renderOutputBufferV21(MediaCodec codec, int index, long presentationTimeUs,
+        long releaseTimeNs) {
+      skipToPositionBeforeRenderingFirstFrame = false;
+      super.renderOutputBufferV21(codec, index, presentationTimeUs, releaseTimeNs);
     }
 
     @Override

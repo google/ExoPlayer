@@ -3,6 +3,14 @@
 The FFmpeg extension provides `FfmpegAudioRenderer`, which uses FFmpeg for
 decoding and can render audio encoded in a variety of formats.
 
+## License note ##
+
+Please note that whilst the code in this repository is licensed under
+[Apache 2.0][], using this extension also requires building and including one or
+more external libraries as described below. These are licensed separately.
+
+[Apache 2.0]: https://github.com/google/ExoPlayer/blob/release-v2/LICENSE
+
 ## Build instructions ##
 
 To use this extension you need to clone the ExoPlayer repository and depend on

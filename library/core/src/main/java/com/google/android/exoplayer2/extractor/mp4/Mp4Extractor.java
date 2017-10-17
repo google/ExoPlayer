@@ -28,6 +28,7 @@ import com.google.android.exoplayer2.extractor.PositionHolder;
 import com.google.android.exoplayer2.extractor.SeekMap;
 import com.google.android.exoplayer2.extractor.TrackOutput;
 import com.google.android.exoplayer2.extractor.mp4.Atom.ContainerAtom;
+import com.google.android.exoplayer2.extractor.mp4.FragmentedMp4Extractor.Flags;
 import com.google.android.exoplayer2.metadata.Metadata;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.NalUnitUtil;
@@ -58,6 +59,17 @@ public final class Mp4Extractor implements Extractor, SeekMap {
   };
 
   /**
+   * Flags controlling the behavior of the extractor.
+   */
+  @Retention(RetentionPolicy.SOURCE)
+  @IntDef(flag = true, value = {FLAG_WORKAROUND_IGNORE_EDIT_LISTS})
+  public @interface Flags {}
+  /**
+   * Flag to ignore any edit lists in the stream.
+   */
+  public static final int FLAG_WORKAROUND_IGNORE_EDIT_LISTS = 1;
+
+  /**
    * Parser states.
    */
   @Retention(RetentionPolicy.SOURCE)
@@ -75,6 +87,8 @@ public final class Mp4Extractor implements Extractor, SeekMap {
    * offset is negative), the source will be reloaded.
    */
   private static final long RELOAD_MINIMUM_SEEK_DISTANCE = 256 * 1024;
+
+  private final @Flags int flags;
 
   // Temporary arrays.
   private final ParsableByteArray nalStartCode;
@@ -98,7 +112,21 @@ public final class Mp4Extractor implements Extractor, SeekMap {
   private long durationUs;
   private boolean isQuickTime;
 
+  /**
+   * Creates a new extractor for unfragmented MP4 streams.
+   */
   public Mp4Extractor() {
+    this(0);
+  }
+
+  /**
+   * Creates a new extractor for unfragmented MP4 streams, using the specified flags to control the
+   * extractor's behavior.
+   *
+   * @param flags Flags that control the extractor's behavior.
+   */
+  public Mp4Extractor(@Flags int flags) {
+    this.flags = flags;
     atomHeader = new ParsableByteArray(Atom.LONG_HEADER_SIZE);
     containerAtoms = new Stack<>();
     nalStartCode = new ParsableByteArray(NalUnitUtil.NAL_START_CODE);
@@ -345,7 +373,7 @@ public final class Mp4Extractor implements Extractor, SeekMap {
       }
 
       Track track = AtomParsers.parseTrak(atom, moov.getLeafAtomOfType(Atom.TYPE_mvhd),
-          C.TIME_UNSET, null, isQuickTime);
+          C.TIME_UNSET, null, (flags & FLAG_WORKAROUND_IGNORE_EDIT_LISTS) != 0, isQuickTime);
       if (track == null) {
         continue;
       }

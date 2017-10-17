@@ -900,8 +900,7 @@ public final class Util {
       return C.TYPE_DASH;
     } else if (fileName.endsWith(".m3u8")) {
       return C.TYPE_HLS;
-    } else if (fileName.endsWith(".ism") || fileName.endsWith(".isml")
-        || fileName.endsWith(".ism/manifest") || fileName.endsWith(".isml/manifest")) {
+    } else if (fileName.matches(".*\\.ism(l)?(/manifest(\\(.+\\))?)?")) {
       return C.TYPE_SS;
     } else {
       return C.TYPE_OTHER;
@@ -1077,10 +1076,15 @@ public final class Util {
 
   /** Creates an empty directory in the directory returned by {@link Context#getCacheDir()}. */
   public static File createTempDirectory(Context context, String prefix) throws IOException {
-    File tempFile = File.createTempFile(prefix, null, context.getCacheDir());
+    File tempFile = createTempFile(context, prefix);
     tempFile.delete(); // Delete the temp file.
     tempFile.mkdir(); // Create a directory with the same name.
     return tempFile;
+  }
+
+  /** Creates a new empty file in the directory returned by {@link Context#getCacheDir()}. */
+  public static File createTempFile(Context context, String prefix) throws IOException {
+    return File.createTempFile(prefix, null, context.getCacheDir());
   }
 
   /**

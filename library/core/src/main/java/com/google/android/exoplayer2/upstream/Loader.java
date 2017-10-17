@@ -61,8 +61,8 @@ public final class Loader implements LoaderErrorThrower {
     /**
      * Performs the load, returning on completion or cancellation.
      *
-     * @throws IOException
-     * @throws InterruptedException
+     * @throws IOException If the input could not be loaded.
+     * @throws InterruptedException If the thread was interrupted.
      */
     void load() throws IOException, InterruptedException;
 
@@ -420,7 +420,9 @@ public final class Loader implements LoaderErrorThrower {
 
     @Override
     public void run() {
-      sendEmptyMessage(0);
+      if (getLooper().getThread().isAlive()) {
+        sendEmptyMessage(0);
+      }
     }
 
     @Override

@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.testutil;
 
+import android.os.Handler;
 import com.google.android.exoplayer2.util.Clock;
 import java.util.ArrayList;
 import java.util.List;
@@ -26,6 +27,7 @@ public final class FakeClock implements Clock {
 
   private long currentTimeMs;
   private final List<Long> wakeUpTimes;
+  private final List<HandlerPostData> handlerPosts;
 
   /**
    * Create {@link FakeClock} with an arbitrary initial timestamp.
@@ -35,6 +37,7 @@ public final class FakeClock implements Clock {
   public FakeClock(long initialTimeMs) {
     this.currentTimeMs = initialTimeMs;
     this.wakeUpTimes = new ArrayList<>();
+    this.handlerPosts = new ArrayList<>();
   }
 
   /**
@@ -50,10 +53,16 @@ public final class FakeClock implements Clock {
         break;
       }
     }
+    for (int i = handlerPosts.size() - 1; i >= 0; i--) {
+      if (handlerPosts.get(i).postTime <= currentTimeMs) {
+        HandlerPostData postData = handlerPosts.remove(i);
+        postData.handler.post(postData.runnable);
+      }
+    }
   }
 
   @Override
-  public long elapsedRealtime() {
+  public synchronized long elapsedRealtime() {
     return currentTimeMs;
   }
 
@@ -72,6 +81,29 @@ public final class FakeClock implements Clock {
       }
     }
     wakeUpTimes.remove(wakeUpTimeMs);
+  }
+
+  @Override
+  public synchronized void postDelayed(Handler handler, Runnable runnable, long delayMs) {
+    if (delayMs <= 0) {
+      handler.post(runnable);
+    } else {
+      handlerPosts.add(new HandlerPostData(currentTimeMs + delayMs, handler, runnable));
+    }
+  }
+
+  private static final class HandlerPostData {
+
+    public final long postTime;
+    public final Handler handler;
+    public final Runnable runnable;
+
+    public HandlerPostData(long postTime, Handler handler, Runnable runnable) {
+      this.postTime = postTime;
+      this.handler = handler;
+      this.runnable = runnable;
+    }
+
   }
 
 }

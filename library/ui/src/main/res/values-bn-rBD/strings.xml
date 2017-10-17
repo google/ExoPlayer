@@ -25,4 +25,5 @@
   <string name="exo_controls_repeat_all_description">"সবগুলির পুনরাবৃত্তি করুন"</string>
   <string name="exo_controls_repeat_off_description">"একটিরও পুনরাবৃত্তি করবেন না"</string>
   <string name="exo_controls_repeat_one_description">"একটির পুনরাবৃত্তি করুন"</string>
+  <string name="exo_controls_shuffle_description">"অদলবদল"</string>
 </resources>
