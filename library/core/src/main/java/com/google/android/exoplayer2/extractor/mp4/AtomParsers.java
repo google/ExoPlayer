@@ -60,11 +60,13 @@ import java.util.List;
    * @param duration The duration in units of the timescale declared in the mvhd atom, or
    *     {@link C#TIME_UNSET} if the duration should be parsed from the tkhd atom.
    * @param drmInitData {@link DrmInitData} to be included in the format.
+   * @param ignoreEditLists Whether to ignore any edit lists in the trak box.
    * @param isQuickTime True for QuickTime media. False otherwise.
    * @return A {@link Track} instance, or {@code null} if the track's type isn't supported.
    */
   public static Track parseTrak(Atom.ContainerAtom trak, Atom.LeafAtom mvhd, long duration,
-      DrmInitData drmInitData, boolean isQuickTime) throws ParserException {
+      DrmInitData drmInitData, boolean ignoreEditLists, boolean isQuickTime)
+      throws ParserException {
     Atom.ContainerAtom mdia = trak.getContainerAtomOfType(Atom.TYPE_mdia);
     int trackType = parseHdlr(mdia.getLeafAtomOfType(Atom.TYPE_hdlr).data);
     if (trackType == C.TRACK_TYPE_UNKNOWN) {
@@ -88,11 +90,17 @@ import java.util.List;
     Pair<Long, String> mdhdData = parseMdhd(mdia.getLeafAtomOfType(Atom.TYPE_mdhd).data);
     StsdData stsdData = parseStsd(stbl.getLeafAtomOfType(Atom.TYPE_stsd).data, tkhdData.id,
         tkhdData.rotationDegrees, mdhdData.second, drmInitData, isQuickTime);
-    Pair<long[], long[]> edtsData = parseEdts(trak.getContainerAtomOfType(Atom.TYPE_edts));
+    long[] editListDurations = null;
+    long[] editListMediaTimes = null;
+    if (!ignoreEditLists) {
+      Pair<long[], long[]> edtsData = parseEdts(trak.getContainerAtomOfType(Atom.TYPE_edts));
+      editListDurations = edtsData.first;
+      editListMediaTimes = edtsData.second;
+    }
     return stsdData.format == null ? null
         : new Track(tkhdData.id, trackType, mdhdData.first, movieTimescale, durationUs,
             stsdData.format, stsdData.requiredSampleTransformation, stsdData.trackEncryptionBoxes,
-            stsdData.nalUnitLengthFieldLength, edtsData.first, edtsData.second);
+            stsdData.nalUnitLengthFieldLength, editListDurations, editListMediaTimes);
   }
 
   /**
@@ -783,7 +791,7 @@ import java.util.List;
    *
    * @param edtsAtom edts (edit box) atom to decode.
    * @return Pair of edit list durations and edit list media times, or a pair of nulls if they are
-   * not present.
+   *     not present.
    */
   private static Pair<long[], long[]> parseEdts(Atom.ContainerAtom edtsAtom) {
     Atom.LeafAtom elst;
