@@ -104,6 +104,11 @@ import java.util.Arrays;
   }
 
   @Override
+  public int getOutputSampleRateHz() {
+    return sampleRateHz;
+  }
+
+  @Override
   public void queueInput(ByteBuffer inputBuffer) {
     int position = inputBuffer.position();
     int limit = inputBuffer.limit();

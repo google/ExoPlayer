@@ -139,6 +139,11 @@ public final class GvrAudioProcessor implements AudioProcessor {
   }
 
   @Override
+  public int getOutputSampleRateHz() {
+    return sampleRateHz;
+  }
+
+  @Override
   public void queueInput(ByteBuffer input) {
     int position = input.position();
     int readBytes = gvrAudioSurround.addInput(input, position, input.limit() - position);

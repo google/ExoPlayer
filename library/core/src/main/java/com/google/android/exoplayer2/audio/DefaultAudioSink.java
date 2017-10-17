@@ -149,13 +149,6 @@ public final class DefaultAudioSink implements AudioSink {
   private static final int MIN_TIMESTAMP_SAMPLE_INTERVAL_US = 500000;
 
   /**
-   * The minimum number of output bytes from {@link #sonicAudioProcessor} at which the speedup is
-   * calculated using the input/output byte counts from the processor, rather than using the
-   * current playback parameters speed.
-   */
-  private static final int SONIC_MIN_BYTES_FOR_SPEEDUP = 1024;
-
-  /**
    * Whether to enable a workaround for an issue where an audio effect does not keep its session
    * active across releasing/initializing a new audio track, on platform builds where
    * {@link Util#SDK_INT} &lt; 21.
@@ -189,6 +182,7 @@ public final class DefaultAudioSink implements AudioSink {
    */
   private AudioTrack keepSessionIdAudioTrack;
   private AudioTrack audioTrack;
+  private int inputSampleRate;
   private int sampleRate;
   private int channelConfig;
   private @C.Encoding int encoding;
@@ -337,14 +331,18 @@ public final class DefaultAudioSink implements AudioSink {
   }
 
   @Override
-  public void configure(String mimeType, int channelCount, int sampleRate,
-      @C.PcmEncoding int pcmEncoding, int specifiedBufferSize, @Nullable int[] outputChannels,
+  public void configure(String inputMimeType, int inputChannelCount, int inputSampleRate,
+      @C.PcmEncoding int inputPcmEncoding, int specifiedBufferSize, @Nullable int[] outputChannels,
       int trimStartSamples, int trimEndSamples) throws ConfigurationException {
-    boolean passthrough = !MimeTypes.AUDIO_RAW.equals(mimeType);
-    @C.Encoding int encoding = passthrough ? getEncodingForMimeType(mimeType) : pcmEncoding;
+    this.inputSampleRate = inputSampleRate;
+    int channelCount = inputChannelCount;
+    int sampleRate = inputSampleRate;
+    @C.Encoding int encoding;
+    boolean passthrough = !MimeTypes.AUDIO_RAW.equals(inputMimeType);
     boolean flush = false;
     if (!passthrough) {
-      pcmFrameSize = Util.getPcmFrameSize(pcmEncoding, channelCount);
+      encoding = inputPcmEncoding;
+      pcmFrameSize = Util.getPcmFrameSize(inputPcmEncoding, channelCount);
       trimmingAudioProcessor.setTrimSampleCount(trimStartSamples, trimEndSamples);
       channelMappingAudioProcessor.setChannelMap(outputChannels);
       for (AudioProcessor audioProcessor : availableAudioProcessors) {
@@ -355,12 +353,15 @@ public final class DefaultAudioSink implements AudioSink {
         }
         if (audioProcessor.isActive()) {
           channelCount = audioProcessor.getOutputChannelCount();
+          sampleRate = audioProcessor.getOutputSampleRateHz();
           encoding = audioProcessor.getOutputEncoding();
         }
       }
       if (flush) {
         resetAudioProcessors();
       }
+    } else {
+      encoding = getEncodingForMimeType(inputMimeType);
     }
 
     int channelConfig;
@@ -598,8 +599,8 @@ public final class DefaultAudioSink implements AudioSink {
         startMediaTimeState = START_IN_SYNC;
       } else {
         // Sanity check that presentationTimeUs is consistent with the expected value.
-        long expectedPresentationTimeUs = startMediaTimeUs
-            + framesToDurationUs(getSubmittedFrames());
+        long expectedPresentationTimeUs =
+            startMediaTimeUs + inputFramesToDurationUs(getSubmittedFrames());
         if (startMediaTimeState == START_IN_SYNC
             && Math.abs(expectedPresentationTimeUs - presentationTimeUs) > 200000) {
           Log.e(TAG, "Discontinuity detected [expected " + expectedPresentationTimeUs + ", got "
@@ -997,15 +998,11 @@ public final class DefaultAudioSink implements AudioSink {
       return positionUs + playbackParametersOffsetUs - playbackParametersPositionUs;
     }
 
-    if (playbackParametersCheckpoints.isEmpty()
-        && sonicAudioProcessor.getOutputByteCount() >= SONIC_MIN_BYTES_FOR_SPEEDUP) {
+    if (playbackParametersCheckpoints.isEmpty()) {
       return playbackParametersOffsetUs
-          + Util.scaleLargeTimestamp(positionUs - playbackParametersPositionUs,
-          sonicAudioProcessor.getInputByteCount(), sonicAudioProcessor.getOutputByteCount());
+          + sonicAudioProcessor.scaleDurationForSpeedup(positionUs - playbackParametersPositionUs);
     }
-
-    // We are playing drained data at a previous playback speed, or don't have enough bytes to
-    // calculate an accurate speedup, so fall back to multiplying by the speed.
+    // We are playing data at a previous playback speed, so fall back to multiplying by the speed.
     return playbackParametersOffsetUs
         + (long) ((double) playbackParameters.speed * (positionUs - playbackParametersPositionUs));
   }
@@ -1096,6 +1093,10 @@ public final class DefaultAudioSink implements AudioSink {
 
   private boolean isInitialized() {
     return audioTrack != null;
+  }
+
+  private long inputFramesToDurationUs(long frameCount) {
+    return (frameCount * C.MICROS_PER_SECOND) / inputSampleRate;
   }
 
   private long framesToDurationUs(long frameCount) {
