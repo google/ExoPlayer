@@ -723,7 +723,8 @@ import java.io.IOException;
       // Clear the timeline, but keep the requested period if it is already prepared.
       MediaPeriodHolder periodHolder = playingPeriodHolder;
       while (periodHolder != null) {
-        if (shouldKeepPeriodHolder(periodId, periodPositionUs, periodHolder)) {
+        if (newPlayingPeriodHolder == null
+            && shouldKeepPeriodHolder(periodId, periodPositionUs, periodHolder)) {
           newPlayingPeriodHolder = periodHolder;
         } else {
           periodHolder.release();
