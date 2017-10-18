@@ -1142,7 +1142,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
    */
   private @AdaptationWorkaroundMode int codecAdaptationWorkaroundMode(String name) {
     if (Util.SDK_INT <= 24 && "OMX.Exynos.avc.dec.secure".equals(name)
-        && Util.MODEL.startsWith("SM-T585")) {
+        && (Util.MODEL.startsWith("SM-T585") || Util.MODEL.startsWith("SM-A520"))) {
       return ADAPTATION_WORKAROUND_MODE_ALWAYS;
     } else if (Util.SDK_INT < 24
         && ("OMX.Nvidia.h264.decode".equals(name) || "OMX.Nvidia.h264.decode.secure".equals(name))
