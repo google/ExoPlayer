@@ -261,6 +261,22 @@ public final class ExoPlayerTest extends TestCase {
     assertTrue(renderer.isEnded);
   }
 
+  public void testPeriodHoldersReleasedAfterSeekWithRepeatModeAll() throws Exception {
+    Timeline fakeTimeline = new FakeTimeline(new TimelineWindowDefinition(true, false, 100000));
+    FakeRenderer renderer = new FakeRenderer(Builder.VIDEO_FORMAT);
+    ActionSchedule actionSchedule = new ActionSchedule.Builder("testPeriodHoldersReleased")
+        .setRepeatMode(Player.REPEAT_MODE_ALL)
+        .waitForPositionDiscontinuity()
+        .seek(0) // Seek with repeat mode set to REPEAT_MODE_ALL.
+        .waitForPositionDiscontinuity()
+        .setRepeatMode(Player.REPEAT_MODE_OFF) // Turn off repeat so that playback can finish.
+        .build();
+    new ExoPlayerTestRunner.Builder()
+        .setTimeline(fakeTimeline).setRenderers(renderer).setActionSchedule(actionSchedule)
+        .build().start().blockUntilEnded(TIMEOUT_MS);
+    assertTrue(renderer.isEnded);
+  }
+
   public void testSeekProcessedCallback() throws Exception {
     Timeline timeline = new FakeTimeline(
         new TimelineWindowDefinition(true, false, 100000),

@@ -116,4 +116,5 @@ public class FakeMediaSource implements MediaSource {
     }
     return new TrackGroupArray(trackGroups);
   }
+
 }
