@@ -44,6 +44,7 @@ import java.util.List;
 public final class HlsMediaPeriod implements MediaPeriod, HlsSampleStreamWrapper.Callback,
     HlsPlaylistTracker.PlaylistEventListener {
 
+  private final HlsExtractorFactory extractorFactory;
   private final HlsPlaylistTracker playlistTracker;
   private final HlsDataSourceFactory dataSourceFactory;
   private final int minLoadableRetryCount;
@@ -60,8 +61,10 @@ public final class HlsMediaPeriod implements MediaPeriod, HlsSampleStreamWrapper
   private HlsSampleStreamWrapper[] enabledSampleStreamWrappers;
   private CompositeSequenceableLoader sequenceableLoader;
 
-  public HlsMediaPeriod(HlsPlaylistTracker playlistTracker, HlsDataSourceFactory dataSourceFactory,
-      int minLoadableRetryCount, EventDispatcher eventDispatcher, Allocator allocator) {
+  public HlsMediaPeriod(HlsExtractorFactory extractorFactory, HlsPlaylistTracker playlistTracker,
+      HlsDataSourceFactory dataSourceFactory, int minLoadableRetryCount,
+      EventDispatcher eventDispatcher, Allocator allocator) {
+    this.extractorFactory = extractorFactory;
     this.playlistTracker = playlistTracker;
     this.dataSourceFactory = dataSourceFactory;
     this.minLoadableRetryCount = minLoadableRetryCount;
@@ -344,8 +347,8 @@ public final class HlsMediaPeriod implements MediaPeriod, HlsSampleStreamWrapper
 
   private HlsSampleStreamWrapper buildSampleStreamWrapper(int trackType, HlsUrl[] variants,
       Format muxedAudioFormat, List<Format> muxedCaptionFormats, long positionUs) {
-    HlsChunkSource defaultChunkSource = new HlsChunkSource(playlistTracker, variants,
-        dataSourceFactory, timestampAdjusterProvider, muxedCaptionFormats);
+    HlsChunkSource defaultChunkSource = new HlsChunkSource(extractorFactory, playlistTracker,
+        variants, dataSourceFactory, timestampAdjusterProvider, muxedCaptionFormats);
     return new HlsSampleStreamWrapper(trackType, this, defaultChunkSource, allocator, positionUs,
         muxedAudioFormat, minLoadableRetryCount, eventDispatcher);
   }
