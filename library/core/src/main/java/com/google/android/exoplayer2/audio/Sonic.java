@@ -27,7 +27,6 @@ import java.util.Arrays;
  */
 /* package */ final class Sonic {
 
-  private static final boolean USE_CHORD_PITCH = false;
   private static final int MINIMUM_PITCH = 65;
   private static final int MAXIMUM_PITCH = 400;
   private static final int AMDF_FREQUENCY = 4000;
@@ -326,32 +325,6 @@ import java.util.Arrays;
     numPitchSamples -= numSamples;
   }
 
-  private void adjustPitch(int originalNumOutputSamples) {
-    // Latency due to pitch changes could be reduced by looking at past samples to determine pitch,
-    // rather than future.
-    if (numOutputSamples == originalNumOutputSamples) {
-      return;
-    }
-    moveNewSamplesToPitchBuffer(originalNumOutputSamples);
-    int position = 0;
-    while (numPitchSamples - position >= maxRequired) {
-      int period = findPitchPeriod(pitchBuffer, position, false);
-      int newPeriod = (int) (period / pitch);
-      enlargeOutputBufferIfNeeded(newPeriod);
-      if (pitch >= 1.0f) {
-        overlapAdd(newPeriod, numChannels, outputBuffer, numOutputSamples, pitchBuffer, position,
-            pitchBuffer, position + period - newPeriod);
-      } else {
-        int separation = newPeriod - period;
-        overlapAddWithSeparation(period, numChannels, separation, outputBuffer, numOutputSamples,
-            pitchBuffer, position, pitchBuffer, position);
-      }
-      numOutputSamples += newPeriod;
-      position += period;
-    }
-    removePitchSamples(position);
-  }
-
   private short interpolate(short[] in, int inPos, int oldSampleRate, int newSampleRate) {
     short left = in[inPos];
     short right = in[inPos + numChannels];
@@ -462,11 +435,7 @@ import java.util.Arrays;
       copyToOutput(inputBuffer, 0, numInputSamples);
       numInputSamples = 0;
     }
-    if (USE_CHORD_PITCH) {
-      if (pitch != 1.0f) {
-        adjustPitch(originalNumOutputSamples);
-      }
-    } else if (r != 1.0f) {
+    if (r != 1.0f) {
       adjustRate(r, originalNumOutputSamples);
     }
   }
@@ -482,31 +451,6 @@ import java.util.Arrays;
         o += numChannels;
         d += numChannels;
         u += numChannels;
-      }
-    }
-  }
-
-  private static void overlapAddWithSeparation(int numSamples, int numChannels, int separation,
-      short[] out, int outPos, short[] rampDown, int rampDownPos, short[] rampUp, int rampUpPos) {
-    for (int i = 0; i < numChannels; i++) {
-      int o = outPos * numChannels + i;
-      int u = rampUpPos * numChannels + i;
-      int d = rampDownPos * numChannels + i;
-      for (int t = 0; t < numSamples + separation; t++) {
-        if (t < separation) {
-          out[o] = (short) (rampDown[d] * (numSamples - t) / numSamples);
-          d += numChannels;
-        } else if (t < numSamples) {
-          out[o] =
-              (short) ((rampDown[d] * (numSamples - t) + rampUp[u] * (t - separation))
-                  / numSamples);
-          d += numChannels;
-          u += numChannels;
-        } else {
-          out[o] = (short) (rampUp[u] * (t - separation) / numSamples);
-          u += numChannels;
-        }
-        o += numChannels;
       }
     }
   }
