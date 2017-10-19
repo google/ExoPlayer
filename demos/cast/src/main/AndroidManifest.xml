@@ -15,8 +15,8 @@
 -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.google.android.exoplayer2.castdemo"
-    android:versionCode="2503"
-    android:versionName="2.5.3">
+    android:versionCode="2504"
+    android:versionName="2.5.4">
 
   <uses-permission android:name="android.permission.INTERNET"/>
   <uses-sdk android:minSdkVersion="16" android:targetSdkVersion="26"/>
