@@ -257,6 +257,14 @@ public final class ParsableByteArray {
   }
 
   /**
+   * Reads the next three bytes as an signed value.
+   */
+  public int readSignedInt24() {
+    int ui24 = readUnsignedInt24();
+    return (ui24 & 0x800000L) >>> 23 == 1 ? (ui24 | 0xff000000) : ui24;
+  }
+
+  /**
    * Reads the next three bytes as a signed value in little endian order.
    */
   public int readLittleEndianInt24() {
