@@ -177,7 +177,7 @@ public class PlayerActivity extends Activity implements OnClickListener, EventLi
   @Override
   public void onResume() {
     super.onResume();
-    if ((Util.SDK_INT <= 23 || player == null)) {
+    if (Util.SDK_INT <= 23 || player == null) {
       initializePlayer();
     }
   }
