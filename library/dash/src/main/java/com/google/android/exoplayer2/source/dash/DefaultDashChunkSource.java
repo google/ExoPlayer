@@ -175,14 +175,15 @@ public class DefaultDashChunkSource implements DashChunkSource {
   }
 
   @Override
-  public void getNextChunk(MediaChunk previous, long playbackPositionUs, ChunkHolder out) {
+  public void getNextChunk(MediaChunk previous, long playbackPositionUs, long loadPositionUs,
+      ChunkHolder out) {
     if (fatalError != null) {
       return;
     }
 
-    long bufferedDurationUs = previous != null ? (previous.endTimeUs - playbackPositionUs) : 0;
+    long bufferedDurationUs = loadPositionUs - playbackPositionUs;
     long timeToLiveEdgeUs = resolveTimeToLiveEdgeUs(playbackPositionUs);
-    trackSelection.updateSelectedTrack(bufferedDurationUs, timeToLiveEdgeUs);
+    trackSelection.updateSelectedTrack(playbackPositionUs, bufferedDurationUs, timeToLiveEdgeUs);
 
     RepresentationHolder representationHolder =
         representationHolders[trackSelection.getSelectedIndex()];
@@ -237,7 +238,7 @@ public class DefaultDashChunkSource implements DashChunkSource {
 
     int segmentNum;
     if (previous == null) {
-      segmentNum = Util.constrainValue(representationHolder.getSegmentNum(playbackPositionUs),
+      segmentNum = Util.constrainValue(representationHolder.getSegmentNum(loadPositionUs),
           firstAvailableSegmentNum, lastAvailableSegmentNum);
     } else {
       segmentNum = previous.getNextChunkIndex();

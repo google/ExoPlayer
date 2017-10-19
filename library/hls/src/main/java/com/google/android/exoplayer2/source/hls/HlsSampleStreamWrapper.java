@@ -255,7 +255,8 @@ import java.util.LinkedList;
         // may need to be discarded.
         boolean primarySampleQueueDirty = false;
         if (!seenFirstTrackSelection) {
-          primaryTrackSelection.updateSelectedTrack(0, C.TIME_UNSET);
+          long bufferedDurationUs = positionUs < 0 ? -positionUs : 0;
+          primaryTrackSelection.updateSelectedTrack(positionUs, bufferedDurationUs, C.TIME_UNSET);
           int chunkIndex = chunkSource.getTrackGroup().indexOf(mediaChunks.getLast().trackFormat);
           if (primaryTrackSelection.getSelectedIndexInTrackGroup() != chunkIndex) {
             // This is the first selection and the chunk loaded during preparation does not match
@@ -438,9 +439,16 @@ import java.util.LinkedList;
       return false;
     }
 
-    chunkSource.getNextChunk(mediaChunks.isEmpty() ? null : mediaChunks.getLast(),
-        pendingResetPositionUs != C.TIME_UNSET ? pendingResetPositionUs : positionUs,
-        nextChunkHolder);
+    HlsMediaChunk previousChunk;
+    long loadPositionUs;
+    if (isPendingReset()) {
+      previousChunk = null;
+      loadPositionUs = pendingResetPositionUs;
+    } else {
+      previousChunk = mediaChunks.getLast();
+      loadPositionUs = previousChunk.endTimeUs;
+    }
+    chunkSource.getNextChunk(previousChunk, positionUs, loadPositionUs, nextChunkHolder);
     boolean endOfStream = nextChunkHolder.endOfStream;
     Chunk loadable = nextChunkHolder.chunk;
     HlsMasterPlaylist.HlsUrl playlistToLoad = nextChunkHolder.playlist;

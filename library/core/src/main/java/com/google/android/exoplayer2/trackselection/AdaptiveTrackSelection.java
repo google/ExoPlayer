@@ -201,7 +201,8 @@ public class AdaptiveTrackSelection extends BaseTrackSelection {
   }
 
   @Override
-  public void updateSelectedTrack(long bufferedDurationUs, long availableDurationUs) {
+  public void updateSelectedTrack(long playbackPositionUs, long bufferedDurationUs,
+      long availableDurationUs) {
     long nowMs = SystemClock.elapsedRealtime();
     // Stash the current selection, then make a new one.
     int currentSelectedIndex = selectedIndex;
