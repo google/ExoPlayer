@@ -79,7 +79,7 @@ import com.google.android.exoplayer2.video.AvcConfig;
   @Override
   protected void parsePayload(ParsableByteArray data, long timeUs) throws ParserException {
     int packetType = data.readUnsignedByte();
-    int compositionTimeMs = data.readSignedInt24();
+    int compositionTimeMs = data.readInt24();
 
     timeUs += compositionTimeMs * 1000L;
     // Parse avc sequence header in case this was not done before.

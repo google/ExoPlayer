@@ -328,25 +328,25 @@ public final class ParsableByteArrayTest {
 
   @Test
   public void testReadLittleEndianUnsignedInt24() {
-    byte[] data = { 0x01, 0x02, (byte) 0xFF };
+    byte[] data = {0x01, 0x02, (byte) 0xFF};
     ParsableByteArray byteArray = new ParsableByteArray(data);
     assertThat(byteArray.readLittleEndianUnsignedInt24()).isEqualTo(0xFF0201);
     assertThat(byteArray.getPosition()).isEqualTo(3);
   }
 
   @Test
-  public void testReadPositiveSignedInt24() {
-    byte[] data = { 0x01, 0x02, (byte) 0xFF };
+  public void testReadInt24Positive() {
+    byte[] data = {0x01, 0x02, (byte) 0xFF};
     ParsableByteArray byteArray = new ParsableByteArray(data);
-    assertThat(byteArray.readSignedInt24()).isEqualTo(0x0102FF);
+    assertThat(byteArray.readInt24()).isEqualTo(0x0102FF);
     assertThat(byteArray.getPosition()).isEqualTo(3);
   }
 
   @Test
-  public void testReadNegativeSignedInt24() {
-    byte[] data = { (byte)0xFF, 0x02, (byte) 0x01 };
+  public void testReadInt24Negative() {
+    byte[] data = {(byte) 0xFF, 0x02, (byte) 0x01};
     ParsableByteArray byteArray = new ParsableByteArray(data);
-    assertThat(byteArray.readSignedInt24()).isEqualTo(0xFFFF0201);
+    assertThat(byteArray.readInt24()).isEqualTo(0xFFFF0201);
     assertThat(byteArray.getPosition()).isEqualTo(3);
   }
 
