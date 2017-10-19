@@ -335,6 +335,22 @@ public final class ParsableByteArrayTest {
   }
 
   @Test
+  public void testReadPositiveSignedInt24() {
+    byte[] data = { 0x01, 0x02, (byte) 0xFF };
+    ParsableByteArray byteArray = new ParsableByteArray(data);
+    assertThat(byteArray.readSignedInt24()).isEqualTo(0x0102FF);
+    assertThat(byteArray.getPosition()).isEqualTo(3);
+  }
+
+  @Test
+  public void testReadNegativeSignedInt24() {
+    byte[] data = { (byte)0xFF, 0x02, (byte) 0x01 };
+    ParsableByteArray byteArray = new ParsableByteArray(data);
+    assertThat(byteArray.readSignedInt24()).isEqualTo(0xFFFF0201);
+    assertThat(byteArray.getPosition()).isEqualTo(3);
+  }
+
+  @Test
   public void testReadLittleEndianUnsignedShort() {
     ParsableByteArray byteArray = new ParsableByteArray(new byte[] {
         0x01, (byte) 0xFF, 0x02, (byte) 0xFF
