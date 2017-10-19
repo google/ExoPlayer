@@ -103,6 +103,7 @@ import java.util.LinkedList;
   private boolean[] trackGroupEnabledStates;
   private boolean[] trackGroupIsAudioVideoFlags;
 
+  private long sampleOffsetUs;
   private long lastSeekPositionUs;
   private long pendingResetPositionUs;
   private boolean pendingResetUpstreamFormats;
@@ -369,16 +370,16 @@ import java.util.LinkedList;
 
   // SampleStream implementation.
 
-  /* package */ boolean isReady(int trackGroupIndex) {
+  public boolean isReady(int trackGroupIndex) {
     return loadingFinished || (!isPendingReset() && sampleQueues[trackGroupIndex].hasNextSample());
   }
 
-  /* package */ void maybeThrowError() throws IOException {
+  public void maybeThrowError() throws IOException {
     loader.maybeThrowError();
     chunkSource.maybeThrowError();
   }
 
-  /* package */ int readData(int trackGroupIndex, FormatHolder formatHolder,
+  public int readData(int trackGroupIndex, FormatHolder formatHolder,
       DecoderInputBuffer buffer, boolean requireFormat) {
     if (isPendingReset()) {
       return C.RESULT_NOTHING_READ;
@@ -402,7 +403,7 @@ import java.util.LinkedList;
         lastSeekPositionUs);
   }
 
-  /* package */ int skipData(int trackGroupIndex, long positionUs) {
+  public int skipData(int trackGroupIndex, long positionUs) {
     SampleQueue sampleQueue = sampleQueues[trackGroupIndex];
     if (loadingFinished && positionUs > sampleQueue.getLargestQueuedTimestampUs()) {
       return sampleQueue.advanceToEnd();
@@ -573,6 +574,7 @@ import java.util.LinkedList;
       }
     }
     SampleQueue trackOutput = new SampleQueue(allocator);
+    trackOutput.setSampleOffsetUs(sampleOffsetUs);
     trackOutput.setUpstreamFormatChangeListener(this);
     sampleQueueTrackIds = Arrays.copyOf(sampleQueueTrackIds, trackCount + 1);
     sampleQueueTrackIds[trackCount] = id;
@@ -597,6 +599,15 @@ import java.util.LinkedList;
   @Override
   public void onUpstreamFormatChanged(Format format) {
     handler.post(maybeFinishPrepareRunnable);
+  }
+
+  // Called by the loading thread.
+
+  public void setSampleOffsetUs(long sampleOffsetUs) {
+    this.sampleOffsetUs = sampleOffsetUs;
+    for (SampleQueue sampleQueue : sampleQueues) {
+      sampleQueue.setSampleOffsetUs(sampleOffsetUs);
+    }
   }
 
   // Internal methods.

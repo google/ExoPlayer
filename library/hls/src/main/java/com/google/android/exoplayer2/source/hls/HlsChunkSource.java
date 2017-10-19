@@ -80,6 +80,7 @@ import java.util.List;
 
   }
 
+  private final HlsExtractorFactory extractorFactory;
   private final DataSource mediaDataSource;
   private final DataSource encryptionDataSource;
   private final TimestampAdjusterProvider timestampAdjusterProvider;
@@ -106,6 +107,8 @@ import java.util.List;
   private long liveEdgeTimeUs;
 
   /**
+   * @param extractorFactory An {@link HlsExtractorFactory} from which to obtain the extractors for
+   *     media chunks.
    * @param playlistTracker The {@link HlsPlaylistTracker} from which to obtain media playlists.
    * @param variants The available variants.
    * @param dataSourceFactory An {@link HlsDataSourceFactory} to create {@link DataSource}s for the
@@ -116,9 +119,10 @@ import java.util.List;
    * @param muxedCaptionFormats List of muxed caption {@link Format}s. Null if no closed caption
    *     information is available in the master playlist.
    */
-  public HlsChunkSource(HlsPlaylistTracker playlistTracker, HlsUrl[] variants,
-      HlsDataSourceFactory dataSourceFactory, TimestampAdjusterProvider timestampAdjusterProvider,
-      List<Format> muxedCaptionFormats) {
+  public HlsChunkSource(HlsExtractorFactory extractorFactory, HlsPlaylistTracker playlistTracker,
+      HlsUrl[] variants, HlsDataSourceFactory dataSourceFactory,
+      TimestampAdjusterProvider timestampAdjusterProvider, List<Format> muxedCaptionFormats) {
+    this.extractorFactory = extractorFactory;
     this.playlistTracker = playlistTracker;
     this.variants = variants;
     this.timestampAdjusterProvider = timestampAdjusterProvider;
@@ -321,11 +325,11 @@ import java.util.List;
     Uri chunkUri = UriUtil.resolveToUri(mediaPlaylist.baseUri, segment.url);
     DataSpec dataSpec = new DataSpec(chunkUri, segment.byterangeOffset, segment.byterangeLength,
         null);
-    out.chunk = new HlsMediaChunk(mediaDataSource, dataSpec, initDataSpec, selectedUrl,
-        muxedCaptionFormats, trackSelection.getSelectionReason(), trackSelection.getSelectionData(),
-        startTimeUs, startTimeUs + segment.durationUs, chunkMediaSequence, discontinuitySequence,
-        isTimestampMaster, timestampAdjuster, previous, mediaPlaylist.drmInitData, encryptionKey,
-        encryptionIv);
+    out.chunk = new HlsMediaChunk(extractorFactory, mediaDataSource, dataSpec, initDataSpec,
+        selectedUrl, muxedCaptionFormats, trackSelection.getSelectionReason(),
+        trackSelection.getSelectionData(), startTimeUs, startTimeUs + segment.durationUs,
+        chunkMediaSequence, discontinuitySequence, isTimestampMaster, timestampAdjuster, previous,
+        mediaPlaylist.drmInitData, encryptionKey, encryptionIv);
   }
 
   /**
