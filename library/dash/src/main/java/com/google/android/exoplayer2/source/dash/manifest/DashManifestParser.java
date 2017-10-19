@@ -524,10 +524,10 @@ public class DashManifestParser extends DefaultHandler
       }
       format = format.copyWithDrmInitData(drmInitData);
     }
-    ArrayList<Descriptor> inbandEventStremas = representationInfo.inbandEventStreams;
-    inbandEventStremas.addAll(extraInbandEventStreams);
+    ArrayList<Descriptor> inbandEventStreams = representationInfo.inbandEventStreams;
+    inbandEventStreams.addAll(extraInbandEventStreams);
     return Representation.newInstance(contentId, Representation.REVISION_ID_DEFAULT, format,
-        representationInfo.baseUrl, representationInfo.segmentBase, inbandEventStremas);
+        representationInfo.baseUrl, representationInfo.segmentBase, inbandEventStreams);
   }
 
   // SegmentBase, SegmentList and SegmentTemplate parsing.
