@@ -81,7 +81,7 @@ import com.google.android.exoplayer2.video.AvcConfig;
     int packetType = data.readUnsignedByte();
     int compositionTimeMs = data.readUnsignedInt24();
     // compositionTimeMs is signed int 24, change unsigned int 24 to signed int 24
-    compositionTimeMs = (compositionTimeMs & 0x800000) >> 23 == 1 ? (compositionTimeMs & 0xff000000) : compositionTimeMs;
+    compositionTimeMs = (compositionTimeMs & 0x800000L) >>> 23 == 1 ? (compositionTimeMs | 0xff000000) : compositionTimeMs;
 
     timeUs += compositionTimeMs * 1000L;
     // Parse avc sequence header in case this was not done before.
