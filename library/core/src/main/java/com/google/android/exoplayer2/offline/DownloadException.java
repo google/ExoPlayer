@@ -25,4 +25,9 @@ public final class DownloadException extends IOException {
     super(message);
   }
 
+  /** @param cause The cause for the exception. */
+  public DownloadException(Throwable cause) {
+    super(cause);
+  }
+
 }
