@@ -74,7 +74,7 @@ public final class VideoFrameReleaseTimeHelper {
    */
   public VideoFrameReleaseTimeHelper(Context context) {
     this(getDefaultDisplayRefreshRate(context));
-    this.context = context;
+    this.context = context.getApplicationContext();
     registerDisplayListener();
   }
 
@@ -89,8 +89,9 @@ public final class VideoFrameReleaseTimeHelper {
     haveSync = false;
     if (useDefaultDisplayVsync) {
       vsyncSampler.addObserver();
+      setSync(getDefaultDisplayRefreshRate(context));
+      registerDisplayListener();
     }
-    registerDisplayListener();
   }
 
   /**
