@@ -204,17 +204,22 @@ import java.util.List;
    * contain the {@link HlsUrl} that refers to the playlist that needs refreshing.
    *
    * @param previous The most recently loaded media chunk.
-   * @param playbackPositionUs The current playback position. If {@code previous} is null then this
-   *     parameter is the position from which playback is expected to start (or restart) and hence
-   *     should be interpreted as a seek position.
+   * @param playbackPositionUs The current playback position in microseconds. If playback of the
+   *     period to which this chunk source belongs has not yet started, the value will be the
+   *     starting position in the period minus the duration of any media in previous periods still
+   *     to be played.
+   * @param loadPositionUs The current load position in microseconds. If {@code previous} is null,
+   *     this is the starting position from which chunks should be provided. Else it's equal to
+   *     {@code previous.endTimeUs}.
    * @param out A holder to populate.
    */
-  public void getNextChunk(HlsMediaChunk previous, long playbackPositionUs, HlsChunkHolder out) {
+  public void getNextChunk(HlsMediaChunk previous, long playbackPositionUs, long loadPositionUs,
+      HlsChunkHolder out) {
     int oldVariantIndex = previous == null ? C.INDEX_UNSET
         : trackGroup.indexOf(previous.trackFormat);
     expectedPlaylistUrl = null;
-    long bufferedDurationUs = previous == null ? 0 : previous.endTimeUs - playbackPositionUs;
 
+    long bufferedDurationUs = loadPositionUs - playbackPositionUs;
     long timeToLiveEdgeUs = resolveTimeToLiveEdgeUs(playbackPositionUs);
     if (previous != null && !independentSegments) {
       // Unless segments are known to be independent, switching variant will require downloading
@@ -231,7 +236,7 @@ import java.util.List;
     }
 
     // Select the variant.
-    trackSelection.updateSelectedTrack(bufferedDurationUs, timeToLiveEdgeUs);
+    trackSelection.updateSelectedTrack(playbackPositionUs, bufferedDurationUs, timeToLiveEdgeUs);
     int selectedVariantIndex = trackSelection.getSelectedIndexInTrackGroup();
 
     boolean switchingVariant = oldVariantIndex != selectedVariantIndex;
@@ -250,8 +255,8 @@ import java.util.List;
     // Select the chunk.
     int chunkMediaSequence;
     if (previous == null || switchingVariant) {
-      long targetPositionUs = previous == null ? playbackPositionUs
-          : independentSegments ? previous.endTimeUs : previous.startTimeUs;
+      long targetPositionUs = (previous == null || independentSegments) ? loadPositionUs
+          : previous.startTimeUs;
       if (!mediaPlaylist.hasEndTag && targetPositionUs >= mediaPlaylist.getEndTimeUs()) {
         // If the playlist is too old to contain the chunk, we need to refresh it.
         chunkMediaSequence = mediaPlaylist.mediaSequence + mediaPlaylist.segments.size();
@@ -437,7 +442,8 @@ import java.util.List;
     }
 
     @Override
-    public void updateSelectedTrack(long bufferedDurationUs, long availableDurationUs) {
+    public void updateSelectedTrack(long playbackPositionUs, long bufferedDurationUs,
+        long availableDurationUs) {
       long nowMs = SystemClock.elapsedRealtime();
       if (!isBlacklisted(selectedIndex, nowMs)) {
         return;

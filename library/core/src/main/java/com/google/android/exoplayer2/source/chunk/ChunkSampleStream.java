@@ -351,9 +351,16 @@ public class ChunkSampleStream<T extends ChunkSource> implements SampleStream, S
       return false;
     }
 
-    chunkSource.getNextChunk(mediaChunks.isEmpty() ? null : mediaChunks.getLast(),
-        pendingResetPositionUs != C.TIME_UNSET ? pendingResetPositionUs : positionUs,
-        nextChunkHolder);
+    MediaChunk previousChunk;
+    long loadPositionUs;
+    if (isPendingReset()) {
+      previousChunk = null;
+      loadPositionUs = pendingResetPositionUs;
+    } else {
+      previousChunk = mediaChunks.getLast();
+      loadPositionUs = previousChunk.endTimeUs;
+    }
+    chunkSource.getNextChunk(previousChunk, positionUs, loadPositionUs, nextChunkHolder);
     boolean endOfStream = nextChunkHolder.endOfStream;
     Chunk loadable = nextChunkHolder.chunk;
     nextChunkHolder.clear();

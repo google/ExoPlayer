@@ -149,7 +149,8 @@ public class DefaultSsChunkSource implements SsChunkSource {
   }
 
   @Override
-  public final void getNextChunk(MediaChunk previous, long playbackPositionUs, ChunkHolder out) {
+  public final void getNextChunk(MediaChunk previous, long playbackPositionUs, long loadPositionUs,
+      ChunkHolder out) {
     if (fatalError != null) {
       return;
     }
@@ -163,7 +164,7 @@ public class DefaultSsChunkSource implements SsChunkSource {
 
     int chunkIndex;
     if (previous == null) {
-      chunkIndex = streamElement.getChunkIndex(playbackPositionUs);
+      chunkIndex = streamElement.getChunkIndex(loadPositionUs);
     } else {
       chunkIndex = previous.getNextChunkIndex() - currentManifestChunkOffset;
       if (chunkIndex < 0) {
@@ -179,9 +180,9 @@ public class DefaultSsChunkSource implements SsChunkSource {
       return;
     }
 
-    long bufferedDurationUs = previous != null ? (previous.endTimeUs - playbackPositionUs) : 0;
+    long bufferedDurationUs = loadPositionUs - playbackPositionUs;
     long timeToLiveEdgeUs = resolveTimeToLiveEdgeUs(playbackPositionUs);
-    trackSelection.updateSelectedTrack(bufferedDurationUs, timeToLiveEdgeUs);
+    trackSelection.updateSelectedTrack(playbackPositionUs, bufferedDurationUs, timeToLiveEdgeUs);
 
     long chunkStartTimeUs = streamElement.getStartTimeUs(chunkIndex);
     long chunkEndTimeUs = chunkStartTimeUs + streamElement.getChunkDurationUs(chunkIndex);
