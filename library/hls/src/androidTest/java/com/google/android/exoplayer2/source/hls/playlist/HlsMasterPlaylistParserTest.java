@@ -28,7 +28,7 @@ import java.util.List;
 import junit.framework.TestCase;
 
 /**
- * Test for {@link HlsMasterPlaylistParserTest}
+ * Test for {@link HlsMasterPlaylistParserTest}.
  */
 public class HlsMasterPlaylistParserTest extends TestCase {
 

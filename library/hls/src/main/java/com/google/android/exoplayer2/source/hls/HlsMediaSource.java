@@ -26,9 +26,12 @@ import com.google.android.exoplayer2.source.MediaPeriod;
 import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.source.SinglePeriodTimeline;
 import com.google.android.exoplayer2.source.hls.playlist.HlsMediaPlaylist;
+import com.google.android.exoplayer2.source.hls.playlist.HlsPlaylist;
+import com.google.android.exoplayer2.source.hls.playlist.HlsPlaylistParser;
 import com.google.android.exoplayer2.source.hls.playlist.HlsPlaylistTracker;
 import com.google.android.exoplayer2.upstream.Allocator;
 import com.google.android.exoplayer2.upstream.DataSource;
+import com.google.android.exoplayer2.upstream.ParsingLoadable;
 import com.google.android.exoplayer2.util.Assertions;
 import java.io.IOException;
 import java.util.List;
@@ -52,6 +55,7 @@ public final class HlsMediaSource implements MediaSource,
   private final HlsDataSourceFactory dataSourceFactory;
   private final int minLoadableRetryCount;
   private final EventDispatcher eventDispatcher;
+  private final ParsingLoadable.Parser<HlsPlaylist> playlistParser;
 
   private HlsPlaylistTracker playlistTracker;
   private Listener sourceListener;
@@ -72,9 +76,18 @@ public final class HlsMediaSource implements MediaSource,
   public HlsMediaSource(Uri manifestUri, HlsDataSourceFactory dataSourceFactory,
       int minLoadableRetryCount, Handler eventHandler,
       AdaptiveMediaSourceEventListener eventListener) {
+   this(manifestUri, dataSourceFactory, minLoadableRetryCount, eventHandler, eventListener,
+       new HlsPlaylistParser());
+  }
+
+  public HlsMediaSource(Uri manifestUri, HlsDataSourceFactory dataSourceFactory,
+     int minLoadableRetryCount, Handler eventHandler,
+     AdaptiveMediaSourceEventListener eventListener,
+     ParsingLoadable.Parser<HlsPlaylist> playlistParser) {
     this.manifestUri = manifestUri;
     this.dataSourceFactory = dataSourceFactory;
     this.minLoadableRetryCount = minLoadableRetryCount;
+    this.playlistParser = playlistParser;
     eventDispatcher = new EventDispatcher(eventHandler, eventListener);
   }
 
@@ -82,7 +95,7 @@ public final class HlsMediaSource implements MediaSource,
   public void prepareSource(ExoPlayer player, boolean isTopLevelSource, Listener listener) {
     Assertions.checkState(playlistTracker == null);
     playlistTracker = new HlsPlaylistTracker(manifestUri, dataSourceFactory, eventDispatcher,
-        minLoadableRetryCount, this);
+        minLoadableRetryCount, this, playlistParser);
     sourceListener = listener;
     playlistTracker.start();
   }
