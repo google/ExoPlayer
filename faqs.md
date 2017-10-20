@@ -7,6 +7,7 @@ weight: 5
 * [What formats does ExoPlayer support?][]
 * [Why are some media files not seekable?][]
 * [Why do some MPEG-TS files fail to play?][]
+* [Why do some MP4/FMP4 files play incorrectly?][]
 * [Why do some streams fail with HTTP response code 301 or 302?][]
 * [Why do some streams fail with UnrecognizedInputFormatException?][]
 * [How can I query whether the stream being played is a live stream?][]
@@ -53,6 +54,21 @@ DefaultExtractorsFactory using [setTsExtractorFlags][]. Use of
 expensive relative to AUD based frame boundary detection. Use of
 `FLAG_ALLOW_NON_IDR_KEYFRAMES` may result in temporary visual corruption at the
 start of playback and immediately after seeks when playing some MPEG-TS files.
+
+#### Why do some MP4/FMP4 files play incorrectly? ####
+
+Some MP4/FMP4 files contain edit lists that rewrite the media timeline by
+skipping, moving or repeating lists of samples. ExoPlayer has partial support
+for applying edit lists. For example, it can delay or repeat groups of samples
+starting on a synchronization sample, but it does not truncate audio samples or
+preroll media for edits that don't start on a synchronization sample.
+
+If you are seeing that part of the media is unexpectedly missing or repeated,
+try setting [Mp4Extractor.FLAG_WORKAROUND_IGNORE_EDIT_LISTS][] or
+[FragmentedMp4Extractor.FLAG_WORKAROUND_IGNORE_EDIT_LISTS][], which will cause
+the extractor to ignore edit lists entirely. These can be set on a
+DefaultExtractorsFactory using [setMp4ExtractorFlags][] or
+[setFragmentedMp4ExtractorFlags][].
 
 #### Why do some streams fail with HTTP response code 301 or 302? ####
 
@@ -185,6 +201,10 @@ physical devices rather than emulators.
 [FLAG_DETECT_ACCESS_UNITS]: https://google.github.io/ExoPlayer/doc/reference/com/google/android/exoplayer2/extractor/ts/DefaultTsPayloadReaderFactory.html#FLAG_DETECT_ACCESS_UNITS
 [FLAG_ALLOW_NON_IDR_KEYFRAMES]: https://google.github.io/ExoPlayer/doc/reference/com/google/android/exoplayer2/extractor/ts/DefaultTsPayloadReaderFactory.html#FLAG_ALLOW_NON_IDR_KEYFRAMES
 [setTsExtractorFlags]: https://google.github.io/ExoPlayer/doc/reference/com/google/android/exoplayer2/extractor/DefaultExtractorsFactory#setTsExtractorFlags-int-
+[Mp4Extractor.FLAG_WORKAROUND_IGNORE_EDIT_LISTS]: https://google.github.io/ExoPlayer/doc/reference/com/google/android/exoplayer2/extractor/mp4/Mp4Extractor.html#FLAG_WORKAROUND_IGNORE_EDIT_LISTS
+[FragmentedMp4Extractor.FLAG_WORKAROUND_IGNORE_EDIT_LISTS]: https://google.github.io/ExoPlayer/doc/reference/com/google/android/exoplayer2/extractor/mp4/FragmentedMp4Extractor.html#FLAG_WORKAROUND_IGNORE_EDIT_LISTS
+[setMp4ExtractorFlags]: https://google.github.io/ExoPlayer/doc/reference/com/google/android/exoplayer2/extractor/DefaultExtractorsFactory#setMp4ExtractorFlags-int-
+[setFragmentedMp4ExtractorFlags]: https://google.github.io/ExoPlayer/doc/reference/com/google/android/exoplayer2/extractor/DefaultExtractorsFactory#setFragmentedMp4ExtractorFlags-int-
 [Wikipedia]: https://en.wikipedia.org/wiki/List_of_HTTP_status_codes
 [wget]: https://www.gnu.org/software/wget/manual/wget.html
 [DefaultHttpDataSourceFactory]: https://google.github.io/ExoPlayer/doc/reference/com/google/android/exoplayer2/upstream/DefaultHttpDataSourceFactory.html
