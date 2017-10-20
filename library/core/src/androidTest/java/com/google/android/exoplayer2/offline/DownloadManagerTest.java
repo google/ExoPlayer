@@ -24,7 +24,9 @@ import com.google.android.exoplayer2.offline.DownloadManager.DownloadTask.State;
 import com.google.android.exoplayer2.upstream.DummyDataSource;
 import com.google.android.exoplayer2.upstream.cache.Cache;
 import com.google.android.exoplayer2.util.ClosedSource;
+import com.google.android.exoplayer2.util.Util;
 import java.io.DataOutputStream;
+import java.io.File;
 import java.io.IOException;
 import java.util.concurrent.Executors;
 import org.mockito.Mockito;
@@ -40,6 +42,7 @@ public class DownloadManagerTest extends InstrumentationTestCase {
   private static final int ASSERT_FALSE_TIME = 1000;
 
   private DownloadManager downloadManager;
+  private File actionFile;
   private ConditionVariable downloadFinishedCondition;
   private Throwable downloadError;
 
@@ -48,28 +51,20 @@ public class DownloadManagerTest extends InstrumentationTestCase {
     super.setUp();
     setUpMockito(this);
 
+    actionFile = Util.createTempFile(getInstrumentation().getContext(), "ExoPlayerTest");
     downloadManager = new DownloadManager(
         new DownloaderConstructorHelper(Mockito.mock(Cache.class), DummyDataSource.FACTORY),
-        Executors.newCachedThreadPool());
+        Executors.newCachedThreadPool(), actionFile.getAbsolutePath());
 
     downloadFinishedCondition = new ConditionVariable();
     downloadManager.setListener(new TestDownloadListener());
   }
-
-  class TestDownloadListener implements DownloadListener {
-    @Override
-    public void onStateChange(DownloadManager downloadManager, DownloadTask downloadTask, int state,
-        Throwable error) {
-      if (state == DownloadTask.STATE_ERROR && downloadError == null) {
-        downloadError = error;
-      }
-      ((FakeDownloadAction) downloadTask.getDownloadAction()).onStateChange();
-    }
-
-    @Override
-    public void onTasksFinished(DownloadManager downloadManager) {
-      downloadFinishedCondition.open();
-    }
+    
+  @Override
+  public void tearDown() throws Exception {
+    downloadManager.release();
+    actionFile.delete();
+    super.tearDown();
   }
 
   public void testDownloadActionRuns() throws Throwable {
@@ -200,6 +195,22 @@ public class DownloadManagerTest extends InstrumentationTestCase {
     }
   }
 
+  private class TestDownloadListener implements DownloadListener {
+    @Override
+    public void onStateChange(DownloadManager downloadManager, DownloadTask downloadTask, int state,
+        Throwable error) {
+      if (state == DownloadTask.STATE_ERROR && downloadError == null) {
+        downloadError = error;
+      }
+      ((FakeDownloadAction) downloadTask.getDownloadAction()).onStateChange();
+    }
+
+    @Override
+    public void onTasksFinished(DownloadManager downloadManager) {
+      downloadFinishedCondition.open();
+    }
+  }
+
   /**
    * Sets up Mockito for an instrumentation test.
    */
@@ -235,7 +246,7 @@ public class DownloadManagerTest extends InstrumentationTestCase {
 
     @Override
     protected void writeToStream(DataOutputStream output) throws IOException {
-      throw new UnsupportedOperationException();
+      // do nothing.
     }
 
     @Override
