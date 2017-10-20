@@ -1,5 +1,23 @@
 # Release notes #
 
+### r2.5.4 ###
+
+* Remove unnecessary media playlist fetches during playback of live HLS streams.
+* Add the ability to inject a HLS playlist parser through `HlsMediaSource`.
+* Fix potential `IndexOutOfBoundsException` when using `ImaMediaSource`
+  ([#3334](https://github.com/google/ExoPlayer/issues/3334)).
+* Fix an issue parsing MP4 content containing non-CENC sinf boxes.
+* Fix memory leak when seeking with repeated periods.
+* Fix playback position when `ExoPlayer.prepare` is called with `resetPosition`
+  set to false.
+* Ignore MP4 edit lists that seem invalid
+  ([#3351](https://github.com/google/ExoPlayer/issues/3351)).
+* Add extractor flag for ignoring all MP4 edit lists
+  ([#3358](https://github.com/google/ExoPlayer/issues/3358)).
+* Improve extensibility by exposing public constructors for
+  `FrameworkMediaCrypto` and by making `DefaultDashChunkSource.getNextChunk`
+  non-final.
+
 ### r2.5.3 ###
 
 * IMA extension: Support skipping of skippable ads on AndroidTV and other

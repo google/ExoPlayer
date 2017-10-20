@@ -973,9 +973,11 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
    * If true is returned then we fall back to releasing and re-instantiating the codec instead.
    */
   private static boolean codecNeedsSetOutputSurfaceWorkaround(String name) {
-    // Work around https://github.com/google/ExoPlayer/issues/3236
-    return ("deb".equals(Util.DEVICE) || "flo".equals(Util.DEVICE))
-        && "OMX.qcom.video.decoder.avc".equals(name);
+    // Work around https://github.com/google/ExoPlayer/issues/3236 and
+    // https://github.com/google/ExoPlayer/issues/3355.
+    return (("deb".equals(Util.DEVICE) || "flo".equals(Util.DEVICE))
+        && "OMX.qcom.video.decoder.avc".equals(name))
+        || ("tcl_eu".equals(Util.DEVICE) && "OMX.MTK.VIDEO.DECODER.AVC".equals(name));
   }
 
   /**

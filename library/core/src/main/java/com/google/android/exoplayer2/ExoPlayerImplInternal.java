@@ -430,6 +430,10 @@ import java.io.IOException;
     loadControl.onPrepared();
     if (resetPosition) {
       playbackInfo = new PlaybackInfo(0, C.TIME_UNSET);
+    } else {
+      // The new start position is the current playback position.
+      playbackInfo = new PlaybackInfo(playbackInfo.periodId, playbackInfo.positionUs,
+          playbackInfo.contentPositionUs);
     }
     this.mediaSource = mediaSource;
     mediaSource.prepareSource(player, true, this);
@@ -719,7 +723,8 @@ import java.io.IOException;
       // Clear the timeline, but keep the requested period if it is already prepared.
       MediaPeriodHolder periodHolder = playingPeriodHolder;
       while (periodHolder != null) {
-        if (shouldKeepPeriodHolder(periodId, periodPositionUs, periodHolder)) {
+        if (newPlayingPeriodHolder == null
+            && shouldKeepPeriodHolder(periodId, periodPositionUs, periodHolder)) {
           newPlayingPeriodHolder = periodHolder;
         } else {
           periodHolder.release();

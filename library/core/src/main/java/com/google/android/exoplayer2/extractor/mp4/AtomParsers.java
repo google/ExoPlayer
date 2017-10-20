@@ -60,11 +60,13 @@ import java.util.List;
    * @param duration The duration in units of the timescale declared in the mvhd atom, or
    *     {@link C#TIME_UNSET} if the duration should be parsed from the tkhd atom.
    * @param drmInitData {@link DrmInitData} to be included in the format.
+   * @param ignoreEditLists Whether to ignore any edit lists in the trak box.
    * @param isQuickTime True for QuickTime media. False otherwise.
    * @return A {@link Track} instance, or {@code null} if the track's type isn't supported.
    */
   public static Track parseTrak(Atom.ContainerAtom trak, Atom.LeafAtom mvhd, long duration,
-      DrmInitData drmInitData, boolean isQuickTime) throws ParserException {
+      DrmInitData drmInitData, boolean ignoreEditLists, boolean isQuickTime)
+      throws ParserException {
     Atom.ContainerAtom mdia = trak.getContainerAtomOfType(Atom.TYPE_mdia);
     int trackType = parseHdlr(mdia.getLeafAtomOfType(Atom.TYPE_hdlr).data);
     if (trackType == C.TRACK_TYPE_UNKNOWN) {
@@ -88,11 +90,17 @@ import java.util.List;
     Pair<Long, String> mdhdData = parseMdhd(mdia.getLeafAtomOfType(Atom.TYPE_mdhd).data);
     StsdData stsdData = parseStsd(stbl.getLeafAtomOfType(Atom.TYPE_stsd).data, tkhdData.id,
         tkhdData.rotationDegrees, mdhdData.second, drmInitData, isQuickTime);
-    Pair<long[], long[]> edtsData = parseEdts(trak.getContainerAtomOfType(Atom.TYPE_edts));
+    long[] editListDurations = null;
+    long[] editListMediaTimes = null;
+    if (!ignoreEditLists) {
+      Pair<long[], long[]> edtsData = parseEdts(trak.getContainerAtomOfType(Atom.TYPE_edts));
+      editListDurations = edtsData.first;
+      editListMediaTimes = edtsData.second;
+    }
     return stsdData.format == null ? null
         : new Track(tkhdData.id, trackType, mdhdData.first, movieTimescale, durationUs,
             stsdData.format, stsdData.requiredSampleTransformation, stsdData.trackEncryptionBoxes,
-            stsdData.nalUnitLengthFieldLength, edtsData.first, edtsData.second);
+            stsdData.nalUnitLengthFieldLength, editListDurations, editListMediaTimes);
   }
 
   /**
@@ -395,7 +403,11 @@ import java.util.List;
       hasSyncSample |= (editedFlags[i] & C.BUFFER_FLAG_KEY_FRAME) != 0;
     }
     if (!hasSyncSample) {
-      throw new ParserException("The edited sample sequence does not contain a sync sample.");
+      // We don't support edit lists where the edited sample sequence doesn't contain a sync sample.
+      // Such edit lists are often (although not always) broken, so we ignore it and continue.
+      Log.w(TAG, "Ignoring edit list: Edited sample sequence does not contain a sync sample.");
+      Util.scaleLargeTimestampsInPlace(timestamps, C.MICROS_PER_SECOND, track.timescale);
+      return new TrackSampleTable(offsets, sizes, maximumSize, timestamps, flags);
     }
 
     return new TrackSampleTable(editedOffsets, editedSizes, editedMaximumSize, editedTimestamps,
@@ -779,7 +791,7 @@ import java.util.List;
    *
    * @param edtsAtom edts (edit box) atom to decode.
    * @return Pair of edit list durations and edit list media times, or a pair of nulls if they are
-   * not present.
+   *     not present.
    */
   private static Pair<long[], long[]> parseEdts(Atom.ContainerAtom edtsAtom) {
     Atom.LeafAtom elst;
@@ -1060,8 +1072,8 @@ import java.util.List;
       Assertions.checkArgument(childAtomSize > 0, "childAtomSize should be positive");
       int childAtomType = parent.readInt();
       if (childAtomType == Atom.TYPE_sinf) {
-        Pair<Integer, TrackEncryptionBox> result = parseSinfFromParent(parent, childPosition,
-            childAtomSize);
+        Pair<Integer, TrackEncryptionBox> result = parseCommonEncryptionSinfFromParent(parent,
+            childPosition, childAtomSize);
         if (result != null) {
           return result;
         }
@@ -1071,8 +1083,8 @@ import java.util.List;
     return null;
   }
 
-  private static Pair<Integer, TrackEncryptionBox> parseSinfFromParent(ParsableByteArray parent,
-      int position, int size) {
+  /* package */ static Pair<Integer, TrackEncryptionBox> parseCommonEncryptionSinfFromParent(
+      ParsableByteArray parent, int position, int size) {
     int childPosition = position + Atom.HEADER_SIZE;
     int schemeInformationBoxPosition = C.POSITION_UNSET;
     int schemeInformationBoxSize = 0;
@@ -1086,7 +1098,7 @@ import java.util.List;
         dataFormat = parent.readInt();
       } else if (childAtomType == Atom.TYPE_schm) {
         parent.skipBytes(4);
-        // scheme_type field. Defined in ISO/IEC 23001-7:2016, section 4.1.
+        // Common encryption scheme_type values are defined in ISO/IEC 23001-7:2016, section 4.1.
         schemeType = parent.readString(4);
       } else if (childAtomType == Atom.TYPE_schi) {
         schemeInformationBoxPosition = childPosition;
@@ -1095,7 +1107,8 @@ import java.util.List;
       childPosition += childAtomSize;
     }
 
-    if (schemeType != null) {
+    if (C.CENC_TYPE_cenc.equals(schemeType) || C.CENC_TYPE_cbc1.equals(schemeType)
+        || C.CENC_TYPE_cens.equals(schemeType) || C.CENC_TYPE_cbcs.equals(schemeType)) {
       Assertions.checkArgument(dataFormat != null, "frma atom is mandatory");
       Assertions.checkArgument(schemeInformationBoxPosition != C.POSITION_UNSET,
           "schi atom is mandatory");
