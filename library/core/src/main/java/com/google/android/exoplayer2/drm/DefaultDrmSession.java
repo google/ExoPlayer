@@ -17,7 +17,6 @@ package com.google.android.exoplayer2.drm;
 
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
-import android.media.DeniedByServerException;
 import android.media.NotProvisionedException;
 import android.os.Handler;
 import android.os.HandlerThread;
@@ -281,7 +280,7 @@ import java.util.UUID;
 
     try {
       mediaDrm.provideProvisionResponse((byte[]) response);
-    } catch (DeniedByServerException e) {
+    } catch (Exception e) {
       provisioningManager.onProvisionError(e);
       return;
     }
