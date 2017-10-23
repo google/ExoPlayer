@@ -232,6 +232,18 @@ import java.util.concurrent.CopyOnWriteArraySet;
     if (windowIndex < 0 || (!timeline.isEmpty() && windowIndex >= timeline.getWindowCount())) {
       throw new IllegalSeekPositionException(timeline, windowIndex, positionMs);
     }
+    if (isPlayingAd()) {
+      // TODO: Investigate adding support for seeking during ads. This is complicated to do in
+      // general because the midroll ad preceding the seek destination must be played before the
+      // content position can be played, if a different ad is playing at the moment.
+      Log.w(TAG, "seekTo ignored because an ad is playing");
+      if (pendingSeekAcks == 0) {
+        for (Player.EventListener listener : listeners) {
+          listener.onSeekProcessed();
+        }
+      }
+      return;
+    }
     pendingSeekAcks++;
     maskingWindowIndex = windowIndex;
     if (timeline.isEmpty()) {
