@@ -15,43 +15,44 @@
  */
 package com.google.android.exoplayer2.imademo;
 
+import android.app.Activity;
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
+import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.ui.SimpleExoPlayerView;
 
 /**
- * Main Activity for the ExoPlayer IMA plugin example. ExoPlayer objects are created by DemoPlayer,
- * which this class instantiates.
+ * Main Activity for the IMA plugin demo. {@link ExoPlayer} objects are created by
+ * {@link DemoPlayer}, which this class instantiates.
  */
-public class MainActivity extends AppCompatActivity {
+public final class MainActivity extends Activity {
 
-    private DemoPlayer mPlayer;
-    private SimpleExoPlayerView mView;
+  private SimpleExoPlayerView playerView;
+  private DemoPlayer player;
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+  @Override
+  protected void onCreate(Bundle savedInstanceState) {
+    super.onCreate(savedInstanceState);
+    setContentView(R.layout.main_activity);
+    playerView = findViewById(R.id.player_view);
+    player = new DemoPlayer(this);
+  }
 
-        mView = (SimpleExoPlayerView) findViewById(R.id.simpleExoPlayerView);
-        mPlayer = new DemoPlayer(this);
-    }
+  @Override
+  public void onResume() {
+    super.onResume();
+    player.init(this, playerView);
+  }
 
-    @Override
-    public void onResume() {
-        super.onResume();
-        mPlayer.init(this, mView);
-    }
+  @Override
+  public void onPause() {
+    super.onPause();
+    player.reset();
+  }
 
-    @Override
-    public void onPause() {
-        super.onPause();
-        mPlayer.reset();
-    }
+  @Override
+  public void onDestroy() {
+    player.release();
+    super.onDestroy();
+  }
 
-    @Override
-    public void onDestroy() {
-        mPlayer.release();
-        super.onDestroy();
-    }
 }

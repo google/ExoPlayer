@@ -13,10 +13,9 @@
      See the License for the specific language governing permissions and
      limitations under the License.
 -->
-<resources xmlns:android="http://schemas.android.com/apk/res/android">
-
-  <style name="PlayerTheme" parent="android:Theme.Holo">
-    <item name="android:windowBackground">@android:color/black</item>
-  </style>
-
-</resources>
+<com.google.android.exoplayer2.ui.SimpleExoPlayerView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/player_view"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:keepScreenOn="true"/>

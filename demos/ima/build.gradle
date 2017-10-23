@@ -17,22 +17,30 @@ apply plugin: 'com.android.application'
 android {
     compileSdkVersion project.ext.compileSdkVersion
     buildToolsVersion project.ext.buildToolsVersion
+
     defaultConfig {
-        applicationId "com.google.android.exoplayer2.imademo"
         minSdkVersion 16
         targetSdkVersion project.ext.targetSdkVersion
-        versionCode 1
-        versionName "1.0"
     }
+
     buildTypes {
         release {
-            minifyEnabled false
+            shrinkResources true
+            minifyEnabled true
+            proguardFiles getDefaultProguardFile('proguard-android.txt')
         }
+        debug {
+            jniDebuggable = true
+        }
+    }
+
+    lintOptions {
+        // The demo app does not have translations.
+        disable 'MissingTranslation'
     }
 }
 
 dependencies {
-    compile 'com.android.support:appcompat-v7:' + supportLibraryVersion
     compile project(modulePrefix + 'library-core')
     compile project(modulePrefix + 'library-ui')
     compile project(modulePrefix + 'extension-ima')
