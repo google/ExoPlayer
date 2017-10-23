@@ -242,7 +242,7 @@ public final class MatroskaExtractor implements Extractor {
    * The value by which to divide a time in microseconds to convert it to the unit of the last value
    * in a subrip timecode (milliseconds).
    */
-  private static long SUBRIP_TIMECODE_LAST_VALUE_SCALING_FACTOR = 1000;
+  private static final long SUBRIP_TIMECODE_LAST_VALUE_SCALING_FACTOR = 1000;
   /**
    * The format of a subrip timecode.
    */
@@ -270,7 +270,7 @@ public final class MatroskaExtractor implements Extractor {
    * The value by which to divide a time in microseconds to convert it to the unit of the last value
    * in an SSA timecode (1/100ths of a second).
    */
-  private static long SSA_TIMECODE_LAST_VALUE_SCALING_FACTOR = 10000;
+  private static final long SSA_TIMECODE_LAST_VALUE_SCALING_FACTOR = 10000;
   /**
    * A special end timecode indicating that an SSA subtitle should be displayed until the next
    * subtitle, or until the end of the media in the case of the last subtitle.

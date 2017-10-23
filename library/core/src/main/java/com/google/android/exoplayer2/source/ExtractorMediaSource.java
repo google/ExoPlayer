@@ -19,7 +19,6 @@ import android.net.Uri;
 import android.os.Handler;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlayer;
-import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.extractor.DefaultExtractorsFactory;
 import com.google.android.exoplayer2.extractor.Extractor;
 import com.google.android.exoplayer2.extractor.ExtractorsFactory;
@@ -84,7 +83,6 @@ public final class ExtractorMediaSource implements MediaSource, ExtractorMediaPe
   private final int minLoadableRetryCount;
   private final Handler eventHandler;
   private final EventListener eventListener;
-  private final Timeline.Period period;
   private final String customCacheKey;
   private final int continueLoadingCheckIntervalBytes;
 
@@ -149,7 +147,6 @@ public final class ExtractorMediaSource implements MediaSource, ExtractorMediaPe
     this.eventListener = eventListener;
     this.customCacheKey = customCacheKey;
     this.continueLoadingCheckIntervalBytes = continueLoadingCheckIntervalBytes;
-    period = new Timeline.Period();
   }
 
   @Override
@@ -187,7 +184,7 @@ public final class ExtractorMediaSource implements MediaSource, ExtractorMediaPe
   public void onSourceInfoRefreshed(long durationUs, boolean isSeekable) {
     // If we already have the duration from a previous source info refresh, use it.
     durationUs = durationUs == C.TIME_UNSET ? timelineDurationUs : durationUs;
-    if (timelineDurationUs == durationUs && timelineIsSeekable == isSeekable
+    if ((timelineDurationUs == durationUs && timelineIsSeekable == isSeekable)
         || (timelineDurationUs != C.TIME_UNSET && durationUs == C.TIME_UNSET)) {
       // Suppress no-op source info changes.
       return;

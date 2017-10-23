@@ -40,10 +40,10 @@ public final class ConcatenatingMediaSource implements MediaSource {
   private final Map<MediaPeriod, Integer> sourceIndexByMediaPeriod;
   private final boolean[] duplicateFlags;
   private final boolean isAtomic;
+  private final ShuffleOrder shuffleOrder;
 
   private Listener listener;
   private ConcatenatedTimeline timeline;
-  private ShuffleOrder shuffleOrder;
 
   /**
    * @param mediaSources The {@link MediaSource}s to concatenate. It is valid for the same

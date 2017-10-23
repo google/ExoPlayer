@@ -170,7 +170,7 @@ public final class DashDownloadTest extends ActivityInstrumentationTestCase2<Hos
 
   private static class TestProgressListener implements ProgressListener {
 
-    private float stopAt;
+    private final float stopAt;
 
     private TestProgressListener(float stopAt) {
       this.stopAt = stopAt;

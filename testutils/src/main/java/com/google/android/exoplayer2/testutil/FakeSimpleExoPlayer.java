@@ -134,7 +134,7 @@ public class FakeSimpleExoPlayer extends SimpleExoPlayer {
 
     @Override
     public void setPlayWhenReady(boolean playWhenReady) {
-      if (playWhenReady != true) {
+      if (!playWhenReady) {
         throw new UnsupportedOperationException();
       }
     }
@@ -339,7 +339,7 @@ public class FakeSimpleExoPlayer extends SimpleExoPlayer {
 
     @Override
     public void prepare(final MediaSource mediaSource, boolean resetPosition, boolean resetState) {
-      if (resetPosition != true || resetState != true) {
+      if (!resetPosition || !resetState) {
         throw new UnsupportedOperationException();
       }
       this.mediaSource = mediaSource;

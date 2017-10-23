@@ -86,6 +86,7 @@ import java.util.UUID;
 
   /* package */ final MediaDrmCallback callback;
   /* package */ final UUID uuid;
+  /* package */ final PostResponseHandler postResponseHandler;
 
   private @DrmSession.State int state;
   private int openCount;
@@ -95,8 +96,6 @@ import java.util.UUID;
   private DrmSessionException lastException;
   private byte[] sessionId;
   private byte[] offlineLicenseKeySetId;
-
-  /* package */ PostResponseHandler postResponseHandler;
 
   /**
    * Instantiates a new DRM session.

@@ -31,7 +31,7 @@ public interface RenderersFactory {
    *
    * @param eventHandler A handler to use when invoking event listeners and outputs.
    * @param videoRendererEventListener An event listener for video renderers.
-   * @param videoRendererEventListener An event listener for audio renderers.
+   * @param audioRendererEventListener An event listener for audio renderers.
    * @param textRendererOutput An output for text renderers.
    * @param metadataRendererOutput An output for metadata renderers.
    * @return The {@link Renderer instances}.
