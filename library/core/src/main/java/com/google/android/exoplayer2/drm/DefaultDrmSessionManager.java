@@ -26,6 +26,7 @@ import android.text.TextUtils;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.drm.DefaultDrmSession.ProvisioningManager;
 import com.google.android.exoplayer2.drm.DrmInitData.SchemeData;
+import com.google.android.exoplayer2.drm.DrmSession.DrmSessionException;
 import com.google.android.exoplayer2.drm.ExoMediaDrm.OnEventListener;
 import com.google.android.exoplayer2.extractor.mp4.PsshAtomUtil;
 import com.google.android.exoplayer2.util.Assertions;
@@ -372,19 +373,20 @@ public class DefaultDrmSessionManager<T extends ExoMediaCrypto> implements DrmSe
     if (offlineLicenseKeySetId == null) {
       SchemeData data = getSchemeData(drmInitData, uuid);
       if (data == null) {
+        final IllegalStateException error = new IllegalStateException(
+            "Media does not support uuid: " + uuid);
         if (eventHandler != null && eventListener != null) {
           eventHandler.post(new Runnable() {
             @Override
             public void run() {
-              eventListener.onDrmSessionManagerError(new IllegalStateException(
-                  "Media does not support uuid: " + uuid));
+              eventListener.onDrmSessionManagerError(error);
             }
           });
         }
-      } else {
-        initData = getSchemeInitData(data, uuid);
-        mimeType = getSchemeMimeType(data, uuid);
+        return new ErrorStateDrmSession<>(new DrmSessionException(error));
       }
+      initData = getSchemeInitData(data, uuid);
+      mimeType = getSchemeMimeType(data, uuid);
     }
 
     DefaultDrmSession<T> session;
@@ -414,6 +416,11 @@ public class DefaultDrmSessionManager<T extends ExoMediaCrypto> implements DrmSe
 
   @Override
   public void releaseSession(DrmSession<T> session) {
+    if (session instanceof ErrorStateDrmSession) {
+      // Do nothing.
+      return;
+    }
+
     DefaultDrmSession<T> drmSession = (DefaultDrmSession<T>) session;
     if (drmSession.release()) {
       sessions.remove(drmSession);
