@@ -205,7 +205,7 @@ public interface ExoMediaDrm<T extends ExoMediaCrypto> {
    *
    * @param initData Opaque initialization data specific to the crypto scheme.
    * @return An object extends {@link ExoMediaCrypto}, using opaque crypto scheme specific data.
-   * @throws MediaCryptoException
+   * @throws MediaCryptoException If the instance can't be created.
    */
   T createMediaCrypto(byte[] initData) throws MediaCryptoException;
 

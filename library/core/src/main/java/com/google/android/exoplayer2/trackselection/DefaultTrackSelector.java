@@ -1094,7 +1094,7 @@ public class DefaultTrackSelector extends MappingTrackSelector {
      *
      * @param other The other score to compare to.
      * @return A positive integer if this score is better than the other. Zero if they are
-     * equal. A negative integer if this score is worse than the other.
+     *     equal. A negative integer if this score is worse than the other.
      */
     @Override
     public int compareTo(AudioTrackScore other) {

@@ -140,7 +140,7 @@ public interface Cache {
    * @param key The key of the data being requested.
    * @param position The position of the data being requested.
    * @return The {@link CacheSpan}.
-   * @throws InterruptedException
+   * @throws InterruptedException If the thread was interrupted.
    */
   CacheSpan startReadWrite(String key, long position) throws InterruptedException, CacheException;
 

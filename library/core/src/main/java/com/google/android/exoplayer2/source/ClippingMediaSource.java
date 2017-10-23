@@ -37,7 +37,6 @@ public final class ClippingMediaSource implements MediaSource, MediaSource.Liste
   private final ArrayList<ClippingMediaPeriod> mediaPeriods;
 
   private MediaSource.Listener sourceListener;
-  private ClippingTimeline clippingTimeline;
 
   /**
    * Creates a new clipping source that wraps the specified source.
@@ -117,8 +116,7 @@ public final class ClippingMediaSource implements MediaSource, MediaSource.Liste
 
   @Override
   public void onSourceInfoRefreshed(Timeline timeline, Object manifest) {
-    clippingTimeline = new ClippingTimeline(timeline, startUs, endUs);
-    sourceListener.onSourceInfoRefreshed(clippingTimeline, manifest);
+    sourceListener.onSourceInfoRefreshed(new ClippingTimeline(timeline, startUs, endUs), manifest);
     int count = mediaPeriods.size();
     for (int i = 0; i < count; i++) {
       mediaPeriods.get(i).setClipping(startUs, endUs);

@@ -32,7 +32,7 @@ import junit.framework.TestCase;
  */
 public class SsManifestTest extends TestCase {
 
-  private static ProtectionElement DUMMY_PROTECTION_ELEMENT =
+  private static final ProtectionElement DUMMY_PROTECTION_ELEMENT =
       new ProtectionElement(C.WIDEVINE_UUID, new byte[] {0, 1, 2});
 
   public void testCopy() throws Exception {

@@ -82,7 +82,7 @@ public final class CeaUtil {
    * number of 0xFF bytes and T is the value of the terminating byte.
    *
    * @param buffer The buffer from which to read the value.
-   * @returns The read value, or -1 if the end of the buffer is reached before a value is read.
+   * @return The read value, or -1 if the end of the buffer is reached before a value is read.
    */
   private static int readNon255TerminatedValue(ParsableByteArray buffer) {
     int b;

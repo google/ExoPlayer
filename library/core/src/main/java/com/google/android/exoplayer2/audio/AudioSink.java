@@ -202,8 +202,7 @@ public interface AudioSink {
    * @param trimStartSamples The number of audio samples to trim from the start of data written to
    *     the sink after this call.
    * @param trimEndSamples The number of audio samples to trim from data written to the sink
-   *     immediately preceding the next call to {@link #reset()} or
-   *     {@link #configure(String, int, int, int, int, int[], int, int)}.
+   *     immediately preceding the next call to {@link #reset()} or this method.
    * @throws ConfigurationException If an error occurs configuring the sink.
    */
   void configure(String inputMimeType, int inputChannelCount, int inputSampleRate,
