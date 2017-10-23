@@ -367,10 +367,8 @@ public class DefaultDrmSessionManager<T extends ExoMediaCrypto> implements DrmSe
       }
     }
 
-    DefaultDrmSession<T> session = null;
     byte[] initData = null;
     String mimeType = null;
-
     if (offlineLicenseKeySetId == null) {
       SchemeData data = getSchemeData(drmInitData, uuid);
       if (data == null) {
@@ -389,8 +387,12 @@ public class DefaultDrmSessionManager<T extends ExoMediaCrypto> implements DrmSe
       }
     }
 
+    DefaultDrmSession<T> session;
     if (!multiSession) {
-      // Look for an existing session to use.
+      session = sessions.isEmpty() ? null : sessions.get(0);
+    } else {
+      // Only use an existing session if it has matching init data.
+      session = null;
       for (DefaultDrmSession<T> existingSession : sessions) {
         if (existingSession.hasInitData(initData)) {
           session = existingSession;
