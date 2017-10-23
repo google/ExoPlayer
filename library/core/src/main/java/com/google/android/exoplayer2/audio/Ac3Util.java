@@ -125,9 +125,9 @@ public final class Ac3Util {
       121, 139, 174, 208, 243, 278, 348, 417, 487, 557, 696, 835, 975, 1114, 1253, 1393};
 
   /**
-   * Value to identify TrueHD packet
+   * Min size to identify TrueHD packet
    */
-  private static final int TRUEHD_SYNCWORD = 0xba6f72f8;
+  private static final int TRUEHD_SYNCWORD_MIN_LEN = 12;
 
   /**
    * Sample hold count for TRUE HD frames
@@ -315,14 +315,25 @@ public final class Ac3Util {
 
   public static int parseTrueHDSyncframeAudioSampleCount(ByteBuffer buffer) {
 
-    if (buffer.limit() < 12)
-      return 0;
+    int pos = buffer.position();
+    int len = Math.min(TRUEHD_SYNCWORD_MIN_LEN, buffer.remaining());
+    byte[] bytes = new byte[len];
+    buffer.get(bytes, pos, len);
+    buffer.position(pos);
+    return parseTrueHDSyncframeAudioSampleCount(bytes);
+  }
+
+  public static int parseTrueHDSyncframeAudioSampleCount(byte[] bytes) {
+
+    if (bytes.length < TRUEHD_SYNCWORD_MIN_LEN)
+      return C.INDEX_UNSET;
     int ratebits;
-    int streamType = buffer.getInt(4);
-    if (streamType == TRUEHD_SYNCWORD)
-      ratebits = buffer.get(8);
+    //TRUEHD_SYNCWORD = 0xba6f72f8
+    if (bytes[4] == (byte) 0xf8 && bytes[5] == (byte) 0x72 &&
+     bytes[6] == (byte) 0x6f && bytes[7] == (byte) 0xba)
+      ratebits = bytes[8];
     else
-      return 0;
+      return C.INDEX_UNSET;
     return (40 << (ratebits & 7)) * TRUEHD_SAMPLE_COMMIT_COUNT;
   }
 

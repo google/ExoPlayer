@@ -357,7 +357,7 @@ public final class MatroskaExtractor implements Extractor {
   @C.BufferFlags
   private int blockFlags;
 
-  private int lastReadResult = Extractor.RESULT_CONTINUE;
+  private boolean readEndOfInput = false;
 
   // Sample reading state.
   private int sampleBytesRead;
@@ -434,12 +434,13 @@ public final class MatroskaExtractor implements Extractor {
     while (continueReading && !sampleRead) {
       continueReading = reader.read(input);
       if (continueReading && maybeSeekForCues(seekPosition, input.getPosition())) {
-        lastReadResult = Extractor.RESULT_SEEK;
-        return lastReadResult;
+        return Extractor.RESULT_SEEK;
       }
     }
-    lastReadResult = continueReading ? Extractor.RESULT_CONTINUE : Extractor.RESULT_END_OF_INPUT;
-    return lastReadResult;
+
+    if (!continueReading)
+      readEndOfInput = true;
+    return continueReading ? Extractor.RESULT_CONTINUE : Extractor.RESULT_END_OF_INPUT;
   }
 
   /* package */ int getElementType(int id) {
@@ -1086,7 +1087,7 @@ public final class MatroskaExtractor implements Extractor {
 
   private void commitSampleToOutput(Track track, long timeUs) {
     if (CODEC_ID_TRUEHD.equals(track.codecId)) {
-        samplesTrueHD.commit(timeUs, lastReadResult == RESULT_END_OF_INPUT);
+        samplesTrueHD.commit(timeUs, readEndOfInput);
     }
     else {
       if (CODEC_ID_SUBRIP.equals(track.codecId)) {
@@ -1954,7 +1955,7 @@ public final class MatroskaExtractor implements Extractor {
     private long timeUs;
     private @C.BufferFlags int blockFlags;
     private boolean gotSyncFrame;
-    private boolean letFirstIn;
+    private boolean skipBatchingUntilSyncFrameFound;
     private Track track;
 
     TrueHDSampleHolder() {
@@ -1975,7 +1976,7 @@ public final class MatroskaExtractor implements Extractor {
 
     void reset() {
       gotSyncFrame = false;
-      letFirstIn = true;
+      skipBatchingUntilSyncFrameFound = true;
       resetCounters();
     }
 
@@ -1987,11 +1988,18 @@ public final class MatroskaExtractor implements Extractor {
         this.blockFlags = blockFlags;
       if (!gotSyncFrame) {
         byte[] bytes = new byte[12];
-        input.peekFully(bytes, 0, 12);
-        input.resetPeekPosition();
-        if (0 < Ac3Util.parseTrueHDSyncframeAudioSampleCount(ByteBuffer.wrap(bytes).order(ByteOrder.LITTLE_ENDIAN))) {
+
+        if (sampleStrippedBytes.bytesLeft() > 0) {
+          int pos = sampleStrippedBytes.getPosition();
+          sampleStrippedBytes.readBytes(bytes, 0, Math.min(12, sampleStrippedBytes.bytesLeft()));
+          sampleStrippedBytes.setPosition(pos);
+        } else {
+          input.peekFully(bytes, 0, 12);
+          input.resetPeekPosition();
+        }
+        if (C.INDEX_UNSET != Ac3Util.parseTrueHDSyncframeAudioSampleCount(bytes)) {
           gotSyncFrame = true;
-          letFirstIn = false;
+          skipBatchingUntilSyncFrameFound = false;
         }
       }
       this.track = track;
@@ -2001,7 +2009,8 @@ public final class MatroskaExtractor implements Extractor {
       if (isFirstSampleCheck())
         this.timeUs = timeUs;
 
-      boolean commit = counter == Ac3Util.TRUEHD_SAMPLE_COMMIT_COUNT || letFirstIn || forceCommit;
+      boolean commit = counter == Ac3Util.TRUEHD_SAMPLE_COMMIT_COUNT ||
+       skipBatchingUntilSyncFrameFound || forceCommit;
       if (commit) {
         if (track != null && samplesSize > 0)
           track.output.sampleMetadata(this.timeUs, blockFlags, samplesSize, 0, track.cryptoData);
