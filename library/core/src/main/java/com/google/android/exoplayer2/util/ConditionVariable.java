@@ -66,7 +66,7 @@ public final class ConditionVariable {
    * @return true If the condition was opened, false if the call returns because of the timeout.
    * @throws InterruptedException If the thread is interrupted.
    */
-  public synchronized boolean block(int timeout) throws InterruptedException {
+  public synchronized boolean block(long timeout) throws InterruptedException {
     long now = System.currentTimeMillis();
     long end = now + timeout;
     while (!isOpen && now < end) {
