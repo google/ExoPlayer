@@ -93,6 +93,7 @@ import java.util.Arrays;
   private int[] sampleQueueTrackIds;
   private boolean sampleQueuesBuilt;
   private boolean prepared;
+  private int actualMinLoadableRetryCount;
 
   private boolean seenFirstTrackSelection;
   private boolean notifyDiscontinuity;
@@ -160,6 +161,11 @@ import java.util.Arrays;
     sampleQueues = new SampleQueue[0];
     pendingResetPositionUs = C.TIME_UNSET;
     length = C.LENGTH_UNSET;
+    // Assume on-demand for MIN_RETRY_COUNT_DEFAULT_FOR_MEDIA, until prepared.
+    actualMinLoadableRetryCount =
+        minLoadableRetryCount == ExtractorMediaSource.MIN_RETRY_COUNT_DEFAULT_FOR_MEDIA
+        ? ExtractorMediaSource.DEFAULT_MIN_LOADABLE_RETRY_COUNT_ON_DEMAND
+        : minLoadableRetryCount;
   }
 
   public void release() {
@@ -359,7 +365,7 @@ import java.util.Arrays;
   }
 
   /* package */ void maybeThrowError() throws IOException {
-    loader.maybeThrowError();
+    loader.maybeThrowError(actualMinLoadableRetryCount);
   }
 
   /* package */ int readData(int track, FormatHolder formatHolder, DecoderInputBuffer buffer,
@@ -491,6 +497,10 @@ import java.util.Arrays;
       haveAudioVideoTracks |= isAudioVideo;
     }
     tracks = new TrackGroupArray(trackArray);
+    if (minLoadableRetryCount == ExtractorMediaSource.MIN_RETRY_COUNT_DEFAULT_FOR_MEDIA
+        && length == C.LENGTH_UNSET && seekMap.getDurationUs() == C.TIME_UNSET) {
+      actualMinLoadableRetryCount = ExtractorMediaSource.DEFAULT_MIN_LOADABLE_RETRY_COUNT_LIVE;
+    }
     prepared = true;
     listener.onSourceInfoRefreshed(durationUs, seekMap.isSeekable());
     callback.onPrepared(this);
@@ -516,16 +526,7 @@ import java.util.Arrays;
       pendingResetPositionUs = C.TIME_UNSET;
     }
     extractedSamplesCountAtStartOfLoad = getExtractedSamplesCount();
-
-    int minRetryCount = minLoadableRetryCount;
-    if (minRetryCount == ExtractorMediaSource.MIN_RETRY_COUNT_DEFAULT_FOR_MEDIA) {
-      // We assume on-demand before we're prepared.
-      minRetryCount = !prepared || length != C.LENGTH_UNSET
-          || (seekMap != null && seekMap.getDurationUs() != C.TIME_UNSET)
-          ? ExtractorMediaSource.DEFAULT_MIN_LOADABLE_RETRY_COUNT_ON_DEMAND
-          : ExtractorMediaSource.DEFAULT_MIN_LOADABLE_RETRY_COUNT_LIVE;
-    }
-    loader.startLoading(loadable, this, minRetryCount);
+    loader.startLoading(loadable, this, actualMinLoadableRetryCount);
   }
 
   private void configureRetry(ExtractingLoadable loadable) {

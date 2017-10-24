@@ -184,8 +184,7 @@ public final class ExtractorMediaSource implements MediaSource, ExtractorMediaPe
   public void onSourceInfoRefreshed(long durationUs, boolean isSeekable) {
     // If we already have the duration from a previous source info refresh, use it.
     durationUs = durationUs == C.TIME_UNSET ? timelineDurationUs : durationUs;
-    if ((timelineDurationUs == durationUs && timelineIsSeekable == isSeekable)
-        || (timelineDurationUs != C.TIME_UNSET && durationUs == C.TIME_UNSET)) {
+    if (timelineDurationUs == durationUs && timelineIsSeekable == isSeekable) {
       // Suppress no-op source info changes.
       return;
     }
