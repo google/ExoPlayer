@@ -24,6 +24,7 @@ import android.os.HandlerThread;
 import android.os.Message;
 import android.view.Choreographer;
 import android.view.Choreographer.FrameCallback;
+import android.view.Display;
 import android.view.WindowManager;
 import com.google.android.exoplayer2.C;
 
@@ -33,7 +34,6 @@ import com.google.android.exoplayer2.C;
 @TargetApi(16)
 public final class VideoFrameReleaseTimeHelper {
 
-  private static final int DISPLAY_ID_UNKNOWN = -1;
   private static final double DISPLAY_REFRESH_RATE_UNKNOWN = -1;
   private static final long CHOREOGRAPHER_SAMPLE_DELAY_MILLIS = 500;
   private static final long MAX_ALLOWED_DRIFT_NS = 20000000;
@@ -41,10 +41,10 @@ public final class VideoFrameReleaseTimeHelper {
   private static final long VSYNC_OFFSET_PERCENTAGE = 80;
   private static final int MIN_FRAMES_FOR_ADJUSTMENT = 6;
 
-  private DisplayManager.DisplayListener displayListener = null;
   private Context context = null;
 
-  private VSyncSampler vsyncSampler = null;
+  private final DefaultDisplayListener defaultDisplayListener;
+  private final VSyncSampler vsyncSampler;
   private final boolean useDefaultDisplayVsync;
   private long vsyncDurationNs = -1; // Value unused.
   private long vsyncOffsetNs = -1; // Value unused.
@@ -63,7 +63,10 @@ public final class VideoFrameReleaseTimeHelper {
    * the default display's vsync signal.
    */
   public VideoFrameReleaseTimeHelper() {
-    this(DISPLAY_REFRESH_RATE_UNKNOWN);
+    defaultDisplayListener = null;
+    useDefaultDisplayVsync = false;
+    vsyncSampler = null;
+    context = null;
   }
 
   /**
@@ -73,16 +76,13 @@ public final class VideoFrameReleaseTimeHelper {
    * @param context A context from which information about the default display can be retrieved.
    */
   public VideoFrameReleaseTimeHelper(Context context) {
-    this(getDefaultDisplayRefreshRate(context));
     this.context = context.getApplicationContext();
+    defaultDisplayListener = Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1 ?
+     new DefaultDisplayListener(context) : null;
+    useDefaultDisplayVsync = true;
+    vsyncSampler = VSyncSampler.getInstance();
   }
 
-  private VideoFrameReleaseTimeHelper(double defaultDisplayRefreshRate) {
-    useDefaultDisplayVsync = defaultDisplayRefreshRate != DISPLAY_REFRESH_RATE_UNKNOWN;
-    if (useDefaultDisplayVsync) {
-      vsyncSampler = VSyncSampler.getInstance();
-    }
-  }
 
   /**
    * Enables the helper.
@@ -92,7 +92,8 @@ public final class VideoFrameReleaseTimeHelper {
     if (useDefaultDisplayVsync) {
       vsyncSampler.addObserver();
       setSync(getDefaultDisplayRefreshRate(context));
-      registerDisplayListener();
+      if (defaultDisplayListener != null)
+        defaultDisplayListener.register();
     }
   }
 
@@ -102,38 +103,14 @@ public final class VideoFrameReleaseTimeHelper {
   public void disable() {
     if (useDefaultDisplayVsync) {
       vsyncSampler.removeObserver();
-      unregisterDisplayListener();
-    }
-  }
-
-  private void registerDisplayListener() {
-    if (displayListener == null && context != null &&
-     Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-      DisplayManager displayManager = context.getSystemService(DisplayManager.class);
-      if (displayManager != null) {
-        displayListener = new DefaultDisplayListener(context);
-        displayManager.registerDisplayListener(displayListener, null);
-      }
-    }
-  }
-
-  private void unregisterDisplayListener() {
-    if (context != null && displayListener != null &&
-     Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-      DisplayManager displayManager = context.getSystemService(DisplayManager.class);
-      if (displayManager != null) {
-        displayManager.unregisterDisplayListener(displayListener);
-        displayListener = null;
-      }
+      if (defaultDisplayListener != null)
+        defaultDisplayListener.unregister();
     }
   }
 
   private void setSync(double defaultDisplayRefreshRate) {
-
-    if (useDefaultDisplayVsync) {
-      vsyncDurationNs = (long) (C.NANOS_PER_SECOND / defaultDisplayRefreshRate);
-      vsyncOffsetNs = (vsyncDurationNs * VSYNC_OFFSET_PERCENTAGE) / 100;
-    }
+    vsyncDurationNs = (long) (C.NANOS_PER_SECOND / defaultDisplayRefreshRate);
+    vsyncOffsetNs = (vsyncDurationNs * VSYNC_OFFSET_PERCENTAGE) / 100;
   }
 
   /**
@@ -232,12 +209,6 @@ public final class VideoFrameReleaseTimeHelper {
     long snappedAfterDiff = snappedAfterNs - releaseTime;
     long snappedBeforeDiff = releaseTime - snappedBeforeNs;
     return snappedAfterDiff < snappedBeforeDiff ? snappedAfterNs : snappedBeforeNs;
-  }
-
-  private static int getDefaultDisplayId(Context context) {
-    WindowManager manager = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
-    return manager != null && manager.getDefaultDisplay() != null ?
-     manager.getDefaultDisplay().getDisplayId() : DISPLAY_ID_UNKNOWN;
   }
 
   private static double getDefaultDisplayRefreshRate(Context context) {
@@ -341,12 +312,16 @@ public final class VideoFrameReleaseTimeHelper {
 
   }
 
-  @TargetApi(17)
+  @TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR1)
   private class DefaultDisplayListener implements DisplayManager.DisplayListener {
 
     private final Context context;
+    private final DisplayManager displayManager;
+
     DefaultDisplayListener(Context context) {
       this.context = context;
+      displayManager = context != null ?
+       (DisplayManager) context.getSystemService(Context.DISPLAY_SERVICE) : null;
     }
 
     @Override
@@ -359,9 +334,20 @@ public final class VideoFrameReleaseTimeHelper {
 
     @Override
     public void onDisplayChanged(int displayId) {
-      final int defaultDisplayId = getDefaultDisplayId(context);
-      if (displayId == defaultDisplayId || defaultDisplayId == DISPLAY_ID_UNKNOWN) {
+      if (displayId == Display.DEFAULT_DISPLAY) {
         setSync(getDefaultDisplayRefreshRate(context));
+      }
+    }
+
+    public void register() {
+      if (displayManager != null && context != null) { // context is used on callback
+        displayManager.registerDisplayListener(this, null);
+      }
+    }
+
+    public void unregister() {
+      if (displayManager != null) {
+        displayManager.unregisterDisplayListener(this);
       }
     }
 
