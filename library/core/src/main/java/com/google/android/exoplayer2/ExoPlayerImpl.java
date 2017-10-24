@@ -472,6 +472,30 @@ import java.util.concurrent.CopyOnWriteArraySet;
         }
         break;
       }
+      case ExoPlayerImplInternal.MSG_SOURCE_INFO_REFRESHED: {
+        SourceInfo sourceInfo = (SourceInfo) msg.obj;
+        pendingSeekAcks -= sourceInfo.seekAcks;
+        if (pendingPrepareAcks == 0) {
+          timeline = sourceInfo.timeline;
+          manifest = sourceInfo.manifest;
+          playbackInfo = sourceInfo.playbackInfo;
+          if (pendingSeekAcks == 0 && timeline.isEmpty()) {
+            // Update the masking variables, which are used when the timeline is empty.
+            maskingPeriodIndex = 0;
+            maskingWindowIndex = 0;
+            maskingWindowPositionMs = 0;
+          }
+          for (Player.EventListener listener : listeners) {
+            listener.onTimelineChanged(timeline, manifest);
+          }
+        }
+        if (pendingSeekAcks == 0 && sourceInfo.seekAcks > 0) {
+          for (Player.EventListener listener : listeners) {
+            listener.onSeekProcessed();
+          }
+        }
+        break;
+      }
       case ExoPlayerImplInternal.MSG_TRACKS_CHANGED: {
         if (pendingPrepareAcks == 0) {
           TrackSelectorResult trackSelectorResult = (TrackSelectorResult) msg.obj;
@@ -508,30 +532,6 @@ import java.util.concurrent.CopyOnWriteArraySet;
           playbackInfo = (ExoPlayerImplInternal.PlaybackInfo) msg.obj;
           for (Player.EventListener listener : listeners) {
             listener.onPositionDiscontinuity(DISCONTINUITY_REASON_PERIOD_TRANSITION);
-          }
-        }
-        break;
-      }
-      case ExoPlayerImplInternal.MSG_SOURCE_INFO_REFRESHED: {
-        SourceInfo sourceInfo = (SourceInfo) msg.obj;
-        pendingSeekAcks -= sourceInfo.seekAcks;
-        if (pendingPrepareAcks == 0) {
-          timeline = sourceInfo.timeline;
-          manifest = sourceInfo.manifest;
-          playbackInfo = sourceInfo.playbackInfo;
-          if (pendingSeekAcks == 0 && timeline.isEmpty()) {
-            // Update the masking variables, which are used when the timeline is empty.
-            maskingPeriodIndex = 0;
-            maskingWindowIndex = 0;
-            maskingWindowPositionMs = 0;
-          }
-          for (Player.EventListener listener : listeners) {
-            listener.onTimelineChanged(timeline, manifest);
-          }
-        }
-        if (pendingSeekAcks == 0 && sourceInfo.seekAcks > 0) {
-          for (Player.EventListener listener : listeners) {
-            listener.onSeekProcessed();
           }
         }
         break;
