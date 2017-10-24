@@ -16,7 +16,6 @@
 package com.google.android.exoplayer2.ext.cronet;
 
 import android.net.Uri;
-import android.os.ConditionVariable;
 import android.text.TextUtils;
 import android.util.Log;
 import com.google.android.exoplayer2.C;
@@ -27,6 +26,7 @@ import com.google.android.exoplayer2.upstream.HttpDataSource;
 import com.google.android.exoplayer2.upstream.TransferListener;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Clock;
+import com.google.android.exoplayer2.util.ConditionVariable;
 import com.google.android.exoplayer2.util.Predicate;
 import java.io.IOException;
 import java.net.CookieManager;
@@ -76,6 +76,14 @@ public class CronetDataSource extends UrlRequest.Callback implements HttpDataSou
       this.cronetConnectionStatus = cronetConnectionStatus;
     }
 
+  }
+
+  /** Thrown on catching an InterruptedException. */
+  public static final class InterruptedIOException extends IOException {
+
+    public InterruptedIOException(InterruptedException e) {
+      super(e);
+    }
   }
 
   static {
@@ -266,13 +274,18 @@ public class CronetDataSource extends UrlRequest.Callback implements HttpDataSou
       throw new OpenException(e, dataSpec, Status.IDLE);
     }
     currentUrlRequest.start();
-    boolean requestStarted = blockUntilConnectTimeout();
 
-    if (exception != null) {
-      throw new OpenException(exception, currentDataSpec, getStatus(currentUrlRequest));
-    } else if (!requestStarted) {
-      // The timeout was reached before the connection was opened.
-      throw new OpenException(new SocketTimeoutException(), dataSpec, getStatus(currentUrlRequest));
+    try {
+      boolean connectionOpened = blockUntilConnectTimeout();
+      if (exception != null) {
+        throw new OpenException(exception, currentDataSpec, getStatus(currentUrlRequest));
+      } else if (!connectionOpened) {
+        // The timeout was reached before the connection was opened.
+        throw new OpenException(
+            new SocketTimeoutException(), dataSpec, getStatus(currentUrlRequest));
+      }
+    } catch (InterruptedException e) {
+      throw new OpenException(new InterruptedIOException(e), dataSpec, Status.INVALID);
     }
 
     // Check for a valid response code.
@@ -340,14 +353,24 @@ public class CronetDataSource extends UrlRequest.Callback implements HttpDataSou
       operation.close();
       readBuffer.clear();
       currentUrlRequest.read(readBuffer);
-      if (!operation.block(readTimeoutMs)) {
-        // We're timing out, but since the operation is still ongoing we'll need to replace
-        // readBuffer to avoid the possibility of it being written to by this operation during a
-        // subsequent request.
+      try {
+        if (!operation.block(readTimeoutMs)) {
+          throw new SocketTimeoutException();
+        }
+      } catch (InterruptedException | SocketTimeoutException e) {
+        // If we're timing out or getting interrupted, the operation is still ongoing.
+        // So we'll need to replace readBuffer to avoid the possibility of it being written to by
+        // this operation during a subsequent request.
         readBuffer = null;
         throw new HttpDataSourceException(
-            new SocketTimeoutException(), currentDataSpec, HttpDataSourceException.TYPE_READ);
-      } else if (exception != null) {
+            e instanceof InterruptedException
+                ? new InterruptedIOException((InterruptedException) e)
+                : (SocketTimeoutException) e,
+            currentDataSpec,
+            HttpDataSourceException.TYPE_READ);
+      }
+
+      if (exception != null) {
         throw new HttpDataSourceException(exception, currentDataSpec,
             HttpDataSourceException.TYPE_READ);
       } else if (finished) {
@@ -541,7 +564,7 @@ public class CronetDataSource extends UrlRequest.Callback implements HttpDataSou
     return requestBuilder.build();
   }
 
-  private boolean blockUntilConnectTimeout() {
+  private boolean blockUntilConnectTimeout() throws InterruptedException {
     long now = clock.elapsedRealtime();
     boolean opened = false;
     while (!opened && now < currentConnectTimeoutMs) {
@@ -639,7 +662,7 @@ public class CronetDataSource extends UrlRequest.Callback implements HttpDataSou
     return contentLength;
   }
 
-  private static int getStatus(UrlRequest request) {
+  private static int getStatus(UrlRequest request) throws InterruptedException {
     final ConditionVariable conditionVariable = new ConditionVariable();
     final int[] statusHolder = new int[1];
     request.getStatus(new UrlRequest.StatusListener() {
