@@ -141,7 +141,8 @@ public class TestUtil {
     class TimelineListener implements Listener {
       private Timeline timeline;
       @Override
-      public synchronized void onSourceInfoRefreshed(Timeline timeline, Object manifest) {
+      public synchronized void onSourceInfoRefreshed(MediaSource source, Timeline timeline,
+          Object manifest) {
         this.timeline = timeline;
         this.notify();
       }

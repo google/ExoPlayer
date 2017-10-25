@@ -91,14 +91,15 @@ public final class ConcatenatingMediaSource implements MediaSource {
   public void prepareSource(ExoPlayer player, boolean isTopLevelSource, Listener listener) {
     this.listener = listener;
     if (mediaSources.length == 0) {
-      listener.onSourceInfoRefreshed(Timeline.EMPTY, null);
+      listener.onSourceInfoRefreshed(this, Timeline.EMPTY, null);
     } else {
       for (int i = 0; i < mediaSources.length; i++) {
         if (!duplicateFlags[i]) {
           final int index = i;
           mediaSources[i].prepareSource(player, false, new Listener() {
             @Override
-            public void onSourceInfoRefreshed(Timeline timeline, Object manifest) {
+            public void onSourceInfoRefreshed(MediaSource source, Timeline timeline,
+                Object manifest) {
               handleSourceInfoRefreshed(index, timeline, manifest);
             }
           });
@@ -161,7 +162,7 @@ public final class ConcatenatingMediaSource implements MediaSource {
       }
     }
     timeline = new ConcatenatedTimeline(timelines.clone(), isAtomic, shuffleOrder);
-    listener.onSourceInfoRefreshed(timeline, manifests.clone());
+    listener.onSourceInfoRefreshed(this, timeline, manifests.clone());
   }
 
   private static boolean[] buildDuplicateFlags(MediaSource[] mediaSources) {

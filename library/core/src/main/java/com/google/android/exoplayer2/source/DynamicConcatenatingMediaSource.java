@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.source;
 
+import android.support.annotation.NonNull;
 import android.util.Pair;
 import android.util.SparseIntArray;
 import com.google.android.exoplayer2.C;
@@ -299,8 +300,9 @@ public final class DynamicConcatenatingMediaSource implements MediaSource, ExoPl
 
   private void maybeNotifyListener() {
     if (!preventListenerNotification) {
-      listener.onSourceInfoRefreshed(new ConcatenatedTimeline(mediaSourceHolders, windowCount,
-          periodCount, shuffleOrder), null);
+      listener.onSourceInfoRefreshed(this,
+          new ConcatenatedTimeline(mediaSourceHolders, windowCount, periodCount, shuffleOrder),
+          null);
     }
   }
 
@@ -321,7 +323,7 @@ public final class DynamicConcatenatingMediaSource implements MediaSource, ExoPl
     mediaSourceHolders.add(newIndex, newMediaSourceHolder);
     newMediaSourceHolder.mediaSource.prepareSource(player, false, new Listener() {
       @Override
-      public void onSourceInfoRefreshed(Timeline newTimeline, Object manifest) {
+      public void onSourceInfoRefreshed(MediaSource source, Timeline newTimeline, Object manifest) {
         updateMediaSourceInternal(newMediaSourceHolder, newTimeline);
       }
     });
@@ -425,7 +427,7 @@ public final class DynamicConcatenatingMediaSource implements MediaSource, ExoPl
     }
 
     @Override
-    public int compareTo(MediaSourceHolder other) {
+    public int compareTo(@NonNull MediaSourceHolder other) {
       return this.firstPeriodIndexInChild - other.firstPeriodIndexInChild;
     }
   }

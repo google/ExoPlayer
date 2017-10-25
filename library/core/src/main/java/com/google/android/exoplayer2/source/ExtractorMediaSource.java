@@ -197,7 +197,7 @@ public final class ExtractorMediaSource implements MediaSource, ExtractorMediaPe
     timelineDurationUs = durationUs;
     timelineIsSeekable = isSeekable;
     sourceListener.onSourceInfoRefreshed(
-        new SinglePeriodTimeline(timelineDurationUs, timelineIsSeekable), null);
+        this, new SinglePeriodTimeline(timelineDurationUs, timelineIsSeekable), null);
   }
 
 }

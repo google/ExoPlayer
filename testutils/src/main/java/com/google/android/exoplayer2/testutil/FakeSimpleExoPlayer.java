@@ -364,7 +364,8 @@ public class FakeSimpleExoPlayer extends SimpleExoPlayer {
     // MediaSource.Listener
 
     @Override
-    public void onSourceInfoRefreshed(final Timeline timeline, final @Nullable Object manifest) {
+    public void onSourceInfoRefreshed(MediaSource source, final Timeline timeline,
+        final @Nullable Object manifest) {
       if (this.timeline != null) {
         throw new UnsupportedOperationException();
       }

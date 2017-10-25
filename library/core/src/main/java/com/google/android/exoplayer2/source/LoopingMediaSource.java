@@ -63,11 +63,11 @@ public final class LoopingMediaSource implements MediaSource {
   public void prepareSource(ExoPlayer player, boolean isTopLevelSource, final Listener listener) {
     childSource.prepareSource(player, false, new Listener() {
       @Override
-      public void onSourceInfoRefreshed(Timeline timeline, Object manifest) {
+      public void onSourceInfoRefreshed(MediaSource source, Timeline timeline, Object manifest) {
         childPeriodCount = timeline.getPeriodCount();
         Timeline loopingTimeline = loopCount != Integer.MAX_VALUE
             ? new LoopingTimeline(timeline, loopCount) : new InfinitelyLoopingTimeline(timeline);
-        listener.onSourceInfoRefreshed(loopingTimeline, manifest);
+        listener.onSourceInfoRefreshed(LoopingMediaSource.this, loopingTimeline, manifest);
       }
     });
   }

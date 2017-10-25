@@ -115,8 +115,9 @@ public final class ClippingMediaSource implements MediaSource, MediaSource.Liste
   // MediaSource.Listener implementation.
 
   @Override
-  public void onSourceInfoRefreshed(Timeline timeline, Object manifest) {
-    sourceListener.onSourceInfoRefreshed(new ClippingTimeline(timeline, startUs, endUs), manifest);
+  public void onSourceInfoRefreshed(MediaSource source, Timeline timeline, Object manifest) {
+    sourceListener.onSourceInfoRefreshed(this, new ClippingTimeline(timeline, startUs, endUs),
+        manifest);
     int count = mediaPeriods.size();
     for (int i = 0; i < count; i++) {
       mediaPeriods.get(i).setClipping(startUs, endUs);

@@ -86,7 +86,7 @@ public final class SingleSampleMediaSource implements MediaSource {
 
   @Override
   public void prepareSource(ExoPlayer player, boolean isTopLevelSource, Listener listener) {
-    listener.onSourceInfoRefreshed(timeline, null);
+    listener.onSourceInfoRefreshed(this, timeline, null);
   }
 
   @Override

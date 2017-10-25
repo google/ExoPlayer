@@ -143,7 +143,7 @@ public final class AdsMediaSource implements MediaSource {
     playerHandler = new Handler();
     contentMediaSource.prepareSource(player, false, new Listener() {
       @Override
-      public void onSourceInfoRefreshed(Timeline timeline, Object manifest) {
+      public void onSourceInfoRefreshed(MediaSource source, Timeline timeline, Object manifest) {
         AdsMediaSource.this.onContentSourceInfoRefreshed(timeline, manifest);
       }
     });
@@ -187,7 +187,8 @@ public final class AdsMediaSource implements MediaSource {
         adGroupMediaSources[adGroupIndex][adIndexInAdGroup] = adMediaSource;
         adMediaSource.prepareSource(player, false, new Listener() {
           @Override
-          public void onSourceInfoRefreshed(Timeline timeline, Object manifest) {
+          public void onSourceInfoRefreshed(MediaSource source, Timeline timeline,
+              Object manifest) {
             onAdSourceInfoRefreshed(adGroupIndex, adIndexInAdGroup, timeline);
           }
         });
@@ -275,7 +276,7 @@ public final class AdsMediaSource implements MediaSource {
               adPlaybackState.adCounts, adPlaybackState.adsLoadedCounts,
               adPlaybackState.adsPlayedCounts, adDurationsUs, adPlaybackState.adResumePositionUs,
               adPlaybackState.contentDurationUs);
-      listener.onSourceInfoRefreshed(timeline, contentManifest);
+      listener.onSourceInfoRefreshed(this, timeline, contentManifest);
     }
   }
 
