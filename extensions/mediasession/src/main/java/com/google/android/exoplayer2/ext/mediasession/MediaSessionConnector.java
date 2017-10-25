@@ -737,14 +737,6 @@ public final class MediaSessionConnector {
     }
 
     @Override
-    public void onSetShuffleModeEnabled(boolean enabled) {
-      if (canDispatchToPlaybackController(PlaybackStateCompat.ACTION_SET_SHUFFLE_MODE_ENABLED)) {
-        playbackController.onSetShuffleMode(player, enabled
-            ? PlaybackStateCompat.SHUFFLE_MODE_ALL : PlaybackStateCompat.SHUFFLE_MODE_NONE);
-      }
-    }
-
-    @Override
     public void onSetShuffleMode(int shuffleMode) {
       if (canDispatchToPlaybackController(PlaybackStateCompat.ACTION_SET_SHUFFLE_MODE_ENABLED)) {
         playbackController.onSetShuffleMode(player, shuffleMode);
