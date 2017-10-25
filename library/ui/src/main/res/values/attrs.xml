@@ -76,6 +76,7 @@
     <attr name="scrubber_enabled_size" format="dimension"/>
     <attr name="scrubber_disabled_size" format="dimension"/>
     <attr name="scrubber_dragged_size" format="dimension"/>
+    <attr name="scrubber_drawable" format="reference"/>
     <attr name="played_color" format="color"/>
     <attr name="scrubber_color" format="color"/>
     <attr name="buffered_color" format="color"/>
