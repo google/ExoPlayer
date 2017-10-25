@@ -46,11 +46,14 @@ public interface MediaSource {
 
     /**
      * Called when manifest and/or timeline has been refreshed.
+     * <p>
+     * Called on the playback thread.
      *
+     * @param source The {@link MediaSource} whose info has been refreshed.
      * @param timeline The source's timeline.
      * @param manifest The loaded manifest. May be null.
      */
-    void onSourceInfoRefreshed(Timeline timeline, @Nullable Object manifest);
+    void onSourceInfoRefreshed(MediaSource source, Timeline timeline, @Nullable Object manifest);
 
   }
 

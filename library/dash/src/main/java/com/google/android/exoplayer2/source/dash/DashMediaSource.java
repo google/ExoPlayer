@@ -76,8 +76,8 @@ public final class DashMediaSource implements MediaSource {
 
   /**
    * The interval in milliseconds between invocations of
-   * {@link MediaSource.Listener#onSourceInfoRefreshed(Timeline, Object)} when the source's
-   * {@link Timeline} is changing dynamically (for example, for incomplete live streams).
+   * {@link MediaSource.Listener#onSourceInfoRefreshed(MediaSource, Timeline, Object)} when the
+   * source's {@link Timeline} is changing dynamically (for example, for incomplete live streams).
    */
   private static final int NOTIFY_MANIFEST_INTERVAL_MS = 5000;
   /**
@@ -527,7 +527,7 @@ public final class DashMediaSource implements MediaSource {
     DashTimeline timeline = new DashTimeline(manifest.availabilityStartTime, windowStartTimeMs,
         firstPeriodId, currentStartTimeUs, windowDurationUs, windowDefaultStartPositionUs,
         manifest);
-    sourceListener.onSourceInfoRefreshed(timeline, manifest);
+    sourceListener.onSourceInfoRefreshed(this, timeline, manifest);
 
     if (!sideloadedManifest) {
       // Remove any pending simulated refresh.

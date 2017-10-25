@@ -374,7 +374,7 @@ public final class DynamicConcatenatingMediaSourceTest extends TestCase {
   private void prepareAndListenToTimelineUpdates(MediaSource mediaSource) {
     mediaSource.prepareSource(new StubExoPlayer(), true, new Listener() {
       @Override
-      public void onSourceInfoRefreshed(Timeline newTimeline, Object manifest) {
+      public void onSourceInfoRefreshed(MediaSource source, Timeline newTimeline, Object manifest) {
         timeline = newTimeline;
         synchronized (DynamicConcatenatingMediaSourceTest.this) {
           timelineUpdated = true;
@@ -434,7 +434,7 @@ public final class DynamicConcatenatingMediaSourceTest extends TestCase {
     private Listener listener;
 
     public void triggerTimelineUpdate(Timeline timeline) {
-      listener.onSourceInfoRefreshed(timeline, null);
+      listener.onSourceInfoRefreshed(this, timeline, null);
     }
 
     @Override

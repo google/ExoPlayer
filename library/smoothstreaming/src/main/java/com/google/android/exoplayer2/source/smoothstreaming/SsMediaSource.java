@@ -328,7 +328,7 @@ public final class SsMediaSource implements MediaSource,
       timeline = new SinglePeriodTimeline(startTimeUs + durationUs, durationUs, startTimeUs, 0,
           true /* isSeekable */, false /* isDynamic */);
     }
-    sourceListener.onSourceInfoRefreshed(timeline, manifest);
+    sourceListener.onSourceInfoRefreshed(this, timeline, manifest);
   }
 
   private void scheduleManifestRefresh() {

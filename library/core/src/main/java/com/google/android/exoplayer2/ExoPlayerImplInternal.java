@@ -313,8 +313,9 @@ import java.io.IOException;
   // MediaSource.Listener implementation.
 
   @Override
-  public void onSourceInfoRefreshed(Timeline timeline, Object manifest) {
-    handler.obtainMessage(MSG_REFRESH_SOURCE_INFO, Pair.create(timeline, manifest)).sendToTarget();
+  public void onSourceInfoRefreshed(MediaSource source, Timeline timeline, Object manifest) {
+    handler.obtainMessage(MSG_REFRESH_SOURCE_INFO,
+        new MediaSourceRefreshInfo(source, timeline, manifest)).sendToTarget();
   }
 
   // MediaPeriod.Callback implementation.
@@ -384,7 +385,7 @@ import java.io.IOException;
           return true;
         }
         case MSG_REFRESH_SOURCE_INFO: {
-          handleSourceInfoRefreshed((Pair<Timeline, Object>) msg.obj);
+          handleSourceInfoRefreshed((MediaSourceRefreshInfo) msg.obj);
           return true;
         }
         case MSG_SOURCE_CONTINUE_LOADING_REQUESTED: {
@@ -1013,12 +1014,17 @@ import java.io.IOException;
     }
   }
 
-  private void handleSourceInfoRefreshed(Pair<Timeline, Object> timelineAndManifest)
+  private void handleSourceInfoRefreshed(MediaSourceRefreshInfo sourceRefreshInfo)
       throws ExoPlaybackException {
+    if (sourceRefreshInfo.source != mediaSource) {
+      // Stale event.
+      return;
+    }
+
     Timeline oldTimeline = timeline;
-    timeline = timelineAndManifest.first;
+    timeline = sourceRefreshInfo.timeline;
     mediaPeriodInfoSequence.setTimeline(timeline);
-    Object manifest = timelineAndManifest.second;
+    Object manifest = sourceRefreshInfo.manifest;
 
     if (oldTimeline == null) {
       if (pendingInitialSeekCount > 0) {
@@ -1772,6 +1778,20 @@ import java.io.IOException;
       this.timeline = timeline;
       this.windowIndex = windowIndex;
       this.windowPositionUs = windowPositionUs;
+    }
+
+  }
+
+  private static final class MediaSourceRefreshInfo {
+
+    public final MediaSource source;
+    public final Timeline timeline;
+    public final Object manifest;
+
+    public MediaSourceRefreshInfo(MediaSource source, Timeline timeline, Object manifest) {
+      this.source = source;
+      this.timeline = timeline;
+      this.manifest = manifest;
     }
 
   }

@@ -179,7 +179,7 @@ public final class HlsMediaSource implements MediaSource,
           playlist.startTimeUs + playlist.durationUs, playlist.durationUs, playlist.startTimeUs,
           windowDefaultStartPositionUs, true, false);
     }
-    sourceListener.onSourceInfoRefreshed(timeline,
+    sourceListener.onSourceInfoRefreshed(this, timeline,
         new HlsManifest(playlistTracker.getMasterPlaylist(), playlist));
   }
 

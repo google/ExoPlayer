@@ -69,7 +69,7 @@ public class FakeMediaSource implements MediaSource {
   public void prepareSource(ExoPlayer player, boolean isTopLevelSource, Listener listener) {
     Assert.assertFalse(preparedSource);
     preparedSource = true;
-    listener.onSourceInfoRefreshed(timeline, manifest);
+    listener.onSourceInfoRefreshed(this, timeline, manifest);
   }
 
   @Override
