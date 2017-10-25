@@ -92,12 +92,15 @@ import java.io.IOException;
     public final Timeline timeline;
     public final Object manifest;
     public final PlaybackInfo playbackInfo;
+    public final int prepareAcks;
     public final int seekAcks;
 
-    public SourceInfo(Timeline timeline, Object manifest, PlaybackInfo playbackInfo, int seekAcks) {
+    public SourceInfo(Timeline timeline, Object manifest, PlaybackInfo playbackInfo,
+        int prepareAcks, int seekAcks) {
       this.timeline = timeline;
       this.manifest = manifest;
       this.playbackInfo = playbackInfo;
+      this.prepareAcks = prepareAcks;
       this.seekAcks = seekAcks;
     }
 
@@ -106,15 +109,14 @@ import java.io.IOException;
   private static final String TAG = "ExoPlayerImplInternal";
 
   // External messages
-  public static final int MSG_PREPARE_ACK = 0;
-  public static final int MSG_STATE_CHANGED = 1;
-  public static final int MSG_LOADING_CHANGED = 2;
-  public static final int MSG_TRACKS_CHANGED = 3;
-  public static final int MSG_SEEK_ACK = 4;
-  public static final int MSG_POSITION_DISCONTINUITY = 5;
-  public static final int MSG_SOURCE_INFO_REFRESHED = 6;
-  public static final int MSG_PLAYBACK_PARAMETERS_CHANGED = 7;
-  public static final int MSG_ERROR = 8;
+  public static final int MSG_STATE_CHANGED = 0;
+  public static final int MSG_LOADING_CHANGED = 1;
+  public static final int MSG_TRACKS_CHANGED = 2;
+  public static final int MSG_SEEK_ACK = 3;
+  public static final int MSG_POSITION_DISCONTINUITY = 4;
+  public static final int MSG_SOURCE_INFO_REFRESHED = 5;
+  public static final int MSG_PLAYBACK_PARAMETERS_CHANGED = 6;
+  public static final int MSG_ERROR = 7;
 
   // Internal messages
   private static final int MSG_PREPARE = 0;
@@ -181,6 +183,7 @@ import java.io.IOException;
   private int customMessagesProcessed;
   private long elapsedRealtimeUs;
 
+  private int pendingPrepareCount;
   private int pendingInitialSeekCount;
   private SeekPosition pendingSeekPosition;
   private long rendererPositionUs;
@@ -439,7 +442,7 @@ import java.io.IOException;
   }
 
   private void prepareInternal(MediaSource mediaSource, boolean resetPosition) {
-    eventHandler.sendEmptyMessage(MSG_PREPARE_ACK);
+    pendingPrepareCount++;
     resetInternal(true);
     loadControl.onPrepared();
     if (resetPosition) {
@@ -1027,6 +1030,8 @@ import java.io.IOException;
     Object manifest = sourceRefreshInfo.manifest;
 
     if (oldTimeline == null) {
+      int processedPrepareAcks = pendingPrepareCount;
+      pendingPrepareCount = 0;
       if (pendingInitialSeekCount > 0) {
         Pair<Integer, Long> periodPosition = resolveSeekPosition(pendingSeekPosition);
         int processedInitialSeekCount = pendingInitialSeekCount;
@@ -1035,18 +1040,19 @@ import java.io.IOException;
         if (periodPosition == null) {
           // The seek position was valid for the timeline that it was performed into, but the
           // timeline has changed and a suitable seek position could not be resolved in the new one.
-          handleSourceInfoRefreshEndedPlayback(manifest, processedInitialSeekCount);
+          handleSourceInfoRefreshEndedPlayback(manifest, processedPrepareAcks,
+              processedInitialSeekCount);
         } else {
           int periodIndex = periodPosition.first;
           long positionUs = periodPosition.second;
           MediaPeriodId periodId =
               mediaPeriodInfoSequence.resolvePeriodPositionForAds(periodIndex, positionUs);
           playbackInfo = new PlaybackInfo(periodId, periodId.isAd() ? 0 : positionUs, positionUs);
-          notifySourceInfoRefresh(manifest, playbackInfo, processedInitialSeekCount);
+          notifySourceInfoRefresh(manifest, processedPrepareAcks, processedInitialSeekCount);
         }
       } else if (playbackInfo.startPositionUs == C.TIME_UNSET) {
         if (timeline.isEmpty()) {
-          handleSourceInfoRefreshEndedPlayback(manifest);
+          handleSourceInfoRefreshEndedPlayback(manifest, processedPrepareAcks, 0);
         } else {
           Pair<Integer, Long> defaultPosition = getPeriodPosition(
               timeline.getFirstWindowIndex(shuffleModeEnabled), C.TIME_UNSET);
@@ -1056,10 +1062,10 @@ import java.io.IOException;
               startPositionUs);
           playbackInfo = new PlaybackInfo(periodId, periodId.isAd() ? 0 : startPositionUs,
               startPositionUs);
-          notifySourceInfoRefresh(manifest);
+          notifySourceInfoRefresh(manifest, processedPrepareAcks, 0);
         }
       } else {
-        notifySourceInfoRefresh(manifest);
+        notifySourceInfoRefresh(manifest, processedPrepareAcks, 0);
       }
       return;
     }
@@ -1186,11 +1192,11 @@ import java.io.IOException;
   }
 
   private void handleSourceInfoRefreshEndedPlayback(Object manifest) {
-    handleSourceInfoRefreshEndedPlayback(manifest, 0);
+    handleSourceInfoRefreshEndedPlayback(manifest, 0, 0);
   }
 
-  private void handleSourceInfoRefreshEndedPlayback(Object manifest,
-      int processedInitialSeekCount) {
+  private void handleSourceInfoRefreshEndedPlayback(Object manifest, int prepareAcks,
+      int seekAcks) {
     int firstPeriodIndex = timeline.isEmpty() ? 0 : timeline.getWindow(
         timeline.getFirstWindowIndex(shuffleModeEnabled), window).firstPeriodIndex;
     // Set the internal position to (firstPeriodIndex,TIME_UNSET) so that a subsequent seek to
@@ -1198,20 +1204,23 @@ import java.io.IOException;
     playbackInfo = new PlaybackInfo(firstPeriodIndex, C.TIME_UNSET);
     setState(Player.STATE_ENDED);
     // Set the playback position to (firstPeriodIndex,0) for notifying the eventHandler.
-    notifySourceInfoRefresh(manifest, new PlaybackInfo(firstPeriodIndex, 0),
-        processedInitialSeekCount);
+    notifySourceInfoRefresh(manifest, prepareAcks, seekAcks, new PlaybackInfo(firstPeriodIndex, 0));
     // Reset, but retain the source so that it can still be used should a seek occur.
     resetInternal(false);
   }
 
   private void notifySourceInfoRefresh(Object manifest) {
-    notifySourceInfoRefresh(manifest, playbackInfo, 0);
+    notifySourceInfoRefresh(manifest, 0, 0);
   }
 
-  private void notifySourceInfoRefresh(Object manifest, PlaybackInfo playbackInfo,
-      int processedInitialSeekCount) {
+  private void notifySourceInfoRefresh(Object manifest, int prepareAcks, int seekAcks) {
+    notifySourceInfoRefresh(manifest, prepareAcks, seekAcks, playbackInfo);
+  }
+
+  private void notifySourceInfoRefresh(Object manifest, int prepareAcks, int seekAcks,
+      PlaybackInfo playbackInfo) {
     eventHandler.obtainMessage(MSG_SOURCE_INFO_REFRESHED,
-        new SourceInfo(timeline, manifest, playbackInfo, processedInitialSeekCount)).sendToTarget();
+        new SourceInfo(timeline, manifest, playbackInfo, prepareAcks, seekAcks)).sendToTarget();
   }
 
   /**
