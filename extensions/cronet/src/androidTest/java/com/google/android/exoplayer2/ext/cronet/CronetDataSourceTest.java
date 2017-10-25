@@ -45,7 +45,6 @@ import com.google.android.exoplayer2.upstream.TransferListener;
 import com.google.android.exoplayer2.util.Clock;
 import com.google.android.exoplayer2.util.Predicate;
 import java.io.IOException;
-import java.net.CookieManager;
 import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
 import java.nio.ByteBuffer;
@@ -104,14 +103,12 @@ public final class CronetDataSourceTest {
   @Mock private CronetEngine mockCronetEngine;
 
   private CronetDataSource dataSourceUnderTest;
-  private boolean redirectCalled;
 
   @Before
   public void setUp() throws Exception {
     System.setProperty("dexmaker.dexcache",
         InstrumentationRegistry.getTargetContext().getCacheDir().getPath());
     initMocks(this);
-    CookieManager cookieManager = new CookieManager();
     dataSourceUnderTest = spy(
         new CronetDataSource(
             mockCronetEngine,
@@ -122,8 +119,7 @@ public final class CronetDataSourceTest {
             TEST_READ_TIMEOUT_MS,
             true, // resetTimeoutOnRedirects
             mockClock,
-            null,
-            cookieManager));
+            null));
     when(mockContentTypePredicate.evaluate(anyString())).thenReturn(true);
     when(mockCronetEngine.newUrlRequestBuilder(
             anyString(), any(UrlRequest.Callback.class), any(Executor.class)))
@@ -703,27 +699,6 @@ public final class CronetDataSourceTest {
   }
 
   @Test
-  public void testRedirectParseAndAttachCookie() throws HttpDataSourceException {
-    mockSingleRedirectSuccess();
-
-    testResponseHeader.put("Set-Cookie", "testcookie=testcookie; Path=/video");
-    dataSourceUnderTest.open(testDataSpec);
-    verify(mockUrlRequestBuilder).addHeader(eq("Cookie"), any(String.class));
-    verify(mockUrlRequest, never()).followRedirect();
-    verify(mockUrlRequest, times(2)).start();
-  }
-
-  @Test
-  public void testRedirectNoSetCookieFollowsRedirect() throws HttpDataSourceException {
-    mockSingleRedirectSuccess();
-    mockFollowRedirectSuccess();
-
-    dataSourceUnderTest.open(testDataSpec);
-    verify(mockUrlRequestBuilder, never()).addHeader(eq("Cookie"), any(String.class));
-    verify(mockUrlRequest).followRedirect();
-  }
-
-  @Test
   public void testExceptionFromTransferListener() throws HttpDataSourceException {
     mockResponseStartSuccess();
 
@@ -835,38 +810,6 @@ public final class CronetDataSourceTest {
         return null;
       }
     }).when(mockUrlRequest).start();
-  }
-
-  private void mockSingleRedirectSuccess() {
-    doAnswer(new Answer<Object>() {
-      @Override
-      public Object answer(InvocationOnMock invocation) throws Throwable {
-        if (!redirectCalled) {
-          redirectCalled = true;
-          dataSourceUnderTest.onRedirectReceived(
-              mockUrlRequest,
-              createUrlResponseInfoWithUrl("http://example.com/video", 300),
-              "http://example.com/video/redirect");
-        } else {
-          dataSourceUnderTest.onResponseStarted(
-              mockUrlRequest,
-              testUrlResponseInfo);
-        }
-        return null;
-      }
-    }).when(mockUrlRequest).start();
-  }
-
-  private void mockFollowRedirectSuccess() {
-    doAnswer(new Answer<Object>() {
-      @Override
-      public Object answer(InvocationOnMock invocation) throws Throwable {
-          dataSourceUnderTest.onResponseStarted(
-              mockUrlRequest,
-              testUrlResponseInfo);
-        return null;
-      }
-    }).when(mockUrlRequest).followRedirect();
   }
 
   private void mockResponseStartFailure() {
