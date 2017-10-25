@@ -454,10 +454,6 @@ import java.util.concurrent.CopyOnWriteArraySet;
   // Not private so it can be called from an inner class without going through a thunk method.
   /* package */ void handleEvent(Message msg) {
     switch (msg.what) {
-      case ExoPlayerImplInternal.MSG_PREPARE_ACK: {
-        pendingPrepareAcks--;
-        break;
-      }
       case ExoPlayerImplInternal.MSG_STATE_CHANGED: {
         playbackState = msg.arg1;
         for (Player.EventListener listener : listeners) {
@@ -474,6 +470,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
       }
       case ExoPlayerImplInternal.MSG_SOURCE_INFO_REFRESHED: {
         SourceInfo sourceInfo = (SourceInfo) msg.obj;
+        pendingPrepareAcks -= sourceInfo.prepareAcks;
         pendingSeekAcks -= sourceInfo.seekAcks;
         if (pendingPrepareAcks == 0) {
           timeline = sourceInfo.timeline;
