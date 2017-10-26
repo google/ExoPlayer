@@ -97,6 +97,9 @@ public class CronetDataSource extends UrlRequest.Callback implements HttpDataSou
 
   private static final String TAG = "CronetDataSource";
   private static final String CONTENT_TYPE = "Content-Type";
+  private static final String SET_COOKIE = "Set-Cookie";
+  private static final String COOKIE = "Cookie";
+
   private static final Pattern CONTENT_RANGE_HEADER_PATTERN =
       Pattern.compile("^bytes (\\d+)-(\\d+)/(\\d+)$");
   // The size of read buffer passed to cronet UrlRequest.read().
@@ -109,6 +112,7 @@ public class CronetDataSource extends UrlRequest.Callback implements HttpDataSou
   private final int connectTimeoutMs;
   private final int readTimeoutMs;
   private final boolean resetTimeoutOnRedirects;
+  private final boolean handleSetCookieRequests;
   private final RequestProperties defaultRequestProperties;
   private final RequestProperties requestProperties;
   private final ConditionVariable operation;
@@ -152,7 +156,7 @@ public class CronetDataSource extends UrlRequest.Callback implements HttpDataSou
   public CronetDataSource(CronetEngine cronetEngine, Executor executor,
       Predicate<String> contentTypePredicate, TransferListener<? super CronetDataSource> listener) {
     this(cronetEngine, executor, contentTypePredicate, listener, DEFAULT_CONNECT_TIMEOUT_MILLIS,
-        DEFAULT_READ_TIMEOUT_MILLIS, false, null);
+        DEFAULT_READ_TIMEOUT_MILLIS, false, null, false);
   }
 
   /**
@@ -176,13 +180,40 @@ public class CronetDataSource extends UrlRequest.Callback implements HttpDataSou
       int connectTimeoutMs, int readTimeoutMs, boolean resetTimeoutOnRedirects,
       RequestProperties defaultRequestProperties) {
     this(cronetEngine, executor, contentTypePredicate, listener, connectTimeoutMs,
-        readTimeoutMs, resetTimeoutOnRedirects, Clock.DEFAULT, defaultRequestProperties);
+        readTimeoutMs, resetTimeoutOnRedirects, Clock.DEFAULT, defaultRequestProperties, false);
+  }
+
+  /**
+   * @param cronetEngine A CronetEngine.
+   * @param executor The {@link java.util.concurrent.Executor} that will handle responses.
+   *     This may be a direct executor (i.e. executes tasks on the calling thread) in order
+   *     to avoid a thread hop from Cronet's internal network thread to the response handling
+   *     thread. However, to avoid slowing down overall network performance, care must be taken
+   *     to make sure response handling is a fast operation when using a direct executor.
+   * @param contentTypePredicate An optional {@link Predicate}. If a content type is rejected by the
+   *     predicate then an {@link InvalidContentTypeException} is thrown from
+   *     {@link #open(DataSpec)}.
+   * @param listener An optional listener.
+   * @param connectTimeoutMs The connection timeout, in milliseconds.
+   * @param readTimeoutMs The read timeout, in milliseconds.
+   * @param resetTimeoutOnRedirects Whether the connect timeout is reset when a redirect occurs.
+   * @param defaultRequestProperties The default request properties to be used.
+   * @param handleSetCookieRequests Whether "Set-Cookie" requests on redirect should be forwarded to
+   *     the redirect url in the "Cookie" header.
+   */
+  public CronetDataSource(CronetEngine cronetEngine, Executor executor,
+      Predicate<String> contentTypePredicate, TransferListener<? super CronetDataSource> listener,
+      int connectTimeoutMs, int readTimeoutMs, boolean resetTimeoutOnRedirects,
+      RequestProperties defaultRequestProperties, boolean handleSetCookieRequests) {
+    this(cronetEngine, executor, contentTypePredicate, listener, connectTimeoutMs,
+        readTimeoutMs, resetTimeoutOnRedirects, Clock.DEFAULT, defaultRequestProperties,
+        handleSetCookieRequests);
   }
 
   /* package */ CronetDataSource(CronetEngine cronetEngine, Executor executor,
       Predicate<String> contentTypePredicate, TransferListener<? super CronetDataSource> listener,
       int connectTimeoutMs, int readTimeoutMs, boolean resetTimeoutOnRedirects, Clock clock,
-      RequestProperties defaultRequestProperties) {
+      RequestProperties defaultRequestProperties, boolean handleSetCookieRequests) {
     this.cronetEngine = Assertions.checkNotNull(cronetEngine);
     this.executor = Assertions.checkNotNull(executor);
     this.contentTypePredicate = contentTypePredicate;
@@ -192,6 +223,7 @@ public class CronetDataSource extends UrlRequest.Callback implements HttpDataSou
     this.resetTimeoutOnRedirects = resetTimeoutOnRedirects;
     this.clock = Assertions.checkNotNull(clock);
     this.defaultRequestProperties = defaultRequestProperties;
+    this.handleSetCookieRequests = handleSetCookieRequests;
     requestProperties = new RequestProperties();
     operation = new ConditionVariable();
   }
@@ -402,7 +434,19 @@ public class CronetDataSource extends UrlRequest.Callback implements HttpDataSou
     if (resetTimeoutOnRedirects) {
       resetConnectTimeout();
     }
-    request.followRedirect();
+
+    Map<String, List<String>> headers = info.getAllHeaders();
+    if (!handleSetCookieRequests || isEmpty(headers.get(SET_COOKIE))) {
+      request.followRedirect();
+    } else {
+      UrlRequest.Builder requestBuilder =
+          cronetEngine.newUrlRequestBuilder(newLocationUrl, /* callback= */ this, executor);
+      currentUrlRequest.cancel();
+      String cookieHeadersValue = parseCookies(headers.get(SET_COOKIE));
+      attachCookies(requestBuilder, cookieHeadersValue);
+      currentUrlRequest = requestBuilder.build();
+      currentUrlRequest.start();
+    }
   }
 
   @Override
@@ -565,6 +609,17 @@ public class CronetDataSource extends UrlRequest.Callback implements HttpDataSou
       }
     }
     return contentLength;
+  }
+
+  private static String parseCookies(List<String> setCookieHeaders) {
+    return TextUtils.join(";", setCookieHeaders);
+  }
+
+  private static void attachCookies(UrlRequest.Builder requestBuilder, String cookies) {
+    if (TextUtils.isEmpty(cookies)) {
+      return;
+    }
+    requestBuilder.addHeader(COOKIE, cookies);
   }
 
   private static int getStatus(UrlRequest request) throws InterruptedException {
