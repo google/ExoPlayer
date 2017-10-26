@@ -30,7 +30,6 @@ import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.ext.cast.CastPlayer;
 import com.google.android.exoplayer2.ui.PlaybackControlView;
 import com.google.android.exoplayer2.ui.SimpleExoPlayerView;
-import com.google.android.exoplayer2.util.Util;
 import com.google.android.gms.cast.framework.CastButtonFactory;
 
 /**
@@ -70,35 +69,16 @@ public class MainActivity extends AppCompatActivity {
   }
 
   @Override
-  public void onStart() {
-    super.onStart();
-    if (Util.SDK_INT > 23) {
-      setupPlayerManager();
-    }
-  }
-
-  @Override
   public void onResume() {
     super.onResume();
-    if ((Util.SDK_INT <= 23)) {
-      setupPlayerManager();
-    }
+    playerManager = new PlayerManager(simpleExoPlayerView, castControlView, this);
   }
 
   @Override
   public void onPause() {
     super.onPause();
-    if (Util.SDK_INT <= 23) {
-      releasePlayerManager();
-    }
-  }
-
-  @Override
-  public void onStop() {
-    super.onStop();
-    if (Util.SDK_INT > 23) {
-      releasePlayerManager();
-    }
+    playerManager.release();
+    playerManager = null;
   }
 
   // Activity input.
@@ -107,18 +87,6 @@ public class MainActivity extends AppCompatActivity {
   public boolean dispatchKeyEvent(KeyEvent event) {
     // If the event was not handled then see if the player view can handle it.
     return super.dispatchKeyEvent(event) || playerManager.dispatchKeyEvent(event);
-  }
-
-  // Internal methods.
-
-  private void setupPlayerManager() {
-    playerManager = new PlayerManager(simpleExoPlayerView, castControlView,
-        getApplicationContext());
-  }
-
-  private void releasePlayerManager() {
-    playerManager.release();
-    playerManager = null;
   }
 
   // User controls.
