@@ -40,14 +40,14 @@ import com.google.android.exoplayer2.util.Util;
 /**
  * Manages the {@link ExoPlayer}, the IMA plugin and all video playback.
  */
-/* package */ final class DemoPlayer {
+/* package */ final class PlayerManager {
 
   private final ImaAdsLoader adsLoader;
 
   private SimpleExoPlayer player;
   private long contentPosition;
 
-  public DemoPlayer(Context context) {
+  public PlayerManager(Context context) {
     String adTag = context.getString(R.string.ad_tag_url);
     adsLoader = new ImaAdsLoader(context, Uri.parse(adTag));
   }

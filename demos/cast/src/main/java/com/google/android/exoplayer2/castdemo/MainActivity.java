@@ -91,10 +91,10 @@ public class MainActivity extends AppCompatActivity {
 
   // User controls.
 
-  private final class SampleListAdapter extends ArrayAdapter<CastDemoUtil.Sample> {
+  private final class SampleListAdapter extends ArrayAdapter<DemoUtil.Sample> {
 
     public SampleListAdapter() {
-      super(getApplicationContext(), android.R.layout.simple_list_item_1, CastDemoUtil.SAMPLES);
+      super(getApplicationContext(), android.R.layout.simple_list_item_1, DemoUtil.SAMPLES);
     }
 
     @Override
@@ -112,7 +112,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
       if (parent.getSelectedItemPosition() != position) {
-        CastDemoUtil.Sample currentSample = CastDemoUtil.SAMPLES.get(position);
+        DemoUtil.Sample currentSample = DemoUtil.SAMPLES.get(position);
         playerManager.setCurrentSample(currentSample, 0, true);
       }
     }

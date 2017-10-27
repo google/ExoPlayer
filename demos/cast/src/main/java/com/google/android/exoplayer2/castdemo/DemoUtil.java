@@ -24,7 +24,7 @@ import java.util.List;
 /**
  * Utility methods and constants for the Cast demo application.
  */
-/* package */ final class CastDemoUtil {
+/* package */ final class DemoUtil {
 
   public static final String MIME_TYPE_DASH = "application/dash+xml";
   public static final String MIME_TYPE_HLS = "application/vnd.apple.mpegurl";
@@ -87,6 +87,6 @@ import java.util.List;
 
   }
 
-  private CastDemoUtil() {}
+  private DemoUtil() {}
 
 }

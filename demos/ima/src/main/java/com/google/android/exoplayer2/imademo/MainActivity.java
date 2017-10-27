@@ -22,19 +22,19 @@ import com.google.android.exoplayer2.ui.SimpleExoPlayerView;
 
 /**
  * Main Activity for the IMA plugin demo. {@link ExoPlayer} objects are created by
- * {@link DemoPlayer}, which this class instantiates.
+ * {@link PlayerManager}, which this class instantiates.
  */
 public final class MainActivity extends Activity {
 
   private SimpleExoPlayerView playerView;
-  private DemoPlayer player;
+  private PlayerManager player;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     setContentView(R.layout.main_activity);
     playerView = findViewById(R.id.player_view);
-    player = new DemoPlayer(this);
+    player = new PlayerManager(this);
   }
 
   @Override
