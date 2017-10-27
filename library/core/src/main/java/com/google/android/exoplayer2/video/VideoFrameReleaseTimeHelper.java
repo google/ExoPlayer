@@ -17,11 +17,14 @@ package com.google.android.exoplayer2.video;
 
 import android.annotation.TargetApi;
 import android.content.Context;
+import android.hardware.display.DisplayManager;
+import android.os.Build;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Message;
 import android.view.Choreographer;
 import android.view.Choreographer.FrameCallback;
+import android.view.Display;
 import android.view.WindowManager;
 import com.google.android.exoplayer2.C;
 
@@ -38,10 +41,13 @@ public final class VideoFrameReleaseTimeHelper {
   private static final long VSYNC_OFFSET_PERCENTAGE = 80;
   private static final int MIN_FRAMES_FOR_ADJUSTMENT = 6;
 
+  private Context context = null;
+
+  private final DefaultDisplayListener defaultDisplayListener;
   private final VSyncSampler vsyncSampler;
   private final boolean useDefaultDisplayVsync;
-  private final long vsyncDurationNs;
-  private final long vsyncOffsetNs;
+  private long vsyncDurationNs = -1; // Value unused.
+  private long vsyncOffsetNs = -1; // Value unused.
 
   private long lastFramePresentationTimeUs;
   private long adjustedLastFrameTimeNs;
@@ -57,7 +63,10 @@ public final class VideoFrameReleaseTimeHelper {
    * the default display's vsync signal.
    */
   public VideoFrameReleaseTimeHelper() {
-    this(DISPLAY_REFRESH_RATE_UNKNOWN);
+    defaultDisplayListener = null;
+    useDefaultDisplayVsync = false;
+    vsyncSampler = null;
+    context = null;
   }
 
   /**
@@ -67,21 +76,13 @@ public final class VideoFrameReleaseTimeHelper {
    * @param context A context from which information about the default display can be retrieved.
    */
   public VideoFrameReleaseTimeHelper(Context context) {
-    this(getDefaultDisplayRefreshRate(context));
+    this.context = context.getApplicationContext();
+    defaultDisplayListener = Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1 ?
+     new DefaultDisplayListener(context) : null;
+    useDefaultDisplayVsync = true;
+    vsyncSampler = VSyncSampler.getInstance();
   }
 
-  private VideoFrameReleaseTimeHelper(double defaultDisplayRefreshRate) {
-    useDefaultDisplayVsync = defaultDisplayRefreshRate != DISPLAY_REFRESH_RATE_UNKNOWN;
-    if (useDefaultDisplayVsync) {
-      vsyncSampler = VSyncSampler.getInstance();
-      vsyncDurationNs = (long) (C.NANOS_PER_SECOND / defaultDisplayRefreshRate);
-      vsyncOffsetNs = (vsyncDurationNs * VSYNC_OFFSET_PERCENTAGE) / 100;
-    } else {
-      vsyncSampler = null;
-      vsyncDurationNs = -1; // Value unused.
-      vsyncOffsetNs = -1; // Value unused.
-    }
-  }
 
   /**
    * Enables the helper.
@@ -90,6 +91,9 @@ public final class VideoFrameReleaseTimeHelper {
     haveSync = false;
     if (useDefaultDisplayVsync) {
       vsyncSampler.addObserver();
+      setSync(getDefaultDisplayRefreshRate(context));
+      if (defaultDisplayListener != null)
+        defaultDisplayListener.register();
     }
   }
 
@@ -99,7 +103,14 @@ public final class VideoFrameReleaseTimeHelper {
   public void disable() {
     if (useDefaultDisplayVsync) {
       vsyncSampler.removeObserver();
+      if (defaultDisplayListener != null)
+        defaultDisplayListener.unregister();
     }
+  }
+
+  private void setSync(double defaultDisplayRefreshRate) {
+    vsyncDurationNs = (long) (C.NANOS_PER_SECOND / defaultDisplayRefreshRate);
+    vsyncOffsetNs = (vsyncDurationNs * VSYNC_OFFSET_PERCENTAGE) / 100;
   }
 
   /**
@@ -202,8 +213,8 @@ public final class VideoFrameReleaseTimeHelper {
 
   private static double getDefaultDisplayRefreshRate(Context context) {
     WindowManager manager = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
-    return manager.getDefaultDisplay() != null ? manager.getDefaultDisplay().getRefreshRate()
-        : DISPLAY_REFRESH_RATE_UNKNOWN;
+    return manager != null && manager.getDefaultDisplay() != null ?
+     manager.getDefaultDisplay().getRefreshRate() : DISPLAY_REFRESH_RATE_UNKNOWN;
   }
 
   /**
@@ -296,6 +307,47 @@ public final class VideoFrameReleaseTimeHelper {
       if (observerCount == 0) {
         choreographer.removeFrameCallback(this);
         sampledVsyncTimeNs = 0;
+      }
+    }
+
+  }
+
+  @TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR1)
+  private class DefaultDisplayListener implements DisplayManager.DisplayListener {
+
+    private final Context context;
+    private final DisplayManager displayManager;
+
+    DefaultDisplayListener(Context context) {
+      this.context = context;
+      displayManager = context != null ?
+       (DisplayManager) context.getSystemService(Context.DISPLAY_SERVICE) : null;
+    }
+
+    @Override
+    public void onDisplayAdded(int displayId) {
+    }
+
+    @Override
+    public void onDisplayRemoved(int displayId) {
+    }
+
+    @Override
+    public void onDisplayChanged(int displayId) {
+      if (displayId == Display.DEFAULT_DISPLAY) {
+        setSync(getDefaultDisplayRefreshRate(context));
+      }
+    }
+
+    public void register() {
+      if (displayManager != null && context != null) { // context is used on callback
+        displayManager.registerDisplayListener(this, null);
+      }
+    }
+
+    public void unregister() {
+      if (displayManager != null) {
+        displayManager.unregisterDisplayListener(this);
       }
     }
 
