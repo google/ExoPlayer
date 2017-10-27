@@ -19,6 +19,7 @@ import android.os.Handler;
 import android.support.annotation.Nullable;
 import android.view.ViewGroup;
 import com.google.android.exoplayer2.ExoPlayer;
+import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.source.MediaPeriod;
 import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.source.ads.AdsMediaSource;
@@ -69,8 +70,15 @@ public final class ImaAdsMediaSource implements MediaSource {
   }
 
   @Override
-  public void prepareSource(final ExoPlayer player, boolean isTopLevelSource, Listener listener) {
-    adsMediaSource.prepareSource(player, isTopLevelSource, listener);
+  public void prepareSource(final ExoPlayer player, boolean isTopLevelSource,
+      final Listener listener) {
+    adsMediaSource.prepareSource(player, false, new Listener() {
+      @Override
+      public void onSourceInfoRefreshed(MediaSource source, Timeline timeline,
+          @Nullable Object manifest) {
+        listener.onSourceInfoRefreshed(ImaAdsMediaSource.this, timeline, manifest);
+      }
+    });
   }
 
   @Override
