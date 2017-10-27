@@ -40,7 +40,7 @@ public class DefaultPlaybackController implements MediaSessionConnector.Playback
 
   private static final long BASE_ACTIONS = PlaybackStateCompat.ACTION_PLAY_PAUSE
       | PlaybackStateCompat.ACTION_PLAY | PlaybackStateCompat.ACTION_PAUSE
-      | PlaybackStateCompat.ACTION_STOP | PlaybackStateCompat.ACTION_SET_SHUFFLE_MODE_ENABLED
+      | PlaybackStateCompat.ACTION_STOP | PlaybackStateCompat.ACTION_SET_SHUFFLE_MODE
       | PlaybackStateCompat.ACTION_SET_REPEAT_MODE;
 
   protected final long rewindIncrementMs;
