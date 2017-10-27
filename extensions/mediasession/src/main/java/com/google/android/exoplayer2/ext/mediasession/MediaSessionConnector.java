@@ -152,7 +152,7 @@ public final class MediaSessionConnector {
         | PlaybackStateCompat.ACTION_PAUSE | PlaybackStateCompat.ACTION_SEEK_TO
         | PlaybackStateCompat.ACTION_FAST_FORWARD | PlaybackStateCompat.ACTION_REWIND
         | PlaybackStateCompat.ACTION_STOP | PlaybackStateCompat.ACTION_SET_REPEAT_MODE
-        | PlaybackStateCompat.ACTION_SET_SHUFFLE_MODE_ENABLED;
+        | PlaybackStateCompat.ACTION_SET_SHUFFLE_MODE;
 
     /**
      * Returns the actions which are supported by the controller. The supported actions must be a
@@ -161,7 +161,7 @@ public final class MediaSessionConnector {
      * {@link PlaybackStateCompat#ACTION_SEEK_TO}, {@link PlaybackStateCompat#ACTION_FAST_FORWARD},
      * {@link PlaybackStateCompat#ACTION_REWIND}, {@link PlaybackStateCompat#ACTION_STOP},
      * {@link PlaybackStateCompat#ACTION_SET_REPEAT_MODE} and
-     * {@link PlaybackStateCompat#ACTION_SET_SHUFFLE_MODE_ENABLED}.
+     * {@link PlaybackStateCompat#ACTION_SET_SHUFFLE_MODE}.
      *
      * @param player The player.
      * @return The bitmask of the supported media actions.
@@ -738,7 +738,7 @@ public final class MediaSessionConnector {
 
     @Override
     public void onSetShuffleMode(int shuffleMode) {
-      if (canDispatchToPlaybackController(PlaybackStateCompat.ACTION_SET_SHUFFLE_MODE_ENABLED)) {
+      if (canDispatchToPlaybackController(PlaybackStateCompat.ACTION_SET_SHUFFLE_MODE)) {
         playbackController.onSetShuffleMode(player, shuffleMode);
       }
     }
