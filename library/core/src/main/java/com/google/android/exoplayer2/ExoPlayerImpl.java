@@ -331,14 +331,14 @@ import java.util.concurrent.CopyOnWriteArraySet;
 
   @Override
   public int getNextWindowIndex() {
-    return timeline.getNextWindowIndex(getCurrentWindowIndex(), getRepeatMode(),
-        getShuffleModeEnabled());
+    return timeline.isEmpty() ? C.INDEX_UNSET
+        : timeline.getNextWindowIndex(getCurrentWindowIndex(), repeatMode, shuffleModeEnabled);
   }
 
   @Override
   public int getPreviousWindowIndex() {
-    return timeline.getPreviousWindowIndex(getCurrentWindowIndex(), getRepeatMode(),
-        getShuffleModeEnabled());
+    return timeline.isEmpty() ? C.INDEX_UNSET
+        : timeline.getPreviousWindowIndex(getCurrentWindowIndex(), repeatMode, shuffleModeEnabled);
   }
 
   @Override
