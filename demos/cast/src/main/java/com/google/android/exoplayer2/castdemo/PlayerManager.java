@@ -61,7 +61,7 @@ import com.google.android.gms.cast.framework.CastContext;
   private final CastPlayer castPlayer;
 
   private int playbackLocation;
-  private CastDemoUtil.Sample currentSample;
+  private DemoUtil.Sample currentSample;
 
   /**
    * @param exoPlayerView The {@link SimpleExoPlayerView} for local playback.
@@ -88,11 +88,11 @@ import com.google.android.gms.cast.framework.CastContext;
   /**
    * Starts playback of the given sample at the given position.
    *
-   * @param currentSample The {@link CastDemoUtil} to play.
+   * @param currentSample The {@link DemoUtil} to play.
    * @param positionMs The position at which playback should start.
    * @param playWhenReady Whether the player should proceed when ready to do so.
    */
-  public void setCurrentSample(CastDemoUtil.Sample currentSample, long positionMs,
+  public void setCurrentSample(DemoUtil.Sample currentSample, long positionMs,
       boolean playWhenReady) {
     this.currentSample = currentSample;
     if (playbackLocation == PLAYBACK_REMOTE) {
@@ -144,7 +144,7 @@ import com.google.android.gms.cast.framework.CastContext;
 
   // Internal methods.
 
-  private static MediaQueueItem buildMediaQueueItem(CastDemoUtil.Sample sample) {
+  private static MediaQueueItem buildMediaQueueItem(DemoUtil.Sample sample) {
     MediaMetadata movieMetadata = new MediaMetadata(MediaMetadata.MEDIA_TYPE_MOVIE);
     movieMetadata.putString(MediaMetadata.KEY_TITLE, sample.name);
     MediaInfo mediaInfo = new MediaInfo.Builder(sample.uri)
@@ -153,18 +153,18 @@ import com.google.android.gms.cast.framework.CastContext;
     return new MediaQueueItem.Builder(mediaInfo).build();
   }
 
-  private static MediaSource buildMediaSource(CastDemoUtil.Sample sample) {
+  private static MediaSource buildMediaSource(DemoUtil.Sample sample) {
     Uri uri = Uri.parse(sample.uri);
     switch (sample.mimeType) {
-      case CastDemoUtil.MIME_TYPE_SS:
+      case DemoUtil.MIME_TYPE_SS:
         return new SsMediaSource(uri, DATA_SOURCE_FACTORY,
             new DefaultSsChunkSource.Factory(DATA_SOURCE_FACTORY), null, null);
-      case CastDemoUtil.MIME_TYPE_DASH:
+      case DemoUtil.MIME_TYPE_DASH:
         return new DashMediaSource(uri, DATA_SOURCE_FACTORY,
             new DefaultDashChunkSource.Factory(DATA_SOURCE_FACTORY), null, null);
-      case CastDemoUtil.MIME_TYPE_HLS:
+      case DemoUtil.MIME_TYPE_HLS:
         return new HlsMediaSource(uri, DATA_SOURCE_FACTORY, null, null);
-      case CastDemoUtil.MIME_TYPE_VIDEO_MP4:
+      case DemoUtil.MIME_TYPE_VIDEO_MP4:
         return new ExtractorMediaSource(uri, DATA_SOURCE_FACTORY, new DefaultExtractorsFactory(),
             null, null);
       default: {
