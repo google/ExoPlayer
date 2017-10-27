@@ -564,7 +564,7 @@ public abstract class Timeline {
       boolean shuffleModeEnabled) {
     switch (repeatMode) {
       case Player.REPEAT_MODE_OFF:
-        return windowIndex == getLastWindowIndex(shuffleModeEnabled)  ? C.INDEX_UNSET
+        return windowIndex == getLastWindowIndex(shuffleModeEnabled) ? C.INDEX_UNSET
             : windowIndex + 1;
       case Player.REPEAT_MODE_ONE:
         return windowIndex;
