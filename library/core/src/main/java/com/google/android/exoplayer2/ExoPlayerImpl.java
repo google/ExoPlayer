@@ -22,7 +22,6 @@ import android.os.Message;
 import android.support.annotation.Nullable;
 import android.util.Log;
 import com.google.android.exoplayer2.ExoPlayerImplInternal.PlaybackInfo;
-import com.google.android.exoplayer2.ExoPlayerImplInternal.SourceInfo;
 import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.source.MediaSource.MediaPeriodId;
 import com.google.android.exoplayer2.source.TrackGroupArray;
@@ -105,9 +104,9 @@ import java.util.concurrent.CopyOnWriteArraySet;
         ExoPlayerImpl.this.handleEvent(msg);
       }
     };
-    playbackInfo = new ExoPlayerImplInternal.PlaybackInfo(0, 0);
+    playbackInfo = new ExoPlayerImplInternal.PlaybackInfo(timeline, manifest, 0, 0);
     internalPlayer = new ExoPlayerImplInternal(renderers, trackSelector, loadControl, playWhenReady,
-        repeatMode, shuffleModeEnabled, eventHandler, playbackInfo, this);
+        repeatMode, shuffleModeEnabled, eventHandler, this);
   }
 
   @Override
@@ -137,6 +136,15 @@ import java.util.concurrent.CopyOnWriteArraySet;
 
   @Override
   public void prepare(MediaSource mediaSource, boolean resetPosition, boolean resetState) {
+    if (!resetPosition) {
+      maskingWindowIndex = getCurrentWindowIndex();
+      maskingPeriodIndex = getCurrentPeriodIndex();
+      maskingWindowPositionMs = getCurrentPosition();
+    } else {
+      maskingWindowIndex = 0;
+      maskingPeriodIndex = 0;
+      maskingWindowPositionMs = 0;
+    }
     if (resetState) {
       if (!timeline.isEmpty() || manifest != null) {
         timeline = Timeline.EMPTY;
@@ -263,6 +271,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
       maskingPeriodIndex = periodIndex;
     }
     if (positionMs == C.TIME_UNSET) {
+      // TODO: Work out when to call onPositionDiscontinuity on listeners for this case.
       maskingWindowPositionMs = 0;
       internalPlayer.seekTo(timeline, windowIndex, C.TIME_UNSET);
     } else {
@@ -313,7 +322,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
 
   @Override
   public int getCurrentPeriodIndex() {
-    if (timeline.isEmpty() || pendingSeekAcks > 0) {
+    if (shouldMaskPosition()) {
       return maskingPeriodIndex;
     } else {
       return playbackInfo.periodId.periodIndex;
@@ -322,7 +331,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
 
   @Override
   public int getCurrentWindowIndex() {
-    if (timeline.isEmpty() || pendingSeekAcks > 0) {
+    if (shouldMaskPosition()) {
       return maskingWindowIndex;
     } else {
       return timeline.getPeriod(playbackInfo.periodId.periodIndex, period).windowIndex;
@@ -358,7 +367,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
 
   @Override
   public long getCurrentPosition() {
-    if (timeline.isEmpty() || pendingSeekAcks > 0) {
+    if (shouldMaskPosition()) {
       return maskingWindowPositionMs;
     } else {
       return playbackInfoPositionUsToWindowPositionMs(playbackInfo.positionUs);
@@ -368,7 +377,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
   @Override
   public long getBufferedPosition() {
     // TODO - Implement this properly.
-    if (timeline.isEmpty() || pendingSeekAcks > 0) {
+    if (shouldMaskPosition()) {
       return maskingWindowPositionMs;
     } else {
       return playbackInfoPositionUsToWindowPositionMs(playbackInfo.bufferedPositionUs);
@@ -398,7 +407,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
 
   @Override
   public boolean isPlayingAd() {
-    return !timeline.isEmpty() && pendingSeekAcks == 0 && playbackInfo.periodId.isAd();
+    return !shouldMaskPosition() && playbackInfo.periodId.isAd();
   }
 
   @Override
@@ -469,28 +478,9 @@ import java.util.concurrent.CopyOnWriteArraySet;
         break;
       }
       case ExoPlayerImplInternal.MSG_SOURCE_INFO_REFRESHED: {
-        SourceInfo sourceInfo = (SourceInfo) msg.obj;
-        pendingPrepareAcks -= sourceInfo.prepareAcks;
-        pendingSeekAcks -= sourceInfo.seekAcks;
-        if (pendingPrepareAcks == 0) {
-          timeline = sourceInfo.timeline;
-          manifest = sourceInfo.manifest;
-          playbackInfo = sourceInfo.playbackInfo;
-          if (pendingSeekAcks == 0 && timeline.isEmpty()) {
-            // Update the masking variables, which are used when the timeline is empty.
-            maskingPeriodIndex = 0;
-            maskingWindowIndex = 0;
-            maskingWindowPositionMs = 0;
-          }
-          for (Player.EventListener listener : listeners) {
-            listener.onTimelineChanged(timeline, manifest);
-          }
-        }
-        if (pendingSeekAcks == 0 && sourceInfo.seekAcks > 0) {
-          for (Player.EventListener listener : listeners) {
-            listener.onSeekProcessed();
-          }
-        }
+        int prepareAcks = msg.arg1;
+        int seekAcks = msg.arg2;
+        handlePlaybackInfo((PlaybackInfo) msg.obj, prepareAcks, seekAcks, false);
         break;
       }
       case ExoPlayerImplInternal.MSG_TRACKS_CHANGED: {
@@ -507,30 +497,12 @@ import java.util.concurrent.CopyOnWriteArraySet;
         break;
       }
       case ExoPlayerImplInternal.MSG_SEEK_ACK: {
-        if (--pendingSeekAcks == 0) {
-          playbackInfo = (ExoPlayerImplInternal.PlaybackInfo) msg.obj;
-          if (timeline.isEmpty()) {
-            // Update the masking variables, which are used when the timeline is empty.
-            maskingPeriodIndex = 0;
-            maskingWindowIndex = 0;
-            maskingWindowPositionMs = 0;
-          }
-          for (Player.EventListener listener : listeners) {
-            if (msg.arg1 != 0) {
-              listener.onPositionDiscontinuity(DISCONTINUITY_REASON_INTERNAL);
-            }
-            listener.onSeekProcessed();
-          }
-        }
+        boolean seekPositionAdjusted = msg.arg1 != 0;
+        handlePlaybackInfo((PlaybackInfo) msg.obj, 0, 1, seekPositionAdjusted);
         break;
       }
       case ExoPlayerImplInternal.MSG_POSITION_DISCONTINUITY: {
-        if (pendingSeekAcks == 0) {
-          playbackInfo = (ExoPlayerImplInternal.PlaybackInfo) msg.obj;
-          for (Player.EventListener listener : listeners) {
-            listener.onPositionDiscontinuity(DISCONTINUITY_REASON_PERIOD_TRANSITION);
-          }
-        }
+        handlePlaybackInfo((PlaybackInfo) msg.obj, 0, 0, true);
         break;
       }
       case ExoPlayerImplInternal.MSG_PLAYBACK_PARAMETERS_CHANGED: {
@@ -555,6 +527,43 @@ import java.util.concurrent.CopyOnWriteArraySet;
     }
   }
 
+  private void handlePlaybackInfo(PlaybackInfo playbackInfo, int prepareAcks, int seekAcks,
+      boolean positionDiscontinuity) {
+    Assertions.checkNotNull(playbackInfo.timeline);
+    pendingPrepareAcks -= prepareAcks;
+    pendingSeekAcks -= seekAcks;
+    if (pendingPrepareAcks == 0 && pendingSeekAcks == 0) {
+      this.playbackInfo = playbackInfo;
+      boolean timelineOrManifestChanged = timeline != playbackInfo.timeline
+          || manifest != playbackInfo.manifest;
+      timeline = playbackInfo.timeline;
+      manifest = playbackInfo.manifest;
+      if (timeline.isEmpty()) {
+        // Update the masking variables, which are used when the timeline is empty.
+        maskingPeriodIndex = 0;
+        maskingWindowIndex = 0;
+        maskingWindowPositionMs = 0;
+      }
+      if (timelineOrManifestChanged) {
+        for (Player.EventListener listener : listeners) {
+          listener.onTimelineChanged(timeline, manifest);
+        }
+      }
+      if (positionDiscontinuity) {
+        for (Player.EventListener listener : listeners) {
+          listener.onPositionDiscontinuity(
+              seekAcks > 0 ? DISCONTINUITY_REASON_INTERNAL : DISCONTINUITY_REASON_PERIOD_TRANSITION
+          );
+        }
+      }
+    }
+    if (pendingSeekAcks == 0 && seekAcks > 0) {
+      for (Player.EventListener listener : listeners) {
+        listener.onSeekProcessed();
+      }
+    }
+  }
+
   private long playbackInfoPositionUsToWindowPositionMs(long positionUs) {
     long positionMs = C.usToMs(positionUs);
     if (!playbackInfo.periodId.isAd()) {
@@ -562,6 +571,10 @@ import java.util.concurrent.CopyOnWriteArraySet;
       positionMs += period.getPositionInWindowMs();
     }
     return positionMs;
+  }
+
+  private boolean shouldMaskPosition() {
+    return timeline.isEmpty() || pendingSeekAcks > 0 || pendingPrepareAcks > 0;
   }
 
 }
