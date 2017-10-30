@@ -56,7 +56,7 @@ import java.nio.ByteOrder;
    *
    * @param trimStartSamples The number of audio samples to trim from the start of audio.
    * @param trimEndSamples The number of audio samples to trim from the end of audio.
-   * @see AudioSink#configure(String, int, int, int, int, int[], int, int)
+   * @see AudioSink#configure(int, int, int, int, int[], int, int)
    */
   public void setTrimSampleCount(int trimStartSamples, int trimEndSamples) {
     this.trimStartSamples = trimStartSamples;
