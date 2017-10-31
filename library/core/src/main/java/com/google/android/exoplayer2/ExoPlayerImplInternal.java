@@ -48,67 +48,6 @@ import java.io.IOException;
 /* package */ final class ExoPlayerImplInternal implements Handler.Callback,
     MediaPeriod.Callback, TrackSelector.InvalidationListener, MediaSource.Listener {
 
-  /**
-   * Playback position information which is read on the application's thread by
-   * {@link ExoPlayerImpl} and read/written internally on the player's thread.
-   */
-  public static final class PlaybackInfo {
-
-    public final Timeline timeline;
-    public final Object manifest;
-    public final MediaPeriodId periodId;
-    public final long startPositionUs;
-    public final long contentPositionUs;
-
-    public volatile long positionUs;
-    public volatile long bufferedPositionUs;
-
-    public PlaybackInfo(Timeline timeline, Object manifest, int periodIndex, long startPositionUs) {
-      this(timeline, manifest, new MediaPeriodId(periodIndex), startPositionUs, C.TIME_UNSET);
-    }
-
-    public PlaybackInfo(Timeline timeline, Object manifest, MediaPeriodId periodId,
-        long startPositionUs, long contentPositionUs) {
-      this.timeline = timeline;
-      this.manifest = manifest;
-      this.periodId = periodId;
-      this.startPositionUs = startPositionUs;
-      this.contentPositionUs = contentPositionUs;
-      positionUs = startPositionUs;
-      bufferedPositionUs = startPositionUs;
-    }
-
-    public PlaybackInfo fromNewPosition(int periodIndex, long startPositionUs,
-        long contentPositionUs) {
-      return fromNewPosition(new MediaPeriodId(periodIndex), startPositionUs, contentPositionUs);
-    }
-
-    public PlaybackInfo fromNewPosition(MediaPeriodId periodId, long startPositionUs,
-        long contentPositionUs) {
-      return new PlaybackInfo(timeline, manifest, periodId, startPositionUs, contentPositionUs);
-    }
-
-    public PlaybackInfo copyWithPeriodIndex(int periodIndex) {
-      PlaybackInfo playbackInfo = new PlaybackInfo(timeline, manifest,
-          periodId.copyWithPeriodIndex(periodIndex), startPositionUs, contentPositionUs);
-      copyMutablePositions(this, playbackInfo);
-      return playbackInfo;
-    }
-
-    public PlaybackInfo copyWithTimeline(Timeline timeline, Object manifest) {
-      PlaybackInfo playbackInfo = new PlaybackInfo(timeline, manifest, periodId, startPositionUs,
-          contentPositionUs);
-      copyMutablePositions(this, playbackInfo);
-      return playbackInfo;
-    }
-
-    private static void copyMutablePositions(PlaybackInfo from, PlaybackInfo to) {
-      to.positionUs = from.positionUs;
-      to.bufferedPositionUs = from.bufferedPositionUs;
-    }
-
-  }
-
   private static final String TAG = "ExoPlayerImplInternal";
 
   // External messages
