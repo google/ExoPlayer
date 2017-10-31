@@ -251,31 +251,26 @@ import java.util.concurrent.CopyOnWriteArraySet;
     pendingSeekAcks++;
     maskingWindowIndex = windowIndex;
     if (timeline.isEmpty()) {
+      maskingWindowPositionMs = positionMs == C.TIME_UNSET ? 0 : positionMs;
       maskingPeriodIndex = 0;
     } else {
       timeline.getWindow(windowIndex, window);
-      long resolvedPositionUs =
-          positionMs == C.TIME_UNSET ? window.getDefaultPositionUs() : C.msToUs(positionMs);
+      long windowPositionUs = positionMs == C.TIME_UNSET ? window.getDefaultPositionUs()
+          : C.msToUs(positionMs);
       int periodIndex = window.firstPeriodIndex;
-      long periodPositionUs = window.getPositionInFirstPeriodUs() + resolvedPositionUs;
+      long periodPositionUs = window.getPositionInFirstPeriodUs() + windowPositionUs;
       long periodDurationUs = timeline.getPeriod(periodIndex, period).getDurationUs();
       while (periodDurationUs != C.TIME_UNSET && periodPositionUs >= periodDurationUs
           && periodIndex < window.lastPeriodIndex) {
         periodPositionUs -= periodDurationUs;
         periodDurationUs = timeline.getPeriod(++periodIndex, period).getDurationUs();
       }
+      maskingWindowPositionMs = C.usToMs(windowPositionUs);
       maskingPeriodIndex = periodIndex;
     }
-    if (positionMs == C.TIME_UNSET) {
-      // TODO: Work out when to call onPositionDiscontinuity on listeners for this case.
-      maskingWindowPositionMs = 0;
-      internalPlayer.seekTo(timeline, windowIndex, C.TIME_UNSET);
-    } else {
-      maskingWindowPositionMs = positionMs;
-      internalPlayer.seekTo(timeline, windowIndex, C.msToUs(positionMs));
-      for (Player.EventListener listener : listeners) {
-        listener.onPositionDiscontinuity(DISCONTINUITY_REASON_SEEK);
-      }
+    internalPlayer.seekTo(timeline, windowIndex, C.msToUs(positionMs));
+    for (Player.EventListener listener : listeners) {
+      listener.onPositionDiscontinuity(DISCONTINUITY_REASON_SEEK);
     }
   }
 
