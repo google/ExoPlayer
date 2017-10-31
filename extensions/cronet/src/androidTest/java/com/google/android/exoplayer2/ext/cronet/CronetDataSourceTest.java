@@ -714,7 +714,7 @@ public final class CronetDataSourceTest {
   }
 
   @Test
-  public void testRedirectParseAndAttachCookie_dataSourceHandlesSetCookie()
+  public void testRedirectParseAndAttachCookie_dataSourceHandlesSetCookie_andPreservesOriginalRequestHeaders()
       throws HttpDataSourceException {
     dataSourceUnderTest = spy(
         new CronetDataSource(
@@ -728,12 +728,46 @@ public final class CronetDataSourceTest {
             mockClock,
             null,
             true));
+    dataSourceUnderTest.setRequestProperty("Content-Type", TEST_CONTENT_TYPE);
+
     mockSingleRedirectSuccess();
 
     testResponseHeader.put("Set-Cookie", "testcookie=testcookie; Path=/video");
 
     dataSourceUnderTest.open(testDataSpec);
     verify(mockUrlRequestBuilder).addHeader(eq("Cookie"), any(String.class));
+    verify(mockUrlRequestBuilder, never()).addHeader(eq("Range"), any(String.class));
+    verify(mockUrlRequestBuilder, times(2)).addHeader("Content-Type", TEST_CONTENT_TYPE);
+    verify(mockUrlRequest, never()).followRedirect();
+    verify(mockUrlRequest, times(2)).start();
+  }
+
+  @Test
+  public void testRedirectParseAndAttachCookie_dataSourceHandlesSetCookie_andPreservesOriginalRequestHeadersIncludingByteRangeHeader()
+      throws HttpDataSourceException {
+    testDataSpec = new DataSpec(Uri.parse(TEST_URL), 1000, 5000, null);
+    dataSourceUnderTest = spy(
+        new CronetDataSource(
+            mockCronetEngine,
+            mockExecutor,
+            mockContentTypePredicate,
+            mockTransferListener,
+            TEST_CONNECT_TIMEOUT_MS,
+            TEST_READ_TIMEOUT_MS,
+            true, // resetTimeoutOnRedirects
+            mockClock,
+            null,
+            true));
+    dataSourceUnderTest.setRequestProperty("Content-Type", TEST_CONTENT_TYPE);
+
+    mockSingleRedirectSuccess();
+
+    testResponseHeader.put("Set-Cookie", "testcookie=testcookie; Path=/video");
+
+    dataSourceUnderTest.open(testDataSpec);
+    verify(mockUrlRequestBuilder).addHeader(eq("Cookie"), any(String.class));
+    verify(mockUrlRequestBuilder, times(2)).addHeader("Range", "bytes=1000-5999");
+    verify(mockUrlRequestBuilder, times(2)).addHeader("Content-Type", TEST_CONTENT_TYPE);
     verify(mockUrlRequest, never()).followRedirect();
     verify(mockUrlRequest, times(2)).start();
   }

@@ -263,7 +263,11 @@ public class CronetDataSource extends UrlRequest.Callback implements HttpDataSou
     operation.close();
     resetConnectTimeout();
     currentDataSpec = dataSpec;
-    currentUrlRequest = buildRequest(dataSpec);
+    try {
+      currentUrlRequest = buildRequestBuilder(dataSpec).build();
+    } catch (IOException e) {
+      throw new OpenException(e, currentDataSpec, Status.IDLE);
+    }
     currentUrlRequest.start();
 
     try {
@@ -439,9 +443,18 @@ public class CronetDataSource extends UrlRequest.Callback implements HttpDataSou
     if (!handleSetCookieRequests || isEmpty(headers.get(SET_COOKIE))) {
       request.followRedirect();
     } else {
-      UrlRequest.Builder requestBuilder =
-          cronetEngine.newUrlRequestBuilder(newLocationUrl, /* callback= */ this, executor);
       currentUrlRequest.cancel();
+      DataSpec redirectUrlDataSpec = new DataSpec(Uri.parse(newLocationUrl),
+          currentDataSpec.postBody, currentDataSpec.absoluteStreamPosition,
+          currentDataSpec.position, currentDataSpec.length, currentDataSpec.key,
+          currentDataSpec.flags);
+      UrlRequest.Builder requestBuilder;
+      try {
+        requestBuilder = buildRequestBuilder(redirectUrlDataSpec);
+      } catch (IOException e) {
+        exception = e;
+        return;
+      }
       String cookieHeadersValue = parseCookies(headers.get(SET_COOKIE));
       attachCookies(requestBuilder, cookieHeadersValue);
       currentUrlRequest = requestBuilder.build();
@@ -494,7 +507,7 @@ public class CronetDataSource extends UrlRequest.Callback implements HttpDataSou
 
   // Internal methods.
 
-  private UrlRequest buildRequest(DataSpec dataSpec) throws OpenException {
+  private UrlRequest.Builder buildRequestBuilder(DataSpec dataSpec) throws IOException {
     UrlRequest.Builder requestBuilder = cronetEngine.newUrlRequestBuilder(
         dataSpec.uri.toString(), this, executor).allowDirectExecutor();
     // Set the headers.
@@ -513,17 +526,16 @@ public class CronetDataSource extends UrlRequest.Callback implements HttpDataSou
       requestBuilder.addHeader(key, headerEntry.getValue());
     }
     if (dataSpec.postBody != null && dataSpec.postBody.length != 0 && !isContentTypeHeaderSet) {
-      throw new OpenException("POST request with non-empty body must set Content-Type", dataSpec,
-          Status.IDLE);
+      throw new IOException("POST request with non-empty body must set Content-Type");
     }
     // Set the Range header.
-    if (currentDataSpec.position != 0 || currentDataSpec.length != C.LENGTH_UNSET) {
+    if (dataSpec.position != 0 || dataSpec.length != C.LENGTH_UNSET) {
       StringBuilder rangeValue = new StringBuilder();
       rangeValue.append("bytes=");
-      rangeValue.append(currentDataSpec.position);
+      rangeValue.append(dataSpec.position);
       rangeValue.append("-");
-      if (currentDataSpec.length != C.LENGTH_UNSET) {
-        rangeValue.append(currentDataSpec.position + currentDataSpec.length - 1);
+      if (dataSpec.length != C.LENGTH_UNSET) {
+        rangeValue.append(dataSpec.position + dataSpec.length - 1);
       }
       requestBuilder.addHeader("Range", rangeValue.toString());
     }
@@ -541,7 +553,7 @@ public class CronetDataSource extends UrlRequest.Callback implements HttpDataSou
             executor);
       }
     }
-    return requestBuilder.build();
+    return requestBuilder;
   }
 
   private boolean blockUntilConnectTimeout() throws InterruptedException {
