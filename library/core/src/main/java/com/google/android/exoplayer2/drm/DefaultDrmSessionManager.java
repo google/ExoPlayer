@@ -24,6 +24,7 @@ import android.support.annotation.IntDef;
 import android.support.annotation.NonNull;
 import android.text.TextUtils;
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.drm.DefaultDrmSession.ProvisioningManager;
 import com.google.android.exoplayer2.drm.DrmInitData.SchemeData;
 import com.google.android.exoplayer2.drm.DrmSession.DrmSessionException;
@@ -58,6 +59,13 @@ public class DefaultDrmSessionManager<T extends ExoMediaCrypto> implements DrmSe
 
     /**
      * Called when a drm error occurs.
+     * <p>
+     * This method being called does not indicate that playback has failed, or that it will fail.
+     * The player may be able to recover from the error and continue. Hence applications should
+     * <em>not</em> implement this method to display a user visible error or initiate an application
+     * level retry ({@link Player.EventListener#onPlayerError} is the appropriate place to implement
+     * such behavior). This method is called to provide the application with an opportunity to log
+     * the error if it wishes to do so.
      *
      * @param e The corresponding exception.
      */
