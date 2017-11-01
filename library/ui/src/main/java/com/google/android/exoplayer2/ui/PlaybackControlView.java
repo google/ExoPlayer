@@ -341,7 +341,7 @@ public class PlaybackControlView extends FrameLayout {
     positionView = findViewById(R.id.exo_position);
     timeBar = findViewById(R.id.exo_progress);
     if (timeBar != null) {
-      timeBar.setListener(componentListener);
+      timeBar.addListener(componentListener);
     }
     playButton = findViewById(R.id.exo_play);
     if (playButton != null) {
