@@ -346,45 +346,54 @@ public class DashManifestParser extends DefaultHandler
   protected Pair<String, SchemeData> parseContentProtection(XmlPullParser xpp)
       throws XmlPullParserException, IOException {
     String schemeIdUri = xpp.getAttributeValue(null, "schemeIdUri");
-    boolean isPlayReady = "urn:uuid:9a04f079-9840-4286-ab92-e65be0885f95".equals(schemeIdUri);
     String schemeType = null;
     byte[] data = null;
     UUID uuid = null;
     boolean requiresSecureDecoder = false;
 
-    if ("urn:mpeg:dash:mp4protection:2011".equals(schemeIdUri)) {
-      schemeType = xpp.getAttributeValue(null, "value");
-      String defaultKid = xpp.getAttributeValue(null, "cenc:default_KID");
-      if (defaultKid != null && !"00000000-0000-0000-0000-000000000000".equals(defaultKid)) {
-        UUID keyId = UUID.fromString(defaultKid);
-        data = PsshAtomUtil.buildPsshAtom(C.COMMON_PSSH_UUID, new UUID[] {keyId}, null);
-        uuid = C.COMMON_PSSH_UUID;
-      }
+    switch (schemeIdUri) {
+      case "urn:mpeg:dash:mp4protection:2011":
+        schemeType = xpp.getAttributeValue(null, "value");
+        String defaultKid = xpp.getAttributeValue(null, "cenc:default_KID");
+        if (defaultKid != null && !"00000000-0000-0000-0000-000000000000".equals(defaultKid)) {
+          UUID keyId = UUID.fromString(defaultKid);
+          data = PsshAtomUtil.buildPsshAtom(C.COMMON_PSSH_UUID, new UUID[] {keyId}, null);
+          uuid = C.COMMON_PSSH_UUID;
+        }
+        break;
+      case "urn:uuid:9a04f079-9840-4286-ab92-e65be0885f95":
+        uuid = C.PLAYREADY_UUID;
+        break;
+      case "urn:uuid:edef8ba9-79d6-4ace-a3c8-27dcd51d21ed":
+        uuid = C.WIDEVINE_UUID;
+        break;
+      default:
+        break;
     }
 
     do {
       xpp.next();
-      if (data == null && XmlPullParserUtil.isStartTag(xpp, "cenc:pssh")
-          && xpp.next() == XmlPullParser.TEXT) {
-        // The cenc:pssh element is defined in 23001-7:2015.
-        data = Base64.decode(xpp.getText(), Base64.DEFAULT);
-        uuid = PsshAtomUtil.parseUuid(data);
-        if (uuid == null) {
-          Log.w(TAG, "Skipping malformed cenc:pssh data");
-          data = null;
-        }
-      } else if (data == null && isPlayReady && XmlPullParserUtil.isStartTag(xpp, "mspr:pro")
-          && xpp.next() == XmlPullParser.TEXT) {
-        // The mspr:pro element is defined in DASH Content Protection using Microsoft PlayReady.
-        data = PsshAtomUtil.buildPsshAtom(C.PLAYREADY_UUID,
-            Base64.decode(xpp.getText(), Base64.DEFAULT));
-        uuid = C.PLAYREADY_UUID;
-      } else if (XmlPullParserUtil.isStartTag(xpp, "widevine:license")) {
+      if (XmlPullParserUtil.isStartTag(xpp, "widevine:license")) {
         String robustnessLevel = xpp.getAttributeValue(null, "robustness_level");
         requiresSecureDecoder = robustnessLevel != null && robustnessLevel.startsWith("HW");
+      } else if (data == null) {
+        if (XmlPullParserUtil.isStartTag(xpp, "cenc:pssh") && xpp.next() == XmlPullParser.TEXT) {
+          // The cenc:pssh element is defined in 23001-7:2015.
+          data = Base64.decode(xpp.getText(), Base64.DEFAULT);
+          uuid = PsshAtomUtil.parseUuid(data);
+          if (uuid == null) {
+            Log.w(TAG, "Skipping malformed cenc:pssh data");
+            data = null;
+          }
+        } else if (uuid == C.PLAYREADY_UUID && XmlPullParserUtil.isStartTag(xpp, "mspr:pro")
+            && xpp.next() == XmlPullParser.TEXT) {
+          // The mspr:pro element is defined in DASH Content Protection using Microsoft PlayReady.
+          data = PsshAtomUtil.buildPsshAtom(C.PLAYREADY_UUID,
+              Base64.decode(xpp.getText(), Base64.DEFAULT));
+        }
       }
     } while (!XmlPullParserUtil.isEndTag(xpp, "ContentProtection"));
-    SchemeData schemeData = data != null
+    SchemeData schemeData = uuid != null
         ? new SchemeData(uuid, MimeTypes.VIDEO_MP4, data, requiresSecureDecoder) : null;
     return Pair.create(schemeType, schemeData);
   }
@@ -518,10 +527,8 @@ public class DashManifestParser extends DefaultHandler
     ArrayList<SchemeData> drmSchemeDatas = representationInfo.drmSchemeDatas;
     drmSchemeDatas.addAll(extraDrmSchemeDatas);
     if (!drmSchemeDatas.isEmpty()) {
-      DrmInitData drmInitData = new DrmInitData(drmSchemeDatas);
-      if (drmSchemeType != null) {
-        drmInitData = drmInitData.copyWithSchemeType(drmSchemeType);
-      }
+      filterRedundantIncompleteSchemeDatas(drmSchemeDatas);
+      DrmInitData drmInitData = new DrmInitData(drmSchemeType, drmSchemeDatas);
       format = format.copyWithDrmInitData(drmInitData);
     }
     ArrayList<Descriptor> inbandEventStreams = representationInfo.inbandEventStreams;
@@ -727,6 +734,25 @@ public class DashManifestParser extends DefaultHandler
   }
 
   // Utility methods.
+
+  /**
+   * Removes unnecessary {@link SchemeData}s with null {@link SchemeData#data}.
+   */
+  private static void filterRedundantIncompleteSchemeDatas(ArrayList<SchemeData> schemeDatas) {
+    for (int i = schemeDatas.size() - 1; i >= 0; i--) {
+      SchemeData schemeData = schemeDatas.get(i);
+      if (!schemeData.hasData()) {
+        for (int j = 0; j < schemeDatas.size(); j++) {
+          if (schemeDatas.get(j).canReplace(schemeData)) {
+            // schemeData is incomplete, but there is another matching SchemeData which does contain
+            // data, so we remove the incomplete one.
+            schemeDatas.remove(i);
+            break;
+          }
+        }
+      }
+    }
+  }
 
   /**
    * Derives a sample mimeType from a container mimeType and codecs attribute.

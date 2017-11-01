@@ -340,7 +340,7 @@ public class DefaultDrmSessionManager<T extends ExoMediaCrypto> implements DrmSe
 
   @Override
   public boolean canAcquireSession(@NonNull DrmInitData drmInitData) {
-    SchemeData schemeData = getSchemeData(drmInitData, uuid);
+    SchemeData schemeData = getSchemeData(drmInitData, uuid, true);
     if (schemeData == null) {
       // No data for this manager's scheme.
       return false;
@@ -371,7 +371,7 @@ public class DefaultDrmSessionManager<T extends ExoMediaCrypto> implements DrmSe
     byte[] initData = null;
     String mimeType = null;
     if (offlineLicenseKeySetId == null) {
-      SchemeData data = getSchemeData(drmInitData, uuid);
+      SchemeData data = getSchemeData(drmInitData, uuid, false);
       if (data == null) {
         final IllegalStateException error = new IllegalStateException(
             "Media does not support uuid: " + uuid);
@@ -467,15 +467,19 @@ public class DefaultDrmSessionManager<T extends ExoMediaCrypto> implements DrmSe
    *
    * @param drmInitData The {@link DrmInitData} from which to extract the {@link SchemeData}.
    * @param uuid The UUID.
+   * @param allowMissingData Whether a {@link SchemeData} with null {@link SchemeData#data} may be
+   *     returned.
    * @return The extracted {@link SchemeData}, or null if no suitable data is present.
    */
-  private static SchemeData getSchemeData(DrmInitData drmInitData, UUID uuid) {
+  private static SchemeData getSchemeData(DrmInitData drmInitData, UUID uuid,
+      boolean allowMissingData) {
     // Look for matching scheme data (matching the Common PSSH box for ClearKey).
     List<SchemeData> matchingSchemeDatas = new ArrayList<>(drmInitData.schemeDataCount);
     for (int i = 0; i < drmInitData.schemeDataCount; i++) {
       SchemeData schemeData = drmInitData.get(i);
-      if (schemeData.matches(uuid)
-          || (C.CLEARKEY_UUID.equals(uuid) && schemeData.matches(C.COMMON_PSSH_UUID))) {
+      boolean uuidMatches = schemeData.matches(uuid)
+          || (C.CLEARKEY_UUID.equals(uuid) && schemeData.matches(C.COMMON_PSSH_UUID));
+      if (uuidMatches && (schemeData.data != null || allowMissingData)) {
         matchingSchemeDatas.add(schemeData);
       }
     }
@@ -488,7 +492,8 @@ public class DefaultDrmSessionManager<T extends ExoMediaCrypto> implements DrmSe
     if (C.WIDEVINE_UUID.equals(uuid)) {
       for (int i = 0; i < matchingSchemeDatas.size(); i++) {
         SchemeData matchingSchemeData = matchingSchemeDatas.get(i);
-        int version = PsshAtomUtil.parseVersion(matchingSchemeData.data);
+        int version = matchingSchemeData.hasData()
+            ? PsshAtomUtil.parseVersion(matchingSchemeData.data) : -1;
         if (Util.SDK_INT < 23 && version == 0) {
           return matchingSchemeData;
         } else if (Util.SDK_INT >= 23 && version == 1) {
