@@ -250,9 +250,7 @@ public class DefaultTimeBar extends View implements TimeBar {
       try {
         scrubberDrawable = a.getDrawable(R.styleable.DefaultTimeBar_scrubber_drawable);
         if (scrubberDrawable != null) {
-          if (Util.SDK_INT >= 23) {
-            scrubberDrawable.setLayoutDirection(getLayoutDirection());
-          }
+          setDrawableLayoutDirection(scrubberDrawable, getLayoutDirection());
           defaultTouchTargetHeight =
               Math.max(scrubberDrawable.getMinimumHeight(), defaultTouchTargetHeight);
         }
@@ -519,7 +517,7 @@ public class DefaultTimeBar extends View implements TimeBar {
 
   @Override
   public void onRtlPropertiesChanged(int layoutDirection) {
-    if (scrubberDrawable != null && scrubberDrawable.setLayoutDirection(layoutDirection)) {
+    if (scrubberDrawable != null && setDrawableLayoutDirection(scrubberDrawable, layoutDirection)) {
       invalidate();
     }
   }
@@ -751,6 +749,10 @@ public class DefaultTimeBar extends View implements TimeBar {
 
   private static int dpToPx(DisplayMetrics displayMetrics, int dps) {
     return (int) (dps * displayMetrics.density + 0.5f);
+  }
+
+  private static boolean setDrawableLayoutDirection(Drawable drawable, int layoutDirection) {
+    return Util.SDK_INT >= 23 && drawable.setLayoutDirection(layoutDirection);
   }
 
   public static int getDefaultScrubberColor(int playedColor) {
