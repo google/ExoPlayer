@@ -42,8 +42,7 @@ public class DownloadManagerTest extends InstrumentationTestCase {
 
   private DownloadManager downloadManager;
   private File actionFile;
-  private ConditionVariable downloadFinishedCondition;
-  private Throwable downloadError;
+  private TestDownloadListener testDownloadListener;
 
   @Override
   public void setUp() throws Exception {
@@ -55,8 +54,8 @@ public class DownloadManagerTest extends InstrumentationTestCase {
         new DownloaderConstructorHelper(Mockito.mock(Cache.class), DummyDataSource.FACTORY),
         100, actionFile.getAbsolutePath());
 
-    downloadFinishedCondition = new ConditionVariable();
-    downloadManager.setListener(new TestDownloadListener());
+    testDownloadListener = new TestDownloadListener();
+    downloadManager.addListener(testDownloadListener);
   }
     
   @Override
@@ -133,7 +132,7 @@ public class DownloadManagerTest extends InstrumentationTestCase {
     // removeAction2 is posted. removeAction1 and downloadAction3 is canceled so removeAction2
     // starts immediately.
     removeAction2.post().assertStarted().finish().assertEnded();
-    blockUntilTasksCompleteAndThrowAnyDownloadError();
+    testDownloadListener.blockUntilTasksCompleteAndThrowAnyDownloadError();
   }
 
   public void testMultipleRemoveActionWaitsLastCancelsAllOther() throws Throwable {
@@ -150,7 +149,7 @@ public class DownloadManagerTest extends InstrumentationTestCase {
     removeAction1.finish().assertCancelled();
     removeAction3.assertStarted().finish().assertEnded();
 
-    blockUntilTasksCompleteAndThrowAnyDownloadError();
+    testDownloadListener.blockUntilTasksCompleteAndThrowAnyDownloadError();
   }
 
   public void testMultipleWaitingDownloadActionStartsInParallel() throws Throwable {
@@ -168,7 +167,7 @@ public class DownloadManagerTest extends InstrumentationTestCase {
     downloadAction1.finish().assertEnded();
     downloadAction2.finish().assertEnded();
 
-    blockUntilTasksCompleteAndThrowAnyDownloadError();
+    testDownloadListener.blockUntilTasksCompleteAndThrowAnyDownloadError();
   }
 
   public void testDifferentMediaDownloadActionsPreserveOrder() throws Throwable {
@@ -186,7 +185,7 @@ public class DownloadManagerTest extends InstrumentationTestCase {
     downloadAction1.finish().assertEnded();
     downloadAction2.finish().assertEnded();
 
-    blockUntilTasksCompleteAndThrowAnyDownloadError();
+    testDownloadListener.blockUntilTasksCompleteAndThrowAnyDownloadError();
   }
 
   public void testDifferentMediaRemoveActionsDoNotPreserveOrder() throws Throwable {
@@ -204,12 +203,12 @@ public class DownloadManagerTest extends InstrumentationTestCase {
     removeAction1.assertStarted();
     removeAction1.finish().assertEnded();
 
-    blockUntilTasksCompleteAndThrowAnyDownloadError();
+    testDownloadListener.blockUntilTasksCompleteAndThrowAnyDownloadError();
   }
 
   private void doTestActionRuns(FakeDownloadAction action) throws Throwable {
     action.post().assertStarted().finish().assertEnded();
-    blockUntilTasksCompleteAndThrowAnyDownloadError();
+    testDownloadListener.blockUntilTasksCompleteAndThrowAnyDownloadError();
   }
 
   private void doTestActionsRunSequentially(FakeDownloadAction action1,
@@ -221,7 +220,7 @@ public class DownloadManagerTest extends InstrumentationTestCase {
     action2.assertStarted();
 
     action2.finish().assertEnded();
-    blockUntilTasksCompleteAndThrowAnyDownloadError();
+    testDownloadListener.blockUntilTasksCompleteAndThrowAnyDownloadError();
   }
 
   private void doTestActionsRunInParallel(FakeDownloadAction action1,
@@ -230,7 +229,7 @@ public class DownloadManagerTest extends InstrumentationTestCase {
     action2.post().assertStarted();
     action1.finish().assertEnded();
     action2.finish().assertEnded();
-    blockUntilTasksCompleteAndThrowAnyDownloadError();
+    testDownloadListener.blockUntilTasksCompleteAndThrowAnyDownloadError();
   }
 
   private FakeDownloadAction createDownloadAction(String mediaId) {
@@ -241,15 +240,15 @@ public class DownloadManagerTest extends InstrumentationTestCase {
     return new FakeDownloadAction(downloadManager, mediaId, true);
   }
 
-  private void blockUntilTasksCompleteAndThrowAnyDownloadError() throws Throwable {
-    assertTrue(downloadFinishedCondition.block(ASSERT_TRUE_TIMEOUT));
-    downloadFinishedCondition.close();
-    if (downloadError != null) {
-      throw downloadError;
-    }
-  }
+  private static class TestDownloadListener implements DownloadListener {
 
-  private class TestDownloadListener implements DownloadListener {
+    private ConditionVariable downloadFinishedCondition;
+    private Throwable downloadError;
+
+    private TestDownloadListener() {
+      downloadFinishedCondition = new ConditionVariable();
+    }
+
     @Override
     public void onStateChange(DownloadManager downloadManager, DownloadTask downloadTask, int state,
         Throwable error) {
@@ -263,6 +262,15 @@ public class DownloadManagerTest extends InstrumentationTestCase {
     public void onTasksFinished(DownloadManager downloadManager) {
       downloadFinishedCondition.open();
     }
+
+    private void blockUntilTasksCompleteAndThrowAnyDownloadError() throws Throwable {
+      assertTrue(downloadFinishedCondition.block(ASSERT_TRUE_TIMEOUT));
+      downloadFinishedCondition.close();
+      if (downloadError != null) {
+        throw downloadError;
+      }
+    }
+
   }
 
   /**
