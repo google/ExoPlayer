@@ -32,10 +32,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
 import java.util.regex.Matcher;
@@ -124,7 +124,7 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
   @Override
   public HlsPlaylist parse(Uri uri, InputStream inputStream) throws IOException {
     BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
-    Queue<String> extraLines = new LinkedList<>();
+    Queue<String> extraLines = new ArrayDeque<>();
     String line;
     try {
       if (!checkPlaylistHeader(reader)) {
