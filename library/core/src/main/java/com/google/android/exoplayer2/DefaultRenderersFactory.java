@@ -263,9 +263,9 @@ public class DefaultRenderersFactory implements RenderersFactory {
       Class<?> clazz =
           Class.forName("com.google.android.exoplayer2.ext.ffmpeg.FfmpegAudioRenderer");
       Constructor<?> constructor = clazz.getConstructor(Handler.class,
-          AudioRendererEventListener.class, AudioProcessor[].class);
+          AudioRendererEventListener.class, AudioCapabilities.class, AudioProcessor[].class);
       Renderer renderer = (Renderer) constructor.newInstance(eventHandler, eventListener,
-          audioProcessors);
+          AudioCapabilities.getCapabilities(context), audioProcessors);
       out.add(extensionRendererIndex++, renderer);
       Log.i(TAG, "Loaded FfmpegAudioRenderer.");
     } catch (ClassNotFoundException e) {

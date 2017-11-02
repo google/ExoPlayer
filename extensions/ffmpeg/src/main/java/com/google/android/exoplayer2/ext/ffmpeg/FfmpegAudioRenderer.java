@@ -16,15 +16,16 @@
 package com.google.android.exoplayer2.ext.ffmpeg;
 
 import android.os.Handler;
-import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.Format;
+import com.google.android.exoplayer2.audio.AudioCapabilities;
 import com.google.android.exoplayer2.audio.AudioProcessor;
 import com.google.android.exoplayer2.audio.AudioRendererEventListener;
 import com.google.android.exoplayer2.audio.SimpleDecoderAudioRenderer;
 import com.google.android.exoplayer2.drm.DrmSessionManager;
 import com.google.android.exoplayer2.drm.ExoMediaCrypto;
 import com.google.android.exoplayer2.util.MimeTypes;
+import com.google.android.exoplayer2.util.Util;
 
 /**
  * Decodes and renders audio using FFmpeg.
@@ -42,9 +43,10 @@ public final class FfmpegAudioRenderer extends SimpleDecoderAudioRenderer {
   private static final int INITIAL_INPUT_BUFFER_SIZE = 960 * 6;
 
   private FfmpegDecoder decoder;
+  private final AudioCapabilities audioCapabilities;
 
   public FfmpegAudioRenderer() {
-    this(null, null);
+    this(null, null, null);
   }
 
   /**
@@ -54,8 +56,9 @@ public final class FfmpegAudioRenderer extends SimpleDecoderAudioRenderer {
    * @param audioProcessors Optional {@link AudioProcessor}s that will process audio before output.
    */
   public FfmpegAudioRenderer(Handler eventHandler, AudioRendererEventListener eventListener,
-      AudioProcessor... audioProcessors) {
+      AudioCapabilities audioCapabilities, AudioProcessor... audioProcessors) {
     super(eventHandler, eventListener, audioProcessors);
+    this.audioCapabilities = audioCapabilities;
   }
 
   @Override
@@ -82,7 +85,8 @@ public final class FfmpegAudioRenderer extends SimpleDecoderAudioRenderer {
   protected FfmpegDecoder createDecoder(Format format, ExoMediaCrypto mediaCrypto)
       throws FfmpegDecoderException {
     decoder = new FfmpegDecoder(NUM_BUFFERS, NUM_BUFFERS, INITIAL_INPUT_BUFFER_SIZE,
-        format.sampleMimeType, format.initializationData);
+        format.sampleMimeType, format.initializationData,
+        Util.canHandleFloatAudio(audioCapabilities, format.channelCount));
     return decoder;
   }
 
@@ -91,7 +95,7 @@ public final class FfmpegAudioRenderer extends SimpleDecoderAudioRenderer {
     int channelCount = decoder.getChannelCount();
     int sampleRate = decoder.getSampleRate();
     return Format.createAudioSampleFormat(null, MimeTypes.AUDIO_RAW, null, Format.NO_VALUE,
-        Format.NO_VALUE, channelCount, sampleRate, C.ENCODING_PCM_16BIT, null, null, 0, null);
+        Format.NO_VALUE, channelCount, sampleRate, decoder.getOutputEncoding(), null, null, 0, null);
   }
 
 }
