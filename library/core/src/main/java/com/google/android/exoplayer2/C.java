@@ -127,8 +127,8 @@ public final class C {
    */
   @Retention(RetentionPolicy.SOURCE)
   @IntDef({Format.NO_VALUE, ENCODING_INVALID, ENCODING_PCM_8BIT, ENCODING_PCM_16BIT,
-      ENCODING_PCM_24BIT, ENCODING_PCM_32BIT, ENCODING_PCM_FLOAT, ENCODING_AC3, ENCODING_E_AC3,
-      ENCODING_DTS, ENCODING_DTS_HD})
+      ENCODING_PCM_24BIT, ENCODING_PCM_32BIT, ENCODING_AC3, ENCODING_E_AC3, ENCODING_DTS,
+      ENCODING_DTS_HD})
   public @interface Encoding {}
 
   /**
@@ -136,7 +136,7 @@ public final class C {
    */
   @Retention(RetentionPolicy.SOURCE)
   @IntDef({Format.NO_VALUE, ENCODING_INVALID, ENCODING_PCM_8BIT, ENCODING_PCM_16BIT,
-      ENCODING_PCM_24BIT, ENCODING_PCM_32BIT, ENCODING_PCM_FLOAT})
+      ENCODING_PCM_24BIT, ENCODING_PCM_32BIT})
   public @interface PcmEncoding {}
   /**
    * @see AudioFormat#ENCODING_INVALID
@@ -158,10 +158,6 @@ public final class C {
    * PCM encoding with 32 bits per sample.
    */
   public static final int ENCODING_PCM_32BIT = 0x40000000;
-  /**
-   * @see AudioFormat#ENCODING_PCM_FLOAT
-   */
-  public static final int ENCODING_PCM_FLOAT = AudioFormat.ENCODING_PCM_FLOAT;
   /**
    * @see AudioFormat#ENCODING_AC3
    */
