@@ -18,6 +18,7 @@ package com.google.android.exoplayer2.util;
 import static com.google.android.exoplayer2.util.Util.binarySearchCeil;
 import static com.google.android.exoplayer2.util.Util.binarySearchFloor;
 import static com.google.android.exoplayer2.util.Util.escapeFileName;
+import static com.google.android.exoplayer2.util.Util.getCodecsOfType;
 import static com.google.android.exoplayer2.util.Util.parseXsDateTime;
 import static com.google.android.exoplayer2.util.Util.parseXsDuration;
 import static com.google.android.exoplayer2.util.Util.unescapeFileName;
@@ -179,6 +180,18 @@ public class UtilTest {
     assertThat(parseXsDateTime("2014-09-19T13:18:55-0800")).isEqualTo(1411161535000L);
     assertThat(parseXsDateTime("2014-09-19T13:18:55.000-0800")).isEqualTo(1411161535000L);
     assertThat(parseXsDateTime("2014-09-19T13:18:55.000-800")).isEqualTo(1411161535000L);
+  }
+
+  @Test
+  public void testGetCodecsOfType() {
+    assertThat(getCodecsOfType(null, C.TRACK_TYPE_VIDEO)).isNull();
+    assertThat(getCodecsOfType("avc1.64001e,vp9.63.1", C.TRACK_TYPE_AUDIO)).isNull();
+    assertThat(getCodecsOfType(" vp9.63.1, ec-3 ", C.TRACK_TYPE_AUDIO)).isEqualTo("ec-3");
+    assertThat(getCodecsOfType("avc1.61e, vp9.63.1, ec-3 ", C.TRACK_TYPE_VIDEO))
+        .isEqualTo("avc1.61e,vp9.63.1");
+    assertThat(getCodecsOfType("avc1.61e, vp9.63.1, ec-3 ", C.TRACK_TYPE_VIDEO))
+        .isEqualTo("avc1.61e,vp9.63.1");
+    assertThat(getCodecsOfType("invalidCodec1, invalidCodec2 ", C.TRACK_TYPE_AUDIO)).isNull();
   }
 
   @Test

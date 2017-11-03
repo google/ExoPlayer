@@ -16,7 +16,6 @@
 package com.google.android.exoplayer2.source.hls;
 
 import android.os.Handler;
-import android.text.TextUtils;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.FormatHolder;
@@ -748,13 +747,8 @@ import java.util.LinkedList;
     if (containerFormat == null) {
       return sampleFormat;
     }
-    String codecs = null;
     int sampleTrackType = MimeTypes.getTrackType(sampleFormat.sampleMimeType);
-    if (sampleTrackType == C.TRACK_TYPE_AUDIO) {
-      codecs = getAudioCodecs(containerFormat.codecs);
-    } else if (sampleTrackType == C.TRACK_TYPE_VIDEO) {
-      codecs = getVideoCodecs(containerFormat.codecs);
-    }
+    String codecs = Util.getCodecsOfType(containerFormat.codecs, sampleTrackType);
     return sampleFormat.copyWithContainerInfo(containerFormat.id, codecs, containerFormat.bitrate,
         containerFormat.width, containerFormat.height, containerFormat.selectionFlags,
         containerFormat.language);
@@ -791,31 +785,6 @@ import java.util.LinkedList;
       sampleQueue.discardToRead();
     }
     return true;
-  }
-
-  private static String getAudioCodecs(String codecs) {
-    return getCodecsOfType(codecs, C.TRACK_TYPE_AUDIO);
-  }
-
-  private static String getVideoCodecs(String codecs) {
-    return getCodecsOfType(codecs, C.TRACK_TYPE_VIDEO);
-  }
-
-  private static String getCodecsOfType(String codecs, int trackType) {
-    if (TextUtils.isEmpty(codecs)) {
-      return null;
-    }
-    String[] codecArray = codecs.split("(\\s*,\\s*)|(\\s*$)");
-    StringBuilder builder = new StringBuilder();
-    for (String codec : codecArray) {
-      if (trackType == MimeTypes.getTrackTypeOfCodec(codec)) {
-        if (builder.length() > 0) {
-          builder.append(",");
-        }
-        builder.append(codec);
-      }
-    }
-    return builder.length() > 0 ? builder.toString() : null;
   }
 
 }

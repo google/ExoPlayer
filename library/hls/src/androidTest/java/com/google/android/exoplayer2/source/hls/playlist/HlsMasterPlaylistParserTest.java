@@ -34,7 +34,7 @@ public class HlsMasterPlaylistParserTest extends TestCase {
 
   private static final String PLAYLIST_URI = "https://example.com/test.m3u8";
 
-  private static final String MASTER_PLAYLIST = " #EXTM3U \n"
+  private static final String PLAYLIST_SIMPLE = " #EXTM3U \n"
       + "\n"
       + "#EXT-X-STREAM-INF:BANDWIDTH=1280000,CODECS=\"mp4a.40.2,avc1.66.30\",RESOLUTION=304x128\n"
       + "http://example.com/low.m3u8\n"
@@ -51,7 +51,7 @@ public class HlsMasterPlaylistParserTest extends TestCase {
       + "#EXT-X-STREAM-INF:BANDWIDTH=65000,CODECS=\"mp4a.40.5\"\n"
       + "http://example.com/audio-only.m3u8";
 
-  private static final String AVG_BANDWIDTH_MASTER_PLAYLIST = " #EXTM3U \n"
+  private static final String PLAYLIST_WITH_AVG_BANDWIDTH = " #EXTM3U \n"
       + "\n"
       + "#EXT-X-STREAM-INF:BANDWIDTH=1280000,CODECS=\"mp4a.40.2,avc1.66.30\",RESOLUTION=304x128\n"
       + "http://example.com/low.m3u8\n"
@@ -64,19 +64,33 @@ public class HlsMasterPlaylistParserTest extends TestCase {
       + "#EXT-X-STREAM-INF:BANDWIDTH=1280000,CODECS=\"mp4a.40.2,avc1.66.30\",RESOLUTION=304x128\n"
       + "http://example.com/low.m3u8\n";
 
-  private static final String MASTER_PLAYLIST_WITH_CC = " #EXTM3U \n"
+  private static final String PLAYLIST_WITH_CC = " #EXTM3U \n"
       + "#EXT-X-MEDIA:TYPE=CLOSED-CAPTIONS,LANGUAGE=\"es\",NAME=\"Eng\",INSTREAM-ID=\"SERVICE4\"\n"
       + "#EXT-X-STREAM-INF:BANDWIDTH=1280000,CODECS=\"mp4a.40.2,avc1.66.30\",RESOLUTION=304x128\n"
       + "http://example.com/low.m3u8\n";
 
-  private static final String MASTER_PLAYLIST_WITHOUT_CC = " #EXTM3U \n"
+  private static final String PLAYLIST_WITHOUT_CC = " #EXTM3U \n"
       + "#EXT-X-MEDIA:TYPE=CLOSED-CAPTIONS,LANGUAGE=\"es\",NAME=\"Eng\",INSTREAM-ID=\"SERVICE4\"\n"
       + "#EXT-X-STREAM-INF:BANDWIDTH=1280000,CODECS=\"mp4a.40.2,avc1.66.30\",RESOLUTION=304x128,"
       + "CLOSED-CAPTIONS=NONE\n"
       + "http://example.com/low.m3u8\n";
 
+  private static final String PLAYLIST_WITH_AUDIO_MEDIA_TAG = "#EXTM3U\n"
+      + "#EXT-X-STREAM-INF:BANDWIDTH=2227464,CODECS=\"avc1.640020,mp4a.40.2\",AUDIO=\"aud1\"\n"
+      + "uri1.m3u8\n"
+      + "#EXT-X-STREAM-INF:BANDWIDTH=8178040,CODECS=\"avc1.64002a,mp4a.40.2\",AUDIO=\"aud1\"\n"
+      + "uri2.m3u8\n"
+      + "#EXT-X-STREAM-INF:BANDWIDTH=2448841,CODECS=\"avc1.640020,ac-3\",AUDIO=\"aud2\"\n"
+      + "uri1.m3u8\n"
+      + "#EXT-X-STREAM-INF:BANDWIDTH=8399417,CODECS=\"avc1.64002a,ac-3\",AUDIO=\"aud2\"\n"
+      + "uri2.m3u8\n"
+      + "#EXT-X-MEDIA:TYPE=AUDIO,GROUP-ID=\"aud1\",LANGUAGE=\"en\",NAME=\"English\","
+      + "AUTOSELECT=YES,DEFAULT=YES,CHANNELS=\"2\",URI=\"a1/prog_index.m3u8\"\n"
+      + "#EXT-X-MEDIA:TYPE=AUDIO,GROUP-ID=\"aud2\",LANGUAGE=\"en\",NAME=\"English\","
+      + "AUTOSELECT=YES,DEFAULT=YES,CHANNELS=\"6\",URI=\"a2/prog_index.m3u8\"\n";
+
   public void testParseMasterPlaylist() throws IOException{
-    HlsMasterPlaylist masterPlaylist = parseMasterPlaylist(PLAYLIST_URI, MASTER_PLAYLIST);
+    HlsMasterPlaylist masterPlaylist = parseMasterPlaylist(PLAYLIST_URI, PLAYLIST_SIMPLE);
 
     List<HlsMasterPlaylist.HlsUrl> variants = masterPlaylist.variants;
     assertEquals(5, variants.size());
@@ -116,7 +130,7 @@ public class HlsMasterPlaylistParserTest extends TestCase {
 
   public void testMasterPlaylistWithBandwdithAverage() throws IOException {
     HlsMasterPlaylist masterPlaylist = parseMasterPlaylist(PLAYLIST_URI,
-        AVG_BANDWIDTH_MASTER_PLAYLIST);
+        PLAYLIST_WITH_AVG_BANDWIDTH);
 
     List<HlsMasterPlaylist.HlsUrl> variants = masterPlaylist.variants;
 
@@ -134,7 +148,7 @@ public class HlsMasterPlaylistParserTest extends TestCase {
   }
 
   public void testPlaylistWithClosedCaption() throws IOException {
-    HlsMasterPlaylist playlist = parseMasterPlaylist(PLAYLIST_URI, MASTER_PLAYLIST_WITH_CC);
+    HlsMasterPlaylist playlist = parseMasterPlaylist(PLAYLIST_URI, PLAYLIST_WITH_CC);
     assertEquals(1, playlist.muxedCaptionFormats.size());
     Format closedCaptionFormat = playlist.muxedCaptionFormats.get(0);
     assertEquals(MimeTypes.APPLICATION_CEA708, closedCaptionFormat.sampleMimeType);
@@ -143,8 +157,20 @@ public class HlsMasterPlaylistParserTest extends TestCase {
   }
 
   public void testPlaylistWithoutClosedCaptions() throws IOException {
-    HlsMasterPlaylist playlist = parseMasterPlaylist(PLAYLIST_URI, MASTER_PLAYLIST_WITHOUT_CC);
+    HlsMasterPlaylist playlist = parseMasterPlaylist(PLAYLIST_URI, PLAYLIST_WITHOUT_CC);
     assertEquals(Collections.emptyList(), playlist.muxedCaptionFormats);
+  }
+
+  public void testCodecPropagation() throws IOException {
+    HlsMasterPlaylist playlist = parseMasterPlaylist(PLAYLIST_URI, PLAYLIST_WITH_AUDIO_MEDIA_TAG);
+
+    Format firstAudioFormat = playlist.audios.get(0).format;
+    assertEquals("mp4a.40.2", firstAudioFormat.codecs);
+    assertEquals(MimeTypes.AUDIO_AAC, firstAudioFormat.sampleMimeType);
+
+    Format secondAudioFormat = playlist.audios.get(1).format;
+    assertEquals("ac-3", secondAudioFormat.codecs);
+    assertEquals(MimeTypes.AUDIO_AC3, secondAudioFormat.sampleMimeType);
   }
 
   private static HlsMasterPlaylist parseMasterPlaylist(String uri, String playlistString)
