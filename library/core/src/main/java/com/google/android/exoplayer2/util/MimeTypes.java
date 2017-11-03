@@ -208,12 +208,12 @@ public final class MimeTypes {
   }
 
   /**
-   * Returns the {@link C}{@code .TRACK_TYPE_*} constant that corresponds to a specified MIME type.
-   * {@link C#TRACK_TYPE_UNKNOWN} if the MIME type is not known or the mapping cannot be
+   * Returns the {@link C}{@code .TRACK_TYPE_*} constant that corresponds to a specified mime type.
+   * {@link C#TRACK_TYPE_UNKNOWN} if the mime type is not known or the mapping cannot be
    * established.
    *
-   * @param mimeType The MIME type.
-   * @return The {@link C}{@code .TRACK_TYPE_*} constant that corresponds to a specified MIME type.
+   * @param mimeType The mimeType.
+   * @return The {@link C}{@code .TRACK_TYPE_*} constant that corresponds to a specified mime type.
    */
   public static int getTrackType(String mimeType) {
     if (TextUtils.isEmpty(mimeType)) {
@@ -236,28 +236,6 @@ public final class MimeTypes {
       return C.TRACK_TYPE_METADATA;
     } else {
       return C.TRACK_TYPE_UNKNOWN;
-    }
-  }
-
-  /**
-   * Returns the {@link C}{@code .ENCODING_*} constant that corresponds to a specified MIME type, or
-   * {@link C#ENCODING_INVALID} if the mapping cannot be established.
-   *
-   * @param mimeType The MIME type.
-   * @return The {@link C}{@code .ENCODING_*} constant that corresponds to a specified MIME type.
-   */
-  public static @C.Encoding int getEncoding(String mimeType) {
-    switch (mimeType) {
-      case MimeTypes.AUDIO_AC3:
-        return C.ENCODING_AC3;
-      case MimeTypes.AUDIO_E_AC3:
-        return C.ENCODING_E_AC3;
-      case MimeTypes.AUDIO_DTS:
-        return C.ENCODING_DTS;
-      case MimeTypes.AUDIO_DTS_HD:
-        return C.ENCODING_DTS_HD;
-      default:
-        return C.ENCODING_INVALID;
     }
   }
 
