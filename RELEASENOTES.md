@@ -1,5 +1,55 @@
 # Release notes #
 
+### r2.6.0 ###
+
+* New `Player.DefaultEventListener` abstract class can be extended to avoid
+  having to implement all methods defined by `Player.EventListener`.
+* Added a reason to `EventListener.onPositionDiscontinuity`
+  ([#3252](https://github.com/google/ExoPlayer/issues/3252)).
+* New `setShuffleModeEnabled` method for enabling shuffled playback.
+* Support for `Renderer`s that don't consume any media
+  ([#3212](https://github.com/google/ExoPlayer/issues/3212)).
+* Fix potential `IndexOutOfBoundsException` when calling `ExoPlayer.getDuration`
+  ([#3362](https://github.com/google/ExoPlayer/issues/3362)).
+* Fix playbacks involving looping, concatenation and ads getting stuck when
+  media contains tracks with uneven durations
+  ([#1874](https://github.com/google/ExoPlayer/issues/1874)).
+* Better playback experience when the video decoder cannot keep up, by skipping
+  to key-frames. This is particularly relevant for variable speed playbacks.
+* SimpleExoPlayer: Support for multiple video, text and metadata outputs.
+* Audio: New `AudioSink` interface allows customization of audio output path.
+* Offline: Added `Downloader` implementations for DASH, HLS, SmoothStreaming
+  and progressive streams.
+* Track selection:
+  * Fixed adaptive track selection logic for live playbacks
+    ([#3017](https://github.com/google/ExoPlayer/issues/3017)).
+  * Added ability to select the lowest bitrate tracks.
+* HLS:
+  * Support for Widevine protected FMP4 variants.
+* DRM:
+  * Improved compatibility with ClearKey content
+    ([#3138](https://github.com/google/ExoPlayer/issues/3138)).
+  * Support multiple PSSH boxes of the same type.
+  * Retry initial provisioning and key requests if they fail
+  * Fix incorrect parsing of non-CENC sinf boxes.
+* IMA extension:
+  * Expose `AdsLoader` via getter
+    ([#3322](https://github.com/google/ExoPlayer/issues/3322)).
+  * Handle `setPlayWhenReady` calls during ad playbacks
+    ([#3303](https://github.com/google/ExoPlayer/issues/3303)).
+  * Ignore seeks if an ad is playing
+    ([#3309](https://github.com/google/ExoPlayer/issues/3309)).
+* UI:
+  * Allow specifying a `Drawable` for the `TimeBar` scrubber
+    ([#3337](https://github.com/google/ExoPlayer/issues/3337)).
+  * Allow multiple listeners on `TimeBar`
+    ([#3406](https://github.com/google/ExoPlayer/issues/3406)).
+* New Leanback extension: Simplifies binding Exoplayer to Leanback UI
+  components.
+* New Cast extension: Simplifies toggling between local and Cast playbacks.
+* Unit tests moved to Robolectric.
+* Misc bugfixes.
+
 ### r2.5.4 ###
 
 * Remove unnecessary media playlist fetches during playback of live HLS streams.
