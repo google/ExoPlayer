@@ -25,4 +25,5 @@
   <string name="exo_controls_repeat_all_description">"Ulitin Lahat"</string>
   <string name="exo_controls_repeat_off_description">"Walang Uulitin"</string>
   <string name="exo_controls_repeat_one_description">"Ulitin ang Isa"</string>
+  <string name="exo_controls_shuffle_description">"I-shuffle"</string>
 </resources>

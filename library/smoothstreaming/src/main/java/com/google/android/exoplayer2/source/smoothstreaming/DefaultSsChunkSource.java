@@ -101,8 +101,8 @@ public class DefaultSsChunkSource implements SsChunkSource {
           trackEncryptionBoxes, nalUnitLengthFieldLength, null, null);
       FragmentedMp4Extractor extractor = new FragmentedMp4Extractor(
           FragmentedMp4Extractor.FLAG_WORKAROUND_EVERY_VIDEO_FRAME_IS_SYNC_FRAME
-          | FragmentedMp4Extractor.FLAG_WORKAROUND_IGNORE_TFDT_BOX, null, track);
-      extractorWrappers[i] = new ChunkExtractorWrapper(extractor, format);
+          | FragmentedMp4Extractor.FLAG_WORKAROUND_IGNORE_TFDT_BOX, null, track, null);
+      extractorWrappers[i] = new ChunkExtractorWrapper(extractor, streamElement.type, format);
     }
   }
 
@@ -149,13 +149,11 @@ public class DefaultSsChunkSource implements SsChunkSource {
   }
 
   @Override
-  public final void getNextChunk(MediaChunk previous, long playbackPositionUs, ChunkHolder out) {
+  public final void getNextChunk(MediaChunk previous, long playbackPositionUs, long loadPositionUs,
+      ChunkHolder out) {
     if (fatalError != null) {
       return;
     }
-
-    long bufferedDurationUs = previous != null ? (previous.endTimeUs - playbackPositionUs) : 0;
-    trackSelection.updateSelectedTrack(bufferedDurationUs);
 
     StreamElement streamElement = manifest.streamElements[elementIndex];
     if (streamElement.chunkCount == 0) {
@@ -166,7 +164,7 @@ public class DefaultSsChunkSource implements SsChunkSource {
 
     int chunkIndex;
     if (previous == null) {
-      chunkIndex = streamElement.getChunkIndex(playbackPositionUs);
+      chunkIndex = streamElement.getChunkIndex(loadPositionUs);
     } else {
       chunkIndex = previous.getNextChunkIndex() - currentManifestChunkOffset;
       if (chunkIndex < 0) {
@@ -181,6 +179,10 @@ public class DefaultSsChunkSource implements SsChunkSource {
       out.endOfStream = !manifest.isLive;
       return;
     }
+
+    long bufferedDurationUs = loadPositionUs - playbackPositionUs;
+    long timeToLiveEdgeUs = resolveTimeToLiveEdgeUs(playbackPositionUs);
+    trackSelection.updateSelectedTrack(playbackPositionUs, bufferedDurationUs, timeToLiveEdgeUs);
 
     long chunkStartTimeUs = streamElement.getStartTimeUs(chunkIndex);
     long chunkEndTimeUs = chunkStartTimeUs + streamElement.getChunkDurationUs(chunkIndex);
@@ -220,6 +222,18 @@ public class DefaultSsChunkSource implements SsChunkSource {
     return new ContainerMediaChunk(dataSource, dataSpec, format, trackSelectionReason,
         trackSelectionData, chunkStartTimeUs, chunkEndTimeUs, chunkIndex, 1, sampleOffsetUs,
         extractorWrapper);
+  }
+
+  private long resolveTimeToLiveEdgeUs(long playbackPositionUs) {
+    if (!manifest.isLive) {
+      return C.TIME_UNSET;
+    }
+
+    StreamElement currentElement = manifest.streamElements[elementIndex];
+    int lastChunkIndex = currentElement.chunkCount - 1;
+    long lastChunkEndTimeUs = currentElement.getStartTimeUs(lastChunkIndex)
+        + currentElement.getChunkDurationUs(lastChunkIndex);
+    return lastChunkEndTimeUs - playbackPositionUs;
   }
 
 }

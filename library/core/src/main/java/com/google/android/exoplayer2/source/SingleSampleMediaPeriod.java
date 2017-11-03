@@ -235,10 +235,12 @@ import java.util.Arrays;
     }
 
     @Override
-    public void skipData(long positionUs) {
-      if (positionUs > 0) {
+    public int skipData(long positionUs) {
+      if (positionUs > 0 && streamState != STREAM_STATE_END_OF_STREAM) {
         streamState = STREAM_STATE_END_OF_STREAM;
+        return 1;
       }
+      return 0;
     }
 
   }

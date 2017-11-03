@@ -25,4 +25,5 @@
   <string name="exo_controls_repeat_all_description">"Баарын кайталоо"</string>
   <string name="exo_controls_repeat_off_description">"Эч бирин кайталабоо"</string>
   <string name="exo_controls_repeat_one_description">"Бирөөнү кайталоо"</string>
+  <string name="exo_controls_shuffle_description">"Аралаштыруу"</string>
 </resources>

@@ -16,7 +16,6 @@
 package com.google.android.exoplayer2.testutil;
 
 import android.app.Instrumentation;
-import android.test.InstrumentationTestCase;
 import android.test.MoreAsserts;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Timeline;
@@ -33,7 +32,6 @@ import java.io.InputStream;
 import java.util.Arrays;
 import java.util.Random;
 import junit.framework.Assert;
-import org.mockito.MockitoAnnotations;
 
 /**
  * Utility methods for tests.
@@ -121,13 +119,6 @@ public class TestUtil {
     return joined;
   }
 
-  public static void setUpMockito(InstrumentationTestCase instrumentationTestCase) {
-    // Workaround for https://code.google.com/p/dexmaker/issues/detail?id=2.
-    System.setProperty("dexmaker.dexcache",
-        instrumentationTestCase.getInstrumentation().getTargetContext().getCacheDir().getPath());
-    MockitoAnnotations.initMocks(instrumentationTestCase);
-  }
-
   public static byte[] getByteArray(Instrumentation instrumentation, String fileName)
       throws IOException {
     return Util.toByteArray(getInputStream(instrumentation, fileName));
@@ -150,7 +141,8 @@ public class TestUtil {
     class TimelineListener implements Listener {
       private Timeline timeline;
       @Override
-      public synchronized void onSourceInfoRefreshed(Timeline timeline, Object manifest) {
+      public synchronized void onSourceInfoRefreshed(MediaSource source, Timeline timeline,
+          Object manifest) {
         this.timeline = timeline;
         this.notify();
       }

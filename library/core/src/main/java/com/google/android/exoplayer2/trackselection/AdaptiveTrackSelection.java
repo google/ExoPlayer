@@ -40,6 +40,7 @@ public class AdaptiveTrackSelection extends BaseTrackSelection {
     private final int maxDurationForQualityDecreaseMs;
     private final int minDurationToRetainAfterDiscardMs;
     private final float bandwidthFraction;
+    private final float bufferedFractionToLiveEdgeForQualityIncrease;
 
     /**
      * @param bandwidthMeter Provides an estimate of the currently available bandwidth.
@@ -48,7 +49,9 @@ public class AdaptiveTrackSelection extends BaseTrackSelection {
       this (bandwidthMeter, DEFAULT_MAX_INITIAL_BITRATE,
           DEFAULT_MIN_DURATION_FOR_QUALITY_INCREASE_MS,
           DEFAULT_MAX_DURATION_FOR_QUALITY_DECREASE_MS,
-          DEFAULT_MIN_DURATION_TO_RETAIN_AFTER_DISCARD_MS, DEFAULT_BANDWIDTH_FRACTION);
+          DEFAULT_MIN_DURATION_TO_RETAIN_AFTER_DISCARD_MS,
+          DEFAULT_BANDWIDTH_FRACTION,
+          DEFAULT_BUFFERED_FRACTION_TO_LIVE_EDGE_FOR_QUALITY_INCREASE);
     }
 
     /**
@@ -70,19 +73,53 @@ public class AdaptiveTrackSelection extends BaseTrackSelection {
     public Factory(BandwidthMeter bandwidthMeter, int maxInitialBitrate,
         int minDurationForQualityIncreaseMs, int maxDurationForQualityDecreaseMs,
         int minDurationToRetainAfterDiscardMs, float bandwidthFraction) {
+      this (bandwidthMeter, maxInitialBitrate, minDurationForQualityIncreaseMs,
+          maxDurationForQualityDecreaseMs, minDurationToRetainAfterDiscardMs,
+          bandwidthFraction, DEFAULT_BUFFERED_FRACTION_TO_LIVE_EDGE_FOR_QUALITY_INCREASE);
+    }
+
+    /**
+     * @param bandwidthMeter Provides an estimate of the currently available bandwidth.
+     * @param maxInitialBitrate The maximum bitrate in bits per second that should be assumed
+     *     when a bandwidth estimate is unavailable.
+     * @param minDurationForQualityIncreaseMs The minimum duration of buffered data required for
+     *     the selected track to switch to one of higher quality.
+     * @param maxDurationForQualityDecreaseMs The maximum duration of buffered data required for
+     *     the selected track to switch to one of lower quality.
+     * @param minDurationToRetainAfterDiscardMs When switching to a track of significantly higher
+     *     quality, the selection may indicate that media already buffered at the lower quality can
+     *     be discarded to speed up the switch. This is the minimum duration of media that must be
+     *     retained at the lower quality.
+     * @param bandwidthFraction The fraction of the available bandwidth that the selection should
+     *     consider available for use. Setting to a value less than 1 is recommended to account
+     *     for inaccuracies in the bandwidth estimator.
+     * @param bufferedFractionToLiveEdgeForQualityIncrease For live streaming, the fraction of
+     *     the duration from current playback position to the live edge that has to be buffered
+     *     before the selected track can be switched to one of higher quality. This parameter is
+     *     only applied when the playback position is closer to the live edge than
+     *     {@code minDurationForQualityIncreaseMs}, which would otherwise prevent switching to a
+     *     higher quality from happening.
+     */
+    public Factory(BandwidthMeter bandwidthMeter, int maxInitialBitrate,
+        int minDurationForQualityIncreaseMs, int maxDurationForQualityDecreaseMs,
+        int minDurationToRetainAfterDiscardMs, float bandwidthFraction,
+        float bufferedFractionToLiveEdgeForQualityIncrease) {
       this.bandwidthMeter = bandwidthMeter;
       this.maxInitialBitrate = maxInitialBitrate;
       this.minDurationForQualityIncreaseMs = minDurationForQualityIncreaseMs;
       this.maxDurationForQualityDecreaseMs = maxDurationForQualityDecreaseMs;
       this.minDurationToRetainAfterDiscardMs = minDurationToRetainAfterDiscardMs;
       this.bandwidthFraction = bandwidthFraction;
+      this.bufferedFractionToLiveEdgeForQualityIncrease =
+          bufferedFractionToLiveEdgeForQualityIncrease;
     }
 
     @Override
     public AdaptiveTrackSelection createTrackSelection(TrackGroup group, int... tracks) {
       return new AdaptiveTrackSelection(group, tracks, bandwidthMeter, maxInitialBitrate,
           minDurationForQualityIncreaseMs, maxDurationForQualityDecreaseMs,
-          minDurationToRetainAfterDiscardMs, bandwidthFraction);
+          minDurationToRetainAfterDiscardMs, bandwidthFraction,
+          bufferedFractionToLiveEdgeForQualityIncrease);
     }
 
   }
@@ -92,6 +129,7 @@ public class AdaptiveTrackSelection extends BaseTrackSelection {
   public static final int DEFAULT_MAX_DURATION_FOR_QUALITY_DECREASE_MS = 25000;
   public static final int DEFAULT_MIN_DURATION_TO_RETAIN_AFTER_DISCARD_MS = 25000;
   public static final float DEFAULT_BANDWIDTH_FRACTION = 0.75f;
+  public static final float DEFAULT_BUFFERED_FRACTION_TO_LIVE_EDGE_FOR_QUALITY_INCREASE = 0.75f;
 
   private final BandwidthMeter bandwidthMeter;
   private final int maxInitialBitrate;
@@ -99,6 +137,7 @@ public class AdaptiveTrackSelection extends BaseTrackSelection {
   private final long maxDurationForQualityDecreaseUs;
   private final long minDurationToRetainAfterDiscardUs;
   private final float bandwidthFraction;
+  private final float bufferedFractionToLiveEdgeForQualityIncrease;
 
   private int selectedIndex;
   private int reason;
@@ -114,7 +153,9 @@ public class AdaptiveTrackSelection extends BaseTrackSelection {
     this (group, tracks, bandwidthMeter, DEFAULT_MAX_INITIAL_BITRATE,
         DEFAULT_MIN_DURATION_FOR_QUALITY_INCREASE_MS,
         DEFAULT_MAX_DURATION_FOR_QUALITY_DECREASE_MS,
-        DEFAULT_MIN_DURATION_TO_RETAIN_AFTER_DISCARD_MS, DEFAULT_BANDWIDTH_FRACTION);
+        DEFAULT_MIN_DURATION_TO_RETAIN_AFTER_DISCARD_MS,
+        DEFAULT_BANDWIDTH_FRACTION,
+        DEFAULT_BUFFERED_FRACTION_TO_LIVE_EDGE_FOR_QUALITY_INCREASE);
   }
 
   /**
@@ -135,11 +176,17 @@ public class AdaptiveTrackSelection extends BaseTrackSelection {
    * @param bandwidthFraction The fraction of the available bandwidth that the selection should
    *     consider available for use. Setting to a value less than 1 is recommended to account
    *     for inaccuracies in the bandwidth estimator.
+   * @param bufferedFractionToLiveEdgeForQualityIncrease For live streaming, the fraction of
+   *     the duration from current playback position to the live edge that has to be buffered
+   *     before the selected track can be switched to one of higher quality. This parameter is
+   *     only applied when the playback position is closer to the live edge than
+   *     {@code minDurationForQualityIncreaseMs}, which would otherwise prevent switching to a
+   *     higher quality from happening.
    */
   public AdaptiveTrackSelection(TrackGroup group, int[] tracks, BandwidthMeter bandwidthMeter,
       int maxInitialBitrate, long minDurationForQualityIncreaseMs,
       long maxDurationForQualityDecreaseMs, long minDurationToRetainAfterDiscardMs,
-      float bandwidthFraction) {
+      float bandwidthFraction, float bufferedFractionToLiveEdgeForQualityIncrease) {
     super(group, tracks);
     this.bandwidthMeter = bandwidthMeter;
     this.maxInitialBitrate = maxInitialBitrate;
@@ -147,12 +194,15 @@ public class AdaptiveTrackSelection extends BaseTrackSelection {
     this.maxDurationForQualityDecreaseUs = maxDurationForQualityDecreaseMs * 1000L;
     this.minDurationToRetainAfterDiscardUs = minDurationToRetainAfterDiscardMs * 1000L;
     this.bandwidthFraction = bandwidthFraction;
+    this.bufferedFractionToLiveEdgeForQualityIncrease =
+        bufferedFractionToLiveEdgeForQualityIncrease;
     selectedIndex = determineIdealSelectedIndex(Long.MIN_VALUE);
     reason = C.SELECTION_REASON_INITIAL;
   }
 
   @Override
-  public void updateSelectedTrack(long bufferedDurationUs) {
+  public void updateSelectedTrack(long playbackPositionUs, long bufferedDurationUs,
+      long availableDurationUs) {
     long nowMs = SystemClock.elapsedRealtime();
     // Stash the current selection, then make a new one.
     int currentSelectedIndex = selectedIndex;
@@ -160,12 +210,13 @@ public class AdaptiveTrackSelection extends BaseTrackSelection {
     if (selectedIndex == currentSelectedIndex) {
       return;
     }
+
     if (!isBlacklisted(currentSelectedIndex, nowMs)) {
       // Revert back to the current selection if conditions are not suitable for switching.
       Format currentFormat = getFormat(currentSelectedIndex);
       Format selectedFormat = getFormat(selectedIndex);
       if (selectedFormat.bitrate > currentFormat.bitrate
-          && bufferedDurationUs < minDurationForQualityIncreaseUs) {
+          && bufferedDurationUs < minDurationForQualityIncreaseUs(availableDurationUs)) {
         // The selected track is a higher quality, but we have insufficient buffer to safely switch
         // up. Defer switching up for now.
         selectedIndex = currentSelectedIndex;
@@ -249,6 +300,14 @@ public class AdaptiveTrackSelection extends BaseTrackSelection {
       }
     }
     return lowestBitrateNonBlacklistedIndex;
+  }
+
+  private long minDurationForQualityIncreaseUs(long availableDurationUs) {
+    boolean isAvailableDurationTooShort = availableDurationUs != C.TIME_UNSET
+        && availableDurationUs <= minDurationForQualityIncreaseUs;
+    return isAvailableDurationTooShort
+        ? (long) (availableDurationUs * bufferedFractionToLiveEdgeForQualityIncrease)
+        : minDurationForQualityIncreaseUs;
   }
 
 }

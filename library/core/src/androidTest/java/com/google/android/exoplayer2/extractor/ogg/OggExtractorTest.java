@@ -20,6 +20,7 @@ import com.google.android.exoplayer2.extractor.Extractor;
 import com.google.android.exoplayer2.testutil.ExtractorAsserts;
 import com.google.android.exoplayer2.testutil.ExtractorAsserts.ExtractorFactory;
 import com.google.android.exoplayer2.testutil.FakeExtractorInput;
+import com.google.android.exoplayer2.testutil.OggTestData;
 import com.google.android.exoplayer2.testutil.TestUtil;
 import java.io.IOException;
 
@@ -56,7 +57,7 @@ public final class OggExtractorTest extends InstrumentationTestCase {
 
   public void testSniffVorbis() throws Exception {
     byte[] data = TestUtil.joinByteArrays(
-        TestData.buildOggHeader(0x02, 0, 1000, 1),
+        OggTestData.buildOggHeader(0x02, 0, 1000, 1),
         TestUtil.createByteArray(7),  // Laces
         new byte[] {0x01, 'v', 'o', 'r', 'b', 'i', 's'});
     assertTrue(sniff(data));
@@ -64,7 +65,7 @@ public final class OggExtractorTest extends InstrumentationTestCase {
 
   public void testSniffFlac() throws Exception {
     byte[] data = TestUtil.joinByteArrays(
-        TestData.buildOggHeader(0x02, 0, 1000, 1),
+        OggTestData.buildOggHeader(0x02, 0, 1000, 1),
         TestUtil.createByteArray(5),  // Laces
         new byte[] {0x7F, 'F', 'L', 'A', 'C'});
     assertTrue(sniff(data));
@@ -72,26 +73,26 @@ public final class OggExtractorTest extends InstrumentationTestCase {
 
   public void testSniffFailsOpusFile() throws Exception {
     byte[] data = TestUtil.joinByteArrays(
-        TestData.buildOggHeader(0x02, 0, 1000, 0x00),
+        OggTestData.buildOggHeader(0x02, 0, 1000, 0x00),
         new byte[] {'O', 'p', 'u', 's'});
     assertFalse(sniff(data));
   }
 
   public void testSniffFailsInvalidOggHeader() throws Exception {
-    byte[] data = TestData.buildOggHeader(0x00, 0, 1000, 0x00);
+    byte[] data = OggTestData.buildOggHeader(0x00, 0, 1000, 0x00);
     assertFalse(sniff(data));
   }
 
   public void testSniffInvalidHeader() throws Exception {
     byte[] data = TestUtil.joinByteArrays(
-        TestData.buildOggHeader(0x02, 0, 1000, 1),
+        OggTestData.buildOggHeader(0x02, 0, 1000, 1),
         TestUtil.createByteArray(7),  // Laces
         new byte[] {0x7F, 'X', 'o', 'r', 'b', 'i', 's'});
     assertFalse(sniff(data));
   }
 
   public void testSniffFailsEOF() throws Exception {
-    byte[] data = TestData.buildOggHeader(0x02, 0, 1000, 0x00);
+    byte[] data = OggTestData.buildOggHeader(0x02, 0, 1000, 0x00);
     assertFalse(sniff(data));
   }
 

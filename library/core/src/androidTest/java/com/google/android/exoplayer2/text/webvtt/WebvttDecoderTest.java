@@ -36,6 +36,7 @@ import java.util.List;
 public class WebvttDecoderTest extends InstrumentationTestCase {
 
   private static final String TYPICAL_FILE = "webvtt/typical";
+  private static final String TYPICAL_WITH_BAD_TIMESTAMPS = "webvtt/typical_with_bad_timestamps";
   private static final String TYPICAL_WITH_IDS_FILE = "webvtt/typical_with_identifiers";
   private static final String TYPICAL_WITH_COMMENTS_FILE = "webvtt/typical_with_comments";
   private static final String WITH_POSITIONING_FILE = "webvtt/with_positioning";
@@ -58,6 +59,17 @@ public class WebvttDecoderTest extends InstrumentationTestCase {
 
   public void testDecodeTypical() throws IOException, SubtitleDecoderException {
     WebvttSubtitle subtitle = getSubtitleForTestAsset(TYPICAL_FILE);
+
+    // Test event count.
+    assertEquals(4, subtitle.getEventTimeCount());
+
+    // Test cues.
+    assertCue(subtitle, 0, 0, 1234000, "This is the first subtitle.");
+    assertCue(subtitle, 2, 2345000, 3456000, "This is the second subtitle.");
+  }
+
+  public void testDecodeTypicalWithBadTimestamps() throws IOException, SubtitleDecoderException {
+    WebvttSubtitle subtitle = getSubtitleForTestAsset(TYPICAL_WITH_BAD_TIMESTAMPS);
 
     // Test event count.
     assertEquals(4, subtitle.getEventTimeCount());

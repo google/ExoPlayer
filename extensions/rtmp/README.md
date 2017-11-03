@@ -7,6 +7,14 @@ streams using [LibRtmp Client for Android][].
 [RTMP]: https://en.wikipedia.org/wiki/Real-Time_Messaging_Protocol
 [LibRtmp Client for Android]: https://github.com/ant-media/LibRtmp-Client-for-Android
 
+## License note ##
+
+Please note that whilst the code in this repository is licensed under
+[Apache 2.0][], using this extension requires depending on LibRtmp Client for
+Android, which is licensed separately.
+
+[Apache 2.0]: https://github.com/google/ExoPlayer/blob/release-v2/LICENSE
+
 ## Getting the extension ##
 
 The easiest way to use the extension is to add it as a gradle dependency:

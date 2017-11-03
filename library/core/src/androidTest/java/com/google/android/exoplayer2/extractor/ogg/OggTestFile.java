@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.extractor.ogg;
 
+import com.google.android.exoplayer2.testutil.OggTestData;
 import com.google.android.exoplayer2.testutil.TestUtil;
 import java.util.ArrayList;
 import java.util.Random;
@@ -68,7 +69,7 @@ import junit.framework.Assert;
       }
       granule += random.nextInt(MAX_GRANULES_IN_PAGE - 1) + 1;
       int pageSegmentCount = random.nextInt(MAX_SEGMENT_COUNT);
-      byte[] header = TestData.buildOggHeader(headerType, granule, 0, pageSegmentCount);
+      byte[] header = OggTestData.buildOggHeader(headerType, granule, 0, pageSegmentCount);
       fileData.add(header);
       fileSize += header.length;
 

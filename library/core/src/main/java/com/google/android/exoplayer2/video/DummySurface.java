@@ -150,19 +150,20 @@ public final class DummySurface extends Surface {
    */
   @TargetApi(24)
   private static boolean enableSecureDummySurfaceV24(Context context) {
-    EGLDisplay display = eglGetDisplay(EGL_DEFAULT_DISPLAY);
-    String eglExtensions = EGL14.eglQueryString(display, EGL10.EGL_EXTENSIONS);
-    if (eglExtensions == null || !eglExtensions.contains("EGL_EXT_protected_content")) {
-      // EGL_EXT_protected_content is required to enable secure dummy surfaces.
-      return false;
-    }
-    if (Util.SDK_INT == 24 && "samsung".equals(Util.MANUFACTURER)) {
-      // Samsung devices running API level 24 are known to be broken [Internal: b/37197802].
+    if (Util.SDK_INT < 26 && "samsung".equals(Util.MANUFACTURER)) {
+      // Samsung devices running Nougat are known to be broken. See
+      // https://github.com/google/ExoPlayer/issues/3373 and [Internal: b/37197802].
       return false;
     }
     if (Util.SDK_INT < 26 && !context.getPackageManager().hasSystemFeature(
         PackageManager.FEATURE_VR_MODE_HIGH_PERFORMANCE)) {
       // Pre API level 26 devices were not well tested unless they supported VR mode.
+      return false;
+    }
+    EGLDisplay display = eglGetDisplay(EGL_DEFAULT_DISPLAY);
+    String eglExtensions = EGL14.eglQueryString(display, EGL10.EGL_EXTENSIONS);
+    if (eglExtensions == null || !eglExtensions.contains("EGL_EXT_protected_content")) {
+      // EGL_EXT_protected_content is required to enable secure dummy surfaces.
       return false;
     }
     return true;

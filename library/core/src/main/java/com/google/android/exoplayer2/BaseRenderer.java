@@ -15,7 +15,10 @@
  */
 package com.google.android.exoplayer2;
 
+import android.support.annotation.Nullable;
 import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
+import com.google.android.exoplayer2.drm.DrmInitData;
+import com.google.android.exoplayer2.drm.DrmSessionManager;
 import com.google.android.exoplayer2.source.SampleStream;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.MediaClock;
@@ -296,9 +299,10 @@ public abstract class BaseRenderer implements Renderer, RendererCapabilities {
    * {@code positionUs} is beyond it.
    *
    * @param positionUs The position in microseconds.
+   * @return The number of samples that were skipped.
    */
-  protected void skipSource(long positionUs) {
-    stream.skipData(positionUs - streamOffsetUs);
+  protected int skipSource(long positionUs) {
+    return stream.skipData(positionUs - streamOffsetUs);
   }
 
   /**
@@ -306,6 +310,27 @@ public abstract class BaseRenderer implements Renderer, RendererCapabilities {
    */
   protected final boolean isSourceReady() {
     return readEndOfStream ? streamIsFinal : stream.isReady();
+  }
+
+  /**
+   * Returns whether {@code drmSessionManager} supports the specified {@code drmInitData}, or true
+   * if {@code drmInitData} is null.
+   *
+   * @param drmSessionManager The drm session manager.
+   * @param drmInitData {@link DrmInitData} of the format to check for support.
+   * @return Whether {@code drmSessionManager} supports the specified {@code drmInitData}, or
+   *     true if {@code drmInitData} is null.
+   */
+  protected static boolean supportsFormatDrm(@Nullable DrmSessionManager<?> drmSessionManager,
+      @Nullable DrmInitData drmInitData) {
+    if (drmInitData == null) {
+      // Content is unencrypted.
+      return true;
+    } else if (drmSessionManager == null) {
+      // Content is encrypted, but no drm session manager is available.
+      return false;
+    }
+    return drmSessionManager.canAcquireSession(drmInitData);
   }
 
 }

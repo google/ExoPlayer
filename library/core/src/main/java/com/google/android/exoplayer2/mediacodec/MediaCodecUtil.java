@@ -283,13 +283,13 @@ public final class MediaCodecUtil {
       return false;
     }
 
-    // Work around https://github.com/google/ExoPlayer/issues/398
+    // Work around https://github.com/google/ExoPlayer/issues/398.
     if (Util.SDK_INT < 18 && "OMX.SEC.MP3.Decoder".equals(name)) {
       return false;
     }
 
     // Work around https://github.com/google/ExoPlayer/issues/1528 and
-    // https://github.com/google/ExoPlayer/issues/3171
+    // https://github.com/google/ExoPlayer/issues/3171.
     if (Util.SDK_INT < 18 && "OMX.MTK.AUDIO.DECODER.AAC".equals(name)
         && ("a70".equals(Util.DEVICE)
             || ("Xiaomi".equals(Util.MANUFACTURER) && Util.DEVICE.startsWith("HM")))) {

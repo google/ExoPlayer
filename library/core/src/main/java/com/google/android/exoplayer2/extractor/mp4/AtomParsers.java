@@ -828,7 +828,7 @@ import java.util.List;
 
   private static void parseAudioSampleEntry(ParsableByteArray parent, int atomType, int position,
       int size, int trackId, String language, boolean isQuickTime, DrmInitData drmInitData,
-      StsdData out, int entryIndex) {
+      StsdData out, int entryIndex) throws ParserException {
     parent.setPosition(position + Atom.HEADER_SIZE + StsdData.STSD_HEADER_SIZE);
 
     int quickTimeSoundDescriptionVersion = 0;
@@ -1160,7 +1160,7 @@ import java.util.List;
   }
 
   /**
-   * Parses the proj box from sv3d box, as specified by https://github.com/google/spatial-media
+   * Parses the proj box from sv3d box, as specified by https://github.com/google/spatial-media.
    */
   private static byte[] parseProjFromParent(ParsableByteArray parent, int position, int size) {
     int childPosition = position + Atom.HEADER_SIZE;

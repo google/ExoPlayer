@@ -26,7 +26,7 @@ import java.util.List;
  * {@link TrackGroup}, and a possibly varying individual selected track from the subset.
  * <p>
  * Tracks belonging to the subset are exposed in decreasing bandwidth order. The individual selected
- * track may change as a result of calling {@link #updateSelectedTrack(long)}.
+ * track may change as a result of calling {@link #updateSelectedTrack(long, long, long)}.
  */
 public interface TrackSelection {
 
@@ -125,9 +125,21 @@ public interface TrackSelection {
   /**
    * Updates the selected track.
    *
-   * @param bufferedDurationUs The duration of media currently buffered in microseconds.
+   * @param playbackPositionUs The current playback position in microseconds. If playback of the
+   *     period to which this track selection belongs has not yet started, the value will be the
+   *     starting position in the period minus the duration of any media in previous periods still
+   *     to be played.
+   * @param bufferedDurationUs The duration of media currently buffered from the current playback
+   *     position, in microseconds. Note that the next load position can be calculated as
+   *     {@code (playbackPositionUs + bufferedDurationUs)}.
+   * @param availableDurationUs The duration of media available for buffering from the current
+   *     playback position, in microseconds, or {@link C#TIME_UNSET} if media can be buffered
+   *     to the end of the current period. Note that if not set to {@link C#TIME_UNSET}, the
+   *     position up to which media is available for buffering can be calculated as
+   *     {@code (playbackPositionUs + availableDurationUs)}.
    */
-  void updateSelectedTrack(long bufferedDurationUs);
+  void updateSelectedTrack(long playbackPositionUs, long bufferedDurationUs,
+      long availableDurationUs);
 
   /**
    * May be called periodically by sources that load media in discrete {@link MediaChunk}s and
@@ -140,7 +152,10 @@ public interface TrackSelection {
    * significantly higher quality. Discarding chunks may allow faster switching to a higher quality
    * track in this case.
    *
-   * @param playbackPositionUs The current playback position in microseconds.
+   * @param playbackPositionUs The current playback position in microseconds. If playback of the
+   *     period to which this track selection belongs has not yet started, the value will be the
+   *     starting position in the period minus the duration of any media in previous periods still
+   *     to be played.
    * @param queue The queue of buffered {@link MediaChunk}s. Must not be modified.
    * @return The number of chunks to retain in the queue.
    */
@@ -148,10 +163,10 @@ public interface TrackSelection {
 
   /**
    * Attempts to blacklist the track at the specified index in the selection, making it ineligible
-   * for selection by calls to {@link #updateSelectedTrack(long)} for the specified period of time.
-   * Blacklisting will fail if all other tracks are currently blacklisted. If blacklisting the
-   * currently selected track, note that it will remain selected until the next call to
-   * {@link #updateSelectedTrack(long)}.
+   * for selection by calls to {@link #updateSelectedTrack(long, long, long)} for the specified
+   * period of time. Blacklisting will fail if all other tracks are currently blacklisted. If
+   * blacklisting the currently selected track, note that it will remain selected until the next
+   * call to {@link #updateSelectedTrack(long, long, long)}.
    *
    * @param index The index of the track in the selection.
    * @param blacklistDurationMs The duration of time for which the track should be blacklisted, in

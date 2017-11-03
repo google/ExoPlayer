@@ -20,23 +20,27 @@ import android.media.DeniedByServerException;
 import android.media.MediaCrypto;
 import android.media.MediaCryptoException;
 import android.media.MediaDrm;
+import android.media.MediaDrm.KeyStatus;
+import android.media.MediaDrmException;
 import android.media.NotProvisionedException;
-import android.media.ResourceBusyException;
 import android.media.UnsupportedSchemeException;
 import android.support.annotation.NonNull;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Util;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
 /**
  * An {@link ExoMediaDrm} implementation that wraps the framework {@link MediaDrm}.
  */
-@TargetApi(18)
+@TargetApi(23)
 public final class FrameworkMediaDrm implements ExoMediaDrm<FrameworkMediaCrypto> {
 
+  private final UUID uuid;
   private final MediaDrm mediaDrm;
 
   /**
@@ -57,7 +61,12 @@ public final class FrameworkMediaDrm implements ExoMediaDrm<FrameworkMediaCrypto
   }
 
   private FrameworkMediaDrm(UUID uuid) throws UnsupportedSchemeException {
-    this.mediaDrm = new MediaDrm(Assertions.checkNotNull(uuid));
+    Assertions.checkNotNull(uuid);
+    Assertions.checkArgument(!C.COMMON_PSSH_UUID.equals(uuid), "Use C.CLEARKEY_UUID instead");
+    // ClearKey had to be accessed using the Common PSSH UUID prior to API level 27.
+    uuid = Util.SDK_INT < 27 && C.CLEARKEY_UUID.equals(uuid) ? C.COMMON_PSSH_UUID : uuid;
+    this.uuid = uuid;
+    this.mediaDrm = new MediaDrm(uuid);
   }
 
   @Override
@@ -65,7 +74,7 @@ public final class FrameworkMediaDrm implements ExoMediaDrm<FrameworkMediaCrypto
       final ExoMediaDrm.OnEventListener<? super FrameworkMediaCrypto> listener) {
     mediaDrm.setOnEventListener(listener == null ? null : new MediaDrm.OnEventListener() {
       @Override
-      public void onEvent(@NonNull MediaDrm md, byte[] sessionId, int event, int extra,
+      public void onEvent(@NonNull MediaDrm md, @NonNull byte[] sessionId, int event, int extra,
           byte[] data) {
         listener.onEvent(FrameworkMediaDrm.this, sessionId, event, extra, data);
       }
@@ -73,7 +82,30 @@ public final class FrameworkMediaDrm implements ExoMediaDrm<FrameworkMediaCrypto
   }
 
   @Override
-  public byte[] openSession() throws NotProvisionedException, ResourceBusyException {
+  public void setOnKeyStatusChangeListener(
+      final ExoMediaDrm.OnKeyStatusChangeListener<? super FrameworkMediaCrypto> listener) {
+    if (Util.SDK_INT < 23) {
+      throw new UnsupportedOperationException();
+    }
+    
+    mediaDrm.setOnKeyStatusChangeListener(listener == null ? null
+        : new MediaDrm.OnKeyStatusChangeListener() {
+          @Override
+          public void onKeyStatusChange(@NonNull MediaDrm md, @NonNull byte[] sessionId,
+              @NonNull List<KeyStatus> keyInfo, boolean hasNewUsableKey) {
+            List<ExoKeyStatus> exoKeyInfo = new ArrayList<>();
+            for (KeyStatus keyStatus : keyInfo) {
+              exoKeyInfo.add(new FrameworkKeyStatus(keyStatus));
+            }
+
+            listener.onKeyStatusChange(FrameworkMediaDrm.this, sessionId, exoKeyInfo,
+                hasNewUsableKey);
+          }
+        }, null);
+  }
+
+  @Override
+  public byte[] openSession() throws MediaDrmException {
     return mediaDrm.openSession();
   }
 
@@ -163,14 +195,31 @@ public final class FrameworkMediaDrm implements ExoMediaDrm<FrameworkMediaCrypto
   }
 
   @Override
-  public FrameworkMediaCrypto createMediaCrypto(UUID uuid, byte[] initData)
-      throws MediaCryptoException {
+  public FrameworkMediaCrypto createMediaCrypto(byte[] initData) throws MediaCryptoException {
     // Work around a bug prior to Lollipop where L1 Widevine forced into L3 mode would still
     // indicate that it required secure video decoders [Internal ref: b/11428937].
     boolean forceAllowInsecureDecoderComponents = Util.SDK_INT < 21
         && C.WIDEVINE_UUID.equals(uuid) && "L3".equals(getPropertyString("securityLevel"));
     return new FrameworkMediaCrypto(new MediaCrypto(uuid, initData),
         forceAllowInsecureDecoderComponents);
+  }
+
+  private static final class FrameworkKeyStatus implements ExoKeyStatus {
+    private final MediaDrm.KeyStatus keyStatus;
+
+    FrameworkKeyStatus(MediaDrm.KeyStatus keyStatus) {
+      this.keyStatus = keyStatus;
+    }
+
+    @Override
+    public int getStatusCode() {
+      return keyStatus.getStatusCode();
+    }
+
+    @Override
+    public byte[] getKeyId() {
+      return keyStatus.getKeyId();
+    }
   }
 
 }

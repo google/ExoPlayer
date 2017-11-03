@@ -25,7 +25,7 @@ import android.view.View;
 import android.view.accessibility.CaptioningManager;
 import com.google.android.exoplayer2.text.CaptionStyleCompat;
 import com.google.android.exoplayer2.text.Cue;
-import com.google.android.exoplayer2.text.TextRenderer;
+import com.google.android.exoplayer2.text.TextOutput;
 import com.google.android.exoplayer2.util.Util;
 import java.util.ArrayList;
 import java.util.List;
@@ -33,7 +33,7 @@ import java.util.List;
 /**
  * A view for displaying subtitle {@link Cue}s.
  */
-public final class SubtitleView extends View implements TextRenderer.Output {
+public final class SubtitleView extends View implements TextOutput {
 
   /**
    * The default fractional text size.
