@@ -315,7 +315,7 @@ public class ChunkSampleStream<T extends ChunkSource> implements SampleStream, S
       IOException error) {
     long bytesLoaded = loadable.bytesLoaded();
     boolean isMediaChunk = isMediaChunk(loadable);
-    boolean cancelable = !isMediaChunk || bytesLoaded == 0 || mediaChunks.size() > 1;
+    boolean cancelable = bytesLoaded == 0 || !isMediaChunk || !haveReadFromLastMediaChunk();
     boolean canceled = false;
     if (chunkSource.onChunkLoadError(loadable, cancelable, error)) {
       canceled = true;
@@ -413,6 +413,22 @@ public class ChunkSampleStream<T extends ChunkSource> implements SampleStream, S
 
   private boolean isMediaChunk(Chunk chunk) {
     return chunk instanceof BaseMediaChunk;
+  }
+
+  /**
+   * Returns whether samples have been read from {@code mediaChunks.getLast()}.
+   */
+  private boolean haveReadFromLastMediaChunk() {
+    BaseMediaChunk lastChunk = mediaChunks.getLast();
+    if (primarySampleQueue.getReadIndex() > lastChunk.getFirstSampleIndex(0)) {
+      return true;
+    }
+    for (int i = 0; i < embeddedSampleQueues.length; i++) {
+      if (embeddedSampleQueues[i].getReadIndex() > lastChunk.getFirstSampleIndex(i + 1)) {
+        return true;
+      }
+    }
+    return false;
   }
 
   /* package */ boolean isPendingReset() {
