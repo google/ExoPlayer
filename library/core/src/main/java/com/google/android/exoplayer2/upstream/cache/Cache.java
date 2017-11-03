@@ -72,7 +72,7 @@ public interface Cache {
       super(message);
     }
 
-    public CacheException(IOException cause) {
+    public CacheException(Throwable cause) {
       super(cause);
     }
 
