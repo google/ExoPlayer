@@ -345,30 +345,32 @@ public class DashManifestParser extends DefaultHandler
    */
   protected Pair<String, SchemeData> parseContentProtection(XmlPullParser xpp)
       throws XmlPullParserException, IOException {
-    String schemeIdUri = xpp.getAttributeValue(null, "schemeIdUri");
     String schemeType = null;
     byte[] data = null;
     UUID uuid = null;
     boolean requiresSecureDecoder = false;
 
-    switch (schemeIdUri) {
-      case "urn:mpeg:dash:mp4protection:2011":
-        schemeType = xpp.getAttributeValue(null, "value");
-        String defaultKid = xpp.getAttributeValue(null, "cenc:default_KID");
-        if (defaultKid != null && !"00000000-0000-0000-0000-000000000000".equals(defaultKid)) {
-          UUID keyId = UUID.fromString(defaultKid);
-          data = PsshAtomUtil.buildPsshAtom(C.COMMON_PSSH_UUID, new UUID[] {keyId}, null);
-          uuid = C.COMMON_PSSH_UUID;
-        }
-        break;
-      case "urn:uuid:9a04f079-9840-4286-ab92-e65be0885f95":
-        uuid = C.PLAYREADY_UUID;
-        break;
-      case "urn:uuid:edef8ba9-79d6-4ace-a3c8-27dcd51d21ed":
-        uuid = C.WIDEVINE_UUID;
-        break;
-      default:
-        break;
+    String schemeIdUri = xpp.getAttributeValue(null, "schemeIdUri");
+    if (schemeIdUri != null) {
+      switch (schemeIdUri.toLowerCase()) {
+        case "urn:mpeg:dash:mp4protection:2011":
+          schemeType = xpp.getAttributeValue(null, "value");
+          String defaultKid = xpp.getAttributeValue(null, "cenc:default_KID");
+          if (defaultKid != null && !"00000000-0000-0000-0000-000000000000".equals(defaultKid)) {
+            UUID keyId = UUID.fromString(defaultKid);
+            data = PsshAtomUtil.buildPsshAtom(C.COMMON_PSSH_UUID, new UUID[] {keyId}, null);
+            uuid = C.COMMON_PSSH_UUID;
+          }
+          break;
+        case "urn:uuid:9a04f079-9840-4286-ab92-e65be0885f95":
+          uuid = C.PLAYREADY_UUID;
+          break;
+        case "urn:uuid:edef8ba9-79d6-4ace-a3c8-27dcd51d21ed":
+          uuid = C.WIDEVINE_UUID;
+          break;
+        default:
+          break;
+      }
     }
 
     do {
