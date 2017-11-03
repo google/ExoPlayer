@@ -750,6 +750,32 @@ public final class Util {
   }
 
   /**
+   * Returns a copy of {@code codecs} without the codecs whose track type doesn't match
+   * {@code trackType}.
+   *
+   * @param codecs A codec sequence string, as defined in RFC 6381.
+   * @param trackType One of {@link C}{@code .TRACK_TYPE_*}.
+   * @return A copy of {@code codecs} without the codecs whose track type doesn't match
+   *     {@code trackType}.
+   */
+  public static String getCodecsOfType(String codecs, int trackType) {
+    if (TextUtils.isEmpty(codecs)) {
+      return null;
+    }
+    String[] codecArray = codecs.trim().split("(\\s*,\\s*)");
+    StringBuilder builder = new StringBuilder();
+    for (String codec : codecArray) {
+      if (trackType == MimeTypes.getTrackTypeOfCodec(codec)) {
+        if (builder.length() > 0) {
+          builder.append(",");
+        }
+        builder.append(codec);
+      }
+    }
+    return builder.length() > 0 ? builder.toString() : null;
+  }
+
+  /**
    * Converts a sample bit depth to a corresponding PCM encoding constant.
    *
    * @param bitDepth The bit depth. Supported values are 8, 16, 24 and 32.
