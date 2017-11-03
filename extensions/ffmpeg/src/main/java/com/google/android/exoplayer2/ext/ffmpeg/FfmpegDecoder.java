@@ -56,7 +56,8 @@ import java.util.List;
     outputBufferSize = useFloatOutput ? OUTPUT_BUFFER_SIZE_32BIT : OUTPUT_BUFFER_SIZE;
     codecName = FfmpegLibrary.getCodecName(format.sampleMimeType, format.pcmEncoding);
     extraData = getExtraData(format.sampleMimeType, format.initializationData);
-    nativeContext = ffmpegInitialize(codecName, extraData, useFloatOutput);
+    nativeContext = ffmpegInitialize(codecName, extraData, useFloatOutput,
+        format.channelCount, format.sampleRate);
     if (nativeContext == 0) {
       throw new FfmpegDecoderException("Initialization failed.");
     }
@@ -143,7 +144,9 @@ import java.util.List;
       case MimeTypes.AUDIO_AAC:
       case MimeTypes.AUDIO_ALAC:
       case MimeTypes.AUDIO_OPUS:
-        return initializationData.get(0);
+        if (!initializationData.isEmpty())
+          return initializationData.get(0);
+        return null;
       case MimeTypes.AUDIO_VORBIS:
         byte[] header0 = initializationData.get(0);
         byte[] header1 = initializationData.get(1);
@@ -169,7 +172,8 @@ import java.util.List;
     return useFloatOutput ? C.ENCODING_PCM_FLOAT : C.ENCODING_PCM_16BIT;
   }
 
-  private native long ffmpegInitialize(String codecName, byte[] extraData, boolean useFloatOutput);
+  private native long ffmpegInitialize(String codecName, byte[] extraData,
+      boolean useFloatOutput, int inputChannelCount, int inputSampleRate);
   private native int ffmpegDecode(long context, ByteBuffer inputData, int inputSize,
       ByteBuffer outputData, int outputSize);
   private native int ffmpegGetChannelCount(long context);
