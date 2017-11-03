@@ -67,7 +67,7 @@ public final class FfmpegAudioRenderer extends SimpleDecoderAudioRenderer {
     String sampleMimeType = format.sampleMimeType;
     if (!FfmpegLibrary.isAvailable() || !MimeTypes.isAudio(sampleMimeType)) {
       return FORMAT_UNSUPPORTED_TYPE;
-    } else if (!FfmpegLibrary.supportsFormat(sampleMimeType)) {
+    } else if (!FfmpegLibrary.supportsFormat(sampleMimeType, format.pcmEncoding)) {
       return FORMAT_UNSUPPORTED_SUBTYPE;
     } else if (!supportsFormatDrm(drmSessionManager, format.drmInitData)) {
       return FORMAT_UNSUPPORTED_DRM;
@@ -85,8 +85,7 @@ public final class FfmpegAudioRenderer extends SimpleDecoderAudioRenderer {
   protected FfmpegDecoder createDecoder(Format format, ExoMediaCrypto mediaCrypto)
       throws FfmpegDecoderException {
     decoder = new FfmpegDecoder(NUM_BUFFERS, NUM_BUFFERS, INITIAL_INPUT_BUFFER_SIZE,
-        format.sampleMimeType, format.initializationData,
-        Util.canHandleFloatAudio(audioCapabilities, format.channelCount));
+        format, Util.canHandleFloatAudio(audioCapabilities, format.channelCount));
     return decoder;
   }
 

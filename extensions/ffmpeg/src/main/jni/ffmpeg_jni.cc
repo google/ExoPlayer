@@ -212,6 +212,8 @@ AVCodecContext *createContext(JNIEnv *env, AVCodec *codec,
     LOGE("Failed to allocate context.");
     return NULL;
   }
+
+    LOGE("Use float %d", use32BitFloatOutput);
   context->request_sample_fmt = use32BitFloatOutput ? OUTPUT_FORMAT_32FLOAT : OUTPUT_FORMAT;
   if (extraData) {
     jsize size = env->GetArrayLength(extraData);
@@ -224,6 +226,20 @@ AVCodecContext *createContext(JNIEnv *env, AVCodec *codec,
       return NULL;
     }
     env->GetByteArrayRegion(extraData, 0, size, (jbyte *) context->extradata);
+    AVCodecID codecId = context->codec_id;
+      if (codecId == AV_CODEC_ID_PCM_U8 ||
+          codecId == AV_CODEC_ID_PCM_S16LE ||
+          codecId == AV_CODEC_ID_PCM_S24LE ||
+          codecId == AV_CODEC_ID_PCM_S32LE ||
+          codecId == AV_CODEC_ID_PCM_F32LE) {
+        context->channels = ((uint16_t *) context->extradata)[1];
+        context->sample_rate = ((uint32_t *) context->extradata)[1];
+        // if it's a WAVEFORMATEXTENSIBLE get the layout
+        if (0xFFFE == ((uint16_t *) context->extradata)[0] && 24 <= size) {
+          uint32_t layout = ((uint32_t *) context->extradata)[5];
+          context->channel_layout = (uint64_t) layout;
+        }
+      }
   }
   int result = avcodec_open2(context, codec, NULL);
   if (result < 0) {

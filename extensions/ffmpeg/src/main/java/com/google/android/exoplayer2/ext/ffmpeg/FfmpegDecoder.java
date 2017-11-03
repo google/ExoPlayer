@@ -16,6 +16,7 @@
 package com.google.android.exoplayer2.ext.ffmpeg;
 
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
 import com.google.android.exoplayer2.decoder.SimpleDecoder;
 import com.google.android.exoplayer2.decoder.SimpleOutputBuffer;
@@ -45,7 +46,7 @@ import java.util.List;
   private final int outputBufferSize;
 
   public FfmpegDecoder(int numInputBuffers, int numOutputBuffers, int initialInputBufferSize,
-      String mimeType, List<byte[]> initializationData, boolean useFloatOutput)
+      Format format, boolean useFloatOutput)
    throws FfmpegDecoderException {
     super(new DecoderInputBuffer[numInputBuffers], new SimpleOutputBuffer[numOutputBuffers]);
     if (!FfmpegLibrary.isAvailable()) {
@@ -53,8 +54,8 @@ import java.util.List;
     }
     this.useFloatOutput = useFloatOutput;
     outputBufferSize = useFloatOutput ? OUTPUT_BUFFER_SIZE_32BIT : OUTPUT_BUFFER_SIZE;
-    codecName = FfmpegLibrary.getCodecName(mimeType);
-    extraData = getExtraData(mimeType, initializationData);
+    codecName = FfmpegLibrary.getCodecName(format.sampleMimeType, format.pcmEncoding);
+    extraData = getExtraData(format.sampleMimeType, format.initializationData);
     nativeContext = ffmpegInitialize(codecName, extraData, useFloatOutput);
     if (nativeContext == 0) {
       throw new FfmpegDecoderException("Initialization failed.");
@@ -138,6 +139,7 @@ import java.util.List;
    */
   private static byte[] getExtraData(String mimeType, List<byte[]> initializationData) {
     switch (mimeType) {
+      case MimeTypes.AUDIO_RAW:
       case MimeTypes.AUDIO_AAC:
       case MimeTypes.AUDIO_ALAC:
       case MimeTypes.AUDIO_OPUS:
