@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.ext.ffmpeg;
 
+import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
 import com.google.android.exoplayer2.decoder.SimpleDecoder;
 import com.google.android.exoplayer2.decoder.SimpleOutputBuffer;
@@ -31,7 +32,8 @@ import java.util.List;
 
   // Space for 64 ms of 6 channel 48 kHz 16-bit PCM audio.
   private static final int OUTPUT_BUFFER_SIZE = 1536 * 6 * 2 * 2;
-
+  // Space for 64 ms of 8 channel 48 kHz 32-bit PCM audio.
+  private static final int OUTPUT_BUFFER_SIZE_32BIT = OUTPUT_BUFFER_SIZE * 2;
   private final String codecName;
   private final byte[] extraData;
 
@@ -39,16 +41,21 @@ import java.util.List;
   private boolean hasOutputFormat;
   private volatile int channelCount;
   private volatile int sampleRate;
+  private final boolean useFloatOutput;
+  private final int outputBufferSize;
 
   public FfmpegDecoder(int numInputBuffers, int numOutputBuffers, int initialInputBufferSize,
-      String mimeType, List<byte[]> initializationData) throws FfmpegDecoderException {
+      String mimeType, List<byte[]> initializationData, boolean useFloatOutput)
+   throws FfmpegDecoderException {
     super(new DecoderInputBuffer[numInputBuffers], new SimpleOutputBuffer[numOutputBuffers]);
     if (!FfmpegLibrary.isAvailable()) {
       throw new FfmpegDecoderException("Failed to load decoder native libraries.");
     }
+    this.useFloatOutput = useFloatOutput;
+    outputBufferSize = useFloatOutput ? OUTPUT_BUFFER_SIZE_32BIT : OUTPUT_BUFFER_SIZE;
     codecName = FfmpegLibrary.getCodecName(mimeType);
     extraData = getExtraData(mimeType, initializationData);
-    nativeContext = ffmpegInitialize(codecName, extraData);
+    nativeContext = ffmpegInitialize(codecName, extraData, useFloatOutput);
     if (nativeContext == 0) {
       throw new FfmpegDecoderException("Initialization failed.");
     }
@@ -81,8 +88,9 @@ import java.util.List;
     }
     ByteBuffer inputData = inputBuffer.data;
     int inputSize = inputData.limit();
-    ByteBuffer outputData = outputBuffer.init(inputBuffer.timeUs, OUTPUT_BUFFER_SIZE);
-    int result = ffmpegDecode(nativeContext, inputData, inputSize, outputData, OUTPUT_BUFFER_SIZE);
+
+    ByteBuffer outputData = outputBuffer.init(inputBuffer.timeUs, outputBufferSize);
+    int result = ffmpegDecode(nativeContext, inputData, inputSize, outputData, outputBufferSize);
     if (result < 0) {
       return new FfmpegDecoderException("Error decoding (see logcat). Code: " + result);
     }
@@ -153,7 +161,13 @@ import java.util.List;
     }
   }
 
-  private native long ffmpegInitialize(String codecName, byte[] extraData);
+
+  public @C.PcmEncoding int getOutputEncoding() {
+
+    return useFloatOutput ? C.ENCODING_PCM_FLOAT : C.ENCODING_PCM_16BIT;
+  }
+
+  private native long ffmpegInitialize(String codecName, byte[] extraData, boolean useFloatOutput);
   private native int ffmpegDecode(long context, ByteBuffer inputData, int inputSize,
       ByteBuffer outputData, int outputSize);
   private native int ffmpegGetChannelCount(long context);
