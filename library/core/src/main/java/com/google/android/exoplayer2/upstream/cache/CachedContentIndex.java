@@ -92,7 +92,8 @@ import javax.crypto.spec.SecretKeySpec;
    *
    * @param cacheDir Directory where the index file is kept.
    * @param secretKey 16 byte AES key for reading, and optionally writing, the cache index.
-   * @param encrypt When false, a plaintext index will be written.
+   * @param encrypt Whether the index will be encrypted when written. Must be false if {@code
+   *     secretKey} is null.
    */
   public CachedContentIndex(File cacheDir, byte[] secretKey, boolean encrypt) {
     this.encrypt = encrypt;
@@ -105,6 +106,7 @@ import javax.crypto.spec.SecretKeySpec;
         throw new IllegalStateException(e); // Should never happen.
       }
     } else {
+      Assertions.checkState(!encrypt);
       cipher = null;
       secretKeySpec = null;
     }
@@ -259,10 +261,8 @@ import javax.crypto.spec.SecretKeySpec;
           throw new IllegalStateException(e);
         }
         input = new DataInputStream(new CipherInputStream(inputStream, cipher));
-      } else {
-        if (cipher != null) {
-          changed = true; // Force index to be rewritten encrypted after read.
-        }
+      } else if (encrypt) {
+        changed = true; // Force index to be rewritten encrypted after read.
       }
 
       int count = input.readInt();
@@ -300,11 +300,10 @@ import javax.crypto.spec.SecretKeySpec;
       output = new DataOutputStream(bufferedOutputStream);
       output.writeInt(VERSION);
 
-      boolean writeEncrypted = encrypt && cipher != null;
-      int flags = writeEncrypted ? FLAG_ENCRYPTED_INDEX : 0;
+      int flags = encrypt ? FLAG_ENCRYPTED_INDEX : 0;
       output.writeInt(flags);
 
-      if (writeEncrypted) {
+      if (encrypt) {
         byte[] initializationVector = new byte[16];
         new Random().nextBytes(initializationVector);
         output.write(initializationVector);
