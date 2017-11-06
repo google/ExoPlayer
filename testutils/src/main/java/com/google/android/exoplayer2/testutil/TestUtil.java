@@ -16,6 +16,7 @@
 package com.google.android.exoplayer2.testutil;
 
 import android.app.Instrumentation;
+import android.content.Context;
 import android.test.MoreAsserts;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Timeline;
@@ -121,12 +122,20 @@ public class TestUtil {
 
   public static byte[] getByteArray(Instrumentation instrumentation, String fileName)
       throws IOException {
-    return Util.toByteArray(getInputStream(instrumentation, fileName));
+    return getByteArray(instrumentation.getContext(), fileName);
+  }
+
+  public static byte[] getByteArray(Context context, String fileName) throws IOException {
+    return Util.toByteArray(getInputStream(context, fileName));
   }
 
   public static InputStream getInputStream(Instrumentation instrumentation, String fileName)
       throws IOException {
-    return instrumentation.getContext().getResources().getAssets().open(fileName);
+    return getInputStream(instrumentation.getContext(), fileName);
+  }
+
+  public static InputStream getInputStream(Context context, String fileName) throws IOException {
+    return context.getResources().getAssets().open(fileName);
   }
 
   public static String getString(Instrumentation instrumentation, String fileName)
@@ -167,13 +176,15 @@ public class TestUtil {
    * @param dataSource The {@link DataSource} through which to read.
    * @param dataSpec The {@link DataSpec} to use when opening the {@link DataSource}.
    * @param expectedData The expected data.
+   * @param expectKnownLength Whether to assert that {@link DataSource#open} returns the expected
+   *     data length. If false then it's asserted that {@link C#LENGTH_UNSET} is returned.
    * @throws IOException If an error occurs reading fom the {@link DataSource}.
    */
   public static void assertDataSourceContent(DataSource dataSource, DataSpec dataSpec,
-      byte[] expectedData) throws IOException {
+      byte[] expectedData, boolean expectKnownLength) throws IOException {
     try {
       long length = dataSource.open(dataSpec);
-      Assert.assertEquals(expectedData.length, length);
+      Assert.assertEquals(expectKnownLength ? expectedData.length : C.LENGTH_UNSET, length);
       byte[] readData = TestUtil.readToEnd(dataSource);
       MoreAsserts.assertEquals(expectedData, readData);
     } finally {

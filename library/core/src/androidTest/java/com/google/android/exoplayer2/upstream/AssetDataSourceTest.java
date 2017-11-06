@@ -30,14 +30,14 @@ public final class AssetDataSourceTest extends InstrumentationTestCase {
     AssetDataSource dataSource = new AssetDataSource(getInstrumentation().getContext());
     DataSpec dataSpec = new DataSpec(Uri.parse("file:///android_asset/" + DATA_PATH));
     TestUtil.assertDataSourceContent(dataSource, dataSpec,
-        TestUtil.getByteArray(getInstrumentation(), DATA_PATH));
+        TestUtil.getByteArray(getInstrumentation(), DATA_PATH), true);
   }
 
   public void testReadAssetUri() throws Exception {
     AssetDataSource dataSource = new AssetDataSource(getInstrumentation().getContext());
     DataSpec dataSpec = new DataSpec(Uri.parse("asset:///" + DATA_PATH));
     TestUtil.assertDataSourceContent(dataSource, dataSpec,
-        TestUtil.getByteArray(getInstrumentation(), DATA_PATH));
+        TestUtil.getByteArray(getInstrumentation(), DATA_PATH), true);
   }
 
 }
