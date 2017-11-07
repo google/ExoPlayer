@@ -7,6 +7,7 @@
 * Added a reason to `EventListener.onPositionDiscontinuity`
   ([#3252](https://github.com/google/ExoPlayer/issues/3252)).
 * New `setShuffleModeEnabled` method for enabling shuffled playback.
+* SimpleExoPlayer: Support for multiple video, text and metadata outputs.
 * Support for `Renderer`s that don't consume any media
   ([#3212](https://github.com/google/ExoPlayer/issues/3212)).
 * Fix potential `IndexOutOfBoundsException` when calling `ExoPlayer.getDuration`
@@ -14,9 +15,12 @@
 * Fix playbacks involving looping, concatenation and ads getting stuck when
   media contains tracks with uneven durations
   ([#1874](https://github.com/google/ExoPlayer/issues/1874)).
+* Fix issue with `ContentDataSource` when reading from certain `ContentProvider`
+  implementations ([#3426](https://github.com/google/ExoPlayer/issues/3426)).
 * Better playback experience when the video decoder cannot keep up, by skipping
   to key-frames. This is particularly relevant for variable speed playbacks.
-* SimpleExoPlayer: Support for multiple video, text and metadata outputs.
+* Allow `SingleSampleMediaSource` to suppress load errors
+  ([#3140](https://github.com/google/ExoPlayer/issues/3140)).
 * Audio: New `AudioSink` interface allows customization of audio output path.
 * Offline: Added `Downloader` implementations for DASH, HLS, SmoothStreaming
   and progressive streams.
@@ -24,8 +28,14 @@
   * Fixed adaptive track selection logic for live playbacks
     ([#3017](https://github.com/google/ExoPlayer/issues/3017)).
   * Added ability to select the lowest bitrate tracks.
+* DASH:
+  * Don't crash when a malformed or unexpected manifest update occurs
+    ([#2795](https://github.com/google/ExoPlayer/issues/2795)).
 * HLS:
   * Support for Widevine protected FMP4 variants.
+  * Support CEA-608 in FMP4 variants.
+  * Support extractor injection
+    ([#2748](https://github.com/google/ExoPlayer/issues/2748)).
 * DRM:
   * Improved compatibility with ClearKey content
     ([#3138](https://github.com/google/ExoPlayer/issues/3138)).
