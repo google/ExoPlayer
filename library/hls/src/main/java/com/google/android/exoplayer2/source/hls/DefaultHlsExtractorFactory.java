@@ -34,8 +34,6 @@ import java.util.List;
 
 /**
  * Default {@link HlsExtractorFactory} implementation.
- *
- * <p>This class can be extended to override {@link TsExtractor} instantiation.</p>
  */
 public final class DefaultHlsExtractorFactory implements HlsExtractorFactory {
 
