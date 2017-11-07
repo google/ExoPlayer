@@ -21,22 +21,22 @@ import com.google.android.exoplayer2.source.SampleStream;
 import java.io.IOException;
 
 /**
- * {@link SampleStream} for a particular track group in HLS.
+ * {@link SampleStream} for a particular sample queue in HLS.
  */
 /* package */ final class HlsSampleStream implements SampleStream {
 
-  public final int group;
+  public final int sampleQueueIndex;
 
   private final HlsSampleStreamWrapper sampleStreamWrapper;
 
-  public HlsSampleStream(HlsSampleStreamWrapper sampleStreamWrapper, int group) {
+  public HlsSampleStream(HlsSampleStreamWrapper sampleStreamWrapper, int sampleQueueIndex) {
     this.sampleStreamWrapper = sampleStreamWrapper;
-    this.group = group;
+    this.sampleQueueIndex = sampleQueueIndex;
   }
 
   @Override
   public boolean isReady() {
-    return sampleStreamWrapper.isReady(group);
+    return sampleStreamWrapper.isReady(sampleQueueIndex);
   }
 
   @Override
@@ -46,12 +46,12 @@ import java.io.IOException;
 
   @Override
   public int readData(FormatHolder formatHolder, DecoderInputBuffer buffer, boolean requireFormat) {
-    return sampleStreamWrapper.readData(group, formatHolder, buffer, requireFormat);
+    return sampleStreamWrapper.readData(sampleQueueIndex, formatHolder, buffer, requireFormat);
   }
 
   @Override
   public int skipData(long positionUs) {
-    return sampleStreamWrapper.skipData(group, positionUs);
+    return sampleStreamWrapper.skipData(sampleQueueIndex, positionUs);
   }
 
 }
