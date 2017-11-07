@@ -718,11 +718,9 @@ import java.io.IOException;
     if (playingPeriodHolder != newPlayingPeriodHolder
         || playingPeriodHolder != readingPeriodHolder) {
       for (Renderer renderer : enabledRenderers) {
-        renderer.disable();
+        disableRenderer(renderer);
       }
       enabledRenderers = new Renderer[0];
-      rendererMediaClock = null;
-      rendererMediaClockSource = null;
       playingPeriodHolder = null;
     }
 
@@ -801,13 +799,10 @@ import java.io.IOException;
     handler.removeMessages(MSG_DO_SOME_WORK);
     rebuffering = false;
     standaloneMediaClock.stop();
-    rendererMediaClock = null;
-    rendererMediaClockSource = null;
     rendererPositionUs = RENDERER_TIMESTAMP_OFFSET_US;
     for (Renderer renderer : enabledRenderers) {
       try {
-        ensureStopped(renderer);
-        renderer.disable();
+        disableRenderer(renderer);
       } catch (ExoPlaybackException | RuntimeException e) {
         // There's nothing we can do.
         Log.e(TAG, "Stop failed.", e);
@@ -851,6 +846,15 @@ import java.io.IOException;
     if (renderer.getState() == Renderer.STATE_STARTED) {
       renderer.stop();
     }
+  }
+
+  private void disableRenderer(Renderer renderer) throws ExoPlaybackException {
+    if (renderer == rendererMediaClockSource) {
+      rendererMediaClock = null;
+      rendererMediaClockSource = null;
+    }
+    ensureStopped(renderer);
+    renderer.disable();
   }
 
   private void reselectTracksInternal() throws ExoPlaybackException {
@@ -905,12 +909,7 @@ import java.io.IOException;
         if (rendererWasEnabledFlags[i]) {
           if (sampleStream != renderer.getStream()) {
             // We need to disable the renderer.
-            if (renderer == rendererMediaClockSource) {
-              rendererMediaClock = null;
-              rendererMediaClockSource = null;
-            }
-            ensureStopped(renderer);
-            renderer.disable();
+            disableRenderer(renderer);
           } else if (streamResetFlags[i]) {
             // The renderer will continue to consume from its current stream, but needs to be reset.
             renderer.resetPosition(rendererPositionUs);
@@ -1453,12 +1452,7 @@ import java.io.IOException;
         // The renderer should be disabled before playing the next period, either because it's not
         // needed to play the next period, or because we need to re-enable it as its current stream
         // is final and it's not reading ahead.
-        if (renderer == rendererMediaClockSource) {
-          rendererMediaClock = null;
-          rendererMediaClockSource = null;
-        }
-        ensureStopped(renderer);
-        renderer.disable();
+        disableRenderer(renderer);
       }
     }
 
