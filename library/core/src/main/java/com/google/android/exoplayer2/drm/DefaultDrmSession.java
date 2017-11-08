@@ -25,6 +25,7 @@ import android.os.Message;
 import android.util.Log;
 import android.util.Pair;
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.drm.ExoMediaDrm.DefaultKeyRequest;
 import com.google.android.exoplayer2.drm.ExoMediaDrm.KeyRequest;
 import com.google.android.exoplayer2.drm.ExoMediaDrm.ProvisionRequest;
 import java.util.Arrays;
@@ -363,18 +364,8 @@ import java.util.UUID;
       KeyRequest request = mediaDrm.getKeyRequest(scope, initData, mimeType, type,
           optionalKeyRequestParameters);
       if (C.CLEARKEY_UUID.equals(uuid)) {
-        final byte[] data = ClearKeyUtil.adjustRequestData(request.getData());
-        final String defaultUrl = request.getDefaultUrl();
-        request = new KeyRequest() {
-          @Override
-          public byte[] getData() {
-            return data;
-          }
-          @Override
-          public String getDefaultUrl() {
-            return defaultUrl;
-          }
-        };
+        request = new DefaultKeyRequest(ClearKeyUtil.adjustRequestData(request.getData()),
+            request.getDefaultUrl());
       }
       postRequestHandler.obtainMessage(MSG_KEYS, request, allowRetry).sendToTarget();
     } catch (Exception e) {
