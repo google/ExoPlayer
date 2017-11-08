@@ -85,7 +85,8 @@ public interface ChunkSource {
    * @param chunk The chunk whose load encountered the error.
    * @param cancelable Whether the load can be canceled.
    * @param e The error.
-   * @return Whether the load should be canceled.
+   * @return Whether the load should be canceled. Should always be false if {@code cancelable} is
+   *     false.
    */
   boolean onChunkLoadError(Chunk chunk, boolean cancelable, Exception e);
 
