@@ -362,6 +362,20 @@ import java.util.UUID;
     try {
       KeyRequest request = mediaDrm.getKeyRequest(scope, initData, mimeType, type,
           optionalKeyRequestParameters);
+      if (C.CLEARKEY_UUID.equals(uuid)) {
+        final byte[] data = ClearKeyUtil.adjustRequestData(request.getData());
+        final String defaultUrl = request.getDefaultUrl();
+        request = new KeyRequest() {
+          @Override
+          public byte[] getData() {
+            return data;
+          }
+          @Override
+          public String getDefaultUrl() {
+            return defaultUrl;
+          }
+        };
+      }
       postRequestHandler.obtainMessage(MSG_KEYS, request, allowRetry).sendToTarget();
     } catch (Exception e) {
       onKeysError(e);
@@ -380,8 +394,12 @@ import java.util.UUID;
     }
 
     try {
+      byte[] responseData = (byte[]) response;
+      if (C.CLEARKEY_UUID.equals(uuid)) {
+        responseData = ClearKeyUtil.adjustResponseData(responseData);
+      }
       if (mode == DefaultDrmSessionManager.MODE_RELEASE) {
-        mediaDrm.provideKeyResponse(offlineLicenseKeySetId, (byte[]) response);
+        mediaDrm.provideKeyResponse(offlineLicenseKeySetId, responseData);
         if (eventHandler != null && eventListener != null) {
           eventHandler.post(new Runnable() {
             @Override
@@ -391,7 +409,7 @@ import java.util.UUID;
           });
         }
       } else {
-        byte[] keySetId = mediaDrm.provideKeyResponse(sessionId, (byte[]) response);
+        byte[] keySetId = mediaDrm.provideKeyResponse(sessionId, responseData);
         if ((mode == DefaultDrmSessionManager.MODE_DOWNLOAD
             || (mode == DefaultDrmSessionManager.MODE_PLAYBACK && offlineLicenseKeySetId != null))
             && keySetId != null && keySetId.length != 0) {
