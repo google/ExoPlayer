@@ -15,6 +15,8 @@
  */
 package com.google.android.exoplayer2.source.chunk;
 
+import android.util.Log;
+
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.FormatHolder;
@@ -37,6 +39,8 @@ import java.util.List;
  */
 public class ChunkSampleStream<T extends ChunkSource> implements SampleStream, SequenceableLoader,
     Loader.Callback<Chunk>, Loader.ReleaseCallback {
+
+  private static final String TAG = "ChunkSampleStream";
 
   private final int primaryTrackType;
   private final int[] embeddedTrackTypes;
@@ -318,16 +322,20 @@ public class ChunkSampleStream<T extends ChunkSource> implements SampleStream, S
     boolean cancelable = bytesLoaded == 0 || !isMediaChunk || !haveReadFromLastMediaChunk();
     boolean canceled = false;
     if (chunkSource.onChunkLoadError(loadable, cancelable, error)) {
-      canceled = true;
-      if (isMediaChunk) {
-        BaseMediaChunk removed = mediaChunks.removeLast();
-        Assertions.checkState(removed == loadable);
-        primarySampleQueue.discardUpstreamSamples(removed.getFirstSampleIndex(0));
-        for (int i = 0; i < embeddedSampleQueues.length; i++) {
-          embeddedSampleQueues[i].discardUpstreamSamples(removed.getFirstSampleIndex(i + 1));
-        }
-        if (mediaChunks.isEmpty()) {
-          pendingResetPositionUs = lastSeekPositionUs;
+      if (!cancelable) {
+        Log.w(TAG, "Ignoring attempt to cancel non-cancelable load.");
+      } else {
+        canceled = true;
+        if (isMediaChunk) {
+          BaseMediaChunk removed = mediaChunks.removeLast();
+          Assertions.checkState(removed == loadable);
+          primarySampleQueue.discardUpstreamSamples(removed.getFirstSampleIndex(0));
+          for (int i = 0; i < embeddedSampleQueues.length; i++) {
+            embeddedSampleQueues[i].discardUpstreamSamples(removed.getFirstSampleIndex(i + 1));
+          }
+          if (mediaChunks.isEmpty()) {
+            pendingResetPositionUs = lastSeekPositionUs;
+          }
         }
       }
     }
