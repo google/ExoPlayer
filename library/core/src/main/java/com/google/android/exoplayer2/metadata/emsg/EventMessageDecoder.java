@@ -19,6 +19,7 @@ import com.google.android.exoplayer2.metadata.Metadata;
 import com.google.android.exoplayer2.metadata.MetadataDecoder;
 import com.google.android.exoplayer2.metadata.MetadataInputBuffer;
 import com.google.android.exoplayer2.util.ParsableByteArray;
+import com.google.android.exoplayer2.util.Util;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
 
@@ -40,7 +41,7 @@ public final class EventMessageDecoder implements MetadataDecoder {
     String value = emsgData.readNullTerminatedString();
     long timescale = emsgData.readUnsignedInt();
     emsgData.skipBytes(4); // presentation_time_delta
-    long durationMs = (emsgData.readUnsignedInt() * 1000) / timescale;
+    long durationMs = Util.scaleLargeTimestamp(emsgData.readUnsignedInt(), 1000, timescale);
     long id = emsgData.readUnsignedInt();
     byte[] messageData = Arrays.copyOfRange(data, emsgData.getPosition(), size);
     return new Metadata(new EventMessage(schemeIdUri, value, durationMs, id, messageData));
