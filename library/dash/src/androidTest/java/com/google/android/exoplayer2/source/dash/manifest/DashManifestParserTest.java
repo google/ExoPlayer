@@ -18,6 +18,7 @@ package com.google.android.exoplayer2.source.dash.manifest;
 import android.net.Uri;
 import android.test.InstrumentationTestCase;
 import com.google.android.exoplayer2.Format;
+import com.google.android.exoplayer2.metadata.emsg.EventMessage;
 import com.google.android.exoplayer2.testutil.TestUtil;
 import java.io.IOException;
 import java.util.Collections;
@@ -31,6 +32,7 @@ public class DashManifestParserTest extends InstrumentationTestCase {
   private static final String SAMPLE_MPD_1 = "sample_mpd_1";
   private static final String SAMPLE_MPD_2_UNKNOWN_MIME_TYPE = "sample_mpd_2_unknown_mime_type";
   private static final String SAMPLE_MPD_3_SEGMENT_TEMPLATE = "sample_mpd_3_segment_template";
+  private static final String SAMPLE_MPD_4_EVENT_STREAM = "sample_mpd_4_event_stream";
 
   /**
    * Simple test to ensure the sample manifests parse without any exceptions being thrown.
@@ -67,6 +69,52 @@ public class DashManifestParserTest extends InstrumentationTestCase {
         }
       }
     }
+  }
+
+  public void testParseMediaPresentationDescriptionCanParseEventStream()
+      throws IOException {
+    DashManifestParser parser = new DashManifestParser();
+    DashManifest mpd = parser.parse(Uri.parse("https://example.com/test.mpd"),
+        TestUtil.getInputStream(getInstrumentation(), SAMPLE_MPD_4_EVENT_STREAM));
+
+    Period period = mpd.getPeriod(0);
+    assertEquals(3, period.eventStreams.size());
+    // assert text-only event stream
+    EventStream eventStream1 = period.eventStreams.get(0);
+    assertEquals(1, eventStream1.events.length);
+    EventMessage expectedEvent1 = new EventMessage("urn:uuid:XYZY", "call", 10000, 0,
+        "+ 1 800 10101010".getBytes());
+    assertEquals(expectedEvent1, eventStream1.events[0]);
+
+    // assert CData-structured event stream
+    EventStream eventStream2 = period.eventStreams.get(1);
+    assertEquals(1, eventStream2.events.length);
+    assertEquals(
+        new EventMessage("urn:dvb:iptv:cpm:2014", "", 1500000, 1,
+            ("<![CDATA[<BroadcastEvent>\n"
+                + "      <Program crid=\"crid://broadcaster.example.com/ABCDEF\"/>\n"
+                + "      <InstanceDescription>\n"
+                + "      <Title xml:lang=\"en\">The title</Title>\n"
+                + "      <Synopsis xml:lang=\"en\" length=\"medium\">The description</Synopsis>\n"
+                + "      <ParentalGuidance>\n"
+                + "      <mpeg7:ParentalRating href=\"urn:dvb:iptv:rating:2014:15\"/>\n"
+                + "      <mpeg7:Region>GB</mpeg7:Region>\n"
+                + "      </ParentalGuidance>\n"
+                + "      </InstanceDescription>\n"
+                + "      </BroadcastEvent>]]>").getBytes()),
+        eventStream2.events[0]);
+
+    // assert xml-structured event stream
+    EventStream eventStream3 = period.eventStreams.get(2);
+    assertEquals(1, eventStream3.events.length);
+    assertEquals(
+        new EventMessage("urn:scte:scte35:2014:xml+bin", "", 1000000, 2,
+            ("<scte35:Signal>\n"
+                + "         <scte35:Binary>\n"
+                + "         /DAIAAAAAAAAAAAQAAZ/I0VniQAQAgBDVUVJQAAAAH+cAAAAAA==\n"
+                + "         </scte35:Binary>\n"
+                + "       </scte35:Signal>").getBytes()),
+        eventStream3.events[0]);
   }
 
   public void testParseCea608AccessibilityChannel() {
