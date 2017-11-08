@@ -20,7 +20,6 @@ import android.media.DeniedByServerException;
 import android.media.MediaCrypto;
 import android.media.MediaCryptoException;
 import android.media.MediaDrm;
-import android.media.MediaDrm.KeyStatus;
 import android.media.MediaDrmException;
 import android.media.NotProvisionedException;
 import android.media.UnsupportedSchemeException;
@@ -93,12 +92,11 @@ public final class FrameworkMediaDrm implements ExoMediaDrm<FrameworkMediaCrypto
         : new MediaDrm.OnKeyStatusChangeListener() {
           @Override
           public void onKeyStatusChange(@NonNull MediaDrm md, @NonNull byte[] sessionId,
-              @NonNull List<KeyStatus> keyInfo, boolean hasNewUsableKey) {
-            List<ExoKeyStatus> exoKeyInfo = new ArrayList<>();
-            for (KeyStatus keyStatus : keyInfo) {
-              exoKeyInfo.add(new FrameworkKeyStatus(keyStatus));
+              @NonNull List<MediaDrm.KeyStatus> keyInfo, boolean hasNewUsableKey) {
+            List<KeyStatus> exoKeyInfo = new ArrayList<>();
+            for (MediaDrm.KeyStatus keyStatus : keyInfo) {
+              exoKeyInfo.add(new DefaultKeyStatus(keyStatus.getStatusCode(), keyStatus.getKeyId()));
             }
-
             listener.onKeyStatusChange(FrameworkMediaDrm.this, sessionId, exoKeyInfo,
                 hasNewUsableKey);
           }
@@ -120,17 +118,7 @@ public final class FrameworkMediaDrm implements ExoMediaDrm<FrameworkMediaCrypto
       HashMap<String, String> optionalParameters) throws NotProvisionedException {
     final MediaDrm.KeyRequest request = mediaDrm.getKeyRequest(scope, init, mimeType, keyType,
         optionalParameters);
-    return new KeyRequest() {
-      @Override
-      public byte[] getData() {
-        return request.getData();
-      }
-
-      @Override
-      public String getDefaultUrl() {
-        return request.getDefaultUrl();
-      }
-    };
+    return new DefaultKeyRequest(request.getData(), request.getDefaultUrl());
   }
 
   @Override
@@ -141,18 +129,8 @@ public final class FrameworkMediaDrm implements ExoMediaDrm<FrameworkMediaCrypto
 
   @Override
   public ProvisionRequest getProvisionRequest() {
-    final MediaDrm.ProvisionRequest provisionRequest = mediaDrm.getProvisionRequest();
-    return new ProvisionRequest() {
-      @Override
-      public byte[] getData() {
-        return provisionRequest.getData();
-      }
-
-      @Override
-      public String getDefaultUrl() {
-        return provisionRequest.getDefaultUrl();
-      }
-    };
+    final MediaDrm.ProvisionRequest request = mediaDrm.getProvisionRequest();
+    return new DefaultProvisionRequest(request.getData(), request.getDefaultUrl());
   }
 
   @Override
@@ -203,24 +181,6 @@ public final class FrameworkMediaDrm implements ExoMediaDrm<FrameworkMediaCrypto
         && C.WIDEVINE_UUID.equals(uuid) && "L3".equals(getPropertyString("securityLevel"));
     return new FrameworkMediaCrypto(new MediaCrypto(uuid, initData),
         forceAllowInsecureDecoderComponents);
-  }
-
-  private static final class FrameworkKeyStatus implements ExoKeyStatus {
-    private final MediaDrm.KeyStatus keyStatus;
-
-    FrameworkKeyStatus(MediaDrm.KeyStatus keyStatus) {
-      this.keyStatus = keyStatus;
-    }
-
-    @Override
-    public int getStatusCode() {
-      return keyStatus.getStatusCode();
-    }
-
-    @Override
-    public byte[] getKeyId() {
-      return keyStatus.getKeyId();
-    }
   }
 
 }
