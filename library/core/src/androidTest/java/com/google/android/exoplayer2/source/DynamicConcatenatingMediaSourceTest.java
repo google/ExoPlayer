@@ -15,6 +15,10 @@
  */
 package com.google.android.exoplayer2.source;
 
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
 import android.os.ConditionVariable;
 import android.os.Handler;
 import android.os.HandlerThread;
@@ -40,6 +44,7 @@ import com.google.android.exoplayer2.upstream.Allocator;
 import java.io.IOException;
 import java.util.Arrays;
 import junit.framework.TestCase;
+import org.mockito.Mockito;
 
 /**
  * Unit tests for {@link DynamicConcatenatingMediaSource}
@@ -50,6 +55,7 @@ public final class DynamicConcatenatingMediaSourceTest extends TestCase {
 
   private Timeline timeline;
   private boolean timelineUpdated;
+  private boolean customRunnableCalled;
 
   public void testPlaylistChangesAfterPreparation() throws InterruptedException {
     timeline = null;
@@ -371,6 +377,180 @@ public final class DynamicConcatenatingMediaSourceTest extends TestCase {
     }
   }
 
+  public void testCustomCallbackBeforePreparationAddSingle() {
+    DynamicConcatenatingMediaSource mediaSource = new DynamicConcatenatingMediaSource();
+    Runnable runnable = Mockito.mock(Runnable.class);
+
+    mediaSource.addMediaSource(createFakeMediaSource(), runnable);
+    verify(runnable).run();
+  }
+
+  public void testCustomCallbackBeforePreparationAddMultiple() {
+    DynamicConcatenatingMediaSource mediaSource = new DynamicConcatenatingMediaSource();
+    Runnable runnable = Mockito.mock(Runnable.class);
+
+    mediaSource.addMediaSources(Arrays.asList(
+        new MediaSource[] {createFakeMediaSource(), createFakeMediaSource()}), runnable);
+    verify(runnable).run();
+  }
+
+  public void testCustomCallbackBeforePreparationAddSingleWithIndex() {
+    DynamicConcatenatingMediaSource mediaSource = new DynamicConcatenatingMediaSource();
+    Runnable runnable = Mockito.mock(Runnable.class);
+
+    mediaSource.addMediaSource(/* index */ 0, createFakeMediaSource(), runnable);
+    verify(runnable).run();
+  }
+
+  public void testCustomCallbackBeforePreparationAddMultipleWithIndex() {
+    DynamicConcatenatingMediaSource mediaSource = new DynamicConcatenatingMediaSource();
+    Runnable runnable = Mockito.mock(Runnable.class);
+
+    mediaSource.addMediaSources(/* index */ 0, Arrays.asList(
+        new MediaSource[]{createFakeMediaSource(), createFakeMediaSource()}), runnable);
+    verify(runnable).run();
+  }
+
+  public void testCustomCallbackBeforePreparationRemove() throws InterruptedException {
+    DynamicConcatenatingMediaSource mediaSource = new DynamicConcatenatingMediaSource();
+    Runnable runnable = Mockito.mock(Runnable.class);
+    mediaSource.addMediaSource(createFakeMediaSource());
+
+    mediaSource.removeMediaSource(/* index */ 0, runnable);
+    verify(runnable).run();
+  }
+
+  public void testCustomCallbackBeforePreparationMove() throws InterruptedException {
+    DynamicConcatenatingMediaSource mediaSource = new DynamicConcatenatingMediaSource();
+    Runnable runnable = Mockito.mock(Runnable.class);
+    mediaSource.addMediaSources(Arrays.asList(
+        new MediaSource[]{createFakeMediaSource(), createFakeMediaSource()}));
+
+    mediaSource.moveMediaSource(/* fromIndex */ 1, /* toIndex */ 0, runnable);
+    verify(runnable).run();
+  }
+
+  public void testCustomCallbackAfterPreparationAddSingle() throws InterruptedException {
+    final DynamicConcatenatingMediaSourceAndHandler sourceHandlerPair =
+        setUpDynamicMediaSourceOnHandlerThread();
+    final Runnable runnable = createCustomRunnable();
+
+    sourceHandlerPair.handler.post(new Runnable() {
+      @Override
+      public void run() {
+        sourceHandlerPair.mediaSource.addMediaSource(createFakeMediaSource(), runnable);
+      }
+    });
+    waitForCustomRunnable();
+  }
+
+  public void testCustomCallbackAfterPreparationAddMultiple() throws InterruptedException {
+    final DynamicConcatenatingMediaSourceAndHandler sourceHandlerPair =
+        setUpDynamicMediaSourceOnHandlerThread();
+    final Runnable runnable = createCustomRunnable();
+
+    sourceHandlerPair.handler.post(new Runnable() {
+      @Override
+      public void run() {
+        sourceHandlerPair.mediaSource.addMediaSources(Arrays.asList(
+            new MediaSource[] {createFakeMediaSource(), createFakeMediaSource()}), runnable);
+      }
+    });
+    waitForCustomRunnable();
+  }
+
+  public void testCustomCallbackAfterPreparationAddSingleWithIndex() throws InterruptedException {
+    final DynamicConcatenatingMediaSourceAndHandler sourceHandlerPair =
+        setUpDynamicMediaSourceOnHandlerThread();
+    final Runnable runnable = createCustomRunnable();
+
+    sourceHandlerPair.handler.post(new Runnable() {
+      @Override
+      public void run() {
+        sourceHandlerPair.mediaSource.addMediaSource(/* index */ 0, createFakeMediaSource(),
+            runnable);
+      }
+    });
+    waitForCustomRunnable();
+  }
+
+  public void testCustomCallbackAfterPreparationAddMultipleWithIndex() throws InterruptedException {
+    final DynamicConcatenatingMediaSourceAndHandler sourceHandlerPair =
+        setUpDynamicMediaSourceOnHandlerThread();
+    final Runnable runnable = createCustomRunnable();
+
+    sourceHandlerPair.handler.post(new Runnable() {
+      @Override
+      public void run() {
+        sourceHandlerPair.mediaSource.addMediaSources(/* index */ 0, Arrays.asList(
+            new MediaSource[]{createFakeMediaSource(), createFakeMediaSource()}), runnable);
+      }
+    });
+    waitForCustomRunnable();
+  }
+
+  public void testCustomCallbackAfterPreparationRemove() throws InterruptedException {
+    final DynamicConcatenatingMediaSourceAndHandler sourceHandlerPair =
+        setUpDynamicMediaSourceOnHandlerThread();
+    final Runnable runnable = createCustomRunnable();
+    sourceHandlerPair.handler.post(new Runnable() {
+      @Override
+      public void run() {
+        sourceHandlerPair.mediaSource.addMediaSource(createFakeMediaSource());
+      }
+    });
+    waitForTimelineUpdate();
+
+    sourceHandlerPair.handler.post(new Runnable() {
+      @Override
+      public void run() {
+        sourceHandlerPair.mediaSource.removeMediaSource(/* index */ 0, runnable);
+      }
+    });
+    waitForCustomRunnable();
+  }
+
+  public void testCustomCallbackAfterPreparationMove() throws InterruptedException {
+    final DynamicConcatenatingMediaSourceAndHandler sourceHandlerPair =
+        setUpDynamicMediaSourceOnHandlerThread();
+    final Runnable runnable = createCustomRunnable();
+    sourceHandlerPair.handler.post(new Runnable() {
+      @Override
+      public void run() {
+        sourceHandlerPair.mediaSource.addMediaSources(Arrays.asList(
+            new MediaSource[]{createFakeMediaSource(), createFakeMediaSource()}));
+      }
+    });
+    waitForTimelineUpdate();
+
+    sourceHandlerPair.handler.post(new Runnable() {
+      @Override
+      public void run() {
+        sourceHandlerPair.mediaSource.moveMediaSource(/* fromIndex */ 1, /* toIndex */ 0,
+            runnable);
+      }
+    });
+    waitForCustomRunnable();
+  }
+
+  private DynamicConcatenatingMediaSourceAndHandler setUpDynamicMediaSourceOnHandlerThread()
+      throws InterruptedException {
+    HandlerThread handlerThread = new HandlerThread("TestCustomCallbackExecutionThread");
+    handlerThread.start();
+    Handler.Callback handlerCallback = Mockito.mock(Handler.Callback.class);
+    when(handlerCallback.handleMessage(any(Message.class))).thenReturn(false);
+    Handler handler = new Handler(handlerThread.getLooper(), handlerCallback);
+    final DynamicConcatenatingMediaSource mediaSource = new DynamicConcatenatingMediaSource();
+    handler.post(new Runnable() {
+      @Override
+      public void run() {
+        prepareAndListenToTimelineUpdates(mediaSource);
+      }
+    });
+    waitForTimelineUpdate();
+    return new DynamicConcatenatingMediaSourceAndHandler(mediaSource, handler);
+  }
+
   private void prepareAndListenToTimelineUpdates(MediaSource mediaSource) {
     mediaSource.prepareSource(new StubExoPlayer(), true, new Listener() {
       @Override
@@ -385,14 +565,39 @@ public final class DynamicConcatenatingMediaSourceTest extends TestCase {
   }
 
   private synchronized void waitForTimelineUpdate() throws InterruptedException {
-    long timeoutMs = System.currentTimeMillis() + TIMEOUT_MS;
+    long deadlineMs = System.currentTimeMillis() + TIMEOUT_MS;
     while (!timelineUpdated) {
       wait(TIMEOUT_MS);
-      if (System.currentTimeMillis() >= timeoutMs) {
+      if (System.currentTimeMillis() >= deadlineMs) {
         fail("No timeline update occurred within timeout.");
       }
     }
     timelineUpdated = false;
+  }
+
+  private Runnable createCustomRunnable() {
+    return new Runnable() {
+      @Override
+      public void run() {
+        synchronized (DynamicConcatenatingMediaSourceTest.this) {
+          assertTrue(timelineUpdated);
+          timelineUpdated = false;
+          customRunnableCalled = true;
+          DynamicConcatenatingMediaSourceTest.this.notify();
+        }
+      }
+    };
+  }
+
+  private synchronized void waitForCustomRunnable() throws InterruptedException {
+    long deadlineMs = System.currentTimeMillis() + TIMEOUT_MS;
+    while (!customRunnableCalled) {
+      wait(TIMEOUT_MS);
+      if (System.currentTimeMillis() >= deadlineMs) {
+        fail("No custom runnable call occurred within timeout.");
+      }
+    }
+    customRunnableCalled = false;
   }
 
   private static FakeMediaSource[] createMediaSources(int count) {
@@ -401,6 +606,10 @@ public final class DynamicConcatenatingMediaSourceTest extends TestCase {
       sources[i] = new FakeMediaSource(createFakeTimeline(i), null);
     }
     return sources;
+  }
+
+  private static FakeMediaSource createFakeMediaSource() {
+    return new FakeMediaSource(createFakeTimeline(/* index */ 0), null);
   }
 
   private static FakeTimeline createFakeTimeline(int index) {
@@ -427,6 +636,19 @@ public final class DynamicConcatenatingMediaSourceTest extends TestCase {
       mediaSource.releasePeriod(secondMediaPeriod);
       mediaSource.releasePeriod(mediaPeriod);
     }
+  }
+
+  private static class DynamicConcatenatingMediaSourceAndHandler {
+
+    public final DynamicConcatenatingMediaSource mediaSource;
+    public final Handler handler;
+
+    public DynamicConcatenatingMediaSourceAndHandler(DynamicConcatenatingMediaSource mediaSource,
+        Handler handler) {
+      this.mediaSource = mediaSource;
+      this.handler = handler;
+    }
+
   }
 
   private static class LazyMediaSource implements MediaSource {
