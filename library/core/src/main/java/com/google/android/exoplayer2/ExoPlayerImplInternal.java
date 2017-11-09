@@ -510,7 +510,7 @@ import java.io.IOException;
       // durations. See: https://github.com/google/ExoPlayer/issues/1874.
       if (rendererMediaClockSource == null || rendererMediaClockSource.isEnded()
           || (!rendererMediaClockSource.isReady()
-              && rendererWaitingForNextStream(rendererMediaClockSource))) {
+              && rendererMediaClockSource.hasReadStreamToEnd())) {
         rendererPositionUs = standaloneMediaClock.getPositionUs();
       } else {
         rendererPositionUs = rendererMediaClock.getPositionUs();
