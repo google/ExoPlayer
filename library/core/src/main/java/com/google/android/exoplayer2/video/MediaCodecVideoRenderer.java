@@ -1076,7 +1076,8 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
     // https://github.com/google/ExoPlayer/issues/3439.
     return (("deb".equals(Util.DEVICE) || "flo".equals(Util.DEVICE))
         && "OMX.qcom.video.decoder.avc".equals(name))
-        || (("tcl_eu".equals(Util.DEVICE) || Util.MODEL.startsWith("BRAVIA"))
+        || (("tcl_eu".equals(Util.DEVICE) || "SVP-DTV15".equals(Util.DEVICE)
+        || "BRAVIA_ATV2".equals(Util.DEVICE))
         && "OMX.MTK.VIDEO.DECODER.AVC".equals(name));
   }
 
