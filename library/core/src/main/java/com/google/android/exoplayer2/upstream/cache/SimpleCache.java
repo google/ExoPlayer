@@ -16,6 +16,7 @@
 package com.google.android.exoplayer2.upstream.cache;
 
 import android.os.ConditionVariable;
+import android.util.Log;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.util.Assertions;
 import java.io.File;
@@ -30,6 +31,8 @@ import java.util.TreeSet;
  * A {@link Cache} implementation that maintains an in-memory representation.
  */
 public final class SimpleCache implements Cache {
+
+  private static final String TAG = "SimpleCache";
 
   private final File cacheDir;
   private final CacheEvictor evictor;
@@ -288,7 +291,11 @@ public final class SimpleCache implements Cache {
     }
 
     index.removeEmpty();
-    // Don't call index.store() here so initialization doesn't fail because of write issues.
+    try {
+      index.store();
+    } catch (CacheException e) {
+      Log.e(TAG, "Storing index file failed", e);
+    }
   }
 
   /**
