@@ -182,6 +182,13 @@ public final class SampleQueue implements TrackOutput {
   }
 
   /**
+   * Returns the absolute index of the first sample.
+   */
+  public int getFirstIndex() {
+    return metadataQueue.getFirstIndex();
+  }
+
+  /**
    * Returns the current absolute read index.
    */
   public int getReadIndex() {
