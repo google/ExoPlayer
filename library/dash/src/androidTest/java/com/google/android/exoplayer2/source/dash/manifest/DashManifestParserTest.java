@@ -79,6 +79,7 @@ public class DashManifestParserTest extends InstrumentationTestCase {
 
     Period period = mpd.getPeriod(0);
     assertEquals(3, period.eventStreams.size());
+
     // assert text-only event stream
     EventStream eventStream1 = period.eventStreams.get(0);
     assertEquals(1, eventStream1.events.length);
