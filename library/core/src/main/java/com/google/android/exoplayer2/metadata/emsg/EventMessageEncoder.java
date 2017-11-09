@@ -61,15 +61,11 @@ public final class EventMessageEncoder {
       writeUnsignedInt(dataOutputStream, duration);
       writeUnsignedInt(dataOutputStream, eventMessage.id);
       dataOutputStream.write(eventMessage.messageData);
+      dataOutputStream.flush();
       return byteArrayOutputStream.toByteArray();
     } catch (IOException e) {
+      // Should never happen.
       throw new RuntimeException(e);
-    } finally {
-      try {
-        dataOutputStream.close();
-      } catch (IOException ignored) {
-        // ignored
-      }
     }
   }
 
