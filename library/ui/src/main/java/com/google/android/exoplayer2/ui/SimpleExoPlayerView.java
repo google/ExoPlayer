@@ -83,6 +83,12 @@ import java.util.List;
  *         <li>Default: {@code true}</li>
  *       </ul>
  *   </li>
+ *   <li><b>{@code shutter_background_color}</b> - The background color of the {@code exo_shutter} view.
+ *       <ul>
+ *         <li>Corresponding method: {@link #setShutterBackgroundColor(int)}</li>
+ *         <li>Default: {@code 0}</li>
+ *       </ul>
+ *   </li>
  *   <li><b>{@code hide_on_touch}</b> - Whether the playback controls are hidden by touch events.
  *       <ul>
  *         <li>Corresponding method: {@link #setControllerHideOnTouch(boolean)}</li>
@@ -249,6 +255,7 @@ public final class SimpleExoPlayerView extends FrameLayout {
       return;
     }
 
+    int shutterColor = 0;
     int playerLayoutId = R.layout.exo_simple_player_view;
     boolean useArtwork = true;
     int defaultArtworkId = 0;
@@ -262,6 +269,7 @@ public final class SimpleExoPlayerView extends FrameLayout {
       TypedArray a = context.getTheme().obtainStyledAttributes(attrs,
           R.styleable.SimpleExoPlayerView, 0, 0);
       try {
+        shutterColor = a.getColor(R.styleable.SimpleExoPlayerView_shutter_background_color, shutterColor);
         playerLayoutId = a.getResourceId(R.styleable.SimpleExoPlayerView_player_layout_id,
             playerLayoutId);
         useArtwork = a.getBoolean(R.styleable.SimpleExoPlayerView_use_artwork, useArtwork);
@@ -293,6 +301,9 @@ public final class SimpleExoPlayerView extends FrameLayout {
 
     // Shutter view.
     shutterView = findViewById(R.id.exo_shutter);
+    if (shutterView != null) {
+      shutterView.setBackgroundColor(shutterColor);
+    }
 
     // Create a surface view and insert it into the content frame, if there is one.
     if (contentFrame != null && surfaceType != SURFACE_TYPE_NONE) {
@@ -510,6 +521,17 @@ public final class SimpleExoPlayerView extends FrameLayout {
     } else if (controller != null) {
       controller.hide();
       controller.setPlayer(null);
+    }
+  }
+
+  /**
+   * Sets the background color of the {@code exo_shutter} view.
+   *
+   * @param color A resolved color (not a resource ID) for the background of the shutter view.
+   */
+  public void setShutterBackgroundColor(int color) {
+    if (shutterView != null) {
+      shutterView.setBackgroundColor(color);
     }
   }
 
