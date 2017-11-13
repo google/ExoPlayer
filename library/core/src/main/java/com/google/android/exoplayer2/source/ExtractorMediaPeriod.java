@@ -569,7 +569,6 @@ import java.util.Arrays;
       if (!seekInsideQueue && (trackIsAudioVideoFlags[i] || !haveAudioVideoTracks)) {
         return false;
       }
-      sampleQueue.discardToRead();
     }
     return true;
   }

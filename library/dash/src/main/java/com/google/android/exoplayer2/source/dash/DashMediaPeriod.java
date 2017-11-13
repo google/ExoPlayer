@@ -261,7 +261,7 @@ import java.util.Map;
   @Override
   public void discardBuffer(long positionUs) {
     for (ChunkSampleStream<DashChunkSource> sampleStream : sampleStreams) {
-      sampleStream.discardEmbeddedTracksTo(positionUs);
+      sampleStream.discardBuffer(positionUs);
     }
   }
 

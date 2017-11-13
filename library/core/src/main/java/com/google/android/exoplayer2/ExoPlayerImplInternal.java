@@ -732,6 +732,7 @@ import java.io.IOException;
       setPlayingPeriodHolder(newPlayingPeriodHolder);
       if (playingPeriodHolder.hasEnabledTracks) {
         periodPositionUs = playingPeriodHolder.mediaPeriod.seekToUs(periodPositionUs);
+        playingPeriodHolder.mediaPeriod.discardBuffer(periodPositionUs);
       }
       resetRendererPosition(periodPositionUs);
       maybeContinueLoading();
