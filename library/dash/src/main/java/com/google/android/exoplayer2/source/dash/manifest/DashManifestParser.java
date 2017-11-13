@@ -488,7 +488,7 @@ public class DashManifestParser extends DefaultHandler
     segmentBase = segmentBase != null ? segmentBase : new SingleSegmentBase();
 
     return new RepresentationInfo(format, baseUrl, segmentBase, drmSchemeType, drmSchemeDatas,
-        inbandEventStreams);
+        inbandEventStreams, Representation.REVISION_ID_DEFAULT);
   }
 
   protected Format buildFormat(String id, String containerMimeType, int width, int height,
@@ -535,7 +535,7 @@ public class DashManifestParser extends DefaultHandler
     }
     ArrayList<Descriptor> inbandEventStreams = representationInfo.inbandEventStreams;
     inbandEventStreams.addAll(extraInbandEventStreams);
-    return Representation.newInstance(contentId, Representation.REVISION_ID_DEFAULT, format,
+    return Representation.newInstance(contentId, representationInfo.revisionId, format,
         representationInfo.baseUrl, representationInfo.segmentBase, inbandEventStreams);
   }
 
@@ -986,7 +986,8 @@ public class DashManifestParser extends DefaultHandler
     }
   }
 
-  private static final class RepresentationInfo {
+  /** A parsed Representation element. */
+  protected static final class RepresentationInfo {
 
     public final Format format;
     public final String baseUrl;
@@ -994,16 +995,18 @@ public class DashManifestParser extends DefaultHandler
     public final String drmSchemeType;
     public final ArrayList<SchemeData> drmSchemeDatas;
     public final ArrayList<Descriptor> inbandEventStreams;
+    public final long revisionId;
 
     public RepresentationInfo(Format format, String baseUrl, SegmentBase segmentBase,
         String drmSchemeType, ArrayList<SchemeData> drmSchemeDatas,
-        ArrayList<Descriptor> inbandEventStreams) {
+        ArrayList<Descriptor> inbandEventStreams, long revisionId) {
       this.format = format;
       this.baseUrl = baseUrl;
       this.segmentBase = segmentBase;
       this.drmSchemeType = drmSchemeType;
       this.drmSchemeDatas = drmSchemeDatas;
       this.inbandEventStreams = inbandEventStreams;
+      this.revisionId = revisionId;
     }
 
   }
