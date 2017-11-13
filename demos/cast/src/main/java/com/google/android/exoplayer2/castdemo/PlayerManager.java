@@ -160,8 +160,10 @@ import com.google.android.gms.cast.framework.CastContext;
         return new SsMediaSource(uri, DATA_SOURCE_FACTORY,
             new DefaultSsChunkSource.Factory(DATA_SOURCE_FACTORY), null, null);
       case DemoUtil.MIME_TYPE_DASH:
-        return new DashMediaSource(uri, DATA_SOURCE_FACTORY,
-            new DefaultDashChunkSource.Factory(DATA_SOURCE_FACTORY), null, null);
+        return DashMediaSource.Builder
+            .forManifestUri(uri, DATA_SOURCE_FACTORY,
+                new DefaultDashChunkSource.Factory(DATA_SOURCE_FACTORY))
+            .build();
       case DemoUtil.MIME_TYPE_HLS:
         return new HlsMediaSource(uri, DATA_SOURCE_FACTORY, null, null);
       case DemoUtil.MIME_TYPE_VIDEO_MP4:
