@@ -22,6 +22,9 @@
   to key-frames. This is particularly relevant for variable speed playbacks.
 * Allow `SingleSampleMediaSource` to suppress load errors
   ([#3140](https://github.com/google/ExoPlayer/issues/3140)).
+* `DynamicConcatenatingMediaSource`: Allow specifying a callback to be invoked
+  after a dynamic playlist modification has been applied
+  ([#3407](https://github.com/google/ExoPlayer/issues/3407)).
 * Audio: New `AudioSink` interface allows customization of audio output path.
 * Offline: Added `Downloader` implementations for DASH, HLS, SmoothStreaming
   and progressive streams.
