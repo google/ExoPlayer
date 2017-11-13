@@ -110,21 +110,17 @@ public class ChunkSampleStream<T extends ChunkSource> implements SampleStream, S
     lastSeekPositionUs = positionUs;
   }
 
-  // TODO: Generalize this method to also discard from the primary sample queue and stop discarding
-  // from this queue in readData and skipData. This will cause samples to be kept in the queue until
-  // they've been rendered, rather than being discarded as soon as they're read by the renderer.
-  // This will make in-buffer seeks more likely when seeking slightly forward from the current
-  // position. This change will need handling with care, in particular when considering removal of
-  // chunks from the front of the mediaChunks list.
   /**
-   * Discards buffered media for embedded tracks, up to the specified position.
+   * Discards buffered media up to the specified position.
    *
    * @param positionUs The position to discard up to, in microseconds.
    */
-  public void discardEmbeddedTracksTo(long positionUs) {
+  public void discardBuffer(long positionUs) {
+    primarySampleQueue.discardTo(positionUs, false, true);
     for (int i = 0; i < embeddedSampleQueues.length; i++) {
       embeddedSampleQueues[i].discardTo(positionUs, true, embeddedTracksSelected[i]);
     }
+    discardDownstreamMediaChunks(primarySampleQueue.getFirstIndex());
   }
 
   /**
@@ -189,16 +185,15 @@ public class ChunkSampleStream<T extends ChunkSource> implements SampleStream, S
    */
   public void seekToUs(long positionUs) {
     lastSeekPositionUs = positionUs;
+    primarySampleQueue.rewind();
     // If we're not pending a reset, see if we can seek within the primary sample queue.
     boolean seekInsideBuffer = !isPendingReset() && (primarySampleQueue.advanceTo(positionUs, true,
         positionUs < getNextLoadPositionUs()) != SampleQueue.ADVANCE_FAILED);
     if (seekInsideBuffer) {
       // We succeeded. Discard samples and corresponding chunks prior to the seek position.
-      discardDownstreamMediaChunks(primarySampleQueue.getReadIndex());
-      primarySampleQueue.discardToRead();
       for (SampleQueue embeddedSampleQueue : embeddedSampleQueues) {
         embeddedSampleQueue.rewind();
-        embeddedSampleQueue.discardTo(positionUs, true, false);
+        embeddedSampleQueue.advanceTo(positionUs, true, false);
       }
     } else {
       // We failed, and need to restart.
@@ -261,13 +256,8 @@ public class ChunkSampleStream<T extends ChunkSource> implements SampleStream, S
     if (isPendingReset()) {
       return C.RESULT_NOTHING_READ;
     }
-    discardDownstreamMediaChunks(primarySampleQueue.getReadIndex());
-    int result = primarySampleQueue.read(formatHolder, buffer, formatRequired, loadingFinished,
+    return primarySampleQueue.read(formatHolder, buffer, formatRequired, loadingFinished,
         lastSeekPositionUs);
-    if (result == C.RESULT_BUFFER_READ) {
-      primarySampleQueue.discardToRead();
-    }
-    return result;
   }
 
   @Override
@@ -282,7 +272,6 @@ public class ChunkSampleStream<T extends ChunkSource> implements SampleStream, S
         skipCount = 0;
       }
     }
-    primarySampleQueue.discardToRead();
     return skipCount;
   }
 

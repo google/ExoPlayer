@@ -792,7 +792,6 @@ import java.util.LinkedList;
       if (!seekInsideQueue && (sampleQueueIsAudioVideoFlags[i] || !haveAudioVideoSampleQueues)) {
         return false;
       }
-      sampleQueue.discardToRead();
     }
     return true;
   }
