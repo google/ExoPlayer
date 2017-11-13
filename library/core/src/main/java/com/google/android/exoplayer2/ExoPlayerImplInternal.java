@@ -1652,11 +1652,11 @@ import java.io.IOException;
       // Undo the effect of previous call to associate no-sample renderers with empty tracks
       // so the mediaPeriod receives back whatever it sent us before.
       disassociateNoSampleRenderersWithEmptySampleStream(sampleStreams);
+      updatePeriodTrackSelectorResult(trackSelectorResult);
       // Disable streams on the period and get new streams for updated/newly-enabled tracks.
       positionUs = mediaPeriod.selectTracks(trackSelections.getAll(), mayRetainStreamFlags,
           sampleStreams, streamResetFlags, positionUs);
       associateNoSampleRenderersWithEmptySampleStream(sampleStreams);
-      periodTrackSelectorResult = trackSelectorResult;
 
       // Update whether we have enabled tracks and sanity check the expected streams are non-null.
       hasEnabledTracks = false;
@@ -1678,6 +1678,7 @@ import java.io.IOException;
     }
 
     public void release() {
+      updatePeriodTrackSelectorResult(null);
       try {
         if (info.endPositionUs != C.TIME_END_OF_SOURCE) {
           mediaSource.releasePeriod(((ClippingMediaPeriod) mediaPeriod).mediaPeriod);
@@ -1687,6 +1688,36 @@ import java.io.IOException;
       } catch (RuntimeException e) {
         // There's nothing we can do.
         Log.e(TAG, "Period release failed.", e);
+      }
+    }
+
+    private void updatePeriodTrackSelectorResult(TrackSelectorResult trackSelectorResult) {
+      if (periodTrackSelectorResult != null) {
+        disableTrackSelectionsInResult(periodTrackSelectorResult);
+      }
+      periodTrackSelectorResult = trackSelectorResult;
+      if (periodTrackSelectorResult != null) {
+        enableTrackSelectionsInResult(periodTrackSelectorResult);
+      }
+    }
+
+    private void enableTrackSelectionsInResult(TrackSelectorResult trackSelectorResult) {
+      for (int i = 0; i < trackSelectorResult.renderersEnabled.length; i++) {
+        boolean rendererEnabled = trackSelectorResult.renderersEnabled[i];
+        TrackSelection trackSelection = trackSelectorResult.selections.get(i);
+        if (rendererEnabled && trackSelection != null) {
+          trackSelection.enable();
+        }
+      }
+    }
+
+    private void disableTrackSelectionsInResult(TrackSelectorResult trackSelectorResult) {
+      for (int i = 0; i < trackSelectorResult.renderersEnabled.length; i++) {
+        boolean rendererEnabled = trackSelectorResult.renderersEnabled[i];
+        TrackSelection trackSelection = trackSelectorResult.selections.get(i);
+        if (rendererEnabled && trackSelection != null) {
+          trackSelection.disable();
+        }
       }
     }
 
