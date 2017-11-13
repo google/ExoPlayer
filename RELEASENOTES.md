@@ -1,7 +1,8 @@
 # Release notes #
 
-### r2.6.0 ###
+### 2.6.0 ###
 
+* Removed "r" prefix from versions. This release is "2.6.0", not "r2.6.0".
 * New `Player.DefaultEventListener` abstract class can be extended to avoid
   having to implement all methods defined by `Player.EventListener`.
 * Added a reason to `EventListener.onPositionDiscontinuity`
