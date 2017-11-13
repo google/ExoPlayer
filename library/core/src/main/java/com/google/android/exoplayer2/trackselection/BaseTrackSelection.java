@@ -79,6 +79,16 @@ public abstract class BaseTrackSelection implements TrackSelection {
   }
 
   @Override
+  public void enable() {
+    // Do nothing.
+  }
+
+  @Override
+  public void disable() {
+    // Do nothing.
+  }
+
+  @Override
   public final TrackGroup getTrackGroup() {
     return group;
   }

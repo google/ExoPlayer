@@ -48,6 +48,20 @@ public interface TrackSelection {
   }
 
   /**
+   * Enables the track selection.
+   * <p>
+   * This method may not be called when the track selection is already enabled.
+   */
+  void enable();
+
+  /**
+   * Disables this track selection.
+   * <p>
+   * This method may only be called when the track selection is already enabled.
+   */
+  void disable();
+
+  /**
    * Returns the {@link TrackGroup} to which the selected tracks belong.
    */
   TrackGroup getTrackGroup();
@@ -124,6 +138,8 @@ public interface TrackSelection {
 
   /**
    * Updates the selected track.
+   * <p>
+   * This method may only be called when the selection is enabled.
    *
    * @param playbackPositionUs The current playback position in microseconds. If playback of the
    *     period to which this track selection belongs has not yet started, the value will be the
@@ -150,7 +166,7 @@ public interface TrackSelection {
    * An example of a case where a smaller value may be returned is if network conditions have
    * improved dramatically, allowing chunks to be discarded and re-buffered in a track of
    * significantly higher quality. Discarding chunks may allow faster switching to a higher quality
-   * track in this case.
+   * track in this case. This method may only be called when the selection is enabled.
    *
    * @param playbackPositionUs The current playback position in microseconds. If playback of the
    *     period to which this track selection belongs has not yet started, the value will be the
@@ -167,6 +183,8 @@ public interface TrackSelection {
    * period of time. Blacklisting will fail if all other tracks are currently blacklisted. If
    * blacklisting the currently selected track, note that it will remain selected until the next
    * call to {@link #updateSelectedTrack(long, long, long)}.
+   * <p>
+   * This method may only be called when the selection is enabled.
    *
    * @param index The index of the track in the selection.
    * @param blacklistDurationMs The duration of time for which the track should be blacklisted, in
