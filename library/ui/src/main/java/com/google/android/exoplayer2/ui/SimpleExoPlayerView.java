@@ -83,12 +83,6 @@ import java.util.List;
  *         <li>Default: {@code true}</li>
  *       </ul>
  *   </li>
- *   <li><b>{@code shutter_background_color}</b> - The background color of the {@code exo_shutter} view.
- *       <ul>
- *         <li>Corresponding method: {@link #setShutterBackgroundColor(int)}</li>
- *         <li>Default: {@code 0}</li>
- *       </ul>
- *   </li>
  *   <li><b>{@code hide_on_touch}</b> - Whether the playback controls are hidden by touch events.
  *       <ul>
  *         <li>Corresponding method: {@link #setControllerHideOnTouch(boolean)}</li>
@@ -117,6 +111,13 @@ import java.util.List;
  *       <ul>
  *         <li>Corresponding method: None</li>
  *         <li>Default: {@code surface_view}</li>
+ *       </ul>
+ *   </li>
+ *   <li><b>{@code shutter_background_color}</b> - The background color of the {@code exo_shutter}
+ *       view.
+ *       <ul>
+ *         <li>Corresponding method: {@link #setShutterBackgroundColor(int)}</li>
+ *         <li>Default: {@code unset}</li>
  *       </ul>
  *   </li>
  *   <li><b>{@code player_layout_id}</b> - Specifies the id of the layout to be inflated. See below
@@ -255,6 +256,7 @@ public final class SimpleExoPlayerView extends FrameLayout {
       return;
     }
 
+    boolean shutterColorSet = false;
     int shutterColor = 0;
     int playerLayoutId = R.layout.exo_simple_player_view;
     boolean useArtwork = true;
@@ -269,7 +271,9 @@ public final class SimpleExoPlayerView extends FrameLayout {
       TypedArray a = context.getTheme().obtainStyledAttributes(attrs,
           R.styleable.SimpleExoPlayerView, 0, 0);
       try {
-        shutterColor = a.getColor(R.styleable.SimpleExoPlayerView_shutter_background_color, shutterColor);
+        shutterColorSet = a.hasValue(R.styleable.SimpleExoPlayerView_shutter_background_color);
+        shutterColor = a.getColor(R.styleable.SimpleExoPlayerView_shutter_background_color,
+              shutterColor);
         playerLayoutId = a.getResourceId(R.styleable.SimpleExoPlayerView_player_layout_id,
             playerLayoutId);
         useArtwork = a.getBoolean(R.styleable.SimpleExoPlayerView_use_artwork, useArtwork);
@@ -301,7 +305,7 @@ public final class SimpleExoPlayerView extends FrameLayout {
 
     // Shutter view.
     shutterView = findViewById(R.id.exo_shutter);
-    if (shutterView != null) {
+    if (shutterView != null && shutterColorSet) {
       shutterView.setBackgroundColor(shutterColor);
     }
 
@@ -527,7 +531,7 @@ public final class SimpleExoPlayerView extends FrameLayout {
   /**
    * Sets the background color of the {@code exo_shutter} view.
    *
-   * @param color A resolved color (not a resource ID) for the background of the shutter view.
+   * @param color The background color.
    */
   public void setShutterBackgroundColor(int color) {
     if (shutterView != null) {
