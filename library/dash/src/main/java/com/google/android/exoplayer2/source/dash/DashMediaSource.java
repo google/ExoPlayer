@@ -59,63 +59,6 @@ public final class DashMediaSource implements MediaSource {
   }
 
   /**
-   * The default minimum number of times to retry loading data prior to failing.
-   */
-  public static final int DEFAULT_MIN_LOADABLE_RETRY_COUNT = 3;
-  /**
-   * A constant indicating that the presentation delay for live streams should be set to
-   * {@link DashManifest#suggestedPresentationDelay} if specified by the manifest, or
-   * {@link #DEFAULT_LIVE_PRESENTATION_DELAY_FIXED_MS} otherwise. The presentation delay is the
-   * duration by which the default start position precedes the end of the live window.
-   */
-  public static final long DEFAULT_LIVE_PRESENTATION_DELAY_PREFER_MANIFEST_MS = -1;
-  /**
-   * A fixed default presentation delay for live streams. The presentation delay is the duration
-   * by which the default start position precedes the end of the live window.
-   */
-  public static final long DEFAULT_LIVE_PRESENTATION_DELAY_FIXED_MS = 30000;
-
-  /**
-   * The interval in milliseconds between invocations of
-   * {@link MediaSource.Listener#onSourceInfoRefreshed(MediaSource, Timeline, Object)} when the
-   * source's {@link Timeline} is changing dynamically (for example, for incomplete live streams).
-   */
-  private static final int NOTIFY_MANIFEST_INTERVAL_MS = 5000;
-  /**
-   * The minimum default start position for live streams, relative to the start of the live window.
-   */
-  private static final long MIN_LIVE_DEFAULT_START_POSITION_US = 5000000;
-
-  private static final String TAG = "DashMediaSource";
-
-  private final boolean sideloadedManifest;
-  private final DataSource.Factory manifestDataSourceFactory;
-  private final DashChunkSource.Factory chunkSourceFactory;
-  private final int minLoadableRetryCount;
-  private final long livePresentationDelayMs;
-  private final EventDispatcher eventDispatcher;
-  private final ParsingLoadable.Parser<? extends DashManifest> manifestParser;
-  private final ManifestCallback manifestCallback;
-  private final Object manifestUriLock;
-  private final SparseArray<DashMediaPeriod> periodsById;
-  private final Runnable refreshManifestRunnable;
-  private final Runnable simulateManifestRefreshRunnable;
-
-  private Listener sourceListener;
-  private DataSource dataSource;
-  private Loader loader;
-  private LoaderErrorThrower loaderErrorThrower;
-
-  private Uri manifestUri;
-  private long manifestLoadStartTimestamp;
-  private long manifestLoadEndTimestamp;
-  private DashManifest manifest;
-  private Handler handler;
-  private long elapsedRealtimeOffsetMs;
-
-  private int firstPeriodId;
-
-  /**
    * Builder for {@link DashMediaSource}. Each builder instance can only be used once.
    */
   public static final class Builder {
@@ -142,6 +85,7 @@ public final class DashMediaSource implements MediaSource {
      */
     public static Builder forSideLoadedManifest(DashManifest manifest,
         DashChunkSource.Factory chunkSourceFactory) {
+      Assertions.checkArgument(!manifest.dynamic);
       return new Builder(manifest, null, null, chunkSourceFactory);
     }
 
@@ -227,7 +171,6 @@ public final class DashMediaSource implements MediaSource {
       return this;
     }
 
-
     /**
      * Builds a new {@link DashMediaSource} using the current parameters.
      * <p>
@@ -236,7 +179,6 @@ public final class DashMediaSource implements MediaSource {
      * @return The newly built {@link DashMediaSource}.
      */
     public DashMediaSource build() {
-      Assertions.checkArgument(manifest == null || !manifest.dynamic);
       Assertions.checkArgument((eventListener == null) == (eventHandler == null));
       Assertions.checkState(!isBuildCalled);
       isBuildCalled = true;
@@ -250,6 +192,63 @@ public final class DashMediaSource implements MediaSource {
     }
 
   }
+
+  /**
+   * The default minimum number of times to retry loading data prior to failing.
+   */
+  public static final int DEFAULT_MIN_LOADABLE_RETRY_COUNT = 3;
+  /**
+   * A constant indicating that the presentation delay for live streams should be set to
+   * {@link DashManifest#suggestedPresentationDelay} if specified by the manifest, or
+   * {@link #DEFAULT_LIVE_PRESENTATION_DELAY_FIXED_MS} otherwise. The presentation delay is the
+   * duration by which the default start position precedes the end of the live window.
+   */
+  public static final long DEFAULT_LIVE_PRESENTATION_DELAY_PREFER_MANIFEST_MS = -1;
+  /**
+   * A fixed default presentation delay for live streams. The presentation delay is the duration
+   * by which the default start position precedes the end of the live window.
+   */
+  public static final long DEFAULT_LIVE_PRESENTATION_DELAY_FIXED_MS = 30000;
+
+  /**
+   * The interval in milliseconds between invocations of
+   * {@link MediaSource.Listener#onSourceInfoRefreshed(MediaSource, Timeline, Object)} when the
+   * source's {@link Timeline} is changing dynamically (for example, for incomplete live streams).
+   */
+  private static final int NOTIFY_MANIFEST_INTERVAL_MS = 5000;
+  /**
+   * The minimum default start position for live streams, relative to the start of the live window.
+   */
+  private static final long MIN_LIVE_DEFAULT_START_POSITION_US = 5000000;
+
+  private static final String TAG = "DashMediaSource";
+
+  private final boolean sideloadedManifest;
+  private final DataSource.Factory manifestDataSourceFactory;
+  private final DashChunkSource.Factory chunkSourceFactory;
+  private final int minLoadableRetryCount;
+  private final long livePresentationDelayMs;
+  private final EventDispatcher eventDispatcher;
+  private final ParsingLoadable.Parser<? extends DashManifest> manifestParser;
+  private final ManifestCallback manifestCallback;
+  private final Object manifestUriLock;
+  private final SparseArray<DashMediaPeriod> periodsById;
+  private final Runnable refreshManifestRunnable;
+  private final Runnable simulateManifestRefreshRunnable;
+
+  private Listener sourceListener;
+  private DataSource dataSource;
+  private Loader loader;
+  private LoaderErrorThrower loaderErrorThrower;
+
+  private Uri manifestUri;
+  private long manifestLoadStartTimestamp;
+  private long manifestLoadEndTimestamp;
+  private DashManifest manifest;
+  private Handler handler;
+  private long elapsedRealtimeOffsetMs;
+
+  private int firstPeriodId;
 
   /**
    * Constructs an instance to play a given {@link DashManifest}, which must be static.
