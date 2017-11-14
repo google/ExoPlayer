@@ -341,7 +341,8 @@ public final class DynamicConcatenatingMediaSource implements MediaSource, ExoPl
   public MediaPeriod createPeriod(MediaPeriodId id, Allocator allocator) {
     int mediaSourceHolderIndex = findMediaSourceHolderByPeriodIndex(id.periodIndex);
     MediaSourceHolder holder = mediaSourceHolders.get(mediaSourceHolderIndex);
-    MediaPeriodId idInSource = new MediaPeriodId(id.periodIndex - holder.firstPeriodIndexInChild);
+    MediaPeriodId idInSource = id.copyWithPeriodIndex(
+        id.periodIndex - holder.firstPeriodIndexInChild);
     MediaPeriod mediaPeriod;
     if (!holder.isPrepared) {
       mediaPeriod = new DeferredMediaPeriod(holder.mediaSource, idInSource, allocator);

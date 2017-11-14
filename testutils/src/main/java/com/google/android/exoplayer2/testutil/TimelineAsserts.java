@@ -16,12 +16,19 @@
 package com.google.android.exoplayer2.testutil;
 
 import static junit.framework.Assert.assertEquals;
+import static junit.framework.Assert.assertNotNull;
+import static junit.framework.Assert.assertTrue;
 
+import android.os.ConditionVariable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.Timeline.Period;
 import com.google.android.exoplayer2.Timeline.Window;
+import com.google.android.exoplayer2.source.MediaPeriod;
+import com.google.android.exoplayer2.source.MediaPeriod.Callback;
+import com.google.android.exoplayer2.source.MediaSource;
+import com.google.android.exoplayer2.source.MediaSource.MediaPeriodId;
 
 /**
  * Unit test for {@link Timeline}.
@@ -60,7 +67,7 @@ public final class TimelineAsserts {
   }
 
   /**
-   * Asserts that window properties {@link Window}.isDynamic are set correctly..
+   * Asserts that window properties {@link Window}.isDynamic are set correctly.
    */
   public static void assertWindowIsDynamic(Timeline timeline, boolean... windowIsDynamic) {
     Window window = new Window();
@@ -137,6 +144,58 @@ public final class TimelineAsserts {
         }
       }
     }
+  }
+
+  /**
+   * Asserts that periods' {@link Period#getAdGroupCount()} are set correctly.
+   */
+  public static void assertAdGroupCounts(Timeline timeline, int... expectedAdGroupCounts) {
+    Period period = new Period();
+    for (int i = 0; i < timeline.getPeriodCount(); i++) {
+      timeline.getPeriod(i, period);
+      assertEquals(expectedAdGroupCounts[i], period.getAdGroupCount());
+    }
+  }
+
+  /**
+   * Asserts that all period (including ad periods) can be created from the source, prepared, and
+   * released without exception and within timeout.
+   */
+  public static void assertAllPeriodsCanBeCreatedPreparedAndReleased(MediaSource mediaSource,
+      Timeline timeline, long timeoutMs) {
+    Period period = new Period();
+    for (int i = 0; i < timeline.getPeriodCount(); i++) {
+      assertPeriodCanBeCreatedPreparedAndReleased(mediaSource, new MediaPeriodId(i), timeoutMs);
+      timeline.getPeriod(i, period);
+      for (int adGroupIndex = 0; adGroupIndex < period.getAdGroupCount(); adGroupIndex++) {
+        for (int adIndex = 0; adIndex < period.getAdCountInAdGroup(adGroupIndex); adIndex++) {
+          assertPeriodCanBeCreatedPreparedAndReleased(mediaSource,
+              new MediaPeriodId(i, adGroupIndex, adIndex), timeoutMs);
+        }
+      }
+    }
+  }
+
+  private static void assertPeriodCanBeCreatedPreparedAndReleased(MediaSource mediaSource,
+      MediaPeriodId mediaPeriodId, long timeoutMs) {
+    MediaPeriod mediaPeriod = mediaSource.createPeriod(mediaPeriodId, null);
+    assertNotNull(mediaPeriod);
+    final ConditionVariable mediaPeriodPrepared = new ConditionVariable();
+    mediaPeriod.prepare(new Callback() {
+      @Override
+      public void onPrepared(MediaPeriod mediaPeriod) {
+        mediaPeriodPrepared.open();
+      }
+      @Override
+      public void onContinueLoadingRequested(MediaPeriod source) {}
+    }, /* positionUs= */ 0);
+    assertTrue(mediaPeriodPrepared.block(timeoutMs));
+    // MediaSource is supposed to support multiple calls to createPeriod with the same id without an
+    // intervening call to releasePeriod.
+    MediaPeriod secondMediaPeriod = mediaSource.createPeriod(mediaPeriodId, null);
+    assertNotNull(secondMediaPeriod);
+    mediaSource.releasePeriod(secondMediaPeriod);
+    mediaSource.releasePeriod(mediaPeriod);
   }
 
 }
