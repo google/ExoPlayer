@@ -15,7 +15,9 @@
  */
 package com.google.android.exoplayer2.ext.ffmpeg;
 
+import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlayerLibraryInfo;
+import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.util.LibraryLoader;
 import com.google.android.exoplayer2.util.MimeTypes;
 
@@ -62,19 +64,20 @@ public final class FfmpegLibrary {
    * Returns whether the underlying library supports the specified MIME type.
    *
    * @param mimeType The MIME type to check.
+   * @param pcmEncoding
    */
-  public static boolean supportsFormat(String mimeType) {
+  public static boolean supportsFormat(String mimeType, @C.PcmEncoding int pcmEncoding) {
     if (!isAvailable()) {
       return false;
     }
-    String codecName = getCodecName(mimeType);
+    String codecName = getCodecName(mimeType, pcmEncoding);
     return codecName != null && ffmpegHasDecoder(codecName);
   }
 
   /**
    * Returns the name of the FFmpeg decoder that could be used to decode {@code mimeType}.
    */
-  /* package */ static String getCodecName(String mimeType) {
+  /* package */ static String getCodecName(String mimeType, @C.PcmEncoding int pcmEncoding) {
     switch (mimeType) {
       case MimeTypes.AUDIO_AAC:
         return "aac";
@@ -103,6 +106,23 @@ public final class FfmpegLibrary {
         return "flac";
       case MimeTypes.AUDIO_ALAC:
         return "alac";
+      case MimeTypes.AUDIO_RAW:
+        switch (pcmEncoding) {
+          case C.ENCODING_PCM_8BIT:
+            return "pcm_u8";
+          case C.ENCODING_PCM_16BIT:
+            return "pcm_s16le";
+          case C.ENCODING_PCM_24BIT:
+            return "pcm_s24le";
+          case C.ENCODING_PCM_32BIT:
+            return "pcm_s32le";
+          case C.ENCODING_PCM_FLOAT:
+            return "pcm_f32le";
+          default:
+          case C.ENCODING_INVALID:
+          case Format.NO_VALUE:
+            return null;
+        }
       default:
         return null;
     }

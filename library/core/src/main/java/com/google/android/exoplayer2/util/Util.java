@@ -33,6 +33,7 @@ import android.view.WindowManager;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlayerLibraryInfo;
 import com.google.android.exoplayer2.ParserException;
+import com.google.android.exoplayer2.audio.AudioCapabilities;
 import com.google.android.exoplayer2.upstream.DataSource;
 import java.io.ByteArrayOutputStream;
 import java.io.Closeable;
@@ -1275,4 +1276,8 @@ public final class Util {
       0XBCB4666D, 0XB8757BDA, 0XB5365D03, 0XB1F740B4
   };
 
+  public static boolean canHandleFloatAudio(AudioCapabilities audioCapabilities, int channelCount) {
+    return (audioCapabilities != null && audioCapabilities.supportsEncoding(C.ENCODING_PCM_FLOAT)
+     && ((Util.SDK_INT > 20 && channelCount <= 2) || (Util.SDK_INT >= 24)));
+  }
 }

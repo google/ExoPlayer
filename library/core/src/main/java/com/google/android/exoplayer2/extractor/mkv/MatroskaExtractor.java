@@ -1685,6 +1685,7 @@ public final class MatroskaExtractor implements Extractor {
           mimeType = MimeTypes.AUDIO_RAW;
           if (parseMsAcmCodecPrivate(new ParsableByteArray(codecPrivate))) {
             pcmEncoding = Util.getPcmEncoding(audioBitDepth);
+            initializationData = Collections.singletonList(codecPrivate);
             if (pcmEncoding == C.ENCODING_INVALID) {
               pcmEncoding = Format.NO_VALUE;
               mimeType = MimeTypes.AUDIO_UNKNOWN;

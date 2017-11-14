@@ -29,6 +29,7 @@ extern "C" {
 #include <libavresample/avresample.h>
 #include <libavutil/error.h>
 #include <libavutil/opt.h>
+#include <libavutil/channel_layout.h>
 }
 
 #define LOG_TAG "ffmpeg_jni"
@@ -60,6 +61,9 @@ extern "C" {
 // Request a format corresponding to AudioFormat.ENCODING_PCM_16BIT.
 static const AVSampleFormat OUTPUT_FORMAT = AV_SAMPLE_FMT_S16;
 
+// Request a format corresponding to AudioFormat.ENCODING_PCM_FLOAT.
+static const AVSampleFormat OUTPUT_FORMAT_32FLOAT = AV_SAMPLE_FMT_FLT;
+
 /**
  * Returns the AVCodec with the specified name, or NULL if it is not available.
  */
@@ -71,7 +75,8 @@ AVCodec *getCodecByName(JNIEnv* env, jstring codecName);
  * Returns the created context.
  */
 AVCodecContext *createContext(JNIEnv *env, AVCodec *codec,
-                              jbyteArray extraData);
+                              jbyteArray extraData, jboolean use32BitFloatOutput,
+                              jint inputChannelCount, jint inputSampleRate);
 
 /**
  * Decodes the packet into the output buffer, returning the number of bytes
@@ -107,13 +112,15 @@ LIBRARY_FUNC(jboolean, ffmpegHasDecoder, jstring codecName) {
   return getCodecByName(env, codecName) != NULL;
 }
 
-DECODER_FUNC(jlong, ffmpegInitialize, jstring codecName, jbyteArray extraData) {
+DECODER_FUNC(jlong, ffmpegInitialize, jstring codecName, jbyteArray extraData,
+    jboolean use32BitFloatOutput, jint inputChannelCount, jint inputSampleRate) {
   AVCodec *codec = getCodecByName(env, codecName);
   if (!codec) {
     LOGE("Codec not found.");
     return 0L;
   }
-  return (jlong) createContext(env, codec, extraData);
+  return (jlong) createContext(env, codec, extraData,
+      use32BitFloatOutput, inputChannelCount, inputSampleRate);
 }
 
 DECODER_FUNC(jint, ffmpegDecode, jlong context, jobject inputData,
@@ -169,6 +176,10 @@ DECODER_FUNC(jlong, ffmpegReset, jlong jContext, jbyteArray extraData) {
 
   AVCodecID codecId = context->codec_id;
   if (codecId == AV_CODEC_ID_TRUEHD) {
+
+    const bool use32BitFloatOutput = context->request_sample_fmt == OUTPUT_FORMAT_32FLOAT;
+    const int channelCount = context->channels;
+    const int sampleRate = context->sample_rate;
     // Release and recreate the context if the codec is TrueHD.
     // TODO: Figure out why flushing doesn't work for this codec.
     releaseContext(context);
@@ -177,7 +188,8 @@ DECODER_FUNC(jlong, ffmpegReset, jlong jContext, jbyteArray extraData) {
       LOGE("Unexpected error finding codec %d.", codecId);
       return 0L;
     }
-    return (jlong) createContext(env, codec, extraData);
+    return (jlong) createContext(env, codec, extraData,
+        use32BitFloatOutput, channelCount, sampleRate);
   }
 
   avcodec_flush_buffers(context);
@@ -201,13 +213,19 @@ AVCodec *getCodecByName(JNIEnv* env, jstring codecName) {
 }
 
 AVCodecContext *createContext(JNIEnv *env, AVCodec *codec,
-                              jbyteArray extraData) {
+                              jbyteArray extraData, jboolean use32BitFloatOutput,
+                              jint inputChannelCount, jint inputSampleRate) {
   AVCodecContext *context = avcodec_alloc_context3(codec);
   if (!context) {
     LOGE("Failed to allocate context.");
     return NULL;
   }
-  context->request_sample_fmt = OUTPUT_FORMAT;
+
+  context->request_sample_fmt = use32BitFloatOutput ? OUTPUT_FORMAT_32FLOAT : OUTPUT_FORMAT;
+  AVCodecID codecId = context->codec_id;
+  const bool isPCMInput = (codecId == AV_CODEC_ID_PCM_U8 || codecId == AV_CODEC_ID_PCM_S16LE ||
+                           codecId == AV_CODEC_ID_PCM_S24LE || codecId == AV_CODEC_ID_PCM_S32LE ||
+                           codecId == AV_CODEC_ID_PCM_F32LE);
   if (extraData) {
     jsize size = env->GetArrayLength(extraData);
     context->extradata_size = size;
@@ -219,6 +237,47 @@ AVCodecContext *createContext(JNIEnv *env, AVCodec *codec,
       return NULL;
     }
     env->GetByteArrayRegion(extraData, 0, size, (jbyte *) context->extradata);
+    if (isPCMInput) {
+      context->channels = ((uint16_t *) context->extradata)[1];
+      context->sample_rate = ((uint32_t *) context->extradata)[1];
+      // if it's a WAVEFORMATEXTENSIBLE get the layout
+      if (0xFFFE == ((uint16_t *) context->extradata)[0] && 24 <= size) {
+        uint32_t layout = ((uint32_t *) context->extradata)[5];
+        context->channel_layout = (uint64_t) layout;
+      }
+    }
+  } else if (isPCMInput) {
+    // we should only get in here in the case of mono pcm tracks (maybe stereo?)
+    // surround tracks should have extra data with them
+    context->channels = inputChannelCount;
+    context->sample_rate = inputSampleRate;
+    switch(inputChannelCount) {
+     case 0:
+     case 1:
+       context->channel_layout = AV_CH_LAYOUT_MONO;
+       break;
+     case 2:
+       context->channel_layout = AV_CH_LAYOUT_STEREO;
+       break;
+     case 3:
+       context->channel_layout = AV_CH_LAYOUT_2POINT1;
+       break;
+     case 4:
+       context->channel_layout = AV_CH_LAYOUT_4POINT0;
+       break;
+     case 5:
+       context->channel_layout = AV_CH_LAYOUT_4POINT1;
+       break;
+     case 6:
+       context->channel_layout = AV_CH_LAYOUT_5POINT1;
+       break;
+     case 7:
+       context->channel_layout = AV_CH_LAYOUT_6POINT1;
+       break;
+     case 8:
+       context->channel_layout = AV_CH_LAYOUT_7POINT1;
+       break;
+    }
   }
   int result = avcodec_open2(context, codec, NULL);
   if (result < 0) {
@@ -275,7 +334,7 @@ int decodePacket(AVCodecContext *context, AVPacket *packet,
       av_opt_set_int(resampleContext, "in_sample_rate", sampleRate, 0);
       av_opt_set_int(resampleContext, "out_sample_rate", sampleRate, 0);
       av_opt_set_int(resampleContext, "in_sample_fmt", sampleFormat, 0);
-      av_opt_set_int(resampleContext, "out_sample_fmt", OUTPUT_FORMAT, 0);
+      av_opt_set_int(resampleContext, "out_sample_fmt", context->request_sample_fmt, 0);
       result = avresample_open(resampleContext);
       if (result < 0) {
         logError("avresample_open", result);
@@ -285,7 +344,7 @@ int decodePacket(AVCodecContext *context, AVPacket *packet,
       context->opaque = resampleContext;
     }
     int inSampleSize = av_get_bytes_per_sample(sampleFormat);
-    int outSampleSize = av_get_bytes_per_sample(OUTPUT_FORMAT);
+    int outSampleSize = av_get_bytes_per_sample(context->request_sample_fmt);
     int outSamples = avresample_get_out_samples(resampleContext, sampleCount);
     int bufferOutSize = outSampleSize * channelCount * outSamples;
     if (outSize + bufferOutSize > outputSize) {
