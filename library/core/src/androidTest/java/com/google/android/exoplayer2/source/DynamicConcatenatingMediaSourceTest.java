@@ -154,7 +154,8 @@ public final class DynamicConcatenatingMediaSourceTest extends TestCase {
     assertEquals(0, timeline.getLastWindowIndex(true));
 
     // Assert all periods can be prepared.
-    assertAllPeriodsCanBeCreatedPreparedAndReleased(mediaSource, timeline.getPeriodCount());
+    TimelineAsserts.assertAllPeriodsCanBeCreatedPreparedAndReleased(mediaSource, timeline,
+        TIMEOUT_MS);
 
     // Remove at front of queue.
     mediaSource.removeMediaSource(0);
@@ -205,7 +206,8 @@ public final class DynamicConcatenatingMediaSourceTest extends TestCase {
     TimelineAsserts.assertPreviousWindowIndices(timeline, Player.REPEAT_MODE_OFF, true,
         1, 2, C.INDEX_UNSET);
 
-    assertAllPeriodsCanBeCreatedPreparedAndReleased(mediaSource, timeline.getPeriodCount());
+    TimelineAsserts.assertAllPeriodsCanBeCreatedPreparedAndReleased(mediaSource, timeline,
+        TIMEOUT_MS);
     mediaSource.releaseSource();
     for (int i = 1; i < 4; i++) {
       childSources[i].assertReleased();
@@ -239,7 +241,8 @@ public final class DynamicConcatenatingMediaSourceTest extends TestCase {
     TimelineAsserts.assertPeriodCounts(timeline, 1, 9);
     TimelineAsserts.assertWindowIds(timeline, 111, 999);
     TimelineAsserts.assertWindowIsDynamic(timeline, false, false);
-    assertAllPeriodsCanBeCreatedPreparedAndReleased(mediaSource, timeline.getPeriodCount());
+    TimelineAsserts.assertAllPeriodsCanBeCreatedPreparedAndReleased(mediaSource, timeline,
+        TIMEOUT_MS);
 
     //Add lazy sources after preparation (and also try to prepare media period from lazy source).
     mediaSource.addMediaSource(1, lazySources[2]);
@@ -335,7 +338,8 @@ public final class DynamicConcatenatingMediaSourceTest extends TestCase {
     assertEquals(2, timeline.getLastWindowIndex(false));
     assertEquals(2, timeline.getFirstWindowIndex(true));
     assertEquals(0, timeline.getLastWindowIndex(true));
-    assertAllPeriodsCanBeCreatedPreparedAndReleased(mediaSource, timeline.getPeriodCount());
+    TimelineAsserts.assertAllPeriodsCanBeCreatedPreparedAndReleased(mediaSource, timeline,
+        TIMEOUT_MS);
   }
 
   public void testIllegalArguments() {
@@ -533,6 +537,35 @@ public final class DynamicConcatenatingMediaSourceTest extends TestCase {
     waitForCustomRunnable();
   }
 
+  public void testPeriodCreationWithAds() throws InterruptedException {
+    // Create dynamic media source with ad child source.
+    Timeline timelineContentOnly = new FakeTimeline(
+        new TimelineWindowDefinition(2, 111, true, false, 10 * C.MICROS_PER_SECOND));
+    Timeline timelineWithAds = new FakeTimeline(
+        new TimelineWindowDefinition(2, 222, true, false, 10 * C.MICROS_PER_SECOND, 1, 1));
+    FakeMediaSource mediaSourceContentOnly = new FakeMediaSource(timelineContentOnly, null);
+    FakeMediaSource mediaSourceWithAds = new FakeMediaSource(timelineWithAds, null);
+    DynamicConcatenatingMediaSource mediaSource = new DynamicConcatenatingMediaSource();
+    mediaSource.addMediaSource(mediaSourceContentOnly);
+    mediaSource.addMediaSource(mediaSourceWithAds);
+    assertNull(timeline);
+
+    // Prepare and assert timeline contains ad groups.
+    prepareAndListenToTimelineUpdates(mediaSource);
+    waitForTimelineUpdate();
+    TimelineAsserts.assertAdGroupCounts(timeline, 0, 0, 1, 1);
+
+    // Create all periods and assert period creation of child media sources has been called.
+    TimelineAsserts.assertAllPeriodsCanBeCreatedPreparedAndReleased(mediaSource, timeline,
+        TIMEOUT_MS);
+    mediaSourceContentOnly.assertMediaPeriodCreated(new MediaPeriodId(0));
+    mediaSourceContentOnly.assertMediaPeriodCreated(new MediaPeriodId(1));
+    mediaSourceWithAds.assertMediaPeriodCreated(new MediaPeriodId(0));
+    mediaSourceWithAds.assertMediaPeriodCreated(new MediaPeriodId(1));
+    mediaSourceWithAds.assertMediaPeriodCreated(new MediaPeriodId(0, 0, 0));
+    mediaSourceWithAds.assertMediaPeriodCreated(new MediaPeriodId(1, 0, 0));
+  }
+
   private DynamicConcatenatingMediaSourceAndHandler setUpDynamicMediaSourceOnHandlerThread()
       throws InterruptedException {
     HandlerThread handlerThread = new HandlerThread("TestCustomCallbackExecutionThread");
@@ -614,28 +647,6 @@ public final class DynamicConcatenatingMediaSourceTest extends TestCase {
 
   private static FakeTimeline createFakeTimeline(int index) {
     return new FakeTimeline(new TimelineWindowDefinition(index + 1, (index + 1) * 111));
-  }
-
-  private static void assertAllPeriodsCanBeCreatedPreparedAndReleased(MediaSource mediaSource,
-      int periodCount) {
-    for (int i = 0; i < periodCount; i++) {
-      MediaPeriod mediaPeriod = mediaSource.createPeriod(new MediaPeriodId(i), null);
-      assertNotNull(mediaPeriod);
-      final ConditionVariable mediaPeriodPrepared = new ConditionVariable();
-      mediaPeriod.prepare(new Callback() {
-        @Override
-        public void onPrepared(MediaPeriod mediaPeriod) {
-          mediaPeriodPrepared.open();
-        }
-        @Override
-        public void onContinueLoadingRequested(MediaPeriod source) {}
-      }, 0);
-      assertTrue(mediaPeriodPrepared.block(TIMEOUT_MS));
-      MediaPeriod secondMediaPeriod = mediaSource.createPeriod(new MediaPeriodId(i), null);
-      assertNotNull(secondMediaPeriod);
-      mediaSource.releasePeriod(secondMediaPeriod);
-      mediaSource.releasePeriod(mediaPeriod);
-    }
   }
 
   private static class DynamicConcatenatingMediaSourceAndHandler {

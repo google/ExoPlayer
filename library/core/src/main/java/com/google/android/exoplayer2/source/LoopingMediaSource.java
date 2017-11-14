@@ -80,7 +80,8 @@ public final class LoopingMediaSource implements MediaSource {
   @Override
   public MediaPeriod createPeriod(MediaPeriodId id, Allocator allocator) {
     return loopCount != Integer.MAX_VALUE
-        ? childSource.createPeriod(new MediaPeriodId(id.periodIndex % childPeriodCount), allocator)
+        ? childSource.createPeriod(id.copyWithPeriodIndex(id.periodIndex % childPeriodCount),
+            allocator)
         : childSource.createPeriod(id, allocator);
   }
 
