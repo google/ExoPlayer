@@ -467,6 +467,9 @@ import java.util.Locale;
     }
   }
 
+  // Suppressing reference equality warning because the track group stored in the track selection
+  // must point to the exact track group object to be considered part of it.
+  @SuppressWarnings("ReferenceEquality")
   private static String getTrackStatusString(TrackSelection selection, TrackGroup group,
       int trackIndex) {
     return getTrackStatusString(selection != null && selection.getTrackGroup() == group
