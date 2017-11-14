@@ -38,6 +38,7 @@ public class FakeMediaSource implements MediaSource {
   private final Object manifest;
   private final TrackGroupArray trackGroupArray;
   private final ArrayList<FakeMediaPeriod> activeMediaPeriods;
+  private final ArrayList<MediaPeriodId> createdMediaPeriods;
 
   private boolean preparedSource;
   private boolean releasedSource;
@@ -58,11 +59,8 @@ public class FakeMediaSource implements MediaSource {
     this.timeline = timeline;
     this.manifest = manifest;
     this.activeMediaPeriods = new ArrayList<>();
+    this.createdMediaPeriods = new ArrayList<>();
     this.trackGroupArray = trackGroupArray;
-  }
-
-  public void assertReleased() {
-    Assert.assertTrue(releasedSource);
   }
 
   @Override
@@ -84,6 +82,7 @@ public class FakeMediaSource implements MediaSource {
     Assert.assertFalse(releasedSource);
     FakeMediaPeriod mediaPeriod = createFakeMediaPeriod(id, trackGroupArray, allocator);
     activeMediaPeriods.add(mediaPeriod);
+    createdMediaPeriods.add(id);
     return mediaPeriod;
   }
 
@@ -102,6 +101,20 @@ public class FakeMediaSource implements MediaSource {
     Assert.assertFalse(releasedSource);
     Assert.assertTrue(activeMediaPeriods.isEmpty());
     releasedSource = true;
+  }
+
+  /**
+   * Assert that the source and all periods have been released.
+   */
+  public void assertReleased() {
+    Assert.assertTrue(releasedSource);
+  }
+
+  /**
+   * Assert that a media period for the given id has been created.
+   */
+  public void assertMediaPeriodCreated(MediaPeriodId mediaPeriodId) {
+    Assert.assertTrue(createdMediaPeriods.contains(mediaPeriodId));
   }
 
   protected FakeMediaPeriod createFakeMediaPeriod(MediaPeriodId id, TrackGroupArray trackGroupArray,

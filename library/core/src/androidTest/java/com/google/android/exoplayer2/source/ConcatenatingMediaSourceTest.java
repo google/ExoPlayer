@@ -18,6 +18,7 @@ package com.google.android.exoplayer2.source;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.Timeline;
+import com.google.android.exoplayer2.source.MediaSource.MediaPeriodId;
 import com.google.android.exoplayer2.testutil.FakeMediaSource;
 import com.google.android.exoplayer2.testutil.FakeShuffleOrder;
 import com.google.android.exoplayer2.testutil.FakeTimeline;
@@ -194,6 +195,31 @@ public final class ConcatenatingMediaSourceTest extends TestCase {
       assertEquals(0, timeline.getFirstWindowIndex(shuffled));
       assertEquals(2, timeline.getLastWindowIndex(shuffled));
     }
+  }
+
+  public void testPeriodCreationWithAds() throws InterruptedException {
+    // Create media source with ad child source.
+    Timeline timelineContentOnly = new FakeTimeline(
+        new TimelineWindowDefinition(2, 111, true, false, 10 * C.MICROS_PER_SECOND));
+    Timeline timelineWithAds = new FakeTimeline(
+        new TimelineWindowDefinition(2, 222, true, false, 10 * C.MICROS_PER_SECOND, 1, 1));
+    FakeMediaSource mediaSourceContentOnly = new FakeMediaSource(timelineContentOnly, null);
+    FakeMediaSource mediaSourceWithAds = new FakeMediaSource(timelineWithAds, null);
+    ConcatenatingMediaSource mediaSource = new ConcatenatingMediaSource(mediaSourceContentOnly,
+        mediaSourceWithAds);
+
+    // Prepare and assert timeline contains ad groups.
+    Timeline timeline = TestUtil.extractTimelineFromMediaSource(mediaSource);
+    TimelineAsserts.assertAdGroupCounts(timeline, 0, 0, 1, 1);
+
+    // Create all periods and assert period creation of child media sources has been called.
+    TimelineAsserts.assertAllPeriodsCanBeCreatedPreparedAndReleased(mediaSource, timeline, 10_000);
+    mediaSourceContentOnly.assertMediaPeriodCreated(new MediaPeriodId(0));
+    mediaSourceContentOnly.assertMediaPeriodCreated(new MediaPeriodId(1));
+    mediaSourceWithAds.assertMediaPeriodCreated(new MediaPeriodId(0));
+    mediaSourceWithAds.assertMediaPeriodCreated(new MediaPeriodId(1));
+    mediaSourceWithAds.assertMediaPeriodCreated(new MediaPeriodId(0, 0, 0));
+    mediaSourceWithAds.assertMediaPeriodCreated(new MediaPeriodId(1, 0, 0));
   }
 
   /**
