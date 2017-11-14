@@ -157,8 +157,10 @@ import com.google.android.gms.cast.framework.CastContext;
     Uri uri = Uri.parse(sample.uri);
     switch (sample.mimeType) {
       case DemoUtil.MIME_TYPE_SS:
-        return new SsMediaSource(uri, DATA_SOURCE_FACTORY,
-            new DefaultSsChunkSource.Factory(DATA_SOURCE_FACTORY), null, null);
+        return SsMediaSource.Builder
+            .forManifestUri(uri, DATA_SOURCE_FACTORY,
+                new DefaultSsChunkSource.Factory(DATA_SOURCE_FACTORY))
+            .build();
       case DemoUtil.MIME_TYPE_DASH:
         return DashMediaSource.Builder
             .forManifestUri(uri, DATA_SOURCE_FACTORY,
