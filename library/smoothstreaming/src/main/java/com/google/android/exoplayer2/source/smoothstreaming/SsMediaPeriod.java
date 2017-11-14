@@ -139,7 +139,9 @@ import java.util.ArrayList;
 
   @Override
   public void discardBuffer(long positionUs) {
-    // Do nothing.
+    for (ChunkSampleStream<SsChunkSource> sampleStream : sampleStreams) {
+      sampleStream.discardBuffer(positionUs);
+    }
   }
 
   @Override
