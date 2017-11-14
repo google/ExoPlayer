@@ -362,8 +362,11 @@ public class PlayerActivity extends Activity implements OnClickListener,
         : Util.inferContentType("." + overrideExtension);
     switch (type) {
       case C.TYPE_SS:
-        return new SsMediaSource(uri, buildDataSourceFactory(false),
-            new DefaultSsChunkSource.Factory(mediaDataSourceFactory), mainHandler, eventLogger);
+        return SsMediaSource.Builder
+            .forManifestUri(uri, buildDataSourceFactory(false),
+                new DefaultSsChunkSource.Factory(mediaDataSourceFactory))
+            .setEventListener(mainHandler, eventLogger)
+            .build();
       case C.TYPE_DASH:
         return DashMediaSource.Builder
             .forManifestUri(uri, buildDataSourceFactory(false),
