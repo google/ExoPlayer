@@ -33,15 +33,12 @@ import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.source.MediaPeriod.Callback;
 import com.google.android.exoplayer2.source.MediaSource.Listener;
 import com.google.android.exoplayer2.source.MediaSource.MediaPeriodId;
-import com.google.android.exoplayer2.testutil.FakeMediaPeriod;
 import com.google.android.exoplayer2.testutil.FakeMediaSource;
 import com.google.android.exoplayer2.testutil.FakeShuffleOrder;
 import com.google.android.exoplayer2.testutil.FakeTimeline;
 import com.google.android.exoplayer2.testutil.FakeTimeline.TimelineWindowDefinition;
 import com.google.android.exoplayer2.testutil.TimelineAsserts;
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
-import com.google.android.exoplayer2.upstream.Allocator;
-import java.io.IOException;
 import java.util.Arrays;
 import junit.framework.TestCase;
 import org.mockito.Mockito;
@@ -216,19 +213,26 @@ public final class DynamicConcatenatingMediaSourceTest extends TestCase {
 
   public void testPlaylistWithLazyMediaSource() throws InterruptedException {
     timeline = null;
-    FakeMediaSource[] childSources = createMediaSources(2);
-    LazyMediaSource[] lazySources = new LazyMediaSource[4];
+
+    // Create some normal (immediately preparing) sources and some lazy sources whose timeline
+    // updates need to be triggered.
+    FakeMediaSource[] fastSources = createMediaSources(2);
+    FakeMediaSource[] lazySources = new FakeMediaSource[4];
     for (int i = 0; i < 4; i++) {
-      lazySources[i] = new LazyMediaSource();
+      lazySources[i] = new FakeMediaSource(null, null);
     }
 
-    //Add lazy sources before preparation
+    // Add lazy sources and normal sources before preparation. Also remove one lazy source again
+    // before preparation to check it doesn't throw or change the result.
     DynamicConcatenatingMediaSource mediaSource = new DynamicConcatenatingMediaSource();
     mediaSource.addMediaSource(lazySources[0]);
-    mediaSource.addMediaSource(0, childSources[0]);
+    mediaSource.addMediaSource(0, fastSources[0]);
     mediaSource.removeMediaSource(1);
     mediaSource.addMediaSource(1, lazySources[1]);
     assertNull(timeline);
+
+    // Prepare and assert that the timeline contains all information for normal sources while having
+    // placeholder information for lazy sources.
     prepareAndListenToTimelineUpdates(mediaSource);
     waitForTimelineUpdate();
     assertNotNull(timeline);
@@ -236,7 +240,9 @@ public final class DynamicConcatenatingMediaSourceTest extends TestCase {
     TimelineAsserts.assertWindowIds(timeline, 111, null);
     TimelineAsserts.assertWindowIsDynamic(timeline, false, true);
 
-    lazySources[1].triggerTimelineUpdate(createFakeTimeline(8));
+    // Trigger source info refresh for lazy source and check that the timeline now contains all
+    // information for all windows.
+    lazySources[1].setNewSourceInfo(createFakeTimeline(8), null);
     waitForTimelineUpdate();
     TimelineAsserts.assertPeriodCounts(timeline, 1, 9);
     TimelineAsserts.assertWindowIds(timeline, 111, 999);
@@ -244,10 +250,11 @@ public final class DynamicConcatenatingMediaSourceTest extends TestCase {
     TimelineAsserts.assertAllPeriodsCanBeCreatedPreparedAndReleased(mediaSource, timeline,
         TIMEOUT_MS);
 
-    //Add lazy sources after preparation (and also try to prepare media period from lazy source).
+    // Add further lazy and normal sources after preparation. Also remove one lazy source again to
+    // check it doesn't throw or change the result.
     mediaSource.addMediaSource(1, lazySources[2]);
     waitForTimelineUpdate();
-    mediaSource.addMediaSource(2, childSources[1]);
+    mediaSource.addMediaSource(2, fastSources[1]);
     waitForTimelineUpdate();
     mediaSource.addMediaSource(0, lazySources[3]);
     waitForTimelineUpdate();
@@ -257,6 +264,8 @@ public final class DynamicConcatenatingMediaSourceTest extends TestCase {
     TimelineAsserts.assertWindowIds(timeline, null, 111, 222, 999);
     TimelineAsserts.assertWindowIsDynamic(timeline, true, false, false, false);
 
+    // Create a period from an unprepared lazy media source and assert Callback.onPrepared is not
+    // called yet.
     MediaPeriod lazyPeriod = mediaSource.createPeriod(new MediaPeriodId(0), null);
     assertNotNull(lazyPeriod);
     final ConditionVariable lazyPeriodPrepared = new ConditionVariable();
@@ -269,11 +278,14 @@ public final class DynamicConcatenatingMediaSourceTest extends TestCase {
       public void onContinueLoadingRequested(MediaPeriod source) {}
     }, 0);
     assertFalse(lazyPeriodPrepared.block(1));
+    // Assert that a second period can also be created and released without problems.
     MediaPeriod secondLazyPeriod = mediaSource.createPeriod(new MediaPeriodId(0), null);
     assertNotNull(secondLazyPeriod);
     mediaSource.releasePeriod(secondLazyPeriod);
 
-    lazySources[3].triggerTimelineUpdate(createFakeTimeline(7));
+    // Trigger source info refresh for lazy media source. Assert that now all information is
+    // available again and the previously created period now also finished preparing.
+    lazySources[3].setNewSourceInfo(createFakeTimeline(7), null);
     waitForTimelineUpdate();
     TimelineAsserts.assertPeriodCounts(timeline, 8, 1, 2, 9);
     TimelineAsserts.assertWindowIds(timeline, 888, 111, 222, 999);
@@ -281,9 +293,14 @@ public final class DynamicConcatenatingMediaSourceTest extends TestCase {
     assertTrue(lazyPeriodPrepared.block(TIMEOUT_MS));
     mediaSource.releasePeriod(lazyPeriod);
 
+    // Release media source and assert all normal and lazy media sources are fully released as well.
     mediaSource.releaseSource();
-    childSources[0].assertReleased();
-    childSources[1].assertReleased();
+    for (FakeMediaSource fastSource : fastSources) {
+      fastSource.assertReleased();
+    }
+    for (FakeMediaSource lazySource : lazySources) {
+      lazySource.assertReleased();
+    }
   }
 
   public void testEmptyTimelineMediaSource() throws InterruptedException {
@@ -658,38 +675,6 @@ public final class DynamicConcatenatingMediaSourceTest extends TestCase {
         Handler handler) {
       this.mediaSource = mediaSource;
       this.handler = handler;
-    }
-
-  }
-
-  private static class LazyMediaSource implements MediaSource {
-
-    private Listener listener;
-
-    public void triggerTimelineUpdate(Timeline timeline) {
-      listener.onSourceInfoRefreshed(this, timeline, null);
-    }
-
-    @Override
-    public void prepareSource(ExoPlayer player, boolean isTopLevelSource, Listener listener) {
-      this.listener = listener;
-    }
-
-    @Override
-    public void maybeThrowSourceInfoRefreshError() throws IOException {
-    }
-
-    @Override
-    public MediaPeriod createPeriod(MediaPeriodId id, Allocator allocator) {
-      return new FakeMediaPeriod(TrackGroupArray.EMPTY);
-    }
-
-    @Override
-    public void releasePeriod(MediaPeriod mediaPeriod) {
-    }
-
-    @Override
-    public void releaseSource() {
     }
 
   }
