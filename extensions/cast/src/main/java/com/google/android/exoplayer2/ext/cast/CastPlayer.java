@@ -86,7 +86,6 @@ public final class CastPlayer implements Player {
   private static final int RENDERER_INDEX_AUDIO = 1;
   private static final int RENDERER_INDEX_TEXT = 2;
   private static final long PROGRESS_REPORT_PERIOD_MS = 1000;
-  private static final TrackGroupArray EMPTY_TRACK_GROUP_ARRAY = new TrackGroupArray();
   private static final TrackSelectionArray EMPTY_TRACK_SELECTION_ARRAY =
       new TrackSelectionArray(null, null, null);
   private static final long[] EMPTY_TRACK_ID_ARRAY = new long[0];
@@ -137,7 +136,7 @@ public final class CastPlayer implements Player {
     playbackState = STATE_IDLE;
     repeatMode = REPEAT_MODE_OFF;
     currentTimeline = CastTimeline.EMPTY_CAST_TIMELINE;
-    currentTrackGroups = EMPTY_TRACK_GROUP_ARRAY;
+    currentTrackGroups = TrackGroupArray.EMPTY;
     currentTrackSelection = EMPTY_TRACK_SELECTION_ARRAY;
     pendingSeekWindowIndex = C.INDEX_UNSET;
     pendingSeekPositionMs = C.TIME_UNSET;
@@ -596,8 +595,8 @@ public final class CastPlayer implements Player {
     MediaInfo mediaInfo = mediaStatus != null ? mediaStatus.getMediaInfo() : null;
     List<MediaTrack> castMediaTracks = mediaInfo != null ? mediaInfo.getMediaTracks() : null;
     if (castMediaTracks == null || castMediaTracks.isEmpty()) {
-      boolean hasChanged = currentTrackGroups != EMPTY_TRACK_GROUP_ARRAY;
-      currentTrackGroups = EMPTY_TRACK_GROUP_ARRAY;
+      boolean hasChanged = !currentTrackGroups.isEmpty();
+      currentTrackGroups = TrackGroupArray.EMPTY;
       currentTrackSelection = EMPTY_TRACK_SELECTION_ARRAY;
       return hasChanged;
     }
