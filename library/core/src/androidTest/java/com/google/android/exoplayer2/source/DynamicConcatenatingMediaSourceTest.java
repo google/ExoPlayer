@@ -15,19 +15,14 @@
  */
 package com.google.android.exoplayer2.source;
 
-import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 import android.os.ConditionVariable;
 import android.os.Handler;
 import android.os.HandlerThread;
-import android.os.Looper;
 import android.os.Message;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlaybackException;
-import com.google.android.exoplayer2.ExoPlayer;
-import com.google.android.exoplayer2.PlaybackParameters;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.source.MediaPeriod.Callback;
@@ -37,8 +32,8 @@ import com.google.android.exoplayer2.testutil.FakeMediaSource;
 import com.google.android.exoplayer2.testutil.FakeShuffleOrder;
 import com.google.android.exoplayer2.testutil.FakeTimeline;
 import com.google.android.exoplayer2.testutil.FakeTimeline.TimelineWindowDefinition;
+import com.google.android.exoplayer2.testutil.StubExoPlayer;
 import com.google.android.exoplayer2.testutil.TimelineAsserts;
-import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
 import java.util.Arrays;
 import junit.framework.TestCase;
 import org.mockito.Mockito;
@@ -456,7 +451,7 @@ public final class DynamicConcatenatingMediaSourceTest extends TestCase {
         setUpDynamicMediaSourceOnHandlerThread();
     final Runnable runnable = createCustomRunnable();
 
-    sourceHandlerPair.handler.post(new Runnable() {
+    sourceHandlerPair.mainHandler.post(new Runnable() {
       @Override
       public void run() {
         sourceHandlerPair.mediaSource.addMediaSource(createFakeMediaSource(), runnable);
@@ -470,7 +465,7 @@ public final class DynamicConcatenatingMediaSourceTest extends TestCase {
         setUpDynamicMediaSourceOnHandlerThread();
     final Runnable runnable = createCustomRunnable();
 
-    sourceHandlerPair.handler.post(new Runnable() {
+    sourceHandlerPair.mainHandler.post(new Runnable() {
       @Override
       public void run() {
         sourceHandlerPair.mediaSource.addMediaSources(Arrays.asList(
@@ -485,7 +480,7 @@ public final class DynamicConcatenatingMediaSourceTest extends TestCase {
         setUpDynamicMediaSourceOnHandlerThread();
     final Runnable runnable = createCustomRunnable();
 
-    sourceHandlerPair.handler.post(new Runnable() {
+    sourceHandlerPair.mainHandler.post(new Runnable() {
       @Override
       public void run() {
         sourceHandlerPair.mediaSource.addMediaSource(/* index */ 0, createFakeMediaSource(),
@@ -500,7 +495,7 @@ public final class DynamicConcatenatingMediaSourceTest extends TestCase {
         setUpDynamicMediaSourceOnHandlerThread();
     final Runnable runnable = createCustomRunnable();
 
-    sourceHandlerPair.handler.post(new Runnable() {
+    sourceHandlerPair.mainHandler.post(new Runnable() {
       @Override
       public void run() {
         sourceHandlerPair.mediaSource.addMediaSources(/* index */ 0, Arrays.asList(
@@ -514,7 +509,7 @@ public final class DynamicConcatenatingMediaSourceTest extends TestCase {
     final DynamicConcatenatingMediaSourceAndHandler sourceHandlerPair =
         setUpDynamicMediaSourceOnHandlerThread();
     final Runnable runnable = createCustomRunnable();
-    sourceHandlerPair.handler.post(new Runnable() {
+    sourceHandlerPair.mainHandler.post(new Runnable() {
       @Override
       public void run() {
         sourceHandlerPair.mediaSource.addMediaSource(createFakeMediaSource());
@@ -522,7 +517,7 @@ public final class DynamicConcatenatingMediaSourceTest extends TestCase {
     });
     waitForTimelineUpdate();
 
-    sourceHandlerPair.handler.post(new Runnable() {
+    sourceHandlerPair.mainHandler.post(new Runnable() {
       @Override
       public void run() {
         sourceHandlerPair.mediaSource.removeMediaSource(/* index */ 0, runnable);
@@ -535,7 +530,7 @@ public final class DynamicConcatenatingMediaSourceTest extends TestCase {
     final DynamicConcatenatingMediaSourceAndHandler sourceHandlerPair =
         setUpDynamicMediaSourceOnHandlerThread();
     final Runnable runnable = createCustomRunnable();
-    sourceHandlerPair.handler.post(new Runnable() {
+    sourceHandlerPair.mainHandler.post(new Runnable() {
       @Override
       public void run() {
         sourceHandlerPair.mediaSource.addMediaSources(Arrays.asList(
@@ -544,7 +539,7 @@ public final class DynamicConcatenatingMediaSourceTest extends TestCase {
     });
     waitForTimelineUpdate();
 
-    sourceHandlerPair.handler.post(new Runnable() {
+    sourceHandlerPair.mainHandler.post(new Runnable() {
       @Override
       public void run() {
         sourceHandlerPair.mediaSource.moveMediaSource(/* fromIndex */ 1, /* toIndex */ 0,
@@ -585,24 +580,17 @@ public final class DynamicConcatenatingMediaSourceTest extends TestCase {
 
   private DynamicConcatenatingMediaSourceAndHandler setUpDynamicMediaSourceOnHandlerThread()
       throws InterruptedException {
+    final DynamicConcatenatingMediaSource mediaSource = new DynamicConcatenatingMediaSource();
+    prepareAndListenToTimelineUpdates(mediaSource);
+    waitForTimelineUpdate();
     HandlerThread handlerThread = new HandlerThread("TestCustomCallbackExecutionThread");
     handlerThread.start();
-    Handler.Callback handlerCallback = Mockito.mock(Handler.Callback.class);
-    when(handlerCallback.handleMessage(any(Message.class))).thenReturn(false);
-    Handler handler = new Handler(handlerThread.getLooper(), handlerCallback);
-    final DynamicConcatenatingMediaSource mediaSource = new DynamicConcatenatingMediaSource();
-    handler.post(new Runnable() {
-      @Override
-      public void run() {
-        prepareAndListenToTimelineUpdates(mediaSource);
-      }
-    });
-    waitForTimelineUpdate();
+    Handler handler = new Handler(handlerThread.getLooper());
     return new DynamicConcatenatingMediaSourceAndHandler(mediaSource, handler);
   }
 
   private void prepareAndListenToTimelineUpdates(MediaSource mediaSource) {
-    mediaSource.prepareSource(new StubExoPlayer(), true, new Listener() {
+    mediaSource.prepareSource(new MessageHandlingExoPlayer(), true, new Listener() {
       @Override
       public void onSourceInfoRefreshed(MediaSource source, Timeline newTimeline, Object manifest) {
         timeline = newTimeline;
@@ -669,242 +657,32 @@ public final class DynamicConcatenatingMediaSourceTest extends TestCase {
   private static class DynamicConcatenatingMediaSourceAndHandler {
 
     public final DynamicConcatenatingMediaSource mediaSource;
-    public final Handler handler;
+    public final Handler mainHandler;
 
     public DynamicConcatenatingMediaSourceAndHandler(DynamicConcatenatingMediaSource mediaSource,
-        Handler handler) {
+        Handler mainHandler) {
       this.mediaSource = mediaSource;
-      this.handler = handler;
+      this.mainHandler = mainHandler;
     }
 
   }
 
   /**
-   * Stub ExoPlayer which only accepts custom messages and runs them on a separate handler thread.
+   * ExoPlayer that only accepts custom messages and runs them on a separate handler thread.
    */
-  private static class StubExoPlayer implements ExoPlayer, Handler.Callback {
+  private static class MessageHandlingExoPlayer extends StubExoPlayer implements Handler.Callback {
 
     private final Handler handler;
 
-    public StubExoPlayer() {
+    public MessageHandlingExoPlayer() {
       HandlerThread handlerThread = new HandlerThread("StubExoPlayerThread");
       handlerThread.start();
       handler = new Handler(handlerThread.getLooper(), this);
     }
 
     @Override
-    public Looper getPlaybackLooper() {
-      throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public void addListener(Player.EventListener listener) {
-      throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public void removeListener(Player.EventListener listener) {
-      throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public int getPlaybackState() {
-      throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public void prepare(MediaSource mediaSource) {
-      throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public void prepare(MediaSource mediaSource, boolean resetPosition, boolean resetState) {
-      throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public void setPlayWhenReady(boolean playWhenReady) {
-      throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public boolean getPlayWhenReady() {
-      throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public void setRepeatMode(@RepeatMode int repeatMode) {
-      throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public int getRepeatMode() {
-      throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public void setShuffleModeEnabled(boolean shuffleModeEnabled) {
-      throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public boolean getShuffleModeEnabled() {
-      throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public boolean isLoading() {
-      throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public void seekToDefaultPosition() {
-      throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public void seekToDefaultPosition(int windowIndex) {
-      throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public void seekTo(long positionMs) {
-      throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public void seekTo(int windowIndex, long positionMs) {
-      throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public void setPlaybackParameters(PlaybackParameters playbackParameters) {
-      throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public PlaybackParameters getPlaybackParameters() {
-      throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public void stop() {
-      throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public void release() {
-      throw new UnsupportedOperationException();
-    }
-
-    @Override
     public void sendMessages(ExoPlayerMessage... messages) {
       handler.obtainMessage(0, messages).sendToTarget();
-    }
-
-    @Override
-    public void blockingSendMessages(ExoPlayerMessage... messages) {
-      throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public int getRendererCount() {
-      throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public int getRendererType(int index) {
-      throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public TrackGroupArray getCurrentTrackGroups() {
-      throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public TrackSelectionArray getCurrentTrackSelections() {
-      throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public Object getCurrentManifest() {
-      throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public Timeline getCurrentTimeline() {
-      throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public int getCurrentPeriodIndex() {
-      throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public int getCurrentWindowIndex() {
-      throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public int getNextWindowIndex() {
-      throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public int getPreviousWindowIndex() {
-      throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public long getDuration() {
-      throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public long getCurrentPosition() {
-      throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public long getBufferedPosition() {
-      throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public int getBufferedPercentage() {
-      throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public boolean isCurrentWindowDynamic() {
-      throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public boolean isCurrentWindowSeekable() {
-      throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public boolean isPlayingAd() {
-      throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public int getCurrentAdGroupIndex() {
-      throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public int getCurrentAdIndexInAdGroup() {
-      throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public long getContentPosition() {
-      throw new UnsupportedOperationException();
     }
 
     @Override
@@ -919,6 +697,7 @@ public final class DynamicConcatenatingMediaSourceTest extends TestCase {
       }
       return true;
     }
+
   }
 
 }
