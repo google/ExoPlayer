@@ -56,6 +56,38 @@ public interface LoadControl {
   Allocator getAllocator();
 
   /**
+   * Returns the duration of media to retain in the buffer prior to the current playback position,
+   * for fast backward seeking.
+   * <p>
+   * Note: If {@link #retainBackBufferFromKeyframe()} is false then seeking in the back-buffer will
+   * only be fast if the back-buffer contains a keyframe prior to the seek position.
+   * <p>
+   * Note: Implementations should return a single value. Dynamic changes to the back-buffer are not
+   * currently supported.
+   *
+   * @return The duration of media to retain in the buffer prior to the current playback position,
+   *     in microseconds.
+   */
+  long getBackBufferDurationUs();
+
+  /**
+   * Returns whether media should be retained from the keyframe before the current playback position
+   * minus {@link #getBackBufferDurationUs()}, rather than any sample before or at that position.
+   * <p>
+   * Warning: Returning true will cause the back-buffer size to depend on the spacing of keyframes
+   * in the media being played. Returning true is not recommended unless you control the media and
+   * are comfortable with the back-buffer size exceeding {@link #getBackBufferDurationUs()} by as
+   * much as the maximum duration between adjacent keyframes in the media.
+   * <p>
+   * Note: Implementations should return a single value. Dynamic changes to the back-buffer are not
+   * currently supported.
+   *
+   * @return Whether media should be retained from the keyframe before the current playback position
+   * minus {@link #getBackBufferDurationUs()}, rather than any sample before or at that position.
+   */
+  boolean retainBackBufferFromKeyframe();
+
+  /**
    * Called by the player to determine whether sufficient media is buffered for playback to be
    * started or resumed.
    *
