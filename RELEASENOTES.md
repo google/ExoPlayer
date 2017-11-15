@@ -1,5 +1,12 @@
 # Release notes #
 
+### dev-v2 (not yet released) ###
+
+* Allow a back-buffer of media to be retained behind the current playback
+  position, for fast backward seeking. The back-buffer can be configured by
+  custom `LoadControl` implementations.
+* New Cast extension: Simplifies toggling between local and Cast playbacks.
+
 ### 2.6.0 ###
 
 * Removed "r" prefix from versions. This release is "2.6.0", not "r2.6.0".
@@ -60,7 +67,6 @@
     ([#3406](https://github.com/google/ExoPlayer/issues/3406)).
 * New Leanback extension: Simplifies binding Exoplayer to Leanback UI
   components.
-* New Cast extension: Simplifies toggling between local and Cast playbacks.
 * Unit tests moved to Robolectric.
 * Misc bugfixes.
 
