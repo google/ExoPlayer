@@ -114,11 +114,13 @@ public class ChunkSampleStream<T extends ChunkSource> implements SampleStream, S
    * Discards buffered media up to the specified position.
    *
    * @param positionUs The position to discard up to, in microseconds.
+   * @param toKeyframe If true then for each track discards samples up to the keyframe before or at
+   *     the specified position, rather than any sample before or at that position.
    */
-  public void discardBuffer(long positionUs) {
-    primarySampleQueue.discardTo(positionUs, false, true);
+  public void discardBuffer(long positionUs, boolean toKeyframe) {
+    primarySampleQueue.discardTo(positionUs, toKeyframe, true);
     for (int i = 0; i < embeddedSampleQueues.length; i++) {
-      embeddedSampleQueues[i].discardTo(positionUs, true, embeddedTracksSelected[i]);
+      embeddedSampleQueues[i].discardTo(positionUs, toKeyframe, embeddedTracksSelected[i]);
     }
     discardDownstreamMediaChunks(primarySampleQueue.getFirstIndex());
   }

@@ -121,8 +121,8 @@ public final class ClippingMediaPeriod implements MediaPeriod, MediaPeriod.Callb
   }
 
   @Override
-  public void discardBuffer(long positionUs) {
-    mediaPeriod.discardBuffer(positionUs + startUs);
+  public void discardBuffer(long positionUs, boolean toKeyframe) {
+    mediaPeriod.discardBuffer(positionUs + startUs, toKeyframe);
   }
 
   @Override

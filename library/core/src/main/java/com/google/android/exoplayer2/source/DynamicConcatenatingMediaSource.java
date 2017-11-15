@@ -824,8 +824,8 @@ public final class DynamicConcatenatingMediaSource implements MediaSource, ExoPl
     }
 
     @Override
-    public void discardBuffer(long positionUs) {
-      mediaPeriod.discardBuffer(positionUs);
+    public void discardBuffer(long positionUs, boolean toKeyframe) {
+      mediaPeriod.discardBuffer(positionUs, toKeyframe);
     }
 
     @Override

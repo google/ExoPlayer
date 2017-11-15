@@ -129,9 +129,9 @@ import java.util.IdentityHashMap;
   }
 
   @Override
-  public void discardBuffer(long positionUs) {
+  public void discardBuffer(long positionUs, boolean toKeyframe) {
     for (MediaPeriod period : enabledPeriods) {
-      period.discardBuffer(positionUs);
+      period.discardBuffer(positionUs, toKeyframe);
     }
   }
 

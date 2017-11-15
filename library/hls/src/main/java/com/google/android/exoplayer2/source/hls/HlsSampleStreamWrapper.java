@@ -291,10 +291,10 @@ import java.util.LinkedList;
     return seekRequired;
   }
 
-  public void discardBuffer(long positionUs) {
+  public void discardBuffer(long positionUs, boolean toKeyframe) {
     int sampleQueueCount = sampleQueues.length;
     for (int i = 0; i < sampleQueueCount; i++) {
-      sampleQueues[i].discardTo(positionUs, false, sampleQueuesEnabledStates[i]);
+      sampleQueues[i].discardTo(positionUs, toKeyframe, sampleQueuesEnabledStates[i]);
     }
   }
 

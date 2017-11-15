@@ -541,7 +541,7 @@ import java.io.IOException;
     TraceUtil.beginSection("doSomeWork");
 
     updatePlaybackPositions();
-    playingPeriodHolder.mediaPeriod.discardBuffer(playbackInfo.positionUs);
+    playingPeriodHolder.mediaPeriod.discardBuffer(playbackInfo.positionUs, false);
 
     boolean allRenderersEnded = true;
     boolean allRenderersReadyOrEnded = true;
@@ -732,7 +732,7 @@ import java.io.IOException;
       setPlayingPeriodHolder(newPlayingPeriodHolder);
       if (playingPeriodHolder.hasEnabledTracks) {
         periodPositionUs = playingPeriodHolder.mediaPeriod.seekToUs(periodPositionUs);
-        playingPeriodHolder.mediaPeriod.discardBuffer(periodPositionUs);
+        playingPeriodHolder.mediaPeriod.discardBuffer(periodPositionUs, false);
       }
       resetRendererPosition(periodPositionUs);
       maybeContinueLoading();

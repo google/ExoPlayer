@@ -85,7 +85,7 @@ public class FakeMediaPeriod implements MediaPeriod {
   }
 
   @Override
-  public void discardBuffer(long positionUs) {
+  public void discardBuffer(long positionUs, boolean toKeyframe) {
     // Do nothing.
   }
 

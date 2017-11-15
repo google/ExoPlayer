@@ -138,9 +138,9 @@ import java.util.ArrayList;
   }
 
   @Override
-  public void discardBuffer(long positionUs) {
+  public void discardBuffer(long positionUs, boolean toKeyframe) {
     for (ChunkSampleStream<SsChunkSource> sampleStream : sampleStreams) {
-      sampleStream.discardBuffer(positionUs);
+      sampleStream.discardBuffer(positionUs, toKeyframe);
     }
   }
 
