@@ -167,7 +167,9 @@ import com.google.android.gms.cast.framework.CastContext;
                 new DefaultDashChunkSource.Factory(DATA_SOURCE_FACTORY))
             .build();
       case DemoUtil.MIME_TYPE_HLS:
-        return new HlsMediaSource(uri, DATA_SOURCE_FACTORY, null, null);
+        return HlsMediaSource.Builder
+            .forDataSource(uri, DATA_SOURCE_FACTORY)
+            .build();
       case DemoUtil.MIME_TYPE_VIDEO_MP4:
         return new ExtractorMediaSource(uri, DATA_SOURCE_FACTORY, new DefaultExtractorsFactory(),
             null, null);
