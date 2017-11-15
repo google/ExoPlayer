@@ -25,7 +25,7 @@ import com.google.android.exoplayer2.util.Util;
 /**
  * The default {@link LoadControl} implementation.
  */
-public final class DefaultLoadControl implements LoadControl {
+public class DefaultLoadControl implements LoadControl {
 
   /**
    * The default minimum duration of media that the player will attempt to ensure is buffered at all
@@ -161,6 +161,16 @@ public final class DefaultLoadControl implements LoadControl {
   @Override
   public Allocator getAllocator() {
     return allocator;
+  }
+
+  @Override
+  public long getBackBufferDurationUs() {
+    return 0;
+  }
+
+  @Override
+  public boolean retainBackBufferFromKeyframe() {
+    return false;
   }
 
   @Override

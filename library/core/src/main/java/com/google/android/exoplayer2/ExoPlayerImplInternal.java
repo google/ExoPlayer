@@ -107,6 +107,8 @@ import java.io.IOException;
   private final Timeline.Window window;
   private final Timeline.Period period;
   private final MediaPeriodInfoSequence mediaPeriodInfoSequence;
+  private final long backBufferDurationUs;
+  private final boolean retainBackBufferFromKeyframe;
 
   private PlaybackInfo playbackInfo;
   private PlaybackParameters playbackParameters;
@@ -146,6 +148,9 @@ import java.io.IOException;
     this.eventHandler = eventHandler;
     this.state = Player.STATE_IDLE;
     this.player = player;
+
+    backBufferDurationUs = loadControl.getBackBufferDurationUs();
+    retainBackBufferFromKeyframe = loadControl.retainBackBufferFromKeyframe();
 
     playbackInfo = new PlaybackInfo(null, null, 0, C.TIME_UNSET);
     rendererCapabilities = new RendererCapabilities[renderers.length];
@@ -541,7 +546,8 @@ import java.io.IOException;
     TraceUtil.beginSection("doSomeWork");
 
     updatePlaybackPositions();
-    playingPeriodHolder.mediaPeriod.discardBuffer(playbackInfo.positionUs, false);
+    playingPeriodHolder.mediaPeriod.discardBuffer(playbackInfo.positionUs - backBufferDurationUs,
+        retainBackBufferFromKeyframe);
 
     boolean allRenderersEnded = true;
     boolean allRenderersReadyOrEnded = true;
@@ -732,7 +738,8 @@ import java.io.IOException;
       setPlayingPeriodHolder(newPlayingPeriodHolder);
       if (playingPeriodHolder.hasEnabledTracks) {
         periodPositionUs = playingPeriodHolder.mediaPeriod.seekToUs(periodPositionUs);
-        playingPeriodHolder.mediaPeriod.discardBuffer(periodPositionUs, false);
+        playingPeriodHolder.mediaPeriod.discardBuffer(periodPositionUs - backBufferDurationUs,
+            retainBackBufferFromKeyframe);
       }
       resetRendererPosition(periodPositionUs);
       maybeContinueLoading();
