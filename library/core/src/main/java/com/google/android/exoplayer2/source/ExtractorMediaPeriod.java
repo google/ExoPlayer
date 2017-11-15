@@ -276,10 +276,10 @@ import java.util.Arrays;
   }
 
   @Override
-  public void discardBuffer(long positionUs) {
+  public void discardBuffer(long positionUs, boolean toKeyframe) {
     int trackCount = sampleQueues.length;
     for (int i = 0; i < trackCount; i++) {
-      sampleQueues[i].discardTo(positionUs, false, trackEnabledStates[i]);
+      sampleQueues[i].discardTo(positionUs, toKeyframe, trackEnabledStates[i]);
     }
   }
 

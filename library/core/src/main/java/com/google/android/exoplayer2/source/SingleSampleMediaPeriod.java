@@ -116,7 +116,7 @@ import java.util.Arrays;
   }
 
   @Override
-  public void discardBuffer(long positionUs) {
+  public void discardBuffer(long positionUs, boolean toKeyframe) {
     // Do nothing.
   }
 

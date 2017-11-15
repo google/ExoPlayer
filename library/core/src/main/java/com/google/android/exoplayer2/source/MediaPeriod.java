@@ -116,8 +116,10 @@ public interface MediaPeriod extends SequenceableLoader {
    * This method should only be called after the period has been prepared.
    *
    * @param positionUs The position in microseconds.
+   * @param toKeyframe If true then for each track discards samples up to the keyframe before or at
+   *     the specified position, rather than any sample before or at that position.
    */
-  void discardBuffer(long positionUs);
+  void discardBuffer(long positionUs, boolean toKeyframe);
 
   /**
    * Attempts to read a discontinuity.

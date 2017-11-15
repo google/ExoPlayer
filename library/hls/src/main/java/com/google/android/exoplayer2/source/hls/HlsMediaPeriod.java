@@ -183,9 +183,9 @@ public final class HlsMediaPeriod implements MediaPeriod, HlsSampleStreamWrapper
   }
 
   @Override
-  public void discardBuffer(long positionUs) {
+  public void discardBuffer(long positionUs, boolean toKeyframe) {
     for (HlsSampleStreamWrapper sampleStreamWrapper : enabledSampleStreamWrappers) {
-      sampleStreamWrapper.discardBuffer(positionUs);
+      sampleStreamWrapper.discardBuffer(positionUs, toKeyframe);
     }
   }
 

@@ -259,9 +259,9 @@ import java.util.Map;
   }
 
   @Override
-  public void discardBuffer(long positionUs) {
+  public void discardBuffer(long positionUs, boolean toKeyframe) {
     for (ChunkSampleStream<DashChunkSource> sampleStream : sampleStreams) {
-      sampleStream.discardBuffer(positionUs);
+      sampleStream.discardBuffer(positionUs, toKeyframe);
     }
   }
 
