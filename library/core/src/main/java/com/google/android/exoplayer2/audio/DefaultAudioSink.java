@@ -36,8 +36,8 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.reflect.Method;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.util.ArrayDeque;
 import java.util.ArrayList;
-import java.util.LinkedList;
 
 /**
  * Plays audio data. The implementation delegates to an {@link AudioTrack} and handles playback
@@ -174,7 +174,7 @@ public final class DefaultAudioSink implements AudioSink {
   private final ConditionVariable releasingConditionVariable;
   private final long[] playheadOffsets;
   private final AudioTrackUtil audioTrackUtil;
-  private final LinkedList<PlaybackParametersCheckpoint> playbackParametersCheckpoints;
+  private final ArrayDeque<PlaybackParametersCheckpoint> playbackParametersCheckpoints;
 
   @Nullable private Listener listener;
   /**
@@ -277,7 +277,7 @@ public final class DefaultAudioSink implements AudioSink {
     drainingAudioProcessorIndex = C.INDEX_UNSET;
     this.audioProcessors = new AudioProcessor[0];
     outputBuffers = new ByteBuffer[0];
-    playbackParametersCheckpoints = new LinkedList<>();
+    playbackParametersCheckpoints = new ArrayDeque<>();
   }
 
   @Override
