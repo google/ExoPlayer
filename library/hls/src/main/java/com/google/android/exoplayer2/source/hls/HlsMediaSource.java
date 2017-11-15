@@ -48,6 +48,132 @@ public final class HlsMediaSource implements MediaSource,
   }
 
   /**
+   * Builder for {@link HlsMediaSource}. Each builder instance can only be used once.
+   */
+  public static final class Builder {
+
+    private final Uri manifestUri;
+    private final HlsDataSourceFactory hlsDataSourceFactory;
+
+    private HlsExtractorFactory extractorFactory;
+    private ParsingLoadable.Parser<HlsPlaylist> playlistParser;
+    private AdaptiveMediaSourceEventListener eventListener;
+    private Handler eventHandler;
+    private int minLoadableRetryCount;
+    private boolean isBuildCalled;
+
+    /**
+     * Creates a {@link Builder} for a {@link HlsMediaSource} with a loadable manifest Uri and
+     * a {@link DataSource.Factory}.
+     *
+     * @param manifestUri The {@link Uri} of the HLS manifest.
+     * @param dataSourceFactory A data source factory that will be wrapped by a
+     *     {@link DefaultHlsDataSourceFactory} to build {@link DataSource}s for manifests,
+     *     segments and keys.
+     * @return A new builder.
+     */
+    public static Builder forDataSource(Uri manifestUri, DataSource.Factory dataSourceFactory) {
+      return new Builder(manifestUri, new DefaultHlsDataSourceFactory(dataSourceFactory));
+    }
+
+    /**
+     * Creates a {@link Builder} for a {@link HlsMediaSource} with a loadable manifest Uri and
+     * a {@link HlsDataSourceFactory}.
+     *
+     * @param manifestUri The {@link Uri} of the HLS manifest.
+     * @param dataSourceFactory An {@link HlsDataSourceFactory} for {@link DataSource}s for
+     *     manifests, segments and keys.
+     * @return A new builder.
+     */
+    public static Builder forHlsDataSource(Uri manifestUri,
+        HlsDataSourceFactory dataSourceFactory) {
+      return new Builder(manifestUri, dataSourceFactory);
+    }
+
+    private Builder(Uri manifestUri, HlsDataSourceFactory hlsDataSourceFactory) {
+      this.manifestUri = manifestUri;
+      this.hlsDataSourceFactory = hlsDataSourceFactory;
+
+      minLoadableRetryCount = DEFAULT_MIN_LOADABLE_RETRY_COUNT;
+    }
+
+    /**
+     * Sets the factory for {@link Extractor}s for the segments. Default value is
+     * {@link HlsExtractorFactory#DEFAULT}.
+     *
+     * @param extractorFactory An {@link HlsExtractorFactory} for {@link Extractor}s for the
+     * segments.
+     * @return This builder.
+     */
+    public Builder setExtractorFactory(HlsExtractorFactory extractorFactory) {
+      this.extractorFactory = extractorFactory;
+      return this;
+    }
+
+    /**
+     * Sets the minimum number of times to retry if a loading error occurs. The default value is
+     * {@link #DEFAULT_MIN_LOADABLE_RETRY_COUNT}.
+     *
+     * @param minLoadableRetryCount The minimum number of times loads must be retried before
+     *     errors are propagated.
+     * @return This builder.
+     */
+    public Builder setMinLoadableRetryCount(int minLoadableRetryCount) {
+      this.minLoadableRetryCount = minLoadableRetryCount;
+      return this;
+    }
+
+    /**
+     * Sets the listener to respond to adaptive {@link MediaSource} events and the handler to
+     * deliver these events.
+     *
+     * @param eventHandler A handler for events.
+     * @param eventListener A listener of events.
+     * @return This builder.
+     */
+    public Builder setEventListener(Handler eventHandler,
+        AdaptiveMediaSourceEventListener eventListener) {
+      this.eventHandler = eventHandler;
+      this.eventListener = eventListener;
+      return this;
+    }
+
+    /**
+     * Sets the parser to parse HLS playlists. The default is an instance of
+     * {@link HlsPlaylistParser}.
+     *
+     * @param playlistParser A {@link ParsingLoadable.Parser} for HLS playlists.
+     * @return This builder.
+     */
+    public Builder setPlaylistParser(ParsingLoadable.Parser<HlsPlaylist> playlistParser) {
+      this.playlistParser = playlistParser;
+      return this;
+    }
+
+    /**
+     * Builds a new {@link HlsMediaSource} using the current parameters.
+     * <p>
+     * After this call, the builder should not be re-used.
+     *
+     * @return The newly built {@link HlsMediaSource}.
+     */
+    public HlsMediaSource build() {
+      Assertions.checkArgument((eventListener == null) == (eventHandler == null));
+      Assertions.checkState(!isBuildCalled);
+      isBuildCalled = true;
+      if (extractorFactory == null) {
+        extractorFactory = HlsExtractorFactory.DEFAULT;
+      }
+      if (playlistParser == null) {
+        playlistParser = new HlsPlaylistParser();
+      }
+      return new HlsMediaSource(manifestUri, hlsDataSourceFactory, extractorFactory,
+          minLoadableRetryCount, eventHandler, eventListener, playlistParser);
+    }
+
+  }
+
+  /**
    * The default minimum number of times to retry loading data prior to failing.
    */
   public static final int DEFAULT_MIN_LOADABLE_RETRY_COUNT = 3;
@@ -69,7 +195,9 @@ public final class HlsMediaSource implements MediaSource,
    * @param eventHandler A handler for events. May be null if delivery of events is not required.
    * @param eventListener An {@link AdaptiveMediaSourceEventListener}. May be null if delivery of
    *     events is not required.
+   * @deprecated Use {@link Builder} instead.
    */
+  @Deprecated
   public HlsMediaSource(Uri manifestUri, DataSource.Factory dataSourceFactory, Handler eventHandler,
       AdaptiveMediaSourceEventListener eventListener) {
     this(manifestUri, dataSourceFactory, DEFAULT_MIN_LOADABLE_RETRY_COUNT, eventHandler,
@@ -85,7 +213,9 @@ public final class HlsMediaSource implements MediaSource,
    * @param eventHandler A handler for events. May be null if delivery of events is not required.
    * @param eventListener An {@link AdaptiveMediaSourceEventListener}. May be null if delivery of
    *     events is not required.
+   * @deprecated Use {@link Builder} instead.
    */
+  @Deprecated
   public HlsMediaSource(Uri manifestUri, DataSource.Factory dataSourceFactory,
       int minLoadableRetryCount, Handler eventHandler,
       AdaptiveMediaSourceEventListener eventListener) {
@@ -105,10 +235,12 @@ public final class HlsMediaSource implements MediaSource,
    * @param eventListener An {@link AdaptiveMediaSourceEventListener}. May be null if delivery of
    *     events is not required.
    * @param playlistParser A {@link ParsingLoadable.Parser} for HLS playlists.
+   * @deprecated Use {@link Builder} instead.
    */
+  @Deprecated
   public HlsMediaSource(Uri manifestUri, HlsDataSourceFactory dataSourceFactory,
-     HlsExtractorFactory extractorFactory, int minLoadableRetryCount, Handler eventHandler,
-     AdaptiveMediaSourceEventListener eventListener,
+      HlsExtractorFactory extractorFactory, int minLoadableRetryCount, Handler eventHandler,
+      AdaptiveMediaSourceEventListener eventListener,
       ParsingLoadable.Parser<HlsPlaylist> playlistParser) {
     this.manifestUri = manifestUri;
     this.dataSourceFactory = dataSourceFactory;

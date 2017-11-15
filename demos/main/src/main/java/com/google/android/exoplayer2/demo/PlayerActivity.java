@@ -374,7 +374,10 @@ public class PlayerActivity extends Activity implements OnClickListener,
             .setEventListener(mainHandler, eventLogger)
             .build();
       case C.TYPE_HLS:
-        return new HlsMediaSource(uri, mediaDataSourceFactory, mainHandler, eventLogger);
+        return HlsMediaSource.Builder
+            .forDataSource(uri, mediaDataSourceFactory)
+            .setEventListener(mainHandler, eventLogger)
+            .build();
       case C.TYPE_OTHER:
         return new ExtractorMediaSource(uri, mediaDataSourceFactory, new DefaultExtractorsFactory(),
             mainHandler, eventLogger);
