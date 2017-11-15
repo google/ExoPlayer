@@ -15,7 +15,6 @@
  */
 package com.google.android.exoplayer2.testutil;
 
-
 /**
  * Provides ogg/vorbis test data in bytes for unit tests.
  */
