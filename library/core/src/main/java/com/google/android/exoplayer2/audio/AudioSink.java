@@ -75,7 +75,7 @@ public interface AudioSink {
      *
      * @param bufferSize The size of the sink's buffer, in bytes.
      * @param bufferSizeMs The size of the sink's buffer, in milliseconds, if it is configured for
-     *     PCM output. {@link C#TIME_UNSET} if it is configured for passthrough output, as the
+     *     PCM output. {@link C#TIME_UNSET} if it is configured for encoded audio output, as the
      *     buffered media can have a variable bitrate so the duration may be unknown.
      * @param elapsedSinceLastFeedMs The time since the sink was last fed data, in milliseconds.
      */
@@ -165,12 +165,12 @@ public interface AudioSink {
   void setListener(Listener listener);
 
   /**
-   * Returns whether it's possible to play audio in the specified encoding using passthrough.
+   * Returns whether it's possible to play audio in the specified encoding.
    *
    * @param encoding The audio encoding.
-   * @return Whether it's possible to play audio in the specified encoding using passthrough.
+   * @return Whether it's possible to play audio in the specified encoding.
    */
-  boolean isPassthroughSupported(@C.Encoding int encoding);
+  boolean isEncodingSupported(@C.Encoding int encoding);
 
   /**
    * Returns the playback position in the stream starting at zero, in microseconds, or

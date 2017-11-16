@@ -6,7 +6,8 @@
   position, for fast backward seeking. The back-buffer can be configured by
   custom `LoadControl` implementations.
 * New Cast extension: Simplifies toggling between local and Cast playbacks.
-* Support 32-bit PCM float output from `DefaultAudioSink`.
+* Support 32-bit PCM float output from `DefaultAudioSink`, and add an option to
+  use this with `FfmpegAudioRenderer`.
 
 ### 2.6.0 ###
 
