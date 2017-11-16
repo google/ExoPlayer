@@ -1,5 +1,9 @@
 # Release notes #
 
+### dev-v2 (not yet released) ###
+
+* Support 32-bit PCM float output from `DefaultAudioSink`.
+
 ### 2.6.0 ###
 
 * Removed "r" prefix from versions. This release is "2.6.0", not "r2.6.0".

@@ -801,6 +801,7 @@ public final class Util {
       case C.ENCODING_PCM_24BIT:
         return channelCount * 3;
       case C.ENCODING_PCM_32BIT:
+      case C.ENCODING_PCM_FLOAT:
         return channelCount * 4;
       case C.ENCODING_INVALID:
       case Format.NO_VALUE:
