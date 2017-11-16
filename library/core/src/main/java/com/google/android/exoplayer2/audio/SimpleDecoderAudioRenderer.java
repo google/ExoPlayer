@@ -200,6 +200,16 @@ public abstract class SimpleDecoderAudioRenderer extends BaseRenderer implements
   protected abstract int supportsFormatInternal(DrmSessionManager<ExoMediaCrypto> drmSessionManager,
       Format format);
 
+  /**
+   * Returns whether the audio sink can accept audio in the specified encoding.
+   *
+   * @param encoding The audio encoding.
+   * @return Whether the audio sink can accept audio in the specified encoding.
+   */
+  protected final boolean supportsOutputEncoding(@C.Encoding int encoding) {
+    return audioSink.isEncodingSupported(encoding);
+  }
+
   @Override
   public void render(long positionUs, long elapsedRealtimeUs) throws ExoPlaybackException {
     if (outputStreamEnded) {
