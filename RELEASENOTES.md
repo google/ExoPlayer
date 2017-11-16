@@ -6,6 +6,7 @@
   position, for fast backward seeking. The back-buffer can be configured by
   custom `LoadControl` implementations.
 * New Cast extension: Simplifies toggling between local and Cast playbacks.
+* Support 32-bit PCM float output from `DefaultAudioSink`.
 
 ### 2.6.0 ###
 

@@ -329,8 +329,8 @@ public abstract class SimpleDecoderAudioRenderer extends BaseRenderer implements
 
     if (audioTrackNeedsConfigure) {
       Format outputFormat = getOutputFormat();
-      audioSink.configure(outputFormat.sampleMimeType, outputFormat.channelCount,
-          outputFormat.sampleRate, outputFormat.pcmEncoding, 0, null, encoderDelay, encoderPadding);
+      audioSink.configure(outputFormat.pcmEncoding, outputFormat.channelCount,
+          outputFormat.sampleRate, 0, null, encoderDelay, encoderPadding);
       audioTrackNeedsConfigure = false;
     }
 

@@ -51,6 +51,7 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
   private boolean passthroughEnabled;
   private boolean codecNeedsDiscardChannelsWorkaround;
   private android.media.MediaFormat passthroughMediaFormat;
+  @C.Encoding
   private int pcmEncoding;
   private int channelCount;
   private int encoderDelay;
@@ -226,7 +227,7 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
    * @return Whether passthrough playback is supported.
    */
   protected boolean allowPassthrough(String mimeType) {
-    return audioSink.isPassthroughSupported(mimeType);
+    return audioSink.isPassthroughSupported(MimeTypes.getEncoding(mimeType));
   }
 
   @Override
@@ -272,10 +273,15 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
   @Override
   protected void onOutputFormatChanged(MediaCodec codec, MediaFormat outputFormat)
       throws ExoPlaybackException {
-    boolean passthrough = passthroughMediaFormat != null;
-    String mimeType = passthrough ? passthroughMediaFormat.getString(MediaFormat.KEY_MIME)
-        : MimeTypes.AUDIO_RAW;
-    MediaFormat format = passthrough ? passthroughMediaFormat : outputFormat;
+    @C.Encoding int encoding;
+    MediaFormat format;
+    if (passthroughMediaFormat != null) {
+      encoding = MimeTypes.getEncoding(passthroughMediaFormat.getString(MediaFormat.KEY_MIME));
+      format = passthroughMediaFormat;
+    } else {
+      encoding = pcmEncoding;
+      format = outputFormat;
+    }
     int channelCount = format.getInteger(MediaFormat.KEY_CHANNEL_COUNT);
     int sampleRate = format.getInteger(MediaFormat.KEY_SAMPLE_RATE);
     int[] channelMap;
@@ -289,8 +295,8 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
     }
 
     try {
-      audioSink.configure(mimeType, channelCount, sampleRate, pcmEncoding, 0, channelMap,
-          encoderDelay, encoderPadding);
+      audioSink.configure(encoding, channelCount, sampleRate, 0, channelMap, encoderDelay,
+          encoderPadding);
     } catch (AudioSink.ConfigurationException e) {
       throw ExoPlaybackException.createForRenderer(e, getIndex());
     }
