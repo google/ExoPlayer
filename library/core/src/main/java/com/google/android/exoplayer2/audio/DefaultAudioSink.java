@@ -285,8 +285,15 @@ public final class DefaultAudioSink implements AudioSink {
   }
 
   @Override
-  public boolean isPassthroughSupported(@C.Encoding int encoding) {
-    return audioCapabilities != null && audioCapabilities.supportsEncoding(encoding);
+  public boolean isEncodingSupported(@C.Encoding int encoding) {
+    if (isEncodingPcm(encoding)) {
+      // AudioTrack supports 16-bit integer PCM output in all platform API versions, and float
+      // output from platform API version 21 only. Other integer PCM encodings are resampled by this
+      // sink to 16-bit PCM.
+      return encoding != C.ENCODING_PCM_FLOAT || Util.SDK_INT >= 21;
+    } else {
+      return audioCapabilities != null && audioCapabilities.supportsEncoding(encoding);
+    }
   }
 
   @Override
