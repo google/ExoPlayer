@@ -303,7 +303,8 @@ import java.util.Arrays;
 
   @Override
   public long readDiscontinuity() {
-    if (notifyDiscontinuity) {
+    if (notifyDiscontinuity
+        && (loadingFinished || getExtractedSamplesCount() > extractedSamplesCountAtStartOfLoad)) {
       notifyDiscontinuity = false;
       return lastSeekPositionUs;
     }
