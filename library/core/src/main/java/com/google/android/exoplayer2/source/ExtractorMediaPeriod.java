@@ -303,7 +303,8 @@ import java.util.Arrays;
 
   @Override
   public long readDiscontinuity() {
-    if (notifyDiscontinuity) {
+    if (notifyDiscontinuity
+        && (loadingFinished || getExtractedSamplesCount() > extractedSamplesCountAtStartOfLoad)) {
       notifyDiscontinuity = false;
       return lastSeekPositionUs;
     }
@@ -361,7 +362,7 @@ import java.util.Arrays;
   // SampleStream methods.
 
   /* package */ boolean isReady(int track) {
-    return loadingFinished || (!isPendingReset() && sampleQueues[track].hasNextSample());
+    return !suppressRead() && (loadingFinished || sampleQueues[track].hasNextSample());
   }
 
   /* package */ void maybeThrowError() throws IOException {
@@ -370,7 +371,7 @@ import java.util.Arrays;
 
   /* package */ int readData(int track, FormatHolder formatHolder, DecoderInputBuffer buffer,
       boolean formatRequired) {
-    if (notifyDiscontinuity || isPendingReset()) {
+    if (suppressRead()) {
       return C.RESULT_NOTHING_READ;
     }
     return sampleQueues[track].read(formatHolder, buffer, formatRequired, loadingFinished,
@@ -378,6 +379,9 @@ import java.util.Arrays;
   }
 
   /* package */ int skipData(int track, long positionUs) {
+    if (suppressRead()) {
+      return 0;
+    }
     SampleQueue sampleQueue = sampleQueues[track];
     if (loadingFinished && positionUs > sampleQueue.getLargestQueuedTimestampUs()) {
       return sampleQueue.advanceToEnd();
@@ -385,6 +389,10 @@ import java.util.Arrays;
       int skipCount = sampleQueue.advanceTo(positionUs, true, true);
       return skipCount == SampleQueue.ADVANCE_FAILED ? 0 : skipCount;
     }
+  }
+
+  private boolean suppressRead() {
+    return notifyDiscontinuity || isPendingReset();
   }
 
   // Loader.Callback implementation.
