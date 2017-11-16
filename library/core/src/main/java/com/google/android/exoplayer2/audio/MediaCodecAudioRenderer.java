@@ -178,6 +178,11 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
         && mediaCodecSelector.getPassthroughDecoderInfo() != null) {
       return ADAPTIVE_NOT_SEAMLESS | tunnelingSupport | FORMAT_HANDLED;
     }
+    if ((MimeTypes.AUDIO_RAW.equals(mimeType) && !audioSink.isEncodingSupported(format.pcmEncoding))
+        || !audioSink.isEncodingSupported(C.ENCODING_PCM_16BIT)) {
+      // Assume the decoder outputs 16-bit PCM, unless the input is raw.
+      return FORMAT_UNSUPPORTED_SUBTYPE;
+    }
     boolean requiresSecureDecryption = false;
     DrmInitData drmInitData = format.drmInitData;
     if (drmInitData != null) {
@@ -220,14 +225,15 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
 
   /**
    * Returns whether encoded audio passthrough should be used for playing back the input format.
-   * This implementation returns true if the {@link AudioSink} indicates that passthrough is
-   * supported.
+   * This implementation returns true if the {@link AudioSink} indicates that encoded audio output
+   * is supported.
    *
    * @param mimeType The type of input media.
    * @return Whether passthrough playback is supported.
    */
   protected boolean allowPassthrough(String mimeType) {
-    return audioSink.isPassthroughSupported(MimeTypes.getEncoding(mimeType));
+    @C.Encoding int encoding = MimeTypes.getEncoding(mimeType);
+    return encoding != C.ENCODING_INVALID && audioSink.isEncodingSupported(encoding);
   }
 
   @Override

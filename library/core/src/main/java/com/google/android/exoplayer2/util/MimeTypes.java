@@ -240,11 +240,12 @@ public final class MimeTypes {
   }
 
   /**
-   * Returns the {@link C}{@code .ENCODING_*} constant that corresponds to a specified MIME type, or
-   * {@link C#ENCODING_INVALID} if the mapping cannot be established.
+   * Returns the {@link C}{@code .ENCODING_*} constant that corresponds to specified MIME type, if
+   * it is an encoded (non-PCM) audio format, or {@link C#ENCODING_INVALID} otherwise.
    *
    * @param mimeType The MIME type.
-   * @return The {@link C}{@code .ENCODING_*} constant that corresponds to a specified MIME type.
+   * @return The {@link C}{@code .ENCODING_*} constant that corresponds to a specified MIME type, or
+   *     {@link C#ENCODING_INVALID}.
    */
   public static @C.Encoding int getEncoding(String mimeType) {
     switch (mimeType) {
