@@ -76,12 +76,10 @@ public class OpusPlaybackTest extends InstrumentationTestCase {
       DefaultTrackSelector trackSelector = new DefaultTrackSelector();
       player = ExoPlayerFactory.newInstance(new Renderer[] {audioRenderer}, trackSelector);
       player.addListener(this);
-      ExtractorMediaSource mediaSource = new ExtractorMediaSource(
-          uri,
-          new DefaultDataSourceFactory(context, "ExoPlayerExtOpusTest"),
-          MatroskaExtractor.FACTORY,
-          null,
-          null);
+      ExtractorMediaSource mediaSource = new ExtractorMediaSource.Builder(
+          uri, new DefaultDataSourceFactory(context, "ExoPlayerExtOpusTest"))
+          .setExtractorsFactory(MatroskaExtractor.FACTORY)
+          .build();
       player.prepare(mediaSource);
       player.setPlayWhenReady(true);
       Looper.loop();

@@ -2,6 +2,10 @@
 
 ### dev-v2 (not yet released) ###
 
+* Add Builder to ExtractorMediaSource, HlsMediaSource, SsMediaSource,
+  DashMediaSource.
+* DASH:
+  * Support in-MPD EventStream.
 * Allow a back-buffer of media to be retained behind the current playback
   position, for fast backward seeking. The back-buffer can be configured by
   custom `LoadControl` implementations.
