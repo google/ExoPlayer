@@ -60,7 +60,6 @@
     ([#3406](https://github.com/google/ExoPlayer/issues/3406)).
 * New Leanback extension: Simplifies binding Exoplayer to Leanback UI
   components.
-* New Cast extension: Simplifies toggling between local and Cast playbacks.
 * Unit tests moved to Robolectric.
 * Misc bugfixes.
 
