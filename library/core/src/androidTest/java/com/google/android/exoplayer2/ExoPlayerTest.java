@@ -27,7 +27,6 @@ import com.google.android.exoplayer2.testutil.FakeMediaSource;
 import com.google.android.exoplayer2.testutil.FakeRenderer;
 import com.google.android.exoplayer2.testutil.FakeShuffleOrder;
 import com.google.android.exoplayer2.testutil.FakeTimeline;
-import com.google.android.exoplayer2.testutil.FakeTimeline.TimelineWindowDefinition;
 import com.google.android.exoplayer2.testutil.FakeTrackSelection;
 import com.google.android.exoplayer2.testutil.FakeTrackSelector;
 import java.util.ArrayList;
@@ -68,7 +67,7 @@ public final class ExoPlayerTest extends TestCase {
    * Tests playback of a source that exposes a single period.
    */
   public void testPlaySinglePeriodTimeline() throws Exception {
-    Timeline timeline = new FakeTimeline(new TimelineWindowDefinition(false, false, 0));
+    Timeline timeline = new FakeTimeline(/* windowCount= */ 1);
     Object manifest = new Object();
     FakeRenderer renderer = new FakeRenderer(Builder.VIDEO_FORMAT);
     ExoPlayerTestRunner testRunner = new ExoPlayerTestRunner.Builder()
@@ -87,10 +86,7 @@ public final class ExoPlayerTest extends TestCase {
    * Tests playback of a source that exposes three periods.
    */
   public void testPlayMultiPeriodTimeline() throws Exception {
-    Timeline timeline = new FakeTimeline(
-        new TimelineWindowDefinition(false, false, 0),
-        new TimelineWindowDefinition(false, false, 0),
-        new TimelineWindowDefinition(false, false, 0));
+    Timeline timeline = new FakeTimeline(/* windowCount= */ 3);
     FakeRenderer renderer = new FakeRenderer(Builder.VIDEO_FORMAT);
     ExoPlayerTestRunner testRunner = new ExoPlayerTestRunner.Builder()
         .setTimeline(timeline).setRenderers(renderer)
@@ -107,10 +103,7 @@ public final class ExoPlayerTest extends TestCase {
    * source.
    */
   public void testReadAheadToEndDoesNotResetRenderer() throws Exception {
-    Timeline timeline = new FakeTimeline(
-        new TimelineWindowDefinition(false, false, 10),
-        new TimelineWindowDefinition(false, false, 10),
-        new TimelineWindowDefinition(false, false, 10));
+    Timeline timeline = new FakeTimeline(/* windowCount= */ 3);
     final FakeRenderer videoRenderer = new FakeRenderer(Builder.VIDEO_FORMAT);
     FakeMediaClockRenderer audioRenderer = new FakeMediaClockRenderer(Builder.AUDIO_FORMAT) {
 
@@ -151,7 +144,7 @@ public final class ExoPlayerTest extends TestCase {
   }
 
   public void testRepreparationGivesFreshSourceInfo() throws Exception {
-    Timeline timeline = new FakeTimeline(new TimelineWindowDefinition(false, false, 0));
+    Timeline timeline = new FakeTimeline(/* windowCount= */ 1);
     FakeRenderer renderer = new FakeRenderer(Builder.VIDEO_FORMAT);
     Object firstSourceManifest = new Object();
     MediaSource firstSource = new FakeMediaSource(timeline, firstSourceManifest,
@@ -218,10 +211,7 @@ public final class ExoPlayerTest extends TestCase {
   }
 
   public void testRepeatModeChanges() throws Exception {
-    Timeline timeline = new FakeTimeline(
-        new TimelineWindowDefinition(true, false, 100000),
-        new TimelineWindowDefinition(true, false, 100000),
-        new TimelineWindowDefinition(true, false, 100000));
+    Timeline timeline = new FakeTimeline(/* windowCount= */ 3);
     FakeRenderer renderer = new FakeRenderer(Builder.VIDEO_FORMAT);
     ActionSchedule actionSchedule = new ActionSchedule.Builder("testRepeatMode") // 0 -> 1
         .waitForPositionDiscontinuity().setRepeatMode(Player.REPEAT_MODE_ONE) // 1 -> 1
@@ -241,7 +231,7 @@ public final class ExoPlayerTest extends TestCase {
   }
 
   public void testShuffleModeEnabledChanges() throws Exception {
-    Timeline fakeTimeline = new FakeTimeline(new TimelineWindowDefinition(true, false, 100000));
+    Timeline fakeTimeline = new FakeTimeline(/* windowCount= */ 1);
     MediaSource[] fakeMediaSources = {
         new FakeMediaSource(fakeTimeline, null, Builder.VIDEO_FORMAT),
         new FakeMediaSource(fakeTimeline, null, Builder.VIDEO_FORMAT),
@@ -264,7 +254,6 @@ public final class ExoPlayerTest extends TestCase {
   }
 
   public void testPeriodHoldersReleasedAfterSeekWithRepeatModeAll() throws Exception {
-    Timeline fakeTimeline = new FakeTimeline(new TimelineWindowDefinition(true, false, 100000));
     FakeRenderer renderer = new FakeRenderer(Builder.VIDEO_FORMAT);
     ActionSchedule actionSchedule = new ActionSchedule.Builder("testPeriodHoldersReleased")
         .setRepeatMode(Player.REPEAT_MODE_ALL)
@@ -274,15 +263,13 @@ public final class ExoPlayerTest extends TestCase {
         .setRepeatMode(Player.REPEAT_MODE_OFF) // Turn off repeat so that playback can finish.
         .build();
     new ExoPlayerTestRunner.Builder()
-        .setTimeline(fakeTimeline).setRenderers(renderer).setActionSchedule(actionSchedule)
+        .setRenderers(renderer).setActionSchedule(actionSchedule)
         .build().start().blockUntilEnded(TIMEOUT_MS);
     assertTrue(renderer.isEnded);
   }
 
   public void testSeekProcessedCallback() throws Exception {
-    Timeline timeline = new FakeTimeline(
-        new TimelineWindowDefinition(true, false, 100000),
-        new TimelineWindowDefinition(true, false, 100000));
+    Timeline timeline = new FakeTimeline(/* windowCount= */ 2);
     ActionSchedule actionSchedule = new ActionSchedule.Builder("testSeekProcessedCallback")
         // Initial seek before timeline preparation finished.
         .pause().seek(10).waitForPlaybackState(Player.STATE_READY)
@@ -314,8 +301,7 @@ public final class ExoPlayerTest extends TestCase {
   }
 
   public void testAllActivatedTrackSelectionAreReleasedForSinglePeriod() throws Exception {
-    Timeline timeline =
-        new FakeTimeline(new TimelineWindowDefinition(false, false, /* durationUs= */ 500_000));
+    Timeline timeline = new FakeTimeline(/* windowCount= */ 1);
     MediaSource mediaSource =
         new FakeMediaSource(timeline, null, Builder.VIDEO_FORMAT, Builder.AUDIO_FORMAT);
     FakeRenderer videoRenderer = new FakeRenderer(Builder.VIDEO_FORMAT);
@@ -343,9 +329,7 @@ public final class ExoPlayerTest extends TestCase {
   }
 
   public void testAllActivatedTrackSelectionAreReleasedForMultiPeriods() throws Exception {
-    Timeline timeline =
-        new FakeTimeline(new TimelineWindowDefinition(false, false, /* durationUs= */ 500_000),
-            new TimelineWindowDefinition(false, false, /* durationUs= */ 500_000));
+    Timeline timeline = new FakeTimeline(/* windowCount= */ 2);
     MediaSource mediaSource =
         new FakeMediaSource(timeline, null, Builder.VIDEO_FORMAT, Builder.AUDIO_FORMAT);
     FakeRenderer videoRenderer = new FakeRenderer(Builder.VIDEO_FORMAT);
@@ -374,8 +358,7 @@ public final class ExoPlayerTest extends TestCase {
 
   public void testAllActivatedTrackSelectionAreReleasedWhenTrackSelectionsAreRemade()
       throws Exception {
-    Timeline timeline =
-        new FakeTimeline(new TimelineWindowDefinition(false, false, /* durationUs= */ 500_000));
+    Timeline timeline = new FakeTimeline(/* windowCount= */ 1);
     MediaSource mediaSource =
         new FakeMediaSource(timeline, null, Builder.VIDEO_FORMAT, Builder.AUDIO_FORMAT);
     FakeRenderer videoRenderer = new FakeRenderer(Builder.VIDEO_FORMAT);
@@ -414,8 +397,7 @@ public final class ExoPlayerTest extends TestCase {
 
   public void testAllActivatedTrackSelectionAreReleasedWhenTrackSelectionsAreUsed()
       throws Exception {
-    Timeline timeline =
-        new FakeTimeline(new TimelineWindowDefinition(false, false, /* durationUs= */ 500_000));
+    Timeline timeline = new FakeTimeline(/* windowCount= */ 1);
     MediaSource mediaSource =
         new FakeMediaSource(timeline, null, Builder.VIDEO_FORMAT, Builder.AUDIO_FORMAT);
     FakeRenderer videoRenderer = new FakeRenderer(Builder.VIDEO_FORMAT);
