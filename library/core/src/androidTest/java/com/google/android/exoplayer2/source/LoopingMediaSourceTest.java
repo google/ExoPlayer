@@ -30,12 +30,13 @@ import junit.framework.TestCase;
  */
 public class LoopingMediaSourceTest extends TestCase {
 
-  private final Timeline multiWindowTimeline;
+  private FakeTimeline multiWindowTimeline;
 
-  public LoopingMediaSourceTest() {
-    multiWindowTimeline = TestUtil.extractTimelineFromMediaSource(new FakeMediaSource(
-        new FakeTimeline(new TimelineWindowDefinition(1, 111),
-            new TimelineWindowDefinition(1, 222), new TimelineWindowDefinition(1, 333)), null));
+  @Override
+  public void setUp() throws Exception {
+    super.setUp();
+    multiWindowTimeline = new FakeTimeline(new TimelineWindowDefinition(1, 111),
+        new TimelineWindowDefinition(1, 222), new TimelineWindowDefinition(1, 333));
   }
 
   public void testSingleLoop() {
