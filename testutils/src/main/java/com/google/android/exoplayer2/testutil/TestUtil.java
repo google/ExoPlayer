@@ -146,6 +146,7 @@ public class TestUtil {
   /**
    * Extracts the timeline from a media source.
    */
+  // TODO: Remove this method and transition callers over to MediaSourceTestRunner.
   public static Timeline extractTimelineFromMediaSource(MediaSource mediaSource) {
     class TimelineListener implements Listener {
       private Timeline timeline;
