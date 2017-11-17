@@ -105,12 +105,10 @@ public class VpxPlaybackTest extends InstrumentationTestCase {
       DefaultTrackSelector trackSelector = new DefaultTrackSelector();
       player = ExoPlayerFactory.newInstance(new Renderer[] {videoRenderer}, trackSelector);
       player.addListener(this);
-      ExtractorMediaSource mediaSource = new ExtractorMediaSource(
-          uri,
-          new DefaultDataSourceFactory(context, "ExoPlayerExtVp9Test"),
-          MatroskaExtractor.FACTORY,
-          null,
-          null);
+      ExtractorMediaSource mediaSource = new ExtractorMediaSource.Builder(
+          uri, new DefaultDataSourceFactory(context, "ExoPlayerExtVp9Test"))
+          .setExtractorsFactory(MatroskaExtractor.FACTORY)
+          .build();
       player.sendMessages(new ExoPlayer.ExoPlayerMessage(videoRenderer,
           LibvpxVideoRenderer.MSG_SET_OUTPUT_BUFFER_RENDERER,
           new VpxVideoSurfaceView(context)));

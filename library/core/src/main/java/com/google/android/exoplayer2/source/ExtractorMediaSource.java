@@ -99,6 +99,123 @@ public final class ExtractorMediaSource implements MediaSource, ExtractorMediaPe
   private boolean timelineIsSeekable;
 
   /**
+   * Builder for {@link ExtractorMediaSource}. Each builder instance can only be used once.
+   */
+  public static final class Builder {
+
+    private final Uri uri;
+    private final DataSource.Factory dataSourceFactory;
+
+    private ExtractorsFactory extractorsFactory;
+    private int minLoadableRetryCount;
+    private Handler eventHandler;
+    private EventListener eventListener;
+    private String customCacheKey;
+    private int continueLoadingCheckIntervalBytes;
+    private boolean isBuildCalled;
+
+    /**
+     * @param uri The {@link Uri} of the media stream.
+     * @param dataSourceFactory A factory for {@link DataSource}s to read the media.
+     */
+    public Builder(Uri uri, DataSource.Factory dataSourceFactory) {
+      this.uri = uri;
+      this.dataSourceFactory = dataSourceFactory;
+
+      minLoadableRetryCount = MIN_RETRY_COUNT_DEFAULT_FOR_MEDIA;
+      continueLoadingCheckIntervalBytes = DEFAULT_LOADING_CHECK_INTERVAL_BYTES;
+    }
+
+    /**
+     * Sets the minimum number of times to retry if a loading error occurs. The default value is
+     * {@link #MIN_RETRY_COUNT_DEFAULT_FOR_MEDIA}.
+     *
+     * @param minLoadableRetryCount The minimum number of times to retry if a loading error occurs.
+     * @return This builder.
+     */
+    public Builder setMinLoadableRetryCount(int minLoadableRetryCount) {
+      this.minLoadableRetryCount = minLoadableRetryCount;
+      return this;
+    }
+
+    /**
+     * Sets the factory for {@link Extractor}s to process the media stream. Default value is an
+     * instance of {@link DefaultExtractorsFactory}.
+     *
+     * @param extractorsFactory A factory for {@link Extractor}s to process the media stream. If the
+     *     possible formats are known, pass a factory that instantiates extractors for those
+     *     formats.
+     * @return This builder.
+     */
+    public Builder setExtractorsFactory(ExtractorsFactory extractorsFactory) {
+      this.extractorsFactory = extractorsFactory;
+      return this;
+    }
+
+    /**
+     * Sets the custom key that uniquely identifies the original stream. Used for cache indexing.
+     * Default value is null.
+     *
+     * @param customCacheKey A custom key that uniquely identifies the original stream. Used for
+     *     cache indexing.
+     * @return This builder.
+     */
+    public Builder setCustomCacheKey(String customCacheKey) {
+      this.customCacheKey = customCacheKey;
+      return this;
+    }
+
+    /**
+     * Sets the number of bytes that should be loaded between each invocation of
+     * {@link MediaPeriod.Callback#onContinueLoadingRequested(SequenceableLoader)}. Default value
+     * is {@link #DEFAULT_LOADING_CHECK_INTERVAL_BYTES}.
+     *
+     * @param continueLoadingCheckIntervalBytes The number of bytes that should be loaded between
+     *     each invocation of
+     *     {@link MediaPeriod.Callback#onContinueLoadingRequested(SequenceableLoader)}.
+     * @return This builder.
+     */
+    public Builder setContinueLoadingCheckIntervalBytes(int continueLoadingCheckIntervalBytes) {
+      this.continueLoadingCheckIntervalBytes = continueLoadingCheckIntervalBytes;
+      return this;
+    }
+
+    /**
+     * Sets the listener to respond to {@link ExtractorMediaSource} events and the handler to
+     * deliver these events.
+     *
+     * @param eventHandler A handler for events.
+     * @param eventListener A listener of events.
+     * @return This builder.
+     */
+    public Builder setEventListener(Handler eventHandler, EventListener eventListener) {
+      this.eventHandler = eventHandler;
+      this.eventListener = eventListener;
+      return this;
+    }
+
+    /**
+     * Builds a new {@link ExtractorMediaSource} using the current parameters.
+     * <p>
+     * After this call, the builder should not be re-used.
+     *
+     * @return The newly built {@link ExtractorMediaSource}.
+     */
+    public ExtractorMediaSource build() {
+      Assertions.checkArgument((eventListener == null) == (eventHandler == null));
+      Assertions.checkState(!isBuildCalled);
+      isBuildCalled = true;
+      if (extractorsFactory == null) {
+        extractorsFactory = new DefaultExtractorsFactory();
+      }
+      return new ExtractorMediaSource(uri, dataSourceFactory, extractorsFactory,
+          minLoadableRetryCount, eventHandler, eventListener, customCacheKey,
+          continueLoadingCheckIntervalBytes);
+    }
+
+  }
+
+  /**
    * @param uri The {@link Uri} of the media stream.
    * @param dataSourceFactory A factory for {@link DataSource}s to read the media.
    * @param extractorsFactory A factory for {@link Extractor}s to process the media stream. If the
@@ -106,7 +223,9 @@ public final class ExtractorMediaSource implements MediaSource, ExtractorMediaPe
    *     Otherwise, pass a {@link DefaultExtractorsFactory} to use default extractors.
    * @param eventHandler A handler for events. May be null if delivery of events is not required.
    * @param eventListener A listener of events. May be null if delivery of events is not required.
+   * @deprecated Use {@link Builder} instead.
    */
+  @Deprecated
   public ExtractorMediaSource(Uri uri, DataSource.Factory dataSourceFactory,
       ExtractorsFactory extractorsFactory, Handler eventHandler, EventListener eventListener) {
     this(uri, dataSourceFactory, extractorsFactory, eventHandler, eventListener, null);
@@ -122,7 +241,9 @@ public final class ExtractorMediaSource implements MediaSource, ExtractorMediaPe
    * @param eventListener A listener of events. May be null if delivery of events is not required.
    * @param customCacheKey A custom key that uniquely identifies the original stream. Used for cache
    *     indexing. May be null.
+   * @deprecated Use {@link Builder} instead.
    */
+  @Deprecated
   public ExtractorMediaSource(Uri uri, DataSource.Factory dataSourceFactory,
       ExtractorsFactory extractorsFactory, Handler eventHandler, EventListener eventListener,
       String customCacheKey) {
@@ -143,7 +264,9 @@ public final class ExtractorMediaSource implements MediaSource, ExtractorMediaPe
    *     indexing. May be null.
    * @param continueLoadingCheckIntervalBytes The number of bytes that should be loaded between each
    *     invocation of {@link MediaPeriod.Callback#onContinueLoadingRequested(SequenceableLoader)}.
+   * @deprecated Use {@link Builder} instead.
    */
+  @Deprecated
   public ExtractorMediaSource(Uri uri, DataSource.Factory dataSourceFactory,
       ExtractorsFactory extractorsFactory, int minLoadableRetryCount, Handler eventHandler,
       EventListener eventListener, String customCacheKey, int continueLoadingCheckIntervalBytes) {

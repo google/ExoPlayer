@@ -2,6 +2,8 @@
 
 ### dev-v2 (not yet released) ###
 
+* Add Builder to ExtractorMediaSource, HlsMediaSource, SsMediaSource,
+  DashMediaSource.
 * Support 32-bit PCM float output from `DefaultAudioSink`, and add an option to
   use this with `FfmpegAudioRenderer`.
 

@@ -23,7 +23,6 @@ import android.view.ViewGroup;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.Timeline;
-import com.google.android.exoplayer2.extractor.DefaultExtractorsFactory;
 import com.google.android.exoplayer2.source.ExtractorMediaSource;
 import com.google.android.exoplayer2.source.MediaPeriod;
 import com.google.android.exoplayer2.source.MediaSource;
@@ -173,9 +172,10 @@ public final class AdsMediaSource implements MediaSource {
       final int adGroupIndex = id.adGroupIndex;
       final int adIndexInAdGroup = id.adIndexInAdGroup;
       if (adGroupMediaSources[adGroupIndex].length <= adIndexInAdGroup) {
-        MediaSource adMediaSource = new ExtractorMediaSource(
-            adPlaybackState.adUris[id.adGroupIndex][id.adIndexInAdGroup], dataSourceFactory,
-            new DefaultExtractorsFactory(), mainHandler, componentListener);
+        MediaSource adMediaSource = new ExtractorMediaSource.Builder(
+            adPlaybackState.adUris[id.adGroupIndex][id.adIndexInAdGroup], dataSourceFactory)
+            .setEventListener(mainHandler, componentListener)
+            .build();
         int oldAdCount = adGroupMediaSources[id.adGroupIndex].length;
         if (adIndexInAdGroup >= oldAdCount) {
           int adCount = adIndexInAdGroup + 1;
