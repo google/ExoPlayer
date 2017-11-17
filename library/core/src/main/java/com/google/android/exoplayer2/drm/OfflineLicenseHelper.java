@@ -27,8 +27,8 @@ import com.google.android.exoplayer2.drm.DrmSession.DrmSessionException;
 import com.google.android.exoplayer2.upstream.HttpDataSource;
 import com.google.android.exoplayer2.upstream.HttpDataSource.Factory;
 import com.google.android.exoplayer2.util.Assertions;
-import java.io.IOException;
 import java.util.HashMap;
+import java.util.UUID;
 
 /**
  * Helper class to download, renew and release offline licenses.
@@ -96,7 +96,8 @@ public final class OfflineLicenseHelper<T extends ExoMediaCrypto> {
       String defaultLicenseUrl, boolean forceDefaultLicenseUrl, Factory httpDataSourceFactory,
       HashMap<String, String> optionalKeyRequestParameters)
       throws UnsupportedDrmException {
-    return new OfflineLicenseHelper<>(FrameworkMediaDrm.newInstance(C.WIDEVINE_UUID),
+    return new OfflineLicenseHelper<>(C.WIDEVINE_UUID,
+        FrameworkMediaDrm.newInstance(C.WIDEVINE_UUID),
         new HttpMediaDrmCallback(defaultLicenseUrl, forceDefaultLicenseUrl, httpDataSourceFactory),
         optionalKeyRequestParameters);
   }
@@ -104,6 +105,7 @@ public final class OfflineLicenseHelper<T extends ExoMediaCrypto> {
   /**
    * Constructs an instance. Call {@link #release()} when the instance is no longer required.
    *
+   * @param uuid The UUID of the drm scheme.
    * @param mediaDrm An underlying {@link ExoMediaDrm} for use by the manager.
    * @param callback Performs key and provisioning requests.
    * @param optionalKeyRequestParameters An optional map of parameters to pass as the last argument
@@ -111,7 +113,7 @@ public final class OfflineLicenseHelper<T extends ExoMediaCrypto> {
    * @see DefaultDrmSessionManager#DefaultDrmSessionManager(java.util.UUID, ExoMediaDrm,
    *     MediaDrmCallback, HashMap, Handler, EventListener)
    */
-  public OfflineLicenseHelper(ExoMediaDrm<T> mediaDrm, MediaDrmCallback callback,
+  public OfflineLicenseHelper(UUID uuid, ExoMediaDrm<T> mediaDrm, MediaDrmCallback callback,
       HashMap<String, String> optionalKeyRequestParameters) {
     handlerThread = new HandlerThread("OfflineLicenseHelper");
     handlerThread.start();
@@ -137,7 +139,7 @@ public final class OfflineLicenseHelper<T extends ExoMediaCrypto> {
         conditionVariable.open();
       }
     };
-    drmSessionManager = new DefaultDrmSessionManager<>(C.WIDEVINE_UUID, mediaDrm, callback,
+    drmSessionManager = new DefaultDrmSessionManager<>(uuid, mediaDrm, callback,
         optionalKeyRequestParameters, new Handler(handlerThread.getLooper()), eventListener);
   }
 
@@ -174,12 +176,9 @@ public final class OfflineLicenseHelper<T extends ExoMediaCrypto> {
    *
    * @param drmInitData The {@link DrmInitData} for the content whose license is to be downloaded.
    * @return The key set id for the downloaded license.
-   * @throws IOException If an error occurs reading data from the stream.
-   * @throws InterruptedException If the thread has been interrupted.
    * @throws DrmSessionException Thrown when a DRM session error occurs.
    */
-  public synchronized byte[] downloadLicense(DrmInitData drmInitData) throws IOException,
-      InterruptedException, DrmSessionException {
+  public synchronized byte[] downloadLicense(DrmInitData drmInitData) throws DrmSessionException {
     Assertions.checkArgument(drmInitData != null);
     return blockingKeyRequest(DefaultDrmSessionManager.MODE_DOWNLOAD, null, drmInitData);
   }
