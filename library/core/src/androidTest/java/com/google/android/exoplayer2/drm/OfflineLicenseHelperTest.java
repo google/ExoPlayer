@@ -23,7 +23,6 @@ import android.test.MoreAsserts;
 import android.util.Pair;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.drm.DrmInitData.SchemeData;
-import com.google.android.exoplayer2.upstream.HttpDataSource;
 import java.util.HashMap;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
@@ -34,7 +33,6 @@ import org.mockito.MockitoAnnotations;
 public class OfflineLicenseHelperTest extends InstrumentationTestCase {
 
   private OfflineLicenseHelper<?> offlineLicenseHelper;
-  @Mock private HttpDataSource httpDataSource;
   @Mock private MediaDrmCallback mediaDrmCallback;
   @Mock private ExoMediaDrm<ExoMediaCrypto> mediaDrm;
 
@@ -42,7 +40,8 @@ public class OfflineLicenseHelperTest extends InstrumentationTestCase {
   protected void setUp() throws Exception {
     setUpMockito(this);
     when(mediaDrm.openSession()).thenReturn(new byte[] {1, 2, 3});
-    offlineLicenseHelper = new OfflineLicenseHelper<>(mediaDrm, mediaDrmCallback, null);
+    offlineLicenseHelper = new OfflineLicenseHelper<>(C.WIDEVINE_UUID, mediaDrm, mediaDrmCallback,
+        null);
   }
 
   @Override
