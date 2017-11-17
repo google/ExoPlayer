@@ -32,7 +32,6 @@ import com.google.android.exoplayer2.metadata.MetadataOutput;
 import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.testutil.ExoPlayerTestRunner.Builder.PlayerFactory;
-import com.google.android.exoplayer2.testutil.FakeTimeline.TimelineWindowDefinition;
 import com.google.android.exoplayer2.text.TextOutput;
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
 import com.google.android.exoplayer2.trackselection.MappingTrackSelector;
@@ -103,8 +102,9 @@ public final class ExoPlayerTestRunner extends Player.DefaultEventListener {
 
     /**
      * Sets a {@link Timeline} to be used by a {@link FakeMediaSource} in the test runner. The
-     * default value is a non-seekable, non-dynamic {@link FakeTimeline} with zero duration. Setting
-     * the timeline is not allowed after a call to {@link #setMediaSource(MediaSource)}.
+     * default value is a seekable, non-dynamic {@link FakeTimeline} with a duration of
+     * {@link FakeTimeline.TimelineWindowDefinition#DEFAULT_WINDOW_DURATION_US}. Setting the
+     * timeline is not allowed after a call to {@link #setMediaSource(MediaSource)}.
      *
      * @param timeline A {@link Timeline} to be used by a {@link FakeMediaSource} in the test
      *     runner.
@@ -294,7 +294,7 @@ public final class ExoPlayerTestRunner extends Player.DefaultEventListener {
       }
       if (mediaSource == null) {
         if (timeline == null) {
-          timeline = new FakeTimeline(new TimelineWindowDefinition(false, false, 0));
+          timeline = new FakeTimeline(1);
         }
         mediaSource = new FakeMediaSource(timeline, manifest, supportedFormats);
       }
