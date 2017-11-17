@@ -46,7 +46,6 @@ import com.google.android.exoplayer2.drm.FrameworkMediaCrypto;
 import com.google.android.exoplayer2.drm.FrameworkMediaDrm;
 import com.google.android.exoplayer2.drm.HttpMediaDrmCallback;
 import com.google.android.exoplayer2.drm.UnsupportedDrmException;
-import com.google.android.exoplayer2.extractor.DefaultExtractorsFactory;
 import com.google.android.exoplayer2.mediacodec.MediaCodecRenderer.DecoderInitializationException;
 import com.google.android.exoplayer2.mediacodec.MediaCodecUtil.DecoderQueryException;
 import com.google.android.exoplayer2.source.BehindLiveWindowException;
@@ -379,8 +378,9 @@ public class PlayerActivity extends Activity implements OnClickListener,
             .setEventListener(mainHandler, eventLogger)
             .build();
       case C.TYPE_OTHER:
-        return new ExtractorMediaSource(uri, mediaDataSourceFactory, new DefaultExtractorsFactory(),
-            mainHandler, eventLogger);
+        return new ExtractorMediaSource.Builder(uri, mediaDataSourceFactory)
+            .setEventListener(mainHandler, eventLogger)
+            .build();
       default: {
         throw new IllegalStateException("Unsupported type: " + type);
       }

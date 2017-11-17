@@ -21,8 +21,6 @@ import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.ExoPlayerFactory;
 import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.ext.ima.ImaAdsLoader;
-import com.google.android.exoplayer2.extractor.DefaultExtractorsFactory;
-import com.google.android.exoplayer2.extractor.ExtractorsFactory;
 import com.google.android.exoplayer2.source.ExtractorMediaSource;
 import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.source.ads.AdsMediaSource;
@@ -69,13 +67,10 @@ import com.google.android.exoplayer2.util.Util;
     DataSource.Factory dataSourceFactory = new DefaultDataSourceFactory(context,
         Util.getUserAgent(context, context.getString(R.string.application_name)));
 
-    // Produces Extractor instances for parsing the content media (i.e. not the ad).
-    ExtractorsFactory extractorsFactory = new DefaultExtractorsFactory();
-
     // This is the MediaSource representing the content media (i.e. not the ad).
     String contentUrl = context.getString(R.string.content_url);
-    MediaSource contentMediaSource = new ExtractorMediaSource(
-        Uri.parse(contentUrl), dataSourceFactory, extractorsFactory, null, null);
+    MediaSource contentMediaSource =
+        new ExtractorMediaSource.Builder(Uri.parse(contentUrl), dataSourceFactory).build();
 
     // Compose the content media source into a new AdsMediaSource with both ads and content.
     MediaSource mediaSourceWithAds = new AdsMediaSource(contentMediaSource, dataSourceFactory,
