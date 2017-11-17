@@ -23,6 +23,7 @@ import com.google.android.exoplayer2.testutil.FakeMediaSource;
 import com.google.android.exoplayer2.testutil.FakeShuffleOrder;
 import com.google.android.exoplayer2.testutil.FakeTimeline;
 import com.google.android.exoplayer2.testutil.FakeTimeline.TimelineWindowDefinition;
+import com.google.android.exoplayer2.testutil.MediaSourceTestRunner;
 import com.google.android.exoplayer2.testutil.TestUtil;
 import com.google.android.exoplayer2.testutil.TimelineAsserts;
 import junit.framework.TestCase;
@@ -31,6 +32,8 @@ import junit.framework.TestCase;
  * Unit tests for {@link ConcatenatingMediaSource}.
  */
 public final class ConcatenatingMediaSourceTest extends TestCase {
+
+  private static final int TIMEOUT_MS = 10000;
 
   public void testEmptyConcatenation() {
     for (boolean atomic : new boolean[] {false, true}) {
@@ -208,18 +211,22 @@ public final class ConcatenatingMediaSourceTest extends TestCase {
     ConcatenatingMediaSource mediaSource = new ConcatenatingMediaSource(mediaSourceContentOnly,
         mediaSourceWithAds);
 
-    // Prepare and assert timeline contains ad groups.
-    Timeline timeline = TestUtil.extractTimelineFromMediaSource(mediaSource);
-    TimelineAsserts.assertAdGroupCounts(timeline, 0, 0, 1, 1);
+    MediaSourceTestRunner testRunner = new MediaSourceTestRunner(mediaSource, null, TIMEOUT_MS);
+    try {
+      Timeline timeline = testRunner.prepareSource();
+      TimelineAsserts.assertAdGroupCounts(timeline, 0, 0, 1, 1);
 
-    // Create all periods and assert period creation of child media sources has been called.
-    TimelineAsserts.assertAllPeriodsCanBeCreatedPreparedAndReleased(mediaSource, timeline, 10_000);
-    mediaSourceContentOnly.assertMediaPeriodCreated(new MediaPeriodId(0));
-    mediaSourceContentOnly.assertMediaPeriodCreated(new MediaPeriodId(1));
-    mediaSourceWithAds.assertMediaPeriodCreated(new MediaPeriodId(0));
-    mediaSourceWithAds.assertMediaPeriodCreated(new MediaPeriodId(1));
-    mediaSourceWithAds.assertMediaPeriodCreated(new MediaPeriodId(0, 0, 0));
-    mediaSourceWithAds.assertMediaPeriodCreated(new MediaPeriodId(1, 0, 0));
+      // Create all periods and assert period creation of child media sources has been called.
+      testRunner.assertPrepareAndReleaseAllPeriods();
+      mediaSourceContentOnly.assertMediaPeriodCreated(new MediaPeriodId(0));
+      mediaSourceContentOnly.assertMediaPeriodCreated(new MediaPeriodId(1));
+      mediaSourceWithAds.assertMediaPeriodCreated(new MediaPeriodId(0));
+      mediaSourceWithAds.assertMediaPeriodCreated(new MediaPeriodId(1));
+      mediaSourceWithAds.assertMediaPeriodCreated(new MediaPeriodId(0, 0, 0));
+      mediaSourceWithAds.assertMediaPeriodCreated(new MediaPeriodId(1, 0, 0));
+    } finally {
+      testRunner.release();
+    }
   }
 
   /**
