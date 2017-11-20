@@ -18,7 +18,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="com.google.android.exoplayer2.ext.flac.test">
 
-  <uses-sdk android:minSdkVersion="14" android:targetSdkVersion="26"/>
+  <uses-sdk android:minSdkVersion="14" android:targetSdkVersion="27"/>
 
   <application android:debuggable="true"
       android:allowBackup="false"
