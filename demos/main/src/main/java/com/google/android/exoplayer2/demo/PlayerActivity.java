@@ -83,7 +83,7 @@ import java.util.UUID;
 public class PlayerActivity extends Activity implements OnClickListener,
     PlaybackControlView.VisibilityListener {
 
-  public static final String DRM_SCHEME_UUID_EXTRA = "drm_scheme_uuid";
+  public static final String DRM_SCHEME_EXTRA = "drm_scheme";
   public static final String DRM_LICENSE_URL = "drm_license_url";
   public static final String DRM_KEY_REQUEST_PROPERTIES = "drm_key_request_properties";
   public static final String DRM_MULTI_SESSION = "drm_multi_session";
@@ -97,6 +97,9 @@ public class PlayerActivity extends Activity implements OnClickListener,
   public static final String URI_LIST_EXTRA = "uri_list";
   public static final String EXTENSION_LIST_EXTRA = "extension_list";
   public static final String AD_TAG_URI_EXTRA = "ad_tag_uri";
+
+  // For backwards compatibility.
+  private static final String DRM_SCHEME_UUID_EXTRA = "drm_scheme_uuid";
 
   private static final DefaultBandwidthMeter BANDWIDTH_METER = new DefaultBandwidthMeter();
   private static final CookieManager DEFAULT_COOKIE_MANAGER;
@@ -256,10 +259,8 @@ public class PlayerActivity extends Activity implements OnClickListener,
       lastSeenTrackGroupArray = null;
       eventLogger = new EventLogger(trackSelector);
 
-      UUID drmSchemeUuid = intent.hasExtra(DRM_SCHEME_UUID_EXTRA)
-          ? UUID.fromString(intent.getStringExtra(DRM_SCHEME_UUID_EXTRA)) : null;
       DrmSessionManager<FrameworkMediaCrypto> drmSessionManager = null;
-      if (drmSchemeUuid != null) {
+      if (intent.hasExtra(DRM_SCHEME_EXTRA) || intent.hasExtra(DRM_SCHEME_UUID_EXTRA)) {
         String drmLicenseUrl = intent.getStringExtra(DRM_LICENSE_URL);
         String[] keyRequestPropertiesArray = intent.getStringArrayExtra(DRM_KEY_REQUEST_PROPERTIES);
         boolean multiSession = intent.getBooleanExtra(DRM_MULTI_SESSION, false);
@@ -268,6 +269,9 @@ public class PlayerActivity extends Activity implements OnClickListener,
           errorStringId = R.string.error_drm_not_supported;
         } else {
           try {
+            String drmSchemeExtra = intent.hasExtra(DRM_SCHEME_EXTRA) ? DRM_SCHEME_EXTRA
+                : DRM_SCHEME_UUID_EXTRA;
+            UUID drmSchemeUuid = DemoUtil.getDrmUuid(intent.getStringExtra(drmSchemeExtra));
             drmSessionManager = buildDrmSessionManagerV18(drmSchemeUuid, drmLicenseUrl,
                 keyRequestPropertiesArray, multiSession);
           } catch (UnsupportedDrmException e) {
