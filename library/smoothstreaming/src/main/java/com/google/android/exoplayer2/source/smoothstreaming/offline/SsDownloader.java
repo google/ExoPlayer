@@ -33,8 +33,8 @@ import java.util.List;
 /**
  * Helper class to download SmoothStreaming streams.
  *
- * <p>Except {@link #getTotalSegments()}, {@link #getDownloadedSegments()} and {@link
- * #getDownloadedBytes()}, this class isn't thread safe.
+ * <p>Except {@link #getTotalSegments()}, {@link #getDownloadedSegments()} and
+ * {@link #getDownloadedBytes()}, this class isn't thread safe.
  *
  * <p>Example usage:
  *

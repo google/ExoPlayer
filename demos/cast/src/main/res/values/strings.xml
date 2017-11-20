@@ -20,6 +20,4 @@
 
   <string name="media_route_menu_title">Cast</string>
 
-  <string name="error_unsupported_drm">DRM scheme not supported by this device.</string>
-
 </resources>
