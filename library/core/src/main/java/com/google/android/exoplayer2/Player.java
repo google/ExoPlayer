@@ -243,7 +243,7 @@ public interface Player {
    */
   @Retention(RetentionPolicy.SOURCE)
   @IntDef({DISCONTINUITY_REASON_PERIOD_TRANSITION, DISCONTINUITY_REASON_SEEK,
-      DISCONTINUITY_REASON_INTERNAL})
+      DISCONTINUITY_REASON_SEEK_ADJUSTMENT, DISCONTINUITY_REASON_INTERNAL})
   public @interface DiscontinuityReason {}
   /**
    * Automatic playback transition from one period in the timeline to the next. The period index may
@@ -255,9 +255,14 @@ public interface Player {
    */
   int DISCONTINUITY_REASON_SEEK = 1;
   /**
+   * Seek adjustment due to being unable to seek to the requested position or because the seek was
+   * permitted to be inexact.
+   */
+  int DISCONTINUITY_REASON_SEEK_ADJUSTMENT = 2;
+  /**
    * Discontinuity introduced internally by the source.
    */
-  int DISCONTINUITY_REASON_INTERNAL = 2;
+  int DISCONTINUITY_REASON_INTERNAL = 3;
 
   /**
    * Register a listener to receive events from the player. The listener's methods will be called on
