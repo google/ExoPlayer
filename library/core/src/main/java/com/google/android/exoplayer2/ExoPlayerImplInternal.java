@@ -24,6 +24,7 @@ import android.os.SystemClock;
 import android.support.annotation.NonNull;
 import android.util.Log;
 import android.util.Pair;
+import com.google.android.exoplayer2.DefaultMediaClock.PlaybackParameterListener;
 import com.google.android.exoplayer2.ExoPlayer.ExoPlayerMessage;
 import com.google.android.exoplayer2.MediaPeriodInfoSequence.MediaPeriodInfo;
 import com.google.android.exoplayer2.source.ClippingMediaPeriod;
@@ -37,8 +38,6 @@ import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
 import com.google.android.exoplayer2.trackselection.TrackSelector;
 import com.google.android.exoplayer2.trackselection.TrackSelectorResult;
 import com.google.android.exoplayer2.util.Assertions;
-import com.google.android.exoplayer2.util.MediaClock;
-import com.google.android.exoplayer2.util.StandaloneMediaClock;
 import com.google.android.exoplayer2.util.TraceUtil;
 import java.io.IOException;
 
@@ -46,7 +45,8 @@ import java.io.IOException;
  * Implements the internal behavior of {@link ExoPlayerImpl}.
  */
 /* package */ final class ExoPlayerImplInternal implements Handler.Callback,
-    MediaPeriod.Callback, TrackSelector.InvalidationListener, MediaSource.Listener {
+    MediaPeriod.Callback, TrackSelector.InvalidationListener, MediaSource.Listener,
+    PlaybackParameterListener {
 
   private static final String TAG = "ExoPlayerImplInternal";
 
@@ -99,7 +99,6 @@ import java.io.IOException;
   private final RendererCapabilities[] rendererCapabilities;
   private final TrackSelector trackSelector;
   private final LoadControl loadControl;
-  private final StandaloneMediaClock standaloneMediaClock;
   private final Handler handler;
   private final HandlerThread internalPlaybackThread;
   private final Handler eventHandler;
@@ -109,11 +108,9 @@ import java.io.IOException;
   private final MediaPeriodInfoSequence mediaPeriodInfoSequence;
   private final long backBufferDurationUs;
   private final boolean retainBackBufferFromKeyframe;
+  private final DefaultMediaClock mediaClock;
 
   private PlaybackInfo playbackInfo;
-  private PlaybackParameters playbackParameters;
-  private Renderer rendererMediaClockSource;
-  private MediaClock rendererMediaClock;
   private MediaSource mediaSource;
   private Renderer[] enabledRenderers;
   private boolean released;
@@ -158,13 +155,12 @@ import java.io.IOException;
       renderers[i].setIndex(i);
       rendererCapabilities[i] = renderers[i].getCapabilities();
     }
-    standaloneMediaClock = new StandaloneMediaClock();
+    mediaClock = new DefaultMediaClock(this);
     enabledRenderers = new Renderer[0];
     window = new Timeline.Window();
     period = new Timeline.Period();
     mediaPeriodInfoSequence = new MediaPeriodInfoSequence();
     trackSelector.init(this);
-    playbackParameters = PlaybackParameters.DEFAULT;
 
     // Note: The documentation for Process.THREAD_PRIORITY_AUDIO that states "Applications can
     // not normally change to this priority" is incorrect.
@@ -282,6 +278,16 @@ import java.io.IOException;
   @Override
   public void onTrackSelectionsInvalidated() {
     handler.sendEmptyMessage(MSG_TRACK_SELECTION_INVALIDATED);
+  }
+
+  // DefaultMediaClock.PlaybackParameterListener implementation.
+
+  @Override
+  public void onPlaybackParametersChanged(PlaybackParameters playbackParameters) {
+    // TODO(b/37237846): Make LoadControl, period transition position projection, adaptive track
+    // selection and potentially any time-related code in renderers take into account the playback
+    // speed.
+    eventHandler.obtainMessage(MSG_PLAYBACK_PARAMETERS_CHANGED, playbackParameters).sendToTarget();
   }
 
   // Handler.Callback implementation.
@@ -486,14 +492,14 @@ import java.io.IOException;
 
   private void startRenderers() throws ExoPlaybackException {
     rebuffering = false;
-    standaloneMediaClock.start();
+    mediaClock.start();
     for (Renderer renderer : enabledRenderers) {
       renderer.start();
     }
   }
 
   private void stopRenderers() throws ExoPlaybackException {
-    standaloneMediaClock.stop();
+    mediaClock.stop();
     for (Renderer renderer : enabledRenderers) {
       ensureStopped(renderer);
     }
@@ -509,18 +515,7 @@ import java.io.IOException;
     if (periodPositionUs != C.TIME_UNSET) {
       resetRendererPosition(periodPositionUs);
     } else {
-      // Use the standalone clock if there's no renderer clock, or if the providing renderer has
-      // ended or needs the next sample stream to reenter the ready state. The latter case uses the
-      // standalone clock to avoid getting stuck if tracks in the current period have uneven
-      // durations. See: https://github.com/google/ExoPlayer/issues/1874.
-      if (rendererMediaClockSource == null || rendererMediaClockSource.isEnded()
-          || (!rendererMediaClockSource.isReady()
-              && rendererMediaClockSource.hasReadStreamToEnd())) {
-        rendererPositionUs = standaloneMediaClock.getPositionUs();
-      } else {
-        rendererPositionUs = rendererMediaClock.getPositionUs();
-        standaloneMediaClock.setPositionUs(rendererPositionUs);
-      }
+      rendererPositionUs = mediaClock.syncAndGetPositionUs();
       periodPositionUs = playingPeriodHolder.toPeriodTime(rendererPositionUs);
     }
     playbackInfo.positionUs = periodPositionUs;
@@ -571,19 +566,6 @@ import java.io.IOException;
 
     if (!allRenderersReadyOrEnded) {
       maybeThrowPeriodPrepareError();
-    }
-
-    // The standalone media clock never changes playback parameters, so just check the renderer.
-    if (rendererMediaClock != null) {
-      PlaybackParameters playbackParameters = rendererMediaClock.getPlaybackParameters();
-      if (!playbackParameters.equals(this.playbackParameters)) {
-        // TODO: Make LoadControl, period transition position projection, adaptive track selection
-        // and potentially any time-related code in renderers take into account the playback speed.
-        this.playbackParameters = playbackParameters;
-        standaloneMediaClock.setPlaybackParameters(playbackParameters);
-        eventHandler.obtainMessage(MSG_PLAYBACK_PARAMETERS_CHANGED, playbackParameters)
-            .sendToTarget();
-      }
     }
 
     long playingPeriodDurationUs = playingPeriodHolder.info.durationUs;
@@ -771,19 +753,14 @@ import java.io.IOException;
     rendererPositionUs = playingPeriodHolder == null
         ? periodPositionUs + RENDERER_TIMESTAMP_OFFSET_US
         : playingPeriodHolder.toRendererTime(periodPositionUs);
-    standaloneMediaClock.setPositionUs(rendererPositionUs);
+    mediaClock.resetPosition(rendererPositionUs);
     for (Renderer renderer : enabledRenderers) {
       renderer.resetPosition(rendererPositionUs);
     }
   }
 
   private void setPlaybackParametersInternal(PlaybackParameters playbackParameters) {
-    if (rendererMediaClock != null) {
-      playbackParameters = rendererMediaClock.setPlaybackParameters(playbackParameters);
-    }
-    standaloneMediaClock.setPlaybackParameters(playbackParameters);
-    this.playbackParameters = playbackParameters;
-    eventHandler.obtainMessage(MSG_PLAYBACK_PARAMETERS_CHANGED, playbackParameters).sendToTarget();
+    mediaClock.setPlaybackParameters(playbackParameters);
   }
 
   private void stopInternal() {
@@ -806,7 +783,7 @@ import java.io.IOException;
   private void resetInternal(boolean releaseMediaSource) {
     handler.removeMessages(MSG_DO_SOME_WORK);
     rebuffering = false;
-    standaloneMediaClock.stop();
+    mediaClock.stop();
     rendererPositionUs = RENDERER_TIMESTAMP_OFFSET_US;
     for (Renderer renderer : enabledRenderers) {
       try {
@@ -857,10 +834,7 @@ import java.io.IOException;
   }
 
   private void disableRenderer(Renderer renderer) throws ExoPlaybackException {
-    if (renderer == rendererMediaClockSource) {
-      rendererMediaClock = null;
-      rendererMediaClockSource = null;
-    }
+    mediaClock.onRendererDisabled(renderer);
     ensureStopped(renderer);
     renderer.disable();
   }
@@ -1498,16 +1472,7 @@ import java.io.IOException;
       renderer.enable(rendererConfiguration, formats,
           playingPeriodHolder.sampleStreams[rendererIndex], rendererPositionUs,
           joining, playingPeriodHolder.getRendererOffset());
-      MediaClock mediaClock = renderer.getMediaClock();
-      if (mediaClock != null) {
-        if (rendererMediaClock != null) {
-          throw ExoPlaybackException.createForUnexpected(
-              new IllegalStateException("Multiple renderer media clocks enabled."));
-        }
-        rendererMediaClock = mediaClock;
-        rendererMediaClockSource = renderer;
-        rendererMediaClock.setPlaybackParameters(playbackParameters);
-      }
+      mediaClock.onRendererEnabled(renderer);
       // Start the renderer if playing.
       if (playing) {
         renderer.start();
