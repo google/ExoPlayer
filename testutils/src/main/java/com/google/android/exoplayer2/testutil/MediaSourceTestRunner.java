@@ -31,6 +31,8 @@ import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.source.MediaSource.MediaPeriodId;
 import com.google.android.exoplayer2.upstream.Allocator;
 import com.google.android.exoplayer2.util.Assertions;
+import com.google.android.exoplayer2.util.Util;
+
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.TimeUnit;
 
@@ -39,7 +41,8 @@ import java.util.concurrent.TimeUnit;
  */
 public class MediaSourceTestRunner {
 
-  private final long timeoutMs;
+  public static final int TIMEOUT_MS = 10000;
+
   private final StubExoPlayer player;
   private final MediaSource mediaSource;
   private final MediaSourceListener mediaSourceListener;
@@ -53,12 +56,10 @@ public class MediaSourceTestRunner {
   /**
    * @param mediaSource The source under test.
    * @param allocator The allocator to use during the test run.
-   * @param timeoutMs The timeout for operations in milliseconds.
    */
-  public MediaSourceTestRunner(MediaSource mediaSource, Allocator allocator, long timeoutMs) {
+  public MediaSourceTestRunner(MediaSource mediaSource, Allocator allocator) {
     this.mediaSource = mediaSource;
     this.allocator = allocator;
-    this.timeoutMs = timeoutMs;
     playbackThread = new HandlerThread("PlaybackThread");
     playbackThread.start();
     Looper playbackLooper = playbackThread.getLooper();
@@ -74,15 +75,24 @@ public class MediaSourceTestRunner {
    * @param runnable The {@link Runnable} to run.
    */
   public void runOnPlaybackThread(final Runnable runnable) {
+    final Throwable[] throwable = new Throwable[1];
     final ConditionVariable finishedCondition = new ConditionVariable();
     playbackHandler.post(new Runnable() {
       @Override
       public void run() {
-        runnable.run();
-        finishedCondition.open();
+        try {
+          runnable.run();
+        } catch (Throwable e) {
+          throwable[0] = e;
+        } finally {
+          finishedCondition.open();
+        }
       }
     });
-    assertTrue(finishedCondition.block(timeoutMs));
+    assertTrue(finishedCondition.block(TIMEOUT_MS));
+    if (throwable[0] != null) {
+      Util.sneakyThrow(throwable[0]);
+    }
   }
 
   /**
@@ -200,7 +210,7 @@ public class MediaSourceTestRunner {
    */
   public Timeline assertTimelineChangeBlocking() {
     try {
-      timeline = timelines.poll(timeoutMs, TimeUnit.MILLISECONDS);
+      timeline = timelines.poll(TIMEOUT_MS, TimeUnit.MILLISECONDS);
       assertNotNull(timeline); // Null indicates the poll timed out.
       assertNoTimelineChange();
       return timeline;
@@ -231,12 +241,12 @@ public class MediaSourceTestRunner {
   private void assertPrepareAndReleasePeriod(MediaPeriodId mediaPeriodId) {
     MediaPeriod mediaPeriod = createPeriod(mediaPeriodId);
     ConditionVariable preparedCondition = preparePeriod(mediaPeriod, 0);
-    assertTrue(preparedCondition.block(timeoutMs));
+    assertTrue(preparedCondition.block(TIMEOUT_MS));
     // MediaSource is supposed to support multiple calls to createPeriod with the same id without an
     // intervening call to releasePeriod.
     MediaPeriod secondMediaPeriod = createPeriod(mediaPeriodId);
     ConditionVariable secondPreparedCondition = preparePeriod(secondMediaPeriod, 0);
-    assertTrue(secondPreparedCondition.block(timeoutMs));
+    assertTrue(secondPreparedCondition.block(TIMEOUT_MS));
     // Release the periods.
     releasePeriod(mediaPeriod);
     releasePeriod(secondMediaPeriod);

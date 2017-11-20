@@ -19,10 +19,7 @@ import android.app.Instrumentation;
 import android.content.Context;
 import android.test.MoreAsserts;
 import com.google.android.exoplayer2.C;
-import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.extractor.Extractor;
-import com.google.android.exoplayer2.source.MediaSource;
-import com.google.android.exoplayer2.source.MediaSource.Listener;
 import com.google.android.exoplayer2.testutil.FakeExtractorInput.SimulatedIOException;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DataSpec;
@@ -141,34 +138,6 @@ public class TestUtil {
   public static String getString(Instrumentation instrumentation, String fileName)
       throws IOException {
     return new String(getByteArray(instrumentation, fileName));
-  }
-
-  /**
-   * Extracts the timeline from a media source.
-   */
-  // TODO: Remove this method and transition callers over to MediaSourceTestRunner.
-  public static Timeline extractTimelineFromMediaSource(MediaSource mediaSource) {
-    class TimelineListener implements Listener {
-      private Timeline timeline;
-      @Override
-      public synchronized void onSourceInfoRefreshed(MediaSource source, Timeline timeline,
-          Object manifest) {
-        this.timeline = timeline;
-        this.notify();
-      }
-    }
-    TimelineListener listener = new TimelineListener();
-    mediaSource.prepareSource(null, true, listener);
-    synchronized (listener) {
-      while (listener.timeline == null) {
-        try {
-          listener.wait();
-        } catch (InterruptedException e) {
-          Assert.fail(e.getMessage());
-        }
-      }
-    }
-    return listener.timeline;
   }
 
   /**
