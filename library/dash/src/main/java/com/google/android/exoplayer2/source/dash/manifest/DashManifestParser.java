@@ -360,7 +360,7 @@ public class DashManifestParser extends DefaultHandler
 
     String schemeIdUri = xpp.getAttributeValue(null, "schemeIdUri");
     if (schemeIdUri != null) {
-      switch (schemeIdUri.toLowerCase()) {
+      switch (Util.toLowerInvariant(schemeIdUri)) {
         case "urn:mpeg:dash:mp4protection:2011":
           schemeType = xpp.getAttributeValue(null, "value");
           String defaultKid = xpp.getAttributeValue(null, "cenc:default_KID");
