@@ -40,6 +40,7 @@ dependencies {
     compile files('libs/cronet_impl_common_java.jar')
     compile files('libs/cronet_impl_native_java.jar')
     androidTestCompile project(modulePrefix + 'library')
+    androidTestCompile project(modulePrefix + 'testutils')
     androidTestCompile 'com.google.dexmaker:dexmaker:' + dexmakerVersion
     androidTestCompile 'com.google.dexmaker:dexmaker-mockito:' + dexmakerVersion
     androidTestCompile 'org.mockito:mockito-core:' + mockitoVersion
