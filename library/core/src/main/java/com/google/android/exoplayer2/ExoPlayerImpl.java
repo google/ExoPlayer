@@ -473,7 +473,8 @@ import java.util.concurrent.CopyOnWriteArraySet;
       case ExoPlayerImplInternal.MSG_SOURCE_INFO_REFRESHED: {
         int prepareAcks = msg.arg1;
         int seekAcks = msg.arg2;
-        handlePlaybackInfo((PlaybackInfo) msg.obj, prepareAcks, seekAcks, false);
+        handlePlaybackInfo((PlaybackInfo) msg.obj, prepareAcks, seekAcks, false,
+            /* ignored */ DISCONTINUITY_REASON_INTERNAL);
         break;
       }
       case ExoPlayerImplInternal.MSG_TRACKS_CHANGED: {
@@ -491,11 +492,13 @@ import java.util.concurrent.CopyOnWriteArraySet;
       }
       case ExoPlayerImplInternal.MSG_SEEK_ACK: {
         boolean seekPositionAdjusted = msg.arg1 != 0;
-        handlePlaybackInfo((PlaybackInfo) msg.obj, 0, 1, seekPositionAdjusted);
+        handlePlaybackInfo((PlaybackInfo) msg.obj, 0, 1, seekPositionAdjusted,
+            DISCONTINUITY_REASON_SEEK_ADJUSTMENT);
         break;
       }
       case ExoPlayerImplInternal.MSG_POSITION_DISCONTINUITY: {
-        handlePlaybackInfo((PlaybackInfo) msg.obj, 0, 0, true);
+        @DiscontinuityReason int discontinuityReason = msg.arg1;
+        handlePlaybackInfo((PlaybackInfo) msg.obj, 0, 0, true, discontinuityReason);
         break;
       }
       case ExoPlayerImplInternal.MSG_PLAYBACK_PARAMETERS_CHANGED: {
@@ -521,7 +524,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
   }
 
   private void handlePlaybackInfo(PlaybackInfo playbackInfo, int prepareAcks, int seekAcks,
-      boolean positionDiscontinuity) {
+      boolean positionDiscontinuity, @DiscontinuityReason int positionDiscontinuityReason) {
     Assertions.checkNotNull(playbackInfo.timeline);
     pendingPrepareAcks -= prepareAcks;
     pendingSeekAcks -= seekAcks;
@@ -542,9 +545,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
       }
       if (positionDiscontinuity) {
         for (Player.EventListener listener : listeners) {
-          listener.onPositionDiscontinuity(
-              seekAcks > 0 ? DISCONTINUITY_REASON_INTERNAL : DISCONTINUITY_REASON_PERIOD_TRANSITION
-          );
+          listener.onPositionDiscontinuity(positionDiscontinuityReason);
         }
       }
     }

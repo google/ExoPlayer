@@ -503,6 +503,10 @@ import java.io.IOException;
     long periodPositionUs = playingPeriodHolder.mediaPeriod.readDiscontinuity();
     if (periodPositionUs != C.TIME_UNSET) {
       resetRendererPosition(periodPositionUs);
+      playbackInfo = playbackInfo.fromNewPosition(playbackInfo.periodId, periodPositionUs,
+          playbackInfo.contentPositionUs);
+      eventHandler.obtainMessage(MSG_POSITION_DISCONTINUITY, Player.DISCONTINUITY_REASON_INTERNAL,
+          0, playbackInfo).sendToTarget();
     } else {
       // Use the standalone clock if there's no renderer clock, or if the providing renderer has
       // ended or needs the next sample stream to reenter the ready state. The latter case uses the
@@ -893,7 +897,10 @@ import java.io.IOException;
       long periodPositionUs = playingPeriodHolder.updatePeriodTrackSelection(
           playbackInfo.positionUs, recreateStreams, streamResetFlags);
       if (periodPositionUs != playbackInfo.positionUs) {
-        playbackInfo.positionUs = periodPositionUs;
+        playbackInfo = playbackInfo.fromNewPosition(playbackInfo.periodId, periodPositionUs,
+            playbackInfo.contentPositionUs);
+        eventHandler.obtainMessage(MSG_POSITION_DISCONTINUITY, Player.DISCONTINUITY_REASON_INTERNAL,
+            0, playbackInfo).sendToTarget();
         resetRendererPosition(periodPositionUs);
       }
 
@@ -1280,7 +1287,8 @@ import java.io.IOException;
       playbackInfo = playbackInfo.fromNewPosition(playingPeriodHolder.info.id,
           playingPeriodHolder.info.startPositionUs, playingPeriodHolder.info.contentPositionUs);
       updatePlaybackPositions();
-      eventHandler.obtainMessage(MSG_POSITION_DISCONTINUITY, playbackInfo).sendToTarget();
+      eventHandler.obtainMessage(MSG_POSITION_DISCONTINUITY,
+          Player.DISCONTINUITY_REASON_PERIOD_TRANSITION, 0, playbackInfo).sendToTarget();
     }
 
     if (readingPeriodHolder.info.isFinal) {
