@@ -12,6 +12,8 @@
 * New Cast extension: Simplifies toggling between local and Cast playbacks.
 * Support 32-bit PCM float output from `DefaultAudioSink`, and add an option to
   use this with `FfmpegAudioRenderer`.
+* Support extraction and decoding of Dolby Atmos
+  ([#2465](https://github.com/google/ExoPlayer/issues/2465)).
 
 ### 2.6.0 ###
 

@@ -460,6 +460,7 @@ public class DashManifestParser extends DefaultHandler
     String drmSchemeType = null;
     ArrayList<SchemeData> drmSchemeDatas = new ArrayList<>();
     ArrayList<Descriptor> inbandEventStreams = new ArrayList<>();
+    ArrayList<Descriptor> supplementalProperties = new ArrayList<>();
 
     boolean seenFirstBaseUrl = false;
     do {
@@ -487,12 +488,14 @@ public class DashManifestParser extends DefaultHandler
         }
       } else if (XmlPullParserUtil.isStartTag(xpp, "InbandEventStream")) {
         inbandEventStreams.add(parseDescriptor(xpp, "InbandEventStream"));
+      } else if (XmlPullParserUtil.isStartTag(xpp, "SupplementalProperty")) {
+        supplementalProperties.add(parseDescriptor(xpp, "SupplementalProperty"));
       }
     } while (!XmlPullParserUtil.isEndTag(xpp, "Representation"));
 
     Format format = buildFormat(id, mimeType, width, height, frameRate, audioChannels,
         audioSamplingRate, bandwidth, adaptationSetLanguage, adaptationSetSelectionFlags,
-        adaptationSetAccessibilityDescriptors, codecs);
+        adaptationSetAccessibilityDescriptors, codecs, supplementalProperties);
     segmentBase = segmentBase != null ? segmentBase : new SingleSegmentBase();
 
     return new RepresentationInfo(format, baseUrl, segmentBase, drmSchemeType, drmSchemeDatas,
@@ -502,9 +505,12 @@ public class DashManifestParser extends DefaultHandler
   protected Format buildFormat(String id, String containerMimeType, int width, int height,
       float frameRate, int audioChannels, int audioSamplingRate, int bitrate, String language,
       @C.SelectionFlags int selectionFlags, List<Descriptor> accessibilityDescriptors,
-      String codecs) {
+      String codecs, List<Descriptor> supplementalProperties) {
     String sampleMimeType = getSampleMimeType(containerMimeType, codecs);
     if (sampleMimeType != null) {
+      if (MimeTypes.AUDIO_E_AC3.equals(sampleMimeType)) {
+        sampleMimeType = parseEac3SupplementalProperties(supplementalProperties);
+      }
       if (MimeTypes.isVideo(sampleMimeType)) {
         return Format.createVideoContainerFormat(id, containerMimeType, sampleMimeType, codecs,
             bitrate, width, height, frameRate, null, selectionFlags);
@@ -1043,6 +1049,18 @@ public class DashManifestParser extends DefaultHandler
       }
     }
     return Format.NO_VALUE;
+  }
+
+  protected static String parseEac3SupplementalProperties(List<Descriptor> supplementalProperties) {
+    for (int i = 0; i < supplementalProperties.size(); i++) {
+      Descriptor descriptor = supplementalProperties.get(i);
+      String schemeIdUri = descriptor.schemeIdUri;
+      if ("tag:dolby.com,2014:dash:DolbyDigitalPlusExtensionType:2014".equals(schemeIdUri)
+          && "ec+3".equals(descriptor.value)) {
+        return MimeTypes.AUDIO_ATMOS;
+      }
+    }
+    return MimeTypes.AUDIO_E_AC3;
   }
 
   protected static float parseFrameRate(XmlPullParser xpp, float defaultValue) {
