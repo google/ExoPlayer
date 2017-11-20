@@ -260,7 +260,7 @@ public final class ImaAdsLoader extends Player.DefaultEventListener implements A
   @Override
   public void detachPlayer() {
     if (adsManager != null && imaPausedContent) {
-      adPlaybackState.setAdResumePositionUs(C.msToUs(player.getCurrentPosition()));
+      adPlaybackState.setAdResumePositionUs(playingAd ? C.msToUs(player.getCurrentPosition()) : 0);
       adsManager.pause();
     }
     lastAdProgress = getAdProgress();
@@ -628,7 +628,6 @@ public final class ImaAdsLoader extends Player.DefaultEventListener implements A
       if (!wasPlayingAd && playingAd) {
         int adGroupIndex = player.getCurrentAdGroupIndex();
         // IMA hasn't sent CONTENT_PAUSE_REQUESTED yet, so fake the content position.
-        Assertions.checkState(fakeContentProgressElapsedRealtimeMs == C.TIME_UNSET);
         fakeContentProgressElapsedRealtimeMs = SystemClock.elapsedRealtime();
         fakeContentProgressOffsetMs = C.usToMs(adPlaybackState.adGroupTimesUs[adGroupIndex]);
         if (fakeContentProgressOffsetMs == C.TIME_END_OF_SOURCE) {
