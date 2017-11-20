@@ -39,7 +39,7 @@ public final class Ac3Reader implements ElementaryStreamReader {
   private static final int STATE_READING_HEADER = 1;
   private static final int STATE_READING_SAMPLE = 2;
 
-  private static final int HEADER_SIZE = 8;
+  private static final int HEADER_SIZE = 128;
 
   private final ParsableBitArray headerScratchBits;
   private final ParsableByteArray headerScratchBytes;
