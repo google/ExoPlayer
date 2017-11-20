@@ -21,7 +21,7 @@ import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.testutil.FakeMediaSource;
 import com.google.android.exoplayer2.testutil.FakeTimeline;
 import com.google.android.exoplayer2.testutil.FakeTimeline.TimelineWindowDefinition;
-import com.google.android.exoplayer2.testutil.TestUtil;
+import com.google.android.exoplayer2.testutil.MediaSourceTestRunner;
 import com.google.android.exoplayer2.testutil.TimelineAsserts;
 import junit.framework.TestCase;
 
@@ -110,10 +110,14 @@ public class LoopingMediaSourceTest extends TestCase {
    * the looping timeline.
    */
   private static Timeline getLoopingTimeline(Timeline timeline, int loopCount) {
-    MediaSource mediaSource = new FakeMediaSource(timeline, null);
-    return TestUtil.extractTimelineFromMediaSource(
-        new LoopingMediaSource(mediaSource, loopCount));
+    FakeMediaSource fakeMediaSource = new FakeMediaSource(timeline, null);
+    LoopingMediaSource mediaSource = new LoopingMediaSource(fakeMediaSource, loopCount);
+    MediaSourceTestRunner testRunner = new MediaSourceTestRunner(mediaSource, null);
+    try {
+      return testRunner.prepareSource();
+    } finally {
+      testRunner.release();
+    }
   }
 
 }
-

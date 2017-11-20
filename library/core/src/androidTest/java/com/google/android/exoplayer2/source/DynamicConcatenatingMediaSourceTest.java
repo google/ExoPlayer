@@ -39,19 +39,19 @@ import org.mockito.Mockito;
  */
 public final class DynamicConcatenatingMediaSourceTest extends TestCase {
 
-  private static final int TIMEOUT_MS = 10000;
-
   private DynamicConcatenatingMediaSource mediaSource;
   private MediaSourceTestRunner testRunner;
 
   @Override
-  public void setUp() {
+  public void setUp() throws Exception {
+    super.setUp();
     mediaSource = new DynamicConcatenatingMediaSource(new FakeShuffleOrder(0));
-    testRunner = new MediaSourceTestRunner(mediaSource, null, TIMEOUT_MS);
+    testRunner = new MediaSourceTestRunner(mediaSource, null);
   }
 
   @Override
-  public void tearDown() {
+  public void tearDown() throws Exception {
+    super.tearDown();
     testRunner.release();
   }
 
@@ -623,7 +623,7 @@ public final class DynamicConcatenatingMediaSourceTest extends TestCase {
           finishedCondition.open();
         }
       });
-      assertTrue(finishedCondition.block(TIMEOUT_MS));
+      assertTrue(finishedCondition.block(MediaSourceTestRunner.TIMEOUT_MS));
     }
 
     public void release() {
@@ -656,7 +656,7 @@ public final class DynamicConcatenatingMediaSourceTest extends TestCase {
     }
 
     public Timeline assertTimelineChangeBlocking() {
-      assertTrue(finishedCondition.block(TIMEOUT_MS));
+      assertTrue(finishedCondition.block(MediaSourceTestRunner.TIMEOUT_MS));
       if (error != null) {
         throw error;
       }
