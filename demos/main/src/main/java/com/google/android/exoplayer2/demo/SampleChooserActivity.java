@@ -32,8 +32,8 @@ import android.widget.ExpandableListView;
 import android.widget.ExpandableListView.OnChildClickListener;
 import android.widget.TextView;
 import android.widget.Toast;
-import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ParserException;
+import com.google.android.exoplayer2.drm.UnsupportedDrmException;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DataSourceInputStream;
 import com.google.android.exoplayer2.upstream.DataSpec;
@@ -202,7 +202,11 @@ public class SampleChooserActivity extends Activity {
             break;
           case "drm_scheme":
             Assertions.checkState(!insidePlaylist, "Invalid attribute on nested item: drm_scheme");
-            drmUuid = getDrmUuid(reader.nextString());
+            try {
+              drmUuid = DemoUtil.getDrmUuid(reader.nextString());
+            } catch (UnsupportedDrmException e) {
+              throw new ParserException(e);
+            }
             break;
           case "drm_license_url":
             Assertions.checkState(!insidePlaylist,
@@ -268,23 +272,6 @@ public class SampleChooserActivity extends Activity {
       SampleGroup group = new SampleGroup(groupName);
       groups.add(group);
       return group;
-    }
-
-    private UUID getDrmUuid(String typeString) throws ParserException {
-      switch (Util.toLowerInvariant(typeString)) {
-        case "widevine":
-          return C.WIDEVINE_UUID;
-        case "playready":
-          return C.PLAYREADY_UUID;
-        case "clearkey":
-          return C.CLEARKEY_UUID;
-        default:
-          try {
-            return UUID.fromString(typeString);
-          } catch (RuntimeException e) {
-            throw new ParserException("Unsupported drm type: " + typeString);
-          }
-      }
     }
 
   }
@@ -393,7 +380,7 @@ public class SampleChooserActivity extends Activity {
 
     public void updateIntent(Intent intent) {
       Assertions.checkNotNull(intent);
-      intent.putExtra(PlayerActivity.DRM_SCHEME_UUID_EXTRA, drmSchemeUuid.toString());
+      intent.putExtra(PlayerActivity.DRM_SCHEME_EXTRA, drmSchemeUuid.toString());
       intent.putExtra(PlayerActivity.DRM_LICENSE_URL, drmLicenseUrl);
       intent.putExtra(PlayerActivity.DRM_KEY_REQUEST_PROPERTIES, drmKeyRequestProperties);
       intent.putExtra(PlayerActivity.DRM_MULTI_SESSION, drmMultiSession);
