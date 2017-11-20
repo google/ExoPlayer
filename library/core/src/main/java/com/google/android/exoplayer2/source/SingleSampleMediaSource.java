@@ -46,6 +46,107 @@ public final class SingleSampleMediaSource implements MediaSource {
   }
 
   /**
+   * Builder for {@link SingleSampleMediaSource}. Each builder instance can only be used once.
+   */
+  public static final class Builder {
+
+    private final Uri uri;
+    private final DataSource.Factory dataSourceFactory;
+    private final Format format;
+    private final long durationUs;
+
+    private int minLoadableRetryCount;
+    private Handler eventHandler;
+    private EventListener eventListener;
+    private int eventSourceId;
+    private boolean treatLoadErrorsAsEndOfStream;
+    private boolean isBuildCalled;
+
+    /**
+     * @param uri The {@link Uri} of the media stream.
+     * @param dataSourceFactory The factory from which the {@link DataSource} to read the media will
+     *     be obtained.
+     * @param format The {@link Format} associated with the output track.
+     * @param durationUs The duration of the media stream in microseconds.
+     */
+    public Builder(Uri uri, DataSource.Factory dataSourceFactory, Format format, long durationUs) {
+      this.uri = uri;
+      this.dataSourceFactory = dataSourceFactory;
+      this.format = format;
+      this.durationUs = durationUs;
+      this.minLoadableRetryCount = DEFAULT_MIN_LOADABLE_RETRY_COUNT;
+    }
+
+    /**
+     * Sets the minimum number of times to retry if a loading error occurs. The default value is
+     * {@link #DEFAULT_MIN_LOADABLE_RETRY_COUNT}.
+     *
+     * @param minLoadableRetryCount The minimum number of times to retry if a loading error occurs.
+     * @return This builder.
+     */
+    public Builder setMinLoadableRetryCount(int minLoadableRetryCount) {
+      this.minLoadableRetryCount = minLoadableRetryCount;
+      return this;
+    }
+
+    /**
+     * Sets the listener to respond to events and the handler to deliver these events.
+     *
+     * @param eventHandler A handler for events.
+     * @param eventListener A listener of events.
+     * @return This builder.
+     */
+    public Builder setEventListener(Handler eventHandler, EventListener eventListener) {
+      this.eventHandler = eventHandler;
+      this.eventListener = eventListener;
+      return this;
+    }
+
+    /**
+     * Sets an identifier that gets passed to {@code eventListener} methods. The default value is 0.
+     *
+     * @param eventSourceId An identifier that gets passed to {@code eventListener} methods.
+     * @return This builder.
+     */
+    public Builder setEventSourceId(int eventSourceId) {
+      this.eventSourceId = eventSourceId;
+      return this;
+    }
+
+    /**
+     * Sets whether load errors will be treated as end-of-stream signal (load errors will not be
+     * propagated). The default value is false.
+     *
+     * @param treatLoadErrorsAsEndOfStream If true, load errors will not be propagated by sample
+     *     streams, treating them as ended instead. If false, load errors will be propagated
+     *     normally by {@link SampleStream#maybeThrowError()}.
+     * @return This builder.
+     */
+    public Builder setTreatLoadErrorsAsEndOfStream(boolean treatLoadErrorsAsEndOfStream) {
+      this.treatLoadErrorsAsEndOfStream = treatLoadErrorsAsEndOfStream;
+      return this;
+    }
+
+    /**
+     * Builds a new {@link SingleSampleMediaSource} using the current parameters.
+     * <p>
+     * After this call, the builder should not be re-used.
+     *
+     * @return The newly built {@link SingleSampleMediaSource}.
+     */
+    public SingleSampleMediaSource build() {
+      Assertions.checkArgument((eventListener == null) == (eventHandler == null));
+      Assertions.checkState(!isBuildCalled);
+      isBuildCalled = true;
+
+      return new SingleSampleMediaSource(uri, dataSourceFactory, format, durationUs,
+          minLoadableRetryCount, eventHandler, eventListener, eventSourceId,
+          treatLoadErrorsAsEndOfStream);
+    }
+
+  }
+
+  /**
    * The default minimum number of times to retry loading data prior to failing.
    */
   public static final int DEFAULT_MIN_LOADABLE_RETRY_COUNT = 3;
@@ -66,7 +167,9 @@ public final class SingleSampleMediaSource implements MediaSource {
    *     be obtained.
    * @param format The {@link Format} associated with the output track.
    * @param durationUs The duration of the media stream in microseconds.
+   * @deprecated Use {@link Builder} instead.
    */
+  @Deprecated
   public SingleSampleMediaSource(Uri uri, DataSource.Factory dataSourceFactory, Format format,
       long durationUs) {
     this(uri, dataSourceFactory, format, durationUs, DEFAULT_MIN_LOADABLE_RETRY_COUNT);
@@ -79,7 +182,9 @@ public final class SingleSampleMediaSource implements MediaSource {
    * @param format The {@link Format} associated with the output track.
    * @param durationUs The duration of the media stream in microseconds.
    * @param minLoadableRetryCount The minimum number of times to retry if a loading error occurs.
+   * @deprecated Use {@link Builder} instead.
    */
+  @Deprecated
   public SingleSampleMediaSource(Uri uri, DataSource.Factory dataSourceFactory, Format format,
       long durationUs, int minLoadableRetryCount) {
     this(uri, dataSourceFactory, format, durationUs, minLoadableRetryCount, null, null, 0, false);
@@ -98,7 +203,9 @@ public final class SingleSampleMediaSource implements MediaSource {
    * @param treatLoadErrorsAsEndOfStream If true, load errors will not be propagated by sample
    *     streams, treating them as ended instead. If false, load errors will be propagated normally
    *     by {@link SampleStream#maybeThrowError()}.
+   * @deprecated Use {@link Builder} instead.
    */
+  @Deprecated
   public SingleSampleMediaSource(Uri uri, DataSource.Factory dataSourceFactory, Format format,
       long durationUs, int minLoadableRetryCount, Handler eventHandler, EventListener eventListener,
       int eventSourceId, boolean treatLoadErrorsAsEndOfStream) {
