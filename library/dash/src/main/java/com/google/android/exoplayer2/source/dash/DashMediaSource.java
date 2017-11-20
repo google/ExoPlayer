@@ -28,8 +28,11 @@ import com.google.android.exoplayer2.ParserException;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.source.AdaptiveMediaSourceEventListener;
 import com.google.android.exoplayer2.source.AdaptiveMediaSourceEventListener.EventDispatcher;
+import com.google.android.exoplayer2.source.CompositeSequenceableLoaderFactory;
+import com.google.android.exoplayer2.source.DefaultCompositeSequenceableLoaderFactory;
 import com.google.android.exoplayer2.source.MediaPeriod;
 import com.google.android.exoplayer2.source.MediaSource;
+import com.google.android.exoplayer2.source.SequenceableLoader;
 import com.google.android.exoplayer2.source.dash.manifest.DashManifest;
 import com.google.android.exoplayer2.source.dash.manifest.DashManifestParser;
 import com.google.android.exoplayer2.source.dash.manifest.UtcTimingElement;
@@ -71,6 +74,7 @@ public final class DashMediaSource implements MediaSource {
     private ParsingLoadable.Parser<? extends DashManifest> manifestParser;
     private AdaptiveMediaSourceEventListener eventListener;
     private Handler eventHandler;
+    private CompositeSequenceableLoaderFactory compositeSequenceableLoaderFactory;
 
     private int minLoadableRetryCount;
     private long livePresentationDelayMs;
@@ -172,6 +176,22 @@ public final class DashMediaSource implements MediaSource {
     }
 
     /**
+     * Sets the factory to create composite {@link SequenceableLoader}s for when this media source
+     * loads data from multiple streams (video, audio etc...). The default is an instance of
+     * {@link DefaultCompositeSequenceableLoaderFactory}.
+     *
+     * @param compositeSequenceableLoaderFactory A factory to create composite
+     *     {@link SequenceableLoader}s for when this media source loads data from multiple streams
+     *     (video, audio etc...).
+     * @return This builder.
+     */
+    public Builder setCompositeSequenceableLoaderFactory(
+        CompositeSequenceableLoaderFactory compositeSequenceableLoaderFactory) {
+      this.compositeSequenceableLoaderFactory = compositeSequenceableLoaderFactory;
+      return this;
+    }
+
+    /**
      * Builds a new {@link DashMediaSource} using the current parameters.
      * <p>
      * After this call, the builder should not be re-used.
@@ -186,9 +206,12 @@ public final class DashMediaSource implements MediaSource {
       if (loadableManifestUri && manifestParser == null) {
         manifestParser = new DashManifestParser();
       }
+      if (compositeSequenceableLoaderFactory == null) {
+        compositeSequenceableLoaderFactory = new DefaultCompositeSequenceableLoaderFactory();
+      }
       return new DashMediaSource(manifest, manifestUri, manifestDataSourceFactory, manifestParser,
-          chunkSourceFactory, minLoadableRetryCount, livePresentationDelayMs, eventHandler,
-          eventListener);
+          chunkSourceFactory, compositeSequenceableLoaderFactory, minLoadableRetryCount,
+          livePresentationDelayMs, eventHandler, eventListener);
     }
 
   }
@@ -226,6 +249,7 @@ public final class DashMediaSource implements MediaSource {
   private final boolean sideloadedManifest;
   private final DataSource.Factory manifestDataSourceFactory;
   private final DashChunkSource.Factory chunkSourceFactory;
+  private final CompositeSequenceableLoaderFactory compositeSequenceableLoaderFactory;
   private final int minLoadableRetryCount;
   private final long livePresentationDelayMs;
   private final EventDispatcher eventDispatcher;
@@ -280,7 +304,8 @@ public final class DashMediaSource implements MediaSource {
   public DashMediaSource(DashManifest manifest, DashChunkSource.Factory chunkSourceFactory,
       int minLoadableRetryCount, Handler eventHandler, AdaptiveMediaSourceEventListener
       eventListener) {
-    this(manifest, null, null, null, chunkSourceFactory, minLoadableRetryCount,
+    this(manifest, null, null, null, chunkSourceFactory,
+        new DefaultCompositeSequenceableLoaderFactory(), minLoadableRetryCount,
         DEFAULT_LIVE_PRESENTATION_DELAY_PREFER_MANIFEST_MS, eventHandler, eventListener);
   }
 
@@ -356,14 +381,16 @@ public final class DashMediaSource implements MediaSource {
       long livePresentationDelayMs, Handler eventHandler,
       AdaptiveMediaSourceEventListener eventListener) {
     this(null, manifestUri, manifestDataSourceFactory, manifestParser, chunkSourceFactory,
-        minLoadableRetryCount, livePresentationDelayMs, eventHandler, eventListener);
+        new DefaultCompositeSequenceableLoaderFactory(), minLoadableRetryCount,
+        livePresentationDelayMs, eventHandler, eventListener);
   }
 
   private DashMediaSource(DashManifest manifest, Uri manifestUri,
       DataSource.Factory manifestDataSourceFactory,
       ParsingLoadable.Parser<? extends DashManifest> manifestParser,
-      DashChunkSource.Factory chunkSourceFactory, int minLoadableRetryCount,
-      long livePresentationDelayMs, Handler eventHandler,
+      DashChunkSource.Factory chunkSourceFactory,
+      CompositeSequenceableLoaderFactory compositeSequenceableLoaderFactory,
+      int minLoadableRetryCount, long livePresentationDelayMs, Handler eventHandler,
       AdaptiveMediaSourceEventListener eventListener) {
     this.manifest = manifest;
     this.manifestUri = manifestUri;
@@ -372,6 +399,7 @@ public final class DashMediaSource implements MediaSource {
     this.chunkSourceFactory = chunkSourceFactory;
     this.minLoadableRetryCount = minLoadableRetryCount;
     this.livePresentationDelayMs = livePresentationDelayMs;
+    this.compositeSequenceableLoaderFactory = compositeSequenceableLoaderFactory;
     sideloadedManifest = manifest != null;
     eventDispatcher = new EventDispatcher(eventHandler, eventListener);
     manifestUriLock = new Object();
@@ -438,7 +466,7 @@ public final class DashMediaSource implements MediaSource {
         manifest.getPeriod(periodIndex).startMs);
     DashMediaPeriod mediaPeriod = new DashMediaPeriod(firstPeriodId + periodIndex, manifest,
         periodIndex, chunkSourceFactory, minLoadableRetryCount, periodEventDispatcher,
-        elapsedRealtimeOffsetMs, loaderErrorThrower, allocator);
+        elapsedRealtimeOffsetMs, loaderErrorThrower, allocator, compositeSequenceableLoaderFactory);
     periodsById.put(mediaPeriod.id, mediaPeriod);
     return mediaPeriod;
   }

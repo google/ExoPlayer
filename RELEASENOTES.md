@@ -2,8 +2,12 @@
 
 ### dev-v2 (not yet released) ###
 
-* Add Builder to ExtractorMediaSource, HlsMediaSource, SsMediaSource,
-  DashMediaSource, SingleSampleMediaSource.
+* Allow more flexible loading strategy when playing media containing multiple
+  sub-streams, by allowing injection of custom `CompositeSequenceableLoader`
+  factories through `DashMediaSource.Builder`, `HlsMediaSource.Builder`,
+  `SsMediaSource.Builder`, and `MergingMediaSource`.
+* Add Builder to `ExtractorMediaSource`, `HlsMediaSource`, `SsMediaSource`,
+  `DashMediaSource`, `SingleSampleMediaSource`.
 * DASH:
   * Support in-MPD EventStream.
 * Allow a back-buffer of media to be retained behind the current playback

@@ -20,9 +20,10 @@ import android.text.TextUtils;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.source.AdaptiveMediaSourceEventListener.EventDispatcher;
-import com.google.android.exoplayer2.source.CompositeSequenceableLoader;
+import com.google.android.exoplayer2.source.CompositeSequenceableLoaderFactory;
 import com.google.android.exoplayer2.source.MediaPeriod;
 import com.google.android.exoplayer2.source.SampleStream;
+import com.google.android.exoplayer2.source.SequenceableLoader;
 import com.google.android.exoplayer2.source.TrackGroup;
 import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.source.hls.playlist.HlsMasterPlaylist;
@@ -53,23 +54,26 @@ public final class HlsMediaPeriod implements MediaPeriod, HlsSampleStreamWrapper
   private final IdentityHashMap<SampleStream, Integer> streamWrapperIndices;
   private final TimestampAdjusterProvider timestampAdjusterProvider;
   private final Handler continueLoadingHandler;
+  private final CompositeSequenceableLoaderFactory compositeSequenceableLoaderFactory;
 
   private Callback callback;
   private int pendingPrepareCount;
   private TrackGroupArray trackGroups;
   private HlsSampleStreamWrapper[] sampleStreamWrappers;
   private HlsSampleStreamWrapper[] enabledSampleStreamWrappers;
-  private CompositeSequenceableLoader sequenceableLoader;
+  private SequenceableLoader compositeSequenceableLoader;
 
   public HlsMediaPeriod(HlsExtractorFactory extractorFactory, HlsPlaylistTracker playlistTracker,
       HlsDataSourceFactory dataSourceFactory, int minLoadableRetryCount,
-      EventDispatcher eventDispatcher, Allocator allocator) {
+      EventDispatcher eventDispatcher, Allocator allocator,
+      CompositeSequenceableLoaderFactory compositeSequenceableLoaderFactory) {
     this.extractorFactory = extractorFactory;
     this.playlistTracker = playlistTracker;
     this.dataSourceFactory = dataSourceFactory;
     this.minLoadableRetryCount = minLoadableRetryCount;
     this.eventDispatcher = eventDispatcher;
     this.allocator = allocator;
+    this.compositeSequenceableLoaderFactory = compositeSequenceableLoaderFactory;
     streamWrapperIndices = new IdentityHashMap<>();
     timestampAdjusterProvider = new TimestampAdjusterProvider();
     continueLoadingHandler = new Handler();
@@ -178,7 +182,9 @@ public final class HlsMediaPeriod implements MediaPeriod, HlsSampleStreamWrapper
     // Update the local state.
     enabledSampleStreamWrappers = Arrays.copyOf(newEnabledSampleStreamWrappers,
         newEnabledSampleStreamWrapperCount);
-    sequenceableLoader = new CompositeSequenceableLoader(enabledSampleStreamWrappers);
+    compositeSequenceableLoader =
+        compositeSequenceableLoaderFactory.createCompositeSequenceableLoader(
+            enabledSampleStreamWrappers);
     return positionUs;
   }
 
@@ -191,12 +197,12 @@ public final class HlsMediaPeriod implements MediaPeriod, HlsSampleStreamWrapper
 
   @Override
   public boolean continueLoading(long positionUs) {
-    return sequenceableLoader.continueLoading(positionUs);
+    return compositeSequenceableLoader.continueLoading(positionUs);
   }
 
   @Override
   public long getNextLoadPositionUs() {
-    return sequenceableLoader.getNextLoadPositionUs();
+    return compositeSequenceableLoader.getNextLoadPositionUs();
   }
 
   @Override
@@ -206,7 +212,7 @@ public final class HlsMediaPeriod implements MediaPeriod, HlsSampleStreamWrapper
 
   @Override
   public long getBufferedPositionUs() {
-    return sequenceableLoader.getBufferedPositionUs();
+    return compositeSequenceableLoader.getBufferedPositionUs();
   }
 
   @Override

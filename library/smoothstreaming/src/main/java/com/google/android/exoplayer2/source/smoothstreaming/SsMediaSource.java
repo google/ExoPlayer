@@ -26,8 +26,11 @@ import com.google.android.exoplayer2.ParserException;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.source.AdaptiveMediaSourceEventListener;
 import com.google.android.exoplayer2.source.AdaptiveMediaSourceEventListener.EventDispatcher;
+import com.google.android.exoplayer2.source.CompositeSequenceableLoaderFactory;
+import com.google.android.exoplayer2.source.DefaultCompositeSequenceableLoaderFactory;
 import com.google.android.exoplayer2.source.MediaPeriod;
 import com.google.android.exoplayer2.source.MediaSource;
+import com.google.android.exoplayer2.source.SequenceableLoader;
 import com.google.android.exoplayer2.source.SinglePeriodTimeline;
 import com.google.android.exoplayer2.source.smoothstreaming.manifest.SsManifest;
 import com.google.android.exoplayer2.source.smoothstreaming.manifest.SsManifest.StreamElement;
@@ -65,6 +68,7 @@ public final class SsMediaSource implements MediaSource,
     private ParsingLoadable.Parser<? extends SsManifest> manifestParser;
     private AdaptiveMediaSourceEventListener eventListener;
     private Handler eventHandler;
+    private CompositeSequenceableLoaderFactory compositeSequenceableLoaderFactory;
 
     private int minLoadableRetryCount;
     private long livePresentationDelayMs;
@@ -163,6 +167,22 @@ public final class SsMediaSource implements MediaSource,
     }
 
     /**
+     * Sets the factory to create composite {@link SequenceableLoader}s for when this media source
+     * loads data from multiple streams (video, audio etc...). The default is an instance of
+     * {@link DefaultCompositeSequenceableLoaderFactory}.
+     *
+     * @param compositeSequenceableLoaderFactory A factory to create composite
+     *     {@link SequenceableLoader}s for when this media source loads data from multiple streams
+     *     (video, audio etc...).
+     * @return This builder.
+     */
+    public Builder setCompositeSequenceableLoaderFactory(
+        CompositeSequenceableLoaderFactory compositeSequenceableLoaderFactory) {
+      this.compositeSequenceableLoaderFactory = compositeSequenceableLoaderFactory;
+      return this;
+    }
+
+    /**
      * Builds a new {@link SsMediaSource} using the current parameters.
      * <p>
      * After this call, the builder should not be re-used.
@@ -177,9 +197,12 @@ public final class SsMediaSource implements MediaSource,
       if (loadableManifestUri && manifestParser == null) {
         manifestParser = new SsManifestParser();
       }
+      if (compositeSequenceableLoaderFactory == null) {
+        compositeSequenceableLoaderFactory = new DefaultCompositeSequenceableLoaderFactory();
+      }
       return new SsMediaSource(manifest, manifestUri, manifestDataSourceFactory, manifestParser,
-          chunkSourceFactory, minLoadableRetryCount, livePresentationDelayMs, eventHandler,
-          eventListener);
+          chunkSourceFactory, compositeSequenceableLoaderFactory, minLoadableRetryCount,
+          livePresentationDelayMs, eventHandler, eventListener);
     }
 
   }
@@ -206,6 +229,7 @@ public final class SsMediaSource implements MediaSource,
   private final Uri manifestUri;
   private final DataSource.Factory manifestDataSourceFactory;
   private final SsChunkSource.Factory chunkSourceFactory;
+  private final CompositeSequenceableLoaderFactory compositeSequenceableLoaderFactory;
   private final int minLoadableRetryCount;
   private final long livePresentationDelayMs;
   private final EventDispatcher eventDispatcher;
@@ -252,7 +276,8 @@ public final class SsMediaSource implements MediaSource,
   public SsMediaSource(SsManifest manifest, SsChunkSource.Factory chunkSourceFactory,
       int minLoadableRetryCount, Handler eventHandler,
       AdaptiveMediaSourceEventListener eventListener) {
-    this(manifest, null, null, null, chunkSourceFactory, minLoadableRetryCount,
+    this(manifest, null, null, null, chunkSourceFactory,
+        new DefaultCompositeSequenceableLoaderFactory(), minLoadableRetryCount,
         DEFAULT_LIVE_PRESENTATION_DELAY_MS, eventHandler, eventListener);
   }
 
@@ -324,14 +349,16 @@ public final class SsMediaSource implements MediaSource,
       long livePresentationDelayMs, Handler eventHandler,
       AdaptiveMediaSourceEventListener eventListener) {
     this(null, manifestUri, manifestDataSourceFactory, manifestParser, chunkSourceFactory,
-        minLoadableRetryCount, livePresentationDelayMs, eventHandler, eventListener);
+        new DefaultCompositeSequenceableLoaderFactory(), minLoadableRetryCount,
+        livePresentationDelayMs, eventHandler, eventListener);
   }
 
   private SsMediaSource(SsManifest manifest, Uri manifestUri,
       DataSource.Factory manifestDataSourceFactory,
       ParsingLoadable.Parser<? extends SsManifest> manifestParser,
-      SsChunkSource.Factory chunkSourceFactory, int minLoadableRetryCount,
-      long livePresentationDelayMs, Handler eventHandler,
+      SsChunkSource.Factory chunkSourceFactory,
+      CompositeSequenceableLoaderFactory compositeSequenceableLoaderFactory,
+      int minLoadableRetryCount, long livePresentationDelayMs, Handler eventHandler,
       AdaptiveMediaSourceEventListener eventListener) {
     Assertions.checkState(manifest == null || !manifest.isLive);
     this.manifest = manifest;
@@ -341,6 +368,7 @@ public final class SsMediaSource implements MediaSource,
     this.manifestDataSourceFactory = manifestDataSourceFactory;
     this.manifestParser = manifestParser;
     this.chunkSourceFactory = chunkSourceFactory;
+    this.compositeSequenceableLoaderFactory = compositeSequenceableLoaderFactory;
     this.minLoadableRetryCount = minLoadableRetryCount;
     this.livePresentationDelayMs = livePresentationDelayMs;
     this.eventDispatcher = new EventDispatcher(eventHandler, eventListener);
@@ -372,8 +400,9 @@ public final class SsMediaSource implements MediaSource,
   @Override
   public MediaPeriod createPeriod(MediaPeriodId id, Allocator allocator) {
     Assertions.checkArgument(id.periodIndex == 0);
-    SsMediaPeriod period = new SsMediaPeriod(manifest, chunkSourceFactory, minLoadableRetryCount,
-        eventDispatcher, manifestLoaderErrorThrower, allocator);
+    SsMediaPeriod period = new SsMediaPeriod(manifest, chunkSourceFactory,
+        compositeSequenceableLoaderFactory, minLoadableRetryCount, eventDispatcher,
+        manifestLoaderErrorThrower, allocator);
     mediaPeriods.add(period);
     return period;
   }
