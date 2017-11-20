@@ -19,10 +19,10 @@ import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static org.mockito.MockitoAnnotations.initMocks;
 
 import android.support.test.InstrumentationRegistry;
 import android.support.test.runner.AndroidJUnit4;
+import com.google.android.exoplayer2.testutil.MockitoUtil;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
@@ -46,9 +46,7 @@ public final class ByteArrayUploadDataProviderTest {
 
   @Before
   public void setUp() {
-    System.setProperty("dexmaker.dexcache",
-        InstrumentationRegistry.getTargetContext().getCacheDir().getPath());
-    initMocks(this);
+    MockitoUtil.setUpMockito(InstrumentationRegistry.getTargetContext(), this);
     byteBuffer = ByteBuffer.allocate(TEST_DATA.length);
     byteArrayUploadDataProvider = new ByteArrayUploadDataProvider(TEST_DATA);
   }
