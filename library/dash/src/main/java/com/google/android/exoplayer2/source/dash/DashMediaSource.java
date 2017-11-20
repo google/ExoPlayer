@@ -199,7 +199,7 @@ public final class DashMediaSource implements MediaSource {
   public static final int DEFAULT_MIN_LOADABLE_RETRY_COUNT = 3;
   /**
    * A constant indicating that the presentation delay for live streams should be set to
-   * {@link DashManifest#suggestedPresentationDelay} if specified by the manifest, or
+   * {@link DashManifest#suggestedPresentationDelayMs} if specified by the manifest, or
    * {@link #DEFAULT_LIVE_PRESENTATION_DELAY_FIXED_MS} otherwise. The presentation delay is the
    * duration by which the default start position precedes the end of the live window.
    */
@@ -626,12 +626,12 @@ public final class DashMediaSource implements MediaSource {
     if (manifest.dynamic && !lastPeriodSeekInfo.isIndexExplicit) {
       // The manifest describes an incomplete live stream. Update the start/end times to reflect the
       // live stream duration and the manifest's time shift buffer depth.
-      long liveStreamDurationUs = getNowUnixTimeUs() - C.msToUs(manifest.availabilityStartTime);
+      long liveStreamDurationUs = getNowUnixTimeUs() - C.msToUs(manifest.availabilityStartTimeMs);
       long liveStreamEndPositionInLastPeriodUs = liveStreamDurationUs
           - C.msToUs(manifest.getPeriod(lastPeriodIndex).startMs);
       currentEndTimeUs = Math.min(liveStreamEndPositionInLastPeriodUs, currentEndTimeUs);
-      if (manifest.timeShiftBufferDepth != C.TIME_UNSET) {
-        long timeShiftBufferDepthUs = C.msToUs(manifest.timeShiftBufferDepth);
+      if (manifest.timeShiftBufferDepthMs != C.TIME_UNSET) {
+        long timeShiftBufferDepthUs = C.msToUs(manifest.timeShiftBufferDepthMs);
         long offsetInPeriodUs = currentEndTimeUs - timeShiftBufferDepthUs;
         int periodIndex = lastPeriodIndex;
         while (offsetInPeriodUs < 0 && periodIndex > 0) {
@@ -655,8 +655,8 @@ public final class DashMediaSource implements MediaSource {
     if (manifest.dynamic) {
       long presentationDelayForManifestMs = livePresentationDelayMs;
       if (presentationDelayForManifestMs == DEFAULT_LIVE_PRESENTATION_DELAY_PREFER_MANIFEST_MS) {
-        presentationDelayForManifestMs = manifest.suggestedPresentationDelay != C.TIME_UNSET
-            ? manifest.suggestedPresentationDelay : DEFAULT_LIVE_PRESENTATION_DELAY_FIXED_MS;
+        presentationDelayForManifestMs = manifest.suggestedPresentationDelayMs != C.TIME_UNSET
+            ? manifest.suggestedPresentationDelayMs : DEFAULT_LIVE_PRESENTATION_DELAY_FIXED_MS;
       }
       // Snap the default position to the start of the segment containing it.
       windowDefaultStartPositionUs = windowDurationUs - C.msToUs(presentationDelayForManifestMs);
@@ -668,9 +668,9 @@ public final class DashMediaSource implements MediaSource {
             windowDurationUs / 2);
       }
     }
-    long windowStartTimeMs = manifest.availabilityStartTime
+    long windowStartTimeMs = manifest.availabilityStartTimeMs
         + manifest.getPeriod(0).startMs + C.usToMs(currentStartTimeUs);
-    DashTimeline timeline = new DashTimeline(manifest.availabilityStartTime, windowStartTimeMs,
+    DashTimeline timeline = new DashTimeline(manifest.availabilityStartTimeMs, windowStartTimeMs,
         firstPeriodId, currentStartTimeUs, windowDurationUs, windowDefaultStartPositionUs,
         manifest);
     sourceListener.onSourceInfoRefreshed(this, timeline, manifest);
@@ -693,15 +693,15 @@ public final class DashMediaSource implements MediaSource {
     if (!manifest.dynamic) {
       return;
     }
-    long minUpdatePeriod = manifest.minUpdatePeriod;
-    if (minUpdatePeriod == 0) {
+    long minUpdatePeriodMs = manifest.minUpdatePeriodMs;
+    if (minUpdatePeriodMs == 0) {
       // TODO: This is a temporary hack to avoid constantly refreshing the MPD in cases where
-      // minUpdatePeriod is set to 0. In such cases we shouldn't refresh unless there is explicit
-      // signaling in the stream, according to:
+      // minimumUpdatePeriod is set to 0. In such cases we shouldn't refresh unless there is
+      // explicit signaling in the stream, according to:
       // http://azure.microsoft.com/blog/2014/09/13/dash-live-streaming-with-azure-media-service/
-      minUpdatePeriod = 5000;
+      minUpdatePeriodMs = 5000;
     }
-    long nextLoadTimestamp = manifestLoadStartTimestamp + minUpdatePeriod;
+    long nextLoadTimestamp = manifestLoadStartTimestamp + minUpdatePeriodMs;
     long delayUntilNextLoad = Math.max(0, nextLoadTimestamp - SystemClock.elapsedRealtime());
     handler.postDelayed(refreshManifestRunnable, delayUntilNextLoad);
   }

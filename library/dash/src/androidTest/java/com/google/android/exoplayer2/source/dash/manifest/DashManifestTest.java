@@ -129,13 +129,13 @@ public class DashManifestTest extends TestCase {
   }
 
   private static void assertManifestEquals(DashManifest expected, DashManifest actual) {
-    assertEquals(expected.availabilityStartTime, actual.availabilityStartTime);
-    assertEquals(expected.duration, actual.duration);
-    assertEquals(expected.minBufferTime, actual.minBufferTime);
+    assertEquals(expected.availabilityStartTimeMs, actual.availabilityStartTimeMs);
+    assertEquals(expected.durationMs, actual.durationMs);
+    assertEquals(expected.minBufferTimeMs, actual.minBufferTimeMs);
     assertEquals(expected.dynamic, actual.dynamic);
-    assertEquals(expected.minUpdatePeriod, actual.minUpdatePeriod);
-    assertEquals(expected.timeShiftBufferDepth, actual.timeShiftBufferDepth);
-    assertEquals(expected.suggestedPresentationDelay, actual.suggestedPresentationDelay);
+    assertEquals(expected.minUpdatePeriodMs, actual.minUpdatePeriodMs);
+    assertEquals(expected.timeShiftBufferDepthMs, actual.timeShiftBufferDepthMs);
+    assertEquals(expected.suggestedPresentationDelayMs, actual.suggestedPresentationDelayMs);
     assertEquals(expected.utcTiming, actual.utcTiming);
     assertEquals(expected.location, actual.location);
     assertEquals(expected.getPeriodCount(), actual.getPeriodCount());
