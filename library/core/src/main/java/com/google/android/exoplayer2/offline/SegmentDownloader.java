@@ -265,7 +265,7 @@ public abstract class SegmentDownloader<M, K> implements Downloader {
   /**
    * Returns a list of all segments.
    *
-   * @see #getSegments(DataSource, M, Object[], boolean)}.
+   * @see #getSegments(DataSource, M, Object[], boolean)
    */
   protected abstract List<Segment> getAllSegments(DataSource dataSource, M manifest,
       boolean allowPartialIndex) throws InterruptedException, IOException;

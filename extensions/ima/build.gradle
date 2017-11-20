@@ -28,10 +28,11 @@ android {
 dependencies {
     compile project(modulePrefix + 'library-core')
     // This dependency is necessary to force the supportLibraryVersion of
-    // com.android.support:support-v4 to be used. Else an older version (25.2.0) is included via:
-    // com.google.android.gms:play-services-ads:11.2.0
-    // |-- com.google.android.gms:play-services-ads-lite:11.2.0
-    //   |-- com.google.android.gms:play-services-basement:11.2.0
+    // com.android.support:support-v4 to be used. Else an older version (25.2.0)
+    // is included via:
+    // com.google.android.gms:play-services-ads:11.4.2
+    // |-- com.google.android.gms:play-services-ads-lite:11.4.2
+    //   |-- com.google.android.gms:play-services-basement:11.4.2
     //     |-- com.android.support:support-v4:25.2.0
     compile 'com.android.support:support-v4:' + supportLibraryVersion
     compile 'com.google.ads.interactivemedia.v3:interactivemedia:3.7.4'

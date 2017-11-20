@@ -215,7 +215,13 @@ public class FakeSimpleExoPlayer extends SimpleExoPlayer {
     @SuppressWarnings("ThreadJoinLoop")
     public void release() {
       stop();
-      playbackThread.quitSafely();
+      playbackHandler.post(new Runnable() {
+        @Override
+        public void run () {
+          playbackHandler.removeCallbacksAndMessages(null);
+          playbackThread.quit();
+        }
+      });
       while (playbackThread.isAlive()) {
         try {
           playbackThread.join();
