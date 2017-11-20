@@ -878,7 +878,7 @@ import java.io.IOException;
       boolean[] streamResetFlags = new boolean[renderers.length];
       long periodPositionUs = playingPeriodHolder.updatePeriodTrackSelection(
           playbackInfo.positionUs, recreateStreams, streamResetFlags);
-      if (periodPositionUs != playbackInfo.positionUs) {
+      if (state != Player.STATE_ENDED && periodPositionUs != playbackInfo.positionUs) {
         playbackInfo = playbackInfo.fromNewPosition(playbackInfo.periodId, periodPositionUs,
             playbackInfo.contentPositionUs);
         eventHandler.obtainMessage(MSG_POSITION_DISCONTINUITY, Player.DISCONTINUITY_REASON_INTERNAL,
@@ -923,9 +923,11 @@ import java.io.IOException;
         loadingPeriodHolder.updatePeriodTrackSelection(loadingPeriodPositionUs, false);
       }
     }
-    maybeContinueLoading();
-    updatePlaybackPositions();
-    handler.sendEmptyMessage(MSG_DO_SOME_WORK);
+    if (state != Player.STATE_ENDED) {
+      maybeContinueLoading();
+      updatePlaybackPositions();
+      handler.sendEmptyMessage(MSG_DO_SOME_WORK);
+    }
   }
 
   private boolean isTimelineReady(long playingPeriodDurationUs) {
