@@ -72,6 +72,9 @@
     ([#3303](https://github.com/google/ExoPlayer/issues/3303)).
   * Ignore seeks if an ad is playing
     ([#3309](https://github.com/google/ExoPlayer/issues/3309)).
+  * Improve robustness of `ImaAdsLoader` in case content is not paused between
+    content to ad transitions
+    ([#3430](https://github.com/google/ExoPlayer/issues/3430)).
 * UI:
   * Allow specifying a `Drawable` for the `TimeBar` scrubber
     ([#3337](https://github.com/google/ExoPlayer/issues/3337)).
