@@ -21,7 +21,7 @@ import android.util.SparseIntArray;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.source.AdaptiveMediaSourceEventListener.EventDispatcher;
-import com.google.android.exoplayer2.source.CompositeSequenceableLoader;
+import com.google.android.exoplayer2.source.CompositeSequenceableLoaderFactory;
 import com.google.android.exoplayer2.source.EmptySampleStream;
 import com.google.android.exoplayer2.source.MediaPeriod;
 import com.google.android.exoplayer2.source.SampleStream;
@@ -64,19 +64,21 @@ import java.util.Map;
   private final Allocator allocator;
   private final TrackGroupArray trackGroups;
   private final TrackGroupInfo[] trackGroupInfos;
+  private final CompositeSequenceableLoaderFactory compositeSequenceableLoaderFactory;
 
   private Callback callback;
   private ChunkSampleStream<DashChunkSource>[] sampleStreams;
   private EventSampleStream[] eventSampleStreams;
-  private CompositeSequenceableLoader sequenceableLoader;
+  private SequenceableLoader compositeSequenceableLoader;
   private DashManifest manifest;
   private int periodIndex;
   private List<EventStream> eventStreams;
 
   public DashMediaPeriod(int id, DashManifest manifest, int periodIndex,
-      DashChunkSource.Factory chunkSourceFactory,  int minLoadableRetryCount,
+      DashChunkSource.Factory chunkSourceFactory, int minLoadableRetryCount,
       EventDispatcher eventDispatcher, long elapsedRealtimeOffset,
-      LoaderErrorThrower manifestLoaderErrorThrower, Allocator allocator) {
+      LoaderErrorThrower manifestLoaderErrorThrower, Allocator allocator,
+      CompositeSequenceableLoaderFactory compositeSequenceableLoaderFactory) {
     this.id = id;
     this.manifest = manifest;
     this.periodIndex = periodIndex;
@@ -86,9 +88,11 @@ import java.util.Map;
     this.elapsedRealtimeOffset = elapsedRealtimeOffset;
     this.manifestLoaderErrorThrower = manifestLoaderErrorThrower;
     this.allocator = allocator;
+    this.compositeSequenceableLoaderFactory = compositeSequenceableLoaderFactory;
     sampleStreams = newSampleStreamArray(0);
     eventSampleStreams = new EventSampleStream[0];
-    sequenceableLoader = new CompositeSequenceableLoader(sampleStreams);
+    compositeSequenceableLoader =
+        compositeSequenceableLoaderFactory.createCompositeSequenceableLoader(sampleStreams);
     Period period = manifest.getPeriod(periodIndex);
     eventStreams = period.eventStreams;
     Pair<TrackGroupArray, TrackGroupInfo[]> result = buildTrackGroups(period.adaptationSets,
@@ -163,7 +167,8 @@ import java.util.Map;
     primarySampleStreams.values().toArray(sampleStreams);
     eventSampleStreams = new EventSampleStream[eventSampleStreamList.size()];
     eventSampleStreamList.toArray(eventSampleStreams);
-    sequenceableLoader = new CompositeSequenceableLoader(sampleStreams);
+    compositeSequenceableLoader =
+        compositeSequenceableLoaderFactory.createCompositeSequenceableLoader(sampleStreams);
     return positionUs;
   }
 
@@ -267,12 +272,12 @@ import java.util.Map;
 
   @Override
   public boolean continueLoading(long positionUs) {
-    return sequenceableLoader.continueLoading(positionUs);
+    return compositeSequenceableLoader.continueLoading(positionUs);
   }
 
   @Override
   public long getNextLoadPositionUs() {
-    return sequenceableLoader.getNextLoadPositionUs();
+    return compositeSequenceableLoader.getNextLoadPositionUs();
   }
 
   @Override
@@ -282,7 +287,7 @@ import java.util.Map;
 
   @Override
   public long getBufferedPositionUs() {
-    return sequenceableLoader.getBufferedPositionUs();
+    return compositeSequenceableLoader.getBufferedPositionUs();
   }
 
   @Override

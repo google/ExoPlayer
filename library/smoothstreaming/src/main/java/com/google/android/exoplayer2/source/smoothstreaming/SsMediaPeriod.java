@@ -19,7 +19,7 @@ import android.util.Base64;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.extractor.mp4.TrackEncryptionBox;
 import com.google.android.exoplayer2.source.AdaptiveMediaSourceEventListener.EventDispatcher;
-import com.google.android.exoplayer2.source.CompositeSequenceableLoader;
+import com.google.android.exoplayer2.source.CompositeSequenceableLoaderFactory;
 import com.google.android.exoplayer2.source.MediaPeriod;
 import com.google.android.exoplayer2.source.SampleStream;
 import com.google.android.exoplayer2.source.SequenceableLoader;
@@ -49,13 +49,15 @@ import java.util.ArrayList;
   private final Allocator allocator;
   private final TrackGroupArray trackGroups;
   private final TrackEncryptionBox[] trackEncryptionBoxes;
+  private final CompositeSequenceableLoaderFactory compositeSequenceableLoaderFactory;
 
   private Callback callback;
   private SsManifest manifest;
   private ChunkSampleStream<SsChunkSource>[] sampleStreams;
-  private CompositeSequenceableLoader sequenceableLoader;
+  private SequenceableLoader compositeSequenceableLoader;
 
   public SsMediaPeriod(SsManifest manifest, SsChunkSource.Factory chunkSourceFactory,
+      CompositeSequenceableLoaderFactory compositeSequenceableLoaderFactory,
       int minLoadableRetryCount, EventDispatcher eventDispatcher,
       LoaderErrorThrower manifestLoaderErrorThrower, Allocator allocator) {
     this.chunkSourceFactory = chunkSourceFactory;
@@ -63,6 +65,7 @@ import java.util.ArrayList;
     this.minLoadableRetryCount = minLoadableRetryCount;
     this.eventDispatcher = eventDispatcher;
     this.allocator = allocator;
+    this.compositeSequenceableLoaderFactory = compositeSequenceableLoaderFactory;
 
     trackGroups = buildTrackGroups(manifest);
     ProtectionElement protectionElement = manifest.protectionElement;
@@ -76,7 +79,8 @@ import java.util.ArrayList;
     }
     this.manifest = manifest;
     sampleStreams = newSampleStreamArray(0);
-    sequenceableLoader = new CompositeSequenceableLoader(sampleStreams);
+    compositeSequenceableLoader =
+        compositeSequenceableLoaderFactory.createCompositeSequenceableLoader(sampleStreams);
   }
 
   public void updateManifest(SsManifest manifest) {
@@ -133,7 +137,8 @@ import java.util.ArrayList;
     }
     sampleStreams = newSampleStreamArray(sampleStreamsList.size());
     sampleStreamsList.toArray(sampleStreams);
-    sequenceableLoader = new CompositeSequenceableLoader(sampleStreams);
+    compositeSequenceableLoader =
+        compositeSequenceableLoaderFactory.createCompositeSequenceableLoader(sampleStreams);
     return positionUs;
   }
 
@@ -146,12 +151,12 @@ import java.util.ArrayList;
 
   @Override
   public boolean continueLoading(long positionUs) {
-    return sequenceableLoader.continueLoading(positionUs);
+    return compositeSequenceableLoader.continueLoading(positionUs);
   }
 
   @Override
   public long getNextLoadPositionUs() {
-    return sequenceableLoader.getNextLoadPositionUs();
+    return compositeSequenceableLoader.getNextLoadPositionUs();
   }
 
   @Override
@@ -161,7 +166,7 @@ import java.util.ArrayList;
 
   @Override
   public long getBufferedPositionUs() {
-    return sequenceableLoader.getBufferedPositionUs();
+    return compositeSequenceableLoader.getBufferedPositionUs();
   }
 
   @Override

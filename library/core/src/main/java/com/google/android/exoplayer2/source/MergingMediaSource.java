@@ -74,6 +74,7 @@ public final class MergingMediaSource implements MediaSource {
   private final MediaSource[] mediaSources;
   private final ArrayList<MediaSource> pendingTimelineSources;
   private final Timeline.Window window;
+  private final CompositeSequenceableLoaderFactory compositeSequenceableLoaderFactory;
 
   private Listener listener;
   private Timeline primaryTimeline;
@@ -85,7 +86,19 @@ public final class MergingMediaSource implements MediaSource {
    * @param mediaSources The {@link MediaSource}s to merge.
    */
   public MergingMediaSource(MediaSource... mediaSources) {
+    this(new DefaultCompositeSequenceableLoaderFactory(), mediaSources);
+  }
+
+  /**
+   * @param compositeSequenceableLoaderFactory A factory to create composite
+   *     {@link SequenceableLoader}s for when this media source loads data from multiple streams
+   *     (video, audio etc...).
+   * @param mediaSources The {@link MediaSource}s to merge.
+   */
+  public MergingMediaSource(CompositeSequenceableLoaderFactory compositeSequenceableLoaderFactory,
+      MediaSource... mediaSources) {
     this.mediaSources = mediaSources;
+    this.compositeSequenceableLoaderFactory = compositeSequenceableLoaderFactory;
     pendingTimelineSources = new ArrayList<>(Arrays.asList(mediaSources));
     window = new Timeline.Window();
     periodCount = PERIOD_COUNT_UNSET;
@@ -121,7 +134,7 @@ public final class MergingMediaSource implements MediaSource {
     for (int i = 0; i < periods.length; i++) {
       periods[i] = mediaSources[i].createPeriod(id, allocator);
     }
-    return new MergingMediaPeriod(periods);
+    return new MergingMediaPeriod(compositeSequenceableLoaderFactory, periods);
   }
 
   @Override
