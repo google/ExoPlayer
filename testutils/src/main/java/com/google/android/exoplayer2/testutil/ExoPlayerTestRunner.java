@@ -23,6 +23,7 @@ import com.google.android.exoplayer2.ExoPlayerFactory;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.LoadControl;
 import com.google.android.exoplayer2.Player;
+import com.google.android.exoplayer2.Player.DiscontinuityReason;
 import com.google.android.exoplayer2.Renderer;
 import com.google.android.exoplayer2.RenderersFactory;
 import com.google.android.exoplayer2.SimpleExoPlayer;
@@ -38,6 +39,7 @@ import com.google.android.exoplayer2.trackselection.MappingTrackSelector;
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.video.VideoRendererEventListener;
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -261,14 +263,14 @@ public final class ExoPlayerTestRunner extends Player.DefaultEventListener {
      */
     public ExoPlayerTestRunner build() {
       if (supportedFormats == null) {
-        supportedFormats = new Format[] { VIDEO_FORMAT };
+        supportedFormats = new Format[] {VIDEO_FORMAT};
       }
       if (trackSelector == null) {
         trackSelector = new DefaultTrackSelector();
       }
       if (renderersFactory == null) {
         if (renderers == null) {
-          renderers = new Renderer[] { new FakeRenderer(supportedFormats) };
+          renderers = new Renderer[] {new FakeRenderer(supportedFormats)};
         }
         renderersFactory = new RenderersFactory() {
           @Override
@@ -317,11 +319,11 @@ public final class ExoPlayerTestRunner extends Player.DefaultEventListener {
   private final LinkedList<Timeline> timelines;
   private final LinkedList<Object> manifests;
   private final LinkedList<Integer> periodIndices;
+  private final ArrayList<Integer> discontinuityReasons;
 
   private SimpleExoPlayer player;
   private Exception exception;
   private TrackGroupArray trackGroups;
-  private int positionDiscontinuityCount;
   private boolean playerWasPrepared;
 
   private ExoPlayerTestRunner(PlayerFactory playerFactory, MediaSource mediaSource,
@@ -337,6 +339,7 @@ public final class ExoPlayerTestRunner extends Player.DefaultEventListener {
     this.timelines = new LinkedList<>();
     this.manifests = new LinkedList<>();
     this.periodIndices = new LinkedList<>();
+    this.discontinuityReasons = new ArrayList<>();
     this.endedCountDownLatch = new CountDownLatch(1);
     this.playerThread = new HandlerThread("ExoPlayerTest thread");
     playerThread.start();
@@ -439,13 +442,24 @@ public final class ExoPlayerTestRunner extends Player.DefaultEventListener {
   }
 
   /**
-   * Asserts that the number of reported discontinuities by
-   * {@link Player.EventListener#onPositionDiscontinuity(int)} is equal to the provided number.
-   *
-   * @param expectedCount The expected number of position discontinuities.
+   * Asserts that {@link Player.EventListener#onPositionDiscontinuity(int)} was not called.
    */
-  public void assertPositionDiscontinuityCount(int expectedCount) {
-    Assert.assertEquals(expectedCount, positionDiscontinuityCount);
+  public void assertNoPositionDiscontinuities() {
+    Assert.assertTrue(discontinuityReasons.isEmpty());
+  }
+
+  /**
+   * Asserts that the discontinuity reasons reported by
+   * {@link Player.EventListener#onPositionDiscontinuity(int)} are equal to the provided values.
+   *
+   * @param discontinuityReasons The expected discontinuity reasons.
+   */
+  public void assertPositionDiscontinuityReasonsEqual(
+      @DiscontinuityReason int... discontinuityReasons) {
+    Assert.assertEquals(discontinuityReasons.length, this.discontinuityReasons.size());
+    for (int i = 0; i < discontinuityReasons.length; i++) {
+      Assert.assertEquals(discontinuityReasons[i], (int) this.discontinuityReasons.get(i));
+    }
   }
 
   /**
@@ -522,7 +536,7 @@ public final class ExoPlayerTestRunner extends Player.DefaultEventListener {
 
   @Override
   public void onPositionDiscontinuity(@Player.DiscontinuityReason int reason) {
-    positionDiscontinuityCount++;
+    discontinuityReasons.add(reason);
     periodIndices.add(player.getCurrentPeriodIndex());
   }
 

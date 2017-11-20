@@ -23,12 +23,14 @@ import com.google.android.exoplayer2.testutil.ActionSchedule;
 import com.google.android.exoplayer2.testutil.ExoPlayerTestRunner;
 import com.google.android.exoplayer2.testutil.ExoPlayerTestRunner.Builder;
 import com.google.android.exoplayer2.testutil.FakeMediaClockRenderer;
+import com.google.android.exoplayer2.testutil.FakeMediaPeriod;
 import com.google.android.exoplayer2.testutil.FakeMediaSource;
 import com.google.android.exoplayer2.testutil.FakeRenderer;
 import com.google.android.exoplayer2.testutil.FakeShuffleOrder;
 import com.google.android.exoplayer2.testutil.FakeTimeline;
 import com.google.android.exoplayer2.testutil.FakeTrackSelection;
 import com.google.android.exoplayer2.testutil.FakeTrackSelector;
+import com.google.android.exoplayer2.upstream.Allocator;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
@@ -56,7 +58,7 @@ public final class ExoPlayerTest extends TestCase {
     ExoPlayerTestRunner testRunner = new ExoPlayerTestRunner.Builder()
         .setTimeline(timeline).setRenderers(renderer)
         .build().start().blockUntilEnded(TIMEOUT_MS);
-    testRunner.assertPositionDiscontinuityCount(0);
+    testRunner.assertNoPositionDiscontinuities();
     testRunner.assertTimelinesEqual();
     assertEquals(0, renderer.formatReadCount);
     assertEquals(0, renderer.bufferReadCount);
@@ -73,7 +75,7 @@ public final class ExoPlayerTest extends TestCase {
     ExoPlayerTestRunner testRunner = new ExoPlayerTestRunner.Builder()
         .setTimeline(timeline).setManifest(manifest).setRenderers(renderer)
         .build().start().blockUntilEnded(TIMEOUT_MS);
-    testRunner.assertPositionDiscontinuityCount(0);
+    testRunner.assertNoPositionDiscontinuities();
     testRunner.assertTimelinesEqual(timeline);
     testRunner.assertManifestsEqual(manifest);
     testRunner.assertTrackGroupsEqual(new TrackGroupArray(new TrackGroup(Builder.VIDEO_FORMAT)));
@@ -91,7 +93,9 @@ public final class ExoPlayerTest extends TestCase {
     ExoPlayerTestRunner testRunner = new ExoPlayerTestRunner.Builder()
         .setTimeline(timeline).setRenderers(renderer)
         .build().start().blockUntilEnded(TIMEOUT_MS);
-    testRunner.assertPositionDiscontinuityCount(2);
+    testRunner.assertPositionDiscontinuityReasonsEqual(
+        Player.DISCONTINUITY_REASON_PERIOD_TRANSITION,
+        Player.DISCONTINUITY_REASON_PERIOD_TRANSITION);
     testRunner.assertTimelinesEqual(timeline);
     assertEquals(3, renderer.formatReadCount);
     assertEquals(1, renderer.bufferReadCount);
@@ -136,7 +140,9 @@ public final class ExoPlayerTest extends TestCase {
         .setTimeline(timeline).setRenderers(videoRenderer, audioRenderer)
         .setSupportedFormats(Builder.VIDEO_FORMAT, Builder.AUDIO_FORMAT)
         .build().start().blockUntilEnded(TIMEOUT_MS);
-    testRunner.assertPositionDiscontinuityCount(2);
+    testRunner.assertPositionDiscontinuityReasonsEqual(
+        Player.DISCONTINUITY_REASON_PERIOD_TRANSITION,
+        Player.DISCONTINUITY_REASON_PERIOD_TRANSITION);
     testRunner.assertTimelinesEqual(timeline);
     assertEquals(1, audioRenderer.positionResetCount);
     assertTrue(videoRenderer.isEnded);
@@ -198,7 +204,7 @@ public final class ExoPlayerTest extends TestCase {
     ExoPlayerTestRunner testRunner = new ExoPlayerTestRunner.Builder()
         .setMediaSource(firstSource).setRenderers(renderer).setActionSchedule(actionSchedule)
         .build().start().blockUntilEnded(TIMEOUT_MS);
-    testRunner.assertPositionDiscontinuityCount(0);
+    testRunner.assertNoPositionDiscontinuities();
     // The first source's preparation completed with a non-empty timeline. When the player was
     // re-prepared with the second source, it immediately exposed an empty timeline, but the source
     // info refresh from the second source was suppressed as we re-prepared with the third source.
@@ -226,6 +232,16 @@ public final class ExoPlayerTest extends TestCase {
         .setTimeline(timeline).setRenderers(renderer).setActionSchedule(actionSchedule)
         .build().start().blockUntilEnded(TIMEOUT_MS);
     testRunner.assertPlayedPeriodIndices(0, 1, 1, 2, 2, 0, 0, 0, 1, 2);
+    testRunner.assertPositionDiscontinuityReasonsEqual(
+        Player.DISCONTINUITY_REASON_PERIOD_TRANSITION,
+        Player.DISCONTINUITY_REASON_PERIOD_TRANSITION,
+        Player.DISCONTINUITY_REASON_PERIOD_TRANSITION,
+        Player.DISCONTINUITY_REASON_PERIOD_TRANSITION,
+        Player.DISCONTINUITY_REASON_PERIOD_TRANSITION,
+        Player.DISCONTINUITY_REASON_PERIOD_TRANSITION,
+        Player.DISCONTINUITY_REASON_PERIOD_TRANSITION,
+        Player.DISCONTINUITY_REASON_PERIOD_TRANSITION,
+        Player.DISCONTINUITY_REASON_PERIOD_TRANSITION);
     testRunner.assertTimelinesEqual(timeline);
     assertTrue(renderer.isEnded);
   }
@@ -250,6 +266,12 @@ public final class ExoPlayerTest extends TestCase {
         .setMediaSource(mediaSource).setRenderers(renderer).setActionSchedule(actionSchedule)
         .build().start().blockUntilEnded(TIMEOUT_MS);
     testRunner.assertPlayedPeriodIndices(0, 1, 0, 2, 1, 2);
+    testRunner.assertPositionDiscontinuityReasonsEqual(
+        Player.DISCONTINUITY_REASON_PERIOD_TRANSITION,
+        Player.DISCONTINUITY_REASON_PERIOD_TRANSITION,
+        Player.DISCONTINUITY_REASON_PERIOD_TRANSITION,
+        Player.DISCONTINUITY_REASON_PERIOD_TRANSITION,
+        Player.DISCONTINUITY_REASON_PERIOD_TRANSITION);
     assertTrue(renderer.isEnded);
   }
 
@@ -298,6 +320,63 @@ public final class ExoPlayerTest extends TestCase {
     assertEquals(Player.STATE_BUFFERING, (int) playbackStatesWhenSeekProcessed.get(0));
     assertEquals(Player.STATE_READY, (int) playbackStatesWhenSeekProcessed.get(1));
     assertEquals(Player.STATE_BUFFERING, (int) playbackStatesWhenSeekProcessed.get(2));
+  }
+
+  public void testSeekDiscontinuity() throws Exception {
+    FakeTimeline timeline = new FakeTimeline(1);
+    ActionSchedule actionSchedule = new ActionSchedule.Builder("testSeekDiscontinuity")
+        .seek(10).build();
+    ExoPlayerTestRunner testRunner = new ExoPlayerTestRunner.Builder().setTimeline(timeline)
+        .setActionSchedule(actionSchedule).build().start().blockUntilEnded(TIMEOUT_MS);
+    testRunner.assertPositionDiscontinuityReasonsEqual(Player.DISCONTINUITY_REASON_SEEK);
+  }
+
+  public void testSeekDiscontinuityWithAdjustment() throws Exception {
+    FakeTimeline timeline = new FakeTimeline(1);
+    FakeMediaSource mediaSource = new FakeMediaSource(timeline, null, Builder.VIDEO_FORMAT) {
+      @Override
+      protected FakeMediaPeriod createFakeMediaPeriod(MediaPeriodId id,
+          TrackGroupArray trackGroupArray, Allocator allocator) {
+        return new FakeMediaPeriod(trackGroupArray) {
+          @Override
+          public long seekToUs(long positionUs) {
+            return positionUs + 10; // Adjusts the requested seek position.
+          }
+        };
+      }
+    };
+    ActionSchedule actionSchedule = new ActionSchedule.Builder("testSeekDiscontinuityAdjust")
+        .waitForPlaybackState(Player.STATE_READY).seek(10).build();
+    ExoPlayerTestRunner testRunner = new ExoPlayerTestRunner.Builder().setMediaSource(mediaSource)
+        .setActionSchedule(actionSchedule).build().start().blockUntilEnded(TIMEOUT_MS);
+    testRunner.assertPositionDiscontinuityReasonsEqual(Player.DISCONTINUITY_REASON_SEEK,
+        Player.DISCONTINUITY_REASON_SEEK_ADJUSTMENT);
+  }
+
+  public void testInternalDiscontinuity() throws Exception {
+    FakeTimeline timeline = new FakeTimeline(1);
+    FakeMediaSource mediaSource = new FakeMediaSource(timeline, null, Builder.VIDEO_FORMAT) {
+      @Override
+      protected FakeMediaPeriod createFakeMediaPeriod(MediaPeriodId id,
+          TrackGroupArray trackGroupArray, Allocator allocator) {
+        return new FakeMediaPeriod(trackGroupArray) {
+          boolean discontinuityRead;
+          @Override
+          public long readDiscontinuity() {
+            if (!discontinuityRead) {
+              discontinuityRead = true;
+              return 10; // Return a discontinuity.
+            }
+            return C.TIME_UNSET;
+          }
+        };
+      }
+    };
+    ActionSchedule actionSchedule = new ActionSchedule.Builder("testInternalDiscontinuity")
+        .waitForPlaybackState(Player.STATE_READY).build();
+    ExoPlayerTestRunner testRunner = new ExoPlayerTestRunner.Builder().setMediaSource(mediaSource)
+        .setActionSchedule(actionSchedule).build().start().blockUntilEnded(TIMEOUT_MS);
+    testRunner.assertPositionDiscontinuityReasonsEqual(Player.DISCONTINUITY_REASON_INTERNAL);
   }
 
   public void testAllActivatedTrackSelectionAreReleasedForSinglePeriod() throws Exception {

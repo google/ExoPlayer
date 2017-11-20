@@ -499,6 +499,8 @@ import java.util.Locale;
         return "PERIOD_TRANSITION";
       case Player.DISCONTINUITY_REASON_SEEK:
         return "SEEK";
+      case Player.DISCONTINUITY_REASON_SEEK_ADJUSTMENT:
+        return "SEEK_ADJUSTMENT";
       case Player.DISCONTINUITY_REASON_INTERNAL:
         return "INTERNAL";
       default:
