@@ -2,6 +2,10 @@
 
 ### dev-v2 (not yet released) ###
 
+* Fix reporting of internal position discontinuities via
+  `Player.onPositionDiscontinuity`. `DISCONTINUITY_REASON_SEEK_ADJUSTMENT` is
+  added to disambiguate position adjustments during seeks from other types of
+  internal position discontinuity.
 * Allow more flexible loading strategy when playing media containing multiple
   sub-streams, by allowing injection of custom `CompositeSequenceableLoader`
   factories through `DashMediaSource.Builder`, `HlsMediaSource.Builder`,
