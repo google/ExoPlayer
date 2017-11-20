@@ -15,6 +15,10 @@
  */
 package com.google.android.exoplayer2.audio;
 
+import static com.google.android.exoplayer2.audio.Ac3Util.Ac3SyncFrameInfo.STREAM_TYPE_TYPE0;
+import static com.google.android.exoplayer2.audio.Ac3Util.Ac3SyncFrameInfo.STREAM_TYPE_TYPE1;
+import static com.google.android.exoplayer2.audio.Ac3Util.Ac3SyncFrameInfo.STREAM_TYPE_UNDEFINED;
+
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.drm.DrmInitData;
@@ -181,7 +185,14 @@ public final class Ac3Util {
         channelCount += 2;
       }
     }
-    return Format.createAudioSampleFormat(trackId, MimeTypes.AUDIO_E_AC3, null, Format.NO_VALUE,
+    String mimeType = MimeTypes.AUDIO_E_AC3;
+    if (data.bytesLeft() > 0) {
+      nextByte = data.readUnsignedByte();
+      if ((nextByte & 0x01) != 0) { // flag_ec3_extension_type_a
+        mimeType = MimeTypes.AUDIO_ATMOS;
+      }
+    }
+    return Format.createAudioSampleFormat(trackId, mimeType, null, Format.NO_VALUE,
         Format.NO_VALUE, channelCount, sampleRate, null, drmInitData, 0, language);
   }
 
@@ -198,29 +209,176 @@ public final class Ac3Util {
     boolean isEac3 = data.readBits(5) == 16;
     data.setPosition(initialPosition);
     String mimeType;
-    int streamType = Ac3SyncFrameInfo.STREAM_TYPE_UNDEFINED;
+    int streamType = STREAM_TYPE_UNDEFINED;
     int sampleRate;
     int acmod;
     int frameSize;
     int sampleCount;
+    boolean lfeon;
+    int channelCount;
     if (isEac3) {
-      mimeType = MimeTypes.AUDIO_E_AC3;
+      // Syntax from ETSI TS 102 366 V1.2.1 subsections E.1.2.1 and E.1.2.2.
       data.skipBits(16); // syncword
       streamType = data.readBits(2);
       data.skipBits(3); // substreamid
       frameSize = (data.readBits(11) + 1) * 2;
       int fscod = data.readBits(2);
       int audioBlocks;
+      int numblkscod;
       if (fscod == 3) {
+        numblkscod = 3;
         sampleRate = SAMPLE_RATE_BY_FSCOD2[data.readBits(2)];
         audioBlocks = 6;
       } else {
-        int numblkscod = data.readBits(2);
+        numblkscod = data.readBits(2);
         audioBlocks = BLOCKS_PER_SYNCFRAME_BY_NUMBLKSCOD[numblkscod];
         sampleRate = SAMPLE_RATE_BY_FSCOD[fscod];
       }
       sampleCount = AUDIO_SAMPLES_PER_AUDIO_BLOCK * audioBlocks;
       acmod = data.readBits(3);
+      lfeon = data.readBit();
+      channelCount = CHANNEL_COUNT_BY_ACMOD[acmod] + (lfeon ? 1 : 0);
+      data.skipBits(5 + 5); // bsid, dialnorm
+      if (data.readBit()) { // compre
+        data.skipBits(8); // compr
+      }
+      if (acmod == 0) {
+        data.skipBits(5); // dialnorm2
+        if (data.readBit()) { // compr2e
+          data.skipBits(8); // compr2
+        }
+      }
+      if (streamType == STREAM_TYPE_TYPE1 && data.readBit()) { // chanmape
+        data.skipBits(16); // chanmap
+      }
+      if (data.readBit()) { // mixmdate
+        if (acmod > 2) {
+          data.skipBits(2); // dmixmod
+        }
+        if ((acmod & 0x01) != 0 && acmod > 2) {
+          data.skipBits(3 + 3); // ltrtcmixlev, lorocmixlev
+        }
+        if ((acmod & 0x04) != 0) {
+          data.skipBits(6); // ltrtsurmixlev, lorosurmixlev
+        }
+        if (lfeon && data.readBit()) { // lfemixlevcode
+          data.skipBits(5); // lfemixlevcod
+        }
+        if (streamType == STREAM_TYPE_TYPE0) {
+          if (data.readBit()) { // pgmscle
+            data.skipBits(6); //pgmscl
+          }
+          if (acmod == 0 && data.readBit()) { // pgmscl2e
+            data.skipBits(6); // pgmscl2
+          }
+          if (data.readBit()) { // extpgmscle
+            data.skipBits(6); // extpgmscl
+          }
+          int mixdef = data.readBits(2);
+          if (mixdef == 1) {
+            data.skipBits(1 + 1 + 3); // premixcmpsel, drcsrc, premixcmpscl
+          } else if (mixdef == 2) {
+            data.skipBits(12); // mixdata
+          } else if (mixdef == 3) {
+            int mixdeflen = data.readBits(5);
+            if (data.readBit()) { // mixdata2e
+              data.skipBits(1 + 1 + 3); // premixcmpsel, drcsrc, premixcmpscl
+              if (data.readBit()) { // extpgmlscle
+                data.skipBits(4); // extpgmlscl
+              }
+              if (data.readBit()) { // extpgmcscle
+                data.skipBits(4); // extpgmcscl
+              }
+              if (data.readBit()) { // extpgmrscle
+                data.skipBits(4); // extpgmrscl
+              }
+              if (data.readBit()) { // extpgmlsscle
+                data.skipBits(4); // extpgmlsscl
+              }
+              if (data.readBit()) { // extpgmrsscle
+                data.skipBits(4); // extpgmrsscl
+              }
+              if (data.readBit()) { // extpgmlfescle
+                data.skipBits(4); // extpgmlfescl
+              }
+              if (data.readBit()) { // dmixscle
+                data.skipBits(4); // dmixscl
+              }
+              if (data.readBit()) { // addche
+                if (data.readBit()) { // extpgmaux1scle
+                  data.skipBits(4); // extpgmaux1scl
+                }
+                if (data.readBit()) { // extpgmaux2scle
+                  data.skipBits(4); // extpgmaux2scl
+                }
+              }
+            }
+            if (data.readBit()) { // mixdata3e
+              data.skipBits(5); // spchdat
+              if (data.readBit()) { // addspchdate
+                data.skipBits(5 + 2); // spchdat1, spchan1att
+                if (data.readBit()) { // addspdat1e
+                  data.skipBits(5 + 3); // spchdat2, spchan2att
+                }
+              }
+            }
+            data.skipBits(8 * (mixdeflen + 2)); // mixdata
+            data.byteAlign(); // mixdatafill
+          }
+          if (acmod < 2) {
+            if (data.readBit()) { // paninfoe
+              data.skipBits(8 + 6); // panmean, paninfo
+            }
+            if (acmod == 0) {
+              if (data.readBit()) { // paninfo2e
+                data.skipBits(8 + 6); // panmean2, paninfo2
+              }
+            }
+          }
+          if (data.readBit()) { // frmmixcfginfoe
+            if (numblkscod == 0) {
+              data.skipBits(5); // blkmixcfginfo[0]
+            } else {
+              for (int blk = 0; blk < audioBlocks; blk++) {
+                if (data.readBit()) { // blkmixcfginfoe
+                  data.skipBits(5); // blkmixcfginfo[blk]
+                }
+              }
+            }
+          }
+        }
+      }
+      if (data.readBit()) { // infomdate
+        data.skipBits(3 + 1 + 1); // bsmod, copyrightb, origbs
+        if (acmod == 2) {
+          data.skipBits(2 + 2); // dsurmod, dheadphonmod
+        }
+        if (acmod >= 6) {
+          data.skipBits(2); // dsurexmod
+        }
+        if (data.readBit()) { // audioprodie
+          data.skipBits(5 + 2 + 1); // mixlevel, roomtyp, adconvtyp
+        }
+        if (acmod == 0 && data.readBit()) { // audioprodi2e
+          data.skipBits(5 + 2 + 1); // mixlevel2, roomtyp2, adconvtyp2
+        }
+        if (fscod < 3) {
+          data.skipBit(); // sourcefscod
+        }
+      }
+      if (streamType == 0 && numblkscod != 3) {
+        data.skipBit(); // convsync
+      }
+      if (streamType == 2 && (numblkscod == 3 || data.readBit())) { // blkid
+        data.skipBits(6); // frmsizecod
+      }
+      mimeType = MimeTypes.AUDIO_E_AC3;
+      if (data.readBit()) { // addbsie
+        int addbsil = data.readBits(6);
+        if (addbsil == 1 && data.readBits(8) == 1) { // addbsi
+          mimeType = MimeTypes.AUDIO_ATMOS;
+        }
+      }
     } else /* is AC-3 */ {
       mimeType = MimeTypes.AUDIO_AC3;
       data.skipBits(16 + 16); // syncword, crc1
@@ -240,9 +398,9 @@ public final class Ac3Util {
       }
       sampleRate = SAMPLE_RATE_BY_FSCOD[fscod];
       sampleCount = AC3_SYNCFRAME_AUDIO_SAMPLE_COUNT;
+      lfeon = data.readBit();
+      channelCount = CHANNEL_COUNT_BY_ACMOD[acmod] + (lfeon ? 1 : 0);
     }
-    boolean lfeon = data.readBit();
-    int channelCount = CHANNEL_COUNT_BY_ACMOD[acmod] + (lfeon ? 1 : 0);
     return new Ac3SyncFrameInfo(mimeType, streamType, channelCount, sampleRate, frameSize,
         sampleCount);
   }
