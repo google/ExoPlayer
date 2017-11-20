@@ -83,7 +83,7 @@ public final class DashMediaSource implements MediaSource {
      * @param chunkSourceFactory A factory for {@link DashChunkSource} instances.
      * @return A new builder.
      */
-    public static Builder forSideLoadedManifest(DashManifest manifest,
+    public static Builder forSideloadedManifest(DashManifest manifest,
         DashChunkSource.Factory chunkSourceFactory) {
       Assertions.checkArgument(!manifest.dynamic);
       return new Builder(manifest, null, null, chunkSourceFactory);
