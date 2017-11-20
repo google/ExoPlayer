@@ -24,7 +24,6 @@ import com.google.android.exoplayer2.testutil.FakeShuffleOrder;
 import com.google.android.exoplayer2.testutil.FakeTimeline;
 import com.google.android.exoplayer2.testutil.FakeTimeline.TimelineWindowDefinition;
 import com.google.android.exoplayer2.testutil.MediaSourceTestRunner;
-import com.google.android.exoplayer2.testutil.TestUtil;
 import com.google.android.exoplayer2.testutil.TimelineAsserts;
 import junit.framework.TestCase;
 
@@ -32,8 +31,6 @@ import junit.framework.TestCase;
  * Unit tests for {@link ConcatenatingMediaSource}.
  */
 public final class ConcatenatingMediaSourceTest extends TestCase {
-
-  private static final int TIMEOUT_MS = 10000;
 
   public void testEmptyConcatenation() {
     for (boolean atomic : new boolean[] {false, true}) {
@@ -211,7 +208,7 @@ public final class ConcatenatingMediaSourceTest extends TestCase {
     ConcatenatingMediaSource mediaSource = new ConcatenatingMediaSource(mediaSourceContentOnly,
         mediaSourceWithAds);
 
-    MediaSourceTestRunner testRunner = new MediaSourceTestRunner(mediaSource, null, TIMEOUT_MS);
+    MediaSourceTestRunner testRunner = new MediaSourceTestRunner(mediaSource, null);
     try {
       Timeline timeline = testRunner.prepareSource();
       TimelineAsserts.assertAdGroupCounts(timeline, 0, 0, 1, 1);
@@ -241,7 +238,12 @@ public final class ConcatenatingMediaSourceTest extends TestCase {
     }
     ConcatenatingMediaSource mediaSource = new ConcatenatingMediaSource(isRepeatOneAtomic,
         new FakeShuffleOrder(mediaSources.length), mediaSources);
-    return TestUtil.extractTimelineFromMediaSource(mediaSource);
+    MediaSourceTestRunner testRunner = new MediaSourceTestRunner(mediaSource, null);
+    try {
+      return testRunner.prepareSource();
+    } finally {
+      testRunner.release();
+    }
   }
 
   private static FakeTimeline createFakeTimeline(int periodCount, int windowId) {
