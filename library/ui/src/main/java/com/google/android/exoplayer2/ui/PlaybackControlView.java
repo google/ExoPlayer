@@ -699,6 +699,8 @@ public class PlaybackControlView extends FrameLayout {
         repeatToggleButton.setImageDrawable(repeatAllButtonDrawable);
         repeatToggleButton.setContentDescription(repeatAllButtonContentDescription);
         break;
+      default:
+        // Never happens.
     }
     repeatToggleButton.setVisibility(View.VISIBLE);
   }
@@ -1098,7 +1100,8 @@ public class PlaybackControlView extends FrameLayout {
     }
 
     @Override
-    public void onTimelineChanged(Timeline timeline, Object manifest) {
+    public void onTimelineChanged(Timeline timeline, Object manifest,
+        @Player.TimelineChangeReason int reason) {
       updateNavigation();
       updateTimeBarMode();
       updateProgress();

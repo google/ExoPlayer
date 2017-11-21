@@ -59,8 +59,9 @@ public interface Player {
      *
      * @param timeline The latest timeline. Never null, but may be empty.
      * @param manifest The latest manifest. May be null.
+     * @param reason The {@link TimelineChangeReason} responsible for this timeline change.
      */
-    void onTimelineChanged(Timeline timeline, Object manifest);
+    void onTimelineChanged(Timeline timeline, Object manifest, @TimelineChangeReason int reason);
 
     /**
      * Called when the available or selected tracks change.
@@ -118,7 +119,8 @@ public interface Player {
      * when the source introduces a discontinuity internally).
      * <p>
      * When a position discontinuity occurs as a result of a change to the timeline this method is
-     * <em>not</em> called. {@link #onTimelineChanged(Timeline, Object)} is called in this case.
+     * <em>not</em> called. {@link #onTimelineChanged(Timeline, Object, int)} is called in this
+     * case.
      *
      * @param reason The {@link DiscontinuityReason} responsible for the discontinuity.
      */
@@ -149,8 +151,10 @@ public interface Player {
   abstract class DefaultEventListener implements EventListener {
 
     @Override
-    public void onTimelineChanged(Timeline timeline, Object manifest) {
-      // Do nothing.
+    public void onTimelineChanged(Timeline timeline, Object manifest,
+        @TimelineChangeReason int reason) {
+      // Call deprecated version. Otherwise, do nothing.
+      onTimelineChanged(timeline, manifest);
     }
 
     @Override
@@ -195,6 +199,15 @@ public interface Player {
 
     @Override
     public void onSeekProcessed() {
+      // Do nothing.
+    }
+
+    /**
+     * @deprecated Use {@link DefaultEventListener#onTimelineChanged(Timeline, Object, int)}
+     *     instead.
+     */
+    @Deprecated
+    public void onTimelineChanged(Timeline timeline, Object manifest) {
       // Do nothing.
     }
 
@@ -263,6 +276,26 @@ public interface Player {
    * Discontinuity introduced internally by the source.
    */
   int DISCONTINUITY_REASON_INTERNAL = 3;
+
+  /**
+   * Reasons for timeline and/or manifest changes.
+   */
+  @Retention(RetentionPolicy.SOURCE)
+  @IntDef({TIMELINE_CHANGE_REASON_PREPARED, TIMELINE_CHANGE_REASON_RESET,
+      TIMELINE_CHANGE_REASON_DYNAMIC})
+  public @interface TimelineChangeReason {}
+  /**
+   * Timeline and manifest changed as a result of a player initialization with new media.
+   */
+  int TIMELINE_CHANGE_REASON_PREPARED = 0;
+  /**
+   * Timeline and manifest changed as a result of a player reset.
+   */
+  int TIMELINE_CHANGE_REASON_RESET = 1;
+  /**
+   * Timeline or manifest changed as a result of an dynamic update introduced by the played media.
+   */
+  int TIMELINE_CHANGE_REASON_DYNAMIC = 2;
 
   /**
    * Register a listener to receive events from the player. The listener's methods will be called on

@@ -17,6 +17,7 @@ package com.google.android.exoplayer2;
 
 import com.google.android.exoplayer2.source.ConcatenatingMediaSource;
 import com.google.android.exoplayer2.source.MediaSource;
+import com.google.android.exoplayer2.source.MediaSource.Listener;
 import com.google.android.exoplayer2.source.TrackGroup;
 import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.testutil.ActionSchedule;
@@ -28,6 +29,7 @@ import com.google.android.exoplayer2.testutil.FakeMediaSource;
 import com.google.android.exoplayer2.testutil.FakeRenderer;
 import com.google.android.exoplayer2.testutil.FakeShuffleOrder;
 import com.google.android.exoplayer2.testutil.FakeTimeline;
+import com.google.android.exoplayer2.testutil.FakeTimeline.TimelineWindowDefinition;
 import com.google.android.exoplayer2.testutil.FakeTrackSelection;
 import com.google.android.exoplayer2.testutil.FakeTrackSelector;
 import com.google.android.exoplayer2.upstream.Allocator;
@@ -59,7 +61,7 @@ public final class ExoPlayerTest extends TestCase {
         .setTimeline(timeline).setRenderers(renderer)
         .build().start().blockUntilEnded(TIMEOUT_MS);
     testRunner.assertNoPositionDiscontinuities();
-    testRunner.assertTimelinesEqual();
+    testRunner.assertTimelinesEqual(timeline);
     assertEquals(0, renderer.formatReadCount);
     assertEquals(0, renderer.bufferReadCount);
     assertFalse(renderer.isEnded);
@@ -78,6 +80,7 @@ public final class ExoPlayerTest extends TestCase {
     testRunner.assertNoPositionDiscontinuities();
     testRunner.assertTimelinesEqual(timeline);
     testRunner.assertManifestsEqual(manifest);
+    testRunner.assertTimelineChangeReasonsEqual(Player.TIMELINE_CHANGE_REASON_PREPARED);
     testRunner.assertTrackGroupsEqual(new TrackGroupArray(new TrackGroup(Builder.VIDEO_FORMAT)));
     assertEquals(1, renderer.formatReadCount);
     assertEquals(1, renderer.bufferReadCount);
@@ -97,6 +100,7 @@ public final class ExoPlayerTest extends TestCase {
         Player.DISCONTINUITY_REASON_PERIOD_TRANSITION,
         Player.DISCONTINUITY_REASON_PERIOD_TRANSITION);
     testRunner.assertTimelinesEqual(timeline);
+    testRunner.assertTimelineChangeReasonsEqual(Player.TIMELINE_CHANGE_REASON_PREPARED);
     assertEquals(3, renderer.formatReadCount);
     assertEquals(1, renderer.bufferReadCount);
     assertTrue(renderer.isEnded);
@@ -210,6 +214,8 @@ public final class ExoPlayerTest extends TestCase {
     // info refresh from the second source was suppressed as we re-prepared with the third source.
     testRunner.assertTimelinesEqual(timeline, Timeline.EMPTY, timeline);
     testRunner.assertManifestsEqual(firstSourceManifest, null, thirdSourceManifest);
+    testRunner.assertTimelineChangeReasonsEqual(Player.TIMELINE_CHANGE_REASON_PREPARED,
+        Player.TIMELINE_CHANGE_REASON_RESET, Player.TIMELINE_CHANGE_REASON_PREPARED);
     testRunner.assertTrackGroupsEqual(new TrackGroupArray(new TrackGroup(Builder.VIDEO_FORMAT)));
     assertEquals(1, renderer.formatReadCount);
     assertEquals(1, renderer.bufferReadCount);
@@ -243,6 +249,7 @@ public final class ExoPlayerTest extends TestCase {
         Player.DISCONTINUITY_REASON_PERIOD_TRANSITION,
         Player.DISCONTINUITY_REASON_PERIOD_TRANSITION);
     testRunner.assertTimelinesEqual(timeline);
+    testRunner.assertTimelineChangeReasonsEqual(Player.TIMELINE_CHANGE_REASON_PREPARED);
     assertTrue(renderer.isEnded);
   }
 
@@ -511,6 +518,27 @@ public final class ExoPlayerTest extends TestCase {
     // Initially there are 2 track selections enabled.
     // The second time one renderer is disabled, so only 1 track selection should be enabled.
     assertEquals(3, numSelectionsEnabled);
+  }
+
+  public void testDynamicTimelineChangeReason() throws Exception {
+    Timeline timeline1 = new FakeTimeline(new TimelineWindowDefinition(false, false, 100000));
+    final Timeline timeline2 = new FakeTimeline(new TimelineWindowDefinition(false, false, 20000));
+    final FakeMediaSource mediaSource = new FakeMediaSource(timeline1, null, Builder.VIDEO_FORMAT);
+    ActionSchedule actionSchedule = new ActionSchedule.Builder("testDynamicTimelineChangeReason")
+        .waitForTimelineChanged(timeline1)
+        .executeRunnable(new Runnable() {
+          @Override
+          public void run() {
+            mediaSource.setNewSourceInfo(timeline2, null);
+          }
+        })
+        .build();
+    ExoPlayerTestRunner testRunner = new ExoPlayerTestRunner.Builder()
+        .setMediaSource(mediaSource).setActionSchedule(actionSchedule)
+        .build().start().blockUntilEnded(TIMEOUT_MS);
+    testRunner.assertTimelinesEqual(timeline1, timeline2);
+    testRunner.assertTimelineChangeReasonsEqual(Player.TIMELINE_CHANGE_REASON_PREPARED,
+        Player.TIMELINE_CHANGE_REASON_DYNAMIC);
   }
 
 }

@@ -22,6 +22,8 @@
   use this with `FfmpegAudioRenderer`.
 * Support extraction and decoding of Dolby Atmos
   ([#2465](https://github.com/google/ExoPlayer/issues/2465)).
+* Added a reason to `EventListener.onTimelineChanged` to distinguish between 
+  initial preparation, reset and dynamic updates.
 
 ### 2.6.0 ###
 
