@@ -258,8 +258,12 @@ public class ChunkSampleStream<T extends ChunkSource> implements SampleStream, S
     if (isPendingReset()) {
       return C.RESULT_NOTHING_READ;
     }
-    return primarySampleQueue.read(formatHolder, buffer, formatRequired, loadingFinished,
+    int result = primarySampleQueue.read(formatHolder, buffer, formatRequired, loadingFinished,
         lastSeekPositionUs);
+    if (result == C.RESULT_BUFFER_READ) {
+      maybeNotifyPrimaryTrackFormatChanged(primarySampleQueue.getReadIndex(), 1);
+    }
+    return result;
   }
 
   @Override
@@ -273,6 +277,9 @@ public class ChunkSampleStream<T extends ChunkSource> implements SampleStream, S
       if (skipCount == SampleQueue.ADVANCE_FAILED) {
         skipCount = 0;
       }
+    }
+    if (skipCount > 0) {
+      maybeNotifyPrimaryTrackFormatChanged(primarySampleQueue.getReadIndex(), skipCount);
     }
     return skipCount;
   }
@@ -434,21 +441,46 @@ public class ChunkSampleStream<T extends ChunkSource> implements SampleStream, S
     return pendingResetPositionUs != C.TIME_UNSET;
   }
 
-  private void discardDownstreamMediaChunks(int primaryStreamReadIndex) {
+  private void discardDownstreamMediaChunks(int discardToPrimaryStreamIndex) {
     if (!mediaChunks.isEmpty()) {
       while (mediaChunks.size() > 1
-          && mediaChunks.get(1).getFirstSampleIndex(0) <= primaryStreamReadIndex) {
+          && mediaChunks.get(1).getFirstSampleIndex(0) <= discardToPrimaryStreamIndex) {
         mediaChunks.removeFirst();
       }
-      BaseMediaChunk currentChunk = mediaChunks.getFirst();
-      Format trackFormat = currentChunk.trackFormat;
-      if (!trackFormat.equals(primaryDownstreamTrackFormat)) {
-        eventDispatcher.downstreamFormatChanged(primaryTrackType, trackFormat,
-            currentChunk.trackSelectionReason, currentChunk.trackSelectionData,
-            currentChunk.startTimeUs);
-      }
-      primaryDownstreamTrackFormat = trackFormat;
     }
+  }
+
+  private void maybeNotifyPrimaryTrackFormatChanged(int toPrimaryStreamReadIndex, int readCount) {
+    if (!mediaChunks.isEmpty()) {
+      int fromPrimaryStreamReadIndex = toPrimaryStreamReadIndex - readCount;
+      int fromChunkIndex = 0;
+      while (fromChunkIndex < mediaChunks.size() - 1
+          && mediaChunks.get(fromChunkIndex + 1).getFirstSampleIndex(0)
+              <= fromPrimaryStreamReadIndex) {
+        fromChunkIndex++;
+      }
+      int toChunkIndex = fromChunkIndex + 1;
+      if (readCount > 1) {
+        while (toChunkIndex < mediaChunks.size()
+            && mediaChunks.get(toChunkIndex).getFirstSampleIndex(0) < toPrimaryStreamReadIndex) {
+          toChunkIndex++;
+        }
+      }
+      for (int i = fromChunkIndex; i < toChunkIndex; i++) {
+        maybeNotifyPrimaryTrackFormatChanged(i);
+      }
+    }
+  }
+
+  private void maybeNotifyPrimaryTrackFormatChanged(int mediaChunkReadIndex) {
+    BaseMediaChunk currentChunk = mediaChunks.get(mediaChunkReadIndex);
+    Format trackFormat = currentChunk.trackFormat;
+    if (!trackFormat.equals(primaryDownstreamTrackFormat)) {
+      eventDispatcher.downstreamFormatChanged(primaryTrackType, trackFormat,
+          currentChunk.trackSelectionReason, currentChunk.trackSelectionData,
+          currentChunk.startTimeUs);
+    }
+    primaryDownstreamTrackFormat = trackFormat;
   }
 
   /**
