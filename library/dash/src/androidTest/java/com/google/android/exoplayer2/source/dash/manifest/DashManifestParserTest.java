@@ -84,7 +84,7 @@ public class DashManifestParserTest extends InstrumentationTestCase {
     EventStream eventStream1 = period.eventStreams.get(0);
     assertEquals(1, eventStream1.events.length);
     EventMessage expectedEvent1 = new EventMessage("urn:uuid:XYZY", "call", 10000, 0,
-        "+ 1 800 10101010".getBytes());
+        "+ 1 800 10101010".getBytes(), 0);
     assertEquals(expectedEvent1, eventStream1.events[0]);
 
     // assert CData-structured event stream
@@ -102,7 +102,7 @@ public class DashManifestParserTest extends InstrumentationTestCase {
                 + "      <mpeg7:Region>GB</mpeg7:Region>\n"
                 + "      </ParentalGuidance>\n"
                 + "      </InstanceDescription>\n"
-                + "      </BroadcastEvent>]]>").getBytes()),
+                + "      </BroadcastEvent>]]>").getBytes(), 300000000),
         eventStream2.events[0]);
 
     // assert xml-structured event stream
@@ -114,7 +114,7 @@ public class DashManifestParserTest extends InstrumentationTestCase {
                 + "         <scte35:Binary>\n"
                 + "         /DAIAAAAAAAAAAAQAAZ/I0VniQAQAgBDVUVJQAAAAH+cAAAAAA==\n"
                 + "         </scte35:Binary>\n"
-                + "       </scte35:Signal>").getBytes()),
+                + "       </scte35:Signal>").getBytes(), 1000000000),
         eventStream3.events[0]);
   }
 
