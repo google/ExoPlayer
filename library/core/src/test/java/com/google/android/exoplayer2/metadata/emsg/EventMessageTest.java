@@ -33,7 +33,7 @@ public final class EventMessageTest {
   @Test
   public void testEventMessageParcelable() {
     EventMessage eventMessage = new EventMessage("urn:test", "123", 3000, 1000403,
-        new byte[] {0, 1, 2, 3, 4});
+        new byte[] {0, 1, 2, 3, 4}, 1000);
     // Write to parcel.
     Parcel parcel = Parcel.obtain();
     eventMessage.writeToParcel(parcel, 0);
