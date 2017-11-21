@@ -51,10 +51,6 @@ public final class DefaultLoadControl implements LoadControl {
    */
   public static final int DEFAULT_BUFFER_FOR_PLAYBACK_AFTER_REBUFFER_MS  = 5000;
 
-  private static final int ABOVE_HIGH_WATERMARK = 0;
-  private static final int BETWEEN_WATERMARKS = 1;
-  private static final int BELOW_LOW_WATERMARK = 2;
-
   private final DefaultAllocator allocator;
 
   private final long minBufferUs;
@@ -171,11 +167,11 @@ public final class DefaultLoadControl implements LoadControl {
 
   @Override
   public boolean shouldContinueLoading(long bufferedDurationUs) {
-    int bufferTimeState = getBufferTimeState(bufferedDurationUs);
     boolean targetBufferSizeReached = allocator.getTotalBytesAllocated() >= targetBufferSize;
     boolean wasBuffering = isBuffering;
-    isBuffering = bufferTimeState == BELOW_LOW_WATERMARK
-        || (bufferTimeState == BETWEEN_WATERMARKS && isBuffering && !targetBufferSizeReached);
+    isBuffering = bufferedDurationUs < minBufferUs // below low watermark
+        || (bufferedDurationUs <= maxBufferUs // between watermarks
+            && isBuffering && !targetBufferSizeReached);
     if (priorityTaskManager != null && isBuffering != wasBuffering) {
       if (isBuffering) {
         priorityTaskManager.add(C.PRIORITY_PLAYBACK);
@@ -184,11 +180,6 @@ public final class DefaultLoadControl implements LoadControl {
       }
     }
     return isBuffering;
-  }
-
-  private int getBufferTimeState(long bufferedDurationUs) {
-    return bufferedDurationUs > maxBufferUs ? ABOVE_HIGH_WATERMARK
-        : (bufferedDurationUs < minBufferUs ? BELOW_LOW_WATERMARK : BETWEEN_WATERMARKS);
   }
 
   private void reset(boolean resetAllocator) {
