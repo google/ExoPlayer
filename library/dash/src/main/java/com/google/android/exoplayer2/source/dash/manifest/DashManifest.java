@@ -68,6 +68,12 @@ public class DashManifest {
   public final long suggestedPresentationDelayMs;
 
   /**
+   * The {@code publishTime} value in milliseconds since epoch, or {@link C#TIME_UNSET} if
+   * not present.
+   */
+  public final long publishTimeMs;
+
+  /**
    * The {@link UtcTimingElement}, or null if not present. Defined in DVB A168:7/2016, Section
    * 4.7.2.
    */
@@ -82,8 +88,8 @@ public class DashManifest {
 
   public DashManifest(long availabilityStartTimeMs, long durationMs, long minBufferTimeMs,
       boolean dynamic, long minUpdatePeriodMs, long timeShiftBufferDepthMs,
-      long suggestedPresentationDelayMs, UtcTimingElement utcTiming, Uri location,
-      List<Period> periods) {
+      long suggestedPresentationDelayMs, long publishTimeMs, UtcTimingElement utcTiming,
+      Uri location, List<Period> periods) {
     this.availabilityStartTimeMs = availabilityStartTimeMs;
     this.durationMs = durationMs;
     this.minBufferTimeMs = minBufferTimeMs;
@@ -91,6 +97,7 @@ public class DashManifest {
     this.minUpdatePeriodMs = minUpdatePeriodMs;
     this.timeShiftBufferDepthMs = timeShiftBufferDepthMs;
     this.suggestedPresentationDelayMs = suggestedPresentationDelayMs;
+    this.publishTimeMs = publishTimeMs;
     this.utcTiming = utcTiming;
     this.location = location;
     this.periods = periods == null ? Collections.<Period>emptyList() : periods;
@@ -147,8 +154,8 @@ public class DashManifest {
     }
     long newDuration = durationMs != C.TIME_UNSET ? durationMs - shiftMs : C.TIME_UNSET;
     return new DashManifest(availabilityStartTimeMs, newDuration, minBufferTimeMs, dynamic,
-        minUpdatePeriodMs, timeShiftBufferDepthMs, suggestedPresentationDelayMs, utcTiming,
-        location, copyPeriods);
+        minUpdatePeriodMs, timeShiftBufferDepthMs, suggestedPresentationDelayMs, publishTimeMs,
+        utcTiming, location, copyPeriods);
   }
 
   private static ArrayList<AdaptationSet> copyAdaptationSets(
