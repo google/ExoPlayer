@@ -59,7 +59,7 @@ public final class SsaDecoder extends SimpleSubtitleDecoder {
    */
   public SsaDecoder(List<byte[]> initializationData) {
     super("SsaDecoder");
-    if (initializationData != null) {
+    if (initializationData != null && initializationData.size() > 0) {
       haveInitializationData = true;
       String formatLine = new String(initializationData.get(0));
       Assertions.checkArgument(formatLine.startsWith(FORMAT_LINE_PREFIX));
