@@ -284,10 +284,8 @@ import java.io.IOException;
 
   @Override
   public void onPlaybackParametersChanged(PlaybackParameters playbackParameters) {
-    // TODO(b/37237846): Make LoadControl, period transition position projection, adaptive track
-    // selection and potentially any time-related code in renderers take into account the playback
-    // speed.
     eventHandler.obtainMessage(MSG_PLAYBACK_PARAMETERS_CHANGED, playbackParameters).sendToTarget();
+    updateTrackSelectionPlaybackSpeed(playbackParameters.speed);
   }
 
   // Handler.Callback implementation.
@@ -573,9 +571,10 @@ import java.io.IOException;
       setState(Player.STATE_ENDED);
       stopRenderers();
     } else if (state == Player.STATE_BUFFERING) {
+      float playbackSpeed = mediaClock.getPlaybackParameters().speed;
       boolean isNewlyReady = enabledRenderers.length > 0
-          ? (allRenderersReadyOrEnded
-              && loadingPeriodHolder.haveSufficientBuffer(rebuffering, rendererPositionUs))
+          ? (allRenderersReadyOrEnded && loadingPeriodHolder.haveSufficientBuffer(
+              rendererPositionUs, playbackSpeed, rebuffering))
           : isTimelineReady(playingPeriodDurationUs);
       if (isNewlyReady) {
         setState(Player.STATE_READY);
@@ -853,6 +852,7 @@ import java.io.IOException;
       // We don't have tracks yet, so we don't care.
       return;
     }
+    float playbackSpeed = mediaClock.getPlaybackParameters().speed;
     // Reselect tracks on each period in turn, until the selection changes.
     MediaPeriodHolder periodHolder = playingPeriodHolder;
     boolean selectionsChangedForReadPeriod = true;
@@ -861,7 +861,7 @@ import java.io.IOException;
         // The reselection did not change any prepared periods.
         return;
       }
-      if (periodHolder.selectTracks()) {
+      if (periodHolder.selectTracks(playbackSpeed)) {
         // Selected tracks have changed for this period.
         break;
       }
@@ -932,6 +932,18 @@ import java.io.IOException;
       maybeContinueLoading();
       updatePlaybackPositions();
       handler.sendEmptyMessage(MSG_DO_SOME_WORK);
+    }
+  }
+
+  private void updateTrackSelectionPlaybackSpeed(float playbackSpeed) {
+    MediaPeriodHolder periodHolder =
+        playingPeriodHolder != null ? playingPeriodHolder : loadingPeriodHolder;
+    while (periodHolder != null) {
+      TrackSelection[] trackSelections = periodHolder.trackSelectorResult.selections.getAll();
+      for (TrackSelection trackSelection : trackSelections) {
+        trackSelection.onPlaybackSpeed(playbackSpeed);
+      }
+      periodHolder = periodHolder.next;
     }
   }
 
@@ -1391,7 +1403,7 @@ import java.io.IOException;
       // Stale event.
       return;
     }
-    loadingPeriodHolder.handlePrepared();
+    loadingPeriodHolder.handlePrepared(mediaClock.getPlaybackParameters().speed);
     if (playingPeriodHolder == null) {
       // This is the first prepared period, so start playing it.
       readingPeriodHolder = loadingPeriodHolder;
@@ -1410,7 +1422,8 @@ import java.io.IOException;
   }
 
   private void maybeContinueLoading() {
-    boolean continueLoading = loadingPeriodHolder.shouldContinueLoading(rendererPositionUs);
+    boolean continueLoading = loadingPeriodHolder.shouldContinueLoading(
+        rendererPositionUs, mediaClock.getPlaybackParameters().speed);
     setIsLoading(continueLoading);
     if (continueLoading) {
       loadingPeriodHolder.continueLoading(rendererPositionUs);
@@ -1572,7 +1585,8 @@ import java.io.IOException;
           && (!hasEnabledTracks || mediaPeriod.getBufferedPositionUs() == C.TIME_END_OF_SOURCE);
     }
 
-    public boolean haveSufficientBuffer(boolean rebuffering, long rendererPositionUs) {
+    public boolean haveSufficientBuffer(long rendererPositionUs, float playbackSpeed,
+        boolean rebuffering) {
       long bufferedPositionUs = !prepared ? info.startPositionUs
           : mediaPeriod.getBufferedPositionUs();
       if (bufferedPositionUs == C.TIME_END_OF_SOURCE) {
@@ -1582,24 +1596,24 @@ import java.io.IOException;
         bufferedPositionUs = info.durationUs;
       }
       return loadControl.shouldStartPlayback(bufferedPositionUs - toPeriodTime(rendererPositionUs),
-          rebuffering);
+          playbackSpeed, rebuffering);
     }
 
-    public void handlePrepared() throws ExoPlaybackException {
+    public void handlePrepared(float playbackSpeed) throws ExoPlaybackException {
       prepared = true;
-      selectTracks();
+      selectTracks(playbackSpeed);
       long newStartPositionUs = updatePeriodTrackSelection(info.startPositionUs, false);
       info = info.copyWithStartPositionUs(newStartPositionUs);
     }
 
-    public boolean shouldContinueLoading(long rendererPositionUs) {
+    public boolean shouldContinueLoading(long rendererPositionUs, float playbackSpeed) {
       long nextLoadPositionUs = !prepared ? 0 : mediaPeriod.getNextLoadPositionUs();
       if (nextLoadPositionUs == C.TIME_END_OF_SOURCE) {
         return false;
       } else {
         long loadingPeriodPositionUs = toPeriodTime(rendererPositionUs);
         long bufferedDurationUs = nextLoadPositionUs - loadingPeriodPositionUs;
-        return loadControl.shouldContinueLoading(bufferedDurationUs);
+        return loadControl.shouldContinueLoading(bufferedDurationUs, playbackSpeed);
       }
     }
 
@@ -1608,13 +1622,18 @@ import java.io.IOException;
       mediaPeriod.continueLoading(loadingPeriodPositionUs);
     }
 
-    public boolean selectTracks() throws ExoPlaybackException {
+    public boolean selectTracks(float playbackSpeed) throws ExoPlaybackException {
       TrackSelectorResult selectorResult = trackSelector.selectTracks(rendererCapabilities,
           mediaPeriod.getTrackGroups());
       if (selectorResult.isEquivalent(periodTrackSelectorResult)) {
         return false;
       }
       trackSelectorResult = selectorResult;
+      for (TrackSelection trackSelection : trackSelectorResult.selections.getAll()) {
+        if (trackSelection != null) {
+          trackSelection.onPlaybackSpeed(playbackSpeed);
+        }
+      }
       return true;
     }
 

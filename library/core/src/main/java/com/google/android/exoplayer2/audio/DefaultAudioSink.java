@@ -1012,7 +1012,8 @@ public final class DefaultAudioSink implements AudioSink {
     }
     // We are playing data at a previous playback speed, so fall back to multiplying by the speed.
     return playbackParametersOffsetUs
-        + (long) ((double) playbackParameters.speed * (positionUs - playbackParametersPositionUs));
+        + Util.getMediaDurationForPlayoutDuration(
+            positionUs - playbackParametersPositionUs, playbackParameters.speed);
   }
 
   /**

@@ -88,7 +88,7 @@ public final class StandaloneMediaClock implements MediaClock {
       if (playbackParameters.speed == 1f) {
         positionUs += C.msToUs(elapsedSinceBaseMs);
       } else {
-        positionUs += playbackParameters.getSpeedAdjustedDurationUs(elapsedSinceBaseMs);
+        positionUs += playbackParameters.getMediaTimeUsForPlayoutTimeMs(elapsedSinceBaseMs);
       }
     }
     return positionUs;

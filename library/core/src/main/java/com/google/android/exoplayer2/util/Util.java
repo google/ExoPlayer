@@ -673,6 +673,20 @@ public final class Util {
   }
 
   /**
+   * Returns the duration of media that will elapse in {@code playoutDuration}.
+   *
+   * @param playoutDuration The duration to scale.
+   * @param speed The playback speed.
+   * @return The scaled duration, in the same units as {@code playoutDuration}.
+   */
+  public static long getMediaDurationForPlayoutDuration(long playoutDuration, float speed) {
+    if (speed == 1f) {
+      return playoutDuration;
+    }
+    return Math.round((double) playoutDuration * speed);
+  }
+
+  /**
    * Converts a list of integers to a primitive array.
    *
    * @param list A list of integers.

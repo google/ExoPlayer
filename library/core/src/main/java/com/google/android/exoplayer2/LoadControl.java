@@ -92,19 +92,21 @@ public interface LoadControl {
    * started or resumed.
    *
    * @param bufferedDurationUs The duration of media that's currently buffered.
+   * @param playbackSpeed The current playback speed.
    * @param rebuffering Whether the player is rebuffering. A rebuffer is defined to be caused by
    *     buffer depletion rather than a user action. Hence this parameter is false during initial
    *     buffering and when buffering as a result of a seek operation.
    * @return Whether playback should be allowed to start or resume.
    */
-  boolean shouldStartPlayback(long bufferedDurationUs, boolean rebuffering);
+  boolean shouldStartPlayback(long bufferedDurationUs, float playbackSpeed, boolean rebuffering);
 
   /**
    * Called by the player to determine whether it should continue to load the source.
    *
    * @param bufferedDurationUs The duration of media that's currently buffered.
+   * @param playbackSpeed The current playback speed.
    * @return Whether the loading should continue.
    */
-  boolean shouldContinueLoading(long bufferedDurationUs);
+  boolean shouldContinueLoading(long bufferedDurationUs, float playbackSpeed);
 
 }

@@ -112,6 +112,11 @@ public final class FakeTrackSelection implements TrackSelection {
   }
 
   @Override
+  public void onPlaybackSpeed(float speed) {
+    // Do nothing.
+  }
+
+  @Override
   public void updateSelectedTrack(long playbackPositionUs, long bufferedDurationUs,
       long availableDurationUs) {
     Assert.assertTrue(isEnabled);
