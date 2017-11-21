@@ -45,7 +45,7 @@ public final class ClippingMediaSourceTest extends InstrumentationTestCase {
   }
 
   public void testNoClipping() {
-    Timeline timeline = new SinglePeriodTimeline(C.msToUs(TEST_PERIOD_DURATION_US), true);
+    Timeline timeline = new SinglePeriodTimeline(C.msToUs(TEST_PERIOD_DURATION_US), true, false);
 
     Timeline clippedTimeline = getClippedTimeline(timeline, 0, TEST_PERIOD_DURATION_US);
 
@@ -56,7 +56,7 @@ public final class ClippingMediaSourceTest extends InstrumentationTestCase {
   }
 
   public void testClippingUnseekableWindowThrows() {
-    Timeline timeline = new SinglePeriodTimeline(C.msToUs(TEST_PERIOD_DURATION_US), false);
+    Timeline timeline = new SinglePeriodTimeline(C.msToUs(TEST_PERIOD_DURATION_US), false, false);
 
     // If the unseekable window isn't clipped, clipping succeeds.
     getClippedTimeline(timeline, 0, TEST_PERIOD_DURATION_US);
@@ -70,7 +70,7 @@ public final class ClippingMediaSourceTest extends InstrumentationTestCase {
   }
 
   public void testClippingStart() {
-    Timeline timeline = new SinglePeriodTimeline(C.msToUs(TEST_PERIOD_DURATION_US), true);
+    Timeline timeline = new SinglePeriodTimeline(C.msToUs(TEST_PERIOD_DURATION_US), true, false);
 
     Timeline clippedTimeline = getClippedTimeline(timeline, TEST_CLIP_AMOUNT_US,
         TEST_PERIOD_DURATION_US);
@@ -81,7 +81,7 @@ public final class ClippingMediaSourceTest extends InstrumentationTestCase {
   }
 
   public void testClippingEnd() {
-    Timeline timeline = new SinglePeriodTimeline(C.msToUs(TEST_PERIOD_DURATION_US), true);
+    Timeline timeline = new SinglePeriodTimeline(C.msToUs(TEST_PERIOD_DURATION_US), true, false);
 
     Timeline clippedTimeline = getClippedTimeline(timeline, 0,
         TEST_PERIOD_DURATION_US - TEST_CLIP_AMOUNT_US);
@@ -92,7 +92,7 @@ public final class ClippingMediaSourceTest extends InstrumentationTestCase {
   }
 
   public void testClippingStartAndEnd() {
-    Timeline timeline = new SinglePeriodTimeline(C.msToUs(TEST_PERIOD_DURATION_US), true);
+    Timeline timeline = new SinglePeriodTimeline(C.msToUs(TEST_PERIOD_DURATION_US), true, false);
 
     Timeline clippedTimeline = getClippedTimeline(timeline, TEST_CLIP_AMOUNT_US,
         TEST_PERIOD_DURATION_US - TEST_CLIP_AMOUNT_US * 2);
