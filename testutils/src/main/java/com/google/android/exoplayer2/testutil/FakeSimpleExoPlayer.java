@@ -340,7 +340,8 @@ public class FakeSimpleExoPlayer extends SimpleExoPlayer {
             FakeExoPlayer.this.durationUs = timeline.getPeriod(0, new Period()).durationUs;
             FakeExoPlayer.this.timeline = timeline;
             FakeExoPlayer.this.manifest = manifest;
-            eventListener.onTimelineChanged(timeline, manifest);
+            eventListener.onTimelineChanged(timeline, manifest,
+                Player.TIMELINE_CHANGE_REASON_PREPARED);
             waitForNotification.open();
           }
         }

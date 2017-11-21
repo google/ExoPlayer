@@ -318,6 +318,7 @@ public final class ExoPlayerTestRunner extends Player.DefaultEventListener {
   private final CountDownLatch endedCountDownLatch;
   private final LinkedList<Timeline> timelines;
   private final LinkedList<Object> manifests;
+  private final ArrayList<Integer> timelineChangeReasons;
   private final LinkedList<Integer> periodIndices;
   private final ArrayList<Integer> discontinuityReasons;
 
@@ -338,6 +339,7 @@ public final class ExoPlayerTestRunner extends Player.DefaultEventListener {
     this.eventListener = eventListener;
     this.timelines = new LinkedList<>();
     this.manifests = new LinkedList<>();
+    this.timelineChangeReasons = new ArrayList<>();
     this.periodIndices = new LinkedList<>();
     this.discontinuityReasons = new ArrayList<>();
     this.endedCountDownLatch = new CountDownLatch(1);
@@ -431,6 +433,18 @@ public final class ExoPlayerTestRunner extends Player.DefaultEventListener {
   }
 
   /**
+   * Asserts that the timeline change reasons reported by
+   * {@link Player.EventListener#onTimelineChanged(Timeline, Object, int)} are equal to the provided
+   * timeline change reasons.
+   */
+  public void assertTimelineChangeReasonsEqual(@Player.TimelineChangeReason int... reasons) {
+    Assert.assertEquals(reasons.length, timelineChangeReasons.size());
+    for (int i = 0; i < reasons.length; i++) {
+      Assert.assertEquals(reasons[i], (int) timelineChangeReasons.get(i));
+    }
+  }
+
+  /**
    * Asserts that the last track group array reported by
    * {@link Player.EventListener#onTracksChanged(TrackGroupArray, TrackSelectionArray)} is equal to
    * the provided track group array.
@@ -507,9 +521,11 @@ public final class ExoPlayerTestRunner extends Player.DefaultEventListener {
   // Player.EventListener
 
   @Override
-  public void onTimelineChanged(Timeline timeline, Object manifest) {
+  public void onTimelineChanged(Timeline timeline, Object manifest,
+      @Player.TimelineChangeReason int reason) {
     timelines.add(timeline);
     manifests.add(manifest);
+    timelineChangeReasons.add(reason);
   }
 
   @Override

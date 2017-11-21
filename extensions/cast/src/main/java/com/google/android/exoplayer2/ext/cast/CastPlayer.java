@@ -116,6 +116,7 @@ public final class CastPlayer implements Player {
   private int pendingSeekCount;
   private int pendingSeekWindowIndex;
   private long pendingSeekPositionMs;
+  private boolean waitingForInitialTimeline;
 
   /**
    * @param castContext The context from which the cast session is obtained.
@@ -170,6 +171,7 @@ public final class CastPlayer implements Player {
   public PendingResult<MediaChannelResult> loadItems(MediaQueueItem[] items, int startIndex,
       long positionMs, @RepeatMode int repeatMode) {
     if (remoteMediaClient != null) {
+      waitingForInitialTimeline = true;
       return remoteMediaClient.queueLoad(items, startIndex, getCastRepeatMode(repeatMode),
           positionMs, null);
     }
@@ -556,8 +558,11 @@ public final class CastPlayer implements Player {
 
   private void maybeUpdateTimelineAndNotify() {
     if (updateTimeline()) {
+      @Player.TimelineChangeReason int reason = waitingForInitialTimeline
+          ? Player.TIMELINE_CHANGE_REASON_PREPARED : Player.TIMELINE_CHANGE_REASON_DYNAMIC;
+      waitingForInitialTimeline = false;
       for (EventListener listener : listeners) {
-        listener.onTimelineChanged(currentTimeline, null);
+        listener.onTimelineChanged(currentTimeline, null, reason);
       }
     }
   }

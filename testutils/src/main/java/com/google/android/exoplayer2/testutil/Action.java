@@ -304,7 +304,7 @@ public abstract class Action {
   }
 
   /**
-   * Waits for {@link Player.EventListener#onTimelineChanged(Timeline, Object)}.
+   * Waits for {@link Player.EventListener#onTimelineChanged(Timeline, Object, int)}.
    */
   public static final class WaitForTimelineChanged extends Action {
 
@@ -327,7 +327,8 @@ public abstract class Action {
       }
       Player.EventListener listener = new Player.DefaultEventListener() {
         @Override
-        public void onTimelineChanged(Timeline timeline, Object manifest) {
+        public void onTimelineChanged(Timeline timeline, Object manifest,
+            @Player.TimelineChangeReason int reason) {
           if (timeline.equals(expectedTimeline)) {
             player.removeListener(this);
             nextAction.schedule(player, trackSelector, surface, handler);

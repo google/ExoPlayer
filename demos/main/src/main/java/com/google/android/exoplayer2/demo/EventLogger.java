@@ -116,10 +116,12 @@ import java.util.Locale;
   }
 
   @Override
-  public void onTimelineChanged(Timeline timeline, Object manifest) {
+  public void onTimelineChanged(Timeline timeline, Object manifest,
+      @Player.TimelineChangeReason int reason) {
     int periodCount = timeline.getPeriodCount();
     int windowCount = timeline.getWindowCount();
-    Log.d(TAG, "sourceInfo [periodCount=" + periodCount + ", windowCount=" + windowCount);
+    Log.d(TAG, "timelineChanged [periodCount=" + periodCount + ", windowCount=" + windowCount
+        + ", reason=" + getTimelineChangeReasonString(reason));
     for (int i = 0; i < Math.min(periodCount, MAX_TIMELINE_ITEM_LINES); i++) {
       timeline.getPeriod(i, period);
       Log.d(TAG, "  " +  "period [" + getTimeString(period.getDurationMs()) + "]");
@@ -507,4 +509,18 @@ import java.util.Locale;
         return "?";
     }
   }
+
+  private static String getTimelineChangeReasonString(@Player.TimelineChangeReason int reason) {
+    switch (reason) {
+      case Player.TIMELINE_CHANGE_REASON_PREPARED:
+        return "PREPARED";
+      case Player.TIMELINE_CHANGE_REASON_RESET:
+        return "RESET";
+      case Player.TIMELINE_CHANGE_REASON_DYNAMIC:
+        return "DYNAMIC";
+      default:
+        return "?";
+    }
+  }
+
 }
