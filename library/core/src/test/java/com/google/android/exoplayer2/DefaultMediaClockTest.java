@@ -368,7 +368,7 @@ public class DefaultMediaClockTest {
     long clockStartUs = mediaClock.syncAndGetPositionUs();
     fakeClock.advanceTime(SLEEP_TIME_MS);
     assertThat(mediaClock.syncAndGetPositionUs()).isEqualTo(clockStartUs
-        + mediaClock.getPlaybackParameters().getSpeedAdjustedDurationUs(SLEEP_TIME_MS));
+        + mediaClock.getPlaybackParameters().getMediaTimeUsForPlayoutTimeMs(SLEEP_TIME_MS));
   }
 
   private void assertClockIsStopped() {

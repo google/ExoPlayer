@@ -174,13 +174,14 @@ public class DefaultLoadControl implements LoadControl {
   }
 
   @Override
-  public boolean shouldStartPlayback(long bufferedDurationUs, boolean rebuffering) {
+  public boolean shouldStartPlayback(long bufferedDurationUs, float playbackSpeed,
+      boolean rebuffering) {
     long minBufferDurationUs = rebuffering ? bufferForPlaybackAfterRebufferUs : bufferForPlaybackUs;
     return minBufferDurationUs <= 0 || bufferedDurationUs >= minBufferDurationUs;
   }
 
   @Override
-  public boolean shouldContinueLoading(long bufferedDurationUs) {
+  public boolean shouldContinueLoading(long bufferedDurationUs, float playbackSpeed) {
     int bufferTimeState = getBufferTimeState(bufferedDurationUs);
     boolean targetBufferSizeReached = allocator.getTotalBytesAllocated() >= targetBufferSize;
     boolean wasBuffering = isBuffering;

@@ -465,7 +465,7 @@ public class FakeSimpleExoPlayer extends SimpleExoPlayer {
       long nextLoadPositionUs = mediaPeriod.getNextLoadPositionUs();
       if (nextLoadPositionUs != C.TIME_END_OF_SOURCE) {
         long bufferedDurationUs = nextLoadPositionUs - rendererPositionUs;
-        if (loadControl.shouldContinueLoading(bufferedDurationUs)) {
+        if (loadControl.shouldContinueLoading(bufferedDurationUs, 1f)) {
           newIsLoading = true;
           mediaPeriod.continueLoading(rendererPositionUs);
         }
@@ -488,7 +488,8 @@ public class FakeSimpleExoPlayer extends SimpleExoPlayer {
       if (bufferedPositionUs == C.TIME_END_OF_SOURCE) {
         return true;
       }
-      return loadControl.shouldStartPlayback(bufferedPositionUs - rendererPositionUs, rebuffering);
+      return
+          loadControl.shouldStartPlayback(bufferedPositionUs - rendererPositionUs, 1f, rebuffering);
     }
 
     private void handlePlayerError(final ExoPlaybackException e) {
