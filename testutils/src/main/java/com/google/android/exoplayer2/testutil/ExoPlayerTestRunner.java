@@ -40,7 +40,6 @@ import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.video.VideoRendererEventListener;
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
@@ -316,10 +315,10 @@ public final class ExoPlayerTestRunner extends Player.DefaultEventListener {
   private final HandlerThread playerThread;
   private final Handler handler;
   private final CountDownLatch endedCountDownLatch;
-  private final LinkedList<Timeline> timelines;
-  private final LinkedList<Object> manifests;
+  private final ArrayList<Timeline> timelines;
+  private final ArrayList<Object> manifests;
   private final ArrayList<Integer> timelineChangeReasons;
-  private final LinkedList<Integer> periodIndices;
+  private final ArrayList<Integer> periodIndices;
   private final ArrayList<Integer> discontinuityReasons;
 
   private SimpleExoPlayer player;
@@ -337,10 +336,10 @@ public final class ExoPlayerTestRunner extends Player.DefaultEventListener {
     this.loadControl = loadControl;
     this.actionSchedule = actionSchedule;
     this.eventListener = eventListener;
-    this.timelines = new LinkedList<>();
-    this.manifests = new LinkedList<>();
+    this.timelines = new ArrayList<>();
+    this.manifests = new ArrayList<>();
     this.timelineChangeReasons = new ArrayList<>();
-    this.periodIndices = new LinkedList<>();
+    this.periodIndices = new ArrayList<>();
     this.discontinuityReasons = new ArrayList<>();
     this.endedCountDownLatch = new CountDownLatch(1);
     this.playerThread = new HandlerThread("ExoPlayerTest thread");
@@ -413,8 +412,8 @@ public final class ExoPlayerTestRunner extends Player.DefaultEventListener {
    */
   public void assertTimelinesEqual(Timeline... timelines) {
     Assert.assertEquals(timelines.length, this.timelines.size());
-    for (Timeline timeline : timelines) {
-      Assert.assertEquals(timeline, this.timelines.remove());
+    for (int i = 0; i < timelines.length; i++) {
+      Assert.assertEquals(timelines[i], this.timelines.get(i));
     }
   }
 
@@ -427,8 +426,8 @@ public final class ExoPlayerTestRunner extends Player.DefaultEventListener {
    */
   public void assertManifestsEqual(Object... manifests) {
     Assert.assertEquals(manifests.length, this.manifests.size());
-    for (Object manifest : manifests) {
-      Assert.assertEquals(manifest, this.manifests.remove());
+    for (int i = 0; i < manifests.length; i++) {
+      Assert.assertEquals(manifests[i], this.manifests.get(i));
     }
   }
 
@@ -486,8 +485,8 @@ public final class ExoPlayerTestRunner extends Player.DefaultEventListener {
    */
   public void assertPlayedPeriodIndices(int... periodIndices) {
     Assert.assertEquals(periodIndices.length, this.periodIndices.size());
-    for (int periodIndex : periodIndices) {
-      Assert.assertEquals(periodIndex, (int) this.periodIndices.remove());
+    for (int i = 0; i < periodIndices.length; i++) {
+      Assert.assertEquals(periodIndices[i], (int) this.periodIndices.get(i));
     }
   }
 
@@ -526,6 +525,9 @@ public final class ExoPlayerTestRunner extends Player.DefaultEventListener {
     timelines.add(timeline);
     manifests.add(manifest);
     timelineChangeReasons.add(reason);
+    if (reason == Player.TIMELINE_CHANGE_REASON_PREPARED) {
+      periodIndices.add(player.getCurrentPeriodIndex());
+    }
   }
 
   @Override
@@ -535,9 +537,6 @@ public final class ExoPlayerTestRunner extends Player.DefaultEventListener {
 
   @Override
   public void onPlayerStateChanged(boolean playWhenReady, int playbackState) {
-    if (periodIndices.isEmpty() && playbackState == Player.STATE_READY) {
-      periodIndices.add(player.getCurrentPeriodIndex());
-    }
     playerWasPrepared |= playbackState != Player.STATE_IDLE;
     if (playbackState == Player.STATE_ENDED
         || (playbackState == Player.STATE_IDLE && playerWasPrepared)) {
@@ -553,7 +552,13 @@ public final class ExoPlayerTestRunner extends Player.DefaultEventListener {
   @Override
   public void onPositionDiscontinuity(@Player.DiscontinuityReason int reason) {
     discontinuityReasons.add(reason);
-    periodIndices.add(player.getCurrentPeriodIndex());
+    int currentIndex = player.getCurrentPeriodIndex();
+    if (reason == Player.DISCONTINUITY_REASON_PERIOD_TRANSITION
+        || periodIndices.isEmpty()
+        || periodIndices.get(periodIndices.size() - 1) != currentIndex) {
+      // Ignore seek or internal discontinuities within a period.
+      periodIndices.add(currentIndex);
+    }
   }
 
 }
