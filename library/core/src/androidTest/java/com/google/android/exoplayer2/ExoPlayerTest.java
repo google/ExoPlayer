@@ -17,7 +17,6 @@ package com.google.android.exoplayer2;
 
 import com.google.android.exoplayer2.source.ConcatenatingMediaSource;
 import com.google.android.exoplayer2.source.MediaSource;
-import com.google.android.exoplayer2.source.MediaSource.Listener;
 import com.google.android.exoplayer2.source.TrackGroup;
 import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.testutil.ActionSchedule;
@@ -539,6 +538,32 @@ public final class ExoPlayerTest extends TestCase {
     testRunner.assertTimelinesEqual(timeline1, timeline2);
     testRunner.assertTimelineChangeReasonsEqual(Player.TIMELINE_CHANGE_REASON_PREPARED,
         Player.TIMELINE_CHANGE_REASON_DYNAMIC);
+  }
+
+  public void testRepreparationWithPositionResetAndShufflingUsesFirstPeriod() throws Exception {
+    Timeline fakeTimeline = new FakeTimeline(new TimelineWindowDefinition(/* isSeekable= */ true,
+        /* isDynamic= */ false, /* durationUs= */ 100000));
+    ConcatenatingMediaSource firstMediaSource = new ConcatenatingMediaSource(/* isAtomic= */ false,
+        new FakeShuffleOrder(/* length= */ 2),
+        new FakeMediaSource(fakeTimeline, null, Builder.VIDEO_FORMAT),
+        new FakeMediaSource(fakeTimeline, null, Builder.VIDEO_FORMAT)
+    );
+    ConcatenatingMediaSource secondMediaSource = new ConcatenatingMediaSource(/* isAtomic= */ false,
+        new FakeShuffleOrder(/* length= */ 2),
+        new FakeMediaSource(fakeTimeline, null, Builder.VIDEO_FORMAT),
+        new FakeMediaSource(fakeTimeline, null, Builder.VIDEO_FORMAT)
+    );
+    ActionSchedule actionSchedule = new ActionSchedule.Builder("testRepreparationWithShuffle")
+        // Wait for first preparation and enable shuffling. Plays period 0.
+        .waitForPlaybackState(Player.STATE_READY).setShuffleModeEnabled(true)
+        // Reprepare with second media source (keeping state, but with position reset).
+        // Plays period 1 and 0 because of the reversed fake shuffle order.
+        .prepareSource(secondMediaSource, /* resetPosition= */ true, /* resetState= */ false)
+        .build();
+    ExoPlayerTestRunner testRunner = new ExoPlayerTestRunner.Builder()
+        .setMediaSource(firstMediaSource).setActionSchedule(actionSchedule)
+        .build().start().blockUntilEnded(TIMEOUT_MS);
+    testRunner.assertPlayedPeriodIndices(0, 1, 0);
   }
 
 }
