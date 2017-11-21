@@ -27,7 +27,6 @@ android {
 dependencies {
     compile project(modulePrefix + 'library-core')
     compile 'com.android.support:support-media-compat:' + supportLibraryVersion
-    compile 'com.android.support:appcompat-v7:' + supportLibraryVersion
 }
 
 ext {
