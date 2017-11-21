@@ -100,6 +100,7 @@ public final class ExoPlayerTestRunner extends Player.DefaultEventListener {
     private RenderersFactory renderersFactory;
     private ActionSchedule actionSchedule;
     private Player.EventListener eventListener;
+    private Integer expectedPlayerEndedCount;
 
     /**
      * Sets a {@link Timeline} to be used by a {@link FakeMediaSource} in the test runner. The
@@ -256,6 +257,20 @@ public final class ExoPlayerTestRunner extends Player.DefaultEventListener {
     }
 
     /**
+     * Sets the number of times the test runner is expected to reach the {@link Player#STATE_ENDED}
+     * or {@link Player#STATE_IDLE}. The default is 1. This affects how long
+     * {@link ExoPlayerTestRunner#blockUntilEnded(long)} waits.
+     *
+     * @param expectedPlayerEndedCount The number of times the player is expected to reach the ended
+     *     or idle state.
+     * @return This builder.
+     */
+    public Builder setExpectedPlayerEndedCount(int expectedPlayerEndedCount) {
+      this.expectedPlayerEndedCount = expectedPlayerEndedCount;
+      return this;
+    }
+
+    /**
      * Builds an {@link ExoPlayerTestRunner} using the provided values or their defaults.
      *
      * @return The built {@link ExoPlayerTestRunner}.
@@ -299,8 +314,11 @@ public final class ExoPlayerTestRunner extends Player.DefaultEventListener {
         }
         mediaSource = new FakeMediaSource(timeline, manifest, supportedFormats);
       }
+      if (expectedPlayerEndedCount == null) {
+        expectedPlayerEndedCount = 1;
+      }
       return new ExoPlayerTestRunner(playerFactory, mediaSource, renderersFactory, trackSelector,
-          loadControl, actionSchedule, eventListener);
+          loadControl, actionSchedule, eventListener, expectedPlayerEndedCount);
     }
   }
 
@@ -328,7 +346,8 @@ public final class ExoPlayerTestRunner extends Player.DefaultEventListener {
 
   private ExoPlayerTestRunner(PlayerFactory playerFactory, MediaSource mediaSource,
       RenderersFactory renderersFactory, MappingTrackSelector trackSelector,
-      LoadControl loadControl, ActionSchedule actionSchedule, Player.EventListener eventListener) {
+      LoadControl loadControl, ActionSchedule actionSchedule, Player.EventListener eventListener,
+      int expectedPlayerEndedCount) {
     this.playerFactory = playerFactory;
     this.mediaSource = mediaSource;
     this.renderersFactory = renderersFactory;
@@ -341,7 +360,7 @@ public final class ExoPlayerTestRunner extends Player.DefaultEventListener {
     this.timelineChangeReasons = new ArrayList<>();
     this.periodIndices = new ArrayList<>();
     this.discontinuityReasons = new ArrayList<>();
-    this.endedCountDownLatch = new CountDownLatch(1);
+    this.endedCountDownLatch = new CountDownLatch(expectedPlayerEndedCount);
     this.playerThread = new HandlerThread("ExoPlayerTest thread");
     playerThread.start();
     this.handler = new Handler(playerThread.getLooper());
@@ -514,7 +533,9 @@ public final class ExoPlayerTestRunner extends Player.DefaultEventListener {
     if (this.exception == null) {
       this.exception = exception;
     }
-    endedCountDownLatch.countDown();
+    while (endedCountDownLatch.getCount() > 0) {
+      endedCountDownLatch.countDown();
+    }
   }
 
   // Player.EventListener
