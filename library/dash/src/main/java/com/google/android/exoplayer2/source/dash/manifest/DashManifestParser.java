@@ -115,6 +115,7 @@ public class DashManifestParser extends DefaultHandler
         ? parseDuration(xpp, "timeShiftBufferDepth", C.TIME_UNSET) : C.TIME_UNSET;
     long suggestedPresentationDelayMs = dynamic
         ? parseDuration(xpp, "suggestedPresentationDelay", C.TIME_UNSET) : C.TIME_UNSET;
+    long publishTimeMs = parseDateTime(xpp, "publishTime", C.TIME_UNSET);
     UtcTimingElement utcTiming = null;
     Uri location = null;
 
@@ -167,17 +168,17 @@ public class DashManifestParser extends DefaultHandler
     }
 
     return buildMediaPresentationDescription(availabilityStartTime, durationMs, minBufferTimeMs,
-        dynamic, minUpdateTimeMs, timeShiftBufferDepthMs, suggestedPresentationDelayMs, utcTiming,
-        location, periods);
+        dynamic, minUpdateTimeMs, timeShiftBufferDepthMs, suggestedPresentationDelayMs,
+        publishTimeMs, utcTiming, location, periods);
   }
 
   protected DashManifest buildMediaPresentationDescription(long availabilityStartTime,
       long durationMs, long minBufferTimeMs, boolean dynamic, long minUpdateTimeMs,
-      long timeShiftBufferDepthMs, long suggestedPresentationDelayMs, UtcTimingElement utcTiming,
-      Uri location, List<Period> periods) {
+      long timeShiftBufferDepthMs, long suggestedPresentationDelayMs, long publishTimeMs,
+      UtcTimingElement utcTiming, Uri location, List<Period> periods) {
     return new DashManifest(availabilityStartTime, durationMs, minBufferTimeMs,
-        dynamic, minUpdateTimeMs, timeShiftBufferDepthMs, suggestedPresentationDelayMs, utcTiming,
-        location, periods);
+        dynamic, minUpdateTimeMs, timeShiftBufferDepthMs, suggestedPresentationDelayMs,
+        publishTimeMs, utcTiming, location, periods);
   }
 
   protected UtcTimingElement parseUtcTiming(XmlPullParser xpp) {

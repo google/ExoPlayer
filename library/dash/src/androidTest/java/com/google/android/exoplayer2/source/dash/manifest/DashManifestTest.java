@@ -136,6 +136,7 @@ public class DashManifestTest extends TestCase {
     assertEquals(expected.minUpdatePeriodMs, actual.minUpdatePeriodMs);
     assertEquals(expected.timeShiftBufferDepthMs, actual.timeShiftBufferDepthMs);
     assertEquals(expected.suggestedPresentationDelayMs, actual.suggestedPresentationDelayMs);
+    assertEquals(expected.publishTimeMs, actual.publishTimeMs);
     assertEquals(expected.utcTiming, actual.utcTiming);
     assertEquals(expected.location, actual.location);
     assertEquals(expected.getPeriodCount(), actual.getPeriodCount());
@@ -179,7 +180,7 @@ public class DashManifestTest extends TestCase {
   }
 
   private static DashManifest newDashManifest(int duration, Period... periods) {
-    return new DashManifest(0, duration, 1, false, 2, 3, 4, DUMMY_UTC_TIMING, Uri.EMPTY,
+    return new DashManifest(0, duration, 1, false, 2, 3, 4, 12345, DUMMY_UTC_TIMING, Uri.EMPTY,
         Arrays.asList(periods));
   }
 
