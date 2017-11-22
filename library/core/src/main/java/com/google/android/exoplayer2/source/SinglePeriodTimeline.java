@@ -36,14 +36,14 @@ public final class SinglePeriodTimeline extends Timeline {
   private final boolean isDynamic;
 
   /**
-   * Creates a timeline containing a single period and a window that spans it.
+   * Creates a timeline of one period of known duration, and a static window starting at zero and
+   * extending to that duration.
    *
    * @param durationUs The duration of the period, in microseconds.
    * @param isSeekable Whether seeking is supported within the period.
-   * @param isDynamic Whether the window may change when the timeline is updated.
    */
-  public SinglePeriodTimeline(long durationUs, boolean isSeekable, boolean isDynamic) {
-    this(durationUs, durationUs, 0, 0, isSeekable, isDynamic);
+  public SinglePeriodTimeline(long durationUs, boolean isSeekable) {
+    this(durationUs, durationUs, 0, 0, isSeekable, false);
   }
 
   /**
@@ -63,7 +63,7 @@ public final class SinglePeriodTimeline extends Timeline {
       long windowPositionInPeriodUs, long windowDefaultStartPositionUs, boolean isSeekable,
       boolean isDynamic) {
     this(C.TIME_UNSET, C.TIME_UNSET, periodDurationUs, windowDurationUs, windowPositionInPeriodUs,
-        windowDefaultStartPositionUs, isSeekable, isDynamic);
+    windowDefaultStartPositionUs, isSeekable, isDynamic);
   }
 
   /**
@@ -106,16 +106,11 @@ public final class SinglePeriodTimeline extends Timeline {
     Assertions.checkIndex(windowIndex, 0, 1);
     Object id = setIds ? ID : null;
     long windowDefaultStartPositionUs = this.windowDefaultStartPositionUs;
-    if (isDynamic && defaultPositionProjectionUs != 0) {
-      if (windowDurationUs == C.TIME_UNSET) {
-        // Don't allow projection into a window that has an unknown duration.
+    if (isDynamic) {
+      windowDefaultStartPositionUs += defaultPositionProjectionUs;
+      if (windowDefaultStartPositionUs > windowDurationUs) {
+        // The projection takes us beyond the end of the live window.
         windowDefaultStartPositionUs = C.TIME_UNSET;
-      } else {
-        windowDefaultStartPositionUs += defaultPositionProjectionUs;
-        if (windowDefaultStartPositionUs > windowDurationUs) {
-          // The projection takes us beyond the end of the window.
-          windowDefaultStartPositionUs = C.TIME_UNSET;
-        }
       }
     }
     return window.set(id, presentationStartTimeMs, windowStartTimeMs, isSeekable, isDynamic,
