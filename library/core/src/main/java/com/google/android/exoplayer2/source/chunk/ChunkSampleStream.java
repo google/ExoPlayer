@@ -272,9 +272,11 @@ public class ChunkSampleStream<T extends ChunkSource> implements SampleStream, S
 
   @Override
   public int skipData(long positionUs) {
+    if (isPendingReset()) {
+      return 0;
+    }
     int skipCount;
     if (loadingFinished && positionUs > primarySampleQueue.getLargestQueuedTimestampUs()) {
-      primarySampleQueue.advanceToEnd();
       skipCount = primarySampleQueue.advanceToEnd();
     } else {
       skipCount = primarySampleQueue.advanceTo(positionUs, true, true);
@@ -282,7 +284,9 @@ public class ChunkSampleStream<T extends ChunkSource> implements SampleStream, S
         skipCount = 0;
       }
     }
-    primarySampleQueue.discardToRead();
+    if (skipCount > 0) {
+      primarySampleQueue.discardToRead();
+    }
     return skipCount;
   }
 
