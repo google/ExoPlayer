@@ -25,8 +25,7 @@ import java.util.ArrayList;
 
 /**
  * {@link MediaSource} that wraps a source and clips its timeline based on specified start/end
- * positions. The wrapped source may only have a single period/window and it must not be dynamic
- * (live).
+ * positions. The wrapped source may only have a single period/window.
  */
 public final class ClippingMediaSource implements MediaSource, MediaSource.Listener {
 
@@ -41,7 +40,7 @@ public final class ClippingMediaSource implements MediaSource, MediaSource.Liste
   /**
    * Creates a new clipping source that wraps the specified source.
    *
-   * @param mediaSource The single-period, non-dynamic source to wrap.
+   * @param mediaSource The single-period source to wrap.
    * @param startPositionUs The start position within {@code mediaSource}'s timeline at which to
    *     start providing samples, in microseconds.
    * @param endPositionUs The end position within {@code mediaSource}'s timeline at which to stop
@@ -61,7 +60,7 @@ public final class ClippingMediaSource implements MediaSource, MediaSource.Liste
    * {@code enableInitialPositionDiscontinuity} to suppress an initial discontinuity when a period
    * is first read from.
    *
-   * @param mediaSource The single-period, non-dynamic source to wrap.
+   * @param mediaSource The single-period source to wrap.
    * @param startPositionUs The start position within {@code mediaSource}'s timeline at which to
    *     start providing samples, in microseconds.
    * @param endPositionUs The end position within {@code mediaSource}'s timeline at which to stop
@@ -145,7 +144,6 @@ public final class ClippingMediaSource implements MediaSource, MediaSource.Liste
       Assertions.checkArgument(timeline.getWindowCount() == 1);
       Assertions.checkArgument(timeline.getPeriodCount() == 1);
       Window window = timeline.getWindow(0, new Window(), false);
-      Assertions.checkArgument(!window.isDynamic);
       long resolvedEndUs = endUs == C.TIME_END_OF_SOURCE ? window.durationUs : endUs;
       if (window.durationUs != C.TIME_UNSET) {
         if (resolvedEndUs > window.durationUs) {
