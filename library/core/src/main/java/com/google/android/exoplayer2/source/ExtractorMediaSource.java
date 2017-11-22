@@ -204,11 +204,8 @@ public final class ExtractorMediaSource implements MediaSource, ExtractorMediaPe
   private void notifySourceInfoRefreshed(long durationUs, boolean isSeekable) {
     timelineDurationUs = durationUs;
     timelineIsSeekable = isSeekable;
-    // If the duration is currently unset, we expect to be able to update the window when its
-    // duration eventually becomes known.
-    boolean isDynamic = timelineDurationUs == C.TIME_UNSET;
-    sourceListener.onSourceInfoRefreshed(this,
-        new SinglePeriodTimeline(timelineDurationUs, timelineIsSeekable, isDynamic), null);
+    sourceListener.onSourceInfoRefreshed(
+        this, new SinglePeriodTimeline(timelineDurationUs, timelineIsSeekable), null);
   }
 
 }
