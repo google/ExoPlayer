@@ -21,11 +21,13 @@ import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.Timeline.Period;
 import com.google.android.exoplayer2.Timeline.Window;
+import com.google.android.exoplayer2.source.ClippingMediaSource.IllegalClippingException;
 import com.google.android.exoplayer2.testutil.FakeMediaSource;
 import com.google.android.exoplayer2.testutil.FakeTimeline;
 import com.google.android.exoplayer2.testutil.FakeTimeline.TimelineWindowDefinition;
 import com.google.android.exoplayer2.testutil.MediaSourceTestRunner;
 import com.google.android.exoplayer2.testutil.TimelineAsserts;
+import java.io.IOException;
 
 /**
  * Unit tests for {@link ClippingMediaSource}.
@@ -40,11 +42,12 @@ public final class ClippingMediaSourceTest extends InstrumentationTestCase {
 
   @Override
   protected void setUp() throws Exception {
+    super.setUp();
     window = new Timeline.Window();
     period = new Timeline.Period();
   }
 
-  public void testNoClipping() {
+  public void testNoClipping() throws IOException {
     Timeline timeline = new SinglePeriodTimeline(C.msToUs(TEST_PERIOD_DURATION_US), true, false);
 
     Timeline clippedTimeline = getClippedTimeline(timeline, 0, TEST_PERIOD_DURATION_US);
@@ -55,7 +58,7 @@ public final class ClippingMediaSourceTest extends InstrumentationTestCase {
     assertEquals(TEST_PERIOD_DURATION_US, clippedTimeline.getPeriod(0, period).getDurationUs());
   }
 
-  public void testClippingUnseekableWindowThrows() {
+  public void testClippingUnseekableWindowThrows() throws IOException {
     Timeline timeline = new SinglePeriodTimeline(C.msToUs(TEST_PERIOD_DURATION_US), false, false);
 
     // If the unseekable window isn't clipped, clipping succeeds.
@@ -64,12 +67,12 @@ public final class ClippingMediaSourceTest extends InstrumentationTestCase {
       // If the unseekable window is clipped, clipping fails.
       getClippedTimeline(timeline, 1, TEST_PERIOD_DURATION_US);
       fail("Expected clipping to fail.");
-    } catch (IllegalArgumentException e) {
-      // Expected.
+    } catch (IllegalClippingException e) {
+      assertEquals(IllegalClippingException.REASON_NOT_SEEKABLE_TO_START, e.reason);
     }
   }
 
-  public void testClippingStart() {
+  public void testClippingStart() throws IOException {
     Timeline timeline = new SinglePeriodTimeline(C.msToUs(TEST_PERIOD_DURATION_US), true, false);
 
     Timeline clippedTimeline = getClippedTimeline(timeline, TEST_CLIP_AMOUNT_US,
@@ -80,7 +83,7 @@ public final class ClippingMediaSourceTest extends InstrumentationTestCase {
         clippedTimeline.getPeriod(0, period).getDurationUs());
   }
 
-  public void testClippingEnd() {
+  public void testClippingEnd() throws IOException {
     Timeline timeline = new SinglePeriodTimeline(C.msToUs(TEST_PERIOD_DURATION_US), true, false);
 
     Timeline clippedTimeline = getClippedTimeline(timeline, 0,
@@ -91,7 +94,7 @@ public final class ClippingMediaSourceTest extends InstrumentationTestCase {
         clippedTimeline.getPeriod(0, period).getDurationUs());
   }
 
-  public void testClippingStartAndEnd() {
+  public void testClippingStartAndEnd() throws IOException {
     Timeline timeline = new SinglePeriodTimeline(C.msToUs(TEST_PERIOD_DURATION_US), true, false);
 
     Timeline clippedTimeline = getClippedTimeline(timeline, TEST_CLIP_AMOUNT_US,
@@ -102,7 +105,7 @@ public final class ClippingMediaSourceTest extends InstrumentationTestCase {
         clippedTimeline.getPeriod(0, period).getDurationUs());
   }
 
-  public void testWindowAndPeriodIndices() {
+  public void testWindowAndPeriodIndices() throws IOException {
     Timeline timeline = new FakeTimeline(
         new TimelineWindowDefinition(1, 111, true, false, TEST_PERIOD_DURATION_US));
     Timeline clippedTimeline = getClippedTimeline(timeline, TEST_CLIP_AMOUNT_US,
@@ -122,7 +125,8 @@ public final class ClippingMediaSourceTest extends InstrumentationTestCase {
   /**
    * Wraps the specified timeline in a {@link ClippingMediaSource} and returns the clipped timeline.
    */
-  private static Timeline getClippedTimeline(Timeline timeline, long startMs, long endMs) {
+  private static Timeline getClippedTimeline(Timeline timeline, long startMs, long endMs)
+      throws IOException {
     FakeMediaSource fakeMediaSource = new FakeMediaSource(timeline, null);
     ClippingMediaSource mediaSource = new ClippingMediaSource(fakeMediaSource, startMs, endMs);
     MediaSourceTestRunner testRunner = new MediaSourceTestRunner(mediaSource, null);

@@ -45,11 +45,11 @@ public final class MergingMediaSource implements MediaSource {
     @IntDef({REASON_WINDOWS_ARE_DYNAMIC, REASON_PERIOD_COUNT_MISMATCH})
     public @interface Reason {}
     /**
-     * The merge failed because one of the sources being merged has a dynamic window.
+     * One of the sources being merged has a dynamic window.
      */
     public static final int REASON_WINDOWS_ARE_DYNAMIC = 0;
     /**
-     * The merge failed because the sources have different period counts.
+     * The sources have different period counts.
      */
     public static final int REASON_PERIOD_COUNT_MISMATCH = 1;
 

@@ -23,6 +23,7 @@ import com.google.android.exoplayer2.testutil.FakeTimeline;
 import com.google.android.exoplayer2.testutil.FakeTimeline.TimelineWindowDefinition;
 import com.google.android.exoplayer2.testutil.MediaSourceTestRunner;
 import com.google.android.exoplayer2.testutil.TimelineAsserts;
+import java.io.IOException;
 import junit.framework.TestCase;
 
 /**
@@ -39,7 +40,7 @@ public class LoopingMediaSourceTest extends TestCase {
         new TimelineWindowDefinition(1, 222), new TimelineWindowDefinition(1, 333));
   }
 
-  public void testSingleLoop() {
+  public void testSingleLoop() throws IOException {
     Timeline timeline = getLoopingTimeline(multiWindowTimeline, 1);
     TimelineAsserts.assertWindowIds(timeline, 111, 222, 333);
     TimelineAsserts.assertPeriodCounts(timeline, 1, 1, 1);
@@ -57,7 +58,7 @@ public class LoopingMediaSourceTest extends TestCase {
     }
   }
 
-  public void testMultiLoop() {
+  public void testMultiLoop() throws IOException {
     Timeline timeline = getLoopingTimeline(multiWindowTimeline, 3);
     TimelineAsserts.assertWindowIds(timeline, 111, 222, 333, 111, 222, 333, 111, 222, 333);
     TimelineAsserts.assertPeriodCounts(timeline, 1, 1, 1, 1, 1, 1, 1, 1, 1);
@@ -77,7 +78,7 @@ public class LoopingMediaSourceTest extends TestCase {
     }
   }
 
-  public void testInfiniteLoop() {
+  public void testInfiniteLoop() throws IOException {
     Timeline timeline = getLoopingTimeline(multiWindowTimeline, Integer.MAX_VALUE);
     TimelineAsserts.assertWindowIds(timeline, 111, 222, 333);
     TimelineAsserts.assertPeriodCounts(timeline, 1, 1, 1);
@@ -94,7 +95,7 @@ public class LoopingMediaSourceTest extends TestCase {
     }
   }
 
-  public void testEmptyTimelineLoop() {
+  public void testEmptyTimelineLoop() throws IOException {
     Timeline timeline = getLoopingTimeline(Timeline.EMPTY, 1);
     TimelineAsserts.assertEmpty(timeline);
 
@@ -109,7 +110,7 @@ public class LoopingMediaSourceTest extends TestCase {
    * Wraps the specified timeline in a {@link LoopingMediaSource} and returns
    * the looping timeline.
    */
-  private static Timeline getLoopingTimeline(Timeline timeline, int loopCount) {
+  private static Timeline getLoopingTimeline(Timeline timeline, int loopCount) throws IOException {
     FakeMediaSource fakeMediaSource = new FakeMediaSource(timeline, null);
     LoopingMediaSource mediaSource = new LoopingMediaSource(fakeMediaSource, loopCount);
     MediaSourceTestRunner testRunner = new MediaSourceTestRunner(mediaSource, null);
