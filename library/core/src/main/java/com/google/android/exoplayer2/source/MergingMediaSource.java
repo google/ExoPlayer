@@ -28,8 +28,7 @@ import java.util.Arrays;
 /**
  * Merges multiple {@link MediaSource}s.
  * <p>
- * The {@link Timeline}s of the sources being merged must have the same number of periods, and must
- * not have any dynamic windows.
+ * The {@link Timeline}s of the sources being merged must have the same number of periods.
  */
 public final class MergingMediaSource implements MediaSource {
 
@@ -42,26 +41,20 @@ public final class MergingMediaSource implements MediaSource {
      * The reason the merge failed.
      */
     @Retention(RetentionPolicy.SOURCE)
-    @IntDef({REASON_WINDOWS_ARE_DYNAMIC, REASON_PERIOD_COUNT_MISMATCH})
+    @IntDef({REASON_PERIOD_COUNT_MISMATCH})
     public @interface Reason {}
-    /**
-     * One of the sources being merged has a dynamic window.
-     */
-    public static final int REASON_WINDOWS_ARE_DYNAMIC = 0;
     /**
      * The sources have different period counts.
      */
-    public static final int REASON_PERIOD_COUNT_MISMATCH = 1;
+    public static final int REASON_PERIOD_COUNT_MISMATCH = 0;
 
     /**
-     * The reason the merge failed. One of {@link #REASON_WINDOWS_ARE_DYNAMIC} and
-     * {@link #REASON_PERIOD_COUNT_MISMATCH}.
+     * The reason the merge failed.
      */
     @Reason public final int reason;
 
     /**
-     * @param reason The reason the merge failed. One of {@link #REASON_WINDOWS_ARE_DYNAMIC} and
-     *     {@link #REASON_PERIOD_COUNT_MISMATCH}.
+     * @param reason The reason the merge failed.
      */
     public IllegalMergeException(@Reason int reason) {
       this.reason = reason;
@@ -73,7 +66,6 @@ public final class MergingMediaSource implements MediaSource {
 
   private final MediaSource[] mediaSources;
   private final ArrayList<MediaSource> pendingTimelineSources;
-  private final Timeline.Window window;
   private final CompositeSequenceableLoaderFactory compositeSequenceableLoaderFactory;
 
   private Listener listener;
@@ -100,7 +92,6 @@ public final class MergingMediaSource implements MediaSource {
     this.mediaSources = mediaSources;
     this.compositeSequenceableLoaderFactory = compositeSequenceableLoaderFactory;
     pendingTimelineSources = new ArrayList<>(Arrays.asList(mediaSources));
-    window = new Timeline.Window();
     periodCount = PERIOD_COUNT_UNSET;
   }
 
@@ -170,12 +161,6 @@ public final class MergingMediaSource implements MediaSource {
   }
 
   private IllegalMergeException checkTimelineMerges(Timeline timeline) {
-    int windowCount = timeline.getWindowCount();
-    for (int i = 0; i < windowCount; i++) {
-      if (timeline.getWindow(i, window, false).isDynamic) {
-        return new IllegalMergeException(IllegalMergeException.REASON_WINDOWS_ARE_DYNAMIC);
-      }
-    }
     if (periodCount == PERIOD_COUNT_UNSET) {
       periodCount = timeline.getPeriodCount();
     } else if (timeline.getPeriodCount() != periodCount) {
