@@ -474,8 +474,12 @@ import java.io.IOException;
       // position of the playing period to make sure none of the removed period is played.
       MediaPeriodId periodId = playingPeriodHolder.info.id;
       long newPositionUs = seekToPeriodPosition(periodId, playbackInfo.positionUs);
-      playbackInfo = playbackInfo.fromNewPosition(periodId, newPositionUs,
-          playbackInfo.contentPositionUs);
+      if (newPositionUs != playbackInfo.positionUs) {
+        playbackInfo = playbackInfo.fromNewPosition(periodId, newPositionUs,
+            playbackInfo.contentPositionUs);
+        eventHandler.obtainMessage(MSG_POSITION_DISCONTINUITY, Player.DISCONTINUITY_REASON_INTERNAL,
+            0, playbackInfo).sendToTarget();
+      }
     }
   }
 
