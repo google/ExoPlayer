@@ -941,7 +941,9 @@ import java.io.IOException;
     while (periodHolder != null) {
       TrackSelection[] trackSelections = periodHolder.trackSelectorResult.selections.getAll();
       for (TrackSelection trackSelection : trackSelections) {
-        trackSelection.onPlaybackSpeed(playbackSpeed);
+        if (trackSelection != null) {
+          trackSelection.onPlaybackSpeed(playbackSpeed);
+        }
       }
       periodHolder = periodHolder.next;
     }
