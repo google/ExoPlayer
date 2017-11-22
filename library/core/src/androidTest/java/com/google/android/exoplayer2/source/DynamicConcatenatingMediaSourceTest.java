@@ -30,6 +30,7 @@ import com.google.android.exoplayer2.testutil.FakeTimeline;
 import com.google.android.exoplayer2.testutil.FakeTimeline.TimelineWindowDefinition;
 import com.google.android.exoplayer2.testutil.MediaSourceTestRunner;
 import com.google.android.exoplayer2.testutil.TimelineAsserts;
+import java.io.IOException;
 import java.util.Arrays;
 import junit.framework.TestCase;
 import org.mockito.Mockito;
@@ -55,7 +56,7 @@ public final class DynamicConcatenatingMediaSourceTest extends TestCase {
     testRunner.release();
   }
 
-  public void testPlaylistChangesAfterPreparation() {
+  public void testPlaylistChangesAfterPreparation() throws IOException {
     Timeline timeline = testRunner.prepareSource();
     TimelineAsserts.assertEmpty(timeline);
 
@@ -171,7 +172,7 @@ public final class DynamicConcatenatingMediaSourceTest extends TestCase {
     childSources[3].assertReleased();
   }
 
-  public void testPlaylistChangesBeforePreparation() {
+  public void testPlaylistChangesBeforePreparation() throws IOException {
     FakeMediaSource[] childSources = createMediaSources(4);
     mediaSource.addMediaSource(childSources[0]);
     mediaSource.addMediaSource(childSources[1]);
@@ -201,7 +202,7 @@ public final class DynamicConcatenatingMediaSourceTest extends TestCase {
     }
   }
 
-  public void testPlaylistWithLazyMediaSource() {
+  public void testPlaylistWithLazyMediaSource() throws IOException {
     // Create some normal (immediately preparing) sources and some lazy sources whose timeline
     // updates need to be triggered.
     FakeMediaSource[] fastSources = createMediaSources(2);
@@ -290,7 +291,7 @@ public final class DynamicConcatenatingMediaSourceTest extends TestCase {
     }
   }
 
-  public void testEmptyTimelineMediaSource() {
+  public void testEmptyTimelineMediaSource() throws IOException {
     Timeline timeline = testRunner.prepareSource();
     TimelineAsserts.assertEmpty(timeline);
 
@@ -426,7 +427,7 @@ public final class DynamicConcatenatingMediaSourceTest extends TestCase {
     verify(runnable).run();
   }
 
-  public void testCustomCallbackAfterPreparationAddSingle() {
+  public void testCustomCallbackAfterPreparationAddSingle() throws IOException {
     DummyMainThread dummyMainThread = new DummyMainThread();
     try {
       testRunner.prepareSource();
@@ -444,7 +445,7 @@ public final class DynamicConcatenatingMediaSourceTest extends TestCase {
     }
   }
 
-  public void testCustomCallbackAfterPreparationAddMultiple() {
+  public void testCustomCallbackAfterPreparationAddMultiple() throws IOException {
     DummyMainThread dummyMainThread = new DummyMainThread();
     try {
       testRunner.prepareSource();
@@ -464,7 +465,7 @@ public final class DynamicConcatenatingMediaSourceTest extends TestCase {
     }
   }
 
-  public void testCustomCallbackAfterPreparationAddSingleWithIndex() {
+  public void testCustomCallbackAfterPreparationAddSingleWithIndex() throws IOException {
     DummyMainThread dummyMainThread = new DummyMainThread();
     try {
       testRunner.prepareSource();
@@ -482,7 +483,7 @@ public final class DynamicConcatenatingMediaSourceTest extends TestCase {
     }
   }
 
-  public void testCustomCallbackAfterPreparationAddMultipleWithIndex() {
+  public void testCustomCallbackAfterPreparationAddMultipleWithIndex() throws IOException {
     DummyMainThread dummyMainThread = new DummyMainThread();
     try {
       testRunner.prepareSource();
@@ -502,7 +503,7 @@ public final class DynamicConcatenatingMediaSourceTest extends TestCase {
     }
   }
 
-  public void testCustomCallbackAfterPreparationRemove() {
+  public void testCustomCallbackAfterPreparationRemove() throws IOException {
     DummyMainThread dummyMainThread = new DummyMainThread();
     try {
       testRunner.prepareSource();
@@ -528,7 +529,7 @@ public final class DynamicConcatenatingMediaSourceTest extends TestCase {
     }
   }
 
-  public void testCustomCallbackAfterPreparationMove() {
+  public void testCustomCallbackAfterPreparationMove() throws IOException {
     DummyMainThread dummyMainThread = new DummyMainThread();
     try {
       testRunner.prepareSource();
@@ -556,7 +557,7 @@ public final class DynamicConcatenatingMediaSourceTest extends TestCase {
     }
   }
 
-  public void testPeriodCreationWithAds() throws InterruptedException {
+  public void testPeriodCreationWithAds() throws IOException, InterruptedException {
     // Create dynamic media source with ad child source.
     Timeline timelineContentOnly = new FakeTimeline(
         new TimelineWindowDefinition(2, 111, true, false, 10 * C.MICROS_PER_SECOND));

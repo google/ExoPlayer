@@ -32,7 +32,7 @@ import com.google.android.exoplayer2.source.MediaSource.MediaPeriodId;
 import com.google.android.exoplayer2.upstream.Allocator;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Util;
-
+import java.io.IOException;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.TimeUnit;
 
@@ -100,13 +100,25 @@ public class MediaSourceTestRunner {
    *
    * @return The initial {@link Timeline}.
    */
-  public Timeline prepareSource() {
+  public Timeline prepareSource() throws IOException {
+    final IOException[] prepareError = new IOException[1];
     runOnPlaybackThread(new Runnable() {
       @Override
       public void run() {
         mediaSource.prepareSource(player, true, mediaSourceListener);
+        try {
+          // TODO: This only catches errors that are set synchronously in prepareSource. To capture
+          // async errors we'll need to poll maybeThrowSourceInfoRefreshError until the first call
+          // to onSourceInfoRefreshed.
+          mediaSource.maybeThrowSourceInfoRefreshError();
+        } catch (IOException e) {
+          prepareError[0] = e;
+        }
       }
     });
+    if (prepareError[0] != null) {
+      throw prepareError[0];
+    }
     return assertTimelineChangeBlocking();
   }
 

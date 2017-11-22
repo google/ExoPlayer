@@ -25,6 +25,7 @@ import com.google.android.exoplayer2.testutil.FakeTimeline;
 import com.google.android.exoplayer2.testutil.FakeTimeline.TimelineWindowDefinition;
 import com.google.android.exoplayer2.testutil.MediaSourceTestRunner;
 import com.google.android.exoplayer2.testutil.TimelineAsserts;
+import java.io.IOException;
 import junit.framework.TestCase;
 
 /**
@@ -32,7 +33,7 @@ import junit.framework.TestCase;
  */
 public final class ConcatenatingMediaSourceTest extends TestCase {
 
-  public void testEmptyConcatenation() {
+  public void testEmptyConcatenation() throws IOException {
     for (boolean atomic : new boolean[] {false, true}) {
       Timeline timeline = getConcatenatedTimeline(atomic);
       TimelineAsserts.assertEmpty(timeline);
@@ -45,7 +46,7 @@ public final class ConcatenatingMediaSourceTest extends TestCase {
     }
   }
 
-  public void testSingleMediaSource() {
+  public void testSingleMediaSource() throws IOException {
     Timeline timeline = getConcatenatedTimeline(false, createFakeTimeline(3, 111));
     TimelineAsserts.assertWindowIds(timeline, 111);
     TimelineAsserts.assertPeriodCounts(timeline, 3);
@@ -75,7 +76,7 @@ public final class ConcatenatingMediaSourceTest extends TestCase {
     }
   }
 
-  public void testMultipleMediaSources() {
+  public void testMultipleMediaSources() throws IOException {
     Timeline[] timelines = { createFakeTimeline(3, 111), createFakeTimeline(1, 222),
         createFakeTimeline(3, 333) };
     Timeline timeline = getConcatenatedTimeline(false, timelines);
@@ -121,7 +122,7 @@ public final class ConcatenatingMediaSourceTest extends TestCase {
     }
   }
 
-  public void testNestedMediaSources() {
+  public void testNestedMediaSources() throws IOException {
     Timeline timeline = getConcatenatedTimeline(false,
         getConcatenatedTimeline(false, createFakeTimeline(1, 111), createFakeTimeline(1, 222)),
         getConcatenatedTimeline(true, createFakeTimeline(1, 333), createFakeTimeline(1, 444)));
@@ -149,7 +150,7 @@ public final class ConcatenatingMediaSourceTest extends TestCase {
     TimelineAsserts.assertNextWindowIndices(timeline, Player.REPEAT_MODE_ALL, true, 2, 0, 3, 1);
   }
 
-  public void testEmptyTimelineMediaSources() {
+  public void testEmptyTimelineMediaSources() throws IOException {
     // Empty timelines in the front, back, and the middle (single and multiple in a row).
     Timeline[] timelines = { Timeline.EMPTY, createFakeTimeline(1, 111), Timeline.EMPTY,
         Timeline.EMPTY, createFakeTimeline(2, 222), Timeline.EMPTY, createFakeTimeline(3, 333),
@@ -197,7 +198,7 @@ public final class ConcatenatingMediaSourceTest extends TestCase {
     }
   }
 
-  public void testPeriodCreationWithAds() throws InterruptedException {
+  public void testPeriodCreationWithAds() throws IOException, InterruptedException {
     // Create media source with ad child source.
     Timeline timelineContentOnly = new FakeTimeline(
         new TimelineWindowDefinition(2, 111, true, false, 10 * C.MICROS_PER_SECOND));
@@ -231,7 +232,7 @@ public final class ConcatenatingMediaSourceTest extends TestCase {
    * the concatenated timeline.
    */
   private static Timeline getConcatenatedTimeline(boolean isRepeatOneAtomic,
-      Timeline... timelines) {
+      Timeline... timelines) throws IOException {
     MediaSource[] mediaSources = new MediaSource[timelines.length];
     for (int i = 0; i < timelines.length; i++) {
       mediaSources[i] = new FakeMediaSource(timelines[i], null);
