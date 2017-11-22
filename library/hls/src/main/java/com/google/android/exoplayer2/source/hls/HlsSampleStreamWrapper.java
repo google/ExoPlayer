@@ -385,7 +385,35 @@ import java.util.LinkedList;
     if (isPendingReset()) {
       return C.RESULT_NOTHING_READ;
     }
+    int result = sampleQueues[trackGroupIndex].read(formatHolder, buffer, requireFormat,
+        loadingFinished, lastSeekPositionUs);
+    if (result == C.RESULT_BUFFER_READ) {
+      discardToRead();
+    }
+    return result;
+  }
 
+  public int skipData(int trackGroupIndex, long positionUs) {
+    if (isPendingReset()) {
+      return 0;
+    }
+    int skipCount;
+    SampleQueue sampleQueue = sampleQueues[trackGroupIndex];
+    if (loadingFinished && positionUs > sampleQueue.getLargestQueuedTimestampUs()) {
+      skipCount = sampleQueue.advanceToEnd();
+    } else {
+      skipCount = sampleQueue.advanceTo(positionUs, true, true);
+      if (skipCount == SampleQueue.ADVANCE_FAILED) {
+        skipCount = 0;
+      }
+    }
+    if (skipCount > 0) {
+      discardToRead();
+    }
+    return skipCount;
+  }
+
+  private void discardToRead() {
     if (!mediaChunks.isEmpty()) {
       while (mediaChunks.size() > 1 && finishedReadingChunk(mediaChunks.getFirst())) {
         mediaChunks.removeFirst();
@@ -398,19 +426,6 @@ import java.util.LinkedList;
             currentChunk.startTimeUs);
       }
       downstreamTrackFormat = trackFormat;
-    }
-
-    return sampleQueues[trackGroupIndex].read(formatHolder, buffer, requireFormat, loadingFinished,
-        lastSeekPositionUs);
-  }
-
-  public int skipData(int trackGroupIndex, long positionUs) {
-    SampleQueue sampleQueue = sampleQueues[trackGroupIndex];
-    if (loadingFinished && positionUs > sampleQueue.getLargestQueuedTimestampUs()) {
-      return sampleQueue.advanceToEnd();
-    } else {
-      int skipCount = sampleQueue.advanceTo(positionUs, true, true);
-      return skipCount == SampleQueue.ADVANCE_FAILED ? 0 : skipCount;
     }
   }
 
