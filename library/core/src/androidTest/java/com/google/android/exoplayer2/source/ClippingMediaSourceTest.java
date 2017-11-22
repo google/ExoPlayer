@@ -94,6 +94,21 @@ public final class ClippingMediaSourceTest extends InstrumentationTestCase {
         clippedTimeline.getPeriod(0, period).getDurationUs());
   }
 
+  public void testClippingStartAndEndInitial() throws IOException {
+    // Timeline that's dynamic and not seekable. A child source might report such a timeline prior
+    // to it having loaded sufficient data to establish its duration and seekability. Such timelines
+    // should not result in clipping failure.
+    Timeline timeline = new SinglePeriodTimeline(C.TIME_UNSET, /* isSeekable= */ false,
+        /* isDynamic= */true);
+
+    Timeline clippedTimeline = getClippedTimeline(timeline, TEST_CLIP_AMOUNT_US,
+        TEST_PERIOD_DURATION_US - TEST_CLIP_AMOUNT_US * 2);
+    assertEquals(TEST_PERIOD_DURATION_US - TEST_CLIP_AMOUNT_US * 3,
+        clippedTimeline.getWindow(0, window).getDurationUs());
+    assertEquals(TEST_PERIOD_DURATION_US - TEST_CLIP_AMOUNT_US * 3,
+        clippedTimeline.getPeriod(0, period).getDurationUs());
+  }
+
   public void testClippingStartAndEnd() throws IOException {
     Timeline timeline = new SinglePeriodTimeline(C.msToUs(TEST_PERIOD_DURATION_US), true, false);
 
