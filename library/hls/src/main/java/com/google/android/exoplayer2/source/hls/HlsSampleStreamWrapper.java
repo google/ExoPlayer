@@ -39,8 +39,8 @@ import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.Util;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.LinkedList;
 
 /**
  * Loads {@link HlsMediaChunk}s obtained from a {@link HlsChunkSource}, and provides
@@ -81,7 +81,7 @@ import java.util.LinkedList;
   private final Loader loader;
   private final EventDispatcher eventDispatcher;
   private final HlsChunkSource.HlsChunkHolder nextChunkHolder;
-  private final LinkedList<HlsMediaChunk> mediaChunks;
+  private final ArrayList<HlsMediaChunk> mediaChunks;
   private final Runnable maybeFinishPrepareRunnable;
   private final Handler handler;
 
@@ -137,7 +137,7 @@ import java.util.LinkedList;
     sampleQueues = new SampleQueue[0];
     sampleQueueIsAudioVideoFlags = new boolean[0];
     sampleQueuesEnabledStates = new boolean[0];
-    mediaChunks = new LinkedList<>();
+    mediaChunks = new ArrayList<>();
     maybeFinishPrepareRunnable = new Runnable() {
       @Override
       public void run() {
@@ -260,7 +260,7 @@ import java.util.LinkedList;
         if (!seenFirstTrackSelection) {
           long bufferedDurationUs = positionUs < 0 ? -positionUs : 0;
           primaryTrackSelection.updateSelectedTrack(positionUs, bufferedDurationUs, C.TIME_UNSET);
-          int chunkIndex = chunkSource.getTrackGroup().indexOf(mediaChunks.getLast().trackFormat);
+          int chunkIndex = chunkSource.getTrackGroup().indexOf(getLastMediaChunk().trackFormat);
           if (primaryTrackSelection.getSelectedIndexInTrackGroup() != chunkIndex) {
             // This is the first selection and the chunk loaded during preparation does not match
             // the initially selected format.
@@ -332,7 +332,7 @@ import java.util.LinkedList;
       return pendingResetPositionUs;
     } else {
       long bufferedPositionUs = lastSeekPositionUs;
-      HlsMediaChunk lastMediaChunk = mediaChunks.getLast();
+      HlsMediaChunk lastMediaChunk = getLastMediaChunk();
       HlsMediaChunk lastCompletedMediaChunk = lastMediaChunk.isLoadCompleted() ? lastMediaChunk
           : mediaChunks.size() > 1 ? mediaChunks.get(mediaChunks.size() - 2) : null;
       if (lastCompletedMediaChunk != null) {
@@ -389,11 +389,17 @@ import java.util.LinkedList;
       return C.RESULT_NOTHING_READ;
     }
 
+    // TODO: Split into discard (in discardBuffer) and format change (here and in skipData) steps.
     if (!mediaChunks.isEmpty()) {
-      while (mediaChunks.size() > 1 && finishedReadingChunk(mediaChunks.getFirst())) {
-        mediaChunks.removeFirst();
+      int discardToMediaChunkIndex = 0;
+      while (discardToMediaChunkIndex < mediaChunks.size() - 1
+          && finishedReadingChunk(mediaChunks.get(discardToMediaChunkIndex))) {
+        discardToMediaChunkIndex++;
       }
-      HlsMediaChunk currentChunk = mediaChunks.getFirst();
+      if (discardToMediaChunkIndex > 0) {
+        Util.removeRange(mediaChunks, 0, discardToMediaChunkIndex);
+      }
+      HlsMediaChunk currentChunk = mediaChunks.get(0);
       Format trackFormat = currentChunk.trackFormat;
       if (!trackFormat.equals(downstreamTrackFormat)) {
         eventDispatcher.downstreamFormatChanged(trackType, trackFormat,
@@ -408,6 +414,10 @@ import java.util.LinkedList;
   }
 
   public int skipData(int sampleQueueIndex, long positionUs) {
+    if (isPendingReset()) {
+      return 0;
+    }
+
     SampleQueue sampleQueue = sampleQueues[sampleQueueIndex];
     if (loadingFinished && positionUs > sampleQueue.getLargestQueuedTimestampUs()) {
       return sampleQueue.advanceToEnd();
@@ -449,7 +459,7 @@ import java.util.LinkedList;
       previousChunk = null;
       loadPositionUs = pendingResetPositionUs;
     } else {
-      previousChunk = mediaChunks.getLast();
+      previousChunk = getLastMediaChunk();
       loadPositionUs = previousChunk.endTimeUs;
     }
     chunkSource.getNextChunk(previousChunk, positionUs, loadPositionUs, nextChunkHolder);
@@ -489,7 +499,7 @@ import java.util.LinkedList;
     if (isPendingReset()) {
       return pendingResetPositionUs;
     } else {
-      return loadingFinished ? C.TIME_END_OF_SOURCE : mediaChunks.getLast().endTimeUs;
+      return loadingFinished ? C.TIME_END_OF_SOURCE : getLastMediaChunk().endTimeUs;
     }
   }
 
@@ -531,7 +541,7 @@ import java.util.LinkedList;
     boolean canceled = false;
     if (chunkSource.onChunkLoadError(loadable, cancelable, error)) {
       if (isMediaChunk) {
-        HlsMediaChunk removed = mediaChunks.removeLast();
+        HlsMediaChunk removed = mediaChunks.remove(mediaChunks.size() - 1);
         Assertions.checkState(removed == loadable);
         if (mediaChunks.isEmpty()) {
           pendingResetPositionUs = lastSeekPositionUs;
@@ -762,6 +772,10 @@ import java.util.LinkedList;
     return sampleFormat.copyWithContainerInfo(containerFormat.id, codecs, containerFormat.bitrate,
         containerFormat.width, containerFormat.height, containerFormat.selectionFlags,
         containerFormat.language);
+  }
+
+  private HlsMediaChunk getLastMediaChunk() {
+    return mediaChunks.get(mediaChunks.size() - 1);
   }
 
   private boolean isMediaChunk(Chunk chunk) {
