@@ -343,12 +343,9 @@ public final class ExoPlayerTest extends TestCase {
       @Override
       protected FakeMediaPeriod createFakeMediaPeriod(MediaPeriodId id,
           TrackGroupArray trackGroupArray, Allocator allocator) {
-        return new FakeMediaPeriod(trackGroupArray) {
-          @Override
-          public long seekToUs(long positionUs) {
-            return positionUs + 10; // Adjusts the requested seek position.
-          }
-        };
+        FakeMediaPeriod mediaPeriod = new FakeMediaPeriod(trackGroupArray);
+        mediaPeriod.setSeekToUsOffset(10);
+        return mediaPeriod;
       }
     };
     ActionSchedule actionSchedule = new ActionSchedule.Builder("testSeekDiscontinuityAdjust")
@@ -359,30 +356,37 @@ public final class ExoPlayerTest extends TestCase {
         Player.DISCONTINUITY_REASON_SEEK_ADJUSTMENT);
   }
 
-  public void testInternalDiscontinuity() throws Exception {
+  public void testInternalDiscontinuityAtNewPosition() throws Exception {
     FakeTimeline timeline = new FakeTimeline(1);
     FakeMediaSource mediaSource = new FakeMediaSource(timeline, null, Builder.VIDEO_FORMAT) {
       @Override
       protected FakeMediaPeriod createFakeMediaPeriod(MediaPeriodId id,
           TrackGroupArray trackGroupArray, Allocator allocator) {
-        return new FakeMediaPeriod(trackGroupArray) {
-          boolean discontinuityRead;
-          @Override
-          public long readDiscontinuity() {
-            if (!discontinuityRead) {
-              discontinuityRead = true;
-              return 10; // Return a discontinuity.
-            }
-            return C.TIME_UNSET;
-          }
-        };
+        FakeMediaPeriod mediaPeriod = new FakeMediaPeriod(trackGroupArray);
+        mediaPeriod.setDiscontinuityPositionUs(10);
+        return mediaPeriod;
       }
     };
-    ActionSchedule actionSchedule = new ActionSchedule.Builder("testInternalDiscontinuity")
-        .waitForPlaybackState(Player.STATE_READY).build();
     ExoPlayerTestRunner testRunner = new ExoPlayerTestRunner.Builder().setMediaSource(mediaSource)
-        .setActionSchedule(actionSchedule).build().start().blockUntilEnded(TIMEOUT_MS);
+        .build().start().blockUntilEnded(TIMEOUT_MS);
     testRunner.assertPositionDiscontinuityReasonsEqual(Player.DISCONTINUITY_REASON_INTERNAL);
+  }
+
+  public void testInternalDiscontinuityAtInitialPosition() throws Exception {
+    FakeTimeline timeline = new FakeTimeline(1);
+    FakeMediaSource mediaSource = new FakeMediaSource(timeline, null, Builder.VIDEO_FORMAT) {
+      @Override
+      protected FakeMediaPeriod createFakeMediaPeriod(MediaPeriodId id,
+          TrackGroupArray trackGroupArray, Allocator allocator) {
+        FakeMediaPeriod mediaPeriod = new FakeMediaPeriod(trackGroupArray);
+        mediaPeriod.setDiscontinuityPositionUs(0);
+        return mediaPeriod;
+      }
+    };
+    ExoPlayerTestRunner testRunner = new ExoPlayerTestRunner.Builder().setMediaSource(mediaSource)
+        .build().start().blockUntilEnded(TIMEOUT_MS);
+    // If the position is unchanged we do not expect the discontinuity to be reported externally.
+    testRunner.assertNoPositionDiscontinuities();
   }
 
   public void testAllActivatedTrackSelectionAreReleasedForSinglePeriod() throws Exception {
