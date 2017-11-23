@@ -192,6 +192,17 @@ public final class Util {
   }
 
   /**
+   * Removes an indexed range from a List.
+   *
+   * @param list The List to remove the range from.
+   * @param fromIndex The first index to be removed (inclusive).
+   * @param toIndex The last index to be removed (exclusive).
+   */
+  public static <T> void removeRange(List<T> list, int fromIndex, int toIndex) {
+    list.subList(fromIndex, toIndex).clear();
+  }
+
+  /**
    * Instantiates a new single threaded executor whose thread has the specified name.
    *
    * @param threadName The name of the thread.
