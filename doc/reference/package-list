@@ -6,6 +6,7 @@ com.google.android.exoplayer2.ext.ffmpeg
 com.google.android.exoplayer2.ext.flac
 com.google.android.exoplayer2.ext.gvr
 com.google.android.exoplayer2.ext.ima
+com.google.android.exoplayer2.ext.leanback
 com.google.android.exoplayer2.ext.mediasession
 com.google.android.exoplayer2.ext.okhttp
 com.google.android.exoplayer2.ext.opus
@@ -25,14 +26,19 @@ com.google.android.exoplayer2.metadata
 com.google.android.exoplayer2.metadata.emsg
 com.google.android.exoplayer2.metadata.id3
 com.google.android.exoplayer2.metadata.scte35
+com.google.android.exoplayer2.offline
 com.google.android.exoplayer2.source
+com.google.android.exoplayer2.source.ads
 com.google.android.exoplayer2.source.chunk
 com.google.android.exoplayer2.source.dash
 com.google.android.exoplayer2.source.dash.manifest
+com.google.android.exoplayer2.source.dash.offline
 com.google.android.exoplayer2.source.hls
+com.google.android.exoplayer2.source.hls.offline
 com.google.android.exoplayer2.source.hls.playlist
 com.google.android.exoplayer2.source.smoothstreaming
 com.google.android.exoplayer2.source.smoothstreaming.manifest
+com.google.android.exoplayer2.source.smoothstreaming.offline
 com.google.android.exoplayer2.text
 com.google.android.exoplayer2.text.cea
 com.google.android.exoplayer2.text.dvb
