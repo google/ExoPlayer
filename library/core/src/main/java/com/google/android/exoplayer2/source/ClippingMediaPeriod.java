@@ -270,7 +270,14 @@ public final class ClippingMediaPeriod implements MediaPeriod, MediaPeriod.Callb
         return C.RESULT_BUFFER_READ;
       }
       int result = stream.readData(formatHolder, buffer, requireFormat);
-      // TODO: Clear gapless playback metadata if a format was read (if applicable).
+      if (result == C.RESULT_FORMAT_READ) {
+        // Clear gapless playback metadata if the start/end points don't match the media.
+        Format format = formatHolder.format;
+        int encoderDelay = startUs != 0 ? 0 : format.encoderDelay;
+        int encoderPadding = endUs != C.TIME_END_OF_SOURCE ? 0 : format.encoderPadding;
+        formatHolder.format = format.copyWithGaplessInfo(encoderDelay, encoderPadding);
+        return C.RESULT_FORMAT_READ;
+      }
       if (endUs != C.TIME_END_OF_SOURCE && ((result == C.RESULT_BUFFER_READ
           && buffer.timeUs >= endUs) || (result == C.RESULT_NOTHING_READ
           && mediaPeriod.getBufferedPositionUs() == C.TIME_END_OF_SOURCE))) {
@@ -286,8 +293,8 @@ public final class ClippingMediaPeriod implements MediaPeriod, MediaPeriod.Callb
     }
 
     @Override
-    public void skipData(long positionUs) {
-      stream.skipData(startUs + positionUs);
+    public int skipData(long positionUs) {
+      return stream.skipData(startUs + positionUs);
     }
 
   }

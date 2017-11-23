@@ -25,4 +25,5 @@
   <string name="exo_controls_repeat_all_description">"Ponovi vse"</string>
   <string name="exo_controls_repeat_off_description">"Ne ponovi"</string>
   <string name="exo_controls_repeat_one_description">"Ponovi eno"</string>
+  <string name="exo_controls_shuffle_description">"Naključno predvajaj"</string>
 </resources>

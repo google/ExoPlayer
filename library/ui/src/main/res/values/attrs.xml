@@ -39,9 +39,11 @@
     <flag name="one" value="1"/>
     <flag name="all" value="2"/>
   </attr>
+  <attr name="show_shuffle_button" format="boolean"/>
 
   <declare-styleable name="SimpleExoPlayerView">
     <attr name="use_artwork" format="boolean"/>
+    <attr name="shutter_background_color" format="color"/>
     <attr name="default_artwork" format="reference"/>
     <attr name="use_controller" format="boolean"/>
     <attr name="hide_on_touch" format="boolean"/>
@@ -64,6 +66,7 @@
     <attr name="rewind_increment"/>
     <attr name="fastforward_increment"/>
     <attr name="repeat_toggle_modes"/>
+    <attr name="show_shuffle_button"/>
     <attr name="controller_layout_id"/>
   </declare-styleable>
 
@@ -74,6 +77,7 @@
     <attr name="scrubber_enabled_size" format="dimension"/>
     <attr name="scrubber_disabled_size" format="dimension"/>
     <attr name="scrubber_dragged_size" format="dimension"/>
+    <attr name="scrubber_drawable" format="reference"/>
     <attr name="played_color" format="color"/>
     <attr name="scrubber_color" format="color"/>
     <attr name="buffered_color" format="color"/>

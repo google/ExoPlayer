@@ -25,4 +25,5 @@
   <string name="exo_controls_repeat_all_description">"Endurtaka allt"</string>
   <string name="exo_controls_repeat_off_description">"Endurtaka ekkert"</string>
   <string name="exo_controls_repeat_one_description">"Endurtaka eitt"</string>
+  <string name="exo_controls_shuffle_description">"Stokka"</string>
 </resources>

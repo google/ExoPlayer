@@ -19,7 +19,7 @@ import android.net.Uri;
 import android.os.Handler;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlayer;
-import com.google.android.exoplayer2.Timeline;
+import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.extractor.DefaultExtractorsFactory;
 import com.google.android.exoplayer2.extractor.Extractor;
 import com.google.android.exoplayer2.extractor.ExtractorsFactory;
@@ -48,6 +48,13 @@ public final class ExtractorMediaSource implements MediaSource, ExtractorMediaPe
 
     /**
      * Called when an error occurs loading media data.
+     * <p>
+     * This method being called does not indicate that playback has failed, or that it will fail.
+     * The player may be able to recover from the error and continue. Hence applications should
+     * <em>not</em> implement this method to display a user visible error or initiate an application
+     * level retry ({@link Player.EventListener#onPlayerError} is the appropriate place to implement
+     * such behavior). This method is called to provide the application with an opportunity to log
+     * the error if it wishes to do so.
      *
      * @param error The load error.
      */
@@ -84,7 +91,6 @@ public final class ExtractorMediaSource implements MediaSource, ExtractorMediaPe
   private final int minLoadableRetryCount;
   private final Handler eventHandler;
   private final EventListener eventListener;
-  private final Timeline.Period period;
   private final String customCacheKey;
   private final int continueLoadingCheckIntervalBytes;
 
@@ -149,7 +155,6 @@ public final class ExtractorMediaSource implements MediaSource, ExtractorMediaPe
     this.eventListener = eventListener;
     this.customCacheKey = customCacheKey;
     this.continueLoadingCheckIntervalBytes = continueLoadingCheckIntervalBytes;
-    period = new Timeline.Period();
   }
 
   @Override
@@ -187,8 +192,7 @@ public final class ExtractorMediaSource implements MediaSource, ExtractorMediaPe
   public void onSourceInfoRefreshed(long durationUs, boolean isSeekable) {
     // If we already have the duration from a previous source info refresh, use it.
     durationUs = durationUs == C.TIME_UNSET ? timelineDurationUs : durationUs;
-    if (timelineDurationUs == durationUs && timelineIsSeekable == isSeekable
-        || (timelineDurationUs != C.TIME_UNSET && durationUs == C.TIME_UNSET)) {
+    if (timelineDurationUs == durationUs && timelineIsSeekable == isSeekable) {
       // Suppress no-op source info changes.
       return;
     }
@@ -201,7 +205,7 @@ public final class ExtractorMediaSource implements MediaSource, ExtractorMediaPe
     timelineDurationUs = durationUs;
     timelineIsSeekable = isSeekable;
     sourceListener.onSourceInfoRefreshed(
-        new SinglePeriodTimeline(timelineDurationUs, timelineIsSeekable), null);
+        this, new SinglePeriodTimeline(timelineDurationUs, timelineIsSeekable), null);
   }
 
 }

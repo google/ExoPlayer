@@ -19,6 +19,7 @@ import android.os.Handler;
 import android.os.SystemClock;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
+import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.upstream.DataSpec;
 import com.google.android.exoplayer2.util.Assertions;
 import java.io.IOException;
@@ -111,6 +112,13 @@ public interface AdaptiveMediaSourceEventListener {
    * The error may or may not have resulted in the load being canceled, as indicated by the
    * {@code wasCanceled} parameter. If the load was canceled, {@link #onLoadCanceled} will
    * <em>not</em> be called in addition to this method.
+   * <p>
+   * This method being called does not indicate that playback has failed, or that it will fail. The
+   * player may be able to recover from the error and continue. Hence applications should
+   * <em>not</em> implement this method to display a user visible error or initiate an application
+   * level retry ({@link Player.EventListener#onPlayerError} is the appropriate place to implement
+   * such behavior). This method is called to provide the application with an opportunity to log the
+   * error if it wishes to do so.
    *
    * @param dataSpec Defines the data being loaded.
    * @param dataType One of the {@link C} {@code DATA_TYPE_*} constants defining the type of data

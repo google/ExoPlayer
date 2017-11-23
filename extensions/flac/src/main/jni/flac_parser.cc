@@ -42,6 +42,9 @@
 #define CHECK(x) \
   if (!(x)) ALOGE("Check failed: %s ", #x)
 
+const int endian = 1;
+#define isBigEndian() (*(reinterpret_cast<const char *>(&endian)) == 0)
+
 // The FLAC parser calls our C++ static callbacks using C calling conventions,
 // inside FLAC__stream_decoder_process_until_end_of_metadata
 // and FLAC__stream_decoder_process_single.
@@ -180,85 +183,42 @@ void FLACParser::errorCallback(FLAC__StreamDecoderErrorStatus status) {
   mErrorStatus = status;
 }
 
-// Copy samples from FLAC native 32-bit non-interleaved to 16-bit interleaved.
+// Copy samples from FLAC native 32-bit non-interleaved to
+// correct bit-depth (non-zero padded), interleaved.
 // These are candidates for optimization if needed.
-
-static void copyMono8(int16_t *dst, const int *const *src, unsigned nSamples,
-                      unsigned /* nChannels */) {
-  for (unsigned i = 0; i < nSamples; ++i) {
-    *dst++ = src[0][i] << 8;
-  }
-}
-
-static void copyStereo8(int16_t *dst, const int *const *src, unsigned nSamples,
-                        unsigned /* nChannels */) {
-  for (unsigned i = 0; i < nSamples; ++i) {
-    *dst++ = src[0][i] << 8;
-    *dst++ = src[1][i] << 8;
-  }
-}
-
-static void copyMultiCh8(int16_t *dst, const int *const *src, unsigned nSamples,
-                         unsigned nChannels) {
+static void copyToByteArrayBigEndian(int8_t *dst, const int *const *src,
+                                     unsigned bytesPerSample, unsigned nSamples,
+                                     unsigned nChannels) {
   for (unsigned i = 0; i < nSamples; ++i) {
     for (unsigned c = 0; c < nChannels; ++c) {
-      *dst++ = src[c][i] << 8;
+      // point to the first byte of the source address
+      // and then skip the first few bytes (most significant bytes)
+      // depending on the bit depth
+      const int8_t *byteSrc =
+          reinterpret_cast<const int8_t *>(&src[c][i]) + 4 - bytesPerSample;
+      memcpy(dst, byteSrc, bytesPerSample);
+      dst = dst + bytesPerSample;
     }
   }
 }
 
-static void copyMono16(int16_t *dst, const int *const *src, unsigned nSamples,
-                       unsigned /* nChannels */) {
+static void copyToByteArrayLittleEndian(int8_t *dst, const int *const *src,
+                                        unsigned bytesPerSample,
+                                        unsigned nSamples, unsigned nChannels) {
   for (unsigned i = 0; i < nSamples; ++i) {
-    *dst++ = src[0][i];
+    for (unsigned c = 0; c < nChannels; ++c) {
+      // with little endian, the most significant bytes will be at the end
+      // copy the bytes in little endian will remove the most significant byte
+      // so we are good here.
+      memcpy(dst, &(src[c][i]), bytesPerSample);
+      dst = dst + bytesPerSample;
+    }
   }
 }
 
-static void copyStereo16(int16_t *dst, const int *const *src, unsigned nSamples,
+static void copyTrespass(int8_t * /* dst */, const int *const * /* src */,
+                         unsigned /* bytesPerSample */, unsigned /* nSamples */,
                          unsigned /* nChannels */) {
-  for (unsigned i = 0; i < nSamples; ++i) {
-    *dst++ = src[0][i];
-    *dst++ = src[1][i];
-  }
-}
-
-static void copyMultiCh16(int16_t *dst, const int *const *src,
-                          unsigned nSamples, unsigned nChannels) {
-  for (unsigned i = 0; i < nSamples; ++i) {
-    for (unsigned c = 0; c < nChannels; ++c) {
-      *dst++ = src[c][i];
-    }
-  }
-}
-
-// 24-bit versions should do dithering or noise-shaping, here or in AudioFlinger
-
-static void copyMono24(int16_t *dst, const int *const *src, unsigned nSamples,
-                       unsigned /* nChannels */) {
-  for (unsigned i = 0; i < nSamples; ++i) {
-    *dst++ = src[0][i] >> 8;
-  }
-}
-
-static void copyStereo24(int16_t *dst, const int *const *src, unsigned nSamples,
-                         unsigned /* nChannels */) {
-  for (unsigned i = 0; i < nSamples; ++i) {
-    *dst++ = src[0][i] >> 8;
-    *dst++ = src[1][i] >> 8;
-  }
-}
-
-static void copyMultiCh24(int16_t *dst, const int *const *src,
-                          unsigned nSamples, unsigned nChannels) {
-  for (unsigned i = 0; i < nSamples; ++i) {
-    for (unsigned c = 0; c < nChannels; ++c) {
-      *dst++ = src[c][i] >> 8;
-    }
-  }
-}
-
-static void copyTrespass(int16_t * /* dst */, const int *const * /* src */,
-                         unsigned /* nSamples */, unsigned /* nChannels */) {
   TRESPASS();
 }
 
@@ -340,6 +300,7 @@ bool FLACParser::decodeMetadata() {
       case 8:
       case 16:
       case 24:
+      case 32:
         break;
       default:
         ALOGE("unsupported bits per sample %u", getBitsPerSample());
@@ -363,23 +324,11 @@ bool FLACParser::decodeMetadata() {
         ALOGE("unsupported sample rate %u", getSampleRate());
         return false;
     }
-    // configure the appropriate copy function, defaulting to trespass
-    static const struct {
-      unsigned mChannels;
-      unsigned mBitsPerSample;
-      void (*mCopy)(int16_t *dst, const int *const *src, unsigned nSamples,
-                    unsigned nChannels);
-    } table[] = {
-        {1, 8, copyMono8},   {2, 8, copyStereo8},   {8, 8, copyMultiCh8},
-        {1, 16, copyMono16}, {2, 16, copyStereo16}, {8, 16, copyMultiCh16},
-        {1, 24, copyMono24}, {2, 24, copyStereo24}, {8, 24, copyMultiCh24},
-    };
-    for (unsigned i = 0; i < sizeof(table) / sizeof(table[0]); ++i) {
-      if (table[i].mChannels >= getChannels() &&
-          table[i].mBitsPerSample == getBitsPerSample()) {
-        mCopy = table[i].mCopy;
-        break;
-      }
+    // configure the appropriate copy function based on device endianness.
+    if (isBigEndian()) {
+      mCopy = copyToByteArrayBigEndian;
+    } else {
+      mCopy = copyToByteArrayLittleEndian;
     }
   } else {
     ALOGE("missing STREAMINFO");
@@ -424,7 +373,8 @@ size_t FLACParser::readBuffer(void *output, size_t output_size) {
     return -1;
   }
 
-  size_t bufferSize = blocksize * getChannels() * sizeof(int16_t);
+  unsigned bytesPerSample = getBitsPerSample() >> 3;
+  size_t bufferSize = blocksize * getChannels() * bytesPerSample;
   if (bufferSize > output_size) {
     ALOGE(
         "FLACParser::readBuffer not enough space in output buffer "
@@ -434,8 +384,8 @@ size_t FLACParser::readBuffer(void *output, size_t output_size) {
   }
 
   // copy PCM from FLAC write buffer to our media buffer, with interleaving.
-  (*mCopy)(reinterpret_cast<int16_t *>(output), mWriteBuffer, blocksize,
-           getChannels());
+  (*mCopy)(reinterpret_cast<int8_t *>(output), mWriteBuffer, bytesPerSample,
+           blocksize, getChannels());
 
   // fill in buffer metadata
   CHECK(mWriteHeader.number_type == FLAC__FRAME_NUMBER_TYPE_SAMPLE_NUMBER);

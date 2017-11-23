@@ -27,13 +27,15 @@ import java.util.Arrays;
  */
 /* package */ final class Sonic {
 
-  private static final boolean USE_CHORD_PITCH = false;
   private static final int MINIMUM_PITCH = 65;
   private static final int MAXIMUM_PITCH = 400;
   private static final int AMDF_FREQUENCY = 4000;
 
-  private final int sampleRate;
+  private final int inputSampleRateHz;
   private final int numChannels;
+  private final float speed;
+  private final float pitch;
+  private final float rate;
   private final int minPeriod;
   private final int maxPeriod;
   private final int maxRequired;
@@ -47,8 +49,6 @@ import java.util.Arrays;
   private short[] pitchBuffer;
   private int oldRatePosition;
   private int newRatePosition;
-  private float speed;
-  private float pitch;
   private int numInputSamples;
   private int numOutputSamples;
   private int numPitchSamples;
@@ -61,14 +61,18 @@ import java.util.Arrays;
   /**
    * Creates a new Sonic audio stream processor.
    *
-   * @param sampleRate The sample rate of input audio.
+   * @param inputSampleRateHz The sample rate of input audio, in hertz.
    * @param numChannels The number of channels in the input audio.
+   * @param speed The speedup factor for output audio.
+   * @param pitch The pitch factor for output audio.
+   * @param outputSampleRateHz The sample rate for output audio, in hertz.
    */
-  public Sonic(int sampleRate, int numChannels) {
-    this.sampleRate = sampleRate;
+  public Sonic(int inputSampleRateHz, int numChannels, float speed, float pitch,
+      int outputSampleRateHz) {
+    this.inputSampleRateHz = inputSampleRateHz;
     this.numChannels = numChannels;
-    minPeriod = sampleRate / MAXIMUM_PITCH;
-    maxPeriod = sampleRate / MINIMUM_PITCH;
+    minPeriod = inputSampleRateHz / MAXIMUM_PITCH;
+    maxPeriod = inputSampleRateHz / MINIMUM_PITCH;
     maxRequired = 2 * maxPeriod;
     downSampleBuffer = new short[maxRequired];
     inputBufferSize = maxRequired;
@@ -80,36 +84,9 @@ import java.util.Arrays;
     oldRatePosition = 0;
     newRatePosition = 0;
     prevPeriod = 0;
-    speed = 1.0f;
-    pitch = 1.0f;
-  }
-
-  /**
-   * Sets the output speed.
-   */
-  public void setSpeed(float speed) {
     this.speed = speed;
-  }
-
-  /**
-   * Gets the output speed.
-   */
-  public float getSpeed() {
-    return speed;
-  }
-
-  /**
-   * Sets the output pitch.
-   */
-  public void setPitch(float pitch) {
     this.pitch = pitch;
-  }
-
-  /**
-   * Gets the output pitch.
-   */
-  public float getPitch() {
-    return pitch;
+    this.rate = (float) inputSampleRateHz / outputSampleRateHz;
   }
 
   /**
@@ -148,8 +125,9 @@ import java.util.Arrays;
   public void queueEndOfStream() {
     int remainingSamples = numInputSamples;
     float s = speed / pitch;
+    float r = rate * pitch;
     int expectedOutputSamples =
-        numOutputSamples + (int) ((remainingSamples / s + numPitchSamples) / pitch + 0.5f);
+        numOutputSamples + (int) ((remainingSamples / s + numPitchSamples) / r + 0.5f);
 
     // Add enough silence to flush both input and pitch buffers.
     enlargeInputBufferIfNeeded(remainingSamples + 2 * maxRequired);
@@ -292,7 +270,7 @@ import java.util.Arrays;
     // sampling.
     int period;
     int retPeriod;
-    int skip = sampleRate > AMDF_FREQUENCY ? sampleRate / AMDF_FREQUENCY : 1;
+    int skip = inputSampleRateHz > AMDF_FREQUENCY ? inputSampleRateHz / AMDF_FREQUENCY : 1;
     if (numChannels == 1 && skip == 1) {
       period = findPitchPeriodInRange(samples, position, minPeriod, maxPeriod);
     } else {
@@ -347,32 +325,6 @@ import java.util.Arrays;
     numPitchSamples -= numSamples;
   }
 
-  private void adjustPitch(int originalNumOutputSamples) {
-    // Latency due to pitch changes could be reduced by looking at past samples to determine pitch,
-    // rather than future.
-    if (numOutputSamples == originalNumOutputSamples) {
-      return;
-    }
-    moveNewSamplesToPitchBuffer(originalNumOutputSamples);
-    int position = 0;
-    while (numPitchSamples - position >= maxRequired) {
-      int period = findPitchPeriod(pitchBuffer, position, false);
-      int newPeriod = (int) (period / pitch);
-      enlargeOutputBufferIfNeeded(newPeriod);
-      if (pitch >= 1.0f) {
-        overlapAdd(newPeriod, numChannels, outputBuffer, numOutputSamples, pitchBuffer, position,
-            pitchBuffer, position + period - newPeriod);
-      } else {
-        int separation = newPeriod - period;
-        overlapAddWithSeparation(period, numChannels, separation, outputBuffer, numOutputSamples,
-            pitchBuffer, position, pitchBuffer, position);
-      }
-      numOutputSamples += newPeriod;
-      position += period;
-    }
-    removePitchSamples(position);
-  }
-
   private short interpolate(short[] in, int inPos, int oldSampleRate, int newSampleRate) {
     short left = in[inPos];
     short right = in[inPos + numChannels];
@@ -388,8 +340,8 @@ import java.util.Arrays;
     if (numOutputSamples == originalNumOutputSamples) {
       return;
     }
-    int newSampleRate = (int) (sampleRate / rate);
-    int oldSampleRate = sampleRate;
+    int newSampleRate = (int) (inputSampleRateHz / rate);
+    int oldSampleRate = inputSampleRateHz;
     // Set these values to help with the integer math.
     while (newSampleRate > (1 << 14) || oldSampleRate > (1 << 14)) {
       newSampleRate /= 2;
@@ -476,18 +428,15 @@ import java.util.Arrays;
     // Resample as many pitch periods as we have buffered on the input.
     int originalNumOutputSamples = numOutputSamples;
     float s = speed / pitch;
+    float r = rate * pitch;
     if (s > 1.00001 || s < 0.99999) {
       changeSpeed(s);
     } else {
       copyToOutput(inputBuffer, 0, numInputSamples);
       numInputSamples = 0;
     }
-    if (USE_CHORD_PITCH) {
-      if (pitch != 1.0f) {
-        adjustPitch(originalNumOutputSamples);
-      }
-    } else if (!USE_CHORD_PITCH && pitch != 1.0f) {
-      adjustRate(pitch, originalNumOutputSamples);
+    if (r != 1.0f) {
+      adjustRate(r, originalNumOutputSamples);
     }
   }
 
@@ -502,31 +451,6 @@ import java.util.Arrays;
         o += numChannels;
         d += numChannels;
         u += numChannels;
-      }
-    }
-  }
-
-  private static void overlapAddWithSeparation(int numSamples, int numChannels, int separation,
-      short[] out, int outPos, short[] rampDown, int rampDownPos, short[] rampUp, int rampUpPos) {
-    for (int i = 0; i < numChannels; i++) {
-      int o = outPos * numChannels + i;
-      int u = rampUpPos * numChannels + i;
-      int d = rampDownPos * numChannels + i;
-      for (int t = 0; t < numSamples + separation; t++) {
-        if (t < separation) {
-          out[o] = (short) (rampDown[d] * (numSamples - t) / numSamples);
-          d += numChannels;
-        } else if (t < numSamples) {
-          out[o] =
-              (short) ((rampDown[d] * (numSamples - t) + rampUp[u] * (t - separation))
-                  / numSamples);
-          d += numChannels;
-          u += numChannels;
-        } else {
-          out[o] = (short) (rampUp[u] * (t - separation) / numSamples);
-          u += numChannels;
-        }
-        o += numChannels;
       }
     }
   }

@@ -16,7 +16,6 @@
 package com.google.android.exoplayer2.testutil;
 
 import com.google.android.exoplayer2.C;
-import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.source.MediaPeriod;
 import com.google.android.exoplayer2.source.SampleStream;
 import com.google.android.exoplayer2.source.TrackGroup;
@@ -26,10 +25,10 @@ import java.io.IOException;
 import junit.framework.Assert;
 
 /**
- * Fake {@link MediaPeriod} that provides one track with a given {@link Format}. Selecting that
- * track will give the player a {@link FakeSampleStream}.
+ * Fake {@link MediaPeriod} that provides tracks from the given {@link TrackGroupArray}. Selecting
+ * tracks will give the player {@link FakeSampleStream}s.
  */
-public final class FakeMediaPeriod implements MediaPeriod {
+public class FakeMediaPeriod implements MediaPeriod {
 
   private final TrackGroupArray trackGroupArray;
 
@@ -46,7 +45,6 @@ public final class FakeMediaPeriod implements MediaPeriod {
   @Override
   public void prepare(Callback callback, long positionUs) {
     Assert.assertFalse(preparedPeriod);
-    Assert.assertEquals(0, positionUs);
     preparedPeriod = true;
     callback.onPrepared(this);
   }
@@ -71,8 +69,6 @@ public final class FakeMediaPeriod implements MediaPeriod {
       if (streams[i] != null && (selections[i] == null || !mayRetainStreamFlags[i])) {
         streams[i] = null;
       }
-    }
-    for (int i = 0; i < rendererCount; i++) {
       if (streams[i] == null && selections[i] != null) {
         TrackSelection selection = selections[i];
         Assert.assertTrue(1 <= selection.length());
@@ -81,11 +77,11 @@ public final class FakeMediaPeriod implements MediaPeriod {
         int indexInTrackGroup = selection.getIndexInTrackGroup(selection.getSelectedIndex());
         Assert.assertTrue(0 <= indexInTrackGroup);
         Assert.assertTrue(indexInTrackGroup < trackGroup.length);
-        streams[i] = new FakeSampleStream(selection.getSelectedFormat());
+        streams[i] = createSampleStream(selection);
         streamResetFlags[i] = true;
       }
     }
-    return 0;
+    return positionUs;
   }
 
   @Override
@@ -121,6 +117,10 @@ public final class FakeMediaPeriod implements MediaPeriod {
   public boolean continueLoading(long positionUs) {
     Assert.assertTrue(preparedPeriod);
     return false;
+  }
+
+  protected SampleStream createSampleStream(TrackSelection selection) {
+    return new FakeSampleStream(selection.getSelectedFormat());
   }
 
 }

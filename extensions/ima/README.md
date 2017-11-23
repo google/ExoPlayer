@@ -1,11 +1,11 @@
 # ExoPlayer IMA extension #
 
-The IMA extension is a [MediaSource][] implementation wrapping the
+The IMA extension is an [AdsLoader][] implementation wrapping the
 [Interactive Media Ads SDK for Android][IMA]. You can use it to insert ads
 alongside content.
 
 [IMA]: https://developers.google.com/interactive-media-ads/docs/sdks/android/
-[MediaSource]: https://google.github.io/ExoPlayer/doc/reference/index.html?com/google/android/exoplayer2/source/MediaSource.html
+[AdsLoader]: https://google.github.io/ExoPlayer/doc/reference/index.html?com/google/android/exoplayer2/source/ads/AdsLoader.html
 
 ## Getting the extension ##
 
@@ -27,7 +27,7 @@ locally. Instructions for doing this can be found in ExoPlayer's
 ## Using the extension ##
 
 To play ads alongside a single-window content `MediaSource`, prepare the player
-with an `ImaAdsMediaSource` constructed using an `ImaAdsLoader`, the content
+with an `AdsMediaSource` constructed using an `ImaAdsLoader`, the content
 `MediaSource` and an overlay `ViewGroup` on top of the player. Pass an ad tag
 URI from your ad campaign when creating the `ImaAdsLoader`. The IMA
 documentation includes some [sample ad tags][] for testing.
@@ -38,7 +38,7 @@ background, and are recreated when the player returns to the foreground. When
 playing ads it is necessary to persist ad playback state while in the background
 by keeping a reference to the `ImaAdsLoader`. Reuse it when resuming playback of
 the same content/ads by passing it in when constructing the new
-`ImaAdsMediaSource`. It is also important to persist the player position when
+`AdsMediaSource`. It is also important to persist the player position when
 entering the background by storing the value of `player.getContentPosition()`.
 On returning to the foreground, seek to that position before preparing the new
 player instance. Finally, it is important to call `ImaAdsLoader.release()` when

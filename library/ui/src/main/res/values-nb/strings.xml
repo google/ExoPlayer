@@ -25,4 +25,5 @@
   <string name="exo_controls_repeat_all_description">"Gjenta alle"</string>
   <string name="exo_controls_repeat_off_description">"Ikke gjenta noen"</string>
   <string name="exo_controls_repeat_one_description">"Gjenta én"</string>
+  <string name="exo_controls_shuffle_description">"Spill av i tilfeldig rekkefølge"</string>
 </resources>

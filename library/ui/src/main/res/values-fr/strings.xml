@@ -25,4 +25,5 @@
   <string name="exo_controls_repeat_all_description">"Tout lire en boucle"</string>
   <string name="exo_controls_repeat_off_description">"Ne rien lire en boucle"</string>
   <string name="exo_controls_repeat_one_description">"Lire en boucle un élément"</string>
+  <string name="exo_controls_shuffle_description">"Lire en mode aléatoire"</string>
 </resources>

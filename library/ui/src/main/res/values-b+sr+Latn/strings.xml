@@ -25,4 +25,5 @@
   <string name="exo_controls_repeat_all_description">"Ponovi sve"</string>
   <string name="exo_controls_repeat_off_description">"Ne ponavljaj nijednu"</string>
   <string name="exo_controls_repeat_one_description">"Ponovi jednu"</string>
+  <string name="exo_controls_shuffle_description">"Pusti nasumično"</string>
 </resources>

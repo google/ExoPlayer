@@ -25,4 +25,5 @@
   <string name="exo_controls_repeat_all_description">"सबै दोहोर्याउनुहोस्"</string>
   <string name="exo_controls_repeat_off_description">"कुनै पनि नदोहोर्याउनुहोस्"</string>
   <string name="exo_controls_repeat_one_description">"एउटा दोहोर्याउनुहोस्"</string>
+  <string name="exo_controls_shuffle_description">"मिसाउनुहोस्"</string>
 </resources>

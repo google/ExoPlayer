@@ -17,22 +17,17 @@ package com.google.android.exoplayer2.ui;
 
 import android.annotation.SuppressLint;
 import android.widget.TextView;
-import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.Format;
-import com.google.android.exoplayer2.PlaybackParameters;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.SimpleExoPlayer;
-import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.decoder.DecoderCounters;
-import com.google.android.exoplayer2.source.TrackGroupArray;
-import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
 import java.util.Locale;
 
 /**
  * A helper class for periodically updating a {@link TextView} with debug information obtained from
  * a {@link SimpleExoPlayer}.
  */
-public final class DebugTextViewHelper implements Runnable, Player.EventListener {
+public final class DebugTextViewHelper extends Player.DefaultEventListener implements Runnable {
 
   private static final int REFRESH_INTERVAL_MS = 1000;
 
@@ -79,43 +74,13 @@ public final class DebugTextViewHelper implements Runnable, Player.EventListener
   // Player.EventListener implementation.
 
   @Override
-  public void onLoadingChanged(boolean isLoading) {
-    // Do nothing.
-  }
-
-  @Override
   public void onPlayerStateChanged(boolean playWhenReady, int playbackState) {
     updateAndPost();
   }
 
   @Override
-  public void onRepeatModeChanged(int repeatMode) {
-    // Do nothing.
-  }
-
-  @Override
-  public void onPositionDiscontinuity() {
+  public void onPositionDiscontinuity(@Player.DiscontinuityReason int reason) {
     updateAndPost();
-  }
-
-  @Override
-  public void onPlaybackParametersChanged(PlaybackParameters playbackParameters) {
-    // Do nothing.
-  }
-
-  @Override
-  public void onTimelineChanged(Timeline timeline, Object manifest) {
-    // Do nothing.
-  }
-
-  @Override
-  public void onPlayerError(ExoPlaybackException error) {
-    // Do nothing.
-  }
-
-  @Override
-  public void onTracksChanged(TrackGroupArray tracks, TrackSelectionArray selections) {
-    // Do nothing.
   }
 
   // Runnable implementation.
@@ -186,10 +151,12 @@ public final class DebugTextViewHelper implements Runnable, Player.EventListener
       return "";
     }
     counters.ensureUpdated();
-    return " rb:" + counters.renderedOutputBufferCount
+    return " sib:" + counters.skippedInputBufferCount
         + " sb:" + counters.skippedOutputBufferCount
-        + " db:" + counters.droppedOutputBufferCount
-        + " mcdb:" + counters.maxConsecutiveDroppedOutputBufferCount;
+        + " rb:" + counters.renderedOutputBufferCount
+        + " db:" + counters.droppedBufferCount
+        + " mcdb:" + counters.maxConsecutiveDroppedBufferCount
+        + " dk:" + counters.droppedToKeyframeCount;
   }
 
   private static String getPixelAspectRatioString(float pixelAspectRatio) {

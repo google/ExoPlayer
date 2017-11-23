@@ -226,7 +226,7 @@ public interface Renderer extends ExoPlayerComponent {
 
   /**
    * Whether the renderer is ready for the {@link ExoPlayer} instance to transition to
-   * {@link ExoPlayer#STATE_ENDED}. The player will make this transition as soon as {@code true} is
+   * {@link Player#STATE_ENDED}. The player will make this transition as soon as {@code true} is
    * returned by all of its {@link Renderer}s.
    * <p>
    * This method may be called when the renderer is in the following states:

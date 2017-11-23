@@ -27,7 +27,6 @@ import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DataSpec;
 import com.google.android.exoplayer2.upstream.Loader;
 import com.google.android.exoplayer2.upstream.Loader.Loadable;
-import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Util;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -52,16 +51,20 @@ import java.util.Arrays;
   private final int eventSourceId;
   private final TrackGroupArray tracks;
   private final ArrayList<SampleStreamImpl> sampleStreams;
+  // Package private to avoid thunk methods.
   /* package */ final Loader loader;
   /* package */ final Format format;
+  /* package */ final boolean treatLoadErrorsAsEndOfStream;
 
   /* package */ boolean loadingFinished;
+  /* package */ boolean loadingSucceeded;
   /* package */ byte[] sampleData;
   /* package */ int sampleSize;
+  private int errorCount;
 
   public SingleSampleMediaPeriod(Uri uri, DataSource.Factory dataSourceFactory, Format format,
       int minLoadableRetryCount, Handler eventHandler, EventListener eventListener,
-      int eventSourceId) {
+      int eventSourceId, boolean treatLoadErrorsAsEndOfStream) {
     this.uri = uri;
     this.dataSourceFactory = dataSourceFactory;
     this.format = format;
@@ -69,6 +72,7 @@ import java.util.Arrays;
     this.eventHandler = eventHandler;
     this.eventListener = eventListener;
     this.eventSourceId = eventSourceId;
+    this.treatLoadErrorsAsEndOfStream = treatLoadErrorsAsEndOfStream;
     tracks = new TrackGroupArray(new TrackGroup(format));
     sampleStreams = new ArrayList<>();
     loader = new Loader("Loader:SingleSampleMediaPeriod");
@@ -85,7 +89,7 @@ import java.util.Arrays;
 
   @Override
   public void maybeThrowPrepareError() throws IOException {
-    loader.maybeThrowError();
+    // Do nothing.
   }
 
   @Override
@@ -157,6 +161,7 @@ import java.util.Arrays;
     sampleSize = loadable.sampleSize;
     sampleData = loadable.sampleData;
     loadingFinished = true;
+    loadingSucceeded = true;
   }
 
   @Override
@@ -169,6 +174,11 @@ import java.util.Arrays;
   public int onLoadError(SourceLoadable loadable, long elapsedRealtimeMs, long loadDurationMs,
       IOException error) {
     notifyLoadError(error);
+    errorCount++;
+    if (treatLoadErrorsAsEndOfStream && errorCount >= minLoadableRetryCount) {
+      loadingFinished = true;
+      return Loader.DONT_RETRY;
+    }
     return Loader.RETRY;
   }
 
@@ -206,7 +216,9 @@ import java.util.Arrays;
 
     @Override
     public void maybeThrowError() throws IOException {
-      loader.maybeThrowError();
+      if (!treatLoadErrorsAsEndOfStream) {
+        loader.maybeThrowError();
+      }
     }
 
     @Override
@@ -219,26 +231,28 @@ import java.util.Arrays;
         formatHolder.format = format;
         streamState = STREAM_STATE_SEND_SAMPLE;
         return C.RESULT_FORMAT_READ;
-      }
-
-      Assertions.checkState(streamState == STREAM_STATE_SEND_SAMPLE);
-      if (!loadingFinished) {
-        return C.RESULT_NOTHING_READ;
-      } else {
-        buffer.timeUs = 0;
-        buffer.addFlag(C.BUFFER_FLAG_KEY_FRAME);
-        buffer.ensureSpaceForWrite(sampleSize);
-        buffer.data.put(sampleData, 0, sampleSize);
+      } else if (loadingFinished) {
+        if (loadingSucceeded) {
+          buffer.timeUs = 0;
+          buffer.addFlag(C.BUFFER_FLAG_KEY_FRAME);
+          buffer.ensureSpaceForWrite(sampleSize);
+          buffer.data.put(sampleData, 0, sampleSize);
+        } else {
+          buffer.addFlag(C.BUFFER_FLAG_END_OF_STREAM);
+        }
         streamState = STREAM_STATE_END_OF_STREAM;
         return C.RESULT_BUFFER_READ;
       }
+      return C.RESULT_NOTHING_READ;
     }
 
     @Override
-    public void skipData(long positionUs) {
-      if (positionUs > 0) {
+    public int skipData(long positionUs) {
+      if (positionUs > 0 && streamState != STREAM_STATE_END_OF_STREAM) {
         streamState = STREAM_STATE_END_OF_STREAM;
+        return 1;
       }
+      return 0;
     }
 
   }

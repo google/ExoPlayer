@@ -53,13 +53,14 @@ public final class SsaDecoder extends SimpleSubtitleDecoder {
   }
 
   /**
-   * @param initializationData Optional initialization data for the decoder. If not null, the
-   *     initialization data must consist of two byte arrays. The first must contain an SSA format
-   *     line. The second must contain an SSA header that will be assumed common to all samples.
+   * @param initializationData Optional initialization data for the decoder. If not null or empty,
+   *     the initialization data must consist of two byte arrays. The first must contain an SSA
+   *     format line. The second must contain an SSA header that will be assumed common to all
+   *     samples.
    */
   public SsaDecoder(List<byte[]> initializationData) {
     super("SsaDecoder");
-    if (initializationData != null) {
+    if (initializationData != null && !initializationData.isEmpty()) {
       haveInitializationData = true;
       String formatLine = new String(initializationData.get(0));
       Assertions.checkArgument(formatLine.startsWith(FORMAT_LINE_PREFIX));

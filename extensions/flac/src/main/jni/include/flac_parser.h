@@ -86,8 +86,8 @@ class FLACParser {
  private:
   DataSource *mDataSource;
 
-  void (*mCopy)(int16_t *dst, const int *const *src, unsigned nSamples,
-                unsigned nChannels);
+  void (*mCopy)(int8_t *dst, const int *const *src, unsigned bytesPerSample,
+                unsigned nSamples, unsigned nChannels);
 
   // handle to underlying libFLAC parser
   FLAC__StreamDecoder *mDecoder;

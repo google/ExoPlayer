@@ -1,5 +1,75 @@
 # Release notes #
 
+### 2.6.0 ###
+
+* Removed "r" prefix from versions. This release is "2.6.0", not "r2.6.0".
+* New `Player.DefaultEventListener` abstract class can be extended to avoid
+  having to implement all methods defined by `Player.EventListener`.
+* Added a reason to `EventListener.onPositionDiscontinuity`
+  ([#3252](https://github.com/google/ExoPlayer/issues/3252)).
+* New `setShuffleModeEnabled` method for enabling shuffled playback.
+* SimpleExoPlayer: Support for multiple video, text and metadata outputs.
+* Support for `Renderer`s that don't consume any media
+  ([#3212](https://github.com/google/ExoPlayer/issues/3212)).
+* Fix reporting of internal position discontinuities via
+  `Player.onPositionDiscontinuity`. `DISCONTINUITY_REASON_SEEK_ADJUSTMENT` is
+  added to disambiguate position adjustments during seeks from other types of
+  internal position discontinuity.
+* Fix potential `IndexOutOfBoundsException` when calling `ExoPlayer.getDuration`
+  ([#3362](https://github.com/google/ExoPlayer/issues/3362)).
+* Fix playbacks involving looping, concatenation and ads getting stuck when
+  media contains tracks with uneven durations
+  ([#1874](https://github.com/google/ExoPlayer/issues/1874)).
+* Fix issue with `ContentDataSource` when reading from certain `ContentProvider`
+  implementations ([#3426](https://github.com/google/ExoPlayer/issues/3426)).
+* Better playback experience when the video decoder cannot keep up, by skipping
+  to key-frames. This is particularly relevant for variable speed playbacks.
+* Allow `SingleSampleMediaSource` to suppress load errors
+  ([#3140](https://github.com/google/ExoPlayer/issues/3140)).
+* `DynamicConcatenatingMediaSource`: Allow specifying a callback to be invoked
+  after a dynamic playlist modification has been applied
+  ([#3407](https://github.com/google/ExoPlayer/issues/3407)).
+* Audio: New `AudioSink` interface allows customization of audio output path.
+* Offline: Added `Downloader` implementations for DASH, HLS, SmoothStreaming
+  and progressive streams.
+* Track selection:
+  * Fixed adaptive track selection logic for live playbacks
+    ([#3017](https://github.com/google/ExoPlayer/issues/3017)).
+  * Added ability to select the lowest bitrate tracks.
+* DASH:
+  * Don't crash when a malformed or unexpected manifest update occurs
+    ([#2795](https://github.com/google/ExoPlayer/issues/2795)).
+* HLS:
+  * Support for Widevine protected FMP4 variants.
+  * Support CEA-608 in FMP4 variants.
+  * Support extractor injection
+    ([#2748](https://github.com/google/ExoPlayer/issues/2748)).
+* DRM:
+  * Improved compatibility with ClearKey content
+    ([#3138](https://github.com/google/ExoPlayer/issues/3138)).
+  * Support multiple PSSH boxes of the same type.
+  * Retry initial provisioning and key requests if they fail
+  * Fix incorrect parsing of non-CENC sinf boxes.
+* IMA extension:
+  * Expose `AdsLoader` via getter
+    ([#3322](https://github.com/google/ExoPlayer/issues/3322)).
+  * Handle `setPlayWhenReady` calls during ad playbacks
+    ([#3303](https://github.com/google/ExoPlayer/issues/3303)).
+  * Ignore seeks if an ad is playing
+    ([#3309](https://github.com/google/ExoPlayer/issues/3309)).
+  * Improve robustness of `ImaAdsLoader` in case content is not paused between
+    content to ad transitions
+    ([#3430](https://github.com/google/ExoPlayer/issues/3430)).
+* UI:
+  * Allow specifying a `Drawable` for the `TimeBar` scrubber
+    ([#3337](https://github.com/google/ExoPlayer/issues/3337)).
+  * Allow multiple listeners on `TimeBar`
+    ([#3406](https://github.com/google/ExoPlayer/issues/3406)).
+* New Leanback extension: Simplifies binding Exoplayer to Leanback UI
+  components.
+* Unit tests moved to Robolectric.
+* Misc bugfixes.
+
 ### r2.5.4 ###
 
 * Remove unnecessary media playlist fetches during playback of live HLS streams.
