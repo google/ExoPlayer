@@ -33,9 +33,31 @@ public class FakeMediaPeriod implements MediaPeriod {
   private final TrackGroupArray trackGroupArray;
 
   private boolean preparedPeriod;
+  private long seekOffsetUs;
+  private long discontinuityPositionUs;
 
   public FakeMediaPeriod(TrackGroupArray trackGroupArray) {
     this.trackGroupArray = trackGroupArray;
+    discontinuityPositionUs = C.TIME_UNSET;
+  }
+
+  /**
+   * Sets a discontinuity position to be returned from the next call to
+   * {@link #readDiscontinuity()}.
+   *
+   * @param discontinuityPositionUs The position to be returned, in microseconds.
+   */
+  public void setDiscontinuityPositionUs(long discontinuityPositionUs) {
+    this.discontinuityPositionUs = discontinuityPositionUs;
+  }
+
+  /**
+   * Sets an offset to be applied to positions returned by {@link #seekToUs(long)}.
+   *
+   * @param seekOffsetUs The offset to be applied, in microseconds.
+   */
+  public void setSeekToUsOffset(long seekOffsetUs) {
+    this.seekOffsetUs = seekOffsetUs;
   }
 
   public void release() {
@@ -92,7 +114,9 @@ public class FakeMediaPeriod implements MediaPeriod {
   @Override
   public long readDiscontinuity() {
     Assert.assertTrue(preparedPeriod);
-    return C.TIME_UNSET;
+    long positionDiscontinuityUs = this.discontinuityPositionUs;
+    this.discontinuityPositionUs = C.TIME_UNSET;
+    return positionDiscontinuityUs;
   }
 
   @Override
@@ -104,7 +128,7 @@ public class FakeMediaPeriod implements MediaPeriod {
   @Override
   public long seekToUs(long positionUs) {
     Assert.assertTrue(preparedPeriod);
-    return positionUs;
+    return positionUs + seekOffsetUs;
   }
 
   @Override

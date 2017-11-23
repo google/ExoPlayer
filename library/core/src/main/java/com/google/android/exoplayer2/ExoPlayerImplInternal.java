@@ -509,10 +509,14 @@ import java.io.IOException;
     long periodPositionUs = playingPeriodHolder.mediaPeriod.readDiscontinuity();
     if (periodPositionUs != C.TIME_UNSET) {
       resetRendererPosition(periodPositionUs);
-      playbackInfo = playbackInfo.fromNewPosition(playbackInfo.periodId, periodPositionUs,
-          playbackInfo.contentPositionUs);
-      eventHandler.obtainMessage(MSG_POSITION_DISCONTINUITY, Player.DISCONTINUITY_REASON_INTERNAL,
-          0, playbackInfo).sendToTarget();
+      // A MediaPeriod may report a discontinuity at the current playback position to ensure the
+      // renderers are flushed. Only report the discontinuity externally if the position changed.
+      if (periodPositionUs != playbackInfo.positionUs) {
+        playbackInfo = playbackInfo.fromNewPosition(playbackInfo.periodId, periodPositionUs,
+            playbackInfo.contentPositionUs);
+        eventHandler.obtainMessage(MSG_POSITION_DISCONTINUITY, Player.DISCONTINUITY_REASON_INTERNAL,
+            0, playbackInfo).sendToTarget();
+      }
     } else {
       rendererPositionUs = mediaClock.syncAndGetPositionUs();
       periodPositionUs = playingPeriodHolder.toPeriodTime(rendererPositionUs);
