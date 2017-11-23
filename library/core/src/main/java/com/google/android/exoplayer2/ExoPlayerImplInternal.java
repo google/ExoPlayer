@@ -766,7 +766,7 @@ import java.io.IOException;
   }
 
   private void stopInternal() {
-    resetInternal(/* releaseMediaSource= */ false, /* resetPosition= */ false);
+    resetInternal(/* releaseMediaSource= */ true, /* resetPosition= */ false);
     loadControl.onStopped();
     setState(Player.STATE_IDLE);
   }
