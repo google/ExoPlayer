@@ -4,7 +4,7 @@ title: Demo application
 weight: 2
 ---
 
-The ExoPlayer demo app serves two primary purposes:
+ExoPlayer's main demo app serves two primary purposes:
 
 1. To provide a relatively simple yet fully featured example of ExoPlayer usage.
    The demo app can be used as a convenient starting point from which to develop
@@ -17,8 +17,8 @@ how to use it to play your own media.
 
 ## Getting the code ##
 
-The source code for the demo app can be found in the `demo` folder of our
-[GitHub project][]. If you haven't already done so, clone the project into a
+The source code for the main demo app can be found in the `demos/main` folder of
+our [GitHub project][]. If you haven't already done so, clone the project into a
 local directory:
 
 {% highlight shell %}
@@ -91,9 +91,10 @@ app. The schema is as follows, where [O] indicates an optional attribute.
         "uri": "The URI/URL of the sample",
         "extension": "[O] Sample type hint. Values: mpd, ism, m3u8",
         "prefer_extension_decoders": "[O] Boolean to prefer extension decoders",
-        "drm_scheme": "[O] Drm scheme if protected. Values: widevine, playready",
+        "drm_scheme": "[O] Drm scheme if protected. Values: widevine, playready, clearkey",
         "drm_license_url": "[O] URL of the license server if protected",
-        "drm_key_request_properties": "[O] Key request headers if protected"
+        "drm_key_request_properties": "[O] Key request headers if protected",
+        "drm_multi_session": "[O] Enables key rotation if protected"
       },
       ...etc
     ]
@@ -112,9 +113,10 @@ Playlists of samples can be specified using the schema:
       {
         "name": "Name of playlist sample",
         "prefer_extension_decoders": "[O] Boolean to prefer extension decoders",
-        "drm_scheme": "[O] Drm scheme if protected. Values: widevine, playready",
+        "drm_scheme": "[O] Drm scheme if protected. Values: widevine, playready, clearkey",
         "drm_license_url": "[O] URL of the license server if protected",
-        "drm_key_request_properties": "[O] Key request headers if protected"
+        "drm_key_request_properties": "[O] Key request headers if protected",
+        "drm_multi_session": "[O] Enables key rotation if protected"
         "playlist": [
           {
             "uri": "The URI/URL of the first sample in the playlist",
@@ -182,6 +184,7 @@ Supported optional extras for a single sample intent are:
 * `drm_license_url` [String] Url of the license server if protected
 * `drm_key_request_properties` [String array] Key request headers packed as
   name1, value1, name2, value2 etc. if protected
+* `drm_multi_session`: [Boolean] Enables key rotation if protected
 
 When using `adb shell am start` to fire an intent, an optional string extra can
 be set with `--es` (e.g., `--es extension mpd`). An optional boolean extra can
@@ -202,8 +205,8 @@ Supported optional extras for a playlist intent are:
 
 * `extension_list` [String array] Sample type hints. Entries may be empty or one
   of: mpd, ism, m3u8
-* `prefer_extension_decoders`, `drm_scheme_uuid`, `drm_license_url` and
-  `drm_key_request_properties`, all as described above
+* `prefer_extension_decoders`, `drm_scheme_uuid`, `drm_license_url`,
+  `drm_key_request_properties` and `drm_multi_session`, all as described above
 
 [GitHub project]: https://github.com/google/ExoPlayer
 [FAQ - Does ExoPlayer support emulators?]: https://google.github.io/ExoPlayer/faqs.html#does-exoplayer-support-emulators

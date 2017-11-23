@@ -19,19 +19,13 @@ minimal code. It also provides low level media APIs such as [`MediaCodec`][],
 player solutions.
 
 ExoPlayer is an open source, application level media player built on top of
-Android's low level media APIs. The open source project contains both the
-ExoPlayer library and a demo app:
-
-* [ExoPlayer library][] &ndash; This part of the project contains the core
-  library classes.
-* [Demo app][] &ndash; This part of the project demonstrates usage of ExoPlayer.
-
-This guide describes the ExoPlayer library and its use. It refers to code in the
-demo app in order to provide concrete examples. The guide touches on the pros
-and cons of using ExoPlayer. It shows how to use ExoPlayer to play DASH,
-SmoothStreaming and HLS adaptive streams, as well as formats such as MP4, M4A,
-FMP4, WebM, MKV, MP3, Ogg, WAV, MPEG-TS, MPEG-PS, FLV and ADTS (AAC). It also
-discusses ExoPlayer events, messages, customization and DRM support.
+Android's low level media APIs. This guide describes the ExoPlayer library and
+its use. It refers to code in ExoPlayer's [main demo app][] in order to provide
+concrete examples. The guide touches on the pros and cons of using ExoPlayer.
+It shows how to use ExoPlayer to play DASH, SmoothStreaming and HLS adaptive
+streams, as well as formats such as MP4, M4A, FMP4, WebM, MKV, MP3, Ogg, WAV,
+MPEG-TS, MPEG-PS, FLV and ADTS (AAC). It also discusses ExoPlayer events,
+messages, customization and DRM support.
 
 ## Pros and cons ##
 
@@ -117,7 +111,7 @@ the following steps:
 1. Release the player when done.
 
 These steps are outlined in more detail below. For a complete example, refer to
-`PlayerActivity` in the ExoPlayer demo app.
+`PlayerActivity` in the [main demo app][].
 
 ### Add ExoPlayer as a dependency ###
 
@@ -260,7 +254,7 @@ In ExoPlayer every piece of media is represented by `MediaSource`. The ExoPlayer
 library provides `MediaSource` implementations for DASH (`DashMediaSource`),
 SmoothStreaming (`SsMediaSource`), HLS (`HlsMediaSource`) and regular media
 files (`ExtractorMediaSource`). Examples of how to instantiate all four can be
-found in `PlayerActivity` in the ExoPlayer demo app.
+found in `PlayerActivity` in the [main demo app][].
 
 {% include infobox.html content="`MediaSource` instances are not designed to be
 re-used. If you want to prepare a player more than once with the same piece of
@@ -464,7 +458,7 @@ library. Here are some use cases for building custom components:
 ## Digital Rights Management ##
 
 On Android 4.4 (API level 19) and higher, ExoPlayer supports Digital Rights
-Managment (DRM) protected playback. In order to play DRM protected content with
+Management (DRM) protected playback. In order to play DRM protected content with
 ExoPlayer, your app must inject a `DrmSessionManager` when instantiating the
 player. `ExoPlayerFactory` provides factory methods allowing this. A
 `DrmSessionManager` object is responsible for providing `DrmSession` instances,
@@ -478,7 +472,7 @@ All Android devices are required to support Widevine modular DRM (with L3
 security, although many devices also support L1). Some devices may support
 additional schemes such as PlayReady. All Android TV devices support PlayReady.
 
-`PlayerActivity` in the ExoPlayer demo app demonstrates how a
+`PlayerActivity` in the [main demo app][] demonstrates how a
 `DefaultDrmSessionManager` can be created and injected when instantiating the
 player.
 
@@ -486,7 +480,7 @@ player.
 [IMA extension]: https://github.com/google/ExoPlayer/tree/release-v2/extensions/ima
 [Interactive Media Ads SDK]: https://developers.google.com/interactive-media-ads
 [ExoPlayer library]: https://github.com/google/ExoPlayer/tree/release-v2/library
-[Demo app]: https://github.com/google/ExoPlayer/tree/release-v2/demo
+[main demo app]: https://github.com/google/ExoPlayer/tree/release-v2/demos/main
 [`MediaPlayer`]: {{ site.sdkurl }}/android/media/MediaPlayer.html
 [`MediaCodec`]: {{ site.sdkurl }}/android/media/MediaCodec.html
 [`AudioTrack`]: {{ site.sdkurl }}/android/media/AudioTrack.html

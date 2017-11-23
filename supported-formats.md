@@ -51,6 +51,7 @@ audio and video sample formats must also be supported (see the
 | **Content protection** |||
 | Widevine | YES | API 19+ ("cenc" scheme) and 24+ ("cbcs", "cbc1" and "cens") |
 | PlayReady SL2000 | YES | Android TV only |
+| ClearKey | YES | API 21+ |
 
 ### SmoothStreaming ###
 
