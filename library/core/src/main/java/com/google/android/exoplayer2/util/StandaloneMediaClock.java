@@ -69,16 +69,6 @@ public final class StandaloneMediaClock implements MediaClock {
     }
   }
 
-  /**
-   * Synchronizes this clock with the current state of {@code clock}.
-   *
-   * @param clock The clock with which to synchronize.
-   */
-  public void synchronize(MediaClock clock) {
-    setPositionUs(clock.getPositionUs());
-    playbackParameters = clock.getPlaybackParameters();
-  }
-
   @Override
   public long getPositionUs() {
     long positionUs = baseUs;

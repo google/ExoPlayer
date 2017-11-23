@@ -17,14 +17,12 @@ package com.google.android.exoplayer2.testutil;
 
 import static junit.framework.Assert.fail;
 
-import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
 import android.net.wifi.WifiManager;
 import android.net.wifi.WifiManager.WifiLock;
 import android.os.Bundle;
 import android.os.ConditionVariable;
-import android.os.Handler;
 import android.os.PowerManager;
 import android.os.PowerManager.WakeLock;
 import android.util.Log;
@@ -57,19 +55,20 @@ public final class HostActivity extends Activity implements SurfaceHolder.Callba
     void onStart(HostActivity host, Surface surface);
 
     /**
-     * Called on the main thread to check whether the test is ready to be stopped.
+     * Called on the main thread to block until the test has stopped or {@link #forceStop()} is
+     * called.
      *
-     * @return Whether the test is ready to be stopped.
+     * @param timeoutMs The maximum time to block in milliseconds.
+     * @return Whether the test has stopped successful.
      */
-    boolean canStop();
+    boolean blockUntilStopped(long timeoutMs);
 
     /**
-     * Called on the main thread when the test is stopped.
-     * <p>
-     * The test will be stopped if {@link #canStop()} returns true, if the {@link HostActivity} has
-     * been paused, or if the {@link HostActivity}'s {@link Surface} has been destroyed.
+     * Called on the main thread to force stop the test (if it is not stopped already).
+     *
+     * @return Whether the test was forced stopped.
      */
-    void onStop();
+    boolean forceStop();
 
     /**
      * Called on the test thread after the test has finished and been stopped.
@@ -85,13 +84,11 @@ public final class HostActivity extends Activity implements SurfaceHolder.Callba
   private WakeLock wakeLock;
   private WifiLock wifiLock;
   private SurfaceView surfaceView;
-  private Handler mainHandler;
-  private CheckCanStopRunnable checkCanStopRunnable;
 
   private HostedTest hostedTest;
-  private ConditionVariable hostedTestStoppedCondition;
   private boolean hostedTestStarted;
-  private boolean hostedTestFinished;
+  private ConditionVariable hostedTestStartedCondition;
+  private boolean forcedStopped;
 
   /**
    * Executes a {@link HostedTest} inside the host.
@@ -100,7 +97,7 @@ public final class HostActivity extends Activity implements SurfaceHolder.Callba
    * @param timeoutMs The number of milliseconds to wait for the test to finish. If the timeout
    *     is exceeded then the test will fail.
    */
-  public void runTest(final HostedTest hostedTest, long timeoutMs) {
+  public void runTest(HostedTest hostedTest, long timeoutMs) {
     runTest(hostedTest, timeoutMs, true);
   }
 
@@ -114,40 +111,46 @@ public final class HostActivity extends Activity implements SurfaceHolder.Callba
   public void runTest(final HostedTest hostedTest, long timeoutMs, boolean failOnTimeout) {
     Assertions.checkArgument(timeoutMs > 0);
     Assertions.checkState(Thread.currentThread() != getMainLooper().getThread());
-
     Assertions.checkState(this.hostedTest == null);
-    this.hostedTest = Assertions.checkNotNull(hostedTest);
-    hostedTestStoppedCondition = new ConditionVariable();
+    Assertions.checkNotNull(hostedTest);
+    hostedTestStartedCondition = new ConditionVariable();
+    forcedStopped = false;
     hostedTestStarted = false;
-    hostedTestFinished = false;
 
     runOnUiThread(new Runnable() {
       @Override
       public void run() {
+        HostActivity.this.hostedTest = hostedTest;
         maybeStartHostedTest();
       }
     });
+    hostedTestStartedCondition.block();
 
-    if (hostedTestStoppedCondition.block(timeoutMs)) {
-      if (hostedTestFinished) {
-        Log.d(TAG, "Test finished. Checking pass conditions.");
+    if (hostedTest.blockUntilStopped(timeoutMs)) {
+      if (!forcedStopped) {
+        Log.d(TAG, "Checking test pass conditions.");
         hostedTest.onFinished();
         Log.d(TAG, "Pass conditions checked.");
       } else {
-        String message = "Test released before it finished. Activity may have been paused whilst "
+        String message = "Test force stopped. Activity may have been paused whilst "
             + "test was in progress.";
         Log.e(TAG, message);
         fail(message);
       }
     } else {
+      runOnUiThread(new Runnable() {
+        @Override
+        public void run() {
+          hostedTest.forceStop();
+        }
+      });
       String message = "Test timed out after " + timeoutMs + " ms.";
       Log.e(TAG, message);
       if (failOnTimeout) {
         fail(message);
       }
-      maybeStopHostedTest();
-      hostedTestStoppedCondition.block();
     }
+    this.hostedTest = null;
   }
 
   // Activity lifecycle
@@ -157,18 +160,16 @@ public final class HostActivity extends Activity implements SurfaceHolder.Callba
     super.onCreate(savedInstanceState);
     requestWindowFeature(Window.FEATURE_NO_TITLE);
     setContentView(getResources().getIdentifier("host_activity", "layout", getPackageName()));
-    surfaceView = (SurfaceView) findViewById(
+    surfaceView = findViewById(
         getResources().getIdentifier("surface_view", "id", getPackageName()));
     surfaceView.getHolder().addCallback(this);
-    mainHandler = new Handler();
-    checkCanStopRunnable = new CheckCanStopRunnable();
   }
 
   @Override
   public void onStart() {
     Context appContext = getApplicationContext();
     WifiManager wifiManager = (WifiManager) appContext.getSystemService(Context.WIFI_SERVICE);
-    wifiLock = wifiManager.createWifiLock(getWifiLockMode(), TAG);
+    wifiLock = wifiManager.createWifiLock(WifiManager.WIFI_MODE_FULL_HIGH_PERF, TAG);
     wifiLock.acquire();
     PowerManager powerManager = (PowerManager) appContext.getSystemService(Context.POWER_SERVICE);
     wakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, TAG);
@@ -177,20 +178,19 @@ public final class HostActivity extends Activity implements SurfaceHolder.Callba
   }
 
   @Override
-  public void onResume() {
-    super.onResume();
-    maybeStartHostedTest();
-  }
-
-  @Override
   public void onPause() {
     super.onPause();
-    maybeStopHostedTest();
+    if (Util.SDK_INT <= 23) {
+      maybeStopHostedTest();
+    }
   }
 
   @Override
   public void onStop() {
     super.onStop();
+    if (Util.SDK_INT > 23) {
+      maybeStopHostedTest();
+    }
     wakeLock.release();
     wakeLock = null;
     wifiLock.release();
@@ -225,50 +225,14 @@ public final class HostActivity extends Activity implements SurfaceHolder.Callba
       hostedTestStarted = true;
       Log.d(TAG, "Starting test.");
       hostedTest.onStart(this, surface);
-      checkCanStopRunnable.startChecking();
+      hostedTestStartedCondition.open();
     }
   }
 
   private void maybeStopHostedTest() {
-    if (hostedTest != null && hostedTestStarted) {
-      hostedTest.onStop();
-      hostedTest = null;
-      mainHandler.removeCallbacks(checkCanStopRunnable);
-      // We post opening of the stopped condition so that any events posted to the main thread as a
-      // result of hostedTest.onStop() are guaranteed to be handled before hostedTest.onFinished()
-      // is called from runTest.
-      mainHandler.post(new Runnable() {
-        @Override
-        public void run() {
-          hostedTestStoppedCondition.open();
-        }
-      });
+    if (hostedTest != null && hostedTestStarted && !forcedStopped) {
+      forcedStopped = hostedTest.forceStop();
     }
-  }
-
-  @SuppressLint("InlinedApi")
-  private static int getWifiLockMode() {
-    return Util.SDK_INT < 12 ? WifiManager.WIFI_MODE_FULL : WifiManager.WIFI_MODE_FULL_HIGH_PERF;
-  }
-
-  private final class CheckCanStopRunnable implements Runnable {
-
-    private static final long CHECK_INTERVAL_MS = 1000;
-
-    private void startChecking() {
-      mainHandler.post(this);
-    }
-
-    @Override
-    public void run() {
-      if (hostedTest.canStop()) {
-        hostedTestFinished = true;
-        maybeStopHostedTest();
-      } else {
-        mainHandler.postDelayed(this, CHECK_INTERVAL_MS);
-      }
-    }
-
   }
 
 }

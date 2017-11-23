@@ -54,12 +54,17 @@ public interface ChunkSource {
    * end of the stream has not been reached, the {@link ChunkHolder} is not modified.
    *
    * @param previous The most recently loaded media chunk.
-   * @param playbackPositionUs The current playback position. If {@code previous} is null then this
-   *     parameter is the position from which playback is expected to start (or restart) and hence
-   *     should be interpreted as a seek position.
+   * @param playbackPositionUs The current playback position in microseconds. If playback of the
+   *     period to which this chunk source belongs has not yet started, the value will be the
+   *     starting position in the period minus the duration of any media in previous periods still
+   *     to be played.
+   * @param loadPositionUs The current load position in microseconds. If {@code previous} is null,
+   *     this is the starting position from which chunks should be provided. Else it's equal to
+   *     {@code previous.endTimeUs}.
    * @param out A holder to populate.
    */
-  void getNextChunk(MediaChunk previous, long playbackPositionUs, ChunkHolder out);
+  void getNextChunk(MediaChunk previous, long playbackPositionUs, long loadPositionUs,
+      ChunkHolder out);
 
   /**
    * Called when the {@link ChunkSampleStream} has finished loading a chunk obtained from this
@@ -80,7 +85,8 @@ public interface ChunkSource {
    * @param chunk The chunk whose load encountered the error.
    * @param cancelable Whether the load can be canceled.
    * @param e The error.
-   * @return Whether the load should be canceled.
+   * @return Whether the load should be canceled. Should always be false if {@code cancelable} is
+   *     false.
    */
   boolean onChunkLoadError(Chunk chunk, boolean cancelable, Exception e);
 

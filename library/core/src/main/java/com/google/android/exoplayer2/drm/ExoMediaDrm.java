@@ -15,19 +15,55 @@
  */
 package com.google.android.exoplayer2.drm;
 
+import android.annotation.TargetApi;
 import android.media.DeniedByServerException;
 import android.media.MediaCryptoException;
 import android.media.MediaDrm;
+import android.media.MediaDrmException;
 import android.media.NotProvisionedException;
-import android.media.ResourceBusyException;
+import android.os.Handler;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
 /**
  * Used to obtain keys for decrypting protected media streams. See {@link android.media.MediaDrm}.
  */
+@TargetApi(18)
 public interface ExoMediaDrm<T extends ExoMediaCrypto> {
+
+  /**
+   * @see MediaDrm#EVENT_KEY_REQUIRED
+   */
+  @SuppressWarnings("InlinedApi")
+  int EVENT_KEY_REQUIRED = MediaDrm.EVENT_KEY_REQUIRED;
+  /**
+   * @see MediaDrm#EVENT_KEY_EXPIRED
+   */
+  @SuppressWarnings("InlinedApi")
+  int EVENT_KEY_EXPIRED = MediaDrm.EVENT_KEY_EXPIRED;
+  /**
+   * @see MediaDrm#EVENT_PROVISION_REQUIRED
+   */
+  @SuppressWarnings("InlinedApi")
+  int EVENT_PROVISION_REQUIRED = MediaDrm.EVENT_PROVISION_REQUIRED;
+
+  /**
+   * @see MediaDrm#KEY_TYPE_STREAMING
+   */
+  @SuppressWarnings("InlinedApi")
+  int KEY_TYPE_STREAMING = MediaDrm.KEY_TYPE_STREAMING;
+  /**
+   * @see MediaDrm#KEY_TYPE_OFFLINE
+   */
+  @SuppressWarnings("InlinedApi")
+  int KEY_TYPE_OFFLINE = MediaDrm.KEY_TYPE_OFFLINE;
+  /**
+   * @see MediaDrm#KEY_TYPE_RELEASE
+   */
+  @SuppressWarnings("InlinedApi")
+  int KEY_TYPE_RELEASE = MediaDrm.KEY_TYPE_RELEASE;
 
   /**
    * @see android.media.MediaDrm.OnEventListener
@@ -47,11 +83,86 @@ public interface ExoMediaDrm<T extends ExoMediaCrypto> {
   }
 
   /**
+   * @see android.media.MediaDrm.OnKeyStatusChangeListener
+   */
+  interface OnKeyStatusChangeListener<T extends ExoMediaCrypto> {
+    /**
+     * Called when the keys in a session change status, such as when the license is renewed or
+     * expires.
+     *
+     * @param mediaDrm the {@link ExoMediaDrm} object on which the event occurred.
+     * @param sessionId the DRM session ID on which the event occurred.
+     * @param exoKeyInfo a list of {@link KeyStatus} that contains key ID and status.
+     * @param hasNewUsableKey true if new key becomes usable.
+     */
+    void onKeyStatusChange(ExoMediaDrm<? extends T> mediaDrm, byte[] sessionId,
+                           List<KeyStatus> exoKeyInfo, boolean hasNewUsableKey);
+  }
+
+  /**
+   * @see android.media.MediaDrm.KeyStatus
+   */
+  interface KeyStatus {
+    int getStatusCode();
+    byte[] getKeyId();
+  }
+
+  /**
+   * Default implementation of {@link KeyStatus}.
+   */
+  final class DefaultKeyStatus implements KeyStatus {
+
+    private final int statusCode;
+    private final byte[] keyId;
+
+    DefaultKeyStatus(int statusCode, byte[] keyId) {
+      this.statusCode = statusCode;
+      this.keyId = keyId;
+    }
+
+    @Override
+    public int getStatusCode() {
+      return statusCode;
+    }
+
+    @Override
+    public byte[] getKeyId() {
+      return keyId;
+    }
+
+  }
+
+  /**
    * @see android.media.MediaDrm.KeyRequest
    */
   interface KeyRequest {
     byte[] getData();
     String getDefaultUrl();
+  }
+
+  /**
+   * Default implementation of {@link KeyRequest}.
+   */
+  final class DefaultKeyRequest implements KeyRequest {
+
+    private final byte[] data;
+    private final String defaultUrl;
+
+    public DefaultKeyRequest(byte[] data, String defaultUrl) {
+      this.data = data;
+      this.defaultUrl = defaultUrl;
+    }
+
+    @Override
+    public byte[] getData() {
+      return data;
+    }
+
+    @Override
+    public String getDefaultUrl() {
+      return defaultUrl;
+    }
+
   }
 
   /**
@@ -63,14 +174,44 @@ public interface ExoMediaDrm<T extends ExoMediaCrypto> {
   }
 
   /**
+   * Default implementation of {@link ProvisionRequest}.
+   */
+  final class DefaultProvisionRequest implements ProvisionRequest {
+
+    private final byte[] data;
+    private final String defaultUrl;
+
+    public DefaultProvisionRequest(byte[] data, String defaultUrl) {
+      this.data = data;
+      this.defaultUrl = defaultUrl;
+    }
+
+    @Override
+    public byte[] getData() {
+      return data;
+    }
+
+    @Override
+    public String getDefaultUrl() {
+      return defaultUrl;
+    }
+
+  }
+
+  /**
    * @see MediaDrm#setOnEventListener(MediaDrm.OnEventListener)
    */
   void setOnEventListener(OnEventListener<? super T> listener);
 
   /**
+   * @see MediaDrm#setOnKeyStatusChangeListener(MediaDrm.OnKeyStatusChangeListener, Handler)
+   */
+  void setOnKeyStatusChangeListener(OnKeyStatusChangeListener<? super T> listener);
+
+  /**
    * @see MediaDrm#openSession()
    */
-  byte[] openSession() throws NotProvisionedException, ResourceBusyException;
+  byte[] openSession() throws MediaDrmException;
 
   /**
    * @see MediaDrm#closeSession(byte[])
@@ -137,11 +278,10 @@ public interface ExoMediaDrm<T extends ExoMediaCrypto> {
   /**
    * @see android.media.MediaCrypto#MediaCrypto(UUID, byte[])
    *
-   * @param uuid The UUID of the crypto scheme.
    * @param initData Opaque initialization data specific to the crypto scheme.
    * @return An object extends {@link ExoMediaCrypto}, using opaque crypto scheme specific data.
-   * @throws MediaCryptoException
+   * @throws MediaCryptoException If the instance can't be created.
    */
-  T createMediaCrypto(UUID uuid, byte[] initData) throws MediaCryptoException;
+  T createMediaCrypto(byte[] initData) throws MediaCryptoException;
 
 }

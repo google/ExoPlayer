@@ -55,7 +55,7 @@ public interface Player {
      * Note that if the timeline has changed then a position discontinuity may also have occurred.
      * For example, the current period index may have changed as a result of periods being added or
      * removed from the timeline. This will <em>not</em> be reported via a separate call to
-     * {@link #onPositionDiscontinuity()}.
+     * {@link #onPositionDiscontinuity(int)}.
      *
      * @param timeline The latest timeline. Never null, but may be empty.
      * @param manifest The latest manifest. May be null.
@@ -95,6 +95,13 @@ public interface Player {
     void onRepeatModeChanged(@RepeatMode int repeatMode);
 
     /**
+     * Called when the value of {@link #getShuffleModeEnabled()} changes.
+     *
+     * @param shuffleModeEnabled Whether shuffling of windows is enabled.
+     */
+    void onShuffleModeEnabledChanged(boolean shuffleModeEnabled);
+
+    /**
      * Called when an error occurs. The playback state will transition to {@link #STATE_IDLE}
      * immediately after this method is called. The player instance can still be used, and
      * {@link #release()} must still be called on the player should it no longer be required.
@@ -112,8 +119,10 @@ public interface Player {
      * <p>
      * When a position discontinuity occurs as a result of a change to the timeline this method is
      * <em>not</em> called. {@link #onTimelineChanged(Timeline, Object)} is called in this case.
+     *
+     * @param reason The {@link DiscontinuityReason} responsible for the discontinuity.
      */
-    void onPositionDiscontinuity();
+    void onPositionDiscontinuity(@DiscontinuityReason int reason);
 
     /**
      * Called when the current playback parameters change. The playback parameters may change due to
@@ -124,6 +133,70 @@ public interface Player {
      * @param playbackParameters The playback parameters.
      */
     void onPlaybackParametersChanged(PlaybackParameters playbackParameters);
+
+    /**
+     * Called when all pending seek requests have been processed by the player. This is guaranteed
+     * to happen after any necessary changes to the player state were reported to
+     * {@link #onPlayerStateChanged(boolean, int)}.
+     */
+    void onSeekProcessed();
+
+  }
+
+  /**
+   * {@link EventListener} allowing selective overrides. All methods are implemented as no-ops.
+   */
+  abstract class DefaultEventListener implements EventListener {
+
+    @Override
+    public void onTimelineChanged(Timeline timeline, Object manifest) {
+      // Do nothing.
+    }
+
+    @Override
+    public void onTracksChanged(TrackGroupArray trackGroups, TrackSelectionArray trackSelections) {
+      // Do nothing.
+    }
+
+    @Override
+    public void onLoadingChanged(boolean isLoading) {
+      // Do nothing.
+    }
+
+    @Override
+    public void onPlayerStateChanged(boolean playWhenReady, int playbackState) {
+      // Do nothing.
+    }
+
+    @Override
+    public void onRepeatModeChanged(@RepeatMode int repeatMode) {
+      // Do nothing.
+    }
+
+    @Override
+    public void onShuffleModeEnabledChanged(boolean shuffleModeEnabled) {
+      // Do nothing.
+    }
+
+    @Override
+    public void onPlayerError(ExoPlaybackException error) {
+      // Do nothing.
+    }
+
+    @Override
+    public void onPositionDiscontinuity(@DiscontinuityReason int reason) {
+      // Do nothing.
+    }
+
+    @Override
+    public void onPlaybackParametersChanged(PlaybackParameters playbackParameters) {
+      // Do nothing.
+    }
+
+    @Override
+    public void onSeekProcessed() {
+      // Do nothing.
+    }
 
   }
 
@@ -164,6 +237,32 @@ public interface Player {
    * "Repeat All" mode to repeat the entire timeline infinitely.
    */
   int REPEAT_MODE_ALL = 2;
+
+  /**
+   * Reasons for position discontinuities.
+   */
+  @Retention(RetentionPolicy.SOURCE)
+  @IntDef({DISCONTINUITY_REASON_PERIOD_TRANSITION, DISCONTINUITY_REASON_SEEK,
+      DISCONTINUITY_REASON_SEEK_ADJUSTMENT, DISCONTINUITY_REASON_INTERNAL})
+  public @interface DiscontinuityReason {}
+  /**
+   * Automatic playback transition from one period in the timeline to the next. The period index may
+   * be the same as it was before the discontinuity in case the current period is repeated.
+   */
+  int DISCONTINUITY_REASON_PERIOD_TRANSITION = 0;
+  /**
+   * Seek within the current period or to another period.
+   */
+  int DISCONTINUITY_REASON_SEEK = 1;
+  /**
+   * Seek adjustment due to being unable to seek to the requested position or because the seek was
+   * permitted to be inexact.
+   */
+  int DISCONTINUITY_REASON_SEEK_ADJUSTMENT = 2;
+  /**
+   * Discontinuity introduced internally by the source.
+   */
+  int DISCONTINUITY_REASON_INTERNAL = 3;
 
   /**
    * Register a listener to receive events from the player. The listener's methods will be called on
@@ -218,6 +317,18 @@ public interface Player {
    * @return The current repeat mode.
    */
   @RepeatMode int getRepeatMode();
+
+  /**
+   * Sets whether shuffling of windows is enabled.
+   *
+   * @param shuffleModeEnabled Whether shuffling is enabled.
+   */
+  void setShuffleModeEnabled(boolean shuffleModeEnabled);
+
+  /**
+   * Returns whether shuffling of windows is enabled.
+   */
+  boolean getShuffleModeEnabled();
 
   /**
    * Whether the player is currently loading the source.
@@ -343,6 +454,20 @@ public interface Player {
    * Returns the index of the window currently being played.
    */
   int getCurrentWindowIndex();
+
+  /**
+   * Returns the index of the next timeline window to be played, which may depend on the current
+   * repeat mode and whether shuffle mode is enabled. Returns {@link C#INDEX_UNSET} if the window
+   * currently being played is the last window.
+   */
+  int getNextWindowIndex();
+
+  /**
+   * Returns the index of the previous timeline window to be played, which may depend on the current
+   * repeat mode and whether shuffle mode is enabled. Returns {@link C#INDEX_UNSET} if the window
+   * currently being played is the first window.
+   */
+  int getPreviousWindowIndex();
 
   /**
    * Returns the duration of the current window in milliseconds, or {@link C#TIME_UNSET} if the

@@ -15,20 +15,22 @@
  */
 package com.google.android.exoplayer2;
 
-import android.util.Pair;
+import com.google.android.exoplayer2.source.ConcatenatingMediaSource;
 import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.source.TrackGroup;
 import com.google.android.exoplayer2.source.TrackGroupArray;
-import com.google.android.exoplayer2.testutil.ExoPlayerWrapper;
+import com.google.android.exoplayer2.testutil.ActionSchedule;
+import com.google.android.exoplayer2.testutil.ExoPlayerTestRunner;
+import com.google.android.exoplayer2.testutil.ExoPlayerTestRunner.Builder;
 import com.google.android.exoplayer2.testutil.FakeMediaClockRenderer;
 import com.google.android.exoplayer2.testutil.FakeMediaSource;
 import com.google.android.exoplayer2.testutil.FakeRenderer;
+import com.google.android.exoplayer2.testutil.FakeShuffleOrder;
 import com.google.android.exoplayer2.testutil.FakeTimeline;
 import com.google.android.exoplayer2.testutil.FakeTimeline.TimelineWindowDefinition;
-import com.google.android.exoplayer2.util.MimeTypes;
-import java.util.LinkedList;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
 import junit.framework.TestCase;
 
 /**
@@ -43,67 +45,59 @@ public final class ExoPlayerTest extends TestCase {
    */
   private static final int TIMEOUT_MS = 10000;
 
-  private static final Format TEST_VIDEO_FORMAT = Format.createVideoSampleFormat(null,
-      MimeTypes.VIDEO_H264, null, Format.NO_VALUE, Format.NO_VALUE, 1280, 720, Format.NO_VALUE,
-      null, null);
-  private static final Format TEST_AUDIO_FORMAT =  Format.createAudioSampleFormat(null,
-      MimeTypes.AUDIO_AAC, null, Format.NO_VALUE, Format.NO_VALUE, 2, 44100, null, null, 0, null);
-
   /**
    * Tests playback of a source that exposes an empty timeline. Playback is expected to end without
    * error.
    */
   public void testPlayEmptyTimeline() throws Exception {
-    ExoPlayerWrapper playerWrapper = new ExoPlayerWrapper();
     Timeline timeline = Timeline.EMPTY;
-    MediaSource mediaSource = new FakeMediaSource(timeline, null);
     FakeRenderer renderer = new FakeRenderer();
-    playerWrapper.setup(mediaSource, renderer);
-    playerWrapper.blockUntilEnded(TIMEOUT_MS);
-    assertEquals(0, playerWrapper.positionDiscontinuityCount);
+    ExoPlayerTestRunner testRunner = new ExoPlayerTestRunner.Builder()
+        .setTimeline(timeline).setRenderers(renderer)
+        .build().start().blockUntilEnded(TIMEOUT_MS);
+    testRunner.assertPositionDiscontinuityCount(0);
+    testRunner.assertTimelinesEqual();
     assertEquals(0, renderer.formatReadCount);
     assertEquals(0, renderer.bufferReadCount);
     assertFalse(renderer.isEnded);
-    playerWrapper.assertSourceInfosEquals(Pair.create(timeline, null));
   }
 
   /**
    * Tests playback of a source that exposes a single period.
    */
   public void testPlaySinglePeriodTimeline() throws Exception {
-    ExoPlayerWrapper playerWrapper = new ExoPlayerWrapper();
     Timeline timeline = new FakeTimeline(new TimelineWindowDefinition(false, false, 0));
     Object manifest = new Object();
-    MediaSource mediaSource = new FakeMediaSource(timeline, manifest, TEST_VIDEO_FORMAT);
-    FakeRenderer renderer = new FakeRenderer(TEST_VIDEO_FORMAT);
-    playerWrapper.setup(mediaSource, renderer);
-    playerWrapper.blockUntilEnded(TIMEOUT_MS);
-    assertEquals(0, playerWrapper.positionDiscontinuityCount);
+    FakeRenderer renderer = new FakeRenderer(Builder.VIDEO_FORMAT);
+    ExoPlayerTestRunner testRunner = new ExoPlayerTestRunner.Builder()
+        .setTimeline(timeline).setManifest(manifest).setRenderers(renderer)
+        .build().start().blockUntilEnded(TIMEOUT_MS);
+    testRunner.assertPositionDiscontinuityCount(0);
+    testRunner.assertTimelinesEqual(timeline);
+    testRunner.assertManifestsEqual(manifest);
+    testRunner.assertTrackGroupsEqual(new TrackGroupArray(new TrackGroup(Builder.VIDEO_FORMAT)));
     assertEquals(1, renderer.formatReadCount);
     assertEquals(1, renderer.bufferReadCount);
     assertTrue(renderer.isEnded);
-    assertEquals(new TrackGroupArray(new TrackGroup(TEST_VIDEO_FORMAT)), playerWrapper.trackGroups);
-    playerWrapper.assertSourceInfosEquals(Pair.create(timeline, manifest));
   }
 
   /**
    * Tests playback of a source that exposes three periods.
    */
   public void testPlayMultiPeriodTimeline() throws Exception {
-    ExoPlayerWrapper playerWrapper = new ExoPlayerWrapper();
     Timeline timeline = new FakeTimeline(
         new TimelineWindowDefinition(false, false, 0),
         new TimelineWindowDefinition(false, false, 0),
         new TimelineWindowDefinition(false, false, 0));
-    MediaSource mediaSource = new FakeMediaSource(timeline, null, TEST_VIDEO_FORMAT);
-    FakeRenderer renderer = new FakeRenderer(TEST_VIDEO_FORMAT);
-    playerWrapper.setup(mediaSource, renderer);
-    playerWrapper.blockUntilEnded(TIMEOUT_MS);
-    assertEquals(2, playerWrapper.positionDiscontinuityCount);
+    FakeRenderer renderer = new FakeRenderer(Builder.VIDEO_FORMAT);
+    ExoPlayerTestRunner testRunner = new ExoPlayerTestRunner.Builder()
+        .setTimeline(timeline).setRenderers(renderer)
+        .build().start().blockUntilEnded(TIMEOUT_MS);
+    testRunner.assertPositionDiscontinuityCount(2);
+    testRunner.assertTimelinesEqual(timeline);
     assertEquals(3, renderer.formatReadCount);
     assertEquals(1, renderer.bufferReadCount);
     assertTrue(renderer.isEnded);
-    playerWrapper.assertSourceInfosEquals(Pair.create(timeline, null));
   }
 
   /**
@@ -111,16 +105,12 @@ public final class ExoPlayerTest extends TestCase {
    * source.
    */
   public void testReadAheadToEndDoesNotResetRenderer() throws Exception {
-    final ExoPlayerWrapper playerWrapper = new ExoPlayerWrapper();
     Timeline timeline = new FakeTimeline(
         new TimelineWindowDefinition(false, false, 10),
         new TimelineWindowDefinition(false, false, 10),
         new TimelineWindowDefinition(false, false, 10));
-    MediaSource mediaSource = new FakeMediaSource(timeline, null, TEST_VIDEO_FORMAT,
-        TEST_AUDIO_FORMAT);
-
-    FakeRenderer videoRenderer = new FakeRenderer(TEST_VIDEO_FORMAT);
-    FakeMediaClockRenderer audioRenderer = new FakeMediaClockRenderer(TEST_AUDIO_FORMAT) {
+    final FakeRenderer videoRenderer = new FakeRenderer(Builder.VIDEO_FORMAT);
+    FakeMediaClockRenderer audioRenderer = new FakeMediaClockRenderer(Builder.AUDIO_FORMAT) {
 
       @Override
       public long getPositionUs() {
@@ -143,35 +133,30 @@ public final class ExoPlayerTest extends TestCase {
 
       @Override
       public boolean isEnded() {
-        // Allow playback to end once the final period is playing.
-        return playerWrapper.positionDiscontinuityCount == 2;
+        return videoRenderer.isEnded();
       }
 
     };
-    playerWrapper.setup(mediaSource, videoRenderer, audioRenderer);
-    playerWrapper.blockUntilEnded(TIMEOUT_MS);
-    assertEquals(2, playerWrapper.positionDiscontinuityCount);
+    ExoPlayerTestRunner testRunner = new ExoPlayerTestRunner.Builder()
+        .setTimeline(timeline).setRenderers(videoRenderer, audioRenderer)
+        .setSupportedFormats(Builder.VIDEO_FORMAT, Builder.AUDIO_FORMAT)
+        .build().start().blockUntilEnded(TIMEOUT_MS);
+    testRunner.assertPositionDiscontinuityCount(2);
+    testRunner.assertTimelinesEqual(timeline);
     assertEquals(1, audioRenderer.positionResetCount);
     assertTrue(videoRenderer.isEnded);
     assertTrue(audioRenderer.isEnded);
-    playerWrapper.assertSourceInfosEquals(Pair.create(timeline, null));
   }
 
   public void testRepreparationGivesFreshSourceInfo() throws Exception {
-    ExoPlayerWrapper playerWrapper = new ExoPlayerWrapper();
     Timeline timeline = new FakeTimeline(new TimelineWindowDefinition(false, false, 0));
-    FakeRenderer renderer = new FakeRenderer(TEST_VIDEO_FORMAT);
-
-    // Prepare the player with a source with the first manifest and a non-empty timeline
+    FakeRenderer renderer = new FakeRenderer(Builder.VIDEO_FORMAT);
     Object firstSourceManifest = new Object();
-    playerWrapper.setup(new FakeMediaSource(timeline, firstSourceManifest, TEST_VIDEO_FORMAT),
-        renderer);
-    playerWrapper.blockUntilSourceInfoRefreshed(TIMEOUT_MS);
-
-    // Prepare the player again with a source and a new manifest, which will never be exposed.
+    MediaSource firstSource = new FakeMediaSource(timeline, firstSourceManifest,
+        Builder.VIDEO_FORMAT);
     final CountDownLatch queuedSourceInfoCountDownLatch = new CountDownLatch(1);
     final CountDownLatch completePreparationCountDownLatch = new CountDownLatch(1);
-    playerWrapper.prepare(new FakeMediaSource(timeline, new Object(), TEST_VIDEO_FORMAT) {
+    MediaSource secondSource = new FakeMediaSource(timeline, new Object(), Builder.VIDEO_FORMAT) {
       @Override
       public void prepareSource(ExoPlayer player, boolean isTopLevelSource, Listener listener) {
         super.prepareSource(player, isTopLevelSource, listener);
@@ -185,29 +170,49 @@ public final class ExoPlayerTest extends TestCase {
           throw new IllegalStateException(e);
         }
       }
-    });
-
-    // Prepare the player again with a third source.
-    queuedSourceInfoCountDownLatch.await();
+    };
     Object thirdSourceManifest = new Object();
-    playerWrapper.prepare(new FakeMediaSource(timeline, thirdSourceManifest, TEST_VIDEO_FORMAT));
-    completePreparationCountDownLatch.countDown();
+    MediaSource thirdSource = new FakeMediaSource(timeline, thirdSourceManifest,
+        Builder.VIDEO_FORMAT);
 
-    // Wait for playback to complete.
-    playerWrapper.blockUntilEnded(TIMEOUT_MS);
-    assertEquals(0, playerWrapper.positionDiscontinuityCount);
-    assertEquals(1, renderer.formatReadCount);
-    assertEquals(1, renderer.bufferReadCount);
-    assertTrue(renderer.isEnded);
-    assertEquals(new TrackGroupArray(new TrackGroup(TEST_VIDEO_FORMAT)), playerWrapper.trackGroups);
-
+    // Prepare the player with a source with the first manifest and a non-empty timeline. Prepare
+    // the player again with a source and a new manifest, which will never be exposed. Allow the
+    // test thread to prepare the player with a third source, and block the playback thread until
+    // the test thread's call to prepare() has returned.
+    ActionSchedule actionSchedule = new ActionSchedule.Builder("testRepreparation")
+        .waitForTimelineChanged(timeline)
+        .prepareSource(secondSource)
+        .executeRunnable(new Runnable() {
+          @Override
+          public void run() {
+            try {
+              queuedSourceInfoCountDownLatch.await();
+            } catch (InterruptedException e) {
+              // Ignore.
+            }
+          }
+        })
+        .prepareSource(thirdSource)
+        .executeRunnable(new Runnable() {
+          @Override
+          public void run() {
+            completePreparationCountDownLatch.countDown();
+          }
+        })
+        .build();
+    ExoPlayerTestRunner testRunner = new ExoPlayerTestRunner.Builder()
+        .setMediaSource(firstSource).setRenderers(renderer).setActionSchedule(actionSchedule)
+        .build().start().blockUntilEnded(TIMEOUT_MS);
+    testRunner.assertPositionDiscontinuityCount(0);
     // The first source's preparation completed with a non-empty timeline. When the player was
     // re-prepared with the second source, it immediately exposed an empty timeline, but the source
     // info refresh from the second source was suppressed as we re-prepared with the third source.
-    playerWrapper.assertSourceInfosEquals(
-        Pair.create(timeline, firstSourceManifest),
-        Pair.create(Timeline.EMPTY, null),
-        Pair.create(timeline, thirdSourceManifest));
+    testRunner.assertTimelinesEqual(timeline, Timeline.EMPTY, timeline);
+    testRunner.assertManifestsEqual(firstSourceManifest, null, thirdSourceManifest);
+    testRunner.assertTrackGroupsEqual(new TrackGroupArray(new TrackGroup(Builder.VIDEO_FORMAT)));
+    assertEquals(1, renderer.formatReadCount);
+    assertEquals(1, renderer.bufferReadCount);
+    assertTrue(renderer.isEnded);
   }
 
   public void testRepeatModeChanges() throws Exception {
@@ -215,49 +220,95 @@ public final class ExoPlayerTest extends TestCase {
         new TimelineWindowDefinition(true, false, 100000),
         new TimelineWindowDefinition(true, false, 100000),
         new TimelineWindowDefinition(true, false, 100000));
-    final int[] actionSchedule = { // 0 -> 1
-        Player.REPEAT_MODE_ONE, // 1 -> 1
-        Player.REPEAT_MODE_OFF, // 1 -> 2
-        Player.REPEAT_MODE_ONE, // 2 -> 2
-        Player.REPEAT_MODE_ALL, // 2 -> 0
-        Player.REPEAT_MODE_ONE, // 0 -> 0
-        -1, // 0 -> 0
-        Player.REPEAT_MODE_OFF, // 0 -> 1
-        -1, // 1 -> 2
-        -1  // 2 -> ended
+    FakeRenderer renderer = new FakeRenderer(Builder.VIDEO_FORMAT);
+    ActionSchedule actionSchedule = new ActionSchedule.Builder("testRepeatMode") // 0 -> 1
+        .waitForPositionDiscontinuity().setRepeatMode(Player.REPEAT_MODE_ONE) // 1 -> 1
+        .waitForPositionDiscontinuity().setRepeatMode(Player.REPEAT_MODE_OFF) // 1 -> 2
+        .waitForPositionDiscontinuity().setRepeatMode(Player.REPEAT_MODE_ONE) // 2 -> 2
+        .waitForPositionDiscontinuity().setRepeatMode(Player.REPEAT_MODE_ALL) // 2 -> 0
+        .waitForPositionDiscontinuity().setRepeatMode(Player.REPEAT_MODE_ONE) // 0 -> 0
+        .waitForPositionDiscontinuity()                                       // 0 -> 0
+        .waitForPositionDiscontinuity().setRepeatMode(Player.REPEAT_MODE_OFF) // 0 -> end
+        .build();
+    ExoPlayerTestRunner testRunner = new ExoPlayerTestRunner.Builder()
+        .setTimeline(timeline).setRenderers(renderer).setActionSchedule(actionSchedule)
+        .build().start().blockUntilEnded(TIMEOUT_MS);
+    testRunner.assertPlayedPeriodIndices(0, 1, 1, 2, 2, 0, 0, 0, 1, 2);
+    testRunner.assertTimelinesEqual(timeline);
+    assertTrue(renderer.isEnded);
+  }
+
+  public void testShuffleModeEnabledChanges() throws Exception {
+    Timeline fakeTimeline = new FakeTimeline(new TimelineWindowDefinition(true, false, 100000));
+    MediaSource[] fakeMediaSources = {
+        new FakeMediaSource(fakeTimeline, null, Builder.VIDEO_FORMAT),
+        new FakeMediaSource(fakeTimeline, null, Builder.VIDEO_FORMAT),
+        new FakeMediaSource(fakeTimeline, null, Builder.VIDEO_FORMAT)
     };
-    int[] expectedWindowIndices = {1, 1, 2, 2, 0, 0, 0, 1, 2};
-    final LinkedList<Integer> windowIndices = new LinkedList<>();
-    final CountDownLatch actionCounter = new CountDownLatch(actionSchedule.length);
-    ExoPlayerWrapper playerWrapper = new ExoPlayerWrapper() {
+    ConcatenatingMediaSource mediaSource = new ConcatenatingMediaSource(false,
+        new FakeShuffleOrder(3), fakeMediaSources);
+    FakeRenderer renderer = new FakeRenderer(Builder.VIDEO_FORMAT);
+    ActionSchedule actionSchedule = new ActionSchedule.Builder("testShuffleModeEnabled")
+        .setRepeatMode(Player.REPEAT_MODE_ALL).waitForPositionDiscontinuity() // 0 -> 1
+        .setShuffleModeEnabled(true).waitForPositionDiscontinuity()           // 1 -> 0
+        .waitForPositionDiscontinuity().waitForPositionDiscontinuity()        // 0 -> 2 -> 1
+        .setShuffleModeEnabled(false).setRepeatMode(Player.REPEAT_MODE_OFF)   // 1 -> 2 -> end
+        .build();
+    ExoPlayerTestRunner testRunner = new ExoPlayerTestRunner.Builder()
+        .setMediaSource(mediaSource).setRenderers(renderer).setActionSchedule(actionSchedule)
+        .build().start().blockUntilEnded(TIMEOUT_MS);
+    testRunner.assertPlayedPeriodIndices(0, 1, 0, 2, 1, 2);
+    assertTrue(renderer.isEnded);
+  }
+
+  public void testPeriodHoldersReleasedAfterSeekWithRepeatModeAll() throws Exception {
+    Timeline fakeTimeline = new FakeTimeline(new TimelineWindowDefinition(true, false, 100000));
+    FakeRenderer renderer = new FakeRenderer(Builder.VIDEO_FORMAT);
+    ActionSchedule actionSchedule = new ActionSchedule.Builder("testPeriodHoldersReleased")
+        .setRepeatMode(Player.REPEAT_MODE_ALL)
+        .waitForPositionDiscontinuity()
+        .seek(0) // Seek with repeat mode set to REPEAT_MODE_ALL.
+        .waitForPositionDiscontinuity()
+        .setRepeatMode(Player.REPEAT_MODE_OFF) // Turn off repeat so that playback can finish.
+        .build();
+    new ExoPlayerTestRunner.Builder()
+        .setTimeline(fakeTimeline).setRenderers(renderer).setActionSchedule(actionSchedule)
+        .build().start().blockUntilEnded(TIMEOUT_MS);
+    assertTrue(renderer.isEnded);
+  }
+
+  public void testSeekProcessedCallback() throws Exception {
+    Timeline timeline = new FakeTimeline(
+        new TimelineWindowDefinition(true, false, 100000),
+        new TimelineWindowDefinition(true, false, 100000));
+    ActionSchedule actionSchedule = new ActionSchedule.Builder("testSeekProcessedCallback")
+        // Initial seek before timeline preparation finished.
+        .pause().seek(10).waitForPlaybackState(Player.STATE_READY)
+        // Re-seek to same position, start playback and wait until playback reaches second window.
+        .seek(10).play().waitForPositionDiscontinuity()
+        // Seek twice in concession, expecting the first seek to be replaced.
+        .seek(5).seek(60).build();
+    final List<Integer> playbackStatesWhenSeekProcessed = new ArrayList<>();
+    Player.EventListener eventListener = new Player.DefaultEventListener() {
+      private int currentPlaybackState = Player.STATE_IDLE;
+
       @Override
-      @SuppressWarnings("ResourceType")
-      public void onPositionDiscontinuity() {
-        super.onPositionDiscontinuity();
-        int actionIndex = actionSchedule.length - (int) actionCounter.getCount();
-        if (actionSchedule[actionIndex] != -1) {
-          player.setRepeatMode(actionSchedule[actionIndex]);
-        }
-        windowIndices.add(player.getCurrentWindowIndex());
-        actionCounter.countDown();
+      public void onPlayerStateChanged(boolean playWhenReady, int playbackState) {
+        currentPlaybackState = playbackState;
+      }
+
+      @Override
+      public void onSeekProcessed() {
+        playbackStatesWhenSeekProcessed.add(currentPlaybackState);
       }
     };
-    MediaSource mediaSource = new FakeMediaSource(timeline, null, TEST_VIDEO_FORMAT);
-    FakeRenderer renderer = new FakeRenderer(TEST_VIDEO_FORMAT);
-    playerWrapper.setup(mediaSource, renderer);
-    boolean finished = actionCounter.await(TIMEOUT_MS, TimeUnit.MILLISECONDS);
-    playerWrapper.release();
-    assertTrue("Test playback timed out waiting for action schedule to end.", finished);
-    if (playerWrapper.exception != null) {
-      throw playerWrapper.exception;
-    }
-    assertEquals(expectedWindowIndices.length, windowIndices.size());
-    for (int i = 0; i < expectedWindowIndices.length; i++) {
-      assertEquals(expectedWindowIndices[i], windowIndices.get(i).intValue());
-    }
-    assertEquals(9, playerWrapper.positionDiscontinuityCount);
-    assertTrue(renderer.isEnded);
-    playerWrapper.assertSourceInfosEquals(Pair.create(timeline, null));
+    new ExoPlayerTestRunner.Builder()
+        .setTimeline(timeline).setEventListener(eventListener).setActionSchedule(actionSchedule)
+        .build().start().blockUntilEnded(TIMEOUT_MS);
+    assertEquals(3, playbackStatesWhenSeekProcessed.size());
+    assertEquals(Player.STATE_BUFFERING, (int) playbackStatesWhenSeekProcessed.get(0));
+    assertEquals(Player.STATE_READY, (int) playbackStatesWhenSeekProcessed.get(1));
+    assertEquals(Player.STATE_BUFFERING, (int) playbackStatesWhenSeekProcessed.get(2));
   }
 
 }

@@ -31,8 +31,9 @@ public final class DecoderCountersUtil {
    * @param counters The counters for which the total should be calculated.
    * @return The sum of the skipped, dropped and rendered buffers.
    */
-  public static int getTotalOutputBuffers(DecoderCounters counters) {
-    return counters.skippedOutputBufferCount + counters.droppedOutputBufferCount
+  public static int getTotalBufferCount(DecoderCounters counters) {
+    counters.ensureUpdated();
+    return counters.skippedOutputBufferCount + counters.droppedBufferCount
         + counters.renderedOutputBufferCount;
   }
 
@@ -44,26 +45,24 @@ public final class DecoderCountersUtil {
         + expected + ".", expected, actual);
   }
 
-  public static void assertTotalOutputBufferCount(String name, DecoderCounters counters,
-      int minCount, int maxCount) {
-    counters.ensureUpdated();
-    int actual = getTotalOutputBuffers(counters);
+  public static void assertTotalBufferCount(String name, DecoderCounters counters, int minCount,
+      int maxCount) {
+    int actual = getTotalBufferCount(counters);
     TestCase.assertTrue("Codec(" + name + ") output " + actual + " buffers. Expected in range ["
         + minCount + ", " + maxCount + "].", minCount <= actual && actual <= maxCount);
   }
 
-  public static void assertDroppedOutputBufferLimit(String name, DecoderCounters counters,
-      int limit) {
+  public static void assertDroppedBufferLimit(String name, DecoderCounters counters, int limit) {
     counters.ensureUpdated();
-    int actual = counters.droppedOutputBufferCount;
+    int actual = counters.droppedBufferCount;
     TestCase.assertTrue("Codec(" + name + ") was late decoding: " + actual + " buffers. "
         + "Limit: " + limit + ".", actual <= limit);
   }
 
-  public static void assertConsecutiveDroppedOutputBufferLimit(String name,
-      DecoderCounters counters, int limit) {
+  public static void assertConsecutiveDroppedBufferLimit(String name, DecoderCounters counters,
+      int limit) {
     counters.ensureUpdated();
-    int actual = counters.maxConsecutiveDroppedOutputBufferCount;
+    int actual = counters.maxConsecutiveDroppedBufferCount;
     TestCase.assertTrue("Codec(" + name + ") was late decoding: " + actual
         + " buffers consecutively. " + "Limit: " + limit + ".", actual <= limit);
   }

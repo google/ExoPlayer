@@ -16,7 +16,6 @@
 package com.google.android.exoplayer2;
 
 import android.util.Pair;
-import com.google.android.exoplayer2.ExoPlayerImplInternal.PlaybackInfo;
 import com.google.android.exoplayer2.Player.RepeatMode;
 import com.google.android.exoplayer2.source.MediaPeriod;
 import com.google.android.exoplayer2.source.MediaSource.MediaPeriodId;
@@ -102,8 +101,8 @@ import com.google.android.exoplayer2.source.MediaSource.MediaPeriodId;
   private final Timeline.Window window;
 
   private Timeline timeline;
-  @RepeatMode
-  private int repeatMode;
+  private @RepeatMode int repeatMode;
+  private boolean shuffleModeEnabled;
 
   /**
    * Creates a new media period info sequence.
@@ -127,6 +126,14 @@ import com.google.android.exoplayer2.source.MediaSource.MediaPeriodId;
    */
   public void setRepeatMode(@RepeatMode int repeatMode) {
     this.repeatMode = repeatMode;
+  }
+
+  /**
+   * Sets whether shuffling is enabled. Call {@link #getUpdatedMediaPeriodInfo} to update period
+   * information taking into account the shuffle mode.
+   */
+  public void setShuffleModeEnabled(boolean shuffleModeEnabled) {
+    this.shuffleModeEnabled = shuffleModeEnabled;
   }
 
   /**
@@ -154,7 +161,7 @@ import com.google.android.exoplayer2.source.MediaSource.MediaPeriodId;
     // timeline is updated, to avoid repeatedly checking the same timeline.
     if (currentMediaPeriodInfo.isLastInTimelinePeriod) {
       int nextPeriodIndex = timeline.getNextPeriodIndex(currentMediaPeriodInfo.id.periodIndex,
-          period, window, repeatMode);
+          period, window, repeatMode, shuffleModeEnabled);
       if (nextPeriodIndex == C.INDEX_UNSET) {
         // We can't create a next period yet.
         return null;
@@ -345,7 +352,7 @@ import com.google.android.exoplayer2.source.MediaSource.MediaPeriodId;
   private boolean isLastInTimeline(MediaPeriodId id, boolean isLastMediaPeriodInPeriod) {
     int windowIndex = timeline.getPeriod(id.periodIndex, period).windowIndex;
     return !timeline.getWindow(windowIndex, window).isDynamic
-        && timeline.isLastPeriod(id.periodIndex, period, window, repeatMode)
+        && timeline.isLastPeriod(id.periodIndex, period, window, repeatMode, shuffleModeEnabled)
         && isLastMediaPeriodInPeriod;
   }
 

@@ -16,6 +16,7 @@
 package com.google.android.exoplayer2.testutil;
 
 import android.net.Uri;
+import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.source.chunk.Chunk;
 import com.google.android.exoplayer2.source.chunk.ChunkHolder;
@@ -50,7 +51,8 @@ public final class FakeChunkSource implements ChunkSource {
     }
 
     public FakeChunkSource createChunkSource(TrackSelection trackSelection, long durationUs) {
-      FakeAdaptiveDataSet dataSet = dataSetFactory.createDataSet(trackSelection, durationUs);
+      FakeAdaptiveDataSet dataSet =
+          dataSetFactory.createDataSet(trackSelection.getTrackGroup(), durationUs);
       dataSourceFactory.setFakeDataSet(dataSet);
       DataSource dataSource = dataSourceFactory.createDataSource();
       return new FakeChunkSource(trackSelection, dataSource, dataSet);
@@ -80,9 +82,10 @@ public final class FakeChunkSource implements ChunkSource {
   }
 
   @Override
-  public void getNextChunk(MediaChunk previous, long playbackPositionUs, ChunkHolder out) {
-    long bufferedDurationUs = previous != null ? (previous.endTimeUs - playbackPositionUs) : 0;
-    trackSelection.updateSelectedTrack(bufferedDurationUs);
+  public void getNextChunk(MediaChunk previous, long playbackPositionUs, long loadPositionUs,
+      ChunkHolder out) {
+    long bufferedDurationUs = loadPositionUs - playbackPositionUs;
+    trackSelection.updateSelectedTrack(playbackPositionUs, bufferedDurationUs, C.TIME_UNSET);
     int chunkIndex = previous == null ? dataSet.getChunkIndexByPosition(playbackPositionUs)
         : previous.getNextChunkIndex();
     if (chunkIndex >= dataSet.getChunkCount()) {
@@ -91,7 +94,8 @@ public final class FakeChunkSource implements ChunkSource {
       Format selectedFormat = trackSelection.getSelectedFormat();
       long startTimeUs = dataSet.getStartTime(chunkIndex);
       long endTimeUs = startTimeUs + dataSet.getChunkDuration(chunkIndex);
-      String uri = dataSet.getUri(trackSelection.getSelectedIndex());
+      int trackGroupIndex = trackSelection.getIndexInTrackGroup(trackSelection.getSelectedIndex());
+      String uri = dataSet.getUri(trackGroupIndex);
       Segment fakeDataChunk = dataSet.getData(uri).getSegments().get(chunkIndex);
       DataSpec dataSpec = new DataSpec(Uri.parse(uri), fakeDataChunk.byteOffset,
           fakeDataChunk.length, null);

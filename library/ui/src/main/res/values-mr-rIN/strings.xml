@@ -25,4 +25,5 @@
   <string name="exo_controls_repeat_all_description">"सर्व पुनरावृत्ती करा"</string>
   <string name="exo_controls_repeat_off_description">"काहीही पुनरावृत्ती करू नका"</string>
   <string name="exo_controls_repeat_one_description">"एक पुनरावृत्ती करा"</string>
+  <string name="exo_controls_shuffle_description">"शफल करा"</string>
 </resources>

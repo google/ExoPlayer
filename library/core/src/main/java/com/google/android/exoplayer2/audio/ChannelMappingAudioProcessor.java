@@ -52,7 +52,7 @@ import java.util.Arrays;
    * Resets the channel mapping. After calling this method, call {@link #configure(int, int, int)}
    * to start using the new channel map.
    *
-   * @see AudioTrack#configure(String, int, int, int, int, int[])
+   * @see AudioSink#configure(String, int, int, int, int, int[], int, int)
    */
   public void setChannelMap(int[] outputChannels) {
     pendingOutputChannels = outputChannels;
@@ -101,6 +101,11 @@ import java.util.Arrays;
   @Override
   public int getOutputEncoding() {
     return C.ENCODING_PCM_16BIT;
+  }
+
+  @Override
+  public int getOutputSampleRateHz() {
+    return sampleRateHz;
   }
 
   @Override

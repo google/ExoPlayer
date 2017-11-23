@@ -39,6 +39,7 @@ proguard-project.txt
 
 # Other
 .DS_Store
+cmake-build-debug
 dist
 tmp
 

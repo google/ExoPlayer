@@ -25,4 +25,5 @@
   <string name="exo_controls_repeat_all_description">"ਸਭ ਨੂੰ ਦੁਹਰਾਓ"</string>
   <string name="exo_controls_repeat_off_description">"ਕੋਈ ਵੀ ਨਹੀਂ ਦੁਹਰਾਓ"</string>
   <string name="exo_controls_repeat_one_description">"ਇੱਕ ਦੁਹਰਾਓ"</string>
+  <string name="exo_controls_shuffle_description">"ਸ਼ੱਫਲ"</string>
 </resources>

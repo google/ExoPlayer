@@ -57,21 +57,51 @@ public final class SingleSampleMediaSource implements MediaSource {
   private final Handler eventHandler;
   private final EventListener eventListener;
   private final int eventSourceId;
+  private final boolean treatLoadErrorsAsEndOfStream;
   private final Timeline timeline;
 
+  /**
+   * @param uri The {@link Uri} of the media stream.
+   * @param dataSourceFactory The factory from which the {@link DataSource} to read the media will
+   *     be obtained.
+   * @param format The {@link Format} associated with the output track.
+   * @param durationUs The duration of the media stream in microseconds.
+   */
   public SingleSampleMediaSource(Uri uri, DataSource.Factory dataSourceFactory, Format format,
       long durationUs) {
     this(uri, dataSourceFactory, format, durationUs, DEFAULT_MIN_LOADABLE_RETRY_COUNT);
   }
 
+  /**
+   * @param uri The {@link Uri} of the media stream.
+   * @param dataSourceFactory The factory from which the {@link DataSource} to read the media will
+   *     be obtained.
+   * @param format The {@link Format} associated with the output track.
+   * @param durationUs The duration of the media stream in microseconds.
+   * @param minLoadableRetryCount The minimum number of times to retry if a loading error occurs.
+   */
   public SingleSampleMediaSource(Uri uri, DataSource.Factory dataSourceFactory, Format format,
       long durationUs, int minLoadableRetryCount) {
-    this(uri, dataSourceFactory, format, durationUs, minLoadableRetryCount, null, null, 0);
+    this(uri, dataSourceFactory, format, durationUs, minLoadableRetryCount, null, null, 0, false);
   }
 
+  /**
+   * @param uri The {@link Uri} of the media stream.
+   * @param dataSourceFactory The factory from which the {@link DataSource} to read the media will
+   *     be obtained.
+   * @param format The {@link Format} associated with the output track.
+   * @param durationUs The duration of the media stream in microseconds.
+   * @param minLoadableRetryCount The minimum number of times to retry if a loading error occurs.
+   * @param eventHandler A handler for events. May be null if delivery of events is not required.
+   * @param eventListener A listener of events. May be null if delivery of events is not required.
+   * @param eventSourceId An identifier that gets passed to {@code eventListener} methods.
+   * @param treatLoadErrorsAsEndOfStream If true, load errors will not be propagated by sample
+   *     streams, treating them as ended instead. If false, load errors will be propagated normally
+   *     by {@link SampleStream#maybeThrowError()}.
+   */
   public SingleSampleMediaSource(Uri uri, DataSource.Factory dataSourceFactory, Format format,
       long durationUs, int minLoadableRetryCount, Handler eventHandler, EventListener eventListener,
-      int eventSourceId) {
+      int eventSourceId, boolean treatLoadErrorsAsEndOfStream) {
     this.uri = uri;
     this.dataSourceFactory = dataSourceFactory;
     this.format = format;
@@ -79,6 +109,7 @@ public final class SingleSampleMediaSource implements MediaSource {
     this.eventHandler = eventHandler;
     this.eventListener = eventListener;
     this.eventSourceId = eventSourceId;
+    this.treatLoadErrorsAsEndOfStream = treatLoadErrorsAsEndOfStream;
     timeline = new SinglePeriodTimeline(durationUs, true);
   }
 
@@ -86,7 +117,7 @@ public final class SingleSampleMediaSource implements MediaSource {
 
   @Override
   public void prepareSource(ExoPlayer player, boolean isTopLevelSource, Listener listener) {
-    listener.onSourceInfoRefreshed(timeline, null);
+    listener.onSourceInfoRefreshed(this, timeline, null);
   }
 
   @Override
@@ -98,7 +129,7 @@ public final class SingleSampleMediaSource implements MediaSource {
   public MediaPeriod createPeriod(MediaPeriodId id, Allocator allocator) {
     Assertions.checkArgument(id.periodIndex == 0);
     return new SingleSampleMediaPeriod(uri, dataSourceFactory, format, minLoadableRetryCount,
-        eventHandler, eventListener, eventSourceId);
+        eventHandler, eventListener, eventSourceId, treatLoadErrorsAsEndOfStream);
   }
 
   @Override

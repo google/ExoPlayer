@@ -16,12 +16,19 @@
 package com.google.android.exoplayer2.testutil;
 
 import static junit.framework.Assert.assertEquals;
+import static junit.framework.Assert.assertNotNull;
+import static junit.framework.Assert.assertTrue;
 
+import android.os.ConditionVariable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.Timeline.Period;
 import com.google.android.exoplayer2.Timeline.Window;
+import com.google.android.exoplayer2.source.MediaPeriod;
+import com.google.android.exoplayer2.source.MediaPeriod.Callback;
+import com.google.android.exoplayer2.source.MediaSource;
+import com.google.android.exoplayer2.source.MediaSource.MediaPeriodId;
 
 /**
  * Unit test for {@link Timeline}.
@@ -36,6 +43,10 @@ public final class TimelineAsserts {
   public static void assertEmpty(Timeline timeline) {
     assertWindowIds(timeline);
     assertPeriodCounts(timeline);
+    for (boolean shuffled : new boolean[] {false, true}) {
+      assertEquals(C.INDEX_UNSET, timeline.getFirstWindowIndex(shuffled));
+      assertEquals(C.INDEX_UNSET, timeline.getLastWindowIndex(shuffled));
+    }
   }
 
   /**
@@ -56,7 +67,7 @@ public final class TimelineAsserts {
   }
 
   /**
-   * Asserts that window properties {@link Window}.isDynamic are set correctly..
+   * Asserts that window properties {@link Window}.isDynamic are set correctly.
    */
   public static void assertWindowIsDynamic(Timeline timeline, boolean... windowIsDynamic) {
     Window window = new Window();
@@ -67,33 +78,34 @@ public final class TimelineAsserts {
   }
 
   /**
-   * Asserts that previous window indices for each window are set correctly depending on the repeat
-   * mode.
+   * Asserts that previous window indices for each window depending on the repeat mode and the
+   * shuffle mode are equal to the given sequence.
    */
   public static void assertPreviousWindowIndices(Timeline timeline,
-      @Player.RepeatMode int repeatMode, int... expectedPreviousWindowIndices) {
+      @Player.RepeatMode int repeatMode, boolean shuffleModeEnabled,
+      int... expectedPreviousWindowIndices) {
     for (int i = 0; i < timeline.getWindowCount(); i++) {
       assertEquals(expectedPreviousWindowIndices[i],
-          timeline.getPreviousWindowIndex(i, repeatMode));
+          timeline.getPreviousWindowIndex(i, repeatMode, shuffleModeEnabled));
     }
   }
 
   /**
-   * Asserts that next window indices for each window are set correctly depending on the repeat
-   * mode.
+   * Asserts that next window indices for each window depending on the repeat mode and the
+   * shuffle mode are equal to the given sequence.
    */
   public static void assertNextWindowIndices(Timeline timeline, @Player.RepeatMode int repeatMode,
-      int... expectedNextWindowIndices) {
+      boolean shuffleModeEnabled, int... expectedNextWindowIndices) {
     for (int i = 0; i < timeline.getWindowCount(); i++) {
       assertEquals(expectedNextWindowIndices[i],
-          timeline.getNextWindowIndex(i, repeatMode));
+          timeline.getNextWindowIndex(i, repeatMode, shuffleModeEnabled));
     }
   }
 
   /**
    * Asserts that period counts for each window are set correctly. Also asserts that
    * {@link Window#firstPeriodIndex} and {@link Window#lastPeriodIndex} are set correctly, and it
-   * asserts the correct behavior of {@link Timeline#getNextWindowIndex(int, int)}.
+   * asserts the correct behavior of {@link Timeline#getNextWindowIndex(int, int, boolean)}.
    */
   public static void assertPeriodCounts(Timeline timeline, int... expectedPeriodCounts) {
     int windowCount = timeline.getWindowCount();
@@ -118,31 +130,73 @@ public final class TimelineAsserts {
         expectedWindowIndex++;
       }
       assertEquals(expectedWindowIndex, period.windowIndex);
-      if (i < accumulatedPeriodCounts[expectedWindowIndex + 1] - 1) {
-        assertEquals(i + 1, timeline.getNextPeriodIndex(i, period, window, Player.REPEAT_MODE_OFF));
-        assertEquals(i + 1, timeline.getNextPeriodIndex(i, period, window, Player.REPEAT_MODE_ONE));
-        assertEquals(i + 1, timeline.getNextPeriodIndex(i, period, window, Player.REPEAT_MODE_ALL));
-      } else {
-        int nextWindowOff = timeline.getNextWindowIndex(expectedWindowIndex,
-            Player.REPEAT_MODE_OFF);
-        int nextWindowOne = timeline.getNextWindowIndex(expectedWindowIndex,
-            Player.REPEAT_MODE_ONE);
-        int nextWindowAll = timeline.getNextWindowIndex(expectedWindowIndex,
-            Player.REPEAT_MODE_ALL);
-        int nextPeriodOff = nextWindowOff == C.INDEX_UNSET ? C.INDEX_UNSET
-            : accumulatedPeriodCounts[nextWindowOff];
-        int nextPeriodOne = nextWindowOne == C.INDEX_UNSET ? C.INDEX_UNSET
-            : accumulatedPeriodCounts[nextWindowOne];
-        int nextPeriodAll = nextWindowAll == C.INDEX_UNSET ? C.INDEX_UNSET
-            : accumulatedPeriodCounts[nextWindowAll];
-        assertEquals(nextPeriodOff, timeline.getNextPeriodIndex(i, period, window,
-            Player.REPEAT_MODE_OFF));
-        assertEquals(nextPeriodOne, timeline.getNextPeriodIndex(i, period, window,
-            Player.REPEAT_MODE_ONE));
-        assertEquals(nextPeriodAll, timeline.getNextPeriodIndex(i, period, window,
-            Player.REPEAT_MODE_ALL));
+      assertEquals(i, timeline.getIndexOfPeriod(period.uid));
+      for (@Player.RepeatMode int repeatMode
+          : new int[] {Player.REPEAT_MODE_OFF, Player.REPEAT_MODE_ONE, Player.REPEAT_MODE_ALL}) {
+        if (i < accumulatedPeriodCounts[expectedWindowIndex + 1] - 1) {
+          assertEquals(i + 1, timeline.getNextPeriodIndex(i, period, window, repeatMode, false));
+        } else {
+          int nextWindow = timeline.getNextWindowIndex(expectedWindowIndex, repeatMode, false);
+          int nextPeriod = nextWindow == C.INDEX_UNSET ? C.INDEX_UNSET
+              : accumulatedPeriodCounts[nextWindow];
+          assertEquals(nextPeriod, timeline.getNextPeriodIndex(i, period, window, repeatMode,
+              false));
+        }
       }
     }
   }
 
+  /**
+   * Asserts that periods' {@link Period#getAdGroupCount()} are set correctly.
+   */
+  public static void assertAdGroupCounts(Timeline timeline, int... expectedAdGroupCounts) {
+    Period period = new Period();
+    for (int i = 0; i < timeline.getPeriodCount(); i++) {
+      timeline.getPeriod(i, period);
+      assertEquals(expectedAdGroupCounts[i], period.getAdGroupCount());
+    }
+  }
+
+  /**
+   * Asserts that all period (including ad periods) can be created from the source, prepared, and
+   * released without exception and within timeout.
+   */
+  public static void assertAllPeriodsCanBeCreatedPreparedAndReleased(MediaSource mediaSource,
+      Timeline timeline, long timeoutMs) {
+    Period period = new Period();
+    for (int i = 0; i < timeline.getPeriodCount(); i++) {
+      assertPeriodCanBeCreatedPreparedAndReleased(mediaSource, new MediaPeriodId(i), timeoutMs);
+      timeline.getPeriod(i, period);
+      for (int adGroupIndex = 0; adGroupIndex < period.getAdGroupCount(); adGroupIndex++) {
+        for (int adIndex = 0; adIndex < period.getAdCountInAdGroup(adGroupIndex); adIndex++) {
+          assertPeriodCanBeCreatedPreparedAndReleased(mediaSource,
+              new MediaPeriodId(i, adGroupIndex, adIndex), timeoutMs);
+        }
+      }
+    }
+  }
+
+  private static void assertPeriodCanBeCreatedPreparedAndReleased(MediaSource mediaSource,
+      MediaPeriodId mediaPeriodId, long timeoutMs) {
+    MediaPeriod mediaPeriod = mediaSource.createPeriod(mediaPeriodId, null);
+    assertNotNull(mediaPeriod);
+    final ConditionVariable mediaPeriodPrepared = new ConditionVariable();
+    mediaPeriod.prepare(new Callback() {
+      @Override
+      public void onPrepared(MediaPeriod mediaPeriod) {
+        mediaPeriodPrepared.open();
+      }
+      @Override
+      public void onContinueLoadingRequested(MediaPeriod source) {}
+    }, /* positionUs= */ 0);
+    assertTrue(mediaPeriodPrepared.block(timeoutMs));
+    // MediaSource is supposed to support multiple calls to createPeriod with the same id without an
+    // intervening call to releasePeriod.
+    MediaPeriod secondMediaPeriod = mediaSource.createPeriod(mediaPeriodId, null);
+    assertNotNull(secondMediaPeriod);
+    mediaSource.releasePeriod(secondMediaPeriod);
+    mediaSource.releasePeriod(mediaPeriod);
+  }
+
 }
+

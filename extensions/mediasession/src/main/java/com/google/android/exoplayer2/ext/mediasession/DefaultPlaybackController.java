@@ -15,10 +15,12 @@
  */
 package com.google.android.exoplayer2.ext.mediasession;
 
+import android.os.Bundle;
+import android.os.ResultReceiver;
 import android.support.v4.media.session.PlaybackStateCompat;
-
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Player;
+import com.google.android.exoplayer2.util.RepeatModeUtil;
 
 /**
  * A default implementation of {@link MediaSessionConnector.PlaybackController}.
@@ -38,33 +40,37 @@ public class DefaultPlaybackController implements MediaSessionConnector.Playback
 
   private static final long BASE_ACTIONS = PlaybackStateCompat.ACTION_PLAY_PAUSE
       | PlaybackStateCompat.ACTION_PLAY | PlaybackStateCompat.ACTION_PAUSE
-      | PlaybackStateCompat.ACTION_STOP;
+      | PlaybackStateCompat.ACTION_STOP | PlaybackStateCompat.ACTION_SET_SHUFFLE_MODE
+      | PlaybackStateCompat.ACTION_SET_REPEAT_MODE;
 
   protected final long rewindIncrementMs;
   protected final long fastForwardIncrementMs;
+  protected final int repeatToggleModes;
 
   /**
    * Creates a new instance.
    * <p>
-   * Equivalent to {@code DefaultPlaybackController(
-   *     DefaultPlaybackController.DEFAULT_REWIND_MS,
-   *     DefaultPlaybackController.DEFAULT_FAST_FORWARD_MS)}.
+   * Equivalent to {@code DefaultPlaybackController(DefaultPlaybackController.DEFAULT_REWIND_MS,
+   *     DefaultPlaybackController.DEFAULT_FAST_FORWARD_MS,
+   *     MediaSessionConnector.DEFAULT_REPEAT_TOGGLE_MODES)}.
    */
   public DefaultPlaybackController() {
-    this(DEFAULT_REWIND_MS, DEFAULT_FAST_FORWARD_MS);
+    this(DEFAULT_REWIND_MS, DEFAULT_FAST_FORWARD_MS,
+        MediaSessionConnector.DEFAULT_REPEAT_TOGGLE_MODES);
   }
 
   /**
    * Creates a new instance with the given fast forward and rewind increments.
-   *
-   * @param rewindIncrementMs The rewind increment in milliseconds. A zero or negative value will
+   *  @param rewindIncrementMs The rewind increment in milliseconds. A zero or negative value will
    *     cause the rewind action to be disabled.
    * @param fastForwardIncrementMs The fast forward increment in milliseconds. A zero or negative
-   *     value will cause the fast forward action to be removed.
+   * @param repeatToggleModes The available repeatToggleModes.
    */
-  public DefaultPlaybackController(long rewindIncrementMs, long fastForwardIncrementMs) {
+  public DefaultPlaybackController(long rewindIncrementMs, long fastForwardIncrementMs,
+      @RepeatModeUtil.RepeatToggleModes int repeatToggleModes) {
     this.rewindIncrementMs = rewindIncrementMs;
     this.fastForwardIncrementMs = fastForwardIncrementMs;
+    this.repeatToggleModes = repeatToggleModes;
   }
 
   @Override
@@ -123,6 +129,46 @@ public class DefaultPlaybackController implements MediaSessionConnector.Playback
   @Override
   public void onStop(Player player) {
     player.stop();
+  }
+
+  @Override
+  public void onSetShuffleMode(Player player, int shuffleMode) {
+    player.setShuffleModeEnabled(shuffleMode == PlaybackStateCompat.SHUFFLE_MODE_ALL
+        || shuffleMode == PlaybackStateCompat.SHUFFLE_MODE_GROUP);
+  }
+
+  @Override
+  public void onSetRepeatMode(Player player, int repeatMode) {
+    int selectedExoPlayerRepeatMode = player.getRepeatMode();
+    switch (repeatMode) {
+      case PlaybackStateCompat.REPEAT_MODE_ALL:
+      case PlaybackStateCompat.REPEAT_MODE_GROUP:
+        if ((repeatToggleModes & RepeatModeUtil.REPEAT_TOGGLE_MODE_ALL) != 0) {
+          selectedExoPlayerRepeatMode = Player.REPEAT_MODE_ALL;
+        }
+        break;
+      case PlaybackStateCompat.REPEAT_MODE_ONE:
+        if ((repeatToggleModes & RepeatModeUtil.REPEAT_TOGGLE_MODE_ONE) != 0) {
+          selectedExoPlayerRepeatMode = Player.REPEAT_MODE_ONE;
+        }
+        break;
+      default:
+        selectedExoPlayerRepeatMode = Player.REPEAT_MODE_OFF;
+        break;
+    }
+    player.setRepeatMode(selectedExoPlayerRepeatMode);
+  }
+
+  // CommandReceiver implementation.
+
+  @Override
+  public String[] getCommands() {
+    return null;
+  }
+
+  @Override
+  public void onCommand(Player player, String command, Bundle extras, ResultReceiver cb) {
+    // Do nothing.
   }
 
 }

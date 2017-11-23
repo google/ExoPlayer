@@ -15,6 +15,9 @@
  */
 
 #include <cpu-features.h>
+#ifdef __ARM_NEON__
+#include <arm_neon.h>
+#endif
 #include <jni.h>
 
 #include <android/log.h>
@@ -68,6 +71,216 @@ jint JNI_OnLoad(JavaVM* vm, void* reserved) {
     return -1;
   }
   return JNI_VERSION_1_6;
+}
+
+#ifdef __ARM_NEON__
+static int convert_16_to_8_neon(const vpx_image_t* const img, jbyte* const data,
+                                const int32_t uvHeight, const int32_t yLength,
+                                const int32_t uvLength) {
+  if (!(android_getCpuFeatures() & ANDROID_CPU_ARM_FEATURE_NEON)) return 0;
+  uint32x2_t lcg_val = vdup_n_u32(random());
+  lcg_val = vset_lane_u32(random(), lcg_val, 1);
+  // LCG values recommended in good ol' "Numerical Recipes"
+  const uint32x2_t LCG_MULT = vdup_n_u32(1664525);
+  const uint32x2_t LCG_INCR = vdup_n_u32(1013904223);
+
+  const uint16_t* srcBase =
+      reinterpret_cast<uint16_t*>(img->planes[VPX_PLANE_Y]);
+  uint8_t* dstBase = reinterpret_cast<uint8_t*>(data);
+  // In units of uint16_t, so /2 from raw stride
+  const int srcStride = img->stride[VPX_PLANE_Y] / 2;
+  const int dstStride = img->stride[VPX_PLANE_Y];
+
+  for (int y = 0; y < img->d_h; y++) {
+    const uint16_t* src = srcBase;
+    uint8_t* dst = dstBase;
+
+    // Each read consumes 4 2-byte samples, but to reduce branches and
+    // random steps we unroll to four rounds, so each loop consumes 16
+    // samples.
+    const int imax = img->d_w & ~15;
+    int i;
+    for (i = 0; i < imax; i += 16) {
+      // Run a round of the RNG.
+      lcg_val = vmla_u32(LCG_INCR, lcg_val, LCG_MULT);
+
+      // The lower two bits of this LCG parameterization are garbage,
+      // leaving streaks on the image. We access the upper bits of each
+      // 16-bit lane by shifting. (We use this both as an 8- and 16-bit
+      // vector, so the choice of which one to keep it as is arbitrary.)
+      uint8x8_t randvec =
+          vreinterpret_u8_u16(vshr_n_u16(vreinterpret_u16_u32(lcg_val), 8));
+
+      // We retrieve the values and shift them so that the bits we'll
+      // shift out (after biasing) are in the upper 8 bits of each 16-bit
+      // lane.
+      uint16x4_t values = vshl_n_u16(vld1_u16(src), 6);
+      src += 4;
+
+      // We add the bias bits in the lower 8 to the shifted values to get
+      // the final values in the upper 8 bits.
+      uint16x4_t added1 = vqadd_u16(values, vreinterpret_u16_u8(randvec));
+
+      // Shifting the randvec bits left by 2 bits, as an 8-bit vector,
+      // should leave us with enough bias to get the needed rounding
+      // operation.
+      randvec = vshl_n_u8(randvec, 2);
+
+      // Retrieve and sum the next 4 pixels.
+      values = vshl_n_u16(vld1_u16(src), 6);
+      src += 4;
+      uint16x4_t added2 = vqadd_u16(values, vreinterpret_u16_u8(randvec));
+
+      // Reinterpret the two added vectors as 8x8, zip them together, and
+      // discard the lower portions.
+      uint8x8_t zipped =
+          vuzp_u8(vreinterpret_u8_u16(added1), vreinterpret_u8_u16(added2))
+              .val[1];
+      vst1_u8(dst, zipped);
+      dst += 8;
+
+      // Run it again with the next two rounds using the remaining
+      // entropy in randvec.
+      randvec = vshl_n_u8(randvec, 2);
+      values = vshl_n_u16(vld1_u16(src), 6);
+      src += 4;
+      added1 = vqadd_u16(values, vreinterpret_u16_u8(randvec));
+      randvec = vshl_n_u8(randvec, 2);
+      values = vshl_n_u16(vld1_u16(src), 6);
+      src += 4;
+      added2 = vqadd_u16(values, vreinterpret_u16_u8(randvec));
+      zipped = vuzp_u8(vreinterpret_u8_u16(added1), vreinterpret_u8_u16(added2))
+                   .val[1];
+      vst1_u8(dst, zipped);
+      dst += 8;
+    }
+
+    uint32_t randval = 0;
+    // For the remaining pixels in each row - usually none, as most
+    // standard sizes are divisible by 32 - convert them "by hand".
+    while (i < img->d_w) {
+      if (!randval) randval = random();
+      dstBase[i] = (srcBase[i] + (randval & 3)) >> 2;
+      i++;
+      randval >>= 2;
+    }
+
+    srcBase += srcStride;
+    dstBase += dstStride;
+  }
+
+  const uint16_t* srcUBase =
+      reinterpret_cast<uint16_t*>(img->planes[VPX_PLANE_U]);
+  const uint16_t* srcVBase =
+      reinterpret_cast<uint16_t*>(img->planes[VPX_PLANE_V]);
+  const int32_t uvWidth = (img->d_w + 1) / 2;
+  uint8_t* dstUBase = reinterpret_cast<uint8_t*>(data + yLength);
+  uint8_t* dstVBase = reinterpret_cast<uint8_t*>(data + yLength + uvLength);
+  const int srcUVStride = img->stride[VPX_PLANE_V] / 2;
+  const int dstUVStride = img->stride[VPX_PLANE_V];
+
+  for (int y = 0; y < uvHeight; y++) {
+    const uint16_t* srcU = srcUBase;
+    const uint16_t* srcV = srcVBase;
+    uint8_t* dstU = dstUBase;
+    uint8_t* dstV = dstVBase;
+
+    // As before, each i++ consumes 4 samples (8 bytes). For simplicity we
+    // don't unroll these loops more than we have to, which is 8 samples.
+    const int imax = uvWidth & ~7;
+    int i;
+    for (i = 0; i < imax; i += 8) {
+      lcg_val = vmla_u32(LCG_INCR, lcg_val, LCG_MULT);
+      uint8x8_t randvec =
+          vreinterpret_u8_u16(vshr_n_u16(vreinterpret_u16_u32(lcg_val), 8));
+      uint16x4_t uVal1 = vqadd_u16(vshl_n_u16(vld1_u16(srcU), 6),
+                                   vreinterpret_u16_u8(randvec));
+      srcU += 4;
+      randvec = vshl_n_u8(randvec, 2);
+      uint16x4_t vVal1 = vqadd_u16(vshl_n_u16(vld1_u16(srcV), 6),
+                                   vreinterpret_u16_u8(randvec));
+      srcV += 4;
+      randvec = vshl_n_u8(randvec, 2);
+      uint16x4_t uVal2 = vqadd_u16(vshl_n_u16(vld1_u16(srcU), 6),
+                                   vreinterpret_u16_u8(randvec));
+      srcU += 4;
+      randvec = vshl_n_u8(randvec, 2);
+      uint16x4_t vVal2 = vqadd_u16(vshl_n_u16(vld1_u16(srcV), 6),
+                                   vreinterpret_u16_u8(randvec));
+      srcV += 4;
+      vst1_u8(dstU,
+              vuzp_u8(vreinterpret_u8_u16(uVal1), vreinterpret_u8_u16(uVal2))
+                  .val[1]);
+      dstU += 8;
+      vst1_u8(dstV,
+              vuzp_u8(vreinterpret_u8_u16(vVal1), vreinterpret_u8_u16(vVal2))
+                  .val[1]);
+      dstV += 8;
+    }
+
+    i *= 4;
+    uint32_t randval = 0;
+    while (i < uvWidth) {
+      if (!randval) randval = random();
+      dstUBase[i] = (srcUBase[i] + (randval & 3)) >> 2;
+      randval >>= 2;
+      dstVBase[i] = (srcVBase[i] + (randval & 3)) >> 2;
+      randval >>= 2;
+      i++;
+    }
+
+    srcUBase += srcUVStride;
+    srcVBase += srcUVStride;
+    dstUBase += dstUVStride;
+    dstVBase += dstUVStride;
+  }
+
+  return 1;
+}
+
+#endif  // __ARM_NEON__
+
+static void convert_16_to_8_standard(const vpx_image_t* const img,
+                                     jbyte* const data, const int32_t uvHeight,
+                                     const int32_t yLength,
+                                     const int32_t uvLength) {
+  // Y
+  int sampleY = 0;
+  for (int y = 0; y < img->d_h; y++) {
+    const uint16_t* srcBase = reinterpret_cast<uint16_t*>(
+        img->planes[VPX_PLANE_Y] + img->stride[VPX_PLANE_Y] * y);
+    int8_t* destBase = data + img->stride[VPX_PLANE_Y] * y;
+    for (int x = 0; x < img->d_w; x++) {
+      // Lightweight dither. Carryover the remainder of each 10->8 bit
+      // conversion to the next pixel.
+      sampleY += *srcBase++;
+      *destBase++ = sampleY >> 2;
+      sampleY = sampleY & 3;  // Remainder.
+    }
+  }
+  // UV
+  int sampleU = 0;
+  int sampleV = 0;
+  const int32_t uvWidth = (img->d_w + 1) / 2;
+  for (int y = 0; y < uvHeight; y++) {
+    const uint16_t* srcUBase = reinterpret_cast<uint16_t*>(
+        img->planes[VPX_PLANE_U] + img->stride[VPX_PLANE_U] * y);
+    const uint16_t* srcVBase = reinterpret_cast<uint16_t*>(
+        img->planes[VPX_PLANE_V] + img->stride[VPX_PLANE_V] * y);
+    int8_t* destUBase = data + yLength + img->stride[VPX_PLANE_U] * y;
+    int8_t* destVBase =
+        data + yLength + uvLength + img->stride[VPX_PLANE_V] * y;
+    for (int x = 0; x < uvWidth; x++) {
+      // Lightweight dither. Carryover the remainder of each 10->8 bit
+      // conversion to the next pixel.
+      sampleU += *srcUBase++;
+      *destUBase++ = sampleU >> 2;
+      sampleU = sampleU & 3;  // Remainder.
+      sampleV += *srcVBase++;
+      *destVBase++ = sampleV >> 2;
+      sampleV = sampleV & 3;  // Remainder.
+    }
+  }
 }
 
 DECODER_FUNC(jlong, vpxInit) {
@@ -201,47 +414,17 @@ DECODER_FUNC(jint, vpxGetFrame, jlong jContext, jobject jOutputBuffer) {
       // Note: The stride for BT2020 is twice of what we use so this is wasting
       // memory. The long term goal however is to upload half-float/short so
       // it's not important to optimize the stride at this time.
-      // Y
-      int sampleY = 0;
-      for (int y = 0; y < img->d_h; y++) {
-        const uint16_t* srcBase = reinterpret_cast<uint16_t*>(
-            img->planes[VPX_PLANE_Y] + img->stride[VPX_PLANE_Y] * y);
-        int8_t* destBase = data + img->stride[VPX_PLANE_Y] * y;
-        for (int x = 0; x < img->d_w; x++) {
-          // Lightweight dither. Carryover the remainder of each 10->8 bit
-          // conversion to the next pixel.
-          sampleY += *srcBase++;
-          *destBase++ = sampleY >> 2;
-          sampleY = sampleY & 3;  // Remainder.
-        }
-      }
-      // UV
-      int sampleU = 0;
-      int sampleV = 0;
-      const int32_t uvWidth = (img->d_w + 1) / 2;
-      for (int y = 0; y < uvHeight; y++) {
-        const uint16_t* srcUBase = reinterpret_cast<uint16_t*>(
-            img->planes[VPX_PLANE_U] + img->stride[VPX_PLANE_U] * y);
-        const uint16_t* srcVBase = reinterpret_cast<uint16_t*>(
-            img->planes[VPX_PLANE_V] + img->stride[VPX_PLANE_V] * y);
-        int8_t* destUBase = data + yLength + img->stride[VPX_PLANE_U] * y;
-        int8_t* destVBase = data + yLength + uvLength
-            + img->stride[VPX_PLANE_V] * y;
-        for (int x = 0; x < uvWidth; x++) {
-          // Lightweight dither. Carryover the remainder of each 10->8 bit
-          // conversion to the next pixel.
-          sampleU += *srcUBase++;
-          *destUBase++ = sampleU >> 2;
-          sampleU = sampleU & 3;  // Remainder.
-          sampleV += *srcVBase++;
-          *destVBase++ = sampleV >> 2;
-          sampleV = sampleV & 3;  // Remainder.
-        }
+      int converted = 0;
+#ifdef __ARM_NEON__
+      converted = convert_16_to_8_neon(img, data, uvHeight, yLength, uvLength);
+#endif  // __ARM_NEON__
+      if (!converted) {
+        convert_16_to_8_standard(img, data, uvHeight, yLength, uvLength);
       }
     } else {
-      // TODO: This copy can be eliminated by using external frame buffers. This
-      // is insignificant for smaller videos but takes ~1.5ms for 1080p clips.
-      // So this should eventually be gotten rid of.
+      // TODO: This copy can be eliminated by using external frame
+      // buffers. This is insignificant for smaller videos but takes ~1.5ms
+      // for 1080p clips. So this should eventually be gotten rid of.
       memcpy(data, img->planes[VPX_PLANE_Y], yLength);
       memcpy(data + yLength, img->planes[VPX_PLANE_U], uvLength);
       memcpy(data + yLength + uvLength, img->planes[VPX_PLANE_V], uvLength);
@@ -255,9 +438,7 @@ DECODER_FUNC(jstring, vpxGetErrorMessage, jlong jContext) {
   return env->NewStringUTF(vpx_codec_error(context));
 }
 
-DECODER_FUNC(jint, vpxGetErrorCode, jlong jContext) {
-  return errorCode;
-}
+DECODER_FUNC(jint, vpxGetErrorCode, jlong jContext) { return errorCode; }
 
 LIBRARY_FUNC(jstring, vpxIsSecureDecodeSupported) {
   // Doesn't support

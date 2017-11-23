@@ -101,8 +101,8 @@ public final class ChapterTocFrame extends Id3Frame {
     dest.writeByte((byte) (isOrdered ? 1 : 0));
     dest.writeStringArray(children);
     dest.writeInt(subFrames.length);
-    for (int i = 0; i < subFrames.length; i++) {
-      dest.writeParcelable(subFrames[i], 0);
+    for (Id3Frame subFrame : subFrames) {
+      dest.writeParcelable(subFrame, 0);
     }
   }
 

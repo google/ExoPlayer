@@ -61,8 +61,8 @@ public final class Loader implements LoaderErrorThrower {
     /**
      * Performs the load, returning on completion or cancellation.
      *
-     * @throws IOException
-     * @throws InterruptedException
+     * @throws IOException If the input could not be loaded.
+     * @throws InterruptedException If the thread was interrupted.
      */
     void load() throws IOException, InterruptedException;
 
@@ -380,7 +380,13 @@ public final class Loader implements LoaderErrorThrower {
           callback.onLoadCanceled(loadable, nowMs, durationMs, false);
           break;
         case MSG_END_OF_SOURCE:
-          callback.onLoadCompleted(loadable, nowMs, durationMs);
+          try {
+            callback.onLoadCompleted(loadable, nowMs, durationMs);
+          } catch (RuntimeException e) {
+            // This should never happen, but handle it anyway.
+            Log.e(TAG, "Unexpected exception handling load completed", e);
+            fatalError = new UnexpectedLoaderException(e);
+          }
           break;
         case MSG_IO_EXCEPTION:
           currentError = (IOException) msg.obj;
@@ -391,6 +397,9 @@ public final class Loader implements LoaderErrorThrower {
             errorCount = retryAction == RETRY_RESET_ERROR_COUNT ? 1 : errorCount + 1;
             start(getRetryDelayMillis());
           }
+          break;
+        default:
+          // Never happens.
           break;
       }
     }
@@ -420,7 +429,9 @@ public final class Loader implements LoaderErrorThrower {
 
     @Override
     public void run() {
-      sendEmptyMessage(0);
+      if (getLooper().getThread().isAlive()) {
+        sendEmptyMessage(0);
+      }
     }
 
     @Override

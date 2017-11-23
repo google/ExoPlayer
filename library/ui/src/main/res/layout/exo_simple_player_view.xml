@@ -38,11 +38,11 @@
 
   </com.google.android.exoplayer2.ui.AspectRatioFrameLayout>
 
-  <View android:id="@id/exo_controller_placeholder"
+  <FrameLayout android:id="@id/exo_overlay"
       android:layout_width="match_parent"
       android:layout_height="match_parent"/>
 
-  <FrameLayout android:id="@id/exo_overlay"
+  <View android:id="@id/exo_controller_placeholder"
       android:layout_width="match_parent"
       android:layout_height="match_parent"/>
 

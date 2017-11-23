@@ -49,6 +49,8 @@ public final class SampleQueue implements TrackOutput {
 
   }
 
+  public static final int ADVANCE_FAILED = -1;
+
   private static final int INITIAL_SCRATCH_SIZE = 32;
 
   private final Allocator allocator;
@@ -255,9 +257,11 @@ public final class SampleQueue implements TrackOutput {
 
   /**
    * Advances the read position to the end of the queue.
+   *
+   * @return The number of samples that were skipped.
    */
-  public void advanceToEnd() {
-    metadataQueue.advanceToEnd();
+  public int advanceToEnd() {
+    return metadataQueue.advanceToEnd();
   }
 
   /**
@@ -268,10 +272,12 @@ public final class SampleQueue implements TrackOutput {
    *     time, rather than to any sample before or at that time.
    * @param allowTimeBeyondBuffer Whether the operation can succeed if {@code timeUs} is beyond the
    *     end of the queue, by advancing the read position to the last sample (or keyframe).
-   * @return Whether the operation was a success. A successful advance is one in which the read
-   *     position was unchanged or advanced, and is now at a sample meeting the specified criteria.
+   * @return The number of samples that were skipped if the operation was successful, which may be
+   *     equal to 0, or {@link #ADVANCE_FAILED} if the operation was not successful. A successful
+   *     advance is one in which the read position was unchanged or advanced, and is now at a sample
+   *     meeting the specified criteria.
    */
-  public boolean advanceTo(long timeUs, boolean toKeyframe, boolean allowTimeBeyondBuffer) {
+  public int advanceTo(long timeUs, boolean toKeyframe, boolean allowTimeBeyondBuffer) {
     return metadataQueue.advanceTo(timeUs, toKeyframe, allowTimeBeyondBuffer);
   }
 
