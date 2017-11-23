@@ -2,10 +2,6 @@
 
 ### dev-v2 (not yet released) ###
 
-* Fix reporting of internal position discontinuities via
-  `Player.onPositionDiscontinuity`. `DISCONTINUITY_REASON_SEEK_ADJUSTMENT` is
-  added to disambiguate position adjustments during seeks from other types of
-  internal position discontinuity.
 * Allow more flexible loading strategy when playing media containing multiple
   sub-streams, by allowing injection of custom `CompositeSequenceableLoader`
   factories through `DashMediaSource.Builder`, `HlsMediaSource.Builder`,
@@ -36,6 +32,10 @@
 * SimpleExoPlayer: Support for multiple video, text and metadata outputs.
 * Support for `Renderer`s that don't consume any media
   ([#3212](https://github.com/google/ExoPlayer/issues/3212)).
+* Fix reporting of internal position discontinuities via
+  `Player.onPositionDiscontinuity`. `DISCONTINUITY_REASON_SEEK_ADJUSTMENT` is
+  added to disambiguate position adjustments during seeks from other types of
+  internal position discontinuity.
 * Fix potential `IndexOutOfBoundsException` when calling `ExoPlayer.getDuration`
   ([#3362](https://github.com/google/ExoPlayer/issues/3362)).
 * Fix playbacks involving looping, concatenation and ads getting stuck when
