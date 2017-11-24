@@ -517,7 +517,7 @@ public final class ExoPlayerTestRunner extends Player.DefaultEventListener {
 
   @Override
   public void onPlayerError(ExoPlaybackException error) {
-    handleException(exception);
+    handleException(error);
   }
 
   @Override
