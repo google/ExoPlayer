@@ -17,6 +17,7 @@ package com.google.android.exoplayer2.testutil;
 
 import android.os.Handler;
 import android.os.Looper;
+import android.support.annotation.Nullable;
 import android.view.Surface;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.PlaybackParameters;
@@ -47,13 +48,28 @@ import com.google.android.exoplayer2.util.Clock;
  */
 public final class ActionSchedule {
 
+  /**
+   * Callback to notify listener that the action schedule has finished.
+   */
+  public interface Callback {
+
+    /**
+     * Called when action schedule finished executing all its actions.
+     */
+    void onActionScheduleFinished();
+
+  }
+
   private final ActionNode rootNode;
+  private final CallbackAction callbackAction;
 
   /**
    * @param rootNode The first node in the sequence.
+   * @param callbackAction The final action which can be used to trigger a callback.
    */
-  private ActionSchedule(ActionNode rootNode) {
+  private ActionSchedule(ActionNode rootNode, CallbackAction callbackAction) {
     this.rootNode = rootNode;
+    this.callbackAction = callbackAction;
   }
 
   /**
@@ -63,9 +79,12 @@ public final class ActionSchedule {
    * @param trackSelector The track selector to which actions should be applied.
    * @param surface The surface to use when applying actions.
    * @param mainHandler A handler associated with the main thread of the host activity.
+   * @param callback A {@link Callback} to notify when the action schedule finishes, or null if no
+   *     notification is needed.
    */
   /* package */ void start(SimpleExoPlayer player, MappingTrackSelector trackSelector,
-      Surface surface, Handler mainHandler) {
+      Surface surface, Handler mainHandler, @Nullable Callback callback) {
+    callbackAction.setCallback(callback);
     rootNode.schedule(player, trackSelector, surface, mainHandler);
   }
 
@@ -304,7 +323,9 @@ public final class ActionSchedule {
     }
 
     public ActionSchedule build() {
-      return new ActionSchedule(rootNode);
+      CallbackAction callbackAction = new CallbackAction(tag);
+      apply(callbackAction);
+      return new ActionSchedule(rootNode, callbackAction);
     }
 
     private Builder appendActionNode(ActionNode actionNode) {
@@ -416,6 +437,31 @@ public final class ActionSchedule {
     protected void doActionImpl(SimpleExoPlayer player, MappingTrackSelector trackSelector,
         Surface surface) {
       // Do nothing.
+    }
+
+  }
+
+  /**
+   * An action calling a specified {@link ActionSchedule.Callback}.
+   */
+  private static final class CallbackAction extends Action {
+
+    private @Nullable Callback callback;
+
+    public CallbackAction(String tag) {
+      super(tag, "FinishedCallback");
+    }
+
+    public void setCallback(@Nullable Callback callback) {
+      this.callback = callback;
+    }
+
+    @Override
+    protected void doActionImpl(SimpleExoPlayer player, MappingTrackSelector trackSelector,
+        Surface surface) {
+      if (callback != null) {
+        callback.onActionScheduleFinished();
+      }
     }
 
   }

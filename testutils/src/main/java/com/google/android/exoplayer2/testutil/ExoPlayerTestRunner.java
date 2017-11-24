@@ -17,6 +17,8 @@ package com.google.android.exoplayer2.testutil;
 
 import android.os.Handler;
 import android.os.HandlerThread;
+import android.os.SystemClock;
+import android.support.annotation.Nullable;
 import com.google.android.exoplayer2.DefaultLoadControl;
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.ExoPlayerFactory;
@@ -48,7 +50,8 @@ import junit.framework.Assert;
 /**
  * Helper class to run an ExoPlayer test.
  */
-public final class ExoPlayerTestRunner extends Player.DefaultEventListener {
+public final class ExoPlayerTestRunner extends Player.DefaultEventListener
+    implements ActionSchedule.Callback {
 
   /**
    * Builder to set-up a {@link ExoPlayerTestRunner}. Default fake implementations will be used for
@@ -327,12 +330,13 @@ public final class ExoPlayerTestRunner extends Player.DefaultEventListener {
   private final RenderersFactory renderersFactory;
   private final MappingTrackSelector trackSelector;
   private final LoadControl loadControl;
-  private final ActionSchedule actionSchedule;
-  private final Player.EventListener eventListener;
+  private final @Nullable ActionSchedule actionSchedule;
+  private final @Nullable Player.EventListener eventListener;
 
   private final HandlerThread playerThread;
   private final Handler handler;
   private final CountDownLatch endedCountDownLatch;
+  private final CountDownLatch actionScheduleFinishedCountDownLatch;
   private final ArrayList<Timeline> timelines;
   private final ArrayList<Object> manifests;
   private final ArrayList<Integer> timelineChangeReasons;
@@ -346,8 +350,8 @@ public final class ExoPlayerTestRunner extends Player.DefaultEventListener {
 
   private ExoPlayerTestRunner(PlayerFactory playerFactory, MediaSource mediaSource,
       RenderersFactory renderersFactory, MappingTrackSelector trackSelector,
-      LoadControl loadControl, ActionSchedule actionSchedule, Player.EventListener eventListener,
-      int expectedPlayerEndedCount) {
+      LoadControl loadControl, @Nullable ActionSchedule actionSchedule,
+      @Nullable Player.EventListener eventListener, int expectedPlayerEndedCount) {
     this.playerFactory = playerFactory;
     this.mediaSource = mediaSource;
     this.renderersFactory = renderersFactory;
@@ -361,6 +365,7 @@ public final class ExoPlayerTestRunner extends Player.DefaultEventListener {
     this.periodIndices = new ArrayList<>();
     this.discontinuityReasons = new ArrayList<>();
     this.endedCountDownLatch = new CountDownLatch(expectedPlayerEndedCount);
+    this.actionScheduleFinishedCountDownLatch = new CountDownLatch(actionSchedule != null ? 1 : 0);
     this.playerThread = new HandlerThread("ExoPlayerTest thread");
     playerThread.start();
     this.handler = new Handler(playerThread.getLooper());
@@ -387,7 +392,7 @@ public final class ExoPlayerTestRunner extends Player.DefaultEventListener {
           }
           player.setPlayWhenReady(true);
           if (actionSchedule != null) {
-            actionSchedule.start(player, trackSelector, null, handler);
+            actionSchedule.start(player, trackSelector, null, handler, ExoPlayerTestRunner.this);
           }
           player.prepare(mediaSource);
         } catch (Exception e) {
@@ -400,8 +405,9 @@ public final class ExoPlayerTestRunner extends Player.DefaultEventListener {
 
   /**
    * Blocks the current thread until the test runner finishes. A test is deemed to be finished when
-   * the playback state transitions to {@link Player#STATE_ENDED} or {@link Player#STATE_IDLE}, or
-   * when am {@link ExoPlaybackException} is thrown.
+   * the action schedule finished and the playback state transitioned to {@link Player#STATE_ENDED}
+   * or {@link Player#STATE_IDLE} for the specified number of times. The test also finishes when an
+   * {@link ExoPlaybackException} is thrown.
    *
    * @param timeoutMs The maximum time to wait for the test runner to finish. If this time elapsed
    *     the method will throw a {@link TimeoutException}.
@@ -409,6 +415,13 @@ public final class ExoPlayerTestRunner extends Player.DefaultEventListener {
    * @throws Exception If any exception occurred during playback, release, or due to a timeout.
    */
   public ExoPlayerTestRunner blockUntilEnded(long timeoutMs) throws Exception {
+    long deadlineMs = SystemClock.elapsedRealtime() + timeoutMs;
+    try {
+      blockUntilActionScheduleFinished(timeoutMs);
+    } catch (TimeoutException error) {
+      exception = error;
+    }
+    timeoutMs = Math.max(0, deadlineMs - SystemClock.elapsedRealtime());
     if (!endedCountDownLatch.await(timeoutMs, TimeUnit.MILLISECONDS)) {
       exception = new TimeoutException("Test playback timed out waiting for playback to end.");
     }
@@ -416,6 +429,24 @@ public final class ExoPlayerTestRunner extends Player.DefaultEventListener {
     // Throw any pending exception (from playback, timing out or releasing).
     if (exception != null) {
       throw exception;
+    }
+    return this;
+  }
+
+  /**
+   * Blocks the current thread until the action schedule finished. Also returns when an
+   * {@link ExoPlaybackException} is thrown. This does not release the test runner and the test must
+   * still call {@link #blockUntilEnded(long)}.
+   *
+   * @param timeoutMs The maximum time to wait for the action schedule to finish.
+   * @return This test runner.
+   * @throws TimeoutException If the action schedule did not finish within the specified timeout.
+   * @throws InterruptedException If the test thread gets interrupted while waiting.
+   */
+  public ExoPlayerTestRunner blockUntilActionScheduleFinished(long timeoutMs)
+      throws TimeoutException, InterruptedException {
+    if (!actionScheduleFinishedCountDownLatch.await(timeoutMs, TimeUnit.MILLISECONDS)) {
+      throw new TimeoutException("Test playback timed out waiting for action schedule to finish.");
     }
     return this;
   }
@@ -536,6 +567,7 @@ public final class ExoPlayerTestRunner extends Player.DefaultEventListener {
     while (endedCountDownLatch.getCount() > 0) {
       endedCountDownLatch.countDown();
     }
+    actionScheduleFinishedCountDownLatch.countDown();
   }
 
   // Player.EventListener
@@ -580,6 +612,13 @@ public final class ExoPlayerTestRunner extends Player.DefaultEventListener {
       // Ignore seek or internal discontinuities within a period.
       periodIndices.add(currentIndex);
     }
+  }
+
+  // ActionSchedule.Callback
+
+  @Override
+  public void onActionScheduleFinished() {
+    actionScheduleFinishedCountDownLatch.countDown();
   }
 
 }
