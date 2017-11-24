@@ -19,6 +19,7 @@ import android.os.Handler;
 import android.os.Looper;
 import android.view.Surface;
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.PlaybackParameters;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.Timeline;
@@ -28,6 +29,7 @@ import com.google.android.exoplayer2.testutil.Action.ExecuteRunnable;
 import com.google.android.exoplayer2.testutil.Action.PrepareSource;
 import com.google.android.exoplayer2.testutil.Action.Seek;
 import com.google.android.exoplayer2.testutil.Action.SetPlayWhenReady;
+import com.google.android.exoplayer2.testutil.Action.SetPlaybackParameters;
 import com.google.android.exoplayer2.testutil.Action.SetRendererDisabled;
 import com.google.android.exoplayer2.testutil.Action.SetRepeatMode;
 import com.google.android.exoplayer2.testutil.Action.SetShuffleModeEnabled;
@@ -149,6 +151,17 @@ public final class ActionSchedule {
       return apply(new Seek(tag, positionMs))
           .apply(new WaitForSeekProcessed(tag))
           .apply(new WaitForPlaybackState(tag, Player.STATE_READY));
+    }
+
+    /**
+     * Schedules a playback parameters setting action to be executed.
+     *
+     * @param playbackParameters The playback parameters to set.
+     * @return The builder, for convenience.
+     * @see Player#setPlaybackParameters(PlaybackParameters)
+     */
+    public Builder setPlaybackParameters(PlaybackParameters playbackParameters) {
+      return apply(new SetPlaybackParameters(tag, playbackParameters));
     }
 
     /**
