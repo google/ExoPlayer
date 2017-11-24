@@ -126,7 +126,7 @@ public abstract class ExoHostedTest extends Player.DefaultEventListener implemen
     if (player == null) {
       pendingSchedule = schedule;
     } else {
-      schedule.start(player, trackSelector, surface, actionHandler);
+      schedule.start(player, trackSelector, surface, actionHandler, /* callback= */ null);
     }
   }
 
@@ -162,7 +162,7 @@ public abstract class ExoHostedTest extends Player.DefaultEventListener implemen
     actionHandler = new Handler();
     // Schedule any pending actions.
     if (pendingSchedule != null) {
-      pendingSchedule.start(player, trackSelector, surface, actionHandler);
+      pendingSchedule.start(player, trackSelector, surface, actionHandler, /* callback= */ null);
       pendingSchedule = null;
     }
   }

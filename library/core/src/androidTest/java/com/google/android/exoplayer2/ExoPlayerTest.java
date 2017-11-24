@@ -56,8 +56,15 @@ public final class ExoPlayerTest extends TestCase {
   public void testPlayEmptyTimeline() throws Exception {
     Timeline timeline = Timeline.EMPTY;
     FakeRenderer renderer = new FakeRenderer();
+    // TODO(b/69665207): Without waiting for the timeline update, this test is flaky as the timeline
+    // update happens after the transition to STATE_ENDED and the test runner may already have been
+    // stopped. Remove action schedule as soon as state changes are part of the masking and the
+    // correct order of events is restored.
+    ActionSchedule actionSchedule = new ActionSchedule.Builder("testPlayEmptyTimeline")
+        .waitForTimelineChanged(timeline)
+        .build();
     ExoPlayerTestRunner testRunner = new ExoPlayerTestRunner.Builder()
-        .setTimeline(timeline).setRenderers(renderer)
+        .setTimeline(timeline).setRenderers(renderer).setActionSchedule(actionSchedule)
         .build().start().blockUntilEnded(TIMEOUT_MS);
     testRunner.assertNoPositionDiscontinuities();
     testRunner.assertTimelinesEqual(timeline);
