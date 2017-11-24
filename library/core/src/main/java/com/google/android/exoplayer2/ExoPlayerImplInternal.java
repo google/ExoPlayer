@@ -947,10 +947,12 @@ import java.io.IOException;
     MediaPeriodHolder periodHolder =
         playingPeriodHolder != null ? playingPeriodHolder : loadingPeriodHolder;
     while (periodHolder != null) {
-      TrackSelection[] trackSelections = periodHolder.trackSelectorResult.selections.getAll();
-      for (TrackSelection trackSelection : trackSelections) {
-        if (trackSelection != null) {
-          trackSelection.onPlaybackSpeed(playbackSpeed);
+      if (periodHolder.trackSelectorResult != null) {
+        TrackSelection[] trackSelections = periodHolder.trackSelectorResult.selections.getAll();
+        for (TrackSelection trackSelection : trackSelections) {
+          if (trackSelection != null) {
+            trackSelection.onPlaybackSpeed(playbackSpeed);
+          }
         }
       }
       periodHolder = periodHolder.next;
