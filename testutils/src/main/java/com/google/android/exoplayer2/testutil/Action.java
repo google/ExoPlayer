@@ -19,6 +19,7 @@ import android.os.Handler;
 import android.util.Log;
 import android.view.Surface;
 import com.google.android.exoplayer2.ExoPlayer;
+import com.google.android.exoplayer2.PlaybackParameters;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.Timeline;
@@ -299,6 +300,30 @@ public abstract class Action {
     protected void doActionImpl(SimpleExoPlayer player, MappingTrackSelector trackSelector,
         Surface surface) {
       player.setShuffleModeEnabled(shuffleModeEnabled);
+    }
+
+  }
+
+  /**
+   * Calls {@link Player#setPlaybackParameters(PlaybackParameters)}.
+   */
+  public static final class SetPlaybackParameters extends Action {
+
+    private final PlaybackParameters playbackParameters;
+
+    /**
+     * @param tag A tag to use for logging.
+     * @param playbackParameters The playback parameters.
+     */
+    public SetPlaybackParameters(String tag, PlaybackParameters playbackParameters) {
+      super(tag, "SetPlaybackParameters:" + playbackParameters);
+      this.playbackParameters = playbackParameters;
+    }
+
+    @Override
+    protected void doActionImpl(SimpleExoPlayer player, MappingTrackSelector trackSelector,
+        Surface surface) {
+      player.setPlaybackParameters(playbackParameters);
     }
 
   }

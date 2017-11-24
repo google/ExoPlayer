@@ -570,4 +570,48 @@ public final class ExoPlayerTest extends TestCase {
     testRunner.assertPlayedPeriodIndices(0, 1, 0);
   }
 
+  public void testSetPlaybackParametersBeforePreparationCompletesSucceeds() throws Exception {
+    // Test that no exception is thrown when playback parameters are updated between creating a
+    // period and preparation of the period completing.
+    final CountDownLatch createPeriodCalledCountDownLatch = new CountDownLatch(1);
+    final FakeMediaPeriod[] fakeMediaPeriodHolder = new FakeMediaPeriod[1];
+    MediaSource mediaSource =
+        new FakeMediaSource(new FakeTimeline(/* windowCount= */ 1), null, Builder.VIDEO_FORMAT) {
+          @Override
+          protected FakeMediaPeriod createFakeMediaPeriod(
+              MediaPeriodId id, TrackGroupArray trackGroupArray, Allocator allocator) {
+            // Defer completing preparation of the period until playback parameters have been set.
+            fakeMediaPeriodHolder[0] =
+                new FakeMediaPeriod(trackGroupArray, /* deferOnPrepared= */ true);
+            createPeriodCalledCountDownLatch.countDown();
+            return fakeMediaPeriodHolder[0];
+          }
+        };
+    ActionSchedule actionSchedule =
+        new ActionSchedule.Builder("testSetPlaybackParametersBeforePreparationCompletesSucceeds")
+            .waitForPlaybackState(Player.STATE_BUFFERING)
+            // Block until createPeriod has been called on the fake media source.
+            .executeRunnable(new Runnable() {
+              @Override
+              public void run() {
+                try {
+                  createPeriodCalledCountDownLatch.await();
+                } catch (InterruptedException e) {
+                  throw new IllegalStateException(e);
+                }
+              }
+            })
+            // Set playback parameters (while the fake media period is not yet prepared).
+            .setPlaybackParameters(new PlaybackParameters(2f, 2f))
+            // Complete preparation of the fake media period.
+            .executeRunnable(new Runnable() {
+              @Override
+              public void run() {
+                fakeMediaPeriodHolder[0].setPreparationComplete();
+              }
+            })
+            .build();
+    new ExoPlayerTestRunner.Builder().setMediaSource(mediaSource).setActionSchedule(actionSchedule)
+        .build().start().blockUntilEnded(TIMEOUT_MS);
+  }
 }
