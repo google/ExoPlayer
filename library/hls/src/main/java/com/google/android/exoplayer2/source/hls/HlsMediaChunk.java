@@ -306,6 +306,8 @@ import java.util.concurrent.atomic.AtomicInteger;
         if (PRIV_TIMESTAMP_FRAME_OWNER.equals(privFrame.owner)) {
           System.arraycopy(privFrame.privateData, 0, id3Data.data, 0, 8 /* timestamp size */);
           id3Data.reset(8);
+          // The top 31 bits should be zeros, but explicitly zero them to wrap in the case that the
+          // streaming provider forgot. See: https://github.com/google/ExoPlayer/pull/3495.
           return id3Data.readLong() & 0x1FFFFFFFFL;
         }
       }
