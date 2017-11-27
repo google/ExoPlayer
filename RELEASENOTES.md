@@ -18,8 +18,11 @@
   use this with `FfmpegAudioRenderer`.
 * Support extraction and decoding of Dolby Atmos
   ([#2465](https://github.com/google/ExoPlayer/issues/2465)).
-* Added a reason to `EventListener.onTimelineChanged` to distinguish between 
+* Added a reason to `EventListener.onTimelineChanged` to distinguish between
   initial preparation, reset and dynamic updates.
+* DefaultTrackSelector: Support undefined language text track selection when the
+  preferred language is not available
+  ([#2980](https://github.com/google/ExoPlayer/issues/2980)).
 
 ### 2.6.0 ###
 
