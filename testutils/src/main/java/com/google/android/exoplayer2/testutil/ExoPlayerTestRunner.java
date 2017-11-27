@@ -17,7 +17,6 @@ package com.google.android.exoplayer2.testutil;
 
 import android.os.Handler;
 import android.os.HandlerThread;
-import android.os.SystemClock;
 import android.support.annotation.Nullable;
 import com.google.android.exoplayer2.DefaultLoadControl;
 import com.google.android.exoplayer2.ExoPlaybackException;
@@ -405,9 +404,9 @@ public final class ExoPlayerTestRunner extends Player.DefaultEventListener
 
   /**
    * Blocks the current thread until the test runner finishes. A test is deemed to be finished when
-   * the action schedule finished and the playback state transitioned to {@link Player#STATE_ENDED}
-   * or {@link Player#STATE_IDLE} for the specified number of times. The test also finishes when an
-   * {@link ExoPlaybackException} is thrown.
+   * the playback state transitioned to {@link Player#STATE_ENDED} or {@link Player#STATE_IDLE} for
+   * the specified number of times. The test also finishes when an {@link ExoPlaybackException} is
+   * thrown.
    *
    * @param timeoutMs The maximum time to wait for the test runner to finish. If this time elapsed
    *     the method will throw a {@link TimeoutException}.
@@ -415,13 +414,6 @@ public final class ExoPlayerTestRunner extends Player.DefaultEventListener
    * @throws Exception If any exception occurred during playback, release, or due to a timeout.
    */
   public ExoPlayerTestRunner blockUntilEnded(long timeoutMs) throws Exception {
-    long deadlineMs = SystemClock.elapsedRealtime() + timeoutMs;
-    try {
-      blockUntilActionScheduleFinished(timeoutMs);
-    } catch (TimeoutException error) {
-      exception = error;
-    }
-    timeoutMs = Math.max(0, deadlineMs - SystemClock.elapsedRealtime());
     if (!endedCountDownLatch.await(timeoutMs, TimeUnit.MILLISECONDS)) {
       exception = new TimeoutException("Test playback timed out waiting for playback to end.");
     }

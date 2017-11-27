@@ -65,7 +65,7 @@ public final class ExoPlayerTest extends TestCase {
         .build();
     ExoPlayerTestRunner testRunner = new ExoPlayerTestRunner.Builder()
         .setTimeline(timeline).setRenderers(renderer).setActionSchedule(actionSchedule)
-        .build().start().blockUntilEnded(TIMEOUT_MS);
+        .build().start().blockUntilActionScheduleFinished(TIMEOUT_MS).blockUntilEnded(TIMEOUT_MS);
     testRunner.assertNoPositionDiscontinuities();
     testRunner.assertTimelinesEqual(timeline);
     assertEquals(0, renderer.formatReadCount);
