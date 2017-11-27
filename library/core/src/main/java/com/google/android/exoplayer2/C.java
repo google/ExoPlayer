@@ -425,6 +425,11 @@ public final class C {
   public static final int SELECTION_FLAG_AUTOSELECT = 4;
 
   /**
+   * Represents an undetermined language as an ISO 639 alpha-3 language code.
+   */
+  public static final String LANGUAGE_UNDETERMINED = "und";
+
+  /**
    * Represents a streaming or other media type.
    */
   @Retention(RetentionPolicy.SOURCE)
