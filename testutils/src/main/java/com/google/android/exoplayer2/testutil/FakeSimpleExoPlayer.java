@@ -511,7 +511,7 @@ public class FakeSimpleExoPlayer extends SimpleExoPlayer {
       }
     }
 
-    private void stop(boolean quitPlaybackThread) {
+    private void stop(final boolean quitPlaybackThread) {
       playbackHandler.post(new Runnable() {
         @Override
         public void run () {
