@@ -166,27 +166,13 @@ public class FakeSimpleExoPlayer extends SimpleExoPlayer {
 
     @Override
     public void stop() {
-      playbackHandler.post(new Runnable() {
-        @Override
-        public void run () {
-          playbackHandler.removeCallbacksAndMessages(null);
-          releaseMedia();
-          changePlaybackState(Player.STATE_IDLE);
-        }
-      });
+      stop(/* quitPlaybackThread= */ false);
     }
 
     @Override
     @SuppressWarnings("ThreadJoinLoop")
     public void release() {
-      stop();
-      playbackHandler.post(new Runnable() {
-        @Override
-        public void run () {
-          playbackHandler.removeCallbacksAndMessages(null);
-          playbackThread.quit();
-        }
-      });
+      stop(/* quitPlaybackThread= */ true);
       while (playbackThread.isAlive()) {
         try {
           playbackThread.join();
@@ -525,6 +511,20 @@ public class FakeSimpleExoPlayer extends SimpleExoPlayer {
         mediaSource.releaseSource();
         mediaSource = null;
       }
+    }
+
+    private void stop(boolean quitPlaybackThread) {
+      playbackHandler.post(new Runnable() {
+        @Override
+        public void run () {
+          playbackHandler.removeCallbacksAndMessages(null);
+          releaseMedia();
+          changePlaybackState(Player.STATE_IDLE);
+          if (quitPlaybackThread) {
+            playbackThread.quit();
+          }
+        }
+      });
     }
 
   }
