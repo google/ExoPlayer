@@ -306,7 +306,7 @@ import java.util.concurrent.atomic.AtomicInteger;
         if (PRIV_TIMESTAMP_FRAME_OWNER.equals(privFrame.owner)) {
           System.arraycopy(privFrame.privateData, 0, id3Data.data, 0, 8 /* timestamp size */);
           id3Data.reset(8);
-          return id3Data.readLong() & ((1L << 33) - 1L);
+          return id3Data.readLong() & 0x1FFFFFFFFL;
         }
       }
     }
