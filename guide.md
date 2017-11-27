@@ -130,18 +130,18 @@ Next add a gradle compile dependency to the `build.gradle` file of your app
 module. The following will add a dependency to the full ExoPlayer library:
 
 ```gradle
-compile 'com.google.android.exoplayer:exoplayer:r2.X.X'
+compile 'com.google.android.exoplayer:exoplayer:2.X.X'
 ```
 
-where `r2.X.X` is your preferred version. Alternatively, you can depend on only
+where `2.X.X` is your preferred version. Alternatively, you can depend on only
 the library modules that you actually need. For example the following will add
 dependencies on the Core, DASH and UI library modules, as might be required for
 an app that plays DASH content:
 
 ```gradle
-compile 'com.google.android.exoplayer:exoplayer-core:r2.X.X'
-compile 'com.google.android.exoplayer:exoplayer-dash:r2.X.X'
-compile 'com.google.android.exoplayer:exoplayer-ui:r2.X.X'
+compile 'com.google.android.exoplayer:exoplayer-core:2.X.X'
+compile 'com.google.android.exoplayer:exoplayer-dash:2.X.X'
+compile 'com.google.android.exoplayer:exoplayer-ui:2.X.X'
 ```
 
 The available library modules are listed below. Adding a dependency to the full
