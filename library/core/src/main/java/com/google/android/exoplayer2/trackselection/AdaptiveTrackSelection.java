@@ -21,6 +21,7 @@ import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.source.TrackGroup;
 import com.google.android.exoplayer2.source.chunk.MediaChunk;
 import com.google.android.exoplayer2.upstream.BandwidthMeter;
+import com.google.android.exoplayer2.util.Util;
 import java.util.List;
 
 /**
@@ -139,6 +140,7 @@ public class AdaptiveTrackSelection extends BaseTrackSelection {
   private final float bandwidthFraction;
   private final float bufferedFractionToLiveEdgeForQualityIncrease;
 
+  private float playbackSpeed;
   private int selectedIndex;
   private int reason;
 
@@ -196,8 +198,14 @@ public class AdaptiveTrackSelection extends BaseTrackSelection {
     this.bandwidthFraction = bandwidthFraction;
     this.bufferedFractionToLiveEdgeForQualityIncrease =
         bufferedFractionToLiveEdgeForQualityIncrease;
+    playbackSpeed = 1f;
     selectedIndex = determineIdealSelectedIndex(Long.MIN_VALUE);
     reason = C.SELECTION_REASON_INITIAL;
+  }
+
+  @Override
+  public void onPlaybackSpeed(float playbackSpeed) {
+    this.playbackSpeed = playbackSpeed;
   }
 
   @Override
@@ -254,8 +262,10 @@ public class AdaptiveTrackSelection extends BaseTrackSelection {
       return 0;
     }
     int queueSize = queue.size();
-    long bufferedDurationUs = queue.get(queueSize - 1).endTimeUs - playbackPositionUs;
-    if (bufferedDurationUs < minDurationToRetainAfterDiscardUs) {
+    long mediaBufferedDurationUs = queue.get(queueSize - 1).endTimeUs - playbackPositionUs;
+    long playoutBufferedDurationUs =
+        Util.getPlayoutDurationForMediaDuration(mediaBufferedDurationUs, playbackSpeed);
+    if (playoutBufferedDurationUs < minDurationToRetainAfterDiscardUs) {
       return queueSize;
     }
     int idealSelectedIndex = determineIdealSelectedIndex(SystemClock.elapsedRealtime());
@@ -266,8 +276,10 @@ public class AdaptiveTrackSelection extends BaseTrackSelection {
     for (int i = 0; i < queueSize; i++) {
       MediaChunk chunk = queue.get(i);
       Format format = chunk.trackFormat;
-      long durationBeforeThisChunkUs = chunk.startTimeUs - playbackPositionUs;
-      if (durationBeforeThisChunkUs >= minDurationToRetainAfterDiscardUs
+      long mediaDurationBeforeThisChunkUs = chunk.startTimeUs - playbackPositionUs;
+      long playoutDurationBeforeThisChunkUs =
+          Util.getPlayoutDurationForMediaDuration(mediaDurationBeforeThisChunkUs, playbackSpeed);
+      if (playoutDurationBeforeThisChunkUs >= minDurationToRetainAfterDiscardUs
           && format.bitrate < idealFormat.bitrate
           && format.height != Format.NO_VALUE && format.height < 720
           && format.width != Format.NO_VALUE && format.width < 1280
@@ -292,7 +304,7 @@ public class AdaptiveTrackSelection extends BaseTrackSelection {
     for (int i = 0; i < length; i++) {
       if (nowMs == Long.MIN_VALUE || !isBlacklisted(i, nowMs)) {
         Format format = getFormat(i);
-        if (format.bitrate <= effectiveBitrate) {
+        if (Math.round(format.bitrate * playbackSpeed) <= effectiveBitrate) {
           return i;
         } else {
           lowestBitrateNonBlacklistedIndex = i;
