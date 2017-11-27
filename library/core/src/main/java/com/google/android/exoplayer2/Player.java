@@ -401,6 +401,8 @@ public interface Player {
    * @param windowIndex The index of the window.
    * @param positionMs The seek position in the specified window, or {@link C#TIME_UNSET} to seek to
    *     the window's default position.
+   * @throws IllegalSeekPositionException If the player has a non-empty timeline and the provided
+   *     {@code windowIndex} is not within the bounds of the current timeline.
    */
   void seekTo(int windowIndex, long positionMs);
 
