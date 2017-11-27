@@ -172,6 +172,11 @@ public class DefaultLoadControl implements LoadControl {
   @Override
   public boolean shouldStartPlayback(long bufferedDurationUs, float playbackSpeed,
       boolean rebuffering) {
+    if (bufferedDurationUs >= minBufferUs) {
+      // It's possible that we're not loading, so allow playback to start unconditionally.
+      return true;
+    }
+    bufferedDurationUs = Util.getPlayoutDurationForMediaDuration(bufferedDurationUs, playbackSpeed);
     long minBufferDurationUs = rebuffering ? bufferForPlaybackAfterRebufferUs : bufferForPlaybackUs;
     return minBufferDurationUs <= 0 || bufferedDurationUs >= minBufferDurationUs;
   }
