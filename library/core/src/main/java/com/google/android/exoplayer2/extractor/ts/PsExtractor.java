@@ -31,7 +31,7 @@ import com.google.android.exoplayer2.util.TimestampAdjuster;
 import java.io.IOException;
 
 /**
- * Facilitates the extraction of data from the MPEG-2 PS container format.
+ * Extracts data from the MPEG-2 PS container format.
  */
 public final class PsExtractor implements Extractor {
 

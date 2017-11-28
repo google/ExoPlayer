@@ -28,7 +28,9 @@ import com.google.android.exoplayer2.extractor.TrackOutput;
 import com.google.android.exoplayer2.util.MimeTypes;
 import java.io.IOException;
 
-/** {@link Extractor} to extract samples from a WAV byte stream. */
+/**
+ * Extracts data from WAV byte streams.
+ */
 public final class WavExtractor implements Extractor, SeekMap {
 
   /**
