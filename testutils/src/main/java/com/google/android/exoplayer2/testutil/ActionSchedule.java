@@ -161,6 +161,17 @@ public final class ActionSchedule {
     }
 
     /**
+     * Schedules a seek action to be executed.
+     *
+     * @param windowIndex The window to seek to.
+     * @param positionMs The seek position.
+     * @return The builder, for convenience.
+     */
+    public Builder seek(int windowIndex, long positionMs) {
+      return apply(new Seek(tag, windowIndex, positionMs));
+    }
+
+    /**
      * Schedules a seek action to be executed and waits until playback resumes after the seek.
      *
      * @param positionMs The seek position.
@@ -190,6 +201,16 @@ public final class ActionSchedule {
      */
     public Builder stop() {
       return apply(new Stop(tag));
+    }
+
+    /**
+     * Schedules a stop action to be executed.
+     *
+     * @param reset Whether the player should be reset.
+     * @return The builder, for convenience.
+     */
+    public Builder stop(boolean reset) {
+      return apply(new Stop(tag, reset));
     }
 
     /**

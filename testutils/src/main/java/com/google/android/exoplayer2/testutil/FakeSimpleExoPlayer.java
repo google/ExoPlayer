@@ -166,13 +166,18 @@ public class FakeSimpleExoPlayer extends SimpleExoPlayer {
 
     @Override
     public void stop() {
-      stop(/* quitPlaybackThread= */ false);
+      stop(/* reset= */ false);
+    }
+
+    @Override
+    public void stop(boolean reset) {
+      stopPlayback(/* quitPlaybackThread= */ false);
     }
 
     @Override
     @SuppressWarnings("ThreadJoinLoop")
     public void release() {
-      stop(/* quitPlaybackThread= */ true);
+      stopPlayback(/* quitPlaybackThread= */ true);
       while (playbackThread.isAlive()) {
         try {
           playbackThread.join();
@@ -513,7 +518,7 @@ public class FakeSimpleExoPlayer extends SimpleExoPlayer {
       }
     }
 
-    private void stop(final boolean quitPlaybackThread) {
+    private void stopPlayback(final boolean quitPlaybackThread) {
       playbackHandler.post(new Runnable() {
         @Override
         public void run () {
