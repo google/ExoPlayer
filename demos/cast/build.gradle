@@ -48,4 +48,5 @@ dependencies {
     compile project(modulePrefix + 'library-smoothstreaming')
     compile project(modulePrefix + 'library-ui')
     compile project(modulePrefix + 'extension-cast')
+    compile 'com.android.support:recyclerview-v7:' + supportLibraryVersion
 }

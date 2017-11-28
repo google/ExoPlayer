@@ -151,7 +151,8 @@ public final class CastPlayer implements Player {
    *
    * @param item The item to load.
    * @param positionMs The position at which the playback should start in milliseconds relative to
-   *     the start of the item at {@code startIndex}.
+   *     the start of the item at {@code startIndex}. If {@link C#TIME_UNSET} is passed, playback
+   *     starts at position 0.
    * @return The Cast {@code PendingResult}, or null if no session is available.
    */
   public PendingResult<MediaChannelResult> loadItem(MediaQueueItem item, long positionMs) {
@@ -164,13 +165,15 @@ public final class CastPlayer implements Player {
    * @param items The items to load.
    * @param startIndex The index of the item at which playback should start.
    * @param positionMs The position at which the playback should start in milliseconds relative to
-   *     the start of the item at {@code startIndex}.
+   *     the start of the item at {@code startIndex}. If {@link C#TIME_UNSET} is passed, playback
+   *     starts at position 0.
    * @param repeatMode The repeat mode for the created media queue.
    * @return The Cast {@code PendingResult}, or null if no session is available.
    */
   public PendingResult<MediaChannelResult> loadItems(MediaQueueItem[] items, int startIndex,
       long positionMs, @RepeatMode int repeatMode) {
     if (remoteMediaClient != null) {
+      positionMs = positionMs != C.TIME_UNSET ? positionMs : 0;
       waitingForInitialTimeline = true;
       return remoteMediaClient.queueLoad(items, startIndex, getCastRepeatMode(repeatMode),
           positionMs, null);
@@ -327,6 +330,9 @@ public final class CastPlayer implements Player {
   @Override
   public void seekTo(int windowIndex, long positionMs) {
     MediaStatus mediaStatus = getMediaStatus();
+    // We assume the default position is 0. There is no support for seeking to the default position
+    // in RemoteMediaClient.
+    positionMs = positionMs != C.TIME_UNSET ? positionMs : 0;
     if (mediaStatus != null) {
       if (getCurrentWindowIndex() != windowIndex) {
         remoteMediaClient.queueJumpToItem((int) currentTimeline.getPeriod(windowIndex, period).uid,
@@ -364,6 +370,7 @@ public final class CastPlayer implements Player {
 
   @Override
   public void stop(boolean reset) {
+    playbackState = STATE_IDLE;
     if (remoteMediaClient != null) {
       // TODO(b/69792021): Support or emulate stop without position reset.
       remoteMediaClient.stop();
@@ -450,14 +457,18 @@ public final class CastPlayer implements Player {
 
   @Override
   public int getNextWindowIndex() {
-    return C.INDEX_UNSET;
+    return currentTimeline.isEmpty() ? C.INDEX_UNSET
+        : currentTimeline.getNextWindowIndex(getCurrentWindowIndex(), repeatMode, false);
   }
 
   @Override
   public int getPreviousWindowIndex() {
-    return C.INDEX_UNSET;
+    return currentTimeline.isEmpty() ? C.INDEX_UNSET
+        : currentTimeline.getPreviousWindowIndex(getCurrentWindowIndex(), repeatMode, false);
   }
 
+  // TODO: Fill the cast timeline information with ProgressListener's duration updates.
+  // See [Internal: b/65152553].
   @Override
   public long getDuration() {
     return currentTimeline.isEmpty() ? C.TIME_UNSET
