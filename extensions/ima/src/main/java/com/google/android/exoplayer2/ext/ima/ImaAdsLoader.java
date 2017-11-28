@@ -49,10 +49,13 @@ import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.source.ads.AdPlaybackState;
 import com.google.android.exoplayer2.source.ads.AdsLoader;
 import com.google.android.exoplayer2.util.Assertions;
+import com.google.android.exoplayer2.util.MimeTypes;
 import java.io.IOException;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -117,6 +120,7 @@ public final class ImaAdsLoader extends Player.DefaultEventListener implements A
   private final AdDisplayContainer adDisplayContainer;
   private final com.google.ads.interactivemedia.v3.api.AdsLoader adsLoader;
 
+  private List<String> supportedMimeTypes;
   private EventListener eventListener;
   private Player player;
   private ViewGroup adUiViewGroup;
@@ -239,6 +243,25 @@ public final class ImaAdsLoader extends Player.DefaultEventListener implements A
   // AdsLoader implementation.
 
   @Override
+  public void setSupportedContentTypes(@C.ContentType int... contentTypes) {
+    List<String> supportedMimeTypes = new ArrayList<>();
+    for (@C.ContentType int contentType : contentTypes) {
+      if (contentType == C.TYPE_DASH) {
+        supportedMimeTypes.add(MimeTypes.APPLICATION_MPD);
+      } else if (contentType == C.TYPE_HLS) {
+        supportedMimeTypes.add(MimeTypes.APPLICATION_M3U8);
+      } else if (contentType == C.TYPE_OTHER) {
+        supportedMimeTypes.addAll(Arrays.asList(
+            MimeTypes.VIDEO_MP4, MimeTypes.VIDEO_WEBM, MimeTypes.VIDEO_H263, MimeTypes.VIDEO_MPEG,
+            MimeTypes.AUDIO_MP4, MimeTypes.AUDIO_MPEG));
+      } else if (contentType == C.TYPE_SS) {
+        // IMA does not support SmoothStreaming ad media.
+      }
+    }
+    this.supportedMimeTypes = Collections.unmodifiableList(supportedMimeTypes);
+  }
+
+  @Override
   public void attachPlayer(ExoPlayer player, EventListener eventListener, ViewGroup adUiViewGroup) {
     this.player = player;
     this.eventListener = eventListener;
@@ -296,6 +319,7 @@ public final class ImaAdsLoader extends Player.DefaultEventListener implements A
       ImaSdkFactory imaSdkFactory = ImaSdkFactory.getInstance();
       AdsRenderingSettings adsRenderingSettings = imaSdkFactory.createAdsRenderingSettings();
       adsRenderingSettings.setEnablePreloading(true);
+      adsRenderingSettings.setMimeTypes(supportedMimeTypes);
       adsManager.init(adsRenderingSettings);
       if (DEBUG) {
         Log.d(TAG, "Initialized with preloading");

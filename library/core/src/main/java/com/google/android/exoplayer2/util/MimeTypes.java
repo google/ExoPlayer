@@ -36,6 +36,7 @@ public final class MimeTypes {
   public static final String VIDEO_VP8 = BASE_TYPE_VIDEO + "/x-vnd.on2.vp8";
   public static final String VIDEO_VP9 = BASE_TYPE_VIDEO + "/x-vnd.on2.vp9";
   public static final String VIDEO_MP4V = BASE_TYPE_VIDEO + "/mp4v-es";
+  public static final String VIDEO_MPEG = BASE_TYPE_VIDEO + "/mpeg";
   public static final String VIDEO_MPEG2 = BASE_TYPE_VIDEO + "/mpeg2";
   public static final String VIDEO_VC1 = BASE_TYPE_VIDEO + "/wvc1";
   public static final String VIDEO_UNKNOWN = BASE_TYPE_VIDEO + "/x-unknown";
@@ -70,7 +71,9 @@ public final class MimeTypes {
 
   public static final String APPLICATION_MP4 = BASE_TYPE_APPLICATION + "/mp4";
   public static final String APPLICATION_WEBM = BASE_TYPE_APPLICATION + "/webm";
+  public static final String APPLICATION_MPD = BASE_TYPE_APPLICATION + "/dash+xml";
   public static final String APPLICATION_M3U8 = BASE_TYPE_APPLICATION + "/x-mpegURL";
+  public static final String APPLICATION_SS = BASE_TYPE_APPLICATION + "/vnd.ms-sstr+xml";
   public static final String APPLICATION_ID3 = BASE_TYPE_APPLICATION + "/id3";
   public static final String APPLICATION_CEA608 = BASE_TYPE_APPLICATION + "/cea-608";
   public static final String APPLICATION_CEA708 = BASE_TYPE_APPLICATION + "/cea-708";
