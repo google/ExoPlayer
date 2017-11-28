@@ -13,13 +13,8 @@
      See the License for the specific language governing permissions and
      limitations under the License.
 -->
-
-<resources>
-
-  <string name="application_name">Exo Cast Demo</string>
-
-  <string name="media_route_menu_title">Cast</string>
-
-  <string name="sample_list_dialog_title">Add samples</string>
-
-</resources>
+<vector android:alpha="0.8" android:height="24dp" android:viewportHeight="24.0"
+    android:viewportWidth="24.0" android:width="24dp"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+  <path android:fillColor="#FFFFFF" android:pathData="M12,2C6.48,2 2,6.48 2,12s4.48,10 10,10 10,-4.48 10,-10S17.52,2 12,2zM17,13h-4v4h-2v-4L7,13v-2h4L11,7h2v4h4v2z"/>
+</vector>
