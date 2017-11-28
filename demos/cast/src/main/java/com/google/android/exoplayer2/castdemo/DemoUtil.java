@@ -26,9 +26,9 @@ import java.util.List;
  */
 /* package */ final class DemoUtil {
 
-  public static final String MIME_TYPE_DASH = "application/dash+xml";
-  public static final String MIME_TYPE_HLS = "application/vnd.apple.mpegurl";
-  public static final String MIME_TYPE_SS = "application/vnd.ms-sstr+xml";
+  public static final String MIME_TYPE_DASH = MimeTypes.APPLICATION_MPD;
+  public static final String MIME_TYPE_HLS = MimeTypes.APPLICATION_M3U8;
+  public static final String MIME_TYPE_SS = MimeTypes.APPLICATION_SS;
   public static final String MIME_TYPE_VIDEO_MP4 = MimeTypes.VIDEO_MP4;
 
   /**

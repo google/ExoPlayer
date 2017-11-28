@@ -905,8 +905,7 @@ public final class DashMediaSource implements MediaSource {
 
   }
 
-  private final class ManifestCallback implements
-      Loader.Callback<ParsingLoadable<DashManifest>> {
+  private final class ManifestCallback implements Loader.Callback<ParsingLoadable<DashManifest>> {
 
     @Override
     public void onLoadCompleted(ParsingLoadable<DashManifest> loadable,

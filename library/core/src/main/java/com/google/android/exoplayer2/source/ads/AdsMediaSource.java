@@ -132,6 +132,7 @@ public final class AdsMediaSource implements MediaSource {
     period = new Timeline.Period();
     adGroupMediaSources = new MediaSource[0][];
     adDurationsUs = new long[0][];
+    adsLoader.setSupportedContentTypes(C.TYPE_OTHER);
   }
 
   @Override
