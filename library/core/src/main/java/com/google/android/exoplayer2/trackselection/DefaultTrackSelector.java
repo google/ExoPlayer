@@ -243,8 +243,7 @@ public class DefaultTrackSelector extends MappingTrackSelector {
     /**
      * Returns an instance with the provided {@link #selectUndeterminedTextLanguage}.
      */
-    public Parameters withSelectUndeterminedTextLanguageAsFallback(
-        boolean selectUndeterminedTextLanguage) {
+    public Parameters withSelectUndeterminedTextLanguage(boolean selectUndeterminedTextLanguage) {
       if (selectUndeterminedTextLanguage == this.selectUndeterminedTextLanguage) {
         return this;
       }
