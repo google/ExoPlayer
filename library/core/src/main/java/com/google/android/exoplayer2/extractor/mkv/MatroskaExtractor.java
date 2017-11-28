@@ -53,7 +53,7 @@ import java.util.Locale;
 import java.util.UUID;
 
 /**
- * Extracts data from a Matroska or WebM file.
+ * Extracts data from the Matroska and WebM container formats.
  */
 public final class MatroskaExtractor implements Extractor {
 
