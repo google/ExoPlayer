@@ -561,8 +561,7 @@ public final class DefaultTrackSelectorTest {
         wrapFormats(spanish, german, undeterminedUnd, undeterminedNull));
     assertThat(result.selections.get(0)).isNull();
 
-    trackSelector.setParameters(
-        DEFAULT_PARAMETERS.withSelectUndeterminedTextLanguageAsFallback(true));
+    trackSelector.setParameters(DEFAULT_PARAMETERS.withSelectUndeterminedTextLanguage(true));
     result = trackSelector.selectTracks(textRendererCapabilites,
         wrapFormats(spanish, german, undeterminedUnd, undeterminedNull));
     assertThat(result.selections.get(0).getFormat(0)).isSameAs(undeterminedUnd);
@@ -577,7 +576,7 @@ public final class DefaultTrackSelectorTest {
     assertThat(result.selections.get(0)).isNull();
 
     trackSelector.setParameters(
-        trackSelector.getParameters().withSelectUndeterminedTextLanguageAsFallback(true));
+        trackSelector.getParameters().withSelectUndeterminedTextLanguage(true));
     result = trackSelector.selectTracks(textRendererCapabilites,
         wrapFormats(german, undeterminedUnd, undeterminedNull));
     assertThat(result.selections.get(0).getFormat(0)).isSameAs(undeterminedUnd);
