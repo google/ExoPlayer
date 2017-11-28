@@ -125,8 +125,7 @@ import java.io.IOException;
   private long elapsedRealtimeUs;
 
   private int pendingPrepareCount;
-  private int pendingInitialSeekCount;
-  private SeekPosition pendingSeekPosition;
+  private SeekPosition pendingInitialSeekPosition;
   private long rendererPositionUs;
 
   private MediaPeriodHolder loadingPeriodHolder;
@@ -631,8 +630,9 @@ import java.io.IOException;
   private void seekToInternal(SeekPosition seekPosition) throws ExoPlaybackException {
     Timeline timeline = playbackInfo.timeline;
     if (timeline == null) {
-      pendingInitialSeekCount++;
-      pendingSeekPosition = seekPosition;
+      pendingInitialSeekPosition = seekPosition;
+      eventHandler.obtainMessage(MSG_SEEK_ACK, /* seekAdjusted = */ 0, 0,
+          playbackInfo.copyWithTimeline(Timeline.EMPTY, null)).sendToTarget();
       return;
     }
 
@@ -781,7 +781,7 @@ import java.io.IOException;
     }
     int prepareOrStopAcks = pendingPrepareCount + 1;
     pendingPrepareCount = 0;
-    notifySourceInfoRefresh(prepareOrStopAcks, 0, publicPlaybackInfo);
+    notifySourceInfoRefresh(prepareOrStopAcks, publicPlaybackInfo);
     loadControl.onStopped();
     setState(Player.STATE_IDLE);
   }
@@ -825,6 +825,7 @@ import java.io.IOException;
           ? 0
           : timeline.getWindow(timeline.getFirstWindowIndex(shuffleModeEnabled), window)
               .firstPeriodIndex;
+      pendingInitialSeekPosition = null;
       playbackInfo = playbackInfo.fromNewPosition(firstPeriodIndex, C.TIME_UNSET, C.TIME_UNSET);
     } else {
       // The new start position is the current playback position.
@@ -1009,15 +1010,13 @@ import java.io.IOException;
     if (oldTimeline == null) {
       int processedPrepareAcks = pendingPrepareCount;
       pendingPrepareCount = 0;
-      if (pendingInitialSeekCount > 0) {
-        Pair<Integer, Long> periodPosition = resolveSeekPosition(pendingSeekPosition);
-        int processedInitialSeekCount = pendingInitialSeekCount;
-        pendingInitialSeekCount = 0;
-        pendingSeekPosition = null;
+      if (pendingInitialSeekPosition != null) {
+        Pair<Integer, Long> periodPosition = resolveSeekPosition(pendingInitialSeekPosition);
+        pendingInitialSeekPosition = null;
         if (periodPosition == null) {
           // The seek position was valid for the timeline that it was performed into, but the
           // timeline has changed and a suitable seek position could not be resolved in the new one.
-          handleSourceInfoRefreshEndedPlayback(processedPrepareAcks, processedInitialSeekCount);
+          handleSourceInfoRefreshEndedPlayback(processedPrepareAcks);
         } else {
           int periodIndex = periodPosition.first;
           long positionUs = periodPosition.second;
@@ -1025,11 +1024,11 @@ import java.io.IOException;
               mediaPeriodInfoSequence.resolvePeriodPositionForAds(periodIndex, positionUs);
           playbackInfo = playbackInfo.fromNewPosition(periodId, periodId.isAd() ? 0 : positionUs,
               positionUs);
-          notifySourceInfoRefresh(processedPrepareAcks, processedInitialSeekCount);
+          notifySourceInfoRefresh(processedPrepareAcks);
         }
       } else if (playbackInfo.startPositionUs == C.TIME_UNSET) {
         if (timeline.isEmpty()) {
-          handleSourceInfoRefreshEndedPlayback(processedPrepareAcks, 0);
+          handleSourceInfoRefreshEndedPlayback(processedPrepareAcks);
         } else {
           Pair<Integer, Long> defaultPosition = getPeriodPosition(timeline,
               timeline.getFirstWindowIndex(shuffleModeEnabled), C.TIME_UNSET);
@@ -1039,10 +1038,10 @@ import java.io.IOException;
               startPositionUs);
           playbackInfo = playbackInfo.fromNewPosition(periodId,
               periodId.isAd() ? 0 : startPositionUs, startPositionUs);
-          notifySourceInfoRefresh(processedPrepareAcks, 0);
+          notifySourceInfoRefresh(processedPrepareAcks);
         }
       } else {
-        notifySourceInfoRefresh(processedPrepareAcks, 0);
+        notifySourceInfoRefresh(processedPrepareAcks);
       }
       return;
     }
@@ -1169,30 +1168,29 @@ import java.io.IOException;
   }
 
   private void handleSourceInfoRefreshEndedPlayback() {
-    handleSourceInfoRefreshEndedPlayback(0, 0);
+    handleSourceInfoRefreshEndedPlayback(0);
   }
 
-  private void handleSourceInfoRefreshEndedPlayback(int prepareAcks, int seekAcks) {
+  private void handleSourceInfoRefreshEndedPlayback(int prepareAcks) {
     setState(Player.STATE_ENDED);
     // Reset, but retain the source so that it can still be used should a seek occur.
     resetInternal(false, true);
     // Set the playback position to 0 for notifying the eventHandler (instead of C.TIME_UNSET).
-    notifySourceInfoRefresh(prepareAcks, seekAcks,
+    notifySourceInfoRefresh(prepareAcks,
         playbackInfo.fromNewPosition(playbackInfo.periodId.periodIndex, 0, C.TIME_UNSET));
   }
 
   private void notifySourceInfoRefresh() {
-    notifySourceInfoRefresh(0, 0);
+    notifySourceInfoRefresh(0);
   }
 
-  private void notifySourceInfoRefresh(int prepareOrStopAcks, int seekAcks) {
-    notifySourceInfoRefresh(prepareOrStopAcks, seekAcks, playbackInfo);
+  private void notifySourceInfoRefresh(int prepareOrStopAcks) {
+    notifySourceInfoRefresh(prepareOrStopAcks, playbackInfo);
   }
 
-  private void notifySourceInfoRefresh(int prepareOrStopAcks, int seekAcks,
-      PlaybackInfo playbackInfo) {
-    eventHandler.obtainMessage(MSG_SOURCE_INFO_REFRESHED, prepareOrStopAcks, seekAcks,
-        playbackInfo).sendToTarget();
+  private void notifySourceInfoRefresh(int prepareOrStopAcks, PlaybackInfo playbackInfo) {
+    eventHandler.obtainMessage(MSG_SOURCE_INFO_REFRESHED, prepareOrStopAcks, 0, playbackInfo)
+        .sendToTarget();
   }
 
   /**

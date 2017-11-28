@@ -450,8 +450,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
       }
       case ExoPlayerImplInternal.MSG_SOURCE_INFO_REFRESHED: {
         int prepareOrStopAcks = msg.arg1;
-        int seekAcks = msg.arg2;
-        handlePlaybackInfo((PlaybackInfo) msg.obj, prepareOrStopAcks, seekAcks, false,
+        handlePlaybackInfo((PlaybackInfo) msg.obj, prepareOrStopAcks, 0, false,
             /* ignored */ DISCONTINUITY_REASON_INTERNAL);
         break;
       }
@@ -510,13 +509,13 @@ import java.util.concurrent.CopyOnWriteArraySet;
       boolean timelineOrManifestChanged = this.playbackInfo.timeline != playbackInfo.timeline
           || this.playbackInfo.manifest != playbackInfo.manifest;
       this.playbackInfo = playbackInfo;
-      if (playbackInfo.timeline.isEmpty()) {
-        // Update the masking variables, which are used when the timeline is empty.
-        maskingPeriodIndex = 0;
-        maskingWindowIndex = 0;
-        maskingWindowPositionMs = 0;
-      }
       if (timelineOrManifestChanged || waitingForInitialTimeline) {
+        if (playbackInfo.timeline.isEmpty()) {
+          // Update the masking variables, which are used when the timeline becomes empty.
+          maskingPeriodIndex = 0;
+          maskingWindowIndex = 0;
+          maskingWindowPositionMs = 0;
+        }
         @Player.TimelineChangeReason int reason = waitingForInitialTimeline
             ? Player.TIMELINE_CHANGE_REASON_PREPARED : Player.TIMELINE_CHANGE_REASON_DYNAMIC;
         waitingForInitialTimeline = false;
