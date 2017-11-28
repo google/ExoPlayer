@@ -298,8 +298,8 @@ public class PlayerActivity extends Activity implements OnClickListener,
       player.addListener(new PlayerEventListener());
       player.addListener(eventLogger);
       player.addMetadataOutput(eventLogger);
-      player.setAudioDebugListener(eventLogger);
-      player.setVideoDebugListener(eventLogger);
+      player.addAudioDebugListener(eventLogger);
+      player.addVideoDebugListener(eventLogger);
 
       simpleExoPlayerView.setPlayer(player);
       player.setPlayWhenReady(shouldAutoPlay);
