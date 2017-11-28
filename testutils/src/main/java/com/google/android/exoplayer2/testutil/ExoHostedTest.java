@@ -78,6 +78,8 @@ public abstract class ExoHostedTest extends Player.DefaultEventListener implemen
   private Surface surface;
   private ExoPlaybackException playerError;
   private Player.EventListener playerEventListener;
+  private VideoRendererEventListener videoDebugListener;
+  private AudioRendererEventListener audioDebugListener;
   private boolean playerWasPrepared;
 
   private boolean playing;
@@ -140,6 +142,26 @@ public abstract class ExoHostedTest extends Player.DefaultEventListener implemen
     }
   }
 
+  /**
+   * Sets an {@link VideoRendererEventListener} to listen for video debug events during the test.
+   */
+  public final void setVideoDebugListener(VideoRendererEventListener videoDebugListener) {
+    this.videoDebugListener = videoDebugListener;
+    if (player != null) {
+      player.addVideoDebugListener(videoDebugListener);
+    }
+  }
+
+  /**
+   * Sets an {@link AudioRendererEventListener} to listen for audio debug events during the test.
+   */
+  public final void setAudioDebugListener(AudioRendererEventListener audioDebugListener) {
+    this.audioDebugListener = audioDebugListener;
+    if (player != null) {
+      player.addAudioDebugListener(audioDebugListener);
+    }
+  }
+
   // HostedTest implementation
 
   @Override
@@ -155,9 +177,15 @@ public abstract class ExoHostedTest extends Player.DefaultEventListener implemen
     if (playerEventListener != null) {
       player.addListener(playerEventListener);
     }
+    if (videoDebugListener != null) {
+      player.addVideoDebugListener(videoDebugListener);
+    }
+    if (audioDebugListener != null) {
+      player.addAudioDebugListener(audioDebugListener);
+    }
     player.addListener(this);
-    player.setAudioDebugListener(this);
-    player.setVideoDebugListener(this);
+    player.addAudioDebugListener(this);
+    player.addVideoDebugListener(this);
     player.setPlayWhenReady(true);
     actionHandler = new Handler();
     // Schedule any pending actions.
