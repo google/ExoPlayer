@@ -196,8 +196,8 @@ import java.io.IOException;
     handler.obtainMessage(MSG_SET_PLAYBACK_PARAMETERS, playbackParameters).sendToTarget();
   }
 
-  public void stop() {
-    handler.sendEmptyMessage(MSG_STOP);
+  public void stop(boolean reset) {
+    handler.obtainMessage(MSG_STOP, reset ? 1 : 0, 0).sendToTarget();
   }
 
   public void sendMessages(ExoPlayerMessage... messages) {
@@ -324,7 +324,7 @@ import java.io.IOException;
           return true;
         }
         case MSG_STOP: {
-          stopInternal();
+          stopInternal(/* reset= */ msg.arg1 != 0);
           return true;
         }
         case MSG_RELEASE: {
@@ -357,18 +357,18 @@ import java.io.IOException;
     } catch (ExoPlaybackException e) {
       Log.e(TAG, "Renderer error.", e);
       eventHandler.obtainMessage(MSG_ERROR, e).sendToTarget();
-      stopInternal();
+      stopInternal(/* reset= */ false);
       return true;
     } catch (IOException e) {
       Log.e(TAG, "Source error.", e);
       eventHandler.obtainMessage(MSG_ERROR, ExoPlaybackException.createForSource(e)).sendToTarget();
-      stopInternal();
+      stopInternal(/* reset= */ false);
       return true;
     } catch (RuntimeException e) {
       Log.e(TAG, "Internal runtime error.", e);
       eventHandler.obtainMessage(MSG_ERROR, ExoPlaybackException.createForUnexpected(e))
           .sendToTarget();
-      stopInternal();
+      stopInternal(/* reset= */ false);
       return true;
     }
   }
@@ -394,8 +394,8 @@ import java.io.IOException;
     resetInternal(/* releaseMediaSource= */ true, resetPosition);
     loadControl.onPrepared();
     this.mediaSource = mediaSource;
-    mediaSource.prepareSource(player, /* isTopLevelSource= */ true, /* listener = */ this);
     setState(Player.STATE_BUFFERING);
+    mediaSource.prepareSource(player, /* isTopLevelSource= */ true, /* listener = */ this);
     handler.sendEmptyMessage(MSG_DO_SOME_WORK);
   }
 
@@ -765,8 +765,23 @@ import java.io.IOException;
     mediaClock.setPlaybackParameters(playbackParameters);
   }
 
-  private void stopInternal() {
-    resetInternal(/* releaseMediaSource= */ true, /* resetPosition= */ false);
+  private void stopInternal(boolean reset) {
+    // Releasing the internal player sets the timeline to null. Use the current timeline or
+    // Timeline.EMPTY for notifying the eventHandler.
+    Timeline publicTimeline = reset || playbackInfo.timeline == null
+        ? Timeline.EMPTY : playbackInfo.timeline;
+    Object publicManifest = reset ? null : playbackInfo.manifest;
+    resetInternal(/* releaseMediaSource= */ true, reset);
+    PlaybackInfo publicPlaybackInfo = playbackInfo.copyWithTimeline(publicTimeline, publicManifest);
+    if (reset) {
+      // When resetting the state, set the playback position to 0 (instead of C.TIME_UNSET) for
+      // notifying the eventHandler.
+      publicPlaybackInfo =
+          publicPlaybackInfo.fromNewPosition(playbackInfo.periodId.periodIndex, 0, C.TIME_UNSET);
+    }
+    int prepareOrStopAcks = pendingPrepareCount + 1;
+    pendingPrepareCount = 0;
+    notifySourceInfoRefresh(prepareOrStopAcks, 0, publicPlaybackInfo);
     loadControl.onStopped();
     setState(Player.STATE_IDLE);
   }
@@ -1170,13 +1185,14 @@ import java.io.IOException;
     notifySourceInfoRefresh(0, 0);
   }
 
-  private void notifySourceInfoRefresh(int prepareAcks, int seekAcks) {
-    notifySourceInfoRefresh(prepareAcks, seekAcks, playbackInfo);
+  private void notifySourceInfoRefresh(int prepareOrStopAcks, int seekAcks) {
+    notifySourceInfoRefresh(prepareOrStopAcks, seekAcks, playbackInfo);
   }
 
-  private void notifySourceInfoRefresh(int prepareAcks, int seekAcks, PlaybackInfo playbackInfo) {
-    eventHandler.obtainMessage(MSG_SOURCE_INFO_REFRESHED, prepareAcks, seekAcks, playbackInfo)
-        .sendToTarget();
+  private void notifySourceInfoRefresh(int prepareOrStopAcks, int seekAcks,
+      PlaybackInfo playbackInfo) {
+    eventHandler.obtainMessage(MSG_SOURCE_INFO_REFRESHED, prepareOrStopAcks, seekAcks,
+        playbackInfo).sendToTarget();
   }
 
   /**

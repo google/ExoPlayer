@@ -359,7 +359,13 @@ public final class CastPlayer implements Player {
 
   @Override
   public void stop() {
+    stop(/* reset= */ false);
+  }
+
+  @Override
+  public void stop(boolean reset) {
     if (remoteMediaClient != null) {
+      // TODO(b/69792021): Support or emulate stop without position reset.
       remoteMediaClient.stop();
     }
   }

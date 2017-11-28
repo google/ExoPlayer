@@ -89,45 +89,89 @@ public abstract class Action {
       Surface surface);
 
   /**
-   * Calls {@link Player#seekTo(long)}.
+   * Calls {@link Player#seekTo(long)} or {@link Player#seekTo(int, long)}.
    */
   public static final class Seek extends Action {
 
+    private final Integer windowIndex;
     private final long positionMs;
 
     /**
+     * Action calls {@link Player#seekTo(long)}.
+     *
      * @param tag A tag to use for logging.
      * @param positionMs The seek position.
      */
     public Seek(String tag, long positionMs) {
       super(tag, "Seek:" + positionMs);
+      this.windowIndex = null;
+      this.positionMs = positionMs;
+    }
+
+    /**
+     * Action calls {@link Player#seekTo(int, long)}.
+     *
+     * @param tag A tag to use for logging.
+     * @param windowIndex The window to seek to.
+     * @param positionMs The seek position.
+     */
+    public Seek(String tag, int windowIndex, long positionMs) {
+      super(tag, "Seek:" + positionMs);
+      this.windowIndex = windowIndex;
       this.positionMs = positionMs;
     }
 
     @Override
     protected void doActionImpl(SimpleExoPlayer player, MappingTrackSelector trackSelector,
         Surface surface) {
-      player.seekTo(positionMs);
+      if (windowIndex == null) {
+        player.seekTo(positionMs);
+      } else {
+        player.seekTo(windowIndex, positionMs);
+      }
     }
 
   }
 
   /**
-   * Calls {@link Player#stop()}.
+   * Calls {@link Player#stop()} or {@link Player#stop(boolean)}.
    */
   public static final class Stop extends Action {
 
+    private static final String STOP_ACTION_TAG = "Stop";
+
+    private final Boolean reset;
+
     /**
+     * Action will call {@link Player#stop()}.
+     *
      * @param tag A tag to use for logging.
      */
     public Stop(String tag) {
-      super(tag, "Stop");
+      super(tag, STOP_ACTION_TAG);
+      this.reset = null;
+    }
+
+    /**
+     * Action will call {@link Player#stop(boolean)}.
+     *
+     * @param tag A tag to use for logging.
+     * @param reset The value to pass to {@link Player#stop(boolean)}.
+     */
+    public Stop(String tag, boolean reset) {
+      super(tag, STOP_ACTION_TAG);
+      this.reset = reset;
     }
 
     @Override
     protected void doActionImpl(SimpleExoPlayer player, MappingTrackSelector trackSelector,
         Surface surface) {
-      player.stop();
+      if (reset == null) {
+        player.stop();
+      } else {
+        player.stop(reset);
+      }
+
     }
 
   }

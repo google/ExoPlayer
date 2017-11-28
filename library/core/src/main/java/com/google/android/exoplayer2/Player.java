@@ -429,16 +429,28 @@ public interface Player {
   PlaybackParameters getPlaybackParameters();
 
   /**
-   * Stops playback. Use {@code setPlayWhenReady(false)} rather than this method if the intention
-   * is to pause playback.
-   * <p>
-   * Calling this method will cause the playback state to transition to {@link #STATE_IDLE}. The
+   * Stops playback without resetting the player. Use {@code setPlayWhenReady(false)} rather than
+   * this method if the intention is to pause playback.
+   *
+   * <p>Calling this method will cause the playback state to transition to {@link #STATE_IDLE}. The
    * player instance can still be used, and {@link #release()} must still be called on the player if
    * it's no longer required.
-   * <p>
-   * Calling this method does not reset the playback position.
+   *
+   * <p>Calling this method does not reset the playback position.
    */
   void stop();
+
+  /**
+   * Stops playback and optionally resets the player. Use {@code setPlayWhenReady(false)} rather
+   * than this method if the intention is to pause playback.
+   *
+   * <p>Calling this method will cause the playback state to transition to {@link #STATE_IDLE}. The
+   * player instance can still be used, and {@link #release()} must still be called on the player if
+   * it's no longer required.
+   *
+   * @param reset Whether the player should be reset.
+   */
+  void stop(boolean reset);
 
   /**
    * Releases the player. This method must be called when the player is no longer required. The

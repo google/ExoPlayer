@@ -133,6 +133,9 @@ public class SimpleExoPlayer implements ExoPlayer {
         case C.TRACK_TYPE_AUDIO:
           audioRendererCount++;
           break;
+        default:
+          // Don't count other track types.
+          break;
       }
     }
     this.videoRendererCount = videoRendererCount;
@@ -690,6 +693,11 @@ public class SimpleExoPlayer implements ExoPlayer {
   @Override
   public void stop() {
     player.stop();
+  }
+
+  @Override
+  public void stop(boolean reset) {
+    player.stop(reset);
   }
 
   @Override
