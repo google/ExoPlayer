@@ -306,11 +306,19 @@ public final class ExoPlayerTest extends TestCase {
   public void testSeekProcessedCallback() throws Exception {
     Timeline timeline = new FakeTimeline(/* windowCount= */ 2);
     ActionSchedule actionSchedule = new ActionSchedule.Builder("testSeekProcessedCallback")
-        // Initial seek before timeline preparation finished.
-        .pause().seek(10).waitForPlaybackState(Player.STATE_READY)
-        // Re-seek to same position, start playback and wait until playback reaches second window.
-        .seek(10).play().waitForPositionDiscontinuity()
-        // Seek twice in concession, expecting the first seek to be replaced.
+        // Initial seek before timeline preparation started. Expect immediate seek processed while
+        // the player is still in STATE_IDLE.
+        .pause().seek(5)
+        // Wait until the media source starts preparing and issue more initial seeks. Expect only
+        // one seek processed after the source has been prepared.
+        .waitForPlaybackState(Player.STATE_BUFFERING).seek(2).seek(10)
+        // Wait until media source prepared and re-seek to same position. Expect a seek processed
+        // while still being in STATE_READY.
+        .waitForPlaybackState(Player.STATE_READY).seek(10)
+        // Start playback and wait until playback reaches second window.
+        .play().waitForPositionDiscontinuity()
+        // Seek twice in concession, expecting the first seek to be replaced (and thus except only
+        // on seek processed callback).
         .seek(5).seek(60).build();
     final List<Integer> playbackStatesWhenSeekProcessed = new ArrayList<>();
     Player.EventListener eventListener = new Player.DefaultEventListener() {
@@ -329,10 +337,11 @@ public final class ExoPlayerTest extends TestCase {
     new ExoPlayerTestRunner.Builder()
         .setTimeline(timeline).setEventListener(eventListener).setActionSchedule(actionSchedule)
         .build().start().blockUntilEnded(TIMEOUT_MS);
-    assertEquals(3, playbackStatesWhenSeekProcessed.size());
-    assertEquals(Player.STATE_BUFFERING, (int) playbackStatesWhenSeekProcessed.get(0));
-    assertEquals(Player.STATE_READY, (int) playbackStatesWhenSeekProcessed.get(1));
-    assertEquals(Player.STATE_BUFFERING, (int) playbackStatesWhenSeekProcessed.get(2));
+    assertEquals(4, playbackStatesWhenSeekProcessed.size());
+    assertEquals(Player.STATE_IDLE, (int) playbackStatesWhenSeekProcessed.get(0));
+    assertEquals(Player.STATE_BUFFERING, (int) playbackStatesWhenSeekProcessed.get(1));
+    assertEquals(Player.STATE_READY, (int) playbackStatesWhenSeekProcessed.get(2));
+    assertEquals(Player.STATE_BUFFERING, (int) playbackStatesWhenSeekProcessed.get(3));
   }
 
   public void testSeekDiscontinuity() throws Exception {
@@ -742,7 +751,7 @@ public final class ExoPlayerTest extends TestCase {
         .waitForPlaybackState(Player.STATE_IDLE)
         // If we were still using the first timeline, this would throw.
         .seek(/* windowIndex= */ 1, /* positionMs= */ 0)
-        .prepareSource(secondSource)
+        .prepareSource(secondSource, /* resetPosition= */ false, /* resetState= */ true)
         .build();
     ExoPlayerTestRunner testRunner = new ExoPlayerTestRunner.Builder()
         .setTimeline(timeline)
