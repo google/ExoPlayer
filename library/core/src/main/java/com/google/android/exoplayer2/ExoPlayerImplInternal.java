@@ -390,11 +390,11 @@ import java.io.IOException;
 
   private void prepareInternal(MediaSource mediaSource, boolean resetPosition) {
     pendingPrepareCount++;
-    resetInternal(/* releaseMediaSource= */ true, resetPosition);
+    resetInternal(/* releaseMediaSource= */ true, resetPosition, /* resetState= */ true);
     loadControl.onPrepared();
     this.mediaSource = mediaSource;
     setState(Player.STATE_BUFFERING);
-    mediaSource.prepareSource(player, /* isTopLevelSource= */ true, /* listener = */ this);
+    mediaSource.prepareSource(player, /* isTopLevelSource= */ true, /* listener= */ this);
     handler.sendEmptyMessage(MSG_DO_SOME_WORK);
   }
 
@@ -629,10 +629,15 @@ import java.io.IOException;
 
   private void seekToInternal(SeekPosition seekPosition) throws ExoPlaybackException {
     Timeline timeline = playbackInfo.timeline;
-    if (timeline == null) {
+    if (mediaSource == null || timeline == null) {
       pendingInitialSeekPosition = seekPosition;
-      eventHandler.obtainMessage(MSG_SEEK_ACK, /* seekAdjusted = */ 0, 0,
-          playbackInfo.copyWithTimeline(Timeline.EMPTY, null)).sendToTarget();
+      eventHandler
+          .obtainMessage(
+              MSG_SEEK_ACK,
+              /* seekAdjusted */ 0,
+              0,
+              timeline == null ? playbackInfo.copyWithTimeline(Timeline.EMPTY, null) : playbackInfo)
+          .sendToTarget();
       return;
     }
 
@@ -642,10 +647,11 @@ import java.io.IOException;
       // timeline has changed and a suitable seek position could not be resolved in the new one.
       setState(Player.STATE_ENDED);
       // Reset, but retain the source so that it can still be used should a seek occur.
-      resetInternal(false, true);
+      resetInternal(
+          /* releaseMediaSource= */ false, /* resetPosition= */ true, /* resetState= */ false);
       // Set the playback position to 0 for notifying the eventHandler (instead of C.TIME_UNSET).
-      eventHandler.obtainMessage(MSG_SEEK_ACK, /* seekAdjusted = */ 1, 0,
-          playbackInfo.fromNewPosition(playbackInfo.periodId.periodIndex, /* startPositionUs = */ 0,
+      eventHandler.obtainMessage(MSG_SEEK_ACK, /* seekAdjusted */ 1, 0,
+          playbackInfo.fromNewPosition(playbackInfo.periodId.periodIndex, /* startPositionUs= */ 0,
               /* contentPositionUs= */ C.TIME_UNSET))
           .sendToTarget();
       return;
@@ -766,14 +772,15 @@ import java.io.IOException;
   }
 
   private void stopInternal(boolean reset) {
-    // Releasing the internal player sets the timeline to null. Use the current timeline or
-    // Timeline.EMPTY for notifying the eventHandler.
-    Timeline publicTimeline = reset || playbackInfo.timeline == null
-        ? Timeline.EMPTY : playbackInfo.timeline;
-    Object publicManifest = reset ? null : playbackInfo.manifest;
-    resetInternal(/* releaseMediaSource= */ true, reset);
-    PlaybackInfo publicPlaybackInfo = playbackInfo.copyWithTimeline(publicTimeline, publicManifest);
-    if (reset) {
+    resetInternal(
+        /* releaseMediaSource= */ true, /* resetPosition= */ reset, /* resetState= */ reset);
+    PlaybackInfo publicPlaybackInfo = playbackInfo;
+    if (playbackInfo.timeline == null) {
+      // Resetting the state sets the timeline to null. Use Timeline.EMPTY for notifying the
+      // eventHandler.
+      publicPlaybackInfo = publicPlaybackInfo.copyWithTimeline(Timeline.EMPTY, null);
+    }
+    if (playbackInfo.startPositionUs == C.TIME_UNSET) {
       // When resetting the state, set the playback position to 0 (instead of C.TIME_UNSET) for
       // notifying the eventHandler.
       publicPlaybackInfo =
@@ -787,7 +794,8 @@ import java.io.IOException;
   }
 
   private void releaseInternal() {
-    resetInternal(/* releaseMediaSource= */ true, /* resetPosition= */ true);
+    resetInternal(
+        /* releaseMediaSource= */ true, /* resetPosition= */ true, /* resetState= */ true);
     loadControl.onReleased();
     setState(Player.STATE_IDLE);
     internalPlaybackThread.quit();
@@ -797,7 +805,8 @@ import java.io.IOException;
     }
   }
 
-  private void resetInternal(boolean releaseMediaSource, boolean resetPosition) {
+  private void resetInternal(
+      boolean releaseMediaSource, boolean resetPosition, boolean resetState) {
     handler.removeMessages(MSG_DO_SOME_WORK);
     rebuffering = false;
     mediaClock.stop();
@@ -832,13 +841,15 @@ import java.io.IOException;
       playbackInfo = playbackInfo.fromNewPosition(playbackInfo.periodId, playbackInfo.positionUs,
           playbackInfo.contentPositionUs);
     }
+    if (resetState) {
+      mediaPeriodInfoSequence.setTimeline(null);
+      playbackInfo = playbackInfo.copyWithTimeline(null, null);
+    }
     if (releaseMediaSource) {
       if (mediaSource != null) {
         mediaSource.releaseSource();
         mediaSource = null;
       }
-      mediaPeriodInfoSequence.setTimeline(null);
-      playbackInfo = playbackInfo.copyWithTimeline(null, null);
     }
   }
 
@@ -1174,7 +1185,8 @@ import java.io.IOException;
   private void handleSourceInfoRefreshEndedPlayback(int prepareAcks) {
     setState(Player.STATE_ENDED);
     // Reset, but retain the source so that it can still be used should a seek occur.
-    resetInternal(false, true);
+    resetInternal(
+        /* releaseMediaSource= */ false, /* resetPosition= */ true, /* resetState= */ false);
     // Set the playback position to 0 for notifying the eventHandler (instead of C.TIME_UNSET).
     notifySourceInfoRefresh(prepareAcks,
         playbackInfo.fromNewPosition(playbackInfo.periodId.periodIndex, 0, C.TIME_UNSET));
@@ -1279,6 +1291,10 @@ import java.io.IOException;
   }
 
   private void updatePeriods() throws ExoPlaybackException, IOException {
+    if (mediaSource == null) {
+      // The player has no media source yet.
+      return;
+    }
     if (playbackInfo.timeline == null) {
       // We're waiting to get information about periods.
       mediaSource.maybeThrowSourceInfoRefreshError();

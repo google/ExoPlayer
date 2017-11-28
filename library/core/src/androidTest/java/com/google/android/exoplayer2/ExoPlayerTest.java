@@ -784,4 +784,28 @@ public final class ExoPlayerTest extends TestCase {
     testRunner.assertNoPositionDiscontinuities();
   }
 
+  public void testStopAndSeekAfterStopDoesNotResetTimeline() throws Exception {
+    // Combining additional stop and seek after initial stop in one test to get the seek processed
+    // callback which ensures that all operations have been processed by the player.
+    Timeline timeline = new FakeTimeline(/* windowCount= */ 1);
+    ActionSchedule actionSchedule =
+        new ActionSchedule.Builder("testStopTwice")
+            .waitForPlaybackState(Player.STATE_READY)
+            .stop(false)
+            .stop(false)
+            .seek(0)
+            .waitForSeekProcessed()
+            .build();
+    ExoPlayerTestRunner testRunner =
+        new ExoPlayerTestRunner.Builder()
+            .setTimeline(timeline)
+            .setActionSchedule(actionSchedule)
+            .build()
+            .start()
+            .blockUntilActionScheduleFinished(TIMEOUT_MS)
+            .blockUntilEnded(TIMEOUT_MS);
+    testRunner.assertTimelinesEqual(timeline);
+    testRunner.assertTimelineChangeReasonsEqual(Player.TIMELINE_CHANGE_REASON_PREPARED);
+    testRunner.assertPositionDiscontinuityReasonsEqual(Player.DISCONTINUITY_REASON_SEEK);
+  }
 }

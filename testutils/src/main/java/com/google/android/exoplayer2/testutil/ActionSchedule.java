@@ -184,6 +184,15 @@ public final class ActionSchedule {
     }
 
     /**
+     * Schedules a delay until the player indicates that a seek has been processed.
+     *
+     * @return The builder, for convenience.
+     */
+    public Builder waitForSeekProcessed() {
+      return apply(new WaitForSeekProcessed(tag));
+    }
+
+    /**
      * Schedules a playback parameters setting action to be executed.
      *
      * @param playbackParameters The playback parameters to set.
