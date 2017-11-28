@@ -118,8 +118,9 @@ import java.util.List;
       case 14:
       case 15:
         return 256 << (blockSizeCode - 8);
+      default:
+        return -1;
     }
-    return -1;
   }
 
   private class FlacOggSeeker implements OggSeeker, SeekMap {
