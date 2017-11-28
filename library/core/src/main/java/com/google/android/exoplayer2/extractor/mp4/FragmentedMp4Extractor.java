@@ -53,7 +53,7 @@ import java.util.Stack;
 import java.util.UUID;
 
 /**
- * Facilitates the extraction of data from the fragmented mp4 container format.
+ * Extracts data from the FMP4 container format.
  */
 public final class FragmentedMp4Extractor implements Extractor {
 

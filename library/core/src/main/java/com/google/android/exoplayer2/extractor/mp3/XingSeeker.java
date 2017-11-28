@@ -113,12 +113,13 @@ import com.google.android.exoplayer2.util.Util;
       fx = 256f;
     } else {
       int a = (int) percent;
-      float fa, fb;
+      float fa;
       if (a == 0) {
         fa = 0f;
       } else {
         fa = tableOfContents[a - 1];
       }
+      float fb;
       if (a < 99) {
         fb = tableOfContents[a];
       } else {

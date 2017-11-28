@@ -38,7 +38,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
 /**
- * Extracts data from an MP3 file.
+ * Extracts data from the MP3 container format.
  */
 public final class Mp3Extractor implements Extractor {
 

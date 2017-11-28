@@ -29,7 +29,7 @@ import com.google.android.exoplayer2.util.Util;
 import java.io.IOException;
 
 /**
- * Extracts samples from (E-)AC-3 bitstreams.
+ * Extracts data from (E-)AC-3 bitstreams.
  */
 public final class Ac3Extractor implements Extractor {
 
