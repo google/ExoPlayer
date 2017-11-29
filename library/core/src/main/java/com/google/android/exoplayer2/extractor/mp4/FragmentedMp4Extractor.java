@@ -345,7 +345,8 @@ public final class FragmentedMp4Extractor implements Extractor {
       currentTrackBundle = null;
       endOfMdatPosition = atomPosition + atomSize;
       if (!haveOutputSeekMap) {
-        extractorOutput.seekMap(new SeekMap.Unseekable(durationUs));
+        // This must be the first mdat in the stream.
+        extractorOutput.seekMap(new SeekMap.Unseekable(durationUs, atomPosition));
         haveOutputSeekMap = true;
       }
       parserState = STATE_READING_ENCRYPTION_DATA;
