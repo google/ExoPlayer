@@ -502,10 +502,19 @@ import java.util.concurrent.CopyOnWriteArraySet;
 
   private void handlePlaybackInfo(PlaybackInfo playbackInfo, int prepareOrStopAcks, int seekAcks,
       boolean positionDiscontinuity, @DiscontinuityReason int positionDiscontinuityReason) {
-    Assertions.checkNotNull(playbackInfo.timeline);
     pendingPrepareOrStopAcks -= prepareOrStopAcks;
     pendingSeekAcks -= seekAcks;
     if (pendingPrepareOrStopAcks == 0 && pendingSeekAcks == 0) {
+      if (playbackInfo.timeline == null) {
+        // Replace internal null timeline with externally visible empty timeline.
+        playbackInfo = playbackInfo.copyWithTimeline(Timeline.EMPTY, playbackInfo.manifest);
+      }
+      if (playbackInfo.startPositionUs == C.TIME_UNSET) {
+        // Replace internal unset start position with externally visible start position of zero.
+        playbackInfo =
+            playbackInfo.fromNewPosition(
+                playbackInfo.periodId, /* startPositionUs= */ 0, playbackInfo.contentPositionUs);
+      }
       boolean timelineOrManifestChanged = this.playbackInfo.timeline != playbackInfo.timeline
           || this.playbackInfo.manifest != playbackInfo.manifest;
       this.playbackInfo = playbackInfo;
