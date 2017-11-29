@@ -58,9 +58,8 @@ import com.google.android.exoplayer2.util.Util;
     }
 
     long sizeBytes = frame.readUnsignedIntToInt();
-    frame.skipBytes(1);
-    long[] tableOfContents = new long[99];
-    for (int i = 0; i < 99; i++) {
+    long[] tableOfContents = new long[100];
+    for (int i = 0; i < 100; i++) {
       tableOfContents[i] = frame.readUnsignedByte();
     }
 
@@ -105,30 +104,20 @@ import com.google.android.exoplayer2.util.Util;
     if (!isSeekable()) {
       return firstFramePosition;
     }
-    float percent = timeUs * 100f / durationUs;
-    float fx;
-    if (percent <= 0f) {
-      fx = 0f;
-    } else if (percent >= 100f) {
-      fx = 256f;
+    double percent = (timeUs * 100d) / durationUs;
+    double fx;
+    if (percent <= 0) {
+      fx = 0;
+    } else if (percent >= 100) {
+      fx = 256;
     } else {
       int a = (int) percent;
-      float fa;
-      if (a == 0) {
-        fa = 0f;
-      } else {
-        fa = tableOfContents[a - 1];
-      }
-      float fb;
-      if (a < 99) {
-        fb = tableOfContents[a];
-      } else {
-        fb = 256f;
-      }
+      float fa = tableOfContents[a];
+      float fb = a == 99 ? 256 : tableOfContents[a + 1];
       fx = fa + (fb - fa) * (percent - a);
     }
 
-    long position = Math.round((1.0 / 256) * fx * sizeBytes) + firstFramePosition;
+    long position = Math.round((fx / 256) * sizeBytes) + firstFramePosition;
     long maximumPosition = inputLength != C.LENGTH_UNSET ? inputLength - 1
         : firstFramePosition - headerSize + sizeBytes - 1;
     return Math.min(position, maximumPosition);
@@ -139,14 +128,14 @@ import com.google.android.exoplayer2.util.Util;
     if (!isSeekable() || position < firstFramePosition) {
       return 0L;
     }
-    double offsetByte = 256.0 * (position - firstFramePosition) / sizeBytes;
+    double offsetByte = (256d * (position - firstFramePosition)) / sizeBytes;
     int previousTocPosition =
-        Util.binarySearchFloor(tableOfContents, (long) offsetByte, true, false) + 1;
+        Util.binarySearchFloor(tableOfContents, (long) offsetByte, true, true);
     long previousTime = getTimeUsForTocPosition(previousTocPosition);
 
     // Linearly interpolate the time taking into account the next entry.
-    long previousByte = previousTocPosition == 0 ? 0 : tableOfContents[previousTocPosition - 1];
-    long nextByte = previousTocPosition == 99 ? 256 : tableOfContents[previousTocPosition];
+    long previousByte = tableOfContents[previousTocPosition];
+    long nextByte = previousTocPosition == 99 ? 256 : tableOfContents[previousTocPosition + 1];
     long nextTime = getTimeUsForTocPosition(previousTocPosition + 1);
     long timeOffset = nextByte == previousByte ? 0 : (long) ((nextTime - previousTime)
         * (offsetByte - previousByte) / (nextByte - previousByte));
@@ -163,7 +152,7 @@ import com.google.android.exoplayer2.util.Util;
    * interpreted as a percentage of the stream's duration between 0 and 100.
    */
   private long getTimeUsForTocPosition(int tocPosition) {
-    return durationUs * tocPosition / 100;
+    return (durationUs * tocPosition) / 100;
   }
 
 }
