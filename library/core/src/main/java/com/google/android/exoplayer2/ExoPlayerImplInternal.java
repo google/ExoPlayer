@@ -632,11 +632,7 @@ import java.io.IOException;
     if (mediaSource == null || timeline == null) {
       pendingInitialSeekPosition = seekPosition;
       eventHandler
-          .obtainMessage(
-              MSG_SEEK_ACK,
-              /* seekAdjusted */ 0,
-              0,
-              timeline == null ? playbackInfo.copyWithTimeline(Timeline.EMPTY, null) : playbackInfo)
+          .obtainMessage(MSG_SEEK_ACK, /* seekAdjusted */ 0, 0, playbackInfo)
           .sendToTarget();
       return;
     }
@@ -649,10 +645,8 @@ import java.io.IOException;
       // Reset, but retain the source so that it can still be used should a seek occur.
       resetInternal(
           /* releaseMediaSource= */ false, /* resetPosition= */ true, /* resetState= */ false);
-      // Set the playback position to 0 for notifying the eventHandler (instead of C.TIME_UNSET).
-      eventHandler.obtainMessage(MSG_SEEK_ACK, /* seekAdjusted */ 1, 0,
-          playbackInfo.fromNewPosition(playbackInfo.periodId.periodIndex, /* startPositionUs= */ 0,
-              /* contentPositionUs= */ C.TIME_UNSET))
+      eventHandler
+          .obtainMessage(MSG_SEEK_ACK, /* seekAdjusted */ 1, 0, playbackInfo)
           .sendToTarget();
       return;
     }
@@ -774,21 +768,9 @@ import java.io.IOException;
   private void stopInternal(boolean reset) {
     resetInternal(
         /* releaseMediaSource= */ true, /* resetPosition= */ reset, /* resetState= */ reset);
-    PlaybackInfo publicPlaybackInfo = playbackInfo;
-    if (playbackInfo.timeline == null) {
-      // Resetting the state sets the timeline to null. Use Timeline.EMPTY for notifying the
-      // eventHandler.
-      publicPlaybackInfo = publicPlaybackInfo.copyWithTimeline(Timeline.EMPTY, null);
-    }
-    if (playbackInfo.startPositionUs == C.TIME_UNSET) {
-      // When resetting the state, set the playback position to 0 (instead of C.TIME_UNSET) for
-      // notifying the eventHandler.
-      publicPlaybackInfo =
-          publicPlaybackInfo.fromNewPosition(playbackInfo.periodId.periodIndex, 0, C.TIME_UNSET);
-    }
     int prepareOrStopAcks = pendingPrepareCount + 1;
     pendingPrepareCount = 0;
-    notifySourceInfoRefresh(prepareOrStopAcks, publicPlaybackInfo);
+    notifySourceInfoRefresh(prepareOrStopAcks, playbackInfo);
     loadControl.onStopped();
     setState(Player.STATE_IDLE);
   }
@@ -1187,9 +1169,7 @@ import java.io.IOException;
     // Reset, but retain the source so that it can still be used should a seek occur.
     resetInternal(
         /* releaseMediaSource= */ false, /* resetPosition= */ true, /* resetState= */ false);
-    // Set the playback position to 0 for notifying the eventHandler (instead of C.TIME_UNSET).
-    notifySourceInfoRefresh(prepareAcks,
-        playbackInfo.fromNewPosition(playbackInfo.periodId.periodIndex, 0, C.TIME_UNSET));
+    notifySourceInfoRefresh(prepareAcks, playbackInfo);
   }
 
   private void notifySourceInfoRefresh() {
