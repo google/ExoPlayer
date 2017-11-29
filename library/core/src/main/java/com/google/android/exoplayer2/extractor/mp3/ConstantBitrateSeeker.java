@@ -43,7 +43,7 @@ import com.google.android.exoplayer2.util.Util;
   @Override
   public long getPosition(long timeUs) {
     if (durationUs == C.TIME_UNSET) {
-      return 0;
+      return firstFramePosition;
     }
     timeUs = Util.constrainValue(timeUs, 0, durationUs);
     return firstFramePosition + (timeUs * bitrate) / (C.MICROS_PER_SECOND * BITS_PER_BYTE);
