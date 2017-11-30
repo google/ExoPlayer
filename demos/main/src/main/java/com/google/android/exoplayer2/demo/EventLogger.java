@@ -42,6 +42,7 @@ import com.google.android.exoplayer2.source.AdaptiveMediaSourceEventListener;
 import com.google.android.exoplayer2.source.ExtractorMediaSource;
 import com.google.android.exoplayer2.source.TrackGroup;
 import com.google.android.exoplayer2.source.TrackGroupArray;
+import com.google.android.exoplayer2.source.ads.AdsMediaSource;
 import com.google.android.exoplayer2.trackselection.MappingTrackSelector;
 import com.google.android.exoplayer2.trackselection.MappingTrackSelector.MappedTrackInfo;
 import com.google.android.exoplayer2.trackselection.TrackSelection;
@@ -57,7 +58,8 @@ import java.util.Locale;
  */
 /* package */ final class EventLogger implements Player.EventListener, MetadataOutput,
     AudioRendererEventListener, VideoRendererEventListener, AdaptiveMediaSourceEventListener,
-    ExtractorMediaSource.EventListener, DefaultDrmSessionManager.EventListener {
+    ExtractorMediaSource.EventListener, AdsMediaSource.AdsListener,
+    DefaultDrmSessionManager.EventListener {
 
   private static final String TAG = "EventLogger";
   private static final int MAX_TIMELINE_ITEM_LINES = 3;
@@ -368,6 +370,23 @@ import java.util.Locale;
   @Override
   public void onDownstreamFormatChanged(int trackType, Format trackFormat, int trackSelectionReason,
       Object trackSelectionData, long mediaTimeMs) {
+    // Do nothing.
+  }
+
+  // AdsMediaSource.EventListener
+
+  @Override
+  public void onAdLoadError(IOException error) {
+    printInternalError("loadError", error);
+  }
+
+  @Override
+  public void onAdClicked() {
+    // Do nothing.
+  }
+
+  @Override
+  public void onAdTapped() {
     // Do nothing.
   }
 
