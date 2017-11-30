@@ -410,24 +410,6 @@ import java.util.Arrays;
     }
   }
 
-  private boolean finishedReadingChunk(HlsMediaChunk chunk) {
-    int chunkUid = chunk.uid;
-    int sampleQueueCount = sampleQueues.length;
-    for (int i = 0; i < sampleQueueCount; i++) {
-      if (sampleQueuesEnabledStates[i] && sampleQueues[i].peekSourceId() == chunkUid) {
-        return false;
-      }
-    }
-    return true;
-  }
-
-  private void resetSampleQueues() {
-    for (SampleQueue sampleQueue : sampleQueues) {
-      sampleQueue.reset(pendingResetUpstreamFormats);
-    }
-    pendingResetUpstreamFormats = false;
-  }
-
   // SequenceableLoader implementation
 
   @Override
@@ -649,6 +631,24 @@ import java.util.Arrays;
   }
 
   // Internal methods.
+
+  private boolean finishedReadingChunk(HlsMediaChunk chunk) {
+    int chunkUid = chunk.uid;
+    int sampleQueueCount = sampleQueues.length;
+    for (int i = 0; i < sampleQueueCount; i++) {
+      if (sampleQueuesEnabledStates[i] && sampleQueues[i].peekSourceId() == chunkUid) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  private void resetSampleQueues() {
+    for (SampleQueue sampleQueue : sampleQueues) {
+      sampleQueue.reset(pendingResetUpstreamFormats);
+    }
+    pendingResetUpstreamFormats = false;
+  }
 
   private void maybeFinishPrepare() {
     if (released || prepared || !sampleQueuesBuilt) {
