@@ -26,27 +26,47 @@ import com.google.android.exoplayer2.util.Util;
   private static final int BITS_PER_BYTE = 8;
 
   private final long firstFramePosition;
+  private final long dataSize;
+  private final int frameSize;
   private final int bitrate;
   private final long durationUs;
 
-  public ConstantBitrateSeeker(long firstFramePosition, int bitrate, long inputLength) {
+  /**
+   * @param firstFramePosition The position (byte offset) of the first frame.
+   * @param inputLength The length of the stream.
+   * @param frameSize The size of a single frame in the stream.
+   * @param bitrate The stream's bitrate.
+   */
+  public ConstantBitrateSeeker(long firstFramePosition, long inputLength, int frameSize,
+      int bitrate) {
     this.firstFramePosition = firstFramePosition;
+    this.frameSize = frameSize;
     this.bitrate = bitrate;
-    durationUs = inputLength == C.LENGTH_UNSET ? C.TIME_UNSET : getTimeUs(inputLength);
+    if (inputLength == C.LENGTH_UNSET) {
+      dataSize = C.LENGTH_UNSET;
+      durationUs = C.TIME_UNSET;
+    } else {
+      dataSize = inputLength - firstFramePosition;
+      durationUs = getTimeUs(inputLength);
+    }
   }
 
   @Override
   public boolean isSeekable() {
-    return durationUs != C.TIME_UNSET;
+    return dataSize != C.LENGTH_UNSET;
   }
 
   @Override
   public long getPosition(long timeUs) {
-    if (durationUs == C.TIME_UNSET) {
+    if (dataSize == C.LENGTH_UNSET) {
       return firstFramePosition;
     }
-    timeUs = Util.constrainValue(timeUs, 0, durationUs);
-    return firstFramePosition + (timeUs * bitrate) / (C.MICROS_PER_SECOND * BITS_PER_BYTE);
+    long positionOffset = (timeUs * bitrate) / (C.MICROS_PER_SECOND * BITS_PER_BYTE);
+    // Constrain to nearest preceding frame offset.
+    positionOffset = (positionOffset / frameSize) * frameSize;
+    positionOffset = Util.constrainValue(positionOffset, 0, dataSize - frameSize);
+    // Add data start position.
+    return firstFramePosition + positionOffset;
   }
 
   @Override

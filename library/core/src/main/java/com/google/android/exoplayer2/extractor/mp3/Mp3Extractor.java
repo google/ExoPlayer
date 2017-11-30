@@ -393,8 +393,8 @@ public final class Mp3Extractor implements Extractor {
     input.peekFully(scratch.data, 0, 4);
     scratch.setPosition(0);
     MpegAudioHeader.populateHeader(scratch.readInt(), synchronizedHeader);
-    return new ConstantBitrateSeeker(input.getPosition(), synchronizedHeader.bitrate,
-        input.getLength());
+    return new ConstantBitrateSeeker(input.getPosition(), input.getLength(),
+        synchronizedHeader.frameSize, synchronizedHeader.bitrate);
   }
 
   /**
