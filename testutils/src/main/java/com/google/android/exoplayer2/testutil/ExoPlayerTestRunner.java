@@ -102,6 +102,8 @@ public final class ExoPlayerTestRunner extends Player.DefaultEventListener
     private RenderersFactory renderersFactory;
     private ActionSchedule actionSchedule;
     private Player.EventListener eventListener;
+    private VideoRendererEventListener videoRendererEventListener;
+    private AudioRendererEventListener audioRendererEventListener;
     private Integer expectedPlayerEndedCount;
 
     /**
@@ -259,6 +261,28 @@ public final class ExoPlayerTestRunner extends Player.DefaultEventListener
     }
 
     /**
+     * Sets a {@link VideoRendererEventListener} to be registered.
+     *
+     * @param eventListener A {@link VideoRendererEventListener} to be registered.
+     * @return This builder.
+     */
+    public Builder setVideoRendererEventListener(VideoRendererEventListener eventListener) {
+      this.videoRendererEventListener = eventListener;
+      return this;
+    }
+
+    /**
+     * Sets an {@link AudioRendererEventListener} to be registered.
+     *
+     * @param eventListener An {@link AudioRendererEventListener} to be registered.
+     * @return This builder.
+     */
+    public Builder setAudioRendererEventListener(AudioRendererEventListener eventListener) {
+      this.audioRendererEventListener = eventListener;
+      return this;
+    }
+
+    /**
      * Sets the number of times the test runner is expected to reach the {@link Player#STATE_ENDED}
      * or {@link Player#STATE_IDLE}. The default is 1. This affects how long
      * {@link ExoPlayerTestRunner#blockUntilEnded(long)} waits.
@@ -319,8 +343,17 @@ public final class ExoPlayerTestRunner extends Player.DefaultEventListener
       if (expectedPlayerEndedCount == null) {
         expectedPlayerEndedCount = 1;
       }
-      return new ExoPlayerTestRunner(playerFactory, mediaSource, renderersFactory, trackSelector,
-          loadControl, actionSchedule, eventListener, expectedPlayerEndedCount);
+      return new ExoPlayerTestRunner(
+          playerFactory,
+          mediaSource,
+          renderersFactory,
+          trackSelector,
+          loadControl,
+          actionSchedule,
+          eventListener,
+          videoRendererEventListener,
+          audioRendererEventListener,
+          expectedPlayerEndedCount);
     }
   }
 
@@ -331,6 +364,8 @@ public final class ExoPlayerTestRunner extends Player.DefaultEventListener
   private final LoadControl loadControl;
   private final @Nullable ActionSchedule actionSchedule;
   private final @Nullable Player.EventListener eventListener;
+  private final @Nullable VideoRendererEventListener videoRendererEventListener;
+  private final @Nullable AudioRendererEventListener audioRendererEventListener;
 
   private final HandlerThread playerThread;
   private final Handler handler;
@@ -347,10 +382,17 @@ public final class ExoPlayerTestRunner extends Player.DefaultEventListener
   private TrackGroupArray trackGroups;
   private boolean playerWasPrepared;
 
-  private ExoPlayerTestRunner(PlayerFactory playerFactory, MediaSource mediaSource,
-      RenderersFactory renderersFactory, MappingTrackSelector trackSelector,
-      LoadControl loadControl, @Nullable ActionSchedule actionSchedule,
-      @Nullable Player.EventListener eventListener, int expectedPlayerEndedCount) {
+  private ExoPlayerTestRunner(
+      PlayerFactory playerFactory,
+      MediaSource mediaSource,
+      RenderersFactory renderersFactory,
+      MappingTrackSelector trackSelector,
+      LoadControl loadControl,
+      @Nullable ActionSchedule actionSchedule,
+      @Nullable Player.EventListener eventListener,
+      @Nullable VideoRendererEventListener videoRendererEventListener,
+      @Nullable AudioRendererEventListener audioRendererEventListener,
+      int expectedPlayerEndedCount) {
     this.playerFactory = playerFactory;
     this.mediaSource = mediaSource;
     this.renderersFactory = renderersFactory;
@@ -358,6 +400,8 @@ public final class ExoPlayerTestRunner extends Player.DefaultEventListener
     this.loadControl = loadControl;
     this.actionSchedule = actionSchedule;
     this.eventListener = eventListener;
+    this.videoRendererEventListener = videoRendererEventListener;
+    this.audioRendererEventListener = audioRendererEventListener;
     this.timelines = new ArrayList<>();
     this.manifests = new ArrayList<>();
     this.timelineChangeReasons = new ArrayList<>();
@@ -380,25 +424,33 @@ public final class ExoPlayerTestRunner extends Player.DefaultEventListener
    * @return This test runner.
    */
   public ExoPlayerTestRunner start() {
-    handler.post(new Runnable() {
-      @Override
-      public void run() {
-        try {
-          player = playerFactory.createExoPlayer(renderersFactory, trackSelector, loadControl);
-          player.addListener(ExoPlayerTestRunner.this);
-          if (eventListener != null) {
-            player.addListener(eventListener);
+    handler.post(
+        new Runnable() {
+          @Override
+          public void run() {
+            try {
+              player = playerFactory.createExoPlayer(renderersFactory, trackSelector, loadControl);
+              player.addListener(ExoPlayerTestRunner.this);
+              if (eventListener != null) {
+                player.addListener(eventListener);
+              }
+              if (videoRendererEventListener != null) {
+                player.addVideoDebugListener(videoRendererEventListener);
+              }
+              if (audioRendererEventListener != null) {
+                player.addAudioDebugListener(audioRendererEventListener);
+              }
+              player.setPlayWhenReady(true);
+              if (actionSchedule != null) {
+                actionSchedule.start(
+                    player, trackSelector, null, handler, ExoPlayerTestRunner.this);
+              }
+              player.prepare(mediaSource);
+            } catch (Exception e) {
+              handleException(e);
+            }
           }
-          player.setPlayWhenReady(true);
-          if (actionSchedule != null) {
-            actionSchedule.start(player, trackSelector, null, handler, ExoPlayerTestRunner.this);
-          }
-          player.prepare(mediaSource);
-        } catch (Exception e) {
-          handleException(e);
-        }
-      }
-    });
+        });
     return this;
   }
 
