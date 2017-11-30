@@ -364,9 +364,6 @@ public final class DefaultAudioSink implements AudioSink {
           encoding = audioProcessor.getOutputEncoding();
         }
       }
-      if (flush) {
-        resetAudioProcessors();
-      }
     }
 
     int channelConfig;
@@ -491,6 +488,9 @@ public final class DefaultAudioSink implements AudioSink {
 
     // The old playback parameters may no longer be applicable so try to reset them now.
     setPlaybackParameters(playbackParameters);
+
+    // Flush and reset active audio processors.
+    resetAudioProcessors();
 
     int audioSessionId = audioTrack.getAudioSessionId();
     if (enablePreV21AudioSessionWorkaround) {
