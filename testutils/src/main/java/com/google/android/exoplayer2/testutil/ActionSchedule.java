@@ -41,6 +41,7 @@ import com.google.android.exoplayer2.testutil.Action.WaitForPositionDiscontinuit
 import com.google.android.exoplayer2.testutil.Action.WaitForSeekProcessed;
 import com.google.android.exoplayer2.testutil.Action.WaitForTimelineChanged;
 import com.google.android.exoplayer2.trackselection.MappingTrackSelector;
+import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Clock;
 
 /**
@@ -487,11 +488,28 @@ public final class ActionSchedule {
     }
 
     @Override
-    protected void doActionImpl(SimpleExoPlayer player, MappingTrackSelector trackSelector,
-        Surface surface) {
+    protected void doActionAndScheduleNextImpl(
+        SimpleExoPlayer player,
+        MappingTrackSelector trackSelector,
+        Surface surface,
+        Handler handler,
+        ActionNode nextAction) {
+      Assertions.checkArgument(nextAction == null);
       if (callback != null) {
-        callback.onActionScheduleFinished();
+        handler.post(
+            new Runnable() {
+              @Override
+              public void run() {
+                callback.onActionScheduleFinished();
+              }
+            });
       }
+    }
+
+    @Override
+    protected void doActionImpl(
+        SimpleExoPlayer player, MappingTrackSelector trackSelector, Surface surface) {
+      // Not triggered.
     }
 
   }
