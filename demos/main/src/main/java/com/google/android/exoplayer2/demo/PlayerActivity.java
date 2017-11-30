@@ -471,7 +471,8 @@ public class PlayerActivity extends Activity implements OnClickListener,
       // The demo app has a non-null overlay frame layout.
       simpleExoPlayerView.getOverlayFrameLayout().addView(adUiViewGroup);
     }
-    return new AdsMediaSource(mediaSource, mediaDataSourceFactory, adsLoader, adUiViewGroup);
+    return new AdsMediaSource(mediaSource, mediaDataSourceFactory, adsLoader, adUiViewGroup,
+        mainHandler, eventLogger);
   }
 
   private void releaseAdsLoader() {
