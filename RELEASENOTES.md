@@ -11,6 +11,8 @@
 * DefaultTrackSelector: Support undefined language text track selection when the
   preferred language is not available
   ([#2980](https://github.com/google/ExoPlayer/issues/2980)).
+* Fix handling of playback parameters changes while paused when followed by a
+  seek.
 
 ### 2.6.0 ###
 
