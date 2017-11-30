@@ -27,7 +27,6 @@ import com.google.android.exoplayer2.ExoPlayer.ExoPlayerComponent;
 import com.google.android.exoplayer2.ExoPlayer.ExoPlayerMessage;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.source.ShuffleOrder.DefaultShuffleOrder;
-import com.google.android.exoplayer2.trackselection.TrackSelection;
 import com.google.android.exoplayer2.upstream.Allocator;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Util;
@@ -758,111 +757,4 @@ public final class DynamicConcatenatingMediaSource implements MediaSource, ExoPl
 
   }
 
-  /**
-   * Media period used for periods created from unprepared media sources exposed through
-   * {@link DeferredTimeline}. Period preparation is postponed until the actual media source becomes
-   * available.
-   */
-  private static final class DeferredMediaPeriod implements MediaPeriod, MediaPeriod.Callback {
-
-    public final MediaSource mediaSource;
-
-    private final MediaPeriodId id;
-    private final Allocator allocator;
-
-    private MediaPeriod mediaPeriod;
-    private Callback callback;
-    private long preparePositionUs;
-
-    public DeferredMediaPeriod(MediaSource mediaSource, MediaPeriodId id, Allocator allocator) {
-      this.id = id;
-      this.allocator = allocator;
-      this.mediaSource = mediaSource;
-    }
-
-    public void createPeriod() {
-      mediaPeriod = mediaSource.createPeriod(id, allocator);
-      if (callback != null) {
-        mediaPeriod.prepare(this, preparePositionUs);
-      }
-    }
-
-    public void releasePeriod() {
-      if (mediaPeriod != null) {
-        mediaSource.releasePeriod(mediaPeriod);
-      }
-    }
-
-    @Override
-    public void prepare(Callback callback, long preparePositionUs) {
-      this.callback = callback;
-      this.preparePositionUs = preparePositionUs;
-      if (mediaPeriod != null) {
-        mediaPeriod.prepare(this, preparePositionUs);
-      }
-    }
-
-    @Override
-    public void maybeThrowPrepareError() throws IOException {
-      if (mediaPeriod != null) {
-        mediaPeriod.maybeThrowPrepareError();
-      } else {
-        mediaSource.maybeThrowSourceInfoRefreshError();
-      }
-    }
-
-    @Override
-    public TrackGroupArray getTrackGroups() {
-      return mediaPeriod.getTrackGroups();
-    }
-
-    @Override
-    public long selectTracks(TrackSelection[] selections, boolean[] mayRetainStreamFlags,
-        SampleStream[] streams, boolean[] streamResetFlags, long positionUs) {
-      return mediaPeriod.selectTracks(selections, mayRetainStreamFlags, streams, streamResetFlags,
-          positionUs);
-    }
-
-    @Override
-    public void discardBuffer(long positionUs) {
-      mediaPeriod.discardBuffer(positionUs);
-    }
-
-    @Override
-    public long readDiscontinuity() {
-      return mediaPeriod.readDiscontinuity();
-    }
-
-    @Override
-    public long getBufferedPositionUs() {
-      return mediaPeriod.getBufferedPositionUs();
-    }
-
-    @Override
-    public long seekToUs(long positionUs) {
-      return mediaPeriod.seekToUs(positionUs);
-    }
-
-    @Override
-    public long getNextLoadPositionUs() {
-      return mediaPeriod.getNextLoadPositionUs();
-    }
-
-    @Override
-    public boolean continueLoading(long positionUs) {
-      return mediaPeriod != null && mediaPeriod.continueLoading(positionUs);
-    }
-
-    @Override
-    public void onContinueLoadingRequested(MediaPeriod source) {
-      callback.onContinueLoadingRequested(this);
-    }
-
-    @Override
-    public void onPrepared(MediaPeriod mediaPeriod) {
-      callback.onPrepared(this);
-    }
-  }
-
 }
-
