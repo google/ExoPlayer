@@ -2,6 +2,7 @@
 
 ### dev-v2 (not yet released) ###
 
+* Replace `DefaultTrackSelector.Parameters` copy methods with a builder.
 * Allow more flexible loading strategy when playing media containing multiple
   sub-streams, by allowing injection of custom `CompositeSequenceableLoader`
   factories through `DashMediaSource.Builder`, `HlsMediaSource.Builder`,
