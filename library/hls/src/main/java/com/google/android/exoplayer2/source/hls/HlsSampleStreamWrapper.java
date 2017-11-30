@@ -16,12 +16,15 @@
 package com.google.android.exoplayer2.source.hls;
 
 import android.os.Handler;
+import android.util.Log;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.FormatHolder;
 import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
+import com.google.android.exoplayer2.extractor.DummyTrackOutput;
 import com.google.android.exoplayer2.extractor.ExtractorOutput;
 import com.google.android.exoplayer2.extractor.SeekMap;
+import com.google.android.exoplayer2.extractor.TrackOutput;
 import com.google.android.exoplayer2.source.AdaptiveMediaSourceEventListener.EventDispatcher;
 import com.google.android.exoplayer2.source.SampleQueue;
 import com.google.android.exoplayer2.source.SampleQueue.UpstreamFormatChangedListener;
@@ -66,6 +69,8 @@ import java.util.Arrays;
     void onPlaylistRefreshRequired(HlsMasterPlaylist.HlsUrl playlistUrl);
 
   }
+
+  private static final String TAG = "HlsSampleStreamWrapper";
 
   private static final int PRIMARY_TYPE_NONE = 0;
   private static final int PRIMARY_TYPE_TEXT = 1;
@@ -588,12 +593,16 @@ import java.util.Arrays;
   // ExtractorOutput implementation. Called by the loading thread.
 
   @Override
-  public SampleQueue track(int id, int type) {
+  public TrackOutput track(int id, int type) {
     int trackCount = sampleQueues.length;
     for (int i = 0; i < trackCount; i++) {
       if (sampleQueueTrackIds[i] == id) {
         return sampleQueues[i];
       }
+    }
+    if (sampleQueuesBuilt) {
+      Log.w(TAG, "Unmapped track with id " + id + " of type " + type);
+      return new DummyTrackOutput();
     }
     SampleQueue trackOutput = new SampleQueue(allocator);
     trackOutput.setSampleOffsetUs(sampleOffsetUs);
