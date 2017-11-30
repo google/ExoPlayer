@@ -17,6 +17,7 @@ package com.google.android.exoplayer2.extractor.wav;
 
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.extractor.SeekMap;
+import com.google.android.exoplayer2.util.Util;
 
 /** Header for a WAV file. */
 /* package */ final class WavHeader implements SeekMap {
@@ -83,10 +84,12 @@ import com.google.android.exoplayer2.extractor.SeekMap;
 
   @Override
   public long getPosition(long timeUs) {
-    long unroundedPosition = (timeUs * averageBytesPerSecond) / C.MICROS_PER_SECOND;
-    // Round down to nearest frame.
-    long position = (unroundedPosition / blockAlignment) * blockAlignment;
-    return Math.min(position, dataSize - blockAlignment) + dataStartPosition;
+    long positionOffset = (timeUs * averageBytesPerSecond) / C.MICROS_PER_SECOND;
+    // Constrain to nearest preceding frame offset.
+    positionOffset = (positionOffset / blockAlignment) * blockAlignment;
+    positionOffset = Util.constrainValue(positionOffset, 0, dataSize - blockAlignment);
+    // Add data start position.
+    return dataStartPosition + positionOffset;
   }
 
   // Misc getters.
