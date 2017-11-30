@@ -25,5 +25,9 @@ track 0:
     language = null
     drmInitData = -
     initializationData:
-  sample count = 0
+  sample count = 1
+  sample 0:
+    time = 0
+    flags = 1
+    data = length 418, hash B819987
 tracksEnded = true
