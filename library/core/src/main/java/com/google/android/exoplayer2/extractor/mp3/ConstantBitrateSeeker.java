@@ -16,6 +16,7 @@
 package com.google.android.exoplayer2.extractor.mp3;
 
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.extractor.MpegAudioHeader;
 import com.google.android.exoplayer2.util.Util;
 
 /**
@@ -26,22 +27,21 @@ import com.google.android.exoplayer2.util.Util;
   private static final int BITS_PER_BYTE = 8;
 
   private final long firstFramePosition;
-  private final long dataSize;
   private final int frameSize;
+  private final long dataSize;
   private final int bitrate;
   private final long durationUs;
 
   /**
-   * @param firstFramePosition The position (byte offset) of the first frame.
-   * @param inputLength The length of the stream.
-   * @param frameSize The size of a single frame in the stream.
-   * @param bitrate The stream's bitrate.
+   * @param inputLength The length of the stream in bytes, or {@link C#LENGTH_UNSET} if unknown.
+   * @param firstFramePosition The position of the first frame in the stream.
+   * @param mpegAudioHeader The MPEG audio header associated with the first frame.
    */
-  public ConstantBitrateSeeker(long firstFramePosition, long inputLength, int frameSize,
-      int bitrate) {
+  public ConstantBitrateSeeker(long inputLength, long firstFramePosition,
+      MpegAudioHeader mpegAudioHeader) {
     this.firstFramePosition = firstFramePosition;
-    this.frameSize = frameSize;
-    this.bitrate = bitrate;
+    this.frameSize = mpegAudioHeader.frameSize;
+    this.bitrate = mpegAudioHeader.bitrate;
     if (inputLength == C.LENGTH_UNSET) {
       dataSize = C.LENGTH_UNSET;
       durationUs = C.TIME_UNSET;
