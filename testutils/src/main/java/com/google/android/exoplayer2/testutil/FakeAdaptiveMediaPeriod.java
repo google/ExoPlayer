@@ -85,6 +85,14 @@ public class FakeAdaptiveMediaPeriod extends FakeMediaPeriod
   }
 
   @Override
+  public void discardBuffer(long positionUs, boolean toKeyframe) {
+    super.discardBuffer(positionUs, toKeyframe);
+    for (ChunkSampleStream<FakeChunkSource> sampleStream : sampleStreams) {
+      sampleStream.discardBuffer(positionUs, toKeyframe);
+    }
+  }
+
+  @Override
   public long getBufferedPositionUs() {
     super.getBufferedPositionUs();
     return sequenceableLoader.getBufferedPositionUs();

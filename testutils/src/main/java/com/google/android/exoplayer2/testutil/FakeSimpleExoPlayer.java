@@ -364,6 +364,7 @@ public class FakeSimpleExoPlayer extends SimpleExoPlayer {
     public void run() {
       try {
         maybeContinueLoading();
+        mediaPeriod.discardBuffer(rendererPositionUs, /* toKeyframe= */ false);
         boolean allRenderersEnded = true;
         boolean allRenderersReadyOrEnded = true;
         if (playbackState == Player.STATE_READY) {
