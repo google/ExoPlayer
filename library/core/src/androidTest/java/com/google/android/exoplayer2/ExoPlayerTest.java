@@ -54,7 +54,7 @@ public final class ExoPlayerTest extends TestCase {
    * error.
    */
   public void testPlayEmptyTimeline() throws Exception {
-    Timeline timeline = Timeline.EMPTY;
+    Timeline timeline = new FakeTimeline(/* windowCount= */ 0);
     FakeRenderer renderer = new FakeRenderer();
     // TODO(b/69665207): Without waiting for the timeline update, this test is flaky as the timeline
     // update happens after the transition to STATE_ENDED and the test runner may already have been
