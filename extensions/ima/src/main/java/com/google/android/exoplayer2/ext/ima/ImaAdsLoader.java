@@ -315,20 +315,13 @@ public final class ImaAdsLoader extends Player.DefaultEventListener implements A
     this.adsManager = adsManager;
     adsManager.addAdErrorListener(this);
     adsManager.addAdEventListener(this);
-    if (ENABLE_PRELOADING) {
-      ImaSdkFactory imaSdkFactory = ImaSdkFactory.getInstance();
-      AdsRenderingSettings adsRenderingSettings = imaSdkFactory.createAdsRenderingSettings();
-      adsRenderingSettings.setEnablePreloading(true);
-      adsRenderingSettings.setMimeTypes(supportedMimeTypes);
-      adsManager.init(adsRenderingSettings);
-      if (DEBUG) {
-        Log.d(TAG, "Initialized with preloading");
-      }
-    } else {
-      adsManager.init();
-      if (DEBUG) {
-        Log.d(TAG, "Initialized without preloading");
-      }
+    ImaSdkFactory imaSdkFactory = ImaSdkFactory.getInstance();
+    AdsRenderingSettings adsRenderingSettings = imaSdkFactory.createAdsRenderingSettings();
+    adsRenderingSettings.setEnablePreloading(ENABLE_PRELOADING);
+    adsRenderingSettings.setMimeTypes(supportedMimeTypes);
+    adsManager.init(adsRenderingSettings);
+    if (DEBUG) {
+      Log.d(TAG, "Initialized with ads rendering settings: " + adsRenderingSettings);
     }
     long[] adGroupTimesUs = getAdGroupTimesUs(adsManager.getAdCuePoints());
     adPlaybackState = new AdPlaybackState(adGroupTimesUs);
