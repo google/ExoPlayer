@@ -15,42 +15,10 @@
  */
 package com.google.android.exoplayer2.source;
 
-import android.os.Handler;
-import android.support.annotation.Nullable;
-
 /**
  * Interface for callbacks to be notified of {@link MediaSource} events.
  *
- * @deprecated Use {@link MediaSourceEventListener}
+ * @deprecated Use {@link MediaSourceEventListener}.
  */
 @Deprecated
-public interface AdaptiveMediaSourceEventListener extends MediaSourceEventListener {
-
-  /** Dispatches events to a {@link MediaSourceEventListener}. */
-  final class EventDispatcher extends MediaSourceEventListener.EventDispatcher {
-
-    private final Handler handler;
-    private final MediaSourceEventListener listener;
-
-    public EventDispatcher(@Nullable Handler handler, @Nullable MediaSourceEventListener listener) {
-      this(handler, listener, 0);
-    }
-
-    public EventDispatcher(
-        @Nullable Handler handler,
-        @Nullable MediaSourceEventListener listener,
-        long mediaTimeOffsetMs) {
-      super(handler, listener, mediaTimeOffsetMs);
-      this.handler = handler;
-      this.listener = listener;
-    }
-
-    public AdaptiveMediaSourceEventListener.EventDispatcher copyWithMediaTimeOffsetMs(
-        long mediaTimeOffsetMs) {
-      return new AdaptiveMediaSourceEventListener.EventDispatcher(
-          handler, listener, mediaTimeOffsetMs);
-    }
-
-  }
-
-}
+public interface AdaptiveMediaSourceEventListener extends MediaSourceEventListener {}
