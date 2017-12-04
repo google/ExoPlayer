@@ -16,6 +16,8 @@
   ([#2980](https://github.com/google/ExoPlayer/issues/2980)).
 * Fix handling of playback parameters changes while paused when followed by a
   seek.
+* Fix playback of live FLV streams that do not contain an audio track
+  ([#3188](https://github.com/google/ExoPlayer/issues/3188)).
 * Use the same listener `MediaSourceEventListener` for all MediaSource
   implementations.
 * CEA-608: Fix handling of row count changes in roll-up mode
