@@ -29,9 +29,8 @@ import java.util.List;
  */
 public final class HlsMediaPlaylist extends HlsPlaylist {
 
-  /**
-   * Media segment reference.
-   */
+  /** Media segment reference. */
+  @SuppressWarnings("ComparableType")
   public static final class Segment implements Comparable<Long> {
 
     /**
