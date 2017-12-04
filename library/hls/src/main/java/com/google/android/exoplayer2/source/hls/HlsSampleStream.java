@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.source.hls;
 
+import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.FormatHolder;
 import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
 import com.google.android.exoplayer2.source.SampleStream;
@@ -25,33 +26,60 @@ import java.io.IOException;
  */
 /* package */ final class HlsSampleStream implements SampleStream {
 
-  public final int sampleQueueIndex;
-
+  private final int trackGroupIndex;
   private final HlsSampleStreamWrapper sampleStreamWrapper;
+  private int sampleQueueIndex;
 
-  public HlsSampleStream(HlsSampleStreamWrapper sampleStreamWrapper, int sampleQueueIndex) {
+  public HlsSampleStream(HlsSampleStreamWrapper sampleStreamWrapper, int trackGroupIndex) {
     this.sampleStreamWrapper = sampleStreamWrapper;
-    this.sampleQueueIndex = sampleQueueIndex;
+    this.trackGroupIndex = trackGroupIndex;
   }
+
+  public void unbindSampleQueue() {
+    if (sampleQueueIndex != C.INDEX_UNSET) {
+      sampleStreamWrapper.unbindSampleQueue(trackGroupIndex);
+    }
+  }
+
+  // SampleStream implementation.
 
   @Override
   public boolean isReady() {
-    return sampleStreamWrapper.isReady(sampleQueueIndex);
+    return ensureBoundSampleQueue() && sampleStreamWrapper.isReady(sampleQueueIndex);
   }
 
   @Override
   public void maybeThrowError() throws IOException {
+    if (!ensureBoundSampleQueue()) {
+      throw new SampleQueueMappingException(
+          sampleStreamWrapper.getTrackGroups().get(trackGroupIndex).getFormat(0).sampleMimeType);
+    }
     sampleStreamWrapper.maybeThrowError();
   }
 
   @Override
   public int readData(FormatHolder formatHolder, DecoderInputBuffer buffer, boolean requireFormat) {
+    if (!ensureBoundSampleQueue()) {
+      return C.RESULT_NOTHING_READ;
+    }
     return sampleStreamWrapper.readData(sampleQueueIndex, formatHolder, buffer, requireFormat);
   }
 
   @Override
   public int skipData(long positionUs) {
+    if (!ensureBoundSampleQueue()) {
+      return 0;
+    }
     return sampleStreamWrapper.skipData(sampleQueueIndex, positionUs);
   }
 
+  // Internal methods.
+
+  private boolean ensureBoundSampleQueue() {
+    if (sampleQueueIndex != C.INDEX_UNSET) {
+      return true;
+    }
+    sampleQueueIndex = sampleStreamWrapper.bindSampleQueueToSampleStream(trackGroupIndex);
+    return sampleQueueIndex != C.INDEX_UNSET;
+  }
 }
