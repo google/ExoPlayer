@@ -13,6 +13,8 @@
   ([#2980](https://github.com/google/ExoPlayer/issues/2980)).
 * Fix handling of playback parameters changes while paused when followed by a
   seek.
+* Use the same listener `MediaSourceEventListener` for all MediaSource
+  implementations.
 
 ### 2.6.0 ###
 

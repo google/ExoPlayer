@@ -17,6 +17,7 @@ package com.google.android.exoplayer2.source;
 
 import android.net.Uri;
 import android.os.Handler;
+import android.support.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.FormatHolder;
@@ -28,6 +29,7 @@ import com.google.android.exoplayer2.extractor.ExtractorOutput;
 import com.google.android.exoplayer2.extractor.PositionHolder;
 import com.google.android.exoplayer2.extractor.SeekMap;
 import com.google.android.exoplayer2.extractor.TrackOutput;
+import com.google.android.exoplayer2.source.MediaSourceEventListener.EventDispatcher;
 import com.google.android.exoplayer2.source.SampleQueue.UpstreamFormatChangedListener;
 import com.google.android.exoplayer2.trackselection.TrackSelection;
 import com.google.android.exoplayer2.upstream.Allocator;
@@ -74,11 +76,10 @@ import java.util.Arrays;
   private final Uri uri;
   private final DataSource dataSource;
   private final int minLoadableRetryCount;
-  private final Handler eventHandler;
-  private final ExtractorMediaSource.EventListener eventListener;
+  private final EventDispatcher eventDispatcher;
   private final Listener listener;
   private final Allocator allocator;
-  private final String customCacheKey;
+  @Nullable private final String customCacheKey;
   private final long continueLoadingCheckIntervalBytes;
   private final Loader loader;
   private final ExtractorHolder extractorHolder;
@@ -117,8 +118,7 @@ import java.util.Arrays;
    * @param dataSource The data source to read the media.
    * @param extractors The extractors to use to read the data source.
    * @param minLoadableRetryCount The minimum number of times to retry if a loading error occurs.
-   * @param eventHandler A handler for events. May be null if delivery of events is not required.
-   * @param eventListener A listener of events. May be null if delivery of events is not required.
+   * @param eventDispatcher A dispatcher to notify of events.
    * @param listener A listener to notify when information about the period changes.
    * @param allocator An {@link Allocator} from which to obtain media buffer allocations.
    * @param customCacheKey A custom key that uniquely identifies the original stream. Used for cache
@@ -126,15 +126,20 @@ import java.util.Arrays;
    * @param continueLoadingCheckIntervalBytes The number of bytes that should be loaded between each
    *     invocation of {@link Callback#onContinueLoadingRequested(SequenceableLoader)}.
    */
-  public ExtractorMediaPeriod(Uri uri, DataSource dataSource, Extractor[] extractors,
-      int minLoadableRetryCount, Handler eventHandler,
-      ExtractorMediaSource.EventListener eventListener, Listener listener,
-      Allocator allocator, String customCacheKey, int continueLoadingCheckIntervalBytes) {
+  public ExtractorMediaPeriod(
+      Uri uri,
+      DataSource dataSource,
+      Extractor[] extractors,
+      int minLoadableRetryCount,
+      EventDispatcher eventDispatcher,
+      Listener listener,
+      Allocator allocator,
+      @Nullable String customCacheKey,
+      int continueLoadingCheckIntervalBytes) {
     this.uri = uri;
     this.dataSource = dataSource;
     this.minLoadableRetryCount = minLoadableRetryCount;
-    this.eventHandler = eventHandler;
-    this.eventListener = eventListener;
+    this.eventDispatcher = eventDispatcher;
     this.listener = listener;
     this.allocator = allocator;
     this.customCacheKey = customCacheKey;
@@ -430,8 +435,22 @@ import java.util.Arrays;
   public int onLoadError(ExtractingLoadable loadable, long elapsedRealtimeMs,
       long loadDurationMs, IOException error) {
     copyLengthFromLoader(loadable);
-    notifyLoadError(error);
-    if (isLoadableExceptionFatal(error)) {
+    boolean isErrorFatal = isLoadableExceptionFatal(error);
+    eventDispatcher.loadError(
+        loadable.dataSpec,
+        C.DATA_TYPE_MEDIA,
+        C.TRACK_TYPE_UNKNOWN,
+        /* trackFormat= */ null,
+        C.SELECTION_REASON_UNKNOWN,
+        /* trackSelectionData= */ null,
+        /* mediaStartTimeUs= */ 0,
+        durationUs,
+        elapsedRealtimeMs,
+        loadDurationMs,
+        loadable.bytesLoaded,
+        error,
+        /* wasCanceled= */ isErrorFatal);
+    if (isErrorFatal) {
       return Loader.DONT_RETRY_FATAL;
     }
     int extractedSamplesCount = getExtractedSamplesCount();
@@ -607,17 +626,6 @@ import java.util.Arrays;
     return e instanceof UnrecognizedInputFormatException;
   }
 
-  private void notifyLoadError(final IOException error) {
-    if (eventHandler != null && eventListener != null) {
-      eventHandler.post(new Runnable()  {
-        @Override
-        public void run() {
-          eventListener.onLoadError(error);
-        }
-      });
-    }
-  }
-
   private final class SampleStreamImpl implements SampleStream {
 
     private final int track;
@@ -664,7 +672,9 @@ import java.util.Arrays;
 
     private boolean pendingExtractorSeek;
     private long seekTimeUs;
+    private DataSpec dataSpec;
     private long length;
+    private long bytesLoaded;
 
     public ExtractingLoadable(Uri uri, DataSource dataSource, ExtractorHolder extractorHolder,
         ConditionVariable loadCondition) {
@@ -700,7 +710,8 @@ import java.util.Arrays;
         ExtractorInput input = null;
         try {
           long position = positionHolder.position;
-          length = dataSource.open(new DataSpec(uri, position, C.LENGTH_UNSET, customCacheKey));
+          dataSpec = new DataSpec(uri, position, C.LENGTH_UNSET, customCacheKey);
+          length = dataSource.open(dataSpec);
           if (length != C.LENGTH_UNSET) {
             length += position;
           }
@@ -724,6 +735,7 @@ import java.util.Arrays;
             result = Extractor.RESULT_CONTINUE;
           } else if (input != null) {
             positionHolder.position = input.getPosition();
+            bytesLoaded = positionHolder.position - dataSpec.absoluteStreamPosition;
           }
           Util.closeQuietly(dataSource);
         }

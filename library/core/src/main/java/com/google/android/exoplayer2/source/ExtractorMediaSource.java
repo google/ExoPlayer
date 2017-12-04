@@ -17,14 +17,18 @@ package com.google.android.exoplayer2.source;
 
 import android.net.Uri;
 import android.os.Handler;
+import android.support.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlayer;
+import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.extractor.DefaultExtractorsFactory;
 import com.google.android.exoplayer2.extractor.Extractor;
 import com.google.android.exoplayer2.extractor.ExtractorsFactory;
+import com.google.android.exoplayer2.source.AdaptiveMediaSourceEventListener.EventDispatcher;
 import com.google.android.exoplayer2.upstream.Allocator;
 import com.google.android.exoplayer2.upstream.DataSource;
+import com.google.android.exoplayer2.upstream.DataSpec;
 import com.google.android.exoplayer2.util.Assertions;
 import java.io.IOException;
 
@@ -40,10 +44,12 @@ import java.io.IOException;
  * Note that the built-in extractors for AAC, MPEG PS/TS and FLV streams do not support seeking.
  */
 public final class ExtractorMediaSource implements MediaSource, ExtractorMediaPeriod.Listener {
-
   /**
    * Listener of {@link ExtractorMediaSource} events.
+   *
+   * @deprecated Use {@link MediaSourceEventListener}.
    */
+  @Deprecated
   public interface EventListener {
 
     /**
@@ -89,8 +95,7 @@ public final class ExtractorMediaSource implements MediaSource, ExtractorMediaPe
   private final DataSource.Factory dataSourceFactory;
   private final ExtractorsFactory extractorsFactory;
   private final int minLoadableRetryCount;
-  private final Handler eventHandler;
-  private final EventListener eventListener;
+  private final EventDispatcher eventDispatcher;
   private final String customCacheKey;
   private final int continueLoadingCheckIntervalBytes;
 
@@ -108,9 +113,9 @@ public final class ExtractorMediaSource implements MediaSource, ExtractorMediaPe
 
     private ExtractorsFactory extractorsFactory;
     private int minLoadableRetryCount;
-    private Handler eventHandler;
-    private EventListener eventListener;
-    private String customCacheKey;
+    @Nullable private Handler eventHandler;
+    @Nullable private MediaSourceEventListener eventListener;
+    @Nullable private String customCacheKey;
     private int continueLoadingCheckIntervalBytes;
     private boolean isBuildCalled;
 
@@ -187,8 +192,24 @@ public final class ExtractorMediaSource implements MediaSource, ExtractorMediaPe
      * @param eventHandler A handler for events.
      * @param eventListener A listener of events.
      * @return This builder.
+     * @deprecated Use {@link #setEventListener(Handler, MediaSourceEventListener)}.
      */
+    @Deprecated
     public Builder setEventListener(Handler eventHandler, EventListener eventListener) {
+      this.eventHandler = eventHandler;
+      this.eventListener = eventListener == null ? null : new EventListenerWrapper(eventListener);
+      return this;
+    }
+
+    /**
+     * Sets the listener to respond to {@link ExtractorMediaSource} events and the handler to
+     * deliver these events.
+     *
+     * @param eventHandler A handler for events.
+     * @param eventListener A listener of events.
+     * @return This builder.
+     */
+    public Builder setEventListener(Handler eventHandler, MediaSourceEventListener eventListener) {
       this.eventHandler = eventHandler;
       this.eventListener = eventListener;
       return this;
@@ -270,12 +291,31 @@ public final class ExtractorMediaSource implements MediaSource, ExtractorMediaPe
   public ExtractorMediaSource(Uri uri, DataSource.Factory dataSourceFactory,
       ExtractorsFactory extractorsFactory, int minLoadableRetryCount, Handler eventHandler,
       EventListener eventListener, String customCacheKey, int continueLoadingCheckIntervalBytes) {
+    this(
+        uri,
+        dataSourceFactory,
+        extractorsFactory,
+        minLoadableRetryCount,
+        eventHandler,
+        eventListener == null ? null : new EventListenerWrapper(eventListener),
+        customCacheKey,
+        continueLoadingCheckIntervalBytes);
+  }
+
+  private ExtractorMediaSource(
+      Uri uri,
+      DataSource.Factory dataSourceFactory,
+      ExtractorsFactory extractorsFactory,
+      int minLoadableRetryCount,
+      @Nullable Handler eventHandler,
+      @Nullable MediaSourceEventListener eventListener,
+      @Nullable String customCacheKey,
+      int continueLoadingCheckIntervalBytes) {
     this.uri = uri;
     this.dataSourceFactory = dataSourceFactory;
     this.extractorsFactory = extractorsFactory;
     this.minLoadableRetryCount = minLoadableRetryCount;
-    this.eventHandler = eventHandler;
-    this.eventListener = eventListener;
+    this.eventDispatcher = new EventDispatcher(eventHandler, eventListener);
     this.customCacheKey = customCacheKey;
     this.continueLoadingCheckIntervalBytes = continueLoadingCheckIntervalBytes;
   }
@@ -294,9 +334,16 @@ public final class ExtractorMediaSource implements MediaSource, ExtractorMediaPe
   @Override
   public MediaPeriod createPeriod(MediaPeriodId id, Allocator allocator) {
     Assertions.checkArgument(id.periodIndex == 0);
-    return new ExtractorMediaPeriod(uri, dataSourceFactory.createDataSource(),
-        extractorsFactory.createExtractors(), minLoadableRetryCount, eventHandler, eventListener,
-        this, allocator, customCacheKey, continueLoadingCheckIntervalBytes);
+    return new ExtractorMediaPeriod(
+        uri,
+        dataSourceFactory.createDataSource(),
+        extractorsFactory.createExtractors(),
+        minLoadableRetryCount,
+        eventDispatcher,
+        this,
+        allocator,
+        customCacheKey,
+        continueLoadingCheckIntervalBytes);
   }
 
   @Override
@@ -331,4 +378,94 @@ public final class ExtractorMediaSource implements MediaSource, ExtractorMediaPe
         this, new SinglePeriodTimeline(timelineDurationUs, timelineIsSeekable), null);
   }
 
+  /**
+   * Wraps a deprecated {@link EventListener}, invoking its callback from the equivalent callback in
+   * {@link MediaSourceEventListener}.
+   */
+  private static final class EventListenerWrapper implements MediaSourceEventListener {
+    private final EventListener eventListener;
+
+    public EventListenerWrapper(EventListener eventListener) {
+      this.eventListener = Assertions.checkNotNull(eventListener);
+    }
+
+    @Override
+    public void onLoadStarted(
+        DataSpec dataSpec,
+        int dataType,
+        int trackType,
+        Format trackFormat,
+        int trackSelectionReason,
+        Object trackSelectionData,
+        long mediaStartTimeMs,
+        long mediaEndTimeMs,
+        long elapsedRealtimeMs) {
+      // Do nothing.
+    }
+
+    @Override
+    public void onLoadCompleted(
+        DataSpec dataSpec,
+        int dataType,
+        int trackType,
+        Format trackFormat,
+        int trackSelectionReason,
+        Object trackSelectionData,
+        long mediaStartTimeMs,
+        long mediaEndTimeMs,
+        long elapsedRealtimeMs,
+        long loadDurationMs,
+        long bytesLoaded) {
+      // Do nothing.
+    }
+
+    @Override
+    public void onLoadCanceled(
+        DataSpec dataSpec,
+        int dataType,
+        int trackType,
+        Format trackFormat,
+        int trackSelectionReason,
+        Object trackSelectionData,
+        long mediaStartTimeMs,
+        long mediaEndTimeMs,
+        long elapsedRealtimeMs,
+        long loadDurationMs,
+        long bytesLoaded) {
+      // Do nothing.
+    }
+
+    @Override
+    public void onLoadError(
+        DataSpec dataSpec,
+        int dataType,
+        int trackType,
+        Format trackFormat,
+        int trackSelectionReason,
+        Object trackSelectionData,
+        long mediaStartTimeMs,
+        long mediaEndTimeMs,
+        long elapsedRealtimeMs,
+        long loadDurationMs,
+        long bytesLoaded,
+        IOException error,
+        boolean wasCanceled) {
+      eventListener.onLoadError(error);
+    }
+
+    @Override
+    public void onUpstreamDiscarded(int trackType, long mediaStartTimeMs, long mediaEndTimeMs) {
+      // Do nothing.
+    }
+
+    @Override
+    public void onDownstreamFormatChanged(
+        int trackType,
+        Format trackFormat,
+        int trackSelectionReason,
+        Object trackSelectionData,
+        long mediaTimeMs) {
+      // Do nothing.
+    }
+  }
 }
