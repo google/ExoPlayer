@@ -4,6 +4,9 @@
 
 * Add Builder to ExtractorMediaSource, HlsMediaSource, SsMediaSource,
   DashMediaSource, SingleSampleMediaSource.
+* DASH:
+  * Support time zone designators in ISO8601 UTCTiming elements
+    ([#3524](https://github.com/google/ExoPlayer/issues/3524)).
 * Support 32-bit PCM float output from `DefaultAudioSink`, and add an option to
   use this with `FfmpegAudioRenderer`.
 * Support extraction and decoding of Dolby Atmos

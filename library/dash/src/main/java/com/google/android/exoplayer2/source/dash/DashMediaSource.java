@@ -19,6 +19,7 @@ import android.net.Uri;
 import android.os.Handler;
 import android.os.SystemClock;
 import android.support.annotation.Nullable;
+import android.text.TextUtils;
 import android.util.Log;
 import android.util.SparseArray;
 import com.google.android.exoplayer2.C;
@@ -48,6 +49,8 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Locale;
 import java.util.TimeZone;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * A DASH {@link MediaSource}.
@@ -926,41 +929,42 @@ public final class DashMediaSource implements MediaSource {
 
   }
 
-  private static final class Iso8601Parser implements ParsingLoadable.Parser<Long> {
+  /* package */ static final class Iso8601Parser implements ParsingLoadable.Parser<Long> {
 
-    private static final String ISO_8601_FORMAT = "yyyy-MM-dd'T'HH:mm:ss'Z'";
-    private static final String ISO_8601_WITH_OFFSET_FORMAT = "yyyy-MM-dd'T'HH:mm:ssZ";
-    private static final String ISO_8601_WITH_OFFSET_FORMAT_REGEX_PATTERN = ".*[+\\-]\\d{2}:\\d{2}$";
-    private static final String ISO_8601_WITH_OFFSET_FORMAT_REGEX_PATTERN_2 = ".*[+\\-]\\d{4}$";
+    private static final Pattern TIMESTAMP_WITH_TIMEZONE_PATTERN =
+        Pattern.compile("(.+?)(Z|((\\+|-|−)(\\d\\d)(:?(\\d\\d))?))");
 
     @Override
     public Long parse(Uri uri, InputStream inputStream) throws IOException {
       String firstLine = new BufferedReader(new InputStreamReader(inputStream)).readLine();
-
-      if (firstLine != null) {
-        //determine format pattern
-        String formatPattern;
-        if (firstLine.matches(ISO_8601_WITH_OFFSET_FORMAT_REGEX_PATTERN)) {
-          formatPattern = ISO_8601_WITH_OFFSET_FORMAT;
-        } else if (firstLine.matches(ISO_8601_WITH_OFFSET_FORMAT_REGEX_PATTERN_2)) {
-          formatPattern = ISO_8601_WITH_OFFSET_FORMAT;
+      try {
+        Matcher matcher = TIMESTAMP_WITH_TIMEZONE_PATTERN.matcher(firstLine);
+        if (!matcher.matches()) {
+          throw new ParserException("Couldn't parse timestamp: " + firstLine);
+        }
+        // Parse the timestamp.
+        String timestampWithoutTimezone = matcher.group(1);
+        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.US);
+        format.setTimeZone(TimeZone.getTimeZone("UTC"));
+        long timestampMs = format.parse(timestampWithoutTimezone).getTime();
+        // Parse the timezone.
+        String timezone = matcher.group(2);
+        if ("Z".equals(timezone)) {
+          // UTC (no offset).
         } else {
-          formatPattern = ISO_8601_FORMAT;
+          long sign = "+".equals(matcher.group(4)) ? 1 : -1;
+          long hours = Long.parseLong(matcher.group(5));
+          String minutesString = matcher.group(7);
+          long minutes = TextUtils.isEmpty(minutesString) ? 0 : Long.parseLong(minutesString);
+          long timestampOffsetMs = sign * (((hours * 60) + minutes) * 60 * 1000);
+          timestampMs -= timestampOffsetMs;
         }
-        //parse
-        try {
-          SimpleDateFormat format = new SimpleDateFormat(formatPattern, Locale.US);
-          format.setTimeZone(TimeZone.getTimeZone("UTC"));
-          return format.parse(firstLine).getTime();
-        } catch (ParseException e) {
-          throw new ParserException(e);
-        }
-
-      } else {
-        throw new ParserException("Unable to parse ISO 8601. Input value is null");
+        return timestampMs;
+      } catch (ParseException e) {
+        throw new ParserException(e);
       }
     }
 
   }
-  
+
 }
