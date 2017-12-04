@@ -38,7 +38,7 @@ import com.google.android.exoplayer2.metadata.id3.Id3Frame;
 import com.google.android.exoplayer2.metadata.id3.PrivFrame;
 import com.google.android.exoplayer2.metadata.id3.TextInformationFrame;
 import com.google.android.exoplayer2.metadata.id3.UrlLinkFrame;
-import com.google.android.exoplayer2.source.AdaptiveMediaSourceEventListener;
+import com.google.android.exoplayer2.source.MediaSourceEventListener;
 import com.google.android.exoplayer2.source.TrackGroup;
 import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.source.ads.AdsMediaSource;
@@ -58,7 +58,7 @@ import java.util.Locale;
         MetadataOutput,
         AudioRendererEventListener,
         VideoRendererEventListener,
-        AdaptiveMediaSourceEventListener,
+        MediaSourceEventListener,
         AdsMediaSource.EventListener,
         DefaultDrmSessionManager.EventListener {
 
@@ -323,12 +323,19 @@ import java.util.Locale;
     Log.d(TAG, "drmKeysLoaded [" + getSessionTimeString() + "]");
   }
 
-  // AdaptiveMediaSourceEventListener
+  // MediaSourceEventListener
 
   @Override
-  public void onLoadStarted(DataSpec dataSpec, int dataType, int trackType, Format trackFormat,
-      int trackSelectionReason, Object trackSelectionData, long mediaStartTimeMs,
-      long mediaEndTimeMs, long elapsedRealtimeMs) {
+  public void onLoadStarted(
+      DataSpec dataSpec,
+      int dataType,
+      int trackType,
+      Format trackFormat,
+      int trackSelectionReason,
+      Object trackSelectionData,
+      long mediaStartTimeMs,
+      long mediaEndTimeMs,
+      long elapsedRealtimeMs) {
     // Do nothing.
   }
 
@@ -369,7 +376,7 @@ import java.util.Locale;
 
   @Override
   public void onAdLoadError(IOException error) {
-    printInternalError("loadError", error);
+    printInternalError("adLoadError", error);
   }
 
   @Override
