@@ -15,6 +15,8 @@
   seek.
 * Use the same listener `MediaSourceEventListener` for all MediaSource
   implementations.
+* CEA-608: Fix handling of row count changes in roll-up mode
+  ([#3513](https://github.com/google/ExoPlayer/issues/3513)).
 
 ### 2.6.0 ###
 
