@@ -211,7 +211,7 @@ public interface MediaSourceEventListener {
       long mediaTimeMs);
 
   /** Dispatches events to a {@link MediaSourceEventListener}. */
-  class EventDispatcher {
+  final class EventDispatcher {
 
     @Nullable private final Handler handler;
     @Nullable private final MediaSourceEventListener listener;
@@ -228,6 +228,10 @@ public interface MediaSourceEventListener {
       this.handler = listener != null ? Assertions.checkNotNull(handler) : null;
       this.listener = listener;
       this.mediaTimeOffsetMs = mediaTimeOffsetMs;
+    }
+
+    public EventDispatcher copyWithMediaTimeOffsetMs(long mediaTimeOffsetMs) {
+      return new EventDispatcher(handler, listener, mediaTimeOffsetMs);
     }
 
     public void loadStarted(DataSpec dataSpec, int dataType, long elapsedRealtimeMs) {
