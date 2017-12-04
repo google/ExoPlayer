@@ -27,6 +27,8 @@
 * Add optional parameter to `Player.stop` to reset the player when stopping.
 * Fix handling of playback parameters changes while paused when followed by a
   seek.
+* Use the same listener `MediaSourceEventListener` for all MediaSource
+  implementations.
 
 ### 2.6.0 ###
 

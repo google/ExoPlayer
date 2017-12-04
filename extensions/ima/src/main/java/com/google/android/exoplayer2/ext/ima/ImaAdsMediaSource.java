@@ -52,8 +52,8 @@ public final class ImaAdsMediaSource implements MediaSource {
   }
 
   /**
-   * Constructs a new source that inserts ads linearly with the content specified by
-   * {@code contentMediaSource}.
+   * Constructs a new source that inserts ads linearly with the content specified by {@code
+   * contentMediaSource}.
    *
    * @param contentMediaSource The {@link MediaSource} providing the content to play.
    * @param dataSourceFactory Factory for data sources used to load ad media.
@@ -62,9 +62,13 @@ public final class ImaAdsMediaSource implements MediaSource {
    * @param eventHandler A handler for events. May be null if delivery of events is not required.
    * @param eventListener A listener of events. May be null if delivery of events is not required.
    */
-  public ImaAdsMediaSource(MediaSource contentMediaSource, DataSource.Factory dataSourceFactory,
-      ImaAdsLoader imaAdsLoader, ViewGroup adUiViewGroup, @Nullable Handler eventHandler,
-      @Nullable AdsMediaSource.AdsListener eventListener) {
+  public ImaAdsMediaSource(
+      MediaSource contentMediaSource,
+      DataSource.Factory dataSourceFactory,
+      ImaAdsLoader imaAdsLoader,
+      ViewGroup adUiViewGroup,
+      @Nullable Handler eventHandler,
+      @Nullable AdsMediaSource.EventListener eventListener) {
     adsMediaSource = new AdsMediaSource(contentMediaSource, dataSourceFactory, imaAdsLoader,
         adUiViewGroup, eventHandler, eventListener);
   }
