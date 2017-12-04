@@ -963,10 +963,9 @@ public final class DashMediaSource implements MediaSource {
   private static final class Iso8601Parser implements ParsingLoadable.Parser<Long> {
 
     private static final String ISO_8601_FORMAT = "yyyy-MM-dd'T'HH:mm:ss'Z'";
-    private static final String ISO_8601_FORMAT_2 = "yyyy-MM-dd'T'HH:mm:ssZ";
-    private static final String ISO_8601_FORMAT_3 = "yyyy-MM-dd'T'HH:mm:ssZ";
-    private static final String ISO_8601_FORMAT_2_REGEX_PATTERN = ".*[+\\-]\\d{2}:\\d{2}$";
-    private static final String ISO_8601_FORMAT_3_REGEX_PATTERN = ".*[+\\-]\\d{4}$";
+    private static final String ISO_8601_WITH_OFFSET_FORMAT = "yyyy-MM-dd'T'HH:mm:ssZ";
+    private static final String ISO_8601_WITH_OFFSET_FORMAT_REGEX_PATTERN = ".*[+\\-]\\d{2}:\\d{2}$";
+    private static final String ISO_8601_WITH_OFFSET_FORMAT_REGEX_PATTERN_2 = ".*[+\\-]\\d{4}$";
 
     @Override
     public Long parse(Uri uri, InputStream inputStream) throws IOException {
@@ -975,10 +974,10 @@ public final class DashMediaSource implements MediaSource {
       if (firstLine != null) {
         //determine format pattern
         String formatPattern;
-        if (firstLine.matches(ISO_8601_FORMAT_2_REGEX_PATTERN)) {
-          formatPattern = ISO_8601_FORMAT_2;
-        } else if (firstLine.matches(ISO_8601_FORMAT_3_REGEX_PATTERN)) {
-          formatPattern = ISO_8601_FORMAT_3;
+        if (firstLine.matches(ISO_8601_WITH_OFFSET_FORMAT_REGEX_PATTERN)) {
+          formatPattern = ISO_8601_WITH_OFFSET_FORMAT;
+        } else if (firstLine.matches(ISO_8601_WITH_OFFSET_FORMAT_REGEX_PATTERN_2)) {
+          formatPattern = ISO_8601_WITH_OFFSET_FORMAT;
         } else {
           formatPattern = ISO_8601_FORMAT;
         }
@@ -995,6 +994,7 @@ public final class DashMediaSource implements MediaSource {
         throw new ParserException("Unable to parse ISO 8601. Input value is null");
       }
     }
-  }
 
+  }
+  
 }
