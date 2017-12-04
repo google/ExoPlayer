@@ -549,7 +549,8 @@ import java.util.Arrays;
         pendingResetPositionUs = C.TIME_UNSET;
         return;
       }
-      loadable.setLoadPosition(seekMap.getPosition(pendingResetPositionUs), pendingResetPositionUs);
+      loadable.setLoadPosition(
+          seekMap.getSeekPoints(pendingResetPositionUs).first.position, pendingResetPositionUs);
       pendingResetPositionUs = C.TIME_UNSET;
     }
     extractedSamplesCountAtStartOfLoad = getExtractedSamplesCount();

@@ -26,6 +26,7 @@ import com.google.android.exoplayer2.extractor.ExtractorsFactory;
 import com.google.android.exoplayer2.extractor.GaplessInfoHolder;
 import com.google.android.exoplayer2.extractor.PositionHolder;
 import com.google.android.exoplayer2.extractor.SeekMap;
+import com.google.android.exoplayer2.extractor.SeekPoint;
 import com.google.android.exoplayer2.extractor.TrackOutput;
 import com.google.android.exoplayer2.extractor.mp4.Atom.ContainerAtom;
 import com.google.android.exoplayer2.metadata.Metadata;
@@ -108,6 +109,7 @@ public final class Mp4Extractor implements Extractor, SeekMap {
   // Extractor outputs.
   private ExtractorOutput extractorOutput;
   private Mp4Track[] tracks;
+  private int firstVideoTrackIndex;
   private long durationUs;
   private boolean isQuickTime;
 
@@ -196,21 +198,56 @@ public final class Mp4Extractor implements Extractor, SeekMap {
   }
 
   @Override
-  public long getPosition(long timeUs) {
-    long earliestSamplePosition = Long.MAX_VALUE;
-    for (Mp4Track track : tracks) {
-      TrackSampleTable sampleTable = track.sampleTable;
-      int sampleIndex = sampleTable.getIndexOfEarlierOrEqualSynchronizationSample(timeUs);
+  public SeekPoints getSeekPoints(long timeUs) {
+    if (tracks.length == 0) {
+      return new SeekPoints(SeekPoint.START);
+    }
+
+    long firstTimeUs;
+    long firstOffset;
+    long secondTimeUs = C.TIME_UNSET;
+    long secondOffset = C.POSITION_UNSET;
+
+    // If we have a video track, use it to establish one or two seek points.
+    if (firstVideoTrackIndex != C.INDEX_UNSET) {
+      TrackSampleTable sampleTable = tracks[firstVideoTrackIndex].sampleTable;
+      int sampleIndex = getSynchronizationSampleIndex(sampleTable, timeUs);
       if (sampleIndex == C.INDEX_UNSET) {
-        // Handle the case where the requested time is before the first synchronization sample.
-        sampleIndex = sampleTable.getIndexOfLaterOrEqualSynchronizationSample(timeUs);
+        return new SeekPoints(SeekPoint.START);
       }
-      long offset = sampleTable.offsets[sampleIndex];
-      if (offset < earliestSamplePosition) {
-        earliestSamplePosition = offset;
+      long sampleTimeUs = sampleTable.timestampsUs[sampleIndex];
+      firstTimeUs = sampleTimeUs;
+      firstOffset = sampleTable.offsets[sampleIndex];
+      if (sampleTimeUs < timeUs && sampleIndex < sampleTable.sampleCount - 1) {
+        int secondSampleIndex = sampleTable.getIndexOfLaterOrEqualSynchronizationSample(timeUs);
+        if (secondSampleIndex != C.INDEX_UNSET && secondSampleIndex != sampleIndex) {
+          secondTimeUs = sampleTable.timestampsUs[secondSampleIndex];
+          secondOffset = sampleTable.offsets[secondSampleIndex];
+        }
+      }
+    } else {
+      firstTimeUs = timeUs;
+      firstOffset = Long.MAX_VALUE;
+    }
+
+    // Take into account other tracks.
+    for (int i = 0; i < tracks.length; i++) {
+      if (i != firstVideoTrackIndex) {
+        TrackSampleTable sampleTable = tracks[i].sampleTable;
+        firstOffset = maybeAdjustSeekOffset(sampleTable, firstTimeUs, firstOffset);
+        if (secondTimeUs != C.TIME_UNSET) {
+          secondOffset = maybeAdjustSeekOffset(sampleTable, secondTimeUs, secondOffset);
+        }
       }
     }
-    return earliestSamplePosition;
+
+    SeekPoint firstSeekPoint = new SeekPoint(firstTimeUs, firstOffset);
+    if (secondTimeUs == C.TIME_UNSET) {
+      return new SeekPoints(firstSeekPoint);
+    } else {
+      SeekPoint secondSeekPoint = new SeekPoint(secondTimeUs, secondOffset);
+      return new SeekPoints(firstSeekPoint, secondSeekPoint);
+    }
   }
 
   // Private methods.
@@ -327,30 +364,10 @@ public final class Mp4Extractor implements Extractor, SeekMap {
   }
 
   /**
-   * Process an ftyp atom to determine whether the media is QuickTime.
-   *
-   * @param atomData The ftyp atom data.
-   * @return Whether the media is QuickTime.
-   */
-  private static boolean processFtypAtom(ParsableByteArray atomData) {
-    atomData.setPosition(Atom.HEADER_SIZE);
-    int majorBrand = atomData.readInt();
-    if (majorBrand == BRAND_QUICKTIME) {
-      return true;
-    }
-    atomData.skipBytes(4); // minor_version
-    while (atomData.bytesLeft() > 0) {
-      if (atomData.readInt() == BRAND_QUICKTIME) {
-        return true;
-      }
-    }
-    return false;
-  }
-
-  /**
    * Updates the stored track metadata to reflect the contents of the specified moov atom.
    */
   private void processMoovAtom(ContainerAtom moov) throws ParserException {
+    int firstVideoTrackIndex = C.INDEX_UNSET;
     long durationUs = C.TIME_UNSET;
     List<Mp4Track> tracks = new ArrayList<>();
     long earliestSampleOffset = Long.MAX_VALUE;
@@ -402,6 +419,9 @@ public final class Mp4Extractor implements Extractor, SeekMap {
       mp4Track.trackOutput.format(format);
 
       durationUs = Math.max(durationUs, track.durationUs);
+      if (track.type == C.TRACK_TYPE_VIDEO && firstVideoTrackIndex == C.INDEX_UNSET) {
+        firstVideoTrackIndex = tracks.size();
+      }
       tracks.add(mp4Track);
 
       long firstSampleOffset = trackSampleTable.offsets[0];
@@ -409,8 +429,10 @@ public final class Mp4Extractor implements Extractor, SeekMap {
         earliestSampleOffset = firstSampleOffset;
       }
     }
+    this.firstVideoTrackIndex = firstVideoTrackIndex;
     this.durationUs = durationUs;
     this.tracks = tracks.toArray(new Mp4Track[tracks.size()]);
+
     extractorOutput.endTracks();
     extractorOutput.seekMap(this);
   }
@@ -536,6 +558,66 @@ public final class Mp4Extractor implements Extractor, SeekMap {
       }
       track.sampleIndex = sampleIndex;
     }
+  }
+
+  /**
+   * Adjusts a seek point offset to take into account the track with the given {@code sampleTable},
+   * for a given {@code seekTimeUs}.
+   *
+   * @param sampleTable The sample table to use.
+   * @param seekTimeUs The seek time in microseconds.
+   * @param offset The current offset.
+   * @return The adjusted offset.
+   */
+  private static long maybeAdjustSeekOffset(
+      TrackSampleTable sampleTable, long seekTimeUs, long offset) {
+    int sampleIndex = getSynchronizationSampleIndex(sampleTable, seekTimeUs);
+    if (sampleIndex == C.INDEX_UNSET) {
+      return offset;
+    }
+    long sampleOffset = sampleTable.offsets[sampleIndex];
+    return Math.min(sampleOffset, offset);
+  }
+
+  /**
+   * Returns the index of the synchronization sample before or at {@code timeUs}, or the index of
+   * the first synchronization sample if located after {@code timeUs}, or {@link C#INDEX_UNSET} if
+   * there are no synchronization samples in the table.
+   *
+   * @param sampleTable The sample table in which to locate a synchronization sample.
+   * @param timeUs A time in microseconds.
+   * @return The index of the synchronization sample before or at {@code timeUs}, or the index of
+   *     the first synchronization sample if located after {@code timeUs}, or {@link C#INDEX_UNSET}
+   *     if there are no synchronization samples in the table.
+   */
+  private static int getSynchronizationSampleIndex(TrackSampleTable sampleTable, long timeUs) {
+    int sampleIndex = sampleTable.getIndexOfEarlierOrEqualSynchronizationSample(timeUs);
+    if (sampleIndex == C.INDEX_UNSET) {
+      // Handle the case where the requested time is before the first synchronization sample.
+      sampleIndex = sampleTable.getIndexOfLaterOrEqualSynchronizationSample(timeUs);
+    }
+    return sampleIndex;
+  }
+
+  /**
+   * Process an ftyp atom to determine whether the media is QuickTime.
+   *
+   * @param atomData The ftyp atom data.
+   * @return Whether the media is QuickTime.
+   */
+  private static boolean processFtypAtom(ParsableByteArray atomData) {
+    atomData.setPosition(Atom.HEADER_SIZE);
+    int majorBrand = atomData.readInt();
+    if (majorBrand == BRAND_QUICKTIME) {
+      return true;
+    }
+    atomData.skipBytes(4); // minor_version
+    while (atomData.bytesLeft() > 0) {
+      if (atomData.readInt() == BRAND_QUICKTIME) {
+        return true;
+      }
+    }
+    return false;
   }
 
   /**
