@@ -26,12 +26,12 @@ import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.ExoPlayerLibraryInfo;
 import com.google.android.exoplayer2.ParserException;
 import com.google.android.exoplayer2.Timeline;
-import com.google.android.exoplayer2.source.AdaptiveMediaSourceEventListener;
-import com.google.android.exoplayer2.source.AdaptiveMediaSourceEventListener.EventDispatcher;
 import com.google.android.exoplayer2.source.CompositeSequenceableLoaderFactory;
 import com.google.android.exoplayer2.source.DefaultCompositeSequenceableLoaderFactory;
 import com.google.android.exoplayer2.source.MediaPeriod;
 import com.google.android.exoplayer2.source.MediaSource;
+import com.google.android.exoplayer2.source.MediaSourceEventListener;
+import com.google.android.exoplayer2.source.MediaSourceEventListener.EventDispatcher;
 import com.google.android.exoplayer2.source.SequenceableLoader;
 import com.google.android.exoplayer2.source.dash.manifest.DashManifest;
 import com.google.android.exoplayer2.source.dash.manifest.DashManifestParser;
@@ -72,7 +72,7 @@ public final class DashMediaSource implements MediaSource {
     private final DashChunkSource.Factory chunkSourceFactory;
 
     private ParsingLoadable.Parser<? extends DashManifest> manifestParser;
-    private AdaptiveMediaSourceEventListener eventListener;
+    private MediaSourceEventListener eventListener;
     private Handler eventHandler;
     private CompositeSequenceableLoaderFactory compositeSequenceableLoaderFactory;
 
@@ -155,8 +155,7 @@ public final class DashMediaSource implements MediaSource {
      * @param eventListener A listener of events.
      * @return This builder.
      */
-    public Builder setEventListener(Handler eventHandler,
-        AdaptiveMediaSourceEventListener eventListener) {
+    public Builder setEventListener(Handler eventHandler, MediaSourceEventListener eventListener) {
       this.eventHandler = eventHandler;
       this.eventListener = eventListener;
       return this;
@@ -284,8 +283,11 @@ public final class DashMediaSource implements MediaSource {
    * @deprecated Use {@link Builder} instead.
    */
   @Deprecated
-  public DashMediaSource(DashManifest manifest, DashChunkSource.Factory chunkSourceFactory,
-      Handler eventHandler, AdaptiveMediaSourceEventListener eventListener) {
+  public DashMediaSource(
+      DashManifest manifest,
+      DashChunkSource.Factory chunkSourceFactory,
+      Handler eventHandler,
+      MediaSourceEventListener eventListener) {
     this(manifest, chunkSourceFactory, DEFAULT_MIN_LOADABLE_RETRY_COUNT, eventHandler,
         eventListener);
   }
@@ -301,9 +303,12 @@ public final class DashMediaSource implements MediaSource {
    * @deprecated Use {@link Builder} instead.
    */
   @Deprecated
-  public DashMediaSource(DashManifest manifest, DashChunkSource.Factory chunkSourceFactory,
-      int minLoadableRetryCount, Handler eventHandler, AdaptiveMediaSourceEventListener
-      eventListener) {
+  public DashMediaSource(
+      DashManifest manifest,
+      DashChunkSource.Factory chunkSourceFactory,
+      int minLoadableRetryCount,
+      Handler eventHandler,
+      MediaSourceEventListener eventListener) {
     this(manifest, null, null, null, chunkSourceFactory,
         new DefaultCompositeSequenceableLoaderFactory(), minLoadableRetryCount,
         DEFAULT_LIVE_PRESENTATION_DELAY_PREFER_MANIFEST_MS, eventHandler, eventListener);
@@ -322,9 +327,12 @@ public final class DashMediaSource implements MediaSource {
    * @deprecated Use {@link Builder} instead.
    */
   @Deprecated
-  public DashMediaSource(Uri manifestUri, DataSource.Factory manifestDataSourceFactory,
-      DashChunkSource.Factory chunkSourceFactory, Handler eventHandler,
-      AdaptiveMediaSourceEventListener eventListener) {
+  public DashMediaSource(
+      Uri manifestUri,
+      DataSource.Factory manifestDataSourceFactory,
+      DashChunkSource.Factory chunkSourceFactory,
+      Handler eventHandler,
+      MediaSourceEventListener eventListener) {
     this(manifestUri, manifestDataSourceFactory, chunkSourceFactory,
         DEFAULT_MIN_LOADABLE_RETRY_COUNT, DEFAULT_LIVE_PRESENTATION_DELAY_PREFER_MANIFEST_MS,
         eventHandler, eventListener);
@@ -340,18 +348,22 @@ public final class DashMediaSource implements MediaSource {
    * @param chunkSourceFactory A factory for {@link DashChunkSource} instances.
    * @param minLoadableRetryCount The minimum number of times to retry if a loading error occurs.
    * @param livePresentationDelayMs For live playbacks, the duration in milliseconds by which the
-   *     default start position should precede the end of the live window. Use
-   *     {@link #DEFAULT_LIVE_PRESENTATION_DELAY_PREFER_MANIFEST_MS} to use the value specified by
-   *     the manifest, if present.
+   *     default start position should precede the end of the live window. Use {@link
+   *     #DEFAULT_LIVE_PRESENTATION_DELAY_PREFER_MANIFEST_MS} to use the value specified by the
+   *     manifest, if present.
    * @param eventHandler A handler for events. May be null if delivery of events is not required.
    * @param eventListener A listener of events. May be null if delivery of events is not required.
    * @deprecated Use {@link Builder} instead.
    */
   @Deprecated
-  public DashMediaSource(Uri manifestUri, DataSource.Factory manifestDataSourceFactory,
-      DashChunkSource.Factory chunkSourceFactory, int minLoadableRetryCount,
-      long livePresentationDelayMs, Handler eventHandler,
-      AdaptiveMediaSourceEventListener eventListener) {
+  public DashMediaSource(
+      Uri manifestUri,
+      DataSource.Factory manifestDataSourceFactory,
+      DashChunkSource.Factory chunkSourceFactory,
+      int minLoadableRetryCount,
+      long livePresentationDelayMs,
+      Handler eventHandler,
+      MediaSourceEventListener eventListener) {
     this(manifestUri, manifestDataSourceFactory, new DashManifestParser(), chunkSourceFactory,
         minLoadableRetryCount, livePresentationDelayMs, eventHandler, eventListener);
   }
@@ -367,31 +379,39 @@ public final class DashMediaSource implements MediaSource {
    * @param chunkSourceFactory A factory for {@link DashChunkSource} instances.
    * @param minLoadableRetryCount The minimum number of times to retry if a loading error occurs.
    * @param livePresentationDelayMs For live playbacks, the duration in milliseconds by which the
-   *     default start position should precede the end of the live window. Use
-   *     {@link #DEFAULT_LIVE_PRESENTATION_DELAY_PREFER_MANIFEST_MS} to use the value specified by
-   *     the manifest, if present.
+   *     default start position should precede the end of the live window. Use {@link
+   *     #DEFAULT_LIVE_PRESENTATION_DELAY_PREFER_MANIFEST_MS} to use the value specified by the
+   *     manifest, if present.
    * @param eventHandler A handler for events. May be null if delivery of events is not required.
    * @param eventListener A listener of events. May be null if delivery of events is not required.
    * @deprecated Use {@link Builder} instead.
    */
   @Deprecated
-  public DashMediaSource(Uri manifestUri, DataSource.Factory manifestDataSourceFactory,
+  public DashMediaSource(
+      Uri manifestUri,
+      DataSource.Factory manifestDataSourceFactory,
       ParsingLoadable.Parser<? extends DashManifest> manifestParser,
-      DashChunkSource.Factory chunkSourceFactory, int minLoadableRetryCount,
-      long livePresentationDelayMs, Handler eventHandler,
-      AdaptiveMediaSourceEventListener eventListener) {
+      DashChunkSource.Factory chunkSourceFactory,
+      int minLoadableRetryCount,
+      long livePresentationDelayMs,
+      Handler eventHandler,
+      MediaSourceEventListener eventListener) {
     this(null, manifestUri, manifestDataSourceFactory, manifestParser, chunkSourceFactory,
         new DefaultCompositeSequenceableLoaderFactory(), minLoadableRetryCount,
         livePresentationDelayMs, eventHandler, eventListener);
   }
 
-  private DashMediaSource(DashManifest manifest, Uri manifestUri,
+  private DashMediaSource(
+      DashManifest manifest,
+      Uri manifestUri,
       DataSource.Factory manifestDataSourceFactory,
       ParsingLoadable.Parser<? extends DashManifest> manifestParser,
       DashChunkSource.Factory chunkSourceFactory,
       CompositeSequenceableLoaderFactory compositeSequenceableLoaderFactory,
-      int minLoadableRetryCount, long livePresentationDelayMs, Handler eventHandler,
-      AdaptiveMediaSourceEventListener eventListener) {
+      int minLoadableRetryCount,
+      long livePresentationDelayMs,
+      Handler eventHandler,
+      MediaSourceEventListener eventListener) {
     this.manifest = manifest;
     this.manifestUri = manifestUri;
     this.manifestDataSourceFactory = manifestDataSourceFactory;
