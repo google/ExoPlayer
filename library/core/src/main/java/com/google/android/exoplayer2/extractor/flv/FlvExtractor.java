@@ -78,6 +78,7 @@ public final class FlvExtractor implements Extractor {
 
   private ExtractorOutput extractorOutput;
   private @States int state;
+  private long mediaTagTimestampOffsetUs;
   private int bytesToNextTagHeader;
   private int tagType;
   private int tagDataSize;
@@ -93,6 +94,7 @@ public final class FlvExtractor implements Extractor {
     tagData = new ParsableByteArray();
     metadataReader = new ScriptTagPayloadReader();
     state = STATE_READING_FLV_HEADER;
+    mediaTagTimestampOffsetUs = C.TIME_UNSET;
   }
 
   @Override
@@ -134,6 +136,7 @@ public final class FlvExtractor implements Extractor {
   @Override
   public void seek(long position, long timeUs) {
     state = STATE_READING_FLV_HEADER;
+    mediaTagTimestampOffsetUs = C.TIME_UNSET;
     bytesToNextTagHeader = 0;
   }
 
@@ -255,11 +258,11 @@ public final class FlvExtractor implements Extractor {
   private boolean readTagData(ExtractorInput input) throws IOException, InterruptedException {
     boolean wasConsumed = true;
     if (tagType == TAG_TYPE_AUDIO && audioReader != null) {
-      ensureOutputSeekMap();
-      audioReader.consume(prepareTagData(input), tagTimestampUs);
+      ensureReadyForMediaOutput();
+      audioReader.consume(prepareTagData(input), mediaTagTimestampOffsetUs + tagTimestampUs);
     } else if (tagType == TAG_TYPE_VIDEO && videoReader != null) {
-      ensureOutputSeekMap();
-      videoReader.consume(prepareTagData(input), tagTimestampUs);
+      ensureReadyForMediaOutput();
+      videoReader.consume(prepareTagData(input), mediaTagTimestampOffsetUs + tagTimestampUs);
     } else if (tagType == TAG_TYPE_SCRIPT_DATA && !outputSeekMap) {
       metadataReader.consume(prepareTagData(input), tagTimestampUs);
       long durationUs = metadataReader.getDurationUs();
@@ -288,10 +291,14 @@ public final class FlvExtractor implements Extractor {
     return tagData;
   }
 
-  private void ensureOutputSeekMap() {
+  private void ensureReadyForMediaOutput() {
     if (!outputSeekMap) {
       extractorOutput.seekMap(new SeekMap.Unseekable(C.TIME_UNSET));
       outputSeekMap = true;
+    }
+    if (mediaTagTimestampOffsetUs == C.TIME_UNSET) {
+      mediaTagTimestampOffsetUs =
+          metadataReader.getDurationUs() == C.TIME_UNSET ? -tagTimestampUs : 0;
     }
   }
 
