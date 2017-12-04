@@ -11,6 +11,8 @@
   `DashMediaSource`, `SingleSampleMediaSource`.
 * DASH:
   * Support in-MPD EventStream.
+  * Support time zone designators in ISO8601 UTCTiming elements
+    ([#3524](https://github.com/google/ExoPlayer/issues/3524)).
 * Allow a back-buffer of media to be retained behind the current playback
   position, for fast backward seeking. The back-buffer can be configured by
   custom `LoadControl` implementations.
