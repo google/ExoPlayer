@@ -143,7 +143,7 @@ public final class ExtractorAsserts {
       long durationUs = seekMap.getDurationUs();
       for (int j = 0; j < 4; j++) {
         long timeUs = (durationUs * j) / 3;
-        long position = seekMap.getPosition(timeUs);
+        long position = seekMap.getSeekPoints(timeUs).first.position;
         input.setPosition((int) position);
         for (int i = 0; i < extractorOutput.numberOfTracks; i++) {
           extractorOutput.trackOutputs.valueAt(i).clear();

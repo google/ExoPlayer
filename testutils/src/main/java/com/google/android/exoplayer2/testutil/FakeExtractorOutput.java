@@ -78,7 +78,7 @@ public final class FakeExtractorOutput implements ExtractorOutput, Dumper.Dumpab
       Assert.assertNotNull(seekMap);
       Assert.assertEquals(expected.seekMap.getClass(), seekMap.getClass());
       Assert.assertEquals(expected.seekMap.isSeekable(), seekMap.isSeekable());
-      Assert.assertEquals(expected.seekMap.getPosition(0), seekMap.getPosition(0));
+      Assert.assertEquals(expected.seekMap.getSeekPoints(0), seekMap.getSeekPoints(0));
     }
     for (int i = 0; i < numberOfTracks; i++) {
       Assert.assertEquals(expected.trackOutputs.keyAt(i), trackOutputs.keyAt(i));
@@ -114,10 +114,11 @@ public final class FakeExtractorOutput implements ExtractorOutput, Dumper.Dumpab
   @Override
   public void dump(Dumper dumper) {
     if (seekMap != null) {
-      dumper.startBlock("seekMap")
+      dumper
+          .startBlock("seekMap")
           .add("isSeekable", seekMap.isSeekable())
           .addTime("duration", seekMap.getDurationUs())
-          .add("getPosition(0)", seekMap.getPosition(0))
+          .add("getPosition(0)", seekMap.getSeekPoints(0))
           .endBlock();
     }
     dumper.add("numberOfTracks", numberOfTracks);
