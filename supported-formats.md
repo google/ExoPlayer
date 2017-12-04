@@ -29,11 +29,12 @@ of this page.
 
 ### DASH ###
 
-ExoPlayer supports DASH with the FMP4, WebM and Matroska container formats.
-Media streams must be demuxed, meaning that video, audio and text must be
-defined in distinct AdaptationSet elements in the DASH manifest. The contained
-audio and video sample formats must also be supported (see the
-[sample formats](#sample-formats) section for details).
+ExoPlayer supports DASH with multiple container formats. Media streams must be
+demuxed, meaning that video, audio and text must be defined in distinct
+AdaptationSet elements in the DASH manifest (CEA-608 is an exception, more
+information in the table below). The contained audio and video sample formats
+must also be supported (see the [sample formats](#sample-formats) section for
+details).
 
 | Feature | Supported    | Comment              |
 |---------|:------------:|:---------------------|
@@ -72,12 +73,11 @@ video sample formats must also be supported (see the
 
 ### HLS ###
 
-ExoPlayer supports HLS with the MPEG-TS, FMP4, ADTS and MP3 container formats.
-The contained audio and video sample formats must also be supported (see the
-[sample formats](#sample-formats) section for details). Note that we recommend
-using DASH (or SmoothStreaming) rather than HLS where possible. You can read
-about some of the benefits of DASH
-[here](https://medium.com/google-exoplayer/test-8b62d50362ef#.dlz6npay4).
+ExoPlayer supports HLS with multiple container formats. The contained audio and
+video sample formats must also be supported (see the
+[sample formats](#sample-formats) section for details). We strongly encourage
+HLS content producers to generate high quality HLS streams, as described
+[here](https://medium.com/google-exoplayer/hls-playback-in-exoplayer-a33959a47be7).
 
 | Feature | Supported    | Comment              |
 |---------|:------------:|:---------------------|
@@ -94,7 +94,7 @@ about some of the benefits of DASH
 | **Content protection** |||
 | AES-128 | YES ||
 | Sample AES-128 | NO ||
-| Widevine | NO | Future support planned for API 24+ |
+| Widevine | YES | API 19+ ("cenc" scheme) and 24+ ("cbcs" scheme) |
 
 ## Standalone container formats ##
 
