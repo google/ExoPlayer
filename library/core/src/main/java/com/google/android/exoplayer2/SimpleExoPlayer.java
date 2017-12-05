@@ -873,15 +873,15 @@ public class SimpleExoPlayer implements ExoPlayer {
   // Internal methods.
 
   /**
-   * Creates the ExoPlayer implementation used by this {@link SimpleExoPlayer}.
+   * Creates the {@link ExoPlayer} implementation used by this instance.
    *
    * @param renderers The {@link Renderer}s that will be used by the instance.
    * @param trackSelector The {@link TrackSelector} that will be used by the instance.
    * @param loadControl The {@link LoadControl} that will be used by the instance.
    * @return A new {@link ExoPlayer} instance.
    */
-  protected ExoPlayer createExoPlayerImpl(Renderer[] renderers, TrackSelector trackSelector,
-      LoadControl loadControl) {
+  protected ExoPlayer createExoPlayerImpl(
+      Renderer[] renderers, TrackSelector trackSelector, LoadControl loadControl) {
     return new ExoPlayerImpl(renderers, trackSelector, loadControl);
   }
 
