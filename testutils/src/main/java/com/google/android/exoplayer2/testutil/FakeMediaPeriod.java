@@ -152,6 +152,11 @@ public class FakeMediaPeriod implements MediaPeriod {
   }
 
   @Override
+  public void reevaluateBuffer(long positionUs) {
+    // Do nothing.
+  }
+
+  @Override
   public long readDiscontinuity() {
     Assert.assertTrue(prepared);
     long positionDiscontinuityUs = this.discontinuityPositionUs;

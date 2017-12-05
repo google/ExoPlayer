@@ -124,6 +124,11 @@ public final class ClippingMediaPeriod implements MediaPeriod, MediaPeriod.Callb
   }
 
   @Override
+  public void reevaluateBuffer(long positionUs) {
+    mediaPeriod.reevaluateBuffer(positionUs + startUs);
+  }
+
+  @Override
   public long readDiscontinuity() {
     if (isPendingInitialDiscontinuity()) {
       long initialDiscontinuityUs = pendingInitialDiscontinuityPositionUs;

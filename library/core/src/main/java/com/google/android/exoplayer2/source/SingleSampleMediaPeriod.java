@@ -121,6 +121,11 @@ import java.util.Arrays;
   }
 
   @Override
+  public void reevaluateBuffer(long positionUs) {
+    // Do nothing.
+  }
+
+  @Override
   public boolean continueLoading(long positionUs) {
     if (loadingFinished || loader.isLoading()) {
       return false;

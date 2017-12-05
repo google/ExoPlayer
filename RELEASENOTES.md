@@ -2,6 +2,8 @@
 
 ### dev-v2 (not yet released) ###
 
+* Add ability for `SequenceableLoader` to reevaluate its buffer and discard
+  buffered media so that it can be re-buffered in a different quality.
 * Replace `DefaultTrackSelector.Parameters` copy methods with a builder.
 * Allow more flexible loading strategy when playing media containing multiple
   sub-streams, by allowing injection of custom `CompositeSequenceableLoader`

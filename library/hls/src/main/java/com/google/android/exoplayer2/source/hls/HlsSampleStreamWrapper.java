@@ -524,6 +524,11 @@ import java.util.Arrays;
     return true;
   }
 
+  @Override
+  public void reevaluateBuffer(long positionUs) {
+    // Do nothing.
+  }
+
   // Loader.Callback implementation.
 
   @Override

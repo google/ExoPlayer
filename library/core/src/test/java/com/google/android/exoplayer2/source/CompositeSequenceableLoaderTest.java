@@ -265,6 +265,11 @@ public final class CompositeSequenceableLoaderTest {
       return loaded;
     }
 
+    @Override
+    public void reevaluateBuffer(long positionUs) {
+      // Do nothing.
+    }
+
     private void setNextChunkDurationUs(int nextChunkDurationUs) {
       this.nextChunkDurationUs = nextChunkDurationUs;
     }

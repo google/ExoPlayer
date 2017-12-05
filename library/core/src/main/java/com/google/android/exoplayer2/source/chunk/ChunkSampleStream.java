@@ -319,7 +319,9 @@ public class ChunkSampleStream<T extends ChunkSource> implements SampleStream, S
       IOException error) {
     long bytesLoaded = loadable.bytesLoaded();
     boolean isMediaChunk = isMediaChunk(loadable);
-    boolean cancelable = bytesLoaded == 0 || !isMediaChunk || !haveReadFromLastMediaChunk();
+    int lastChunkIndex = mediaChunks.size() - 1;
+    boolean cancelable =
+        bytesLoaded == 0 || !isMediaChunk || !haveReadFromMediaChunk(lastChunkIndex);
     boolean canceled = false;
     if (chunkSource.onChunkLoadError(loadable, cancelable, error)) {
       if (!cancelable) {
@@ -327,12 +329,8 @@ public class ChunkSampleStream<T extends ChunkSource> implements SampleStream, S
       } else {
         canceled = true;
         if (isMediaChunk) {
-          BaseMediaChunk removed = mediaChunks.remove(mediaChunks.size() - 1);
+          BaseMediaChunk removed = discardUpstreamMediaChunksFromIndex(lastChunkIndex);
           Assertions.checkState(removed == loadable);
-          primarySampleQueue.discardUpstreamSamples(removed.getFirstSampleIndex(0));
-          for (int i = 0; i < embeddedSampleQueues.length; i++) {
-            embeddedSampleQueues[i].discardUpstreamSamples(removed.getFirstSampleIndex(i + 1));
-          }
           if (mediaChunks.isEmpty()) {
             pendingResetPositionUs = lastSeekPositionUs;
           }
@@ -405,35 +403,29 @@ public class ChunkSampleStream<T extends ChunkSource> implements SampleStream, S
     }
   }
 
-  // Internal methods
-
-  // TODO[REFACTOR]: Call maybeDiscardUpstream for DASH and SmoothStreaming.
-  /**
-   * Discards media chunks from the back of the buffer if conditions have changed such that it's
-   * preferable to re-buffer the media at a different quality.
-   *
-   * @param positionUs The current playback position in microseconds.
-   */
-  @SuppressWarnings("unused")
-  private void maybeDiscardUpstream(long positionUs) {
+  @Override
+  public void reevaluateBuffer(long positionUs) {
+    if (loader.isLoading() || isPendingReset()) {
+      return;
+    }
     int queueSize = chunkSource.getPreferredQueueSize(positionUs, readOnlyMediaChunks);
-    discardUpstreamMediaChunks(Math.max(1, queueSize));
+    discardUpstreamMediaChunks(queueSize);
   }
+
+  // Internal methods
 
   private boolean isMediaChunk(Chunk chunk) {
     return chunk instanceof BaseMediaChunk;
   }
 
-  /**
-   * Returns whether samples have been read from {@code mediaChunks.getLast()}.
-   */
-  private boolean haveReadFromLastMediaChunk() {
-    BaseMediaChunk lastChunk = getLastMediaChunk();
-    if (primarySampleQueue.getReadIndex() > lastChunk.getFirstSampleIndex(0)) {
+  /** Returns whether samples have been read from media chunk at given index. */
+  private boolean haveReadFromMediaChunk(int mediaChunkIndex) {
+    BaseMediaChunk mediaChunk = mediaChunks.get(mediaChunkIndex);
+    if (primarySampleQueue.getReadIndex() > mediaChunk.getFirstSampleIndex(0)) {
       return true;
     }
     for (int i = 0; i < embeddedSampleQueues.length; i++) {
-      if (embeddedSampleQueues[i].getReadIndex() > lastChunk.getFirstSampleIndex(i + 1)) {
+      if (embeddedSampleQueues[i].getReadIndex() > mediaChunk.getFirstSampleIndex(i + 1)) {
         return true;
       }
     }
@@ -492,27 +484,51 @@ public class ChunkSampleStream<T extends ChunkSource> implements SampleStream, S
   }
 
   /**
-   * Discard upstream media chunks until the queue length is equal to the length specified.
+   * Discard upstream media chunks until the queue length is equal to the length specified, but
+   * avoid discarding any chunk whose samples have been read by either primary sample stream or
+   * embedded sample streams.
    *
-   * @param queueLength The desired length of the queue.
-   * @return Whether chunks were discarded.
+   * @param desiredQueueSize The desired length of the queue. The final queue size after discarding
+   *     maybe larger than this if there are chunks after the specified position that have been read
+   *     by either primary sample stream or embedded sample streams.
    */
-  private boolean discardUpstreamMediaChunks(int queueLength) {
-    if (mediaChunks.size() <= queueLength) {
-      return false;
+  private void discardUpstreamMediaChunks(int desiredQueueSize) {
+    if (mediaChunks.size() <= desiredQueueSize) {
+      return;
     }
 
+    int firstIndexToRemove = desiredQueueSize;
+    for (int i = firstIndexToRemove; i < mediaChunks.size(); i++) {
+      if (!haveReadFromMediaChunk(i)) {
+        firstIndexToRemove = i;
+        break;
+      }
+    }
+
+    if (firstIndexToRemove == mediaChunks.size()) {
+      return;
+    }
     long endTimeUs = getLastMediaChunk().endTimeUs;
-    BaseMediaChunk firstRemovedChunk = mediaChunks.get(queueLength);
-    long startTimeUs = firstRemovedChunk.startTimeUs;
-    Util.removeRange(mediaChunks, /* fromIndex= */ queueLength, /* toIndex= */ mediaChunks.size());
+    BaseMediaChunk firstRemovedChunk = discardUpstreamMediaChunksFromIndex(firstIndexToRemove);
+    loadingFinished = false;
+    eventDispatcher.upstreamDiscarded(primaryTrackType, firstRemovedChunk.startTimeUs, endTimeUs);
+  }
+
+  /**
+   * Discard upstream media chunks from {@code chunkIndex} and corresponding samples from sample
+   * queues.
+   *
+   * @param chunkIndex The index of the first chunk to discard.
+   * @return The chunk at given index.
+   */
+  private BaseMediaChunk discardUpstreamMediaChunksFromIndex(int chunkIndex) {
+    BaseMediaChunk firstRemovedChunk = mediaChunks.get(chunkIndex);
+    Util.removeRange(mediaChunks, /* fromIndex= */ chunkIndex, /* toIndex= */ mediaChunks.size());
     primarySampleQueue.discardUpstreamSamples(firstRemovedChunk.getFirstSampleIndex(0));
     for (int i = 0; i < embeddedSampleQueues.length; i++) {
       embeddedSampleQueues[i].discardUpstreamSamples(firstRemovedChunk.getFirstSampleIndex(i + 1));
     }
-    loadingFinished = false;
-    eventDispatcher.upstreamDiscarded(primaryTrackType, startTimeUs, endTimeUs);
-    return true;
+    return firstRemovedChunk;
   }
 
   /**
