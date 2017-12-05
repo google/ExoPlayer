@@ -425,6 +425,9 @@ public final class SimpleExoPlayerView extends FrameLayout {
     if (shutterView != null) {
       shutterView.setVisibility(VISIBLE);
     }
+    if (subtitleView != null) {
+      subtitleView.setCues(null);
+    }
     if (player != null) {
       if (surfaceView instanceof TextureView) {
         player.setVideoTextureView((TextureView) surfaceView);
