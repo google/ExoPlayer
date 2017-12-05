@@ -39,6 +39,7 @@ import java.io.IOException;
   public void unbindSampleQueue() {
     if (sampleQueueIndex != C.INDEX_UNSET) {
       sampleStreamWrapper.unbindSampleQueue(trackGroupIndex);
+      sampleQueueIndex = C.INDEX_UNSET;
     }
   }
 
