@@ -59,10 +59,10 @@ public class FakeRenderer extends BaseRenderer {
   @Override
   public void render(long positionUs, long elapsedRealtimeUs) throws ExoPlaybackException {
     if (!isEnded) {
-      buffer.clear();
       // Verify the format matches the expected format.
       FormatHolder formatHolder = new FormatHolder();
       int result = readSource(formatHolder, buffer, false);
+      buffer.data = null;
       if (result == C.RESULT_FORMAT_READ) {
         formatReadCount++;
         Assert.assertTrue(expectedFormats.contains(formatHolder.format));
