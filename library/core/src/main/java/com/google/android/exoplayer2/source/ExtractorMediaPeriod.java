@@ -405,14 +405,26 @@ import java.util.Arrays;
   @Override
   public void onLoadCompleted(ExtractingLoadable loadable, long elapsedRealtimeMs,
       long loadDurationMs) {
-    copyLengthFromLoader(loadable);
-    loadingFinished = true;
     if (durationUs == C.TIME_UNSET) {
       long largestQueuedTimestampUs = getLargestQueuedTimestampUs();
       durationUs = largestQueuedTimestampUs == Long.MIN_VALUE ? 0
           : largestQueuedTimestampUs + DEFAULT_LAST_SAMPLE_DURATION_US;
       listener.onSourceInfoRefreshed(durationUs, seekMap.isSeekable());
     }
+    eventDispatcher.loadCompleted(
+        loadable.dataSpec,
+        C.DATA_TYPE_MEDIA,
+        C.TRACK_TYPE_UNKNOWN,
+        /* trackFormat= */ null,
+        C.SELECTION_REASON_UNKNOWN,
+        /* trackSelectionData= */ null,
+        /* mediaStartTimeUs= */ 0,
+        durationUs,
+        elapsedRealtimeMs,
+        loadDurationMs,
+        loadable.bytesLoaded);
+    copyLengthFromLoader(loadable);
+    loadingFinished = true;
     callback.onContinueLoadingRequested(this);
   }
 
@@ -422,6 +434,18 @@ import java.util.Arrays;
     if (released) {
       return;
     }
+    eventDispatcher.loadCanceled(
+        loadable.dataSpec,
+        C.DATA_TYPE_MEDIA,
+        C.TRACK_TYPE_UNKNOWN,
+        /* trackFormat= */ null,
+        C.SELECTION_REASON_UNKNOWN,
+        /* trackSelectionData= */ null,
+        /* mediaStartTimeUs= */ 0,
+        durationUs,
+        elapsedRealtimeMs,
+        loadDurationMs,
+        loadable.bytesLoaded);
     copyLengthFromLoader(loadable);
     for (SampleQueue sampleQueue : sampleQueues) {
       sampleQueue.reset();
@@ -434,7 +458,6 @@ import java.util.Arrays;
   @Override
   public int onLoadError(ExtractingLoadable loadable, long elapsedRealtimeMs,
       long loadDurationMs, IOException error) {
-    copyLengthFromLoader(loadable);
     boolean isErrorFatal = isLoadableExceptionFatal(error);
     eventDispatcher.loadError(
         loadable.dataSpec,
@@ -450,6 +473,7 @@ import java.util.Arrays;
         loadable.bytesLoaded,
         error,
         /* wasCanceled= */ isErrorFatal);
+    copyLengthFromLoader(loadable);
     if (isErrorFatal) {
       return Loader.DONT_RETRY_FATAL;
     }
