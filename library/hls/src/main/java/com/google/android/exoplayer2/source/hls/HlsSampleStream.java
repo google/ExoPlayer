@@ -33,6 +33,7 @@ import java.io.IOException;
   public HlsSampleStream(HlsSampleStreamWrapper sampleStreamWrapper, int trackGroupIndex) {
     this.sampleStreamWrapper = sampleStreamWrapper;
     this.trackGroupIndex = trackGroupIndex;
+    sampleQueueIndex = C.INDEX_UNSET;
   }
 
   public void unbindSampleQueue() {
