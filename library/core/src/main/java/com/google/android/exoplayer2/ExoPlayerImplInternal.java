@@ -1407,9 +1407,10 @@ import java.io.IOException;
       return;
     }
 
-    long rendererPositionOffsetUs = loadingPeriodHolder == null
-        ? RENDERER_TIMESTAMP_OFFSET_US
-        : (loadingPeriodHolder.getRendererOffset() + loadingPeriodHolder.info.durationUs);
+    long rendererPositionOffsetUs =
+        loadingPeriodHolder == null
+            ? (info.startPositionUs + RENDERER_TIMESTAMP_OFFSET_US)
+            : (loadingPeriodHolder.getRendererOffset() + loadingPeriodHolder.info.durationUs);
     int holderIndex = loadingPeriodHolder == null ? 0 : loadingPeriodHolder.index + 1;
     Object uid = playbackInfo.timeline.getPeriod(info.id.periodIndex, period, true).uid;
     MediaPeriodHolder newPeriodHolder = new MediaPeriodHolder(renderers, rendererCapabilities,
@@ -1553,8 +1554,8 @@ import java.io.IOException;
     public final int index;
     public final SampleStream[] sampleStreams;
     public final boolean[] mayRetainStreamFlags;
-    public final long rendererPositionOffsetUs;
 
+    public long rendererPositionOffsetUs;
     public MediaPeriodInfo info;
     public boolean prepared;
     public boolean hasEnabledTracks;
@@ -1574,7 +1575,7 @@ import java.io.IOException;
         MediaSource mediaSource, Object periodUid, int index, MediaPeriodInfo info) {
       this.renderers = renderers;
       this.rendererCapabilities = rendererCapabilities;
-      this.rendererPositionOffsetUs = rendererPositionOffsetUs;
+      this.rendererPositionOffsetUs = rendererPositionOffsetUs - info.startPositionUs;
       this.trackSelector = trackSelector;
       this.loadControl = loadControl;
       this.mediaSource = mediaSource;
@@ -1601,8 +1602,7 @@ import java.io.IOException;
     }
 
     public long getRendererOffset() {
-      return index == 0 ? rendererPositionOffsetUs
-          : (rendererPositionOffsetUs - info.startPositionUs);
+      return rendererPositionOffsetUs;
     }
 
     public boolean isFullyBuffered() {
@@ -1628,6 +1628,7 @@ import java.io.IOException;
       prepared = true;
       selectTracks(playbackSpeed);
       long newStartPositionUs = updatePeriodTrackSelection(info.startPositionUs, false);
+      rendererPositionOffsetUs += info.startPositionUs - newStartPositionUs;
       info = info.copyWithStartPositionUs(newStartPositionUs);
     }
 
