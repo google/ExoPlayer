@@ -150,6 +150,11 @@ import java.util.ArrayList;
   }
 
   @Override
+  public void reevaluateBuffer(long positionUs) {
+    compositeSequenceableLoader.reevaluateBuffer(positionUs);
+  }
+
+  @Override
   public boolean continueLoading(long positionUs) {
     return compositeSequenceableLoader.continueLoading(positionUs);
   }

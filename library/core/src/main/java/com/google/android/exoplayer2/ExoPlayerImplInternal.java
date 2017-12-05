@@ -1283,6 +1283,7 @@ import java.io.IOException;
 
     // Update the loading period if required.
     maybeUpdateLoadingPeriod();
+
     if (loadingPeriodHolder == null || loadingPeriodHolder.isFullyBuffered()) {
       setIsLoading(false);
     } else if (loadingPeriodHolder != null && !isLoading) {
@@ -1386,6 +1387,7 @@ import java.io.IOException;
     if (loadingPeriodHolder == null) {
       info = mediaPeriodInfoSequence.getFirstMediaPeriodInfo(playbackInfo);
     } else {
+      loadingPeriodHolder.reevaluateBuffer(rendererPositionUs);
       if (loadingPeriodHolder.info.isFinal || !loadingPeriodHolder.isFullyBuffered()
           || loadingPeriodHolder.info.durationUs == C.TIME_UNSET) {
         return;
@@ -1440,6 +1442,7 @@ import java.io.IOException;
       // Stale event.
       return;
     }
+    loadingPeriodHolder.reevaluateBuffer(rendererPositionUs);
     maybeContinueLoading();
   }
 
@@ -1628,13 +1631,18 @@ import java.io.IOException;
       info = info.copyWithStartPositionUs(newStartPositionUs);
     }
 
+    public void reevaluateBuffer(long rendererPositionUs) {
+      if (prepared) {
+        mediaPeriod.reevaluateBuffer(toPeriodTime(rendererPositionUs));
+      }
+    }
+
     public boolean shouldContinueLoading(long rendererPositionUs, float playbackSpeed) {
       long nextLoadPositionUs = !prepared ? 0 : mediaPeriod.getNextLoadPositionUs();
       if (nextLoadPositionUs == C.TIME_END_OF_SOURCE) {
         return false;
       } else {
-        long loadingPeriodPositionUs = toPeriodTime(rendererPositionUs);
-        long bufferedDurationUs = nextLoadPositionUs - loadingPeriodPositionUs;
+        long bufferedDurationUs = nextLoadPositionUs - toPeriodTime(rendererPositionUs);
         return loadControl.shouldContinueLoading(bufferedDurationUs, playbackSpeed);
       }
     }
@@ -1694,7 +1702,6 @@ import java.io.IOException;
           Assertions.checkState(trackSelections.get(i) == null);
         }
       }
-
       // The track selection has changed.
       loadControl.onTracksSelected(renderers, trackSelectorResult.groups, trackSelections);
       return positionUs;

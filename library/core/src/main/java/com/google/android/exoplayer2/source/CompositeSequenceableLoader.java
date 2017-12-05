@@ -53,6 +53,13 @@ public class CompositeSequenceableLoader implements SequenceableLoader {
   }
 
   @Override
+  public final void reevaluateBuffer(long positionUs) {
+    for (SequenceableLoader loader : loaders) {
+      loader.reevaluateBuffer(positionUs);
+    }
+  }
+
+  @Override
   public boolean continueLoading(long positionUs) {
     boolean madeProgress = false;
     boolean madeProgressThisIteration;

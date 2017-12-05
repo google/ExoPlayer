@@ -289,6 +289,11 @@ import java.util.Arrays;
   }
 
   @Override
+  public void reevaluateBuffer(long positionUs) {
+    // Do nothing.
+  }
+
+  @Override
   public boolean continueLoading(long playbackPositionUs) {
     if (loadingFinished || (prepared && enabledTrackCount == 0)) {
       return false;

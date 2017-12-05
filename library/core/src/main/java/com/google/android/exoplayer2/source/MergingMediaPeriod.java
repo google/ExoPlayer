@@ -140,6 +140,11 @@ import java.util.IdentityHashMap;
   }
 
   @Override
+  public void reevaluateBuffer(long positionUs) {
+    compositeSequenceableLoader.reevaluateBuffer(positionUs);
+  }
+
+  @Override
   public boolean continueLoading(long positionUs) {
     return compositeSequenceableLoader.continueLoading(positionUs);
   }

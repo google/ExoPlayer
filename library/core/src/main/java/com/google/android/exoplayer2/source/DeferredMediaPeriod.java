@@ -120,6 +120,11 @@ public final class DeferredMediaPeriod implements MediaPeriod, MediaPeriod.Callb
   }
 
   @Override
+  public void reevaluateBuffer(long positionUs) {
+    mediaPeriod.reevaluateBuffer(positionUs);
+  }
+
+  @Override
   public boolean continueLoading(long positionUs) {
     return mediaPeriod != null && mediaPeriod.continueLoading(positionUs);
   }
