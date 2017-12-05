@@ -50,6 +50,7 @@ import com.google.android.exoplayer2.source.ads.AdPlaybackState;
 import com.google.android.exoplayer2.source.ads.AdsLoader;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.MimeTypes;
+import com.google.android.exoplayer2.util.Util;
 import java.io.IOException;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -120,6 +121,7 @@ public final class ImaAdsLoader extends Player.DefaultEventListener implements A
   private final AdDisplayContainer adDisplayContainer;
   private final com.google.ads.interactivemedia.v3.api.AdsLoader adsLoader;
 
+  private Object pendingAdRequestContext;
   private List<String> supportedMimeTypes;
   private EventListener eventListener;
   private Player player;
@@ -183,10 +185,6 @@ public final class ImaAdsLoader extends Player.DefaultEventListener implements A
    * Whether {@link #getContentProgress()} has sent {@link #pendingContentPositionMs} to IMA.
    */
   private boolean sentPendingContentPositionMs;
-  /**
-   * Whether {@link #release()} has been called.
-   */
-  private boolean released;
 
   /**
    * Creates a new IMA ads loader.
@@ -296,7 +294,7 @@ public final class ImaAdsLoader extends Player.DefaultEventListener implements A
 
   @Override
   public void release() {
-    released = true;
+    pendingAdRequestContext = null;
     if (adsManager != null) {
       adsManager.destroy();
       adsManager = null;
@@ -308,10 +306,11 @@ public final class ImaAdsLoader extends Player.DefaultEventListener implements A
   @Override
   public void onAdsManagerLoaded(AdsManagerLoadedEvent adsManagerLoadedEvent) {
     AdsManager adsManager = adsManagerLoadedEvent.getAdsManager();
-    if (released) {
+    if (!Util.areEqual(pendingAdRequestContext, adsManagerLoadedEvent.getUserRequestContext())) {
       adsManager.destroy();
       return;
     }
+    pendingAdRequestContext = null;
     this.adsManager = adsManager;
     adsManager.addAdErrorListener(this);
     adsManager.addAdEventListener(this);
@@ -403,6 +402,7 @@ public final class ImaAdsLoader extends Player.DefaultEventListener implements A
       Log.d(TAG, "onAdError " + adErrorEvent);
     }
     if (adsManager == null) {
+      pendingAdRequestContext = null;
       adPlaybackState = new AdPlaybackState(new long[0]);
       updateAdPlaybackState();
     }
@@ -623,10 +623,16 @@ public final class ImaAdsLoader extends Player.DefaultEventListener implements A
   // Internal methods.
 
   private void requestAds() {
+    if (pendingAdRequestContext != null) {
+      // Ad request already in flight.
+      return;
+    }
+    pendingAdRequestContext = new Object();
     AdsRequest request = imaSdkFactory.createAdsRequest();
     request.setAdTagUrl(adTagUri.toString());
     request.setAdDisplayContainer(adDisplayContainer);
     request.setContentProgressProvider(this);
+    request.setUserRequestContext(pendingAdRequestContext);
     adsLoader.requestAds(request);
   }
 
