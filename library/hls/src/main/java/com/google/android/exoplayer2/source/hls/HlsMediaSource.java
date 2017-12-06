@@ -63,8 +63,9 @@ public final class HlsMediaSource implements MediaSource,
     private MediaSourceEventListener eventListener;
     private Handler eventHandler;
     private CompositeSequenceableLoaderFactory compositeSequenceableLoaderFactory;
-
     private int minLoadableRetryCount;
+    private boolean allowChunklessPreparation;
+
     private boolean isBuildCalled;
 
     /**
@@ -98,7 +99,6 @@ public final class HlsMediaSource implements MediaSource,
     private Builder(Uri manifestUri, HlsDataSourceFactory hlsDataSourceFactory) {
       this.manifestUri = manifestUri;
       this.hlsDataSourceFactory = hlsDataSourceFactory;
-
       minLoadableRetryCount = DEFAULT_MIN_LOADABLE_RETRY_COUNT;
     }
 
@@ -171,6 +171,18 @@ public final class HlsMediaSource implements MediaSource,
     }
 
     /**
+     * Sets whether chunkless preparation is allowed. If true, preparation without chunk downloads
+     * will be enabled for streams that provide sufficient information in their master playlist.
+     *
+     * @param allowChunklessPreparation Whether chunkless preparation is allowed.
+     * @return This builder.
+     */
+    public Builder setAllowChunklessPreparation(boolean allowChunklessPreparation) {
+      this.allowChunklessPreparation = allowChunklessPreparation;
+      return this;
+    }
+
+    /**
      * Builds a new {@link HlsMediaSource} using the current parameters.
      * <p>
      * After this call, the builder should not be re-used.
@@ -190,9 +202,16 @@ public final class HlsMediaSource implements MediaSource,
       if (compositeSequenceableLoaderFactory == null) {
         compositeSequenceableLoaderFactory = new DefaultCompositeSequenceableLoaderFactory();
       }
-      return new HlsMediaSource(manifestUri, hlsDataSourceFactory, extractorFactory,
-          compositeSequenceableLoaderFactory, minLoadableRetryCount, eventHandler, eventListener,
-          playlistParser);
+      return new HlsMediaSource(
+          manifestUri,
+          hlsDataSourceFactory,
+          extractorFactory,
+          compositeSequenceableLoaderFactory,
+          minLoadableRetryCount,
+          eventHandler,
+          eventListener,
+          playlistParser,
+          allowChunklessPreparation);
     }
 
   }
@@ -209,6 +228,7 @@ public final class HlsMediaSource implements MediaSource,
   private final int minLoadableRetryCount;
   private final EventDispatcher eventDispatcher;
   private final ParsingLoadable.Parser<HlsPlaylist> playlistParser;
+  private final boolean allowChunklessPreparation;
 
   private HlsPlaylistTracker playlistTracker;
   private Listener sourceListener;
@@ -277,9 +297,16 @@ public final class HlsMediaSource implements MediaSource,
       Handler eventHandler,
       MediaSourceEventListener eventListener,
       ParsingLoadable.Parser<HlsPlaylist> playlistParser) {
-    this(manifestUri, dataSourceFactory, extractorFactory,
-        new DefaultCompositeSequenceableLoaderFactory(), minLoadableRetryCount, eventHandler,
-        eventListener, playlistParser);
+    this(
+        manifestUri,
+        dataSourceFactory,
+        extractorFactory,
+        new DefaultCompositeSequenceableLoaderFactory(),
+        minLoadableRetryCount,
+        eventHandler,
+        eventListener,
+        playlistParser,
+        false);
   }
 
   private HlsMediaSource(
@@ -290,13 +317,15 @@ public final class HlsMediaSource implements MediaSource,
       int minLoadableRetryCount,
       Handler eventHandler,
       MediaSourceEventListener eventListener,
-      ParsingLoadable.Parser<HlsPlaylist> playlistParser) {
+      ParsingLoadable.Parser<HlsPlaylist> playlistParser,
+      boolean allowChunklessPreparation) {
     this.manifestUri = manifestUri;
     this.dataSourceFactory = dataSourceFactory;
     this.extractorFactory = extractorFactory;
+    this.compositeSequenceableLoaderFactory = compositeSequenceableLoaderFactory;
     this.minLoadableRetryCount = minLoadableRetryCount;
     this.playlistParser = playlistParser;
-    this.compositeSequenceableLoaderFactory = compositeSequenceableLoaderFactory;
+    this.allowChunklessPreparation = allowChunklessPreparation;
     eventDispatcher = new EventDispatcher(eventHandler, eventListener);
   }
 
@@ -317,8 +346,15 @@ public final class HlsMediaSource implements MediaSource,
   @Override
   public MediaPeriod createPeriod(MediaPeriodId id, Allocator allocator) {
     Assertions.checkArgument(id.periodIndex == 0);
-    return new HlsMediaPeriod(extractorFactory, playlistTracker, dataSourceFactory,
-        minLoadableRetryCount, eventDispatcher, allocator, compositeSequenceableLoaderFactory);
+    return new HlsMediaPeriod(
+        extractorFactory,
+        playlistTracker,
+        dataSourceFactory,
+        minLoadableRetryCount,
+        eventDispatcher,
+        allocator,
+        compositeSequenceableLoaderFactory,
+        allowChunklessPreparation);
   }
 
   @Override

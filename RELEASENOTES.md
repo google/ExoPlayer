@@ -2,6 +2,10 @@
 
 ### dev-v2 (not yet released) ###
 
+* Add initial support for chunkless preparation in HLS. This allows an HLS media
+  source to finish preparation without donwloading any chunks, which might
+  considerably reduce the initial buffering time
+  ([#3149](https://github.com/google/ExoPlayer/issues/2980)).
 * Add ability for `SequenceableLoader` to reevaluate its buffer and discard
   buffered media so that it can be re-buffered in a different quality.
 * Replace `DefaultTrackSelector.Parameters` copy methods with a builder.

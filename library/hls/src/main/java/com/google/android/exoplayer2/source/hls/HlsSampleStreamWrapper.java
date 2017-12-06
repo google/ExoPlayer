@@ -173,13 +173,17 @@ import java.util.Arrays;
   }
 
   /**
-   * Prepares a sample stream wrapper for which the master playlist provides enough information to
-   * prepare.
+   * Prepares the sample stream wrapper with master playlist information.
+   *
+   * @param trackGroups This {@link TrackGroupArray} to expose.
+   * @param primaryTrackGroupIndex The index of the adaptive track group.
    */
-  public void prepareSingleTrack(Format format) {
-    track(0, C.TRACK_TYPE_UNKNOWN).format(format);
-    tracksEnded = true;
-    onTracksEnded();
+  public void prepareWithMasterPlaylistInfo(
+      TrackGroupArray trackGroups, int primaryTrackGroupIndex) {
+    prepared = true;
+    this.trackGroups = trackGroups;
+    this.primaryTrackGroupIndex = primaryTrackGroupIndex;
+    callback.onPrepared();
   }
 
   public void maybeThrowPrepareError() throws IOException {
@@ -190,17 +194,30 @@ import java.util.Arrays;
     return trackGroups;
   }
 
+  public boolean isMappingFinished() {
+    return trackGroupToSampleQueueIndex != null;
+  }
+
   public int bindSampleQueueToSampleStream(int trackGroupIndex) {
+    if (!isMappingFinished()) {
+      return C.INDEX_UNSET;
+    }
     int sampleQueueIndex = trackGroupToSampleQueueIndex[trackGroupIndex];
     if (sampleQueueIndex == C.INDEX_UNSET) {
       return C.INDEX_UNSET;
     }
-    setSampleQueueEnabledState(sampleQueueIndex, true);
+    if (sampleQueuesEnabledStates[sampleQueueIndex]) {
+      // This sample queue is already bound to a different sample stream.
+      return C.INDEX_UNSET;
+    }
+    sampleQueuesEnabledStates[sampleQueueIndex] = true;
     return sampleQueueIndex;
   }
 
   public void unbindSampleQueue(int trackGroupIndex) {
-    setSampleQueueEnabledState(trackGroupToSampleQueueIndex[trackGroupIndex], false);
+    int sampleQueueIndex = trackGroupToSampleQueueIndex[trackGroupIndex];
+    Assertions.checkState(sampleQueuesEnabledStates[sampleQueueIndex]);
+    sampleQueuesEnabledStates[sampleQueueIndex] = false;
   }
 
   /**
@@ -693,7 +710,7 @@ import java.util.Arrays;
   }
 
   private void maybeFinishPrepare() {
-    if (released || prepared || !sampleQueuesBuilt) {
+    if (released || trackGroupToSampleQueueIndex != null || !sampleQueuesBuilt) {
       return;
     }
     for (SampleQueue sampleQueue : sampleQueues) {
@@ -701,9 +718,31 @@ import java.util.Arrays;
         return;
       }
     }
-    buildTracks();
-    prepared = true;
-    callback.onPrepared();
+    if (trackGroups != null) {
+      // The track groups were created with master playlist information. They only need to be mapped
+      // to a sample queue.
+      mapSampleQueuesToMatchTrackGroups();
+    } else {
+      // Tracks are created using media segment information.
+      buildTracks();
+      prepared = true;
+      callback.onPrepared();
+    }
+  }
+
+  private void mapSampleQueuesToMatchTrackGroups() {
+    int trackGroupCount = trackGroups.length;
+    trackGroupToSampleQueueIndex = new int[trackGroupCount];
+    Arrays.fill(trackGroupToSampleQueueIndex, C.INDEX_UNSET);
+    for (int i = 0; i < trackGroupCount; i++) {
+      for (int queueIndex = 0; queueIndex < sampleQueues.length; queueIndex++) {
+        SampleQueue sampleQueue = sampleQueues[queueIndex];
+        if (formatsMatch(sampleQueue.getUpstreamFormat(), trackGroups.get(i).getFormat(0))) {
+          trackGroupToSampleQueueIndex[i] = queueIndex;
+          break;
+        }
+      }
+    }
   }
 
   /**
@@ -794,17 +833,6 @@ import java.util.Arrays;
     this.trackGroups = new TrackGroupArray(trackGroups);
   }
 
-  /**
-   * Enables or disables a specified sample queue.
-   *
-   * @param sampleQueueIndex The index of the sample queue.
-   * @param enabledState True if the sample queue is being enabled, or false if it's being disabled.
-   */
-  private void setSampleQueueEnabledState(int sampleQueueIndex, boolean enabledState) {
-    Assertions.checkState(sampleQueuesEnabledStates[sampleQueueIndex] != enabledState);
-    sampleQueuesEnabledStates[sampleQueueIndex] = enabledState;
-  }
-
   private HlsMediaChunk getLastMediaChunk() {
     return mediaChunks.get(mediaChunks.size() - 1);
   }
@@ -868,4 +896,19 @@ import java.util.Arrays;
     return chunk instanceof HlsMediaChunk;
   }
 
+  private static boolean formatsMatch(Format manifestFormat, Format sampleFormat) {
+    String manifestFormatMimeType = manifestFormat.sampleMimeType;
+    String sampleFormatMimeType = sampleFormat.sampleMimeType;
+    int manifestFormatTrackType = MimeTypes.getTrackType(manifestFormatMimeType);
+    if (manifestFormatTrackType != C.TRACK_TYPE_TEXT) {
+      return manifestFormatTrackType == MimeTypes.getTrackType(sampleFormatMimeType);
+    } else if (!Util.areEqual(manifestFormatMimeType, sampleFormatMimeType)) {
+      return false;
+    }
+    if (MimeTypes.APPLICATION_CEA608.equals(manifestFormatMimeType)
+        || MimeTypes.APPLICATION_CEA708.equals(manifestFormatMimeType)) {
+      return manifestFormat.accessibilityChannel == sampleFormat.accessibilityChannel;
+    }
+    return true;
+  }
 }

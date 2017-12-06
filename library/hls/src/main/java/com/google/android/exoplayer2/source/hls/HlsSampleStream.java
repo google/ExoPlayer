@@ -52,7 +52,7 @@ import java.io.IOException;
 
   @Override
   public void maybeThrowError() throws IOException {
-    if (!ensureBoundSampleQueue()) {
+    if (!ensureBoundSampleQueue() && sampleStreamWrapper.isMappingFinished()) {
       throw new SampleQueueMappingException(
           sampleStreamWrapper.getTrackGroups().get(trackGroupIndex).getFormat(0).sampleMimeType);
     }
