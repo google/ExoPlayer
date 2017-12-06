@@ -729,7 +729,7 @@ public class SimpleExoPlayer implements ExoPlayer {
   }
 
   @Override
-  public void setPlaybackParameters(PlaybackParameters playbackParameters) {
+  public void setPlaybackParameters(@Nullable PlaybackParameters playbackParameters) {
     player.setPlaybackParameters(playbackParameters);
   }
 
