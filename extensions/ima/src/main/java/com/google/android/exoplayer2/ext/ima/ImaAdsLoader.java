@@ -326,9 +326,13 @@ public final class ImaAdsLoader extends Player.DefaultEventListener implements A
     adsRenderingSettings.setMimeTypes(supportedMimeTypes);
     int adGroupIndexForPosition =
         getAdGroupIndexForPosition(adGroupTimesUs, C.msToUs(pendingContentPositionMs));
-    if (adGroupIndexForPosition == C.INDEX_UNSET) {
+    if (adGroupIndexForPosition == 0) {
+      podIndexOffset = 0;
+    } else if (adGroupIndexForPosition == C.INDEX_UNSET) {
       pendingContentPositionMs = C.TIME_UNSET;
-    } else if (adGroupIndexForPosition > 0) {
+      // There is no preroll and midroll pod indices start at 1.
+      podIndexOffset = -1;
+    } else /* adGroupIndexForPosition > 0 */ {
       // Skip ad groups before the one at or immediately before the playback position.
       for (int i = 0; i < adGroupIndexForPosition; i++) {
         adPlaybackState.playedAdGroup(i);
@@ -341,8 +345,7 @@ public final class ImaAdsLoader extends Player.DefaultEventListener implements A
       adsRenderingSettings.setPlayAdsAfterTime(midpointTimeUs / C.MICROS_PER_SECOND);
 
       // We're removing one or more ads, which means that the earliest ad (if any) will be a
-      // midroll/postroll. According to the AdPodInfo documentation, midroll pod indices always
-      // start at 1, so take this into account when offsetting the pod index for the skipped ads.
+      // midroll/postroll. Midroll pod indices start at 1.
       podIndexOffset = adGroupIndexForPosition - 1;
     }
 
