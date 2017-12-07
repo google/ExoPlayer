@@ -65,7 +65,6 @@ import java.util.Map;
  */
 public final class ImaAdsLoader extends Player.DefaultEventListener implements AdsLoader,
     VideoAdPlayer, ContentProgressProvider, AdErrorListener, AdsLoadedListener, AdEventListener {
-
   static {
     ExoPlayerLibraryInfo.registerModule("goog.exo.ima");
   }
@@ -132,6 +131,7 @@ public final class ImaAdsLoader extends Player.DefaultEventListener implements A
   private AdsManager adsManager;
   private Timeline timeline;
   private long contentDurationMs;
+  private int podIndexOffset;
   private AdPlaybackState adPlaybackState;
 
   // Fields tracking IMA's state.
@@ -274,6 +274,7 @@ public final class ImaAdsLoader extends Player.DefaultEventListener implements A
         adsManager.resume();
       }
     } else {
+      pendingContentPositionMs = player.getCurrentPosition();
       requestAds();
     }
   }
@@ -311,19 +312,45 @@ public final class ImaAdsLoader extends Player.DefaultEventListener implements A
       return;
     }
     pendingAdRequestContext = null;
+
+    long[] adGroupTimesUs = getAdGroupTimesUs(adsManager.getAdCuePoints());
+    adPlaybackState = new AdPlaybackState(adGroupTimesUs);
+
     this.adsManager = adsManager;
     adsManager.addAdErrorListener(this);
     adsManager.addAdEventListener(this);
+
     ImaSdkFactory imaSdkFactory = ImaSdkFactory.getInstance();
     AdsRenderingSettings adsRenderingSettings = imaSdkFactory.createAdsRenderingSettings();
     adsRenderingSettings.setEnablePreloading(ENABLE_PRELOADING);
     adsRenderingSettings.setMimeTypes(supportedMimeTypes);
+    int adGroupIndexForPosition =
+        getAdGroupIndexForPosition(adGroupTimesUs, C.msToUs(pendingContentPositionMs));
+    if (adGroupIndexForPosition == C.INDEX_UNSET) {
+      pendingContentPositionMs = C.TIME_UNSET;
+    } else if (adGroupIndexForPosition > 0) {
+      // Skip ad groups before the one at or immediately before the playback position.
+      for (int i = 0; i < adGroupIndexForPosition; i++) {
+        adPlaybackState.playedAdGroup(i);
+      }
+      // Play ads after the midpoint between the ad to play and the one before it, to avoid issues
+      // with rounding one of the two ad times.
+      long adGroupForPositionTimeUs = adGroupTimesUs[adGroupIndexForPosition];
+      long adGroupBeforeTimeUs = adGroupTimesUs[adGroupIndexForPosition - 1];
+      double midpointTimeUs = (adGroupForPositionTimeUs + adGroupBeforeTimeUs) / 2d;
+      adsRenderingSettings.setPlayAdsAfterTime(midpointTimeUs / C.MICROS_PER_SECOND);
+
+      // We're removing one or more ads, which means that the earliest ad (if any) will be a
+      // midroll/postroll. According to the AdPodInfo documentation, midroll pod indices always
+      // start at 1, so take this into account when offsetting the pod index for the skipped ads.
+      podIndexOffset = adGroupIndexForPosition - 1;
+    }
+
     adsManager.init(adsRenderingSettings);
     if (DEBUG) {
       Log.d(TAG, "Initialized with ads rendering settings: " + adsRenderingSettings);
     }
-    long[] adGroupTimesUs = getAdGroupTimesUs(adsManager.getAdCuePoints());
-    adPlaybackState = new AdPlaybackState(adGroupTimesUs);
+
     updateAdPlaybackState();
   }
 
@@ -351,13 +378,15 @@ public final class ImaAdsLoader extends Player.DefaultEventListener implements A
         // The ad position is not always accurate when using preloading. See [Internal: b/62613240].
         AdPodInfo adPodInfo = ad.getAdPodInfo();
         int podIndex = adPodInfo.getPodIndex();
-        adGroupIndex = podIndex == -1 ? adPlaybackState.adGroupCount - 1 : podIndex;
+        adGroupIndex =
+            podIndex == -1 ? (adPlaybackState.adGroupCount - 1) : (podIndex + podIndexOffset);
         int adPosition = adPodInfo.getAdPosition();
         int adCountInAdGroup = adPodInfo.getTotalAds();
         adsManager.start();
         if (DEBUG) {
-          Log.d(TAG, "Loaded ad " + adPosition + " of " + adCountInAdGroup + " in ad group "
-              + adGroupIndex);
+          Log.d(
+              TAG,
+              "Loaded ad " + adPosition + " of " + adCountInAdGroup + " in group " + adGroupIndex);
         }
         adPlaybackState.setAdCount(adGroupIndex, adCountInAdGroup);
         updateAdPlaybackState();
@@ -740,4 +769,20 @@ public final class ImaAdsLoader extends Player.DefaultEventListener implements A
     return adGroupTimesUs;
   }
 
+  /**
+   * Returns the index of the ad group that should be played before playing the content at {@code
+   * playbackPositionUs} when starting playback for the first time. This is the latest ad group at
+   * or before the specified playback position. If the first ad is after the playback position,
+   * returns {@link C#INDEX_UNSET}.
+   */
+  private int getAdGroupIndexForPosition(long[] adGroupTimesUs, long playbackPositionUs) {
+    for (int i = 0; i < adGroupTimesUs.length; i++) {
+      long adGroupTimeUs = adGroupTimesUs[i];
+      // A postroll ad is after any position in the content.
+      if (adGroupTimeUs == C.TIME_END_OF_SOURCE || playbackPositionUs < adGroupTimeUs) {
+        return i == 0 ? C.INDEX_UNSET : (i - 1);
+      }
+    }
+    return adGroupTimesUs.length == 0 ? C.INDEX_UNSET : (adGroupTimesUs.length - 1);
+  }
 }
