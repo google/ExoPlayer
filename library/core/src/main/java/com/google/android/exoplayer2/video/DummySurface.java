@@ -150,14 +150,17 @@ public final class DummySurface extends Surface {
    */
   @TargetApi(24)
   private static boolean enableSecureDummySurfaceV24(Context context) {
-    if (Util.SDK_INT < 26 && "samsung".equals(Util.MANUFACTURER)) {
+    if (Util.SDK_INT < 26 && ("samsung".equals(Util.MANUFACTURER) || "XT1650".equals(Util.MODEL))) {
       // Samsung devices running Nougat are known to be broken. See
       // https://github.com/google/ExoPlayer/issues/3373 and [Internal: b/37197802].
+      // Moto Z XT1650 is also affected. See
+      // https://github.com/google/ExoPlayer/issues/3215.
       return false;
     }
     if (Util.SDK_INT < 26 && !context.getPackageManager().hasSystemFeature(
         PackageManager.FEATURE_VR_MODE_HIGH_PERFORMANCE)) {
-      // Pre API level 26 devices were not well tested unless they supported VR mode.
+      // Pre API level 26 devices were not well tested unless they supported VR mode. See
+      // https://github.com/google/ExoPlayer/issues/3215.
       return false;
     }
     EGLDisplay display = eglGetDisplay(EGL_DEFAULT_DISPLAY);
