@@ -44,6 +44,31 @@ import java.util.Map;
  */
 public final class AdsMediaSource implements MediaSource {
 
+  /** Factory for creating {@link MediaSource}s to play ad media. */
+  public interface MediaSourceFactory {
+
+    /**
+     * Creates a new {@link MediaSource} for loading the ad media with the specified {@code uri}.
+     *
+     * @param uri The URI of the media or manifest to play.
+     * @param handler A handler for listener events. May be null if delivery of events is not
+     *     required.
+     * @param listener A listener for events. May be null if delivery of events is not required.
+     * @return The new media source.
+     */
+    MediaSource createMediaSource(
+        Uri uri, @Nullable Handler handler, @Nullable MediaSourceEventListener listener);
+
+    /**
+     * Returns the content types supported by media sources created by this factory. Each element
+     * should be one of {@link C#TYPE_DASH}, {@link C#TYPE_SS}, {@link C#TYPE_HLS} or {@link
+     * C#TYPE_OTHER}.
+     *
+     * @return The content types supported by media sources created by this factory.
+     */
+    int[] getSupportedTypes();
+  }
+
   /** Listener for ads media source events. */
   public interface EventListener extends MediaSourceEventListener {
 
@@ -77,7 +102,7 @@ public final class AdsMediaSource implements MediaSource {
   @Nullable private final EventListener eventListener;
   private final Handler mainHandler;
   private final ComponentListener componentListener;
-  private final AdMediaSourceFactory adMediaSourceFactory;
+  private final MediaSourceFactory adMediaSourceFactory;
   private final Map<MediaSource, List<DeferredMediaPeriod>> deferredMediaPeriodByAdMediaSource;
   private final Timeline.Period period;
 
@@ -138,7 +163,7 @@ public final class AdsMediaSource implements MediaSource {
     this.eventListener = eventListener;
     mainHandler = new Handler(Looper.getMainLooper());
     componentListener = new ComponentListener();
-    adMediaSourceFactory = new ExtractorAdMediaSourceFactory(dataSourceFactory);
+    adMediaSourceFactory = new ExtractorMediaSourceFactory(dataSourceFactory);
     deferredMediaPeriodByAdMediaSource = new HashMap<>();
     period = new Timeline.Period();
     adGroupMediaSources = new MediaSource[0][];
@@ -186,7 +211,7 @@ public final class AdsMediaSource implements MediaSource {
       if (adGroupMediaSources[adGroupIndex].length <= adIndexInAdGroup) {
         Uri adUri = adPlaybackState.adUris[id.adGroupIndex][id.adIndexInAdGroup];
         final MediaSource adMediaSource =
-            adMediaSourceFactory.createAdMediaSource(adUri, eventHandler, eventListener);
+            adMediaSourceFactory.createMediaSource(adUri, eventHandler, eventListener);
         int oldAdCount = adGroupMediaSources[id.adGroupIndex].length;
         if (adIndexInAdGroup >= oldAdCount) {
           int adCount = adIndexInAdGroup + 1;
@@ -371,44 +396,16 @@ public final class AdsMediaSource implements MediaSource {
 
   }
 
-  /**
-   * Factory for {@link MediaSource}s for loading ad media.
-   */
-  private interface AdMediaSourceFactory {
-
-    /**
-     * Creates a new {@link MediaSource} for loading the ad media with the specified {@code uri}.
-     *
-     * @param uri The URI of the ad.
-     * @param handler A handler for listener events. May be null if delivery of events is not
-     *     required.
-     * @param listener A listener for events. May be null if delivery of events is not required.
-     * @return The new media source.
-     */
-    MediaSource createAdMediaSource(
-        Uri uri, @Nullable Handler handler, @Nullable MediaSourceEventListener listener);
-
-    /**
-     * Returns the content types supported by media sources created by this factory. Each element
-     * should be one of {@link C#TYPE_DASH}, {@link C#TYPE_SS}, {@link C#TYPE_HLS} or
-     * {@link C#TYPE_OTHER}.
-     *
-     * @return The content types supported by the factory.
-     */
-    int[] getSupportedTypes();
-
-  }
-
-  private static final class ExtractorAdMediaSourceFactory implements AdMediaSourceFactory {
+  private static final class ExtractorMediaSourceFactory implements MediaSourceFactory {
 
     private final DataSource.Factory dataSourceFactory;
 
-    public ExtractorAdMediaSourceFactory(DataSource.Factory dataSourceFactory) {
+    public ExtractorMediaSourceFactory(DataSource.Factory dataSourceFactory) {
       this.dataSourceFactory = dataSourceFactory;
     }
 
     @Override
-    public MediaSource createAdMediaSource(
+    public MediaSource createMediaSource(
         Uri uri, @Nullable Handler handler, @Nullable MediaSourceEventListener listener) {
       return new ExtractorMediaSource.Builder(uri, dataSourceFactory)
           .setEventListener(handler, listener)

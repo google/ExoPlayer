@@ -393,10 +393,9 @@ import java.util.ArrayList;
                 new DefaultSsChunkSource.Factory(DATA_SOURCE_FACTORY))
             .build();
       case DemoUtil.MIME_TYPE_DASH:
-        return DashMediaSource.Builder
-            .forManifestUri(uri, DATA_SOURCE_FACTORY,
-                new DefaultDashChunkSource.Factory(DATA_SOURCE_FACTORY))
-            .build();
+        return new DashMediaSource.Factory(
+                new DefaultDashChunkSource.Factory(DATA_SOURCE_FACTORY), DATA_SOURCE_FACTORY)
+            .createMediaSource(uri);
       case DemoUtil.MIME_TYPE_HLS:
         return HlsMediaSource.Builder
             .forDataSource(uri, DATA_SOURCE_FACTORY)
