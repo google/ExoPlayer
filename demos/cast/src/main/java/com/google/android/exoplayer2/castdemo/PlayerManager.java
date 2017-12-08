@@ -388,10 +388,9 @@ import java.util.ArrayList;
     Uri uri = Uri.parse(sample.uri);
     switch (sample.mimeType) {
       case DemoUtil.MIME_TYPE_SS:
-        return SsMediaSource.Builder
-            .forManifestUri(uri, DATA_SOURCE_FACTORY,
-                new DefaultSsChunkSource.Factory(DATA_SOURCE_FACTORY))
-            .build();
+        return new SsMediaSource.Factory(
+                new DefaultSsChunkSource.Factory(DATA_SOURCE_FACTORY), DATA_SOURCE_FACTORY)
+            .createMediaSource(uri);
       case DemoUtil.MIME_TYPE_DASH:
         return new DashMediaSource.Factory(
                 new DefaultDashChunkSource.Factory(DATA_SOURCE_FACTORY), DATA_SOURCE_FACTORY)
