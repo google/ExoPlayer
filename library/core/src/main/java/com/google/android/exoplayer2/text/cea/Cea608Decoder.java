@@ -740,8 +740,10 @@ public final class Cea608Decoder extends CeaDecoder {
       // The number of empty columns after the end of the text, in the same range.
       int endPadding = SCREEN_CHARWIDTH - startPadding - cueString.length();
       int startEndPaddingDelta = startPadding - endPadding;
-      if (captionMode == CC_MODE_POP_ON && Math.abs(startEndPaddingDelta) < 3) {
-        // Treat approximately centered pop-on captions are middle aligned.
+      if (captionMode == CC_MODE_POP_ON && (Math.abs(startEndPaddingDelta) < 3 || endPadding < 0)) {
+        // Treat approximately centered pop-on captions as middle aligned. We also treat captions
+        // that are wider than they should be in this way. See
+        // https://github.com/google/ExoPlayer/issues/3534.
         position = 0.5f;
         positionAnchor = Cue.ANCHOR_TYPE_MIDDLE;
       } else if (captionMode == CC_MODE_POP_ON && startEndPaddingDelta > 0) {
