@@ -16,6 +16,7 @@
 package com.google.android.exoplayer2;
 
 import android.os.Looper;
+import android.support.annotation.Nullable;
 import com.google.android.exoplayer2.audio.MediaCodecAudioRenderer;
 import com.google.android.exoplayer2.metadata.MetadataRenderer;
 import com.google.android.exoplayer2.source.ClippingMediaSource;
@@ -251,4 +252,10 @@ public interface ExoPlayer extends Player {
    */
   void blockingSendMessages(ExoPlayerMessage... messages);
 
+  /**
+   * Sets the parameters that control how seek operations are performed.
+   *
+   * @param seekParameters The seek parameters, or {@code null} to use the defaults.
+   */
+  void setSeekParameters(@Nullable SeekParameters seekParameters);
 }

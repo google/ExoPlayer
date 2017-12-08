@@ -19,6 +19,7 @@ import android.os.Looper;
 import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.PlaybackParameters;
 import com.google.android.exoplayer2.Player;
+import com.google.android.exoplayer2.SeekParameters;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.source.TrackGroupArray;
@@ -122,6 +123,11 @@ public abstract class StubExoPlayer implements ExoPlayer {
 
   @Override
   public PlaybackParameters getPlaybackParameters() {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public void setSeekParameters(SeekParameters seekParameters) {
     throw new UnsupportedOperationException();
   }
 
