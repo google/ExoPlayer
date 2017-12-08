@@ -371,11 +371,10 @@ public class PlayerActivity extends Activity implements OnClickListener,
             .setEventListener(mainHandler, eventLogger)
             .build();
       case C.TYPE_DASH:
-        return DashMediaSource.Builder
-            .forManifestUri(uri, buildDataSourceFactory(false),
-                new DefaultDashChunkSource.Factory(mediaDataSourceFactory))
-            .setEventListener(mainHandler, eventLogger)
-            .build();
+        return new DashMediaSource.Factory(
+                new DefaultDashChunkSource.Factory(mediaDataSourceFactory),
+                buildDataSourceFactory(false))
+            .createMediaSource(uri, mainHandler, eventLogger);
       case C.TYPE_HLS:
         return HlsMediaSource.Builder
             .forDataSource(uri, mediaDataSourceFactory)

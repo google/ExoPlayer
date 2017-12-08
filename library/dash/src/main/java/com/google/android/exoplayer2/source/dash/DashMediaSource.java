@@ -31,6 +31,7 @@ import com.google.android.exoplayer2.source.MediaPeriod;
 import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.source.MediaSourceEventListener;
 import com.google.android.exoplayer2.source.MediaSourceEventListener.EventDispatcher;
+import com.google.android.exoplayer2.source.ads.AdsMediaSource;
 import com.google.android.exoplayer2.source.dash.manifest.DashManifest;
 import com.google.android.exoplayer2.source.dash.manifest.DashManifestParser;
 import com.google.android.exoplayer2.source.dash.manifest.UtcTimingElement;
@@ -61,59 +62,31 @@ public final class DashMediaSource implements MediaSource {
     ExoPlayerLibraryInfo.registerModule("goog.exo.dash");
   }
 
-  /**
-   * Builder for {@link DashMediaSource}. Each builder instance can only be used once.
-   */
-  public static final class Builder {
+  /** Factory for {@link DashMediaSource}s. */
+  public static final class Factory implements AdsMediaSource.MediaSourceFactory {
 
-    private final DashManifest manifest;
-    private final Uri manifestUri;
-    private final DataSource.Factory manifestDataSourceFactory;
     private final DashChunkSource.Factory chunkSourceFactory;
+    private final @Nullable DataSource.Factory manifestDataSourceFactory;
 
-    private ParsingLoadable.Parser<? extends DashManifest> manifestParser;
-    private MediaSourceEventListener eventListener;
-    private Handler eventHandler;
-
+    private @Nullable ParsingLoadable.Parser<? extends DashManifest> manifestParser;
     private int minLoadableRetryCount;
     private long livePresentationDelayMs;
-    private boolean isBuildCalled;
+    private boolean isCreateCalled;
 
     /**
-     * Creates a {@link Builder} for a {@link DashMediaSource} with a side-loaded manifest.
+     * Creates a new factory for {@link DashMediaSource}s.
      *
-     * @param manifest The manifest. {@link DashManifest#dynamic} must be false.
      * @param chunkSourceFactory A factory for {@link DashChunkSource} instances.
-     * @return A new builder.
-     */
-    public static Builder forSideloadedManifest(DashManifest manifest,
-        DashChunkSource.Factory chunkSourceFactory) {
-      Assertions.checkArgument(!manifest.dynamic);
-      return new Builder(manifest, null, null, chunkSourceFactory);
-    }
-
-    /**
-     * Creates a {@link Builder} for a {@link DashMediaSource} with a loadable manifest Uri.
-     *
-     * @param manifestUri The manifest {@link Uri}.
      * @param manifestDataSourceFactory A factory for {@link DataSource} instances that will be used
-     *     to load (and refresh) the manifest.
-     * @param chunkSourceFactory A factory for {@link DashChunkSource} instances.
-     * @return A new builder.
+     *     to load (and refresh) the manifest. May be {@code null} if the factory will only ever be
+     *     used to create create media sources with sideloaded manifests via {@link
+     *     #createMediaSource(DashManifest, Handler, MediaSourceEventListener)}.
      */
-    public static Builder forManifestUri(Uri manifestUri,
-        DataSource.Factory manifestDataSourceFactory, DashChunkSource.Factory chunkSourceFactory) {
-      return new Builder(null, manifestUri, manifestDataSourceFactory, chunkSourceFactory);
-    }
-
-    private Builder(@Nullable DashManifest manifest, @Nullable Uri manifestUri,
-        @Nullable DataSource.Factory manifestDataSourceFactory,
-        DashChunkSource.Factory chunkSourceFactory) {
-      this.manifest = manifest;
-      this.manifestUri = manifestUri;
+    public Factory(
+        DashChunkSource.Factory chunkSourceFactory,
+        @Nullable DataSource.Factory manifestDataSourceFactory) {
+      this.chunkSourceFactory = Assertions.checkNotNull(chunkSourceFactory);
       this.manifestDataSourceFactory = manifestDataSourceFactory;
-      this.chunkSourceFactory = chunkSourceFactory;
-
       minLoadableRetryCount = DEFAULT_MIN_LOADABLE_RETRY_COUNT;
       livePresentationDelayMs = DEFAULT_LIVE_PRESENTATION_DELAY_PREFER_MANIFEST_MS;
     }
@@ -123,76 +96,119 @@ public final class DashMediaSource implements MediaSource {
      * {@link #DEFAULT_MIN_LOADABLE_RETRY_COUNT}.
      *
      * @param minLoadableRetryCount The minimum number of times to retry if a loading error occurs.
-     * @return This builder.
+     * @return This factory, for convenience.
+     * @throws IllegalStateException If one of the {@code create} methods has already been called.
      */
-    public Builder setMinLoadableRetryCount(int minLoadableRetryCount) {
+    public Factory setMinLoadableRetryCount(int minLoadableRetryCount) {
+      Assertions.checkState(!isCreateCalled);
       this.minLoadableRetryCount = minLoadableRetryCount;
       return this;
     }
 
     /**
      * Sets the duration in milliseconds by which the default start position should precede the end
-     * of the live window for live playbacks. The default value is
-     * {@link #DEFAULT_LIVE_PRESENTATION_DELAY_PREFER_MANIFEST_MS}.
+     * of the live window for live playbacks. The default value is {@link
+     * #DEFAULT_LIVE_PRESENTATION_DELAY_PREFER_MANIFEST_MS}.
      *
      * @param livePresentationDelayMs For live playbacks, the duration in milliseconds by which the
-     *     default start position should precede the end of the live window. Use
-     *     {@link #DEFAULT_LIVE_PRESENTATION_DELAY_PREFER_MANIFEST_MS} to use the value specified by
-     *     the manifest, if present.
-     * @return This builder.
+     *     default start position should precede the end of the live window. Use {@link
+     *     #DEFAULT_LIVE_PRESENTATION_DELAY_PREFER_MANIFEST_MS} to use the value specified by the
+     *     manifest, if present.
+     * @return This factory, for convenience.
+     * @throws IllegalStateException If one of the {@code create} methods has already been called.
      */
-    public Builder setLivePresentationDelayMs(long livePresentationDelayMs) {
+    public Factory setLivePresentationDelayMs(long livePresentationDelayMs) {
+      Assertions.checkState(!isCreateCalled);
       this.livePresentationDelayMs = livePresentationDelayMs;
       return this;
     }
 
     /**
-     * Sets the listener to respond to adaptive {@link MediaSource} events and the handler to
-     * deliver these events.
-     *
-     * @param eventHandler A handler for events.
-     * @param eventListener A listener of events.
-     * @return This builder.
-     */
-    public Builder setEventListener(Handler eventHandler, MediaSourceEventListener eventListener) {
-      this.eventHandler = eventHandler;
-      this.eventListener = eventListener;
-      return this;
-    }
-
-    /**
-     * Sets the manifest parser to parse loaded manifest data. The default is
-     * {@link DashManifestParser}, or {@code null} if the manifest is sideloaded.
+     * Sets the manifest parser to parse loaded manifest data when loading a manifest URI.
      *
      * @param manifestParser A parser for loaded manifest data.
-     * @return This builder.
+     * @return This factory, for convenience.
+     * @throws IllegalStateException If one of the {@code create} methods has already been called.
      */
-    public Builder setManifestParser(
+    public Factory setManifestParser(
         ParsingLoadable.Parser<? extends DashManifest> manifestParser) {
-      this.manifestParser = manifestParser;
+      Assertions.checkState(!isCreateCalled);
+      this.manifestParser = Assertions.checkNotNull(manifestParser);
       return this;
     }
 
     /**
-     * Builds a new {@link DashMediaSource} using the current parameters.
-     * <p>
-     * After this call, the builder should not be re-used.
+     * Returns a new {@link DashMediaSource} using the current parameters and the specified
+     * sideloaded manifest.
      *
-     * @return The newly built {@link DashMediaSource}.
+     * @param manifest The manifest. {@link DashManifest#dynamic} must be false.
+     * @param eventHandler A handler for events.
+     * @param eventListener A listener of events.
+     * @return The new {@link DashMediaSource}.
+     * @throws IllegalArgumentException If {@link DashManifest#dynamic} is true.
      */
-    public DashMediaSource build() {
-      Assertions.checkArgument((eventListener == null) == (eventHandler == null));
-      Assertions.checkState(!isBuildCalled);
-      isBuildCalled = true;
-      boolean loadableManifestUri = manifestUri != null;
-      if (loadableManifestUri && manifestParser == null) {
-        manifestParser = new DashManifestParser();
-      }
-      return new DashMediaSource(manifest, manifestUri, manifestDataSourceFactory, manifestParser,
-          chunkSourceFactory, minLoadableRetryCount, livePresentationDelayMs, eventHandler,
+    public DashMediaSource createMediaSource(
+        DashManifest manifest,
+        @Nullable Handler eventHandler,
+        @Nullable MediaSourceEventListener eventListener) {
+      Assertions.checkArgument(!manifest.dynamic);
+      isCreateCalled = true;
+      return new DashMediaSource(
+          manifest,
+          null,
+          null,
+          null,
+          chunkSourceFactory,
+          minLoadableRetryCount,
+          livePresentationDelayMs,
+          eventHandler,
           eventListener);
     }
 
+    /**
+     * Returns a new {@link DashMediaSource} using the current parameters. Media source events will
+     * not be delivered.
+     *
+     * @param manifestUri The manifest {@link Uri}.
+     * @return The new {@link DashMediaSource}.
+     */
+    public DashMediaSource createMediaSource(Uri manifestUri) {
+      return createMediaSource(manifestUri, null, null);
+    }
+
+    /**
+     * Returns a new {@link DashMediaSource} using the current parameters.
+     *
+     * @param manifestUri The manifest {@link Uri}.
+     * @param eventHandler A handler for events.
+     * @param eventListener A listener of events.
+     * @return The new {@link DashMediaSource}.
+     */
+    @Override
+    public DashMediaSource createMediaSource(
+        Uri manifestUri,
+        @Nullable Handler eventHandler,
+        @Nullable MediaSourceEventListener eventListener) {
+      isCreateCalled = true;
+      if (manifestParser == null) {
+        manifestParser = new DashManifestParser();
+      }
+      return new DashMediaSource(
+          null,
+          Assertions.checkNotNull(manifestUri),
+          manifestDataSourceFactory,
+          manifestParser,
+          chunkSourceFactory,
+          minLoadableRetryCount,
+          livePresentationDelayMs,
+          eventHandler,
+          eventListener);
+    }
+
+    @Override
+    public int[] getSupportedTypes() {
+      return new int[] {C.TYPE_DASH};
+    }
   }
 
   /**
@@ -259,7 +275,7 @@ public final class DashMediaSource implements MediaSource {
    * @param chunkSourceFactory A factory for {@link DashChunkSource} instances.
    * @param eventHandler A handler for events. May be null if delivery of events is not required.
    * @param eventListener A listener of events. May be null if delivery of events is not required.
-   * @deprecated Use {@link Builder} instead.
+   * @deprecated Use {@link Factory} instead.
    */
   @Deprecated
   public DashMediaSource(DashManifest manifest, DashChunkSource.Factory chunkSourceFactory,
@@ -276,7 +292,7 @@ public final class DashMediaSource implements MediaSource {
    * @param minLoadableRetryCount The minimum number of times to retry if a loading error occurs.
    * @param eventHandler A handler for events. May be null if delivery of events is not required.
    * @param eventListener A listener of events. May be null if delivery of events is not required.
-   * @deprecated Use {@link Builder} instead.
+   * @deprecated Use {@link Factory} instead.
    */
   @Deprecated
   public DashMediaSource(DashManifest manifest, DashChunkSource.Factory chunkSourceFactory,
@@ -295,7 +311,7 @@ public final class DashMediaSource implements MediaSource {
    * @param chunkSourceFactory A factory for {@link DashChunkSource} instances.
    * @param eventHandler A handler for events. May be null if delivery of events is not required.
    * @param eventListener A listener of events. May be null if delivery of events is not required.
-   * @deprecated Use {@link Builder} instead.
+   * @deprecated Use {@link Factory} instead.
    */
   @Deprecated
   public DashMediaSource(Uri manifestUri, DataSource.Factory manifestDataSourceFactory,
@@ -321,7 +337,7 @@ public final class DashMediaSource implements MediaSource {
    *     the manifest, if present.
    * @param eventHandler A handler for events. May be null if delivery of events is not required.
    * @param eventListener A listener of events. May be null if delivery of events is not required.
-   * @deprecated Use {@link Builder} instead.
+   * @deprecated Use {@link Factory} instead.
    */
   @Deprecated
   public DashMediaSource(Uri manifestUri, DataSource.Factory manifestDataSourceFactory,
@@ -347,7 +363,7 @@ public final class DashMediaSource implements MediaSource {
    *     the manifest, if present.
    * @param eventHandler A handler for events. May be null if delivery of events is not required.
    * @param eventListener A listener of events. May be null if delivery of events is not required.
-   * @deprecated Use {@link Builder} instead.
+   * @deprecated Use {@link Factory} instead.
    */
   @Deprecated
   public DashMediaSource(Uri manifestUri, DataSource.Factory manifestDataSourceFactory,
