@@ -47,6 +47,7 @@
     <attr name="default_artwork" format="reference"/>
     <attr name="use_controller" format="boolean"/>
     <attr name="hide_on_touch" format="boolean"/>
+    <attr name="hide_during_ads" format="boolean"/>
     <attr name="auto_show" format="boolean"/>
     <attr name="resize_mode"/>
     <attr name="surface_type"/>
