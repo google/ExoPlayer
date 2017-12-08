@@ -739,6 +739,11 @@ public class SimpleExoPlayer implements ExoPlayer {
   }
 
   @Override
+  public void setSeekParameters(@Nullable SeekParameters seekParameters) {
+    player.setSeekParameters(seekParameters);
+  }
+
+  @Override
   public void stop() {
     player.stop();
   }

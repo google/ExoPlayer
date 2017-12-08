@@ -66,15 +66,16 @@ import java.io.IOException;
   private static final int MSG_DO_SOME_WORK = 2;
   private static final int MSG_SEEK_TO = 3;
   private static final int MSG_SET_PLAYBACK_PARAMETERS = 4;
-  private static final int MSG_STOP = 5;
-  private static final int MSG_RELEASE = 6;
-  private static final int MSG_REFRESH_SOURCE_INFO = 7;
-  private static final int MSG_PERIOD_PREPARED = 8;
-  private static final int MSG_SOURCE_CONTINUE_LOADING_REQUESTED = 9;
-  private static final int MSG_TRACK_SELECTION_INVALIDATED = 10;
-  private static final int MSG_CUSTOM = 11;
-  private static final int MSG_SET_REPEAT_MODE = 12;
-  private static final int MSG_SET_SHUFFLE_ENABLED = 13;
+  private static final int MSG_SET_SEEK_PARAMETERS = 5;
+  private static final int MSG_STOP = 6;
+  private static final int MSG_RELEASE = 7;
+  private static final int MSG_REFRESH_SOURCE_INFO = 8;
+  private static final int MSG_PERIOD_PREPARED = 9;
+  private static final int MSG_SOURCE_CONTINUE_LOADING_REQUESTED = 10;
+  private static final int MSG_TRACK_SELECTION_INVALIDATED = 11;
+  private static final int MSG_CUSTOM = 12;
+  private static final int MSG_SET_REPEAT_MODE = 13;
+  private static final int MSG_SET_SHUFFLE_ENABLED = 14;
 
   private static final int PREPARING_SOURCE_INTERVAL_MS = 10;
   private static final int RENDERING_INTERVAL_MS = 10;
@@ -109,6 +110,9 @@ import java.io.IOException;
   private final long backBufferDurationUs;
   private final boolean retainBackBufferFromKeyframe;
   private final DefaultMediaClock mediaClock;
+
+  @SuppressWarnings("unused")
+  private SeekParameters seekParameters;
 
   private PlaybackInfo playbackInfo;
   private MediaSource mediaSource;
@@ -148,6 +152,7 @@ import java.io.IOException;
     backBufferDurationUs = loadControl.getBackBufferDurationUs();
     retainBackBufferFromKeyframe = loadControl.retainBackBufferFromKeyframe();
 
+    seekParameters = SeekParameters.DEFAULT;
     playbackInfo = new PlaybackInfo(null, null, 0, C.TIME_UNSET);
     rendererCapabilities = new RendererCapabilities[renderers.length];
     for (int i = 0; i < renderers.length; i++) {
@@ -193,6 +198,10 @@ import java.io.IOException;
 
   public void setPlaybackParameters(PlaybackParameters playbackParameters) {
     handler.obtainMessage(MSG_SET_PLAYBACK_PARAMETERS, playbackParameters).sendToTarget();
+  }
+
+  public void setSeekParameters(SeekParameters seekParameters) {
+    handler.obtainMessage(MSG_SET_SEEK_PARAMETERS, seekParameters).sendToTarget();
   }
 
   public void stop(boolean reset) {
@@ -294,62 +303,51 @@ import java.io.IOException;
   public boolean handleMessage(Message msg) {
     try {
       switch (msg.what) {
-        case MSG_PREPARE: {
+        case MSG_PREPARE:
           prepareInternal((MediaSource) msg.obj, msg.arg1 != 0);
           return true;
-        }
-        case MSG_SET_PLAY_WHEN_READY: {
+        case MSG_SET_PLAY_WHEN_READY:
           setPlayWhenReadyInternal(msg.arg1 != 0);
           return true;
-        }
-        case MSG_SET_REPEAT_MODE: {
+        case MSG_SET_REPEAT_MODE:
           setRepeatModeInternal(msg.arg1);
           return true;
-        }
-        case MSG_SET_SHUFFLE_ENABLED: {
+        case MSG_SET_SHUFFLE_ENABLED:
           setShuffleModeEnabledInternal(msg.arg1 != 0);
           return true;
-        }
-        case MSG_DO_SOME_WORK: {
+        case MSG_DO_SOME_WORK:
           doSomeWork();
           return true;
-        }
-        case MSG_SEEK_TO: {
+        case MSG_SEEK_TO:
           seekToInternal((SeekPosition) msg.obj);
           return true;
-        }
-        case MSG_SET_PLAYBACK_PARAMETERS: {
+        case MSG_SET_PLAYBACK_PARAMETERS:
           setPlaybackParametersInternal((PlaybackParameters) msg.obj);
           return true;
-        }
-        case MSG_STOP: {
+        case MSG_SET_SEEK_PARAMETERS:
+          setSeekParametersInternal((SeekParameters) msg.obj);
+          return true;
+        case MSG_STOP:
           stopInternal(/* reset= */ msg.arg1 != 0);
           return true;
-        }
-        case MSG_RELEASE: {
+        case MSG_RELEASE:
           releaseInternal();
           return true;
-        }
-        case MSG_PERIOD_PREPARED: {
+        case MSG_PERIOD_PREPARED:
           handlePeriodPrepared((MediaPeriod) msg.obj);
           return true;
-        }
-        case MSG_REFRESH_SOURCE_INFO: {
+        case MSG_REFRESH_SOURCE_INFO:
           handleSourceInfoRefreshed((MediaSourceRefreshInfo) msg.obj);
           return true;
-        }
-        case MSG_SOURCE_CONTINUE_LOADING_REQUESTED: {
+        case MSG_SOURCE_CONTINUE_LOADING_REQUESTED:
           handleContinueLoadingRequested((MediaPeriod) msg.obj);
           return true;
-        }
-        case MSG_TRACK_SELECTION_INVALIDATED: {
+        case MSG_TRACK_SELECTION_INVALIDATED:
           reselectTracksInternal();
           return true;
-        }
-        case MSG_CUSTOM: {
+        case MSG_CUSTOM:
           sendMessagesInternal((ExoPlayerMessage[]) msg.obj);
           return true;
-        }
         default:
           return false;
       }
@@ -763,6 +761,10 @@ import java.io.IOException;
 
   private void setPlaybackParametersInternal(PlaybackParameters playbackParameters) {
     mediaClock.setPlaybackParameters(playbackParameters);
+  }
+
+  private void setSeekParametersInternal(SeekParameters seekParameters) {
+    this.seekParameters = seekParameters;
   }
 
   private void stopInternal(boolean reset) {

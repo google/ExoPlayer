@@ -259,6 +259,14 @@ import java.util.concurrent.CopyOnWriteArraySet;
   }
 
   @Override
+  public void setSeekParameters(@Nullable SeekParameters seekParameters) {
+    if (seekParameters == null) {
+      seekParameters = SeekParameters.DEFAULT;
+    }
+    internalPlayer.setSeekParameters(seekParameters);
+  }
+
+  @Override
   public void stop() {
     stop(/* reset= */ false);
   }
