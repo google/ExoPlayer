@@ -396,9 +396,7 @@ import java.util.ArrayList;
                 new DefaultDashChunkSource.Factory(DATA_SOURCE_FACTORY), DATA_SOURCE_FACTORY)
             .createMediaSource(uri);
       case DemoUtil.MIME_TYPE_HLS:
-        return HlsMediaSource.Builder
-            .forDataSource(uri, DATA_SOURCE_FACTORY)
-            .build();
+        return new HlsMediaSource.Factory(DATA_SOURCE_FACTORY).createMediaSource(uri);
       case DemoUtil.MIME_TYPE_VIDEO_MP4:
         return new ExtractorMediaSource.Builder(uri, DATA_SOURCE_FACTORY).build();
       default: {
