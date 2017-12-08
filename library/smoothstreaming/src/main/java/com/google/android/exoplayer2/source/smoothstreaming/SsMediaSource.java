@@ -29,6 +29,7 @@ import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.source.MediaSourceEventListener;
 import com.google.android.exoplayer2.source.MediaSourceEventListener.EventDispatcher;
 import com.google.android.exoplayer2.source.SinglePeriodTimeline;
+import com.google.android.exoplayer2.source.ads.AdsMediaSource;
 import com.google.android.exoplayer2.source.smoothstreaming.manifest.SsManifest;
 import com.google.android.exoplayer2.source.smoothstreaming.manifest.SsManifest.StreamElement;
 import com.google.android.exoplayer2.source.smoothstreaming.manifest.SsManifestParser;
@@ -52,59 +53,31 @@ public final class SsMediaSource implements MediaSource,
     ExoPlayerLibraryInfo.registerModule("goog.exo.smoothstreaming");
   }
 
-  /**
-   * Builder for {@link SsMediaSource}. Each builder instance can only be used once.
-   */
-  public static final class Builder {
+  /** Factory for {@link SsMediaSource}. */
+  public static final class Factory implements AdsMediaSource.MediaSourceFactory {
 
-    private final SsManifest manifest;
-    private final Uri manifestUri;
-    private final DataSource.Factory manifestDataSourceFactory;
     private final SsChunkSource.Factory chunkSourceFactory;
+    private final @Nullable DataSource.Factory manifestDataSourceFactory;
 
-    private ParsingLoadable.Parser<? extends SsManifest> manifestParser;
-    private MediaSourceEventListener eventListener;
-    private Handler eventHandler;
-
+    private @Nullable ParsingLoadable.Parser<? extends SsManifest> manifestParser;
     private int minLoadableRetryCount;
     private long livePresentationDelayMs;
-    private boolean isBuildCalled;
+    private boolean isCreateCalled;
 
     /**
-     * Creates a {@link Builder} for a {@link SsMediaSource} with a side-loaded manifest.
+     * Creates a new factory for {@link SsMediaSource}s.
      *
-     * @param manifest The manifest. {@link SsManifest#isLive} must be false.
      * @param chunkSourceFactory A factory for {@link SsChunkSource} instances.
-     * @return A new builder.
-     */
-    public static Builder forSideLoadedManifest(SsManifest manifest,
-        SsChunkSource.Factory chunkSourceFactory) {
-      Assertions.checkArgument(!manifest.isLive);
-      return new Builder(manifest, null, null, chunkSourceFactory);
-    }
-
-    /**
-     * Creates a {@link Builder} for a {@link SsMediaSource} with a loadable manifest Uri.
-     *
-     * @param manifestUri The manifest {@link Uri}.
      * @param manifestDataSourceFactory A factory for {@link DataSource} instances that will be used
-     *     to load (and refresh) the manifest.
-     * @param chunkSourceFactory A factory for {@link SsChunkSource} instances.
-     * @return A new builder.
+     *     to load (and refresh) the manifest. May be {@code null} if the factory will only ever be
+     *     used to create create media sources with sideloaded manifests via {@link
+     *     #createMediaSource(SsManifest, Handler, MediaSourceEventListener)}.
      */
-    public static Builder forManifestUri(Uri manifestUri,
-        DataSource.Factory manifestDataSourceFactory, SsChunkSource.Factory chunkSourceFactory) {
-      return new Builder(null, manifestUri, manifestDataSourceFactory, chunkSourceFactory);
-    }
-
-    private Builder(@Nullable SsManifest manifest, @Nullable Uri manifestUri,
-        @Nullable DataSource.Factory manifestDataSourceFactory,
-        SsChunkSource.Factory chunkSourceFactory) {
-      this.manifest = manifest;
-      this.manifestUri = manifestUri;
+    public Factory(
+        SsChunkSource.Factory chunkSourceFactory,
+        @Nullable DataSource.Factory manifestDataSourceFactory) {
+      this.chunkSourceFactory = Assertions.checkNotNull(chunkSourceFactory);
       this.manifestDataSourceFactory = manifestDataSourceFactory;
-      this.chunkSourceFactory = chunkSourceFactory;
-
       minLoadableRetryCount = DEFAULT_MIN_LOADABLE_RETRY_COUNT;
       livePresentationDelayMs = DEFAULT_LIVE_PRESENTATION_DELAY_MS;
     }
@@ -114,71 +87,115 @@ public final class SsMediaSource implements MediaSource,
      * {@link #DEFAULT_MIN_LOADABLE_RETRY_COUNT}.
      *
      * @param minLoadableRetryCount The minimum number of times to retry if a loading error occurs.
-     * @return This builder.
+     * @return This factory, for convenience.
+     * @throws IllegalStateException If one of the {@code create} methods has already been called.
      */
-    public Builder setMinLoadableRetryCount(int minLoadableRetryCount) {
+    public Factory setMinLoadableRetryCount(int minLoadableRetryCount) {
+      Assertions.checkState(!isCreateCalled);
       this.minLoadableRetryCount = minLoadableRetryCount;
       return this;
     }
 
     /**
      * Sets the duration in milliseconds by which the default start position should precede the end
-     * of the live window for live playbacks. The default value is
-     * {@link #DEFAULT_LIVE_PRESENTATION_DELAY_MS}.
+     * of the live window for live playbacks. The default value is {@link
+     * #DEFAULT_LIVE_PRESENTATION_DELAY_MS}.
      *
      * @param livePresentationDelayMs For live playbacks, the duration in milliseconds by which the
      *     default start position should precede the end of the live window.
-     * @return This builder.
+     * @return This factory, for convenience.
+     * @throws IllegalStateException If one of the {@code create} methods has already been called.
      */
-    public Builder setLivePresentationDelayMs(long livePresentationDelayMs) {
+    public Factory setLivePresentationDelayMs(long livePresentationDelayMs) {
+      Assertions.checkState(!isCreateCalled);
       this.livePresentationDelayMs = livePresentationDelayMs;
       return this;
     }
 
     /**
-     * Sets the listener to respond to adaptive {@link MediaSource} events and the handler to
-     * deliver these events.
-     *
-     * @param eventHandler A handler for events.
-     * @param eventListener A listener of events.
-     * @return This builder.
-     */
-    public Builder setEventListener(Handler eventHandler, MediaSourceEventListener eventListener) {
-      this.eventHandler = eventHandler;
-      this.eventListener = eventListener;
-      return this;
-    }
-
-    /**
-     * Sets the manifest parser to parse loaded manifest data. The default is an instance of
-     * {@link SsManifestParser}, or {@code null} if the manifest is sideloaded.
+     * Sets the manifest parser to parse loaded manifest data when loading a manifest URI.
      *
      * @param manifestParser A parser for loaded manifest data.
-     * @return This builder.
+     * @return This factory, for convenience.
+     * @throws IllegalStateException If one of the {@code create} methods has already been called.
      */
-    public Builder setManifestParser(ParsingLoadable.Parser<? extends SsManifest> manifestParser) {
-      this.manifestParser = manifestParser;
+    public Factory setManifestParser(ParsingLoadable.Parser<? extends SsManifest> manifestParser) {
+      Assertions.checkState(!isCreateCalled);
+      this.manifestParser = Assertions.checkNotNull(manifestParser);
       return this;
     }
 
     /**
-     * Builds a new {@link SsMediaSource} using the current parameters.
-     * <p>
-     * After this call, the builder should not be re-used.
+     * Returns a new {@link SsMediaSource} using the current parameters and the specified sideloaded
+     * manifest.
      *
-     * @return The newly built {@link SsMediaSource}.
+     * @param manifest The manifest. {@link SsManifest#isLive} must be false.
+     * @param eventHandler A handler for events.
+     * @param eventListener A listener of events.
+     * @return The new {@link SsMediaSource}.
+     * @throws IllegalArgumentException If {@link SsManifest#isLive} is true.
      */
-    public SsMediaSource build() {
-      Assertions.checkArgument((eventListener == null) == (eventHandler == null));
-      Assertions.checkState(!isBuildCalled);
-      isBuildCalled = true;
-      boolean loadableManifestUri = manifestUri != null;
-      if (loadableManifestUri && manifestParser == null) {
+    public SsMediaSource createMediaSource(
+        SsManifest manifest,
+        @Nullable Handler eventHandler,
+        @Nullable MediaSourceEventListener eventListener) {
+      Assertions.checkArgument(!manifest.isLive);
+      isCreateCalled = true;
+      return new SsMediaSource(
+          manifest,
+          null,
+          null,
+          null,
+          chunkSourceFactory,
+          minLoadableRetryCount,
+          livePresentationDelayMs,
+          eventHandler,
+          eventListener);
+    }
+
+    /**
+     * Returns a new {@link SsMediaSource} using the current parameters. Media source events will
+     * not be delivered.
+     *
+     * @param manifestUri The manifest {@link Uri}.
+     * @return The new {@link SsMediaSource}.
+     */
+    public SsMediaSource createMediaSource(Uri manifestUri) {
+      return createMediaSource(manifestUri, null, null);
+    }
+
+    /**
+     * Returns a new {@link SsMediaSource} using the current parameters.
+     *
+     * @param manifestUri The manifest {@link Uri}.
+     * @param eventHandler A handler for events.
+     * @param eventListener A listener of events.
+     * @return The new {@link SsMediaSource}.
+     */
+    @Override
+    public SsMediaSource createMediaSource(
+        Uri manifestUri,
+        @Nullable Handler eventHandler,
+        @Nullable MediaSourceEventListener eventListener) {
+      isCreateCalled = true;
+      if (manifestParser == null) {
         manifestParser = new SsManifestParser();
       }
-      return new SsMediaSource(manifest, manifestUri, manifestDataSourceFactory, manifestParser,
-          chunkSourceFactory, minLoadableRetryCount, livePresentationDelayMs, eventHandler,
+      return new SsMediaSource(
+          null,
+          Assertions.checkNotNull(manifestUri),
+          manifestDataSourceFactory,
+          manifestParser,
+          chunkSourceFactory,
+          minLoadableRetryCount,
+          livePresentationDelayMs,
+          eventHandler,
           eventListener);
+    }
+
+    @Override
+    public int[] getSupportedTypes() {
+      return new int[] {C.TYPE_SS};
     }
 
   }
@@ -228,7 +245,7 @@ public final class SsMediaSource implements MediaSource,
    * @param chunkSourceFactory A factory for {@link SsChunkSource} instances.
    * @param eventHandler A handler for events. May be null if delivery of events is not required.
    * @param eventListener A listener of events. May be null if delivery of events is not required.
-   * @deprecated Use {@link Builder} instead.
+   * @deprecated Use {@link Factory} instead.
    */
   @Deprecated
   public SsMediaSource(SsManifest manifest, SsChunkSource.Factory chunkSourceFactory,
@@ -245,7 +262,7 @@ public final class SsMediaSource implements MediaSource,
    * @param minLoadableRetryCount The minimum number of times to retry if a loading error occurs.
    * @param eventHandler A handler for events. May be null if delivery of events is not required.
    * @param eventListener A listener of events. May be null if delivery of events is not required.
-   * @deprecated Use {@link Builder} instead.
+   * @deprecated Use {@link Factory} instead.
    */
   @Deprecated
   public SsMediaSource(SsManifest manifest, SsChunkSource.Factory chunkSourceFactory,
@@ -264,7 +281,7 @@ public final class SsMediaSource implements MediaSource,
    * @param chunkSourceFactory A factory for {@link SsChunkSource} instances.
    * @param eventHandler A handler for events. May be null if delivery of events is not required.
    * @param eventListener A listener of events. May be null if delivery of events is not required.
-   * @deprecated Use {@link Builder} instead.
+   * @deprecated Use {@link Factory} instead.
    */
   @Deprecated
   public SsMediaSource(Uri manifestUri, DataSource.Factory manifestDataSourceFactory,
@@ -288,7 +305,7 @@ public final class SsMediaSource implements MediaSource,
    *     default start position should precede the end of the live window.
    * @param eventHandler A handler for events. May be null if delivery of events is not required.
    * @param eventListener A listener of events. May be null if delivery of events is not required.
-   * @deprecated Use {@link Builder} instead.
+   * @deprecated Use {@link Factory} instead.
    */
   @Deprecated
   public SsMediaSource(Uri manifestUri, DataSource.Factory manifestDataSourceFactory,
@@ -312,7 +329,7 @@ public final class SsMediaSource implements MediaSource,
    *     default start position should precede the end of the live window.
    * @param eventHandler A handler for events. May be null if delivery of events is not required.
    * @param eventListener A listener of events. May be null if delivery of events is not required.
-   * @deprecated Use {@link Builder} instead.
+   * @deprecated Use {@link Factory} instead.
    */
   @Deprecated
   public SsMediaSource(Uri manifestUri, DataSource.Factory manifestDataSourceFactory,
