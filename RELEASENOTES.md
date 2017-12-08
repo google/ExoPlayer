@@ -26,6 +26,8 @@
   * Skip ads before the ad preceding the player's initial seek position
     ([#3527](https://github.com/google/ExoPlayer/issues/3527)).
   * Fix ad loading when there is no preroll.
+  * Add an option to turn off hiding controls during ad playback
+    ([#3532](https://github.com/google/ExoPlayer/issues/3532)).
 
 ### 2.6.0 ###
 
