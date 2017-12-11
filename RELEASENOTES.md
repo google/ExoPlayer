@@ -44,6 +44,8 @@
 * Use surfaceless context for secure DummySurface, if available
   ([#3558](https://github.com/google/ExoPlayer/issues/3558)).
 * IMA extension:
+  * Support non-ExtractorMediaSource ads
+    ([#3302](https://github.com/google/ExoPlayer/issues/3302)).
   * Skip ads before the ad preceding the player's initial seek position
     ([#3527](https://github.com/google/ExoPlayer/issues/3527)).
   * Fix ad loading when there is no preroll.
