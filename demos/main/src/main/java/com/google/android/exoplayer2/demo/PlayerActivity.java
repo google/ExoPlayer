@@ -378,9 +378,8 @@ public class PlayerActivity extends Activity implements OnClickListener,
         return new HlsMediaSource.Factory(mediaDataSourceFactory)
             .createMediaSource(uri, mainHandler, eventLogger);
       case C.TYPE_OTHER:
-        return new ExtractorMediaSource.Builder(uri, mediaDataSourceFactory)
-            .setEventListener(mainHandler, eventLogger)
-            .build();
+        return new ExtractorMediaSource.Factory(mediaDataSourceFactory)
+            .createMediaSource(uri, mainHandler, eventLogger);
       default: {
         throw new IllegalStateException("Unsupported type: " + type);
       }
