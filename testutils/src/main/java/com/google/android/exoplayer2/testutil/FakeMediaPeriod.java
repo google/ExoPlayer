@@ -18,6 +18,7 @@ package com.google.android.exoplayer2.testutil;
 import android.os.Handler;
 import android.support.annotation.Nullable;
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.SeekParameters;
 import com.google.android.exoplayer2.source.MediaPeriod;
 import com.google.android.exoplayer2.source.SampleStream;
 import com.google.android.exoplayer2.source.TrackGroup;
@@ -174,6 +175,11 @@ public class FakeMediaPeriod implements MediaPeriod {
   public long seekToUs(long positionUs) {
     Assert.assertTrue(prepared);
     return positionUs + seekOffsetUs;
+  }
+
+  @Override
+  public long getAdjustedSeekPositionUs(long positionUs, SeekParameters seekParameters) {
+    return positionUs;
   }
 
   @Override

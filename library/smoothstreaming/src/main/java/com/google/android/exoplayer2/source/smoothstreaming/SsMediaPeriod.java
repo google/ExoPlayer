@@ -17,6 +17,7 @@ package com.google.android.exoplayer2.source.smoothstreaming;
 
 import android.util.Base64;
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.SeekParameters;
 import com.google.android.exoplayer2.extractor.mp4.TrackEncryptionBox;
 import com.google.android.exoplayer2.source.CompositeSequenceableLoaderFactory;
 import com.google.android.exoplayer2.source.MediaPeriod;
@@ -179,6 +180,11 @@ import java.util.ArrayList;
     for (ChunkSampleStream<SsChunkSource> sampleStream : sampleStreams) {
       sampleStream.seekToUs(positionUs);
     }
+    return positionUs;
+  }
+
+  @Override
+  public long getAdjustedSeekPositionUs(long positionUs, SeekParameters seekParameters) {
     return positionUs;
   }
 

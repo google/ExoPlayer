@@ -20,6 +20,7 @@ import android.util.Pair;
 import android.util.SparseIntArray;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
+import com.google.android.exoplayer2.SeekParameters;
 import com.google.android.exoplayer2.source.CompositeSequenceableLoaderFactory;
 import com.google.android.exoplayer2.source.EmptySampleStream;
 import com.google.android.exoplayer2.source.MediaPeriod;
@@ -303,6 +304,11 @@ import java.util.Map;
     for (EventSampleStream sampleStream : eventSampleStreams) {
       sampleStream.seekToUs(positionUs);
     }
+    return positionUs;
+  }
+
+  @Override
+  public long getAdjustedSeekPositionUs(long positionUs, SeekParameters seekParameters) {
     return positionUs;
   }
 

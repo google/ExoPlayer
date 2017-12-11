@@ -16,6 +16,7 @@
 package com.google.android.exoplayer2.source;
 
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.SeekParameters;
 import com.google.android.exoplayer2.trackselection.TrackSelection;
 import com.google.android.exoplayer2.util.Assertions;
 import java.io.IOException;
@@ -190,6 +191,11 @@ import java.util.IdentityHashMap;
       }
     }
     return positionUs;
+  }
+
+  @Override
+  public long getAdjustedSeekPositionUs(long positionUs, SeekParameters seekParameters) {
+    return enabledPeriods[0].getAdjustedSeekPositionUs(positionUs, seekParameters);
   }
 
   // MediaPeriod.Callback implementation

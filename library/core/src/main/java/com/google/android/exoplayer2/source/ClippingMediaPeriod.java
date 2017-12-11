@@ -18,6 +18,7 @@ package com.google.android.exoplayer2.source;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.FormatHolder;
+import com.google.android.exoplayer2.SeekParameters;
 import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
 import com.google.android.exoplayer2.trackselection.TrackSelection;
 import com.google.android.exoplayer2.util.Assertions;
@@ -171,6 +172,12 @@ public final class ClippingMediaPeriod implements MediaPeriod, MediaPeriod.Callb
   }
 
   @Override
+  public long getAdjustedSeekPositionUs(long positionUs, SeekParameters seekParameters) {
+    return mediaPeriod.getAdjustedSeekPositionUs(
+        positionUs + startUs, adjustSeekParameters(positionUs + startUs, seekParameters));
+  }
+
+  @Override
   public long getNextLoadPositionUs() {
     long nextLoadPositionUs = mediaPeriod.getNextLoadPositionUs();
     if (nextLoadPositionUs == C.TIME_END_OF_SOURCE
@@ -200,6 +207,20 @@ public final class ClippingMediaPeriod implements MediaPeriod, MediaPeriod.Callb
 
   /* package */ boolean isPendingInitialDiscontinuity() {
     return pendingInitialDiscontinuityPositionUs != C.TIME_UNSET;
+  }
+
+  private SeekParameters adjustSeekParameters(long positionUs, SeekParameters seekParameters) {
+    long toleranceBeforeMs = Math.min(positionUs - startUs, seekParameters.toleranceBeforeUs);
+    long toleranceAfterMs =
+        endUs == C.TIME_END_OF_SOURCE
+            ? seekParameters.toleranceAfterUs
+            : Math.min(endUs - positionUs, seekParameters.toleranceAfterUs);
+    if (toleranceBeforeMs == seekParameters.toleranceBeforeUs
+        && toleranceAfterMs == seekParameters.toleranceAfterUs) {
+      return seekParameters;
+    } else {
+      return new SeekParameters(toleranceBeforeMs, toleranceAfterMs);
+    }
   }
 
   private static boolean shouldKeepInitialDiscontinuity(long startUs, TrackSelection[] selections) {

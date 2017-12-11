@@ -17,6 +17,7 @@ package com.google.android.exoplayer2.source;
 
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlayer;
+import com.google.android.exoplayer2.SeekParameters;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.trackselection.TrackSelection;
 import java.io.IOException;
@@ -148,6 +149,19 @@ public interface MediaPeriod extends SequenceableLoader {
    * @return The actual position to which the period was seeked, in microseconds.
    */
   long seekToUs(long positionUs);
+
+  /**
+   * Returns the position to which a seek will be performed, given the specified seek position and
+   * {@link SeekParameters}.
+   *
+   * <p>This method should only be called after the period has been prepared.
+   *
+   * @param positionUs The seek position in microseconds.
+   * @param seekParameters Parameters that control how the seek is performed. Implementations may
+   *     apply seek parameters on a best effort basis.
+   * @return The actual position to which a seek will be performed, in microseconds.
+   */
+  long getAdjustedSeekPositionUs(long positionUs, SeekParameters seekParameters);
 
   // SequenceableLoader interface. Overridden to provide more specific documentation.
 

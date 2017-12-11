@@ -20,6 +20,7 @@ import android.os.Handler;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.FormatHolder;
+import com.google.android.exoplayer2.SeekParameters;
 import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
 import com.google.android.exoplayer2.source.SingleSampleMediaSource.EventListener;
 import com.google.android.exoplayer2.trackselection.TrackSelection;
@@ -153,8 +154,13 @@ import java.util.Arrays;
   @Override
   public long seekToUs(long positionUs) {
     for (int i = 0; i < sampleStreams.size(); i++) {
-      sampleStreams.get(i).seekToUs(positionUs);
+      sampleStreams.get(i).reset();
     }
+    return positionUs;
+  }
+
+  @Override
+  public long getAdjustedSeekPositionUs(long positionUs, SeekParameters seekParameters) {
     return positionUs;
   }
 
@@ -208,7 +214,7 @@ import java.util.Arrays;
 
     private int streamState;
 
-    public void seekToUs(long positionUs) {
+    public void reset() {
       if (streamState == STREAM_STATE_END_OF_STREAM) {
         streamState = STREAM_STATE_SEND_SAMPLE;
       }
