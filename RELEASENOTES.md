@@ -22,6 +22,8 @@
   implementations.
 * CEA-608: Fix handling of row count changes in roll-up mode
   ([#3513](https://github.com/google/ExoPlayer/issues/3513)).
+* Use surfaceless context for secure DummySurface, if available
+  ([#3558](https://github.com/google/ExoPlayer/issues/3558)).
 * IMA extension:
   * Skip ads before the ad preceding the player's initial seek position
     ([#3527](https://github.com/google/ExoPlayer/issues/3527)).
