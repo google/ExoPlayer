@@ -422,8 +422,12 @@ public class FakeSimpleExoPlayer extends SimpleExoPlayer {
       SampleStream[] sampleStreams = new SampleStream[renderers.length];
       boolean[] mayRetainStreamFlags = new boolean[renderers.length];
       Arrays.fill(mayRetainStreamFlags, true);
-      mediaPeriod.selectTracks(selectorResult.selections.getAll(), mayRetainStreamFlags,
-          sampleStreams, new boolean[renderers.length], 0);
+      mediaPeriod.selectTracks(
+          selectorResult.selections.getAll(),
+          mayRetainStreamFlags,
+          sampleStreams,
+          new boolean[renderers.length],
+          /* positionUs = */ 0);
       eventListenerHandler.post(new Runnable() {
         @Override
         public void run() {
