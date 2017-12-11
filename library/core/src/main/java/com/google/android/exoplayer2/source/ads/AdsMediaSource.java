@@ -163,7 +163,7 @@ public final class AdsMediaSource implements MediaSource {
     this.eventListener = eventListener;
     mainHandler = new Handler(Looper.getMainLooper());
     componentListener = new ComponentListener();
-    adMediaSourceFactory = new ExtractorMediaSourceFactory(dataSourceFactory);
+    adMediaSourceFactory = new ExtractorMediaSource.Factory(dataSourceFactory);
     deferredMediaPeriodByAdMediaSource = new HashMap<>();
     period = new Timeline.Period();
     adGroupMediaSources = new MediaSource[0][];
@@ -392,30 +392,6 @@ public final class AdsMediaSource implements MediaSource {
           AdsMediaSource.this.onLoadError(error);
         }
       });
-    }
-
-  }
-
-  private static final class ExtractorMediaSourceFactory implements MediaSourceFactory {
-
-    private final DataSource.Factory dataSourceFactory;
-
-    public ExtractorMediaSourceFactory(DataSource.Factory dataSourceFactory) {
-      this.dataSourceFactory = dataSourceFactory;
-    }
-
-    @Override
-    public MediaSource createMediaSource(
-        Uri uri, @Nullable Handler handler, @Nullable MediaSourceEventListener listener) {
-      return new ExtractorMediaSource.Builder(uri, dataSourceFactory)
-          .setEventListener(handler, listener)
-          .build();
-    }
-
-    @Override
-    public int[] getSupportedTypes() {
-      // Only ExtractorMediaSource is supported.
-      return new int[] {C.TYPE_OTHER};
     }
 
   }

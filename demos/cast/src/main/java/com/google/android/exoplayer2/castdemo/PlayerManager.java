@@ -398,7 +398,7 @@ import java.util.ArrayList;
       case DemoUtil.MIME_TYPE_HLS:
         return new HlsMediaSource.Factory(DATA_SOURCE_FACTORY).createMediaSource(uri);
       case DemoUtil.MIME_TYPE_VIDEO_MP4:
-        return new ExtractorMediaSource.Builder(uri, DATA_SOURCE_FACTORY).build();
+        return new ExtractorMediaSource.Factory(DATA_SOURCE_FACTORY).createMediaSource(uri);
       default: {
         throw new IllegalStateException("Unsupported type: " + sample.mimeType);
       }
