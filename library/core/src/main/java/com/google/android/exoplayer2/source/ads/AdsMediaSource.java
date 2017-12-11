@@ -96,13 +96,13 @@ public final class AdsMediaSource implements MediaSource {
   private static final String TAG = "AdsMediaSource";
 
   private final MediaSource contentMediaSource;
+  private final MediaSourceFactory adMediaSourceFactory;
   private final AdsLoader adsLoader;
   private final ViewGroup adUiViewGroup;
   @Nullable private final Handler eventHandler;
   @Nullable private final EventListener eventListener;
   private final Handler mainHandler;
   private final ComponentListener componentListener;
-  private final MediaSourceFactory adMediaSourceFactory;
   private final Map<MediaSource, List<DeferredMediaPeriod>> deferredMediaPeriodByAdMediaSource;
   private final Timeline.Period period;
 
@@ -119,28 +119,31 @@ public final class AdsMediaSource implements MediaSource {
   private MediaSource.Listener listener;
 
   /**
-   * Constructs a new source that inserts ads linearly with the content specified by
-   * {@code contentMediaSource}.
-   * <p>
-   * Ad media is loaded using {@link ExtractorMediaSource}. If {@code eventListener} is
-   * non-{@code null} it will be notified of both ad tag and ad media load errors.
+   * Constructs a new source that inserts ads linearly with the content specified by {@code
+   * contentMediaSource}. Ad media is loaded using {@link ExtractorMediaSource}.
    *
    * @param contentMediaSource The {@link MediaSource} providing the content to play.
    * @param dataSourceFactory Factory for data sources used to load ad media.
    * @param adsLoader The loader for ads.
    * @param adUiViewGroup A {@link ViewGroup} on top of the player that will show any ad UI.
    */
-  public AdsMediaSource(MediaSource contentMediaSource, DataSource.Factory dataSourceFactory,
-      AdsLoader adsLoader, ViewGroup adUiViewGroup) {
-    this(contentMediaSource, dataSourceFactory, adsLoader, adUiViewGroup, null, null);
+  public AdsMediaSource(
+      MediaSource contentMediaSource,
+      DataSource.Factory dataSourceFactory,
+      AdsLoader adsLoader,
+      ViewGroup adUiViewGroup) {
+    this(
+        contentMediaSource,
+        dataSourceFactory,
+        adsLoader,
+        adUiViewGroup,
+        /* eventHandler= */ null,
+        /* eventListener= */ null);
   }
 
   /**
    * Constructs a new source that inserts ads linearly with the content specified by {@code
-   * contentMediaSource}.
-   *
-   * <p>Ad media is loaded using {@link ExtractorMediaSource}. If {@code eventListener} is
-   * non-{@code null} it will be notified of both ad tag and ad media load errors.
+   * contentMediaSource}. Ad media is loaded using {@link ExtractorMediaSource}.
    *
    * @param contentMediaSource The {@link MediaSource} providing the content to play.
    * @param dataSourceFactory Factory for data sources used to load ad media.
@@ -156,14 +159,41 @@ public final class AdsMediaSource implements MediaSource {
       ViewGroup adUiViewGroup,
       @Nullable Handler eventHandler,
       @Nullable EventListener eventListener) {
+    this(
+        contentMediaSource,
+        new ExtractorMediaSource.Factory(dataSourceFactory),
+        adsLoader,
+        adUiViewGroup,
+        eventHandler,
+        eventListener);
+  }
+
+  /**
+   * Constructs a new source that inserts ads linearly with the content specified by {@code
+   * contentMediaSource}.
+   *
+   * @param contentMediaSource The {@link MediaSource} providing the content to play.
+   * @param adMediaSourceFactory Factory for media sources used to load ad media.
+   * @param adsLoader The loader for ads.
+   * @param adUiViewGroup A {@link ViewGroup} on top of the player that will show any ad UI.
+   * @param eventHandler A handler for events. May be null if delivery of events is not required.
+   * @param eventListener A listener of events. May be null if delivery of events is not required.
+   */
+  public AdsMediaSource(
+      MediaSource contentMediaSource,
+      MediaSourceFactory adMediaSourceFactory,
+      AdsLoader adsLoader,
+      ViewGroup adUiViewGroup,
+      @Nullable Handler eventHandler,
+      @Nullable EventListener eventListener) {
     this.contentMediaSource = contentMediaSource;
+    this.adMediaSourceFactory = adMediaSourceFactory;
     this.adsLoader = adsLoader;
     this.adUiViewGroup = adUiViewGroup;
     this.eventHandler = eventHandler;
     this.eventListener = eventListener;
     mainHandler = new Handler(Looper.getMainLooper());
     componentListener = new ComponentListener();
-    adMediaSourceFactory = new ExtractorMediaSource.Factory(dataSourceFactory);
     deferredMediaPeriodByAdMediaSource = new HashMap<>();
     period = new Timeline.Period();
     adGroupMediaSources = new MediaSource[0][];

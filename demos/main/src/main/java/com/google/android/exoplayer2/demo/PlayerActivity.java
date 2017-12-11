@@ -23,6 +23,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.text.TextUtils;
 import android.view.KeyEvent;
 import android.view.View;
@@ -52,6 +53,7 @@ import com.google.android.exoplayer2.source.BehindLiveWindowException;
 import com.google.android.exoplayer2.source.ConcatenatingMediaSource;
 import com.google.android.exoplayer2.source.ExtractorMediaSource;
 import com.google.android.exoplayer2.source.MediaSource;
+import com.google.android.exoplayer2.source.MediaSourceEventListener;
 import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.source.ads.AdsLoader;
 import com.google.android.exoplayer2.source.ads.AdsMediaSource;
@@ -332,7 +334,7 @@ public class PlayerActivity extends Activity implements OnClickListener,
     }
     MediaSource[] mediaSources = new MediaSource[uris.length];
     for (int i = 0; i < uris.length; i++) {
-      mediaSources[i] = buildMediaSource(uris[i], extensions[i]);
+      mediaSources[i] = buildMediaSource(uris[i], extensions[i], mainHandler, eventLogger);
     }
     MediaSource mediaSource = mediaSources.length == 1 ? mediaSources[0]
         : new ConcatenatingMediaSource(mediaSources);
@@ -360,26 +362,30 @@ public class PlayerActivity extends Activity implements OnClickListener,
     updateButtonVisibilities();
   }
 
-  private MediaSource buildMediaSource(Uri uri, String overrideExtension) {
+  private MediaSource buildMediaSource(
+      Uri uri,
+      String overrideExtension,
+      @Nullable Handler handler,
+      @Nullable MediaSourceEventListener listener) {
     @ContentType int type = TextUtils.isEmpty(overrideExtension) ? Util.inferContentType(uri)
         : Util.inferContentType("." + overrideExtension);
     switch (type) {
-      case C.TYPE_SS:
-        return new SsMediaSource.Factory(
-                new DefaultSsChunkSource.Factory(mediaDataSourceFactory),
-                buildDataSourceFactory(false))
-            .createMediaSource(uri, mainHandler, eventLogger);
       case C.TYPE_DASH:
         return new DashMediaSource.Factory(
                 new DefaultDashChunkSource.Factory(mediaDataSourceFactory),
                 buildDataSourceFactory(false))
-            .createMediaSource(uri, mainHandler, eventLogger);
+            .createMediaSource(uri, handler, listener);
+      case C.TYPE_SS:
+        return new SsMediaSource.Factory(
+                new DefaultSsChunkSource.Factory(mediaDataSourceFactory),
+                buildDataSourceFactory(false))
+            .createMediaSource(uri, handler, listener);
       case C.TYPE_HLS:
         return new HlsMediaSource.Factory(mediaDataSourceFactory)
-            .createMediaSource(uri, mainHandler, eventLogger);
+            .createMediaSource(uri, handler, listener);
       case C.TYPE_OTHER:
         return new ExtractorMediaSource.Factory(mediaDataSourceFactory)
-            .createMediaSource(uri, mainHandler, eventLogger);
+            .createMediaSource(uri, handler, listener);
       default: {
         throw new IllegalStateException("Unsupported type: " + type);
       }
@@ -466,8 +472,22 @@ public class PlayerActivity extends Activity implements OnClickListener,
       // The demo app has a non-null overlay frame layout.
       simpleExoPlayerView.getOverlayFrameLayout().addView(adUiViewGroup);
     }
-    return new AdsMediaSource(mediaSource, mediaDataSourceFactory, adsLoader, adUiViewGroup,
-        mainHandler, eventLogger);
+    AdsMediaSource.MediaSourceFactory adMediaSourceFactory =
+        new AdsMediaSource.MediaSourceFactory() {
+          @Override
+          public MediaSource createMediaSource(
+              Uri uri, @Nullable Handler handler, @Nullable MediaSourceEventListener listener) {
+            return PlayerActivity.this.buildMediaSource(
+                uri, /* overrideExtension= */ null, handler, listener);
+          }
+
+          @Override
+          public int[] getSupportedTypes() {
+            return new int[] {C.TYPE_DASH, C.TYPE_SS, C.TYPE_HLS, C.TYPE_OTHER};
+          }
+        };
+    return new AdsMediaSource(
+        mediaSource, adMediaSourceFactory, adsLoader, adUiViewGroup, mainHandler, eventLogger);
   }
 
   private void releaseAdsLoader() {
