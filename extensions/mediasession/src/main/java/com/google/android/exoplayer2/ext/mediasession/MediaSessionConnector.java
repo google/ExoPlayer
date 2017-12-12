@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.ext.mediasession;
 
+import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
@@ -330,6 +331,7 @@ public final class MediaSessionConnector {
   private final ExoPlayerEventListener exoPlayerEventListener;
   private final MediaSessionCallback mediaSessionCallback;
   private final PlaybackController playbackController;
+  private final String metadataExtrasPrefix;
   private final Map<String, CommandReceiver> commandMap;
 
   private Player player;
@@ -356,15 +358,15 @@ public final class MediaSessionConnector {
   /**
    * Creates an instance. Must be called on the same thread that is used to construct the player
    * instances passed to {@link #setPlayer(Player, PlaybackPreparer, CustomActionProvider...)}.
-   * <p>
-   * Equivalent to {@code MediaSessionConnector(mediaSession, playbackController, true)}.
+   *
+   * <p>Equivalent to {@code MediaSessionConnector(mediaSession, playbackController, true, null)}.
    *
    * @param mediaSession The {@link MediaSessionCompat} to connect to.
    * @param playbackController A {@link PlaybackController} for handling playback actions.
    */
-  public MediaSessionConnector(MediaSessionCompat mediaSession,
-      PlaybackController playbackController) {
-    this(mediaSession, playbackController, true);
+  public MediaSessionConnector(
+      MediaSessionCompat mediaSession, PlaybackController playbackController) {
+    this(mediaSession, playbackController, true, null);
   }
 
   /**
@@ -372,17 +374,23 @@ public final class MediaSessionConnector {
    * instances passed to {@link #setPlayer(Player, PlaybackPreparer, CustomActionProvider...)}.
    *
    * @param mediaSession The {@link MediaSessionCompat} to connect to.
-   * @param playbackController A {@link PlaybackController} for handling playback actions, or
-   *     {@code null} if the connector should handle playback actions directly.
+   * @param playbackController A {@link PlaybackController} for handling playback actions, or {@code
+   *     null} if the connector should handle playback actions directly.
    * @param doMaintainMetadata Whether the connector should maintain the metadata of the session. If
    *     {@code false}, you need to maintain the metadata of the media session yourself (provide at
    *     least the duration to allow clients to show a progress bar).
+   * @param metadataExtrasPrefix A string to prefix extra keys which are propagated from the active
+   *     queue item to the session metadata.
    */
-  public MediaSessionConnector(MediaSessionCompat mediaSession,
-      PlaybackController playbackController, boolean doMaintainMetadata) {
+  public MediaSessionConnector(
+      MediaSessionCompat mediaSession,
+      PlaybackController playbackController,
+      boolean doMaintainMetadata,
+      @Nullable String metadataExtrasPrefix) {
     this.mediaSession = mediaSession;
     this.playbackController = playbackController != null ? playbackController
         : new DefaultPlaybackController();
+    this.metadataExtrasPrefix = metadataExtrasPrefix != null ? metadataExtrasPrefix : "";
     this.handler = new Handler(Looper.myLooper() != null ? Looper.myLooper()
         : Looper.getMainLooper());
     this.doMaintainMetadata = doMaintainMetadata;
@@ -553,6 +561,25 @@ public final class MediaSessionConnector {
           MediaSessionCompat.QueueItem queueItem = queue.get(i);
           if (queueItem.getQueueId() == activeQueueItemId) {
             MediaDescriptionCompat description = queueItem.getDescription();
+            Bundle extras = description.getExtras();
+            if (extras != null) {
+              for (String key : extras.keySet()) {
+                Object value = extras.get(key);
+                if (value instanceof String) {
+                  builder.putString(metadataExtrasPrefix + key, (String) value);
+                } else if (value instanceof CharSequence) {
+                  builder.putText(metadataExtrasPrefix + key, (CharSequence) value);
+                } else if (value instanceof Long) {
+                  builder.putLong(metadataExtrasPrefix + key, (Long) value);
+                } else if (value instanceof Integer) {
+                  builder.putLong(metadataExtrasPrefix + key, (Integer) value);
+                } else if (value instanceof Bitmap) {
+                  builder.putBitmap(metadataExtrasPrefix + key, (Bitmap) value);
+                } else if (value instanceof RatingCompat) {
+                  builder.putRating(metadataExtrasPrefix + key, (RatingCompat) value);
+                }
+              }
+            }
             if (description.getTitle() != null) {
               builder.putString(MediaMetadataCompat.METADATA_KEY_DISPLAY_TITLE,
                   String.valueOf(description.getTitle()));
