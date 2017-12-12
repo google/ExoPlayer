@@ -95,8 +95,8 @@ public final class DeferredMediaPeriod implements MediaPeriod, MediaPeriod.Callb
   }
 
   @Override
-  public void discardBuffer(long positionUs, boolean toKeyframe) {
-    mediaPeriod.discardBuffer(positionUs, toKeyframe);
+  public void discardBuffer(long positionUs) {
+    mediaPeriod.discardBuffer(positionUs);
   }
 
   @Override
