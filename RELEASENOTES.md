@@ -51,6 +51,10 @@
   * Fix ad loading when there is no preroll.
   * Add an option to turn off hiding controls during ad playback
     ([#3532](https://github.com/google/ExoPlayer/issues/3532)).
+  * Support specifying an ads response instead of an ad tag
+    ([#3548](https://github.com/google/ExoPlayer/issues/3548)).
+  * Support overriding the ad load timeout
+    ([#3556](https://github.com/google/ExoPlayer/issues/3556)).
 
 ### 2.6.0 ###
 
