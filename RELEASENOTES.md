@@ -2,7 +2,7 @@
 
 ### dev-v2 (not yet released) ###
 
-* Add Builder to ExtractorMediaSource, HlsMediaSource, SsMediaSource,
+* Add Factory to ExtractorMediaSource, HlsMediaSource, SsMediaSource,
   DashMediaSource, SingleSampleMediaSource.
 * DASH:
   * Support time zone designators in ISO8601 UTCTiming elements
