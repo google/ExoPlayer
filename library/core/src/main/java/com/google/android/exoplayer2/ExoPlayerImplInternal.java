@@ -336,9 +336,6 @@ import java.io.IOException;
         case MSG_STOP:
           stopInternal(/* reset= */ msg.arg1 != 0, /* acknowledgeStop= */ true);
           break;
-        case MSG_RELEASE:
-          releaseInternal();
-          break;
         case MSG_PERIOD_PREPARED:
           handlePeriodPrepared((MediaPeriod) msg.obj);
           break;
@@ -354,6 +351,10 @@ import java.io.IOException;
         case MSG_CUSTOM:
           sendMessagesInternal((ExoPlayerMessage[]) msg.obj);
           break;
+        case MSG_RELEASE:
+          releaseInternal();
+          // Return immediately to not send playback info updates after release.
+          return true;
         default:
           return false;
       }
