@@ -1,29 +1,11 @@
 # Release notes #
 
-### dev-v2 (not yet released) ###
+### 2.6.1 ###
 
-* Add Factory to ExtractorMediaSource, HlsMediaSource, SsMediaSource,
-  DashMediaSource, SingleSampleMediaSource.
-* DASH:
-  * Support time zone designators in ISO8601 UTCTiming elements
-    ([#3524](https://github.com/google/ExoPlayer/issues/3524)).
-* Support 32-bit PCM float output from `DefaultAudioSink`, and add an option to
-  use this with `FfmpegAudioRenderer`.
-* Support extraction and decoding of Dolby Atmos
-  ([#2465](https://github.com/google/ExoPlayer/issues/2465)).
-* DefaultTrackSelector: Support undefined language text track selection when the
-  preferred language is not available
-  ([#2980](https://github.com/google/ExoPlayer/issues/2980)).
-* Fix handling of playback parameters changes while paused when followed by a
-  seek.
-* Fix playback of live FLV streams that do not contain an audio track
-  ([#3188](https://github.com/google/ExoPlayer/issues/3188)).
+* Add factories to `ExtractorMediaSource`, `HlsMediaSource`, `SsMediaSource`,
+  `DashMediaSource` and `SingleSampleMediaSource`.
 * Use the same listener `MediaSourceEventListener` for all MediaSource
   implementations.
-* CEA-608: Fix handling of row count changes in roll-up mode
-  ([#3513](https://github.com/google/ExoPlayer/issues/3513)).
-* Use surfaceless context for secure DummySurface, if available
-  ([#3558](https://github.com/google/ExoPlayer/issues/3558)).
 * IMA extension:
   * Support non-ExtractorMediaSource ads
     ([#3302](https://github.com/google/ExoPlayer/issues/3302)).
@@ -36,6 +18,25 @@
     ([#3548](https://github.com/google/ExoPlayer/issues/3548)).
   * Support overriding the ad load timeout
     ([#3556](https://github.com/google/ExoPlayer/issues/3556)).
+* DASH: Support time zone designators in ISO8601 UTCTiming elements
+  ([#3524](https://github.com/google/ExoPlayer/issues/3524)).
+* Audio:
+  * Support 32-bit PCM float output from `DefaultAudioSink`, and add an option
+    to use this with `FfmpegAudioRenderer`.
+  * Support extraction and decoding of Dolby Atmos
+    ([#2465](https://github.com/google/ExoPlayer/issues/2465)).
+  * Fix handling of playback parameter changes while paused when followed by a
+    seek.
+* SimpleExoPlayer: Allow multiple audio and video debug listeners.
+* DefaultTrackSelector: Support undefined language text track selection when the
+  preferred language is not available
+  ([#2980](https://github.com/google/ExoPlayer/issues/2980)).
+* Use surfaceless context for secure `DummySurface`, if available
+  ([#3558](https://github.com/google/ExoPlayer/issues/3558)).
+* FLV: Fix playback of live streams that do not contain an audio track
+  ([#3188](https://github.com/google/ExoPlayer/issues/3188)).
+* CEA-608: Fix handling of row count changes in roll-up mode
+  ([#3513](https://github.com/google/ExoPlayer/issues/3513)).
 
 ### 2.6.0 ###
 
