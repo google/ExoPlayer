@@ -170,7 +170,7 @@ public final class HlsMediaSource implements MediaSource,
      *
      * @return The new {@link HlsMediaSource}.
      */
-    public MediaSource createMediaSource(Uri playlistUri) {
+    public HlsMediaSource createMediaSource(Uri playlistUri) {
       return createMediaSource(playlistUri, null, null);
     }
 
@@ -183,7 +183,7 @@ public final class HlsMediaSource implements MediaSource,
      * @return The new {@link HlsMediaSource}.
      */
     @Override
-    public MediaSource createMediaSource(
+    public HlsMediaSource createMediaSource(
         Uri playlistUri,
         @Nullable Handler eventHandler,
         @Nullable MediaSourceEventListener eventListener) {

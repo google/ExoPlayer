@@ -443,9 +443,6 @@ import java.util.Arrays;
   @Override
   public void onLoadCanceled(ExtractingLoadable loadable, long elapsedRealtimeMs,
       long loadDurationMs, boolean released) {
-    if (released) {
-      return;
-    }
     eventDispatcher.loadCanceled(
         loadable.dataSpec,
         C.DATA_TYPE_MEDIA,
@@ -458,12 +455,14 @@ import java.util.Arrays;
         elapsedRealtimeMs,
         loadDurationMs,
         loadable.bytesLoaded);
-    copyLengthFromLoader(loadable);
-    for (SampleQueue sampleQueue : sampleQueues) {
-      sampleQueue.reset();
-    }
-    if (enabledTrackCount > 0) {
-      callback.onContinueLoadingRequested(this);
+    if (!released) {
+      copyLengthFromLoader(loadable);
+      for (SampleQueue sampleQueue : sampleQueues) {
+        sampleQueue.reset();
+      }
+      if (enabledTrackCount > 0) {
+        callback.onContinueLoadingRequested(this);
+      }
     }
   }
 

@@ -195,7 +195,7 @@ public final class ExtractorMediaSource implements MediaSource, ExtractorMediaPe
      * @param uri The {@link Uri}.
      * @return The new {@link ExtractorMediaSource}.
      */
-    public MediaSource createMediaSource(Uri uri) {
+    public ExtractorMediaSource createMediaSource(Uri uri) {
       return createMediaSource(uri, null, null);
     }
 
@@ -208,7 +208,7 @@ public final class ExtractorMediaSource implements MediaSource, ExtractorMediaPe
      * @return The new {@link ExtractorMediaSource}.
      */
     @Override
-    public MediaSource createMediaSource(
+    public ExtractorMediaSource createMediaSource(
         Uri uri, @Nullable Handler eventHandler, @Nullable MediaSourceEventListener eventListener) {
       isCreateCalled = true;
       if (extractorsFactory == null) {
