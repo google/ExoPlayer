@@ -11,9 +11,9 @@
 * Replace `DefaultTrackSelector.Parameters` copy methods with a builder.
 * Allow more flexible loading strategy when playing media containing multiple
   sub-streams, by allowing injection of custom `CompositeSequenceableLoader`
-  factories through `DashMediaSource.Builder`, `HlsMediaSource.Builder`,
-  `SsMediaSource.Builder`, and `MergingMediaSource`.
-* Add Builder to `ExtractorMediaSource`, `HlsMediaSource`, `SsMediaSource`,
+  factories through `DashMediaSource.Factory`, `HlsMediaSource.Factory`,
+  `SsMediaSource.Factory`, and `MergingMediaSource`.
+* Add Factory to `ExtractorMediaSource`, `HlsMediaSource`, `SsMediaSource`,
   `DashMediaSource`, `SingleSampleMediaSource`.
 * DASH:
   * Support in-MPD EventStream.
