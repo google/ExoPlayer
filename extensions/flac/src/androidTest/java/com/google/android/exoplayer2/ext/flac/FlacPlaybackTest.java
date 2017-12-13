@@ -37,6 +37,14 @@ public class FlacPlaybackTest extends InstrumentationTestCase {
 
   private static final String BEAR_FLAC_URI = "asset:///bear-flac.mka";
 
+  @Override
+  protected void setUp() throws Exception {
+    super.setUp();
+    if (!FlacLibrary.isAvailable()) {
+      fail("Flac library not available.");
+    }
+  }
+
   public void testBasicPlayback() throws ExoPlaybackException {
     playUri(BEAR_FLAC_URI);
   }
@@ -100,7 +108,6 @@ public class FlacPlaybackTest extends InstrumentationTestCase {
         Looper.myLooper().quit();
       }
     }
-
   }
 
 }
