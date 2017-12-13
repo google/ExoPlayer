@@ -37,6 +37,14 @@ public class OpusPlaybackTest extends InstrumentationTestCase {
 
   private static final String BEAR_OPUS_URI = "asset:///bear-opus.webm";
 
+  @Override
+  protected void setUp() throws Exception {
+    super.setUp();
+    if (!OpusLibrary.isAvailable()) {
+      fail("Opus library not available.");
+    }
+  }
+
   public void testBasicPlayback() throws ExoPlaybackException {
     playUri(BEAR_OPUS_URI);
   }

@@ -25,6 +25,14 @@ import com.google.android.exoplayer2.testutil.ExtractorAsserts.ExtractorFactory;
  */
 public class FlacExtractorTest extends InstrumentationTestCase {
 
+  @Override
+  protected void setUp() throws Exception {
+    super.setUp();
+    if (!FlacLibrary.isAvailable()) {
+      fail("Flac library not available.");
+    }
+  }
+
   public void testSample() throws Exception {
     ExtractorAsserts.assertBehavior(new ExtractorFactory() {
       @Override
