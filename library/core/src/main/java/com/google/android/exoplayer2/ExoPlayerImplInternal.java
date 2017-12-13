@@ -328,7 +328,7 @@ import java.io.IOException;
           setSeekParametersInternal((SeekParameters) msg.obj);
           return true;
         case MSG_STOP:
-          stopInternal(/* reset= */ msg.arg1 != 0);
+          stopInternal(/* reset= */ msg.arg1 != 0, /* acknowledgeStop= */ true);
           return true;
         case MSG_RELEASE:
           releaseInternal();
@@ -353,19 +353,19 @@ import java.io.IOException;
       }
     } catch (ExoPlaybackException e) {
       Log.e(TAG, "Renderer error.", e);
+      stopInternal(/* reset= */ false, /* acknowledgeStop= */ false);
       eventHandler.obtainMessage(MSG_ERROR, e).sendToTarget();
-      stopInternal(/* reset= */ false);
       return true;
     } catch (IOException e) {
       Log.e(TAG, "Source error.", e);
+      stopInternal(/* reset= */ false, /* acknowledgeStop= */ false);
       eventHandler.obtainMessage(MSG_ERROR, ExoPlaybackException.createForSource(e)).sendToTarget();
-      stopInternal(/* reset= */ false);
       return true;
     } catch (RuntimeException e) {
       Log.e(TAG, "Internal runtime error.", e);
+      stopInternal(/* reset= */ false, /* acknowledgeStop= */ false);
       eventHandler.obtainMessage(MSG_ERROR, ExoPlaybackException.createForUnexpected(e))
           .sendToTarget();
-      stopInternal(/* reset= */ false);
       return true;
     }
   }
@@ -635,49 +635,50 @@ import java.io.IOException;
       return;
     }
 
-    Pair<Integer, Long> periodPosition = resolveSeekPosition(seekPosition);
-    if (periodPosition == null) {
-      // The seek position was valid for the timeline that it was performed into, but the
-      // timeline has changed and a suitable seek position could not be resolved in the new one.
-      setState(Player.STATE_ENDED);
-      // Reset, but retain the source so that it can still be used should a seek occur.
-      resetInternal(
-          /* releaseMediaSource= */ false, /* resetPosition= */ true, /* resetState= */ false);
-      eventHandler
-          .obtainMessage(MSG_SEEK_ACK, /* seekAdjusted */ 1, 0, playbackInfo)
-          .sendToTarget();
-      return;
-    }
-
     boolean seekPositionAdjusted = seekPosition.windowPositionUs == C.TIME_UNSET;
-    int periodIndex = periodPosition.first;
-    long periodPositionUs = periodPosition.second;
-    long contentPositionUs = periodPositionUs;
-    MediaPeriodId periodId =
-        mediaPeriodInfoSequence.resolvePeriodPositionForAds(periodIndex, periodPositionUs);
-    if (periodId.isAd()) {
-      seekPositionAdjusted = true;
-      periodPositionUs = 0;
-    }
     try {
-      if (periodId.equals(playbackInfo.periodId)) {
-        long adjustedPeriodPositionUs = periodPositionUs;
-        if (playingPeriodHolder != null) {
-          adjustedPeriodPositionUs =
-              playingPeriodHolder.mediaPeriod.getAdjustedSeekPositionUs(
-                  adjustedPeriodPositionUs, SeekParameters.DEFAULT);
-        }
-        if ((adjustedPeriodPositionUs / 1000) == (playbackInfo.positionUs / 1000)) {
-          // Seek will be performed to the current position. Do nothing.
-          periodPositionUs = playbackInfo.positionUs;
-          return;
-        }
+      Pair<Integer, Long> periodPosition = resolveSeekPosition(seekPosition);
+      if (periodPosition == null) {
+        // The seek position was valid for the timeline that it was performed into, but the
+        // timeline has changed and a suitable seek position could not be resolved in the new one.
+        setState(Player.STATE_ENDED);
+        // Reset, but retain the source so that it can still be used should a seek occur.
+        resetInternal(
+            /* releaseMediaSource= */ false, /* resetPosition= */ true, /* resetState= */ false);
+        seekPositionAdjusted = true;
+        return;
       }
-      long newPeriodPositionUs = seekToPeriodPosition(periodId, periodPositionUs);
-      seekPositionAdjusted |= periodPositionUs != newPeriodPositionUs;
-      periodPositionUs = newPeriodPositionUs;
+
+      int periodIndex = periodPosition.first;
+      long periodPositionUs = periodPosition.second;
+      long contentPositionUs = periodPositionUs;
+      MediaPeriodId periodId =
+          mediaPeriodInfoSequence.resolvePeriodPositionForAds(periodIndex, periodPositionUs);
+      if (periodId.isAd()) {
+        seekPositionAdjusted = true;
+        periodPositionUs = 0;
+      }
+      try {
+        if (periodId.equals(playbackInfo.periodId)) {
+          long adjustedPeriodPositionUs = periodPositionUs;
+          if (playingPeriodHolder != null) {
+            adjustedPeriodPositionUs =
+                playingPeriodHolder.mediaPeriod.getAdjustedSeekPositionUs(
+                    adjustedPeriodPositionUs, SeekParameters.DEFAULT);
+          }
+          if ((adjustedPeriodPositionUs / 1000) == (playbackInfo.positionUs / 1000)) {
+            // Seek will be performed to the current position. Do nothing.
+            periodPositionUs = playbackInfo.positionUs;
+            return;
+          }
+        }
+        long newPeriodPositionUs = seekToPeriodPosition(periodId, periodPositionUs);
+        seekPositionAdjusted |= periodPositionUs != newPeriodPositionUs;
+        periodPositionUs = newPeriodPositionUs;
+      } finally {
+        playbackInfo = playbackInfo.fromNewPosition(periodId, periodPositionUs, contentPositionUs);
+      }
     } finally {
-      playbackInfo = playbackInfo.fromNewPosition(periodId, periodPositionUs, contentPositionUs);
       eventHandler.obtainMessage(MSG_SEEK_ACK, seekPositionAdjusted ? 1 : 0, 0, playbackInfo)
           .sendToTarget();
     }
@@ -775,12 +776,10 @@ import java.io.IOException;
     this.seekParameters = seekParameters;
   }
 
-  private void stopInternal(boolean reset) {
+  private void stopInternal(boolean reset, boolean acknowledgeStop) {
     resetInternal(
         /* releaseMediaSource= */ true, /* resetPosition= */ reset, /* resetState= */ reset);
-    int prepareOrStopAcks = pendingPrepareCount + 1;
-    pendingPrepareCount = 0;
-    notifySourceInfoRefresh(prepareOrStopAcks, playbackInfo);
+    notifySourceInfoRefresh(acknowledgeStop);
     loadControl.onStopped();
     setState(Player.STATE_IDLE);
   }
@@ -1011,15 +1010,13 @@ import java.io.IOException;
     playbackInfo = playbackInfo.copyWithTimeline(timeline, manifest);
 
     if (oldTimeline == null) {
-      int processedPrepareAcks = pendingPrepareCount;
-      pendingPrepareCount = 0;
       if (pendingInitialSeekPosition != null) {
         Pair<Integer, Long> periodPosition = resolveSeekPosition(pendingInitialSeekPosition);
         pendingInitialSeekPosition = null;
         if (periodPosition == null) {
           // The seek position was valid for the timeline that it was performed into, but the
           // timeline has changed and a suitable seek position could not be resolved in the new one.
-          handleSourceInfoRefreshEndedPlayback(processedPrepareAcks);
+          handleSourceInfoRefreshEndedPlayback();
         } else {
           int periodIndex = periodPosition.first;
           long positionUs = periodPosition.second;
@@ -1027,11 +1024,11 @@ import java.io.IOException;
               mediaPeriodInfoSequence.resolvePeriodPositionForAds(periodIndex, positionUs);
           playbackInfo = playbackInfo.fromNewPosition(periodId, periodId.isAd() ? 0 : positionUs,
               positionUs);
-          notifySourceInfoRefresh(processedPrepareAcks);
+          notifySourceInfoRefresh();
         }
       } else if (playbackInfo.startPositionUs == C.TIME_UNSET) {
         if (timeline.isEmpty()) {
-          handleSourceInfoRefreshEndedPlayback(processedPrepareAcks);
+          handleSourceInfoRefreshEndedPlayback();
         } else {
           Pair<Integer, Long> defaultPosition = getPeriodPosition(timeline,
               timeline.getFirstWindowIndex(shuffleModeEnabled), C.TIME_UNSET);
@@ -1041,10 +1038,10 @@ import java.io.IOException;
               startPositionUs);
           playbackInfo = playbackInfo.fromNewPosition(periodId,
               periodId.isAd() ? 0 : startPositionUs, startPositionUs);
-          notifySourceInfoRefresh(processedPrepareAcks);
+          notifySourceInfoRefresh();
         }
       } else {
-        notifySourceInfoRefresh(processedPrepareAcks);
+        notifySourceInfoRefresh();
       }
       return;
     }
@@ -1171,26 +1168,20 @@ import java.io.IOException;
   }
 
   private void handleSourceInfoRefreshEndedPlayback() {
-    handleSourceInfoRefreshEndedPlayback(0);
-  }
-
-  private void handleSourceInfoRefreshEndedPlayback(int prepareAcks) {
     setState(Player.STATE_ENDED);
     // Reset, but retain the source so that it can still be used should a seek occur.
     resetInternal(
         /* releaseMediaSource= */ false, /* resetPosition= */ true, /* resetState= */ false);
-    notifySourceInfoRefresh(prepareAcks, playbackInfo);
+    notifySourceInfoRefresh();
   }
 
   private void notifySourceInfoRefresh() {
-    notifySourceInfoRefresh(0);
+    notifySourceInfoRefresh(/* acknowledgeStop= */ false);
   }
 
-  private void notifySourceInfoRefresh(int prepareOrStopAcks) {
-    notifySourceInfoRefresh(prepareOrStopAcks, playbackInfo);
-  }
-
-  private void notifySourceInfoRefresh(int prepareOrStopAcks, PlaybackInfo playbackInfo) {
+  private void notifySourceInfoRefresh(boolean acknowledgeStop) {
+    int prepareOrStopAcks = pendingPrepareCount + (acknowledgeStop ? 1 : 0);
+    pendingPrepareCount = 0;
     eventHandler.obtainMessage(MSG_SOURCE_INFO_REFRESHED, prepareOrStopAcks, 0, playbackInfo)
         .sendToTarget();
   }
