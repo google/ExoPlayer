@@ -43,6 +43,14 @@ public class VpxPlaybackTest extends InstrumentationTestCase {
 
   private static final String TAG = "VpxPlaybackTest";
 
+  @Override
+  protected void setUp() throws Exception {
+    super.setUp();
+    if (!VpxLibrary.isAvailable()) {
+      fail("Vpx library not available.");
+    }
+  }
+
   public void testBasicPlayback() throws ExoPlaybackException {
     playUri(BEAR_URI);
   }
@@ -132,7 +140,6 @@ public class VpxPlaybackTest extends InstrumentationTestCase {
         Looper.myLooper().quit();
       }
     }
-
   }
 
 }
