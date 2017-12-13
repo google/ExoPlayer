@@ -478,9 +478,8 @@ public final class ExoPlayerTestRunner extends Player.DefaultEventListener
   }
 
   /**
-   * Blocks the current thread until the action schedule finished. Also returns when an
-   * {@link ExoPlaybackException} is thrown. This does not release the test runner and the test must
-   * still call {@link #blockUntilEnded(long)}.
+   * Blocks the current thread until the action schedule finished. This does not release the test
+   * runner and the test must still call {@link #blockUntilEnded(long)}.
    *
    * @param timeoutMs The maximum time to wait for the action schedule to finish.
    * @return This test runner.
@@ -611,7 +610,6 @@ public final class ExoPlayerTestRunner extends Player.DefaultEventListener
     while (endedCountDownLatch.getCount() > 0) {
       endedCountDownLatch.countDown();
     }
-    actionScheduleFinishedCountDownLatch.countDown();
   }
 
   // Player.EventListener
