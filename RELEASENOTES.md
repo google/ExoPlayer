@@ -2,47 +2,35 @@
 
 ### dev-v2 (not yet released) ###
 
-* Add initial support for chunkless preparation in HLS. This allows an HLS media
-  source to finish preparation without donwloading any chunks, which might
-  considerably reduce the initial buffering time
-  ([#3149](https://github.com/google/ExoPlayer/issues/2980)).
-* Add ability for `SequenceableLoader` to reevaluate its buffer and discard
-  buffered media so that it can be re-buffered in a different quality.
-* Replace `DefaultTrackSelector.Parameters` copy methods with a builder.
-* Allow more flexible loading strategy when playing media containing multiple
-  sub-streams, by allowing injection of custom `CompositeSequenceableLoader`
-  factories through `DashMediaSource.Factory`, `HlsMediaSource.Factory`,
-  `SsMediaSource.Factory`, and `MergingMediaSource`.
-* Add Factory to `ExtractorMediaSource`, `HlsMediaSource`, `SsMediaSource`,
-  `DashMediaSource`, `SingleSampleMediaSource`.
-* DASH:
-  * Support in-MPD EventStream.
-  * Support time zone designators in ISO8601 UTCTiming elements
-    ([#3524](https://github.com/google/ExoPlayer/issues/3524)).
-* Allow a back-buffer of media to be retained behind the current playback
-  position, for fast backward seeking. The back-buffer can be configured by
-  custom `LoadControl` implementations.
+* Player interface:
+  * Add optional parameter to `stop` to reset the player when stopping.
+  * Add a reason to `EventListener.onTimelineChanged` to distinguish between
+    initial preparation, reset and dynamic updates.
+* Buffering:
+  * Allow a back-buffer of media to be retained behind the current playback
+    position, for fast backward seeking. The back-buffer can be configured by
+    custom `LoadControl` implementations.
+  * Add ability for `SequenceableLoader` to reevaluate its buffer and discard
+    buffered media so that it can be re-buffered in a different quality.
+  * Allow more flexible loading strategy when playing media containing multiple
+    sub-streams, by allowing injection of custom `CompositeSequenceableLoader`
+    factories through `DashMediaSource.Factory`, `HlsMediaSource.Factory`,
+    `SsMediaSource.Factory`, and `MergingMediaSource`.
+* DASH: Support DASH manifest EventStream elements.
+* HLS: Add opt-in support for chunkless preparation in HLS. This allows an
+  HLS source to finish preparation without downloading any chunks, which can
+  significantly reduce initial buffering time
+  ([#3149](https://github.com/google/ExoPlayer/issues/3149)).
+* DefaultTrackSelector: Replace `DefaultTrackSelector.Parameters` copy methods
+  with a builder.
 * New Cast extension: Simplifies toggling between local and Cast playbacks.
-* Support 32-bit PCM float output from `DefaultAudioSink`, and add an option to
-  use this with `FfmpegAudioRenderer`.
-* Support extraction and decoding of Dolby Atmos
-  ([#2465](https://github.com/google/ExoPlayer/issues/2465)).
-* Add a reason to `EventListener.onTimelineChanged` to distinguish between
-  initial preparation, reset and dynamic updates.
-* DefaultTrackSelector: Support undefined language text track selection when the
-  preferred language is not available
-  ([#2980](https://github.com/google/ExoPlayer/issues/2980)).
-* Add optional parameter to `Player.stop` to reset the player when stopping.
-* Fix handling of playback parameters changes while paused when followed by a
-  seek.
-* Fix playback of live FLV streams that do not contain an audio track
-  ([#3188](https://github.com/google/ExoPlayer/issues/3188)).
+
+### 2.6.1 ###
+
+* Add factories to `ExtractorMediaSource`, `HlsMediaSource`, `SsMediaSource`,
+  `DashMediaSource` and `SingleSampleMediaSource`.
 * Use the same listener `MediaSourceEventListener` for all MediaSource
   implementations.
-* CEA-608: Fix handling of row count changes in roll-up mode
-  ([#3513](https://github.com/google/ExoPlayer/issues/3513)).
-* Use surfaceless context for secure DummySurface, if available
-  ([#3558](https://github.com/google/ExoPlayer/issues/3558)).
 * IMA extension:
   * Support non-ExtractorMediaSource ads
     ([#3302](https://github.com/google/ExoPlayer/issues/3302)).
@@ -55,6 +43,25 @@
     ([#3548](https://github.com/google/ExoPlayer/issues/3548)).
   * Support overriding the ad load timeout
     ([#3556](https://github.com/google/ExoPlayer/issues/3556)).
+* DASH: Support time zone designators in ISO8601 UTCTiming elements
+  ([#3524](https://github.com/google/ExoPlayer/issues/3524)).
+* Audio:
+  * Support 32-bit PCM float output from `DefaultAudioSink`, and add an option
+    to use this with `FfmpegAudioRenderer`.
+  * Support extraction and decoding of Dolby Atmos
+    ([#2465](https://github.com/google/ExoPlayer/issues/2465)).
+  * Fix handling of playback parameter changes while paused when followed by a
+    seek.
+* SimpleExoPlayer: Allow multiple audio and video debug listeners.
+* DefaultTrackSelector: Support undefined language text track selection when the
+  preferred language is not available
+  ([#2980](https://github.com/google/ExoPlayer/issues/2980)).
+* Use surfaceless context for secure `DummySurface`, if available
+  ([#3558](https://github.com/google/ExoPlayer/issues/3558)).
+* FLV: Fix playback of live streams that do not contain an audio track
+  ([#3188](https://github.com/google/ExoPlayer/issues/3188)).
+* CEA-608: Fix handling of row count changes in roll-up mode
+  ([#3513](https://github.com/google/ExoPlayer/issues/3513)).
 
 ### 2.6.0 ###
 
