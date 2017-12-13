@@ -92,6 +92,7 @@ public final class LibvpxVideoRenderer extends BaseRenderer {
   private static final int INITIAL_INPUT_BUFFER_SIZE = 768 * 1024; // Value based on cs/SoftVpx.cpp.
 
   private final boolean scaleToFit;
+  private final boolean disableLoopFilter;
   private final long allowedJoiningTimeMs;
   private final int maxDroppedFramesToNotify;
   private final boolean playClearSamplesWithoutKeys;
@@ -154,7 +155,7 @@ public final class LibvpxVideoRenderer extends BaseRenderer {
       Handler eventHandler, VideoRendererEventListener eventListener,
       int maxDroppedFramesToNotify) {
     this(scaleToFit, allowedJoiningTimeMs, eventHandler, eventListener, maxDroppedFramesToNotify,
-        null, false);
+        null, false, false);
   }
 
   /**
@@ -173,13 +174,15 @@ public final class LibvpxVideoRenderer extends BaseRenderer {
    *     begin in parallel with key acquisition. This parameter specifies whether the renderer is
    *     permitted to play clear regions of encrypted media files before {@code drmSessionManager}
    *     has obtained the keys necessary to decrypt encrypted regions of the media.
+   * @param disableLoopFilter Disable the libvpx in-loop smoothing filter.
    */
   public LibvpxVideoRenderer(boolean scaleToFit, long allowedJoiningTimeMs,
       Handler eventHandler, VideoRendererEventListener eventListener,
       int maxDroppedFramesToNotify, DrmSessionManager<ExoMediaCrypto> drmSessionManager,
-      boolean playClearSamplesWithoutKeys) {
+      boolean playClearSamplesWithoutKeys, boolean disableLoopFilter) {
     super(C.TRACK_TYPE_VIDEO);
     this.scaleToFit = scaleToFit;
+    this.disableLoopFilter = disableLoopFilter;
     this.allowedJoiningTimeMs = allowedJoiningTimeMs;
     this.maxDroppedFramesToNotify = maxDroppedFramesToNotify;
     this.drmSessionManager = drmSessionManager;
@@ -625,7 +628,7 @@ public final class LibvpxVideoRenderer extends BaseRenderer {
       long codecInitializingTimestamp = SystemClock.elapsedRealtime();
       TraceUtil.beginSection("createVpxDecoder");
       decoder = new VpxDecoder(NUM_INPUT_BUFFERS, NUM_OUTPUT_BUFFERS, INITIAL_INPUT_BUFFER_SIZE,
-          mediaCrypto);
+          mediaCrypto, disableLoopFilter);
       decoder.setOutputMode(outputMode);
       TraceUtil.endSection();
       long codecInitializedTimestamp = SystemClock.elapsedRealtime();

@@ -283,7 +283,7 @@ static void convert_16_to_8_standard(const vpx_image_t* const img,
   }
 }
 
-DECODER_FUNC(jlong, vpxInit) {
+DECODER_FUNC(jlong, vpxInit, jboolean disableLoopFilter) {
   vpx_codec_ctx_t* context = new vpx_codec_ctx_t();
   vpx_codec_dec_cfg_t cfg = {0, 0, 0};
   cfg.threads = android_getCpuCount();
@@ -294,6 +294,9 @@ DECODER_FUNC(jlong, vpxInit) {
     LOGE("ERROR: Failed to initialize libvpx decoder, error = %d.", err);
     errorCode = err;
     return 0;
+  }
+  if (disableLoopFilter) {
+    vpx_codec_control_(context, VP9_SET_SKIP_LOOP_FILTER, true);
   }
 
   // Populate JNI References.
