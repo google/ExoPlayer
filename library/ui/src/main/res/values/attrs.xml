@@ -51,10 +51,13 @@
     <attr name="auto_show" format="boolean"/>
     <attr name="resize_mode"/>
     <attr name="surface_type"/>
+    <attr name="player_layout_id"/>
+    <!-- PlaybackControlView attrs -->
     <attr name="show_timeout"/>
     <attr name="rewind_increment"/>
     <attr name="fastforward_increment"/>
-    <attr name="player_layout_id"/>
+    <attr name="repeat_toggle_modes"/>
+    <attr name="show_shuffle_button"/>
     <attr name="controller_layout_id"/>
   </declare-styleable>
 
