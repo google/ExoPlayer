@@ -363,6 +363,40 @@ public final class Util {
   }
 
   /**
+   * Returns the sum of two arguments, or a third argument if the result overflows.
+   *
+   * @param x The first value.
+   * @param y The second value.
+   * @param overflowResult The return value if {@code x + y} overflows.
+   * @return {@code x + y}, or {@code overflowResult} if the result overflows.
+   */
+  public static long addWithOverflowDefault(long x, long y, long overflowResult) {
+    long result = x + y;
+    // See Hacker's Delight 2-13 (H. Warren Jr).
+    if (((x ^ result) & (y ^ result)) < 0) {
+      return overflowResult;
+    }
+    return result;
+  }
+
+  /**
+   * Returns the difference between two arguments, or a third argument if the result overflows.
+   *
+   * @param x The first value.
+   * @param y The second value.
+   * @param overflowResult The return value if {@code x - y} overflows.
+   * @return {@code x - y}, or {@code overflowResult} if the result overflows.
+   */
+  public static long subtractWithOverflowDefault(long x, long y, long overflowResult) {
+    long result = x - y;
+    // See Hacker's Delight 2-13 (H. Warren Jr).
+    if (((x ^ y) & (x ^ result)) < 0) {
+      return overflowResult;
+    }
+    return result;
+  }
+
+  /**
    * Returns the index of the largest element in {@code array} that is less than (or optionally
    * equal to) a specified {@code value}.
    * <p>

@@ -678,20 +678,20 @@ import java.io.IOException;
         periodPositionUs = 0;
       }
       try {
+        long newPeriodPositionUs = periodPositionUs;
         if (periodId.equals(playbackInfo.periodId)) {
-          long adjustedPeriodPositionUs = periodPositionUs;
-          if (playingPeriodHolder != null) {
-            adjustedPeriodPositionUs =
+          if (playingPeriodHolder != null && newPeriodPositionUs != 0) {
+            newPeriodPositionUs =
                 playingPeriodHolder.mediaPeriod.getAdjustedSeekPositionUs(
-                    adjustedPeriodPositionUs, SeekParameters.DEFAULT);
+                    newPeriodPositionUs, seekParameters);
           }
-          if ((adjustedPeriodPositionUs / 1000) == (playbackInfo.positionUs / 1000)) {
+          if ((newPeriodPositionUs / 1000) == (playbackInfo.positionUs / 1000)) {
             // Seek will be performed to the current position. Do nothing.
             periodPositionUs = playbackInfo.positionUs;
             return;
           }
         }
-        long newPeriodPositionUs = seekToPeriodPosition(periodId, periodPositionUs);
+        newPeriodPositionUs = seekToPeriodPosition(periodId, newPeriodPositionUs);
         seekPositionAdjusted |= periodPositionUs != newPeriodPositionUs;
         periodPositionUs = newPeriodPositionUs;
       } finally {

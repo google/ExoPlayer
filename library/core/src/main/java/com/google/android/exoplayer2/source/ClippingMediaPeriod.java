@@ -165,16 +165,23 @@ public final class ClippingMediaPeriod implements MediaPeriod, MediaPeriod.Callb
         sampleStream.clearSentEos();
       }
     }
-    long seekUs = mediaPeriod.seekToUs(positionUs + startUs);
-    Assertions.checkState(seekUs == positionUs + startUs
-        || (seekUs >= startUs && (endUs == C.TIME_END_OF_SOURCE || seekUs <= endUs)));
+    long offsetPositionUs = positionUs + startUs;
+    long seekUs = mediaPeriod.seekToUs(offsetPositionUs);
+    Assertions.checkState(
+        seekUs == offsetPositionUs
+            || (seekUs >= startUs && (endUs == C.TIME_END_OF_SOURCE || seekUs <= endUs)));
     return seekUs - startUs;
   }
 
   @Override
   public long getAdjustedSeekPositionUs(long positionUs, SeekParameters seekParameters) {
-    return mediaPeriod.getAdjustedSeekPositionUs(
-        positionUs + startUs, adjustSeekParameters(positionUs + startUs, seekParameters));
+    if (positionUs == startUs) {
+      // Never adjust seeks to the start of the clipped view.
+      return 0;
+    }
+    long offsetPositionUs = positionUs + startUs;
+    SeekParameters clippedSeekParameters = clipSeekParameters(offsetPositionUs, seekParameters);
+    return mediaPeriod.getAdjustedSeekPositionUs(offsetPositionUs, clippedSeekParameters) - startUs;
   }
 
   @Override
@@ -209,12 +216,12 @@ public final class ClippingMediaPeriod implements MediaPeriod, MediaPeriod.Callb
     return pendingInitialDiscontinuityPositionUs != C.TIME_UNSET;
   }
 
-  private SeekParameters adjustSeekParameters(long positionUs, SeekParameters seekParameters) {
-    long toleranceBeforeMs = Math.min(positionUs - startUs, seekParameters.toleranceBeforeUs);
+  private SeekParameters clipSeekParameters(long offsetPositionUs, SeekParameters seekParameters) {
+    long toleranceBeforeMs = Math.min(offsetPositionUs - startUs, seekParameters.toleranceBeforeUs);
     long toleranceAfterMs =
         endUs == C.TIME_END_OF_SOURCE
             ? seekParameters.toleranceAfterUs
-            : Math.min(endUs - positionUs, seekParameters.toleranceAfterUs);
+            : Math.min(endUs - offsetPositionUs, seekParameters.toleranceAfterUs);
     if (toleranceBeforeMs == seekParameters.toleranceBeforeUs
         && toleranceAfterMs == seekParameters.toleranceAfterUs) {
       return seekParameters;

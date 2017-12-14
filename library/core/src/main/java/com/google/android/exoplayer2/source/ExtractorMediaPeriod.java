@@ -29,6 +29,7 @@ import com.google.android.exoplayer2.extractor.ExtractorInput;
 import com.google.android.exoplayer2.extractor.ExtractorOutput;
 import com.google.android.exoplayer2.extractor.PositionHolder;
 import com.google.android.exoplayer2.extractor.SeekMap;
+import com.google.android.exoplayer2.extractor.SeekMap.SeekPoints;
 import com.google.android.exoplayer2.extractor.TrackOutput;
 import com.google.android.exoplayer2.source.MediaSourceEventListener.EventDispatcher;
 import com.google.android.exoplayer2.source.SampleQueue.UpstreamFormatChangedListener;
@@ -372,8 +373,33 @@ import java.util.Arrays;
 
   @Override
   public long getAdjustedSeekPositionUs(long positionUs, SeekParameters seekParameters) {
-    // Treat all seeks into non-seekable media as being to t=0.
-    return seekMap.isSeekable() ? positionUs : 0;
+    if (!seekMap.isSeekable()) {
+      // Treat all seeks into non-seekable media as being to t=0.
+      return 0;
+    }
+    SeekPoints seekPoints = seekMap.getSeekPoints(positionUs);
+    long minPositionUs =
+        Util.subtractWithOverflowDefault(
+            positionUs, seekParameters.toleranceBeforeUs, Long.MIN_VALUE);
+    long maxPositionUs =
+        Util.addWithOverflowDefault(positionUs, seekParameters.toleranceAfterUs, Long.MAX_VALUE);
+    long firstPointUs = seekPoints.first.timeUs;
+    boolean firstPointValid = minPositionUs <= firstPointUs && firstPointUs <= maxPositionUs;
+    long secondPointUs = seekPoints.second.timeUs;
+    boolean secondPointValid = minPositionUs <= secondPointUs && secondPointUs <= maxPositionUs;
+    if (firstPointValid && secondPointValid) {
+      if (Math.abs(firstPointUs - positionUs) <= Math.abs(secondPointUs - positionUs)) {
+        return firstPointUs;
+      } else {
+        return secondPointUs;
+      }
+    } else if (firstPointValid) {
+      return firstPointUs;
+    } else if (secondPointValid) {
+      return secondPointUs;
+    } else {
+      return minPositionUs;
+    }
   }
 
   // SampleStream methods.
@@ -657,7 +683,7 @@ import java.util.Arrays;
     return pendingResetPositionUs != C.TIME_UNSET;
   }
 
-  private boolean isLoadableExceptionFatal(IOException e) {
+  private static boolean isLoadableExceptionFatal(IOException e) {
     return e instanceof UnrecognizedInputFormatException;
   }
 
