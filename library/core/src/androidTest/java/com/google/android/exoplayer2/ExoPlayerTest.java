@@ -35,6 +35,7 @@ import com.google.android.exoplayer2.testutil.FakeTrackSelection;
 import com.google.android.exoplayer2.testutil.FakeTrackSelector;
 import com.google.android.exoplayer2.upstream.Allocator;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import junit.framework.TestCase;
@@ -107,6 +108,29 @@ public final class ExoPlayerTest extends TestCase {
     testRunner.assertTimelinesEqual(timeline);
     testRunner.assertTimelineChangeReasonsEqual(Player.TIMELINE_CHANGE_REASON_PREPARED);
     assertEquals(3, renderer.formatReadCount);
+    assertEquals(1, renderer.bufferReadCount);
+    assertTrue(renderer.isEnded);
+  }
+
+  /** Tests playback of periods with very short duration. */
+  public void testPlayShortDurationPeriods() throws Exception {
+    // TimelineWindowDefinition.DEFAULT_WINDOW_DURATION_US / 100 = 1000 us per period.
+    Timeline timeline =
+        new FakeTimeline(new TimelineWindowDefinition(/* periodCount= */ 100, /* id= */ 0));
+    FakeRenderer renderer = new FakeRenderer(Builder.VIDEO_FORMAT);
+    ExoPlayerTestRunner testRunner =
+        new ExoPlayerTestRunner.Builder()
+            .setTimeline(timeline)
+            .setRenderers(renderer)
+            .build()
+            .start()
+            .blockUntilEnded(TIMEOUT_MS);
+    int[] expectedReasons = new int[99];
+    Arrays.fill(expectedReasons, Player.DISCONTINUITY_REASON_PERIOD_TRANSITION);
+    testRunner.assertPositionDiscontinuityReasonsEqual(expectedReasons);
+    testRunner.assertTimelinesEqual(timeline);
+    testRunner.assertTimelineChangeReasonsEqual(Player.TIMELINE_CHANGE_REASON_PREPARED);
+    assertEquals(100, renderer.formatReadCount);
     assertEquals(1, renderer.bufferReadCount);
     assertTrue(renderer.isEnded);
   }
