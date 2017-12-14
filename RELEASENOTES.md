@@ -29,6 +29,8 @@
   ([#3149](https://github.com/google/ExoPlayer/issues/3149)).
 * DefaultTrackSelector: Replace `DefaultTrackSelector.Parameters` copy methods
   with a builder.
+* DefaultTrackSelector: Support disabling of individual text track selection
+  flags.
 * New Cast extension: Simplifies toggling between local and Cast playbacks.
 
 ### 2.6.1 ###

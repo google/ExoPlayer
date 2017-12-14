@@ -82,6 +82,7 @@ public class DefaultTrackSelector extends MappingTrackSelector {
     private String preferredAudioLanguage;
     private String preferredTextLanguage;
     private boolean selectUndeterminedTextLanguage;
+    private int disabledTextTrackSelectionFlags;
     private boolean forceLowestBitrate;
     private boolean allowMixedMimeAdaptiveness;
     private boolean allowNonSeamlessAdaptiveness;
@@ -109,6 +110,7 @@ public class DefaultTrackSelector extends MappingTrackSelector {
       preferredAudioLanguage = initialValues.preferredAudioLanguage;
       preferredTextLanguage = initialValues.preferredTextLanguage;
       selectUndeterminedTextLanguage = initialValues.selectUndeterminedTextLanguage;
+      disabledTextTrackSelectionFlags = initialValues.disabledTextTrackSelectionFlags;
       forceLowestBitrate = initialValues.forceLowestBitrate;
       allowMixedMimeAdaptiveness = initialValues.allowMixedMimeAdaptiveness;
       allowNonSeamlessAdaptiveness = initialValues.allowNonSeamlessAdaptiveness;
@@ -150,6 +152,17 @@ public class DefaultTrackSelector extends MappingTrackSelector {
     public ParametersBuilder setSelectUndeterminedTextLanguage(
         boolean selectUndeterminedTextLanguage) {
       this.selectUndeterminedTextLanguage = selectUndeterminedTextLanguage;
+      return this;
+    }
+
+    /**
+     * See {@link Parameters#disabledTextTrackSelectionFlags}.
+     *
+     * @return This builder.
+     */
+    public ParametersBuilder setDisabledTextTrackSelectionFlags(
+        int disabledTextTrackSelectionFlags) {
+      this.disabledTextTrackSelectionFlags = disabledTextTrackSelectionFlags;
       return this;
     }
 
@@ -287,11 +300,22 @@ public class DefaultTrackSelector extends MappingTrackSelector {
      * Builds a {@link Parameters} instance with the selected values.
      */
     public Parameters build() {
-      return new Parameters(preferredAudioLanguage, preferredTextLanguage,
-          selectUndeterminedTextLanguage, forceLowestBitrate, allowMixedMimeAdaptiveness,
-          allowNonSeamlessAdaptiveness, maxVideoWidth, maxVideoHeight, maxVideoBitrate,
-          exceedVideoConstraintsIfNecessary, exceedRendererCapabilitiesIfNecessary, viewportWidth,
-          viewportHeight, viewportOrientationMayChange);
+      return new Parameters(
+          preferredAudioLanguage,
+          preferredTextLanguage,
+          selectUndeterminedTextLanguage,
+          disabledTextTrackSelectionFlags,
+          forceLowestBitrate,
+          allowMixedMimeAdaptiveness,
+          allowNonSeamlessAdaptiveness,
+          maxVideoWidth,
+          maxVideoHeight,
+          maxVideoBitrate,
+          exceedVideoConstraintsIfNecessary,
+          exceedRendererCapabilitiesIfNecessary,
+          viewportWidth,
+          viewportHeight,
+          viewportOrientationMayChange);
     }
 
   }
@@ -303,19 +327,21 @@ public class DefaultTrackSelector extends MappingTrackSelector {
 
     /**
      * An instance with default values:
+     *
      * <ul>
-     *   <li>No preferred audio language.</li>
-     *   <li>No preferred text language.</li>
-     *   <li>Text tracks with undetermined language are not selected if no track with
-     *       {@link #preferredTextLanguage} is available.</li>
-     *   <li>Lowest bitrate track selections are not forced.</li>
-     *   <li>Adaptation between different mime types is not allowed.</li>
-     *   <li>Non seamless adaptation is allowed.</li>
-     *   <li>No max limit for video width/height.</li>
-     *   <li>No max video bitrate.</li>
-     *   <li>Video constraints are exceeded if no supported selection can be made otherwise.</li>
-     *   <li>Renderer capabilities are exceeded if no supported selection can be made.</li>
-     *   <li>No viewport constraints.</li>
+     *   <li>No preferred audio language.
+     *   <li>No preferred text language.
+     *   <li>Text tracks with undetermined language are not selected if no track with {@link
+     *       #preferredTextLanguage} is available.
+     *   <li>All selection flags are considered for text track selections.
+     *   <li>Lowest bitrate track selections are not forced.
+     *   <li>Adaptation between different mime types is not allowed.
+     *   <li>Non seamless adaptation is allowed.
+     *   <li>No max limit for video width/height.
+     *   <li>No max video bitrate.
+     *   <li>Video constraints are exceeded if no supported selection can be made otherwise.
+     *   <li>Renderer capabilities are exceeded if no supported selection can be made.
+     *   <li>No viewport constraints.
      * </ul>
      */
     public static final Parameters DEFAULT = new Parameters();
@@ -338,6 +364,11 @@ public class DefaultTrackSelector extends MappingTrackSelector {
      * {@link #preferredTextLanguage} is available, or if {@link #preferredTextLanguage} is unset.
      */
     public final boolean selectUndeterminedTextLanguage;
+    /**
+     * Bitmask of selection flags that are disabled for text track selections. See {@link
+     * C.SelectionFlags}.
+     */
+    public final int disabledTextTrackSelectionFlags;
 
     // Video
     /**
@@ -392,19 +423,44 @@ public class DefaultTrackSelector extends MappingTrackSelector {
     public final boolean exceedRendererCapabilitiesIfNecessary;
 
     private Parameters() {
-      this(null, null, false, false, false, true, Integer.MAX_VALUE, Integer.MAX_VALUE,
-          Integer.MAX_VALUE, true, true, Integer.MAX_VALUE, Integer.MAX_VALUE, true);
+      this(
+          null,
+          null,
+          false,
+          0,
+          false,
+          false,
+          true,
+          Integer.MAX_VALUE,
+          Integer.MAX_VALUE,
+          Integer.MAX_VALUE,
+          true,
+          true,
+          Integer.MAX_VALUE,
+          Integer.MAX_VALUE,
+          true);
     }
 
-    private Parameters(String preferredAudioLanguage, String preferredTextLanguage,
-        boolean selectUndeterminedTextLanguage, boolean forceLowestBitrate,
-        boolean allowMixedMimeAdaptiveness, boolean allowNonSeamlessAdaptiveness, int maxVideoWidth,
-        int maxVideoHeight, int maxVideoBitrate, boolean exceedVideoConstraintsIfNecessary,
-        boolean exceedRendererCapabilitiesIfNecessary, int viewportWidth, int viewportHeight,
+    private Parameters(
+        String preferredAudioLanguage,
+        String preferredTextLanguage,
+        boolean selectUndeterminedTextLanguage,
+        int disabledTextTrackSelectionFlags,
+        boolean forceLowestBitrate,
+        boolean allowMixedMimeAdaptiveness,
+        boolean allowNonSeamlessAdaptiveness,
+        int maxVideoWidth,
+        int maxVideoHeight,
+        int maxVideoBitrate,
+        boolean exceedVideoConstraintsIfNecessary,
+        boolean exceedRendererCapabilitiesIfNecessary,
+        int viewportWidth,
+        int viewportHeight,
         boolean viewportOrientationMayChange) {
       this.preferredAudioLanguage = Util.normalizeLanguageCode(preferredAudioLanguage);
       this.preferredTextLanguage = Util.normalizeLanguageCode(preferredTextLanguage);
       this.selectUndeterminedTextLanguage = selectUndeterminedTextLanguage;
+      this.disabledTextTrackSelectionFlags = disabledTextTrackSelectionFlags;
       this.forceLowestBitrate = forceLowestBitrate;
       this.allowMixedMimeAdaptiveness = allowMixedMimeAdaptiveness;
       this.allowNonSeamlessAdaptiveness = allowNonSeamlessAdaptiveness;
@@ -434,14 +490,18 @@ public class DefaultTrackSelector extends MappingTrackSelector {
         return false;
       }
       Parameters other = (Parameters) obj;
-      return forceLowestBitrate == other.forceLowestBitrate
+      return selectUndeterminedTextLanguage == other.selectUndeterminedTextLanguage
+          && disabledTextTrackSelectionFlags == other.disabledTextTrackSelectionFlags
+          && forceLowestBitrate == other.forceLowestBitrate
           && allowMixedMimeAdaptiveness == other.allowMixedMimeAdaptiveness
           && allowNonSeamlessAdaptiveness == other.allowNonSeamlessAdaptiveness
-          && maxVideoWidth == other.maxVideoWidth && maxVideoHeight == other.maxVideoHeight
+          && maxVideoWidth == other.maxVideoWidth
+          && maxVideoHeight == other.maxVideoHeight
           && exceedVideoConstraintsIfNecessary == other.exceedVideoConstraintsIfNecessary
           && exceedRendererCapabilitiesIfNecessary == other.exceedRendererCapabilitiesIfNecessary
           && viewportOrientationMayChange == other.viewportOrientationMayChange
-          && viewportWidth == other.viewportWidth && viewportHeight == other.viewportHeight
+          && viewportWidth == other.viewportWidth
+          && viewportHeight == other.viewportHeight
           && maxVideoBitrate == other.maxVideoBitrate
           && TextUtils.equals(preferredAudioLanguage, other.preferredAudioLanguage)
           && TextUtils.equals(preferredTextLanguage, other.preferredTextLanguage);
@@ -449,19 +509,21 @@ public class DefaultTrackSelector extends MappingTrackSelector {
 
     @Override
     public int hashCode() {
-      int result = preferredAudioLanguage.hashCode();
-      result = 31 * result + preferredTextLanguage.hashCode();
+      int result = selectUndeterminedTextLanguage ? 1 : 0;
+      result = 31 * result + disabledTextTrackSelectionFlags;
       result = 31 * result + (forceLowestBitrate ? 1 : 0);
       result = 31 * result + (allowMixedMimeAdaptiveness ? 1 : 0);
       result = 31 * result + (allowNonSeamlessAdaptiveness ? 1 : 0);
       result = 31 * result + maxVideoWidth;
       result = 31 * result + maxVideoHeight;
-      result = 31 * result + maxVideoBitrate;
       result = 31 * result + (exceedVideoConstraintsIfNecessary ? 1 : 0);
       result = 31 * result + (exceedRendererCapabilitiesIfNecessary ? 1 : 0);
       result = 31 * result + (viewportOrientationMayChange ? 1 : 0);
       result = 31 * result + viewportWidth;
       result = 31 * result + viewportHeight;
+      result = 31 * result + maxVideoBitrate;
+      result = 31 * result + preferredAudioLanguage.hashCode();
+      result = 31 * result + preferredTextLanguage.hashCode();
       return result;
     }
 
@@ -923,8 +985,10 @@ public class DefaultTrackSelector extends MappingTrackSelector {
         if (isSupported(trackFormatSupport[trackIndex],
             params.exceedRendererCapabilitiesIfNecessary)) {
           Format format = trackGroup.getFormat(trackIndex);
-          boolean isDefault = (format.selectionFlags & C.SELECTION_FLAG_DEFAULT) != 0;
-          boolean isForced = (format.selectionFlags & C.SELECTION_FLAG_FORCED) != 0;
+          int maskedSelectionFlags =
+              format.selectionFlags & ~params.disabledTextTrackSelectionFlags;
+          boolean isDefault = (maskedSelectionFlags & C.SELECTION_FLAG_DEFAULT) != 0;
+          boolean isForced = (maskedSelectionFlags & C.SELECTION_FLAG_FORCED) != 0;
           int trackScore;
           boolean preferredLanguageFound = formatHasLanguage(format, params.preferredTextLanguage);
           if (preferredLanguageFound
