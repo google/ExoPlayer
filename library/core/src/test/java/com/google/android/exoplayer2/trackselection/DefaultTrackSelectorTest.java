@@ -529,6 +529,134 @@ public final class DefaultTrackSelectorTest {
         .isEqualTo(lowerSampleRateHigherBitrateFormat);
   }
 
+  /** Tests text track selection flags. */
+  @Test
+  public void testsTextTrackSelectionFlags() throws ExoPlaybackException {
+    Format forcedOnly =
+        Format.createTextContainerFormat(
+            "forcedOnly",
+            null,
+            MimeTypes.TEXT_VTT,
+            null,
+            Format.NO_VALUE,
+            C.SELECTION_FLAG_FORCED,
+            "eng");
+    Format forcedDefault =
+        Format.createTextContainerFormat(
+            "forcedDefault",
+            null,
+            MimeTypes.TEXT_VTT,
+            null,
+            Format.NO_VALUE,
+            C.SELECTION_FLAG_FORCED | C.SELECTION_FLAG_DEFAULT,
+            "eng");
+    Format defaultOnly =
+        Format.createTextContainerFormat(
+            "defaultOnly",
+            null,
+            MimeTypes.TEXT_VTT,
+            null,
+            Format.NO_VALUE,
+            C.SELECTION_FLAG_DEFAULT,
+            "eng");
+    Format forcedOnlySpanish =
+        Format.createTextContainerFormat(
+            "forcedOnlySpanish",
+            null,
+            MimeTypes.TEXT_VTT,
+            null,
+            Format.NO_VALUE,
+            C.SELECTION_FLAG_FORCED,
+            "spa");
+    Format noFlag =
+        Format.createTextContainerFormat(
+            "noFlag", null, MimeTypes.TEXT_VTT, null, Format.NO_VALUE, 0, "eng");
+
+    RendererCapabilities[] textRendererCapabilities =
+        new RendererCapabilities[] {ALL_TEXT_FORMAT_SUPPORTED_RENDERER_CAPABILITIES};
+
+    TrackSelectorResult result;
+
+    // There is no text language preference, the first track flagged as default should be selected.
+    result =
+        trackSelector.selectTracks(
+            textRendererCapabilities, wrapFormats(forcedOnly, forcedDefault, defaultOnly, noFlag));
+    assertThat(result.selections.get(0).getFormat(0)).isSameAs(forcedDefault);
+
+    // Ditto.
+    result =
+        trackSelector.selectTracks(
+            textRendererCapabilities, wrapFormats(forcedOnly, noFlag, defaultOnly));
+    assertThat(result.selections.get(0).getFormat(0)).isSameAs(defaultOnly);
+
+    // With no language preference and no text track flagged as default, the first forced should be
+    // selected.
+    result = trackSelector.selectTracks(textRendererCapabilities, wrapFormats(forcedOnly, noFlag));
+    assertThat(result.selections.get(0).getFormat(0)).isSameAs(forcedOnly);
+
+    trackSelector.setParameters(
+        Parameters.DEFAULT
+            .buildUpon()
+            .setDisabledTextTrackSelectionFlags(C.SELECTION_FLAG_DEFAULT)
+            .build());
+
+    // Default flags are disabled, so the first track flagged as forced should be selected.
+    result =
+        trackSelector.selectTracks(
+            textRendererCapabilities, wrapFormats(defaultOnly, noFlag, forcedOnly, forcedDefault));
+    assertThat(result.selections.get(0).getFormat(0)).isSameAs(forcedOnly);
+
+    trackSelector.setParameters(
+        trackSelector.getParameters().buildUpon().setPreferredAudioLanguage("spa").build());
+
+    // Default flags are disabled, but there is a text track flagged as forced whose language
+    // matches the preferred audio language.
+    result =
+        trackSelector.selectTracks(
+            textRendererCapabilities,
+            wrapFormats(forcedDefault, forcedOnly, defaultOnly, noFlag, forcedOnlySpanish));
+    assertThat(result.selections.get(0).getFormat(0)).isSameAs(forcedOnlySpanish);
+
+    trackSelector.setParameters(
+        trackSelector
+            .getParameters()
+            .buildUpon()
+            .setDisabledTextTrackSelectionFlags(C.SELECTION_FLAG_DEFAULT | C.SELECTION_FLAG_FORCED)
+            .build());
+
+    // All selection flags are disabled and there is no language preference, so nothing should be
+    // selected.
+    result =
+        trackSelector.selectTracks(
+            textRendererCapabilities, wrapFormats(forcedOnly, forcedDefault, defaultOnly, noFlag));
+    assertThat(result.selections.get(0)).isNull();
+
+    trackSelector.setParameters(
+        Parameters.DEFAULT.buildUpon().setPreferredTextLanguage("eng").build());
+
+    // There is a preferred language, so the first language-matching track flagged as default should
+    // be selected.
+    result =
+        trackSelector.selectTracks(
+            textRendererCapabilities, wrapFormats(forcedOnly, forcedDefault, defaultOnly, noFlag));
+    assertThat(result.selections.get(0).getFormat(0)).isSameAs(forcedDefault);
+
+    trackSelector.setParameters(
+        trackSelector
+            .getParameters()
+            .buildUpon()
+            .setDisabledTextTrackSelectionFlags(C.SELECTION_FLAG_DEFAULT)
+            .build());
+
+    // Same as above, but the default flag is disabled. If multiple tracks match the preferred
+    // language, those not flagged as forced are preferred, as they likely include the contents of
+    // forced subtitles.
+    result =
+        trackSelector.selectTracks(
+            textRendererCapabilities, wrapFormats(noFlag, forcedOnly, forcedDefault, defaultOnly));
+    assertThat(result.selections.get(0).getFormat(0)).isSameAs(noFlag);
+  }
+
   /**
    * Tests that the default track selector will select a text track with undetermined language if no
    * text track with the preferred language is available but
