@@ -31,6 +31,8 @@
 * DefaultTrackSelector: Support undefined language text track selection when the
   preferred language is not available
   ([#2980](https://github.com/google/ExoPlayer/issues/2980)).
+* Add options to `DefaultLoadControl` to set maximum buffer size in bytes and
+  to choose whether size or time constraints are prioritized.
 * Use surfaceless context for secure `DummySurface`, if available
   ([#3558](https://github.com/google/ExoPlayer/issues/3558)).
 * FLV: Fix playback of live streams that do not contain an audio track

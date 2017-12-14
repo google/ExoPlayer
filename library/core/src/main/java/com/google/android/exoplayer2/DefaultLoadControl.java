@@ -51,12 +51,23 @@ public final class DefaultLoadControl implements LoadControl {
    */
   public static final int DEFAULT_BUFFER_FOR_PLAYBACK_AFTER_REBUFFER_MS  = 5000;
 
+  /**
+   * The default target buffer size in bytes. When set to {@link C#LENGTH_UNSET}, the load control
+   * automatically determines its target buffer size.
+   */
+  public static final int DEFAULT_TARGET_BUFFER_BYTES = C.LENGTH_UNSET;
+
+  /** The default prioritization of buffer time constraints over size constraints. */
+  public static final boolean DEFAULT_PRIORITIZE_TIME_OVER_SIZE_THRESHOLDS = true;
+
   private final DefaultAllocator allocator;
 
   private final long minBufferUs;
   private final long maxBufferUs;
   private final long bufferForPlaybackUs;
   private final long bufferForPlaybackAfterRebufferUs;
+  private final int targetBufferBytesOverwrite;
+  private final boolean prioritizeTimeOverSizeThresholds;
   private final PriorityTaskManager priorityTaskManager;
 
   private int targetBufferSize;
@@ -75,8 +86,14 @@ public final class DefaultLoadControl implements LoadControl {
    * @param allocator The {@link DefaultAllocator} used by the loader.
    */
   public DefaultLoadControl(DefaultAllocator allocator) {
-    this(allocator, DEFAULT_MIN_BUFFER_MS, DEFAULT_MAX_BUFFER_MS, DEFAULT_BUFFER_FOR_PLAYBACK_MS,
-        DEFAULT_BUFFER_FOR_PLAYBACK_AFTER_REBUFFER_MS);
+    this(
+        allocator,
+        DEFAULT_MIN_BUFFER_MS,
+        DEFAULT_MAX_BUFFER_MS,
+        DEFAULT_BUFFER_FOR_PLAYBACK_AFTER_REBUFFER_MS,
+        DEFAULT_BUFFER_FOR_PLAYBACK_MS,
+        DEFAULT_TARGET_BUFFER_BYTES,
+        DEFAULT_PRIORITIZE_TIME_OVER_SIZE_THRESHOLDS);
   }
 
   /**
@@ -92,10 +109,27 @@ public final class DefaultLoadControl implements LoadControl {
    * @param bufferForPlaybackAfterRebufferMs The default duration of media that must be buffered for
    *     playback to resume after a rebuffer, in milliseconds. A rebuffer is defined to be caused by
    *     buffer depletion rather than a user action.
+   * @param targetBufferBytes The target buffer size in bytes. If set to {@link C#LENGTH_UNSET}, the
+   *     target buffer size will be calculated using {@link #calculateTargetBufferSize(Renderer[],
+   *     TrackSelectionArray)}.
+   * @param prioritizeTimeOverSizeThresholds Whether the load control prioritizes buffer time
    */
-  public DefaultLoadControl(DefaultAllocator allocator, int minBufferMs, int maxBufferMs,
-      long bufferForPlaybackMs, long bufferForPlaybackAfterRebufferMs) {
-    this(allocator, minBufferMs, maxBufferMs, bufferForPlaybackMs, bufferForPlaybackAfterRebufferMs,
+  public DefaultLoadControl(
+      DefaultAllocator allocator,
+      int minBufferMs,
+      int maxBufferMs,
+      int bufferForPlaybackMs,
+      int bufferForPlaybackAfterRebufferMs,
+      int targetBufferBytes,
+      boolean prioritizeTimeOverSizeThresholds) {
+    this(
+        allocator,
+        minBufferMs,
+        maxBufferMs,
+        bufferForPlaybackMs,
+        bufferForPlaybackAfterRebufferMs,
+        targetBufferBytes,
+        prioritizeTimeOverSizeThresholds,
         null);
   }
 
@@ -112,18 +146,30 @@ public final class DefaultLoadControl implements LoadControl {
    * @param bufferForPlaybackAfterRebufferMs The default duration of media that must be buffered for
    *     playback to resume after a rebuffer, in milliseconds. A rebuffer is defined to be caused by
    *     buffer depletion rather than a user action.
-   * @param priorityTaskManager If not null, registers itself as a task with priority
-   *     {@link C#PRIORITY_PLAYBACK} during loading periods, and unregisters itself during draining
-   *     periods.
+   * @param targetBufferBytes The target buffer size in bytes. If set to {@link C#LENGTH_UNSET}, the
+   *     target buffer size will be calculated using {@link #calculateTargetBufferSize(Renderer[],
+   *     TrackSelectionArray)}.
+   * @param prioritizeTimeOverSizeThresholds Whether the load control prioritizes buffer time
+   *     constraints over buffer size constraints.
+   * @param priorityTaskManager If not null, registers itself as a task with priority {@link
+   *     C#PRIORITY_PLAYBACK} during loading periods, and unregisters itself during draining
    */
-  public DefaultLoadControl(DefaultAllocator allocator, int minBufferMs, int maxBufferMs,
-      long bufferForPlaybackMs, long bufferForPlaybackAfterRebufferMs,
+  public DefaultLoadControl(
+      DefaultAllocator allocator,
+      int minBufferMs,
+      int maxBufferMs,
+      int bufferForPlaybackMs,
+      int bufferForPlaybackAfterRebufferMs,
+      int targetBufferBytes,
+      boolean prioritizeTimeOverSizeThresholds,
       PriorityTaskManager priorityTaskManager) {
     this.allocator = allocator;
     minBufferUs = minBufferMs * 1000L;
     maxBufferUs = maxBufferMs * 1000L;
+    targetBufferBytesOverwrite = targetBufferBytes;
     bufferForPlaybackUs = bufferForPlaybackMs * 1000L;
     bufferForPlaybackAfterRebufferUs = bufferForPlaybackAfterRebufferMs * 1000L;
+    this.prioritizeTimeOverSizeThresholds = prioritizeTimeOverSizeThresholds;
     this.priorityTaskManager = priorityTaskManager;
   }
 
@@ -135,12 +181,10 @@ public final class DefaultLoadControl implements LoadControl {
   @Override
   public void onTracksSelected(Renderer[] renderers, TrackGroupArray trackGroups,
       TrackSelectionArray trackSelections) {
-    targetBufferSize = 0;
-    for (int i = 0; i < renderers.length; i++) {
-      if (trackSelections.get(i) != null) {
-        targetBufferSize += Util.getDefaultBufferSize(renderers[i].getTrackType());
-      }
-    }
+    targetBufferSize =
+        targetBufferBytesOverwrite == C.LENGTH_UNSET
+            ? calculateTargetBufferSize(renderers, trackSelections)
+            : targetBufferBytesOverwrite;
     allocator.setTargetBufferSize(targetBufferSize);
   }
 
@@ -162,16 +206,28 @@ public final class DefaultLoadControl implements LoadControl {
   @Override
   public boolean shouldStartPlayback(long bufferedDurationUs, boolean rebuffering) {
     long minBufferDurationUs = rebuffering ? bufferForPlaybackAfterRebufferUs : bufferForPlaybackUs;
-    return minBufferDurationUs <= 0 || bufferedDurationUs >= minBufferDurationUs;
+    return minBufferDurationUs <= 0
+        || bufferedDurationUs >= minBufferDurationUs
+        || (!prioritizeTimeOverSizeThresholds
+            && allocator.getTotalBytesAllocated() >= targetBufferSize);
   }
 
   @Override
   public boolean shouldContinueLoading(long bufferedDurationUs) {
     boolean targetBufferSizeReached = allocator.getTotalBytesAllocated() >= targetBufferSize;
     boolean wasBuffering = isBuffering;
-    isBuffering = bufferedDurationUs < minBufferUs // below low watermark
-        || (bufferedDurationUs <= maxBufferUs // between watermarks
-            && isBuffering && !targetBufferSizeReached);
+    if (prioritizeTimeOverSizeThresholds) {
+      isBuffering =
+          bufferedDurationUs < minBufferUs // below low watermark
+              || (bufferedDurationUs <= maxBufferUs // between watermarks
+                  && isBuffering
+                  && !targetBufferSizeReached);
+    } else {
+      isBuffering =
+          !targetBufferSizeReached
+              && (bufferedDurationUs < minBufferUs // below low watermark
+                  || (bufferedDurationUs <= maxBufferUs && isBuffering)); // between watermarks
+    }
     if (priorityTaskManager != null && isBuffering != wasBuffering) {
       if (isBuffering) {
         priorityTaskManager.add(C.PRIORITY_PLAYBACK);
@@ -180,6 +236,25 @@ public final class DefaultLoadControl implements LoadControl {
       }
     }
     return isBuffering;
+  }
+
+  /**
+   * Calculate target buffer size in bytes based on the selected tracks. The player will try not to
+   * exceed this target buffer. Only used when {@code targetBufferBytes} is {@link C#LENGTH_UNSET}.
+   *
+   * @param renderers The renderers for which the track were selected.
+   * @param trackSelectionArray The selected tracks.
+   * @return The target buffer size in bytes.
+   */
+  protected int calculateTargetBufferSize(
+      Renderer[] renderers, TrackSelectionArray trackSelectionArray) {
+    int targetBufferSize = 0;
+    for (int i = 0; i < renderers.length; i++) {
+      if (trackSelectionArray.get(i) != null) {
+        targetBufferSize += Util.getDefaultBufferSize(renderers[i].getTrackType());
+      }
+    }
+    return targetBufferSize;
   }
 
   private void reset(boolean resetAllocator) {
