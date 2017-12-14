@@ -1303,16 +1303,22 @@ import java.io.IOException;
     }
 
     // Advance the playing period if necessary.
+    boolean advancedPlayingPeriod = false;
     while (playWhenReady && playingPeriodHolder != readingPeriodHolder
         && rendererPositionUs >= playingPeriodHolder.next.rendererPositionOffsetUs) {
       // All enabled renderers' streams have been read to the end, and the playback position reached
       // the end of the playing period, so advance playback to the next period.
+      if (advancedPlayingPeriod) {
+        // If we advance more than one period at a time, notify listeners after each update.
+        maybeNotifyPlaybackInfoChanged();
+      }
       playingPeriodHolder.release();
       setPlayingPeriodHolder(playingPeriodHolder.next);
       playbackInfo = playbackInfo.fromNewPosition(playingPeriodHolder.info.id,
           playingPeriodHolder.info.startPositionUs, playingPeriodHolder.info.contentPositionUs);
       playbackInfoUpdate.setPositionDiscontinuity(Player.DISCONTINUITY_REASON_PERIOD_TRANSITION);
       updatePlaybackPositions();
+      advancedPlayingPeriod = true;
     }
 
     if (readingPeriodHolder.info.isFinal) {
