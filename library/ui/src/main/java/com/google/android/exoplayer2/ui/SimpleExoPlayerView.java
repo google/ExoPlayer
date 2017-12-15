@@ -613,6 +613,11 @@ public final class SimpleExoPlayerView extends FrameLayout {
   public void setControllerShowTimeoutMs(int controllerShowTimeoutMs) {
     Assertions.checkState(controller != null);
     this.controllerShowTimeoutMs = controllerShowTimeoutMs;
+    // If controller is already visible, call showController to update the controller's timeout
+    // if necessary.
+    if (controller.isVisible()) {
+      showController();
+    }
   }
 
   /**
