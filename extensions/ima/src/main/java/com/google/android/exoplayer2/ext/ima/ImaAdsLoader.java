@@ -547,7 +547,7 @@ public final class ImaAdsLoader extends Player.DefaultEventListener implements A
       long elapsedSinceEndMs = SystemClock.elapsedRealtime() - fakeContentProgressElapsedRealtimeMs;
       long fakePositionMs = fakeContentProgressOffsetMs + elapsedSinceEndMs;
       return new VideoProgressUpdate(fakePositionMs, contentDurationMs);
-    } else if (playingAd || !hasContentDuration) {
+    } else if (imaAdState != IMA_AD_STATE_NONE || !hasContentDuration) {
       return VideoProgressUpdate.VIDEO_TIME_NOT_READY;
     } else {
       return new VideoProgressUpdate(player.getCurrentPosition(), contentDurationMs);
@@ -560,7 +560,7 @@ public final class ImaAdsLoader extends Player.DefaultEventListener implements A
   public VideoProgressUpdate getAdProgress() {
     if (player == null) {
       return lastAdProgress;
-    } else if (!playingAd) {
+    } else if (imaAdState == IMA_AD_STATE_NONE) {
       return VideoProgressUpdate.VIDEO_TIME_NOT_READY;
     } else {
       long adDuration = player.getDuration();
