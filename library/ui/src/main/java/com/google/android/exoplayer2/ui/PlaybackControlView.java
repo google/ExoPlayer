@@ -519,6 +519,10 @@ public class PlaybackControlView extends FrameLayout {
    */
   public void setShowTimeoutMs(int showTimeoutMs) {
     this.showTimeoutMs = showTimeoutMs;
+    // showTimeoutMs is changed, so call hideAfterTimeout to reset the timeout.
+    if (isVisible()) {
+      hideAfterTimeout();
+    }
   }
 
   /**
