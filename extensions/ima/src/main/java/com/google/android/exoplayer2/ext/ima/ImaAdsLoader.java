@@ -151,6 +151,9 @@ public final class ImaAdsLoader extends Player.DefaultEventListener implements A
   private static final String IMA_SDK_SETTINGS_PLAYER_TYPE = "google/exo.ext.ima";
   private static final String IMA_SDK_SETTINGS_PLAYER_VERSION = ExoPlayerLibraryInfo.VERSION;
 
+  /** The value used in {@link VideoProgressUpdate}s to indicate an unset duration. */
+  private static final long IMA_DURATION_UNSET = -1L;
+
   /**
    * Threshold before the end of content at which IMA is notified that content is complete if the
    * player buffers, in milliseconds.
@@ -533,6 +536,8 @@ public final class ImaAdsLoader extends Player.DefaultEventListener implements A
 
   @Override
   public VideoProgressUpdate getContentProgress() {
+    boolean hasContentDuration = contentDurationMs != C.TIME_UNSET;
+    long contentDurationMs = hasContentDuration ? this.contentDurationMs : IMA_DURATION_UNSET;
     if (player == null) {
       return lastContentProgress;
     } else if (pendingContentPositionMs != C.TIME_UNSET) {
@@ -542,7 +547,7 @@ public final class ImaAdsLoader extends Player.DefaultEventListener implements A
       long elapsedSinceEndMs = SystemClock.elapsedRealtime() - fakeContentProgressElapsedRealtimeMs;
       long fakePositionMs = fakeContentProgressOffsetMs + elapsedSinceEndMs;
       return new VideoProgressUpdate(fakePositionMs, contentDurationMs);
-    } else if (playingAd || contentDurationMs == C.TIME_UNSET) {
+    } else if (playingAd || !hasContentDuration) {
       return VideoProgressUpdate.VIDEO_TIME_NOT_READY;
     } else {
       return new VideoProgressUpdate(player.getCurrentPosition(), contentDurationMs);
