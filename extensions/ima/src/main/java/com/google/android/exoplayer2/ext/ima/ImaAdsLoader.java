@@ -703,6 +703,9 @@ public final class ImaAdsLoader extends Player.DefaultEventListener implements A
       for (int i = 0; i < adCallbacks.size(); i++) {
         adCallbacks.get(i).onEnded();
       }
+      if (DEBUG) {
+        Log.d(TAG, "VideoAdPlayerCallback.onEnded in onPlayerStateChanged");
+      }
     }
   }
 
@@ -798,15 +801,19 @@ public final class ImaAdsLoader extends Player.DefaultEventListener implements A
 
   private void updateImaStateForPlayerState() {
     boolean wasPlayingAd = playingAd;
+    int oldPlayingAdIndexInAdGroup = playingAdIndexInAdGroup;
     playingAd = player.isPlayingAd();
+    playingAdIndexInAdGroup = playingAd ? player.getCurrentAdIndexInAdGroup() : C.INDEX_UNSET;
     if (!sentContentComplete) {
-      boolean adFinished = (wasPlayingAd && !playingAd)
-          || playingAdIndexInAdGroup != player.getCurrentAdIndexInAdGroup();
+      boolean adFinished = wasPlayingAd && playingAdIndexInAdGroup != oldPlayingAdIndexInAdGroup;
       if (adFinished) {
         // IMA is waiting for the ad playback to finish so invoke the callback now.
         // Either CONTENT_RESUME_REQUESTED will be passed next, or playAd will be called again.
         for (int i = 0; i < adCallbacks.size(); i++) {
           adCallbacks.get(i).onEnded();
+        }
+        if (DEBUG) {
+          Log.d(TAG, "VideoAdPlayerCallback.onEnded in onTimelineChanged/onPositionDiscontinuity");
         }
       }
       if (!wasPlayingAd && playingAd) {
@@ -819,7 +826,6 @@ public final class ImaAdsLoader extends Player.DefaultEventListener implements A
         }
       }
     }
-    playingAdIndexInAdGroup = playingAd ? player.getCurrentAdIndexInAdGroup() : C.INDEX_UNSET;
   }
 
   private void resumeContentInternal() {
