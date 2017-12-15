@@ -23,6 +23,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.text.TextUtils;
 import android.view.KeyEvent;
 import android.view.View;
@@ -46,13 +47,13 @@ import com.google.android.exoplayer2.drm.FrameworkMediaCrypto;
 import com.google.android.exoplayer2.drm.FrameworkMediaDrm;
 import com.google.android.exoplayer2.drm.HttpMediaDrmCallback;
 import com.google.android.exoplayer2.drm.UnsupportedDrmException;
-import com.google.android.exoplayer2.extractor.DefaultExtractorsFactory;
 import com.google.android.exoplayer2.mediacodec.MediaCodecRenderer.DecoderInitializationException;
 import com.google.android.exoplayer2.mediacodec.MediaCodecUtil.DecoderQueryException;
 import com.google.android.exoplayer2.source.BehindLiveWindowException;
 import com.google.android.exoplayer2.source.ConcatenatingMediaSource;
 import com.google.android.exoplayer2.source.ExtractorMediaSource;
 import com.google.android.exoplayer2.source.MediaSource;
+import com.google.android.exoplayer2.source.MediaSourceEventListener;
 import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.source.ads.AdsLoader;
 import com.google.android.exoplayer2.source.ads.AdsMediaSource;
@@ -84,7 +85,7 @@ import java.util.UUID;
 public class PlayerActivity extends Activity implements OnClickListener,
     PlaybackControlView.VisibilityListener {
 
-  public static final String DRM_SCHEME_UUID_EXTRA = "drm_scheme_uuid";
+  public static final String DRM_SCHEME_EXTRA = "drm_scheme";
   public static final String DRM_LICENSE_URL = "drm_license_url";
   public static final String DRM_KEY_REQUEST_PROPERTIES = "drm_key_request_properties";
   public static final String DRM_MULTI_SESSION = "drm_multi_session";
@@ -98,6 +99,9 @@ public class PlayerActivity extends Activity implements OnClickListener,
   public static final String URI_LIST_EXTRA = "uri_list";
   public static final String EXTENSION_LIST_EXTRA = "extension_list";
   public static final String AD_TAG_URI_EXTRA = "ad_tag_uri";
+
+  // For backwards compatibility.
+  private static final String DRM_SCHEME_UUID_EXTRA = "drm_scheme_uuid";
 
   private static final DefaultBandwidthMeter BANDWIDTH_METER = new DefaultBandwidthMeter();
   private static final CookieManager DEFAULT_COOKIE_MANAGER;
@@ -231,8 +235,8 @@ public class PlayerActivity extends Activity implements OnClickListener,
     } else if (view.getParent() == debugRootView) {
       MappedTrackInfo mappedTrackInfo = trackSelector.getCurrentMappedTrackInfo();
       if (mappedTrackInfo != null) {
-        trackSelectionHelper.showSelectionDialog(this, ((Button) view).getText(),
-            trackSelector.getCurrentMappedTrackInfo(), (int) view.getTag());
+        trackSelectionHelper.showSelectionDialog(
+            this, ((Button) view).getText(), mappedTrackInfo, (int) view.getTag());
       }
     }
   }
@@ -257,10 +261,8 @@ public class PlayerActivity extends Activity implements OnClickListener,
       lastSeenTrackGroupArray = null;
       eventLogger = new EventLogger(trackSelector);
 
-      UUID drmSchemeUuid = intent.hasExtra(DRM_SCHEME_UUID_EXTRA)
-          ? UUID.fromString(intent.getStringExtra(DRM_SCHEME_UUID_EXTRA)) : null;
       DrmSessionManager<FrameworkMediaCrypto> drmSessionManager = null;
-      if (drmSchemeUuid != null) {
+      if (intent.hasExtra(DRM_SCHEME_EXTRA) || intent.hasExtra(DRM_SCHEME_UUID_EXTRA)) {
         String drmLicenseUrl = intent.getStringExtra(DRM_LICENSE_URL);
         String[] keyRequestPropertiesArray = intent.getStringArrayExtra(DRM_KEY_REQUEST_PROPERTIES);
         boolean multiSession = intent.getBooleanExtra(DRM_MULTI_SESSION, false);
@@ -269,6 +271,9 @@ public class PlayerActivity extends Activity implements OnClickListener,
           errorStringId = R.string.error_drm_not_supported;
         } else {
           try {
+            String drmSchemeExtra = intent.hasExtra(DRM_SCHEME_EXTRA) ? DRM_SCHEME_EXTRA
+                : DRM_SCHEME_UUID_EXTRA;
+            UUID drmSchemeUuid = DemoUtil.getDrmUuid(intent.getStringExtra(drmSchemeExtra));
             drmSessionManager = buildDrmSessionManagerV18(drmSchemeUuid, drmLicenseUrl,
                 keyRequestPropertiesArray, multiSession);
           } catch (UnsupportedDrmException e) {
@@ -295,8 +300,8 @@ public class PlayerActivity extends Activity implements OnClickListener,
       player.addListener(new PlayerEventListener());
       player.addListener(eventLogger);
       player.addMetadataOutput(eventLogger);
-      player.setAudioDebugListener(eventLogger);
-      player.setVideoDebugListener(eventLogger);
+      player.addAudioDebugListener(eventLogger);
+      player.addVideoDebugListener(eventLogger);
 
       simpleExoPlayerView.setPlayer(player);
       player.setPlayWhenReady(shouldAutoPlay);
@@ -329,7 +334,7 @@ public class PlayerActivity extends Activity implements OnClickListener,
     }
     MediaSource[] mediaSources = new MediaSource[uris.length];
     for (int i = 0; i < uris.length; i++) {
-      mediaSources[i] = buildMediaSource(uris[i], extensions[i]);
+      mediaSources[i] = buildMediaSource(uris[i], extensions[i], mainHandler, eventLogger);
     }
     MediaSource mediaSource = mediaSources.length == 1 ? mediaSources[0]
         : new ConcatenatingMediaSource(mediaSources);
@@ -357,21 +362,30 @@ public class PlayerActivity extends Activity implements OnClickListener,
     updateButtonVisibilities();
   }
 
-  private MediaSource buildMediaSource(Uri uri, String overrideExtension) {
+  private MediaSource buildMediaSource(
+      Uri uri,
+      String overrideExtension,
+      @Nullable Handler handler,
+      @Nullable MediaSourceEventListener listener) {
     @ContentType int type = TextUtils.isEmpty(overrideExtension) ? Util.inferContentType(uri)
         : Util.inferContentType("." + overrideExtension);
     switch (type) {
-      case C.TYPE_SS:
-        return new SsMediaSource(uri, buildDataSourceFactory(false),
-            new DefaultSsChunkSource.Factory(mediaDataSourceFactory), mainHandler, eventLogger);
       case C.TYPE_DASH:
-        return new DashMediaSource(uri, buildDataSourceFactory(false),
-            new DefaultDashChunkSource.Factory(mediaDataSourceFactory), mainHandler, eventLogger);
+        return new DashMediaSource.Factory(
+                new DefaultDashChunkSource.Factory(mediaDataSourceFactory),
+                buildDataSourceFactory(false))
+            .createMediaSource(uri, handler, listener);
+      case C.TYPE_SS:
+        return new SsMediaSource.Factory(
+                new DefaultSsChunkSource.Factory(mediaDataSourceFactory),
+                buildDataSourceFactory(false))
+            .createMediaSource(uri, handler, listener);
       case C.TYPE_HLS:
-        return new HlsMediaSource(uri, mediaDataSourceFactory, mainHandler, eventLogger);
+        return new HlsMediaSource.Factory(mediaDataSourceFactory)
+            .createMediaSource(uri, handler, listener);
       case C.TYPE_OTHER:
-        return new ExtractorMediaSource(uri, mediaDataSourceFactory, new DefaultExtractorsFactory(),
-            mainHandler, eventLogger);
+        return new ExtractorMediaSource.Factory(mediaDataSourceFactory)
+            .createMediaSource(uri, handler, listener);
       default: {
         throw new IllegalStateException("Unsupported type: " + type);
       }
@@ -458,7 +472,22 @@ public class PlayerActivity extends Activity implements OnClickListener,
       // The demo app has a non-null overlay frame layout.
       simpleExoPlayerView.getOverlayFrameLayout().addView(adUiViewGroup);
     }
-    return new AdsMediaSource(mediaSource, mediaDataSourceFactory, adsLoader, adUiViewGroup);
+    AdsMediaSource.MediaSourceFactory adMediaSourceFactory =
+        new AdsMediaSource.MediaSourceFactory() {
+          @Override
+          public MediaSource createMediaSource(
+              Uri uri, @Nullable Handler handler, @Nullable MediaSourceEventListener listener) {
+            return PlayerActivity.this.buildMediaSource(
+                uri, /* overrideExtension= */ null, handler, listener);
+          }
+
+          @Override
+          public int[] getSupportedTypes() {
+            return new int[] {C.TYPE_DASH, C.TYPE_SS, C.TYPE_HLS, C.TYPE_OTHER};
+          }
+        };
+    return new AdsMediaSource(
+        mediaSource, adMediaSourceFactory, adsLoader, adUiViewGroup, mainHandler, eventLogger);
   }
 
   private void releaseAdsLoader() {

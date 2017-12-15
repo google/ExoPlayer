@@ -56,146 +56,144 @@ import java.util.List;
 /**
  * A high level view for {@link SimpleExoPlayer} media playbacks. It displays video, subtitles and
  * album art during playback, and displays playback controls using a {@link PlaybackControlView}.
- * <p>
- * A SimpleExoPlayerView can be customized by setting attributes (or calling corresponding methods),
- * overriding the view's layout file or by specifying a custom view layout file, as outlined below.
+ *
+ * <p>A SimpleExoPlayerView can be customized by setting attributes (or calling corresponding
+ * methods), overriding the view's layout file or by specifying a custom view layout file, as
+ * outlined below.
  *
  * <h3>Attributes</h3>
+ *
  * The following attributes can be set on a SimpleExoPlayerView when used in a layout XML file:
+ *
  * <p>
+ *
  * <ul>
  *   <li><b>{@code use_artwork}</b> - Whether artwork is used if available in audio streams.
  *       <ul>
- *         <li>Corresponding method: {@link #setUseArtwork(boolean)}</li>
- *         <li>Default: {@code true}</li>
+ *         <li>Corresponding method: {@link #setUseArtwork(boolean)}
+ *         <li>Default: {@code true}
  *       </ul>
- *   </li>
  *   <li><b>{@code default_artwork}</b> - Default artwork to use if no artwork available in audio
  *       streams.
  *       <ul>
- *         <li>Corresponding method: {@link #setDefaultArtwork(Bitmap)}</li>
- *         <li>Default: {@code null}</li>
+ *         <li>Corresponding method: {@link #setDefaultArtwork(Bitmap)}
+ *         <li>Default: {@code null}
  *       </ul>
- *   </li>
  *   <li><b>{@code use_controller}</b> - Whether the playback controls can be shown.
  *       <ul>
- *         <li>Corresponding method: {@link #setUseController(boolean)}</li>
- *         <li>Default: {@code true}</li>
+ *         <li>Corresponding method: {@link #setUseController(boolean)}
+ *         <li>Default: {@code true}
  *       </ul>
- *   </li>
  *   <li><b>{@code hide_on_touch}</b> - Whether the playback controls are hidden by touch events.
  *       <ul>
- *         <li>Corresponding method: {@link #setControllerHideOnTouch(boolean)}</li>
- *         <li>Default: {@code true}</li>
+ *         <li>Corresponding method: {@link #setControllerHideOnTouch(boolean)}
+ *         <li>Default: {@code true}
  *       </ul>
- *   </li>
  *   <li><b>{@code auto_show}</b> - Whether the playback controls are automatically shown when
  *       playback starts, pauses, ends, or fails. If set to false, the playback controls can be
  *       manually operated with {@link #showController()} and {@link #hideController()}.
  *       <ul>
- *         <li>Corresponding method: {@link #setControllerAutoShow(boolean)}</li>
- *         <li>Default: {@code true}</li>
+ *         <li>Corresponding method: {@link #setControllerAutoShow(boolean)}
+ *         <li>Default: {@code true}
  *       </ul>
- *   </li>
+ *   <li><b>{@code hide_during_ads}</b> - Whether the playback controls are hidden during ads.
+ *       Controls are always shown during ads if they are enabled and the player is paused.
+ *       <ul>
+ *         <li>Corresponding method: {@link #setControllerHideDuringAds(boolean)}
+ *         <li>Default: {@code true}
+ *       </ul>
  *   <li><b>{@code resize_mode}</b> - Controls how video and album art is resized within the view.
  *       Valid values are {@code fit}, {@code fixed_width}, {@code fixed_height} and {@code fill}.
  *       <ul>
- *         <li>Corresponding method: {@link #setResizeMode(int)}</li>
- *         <li>Default: {@code fit}</li>
+ *         <li>Corresponding method: {@link #setResizeMode(int)}
+ *         <li>Default: {@code fit}
  *       </ul>
- *   </li>
  *   <li><b>{@code surface_type}</b> - The type of surface view used for video playbacks. Valid
  *       values are {@code surface_view}, {@code texture_view} and {@code none}. Using {@code none}
  *       is recommended for audio only applications, since creating the surface can be expensive.
  *       Using {@code surface_view} is recommended for video applications.
  *       <ul>
- *         <li>Corresponding method: None</li>
- *         <li>Default: {@code surface_view}</li>
+ *         <li>Corresponding method: None
+ *         <li>Default: {@code surface_view}
  *       </ul>
- *   </li>
  *   <li><b>{@code shutter_background_color}</b> - The background color of the {@code exo_shutter}
  *       view.
  *       <ul>
- *         <li>Corresponding method: {@link #setShutterBackgroundColor(int)}</li>
- *         <li>Default: {@code unset}</li>
+ *         <li>Corresponding method: {@link #setShutterBackgroundColor(int)}
+ *         <li>Default: {@code unset}
  *       </ul>
- *   </li>
  *   <li><b>{@code player_layout_id}</b> - Specifies the id of the layout to be inflated. See below
  *       for more details.
  *       <ul>
- *         <li>Corresponding method: None</li>
- *         <li>Default: {@code R.id.exo_simple_player_view}</li>
+ *         <li>Corresponding method: None
+ *         <li>Default: {@code R.id.exo_simple_player_view}
  *       </ul>
  *   <li><b>{@code controller_layout_id}</b> - Specifies the id of the layout resource to be
  *       inflated by the child {@link PlaybackControlView}. See below for more details.
  *       <ul>
- *         <li>Corresponding method: None</li>
- *         <li>Default: {@code R.id.exo_playback_control_view}</li>
+ *         <li>Corresponding method: None
+ *         <li>Default: {@code R.id.exo_playback_control_view}
  *       </ul>
  *   <li>All attributes that can be set on a {@link PlaybackControlView} can also be set on a
  *       SimpleExoPlayerView, and will be propagated to the inflated {@link PlaybackControlView}
  *       unless the layout is overridden to specify a custom {@code exo_controller} (see below).
- *   </li>
  * </ul>
  *
  * <h3>Overriding the layout file</h3>
+ *
  * To customize the layout of SimpleExoPlayerView throughout your app, or just for certain
  * configurations, you can define {@code exo_simple_player_view.xml} layout files in your
  * application {@code res/layout*} directories. These layouts will override the one provided by the
  * ExoPlayer library, and will be inflated for use by SimpleExoPlayerView. The view identifies and
  * binds its children by looking for the following ids:
+ *
  * <p>
+ *
  * <ul>
  *   <li><b>{@code exo_content_frame}</b> - A frame whose aspect ratio is resized based on the video
  *       or album art of the media being played, and the configured {@code resize_mode}. The video
  *       surface view is inflated into this frame as its first child.
  *       <ul>
- *         <li>Type: {@link AspectRatioFrameLayout}</li>
+ *         <li>Type: {@link AspectRatioFrameLayout}
  *       </ul>
- *   </li>
  *   <li><b>{@code exo_shutter}</b> - A view that's made visible when video should be hidden. This
  *       view is typically an opaque view that covers the video surface view, thereby obscuring it
  *       when visible.
  *       <ul>
- *        <li>Type: {@link View}</li>
+ *         <li>Type: {@link View}
  *       </ul>
- *   </li>
  *   <li><b>{@code exo_subtitles}</b> - Displays subtitles.
  *       <ul>
- *        <li>Type: {@link SubtitleView}</li>
+ *         <li>Type: {@link SubtitleView}
  *       </ul>
- *   </li>
  *   <li><b>{@code exo_artwork}</b> - Displays album art.
  *       <ul>
- *        <li>Type: {@link ImageView}</li>
+ *         <li>Type: {@link ImageView}
  *       </ul>
- *   </li>
  *   <li><b>{@code exo_controller_placeholder}</b> - A placeholder that's replaced with the inflated
  *       {@link PlaybackControlView}. Ignored if an {@code exo_controller} view exists.
  *       <ul>
- *        <li>Type: {@link View}</li>
+ *         <li>Type: {@link View}
  *       </ul>
- *   </li>
  *   <li><b>{@code exo_controller}</b> - An already inflated {@link PlaybackControlView}. Allows use
- *       of a custom extension of {@link PlaybackControlView}. Note that attributes such as
- *       {@code rewind_increment} will not be automatically propagated through to this instance. If
- *       a view exists with this id, any {@code exo_controller_placeholder} view will be ignored.
+ *       of a custom extension of {@link PlaybackControlView}. Note that attributes such as {@code
+ *       rewind_increment} will not be automatically propagated through to this instance. If a view
+ *       exists with this id, any {@code exo_controller_placeholder} view will be ignored.
  *       <ul>
- *        <li>Type: {@link PlaybackControlView}</li>
+ *         <li>Type: {@link PlaybackControlView}
  *       </ul>
- *   </li>
  *   <li><b>{@code exo_overlay}</b> - A {@link FrameLayout} positioned on top of the player which
  *       the app can access via {@link #getOverlayFrameLayout()}, provided for convenience.
  *       <ul>
- *        <li>Type: {@link FrameLayout}</li>
+ *         <li>Type: {@link FrameLayout}
  *       </ul>
- *   </li>
  * </ul>
- * <p>
- * All child views are optional and so can be omitted if not required, however where defined they
+ *
+ * <p>All child views are optional and so can be omitted if not required, however where defined they
  * must be of the expected type.
  *
  * <h3>Specifying a custom layout file</h3>
+ *
  * Defining your own {@code exo_simple_player_view.xml} is useful to customize the layout of
  * SimpleExoPlayerView throughout your application. It's also possible to customize the layout for a
  * single instance in a layout file. This is achieved by setting the {@code player_layout_id}
@@ -224,6 +222,7 @@ public final class SimpleExoPlayerView extends FrameLayout {
   private Bitmap defaultArtwork;
   private int controllerShowTimeoutMs;
   private boolean controllerAutoShow;
+  private boolean controllerHideDuringAds;
   private boolean controllerHideOnTouch;
 
   public SimpleExoPlayerView(Context context) {
@@ -267,6 +266,7 @@ public final class SimpleExoPlayerView extends FrameLayout {
     int controllerShowTimeoutMs = PlaybackControlView.DEFAULT_SHOW_TIMEOUT_MS;
     boolean controllerHideOnTouch = true;
     boolean controllerAutoShow = true;
+    boolean controllerHideDuringAds = true;
     if (attrs != null) {
       TypedArray a = context.getTheme().obtainStyledAttributes(attrs,
           R.styleable.SimpleExoPlayerView, 0, 0);
@@ -288,6 +288,8 @@ public final class SimpleExoPlayerView extends FrameLayout {
             controllerHideOnTouch);
         controllerAutoShow = a.getBoolean(R.styleable.SimpleExoPlayerView_auto_show,
             controllerAutoShow);
+        controllerHideDuringAds =
+            a.getBoolean(R.styleable.SimpleExoPlayerView_hide_during_ads, controllerHideDuringAds);
       } finally {
         a.recycle();
       }
@@ -358,6 +360,7 @@ public final class SimpleExoPlayerView extends FrameLayout {
     this.controllerShowTimeoutMs = controller != null ? controllerShowTimeoutMs : 0;
     this.controllerHideOnTouch = controllerHideOnTouch;
     this.controllerAutoShow = controllerAutoShow;
+    this.controllerHideDuringAds = controllerHideDuringAds;
     this.useController = useController && controller != null;
     hideController();
   }
@@ -424,6 +427,9 @@ public final class SimpleExoPlayerView extends FrameLayout {
     }
     if (shutterView != null) {
       shutterView.setVisibility(VISIBLE);
+    }
+    if (subtitleView != null) {
+      subtitleView.setCues(null);
     }
     if (player != null) {
       if (surfaceView instanceof TextureView) {
@@ -647,6 +653,16 @@ public final class SimpleExoPlayerView extends FrameLayout {
   }
 
   /**
+   * Sets whether the playback controls are hidden when ads are playing. Controls are always shown
+   * during ads if they are enabled and the player is paused.
+   *
+   * @param controllerHideDuringAds Whether the playback controls are hidden when ads are playing.
+   */
+  public void setControllerHideDuringAds(boolean controllerHideDuringAds) {
+    this.controllerHideDuringAds = controllerHideDuringAds;
+  }
+
+  /**
    * Set the {@link PlaybackControlView.VisibilityListener}.
    *
    * @param listener The listener to be notified about visibility changes.
@@ -781,8 +797,7 @@ public final class SimpleExoPlayerView extends FrameLayout {
    * Shows the playback controls, but only if forced or shown indefinitely.
    */
   private void maybeShowController(boolean isForced) {
-    if (isPlayingAd()) {
-      // Never show the controller if an ad is currently playing.
+    if (isPlayingAd() && controllerHideDuringAds) {
       return;
     }
     if (useController) {
@@ -953,7 +968,7 @@ public final class SimpleExoPlayerView extends FrameLayout {
 
     @Override
     public void onPlayerStateChanged(boolean playWhenReady, int playbackState) {
-      if (isPlayingAd()) {
+      if (isPlayingAd() && controllerHideDuringAds) {
         hideController();
       } else {
         maybeShowController(false);
@@ -962,7 +977,7 @@ public final class SimpleExoPlayerView extends FrameLayout {
 
     @Override
     public void onPositionDiscontinuity(@DiscontinuityReason int reason) {
-      if (isPlayingAd()) {
+      if (isPlayingAd() && controllerHideDuringAds) {
         hideController();
       }
     }

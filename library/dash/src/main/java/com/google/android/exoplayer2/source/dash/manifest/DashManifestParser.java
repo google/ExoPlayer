@@ -115,6 +115,7 @@ public class DashManifestParser extends DefaultHandler
         ? parseDuration(xpp, "timeShiftBufferDepth", C.TIME_UNSET) : C.TIME_UNSET;
     long suggestedPresentationDelayMs = dynamic
         ? parseDuration(xpp, "suggestedPresentationDelay", C.TIME_UNSET) : C.TIME_UNSET;
+    long publishTimeMs = parseDateTime(xpp, "publishTime", C.TIME_UNSET);
     UtcTimingElement utcTiming = null;
     Uri location = null;
 
@@ -167,17 +168,17 @@ public class DashManifestParser extends DefaultHandler
     }
 
     return buildMediaPresentationDescription(availabilityStartTime, durationMs, minBufferTimeMs,
-        dynamic, minUpdateTimeMs, timeShiftBufferDepthMs, suggestedPresentationDelayMs, utcTiming,
-        location, periods);
+        dynamic, minUpdateTimeMs, timeShiftBufferDepthMs, suggestedPresentationDelayMs,
+        publishTimeMs, utcTiming, location, periods);
   }
 
   protected DashManifest buildMediaPresentationDescription(long availabilityStartTime,
       long durationMs, long minBufferTimeMs, boolean dynamic, long minUpdateTimeMs,
-      long timeShiftBufferDepthMs, long suggestedPresentationDelayMs, UtcTimingElement utcTiming,
-      Uri location, List<Period> periods) {
+      long timeShiftBufferDepthMs, long suggestedPresentationDelayMs, long publishTimeMs,
+      UtcTimingElement utcTiming, Uri location, List<Period> periods) {
     return new DashManifest(availabilityStartTime, durationMs, minBufferTimeMs,
-        dynamic, minUpdateTimeMs, timeShiftBufferDepthMs, suggestedPresentationDelayMs, utcTiming,
-        location, periods);
+        dynamic, minUpdateTimeMs, timeShiftBufferDepthMs, suggestedPresentationDelayMs,
+        publishTimeMs, utcTiming, location, periods);
   }
 
   protected UtcTimingElement parseUtcTiming(XmlPullParser xpp) {
@@ -452,6 +453,7 @@ public class DashManifestParser extends DefaultHandler
     String drmSchemeType = null;
     ArrayList<SchemeData> drmSchemeDatas = new ArrayList<>();
     ArrayList<Descriptor> inbandEventStreams = new ArrayList<>();
+    ArrayList<Descriptor> supplementalProperties = new ArrayList<>();
 
     boolean seenFirstBaseUrl = false;
     do {
@@ -479,24 +481,29 @@ public class DashManifestParser extends DefaultHandler
         }
       } else if (XmlPullParserUtil.isStartTag(xpp, "InbandEventStream")) {
         inbandEventStreams.add(parseDescriptor(xpp, "InbandEventStream"));
+      } else if (XmlPullParserUtil.isStartTag(xpp, "SupplementalProperty")) {
+        supplementalProperties.add(parseDescriptor(xpp, "SupplementalProperty"));
       }
     } while (!XmlPullParserUtil.isEndTag(xpp, "Representation"));
 
     Format format = buildFormat(id, mimeType, width, height, frameRate, audioChannels,
         audioSamplingRate, bandwidth, adaptationSetLanguage, adaptationSetSelectionFlags,
-        adaptationSetAccessibilityDescriptors, codecs);
+        adaptationSetAccessibilityDescriptors, codecs, supplementalProperties);
     segmentBase = segmentBase != null ? segmentBase : new SingleSegmentBase();
 
     return new RepresentationInfo(format, baseUrl, segmentBase, drmSchemeType, drmSchemeDatas,
-        inbandEventStreams);
+        inbandEventStreams, Representation.REVISION_ID_DEFAULT);
   }
 
   protected Format buildFormat(String id, String containerMimeType, int width, int height,
       float frameRate, int audioChannels, int audioSamplingRate, int bitrate, String language,
       @C.SelectionFlags int selectionFlags, List<Descriptor> accessibilityDescriptors,
-      String codecs) {
+      String codecs, List<Descriptor> supplementalProperties) {
     String sampleMimeType = getSampleMimeType(containerMimeType, codecs);
     if (sampleMimeType != null) {
+      if (MimeTypes.AUDIO_E_AC3.equals(sampleMimeType)) {
+        sampleMimeType = parseEac3SupplementalProperties(supplementalProperties);
+      }
       if (MimeTypes.isVideo(sampleMimeType)) {
         return Format.createVideoContainerFormat(id, containerMimeType, sampleMimeType, codecs,
             bitrate, width, height, frameRate, null, selectionFlags);
@@ -535,7 +542,7 @@ public class DashManifestParser extends DefaultHandler
     }
     ArrayList<Descriptor> inbandEventStreams = representationInfo.inbandEventStreams;
     inbandEventStreams.addAll(extraInbandEventStreams);
-    return Representation.newInstance(contentId, Representation.REVISION_ID_DEFAULT, format,
+    return Representation.newInstance(contentId, representationInfo.revisionId, format,
         representationInfo.baseUrl, representationInfo.segmentBase, inbandEventStreams);
   }
 
@@ -900,6 +907,18 @@ public class DashManifestParser extends DefaultHandler
     return Format.NO_VALUE;
   }
 
+  protected static String parseEac3SupplementalProperties(List<Descriptor> supplementalProperties) {
+    for (int i = 0; i < supplementalProperties.size(); i++) {
+      Descriptor descriptor = supplementalProperties.get(i);
+      String schemeIdUri = descriptor.schemeIdUri;
+      if ("tag:dolby.com,2014:dash:DolbyDigitalPlusExtensionType:2014".equals(schemeIdUri)
+          && "ec+3".equals(descriptor.value)) {
+        return MimeTypes.AUDIO_ATMOS;
+      }
+    }
+    return MimeTypes.AUDIO_E_AC3;
+  }
+
   protected static float parseFrameRate(XmlPullParser xpp, float defaultValue) {
     float frameRate = defaultValue;
     String frameRateAttribute = xpp.getAttributeValue(null, "frameRate");
@@ -986,7 +1005,8 @@ public class DashManifestParser extends DefaultHandler
     }
   }
 
-  private static final class RepresentationInfo {
+  /** A parsed Representation element. */
+  protected static final class RepresentationInfo {
 
     public final Format format;
     public final String baseUrl;
@@ -994,16 +1014,18 @@ public class DashManifestParser extends DefaultHandler
     public final String drmSchemeType;
     public final ArrayList<SchemeData> drmSchemeDatas;
     public final ArrayList<Descriptor> inbandEventStreams;
+    public final long revisionId;
 
     public RepresentationInfo(Format format, String baseUrl, SegmentBase segmentBase,
         String drmSchemeType, ArrayList<SchemeData> drmSchemeDatas,
-        ArrayList<Descriptor> inbandEventStreams) {
+        ArrayList<Descriptor> inbandEventStreams, long revisionId) {
       this.format = format;
       this.baseUrl = baseUrl;
       this.segmentBase = segmentBase;
       this.drmSchemeType = drmSchemeType;
       this.drmSchemeDatas = drmSchemeDatas;
       this.inbandEventStreams = inbandEventStreams;
+      this.revisionId = revisionId;
     }
 
   }

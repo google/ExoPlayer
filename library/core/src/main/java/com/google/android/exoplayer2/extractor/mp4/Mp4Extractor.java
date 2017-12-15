@@ -41,7 +41,7 @@ import java.util.List;
 import java.util.Stack;
 
 /**
- * Extracts data from an unfragmented MP4 file.
+ * Extracts data from the MP4 container format.
  */
 public final class Mp4Extractor implements Extractor, SeekMap {
 

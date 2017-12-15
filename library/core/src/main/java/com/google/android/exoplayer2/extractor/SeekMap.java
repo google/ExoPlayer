@@ -28,13 +28,24 @@ public interface SeekMap {
   final class Unseekable implements SeekMap {
 
     private final long durationUs;
+    private final long startPosition;
 
     /**
      * @param durationUs The duration of the stream in microseconds, or {@link C#TIME_UNSET} if
      *     the duration is unknown.
      */
     public Unseekable(long durationUs) {
+      this(durationUs, 0);
+    }
+
+    /**
+     * @param durationUs The duration of the stream in microseconds, or {@link C#TIME_UNSET} if
+     *     the duration is unknown.
+     * @param startPosition The position (byte offset) of the start of the media.
+     */
+    public Unseekable(long durationUs, long startPosition) {
       this.durationUs = durationUs;
+      this.startPosition = startPosition;
     }
 
     @Override
@@ -49,7 +60,7 @@ public interface SeekMap {
 
     @Override
     public long getPosition(long timeUs) {
-      return 0;
+      return startPosition;
     }
 
   }
@@ -78,7 +89,8 @@ public interface SeekMap {
    *
    * @param timeUs A seek position in microseconds.
    * @return The corresponding position (byte offset) in the stream from which data can be provided
-   *     to the extractor, or 0 if {@code #isSeekable()} returns false.
+   *     to the extractor. If {@link #isSeekable()} returns false then the returned value will be
+   *     independent of {@code timeUs}, and will indicate the start of the media in the stream.
    */
   long getPosition(long timeUs);
 

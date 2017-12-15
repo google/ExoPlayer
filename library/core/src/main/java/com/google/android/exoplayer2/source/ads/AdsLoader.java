@@ -16,6 +16,7 @@
 package com.google.android.exoplayer2.source.ads;
 
 import android.view.ViewGroup;
+import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlayer;
 import java.io.IOException;
 
@@ -70,6 +71,15 @@ public interface AdsLoader {
     void onAdTapped();
 
   }
+
+  /**
+   * Sets the supported content types for ad media. Must be called before the first call to
+   * {@link #attachPlayer(ExoPlayer, EventListener, ViewGroup)}. Subsequent calls may be ignored.
+   *
+   * @param contentTypes The supported content types for ad media. Each element must be one of
+   *     {@link C#TYPE_DASH}, {@link C#TYPE_HLS}, {@link C#TYPE_SS} and {@link C#TYPE_OTHER}.
+   */
+  void setSupportedContentTypes(@C.ContentType int... contentTypes);
 
   /**
    * Attaches a player that will play ads loaded using this instance. Called on the main thread by

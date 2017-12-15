@@ -62,13 +62,23 @@ public final class TrackGroupArray {
    * @param group The group.
    * @return The index of the group, or {@link C#INDEX_UNSET} if no such group exists.
    */
+  @SuppressWarnings("ReferenceEquality")
   public int indexOf(TrackGroup group) {
     for (int i = 0; i < length; i++) {
+      // Suppressed reference equality warning because this is looking for the index of a specific
+      // TrackGroup object, not the index of a potential equal TrackGroup.
       if (trackGroups[i] == group) {
         return i;
       }
     }
     return C.INDEX_UNSET;
+  }
+
+  /**
+   * Returns whether this track group array is empty.
+   */
+  public boolean isEmpty() {
+    return length == 0;
   }
 
   @Override

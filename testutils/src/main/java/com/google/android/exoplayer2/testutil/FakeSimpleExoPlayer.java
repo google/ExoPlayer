@@ -69,7 +69,7 @@ public class FakeSimpleExoPlayer extends SimpleExoPlayer {
     return player;
   }
 
-  private static class FakeExoPlayer implements ExoPlayer, MediaSource.Listener,
+  private static class FakeExoPlayer extends StubExoPlayer implements MediaSource.Listener,
       MediaPeriod.Callback, Runnable {
 
     private final Renderer[] renderers;
@@ -145,18 +145,8 @@ public class FakeSimpleExoPlayer extends SimpleExoPlayer {
     }
 
     @Override
-    public void setRepeatMode(@RepeatMode int repeatMode) {
-      throw new UnsupportedOperationException();
-    }
-
-    @Override
     public int getRepeatMode() {
       return Player.REPEAT_MODE_OFF;
-    }
-
-    @Override
-    public void setShuffleModeEnabled(boolean shuffleModeEnabled) {
-      throw new UnsupportedOperationException();
     }
 
     @Override
@@ -170,58 +160,19 @@ public class FakeSimpleExoPlayer extends SimpleExoPlayer {
     }
 
     @Override
-    public void seekToDefaultPosition() {
-      throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public void seekToDefaultPosition(int windowIndex) {
-      throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public void seekTo(long positionMs) {
-      throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public void seekTo(int windowIndex, long positionMs) {
-      throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public void setPlaybackParameters(@Nullable PlaybackParameters playbackParameters) {
-      throw new UnsupportedOperationException();
-    }
-
-    @Override
     public PlaybackParameters getPlaybackParameters() {
       return PlaybackParameters.DEFAULT;
     }
 
     @Override
     public void stop() {
-      playbackHandler.post(new Runnable() {
-        @Override
-        public void run () {
-          playbackHandler.removeCallbacksAndMessages(null);
-          releaseMedia();
-          changePlaybackState(Player.STATE_IDLE);
-        }
-      });
+      stop(/* quitPlaybackThread= */ false);
     }
 
     @Override
     @SuppressWarnings("ThreadJoinLoop")
     public void release() {
-      stop();
-      playbackHandler.post(new Runnable() {
-        @Override
-        public void run () {
-          playbackHandler.removeCallbacksAndMessages(null);
-          playbackThread.quit();
-        }
-      });
+      stop(/* quitPlaybackThread= */ true);
       while (playbackThread.isAlive()) {
         try {
           playbackThread.join();
@@ -355,16 +306,6 @@ public class FakeSimpleExoPlayer extends SimpleExoPlayer {
           mediaSource.prepareSource(FakeExoPlayer.this, true, FakeExoPlayer.this);
         }
       });
-    }
-
-    @Override
-    public void sendMessages(ExoPlayerMessage... messages) {
-      throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public void blockingSendMessages(ExoPlayerMessage... messages) {
-      throw new UnsupportedOperationException();
     }
 
     // MediaSource.Listener
@@ -568,6 +509,20 @@ public class FakeSimpleExoPlayer extends SimpleExoPlayer {
         mediaSource.releaseSource();
         mediaSource = null;
       }
+    }
+
+    private void stop(final boolean quitPlaybackThread) {
+      playbackHandler.post(new Runnable() {
+        @Override
+        public void run () {
+          playbackHandler.removeCallbacksAndMessages(null);
+          releaseMedia();
+          changePlaybackState(Player.STATE_IDLE);
+          if (quitPlaybackThread) {
+            playbackThread.quit();
+          }
+        }
+      });
     }
 
   }

@@ -30,7 +30,10 @@ public final class FakeTimeline extends Timeline {
    */
   public static final class TimelineWindowDefinition {
 
-    private static final int WINDOW_DURATION_US = 100000;
+    /**
+     * Default test window duration in microseconds.
+     */
+    public static final int DEFAULT_WINDOW_DURATION_US = 100_000;
 
     public final int periodCount;
     public final Object id;
@@ -40,19 +43,65 @@ public final class FakeTimeline extends Timeline {
     public final int adGroupsPerPeriodCount;
     public final int adsPerAdGroupCount;
 
-    public TimelineWindowDefinition(int periodCount, Object id) {
-      this(periodCount, id, true, false, WINDOW_DURATION_US);
+    /**
+     * Creates a seekable, non-dynamic window definition with one period with a duration of
+     * {@link #DEFAULT_WINDOW_DURATION_US}.
+     */
+    public TimelineWindowDefinition() {
+      this(1, 0, true, false, DEFAULT_WINDOW_DURATION_US);
     }
 
+    /**
+     * Creates a seekable, non-dynamic window definition with a duration of
+     * {@link #DEFAULT_WINDOW_DURATION_US}.
+     *
+     * @param periodCount The number of periods in the window. Each period get an equal slice of the
+     *     total window duration.
+     * @param id The UID of the window.
+     */
+    public TimelineWindowDefinition(int periodCount, Object id) {
+      this(periodCount, id, true, false, DEFAULT_WINDOW_DURATION_US);
+    }
+
+    /**
+     * Creates a window definition with one period.
+     *
+     * @param isSeekable Whether the window is seekable.
+     * @param isDynamic Whether the window is dynamic.
+     * @param durationUs The duration of the window in microseconds.
+     */
     public TimelineWindowDefinition(boolean isSeekable, boolean isDynamic, long durationUs) {
       this(1, 0, isSeekable, isDynamic, durationUs);
     }
 
+    /**
+     * Creates a window definition.
+     *
+     * @param periodCount The number of periods in the window. Each period get an equal slice of the
+     *     total window duration.
+     * @param id The UID of the window.
+     * @param isSeekable Whether the window is seekable.
+     * @param isDynamic Whether the window is dynamic.
+     * @param durationUs The duration of the window in microseconds.
+     */
     public TimelineWindowDefinition(int periodCount, Object id, boolean isSeekable,
         boolean isDynamic, long durationUs) {
       this(periodCount, id, isSeekable, isDynamic, durationUs, 0, 0);
     }
 
+    /**
+     * Creates a window definition with ad groups.
+     *
+     * @param periodCount The number of periods in the window. Each period get an equal slice of the
+     *     total window duration.
+     * @param id The UID of the window.
+     * @param isSeekable Whether the window is seekable.
+     * @param isDynamic Whether the window is dynamic.
+     * @param durationUs The duration of the window in microseconds.
+     * @param adGroupsCountPerPeriod The number of ad groups in each period. The position of the ad
+     *     groups is equally distributed in each period starting.
+     * @param adsPerAdGroupCount The number of ads in each ad group.
+     */
     public TimelineWindowDefinition(int periodCount, Object id, boolean isSeekable,
         boolean isDynamic, long durationUs, int adGroupsCountPerPeriod, int adsPerAdGroupCount) {
       this.periodCount = periodCount;
@@ -71,6 +120,21 @@ public final class FakeTimeline extends Timeline {
   private final TimelineWindowDefinition[] windowDefinitions;
   private final int[] periodOffsets;
 
+  /**
+   * Creates a fake timeline with the given number of seekable, non-dynamic windows with one period
+   * with a duration of {@link TimelineWindowDefinition#DEFAULT_WINDOW_DURATION_US} each.
+   *
+   * @param windowCount The number of windows.
+   */
+  public FakeTimeline(int windowCount) {
+    this(createDefaultWindowDefinitions(windowCount));
+  }
+
+  /**
+   * Creates a fake timeline with the given window definitions.
+   *
+   * @param windowDefinitions A list of {@link TimelineWindowDefinition}s.
+   */
   public FakeTimeline(TimelineWindowDefinition... windowDefinitions) {
     this.windowDefinitions = windowDefinitions;
     periodOffsets = new int[windowDefinitions.length + 1];
@@ -139,6 +203,12 @@ public final class FakeTimeline extends Timeline {
     }
     int index = (Integer) uid;
     return index >= 0 && index < getPeriodCount() ? index : C.INDEX_UNSET;
+  }
+
+  private static TimelineWindowDefinition[] createDefaultWindowDefinitions(int windowCount) {
+    TimelineWindowDefinition[] windowDefinitions = new TimelineWindowDefinition[windowCount];
+    Arrays.fill(windowDefinitions, new TimelineWindowDefinition());
+    return windowDefinitions;
   }
 
 }

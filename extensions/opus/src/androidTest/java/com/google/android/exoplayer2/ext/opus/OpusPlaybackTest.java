@@ -26,6 +26,7 @@ import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.Renderer;
 import com.google.android.exoplayer2.extractor.mkv.MatroskaExtractor;
 import com.google.android.exoplayer2.source.ExtractorMediaSource;
+import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
 
@@ -35,6 +36,14 @@ import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
 public class OpusPlaybackTest extends InstrumentationTestCase {
 
   private static final String BEAR_OPUS_URI = "asset:///bear-opus.webm";
+
+  @Override
+  protected void setUp() throws Exception {
+    super.setUp();
+    if (!OpusLibrary.isAvailable()) {
+      fail("Opus library not available.");
+    }
+  }
 
   public void testBasicPlayback() throws ExoPlaybackException {
     playUri(BEAR_OPUS_URI);
@@ -76,12 +85,11 @@ public class OpusPlaybackTest extends InstrumentationTestCase {
       DefaultTrackSelector trackSelector = new DefaultTrackSelector();
       player = ExoPlayerFactory.newInstance(new Renderer[] {audioRenderer}, trackSelector);
       player.addListener(this);
-      ExtractorMediaSource mediaSource = new ExtractorMediaSource(
-          uri,
-          new DefaultDataSourceFactory(context, "ExoPlayerExtOpusTest"),
-          MatroskaExtractor.FACTORY,
-          null,
-          null);
+      MediaSource mediaSource =
+          new ExtractorMediaSource.Factory(
+                  new DefaultDataSourceFactory(context, "ExoPlayerExtOpusTest"))
+              .setExtractorsFactory(MatroskaExtractor.FACTORY)
+              .createMediaSource(uri);
       player.prepare(mediaSource);
       player.setPlayWhenReady(true);
       Looper.loop();

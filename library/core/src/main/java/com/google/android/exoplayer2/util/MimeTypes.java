@@ -36,6 +36,7 @@ public final class MimeTypes {
   public static final String VIDEO_VP8 = BASE_TYPE_VIDEO + "/x-vnd.on2.vp8";
   public static final String VIDEO_VP9 = BASE_TYPE_VIDEO + "/x-vnd.on2.vp9";
   public static final String VIDEO_MP4V = BASE_TYPE_VIDEO + "/mp4v-es";
+  public static final String VIDEO_MPEG = BASE_TYPE_VIDEO + "/mpeg";
   public static final String VIDEO_MPEG2 = BASE_TYPE_VIDEO + "/mpeg2";
   public static final String VIDEO_VC1 = BASE_TYPE_VIDEO + "/wvc1";
   public static final String VIDEO_UNKNOWN = BASE_TYPE_VIDEO + "/x-unknown";
@@ -51,6 +52,7 @@ public final class MimeTypes {
   public static final String AUDIO_MLAW = BASE_TYPE_AUDIO + "/g711-mlaw";
   public static final String AUDIO_AC3 = BASE_TYPE_AUDIO + "/ac3";
   public static final String AUDIO_E_AC3 = BASE_TYPE_AUDIO + "/eac3";
+  public static final String AUDIO_ATMOS = BASE_TYPE_AUDIO + "/eac3-joc";
   public static final String AUDIO_TRUEHD = BASE_TYPE_AUDIO + "/true-hd";
   public static final String AUDIO_DTS = BASE_TYPE_AUDIO + "/vnd.dts";
   public static final String AUDIO_DTS_HD = BASE_TYPE_AUDIO + "/vnd.dts.hd";
@@ -69,7 +71,9 @@ public final class MimeTypes {
 
   public static final String APPLICATION_MP4 = BASE_TYPE_APPLICATION + "/mp4";
   public static final String APPLICATION_WEBM = BASE_TYPE_APPLICATION + "/webm";
+  public static final String APPLICATION_MPD = BASE_TYPE_APPLICATION + "/dash+xml";
   public static final String APPLICATION_M3U8 = BASE_TYPE_APPLICATION + "/x-mpegURL";
+  public static final String APPLICATION_SS = BASE_TYPE_APPLICATION + "/vnd.ms-sstr+xml";
   public static final String APPLICATION_ID3 = BASE_TYPE_APPLICATION + "/id3";
   public static final String APPLICATION_CEA608 = BASE_TYPE_APPLICATION + "/cea-608";
   public static final String APPLICATION_CEA708 = BASE_TYPE_APPLICATION + "/cea-708";
@@ -195,6 +199,8 @@ public final class MimeTypes {
       return MimeTypes.AUDIO_AC3;
     } else if (codec.startsWith("ec-3") || codec.startsWith("dec3")) {
       return MimeTypes.AUDIO_E_AC3;
+    } else if (codec.startsWith("ec+3")) {
+      return MimeTypes.AUDIO_ATMOS;
     } else if (codec.startsWith("dtsc") || codec.startsWith("dtse")) {
       return MimeTypes.AUDIO_DTS;
     } else if (codec.startsWith("dtsh") || codec.startsWith("dtsl")) {
@@ -208,12 +214,12 @@ public final class MimeTypes {
   }
 
   /**
-   * Returns the {@link C}{@code .TRACK_TYPE_*} constant that corresponds to a specified mime type.
-   * {@link C#TRACK_TYPE_UNKNOWN} if the mime type is not known or the mapping cannot be
+   * Returns the {@link C}{@code .TRACK_TYPE_*} constant that corresponds to a specified MIME type.
+   * {@link C#TRACK_TYPE_UNKNOWN} if the MIME type is not known or the mapping cannot be
    * established.
    *
-   * @param mimeType The mimeType.
-   * @return The {@link C}{@code .TRACK_TYPE_*} constant that corresponds to a specified mime type.
+   * @param mimeType The MIME type.
+   * @return The {@link C}{@code .TRACK_TYPE_*} constant that corresponds to a specified MIME type.
    */
   public static int getTrackType(String mimeType) {
     if (TextUtils.isEmpty(mimeType)) {
@@ -236,6 +242,30 @@ public final class MimeTypes {
       return C.TRACK_TYPE_METADATA;
     } else {
       return C.TRACK_TYPE_UNKNOWN;
+    }
+  }
+
+  /**
+   * Returns the {@link C}{@code .ENCODING_*} constant that corresponds to specified MIME type, if
+   * it is an encoded (non-PCM) audio format, or {@link C#ENCODING_INVALID} otherwise.
+   *
+   * @param mimeType The MIME type.
+   * @return The {@link C}{@code .ENCODING_*} constant that corresponds to a specified MIME type, or
+   *     {@link C#ENCODING_INVALID}.
+   */
+  public static @C.Encoding int getEncoding(String mimeType) {
+    switch (mimeType) {
+      case MimeTypes.AUDIO_AC3:
+        return C.ENCODING_AC3;
+      case MimeTypes.AUDIO_E_AC3:
+      case MimeTypes.AUDIO_ATMOS:
+        return C.ENCODING_E_AC3;
+      case MimeTypes.AUDIO_DTS:
+        return C.ENCODING_DTS;
+      case MimeTypes.AUDIO_DTS_HD:
+        return C.ENCODING_DTS_HD;
+      default:
+        return C.ENCODING_INVALID;
     }
   }
 
