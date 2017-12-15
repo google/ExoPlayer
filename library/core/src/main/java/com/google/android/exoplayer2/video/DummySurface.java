@@ -24,7 +24,6 @@ import static android.opengl.EGL14.EGL_DEPTH_SIZE;
 import static android.opengl.EGL14.EGL_GREEN_SIZE;
 import static android.opengl.EGL14.EGL_HEIGHT;
 import static android.opengl.EGL14.EGL_NONE;
-import static android.opengl.EGL14.EGL_NO_SURFACE;
 import static android.opengl.EGL14.EGL_OPENGL_ES2_BIT;
 import static android.opengl.EGL14.EGL_RED_SIZE;
 import static android.opengl.EGL14.EGL_RENDERABLE_TYPE;
@@ -326,7 +325,7 @@ public final class DummySurface extends Surface {
 
       EGLSurface surface;
       if (secureMode == SECURE_MODE_SURFACELESS_CONTEXT) {
-        surface = EGL_NO_SURFACE;
+        surface = EGL14.EGL_NO_SURFACE;
       } else {
         int[] pbufferAttributes;
         if (secureMode == SECURE_MODE_PROTECTED_PBUFFER) {
