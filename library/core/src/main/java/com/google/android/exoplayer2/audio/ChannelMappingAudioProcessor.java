@@ -51,8 +51,6 @@ import java.util.Arrays;
   /**
    * Resets the channel mapping. After calling this method, call {@link #configure(int, int, int)}
    * to start using the new channel map.
-   *
-   * @see AudioSink#configure(String, int, int, int, int, int[], int, int)
    */
   public void setChannelMap(int[] outputChannels) {
     pendingOutputChannels = outputChannels;
