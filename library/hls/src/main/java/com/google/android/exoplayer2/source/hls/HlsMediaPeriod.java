@@ -95,7 +95,9 @@ public final class HlsMediaPeriod implements MediaPeriod, HlsSampleStreamWrapper
   @Override
   public void maybeThrowPrepareError() throws IOException {
     for (HlsSampleStreamWrapper sampleStreamWrapper : sampleStreamWrappers) {
-      sampleStreamWrapper.maybeThrowPrepareError();
+      if (sampleStreamWrapper != null) {
+        sampleStreamWrapper.maybeThrowPrepareError();
+      }
     }
   }
 
