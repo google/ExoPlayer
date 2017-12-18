@@ -12,10 +12,13 @@ The minimum Android versions required for core ExoPlayer use cases are:
 | Video playback | 4.1 | 16 |
 | DASH (no DRM) | 4.1 | 16 |
 | DASH (Widevine CENC; "cenc" scheme) | 4.4 | 19 |
+| DASH (Widevine CENC; "cbcs", "cbc1" and "cens" schemes) | 7.0 | 24 |
 | SmoothStreaming (no DRM) | 4.1 | 16 |
 | SmoothStreaming (PlayReady SL2000) | AndroidTV | AndroidTV |
 | HLS (no DRM) | 4.1 | 16 |
 | HLS (AES-128 encryption) | 4.1 | 16 |
+| HLS (Widevine CENC; "cenc" scheme) | 4.4 | 19 |
+| HLS (Widevine CENC; "cbcs" scheme) | 7.0 | 24 |
 
 For a given use case, we aim to support ExoPlayer on all Android devices that
 satisfy the minimum version requirement. Known device specific compatibility
@@ -37,8 +40,8 @@ be found
   because such cables cannot carry audio. Hence this issue can be safely
   ignored. We suggest using a realistic end user setup (e.g., the device
   connected to a TV using a standard HDMI cable) for development and testing.
-* **Emulators** - Some Android eumulators do not properly implement components
-  of Android's media stack, and as a result do not support ExoPlayer. This is an
+* **Emulators** - Some Android emulators do not properly implement components of
+  Android's media stack, and as a result do not support ExoPlayer. This is an
   issue with the emulator, not with ExoPlayer. Android's official emulator
   ("Virtual Devices" in Android Studio) supports ExoPlayer provided the system
   image has an API level of at least 23. System images with earlier API levels
@@ -47,3 +50,4 @@ be found
   reported to the developer of the emulator rather than to the ExoPlayer team.
   Where possible, we recommend testing media applications on physical devices
   rather than emulators.
+  
