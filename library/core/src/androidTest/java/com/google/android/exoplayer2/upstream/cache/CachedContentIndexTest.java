@@ -36,6 +36,7 @@ public class CachedContentIndexTest extends InstrumentationTestCase {
 
   @Override
   public void setUp() throws Exception {
+    super.setUp();
     cacheDir = Util.createTempDirectory(getInstrumentation().getContext(), "ExoPlayerTest");
     index = new CachedContentIndex(cacheDir);
   }
@@ -43,6 +44,7 @@ public class CachedContentIndexTest extends InstrumentationTestCase {
   @Override
   protected void tearDown() throws Exception {
     Util.recursiveDelete(cacheDir);
+    super.tearDown();
   }
 
   public void testAddGetRemove() throws Exception {

@@ -38,6 +38,7 @@ public class OfflineLicenseHelperTest extends InstrumentationTestCase {
 
   @Override
   protected void setUp() throws Exception {
+    super.setUp();
     MockitoUtil.setUpMockito(this);
     when(mediaDrm.openSession()).thenReturn(new byte[] {1, 2, 3});
     offlineLicenseHelper = new OfflineLicenseHelper<>(C.WIDEVINE_UUID, mediaDrm, mediaDrmCallback,
@@ -48,6 +49,7 @@ public class OfflineLicenseHelperTest extends InstrumentationTestCase {
   protected void tearDown() throws Exception {
     offlineLicenseHelper.release();
     offlineLicenseHelper = null;
+    super.tearDown();
   }
 
   public void testDownloadRenewReleaseKey() throws Exception {

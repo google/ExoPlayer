@@ -48,6 +48,7 @@ public class SimpleCacheSpanTest extends InstrumentationTestCase {
 
   @Override
   protected void setUp() throws Exception {
+    super.setUp();
     cacheDir = Util.createTempDirectory(getInstrumentation().getContext(), "ExoPlayerTest");
     index = new CachedContentIndex(cacheDir);
   }
@@ -55,6 +56,7 @@ public class SimpleCacheSpanTest extends InstrumentationTestCase {
   @Override
   protected void tearDown() throws Exception {
     Util.recursiveDelete(cacheDir);
+    super.tearDown();
   }
 
   public void testCacheFile() throws Exception {

@@ -481,11 +481,9 @@ public class FakeSimpleExoPlayer extends SimpleExoPlayer {
 
     private boolean haveSufficientBuffer(boolean rebuffering, long rendererPositionUs,
         long bufferedPositionUs) {
-      if (bufferedPositionUs == C.TIME_END_OF_SOURCE) {
-        return true;
-      }
-      return
-          loadControl.shouldStartPlayback(bufferedPositionUs - rendererPositionUs, 1f, rebuffering);
+      return bufferedPositionUs == C.TIME_END_OF_SOURCE
+          || loadControl.shouldStartPlayback(
+              bufferedPositionUs - rendererPositionUs, 1f, rebuffering);
     }
 
     private void handlePlayerError(final ExoPlaybackException e) {
