@@ -46,8 +46,8 @@ public final class CachedRegionTrackerTest extends InstrumentationTestCase {
 
   @Override
   protected void setUp() throws Exception {
+    super.setUp();
     MockitoUtil.setUpMockito(this);
-
     tracker = new CachedRegionTracker(cache, CACHE_KEY, CHUNK_INDEX);
     cacheDir = Util.createTempDirectory(getInstrumentation().getContext(), "ExoPlayerTest");
     index = new CachedContentIndex(cacheDir);
@@ -56,6 +56,7 @@ public final class CachedRegionTrackerTest extends InstrumentationTestCase {
   @Override
   protected void tearDown() throws Exception {
     Util.recursiveDelete(cacheDir);
+    super.tearDown();
   }
 
   public void testGetRegion_noSpansInCache() {

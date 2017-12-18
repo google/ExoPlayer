@@ -61,7 +61,6 @@ public final class LatmReader implements ElementaryStreamReader {
 
   // Container data.
   private boolean streamMuxRead;
-  private int audioMuxVersion;
   private int audioMuxVersionA;
   private int numSubframes;
   private int frameLengthType;
@@ -176,7 +175,7 @@ public final class LatmReader implements ElementaryStreamReader {
    * Parses a StreamMuxConfig as defined in ISO/IEC 14496-3:2009 Section 1.7.3.1, Table 1.42.
    */
   private void parseStreamMuxConfig(ParsableBitArray data) throws ParserException {
-    audioMuxVersion = data.readBits(1);
+    int audioMuxVersion = data.readBits(1);
     audioMuxVersionA = audioMuxVersion == 1 ? data.readBits(1) : 0;
     if (audioMuxVersionA == 0) {
       if (audioMuxVersion == 1) {

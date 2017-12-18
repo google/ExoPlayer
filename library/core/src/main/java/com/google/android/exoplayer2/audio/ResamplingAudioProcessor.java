@@ -102,6 +102,7 @@ import java.nio.ByteOrder;
         resampledSize = size / 2;
         break;
       case C.ENCODING_PCM_16BIT:
+      case C.ENCODING_PCM_FLOAT:
       case C.ENCODING_INVALID:
       case Format.NO_VALUE:
       default:
