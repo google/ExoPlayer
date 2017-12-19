@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.testutil;
 
+import android.util.Pair;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.util.Util;
@@ -170,7 +171,7 @@ public final class FakeTimeline extends Timeline {
     int windowPeriodIndex = periodIndex - periodOffsets[windowIndex];
     TimelineWindowDefinition windowDefinition = windowDefinitions[windowIndex];
     Object id = setIds ? windowPeriodIndex : null;
-    Object uid = setIds ? periodIndex : null;
+    Object uid = setIds ? Pair.create(windowDefinition.id, windowPeriodIndex) : null;
     long periodDurationUs = windowDefinition.durationUs / windowDefinition.periodCount;
     long positionInWindowUs = periodDurationUs * windowPeriodIndex;
     if (windowDefinition.adGroupsPerPeriodCount == 0) {
@@ -198,11 +199,13 @@ public final class FakeTimeline extends Timeline {
 
   @Override
   public int getIndexOfPeriod(Object uid) {
-    if (!(uid instanceof Integer)) {
-      return C.INDEX_UNSET;
+    Period period = new Period();
+    for (int i = 0; i < getPeriodCount(); i++) {
+      if (getPeriod(i, period, true).uid.equals(uid)) {
+        return i;
+      }
     }
-    int index = (Integer) uid;
-    return index >= 0 && index < getPeriodCount() ? index : C.INDEX_UNSET;
+    return C.INDEX_UNSET;
   }
 
   private static TimelineWindowDefinition[] createDefaultWindowDefinitions(int windowCount) {
