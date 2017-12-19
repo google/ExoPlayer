@@ -22,6 +22,7 @@ import android.os.Message;
 import android.support.annotation.Nullable;
 import android.util.Log;
 import android.util.Pair;
+import com.google.android.exoplayer2.PlayerMessage.Target;
 import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.source.MediaSource.MediaPeriodId;
 import com.google.android.exoplayer2.source.TrackGroupArray;
@@ -31,6 +32,8 @@ import com.google.android.exoplayer2.trackselection.TrackSelector;
 import com.google.android.exoplayer2.trackselection.TrackSelectorResult;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Util;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.CopyOnWriteArraySet;
 
 /**
@@ -45,6 +48,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
   private final TrackSelectorResult emptyTrackSelectorResult;
   private final Handler eventHandler;
   private final ExoPlayerImplInternal internalPlayer;
+  private final Handler internalPlayerHandler;
   private final CopyOnWriteArraySet<Player.EventListener> listeners;
   private final Timeline.Window window;
   private final Timeline.Period period;
@@ -113,6 +117,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
             shuffleModeEnabled,
             eventHandler,
             this);
+    internalPlayerHandler = new Handler(internalPlayer.getPlaybackLooper());
   }
 
   @Override
@@ -326,12 +331,47 @@ import java.util.concurrent.CopyOnWriteArraySet;
 
   @Override
   public void sendMessages(ExoPlayerMessage... messages) {
-    internalPlayer.sendMessages(messages);
+    for (ExoPlayerMessage message : messages) {
+      createMessage(message.target).setType(message.messageType).setMessage(message.message).send();
+    }
+  }
+
+  @Override
+  public PlayerMessage createMessage(Target target) {
+    return new PlayerMessage(
+        internalPlayer,
+        target,
+        playbackInfo.timeline,
+        getCurrentWindowIndex(),
+        internalPlayerHandler);
   }
 
   @Override
   public void blockingSendMessages(ExoPlayerMessage... messages) {
-    internalPlayer.blockingSendMessages(messages);
+    List<PlayerMessage> playerMessages = new ArrayList<>();
+    for (ExoPlayerMessage message : messages) {
+      playerMessages.add(
+          createMessage(message.target)
+              .setType(message.messageType)
+              .setMessage(message.message)
+              .send());
+    }
+    boolean wasInterrupted = false;
+    for (PlayerMessage message : playerMessages) {
+      boolean blockMessage = true;
+      while (blockMessage) {
+        try {
+          message.blockUntilDelivered();
+          blockMessage = false;
+        } catch (InterruptedException e) {
+          wasInterrupted = true;
+        }
+      }
+    }
+    if (wasInterrupted) {
+      // Restore the interrupted status.
+      Thread.currentThread().interrupt();
+    }
   }
 
   @Override
