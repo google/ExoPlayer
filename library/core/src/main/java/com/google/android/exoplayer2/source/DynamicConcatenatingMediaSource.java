@@ -23,8 +23,7 @@ import android.util.SparseIntArray;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.ExoPlayer;
-import com.google.android.exoplayer2.ExoPlayer.ExoPlayerComponent;
-import com.google.android.exoplayer2.ExoPlayer.ExoPlayerMessage;
+import com.google.android.exoplayer2.PlayerMessage;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.source.ShuffleOrder.DefaultShuffleOrder;
 import com.google.android.exoplayer2.upstream.Allocator;
@@ -42,7 +41,7 @@ import java.util.Map;
  * Concatenates multiple {@link MediaSource}s. The list of {@link MediaSource}s can be modified
  * during playback. Access to this class is thread-safe.
  */
-public final class DynamicConcatenatingMediaSource implements MediaSource, ExoPlayerComponent {
+public final class DynamicConcatenatingMediaSource implements MediaSource, PlayerMessage.Target {
 
   private static final int MSG_ADD = 0;
   private static final int MSG_ADD_MULTIPLE = 1;
@@ -147,8 +146,11 @@ public final class DynamicConcatenatingMediaSource implements MediaSource, ExoPl
     Assertions.checkArgument(!mediaSourcesPublic.contains(mediaSource));
     mediaSourcesPublic.add(index, mediaSource);
     if (player != null) {
-      player.sendMessages(new ExoPlayerMessage(this, MSG_ADD,
-          new MessageData<>(index, mediaSource, actionOnCompletion)));
+      player
+          .createMessage(this)
+          .setType(MSG_ADD)
+          .setMessage(new MessageData<>(index, mediaSource, actionOnCompletion))
+          .send();
     } else if (actionOnCompletion != null) {
       actionOnCompletion.run();
     }
@@ -220,8 +222,11 @@ public final class DynamicConcatenatingMediaSource implements MediaSource, ExoPl
     }
     mediaSourcesPublic.addAll(index, mediaSources);
     if (player != null && !mediaSources.isEmpty()) {
-      player.sendMessages(new ExoPlayerMessage(this, MSG_ADD_MULTIPLE,
-          new MessageData<>(index, mediaSources, actionOnCompletion)));
+      player
+          .createMessage(this)
+          .setType(MSG_ADD_MULTIPLE)
+          .setMessage(new MessageData<>(index, mediaSources, actionOnCompletion))
+          .send();
     } else if (actionOnCompletion != null){
       actionOnCompletion.run();
     }
@@ -256,8 +261,11 @@ public final class DynamicConcatenatingMediaSource implements MediaSource, ExoPl
   public synchronized void removeMediaSource(int index, @Nullable Runnable actionOnCompletion) {
     mediaSourcesPublic.remove(index);
     if (player != null) {
-      player.sendMessages(new ExoPlayerMessage(this, MSG_REMOVE,
-          new MessageData<>(index, null, actionOnCompletion)));
+      player
+          .createMessage(this)
+          .setType(MSG_REMOVE)
+          .setMessage(new MessageData<>(index, null, actionOnCompletion))
+          .send();
     } else if (actionOnCompletion != null) {
       actionOnCompletion.run();
     }
@@ -293,8 +301,11 @@ public final class DynamicConcatenatingMediaSource implements MediaSource, ExoPl
     }
     mediaSourcesPublic.add(newIndex, mediaSourcesPublic.remove(currentIndex));
     if (player != null) {
-      player.sendMessages(new ExoPlayerMessage(this, MSG_MOVE,
-          new MessageData<>(currentIndex, newIndex, actionOnCompletion)));
+      player
+          .createMessage(this)
+          .setType(MSG_MOVE)
+          .setMessage(new MessageData<>(currentIndex, newIndex, actionOnCompletion))
+          .send();
     } else if (actionOnCompletion != null) {
       actionOnCompletion.run();
     }
@@ -427,8 +438,7 @@ public final class DynamicConcatenatingMediaSource implements MediaSource, ExoPl
           new ConcatenatedTimeline(mediaSourceHolders, windowCount, periodCount, shuffleOrder),
           null);
       if (actionOnCompletion != null) {
-        player.sendMessages(
-            new ExoPlayerMessage(this, MSG_ON_COMPLETION, actionOnCompletion));
+        player.createMessage(this).setType(MSG_ON_COMPLETION).setMessage(actionOnCompletion).send();
       }
     }
   }

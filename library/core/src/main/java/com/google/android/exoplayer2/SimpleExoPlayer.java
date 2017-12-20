@@ -93,8 +93,6 @@ public class SimpleExoPlayer implements ExoPlayer {
   private final CopyOnWriteArraySet<MetadataOutput> metadataOutputs;
   private final CopyOnWriteArraySet<VideoRendererEventListener> videoDebugListeners;
   private final CopyOnWriteArraySet<AudioRendererEventListener> audioDebugListeners;
-  private final int videoRendererCount;
-  private final int audioRendererCount;
 
   private Format videoFormat;
   private Format audioFormat;
@@ -124,25 +122,6 @@ public class SimpleExoPlayer implements ExoPlayer {
     renderers = renderersFactory.createRenderers(eventHandler, componentListener, componentListener,
         componentListener, componentListener);
 
-    // Obtain counts of video and audio renderers.
-    int videoRendererCount = 0;
-    int audioRendererCount = 0;
-    for (Renderer renderer : renderers) {
-      switch (renderer.getTrackType()) {
-        case C.TRACK_TYPE_VIDEO:
-          videoRendererCount++;
-          break;
-        case C.TRACK_TYPE_AUDIO:
-          audioRendererCount++;
-          break;
-        default:
-          // Don't count other track types.
-          break;
-      }
-    }
-    this.videoRendererCount = videoRendererCount;
-    this.audioRendererCount = audioRendererCount;
-
     // Set initial values.
     audioVolume = 1;
     audioSessionId = C.AUDIO_SESSION_ID_UNSET;
@@ -163,15 +142,15 @@ public class SimpleExoPlayer implements ExoPlayer {
    */
   public void setVideoScalingMode(@C.VideoScalingMode int videoScalingMode) {
     this.videoScalingMode = videoScalingMode;
-    ExoPlayerMessage[] messages = new ExoPlayerMessage[videoRendererCount];
-    int count = 0;
     for (Renderer renderer : renderers) {
       if (renderer.getTrackType() == C.TRACK_TYPE_VIDEO) {
-        messages[count++] = new ExoPlayerMessage(renderer, C.MSG_SET_SCALING_MODE,
-            videoScalingMode);
+        player
+            .createMessage(renderer)
+            .setType(C.MSG_SET_SCALING_MODE)
+            .setMessage(videoScalingMode)
+            .send();
       }
     }
-    player.sendMessages(messages);
   }
 
   /**
@@ -352,15 +331,15 @@ public class SimpleExoPlayer implements ExoPlayer {
    */
   public void setAudioAttributes(AudioAttributes audioAttributes) {
     this.audioAttributes = audioAttributes;
-    ExoPlayerMessage[] messages = new ExoPlayerMessage[audioRendererCount];
-    int count = 0;
     for (Renderer renderer : renderers) {
       if (renderer.getTrackType() == C.TRACK_TYPE_AUDIO) {
-        messages[count++] = new ExoPlayerMessage(renderer, C.MSG_SET_AUDIO_ATTRIBUTES,
-            audioAttributes);
+        player
+            .createMessage(renderer)
+            .setType(C.MSG_SET_AUDIO_ATTRIBUTES)
+            .setMessage(audioAttributes)
+            .send();
       }
     }
-    player.sendMessages(messages);
   }
 
   /**
@@ -377,14 +356,11 @@ public class SimpleExoPlayer implements ExoPlayer {
    */
   public void setVolume(float audioVolume) {
     this.audioVolume = audioVolume;
-    ExoPlayerMessage[] messages = new ExoPlayerMessage[audioRendererCount];
-    int count = 0;
     for (Renderer renderer : renderers) {
       if (renderer.getTrackType() == C.TRACK_TYPE_AUDIO) {
-        messages[count++] = new ExoPlayerMessage(renderer, C.MSG_SET_VOLUME, audioVolume);
+        player.createMessage(renderer).setType(C.MSG_SET_VOLUME).setMessage(audioVolume).send();
       }
     }
-    player.sendMessages(messages);
   }
 
   /**
@@ -771,6 +747,11 @@ public class SimpleExoPlayer implements ExoPlayer {
   }
 
   @Override
+  public PlayerMessage createMessage(PlayerMessage.Target target) {
+    return player.createMessage(target);
+  }
+
+  @Override
   public void blockingSendMessages(ExoPlayerMessage... messages) {
     player.blockingSendMessages(messages);
   }
@@ -908,22 +889,25 @@ public class SimpleExoPlayer implements ExoPlayer {
   private void setVideoSurfaceInternal(Surface surface, boolean ownsSurface) {
     // Note: We don't turn this method into a no-op if the surface is being replaced with itself
     // so as to ensure onRenderedFirstFrame callbacks are still called in this case.
-    ExoPlayerMessage[] messages = new ExoPlayerMessage[videoRendererCount];
-    int count = 0;
+    boolean surfaceReplaced = this.surface != null && this.surface != surface;
     for (Renderer renderer : renderers) {
       if (renderer.getTrackType() == C.TRACK_TYPE_VIDEO) {
-        messages[count++] = new ExoPlayerMessage(renderer, C.MSG_SET_SURFACE, surface);
+        PlayerMessage message =
+            player.createMessage(renderer).setType(C.MSG_SET_SURFACE).setMessage(surface).send();
+        if (surfaceReplaced) {
+          try {
+            message.blockUntilDelivered();
+          } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+          }
+        }
       }
     }
-    if (this.surface != null && this.surface != surface) {
-      // We're replacing a surface. Block to ensure that it's not accessed after the method returns.
-      player.blockingSendMessages(messages);
+    if (surfaceReplaced) {
       // If we created the previous surface, we are responsible for releasing it.
       if (this.ownsSurface) {
         this.surface.release();
       }
-    } else {
-      player.sendMessages(messages);
     }
     this.surface = surface;
     this.ownsSurface = ownsSurface;

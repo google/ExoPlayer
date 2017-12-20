@@ -562,6 +562,18 @@ public final class Util {
   }
 
   /**
+   * Compares two long values and returns the same value as {@code Long.compare(long, long)}.
+   *
+   * @param left The left operand.
+   * @param right The right operand.
+   * @return 0, if left == right, a negative value if left &lt; right, or a positive value if left
+   *     &gt; right.
+   */
+  public static int compareLong(long left, long right) {
+    return left < right ? -1 : left == right ? 0 : 1;
+  }
+
+  /**
    * Parses an xs:duration attribute value, returning the parsed duration in milliseconds.
    *
    * @param value The attribute value to decode.
