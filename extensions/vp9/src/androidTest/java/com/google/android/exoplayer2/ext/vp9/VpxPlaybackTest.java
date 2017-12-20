@@ -119,9 +119,11 @@ public class VpxPlaybackTest extends InstrumentationTestCase {
                   new DefaultDataSourceFactory(context, "ExoPlayerExtVp9Test"))
               .setExtractorsFactory(MatroskaExtractor.FACTORY)
               .createMediaSource(uri);
-      player.sendMessages(new ExoPlayer.ExoPlayerMessage(videoRenderer,
-          LibvpxVideoRenderer.MSG_SET_OUTPUT_BUFFER_RENDERER,
-          new VpxVideoSurfaceView(context)));
+      player
+          .createMessage(videoRenderer)
+          .setType(LibvpxVideoRenderer.MSG_SET_OUTPUT_BUFFER_RENDERER)
+          .setMessage(new VpxVideoSurfaceView(context))
+          .send();
       player.prepare(mediaSource);
       player.setPlayWhenReady(true);
       Looper.loop();
