@@ -18,17 +18,13 @@ package com.google.android.exoplayer2.testutil;
 import android.os.Handler;
 import android.util.Log;
 import android.view.Surface;
-import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.PlaybackParameters;
 import com.google.android.exoplayer2.Player;
-import com.google.android.exoplayer2.PlayerMessage;
-import com.google.android.exoplayer2.PlayerMessage.Target;
 import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.testutil.ActionSchedule.ActionNode;
-import com.google.android.exoplayer2.testutil.ActionSchedule.PlayerTarget;
 import com.google.android.exoplayer2.trackselection.MappingTrackSelector;
 
 /**
@@ -349,63 +345,7 @@ public abstract class Action {
         Surface surface) {
       player.setShuffleModeEnabled(shuffleModeEnabled);
     }
-  }
 
-  /** Calls {@link ExoPlayer#createMessage(Target)} and {@link PlayerMessage#send()}. */
-  public static final class SendMessages extends Action {
-
-    private final Target target;
-    private final int windowIndex;
-    private final long positionMs;
-    private final boolean deleteAfterDelivery;
-
-    /**
-     * @param tag A tag to use for logging.
-     * @param target A message target.
-     * @param positionMs The position at which the message should be sent, in milliseconds.
-     */
-    public SendMessages(String tag, Target target, long positionMs) {
-      this(
-          tag,
-          target,
-          /* windowIndex= */ C.INDEX_UNSET,
-          positionMs,
-          /* deleteAfterDelivery= */ true);
-    }
-
-    /**
-     * @param tag A tag to use for logging.
-     * @param target A message target.
-     * @param windowIndex The window index at which the message should be sent, or {@link
-     *     C#INDEX_UNSET} for the current window.
-     * @param positionMs The position at which the message should be sent, in milliseconds.
-     * @param deleteAfterDelivery Whether the message will be deleted after delivery.
-     */
-    public SendMessages(
-        String tag, Target target, int windowIndex, long positionMs, boolean deleteAfterDelivery) {
-      super(tag, "SendMessages");
-      this.target = target;
-      this.windowIndex = windowIndex;
-      this.positionMs = positionMs;
-      this.deleteAfterDelivery = deleteAfterDelivery;
-    }
-
-    @Override
-    protected void doActionImpl(
-        final SimpleExoPlayer player, MappingTrackSelector trackSelector, Surface surface) {
-      if (target instanceof PlayerTarget) {
-        ((PlayerTarget) target).setPlayer(player);
-      }
-      PlayerMessage message = player.createMessage(target);
-      if (windowIndex != C.INDEX_UNSET) {
-        message.setPosition(windowIndex, positionMs);
-      } else {
-        message.setPosition(positionMs);
-      }
-      message.setHandler(new Handler());
-      message.setDeleteAfterDelivery(deleteAfterDelivery);
-      message.send();
-    }
   }
 
   /**

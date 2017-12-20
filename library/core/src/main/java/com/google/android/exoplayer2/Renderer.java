@@ -15,20 +15,22 @@
  */
 package com.google.android.exoplayer2;
 
+import com.google.android.exoplayer2.ExoPlayer.ExoPlayerComponent;
 import com.google.android.exoplayer2.source.SampleStream;
 import com.google.android.exoplayer2.util.MediaClock;
 import java.io.IOException;
 
 /**
  * Renders media read from a {@link SampleStream}.
- *
- * <p>Internally, a renderer's lifecycle is managed by the owning {@link ExoPlayer}. The renderer is
+ * <p>
+ * Internally, a renderer's lifecycle is managed by the owning {@link ExoPlayer}. The renderer is
  * transitioned through various states as the overall playback state changes. The valid state
  * transitions are shown below, annotated with the methods that are called during each transition.
- *
- * <p align="center"><img src="doc-files/renderer-states.svg" alt="Renderer state transitions">
+ * <p align="center">
+ *   <img src="doc-files/renderer-states.svg" alt="Renderer state transitions">
+ * </p>
  */
-public interface Renderer extends PlayerMessage.Target {
+public interface Renderer extends ExoPlayerComponent {
 
   /**
    * The renderer is disabled.

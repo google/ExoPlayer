@@ -22,10 +22,10 @@ import android.os.Message;
 import android.os.Process;
 import android.os.SystemClock;
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.util.Log;
 import android.util.Pair;
 import com.google.android.exoplayer2.DefaultMediaClock.PlaybackParameterListener;
+import com.google.android.exoplayer2.ExoPlayer.ExoPlayerMessage;
 import com.google.android.exoplayer2.MediaPeriodInfoSequence.MediaPeriodInfo;
 import com.google.android.exoplayer2.Player.DiscontinuityReason;
 import com.google.android.exoplayer2.source.ClippingMediaPeriod;
@@ -40,19 +40,14 @@ import com.google.android.exoplayer2.trackselection.TrackSelector;
 import com.google.android.exoplayer2.trackselection.TrackSelectorResult;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.TraceUtil;
-import com.google.android.exoplayer2.util.Util;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
 
-/** Implements the internal behavior of {@link ExoPlayerImpl}. */
-/* package */ final class ExoPlayerImplInternal
-    implements Handler.Callback,
-        MediaPeriod.Callback,
-        TrackSelector.InvalidationListener,
-        MediaSource.Listener,
-        PlaybackParameterListener,
-        PlayerMessage.Sender {
+/**
+ * Implements the internal behavior of {@link ExoPlayerImpl}.
+ */
+/* package */ final class ExoPlayerImplInternal implements Handler.Callback,
+    MediaPeriod.Callback, TrackSelector.InvalidationListener, MediaSource.Listener,
+    PlaybackParameterListener {
 
   private static final String TAG = "ExoPlayerImplInternal";
 
@@ -113,7 +108,6 @@ import java.util.Collections;
   private final boolean retainBackBufferFromKeyframe;
   private final DefaultMediaClock mediaClock;
   private final PlaybackInfoUpdate playbackInfoUpdate;
-  private final ArrayList<CustomMessageInfo> customMessageInfos;
 
   @SuppressWarnings("unused")
   private SeekParameters seekParameters;
@@ -126,12 +120,13 @@ import java.util.Collections;
   private boolean rebuffering;
   private @Player.RepeatMode int repeatMode;
   private boolean shuffleModeEnabled;
+  private int customMessagesSent;
+  private int customMessagesProcessed;
   private long elapsedRealtimeUs;
 
   private int pendingPrepareCount;
   private SeekPosition pendingInitialSeekPosition;
   private long rendererPositionUs;
-  private int nextCustomMessageInfoIndex;
 
   private MediaPeriodHolder loadingPeriodHolder;
   private MediaPeriodHolder readingPeriodHolder;
@@ -171,7 +166,6 @@ import java.util.Collections;
       rendererCapabilities[i] = renderers[i].getCapabilities();
     }
     mediaClock = new DefaultMediaClock(this);
-    customMessageInfos = new ArrayList<>();
     enabledRenderers = new Renderer[0];
     window = new Timeline.Window();
     period = new Timeline.Period();
@@ -220,15 +214,34 @@ import java.util.Collections;
     handler.obtainMessage(MSG_STOP, reset ? 1 : 0, 0).sendToTarget();
   }
 
-  @Override
-  public synchronized void sendMessage(
-      PlayerMessage message, PlayerMessage.Sender.Listener listener) {
+  public void sendMessages(ExoPlayerMessage... messages) {
     if (released) {
       Log.w(TAG, "Ignoring messages sent after release.");
-      listener.onMessageDeleted();
       return;
     }
-    handler.obtainMessage(MSG_CUSTOM, new CustomMessageInfo(message, listener)).sendToTarget();
+    customMessagesSent++;
+    handler.obtainMessage(MSG_CUSTOM, messages).sendToTarget();
+  }
+
+  public synchronized void blockingSendMessages(ExoPlayerMessage... messages) {
+    if (released) {
+      Log.w(TAG, "Ignoring messages sent after release.");
+      return;
+    }
+    int messageNumber = customMessagesSent++;
+    handler.obtainMessage(MSG_CUSTOM, messages).sendToTarget();
+    boolean wasInterrupted = false;
+    while (customMessagesProcessed <= messageNumber) {
+      try {
+        wait();
+      } catch (InterruptedException e) {
+        wasInterrupted = true;
+      }
+    }
+    if (wasInterrupted) {
+      // Restore the interrupted status.
+      Thread.currentThread().interrupt();
+    }
   }
 
   public synchronized void release() {
@@ -336,7 +349,7 @@ import java.util.Collections;
           reselectTracksInternal();
           break;
         case MSG_CUSTOM:
-          sendMessageInternal((CustomMessageInfo) msg.obj);
+          sendMessagesInternal((ExoPlayerMessage[]) msg.obj);
           break;
         case MSG_RELEASE:
           releaseInternal();
@@ -524,9 +537,8 @@ import java.util.Collections;
     } else {
       rendererPositionUs = mediaClock.syncAndGetPositionUs();
       periodPositionUs = playingPeriodHolder.toPeriodTime(rendererPositionUs);
-      maybeTriggerCustomMessages(playbackInfo.positionUs, periodPositionUs);
-      playbackInfo.positionUs = periodPositionUs;
     }
+    playbackInfo.positionUs = periodPositionUs;
     elapsedRealtimeUs = SystemClock.elapsedRealtime() * 1000;
 
     // Update the buffered position.
@@ -644,8 +656,7 @@ import java.util.Collections;
 
     boolean seekPositionAdjusted = seekPosition.windowPositionUs == C.TIME_UNSET;
     try {
-      Pair<Integer, Long> periodPosition =
-          resolveSeekPosition(seekPosition, /* trySubsequentPeriods= */ true);
+      Pair<Integer, Long> periodPosition = resolveSeekPosition(seekPosition);
       if (periodPosition == null) {
         // The seek position was valid for the timeline that it was performed into, but the
         // timeline has changed and a suitable seek position could not be resolved in the new one.
@@ -839,11 +850,6 @@ import java.util.Collections;
     }
     if (resetState) {
       mediaPeriodInfoSequence.setTimeline(null);
-      for (CustomMessageInfo customMessageInfo : customMessageInfos) {
-        customMessageInfo.listener.onMessageDeleted();
-      }
-      customMessageInfos.clear();
-      nextCustomMessageInfoIndex = 0;
     }
     playbackInfo =
         new PlaybackInfo(
@@ -864,153 +870,21 @@ import java.util.Collections;
     }
   }
 
-  private void sendMessageInternal(CustomMessageInfo customMessageInfo) {
-    if (customMessageInfo.message.getPositionMs() == C.TIME_UNSET) {
-      // If no delivery time is specified, trigger immediate message delivery.
-      sendCustomMessagesToTarget(customMessageInfo);
-    } else if (playbackInfo.timeline == null) {
-      // Still waiting for initial timeline to resolve position.
-      customMessageInfos.add(customMessageInfo);
-    } else {
-      if (resolveCustomMessagePosition(customMessageInfo)) {
-        customMessageInfos.add(customMessageInfo);
-        // Ensure new message is inserted according to playback order.
-        Collections.sort(customMessageInfos);
-      } else {
-        customMessageInfo.listener.onMessageDeleted();
+  private void sendMessagesInternal(ExoPlayerMessage[] messages) throws ExoPlaybackException {
+    try {
+      for (ExoPlayerMessage message : messages) {
+        message.target.handleMessage(message.messageType, message.message);
       }
-    }
-  }
-
-  private void sendCustomMessagesToTarget(final CustomMessageInfo customMessageInfo) {
-    final Runnable handleMessageRunnable =
-        new Runnable() {
-          @Override
-          public void run() {
-            try {
-              customMessageInfo
-                  .message
-                  .getTarget()
-                  .handleMessage(
-                      customMessageInfo.message.getType(), customMessageInfo.message.getMessage());
-            } catch (ExoPlaybackException e) {
-              eventHandler.obtainMessage(MSG_ERROR, e).sendToTarget();
-            } finally {
-              customMessageInfo.listener.onMessageDelivered();
-              if (customMessageInfo.message.getDeleteAfterDelivery()) {
-                customMessageInfo.listener.onMessageDeleted();
-              }
-              // The message may have caused something to change that now requires us to do
-              // work.
-              handler.sendEmptyMessage(MSG_DO_SOME_WORK);
-            }
-          }
-        };
-    handler.post(
-        new Runnable() {
-          @Override
-          public void run() {
-            customMessageInfo.message.getHandler().post(handleMessageRunnable);
-          }
-        });
-  }
-
-  private void resolveCustomMessagePositions() {
-    for (int i = customMessageInfos.size() - 1; i >= 0; i--) {
-      if (!resolveCustomMessagePosition(customMessageInfos.get(i))) {
-        // Remove messages if new position can't be resolved.
-        customMessageInfos.get(i).listener.onMessageDeleted();
-        customMessageInfos.remove(i);
+      if (playbackInfo.playbackState == Player.STATE_READY
+          || playbackInfo.playbackState == Player.STATE_BUFFERING) {
+        // The message may have caused something to change that now requires us to do work.
+        handler.sendEmptyMessage(MSG_DO_SOME_WORK);
       }
-    }
-    // Re-sort messages by playback order.
-    Collections.sort(customMessageInfos);
-  }
-
-  private boolean resolveCustomMessagePosition(CustomMessageInfo customMessageInfo) {
-    if (customMessageInfo.resolvedPeriodUid == null) {
-      // Position is still unresolved. Try to find window in current timeline.
-      Pair<Integer, Long> periodPosition =
-          resolveSeekPosition(
-              new SeekPosition(
-                  customMessageInfo.message.getTimeline(),
-                  customMessageInfo.message.getWindowIndex(),
-                  C.msToUs(customMessageInfo.message.getPositionMs())),
-              /* trySubsequentPeriods= */ false);
-      if (periodPosition == null) {
-        return false;
+    } finally {
+      synchronized (this) {
+        customMessagesProcessed++;
+        notifyAll();
       }
-      customMessageInfo.setResolvedPosition(
-          periodPosition.first,
-          periodPosition.second,
-          playbackInfo.timeline.getPeriod(periodPosition.first, period, true).uid);
-    } else {
-      // Position has been resolved for a previous timeline. Try to find the updated period index.
-      int index = playbackInfo.timeline.getIndexOfPeriod(customMessageInfo.resolvedPeriodUid);
-      if (index == C.INDEX_UNSET) {
-        return false;
-      }
-      customMessageInfo.resolvedPeriodIndex = index;
-    }
-    return true;
-  }
-
-  private void maybeTriggerCustomMessages(long oldPeriodPositionUs, long newPeriodPositionUs) {
-    if (customMessageInfos.isEmpty() || playbackInfo.periodId.isAd()) {
-      return;
-    }
-    // If this is the first call from the start position, include oldPeriodPositionUs in potential
-    // trigger positions.
-    if (playbackInfo.startPositionUs == oldPeriodPositionUs) {
-      oldPeriodPositionUs--;
-    }
-    // Correct next index if necessary (e.g. after seeking, timeline changes, or new messages)
-    int currentPeriodIndex = playbackInfo.periodId.periodIndex;
-    CustomMessageInfo prevInfo =
-        nextCustomMessageInfoIndex > 0
-            ? customMessageInfos.get(nextCustomMessageInfoIndex - 1)
-            : null;
-    while (prevInfo != null
-        && (prevInfo.resolvedPeriodIndex > currentPeriodIndex
-            || (prevInfo.resolvedPeriodIndex == currentPeriodIndex
-                && prevInfo.resolvedPeriodTimeUs > oldPeriodPositionUs))) {
-      nextCustomMessageInfoIndex--;
-      prevInfo =
-          nextCustomMessageInfoIndex > 0
-              ? customMessageInfos.get(nextCustomMessageInfoIndex - 1)
-              : null;
-    }
-    CustomMessageInfo nextInfo =
-        nextCustomMessageInfoIndex < customMessageInfos.size()
-            ? customMessageInfos.get(nextCustomMessageInfoIndex)
-            : null;
-    while (nextInfo != null
-        && nextInfo.resolvedPeriodUid != null
-        && (nextInfo.resolvedPeriodIndex < currentPeriodIndex
-            || (nextInfo.resolvedPeriodIndex == currentPeriodIndex
-                && nextInfo.resolvedPeriodTimeUs <= oldPeriodPositionUs))) {
-      nextCustomMessageInfoIndex++;
-      nextInfo =
-          nextCustomMessageInfoIndex < customMessageInfos.size()
-              ? customMessageInfos.get(nextCustomMessageInfoIndex)
-              : null;
-    }
-    // Check if any message falls within the covered time span.
-    while (nextInfo != null
-        && nextInfo.resolvedPeriodUid != null
-        && nextInfo.resolvedPeriodIndex == currentPeriodIndex
-        && nextInfo.resolvedPeriodTimeUs > oldPeriodPositionUs
-        && nextInfo.resolvedPeriodTimeUs <= newPeriodPositionUs) {
-      sendCustomMessagesToTarget(nextInfo);
-      if (nextInfo.message.getDeleteAfterDelivery()) {
-        customMessageInfos.remove(nextCustomMessageInfoIndex);
-      } else {
-        nextCustomMessageInfoIndex++;
-      }
-      nextInfo =
-          nextCustomMessageInfoIndex < customMessageInfos.size()
-              ? customMessageInfos.get(nextCustomMessageInfoIndex)
-              : null;
     }
   }
 
@@ -1160,14 +1034,12 @@ import java.util.Collections;
     Object manifest = sourceRefreshInfo.manifest;
     mediaPeriodInfoSequence.setTimeline(timeline);
     playbackInfo = playbackInfo.copyWithTimeline(timeline, manifest);
-    resolveCustomMessagePositions();
 
     if (oldTimeline == null) {
       playbackInfoUpdate.incrementPendingOperationAcks(pendingPrepareCount);
       pendingPrepareCount = 0;
       if (pendingInitialSeekPosition != null) {
-        Pair<Integer, Long> periodPosition =
-            resolveSeekPosition(pendingInitialSeekPosition, /* trySubsequentPeriods= */ true);
+        Pair<Integer, Long> periodPosition = resolveSeekPosition(pendingInitialSeekPosition);
         pendingInitialSeekPosition = null;
         if (periodPosition == null) {
           // The seek position was valid for the timeline that it was performed into, but the
@@ -1352,14 +1224,11 @@ import java.util.Collections;
    * internal timeline.
    *
    * @param seekPosition The position to resolve.
-   * @param trySubsequentPeriods Whether the position can be resolved to a subsequent matching
-   *     period if the original period is no longer available.
    * @return The resolved position, or null if resolution was not successful.
    * @throws IllegalSeekPositionException If the window index of the seek position is outside the
    *     bounds of the timeline.
    */
-  private Pair<Integer, Long> resolveSeekPosition(
-      SeekPosition seekPosition, boolean trySubsequentPeriods) {
+  private Pair<Integer, Long> resolveSeekPosition(SeekPosition seekPosition) {
     Timeline timeline = playbackInfo.timeline;
     Timeline seekTimeline = seekPosition.timeline;
     if (seekTimeline.isEmpty()) {
@@ -1388,14 +1257,12 @@ import java.util.Collections;
       // We successfully located the period in the internal timeline.
       return Pair.create(periodIndex, periodPosition.second);
     }
-    if (trySubsequentPeriods) {
-      // Try and find a subsequent period from the seek timeline in the internal timeline.
-      periodIndex = resolveSubsequentPeriod(periodPosition.first, seekTimeline, timeline);
-      if (periodIndex != C.INDEX_UNSET) {
-        // We found one. Map the SeekPosition onto the corresponding default position.
-        return getPeriodPosition(
-            timeline, timeline.getPeriod(periodIndex, period).windowIndex, C.TIME_UNSET);
-      }
+    // Try and find a subsequent period from the seek timeline in the internal timeline.
+    periodIndex = resolveSubsequentPeriod(periodPosition.first, seekTimeline, timeline);
+    if (periodIndex != C.INDEX_UNSET) {
+      // We found one. Map the SeekPosition onto the corresponding default position.
+      return getPeriodPosition(timeline, timeline.getPeriod(periodIndex, period).windowIndex,
+          C.TIME_UNSET);
     }
     // We didn't find one. Give up.
     return null;
@@ -1935,45 +1802,7 @@ import java.util.Collections;
       this.windowIndex = windowIndex;
       this.windowPositionUs = windowPositionUs;
     }
-  }
 
-  private static final class CustomMessageInfo implements Comparable<CustomMessageInfo> {
-
-    public final PlayerMessage message;
-    public final PlayerMessage.Sender.Listener listener;
-
-    public int resolvedPeriodIndex;
-    public long resolvedPeriodTimeUs;
-    public @Nullable Object resolvedPeriodUid;
-
-    public CustomMessageInfo(PlayerMessage message, PlayerMessage.Sender.Listener listener) {
-      this.message = message;
-      this.listener = listener;
-    }
-
-    public void setResolvedPosition(int periodIndex, long periodTimeUs, Object periodUid) {
-      resolvedPeriodIndex = periodIndex;
-      resolvedPeriodTimeUs = periodTimeUs;
-      resolvedPeriodUid = periodUid;
-    }
-
-    @Override
-    public int compareTo(@NonNull CustomMessageInfo other) {
-      if ((resolvedPeriodUid == null) != (other.resolvedPeriodUid == null)) {
-        // CustomMessageInfos with a resolved period position are always smaller.
-        return resolvedPeriodUid != null ? -1 : 1;
-      }
-      if (resolvedPeriodUid == null) {
-        // Don't sort message with unresolved positions.
-        return 0;
-      }
-      // Sort resolved media times by period index and then by period position.
-      int comparePeriodIndex = resolvedPeriodIndex - other.resolvedPeriodIndex;
-      if (comparePeriodIndex != 0) {
-        return comparePeriodIndex;
-      }
-      return Util.compareLong(resolvedPeriodTimeUs, other.resolvedPeriodTimeUs);
-    }
   }
 
   private static final class MediaSourceRefreshInfo {
