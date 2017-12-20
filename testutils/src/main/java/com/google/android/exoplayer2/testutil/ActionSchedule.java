@@ -20,11 +20,8 @@ import android.os.Looper;
 import android.support.annotation.Nullable;
 import android.view.Surface;
 import com.google.android.exoplayer2.C;
-import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.PlaybackParameters;
 import com.google.android.exoplayer2.Player;
-import com.google.android.exoplayer2.PlayerMessage;
-import com.google.android.exoplayer2.PlayerMessage.Target;
 import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.source.MediaSource;
@@ -32,7 +29,6 @@ import com.google.android.exoplayer2.testutil.Action.ClearVideoSurface;
 import com.google.android.exoplayer2.testutil.Action.ExecuteRunnable;
 import com.google.android.exoplayer2.testutil.Action.PrepareSource;
 import com.google.android.exoplayer2.testutil.Action.Seek;
-import com.google.android.exoplayer2.testutil.Action.SendMessages;
 import com.google.android.exoplayer2.testutil.Action.SetPlayWhenReady;
 import com.google.android.exoplayer2.testutil.Action.SetPlaybackParameters;
 import com.google.android.exoplayer2.testutil.Action.SetRendererDisabled;
@@ -320,44 +316,6 @@ public final class ActionSchedule {
     }
 
     /**
-     * Schedules sending a {@link PlayerMessage}.
-     *
-     * @param positionMs The position in the current window at which the message should be sent, in
-     *     milliseconds.
-     * @return The builder, for convenience.
-     */
-    public Builder sendMessage(Target target, long positionMs) {
-      return apply(new SendMessages(tag, target, positionMs));
-    }
-
-    /**
-     * Schedules sending a {@link PlayerMessage}.
-     *
-     * @param target A message target.
-     * @param windowIndex The window index at which the message should be sent.
-     * @param positionMs The position at which the message should be sent, in milliseconds.
-     * @return The builder, for convenience.
-     */
-    public Builder sendMessage(Target target, int windowIndex, long positionMs) {
-      return apply(
-          new SendMessages(tag, target, windowIndex, positionMs, /* deleteAfterDelivery= */ true));
-    }
-
-    /**
-     * Schedules to send a {@link PlayerMessage}.
-     *
-     * @param target A message target.
-     * @param windowIndex The window index at which the message should be sent.
-     * @param positionMs The position at which the message should be sent, in milliseconds.
-     * @param deleteAfterDelivery Whether the message will be deleted after delivery.
-     * @return The builder, for convenience.
-     */
-    public Builder sendMessage(
-        Target target, int windowIndex, long positionMs, boolean deleteAfterDelivery) {
-      return apply(new SendMessages(tag, target, windowIndex, positionMs, deleteAfterDelivery));
-    }
-
-    /**
      * Schedules a delay until the timeline changed to a specified expected timeline.
      *
      * @param expectedTimeline The expected timeline to wait for.
@@ -407,28 +365,7 @@ public final class ActionSchedule {
       currentDelayMs = 0;
       return this;
     }
-  }
 
-  /**
-   * Provides a wrapper for a {@link Target} which has access to the player when handling messages.
-   * Can be used with {@link Builder#sendMessage(Target, long)}.
-   */
-  public abstract static class PlayerTarget implements Target {
-
-    private SimpleExoPlayer player;
-
-    /** Handles the message send to the component and additionally provides access to the player. */
-    public abstract void handleMessage(SimpleExoPlayer player, int messageType, Object message);
-
-    /** Sets the player to be passed to {@link #handleMessage(SimpleExoPlayer, int, Object)}. */
-    /* package */ void setPlayer(SimpleExoPlayer player) {
-      this.player = player;
-    }
-
-    @Override
-    public final void handleMessage(int messageType, Object message) throws ExoPlaybackException {
-      handleMessage(player, messageType, message);
-    }
   }
 
   /**

@@ -24,9 +24,7 @@ import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Looper;
 import android.os.Message;
-import android.util.Pair;
 import com.google.android.exoplayer2.ExoPlaybackException;
-import com.google.android.exoplayer2.PlayerMessage;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.source.MediaPeriod;
 import com.google.android.exoplayer2.source.MediaSource;
@@ -283,8 +281,7 @@ public class MediaSourceTestRunner {
 
   }
 
-  private static class EventHandlingExoPlayer extends StubExoPlayer
-      implements Handler.Callback, PlayerMessage.Sender {
+  private static class EventHandlingExoPlayer extends StubExoPlayer implements Handler.Callback {
 
     private final Handler handler;
 
@@ -293,33 +290,23 @@ public class MediaSourceTestRunner {
     }
 
     @Override
-    public PlayerMessage createMessage(PlayerMessage.Target target) {
-      return new PlayerMessage(
-          /* sender= */ this, target, Timeline.EMPTY, /* defaultWindowIndex= */ 0, handler);
+    public void sendMessages(ExoPlayerMessage... messages) {
+      handler.obtainMessage(0, messages).sendToTarget();
     }
 
     @Override
-    public void sendMessage(PlayerMessage message, Listener listener) {
-      handler.obtainMessage(0, Pair.create(message, listener)).sendToTarget();
-    }
-
-    @Override
-    @SuppressWarnings("unchecked")
     public boolean handleMessage(Message msg) {
-      Pair<PlayerMessage, Listener> messageAndListener = (Pair<PlayerMessage, Listener>) msg.obj;
-      try {
-        messageAndListener
-            .first
-            .getTarget()
-            .handleMessage(
-                messageAndListener.first.getType(), messageAndListener.first.getMessage());
-        messageAndListener.second.onMessageDelivered();
-        messageAndListener.second.onMessageDeleted();
-      } catch (ExoPlaybackException e) {
-        fail("Unexpected ExoPlaybackException.");
+      ExoPlayerMessage[] messages = (ExoPlayerMessage[]) msg.obj;
+      for (ExoPlayerMessage message : messages) {
+        try {
+          message.target.handleMessage(message.messageType, message.message);
+        } catch (ExoPlaybackException e) {
+          fail("Unexpected ExoPlaybackException.");
+        }
       }
       return true;
     }
+
   }
 
 }
