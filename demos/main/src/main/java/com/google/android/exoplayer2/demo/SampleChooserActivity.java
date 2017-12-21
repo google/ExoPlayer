@@ -412,7 +412,12 @@ public class SampleChooserActivity extends Activity {
     }
 
     public Intent buildIntent(Context context) {
-      Intent intent = new Intent(context, PlayerActivity.class);
+      Intent intent;
+      if (name.startsWith("Download -")) {
+        intent = new Intent(context, DownloadActivity.class);
+      } else {
+        intent = new Intent(context, PlayerActivity.class);
+      }
       intent.putExtra(PlayerActivity.PREFER_EXTENSION_DECODERS, preferExtensionDecoders);
       if (drmInfo != null) {
         drmInfo.updateIntent(intent);

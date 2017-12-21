@@ -18,6 +18,7 @@ package com.google.android.exoplayer2.upstream.cache;
 import android.net.Uri;
 import android.support.annotation.IntDef;
 import android.support.annotation.Nullable;
+import android.util.Log;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.upstream.DataSink;
 import com.google.android.exoplayer2.upstream.DataSource;
@@ -275,6 +276,7 @@ public final class CacheDataSource implements DataSource {
   private boolean openNextSource(boolean initial) throws IOException {
     DataSpec dataSpec;
     CacheSpan span;
+    Log.e("downloader", "openNextSource. blockInCache=" + blockOnCache);
     if (currentRequestIgnoresCache) {
       span = null;
     } else if (blockOnCache) {
@@ -290,6 +292,7 @@ public final class CacheDataSource implements DataSource {
     if (span == null) {
       // The data is locked in the cache, or we're ignoring the cache. Bypass the cache and read
       // from upstream.
+      Log.e("downloader", "span is null");
       currentDataSource = upstreamDataSource;
       dataSpec = new DataSpec(uri, readPosition, bytesRemaining, key, flags);
     } else if (span.isCached) {

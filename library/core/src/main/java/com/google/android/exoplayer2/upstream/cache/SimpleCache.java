@@ -175,12 +175,14 @@ public final class SimpleCache implements Cache {
       // Obtain a new span with updated last access timestamp.
       SimpleCacheSpan newCacheSpan = index.get(key).touch(cacheSpan);
       notifySpanTouched(cacheSpan, newCacheSpan);
+      Log.e("downloader", "new cache span. key=" + newCacheSpan.key);
       return newCacheSpan;
     }
 
     // Write case, lock available.
     if (!lockedSpans.containsKey(key)) {
       lockedSpans.put(key, cacheSpan);
+      Log.e("downloader", "cache span. key=" + cacheSpan.key);
       return cacheSpan;
     }
 
@@ -197,6 +199,7 @@ public final class SimpleCache implements Cache {
       removeStaleSpansAndCachedContents();
       cacheDir.mkdirs();
     }
+    Log.e("downloader", "start file. key=" + key + ", pos=" + position + ", maxLen=" + maxLength);
     evictor.onStartFile(this, key, position, maxLength);
     return SimpleCacheSpan.getCacheFile(cacheDir, index.assignIdForKey(key), position,
         System.currentTimeMillis());
