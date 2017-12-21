@@ -16,6 +16,7 @@
 package com.google.android.exoplayer2.upstream.cache;
 
 import android.net.Uri;
+import android.util.Log;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DataSpec;
@@ -212,6 +213,7 @@ public final class CacheUtil {
             dataSpec.position + absoluteStreamPosition - dataSpec.absoluteStreamPosition,
             C.LENGTH_UNSET, dataSpec.key,
             dataSpec.flags | DataSpec.FLAG_ALLOW_CACHING_UNKNOWN_LENGTH);
+        Log.e("downloader", "open datasource. key=" + dataSpec.key + ", uri=" + dataSpec.uri);
         long resolvedLength = dataSource.open(dataSpec);
         if (counters.contentLength == C.LENGTH_UNSET && resolvedLength != C.LENGTH_UNSET) {
           counters.contentLength = dataSpec.absoluteStreamPosition + resolvedLength;

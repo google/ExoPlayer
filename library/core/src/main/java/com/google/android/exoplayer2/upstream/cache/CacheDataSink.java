@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.upstream.cache;
 
+import android.util.Log;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.upstream.DataSink;
 import com.google.android.exoplayer2.upstream.DataSpec;
@@ -141,6 +142,7 @@ public final class CacheDataSink implements DataSink {
         : Math.min(dataSpec.length - dataSpecBytesWritten, maxCacheFileSize);
     file = cache.startFile(dataSpec.key, dataSpec.absoluteStreamPosition + dataSpecBytesWritten,
         maxLength);
+    Log.e("downloader", "next output stream file="+ file.getName());
     underlyingFileOutputStream = new FileOutputStream(file);
     if (bufferSize > 0) {
       if (bufferedOutputStream == null) {
