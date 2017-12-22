@@ -39,6 +39,8 @@ import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
 import com.google.android.exoplayer2.trackselection.TrackSelector;
 import com.google.android.exoplayer2.trackselection.TrackSelectorResult;
 import com.google.android.exoplayer2.util.Assertions;
+import com.google.android.exoplayer2.util.Clock;
+import com.google.android.exoplayer2.util.HandlerWrapper;
 import com.google.android.exoplayer2.util.TraceUtil;
 import com.google.android.exoplayer2.util.Util;
 import java.io.IOException;
@@ -102,7 +104,7 @@ import java.util.Collections;
   private final TrackSelector trackSelector;
   private final TrackSelectorResult emptyTrackSelectorResult;
   private final LoadControl loadControl;
-  private final Handler handler;
+  private final HandlerWrapper handler;
   private final HandlerThread internalPlaybackThread;
   private final Handler eventHandler;
   private final ExoPlayer player;
@@ -126,7 +128,6 @@ import java.util.Collections;
   private boolean rebuffering;
   private @Player.RepeatMode int repeatMode;
   private boolean shuffleModeEnabled;
-  private long elapsedRealtimeUs;
 
   private int pendingPrepareCount;
   private SeekPosition pendingInitialSeekPosition;
@@ -146,7 +147,8 @@ import java.util.Collections;
       @Player.RepeatMode int repeatMode,
       boolean shuffleModeEnabled,
       Handler eventHandler,
-      ExoPlayer player) {
+      ExoPlayer player,
+      Clock clock) {
     this.renderers = renderers;
     this.trackSelector = trackSelector;
     this.emptyTrackSelectorResult = emptyTrackSelectorResult;
@@ -170,7 +172,7 @@ import java.util.Collections;
       renderers[i].setIndex(i);
       rendererCapabilities[i] = renderers[i].getCapabilities();
     }
-    mediaClock = new DefaultMediaClock(this);
+    mediaClock = new DefaultMediaClock(this, clock);
     customMessageInfos = new ArrayList<>();
     enabledRenderers = new Renderer[0];
     window = new Timeline.Window();
@@ -183,7 +185,7 @@ import java.util.Collections;
     internalPlaybackThread = new HandlerThread("ExoPlayerImplInternal:Handler",
         Process.THREAD_PRIORITY_AUDIO);
     internalPlaybackThread.start();
-    handler = new Handler(internalPlaybackThread.getLooper(), this);
+    handler = clock.createHandler(internalPlaybackThread.getLooper(), this);
   }
 
   public void prepare(MediaSource mediaSource, boolean resetPosition) {
@@ -527,7 +529,6 @@ import java.util.Collections;
       maybeTriggerCustomMessages(playbackInfo.positionUs, periodPositionUs);
       playbackInfo.positionUs = periodPositionUs;
     }
-    elapsedRealtimeUs = SystemClock.elapsedRealtime() * 1000;
 
     // Update the buffered position.
     long bufferedPositionUs = enabledRenderers.length == 0 ? C.TIME_END_OF_SOURCE
@@ -549,16 +550,19 @@ import java.util.Collections;
     TraceUtil.beginSection("doSomeWork");
 
     updatePlaybackPositions();
+    long rendererPositionElapsedRealtimeUs = SystemClock.elapsedRealtime() * 1000;
+
     playingPeriodHolder.mediaPeriod.discardBuffer(playbackInfo.positionUs - backBufferDurationUs,
         retainBackBufferFromKeyframe);
 
     boolean allRenderersEnded = true;
     boolean allRenderersReadyOrEnded = true;
+
     for (Renderer renderer : enabledRenderers) {
       // TODO: Each renderer should return the maximum delay before which it wishes to be called
       // again. The minimum of these values should then be used as the delay before the next
       // invocation of this method.
-      renderer.render(rendererPositionUs, elapsedRealtimeUs);
+      renderer.render(rendererPositionUs, rendererPositionElapsedRealtimeUs);
       allRenderersEnded = allRenderersEnded && renderer.isEnded();
       // Determine whether the renderer is ready (or ended). We override to assume the renderer is
       // ready if it needs the next sample stream. This is necessary to avoid getting stuck if
@@ -625,13 +629,7 @@ import java.util.Collections;
 
   private void scheduleNextWork(long thisOperationStartTimeMs, long intervalMs) {
     handler.removeMessages(MSG_DO_SOME_WORK);
-    long nextOperationStartTimeMs = thisOperationStartTimeMs + intervalMs;
-    long nextOperationDelayMs = nextOperationStartTimeMs - SystemClock.elapsedRealtime();
-    if (nextOperationDelayMs <= 0) {
-      handler.sendEmptyMessage(MSG_DO_SOME_WORK);
-    } else {
-      handler.sendEmptyMessageDelayed(MSG_DO_SOME_WORK, nextOperationDelayMs);
-    }
+    handler.sendEmptyMessageDelayed(MSG_DO_SOME_WORK, intervalMs, thisOperationStartTimeMs);
   }
 
   private void seekToInternal(SeekPosition seekPosition) throws ExoPlaybackException {

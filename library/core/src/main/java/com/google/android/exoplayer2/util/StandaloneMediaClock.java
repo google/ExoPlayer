@@ -32,13 +32,6 @@ public final class StandaloneMediaClock implements MediaClock {
   private PlaybackParameters playbackParameters;
 
   /**
-   * Creates a new standalone media clock.
-   */
-  public StandaloneMediaClock() {
-    this(Clock.DEFAULT);
-  }
-
-  /**
    * Creates a new standalone media clock using the given {@link Clock} implementation.
    *
    * @param clock A {@link Clock}.

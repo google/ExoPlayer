@@ -18,6 +18,7 @@ package com.google.android.exoplayer2.util;
 import android.os.Handler.Callback;
 import android.os.Looper;
 import android.os.Message;
+import android.os.SystemClock;
 
 /** The standard implementation of {@link HandlerWrapper}. */
 /* package */ final class SystemHandler implements HandlerWrapper {
@@ -67,8 +68,14 @@ import android.os.Message;
   }
 
   @Override
-  public boolean sendEmptyMessageDelayed(int what, long delayMs) {
-    return handler.sendEmptyMessageDelayed(what, delayMs);
+  public boolean sendEmptyMessageDelayed(int what, long delayMs, long referenceTimeMs) {
+    long targetMessageTime = referenceTimeMs + delayMs;
+    long remainingDelayMs = targetMessageTime - SystemClock.elapsedRealtime();
+    if (remainingDelayMs <= 0) {
+      return handler.sendEmptyMessage(what);
+    } else {
+      return handler.sendEmptyMessageDelayed(what, remainingDelayMs);
+    }
   }
 
   @Override

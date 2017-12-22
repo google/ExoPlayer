@@ -44,6 +44,7 @@ import com.google.android.exoplayer2.trackselection.TrackSelector;
 import com.google.android.exoplayer2.trackselection.TrackSelector.InvalidationListener;
 import com.google.android.exoplayer2.trackselection.TrackSelectorResult;
 import com.google.android.exoplayer2.util.Assertions;
+import com.google.android.exoplayer2.util.Clock;
 import java.util.Arrays;
 import java.util.concurrent.CopyOnWriteArraySet;
 
@@ -58,13 +59,13 @@ public class FakeSimpleExoPlayer extends SimpleExoPlayer {
 
   public FakeSimpleExoPlayer(RenderersFactory renderersFactory, TrackSelector trackSelector,
       LoadControl loadControl, FakeClock clock) {
-    super (renderersFactory, trackSelector, loadControl);
+    super(renderersFactory, trackSelector, loadControl, clock);
     player.setFakeClock(clock);
   }
 
   @Override
-  protected ExoPlayer createExoPlayerImpl(Renderer[] renderers, TrackSelector trackSelector,
-      LoadControl loadControl) {
+  protected ExoPlayer createExoPlayerImpl(
+      Renderer[] renderers, TrackSelector trackSelector, LoadControl loadControl, Clock clock) {
     this.player = new FakeExoPlayer(renderers, trackSelector, loadControl);
     return player;
   }
