@@ -15,7 +15,6 @@
  */
 package com.google.android.exoplayer2.testutil;
 
-import android.os.Handler;
 import android.os.Looper;
 import android.support.annotation.Nullable;
 import android.view.Surface;
@@ -46,7 +45,7 @@ import com.google.android.exoplayer2.testutil.Action.WaitForSeekProcessed;
 import com.google.android.exoplayer2.testutil.Action.WaitForTimelineChanged;
 import com.google.android.exoplayer2.trackselection.MappingTrackSelector;
 import com.google.android.exoplayer2.util.Assertions;
-import com.google.android.exoplayer2.util.Clock;
+import com.google.android.exoplayer2.util.HandlerWrapper;
 
 /**
  * Schedules a sequence of {@link Action}s for execution during a test.
@@ -87,8 +86,12 @@ public final class ActionSchedule {
    * @param callback A {@link Callback} to notify when the action schedule finishes, or null if no
    *     notification is needed.
    */
-  /* package */ void start(SimpleExoPlayer player, MappingTrackSelector trackSelector,
-      Surface surface, Handler mainHandler, @Nullable Callback callback) {
+  /* package */ void start(
+      SimpleExoPlayer player,
+      MappingTrackSelector trackSelector,
+      Surface surface,
+      HandlerWrapper mainHandler,
+      @Nullable Callback callback) {
     callbackAction.setCallback(callback);
     rootNode.schedule(player, trackSelector, surface, mainHandler);
   }
@@ -99,7 +102,6 @@ public final class ActionSchedule {
   public static final class Builder {
 
     private final String tag;
-    private final Clock clock;
     private final ActionNode rootNode;
 
     private long currentDelayMs;
@@ -109,17 +111,8 @@ public final class ActionSchedule {
      * @param tag A tag to use for logging.
      */
     public Builder(String tag) {
-      this(tag, Clock.DEFAULT);
-    }
-
-    /**
-     * @param tag A tag to use for logging.
-     * @param clock A clock to use for measuring delays.
-     */
-    public Builder(String tag, Clock clock) {
       this.tag = tag;
-      this.clock = clock;
-      rootNode = new ActionNode(new RootAction(tag), clock, 0);
+      rootNode = new ActionNode(new RootAction(tag), 0);
       previousNode = rootNode;
     }
 
@@ -141,7 +134,7 @@ public final class ActionSchedule {
      * @return The builder, for convenience.
      */
     public Builder apply(Action action) {
-      return appendActionNode(new ActionNode(action, clock, currentDelayMs));
+      return appendActionNode(new ActionNode(action, currentDelayMs));
     }
 
     /**
@@ -152,7 +145,7 @@ public final class ActionSchedule {
      * @return The builder, for convenience.
      */
     public Builder repeat(Action action, long intervalMs) {
-      return appendActionNode(new ActionNode(action, clock, currentDelayMs, intervalMs));
+      return appendActionNode(new ActionNode(action, currentDelayMs, intervalMs));
     }
 
     /**
@@ -459,7 +452,6 @@ public final class ActionSchedule {
   /* package */ static final class ActionNode implements Runnable {
 
     private final Action action;
-    private final Clock clock;
     private final long delayMs;
     private final long repeatIntervalMs;
 
@@ -468,27 +460,24 @@ public final class ActionSchedule {
     private SimpleExoPlayer player;
     private MappingTrackSelector trackSelector;
     private Surface surface;
-    private Handler mainHandler;
+    private HandlerWrapper mainHandler;
 
     /**
      * @param action The wrapped action.
-     * @param clock The clock to use for measuring the delay.
      * @param delayMs The delay between the node being scheduled and the action being executed.
      */
-    public ActionNode(Action action, Clock clock, long delayMs) {
-      this(action, clock, delayMs, C.TIME_UNSET);
+    public ActionNode(Action action, long delayMs) {
+      this(action, delayMs, C.TIME_UNSET);
     }
 
     /**
      * @param action The wrapped action.
-     * @param clock The clock to use for measuring the delay.
      * @param delayMs The delay between the node being scheduled and the action being executed.
      * @param repeatIntervalMs The interval between one execution and the next repetition. If set to
      *     {@link C#TIME_UNSET}, the action is executed once only.
      */
-    public ActionNode(Action action, Clock clock, long delayMs, long repeatIntervalMs) {
+    public ActionNode(Action action, long delayMs, long repeatIntervalMs) {
       this.action = action;
-      this.clock = clock;
       this.delayMs = delayMs;
       this.repeatIntervalMs = repeatIntervalMs;
     }
@@ -503,16 +492,19 @@ public final class ActionSchedule {
     }
 
     /**
-     * Schedules {@link #action} to be executed after {@link #delayMs}. The {@link #next} node
-     * will be scheduled immediately after {@link #action} is executed.
+     * Schedules {@link #action} to be executed after {@link #delayMs}. The {@link #next} node will
+     * be scheduled immediately after {@link #action} is executed.
      *
      * @param player The player to which actions should be applied.
      * @param trackSelector The track selector to which actions should be applied.
      * @param surface The surface to use when applying actions.
      * @param mainHandler A handler associated with the main thread of the host activity.
      */
-    public void schedule(SimpleExoPlayer player, MappingTrackSelector trackSelector,
-        Surface surface, Handler mainHandler) {
+    public void schedule(
+        SimpleExoPlayer player,
+        MappingTrackSelector trackSelector,
+        Surface surface,
+        HandlerWrapper mainHandler) {
       this.player = player;
       this.trackSelector = trackSelector;
       this.surface = surface;
@@ -520,7 +512,7 @@ public final class ActionSchedule {
       if (delayMs == 0 && Looper.myLooper() == mainHandler.getLooper()) {
         run();
       } else {
-        clock.postDelayed(mainHandler, this, delayMs);
+        mainHandler.postDelayed(this, delayMs);
       }
     }
 
@@ -528,13 +520,15 @@ public final class ActionSchedule {
     public void run() {
       action.doActionAndScheduleNext(player, trackSelector, surface, mainHandler, next);
       if (repeatIntervalMs != C.TIME_UNSET) {
-        clock.postDelayed(mainHandler, new Runnable() {
-            @Override
-            public void run() {
-              action.doActionAndScheduleNext(player, trackSelector, surface, mainHandler, null);
-              clock.postDelayed(mainHandler, this, repeatIntervalMs);
-            }
-          }, repeatIntervalMs);
+        mainHandler.postDelayed(
+            new Runnable() {
+              @Override
+              public void run() {
+                action.doActionAndScheduleNext(player, trackSelector, surface, mainHandler, null);
+                mainHandler.postDelayed(this, repeatIntervalMs);
+              }
+            },
+            repeatIntervalMs);
       }
     }
 
@@ -577,7 +571,7 @@ public final class ActionSchedule {
         SimpleExoPlayer player,
         MappingTrackSelector trackSelector,
         Surface surface,
-        Handler handler,
+        HandlerWrapper handler,
         ActionNode nextAction) {
       Assertions.checkArgument(nextAction == null);
       if (callback != null) {

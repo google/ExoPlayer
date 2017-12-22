@@ -16,7 +16,7 @@
 package com.google.android.exoplayer2.testutil;
 
 import android.os.ConditionVariable;
-import android.os.Handler;
+import android.os.Looper;
 import android.os.SystemClock;
 import android.util.Log;
 import android.view.Surface;
@@ -42,6 +42,7 @@ import com.google.android.exoplayer2.upstream.BandwidthMeter;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DefaultBandwidthMeter;
 import com.google.android.exoplayer2.upstream.TransferListener;
+import com.google.android.exoplayer2.util.HandlerWrapper;
 import com.google.android.exoplayer2.util.Util;
 import com.google.android.exoplayer2.video.VideoRendererEventListener;
 import junit.framework.Assert;
@@ -72,7 +73,7 @@ public abstract class ExoHostedTest extends Player.DefaultEventListener implemen
   private final ConditionVariable testFinished;
 
   private ActionSchedule pendingSchedule;
-  private Handler actionHandler;
+  private HandlerWrapper actionHandler;
   private MappingTrackSelector trackSelector;
   private SimpleExoPlayer player;
   private Surface surface;
@@ -187,7 +188,8 @@ public abstract class ExoHostedTest extends Player.DefaultEventListener implemen
     player.addAudioDebugListener(this);
     player.addVideoDebugListener(this);
     player.setPlayWhenReady(true);
-    actionHandler = new Handler();
+    actionHandler =
+        HandlerWrapper.Factory.DEFAULT.createHandler(Looper.myLooper(), /* callback= */ null);
     // Schedule any pending actions.
     if (pendingSchedule != null) {
       pendingSchedule.start(player, trackSelector, surface, actionHandler, /* callback= */ null);

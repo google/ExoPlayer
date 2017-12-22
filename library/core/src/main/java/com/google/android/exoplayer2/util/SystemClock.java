@@ -15,7 +15,9 @@
  */
 package com.google.android.exoplayer2.util;
 
-import android.os.Handler;
+import android.os.Handler.Callback;
+import android.os.Looper;
+import android.support.annotation.Nullable;
 
 /**
  * The standard implementation of {@link Clock}.
@@ -33,8 +35,7 @@ import android.os.Handler;
   }
 
   @Override
-  public void postDelayed(Handler handler, Runnable runnable, long delayMs) {
-    handler.postDelayed(runnable, delayMs);
+  public HandlerWrapper createHandler(Looper looper, @Nullable Callback callback) {
+    return HandlerWrapper.Factory.DEFAULT.createHandler(looper, callback);
   }
-
 }

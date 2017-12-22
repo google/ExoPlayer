@@ -15,7 +15,6 @@
  */
 package com.google.android.exoplayer2.testutil;
 
-import android.os.Handler;
 import android.os.HandlerThread;
 import android.support.annotation.Nullable;
 import com.google.android.exoplayer2.DefaultLoadControl;
@@ -38,6 +37,8 @@ import com.google.android.exoplayer2.text.TextOutput;
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
 import com.google.android.exoplayer2.trackselection.MappingTrackSelector;
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
+import com.google.android.exoplayer2.util.Clock;
+import com.google.android.exoplayer2.util.HandlerWrapper;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.video.VideoRendererEventListener;
 import java.util.ArrayList;
@@ -91,6 +92,7 @@ public final class ExoPlayerTestRunner extends Player.DefaultEventListener
     public static final Format AUDIO_FORMAT = Format.createAudioSampleFormat(null,
         MimeTypes.AUDIO_AAC, null, Format.NO_VALUE, Format.NO_VALUE, 2, 44100, null, null, 0, null);
 
+    private Clock clock;
     private PlayerFactory playerFactory;
     private Timeline timeline;
     private Object manifest;
@@ -237,6 +239,18 @@ public final class ExoPlayerTestRunner extends Player.DefaultEventListener
     }
 
     /**
+     * Sets the {@link Clock} to be used by the test runner. The default value is {@link
+     * Clock#DEFAULT}.
+     *
+     * @param clock A {@link Clock} to be used by the test runner.
+     * @return This builder.
+     */
+    public Builder setClock(Clock clock) {
+      this.clock = clock;
+      return this;
+    }
+
+    /**
      * Sets an {@link ActionSchedule} to be run by the test runner. The first action will be
      * executed immediately before {@link SimpleExoPlayer#prepare(MediaSource)}.
      *
@@ -312,18 +326,24 @@ public final class ExoPlayerTestRunner extends Player.DefaultEventListener
         if (renderers == null) {
           renderers = new Renderer[] {new FakeRenderer(supportedFormats)};
         }
-        renderersFactory = new RenderersFactory() {
-          @Override
-          public Renderer[] createRenderers(Handler eventHandler,
-              VideoRendererEventListener videoRendererEventListener,
-              AudioRendererEventListener audioRendererEventListener, TextOutput textRendererOutput,
-              MetadataOutput metadataRendererOutput) {
-            return renderers;
-          }
-        };
+        renderersFactory =
+            new RenderersFactory() {
+              @Override
+              public Renderer[] createRenderers(
+                  android.os.Handler eventHandler,
+                  VideoRendererEventListener videoRendererEventListener,
+                  AudioRendererEventListener audioRendererEventListener,
+                  TextOutput textRendererOutput,
+                  MetadataOutput metadataRendererOutput) {
+                return renderers;
+              }
+            };
       }
       if (loadControl == null) {
         loadControl = new DefaultLoadControl();
+      }
+      if (clock == null) {
+        clock = Clock.DEFAULT;
       }
       if (playerFactory == null) {
         playerFactory = new PlayerFactory() {
@@ -344,6 +364,7 @@ public final class ExoPlayerTestRunner extends Player.DefaultEventListener
         expectedPlayerEndedCount = 1;
       }
       return new ExoPlayerTestRunner(
+          clock,
           playerFactory,
           mediaSource,
           renderersFactory,
@@ -368,7 +389,7 @@ public final class ExoPlayerTestRunner extends Player.DefaultEventListener
   private final @Nullable AudioRendererEventListener audioRendererEventListener;
 
   private final HandlerThread playerThread;
-  private final Handler handler;
+  private final HandlerWrapper handler;
   private final CountDownLatch endedCountDownLatch;
   private final CountDownLatch actionScheduleFinishedCountDownLatch;
   private final ArrayList<Timeline> timelines;
@@ -383,6 +404,7 @@ public final class ExoPlayerTestRunner extends Player.DefaultEventListener
   private boolean playerWasPrepared;
 
   private ExoPlayerTestRunner(
+      Clock clock,
       PlayerFactory playerFactory,
       MediaSource mediaSource,
       RenderersFactory renderersFactory,
@@ -411,7 +433,7 @@ public final class ExoPlayerTestRunner extends Player.DefaultEventListener
     this.actionScheduleFinishedCountDownLatch = new CountDownLatch(actionSchedule != null ? 1 : 0);
     this.playerThread = new HandlerThread("ExoPlayerTest thread");
     playerThread.start();
-    this.handler = new Handler(playerThread.getLooper());
+    this.handler = clock.createHandler(playerThread.getLooper(), /* callback= */ null);
   }
 
   // Called on the test thread to run the test.
