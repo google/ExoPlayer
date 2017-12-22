@@ -24,7 +24,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /** Fake {@link Clock} implementation independent of {@link android.os.SystemClock}. */
-public final class FakeClock implements Clock {
+public class FakeClock implements Clock {
 
   private final List<Long> wakeUpTimes;
   private final List<HandlerMessageData> handlerMessages;
