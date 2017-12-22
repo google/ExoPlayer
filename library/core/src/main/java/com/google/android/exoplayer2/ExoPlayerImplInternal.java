@@ -904,13 +904,17 @@ import java.util.Collections;
             }
           }
         };
-    handler.post(
-        new Runnable() {
-          @Override
-          public void run() {
-            customMessageInfo.message.getHandler().post(handleMessageRunnable);
-          }
-        });
+    if (customMessageInfo.message.getHandler().getLooper() == handler.getLooper()) {
+      handleMessageRunnable.run();
+    } else {
+      handler.post(
+          new Runnable() {
+            @Override
+            public void run() {
+              customMessageInfo.message.getHandler().post(handleMessageRunnable);
+            }
+          });
+    }
   }
 
   private void resolveCustomMessagePositions() {
