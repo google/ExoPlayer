@@ -408,8 +408,31 @@ public class ChunkSampleStream<T extends ChunkSource> implements SampleStream, S
     if (loader.isLoading() || isPendingReset()) {
       return;
     }
-    int queueSize = chunkSource.getPreferredQueueSize(positionUs, readOnlyMediaChunks);
-    discardUpstreamMediaChunks(queueSize);
+
+    int currentQueueSize = mediaChunks.size();
+    int preferredQueueSize = chunkSource.getPreferredQueueSize(positionUs, readOnlyMediaChunks);
+    if (currentQueueSize <= preferredQueueSize) {
+      return;
+    }
+
+    int newQueueSize = currentQueueSize;
+    for (int i = preferredQueueSize; i < currentQueueSize; i++) {
+      if (!haveReadFromMediaChunk(i)) {
+        newQueueSize = i;
+        break;
+      }
+    }
+    if (newQueueSize == currentQueueSize) {
+      return;
+    }
+
+    long endTimeUs = getLastMediaChunk().endTimeUs;
+    BaseMediaChunk firstRemovedChunk = discardUpstreamMediaChunksFromIndex(newQueueSize);
+    if (mediaChunks.isEmpty()) {
+      pendingResetPositionUs = lastSeekPositionUs;
+    }
+    loadingFinished = false;
+    eventDispatcher.upstreamDiscarded(primaryTrackType, firstRemovedChunk.startTimeUs, endTimeUs);
   }
 
   // Internal methods
@@ -481,37 +504,6 @@ public class ChunkSampleStream<T extends ChunkSource> implements SampleStream, S
 
   private BaseMediaChunk getLastMediaChunk() {
     return mediaChunks.get(mediaChunks.size() - 1);
-  }
-
-  /**
-   * Discard upstream media chunks until the queue length is equal to the length specified, but
-   * avoid discarding any chunk whose samples have been read by either primary sample stream or
-   * embedded sample streams.
-   *
-   * @param desiredQueueSize The desired length of the queue. The final queue size after discarding
-   *     maybe larger than this if there are chunks after the specified position that have been read
-   *     by either primary sample stream or embedded sample streams.
-   */
-  private void discardUpstreamMediaChunks(int desiredQueueSize) {
-    if (mediaChunks.size() <= desiredQueueSize) {
-      return;
-    }
-
-    int firstIndexToRemove = desiredQueueSize;
-    for (int i = firstIndexToRemove; i < mediaChunks.size(); i++) {
-      if (!haveReadFromMediaChunk(i)) {
-        firstIndexToRemove = i;
-        break;
-      }
-    }
-
-    if (firstIndexToRemove == mediaChunks.size()) {
-      return;
-    }
-    long endTimeUs = getLastMediaChunk().endTimeUs;
-    BaseMediaChunk firstRemovedChunk = discardUpstreamMediaChunksFromIndex(firstIndexToRemove);
-    loadingFinished = false;
-    eventDispatcher.upstreamDiscarded(primaryTrackType, firstRemovedChunk.startTimeUs, endTimeUs);
   }
 
   /**
