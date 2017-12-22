@@ -15,7 +15,6 @@
  */
 package com.google.android.exoplayer2.testutil;
 
-import android.os.Handler;
 import android.util.Log;
 import android.view.Surface;
 import com.google.android.exoplayer2.C;
@@ -31,6 +30,7 @@ import com.google.android.exoplayer2.testutil.ActionSchedule.ActionNode;
 import com.google.android.exoplayer2.testutil.ActionSchedule.PlayerRunnable;
 import com.google.android.exoplayer2.testutil.ActionSchedule.PlayerTarget;
 import com.google.android.exoplayer2.trackselection.MappingTrackSelector;
+import com.google.android.exoplayer2.util.HandlerWrapper;
 
 /**
  * Base class for actions to perform during playback tests.
@@ -58,15 +58,19 @@ public abstract class Action {
    * @param handler The handler to use to pass to the next action.
    * @param nextAction The next action to schedule immediately after this action finished.
    */
-  public final void doActionAndScheduleNext(SimpleExoPlayer player,
-      MappingTrackSelector trackSelector, Surface surface, Handler handler, ActionNode nextAction) {
+  public final void doActionAndScheduleNext(
+      SimpleExoPlayer player,
+      MappingTrackSelector trackSelector,
+      Surface surface,
+      HandlerWrapper handler,
+      ActionNode nextAction) {
     Log.i(tag, description);
     doActionAndScheduleNextImpl(player, trackSelector, surface, handler, nextAction);
   }
 
   /**
    * Called by {@link #doActionAndScheduleNext(SimpleExoPlayer, MappingTrackSelector, Surface,
-   * Handler, ActionNode)} to perform the action and to schedule the next action node.
+   * HandlerWrapper, ActionNode)} to perform the action and to schedule the next action node.
    *
    * @param player The player to which the action should be applied.
    * @param trackSelector The track selector to which the action should be applied.
@@ -74,8 +78,12 @@ public abstract class Action {
    * @param handler The handler to use to pass to the next action.
    * @param nextAction The next action to schedule immediately after this action finished.
    */
-  protected void doActionAndScheduleNextImpl(SimpleExoPlayer player,
-      MappingTrackSelector trackSelector, Surface surface, Handler handler, ActionNode nextAction) {
+  protected void doActionAndScheduleNextImpl(
+      SimpleExoPlayer player,
+      MappingTrackSelector trackSelector,
+      Surface surface,
+      HandlerWrapper handler,
+      ActionNode nextAction) {
     doActionImpl(player, trackSelector, surface);
     if (nextAction != null) {
       nextAction.schedule(player, trackSelector, surface, handler);
@@ -84,14 +92,14 @@ public abstract class Action {
 
   /**
    * Called by {@link #doActionAndScheduleNextImpl(SimpleExoPlayer, MappingTrackSelector, Surface,
-   * Handler, ActionNode)} to perform the action.
+   * HandlerWrapper, ActionNode)} to perform the action.
    *
    * @param player The player to which the action should be applied.
    * @param trackSelector The track selector to which the action should be applied.
    * @param surface The surface to use when applying actions.
    */
-  protected abstract void doActionImpl(SimpleExoPlayer player, MappingTrackSelector trackSelector,
-      Surface surface);
+  protected abstract void doActionImpl(
+      SimpleExoPlayer player, MappingTrackSelector trackSelector, Surface surface);
 
   /**
    * Calls {@link Player#seekTo(long)} or {@link Player#seekTo(int, long)}.
@@ -403,7 +411,7 @@ public abstract class Action {
       } else {
         message.setPosition(positionMs);
       }
-      message.setHandler(new Handler());
+      message.setHandler(new android.os.Handler());
       message.setDeleteAfterDelivery(deleteAfterDelivery);
       message.send();
     }
@@ -449,8 +457,11 @@ public abstract class Action {
     }
 
     @Override
-    protected void doActionAndScheduleNextImpl(final SimpleExoPlayer player,
-        final MappingTrackSelector trackSelector, final Surface surface, final Handler handler,
+    protected void doActionAndScheduleNextImpl(
+        final SimpleExoPlayer player,
+        final MappingTrackSelector trackSelector,
+        final Surface surface,
+        final HandlerWrapper handler,
         final ActionNode nextAction) {
       if (nextAction == null) {
         return;
@@ -493,8 +504,11 @@ public abstract class Action {
     }
 
     @Override
-    protected void doActionAndScheduleNextImpl(final SimpleExoPlayer player,
-        final MappingTrackSelector trackSelector, final Surface surface, final Handler handler,
+    protected void doActionAndScheduleNextImpl(
+        final SimpleExoPlayer player,
+        final MappingTrackSelector trackSelector,
+        final Surface surface,
+        final HandlerWrapper handler,
         final ActionNode nextAction) {
       if (nextAction == null) {
         return;
@@ -533,8 +547,11 @@ public abstract class Action {
     }
 
     @Override
-    protected void doActionAndScheduleNextImpl(final SimpleExoPlayer player,
-        final MappingTrackSelector trackSelector, final Surface surface, final Handler handler,
+    protected void doActionAndScheduleNextImpl(
+        final SimpleExoPlayer player,
+        final MappingTrackSelector trackSelector,
+        final Surface surface,
+        final HandlerWrapper handler,
         final ActionNode nextAction) {
       if (nextAction == null) {
         return;
@@ -575,8 +592,11 @@ public abstract class Action {
     }
 
     @Override
-    protected void doActionAndScheduleNextImpl(final SimpleExoPlayer player,
-        final MappingTrackSelector trackSelector, final Surface surface, final Handler handler,
+    protected void doActionAndScheduleNextImpl(
+        final SimpleExoPlayer player,
+        final MappingTrackSelector trackSelector,
+        final Surface surface,
+        final HandlerWrapper handler,
         final ActionNode nextAction) {
       if (nextAction == null) {
         return;
