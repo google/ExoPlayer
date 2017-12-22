@@ -36,6 +36,8 @@
 * DefaultTrackSelector: Support disabling of individual text track selection
   flags.
 * New Cast extension: Simplifies toggling between local and Cast playbacks.
+* Add support for extracting 32-bit WAVE files
+ ([#3379](https://github.com/google/ExoPlayer/issues/3379)).
 
 ### 2.6.1 ###
 
