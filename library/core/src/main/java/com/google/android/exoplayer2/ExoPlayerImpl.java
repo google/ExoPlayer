@@ -31,6 +31,7 @@ import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
 import com.google.android.exoplayer2.trackselection.TrackSelector;
 import com.google.android.exoplayer2.trackselection.TrackSelectorResult;
 import com.google.android.exoplayer2.util.Assertions;
+import com.google.android.exoplayer2.util.Clock;
 import com.google.android.exoplayer2.util.Util;
 import java.util.ArrayList;
 import java.util.List;
@@ -75,9 +76,11 @@ import java.util.concurrent.CopyOnWriteArraySet;
    * @param renderers The {@link Renderer}s that will be used by the instance.
    * @param trackSelector The {@link TrackSelector} that will be used by the instance.
    * @param loadControl The {@link LoadControl} that will be used by the instance.
+   * @param clock The {@link Clock} that will be used by the instance.
    */
   @SuppressLint("HandlerLeak")
-  public ExoPlayerImpl(Renderer[] renderers, TrackSelector trackSelector, LoadControl loadControl) {
+  public ExoPlayerImpl(
+      Renderer[] renderers, TrackSelector trackSelector, LoadControl loadControl, Clock clock) {
     Log.i(TAG, "Init " + Integer.toHexString(System.identityHashCode(this)) + " ["
         + ExoPlayerLibraryInfo.VERSION_SLASHY + "] [" + Util.DEVICE_DEBUG_INFO + "]");
     Assertions.checkState(renderers.length > 0);
@@ -116,7 +119,8 @@ import java.util.concurrent.CopyOnWriteArraySet;
             repeatMode,
             shuffleModeEnabled,
             eventHandler,
-            this);
+            this,
+            clock);
     internalPlayerHandler = new Handler(internalPlayer.getPlaybackLooper());
   }
 

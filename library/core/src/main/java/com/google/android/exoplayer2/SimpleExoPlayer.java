@@ -38,6 +38,7 @@ import com.google.android.exoplayer2.text.Cue;
 import com.google.android.exoplayer2.text.TextOutput;
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
 import com.google.android.exoplayer2.trackselection.TrackSelector;
+import com.google.android.exoplayer2.util.Clock;
 import com.google.android.exoplayer2.util.Util;
 import com.google.android.exoplayer2.video.VideoRendererEventListener;
 import java.util.List;
@@ -109,8 +110,28 @@ public class SimpleExoPlayer implements ExoPlayer {
   private AudioAttributes audioAttributes;
   private float audioVolume;
 
-  protected SimpleExoPlayer(RenderersFactory renderersFactory, TrackSelector trackSelector,
-      LoadControl loadControl) {
+  /**
+   * @param renderersFactory A factory for creating {@link Renderer}s to be used by the instance.
+   * @param trackSelector The {@link TrackSelector} that will be used by the instance.
+   * @param loadControl The {@link LoadControl} that will be used by the instance.
+   */
+  protected SimpleExoPlayer(
+      RenderersFactory renderersFactory, TrackSelector trackSelector, LoadControl loadControl) {
+    this(renderersFactory, trackSelector, loadControl, Clock.DEFAULT);
+  }
+
+  /**
+   * @param renderersFactory A factory for creating {@link Renderer}s to be used by the instance.
+   * @param trackSelector The {@link TrackSelector} that will be used by the instance.
+   * @param loadControl The {@link LoadControl} that will be used by the instance.
+   * @param clock The {@link Clock} that will be used by the instance. Should always be {@link
+   *     Clock#DEFAULT}, unless the player is being used from a test.
+   */
+  protected SimpleExoPlayer(
+      RenderersFactory renderersFactory,
+      TrackSelector trackSelector,
+      LoadControl loadControl,
+      Clock clock) {
     componentListener = new ComponentListener();
     videoListeners = new CopyOnWriteArraySet<>();
     textOutputs = new CopyOnWriteArraySet<>();
@@ -129,7 +150,7 @@ public class SimpleExoPlayer implements ExoPlayer {
     videoScalingMode = C.VIDEO_SCALING_MODE_DEFAULT;
 
     // Build the player and associated objects.
-    player = createExoPlayerImpl(renderers, trackSelector, loadControl);
+    player = createExoPlayerImpl(renderers, trackSelector, loadControl, clock);
   }
 
   /**
@@ -864,11 +885,12 @@ public class SimpleExoPlayer implements ExoPlayer {
    * @param renderers The {@link Renderer}s that will be used by the instance.
    * @param trackSelector The {@link TrackSelector} that will be used by the instance.
    * @param loadControl The {@link LoadControl} that will be used by the instance.
+   * @param clock The {@link Clock} that will be used by this instance.
    * @return A new {@link ExoPlayer} instance.
    */
   protected ExoPlayer createExoPlayerImpl(
-      Renderer[] renderers, TrackSelector trackSelector, LoadControl loadControl) {
-    return new ExoPlayerImpl(renderers, trackSelector, loadControl);
+      Renderer[] renderers, TrackSelector trackSelector, LoadControl loadControl, Clock clock) {
+    return new ExoPlayerImpl(renderers, trackSelector, loadControl, clock);
   }
 
   private void removeSurfaceCallbacks() {

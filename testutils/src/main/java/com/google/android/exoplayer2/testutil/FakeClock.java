@@ -177,7 +177,8 @@ public final class FakeClock implements Clock {
     }
 
     @Override
-    public boolean sendEmptyMessageDelayed(int what, long delayMs) {
+    public boolean sendEmptyMessageDelayed(int what, long delayMs, long referenceTimeMs) {
+      // Ignore referenceTimeMs measured by SystemClock and just send with requested delay.
       if (delayMs <= 0) {
         return handler.sendEmptyMessage(what);
       } else {
