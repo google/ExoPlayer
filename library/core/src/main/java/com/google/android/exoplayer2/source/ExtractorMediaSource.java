@@ -204,8 +204,10 @@ public final class ExtractorMediaSource implements MediaSource, ExtractorMediaPe
   private void notifySourceInfoRefreshed(long durationUs, boolean isSeekable) {
     timelineDurationUs = durationUs;
     timelineIsSeekable = isSeekable;
-    sourceListener.onSourceInfoRefreshed(
-        this, new SinglePeriodTimeline(timelineDurationUs, timelineIsSeekable), null);
+    if (sourceListener != null) {
+      sourceListener.onSourceInfoRefreshed(this,
+              new SinglePeriodTimeline(timelineDurationUs, timelineIsSeekable), null);
+    }
   }
 
 }
