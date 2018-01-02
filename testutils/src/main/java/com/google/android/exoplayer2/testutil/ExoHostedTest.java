@@ -42,6 +42,7 @@ import com.google.android.exoplayer2.upstream.BandwidthMeter;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DefaultBandwidthMeter;
 import com.google.android.exoplayer2.upstream.TransferListener;
+import com.google.android.exoplayer2.util.Clock;
 import com.google.android.exoplayer2.util.HandlerWrapper;
 import com.google.android.exoplayer2.util.Util;
 import com.google.android.exoplayer2.video.VideoRendererEventListener;
@@ -188,8 +189,7 @@ public abstract class ExoHostedTest extends Player.DefaultEventListener implemen
     player.addAudioDebugListener(this);
     player.addVideoDebugListener(this);
     player.setPlayWhenReady(true);
-    actionHandler =
-        HandlerWrapper.Factory.DEFAULT.createHandler(Looper.myLooper(), /* callback= */ null);
+    actionHandler = Clock.DEFAULT.createHandler(Looper.myLooper(), /* callback= */ null);
     // Schedule any pending actions.
     if (pendingSchedule != null) {
       pendingSchedule.start(player, trackSelector, surface, actionHandler, /* callback= */ null);

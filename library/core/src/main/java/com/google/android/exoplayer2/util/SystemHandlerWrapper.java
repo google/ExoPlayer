@@ -15,25 +15,16 @@
  */
 package com.google.android.exoplayer2.util;
 
-import android.os.Handler.Callback;
 import android.os.Looper;
 import android.os.Message;
 import android.os.SystemClock;
 
 /** The standard implementation of {@link HandlerWrapper}. */
-/* package */ final class SystemHandler implements HandlerWrapper {
-
-  /* package */ static final class Factory implements HandlerWrapper.Factory {
-
-    @Override
-    public HandlerWrapper createHandler(Looper looper, Callback callback) {
-      return new SystemHandler(new android.os.Handler(looper, callback));
-    }
-  }
+/* package */ final class SystemHandlerWrapper implements HandlerWrapper {
 
   private final android.os.Handler handler;
 
-  private SystemHandler(android.os.Handler handler) {
+  public SystemHandlerWrapper(android.os.Handler handler) {
     this.handler = handler;
   }
 

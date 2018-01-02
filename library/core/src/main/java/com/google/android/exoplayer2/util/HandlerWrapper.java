@@ -18,28 +18,12 @@ package com.google.android.exoplayer2.util;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
-import android.support.annotation.Nullable;
 
 /**
- * An interface to call through to an {@link Handler}. The {@link Factory#DEFAULT} factory must be
- * used for all non-test cases.
+ * An interface to call through to a {@link Handler}. Instances must be created by calling {@link
+ * Clock#createHandler(Looper, Handler.Callback)} on {@link Clock#DEFAULT} for all non-test cases.
  */
 public interface HandlerWrapper {
-
-  /** A factory for handler instances. */
-  interface Factory {
-
-    /** Default HandlerWrapper factory to use for all non-test cases. */
-    Factory DEFAULT = new SystemHandler.Factory();
-
-    /**
-     * Creates a HandlerWrapper running a specified looper and using a specified callback for
-     * messages.
-     *
-     * @see Handler#Handler(Looper, Handler.Callback).
-     */
-    HandlerWrapper createHandler(Looper looper, @Nullable Handler.Callback callback);
-  }
 
   /** @see Handler#getLooper(). */
   Looper getLooper();
