@@ -184,7 +184,7 @@
   easy and seamless way of incorporating display ads into ExoPlayer playbacks.
   You can read more about the IMA extension
   [here](https://medium.com/google-exoplayer/playing-ads-with-exoplayer-and-ima-868dfd767ea).
-* MediaSession extension: Provides an easy to connect ExoPlayer with
+* MediaSession extension: Provides an easy way to connect ExoPlayer with
   MediaSessionCompat in the Android Support Library.
 * RTMP extension: An extension for playing streams over RTMP.
 * Build: Made it easier for application developers to depend on a local checkout
