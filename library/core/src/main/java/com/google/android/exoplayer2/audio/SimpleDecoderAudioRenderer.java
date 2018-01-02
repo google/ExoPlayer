@@ -459,11 +459,8 @@ public abstract class SimpleDecoderAudioRenderer extends BaseRenderer implements
 
   @Override
   public long getPositionUs() {
-    long newCurrentPositionUs = audioSink.getCurrentPositionUs(isEnded());
-    if (newCurrentPositionUs != AudioSink.CURRENT_POSITION_NOT_SET) {
-      currentPositionUs = allowPositionDiscontinuity ? newCurrentPositionUs
-          : Math.max(currentPositionUs, newCurrentPositionUs);
-      allowPositionDiscontinuity = false;
+    if (getState() == STATE_STARTED) {
+      updateCurrentPosition();
     }
     return currentPositionUs;
   }
@@ -510,6 +507,7 @@ public abstract class SimpleDecoderAudioRenderer extends BaseRenderer implements
   @Override
   protected void onStopped() {
     audioSink.pause();
+    updateCurrentPosition();
   }
 
   @Override
@@ -537,6 +535,22 @@ public abstract class SimpleDecoderAudioRenderer extends BaseRenderer implements
           eventDispatcher.disabled(decoderCounters);
         }
       }
+    }
+  }
+
+  @Override
+  public void handleMessage(int messageType, Object message) throws ExoPlaybackException {
+    switch (messageType) {
+      case C.MSG_SET_VOLUME:
+        audioSink.setVolume((Float) message);
+        break;
+      case C.MSG_SET_AUDIO_ATTRIBUTES:
+        AudioAttributes audioAttributes = (AudioAttributes) message;
+        audioSink.setAudioAttributes(audioAttributes);
+        break;
+      default:
+        super.handleMessage(messageType, message);
+        break;
     }
   }
 
@@ -625,19 +639,14 @@ public abstract class SimpleDecoderAudioRenderer extends BaseRenderer implements
     eventDispatcher.inputFormatChanged(newFormat);
   }
 
-  @Override
-  public void handleMessage(int messageType, Object message) throws ExoPlaybackException {
-    switch (messageType) {
-      case C.MSG_SET_VOLUME:
-        audioSink.setVolume((Float) message);
-        break;
-      case C.MSG_SET_AUDIO_ATTRIBUTES:
-        AudioAttributes audioAttributes = (AudioAttributes) message;
-        audioSink.setAudioAttributes(audioAttributes);
-        break;
-      default:
-        super.handleMessage(messageType, message);
-        break;
+  private void updateCurrentPosition() {
+    long newCurrentPositionUs = audioSink.getCurrentPositionUs(isEnded());
+    if (newCurrentPositionUs != AudioSink.CURRENT_POSITION_NOT_SET) {
+      currentPositionUs =
+          allowPositionDiscontinuity
+              ? newCurrentPositionUs
+              : Math.max(currentPositionUs, newCurrentPositionUs);
+      allowPositionDiscontinuity = false;
     }
   }
 

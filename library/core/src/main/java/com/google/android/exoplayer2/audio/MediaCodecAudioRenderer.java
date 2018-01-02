@@ -364,6 +364,7 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
   @Override
   protected void onStopped() {
     audioSink.pause();
+    updateCurrentPosition();
     super.onStopped();
   }
 
@@ -393,11 +394,8 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
 
   @Override
   public long getPositionUs() {
-    long newCurrentPositionUs = audioSink.getCurrentPositionUs(isEnded());
-    if (newCurrentPositionUs != AudioSink.CURRENT_POSITION_NOT_SET) {
-      currentPositionUs = allowPositionDiscontinuity ? newCurrentPositionUs
-          : Math.max(currentPositionUs, newCurrentPositionUs);
-      allowPositionDiscontinuity = false;
+    if (getState() == STATE_STARTED) {
+      updateCurrentPosition();
     }
     return currentPositionUs;
   }
@@ -463,6 +461,17 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
       default:
         super.handleMessage(messageType, message);
         break;
+    }
+  }
+
+  private void updateCurrentPosition() {
+    long newCurrentPositionUs = audioSink.getCurrentPositionUs(isEnded());
+    if (newCurrentPositionUs != AudioSink.CURRENT_POSITION_NOT_SET) {
+      currentPositionUs =
+          allowPositionDiscontinuity
+              ? newCurrentPositionUs
+              : Math.max(currentPositionUs, newCurrentPositionUs);
+      allowPositionDiscontinuity = false;
     }
   }
 
