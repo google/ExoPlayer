@@ -150,6 +150,12 @@ public final class SsaDecoder extends SimpleSubtitleDecoder {
           break;
       }
     }
+    if (formatStartIndex == C.INDEX_UNSET
+        || formatEndIndex == C.INDEX_UNSET
+        || formatTextIndex == C.INDEX_UNSET) {
+      // Set to 0 so that parseDialogueLine skips lines until a complete format line is found.
+      formatKeyCount = 0;
+    }
   }
 
   /**
@@ -161,12 +167,17 @@ public final class SsaDecoder extends SimpleSubtitleDecoder {
    */
   private void parseDialogueLine(String dialogueLine, List<Cue> cues, LongArray cueTimesUs) {
     if (formatKeyCount == 0) {
-      Log.w(TAG, "Skipping dialogue line before format: " + dialogueLine);
+      Log.w(TAG, "Skipping dialogue line before complete format: " + dialogueLine);
       return;
     }
 
     String[] lineValues = dialogueLine.substring(DIALOGUE_LINE_PREFIX.length())
         .split(",", formatKeyCount);
+    if (lineValues.length != formatKeyCount) {
+      Log.w(TAG, "Skipping dialogue line with fewer columns than format: " + dialogueLine);
+      return;
+    }
+
     long startTimeUs = SsaDecoder.parseTimecodeUs(lineValues[formatStartIndex]);
     if (startTimeUs == C.TIME_UNSET) {
       Log.w(TAG, "Skipping invalid timing: " + dialogueLine);
