@@ -149,7 +149,7 @@ public final class DynamicConcatenatingMediaSource implements MediaSource, Playe
       player
           .createMessage(this)
           .setType(MSG_ADD)
-          .setMessage(new MessageData<>(index, mediaSource, actionOnCompletion))
+          .setPayload(new MessageData<>(index, mediaSource, actionOnCompletion))
           .send();
     } else if (actionOnCompletion != null) {
       actionOnCompletion.run();
@@ -225,7 +225,7 @@ public final class DynamicConcatenatingMediaSource implements MediaSource, Playe
       player
           .createMessage(this)
           .setType(MSG_ADD_MULTIPLE)
-          .setMessage(new MessageData<>(index, mediaSources, actionOnCompletion))
+          .setPayload(new MessageData<>(index, mediaSources, actionOnCompletion))
           .send();
     } else if (actionOnCompletion != null){
       actionOnCompletion.run();
@@ -264,7 +264,7 @@ public final class DynamicConcatenatingMediaSource implements MediaSource, Playe
       player
           .createMessage(this)
           .setType(MSG_REMOVE)
-          .setMessage(new MessageData<>(index, null, actionOnCompletion))
+          .setPayload(new MessageData<>(index, null, actionOnCompletion))
           .send();
     } else if (actionOnCompletion != null) {
       actionOnCompletion.run();
@@ -304,7 +304,7 @@ public final class DynamicConcatenatingMediaSource implements MediaSource, Playe
       player
           .createMessage(this)
           .setType(MSG_MOVE)
-          .setMessage(new MessageData<>(currentIndex, newIndex, actionOnCompletion))
+          .setPayload(new MessageData<>(currentIndex, newIndex, actionOnCompletion))
           .send();
     } else if (actionOnCompletion != null) {
       actionOnCompletion.run();
@@ -438,7 +438,7 @@ public final class DynamicConcatenatingMediaSource implements MediaSource, Playe
           new ConcatenatedTimeline(mediaSourceHolders, windowCount, periodCount, shuffleOrder),
           null);
       if (actionOnCompletion != null) {
-        player.createMessage(this).setType(MSG_ON_COMPLETION).setMessage(actionOnCompletion).send();
+        player.createMessage(this).setType(MSG_ON_COMPLETION).setPayload(actionOnCompletion).send();
       }
     }
   }

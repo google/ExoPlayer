@@ -217,7 +217,7 @@ public interface ExoPlayer extends Player {
   /**
    * Creates a message that can be sent to a {@link PlayerMessage.Target}. By default, the message
    * will be delivered immediately without blocking on the playback thread. The default {@link
-   * PlayerMessage#getType()} is 0 and the default {@link PlayerMessage#getMessage()} is null. If a
+   * PlayerMessage#getType()} is 0 and the default {@link PlayerMessage#getPayload()} is null. If a
    * position is specified with {@link PlayerMessage#setPosition(long)}, the message will be
    * delivered at this position in the current window defined by {@link #getCurrentWindowIndex()}.
    * Alternatively, the message can be sent at a specific window using {@link

@@ -32,32 +32,21 @@ public final class PlayerMessage {
      * Handles a message delivered to the target.
      *
      * @param messageType The message type.
-     * @param message The message.
+     * @param payload The message payload.
      * @throws ExoPlaybackException If an error occurred whilst handling the message.
      */
-    void handleMessage(int messageType, Object message) throws ExoPlaybackException;
+    void handleMessage(int messageType, Object payload) throws ExoPlaybackException;
   }
 
   /** A sender for messages. */
   public interface Sender {
 
-    /** A listener for message events triggered by the sender. */
-    interface Listener {
-
-      /** Called when the message has been delivered. */
-      void onMessageDelivered();
-
-      /** Called when the message has been deleted. */
-      void onMessageDeleted();
-    }
-
     /**
      * Sends a message.
      *
      * @param message The message to be sent.
-     * @param listener The listener to listen to message events.
      */
-    void sendMessage(PlayerMessage message, Listener listener);
+    void sendMessage(PlayerMessage message);
   }
 
   private final Target target;
@@ -65,14 +54,14 @@ public final class PlayerMessage {
   private final Timeline timeline;
 
   private int type;
-  private Object message;
+  private Object payload;
   private Handler handler;
   private int windowIndex;
   private long positionMs;
   private boolean deleteAfterDelivery;
   private boolean isSent;
   private boolean isDelivered;
-  private boolean isDeleted;
+  private boolean isProcessed;
 
   /**
    * Creates a new message.
@@ -112,9 +101,9 @@ public final class PlayerMessage {
   }
 
   /**
-   * Sets a custom message type forwarded to the {@link Target#handleMessage(int, Object)}.
+   * Sets the message type forwarded to {@link Target#handleMessage(int, Object)}.
    *
-   * @param messageType The custom message type.
+   * @param messageType The message type.
    * @return This message.
    * @throws IllegalStateException If {@link #send()} has already been called.
    */
@@ -124,27 +113,27 @@ public final class PlayerMessage {
     return this;
   }
 
-  /** Returns custom message type forwarded to the {@link Target#handleMessage(int, Object)}. */
+  /** Returns the message type forwarded to {@link Target#handleMessage(int, Object)}. */
   public int getType() {
     return type;
   }
 
   /**
-   * Sets a custom message forwarded to the {@link Target#handleMessage(int, Object)}.
+   * Sets the message payload forwarded to {@link Target#handleMessage(int, Object)}.
    *
-   * @param message The custom message.
+   * @param payload The message payload.
    * @return This message.
    * @throws IllegalStateException If {@link #send()} has already been called.
    */
-  public PlayerMessage setMessage(@Nullable Object message) {
+  public PlayerMessage setPayload(@Nullable Object payload) {
     Assertions.checkState(!isSent);
-    this.message = message;
+    this.payload = payload;
     return this;
   }
 
-  /** Returns custom message forwarded to the {@link Target#handleMessage(int, Object)}. */
-  public Object getMessage() {
-    return message;
+  /** Returns the message payload forwarded to {@link Target#handleMessage(int, Object)}. */
+  public Object getPayload() {
+    return payload;
   }
 
   /**
@@ -248,25 +237,7 @@ public final class PlayerMessage {
       Assertions.checkArgument(deleteAfterDelivery);
     }
     isSent = true;
-    sender.sendMessage(
-        this,
-        new Sender.Listener() {
-          @Override
-          public void onMessageDelivered() {
-            synchronized (PlayerMessage.this) {
-              isDelivered = true;
-              PlayerMessage.this.notifyAll();
-            }
-          }
-
-          @Override
-          public void onMessageDeleted() {
-            synchronized (PlayerMessage.this) {
-              isDeleted = true;
-              PlayerMessage.this.notifyAll();
-            }
-          }
-        });
+    sender.sendMessage(this);
     return this;
   }
 
@@ -287,9 +258,23 @@ public final class PlayerMessage {
   public synchronized boolean blockUntilDelivered() throws InterruptedException {
     Assertions.checkState(isSent);
     Assertions.checkState(handler.getLooper().getThread() != Thread.currentThread());
-    while (!isDelivered && !isDeleted) {
+    while (!isProcessed) {
       wait();
     }
     return isDelivered;
+  }
+
+  /**
+   * Marks the message as processed. Should only be called by a {@link Sender} and may be called
+   * multiple times.
+   *
+   * @param isDelivered Whether the message has been delivered to its target. The message is
+   *     considered as being delivered when this method has been called with {@code isDelivered} set
+   *     to true at least once.
+   */
+  public synchronized void markAsProcessed(boolean isDelivered) {
+    this.isDelivered |= isDelivered;
+    isProcessed = true;
+    notifyAll();
   }
 }

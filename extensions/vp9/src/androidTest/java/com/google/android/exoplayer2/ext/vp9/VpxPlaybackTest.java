@@ -122,7 +122,7 @@ public class VpxPlaybackTest extends InstrumentationTestCase {
       player
           .createMessage(videoRenderer)
           .setType(LibvpxVideoRenderer.MSG_SET_OUTPUT_BUFFER_RENDERER)
-          .setMessage(new VpxVideoSurfaceView(context))
+          .setPayload(new VpxVideoSurfaceView(context))
           .send();
       player.prepare(mediaSource);
       player.setPlayWhenReady(true);

@@ -79,6 +79,7 @@ import java.util.Collections;
   private static final int MSG_CUSTOM = 12;
   private static final int MSG_SET_REPEAT_MODE = 13;
   private static final int MSG_SET_SHUFFLE_ENABLED = 14;
+  private static final int MSG_SEND_MESSAGE_TO_TARGET = 15;
 
   private static final int PREPARING_SOURCE_INTERVAL_MS = 10;
   private static final int RENDERING_INTERVAL_MS = 10;
@@ -223,14 +224,13 @@ import java.util.Collections;
   }
 
   @Override
-  public synchronized void sendMessage(
-      PlayerMessage message, PlayerMessage.Sender.Listener listener) {
+  public synchronized void sendMessage(PlayerMessage message) {
     if (released) {
       Log.w(TAG, "Ignoring messages sent after release.");
-      listener.onMessageDeleted();
+      message.markAsProcessed(/* isDelivered= */ false);
       return;
     }
-    handler.obtainMessage(MSG_CUSTOM, new CustomMessageInfo(message, listener)).sendToTarget();
+    handler.obtainMessage(MSG_CUSTOM, message).sendToTarget();
   }
 
   public synchronized void release() {
@@ -338,7 +338,10 @@ import java.util.Collections;
           reselectTracksInternal();
           break;
         case MSG_CUSTOM:
-          sendMessageInternal((CustomMessageInfo) msg.obj);
+          sendMessageInternal((PlayerMessage) msg.obj);
+          break;
+        case MSG_SEND_MESSAGE_TO_TARGET:
+          sendCustomMessageToTargetThread((PlayerMessage) msg.obj);
           break;
         case MSG_RELEASE:
           releaseInternal();
@@ -838,7 +841,7 @@ import java.util.Collections;
     if (resetState) {
       mediaPeriodInfoSequence.setTimeline(null);
       for (CustomMessageInfo customMessageInfo : customMessageInfos) {
-        customMessageInfo.listener.onMessageDeleted();
+        customMessageInfo.message.markAsProcessed(/* isDelivered= */ false);
       }
       customMessageInfos.clear();
       nextCustomMessageInfoIndex = 0;
@@ -862,58 +865,54 @@ import java.util.Collections;
     }
   }
 
-  private void sendMessageInternal(CustomMessageInfo customMessageInfo) {
-    if (customMessageInfo.message.getPositionMs() == C.TIME_UNSET) {
+  private void sendMessageInternal(PlayerMessage message) {
+    if (message.getPositionMs() == C.TIME_UNSET) {
       // If no delivery time is specified, trigger immediate message delivery.
-      sendCustomMessagesToTarget(customMessageInfo);
+      sendCustomMessageToTarget(message);
     } else if (playbackInfo.timeline == null) {
       // Still waiting for initial timeline to resolve position.
-      customMessageInfos.add(customMessageInfo);
+      customMessageInfos.add(new CustomMessageInfo(message));
     } else {
+      CustomMessageInfo customMessageInfo = new CustomMessageInfo(message);
       if (resolveCustomMessagePosition(customMessageInfo)) {
         customMessageInfos.add(customMessageInfo);
         // Ensure new message is inserted according to playback order.
         Collections.sort(customMessageInfos);
       } else {
-        customMessageInfo.listener.onMessageDeleted();
+        message.markAsProcessed(/* isDelivered= */ false);
       }
     }
   }
 
-  private void sendCustomMessagesToTarget(final CustomMessageInfo customMessageInfo) {
-    final Runnable handleMessageRunnable =
-        new Runnable() {
-          @Override
-          public void run() {
-            try {
-              customMessageInfo
-                  .message
-                  .getTarget()
-                  .handleMessage(
-                      customMessageInfo.message.getType(), customMessageInfo.message.getMessage());
-            } catch (ExoPlaybackException e) {
-              eventHandler.obtainMessage(MSG_ERROR, e).sendToTarget();
-            } finally {
-              customMessageInfo.listener.onMessageDelivered();
-              if (customMessageInfo.message.getDeleteAfterDelivery()) {
-                customMessageInfo.listener.onMessageDeleted();
-              }
-              // The message may have caused something to change that now requires us to do
-              // work.
-              handler.sendEmptyMessage(MSG_DO_SOME_WORK);
-            }
-          }
-        };
-    if (customMessageInfo.message.getHandler().getLooper() == handler.getLooper()) {
-      handleMessageRunnable.run();
+  private void sendCustomMessageToTarget(PlayerMessage message) {
+    if (message.getHandler().getLooper() == handler.getLooper()) {
+      deliverCustomMessage(message);
+      // The message may have caused something to change that now requires us to do work.
+      handler.sendEmptyMessage(MSG_DO_SOME_WORK);
     } else {
-      handler.post(
-          new Runnable() {
-            @Override
-            public void run() {
-              customMessageInfo.message.getHandler().post(handleMessageRunnable);
-            }
-          });
+      handler.obtainMessage(MSG_SEND_MESSAGE_TO_TARGET, message).sendToTarget();
+    }
+  }
+
+  private void sendCustomMessageToTargetThread(final PlayerMessage message) {
+    message
+        .getHandler()
+        .post(
+            new Runnable() {
+              @Override
+              public void run() {
+                deliverCustomMessage(message);
+              }
+            });
+  }
+
+  private void deliverCustomMessage(PlayerMessage message) {
+    try {
+      message.getTarget().handleMessage(message.getType(), message.getPayload());
+    } catch (ExoPlaybackException e) {
+      eventHandler.obtainMessage(MSG_ERROR, e).sendToTarget();
+    } finally {
+      message.markAsProcessed(/* isDelivered= */ true);
     }
   }
 
@@ -921,7 +920,7 @@ import java.util.Collections;
     for (int i = customMessageInfos.size() - 1; i >= 0; i--) {
       if (!resolveCustomMessagePosition(customMessageInfos.get(i))) {
         // Remove messages if new position can't be resolved.
-        customMessageInfos.get(i).listener.onMessageDeleted();
+        customMessageInfos.get(i).message.markAsProcessed(/* isDelivered= */ false);
         customMessageInfos.remove(i);
       }
     }
@@ -1003,7 +1002,7 @@ import java.util.Collections;
         && nextInfo.resolvedPeriodIndex == currentPeriodIndex
         && nextInfo.resolvedPeriodTimeUs > oldPeriodPositionUs
         && nextInfo.resolvedPeriodTimeUs <= newPeriodPositionUs) {
-      sendCustomMessagesToTarget(nextInfo);
+      sendCustomMessageToTarget(nextInfo.message);
       if (nextInfo.message.getDeleteAfterDelivery()) {
         customMessageInfos.remove(nextCustomMessageInfoIndex);
       } else {
@@ -1942,15 +1941,13 @@ import java.util.Collections;
   private static final class CustomMessageInfo implements Comparable<CustomMessageInfo> {
 
     public final PlayerMessage message;
-    public final PlayerMessage.Sender.Listener listener;
 
     public int resolvedPeriodIndex;
     public long resolvedPeriodTimeUs;
     public @Nullable Object resolvedPeriodUid;
 
-    public CustomMessageInfo(PlayerMessage message, PlayerMessage.Sender.Listener listener) {
+    public CustomMessageInfo(PlayerMessage message) {
       this.message = message;
-      this.listener = listener;
     }
 
     public void setResolvedPosition(int periodIndex, long periodTimeUs, Object periodUid) {
