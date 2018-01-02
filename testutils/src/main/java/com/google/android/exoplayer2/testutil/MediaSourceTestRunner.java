@@ -24,7 +24,6 @@ import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Looper;
 import android.os.Message;
-import android.util.Pair;
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.PlayerMessage;
 import com.google.android.exoplayer2.Timeline;
@@ -299,22 +298,17 @@ public class MediaSourceTestRunner {
     }
 
     @Override
-    public void sendMessage(PlayerMessage message, Listener listener) {
-      handler.obtainMessage(0, Pair.create(message, listener)).sendToTarget();
+    public void sendMessage(PlayerMessage message) {
+      handler.obtainMessage(0, message).sendToTarget();
     }
 
     @Override
     @SuppressWarnings("unchecked")
     public boolean handleMessage(Message msg) {
-      Pair<PlayerMessage, Listener> messageAndListener = (Pair<PlayerMessage, Listener>) msg.obj;
+      PlayerMessage message = (PlayerMessage) msg.obj;
       try {
-        messageAndListener
-            .first
-            .getTarget()
-            .handleMessage(
-                messageAndListener.first.getType(), messageAndListener.first.getMessage());
-        messageAndListener.second.onMessageDelivered();
-        messageAndListener.second.onMessageDeleted();
+        message.getTarget().handleMessage(message.getType(), message.getPayload());
+        message.markAsProcessed(/* isDelivered= */ true);
       } catch (ExoPlaybackException e) {
         fail("Unexpected ExoPlaybackException.");
       }

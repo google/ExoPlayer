@@ -41,6 +41,7 @@ import com.google.android.exoplayer2.trackselection.TrackSelector;
 import com.google.android.exoplayer2.util.Clock;
 import com.google.android.exoplayer2.util.Util;
 import com.google.android.exoplayer2.video.VideoRendererEventListener;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArraySet;
 
@@ -168,7 +169,7 @@ public class SimpleExoPlayer implements ExoPlayer {
         player
             .createMessage(renderer)
             .setType(C.MSG_SET_SCALING_MODE)
-            .setMessage(videoScalingMode)
+            .setPayload(videoScalingMode)
             .send();
       }
     }
@@ -357,7 +358,7 @@ public class SimpleExoPlayer implements ExoPlayer {
         player
             .createMessage(renderer)
             .setType(C.MSG_SET_AUDIO_ATTRIBUTES)
-            .setMessage(audioAttributes)
+            .setPayload(audioAttributes)
             .send();
       }
     }
@@ -379,7 +380,7 @@ public class SimpleExoPlayer implements ExoPlayer {
     this.audioVolume = audioVolume;
     for (Renderer renderer : renderers) {
       if (renderer.getTrackType() == C.TRACK_TYPE_AUDIO) {
-        player.createMessage(renderer).setType(C.MSG_SET_VOLUME).setMessage(audioVolume).send();
+        player.createMessage(renderer).setType(C.MSG_SET_VOLUME).setPayload(audioVolume).send();
       }
     }
   }
@@ -911,21 +912,22 @@ public class SimpleExoPlayer implements ExoPlayer {
   private void setVideoSurfaceInternal(Surface surface, boolean ownsSurface) {
     // Note: We don't turn this method into a no-op if the surface is being replaced with itself
     // so as to ensure onRenderedFirstFrame callbacks are still called in this case.
-    boolean surfaceReplaced = this.surface != null && this.surface != surface;
+    List<PlayerMessage> messages = new ArrayList<>();
     for (Renderer renderer : renderers) {
       if (renderer.getTrackType() == C.TRACK_TYPE_VIDEO) {
-        PlayerMessage message =
-            player.createMessage(renderer).setType(C.MSG_SET_SURFACE).setMessage(surface).send();
-        if (surfaceReplaced) {
-          try {
-            message.blockUntilDelivered();
-          } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-          }
-        }
+        messages.add(
+            player.createMessage(renderer).setType(C.MSG_SET_SURFACE).setPayload(surface).send());
       }
     }
-    if (surfaceReplaced) {
+    if (this.surface != null && this.surface != surface) {
+      // We're replacing a surface. Block to ensure that it's not accessed after the method returns.
+      try {
+        for (PlayerMessage message : messages) {
+          message.blockUntilDelivered();
+        }
+      } catch (InterruptedException e) {
+        Thread.currentThread().interrupt();
+      }
       // If we created the previous surface, we are responsible for releasing it.
       if (this.ownsSurface) {
         this.surface.release();

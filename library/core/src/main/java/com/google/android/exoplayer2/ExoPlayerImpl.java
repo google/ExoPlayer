@@ -336,7 +336,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
   @Override
   public void sendMessages(ExoPlayerMessage... messages) {
     for (ExoPlayerMessage message : messages) {
-      createMessage(message.target).setType(message.messageType).setMessage(message.message).send();
+      createMessage(message.target).setType(message.messageType).setPayload(message.message).send();
     }
   }
 
@@ -357,7 +357,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
       playerMessages.add(
           createMessage(message.target)
               .setType(message.messageType)
-              .setMessage(message.message)
+              .setPayload(message.message)
               .send());
     }
     boolean wasInterrupted = false;
