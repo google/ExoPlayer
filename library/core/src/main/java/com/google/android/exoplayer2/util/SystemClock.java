@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.util;
 
+import android.os.Handler;
 import android.os.Handler.Callback;
 import android.os.Looper;
 import android.support.annotation.Nullable;
@@ -36,6 +37,6 @@ import android.support.annotation.Nullable;
 
   @Override
   public HandlerWrapper createHandler(Looper looper, @Nullable Callback callback) {
-    return HandlerWrapper.Factory.DEFAULT.createHandler(looper, callback);
+    return new SystemHandlerWrapper(new Handler(looper, callback));
   }
 }
