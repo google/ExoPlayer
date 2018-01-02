@@ -97,6 +97,12 @@ public class FakeAdaptiveMediaPeriod extends FakeMediaPeriod
   }
 
   @Override
+  public void reevaluateBuffer(long positionUs) {
+    super.reevaluateBuffer(positionUs);
+    sequenceableLoader.reevaluateBuffer(positionUs);
+  }
+
+  @Override
   public long getBufferedPositionUs() {
     super.getBufferedPositionUs();
     return sequenceableLoader.getBufferedPositionUs();
