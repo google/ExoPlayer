@@ -78,6 +78,8 @@
   ([#3188](https://github.com/google/ExoPlayer/issues/3188)).
 * CEA-608: Fix handling of row count changes in roll-up mode
   ([#3513](https://github.com/google/ExoPlayer/issues/3513)).
+* Prevent period transitions when seeking to the end of a period when paused
+  ([#2439](https://github.com/google/ExoPlayer/issues/2439)).
 
 ### 2.6.0 ###
 
