@@ -448,7 +448,8 @@ public final class DefaultAudioSink implements AudioSink {
       if (outputEncoding == C.ENCODING_AC3 || outputEncoding == C.ENCODING_E_AC3) {
         // AC-3 allows bitrates up to 640 kbit/s.
         bufferSize = (int) (PASSTHROUGH_BUFFER_DURATION_US * 80 * 1024 / C.MICROS_PER_SECOND);
-      } else /* (outputEncoding == C.ENCODING_DTS || outputEncoding == C.ENCODING_DTS_HD */ {
+      } else /* (outputEncoding == C.ENCODING_DTS || outputEncoding == C.ENCODING_DTS_HD ||
+                 outputEncoding == C.ENCODING_TRUE_HD) */ {
         // DTS allows an 'open' bitrate, but we assume the maximum listed value: 1536 kbit/s.
         bufferSize = (int) (PASSTHROUGH_BUFFER_DURATION_US * 192 * 1024 / C.MICROS_PER_SECOND);
       }
@@ -579,7 +580,7 @@ public final class DefaultAudioSink implements AudioSink {
         return true;
       }
 
-      if (!isInputPcm && framesPerEncodedSample == 0) {
+      if (!isInputPcm && (framesPerEncodedSample == 0 || framesPerEncodedSample == C.INDEX_UNSET)) {
         // If this is the first encoded sample, calculate the sample size in frames.
         framesPerEncodedSample = getFramesPerEncodedSample(outputEncoding, buffer);
       }
@@ -1227,6 +1228,8 @@ public final class DefaultAudioSink implements AudioSink {
       return Ac3Util.getAc3SyncframeAudioSampleCount();
     } else if (encoding == C.ENCODING_E_AC3) {
       return Ac3Util.parseEAc3SyncframeAudioSampleCount(buffer);
+    } else if (encoding == C.ENCODING_TRUE_HD) {
+      return Ac3Util.parseTrueHDSyncframeAudioSampleCount(buffer);
     } else {
       throw new IllegalStateException("Unexpected audio encoding: " + encoding);
     }

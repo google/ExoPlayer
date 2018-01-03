@@ -129,6 +129,17 @@ public final class Ac3Util {
       121, 139, 174, 208, 243, 278, 348, 417, 487, 557, 696, 835, 975, 1114, 1253, 1393};
 
   /**
+   * Min size to identify TrueHD packet
+   */
+  private static final int TRUEHD_SYNCWORD_MIN_LEN = 12;
+
+  /**
+   * Sample hold count for TRUE HD frames
+   */
+  public static final int TRUEHD_SAMPLE_COMMIT_COUNT = 8;
+
+
+  /**
    * Returns the AC-3 format given {@code data} containing the AC3SpecificBox according to
    * ETSI TS 102 366 Annex F. The reading position of {@code data} will be modified.
    *
@@ -458,6 +469,30 @@ public final class Ac3Util {
     } else { // sampleRate == 48000
       return 4 * bitrate;
     }
+  }
+
+  public static int parseTrueHDSyncframeAudioSampleCount(ByteBuffer buffer) {
+
+    int pos = buffer.position();
+    int len = Math.min(TRUEHD_SYNCWORD_MIN_LEN, buffer.remaining());
+    byte[] bytes = new byte[len];
+    buffer.get(bytes, pos, len);
+    buffer.position(pos);
+    return parseTrueHDSyncframeAudioSampleCount(bytes);
+  }
+
+  public static int parseTrueHDSyncframeAudioSampleCount(byte[] bytes) {
+
+    if (bytes.length < TRUEHD_SYNCWORD_MIN_LEN)
+      return C.INDEX_UNSET;
+    int ratebits;
+    //TRUEHD_SYNCWORD = 0xba6f72f8
+    if (bytes[4] == (byte) 0xf8 && bytes[5] == (byte) 0x72 &&
+     bytes[6] == (byte) 0x6f && bytes[7] == (byte) 0xba)
+      ratebits = bytes[8];
+    else
+      return C.INDEX_UNSET;
+    return (40 << (ratebits & 7)) * TRUEHD_SAMPLE_COMMIT_COUNT;
   }
 
   private Ac3Util() {}
