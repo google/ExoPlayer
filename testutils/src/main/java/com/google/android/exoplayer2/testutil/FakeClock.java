@@ -68,6 +68,11 @@ public class FakeClock implements Clock {
   }
 
   @Override
+  public long uptimeMillis() {
+    return elapsedRealtime();
+  }
+
+  @Override
   public synchronized void sleep(long sleepTimeMs) {
     if (sleepTimeMs <= 0) {
       return;
@@ -90,15 +95,23 @@ public class FakeClock implements Clock {
   }
 
   /** Adds a handler post to list of pending messages. */
-  protected synchronized void addDelayedHandlerMessage(
-      HandlerWrapper handler, Runnable runnable, long delayMs) {
-    handlerMessages.add(new HandlerMessageData(currentTimeMs + delayMs, handler, runnable));
+  protected synchronized boolean addHandlerMessageAtTime(
+      HandlerWrapper handler, Runnable runnable, long timeMs) {
+    if (timeMs <= currentTimeMs) {
+      return handler.post(runnable);
+    }
+    handlerMessages.add(new HandlerMessageData(timeMs, handler, runnable));
+    return true;
   }
 
   /** Adds an empty handler message to list of pending messages. */
-  protected synchronized void addDelayedHandlerMessage(
-      HandlerWrapper handler, int message, long delayMs) {
-    handlerMessages.add(new HandlerMessageData(currentTimeMs + delayMs, handler, message));
+  protected synchronized boolean addHandlerMessageAtTime(
+      HandlerWrapper handler, int message, long timeMs) {
+    if (timeMs <= currentTimeMs) {
+      return handler.sendEmptyMessage(message);
+    }
+    handlerMessages.add(new HandlerMessageData(timeMs, handler, message));
+    return true;
   }
 
   /** Message data saved to send messages or execute runnables at a later time on a Handler. */
@@ -177,14 +190,8 @@ public class FakeClock implements Clock {
     }
 
     @Override
-    public boolean sendEmptyMessageDelayed(int what, long delayMs, long referenceTimeMs) {
-      // Ignore referenceTimeMs measured by SystemClock and just send with requested delay.
-      if (delayMs <= 0) {
-        return handler.sendEmptyMessage(what);
-      } else {
-        addDelayedHandlerMessage(this, what, delayMs);
-        return true;
-      }
+    public boolean sendEmptyMessageAtTime(int what, long uptimeMs) {
+      return addHandlerMessageAtTime(this, what, uptimeMs);
     }
 
     @Override
@@ -204,12 +211,7 @@ public class FakeClock implements Clock {
 
     @Override
     public boolean postDelayed(Runnable runnable, long delayMs) {
-      if (delayMs <= 0) {
-        return handler.post(runnable);
-      } else {
-        addDelayedHandlerMessage(this, runnable, delayMs);
-        return true;
-      }
+      return addHandlerMessageAtTime(this, runnable, uptimeMillis() + delayMs);
     }
   }
 }
