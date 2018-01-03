@@ -97,7 +97,7 @@ public final class CacheDataSource implements DataSource {
   private final boolean ignoreCacheForUnsetLengthRequests;
 
   private DataSource currentDataSource;
-  private boolean currentRequestUnbounded;
+  private boolean readingUnknownLengthDataFromUpstream;
   private Uri uri;
   private int flags;
   private String key;
@@ -202,7 +202,7 @@ public final class CacheDataSource implements DataSource {
           }
         }
       }
-      openNextSource(true);
+      openNextSource();
       return bytesRemaining;
     } catch (IOException e) {
       handleBeforeThrow(e);
@@ -229,15 +229,21 @@ public final class CacheDataSource implements DataSource {
           bytesRemaining -= bytesRead;
         }
       } else {
-        if (currentRequestUnbounded) {
-          // We only do unbounded requests to upstream and only when we don't know the actual stream
-          // length. So we reached the end of stream.
-          setContentLength(readPosition);
-          bytesRemaining = 0;
+        if (readingUnknownLengthDataFromUpstream) {
+          setCurrentDataSourceBytesRemaining(0);
         }
         closeCurrentSource();
         if (bytesRemaining > 0 || bytesRemaining == C.LENGTH_UNSET) {
-          if (openNextSource(false)) {
+          try {
+            openNextSource();
+          } catch (IOException e) {
+            if (readingUnknownLengthDataFromUpstream && isCausedByPositionOutOfRange(e)) {
+              setCurrentDataSourceBytesRemaining(0);
+            } else {
+              throw e;
+            }
+          }
+          if (bytesRemaining != 0) {
             return read(buffer, offset, readLength);
           }
         }
@@ -270,9 +276,8 @@ public final class CacheDataSource implements DataSource {
    * Opens the next source. If the cache contains data spanning the current read position then
    * {@link #cacheReadDataSource} is opened to read from it. Else {@link #upstreamDataSource} is
    * opened to read from the upstream source and write into the cache.
-   * @param initial Whether it is the initial open call.
    */
-  private boolean openNextSource(boolean initial) throws IOException {
+  private void openNextSource() throws IOException {
     DataSpec dataSpec;
     CacheSpan span;
     if (currentRequestIgnoresCache) {
@@ -323,48 +328,38 @@ public final class CacheDataSource implements DataSource {
       }
     }
 
-    currentRequestUnbounded = dataSpec.length == C.LENGTH_UNSET;
-    boolean successful = false;
-    long currentBytesRemaining = 0;
-    try {
-      currentBytesRemaining = currentDataSource.open(dataSpec);
-      successful = true;
-    } catch (IOException e) {
-      // if this isn't the initial open call (we had read some bytes) and an unbounded range request
-      // failed because of POSITION_OUT_OF_RANGE then mute the exception. We are trying to find the
-      // end of the stream.
-      if (!initial && currentRequestUnbounded) {
-        Throwable cause = e;
-        while (cause != null) {
-          if (cause instanceof DataSourceException) {
-            int reason = ((DataSourceException) cause).reason;
-            if (reason == DataSourceException.POSITION_OUT_OF_RANGE) {
-              e = null;
-              break;
-            }
-          }
-          cause = cause.getCause();
-        }
-      }
-      if (e != null) {
-        throw e;
-      }
-    }
+    // If the request is unbounded it must be an upstream request.
+    readingUnknownLengthDataFromUpstream = dataSpec.length == C.LENGTH_UNSET;
 
-    // If we did an unbounded request (which means it's to upstream and
-    // bytesRemaining == C.LENGTH_UNSET) and got a resolved length from open() request
-    if (currentRequestUnbounded && currentBytesRemaining != C.LENGTH_UNSET) {
-      bytesRemaining = currentBytesRemaining;
-      setContentLength(dataSpec.position + bytesRemaining);
+    long resolvedLength = currentDataSource.open(dataSpec);
+    if (readingUnknownLengthDataFromUpstream && resolvedLength != C.LENGTH_UNSET) {
+      setCurrentDataSourceBytesRemaining(resolvedLength);
     }
-    return successful;
   }
 
-  private void setContentLength(long length) throws IOException {
-    // If writing into cache
-    if (currentDataSource == cacheWriteDataSource) {
-      cache.setContentLength(key, length);
+  private static boolean isCausedByPositionOutOfRange(IOException e) {
+    Throwable cause = e;
+    while (cause != null) {
+      if (cause instanceof DataSourceException) {
+        int reason = ((DataSourceException) cause).reason;
+        if (reason == DataSourceException.POSITION_OUT_OF_RANGE) {
+          return true;
+        }
+      }
+      cause = cause.getCause();
     }
+    return false;
+  }
+
+  private void setCurrentDataSourceBytesRemaining(long bytesRemaining) throws IOException {
+    this.bytesRemaining = bytesRemaining;
+    if (isWritingToCache()) {
+      cache.setContentLength(key, readPosition + bytesRemaining);
+    }
+  }
+
+  private boolean isWritingToCache() {
+    return currentDataSource == cacheWriteDataSource;
   }
 
   private void closeCurrentSource() throws IOException {
@@ -374,7 +369,7 @@ public final class CacheDataSource implements DataSource {
     try {
       currentDataSource.close();
       currentDataSource = null;
-      currentRequestUnbounded = false;
+      readingUnknownLengthDataFromUpstream = false;
     } finally {
       if (lockedSpan != null) {
         cache.releaseHoleSpan(lockedSpan);
