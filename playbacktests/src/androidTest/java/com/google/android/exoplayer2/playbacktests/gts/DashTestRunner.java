@@ -316,8 +316,10 @@ public final class DashTestRunner {
       Uri manifestUri = Uri.parse(manifestUrl);
       DefaultDashChunkSource.Factory chunkSourceFactory = new DefaultDashChunkSource.Factory(
           mediaDataSourceFactory);
-      return new DashMediaSource(manifestUri, manifestDataSourceFactory, chunkSourceFactory,
-          MIN_LOADABLE_RETRY_COUNT, 0 /* livePresentationDelayMs */, null, null);
+      return new DashMediaSource.Factory(chunkSourceFactory, manifestDataSourceFactory)
+          .setMinLoadableRetryCount(MIN_LOADABLE_RETRY_COUNT)
+          .setLivePresentationDelayMs(0)
+          .createMediaSource(manifestUri);
     }
 
     @Override

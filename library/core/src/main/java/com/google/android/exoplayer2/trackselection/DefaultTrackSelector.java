@@ -46,7 +46,7 @@ import java.util.concurrent.atomic.AtomicReference;
  * Parameters currentParameters = trackSelector.getParameters();
  * // Generate new parameters to prefer German audio and impose a maximum video size constraint.
  * Parameters newParameters = currentParameters
- *     .withPreferredAudioLanguage("de")
+ *     .withPreferredAudioLanguage("deu")
  *     .withMaxVideoSize(1024, 768);
  * // Set the new parameters on the selector.
  * trackSelector.setParameters(newParameters);}
@@ -81,17 +81,22 @@ public class DefaultTrackSelector extends MappingTrackSelector {
 
     // Audio
     /**
-     * The preferred language for audio, as well as for forced text tracks as defined by RFC 5646.
+     * The preferred language for audio, as well as for forced text tracks, as an ISO 639-2/T tag.
      * {@code null} selects the default track, or the first track if there's no default.
      */
     public final String preferredAudioLanguage;
 
     // Text
     /**
-     * The preferred language for text tracks as defined by RFC 5646. {@code null} selects the
+     * The preferred language for text tracks as an ISO 639-2/T tag. {@code null} selects the
      * default track if there is one, or no track otherwise.
      */
     public final String preferredTextLanguage;
+    /**
+     * Whether a text track with undetermined language should be selected if no track with
+     * {@link #preferredTextLanguage} is available, or if {@link #preferredTextLanguage} is unset.
+     */
+    public final boolean selectUndeterminedTextLanguage;
 
     // Video
     /**
@@ -150,6 +155,8 @@ public class DefaultTrackSelector extends MappingTrackSelector {
      * <ul>
      *   <li>No preferred audio language is set.</li>
      *   <li>No preferred text language is set.</li>
+     *   <li>Text tracks with undetermined language are not selected if no track with
+     *       {@link #preferredTextLanguage} is available.</li>
      *   <li>Lowest bitrate track selections are not forced.</li>
      *   <li>Adaptation between different mime types is not allowed.</li>
      *   <li>Non seamless adaptation is allowed.</li>
@@ -161,13 +168,14 @@ public class DefaultTrackSelector extends MappingTrackSelector {
      * </ul>
      */
     public Parameters() {
-      this(null, null, false, false, true, Integer.MAX_VALUE, Integer.MAX_VALUE, Integer.MAX_VALUE,
-          true, true, Integer.MAX_VALUE, Integer.MAX_VALUE, true);
+      this(null, null, false, false, false, true, Integer.MAX_VALUE, Integer.MAX_VALUE,
+          Integer.MAX_VALUE, true, true, Integer.MAX_VALUE, Integer.MAX_VALUE, true);
     }
 
     /**
      * @param preferredAudioLanguage See {@link #preferredAudioLanguage}
      * @param preferredTextLanguage See {@link #preferredTextLanguage}
+     * @param selectUndeterminedTextLanguage See {@link #selectUndeterminedTextLanguage}.
      * @param forceLowestBitrate See {@link #forceLowestBitrate}.
      * @param allowMixedMimeAdaptiveness See {@link #allowMixedMimeAdaptiveness}
      * @param allowNonSeamlessAdaptiveness See {@link #allowNonSeamlessAdaptiveness}
@@ -181,13 +189,14 @@ public class DefaultTrackSelector extends MappingTrackSelector {
      * @param viewportOrientationMayChange See {@link #viewportOrientationMayChange}
      */
     public Parameters(String preferredAudioLanguage, String preferredTextLanguage,
-        boolean forceLowestBitrate, boolean allowMixedMimeAdaptiveness,
-        boolean allowNonSeamlessAdaptiveness, int maxVideoWidth, int maxVideoHeight,
-        int maxVideoBitrate, boolean exceedVideoConstraintsIfNecessary,
+        boolean selectUndeterminedTextLanguage, boolean forceLowestBitrate,
+        boolean allowMixedMimeAdaptiveness, boolean allowNonSeamlessAdaptiveness, int maxVideoWidth,
+        int maxVideoHeight, int maxVideoBitrate, boolean exceedVideoConstraintsIfNecessary,
         boolean exceedRendererCapabilitiesIfNecessary, int viewportWidth, int viewportHeight,
         boolean viewportOrientationMayChange) {
       this.preferredAudioLanguage = preferredAudioLanguage;
       this.preferredTextLanguage = preferredTextLanguage;
+      this.selectUndeterminedTextLanguage = selectUndeterminedTextLanguage;
       this.forceLowestBitrate = forceLowestBitrate;
       this.allowMixedMimeAdaptiveness = allowMixedMimeAdaptiveness;
       this.allowNonSeamlessAdaptiveness = allowNonSeamlessAdaptiveness;
@@ -209,10 +218,11 @@ public class DefaultTrackSelector extends MappingTrackSelector {
       if (TextUtils.equals(preferredAudioLanguage, this.preferredAudioLanguage)) {
         return this;
       }
-      return new Parameters(preferredAudioLanguage, preferredTextLanguage, forceLowestBitrate,
-          allowMixedMimeAdaptiveness, allowNonSeamlessAdaptiveness, maxVideoWidth, maxVideoHeight,
-          maxVideoBitrate, exceedVideoConstraintsIfNecessary, exceedRendererCapabilitiesIfNecessary,
-          viewportWidth, viewportHeight, viewportOrientationMayChange);
+      return new Parameters(preferredAudioLanguage, preferredTextLanguage,
+          selectUndeterminedTextLanguage, forceLowestBitrate, allowMixedMimeAdaptiveness,
+          allowNonSeamlessAdaptiveness, maxVideoWidth, maxVideoHeight, maxVideoBitrate,
+          exceedVideoConstraintsIfNecessary, exceedRendererCapabilitiesIfNecessary, viewportWidth,
+          viewportHeight, viewportOrientationMayChange);
     }
 
     /**
@@ -223,10 +233,25 @@ public class DefaultTrackSelector extends MappingTrackSelector {
       if (TextUtils.equals(preferredTextLanguage, this.preferredTextLanguage)) {
         return this;
       }
-      return new Parameters(preferredAudioLanguage, preferredTextLanguage, forceLowestBitrate,
-          allowMixedMimeAdaptiveness, allowNonSeamlessAdaptiveness, maxVideoWidth, maxVideoHeight,
-          maxVideoBitrate, exceedVideoConstraintsIfNecessary, exceedRendererCapabilitiesIfNecessary,
-          viewportWidth, viewportHeight, viewportOrientationMayChange);
+      return new Parameters(preferredAudioLanguage, preferredTextLanguage,
+          selectUndeterminedTextLanguage, forceLowestBitrate, allowMixedMimeAdaptiveness,
+          allowNonSeamlessAdaptiveness, maxVideoWidth, maxVideoHeight, maxVideoBitrate,
+          exceedVideoConstraintsIfNecessary, exceedRendererCapabilitiesIfNecessary, viewportWidth,
+          viewportHeight, viewportOrientationMayChange);
+    }
+
+    /**
+     * Returns an instance with the provided {@link #selectUndeterminedTextLanguage}.
+     */
+    public Parameters withSelectUndeterminedTextLanguage(boolean selectUndeterminedTextLanguage) {
+      if (selectUndeterminedTextLanguage == this.selectUndeterminedTextLanguage) {
+        return this;
+      }
+      return new Parameters(preferredAudioLanguage, preferredTextLanguage,
+          selectUndeterminedTextLanguage, forceLowestBitrate, allowMixedMimeAdaptiveness,
+          allowNonSeamlessAdaptiveness, maxVideoWidth, maxVideoHeight, maxVideoBitrate,
+          exceedVideoConstraintsIfNecessary, exceedRendererCapabilitiesIfNecessary, viewportWidth,
+          viewportHeight, viewportOrientationMayChange);
     }
 
     /**
@@ -236,10 +261,11 @@ public class DefaultTrackSelector extends MappingTrackSelector {
       if (forceLowestBitrate == this.forceLowestBitrate) {
         return this;
       }
-      return new Parameters(preferredAudioLanguage, preferredTextLanguage, forceLowestBitrate,
-          allowMixedMimeAdaptiveness, allowNonSeamlessAdaptiveness, maxVideoWidth, maxVideoHeight,
-          maxVideoBitrate, exceedVideoConstraintsIfNecessary, exceedRendererCapabilitiesIfNecessary,
-          viewportWidth, viewportHeight, viewportOrientationMayChange);
+      return new Parameters(preferredAudioLanguage, preferredTextLanguage,
+          selectUndeterminedTextLanguage, forceLowestBitrate, allowMixedMimeAdaptiveness,
+          allowNonSeamlessAdaptiveness, maxVideoWidth, maxVideoHeight, maxVideoBitrate,
+          exceedVideoConstraintsIfNecessary, exceedRendererCapabilitiesIfNecessary, viewportWidth,
+          viewportHeight, viewportOrientationMayChange);
     }
 
     /**
@@ -249,10 +275,11 @@ public class DefaultTrackSelector extends MappingTrackSelector {
       if (allowMixedMimeAdaptiveness == this.allowMixedMimeAdaptiveness) {
         return this;
       }
-      return new Parameters(preferredAudioLanguage, preferredTextLanguage, forceLowestBitrate,
-          allowMixedMimeAdaptiveness, allowNonSeamlessAdaptiveness, maxVideoWidth, maxVideoHeight,
-          maxVideoBitrate, exceedVideoConstraintsIfNecessary, exceedRendererCapabilitiesIfNecessary,
-          viewportWidth, viewportHeight, viewportOrientationMayChange);
+      return new Parameters(preferredAudioLanguage, preferredTextLanguage,
+          selectUndeterminedTextLanguage, forceLowestBitrate, allowMixedMimeAdaptiveness,
+          allowNonSeamlessAdaptiveness, maxVideoWidth, maxVideoHeight, maxVideoBitrate,
+          exceedVideoConstraintsIfNecessary, exceedRendererCapabilitiesIfNecessary, viewportWidth,
+          viewportHeight, viewportOrientationMayChange);
     }
 
     /**
@@ -262,10 +289,11 @@ public class DefaultTrackSelector extends MappingTrackSelector {
       if (allowNonSeamlessAdaptiveness == this.allowNonSeamlessAdaptiveness) {
         return this;
       }
-      return new Parameters(preferredAudioLanguage, preferredTextLanguage, forceLowestBitrate,
-          allowMixedMimeAdaptiveness, allowNonSeamlessAdaptiveness, maxVideoWidth, maxVideoHeight,
-          maxVideoBitrate, exceedVideoConstraintsIfNecessary, exceedRendererCapabilitiesIfNecessary,
-          viewportWidth, viewportHeight, viewportOrientationMayChange);
+      return new Parameters(preferredAudioLanguage, preferredTextLanguage,
+          selectUndeterminedTextLanguage, forceLowestBitrate, allowMixedMimeAdaptiveness,
+          allowNonSeamlessAdaptiveness, maxVideoWidth, maxVideoHeight, maxVideoBitrate,
+          exceedVideoConstraintsIfNecessary, exceedRendererCapabilitiesIfNecessary, viewportWidth,
+          viewportHeight, viewportOrientationMayChange);
     }
 
     /**
@@ -275,10 +303,11 @@ public class DefaultTrackSelector extends MappingTrackSelector {
       if (maxVideoWidth == this.maxVideoWidth && maxVideoHeight == this.maxVideoHeight) {
         return this;
       }
-      return new Parameters(preferredAudioLanguage, preferredTextLanguage, forceLowestBitrate,
-          allowMixedMimeAdaptiveness, allowNonSeamlessAdaptiveness, maxVideoWidth, maxVideoHeight,
-          maxVideoBitrate, exceedVideoConstraintsIfNecessary, exceedRendererCapabilitiesIfNecessary,
-          viewportWidth, viewportHeight, viewportOrientationMayChange);
+      return new Parameters(preferredAudioLanguage, preferredTextLanguage,
+          selectUndeterminedTextLanguage, forceLowestBitrate, allowMixedMimeAdaptiveness,
+          allowNonSeamlessAdaptiveness, maxVideoWidth, maxVideoHeight, maxVideoBitrate,
+          exceedVideoConstraintsIfNecessary, exceedRendererCapabilitiesIfNecessary, viewportWidth,
+          viewportHeight, viewportOrientationMayChange);
     }
 
     /**
@@ -288,10 +317,11 @@ public class DefaultTrackSelector extends MappingTrackSelector {
       if (maxVideoBitrate == this.maxVideoBitrate) {
         return this;
       }
-      return new Parameters(preferredAudioLanguage, preferredTextLanguage, forceLowestBitrate,
-          allowMixedMimeAdaptiveness, allowNonSeamlessAdaptiveness, maxVideoWidth, maxVideoHeight,
-          maxVideoBitrate, exceedVideoConstraintsIfNecessary, exceedRendererCapabilitiesIfNecessary,
-          viewportWidth, viewportHeight, viewportOrientationMayChange);
+      return new Parameters(preferredAudioLanguage, preferredTextLanguage,
+          selectUndeterminedTextLanguage, forceLowestBitrate, allowMixedMimeAdaptiveness,
+          allowNonSeamlessAdaptiveness, maxVideoWidth, maxVideoHeight, maxVideoBitrate,
+          exceedVideoConstraintsIfNecessary, exceedRendererCapabilitiesIfNecessary, viewportWidth,
+          viewportHeight, viewportOrientationMayChange);
     }
 
     /**
@@ -320,10 +350,11 @@ public class DefaultTrackSelector extends MappingTrackSelector {
       if (exceedVideoConstraintsIfNecessary == this.exceedVideoConstraintsIfNecessary) {
         return this;
       }
-      return new Parameters(preferredAudioLanguage, preferredTextLanguage, forceLowestBitrate,
-          allowMixedMimeAdaptiveness, allowNonSeamlessAdaptiveness, maxVideoWidth, maxVideoHeight,
-          maxVideoBitrate, exceedVideoConstraintsIfNecessary, exceedRendererCapabilitiesIfNecessary,
-          viewportWidth, viewportHeight, viewportOrientationMayChange);
+      return new Parameters(preferredAudioLanguage, preferredTextLanguage,
+          selectUndeterminedTextLanguage, forceLowestBitrate, allowMixedMimeAdaptiveness,
+          allowNonSeamlessAdaptiveness, maxVideoWidth, maxVideoHeight, maxVideoBitrate,
+          exceedVideoConstraintsIfNecessary, exceedRendererCapabilitiesIfNecessary, viewportWidth,
+          viewportHeight, viewportOrientationMayChange);
     }
 
     /**
@@ -334,10 +365,11 @@ public class DefaultTrackSelector extends MappingTrackSelector {
       if (exceedRendererCapabilitiesIfNecessary == this.exceedRendererCapabilitiesIfNecessary) {
         return this;
       }
-      return new Parameters(preferredAudioLanguage, preferredTextLanguage, forceLowestBitrate,
-          allowMixedMimeAdaptiveness, allowNonSeamlessAdaptiveness, maxVideoWidth, maxVideoHeight,
-          maxVideoBitrate, exceedVideoConstraintsIfNecessary, exceedRendererCapabilitiesIfNecessary,
-          viewportWidth, viewportHeight, viewportOrientationMayChange);
+      return new Parameters(preferredAudioLanguage, preferredTextLanguage,
+          selectUndeterminedTextLanguage, forceLowestBitrate, allowMixedMimeAdaptiveness,
+          allowNonSeamlessAdaptiveness, maxVideoWidth, maxVideoHeight, maxVideoBitrate,
+          exceedVideoConstraintsIfNecessary, exceedRendererCapabilitiesIfNecessary, viewportWidth,
+          viewportHeight, viewportOrientationMayChange);
     }
 
     /**
@@ -350,10 +382,11 @@ public class DefaultTrackSelector extends MappingTrackSelector {
           && viewportOrientationMayChange == this.viewportOrientationMayChange) {
         return this;
       }
-      return new Parameters(preferredAudioLanguage, preferredTextLanguage, forceLowestBitrate,
-          allowMixedMimeAdaptiveness, allowNonSeamlessAdaptiveness, maxVideoWidth, maxVideoHeight,
-          maxVideoBitrate, exceedVideoConstraintsIfNecessary, exceedRendererCapabilitiesIfNecessary,
-          viewportWidth, viewportHeight, viewportOrientationMayChange);
+      return new Parameters(preferredAudioLanguage, preferredTextLanguage,
+          selectUndeterminedTextLanguage, forceLowestBitrate, allowMixedMimeAdaptiveness,
+          allowNonSeamlessAdaptiveness, maxVideoWidth, maxVideoHeight, maxVideoBitrate,
+          exceedVideoConstraintsIfNecessary, exceedRendererCapabilitiesIfNecessary, viewportWidth,
+          viewportHeight, viewportOrientationMayChange);
     }
 
     /**
@@ -880,17 +913,20 @@ public class DefaultTrackSelector extends MappingTrackSelector {
           boolean isDefault = (format.selectionFlags & C.SELECTION_FLAG_DEFAULT) != 0;
           boolean isForced = (format.selectionFlags & C.SELECTION_FLAG_FORCED) != 0;
           int trackScore;
-          if (formatHasLanguage(format, params.preferredTextLanguage)) {
+          boolean preferredLanguageFound = formatHasLanguage(format, params.preferredTextLanguage);
+          if (preferredLanguageFound
+              || (params.selectUndeterminedTextLanguage && formatHasNoLanguage(format))) {
             if (isDefault) {
-              trackScore = 6;
+              trackScore = 8;
             } else if (!isForced) {
               // Prefer non-forced to forced if a preferred text language has been specified. Where
               // both are provided the non-forced track will usually contain the forced subtitles as
               // a subset.
-              trackScore = 5;
+              trackScore = 6;
             } else {
               trackScore = 4;
             }
+            trackScore += preferredLanguageFound ? 1 : 0;
           } else if (isDefault) {
             trackScore = 3;
           } else if (isForced) {
@@ -978,6 +1014,16 @@ public class DefaultTrackSelector extends MappingTrackSelector {
     int maskedSupport = formatSupport & RendererCapabilities.FORMAT_SUPPORT_MASK;
     return maskedSupport == RendererCapabilities.FORMAT_HANDLED || (allowExceedsCapabilities
         && maskedSupport == RendererCapabilities.FORMAT_EXCEEDS_CAPABILITIES);
+  }
+
+  /**
+   * Returns whether a {@link Format} does not define a language.
+   *
+   * @param format The {@link Format}.
+   * @return Whether the {@link Format} does not define a language.
+   */
+  protected static boolean formatHasNoLanguage(Format format) {
+    return TextUtils.isEmpty(format.language) || formatHasLanguage(format, C.LANGUAGE_UNDETERMINED);
   }
 
   /**

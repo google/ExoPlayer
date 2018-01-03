@@ -38,10 +38,10 @@ import com.google.android.exoplayer2.metadata.id3.Id3Frame;
 import com.google.android.exoplayer2.metadata.id3.PrivFrame;
 import com.google.android.exoplayer2.metadata.id3.TextInformationFrame;
 import com.google.android.exoplayer2.metadata.id3.UrlLinkFrame;
-import com.google.android.exoplayer2.source.AdaptiveMediaSourceEventListener;
-import com.google.android.exoplayer2.source.ExtractorMediaSource;
+import com.google.android.exoplayer2.source.MediaSourceEventListener;
 import com.google.android.exoplayer2.source.TrackGroup;
 import com.google.android.exoplayer2.source.TrackGroupArray;
+import com.google.android.exoplayer2.source.ads.AdsMediaSource;
 import com.google.android.exoplayer2.trackselection.MappingTrackSelector;
 import com.google.android.exoplayer2.trackselection.MappingTrackSelector.MappedTrackInfo;
 import com.google.android.exoplayer2.trackselection.TrackSelection;
@@ -52,12 +52,15 @@ import java.io.IOException;
 import java.text.NumberFormat;
 import java.util.Locale;
 
-/**
- * Logs player events using {@link Log}.
- */
-/* package */ final class EventLogger implements Player.EventListener, MetadataOutput,
-    AudioRendererEventListener, VideoRendererEventListener, AdaptiveMediaSourceEventListener,
-    ExtractorMediaSource.EventListener, DefaultDrmSessionManager.EventListener {
+/** Logs player events using {@link Log}. */
+/* package */ final class EventLogger
+    implements Player.EventListener,
+        MetadataOutput,
+        AudioRendererEventListener,
+        VideoRendererEventListener,
+        MediaSourceEventListener,
+        AdsMediaSource.EventListener,
+        DefaultDrmSessionManager.EventListener {
 
   private static final String TAG = "EventLogger";
   private static final int MAX_TIMELINE_ITEM_LINES = 3;
@@ -320,19 +323,19 @@ import java.util.Locale;
     Log.d(TAG, "drmKeysLoaded [" + getSessionTimeString() + "]");
   }
 
-  // ExtractorMediaSource.EventListener
+  // MediaSourceEventListener
 
   @Override
-  public void onLoadError(IOException error) {
-    printInternalError("loadError", error);
-  }
-
-  // AdaptiveMediaSourceEventListener
-
-  @Override
-  public void onLoadStarted(DataSpec dataSpec, int dataType, int trackType, Format trackFormat,
-      int trackSelectionReason, Object trackSelectionData, long mediaStartTimeMs,
-      long mediaEndTimeMs, long elapsedRealtimeMs) {
+  public void onLoadStarted(
+      DataSpec dataSpec,
+      int dataType,
+      int trackType,
+      Format trackFormat,
+      int trackSelectionReason,
+      Object trackSelectionData,
+      long mediaStartTimeMs,
+      long mediaEndTimeMs,
+      long elapsedRealtimeMs) {
     // Do nothing.
   }
 
@@ -366,6 +369,23 @@ import java.util.Locale;
   @Override
   public void onDownstreamFormatChanged(int trackType, Format trackFormat, int trackSelectionReason,
       Object trackSelectionData, long mediaTimeMs) {
+    // Do nothing.
+  }
+
+  // AdsMediaSource.EventListener
+
+  @Override
+  public void onAdLoadError(IOException error) {
+    printInternalError("adLoadError", error);
+  }
+
+  @Override
+  public void onAdClicked() {
+    // Do nothing.
+  }
+
+  @Override
+  public void onAdTapped() {
     // Do nothing.
   }
 
@@ -467,6 +487,9 @@ import java.util.Locale;
     }
   }
 
+  // Suppressing reference equality warning because the track group stored in the track selection
+  // must point to the exact track group object to be considered part of it.
+  @SuppressWarnings("ReferenceEquality")
   private static String getTrackStatusString(TrackSelection selection, TrackGroup group,
       int trackIndex) {
     return getTrackStatusString(selection != null && selection.getTrackGroup() == group

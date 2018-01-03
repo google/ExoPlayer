@@ -36,6 +36,8 @@ public final class DefaultTrackSelectorTest {
   private static final Parameters DEFAULT_PARAMETERS = new Parameters();
   private static final RendererCapabilities ALL_AUDIO_FORMAT_SUPPORTED_RENDERER_CAPABILITIES =
       new FakeRendererCapabilities(C.TRACK_TYPE_AUDIO);
+  private static final RendererCapabilities ALL_TEXT_FORMAT_SUPPORTED_RENDERER_CAPABILITIES =
+      new FakeRendererCapabilities(C.TRACK_TYPE_TEXT);
   private static final RendererCapabilities ALL_AUDIO_FORMAT_EXCEEDED_RENDERER_CAPABILITIES =
       new FakeRendererCapabilities(C.TRACK_TYPE_AUDIO, FORMAT_EXCEEDS_CAPABILITIES);
 
@@ -535,6 +537,59 @@ public final class DefaultTrackSelectorTest {
   }
 
   /**
+   * Tests that the default track selector will select a text track with undetermined language if no
+   * text track with the preferred language is available but
+   * {@link Parameters#selectUndeterminedTextLanguage} is true.
+   */
+  @Test
+  public void testSelectUndeterminedTextLanguageAsFallback() throws ExoPlaybackException{
+    Format spanish = Format.createTextContainerFormat("spanish", null,
+        MimeTypes.TEXT_VTT, null, Format.NO_VALUE, 0, "spa");
+    Format german = Format.createTextContainerFormat("german", null,
+        MimeTypes.TEXT_VTT, null, Format.NO_VALUE, 0, "de");
+    Format undeterminedUnd = Format.createTextContainerFormat("undeterminedUnd", null,
+        MimeTypes.TEXT_VTT, null, Format.NO_VALUE, 0, "und");
+    Format undeterminedNull = Format.createTextContainerFormat("undeterminedNull", null,
+        MimeTypes.TEXT_VTT, null, Format.NO_VALUE, 0, null);
+
+    RendererCapabilities[] textRendererCapabilites =
+        new RendererCapabilities[] {ALL_TEXT_FORMAT_SUPPORTED_RENDERER_CAPABILITIES};
+
+    TrackSelectorResult result;
+
+    result = trackSelector.selectTracks(textRendererCapabilites,
+        wrapFormats(spanish, german, undeterminedUnd, undeterminedNull));
+    assertThat(result.selections.get(0)).isNull();
+
+    trackSelector.setParameters(DEFAULT_PARAMETERS.withSelectUndeterminedTextLanguage(true));
+    result = trackSelector.selectTracks(textRendererCapabilites,
+        wrapFormats(spanish, german, undeterminedUnd, undeterminedNull));
+    assertThat(result.selections.get(0).getFormat(0)).isSameAs(undeterminedUnd);
+
+    trackSelector.setParameters(DEFAULT_PARAMETERS.withPreferredTextLanguage("spa"));
+    result = trackSelector.selectTracks(textRendererCapabilites,
+        wrapFormats(spanish, german, undeterminedUnd, undeterminedNull));
+    assertThat(result.selections.get(0).getFormat(0)).isSameAs(spanish);
+
+    result = trackSelector.selectTracks(textRendererCapabilites,
+        wrapFormats(german, undeterminedUnd, undeterminedNull));
+    assertThat(result.selections.get(0)).isNull();
+
+    trackSelector.setParameters(
+        trackSelector.getParameters().withSelectUndeterminedTextLanguage(true));
+    result = trackSelector.selectTracks(textRendererCapabilites,
+        wrapFormats(german, undeterminedUnd, undeterminedNull));
+    assertThat(result.selections.get(0).getFormat(0)).isSameAs(undeterminedUnd);
+
+    result = trackSelector.selectTracks(textRendererCapabilites,
+        wrapFormats(german, undeterminedNull));
+    assertThat(result.selections.get(0).getFormat(0)).isSameAs(undeterminedNull);
+
+    result = trackSelector.selectTracks(textRendererCapabilites, wrapFormats(german));
+    assertThat(result.selections.get(0)).isNull();
+  }
+
+  /**
    * Tests that track selector will select audio tracks with lower bitrate when {@link Parameters}
    * indicate lowest bitrate preference, even when tracks are within capabilities.
    */
@@ -560,6 +615,14 @@ public final class DefaultTrackSelectorTest {
 
   private static TrackGroupArray singleTrackGroup(Format... formats) {
     return new TrackGroupArray(new TrackGroup(formats));
+  }
+
+  private static TrackGroupArray wrapFormats(Format... formats) {
+    TrackGroup[] trackGroups = new TrackGroup[formats.length];
+    for (int i = 0; i < trackGroups.length; i++) {
+      trackGroups[i] = new TrackGroup(formats[i]);
+    }
+    return new TrackGroupArray(trackGroups);
   }
 
   /**

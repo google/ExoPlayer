@@ -31,13 +31,13 @@ import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.mockito.MockitoAnnotations.initMocks;
 
 import android.net.Uri;
 import android.os.ConditionVariable;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.runner.AndroidJUnit4;
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.testutil.MockitoUtil;
 import com.google.android.exoplayer2.upstream.DataSpec;
 import com.google.android.exoplayer2.upstream.HttpDataSource;
 import com.google.android.exoplayer2.upstream.HttpDataSource.HttpDataSourceException;
@@ -107,9 +107,7 @@ public final class CronetDataSourceTest {
 
   @Before
   public void setUp() throws Exception {
-    System.setProperty("dexmaker.dexcache",
-        InstrumentationRegistry.getTargetContext().getCacheDir().getPath());
-    initMocks(this);
+    MockitoUtil.setUpMockito(InstrumentationRegistry.getTargetContext(), this);
     dataSourceUnderTest = spy(
         new CronetDataSource(
             mockCronetEngine,

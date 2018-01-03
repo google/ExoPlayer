@@ -112,7 +112,7 @@ public final class ClippingMediaPeriod implements MediaPeriod, MediaPeriod.Callb
       if (internalStreams[i] == null) {
         sampleStreams[i] = null;
       } else if (streams[i] == null || sampleStreams[i].stream != internalStreams[i]) {
-        sampleStreams[i] = new ClippingSampleStream(this, internalStreams[i], startUs, endUs,
+        sampleStreams[i] = new ClippingSampleStream(internalStreams[i], startUs, endUs,
             pendingInitialDiscontinuity);
       }
       streams[i] = sampleStreams[i];
@@ -222,9 +222,8 @@ public final class ClippingMediaPeriod implements MediaPeriod, MediaPeriod.Callb
   /**
    * Wraps a {@link SampleStream} and clips its samples.
    */
-  private static final class ClippingSampleStream implements SampleStream {
+  private final class ClippingSampleStream implements SampleStream {
 
-    private final MediaPeriod mediaPeriod;
     private final SampleStream stream;
     private final long startUs;
     private final long endUs;
@@ -232,9 +231,8 @@ public final class ClippingMediaPeriod implements MediaPeriod, MediaPeriod.Callb
     private boolean pendingDiscontinuity;
     private boolean sentEos;
 
-    public ClippingSampleStream(MediaPeriod mediaPeriod, SampleStream stream, long startUs,
-        long endUs, boolean pendingDiscontinuity) {
-      this.mediaPeriod = mediaPeriod;
+    public ClippingSampleStream(SampleStream stream, long startUs, long endUs,
+        boolean pendingDiscontinuity) {
       this.stream = stream;
       this.startUs = startUs;
       this.endUs = endUs;
@@ -278,9 +276,10 @@ public final class ClippingMediaPeriod implements MediaPeriod, MediaPeriod.Callb
         formatHolder.format = format.copyWithGaplessInfo(encoderDelay, encoderPadding);
         return C.RESULT_FORMAT_READ;
       }
-      if (endUs != C.TIME_END_OF_SOURCE && ((result == C.RESULT_BUFFER_READ
-          && buffer.timeUs >= endUs) || (result == C.RESULT_NOTHING_READ
-          && mediaPeriod.getBufferedPositionUs() == C.TIME_END_OF_SOURCE))) {
+      if (endUs != C.TIME_END_OF_SOURCE
+          && ((result == C.RESULT_BUFFER_READ && buffer.timeUs >= endUs)
+              || (result == C.RESULT_NOTHING_READ
+                  && getBufferedPositionUs() == C.TIME_END_OF_SOURCE))) {
         buffer.clear();
         buffer.setFlags(C.BUFFER_FLAG_END_OF_STREAM);
         sentEos = true;

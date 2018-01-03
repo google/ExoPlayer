@@ -27,7 +27,8 @@ import com.google.android.exoplayer2.testutil.FakeMediaSource;
 import com.google.android.exoplayer2.testutil.FakeRenderer;
 import com.google.android.exoplayer2.testutil.FakeShuffleOrder;
 import com.google.android.exoplayer2.testutil.FakeTimeline;
-import com.google.android.exoplayer2.testutil.FakeTimeline.TimelineWindowDefinition;
+import com.google.android.exoplayer2.testutil.FakeTrackSelection;
+import com.google.android.exoplayer2.testutil.FakeTrackSelector;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
@@ -66,7 +67,7 @@ public final class ExoPlayerTest extends TestCase {
    * Tests playback of a source that exposes a single period.
    */
   public void testPlaySinglePeriodTimeline() throws Exception {
-    Timeline timeline = new FakeTimeline(new TimelineWindowDefinition(false, false, 0));
+    Timeline timeline = new FakeTimeline(/* windowCount= */ 1);
     Object manifest = new Object();
     FakeRenderer renderer = new FakeRenderer(Builder.VIDEO_FORMAT);
     ExoPlayerTestRunner testRunner = new ExoPlayerTestRunner.Builder()
@@ -85,10 +86,7 @@ public final class ExoPlayerTest extends TestCase {
    * Tests playback of a source that exposes three periods.
    */
   public void testPlayMultiPeriodTimeline() throws Exception {
-    Timeline timeline = new FakeTimeline(
-        new TimelineWindowDefinition(false, false, 0),
-        new TimelineWindowDefinition(false, false, 0),
-        new TimelineWindowDefinition(false, false, 0));
+    Timeline timeline = new FakeTimeline(/* windowCount= */ 3);
     FakeRenderer renderer = new FakeRenderer(Builder.VIDEO_FORMAT);
     ExoPlayerTestRunner testRunner = new ExoPlayerTestRunner.Builder()
         .setTimeline(timeline).setRenderers(renderer)
@@ -105,10 +103,7 @@ public final class ExoPlayerTest extends TestCase {
    * source.
    */
   public void testReadAheadToEndDoesNotResetRenderer() throws Exception {
-    Timeline timeline = new FakeTimeline(
-        new TimelineWindowDefinition(false, false, 10),
-        new TimelineWindowDefinition(false, false, 10),
-        new TimelineWindowDefinition(false, false, 10));
+    Timeline timeline = new FakeTimeline(/* windowCount= */ 3);
     final FakeRenderer videoRenderer = new FakeRenderer(Builder.VIDEO_FORMAT);
     FakeMediaClockRenderer audioRenderer = new FakeMediaClockRenderer(Builder.AUDIO_FORMAT) {
 
@@ -149,7 +144,7 @@ public final class ExoPlayerTest extends TestCase {
   }
 
   public void testRepreparationGivesFreshSourceInfo() throws Exception {
-    Timeline timeline = new FakeTimeline(new TimelineWindowDefinition(false, false, 0));
+    Timeline timeline = new FakeTimeline(/* windowCount= */ 1);
     FakeRenderer renderer = new FakeRenderer(Builder.VIDEO_FORMAT);
     Object firstSourceManifest = new Object();
     MediaSource firstSource = new FakeMediaSource(timeline, firstSourceManifest,
@@ -216,10 +211,7 @@ public final class ExoPlayerTest extends TestCase {
   }
 
   public void testRepeatModeChanges() throws Exception {
-    Timeline timeline = new FakeTimeline(
-        new TimelineWindowDefinition(true, false, 100000),
-        new TimelineWindowDefinition(true, false, 100000),
-        new TimelineWindowDefinition(true, false, 100000));
+    Timeline timeline = new FakeTimeline(/* windowCount= */ 3);
     FakeRenderer renderer = new FakeRenderer(Builder.VIDEO_FORMAT);
     ActionSchedule actionSchedule = new ActionSchedule.Builder("testRepeatMode") // 0 -> 1
         .waitForPositionDiscontinuity().setRepeatMode(Player.REPEAT_MODE_ONE) // 1 -> 1
@@ -239,7 +231,7 @@ public final class ExoPlayerTest extends TestCase {
   }
 
   public void testShuffleModeEnabledChanges() throws Exception {
-    Timeline fakeTimeline = new FakeTimeline(new TimelineWindowDefinition(true, false, 100000));
+    Timeline fakeTimeline = new FakeTimeline(/* windowCount= */ 1);
     MediaSource[] fakeMediaSources = {
         new FakeMediaSource(fakeTimeline, null, Builder.VIDEO_FORMAT),
         new FakeMediaSource(fakeTimeline, null, Builder.VIDEO_FORMAT),
@@ -262,7 +254,6 @@ public final class ExoPlayerTest extends TestCase {
   }
 
   public void testPeriodHoldersReleasedAfterSeekWithRepeatModeAll() throws Exception {
-    Timeline fakeTimeline = new FakeTimeline(new TimelineWindowDefinition(true, false, 100000));
     FakeRenderer renderer = new FakeRenderer(Builder.VIDEO_FORMAT);
     ActionSchedule actionSchedule = new ActionSchedule.Builder("testPeriodHoldersReleased")
         .setRepeatMode(Player.REPEAT_MODE_ALL)
@@ -272,15 +263,13 @@ public final class ExoPlayerTest extends TestCase {
         .setRepeatMode(Player.REPEAT_MODE_OFF) // Turn off repeat so that playback can finish.
         .build();
     new ExoPlayerTestRunner.Builder()
-        .setTimeline(fakeTimeline).setRenderers(renderer).setActionSchedule(actionSchedule)
+        .setRenderers(renderer).setActionSchedule(actionSchedule)
         .build().start().blockUntilEnded(TIMEOUT_MS);
     assertTrue(renderer.isEnded);
   }
 
   public void testSeekProcessedCallback() throws Exception {
-    Timeline timeline = new FakeTimeline(
-        new TimelineWindowDefinition(true, false, 100000),
-        new TimelineWindowDefinition(true, false, 100000));
+    Timeline timeline = new FakeTimeline(/* windowCount= */ 2);
     ActionSchedule actionSchedule = new ActionSchedule.Builder("testSeekProcessedCallback")
         // Initial seek before timeline preparation finished.
         .pause().seek(10).waitForPlaybackState(Player.STATE_READY)
@@ -309,6 +298,140 @@ public final class ExoPlayerTest extends TestCase {
     assertEquals(Player.STATE_BUFFERING, (int) playbackStatesWhenSeekProcessed.get(0));
     assertEquals(Player.STATE_READY, (int) playbackStatesWhenSeekProcessed.get(1));
     assertEquals(Player.STATE_BUFFERING, (int) playbackStatesWhenSeekProcessed.get(2));
+  }
+
+  public void testAllActivatedTrackSelectionAreReleasedForSinglePeriod() throws Exception {
+    Timeline timeline = new FakeTimeline(/* windowCount= */ 1);
+    MediaSource mediaSource =
+        new FakeMediaSource(timeline, null, Builder.VIDEO_FORMAT, Builder.AUDIO_FORMAT);
+    FakeRenderer videoRenderer = new FakeRenderer(Builder.VIDEO_FORMAT);
+    FakeRenderer audioRenderer = new FakeRenderer(Builder.AUDIO_FORMAT);
+    FakeTrackSelector trackSelector = new FakeTrackSelector();
+
+    new ExoPlayerTestRunner.Builder()
+        .setMediaSource(mediaSource)
+        .setRenderers(videoRenderer, audioRenderer)
+        .setTrackSelector(trackSelector)
+        .build().start().blockUntilEnded(TIMEOUT_MS);
+
+    List<FakeTrackSelection> createdTrackSelections = trackSelector.getSelectedTrackSelections();
+    int numSelectionsEnabled = 0;
+    // Assert that all tracks selection are disabled at the end of the playback.
+    for (FakeTrackSelection trackSelection : createdTrackSelections) {
+      assertFalse(trackSelection.isEnabled);
+      numSelectionsEnabled += trackSelection.enableCount;
+    }
+    // There are 2 renderers, and track selections are made once (1 period).
+    // Track selections are not reused, so there are 2 track selections made.
+    assertEquals(2, createdTrackSelections.size());
+    // There should be 2 track selections enabled in total.
+    assertEquals(2, numSelectionsEnabled);
+  }
+
+  public void testAllActivatedTrackSelectionAreReleasedForMultiPeriods() throws Exception {
+    Timeline timeline = new FakeTimeline(/* windowCount= */ 2);
+    MediaSource mediaSource =
+        new FakeMediaSource(timeline, null, Builder.VIDEO_FORMAT, Builder.AUDIO_FORMAT);
+    FakeRenderer videoRenderer = new FakeRenderer(Builder.VIDEO_FORMAT);
+    FakeRenderer audioRenderer = new FakeRenderer(Builder.AUDIO_FORMAT);
+    FakeTrackSelector trackSelector = new FakeTrackSelector();
+
+    new ExoPlayerTestRunner.Builder()
+        .setMediaSource(mediaSource)
+        .setRenderers(videoRenderer, audioRenderer)
+        .setTrackSelector(trackSelector)
+        .build().start().blockUntilEnded(TIMEOUT_MS);
+
+    List<FakeTrackSelection> createdTrackSelections = trackSelector.getSelectedTrackSelections();
+    int numSelectionsEnabled = 0;
+    // Assert that all tracks selection are disabled at the end of the playback.
+    for (FakeTrackSelection trackSelection : createdTrackSelections) {
+      assertFalse(trackSelection.isEnabled);
+      numSelectionsEnabled += trackSelection.enableCount;
+    }
+    // There are 2 renderers, and track selections are made twice (2 periods).
+    // Track selections are not reused, so there are 4 track selections made.
+    assertEquals(4, createdTrackSelections.size());
+    // There should be 4 track selections enabled in total.
+    assertEquals(4, numSelectionsEnabled);
+  }
+
+  public void testAllActivatedTrackSelectionAreReleasedWhenTrackSelectionsAreRemade()
+      throws Exception {
+    Timeline timeline = new FakeTimeline(/* windowCount= */ 1);
+    MediaSource mediaSource =
+        new FakeMediaSource(timeline, null, Builder.VIDEO_FORMAT, Builder.AUDIO_FORMAT);
+    FakeRenderer videoRenderer = new FakeRenderer(Builder.VIDEO_FORMAT);
+    FakeRenderer audioRenderer = new FakeRenderer(Builder.AUDIO_FORMAT);
+    final FakeTrackSelector trackSelector = new FakeTrackSelector();
+    ActionSchedule disableTrackAction = new ActionSchedule.Builder("testChangeTrackSelection")
+        .waitForPlaybackState(Player.STATE_READY)
+        .executeRunnable(new Runnable() {
+          @Override
+          public void run() {
+            trackSelector.setRendererDisabled(0, true);
+          }
+        }).build();
+
+    new ExoPlayerTestRunner.Builder()
+        .setMediaSource(mediaSource)
+        .setRenderers(videoRenderer, audioRenderer)
+        .setTrackSelector(trackSelector)
+        .setActionSchedule(disableTrackAction)
+        .build().start().blockUntilEnded(TIMEOUT_MS);
+
+    List<FakeTrackSelection> createdTrackSelections = trackSelector.getSelectedTrackSelections();
+    int numSelectionsEnabled = 0;
+    // Assert that all tracks selection are disabled at the end of the playback.
+    for (FakeTrackSelection trackSelection : createdTrackSelections) {
+      assertFalse(trackSelection.isEnabled);
+      numSelectionsEnabled += trackSelection.enableCount;
+    }
+    // There are 2 renderers, and track selections are made twice.
+    // Track selections are not reused, so there are 4 track selections made.
+    assertEquals(4, createdTrackSelections.size());
+    // Initially there are 2 track selections enabled.
+    // The second time one renderer is disabled, so only 1 track selection should be enabled.
+    assertEquals(3, numSelectionsEnabled);
+  }
+
+  public void testAllActivatedTrackSelectionAreReleasedWhenTrackSelectionsAreUsed()
+      throws Exception {
+    Timeline timeline = new FakeTimeline(/* windowCount= */ 1);
+    MediaSource mediaSource =
+        new FakeMediaSource(timeline, null, Builder.VIDEO_FORMAT, Builder.AUDIO_FORMAT);
+    FakeRenderer videoRenderer = new FakeRenderer(Builder.VIDEO_FORMAT);
+    FakeRenderer audioRenderer = new FakeRenderer(Builder.AUDIO_FORMAT);
+    final FakeTrackSelector trackSelector = new FakeTrackSelector(/* reuse track selection */ true);
+    ActionSchedule disableTrackAction = new ActionSchedule.Builder("testReuseTrackSelection")
+        .waitForPlaybackState(Player.STATE_READY)
+        .executeRunnable(new Runnable() {
+          @Override
+          public void run() {
+            trackSelector.setRendererDisabled(0, true);
+          }
+        }).build();
+
+    new ExoPlayerTestRunner.Builder()
+        .setMediaSource(mediaSource)
+        .setRenderers(videoRenderer, audioRenderer)
+        .setTrackSelector(trackSelector)
+        .setActionSchedule(disableTrackAction)
+        .build().start().blockUntilEnded(TIMEOUT_MS);
+
+    List<FakeTrackSelection> createdTrackSelections = trackSelector.getSelectedTrackSelections();
+    int numSelectionsEnabled = 0;
+    // Assert that all tracks selection are disabled at the end of the playback.
+    for (FakeTrackSelection trackSelection : createdTrackSelections) {
+      assertFalse(trackSelection.isEnabled);
+      numSelectionsEnabled += trackSelection.enableCount;
+    }
+    // There are 2 renderers, and track selections are made twice.
+    // TrackSelections are reused, so there are only 2 track selections made for 2 renderers.
+    assertEquals(2, createdTrackSelections.size());
+    // Initially there are 2 track selections enabled.
+    // The second time one renderer is disabled, so only 1 track selection should be enabled.
+    assertEquals(3, numSelectionsEnabled);
   }
 
 }

@@ -47,6 +47,7 @@ import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.Util;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -219,11 +220,11 @@ public class DefaultDashChunkSource implements DashChunkSource {
     if (availableSegmentCount == DashSegmentIndex.INDEX_UNBOUNDED) {
       // The index is itself unbounded. We need to use the current time to calculate the range of
       // available segments.
-      long liveEdgeTimeUs = getNowUnixTimeUs() - C.msToUs(manifest.availabilityStartTime);
+      long liveEdgeTimeUs = getNowUnixTimeUs() - C.msToUs(manifest.availabilityStartTimeMs);
       long periodStartUs = C.msToUs(manifest.getPeriod(periodIndex).startMs);
       long liveEdgeTimeInPeriodUs = liveEdgeTimeUs - periodStartUs;
-      if (manifest.timeShiftBufferDepth != C.TIME_UNSET) {
-        long bufferDepthUs = C.msToUs(manifest.timeShiftBufferDepth);
+      if (manifest.timeShiftBufferDepthMs != C.TIME_UNSET) {
+        long bufferDepthUs = C.msToUs(manifest.timeShiftBufferDepthMs);
         firstAvailableSegmentNum = Math.max(firstAvailableSegmentNum,
             representationHolder.getSegmentNum(liveEdgeTimeInPeriodUs - bufferDepthUs));
       }
@@ -424,10 +425,12 @@ public class DefaultDashChunkSource implements DashChunkSource {
           if (enableEventMessageTrack) {
             flags |= FragmentedMp4Extractor.FLAG_ENABLE_EMSG_TRACK;
           }
-          if (enableCea608Track) {
-            flags |= FragmentedMp4Extractor.FLAG_ENABLE_CEA608_TRACK;
-          }
-          extractor = new FragmentedMp4Extractor(flags);
+          // TODO: Use caption format information from the manifest if available.
+          List<Format> closedCaptionFormats = enableCea608Track
+              ? Collections.singletonList(
+                  Format.createTextSampleFormat(null, MimeTypes.APPLICATION_CEA608, 0, null))
+              : Collections.<Format>emptyList();
+          extractor = new FragmentedMp4Extractor(flags, null, null, null, closedCaptionFormats);
         }
         // Prefer drmInitData obtained from the manifest over drmInitData obtained from the stream,
         // as per DASH IF Interoperability Recommendations V3.0, 7.5.3.

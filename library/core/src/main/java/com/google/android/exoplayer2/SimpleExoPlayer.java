@@ -91,6 +91,8 @@ public class SimpleExoPlayer implements ExoPlayer {
   private final CopyOnWriteArraySet<VideoListener> videoListeners;
   private final CopyOnWriteArraySet<TextOutput> textOutputs;
   private final CopyOnWriteArraySet<MetadataOutput> metadataOutputs;
+  private final CopyOnWriteArraySet<VideoRendererEventListener> videoDebugListeners;
+  private final CopyOnWriteArraySet<AudioRendererEventListener> audioDebugListeners;
   private final int videoRendererCount;
   private final int audioRendererCount;
 
@@ -103,8 +105,6 @@ public class SimpleExoPlayer implements ExoPlayer {
   private int videoScalingMode;
   private SurfaceHolder surfaceHolder;
   private TextureView textureView;
-  private AudioRendererEventListener audioDebugListener;
-  private VideoRendererEventListener videoDebugListener;
   private DecoderCounters videoDecoderCounters;
   private DecoderCounters audioDecoderCounters;
   private int audioSessionId;
@@ -117,6 +117,8 @@ public class SimpleExoPlayer implements ExoPlayer {
     videoListeners = new CopyOnWriteArraySet<>();
     textOutputs = new CopyOnWriteArraySet<>();
     metadataOutputs = new CopyOnWriteArraySet<>();
+    videoDebugListeners = new CopyOnWriteArraySet<>();
+    audioDebugListeners = new CopyOnWriteArraySet<>();
     Looper eventLooper = Looper.myLooper() != null ? Looper.myLooper() : Looper.getMainLooper();
     Handler eventHandler = new Handler(eventLooper);
     renderers = renderersFactory.createRenderers(eventHandler, componentListener, componentListener,
@@ -576,18 +578,64 @@ public class SimpleExoPlayer implements ExoPlayer {
    * Sets a listener to receive debug events from the video renderer.
    *
    * @param listener The listener.
+   * @deprecated Use {@link #addVideoDebugListener(VideoRendererEventListener)}.
    */
+  @Deprecated
   public void setVideoDebugListener(VideoRendererEventListener listener) {
-    videoDebugListener = listener;
+    videoDebugListeners.clear();
+    if (listener != null) {
+      addVideoDebugListener(listener);
+    }
+  }
+
+  /**
+   * Adds a listener to receive debug events from the video renderer.
+   *
+   * @param listener The listener.
+   */
+  public void addVideoDebugListener(VideoRendererEventListener listener) {
+    videoDebugListeners.add(listener);
+  }
+
+  /**
+   * Removes a listener to receive debug events from the video renderer.
+   *
+   * @param listener The listener.
+   */
+  public void removeVideoDebugListener(VideoRendererEventListener listener) {
+    videoDebugListeners.remove(listener);
   }
 
   /**
    * Sets a listener to receive debug events from the audio renderer.
    *
    * @param listener The listener.
+   * @deprecated Use {@link #addAudioDebugListener(AudioRendererEventListener)}.
    */
+  @Deprecated
   public void setAudioDebugListener(AudioRendererEventListener listener) {
-    audioDebugListener = listener;
+    audioDebugListeners.clear();
+    if (listener != null) {
+      addAudioDebugListener(listener);
+    }
+  }
+
+  /**
+   * Adds a listener to receive debug events from the audio renderer.
+   *
+   * @param listener The listener.
+   */
+  public void addAudioDebugListener(AudioRendererEventListener listener) {
+    audioDebugListeners.add(listener);
+  }
+
+  /**
+   * Removes a listener to receive debug events from the audio renderer.
+   *
+   * @param listener The listener.
+   */
+  public void removeAudioDebugListener(AudioRendererEventListener listener) {
+    audioDebugListeners.remove(listener);
   }
 
   // ExoPlayer implementation
@@ -678,7 +726,7 @@ public class SimpleExoPlayer implements ExoPlayer {
   }
 
   @Override
-  public void setPlaybackParameters(PlaybackParameters playbackParameters) {
+  public void setPlaybackParameters(@Nullable PlaybackParameters playbackParameters) {
     player.setPlaybackParameters(playbackParameters);
   }
 
@@ -817,15 +865,15 @@ public class SimpleExoPlayer implements ExoPlayer {
   // Internal methods.
 
   /**
-   * Creates the ExoPlayer implementation used by this {@link SimpleExoPlayer}.
+   * Creates the {@link ExoPlayer} implementation used by this instance.
    *
    * @param renderers The {@link Renderer}s that will be used by the instance.
    * @param trackSelector The {@link TrackSelector} that will be used by the instance.
    * @param loadControl The {@link LoadControl} that will be used by the instance.
    * @return A new {@link ExoPlayer} instance.
    */
-  protected ExoPlayer createExoPlayerImpl(Renderer[] renderers, TrackSelector trackSelector,
-      LoadControl loadControl) {
+  protected ExoPlayer createExoPlayerImpl(
+      Renderer[] renderers, TrackSelector trackSelector, LoadControl loadControl) {
     return new ExoPlayerImpl(renderers, trackSelector, loadControl);
   }
 
@@ -877,7 +925,7 @@ public class SimpleExoPlayer implements ExoPlayer {
     @Override
     public void onVideoEnabled(DecoderCounters counters) {
       videoDecoderCounters = counters;
-      if (videoDebugListener != null) {
+      for (VideoRendererEventListener videoDebugListener : videoDebugListeners) {
         videoDebugListener.onVideoEnabled(counters);
       }
     }
@@ -885,7 +933,7 @@ public class SimpleExoPlayer implements ExoPlayer {
     @Override
     public void onVideoDecoderInitialized(String decoderName, long initializedTimestampMs,
         long initializationDurationMs) {
-      if (videoDebugListener != null) {
+      for (VideoRendererEventListener videoDebugListener : videoDebugListeners) {
         videoDebugListener.onVideoDecoderInitialized(decoderName, initializedTimestampMs,
             initializationDurationMs);
       }
@@ -894,14 +942,14 @@ public class SimpleExoPlayer implements ExoPlayer {
     @Override
     public void onVideoInputFormatChanged(Format format) {
       videoFormat = format;
-      if (videoDebugListener != null) {
+      for (VideoRendererEventListener videoDebugListener : videoDebugListeners) {
         videoDebugListener.onVideoInputFormatChanged(format);
       }
     }
 
     @Override
     public void onDroppedFrames(int count, long elapsed) {
-      if (videoDebugListener != null) {
+      for (VideoRendererEventListener videoDebugListener : videoDebugListeners) {
         videoDebugListener.onDroppedFrames(count, elapsed);
       }
     }
@@ -913,7 +961,7 @@ public class SimpleExoPlayer implements ExoPlayer {
         videoListener.onVideoSizeChanged(width, height, unappliedRotationDegrees,
             pixelWidthHeightRatio);
       }
-      if (videoDebugListener != null) {
+      for (VideoRendererEventListener videoDebugListener : videoDebugListeners) {
         videoDebugListener.onVideoSizeChanged(width, height, unappliedRotationDegrees,
             pixelWidthHeightRatio);
       }
@@ -926,14 +974,14 @@ public class SimpleExoPlayer implements ExoPlayer {
           videoListener.onRenderedFirstFrame();
         }
       }
-      if (videoDebugListener != null) {
+      for (VideoRendererEventListener videoDebugListener : videoDebugListeners) {
         videoDebugListener.onRenderedFirstFrame(surface);
       }
     }
 
     @Override
     public void onVideoDisabled(DecoderCounters counters) {
-      if (videoDebugListener != null) {
+      for (VideoRendererEventListener videoDebugListener : videoDebugListeners) {
         videoDebugListener.onVideoDisabled(counters);
       }
       videoFormat = null;
@@ -945,7 +993,7 @@ public class SimpleExoPlayer implements ExoPlayer {
     @Override
     public void onAudioEnabled(DecoderCounters counters) {
       audioDecoderCounters = counters;
-      if (audioDebugListener != null) {
+      for (AudioRendererEventListener audioDebugListener : audioDebugListeners) {
         audioDebugListener.onAudioEnabled(counters);
       }
     }
@@ -953,7 +1001,7 @@ public class SimpleExoPlayer implements ExoPlayer {
     @Override
     public void onAudioSessionId(int sessionId) {
       audioSessionId = sessionId;
-      if (audioDebugListener != null) {
+      for (AudioRendererEventListener audioDebugListener : audioDebugListeners) {
         audioDebugListener.onAudioSessionId(sessionId);
       }
     }
@@ -961,7 +1009,7 @@ public class SimpleExoPlayer implements ExoPlayer {
     @Override
     public void onAudioDecoderInitialized(String decoderName, long initializedTimestampMs,
         long initializationDurationMs) {
-      if (audioDebugListener != null) {
+      for (AudioRendererEventListener audioDebugListener : audioDebugListeners) {
         audioDebugListener.onAudioDecoderInitialized(decoderName, initializedTimestampMs,
             initializationDurationMs);
       }
@@ -970,7 +1018,7 @@ public class SimpleExoPlayer implements ExoPlayer {
     @Override
     public void onAudioInputFormatChanged(Format format) {
       audioFormat = format;
-      if (audioDebugListener != null) {
+      for (AudioRendererEventListener audioDebugListener : audioDebugListeners) {
         audioDebugListener.onAudioInputFormatChanged(format);
       }
     }
@@ -978,14 +1026,14 @@ public class SimpleExoPlayer implements ExoPlayer {
     @Override
     public void onAudioSinkUnderrun(int bufferSize, long bufferSizeMs,
         long elapsedSinceLastFeedMs) {
-      if (audioDebugListener != null) {
+      for (AudioRendererEventListener audioDebugListener : audioDebugListeners) {
         audioDebugListener.onAudioSinkUnderrun(bufferSize, bufferSizeMs, elapsedSinceLastFeedMs);
       }
     }
 
     @Override
     public void onAudioDisabled(DecoderCounters counters) {
-      if (audioDebugListener != null) {
+      for (AudioRendererEventListener audioDebugListener : audioDebugListeners) {
         audioDebugListener.onAudioDisabled(counters);
       }
       audioFormat = null;

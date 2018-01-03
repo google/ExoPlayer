@@ -186,7 +186,7 @@ import java.io.IOException;
         return start;
       }
 
-      long offset = pageSize * (granuleDistance <= 0 ? 2 : 1);
+      long offset = pageSize * (granuleDistance <= 0 ? 2L : 1L);
       long nextPosition = input.getPosition() - offset
           + (granuleDistance * (end - start) / (endGranule - startGranule));
 

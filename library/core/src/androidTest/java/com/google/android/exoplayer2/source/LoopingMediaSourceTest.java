@@ -21,7 +21,7 @@ import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.testutil.FakeMediaSource;
 import com.google.android.exoplayer2.testutil.FakeTimeline;
 import com.google.android.exoplayer2.testutil.FakeTimeline.TimelineWindowDefinition;
-import com.google.android.exoplayer2.testutil.TestUtil;
+import com.google.android.exoplayer2.testutil.MediaSourceTestRunner;
 import com.google.android.exoplayer2.testutil.TimelineAsserts;
 import junit.framework.TestCase;
 
@@ -30,12 +30,13 @@ import junit.framework.TestCase;
  */
 public class LoopingMediaSourceTest extends TestCase {
 
-  private final Timeline multiWindowTimeline;
+  private FakeTimeline multiWindowTimeline;
 
-  public LoopingMediaSourceTest() {
-    multiWindowTimeline = TestUtil.extractTimelineFromMediaSource(new FakeMediaSource(
-        new FakeTimeline(new TimelineWindowDefinition(1, 111),
-            new TimelineWindowDefinition(1, 222), new TimelineWindowDefinition(1, 333)), null));
+  @Override
+  public void setUp() throws Exception {
+    super.setUp();
+    multiWindowTimeline = new FakeTimeline(new TimelineWindowDefinition(1, 111),
+        new TimelineWindowDefinition(1, 222), new TimelineWindowDefinition(1, 333));
   }
 
   public void testSingleLoop() {
@@ -109,10 +110,14 @@ public class LoopingMediaSourceTest extends TestCase {
    * the looping timeline.
    */
   private static Timeline getLoopingTimeline(Timeline timeline, int loopCount) {
-    MediaSource mediaSource = new FakeMediaSource(timeline, null);
-    return TestUtil.extractTimelineFromMediaSource(
-        new LoopingMediaSource(mediaSource, loopCount));
+    FakeMediaSource fakeMediaSource = new FakeMediaSource(timeline, null);
+    LoopingMediaSource mediaSource = new LoopingMediaSource(fakeMediaSource, loopCount);
+    MediaSourceTestRunner testRunner = new MediaSourceTestRunner(mediaSource, null);
+    try {
+      return testRunner.prepareSource();
+    } finally {
+      testRunner.release();
+    }
   }
 
 }
-
