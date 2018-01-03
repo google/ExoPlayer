@@ -117,6 +117,7 @@ import java.util.Collections;
   private final DefaultMediaClock mediaClock;
   private final PlaybackInfoUpdate playbackInfoUpdate;
   private final ArrayList<CustomMessageInfo> customMessageInfos;
+  private final Clock clock;
 
   @SuppressWarnings("unused")
   private SeekParameters seekParameters;
@@ -159,6 +160,7 @@ import java.util.Collections;
     this.shuffleModeEnabled = shuffleModeEnabled;
     this.eventHandler = eventHandler;
     this.player = player;
+    this.clock = clock;
 
     backBufferDurationUs = loadControl.getBackBufferDurationUs();
     retainBackBufferFromKeyframe = loadControl.retainBackBufferFromKeyframe();
@@ -541,7 +543,7 @@ import java.util.Collections;
   }
 
   private void doSomeWork() throws ExoPlaybackException, IOException {
-    long operationStartTimeMs = SystemClock.elapsedRealtime();
+    long operationStartTimeMs = clock.uptimeMillis();
     updatePeriods();
     if (playingPeriodHolder == null) {
       // We're still waiting for the first period to be prepared.
@@ -632,7 +634,7 @@ import java.util.Collections;
 
   private void scheduleNextWork(long thisOperationStartTimeMs, long intervalMs) {
     handler.removeMessages(MSG_DO_SOME_WORK);
-    handler.sendEmptyMessageDelayed(MSG_DO_SOME_WORK, intervalMs, thisOperationStartTimeMs);
+    handler.sendEmptyMessageAtTime(MSG_DO_SOME_WORK, thisOperationStartTimeMs + intervalMs);
   }
 
   private void seekToInternal(SeekPosition seekPosition) throws ExoPlaybackException {

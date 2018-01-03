@@ -31,6 +31,11 @@ import android.support.annotation.Nullable;
   }
 
   @Override
+  public long uptimeMillis() {
+    return android.os.SystemClock.uptimeMillis();
+  }
+
+  @Override
   public void sleep(long sleepTimeMs) {
     android.os.SystemClock.sleep(sleepTimeMs);
   }

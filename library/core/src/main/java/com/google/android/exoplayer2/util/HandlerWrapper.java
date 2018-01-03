@@ -43,18 +43,8 @@ public interface HandlerWrapper {
   /** @see Handler#sendEmptyMessage(int). */
   boolean sendEmptyMessage(int what);
 
-  /**
-   * Variant of {@code Handler#sendEmptyMessageDelayed(int, long)} which also takes a reference time
-   * measured by {@code android.os.SystemClock#elapsedRealtime()} to which the delay is added.
-   *
-   * @param what The message identifier.
-   * @param delayMs The delay in milliseconds to send the message. This delay is added to the {@code
-   *     referenceTimeMs}.
-   * @param referenceTimeMs The time which the delay is added to. Always measured with {@code
-   *     android.os.SystemClock#elapsedRealtime()}.
-   * @return Whether the message was successfully enqueued on the Handler thread.
-   */
-  boolean sendEmptyMessageDelayed(int what, long delayMs, long referenceTimeMs);
+  /** @see Handler#sendEmptyMessageAtTime(int, long). */
+  boolean sendEmptyMessageAtTime(int what, long uptimeMs);
 
   /** @see Handler#removeMessages(int). */
   void removeMessages(int what);
