@@ -16,11 +16,13 @@
 package com.google.android.exoplayer2.extractor.mkv;
 
 import android.support.annotation.IntDef;
+import android.support.annotation.Nullable;
 import android.util.Log;
 import android.util.SparseArray;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.ParserException;
+import com.google.android.exoplayer2.audio.Ac3Util;
 import com.google.android.exoplayer2.drm.DrmInitData;
 import com.google.android.exoplayer2.drm.DrmInitData.SchemeData;
 import com.google.android.exoplayer2.extractor.ChunkIndex;
@@ -32,6 +34,7 @@ import com.google.android.exoplayer2.extractor.MpegAudioHeader;
 import com.google.android.exoplayer2.extractor.PositionHolder;
 import com.google.android.exoplayer2.extractor.SeekMap;
 import com.google.android.exoplayer2.extractor.TrackOutput;
+import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.LongArray;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.NalUnitUtil;
@@ -413,6 +416,9 @@ public final class MatroskaExtractor implements Extractor {
     reader.reset();
     varintReader.reset();
     resetSample();
+    for (int i = 0; i < tracks.size(); i++) {
+      tracks.valueAt(i).reset();
+    }
   }
 
   @Override
@@ -431,7 +437,13 @@ public final class MatroskaExtractor implements Extractor {
         return Extractor.RESULT_SEEK;
       }
     }
-    return continueReading ? Extractor.RESULT_CONTINUE : Extractor.RESULT_END_OF_INPUT;
+    if (!continueReading) {
+      for (int i = 0; i < tracks.size(); i++) {
+        tracks.valueAt(i).outputPendingSampleMetadata();
+      }
+      return Extractor.RESULT_END_OF_INPUT;
+    }
+    return Extractor.RESULT_CONTINUE;
   }
 
   /* package */ int getElementType(int id) {
@@ -1077,14 +1089,26 @@ public final class MatroskaExtractor implements Extractor {
   }
 
   private void commitSampleToOutput(Track track, long timeUs) {
-    if (CODEC_ID_SUBRIP.equals(track.codecId)) {
-      commitSubtitleSample(track, SUBRIP_TIMECODE_FORMAT, SUBRIP_PREFIX_END_TIMECODE_OFFSET,
-          SUBRIP_TIMECODE_LAST_VALUE_SCALING_FACTOR, SUBRIP_TIMECODE_EMPTY);
-    } else if (CODEC_ID_ASS.equals(track.codecId)) {
-      commitSubtitleSample(track, SSA_TIMECODE_FORMAT, SSA_PREFIX_END_TIMECODE_OFFSET,
-          SSA_TIMECODE_LAST_VALUE_SCALING_FACTOR, SSA_TIMECODE_EMPTY);
+    if (track.trueHdSampleRechunker != null) {
+      track.trueHdSampleRechunker.sampleMetadata(track, timeUs);
+    } else {
+      if (CODEC_ID_SUBRIP.equals(track.codecId)) {
+        commitSubtitleSample(
+            track,
+            SUBRIP_TIMECODE_FORMAT,
+            SUBRIP_PREFIX_END_TIMECODE_OFFSET,
+            SUBRIP_TIMECODE_LAST_VALUE_SCALING_FACTOR,
+            SUBRIP_TIMECODE_EMPTY);
+      } else if (CODEC_ID_ASS.equals(track.codecId)) {
+        commitSubtitleSample(
+            track,
+            SSA_TIMECODE_FORMAT,
+            SSA_PREFIX_END_TIMECODE_OFFSET,
+            SSA_TIMECODE_LAST_VALUE_SCALING_FACTOR,
+            SSA_TIMECODE_EMPTY);
+      }
+      track.output.sampleMetadata(timeUs, blockFlags, sampleBytesWritten, 0, track.cryptoData);
     }
-    track.output.sampleMetadata(timeUs, blockFlags, sampleBytesWritten, 0, track.cryptoData);
     sampleRead = true;
     resetSample();
   }
@@ -1251,6 +1275,10 @@ public final class MatroskaExtractor implements Extractor {
         }
       }
     } else {
+      if (track.trueHdSampleRechunker != null) {
+        Assertions.checkState(sampleStrippedBytes.limit() == 0);
+        track.trueHdSampleRechunker.startSample(input, blockFlags, size);
+      }
       while (sampleBytesRead < size) {
         readToOutput(input, output, size - sampleBytesRead);
       }
@@ -1510,7 +1538,70 @@ public final class MatroskaExtractor implements Extractor {
         throws IOException, InterruptedException {
       MatroskaExtractor.this.binaryElement(id, contentsSize, input);
     }
+  }
 
+  /**
+   * Rechunks TrueHD sample data into groups of {@link Ac3Util#TRUEHD_RECHUNK_SAMPLE_COUNT} samples.
+   */
+  private static final class TrueHdSampleRechunker {
+
+    private final byte[] syncframePrefix;
+
+    private boolean foundSyncframe;
+    private int sampleCount;
+    private int chunkSize;
+    private long timeUs;
+    private @C.BufferFlags int blockFlags;
+
+    public TrueHdSampleRechunker() {
+      syncframePrefix = new byte[Ac3Util.TRUEHD_SYNCFRAME_PREFIX_LENGTH];
+    }
+
+    public void reset() {
+      foundSyncframe = false;
+    }
+
+    public void startSample(ExtractorInput input, @C.BufferFlags int blockFlags, int size)
+        throws IOException, InterruptedException {
+      if (!foundSyncframe) {
+        input.peekFully(syncframePrefix, 0, Ac3Util.TRUEHD_SYNCFRAME_PREFIX_LENGTH);
+        input.resetPeekPosition();
+        if ((Ac3Util.parseTrueHdSyncframeAudioSampleCount(syncframePrefix) == C.INDEX_UNSET)) {
+          return;
+        }
+        foundSyncframe = true;
+        sampleCount = 0;
+      }
+      if (sampleCount == 0) {
+        // This is the first sample in the chunk, so reset the block flags and chunk size.
+        this.blockFlags = blockFlags;
+        chunkSize = 0;
+      }
+      chunkSize += size;
+    }
+
+    public void sampleMetadata(Track track, long timeUs) {
+      if (!foundSyncframe) {
+        return;
+      }
+      if (sampleCount++ == 0) {
+        // This is the first sample in the chunk, so update the timestamp.
+        this.timeUs = timeUs;
+      }
+      if (sampleCount < Ac3Util.TRUEHD_RECHUNK_SAMPLE_COUNT) {
+        // We haven't read enough samples to output a chunk.
+        return;
+      }
+      track.output.sampleMetadata(this.timeUs, blockFlags, chunkSize, 0, track.cryptoData);
+      sampleCount = 0;
+    }
+
+    public void outputPendingSampleMetadata(Track track) {
+      if (foundSyncframe && sampleCount > 0) {
+        track.output.sampleMetadata(this.timeUs, blockFlags, chunkSize, 0, track.cryptoData);
+        sampleCount = 0;
+      }
+    }
   }
 
   private static final class Track {
@@ -1573,6 +1664,7 @@ public final class MatroskaExtractor implements Extractor {
     public int sampleRate = 8000;
     public long codecDelayNs = 0;
     public long seekPreRollNs = 0;
+    @Nullable public TrueHdSampleRechunker trueHdSampleRechunker;
 
     // Text elements.
     public boolean flagForced;
@@ -1583,9 +1675,7 @@ public final class MatroskaExtractor implements Extractor {
     public TrackOutput output;
     public int nalUnitLengthFieldLength;
 
-    /**
-     * Initializes the track with an output.
-     */
+    /** Initializes the track with an output. */
     public void initializeOutput(ExtractorOutput output, int trackId) throws ParserException {
       String mimeType;
       int maxInputSize = Format.NO_VALUE;
@@ -1669,6 +1759,7 @@ public final class MatroskaExtractor implements Extractor {
           break;
         case CODEC_ID_TRUEHD:
           mimeType = MimeTypes.AUDIO_TRUEHD;
+          trueHdSampleRechunker = new TrueHdSampleRechunker();
           break;
         case CODEC_ID_DTS:
         case CODEC_ID_DTS_EXPRESS:
@@ -1786,9 +1877,21 @@ public final class MatroskaExtractor implements Extractor {
       this.output.format(format);
     }
 
-    /**
-     * Returns the HDR Static Info as defined in CTA-861.3.
-     */
+    /** Forces any pending sample metadata to be flushed to the output. */
+    public void outputPendingSampleMetadata() {
+      if (trueHdSampleRechunker != null) {
+        trueHdSampleRechunker.outputPendingSampleMetadata(this);
+      }
+    }
+
+    /** Resets any state stored in the track in response to a seek. */
+    public void reset() {
+      if (trueHdSampleRechunker != null) {
+        trueHdSampleRechunker.reset();
+      }
+    }
+
+    /** Returns the HDR Static Info as defined in CTA-861.3. */
     private byte[] getHdrStaticInfo() {
       // Are all fields present.
       if (primaryRChromaticityX == Format.NO_VALUE || primaryRChromaticityY == Format.NO_VALUE

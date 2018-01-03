@@ -39,6 +39,8 @@
 * DefaultTrackSelector: Support disabling of individual text track selection
   flags.
 * New Cast extension: Simplifies toggling between local and Cast playbacks.
+* Audio: Support TrueHD passthrough for rechunked samples in Matroska files
+  ([#2147](https://github.com/google/ExoPlayer/issues/2147)).
 
 ### 2.6.1 ###
 

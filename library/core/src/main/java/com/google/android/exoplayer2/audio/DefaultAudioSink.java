@@ -446,9 +446,12 @@ public final class DefaultAudioSink implements AudioSink {
       if (outputEncoding == C.ENCODING_AC3 || outputEncoding == C.ENCODING_E_AC3) {
         // AC-3 allows bitrates up to 640 kbit/s.
         bufferSize = (int) (PASSTHROUGH_BUFFER_DURATION_US * 80 * 1024 / C.MICROS_PER_SECOND);
-      } else /* (outputEncoding == C.ENCODING_DTS || outputEncoding == C.ENCODING_DTS_HD */ {
+      } else if (outputEncoding == C.ENCODING_DTS) {
         // DTS allows an 'open' bitrate, but we assume the maximum listed value: 1536 kbit/s.
         bufferSize = (int) (PASSTHROUGH_BUFFER_DURATION_US * 192 * 1024 / C.MICROS_PER_SECOND);
+      } else /* outputEncoding == C.ENCODING_DTS_HD || outputEncoding == C.ENCODING_DOLBY_TRUEHD*/ {
+        // HD passthrough requires a larger buffer to avoid underrun.
+        bufferSize = (int) (PASSTHROUGH_BUFFER_DURATION_US * 192 * 6 * 1024 / C.MICROS_PER_SECOND);
       }
     }
     bufferSizeUs =
@@ -580,6 +583,13 @@ public final class DefaultAudioSink implements AudioSink {
       if (!isInputPcm && framesPerEncodedSample == 0) {
         // If this is the first encoded sample, calculate the sample size in frames.
         framesPerEncodedSample = getFramesPerEncodedSample(outputEncoding, buffer);
+        if (framesPerEncodedSample == 0) {
+          // We still don't know the number of frames per sample, so drop the buffer.
+          // For TrueHD this can occur after some seek operations, as not every sample starts with
+          // a syncframe header. If we chunked samples together so the extracted samples always
+          // started with a syncframe header, the chunks would be too large.
+          return true;
+        }
       }
 
       if (drainingPlaybackParameters != null) {
@@ -1225,6 +1235,9 @@ public final class DefaultAudioSink implements AudioSink {
       return Ac3Util.getAc3SyncframeAudioSampleCount();
     } else if (encoding == C.ENCODING_E_AC3) {
       return Ac3Util.parseEAc3SyncframeAudioSampleCount(buffer);
+    } else if (encoding == C.ENCODING_DOLBY_TRUEHD) {
+      return Ac3Util.parseTrueHdSyncframeAudioSampleCount(buffer)
+          * Ac3Util.TRUEHD_RECHUNK_SAMPLE_COUNT;
     } else {
       throw new IllegalStateException("Unexpected audio encoding: " + encoding);
     }
