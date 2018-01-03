@@ -448,9 +448,12 @@ public final class DefaultAudioSink implements AudioSink {
       if (outputEncoding == C.ENCODING_AC3 || outputEncoding == C.ENCODING_E_AC3) {
         // AC-3 allows bitrates up to 640 kbit/s.
         bufferSize = (int) (PASSTHROUGH_BUFFER_DURATION_US * 80 * 1024 / C.MICROS_PER_SECOND);
-      } else /* (outputEncoding == C.ENCODING_DTS || outputEncoding == C.ENCODING_DTS_HD */ {
+      } else if (outputEncoding == C.ENCODING_DTS) {
         // DTS allows an 'open' bitrate, but we assume the maximum listed value: 1536 kbit/s.
         bufferSize = (int) (PASSTHROUGH_BUFFER_DURATION_US * 192 * 1024 / C.MICROS_PER_SECOND);
+      } else /* outputEncoding == C.ENCODING_TRUEHD || outputEncoding == C.ENCODING_DTS_HD */ {
+        // HD Passthrough may need more data
+        bufferSize = (int) (PASSTHROUGH_BUFFER_DURATION_US * 192 * 6 * 1024 / C.MICROS_PER_SECOND);
       }
     }
     bufferSizeUs =
