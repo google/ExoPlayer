@@ -50,6 +50,7 @@ import java.util.Formatter;
 import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.Locale;
+import java.util.MissingResourceException;
 import java.util.TimeZone;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -238,13 +239,18 @@ public final class Util {
   }
 
   /**
-   * Returns a normalized RFC 5646 language code.
+   * Returns a normalized RFC 639-2/T code for {@code language}.
    *
-   * @param language A possibly non-normalized RFC 5646 language code.
-   * @return The normalized code, or null if the input was null.
+   * @param language A case-insensitive ISO 639 alpha-2 or alpha-3 language code.
+   * @return The all-lowercase normalized code, or null if the input was null, or
+   *     {@code language.toLowerCase()} if the language could not be normalized.
    */
   public static String normalizeLanguageCode(String language) {
-    return language == null ? null : new Locale(language).getLanguage();
+    try {
+      return language == null ? null : new Locale(language).getISO3Language();
+    } catch (MissingResourceException e) {
+      return language.toLowerCase();
+    }
   }
 
   /**
@@ -801,6 +807,7 @@ public final class Util {
       case C.ENCODING_PCM_24BIT:
         return channelCount * 3;
       case C.ENCODING_PCM_32BIT:
+      case C.ENCODING_PCM_FLOAT:
         return channelCount * 4;
       case C.ENCODING_INVALID:
       case Format.NO_VALUE:

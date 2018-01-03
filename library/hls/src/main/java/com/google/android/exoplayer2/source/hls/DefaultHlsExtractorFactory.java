@@ -43,6 +43,7 @@ public final class DefaultHlsExtractorFactory implements HlsExtractorFactory {
   public static final String MP3_FILE_EXTENSION = ".mp3";
   public static final String MP4_FILE_EXTENSION = ".mp4";
   public static final String M4_FILE_EXTENSION_PREFIX = ".m4";
+  public static final String MP4_FILE_EXTENSION_PREFIX = ".mp4";
   public static final String VTT_FILE_EXTENSION = ".vtt";
   public static final String WEBVTT_FILE_EXTENSION = ".webvtt";
 
@@ -71,8 +72,10 @@ public final class DefaultHlsExtractorFactory implements HlsExtractorFactory {
       // Only reuse TS and fMP4 extractors.
       extractor = previousExtractor;
     } else if (lastPathSegment.endsWith(MP4_FILE_EXTENSION)
-        || lastPathSegment.startsWith(M4_FILE_EXTENSION_PREFIX, lastPathSegment.length() - 4)) {
-      extractor = new FragmentedMp4Extractor(0, timestampAdjuster, null, drmInitData);
+        || lastPathSegment.startsWith(M4_FILE_EXTENSION_PREFIX, lastPathSegment.length() - 4)
+        || lastPathSegment.startsWith(MP4_FILE_EXTENSION_PREFIX, lastPathSegment.length() - 5)) {
+      extractor = new FragmentedMp4Extractor(0, timestampAdjuster, null, drmInitData,
+          muxedCaptionFormats != null ? muxedCaptionFormats : Collections.<Format>emptyList());
     } else {
       // For any other file extension, we assume TS format.
       @DefaultTsPayloadReaderFactory.Flags

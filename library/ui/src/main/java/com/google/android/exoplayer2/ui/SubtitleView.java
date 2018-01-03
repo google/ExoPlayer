@@ -19,6 +19,7 @@ import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Canvas;
+import android.support.annotation.Nullable;
 import android.util.AttributeSet;
 import android.util.TypedValue;
 import android.view.View;
@@ -87,9 +88,9 @@ public final class SubtitleView extends View implements TextOutput {
   /**
    * Sets the cues to be displayed by the view.
    *
-   * @param cues The cues to display.
+   * @param cues The cues to display, or null to clear the cues.
    */
-  public void setCues(List<Cue> cues) {
+  public void setCues(@Nullable List<Cue> cues) {
     if (this.cues == cues) {
       return;
     }

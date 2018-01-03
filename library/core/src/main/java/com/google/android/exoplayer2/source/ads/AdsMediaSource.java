@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.source.ads;
 
+import android.net.Uri;
 import android.os.Handler;
 import android.os.Looper;
 import android.support.annotation.Nullable;
@@ -23,16 +24,19 @@ import android.view.ViewGroup;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.Timeline;
-import com.google.android.exoplayer2.extractor.DefaultExtractorsFactory;
+import com.google.android.exoplayer2.source.DeferredMediaPeriod;
 import com.google.android.exoplayer2.source.ExtractorMediaSource;
 import com.google.android.exoplayer2.source.MediaPeriod;
 import com.google.android.exoplayer2.source.MediaSource;
+import com.google.android.exoplayer2.source.MediaSourceEventListener;
 import com.google.android.exoplayer2.upstream.Allocator;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.util.Assertions;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -40,10 +44,33 @@ import java.util.Map;
  */
 public final class AdsMediaSource implements MediaSource {
 
-  /**
-   * Listener for events relating to ad loading.
-   */
-  public interface AdsListener {
+  /** Factory for creating {@link MediaSource}s to play ad media. */
+  public interface MediaSourceFactory {
+
+    /**
+     * Creates a new {@link MediaSource} for loading the ad media with the specified {@code uri}.
+     *
+     * @param uri The URI of the media or manifest to play.
+     * @param handler A handler for listener events. May be null if delivery of events is not
+     *     required.
+     * @param listener A listener for events. May be null if delivery of events is not required.
+     * @return The new media source.
+     */
+    MediaSource createMediaSource(
+        Uri uri, @Nullable Handler handler, @Nullable MediaSourceEventListener listener);
+
+    /**
+     * Returns the content types supported by media sources created by this factory. Each element
+     * should be one of {@link C#TYPE_DASH}, {@link C#TYPE_SS}, {@link C#TYPE_HLS} or {@link
+     * C#TYPE_OTHER}.
+     *
+     * @return The content types supported by media sources created by this factory.
+     */
+    int[] getSupportedTypes();
+  }
+
+  /** Listener for ads media source events. */
+  public interface EventListener extends MediaSourceEventListener {
 
     /**
      * Called if there was an error loading ads. The media source will load the content without ads
@@ -69,17 +96,15 @@ public final class AdsMediaSource implements MediaSource {
   private static final String TAG = "AdsMediaSource";
 
   private final MediaSource contentMediaSource;
-  private final DataSource.Factory dataSourceFactory;
+  private final MediaSourceFactory adMediaSourceFactory;
   private final AdsLoader adsLoader;
   private final ViewGroup adUiViewGroup;
+  @Nullable private final Handler eventHandler;
+  @Nullable private final EventListener eventListener;
   private final Handler mainHandler;
   private final ComponentListener componentListener;
-  private final Map<MediaPeriod, MediaSource> adMediaSourceByMediaPeriod;
+  private final Map<MediaSource, List<DeferredMediaPeriod>> deferredMediaPeriodByAdMediaSource;
   private final Timeline.Period period;
-  @Nullable
-  private final Handler eventHandler;
-  @Nullable
-  private final AdsListener eventListener;
 
   private Handler playerHandler;
   private ExoPlayer player;
@@ -94,22 +119,31 @@ public final class AdsMediaSource implements MediaSource {
   private MediaSource.Listener listener;
 
   /**
-   * Constructs a new source that inserts ads linearly with the content specified by
-   * {@code contentMediaSource}.
+   * Constructs a new source that inserts ads linearly with the content specified by {@code
+   * contentMediaSource}. Ad media is loaded using {@link ExtractorMediaSource}.
    *
    * @param contentMediaSource The {@link MediaSource} providing the content to play.
    * @param dataSourceFactory Factory for data sources used to load ad media.
    * @param adsLoader The loader for ads.
    * @param adUiViewGroup A {@link ViewGroup} on top of the player that will show any ad UI.
    */
-  public AdsMediaSource(MediaSource contentMediaSource, DataSource.Factory dataSourceFactory,
-      AdsLoader adsLoader, ViewGroup adUiViewGroup) {
-    this(contentMediaSource, dataSourceFactory, adsLoader, adUiViewGroup, null, null);
+  public AdsMediaSource(
+      MediaSource contentMediaSource,
+      DataSource.Factory dataSourceFactory,
+      AdsLoader adsLoader,
+      ViewGroup adUiViewGroup) {
+    this(
+        contentMediaSource,
+        dataSourceFactory,
+        adsLoader,
+        adUiViewGroup,
+        /* eventHandler= */ null,
+        /* eventListener= */ null);
   }
 
   /**
-   * Constructs a new source that inserts ads linearly with the content specified by
-   * {@code contentMediaSource}.
+   * Constructs a new source that inserts ads linearly with the content specified by {@code
+   * contentMediaSource}. Ad media is loaded using {@link ExtractorMediaSource}.
    *
    * @param contentMediaSource The {@link MediaSource} providing the content to play.
    * @param dataSourceFactory Factory for data sources used to load ad media.
@@ -118,21 +152,53 @@ public final class AdsMediaSource implements MediaSource {
    * @param eventHandler A handler for events. May be null if delivery of events is not required.
    * @param eventListener A listener of events. May be null if delivery of events is not required.
    */
-  public AdsMediaSource(MediaSource contentMediaSource, DataSource.Factory dataSourceFactory,
-      AdsLoader adsLoader, ViewGroup adUiViewGroup, @Nullable Handler eventHandler,
-      @Nullable AdsListener eventListener) {
+  public AdsMediaSource(
+      MediaSource contentMediaSource,
+      DataSource.Factory dataSourceFactory,
+      AdsLoader adsLoader,
+      ViewGroup adUiViewGroup,
+      @Nullable Handler eventHandler,
+      @Nullable EventListener eventListener) {
+    this(
+        contentMediaSource,
+        new ExtractorMediaSource.Factory(dataSourceFactory),
+        adsLoader,
+        adUiViewGroup,
+        eventHandler,
+        eventListener);
+  }
+
+  /**
+   * Constructs a new source that inserts ads linearly with the content specified by {@code
+   * contentMediaSource}.
+   *
+   * @param contentMediaSource The {@link MediaSource} providing the content to play.
+   * @param adMediaSourceFactory Factory for media sources used to load ad media.
+   * @param adsLoader The loader for ads.
+   * @param adUiViewGroup A {@link ViewGroup} on top of the player that will show any ad UI.
+   * @param eventHandler A handler for events. May be null if delivery of events is not required.
+   * @param eventListener A listener of events. May be null if delivery of events is not required.
+   */
+  public AdsMediaSource(
+      MediaSource contentMediaSource,
+      MediaSourceFactory adMediaSourceFactory,
+      AdsLoader adsLoader,
+      ViewGroup adUiViewGroup,
+      @Nullable Handler eventHandler,
+      @Nullable EventListener eventListener) {
     this.contentMediaSource = contentMediaSource;
-    this.dataSourceFactory = dataSourceFactory;
+    this.adMediaSourceFactory = adMediaSourceFactory;
     this.adsLoader = adsLoader;
     this.adUiViewGroup = adUiViewGroup;
     this.eventHandler = eventHandler;
     this.eventListener = eventListener;
     mainHandler = new Handler(Looper.getMainLooper());
     componentListener = new ComponentListener();
-    adMediaSourceByMediaPeriod = new HashMap<>();
+    deferredMediaPeriodByAdMediaSource = new HashMap<>();
     period = new Timeline.Period();
     adGroupMediaSources = new MediaSource[0][];
     adDurationsUs = new long[0][];
+    adsLoader.setSupportedContentTypes(adMediaSourceFactory.getSupportedTypes());
   }
 
   @Override
@@ -173,9 +239,9 @@ public final class AdsMediaSource implements MediaSource {
       final int adGroupIndex = id.adGroupIndex;
       final int adIndexInAdGroup = id.adIndexInAdGroup;
       if (adGroupMediaSources[adGroupIndex].length <= adIndexInAdGroup) {
-        MediaSource adMediaSource = new ExtractorMediaSource(
-            adPlaybackState.adUris[id.adGroupIndex][id.adIndexInAdGroup], dataSourceFactory,
-            new DefaultExtractorsFactory(), mainHandler, componentListener);
+        Uri adUri = adPlaybackState.adUris[id.adGroupIndex][id.adIndexInAdGroup];
+        final MediaSource adMediaSource =
+            adMediaSourceFactory.createMediaSource(adUri, eventHandler, eventListener);
         int oldAdCount = adGroupMediaSources[id.adGroupIndex].length;
         if (adIndexInAdGroup >= oldAdCount) {
           int adCount = adIndexInAdGroup + 1;
@@ -185,30 +251,37 @@ public final class AdsMediaSource implements MediaSource {
           Arrays.fill(adDurationsUs[adGroupIndex], oldAdCount, adCount, C.TIME_UNSET);
         }
         adGroupMediaSources[adGroupIndex][adIndexInAdGroup] = adMediaSource;
-        adMediaSource.prepareSource(player, false, new Listener() {
+        deferredMediaPeriodByAdMediaSource.put(adMediaSource, new ArrayList<DeferredMediaPeriod>());
+        adMediaSource.prepareSource(player, false, new MediaSource.Listener() {
           @Override
           public void onSourceInfoRefreshed(MediaSource source, Timeline timeline,
-              Object manifest) {
-            onAdSourceInfoRefreshed(adGroupIndex, adIndexInAdGroup, timeline);
+              @Nullable Object manifest) {
+            onAdSourceInfoRefreshed(adMediaSource, adGroupIndex, adIndexInAdGroup, timeline);
           }
         });
       }
       MediaSource mediaSource = adGroupMediaSources[adGroupIndex][adIndexInAdGroup];
-      MediaPeriod mediaPeriod = mediaSource.createPeriod(new MediaPeriodId(0), allocator);
-      adMediaSourceByMediaPeriod.put(mediaPeriod, mediaSource);
-      return mediaPeriod;
+      DeferredMediaPeriod deferredMediaPeriod =
+          new DeferredMediaPeriod(mediaSource, new MediaPeriodId(0), allocator);
+      List<DeferredMediaPeriod> mediaPeriods = deferredMediaPeriodByAdMediaSource.get(mediaSource);
+      if (mediaPeriods == null) {
+        deferredMediaPeriod.createPeriod();
+      } else {
+        // Keep track of the deferred media period so it can be populated with the real media period
+        // when the source's info becomes available.
+        mediaPeriods.add(deferredMediaPeriod);
+      }
+      return deferredMediaPeriod;
     } else {
-      return contentMediaSource.createPeriod(id, allocator);
+      DeferredMediaPeriod mediaPeriod = new DeferredMediaPeriod(contentMediaSource, id, allocator);
+      mediaPeriod.createPeriod();
+      return mediaPeriod;
     }
   }
 
   @Override
   public void releasePeriod(MediaPeriod mediaPeriod) {
-    if (adMediaSourceByMediaPeriod.containsKey(mediaPeriod)) {
-      adMediaSourceByMediaPeriod.remove(mediaPeriod).releasePeriod(mediaPeriod);
-    } else {
-      contentMediaSource.releasePeriod(mediaPeriod);
-    }
+    ((DeferredMediaPeriod) mediaPeriod).releasePeriod();
   }
 
   @Override
@@ -263,9 +336,17 @@ public final class AdsMediaSource implements MediaSource {
     maybeUpdateSourceInfo();
   }
 
-  private void onAdSourceInfoRefreshed(int adGroupIndex, int adIndexInAdGroup, Timeline timeline) {
+  private void onAdSourceInfoRefreshed(MediaSource mediaSource, int adGroupIndex,
+      int adIndexInAdGroup, Timeline timeline) {
     Assertions.checkArgument(timeline.getPeriodCount() == 1);
     adDurationsUs[adGroupIndex][adIndexInAdGroup] = timeline.getPeriod(0, period).getDurationUs();
+    if (deferredMediaPeriodByAdMediaSource.containsKey(mediaSource)) {
+      List<DeferredMediaPeriod> mediaPeriods = deferredMediaPeriodByAdMediaSource.get(mediaSource);
+      for (int i = 0; i < mediaPeriods.size(); i++) {
+        mediaPeriods.get(i).createPeriod();
+      }
+      deferredMediaPeriodByAdMediaSource.remove(mediaSource);
+    }
     maybeUpdateSourceInfo();
   }
 
@@ -280,11 +361,8 @@ public final class AdsMediaSource implements MediaSource {
     }
   }
 
-  /**
-   * Listener for component events. All methods are called on the main thread.
-   */
-  private final class ComponentListener implements AdsLoader.EventListener,
-      ExtractorMediaSource.EventListener {
+  /** Listener for component events. All methods are called on the main thread. */
+  private final class ComponentListener implements AdsLoader.EventListener {
 
     @Override
     public void onAdPlaybackState(final AdPlaybackState adPlaybackState) {

@@ -107,7 +107,7 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
   private static final Pattern REGEX_ATTR_BYTERANGE =
       Pattern.compile("BYTERANGE=\"(\\d+(?:@\\d+)?)\\b\"");
   private static final Pattern REGEX_METHOD = Pattern.compile("METHOD=(" + METHOD_NONE + "|"
-      + METHOD_AES_128 + "|" + METHOD_SAMPLE_AES + ")");
+      + METHOD_AES_128 + "|" + METHOD_SAMPLE_AES + "|" + METHOD_SAMPLE_AES_CENC + ")");
   private static final Pattern REGEX_KEYFORMAT = Pattern.compile("KEYFORMAT=\"(.+?)\"");
   private static final Pattern REGEX_URI = Pattern.compile("URI=\"(.+?)\"");
   private static final Pattern REGEX_IV = Pattern.compile("IV=([^,.*]+)");
@@ -370,7 +370,7 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
         segmentDurationUs =
             (long) (parseDoubleAttr(line, REGEX_MEDIA_DURATION) * C.MICROS_PER_SECOND);
       } else if (line.startsWith(TAG_KEY)) {
-        String method = parseStringAttr(line, REGEX_METHOD);
+        String method = parseOptionalStringAttr(line, REGEX_METHOD);
         String keyFormat = parseOptionalStringAttr(line, REGEX_KEYFORMAT);
         encryptionKeyUri = null;
         encryptionIV = null;
@@ -384,7 +384,7 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
               // Do nothing. Samples are encrypted using an identity key, but this is not supported.
               // Hopefully, a traditional DRM alternative is also provided.
             }
-          } else {
+          } else if (method != null) {
             SchemeData schemeData = parseWidevineSchemeData(line, keyFormat);
             if (schemeData != null) {
               drmInitData = new DrmInitData(METHOD_SAMPLE_AES_CENC.equals(method)

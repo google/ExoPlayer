@@ -1,7 +1,7 @@
 seekMap:
   isSeekable = false
   duration = UNSET TIME
-  getPosition(0) = 0
+  getPosition(0) = 1828
 numberOfTracks = 3
 track 0:
   format:

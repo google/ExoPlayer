@@ -43,5 +43,7 @@ android {
 dependencies {
     compile project(modulePrefix + 'library-core')
     compile project(modulePrefix + 'library-ui')
+    compile project(modulePrefix + 'library-dash')
+    compile project(modulePrefix + 'library-hls')
     compile project(modulePrefix + 'extension-ima')
 }
