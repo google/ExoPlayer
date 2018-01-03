@@ -55,11 +55,9 @@ public final class DefaultAudioSink implements AudioSink {
    */
   public static final class InvalidAudioTrackTimestampException extends RuntimeException {
 
-    /**
-     * @param detailMessage The detail message for this exception.
-     */
-    public InvalidAudioTrackTimestampException(String detailMessage) {
-      super(detailMessage);
+    /** @param message The detail message for this exception. */
+    public InvalidAudioTrackTimestampException(String message) {
+      super(message);
     }
 
   }
