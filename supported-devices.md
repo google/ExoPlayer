@@ -50,4 +50,3 @@ be found
   reported to the developer of the emulator rather than to the ExoPlayer team.
   Where possible, we recommend testing media applications on physical devices
   rather than emulators.
-  

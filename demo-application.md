@@ -180,7 +180,8 @@ Supported optional extras for a single sample intent are:
 * `extension` [String] Sample type hint. Valid values: mpd, ism, m3u8
 * `prefer_extension_decoders` [Boolean] Whether extension decoders are preferred
   to platform ones
-* `drm_scheme_uuid` [String] Drm scheme UUID if protected
+* `drm_scheme` [String] Drm scheme UUID if protected. `widevine`,
+  `playready` and `clearkey` are also accepted
 * `drm_license_url` [String] Url of the license server if protected
 * `drm_key_request_properties` [String array] Key request headers packed as
   name1, value1, name2, value2 etc. if protected
@@ -205,7 +206,7 @@ Supported optional extras for a playlist intent are:
 
 * `extension_list` [String array] Sample type hints. Entries may be empty or one
   of: mpd, ism, m3u8
-* `prefer_extension_decoders`, `drm_scheme_uuid`, `drm_license_url`,
+* `prefer_extension_decoders`, `drm_scheme`, `drm_license_url`,
   `drm_key_request_properties` and `drm_multi_session`, all as described above
 
 [GitHub project]: https://github.com/google/ExoPlayer

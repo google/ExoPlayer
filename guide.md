@@ -221,11 +221,9 @@ DefaultBandwidthMeter bandwidthMeter = new DefaultBandwidthMeter();
 // Produces DataSource instances through which media data is loaded.
 DataSource.Factory dataSourceFactory = new DefaultDataSourceFactory(context,
     Util.getUserAgent(context, "yourApplicationName"), bandwidthMeter);
-// Produces Extractor instances for parsing the media data.
-ExtractorsFactory extractorsFactory = new DefaultExtractorsFactory();
 // This is the MediaSource representing the media to be played.
-MediaSource videoSource = new ExtractorMediaSource(mp4VideoUri,
-    dataSourceFactory, extractorsFactory, null, null);
+MediaSource videoSource = new ExtractorMediaSource.Factory(dataSourceFactory)
+    .createMediaSource(mp4VideoUri);
 // Prepare the player with the source.
 player.prepare(videoSource);
 {% endhighlight %}
@@ -276,15 +274,17 @@ used to merge them into a single source for playback.
 
 {% highlight java %}
 // Build the video MediaSource.
-MediaSource videoSource = new ExtractorMediaSource(videoUri, ...);
+MediaSource videoSource =
+    new ExtractorMediaSource.Factory(...).createMediaSource(videoUri);
 // Build the subtitle MediaSource.
 Format subtitleFormat = Format.createTextSampleFormat(
     id, // An identifier for the track. May be null.
     MimeTypes.APPLICATION_SUBRIP, // The mime type. Must be set correctly.
     selectionFlags, // Selection flags for the track.
     language); // The subtitle language. May be null.
-MediaSource subtitleSource = new SingleSampleMediaSource(
-    subtitleUri, dataSourceFactory, subtitleFormat, C.TIME_UNSET);
+MediaSource subtitleSource =
+    new SingleSampleMediaSource.Factory(...)
+        .createMediaSource(subtitleUri, subtitleFormat, C.TIME_UNSET);
 // Plays the video with the sideloaded subtitle.
 MergingMediaSource mergedSource =
     new MergingMediaSource(videoSource, subtitleSource);
@@ -299,7 +299,8 @@ A video can be seamlessly looped a fixed number of times using a
 `LoopingMediaSource`. The following example plays a video twice.
 
 {% highlight java %}
-MediaSource source = new ExtractorMediaSource(videoUri, ...);
+MediaSource source =
+    new ExtractorMediaSource.Factory(...).createMediaSource(videoUri);
 // Plays the video twice.
 LoopingMediaSource loopingSource = new LoopingMediaSource(source, 2);
 {% endhighlight %}
@@ -315,8 +316,10 @@ of different types (e.g., it’s fine to concatenate a video with an audio only
 stream).
 
 {% highlight java %}
-MediaSource firstSource = new ExtractorMediaSource(firstVideoUri, ...);
-MediaSource secondSource = new ExtractorMediaSource(secondVideoUri, ...);
+MediaSource firstSource =
+    new ExtractorMediaSource.Factory(...).createMediaSource(firstVideoUri);
+MediaSource secondSource =
+    new ExtractorMediaSource.Factory(...).createMediaSource(secondVideoUri);
 // Plays the first video, then the second video.
 ConcatenatingMediaSource concatenatedSource =
     new ConcatenatingMediaSource(firstSource, secondSource);
@@ -340,8 +343,10 @@ cases. Given two videos A and B, the following example shows how
 the sequence (A,A,B).
 
 {% highlight java %}
-MediaSource firstSource = new ExtractorMediaSource(firstVideoUri, ...);
-MediaSource secondSource = new ExtractorMediaSource(secondVideoUri, ...);
+MediaSource firstSource =
+    new ExtractorMediaSource.Factory(...).createMediaSource(firstVideoUri);
+MediaSource secondSource =
+    new ExtractorMediaSource.Factory(...).createMediaSource(secondVideoUri);
 // Plays the first video twice.
 LoopingMediaSource firstSourceTwice = new LoopingMediaSource(firstSource, 2);
 // Plays the first video twice, then the second video.
@@ -353,8 +358,10 @@ The following example is equivalent, demonstrating that there can be more than
 one way of achieving the same result.
 
 {% highlight java %}
-MediaSource firstSource = new ExtractorMediaSource(firstVideoUri, ...);
-MediaSource secondSource = new ExtractorMediaSource(secondVideoUri, ...);
+MediaSource firstSource =
+    new ExtractorMediaSource.Builder(firstVideoUri, ...).build();
+MediaSource secondSource =
+    new ExtractorMediaSource.Builder(secondVideoUri, ...).build();
 // Plays the first video twice, then the second video.
 ConcatenatingMediaSource concatenatedSource =
     new ConcatenatingMediaSource(firstSource, firstSource, secondSource);
