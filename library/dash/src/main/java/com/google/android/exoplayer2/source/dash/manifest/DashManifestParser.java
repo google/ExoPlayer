@@ -365,9 +365,14 @@ public class DashManifestParser extends DefaultHandler
         case "urn:mpeg:dash:mp4protection:2011":
           schemeType = xpp.getAttributeValue(null, "value");
           String defaultKid = xpp.getAttributeValue(null, "cenc:default_KID");
-          if (defaultKid != null && !"00000000-0000-0000-0000-000000000000".equals(defaultKid)) {
-            UUID keyId = UUID.fromString(defaultKid);
-            data = PsshAtomUtil.buildPsshAtom(C.COMMON_PSSH_UUID, new UUID[] {keyId}, null);
+          if (!TextUtils.isEmpty(defaultKid)
+              && !"00000000-0000-0000-0000-000000000000".equals(defaultKid)) {
+            String[] defaultKidStrings = defaultKid.split("\\s+");
+            UUID[] defaultKids = new UUID[defaultKidStrings.length];
+            for (int i = 0; i < defaultKidStrings.length; i++) {
+              defaultKids[i] = UUID.fromString(defaultKidStrings[i]);
+            }
+            data = PsshAtomUtil.buildPsshAtom(C.COMMON_PSSH_UUID, defaultKids, null);
             uuid = C.COMMON_PSSH_UUID;
           }
           break;
