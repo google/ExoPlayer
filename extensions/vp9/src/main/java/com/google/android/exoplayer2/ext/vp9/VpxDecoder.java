@@ -100,6 +100,11 @@ import java.nio.ByteBuffer;
   }
 
   @Override
+  protected VpxDecoderException createUnexpectedDecodeException(Throwable error) {
+    return new VpxDecoderException("Unexpected decode error", error);
+  }
+
+  @Override
   protected VpxDecoderException decode(VpxInputBuffer inputBuffer, VpxOutputBuffer outputBuffer,
       boolean reset) {
     ByteBuffer inputData = inputBuffer.data;
