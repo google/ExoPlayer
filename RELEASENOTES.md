@@ -36,8 +36,6 @@
 * DefaultTrackSelector: Support disabling of individual text track selection
   flags.
 * New Cast extension: Simplifies toggling between local and Cast playbacks.
-* Add support for extracting 32-bit WAVE files
- ([#3379](https://github.com/google/ExoPlayer/issues/3379)).
 
 ### 2.6.1 ###
 
@@ -62,6 +60,8 @@
 * Audio:
   * Support 32-bit PCM float output from `DefaultAudioSink`, and add an option
     to use this with `FfmpegAudioRenderer`.
+  * Add support for extracting 32-bit WAVE files
+    ([#3379](https://github.com/google/ExoPlayer/issues/3379)).
   * Support extraction and decoding of Dolby Atmos
     ([#2465](https://github.com/google/ExoPlayer/issues/2465)).
   * Fix handling of playback parameter changes while paused when followed by a
