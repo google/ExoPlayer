@@ -268,26 +268,26 @@ public final class SimpleExoPlayerView extends FrameLayout {
     boolean controllerAutoShow = true;
     boolean controllerHideDuringAds = true;
     if (attrs != null) {
-      TypedArray a = context.getTheme().obtainStyledAttributes(attrs,
-          R.styleable.SimpleExoPlayerView, 0, 0);
+      TypedArray a =
+          context.getTheme().obtainStyledAttributes(attrs, R.styleable.SimpleExoPlayerView, 0, 0);
       try {
         shutterColorSet = a.hasValue(R.styleable.SimpleExoPlayerView_shutter_background_color);
-        shutterColor = a.getColor(R.styleable.SimpleExoPlayerView_shutter_background_color,
-              shutterColor);
-        playerLayoutId = a.getResourceId(R.styleable.SimpleExoPlayerView_player_layout_id,
-            playerLayoutId);
+        shutterColor =
+            a.getColor(R.styleable.SimpleExoPlayerView_shutter_background_color, shutterColor);
+        playerLayoutId =
+            a.getResourceId(R.styleable.SimpleExoPlayerView_player_layout_id, playerLayoutId);
         useArtwork = a.getBoolean(R.styleable.SimpleExoPlayerView_use_artwork, useArtwork);
-        defaultArtworkId = a.getResourceId(R.styleable.SimpleExoPlayerView_default_artwork,
-            defaultArtworkId);
+        defaultArtworkId =
+            a.getResourceId(R.styleable.SimpleExoPlayerView_default_artwork, defaultArtworkId);
         useController = a.getBoolean(R.styleable.SimpleExoPlayerView_use_controller, useController);
         surfaceType = a.getInt(R.styleable.SimpleExoPlayerView_surface_type, surfaceType);
         resizeMode = a.getInt(R.styleable.SimpleExoPlayerView_resize_mode, resizeMode);
-        controllerShowTimeoutMs = a.getInt(R.styleable.SimpleExoPlayerView_show_timeout,
-            controllerShowTimeoutMs);
-        controllerHideOnTouch = a.getBoolean(R.styleable.SimpleExoPlayerView_hide_on_touch,
-            controllerHideOnTouch);
-        controllerAutoShow = a.getBoolean(R.styleable.SimpleExoPlayerView_auto_show,
-            controllerAutoShow);
+        controllerShowTimeoutMs =
+            a.getInt(R.styleable.SimpleExoPlayerView_show_timeout, controllerShowTimeoutMs);
+        controllerHideOnTouch =
+            a.getBoolean(R.styleable.SimpleExoPlayerView_hide_on_touch, controllerHideOnTouch);
+        controllerAutoShow =
+            a.getBoolean(R.styleable.SimpleExoPlayerView_auto_show, controllerAutoShow);
         controllerHideDuringAds =
             a.getBoolean(R.styleable.SimpleExoPlayerView_hide_during_ads, controllerHideDuringAds);
       } finally {
@@ -313,10 +313,13 @@ public final class SimpleExoPlayerView extends FrameLayout {
 
     // Create a surface view and insert it into the content frame, if there is one.
     if (contentFrame != null && surfaceType != SURFACE_TYPE_NONE) {
-      ViewGroup.LayoutParams params = new ViewGroup.LayoutParams(
-          ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
-      surfaceView = surfaceType == SURFACE_TYPE_TEXTURE_VIEW ? new TextureView(context)
-          : new SurfaceView(context);
+      ViewGroup.LayoutParams params =
+          new ViewGroup.LayoutParams(
+              ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
+      surfaceView =
+          surfaceType == SURFACE_TYPE_TEXTURE_VIEW
+              ? new TextureView(context)
+              : new SurfaceView(context);
       surfaceView.setLayoutParams(params);
       contentFrame.addView(surfaceView, 0);
     } else {
@@ -372,8 +375,10 @@ public final class SimpleExoPlayerView extends FrameLayout {
    * @param oldPlayerView The old view to detach from the player.
    * @param newPlayerView The new view to attach to the player.
    */
-  public static void switchTargetView(@NonNull SimpleExoPlayer player,
-      @Nullable SimpleExoPlayerView oldPlayerView, @Nullable SimpleExoPlayerView newPlayerView) {
+  public static void switchTargetView(
+      @NonNull SimpleExoPlayer player,
+      @Nullable SimpleExoPlayerView oldPlayerView,
+      @Nullable SimpleExoPlayerView newPlayerView) {
     if (oldPlayerView == newPlayerView) {
       return;
     }
@@ -389,21 +394,20 @@ public final class SimpleExoPlayerView extends FrameLayout {
     }
   }
 
-  /**
-   * Returns the player currently set on this view, or null if no player is set.
-   */
+  /** Returns the player currently set on this view, or null if no player is set. */
   public SimpleExoPlayer getPlayer() {
     return player;
   }
 
   /**
    * Set the {@link SimpleExoPlayer} to use.
-   * <p>
-   * To transition a {@link SimpleExoPlayer} from targeting one view to another, it's recommended to
-   * use {@link #switchTargetView(SimpleExoPlayer, SimpleExoPlayerView, SimpleExoPlayerView)} rather
-   * than this method. If you do wish to use this method directly, be sure to attach the player to
-   * the new view <em>before</em> calling {@code setPlayer(null)} to detach it from the old one.
-   * This ordering is significantly more efficient and may allow for more seamless transitions.
+   *
+   * <p>To transition a {@link SimpleExoPlayer} from targeting one view to another, it's recommended
+   * to use {@link #switchTargetView(SimpleExoPlayer, SimpleExoPlayerView, SimpleExoPlayerView)}
+   * rather than this method. If you do wish to use this method directly, be sure to attach the
+   * player to the new view <em>before</em> calling {@code setPlayer(null)} to detach it from the
+   * old one. This ordering is significantly more efficient and may allow for more seamless
+   * transitions.
    *
    * @param player The {@link SimpleExoPlayer} to use.
    */
@@ -467,9 +471,7 @@ public final class SimpleExoPlayerView extends FrameLayout {
     contentFrame.setResizeMode(resizeMode);
   }
 
-  /**
-   * Returns whether artwork is displayed if present in the media.
-   */
+  /** Returns whether artwork is displayed if present in the media. */
   public boolean getUseArtwork() {
     return useArtwork;
   }
@@ -487,9 +489,7 @@ public final class SimpleExoPlayerView extends FrameLayout {
     }
   }
 
-  /**
-   * Returns the default artwork to display.
-   */
+  /** Returns the default artwork to display. */
   public Bitmap getDefaultArtwork() {
     return defaultArtwork;
   }
@@ -507,9 +507,7 @@ public final class SimpleExoPlayerView extends FrameLayout {
     }
   }
 
-  /**
-   * Returns whether the playback controls can be shown.
-   */
+  /** Returns whether the playback controls can be shown. */
   public boolean getUseController() {
     return useController;
   }
@@ -554,8 +552,8 @@ public final class SimpleExoPlayerView extends FrameLayout {
       overlayFrameLayout.requestFocus();
       return super.dispatchKeyEvent(event);
     }
-    boolean isDpadWhenControlHidden = isDpadKey(event.getKeyCode()) && useController
-        && !controller.isVisible();
+    boolean isDpadWhenControlHidden =
+        isDpadKey(event.getKeyCode()) && useController && !controller.isVisible();
     maybeShowController(true);
     return isDpadWhenControlHidden || dispatchMediaKeyEvent(event) || super.dispatchKeyEvent(event);
   }
@@ -574,17 +572,15 @@ public final class SimpleExoPlayerView extends FrameLayout {
   /**
    * Shows the playback controls. Does nothing if playback controls are disabled.
    *
-   * <p>The playback controls are automatically hidden during playback after
-   * {{@link #getControllerShowTimeoutMs()}}. They are shown indefinitely when playback has not
-   * started yet, is paused, has ended or failed.
+   * <p>The playback controls are automatically hidden during playback after {{@link
+   * #getControllerShowTimeoutMs()}}. They are shown indefinitely when playback has not started yet,
+   * is paused, has ended or failed.
    */
   public void showController() {
     showController(shouldShowControllerIndefinitely());
   }
 
-  /**
-   * Hides the playback controls. Does nothing if playback controls are disabled.
-   */
+  /** Hides the playback controls. Does nothing if playback controls are disabled. */
   public void hideController() {
     if (controller != null) {
       controller.hide();
@@ -607,8 +603,8 @@ public final class SimpleExoPlayerView extends FrameLayout {
    * Sets the playback controls timeout. The playback controls are automatically hidden after this
    * duration of time has elapsed without user input and with playback or buffering in progress.
    *
-   * @param controllerShowTimeoutMs The timeout in milliseconds. A non-positive value will cause
-   *     the controller to remain visible indefinitely.
+   * @param controllerShowTimeoutMs The timeout in milliseconds. A non-positive value will cause the
+   *     controller to remain visible indefinitely.
    */
   public void setControllerShowTimeoutMs(int controllerShowTimeoutMs) {
     Assertions.checkState(controller != null);
@@ -620,9 +616,7 @@ public final class SimpleExoPlayerView extends FrameLayout {
     }
   }
 
-  /**
-   * Returns whether the playback controls are hidden by touch events.
-   */
+  /** Returns whether the playback controls are hidden by touch events. */
   public boolean getControllerHideOnTouch() {
     return controllerHideOnTouch;
   }
@@ -680,8 +674,8 @@ public final class SimpleExoPlayerView extends FrameLayout {
   /**
    * Sets the {@link ControlDispatcher}.
    *
-   * @param controlDispatcher The {@link ControlDispatcher}, or null to use
-   *     {@link DefaultControlDispatcher}.
+   * @param controlDispatcher The {@link ControlDispatcher}, or null to use {@link
+   *     DefaultControlDispatcher}.
    */
   public void setControlDispatcher(@Nullable ControlDispatcher controlDispatcher) {
     Assertions.checkState(controller != null);
@@ -742,11 +736,12 @@ public final class SimpleExoPlayerView extends FrameLayout {
 
   /**
    * Gets the view onto which video is rendered. This is a:
+   *
    * <ul>
-   *   <li>{@link SurfaceView} by default, or if the {@code surface_type} attribute is set to
-   *   {@code surface_view}.</li>
-   *   <li>{@link TextureView} if {@code surface_type} is {@code texture_view}.</li>
-   *   <li>{@code null} if {@code surface_type} is {@code none}.</li>
+   *   <li>{@link SurfaceView} by default, or if the {@code surface_type} attribute is set to {@code
+   *       surface_view}.
+   *   <li>{@link TextureView} if {@code surface_type} is {@code texture_view}.
+   *   <li>{@code null} if {@code surface_type} is {@code none}.
    * </ul>
    *
    * @return The {@link SurfaceView}, {@link TextureView} or {@code null}.
@@ -798,9 +793,7 @@ public final class SimpleExoPlayerView extends FrameLayout {
     return true;
   }
 
-  /**
-   * Shows the playback controls, but only if forced or shown indefinitely.
-   */
+  /** Shows the playback controls, but only if forced or shown indefinitely. */
   private void maybeShowController(boolean isForced) {
     if (isPlayingAd() && controllerHideDuringAds) {
       return;
@@ -819,8 +812,10 @@ public final class SimpleExoPlayerView extends FrameLayout {
       return true;
     }
     int playbackState = player.getPlaybackState();
-    return controllerAutoShow && (playbackState == Player.STATE_IDLE
-        || playbackState == Player.STATE_ENDED || !player.getPlayWhenReady());
+    return controllerAutoShow
+        && (playbackState == Player.STATE_IDLE
+            || playbackState == Player.STATE_ENDED
+            || !player.getPlayWhenReady());
   }
 
   private void showController(boolean showIndefinitely) {
@@ -927,15 +922,19 @@ public final class SimpleExoPlayerView extends FrameLayout {
 
   @SuppressLint("InlinedApi")
   private boolean isDpadKey(int keyCode) {
-    return keyCode == KeyEvent.KEYCODE_DPAD_UP || keyCode == KeyEvent.KEYCODE_DPAD_UP_RIGHT
-        || keyCode == KeyEvent.KEYCODE_DPAD_RIGHT || keyCode == KeyEvent.KEYCODE_DPAD_DOWN_RIGHT
-        || keyCode == KeyEvent.KEYCODE_DPAD_DOWN || keyCode == KeyEvent.KEYCODE_DPAD_DOWN_LEFT
-        || keyCode == KeyEvent.KEYCODE_DPAD_LEFT || keyCode == KeyEvent.KEYCODE_DPAD_UP_LEFT
+    return keyCode == KeyEvent.KEYCODE_DPAD_UP
+        || keyCode == KeyEvent.KEYCODE_DPAD_UP_RIGHT
+        || keyCode == KeyEvent.KEYCODE_DPAD_RIGHT
+        || keyCode == KeyEvent.KEYCODE_DPAD_DOWN_RIGHT
+        || keyCode == KeyEvent.KEYCODE_DPAD_DOWN
+        || keyCode == KeyEvent.KEYCODE_DPAD_DOWN_LEFT
+        || keyCode == KeyEvent.KEYCODE_DPAD_LEFT
+        || keyCode == KeyEvent.KEYCODE_DPAD_UP_LEFT
         || keyCode == KeyEvent.KEYCODE_DPAD_CENTER;
   }
 
-  private final class ComponentListener extends Player.DefaultEventListener implements TextOutput,
-      SimpleExoPlayer.VideoListener {
+  private final class ComponentListener extends Player.DefaultEventListener
+      implements TextOutput, SimpleExoPlayer.VideoListener {
 
     // TextOutput implementation
 
@@ -949,8 +948,8 @@ public final class SimpleExoPlayerView extends FrameLayout {
     // SimpleExoPlayer.VideoInfoListener implementation
 
     @Override
-    public void onVideoSizeChanged(int width, int height, int unappliedRotationDegrees,
-        float pixelWidthHeightRatio) {
+    public void onVideoSizeChanged(
+        int width, int height, int unappliedRotationDegrees, float pixelWidthHeightRatio) {
       if (contentFrame != null) {
         float aspectRatio = height == 0 ? 1 : (width * pixelWidthHeightRatio) / height;
         contentFrame.setAspectRatio(aspectRatio);
@@ -986,7 +985,5 @@ public final class SimpleExoPlayerView extends FrameLayout {
         hideController();
       }
     }
-
   }
-
 }

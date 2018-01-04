@@ -42,127 +42,118 @@ import java.util.Locale;
 
 /**
  * A view for controlling {@link Player} instances.
- * <p>
- * A PlaybackControlView can be customized by setting attributes (or calling corresponding methods),
- * overriding the view's layout file or by specifying a custom view layout file, as outlined below.
+ *
+ * <p>A PlaybackControlView can be customized by setting attributes (or calling corresponding
+ * methods), overriding the view's layout file or by specifying a custom view layout file, as
+ * outlined below.
  *
  * <h3>Attributes</h3>
+ *
  * The following attributes can be set on a PlaybackControlView when used in a layout XML file:
+ *
  * <p>
+ *
  * <ul>
  *   <li><b>{@code show_timeout}</b> - The time between the last user interaction and the controls
  *       being automatically hidden, in milliseconds. Use zero if the controls should not
  *       automatically timeout.
  *       <ul>
- *         <li>Corresponding method: {@link #setShowTimeoutMs(int)}</li>
- *         <li>Default: {@link #DEFAULT_SHOW_TIMEOUT_MS}</li>
+ *         <li>Corresponding method: {@link #setShowTimeoutMs(int)}
+ *         <li>Default: {@link #DEFAULT_SHOW_TIMEOUT_MS}
  *       </ul>
- *   </li>
  *   <li><b>{@code rewind_increment}</b> - The duration of the rewind applied when the user taps the
  *       rewind button, in milliseconds. Use zero to disable the rewind button.
  *       <ul>
- *         <li>Corresponding method: {@link #setRewindIncrementMs(int)}</li>
- *         <li>Default: {@link #DEFAULT_REWIND_MS}</li>
+ *         <li>Corresponding method: {@link #setRewindIncrementMs(int)}
+ *         <li>Default: {@link #DEFAULT_REWIND_MS}
  *       </ul>
- *   </li>
  *   <li><b>{@code fastforward_increment}</b> - Like {@code rewind_increment}, but for fast forward.
  *       <ul>
- *         <li>Corresponding method: {@link #setFastForwardIncrementMs(int)}</li>
- *         <li>Default: {@link #DEFAULT_FAST_FORWARD_MS}</li>
+ *         <li>Corresponding method: {@link #setFastForwardIncrementMs(int)}
+ *         <li>Default: {@link #DEFAULT_FAST_FORWARD_MS}
  *       </ul>
- *   </li>
  *   <li><b>{@code repeat_toggle_modes}</b> - A flagged enumeration value specifying which repeat
- *       mode toggle options are enabled. Valid values are: {@code none}, {@code one},
- *       {@code all}, or {@code one|all}.
+ *       mode toggle options are enabled. Valid values are: {@code none}, {@code one}, {@code all},
+ *       or {@code one|all}.
  *       <ul>
- *         <li>Corresponding method: {@link #setRepeatToggleModes(int)}</li>
- *         <li>Default: {@link PlaybackControlView#DEFAULT_REPEAT_TOGGLE_MODES}</li>
+ *         <li>Corresponding method: {@link #setRepeatToggleModes(int)}
+ *         <li>Default: {@link PlaybackControlView#DEFAULT_REPEAT_TOGGLE_MODES}
  *       </ul>
- *   </li>
  *   <li><b>{@code show_shuffle_button}</b> - Whether the shuffle button is shown.
  *       <ul>
- *         <li>Corresponding method: {@link #setShowShuffleButton(boolean)}</li>
- *         <li>Default: false</li>
+ *         <li>Corresponding method: {@link #setShowShuffleButton(boolean)}
+ *         <li>Default: false
  *       </ul>
- *   </li>
  *   <li><b>{@code controller_layout_id}</b> - Specifies the id of the layout to be inflated. See
  *       below for more details.
  *       <ul>
- *         <li>Corresponding method: None</li>
- *         <li>Default: {@code R.id.exo_playback_control_view}</li>
+ *         <li>Corresponding method: None
+ *         <li>Default: {@code R.id.exo_playback_control_view}
  *       </ul>
- *   </li>
  * </ul>
  *
  * <h3>Overriding the layout file</h3>
+ *
  * To customize the layout of PlaybackControlView throughout your app, or just for certain
  * configurations, you can define {@code exo_playback_control_view.xml} layout files in your
  * application {@code res/layout*} directories. These layouts will override the one provided by the
  * ExoPlayer library, and will be inflated for use by PlaybackControlView. The view identifies and
  * binds its children by looking for the following ids:
+ *
  * <p>
+ *
  * <ul>
  *   <li><b>{@code exo_play}</b> - The play button.
  *       <ul>
- *         <li>Type: {@link View}</li>
+ *         <li>Type: {@link View}
  *       </ul>
- *   </li>
  *   <li><b>{@code exo_pause}</b> - The pause button.
  *       <ul>
- *         <li>Type: {@link View}</li>
+ *         <li>Type: {@link View}
  *       </ul>
- *   </li>
  *   <li><b>{@code exo_ffwd}</b> - The fast forward button.
  *       <ul>
- *         <li>Type: {@link View}</li>
+ *         <li>Type: {@link View}
  *       </ul>
- *   </li>
  *   <li><b>{@code exo_rew}</b> - The rewind button.
  *       <ul>
- *         <li>Type: {@link View}</li>
+ *         <li>Type: {@link View}
  *       </ul>
- *   </li>
  *   <li><b>{@code exo_prev}</b> - The previous track button.
  *       <ul>
- *         <li>Type: {@link View}</li>
+ *         <li>Type: {@link View}
  *       </ul>
- *   </li>
  *   <li><b>{@code exo_next}</b> - The next track button.
  *       <ul>
- *         <li>Type: {@link View}</li>
+ *         <li>Type: {@link View}
  *       </ul>
- *   </li>
  *   <li><b>{@code exo_repeat_toggle}</b> - The repeat toggle button.
  *       <ul>
- *         <li>Type: {@link View}</li>
+ *         <li>Type: {@link View}
  *       </ul>
- *   </li>
  *   <li><b>{@code exo_shuffle}</b> - The shuffle button.
  *       <ul>
- *         <li>Type: {@link View}</li>
+ *         <li>Type: {@link View}
  *       </ul>
- *   </li>
  *   <li><b>{@code exo_position}</b> - Text view displaying the current playback position.
  *       <ul>
- *         <li>Type: {@link TextView}</li>
+ *         <li>Type: {@link TextView}
  *       </ul>
- *   </li>
  *   <li><b>{@code exo_duration}</b> - Text view displaying the current media duration.
  *       <ul>
- *         <li>Type: {@link TextView}</li>
+ *         <li>Type: {@link TextView}
  *       </ul>
- *   </li>
  *   <li><b>{@code exo_progress}</b> - Time bar that's updated during playback and allows seeking.
  *       <ul>
- *         <li>Type: {@link TimeBar}</li>
+ *         <li>Type: {@link TimeBar}
  *       </ul>
- *   </li>
  * </ul>
- * <p>
- * All child views are optional and so can be omitted if not required, however where defined they
+ *
+ * <p>All child views are optional and so can be omitted if not required, however where defined they
  * must be of the expected type.
  *
  * <h3>Specifying a custom layout file</h3>
+ *
  * Defining your own {@code exo_playback_control_view.xml} is useful to customize the layout of
  * PlaybackControlView throughout your application. It's also possible to customize the layout for a
  * single instance in a layout file. This is achieved by setting the {@code controller_layout_id}
@@ -175,15 +166,11 @@ public class PlaybackControlView extends FrameLayout {
     ExoPlayerLibraryInfo.registerModule("goog.exo.ui");
   }
 
-  /**
-   * @deprecated Use {@link com.google.android.exoplayer2.ControlDispatcher}.
-   */
+  /** @deprecated Use {@link com.google.android.exoplayer2.ControlDispatcher}. */
   @Deprecated
   public interface ControlDispatcher extends com.google.android.exoplayer2.ControlDispatcher {}
 
-  /**
-   * Listener to be notified about changes of the visibility of the UI control.
-   */
+  /** Listener to be notified about changes of the visibility of the UI control. */
   public interface VisibilityListener {
 
     /**
@@ -192,38 +179,25 @@ public class PlaybackControlView extends FrameLayout {
      * @param visibility The new visibility. Either {@link View#VISIBLE} or {@link View#GONE}.
      */
     void onVisibilityChange(int visibility);
-
   }
 
   private static final class DefaultControlDispatcher
       extends com.google.android.exoplayer2.DefaultControlDispatcher implements ControlDispatcher {}
-  /**
-   * @deprecated Use {@link com.google.android.exoplayer2.DefaultControlDispatcher}.
-   */
+  /** @deprecated Use {@link com.google.android.exoplayer2.DefaultControlDispatcher}. */
   @Deprecated
   public static final ControlDispatcher DEFAULT_CONTROL_DISPATCHER = new DefaultControlDispatcher();
 
-  /**
-   * The default fast forward increment, in milliseconds.
-   */
+  /** The default fast forward increment, in milliseconds. */
   public static final int DEFAULT_FAST_FORWARD_MS = 15000;
-  /**
-   * The default rewind increment, in milliseconds.
-   */
+  /** The default rewind increment, in milliseconds. */
   public static final int DEFAULT_REWIND_MS = 5000;
-  /**
-   * The default show timeout, in milliseconds.
-   */
+  /** The default show timeout, in milliseconds. */
   public static final int DEFAULT_SHOW_TIMEOUT_MS = 5000;
-  /**
-   * The default repeat toggle modes.
-   */
+  /** The default repeat toggle modes. */
   public static final @RepeatModeUtil.RepeatToggleModes int DEFAULT_REPEAT_TOGGLE_MODES =
       RepeatModeUtil.REPEAT_TOGGLE_MODE_NONE;
 
-  /**
-   * The maximum number of windows that can be shown in a multi-window time bar.
-   */
+  /** The maximum number of windows that can be shown in a multi-window time bar. */
   public static final int MAX_WINDOWS_FOR_MULTI_WINDOW_TIME_BAR = 100;
 
   private static final long MAX_POSITION_FOR_SEEK_TO_PREVIOUS = 3000;
@@ -271,19 +245,21 @@ public class PlaybackControlView extends FrameLayout {
   private long[] extraAdGroupTimesMs;
   private boolean[] extraPlayedAdGroups;
 
-  private final Runnable updateProgressAction = new Runnable() {
-    @Override
-    public void run() {
-      updateProgress();
-    }
-  };
+  private final Runnable updateProgressAction =
+      new Runnable() {
+        @Override
+        public void run() {
+          updateProgress();
+        }
+      };
 
-  private final Runnable hideAction = new Runnable() {
-    @Override
-    public void run() {
-      hide();
-    }
-  };
+  private final Runnable hideAction =
+      new Runnable() {
+        @Override
+        public void run() {
+          hide();
+        }
+      };
 
   public PlaybackControlView(Context context) {
     this(context, null);
@@ -297,8 +273,8 @@ public class PlaybackControlView extends FrameLayout {
     this(context, attrs, defStyleAttr, attrs);
   }
 
-  public PlaybackControlView(Context context, AttributeSet attrs, int defStyleAttr,
-      AttributeSet playbackAttrs) {
+  public PlaybackControlView(
+      Context context, AttributeSet attrs, int defStyleAttr, AttributeSet playbackAttrs) {
     super(context, attrs, defStyleAttr);
     int controllerLayoutId = R.layout.exo_playback_control_view;
     rewindMs = DEFAULT_REWIND_MS;
@@ -307,18 +283,21 @@ public class PlaybackControlView extends FrameLayout {
     repeatToggleModes = DEFAULT_REPEAT_TOGGLE_MODES;
     showShuffleButton = false;
     if (playbackAttrs != null) {
-      TypedArray a = context.getTheme().obtainStyledAttributes(playbackAttrs,
-          R.styleable.PlaybackControlView, 0, 0);
+      TypedArray a =
+          context
+              .getTheme()
+              .obtainStyledAttributes(playbackAttrs, R.styleable.PlaybackControlView, 0, 0);
       try {
         rewindMs = a.getInt(R.styleable.PlaybackControlView_rewind_increment, rewindMs);
-        fastForwardMs = a.getInt(R.styleable.PlaybackControlView_fastforward_increment,
-            fastForwardMs);
+        fastForwardMs =
+            a.getInt(R.styleable.PlaybackControlView_fastforward_increment, fastForwardMs);
         showTimeoutMs = a.getInt(R.styleable.PlaybackControlView_show_timeout, showTimeoutMs);
-        controllerLayoutId = a.getResourceId(R.styleable.PlaybackControlView_controller_layout_id,
-            controllerLayoutId);
+        controllerLayoutId =
+            a.getResourceId(
+                R.styleable.PlaybackControlView_controller_layout_id, controllerLayoutId);
         repeatToggleModes = getRepeatToggleModes(a, repeatToggleModes);
-        showShuffleButton = a.getBoolean(R.styleable.PlaybackControlView_show_shuffle_button,
-            showShuffleButton);
+        showShuffleButton =
+            a.getBoolean(R.styleable.PlaybackControlView_show_shuffle_button, showShuffleButton);
       } finally {
         a.recycle();
       }
@@ -379,17 +358,17 @@ public class PlaybackControlView extends FrameLayout {
     repeatOffButtonDrawable = resources.getDrawable(R.drawable.exo_controls_repeat_off);
     repeatOneButtonDrawable = resources.getDrawable(R.drawable.exo_controls_repeat_one);
     repeatAllButtonDrawable = resources.getDrawable(R.drawable.exo_controls_repeat_all);
-    repeatOffButtonContentDescription = resources.getString(
-        R.string.exo_controls_repeat_off_description);
-    repeatOneButtonContentDescription = resources.getString(
-        R.string.exo_controls_repeat_one_description);
-    repeatAllButtonContentDescription = resources.getString(
-        R.string.exo_controls_repeat_all_description);
+    repeatOffButtonContentDescription =
+        resources.getString(R.string.exo_controls_repeat_off_description);
+    repeatOneButtonContentDescription =
+        resources.getString(R.string.exo_controls_repeat_one_description);
+    repeatAllButtonContentDescription =
+        resources.getString(R.string.exo_controls_repeat_all_description);
   }
 
   @SuppressWarnings("ResourceType")
-  private static @RepeatModeUtil.RepeatToggleModes int getRepeatToggleModes(TypedArray a,
-      @RepeatModeUtil.RepeatToggleModes int repeatToggleModes) {
+  private static @RepeatModeUtil.RepeatToggleModes int getRepeatToggleModes(
+      TypedArray a, @RepeatModeUtil.RepeatToggleModes int repeatToggleModes) {
     return a.getInt(R.styleable.PlaybackControlView_repeat_toggle_modes, repeatToggleModes);
   }
 
@@ -422,9 +401,9 @@ public class PlaybackControlView extends FrameLayout {
 
   /**
    * Sets whether the time bar should show all windows, as opposed to just the current one. If the
-   * timeline has a period with unknown duration or more than
-   * {@link #MAX_WINDOWS_FOR_MULTI_WINDOW_TIME_BAR} windows the time bar will fall back to showing a
-   * single window.
+   * timeline has a period with unknown duration or more than {@link
+   * #MAX_WINDOWS_FOR_MULTI_WINDOW_TIME_BAR} windows the time bar will fall back to showing a single
+   * window.
    *
    * @param showMultiWindowTimeBar Whether the time bar should show all windows.
    */
@@ -443,8 +422,8 @@ public class PlaybackControlView extends FrameLayout {
    * @param extraPlayedAdGroups Whether each ad has been played, or {@code null} to show no extra ad
    *     markers.
    */
-  public void setExtraAdGroupMarkers(@Nullable long[] extraAdGroupTimesMs,
-      @Nullable boolean[] extraPlayedAdGroups) {
+  public void setExtraAdGroupMarkers(
+      @Nullable long[] extraAdGroupTimesMs, @Nullable boolean[] extraPlayedAdGroups) {
     if (extraAdGroupTimesMs == null) {
       this.extraAdGroupTimesMs = new long[0];
       this.extraPlayedAdGroups = new boolean[0];
@@ -473,8 +452,10 @@ public class PlaybackControlView extends FrameLayout {
    */
   public void setControlDispatcher(
       @Nullable com.google.android.exoplayer2.ControlDispatcher controlDispatcher) {
-    this.controlDispatcher = controlDispatcher == null
-        ? new com.google.android.exoplayer2.DefaultControlDispatcher() : controlDispatcher;
+    this.controlDispatcher =
+        controlDispatcher == null
+            ? new com.google.android.exoplayer2.DefaultControlDispatcher()
+            : controlDispatcher;
   }
 
   /**
@@ -556,9 +537,7 @@ public class PlaybackControlView extends FrameLayout {
     }
   }
 
-  /**
-   * Returns whether the shuffle button is shown.
-   */
+  /** Returns whether the shuffle button is shown. */
   public boolean getShowShuffleButton() {
     return showShuffleButton;
   }
@@ -590,9 +569,7 @@ public class PlaybackControlView extends FrameLayout {
     hideAfterTimeout();
   }
 
-  /**
-   * Hides the controller.
-   */
+  /** Hides the controller. */
   public void hide() {
     if (isVisible()) {
       setVisibility(GONE);
@@ -605,9 +582,7 @@ public class PlaybackControlView extends FrameLayout {
     }
   }
 
-  /**
-   * Returns whether the controller is currently visible.
-   */
+  /** Returns whether the controller is currently visible. */
   public boolean isVisible() {
     return getVisibility() == VISIBLE;
   }
@@ -664,8 +639,8 @@ public class PlaybackControlView extends FrameLayout {
       int windowIndex = player.getCurrentWindowIndex();
       timeline.getWindow(windowIndex, window);
       isSeekable = window.isSeekable;
-      enablePrevious = isSeekable || !window.isDynamic
-          || player.getPreviousWindowIndex() != C.INDEX_UNSET;
+      enablePrevious =
+          isSeekable || !window.isDynamic || player.getPreviousWindowIndex() != C.INDEX_UNSET;
       enableNext = window.isDynamic || player.getNextWindowIndex() != C.INDEX_UNSET;
     }
     setButtonEnabled(enablePrevious, previousButton);
@@ -728,8 +703,8 @@ public class PlaybackControlView extends FrameLayout {
     if (player == null) {
       return;
     }
-    multiWindowTimeBar = showMultiWindowTimeBar
-        && canShowMultiWindowTimeBar(player.getCurrentTimeline(), window);
+    multiWindowTimeBar =
+        showMultiWindowTimeBar && canShowMultiWindowTimeBar(player.getCurrentTimeline(), window);
   }
 
   private void updateProgress() {
@@ -836,8 +811,8 @@ public class PlaybackControlView extends FrameLayout {
           if (mediaTimeDelayMs < (mediaTimeUpdatePeriodMs / 5)) {
             mediaTimeDelayMs += mediaTimeUpdatePeriodMs;
           }
-          delayMs = playbackSpeed == 1 ? mediaTimeDelayMs
-              : (long) (mediaTimeDelayMs / playbackSpeed);
+          delayMs =
+              playbackSpeed == 1 ? mediaTimeDelayMs : (long) (mediaTimeDelayMs / playbackSpeed);
         } else {
           delayMs = 200;
         }
@@ -876,7 +851,7 @@ public class PlaybackControlView extends FrameLayout {
     int previousWindowIndex = player.getPreviousWindowIndex();
     if (previousWindowIndex != C.INDEX_UNSET
         && (player.getCurrentPosition() <= MAX_POSITION_FOR_SEEK_TO_PREVIOUS
-        || (window.isDynamic && !window.isSeekable))) {
+            || (window.isDynamic && !window.isSeekable))) {
       seekTo(previousWindowIndex, C.TIME_UNSET);
     } else {
       seekTo(0);
@@ -1054,8 +1029,8 @@ public class PlaybackControlView extends FrameLayout {
     return true;
   }
 
-  private final class ComponentListener extends Player.DefaultEventListener implements
-      TimeBar.OnScrubListener, OnClickListener {
+  private final class ComponentListener extends Player.DefaultEventListener
+      implements TimeBar.OnScrubListener, OnClickListener {
 
     @Override
     public void onScrubStart(TimeBar timeBar, long position) {
@@ -1104,8 +1079,8 @@ public class PlaybackControlView extends FrameLayout {
     }
 
     @Override
-    public void onTimelineChanged(Timeline timeline, Object manifest,
-        @Player.TimelineChangeReason int reason) {
+    public void onTimelineChanged(
+        Timeline timeline, Object manifest, @Player.TimelineChangeReason int reason) {
       updateNavigation();
       updateTimeBarMode();
       updateProgress();
@@ -1127,15 +1102,13 @@ public class PlaybackControlView extends FrameLayout {
         } else if (pauseButton == view) {
           controlDispatcher.dispatchSetPlayWhenReady(player, false);
         } else if (repeatToggleButton == view) {
-          controlDispatcher.dispatchSetRepeatMode(player, RepeatModeUtil.getNextRepeatMode(
-              player.getRepeatMode(), repeatToggleModes));
+          controlDispatcher.dispatchSetRepeatMode(
+              player, RepeatModeUtil.getNextRepeatMode(player.getRepeatMode(), repeatToggleModes));
         } else if (shuffleButton == view) {
           controlDispatcher.dispatchSetShuffleModeEnabled(player, !player.getShuffleModeEnabled());
         }
       }
       hideAfterTimeout();
     }
-
   }
-
 }
