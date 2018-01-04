@@ -430,6 +430,21 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
     return codecInfo;
   }
 
+  /**
+   * Returns the framework {@link MediaFormat} that can be used to configure a {@link MediaCodec}
+   * for decoding the given {@link Format} for playback.
+   *
+   * @param format The format of the media.
+   * @return The framework media format.
+   */
+  protected final MediaFormat getMediaFormatForPlayback(Format format) {
+    MediaFormat mediaFormat = format.getFrameworkMediaFormatV16();
+    if (Util.SDK_INT >= 23) {
+      configureMediaFormatForPlaybackV23(mediaFormat);
+    }
+    return mediaFormat;
+  }
+
   @Override
   protected void onEnabled(boolean joining) throws ExoPlaybackException {
     decoderCounters = new DecoderCounters();
@@ -1106,6 +1121,11 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
       }
     }
     return false;
+  }
+
+  @TargetApi(23)
+  private static void configureMediaFormatForPlaybackV23(MediaFormat mediaFormat) {
+    mediaFormat.setInteger(MediaFormat.KEY_PRIORITY, 0 /* realtime priority */);
   }
 
   /**

@@ -906,19 +906,15 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
   @SuppressLint("InlinedApi")
   protected MediaFormat getMediaFormat(Format format, CodecMaxValues codecMaxValues,
       boolean deviceNeedsAutoFrcWorkaround, int tunnelingAudioSessionId) {
-    MediaFormat frameworkMediaFormat = format.getFrameworkMediaFormatV16();
-    // Set the maximum adaptive video dimensions.
+    MediaFormat frameworkMediaFormat = getMediaFormatForPlayback(format);
     frameworkMediaFormat.setInteger(MediaFormat.KEY_MAX_WIDTH, codecMaxValues.width);
     frameworkMediaFormat.setInteger(MediaFormat.KEY_MAX_HEIGHT, codecMaxValues.height);
-    // Set the maximum input size.
     if (codecMaxValues.inputSize != Format.NO_VALUE) {
       frameworkMediaFormat.setInteger(MediaFormat.KEY_MAX_INPUT_SIZE, codecMaxValues.inputSize);
     }
-    // Set FRC workaround.
     if (deviceNeedsAutoFrcWorkaround) {
       frameworkMediaFormat.setInteger("auto-frc", 0);
     }
-    // Configure tunneling if enabled.
     if (tunnelingAudioSessionId != C.AUDIO_SESSION_ID_UNSET) {
       configureTunnelingV21(frameworkMediaFormat, tunnelingAudioSessionId);
     }
