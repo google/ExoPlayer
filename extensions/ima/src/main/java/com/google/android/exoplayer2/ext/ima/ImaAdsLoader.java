@@ -332,7 +332,7 @@ public final class ImaAdsLoader extends Player.DefaultEventListener implements A
    *
    * <p>Ads will be requested automatically when the player is prepared if this method has not been
    * called, so it is only necessary to call this method if you want to request ads before preparing
-   * the player
+   * the player.
    *
    * @param adUiViewGroup A {@link ViewGroup} on top of the player that will show any ad UI.
    */

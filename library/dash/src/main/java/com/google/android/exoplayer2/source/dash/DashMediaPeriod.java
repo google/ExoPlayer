@@ -104,7 +104,7 @@ import java.util.Map;
 
   /**
    * Updates the {@link DashManifest} and the index of this period in the manifest.
-   * <p>
+   *
    * @param manifest The updated manifest.
    * @param periodIndex the new index of this period in the updated manifest.
    */
