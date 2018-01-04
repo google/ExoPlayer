@@ -1,10 +1,11 @@
 ---
 layout: default
 title: FAQs
-weight: 5
+weight: 6
 ---
 
 * [What formats does ExoPlayer support?][]
+* [Why doesn't setPlaybackParameters work properly on some devices?][]
 * [Why are some media files not seekable?][]
 * [Why do some MPEG-TS files fail to play?][]
 * [Why do some MP4/FMP4 files play incorrectly?][]
@@ -21,6 +22,18 @@ weight: 5
 #### What formats does ExoPlayer support? ####
 
 See the [Supported formats][] page.
+
+#### Why doesn't setPlaybackParameters work properly on some devices? ####
+
+When running a debug build of your app on Android M and earlier, you may
+experience choppy performance, audible artifacts and high CPU utilization when
+using the [setPlaybackParameters][] API. This is because an optimization that's
+important to this API is disabled for debug builds running on these versions of
+Android.
+
+It's important to note that this issue affects debug builds only. It does *not*
+affect release builds, for which the optimization is always enabled. Hence the
+releases you provide to end users should not be affected by this issue.
 
 #### Why are some media files not seekable? ####
 
@@ -185,6 +198,7 @@ ExoPlayer team. Where possible, we recommend testing media applications on
 physical devices rather than emulators.
 
 [What formats does ExoPlayer support?]: #what-formats-does-exoplayer-support
+[Why doesn't setPlaybackParameters work properly on some devices?]: #why-doesnt-setplaybackparameters-not-work-properly-on-some-devices
 [Why are some media files not seekable?]: #why-are-some-media-files-not-seekable
 [Why do some MPEG-TS files fail to play?]: #why-do-some-mpeg-ts-files-fail-to-play
 [Why do some MP4/FMP4 files play incorrectly?]: #why-do-some-mp4fmp4-files-play-incorrectly
@@ -197,6 +211,7 @@ physical devices rather than emulators.
 [Does ExoPlayer support emulators?]: #does-exoplayer-support-emulators
 
 [Supported formats]: https://google.github.io/ExoPlayer/supported-formats.html
+[setPlaybackParameters]: https://google.github.io/ExoPlayer/doc/reference/com/google/android/exoplayer2/Player.html#setPlaybackParameters-com.google.android.exoplayer2.PlaybackParameters-
 [FLAG_ENABLE_CONSTANT_BITRATE_SEEKING]: https://google.github.io/ExoPlayer/doc/reference/com/google/android/exoplayer2/extractor/mp3/Mp3Extractor.html#FLAG_ENABLE_CONSTANT_BITRATE_SEEKING
 [setMp3ExtractorFlags]: https://google.github.io/ExoPlayer/doc/reference/com/google/android/exoplayer2/extractor/DefaultExtractorsFactory#setMp3ExtractorFlags-int-
 [FLAG_DETECT_ACCESS_UNITS]: https://google.github.io/ExoPlayer/doc/reference/com/google/android/exoplayer2/extractor/ts/DefaultTsPayloadReaderFactory.html#FLAG_DETECT_ACCESS_UNITS
