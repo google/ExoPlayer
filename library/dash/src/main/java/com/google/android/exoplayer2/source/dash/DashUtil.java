@@ -81,14 +81,11 @@ public final class DashUtil {
         return null;
       }
     }
-    DrmInitData drmInitData = representation.format.drmInitData;
-    if (drmInitData != null) {
-      // Prefer drmInitData obtained from the manifest over drmInitData obtained from the stream,
-      // as per DASH IF Interoperability Recommendations V3.0, 7.5.3.
-      return drmInitData;
-    }
+    Format manifestFormat = representation.format;
     Format sampleFormat = DashUtil.loadSampleFormat(dataSource, primaryTrackType, representation);
-    return sampleFormat == null ? null : sampleFormat.drmInitData;
+    return sampleFormat == null
+        ? manifestFormat.drmInitData
+        : sampleFormat.copyWithManifestFormatInfo(manifestFormat).drmInitData;
   }
 
   /**
