@@ -198,7 +198,7 @@ ExoPlayer team. Where possible, we recommend testing media applications on
 physical devices rather than emulators.
 
 [What formats does ExoPlayer support?]: #what-formats-does-exoplayer-support
-[Why doesn't setPlaybackParameters work properly on some devices?]: #why-doesnt-setplaybackparameters-not-work-properly-on-some-devices
+[Why doesn't setPlaybackParameters work properly on some devices?]: #why-doesnt-setplaybackparameters-work-properly-on-some-devices
 [Why are some media files not seekable?]: #why-are-some-media-files-not-seekable
 [Why do some MPEG-TS files fail to play?]: #why-do-some-mpeg-ts-files-fail-to-play
 [Why do some MP4/FMP4 files play incorrectly?]: #why-do-some-mp4fmp4-files-play-incorrectly
