@@ -240,14 +240,15 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
   protected void configureCodec(MediaCodecInfo codecInfo, MediaCodec codec, Format format,
       MediaCrypto crypto) {
     codecNeedsDiscardChannelsWorkaround = codecNeedsDiscardChannelsWorkaround(codecInfo.name);
+    MediaFormat mediaFormat = getMediaFormatForPlayback(format);
     if (passthroughEnabled) {
       // Override the MIME type used to configure the codec if we are using a passthrough decoder.
-      passthroughMediaFormat = format.getFrameworkMediaFormatV16();
+      passthroughMediaFormat = mediaFormat;
       passthroughMediaFormat.setString(MediaFormat.KEY_MIME, MimeTypes.AUDIO_RAW);
       codec.configure(passthroughMediaFormat, null, crypto, 0);
       passthroughMediaFormat.setString(MediaFormat.KEY_MIME, format.sampleMimeType);
     } else {
-      codec.configure(format.getFrameworkMediaFormatV16(), null, crypto, 0);
+      codec.configure(mediaFormat, null, crypto, 0);
       passthroughMediaFormat = null;
     }
   }
