@@ -22,6 +22,8 @@ import android.content.res.Resources;
 import android.content.res.TypedArray;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Matrix;
+import android.graphics.RectF;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.AttributeSet;
@@ -224,6 +226,7 @@ public final class SimpleExoPlayerView extends FrameLayout {
   private boolean controllerAutoShow;
   private boolean controllerHideDuringAds;
   private boolean controllerHideOnTouch;
+  private int textureViewRotation;
 
   public SimpleExoPlayerView(Context context) {
     this(context, null);
@@ -920,6 +923,31 @@ public final class SimpleExoPlayerView extends FrameLayout {
     aspectRatioFrame.setResizeMode(resizeMode);
   }
 
+  /** Applies a texture rotation to a {@link TextureView}. */
+  private static void applyTextureViewRotation(TextureView textureView, int textureViewRotation) {
+    float textureViewWidth = textureView.getWidth();
+    float textureViewHeight = textureView.getHeight();
+    if (textureViewWidth == 0 || textureViewHeight == 0 || textureViewRotation == 0) {
+      textureView.setTransform(null);
+    } else {
+      Matrix transformMatrix = new Matrix();
+      float pivotX = textureViewWidth / 2;
+      float pivotY = textureViewHeight / 2;
+      transformMatrix.postRotate(textureViewRotation, pivotX, pivotY);
+
+      // After rotation, scale the rotated texture to fit the TextureView size.
+      RectF originalTextureRect = new RectF(0, 0, textureViewWidth, textureViewHeight);
+      RectF rotatedTextureRect = new RectF();
+      transformMatrix.mapRect(rotatedTextureRect, originalTextureRect);
+      transformMatrix.postScale(
+          textureViewWidth / rotatedTextureRect.width(),
+          textureViewHeight / rotatedTextureRect.height(),
+          pivotX,
+          pivotY);
+      textureView.setTransform(transformMatrix);
+    }
+  }
+
   @SuppressLint("InlinedApi")
   private boolean isDpadKey(int keyCode) {
     return keyCode == KeyEvent.KEYCODE_DPAD_UP
@@ -934,7 +962,7 @@ public final class SimpleExoPlayerView extends FrameLayout {
   }
 
   private final class ComponentListener extends Player.DefaultEventListener
-      implements TextOutput, SimpleExoPlayer.VideoListener {
+      implements TextOutput, SimpleExoPlayer.VideoListener, OnLayoutChangeListener {
 
     // TextOutput implementation
 
@@ -950,10 +978,32 @@ public final class SimpleExoPlayerView extends FrameLayout {
     @Override
     public void onVideoSizeChanged(
         int width, int height, int unappliedRotationDegrees, float pixelWidthHeightRatio) {
-      if (contentFrame != null) {
-        float aspectRatio = height == 0 ? 1 : (width * pixelWidthHeightRatio) / height;
-        contentFrame.setAspectRatio(aspectRatio);
+      if (contentFrame == null) {
+        return;
       }
+      float videoAspectRatio =
+          (height == 0 || width == 0) ? 1 : (width * pixelWidthHeightRatio) / height;
+
+      if (surfaceView instanceof TextureView) {
+        // Try to apply rotation transformation when our surface is a TextureView.
+        if (unappliedRotationDegrees == 90 || unappliedRotationDegrees == 270) {
+          // We will apply a rotation 90/270 degree to the output texture of the TextureView.
+          // In this case, the output video's width and height will be swapped.
+          videoAspectRatio = 1 / videoAspectRatio;
+        }
+        if (textureViewRotation != 0) {
+          surfaceView.removeOnLayoutChangeListener(this);
+        }
+        textureViewRotation = unappliedRotationDegrees;
+        if (textureViewRotation != 0) {
+          // The texture view's dimensions might be changed after layout step.
+          // So add an OnLayoutChangeListener to apply rotation after layout step.
+          surfaceView.addOnLayoutChangeListener(this);
+        }
+        applyTextureViewRotation((TextureView) surfaceView, textureViewRotation);
+      }
+
+      contentFrame.setAspectRatio(videoAspectRatio);
     }
 
     @Override
@@ -984,6 +1034,22 @@ public final class SimpleExoPlayerView extends FrameLayout {
       if (isPlayingAd() && controllerHideDuringAds) {
         hideController();
       }
+    }
+
+    // OnLayoutChangeListener implementation
+
+    @Override
+    public void onLayoutChange(
+        View view,
+        int left,
+        int top,
+        int right,
+        int bottom,
+        int oldLeft,
+        int oldTop,
+        int oldRight,
+        int oldBottom) {
+      applyTextureViewRotation((TextureView) view, textureViewRotation);
     }
   }
 }

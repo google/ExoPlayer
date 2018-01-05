@@ -2,6 +2,9 @@
 
 ### dev-v2 (not yet released) ###
 
+* SimpleExoPlayerView: Automatically apply video rotation if
+  `SimpleExoPlayerView` is configured to use `TextureView`
+  ([#91](https://github.com/google/ExoPlayer/issues/91)).
 * Player interface:
   * Add optional parameter to `stop` to reset the player when stopping.
   * Add a reason to `EventListener.onTimelineChanged` to distinguish between
