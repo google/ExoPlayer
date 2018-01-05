@@ -35,6 +35,10 @@ import java.lang.annotation.RetentionPolicy;
  * A {@link DataSource} that reads and writes a {@link Cache}. Requests are fulfilled from the cache
  * when possible. When data is not cached it is requested from an upstream {@link DataSource} and
  * written into the cache.
+ *
+ * <p>By default requests whose length can not be resolved are not cached. This is to prevent
+ * caching of progressive live streams, which should usually not be cached. Caching of this kind of
+ * requests can be enabled per request with {@link DataSpec#FLAG_ALLOW_CACHING_UNKNOWN_LENGTH}.
  */
 public final class CacheDataSource implements DataSource {
 
@@ -67,7 +71,8 @@ public final class CacheDataSource implements DataSource {
   public static final int FLAG_IGNORE_CACHE_ON_ERROR = 1 << 1;
 
   /**
-   * A flag indicating that the cache should be bypassed for requests whose lengths are unset.
+   * A flag indicating that the cache should be bypassed for requests whose lengths are unset. This
+   * flag is provided for legacy reasons only.
    */
   public static final int FLAG_IGNORE_CACHE_FOR_UNSET_LENGTH_REQUESTS = 1 << 2;
 
