@@ -89,6 +89,7 @@ public final class ConcatenatingMediaSource implements MediaSource {
 
   @Override
   public void prepareSource(ExoPlayer player, boolean isTopLevelSource, Listener listener) {
+    Assertions.checkState(this.listener == null, MEDIA_SOURCE_REUSED_ERROR_MESSAGE);
     this.listener = listener;
     if (mediaSources.length == 0) {
       listener.onSourceInfoRefreshed(this, Timeline.EMPTY, null);

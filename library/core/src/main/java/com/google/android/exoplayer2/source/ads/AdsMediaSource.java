@@ -204,6 +204,7 @@ public final class AdsMediaSource implements MediaSource {
   @Override
   public void prepareSource(final ExoPlayer player, boolean isTopLevelSource, Listener listener) {
     Assertions.checkArgument(isTopLevelSource);
+    Assertions.checkState(this.listener == null, MEDIA_SOURCE_REUSED_ERROR_MESSAGE);
     this.listener = listener;
     this.player = player;
     playerHandler = new Handler();

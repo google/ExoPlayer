@@ -131,7 +131,8 @@ public final class ClippingMediaSource implements MediaSource, MediaSource.Liste
 
   @Override
   public void prepareSource(ExoPlayer player, boolean isTopLevelSource, Listener listener) {
-    this.sourceListener = listener;
+    Assertions.checkState(sourceListener == null, MEDIA_SOURCE_REUSED_ERROR_MESSAGE);
+    sourceListener = listener;
     mediaSource.prepareSource(player, false, this);
   }
 

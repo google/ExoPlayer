@@ -331,6 +331,7 @@ public final class DynamicConcatenatingMediaSource implements MediaSource, Playe
   @Override
   public synchronized void prepareSource(ExoPlayer player, boolean isTopLevelSource,
       Listener listener) {
+    Assertions.checkState(this.listener == null, MEDIA_SOURCE_REUSED_ERROR_MESSAGE);
     this.player = player;
     this.listener = listener;
     preventListenerNotification = true;

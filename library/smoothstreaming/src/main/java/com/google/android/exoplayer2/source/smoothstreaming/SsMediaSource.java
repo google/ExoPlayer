@@ -419,6 +419,7 @@ public final class SsMediaSource implements MediaSource,
 
   @Override
   public void prepareSource(ExoPlayer player, boolean isTopLevelSource, Listener listener) {
+    Assertions.checkState(sourceListener == null, MEDIA_SOURCE_REUSED_ERROR_MESSAGE);
     sourceListener = listener;
     if (manifest != null) {
       manifestLoaderErrorThrower = new LoaderErrorThrower.Dummy();
@@ -455,7 +456,6 @@ public final class SsMediaSource implements MediaSource,
 
   @Override
   public void releaseSource() {
-    sourceListener = null;
     manifest = null;
     manifestDataSource = null;
     manifestLoadStartTimestamp = 0;
