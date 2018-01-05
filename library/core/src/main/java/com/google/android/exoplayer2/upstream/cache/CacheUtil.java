@@ -16,6 +16,7 @@
 package com.google.android.exoplayer2.upstream.cache;
 
 import android.net.Uri;
+import android.support.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DataSpec;
@@ -110,12 +111,13 @@ public final class CacheUtil {
    * @param dataSpec Defines the data to be cached.
    * @param cache A {@link Cache} to store the data.
    * @param upstream A {@link DataSource} for reading data not in the cache.
-   * @param counters Counters to update during caching.
+   * @param counters If not null, updated during caching.
    * @throws IOException If an error occurs reading from the source.
    * @throws InterruptedException If the thread was interrupted.
    */
-  public static void cache(DataSpec dataSpec, Cache cache, DataSource upstream,
-      CachingCounters counters) throws IOException, InterruptedException {
+  public static void cache(
+      DataSpec dataSpec, Cache cache, DataSource upstream, @Nullable CachingCounters counters)
+      throws IOException, InterruptedException {
     cache(dataSpec, cache, new CacheDataSource(cache, upstream),
         new byte[DEFAULT_BUFFER_SIZE_BYTES], null, 0, counters, false);
   }
@@ -131,15 +133,21 @@ public final class CacheUtil {
    * @param priorityTaskManager If not null it's used to check whether it is allowed to proceed with
    *     caching.
    * @param priority The priority of this task. Used with {@code priorityTaskManager}.
-   * @param counters Counters to update during caching.
+   * @param counters If not null, updated during caching.
    * @param enableEOFException Whether to throw an {@link EOFException} if end of input has been
    *     reached unexpectedly.
    * @throws IOException If an error occurs reading from the source.
    * @throws InterruptedException If the thread was interrupted.
    */
-  public static void cache(DataSpec dataSpec, Cache cache, CacheDataSource dataSource,
-      byte[] buffer, PriorityTaskManager priorityTaskManager, int priority,
-      CachingCounters counters, boolean enableEOFException)
+  public static void cache(
+      DataSpec dataSpec,
+      Cache cache,
+      CacheDataSource dataSource,
+      byte[] buffer,
+      PriorityTaskManager priorityTaskManager,
+      int priority,
+      @Nullable CachingCounters counters,
+      boolean enableEOFException)
       throws IOException, InterruptedException {
     Assertions.checkNotNull(dataSource);
     Assertions.checkNotNull(buffer);
