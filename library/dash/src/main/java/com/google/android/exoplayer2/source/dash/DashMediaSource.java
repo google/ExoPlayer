@@ -483,6 +483,7 @@ public final class DashMediaSource implements MediaSource {
 
   @Override
   public void prepareSource(ExoPlayer player, boolean isTopLevelSource, Listener listener) {
+    Assertions.checkState(sourceListener == null, MEDIA_SOURCE_REUSED_ERROR_MESSAGE);
     sourceListener = listener;
     if (sideloadedManifest) {
       loaderErrorThrower = new LoaderErrorThrower.Dummy();

@@ -36,6 +36,7 @@ public final class LoopingMediaSource implements MediaSource {
   private final int loopCount;
 
   private int childPeriodCount;
+  private boolean wasPrepareSourceCalled;
 
   /**
    * Loops the provided source indefinitely. Note that it is usually better to use
@@ -61,6 +62,8 @@ public final class LoopingMediaSource implements MediaSource {
 
   @Override
   public void prepareSource(ExoPlayer player, boolean isTopLevelSource, final Listener listener) {
+    Assertions.checkState(!wasPrepareSourceCalled, MEDIA_SOURCE_REUSED_ERROR_MESSAGE);
+    wasPrepareSourceCalled = true;
     childSource.prepareSource(player, false, new Listener() {
       @Override
       public void onSourceInfoRefreshed(MediaSource source, Timeline timeline, Object manifest) {

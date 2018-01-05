@@ -158,6 +158,8 @@ public final class SingleSampleMediaSource implements MediaSource {
   private final boolean treatLoadErrorsAsEndOfStream;
   private final Timeline timeline;
 
+  private boolean isPrepared;
+
   /**
    * @param uri The {@link Uri} of the media stream.
    * @param dataSourceFactory The factory from which the {@link DataSource} to read the media will
@@ -251,6 +253,8 @@ public final class SingleSampleMediaSource implements MediaSource {
 
   @Override
   public void prepareSource(ExoPlayer player, boolean isTopLevelSource, Listener listener) {
+    Assertions.checkState(!isPrepared, MEDIA_SOURCE_REUSED_ERROR_MESSAGE);
+    isPrepared = true;
     listener.onSourceInfoRefreshed(this, timeline, null);
   }
 

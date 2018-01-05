@@ -149,6 +149,8 @@ public interface MediaSource {
 
   }
 
+  String MEDIA_SOURCE_REUSED_ERROR_MESSAGE = "MediaSource instances are not allowed to be reused.";
+
   /**
    * Starts preparation of the source.
    * <p>
