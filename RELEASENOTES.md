@@ -41,6 +41,8 @@
 * New Cast extension: Simplifies toggling between local and Cast playbacks.
 * Audio: Support TrueHD passthrough for rechunked samples in Matroska files
   ([#2147](https://github.com/google/ExoPlayer/issues/2147)).
+* CacheDataSource: Check periodically if it's possible to read from/write to
+  cache after deciding to bypass cache.
 
 ### 2.6.1 ###
 
