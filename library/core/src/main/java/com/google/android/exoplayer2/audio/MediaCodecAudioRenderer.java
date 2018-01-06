@@ -58,9 +58,6 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
   private int encoderPadding;
   private long currentPositionUs;
   private boolean allowPositionDiscontinuity;
-  private final boolean dontDither24bitPCM;
-  private ByteBuffer resampledBuffer;
-  private FloatResamplingAudioProcessor floatResamplingAudioProcessor;
 
   /**
    * @param mediaCodecSelector A decoder selector.
@@ -140,37 +137,7 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
       @Nullable AudioRendererEventListener eventListener,
       @Nullable AudioCapabilities audioCapabilities, AudioProcessor... audioProcessors) {
     this(mediaCodecSelector, drmSessionManager, playClearSamplesWithoutKeys,
-     eventHandler, eventListener, new DefaultAudioSink(audioCapabilities, audioProcessors),
-     false);
-  }
-
-  /**
-   * @param mediaCodecSelector A decoder selector.
-   * @param drmSessionManager For use with encrypted content. May be null if support for encrypted
-   *     content is not required.
-   * @param playClearSamplesWithoutKeys Encrypted media may contain clear (un-encrypted) regions.
-   *     For example a media file may start with a short clear region so as to allow playback to
-   *     begin in parallel with key acquisition. This parameter specifies whether the renderer is
-   *     permitted to play clear regions of encrypted media files before {@code drmSessionManager}
-   *     has obtained the keys necessary to decrypt encrypted regions of the media.
-   * @param eventHandler A handler to use when delivering events to {@code eventListener}. May be
-   *     null if delivery of events is not required.
-   * @param eventListener A listener of events. May be null if delivery of events is not required.
-   * @param audioCapabilities The audio capabilities for playback on this device. May be null if the
-   *     default capabilities (no encoded audio passthrough support) should be assumed.
-   * @param dontDither24bitPCM If the input is 24bit PCM audio convert to 32bit Float PCM
-   * @param audioProcessors Optional {@link AudioProcessor}s that will process PCM audio before
-   *     output.
-   */
-  public MediaCodecAudioRenderer(MediaCodecSelector mediaCodecSelector,
-      @Nullable DrmSessionManager<FrameworkMediaCrypto> drmSessionManager,
-      boolean playClearSamplesWithoutKeys, @Nullable Handler eventHandler,
-      @Nullable AudioRendererEventListener eventListener,
-      @Nullable AudioCapabilities audioCapabilities, boolean dontDither24bitPCM,
-      AudioProcessor... audioProcessors) {
-    this(mediaCodecSelector, drmSessionManager, playClearSamplesWithoutKeys,
-     eventHandler, eventListener, new DefaultAudioSink(audioCapabilities, audioProcessors),
-     dontDither24bitPCM);
+        eventHandler, eventListener, new DefaultAudioSink(audioCapabilities, audioProcessors));
   }
 
   /**
@@ -191,34 +158,9 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
       @Nullable DrmSessionManager<FrameworkMediaCrypto> drmSessionManager,
       boolean playClearSamplesWithoutKeys, @Nullable Handler eventHandler,
       @Nullable AudioRendererEventListener eventListener, AudioSink audioSink) {
-    this(mediaCodecSelector, drmSessionManager, playClearSamplesWithoutKeys, eventHandler,
-     eventListener, audioSink, false);
-  }
-
-  /**
-   * @param mediaCodecSelector A decoder selector.
-   * @param drmSessionManager For use with encrypted content. May be null if support for encrypted
-   *     content is not required.
-   * @param playClearSamplesWithoutKeys Encrypted media may contain clear (un-encrypted) regions.
-   *     For example a media file may start with a short clear region so as to allow playback to
-   *     begin in parallel with key acquisition. This parameter specifies whether the renderer is
-   *     permitted to play clear regions of encrypted media files before {@code drmSessionManager}
-   *     has obtained the keys necessary to decrypt encrypted regions of the media.
-   * @param eventHandler A handler to use when delivering events to {@code eventListener}. May be
-   *     null if delivery of events is not required.
-   * @param eventListener A listener of events. May be null if delivery of events is not required.
-   * @param audioSink The sink to which audio will be output.
-   * @param dontDither24bitPCM If the input is 24bit PCM audio convert to 32bit Float PCM
-   */
-  public MediaCodecAudioRenderer(MediaCodecSelector mediaCodecSelector,
-      @Nullable DrmSessionManager<FrameworkMediaCrypto> drmSessionManager,
-      boolean playClearSamplesWithoutKeys, @Nullable Handler eventHandler,
-      @Nullable AudioRendererEventListener eventListener, AudioSink audioSink,
-      boolean dontDither24bitPCM) {
     super(C.TRACK_TYPE_AUDIO, mediaCodecSelector, drmSessionManager, playClearSamplesWithoutKeys);
     eventDispatcher = new EventDispatcher(eventHandler, eventListener);
     this.audioSink = audioSink;
-    this.dontDither24bitPCM = dontDither24bitPCM;
     audioSink.setListener(new AudioSinkListener());
   }
 
@@ -326,20 +268,10 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
   protected void onInputFormatChanged(Format newFormat) throws ExoPlaybackException {
     super.onInputFormatChanged(newFormat);
     eventDispatcher.inputFormatChanged(newFormat);
-
-    // if the input is 24bit pcm audio and we explicitly said not to dither then convert it to float
-    if (dontDither24bitPCM && newFormat.pcmEncoding == C.ENCODING_PCM_24BIT) {
-      if (floatResamplingAudioProcessor == null)
-        floatResamplingAudioProcessor = new FloatResamplingAudioProcessor();
-      pcmEncoding = floatResamplingAudioProcessor.getOutputEncoding();
-    } else {
-      // If the input format is anything other than PCM then we assume that the audio decoder will
-      // output 16-bit PCM.
-      pcmEncoding = MimeTypes.AUDIO_RAW.equals(newFormat.sampleMimeType) ? newFormat.pcmEncoding
-       : C.ENCODING_PCM_16BIT;
-      floatResamplingAudioProcessor = null;
-    }
-
+    // If the input format is anything other than PCM then we assume that the audio decoder will
+    // output 16-bit PCM.
+    pcmEncoding = MimeTypes.AUDIO_RAW.equals(newFormat.sampleMimeType) ? newFormat.pcmEncoding
+        : C.ENCODING_PCM_16BIT;
     channelCount = newFormat.channelCount;
     encoderDelay = newFormat.encoderDelay != Format.NO_VALUE ? newFormat.encoderDelay : 0;
     encoderPadding = newFormat.encoderPadding != Format.NO_VALUE ? newFormat.encoderPadding : 0;
@@ -370,11 +302,9 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
     }
 
     try {
-      if (floatResamplingAudioProcessor != null)
-        floatResamplingAudioProcessor.configure(sampleRate, channelCount, C.ENCODING_PCM_24BIT);
       audioSink.configure(encoding, channelCount, sampleRate, 0, channelMap, encoderDelay,
           encoderPadding);
-    } catch (AudioSink.ConfigurationException | AudioProcessor.UnhandledFormatException e) {
+    } catch (AudioSink.ConfigurationException e) {
       throw ExoPlaybackException.createForRenderer(e, getIndex());
     }
   }
@@ -490,35 +420,19 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
       codec.releaseOutputBuffer(bufferIndex, false);
       return true;
     }
+
     if (shouldSkip) {
       codec.releaseOutputBuffer(bufferIndex, false);
       decoderCounters.skippedOutputBufferCount++;
       audioSink.handleDiscontinuity();
-      resampledBuffer = null;
       return true;
     }
 
     try {
-      if (floatResamplingAudioProcessor != null) {
-        boolean draining = resampledBuffer != null;
-        if (!draining) {
-          floatResamplingAudioProcessor.queueInput(buffer);
-          resampledBuffer = floatResamplingAudioProcessor.getOutput();
-        }
-        if (audioSink.handleBuffer(resampledBuffer, bufferPresentationTimeUs))
-          resampledBuffer = null;
-        if (!draining) {
-          codec.releaseOutputBuffer(bufferIndex, false);
-          decoderCounters.renderedOutputBufferCount++;
-          return true;
-        }
-      }
-      else {
-        if (audioSink.handleBuffer(buffer, bufferPresentationTimeUs)) {
-          codec.releaseOutputBuffer(bufferIndex, false);
-          decoderCounters.renderedOutputBufferCount++;
-          return true;
-        }
+      if (audioSink.handleBuffer(buffer, bufferPresentationTimeUs)) {
+        codec.releaseOutputBuffer(bufferIndex, false);
+        decoderCounters.renderedOutputBufferCount++;
+        return true;
       }
     } catch (AudioSink.InitializationException | AudioSink.WriteException e) {
       throw ExoPlaybackException.createForRenderer(e, getIndex());
