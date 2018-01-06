@@ -36,7 +36,7 @@ import java.nio.ByteOrder;
   @Override
   public boolean configure(int sampleRateHz, int channelCount, @C.Encoding int encoding)
    throws AudioProcessor.UnhandledFormatException {
-    if (encoding != C.ENCODING_PCM_24BIT) {
+    if (encoding != C.ENCODING_PCM_24BIT && encoding != C.ENCODING_PCM_32BIT) {
       throw new AudioProcessor.UnhandledFormatException(sampleRateHz, channelCount, encoding);
     }
     if (this.sampleRateHz == sampleRateHz && this.channelCount == channelCount
@@ -51,7 +51,9 @@ import java.nio.ByteOrder;
   }
 
   @Override
-  public boolean isActive() { return sourceEncoding == C.ENCODING_PCM_24BIT; }
+  public boolean isActive() {
+    return sourceEncoding == C.ENCODING_PCM_24BIT || sourceEncoding == C.ENCODING_PCM_32BIT;
+  }
 
   @Override
   public int getOutputChannelCount() { return channelCount; }
@@ -76,6 +78,8 @@ import java.nio.ByteOrder;
         resampledSize = (size / 3) * 4;
         break;
       case C.ENCODING_PCM_32BIT:
+        resampledSize = size;
+        break;
       case C.ENCODING_PCM_8BIT:
       case C.ENCODING_PCM_16BIT:
       case C.ENCODING_PCM_FLOAT:
@@ -103,6 +107,13 @@ import java.nio.ByteOrder;
         }
         break;
       case C.ENCODING_PCM_32BIT:
+        // 32->32 bit conversion.
+        for (int i = offset; i < limit; i += 4) {
+          int val = inputBuffer.get(i) & 0x000000ff | (inputBuffer.get(i) << 8) & 0x0000ff00 |
+           (inputBuffer.get(i + 1) << 16) & 0x00ff0000 | (inputBuffer.get(i + 2) << 24) & 0xff000000;
+          writePcm32bitFloat(val, buffer);
+        }
+        break;
       case C.ENCODING_PCM_8BIT:
       case C.ENCODING_PCM_16BIT:
       case C.ENCODING_PCM_FLOAT:

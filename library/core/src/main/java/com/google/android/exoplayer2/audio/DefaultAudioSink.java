@@ -164,10 +164,12 @@ public final class DefaultAudioSink implements AudioSink {
   public static boolean failOnSpuriousAudioTimestamp = false;
 
   @Nullable private final AudioCapabilities audioCapabilities;
+  private final boolean canConvertHiResPcmToFloat;
   private final ChannelMappingAudioProcessor channelMappingAudioProcessor;
   private final TrimmingAudioProcessor trimmingAudioProcessor;
   private final SonicAudioProcessor sonicAudioProcessor;
   private final AudioProcessor[] availableAudioProcessors;
+  private final AudioProcessor[] hiResAvailableAudioProcessors;
   private final ConditionVariable releasingConditionVariable;
   private final long[] playheadOffsets;
   private final AudioTrackUtil audioTrackUtil;
@@ -180,6 +182,7 @@ public final class DefaultAudioSink implements AudioSink {
   private AudioTrack keepSessionIdAudioTrack;
   private AudioTrack audioTrack;
   private boolean isInputPcm;
+  private boolean shouldUpResPCMAudio;
   private int inputSampleRate;
   private int sampleRate;
   private int channelConfig;
@@ -233,6 +236,8 @@ public final class DefaultAudioSink implements AudioSink {
   private boolean hasData;
   private long lastFeedElapsedRealtimeMs;
 
+
+
   /**
    * @param audioCapabilities The audio capabilities for playback on this device. May be null if the
    *     default capabilities (no encoded audio passthrough support) should be assumed.
@@ -241,7 +246,23 @@ public final class DefaultAudioSink implements AudioSink {
    */
   public DefaultAudioSink(@Nullable AudioCapabilities audioCapabilities,
       AudioProcessor[] audioProcessors) {
+    this(audioCapabilities, audioProcessors, false);
+  }
+
+  /**
+   * @param audioCapabilities The audio capabilities for playback on this device. May be null if the
+   *     default capabilities (no encoded audio passthrough support) should be assumed.
+   * @param audioProcessors An array of {@link AudioProcessor}s that will process PCM audio before
+   *     output. May be empty.
+   * @param canConvertHiResPcmToFloat Flag to convert > 16bit PCM Audio to 32bit Float PCM Audio to
+   *     avoid dithering the input audio.  If enabled other audio processors that expect 16bit PCM
+   *     are disabled
+   */
+  public DefaultAudioSink(@Nullable AudioCapabilities audioCapabilities,
+      AudioProcessor[] audioProcessors, boolean canConvertHiResPcmToFloat) {
+
     this.audioCapabilities = audioCapabilities;
+    this.canConvertHiResPcmToFloat = canConvertHiResPcmToFloat;
     releasingConditionVariable = new ConditionVariable(true);
     if (Util.SDK_INT >= 18) {
       try {
@@ -265,6 +286,8 @@ public final class DefaultAudioSink implements AudioSink {
     availableAudioProcessors[2] = trimmingAudioProcessor;
     System.arraycopy(audioProcessors, 0, availableAudioProcessors, 3, audioProcessors.length);
     availableAudioProcessors[3 + audioProcessors.length] = sonicAudioProcessor;
+    hiResAvailableAudioProcessors = new AudioProcessor[1];
+    hiResAvailableAudioProcessors[0] = new FloatResamplingAudioProcessor();
     playheadOffsets = new long[MAX_PLAYHEAD_OFFSET_COUNT];
     volume = 1.0f;
     startMediaTimeState = START_NOT_SET;
@@ -342,15 +365,20 @@ public final class DefaultAudioSink implements AudioSink {
     int channelCount = inputChannelCount;
     int sampleRate = inputSampleRate;
     isInputPcm = isEncodingPcm(inputEncoding);
+    shouldUpResPCMAudio = canConvertHiResPcmToFloat &&
+     (inputEncoding == C.ENCODING_PCM_24BIT || inputEncoding == C.ENCODING_PCM_32BIT);
     if (isInputPcm) {
-      pcmFrameSize = Util.getPcmFrameSize(inputEncoding, channelCount);
+      pcmFrameSize = Util.getPcmFrameSize(shouldUpResPCMAudio
+       ? C.ENCODING_PCM_FLOAT : inputEncoding, channelCount);
     }
     @C.Encoding int encoding = inputEncoding;
     boolean processingEnabled = isInputPcm && inputEncoding != C.ENCODING_PCM_FLOAT;
     if (processingEnabled) {
+      AudioProcessor[] activeAudioProcessors = shouldUpResPCMAudio ?
+       hiResAvailableAudioProcessors : availableAudioProcessors;
       trimmingAudioProcessor.setTrimSampleCount(trimStartSamples, trimEndSamples);
       channelMappingAudioProcessor.setChannelMap(outputChannels);
-      for (AudioProcessor audioProcessor : availableAudioProcessors) {
+      for (AudioProcessor audioProcessor : activeAudioProcessors) {
         try {
           flush |= audioProcessor.configure(sampleRate, channelCount, encoding);
         } catch (AudioProcessor.UnhandledFormatException e) {
@@ -460,7 +488,9 @@ public final class DefaultAudioSink implements AudioSink {
 
   private void resetAudioProcessors() {
     ArrayList<AudioProcessor> newAudioProcessors = new ArrayList<>();
-    for (AudioProcessor audioProcessor : availableAudioProcessors) {
+    AudioProcessor[] activeAudioProcessors = shouldUpResPCMAudio ?
+     hiResAvailableAudioProcessors : availableAudioProcessors;
+    for (AudioProcessor audioProcessor : activeAudioProcessors) {
       if (audioProcessor.isActive()) {
         newAudioProcessors.add(audioProcessor);
       } else {
@@ -965,6 +995,9 @@ public final class DefaultAudioSink implements AudioSink {
     reset();
     releaseKeepSessionIdAudioTrack();
     for (AudioProcessor audioProcessor : availableAudioProcessors) {
+      audioProcessor.reset();
+    }
+    for (AudioProcessor audioProcessor : hiResAvailableAudioProcessors) {
       audioProcessor.reset();
     }
     audioSessionId = C.AUDIO_SESSION_ID_UNSET;
