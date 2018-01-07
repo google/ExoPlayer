@@ -62,6 +62,9 @@ public final class Ac3Reader implements ElementaryStreamReader {
   // Used when reading the samples.
   private long timeUs;
 
+  // Used when reconfiguring the output format
+  private boolean maybeReconfigure;
+
   /**
    * Constructs a new reader for (E-)AC-3 elementary streams.
    */
@@ -78,6 +81,7 @@ public final class Ac3Reader implements ElementaryStreamReader {
     headerScratchBits = new ParsableBitArray(new byte[HEADER_SIZE]);
     headerScratchBytes = new ParsableByteArray(headerScratchBits.data);
     state = STATE_FINDING_SYNC;
+    maybeReconfigure = true;
     this.language = language;
   }
 
@@ -188,18 +192,36 @@ public final class Ac3Reader implements ElementaryStreamReader {
   private void parseHeader() {
     headerScratchBits.setPosition(0);
     Ac3Util.Ac3SyncFrameInfo frameInfo = Ac3Util.parseAc3SyncframeInfo(headerScratchBits);
-    if (format == null || frameInfo.channelCount != format.channelCount
-        || frameInfo.sampleRate != format.sampleRate
-        || frameInfo.mimeType != format.sampleMimeType) {
+    if ((format == null || frameInfo.sampleRate != format.sampleRate
+        || frameInfo.mimeType != format.sampleMimeType)
+        && (frameInfo.streamType == Ac3Util.STREAM_TYPE_TYPE0
+        || frameInfo.streamType == Ac3Util.STREAM_TYPE_UNDEFINED)) {
       format = Format.createAudioSampleFormat(trackFormatId, frameInfo.mimeType, null,
           Format.NO_VALUE, Format.NO_VALUE, frameInfo.channelCount, frameInfo.sampleRate, null,
           null, 0, language);
       output.format(format);
     }
+
+    // If the (E-)AC-3 stream contains I0 + D0, and I0.channels = 6, D0.channels = 4,
+    // then it's 7.1-channel (E-)AC-3 stream.
+    // TODO: handle other (E-)AC-3 streams?
+    if (maybeReconfigure == true && frameInfo.streamType == Ac3Util.STREAM_TYPE_TYPE1
+        && format.channelCount == 6 && frameInfo.channelCount == 4) {
+      format = Format.createAudioSampleFormat(trackFormatId, frameInfo.mimeType, null,
+          Format.NO_VALUE, Format.NO_VALUE, 8, frameInfo.sampleRate, null,
+          null, 0, language);
+      output.format(format);
+      maybeReconfigure = false;
+    }
     sampleSize = frameInfo.frameSize;
     // In this class a sample is an access unit (syncframe in AC-3), but the MediaFormat sample rate
     // specifies the number of PCM audio samples per second.
     sampleDurationUs = C.MICROS_PER_SECOND * frameInfo.sampleCount / format.sampleRate;
+    // If the (E-)AC-3 stream is 7.1-channel, the dependent sub-stream shares the sampleDuration
+    // with independent sub-stream.
+    if (frameInfo.streamType == Ac3Util.STREAM_TYPE_TYPE1) {
+      sampleDurationUs = 0;
+    }
   }
 
 }
