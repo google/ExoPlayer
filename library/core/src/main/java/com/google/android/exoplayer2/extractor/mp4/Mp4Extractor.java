@@ -370,7 +370,6 @@ public final class Mp4Extractor implements Extractor, SeekMap {
     int firstVideoTrackIndex = C.INDEX_UNSET;
     long durationUs = C.TIME_UNSET;
     List<Mp4Track> tracks = new ArrayList<>();
-    long earliestSampleOffset = Long.MAX_VALUE;
 
     Metadata metadata = null;
     GaplessInfoHolder gaplessInfoHolder = new GaplessInfoHolder();
@@ -423,11 +422,6 @@ public final class Mp4Extractor implements Extractor, SeekMap {
         firstVideoTrackIndex = tracks.size();
       }
       tracks.add(mp4Track);
-
-      long firstSampleOffset = trackSampleTable.offsets[0];
-      if (firstSampleOffset < earliestSampleOffset) {
-        earliestSampleOffset = firstSampleOffset;
-      }
     }
     this.firstVideoTrackIndex = firstVideoTrackIndex;
     this.durationUs = durationUs;
