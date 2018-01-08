@@ -94,7 +94,7 @@ public final class DefaultBandwidthMeter implements BandwidthMeter, TransferList
     totalElapsedTimeMs += sampleElapsedTimeMs;
     totalBytesTransferred += sampleBytesTransferred;
     if (sampleElapsedTimeMs > 0) {
-      float bitsPerSecond = (sampleBytesTransferred * 8000) / sampleElapsedTimeMs;
+      float bitsPerSecond = (sampleBytesTransferred * 8) / (sampleElapsedTimeMs / 1000);
       slidingPercentile.addSample((int) Math.sqrt(sampleBytesTransferred), bitsPerSecond);
       if (totalElapsedTimeMs >= ELAPSED_MILLIS_FOR_ESTIMATE
           || totalBytesTransferred >= BYTES_TRANSFERRED_FOR_ESTIMATE) {
