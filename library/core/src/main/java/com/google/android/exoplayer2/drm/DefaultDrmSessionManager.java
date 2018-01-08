@@ -23,7 +23,6 @@ import android.os.Message;
 import android.support.annotation.IntDef;
 import android.support.annotation.NonNull;
 import android.text.TextUtils;
-import android.util.Log;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.drm.DefaultDrmSession.ProvisioningManager;
@@ -109,7 +108,6 @@ public class DefaultDrmSessionManager<T extends ExoMediaCrypto> implements DrmSe
   /** Number of times to retry for initial provisioning and key request for reporting error. */
   public static final int INITIAL_DRM_REQUEST_RETRY_COUNT = 3;
 
-  private static final String TAG = "DrmSessionManager";
   private static final String CENC_SCHEME_MIME_TYPE = "cenc";
 
   private final UUID uuid;
@@ -353,14 +351,8 @@ public class DefaultDrmSessionManager<T extends ExoMediaCrypto> implements DrmSe
   public boolean canAcquireSession(@NonNull DrmInitData drmInitData) {
     SchemeData schemeData = getSchemeData(drmInitData, uuid, true);
     if (schemeData == null) {
-      if (drmInitData.schemeDataCount == 1 && drmInitData.get(0).matches(C.COMMON_PSSH_UUID)) {
-        // Assume scheme specific data will be added before the session is opened.
-        Log.w(
-            TAG, "DrmInitData only contains common PSSH SchemeData. Assuming support for: " + uuid);
-      } else {
-        // No data for this manager's scheme.
-        return false;
-      }
+      // No data for this manager's scheme.
+      return false;
     }
     String schemeType = drmInitData.schemeType;
     if (schemeType == null || C.CENC_TYPE_cenc.equals(schemeType)) {
