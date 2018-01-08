@@ -43,6 +43,8 @@
   ([#2147](https://github.com/google/ExoPlayer/issues/2147)).
 * CacheDataSource: Check periodically if it's possible to read from/write to
   cache after deciding to bypass cache.
+* IMA extension: Add support for playing non-Extractor content MediaSources in
+  the IMA demo app ([#3676](https://github.com/google/ExoPlayer/issues/3676)).
 
 ### 2.6.1 ###
 

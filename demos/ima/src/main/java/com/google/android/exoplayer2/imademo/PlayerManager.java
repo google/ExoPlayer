@@ -32,6 +32,8 @@ import com.google.android.exoplayer2.source.ads.AdsMediaSource;
 import com.google.android.exoplayer2.source.dash.DashMediaSource;
 import com.google.android.exoplayer2.source.dash.DefaultDashChunkSource;
 import com.google.android.exoplayer2.source.hls.HlsMediaSource;
+import com.google.android.exoplayer2.source.smoothstreaming.DefaultSsChunkSource;
+import com.google.android.exoplayer2.source.smoothstreaming.SsMediaSource;
 import com.google.android.exoplayer2.trackselection.AdaptiveTrackSelection;
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
 import com.google.android.exoplayer2.trackselection.TrackSelection;
@@ -79,15 +81,10 @@ import com.google.android.exoplayer2.util.Util;
     // Bind the player to the view.
     simpleExoPlayerView.setPlayer(player);
 
-    // Produces DataSource instances through which media data is loaded.
-    DataSource.Factory dataSourceFactory = new DefaultDataSourceFactory(context,
-        Util.getUserAgent(context, context.getString(R.string.application_name)));
-
     // This is the MediaSource representing the content media (i.e. not the ad).
     String contentUrl = context.getString(R.string.content_url);
     MediaSource contentMediaSource =
-        new ExtractorMediaSource.Factory(dataSourceFactory)
-            .createMediaSource(Uri.parse(contentUrl));
+        buildMediaSource(Uri.parse(contentUrl), /* handler= */ null, /* listener= */ null);
 
     // Compose the content media source into a new AdsMediaSource with both ads and content.
     MediaSource mediaSourceWithAds =
@@ -126,6 +123,19 @@ import com.google.android.exoplayer2.util.Util;
   @Override
   public MediaSource createMediaSource(
       Uri uri, @Nullable Handler handler, @Nullable MediaSourceEventListener listener) {
+    return buildMediaSource(uri, handler, listener);
+  }
+
+  @Override
+  public int[] getSupportedTypes() {
+    // IMA does not support Smooth Streaming ads.
+    return new int[] {C.TYPE_DASH, C.TYPE_HLS, C.TYPE_OTHER};
+  }
+
+  // Internal methods.
+
+  private MediaSource buildMediaSource(
+      Uri uri, @Nullable Handler handler, @Nullable MediaSourceEventListener listener) {
     @ContentType int type = Util.inferContentType(uri);
     switch (type) {
       case C.TYPE_DASH:
@@ -133,20 +143,19 @@ import com.google.android.exoplayer2.util.Util;
                 new DefaultDashChunkSource.Factory(mediaDataSourceFactory),
                 manifestDataSourceFactory)
             .createMediaSource(uri, handler, listener);
+      case C.TYPE_SS:
+        return new SsMediaSource.Factory(
+                new DefaultSsChunkSource.Factory(mediaDataSourceFactory), manifestDataSourceFactory)
+            .createMediaSource(uri, handler, listener);
       case C.TYPE_HLS:
         return new HlsMediaSource.Factory(mediaDataSourceFactory)
             .createMediaSource(uri, handler, listener);
       case C.TYPE_OTHER:
         return new ExtractorMediaSource.Factory(mediaDataSourceFactory)
             .createMediaSource(uri, handler, listener);
-      case C.TYPE_SS:
       default:
         throw new IllegalStateException("Unsupported type: " + type);
     }
   }
 
-  @Override
-  public int[] getSupportedTypes() {
-    return new int[] {C.TYPE_DASH, C.TYPE_HLS, C.TYPE_OTHER};
-  }
 }
