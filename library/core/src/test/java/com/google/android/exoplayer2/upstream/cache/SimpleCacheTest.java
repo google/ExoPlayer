@@ -77,7 +77,7 @@ public class SimpleCacheTest {
 
     assertThat(simpleCache.getKeys()).isEmpty();
     NavigableSet<CacheSpan> cachedSpans = simpleCache.getCachedSpans(KEY_1);
-    assertThat(cachedSpans == null || cachedSpans.isEmpty()).isTrue();
+    assertThat(cachedSpans.isEmpty()).isTrue();
     assertThat(simpleCache.getCacheSpace()).isEqualTo(0);
     assertThat(cacheDir.listFiles()).hasLength(0);
 
@@ -283,7 +283,7 @@ public class SimpleCacheTest {
 
     // Although store() has failed, it should remove the first span and add the new one.
     NavigableSet<CacheSpan> cachedSpans = simpleCache.getCachedSpans(KEY_1);
-    assertThat(cachedSpans).isNotNull();
+    assertThat(cachedSpans).isNotEmpty();
     assertThat(cachedSpans).hasSize(1);
     assertThat(cachedSpans.pollFirst().position).isEqualTo(15);
   }

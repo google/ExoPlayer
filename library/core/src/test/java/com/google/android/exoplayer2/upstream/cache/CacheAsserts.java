@@ -101,7 +101,8 @@ import java.util.ArrayList;
   public static void assertDataNotCached(Cache cache, String... uriStrings) {
     for (String uriString : uriStrings) {
       assertWithMessage("There is cached data for '" + uriString + "'")
-          .that(cache.getCachedSpans(CacheUtil.generateKey(Uri.parse(uriString)))).isNull();
+          .that(cache.getCachedSpans(CacheUtil.generateKey(Uri.parse(uriString))))
+          .isEmpty();
     }
   }
 

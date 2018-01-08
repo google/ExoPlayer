@@ -16,6 +16,7 @@
 package com.google.android.exoplayer2.testutil;
 
 import static junit.framework.Assert.assertEquals;
+import static junit.framework.Assert.assertTrue;
 
 import android.net.Uri;
 import android.test.MoreAsserts;
@@ -29,7 +30,6 @@ import com.google.android.exoplayer2.upstream.cache.CacheUtil;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
-import junit.framework.Assert;
 
 /**
  * Assertion methods for {@link Cache}.
@@ -105,8 +105,9 @@ public final class CacheAsserts {
   /** Asserts that there is no cache content for the given {@code uriStrings}. */
   public static void assertDataNotCached(Cache cache, String... uriStrings) {
     for (String uriString : uriStrings) {
-      Assert.assertNull("There is cached data for '" + uriString + "',",
-          cache.getCachedSpans(CacheUtil.generateKey(Uri.parse(uriString))));
+      assertTrue(
+          "There is cached data for '" + uriString + "',",
+          cache.getCachedSpans(CacheUtil.generateKey(Uri.parse(uriString))).isEmpty());
     }
   }
 

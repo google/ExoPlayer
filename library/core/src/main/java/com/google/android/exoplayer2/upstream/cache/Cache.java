@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.upstream.cache;
 
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import java.io.File;
 import java.io.IOException;
@@ -80,15 +81,16 @@ public interface Cache {
 
   /**
    * Registers a listener to listen for changes to a given key.
-   * <p>
-   * No guarantees are made about the thread or threads on which the listener is called, but it is
-   * guaranteed that listener methods will be called in a serial fashion (i.e. one at a time) and in
-   * the same order as events occurred.
+   *
+   * <p>No guarantees are made about the thread or threads on which the listener is called, but it
+   * is guaranteed that listener methods will be called in a serial fashion (i.e. one at a time) and
+   * in the same order as events occurred.
    *
    * @param key The key to listen to.
    * @param listener The listener to add.
    * @return The current spans for the key.
    */
+  @NonNull
   NavigableSet<CacheSpan> addListener(String key, Listener listener);
 
   /**
@@ -103,9 +105,10 @@ public interface Cache {
    * Returns the cached spans for a given cache key.
    *
    * @param key The key for which spans should be returned.
-   * @return The spans for the key. May be null if there are no such spans.
+   * @return The spans for the key.
    */
-  @Nullable NavigableSet<CacheSpan> getCachedSpans(String key);
+  @NonNull
+  NavigableSet<CacheSpan> getCachedSpans(String key);
 
   /**
    * Returns all keys in the cache.
