@@ -166,9 +166,9 @@ public class DefaultLoadControl implements LoadControl {
     this.allocator = allocator;
     minBufferUs = minBufferMs * 1000L;
     maxBufferUs = maxBufferMs * 1000L;
-    targetBufferBytesOverwrite = targetBufferBytes;
     bufferForPlaybackUs = bufferForPlaybackMs * 1000L;
     bufferForPlaybackAfterRebufferUs = bufferForPlaybackAfterRebufferMs * 1000L;
+    targetBufferBytesOverwrite = targetBufferBytes;
     this.prioritizeTimeOverSizeThresholds = prioritizeTimeOverSizeThresholds;
     this.priorityTaskManager = priorityTaskManager;
   }
