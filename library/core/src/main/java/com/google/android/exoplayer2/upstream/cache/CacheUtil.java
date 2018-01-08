@@ -253,9 +253,6 @@ public final class CacheUtil {
   /** Removes all of the data in the {@code cache} pointed by the {@code key}. */
   public static void remove(Cache cache, String key) {
     NavigableSet<CacheSpan> cachedSpans = cache.getCachedSpans(key);
-    if (cachedSpans == null) {
-      return;
-    }
     for (CacheSpan cachedSpan : cachedSpans) {
       try {
         cache.removeSpan(cachedSpan);

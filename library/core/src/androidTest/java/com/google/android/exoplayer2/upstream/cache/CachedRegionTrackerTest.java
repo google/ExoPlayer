@@ -15,12 +15,17 @@
  */
 package com.google.android.exoplayer2.upstream.cache;
 
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.anyString;
+import static org.mockito.Mockito.when;
+
 import android.test.InstrumentationTestCase;
 import com.google.android.exoplayer2.extractor.ChunkIndex;
 import com.google.android.exoplayer2.testutil.MockitoUtil;
 import com.google.android.exoplayer2.util.Util;
 import java.io.File;
 import java.io.IOException;
+import java.util.TreeSet;
 import org.mockito.Mock;
 
 /**
@@ -48,6 +53,8 @@ public final class CachedRegionTrackerTest extends InstrumentationTestCase {
   protected void setUp() throws Exception {
     super.setUp();
     MockitoUtil.setUpMockito(this);
+    when(cache.addListener(anyString(), any(Cache.Listener.class)))
+        .thenReturn(new TreeSet<CacheSpan>());
     tracker = new CachedRegionTracker(cache, CACHE_KEY, CHUNK_INDEX);
     cacheDir = Util.createTempDirectory(getInstrumentation().getContext(), "ExoPlayerTest");
     index = new CachedContentIndex(cacheDir);
