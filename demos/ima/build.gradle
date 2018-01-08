@@ -45,5 +45,6 @@ dependencies {
     compile project(modulePrefix + 'library-ui')
     compile project(modulePrefix + 'library-dash')
     compile project(modulePrefix + 'library-hls')
+    compile project(modulePrefix + 'library-smoothstreaming')
     compile project(modulePrefix + 'extension-ima')
 }
