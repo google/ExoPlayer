@@ -19,6 +19,7 @@ import android.net.Uri;
 import android.os.SystemClock;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
+import com.google.android.exoplayer2.SeekParameters;
 import com.google.android.exoplayer2.extractor.ChunkIndex;
 import com.google.android.exoplayer2.extractor.Extractor;
 import com.google.android.exoplayer2.extractor.SeekMap;
@@ -140,6 +141,24 @@ public class DefaultDashChunkSource implements DashChunkSource {
       representationHolders[i] = new RepresentationHolder(periodDurationUs, trackType,
           representation, enableEventMessageTrack, enableCea608Track);
     }
+  }
+
+  @Override
+  public long getAdjustedSeekPositionUs(long positionUs, SeekParameters seekParameters) {
+    // Segments are aligned across representations, so any segment index will do.
+    for (RepresentationHolder representationHolder : representationHolders) {
+      if (representationHolder.segmentIndex != null) {
+        int segmentNum = representationHolder.getSegmentNum(positionUs);
+        long firstSyncUs = representationHolder.getSegmentStartTimeUs(segmentNum);
+        long secondSyncUs =
+            firstSyncUs < positionUs && segmentNum < representationHolder.getSegmentCount() - 1
+                ? representationHolder.getSegmentStartTimeUs(segmentNum + 1)
+                : firstSyncUs;
+        return Util.resolveSeekPositionUs(positionUs, seekParameters, firstSyncUs, secondSyncUs);
+      }
+    }
+    // We don't have a segment index to adjust the seek position with yet.
+    return positionUs;
   }
 
   @Override

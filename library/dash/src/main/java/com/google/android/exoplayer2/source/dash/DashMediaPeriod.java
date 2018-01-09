@@ -309,6 +309,11 @@ import java.util.Map;
 
   @Override
   public long getAdjustedSeekPositionUs(long positionUs, SeekParameters seekParameters) {
+    for (ChunkSampleStream<DashChunkSource> sampleStream : sampleStreams) {
+      if (sampleStream.primaryTrackType == C.TRACK_TYPE_VIDEO) {
+        return sampleStream.getAdjustedSeekPositionUs(positionUs, seekParameters);
+      }
+    }
     return positionUs;
   }
 

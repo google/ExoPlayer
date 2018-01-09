@@ -378,28 +378,8 @@ import java.util.Arrays;
       return 0;
     }
     SeekPoints seekPoints = seekMap.getSeekPoints(positionUs);
-    long minPositionUs =
-        Util.subtractWithOverflowDefault(
-            positionUs, seekParameters.toleranceBeforeUs, Long.MIN_VALUE);
-    long maxPositionUs =
-        Util.addWithOverflowDefault(positionUs, seekParameters.toleranceAfterUs, Long.MAX_VALUE);
-    long firstPointUs = seekPoints.first.timeUs;
-    boolean firstPointValid = minPositionUs <= firstPointUs && firstPointUs <= maxPositionUs;
-    long secondPointUs = seekPoints.second.timeUs;
-    boolean secondPointValid = minPositionUs <= secondPointUs && secondPointUs <= maxPositionUs;
-    if (firstPointValid && secondPointValid) {
-      if (Math.abs(firstPointUs - positionUs) <= Math.abs(secondPointUs - positionUs)) {
-        return firstPointUs;
-      } else {
-        return secondPointUs;
-      }
-    } else if (firstPointValid) {
-      return firstPointUs;
-    } else if (secondPointValid) {
-      return secondPointUs;
-    } else {
-      return minPositionUs;
-    }
+    return Util.resolveSeekPositionUs(
+        positionUs, seekParameters, seekPoints.first.timeUs, seekPoints.second.timeUs);
   }
 
   // SampleStream methods.
