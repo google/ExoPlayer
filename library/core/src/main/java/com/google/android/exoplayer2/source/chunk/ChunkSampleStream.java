@@ -19,6 +19,7 @@ import android.util.Log;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.FormatHolder;
+import com.google.android.exoplayer2.SeekParameters;
 import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
 import com.google.android.exoplayer2.source.MediaSourceEventListener.EventDispatcher;
 import com.google.android.exoplayer2.source.SampleQueue;
@@ -42,7 +43,8 @@ public class ChunkSampleStream<T extends ChunkSource> implements SampleStream, S
 
   private static final String TAG = "ChunkSampleStream";
 
-  private final int primaryTrackType;
+  public final int primaryTrackType;
+
   private final int[] embeddedTrackTypes;
   private final boolean[] embeddedTracksSelected;
   private final T chunkSource;
@@ -178,6 +180,21 @@ public class ChunkSampleStream<T extends ChunkSource> implements SampleStream, S
       }
       return Math.max(bufferedPositionUs, primarySampleQueue.getLargestQueuedTimestampUs());
     }
+  }
+
+  /**
+   * Adjusts a seek position given the specified {@link SeekParameters}. Chunk boundaries are used
+   * as sync points.
+   *
+   * @param positionUs The seek position in microseconds.
+   * @param seekParameters Parameters that control how the seek is performed.
+   * @return The adjusted seek position, in microseconds.
+   */
+  public long getAdjustedSeekPositionUs(long positionUs, SeekParameters seekParameters) {
+    // TODO: Using this method to adjust a seek position and then passing the adjusted position to
+    // seekToUs does not handle small discrepancies between the chunk boundary timestamps obtained
+    // from the chunk source and the timestamps of the samples in the chunks.
+    return chunkSource.getAdjustedSeekPositionUs(positionUs, seekParameters);
   }
 
   /**

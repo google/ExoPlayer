@@ -69,4 +69,22 @@ public final class SeekParameters {
     this.toleranceBeforeUs = toleranceBeforeUs;
     this.toleranceAfterUs = toleranceAfterUs;
   }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (obj == null || getClass() != obj.getClass()) {
+      return false;
+    }
+    SeekParameters other = (SeekParameters) obj;
+    return toleranceBeforeUs == other.toleranceBeforeUs
+        && toleranceAfterUs == other.toleranceAfterUs;
+  }
+
+  @Override
+  public int hashCode() {
+    return (31 * (int) toleranceBeforeUs) + (int) toleranceAfterUs;
+  }
 }

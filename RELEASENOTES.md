@@ -27,8 +27,7 @@
   performed. The `SeekParameters` class contains defaults for exact seeking and
   seeking to the closest sync points before, either side or after specified seek
   positions.
-  * Note: `SeekParameters` are only currently effective when playing
-    `ExtractorMediaSource`s (i.e. progressive streams).
+  * Note: `SeekParameters` are not currently supported when playing HLS streams.
 * DASH: Support DASH manifest EventStream elements.
 * HLS: Add opt-in support for chunkless preparation in HLS. This allows an
   HLS source to finish preparation without downloading any chunks, which can
