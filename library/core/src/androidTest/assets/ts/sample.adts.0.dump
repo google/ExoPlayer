@@ -26,6 +26,7 @@ track 0:
     drmInitData = -
     initializationData:
       data = length 2, hash 5F7
+  total output bytes = 30797
   sample count = 144
   sample 0:
     time = 0
@@ -625,5 +626,6 @@ track 1:
     language = null
     drmInitData = -
     initializationData:
+  total output bytes = 0
   sample count = 0
 tracksEnded = true

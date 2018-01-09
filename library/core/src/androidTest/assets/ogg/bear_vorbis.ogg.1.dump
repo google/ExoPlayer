@@ -27,6 +27,7 @@ track 0:
     initializationData:
       data = length 30, hash 9A8FF207
       data = length 3832, hash 8A406249
+  total output bytes = 17598
   sample count = 109
   sample 0:
     time = 896000

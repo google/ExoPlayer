@@ -25,6 +25,7 @@ track 0:
     language = null
     drmInitData = -
     initializationData:
+  total output bytes = 88200
   sample count = 3
   sample 0:
     time = 0

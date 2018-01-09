@@ -160,6 +160,7 @@ public final class FakeTrackOutput implements TrackOutput, Dumper.Dumpable {
     }
     dumper.endBlock().endBlock();
 
+    dumper.add("total output bytes", sampleData.length);
     dumper.add("sample count", sampleTimesUs.size());
 
     for (int i = 0; i < sampleTimesUs.size(); i++) {

@@ -26,6 +26,7 @@ track 0:
     drmInitData = -
     initializationData:
       data = length 42, hash 83F6895
+  total output bytes = 445
   sample count = 1
   sample 0:
     time = 2730666

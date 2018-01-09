@@ -25,6 +25,7 @@ track 192:
     language = null
     drmInitData = -
     initializationData:
+  total output bytes = 1671
   sample count = 4
   sample 0:
     time = 29088
@@ -65,6 +66,7 @@ track 224:
     drmInitData = -
     initializationData:
       data = length 22, hash 743CC6F8
+  total output bytes = 44056
   sample count = 2
   sample 0:
     time = 40000
