@@ -27,6 +27,7 @@ track 1:
     initializationData:
       data = length 30, hash F6F3D010
       data = length 10, hash 7A0D0F2B
+  total output bytes = 0
   sample count = 0
 track 2:
   format:
@@ -50,6 +51,7 @@ track 2:
     language = und
     drmInitData = -
     initializationData:
+  total output bytes = 1254
   sample count = 3
   sample 0:
     time = 1035000

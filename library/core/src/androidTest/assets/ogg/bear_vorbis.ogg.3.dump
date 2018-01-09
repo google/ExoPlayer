@@ -27,5 +27,6 @@ track 0:
     initializationData:
       data = length 30, hash 9A8FF207
       data = length 3832, hash 8A406249
+  total output bytes = 0
   sample count = 0
 tracksEnded = true
