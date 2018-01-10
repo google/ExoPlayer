@@ -38,6 +38,7 @@ import com.google.android.exoplayer2.metadata.id3.Id3Frame;
 import com.google.android.exoplayer2.metadata.id3.PrivFrame;
 import com.google.android.exoplayer2.metadata.id3.TextInformationFrame;
 import com.google.android.exoplayer2.metadata.id3.UrlLinkFrame;
+import com.google.android.exoplayer2.metadata.scte35.SpliceCommand;
 import com.google.android.exoplayer2.source.MediaSourceEventListener;
 import com.google.android.exoplayer2.source.TrackGroup;
 import com.google.android.exoplayer2.source.TrackGroupArray;
@@ -429,6 +430,10 @@ import java.util.Locale;
         EventMessage eventMessage = (EventMessage) entry;
         Log.d(TAG, prefix + String.format("EMSG: scheme=%s, id=%d, value=%s",
             eventMessage.schemeIdUri, eventMessage.id, eventMessage.value));
+      } else if (entry instanceof SpliceCommand) {
+        String description =
+            String.format("SCTE-35 splice command: type=%s.", entry.getClass().getSimpleName());
+        Log.d(TAG, prefix + description);
       }
     }
   }
