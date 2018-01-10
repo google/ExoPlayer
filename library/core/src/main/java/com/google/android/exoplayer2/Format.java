@@ -324,11 +324,41 @@ public final class Format implements Parcelable {
 
   // Image.
 
-  public static Format createImageSampleFormat(String id, String sampleMimeType, String codecs,
-      int bitrate, List<byte[]> initializationData, String language, DrmInitData drmInitData) {
-    return new Format(id, null, sampleMimeType, codecs, bitrate, NO_VALUE, NO_VALUE, NO_VALUE,
-        NO_VALUE, NO_VALUE, NO_VALUE, null, NO_VALUE, null, NO_VALUE, NO_VALUE, NO_VALUE, NO_VALUE,
-        NO_VALUE, 0, language, NO_VALUE, OFFSET_SAMPLE_RELATIVE, initializationData, drmInitData,
+  public static Format createImageSampleFormat(
+      String id,
+      String sampleMimeType,
+      String codecs,
+      int bitrate,
+      @C.SelectionFlags int selectionFlags,
+      List<byte[]> initializationData,
+      String language,
+      DrmInitData drmInitData) {
+    return new Format(
+        id,
+        null,
+        sampleMimeType,
+        codecs,
+        bitrate,
+        NO_VALUE,
+        NO_VALUE,
+        NO_VALUE,
+        NO_VALUE,
+        NO_VALUE,
+        NO_VALUE,
+        null,
+        NO_VALUE,
+        null,
+        NO_VALUE,
+        NO_VALUE,
+        NO_VALUE,
+        NO_VALUE,
+        NO_VALUE,
+        selectionFlags,
+        language,
+        NO_VALUE,
+        OFFSET_SAMPLE_RELATIVE,
+        initializationData,
+        drmInitData,
         null);
   }
 
