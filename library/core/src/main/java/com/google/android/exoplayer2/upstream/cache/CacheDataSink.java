@@ -37,7 +37,7 @@ import java.io.OutputStream;
  */
 public final class CacheDataSink implements DataSink {
 
-  /** Default buffer size. */
+  /** Default buffer size in bytes. */
   public static final int DEFAULT_BUFFER_SIZE = 20480;
 
   private final Cache cache;

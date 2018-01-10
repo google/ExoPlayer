@@ -31,7 +31,11 @@ import java.util.ArrayList;
 /** Assertion methods for {@link com.google.android.exoplayer2.upstream.cache.Cache}. */
 /* package */ final class CacheAsserts {
 
-  /** Asserts that the cache content is equal to the data in the {@code fakeDataSet}. */
+  /**
+   * Asserts that the cache content is equal to the data in the {@code fakeDataSet}.
+   *
+   * @throws IOException If an error occurred reading from the Cache.
+   */
   public static void assertCachedData(Cache cache, FakeDataSet fakeDataSet) throws IOException {
     ArrayList<FakeData> allData = fakeDataSet.getAllData();
     Uri[] uris = new Uri[allData.size()];
@@ -43,6 +47,8 @@ import java.util.ArrayList;
 
   /**
    * Asserts that the cache content is equal to the given subset of data in the {@code fakeDataSet}.
+   *
+   * @throws IOException If an error occurred reading from the Cache.
    */
   public static void assertCachedData(Cache cache, FakeDataSet fakeDataSet, String... uriStrings)
       throws IOException {
@@ -55,6 +61,8 @@ import java.util.ArrayList;
 
   /**
    * Asserts that the cache content is equal to the given subset of data in the {@code fakeDataSet}.
+   *
+   * @throws IOException If an error occurred reading from the Cache.
    */
   public static void assertCachedData(Cache cache, FakeDataSet fakeDataSet, Uri... uris)
       throws IOException {
@@ -67,7 +75,11 @@ import java.util.ArrayList;
     assertThat(cache.getCacheSpace()).isEqualTo(totalLength);
   }
 
-  /** Asserts that the cache contains the given subset of data in the {@code fakeDataSet}. */
+  /**
+   * Asserts that the cache contains the given subset of data in the {@code fakeDataSet}.
+   *
+   * @throws IOException If an error occurred reading from the Cache.
+   */
   public static void assertDataCached(Cache cache, FakeDataSet fakeDataSet, Uri... uris)
       throws IOException {
     for (Uri uri : uris) {
@@ -75,7 +87,11 @@ import java.util.ArrayList;
     }
   }
 
-  /** Asserts that the cache contains the given data for {@code uriString}. */
+  /**
+   * Asserts that the cache contains the given data for {@code uriString} or not.
+   *
+   * @throws IOException If an error occurred reading from the Cache.
+   */
   public static void assertDataCached(Cache cache, Uri uri, byte[] expected) throws IOException {
     CacheDataSource dataSource = new CacheDataSource(cache, DummyDataSource.INSTANCE, 0);
     ByteArrayOutputStream outputStream = new ByteArrayOutputStream();

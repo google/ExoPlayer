@@ -125,7 +125,7 @@ import java.util.TreeSet;
    * @param length The maximum length of the data to be returned.
    * @return the length of the cached or not cached data block length.
    */
-  public long getCachedBytes(long position, long length) {
+  public long getCachedBytesLength(long position, long length) {
     SimpleCacheSpan span = getSpan(position);
     if (span.isHoleSpan()) {
       // We don't have a span covering the start of the queried region.
