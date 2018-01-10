@@ -218,36 +218,36 @@ public class SimpleCacheTest {
   }
 
   @Test
-  public void testGetCachedBytes() throws Exception {
+  public void testGetCachedLength() throws Exception {
     SimpleCache simpleCache = getSimpleCache();
     CacheSpan cacheSpan = simpleCache.startReadWrite(KEY_1, 0);
 
     // No cached bytes, returns -'length'
-    assertThat(simpleCache.getCachedBytes(KEY_1, 0, 100)).isEqualTo(-100);
+    assertThat(simpleCache.getCachedLength(KEY_1, 0, 100)).isEqualTo(-100);
 
     // Position value doesn't affect the return value
-    assertThat(simpleCache.getCachedBytes(KEY_1, 20, 100)).isEqualTo(-100);
+    assertThat(simpleCache.getCachedLength(KEY_1, 20, 100)).isEqualTo(-100);
 
     addCache(simpleCache, KEY_1, 0, 15);
 
     // Returns the length of a single span
-    assertThat(simpleCache.getCachedBytes(KEY_1, 0, 100)).isEqualTo(15);
+    assertThat(simpleCache.getCachedLength(KEY_1, 0, 100)).isEqualTo(15);
 
     // Value is capped by the 'length'
-    assertThat(simpleCache.getCachedBytes(KEY_1, 0, 10)).isEqualTo(10);
+    assertThat(simpleCache.getCachedLength(KEY_1, 0, 10)).isEqualTo(10);
 
     addCache(simpleCache, KEY_1, 15, 35);
 
     // Returns the length of two adjacent spans
-    assertThat(simpleCache.getCachedBytes(KEY_1, 0, 100)).isEqualTo(50);
+    assertThat(simpleCache.getCachedLength(KEY_1, 0, 100)).isEqualTo(50);
 
     addCache(simpleCache, KEY_1, 60, 10);
 
     // Not adjacent span doesn't affect return value
-    assertThat(simpleCache.getCachedBytes(KEY_1, 0, 100)).isEqualTo(50);
+    assertThat(simpleCache.getCachedLength(KEY_1, 0, 100)).isEqualTo(50);
 
     // Returns length of hole up to the next cached span
-    assertThat(simpleCache.getCachedBytes(KEY_1, 55, 100)).isEqualTo(-5);
+    assertThat(simpleCache.getCachedLength(KEY_1, 55, 100)).isEqualTo(-5);
 
     simpleCache.releaseHoleSpan(cacheSpan);
   }

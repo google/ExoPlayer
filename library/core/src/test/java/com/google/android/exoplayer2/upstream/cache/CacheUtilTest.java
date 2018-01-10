@@ -72,7 +72,7 @@ public final class CacheUtilTest {
     }
 
     @Override
-    public long getCachedBytes(String key, long position, long length) {
+    public long getCachedLength(String key, long position, long length) {
       for (int i = 0; i < spansAndGaps.length; i++) {
         int spanOrGap = spansAndGaps[i];
         if (position < spanOrGap) {

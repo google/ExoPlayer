@@ -89,8 +89,8 @@ public final class CacheUtil {
     counters.alreadyCachedBytes = 0;
     counters.newlyCachedBytes = 0;
     while (left != 0) {
-      long blockLength = cache.getCachedBytes(key, start,
-          left != C.LENGTH_UNSET ? left : Long.MAX_VALUE);
+      long blockLength =
+          cache.getCachedLength(key, start, left != C.LENGTH_UNSET ? left : Long.MAX_VALUE);
       if (blockLength > 0) {
         counters.alreadyCachedBytes += blockLength;
       } else {
@@ -125,6 +125,12 @@ public final class CacheUtil {
   /**
    * Caches the data defined by {@code dataSpec} while skipping already cached data. Caching stops
    * early if end of input is reached and {@code enableEOFException} is false.
+   *
+   * <p>If a {@link PriorityTaskManager} is given, it's used to pause and resume caching depending
+   * on {@code priority} and the priority of other tasks registered to the PriorityTaskManager.
+   * Please note that it's the responsibility of the calling code to call {@link
+   * PriorityTaskManager#add} to register with the manager before calling this method, and to call
+   * {@link PriorityTaskManager#remove} afterwards to unregister.
    *
    * @param dataSpec Defines the data to be cached.
    * @param cache A {@link Cache} to store the data.
@@ -164,8 +170,8 @@ public final class CacheUtil {
     long start = dataSpec.absoluteStreamPosition;
     long left = dataSpec.length != C.LENGTH_UNSET ? dataSpec.length : cache.getContentLength(key);
     while (left != 0) {
-      long blockLength = cache.getCachedBytes(key, start,
-          left != C.LENGTH_UNSET ? left : Long.MAX_VALUE);
+      long blockLength =
+          cache.getCachedLength(key, start, left != C.LENGTH_UNSET ? left : Long.MAX_VALUE);
       if (blockLength > 0) {
         // Skip already cached data.
       } else {
