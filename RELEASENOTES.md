@@ -9,6 +9,10 @@
   * Add optional parameter to `stop` to reset the player when stopping.
   * Add a reason to `EventListener.onTimelineChanged` to distinguish between
     initial preparation, reset and dynamic updates.
+  * Add `Player.DISCONTINUITY_REASON_AD_INSERTION` to the possible reasons
+    reported in `Eventlistener.onPositionDiscontinuity` to distinguish
+    transitions to and from ads within one period from transitions between
+    periods.
   * Replaced `ExoPlayer.sendMessages` with `ExoPlayer.createMessage` to allow
     more customization of the message. Now supports setting a message delivery
     playback position and/or a delivery handler.

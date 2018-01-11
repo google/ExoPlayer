@@ -251,31 +251,32 @@ public interface Player {
    */
   int REPEAT_MODE_ALL = 2;
 
-  /**
-   * Reasons for position discontinuities.
-   */
+  /** Reasons for position discontinuities. */
   @Retention(RetentionPolicy.SOURCE)
-  @IntDef({DISCONTINUITY_REASON_PERIOD_TRANSITION, DISCONTINUITY_REASON_SEEK,
-      DISCONTINUITY_REASON_SEEK_ADJUSTMENT, DISCONTINUITY_REASON_INTERNAL})
+  @IntDef({
+    DISCONTINUITY_REASON_PERIOD_TRANSITION,
+    DISCONTINUITY_REASON_SEEK,
+    DISCONTINUITY_REASON_SEEK_ADJUSTMENT,
+    DISCONTINUITY_REASON_AD_INSERTION,
+    DISCONTINUITY_REASON_INTERNAL
+  })
   public @interface DiscontinuityReason {}
   /**
    * Automatic playback transition from one period in the timeline to the next. The period index may
    * be the same as it was before the discontinuity in case the current period is repeated.
    */
   int DISCONTINUITY_REASON_PERIOD_TRANSITION = 0;
-  /**
-   * Seek within the current period or to another period.
-   */
+  /** Seek within the current period or to another period. */
   int DISCONTINUITY_REASON_SEEK = 1;
   /**
    * Seek adjustment due to being unable to seek to the requested position or because the seek was
    * permitted to be inexact.
    */
   int DISCONTINUITY_REASON_SEEK_ADJUSTMENT = 2;
-  /**
-   * Discontinuity introduced internally by the source.
-   */
-  int DISCONTINUITY_REASON_INTERNAL = 3;
+  /** Discontinuity to or from an ad within one period in the timeline. */
+  int DISCONTINUITY_REASON_AD_INSERTION = 3;
+  /** Discontinuity introduced internally by the source. */
+  int DISCONTINUITY_REASON_INTERNAL = 4;
 
   /**
    * Reasons for timeline and/or manifest changes.

@@ -1448,11 +1448,15 @@ import java.util.Collections;
         // If we advance more than one period at a time, notify listeners after each update.
         maybeNotifyPlaybackInfoChanged();
       }
+      int discontinuityReason =
+          playingPeriodHolder.info.isLastInTimelinePeriod
+              ? Player.DISCONTINUITY_REASON_PERIOD_TRANSITION
+              : Player.DISCONTINUITY_REASON_AD_INSERTION;
       playingPeriodHolder.release();
       setPlayingPeriodHolder(playingPeriodHolder.next);
       playbackInfo = playbackInfo.fromNewPosition(playingPeriodHolder.info.id,
           playingPeriodHolder.info.startPositionUs, playingPeriodHolder.info.contentPositionUs);
-      playbackInfoUpdate.setPositionDiscontinuity(Player.DISCONTINUITY_REASON_PERIOD_TRANSITION);
+      playbackInfoUpdate.setPositionDiscontinuity(discontinuityReason);
       updatePlaybackPositions();
       advancedPlayingPeriod = true;
     }
