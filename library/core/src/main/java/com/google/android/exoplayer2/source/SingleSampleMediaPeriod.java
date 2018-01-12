@@ -133,10 +133,21 @@ import java.util.Arrays;
     if (loadingFinished || loader.isLoading()) {
       return false;
     }
-    loader.startLoading(
-        new SourceLoadable(dataSpec, dataSourceFactory.createDataSource()),
-        this,
-        minLoadableRetryCount);
+    long elapsedRealtimeMs =
+        loader.startLoading(
+            new SourceLoadable(dataSpec, dataSourceFactory.createDataSource()),
+            this,
+            minLoadableRetryCount);
+    eventDispatcher.loadStarted(
+        dataSpec,
+        C.DATA_TYPE_MEDIA,
+        C.TRACK_TYPE_UNKNOWN,
+        format,
+        C.SELECTION_REASON_UNKNOWN,
+        /* trackSelectionData= */ null,
+        /* mediaStartTimeUs= */ 0,
+        durationUs,
+        elapsedRealtimeMs);
     return true;
   }
 
