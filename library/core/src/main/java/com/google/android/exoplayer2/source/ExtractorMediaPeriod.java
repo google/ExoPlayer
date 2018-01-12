@@ -168,6 +168,7 @@ import java.util.Arrays;
     sampleQueues = new SampleQueue[0];
     pendingResetPositionUs = C.TIME_UNSET;
     length = C.LENGTH_UNSET;
+    durationUs = C.TIME_UNSET;
     // Assume on-demand for MIN_RETRY_COUNT_DEFAULT_FOR_MEDIA, until prepared.
     actualMinLoadableRetryCount =
         minLoadableRetryCount == ExtractorMediaSource.MIN_RETRY_COUNT_DEFAULT_FOR_MEDIA
@@ -436,7 +437,7 @@ import java.util.Arrays;
         /* trackFormat= */ null,
         C.SELECTION_REASON_UNKNOWN,
         /* trackSelectionData= */ null,
-        /* mediaStartTimeUs= */ 0,
+        /* mediaStartTimeUs= */ loadable.seekTimeUs,
         durationUs,
         elapsedRealtimeMs,
         loadDurationMs,
@@ -456,7 +457,7 @@ import java.util.Arrays;
         /* trackFormat= */ null,
         C.SELECTION_REASON_UNKNOWN,
         /* trackSelectionData= */ null,
-        /* mediaStartTimeUs= */ 0,
+        /* mediaStartTimeUs= */ loadable.seekTimeUs,
         durationUs,
         elapsedRealtimeMs,
         loadDurationMs,
@@ -483,7 +484,7 @@ import java.util.Arrays;
         /* trackFormat= */ null,
         C.SELECTION_REASON_UNKNOWN,
         /* trackSelectionData= */ null,
-        /* mediaStartTimeUs= */ 0,
+        /* mediaStartTimeUs= */ loadable.seekTimeUs,
         durationUs,
         elapsedRealtimeMs,
         loadDurationMs,
@@ -595,7 +596,17 @@ import java.util.Arrays;
       pendingResetPositionUs = C.TIME_UNSET;
     }
     extractedSamplesCountAtStartOfLoad = getExtractedSamplesCount();
-    loader.startLoading(loadable, this, actualMinLoadableRetryCount);
+    long elapsedRealtimeMs = loader.startLoading(loadable, this, actualMinLoadableRetryCount);
+    eventDispatcher.loadStarted(
+        loadable.dataSpec,
+        C.DATA_TYPE_MEDIA,
+        C.TRACK_TYPE_UNKNOWN,
+        /* trackFormat= */ null,
+        C.SELECTION_REASON_UNKNOWN,
+        /* trackSelectionData= */ null,
+        /* mediaStartTimeUs= */ loadable.seekTimeUs,
+        durationUs,
+        elapsedRealtimeMs);
   }
 
   private void configureRetry(ExtractingLoadable loadable) {
