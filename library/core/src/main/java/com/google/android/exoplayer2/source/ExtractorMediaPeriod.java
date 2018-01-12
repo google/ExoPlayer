@@ -105,6 +105,7 @@ import java.util.Arrays;
   private long durationUs;
   private boolean[] trackEnabledStates;
   private boolean[] trackIsAudioVideoFlags;
+  private boolean[] trackFormatNotificationSent;
   private boolean haveAudioVideoTracks;
   private long length;
 
@@ -398,8 +399,13 @@ import java.util.Arrays;
     if (suppressRead()) {
       return C.RESULT_NOTHING_READ;
     }
-    return sampleQueues[track].read(formatHolder, buffer, formatRequired, loadingFinished,
-        lastSeekPositionUs);
+    int result =
+        sampleQueues[track].read(
+            formatHolder, buffer, formatRequired, loadingFinished, lastSeekPositionUs);
+    if (result == C.RESULT_BUFFER_READ) {
+      maybeNotifyTrackFormat(track);
+    }
+    return result;
   }
 
   /* package */ int skipData(int track, long positionUs) {
@@ -407,11 +413,31 @@ import java.util.Arrays;
       return 0;
     }
     SampleQueue sampleQueue = sampleQueues[track];
+    int skipCount;
     if (loadingFinished && positionUs > sampleQueue.getLargestQueuedTimestampUs()) {
-      return sampleQueue.advanceToEnd();
+      skipCount = sampleQueue.advanceToEnd();
     } else {
-      int skipCount = sampleQueue.advanceTo(positionUs, true, true);
-      return skipCount == SampleQueue.ADVANCE_FAILED ? 0 : skipCount;
+      skipCount = sampleQueue.advanceTo(positionUs, true, true);
+      if (skipCount == SampleQueue.ADVANCE_FAILED) {
+        skipCount = 0;
+      }
+    }
+    if (skipCount > 0) {
+      maybeNotifyTrackFormat(track);
+    }
+    return skipCount;
+  }
+
+  private void maybeNotifyTrackFormat(int track) {
+    if (!trackFormatNotificationSent[track]) {
+      Format trackFormat = tracks.get(track).getFormat(0);
+      eventDispatcher.downstreamFormatChanged(
+          MimeTypes.getTrackType(trackFormat.sampleMimeType),
+          trackFormat,
+          C.SELECTION_REASON_UNKNOWN,
+          /* trackSelectionData= */ null,
+          lastSeekPositionUs);
+      trackFormatNotificationSent[track] = true;
     }
   }
 
@@ -556,6 +582,7 @@ import java.util.Arrays;
     TrackGroup[] trackArray = new TrackGroup[trackCount];
     trackIsAudioVideoFlags = new boolean[trackCount];
     trackEnabledStates = new boolean[trackCount];
+    trackFormatNotificationSent = new boolean[trackCount];
     durationUs = seekMap.getDurationUs();
     for (int i = 0; i < trackCount; i++) {
       Format trackFormat = sampleQueues[i].getUpstreamFormat();

@@ -26,6 +26,7 @@ import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DataSpec;
 import com.google.android.exoplayer2.upstream.Loader;
 import com.google.android.exoplayer2.upstream.Loader.Loadable;
+import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.Util;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -252,6 +253,7 @@ import java.util.Arrays;
     private static final int STREAM_STATE_END_OF_STREAM = 2;
 
     private int streamState;
+    private boolean formatSent;
 
     public void reset() {
       if (streamState == STREAM_STATE_END_OF_STREAM) {
@@ -287,6 +289,7 @@ import java.util.Arrays;
           buffer.addFlag(C.BUFFER_FLAG_KEY_FRAME);
           buffer.ensureSpaceForWrite(sampleSize);
           buffer.data.put(sampleData, 0, sampleSize);
+          sendFormat();
         } else {
           buffer.addFlag(C.BUFFER_FLAG_END_OF_STREAM);
         }
@@ -300,11 +303,23 @@ import java.util.Arrays;
     public int skipData(long positionUs) {
       if (positionUs > 0 && streamState != STREAM_STATE_END_OF_STREAM) {
         streamState = STREAM_STATE_END_OF_STREAM;
+        sendFormat();
         return 1;
       }
       return 0;
     }
 
+    private void sendFormat() {
+      if (!formatSent) {
+        eventDispatcher.downstreamFormatChanged(
+            MimeTypes.getTrackType(format.sampleMimeType),
+            format,
+            C.SELECTION_REASON_UNKNOWN,
+            /* trackSelectionData= */ null,
+            /* mediaTimeUs= */ 0);
+        formatSent = true;
+      }
+    }
   }
 
   /* package */ static final class SourceLoadable implements Loadable {
