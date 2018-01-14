@@ -168,8 +168,8 @@ public final class DefaultAudioSink implements AudioSink {
   private final ChannelMappingAudioProcessor channelMappingAudioProcessor;
   private final TrimmingAudioProcessor trimmingAudioProcessor;
   private final SonicAudioProcessor sonicAudioProcessor;
-  private final AudioProcessor[] availableAudioProcessors;
-  private final AudioProcessor[] hiResAvailableAudioProcessors;
+  private final AudioProcessor[] toIntPcmAvailableAudioProcessors;
+  private final AudioProcessor[] toFloatPcmAvailableAudioProcessors;
   private final ConditionVariable releasingConditionVariable;
   private final long[] playheadOffsets;
   private final AudioTrackUtil audioTrackUtil;
@@ -189,6 +189,7 @@ public final class DefaultAudioSink implements AudioSink {
   private @C.Encoding int outputEncoding;
   private AudioAttributes audioAttributes;
   private boolean processingEnabled;
+  private boolean canApplyPlaybackParams;
   private int bufferSize;
   private long bufferSizeUs;
 
@@ -280,14 +281,14 @@ public final class DefaultAudioSink implements AudioSink {
     channelMappingAudioProcessor = new ChannelMappingAudioProcessor();
     trimmingAudioProcessor = new TrimmingAudioProcessor();
     sonicAudioProcessor = new SonicAudioProcessor();
-    availableAudioProcessors = new AudioProcessor[4 + audioProcessors.length];
-    availableAudioProcessors[0] = new ResamplingAudioProcessor();
-    availableAudioProcessors[1] = channelMappingAudioProcessor;
-    availableAudioProcessors[2] = trimmingAudioProcessor;
-    System.arraycopy(audioProcessors, 0, availableAudioProcessors, 3, audioProcessors.length);
-    availableAudioProcessors[3 + audioProcessors.length] = sonicAudioProcessor;
-    hiResAvailableAudioProcessors = new AudioProcessor[1];
-    hiResAvailableAudioProcessors[0] = new FloatResamplingAudioProcessor();
+    toIntPcmAvailableAudioProcessors = new AudioProcessor[4 + audioProcessors.length];
+    toIntPcmAvailableAudioProcessors[0] = new ResamplingAudioProcessor();
+    toIntPcmAvailableAudioProcessors[1] = channelMappingAudioProcessor;
+    toIntPcmAvailableAudioProcessors[2] = trimmingAudioProcessor;
+    System.arraycopy(audioProcessors, 0, toIntPcmAvailableAudioProcessors, 3, audioProcessors.length);
+    toIntPcmAvailableAudioProcessors[3 + audioProcessors.length] = sonicAudioProcessor;
+    toFloatPcmAvailableAudioProcessors = new AudioProcessor[1];
+    toFloatPcmAvailableAudioProcessors[0] = new FloatResamplingAudioProcessor();
     playheadOffsets = new long[MAX_PLAYHEAD_OFFSET_COUNT];
     volume = 1.0f;
     startMediaTimeState = START_NOT_SET;
@@ -368,17 +369,17 @@ public final class DefaultAudioSink implements AudioSink {
     shouldUpResPCMAudio = canConvertHiResPcmToFloat &&
      (inputEncoding == C.ENCODING_PCM_24BIT || inputEncoding == C.ENCODING_PCM_32BIT);
     if (isInputPcm) {
-      pcmFrameSize = Util.getPcmFrameSize(shouldUpResPCMAudio
-       ? C.ENCODING_PCM_FLOAT : inputEncoding, channelCount);
+      pcmFrameSize = Util.getPcmFrameSize(inputEncoding, channelCount);
     }
     @C.Encoding int encoding = inputEncoding;
     boolean processingEnabled = isInputPcm && inputEncoding != C.ENCODING_PCM_FLOAT;
+    canApplyPlaybackParams = processingEnabled && !shouldUpResPCMAudio;
     if (processingEnabled) {
-      AudioProcessor[] activeAudioProcessors = shouldUpResPCMAudio ?
-       hiResAvailableAudioProcessors : availableAudioProcessors;
+      AudioProcessor[] availableAudioProcessors = shouldUpResPCMAudio ?
+       toFloatPcmAvailableAudioProcessors : toIntPcmAvailableAudioProcessors;
       trimmingAudioProcessor.setTrimSampleCount(trimStartSamples, trimEndSamples);
       channelMappingAudioProcessor.setChannelMap(outputChannels);
-      for (AudioProcessor audioProcessor : activeAudioProcessors) {
+      for (AudioProcessor audioProcessor : availableAudioProcessors) {
         try {
           flush |= audioProcessor.configure(sampleRate, channelCount, encoding);
         } catch (AudioProcessor.UnhandledFormatException e) {
@@ -488,9 +489,9 @@ public final class DefaultAudioSink implements AudioSink {
 
   private void resetAudioProcessors() {
     ArrayList<AudioProcessor> newAudioProcessors = new ArrayList<>();
-    AudioProcessor[] activeAudioProcessors = shouldUpResPCMAudio ?
-     hiResAvailableAudioProcessors : availableAudioProcessors;
-    for (AudioProcessor audioProcessor : activeAudioProcessors) {
+    AudioProcessor[] availableAudioProcessors = shouldUpResPCMAudio ?
+     toFloatPcmAvailableAudioProcessors : toIntPcmAvailableAudioProcessors;
+    for (AudioProcessor audioProcessor : availableAudioProcessors) {
       if (audioProcessor.isActive()) {
         newAudioProcessors.add(audioProcessor);
       } else {
@@ -838,7 +839,7 @@ public final class DefaultAudioSink implements AudioSink {
 
   @Override
   public PlaybackParameters setPlaybackParameters(PlaybackParameters playbackParameters) {
-    if (isInitialized() && !processingEnabled) {
+    if (isInitialized() && !canApplyPlaybackParams) {
       // The playback parameters are always the default if processing is disabled.
       this.playbackParameters = PlaybackParameters.DEFAULT;
       return this.playbackParameters;
@@ -994,10 +995,10 @@ public final class DefaultAudioSink implements AudioSink {
   public void release() {
     reset();
     releaseKeepSessionIdAudioTrack();
-    for (AudioProcessor audioProcessor : availableAudioProcessors) {
+    for (AudioProcessor audioProcessor : toIntPcmAvailableAudioProcessors) {
       audioProcessor.reset();
     }
-    for (AudioProcessor audioProcessor : hiResAvailableAudioProcessors) {
+    for (AudioProcessor audioProcessor : toFloatPcmAvailableAudioProcessors) {
       audioProcessor.reset();
     }
     audioSessionId = C.AUDIO_SESSION_ID_UNSET;
