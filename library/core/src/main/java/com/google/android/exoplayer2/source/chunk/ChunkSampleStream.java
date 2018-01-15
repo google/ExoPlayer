@@ -120,11 +120,16 @@ public class ChunkSampleStream<T extends ChunkSource> implements SampleStream, S
    *     the specified position, rather than any sample before or at that position.
    */
   public void discardBuffer(long positionUs, boolean toKeyframe) {
+    int oldFirstIndex = primarySampleQueue.getFirstIndex();
     primarySampleQueue.discardTo(positionUs, toKeyframe, true);
-    for (int i = 0; i < embeddedSampleQueues.length; i++) {
-      embeddedSampleQueues[i].discardTo(positionUs, toKeyframe, embeddedTracksSelected[i]);
+    int newFirstIndex = primarySampleQueue.getFirstIndex();
+    if (newFirstIndex > oldFirstIndex) {
+      long discardToUs = primarySampleQueue.getFirstTimestampUs();
+      for (int i = 0; i < embeddedSampleQueues.length; i++) {
+        embeddedSampleQueues[i].discardTo(discardToUs, toKeyframe, embeddedTracksSelected[i]);
+      }
+      discardDownstreamMediaChunks(newFirstIndex);
     }
-    discardDownstreamMediaChunks(primarySampleQueue.getFirstIndex());
   }
 
   /**
@@ -209,7 +214,7 @@ public class ChunkSampleStream<T extends ChunkSource> implements SampleStream, S
     boolean seekInsideBuffer = !isPendingReset() && (primarySampleQueue.advanceTo(positionUs, true,
         positionUs < getNextLoadPositionUs()) != SampleQueue.ADVANCE_FAILED);
     if (seekInsideBuffer) {
-      // We succeeded. Discard samples and corresponding chunks prior to the seek position.
+      // We succeeded. Advance the embedded sample queues to the seek position.
       for (SampleQueue embeddedSampleQueue : embeddedSampleQueues) {
         embeddedSampleQueue.rewind();
         embeddedSampleQueue.advanceTo(positionUs, true, false);

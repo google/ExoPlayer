@@ -226,6 +226,11 @@ public final class SampleQueue implements TrackOutput {
     return metadataQueue.getLargestQueuedTimestampUs();
   }
 
+  /** Returns the timestamp of the first sample, or {@link Long#MIN_VALUE} if the queue is empty. */
+  public long getFirstTimestampUs() {
+    return metadataQueue.getFirstTimestampUs();
+  }
+
   /**
    * Rewinds the read position to the first sample in the queue.
    */
