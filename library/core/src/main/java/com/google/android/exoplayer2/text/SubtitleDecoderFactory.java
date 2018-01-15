@@ -19,6 +19,7 @@ import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.text.cea.Cea608Decoder;
 import com.google.android.exoplayer2.text.cea.Cea708Decoder;
 import com.google.android.exoplayer2.text.dvb.DvbDecoder;
+import com.google.android.exoplayer2.text.pgs.PgsDecoder;
 import com.google.android.exoplayer2.text.ssa.SsaDecoder;
 import com.google.android.exoplayer2.text.subrip.SubripDecoder;
 import com.google.android.exoplayer2.text.ttml.TtmlDecoder;
@@ -80,7 +81,8 @@ public interface SubtitleDecoderFactory {
           || MimeTypes.APPLICATION_CEA608.equals(mimeType)
           || MimeTypes.APPLICATION_MP4CEA608.equals(mimeType)
           || MimeTypes.APPLICATION_CEA708.equals(mimeType)
-          || MimeTypes.APPLICATION_DVBSUBS.equals(mimeType);
+          || MimeTypes.APPLICATION_DVBSUBS.equals(mimeType)
+          || MimeTypes.APPLICATION_PGS.equals(mimeType);
     }
 
     @Override
@@ -105,6 +107,8 @@ public interface SubtitleDecoderFactory {
           return new Cea708Decoder(format.accessibilityChannel);
         case MimeTypes.APPLICATION_DVBSUBS:
           return new DvbDecoder(format.initializationData);
+        case MimeTypes.APPLICATION_PGS:
+          return new PgsDecoder();
         default:
           throw new IllegalArgumentException("Attempted to create decoder for unsupported format");
       }
