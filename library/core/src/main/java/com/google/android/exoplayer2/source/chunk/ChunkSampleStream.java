@@ -46,6 +46,7 @@ public class ChunkSampleStream<T extends ChunkSource> implements SampleStream, S
   public final int primaryTrackType;
 
   private final int[] embeddedTrackTypes;
+  private final Format[] embeddedTrackFormats;
   private final boolean[] embeddedTracksSelected;
   private final T chunkSource;
   private final SequenceableLoader.Callback<ChunkSampleStream<T>> callback;
@@ -65,9 +66,10 @@ public class ChunkSampleStream<T extends ChunkSource> implements SampleStream, S
   /* package */ boolean loadingFinished;
 
   /**
-   * @param primaryTrackType The type of the primary track. One of the {@link C}
-   *     {@code TRACK_TYPE_*} constants.
+   * @param primaryTrackType The type of the primary track. One of the {@link C} {@code
+   *     TRACK_TYPE_*} constants.
    * @param embeddedTrackTypes The types of any embedded tracks, or null.
+   * @param embeddedTrackFormats The formats of the embedded tracks, or null.
    * @param chunkSource A {@link ChunkSource} from which chunks to load are obtained.
    * @param callback An {@link Callback} for the stream.
    * @param allocator An {@link Allocator} from which allocations can be obtained.
@@ -76,11 +78,19 @@ public class ChunkSampleStream<T extends ChunkSource> implements SampleStream, S
    *     before propagating an error.
    * @param eventDispatcher A dispatcher to notify of events.
    */
-  public ChunkSampleStream(int primaryTrackType, int[] embeddedTrackTypes, T chunkSource,
-      Callback<ChunkSampleStream<T>> callback, Allocator allocator, long positionUs,
-      int minLoadableRetryCount, EventDispatcher eventDispatcher) {
+  public ChunkSampleStream(
+      int primaryTrackType,
+      int[] embeddedTrackTypes,
+      Format[] embeddedTrackFormats,
+      T chunkSource,
+      Callback<ChunkSampleStream<T>> callback,
+      Allocator allocator,
+      long positionUs,
+      int minLoadableRetryCount,
+      EventDispatcher eventDispatcher) {
     this.primaryTrackType = primaryTrackType;
     this.embeddedTrackTypes = embeddedTrackTypes;
+    this.embeddedTrackFormats = embeddedTrackFormats;
     this.chunkSource = chunkSource;
     this.callback = callback;
     this.eventDispatcher = eventDispatcher;
@@ -555,6 +565,8 @@ public class ChunkSampleStream<T extends ChunkSource> implements SampleStream, S
     private final SampleQueue sampleQueue;
     private final int index;
 
+    private boolean formatNotificationSent;
+
     public EmbeddedSampleStream(ChunkSampleStream<T> parent, SampleQueue sampleQueue, int index) {
       this.parent = parent;
       this.sampleQueue = sampleQueue;
@@ -568,12 +580,19 @@ public class ChunkSampleStream<T extends ChunkSource> implements SampleStream, S
 
     @Override
     public int skipData(long positionUs) {
+      int skipCount;
       if (loadingFinished && positionUs > sampleQueue.getLargestQueuedTimestampUs()) {
-        return sampleQueue.advanceToEnd();
+        skipCount = sampleQueue.advanceToEnd();
       } else {
-        int skipCount = sampleQueue.advanceTo(positionUs, true, true);
-        return skipCount == SampleQueue.ADVANCE_FAILED ? 0 : skipCount;
+        skipCount = sampleQueue.advanceTo(positionUs, true, true);
+        if (skipCount == SampleQueue.ADVANCE_FAILED) {
+          skipCount = 0;
+        }
       }
+      if (skipCount > 0) {
+        maybeNotifyTrackFormatChanged();
+      }
+      return skipCount;
     }
 
     @Override
@@ -587,8 +606,13 @@ public class ChunkSampleStream<T extends ChunkSource> implements SampleStream, S
       if (isPendingReset()) {
         return C.RESULT_NOTHING_READ;
       }
-      return sampleQueue.read(formatHolder, buffer, formatRequired, loadingFinished,
-          lastSeekPositionUs);
+      int result =
+          sampleQueue.read(
+              formatHolder, buffer, formatRequired, loadingFinished, lastSeekPositionUs);
+      if (result == C.RESULT_BUFFER_READ) {
+        maybeNotifyTrackFormatChanged();
+      }
+      return result;
     }
 
     public void release() {
@@ -596,6 +620,17 @@ public class ChunkSampleStream<T extends ChunkSource> implements SampleStream, S
       embeddedTracksSelected[index] = false;
     }
 
+    private void maybeNotifyTrackFormatChanged() {
+      if (!formatNotificationSent) {
+        eventDispatcher.downstreamFormatChanged(
+            embeddedTrackTypes[index],
+            embeddedTrackFormats[index],
+            C.SELECTION_REASON_UNKNOWN,
+            /* trackSelectionData= */ null,
+            lastSeekPositionUs);
+        formatNotificationSent = true;
+      }
+    }
   }
 
 }

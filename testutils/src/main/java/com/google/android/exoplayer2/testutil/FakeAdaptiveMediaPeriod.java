@@ -132,8 +132,15 @@ public class FakeAdaptiveMediaPeriod extends FakeMediaPeriod
   protected SampleStream createSampleStream(TrackSelection trackSelection) {
     FakeChunkSource chunkSource = chunkSourceFactory.createChunkSource(trackSelection, durationUs);
     return new ChunkSampleStream<>(
-        MimeTypes.getTrackType(trackSelection.getSelectedFormat().sampleMimeType), null,
-        chunkSource, this, allocator, 0, 3, eventDispatcher);
+        MimeTypes.getTrackType(trackSelection.getSelectedFormat().sampleMimeType),
+        null,
+        null,
+        chunkSource,
+        this,
+        allocator,
+        0,
+        3,
+        eventDispatcher);
   }
 
   @Override
