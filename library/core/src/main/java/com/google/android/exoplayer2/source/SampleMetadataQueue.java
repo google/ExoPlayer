@@ -186,6 +186,11 @@ import com.google.android.exoplayer2.util.Util;
     return largestQueuedTimestampUs;
   }
 
+  /** Returns the timestamp of the first sample, or {@link Long#MIN_VALUE} if the queue is empty. */
+  public synchronized long getFirstTimestampUs() {
+    return length == 0 ? Long.MIN_VALUE : timesUs[relativeFirstIndex];
+  }
+
   /**
    * Rewinds the read position to the first sample retained in the queue.
    */
@@ -487,8 +492,7 @@ import com.google.android.exoplayer2.util.Util;
    * Discards the specified number of samples.
    *
    * @param discardCount The number of samples to discard.
-   * @return The corresponding offset up to which data should be discarded, or
-   *     {@link C#POSITION_UNSET} if no discarding of data is necessary.
+   * @return The corresponding offset up to which data should be discarded.
    */
   private long discardSamples(int discardCount) {
     largestDiscardedTimestampUs = Math.max(largestDiscardedTimestampUs,
