@@ -37,13 +37,14 @@
   HLS source to finish preparation without downloading any chunks, which can
   significantly reduce initial buffering time
   ([#3149](https://github.com/google/ExoPlayer/issues/3149)).
-* DefaultTrackSelector: Replace `DefaultTrackSelector.Parameters` copy methods
-  with a builder.
-* DefaultTrackSelector: Support disabling of individual text track selection
-  flags.
+* DefaultTrackSelector:
+  * Replace `DefaultTrackSelector.Parameters` copy methods with a builder.
+  * Support disabling of individual text track selection flags.
 * New Cast extension: Simplifies toggling between local and Cast playbacks.
 * Audio: Support TrueHD passthrough for rechunked samples in Matroska files
   ([#2147](https://github.com/google/ExoPlayer/issues/2147)).
+* Captions: Initial support for PGS subtitles
+  ([#3008](https://github.com/google/ExoPlayer/issues/3008)).
 * CacheDataSource: Check periodically if it's possible to read from/write to
   cache after deciding to bypass cache.
 * IMA extension: Add support for playing non-Extractor content MediaSources in
