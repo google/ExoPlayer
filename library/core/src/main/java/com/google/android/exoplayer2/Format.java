@@ -474,8 +474,15 @@ public final class Format implements Parcelable {
         drmInitData, metadata);
   }
 
-  public Format copyWithContainerInfo(String id, String codecs, int bitrate, int width, int height,
-      @C.SelectionFlags int selectionFlags, String language) {
+  public Format copyWithContainerInfo(
+      String id,
+      String sampleMimeType,
+      String codecs,
+      int bitrate,
+      int width,
+      int height,
+      @C.SelectionFlags int selectionFlags,
+      String language) {
     return new Format(id, containerMimeType, sampleMimeType, codecs, bitrate, maxInputSize, width,
         height, frameRate, rotationDegrees, pixelWidthHeightRatio, projectionData, stereoMode,
         colorInfo, channelCount, sampleRate, pcmEncoding, encoderDelay, encoderPadding,

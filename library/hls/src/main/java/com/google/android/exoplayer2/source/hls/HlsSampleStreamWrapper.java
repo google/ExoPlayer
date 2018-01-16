@@ -882,8 +882,10 @@ import java.util.Arrays;
     int bitrate = propagateBitrate ? playlistFormat.bitrate : Format.NO_VALUE;
     int sampleTrackType = MimeTypes.getTrackType(sampleFormat.sampleMimeType);
     String codecs = Util.getCodecsOfType(playlistFormat.codecs, sampleTrackType);
+    String mimeType = MimeTypes.getMediaMimeType(codecs);
     return sampleFormat.copyWithContainerInfo(
         playlistFormat.id,
+        mimeType,
         codecs,
         bitrate,
         playlistFormat.width,

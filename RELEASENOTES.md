@@ -2,6 +2,8 @@
 
 ### dev-v2 (not yet released) ###
 
+* HLS: Fix mime type propagation
+  ([#3653](https://github.com/google/ExoPlayer/issues/3653)).
 * SimpleExoPlayerView: Automatically apply video rotation if
   `SimpleExoPlayerView` is configured to use `TextureView`
   ([#91](https://github.com/google/ExoPlayer/issues/91)).
