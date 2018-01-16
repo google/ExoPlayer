@@ -32,7 +32,13 @@
   seeking to the closest sync points before, either side or after specified seek
   positions.
   * Note: `SeekParameters` are not currently supported when playing HLS streams.
-* DASH: Support DASH manifest EventStream elements.
+* DRM: Optimistically attempt playback of DRM protected content that does not
+  declare scheme specific init data
+  ([#3630](https://github.com/google/ExoPlayer/issues/3630)).
+* DASH:
+  * Support in-band Emsg events targeting player with scheme id
+    "urn:mpeg:dash:event:2012" and scheme value of either "1", "2" or "3".
+  * Support DASH manifest EventStream elements.
 * HLS: Add opt-in support for chunkless preparation in HLS. This allows an
   HLS source to finish preparation without downloading any chunks, which can
   significantly reduce initial buffering time
