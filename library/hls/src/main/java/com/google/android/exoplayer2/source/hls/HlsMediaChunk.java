@@ -156,7 +156,7 @@ import java.util.concurrent.atomic.AtomicInteger;
    */
   public void init(HlsSampleStreamWrapper output) {
     this.output = output;
-    output.init(uid, shouldSpliceIn);
+    output.init(uid, shouldSpliceIn, reusingExtractor);
     if (!reusingExtractor) {
       extractor.init(output);
     }

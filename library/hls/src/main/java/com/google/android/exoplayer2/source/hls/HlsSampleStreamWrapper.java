@@ -93,6 +93,10 @@ import java.util.Arrays;
 
   private SampleQueue[] sampleQueues;
   private int[] sampleQueueTrackIds;
+  private boolean audioSampleQueueMappingDone;
+  private int audioSampleQueueIndex;
+  private boolean videoSampleQueueMappingDone;
+  private int videoSampleQueueIndex;
   private boolean sampleQueuesBuilt;
   private boolean prepared;
   private int enabledTrackGroupCount;
@@ -143,6 +147,8 @@ import java.util.Arrays;
     loader = new Loader("Loader:HlsSampleStreamWrapper");
     nextChunkHolder = new HlsChunkSource.HlsChunkHolder();
     sampleQueueTrackIds = new int[0];
+    audioSampleQueueIndex = C.INDEX_UNSET;
+    videoSampleQueueIndex = C.INDEX_UNSET;
     sampleQueues = new SampleQueue[0];
     sampleQueueIsAudioVideoFlags = new boolean[0];
     sampleQueuesEnabledStates = new boolean[0];
@@ -616,8 +622,14 @@ import java.util.Arrays;
    * @param chunkUid The chunk's uid.
    * @param shouldSpliceIn Whether the samples parsed from the chunk should be spliced into any
    *     samples already queued to the wrapper.
+   * @param reusingExtractor Whether the extractor for the chunk has already been used for preceding
+   *     chunks.
    */
-  public void init(int chunkUid, boolean shouldSpliceIn) {
+  public void init(int chunkUid, boolean shouldSpliceIn, boolean reusingExtractor) {
+    if (!reusingExtractor) {
+      audioSampleQueueMappingDone = false;
+      videoSampleQueueMappingDone = false;
+    }
     for (SampleQueue sampleQueue : sampleQueues) {
       sampleQueue.sourceId(chunkUid);
     }
@@ -633,14 +645,43 @@ import java.util.Arrays;
   @Override
   public TrackOutput track(int id, int type) {
     int trackCount = sampleQueues.length;
-    for (int i = 0; i < trackCount; i++) {
-      if (sampleQueueTrackIds[i] == id) {
-        return sampleQueues[i];
+
+    // Audio and video tracks are handled manually to ignore ids.
+    if (type == C.TRACK_TYPE_AUDIO) {
+      if (audioSampleQueueIndex != C.INDEX_UNSET) {
+        if (audioSampleQueueMappingDone) {
+          return sampleQueueTrackIds[audioSampleQueueIndex] == id
+              ? sampleQueues[audioSampleQueueIndex]
+              : createDummyTrackOutput(id, type);
+        }
+        audioSampleQueueMappingDone = true;
+        sampleQueueTrackIds[audioSampleQueueIndex] = id;
+        return sampleQueues[audioSampleQueueIndex];
+      } else if (tracksEnded) {
+        return createDummyTrackOutput(id, type);
       }
-    }
-    if (tracksEnded) {
-      Log.w(TAG, "Unmapped track with id " + id + " of type " + type);
-      return new DummyTrackOutput();
+    } else if (type == C.TRACK_TYPE_VIDEO) {
+      if (videoSampleQueueIndex != C.INDEX_UNSET) {
+        if (videoSampleQueueMappingDone) {
+          return sampleQueueTrackIds[videoSampleQueueIndex] == id
+              ? sampleQueues[videoSampleQueueIndex]
+              : createDummyTrackOutput(id, type);
+        }
+        videoSampleQueueMappingDone = true;
+        sampleQueueTrackIds[videoSampleQueueIndex] = id;
+        return sampleQueues[videoSampleQueueIndex];
+      } else if (tracksEnded) {
+        return createDummyTrackOutput(id, type);
+      }
+    } else /* sparse track */ {
+      for (int i = 0; i < trackCount; i++) {
+        if (sampleQueueTrackIds[i] == id) {
+          return sampleQueues[i];
+        }
+      }
+      if (tracksEnded) {
+        return createDummyTrackOutput(id, type);
+      }
     }
     SampleQueue trackOutput = new SampleQueue(allocator);
     trackOutput.setSampleOffsetUs(sampleOffsetUs);
@@ -653,6 +694,13 @@ import java.util.Arrays;
     sampleQueueIsAudioVideoFlags[trackCount] = type == C.TRACK_TYPE_AUDIO
         || type == C.TRACK_TYPE_VIDEO;
     haveAudioVideoSampleQueues |= sampleQueueIsAudioVideoFlags[trackCount];
+    if (type == C.TRACK_TYPE_AUDIO) {
+      audioSampleQueueMappingDone = true;
+      audioSampleQueueIndex = trackCount;
+    } else if (type == C.TRACK_TYPE_VIDEO) {
+      videoSampleQueueMappingDone = true;
+      videoSampleQueueIndex = trackCount;
+    }
     sampleQueuesEnabledStates = Arrays.copyOf(sampleQueuesEnabledStates, trackCount + 1);
     return trackOutput;
   }
@@ -912,5 +960,10 @@ import java.util.Arrays;
       return manifestFormat.accessibilityChannel == sampleFormat.accessibilityChannel;
     }
     return true;
+  }
+
+  private static DummyTrackOutput createDummyTrackOutput(int id, int type) {
+    Log.w(TAG, "Unmapped track with id " + id + " of type " + type);
+    return new DummyTrackOutput();
   }
 }
