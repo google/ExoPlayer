@@ -297,6 +297,22 @@ import com.google.android.exoplayer2.util.Util;
   }
 
   /**
+   * Attempts to set the read position to the specified sample index.
+   *
+   * @param sampleIndex The sample index.
+   * @return Whether the read position was set successfully. False is returned if the specified
+   *     index is smaller than the index of the first sample in the queue, or larger than the index
+   *     of the next sample that will be written.
+   */
+  public synchronized boolean setReadPosition(int sampleIndex) {
+    if (absoluteFirstIndex <= sampleIndex && sampleIndex <= absoluteFirstIndex + length) {
+      readPosition = sampleIndex - absoluteFirstIndex;
+      return true;
+    }
+    return false;
+  }
+
+  /**
    * Discards up to but not including the sample immediately before or at the specified time.
    *
    * @param timeUs The time to discard up to.

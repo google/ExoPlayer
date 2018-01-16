@@ -75,7 +75,8 @@ public class ChunkSampleStream<T extends ChunkSource> implements SampleStream, S
   private Format primaryDownstreamTrackFormat;
   private ReleaseCallback<T> releaseCallback;
   private long pendingResetPositionUs;
-  /* package */ long lastSeekPositionUs;
+  private long lastSeekPositionUs;
+  /* package */ long decodeOnlyUntilPositionUs;
   /* package */ boolean loadingFinished;
 
   /**
@@ -219,9 +220,6 @@ public class ChunkSampleStream<T extends ChunkSource> implements SampleStream, S
    * @return The adjusted seek position, in microseconds.
    */
   public long getAdjustedSeekPositionUs(long positionUs, SeekParameters seekParameters) {
-    // TODO: Using this method to adjust a seek position and then passing the adjusted position to
-    // seekToUs does not handle small discrepancies between the chunk boundary timestamps obtained
-    // from the chunk source and the timestamps of the samples in the chunks.
     return chunkSource.getAdjustedSeekPositionUs(positionUs, seekParameters);
   }
 
@@ -233,9 +231,43 @@ public class ChunkSampleStream<T extends ChunkSource> implements SampleStream, S
   public void seekToUs(long positionUs) {
     lastSeekPositionUs = positionUs;
     primarySampleQueue.rewind();
-    // If we're not pending a reset, see if we can seek within the primary sample queue.
-    boolean seekInsideBuffer = !isPendingReset() && (primarySampleQueue.advanceTo(positionUs, true,
-        positionUs < getNextLoadPositionUs()) != SampleQueue.ADVANCE_FAILED);
+
+    // See if we can seek within the primary sample queue.
+    boolean seekInsideBuffer;
+    if (isPendingReset()) {
+      seekInsideBuffer = false;
+    } else {
+      // Detect whether the seek is to the start of a chunk that's at least partially buffered.
+      BaseMediaChunk seekToMediaChunk = null;
+      for (int i = 0; i < mediaChunks.size(); i++) {
+        BaseMediaChunk mediaChunk = mediaChunks.get(i);
+        long mediaChunkStartTimeUs = mediaChunk.startTimeUs;
+        if (mediaChunkStartTimeUs == positionUs) {
+          seekToMediaChunk = mediaChunk;
+          break;
+        } else if (mediaChunkStartTimeUs > positionUs) {
+          // We're not going to find a chunk with a matching start time.
+          break;
+        }
+      }
+      if (seekToMediaChunk != null) {
+        // When seeking to the start of a chunk we use the index of the first sample in the chunk
+        // rather than the seek position. This ensures we seek to the keyframe at the start of the
+        // chunk even if the sample timestamps are slightly offset from the chunk start times.
+        seekInsideBuffer =
+            primarySampleQueue.setReadPosition(seekToMediaChunk.getFirstSampleIndex(0));
+        decodeOnlyUntilPositionUs = Long.MIN_VALUE;
+      } else {
+        seekInsideBuffer =
+            primarySampleQueue.advanceTo(
+                    positionUs,
+                    /* toKeyframe= */ true,
+                    /* allowTimeBeyondBuffer= */ positionUs < getNextLoadPositionUs())
+                != SampleQueue.ADVANCE_FAILED;
+        decodeOnlyUntilPositionUs = lastSeekPositionUs;
+      }
+    }
+
     if (seekInsideBuffer) {
       // We succeeded. Advance the embedded sample queues to the seek position.
       for (SampleQueue embeddedSampleQueue : embeddedSampleQueues) {
@@ -322,8 +354,9 @@ public class ChunkSampleStream<T extends ChunkSource> implements SampleStream, S
     if (isPendingReset()) {
       return C.RESULT_NOTHING_READ;
     }
-    int result = primarySampleQueue.read(formatHolder, buffer, formatRequired, loadingFinished,
-        lastSeekPositionUs);
+    int result =
+        primarySampleQueue.read(
+            formatHolder, buffer, formatRequired, loadingFinished, decodeOnlyUntilPositionUs);
     if (result == C.RESULT_BUFFER_READ) {
       maybeNotifyPrimaryTrackFormatChanged(primarySampleQueue.getReadIndex(), 1);
     }
@@ -421,9 +454,10 @@ public class ChunkSampleStream<T extends ChunkSource> implements SampleStream, S
       return false;
     }
 
+    boolean pendingReset = isPendingReset();
     MediaChunk previousChunk;
     long loadPositionUs;
-    if (isPendingReset()) {
+    if (pendingReset) {
       previousChunk = null;
       loadPositionUs = pendingResetPositionUs;
     } else {
@@ -446,8 +480,13 @@ public class ChunkSampleStream<T extends ChunkSource> implements SampleStream, S
     }
 
     if (isMediaChunk(loadable)) {
-      pendingResetPositionUs = C.TIME_UNSET;
       BaseMediaChunk mediaChunk = (BaseMediaChunk) loadable;
+      if (pendingReset) {
+        boolean resetToMediaChunk = mediaChunk.startTimeUs == pendingResetPositionUs;
+        // Only enable setting of the decode only flag if we're not resetting to a chunk boundary.
+        decodeOnlyUntilPositionUs = resetToMediaChunk ? Long.MIN_VALUE : pendingResetPositionUs;
+        pendingResetPositionUs = C.TIME_UNSET;
+      }
       mediaChunk.init(mediaChunkOutput);
       mediaChunks.add(mediaChunk);
     }
@@ -640,7 +679,7 @@ public class ChunkSampleStream<T extends ChunkSource> implements SampleStream, S
       }
       int result =
           sampleQueue.read(
-              formatHolder, buffer, formatRequired, loadingFinished, lastSeekPositionUs);
+              formatHolder, buffer, formatRequired, loadingFinished, decodeOnlyUntilPositionUs);
       if (result == C.RESULT_BUFFER_READ) {
         maybeNotifyTrackFormatChanged();
       }
