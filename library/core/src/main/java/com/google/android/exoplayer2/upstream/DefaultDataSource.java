@@ -48,6 +48,7 @@ public final class DefaultDataSource implements DataSource {
   private static final String SCHEME_ASSET = "asset";
   private static final String SCHEME_CONTENT = "content";
   private static final String SCHEME_RTMP = "rtmp";
+  private static final String SCHEME_RAW = RawResourceDataSource.RAW_RESOURCE_SCHEME;
 
   private final Context context;
   private final TransferListener<? super DataSource> listener;
@@ -60,6 +61,7 @@ public final class DefaultDataSource implements DataSource {
   private DataSource contentDataSource;
   private DataSource rtmpDataSource;
   private DataSource dataSchemeDataSource;
+  private DataSource rawResourceDataSource;
 
   private DataSource dataSource;
 
@@ -134,6 +136,8 @@ public final class DefaultDataSource implements DataSource {
       dataSource = getRtmpDataSource();
     } else if (DataSchemeDataSource.SCHEME_DATA.equals(scheme)) {
       dataSource = getDataSchemeDataSource();
+    } else if (SCHEME_RAW.equals(scheme)) {
+      dataSource = getRawResourceDataSource();
     } else {
       dataSource = baseDataSource;
     }
@@ -213,4 +217,11 @@ public final class DefaultDataSource implements DataSource {
     return dataSchemeDataSource;
   }
 
+  private DataSource getRawResourceDataSource() {
+    if (rawResourceDataSource == null) {
+      rawResourceDataSource = new RawResourceDataSource(context, listener);
+    }
+
+    return rawResourceDataSource;
+  }
 }
