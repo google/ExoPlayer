@@ -16,7 +16,9 @@
 package com.google.android.exoplayer2.source.dash;
 
 import android.os.SystemClock;
+import android.support.annotation.Nullable;
 import com.google.android.exoplayer2.source.chunk.ChunkSource;
+import com.google.android.exoplayer2.source.dash.PlayerEmsgHandler.PlayerTrackEmsgHandler;
 import com.google.android.exoplayer2.source.dash.manifest.DashManifest;
 import com.google.android.exoplayer2.trackselection.TrackSelection;
 import com.google.android.exoplayer2.upstream.LoaderErrorThrower;
@@ -53,7 +55,8 @@ public interface DashChunkSource extends ChunkSource {
         int type,
         long elapsedRealtimeOffsetMs,
         boolean enableEventMessageTrack,
-        boolean enableCea608Track);
+        boolean enableCea608Track,
+        @Nullable PlayerTrackEmsgHandler playerEmsgHandler);
   }
 
   /**

@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.source.chunk;
 
+import android.support.annotation.Nullable;
 import android.util.Log;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
@@ -41,6 +42,17 @@ import java.util.List;
 public class ChunkSampleStream<T extends ChunkSource> implements SampleStream, SequenceableLoader,
     Loader.Callback<Chunk>, Loader.ReleaseCallback {
 
+  /** A callback to be notified when a sample stream has finished being released. */
+  public interface ReleaseCallback<T extends ChunkSource> {
+
+    /**
+     * Called when the {@link ChunkSampleStream} has finished being released.
+     *
+     * @param chunkSampleStream The released sample stream.
+     */
+    void onSampleStreamReleased(ChunkSampleStream<T> chunkSampleStream);
+  }
+
   private static final String TAG = "ChunkSampleStream";
 
   public final int primaryTrackType;
@@ -61,6 +73,7 @@ public class ChunkSampleStream<T extends ChunkSource> implements SampleStream, S
   private final BaseMediaChunkOutput mediaChunkOutput;
 
   private Format primaryDownstreamTrackFormat;
+  private ReleaseCallback<T> releaseCallback;
   private long pendingResetPositionUs;
   /* package */ long lastSeekPositionUs;
   /* package */ boolean loadingFinished;
@@ -247,10 +260,26 @@ public class ChunkSampleStream<T extends ChunkSource> implements SampleStream, S
 
   /**
    * Releases the stream.
-   * <p>
-   * This method should be called when the stream is no longer required.
+   *
+   * <p>This method should be called when the stream is no longer required. Either this method or
+   * {@link #release(ReleaseCallback)} can be used to release this stream.
    */
   public void release() {
+    release(null);
+  }
+
+  /**
+   * Releases the stream.
+   *
+   * <p>This method should be called when the stream is no longer required. Either this method or
+   * {@link #release()} can be used to release this stream.
+   *
+   * @param callback A callback to be called when the release ends. Will be called synchronously
+   *     from this method if no load is in progress, or asynchronously once the load has been
+   *     canceled otherwise.
+   */
+  public void release(@Nullable ReleaseCallback<T> callback) {
+    this.releaseCallback = callback;
     boolean releasedSynchronously = loader.release(this);
     if (!releasedSynchronously) {
       // Discard as much as we can synchronously.
@@ -266,6 +295,9 @@ public class ChunkSampleStream<T extends ChunkSource> implements SampleStream, S
     primarySampleQueue.reset();
     for (SampleQueue embeddedSampleQueue : embeddedSampleQueues) {
       embeddedSampleQueue.reset();
+    }
+    if (releaseCallback != null) {
+      releaseCallback.onSampleStreamReleased(this);
     }
   }
 

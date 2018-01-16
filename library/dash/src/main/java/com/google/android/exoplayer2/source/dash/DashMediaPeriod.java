@@ -31,6 +31,8 @@ import com.google.android.exoplayer2.source.TrackGroup;
 import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.source.chunk.ChunkSampleStream;
 import com.google.android.exoplayer2.source.chunk.ChunkSampleStream.EmbeddedSampleStream;
+import com.google.android.exoplayer2.source.dash.PlayerEmsgHandler.PlayerEmsgCallback;
+import com.google.android.exoplayer2.source.dash.PlayerEmsgHandler.PlayerTrackEmsgHandler;
 import com.google.android.exoplayer2.source.dash.manifest.AdaptationSet;
 import com.google.android.exoplayer2.source.dash.manifest.DashManifest;
 import com.google.android.exoplayer2.source.dash.manifest.Descriptor;
@@ -47,14 +49,15 @@ import java.lang.annotation.RetentionPolicy;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
 
-/**
- * A DASH {@link MediaPeriod}.
- */
-/* package */ final class DashMediaPeriod implements MediaPeriod,
-    SequenceableLoader.Callback<ChunkSampleStream<DashChunkSource>> {
+/** A DASH {@link MediaPeriod}. */
+/* package */ final class DashMediaPeriod
+    implements MediaPeriod,
+        SequenceableLoader.Callback<ChunkSampleStream<DashChunkSource>>,
+        ChunkSampleStream.ReleaseCallback<DashChunkSource> {
 
   /* package */ final int id;
   private final DashChunkSource.Factory chunkSourceFactory;
@@ -66,6 +69,9 @@ import java.util.Map;
   private final TrackGroupArray trackGroups;
   private final TrackGroupInfo[] trackGroupInfos;
   private final CompositeSequenceableLoaderFactory compositeSequenceableLoaderFactory;
+  private final PlayerEmsgHandler playerEmsgHandler;
+  private final IdentityHashMap<ChunkSampleStream<DashChunkSource>, PlayerTrackEmsgHandler>
+      trackEmsgHandlerBySampleStream;
 
   private Callback callback;
   private ChunkSampleStream<DashChunkSource>[] sampleStreams;
@@ -75,11 +81,18 @@ import java.util.Map;
   private int periodIndex;
   private List<EventStream> eventStreams;
 
-  public DashMediaPeriod(int id, DashManifest manifest, int periodIndex,
-      DashChunkSource.Factory chunkSourceFactory, int minLoadableRetryCount,
-      EventDispatcher eventDispatcher, long elapsedRealtimeOffset,
-      LoaderErrorThrower manifestLoaderErrorThrower, Allocator allocator,
-      CompositeSequenceableLoaderFactory compositeSequenceableLoaderFactory) {
+  public DashMediaPeriod(
+      int id,
+      DashManifest manifest,
+      int periodIndex,
+      DashChunkSource.Factory chunkSourceFactory,
+      int minLoadableRetryCount,
+      EventDispatcher eventDispatcher,
+      long elapsedRealtimeOffset,
+      LoaderErrorThrower manifestLoaderErrorThrower,
+      Allocator allocator,
+      CompositeSequenceableLoaderFactory compositeSequenceableLoaderFactory,
+      PlayerEmsgCallback playerEmsgCallback) {
     this.id = id;
     this.manifest = manifest;
     this.periodIndex = periodIndex;
@@ -90,8 +103,10 @@ import java.util.Map;
     this.manifestLoaderErrorThrower = manifestLoaderErrorThrower;
     this.allocator = allocator;
     this.compositeSequenceableLoaderFactory = compositeSequenceableLoaderFactory;
+    playerEmsgHandler = new PlayerEmsgHandler(manifest, playerEmsgCallback, allocator);
     sampleStreams = newSampleStreamArray(0);
     eventSampleStreams = new EventSampleStream[0];
+    trackEmsgHandlerBySampleStream = new IdentityHashMap<>();
     compositeSequenceableLoader =
         compositeSequenceableLoaderFactory.createCompositeSequenceableLoader(sampleStreams);
     Period period = manifest.getPeriod(periodIndex);
@@ -111,14 +126,14 @@ import java.util.Map;
   public void updateManifest(DashManifest manifest, int periodIndex) {
     this.manifest = manifest;
     this.periodIndex = periodIndex;
-    Period period = manifest.getPeriod(periodIndex);
+    playerEmsgHandler.updateManifest(manifest);
     if (sampleStreams != null) {
       for (ChunkSampleStream<DashChunkSource> sampleStream : sampleStreams) {
         sampleStream.getChunkSource().updateManifest(manifest, periodIndex);
       }
       callback.onContinueLoadingRequested(this);
     }
-    eventStreams = period.eventStreams;
+    eventStreams = manifest.getPeriod(periodIndex).eventStreams;
     for (EventSampleStream eventSampleStream : eventSampleStreams) {
       for (EventStream eventStream : eventStreams) {
         if (eventStream.id().equals(eventSampleStream.eventStreamId())) {
@@ -130,10 +145,23 @@ import java.util.Map;
   }
 
   public void release() {
+    playerEmsgHandler.release();
     for (ChunkSampleStream<DashChunkSource> sampleStream : sampleStreams) {
-      sampleStream.release();
+      sampleStream.release(this);
     }
   }
+
+  // ChunkSampleStream.ReleaseCallback implementation.
+
+  @Override
+  public void onSampleStreamReleased(ChunkSampleStream<DashChunkSource> stream) {
+    PlayerTrackEmsgHandler trackEmsgHandler = trackEmsgHandlerBySampleStream.remove(stream);
+    if (trackEmsgHandler != null) {
+      trackEmsgHandler.release();
+    }
+  }
+
+  // MediaPeriod implementation.
 
   @Override
   public void prepare(Callback callback, long positionUs) {
@@ -181,7 +209,7 @@ import java.util.Map;
         @SuppressWarnings("unchecked")
         ChunkSampleStream<DashChunkSource> stream = (ChunkSampleStream<DashChunkSource>) streams[i];
         if (selections[i] == null || !mayRetainStreamFlags[i]) {
-          stream.release();
+          stream.release(this);
           streams[i] = null;
         } else {
           int trackGroupIndex = trackGroups.indexOf(selections[i].getTrackGroup());
@@ -501,10 +529,22 @@ import java.util.Map;
       embeddedTrackFormats = Arrays.copyOf(embeddedTrackFormats, embeddedTrackCount);
       embeddedTrackTypes = Arrays.copyOf(embeddedTrackTypes, embeddedTrackCount);
     }
-    DashChunkSource chunkSource = chunkSourceFactory.createDashChunkSource(
-        manifestLoaderErrorThrower, manifest, periodIndex, trackGroupInfo.adaptationSetIndices,
-        selection, trackGroupInfo.trackType, elapsedRealtimeOffset, enableEventMessageTrack,
-        enableCea608Track);
+    PlayerTrackEmsgHandler trackPlayerEmsgHandler =
+        manifest.dynamic && enableEventMessageTrack
+            ? playerEmsgHandler.newPlayerTrackEmsgHandler()
+            : null;
+    DashChunkSource chunkSource =
+        chunkSourceFactory.createDashChunkSource(
+            manifestLoaderErrorThrower,
+            manifest,
+            periodIndex,
+            trackGroupInfo.adaptationSetIndices,
+            selection,
+            trackGroupInfo.trackType,
+            elapsedRealtimeOffset,
+            enableEventMessageTrack,
+            enableCea608Track,
+            trackPlayerEmsgHandler);
     ChunkSampleStream<DashChunkSource> stream =
         new ChunkSampleStream<>(
             trackGroupInfo.trackType,
@@ -516,6 +556,7 @@ import java.util.Map;
             positionUs,
             minLoadableRetryCount,
             eventDispatcher);
+    trackEmsgHandlerBySampleStream.put(stream, trackPlayerEmsgHandler);
     return stream;
   }
 
@@ -581,9 +622,8 @@ import java.util.Map;
     private static final int CATEGORY_PRIMARY = 0;
 
     /**
-     * A track group whose samples are embedded within one of the primary streams.
-     * For example: an EMSG track has its sample embedded in `emsg' atoms in one of the primary
-     * streams.
+     * A track group whose samples are embedded within one of the primary streams. For example: an
+     * EMSG track has its sample embedded in emsg atoms in one of the primary streams.
      */
     private static final int CATEGORY_EMBEDDED = 1;
 
