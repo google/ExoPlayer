@@ -41,13 +41,15 @@
   * Support in-band Emsg events targeting player with scheme id
     "urn:mpeg:dash:event:2012" and scheme value of either "1", "2" or "3".
   * Support DASH manifest EventStream elements.
-* HLS: Add opt-in support for chunkless preparation in HLS. This allows an
-  HLS source to finish preparation without downloading any chunks, which can
-  significantly reduce initial buffering time
-  ([#3149](https://github.com/google/ExoPlayer/issues/3149)).
 * DefaultTrackSelector:
   * Replace `DefaultTrackSelector.Parameters` copy methods with a builder.
   * Support disabling of individual text track selection flags.
+* HLS:
+    * Add opt-in support for chunkless preparation in HLS. This allows an
+      HLS source to finish preparation without downloading any chunks, which can
+      significantly reduce initial buffering time
+      ([#3149](https://github.com/google/ExoPlayer/issues/3149)).
+    * Fail on loss of sync with Transport Stream.
 * New Cast extension: Simplifies toggling between local and Cast playbacks.
 * Audio: Support TrueHD passthrough for rechunked samples in Matroska files
   ([#2147](https://github.com/google/ExoPlayer/issues/2147)).
