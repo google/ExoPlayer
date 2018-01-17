@@ -932,6 +932,9 @@ import java.util.Arrays;
     int sampleTrackType = MimeTypes.getTrackType(sampleFormat.sampleMimeType);
     String codecs = Util.getCodecsOfType(playlistFormat.codecs, sampleTrackType);
     String mimeType = MimeTypes.getMediaMimeType(codecs);
+    if (mimeType == null) {
+      mimeType = sampleFormat.sampleMimeType;
+    }
     return sampleFormat.copyWithContainerInfo(
         playlistFormat.id,
         mimeType,
