@@ -148,7 +148,7 @@ public final class PgsDecoder extends SimpleSubtitleDecoder {
         if (sectionLength < 7) {
           return;
         }
-        int totalLength = buffer.readUnsignedInt24() - 4;
+        int totalLength = buffer.readUnsignedInt24();
         if (totalLength < 4) {
           return;
         }
