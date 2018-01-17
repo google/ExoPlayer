@@ -285,17 +285,18 @@ public final class DashMediaSource implements MediaSource {
   private DataSource dataSource;
   private Loader loader;
   private LoaderErrorThrower loaderErrorThrower;
+  private Handler handler;
 
   private Uri manifestUri;
-  private long manifestLoadStartTimestamp;
-  private long manifestLoadEndTimestamp;
   private DashManifest manifest;
-  private Handler handler;
-  private boolean pendingManifestLoading;
+  private boolean manifestLoadPending;
+  private long manifestLoadStartTimestampMs;
+  private long manifestLoadEndTimestampMs;
   private long elapsedRealtimeOffsetMs;
+
+  private int staleManifestReloadAttempt;
   private long expiredManifestPublishTimeUs;
   private boolean dynamicMediaPresentationEnded;
-  private int staleManifestReloadAttempt;
 
   private int firstPeriodId;
 
@@ -539,15 +540,15 @@ public final class DashMediaSource implements MediaSource {
 
   @Override
   public void releaseSource() {
-    pendingManifestLoading = false;
+    manifestLoadPending = false;
     dataSource = null;
     loaderErrorThrower = null;
     if (loader != null) {
       loader.release();
       loader = null;
     }
-    manifestLoadStartTimestamp = 0;
-    manifestLoadEndTimestamp = 0;
+    manifestLoadStartTimestampMs = 0;
+    manifestLoadEndTimestampMs = 0;
     manifest = null;
     if (handler != null) {
       handler.removeCallbacksAndMessages(null);
@@ -605,11 +606,11 @@ public final class DashMediaSource implements MediaSource {
       return;
     }
     manifest = newManifest;
-    manifestLoadStartTimestamp = elapsedRealtimeMs - loadDurationMs;
-    manifestLoadEndTimestamp = elapsedRealtimeMs;
+    manifestLoadStartTimestampMs = elapsedRealtimeMs - loadDurationMs;
+    manifestLoadEndTimestampMs = elapsedRealtimeMs;
     staleManifestReloadAttempt = 0;
     if (!manifest.dynamic) {
-      pendingManifestLoading = false;
+      manifestLoadPending = false;
     }
     if (manifest.location != null) {
       synchronized (manifestUriLock) {
@@ -691,14 +692,14 @@ public final class DashMediaSource implements MediaSource {
   private void startLoadingManifest() {
     handler.removeCallbacks(refreshManifestRunnable);
     if (loader.isLoading()) {
-      pendingManifestLoading = true;
+      manifestLoadPending = true;
       return;
     }
     Uri manifestUri;
     synchronized (manifestUriLock) {
       manifestUri = this.manifestUri;
     }
-    pendingManifestLoading = false;
+    manifestLoadPending = false;
     startLoading(new ParsingLoadable<>(dataSource, manifestUri, C.DATA_TYPE_MANIFEST,
         manifestParser), manifestCallback, minLoadableRetryCount);
   }
@@ -722,8 +723,8 @@ public final class DashMediaSource implements MediaSource {
 
   private void resolveUtcTimingElementDirect(UtcTimingElement timingElement) {
     try {
-      long utcTimestamp = Util.parseXsDateTime(timingElement.value);
-      onUtcTimestampResolved(utcTimestamp - manifestLoadEndTimestamp);
+      long utcTimestampMs = Util.parseXsDateTime(timingElement.value);
+      onUtcTimestampResolved(utcTimestampMs - manifestLoadEndTimestampMs);
     } catch (ParserException e) {
       onUtcTimestampResolutionError(e);
     }
@@ -825,7 +826,7 @@ public final class DashMediaSource implements MediaSource {
       if (windowChangingImplicitly) {
         handler.postDelayed(simulateManifestRefreshRunnable, NOTIFY_MANIFEST_INTERVAL_MS);
       }
-      if (pendingManifestLoading) {
+      if (manifestLoadPending) {
         startLoadingManifest();
       } else if (scheduleRefresh) {
         // Schedule an explicit refresh if needed.
@@ -852,7 +853,7 @@ public final class DashMediaSource implements MediaSource {
       // http://azure.microsoft.com/blog/2014/09/13/dash-live-streaming-with-azure-media-service/
       minUpdatePeriodMs = 5000;
     }
-    long nextLoadTimestamp = manifestLoadStartTimestamp + minUpdatePeriodMs;
+    long nextLoadTimestamp = manifestLoadStartTimestampMs + minUpdatePeriodMs;
     long delayUntilNextLoad = Math.max(0, nextLoadTimestamp - SystemClock.elapsedRealtime());
     handler.postDelayed(refreshManifestRunnable, delayUntilNextLoad);
   }
