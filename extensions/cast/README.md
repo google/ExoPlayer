@@ -27,7 +27,4 @@ locally. Instructions for doing this can be found in ExoPlayer's
 ## Using the extension ##
 
 Create a `CastPlayer` and use it to integrate Cast into your app using
-ExoPlayer's common Player interface. You can try the Cast Extension to see how a
-[PlaybackControlView][] can be used to control playback in a remote receiver app.
-
-[PlaybackControlView]: https://google.github.io/ExoPlayer/doc/reference/com/google/android/exoplayer2/ui/PlaybackControlView.html
+ExoPlayer's common `Player` interface.

@@ -41,7 +41,7 @@
   </attr>
   <attr name="show_shuffle_button" format="boolean"/>
 
-  <declare-styleable name="SimpleExoPlayerView">
+  <declare-styleable name="PlayerView">
     <attr name="use_artwork" format="boolean"/>
     <attr name="shutter_background_color" format="color"/>
     <attr name="default_artwork" format="reference"/>
@@ -52,7 +52,7 @@
     <attr name="resize_mode"/>
     <attr name="surface_type"/>
     <attr name="player_layout_id"/>
-    <!-- PlaybackControlView attrs -->
+    <!-- PlayerControlView attributes -->
     <attr name="show_timeout"/>
     <attr name="rewind_increment"/>
     <attr name="fastforward_increment"/>
@@ -65,7 +65,7 @@
     <attr name="resize_mode"/>
   </declare-styleable>
 
-  <declare-styleable name="PlaybackControlView">
+  <declare-styleable name="PlayerControlView">
     <attr name="show_timeout"/>
     <attr name="rewind_increment"/>
     <attr name="fastforward_increment"/>

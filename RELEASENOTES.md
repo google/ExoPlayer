@@ -6,6 +6,10 @@
   `SimpleExoPlayerView` is configured to use `TextureView`
   ([#91](https://github.com/google/ExoPlayer/issues/91)).
 * Player interface:
+  * Add `Player.VideoComponent`, `Player.TextComponent` and
+    `Player.MetadataComponent` interfaces that define optional video, text and
+    metadata output functionality. New `getVideoComponent`, `getTextComponent`
+    and `getMetadataComponent` methods provide access to this functionality.
   * Add optional parameter to `stop` to reset the player when stopping.
   * Add a reason to `EventListener.onTimelineChanged` to distinguish between
     initial preparation, reset and dynamic updates.
@@ -17,6 +21,10 @@
     more customization of the message. Now supports setting a message delivery
     playback position and/or a delivery handler.
     ([#2189](https://github.com/google/ExoPlayer/issues/2189)).
+* UI components:
+  * Generalized player and control views to allow them to bind with any
+    `Player`, and renamed them to `PlayerView` and `PlayerControlView`
+    respectively.
 * Buffering:
   * Allow a back-buffer of media to be retained behind the current playback
     position, for fast backward seeking. The back-buffer can be configured by

@@ -125,6 +125,16 @@ import java.util.concurrent.CopyOnWriteArraySet;
   }
 
   @Override
+  public VideoComponent getVideoComponent() {
+    return null;
+  }
+
+  @Override
+  public TextComponent getTextComponent() {
+    return null;
+  }
+
+  @Override
   public Looper getPlaybackLooper() {
     return internalPlayer.getPlaybackLooper();
   }
