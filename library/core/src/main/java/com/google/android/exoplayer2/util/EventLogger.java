@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.android.exoplayer2.demo;
+package com.google.android.exoplayer2.util;
 
 import android.os.SystemClock;
 import android.util.Log;
@@ -53,8 +53,8 @@ import java.io.IOException;
 import java.text.NumberFormat;
 import java.util.Locale;
 
-/** Logs player events using {@link Log}. */
-/* package */ final class EventLogger
+/** Logs events from {@link Player} and other core components using {@link Log}. */
+public class EventLogger
     implements Player.EventListener,
         MetadataOutput,
         AudioRendererEventListener,
