@@ -137,9 +137,13 @@ import java.util.concurrent.atomic.AtomicInteger;
     reusingExtractor = extractor == previousExtractor;
     initLoadCompleted = reusingExtractor && initDataSpec != null;
     if (isPackedAudioExtractor) {
-      id3Decoder = previousChunk != null ? previousChunk.id3Decoder : new Id3Decoder();
-      id3Data =  previousChunk != null ? previousChunk.id3Data
-          : new ParsableByteArray(Id3Decoder.ID3_HEADER_LENGTH);
+      if (previousChunk != null && previousChunk.id3Data != null) {
+        id3Decoder = previousChunk.id3Decoder;
+        id3Data = previousChunk.id3Data;
+      } else {
+        id3Decoder = new Id3Decoder();
+        id3Data = new ParsableByteArray(Id3Decoder.ID3_HEADER_LENGTH);
+      }
     } else {
       id3Decoder = null;
       id3Data = null;

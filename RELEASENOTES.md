@@ -2,8 +2,6 @@
 
 ### dev-v2 (not yet released) ###
 
-* HLS: Fix mime type propagation
-  ([#3653](https://github.com/google/ExoPlayer/issues/3653)).
 * SimpleExoPlayerView: Automatically apply video rotation if
   `SimpleExoPlayerView` is configured to use `TextureView`
   ([#91](https://github.com/google/ExoPlayer/issues/91)).
@@ -50,6 +48,10 @@
       significantly reduce initial buffering time
       ([#3149](https://github.com/google/ExoPlayer/issues/3149)).
     * Fail on loss of sync with Transport Stream.
+    * Fix mime type propagation
+      ([#3653](https://github.com/google/ExoPlayer/issues/3653)).
+    * Fix ID3 context reuse across segment format changes
+      ([#3622](https://github.com/google/ExoPlayer/issues/3622)).
 * New Cast extension: Simplifies toggling between local and Cast playbacks.
 * Audio: Support TrueHD passthrough for rechunked samples in Matroska files
   ([#2147](https://github.com/google/ExoPlayer/issues/2147)).
