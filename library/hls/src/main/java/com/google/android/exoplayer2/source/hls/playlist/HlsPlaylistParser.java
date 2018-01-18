@@ -76,7 +76,9 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
   private static final String METHOD_NONE = "NONE";
   private static final String METHOD_AES_128 = "AES-128";
   private static final String METHOD_SAMPLE_AES = "SAMPLE-AES";
+  // Replaced by METHOD_SAMPLE_AES_CTR. Keep for backward compatibility.
   private static final String METHOD_SAMPLE_AES_CENC = "SAMPLE-AES-CENC";
+  private static final String METHOD_SAMPLE_AES_CTR = "SAMPLE-AES-CTR";
   private static final String KEYFORMAT_IDENTITY = "identity";
   private static final String KEYFORMAT_WIDEVINE_PSSH_BINARY =
       "urn:uuid:edef8ba9-79d6-4ace-a3c8-27dcd51d21ed";
@@ -108,8 +110,19 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
       + ":(\\d+(?:@\\d+)?)\\b");
   private static final Pattern REGEX_ATTR_BYTERANGE =
       Pattern.compile("BYTERANGE=\"(\\d+(?:@\\d+)?)\\b\"");
-  private static final Pattern REGEX_METHOD = Pattern.compile("METHOD=(" + METHOD_NONE + "|"
-      + METHOD_AES_128 + "|" + METHOD_SAMPLE_AES + "|" + METHOD_SAMPLE_AES_CENC + ")");
+  private static final Pattern REGEX_METHOD =
+      Pattern.compile(
+          "METHOD=("
+              + METHOD_NONE
+              + "|"
+              + METHOD_AES_128
+              + "|"
+              + METHOD_SAMPLE_AES
+              + "|"
+              + METHOD_SAMPLE_AES_CENC
+              + "|"
+              + METHOD_SAMPLE_AES_CTR
+              + ")");
   private static final Pattern REGEX_KEYFORMAT = Pattern.compile("KEYFORMAT=\"(.+?)\"");
   private static final Pattern REGEX_URI = Pattern.compile("URI=\"(.+?)\"");
   private static final Pattern REGEX_IV = Pattern.compile("IV=([^,.*]+)");
@@ -408,8 +421,13 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
           } else if (method != null) {
             SchemeData schemeData = parseWidevineSchemeData(line, keyFormat);
             if (schemeData != null) {
-              drmInitData = new DrmInitData(METHOD_SAMPLE_AES_CENC.equals(method)
-                  ? C.CENC_TYPE_cenc : C.CENC_TYPE_cbcs, schemeData);
+              drmInitData =
+                  new DrmInitData(
+                      (METHOD_SAMPLE_AES_CENC.equals(method)
+                              || METHOD_SAMPLE_AES_CTR.equals(method))
+                          ? C.CENC_TYPE_cenc
+                          : C.CENC_TYPE_cbcs,
+                      schemeData);
             }
           }
         }
