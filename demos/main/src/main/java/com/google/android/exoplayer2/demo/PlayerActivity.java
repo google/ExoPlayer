@@ -68,8 +68,8 @@ import com.google.android.exoplayer2.trackselection.MappingTrackSelector.MappedT
 import com.google.android.exoplayer2.trackselection.TrackSelection;
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
 import com.google.android.exoplayer2.ui.DebugTextViewHelper;
-import com.google.android.exoplayer2.ui.PlaybackControlView;
-import com.google.android.exoplayer2.ui.SimpleExoPlayerView;
+import com.google.android.exoplayer2.ui.PlayerControlView;
+import com.google.android.exoplayer2.ui.PlayerView;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DefaultBandwidthMeter;
 import com.google.android.exoplayer2.upstream.HttpDataSource;
@@ -79,11 +79,9 @@ import java.net.CookieManager;
 import java.net.CookiePolicy;
 import java.util.UUID;
 
-/**
- * An activity that plays media using {@link SimpleExoPlayer}.
- */
-public class PlayerActivity extends Activity implements OnClickListener,
-    PlaybackControlView.VisibilityListener {
+/** An activity that plays media using {@link SimpleExoPlayer}. */
+public class PlayerActivity extends Activity
+    implements OnClickListener, PlayerControlView.VisibilityListener {
 
   public static final String DRM_SCHEME_EXTRA = "drm_scheme";
   public static final String DRM_LICENSE_URL = "drm_license_url";
@@ -112,7 +110,7 @@ public class PlayerActivity extends Activity implements OnClickListener,
 
   private Handler mainHandler;
   private EventLogger eventLogger;
-  private SimpleExoPlayerView simpleExoPlayerView;
+  private PlayerView playerView;
   private LinearLayout debugRootView;
   private TextView debugTextView;
   private Button retryButton;
@@ -156,9 +154,9 @@ public class PlayerActivity extends Activity implements OnClickListener,
     retryButton = findViewById(R.id.retry_button);
     retryButton.setOnClickListener(this);
 
-    simpleExoPlayerView = findViewById(R.id.player_view);
-    simpleExoPlayerView.setControllerVisibilityListener(this);
-    simpleExoPlayerView.requestFocus();
+    playerView = findViewById(R.id.player_view);
+    playerView.setControllerVisibilityListener(this);
+    playerView.requestFocus();
   }
 
   @Override
@@ -223,7 +221,7 @@ public class PlayerActivity extends Activity implements OnClickListener,
   @Override
   public boolean dispatchKeyEvent(KeyEvent event) {
     // See whether the player view wants to handle media or DPAD keys events.
-    return simpleExoPlayerView.dispatchKeyEvent(event) || super.dispatchKeyEvent(event);
+    return playerView.dispatchKeyEvent(event) || super.dispatchKeyEvent(event);
   }
 
   // OnClickListener methods
@@ -303,7 +301,7 @@ public class PlayerActivity extends Activity implements OnClickListener,
       player.addAudioDebugListener(eventLogger);
       player.addVideoDebugListener(eventLogger);
 
-      simpleExoPlayerView.setPlayer(player);
+      playerView.setPlayer(player);
       player.setPlayWhenReady(shouldAutoPlay);
       debugViewHelper = new DebugTextViewHelper(player, debugTextView);
       debugViewHelper.start();
@@ -470,7 +468,7 @@ public class PlayerActivity extends Activity implements OnClickListener,
           .newInstance(this, adTagUri);
       adUiViewGroup = new FrameLayout(this);
       // The demo app has a non-null overlay frame layout.
-      simpleExoPlayerView.getOverlayFrameLayout().addView(adUiViewGroup);
+      playerView.getOverlayFrameLayout().addView(adUiViewGroup);
     }
     AdsMediaSource.MediaSourceFactory adMediaSourceFactory =
         new AdsMediaSource.MediaSourceFactory() {
@@ -495,7 +493,7 @@ public class PlayerActivity extends Activity implements OnClickListener,
       adsLoader.release();
       adsLoader = null;
       loadedAdTagUri = null;
-      simpleExoPlayerView.getOverlayFrameLayout().removeAllViews();
+      playerView.getOverlayFrameLayout().removeAllViews();
     }
   }
 

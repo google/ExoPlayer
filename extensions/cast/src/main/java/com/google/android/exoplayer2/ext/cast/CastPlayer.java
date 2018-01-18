@@ -281,6 +281,16 @@ public final class CastPlayer implements Player {
   // Player implementation.
 
   @Override
+  public VideoComponent getVideoComponent() {
+    return null;
+  }
+
+  @Override
+  public TextComponent getTextComponent() {
+    return null;
+  }
+
+  @Override
   public void addListener(EventListener listener) {
     listeners.add(listener);
   }

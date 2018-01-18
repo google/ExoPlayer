@@ -38,7 +38,7 @@ import com.google.android.exoplayer2.trackselection.AdaptiveTrackSelection;
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
 import com.google.android.exoplayer2.trackselection.TrackSelection;
 import com.google.android.exoplayer2.trackselection.TrackSelector;
-import com.google.android.exoplayer2.ui.SimpleExoPlayerView;
+import com.google.android.exoplayer2.ui.PlayerView;
 import com.google.android.exoplayer2.upstream.BandwidthMeter;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DefaultBandwidthMeter;
@@ -68,7 +68,7 @@ import com.google.android.exoplayer2.util.Util;
             new DefaultBandwidthMeter());
   }
 
-  public void init(Context context, SimpleExoPlayerView simpleExoPlayerView) {
+  public void init(Context context, PlayerView playerView) {
     // Create a default track selector.
     BandwidthMeter bandwidthMeter = new DefaultBandwidthMeter();
     TrackSelection.Factory videoTrackSelectionFactory =
@@ -79,7 +79,7 @@ import com.google.android.exoplayer2.util.Util;
     player = ExoPlayerFactory.newSimpleInstance(context, trackSelector);
 
     // Bind the player to the view.
-    simpleExoPlayerView.setPlayer(player);
+    playerView.setPlayer(player);
 
     // This is the MediaSource representing the content media (i.e. not the ad).
     String contentUrl = context.getString(R.string.content_url);
@@ -92,7 +92,7 @@ import com.google.android.exoplayer2.util.Util;
             contentMediaSource,
             /* adMediaSourceFactory= */ this,
             adsLoader,
-            simpleExoPlayerView.getOverlayFrameLayout(),
+            playerView.getOverlayFrameLayout(),
             /* eventHandler= */ null,
             /* eventListener= */ null);
 

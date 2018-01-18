@@ -33,13 +33,11 @@ import com.google.android.exoplayer2.ExoPlayerLibraryInfo;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.Player.DiscontinuityReason;
 import com.google.android.exoplayer2.Player.TimelineChangeReason;
-import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.util.ErrorMessageProvider;
+import com.google.android.exoplayer2.video.VideoListener;
 
-/**
- * Leanback {@code PlayerAdapter} implementation for {@link SimpleExoPlayer}.
- */
+/** Leanback {@code PlayerAdapter} implementation for {@link Player}. */
 public final class LeanbackPlayerAdapter extends PlayerAdapter {
 
   static {
@@ -47,7 +45,7 @@ public final class LeanbackPlayerAdapter extends PlayerAdapter {
   }
 
   private final Context context;
-  private final SimpleExoPlayer player;
+  private final Player player;
   private final Handler handler;
   private final ComponentListener componentListener;
   private final Runnable updateProgressRunnable;
@@ -60,14 +58,14 @@ public final class LeanbackPlayerAdapter extends PlayerAdapter {
 
   /**
    * Builds an instance. Note that the {@code PlayerAdapter} does not manage the lifecycle of the
-   * {@link SimpleExoPlayer} instance. The caller remains responsible for releasing the player when
-   * it's no longer required.
+   * {@link Player} instance. The caller remains responsible for releasing the player when it's no
+   * longer required.
    *
    * @param context The current context (activity).
    * @param player Instance of your exoplayer that needs to be configured.
    * @param updatePeriodMs The delay between player control updates, in milliseconds.
    */
-  public LeanbackPlayerAdapter(Context context, SimpleExoPlayer player, final int updatePeriodMs) {
+  public LeanbackPlayerAdapter(Context context, Player player, final int updatePeriodMs) {
     this.context = context;
     this.player = player;
     handler = new Handler();
@@ -115,13 +113,19 @@ public final class LeanbackPlayerAdapter extends PlayerAdapter {
     }
     notifyStateChanged();
     player.addListener(componentListener);
-    player.addVideoListener(componentListener);
+    Player.VideoComponent videoComponent = player.getVideoComponent();
+    if (videoComponent != null) {
+      videoComponent.addVideoListener(componentListener);
+    }
   }
 
   @Override
   public void onDetachedFromHost() {
     player.removeListener(componentListener);
-    player.removeVideoListener(componentListener);
+    Player.VideoComponent videoComponent = player.getVideoComponent();
+    if (videoComponent != null) {
+      videoComponent.removeVideoListener(componentListener);
+    }
     if (surfaceHolderGlueHost != null) {
       surfaceHolderGlueHost.setSurfaceHolderCallback(null);
       surfaceHolderGlueHost = null;
@@ -196,7 +200,10 @@ public final class LeanbackPlayerAdapter extends PlayerAdapter {
 
   /* package */ void setVideoSurface(Surface surface) {
     hasSurface = surface != null;
-    player.setVideoSurface(surface);
+    Player.VideoComponent videoComponent = player.getVideoComponent();
+    if (videoComponent != null) {
+      videoComponent.setVideoSurface(surface);
+    }
     maybeNotifyPreparedStateChanged(getCallback());
   }
 
@@ -219,8 +226,8 @@ public final class LeanbackPlayerAdapter extends PlayerAdapter {
     }
   }
 
-  private final class ComponentListener extends Player.DefaultEventListener implements
-      SimpleExoPlayer.VideoListener, SurfaceHolder.Callback {
+  private final class ComponentListener extends Player.DefaultEventListener
+      implements SurfaceHolder.Callback, VideoListener {
 
     // SurfaceHolder.Callback implementation.
 
@@ -274,11 +281,11 @@ public final class LeanbackPlayerAdapter extends PlayerAdapter {
       callback.onBufferedPositionChanged(LeanbackPlayerAdapter.this);
     }
 
-    // SimpleExoplayerView.Callback implementation.
+    // VideoListener implementation.
 
     @Override
-    public void onVideoSizeChanged(int width, int height, int unappliedRotationDegrees,
-        float pixelWidthHeightRatio) {
+    public void onVideoSizeChanged(
+        int width, int height, int unappliedRotationDegrees, float pixelWidthHeightRatio) {
       getCallback().onVideoSizeChanged(LeanbackPlayerAdapter.this, width, height);
     }
 

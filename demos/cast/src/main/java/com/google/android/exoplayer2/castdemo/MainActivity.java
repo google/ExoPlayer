@@ -39,8 +39,8 @@ import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.castdemo.DemoUtil.Sample;
 import com.google.android.exoplayer2.ext.cast.CastPlayer;
-import com.google.android.exoplayer2.ui.PlaybackControlView;
-import com.google.android.exoplayer2.ui.SimpleExoPlayerView;
+import com.google.android.exoplayer2.ui.PlayerControlView;
+import com.google.android.exoplayer2.ui.PlayerView;
 import com.google.android.gms.cast.framework.CastButtonFactory;
 import com.google.android.gms.cast.framework.CastContext;
 
@@ -50,8 +50,8 @@ import com.google.android.gms.cast.framework.CastContext;
 public class MainActivity extends AppCompatActivity implements OnClickListener,
     PlayerManager.QueuePositionListener {
 
-  private SimpleExoPlayerView simpleExoPlayerView;
-  private PlaybackControlView castControlView;
+  private PlayerView localPlayerView;
+  private PlayerControlView castControlView;
   private PlayerManager playerManager;
   private MediaQueueAdapter listAdapter;
   private CastContext castContext;
@@ -66,8 +66,8 @@ public class MainActivity extends AppCompatActivity implements OnClickListener,
 
     setContentView(R.layout.main_activity);
 
-    simpleExoPlayerView = findViewById(R.id.player_view);
-    simpleExoPlayerView.requestFocus();
+    localPlayerView = findViewById(R.id.local_player_view);
+    localPlayerView.requestFocus();
 
     castControlView = findViewById(R.id.cast_control_view);
 
@@ -93,8 +93,13 @@ public class MainActivity extends AppCompatActivity implements OnClickListener,
   @Override
   public void onResume() {
     super.onResume();
-    playerManager = PlayerManager.createPlayerManager(this, simpleExoPlayerView, castControlView,
-        this, castContext);
+    playerManager =
+        PlayerManager.createPlayerManager(
+            /* queuePositionListener= */ this,
+            localPlayerView,
+            castControlView,
+            /* context= */ this,
+            castContext);
   }
 
   @Override

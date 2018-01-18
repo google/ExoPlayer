@@ -19,7 +19,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:keepScreenOn="true">
-  <com.google.android.exoplayer2.ui.SimpleExoPlayerView android:id="@+id/player_view"
+  <com.google.android.exoplayer2.ui.PlayerView android:id="@+id/local_player_view"
       android:layout_width="match_parent"
       android:layout_height="0dp"
       android:layout_weight="12"
@@ -42,7 +42,7 @@
         android:layout_alignParentBottom="true"
         android:padding="30dp"/>
   </RelativeLayout>
-  <com.google.android.exoplayer2.ui.PlaybackControlView android:id="@+id/cast_control_view"
+  <com.google.android.exoplayer2.ui.PlayerControlView android:id="@+id/cast_control_view"
       android:layout_width="match_parent"
       android:layout_height="0dp"
       android:layout_weight="2"
