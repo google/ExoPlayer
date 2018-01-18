@@ -69,6 +69,7 @@
   cache after deciding to bypass cache.
 * IMA extension: Add support for playing non-Extractor content MediaSources in
   the IMA demo app ([#3676](https://github.com/google/ExoPlayer/issues/3676)).
+* `EventLogger` moved from the demo app into the core library.
 
 ### 2.6.1 ###
 
