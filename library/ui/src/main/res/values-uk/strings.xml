@@ -1,4 +1,4 @@
-<?xml version="1.0"?>
+<?xml version="1.0" encoding="utf-8"?>
 <!--
      Copyright (C) 2016 The Android Open Source Project
 
@@ -26,4 +26,5 @@
   <string name="exo_controls_repeat_off_description">"Не повторювати"</string>
   <string name="exo_controls_repeat_one_description">"Повторити один елемент"</string>
   <string name="exo_controls_shuffle_description">"Перемішати"</string>
+  <string name="exo_controls_fullscreen_description">Повноекранний режим</string>
 </resources>

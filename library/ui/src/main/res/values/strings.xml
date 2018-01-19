@@ -25,4 +25,5 @@
   <string name="exo_controls_repeat_one_description">Repeat one</string>
   <string name="exo_controls_repeat_all_description">Repeat all</string>
   <string name="exo_controls_shuffle_description">Shuffle</string>
+  <string name="exo_controls_fullscreen_description">Fullscreen mode</string>
 </resources>
