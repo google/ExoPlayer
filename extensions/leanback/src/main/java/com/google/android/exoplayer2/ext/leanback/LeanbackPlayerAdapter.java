@@ -30,6 +30,7 @@ import com.google.android.exoplayer2.ControlDispatcher;
 import com.google.android.exoplayer2.DefaultControlDispatcher;
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.ExoPlayerLibraryInfo;
+import com.google.android.exoplayer2.PlaybackPreparer;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.Player.DiscontinuityReason;
 import com.google.android.exoplayer2.Player.TimelineChangeReason;
@@ -50,6 +51,7 @@ public final class LeanbackPlayerAdapter extends PlayerAdapter {
   private final ComponentListener componentListener;
   private final Runnable updateProgressRunnable;
 
+  private @Nullable PlaybackPreparer playbackPreparer;
   private ControlDispatcher controlDispatcher;
   private ErrorMessageProvider<? super ExoPlaybackException> errorMessageProvider;
   private SurfaceHolderGlueHost surfaceHolderGlueHost;
@@ -80,6 +82,15 @@ public final class LeanbackPlayerAdapter extends PlayerAdapter {
         handler.postDelayed(this, updatePeriodMs);
       }
     };
+  }
+
+  /**
+   * Sets the {@link PlaybackPreparer}.
+   *
+   * @param playbackPreparer The {@link PlaybackPreparer}.
+   */
+  public void setPlaybackPreparer(@Nullable PlaybackPreparer playbackPreparer) {
+    this.playbackPreparer = playbackPreparer;
   }
 
   /**
@@ -165,7 +176,11 @@ public final class LeanbackPlayerAdapter extends PlayerAdapter {
 
   @Override
   public void play() {
-    if (player.getPlaybackState() == Player.STATE_ENDED) {
+    if (player.getPlaybackState() == Player.STATE_IDLE) {
+      if (playbackPreparer != null) {
+        playbackPreparer.preparePlayback();
+      }
+    } else if (player.getPlaybackState() == Player.STATE_ENDED) {
       controlDispatcher.dispatchSeekTo(player, player.getCurrentWindowIndex(), C.TIME_UNSET);
     }
     if (controlDispatcher.dispatchSetPlayWhenReady(player, true)) {

@@ -31,6 +31,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlayerLibraryInfo;
+import com.google.android.exoplayer2.PlaybackPreparer;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.util.Assertions;
@@ -217,6 +218,7 @@ public class PlayerControlView extends FrameLayout {
   private Player player;
   private com.google.android.exoplayer2.ControlDispatcher controlDispatcher;
   private VisibilityListener visibilityListener;
+  private @Nullable PlaybackPreparer playbackPreparer;
 
   private boolean isAttachedToWindow;
   private boolean showMultiWindowTimeBar;
@@ -432,6 +434,15 @@ public class PlayerControlView extends FrameLayout {
   }
 
   /**
+   * Sets the {@link PlaybackPreparer}.
+   *
+   * @param playbackPreparer The {@link PlaybackPreparer}.
+   */
+  public void setPlaybackPreparer(@Nullable PlaybackPreparer playbackPreparer) {
+    this.playbackPreparer = playbackPreparer;
+  }
+
+  /**
    * Sets the {@link com.google.android.exoplayer2.ControlDispatcher}.
    *
    * @param controlDispatcher The {@link com.google.android.exoplayer2.ControlDispatcher}, or null
@@ -599,7 +610,7 @@ public class PlayerControlView extends FrameLayout {
       return;
     }
     boolean requestPlayPauseFocus = false;
-    boolean playing = player != null && player.getPlayWhenReady();
+    boolean playing = isPlaying();
     if (playButton != null) {
       requestPlayPauseFocus |= playing && playButton.isFocused();
       playButton.setVisibility(playing ? View.GONE : View.VISIBLE);
@@ -811,7 +822,7 @@ public class PlayerControlView extends FrameLayout {
   }
 
   private void requestPlayPauseFocus() {
-    boolean playing = player != null && player.getPlayWhenReady();
+    boolean playing = isPlaying();
     if (!playing && playButton != null) {
       playButton.requestFocus();
     } else if (playing && pauseButton != null) {
@@ -985,6 +996,13 @@ public class PlayerControlView extends FrameLayout {
     return true;
   }
 
+  private boolean isPlaying() {
+    return player != null
+        && player.getPlaybackState() != Player.STATE_ENDED
+        && player.getPlaybackState() != Player.STATE_IDLE
+        && player.getPlayWhenReady();
+  }
+
   @SuppressLint("InlinedApi")
   private static boolean isHandledMediaKey(int keyCode) {
     return keyCode == KeyEvent.KEYCODE_MEDIA_FAST_FORWARD
@@ -1085,6 +1103,13 @@ public class PlayerControlView extends FrameLayout {
         } else if (rewindButton == view) {
           rewind();
         } else if (playButton == view) {
+          if (player.getPlaybackState() == Player.STATE_IDLE) {
+            if (playbackPreparer != null) {
+              playbackPreparer.preparePlayback();
+            }
+          } else if (player.getPlaybackState() == Player.STATE_ENDED) {
+            controlDispatcher.dispatchSeekTo(player, player.getCurrentWindowIndex(), C.TIME_UNSET);
+          }
           controlDispatcher.dispatchSetPlayWhenReady(player, true);
         } else if (pauseButton == view) {
           controlDispatcher.dispatchSetPlayWhenReady(player, false);

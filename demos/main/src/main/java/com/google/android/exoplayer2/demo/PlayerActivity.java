@@ -39,6 +39,7 @@ import com.google.android.exoplayer2.C.ContentType;
 import com.google.android.exoplayer2.DefaultRenderersFactory;
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.ExoPlayerFactory;
+import com.google.android.exoplayer2.PlaybackPreparer;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.drm.DefaultDrmSessionManager;
@@ -82,7 +83,7 @@ import java.util.UUID;
 
 /** An activity that plays media using {@link SimpleExoPlayer}. */
 public class PlayerActivity extends Activity
-    implements OnClickListener, PlayerControlView.VisibilityListener {
+    implements OnClickListener, PlaybackPreparer, PlayerControlView.VisibilityListener {
 
   public static final String DRM_SCHEME_EXTRA = "drm_scheme";
   public static final String DRM_LICENSE_URL = "drm_license_url";
@@ -114,7 +115,6 @@ public class PlayerActivity extends Activity
   private PlayerView playerView;
   private LinearLayout debugRootView;
   private TextView debugTextView;
-  private Button retryButton;
 
   private DataSource.Factory mediaDataSourceFactory;
   private SimpleExoPlayer player;
@@ -152,8 +152,6 @@ public class PlayerActivity extends Activity
     rootView.setOnClickListener(this);
     debugRootView = findViewById(R.id.controls_root);
     debugTextView = findViewById(R.id.debug_text_view);
-    retryButton = findViewById(R.id.retry_button);
-    retryButton.setOnClickListener(this);
 
     playerView = findViewById(R.id.player_view);
     playerView.setControllerVisibilityListener(this);
@@ -229,15 +227,20 @@ public class PlayerActivity extends Activity
 
   @Override
   public void onClick(View view) {
-    if (view == retryButton) {
-      initializePlayer();
-    } else if (view.getParent() == debugRootView) {
+    if (view.getParent() == debugRootView) {
       MappedTrackInfo mappedTrackInfo = trackSelector.getCurrentMappedTrackInfo();
       if (mappedTrackInfo != null) {
         trackSelectionHelper.showSelectionDialog(
             this, ((Button) view).getText(), mappedTrackInfo, (int) view.getTag());
       }
     }
+  }
+
+  // PlaybackControlView.PlaybackPreparer implementation
+
+  @Override
+  public void preparePlayback() {
+    initializePlayer();
   }
 
   // PlaybackControlView.VisibilityListener implementation
@@ -301,9 +304,10 @@ public class PlayerActivity extends Activity
       player.addMetadataOutput(eventLogger);
       player.addAudioDebugListener(eventLogger);
       player.addVideoDebugListener(eventLogger);
+      player.setPlayWhenReady(shouldAutoPlay);
 
       playerView.setPlayer(player);
-      player.setPlayWhenReady(shouldAutoPlay);
+      playerView.setPlaybackPreparer(this);
       debugViewHelper = new DebugTextViewHelper(player, debugTextView);
       debugViewHelper.start();
     }
@@ -502,10 +506,6 @@ public class PlayerActivity extends Activity
 
   private void updateButtonVisibilities() {
     debugRootView.removeAllViews();
-
-    retryButton.setVisibility(inErrorState ? View.VISIBLE : View.GONE);
-    debugRootView.addView(retryButton);
-
     if (player == null) {
       return;
     }

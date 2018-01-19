@@ -39,6 +39,7 @@ import android.widget.ImageView;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ControlDispatcher;
 import com.google.android.exoplayer2.DefaultControlDispatcher;
+import com.google.android.exoplayer2.PlaybackPreparer;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.Player.DiscontinuityReason;
 import com.google.android.exoplayer2.metadata.Metadata;
@@ -674,6 +675,16 @@ public class PlayerView extends FrameLayout {
   public void setControllerVisibilityListener(PlayerControlView.VisibilityListener listener) {
     Assertions.checkState(controller != null);
     controller.setVisibilityListener(listener);
+  }
+
+  /**
+   * Sets the {@link PlaybackPreparer}.
+   *
+   * @param playbackPreparer The {@link PlaybackPreparer}.
+   */
+  public void setPlaybackPreparer(@Nullable PlaybackPreparer playbackPreparer) {
+    Assertions.checkState(controller != null);
+    controller.setPlaybackPreparer(playbackPreparer);
   }
 
   /**
