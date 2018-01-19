@@ -881,8 +881,11 @@ import java.util.Collections;
   private void sendCustomMessageToTarget(PlayerMessage message) {
     if (message.getHandler().getLooper() == handler.getLooper()) {
       deliverCustomMessage(message);
-      // The message may have caused something to change that now requires us to do work.
-      handler.sendEmptyMessage(MSG_DO_SOME_WORK);
+      if (playbackInfo.playbackState == Player.STATE_READY
+          || playbackInfo.playbackState == Player.STATE_BUFFERING) {
+        // The message may have caused something to change that now requires us to do work.
+        handler.sendEmptyMessage(MSG_DO_SOME_WORK);
+      }
     } else {
       handler.obtainMessage(MSG_SEND_MESSAGE_TO_TARGET, message).sendToTarget();
     }
@@ -1413,7 +1416,7 @@ import java.util.Collections;
     MediaPeriodHolder loadingPeriodHolder = queue.getLoadingPeriod();
     if (loadingPeriodHolder == null || loadingPeriodHolder.isFullyBuffered()) {
       setIsLoading(false);
-    } else if (loadingPeriodHolder != null && !playbackInfo.isLoading) {
+    } else if (!playbackInfo.isLoading) {
       maybeContinueLoading();
     }
 

@@ -1399,7 +1399,7 @@ public final class ExoPlayerTest extends TestCase {
     assertEquals(2, target3.windowIndex);
   }
 
-  public void testSetAndSwitchSurfaceTest() throws Exception {
+  public void testSetAndSwitchSurface() throws Exception {
     final List<Integer> rendererMessages = new ArrayList<>();
     Renderer videoRenderer =
         new FakeRenderer(Builder.VIDEO_FORMAT) {
@@ -1409,25 +1409,8 @@ public final class ExoPlayerTest extends TestCase {
             rendererMessages.add(what);
           }
         };
-    final Surface surface1 = DummySurface.newInstanceV17(/* context= */ null, /* secure= */ false);
-    final Surface surface2 = DummySurface.newInstanceV17(/* context= */ null, /* secure= */ false);
     ActionSchedule actionSchedule =
-        new ActionSchedule.Builder("setAndSwitchSurfaceTest")
-            .executeRunnable(
-                new PlayerRunnable() {
-                  @Override
-                  public void run(SimpleExoPlayer player) {
-                    player.setVideoSurface(surface1);
-                  }
-                })
-            .executeRunnable(
-                new PlayerRunnable() {
-                  @Override
-                  public void run(SimpleExoPlayer player) {
-                    player.setVideoSurface(surface2);
-                  }
-                })
-            .build();
+        addSurfaceSwitch(new ActionSchedule.Builder("testSetAndSwitchSurface")).build();
     new ExoPlayerTestRunner.Builder()
         .setRenderers(videoRenderer)
         .setActionSchedule(actionSchedule)
@@ -1437,6 +1420,44 @@ public final class ExoPlayerTest extends TestCase {
         .blockUntilEnded(TIMEOUT_MS);
     assertEquals(2, Collections.frequency(rendererMessages, C.MSG_SET_SURFACE));
   }
+
+  public void testSwitchSurfaceOnEndedState() throws Exception {
+    ActionSchedule.Builder scheduleBuilder =
+        new ActionSchedule.Builder("testSwitchSurfaceOnEndedState")
+            .waitForPlaybackState(Player.STATE_ENDED);
+    ActionSchedule waitForEndedAndSwitchSchedule = addSurfaceSwitch(scheduleBuilder).build();
+    new ExoPlayerTestRunner.Builder()
+        .setTimeline(Timeline.EMPTY)
+        .setActionSchedule(waitForEndedAndSwitchSchedule)
+        .build()
+        .start()
+        .blockUntilActionScheduleFinished(TIMEOUT_MS)
+        .blockUntilEnded(TIMEOUT_MS);
+  }
+
+  // Internal methods.
+
+  private static ActionSchedule.Builder addSurfaceSwitch(ActionSchedule.Builder builder) {
+    final Surface surface1 = DummySurface.newInstanceV17(/* context= */ null, /* secure= */ false);
+    final Surface surface2 = DummySurface.newInstanceV17(/* context= */ null, /* secure= */ false);
+    return builder
+        .executeRunnable(
+            new PlayerRunnable() {
+              @Override
+              public void run(SimpleExoPlayer player) {
+                player.setVideoSurface(surface1);
+              }
+            })
+        .executeRunnable(
+            new PlayerRunnable() {
+              @Override
+              public void run(SimpleExoPlayer player) {
+                player.setVideoSurface(surface2);
+              }
+            });
+  }
+
+  // Internal classes.
 
   private static final class PositionGrabbingMessageTarget extends PlayerTarget {
 
