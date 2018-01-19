@@ -65,6 +65,20 @@ public class TestUtil {
     return Arrays.copyOf(data, position);
   }
 
+  public static byte[] readExactly(DataSource dataSource, int length) throws IOException {
+    byte[] data = new byte[length];
+    int position = 0;
+    while (position < length) {
+      int bytesRead = dataSource.read(data, position, data.length - position);
+      if (bytesRead == C.RESULT_END_OF_INPUT) {
+        Assert.fail("Not enough data could be read: " + position + " < " + length);
+      } else {
+        position += bytesRead;
+      }
+    }
+    return data;
+  }
+
   public static byte[] buildTestData(int length) {
     return buildTestData(length, length);
   }

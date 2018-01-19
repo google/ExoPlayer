@@ -28,22 +28,16 @@ import java.util.TreeSet;
  */
 /*package*/ final class CachedContent {
 
-  /**
-   * The cache file id that uniquely identifies the original stream.
-   */
+  /** The cache file id that uniquely identifies the original stream. */
   public final int id;
-  /**
-   * The cache key that uniquely identifies the original stream.
-   */
+  /** The cache key that uniquely identifies the original stream. */
   public final String key;
-  /**
-   * The cached spans of this content.
-   */
+  /** The cached spans of this content. */
   private final TreeSet<SimpleCacheSpan> cachedSpans;
-  /**
-   * The length of the original stream, or {@link C#LENGTH_UNSET} if the length is unknown.
-   */
+  /** The length of the original stream, or {@link C#LENGTH_UNSET} if the length is unknown. */
   private long length;
+  /** Whether the content is locked. */
+  private boolean locked;
 
   /**
    * Reads an instance from a {@link DataInputStream}.
@@ -89,6 +83,16 @@ import java.util.TreeSet;
   /** Sets the length of the content. */
   public void setLength(long length) {
     this.length = length;
+  }
+
+  /** Returns whether the content is locked. */
+  public boolean isLocked() {
+    return locked;
+  }
+
+  /** Sets the locked state of the content. */
+  public void setLocked(boolean locked) {
+    this.locked = locked;
   }
 
   /** Adds the given {@link SimpleCacheSpan} which contains a part of the content. */

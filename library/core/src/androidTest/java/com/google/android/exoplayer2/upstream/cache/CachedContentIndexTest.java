@@ -55,7 +55,7 @@ public class CachedContentIndexTest extends InstrumentationTestCase {
     // Add two CachedContents with add methods
     CachedContent cachedContent1 = new CachedContent(5, key1, 10);
     index.addNew(cachedContent1);
-    CachedContent cachedContent2 = index.add(key2);
+    CachedContent cachedContent2 = index.getOrAdd(key2);
     assertTrue(cachedContent1.id != cachedContent2.id);
 
     // add a span
@@ -85,8 +85,8 @@ public class CachedContentIndexTest extends InstrumentationTestCase {
     assertEquals(key2, index.getKeyForId(cachedContent2.id));
 
     // test remove()
-    index.removeEmpty(key2);
-    index.removeEmpty(key3);
+    index.maybeRemove(key2);
+    index.maybeRemove(key3);
     assertEquals(cachedContent1, index.get(key1));
     assertNull(index.get(key2));
     assertTrue(cacheSpanFile.exists());
@@ -215,10 +215,42 @@ public class CachedContentIndexTest extends InstrumentationTestCase {
     assertStoredAndLoadedEqual(index, new CachedContentIndex(cacheDir, key));
   }
 
+  public void testRemoveEmptyNotLockedCachedContent() throws Exception {
+    CachedContent cachedContent = new CachedContent(5, "key1", 10);
+    index.addNew(cachedContent);
+
+    index.maybeRemove(cachedContent.key);
+
+    assertNull(index.get(cachedContent.key));
+  }
+
+  public void testCantRemoveNotEmptyCachedContent() throws Exception {
+    CachedContent cachedContent = new CachedContent(5, "key1", 10);
+    index.addNew(cachedContent);
+    File cacheSpanFile =
+        SimpleCacheSpanTest.createCacheSpanFile(cacheDir, cachedContent.id, 10, 20, 30);
+    SimpleCacheSpan span = SimpleCacheSpan.createCacheEntry(cacheSpanFile, index);
+    cachedContent.addSpan(span);
+
+    index.maybeRemove(cachedContent.key);
+
+    assertNotNull(index.get(cachedContent.key));
+  }
+
+  public void testCantRemoveLockedCachedContent() throws Exception {
+    CachedContent cachedContent = new CachedContent(5, "key1", 10);
+    cachedContent.setLocked(true);
+    index.addNew(cachedContent);
+
+    index.maybeRemove(cachedContent.key);
+
+    assertNotNull(index.get(cachedContent.key));
+  }
+
   private void assertStoredAndLoadedEqual(CachedContentIndex index, CachedContentIndex index2)
       throws IOException {
     index.addNew(new CachedContent(5, "key1", 10));
-    index.add("key2");
+    index.getOrAdd("key2");
     index.store();
 
     index2.load();

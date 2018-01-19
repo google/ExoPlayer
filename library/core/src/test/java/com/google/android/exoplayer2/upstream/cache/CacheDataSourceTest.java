@@ -19,19 +19,20 @@ import static com.google.android.exoplayer2.C.LENGTH_UNSET;
 import static com.google.android.exoplayer2.upstream.cache.CacheAsserts.assertCacheEmpty;
 import static com.google.common.truth.Truth.assertThat;
 import static com.google.common.truth.Truth.assertWithMessage;
-import static java.util.Arrays.copyOf;
-import static java.util.Arrays.copyOfRange;
 import static org.junit.Assert.fail;
 
 import android.net.Uri;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.testutil.FakeDataSet.FakeData;
 import com.google.android.exoplayer2.testutil.FakeDataSource;
+import com.google.android.exoplayer2.testutil.TestUtil;
 import com.google.android.exoplayer2.upstream.DataSpec;
 import com.google.android.exoplayer2.upstream.FileDataSource;
 import com.google.android.exoplayer2.util.Util;
 import java.io.File;
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.NavigableSet;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Ignore;
@@ -202,11 +203,7 @@ public final class CacheDataSourceTest {
     CacheUtil.cache(dataSpec, cache, upstream2, null);
 
     // Read the rest of the data.
-    while (true) {
-      if (cacheDataSource.read(buffer, 0, buffer.length) == C.RESULT_END_OF_INPUT) {
-        break;
-      }
-    }
+    TestUtil.readToEnd(cacheDataSource);
     cacheDataSource.close();
   }
 
@@ -257,11 +254,76 @@ public final class CacheDataSourceTest {
     CacheUtil.cache(dataSpec, cache, upstream2, null);
 
     // Read the rest of the data.
-    while (true) {
-      if (cacheDataSource.read(buffer, 0, buffer.length) == C.RESULT_END_OF_INPUT) {
-        break;
+    TestUtil.readToEnd(cacheDataSource);
+    cacheDataSource.close();
+  }
+
+  @Test
+  public void testDeleteCachedWhileReadingFromUpstreamWithReadOnlyCacheDataSourceDoesNotCrash()
+      throws Exception {
+    // Create a fake data source with a 1 KB default data.
+    FakeDataSource upstream = new FakeDataSource();
+    upstream.getDataSet().newDefaultData().appendReadData(1024).endData();
+
+    // Cache the latter half of the data.
+    DataSpec dataSpec = new DataSpec(testDataUri, 512, C.LENGTH_UNSET, testDataKey);
+    CacheUtil.cache(dataSpec, cache, upstream, null);
+
+    // Create cache read-only CacheDataSource.
+    CacheDataSource cacheDataSource =
+        new CacheDataSource(cache, upstream, new FileDataSource(), null, 0, null);
+
+    // Open source and read some data from upstream as the data hasn't cached yet.
+    dataSpec = new DataSpec(testDataUri, 0, C.LENGTH_UNSET, testDataKey);
+    cacheDataSource.open(dataSpec);
+    TestUtil.readExactly(cacheDataSource, 100);
+
+    // Delete cached data.
+    CacheUtil.remove(cache, testDataKey);
+    assertCacheEmpty(cache);
+
+    // Read the rest of the data.
+    TestUtil.readToEnd(cacheDataSource);
+    cacheDataSource.close();
+  }
+
+  @Test
+  public void testDeleteCachedWhileReadingFromUpstreamWithBlockingCacheDataSourceDoesNotBlock()
+      throws Exception {
+    // Create a fake data source with a 1 KB default data.
+    FakeDataSource upstream = new FakeDataSource();
+    int dataLength = 1024;
+    upstream.getDataSet().newDefaultData().appendReadData(dataLength).endData();
+
+    // Cache the latter half of the data.
+    int halfDataLength = 512;
+    DataSpec dataSpec = new DataSpec(testDataUri, halfDataLength, C.LENGTH_UNSET, testDataKey);
+    CacheUtil.cache(dataSpec, cache, upstream, null);
+
+    // Create blocking CacheDataSource.
+    CacheDataSource cacheDataSource =
+        new CacheDataSource(cache, upstream, CacheDataSource.FLAG_BLOCK_ON_CACHE);
+
+    dataSpec = new DataSpec(testDataUri, 0, C.LENGTH_UNSET, testDataKey);
+    cacheDataSource.open(dataSpec);
+
+    // Read the first half from upstream as it hasn't cached yet.
+    TestUtil.readExactly(cacheDataSource, halfDataLength);
+
+    // Delete the cached latter half.
+    NavigableSet<CacheSpan> cachedSpans = cache.getCachedSpans(testDataKey);
+    for (CacheSpan cachedSpan : cachedSpans) {
+      if (cachedSpan.position >= halfDataLength) {
+        try {
+          cache.removeSpan(cachedSpan);
+        } catch (Cache.CacheException e) {
+          // do nothing
+        }
       }
     }
+
+    // Read the rest of the data.
+    TestUtil.readToEnd(cacheDataSource);
     cacheDataSource.close();
   }
 
@@ -298,23 +360,13 @@ public final class CacheDataSourceTest {
     if (length != C.LENGTH_UNSET) {
       testDataLength = Math.min(testDataLength, length);
     }
-    assertThat(cacheDataSource.open(new DataSpec(testDataUri, position, length, testDataKey)))
-        .isEqualTo(unknownLength ? length : testDataLength);
-
-    byte[] buffer = new byte[100];
-    int totalBytesRead = 0;
-    while (true) {
-      int read = cacheDataSource.read(buffer, totalBytesRead, buffer.length - totalBytesRead);
-      if (read == C.RESULT_END_OF_INPUT) {
-        break;
-      }
-      totalBytesRead += read;
-    }
-    assertThat(totalBytesRead).isEqualTo(testDataLength);
-    assertThat(copyOf(buffer, totalBytesRead))
-        .isEqualTo(copyOfRange(TEST_DATA, position, position + testDataLength));
-
+    DataSpec dataSpec = new DataSpec(testDataUri, position, length, testDataKey);
+    assertThat(cacheDataSource.open(dataSpec)).isEqualTo(unknownLength ? length : testDataLength);
     cacheDataSource.close();
+
+    byte[] expected = Arrays.copyOfRange(TEST_DATA, position, position + testDataLength);
+    CacheAsserts.assertReadData(
+        cacheDataSource, dataSpec, expected, "Cached data doesn't match the original data");
   }
 
   private CacheDataSource createCacheDataSource(boolean setReadException,

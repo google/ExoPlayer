@@ -21,13 +21,14 @@ import static junit.framework.Assert.assertTrue;
 import android.net.Uri;
 import android.test.MoreAsserts;
 import com.google.android.exoplayer2.testutil.FakeDataSet.FakeData;
+import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DataSourceInputStream;
 import com.google.android.exoplayer2.upstream.DataSpec;
 import com.google.android.exoplayer2.upstream.DummyDataSource;
 import com.google.android.exoplayer2.upstream.cache.Cache;
 import com.google.android.exoplayer2.upstream.cache.CacheDataSource;
 import com.google.android.exoplayer2.upstream.cache.CacheUtil;
-import java.io.ByteArrayOutputStream;
+import com.google.android.exoplayer2.util.Util;
 import java.io.IOException;
 import java.util.ArrayList;
 
@@ -98,24 +99,19 @@ public final class CacheAsserts {
    * @throws IOException If an error occurred reading from the Cache.
    */
   public static void assertDataCached(Cache cache, Uri uri, byte[] expected) throws IOException {
-    CacheDataSource dataSource = new CacheDataSource(cache, DummyDataSource.INSTANCE, 0);
-    ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-    DataSourceInputStream inputStream = new DataSourceInputStream(dataSource,
-        new DataSpec(uri, DataSpec.FLAG_ALLOW_CACHING_UNKNOWN_LENGTH));
+    DataSource dataSource = new CacheDataSource(cache, DummyDataSource.INSTANCE, 0);
+    DataSpec dataSpec = new DataSpec(uri, DataSpec.FLAG_ALLOW_CACHING_UNKNOWN_LENGTH);
+    DataSourceInputStream inputStream = new DataSourceInputStream(dataSource, dataSpec);
+    byte[] bytes = null;
     try {
-      inputStream.open();
-      byte[] buffer = new byte[1024];
-      int bytesRead;
-      while ((bytesRead = inputStream.read(buffer)) != -1) {
-        outputStream.write(buffer, 0, bytesRead);
-      }
+      bytes = Util.toByteArray(inputStream);
     } catch (IOException e) {
       // Ignore
     } finally {
       inputStream.close();
     }
-    MoreAsserts.assertEquals("Cached data doesn't match expected for '" + uri + "',",
-        expected, outputStream.toByteArray());
+    MoreAsserts.assertEquals(
+        "Cached data doesn't match expected for '" + uri + "',", expected, bytes);
   }
 
   /** Asserts that there is no cache content for the given {@code uriStrings}. */
