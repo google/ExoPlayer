@@ -1,4 +1,4 @@
-<?xml version="1.0"?>
+<?xml version="1.0" encoding="utf-8"?>
 <!--
      Copyright (C) 2016 The Android Open Source Project
 
@@ -26,4 +26,5 @@
   <string name="exo_controls_repeat_off_description">"Không lặp lại"</string>
   <string name="exo_controls_repeat_one_description">"Lặp lại một mục"</string>
   <string name="exo_controls_shuffle_description">"Trộn bài"</string>
+  <string name="exo_controls_fullscreen_description">Chế độ toàn màn hình</string>
 </resources>

@@ -1,4 +1,4 @@
-<?xml version="1.0"?>
+<?xml version="1.0" encoding="utf-8"?>
 <!--
      Copyright (C) 2016 The Android Open Source Project
 
@@ -26,4 +26,5 @@
   <string name="exo_controls_repeat_off_description">"Καμία επανάληψη"</string>
   <string name="exo_controls_repeat_one_description">"Επανάληψη ενός στοιχείου"</string>
   <string name="exo_controls_shuffle_description">"Τυχαία αναπαραγωγή"</string>
+  <string name="exo_controls_fullscreen_description">Λειτουργία πλήρους οθόνης</string>
 </resources>

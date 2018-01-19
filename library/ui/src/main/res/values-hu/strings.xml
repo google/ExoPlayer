@@ -1,4 +1,4 @@
-<?xml version="1.0"?>
+<?xml version="1.0" encoding="utf-8"?>
 <!--
      Copyright (C) 2016 The Android Open Source Project
 
@@ -26,4 +26,5 @@
   <string name="exo_controls_repeat_off_description">"Nincs ismétlés"</string>
   <string name="exo_controls_repeat_one_description">"Egy ismétlése"</string>
   <string name="exo_controls_shuffle_description">"Véletlenszerű lejátszás"</string>
+  <string name="exo_controls_fullscreen_description">Teljes képernyős mód</string>
 </resources>
