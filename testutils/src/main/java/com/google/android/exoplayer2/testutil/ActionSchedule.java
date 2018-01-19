@@ -29,6 +29,7 @@ import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.testutil.Action.ClearVideoSurface;
 import com.google.android.exoplayer2.testutil.Action.ExecuteRunnable;
+import com.google.android.exoplayer2.testutil.Action.PlayUntilPosition;
 import com.google.android.exoplayer2.testutil.Action.PrepareSource;
 import com.google.android.exoplayer2.testutil.Action.Seek;
 import com.google.android.exoplayer2.testutil.Action.SendMessages;
@@ -227,6 +228,29 @@ public final class ActionSchedule {
      */
     public Builder play() {
       return apply(new SetPlayWhenReady(tag, true));
+    }
+
+    /**
+     * Schedules a play action to be executed, waits until the player reaches the specified
+     * position, and pauses the player again.
+     *
+     * @param windowIndex The window index at which the player should be paused again.
+     * @param positionMs The position in that window at which the player should be paused again.
+     * @return The builder, for convenience.
+     */
+    public Builder playUntilPosition(int windowIndex, long positionMs) {
+      return apply(new PlayUntilPosition(tag, windowIndex, positionMs));
+    }
+
+    /**
+     * Schedules a play action to be executed, waits until the player reaches the start of the
+     * specified window, and pauses the player again.
+     *
+     * @param windowIndex The window index at which the player should be paused again.
+     * @return The builder, for convenience.
+     */
+    public Builder playUntilStartOfWindow(int windowIndex) {
+      return apply(new PlayUntilPosition(tag, windowIndex, /* positionMs= */ 0));
     }
 
     /**
