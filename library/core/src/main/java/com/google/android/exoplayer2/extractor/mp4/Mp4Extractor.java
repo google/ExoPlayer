@@ -88,6 +88,12 @@ public final class Mp4Extractor implements Extractor, SeekMap {
    */
   private static final long RELOAD_MINIMUM_SEEK_DISTANCE = 256 * 1024;
 
+  /**
+   * For poorly interleaved streams, the maximum byte difference one track is allowed to be read
+   * ahead before the source will be reloaded at a new position to read another track.
+   */
+  private static final long MAXIMUM_READ_AHEAD_BYTES_STREAM = 10 * 1024 * 1024;
+
   private final @Flags int flags;
 
   // Temporary arrays.
@@ -103,12 +109,14 @@ public final class Mp4Extractor implements Extractor, SeekMap {
   private int atomHeaderBytesRead;
   private ParsableByteArray atomData;
 
+  private int sampleTrackIndex;
   private int sampleBytesWritten;
   private int sampleCurrentNalBytesRemaining;
 
   // Extractor outputs.
   private ExtractorOutput extractorOutput;
   private Mp4Track[] tracks;
+  private long[][] accumulatedSampleSizes;
   private int firstVideoTrackIndex;
   private long durationUs;
   private boolean isQuickTime;
@@ -132,6 +140,7 @@ public final class Mp4Extractor implements Extractor, SeekMap {
     containerAtoms = new Stack<>();
     nalStartCode = new ParsableByteArray(NalUnitUtil.NAL_START_CODE);
     nalLength = new ParsableByteArray(4);
+    sampleTrackIndex = C.INDEX_UNSET;
   }
 
   @Override
@@ -148,6 +157,7 @@ public final class Mp4Extractor implements Extractor, SeekMap {
   public void seek(long position, long timeUs) {
     containerAtoms.clear();
     atomHeaderBytesRead = 0;
+    sampleTrackIndex = C.INDEX_UNSET;
     sampleBytesWritten = 0;
     sampleCurrentNalBytesRemaining = 0;
     if (position == 0) {
@@ -426,6 +436,7 @@ public final class Mp4Extractor implements Extractor, SeekMap {
     this.firstVideoTrackIndex = firstVideoTrackIndex;
     this.durationUs = durationUs;
     this.tracks = tracks.toArray(new Mp4Track[tracks.size()]);
+    accumulatedSampleSizes = calculateAccumulatedSampleSizes(this.tracks);
 
     extractorOutput.endTracks();
     extractorOutput.seekMap(this);
@@ -449,25 +460,28 @@ public final class Mp4Extractor implements Extractor, SeekMap {
    */
   private int readSample(ExtractorInput input, PositionHolder positionHolder)
       throws IOException, InterruptedException {
-    int trackIndex = getTrackIndexOfEarliestCurrentSample();
-    if (trackIndex == C.INDEX_UNSET) {
-      return RESULT_END_OF_INPUT;
+    long inputPosition = input.getPosition();
+    if (sampleTrackIndex == C.INDEX_UNSET) {
+      sampleTrackIndex = getTrackIndexOfNextReadSample(inputPosition);
+      if (sampleTrackIndex == C.INDEX_UNSET) {
+        return RESULT_END_OF_INPUT;
+      }
     }
-    Mp4Track track = tracks[trackIndex];
+    Mp4Track track = tracks[sampleTrackIndex];
     TrackOutput trackOutput = track.trackOutput;
     int sampleIndex = track.sampleIndex;
     long position = track.sampleTable.offsets[sampleIndex];
     int sampleSize = track.sampleTable.sizes[sampleIndex];
-    if (track.track.sampleTransformation == Track.TRANSFORMATION_CEA608_CDAT) {
-      // The sample information is contained in a cdat atom. The header must be discarded for
-      // committing.
-      position += Atom.HEADER_SIZE;
-      sampleSize -= Atom.HEADER_SIZE;
-    }
-    long skipAmount = position - input.getPosition() + sampleBytesWritten;
+    long skipAmount = position - inputPosition + sampleBytesWritten;
     if (skipAmount < 0 || skipAmount >= RELOAD_MINIMUM_SEEK_DISTANCE) {
       positionHolder.position = position;
       return RESULT_SEEK;
+    }
+    if (track.track.sampleTransformation == Track.TRANSFORMATION_CEA608_CDAT) {
+      // The sample information is contained in a cdat atom. The header must be discarded for
+      // committing.
+      skipAmount += Atom.HEADER_SIZE;
+      sampleSize -= Atom.HEADER_SIZE;
     }
     input.skipFully((int) skipAmount);
     if (track.track.nalUnitLengthFieldLength != 0) {
@@ -510,33 +524,61 @@ public final class Mp4Extractor implements Extractor, SeekMap {
     trackOutput.sampleMetadata(track.sampleTable.timestampsUs[sampleIndex],
         track.sampleTable.flags[sampleIndex], sampleSize, 0, null);
     track.sampleIndex++;
+    sampleTrackIndex = C.INDEX_UNSET;
     sampleBytesWritten = 0;
     sampleCurrentNalBytesRemaining = 0;
     return RESULT_CONTINUE;
   }
 
   /**
-   * Returns the index of the track that contains the earliest current sample, or
-   * {@link C#INDEX_UNSET} if no samples remain.
+   * Returns the index of the track that contains the next sample to be read, or {@link
+   * C#INDEX_UNSET} if no samples remain.
+   *
+   * <p>The preferred choice is the sample with the smallest offset not requiring a source reload,
+   * or if not available the sample with the smallest overall offset to avoid subsequent source
+   * reloads.
+   *
+   * <p>To deal with poor sample interleaving, we also check whether the required memory to catch up
+   * with the next logical sample (based on sample time) exceeds {@link
+   * #MAXIMUM_READ_AHEAD_BYTES_STREAM}. If this is the case, we continue with this sample even
+   * though it may require a source reload.
    */
-  private int getTrackIndexOfEarliestCurrentSample() {
-    int earliestSampleTrackIndex = C.INDEX_UNSET;
-    long earliestSampleOffset = Long.MAX_VALUE;
+  private int getTrackIndexOfNextReadSample(long inputPosition) {
+    long preferredSkipAmount = Long.MAX_VALUE;
+    boolean preferredRequiresReload = true;
+    int preferredTrackIndex = C.INDEX_UNSET;
+    long preferredAccumulatedBytes = Long.MAX_VALUE;
+    long minAccumulatedBytes = Long.MAX_VALUE;
+    boolean minAccumulatedBytesRequiresReload = true;
+    int minAccumulatedBytesTrackIndex = C.INDEX_UNSET;
     for (int trackIndex = 0; trackIndex < tracks.length; trackIndex++) {
       Mp4Track track = tracks[trackIndex];
       int sampleIndex = track.sampleIndex;
       if (sampleIndex == track.sampleTable.sampleCount) {
         continue;
       }
-
-      long trackSampleOffset = track.sampleTable.offsets[sampleIndex];
-      if (trackSampleOffset < earliestSampleOffset) {
-        earliestSampleOffset = trackSampleOffset;
-        earliestSampleTrackIndex = trackIndex;
+      long sampleOffset = track.sampleTable.offsets[sampleIndex];
+      long sampleAccumulatedBytes = accumulatedSampleSizes[trackIndex][sampleIndex];
+      long skipAmount = sampleOffset - inputPosition;
+      boolean requiresReload = skipAmount < 0 || skipAmount >= RELOAD_MINIMUM_SEEK_DISTANCE;
+      if ((!requiresReload && preferredRequiresReload)
+          || (requiresReload == preferredRequiresReload && skipAmount < preferredSkipAmount)) {
+        preferredRequiresReload = requiresReload;
+        preferredSkipAmount = skipAmount;
+        preferredTrackIndex = trackIndex;
+        preferredAccumulatedBytes = sampleAccumulatedBytes;
+      }
+      if (sampleAccumulatedBytes < minAccumulatedBytes) {
+        minAccumulatedBytes = sampleAccumulatedBytes;
+        minAccumulatedBytesRequiresReload = requiresReload;
+        minAccumulatedBytesTrackIndex = trackIndex;
       }
     }
-
-    return earliestSampleTrackIndex;
+    return minAccumulatedBytes == Long.MAX_VALUE
+            || !minAccumulatedBytesRequiresReload
+            || preferredAccumulatedBytes < minAccumulatedBytes + MAXIMUM_READ_AHEAD_BYTES_STREAM
+        ? preferredTrackIndex
+        : minAccumulatedBytesTrackIndex;
   }
 
   /**
@@ -552,6 +594,45 @@ public final class Mp4Extractor implements Extractor, SeekMap {
       }
       track.sampleIndex = sampleIndex;
     }
+  }
+
+  /**
+   * For each sample of each track, calculates accumulated size of all samples which need to be read
+   * before this sample can be used.
+   */
+  private static long[][] calculateAccumulatedSampleSizes(Mp4Track[] tracks) {
+    long[][] accumulatedSampleSizes = new long[tracks.length][];
+    int[] nextSampleIndex = new int[tracks.length];
+    long[] nextSampleTimesUs = new long[tracks.length];
+    boolean[] tracksFinished = new boolean[tracks.length];
+    for (int i = 0; i < tracks.length; i++) {
+      accumulatedSampleSizes[i] = new long[tracks[i].sampleTable.sampleCount];
+      nextSampleTimesUs[i] = tracks[i].sampleTable.timestampsUs[0];
+    }
+    long accumulatedSampleSize = 0;
+    int finishedTracks = 0;
+    while (finishedTracks < tracks.length) {
+      long minTimeUs = Long.MAX_VALUE;
+      int minTimeTrackIndex = -1;
+      for (int i = 0; i < tracks.length; i++) {
+        if (!tracksFinished[i] && nextSampleTimesUs[i] <= minTimeUs) {
+          minTimeTrackIndex = i;
+          minTimeUs = nextSampleTimesUs[i];
+        }
+      }
+      int trackSampleIndex = nextSampleIndex[minTimeTrackIndex];
+      accumulatedSampleSizes[minTimeTrackIndex][trackSampleIndex] = accumulatedSampleSize;
+      accumulatedSampleSize += tracks[minTimeTrackIndex].sampleTable.sizes[trackSampleIndex];
+      nextSampleIndex[minTimeTrackIndex] = ++trackSampleIndex;
+      if (trackSampleIndex < accumulatedSampleSizes[minTimeTrackIndex].length) {
+        nextSampleTimesUs[minTimeTrackIndex] =
+            tracks[minTimeTrackIndex].sampleTable.timestampsUs[trackSampleIndex];
+      } else {
+        tracksFinished[minTimeTrackIndex] = true;
+        finishedTracks++;
+      }
+    }
+    return accumulatedSampleSizes;
   }
 
   /**
