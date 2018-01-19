@@ -605,13 +605,13 @@ public final class DashMediaSource implements MediaSource {
     // If we receive a dynamic manifest that's older than expected (i.e. its publish time has
     // expired, or it's dynamic and we know the presentation has ended), then ignore it and load
     // again up to a specified number of times.
-    if (manifest.dynamic
+    if (newManifest.dynamic
         && (dynamicMediaPresentationEnded
-            || manifest.publishTimeMs <= expiredManifestPublishTimeUs)) {
+            || newManifest.publishTimeMs <= expiredManifestPublishTimeUs)) {
       Log.w(
           TAG,
           "Loaded stale dynamic manifest: "
-              + manifest.publishTimeMs
+              + newManifest.publishTimeMs
               + ", "
               + dynamicMediaPresentationEnded
               + ", "
