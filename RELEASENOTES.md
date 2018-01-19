@@ -19,12 +19,15 @@
     periods.
   * Replaced `ExoPlayer.sendMessages` with `ExoPlayer.createMessage` to allow
     more customization of the message. Now supports setting a message delivery
-    playback position and/or a delivery handler.
+    playback position and/or a delivery handler
     ([#2189](https://github.com/google/ExoPlayer/issues/2189)).
 * UI components:
   * Generalized player and control views to allow them to bind with any
     `Player`, and renamed them to `PlayerView` and `PlayerControlView`
     respectively.
+  * Made `PlayerView`'s play button behave correctly when the player is ended
+    ([#3689](https://github.com/google/ExoPlayer/issues/3689)), and call a
+    `PlaybackPreparer` when the player is idle.
 * Buffering:
   * Allow a back-buffer of media to be retained behind the current playback
     position, for fast backward seeking. The back-buffer can be configured by
