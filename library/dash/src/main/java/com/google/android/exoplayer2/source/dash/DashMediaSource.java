@@ -597,21 +597,36 @@ public final class DashMediaSource implements MediaSource {
     // this condition occurs, assume that we are hitting a manifest server that is out of sync and
     // behind, discard this manifest, and try again later.
     if (periodCount - removedPeriodCount > newManifest.getPeriodCount()) {
-      Log.w(TAG, "Out of sync manifest");
+      Log.w(TAG, "Loaded out of sync manifest");
       scheduleManifestRefresh();
       return;
     }
 
-    if (maybeReloadStaleDynamicManifest(newManifest)) {
-      return;
+    // If we receive a dynamic manifest that's older than expected (i.e. its publish time has
+    // expired, or it's dynamic and we know the presentation has ended), then ignore it and load
+    // again up to a specified number of times.
+    if (manifest.dynamic
+        && (dynamicMediaPresentationEnded
+            || manifest.publishTimeMs <= expiredManifestPublishTimeUs)) {
+      Log.w(
+          TAG,
+          "Loaded stale dynamic manifest: "
+              + manifest.publishTimeMs
+              + ", "
+              + dynamicMediaPresentationEnded
+              + ", "
+              + expiredManifestPublishTimeUs);
+      if (staleManifestReloadAttempt++ < minLoadableRetryCount) {
+        startLoadingManifest();
+        return;
+      }
     }
+    staleManifestReloadAttempt = 0;
+
     manifest = newManifest;
+    manifestLoadPending &= manifest.dynamic;
     manifestLoadStartTimestampMs = elapsedRealtimeMs - loadDurationMs;
     manifestLoadEndTimestampMs = elapsedRealtimeMs;
-    staleManifestReloadAttempt = 0;
-    if (!manifest.dynamic) {
-      manifestLoadPending = false;
-    }
     if (manifest.location != null) {
       synchronized (manifestUriLock) {
         // This condition checks that replaceManifestUri wasn't called between the start and end of
@@ -664,45 +679,6 @@ public final class DashMediaSource implements MediaSource {
   }
 
   // Internal methods.
-
-  /**
-   * Reloads a stale dynamic manifest to get a more recent version if possible.
-   *
-   * @return True if the reload is scheduled. False if we have already retried too many times.
-   */
-  private boolean maybeReloadStaleDynamicManifest(DashManifest manifest) {
-    if (!isManifestStale(manifest)) {
-      return false;
-    }
-    String warning =
-        "Loaded a stale dynamic manifest "
-            + manifest.publishTimeMs
-            + " "
-            + dynamicMediaPresentationEnded
-            + " "
-            + expiredManifestPublishTimeUs;
-    Log.w(TAG, warning);
-    if (staleManifestReloadAttempt++ < minLoadableRetryCount) {
-      startLoadingManifest();
-      return true;
-    }
-    return false;
-  }
-
-  private void startLoadingManifest() {
-    handler.removeCallbacks(refreshManifestRunnable);
-    if (loader.isLoading()) {
-      manifestLoadPending = true;
-      return;
-    }
-    Uri manifestUri;
-    synchronized (manifestUriLock) {
-      manifestUri = this.manifestUri;
-    }
-    manifestLoadPending = false;
-    startLoading(new ParsingLoadable<>(dataSource, manifestUri, C.DATA_TYPE_MANIFEST,
-        manifestParser), manifestCallback, minLoadableRetryCount);
-  }
 
   private void resolveUtcTimingElement(UtcTimingElement timingElement) {
     String scheme = timingElement.schemeIdUri;
@@ -835,12 +811,6 @@ public final class DashMediaSource implements MediaSource {
     }
   }
 
-  private boolean isManifestStale(DashManifest manifest) {
-    return manifest.dynamic
-        && (dynamicMediaPresentationEnded
-            || manifest.publishTimeMs <= expiredManifestPublishTimeUs);
-  }
-
   private void scheduleManifestRefresh() {
     if (!manifest.dynamic) {
       return;
@@ -856,6 +826,23 @@ public final class DashMediaSource implements MediaSource {
     long nextLoadTimestamp = manifestLoadStartTimestampMs + minUpdatePeriodMs;
     long delayUntilNextLoad = Math.max(0, nextLoadTimestamp - SystemClock.elapsedRealtime());
     handler.postDelayed(refreshManifestRunnable, delayUntilNextLoad);
+  }
+
+  private void startLoadingManifest() {
+    handler.removeCallbacks(refreshManifestRunnable);
+    if (loader.isLoading()) {
+      manifestLoadPending = true;
+      return;
+    }
+    Uri manifestUri;
+    synchronized (manifestUriLock) {
+      manifestUri = this.manifestUri;
+    }
+    manifestLoadPending = false;
+    startLoading(
+        new ParsingLoadable<>(dataSource, manifestUri, C.DATA_TYPE_MANIFEST, manifestParser),
+        manifestCallback,
+        minLoadableRetryCount);
   }
 
   private <T> void startLoading(ParsingLoadable<T> loadable,
