@@ -75,7 +75,6 @@ public class SimpleCacheTest {
 
     assertThat(simpleCache.startReadWriteNonBlocking(KEY_1, 0)).isNull();
 
-    assertThat(simpleCache.getKeys()).isEmpty();
     NavigableSet<CacheSpan> cachedSpans = simpleCache.getCachedSpans(KEY_1);
     assertThat(cachedSpans.isEmpty()).isTrue();
     assertThat(simpleCache.getCacheSpace()).isEqualTo(0);
