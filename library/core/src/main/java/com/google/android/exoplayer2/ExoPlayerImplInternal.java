@@ -629,38 +629,48 @@ import java.util.Collections;
   }
 
   private void seekToInternal(SeekPosition seekPosition) throws ExoPlaybackException {
-    playbackInfoUpdate.incrementPendingOperationAcks(/* operationAcks= */ 1);
     Timeline timeline = playbackInfo.timeline;
-    if (mediaSource == null || timeline == null) {
-      pendingInitialSeekPosition = seekPosition;
-      return;
+    playbackInfoUpdate.incrementPendingOperationAcks(/* operationAcks= */ 1);
+
+    MediaPeriodId periodId;
+    long periodPositionUs;
+    long contentPositionUs;
+    boolean seekPositionAdjusted;
+    Pair<Integer, Long> resolvedSeekPosition =
+        resolveSeekPosition(seekPosition, /* trySubsequentPeriods= */ true);
+    if (resolvedSeekPosition == null) {
+      // The seek position was valid for the timeline that it was performed into, but the
+      // timeline has changed or is not ready and a suitable seek position could not be resolved.
+      periodId = new MediaPeriodId(getFirstPeriodIndex());
+      periodPositionUs = C.TIME_UNSET;
+      contentPositionUs = C.TIME_UNSET;
+      seekPositionAdjusted = true;
+    } else {
+      // Update the resolved seek position to take ads into account.
+      periodId =
+          mediaPeriodInfoSequence.resolvePeriodPositionForAds(
+              resolvedSeekPosition.first, resolvedSeekPosition.second);
+      contentPositionUs = resolvedSeekPosition.second;
+      if (periodId.isAd()) {
+        periodPositionUs = 0;
+        seekPositionAdjusted = true;
+      } else {
+        periodPositionUs = resolvedSeekPosition.second;
+        seekPositionAdjusted = seekPosition.windowPositionUs == C.TIME_UNSET;
+      }
     }
 
-    boolean seekPositionAdjusted = seekPosition.windowPositionUs == C.TIME_UNSET;
     try {
-      Pair<Integer, Long> periodPosition =
-          resolveSeekPosition(seekPosition, /* trySubsequentPeriods= */ true);
-      if (periodPosition == null) {
-        // The seek position was valid for the timeline that it was performed into, but the
-        // timeline has changed and a suitable seek position could not be resolved in the new one.
+      if (mediaSource == null || timeline == null) {
+        // Save seek position for later, as we are still waiting for a prepared source.
+        pendingInitialSeekPosition = seekPosition;
+      } else if (periodPositionUs == C.TIME_UNSET) {
+        // End playback, as we didn't manage to find a valid seek position.
         setState(Player.STATE_ENDED);
-        // Reset, but retain the source so that it can still be used should a seek occur.
         resetInternal(
             /* releaseMediaSource= */ false, /* resetPosition= */ true, /* resetState= */ false);
-        seekPositionAdjusted = true;
-        return;
-      }
-
-      int periodIndex = periodPosition.first;
-      long periodPositionUs = periodPosition.second;
-      long contentPositionUs = periodPositionUs;
-      MediaPeriodId periodId =
-          mediaPeriodInfoSequence.resolvePeriodPositionForAds(periodIndex, periodPositionUs);
-      if (periodId.isAd()) {
-        seekPositionAdjusted = true;
-        periodPositionUs = 0;
-      }
-      try {
+      } else {
+        // Execute the seek in the current media periods.
         long newPeriodPositionUs = periodPositionUs;
         if (periodId.equals(playbackInfo.periodId)) {
           MediaPeriodHolder playingPeriodHolder = queue.getPlayingPeriod();
@@ -669,7 +679,7 @@ import java.util.Collections;
                 playingPeriodHolder.mediaPeriod.getAdjustedSeekPositionUs(
                     newPeriodPositionUs, seekParameters);
           }
-          if ((newPeriodPositionUs / 1000) == (playbackInfo.positionUs / 1000)) {
+          if (C.usToMs(newPeriodPositionUs) == C.usToMs(playbackInfo.positionUs)) {
             // Seek will be performed to the current position. Do nothing.
             periodPositionUs = playbackInfo.positionUs;
             return;
@@ -678,10 +688,9 @@ import java.util.Collections;
         newPeriodPositionUs = seekToPeriodPosition(periodId, newPeriodPositionUs);
         seekPositionAdjusted |= periodPositionUs != newPeriodPositionUs;
         periodPositionUs = newPeriodPositionUs;
-      } finally {
-        playbackInfo = playbackInfo.fromNewPosition(periodId, periodPositionUs, contentPositionUs);
       }
     } finally {
+      playbackInfo = playbackInfo.fromNewPosition(periodId, periodPositionUs, contentPositionUs);
       if (seekPositionAdjusted) {
         playbackInfoUpdate.setPositionDiscontinuity(Player.DISCONTINUITY_REASON_SEEK_ADJUSTMENT);
       }
@@ -795,6 +804,14 @@ import java.util.Collections;
     }
   }
 
+  private int getFirstPeriodIndex() {
+    Timeline timeline = playbackInfo.timeline;
+    return timeline == null || timeline.isEmpty()
+        ? 0
+        : timeline.getWindow(timeline.getFirstWindowIndex(shuffleModeEnabled), window)
+            .firstPeriodIndex;
+  }
+
   private void resetInternal(
       boolean releaseMediaSource, boolean resetPosition, boolean resetState) {
     handler.removeMessages(MSG_DO_SOME_WORK);
@@ -812,12 +829,6 @@ import java.util.Collections;
     enabledRenderers = new Renderer[0];
     queue.clear();
     setIsLoading(false);
-    Timeline timeline = playbackInfo.timeline;
-    int firstPeriodIndex =
-        timeline == null || timeline.isEmpty()
-            ? 0
-            : timeline.getWindow(timeline.getFirstWindowIndex(shuffleModeEnabled), window)
-                .firstPeriodIndex;
     if (resetPosition) {
       pendingInitialSeekPosition = null;
     }
@@ -833,7 +844,7 @@ import java.util.Collections;
         new PlaybackInfo(
             resetState ? null : playbackInfo.timeline,
             resetState ? null : playbackInfo.manifest,
-            resetPosition ? new MediaPeriodId(firstPeriodIndex) : playbackInfo.periodId,
+            resetPosition ? new MediaPeriodId(getFirstPeriodIndex()) : playbackInfo.periodId,
             // Set the start position to TIME_UNSET so that a subsequent seek to 0 isn't ignored.
             resetPosition ? C.TIME_UNSET : playbackInfo.startPositionUs,
             resetPosition ? C.TIME_UNSET : playbackInfo.contentPositionUs,
@@ -1334,8 +1345,12 @@ import java.util.Collections;
       SeekPosition seekPosition, boolean trySubsequentPeriods) {
     Timeline timeline = playbackInfo.timeline;
     Timeline seekTimeline = seekPosition.timeline;
+    if (timeline == null) {
+      // We don't have a timeline yet, so we can't resolve the position.
+      return null;
+    }
     if (seekTimeline.isEmpty()) {
-      // The application performed a blind seek without a non-empty timeline (most likely based on
+      // The application performed a blind seek with an empty timeline (most likely based on
       // knowledge of what the future timeline will be). Use the internal timeline.
       seekTimeline = timeline;
     }

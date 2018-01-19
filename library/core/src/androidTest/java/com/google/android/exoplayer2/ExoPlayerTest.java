@@ -370,9 +370,22 @@ public final class ExoPlayerTest extends TestCase {
         playbackStatesWhenSeekProcessed.add(currentPlaybackState);
       }
     };
-    new ExoPlayerTestRunner.Builder()
-        .setTimeline(timeline).setEventListener(eventListener).setActionSchedule(actionSchedule)
-        .build().start().blockUntilEnded(TIMEOUT_MS);
+    ExoPlayerTestRunner testRunner =
+        new ExoPlayerTestRunner.Builder()
+            .setTimeline(timeline)
+            .setEventListener(eventListener)
+            .setActionSchedule(actionSchedule)
+            .build()
+            .start()
+            .blockUntilEnded(TIMEOUT_MS);
+    testRunner.assertPositionDiscontinuityReasonsEqual(
+        Player.DISCONTINUITY_REASON_SEEK,
+        Player.DISCONTINUITY_REASON_SEEK,
+        Player.DISCONTINUITY_REASON_SEEK,
+        Player.DISCONTINUITY_REASON_SEEK,
+        Player.DISCONTINUITY_REASON_PERIOD_TRANSITION,
+        Player.DISCONTINUITY_REASON_SEEK,
+        Player.DISCONTINUITY_REASON_SEEK);
     assertEquals(4, playbackStatesWhenSeekProcessed.size());
     assertEquals(Player.STATE_BUFFERING, (int) playbackStatesWhenSeekProcessed.get(0));
     assertEquals(Player.STATE_BUFFERING, (int) playbackStatesWhenSeekProcessed.get(1));
@@ -912,6 +925,61 @@ public final class ExoPlayerTest extends TestCase {
     testRunner.assertTimelinesEqual(timeline, timeline);
     testRunner.assertTimelineChangeReasonsEqual(
         Player.TIMELINE_CHANGE_REASON_PREPARED, Player.TIMELINE_CHANGE_REASON_PREPARED);
+  }
+
+  public void testSeekAndReprepareAfterPlaybackError() throws Exception {
+    Timeline timeline = new FakeTimeline(/* windowCount= */ 1);
+    final long[] positionHolder = new long[2];
+    ActionSchedule actionSchedule =
+        new ActionSchedule.Builder("testReprepareAfterPlaybackError")
+            .pause()
+            .waitForPlaybackState(Player.STATE_BUFFERING)
+            // Cause an internal exception by seeking to an invalid position while the media source
+            // is still being prepared and the player doesn't immediately know it will fail.
+            .seek(/* windowIndex= */ 100, /* positionMs= */ 0)
+            .waitForSeekProcessed()
+            .waitForPlaybackState(Player.STATE_IDLE)
+            .seek(/* positionMs= */ 50)
+            .waitForSeekProcessed()
+            .executeRunnable(
+                new PlayerRunnable() {
+                  @Override
+                  public void run(SimpleExoPlayer player) {
+                    positionHolder[0] = player.getCurrentPosition();
+                  }
+                })
+            .prepareSource(
+                new FakeMediaSource(timeline, /* manifest= */ null),
+                /* resetPosition= */ false,
+                /* resetState= */ false)
+            .waitForPlaybackState(Player.STATE_READY)
+            .executeRunnable(
+                new PlayerRunnable() {
+                  @Override
+                  public void run(SimpleExoPlayer player) {
+                    positionHolder[1] = player.getCurrentPosition();
+                  }
+                })
+            .play()
+            .build();
+    ExoPlayerTestRunner testRunner =
+        new ExoPlayerTestRunner.Builder()
+            .setTimeline(timeline)
+            .setActionSchedule(actionSchedule)
+            .build();
+    try {
+      testRunner.start().blockUntilActionScheduleFinished(TIMEOUT_MS).blockUntilEnded(TIMEOUT_MS);
+      fail();
+    } catch (ExoPlaybackException e) {
+      // Expected exception.
+    }
+    testRunner.assertTimelinesEqual(timeline, timeline);
+    testRunner.assertTimelineChangeReasonsEqual(
+        Player.TIMELINE_CHANGE_REASON_PREPARED, Player.TIMELINE_CHANGE_REASON_PREPARED);
+    testRunner.assertPositionDiscontinuityReasonsEqual(
+        Player.DISCONTINUITY_REASON_SEEK, Player.DISCONTINUITY_REASON_SEEK);
+    assertEquals(50, positionHolder[0]);
+    assertEquals(50, positionHolder[1]);
   }
 
   public void testPlaybackErrorDuringSourceInfoRefreshStillUpdatesTimeline() throws Exception {
