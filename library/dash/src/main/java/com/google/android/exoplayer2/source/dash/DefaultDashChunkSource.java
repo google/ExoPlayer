@@ -246,16 +246,13 @@ public class DefaultDashChunkSource implements DashChunkSource {
         C.msToUs(manifest.availabilityStartTimeMs)
             + C.msToUs(manifest.getPeriod(periodIndex).startMs)
             + loadPositionUs;
-    try {
-      if (playerTrackEmsgHandler != null
-          && playerTrackEmsgHandler.maybeRefreshManifestBeforeLoadingNextChunk(
-              presentationPositionUs)) {
-        return;
-      }
-    } catch (DashManifestExpiredException e) {
-      fatalError = e;
+
+    if (playerTrackEmsgHandler != null
+        && playerTrackEmsgHandler.maybeRefreshManifestBeforeLoadingNextChunk(
+            presentationPositionUs)) {
       return;
     }
+
     trackSelection.updateSelectedTrack(playbackPositionUs, bufferedDurationUs, timeToLiveEdgeUs);
 
     RepresentationHolder representationHolder =
