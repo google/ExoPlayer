@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.testutil;
 
+import android.os.Handler;
 import android.support.annotation.Nullable;
 import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.Format;
@@ -35,15 +36,16 @@ import junit.framework.Assert;
  */
 public class FakeMediaSource implements MediaSource {
 
-  private final Object manifest;
   private final TrackGroupArray trackGroupArray;
   private final ArrayList<FakeMediaPeriod> activeMediaPeriods;
   private final ArrayList<MediaPeriodId> createdMediaPeriods;
 
   protected Timeline timeline;
+  private Object manifest;
   private boolean preparedSource;
   private boolean releasedSource;
   private Listener listener;
+  private Handler sourceInfoRefreshHandler;
 
   /**
    * Creates a {@link FakeMediaSource}. This media source creates {@link FakeMediaPeriod}s with a
@@ -71,10 +73,12 @@ public class FakeMediaSource implements MediaSource {
   }
 
   @Override
-  public void prepareSource(ExoPlayer player, boolean isTopLevelSource, Listener listener) {
+  public synchronized void prepareSource(
+      ExoPlayer player, boolean isTopLevelSource, Listener listener) {
     Assert.assertFalse(preparedSource);
     preparedSource = true;
     this.listener = listener;
+    sourceInfoRefreshHandler = new Handler();
     if (timeline != null) {
       listener.onSourceInfoRefreshed(this, timeline, manifest);
     }
@@ -117,11 +121,22 @@ public class FakeMediaSource implements MediaSource {
    * Sets a new timeline and manifest. If the source is already prepared, this triggers a source
    * info refresh message being sent to the listener.
    */
-  public void setNewSourceInfo(Timeline newTimeline, Object manifest) {
-    Assert.assertFalse(releasedSource);
-    this.timeline = newTimeline;
-    if (preparedSource) {
-      listener.onSourceInfoRefreshed(this, timeline, manifest);
+  public synchronized void setNewSourceInfo(final Timeline newTimeline, final Object newManifest) {
+    if (sourceInfoRefreshHandler != null) {
+      sourceInfoRefreshHandler.post(
+          new Runnable() {
+            @Override
+            public void run() {
+              Assert.assertFalse(releasedSource);
+              Assert.assertTrue(preparedSource);
+              timeline = newTimeline;
+              manifest = newManifest;
+              listener.onSourceInfoRefreshed(FakeMediaSource.this, timeline, manifest);
+            }
+          });
+    } else {
+      timeline = newTimeline;
+      manifest = newManifest;
     }
   }
 
