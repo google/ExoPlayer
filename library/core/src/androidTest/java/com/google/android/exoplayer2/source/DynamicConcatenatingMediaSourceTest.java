@@ -234,7 +234,7 @@ public final class DynamicConcatenatingMediaSourceTest extends TestCase {
         lazySources[1].setNewSourceInfo(createFakeTimeline(8), null);
       }
     });
-    timeline = testRunner.assertTimelineChange();
+    timeline = testRunner.assertTimelineChangeBlocking();
     TimelineAsserts.assertPeriodCounts(timeline, 1, 9);
     TimelineAsserts.assertWindowIds(timeline, 111, 999);
     TimelineAsserts.assertWindowIsDynamic(timeline, false, false);
@@ -272,7 +272,7 @@ public final class DynamicConcatenatingMediaSourceTest extends TestCase {
         lazySources[3].setNewSourceInfo(createFakeTimeline(7), null);
       }
     });
-    timeline = testRunner.assertTimelineChange();
+    timeline = testRunner.assertTimelineChangeBlocking();
     TimelineAsserts.assertPeriodCounts(timeline, 8, 1, 2, 9);
     TimelineAsserts.assertWindowIds(timeline, 888, 111, 222, 999);
     TimelineAsserts.assertWindowIsDynamic(timeline, false, false, false, false);

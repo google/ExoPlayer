@@ -1077,7 +1077,7 @@ public final class ExoPlayerTest extends TestCase {
                 new Runnable() {
                   @Override
                   public void run() {
-                    mediaSource.setNewSourceInfo(timeline, /* manifest= */ null);
+                    mediaSource.setNewSourceInfo(timeline, /* newManifest= */ null);
                   }
                 })
             .waitForPlaybackState(Player.STATE_IDLE)

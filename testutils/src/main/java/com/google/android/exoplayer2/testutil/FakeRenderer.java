@@ -73,7 +73,7 @@ public class FakeRenderer extends BaseRenderer {
         }
       }
     }
-    isReady = buffer.timeUs >= positionUs;
+    isReady = buffer.timeUs >= positionUs || hasReadStreamToEnd();
   }
 
   @Override
