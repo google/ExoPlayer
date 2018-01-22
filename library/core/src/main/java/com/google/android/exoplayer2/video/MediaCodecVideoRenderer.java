@@ -352,7 +352,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
         surface = dummySurface;
       } else {
         MediaCodecInfo codecInfo = getCodecInfo();
-        if (codecInfo != null && shouldUseDummySurface(codecInfo.secure)) {
+        if (codecInfo != null && shouldUseDummySurface(codecInfo)) {
           dummySurface = DummySurface.newInstanceV17(context, codecInfo.secure);
           surface = dummySurface;
         }
@@ -395,7 +395,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
 
   @Override
   protected boolean shouldInitCodec(MediaCodecInfo codecInfo) {
-    return surface != null || shouldUseDummySurface(codecInfo.secure);
+    return surface != null || shouldUseDummySurface(codecInfo);
   }
 
   @Override
@@ -405,7 +405,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
     MediaFormat mediaFormat = getMediaFormat(format, codecMaxValues, deviceNeedsAutoFrcWorkaround,
         tunnelingAudioSessionId);
     if (surface == null) {
-      Assertions.checkState(shouldUseDummySurface(codecInfo.secure));
+      Assertions.checkState(shouldUseDummySurface(codecInfo));
       if (dummySurface == null) {
         dummySurface = DummySurface.newInstanceV17(context, codecInfo.secure);
       }
@@ -750,9 +750,11 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
     maybeNotifyRenderedFirstFrame();
   }
 
-  private boolean shouldUseDummySurface(boolean codecIsSecure) {
-    return Util.SDK_INT >= 23 && !tunneling
-        && (!codecIsSecure || DummySurface.isSecureSupported(context));
+  private boolean shouldUseDummySurface(MediaCodecInfo codecInfo) {
+    return Util.SDK_INT >= 23
+        && !tunneling
+        && !codecNeedsSetOutputSurfaceWorkaround(codecInfo.name)
+        && (!codecInfo.secure || DummySurface.isSecureSupported(context));
   }
 
   private void setJoiningDeadlineMs() {
@@ -1068,13 +1070,16 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
    */
   private static boolean codecNeedsSetOutputSurfaceWorkaround(String name) {
     // Work around https://github.com/google/ExoPlayer/issues/3236,
-    // https://github.com/google/ExoPlayer/issues/3355 and
-    // https://github.com/google/ExoPlayer/issues/3439.
+    // https://github.com/google/ExoPlayer/issues/3355,
+    // https://github.com/google/ExoPlayer/issues/3439 and
+    // https://github.com/google/ExoPlayer/issues/3724.
     return (("deb".equals(Util.DEVICE) || "flo".equals(Util.DEVICE))
-        && "OMX.qcom.video.decoder.avc".equals(name))
-        || (("tcl_eu".equals(Util.DEVICE) || "SVP-DTV15".equals(Util.DEVICE)
-        || "BRAVIA_ATV2".equals(Util.DEVICE))
-        && "OMX.MTK.VIDEO.DECODER.AVC".equals(name));
+            && "OMX.qcom.video.decoder.avc".equals(name))
+        || (("tcl_eu".equals(Util.DEVICE)
+                || "SVP-DTV15".equals(Util.DEVICE)
+                || "BRAVIA_ATV2".equals(Util.DEVICE))
+            && "OMX.MTK.VIDEO.DECODER.AVC".equals(name))
+        || ("OMX.k3.video.decoder.avc".equals(name) && "ALE-L21".equals(Util.MODEL));
   }
 
   /**
