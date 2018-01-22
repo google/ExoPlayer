@@ -284,7 +284,8 @@ public final class DashMediaSource implements MediaSource {
   private Listener sourceListener;
   private DataSource dataSource;
   private Loader loader;
-  private LoaderErrorThrower loaderErrorThrower;
+  private LoaderErrorThrower manifestLoadErrorThrower;
+  private IOException manifestFatalError;
   private Handler handler;
 
   private Uri manifestUri;
@@ -493,12 +494,12 @@ public final class DashMediaSource implements MediaSource {
     Assertions.checkState(sourceListener == null, MEDIA_SOURCE_REUSED_ERROR_MESSAGE);
     sourceListener = listener;
     if (sideloadedManifest) {
-      loaderErrorThrower = new LoaderErrorThrower.Dummy();
+      manifestLoadErrorThrower = new LoaderErrorThrower.Dummy();
       processManifest(false);
     } else {
       dataSource = manifestDataSourceFactory.createDataSource();
       loader = new Loader("Loader:DashMediaSource");
-      loaderErrorThrower = loader;
+      manifestLoadErrorThrower = new ManifestLoadErrorThrower();
       handler = new Handler();
       startLoadingManifest();
     }
@@ -506,7 +507,7 @@ public final class DashMediaSource implements MediaSource {
 
   @Override
   public void maybeThrowSourceInfoRefreshError() throws IOException {
-    loaderErrorThrower.maybeThrowError();
+    manifestLoadErrorThrower.maybeThrowError();
   }
 
   @Override
@@ -523,7 +524,7 @@ public final class DashMediaSource implements MediaSource {
             minLoadableRetryCount,
             periodEventDispatcher,
             elapsedRealtimeOffsetMs,
-            loaderErrorThrower,
+            manifestLoadErrorThrower,
             allocator,
             compositeSequenceableLoaderFactory,
             playerEmsgCallback);
@@ -542,7 +543,7 @@ public final class DashMediaSource implements MediaSource {
   public void releaseSource() {
     manifestLoadPending = false;
     dataSource = null;
-    loaderErrorThrower = null;
+    manifestLoadErrorThrower = null;
     if (loader != null) {
       loader.release();
       loader = null;
@@ -592,36 +593,43 @@ public final class DashMediaSource implements MediaSource {
       removedPeriodCount++;
     }
 
-    // After discarding old periods, we should never have more periods than listed in the new
-    // manifest. That would mean that a previously announced period is no longer advertised. If
-    // this condition occurs, assume that we are hitting a manifest server that is out of sync and
-    // behind, discard this manifest, and try again later.
-    if (periodCount - removedPeriodCount > newManifest.getPeriodCount()) {
-      Log.w(TAG, "Loaded out of sync manifest");
-      scheduleManifestRefresh();
-      return;
-    }
+    if (newManifest.dynamic) {
+      boolean isManifestStale = false;
+      if (periodCount - removedPeriodCount > newManifest.getPeriodCount()) {
+        // After discarding old periods, we should never have more periods than listed in the new
+        // manifest. That would mean that a previously announced period is no longer advertised. If
+        // this condition occurs, assume that we are hitting a manifest server that is out of sync
+        // and
+        // behind.
+        Log.w(TAG, "Loaded out of sync manifest");
+        isManifestStale = true;
+      } else if (dynamicMediaPresentationEnded
+          || newManifest.publishTimeMs <= expiredManifestPublishTimeUs) {
+        // If we receive a dynamic manifest that's older than expected (i.e. its publish time has
+        // expired, or it's dynamic and we know the presentation has ended), then this manifest is
+        // stale.
+        Log.w(
+            TAG,
+            "Loaded stale dynamic manifest: "
+                + newManifest.publishTimeMs
+                + ", "
+                + dynamicMediaPresentationEnded
+                + ", "
+                + expiredManifestPublishTimeUs);
+        isManifestStale = true;
+      }
 
-    // If we receive a dynamic manifest that's older than expected (i.e. its publish time has
-    // expired, or it's dynamic and we know the presentation has ended), then ignore it and load
-    // again up to a specified number of times.
-    if (newManifest.dynamic
-        && (dynamicMediaPresentationEnded
-            || newManifest.publishTimeMs <= expiredManifestPublishTimeUs)) {
-      Log.w(
-          TAG,
-          "Loaded stale dynamic manifest: "
-              + newManifest.publishTimeMs
-              + ", "
-              + dynamicMediaPresentationEnded
-              + ", "
-              + expiredManifestPublishTimeUs);
-      if (staleManifestReloadAttempt++ < minLoadableRetryCount) {
-        startLoadingManifest();
+      if (isManifestStale) {
+        if (staleManifestReloadAttempt++ < minLoadableRetryCount) {
+          scheduleManifestRefresh(getManifestLoadRetryDelayMillis());
+        } else {
+          manifestFatalError = new DashManifestStaleException();
+        }
         return;
       }
+      staleManifestReloadAttempt = 0;
     }
-    staleManifestReloadAttempt = 0;
+
 
     manifest = newManifest;
     manifestLoadPending &= manifest.dynamic;
@@ -804,28 +812,26 @@ public final class DashMediaSource implements MediaSource {
       }
       if (manifestLoadPending) {
         startLoadingManifest();
-      } else if (scheduleRefresh) {
+      } else if (scheduleRefresh && manifest.dynamic) {
         // Schedule an explicit refresh if needed.
-        scheduleManifestRefresh();
+        long minUpdatePeriodMs = manifest.minUpdatePeriodMs;
+        if (minUpdatePeriodMs == 0) {
+          // TODO: This is a temporary hack to avoid constantly refreshing the MPD in cases where
+          // minimumUpdatePeriod is set to 0. In such cases we shouldn't refresh unless there is
+          // explicit signaling in the stream, according to:
+          // http://azure.microsoft.com/blog/2014/09/13/dash-live-streaming-with-azure-media-service
+          minUpdatePeriodMs = 5000;
+        }
+        long nextLoadTimestampMs = manifestLoadStartTimestampMs + minUpdatePeriodMs;
+        long delayUntilNextLoadMs =
+            Math.max(0, nextLoadTimestampMs - SystemClock.elapsedRealtime());
+        scheduleManifestRefresh(delayUntilNextLoadMs);
       }
     }
   }
 
-  private void scheduleManifestRefresh() {
-    if (!manifest.dynamic) {
-      return;
-    }
-    long minUpdatePeriodMs = manifest.minUpdatePeriodMs;
-    if (minUpdatePeriodMs == 0) {
-      // TODO: This is a temporary hack to avoid constantly refreshing the MPD in cases where
-      // minimumUpdatePeriod is set to 0. In such cases we shouldn't refresh unless there is
-      // explicit signaling in the stream, according to:
-      // http://azure.microsoft.com/blog/2014/09/13/dash-live-streaming-with-azure-media-service/
-      minUpdatePeriodMs = 5000;
-    }
-    long nextLoadTimestamp = manifestLoadStartTimestampMs + minUpdatePeriodMs;
-    long delayUntilNextLoad = Math.max(0, nextLoadTimestamp - SystemClock.elapsedRealtime());
-    handler.postDelayed(refreshManifestRunnable, delayUntilNextLoad);
+  private void scheduleManifestRefresh(long delayUntilNextLoadMs) {
+    handler.postDelayed(refreshManifestRunnable, delayUntilNextLoadMs);
   }
 
   private void startLoadingManifest() {
@@ -843,6 +849,10 @@ public final class DashMediaSource implements MediaSource {
         new ParsingLoadable<>(dataSource, manifestUri, C.DATA_TYPE_MANIFEST, manifestParser),
         manifestCallback,
         minLoadableRetryCount);
+  }
+
+  private long getManifestLoadRetryDelayMillis() {
+    return Math.min((staleManifestReloadAttempt - 1) * 1000, 5000);
   }
 
   private <T> void startLoading(ParsingLoadable<T> loadable,
@@ -1124,5 +1134,30 @@ public final class DashMediaSource implements MediaSource {
       }
     }
 
+  }
+
+  /**
+   * A {@link LoaderErrorThrower} that throws fatal {@link IOException} that has occurred during
+   * manifest loading from the manifest {@code loader}, or exception with the loaded manifest.
+   */
+  /* package */ final class ManifestLoadErrorThrower implements LoaderErrorThrower {
+
+    @Override
+    public void maybeThrowError() throws IOException {
+      loader.maybeThrowError();
+      maybeThrowManifestError();
+    }
+
+    @Override
+    public void maybeThrowError(int minRetryCount) throws IOException {
+      loader.maybeThrowError(minRetryCount);
+      maybeThrowManifestError();
+    }
+
+    private void maybeThrowManifestError() throws IOException {
+      if (manifestFatalError != null) {
+        throw manifestFatalError;
+      }
+    }
   }
 }

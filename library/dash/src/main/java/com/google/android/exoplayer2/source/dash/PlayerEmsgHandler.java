@@ -36,6 +36,7 @@ import com.google.android.exoplayer2.source.dash.manifest.DashManifest;
 import com.google.android.exoplayer2.upstream.Allocator;
 import com.google.android.exoplayer2.util.ParsableByteArray;
 import java.io.IOException;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -92,7 +93,6 @@ public final class PlayerEmsgHandler implements Handler.Callback {
   private long lastLoadedChunkEndTimeBeforeRefreshUs;
   private boolean isWaitingForManifestRefresh;
   private boolean released;
-  private DashManifestExpiredException fatalError;
 
   /**
    * @param manifest The initial manifest.
@@ -119,26 +119,13 @@ public final class PlayerEmsgHandler implements Handler.Callback {
    * @param newManifest The updated manifest.
    */
   public void updateManifest(DashManifest newManifest) {
-    if (isManifestStale(newManifest)) {
-      fatalError = new DashManifestExpiredException();
-    }
-
     isWaitingForManifestRefresh = false;
     expiredManifestPublishTimeUs = C.TIME_UNSET;
     this.manifest = newManifest;
+    removePreviouslyExpiredManifestPublishTimeValues();
   }
 
-  private boolean isManifestStale(DashManifest manifest) {
-    return manifest.dynamic
-        && (dynamicMediaPresentationEnded
-            || manifest.publishTimeMs <= expiredManifestPublishTimeUs);
-  }
-
-  /* package*/ boolean maybeRefreshManifestBeforeLoadingNextChunk(long presentationPositionUs)
-      throws DashManifestExpiredException {
-    if (fatalError != null) {
-      throw fatalError;
-    }
+  /* package*/ boolean maybeRefreshManifestBeforeLoadingNextChunk(long presentationPositionUs) {
     if (!manifest.dynamic) {
       return false;
     }
@@ -273,6 +260,18 @@ public final class PlayerEmsgHandler implements Handler.Callback {
     return manifestPublishTimeToExpiryTimeUs.ceilingEntry(publishTimeMs);
   }
 
+  private void removePreviouslyExpiredManifestPublishTimeValues() {
+    for (Iterator<Map.Entry<Long, Long>> it =
+            manifestPublishTimeToExpiryTimeUs.entrySet().iterator();
+        it.hasNext(); ) {
+      Map.Entry<Long, Long> entry = it.next();
+      long expiredManifestPublishTime = entry.getKey();
+      if (expiredManifestPublishTime < manifest.publishTimeMs) {
+        it.remove();
+      }
+    }
+  }
+
   private void notifyManifestPublishTimeExpired() {
     playerEmsgCallback.onDashManifestPublishTimeExpired(expiredManifestPublishTimeUs);
   }
@@ -351,11 +350,8 @@ public final class PlayerEmsgHandler implements Handler.Callback {
      *
      * @param presentationPositionUs The next load position in presentation time.
      * @return True if manifest refresh has been requested, false otherwise.
-     * @throws DashManifestExpiredException If the current DASH manifest is expired, but a new
-     *     manifest could not be loaded.
      */
-    public boolean maybeRefreshManifestBeforeLoadingNextChunk(long presentationPositionUs)
-        throws DashManifestExpiredException {
+    public boolean maybeRefreshManifestBeforeLoadingNextChunk(long presentationPositionUs) {
       return PlayerEmsgHandler.this.maybeRefreshManifestBeforeLoadingNextChunk(
           presentationPositionUs);
     }
