@@ -203,8 +203,8 @@ public final class ExoPlayerTestRunner extends Player.DefaultEventListener
     }
 
     /**
-     * Sets the {@link Clock} to be used by the test runner. The default value is {@link
-     * Clock#DEFAULT}.
+     * Sets the {@link Clock} to be used by the test runner. The default value is a {@link
+     * AutoAdvancingFakeClock}.
      *
      * @param clock A {@link Clock} to be used by the test runner.
      * @return This builder.
@@ -307,7 +307,7 @@ public final class ExoPlayerTestRunner extends Player.DefaultEventListener
         loadControl = new DefaultLoadControl();
       }
       if (clock == null) {
-        clock = Clock.DEFAULT;
+        clock = new AutoAdvancingFakeClock();
       }
       if (mediaSource == null) {
         if (timeline == null) {
