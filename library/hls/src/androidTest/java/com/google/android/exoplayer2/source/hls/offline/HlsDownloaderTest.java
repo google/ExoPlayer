@@ -30,6 +30,7 @@ import static com.google.android.exoplayer2.source.hls.offline.HlsDownloadTestDa
 import static com.google.android.exoplayer2.source.hls.offline.HlsDownloadTestData.MEDIA_PLAYLIST_DATA;
 import static com.google.android.exoplayer2.testutil.CacheAsserts.assertCacheEmpty;
 import static com.google.android.exoplayer2.testutil.CacheAsserts.assertCachedData;
+import static com.google.common.truth.Truth.assertThat;
 
 import android.net.Uri;
 import android.test.InstrumentationTestCase;
@@ -78,7 +79,7 @@ public class HlsDownloaderTest extends InstrumentationTestCase {
   public void testDownloadManifest() throws Exception {
     HlsMasterPlaylist manifest = hlsDownloader.getManifest();
 
-    assertNotNull(manifest);
+    assertThat(manifest).isNotNull();
     assertCachedData(cache, fakeDataSet, MASTER_PLAYLIST_URI);
   }
 
@@ -97,9 +98,10 @@ public class HlsDownloaderTest extends InstrumentationTestCase {
     hlsDownloader.selectRepresentations(new String[] {MEDIA_PLAYLIST_1_URI});
     hlsDownloader.download(null);
 
-    assertEquals(4, hlsDownloader.getTotalSegments());
-    assertEquals(4, hlsDownloader.getDownloadedSegments());
-    assertEquals(MEDIA_PLAYLIST_DATA.length + 10 + 11 + 12, hlsDownloader.getDownloadedBytes());
+    assertThat(hlsDownloader.getTotalSegments()).isEqualTo(4);
+    assertThat(hlsDownloader.getDownloadedSegments()).isEqualTo(4);
+    assertThat(hlsDownloader.getDownloadedBytes())
+        .isEqualTo(MEDIA_PLAYLIST_DATA.length + 10 + 11 + 12);
   }
 
   public void testInitStatus() throws Exception {
@@ -111,9 +113,10 @@ public class HlsDownloaderTest extends InstrumentationTestCase {
     newHlsDownloader.selectRepresentations(new String[] {MEDIA_PLAYLIST_1_URI});
     newHlsDownloader.init();
 
-    assertEquals(4, newHlsDownloader.getTotalSegments());
-    assertEquals(4, newHlsDownloader.getDownloadedSegments());
-    assertEquals(MEDIA_PLAYLIST_DATA.length + 10 + 11 + 12, newHlsDownloader.getDownloadedBytes());
+    assertThat(newHlsDownloader.getTotalSegments()).isEqualTo(4);
+    assertThat(newHlsDownloader.getDownloadedSegments()).isEqualTo(4);
+    assertThat(newHlsDownloader.getDownloadedBytes())
+        .isEqualTo(MEDIA_PLAYLIST_DATA.length + 10 + 11 + 12);
   }
 
   public void testDownloadRepresentation() throws Exception {

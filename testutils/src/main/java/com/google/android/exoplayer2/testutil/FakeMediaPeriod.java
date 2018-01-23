@@ -15,6 +15,8 @@
  */
 package com.google.android.exoplayer2.testutil;
 
+import static com.google.common.truth.Truth.assertThat;
+
 import android.os.Handler;
 import android.support.annotation.Nullable;
 import com.google.android.exoplayer2.C;
@@ -25,7 +27,6 @@ import com.google.android.exoplayer2.source.TrackGroup;
 import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.trackselection.TrackSelection;
 import java.io.IOException;
-import junit.framework.Assert;
 
 /**
  * Fake {@link MediaPeriod} that provides tracks from the given {@link TrackGroupArray}. Selecting
@@ -119,14 +120,14 @@ public class FakeMediaPeriod implements MediaPeriod {
 
   @Override
   public TrackGroupArray getTrackGroups() {
-    Assert.assertTrue(prepared);
+    assertThat(prepared).isTrue();
     return trackGroupArray;
   }
 
   @Override
   public long selectTracks(TrackSelection[] selections, boolean[] mayRetainStreamFlags,
       SampleStream[] streams, boolean[] streamResetFlags, long positionUs) {
-    Assert.assertTrue(prepared);
+    assertThat(prepared).isTrue();
     int rendererCount = selections.length;
     for (int i = 0; i < rendererCount; i++) {
       if (streams[i] != null && (selections[i] == null || !mayRetainStreamFlags[i])) {
@@ -134,12 +135,12 @@ public class FakeMediaPeriod implements MediaPeriod {
       }
       if (streams[i] == null && selections[i] != null) {
         TrackSelection selection = selections[i];
-        Assert.assertTrue(1 <= selection.length());
+        assertThat(selection.length()).isAtLeast(1);
         TrackGroup trackGroup = selection.getTrackGroup();
-        Assert.assertTrue(trackGroupArray.indexOf(trackGroup) != C.INDEX_UNSET);
+        assertThat(trackGroupArray.indexOf(trackGroup) != C.INDEX_UNSET).isTrue();
         int indexInTrackGroup = selection.getIndexInTrackGroup(selection.getSelectedIndex());
-        Assert.assertTrue(0 <= indexInTrackGroup);
-        Assert.assertTrue(indexInTrackGroup < trackGroup.length);
+        assertThat(indexInTrackGroup).isAtLeast(0);
+        assertThat(indexInTrackGroup).isLessThan(trackGroup.length);
         streams[i] = createSampleStream(selection);
         streamResetFlags[i] = true;
       }
@@ -159,7 +160,7 @@ public class FakeMediaPeriod implements MediaPeriod {
 
   @Override
   public long readDiscontinuity() {
-    Assert.assertTrue(prepared);
+    assertThat(prepared).isTrue();
     long positionDiscontinuityUs = this.discontinuityPositionUs;
     this.discontinuityPositionUs = C.TIME_UNSET;
     return positionDiscontinuityUs;
@@ -167,13 +168,13 @@ public class FakeMediaPeriod implements MediaPeriod {
 
   @Override
   public long getBufferedPositionUs() {
-    Assert.assertTrue(prepared);
+    assertThat(prepared).isTrue();
     return C.TIME_END_OF_SOURCE;
   }
 
   @Override
   public long seekToUs(long positionUs) {
-    Assert.assertTrue(prepared);
+    assertThat(prepared).isTrue();
     return positionUs + seekOffsetUs;
   }
 
@@ -184,13 +185,13 @@ public class FakeMediaPeriod implements MediaPeriod {
 
   @Override
   public long getNextLoadPositionUs() {
-    Assert.assertTrue(prepared);
+    assertThat(prepared).isTrue();
     return C.TIME_END_OF_SOURCE;
   }
 
   @Override
   public boolean continueLoading(long positionUs) {
-    Assert.assertTrue(prepared);
+    assertThat(prepared).isTrue();
     return false;
   }
 

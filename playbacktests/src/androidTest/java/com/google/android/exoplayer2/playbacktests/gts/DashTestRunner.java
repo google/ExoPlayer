@@ -64,7 +64,6 @@ import com.google.android.exoplayer2.util.Util;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import junit.framework.AssertionFailedError;
 
 /** {@link DashHostedTest} builder. */
 public final class DashTestRunner {
@@ -362,7 +361,7 @@ public final class DashTestRunner {
         // Assert that consecutive dropped frames were within limit.
         DecoderCountersUtil.assertConsecutiveDroppedBufferLimit(tag + VIDEO_TAG_SUFFIX,
             videoCounters, MAX_CONSECUTIVE_DROPPED_VIDEO_FRAMES);
-      } catch (AssertionFailedError e) {
+      } catch (AssertionError e) {
         if (trackSelector.includedAdditionalVideoFormats) {
           // Retry limiting to CDD mandated formats (b/28220076).
           Log.e(tag, "Too many dropped or consecutive dropped frames.", e);

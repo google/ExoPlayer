@@ -15,6 +15,8 @@
  */
 package com.google.android.exoplayer2.source;
 
+import static com.google.common.truth.Truth.assertThat;
+
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.source.MergingMediaSource.IllegalMergeException;
@@ -53,7 +55,7 @@ public class MergingMediaSourceTest extends TestCase {
       testMergingMediaSourcePrepare(firstTimeline, secondTimeline);
       fail("Expected merging to fail.");
     } catch (IllegalMergeException e) {
-      assertEquals(IllegalMergeException.REASON_PERIOD_COUNT_MISMATCH, e.reason);
+      assertThat(e.reason).isEqualTo(IllegalMergeException.REASON_PERIOD_COUNT_MISMATCH);
     }
   }
 
@@ -71,7 +73,7 @@ public class MergingMediaSourceTest extends TestCase {
     try {
       Timeline timeline = testRunner.prepareSource();
       // The merged timeline should always be the one from the first child.
-      assertEquals(timelines[0], timeline);
+      assertThat(timeline).isEqualTo(timelines[0]);
     } finally {
       testRunner.release();
     }

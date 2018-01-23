@@ -15,6 +15,8 @@
  */
 package com.google.android.exoplayer2.testutil;
 
+import static com.google.common.truth.Truth.assertThat;
+
 import android.app.Instrumentation;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.extractor.Extractor;
@@ -26,7 +28,6 @@ import com.google.android.exoplayer2.testutil.FakeExtractorInput.SimulatedIOExce
 import com.google.android.exoplayer2.util.Assertions;
 import java.io.IOException;
 import java.util.Arrays;
-import junit.framework.Assert;
 
 /**
  * Assertion methods for {@link Extractor}.
@@ -126,7 +127,7 @@ public final class ExtractorAsserts {
         .setSimulatePartialReads(simulatePartialReads).build();
 
     if (sniffFirst) {
-      Assert.assertTrue(TestUtil.sniffTestData(extractor, input));
+      assertThat(TestUtil.sniffTestData(extractor, input)).isTrue();
       input.resetPeekPosition();
     }
 

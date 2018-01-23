@@ -15,6 +15,8 @@
  */
 package com.google.android.exoplayer2.text.tx3g;
 
+import static com.google.common.truth.Truth.assertThat;
+
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.test.InstrumentationTestCase;
@@ -52,7 +54,7 @@ public final class Tx3gDecoderTest extends InstrumentationTestCase {
     Tx3gDecoder decoder = new Tx3gDecoder(Collections.<byte[]>emptyList());
     byte[] bytes = TestUtil.getByteArray(getInstrumentation(), NO_SUBTITLE);
     Subtitle subtitle = decoder.decode(bytes, bytes.length, false);
-    assertTrue(subtitle.getCues(0).isEmpty());
+    assertThat(subtitle.getCues(0)).isEmpty();
   }
 
   public void testDecodeJustText() throws IOException, SubtitleDecoderException {
@@ -60,8 +62,8 @@ public final class Tx3gDecoderTest extends InstrumentationTestCase {
     byte[] bytes = TestUtil.getByteArray(getInstrumentation(), SAMPLE_JUST_TEXT);
     Subtitle subtitle = decoder.decode(bytes, bytes.length, false);
     SpannedString text = new SpannedString(subtitle.getCues(0).get(0).text);
-    assertEquals("CC Test", text.toString());
-    assertEquals(0, text.getSpans(0, text.length(), Object.class).length);
+    assertThat(text.toString()).isEqualTo("CC Test");
+    assertThat(text.getSpans(0, text.length(), Object.class)).hasLength(0);
     assertFractionalLinePosition(subtitle.getCues(0).get(0), 0.85f);
   }
 
@@ -70,13 +72,13 @@ public final class Tx3gDecoderTest extends InstrumentationTestCase {
     byte[] bytes = TestUtil.getByteArray(getInstrumentation(), SAMPLE_WITH_STYL);
     Subtitle subtitle = decoder.decode(bytes, bytes.length, false);
     SpannedString text = new SpannedString(subtitle.getCues(0).get(0).text);
-    assertEquals("CC Test", text.toString());
-    assertEquals(3, text.getSpans(0, text.length(), Object.class).length);
+    assertThat(text.toString()).isEqualTo("CC Test");
+    assertThat(text.getSpans(0, text.length(), Object.class)).hasLength(3);
     StyleSpan styleSpan = findSpan(text, 0, 6, StyleSpan.class);
-    assertEquals(Typeface.BOLD_ITALIC, styleSpan.getStyle());
+    assertThat(styleSpan.getStyle()).isEqualTo(Typeface.BOLD_ITALIC);
     findSpan(text, 0, 6, UnderlineSpan.class);
     ForegroundColorSpan colorSpan = findSpan(text, 0, 6, ForegroundColorSpan.class);
-    assertEquals(Color.GREEN, colorSpan.getForegroundColor());
+    assertThat(colorSpan.getForegroundColor()).isEqualTo(Color.GREEN);
     assertFractionalLinePosition(subtitle.getCues(0).get(0), 0.85f);
   }
 
@@ -85,8 +87,8 @@ public final class Tx3gDecoderTest extends InstrumentationTestCase {
     byte[] bytes = TestUtil.getByteArray(getInstrumentation(), SAMPLE_WITH_STYL_ALL_DEFAULTS);
     Subtitle subtitle = decoder.decode(bytes, bytes.length, false);
     SpannedString text = new SpannedString(subtitle.getCues(0).get(0).text);
-    assertEquals("CC Test", text.toString());
-    assertEquals(0, text.getSpans(0, text.length(), Object.class).length);
+    assertThat(text.toString()).isEqualTo("CC Test");
+    assertThat(text.getSpans(0, text.length(), Object.class)).hasLength(0);
     assertFractionalLinePosition(subtitle.getCues(0).get(0), 0.85f);
   }
 
@@ -95,8 +97,8 @@ public final class Tx3gDecoderTest extends InstrumentationTestCase {
     byte[] bytes = TestUtil.getByteArray(getInstrumentation(), SAMPLE_UTF16_BE_NO_STYL);
     Subtitle subtitle = decoder.decode(bytes, bytes.length, false);
     SpannedString text = new SpannedString(subtitle.getCues(0).get(0).text);
-    assertEquals("你好", text.toString());
-    assertEquals(0, text.getSpans(0, text.length(), Object.class).length);
+    assertThat(text.toString()).isEqualTo("你好");
+    assertThat(text.getSpans(0, text.length(), Object.class)).hasLength(0);
     assertFractionalLinePosition(subtitle.getCues(0).get(0), 0.85f);
   }
 
@@ -105,8 +107,8 @@ public final class Tx3gDecoderTest extends InstrumentationTestCase {
     byte[] bytes = TestUtil.getByteArray(getInstrumentation(), SAMPLE_UTF16_LE_NO_STYL);
     Subtitle subtitle = decoder.decode(bytes, bytes.length, false);
     SpannedString text = new SpannedString(subtitle.getCues(0).get(0).text);
-    assertEquals("你好", text.toString());
-    assertEquals(0, text.getSpans(0, text.length(), Object.class).length);
+    assertThat(text.toString()).isEqualTo("你好");
+    assertThat(text.getSpans(0, text.length(), Object.class)).hasLength(0);
     assertFractionalLinePosition(subtitle.getCues(0).get(0), 0.85f);
   }
 
@@ -115,15 +117,15 @@ public final class Tx3gDecoderTest extends InstrumentationTestCase {
     byte[] bytes = TestUtil.getByteArray(getInstrumentation(), SAMPLE_WITH_MULTIPLE_STYL);
     Subtitle subtitle = decoder.decode(bytes, bytes.length, false);
     SpannedString text = new SpannedString(subtitle.getCues(0).get(0).text);
-    assertEquals("Line 2\nLine 3", text.toString());
-    assertEquals(4, text.getSpans(0, text.length(), Object.class).length);
+    assertThat(text.toString()).isEqualTo("Line 2\nLine 3");
+    assertThat(text.getSpans(0, text.length(), Object.class)).hasLength(4);
     StyleSpan styleSpan = findSpan(text, 0, 5, StyleSpan.class);
-    assertEquals(Typeface.ITALIC, styleSpan.getStyle());
+    assertThat(styleSpan.getStyle()).isEqualTo(Typeface.ITALIC);
     findSpan(text, 7, 12, UnderlineSpan.class);
     ForegroundColorSpan colorSpan = findSpan(text, 0, 5, ForegroundColorSpan.class);
-    assertEquals(Color.GREEN, colorSpan.getForegroundColor());
+    assertThat(colorSpan.getForegroundColor()).isEqualTo(Color.GREEN);
     colorSpan = findSpan(text, 7, 12, ForegroundColorSpan.class);
-    assertEquals(Color.GREEN, colorSpan.getForegroundColor());
+    assertThat(colorSpan.getForegroundColor()).isEqualTo(Color.GREEN);
     assertFractionalLinePosition(subtitle.getCues(0).get(0), 0.85f);
   }
 
@@ -132,12 +134,12 @@ public final class Tx3gDecoderTest extends InstrumentationTestCase {
     byte[] bytes = TestUtil.getByteArray(getInstrumentation(), SAMPLE_WITH_OTHER_EXTENSION);
     Subtitle subtitle = decoder.decode(bytes, bytes.length, false);
     SpannedString text = new SpannedString(subtitle.getCues(0).get(0).text);
-    assertEquals("CC Test", text.toString());
-    assertEquals(2, text.getSpans(0, text.length(), Object.class).length);
+    assertThat(text.toString()).isEqualTo("CC Test");
+    assertThat(text.getSpans(0, text.length(), Object.class)).hasLength(2);
     StyleSpan styleSpan = findSpan(text, 0, 6, StyleSpan.class);
-    assertEquals(Typeface.BOLD, styleSpan.getStyle());
+    assertThat(styleSpan.getStyle()).isEqualTo(Typeface.BOLD);
     ForegroundColorSpan colorSpan = findSpan(text, 0, 6, ForegroundColorSpan.class);
-    assertEquals(Color.GREEN, colorSpan.getForegroundColor());
+    assertThat(colorSpan.getForegroundColor()).isEqualTo(Color.GREEN);
     assertFractionalLinePosition(subtitle.getCues(0).get(0), 0.85f);
   }
 
@@ -147,17 +149,17 @@ public final class Tx3gDecoderTest extends InstrumentationTestCase {
     byte[] bytes = TestUtil.getByteArray(getInstrumentation(), SAMPLE_WITH_STYL);
     Subtitle subtitle = decoder.decode(bytes, bytes.length, false);
     SpannedString text = new SpannedString(subtitle.getCues(0).get(0).text);
-    assertEquals("CC Test", text.toString());
-    assertEquals(5, text.getSpans(0, text.length(), Object.class).length);
+    assertThat(text.toString()).isEqualTo("CC Test");
+    assertThat(text.getSpans(0, text.length(), Object.class)).hasLength(5);
     StyleSpan styleSpan = findSpan(text, 0, text.length(), StyleSpan.class);
-    assertEquals(Typeface.BOLD_ITALIC, styleSpan.getStyle());
+    assertThat(styleSpan.getStyle()).isEqualTo(Typeface.BOLD_ITALIC);
     findSpan(text, 0, text.length(), UnderlineSpan.class);
     TypefaceSpan typefaceSpan = findSpan(text, 0, text.length(), TypefaceSpan.class);
-    assertEquals(C.SERIF_NAME, typefaceSpan.getFamily());
+    assertThat(typefaceSpan.getFamily()).isEqualTo(C.SERIF_NAME);
     ForegroundColorSpan colorSpan = findSpan(text, 0, text.length(), ForegroundColorSpan.class);
-    assertEquals(Color.RED, colorSpan.getForegroundColor());
+    assertThat(colorSpan.getForegroundColor()).isEqualTo(Color.RED);
     colorSpan = findSpan(text, 0, 6, ForegroundColorSpan.class);
-    assertEquals(Color.GREEN, colorSpan.getForegroundColor());
+    assertThat(colorSpan.getForegroundColor()).isEqualTo(Color.GREEN);
     assertFractionalLinePosition(subtitle.getCues(0).get(0), 0.1f);
   }
 
@@ -167,15 +169,15 @@ public final class Tx3gDecoderTest extends InstrumentationTestCase {
     byte[] bytes = TestUtil.getByteArray(getInstrumentation(), SAMPLE_WITH_TBOX);
     Subtitle subtitle = decoder.decode(bytes, bytes.length, false);
     SpannedString text = new SpannedString(subtitle.getCues(0).get(0).text);
-    assertEquals("CC Test", text.toString());
-    assertEquals(4, text.getSpans(0, text.length(), Object.class).length);
+    assertThat(text.toString()).isEqualTo("CC Test");
+    assertThat(text.getSpans(0, text.length(), Object.class)).hasLength(4);
     StyleSpan styleSpan = findSpan(text, 0, text.length(), StyleSpan.class);
-    assertEquals(Typeface.BOLD_ITALIC, styleSpan.getStyle());
+    assertThat(styleSpan.getStyle()).isEqualTo(Typeface.BOLD_ITALIC);
     findSpan(text, 0, text.length(), UnderlineSpan.class);
     TypefaceSpan typefaceSpan = findSpan(text, 0, text.length(), TypefaceSpan.class);
-    assertEquals(C.SERIF_NAME, typefaceSpan.getFamily());
+    assertThat(typefaceSpan.getFamily()).isEqualTo(C.SERIF_NAME);
     ForegroundColorSpan colorSpan = findSpan(text, 0, text.length(), ForegroundColorSpan.class);
-    assertEquals(Color.RED, colorSpan.getForegroundColor());
+    assertThat(colorSpan.getForegroundColor()).isEqualTo(Color.RED);
     assertFractionalLinePosition(subtitle.getCues(0).get(0), 0.1875f);
   }
 
@@ -186,13 +188,13 @@ public final class Tx3gDecoderTest extends InstrumentationTestCase {
     byte[] bytes = TestUtil.getByteArray(getInstrumentation(), SAMPLE_WITH_STYL);
     Subtitle subtitle = decoder.decode(bytes, bytes.length, false);
     SpannedString text = new SpannedString(subtitle.getCues(0).get(0).text);
-    assertEquals("CC Test", text.toString());
-    assertEquals(3, text.getSpans(0, text.length(), Object.class).length);
+    assertThat(text.toString()).isEqualTo("CC Test");
+    assertThat(text.getSpans(0, text.length(), Object.class)).hasLength(3);
     StyleSpan styleSpan = findSpan(text, 0, 6, StyleSpan.class);
-    assertEquals(Typeface.BOLD_ITALIC, styleSpan.getStyle());
+    assertThat(styleSpan.getStyle()).isEqualTo(Typeface.BOLD_ITALIC);
     findSpan(text, 0, 6, UnderlineSpan.class);
     ForegroundColorSpan colorSpan = findSpan(text, 0, 6, ForegroundColorSpan.class);
-    assertEquals(Color.GREEN, colorSpan.getForegroundColor());
+    assertThat(colorSpan.getForegroundColor()).isEqualTo(Color.GREEN);
     assertFractionalLinePosition(subtitle.getCues(0).get(0), 0.85f);
   }
 
@@ -210,9 +212,9 @@ public final class Tx3gDecoderTest extends InstrumentationTestCase {
   }
 
   private static void assertFractionalLinePosition(Cue cue, float expectedFraction) {
-    assertEquals(Cue.LINE_TYPE_FRACTION, cue.lineType);
-    assertEquals(Cue.ANCHOR_TYPE_START, cue.lineAnchor);
-    assertTrue(Math.abs(expectedFraction - cue.line) < 1e-6);
+    assertThat(cue.lineType).isEqualTo(Cue.LINE_TYPE_FRACTION);
+    assertThat(cue.lineAnchor).isEqualTo(Cue.ANCHOR_TYPE_START);
+    assertThat(Math.abs(expectedFraction - cue.line) < 1e-6).isTrue();
   }
 
 }

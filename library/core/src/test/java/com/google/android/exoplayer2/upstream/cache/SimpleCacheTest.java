@@ -83,11 +83,9 @@ public class SimpleCacheTest {
     addCache(simpleCache, KEY_1, 0, 15);
 
     Set<String> cachedKeys = simpleCache.getKeys();
-    assertThat(cachedKeys).hasSize(1);
-    assertThat(cachedKeys.contains(KEY_1)).isTrue();
+    assertThat(cachedKeys).containsExactly(KEY_1);
     cachedSpans = simpleCache.getCachedSpans(KEY_1);
-    assertThat(cachedSpans).hasSize(1);
-    assertThat(cachedSpans.contains(cacheSpan1)).isTrue();
+    assertThat(cachedSpans).contains(cacheSpan1);
     assertThat(simpleCache.getCacheSpace()).isEqualTo(15);
 
     simpleCache.releaseHoleSpan(cacheSpan1);

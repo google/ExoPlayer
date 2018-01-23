@@ -15,6 +15,8 @@
  */
 package com.google.android.exoplayer2.source;
 
+import static com.google.common.truth.Truth.assertThat;
+
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.Timeline;
@@ -77,8 +79,9 @@ public final class ConcatenatingMediaSourceTest extends TestCase {
   }
 
   public void testMultipleMediaSources() throws IOException {
-    Timeline[] timelines = { createFakeTimeline(3, 111), createFakeTimeline(1, 222),
-        createFakeTimeline(3, 333) };
+    Timeline[] timelines = {
+      createFakeTimeline(3, 111), createFakeTimeline(1, 222), createFakeTimeline(3, 333)
+    };
     Timeline timeline = getConcatenatedTimeline(false, timelines);
     TimelineAsserts.assertWindowIds(timeline, 111, 222, 333);
     TimelineAsserts.assertPeriodCounts(timeline, 3, 1, 3);
@@ -98,10 +101,10 @@ public final class ConcatenatingMediaSourceTest extends TestCase {
         C.INDEX_UNSET, 0, 1);
     TimelineAsserts.assertNextWindowIndices(timeline, Player.REPEAT_MODE_ONE, true, 0, 1, 2);
     TimelineAsserts.assertNextWindowIndices(timeline, Player.REPEAT_MODE_ALL, true, 2, 0, 1);
-    assertEquals(0, timeline.getFirstWindowIndex(false));
-    assertEquals(2, timeline.getLastWindowIndex(false));
-    assertEquals(2, timeline.getFirstWindowIndex(true));
-    assertEquals(0, timeline.getLastWindowIndex(true));
+    assertThat(timeline.getFirstWindowIndex(false)).isEqualTo(0);
+    assertThat(timeline.getLastWindowIndex(false)).isEqualTo(2);
+    assertThat(timeline.getFirstWindowIndex(true)).isEqualTo(2);
+    assertThat(timeline.getLastWindowIndex(true)).isEqualTo(0);
 
     timeline = getConcatenatedTimeline(true, timelines);
     TimelineAsserts.assertWindowIds(timeline, 111, 222, 333);
@@ -117,8 +120,8 @@ public final class ConcatenatingMediaSourceTest extends TestCase {
           1, 2, C.INDEX_UNSET);
       TimelineAsserts.assertNextWindowIndices(timeline, Player.REPEAT_MODE_ONE, shuffled, 1, 2, 0);
       TimelineAsserts.assertNextWindowIndices(timeline, Player.REPEAT_MODE_ALL, shuffled, 1, 2, 0);
-      assertEquals(0, timeline.getFirstWindowIndex(shuffled));
-      assertEquals(2, timeline.getLastWindowIndex(shuffled));
+      assertThat(timeline.getFirstWindowIndex(shuffled)).isEqualTo(0);
+      assertThat(timeline.getLastWindowIndex(shuffled)).isEqualTo(2);
     }
   }
 
@@ -152,9 +155,16 @@ public final class ConcatenatingMediaSourceTest extends TestCase {
 
   public void testEmptyTimelineMediaSources() throws IOException {
     // Empty timelines in the front, back, and the middle (single and multiple in a row).
-    Timeline[] timelines = { Timeline.EMPTY, createFakeTimeline(1, 111), Timeline.EMPTY,
-        Timeline.EMPTY, createFakeTimeline(2, 222), Timeline.EMPTY, createFakeTimeline(3, 333),
-        Timeline.EMPTY };
+    Timeline[] timelines = {
+      Timeline.EMPTY,
+      createFakeTimeline(1, 111),
+      Timeline.EMPTY,
+      Timeline.EMPTY,
+      createFakeTimeline(2, 222),
+      Timeline.EMPTY,
+      createFakeTimeline(3, 333),
+      Timeline.EMPTY
+    };
     Timeline timeline = getConcatenatedTimeline(false, timelines);
     TimelineAsserts.assertWindowIds(timeline, 111, 222, 333);
     TimelineAsserts.assertPeriodCounts(timeline, 1, 2, 3);
@@ -174,10 +184,10 @@ public final class ConcatenatingMediaSourceTest extends TestCase {
         C.INDEX_UNSET, 0, 1);
     TimelineAsserts.assertNextWindowIndices(timeline, Player.REPEAT_MODE_ONE, true, 0, 1, 2);
     TimelineAsserts.assertNextWindowIndices(timeline, Player.REPEAT_MODE_ALL, true, 2, 0, 1);
-    assertEquals(0, timeline.getFirstWindowIndex(false));
-    assertEquals(2, timeline.getLastWindowIndex(false));
-    assertEquals(2, timeline.getFirstWindowIndex(true));
-    assertEquals(0, timeline.getLastWindowIndex(true));
+    assertThat(timeline.getFirstWindowIndex(false)).isEqualTo(0);
+    assertThat(timeline.getLastWindowIndex(false)).isEqualTo(2);
+    assertThat(timeline.getFirstWindowIndex(true)).isEqualTo(2);
+    assertThat(timeline.getLastWindowIndex(true)).isEqualTo(0);
 
     timeline = getConcatenatedTimeline(true, timelines);
     TimelineAsserts.assertWindowIds(timeline, 111, 222, 333);
@@ -193,8 +203,8 @@ public final class ConcatenatingMediaSourceTest extends TestCase {
           1, 2, C.INDEX_UNSET);
       TimelineAsserts.assertNextWindowIndices(timeline, Player.REPEAT_MODE_ONE, shuffled, 1, 2, 0);
       TimelineAsserts.assertNextWindowIndices(timeline, Player.REPEAT_MODE_ALL, shuffled, 1, 2, 0);
-      assertEquals(0, timeline.getFirstWindowIndex(shuffled));
-      assertEquals(2, timeline.getLastWindowIndex(shuffled));
+      assertThat(timeline.getFirstWindowIndex(shuffled)).isEqualTo(0);
+      assertThat(timeline.getLastWindowIndex(shuffled)).isEqualTo(2);
     }
   }
 

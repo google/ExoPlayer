@@ -15,11 +15,12 @@
  */
 package com.google.android.exoplayer2.extractor.ogg;
 
+import static org.junit.Assert.fail;
+
 import com.google.android.exoplayer2.testutil.OggTestData;
 import com.google.android.exoplayer2.testutil.TestUtil;
 import java.util.ArrayList;
 import java.util.Random;
-import junit.framework.Assert;
 
 /**
  * Generates test data.
@@ -119,7 +120,7 @@ import junit.framework.Assert;
         return i;
       }
     }
-    Assert.fail();
+    fail();
     return -1;
   }
 

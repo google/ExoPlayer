@@ -15,6 +15,9 @@
  */
 package com.google.android.exoplayer2.testutil;
 
+import static com.google.common.truth.Truth.assertThat;
+import static com.google.common.truth.Truth.assertWithMessage;
+
 import android.app.Instrumentation;
 import android.util.SparseArray;
 import com.google.android.exoplayer2.extractor.ExtractorOutput;
@@ -22,7 +25,6 @@ import com.google.android.exoplayer2.extractor.SeekMap;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
-import junit.framework.Assert;
 
 /**
  * A fake {@link ExtractorOutput}.
@@ -50,7 +52,7 @@ public final class FakeExtractorOutput implements ExtractorOutput, Dumper.Dumpab
   public FakeTrackOutput track(int id, int type) {
     FakeTrackOutput output = trackOutputs.get(id);
     if (output == null) {
-      Assert.assertFalse(tracksEnded);
+      assertThat(tracksEnded).isFalse();
       numberOfTracks++;
       output = new FakeTrackOutput();
       trackOutputs.put(id, output);
@@ -69,19 +71,19 @@ public final class FakeExtractorOutput implements ExtractorOutput, Dumper.Dumpab
   }
 
   public void assertEquals(FakeExtractorOutput expected) {
-    Assert.assertEquals(expected.numberOfTracks, numberOfTracks);
-    Assert.assertEquals(expected.tracksEnded, tracksEnded);
+    assertThat(numberOfTracks).isEqualTo(expected.numberOfTracks);
+    assertThat(tracksEnded).isEqualTo(expected.tracksEnded);
     if (expected.seekMap == null) {
-      Assert.assertNull(seekMap);
+      assertThat(seekMap).isNull();
     } else {
       // TODO: Bulk up this check if possible.
-      Assert.assertNotNull(seekMap);
-      Assert.assertEquals(expected.seekMap.getClass(), seekMap.getClass());
-      Assert.assertEquals(expected.seekMap.isSeekable(), seekMap.isSeekable());
-      Assert.assertEquals(expected.seekMap.getSeekPoints(0), seekMap.getSeekPoints(0));
+      assertThat(seekMap).isNotNull();
+      assertThat(seekMap.getClass()).isEqualTo(expected.seekMap.getClass());
+      assertThat(seekMap.isSeekable()).isEqualTo(expected.seekMap.isSeekable());
+      assertThat(seekMap.getSeekPoints(0)).isEqualTo(expected.seekMap.getSeekPoints(0));
     }
     for (int i = 0; i < numberOfTracks; i++) {
-      Assert.assertEquals(expected.trackOutputs.keyAt(i), trackOutputs.keyAt(i));
+      assertThat(trackOutputs.keyAt(i)).isEqualTo(expected.trackOutputs.keyAt(i));
       trackOutputs.valueAt(i).assertEquals(expected.trackOutputs.valueAt(i));
     }
   }
@@ -107,7 +109,7 @@ public final class FakeExtractorOutput implements ExtractorOutput, Dumper.Dumpab
       out.close();
     } else {
       String expected = TestUtil.getString(instrumentation, dumpFile);
-      Assert.assertEquals(dumpFile, expected, actual);
+      assertWithMessage(dumpFile).that(actual).isEqualTo(expected);
     }
   }
 

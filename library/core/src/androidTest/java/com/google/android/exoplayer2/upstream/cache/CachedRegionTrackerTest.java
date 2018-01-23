@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.upstream.cache;
 
+import static com.google.common.truth.Truth.assertThat;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.anyString;
 import static org.mockito.Mockito.when;
@@ -67,8 +68,8 @@ public final class CachedRegionTrackerTest extends InstrumentationTestCase {
   }
 
   public void testGetRegion_noSpansInCache() {
-    assertEquals(CachedRegionTracker.NOT_CACHED, tracker.getRegionEndTimeMs(100));
-    assertEquals(CachedRegionTracker.NOT_CACHED, tracker.getRegionEndTimeMs(150));
+    assertThat(tracker.getRegionEndTimeMs(100)).isEqualTo(CachedRegionTracker.NOT_CACHED);
+    assertThat(tracker.getRegionEndTimeMs(150)).isEqualTo(CachedRegionTracker.NOT_CACHED);
   }
 
   public void testGetRegion_fullyCached() throws Exception {
@@ -76,8 +77,8 @@ public final class CachedRegionTrackerTest extends InstrumentationTestCase {
         cache,
         newCacheSpan(100, 100));
 
-    assertEquals(CachedRegionTracker.CACHED_TO_END, tracker.getRegionEndTimeMs(101));
-    assertEquals(CachedRegionTracker.CACHED_TO_END, tracker.getRegionEndTimeMs(121));
+    assertThat(tracker.getRegionEndTimeMs(101)).isEqualTo(CachedRegionTracker.CACHED_TO_END);
+    assertThat(tracker.getRegionEndTimeMs(121)).isEqualTo(CachedRegionTracker.CACHED_TO_END);
   }
 
   public void testGetRegion_partiallyCached() throws Exception {
@@ -85,8 +86,8 @@ public final class CachedRegionTrackerTest extends InstrumentationTestCase {
         cache,
         newCacheSpan(100, 40));
 
-    assertEquals(200, tracker.getRegionEndTimeMs(101));
-    assertEquals(200, tracker.getRegionEndTimeMs(121));
+    assertThat(tracker.getRegionEndTimeMs(101)).isEqualTo(200);
+    assertThat(tracker.getRegionEndTimeMs(121)).isEqualTo(200);
   }
 
   public void testGetRegion_multipleSpanAddsJoinedCorrectly() throws Exception {
@@ -97,8 +98,8 @@ public final class CachedRegionTrackerTest extends InstrumentationTestCase {
         cache,
         newCacheSpan(120, 20));
 
-    assertEquals(200, tracker.getRegionEndTimeMs(101));
-    assertEquals(200, tracker.getRegionEndTimeMs(121));
+    assertThat(tracker.getRegionEndTimeMs(101)).isEqualTo(200);
+    assertThat(tracker.getRegionEndTimeMs(121)).isEqualTo(200);
   }
 
   public void testGetRegion_fullyCachedThenPartiallyRemoved() throws Exception {
@@ -112,10 +113,10 @@ public final class CachedRegionTrackerTest extends InstrumentationTestCase {
         cache,
         newCacheSpan(140, 40));
 
-    assertEquals(200, tracker.getRegionEndTimeMs(101));
-    assertEquals(200, tracker.getRegionEndTimeMs(121));
+    assertThat(tracker.getRegionEndTimeMs(101)).isEqualTo(200);
+    assertThat(tracker.getRegionEndTimeMs(121)).isEqualTo(200);
 
-    assertEquals(CachedRegionTracker.CACHED_TO_END, tracker.getRegionEndTimeMs(181));
+    assertThat(tracker.getRegionEndTimeMs(181)).isEqualTo(CachedRegionTracker.CACHED_TO_END);
   }
 
   public void testGetRegion_subchunkEstimation() throws Exception {
@@ -123,8 +124,8 @@ public final class CachedRegionTrackerTest extends InstrumentationTestCase {
         cache,
         newCacheSpan(100, 10));
 
-    assertEquals(50, tracker.getRegionEndTimeMs(101));
-    assertEquals(CachedRegionTracker.NOT_CACHED, tracker.getRegionEndTimeMs(111));
+    assertThat(tracker.getRegionEndTimeMs(101)).isEqualTo(50);
+    assertThat(tracker.getRegionEndTimeMs(111)).isEqualTo(CachedRegionTracker.NOT_CACHED);
   }
 
   private CacheSpan newCacheSpan(int position, int length) throws IOException {

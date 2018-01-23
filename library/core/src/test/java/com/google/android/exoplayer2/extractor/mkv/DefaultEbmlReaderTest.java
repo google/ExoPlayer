@@ -142,10 +142,7 @@ public class DefaultEbmlReaderTest {
     // Check that we really did get to the end of input.
     assertThat(input.readFully(new byte[1], 0, 1, true)).isFalse();
 
-    assertThat(output.events).hasSize(expectedEvents.size());
-    for (int i = 0; i < expectedEvents.size(); i++) {
-      assertThat(output.events.get(i)).isEqualTo(expectedEvents.get(i));
-    }
+    assertThat(output.events).containsExactlyElementsIn(expectedEvents).inOrder();
   }
 
   /**

@@ -15,12 +15,13 @@
  */
 package com.google.android.exoplayer2.testutil;
 
+import static com.google.common.truth.Truth.assertThat;
+
 import android.util.SparseBooleanArray;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.extractor.ExtractorInput;
 import java.io.EOFException;
 import java.io.IOException;
-import junit.framework.Assert;
 
 /**
  * A fake {@link ExtractorInput} capable of simulating various scenarios.
@@ -84,7 +85,7 @@ public final class FakeExtractorInput implements ExtractorInput {
    * @param position The position to set.
    */
   public void setPosition(int position) {
-    Assert.assertTrue(0 <= position && position <= data.length);
+    assertThat(0 <= position && position <= data.length).isTrue();
     readPosition = position;
     peekPosition = position;
   }
@@ -180,7 +181,7 @@ public final class FakeExtractorInput implements ExtractorInput {
 
   @Override
   public <E extends Throwable> void setRetryPosition(long position, E e) throws E {
-    Assert.assertTrue(position >= 0);
+    assertThat(position >= 0).isTrue();
     readPosition = (int) position;
     throw e;
   }

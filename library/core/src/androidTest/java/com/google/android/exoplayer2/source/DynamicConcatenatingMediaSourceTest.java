@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.source;
 
+import static com.google.common.truth.Truth.assertThat;
 import static org.mockito.Mockito.verify;
 
 import android.os.ConditionVariable;
@@ -135,8 +136,8 @@ public final class DynamicConcatenatingMediaSourceTest extends TestCase {
         C.INDEX_UNSET, 0, 1);
     TimelineAsserts.assertPreviousWindowIndices(timeline, Player.REPEAT_MODE_ONE, false, 0, 1, 2);
     TimelineAsserts.assertPreviousWindowIndices(timeline, Player.REPEAT_MODE_ALL, false, 2, 0, 1);
-    assertEquals(0, timeline.getFirstWindowIndex(false));
-    assertEquals(timeline.getWindowCount() - 1, timeline.getLastWindowIndex(false));
+    assertThat(timeline.getFirstWindowIndex(false)).isEqualTo(0);
+    assertThat(timeline.getLastWindowIndex(false)).isEqualTo(timeline.getWindowCount() - 1);
     TimelineAsserts.assertNextWindowIndices(timeline, Player.REPEAT_MODE_OFF, true,
         C.INDEX_UNSET, 0, 1);
     TimelineAsserts.assertNextWindowIndices(timeline, Player.REPEAT_MODE_ONE, true, 0, 1, 2);
@@ -145,8 +146,8 @@ public final class DynamicConcatenatingMediaSourceTest extends TestCase {
         1, 2, C.INDEX_UNSET);
     TimelineAsserts.assertPreviousWindowIndices(timeline, Player.REPEAT_MODE_ONE, true, 0, 1, 2);
     TimelineAsserts.assertPreviousWindowIndices(timeline, Player.REPEAT_MODE_ALL, true, 1, 2, 0);
-    assertEquals(timeline.getWindowCount() - 1, timeline.getFirstWindowIndex(true));
-    assertEquals(0, timeline.getLastWindowIndex(true));
+    assertThat(timeline.getFirstWindowIndex(true)).isEqualTo(timeline.getWindowCount() - 1);
+    assertThat(timeline.getLastWindowIndex(true)).isEqualTo(0);
 
     // Assert all periods can be prepared.
     testRunner.assertPrepareAndReleaseAllPeriods();
@@ -258,7 +259,7 @@ public final class DynamicConcatenatingMediaSourceTest extends TestCase {
     // called yet.
     MediaPeriod lazyPeriod = testRunner.createPeriod(new MediaPeriodId(0));
     ConditionVariable preparedCondition = testRunner.preparePeriod(lazyPeriod, 0);
-    assertFalse(preparedCondition.block(1));
+    assertThat(preparedCondition.block(1)).isFalse();
 
     // Assert that a second period can also be created and released without problems.
     MediaPeriod secondLazyPeriod = testRunner.createPeriod(new MediaPeriodId(0));
@@ -276,7 +277,7 @@ public final class DynamicConcatenatingMediaSourceTest extends TestCase {
     TimelineAsserts.assertPeriodCounts(timeline, 8, 1, 2, 9);
     TimelineAsserts.assertWindowIds(timeline, 888, 111, 222, 999);
     TimelineAsserts.assertWindowIsDynamic(timeline, false, false, false, false);
-    assertTrue(preparedCondition.block(1));
+    assertThat(preparedCondition.block(1)).isTrue();
 
     // Release the period and source.
     testRunner.releasePeriod(lazyPeriod);
@@ -299,11 +300,13 @@ public final class DynamicConcatenatingMediaSourceTest extends TestCase {
     timeline = testRunner.assertTimelineChangeBlocking();
     TimelineAsserts.assertEmpty(timeline);
 
-    mediaSource.addMediaSources(Arrays.asList(new MediaSource[] {
-        new FakeMediaSource(Timeline.EMPTY, null), new FakeMediaSource(Timeline.EMPTY, null),
-        new FakeMediaSource(Timeline.EMPTY, null), new FakeMediaSource(Timeline.EMPTY, null),
-        new FakeMediaSource(Timeline.EMPTY, null), new FakeMediaSource(Timeline.EMPTY, null)
-    }));
+    mediaSource.addMediaSources(
+        Arrays.asList(
+            new MediaSource[] {
+              new FakeMediaSource(Timeline.EMPTY, null), new FakeMediaSource(Timeline.EMPTY, null),
+              new FakeMediaSource(Timeline.EMPTY, null), new FakeMediaSource(Timeline.EMPTY, null),
+              new FakeMediaSource(Timeline.EMPTY, null), new FakeMediaSource(Timeline.EMPTY, null)
+            }));
     timeline = testRunner.assertTimelineChangeBlocking();
     TimelineAsserts.assertEmpty(timeline);
 
@@ -334,10 +337,10 @@ public final class DynamicConcatenatingMediaSourceTest extends TestCase {
         C.INDEX_UNSET, 0, 1);
     TimelineAsserts.assertNextWindowIndices(timeline, Player.REPEAT_MODE_ONE, true, 0, 1, 2);
     TimelineAsserts.assertNextWindowIndices(timeline, Player.REPEAT_MODE_ALL, true, 2, 0, 1);
-    assertEquals(0, timeline.getFirstWindowIndex(false));
-    assertEquals(2, timeline.getLastWindowIndex(false));
-    assertEquals(2, timeline.getFirstWindowIndex(true));
-    assertEquals(0, timeline.getLastWindowIndex(true));
+    assertThat(timeline.getFirstWindowIndex(false)).isEqualTo(0);
+    assertThat(timeline.getLastWindowIndex(false)).isEqualTo(2);
+    assertThat(timeline.getFirstWindowIndex(true)).isEqualTo(2);
+    assertThat(timeline.getLastWindowIndex(true)).isEqualTo(0);
     testRunner.assertPrepareAndReleaseAllPeriods();
   }
 
@@ -439,7 +442,7 @@ public final class DynamicConcatenatingMediaSourceTest extends TestCase {
         }
       });
       Timeline timeline = timelineGrabber.assertTimelineChangeBlocking();
-      assertEquals(1, timeline.getWindowCount());
+      assertThat(timeline.getWindowCount()).isEqualTo(1);
     } finally {
       dummyMainThread.release();
     }
@@ -450,16 +453,18 @@ public final class DynamicConcatenatingMediaSourceTest extends TestCase {
     try {
       testRunner.prepareSource();
       final TimelineGrabber timelineGrabber = new TimelineGrabber(testRunner);
-      dummyMainThread.runOnMainThread(new Runnable() {
-        @Override
-        public void run() {
-          mediaSource.addMediaSources(
-              Arrays.asList(new MediaSource[] {createFakeMediaSource(), createFakeMediaSource()}),
-              timelineGrabber);
-        }
-      });
+      dummyMainThread.runOnMainThread(
+          new Runnable() {
+            @Override
+            public void run() {
+              mediaSource.addMediaSources(
+                  Arrays.asList(
+                      new MediaSource[] {createFakeMediaSource(), createFakeMediaSource()}),
+                  timelineGrabber);
+            }
+          });
       Timeline timeline = timelineGrabber.assertTimelineChangeBlocking();
-      assertEquals(2, timeline.getWindowCount());
+      assertThat(timeline.getWindowCount()).isEqualTo(2);
     } finally {
       dummyMainThread.release();
     }
@@ -477,7 +482,7 @@ public final class DynamicConcatenatingMediaSourceTest extends TestCase {
         }
       });
       Timeline timeline = timelineGrabber.assertTimelineChangeBlocking();
-      assertEquals(1, timeline.getWindowCount());
+      assertThat(timeline.getWindowCount()).isEqualTo(1);
     } finally {
       dummyMainThread.release();
     }
@@ -488,16 +493,19 @@ public final class DynamicConcatenatingMediaSourceTest extends TestCase {
     try {
       testRunner.prepareSource();
       final TimelineGrabber timelineGrabber = new TimelineGrabber(testRunner);
-      dummyMainThread.runOnMainThread(new Runnable() {
-        @Override
-        public void run() {
-          mediaSource.addMediaSources(/* index */ 0,
-              Arrays.asList(new MediaSource[] {createFakeMediaSource(), createFakeMediaSource()}),
-              timelineGrabber);
-        }
-      });
+      dummyMainThread.runOnMainThread(
+          new Runnable() {
+            @Override
+            public void run() {
+              mediaSource.addMediaSources(
+                  /* index */ 0,
+                  Arrays.asList(
+                      new MediaSource[] {createFakeMediaSource(), createFakeMediaSource()}),
+                  timelineGrabber);
+            }
+          });
       Timeline timeline = timelineGrabber.assertTimelineChangeBlocking();
-      assertEquals(2, timeline.getWindowCount());
+      assertThat(timeline.getWindowCount()).isEqualTo(2);
     } finally {
       dummyMainThread.release();
     }
@@ -523,7 +531,7 @@ public final class DynamicConcatenatingMediaSourceTest extends TestCase {
         }
       });
       Timeline timeline = timelineGrabber.assertTimelineChangeBlocking();
-      assertEquals(0, timeline.getWindowCount());
+      assertThat(timeline.getWindowCount()).isEqualTo(0);
     } finally {
       dummyMainThread.release();
     }
@@ -533,13 +541,15 @@ public final class DynamicConcatenatingMediaSourceTest extends TestCase {
     DummyMainThread dummyMainThread = new DummyMainThread();
     try {
       testRunner.prepareSource();
-      dummyMainThread.runOnMainThread(new Runnable() {
-        @Override
-        public void run() {
-          mediaSource.addMediaSources(Arrays.asList(
-              new MediaSource[] {createFakeMediaSource(), createFakeMediaSource()}));
-        }
-      });
+      dummyMainThread.runOnMainThread(
+          new Runnable() {
+            @Override
+            public void run() {
+              mediaSource.addMediaSources(
+                  Arrays.asList(
+                      new MediaSource[] {createFakeMediaSource(), createFakeMediaSource()}));
+            }
+          });
       testRunner.assertTimelineChangeBlocking();
 
       final TimelineGrabber timelineGrabber = new TimelineGrabber(testRunner);
@@ -551,7 +561,7 @@ public final class DynamicConcatenatingMediaSourceTest extends TestCase {
         }
       });
       Timeline timeline = timelineGrabber.assertTimelineChangeBlocking();
-      assertEquals(2, timeline.getWindowCount());
+      assertThat(timeline.getWindowCount()).isEqualTo(2);
     } finally {
       dummyMainThread.release();
     }
@@ -624,7 +634,7 @@ public final class DynamicConcatenatingMediaSourceTest extends TestCase {
           finishedCondition.open();
         }
       });
-      assertTrue(finishedCondition.block(MediaSourceTestRunner.TIMEOUT_MS));
+      assertThat(finishedCondition.block(MediaSourceTestRunner.TIMEOUT_MS)).isTrue();
     }
 
     public void release() {
@@ -657,7 +667,7 @@ public final class DynamicConcatenatingMediaSourceTest extends TestCase {
     }
 
     public Timeline assertTimelineChangeBlocking() {
-      assertTrue(finishedCondition.block(MediaSourceTestRunner.TIMEOUT_MS));
+      assertThat(finishedCondition.block(MediaSourceTestRunner.TIMEOUT_MS)).isTrue();
       if (error != null) {
         throw error;
       }

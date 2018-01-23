@@ -15,11 +15,11 @@
  */
 package com.google.android.exoplayer2.drm;
 
+import static com.google.common.truth.Truth.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.when;
 
 import android.test.InstrumentationTestCase;
-import android.test.MoreAsserts;
 import android.util.Pair;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.drm.DrmInitData.SchemeData;
@@ -86,7 +86,7 @@ public class OfflineLicenseHelperTest extends InstrumentationTestCase {
 
     byte[] offlineLicenseKeySetId = offlineLicenseHelper.downloadLicense(newDrmInitData());
 
-    assertNull(offlineLicenseKeySetId);
+    assertThat(offlineLicenseKeySetId).isNull();
   }
 
   public void testDownloadLicenseDoesNotFailIfDurationNotAvailable() throws Exception {
@@ -94,7 +94,7 @@ public class OfflineLicenseHelperTest extends InstrumentationTestCase {
 
     byte[] offlineLicenseKeySetId = offlineLicenseHelper.downloadLicense(newDrmInitData());
 
-    assertNotNull(offlineLicenseKeySetId);
+    assertThat(offlineLicenseKeySetId).isNotNull();
   }
 
   public void testGetLicenseDurationRemainingSec() throws Exception {
@@ -108,8 +108,8 @@ public class OfflineLicenseHelperTest extends InstrumentationTestCase {
     Pair<Long, Long> licenseDurationRemainingSec = offlineLicenseHelper
         .getLicenseDurationRemainingSec(offlineLicenseKeySetId);
 
-    assertEquals(licenseDuration, (long) licenseDurationRemainingSec.first);
-    assertEquals(playbackDuration, (long) licenseDurationRemainingSec.second);
+    assertThat(licenseDurationRemainingSec.first).isEqualTo(licenseDuration);
+    assertThat(licenseDurationRemainingSec.second).isEqualTo(playbackDuration);
   }
 
   public void testGetLicenseDurationRemainingSecExpiredLicense() throws Exception {
@@ -123,8 +123,8 @@ public class OfflineLicenseHelperTest extends InstrumentationTestCase {
     Pair<Long, Long> licenseDurationRemainingSec = offlineLicenseHelper
         .getLicenseDurationRemainingSec(offlineLicenseKeySetId);
 
-    assertEquals(licenseDuration, (long) licenseDurationRemainingSec.first);
-    assertEquals(playbackDuration, (long) licenseDurationRemainingSec.second);
+    assertThat(licenseDurationRemainingSec.first).isEqualTo(licenseDuration);
+    assertThat(licenseDurationRemainingSec.second).isEqualTo(playbackDuration);
   }
 
   private void setDefaultStubKeySetId()
@@ -139,8 +139,8 @@ public class OfflineLicenseHelperTest extends InstrumentationTestCase {
 
   private static void assertOfflineLicenseKeySetIdEqual(
       byte[] expectedKeySetId, byte[] actualKeySetId) throws Exception {
-    assertNotNull(actualKeySetId);
-    MoreAsserts.assertEquals(expectedKeySetId, actualKeySetId);
+    assertThat(actualKeySetId).isNotNull();
+    assertThat(actualKeySetId).isEqualTo(expectedKeySetId);
   }
 
   private void setStubLicenseAndPlaybackDurationValues(long licenseDuration,

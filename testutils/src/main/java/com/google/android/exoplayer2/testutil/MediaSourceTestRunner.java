@@ -15,9 +15,8 @@
  */
 package com.google.android.exoplayer2.testutil;
 
-import static junit.framework.Assert.assertNotNull;
-import static junit.framework.Assert.assertTrue;
-import static junit.framework.Assert.fail;
+import static com.google.common.truth.Truth.assertThat;
+import static org.junit.Assert.fail;
 
 import android.os.ConditionVariable;
 import android.os.Handler;
@@ -90,7 +89,7 @@ public class MediaSourceTestRunner {
         }
       }
     });
-    assertTrue(finishedCondition.block(TIMEOUT_MS));
+    assertThat(finishedCondition.block(TIMEOUT_MS)).isTrue();
     if (throwable[0] != null) {
       Util.sneakyThrow(throwable[0]);
     }
@@ -138,7 +137,7 @@ public class MediaSourceTestRunner {
         holder[0] = mediaSource.createPeriod(periodId, allocator);
       }
     });
-    assertNotNull(holder[0]);
+    assertThat(holder[0]).isNotNull();
     return holder[0];
   }
 
@@ -201,7 +200,7 @@ public class MediaSourceTestRunner {
    * runner was created if neither method has been called).
    */
   public void assertNoTimelineChange() {
-    assertTrue(timelines.isEmpty());
+    assertThat(timelines.isEmpty()).isTrue();
   }
 
   /**
@@ -224,7 +223,7 @@ public class MediaSourceTestRunner {
   public Timeline assertTimelineChangeBlocking() {
     try {
       timeline = timelines.poll(TIMEOUT_MS, TimeUnit.MILLISECONDS);
-      assertNotNull(timeline); // Null indicates the poll timed out.
+      assertThat(timeline).isNotNull(); // Null indicates the poll timed out.
       assertNoTimelineChange();
       return timeline;
     } catch (InterruptedException e) {
@@ -254,12 +253,12 @@ public class MediaSourceTestRunner {
   private void assertPrepareAndReleasePeriod(MediaPeriodId mediaPeriodId) {
     MediaPeriod mediaPeriod = createPeriod(mediaPeriodId);
     ConditionVariable preparedCondition = preparePeriod(mediaPeriod, 0);
-    assertTrue(preparedCondition.block(TIMEOUT_MS));
+    assertThat(preparedCondition.block(TIMEOUT_MS)).isTrue();
     // MediaSource is supposed to support multiple calls to createPeriod with the same id without an
     // intervening call to releasePeriod.
     MediaPeriod secondMediaPeriod = createPeriod(mediaPeriodId);
     ConditionVariable secondPreparedCondition = preparePeriod(secondMediaPeriod, 0);
-    assertTrue(secondPreparedCondition.block(TIMEOUT_MS));
+    assertThat(secondPreparedCondition.block(TIMEOUT_MS)).isTrue();
     // Release the periods.
     releasePeriod(mediaPeriod);
     releasePeriod(secondMediaPeriod);

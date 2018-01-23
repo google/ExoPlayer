@@ -15,6 +15,8 @@
  */
 package com.google.android.exoplayer2.testutil;
 
+import static com.google.common.truth.Truth.assertThat;
+
 import android.os.HandlerThread;
 import android.support.annotation.Nullable;
 import com.google.android.exoplayer2.DefaultLoadControl;
@@ -22,7 +24,6 @@ import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.LoadControl;
 import com.google.android.exoplayer2.Player;
-import com.google.android.exoplayer2.Player.DiscontinuityReason;
 import com.google.android.exoplayer2.Renderer;
 import com.google.android.exoplayer2.RenderersFactory;
 import com.google.android.exoplayer2.SimpleExoPlayer;
@@ -41,10 +42,10 @@ import com.google.android.exoplayer2.util.HandlerWrapper;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.video.VideoRendererEventListener;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
-import junit.framework.Assert;
 
 /**
  * Helper class to run an ExoPlayer test.
@@ -97,7 +98,7 @@ public final class ExoPlayerTestRunner extends Player.DefaultEventListener
      * @return This builder.
      */
     public Builder setTimeline(Timeline timeline) {
-      Assert.assertNull(mediaSource);
+      assertThat(mediaSource).isNull();
       this.timeline = timeline;
       return this;
     }
@@ -111,7 +112,7 @@ public final class ExoPlayerTestRunner extends Player.DefaultEventListener
      * @return This builder.
      */
     public Builder setManifest(Object manifest) {
-      Assert.assertNull(mediaSource);
+      assertThat(mediaSource).isNull();
       this.manifest = manifest;
       return this;
     }
@@ -127,8 +128,8 @@ public final class ExoPlayerTestRunner extends Player.DefaultEventListener
      * @return This builder.
      */
     public Builder setMediaSource(MediaSource mediaSource) {
-      Assert.assertNull(timeline);
-      Assert.assertNull(manifest);
+      assertThat(timeline).isNull();
+      assertThat(manifest).isNull();
       this.mediaSource = mediaSource;
       return this;
     }
@@ -182,7 +183,7 @@ public final class ExoPlayerTestRunner extends Player.DefaultEventListener
      * @return This builder.
      */
     public Builder setRenderers(Renderer... renderers) {
-      Assert.assertNull(renderersFactory);
+      assertThat(renderersFactory).isNull();
       this.renderers = renderers;
       return this;
     }
@@ -196,7 +197,7 @@ public final class ExoPlayerTestRunner extends Player.DefaultEventListener
      * @return This builder.
      */
     public Builder setRenderersFactory(RenderersFactory renderersFactory) {
-      Assert.assertNull(renderers);
+      assertThat(renderers).isNull();
       this.renderersFactory = renderersFactory;
       return this;
     }
@@ -478,10 +479,7 @@ public final class ExoPlayerTestRunner extends Player.DefaultEventListener
    * @param timelines A list of expected {@link Timeline}s.
    */
   public void assertTimelinesEqual(Timeline... timelines) {
-    Assert.assertEquals(timelines.length, this.timelines.size());
-    for (int i = 0; i < timelines.length; i++) {
-      Assert.assertEquals(timelines[i], this.timelines.get(i));
-    }
+    assertThat(this.timelines).containsExactlyElementsIn(Arrays.asList(timelines)).inOrder();
   }
 
   /**
@@ -492,22 +490,16 @@ public final class ExoPlayerTestRunner extends Player.DefaultEventListener
    * @param manifests A list of expected manifests.
    */
   public void assertManifestsEqual(Object... manifests) {
-    Assert.assertEquals(manifests.length, this.manifests.size());
-    for (int i = 0; i < manifests.length; i++) {
-      Assert.assertEquals(manifests[i], this.manifests.get(i));
-    }
+    assertThat(this.manifests).containsExactlyElementsIn(Arrays.asList(manifests)).inOrder();
   }
 
   /**
-   * Asserts that the timeline change reasons reported by
-   * {@link Player.EventListener#onTimelineChanged(Timeline, Object, int)} are equal to the provided
+   * Asserts that the timeline change reasons reported by {@link
+   * Player.EventListener#onTimelineChanged(Timeline, Object, int)} are equal to the provided
    * timeline change reasons.
    */
-  public void assertTimelineChangeReasonsEqual(@Player.TimelineChangeReason int... reasons) {
-    Assert.assertEquals(reasons.length, timelineChangeReasons.size());
-    for (int i = 0; i < reasons.length; i++) {
-      Assert.assertEquals(reasons[i], (int) timelineChangeReasons.get(i));
-    }
+  public void assertTimelineChangeReasonsEqual(Integer... reasons) {
+    assertThat(timelineChangeReasons).containsExactlyElementsIn(Arrays.asList(reasons)).inOrder();
   }
 
   /**
@@ -518,28 +510,26 @@ public final class ExoPlayerTestRunner extends Player.DefaultEventListener
    * @param trackGroupArray The expected {@link TrackGroupArray}.
    */
   public void assertTrackGroupsEqual(TrackGroupArray trackGroupArray) {
-    Assert.assertEquals(trackGroupArray, this.trackGroups);
+    assertThat(this.trackGroups).isEqualTo(trackGroupArray);
   }
 
   /**
    * Asserts that {@link Player.EventListener#onPositionDiscontinuity(int)} was not called.
    */
   public void assertNoPositionDiscontinuities() {
-    Assert.assertTrue(discontinuityReasons.isEmpty());
+    assertThat(discontinuityReasons).isEmpty();
   }
 
   /**
-   * Asserts that the discontinuity reasons reported by
-   * {@link Player.EventListener#onPositionDiscontinuity(int)} are equal to the provided values.
+   * Asserts that the discontinuity reasons reported by {@link
+   * Player.EventListener#onPositionDiscontinuity(int)} are equal to the provided values.
    *
    * @param discontinuityReasons The expected discontinuity reasons.
    */
-  public void assertPositionDiscontinuityReasonsEqual(
-      @DiscontinuityReason int... discontinuityReasons) {
-    Assert.assertEquals(discontinuityReasons.length, this.discontinuityReasons.size());
-    for (int i = 0; i < discontinuityReasons.length; i++) {
-      Assert.assertEquals(discontinuityReasons[i], (int) this.discontinuityReasons.get(i));
-    }
+  public void assertPositionDiscontinuityReasonsEqual(Integer... discontinuityReasons) {
+    assertThat(this.discontinuityReasons)
+        .containsExactlyElementsIn(Arrays.asList(discontinuityReasons))
+        .inOrder();
   }
 
   /**
@@ -550,11 +540,10 @@ public final class ExoPlayerTestRunner extends Player.DefaultEventListener
    *
    * @param periodIndices A list of expected period indices.
    */
-  public void assertPlayedPeriodIndices(int... periodIndices) {
-    Assert.assertEquals(periodIndices.length, this.periodIndices.size());
-    for (int i = 0; i < periodIndices.length; i++) {
-      Assert.assertEquals(periodIndices[i], (int) this.periodIndices.get(i));
-    }
+  public void assertPlayedPeriodIndices(Integer... periodIndices) {
+    assertThat(this.periodIndices)
+        .containsExactlyElementsIn(Arrays.asList(periodIndices))
+        .inOrder();
   }
 
   // Private implementation details.

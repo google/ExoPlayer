@@ -15,8 +15,9 @@
  */
 package com.google.android.exoplayer2.testutil;
 
+import static com.google.common.truth.Truth.assertWithMessage;
+
 import com.google.android.exoplayer2.decoder.DecoderCounters;
-import junit.framework.TestCase;
 
 /**
  * Assertions for {@link DecoderCounters}.
@@ -41,30 +42,60 @@ public final class DecoderCountersUtil {
       int expected) {
     counters.ensureUpdated();
     int actual = counters.skippedOutputBufferCount;
-    TestCase.assertEquals("Codec(" + name + ") skipped " + actual + " buffers. Expected "
-        + expected + ".", expected, actual);
+    assertWithMessage(
+            "Codec(" + name + ") skipped " + actual + " buffers. Expected " + expected + ".")
+        .that(actual)
+        .isEqualTo(expected);
   }
 
   public static void assertTotalBufferCount(String name, DecoderCounters counters, int minCount,
       int maxCount) {
     int actual = getTotalBufferCount(counters);
-    TestCase.assertTrue("Codec(" + name + ") output " + actual + " buffers. Expected in range ["
-        + minCount + ", " + maxCount + "].", minCount <= actual && actual <= maxCount);
+    assertWithMessage(
+            "Codec("
+                + name
+                + ") output "
+                + actual
+                + " buffers. Expected in range ["
+                + minCount
+                + ", "
+                + maxCount
+                + "].")
+        .that(minCount <= actual && actual <= maxCount)
+        .isTrue();
   }
 
   public static void assertDroppedBufferLimit(String name, DecoderCounters counters, int limit) {
     counters.ensureUpdated();
     int actual = counters.droppedBufferCount;
-    TestCase.assertTrue("Codec(" + name + ") was late decoding: " + actual + " buffers. "
-        + "Limit: " + limit + ".", actual <= limit);
+    assertWithMessage(
+            "Codec("
+                + name
+                + ") was late decoding: "
+                + actual
+                + " buffers. "
+                + "Limit: "
+                + limit
+                + ".")
+        .that(actual)
+        .isAtMost(limit);
   }
 
   public static void assertConsecutiveDroppedBufferLimit(String name, DecoderCounters counters,
       int limit) {
     counters.ensureUpdated();
     int actual = counters.maxConsecutiveDroppedBufferCount;
-    TestCase.assertTrue("Codec(" + name + ") was late decoding: " + actual
-        + " buffers consecutively. " + "Limit: " + limit + ".", actual <= limit);
+    assertWithMessage(
+            "Codec("
+                + name
+                + ") was late decoding: "
+                + actual
+                + " buffers consecutively. "
+                + "Limit: "
+                + limit
+                + ".")
+        .that(actual)
+        .isAtMost(limit);
   }
 
 }

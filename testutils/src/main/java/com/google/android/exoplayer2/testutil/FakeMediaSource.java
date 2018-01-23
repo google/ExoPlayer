@@ -15,6 +15,8 @@
  */
 package com.google.android.exoplayer2.testutil;
 
+import static com.google.common.truth.Truth.assertThat;
+
 import android.os.Handler;
 import android.support.annotation.Nullable;
 import com.google.android.exoplayer2.ExoPlayer;
@@ -28,7 +30,6 @@ import com.google.android.exoplayer2.upstream.Allocator;
 import com.google.android.exoplayer2.util.Assertions;
 import java.io.IOException;
 import java.util.ArrayList;
-import junit.framework.Assert;
 
 /**
  * Fake {@link MediaSource} that provides a given timeline. Creating the period will return a
@@ -75,7 +76,7 @@ public class FakeMediaSource implements MediaSource {
   @Override
   public synchronized void prepareSource(
       ExoPlayer player, boolean isTopLevelSource, Listener listener) {
-    Assert.assertFalse(preparedSource);
+    assertThat(preparedSource).isFalse();
     preparedSource = true;
     this.listener = listener;
     sourceInfoRefreshHandler = new Handler();
@@ -86,13 +87,13 @@ public class FakeMediaSource implements MediaSource {
 
   @Override
   public void maybeThrowSourceInfoRefreshError() throws IOException {
-    Assert.assertTrue(preparedSource);
+    assertThat(preparedSource).isTrue();
   }
 
   @Override
   public MediaPeriod createPeriod(MediaPeriodId id, Allocator allocator) {
-    Assert.assertTrue(preparedSource);
-    Assert.assertFalse(releasedSource);
+    assertThat(preparedSource).isTrue();
+    assertThat(releasedSource).isFalse();
     Assertions.checkIndex(id.periodIndex, 0, timeline.getPeriodCount());
     FakeMediaPeriod mediaPeriod = createFakeMediaPeriod(id, trackGroupArray, allocator);
     activeMediaPeriods.add(mediaPeriod);
@@ -102,18 +103,18 @@ public class FakeMediaSource implements MediaSource {
 
   @Override
   public void releasePeriod(MediaPeriod mediaPeriod) {
-    Assert.assertTrue(preparedSource);
-    Assert.assertFalse(releasedSource);
+    assertThat(preparedSource).isTrue();
+    assertThat(releasedSource).isFalse();
     FakeMediaPeriod fakeMediaPeriod = (FakeMediaPeriod) mediaPeriod;
-    Assert.assertTrue(activeMediaPeriods.remove(fakeMediaPeriod));
+    assertThat(activeMediaPeriods.remove(fakeMediaPeriod)).isTrue();
     fakeMediaPeriod.release();
   }
 
   @Override
   public void releaseSource() {
-    Assert.assertTrue(preparedSource);
-    Assert.assertFalse(releasedSource);
-    Assert.assertTrue(activeMediaPeriods.isEmpty());
+    assertThat(preparedSource).isTrue();
+    assertThat(releasedSource).isFalse();
+    assertThat(activeMediaPeriods.isEmpty()).isTrue();
     releasedSource = true;
   }
 
@@ -127,8 +128,8 @@ public class FakeMediaSource implements MediaSource {
           new Runnable() {
             @Override
             public void run() {
-              Assert.assertFalse(releasedSource);
-              Assert.assertTrue(preparedSource);
+              assertThat(releasedSource).isFalse();
+              assertThat(preparedSource).isTrue();
               timeline = newTimeline;
               manifest = newManifest;
               listener.onSourceInfoRefreshed(FakeMediaSource.this, timeline, manifest);
@@ -144,14 +145,14 @@ public class FakeMediaSource implements MediaSource {
    * Assert that the source and all periods have been released.
    */
   public void assertReleased() {
-    Assert.assertTrue(releasedSource || !preparedSource);
+    assertThat(releasedSource || !preparedSource).isTrue();
   }
 
   /**
    * Assert that a media period for the given id has been created.
    */
   public void assertMediaPeriodCreated(MediaPeriodId mediaPeriodId) {
-    Assert.assertTrue(createdMediaPeriods.contains(mediaPeriodId));
+    assertThat(createdMediaPeriods).contains(mediaPeriodId);
   }
 
   protected FakeMediaPeriod createFakeMediaPeriod(MediaPeriodId id, TrackGroupArray trackGroupArray,
