@@ -240,14 +240,12 @@ public final class CacheDataSource implements DataSource {
         if (bytesRemaining != C.LENGTH_UNSET) {
           bytesRemaining -= bytesRead;
         }
-      } else {
+      } else if (currentDataSpecLengthUnset) {
+        setBytesRemaining(0);
+      } else if (bytesRemaining > 0 || bytesRemaining == C.LENGTH_UNSET) {
         closeCurrentSource();
-        if (currentDataSpecLengthUnset) {
-          setBytesRemaining(0);
-        } else if (bytesRemaining > 0 || bytesRemaining == C.LENGTH_UNSET) {
-          openNextSource(false);
-          return read(buffer, offset, readLength);
-        }
+        openNextSource(false);
+        return read(buffer, offset, readLength);
       }
       return bytesRead;
     } catch (IOException e) {
