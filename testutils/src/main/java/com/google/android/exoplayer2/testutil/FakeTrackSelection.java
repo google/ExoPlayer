@@ -15,13 +15,14 @@
  */
 package com.google.android.exoplayer2.testutil;
 
+import static com.google.common.truth.Truth.assertThat;
+
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.source.TrackGroup;
 import com.google.android.exoplayer2.source.chunk.MediaChunk;
 import com.google.android.exoplayer2.trackselection.TrackSelection;
 import java.util.List;
-import junit.framework.Assert;
 
 /**
  * A fake {@link TrackSelection} that only returns 1 fixed track, and allows querying the number
@@ -42,7 +43,7 @@ public final class FakeTrackSelection implements TrackSelection {
   @Override
   public void enable() {
     // assert that track selection is in disabled state before this call.
-    Assert.assertFalse(isEnabled);
+    assertThat(isEnabled).isFalse();
     enableCount++;
     isEnabled = true;
   }
@@ -50,7 +51,7 @@ public final class FakeTrackSelection implements TrackSelection {
   @Override
   public void disable() {
     // assert that track selection is in enabled state before this call.
-    Assert.assertTrue(isEnabled);
+    assertThat(isEnabled).isTrue();
     releaseCount++;
     isEnabled = false;
   }
@@ -77,7 +78,7 @@ public final class FakeTrackSelection implements TrackSelection {
 
   @Override
   public int indexOf(Format format) {
-    Assert.assertTrue(isEnabled);
+    assertThat(isEnabled).isTrue();
     return 0;
   }
 
@@ -119,18 +120,18 @@ public final class FakeTrackSelection implements TrackSelection {
   @Override
   public void updateSelectedTrack(long playbackPositionUs, long bufferedDurationUs,
       long availableDurationUs) {
-    Assert.assertTrue(isEnabled);
+    assertThat(isEnabled).isTrue();
   }
 
   @Override
   public int evaluateQueueSize(long playbackPositionUs, List<? extends MediaChunk> queue) {
-    Assert.assertTrue(isEnabled);
+    assertThat(isEnabled).isTrue();
     return 0;
   }
 
   @Override
   public boolean blacklist(int index, long blacklistDurationMs) {
-    Assert.assertTrue(isEnabled);
+    assertThat(isEnabled).isTrue();
     return false;
   }
 

@@ -15,6 +15,8 @@
  */
 package com.google.android.exoplayer2.testutil;
 
+import static com.google.common.truth.Truth.assertWithMessage;
+
 import android.os.ConditionVariable;
 import android.os.Looper;
 import android.os.SystemClock;
@@ -46,7 +48,6 @@ import com.google.android.exoplayer2.util.Clock;
 import com.google.android.exoplayer2.util.HandlerWrapper;
 import com.google.android.exoplayer2.util.Util;
 import com.google.android.exoplayer2.video.VideoRendererEventListener;
-import junit.framework.Assert;
 
 /**
  * A {@link HostedTest} for {@link ExoPlayer} playback tests.
@@ -219,9 +220,12 @@ public abstract class ExoHostedTest extends Player.DefaultEventListener implemen
       // Assert that the playback spanned the correct duration of time.
       long minAllowedActualPlayingTimeMs = playingTimeToAssertMs - MAX_PLAYING_TIME_DISCREPANCY_MS;
       long maxAllowedActualPlayingTimeMs = playingTimeToAssertMs + MAX_PLAYING_TIME_DISCREPANCY_MS;
-      Assert.assertTrue("Total playing time: " + totalPlayingTimeMs + ". Expected: "
-          + playingTimeToAssertMs, minAllowedActualPlayingTimeMs <= totalPlayingTimeMs
-          && totalPlayingTimeMs <= maxAllowedActualPlayingTimeMs);
+      assertWithMessage(
+              "Total playing time: " + totalPlayingTimeMs + ". Expected: " + playingTimeToAssertMs)
+          .that(
+              minAllowedActualPlayingTimeMs <= totalPlayingTimeMs
+                  && totalPlayingTimeMs <= maxAllowedActualPlayingTimeMs)
+          .isTrue();
     }
     // Make any additional assertions.
     assertPassed(audioDecoderCounters, videoDecoderCounters);

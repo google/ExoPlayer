@@ -15,6 +15,8 @@
  */
 package com.google.android.exoplayer2.text.ssa;
 
+import static com.google.common.truth.Truth.assertThat;
+
 import android.test.InstrumentationTestCase;
 import com.google.android.exoplayer2.testutil.TestUtil;
 import java.io.IOException;
@@ -38,8 +40,8 @@ public final class SsaDecoderTest extends InstrumentationTestCase {
     byte[] bytes = TestUtil.getByteArray(getInstrumentation(), EMPTY);
     SsaSubtitle subtitle = decoder.decode(bytes, bytes.length, false);
 
-    assertEquals(0, subtitle.getEventTimeCount());
-    assertTrue(subtitle.getCues(0).isEmpty());
+    assertThat(subtitle.getEventTimeCount()).isEqualTo(0);
+    assertThat(subtitle.getCues(0).isEmpty()).isTrue();
   }
 
   public void testDecodeTypical() throws IOException {
@@ -47,7 +49,7 @@ public final class SsaDecoderTest extends InstrumentationTestCase {
     byte[] bytes = TestUtil.getByteArray(getInstrumentation(), TYPICAL);
     SsaSubtitle subtitle = decoder.decode(bytes, bytes.length, false);
 
-    assertEquals(6, subtitle.getEventTimeCount());
+    assertThat(subtitle.getEventTimeCount()).isEqualTo(6);
     assertTypicalCue1(subtitle, 0);
     assertTypicalCue2(subtitle, 2);
     assertTypicalCue3(subtitle, 4);
@@ -63,7 +65,7 @@ public final class SsaDecoderTest extends InstrumentationTestCase {
     byte[] bytes = TestUtil.getByteArray(getInstrumentation(), TYPICAL_DIALOGUE_ONLY);
     SsaSubtitle subtitle = decoder.decode(bytes, bytes.length, false);
 
-    assertEquals(6, subtitle.getEventTimeCount());
+    assertThat(subtitle.getEventTimeCount()).isEqualTo(6);
     assertTypicalCue1(subtitle, 0);
     assertTypicalCue2(subtitle, 2);
     assertTypicalCue3(subtitle, 4);
@@ -75,7 +77,7 @@ public final class SsaDecoderTest extends InstrumentationTestCase {
     byte[] bytes = TestUtil.getByteArray(getInstrumentation(), INVALID_TIMECODES);
     SsaSubtitle subtitle = decoder.decode(bytes, bytes.length, false);
 
-    assertEquals(2, subtitle.getEventTimeCount());
+    assertThat(subtitle.getEventTimeCount()).isEqualTo(2);
     assertTypicalCue3(subtitle, 0);
   }
 
@@ -84,40 +86,40 @@ public final class SsaDecoderTest extends InstrumentationTestCase {
     byte[] bytes = TestUtil.getByteArray(getInstrumentation(), NO_END_TIMECODES);
     SsaSubtitle subtitle = decoder.decode(bytes, bytes.length, false);
 
-    assertEquals(3, subtitle.getEventTimeCount());
+    assertThat(subtitle.getEventTimeCount()).isEqualTo(3);
 
-    assertEquals(0, subtitle.getEventTime(0));
-    assertEquals("This is the first subtitle.",
-        subtitle.getCues(subtitle.getEventTime(0)).get(0).text.toString());
+    assertThat(subtitle.getEventTime(0)).isEqualTo(0);
+    assertThat(subtitle.getCues(subtitle.getEventTime(0)).get(0).text.toString())
+        .isEqualTo("This is the first subtitle.");
 
-    assertEquals(2340000, subtitle.getEventTime(1));
-    assertEquals("This is the second subtitle \nwith a newline \nand another.",
-        subtitle.getCues(subtitle.getEventTime(1)).get(0).text.toString());
+    assertThat(subtitle.getEventTime(1)).isEqualTo(2340000);
+    assertThat(subtitle.getCues(subtitle.getEventTime(1)).get(0).text.toString())
+        .isEqualTo("This is the second subtitle \nwith a newline \nand another.");
 
-    assertEquals(4560000, subtitle.getEventTime(2));
-    assertEquals("This is the third subtitle, with a comma.",
-        subtitle.getCues(subtitle.getEventTime(2)).get(0).text.toString());
+    assertThat(subtitle.getEventTime(2)).isEqualTo(4560000);
+    assertThat(subtitle.getCues(subtitle.getEventTime(2)).get(0).text.toString())
+        .isEqualTo("This is the third subtitle, with a comma.");
   }
 
   private static void assertTypicalCue1(SsaSubtitle subtitle, int eventIndex) {
-    assertEquals(0, subtitle.getEventTime(eventIndex));
-    assertEquals("This is the first subtitle.",
-        subtitle.getCues(subtitle.getEventTime(eventIndex)).get(0).text.toString());
-    assertEquals(1230000, subtitle.getEventTime(eventIndex + 1));
+    assertThat(subtitle.getEventTime(eventIndex)).isEqualTo(0);
+    assertThat(subtitle.getCues(subtitle.getEventTime(eventIndex)).get(0).text.toString())
+        .isEqualTo("This is the first subtitle.");
+    assertThat(subtitle.getEventTime(eventIndex + 1)).isEqualTo(1230000);
   }
 
   private static void assertTypicalCue2(SsaSubtitle subtitle, int eventIndex) {
-    assertEquals(2340000, subtitle.getEventTime(eventIndex));
-    assertEquals("This is the second subtitle \nwith a newline \nand another.",
-        subtitle.getCues(subtitle.getEventTime(eventIndex)).get(0).text.toString());
-    assertEquals(3450000, subtitle.getEventTime(eventIndex + 1));
+    assertThat(subtitle.getEventTime(eventIndex)).isEqualTo(2340000);
+    assertThat(subtitle.getCues(subtitle.getEventTime(eventIndex)).get(0).text.toString())
+        .isEqualTo("This is the second subtitle \nwith a newline \nand another.");
+    assertThat(subtitle.getEventTime(eventIndex + 1)).isEqualTo(3450000);
   }
 
   private static void assertTypicalCue3(SsaSubtitle subtitle, int eventIndex) {
-    assertEquals(4560000, subtitle.getEventTime(eventIndex));
-    assertEquals("This is the third subtitle, with a comma.",
-        subtitle.getCues(subtitle.getEventTime(eventIndex)).get(0).text.toString());
-    assertEquals(8900000, subtitle.getEventTime(eventIndex + 1));
+    assertThat(subtitle.getEventTime(eventIndex)).isEqualTo(4560000);
+    assertThat(subtitle.getCues(subtitle.getEventTime(eventIndex)).get(0).text.toString())
+        .isEqualTo("This is the third subtitle, with a comma.");
+    assertThat(subtitle.getEventTime(eventIndex + 1)).isEqualTo(8900000);
   }
 
 }

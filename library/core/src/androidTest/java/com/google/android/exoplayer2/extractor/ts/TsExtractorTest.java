@@ -15,6 +15,8 @@
  */
 package com.google.android.exoplayer2.extractor.ts;
 
+import static com.google.common.truth.Truth.assertThat;
+
 import android.test.InstrumentationTestCase;
 import android.util.SparseArray;
 import com.google.android.exoplayer2.C;
@@ -92,12 +94,11 @@ public final class TsExtractorTest extends InstrumentationTestCase {
       readResult = tsExtractor.read(input, seekPositionHolder);
     }
     CustomEsReader reader = factory.esReader;
-    assertEquals(2, reader.packetsRead);
+    assertThat(reader.packetsRead).isEqualTo(2);
     TrackOutput trackOutput = reader.getTrackOutput();
-    assertTrue(trackOutput == output.trackOutputs.get(257 /* PID of audio track. */));
-    assertEquals(
-        Format.createTextSampleFormat("1/257", "mime", null, 0, 0, "und", null, 0),
-        ((FakeTrackOutput) trackOutput).format);
+    assertThat(trackOutput == output.trackOutputs.get(257 /* PID of audio track. */)).isTrue();
+    assertThat(((FakeTrackOutput) trackOutput).format)
+        .isEqualTo(Format.createTextSampleFormat("1/257", "mime", null, 0, 0, "und", null, 0));
   }
 
   public void testCustomInitialSectionReader() throws Exception {
@@ -115,7 +116,7 @@ public final class TsExtractorTest extends InstrumentationTestCase {
     while (readResult != Extractor.RESULT_END_OF_INPUT) {
       readResult = tsExtractor.read(input, seekPositionHolder);
     }
-    assertEquals(1, factory.sdtReader.consumedSdts);
+    assertThat(factory.sdtReader.consumedSdts).isEqualTo(1);
   }
 
   private static void writeJunkData(ByteArrayOutputStream out, int length) {
@@ -145,7 +146,7 @@ public final class TsExtractorTest extends InstrumentationTestCase {
     @Override
     public SparseArray<TsPayloadReader> createInitialPayloadReaders() {
       if (provideSdtReader) {
-        assertNull(sdtReader);
+        assertThat(sdtReader).isNull();
         SparseArray<TsPayloadReader> mapping = new SparseArray<>();
         sdtReader = new SdtSectionReader();
         mapping.put(17, new SectionReader(sdtReader));
@@ -226,21 +227,21 @@ public final class TsExtractorTest extends InstrumentationTestCase {
       // original_network_id(16), reserved_future_use(8)
       sectionData.skipBytes(11);
       // Start of the service loop.
-      assertEquals(0x5566 /* arbitrary service id */, sectionData.readUnsignedShort());
+      assertThat(sectionData.readUnsignedShort()).isEqualTo(0x5566 /* arbitrary service id */);
       // reserved_future_use(6), EIT_schedule_flag(1), EIT_present_following_flag(1)
       sectionData.skipBytes(1);
       // Assert there is only one service.
       // Remove running_status(3), free_CA_mode(1) from the descriptors_loop_length with the mask.
-      assertEquals(sectionData.readUnsignedShort() & 0xFFF, sectionData.bytesLeft());
+      assertThat(sectionData.readUnsignedShort() & 0xFFF).isEqualTo(sectionData.bytesLeft());
       while (sectionData.bytesLeft() > 0) {
         int descriptorTag = sectionData.readUnsignedByte();
         int descriptorLength = sectionData.readUnsignedByte();
         if (descriptorTag == 72 /* service descriptor */) {
-          assertEquals(1, sectionData.readUnsignedByte()); // Service type: Digital TV.
+          assertThat(sectionData.readUnsignedByte()).isEqualTo(1); // Service type: Digital TV.
           int serviceProviderNameLength = sectionData.readUnsignedByte();
-          assertEquals("Some provider", sectionData.readString(serviceProviderNameLength));
+          assertThat(sectionData.readString(serviceProviderNameLength)).isEqualTo("Some provider");
           int serviceNameLength = sectionData.readUnsignedByte();
-          assertEquals("Some Channel", sectionData.readString(serviceNameLength));
+          assertThat(sectionData.readString(serviceNameLength)).isEqualTo("Some Channel");
         } else {
           sectionData.skipBytes(descriptorLength);
         }

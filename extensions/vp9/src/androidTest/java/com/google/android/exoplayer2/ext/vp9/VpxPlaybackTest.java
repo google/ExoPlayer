@@ -15,6 +15,8 @@
  */
 package com.google.android.exoplayer2.ext.vp9;
 
+import static com.google.common.truth.Truth.assertThat;
+
 import android.content.Context;
 import android.net.Uri;
 import android.os.Looper;
@@ -73,8 +75,8 @@ public class VpxPlaybackTest extends InstrumentationTestCase {
       playUri(INVALID_BITSTREAM_URI);
       fail();
     } catch (Exception e) {
-      assertNotNull(e.getCause());
-      assertTrue(e.getCause() instanceof VpxDecoderException);
+      assertThat(e.getCause()).isNotNull();
+      assertThat(e.getCause()).isInstanceOf(VpxDecoderException.class);
     }
   }
 

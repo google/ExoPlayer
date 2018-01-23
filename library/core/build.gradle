@@ -46,6 +46,7 @@ dependencies {
     compile 'com.android.support:support-annotations:' + supportLibraryVersion
     androidTestCompile 'com.google.dexmaker:dexmaker:' + dexmakerVersion
     androidTestCompile 'com.google.dexmaker:dexmaker-mockito:' + dexmakerVersion
+    androidTestCompile 'com.google.truth:truth:' + truthVersion
     androidTestCompile 'org.mockito:mockito-core:' + mockitoVersion
     testCompile 'com.google.truth:truth:' + truthVersion
     testCompile 'junit:junit:' + junitVersion

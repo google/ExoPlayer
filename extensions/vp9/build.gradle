@@ -32,6 +32,7 @@ android {
 
 dependencies {
     compile project(modulePrefix + 'library-core')
+    androidTestCompile 'com.google.truth:truth:' + truthVersion
 }
 
 ext {

@@ -15,11 +15,10 @@
  */
 package com.google.android.exoplayer2.testutil;
 
-import static junit.framework.Assert.assertEquals;
-import static junit.framework.Assert.assertTrue;
+import static com.google.common.truth.Truth.assertThat;
+import static com.google.common.truth.Truth.assertWithMessage;
 
 import android.net.Uri;
-import android.test.MoreAsserts;
 import com.google.android.exoplayer2.testutil.FakeDataSet.FakeData;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DataSpec;
@@ -76,7 +75,7 @@ public final class CacheAsserts {
       assertDataCached(cache, uri, data);
       totalLength += data.length;
     }
-    assertEquals(totalLength, cache.getCacheSpace());
+    assertThat(cache.getCacheSpace()).isEqualTo(totalLength);
   }
 
   /**
@@ -112,8 +111,9 @@ public final class CacheAsserts {
     dataSource.open(dataSpec);
     try {
       byte[] bytes = TestUtil.readToEnd(dataSource);
-      MoreAsserts.assertEquals(
-          "Cached data doesn't match expected for '" + dataSpec.uri + "',", expected, bytes);
+      assertWithMessage("Cached data doesn't match expected for '" + dataSpec.uri + "',")
+          .that(bytes)
+          .isEqualTo(expected);
     } finally {
       dataSource.close();
     }
@@ -122,15 +122,15 @@ public final class CacheAsserts {
   /** Asserts that there is no cache content for the given {@code uriStrings}. */
   public static void assertDataNotCached(Cache cache, String... uriStrings) {
     for (String uriString : uriStrings) {
-      assertTrue(
-          "There is cached data for '" + uriString + "',",
-          cache.getCachedSpans(CacheUtil.generateKey(Uri.parse(uriString))).isEmpty());
+      assertWithMessage("There is cached data for '" + uriString + "',")
+          .that(cache.getCachedSpans(CacheUtil.generateKey(Uri.parse(uriString))).isEmpty())
+          .isTrue();
     }
   }
 
   /** Asserts that the cache is empty. */
   public static void assertCacheEmpty(Cache cache) {
-    assertEquals(0, cache.getCacheSpace());
+    assertThat(cache.getCacheSpace()).isEqualTo(0);
   }
 
   private CacheAsserts() {}

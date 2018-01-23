@@ -15,9 +15,11 @@
  */
 package com.google.android.exoplayer2.testutil;
 
+import static com.google.common.truth.Truth.assertThat;
+import static org.junit.Assert.fail;
+
 import android.app.Instrumentation;
 import android.content.Context;
-import android.test.MoreAsserts;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.extractor.Extractor;
 import com.google.android.exoplayer2.testutil.FakeExtractorInput.SimulatedIOException;
@@ -29,7 +31,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
 import java.util.Random;
-import junit.framework.Assert;
 
 /**
  * Utility methods for tests.
@@ -71,7 +72,7 @@ public class TestUtil {
     while (position < length) {
       int bytesRead = dataSource.read(data, position, data.length - position);
       if (bytesRead == C.RESULT_END_OF_INPUT) {
-        Assert.fail("Not enough data could be read: " + position + " < " + length);
+        fail("Not enough data could be read: " + position + " < " + length);
       } else {
         position += bytesRead;
       }
@@ -164,13 +165,14 @@ public class TestUtil {
    *     data length. If false then it's asserted that {@link C#LENGTH_UNSET} is returned.
    * @throws IOException If an error occurs reading fom the {@link DataSource}.
    */
-  public static void assertDataSourceContent(DataSource dataSource, DataSpec dataSpec,
-      byte[] expectedData, boolean expectKnownLength) throws IOException {
+  public static void assertDataSourceContent(
+      DataSource dataSource, DataSpec dataSpec, byte[] expectedData, boolean expectKnownLength)
+      throws IOException {
     try {
       long length = dataSource.open(dataSpec);
-      Assert.assertEquals(expectKnownLength ? expectedData.length : C.LENGTH_UNSET, length);
-      byte[] readData = TestUtil.readToEnd(dataSource);
-      MoreAsserts.assertEquals(expectedData, readData);
+      assertThat(length).isEqualTo(expectKnownLength ? expectedData.length : C.LENGTH_UNSET);
+      byte[] readData = readToEnd(dataSource);
+      assertThat(readData).isEqualTo(expectedData);
     } finally {
       dataSource.close();
     }

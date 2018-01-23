@@ -15,7 +15,8 @@
  */
 package com.google.android.exoplayer2.source.smoothstreaming.manifest;
 
-import android.test.MoreAsserts;
+import static com.google.common.truth.Truth.assertThat;
+
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.source.smoothstreaming.manifest.SsManifest.ProtectionElement;
@@ -75,28 +76,28 @@ public class SsManifestTest extends TestCase {
   }
 
   private static void assertManifestEquals(SsManifest expected, SsManifest actual) {
-    assertEquals(expected.durationUs, actual.durationUs);
-    assertEquals(expected.dvrWindowLengthUs, actual.dvrWindowLengthUs);
-    assertEquals(expected.isLive, actual.isLive);
-    assertEquals(expected.lookAheadCount, actual.lookAheadCount);
-    assertEquals(expected.majorVersion, actual.majorVersion);
-    assertEquals(expected.minorVersion, actual.minorVersion);
-    assertEquals(expected.protectionElement.uuid, actual.protectionElement.uuid);
-    assertEquals(expected.protectionElement, actual.protectionElement);
+    assertThat(actual.durationUs).isEqualTo(expected.durationUs);
+    assertThat(actual.dvrWindowLengthUs).isEqualTo(expected.dvrWindowLengthUs);
+    assertThat(actual.isLive).isEqualTo(expected.isLive);
+    assertThat(actual.lookAheadCount).isEqualTo(expected.lookAheadCount);
+    assertThat(actual.majorVersion).isEqualTo(expected.majorVersion);
+    assertThat(actual.minorVersion).isEqualTo(expected.minorVersion);
+    assertThat(actual.protectionElement.uuid).isEqualTo(expected.protectionElement.uuid);
+    assertThat(actual.protectionElement).isEqualTo(expected.protectionElement);
     for (int i = 0; i < expected.streamElements.length; i++) {
       StreamElement expectedStreamElement = expected.streamElements[i];
       StreamElement actualStreamElement = actual.streamElements[i];
-      assertEquals(expectedStreamElement.chunkCount, actualStreamElement.chunkCount);
-      assertEquals(expectedStreamElement.displayHeight, actualStreamElement.displayHeight);
-      assertEquals(expectedStreamElement.displayWidth, actualStreamElement.displayWidth);
-      assertEquals(expectedStreamElement.language, actualStreamElement.language);
-      assertEquals(expectedStreamElement.maxHeight, actualStreamElement.maxHeight);
-      assertEquals(expectedStreamElement.maxWidth, actualStreamElement.maxWidth);
-      assertEquals(expectedStreamElement.name, actualStreamElement.name);
-      assertEquals(expectedStreamElement.subType, actualStreamElement.subType);
-      assertEquals(expectedStreamElement.timescale, actualStreamElement.timescale);
-      assertEquals(expectedStreamElement.type, actualStreamElement.type);
-      MoreAsserts.assertEquals(expectedStreamElement.formats, actualStreamElement.formats);
+      assertThat(actualStreamElement.chunkCount).isEqualTo(expectedStreamElement.chunkCount);
+      assertThat(actualStreamElement.displayHeight).isEqualTo(expectedStreamElement.displayHeight);
+      assertThat(actualStreamElement.displayWidth).isEqualTo(expectedStreamElement.displayWidth);
+      assertThat(actualStreamElement.language).isEqualTo(expectedStreamElement.language);
+      assertThat(actualStreamElement.maxHeight).isEqualTo(expectedStreamElement.maxHeight);
+      assertThat(actualStreamElement.maxWidth).isEqualTo(expectedStreamElement.maxWidth);
+      assertThat(actualStreamElement.name).isEqualTo(expectedStreamElement.name);
+      assertThat(actualStreamElement.subType).isEqualTo(expectedStreamElement.subType);
+      assertThat(actualStreamElement.timescale).isEqualTo(expectedStreamElement.timescale);
+      assertThat(actualStreamElement.type).isEqualTo(expectedStreamElement.type);
+      assertThat(actualStreamElement.formats).isEqualTo(expectedStreamElement.formats);
     }
   }
 

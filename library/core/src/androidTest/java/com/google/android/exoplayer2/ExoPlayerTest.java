@@ -15,6 +15,8 @@
  */
 package com.google.android.exoplayer2;
 
+import static com.google.common.truth.Truth.assertThat;
+
 import android.view.Surface;
 import com.google.android.exoplayer2.Player.DefaultEventListener;
 import com.google.android.exoplayer2.Player.EventListener;
@@ -66,7 +68,7 @@ public final class ExoPlayerTest extends TestCase {
     Timeline timeline = Timeline.EMPTY;
     FakeRenderer renderer = new FakeRenderer();
     ExoPlayerTestRunner testRunner =
-        new ExoPlayerTestRunner.Builder()
+        new Builder()
             .setTimeline(timeline)
             .setRenderers(renderer)
             .build()
@@ -74,9 +76,9 @@ public final class ExoPlayerTest extends TestCase {
             .blockUntilEnded(TIMEOUT_MS);
     testRunner.assertNoPositionDiscontinuities();
     testRunner.assertTimelinesEqual(timeline);
-    assertEquals(0, renderer.formatReadCount);
-    assertEquals(0, renderer.bufferReadCount);
-    assertFalse(renderer.isEnded);
+    assertThat(renderer.formatReadCount).isEqualTo(0);
+    assertThat(renderer.bufferReadCount).isEqualTo(0);
+    assertThat(renderer.isEnded).isFalse();
   }
 
   /**
@@ -86,17 +88,22 @@ public final class ExoPlayerTest extends TestCase {
     Timeline timeline = new FakeTimeline(/* windowCount= */ 1);
     Object manifest = new Object();
     FakeRenderer renderer = new FakeRenderer(Builder.VIDEO_FORMAT);
-    ExoPlayerTestRunner testRunner = new ExoPlayerTestRunner.Builder()
-        .setTimeline(timeline).setManifest(manifest).setRenderers(renderer)
-        .build().start().blockUntilEnded(TIMEOUT_MS);
+    ExoPlayerTestRunner testRunner =
+        new Builder()
+            .setTimeline(timeline)
+            .setManifest(manifest)
+            .setRenderers(renderer)
+            .build()
+            .start()
+            .blockUntilEnded(TIMEOUT_MS);
     testRunner.assertNoPositionDiscontinuities();
     testRunner.assertTimelinesEqual(timeline);
     testRunner.assertManifestsEqual(manifest);
     testRunner.assertTimelineChangeReasonsEqual(Player.TIMELINE_CHANGE_REASON_PREPARED);
     testRunner.assertTrackGroupsEqual(new TrackGroupArray(new TrackGroup(Builder.VIDEO_FORMAT)));
-    assertEquals(1, renderer.formatReadCount);
-    assertEquals(1, renderer.bufferReadCount);
-    assertTrue(renderer.isEnded);
+    assertThat(renderer.formatReadCount).isEqualTo(1);
+    assertThat(renderer.bufferReadCount).isEqualTo(1);
+    assertThat(renderer.isEnded).isTrue();
   }
 
   /**
@@ -105,17 +112,21 @@ public final class ExoPlayerTest extends TestCase {
   public void testPlayMultiPeriodTimeline() throws Exception {
     Timeline timeline = new FakeTimeline(/* windowCount= */ 3);
     FakeRenderer renderer = new FakeRenderer(Builder.VIDEO_FORMAT);
-    ExoPlayerTestRunner testRunner = new ExoPlayerTestRunner.Builder()
-        .setTimeline(timeline).setRenderers(renderer)
-        .build().start().blockUntilEnded(TIMEOUT_MS);
+    ExoPlayerTestRunner testRunner =
+        new Builder()
+            .setTimeline(timeline)
+            .setRenderers(renderer)
+            .build()
+            .start()
+            .blockUntilEnded(TIMEOUT_MS);
     testRunner.assertPositionDiscontinuityReasonsEqual(
         Player.DISCONTINUITY_REASON_PERIOD_TRANSITION,
         Player.DISCONTINUITY_REASON_PERIOD_TRANSITION);
     testRunner.assertTimelinesEqual(timeline);
     testRunner.assertTimelineChangeReasonsEqual(Player.TIMELINE_CHANGE_REASON_PREPARED);
-    assertEquals(3, renderer.formatReadCount);
-    assertEquals(1, renderer.bufferReadCount);
-    assertTrue(renderer.isEnded);
+    assertThat(renderer.formatReadCount).isEqualTo(3);
+    assertThat(renderer.bufferReadCount).isEqualTo(1);
+    assertThat(renderer.isEnded).isTrue();
   }
 
   /** Tests playback of periods with very short duration. */
@@ -125,20 +136,20 @@ public final class ExoPlayerTest extends TestCase {
         new FakeTimeline(new TimelineWindowDefinition(/* periodCount= */ 100, /* id= */ 0));
     FakeRenderer renderer = new FakeRenderer(Builder.VIDEO_FORMAT);
     ExoPlayerTestRunner testRunner =
-        new ExoPlayerTestRunner.Builder()
+        new Builder()
             .setTimeline(timeline)
             .setRenderers(renderer)
             .build()
             .start()
             .blockUntilEnded(TIMEOUT_MS);
-    int[] expectedReasons = new int[99];
+    Integer[] expectedReasons = new Integer[99];
     Arrays.fill(expectedReasons, Player.DISCONTINUITY_REASON_PERIOD_TRANSITION);
     testRunner.assertPositionDiscontinuityReasonsEqual(expectedReasons);
     testRunner.assertTimelinesEqual(timeline);
     testRunner.assertTimelineChangeReasonsEqual(Player.TIMELINE_CHANGE_REASON_PREPARED);
-    assertEquals(100, renderer.formatReadCount);
-    assertEquals(1, renderer.bufferReadCount);
-    assertTrue(renderer.isEnded);
+    assertThat(renderer.formatReadCount).isEqualTo(100);
+    assertThat(renderer.bufferReadCount).isEqualTo(1);
+    assertThat(renderer.isEnded).isTrue();
   }
 
   /**
@@ -175,17 +186,21 @@ public final class ExoPlayerTest extends TestCase {
       }
 
     };
-    ExoPlayerTestRunner testRunner = new ExoPlayerTestRunner.Builder()
-        .setTimeline(timeline).setRenderers(videoRenderer, audioRenderer)
-        .setSupportedFormats(Builder.VIDEO_FORMAT, Builder.AUDIO_FORMAT)
-        .build().start().blockUntilEnded(TIMEOUT_MS);
+    ExoPlayerTestRunner testRunner =
+        new Builder()
+            .setTimeline(timeline)
+            .setRenderers(videoRenderer, audioRenderer)
+            .setSupportedFormats(Builder.VIDEO_FORMAT, Builder.AUDIO_FORMAT)
+            .build()
+            .start()
+            .blockUntilEnded(TIMEOUT_MS);
     testRunner.assertPositionDiscontinuityReasonsEqual(
         Player.DISCONTINUITY_REASON_PERIOD_TRANSITION,
         Player.DISCONTINUITY_REASON_PERIOD_TRANSITION);
     testRunner.assertTimelinesEqual(timeline);
-    assertEquals(1, audioRenderer.positionResetCount);
-    assertTrue(videoRenderer.isEnded);
-    assertTrue(audioRenderer.isEnded);
+    assertThat(audioRenderer.positionResetCount).isEqualTo(1);
+    assertThat(videoRenderer.isEnded).isTrue();
+    assertThat(audioRenderer.isEnded).isTrue();
   }
 
   public void testRepreparationGivesFreshSourceInfo() throws Exception {
@@ -196,21 +211,25 @@ public final class ExoPlayerTest extends TestCase {
         Builder.VIDEO_FORMAT);
     final CountDownLatch queuedSourceInfoCountDownLatch = new CountDownLatch(1);
     final CountDownLatch completePreparationCountDownLatch = new CountDownLatch(1);
-    MediaSource secondSource = new FakeMediaSource(timeline, new Object(), Builder.VIDEO_FORMAT) {
-      @Override
-      public void prepareSource(ExoPlayer player, boolean isTopLevelSource, Listener listener) {
-        super.prepareSource(player, isTopLevelSource, listener);
-        // We've queued a source info refresh on the playback thread's event queue. Allow the test
-        // thread to prepare the player with the third source, and block this thread (the playback
-        // thread) until the test thread's call to prepare() has returned.
-        queuedSourceInfoCountDownLatch.countDown();
-        try {
-          completePreparationCountDownLatch.await();
-        } catch (InterruptedException e) {
-          throw new IllegalStateException(e);
-        }
-      }
-    };
+    MediaSource secondSource =
+        new FakeMediaSource(timeline, new Object(), Builder.VIDEO_FORMAT) {
+          @Override
+          public synchronized void prepareSource(
+              ExoPlayer player, boolean isTopLevelSource, Listener listener) {
+            super.prepareSource(player, isTopLevelSource, listener);
+            // We've queued a source info refresh on the playback thread's event queue. Allow the
+            // test
+            // thread to prepare the player with the third source, and block this thread (the
+            // playback
+            // thread) until the test thread's call to prepare() has returned.
+            queuedSourceInfoCountDownLatch.countDown();
+            try {
+              completePreparationCountDownLatch.await();
+            } catch (InterruptedException e) {
+              throw new IllegalStateException(e);
+            }
+          }
+        };
     Object thirdSourceManifest = new Object();
     MediaSource thirdSource = new FakeMediaSource(timeline, thirdSourceManifest,
         Builder.VIDEO_FORMAT);
@@ -240,9 +259,14 @@ public final class ExoPlayerTest extends TestCase {
           }
         })
         .build();
-    ExoPlayerTestRunner testRunner = new ExoPlayerTestRunner.Builder()
-        .setMediaSource(firstSource).setRenderers(renderer).setActionSchedule(actionSchedule)
-        .build().start().blockUntilEnded(TIMEOUT_MS);
+    ExoPlayerTestRunner testRunner =
+        new Builder()
+            .setMediaSource(firstSource)
+            .setRenderers(renderer)
+            .setActionSchedule(actionSchedule)
+            .build()
+            .start()
+            .blockUntilEnded(TIMEOUT_MS);
     testRunner.assertNoPositionDiscontinuities();
     // The first source's preparation completed with a non-empty timeline. When the player was
     // re-prepared with the second source, it immediately exposed an empty timeline, but the source
@@ -252,7 +276,7 @@ public final class ExoPlayerTest extends TestCase {
     testRunner.assertTimelineChangeReasonsEqual(Player.TIMELINE_CHANGE_REASON_PREPARED,
         Player.TIMELINE_CHANGE_REASON_RESET, Player.TIMELINE_CHANGE_REASON_PREPARED);
     testRunner.assertTrackGroupsEqual(new TrackGroupArray(new TrackGroup(Builder.VIDEO_FORMAT)));
-    assertTrue(renderer.isEnded);
+    assertThat(renderer.isEnded).isTrue();
   }
 
   public void testRepeatModeChanges() throws Exception {
@@ -293,7 +317,7 @@ public final class ExoPlayerTest extends TestCase {
         Player.DISCONTINUITY_REASON_PERIOD_TRANSITION);
     testRunner.assertTimelinesEqual(timeline);
     testRunner.assertTimelineChangeReasonsEqual(Player.TIMELINE_CHANGE_REASON_PREPARED);
-    assertTrue(renderer.isEnded);
+    assertThat(renderer.isEnded).isTrue();
   }
 
   public void testShuffleModeEnabledChanges() throws Exception {
@@ -328,22 +352,26 @@ public final class ExoPlayerTest extends TestCase {
         Player.DISCONTINUITY_REASON_PERIOD_TRANSITION,
         Player.DISCONTINUITY_REASON_PERIOD_TRANSITION,
         Player.DISCONTINUITY_REASON_PERIOD_TRANSITION);
-    assertTrue(renderer.isEnded);
+    assertThat(renderer.isEnded).isTrue();
   }
 
   public void testPeriodHoldersReleasedAfterSeekWithRepeatModeAll() throws Exception {
     FakeRenderer renderer = new FakeRenderer(Builder.VIDEO_FORMAT);
-    ActionSchedule actionSchedule = new ActionSchedule.Builder("testPeriodHoldersReleased")
-        .setRepeatMode(Player.REPEAT_MODE_ALL)
-        .waitForPositionDiscontinuity()
-        .seek(0) // Seek with repeat mode set to REPEAT_MODE_ALL.
-        .waitForPositionDiscontinuity()
-        .setRepeatMode(Player.REPEAT_MODE_OFF) // Turn off repeat so that playback can finish.
-        .build();
-    new ExoPlayerTestRunner.Builder()
-        .setRenderers(renderer).setActionSchedule(actionSchedule)
-        .build().start().blockUntilEnded(TIMEOUT_MS);
-    assertTrue(renderer.isEnded);
+    ActionSchedule actionSchedule =
+        new ActionSchedule.Builder("testPeriodHoldersReleased")
+            .setRepeatMode(Player.REPEAT_MODE_ALL)
+            .waitForPositionDiscontinuity()
+            .seek(0) // Seek with repeat mode set to Player.REPEAT_MODE_ALL.
+            .waitForPositionDiscontinuity()
+            .setRepeatMode(Player.REPEAT_MODE_OFF) // Turn off repeat so that playback can finish.
+            .build();
+    new Builder()
+        .setRenderers(renderer)
+        .setActionSchedule(actionSchedule)
+        .build()
+        .start()
+        .blockUntilEnded(TIMEOUT_MS);
+    assertThat(renderer.isEnded).isTrue();
   }
 
   public void testSeekProcessedCallback() throws Exception {
@@ -359,7 +387,7 @@ public final class ExoPlayerTest extends TestCase {
             .seek(2)
             .seek(10)
             // Wait until media source prepared and re-seek to same position. Expect a seek
-            // processed while still being in STATE_READY.
+            // processed while still being in Player.STATE_READY.
             .waitForPlaybackState(Player.STATE_READY)
             .seek(10)
             // Start playback and wait until playback reaches second window.
@@ -371,19 +399,20 @@ public final class ExoPlayerTest extends TestCase {
             .seek(60)
             .build();
     final List<Integer> playbackStatesWhenSeekProcessed = new ArrayList<>();
-    Player.EventListener eventListener = new Player.DefaultEventListener() {
-      private int currentPlaybackState = Player.STATE_IDLE;
+    EventListener eventListener =
+        new DefaultEventListener() {
+          private int currentPlaybackState = Player.STATE_IDLE;
 
-      @Override
-      public void onPlayerStateChanged(boolean playWhenReady, int playbackState) {
-        currentPlaybackState = playbackState;
-      }
+          @Override
+          public void onPlayerStateChanged(boolean playWhenReady, int playbackState) {
+            currentPlaybackState = playbackState;
+          }
 
-      @Override
-      public void onSeekProcessed() {
-        playbackStatesWhenSeekProcessed.add(currentPlaybackState);
-      }
-    };
+          @Override
+          public void onSeekProcessed() {
+            playbackStatesWhenSeekProcessed.add(currentPlaybackState);
+          }
+        };
     ExoPlayerTestRunner testRunner =
         new ExoPlayerTestRunner.Builder()
             .setTimeline(timeline)
@@ -400,11 +429,13 @@ public final class ExoPlayerTest extends TestCase {
         Player.DISCONTINUITY_REASON_PERIOD_TRANSITION,
         Player.DISCONTINUITY_REASON_SEEK,
         Player.DISCONTINUITY_REASON_SEEK);
-    assertEquals(4, playbackStatesWhenSeekProcessed.size());
-    assertEquals(Player.STATE_BUFFERING, (int) playbackStatesWhenSeekProcessed.get(0));
-    assertEquals(Player.STATE_BUFFERING, (int) playbackStatesWhenSeekProcessed.get(1));
-    assertEquals(Player.STATE_READY, (int) playbackStatesWhenSeekProcessed.get(2));
-    assertEquals(Player.STATE_BUFFERING, (int) playbackStatesWhenSeekProcessed.get(3));
+    assertThat(playbackStatesWhenSeekProcessed)
+        .containsExactly(
+            Player.STATE_BUFFERING,
+            Player.STATE_BUFFERING,
+            Player.STATE_READY,
+            Player.STATE_BUFFERING)
+        .inOrder();
   }
 
   public void testSeekProcessedCalledWithIllegalSeekPosition() throws Exception {
@@ -427,17 +458,14 @@ public final class ExoPlayerTest extends TestCase {
           }
         };
     ExoPlayerTestRunner testRunner =
-        new ExoPlayerTestRunner.Builder()
-            .setActionSchedule(actionSchedule)
-            .setEventListener(listener)
-            .build();
+        new Builder().setActionSchedule(actionSchedule).setEventListener(listener).build();
     try {
       testRunner.start().blockUntilActionScheduleFinished(TIMEOUT_MS).blockUntilEnded(TIMEOUT_MS);
       fail();
     } catch (ExoPlaybackException e) {
       // Expected exception.
     }
-    assertTrue(onSeekProcessedCalled[0]);
+    assertThat(onSeekProcessedCalled[0]).isTrue();
   }
 
   public void testSeekDiscontinuity() throws Exception {
@@ -514,24 +542,26 @@ public final class ExoPlayerTest extends TestCase {
     FakeRenderer audioRenderer = new FakeRenderer(Builder.AUDIO_FORMAT);
     FakeTrackSelector trackSelector = new FakeTrackSelector();
 
-    new ExoPlayerTestRunner.Builder()
+    new Builder()
         .setMediaSource(mediaSource)
         .setRenderers(videoRenderer, audioRenderer)
         .setTrackSelector(trackSelector)
-        .build().start().blockUntilEnded(TIMEOUT_MS);
+        .build()
+        .start()
+        .blockUntilEnded(TIMEOUT_MS);
 
     List<FakeTrackSelection> createdTrackSelections = trackSelector.getSelectedTrackSelections();
     int numSelectionsEnabled = 0;
     // Assert that all tracks selection are disabled at the end of the playback.
     for (FakeTrackSelection trackSelection : createdTrackSelections) {
-      assertFalse(trackSelection.isEnabled);
+      assertThat(trackSelection.isEnabled).isFalse();
       numSelectionsEnabled += trackSelection.enableCount;
     }
     // There are 2 renderers, and track selections are made once (1 period).
     // Track selections are not reused, so there are 2 track selections made.
-    assertEquals(2, createdTrackSelections.size());
+    assertThat(createdTrackSelections).hasSize(2);
     // There should be 2 track selections enabled in total.
-    assertEquals(2, numSelectionsEnabled);
+    assertThat(numSelectionsEnabled).isEqualTo(2);
   }
 
   public void testAllActivatedTrackSelectionAreReleasedForMultiPeriods() throws Exception {
@@ -542,24 +572,26 @@ public final class ExoPlayerTest extends TestCase {
     FakeRenderer audioRenderer = new FakeRenderer(Builder.AUDIO_FORMAT);
     FakeTrackSelector trackSelector = new FakeTrackSelector();
 
-    new ExoPlayerTestRunner.Builder()
+    new Builder()
         .setMediaSource(mediaSource)
         .setRenderers(videoRenderer, audioRenderer)
         .setTrackSelector(trackSelector)
-        .build().start().blockUntilEnded(TIMEOUT_MS);
+        .build()
+        .start()
+        .blockUntilEnded(TIMEOUT_MS);
 
     List<FakeTrackSelection> createdTrackSelections = trackSelector.getSelectedTrackSelections();
     int numSelectionsEnabled = 0;
     // Assert that all tracks selection are disabled at the end of the playback.
     for (FakeTrackSelection trackSelection : createdTrackSelections) {
-      assertFalse(trackSelection.isEnabled);
+      assertThat(trackSelection.isEnabled).isFalse();
       numSelectionsEnabled += trackSelection.enableCount;
     }
     // There are 2 renderers, and track selections are made twice (2 periods).
     // Track selections are not reused, so there are 4 track selections made.
-    assertEquals(4, createdTrackSelections.size());
+    assertThat(createdTrackSelections).hasSize(4);
     // There should be 4 track selections enabled in total.
-    assertEquals(4, numSelectionsEnabled);
+    assertThat(numSelectionsEnabled).isEqualTo(4);
   }
 
   public void testAllActivatedTrackSelectionAreReleasedWhenTrackSelectionsAreRemade()
@@ -584,26 +616,28 @@ public final class ExoPlayerTest extends TestCase {
             .play()
             .build();
 
-    new ExoPlayerTestRunner.Builder()
+    new Builder()
         .setMediaSource(mediaSource)
         .setRenderers(videoRenderer, audioRenderer)
         .setTrackSelector(trackSelector)
         .setActionSchedule(disableTrackAction)
-        .build().start().blockUntilEnded(TIMEOUT_MS);
+        .build()
+        .start()
+        .blockUntilEnded(TIMEOUT_MS);
 
     List<FakeTrackSelection> createdTrackSelections = trackSelector.getSelectedTrackSelections();
     int numSelectionsEnabled = 0;
     // Assert that all tracks selection are disabled at the end of the playback.
     for (FakeTrackSelection trackSelection : createdTrackSelections) {
-      assertFalse(trackSelection.isEnabled);
+      assertThat(trackSelection.isEnabled).isFalse();
       numSelectionsEnabled += trackSelection.enableCount;
     }
     // There are 2 renderers, and track selections are made twice.
     // Track selections are not reused, so there are 4 track selections made.
-    assertEquals(4, createdTrackSelections.size());
+    assertThat(createdTrackSelections).hasSize(4);
     // Initially there are 2 track selections enabled.
     // The second time one renderer is disabled, so only 1 track selection should be enabled.
-    assertEquals(3, numSelectionsEnabled);
+    assertThat(numSelectionsEnabled).isEqualTo(3);
   }
 
   public void testAllActivatedTrackSelectionAreReleasedWhenTrackSelectionsAreUsed()
@@ -628,26 +662,28 @@ public final class ExoPlayerTest extends TestCase {
             .play()
             .build();
 
-    new ExoPlayerTestRunner.Builder()
+    new Builder()
         .setMediaSource(mediaSource)
         .setRenderers(videoRenderer, audioRenderer)
         .setTrackSelector(trackSelector)
         .setActionSchedule(disableTrackAction)
-        .build().start().blockUntilEnded(TIMEOUT_MS);
+        .build()
+        .start()
+        .blockUntilEnded(TIMEOUT_MS);
 
     List<FakeTrackSelection> createdTrackSelections = trackSelector.getSelectedTrackSelections();
     int numSelectionsEnabled = 0;
     // Assert that all tracks selection are disabled at the end of the playback.
     for (FakeTrackSelection trackSelection : createdTrackSelections) {
-      assertFalse(trackSelection.isEnabled);
+      assertThat(trackSelection.isEnabled).isFalse();
       numSelectionsEnabled += trackSelection.enableCount;
     }
     // There are 2 renderers, and track selections are made twice.
     // TrackSelections are reused, so there are only 2 track selections made for 2 renderers.
-    assertEquals(2, createdTrackSelections.size());
+    assertThat(createdTrackSelections).hasSize(2);
     // Initially there are 2 track selections enabled.
     // The second time one renderer is disabled, so only 1 track selection should be enabled.
-    assertEquals(3, numSelectionsEnabled);
+    assertThat(numSelectionsEnabled).isEqualTo(3);
   }
 
   public void testDynamicTimelineChangeReason() throws Exception {
@@ -779,7 +815,7 @@ public final class ExoPlayerTest extends TestCase {
     testRunner.assertTimelinesEqual(timeline);
     testRunner.assertTimelineChangeReasonsEqual(Player.TIMELINE_CHANGE_REASON_PREPARED);
     testRunner.assertNoPositionDiscontinuities();
-    assertTrue(positionHolder[0] >= 50);
+    assertThat(positionHolder[0]).isAtLeast(50L);
   }
 
   public void testStopWithoutResetDoesNotResetPosition() throws Exception {
@@ -810,7 +846,7 @@ public final class ExoPlayerTest extends TestCase {
     testRunner.assertTimelinesEqual(timeline);
     testRunner.assertTimelineChangeReasonsEqual(Player.TIMELINE_CHANGE_REASON_PREPARED);
     testRunner.assertNoPositionDiscontinuities();
-    assertTrue(positionHolder[0] >= 50);
+    assertThat(positionHolder[0]).isAtLeast(50L);
   }
 
   public void testStopWithResetDoesResetPosition() throws Exception {
@@ -842,7 +878,7 @@ public final class ExoPlayerTest extends TestCase {
     testRunner.assertTimelineChangeReasonsEqual(Player.TIMELINE_CHANGE_REASON_PREPARED,
         Player.TIMELINE_CHANGE_REASON_RESET);
     testRunner.assertNoPositionDiscontinuities();
-    assertEquals(0, positionHolder[0]);
+    assertThat(positionHolder[0]).isEqualTo(0);
   }
 
   public void testStopWithoutResetReleasesMediaSource() throws Exception {
@@ -1058,8 +1094,8 @@ public final class ExoPlayerTest extends TestCase {
         Player.TIMELINE_CHANGE_REASON_PREPARED, Player.TIMELINE_CHANGE_REASON_PREPARED);
     testRunner.assertPositionDiscontinuityReasonsEqual(
         Player.DISCONTINUITY_REASON_SEEK, Player.DISCONTINUITY_REASON_SEEK);
-    assertEquals(50, positionHolder[0]);
-    assertEquals(50, positionHolder[1]);
+    assertThat(positionHolder[0]).isEqualTo(50);
+    assertThat(positionHolder[1]).isEqualTo(50);
   }
 
   public void testPlaybackErrorDuringSourceInfoRefreshStillUpdatesTimeline() throws Exception {
@@ -1107,13 +1143,13 @@ public final class ExoPlayerTest extends TestCase {
             .sendMessage(target, /* positionMs= */ 50)
             .play()
             .build();
-    new ExoPlayerTestRunner.Builder()
+    new Builder()
         .setTimeline(timeline)
         .setActionSchedule(actionSchedule)
         .build()
         .start()
         .blockUntilEnded(TIMEOUT_MS);
-    assertTrue(target.positionMs >= 50);
+    assertThat(target.positionMs >= 50).isTrue();
   }
 
   public void testSendMessagesAfterPreparation() throws Exception {
@@ -1126,13 +1162,13 @@ public final class ExoPlayerTest extends TestCase {
             .sendMessage(target, /* positionMs= */ 50)
             .play()
             .build();
-    new ExoPlayerTestRunner.Builder()
+    new Builder()
         .setTimeline(timeline)
         .setActionSchedule(actionSchedule)
         .build()
         .start()
         .blockUntilEnded(TIMEOUT_MS);
-    assertTrue(target.positionMs >= 50);
+    assertThat(target.positionMs >= 50).isTrue();
   }
 
   public void testMultipleSendMessages() throws Exception {
@@ -1147,15 +1183,15 @@ public final class ExoPlayerTest extends TestCase {
             .sendMessage(target50, /* positionMs= */ 50)
             .play()
             .build();
-    new ExoPlayerTestRunner.Builder()
+    new Builder()
         .setTimeline(timeline)
         .setActionSchedule(actionSchedule)
         .build()
         .start()
         .blockUntilEnded(TIMEOUT_MS);
-    assertTrue(target50.positionMs >= 50);
-    assertTrue(target80.positionMs >= 80);
-    assertTrue(target80.positionMs >= target50.positionMs);
+    assertThat(target50.positionMs >= 50).isTrue();
+    assertThat(target80.positionMs >= 80).isTrue();
+    assertThat(target80.positionMs).isAtLeast(target50.positionMs);
   }
 
   public void testMultipleSendMessagesAtSameTime() throws Exception {
@@ -1170,14 +1206,14 @@ public final class ExoPlayerTest extends TestCase {
             .sendMessage(target2, /* positionMs= */ 50)
             .play()
             .build();
-    new ExoPlayerTestRunner.Builder()
+    new Builder()
         .setTimeline(timeline)
         .setActionSchedule(actionSchedule)
         .build()
         .start()
         .blockUntilEnded(TIMEOUT_MS);
-    assertTrue(target1.positionMs >= 50);
-    assertTrue(target2.positionMs >= 50);
+    assertThat(target1.positionMs >= 50).isTrue();
+    assertThat(target2.positionMs >= 50).isTrue();
   }
 
   public void testSendMessagesMultiPeriodResolution() throws Exception {
@@ -1191,13 +1227,13 @@ public final class ExoPlayerTest extends TestCase {
             .sendMessage(target, /* positionMs= */ 50)
             .play()
             .build();
-    new ExoPlayerTestRunner.Builder()
+    new Builder()
         .setTimeline(timeline)
         .setActionSchedule(actionSchedule)
         .build()
         .start()
         .blockUntilEnded(TIMEOUT_MS);
-    assertTrue(target.positionMs >= 50);
+    assertThat(target.positionMs >= 50).isTrue();
   }
 
   public void testSendMessagesAtStartAndEndOfPeriod() throws Exception {
@@ -1226,21 +1262,21 @@ public final class ExoPlayerTest extends TestCase {
                 /* resetState= */ true)
             .waitForPlaybackState(Player.STATE_READY)
             .build();
-    new ExoPlayerTestRunner.Builder()
+    new Builder()
         .setTimeline(timeline)
         .setActionSchedule(actionSchedule)
         .build()
         .start()
         .blockUntilActionScheduleFinished(TIMEOUT_MS)
         .blockUntilEnded(TIMEOUT_MS);
-    assertEquals(0, targetStartFirstPeriod.windowIndex);
-    assertTrue(targetStartFirstPeriod.positionMs >= 0);
-    assertEquals(0, targetEndMiddlePeriod.windowIndex);
-    assertTrue(targetEndMiddlePeriod.positionMs >= duration1Ms);
-    assertEquals(1, targetStartMiddlePeriod.windowIndex);
-    assertTrue(targetStartMiddlePeriod.positionMs >= 0);
-    assertEquals(1, targetEndLastPeriod.windowIndex);
-    assertTrue(targetEndLastPeriod.positionMs >= duration2Ms);
+    assertThat(targetStartFirstPeriod.windowIndex).isEqualTo(0);
+    assertThat(targetStartFirstPeriod.positionMs).isAtLeast(0L);
+    assertThat(targetEndMiddlePeriod.windowIndex).isEqualTo(0);
+    assertThat(targetEndMiddlePeriod.positionMs).isAtLeast(duration1Ms);
+    assertThat(targetStartMiddlePeriod.windowIndex).isEqualTo(1);
+    assertThat(targetStartMiddlePeriod.positionMs).isAtLeast(0L);
+    assertThat(targetEndLastPeriod.windowIndex).isEqualTo(1);
+    assertThat(targetEndLastPeriod.positionMs).isAtLeast(duration2Ms);
   }
 
   public void testSendMessagesSeekOnDeliveryTimeDuringPreparation() throws Exception {
@@ -1252,13 +1288,13 @@ public final class ExoPlayerTest extends TestCase {
             .sendMessage(target, /* positionMs= */ 50)
             .seek(/* positionMs= */ 50)
             .build();
-    new ExoPlayerTestRunner.Builder()
+    new Builder()
         .setTimeline(timeline)
         .setActionSchedule(actionSchedule)
         .build()
         .start()
         .blockUntilEnded(TIMEOUT_MS);
-    assertTrue(target.positionMs >= 50);
+    assertThat(target.positionMs >= 50).isTrue();
   }
 
   public void testSendMessagesSeekOnDeliveryTimeAfterPreparation() throws Exception {
@@ -1271,13 +1307,13 @@ public final class ExoPlayerTest extends TestCase {
             .waitForTimelineChanged(timeline)
             .seek(/* positionMs= */ 50)
             .build();
-    new ExoPlayerTestRunner.Builder()
+    new Builder()
         .setTimeline(timeline)
         .setActionSchedule(actionSchedule)
         .build()
         .start()
         .blockUntilEnded(TIMEOUT_MS);
-    assertTrue(target.positionMs >= 50);
+    assertThat(target.positionMs >= 50).isTrue();
   }
 
   public void testSendMessagesSeekAfterDeliveryTimeDuringPreparation() throws Exception {
@@ -1291,13 +1327,13 @@ public final class ExoPlayerTest extends TestCase {
             .seek(/* positionMs= */ 51)
             .play()
             .build();
-    new ExoPlayerTestRunner.Builder()
+    new Builder()
         .setTimeline(timeline)
         .setActionSchedule(actionSchedule)
         .build()
         .start()
         .blockUntilEnded(TIMEOUT_MS);
-    assertEquals(C.POSITION_UNSET, target.positionMs);
+    assertThat(target.positionMs).isEqualTo(C.POSITION_UNSET);
   }
 
   public void testSendMessagesSeekAfterDeliveryTimeAfterPreparation() throws Exception {
@@ -1311,13 +1347,13 @@ public final class ExoPlayerTest extends TestCase {
             .seek(/* positionMs= */ 51)
             .play()
             .build();
-    new ExoPlayerTestRunner.Builder()
+    new Builder()
         .setTimeline(timeline)
         .setActionSchedule(actionSchedule)
         .build()
         .start()
         .blockUntilEnded(TIMEOUT_MS);
-    assertEquals(C.POSITION_UNSET, target.positionMs);
+    assertThat(target.positionMs).isEqualTo(C.POSITION_UNSET);
   }
 
   public void testSendMessagesRepeatDoesNotRepost() throws Exception {
@@ -1333,14 +1369,14 @@ public final class ExoPlayerTest extends TestCase {
             .waitForPositionDiscontinuity()
             .setRepeatMode(Player.REPEAT_MODE_OFF)
             .build();
-    new ExoPlayerTestRunner.Builder()
+    new Builder()
         .setTimeline(timeline)
         .setActionSchedule(actionSchedule)
         .build()
         .start()
         .blockUntilEnded(TIMEOUT_MS);
-    assertEquals(1, target.messageCount);
-    assertTrue(target.positionMs >= 50);
+    assertThat(target.messageCount).isEqualTo(1);
+    assertThat(target.positionMs >= 50).isTrue();
   }
 
   public void testSendMessagesRepeatWithoutDeletingDoesRepost() throws Exception {
@@ -1361,14 +1397,14 @@ public final class ExoPlayerTest extends TestCase {
             .setRepeatMode(Player.REPEAT_MODE_OFF)
             .play()
             .build();
-    new ExoPlayerTestRunner.Builder()
+    new Builder()
         .setTimeline(timeline)
         .setActionSchedule(actionSchedule)
         .build()
         .start()
         .blockUntilEnded(TIMEOUT_MS);
-    assertEquals(2, target.messageCount);
-    assertTrue(target.positionMs >= 50);
+    assertThat(target.messageCount).isEqualTo(2);
+    assertThat(target.positionMs >= 50).isTrue();
   }
 
   public void testSendMessagesMoveCurrentWindowIndex() throws Exception {
@@ -1395,14 +1431,14 @@ public final class ExoPlayerTest extends TestCase {
             .waitForTimelineChanged(secondTimeline)
             .play()
             .build();
-    new ExoPlayerTestRunner.Builder()
+    new Builder()
         .setMediaSource(mediaSource)
         .setActionSchedule(actionSchedule)
         .build()
         .start()
         .blockUntilEnded(TIMEOUT_MS);
-    assertTrue(target.positionMs >= 50);
-    assertEquals(1, target.windowIndex);
+    assertThat(target.positionMs >= 50).isTrue();
+    assertThat(target.windowIndex).isEqualTo(1);
   }
 
   public void testSendMessagesMultiWindowDuringPreparation() throws Exception {
@@ -1415,14 +1451,14 @@ public final class ExoPlayerTest extends TestCase {
             .sendMessage(target, /* windowIndex = */ 2, /* positionMs= */ 50)
             .play()
             .build();
-    new ExoPlayerTestRunner.Builder()
+    new Builder()
         .setTimeline(timeline)
         .setActionSchedule(actionSchedule)
         .build()
         .start()
         .blockUntilEnded(TIMEOUT_MS);
-    assertEquals(2, target.windowIndex);
-    assertTrue(target.positionMs >= 50);
+    assertThat(target.windowIndex).isEqualTo(2);
+    assertThat(target.positionMs >= 50).isTrue();
   }
 
   public void testSendMessagesMultiWindowAfterPreparation() throws Exception {
@@ -1435,14 +1471,14 @@ public final class ExoPlayerTest extends TestCase {
             .sendMessage(target, /* windowIndex = */ 2, /* positionMs= */ 50)
             .play()
             .build();
-    new ExoPlayerTestRunner.Builder()
+    new Builder()
         .setTimeline(timeline)
         .setActionSchedule(actionSchedule)
         .build()
         .start()
         .blockUntilEnded(TIMEOUT_MS);
-    assertEquals(2, target.windowIndex);
-    assertTrue(target.positionMs >= 50);
+    assertThat(target.windowIndex).isEqualTo(2);
+    assertThat(target.positionMs >= 50).isTrue();
   }
 
   public void testSendMessagesMoveWindowIndex() throws Exception {
@@ -1472,14 +1508,14 @@ public final class ExoPlayerTest extends TestCase {
             .seek(/* windowIndex= */ 0, /* positionMs= */ 0)
             .play()
             .build();
-    new ExoPlayerTestRunner.Builder()
+    new Builder()
         .setMediaSource(mediaSource)
         .setActionSchedule(actionSchedule)
         .build()
         .start()
         .blockUntilEnded(TIMEOUT_MS);
-    assertTrue(target.positionMs >= 50);
-    assertEquals(0, target.windowIndex);
+    assertThat(target.positionMs >= 50).isTrue();
+    assertThat(target.windowIndex).isEqualTo(0);
   }
 
   public void testSendMessagesNonLinearPeriodOrder() throws Exception {
@@ -1511,9 +1547,9 @@ public final class ExoPlayerTest extends TestCase {
         .build()
         .start()
         .blockUntilEnded(TIMEOUT_MS);
-    assertEquals(0, target1.windowIndex);
-    assertEquals(1, target2.windowIndex);
-    assertEquals(2, target3.windowIndex);
+    assertThat(target1.windowIndex).isEqualTo(0);
+    assertThat(target2.windowIndex).isEqualTo(1);
+    assertThat(target3.windowIndex).isEqualTo(2);
   }
 
   public void testSetAndSwitchSurface() throws Exception {
@@ -1535,7 +1571,7 @@ public final class ExoPlayerTest extends TestCase {
         .start()
         .blockUntilActionScheduleFinished(TIMEOUT_MS)
         .blockUntilEnded(TIMEOUT_MS);
-    assertEquals(2, Collections.frequency(rendererMessages, C.MSG_SET_SURFACE));
+    assertThat(Collections.frequency(rendererMessages, C.MSG_SET_SURFACE)).isEqualTo(2);
   }
 
   public void testSwitchSurfaceOnEndedState() throws Exception {

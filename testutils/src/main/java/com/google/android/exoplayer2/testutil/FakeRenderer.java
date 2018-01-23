@@ -15,6 +15,8 @@
  */
 package com.google.android.exoplayer2.testutil;
 
+import static com.google.common.truth.Truth.assertThat;
+
 import com.google.android.exoplayer2.BaseRenderer;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlaybackException;
@@ -26,7 +28,6 @@ import com.google.android.exoplayer2.util.MimeTypes;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import junit.framework.Assert;
 
 /**
  * Fake {@link Renderer} that supports any format with the matching MIME type. The renderer
@@ -65,7 +66,7 @@ public class FakeRenderer extends BaseRenderer {
       buffer.data = null;
       if (result == C.RESULT_FORMAT_READ) {
         formatReadCount++;
-        Assert.assertTrue(expectedFormats.contains(formatHolder.format));
+        assertThat(expectedFormats).contains(formatHolder.format);
       } else if (result == C.RESULT_BUFFER_READ) {
         bufferReadCount++;
         if (buffer.isEndOfStream()) {

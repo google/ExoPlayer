@@ -15,6 +15,8 @@
  */
 package com.google.android.exoplayer2.source;
 
+import static com.google.common.truth.Truth.assertThat;
+
 import android.test.InstrumentationTestCase;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Player;
@@ -52,10 +54,12 @@ public final class ClippingMediaSourceTest extends InstrumentationTestCase {
 
     Timeline clippedTimeline = getClippedTimeline(timeline, 0, TEST_PERIOD_DURATION_US);
 
-    assertEquals(1, clippedTimeline.getWindowCount());
-    assertEquals(1, clippedTimeline.getPeriodCount());
-    assertEquals(TEST_PERIOD_DURATION_US, clippedTimeline.getWindow(0, window).getDurationUs());
-    assertEquals(TEST_PERIOD_DURATION_US, clippedTimeline.getPeriod(0, period).getDurationUs());
+    assertThat(clippedTimeline.getWindowCount()).isEqualTo(1);
+    assertThat(clippedTimeline.getPeriodCount()).isEqualTo(1);
+    assertThat(clippedTimeline.getWindow(0, window).getDurationUs())
+        .isEqualTo(TEST_PERIOD_DURATION_US);
+    assertThat(clippedTimeline.getPeriod(0, period).getDurationUs())
+        .isEqualTo(TEST_PERIOD_DURATION_US);
   }
 
   public void testClippingUnseekableWindowThrows() throws IOException {
@@ -68,7 +72,7 @@ public final class ClippingMediaSourceTest extends InstrumentationTestCase {
       getClippedTimeline(timeline, 1, TEST_PERIOD_DURATION_US);
       fail("Expected clipping to fail.");
     } catch (IllegalClippingException e) {
-      assertEquals(IllegalClippingException.REASON_NOT_SEEKABLE_TO_START, e.reason);
+      assertThat(e.reason).isEqualTo(IllegalClippingException.REASON_NOT_SEEKABLE_TO_START);
     }
   }
 
@@ -77,10 +81,10 @@ public final class ClippingMediaSourceTest extends InstrumentationTestCase {
 
     Timeline clippedTimeline = getClippedTimeline(timeline, TEST_CLIP_AMOUNT_US,
         TEST_PERIOD_DURATION_US);
-    assertEquals(TEST_PERIOD_DURATION_US - TEST_CLIP_AMOUNT_US,
-        clippedTimeline.getWindow(0, window).getDurationUs());
-    assertEquals(TEST_PERIOD_DURATION_US - TEST_CLIP_AMOUNT_US,
-        clippedTimeline.getPeriod(0, period).getDurationUs());
+    assertThat(clippedTimeline.getWindow(0, window).getDurationUs())
+        .isEqualTo(TEST_PERIOD_DURATION_US - TEST_CLIP_AMOUNT_US);
+    assertThat(clippedTimeline.getPeriod(0, period).getDurationUs())
+        .isEqualTo(TEST_PERIOD_DURATION_US - TEST_CLIP_AMOUNT_US);
   }
 
   public void testClippingEnd() throws IOException {
@@ -88,10 +92,10 @@ public final class ClippingMediaSourceTest extends InstrumentationTestCase {
 
     Timeline clippedTimeline = getClippedTimeline(timeline, 0,
         TEST_PERIOD_DURATION_US - TEST_CLIP_AMOUNT_US);
-    assertEquals(TEST_PERIOD_DURATION_US - TEST_CLIP_AMOUNT_US,
-        clippedTimeline.getWindow(0, window).getDurationUs());
-    assertEquals(TEST_PERIOD_DURATION_US - TEST_CLIP_AMOUNT_US,
-        clippedTimeline.getPeriod(0, period).getDurationUs());
+    assertThat(clippedTimeline.getWindow(0, window).getDurationUs())
+        .isEqualTo(TEST_PERIOD_DURATION_US - TEST_CLIP_AMOUNT_US);
+    assertThat(clippedTimeline.getPeriod(0, period).getDurationUs())
+        .isEqualTo(TEST_PERIOD_DURATION_US - TEST_CLIP_AMOUNT_US);
   }
 
   public void testClippingStartAndEndInitial() throws IOException {
@@ -103,10 +107,10 @@ public final class ClippingMediaSourceTest extends InstrumentationTestCase {
 
     Timeline clippedTimeline = getClippedTimeline(timeline, TEST_CLIP_AMOUNT_US,
         TEST_PERIOD_DURATION_US - TEST_CLIP_AMOUNT_US * 2);
-    assertEquals(TEST_PERIOD_DURATION_US - TEST_CLIP_AMOUNT_US * 3,
-        clippedTimeline.getWindow(0, window).getDurationUs());
-    assertEquals(TEST_PERIOD_DURATION_US - TEST_CLIP_AMOUNT_US * 3,
-        clippedTimeline.getPeriod(0, period).getDurationUs());
+    assertThat(clippedTimeline.getWindow(0, window).getDurationUs())
+        .isEqualTo(TEST_PERIOD_DURATION_US - TEST_CLIP_AMOUNT_US * 3);
+    assertThat(clippedTimeline.getPeriod(0, period).getDurationUs())
+        .isEqualTo(TEST_PERIOD_DURATION_US - TEST_CLIP_AMOUNT_US * 3);
   }
 
   public void testClippingStartAndEnd() throws IOException {
@@ -114,10 +118,10 @@ public final class ClippingMediaSourceTest extends InstrumentationTestCase {
 
     Timeline clippedTimeline = getClippedTimeline(timeline, TEST_CLIP_AMOUNT_US,
         TEST_PERIOD_DURATION_US - TEST_CLIP_AMOUNT_US * 2);
-    assertEquals(TEST_PERIOD_DURATION_US - TEST_CLIP_AMOUNT_US * 3,
-        clippedTimeline.getWindow(0, window).getDurationUs());
-    assertEquals(TEST_PERIOD_DURATION_US - TEST_CLIP_AMOUNT_US * 3,
-        clippedTimeline.getPeriod(0, period).getDurationUs());
+    assertThat(clippedTimeline.getWindow(0, window).getDurationUs())
+        .isEqualTo(TEST_PERIOD_DURATION_US - TEST_CLIP_AMOUNT_US * 3);
+    assertThat(clippedTimeline.getPeriod(0, period).getDurationUs())
+        .isEqualTo(TEST_PERIOD_DURATION_US - TEST_CLIP_AMOUNT_US * 3);
   }
 
   public void testWindowAndPeriodIndices() throws IOException {
