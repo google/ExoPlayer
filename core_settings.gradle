@@ -35,6 +35,7 @@ include modulePrefix + 'extension-opus'
 include modulePrefix + 'extension-vp9'
 include modulePrefix + 'extension-rtmp'
 include modulePrefix + 'extension-leanback'
+include modulePrefix + 'extension-jobdispatcher'
 
 project(modulePrefix + 'library').projectDir = new File(rootDir, 'library/all')
 project(modulePrefix + 'library-core').projectDir = new File(rootDir, 'library/core')
@@ -54,6 +55,7 @@ project(modulePrefix + 'extension-opus').projectDir = new File(rootDir, 'extensi
 project(modulePrefix + 'extension-vp9').projectDir = new File(rootDir, 'extensions/vp9')
 project(modulePrefix + 'extension-rtmp').projectDir = new File(rootDir, 'extensions/rtmp')
 project(modulePrefix + 'extension-leanback').projectDir = new File(rootDir, 'extensions/leanback')
+project(modulePrefix + 'extension-jobdispatcher').projectDir = new File(rootDir, 'extensions/jobdispatcher')
 
 if (gradle.ext.has('exoplayerIncludeCronetExtension')
         && gradle.ext.exoplayerIncludeCronetExtension) {
