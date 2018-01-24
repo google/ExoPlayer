@@ -66,8 +66,12 @@
     * Fix ID3 context reuse across segment format changes
       ([#3622](https://github.com/google/ExoPlayer/issues/3622)).
 * New Cast extension: Simplifies toggling between local and Cast playbacks.
-* Audio: Support TrueHD passthrough for rechunked samples in Matroska files
-  ([#2147](https://github.com/google/ExoPlayer/issues/2147)).
+* Audio:
+  * Support TrueHD passthrough for rechunked samples in Matroska files
+    ([#2147](https://github.com/google/ExoPlayer/issues/2147)).
+  * Support resampling 24-bit and 32-bit integer to 32-bit float for high
+    resolution output in `DefaultAudioSink`
+    ([#3635](https://github.com/google/ExoPlayer/pull/3635)).
 * Captions: Initial support for PGS subtitles
   ([#3008](https://github.com/google/ExoPlayer/issues/3008)).
 * CacheDataSource: Check periodically if it's possible to read from/write to
