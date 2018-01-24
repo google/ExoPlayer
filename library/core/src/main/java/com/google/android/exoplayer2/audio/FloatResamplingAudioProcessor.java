@@ -15,31 +15,30 @@
  */
 package com.google.android.exoplayer2.audio;
 
-
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
-
+import com.google.android.exoplayer2.util.Assertions;
+import com.google.android.exoplayer2.util.Util;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
 /**
- * An {@link AudioProcessor} that converts audio data to {@link C#ENCODING_PCM_16BIT}.
+ * An {@link AudioProcessor} that converts 24-bit and 32-bit integer PCM audio to 32-bit float PCM
+ * audio.
  */
 /* package */ final class FloatResamplingAudioProcessor implements AudioProcessor {
 
-  private int sampleRateHz;
-  private static final double PCM_INT32_FLOAT = 1.0 / 0x7fffffff;
+  private static final int FLOAT_NAN_AS_INT = Float.floatToIntBits(Float.NaN);
+  private static final double PCM_32_BIT_INT_TO_PCM_32_BIT_FLOAT_FACTOR = 1.0 / 0x7FFFFFFF;
 
+  private int sampleRateHz;
   private int channelCount;
-  @C.PcmEncoding
-  private int sourceEncoding;
+  private @C.PcmEncoding int sourceEncoding;
   private ByteBuffer buffer;
   private ByteBuffer outputBuffer;
   private boolean inputEnded;
 
-  /**
-   * Creates a new audio processor that converts audio data to {@link C#ENCODING_PCM_16BIT}.
-   */
+  /** Creates a new audio processor that converts audio data to {@link C#ENCODING_PCM_FLOAT}. */
   public FloatResamplingAudioProcessor() {
     sampleRateHz = Format.NO_VALUE;
     channelCount = Format.NO_VALUE;
@@ -50,31 +49,35 @@ import java.nio.ByteOrder;
 
   @Override
   public boolean configure(int sampleRateHz, int channelCount, @C.Encoding int encoding)
-   throws AudioProcessor.UnhandledFormatException {
-    if (encoding != C.ENCODING_PCM_24BIT && encoding != C.ENCODING_PCM_32BIT) {
-      throw new AudioProcessor.UnhandledFormatException(sampleRateHz, channelCount, encoding);
+      throws UnhandledFormatException {
+    if (!Util.isEncodingHighResolutionIntegerPcm(encoding)) {
+      throw new UnhandledFormatException(sampleRateHz, channelCount, encoding);
     }
-    if (this.sampleRateHz == sampleRateHz && this.channelCount == channelCount
-     && this.sourceEncoding == encoding) {
+    if (this.sampleRateHz == sampleRateHz
+        && this.channelCount == channelCount
+        && sourceEncoding == encoding) {
       return false;
     }
     this.sampleRateHz = sampleRateHz;
     this.channelCount = channelCount;
-    this.sourceEncoding = encoding;
-
+    sourceEncoding = encoding;
     return true;
   }
 
   @Override
   public boolean isActive() {
-    return sourceEncoding == C.ENCODING_PCM_24BIT || sourceEncoding == C.ENCODING_PCM_32BIT;
+    return Util.isEncodingHighResolutionIntegerPcm(sourceEncoding);
   }
 
   @Override
-  public int getOutputChannelCount() { return channelCount; }
+  public int getOutputChannelCount() {
+    return channelCount;
+  }
 
   @Override
-  public int getOutputEncoding() { return C.ENCODING_PCM_FLOAT; }
+  public int getOutputEncoding() {
+    return C.ENCODING_PCM_FLOAT;
+  }
 
   @Override
   public int getOutputSampleRateHz() {
@@ -83,60 +86,36 @@ import java.nio.ByteOrder;
 
   @Override
   public void queueInput(ByteBuffer inputBuffer) {
-    int offset = inputBuffer.position();
+    Assertions.checkState(isActive());
+
+    boolean isInput32Bit = sourceEncoding == C.ENCODING_PCM_32BIT;
+    int position = inputBuffer.position();
     int limit = inputBuffer.limit();
-    int size = limit - offset;
+    int size = limit - position;
 
-    int resampledSize;
-    switch (sourceEncoding) {
-      case C.ENCODING_PCM_24BIT:
-        resampledSize = (size / 3) * 4;
-        break;
-      case C.ENCODING_PCM_32BIT:
-        resampledSize = size;
-        break;
-      case C.ENCODING_PCM_8BIT:
-      case C.ENCODING_PCM_16BIT:
-      case C.ENCODING_PCM_FLOAT:
-      case C.ENCODING_INVALID:
-      case Format.NO_VALUE:
-      default:
-        // Never happens.
-        throw new IllegalStateException();
-    }
-
+    int resampledSize = isInput32Bit ? size : (size / 3) * 4;
     if (buffer.capacity() < resampledSize) {
       buffer = ByteBuffer.allocateDirect(resampledSize).order(ByteOrder.nativeOrder());
     } else {
       buffer.clear();
     }
-
-    // Samples are little endian.
-    switch (sourceEncoding) {
-      case C.ENCODING_PCM_24BIT:
-        // 24->32 bit resampling.
-        for (int i = offset; i < limit; i += 3) {
-          int val = (inputBuffer.get(i) << 8) & 0x0000ff00 | (inputBuffer.get(i + 1) << 16) & 0x00ff0000 |
-           (inputBuffer.get(i + 2) << 24) & 0xff000000;
-          writePcm32bitFloat(val, buffer);
-        }
-        break;
-      case C.ENCODING_PCM_32BIT:
-        // 32->32 bit conversion.
-        for (int i = offset; i < limit; i += 4) {
-          int val = inputBuffer.get(i) & 0x000000ff | (inputBuffer.get(i) << 8) & 0x0000ff00 |
-           (inputBuffer.get(i + 1) << 16) & 0x00ff0000 | (inputBuffer.get(i + 2) << 24) & 0xff000000;
-          writePcm32bitFloat(val, buffer);
-        }
-        break;
-      case C.ENCODING_PCM_8BIT:
-      case C.ENCODING_PCM_16BIT:
-      case C.ENCODING_PCM_FLOAT:
-      case C.ENCODING_INVALID:
-      case Format.NO_VALUE:
-      default:
-        // Never happens.
-        throw new IllegalStateException();
+    if (isInput32Bit) {
+      for (int i = position; i < limit; i += 4) {
+        int pcm32BitInteger =
+            (inputBuffer.get(i) & 0xFF)
+                | ((inputBuffer.get(i + 1) & 0xFF) << 8)
+                | ((inputBuffer.get(i + 2) & 0xFF) << 16)
+                | ((inputBuffer.get(i + 3) & 0xFF) << 24);
+        writePcm32BitFloat(pcm32BitInteger, buffer);
+      }
+    } else {
+      for (int i = position; i < limit; i += 3) {
+        int pcm32BitInteger =
+            ((inputBuffer.get(i) & 0xFF) << 8)
+                | ((inputBuffer.get(i + 1) & 0xFF) << 16)
+                | ((inputBuffer.get(i + 2) & 0xFF) << 24);
+        writePcm32BitFloat(pcm32BitInteger, buffer);
+      }
     }
 
     inputBuffer.position(inputBuffer.limit());
@@ -178,17 +157,17 @@ import java.nio.ByteOrder;
   }
 
   /**
-   * Converts the provided value into 32-bit float PCM and writes to buffer.
+   * Converts the provided 32-bit integer to a 32-bit float value and writes it to {@code buffer}.
    *
-   * @param val 32-bit int value to convert to 32-bit float [-1.0, 1.0]
+   * @param pcm32BitInt The 32-bit integer value to convert to 32-bit float in [-1.0, 1.0].
    * @param buffer The output buffer.
    */
-  private static void writePcm32bitFloat(int val, ByteBuffer buffer) {
-    float convVal = (float) (PCM_INT32_FLOAT * val);
-    int bits = Float.floatToIntBits(convVal);
-    if (bits == 0x7fc00000)
-      bits = Float.floatToIntBits((float) 0.0);
-    buffer.putInt(bits);
+  private static void writePcm32BitFloat(int pcm32BitInt, ByteBuffer buffer) {
+    float pcm32BitFloat = (float) (PCM_32_BIT_INT_TO_PCM_32_BIT_FLOAT_FACTOR * pcm32BitInt);
+    int floatBits = Float.floatToIntBits(pcm32BitFloat);
+    if (floatBits == FLOAT_NAN_AS_INT) {
+      floatBits = Float.floatToIntBits((float) 0.0);
+    }
+    buffer.putInt(floatBits);
   }
-
 }

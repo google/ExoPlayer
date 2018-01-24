@@ -942,6 +942,16 @@ public final class Util {
   }
 
   /**
+   * Returns whether {@code encoding} is high resolution (> 16-bit) integer PCM.
+   *
+   * @param encoding The encoding of the audio data.
+   * @return Whether the encoding is high resolution integer PCM.
+   */
+  public static boolean isEncodingHighResolutionIntegerPcm(@C.PcmEncoding int encoding) {
+    return encoding == C.ENCODING_PCM_24BIT || encoding == C.ENCODING_PCM_32BIT;
+  }
+
+  /**
    * Returns the frame size for audio with {@code channelCount} channels in the specified encoding.
    *
    * @param pcmEncoding The encoding of the audio data.

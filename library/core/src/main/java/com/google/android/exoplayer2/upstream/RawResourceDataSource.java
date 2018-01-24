@@ -58,6 +58,7 @@ public final class RawResourceDataSource implements DataSource {
     return Uri.parse(RAW_RESOURCE_SCHEME + ":///" + rawResourceId);
   }
 
+  /** The scheme part of a raw resource URI. */
   public static final String RAW_RESOURCE_SCHEME = "rawresource";
 
   private final Resources resources;
