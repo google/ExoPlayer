@@ -70,8 +70,12 @@
   ([#3008](https://github.com/google/ExoPlayer/issues/3008)).
 * CacheDataSource: Check periodically if it's possible to read from/write to
   cache after deciding to bypass cache.
-* IMA extension: Add support for playing non-Extractor content MediaSources in
-  the IMA demo app ([#3676](https://github.com/google/ExoPlayer/issues/3676)).
+* IMA extension:
+    * Work around loadAd not being called beore the LOADED AdEvent arrives
+      ([#3552](https://github.com/google/ExoPlayer/issues/3552)).
+    * Add support for playing non-Extractor content MediaSources in
+      the IMA demo app
+      ([#3676](https://github.com/google/ExoPlayer/issues/3676)).
 * `EventLogger` moved from the demo app into the core library.
 * Fix ANR issue on Huawei P8 Lite
   ([#3724](https://github.com/google/ExoPlayer/issues/3724)).
