@@ -426,7 +426,7 @@ public abstract class SimpleDecoderAudioRenderer extends BaseRenderer implements
     try {
       audioSink.playToEndOfStream();
     } catch (AudioSink.WriteException e) {
-      throw ExoPlaybackException.createForRenderer(drmSession.getError(), getIndex());
+      throw ExoPlaybackException.createForRenderer(e, getIndex());
     }
   }
 
