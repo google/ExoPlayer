@@ -88,8 +88,25 @@ public interface LoadControl {
   boolean retainBackBufferFromKeyframe();
 
   /**
-   * Called by the player to determine whether sufficient media is buffered for playback to be
-   * started or resumed.
+   * Called by the player to determine whether it should continue to load the source.
+   *
+   * @param canStartPlayback Whether the player has the minimum amount of data necessary to start
+   *     playback. If {@code false}, this method must return {@code true} or playback will fail.
+   *     Hence {@code true} should be returned in this case, unless some hard upper limit (e.g. on
+   *     the amount of memory that the control will permit to be allocated) has been exceeded.
+   *     Always true if playback is currently started.
+   * @param bufferedDurationUs The duration of media that's currently buffered.
+   * @param playbackSpeed The current playback speed.
+   * @return Whether the loading should continue.
+   */
+  boolean shouldContinueLoading(
+      boolean canStartPlayback, long bufferedDurationUs, float playbackSpeed);
+
+  /**
+   * Called repeatedly by the player when it's loading the source, has yet to start playback, and
+   * has the minimum amount of data necessary for playback to be started. The value returned
+   * determines whether playback is actually started. The load control may opt to return {@code
+   * false} until some condition has been met (e.g. a certain amount of media is buffered).
    *
    * @param bufferedDurationUs The duration of media that's currently buffered.
    * @param playbackSpeed The current playback speed.
@@ -99,14 +116,4 @@ public interface LoadControl {
    * @return Whether playback should be allowed to start or resume.
    */
   boolean shouldStartPlayback(long bufferedDurationUs, float playbackSpeed, boolean rebuffering);
-
-  /**
-   * Called by the player to determine whether it should continue to load the source.
-   *
-   * @param bufferedDurationUs The duration of media that's currently buffered.
-   * @param playbackSpeed The current playback speed.
-   * @return Whether the loading should continue.
-   */
-  boolean shouldContinueLoading(long bufferedDurationUs, float playbackSpeed);
-
 }
