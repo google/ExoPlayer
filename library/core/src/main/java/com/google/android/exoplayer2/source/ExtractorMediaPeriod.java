@@ -111,6 +111,7 @@ import java.util.Arrays;
 
   private long lastSeekPositionUs;
   private long pendingResetPositionUs;
+  private boolean pendingDeferredRetry;
 
   private int extractedSamplesCountAtStartOfLoad;
   private boolean loadingFinished;
@@ -259,6 +260,7 @@ import java.util.Arrays;
       }
     }
     if (enabledTrackCount == 0) {
+      pendingDeferredRetry = false;
       notifyDiscontinuity = false;
       if (loader.isLoading()) {
         // Discard as much as we can synchronously.
@@ -299,7 +301,7 @@ import java.util.Arrays;
 
   @Override
   public boolean continueLoading(long playbackPositionUs) {
-    if (loadingFinished || (prepared && enabledTrackCount == 0)) {
+    if (loadingFinished || pendingDeferredRetry || (prepared && enabledTrackCount == 0)) {
       return false;
     }
     boolean continuedLoading = loadCondition.open();
@@ -361,6 +363,7 @@ import java.util.Arrays;
       return positionUs;
     }
     // We were unable to seek within the buffer, so need to reset.
+    pendingDeferredRetry = false;
     pendingResetPositionUs = positionUs;
     loadingFinished = false;
     if (loader.isLoading()) {
@@ -404,6 +407,8 @@ import java.util.Arrays;
             formatHolder, buffer, formatRequired, loadingFinished, lastSeekPositionUs);
     if (result == C.RESULT_BUFFER_READ) {
       maybeNotifyTrackFormat(track);
+    } else if (result == C.RESULT_NOTHING_READ) {
+      maybeStartDeferredRetry(track);
     }
     return result;
   }
@@ -424,6 +429,8 @@ import java.util.Arrays;
     }
     if (skipCount > 0) {
       maybeNotifyTrackFormat(track);
+    } else {
+      maybeStartDeferredRetry(track);
     }
     return skipCount;
   }
@@ -439,6 +446,23 @@ import java.util.Arrays;
           lastSeekPositionUs);
       trackFormatNotificationSent[track] = true;
     }
+  }
+
+  private void maybeStartDeferredRetry(int track) {
+    if (!pendingDeferredRetry
+        || !trackIsAudioVideoFlags[track]
+        || sampleQueues[track].hasNextSample()) {
+      return;
+    }
+    pendingResetPositionUs = 0;
+    pendingDeferredRetry = false;
+    notifyDiscontinuity = true;
+    lastSeekPositionUs = 0;
+    extractedSamplesCountAtStartOfLoad = 0;
+    for (SampleQueue sampleQueue : sampleQueues) {
+      sampleQueue.reset();
+    }
+    callback.onContinueLoadingRequested(this);
   }
 
   private boolean suppressRead() {
@@ -523,9 +547,9 @@ import java.util.Arrays;
     }
     int extractedSamplesCount = getExtractedSamplesCount();
     boolean madeProgress = extractedSamplesCount > extractedSamplesCountAtStartOfLoad;
-    configureRetry(loadable); // May reset the sample queues.
-    extractedSamplesCountAtStartOfLoad = getExtractedSamplesCount();
-    return madeProgress ? Loader.RETRY_RESET_ERROR_COUNT : Loader.RETRY;
+    return configureRetry(loadable, extractedSamplesCount)
+        ? (madeProgress ? Loader.RETRY_RESET_ERROR_COUNT : Loader.RETRY)
+        : Loader.DONT_RETRY;
   }
 
   // ExtractorOutput implementation. Called by the loading thread.
@@ -636,23 +660,47 @@ import java.util.Arrays;
         elapsedRealtimeMs);
   }
 
-  private void configureRetry(ExtractingLoadable loadable) {
+  /**
+   * Called to configure a retry when a load error occurs.
+   *
+   * @param loadable The current loadable for which the error was encountered.
+   * @param currentExtractedSampleCount The current number of samples that have been extracted into
+   *     the sample queues.
+   * @return Whether the loader should retry with the current loadable. False indicates a deferred
+   *     retry.
+   */
+  private boolean configureRetry(ExtractingLoadable loadable, int currentExtractedSampleCount) {
     if (length != C.LENGTH_UNSET
         || (seekMap != null && seekMap.getDurationUs() != C.TIME_UNSET)) {
       // We're playing an on-demand stream. Resume the current loadable, which will
       // request data starting from the point it left off.
+      extractedSamplesCountAtStartOfLoad = currentExtractedSampleCount;
+      return true;
+    } else if (prepared && !suppressRead()) {
+      // We're playing a stream of unknown length and duration. Assume it's live, and therefore that
+      // the data at the uri is a continuously shifting window of the latest available media. For
+      // this case there's no way to continue loading from where a previous load finished, so it's
+      // necessary to load from the start whenever commencing a new load. Deferring the retry until
+      // we run out of buffered data makes for a much better user experience. See:
+      // https://github.com/google/ExoPlayer/issues/1606.
+      // Note that the suppressRead() check means only a single deferred retry can occur without
+      // progress being made. Any subsequent failures without progress will go through the else
+      // block below.
+      pendingDeferredRetry = true;
+      return false;
     } else {
-      // We're playing a stream of unknown length and duration. Assume it's live, and
-      // therefore that the data at the uri is a continuously shifting window of the latest
-      // available media. For this case there's no way to continue loading from where a
-      // previous load finished, so it's necessary to load from the start whenever commencing
-      // a new load.
-      lastSeekPositionUs = 0;
+      // This is the same case as above, except in this case there's no value in deferring the retry
+      // because there's no buffered data to be read. This case also covers an on-demand stream with
+      // unknown length that has yet to be prepared. This case cannot be disambiguated from the live
+      // stream case, so we have no option but to load from the start.
       notifyDiscontinuity = prepared;
+      lastSeekPositionUs = 0;
+      extractedSamplesCountAtStartOfLoad = 0;
       for (SampleQueue sampleQueue : sampleQueues) {
         sampleQueue.reset();
       }
       loadable.setLoadPosition(0, 0);
+      return true;
     }
   }
 
