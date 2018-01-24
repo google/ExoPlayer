@@ -38,6 +38,8 @@
     sub-streams, by allowing injection of custom `CompositeSequenceableLoader`
     factories through `DashMediaSource.Factory`, `HlsMediaSource.Factory`,
     `SsMediaSource.Factory`, and `MergingMediaSource`.
+  * Play out existing buffer before retrying for progressive live streams
+    ([#1606](https://github.com/google/ExoPlayer/issues/1606)).
 * Add `ExoPlayer.setSeekParameters` for controlling how seek operations are
   performed. The `SeekParameters` class contains defaults for exact seeking and
   seeking to the closest sync points before, either side or after specified seek
