@@ -362,6 +362,10 @@ public class DefaultDrmSessionManager<T extends ExoMediaCrypto> implements DrmSe
 
   @Override
   public boolean canAcquireSession(@NonNull DrmInitData drmInitData) {
+    if (offlineLicenseKeySetId != null) {
+      // An offline license can be restored so a session can always be acquired.
+      return true;
+    }
     SchemeData schemeData = getSchemeData(drmInitData, uuid, true);
     if (schemeData == null) {
       if (drmInitData.schemeDataCount == 1 && drmInitData.get(0).matches(C.COMMON_PSSH_UUID)) {
