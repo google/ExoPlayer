@@ -211,6 +211,8 @@ public final class ImaAdsLoader extends Player.DefaultEventListener implements A
 
   // Fields tracking IMA's state.
 
+  /** The expected ad group index that IMA should load next. */
+  private int expectedAdGroupIndex;
   /**
    * The index of the current ad group that IMA is loading.
    */
@@ -373,7 +375,7 @@ public final class ImaAdsLoader extends Player.DefaultEventListener implements A
             MimeTypes.VIDEO_MP4, MimeTypes.VIDEO_WEBM, MimeTypes.VIDEO_H263, MimeTypes.VIDEO_MPEG,
             MimeTypes.AUDIO_MP4, MimeTypes.AUDIO_MPEG));
       } else if (contentType == C.TYPE_SS) {
-        // IMA does not support SmoothStreaming ad media.
+        // IMA does not support Smooth Streaming ad media.
       }
     }
     this.supportedMimeTypes = Collections.unmodifiableList(supportedMimeTypes);
@@ -451,14 +453,8 @@ public final class ImaAdsLoader extends Player.DefaultEventListener implements A
   @Override
   public void onAdEvent(AdEvent adEvent) {
     AdEventType adEventType = adEvent.getType();
-    boolean isLogAdEvent = adEventType == AdEventType.LOG;
-    if (DEBUG || isLogAdEvent) {
-      Log.w(TAG, "onAdEvent: " + adEventType);
-      if (isLogAdEvent) {
-        for (Map.Entry<String, String> entry : adEvent.getAdData().entrySet()) {
-          Log.w(TAG, "  " + entry.getKey() + ": " + entry.getValue());
-        }
-      }
+    if (DEBUG) {
+      Log.d(TAG, "onAdEvent: " + adEventType);
     }
     if (adsManager == null) {
       Log.w(TAG, "Dropping ad event after release: " + adEvent);
@@ -480,6 +476,14 @@ public final class ImaAdsLoader extends Player.DefaultEventListener implements A
         }
         adPlaybackState.setAdCount(adGroupIndex, adCount);
         updateAdPlaybackState();
+        if (adGroupIndex != expectedAdGroupIndex) {
+          Log.w(
+              TAG,
+              "Expected ad group index "
+                  + expectedAdGroupIndex
+                  + ", actual ad group index "
+                  + adGroupIndex);
+        }
         break;
       case CONTENT_PAUSE_REQUESTED:
         // After CONTENT_PAUSE_REQUESTED, IMA will playAd/pauseAd/stopAd to show one or more ads
@@ -506,8 +510,11 @@ public final class ImaAdsLoader extends Player.DefaultEventListener implements A
         imaPausedContent = false;
         resumeContentInternal();
         break;
+      case LOG:
+        Map<String, String> adData = adEvent.getAdData();
+        Log.i(TAG, "Log AdEvent: " + adData);
+        break;
       case ALL_ADS_COMPLETED:
-        // Do nothing. The ads manager will be released when the source is released.
       default:
         break;
     }
@@ -571,10 +578,23 @@ public final class ImaAdsLoader extends Player.DefaultEventListener implements A
 
   @Override
   public void loadAd(String adUriString) {
+    if (adGroupIndex == C.INDEX_UNSET) {
+      Log.w(
+          TAG,
+          "Unexpected loadAd without LOADED event; assuming ad group index is actually "
+              + expectedAdGroupIndex);
+      adGroupIndex = expectedAdGroupIndex;
+      adsManager.start();
+    }
     if (DEBUG) {
       Log.d(TAG, "loadAd in ad group " + adGroupIndex);
     }
     adPlaybackState.addAdUri(adGroupIndex, Uri.parse(adUriString));
+    if (adPlaybackState.adsLoadedCounts[adGroupIndex] == adPlaybackState.adCounts[adGroupIndex]) {
+      // Keep track of the expected ad group index to use as a fallback if the LOADED event is
+      // unexpectedly not triggered.
+      expectedAdGroupIndex++;
+    }
     updateAdPlaybackState();
   }
 
@@ -735,7 +755,9 @@ public final class ImaAdsLoader extends Player.DefaultEventListener implements A
       } else {
         long positionMs = player.getCurrentPosition();
         timeline.getPeriod(0, period);
-        if (period.getAdGroupIndexForPositionUs(C.msToUs(positionMs)) != C.INDEX_UNSET) {
+        int newAdGroupIndex = period.getAdGroupIndexForPositionUs(C.msToUs(positionMs));
+        if (newAdGroupIndex != C.INDEX_UNSET) {
+          expectedAdGroupIndex = newAdGroupIndex;
           sentPendingContentPositionMs = false;
           pendingContentPositionMs = positionMs;
         }
@@ -780,6 +802,7 @@ public final class ImaAdsLoader extends Player.DefaultEventListener implements A
       // We're removing one or more ads, which means that the earliest ad (if any) will be a
       // midroll/postroll. Midroll pod indices start at 1.
       podIndexOffset = adGroupIndexForPosition - 1;
+      expectedAdGroupIndex = adGroupIndexForPosition;
     }
 
     // Start ad playback.
@@ -891,22 +914,6 @@ public final class ImaAdsLoader extends Player.DefaultEventListener implements A
     }
   }
 
-  private static long[] getAdGroupTimesUs(List<Float> cuePoints) {
-    if (cuePoints.isEmpty()) {
-      // If no cue points are specified, there is a preroll ad.
-      return new long[] {0};
-    }
-
-    int count = cuePoints.size();
-    long[] adGroupTimesUs = new long[count];
-    for (int i = 0; i < count; i++) {
-      double cuePoint = cuePoints.get(i);
-      adGroupTimesUs[i] =
-          cuePoint == -1.0 ? C.TIME_END_OF_SOURCE : (long) (C.MICROS_PER_SECOND * cuePoint);
-    }
-    return adGroupTimesUs;
-  }
-
   /**
    * Returns the index of the ad group that should be played before playing the content at {@code
    * playbackPositionUs} when starting playback for the first time. This is the latest ad group at
@@ -922,5 +929,21 @@ public final class ImaAdsLoader extends Player.DefaultEventListener implements A
       }
     }
     return adGroupTimesUs.length == 0 ? C.INDEX_UNSET : (adGroupTimesUs.length - 1);
+  }
+
+  private static long[] getAdGroupTimesUs(List<Float> cuePoints) {
+    if (cuePoints.isEmpty()) {
+      // If no cue points are specified, there is a preroll ad.
+      return new long[] {0};
+    }
+
+    int count = cuePoints.size();
+    long[] adGroupTimesUs = new long[count];
+    for (int i = 0; i < count; i++) {
+      double cuePoint = cuePoints.get(i);
+      adGroupTimesUs[i] =
+          cuePoint == -1.0 ? C.TIME_END_OF_SOURCE : (long) (C.MICROS_PER_SECOND * cuePoint);
+    }
+    return adGroupTimesUs;
   }
 }
