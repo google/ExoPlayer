@@ -53,6 +53,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.MissingResourceException;
 import java.util.TimeZone;
+import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
@@ -1041,6 +1042,30 @@ public final class Util {
       case C.USAGE_UNKNOWN:
       default:
         return C.STREAM_TYPE_DEFAULT;
+    }
+  }
+
+  /**
+   * Derives a DRM {@link UUID} from {@code drmScheme}.
+   *
+   * @param drmScheme A UUID string, or {@code "widevine"}, {@code "playready"} or {@code
+   *     "clearkey"}.
+   * @return The derived {@link UUID}, or {@code null} if one could not be derived.
+   */
+  public static UUID getDrmUuid(String drmScheme) {
+    switch (Util.toLowerInvariant(drmScheme)) {
+      case "widevine":
+        return C.WIDEVINE_UUID;
+      case "playready":
+        return C.PLAYREADY_UUID;
+      case "clearkey":
+        return C.CLEARKEY_UUID;
+      default:
+        try {
+          return UUID.fromString(drmScheme);
+        } catch (RuntimeException e) {
+          return null;
+        }
     }
   }
 

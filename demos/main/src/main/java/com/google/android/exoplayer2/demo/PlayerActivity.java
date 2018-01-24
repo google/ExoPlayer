@@ -275,9 +275,14 @@ public class PlayerActivity extends Activity
           try {
             String drmSchemeExtra = intent.hasExtra(DRM_SCHEME_EXTRA) ? DRM_SCHEME_EXTRA
                 : DRM_SCHEME_UUID_EXTRA;
-            UUID drmSchemeUuid = DemoUtil.getDrmUuid(intent.getStringExtra(drmSchemeExtra));
-            drmSessionManager = buildDrmSessionManagerV18(drmSchemeUuid, drmLicenseUrl,
-                keyRequestPropertiesArray, multiSession);
+            UUID drmSchemeUuid = Util.getDrmUuid(intent.getStringExtra(drmSchemeExtra));
+            if (drmSchemeUuid == null) {
+              errorStringId = R.string.error_drm_unsupported_scheme;
+            } else {
+              drmSessionManager =
+                  buildDrmSessionManagerV18(
+                      drmSchemeUuid, drmLicenseUrl, keyRequestPropertiesArray, multiSession);
+            }
           } catch (UnsupportedDrmException e) {
             errorStringId = e.reason == UnsupportedDrmException.REASON_UNSUPPORTED_SCHEME
                 ? R.string.error_drm_unsupported_scheme : R.string.error_drm_unknown;

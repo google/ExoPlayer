@@ -33,7 +33,6 @@ import android.widget.ExpandableListView.OnChildClickListener;
 import android.widget.TextView;
 import android.widget.Toast;
 import com.google.android.exoplayer2.ParserException;
-import com.google.android.exoplayer2.drm.UnsupportedDrmException;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DataSourceInputStream;
 import com.google.android.exoplayer2.upstream.DataSpec;
@@ -202,11 +201,9 @@ public class SampleChooserActivity extends Activity {
             break;
           case "drm_scheme":
             Assertions.checkState(!insidePlaylist, "Invalid attribute on nested item: drm_scheme");
-            try {
-              drmUuid = DemoUtil.getDrmUuid(reader.nextString());
-            } catch (UnsupportedDrmException e) {
-              throw new ParserException(e);
-            }
+            String drmScheme = reader.nextString();
+            drmUuid = Util.getDrmUuid(drmScheme);
+            Assertions.checkState(drmUuid != null, "Invalid drm_scheme: " + drmScheme);
             break;
           case "drm_license_url":
             Assertions.checkState(!insidePlaylist,
