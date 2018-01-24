@@ -46,7 +46,9 @@
   positions.
   * Note: `SeekParameters` are not currently supported when playing HLS streams.
 * DRM: Optimistically attempt playback of DRM protected content that does not
-  declare scheme specific init data
+  declare scheme specific init data in the manifest. If playback of clear
+  samples without keys is allowed, delay DRM session error propagation until
+  keys are actually needed
   ([#3630](https://github.com/google/ExoPlayer/issues/3630)).
 * DASH:
   * Support in-band Emsg events targeting player with scheme id

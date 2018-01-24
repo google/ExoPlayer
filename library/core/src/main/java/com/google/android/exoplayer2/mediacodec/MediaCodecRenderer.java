@@ -338,13 +338,16 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
       if (mediaCrypto == null) {
         DrmSessionException drmError = drmSession.getError();
         if (drmError != null) {
-          throw ExoPlaybackException.createForRenderer(drmError, getIndex());
+          // Continue for now. We may be able to avoid failure if the session recovers, or if a new
+          // input format causes the session to be replaced before it's used.
+        } else {
+          // The drm session isn't open yet.
+          return;
         }
-        // The drm session isn't open yet.
-        return;
+      } else {
+        wrappedMediaCrypto = mediaCrypto.getWrappedMediaCrypto();
+        drmSessionRequiresSecureDecoder = mediaCrypto.requiresSecureDecoderComponent(mimeType);
       }
-      wrappedMediaCrypto = mediaCrypto.getWrappedMediaCrypto();
-      drmSessionRequiresSecureDecoder = mediaCrypto.requiresSecureDecoderComponent(mimeType);
     }
 
     if (codecInfo == null) {
