@@ -711,18 +711,6 @@ public abstract class Timeline {
   }
 
   /**
-   * Populates a {@link Period} with data for the period at the specified index. Does not populate
-   * {@link Period#id} and {@link Period#uid}.
-   *
-   * @param periodIndex The index of the period.
-   * @param period The {@link Period} to populate. Must not be null.
-   * @return The populated {@link Period}, for convenience.
-   */
-  public final Period getPeriod(int periodIndex, Period period) {
-    return getPeriod(periodIndex, period, false);
-  }
-
-  /**
    * Calls {@link #getPeriodPosition(Window, Period, int, long, long)} with a zero default position
    * projection.
    */
@@ -764,6 +752,18 @@ public abstract class Timeline {
       periodDurationUs = getPeriod(++periodIndex, period).getDurationUs();
     }
     return Pair.create(periodIndex, periodPositionUs);
+  }
+
+  /**
+   * Populates a {@link Period} with data for the period at the specified index. Does not populate
+   * {@link Period#id} and {@link Period#uid}.
+   *
+   * @param periodIndex The index of the period.
+   * @param period The {@link Period} to populate. Must not be null.
+   * @return The populated {@link Period}, for convenience.
+   */
+  public final Period getPeriod(int periodIndex, Period period) {
+    return getPeriod(periodIndex, period, false);
   }
 
   /**
