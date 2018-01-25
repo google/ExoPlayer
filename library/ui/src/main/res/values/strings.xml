@@ -26,4 +26,8 @@
   <string name="exo_controls_repeat_all_description">Repeat all</string>
   <string name="exo_controls_shuffle_description">Shuffle</string>
   <string name="exo_controls_fullscreen_description">Fullscreen mode</string>
+  <string name="exo_download_queued">Download queued</string>
+  <string name="exo_downloading">Downloading</string>
+  <string name="exo_download_completed">Download completed</string>
+  <string name="exo_download_failed">Download failed</string>
 </resources>
