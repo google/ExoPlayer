@@ -472,6 +472,16 @@ public final class DownloadManager {
     /** The task failed. */
     public static final int STATE_ERROR = 6;
 
+    /** Returns whether the task is running. */
+    public static boolean isRunning(int state) {
+      return state == STATE_STARTED || state == STATE_STOPPING || state == STATE_CANCELING;
+    }
+
+    /** Returns whether the task is finished. */
+    public static boolean isFinished(int state) {
+      return state == STATE_ERROR || state == STATE_ENDED || state == STATE_CANCELED;
+    }
+
     /** Returns the state string for the given state value. */
     public static String getStateString(@State int state) {
       switch (state) {
@@ -530,7 +540,12 @@ public final class DownloadManager {
 
     /** Returns whether the task is finished. */
     public boolean isFinished() {
-      return state == STATE_ERROR || state == STATE_ENDED || state == STATE_CANCELED;
+      return isFinished(state);
+    }
+
+    /** Returns whether the task is running. */
+    public boolean isRunning() {
+      return isRunning(state);
     }
   }
 
@@ -559,11 +574,6 @@ public final class DownloadManager {
           id, downloadAction, currentState, getDownloadPercentage(), getDownloadedBytes(), error);
     }
 
-    /** Returns the {@link DownloadAction}. */
-    public DownloadAction getDownloadAction() {
-      return downloadAction;
-    }
-
     /** Returns the state of the task. */
     public @State int getState() {
       return currentState;
@@ -571,15 +581,12 @@ public final class DownloadManager {
 
     /** Returns whether the task is finished. */
     public boolean isFinished() {
-      return currentState == STATE_ERROR || currentState == STATE_ENDED
-          || currentState == STATE_CANCELED;
+      return DownloadState.isFinished(currentState);
     }
 
     /** Returns whether the task is running. */
     public boolean isRunning() {
-      return currentState == STATE_STARTED
-          || currentState == STATE_STOPPING
-          || currentState == STATE_CANCELING;
+      return DownloadState.isRunning(currentState);
     }
 
     /**
