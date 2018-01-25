@@ -21,6 +21,7 @@
     <enum name="fixed_width" value="1"/>
     <enum name="fixed_height" value="2"/>
     <enum name="fill" value="3"/>
+    <enum name="zoom" value="4"/>
   </attr>
 
   <!-- Must be kept in sync with SimpleExoPlayerView -->
