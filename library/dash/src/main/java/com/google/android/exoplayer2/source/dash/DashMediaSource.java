@@ -266,6 +266,8 @@ public final class DashMediaSource implements MediaSource {
 
   private static final String TAG = "DashMediaSource";
 
+  private final Uri initialManifestUri;
+  private final DashManifest initialManifest;
   private final boolean sideloadedManifest;
   private final DataSource.Factory manifestDataSourceFactory;
   private final DashChunkSource.Factory chunkSourceFactory;
@@ -280,11 +282,12 @@ public final class DashMediaSource implements MediaSource {
   private final Runnable refreshManifestRunnable;
   private final Runnable simulateManifestRefreshRunnable;
   private final PlayerEmsgCallback playerEmsgCallback;
+  private final LoaderErrorThrower manifestLoadErrorThrower;
 
   private Listener sourceListener;
   private DataSource dataSource;
   private Loader loader;
-  private LoaderErrorThrower manifestLoadErrorThrower;
+
   private IOException manifestFatalError;
   private Handler handler;
 
@@ -440,6 +443,8 @@ public final class DashMediaSource implements MediaSource {
       long livePresentationDelayMs,
       Handler eventHandler,
       MediaSourceEventListener eventListener) {
+    this.initialManifestUri = manifestUri;
+    this.initialManifest = manifest;
     this.manifest = manifest;
     this.manifestUri = manifestUri;
     this.manifestDataSourceFactory = manifestDataSourceFactory;
@@ -459,8 +464,10 @@ public final class DashMediaSource implements MediaSource {
       manifestCallback = null;
       refreshManifestRunnable = null;
       simulateManifestRefreshRunnable = null;
+      manifestLoadErrorThrower = new LoaderErrorThrower.Dummy();
     } else {
       manifestCallback = new ManifestCallback();
+      manifestLoadErrorThrower = new ManifestLoadErrorThrower();
       refreshManifestRunnable = new Runnable() {
         @Override
         public void run() {
@@ -491,15 +498,12 @@ public final class DashMediaSource implements MediaSource {
 
   @Override
   public void prepareSource(ExoPlayer player, boolean isTopLevelSource, Listener listener) {
-    Assertions.checkState(sourceListener == null, MEDIA_SOURCE_REUSED_ERROR_MESSAGE);
     sourceListener = listener;
     if (sideloadedManifest) {
-      manifestLoadErrorThrower = new LoaderErrorThrower.Dummy();
       processManifest(false);
     } else {
       dataSource = manifestDataSourceFactory.createDataSource();
       loader = new Loader("Loader:DashMediaSource");
-      manifestLoadErrorThrower = new ManifestLoadErrorThrower();
       handler = new Handler();
       startLoadingManifest();
     }
@@ -543,19 +547,24 @@ public final class DashMediaSource implements MediaSource {
   public void releaseSource() {
     manifestLoadPending = false;
     dataSource = null;
-    manifestLoadErrorThrower = null;
     if (loader != null) {
       loader.release();
       loader = null;
     }
     manifestLoadStartTimestampMs = 0;
     manifestLoadEndTimestampMs = 0;
-    manifest = null;
+    manifest = initialManifest;
+    manifestUri = initialManifestUri;
+    manifestFatalError = null;
     if (handler != null) {
       handler.removeCallbacksAndMessages(null);
       handler = null;
     }
     elapsedRealtimeOffsetMs = 0;
+    staleManifestReloadAttempt = 0;
+    expiredManifestPublishTimeUs = C.TIME_UNSET;
+    dynamicMediaPresentationEnded = false;
+    firstPeriodId = 0;
     periodsById.clear();
   }
 
