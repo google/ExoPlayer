@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.source;
 
+import android.support.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.Player;
@@ -22,21 +23,20 @@ import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.source.ShuffleOrder.UnshuffledShuffleOrder;
 import com.google.android.exoplayer2.upstream.Allocator;
 import com.google.android.exoplayer2.util.Assertions;
-import java.io.IOException;
 
 /**
  * Loops a {@link MediaSource} a specified number of times.
- * <p>
- * Note: To loop a {@link MediaSource} indefinitely, it is usually better to use
- * {@link ExoPlayer#setRepeatMode(int)}.
+ *
+ * <p>Note: To loop a {@link MediaSource} indefinitely, it is usually better to use {@link
+ * ExoPlayer#setRepeatMode(int)}.
  */
-public final class LoopingMediaSource implements MediaSource {
+public final class LoopingMediaSource extends CompositeMediaSource<Void> {
 
   private final MediaSource childSource;
   private final int loopCount;
 
   private int childPeriodCount;
-  private boolean wasPrepareSourceCalled;
+  private Listener listener;
 
   /**
    * Loops the provided source indefinitely. Note that it is usually better to use
@@ -62,22 +62,10 @@ public final class LoopingMediaSource implements MediaSource {
 
   @Override
   public void prepareSource(ExoPlayer player, boolean isTopLevelSource, final Listener listener) {
-    Assertions.checkState(!wasPrepareSourceCalled, MEDIA_SOURCE_REUSED_ERROR_MESSAGE);
-    wasPrepareSourceCalled = true;
-    childSource.prepareSource(player, false, new Listener() {
-      @Override
-      public void onSourceInfoRefreshed(MediaSource source, Timeline timeline, Object manifest) {
-        childPeriodCount = timeline.getPeriodCount();
-        Timeline loopingTimeline = loopCount != Integer.MAX_VALUE
-            ? new LoopingTimeline(timeline, loopCount) : new InfinitelyLoopingTimeline(timeline);
-        listener.onSourceInfoRefreshed(LoopingMediaSource.this, loopingTimeline, manifest);
-      }
-    });
-  }
-
-  @Override
-  public void maybeThrowSourceInfoRefreshError() throws IOException {
-    childSource.maybeThrowSourceInfoRefreshError();
+    super.prepareSource(player, isTopLevelSource, listener);
+    Assertions.checkState(this.listener == null, MEDIA_SOURCE_REUSED_ERROR_MESSAGE);
+    this.listener = listener;
+    prepareChildSource(/* id= */ null, childSource);
   }
 
   @Override
@@ -94,8 +82,14 @@ public final class LoopingMediaSource implements MediaSource {
   }
 
   @Override
-  public void releaseSource() {
-    childSource.releaseSource();
+  protected void onChildSourceInfoRefreshed(
+      Void id, MediaSource mediaSource, Timeline timeline, @Nullable Object manifest) {
+    childPeriodCount = timeline.getPeriodCount();
+    Timeline loopingTimeline =
+        loopCount != Integer.MAX_VALUE
+            ? new LoopingTimeline(timeline, loopCount)
+            : new InfinitelyLoopingTimeline(timeline);
+    listener.onSourceInfoRefreshed(this, loopingTimeline, manifest);
   }
 
   private static final class LoopingTimeline extends AbstractConcatenatedTimeline {

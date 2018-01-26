@@ -64,7 +64,7 @@ public class MergingMediaSourceTest extends TestCase {
    * forwards the first of the wrapped timelines.
    */
   private static void testMergingMediaSourcePrepare(Timeline... timelines) throws IOException {
-    MediaSource[] mediaSources = new MediaSource[timelines.length];
+    FakeMediaSource[] mediaSources = new FakeMediaSource[timelines.length];
     for (int i = 0; i < timelines.length; i++) {
       mediaSources[i] = new FakeMediaSource(timelines[i], null);
     }
@@ -74,6 +74,10 @@ public class MergingMediaSourceTest extends TestCase {
       Timeline timeline = testRunner.prepareSource();
       // The merged timeline should always be the one from the first child.
       assertThat(timeline).isEqualTo(timelines[0]);
+      testRunner.releaseSource();
+      for (int i = 0; i < mediaSources.length; i++) {
+        mediaSources[i].assertReleased();
+      }
     } finally {
       testRunner.release();
     }

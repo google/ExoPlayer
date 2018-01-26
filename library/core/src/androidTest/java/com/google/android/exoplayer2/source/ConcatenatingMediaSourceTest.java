@@ -243,7 +243,7 @@ public final class ConcatenatingMediaSourceTest extends TestCase {
    */
   private static Timeline getConcatenatedTimeline(boolean isRepeatOneAtomic,
       Timeline... timelines) throws IOException {
-    MediaSource[] mediaSources = new MediaSource[timelines.length];
+    FakeMediaSource[] mediaSources = new FakeMediaSource[timelines.length];
     for (int i = 0; i < timelines.length; i++) {
       mediaSources[i] = new FakeMediaSource(timelines[i], null);
     }
@@ -251,7 +251,12 @@ public final class ConcatenatingMediaSourceTest extends TestCase {
         new FakeShuffleOrder(mediaSources.length), mediaSources);
     MediaSourceTestRunner testRunner = new MediaSourceTestRunner(mediaSource, null);
     try {
-      return testRunner.prepareSource();
+      Timeline timeline = testRunner.prepareSource();
+      testRunner.releaseSource();
+      for (int i = 0; i < mediaSources.length; i++) {
+        mediaSources[i].assertReleased();
+      }
+      return timeline;
     } finally {
       testRunner.release();
     }
