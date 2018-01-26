@@ -266,8 +266,6 @@ public final class DashMediaSource implements MediaSource {
 
   private static final String TAG = "DashMediaSource";
 
-  private final Uri initialManifestUri;
-  private final DashManifest initialManifest;
   private final boolean sideloadedManifest;
   private final DataSource.Factory manifestDataSourceFactory;
   private final DashChunkSource.Factory chunkSourceFactory;
@@ -291,6 +289,7 @@ public final class DashMediaSource implements MediaSource {
   private IOException manifestFatalError;
   private Handler handler;
 
+  private Uri initialManifestUri;
   private Uri manifestUri;
   private DashManifest manifest;
   private boolean manifestLoadPending;
@@ -444,7 +443,6 @@ public final class DashMediaSource implements MediaSource {
       Handler eventHandler,
       MediaSourceEventListener eventListener) {
     this.initialManifestUri = manifestUri;
-    this.initialManifest = manifest;
     this.manifest = manifest;
     this.manifestUri = manifestUri;
     this.manifestDataSourceFactory = manifestDataSourceFactory;
@@ -491,6 +489,7 @@ public final class DashMediaSource implements MediaSource {
   public void replaceManifestUri(Uri manifestUri) {
     synchronized (manifestUriLock) {
       this.manifestUri = manifestUri;
+      this.initialManifestUri = manifestUri;
     }
   }
 
@@ -553,7 +552,7 @@ public final class DashMediaSource implements MediaSource {
     }
     manifestLoadStartTimestampMs = 0;
     manifestLoadEndTimestampMs = 0;
-    manifest = initialManifest;
+    manifest = sideloadedManifest ? manifest : null;
     manifestUri = initialManifestUri;
     manifestFatalError = null;
     if (handler != null) {
