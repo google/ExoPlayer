@@ -253,7 +253,7 @@ import java.util.List;
     updateLiveEdgeTimeUs(mediaPlaylist);
 
     // Select the chunk.
-    int chunkMediaSequence;
+    long chunkMediaSequence;
     if (previous == null || switchingVariant) {
       long targetPositionUs = (previous == null || independentSegments) ? loadPositionUs
           : previous.startTimeUs;
@@ -281,7 +281,7 @@ import java.util.List;
       return;
     }
 
-    int chunkIndex = chunkMediaSequence - mediaPlaylist.mediaSequence;
+    int chunkIndex = (int) (chunkMediaSequence - mediaPlaylist.mediaSequence);
     if (chunkIndex >= mediaPlaylist.segments.size()) {
       if (mediaPlaylist.hasEndTag) {
         out.endOfStream = true;

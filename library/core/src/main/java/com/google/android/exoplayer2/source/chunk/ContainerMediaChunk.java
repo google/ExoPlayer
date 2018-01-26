@@ -64,7 +64,7 @@ public class ContainerMediaChunk extends BaseMediaChunk {
   }
 
   @Override
-  public int getNextChunkIndex() {
+  public long getNextChunkIndex() {
     return chunkIndex + chunkCount;
   }
 

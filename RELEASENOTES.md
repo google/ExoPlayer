@@ -67,6 +67,8 @@
       ([#3653](https://github.com/google/ExoPlayer/issues/3653)).
     * Fix ID3 context reuse across segment format changes
       ([#3622](https://github.com/google/ExoPlayer/issues/3622)).
+    * Use long for media sequence numbers
+      ([#3747](https://github.com/google/ExoPlayer/issues/3747))
 * New Cast extension: Simplifies toggling between local and Cast playbacks.
 * Audio:
   * Support TrueHD passthrough for rechunked samples in Matroska files

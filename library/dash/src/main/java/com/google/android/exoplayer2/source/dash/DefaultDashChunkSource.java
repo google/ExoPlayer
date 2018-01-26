@@ -311,7 +311,7 @@ public class DefaultDashChunkSource implements DashChunkSource {
       segmentNum = Util.constrainValue(representationHolder.getSegmentNum(loadPositionUs),
           firstAvailableSegmentNum, lastAvailableSegmentNum);
     } else {
-      segmentNum = previous.getNextChunkIndex();
+      segmentNum = (int) previous.getNextChunkIndex();
       if (segmentNum < firstAvailableSegmentNum) {
         // This is before the first chunk in the current manifest.
         fatalError = new BehindLiveWindowException();

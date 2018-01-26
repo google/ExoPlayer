@@ -30,7 +30,6 @@ import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DataSpec;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.Util;
-
 import java.io.IOException;
 import java.util.List;
 
@@ -100,8 +99,10 @@ public final class FakeChunkSource implements ChunkSource {
       ChunkHolder out) {
     long bufferedDurationUs = loadPositionUs - playbackPositionUs;
     trackSelection.updateSelectedTrack(playbackPositionUs, bufferedDurationUs, C.TIME_UNSET);
-    int chunkIndex = previous == null ? dataSet.getChunkIndexByPosition(playbackPositionUs)
-        : previous.getNextChunkIndex();
+    int chunkIndex =
+        previous == null
+            ? dataSet.getChunkIndexByPosition(playbackPositionUs)
+            : (int) previous.getNextChunkIndex();
     if (chunkIndex >= dataSet.getChunkCount()) {
       out.endOfStream = true;
     } else {

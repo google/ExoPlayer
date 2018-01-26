@@ -83,8 +83,8 @@ import java.util.concurrent.atomic.AtomicInteger;
   private volatile boolean loadCompleted;
 
   /**
-   * @param extractorFactory A {@link HlsExtractorFactory} from which the HLS media chunk
-   *     extractor is obtained.
+   * @param extractorFactory A {@link HlsExtractorFactory} from which the HLS media chunk extractor
+   *     is obtained.
    * @param dataSource The source from which the data should be loaded.
    * @param dataSpec Defines the data to be loaded.
    * @param initDataSpec Defines the initialization data to be fed to new extractors. May be null.
@@ -95,7 +95,7 @@ import java.util.concurrent.atomic.AtomicInteger;
    * @param trackSelectionData See {@link #trackSelectionData}.
    * @param startTimeUs The start time of the chunk in microseconds.
    * @param endTimeUs The end time of the chunk in microseconds.
-   * @param chunkIndex The media sequence number of the chunk.
+   * @param chunkMediaSequence The media sequence number of the chunk.
    * @param discontinuitySequenceNumber The discontinuity sequence number of the chunk.
    * @param isMasterTimestampSource True if the chunk can initialize the timestamp adjuster.
    * @param timestampAdjuster Adjuster corresponding to the provided discontinuity sequence number.
@@ -106,15 +106,34 @@ import java.util.concurrent.atomic.AtomicInteger;
    * @param encryptionIv The AES initialization vector, or null if the segment is not fully
    *     encrypted.
    */
-  public HlsMediaChunk(HlsExtractorFactory extractorFactory, DataSource dataSource,
-      DataSpec dataSpec, DataSpec initDataSpec, HlsUrl hlsUrl, List<Format> muxedCaptionFormats,
-      int trackSelectionReason, Object trackSelectionData, long startTimeUs, long endTimeUs,
-      int chunkIndex, int discontinuitySequenceNumber, boolean isMasterTimestampSource,
-      TimestampAdjuster timestampAdjuster, HlsMediaChunk previousChunk, DrmInitData drmInitData,
-      byte[] fullSegmentEncryptionKey, byte[] encryptionIv) {
-    super(buildDataSource(dataSource, fullSegmentEncryptionKey, encryptionIv), dataSpec,
-        hlsUrl.format, trackSelectionReason, trackSelectionData, startTimeUs, endTimeUs,
-        chunkIndex);
+  public HlsMediaChunk(
+      HlsExtractorFactory extractorFactory,
+      DataSource dataSource,
+      DataSpec dataSpec,
+      DataSpec initDataSpec,
+      HlsUrl hlsUrl,
+      List<Format> muxedCaptionFormats,
+      int trackSelectionReason,
+      Object trackSelectionData,
+      long startTimeUs,
+      long endTimeUs,
+      long chunkMediaSequence,
+      int discontinuitySequenceNumber,
+      boolean isMasterTimestampSource,
+      TimestampAdjuster timestampAdjuster,
+      HlsMediaChunk previousChunk,
+      DrmInitData drmInitData,
+      byte[] fullSegmentEncryptionKey,
+      byte[] encryptionIv) {
+    super(
+        buildDataSource(dataSource, fullSegmentEncryptionKey, encryptionIv),
+        dataSpec,
+        hlsUrl.format,
+        trackSelectionReason,
+        trackSelectionData,
+        startTimeUs,
+        endTimeUs,
+        chunkMediaSequence);
     this.discontinuitySequenceNumber = discontinuitySequenceNumber;
     this.initDataSpec = initDataSpec;
     this.hlsUrl = hlsUrl;
