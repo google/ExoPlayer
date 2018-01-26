@@ -64,7 +64,7 @@ public class DashManifestParserTest extends InstrumentationTestCase {
         if (representation instanceof Representation.MultiSegmentRepresentation) {
           Representation.MultiSegmentRepresentation multiSegmentRepresentation =
               (Representation.MultiSegmentRepresentation) representation;
-          int firstSegmentIndex = multiSegmentRepresentation.getFirstSegmentNum();
+          long firstSegmentIndex = multiSegmentRepresentation.getFirstSegmentNum();
           RangedUri uri = multiSegmentRepresentation.getSegmentUrl(firstSegmentIndex);
           assertThat(
                   uri.resolveUriString(representation.baseUrl)
