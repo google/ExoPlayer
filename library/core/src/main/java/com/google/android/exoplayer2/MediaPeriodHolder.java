@@ -16,7 +16,6 @@
 package com.google.android.exoplayer2;
 
 import android.util.Log;
-import com.google.android.exoplayer2.MediaPeriodInfoSequence.MediaPeriodInfo;
 import com.google.android.exoplayer2.source.ClippingMediaPeriod;
 import com.google.android.exoplayer2.source.EmptySampleStream;
 import com.google.android.exoplayer2.source.MediaPeriod;
@@ -52,19 +51,31 @@ import com.google.android.exoplayer2.util.Assertions;
 
   private TrackSelectorResult periodTrackSelectorResult;
 
+  /**
+   * Creates a new holder with information required to play it as part of a timeline.
+   *
+   * @param rendererCapabilities The renderer capabilities.
+   * @param rendererPositionOffsetUs The time offset of the start of the media period to provide to
+   *     renderers.
+   * @param trackSelector The track selector.
+   * @param allocator The allocator.
+   * @param mediaSource The media source that produced the media period.
+   * @param uid The unique identifier for the containing timeline period.
+   * @param info Information used to identify this media period in its timeline period.
+   */
   public MediaPeriodHolder(
       RendererCapabilities[] rendererCapabilities,
       long rendererPositionOffsetUs,
       TrackSelector trackSelector,
       Allocator allocator,
       MediaSource mediaSource,
-      Object periodUid,
+      Object uid,
       MediaPeriodInfo info) {
     this.rendererCapabilities = rendererCapabilities;
     this.rendererPositionOffsetUs = rendererPositionOffsetUs - info.startPositionUs;
     this.trackSelector = trackSelector;
     this.mediaSource = mediaSource;
-    this.uid = Assertions.checkNotNull(periodUid);
+    this.uid = Assertions.checkNotNull(uid);
     this.info = info;
     sampleStreams = new SampleStream[rendererCapabilities.length];
     mayRetainStreamFlags = new boolean[rendererCapabilities.length];
@@ -121,12 +132,13 @@ import com.google.android.exoplayer2.util.Assertions;
     return !prepared ? 0 : mediaPeriod.getNextLoadPositionUs();
   }
 
-  public void handlePrepared(float playbackSpeed) throws ExoPlaybackException {
+  public TrackSelectorResult handlePrepared(float playbackSpeed) throws ExoPlaybackException {
     prepared = true;
     selectTracks(playbackSpeed);
     long newStartPositionUs = applyTrackSelection(info.startPositionUs, false);
     rendererPositionOffsetUs += info.startPositionUs - newStartPositionUs;
     info = info.copyWithStartPositionUs(newStartPositionUs);
+    return trackSelectorResult;
   }
 
   public void reevaluateBuffer(long rendererPositionUs) {
