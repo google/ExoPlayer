@@ -898,11 +898,11 @@ public final class DashMediaSource implements MediaSource {
           availableStartTimeUs = 0;
           availableEndTimeUs = 0;
         } else if (!seenEmptyIndex) {
-          int firstSegmentNum = index.getFirstSegmentNum();
+          long firstSegmentNum = index.getFirstSegmentNum();
           long adaptationSetAvailableStartTimeUs = index.getTimeUs(firstSegmentNum);
           availableStartTimeUs = Math.max(availableStartTimeUs, adaptationSetAvailableStartTimeUs);
           if (segmentCount != DashSegmentIndex.INDEX_UNBOUNDED) {
-            int lastSegmentNum = firstSegmentNum + segmentCount - 1;
+            long lastSegmentNum = firstSegmentNum + segmentCount - 1;
             long adaptationSetAvailableEndTimeUs = index.getTimeUs(lastSegmentNum)
                 + index.getDurationUs(lastSegmentNum, durationUs);
             availableEndTimeUs = Math.min(availableEndTimeUs, adaptationSetAvailableEndTimeUs);
@@ -1027,7 +1027,7 @@ public final class DashMediaSource implements MediaSource {
         // Video adaptation set does not include a non-empty index for snapping.
         return windowDefaultStartPositionUs;
       }
-      int segmentNum = snapIndex.getSegmentNum(defaultStartPositionInPeriodUs, periodDurationUs);
+      long segmentNum = snapIndex.getSegmentNum(defaultStartPositionInPeriodUs, periodDurationUs);
       return windowDefaultStartPositionUs + snapIndex.getTimeUs(segmentNum)
           - defaultStartPositionInPeriodUs;
     }

@@ -138,9 +138,9 @@ public final class DashDownloader extends SegmentDownloader<DashManifest, Repres
         addSegment(segments, startUs, baseUrl, indexUri);
       }
 
-      int firstSegmentNum = index.getFirstSegmentNum();
-      int lastSegmentNum = firstSegmentNum + segmentCount - 1;
-      for (int j = firstSegmentNum; j <= lastSegmentNum; j++) {
+      long firstSegmentNum = index.getFirstSegmentNum();
+      long lastSegmentNum = firstSegmentNum + segmentCount - 1;
+      for (long j = firstSegmentNum; j <= lastSegmentNum; j++) {
         addSegment(segments, startUs + index.getTimeUs(j), baseUrl, index.getSegmentUrl(j));
       }
     }

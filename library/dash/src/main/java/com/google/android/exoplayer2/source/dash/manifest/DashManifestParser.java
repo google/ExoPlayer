@@ -602,7 +602,7 @@ public class DashManifestParser extends DefaultHandler
     long presentationTimeOffset = parseLong(xpp, "presentationTimeOffset",
         parent != null ? parent.presentationTimeOffset : 0);
     long duration = parseLong(xpp, "duration", parent != null ? parent.duration : C.TIME_UNSET);
-    int startNumber = parseInt(xpp, "startNumber", parent != null ? parent.startNumber : 1);
+    long startNumber = parseLong(xpp, "startNumber", parent != null ? parent.startNumber : 1);
 
     RangedUri initialization = null;
     List<SegmentTimelineElement> timeline = null;
@@ -632,9 +632,14 @@ public class DashManifestParser extends DefaultHandler
         startNumber, duration, timeline, segments);
   }
 
-  protected SegmentList buildSegmentList(RangedUri initialization, long timescale,
-      long presentationTimeOffset, int startNumber, long duration,
-      List<SegmentTimelineElement> timeline, List<RangedUri> segments) {
+  protected SegmentList buildSegmentList(
+      RangedUri initialization,
+      long timescale,
+      long presentationTimeOffset,
+      long startNumber,
+      long duration,
+      List<SegmentTimelineElement> timeline,
+      List<RangedUri> segments) {
     return new SegmentList(initialization, timescale, presentationTimeOffset,
         startNumber, duration, timeline, segments);
   }
@@ -645,7 +650,7 @@ public class DashManifestParser extends DefaultHandler
     long presentationTimeOffset = parseLong(xpp, "presentationTimeOffset",
         parent != null ? parent.presentationTimeOffset : 0);
     long duration = parseLong(xpp, "duration", parent != null ? parent.duration : C.TIME_UNSET);
-    int startNumber = parseInt(xpp, "startNumber", parent != null ? parent.startNumber : 1);
+    long startNumber = parseLong(xpp, "startNumber", parent != null ? parent.startNumber : 1);
     UrlTemplate mediaTemplate = parseUrlTemplate(xpp, "media",
         parent != null ? parent.mediaTemplate : null);
     UrlTemplate initializationTemplate = parseUrlTemplate(xpp, "initialization",
@@ -672,9 +677,14 @@ public class DashManifestParser extends DefaultHandler
         startNumber, duration, timeline, initializationTemplate, mediaTemplate);
   }
 
-  protected SegmentTemplate buildSegmentTemplate(RangedUri initialization, long timescale,
-      long presentationTimeOffset, int startNumber, long duration,
-      List<SegmentTimelineElement> timeline, UrlTemplate initializationTemplate,
+  protected SegmentTemplate buildSegmentTemplate(
+      RangedUri initialization,
+      long timescale,
+      long presentationTimeOffset,
+      long startNumber,
+      long duration,
+      List<SegmentTimelineElement> timeline,
+      UrlTemplate initializationTemplate,
       UrlTemplate mediaTemplate) {
     return new SegmentTemplate(initialization, timescale, presentationTimeOffset,
         startNumber, duration, timeline, initializationTemplate, mediaTemplate);

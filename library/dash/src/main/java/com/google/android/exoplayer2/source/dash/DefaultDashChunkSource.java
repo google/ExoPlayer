@@ -187,7 +187,7 @@ public class DefaultDashChunkSource implements DashChunkSource {
     // Segments are aligned across representations, so any segment index will do.
     for (RepresentationHolder representationHolder : representationHolders) {
       if (representationHolder.segmentIndex != null) {
-        int segmentNum = representationHolder.getSegmentNum(positionUs);
+        long segmentNum = representationHolder.getSegmentNum(positionUs);
         long firstSyncUs = representationHolder.getSegmentStartTimeUs(segmentNum);
         long secondSyncUs =
             firstSyncUs < positionUs && segmentNum < representationHolder.getSegmentCount() - 1
@@ -284,8 +284,8 @@ public class DefaultDashChunkSource implements DashChunkSource {
       return;
     }
 
-    int firstAvailableSegmentNum = representationHolder.getFirstSegmentNum();
-    int lastAvailableSegmentNum;
+    long firstAvailableSegmentNum = representationHolder.getFirstSegmentNum();
+    long lastAvailableSegmentNum;
     if (availableSegmentCount == DashSegmentIndex.INDEX_UNBOUNDED) {
       // The index is itself unbounded. We need to use the current time to calculate the range of
       // available segments.
@@ -306,12 +306,12 @@ public class DefaultDashChunkSource implements DashChunkSource {
 
     updateLiveEdgeTimeUs(representationHolder, lastAvailableSegmentNum);
 
-    int segmentNum;
+    long segmentNum;
     if (previous == null) {
       segmentNum = Util.constrainValue(representationHolder.getSegmentNum(loadPositionUs),
           firstAvailableSegmentNum, lastAvailableSegmentNum);
     } else {
-      segmentNum = (int) previous.getNextChunkIndex();
+      segmentNum = previous.getNextChunkIndex();
       if (segmentNum < firstAvailableSegmentNum) {
         // This is before the first chunk in the current manifest.
         fatalError = new BehindLiveWindowException();
@@ -326,7 +326,8 @@ public class DefaultDashChunkSource implements DashChunkSource {
       return;
     }
 
-    int maxSegmentCount = Math.min(maxSegmentsPerLoad, lastAvailableSegmentNum - segmentNum + 1);
+    int maxSegmentCount =
+        (int) Math.min(maxSegmentsPerLoad, lastAvailableSegmentNum - segmentNum + 1);
     out.chunk = newMediaChunk(representationHolder, dataSource, trackType,
         trackSelection.getSelectedFormat(), trackSelection.getSelectionReason(),
         trackSelection.getSelectionData(), segmentNum, maxSegmentCount);
@@ -370,7 +371,7 @@ public class DefaultDashChunkSource implements DashChunkSource {
           representationHolders[trackSelection.indexOf(chunk.trackFormat)];
       int segmentCount = representationHolder.getSegmentCount();
       if (segmentCount != DashSegmentIndex.INDEX_UNBOUNDED && segmentCount != 0) {
-        int lastAvailableSegmentNum = representationHolder.getFirstSegmentNum() + segmentCount - 1;
+        long lastAvailableSegmentNum = representationHolder.getFirstSegmentNum() + segmentCount - 1;
         if (((MediaChunk) chunk).getNextChunkIndex() > lastAvailableSegmentNum) {
           missingLastSegment = true;
           return true;
@@ -393,8 +394,8 @@ public class DefaultDashChunkSource implements DashChunkSource {
     return representations;
   }
 
-  private void updateLiveEdgeTimeUs(RepresentationHolder representationHolder,
-      int lastAvailableSegmentNum) {
+  private void updateLiveEdgeTimeUs(
+      RepresentationHolder representationHolder, long lastAvailableSegmentNum) {
     liveEdgeTimeUs = manifest.dynamic
         ? representationHolder.getSegmentEndTimeUs(lastAvailableSegmentNum) : C.TIME_UNSET;
   }
@@ -433,9 +434,15 @@ public class DefaultDashChunkSource implements DashChunkSource {
         trackSelectionReason, trackSelectionData, representationHolder.extractorWrapper);
   }
 
-  protected static Chunk newMediaChunk(RepresentationHolder representationHolder,
-      DataSource dataSource, int trackType, Format trackFormat, int trackSelectionReason,
-      Object trackSelectionData, int firstSegmentNum, int maxSegmentCount) {
+  protected static Chunk newMediaChunk(
+      RepresentationHolder representationHolder,
+      DataSource dataSource,
+      int trackType,
+      Format trackFormat,
+      int trackSelectionReason,
+      Object trackSelectionData,
+      long firstSegmentNum,
+      int maxSegmentCount) {
     Representation representation = representationHolder.representation;
     long startTimeUs = representationHolder.getSegmentStartTimeUs(firstSegmentNum);
     RangedUri segmentUri = representationHolder.getSegmentUrl(firstSegmentNum);
@@ -481,7 +488,7 @@ public class DefaultDashChunkSource implements DashChunkSource {
     public DashSegmentIndex segmentIndex;
 
     private long periodDurationUs;
-    private int segmentNumShift;
+    private long segmentNumShift;
 
     /* package */ RepresentationHolder(
         long periodDurationUs,
@@ -547,10 +554,10 @@ public class DefaultDashChunkSource implements DashChunkSource {
         return;
       }
 
-      int oldIndexLastSegmentNum = oldIndex.getFirstSegmentNum() + oldIndexSegmentCount - 1;
+      long oldIndexLastSegmentNum = oldIndex.getFirstSegmentNum() + oldIndexSegmentCount - 1;
       long oldIndexEndTimeUs = oldIndex.getTimeUs(oldIndexLastSegmentNum)
           + oldIndex.getDurationUs(oldIndexLastSegmentNum, periodDurationUs);
-      int newIndexFirstSegmentNum = newIndex.getFirstSegmentNum();
+      long newIndexFirstSegmentNum = newIndex.getFirstSegmentNum();
       long newIndexStartTimeUs = newIndex.getTimeUs(newIndexFirstSegmentNum);
       if (oldIndexEndTimeUs == newIndexStartTimeUs) {
         // The new index continues where the old one ended, with no overlap.
@@ -566,7 +573,7 @@ public class DefaultDashChunkSource implements DashChunkSource {
       }
     }
 
-    public int getFirstSegmentNum() {
+    public long getFirstSegmentNum() {
       return segmentIndex.getFirstSegmentNum() + segmentNumShift;
     }
 
@@ -574,20 +581,20 @@ public class DefaultDashChunkSource implements DashChunkSource {
       return segmentIndex.getSegmentCount(periodDurationUs);
     }
 
-    public long getSegmentStartTimeUs(int segmentNum) {
+    public long getSegmentStartTimeUs(long segmentNum) {
       return segmentIndex.getTimeUs(segmentNum - segmentNumShift);
     }
 
-    public long getSegmentEndTimeUs(int segmentNum) {
+    public long getSegmentEndTimeUs(long segmentNum) {
       return getSegmentStartTimeUs(segmentNum)
           + segmentIndex.getDurationUs(segmentNum - segmentNumShift, periodDurationUs);
     }
 
-    public int getSegmentNum(long positionUs) {
+    public long getSegmentNum(long positionUs) {
       return segmentIndex.getSegmentNum(positionUs, periodDurationUs) + segmentNumShift;
     }
 
-    public RangedUri getSegmentUrl(int segmentNum) {
+    public RangedUri getSegmentUrl(long segmentNum) {
       return segmentIndex.getSegmentUrl(segmentNum - segmentNumShift);
     }
 
