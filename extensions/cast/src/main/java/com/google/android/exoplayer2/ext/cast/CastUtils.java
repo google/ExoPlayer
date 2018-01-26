@@ -15,8 +15,10 @@
  */
 package com.google.android.exoplayer2.ext.cast;
 
+import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.gms.cast.CastStatusCodes;
+import com.google.android.gms.cast.MediaInfo;
 import com.google.android.gms.cast.MediaTrack;
 import java.util.Collections;
 import java.util.HashMap;
@@ -28,6 +30,19 @@ import java.util.Map;
 /* package */ final class CastUtils {
 
   private static final Map<Integer, String> CAST_STATUS_CODE_TO_STRING;
+
+  /**
+   * Returns the duration in microseconds advertised by a media info, or {@link C#TIME_UNSET} if
+   * unknown or not applicable.
+   *
+   * @param mediaInfo The media info to get the duration from.
+   * @return The duration in microseconds.
+   */
+  public static long getStreamDurationUs(MediaInfo mediaInfo) {
+    long durationMs =
+        mediaInfo != null ? mediaInfo.getStreamDuration() : MediaInfo.UNKNOWN_DURATION;
+    return durationMs != MediaInfo.UNKNOWN_DURATION ? C.msToUs(durationMs) : C.TIME_UNSET;
+  }
 
   /**
    * Returns a descriptive log string for the given {@code statusCode}, or "Unknown." if not one of

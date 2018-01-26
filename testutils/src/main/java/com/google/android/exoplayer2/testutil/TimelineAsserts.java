@@ -100,6 +100,19 @@ public final class TimelineAsserts {
   }
 
   /**
+   * Asserts that the durations of the periods in the {@link Timeline} and the durations in the
+   * given sequence are equal.
+   */
+  public static void assertPeriodDurations(Timeline timeline, long... durationsUs) {
+    int periodCount = timeline.getPeriodCount();
+    assertThat(periodCount).isEqualTo(durationsUs.length);
+    Period period = new Period();
+    for (int i = 0; i < periodCount; i++) {
+      assertThat(timeline.getPeriod(i, period).durationUs).isEqualTo(durationsUs[i]);
+    }
+  }
+
+  /**
    * Asserts that period counts for each window are set correctly. Also asserts that
    * {@link Window#firstPeriodIndex} and {@link Window#lastPeriodIndex} are set correctly, and it
    * asserts the correct behavior of {@link Timeline#getNextWindowIndex(int, int, boolean)}.

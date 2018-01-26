@@ -20,8 +20,10 @@ import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.gms.cast.MediaInfo;
 import com.google.android.gms.cast.MediaQueueItem;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 /**
  * A {@link Timeline} for Cast media queues.
@@ -29,14 +31,19 @@ import java.util.List;
 /* package */ final class CastTimeline extends Timeline {
 
   public static final CastTimeline EMPTY_CAST_TIMELINE =
-      new CastTimeline(Collections.<MediaQueueItem>emptyList());
+      new CastTimeline(
+          Collections.<MediaQueueItem>emptyList(), Collections.<String, Long>emptyMap());
 
   private final SparseIntArray idsToIndex;
   private final int[] ids;
   private final long[] durationsUs;
   private final long[] defaultPositionsUs;
 
-  public CastTimeline(List<MediaQueueItem> items) {
+  /**
+   * @param items A list of cast media queue items to represent.
+   * @param contentIdToDurationUsMap A map of content id to duration in microseconds.
+   */
+  public CastTimeline(List<MediaQueueItem> items, Map<String, Long> contentIdToDurationUsMap) {
     int itemCount = items.size();
     int index = 0;
     idsToIndex = new SparseIntArray(itemCount);
@@ -47,11 +54,18 @@ import java.util.List;
       int itemId = item.getItemId();
       ids[index] = itemId;
       idsToIndex.put(itemId, index);
-      durationsUs[index] = getStreamDurationUs(item.getMedia());
+      MediaInfo mediaInfo = item.getMedia();
+      String contentId = mediaInfo.getContentId();
+      durationsUs[index] =
+          contentIdToDurationUsMap.containsKey(contentId)
+              ? contentIdToDurationUsMap.get(contentId)
+              : CastUtils.getStreamDurationUs(mediaInfo);
       defaultPositionsUs[index] = (long) (item.getStartTime() * C.MICROS_PER_SECOND);
       index++;
     }
   }
+
+  // Timeline implementation.
 
   @Override
   public int getWindowCount() {
@@ -83,32 +97,27 @@ import java.util.List;
     return uid instanceof Integer ? idsToIndex.get((int) uid, C.INDEX_UNSET) : C.INDEX_UNSET;
   }
 
-  /**
-   * Returns whether the timeline represents a given {@code MediaQueueItem} list.
-   *
-   * @param items The {@code MediaQueueItem} list.
-   * @return Whether the timeline represents {@code items}.
-   */
-  /* package */ boolean represents(List<MediaQueueItem> items) {
-    if (ids.length != items.size()) {
+  // equals and hashCode implementations.
+
+  @Override
+  public boolean equals(Object other) {
+    if (this == other) {
+      return true;
+    } else if (!(other instanceof CastTimeline)) {
       return false;
     }
-    int index = 0;
-    for (MediaQueueItem item : items) {
-      if (ids[index] != item.getItemId()
-          || durationsUs[index] != getStreamDurationUs(item.getMedia())
-          || defaultPositionsUs[index] != (long) (item.getStartTime() * C.MICROS_PER_SECOND)) {
-        return false;
-      }
-      index++;
-    }
-    return true;
+    CastTimeline that = (CastTimeline) other;
+    return Arrays.equals(ids, that.ids)
+        && Arrays.equals(durationsUs, that.durationsUs)
+        && Arrays.equals(defaultPositionsUs, that.defaultPositionsUs);
   }
 
-  private static long getStreamDurationUs(MediaInfo mediaInfo) {
-    long durationMs = mediaInfo != null ? mediaInfo.getStreamDuration()
-        : MediaInfo.UNKNOWN_DURATION;
-    return durationMs != MediaInfo.UNKNOWN_DURATION ? C.msToUs(durationMs) : C.TIME_UNSET;
+  @Override
+  public int hashCode() {
+    int result = Arrays.hashCode(ids);
+    result = 31 * result + Arrays.hashCode(durationsUs);
+    result = 31 * result + Arrays.hashCode(defaultPositionsUs);
+    return result;
   }
 
 }
