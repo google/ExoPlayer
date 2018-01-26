@@ -339,7 +339,7 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
       throws IOException {
     @HlsMediaPlaylist.PlaylistType int playlistType = HlsMediaPlaylist.PLAYLIST_TYPE_UNKNOWN;
     long startOffsetUs = C.TIME_UNSET;
-    int mediaSequence = 0;
+    long mediaSequence = 0;
     int version = 1; // Default version == 1.
     long targetDurationUs = C.TIME_UNSET;
     boolean hasIndependentSegmentsTag = false;
@@ -356,7 +356,7 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
     long segmentStartTimeUs = 0;
     long segmentByteRangeOffset = 0;
     long segmentByteRangeLength = C.LENGTH_UNSET;
-    int segmentMediaSequence = 0;
+    long segmentMediaSequence = 0;
 
     String encryptionKeyUri = null;
     String encryptionIV = null;
@@ -396,7 +396,7 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
       } else if (line.startsWith(TAG_TARGET_DURATION)) {
         targetDurationUs = parseIntAttr(line, REGEX_TARGET_DURATION) * C.MICROS_PER_SECOND;
       } else if (line.startsWith(TAG_MEDIA_SEQUENCE)) {
-        mediaSequence = parseIntAttr(line, REGEX_MEDIA_SEQUENCE);
+        mediaSequence = parseLongAttr(line, REGEX_MEDIA_SEQUENCE);
         segmentMediaSequence = mediaSequence;
       } else if (line.startsWith(TAG_VERSION)) {
         version = parseIntAttr(line, REGEX_VERSION);
@@ -456,7 +456,7 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
         } else if (encryptionIV != null) {
           segmentEncryptionIV = encryptionIV;
         } else {
-          segmentEncryptionIV = Integer.toHexString(segmentMediaSequence);
+          segmentEncryptionIV = Long.toHexString(segmentMediaSequence);
         }
         segmentMediaSequence++;
         if (segmentByteRangeLength == C.LENGTH_UNSET) {
@@ -502,6 +502,10 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
 
   private static int parseIntAttr(String line, Pattern pattern) throws ParserException {
     return Integer.parseInt(parseStringAttr(line, pattern));
+  }
+
+  private static long parseLongAttr(String line, Pattern pattern) throws ParserException {
+    return Long.parseLong(parseStringAttr(line, pattern));
   }
 
   private static double parseDoubleAttr(String line, Pattern pattern) throws ParserException {

@@ -183,7 +183,7 @@ public class DefaultSsChunkSource implements SsChunkSource {
     if (previous == null) {
       chunkIndex = streamElement.getChunkIndex(loadPositionUs);
     } else {
-      chunkIndex = previous.getNextChunkIndex() - currentManifestChunkOffset;
+      chunkIndex = (int) (previous.getNextChunkIndex() - currentManifestChunkOffset);
       if (chunkIndex < 0) {
         // This is before the first chunk in the current manifest.
         fatalError = new BehindLiveWindowException();
