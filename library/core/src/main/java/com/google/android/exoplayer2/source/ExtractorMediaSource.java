@@ -325,7 +325,6 @@ public final class ExtractorMediaSource implements MediaSource, ExtractorMediaPe
 
   @Override
   public void prepareSource(ExoPlayer player, boolean isTopLevelSource, Listener listener) {
-    Assertions.checkState(sourceListener == null, MEDIA_SOURCE_REUSED_ERROR_MESSAGE);
     sourceListener = listener;
     notifySourceInfoRefreshed(C.TIME_UNSET, false);
   }
@@ -357,7 +356,7 @@ public final class ExtractorMediaSource implements MediaSource, ExtractorMediaPe
 
   @Override
   public void releaseSource() {
-    // Do nothing.
+    sourceListener = null;
   }
 
   // ExtractorMediaPeriod.Listener implementation.
