@@ -324,10 +324,9 @@ public final class HlsMediaSource implements MediaSource,
 
   @Override
   public void prepareSource(ExoPlayer player, boolean isTopLevelSource, Listener listener) {
-    Assertions.checkState(sourceListener == null, MEDIA_SOURCE_REUSED_ERROR_MESSAGE);
+    sourceListener = listener;
     playlistTracker = new HlsPlaylistTracker(manifestUri, dataSourceFactory, eventDispatcher,
         minLoadableRetryCount, this, playlistParser);
-    sourceListener = listener;
     playlistTracker.start();
   }
 
@@ -361,6 +360,7 @@ public final class HlsMediaSource implements MediaSource,
       playlistTracker.release();
       playlistTracker = null;
     }
+    sourceListener = null;
   }
 
   @Override
