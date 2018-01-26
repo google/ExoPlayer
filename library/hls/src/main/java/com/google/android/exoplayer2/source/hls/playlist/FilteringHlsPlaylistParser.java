@@ -36,12 +36,10 @@ public final class FilteringHlsPlaylistParser implements Parser<HlsPlaylist> {
   @Override
   public HlsPlaylist parse(Uri uri, InputStream inputStream) throws IOException {
     HlsPlaylist hlsPlaylist = hlsPlaylistParser.parse(uri, inputStream);
-    HlsMasterPlaylist hlsMasterPlaylist;
     if (hlsPlaylist instanceof HlsMasterPlaylist) {
-      hlsMasterPlaylist = (HlsMasterPlaylist) hlsPlaylist;
+      return ((HlsMasterPlaylist) hlsPlaylist).copy(filter);
     } else {
-      hlsMasterPlaylist = HlsMasterPlaylist.createSingleVariantMasterPlaylist(hlsPlaylist.baseUri);
+      return hlsPlaylist;
     }
-    return hlsMasterPlaylist.copy(filter);
   }
 }
