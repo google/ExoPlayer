@@ -91,6 +91,8 @@ public final class CastPlayer implements Player {
   private static final long[] EMPTY_TRACK_ID_ARRAY = new long[0];
 
   private final CastContext castContext;
+  // TODO: Allow custom implementations of CastTimelineTracker.
+  private final CastTimelineTracker timelineTracker;
   private final Timeline.Window window;
   private final Timeline.Period period;
 
@@ -123,6 +125,7 @@ public final class CastPlayer implements Player {
    */
   public CastPlayer(CastContext castContext) {
     this.castContext = castContext;
+    timelineTracker = new CastTimelineTracker();
     window = new Timeline.Window();
     period = new Timeline.Period();
     statusListener = new StatusListener();
@@ -487,9 +490,11 @@ public final class CastPlayer implements Player {
 
   @Override
   public long getCurrentPosition() {
-    return pendingSeekPositionMs != C.TIME_UNSET ? pendingSeekPositionMs
-        : remoteMediaClient != null ? remoteMediaClient.getApproximateStreamPosition()
-        : lastReportedPositionMs;
+    return pendingSeekPositionMs != C.TIME_UNSET
+        ? pendingSeekPositionMs
+        : remoteMediaClient != null
+            ? remoteMediaClient.getApproximateStreamPosition()
+            : lastReportedPositionMs;
   }
 
   @Override
@@ -501,9 +506,9 @@ public final class CastPlayer implements Player {
   public int getBufferedPercentage() {
     long position = getBufferedPosition();
     long duration = getDuration();
-    return position == C.TIME_UNSET || duration == C.TIME_UNSET ? 0
-        : duration == 0 ? 100
-        : Util.constrainValue((int) ((position * 100) / duration), 0, 100);
+    return position == C.TIME_UNSET || duration == C.TIME_UNSET
+        ? 0
+        : duration == 0 ? 100 : Util.constrainValue((int) ((position * 100) / duration), 0, 100);
   }
 
   @Override
@@ -598,20 +603,11 @@ public final class CastPlayer implements Player {
    * Updates the current timeline and returns whether it has changed.
    */
   private boolean updateTimeline() {
-    MediaStatus mediaStatus = getMediaStatus();
-    if (mediaStatus == null) {
-      boolean hasChanged = currentTimeline != CastTimeline.EMPTY_CAST_TIMELINE;
-      currentTimeline = CastTimeline.EMPTY_CAST_TIMELINE;
-      return hasChanged;
-    }
-
-    List<MediaQueueItem> items = mediaStatus.getQueueItems();
-    if (!currentTimeline.represents(items)) {
-      currentTimeline = !items.isEmpty() ? new CastTimeline(mediaStatus.getQueueItems())
-          : CastTimeline.EMPTY_CAST_TIMELINE;
-      return true;
-    }
-    return false;
+    CastTimeline oldTimeline = currentTimeline;
+    MediaStatus status = getMediaStatus();
+    currentTimeline =
+        status != null ? timelineTracker.getCastTimeline(status) : CastTimeline.EMPTY_CAST_TIMELINE;
+    return !oldTimeline.equals(currentTimeline);
   }
 
   /**
@@ -755,10 +751,11 @@ public final class CastPlayer implements Player {
   }
 
   private static int getRendererIndexForTrackType(int trackType) {
-    return trackType == C.TRACK_TYPE_VIDEO ? RENDERER_INDEX_VIDEO
-        : trackType == C.TRACK_TYPE_AUDIO ? RENDERER_INDEX_AUDIO
-        : trackType == C.TRACK_TYPE_TEXT ? RENDERER_INDEX_TEXT
-        : C.INDEX_UNSET;
+    return trackType == C.TRACK_TYPE_VIDEO
+        ? RENDERER_INDEX_VIDEO
+        : trackType == C.TRACK_TYPE_AUDIO
+            ? RENDERER_INDEX_AUDIO
+            : trackType == C.TRACK_TYPE_TEXT ? RENDERER_INDEX_TEXT : C.INDEX_UNSET;
   }
 
   private static int getCastRepeatMode(@RepeatMode int repeatMode) {
