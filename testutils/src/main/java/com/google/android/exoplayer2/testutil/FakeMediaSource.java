@@ -78,6 +78,7 @@ public class FakeMediaSource implements MediaSource {
       ExoPlayer player, boolean isTopLevelSource, Listener listener) {
     assertThat(preparedSource).isFalse();
     preparedSource = true;
+    releasedSource = false;
     this.listener = listener;
     sourceInfoRefreshHandler = new Handler();
     if (timeline != null) {
@@ -116,6 +117,10 @@ public class FakeMediaSource implements MediaSource {
     assertThat(releasedSource).isFalse();
     assertThat(activeMediaPeriods.isEmpty()).isTrue();
     releasedSource = true;
+    preparedSource = false;
+    sourceInfoRefreshHandler.removeCallbacksAndMessages(null);
+    sourceInfoRefreshHandler = null;
+    listener = null;
   }
 
   /**
