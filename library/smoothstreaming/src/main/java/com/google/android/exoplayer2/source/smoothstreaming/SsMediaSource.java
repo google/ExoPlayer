@@ -245,6 +245,7 @@ public final class SsMediaSource implements MediaSource,
    */
   private static final long MIN_LIVE_DEFAULT_START_POSITION_US = 5000000;
 
+  private final boolean sideloadedManifest;
   private final Uri manifestUri;
   private final DataSource.Factory manifestDataSourceFactory;
   private final SsChunkSource.Factory chunkSourceFactory;
@@ -412,6 +413,7 @@ public final class SsMediaSource implements MediaSource,
     this.minLoadableRetryCount = minLoadableRetryCount;
     this.livePresentationDelayMs = livePresentationDelayMs;
     this.eventDispatcher = new EventDispatcher(eventHandler, eventListener);
+    sideloadedManifest = manifest != null;
     mediaPeriods = new ArrayList<>();
   }
 
@@ -419,9 +421,8 @@ public final class SsMediaSource implements MediaSource,
 
   @Override
   public void prepareSource(ExoPlayer player, boolean isTopLevelSource, Listener listener) {
-    Assertions.checkState(sourceListener == null, MEDIA_SOURCE_REUSED_ERROR_MESSAGE);
     sourceListener = listener;
-    if (manifest != null) {
+    if (sideloadedManifest) {
       manifestLoaderErrorThrower = new LoaderErrorThrower.Dummy();
       processManifest();
     } else {
@@ -456,7 +457,8 @@ public final class SsMediaSource implements MediaSource,
 
   @Override
   public void releaseSource() {
-    manifest = null;
+    sourceListener = null;
+    manifest = sideloadedManifest ? manifest : null;
     manifestDataSource = null;
     manifestLoadStartTimestamp = 0;
     if (manifestLoader != null) {
