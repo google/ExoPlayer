@@ -26,30 +26,30 @@ import java.io.IOException;
 /** An action to download or remove downloaded HLS streams. */
 public final class HlsDownloadAction extends SegmentDownloadAction<String> {
 
-  public static final Deserializer DESERIALIZER = new SegmentDownloadActionDeserializer<String>() {
+  public static final Deserializer DESERIALIZER =
+      new SegmentDownloadActionDeserializer<String>() {
 
-    @Override
-    public String getType() {
-      return TYPE;
-    }
+        @Override
+        public String getType() {
+          return TYPE;
+        }
 
-    @Override
-    protected String readKey(DataInputStream input) throws IOException {
-      return input.readUTF();
-    }
+        @Override
+        protected String readKey(DataInputStream input) throws IOException {
+          return input.readUTF();
+        }
 
-    @Override
-    protected String[] createKeyArray(int keyCount) {
-      return new String[0];
-    }
+        @Override
+        protected String[] createKeyArray(int keyCount) {
+          return new String[keyCount];
+        }
 
-    @Override
-    protected DownloadAction createDownloadAction(Uri manifestUri, boolean removeAction,
-        String data, String[] keys) {
-      return new HlsDownloadAction(manifestUri, removeAction, data, keys);
-    }
-
-  };
+        @Override
+        protected DownloadAction createDownloadAction(
+            Uri manifestUri, boolean removeAction, String data, String[] keys) {
+          return new HlsDownloadAction(manifestUri, removeAction, data, keys);
+        }
+      };
 
   private static final String TYPE = "HlsDownloadAction";
 
