@@ -24,10 +24,12 @@ import android.view.ViewGroup;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.Timeline;
+import com.google.android.exoplayer2.source.CompositeMediaSource;
 import com.google.android.exoplayer2.source.DeferredMediaPeriod;
 import com.google.android.exoplayer2.source.ExtractorMediaSource;
 import com.google.android.exoplayer2.source.MediaPeriod;
 import com.google.android.exoplayer2.source.MediaSource;
+import com.google.android.exoplayer2.source.MediaSource.MediaPeriodId;
 import com.google.android.exoplayer2.source.MediaSourceEventListener;
 import com.google.android.exoplayer2.upstream.Allocator;
 import com.google.android.exoplayer2.upstream.DataSource;
@@ -39,10 +41,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-/**
- * A {@link MediaSource} that inserts ads linearly with a provided content media source.
- */
-public final class AdsMediaSource implements MediaSource {
+/** A {@link MediaSource} that inserts ads linearly with a provided content media source. */
+public final class AdsMediaSource extends CompositeMediaSource<MediaPeriodId> {
 
   /** Factory for creating {@link MediaSource}s to play ad media. */
   public interface MediaSourceFactory {
@@ -107,7 +107,6 @@ public final class AdsMediaSource implements MediaSource {
   private final Timeline.Period period;
 
   private Handler playerHandler;
-  private ExoPlayer player;
   private volatile boolean released;
 
   // Accessed on the player thread.
@@ -203,17 +202,12 @@ public final class AdsMediaSource implements MediaSource {
 
   @Override
   public void prepareSource(final ExoPlayer player, boolean isTopLevelSource, Listener listener) {
+    super.prepareSource(player, isTopLevelSource, listener);
     Assertions.checkArgument(isTopLevelSource);
     Assertions.checkState(this.listener == null, MEDIA_SOURCE_REUSED_ERROR_MESSAGE);
     this.listener = listener;
-    this.player = player;
     playerHandler = new Handler();
-    contentMediaSource.prepareSource(player, false, new Listener() {
-      @Override
-      public void onSourceInfoRefreshed(MediaSource source, Timeline timeline, Object manifest) {
-        AdsMediaSource.this.onContentSourceInfoRefreshed(timeline, manifest);
-      }
-    });
+    prepareChildSource(new MediaPeriodId(/* periodIndex= */ 0), contentMediaSource);
     mainHandler.post(new Runnable() {
       @Override
       public void run() {
@@ -223,25 +217,13 @@ public final class AdsMediaSource implements MediaSource {
   }
 
   @Override
-  public void maybeThrowSourceInfoRefreshError() throws IOException {
-    contentMediaSource.maybeThrowSourceInfoRefreshError();
-    for (MediaSource[] mediaSources : adGroupMediaSources) {
-      for (MediaSource mediaSource : mediaSources) {
-        if (mediaSource != null) {
-          mediaSource.maybeThrowSourceInfoRefreshError();
-        }
-      }
-    }
-  }
-
-  @Override
   public MediaPeriod createPeriod(MediaPeriodId id, Allocator allocator) {
     if (adPlaybackState.adGroupCount > 0 && id.isAd()) {
-      final int adGroupIndex = id.adGroupIndex;
-      final int adIndexInAdGroup = id.adIndexInAdGroup;
+      int adGroupIndex = id.adGroupIndex;
+      int adIndexInAdGroup = id.adIndexInAdGroup;
       if (adGroupMediaSources[adGroupIndex].length <= adIndexInAdGroup) {
         Uri adUri = adPlaybackState.adUris[id.adGroupIndex][id.adIndexInAdGroup];
-        final MediaSource adMediaSource =
+        MediaSource adMediaSource =
             adMediaSourceFactory.createMediaSource(adUri, eventHandler, eventListener);
         int oldAdCount = adGroupMediaSources[id.adGroupIndex].length;
         if (adIndexInAdGroup >= oldAdCount) {
@@ -253,13 +235,7 @@ public final class AdsMediaSource implements MediaSource {
         }
         adGroupMediaSources[adGroupIndex][adIndexInAdGroup] = adMediaSource;
         deferredMediaPeriodByAdMediaSource.put(adMediaSource, new ArrayList<DeferredMediaPeriod>());
-        adMediaSource.prepareSource(player, false, new MediaSource.Listener() {
-          @Override
-          public void onSourceInfoRefreshed(MediaSource source, Timeline timeline,
-              @Nullable Object manifest) {
-            onAdSourceInfoRefreshed(adMediaSource, adGroupIndex, adIndexInAdGroup, timeline);
-          }
-        });
+        prepareChildSource(id, adMediaSource);
       }
       MediaSource mediaSource = adGroupMediaSources[adGroupIndex][adIndexInAdGroup];
       DeferredMediaPeriod deferredMediaPeriod =
@@ -287,21 +263,29 @@ public final class AdsMediaSource implements MediaSource {
 
   @Override
   public void releaseSource() {
+    super.releaseSource();
     released = true;
-    contentMediaSource.releaseSource();
-    for (MediaSource[] mediaSources : adGroupMediaSources) {
-      for (MediaSource mediaSource : mediaSources) {
-        if (mediaSource != null) {
-          mediaSource.releaseSource();
-        }
-      }
-    }
     mainHandler.post(new Runnable() {
       @Override
       public void run() {
         adsLoader.detachPlayer();
       }
     });
+  }
+
+  @Override
+  protected void onChildSourceInfoRefreshed(
+      MediaPeriodId mediaPeriodId,
+      MediaSource mediaSource,
+      Timeline timeline,
+      @Nullable Object manifest) {
+    if (mediaPeriodId.isAd()) {
+      int adGroupIndex = mediaPeriodId.adGroupIndex;
+      int adIndexInAdGroup = mediaPeriodId.adIndexInAdGroup;
+      onAdSourceInfoRefreshed(mediaSource, adGroupIndex, adIndexInAdGroup, timeline);
+    } else {
+      onContentSourceInfoRefreshed(timeline, manifest);
+    }
   }
 
   // Internal methods.

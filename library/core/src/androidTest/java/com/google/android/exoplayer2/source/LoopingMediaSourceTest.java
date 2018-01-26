@@ -115,7 +115,10 @@ public class LoopingMediaSourceTest extends TestCase {
     LoopingMediaSource mediaSource = new LoopingMediaSource(fakeMediaSource, loopCount);
     MediaSourceTestRunner testRunner = new MediaSourceTestRunner(mediaSource, null);
     try {
-      return testRunner.prepareSource();
+      Timeline loopingTimeline = testRunner.prepareSource();
+      testRunner.releaseSource();
+      fakeMediaSource.assertReleased();
+      return loopingTimeline;
     } finally {
       testRunner.release();
     }

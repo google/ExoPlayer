@@ -150,7 +150,10 @@ public final class ClippingMediaSourceTest extends InstrumentationTestCase {
     ClippingMediaSource mediaSource = new ClippingMediaSource(fakeMediaSource, startMs, endMs);
     MediaSourceTestRunner testRunner = new MediaSourceTestRunner(mediaSource, null);
     try {
-      return testRunner.prepareSource();
+      Timeline clippedTimeline = testRunner.prepareSource();
+      testRunner.releaseSource();
+      fakeMediaSource.assertReleased();
+      return clippedTimeline;
     } finally {
       testRunner.release();
     }

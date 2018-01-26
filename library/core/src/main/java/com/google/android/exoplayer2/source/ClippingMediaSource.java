@@ -16,6 +16,7 @@
 package com.google.android.exoplayer2.source;
 
 import android.support.annotation.IntDef;
+import android.support.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.Timeline;
@@ -31,7 +32,7 @@ import java.util.ArrayList;
  * positions. The wrapped source must consist of a single period that starts at the beginning of the
  * corresponding window.
  */
-public final class ClippingMediaSource implements MediaSource, MediaSource.Listener {
+public final class ClippingMediaSource extends CompositeMediaSource<Void> {
 
   /**
    * Thrown when a {@link ClippingMediaSource} cannot clip its wrapped source.
@@ -131,9 +132,10 @@ public final class ClippingMediaSource implements MediaSource, MediaSource.Liste
 
   @Override
   public void prepareSource(ExoPlayer player, boolean isTopLevelSource, Listener listener) {
+    super.prepareSource(player, isTopLevelSource, listener);
     Assertions.checkState(sourceListener == null, MEDIA_SOURCE_REUSED_ERROR_MESSAGE);
     sourceListener = listener;
-    mediaSource.prepareSource(player, false, this);
+    prepareChildSource(/* id= */ null, mediaSource);
   }
 
   @Override
@@ -141,7 +143,7 @@ public final class ClippingMediaSource implements MediaSource, MediaSource.Liste
     if (clippingError != null) {
       throw clippingError;
     }
-    mediaSource.maybeThrowSourceInfoRefreshError();
+    super.maybeThrowSourceInfoRefreshError();
   }
 
   @Override
@@ -160,14 +162,8 @@ public final class ClippingMediaSource implements MediaSource, MediaSource.Liste
   }
 
   @Override
-  public void releaseSource() {
-    mediaSource.releaseSource();
-  }
-
-  // MediaSource.Listener implementation.
-
-  @Override
-  public void onSourceInfoRefreshed(MediaSource source, Timeline timeline, Object manifest) {
+  protected void onChildSourceInfoRefreshed(
+      Void id, MediaSource mediaSource, Timeline timeline, @Nullable Object manifest) {
     if (clippingError != null) {
       return;
     }
