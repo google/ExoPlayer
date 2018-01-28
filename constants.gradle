@@ -16,13 +16,13 @@ project.ext {
     // components provided by the library may be of use on older devices.
     // However, please note that the core media playback functionality provided
     // by the library requires API level 16 or greater.
-    minSdkVersion = 14
+    minSdkVersion = 17
     compileSdkVersion = 27
     targetSdkVersion = 27
-    buildToolsVersion = '26.0.2'
+    buildToolsVersion = '27.0.2'
     testSupportLibraryVersion = '0.5'
-    supportLibraryVersion = '27.0.0'
-    playServicesLibraryVersion = '11.4.2'
+    supportLibraryVersion = '27.0.2'
+    playServicesLibraryVersion = '11.8.0'
     dexmakerVersion = '1.2'
     mockitoVersion = '1.9.5'
     junitVersion = '4.12'
