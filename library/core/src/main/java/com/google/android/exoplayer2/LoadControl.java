@@ -90,17 +90,11 @@ public interface LoadControl {
   /**
    * Called by the player to determine whether it should continue to load the source.
    *
-   * @param canStartPlayback Whether the player has the minimum amount of data necessary to start
-   *     playback. If {@code false}, this method must return {@code true} or playback will fail.
-   *     Hence {@code true} should be returned in this case, unless some hard upper limit (e.g. on
-   *     the amount of memory that the control will permit to be allocated) has been exceeded.
-   *     Always true if playback is currently started.
    * @param bufferedDurationUs The duration of media that's currently buffered.
    * @param playbackSpeed The current playback speed.
    * @return Whether the loading should continue.
    */
-  boolean shouldContinueLoading(
-      boolean canStartPlayback, long bufferedDurationUs, float playbackSpeed);
+  boolean shouldContinueLoading(long bufferedDurationUs, float playbackSpeed);
 
   /**
    * Called repeatedly by the player when it's loading the source, has yet to start playback, and

@@ -214,8 +214,7 @@ public class DefaultLoadControl implements LoadControl {
   }
 
   @Override
-  public boolean shouldContinueLoading(
-      boolean canStartPlayback, long bufferedDurationUs, float playbackSpeed) {
+  public boolean shouldContinueLoading(long bufferedDurationUs, float playbackSpeed) {
     boolean targetBufferSizeReached = allocator.getTotalBytesAllocated() >= targetBufferSize;
     boolean wasBuffering = isBuffering;
     if (prioritizeTimeOverSizeThresholds) {
@@ -229,9 +228,6 @@ public class DefaultLoadControl implements LoadControl {
           !targetBufferSizeReached
               && (bufferedDurationUs < minBufferUs // below low watermark
                   || (bufferedDurationUs <= maxBufferUs && isBuffering)); // between watermarks
-    }
-    if (!isBuffering && !canStartPlayback && !targetBufferSizeReached) {
-      isBuffering = true;
     }
     if (priorityTaskManager != null && isBuffering != wasBuffering) {
       if (isBuffering) {

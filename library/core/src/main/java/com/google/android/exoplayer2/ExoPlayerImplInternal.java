@@ -117,8 +117,7 @@ import java.util.Collections;
   private boolean released;
   private boolean playWhenReady;
   private boolean rebuffering;
-  private boolean renderersReadyOrEnded;
-  private @Player.RepeatMode int repeatMode;
+  @Player.RepeatMode private int repeatMode;
   private boolean shuffleModeEnabled;
 
   private int pendingPrepareCount;
@@ -554,8 +553,6 @@ import java.util.Collections;
       }
       renderersReadyOrEnded = renderersReadyOrEnded && rendererReadyOrEnded;
     }
-
-    this.renderersReadyOrEnded = renderersReadyOrEnded;
     if (!renderersReadyOrEnded) {
       maybeThrowPeriodPrepareError();
     }
@@ -567,25 +564,14 @@ import java.util.Collections;
         && playingPeriodHolder.info.isFinal) {
       setState(Player.STATE_ENDED);
       stopRenderers();
-    } else if (playbackInfo.playbackState == Player.STATE_BUFFERING) {
-      boolean shouldStartPlayback = isReady();
-      if (shouldStartPlayback && playbackInfo.isLoading && enabledRenderers.length != 0) {
-        MediaPeriodHolder loadingHolder = queue.getLoadingPeriod();
-        long bufferedPositionUs = loadingHolder.getBufferedPositionUs(!loadingHolder.info.isFinal);
-        shouldStartPlayback =
-            bufferedPositionUs == C.TIME_END_OF_SOURCE
-                || loadControl.shouldStartPlayback(
-                    bufferedPositionUs - loadingHolder.toPeriodTime(rendererPositionUs),
-                    mediaClock.getPlaybackParameters().speed,
-                    rebuffering);
+    } else if (playbackInfo.playbackState == Player.STATE_BUFFERING
+        && shouldTransitionToReadyState(renderersReadyOrEnded)) {
+      setState(Player.STATE_READY);
+      if (playWhenReady) {
+        startRenderers();
       }
-      if (shouldStartPlayback) {
-        setState(Player.STATE_READY);
-        if (playWhenReady) {
-          startRenderers();
-        }
-      }
-    } else if (playbackInfo.playbackState == Player.STATE_READY && !isReady()) {
+    } else if (playbackInfo.playbackState == Player.STATE_READY
+        && !(enabledRenderers.length == 0 ? isTimelineReady() : renderersReadyOrEnded)) {
       rebuffering = playWhenReady;
       setState(Player.STATE_BUFFERING);
       stopRenderers();
@@ -694,7 +680,6 @@ import java.util.Collections;
       throws ExoPlaybackException {
     stopRenderers();
     rebuffering = false;
-    renderersReadyOrEnded = false;
     setState(Player.STATE_BUFFERING);
 
     // Clear the timeline, but keep the requested period if it is already prepared.
@@ -736,8 +721,8 @@ import java.util.Collections;
     return periodPositionUs;
   }
 
-  private boolean shouldKeepPeriodHolder(MediaPeriodId seekPeriodId, long positionUs,
-      MediaPeriodHolder holder) {
+  private boolean shouldKeepPeriodHolder(
+      MediaPeriodId seekPeriodId, long positionUs, MediaPeriodHolder holder) {
     if (seekPeriodId.equals(holder.info.id) && holder.prepared) {
       playbackInfo.timeline.getPeriod(holder.info.id.periodIndex, period);
       int nextAdGroupIndex = period.getAdGroupIndexAfterPositionUs(positionUs);
@@ -802,7 +787,6 @@ import java.util.Collections;
       boolean releaseMediaSource, boolean resetPosition, boolean resetState) {
     handler.removeMessages(MSG_DO_SOME_WORK);
     rebuffering = false;
-    renderersReadyOrEnded = false;
     mediaClock.stop();
     rendererPositionUs = RENDERER_TIMESTAMP_OFFSET_US;
     for (Renderer renderer : enabledRenderers) {
@@ -1115,11 +1099,30 @@ import java.util.Collections;
     }
   }
 
-  private boolean isReady() {
-    if (enabledRenderers.length != 0) {
-      return renderersReadyOrEnded;
+  private boolean shouldTransitionToReadyState(boolean renderersReadyOrEnded) {
+    if (enabledRenderers.length == 0) {
+      // If there are no enabled renderers, determine whether we're ready based on the timeline.
+      return isTimelineReady();
     }
-    // Determine whether we're ready based on the timeline.
+    if (!renderersReadyOrEnded) {
+      return false;
+    }
+    if (!playbackInfo.isLoading) {
+      // Renderers are ready and we're not loading. Transition to ready, since the alternative is
+      // getting stuck waiting for additional media that's not being loaded.
+      return true;
+    }
+    // Renderers are ready and we're loading. Ask the LoadControl whether to transition.
+    MediaPeriodHolder loadingHolder = queue.getLoadingPeriod();
+    long bufferedPositionUs = loadingHolder.getBufferedPositionUs(!loadingHolder.info.isFinal);
+    return bufferedPositionUs == C.TIME_END_OF_SOURCE
+        || loadControl.shouldStartPlayback(
+            bufferedPositionUs - loadingHolder.toPeriodTime(rendererPositionUs),
+            mediaClock.getPlaybackParameters().speed,
+            rebuffering);
+  }
+
+  private boolean isTimelineReady() {
     MediaPeriodHolder playingPeriodHolder = queue.getPlayingPeriod();
     long playingPeriodDurationUs = playingPeriodHolder.info.durationUs;
     return playingPeriodDurationUs == C.TIME_UNSET
@@ -1312,8 +1315,8 @@ import java.util.Collections;
    * @return The index in the new timeline of the first subsequent period, or {@link C#INDEX_UNSET}
    *     if no such period was found.
    */
-  private int resolveSubsequentPeriod(int oldPeriodIndex, Timeline oldTimeline,
-      Timeline newTimeline) {
+  private int resolveSubsequentPeriod(
+      int oldPeriodIndex, Timeline oldTimeline, Timeline newTimeline) {
     int newPeriodIndex = C.INDEX_UNSET;
     int maxIterations = oldTimeline.getPeriodCount();
     for (int i = 0; i < maxIterations && newPeriodIndex == C.INDEX_UNSET; i++) {
@@ -1391,8 +1394,8 @@ import java.util.Collections;
    * Calls {@link Timeline#getPeriodPosition(Timeline.Window, Timeline.Period, int, long)} using the
    * current timeline.
    */
-  private Pair<Integer, Long> getPeriodPosition(Timeline timeline, int windowIndex,
-      long windowPositionUs) {
+  private Pair<Integer, Long> getPeriodPosition(
+      Timeline timeline, int windowIndex, long windowPositionUs) {
     return timeline.getPeriodPosition(window, period, windowIndex, windowPositionUs);
   }
 
@@ -1576,15 +1579,11 @@ import java.util.Collections;
       setIsLoading(false);
       return;
     }
-    boolean canStartPlayback = playbackInfo.playbackState == Player.STATE_READY || isReady();
     long bufferedDurationUs =
         nextLoadPositionUs - loadingPeriodHolder.toPeriodTime(rendererPositionUs);
     boolean continueLoading =
         loadControl.shouldContinueLoading(
-            canStartPlayback, bufferedDurationUs, mediaClock.getPlaybackParameters().speed);
-    if (!canStartPlayback && !continueLoading) {
-      throw new StuckBufferingException();
-    }
+            bufferedDurationUs, mediaClock.getPlaybackParameters().speed);
     setIsLoading(continueLoading);
     if (continueLoading) {
       loadingPeriodHolder.continueLoading(rendererPositionUs);
@@ -1632,8 +1631,9 @@ import java.util.Collections;
     }
   }
 
-  private void enableRenderer(int rendererIndex, boolean wasRendererEnabled,
-      int enabledRendererIndex) throws ExoPlaybackException {
+  private void enableRenderer(
+      int rendererIndex, boolean wasRendererEnabled, int enabledRendererIndex)
+      throws ExoPlaybackException {
     MediaPeriodHolder playingPeriodHolder = queue.getPlayingPeriod();
     Renderer renderer = renderers[rendererIndex];
     enabledRenderers[enabledRendererIndex] = renderer;
