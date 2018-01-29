@@ -16,6 +16,7 @@
 package com.google.android.exoplayer2;
 
 import android.util.Pair;
+import com.google.android.exoplayer2.source.ads.AdPlaybackState;
 import com.google.android.exoplayer2.util.Assertions;
 
 /**
@@ -278,12 +279,7 @@ public abstract class Timeline {
     public long durationUs;
 
     private long positionInWindowUs;
-    private long[] adGroupTimesUs;
-    private int[] adCounts;
-    private int[] adsLoadedCounts;
-    private int[] adsPlayedCounts;
-    private long[][] adDurationsUs;
-    private long adResumePositionUs;
+    private AdPlaybackState adPlaybackState;
 
     /**
      * Sets the data held by this period.
@@ -300,8 +296,7 @@ public abstract class Timeline {
      */
     public Period set(Object id, Object uid, int windowIndex, long durationUs,
         long positionInWindowUs) {
-      return set(id, uid, windowIndex, durationUs, positionInWindowUs, null, null, null, null,
-          null, C.TIME_UNSET);
+      return set(id, uid, windowIndex, durationUs, positionInWindowUs, AdPlaybackState.NONE);
     }
 
     /**
@@ -315,33 +310,23 @@ public abstract class Timeline {
      * @param positionInWindowUs The position of the start of this period relative to the start of
      *     the window to which it belongs, in milliseconds. May be negative if the start of the
      *     period is not within the window.
-     * @param adGroupTimesUs The times of ad groups relative to the start of the period, in
-     *     microseconds. A final element with the value {@link C#TIME_END_OF_SOURCE} indicates that
-     *     the period has a postroll ad.
-     * @param adCounts The number of ads in each ad group. An element may be {@link C#LENGTH_UNSET}
-     *     if the number of ads is not yet known.
-     * @param adsLoadedCounts The number of ads loaded so far in each ad group.
-     * @param adsPlayedCounts The number of ads played so far in each ad group.
-     * @param adDurationsUs The duration of each ad in each ad group, in microseconds. An element
-     *     may be {@link C#TIME_UNSET} if the duration is not yet known.
-     * @param adResumePositionUs The position offset in the first unplayed ad at which to begin
-     *     playback, in microseconds.
+     * @param adPlaybackState The state of the period's ads, or {@link AdPlaybackState#NONE} if
+     *     there are no ads.
      * @return This period, for convenience.
      */
-    public Period set(Object id, Object uid, int windowIndex, long durationUs,
-        long positionInWindowUs, long[] adGroupTimesUs, int[] adCounts, int[] adsLoadedCounts,
-        int[] adsPlayedCounts, long[][] adDurationsUs, long adResumePositionUs) {
+    public Period set(
+        Object id,
+        Object uid,
+        int windowIndex,
+        long durationUs,
+        long positionInWindowUs,
+        AdPlaybackState adPlaybackState) {
       this.id = id;
       this.uid = uid;
       this.windowIndex = windowIndex;
       this.durationUs = durationUs;
       this.positionInWindowUs = positionInWindowUs;
-      this.adGroupTimesUs = adGroupTimesUs;
-      this.adCounts = adCounts;
-      this.adsLoadedCounts = adsLoadedCounts;
-      this.adsPlayedCounts = adsPlayedCounts;
-      this.adDurationsUs = adDurationsUs;
-      this.adResumePositionUs = adResumePositionUs;
+      this.adPlaybackState = adPlaybackState;
       return this;
     }
 
@@ -381,7 +366,7 @@ public abstract class Timeline {
      * Returns the number of ad groups in the period.
      */
     public int getAdGroupCount() {
-      return adGroupTimesUs == null ? 0 : adGroupTimesUs.length;
+      return adPlaybackState.adGroupCount;
     }
 
     /**
@@ -392,17 +377,19 @@ public abstract class Timeline {
      * @return The time of the ad group at the index, in microseconds.
      */
     public long getAdGroupTimeUs(int adGroupIndex) {
-      return adGroupTimesUs[adGroupIndex];
+      return adPlaybackState.adGroupTimesUs[adGroupIndex];
     }
 
     /**
-     * Returns the number of ads that have been played in the specified ad group in the period.
+     * Returns the index of the next ad to play in the specified ad group, or the number of ads in
+     * the ad group if the ad group does not have any ads remaining to play.
      *
      * @param adGroupIndex The ad group index.
-     * @return The number of ads that have been played.
+     * @return The index of the next ad that should be played, or the number of ads in the ad group
+     *     if the ad group does not have any ads remaining to play.
      */
-    public int getPlayedAdCount(int adGroupIndex) {
-      return adsPlayedCounts[adGroupIndex];
+    public int getNextAdIndexToPlay(int adGroupIndex) {
+      return adPlaybackState.adGroups[adGroupIndex].nextAdIndexToPlay;
     }
 
     /**
@@ -412,8 +399,8 @@ public abstract class Timeline {
      * @return Whether the ad group at index {@code adGroupIndex} has been played.
      */
     public boolean hasPlayedAdGroup(int adGroupIndex) {
-      return adCounts[adGroupIndex] != C.INDEX_UNSET
-          && adsPlayedCounts[adGroupIndex] == adCounts[adGroupIndex];
+      AdPlaybackState.AdGroup adGroup = adPlaybackState.adGroups[adGroupIndex];
+      return adGroup.nextAdIndexToPlay == adGroup.count;
     }
 
     /**
@@ -425,6 +412,7 @@ public abstract class Timeline {
      * @return The index of the ad group, or {@link C#INDEX_UNSET}.
      */
     public int getAdGroupIndexForPositionUs(long positionUs) {
+      long[] adGroupTimesUs = adPlaybackState.adGroupTimesUs;
       if (adGroupTimesUs == null) {
         return C.INDEX_UNSET;
       }
@@ -446,6 +434,7 @@ public abstract class Timeline {
      * @return The index of the ad group, or {@link C#INDEX_UNSET}.
      */
     public int getAdGroupIndexAfterPositionUs(long positionUs) {
+      long[] adGroupTimesUs = adPlaybackState.adGroupTimesUs;
       if (adGroupTimesUs == null) {
         return C.INDEX_UNSET;
       }
@@ -467,7 +456,7 @@ public abstract class Timeline {
      * @return The number of ads in the ad group, or {@link C#LENGTH_UNSET} if not yet known.
      */
     public int getAdCountInAdGroup(int adGroupIndex) {
-      return adCounts[adGroupIndex];
+      return adPlaybackState.adGroups[adGroupIndex].count;
     }
 
     /**
@@ -478,7 +467,9 @@ public abstract class Timeline {
      * @return Whether the URL for the specified ad is known.
      */
     public boolean isAdAvailable(int adGroupIndex, int adIndexInAdGroup) {
-      return adIndexInAdGroup < adsLoadedCounts[adGroupIndex];
+      AdPlaybackState.AdGroup adGroup = adPlaybackState.adGroups[adGroupIndex];
+      return adGroup.count != C.LENGTH_UNSET
+          && adGroup.states[adIndexInAdGroup] != AdPlaybackState.AD_STATE_UNAVAILABLE;
     }
 
     /**
@@ -490,10 +481,7 @@ public abstract class Timeline {
      * @return The duration of the ad, or {@link C#TIME_UNSET} if not yet known.
      */
     public long getAdDurationUs(int adGroupIndex, int adIndexInAdGroup) {
-      if (adIndexInAdGroup >= adDurationsUs[adGroupIndex].length) {
-        return C.TIME_UNSET;
-      }
-      return adDurationsUs[adGroupIndex][adIndexInAdGroup];
+      return adPlaybackState.adGroups[adGroupIndex].durationsUs[adIndexInAdGroup];
     }
 
     /**
@@ -501,7 +489,7 @@ public abstract class Timeline {
      * microseconds.
      */
     public long getAdResumePositionUs() {
-      return adResumePositionUs;
+      return adPlaybackState.adResumePositionUs;
     }
 
   }

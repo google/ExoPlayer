@@ -18,6 +18,7 @@ package com.google.android.exoplayer2.testutil;
 import android.util.Pair;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Timeline;
+import com.google.android.exoplayer2.source.ads.AdPlaybackState;
 import com.google.android.exoplayer2.util.Util;
 import java.util.Arrays;
 
@@ -177,21 +178,21 @@ public final class FakeTimeline extends Timeline {
     } else {
       int adGroups = windowDefinition.adGroupsPerPeriodCount;
       long[] adGroupTimesUs = new long[adGroups];
-      int[] adCounts = new int[adGroups];
-      int[] adLoadedAndPlayedCounts = new int[adGroups];
-      long[][] adDurationsUs = new long[adGroups][];
-      long adResumePositionUs = 0;
       long adGroupOffset = adGroups > 1 ? periodDurationUs / (adGroups - 1) : 0;
       for (int i = 0; i < adGroups; i++) {
         adGroupTimesUs[i] = i * adGroupOffset;
-        adCounts[i] = windowDefinition.adsPerAdGroupCount;
-        adLoadedAndPlayedCounts[i] = 0;
-        adDurationsUs[i] = new long[adCounts[i]];
+      }
+      AdPlaybackState adPlaybackState = new AdPlaybackState(adGroupTimesUs);
+      long[][] adDurationsUs = new long[adGroups][];
+      for (int i = 0; i < adGroups; i++) {
+        int adCount = windowDefinition.adsPerAdGroupCount;
+        adPlaybackState = adPlaybackState.withAdCount(i, adCount);
+        adDurationsUs[i] = new long[adCount];
         Arrays.fill(adDurationsUs[i], AD_DURATION_US);
       }
-      return period.set(id, uid, windowIndex, periodDurationUs, positionInWindowUs, adGroupTimesUs,
-          adCounts, adLoadedAndPlayedCounts, adLoadedAndPlayedCounts, adDurationsUs,
-          adResumePositionUs);
+      adPlaybackState = adPlaybackState.withAdDurationsUs(adDurationsUs);
+      return period.set(
+          id, uid, windowIndex, periodDurationUs, positionInWindowUs, adPlaybackState);
     }
   }
 

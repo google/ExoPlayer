@@ -48,6 +48,7 @@ import com.google.android.exoplayer2.ExoPlayerLibraryInfo;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.source.ads.AdPlaybackState;
+import com.google.android.exoplayer2.source.ads.AdPlaybackState.AdState;
 import com.google.android.exoplayer2.source.ads.AdsLoader;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.MimeTypes;
@@ -393,7 +394,7 @@ public final class ImaAdsLoader extends Player.DefaultEventListener implements A
     maybeNotifyAdError();
     if (adPlaybackState != null) {
       // Pass the ad playback state to the player, and resume ads if necessary.
-      eventListener.onAdPlaybackState(adPlaybackState.copy());
+      eventListener.onAdPlaybackState(adPlaybackState);
       if (imaPausedContent && player.getPlayWhenReady()) {
         adsManager.resume();
       }
@@ -409,7 +410,9 @@ public final class ImaAdsLoader extends Player.DefaultEventListener implements A
   @Override
   public void detachPlayer() {
     if (adsManager != null && imaPausedContent) {
-      adPlaybackState.setAdResumePositionUs(playingAd ? C.msToUs(player.getCurrentPosition()) : 0);
+      adPlaybackState =
+          adPlaybackState.withAdResumePositionUs(
+              playingAd ? C.msToUs(player.getCurrentPosition()) : 0);
       adsManager.pause();
     }
     lastAdProgress = getAdProgress();
@@ -474,7 +477,7 @@ public final class ImaAdsLoader extends Player.DefaultEventListener implements A
         if (DEBUG) {
           Log.d(TAG, "Loaded ad " + adPosition + " of " + adCount + " in group " + adGroupIndex);
         }
-        adPlaybackState.setAdCount(adGroupIndex, adCount);
+        adPlaybackState = adPlaybackState.withAdCount(adGroupIndex, adCount);
         updateAdPlaybackState();
         if (adGroupIndex != expectedAdGroupIndex) {
           Log.w(
@@ -589,8 +592,10 @@ public final class ImaAdsLoader extends Player.DefaultEventListener implements A
     if (DEBUG) {
       Log.d(TAG, "loadAd in ad group " + adGroupIndex);
     }
-    adPlaybackState.addAdUri(adGroupIndex, Uri.parse(adUriString));
-    if (adPlaybackState.adsLoadedCounts[adGroupIndex] == adPlaybackState.adCounts[adGroupIndex]) {
+    int adIndexInAdGroup = getAdIndexInAdGroupToLoad(adGroupIndex);
+    adPlaybackState =
+        adPlaybackState.withAdUri(adGroupIndex, adIndexInAdGroup, Uri.parse(adUriString));
+    if (getAdIndexInAdGroupToLoad(adGroupIndex) == C.INDEX_UNSET) {
       // Keep track of the expected ad group index to use as a fallback if the LOADED event is
       // unexpectedly not triggered.
       expectedAdGroupIndex++;
@@ -693,7 +698,7 @@ public final class ImaAdsLoader extends Player.DefaultEventListener implements A
     long contentDurationUs = timeline.getPeriod(0, period).durationUs;
     contentDurationMs = C.usToMs(contentDurationUs);
     if (contentDurationUs != C.TIME_UNSET) {
-      adPlaybackState.contentDurationUs = contentDurationUs;
+      adPlaybackState = adPlaybackState.withContentDurationUs(contentDurationUs);
     }
     updateImaStateForPlayerState();
   }
@@ -748,7 +753,7 @@ public final class ImaAdsLoader extends Player.DefaultEventListener implements A
       if (sentContentComplete) {
         for (int i = 0; i < adPlaybackState.adGroupCount; i++) {
           if (adPlaybackState.adGroupTimesUs[i] != C.TIME_END_OF_SOURCE) {
-            adPlaybackState.playedAdGroup(i);
+            adPlaybackState = adPlaybackState.withSkippedAdGroup(i);
           }
         }
         updateAdPlaybackState();
@@ -790,7 +795,7 @@ public final class ImaAdsLoader extends Player.DefaultEventListener implements A
     } else /* adGroupIndexForPosition > 0 */ {
       // Skip ad groups before the one at or immediately before the playback position.
       for (int i = 0; i < adGroupIndexForPosition; i++) {
-        adPlaybackState.playedAdGroup(i);
+        adPlaybackState = adPlaybackState.withSkippedAdGroup(i);
       }
       // Play ads after the midpoint between the ad to play and the one before it, to avoid issues
       // with rounding one of the two ad times.
@@ -859,7 +864,7 @@ public final class ImaAdsLoader extends Player.DefaultEventListener implements A
       }
     }
     if (playingAd && adGroupIndex != C.INDEX_UNSET) {
-      adPlaybackState.playedAdGroup(adGroupIndex);
+      adPlaybackState = adPlaybackState.withSkippedAdGroup(adGroupIndex);
       adGroupIndex = C.INDEX_UNSET;
       updateAdPlaybackState();
     }
@@ -879,7 +884,10 @@ public final class ImaAdsLoader extends Player.DefaultEventListener implements A
   private void stopAdInternal() {
     Assertions.checkState(imaAdState != IMA_AD_STATE_NONE);
     imaAdState = IMA_AD_STATE_NONE;
-    adPlaybackState.playedAd(adGroupIndex);
+    int adIndexInAdGroup = adPlaybackState.adGroups[adGroupIndex].nextAdIndexToPlay;
+    // TODO: Handle the skipped event so the ad can be marked as skipped rather than played.
+    adPlaybackState =
+        adPlaybackState.withPlayedAd(adGroupIndex, adIndexInAdGroup).withAdResumePositionUs(0);
     updateAdPlaybackState();
     if (!playingAd) {
       adGroupIndex = C.INDEX_UNSET;
@@ -901,7 +909,7 @@ public final class ImaAdsLoader extends Player.DefaultEventListener implements A
   private void updateAdPlaybackState() {
     // Ignore updates while detached. When a player is attached it will receive the latest state.
     if (eventListener != null) {
-      eventListener.onAdPlaybackState(adPlaybackState.copy());
+      eventListener.onAdPlaybackState(adPlaybackState);
     }
   }
 
@@ -945,5 +953,20 @@ public final class ImaAdsLoader extends Player.DefaultEventListener implements A
           cuePoint == -1.0 ? C.TIME_END_OF_SOURCE : (long) (C.MICROS_PER_SECOND * cuePoint);
     }
     return adGroupTimesUs;
+  }
+
+  /**
+   * Returns the next ad index in the specified ad group to load, or {@link C#INDEX_UNSET} if all
+   * ads in the ad group have loaded.
+   */
+  private int getAdIndexInAdGroupToLoad(int adGroupIndex) {
+    @AdState int[] states = adPlaybackState.adGroups[adGroupIndex].states;
+    int adIndexInAdGroup = 0;
+    // IMA loads ads in order.
+    while (adIndexInAdGroup < states.length
+        && states[adIndexInAdGroup] != AdPlaybackState.AD_STATE_UNAVAILABLE) {
+      adIndexInAdGroup++;
+    }
+    return adIndexInAdGroup == states.length ? C.INDEX_UNSET : adIndexInAdGroup;
   }
 }
