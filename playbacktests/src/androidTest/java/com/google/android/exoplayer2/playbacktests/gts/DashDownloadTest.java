@@ -100,8 +100,8 @@ public final class DashDownloadTest extends ActivityInstrumentationTestCase2<Hos
 
     dashDownloader.remove();
 
-    assertWithMessage("There should be no content left.").that(cache.getKeys().size()).isEqualTo(0);
-    assertWithMessage("There should be no content left.").that(cache.getCacheSpace()).isEqualTo(0);
+    assertWithMessage("There should be no cache key left").that(cache.getKeys()).isEmpty();
+    assertWithMessage("There should be no content left").that(cache.getCacheSpace()).isEqualTo(0);
   }
 
   public void testPartialDownload() throws Exception {
