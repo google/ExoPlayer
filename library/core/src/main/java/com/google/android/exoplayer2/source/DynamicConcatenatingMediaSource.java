@@ -333,7 +333,6 @@ public final class DynamicConcatenatingMediaSource extends CompositeMediaSource<
   public synchronized void prepareSource(ExoPlayer player, boolean isTopLevelSource,
       Listener listener) {
     super.prepareSource(player, isTopLevelSource, listener);
-    Assertions.checkState(this.listener == null, MEDIA_SOURCE_REUSED_ERROR_MESSAGE);
     this.player = player;
     this.listener = listener;
     preventListenerNotification = true;
@@ -370,6 +369,17 @@ public final class DynamicConcatenatingMediaSource extends CompositeMediaSource<
     } else {
       mediaSource.releasePeriod(mediaPeriod);
     }
+  }
+
+  @Override
+  public void releaseSource() {
+    super.releaseSource();
+    mediaSourceHolders.clear();
+    player = null;
+    listener = null;
+    shuffleOrder = shuffleOrder.cloneAndClear();
+    windowCount = 0;
+    periodCount = 0;
   }
 
   @Override
