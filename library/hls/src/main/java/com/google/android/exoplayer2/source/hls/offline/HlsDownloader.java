@@ -36,7 +36,7 @@ import java.util.List;
 /**
  * Helper class to download HLS streams.
  *
- * A subset of renditions can be downloaded by selecting them using {@link
+ * <p>A subset of renditions can be downloaded by selecting them using {@link
  * #selectRepresentations(Object[])}. As key, string form of the rendition's url is used. The urls
  * can be absolute or relative to the master playlist url.
  */
@@ -50,6 +50,16 @@ public final class HlsDownloader extends SegmentDownloader<HlsMasterPlaylist, St
   }
 
   @Override
+  public String[] getAllRepresentationKeys() throws IOException {
+    ArrayList<String> urls = new ArrayList<>();
+    HlsMasterPlaylist manifest = getManifest();
+    extractUrls(manifest.variants, urls);
+    extractUrls(manifest.audios, urls);
+    extractUrls(manifest.subtitles, urls);
+    return urls.toArray(new String[urls.size()]);
+  }
+
+  @Override
   protected HlsMasterPlaylist getManifest(DataSource dataSource, Uri uri) throws IOException {
     HlsPlaylist hlsPlaylist = loadManifest(dataSource, uri);
     if (hlsPlaylist instanceof HlsMasterPlaylist) {
@@ -57,17 +67,6 @@ public final class HlsDownloader extends SegmentDownloader<HlsMasterPlaylist, St
     } else {
       return HlsMasterPlaylist.createSingleVariantMasterPlaylist(hlsPlaylist.baseUri);
     }
-  }
-
-  @Override
-  protected List<Segment> getAllSegments(DataSource dataSource, HlsMasterPlaylist manifest,
-      boolean allowIndexLoadErrors) throws InterruptedException, IOException {
-    ArrayList<String> urls = new ArrayList<>();
-    extractUrls(manifest.variants, urls);
-    extractUrls(manifest.audios, urls);
-    extractUrls(manifest.subtitles, urls);
-    return getSegments(dataSource, manifest, urls.toArray(new String[urls.size()]),
-        allowIndexLoadErrors);
   }
 
   @Override
@@ -104,7 +103,7 @@ public final class HlsDownloader extends SegmentDownloader<HlsMasterPlaylist, St
     return segments;
   }
 
-  private HlsPlaylist loadManifest(DataSource dataSource, Uri uri) throws IOException {
+  private static HlsPlaylist loadManifest(DataSource dataSource, Uri uri) throws IOException {
     DataSpec dataSpec = new DataSpec(uri,
         DataSpec.FLAG_ALLOW_CACHING_UNKNOWN_LENGTH | DataSpec.FLAG_ALLOW_GZIP);
     ParsingLoadable<HlsPlaylist> loadable = new ParsingLoadable<>(dataSource, dataSpec,
@@ -113,9 +112,11 @@ public final class HlsDownloader extends SegmentDownloader<HlsMasterPlaylist, St
     return loadable.getResult();
   }
 
-  private static void addSegment(ArrayList<Segment> segments, HlsMediaPlaylist mediaPlaylist,
-      HlsMediaPlaylist.Segment hlsSegment, HashSet<Uri> encryptionKeyUris)
-      throws IOException, InterruptedException {
+  private static void addSegment(
+      ArrayList<Segment> segments,
+      HlsMediaPlaylist mediaPlaylist,
+      HlsMediaPlaylist.Segment hlsSegment,
+      HashSet<Uri> encryptionKeyUris) {
     long startTimeUs = mediaPlaylist.startTimeUs + hlsSegment.relativeStartTimeUs;
     if (hlsSegment.fullSegmentEncryptionKeyUri != null) {
       Uri keyUri = UriUtil.resolveToUri(mediaPlaylist.baseUri,
