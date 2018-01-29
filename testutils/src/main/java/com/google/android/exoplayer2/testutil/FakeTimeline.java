@@ -31,10 +31,8 @@ public final class FakeTimeline extends Timeline {
    */
   public static final class TimelineWindowDefinition {
 
-    /**
-     * Default test window duration in microseconds.
-     */
-    public static final int DEFAULT_WINDOW_DURATION_US = 100_000;
+    /** Default test window duration in microseconds. */
+    public static final long DEFAULT_WINDOW_DURATION_US = 10 * C.MICROS_PER_SECOND;
 
     public final int periodCount;
     public final Object id;

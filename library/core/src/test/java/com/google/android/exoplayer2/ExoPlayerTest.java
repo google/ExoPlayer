@@ -165,7 +165,11 @@ public final class ExoPlayerTest {
    */
   @Test
   public void testReadAheadToEndDoesNotResetRenderer() throws Exception {
-    Timeline timeline = new FakeTimeline(/* windowCount= */ 3);
+    // Use sufficiently short periods to ensure the player attempts to read all at once.
+    TimelineWindowDefinition windowDefinition =
+        new TimelineWindowDefinition(
+            /* isSeekable= */ false, /* isDynamic= */ false, /* durationUs= */ 100_000);
+    Timeline timeline = new FakeTimeline(windowDefinition, windowDefinition, windowDefinition);
     final FakeRenderer videoRenderer = new FakeRenderer(Builder.VIDEO_FORMAT);
     FakeMediaClockRenderer audioRenderer =
         new FakeMediaClockRenderer(Builder.AUDIO_FORMAT) {
