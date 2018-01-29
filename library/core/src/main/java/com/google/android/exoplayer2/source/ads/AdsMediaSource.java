@@ -222,7 +222,7 @@ public final class AdsMediaSource extends CompositeMediaSource<MediaPeriodId> {
       int adGroupIndex = id.adGroupIndex;
       int adIndexInAdGroup = id.adIndexInAdGroup;
       if (adGroupMediaSources[adGroupIndex].length <= adIndexInAdGroup) {
-        Uri adUri = adPlaybackState.adUris[id.adGroupIndex][id.adIndexInAdGroup];
+        Uri adUri = adPlaybackState.adGroups[id.adGroupIndex].uris[id.adIndexInAdGroup];
         MediaSource adMediaSource =
             adMediaSourceFactory.createMediaSource(adUri, eventHandler, eventListener);
         int oldAdCount = adGroupMediaSources[id.adGroupIndex].length;
@@ -337,11 +337,11 @@ public final class AdsMediaSource extends CompositeMediaSource<MediaPeriodId> {
 
   private void maybeUpdateSourceInfo() {
     if (adPlaybackState != null && contentTimeline != null) {
-      Timeline timeline = adPlaybackState.adGroupCount == 0 ? contentTimeline
-          : new SinglePeriodAdTimeline(contentTimeline, adPlaybackState.adGroupTimesUs,
-              adPlaybackState.adCounts, adPlaybackState.adsLoadedCounts,
-              adPlaybackState.adsPlayedCounts, adDurationsUs, adPlaybackState.adResumePositionUs,
-              adPlaybackState.contentDurationUs);
+      adPlaybackState = adPlaybackState.withAdDurationsUs(adDurationsUs);
+      Timeline timeline =
+          adPlaybackState.adGroupCount == 0
+              ? contentTimeline
+              : new SinglePeriodAdTimeline(contentTimeline, adPlaybackState);
       listener.onSourceInfoRefreshed(this, timeline, contentManifest);
     }
   }
