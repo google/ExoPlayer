@@ -16,7 +16,6 @@
 package com.google.android.exoplayer2.demo;
 
 import android.app.Activity;
-import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
@@ -76,6 +75,7 @@ import com.google.android.exoplayer2.upstream.DefaultBandwidthMeter;
 import com.google.android.exoplayer2.upstream.HttpDataSource;
 import com.google.android.exoplayer2.util.EventLogger;
 import com.google.android.exoplayer2.util.Util;
+import java.lang.reflect.Constructor;
 import java.net.CookieHandler;
 import java.net.CookieManager;
 import java.net.CookiePolicy;
@@ -353,9 +353,10 @@ public class PlayerActivity extends Activity
         releaseAdsLoader();
         loadedAdTagUri = adTagUri;
       }
-      try {
-        mediaSource = createAdsMediaSource(mediaSource, Uri.parse(adTagUriString));
-      } catch (Exception e) {
+      MediaSource adsMediaSource = createAdsMediaSource(mediaSource, Uri.parse(adTagUriString));
+      if (adsMediaSource != null) {
+        mediaSource = adsMediaSource;
+      } else {
         showToast(R.string.ima_not_loaded);
       }
     } else {
@@ -463,39 +464,47 @@ public class PlayerActivity extends Activity
         .buildHttpDataSourceFactory(useBandwidthMeter ? BANDWIDTH_METER : null);
   }
 
-  /**
-   * Returns an ads media source, reusing the ads loader if one exists.
-   *
-   * @throws Exception Thrown if it was not possible to create an ads media source, for example, due
-   *     to a missing dependency.
-   */
-  private MediaSource createAdsMediaSource(MediaSource mediaSource, Uri adTagUri) throws Exception {
+  /** Returns an ads media source, reusing the ads loader if one exists. */
+  private @Nullable MediaSource createAdsMediaSource(MediaSource mediaSource, Uri adTagUri) {
     // Load the extension source using reflection so the demo app doesn't have to depend on it.
     // The ads loader is reused for multiple playbacks, so that ad playback can resume.
-    Class<?> loaderClass = Class.forName("com.google.android.exoplayer2.ext.ima.ImaAdsLoader");
-    if (adsLoader == null) {
-      adsLoader = (AdsLoader) loaderClass.getConstructor(Context.class, Uri.class)
-          .newInstance(this, adTagUri);
-      adUiViewGroup = new FrameLayout(this);
-      // The demo app has a non-null overlay frame layout.
-      playerView.getOverlayFrameLayout().addView(adUiViewGroup);
-    }
-    AdsMediaSource.MediaSourceFactory adMediaSourceFactory =
-        new AdsMediaSource.MediaSourceFactory() {
-          @Override
-          public MediaSource createMediaSource(
-              Uri uri, @Nullable Handler handler, @Nullable MediaSourceEventListener listener) {
-            return PlayerActivity.this.buildMediaSource(
-                uri, /* overrideExtension= */ null, handler, listener);
-          }
+    try {
+      Class<?> loaderClass = Class.forName("com.google.android.exoplayer2.ext.ima.ImaAdsLoader");
+      if (adsLoader == null) {
+        // Full class names used so the LINT.IfChange rule triggers should any of the classes move.
+        // LINT.IfChange
+        Constructor<? extends AdsLoader> loaderConstructor =
+            loaderClass
+                .asSubclass(AdsLoader.class)
+                .getConstructor(android.content.Context.class, android.net.Uri.class);
+        // LINT.ThenChange(../../../../../../../../proguard-rules.txt)
+        adsLoader = loaderConstructor.newInstance(this, adTagUri);
+        adUiViewGroup = new FrameLayout(this);
+        // The demo app has a non-null overlay frame layout.
+        playerView.getOverlayFrameLayout().addView(adUiViewGroup);
+      }
+      AdsMediaSource.MediaSourceFactory adMediaSourceFactory =
+          new AdsMediaSource.MediaSourceFactory() {
+            @Override
+            public MediaSource createMediaSource(
+                Uri uri, @Nullable Handler handler, @Nullable MediaSourceEventListener listener) {
+              return PlayerActivity.this.buildMediaSource(
+                  uri, /* overrideExtension= */ null, handler, listener);
+            }
 
-          @Override
-          public int[] getSupportedTypes() {
-            return new int[] {C.TYPE_DASH, C.TYPE_SS, C.TYPE_HLS, C.TYPE_OTHER};
-          }
-        };
-    return new AdsMediaSource(
-        mediaSource, adMediaSourceFactory, adsLoader, adUiViewGroup, mainHandler, eventLogger);
+            @Override
+            public int[] getSupportedTypes() {
+              return new int[] {C.TYPE_DASH, C.TYPE_SS, C.TYPE_HLS, C.TYPE_OTHER};
+            }
+          };
+      return new AdsMediaSource(
+          mediaSource, adMediaSourceFactory, adsLoader, adUiViewGroup, mainHandler, eventLogger);
+    } catch (ClassNotFoundException e) {
+      // IMA extension not loaded.
+      return null;
+    } catch (Exception e) {
+      throw new RuntimeException(e);
+    }
   }
 
   private void releaseAdsLoader() {

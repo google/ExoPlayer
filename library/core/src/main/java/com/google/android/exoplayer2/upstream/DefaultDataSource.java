@@ -21,7 +21,6 @@ import android.util.Log;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Util;
 import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
 
 /**
  * A {@link DataSource} that supports multiple URI schemes. The supported schemes are:
@@ -193,18 +192,16 @@ public final class DefaultDataSource implements DataSource {
   private DataSource getRtmpDataSource() {
     if (rtmpDataSource == null) {
       try {
+        // LINT.IfChange
         Class<?> clazz = Class.forName("com.google.android.exoplayer2.ext.rtmp.RtmpDataSource");
-        rtmpDataSource = (DataSource) clazz.getDeclaredConstructor().newInstance();
+        rtmpDataSource = (DataSource) clazz.getConstructor().newInstance();
+        // LINT.ThenChange(../../../../../../../../proguard-rules.txt)
       } catch (ClassNotFoundException e) {
+        // Expected if the app was built without the RTMP extension.
         Log.w(TAG, "Attempting to play RTMP stream without depending on the RTMP extension");
-      } catch (InstantiationException e) {
-        Log.e(TAG, "Error instantiating RtmpDataSource", e);
-      } catch (IllegalAccessException e) {
-        Log.e(TAG, "Error instantiating RtmpDataSource", e);
-      } catch (NoSuchMethodException e) {
-        Log.e(TAG, "Error instantiating RtmpDataSource", e);
-      } catch (InvocationTargetException e) {
-        Log.e(TAG, "Error instantiating RtmpDataSource", e);
+      } catch (Exception e) {
+        // The RTMP extension is present, but instantiation failed.
+        throw new RuntimeException("Error instantiating RTMP extension", e);
       }
       if (rtmpDataSource == null) {
         rtmpDataSource = baseDataSource;
