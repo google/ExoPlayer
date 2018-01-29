@@ -24,6 +24,7 @@ import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.FormatHolder;
 import com.google.android.exoplayer2.Renderer;
 import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
+import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.MimeTypes;
 import java.util.Arrays;
 import java.util.Collections;
@@ -35,51 +36,72 @@ import java.util.List;
  */
 public class FakeRenderer extends BaseRenderer {
 
+  /**
+   * The amount of time ahead of the current playback position that the renderer reads from the
+   * source. A real renderer will typically read ahead by a small amount due to pipelining through
+   * decoders and the media output path.
+   */
+  private static final long SOURCE_READAHEAD_US = 250000;
+
   private final List<Format> expectedFormats;
   private final DecoderInputBuffer buffer;
+  private final FormatHolder formatHolder;
 
+  private long playbackPositionUs;
+  private long lastSamplePositionUs;
+
+  public boolean isEnded;
   public int positionResetCount;
   public int formatReadCount;
-  public int bufferReadCount;
-  public boolean isEnded;
-  public boolean isReady;
+  public int sampleBufferReadCount;
 
   public FakeRenderer(Format... expectedFormats) {
     super(expectedFormats.length == 0 ? C.TRACK_TYPE_UNKNOWN
         : MimeTypes.getTrackType(expectedFormats[0].sampleMimeType));
     this.expectedFormats = Collections.unmodifiableList(Arrays.asList(expectedFormats));
-    this.buffer = new DecoderInputBuffer(DecoderInputBuffer.BUFFER_REPLACEMENT_MODE_NORMAL);
+    buffer = new DecoderInputBuffer(DecoderInputBuffer.BUFFER_REPLACEMENT_MODE_NORMAL);
+    formatHolder = new FormatHolder();
+    lastSamplePositionUs = Long.MIN_VALUE;
   }
 
   @Override
   protected void onPositionReset(long positionUs, boolean joining) throws ExoPlaybackException {
+    playbackPositionUs = positionUs;
+    lastSamplePositionUs = Long.MIN_VALUE;
     positionResetCount++;
     isEnded = false;
   }
 
   @Override
   public void render(long positionUs, long elapsedRealtimeUs) throws ExoPlaybackException {
-    if (!isEnded) {
-      // Verify the format matches the expected format.
-      FormatHolder formatHolder = new FormatHolder();
+    if (isEnded) {
+      return;
+    }
+    playbackPositionUs = positionUs;
+    while (lastSamplePositionUs < positionUs + SOURCE_READAHEAD_US) {
+      formatHolder.format = null;
+      buffer.clear();
       int result = readSource(formatHolder, buffer, false);
-      buffer.data = null;
       if (result == C.RESULT_FORMAT_READ) {
         formatReadCount++;
         assertThat(expectedFormats).contains(formatHolder.format);
       } else if (result == C.RESULT_BUFFER_READ) {
-        bufferReadCount++;
         if (buffer.isEndOfStream()) {
           isEnded = true;
+          return;
         }
+        lastSamplePositionUs = buffer.timeUs;
+        sampleBufferReadCount++;
+      } else {
+        Assertions.checkState(result == C.RESULT_NOTHING_READ);
+        return;
       }
     }
-    isReady = buffer.timeUs >= positionUs || hasReadStreamToEnd();
   }
 
   @Override
   public boolean isReady() {
-    return isReady || isSourceReady();
+    return lastSamplePositionUs >= playbackPositionUs || isSourceReady();
   }
 
   @Override

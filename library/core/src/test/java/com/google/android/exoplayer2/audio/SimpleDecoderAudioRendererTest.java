@@ -90,8 +90,13 @@ public class SimpleDecoderAudioRendererTest {
 
   @Test
   public void testImmediatelyReadEndOfStreamPlaysAudioSinkToEndOfStream() throws Exception {
-    audioRenderer.enable(RendererConfiguration.DEFAULT, new Format[] {FORMAT},
-        new FakeSampleStream(FORMAT), 0, false, 0);
+    audioRenderer.enable(
+        RendererConfiguration.DEFAULT,
+        new Format[] {FORMAT},
+        new FakeSampleStream(FORMAT, false),
+        0,
+        false,
+        0);
     audioRenderer.setCurrentStreamFinal();
     when(mockAudioSink.isEnded()).thenReturn(true);
     while (!audioRenderer.isEnded()) {
@@ -116,7 +121,7 @@ public class SimpleDecoderAudioRendererTest {
 
     @Override
     protected DecoderInputBuffer createInputBuffer() {
-      return new DecoderInputBuffer(DecoderInputBuffer.BUFFER_REPLACEMENT_MODE_DISABLED);
+      return new DecoderInputBuffer(DecoderInputBuffer.BUFFER_REPLACEMENT_MODE_DIRECT);
     }
 
     @Override

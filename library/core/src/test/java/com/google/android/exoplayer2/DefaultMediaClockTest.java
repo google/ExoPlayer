@@ -379,10 +379,12 @@ public class DefaultMediaClockTest {
 
   private static class MediaClockRenderer extends FakeMediaClockRenderer {
 
-    public long positionUs;
-    public PlaybackParameters playbackParameters;
-
     private final boolean playbackParametersAreMutable;
+    private final boolean isReady;
+    private final boolean isEnded;
+
+    public PlaybackParameters playbackParameters;
+    public long positionUs;
 
     public MediaClockRenderer() throws ExoPlaybackException {
       this(PlaybackParameters.DEFAULT, false, true, false, false);
@@ -403,11 +405,11 @@ public class DefaultMediaClockTest {
         boolean playbackParametersAreMutable, boolean isReady, boolean isEnded,
         boolean hasReadStreamToEnd)
         throws ExoPlaybackException {
-      this.positionUs = TEST_POSITION_US;
       this.playbackParameters = playbackParameters;
       this.playbackParametersAreMutable = playbackParametersAreMutable;
       this.isReady = isReady;
       this.isEnded = isEnded;
+      this.positionUs = TEST_POSITION_US;
       if (!hasReadStreamToEnd) {
         resetPosition(0);
       }
@@ -436,6 +438,10 @@ public class DefaultMediaClockTest {
       return isReady;
     }
 
+    @Override
+    public boolean isEnded() {
+      return isEnded;
+    }
   }
 
 }
