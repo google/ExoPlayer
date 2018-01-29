@@ -16,6 +16,7 @@
 package com.google.android.exoplayer2.testutil;
 
 import android.os.Handler;
+import android.support.annotation.Nullable;
 import android.util.Log;
 import android.view.Surface;
 import com.google.android.exoplayer2.C;
@@ -40,13 +41,14 @@ import com.google.android.exoplayer2.util.HandlerWrapper;
 public abstract class Action {
 
   private final String tag;
-  private final String description;
+  private final @Nullable String description;
 
   /**
    * @param tag A tag to use for logging.
-   * @param description A description to be logged when the action is executed.
+   * @param description A description to be logged when the action is executed, or null if no
+   *     logging is required.
    */
-  public Action(String tag, String description) {
+  public Action(String tag, @Nullable String description) {
     this.tag = tag;
     this.description = description;
   }
@@ -66,7 +68,9 @@ public abstract class Action {
       Surface surface,
       HandlerWrapper handler,
       ActionNode nextAction) {
-    Log.i(tag, description);
+    if (description != null) {
+      Log.i(tag, description);
+    }
     doActionAndScheduleNextImpl(player, trackSelector, surface, handler, nextAction);
   }
 
