@@ -147,8 +147,7 @@ public final class CacheDataSourceTest {
   }
 
   @Test
-  public void testCantResolvedLengthContentReadInOneConnectionAndLengthIsResolved()
-      throws Exception {
+  public void testUnknownLengthContentReadInOneConnectionAndLengthIsResolved() throws Exception {
     FakeDataSource upstream = new FakeDataSource();
     upstream
         .getDataSet()
@@ -157,7 +156,8 @@ public final class CacheDataSourceTest {
         .setSimulateUnknownLength(true);
     CacheDataSource cacheDataSource = new CacheDataSource(cache, upstream, 0);
 
-    cacheDataSource.open(new DataSpec(testDataUri, 0, C.LENGTH_UNSET, testDataKey));
+    int flags = DataSpec.FLAG_ALLOW_CACHING_UNKNOWN_LENGTH;
+    cacheDataSource.open(new DataSpec(testDataUri, 0, C.LENGTH_UNSET, testDataKey, flags));
     TestUtil.readToEnd(cacheDataSource);
     cacheDataSource.close();
 

@@ -236,6 +236,7 @@ public final class SimpleCache implements Cache {
     Assertions.checkNotNull(cachedContent);
     Assertions.checkState(cachedContent.isLocked());
     cachedContent.setLocked(false);
+    index.maybeRemove(cachedContent.key);
     notifyAll();
   }
 

@@ -131,6 +131,7 @@ public final class CacheAsserts {
   /** Asserts that the cache is empty. */
   public static void assertCacheEmpty(Cache cache) {
     assertThat(cache.getCacheSpace()).isEqualTo(0);
+    assertThat(cache.getKeys()).isEmpty();
   }
 
   private CacheAsserts() {}
