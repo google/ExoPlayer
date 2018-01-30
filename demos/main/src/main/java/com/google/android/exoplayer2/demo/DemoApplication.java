@@ -48,7 +48,7 @@ public class DemoApplication extends Application {
   }
 
   public boolean useExtensionRenderers() {
-    return BuildConfig.FLAVOR.equals("withExtensions");
+    return "withExtensions".equals(BuildConfig.FLAVOR);
   }
 
 }

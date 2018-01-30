@@ -529,7 +529,7 @@ public final class Id3Decoder implements MetadataDecoder {
     if (majorVersion == 2) {
       mimeTypeEndIndex = 2;
       mimeType = "image/" + Util.toLowerInvariant(new String(data, 0, 3, "ISO-8859-1"));
-      if (mimeType.equals("image/jpg")) {
+      if ("image/jpg".equals(mimeType)) {
         mimeType = "image/jpeg";
       }
     } else {
