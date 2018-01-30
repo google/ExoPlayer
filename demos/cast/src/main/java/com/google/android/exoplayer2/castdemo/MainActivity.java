@@ -53,7 +53,8 @@ public class MainActivity extends AppCompatActivity implements OnClickListener,
   private PlayerView localPlayerView;
   private PlayerControlView castControlView;
   private PlayerManager playerManager;
-  private MediaQueueAdapter listAdapter;
+  private RecyclerView mediaQueueList;
+  private MediaQueueListAdapter mediaQueueListAdapter;
   private CastContext castContext;
 
   // Activity lifecycle methods.
@@ -71,13 +72,12 @@ public class MainActivity extends AppCompatActivity implements OnClickListener,
 
     castControlView = findViewById(R.id.cast_control_view);
 
-    RecyclerView sampleList = findViewById(R.id.sample_list);
+    mediaQueueList = findViewById(R.id.sample_list);
     ItemTouchHelper helper = new ItemTouchHelper(new RecyclerViewCallback());
-    helper.attachToRecyclerView(sampleList);
-    sampleList.setLayoutManager(new LinearLayoutManager(this));
-    sampleList.setHasFixedSize(true);
-    listAdapter = new MediaQueueAdapter();
-    sampleList.setAdapter(listAdapter);
+    helper.attachToRecyclerView(mediaQueueList);
+    mediaQueueList.setLayoutManager(new LinearLayoutManager(this));
+    mediaQueueList.setHasFixedSize(true);
+    mediaQueueListAdapter = new MediaQueueListAdapter();
 
     findViewById(R.id.add_sample_button).setOnClickListener(this);
   }
@@ -100,13 +100,15 @@ public class MainActivity extends AppCompatActivity implements OnClickListener,
             castControlView,
             /* context= */ this,
             castContext);
+    mediaQueueList.setAdapter(mediaQueueListAdapter);
   }
 
   @Override
   public void onPause() {
     super.onPause();
+    mediaQueueListAdapter.notifyItemRangeRemoved(0, mediaQueueListAdapter.getItemCount());
+    mediaQueueList.setAdapter(null);
     playerManager.release();
-    playerManager = null;
   }
 
   // Activity input.
@@ -129,10 +131,10 @@ public class MainActivity extends AppCompatActivity implements OnClickListener,
   @Override
   public void onQueuePositionChanged(int previousIndex, int newIndex) {
     if (previousIndex != C.INDEX_UNSET) {
-      listAdapter.notifyItemChanged(previousIndex);
+      mediaQueueListAdapter.notifyItemChanged(previousIndex);
     }
     if (newIndex != C.INDEX_UNSET) {
-      listAdapter.notifyItemChanged(newIndex);
+      mediaQueueListAdapter.notifyItemChanged(newIndex);
     }
   }
 
@@ -142,15 +144,15 @@ public class MainActivity extends AppCompatActivity implements OnClickListener,
     View dialogList = getLayoutInflater().inflate(R.layout.sample_list, null);
     ListView sampleList = dialogList.findViewById(R.id.sample_list);
     sampleList.setAdapter(new SampleListAdapter(this));
-    sampleList.setOnItemClickListener(new OnItemClickListener() {
+    sampleList.setOnItemClickListener(
+        new OnItemClickListener() {
 
-      @Override
-      public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-        playerManager.addItem(DemoUtil.SAMPLES.get(position));
-        listAdapter.notifyItemInserted(playerManager.getMediaQueueSize() - 1);
-      }
-
-    });
+          @Override
+          public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+            playerManager.addItem(DemoUtil.SAMPLES.get(position));
+            mediaQueueListAdapter.notifyItemInserted(playerManager.getMediaQueueSize() - 1);
+          }
+        });
     return dialogList;
   }
 
@@ -173,7 +175,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener,
 
   }
 
-  private class MediaQueueAdapter extends RecyclerView.Adapter<QueueItemViewHolder> {
+  private class MediaQueueListAdapter extends RecyclerView.Adapter<QueueItemViewHolder> {
 
     @Override
     public QueueItemViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
@@ -219,7 +221,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener,
         draggingFromPosition = fromPosition;
       }
       draggingToPosition = toPosition;
-      listAdapter.notifyItemMoved(fromPosition, toPosition);
+      mediaQueueListAdapter.notifyItemMoved(fromPosition, toPosition);
       return true;
     }
 
@@ -227,7 +229,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener,
     public void onSwiped(RecyclerView.ViewHolder viewHolder, int direction) {
       int position = viewHolder.getAdapterPosition();
       if (playerManager.removeItem(position)) {
-        listAdapter.notifyItemRemoved(position);
+        mediaQueueListAdapter.notifyItemRemoved(position);
       }
     }
 
@@ -239,7 +241,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener,
         if (!playerManager.moveItem(draggingFromPosition, draggingToPosition)) {
           // The move failed. The entire sequence of onMove calls since the drag started needs to be
           // invalidated.
-          listAdapter.notifyDataSetChanged();
+          mediaQueueListAdapter.notifyDataSetChanged();
         }
       }
       draggingFromPosition = C.INDEX_UNSET;

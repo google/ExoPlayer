@@ -392,7 +392,9 @@ public final class CastPlayer implements Player {
 
   @Override
   public void release() {
-    castContext.getSessionManager().removeSessionManagerListener(statusListener, CastSession.class);
+    SessionManager sessionManager = castContext.getSessionManager();
+    sessionManager.removeSessionManagerListener(statusListener, CastSession.class);
+    sessionManager.endCurrentSession(false);
   }
 
   @Override
