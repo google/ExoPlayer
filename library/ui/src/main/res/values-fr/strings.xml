@@ -19,12 +19,10 @@
   <string name="exo_controls_next_description">"Piste suivante"</string>
   <string name="exo_controls_pause_description">"Interrompre"</string>
   <string name="exo_controls_play_description">"Lire"</string>
-  <string name="exo_controls_stop_description">"Arrêter"</string>
-  <string name="exo_controls_rewind_description">"Retour arrière"</string>
+    <string name="exo_controls_rewind_description">"Retour arrière"</string>
   <string name="exo_controls_fastforward_description">"Avance rapide"</string>
   <string name="exo_controls_repeat_all_description">"Tout lire en boucle"</string>
   <string name="exo_controls_repeat_off_description">"Ne rien lire en boucle"</string>
   <string name="exo_controls_repeat_one_description">"Lire en boucle un élément"</string>
   <string name="exo_controls_shuffle_description">"Lire en mode aléatoire"</string>
-  <string name="exo_controls_fullscreen_description">Mode plein écran</string>
 </resources>

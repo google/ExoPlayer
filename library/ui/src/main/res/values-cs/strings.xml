@@ -19,8 +19,7 @@
   <string name="exo_controls_next_description">"Další skladba"</string>
   <string name="exo_controls_pause_description">"Pozastavit"</string>
   <string name="exo_controls_play_description">"Přehrát"</string>
-  <string name="exo_controls_stop_description">"Zastavit"</string>
-  <string name="exo_controls_rewind_description">"Přetočit zpět"</string>
+    <string name="exo_controls_rewind_description">"Přetočit zpět"</string>
   <string name="exo_controls_fastforward_description">"Přetočit vpřed"</string>
   <string name="exo_controls_repeat_all_description">"Opakovat vše"</string>
   <string name="exo_controls_repeat_off_description">"Neopakovat"</string>

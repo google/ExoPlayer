@@ -19,8 +19,7 @@
   <string name="exo_controls_next_description">"Lagu berikutnya"</string>
   <string name="exo_controls_pause_description">"Jeda"</string>
   <string name="exo_controls_play_description">"Putar"</string>
-  <string name="exo_controls_stop_description">"Berhenti"</string>
-  <string name="exo_controls_rewind_description">"Putar Ulang"</string>
+    <string name="exo_controls_rewind_description">"Putar Ulang"</string>
   <string name="exo_controls_fastforward_description">"Maju cepat"</string>
   <string name="exo_controls_repeat_all_description">"Ulangi Semua"</string>
   <string name="exo_controls_repeat_off_description">"Jangan Ulangi"</string>

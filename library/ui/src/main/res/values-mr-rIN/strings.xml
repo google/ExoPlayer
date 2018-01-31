@@ -19,8 +19,7 @@
   <string name="exo_controls_next_description">"पुढील ट्रॅक"</string>
   <string name="exo_controls_pause_description">"विराम द्या"</string>
   <string name="exo_controls_play_description">"प्ले करा"</string>
-  <string name="exo_controls_stop_description">"थांबा"</string>
-  <string name="exo_controls_rewind_description">"रिवाईँड करा"</string>
+    <string name="exo_controls_rewind_description">"रिवाईँड करा"</string>
   <string name="exo_controls_fastforward_description">"फास्ट फॉरवर्ड करा"</string>
   <string name="exo_controls_repeat_all_description">"सर्व पुनरावृत्ती करा"</string>
   <string name="exo_controls_repeat_off_description">"काहीही पुनरावृत्ती करू नका"</string>

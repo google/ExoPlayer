@@ -19,8 +19,7 @@
   <string name="exo_controls_next_description">"​ເພງ​ຕໍ່​ໄປ"</string>
   <string name="exo_controls_pause_description">"ຢຸດຊົ່ວຄາວ"</string>
   <string name="exo_controls_play_description">"ຫຼິ້ນ"</string>
-  <string name="exo_controls_stop_description">"ຢຸດ"</string>
-  <string name="exo_controls_rewind_description">"​ຣີ​​ວາຍກັບ"</string>
+    <string name="exo_controls_rewind_description">"​ຣີ​​ວາຍກັບ"</string>
   <string name="exo_controls_fastforward_description">"ເລື່ອນ​ໄປ​ໜ້າ"</string>
   <string name="exo_controls_repeat_all_description">"ຫຼິ້ນ​ຊ້ຳ​ທັງ​ໝົດ"</string>
   <string name="exo_controls_repeat_off_description">"​ບໍ່ຫຼິ້ນ​ຊ້ຳ"</string>

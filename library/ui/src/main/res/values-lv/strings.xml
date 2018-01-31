@@ -19,12 +19,10 @@
   <string name="exo_controls_next_description">"Nākamais ieraksts"</string>
   <string name="exo_controls_pause_description">"Pārtraukt"</string>
   <string name="exo_controls_play_description">"Atskaņot"</string>
-  <string name="exo_controls_stop_description">"Apturēt"</string>
-  <string name="exo_controls_rewind_description">"Attīt atpakaļ"</string>
+    <string name="exo_controls_rewind_description">"Attīt atpakaļ"</string>
   <string name="exo_controls_fastforward_description">"Ātri patīt"</string>
   <string name="exo_controls_repeat_all_description">"Atkārtot visu"</string>
   <string name="exo_controls_repeat_off_description">"Neatkārtot nevienu"</string>
   <string name="exo_controls_repeat_one_description">"Atkārtot vienu"</string>
   <string name="exo_controls_shuffle_description">"Atskaņot jauktā secībā"</string>
-  <string name="exo_controls_fullscreen_description">Pilnekrāna režīms</string>
 </resources>

@@ -19,12 +19,10 @@
   <string name="exo_controls_next_description">"Következő szám"</string>
   <string name="exo_controls_pause_description">"Szünet"</string>
   <string name="exo_controls_play_description">"Lejátszás"</string>
-  <string name="exo_controls_stop_description">"Leállítás"</string>
-  <string name="exo_controls_rewind_description">"Visszatekerés"</string>
+    <string name="exo_controls_rewind_description">"Visszatekerés"</string>
   <string name="exo_controls_fastforward_description">"Előretekerés"</string>
   <string name="exo_controls_repeat_all_description">"Összes ismétlése"</string>
   <string name="exo_controls_repeat_off_description">"Nincs ismétlés"</string>
   <string name="exo_controls_repeat_one_description">"Egy ismétlése"</string>
   <string name="exo_controls_shuffle_description">"Véletlenszerű lejátszás"</string>
-  <string name="exo_controls_fullscreen_description">Teljes képernyős mód</string>
 </resources>

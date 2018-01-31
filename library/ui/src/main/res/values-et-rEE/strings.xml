@@ -19,8 +19,7 @@
   <string name="exo_controls_next_description">"Järgmine lugu"</string>
   <string name="exo_controls_pause_description">"Peata"</string>
   <string name="exo_controls_play_description">"Esita"</string>
-  <string name="exo_controls_stop_description">"Peata"</string>
-  <string name="exo_controls_rewind_description">"Keri tagasi"</string>
+    <string name="exo_controls_rewind_description">"Keri tagasi"</string>
   <string name="exo_controls_fastforward_description">"Keri edasi"</string>
   <string name="exo_controls_repeat_all_description">"Korda kõike"</string>
   <string name="exo_controls_repeat_off_description">"Ära korda midagi"</string>
