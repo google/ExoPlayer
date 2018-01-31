@@ -218,7 +218,6 @@ static int convert_16_to_8_neon(const vpx_image_t* const img, jbyte* const data,
       dstV += 8;
     }
 
-    i *= 4;
     uint32_t randval = 0;
     while (i < uvWidth) {
       if (!randval) randval = random();
