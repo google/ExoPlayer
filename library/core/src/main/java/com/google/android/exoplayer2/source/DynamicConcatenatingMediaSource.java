@@ -453,18 +453,24 @@ public final class DynamicConcatenatingMediaSource extends CompositeMediaSource<
 
   private void addMediaSourceInternal(int newIndex, MediaSource newMediaSource) {
     final MediaSourceHolder newMediaSourceHolder;
-    Object newUid = System.identityHashCode(newMediaSource);
     DeferredTimeline newTimeline = new DeferredTimeline();
     if (newIndex > 0) {
       MediaSourceHolder previousHolder = mediaSourceHolders.get(newIndex - 1);
-      newMediaSourceHolder = new MediaSourceHolder(newMediaSource, newTimeline,
-          previousHolder.firstWindowIndexInChild + previousHolder.timeline.getWindowCount(),
-          previousHolder.firstPeriodIndexInChild + previousHolder.timeline.getPeriodCount(),
-          newUid);
+      newMediaSourceHolder =
+          new MediaSourceHolder(
+              newMediaSource,
+              newTimeline,
+              newIndex,
+              previousHolder.firstWindowIndexInChild + previousHolder.timeline.getWindowCount(),
+              previousHolder.firstPeriodIndexInChild + previousHolder.timeline.getPeriodCount());
     } else {
-      newMediaSourceHolder = new MediaSourceHolder(newMediaSource, newTimeline, 0, 0, newUid);
+      newMediaSourceHolder = new MediaSourceHolder(newMediaSource, newTimeline, 0, 0, 0);
     }
-    correctOffsets(newIndex, newTimeline.getWindowCount(), newTimeline.getPeriodCount());
+    correctOffsets(
+        newIndex,
+        /* childIndexUpdate= */ 1,
+        newTimeline.getWindowCount(),
+        newTimeline.getPeriodCount());
     mediaSourceHolders.add(newIndex, newMediaSourceHolder);
     prepareChildSource(newMediaSourceHolder, newMediaSourceHolder.mediaSource);
   }
@@ -486,8 +492,11 @@ public final class DynamicConcatenatingMediaSource extends CompositeMediaSource<
     int windowOffsetUpdate = timeline.getWindowCount() - deferredTimeline.getWindowCount();
     int periodOffsetUpdate = timeline.getPeriodCount() - deferredTimeline.getPeriodCount();
     if (windowOffsetUpdate != 0 || periodOffsetUpdate != 0) {
-      int index = findMediaSourceHolderByPeriodIndex(mediaSourceHolder.firstPeriodIndexInChild);
-      correctOffsets(index + 1, windowOffsetUpdate, periodOffsetUpdate);
+      correctOffsets(
+          mediaSourceHolder.childIndex + 1,
+          /* childIndexUpdate= */ 0,
+          windowOffsetUpdate,
+          periodOffsetUpdate);
     }
     mediaSourceHolder.timeline = deferredTimeline.cloneWithNewTimeline(timeline);
     if (!mediaSourceHolder.isPrepared) {
@@ -506,7 +515,11 @@ public final class DynamicConcatenatingMediaSource extends CompositeMediaSource<
     MediaSourceHolder holder = mediaSourceHolders.get(index);
     mediaSourceHolders.remove(index);
     Timeline oldTimeline = holder.timeline;
-    correctOffsets(index, -oldTimeline.getWindowCount(), -oldTimeline.getPeriodCount());
+    correctOffsets(
+        index,
+        /* childIndexUpdate= */ -1,
+        -oldTimeline.getWindowCount(),
+        -oldTimeline.getPeriodCount());
     releaseChildSource(holder);
   }
 
@@ -525,10 +538,12 @@ public final class DynamicConcatenatingMediaSource extends CompositeMediaSource<
     }
   }
 
-  private void correctOffsets(int startIndex, int windowOffsetUpdate, int periodOffsetUpdate) {
+  private void correctOffsets(
+      int startIndex, int childIndexUpdate, int windowOffsetUpdate, int periodOffsetUpdate) {
     windowCount += windowOffsetUpdate;
     periodCount += periodOffsetUpdate;
     for (int i = startIndex; i < mediaSourceHolders.size(); i++) {
+      mediaSourceHolders.get(i).childIndex += childIndexUpdate;
       mediaSourceHolders.get(i).firstWindowIndexInChild += windowOffsetUpdate;
       mediaSourceHolders.get(i).firstPeriodIndexInChild += periodOffsetUpdate;
     }
@@ -551,20 +566,26 @@ public final class DynamicConcatenatingMediaSource extends CompositeMediaSource<
   /* package */ static final class MediaSourceHolder implements Comparable<MediaSourceHolder> {
 
     public final MediaSource mediaSource;
-    public final Object uid;
+    public final int uid;
 
     public DeferredTimeline timeline;
+    public int childIndex;
     public int firstWindowIndexInChild;
     public int firstPeriodIndexInChild;
     public boolean isPrepared;
 
-    public MediaSourceHolder(MediaSource mediaSource, DeferredTimeline timeline, int window,
-        int period, Object uid) {
+    public MediaSourceHolder(
+        MediaSource mediaSource,
+        DeferredTimeline timeline,
+        int childIndex,
+        int window,
+        int period) {
       this.mediaSource = mediaSource;
       this.timeline = timeline;
+      this.childIndex = childIndex;
       this.firstWindowIndexInChild = window;
       this.firstPeriodIndexInChild = period;
-      this.uid = uid;
+      this.uid = System.identityHashCode(this);
     }
 
     @Override
@@ -638,7 +659,7 @@ public final class DynamicConcatenatingMediaSource extends CompositeMediaSource<
         timelines[index] = mediaSourceHolder.timeline;
         firstPeriodInChildIndices[index] = mediaSourceHolder.firstPeriodIndexInChild;
         firstWindowInChildIndices[index] = mediaSourceHolder.firstWindowIndexInChild;
-        uids[index] = (int) mediaSourceHolder.uid;
+        uids[index] = mediaSourceHolder.uid;
         childIndexByUid.put(uids[index], index++);
       }
     }
