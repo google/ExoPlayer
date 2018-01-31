@@ -22,10 +22,6 @@ android {
         minSdkVersion project.ext.minSdkVersion
         targetSdkVersion project.ext.targetSdkVersion
     }
-
-    lintOptions {
-        disable 'InvalidPackage'
-    }
 }
 
 dependencies {

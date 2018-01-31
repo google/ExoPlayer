@@ -19,10 +19,12 @@
   <string name="exo_controls_next_description">"Ďalšia stopa"</string>
   <string name="exo_controls_pause_description">"Pozastaviť"</string>
   <string name="exo_controls_play_description">"Prehrať"</string>
-    <string name="exo_controls_rewind_description">"Pretočiť späť"</string>
+  <string name="exo_controls_stop_description">"Zastaviť"</string>
+  <string name="exo_controls_rewind_description">"Pretočiť späť"</string>
   <string name="exo_controls_fastforward_description">"Pretočiť dopredu"</string>
   <string name="exo_controls_repeat_all_description">"Opakovať všetko"</string>
   <string name="exo_controls_repeat_off_description">"Neopakovať"</string>
   <string name="exo_controls_repeat_one_description">"Opakovať jednu položku"</string>
   <string name="exo_controls_shuffle_description">"Náhodne prehrávať"</string>
+  <string name="exo_controls_fullscreen_description">Režim celej obrazovky</string>
 </resources>

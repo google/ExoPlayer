@@ -19,10 +19,12 @@
   <string name="exo_controls_next_description">"Wimbo unaofuata"</string>
   <string name="exo_controls_pause_description">"Sitisha"</string>
   <string name="exo_controls_play_description">"Cheza"</string>
-    <string name="exo_controls_rewind_description">"Rudisha nyuma"</string>
+  <string name="exo_controls_stop_description">"Simamisha"</string>
+  <string name="exo_controls_rewind_description">"Rudisha nyuma"</string>
   <string name="exo_controls_fastforward_description">"Peleka mbele kwa kasi"</string>
   <string name="exo_controls_repeat_all_description">"Rudia zote"</string>
   <string name="exo_controls_repeat_off_description">"Usirudie Yoyote"</string>
   <string name="exo_controls_repeat_one_description">"Rudia Moja"</string>
   <string name="exo_controls_shuffle_description">"Changanya"</string>
+  <string name="exo_controls_fullscreen_description">Hali ya skrini kamili</string>
 </resources>

@@ -19,10 +19,12 @@
   <string name="exo_controls_next_description">"Ithrekhi elandelayo"</string>
   <string name="exo_controls_pause_description">"Misa isikhashana"</string>
   <string name="exo_controls_play_description">"Dlala"</string>
-    <string name="exo_controls_rewind_description">"Buyisela emumva"</string>
+  <string name="exo_controls_stop_description">"Misa"</string>
+  <string name="exo_controls_rewind_description">"Buyisela emumva"</string>
   <string name="exo_controls_fastforward_description">"Ukudlulisa ngokushesha"</string>
   <string name="exo_controls_repeat_all_description">"Phinda konke"</string>
   <string name="exo_controls_repeat_off_description">"Ungaphindi lutho"</string>
   <string name="exo_controls_repeat_one_description">"Phida okukodwa"</string>
   <string name="exo_controls_shuffle_description">"Shova"</string>
+  <string name="exo_controls_fullscreen_description">Imodi yesikrini esiphelele</string>
 </resources>
