@@ -19,10 +19,12 @@
   <string name="exo_controls_next_description">"Traccia successiva"</string>
   <string name="exo_controls_pause_description">"Metti in pausa"</string>
   <string name="exo_controls_play_description">"Riproduci"</string>
-    <string name="exo_controls_rewind_description">"Riavvolgi"</string>
+  <string name="exo_controls_stop_description">"Interrompi"</string>
+  <string name="exo_controls_rewind_description">"Riavvolgi"</string>
   <string name="exo_controls_fastforward_description">"Avanti veloce"</string>
   <string name="exo_controls_repeat_all_description">"Ripeti tutti"</string>
   <string name="exo_controls_repeat_off_description">"Non ripetere nessuno"</string>
   <string name="exo_controls_repeat_one_description">"Ripeti uno"</string>
   <string name="exo_controls_shuffle_description">"Riproduci casualmente"</string>
+  <string name="exo_controls_fullscreen_description">Modalità a schermo intero</string>
 </resources>

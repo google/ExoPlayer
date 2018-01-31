@@ -19,10 +19,12 @@
   <string name="exo_controls_next_description">"Следећа песма"</string>
   <string name="exo_controls_pause_description">"Пауза"</string>
   <string name="exo_controls_play_description">"Пусти"</string>
-    <string name="exo_controls_rewind_description">"Премотај уназад"</string>
+  <string name="exo_controls_stop_description">"Заустави"</string>
+  <string name="exo_controls_rewind_description">"Премотај уназад"</string>
   <string name="exo_controls_fastforward_description">"Премотај унапред"</string>
   <string name="exo_controls_repeat_all_description">"Понови све"</string>
   <string name="exo_controls_repeat_off_description">"Понављање је искључено"</string>
   <string name="exo_controls_repeat_one_description">"Понови једну"</string>
   <string name="exo_controls_shuffle_description">"Пусти насумично"</string>
+  <string name="exo_controls_fullscreen_description">Режим целог екрана</string>
 </resources>
