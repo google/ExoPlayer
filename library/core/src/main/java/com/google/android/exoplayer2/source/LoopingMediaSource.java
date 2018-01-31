@@ -63,7 +63,6 @@ public final class LoopingMediaSource extends CompositeMediaSource<Void> {
   @Override
   public void prepareSource(ExoPlayer player, boolean isTopLevelSource, final Listener listener) {
     super.prepareSource(player, isTopLevelSource, listener);
-    Assertions.checkState(this.listener == null, MEDIA_SOURCE_REUSED_ERROR_MESSAGE);
     this.listener = listener;
     prepareChildSource(/* id= */ null, childSource);
   }
@@ -79,6 +78,13 @@ public final class LoopingMediaSource extends CompositeMediaSource<Void> {
   @Override
   public void releasePeriod(MediaPeriod mediaPeriod) {
     childSource.releasePeriod(mediaPeriod);
+  }
+
+  @Override
+  public void releaseSource() {
+    super.releaseSource();
+    listener = null;
+    childPeriodCount = 0;
   }
 
   @Override

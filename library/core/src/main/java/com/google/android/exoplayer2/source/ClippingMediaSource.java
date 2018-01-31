@@ -133,7 +133,6 @@ public final class ClippingMediaSource extends CompositeMediaSource<Void> {
   @Override
   public void prepareSource(ExoPlayer player, boolean isTopLevelSource, Listener listener) {
     super.prepareSource(player, isTopLevelSource, listener);
-    Assertions.checkState(sourceListener == null, MEDIA_SOURCE_REUSED_ERROR_MESSAGE);
     sourceListener = listener;
     prepareChildSource(/* id= */ null, mediaSource);
   }
@@ -159,6 +158,13 @@ public final class ClippingMediaSource extends CompositeMediaSource<Void> {
   public void releasePeriod(MediaPeriod mediaPeriod) {
     Assertions.checkState(mediaPeriods.remove(mediaPeriod));
     mediaSource.releasePeriod(((ClippingMediaPeriod) mediaPeriod).mediaPeriod);
+  }
+
+  @Override
+  public void releaseSource() {
+    super.releaseSource();
+    clippingError = null;
+    sourceListener = null;
   }
 
   @Override

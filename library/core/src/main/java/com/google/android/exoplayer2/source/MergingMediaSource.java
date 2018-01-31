@@ -20,12 +20,12 @@ import android.support.annotation.Nullable;
 import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.upstream.Allocator;
-import com.google.android.exoplayer2.util.Assertions;
 import java.io.IOException;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 
 /**
  * Merges multiple {@link MediaSource}s.
@@ -100,7 +100,6 @@ public final class MergingMediaSource extends CompositeMediaSource<Integer> {
   @Override
   public void prepareSource(ExoPlayer player, boolean isTopLevelSource, Listener listener) {
     super.prepareSource(player, isTopLevelSource, listener);
-    Assertions.checkState(this.listener == null, MEDIA_SOURCE_REUSED_ERROR_MESSAGE);
     this.listener = listener;
     for (int i = 0; i < mediaSources.length; i++) {
       prepareChildSource(i, mediaSources[i]);
@@ -130,6 +129,18 @@ public final class MergingMediaSource extends CompositeMediaSource<Integer> {
     for (int i = 0; i < mediaSources.length; i++) {
       mediaSources[i].releasePeriod(mergingPeriod.periods[i]);
     }
+  }
+
+  @Override
+  public void releaseSource() {
+    super.releaseSource();
+    listener = null;
+    primaryTimeline = null;
+    primaryManifest = null;
+    periodCount = PERIOD_COUNT_UNSET;
+    mergeError = null;
+    pendingTimelineSources.clear();
+    Collections.addAll(pendingTimelineSources, mediaSources);
   }
 
   @Override

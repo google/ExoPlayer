@@ -88,7 +88,6 @@ public final class ConcatenatingMediaSource extends CompositeMediaSource<Integer
   @Override
   public void prepareSource(ExoPlayer player, boolean isTopLevelSource, Listener listener) {
     super.prepareSource(player, isTopLevelSource, listener);
-    Assertions.checkState(this.listener == null, MEDIA_SOURCE_REUSED_ERROR_MESSAGE);
     this.listener = listener;
     boolean[] duplicateFlags = buildDuplicateFlags(mediaSources);
     if (mediaSources.length == 0) {
@@ -117,6 +116,13 @@ public final class ConcatenatingMediaSource extends CompositeMediaSource<Integer
     int sourceIndex = sourceIndexByMediaPeriod.get(mediaPeriod);
     sourceIndexByMediaPeriod.remove(mediaPeriod);
     mediaSources[sourceIndex].releasePeriod(mediaPeriod);
+  }
+
+  @Override
+  public void releaseSource() {
+    super.releaseSource();
+    listener = null;
+    timeline = null;
   }
 
   @Override
