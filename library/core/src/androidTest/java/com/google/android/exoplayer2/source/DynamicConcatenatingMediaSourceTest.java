@@ -344,6 +344,32 @@ public final class DynamicConcatenatingMediaSourceTest extends TestCase {
     testRunner.assertPrepareAndReleaseAllPeriods();
   }
 
+  public void testDynamicChangeOfEmptyTimelines() throws IOException {
+    FakeMediaSource[] childSources =
+        new FakeMediaSource[] {
+          new FakeMediaSource(Timeline.EMPTY, /* manifest= */ null),
+          new FakeMediaSource(Timeline.EMPTY, /* manifest= */ null),
+          new FakeMediaSource(Timeline.EMPTY, /* manifest= */ null),
+        };
+    Timeline nonEmptyTimeline = new FakeTimeline(/* windowCount = */ 1);
+
+    mediaSource.addMediaSources(Arrays.<MediaSource>asList(childSources));
+    Timeline timeline = testRunner.prepareSource();
+    TimelineAsserts.assertEmpty(timeline);
+
+    childSources[0].setNewSourceInfo(nonEmptyTimeline, /* newManifest== */ null);
+    timeline = testRunner.assertTimelineChangeBlocking();
+    TimelineAsserts.assertPeriodCounts(timeline, 1);
+
+    childSources[2].setNewSourceInfo(nonEmptyTimeline, /* newManifest== */ null);
+    timeline = testRunner.assertTimelineChangeBlocking();
+    TimelineAsserts.assertPeriodCounts(timeline, 1, 1);
+
+    childSources[1].setNewSourceInfo(nonEmptyTimeline, /* newManifest== */ null);
+    timeline = testRunner.assertTimelineChangeBlocking();
+    TimelineAsserts.assertPeriodCounts(timeline, 1, 1, 1);
+  }
+
   public void testIllegalArguments() {
     MediaSource validSource = new FakeMediaSource(createFakeTimeline(1), null);
 
