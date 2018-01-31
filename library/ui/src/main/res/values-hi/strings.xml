@@ -19,12 +19,10 @@
   <string name="exo_controls_next_description">"अगला ट्रैक"</string>
   <string name="exo_controls_pause_description">"रोकें"</string>
   <string name="exo_controls_play_description">"चलाएं"</string>
-  <string name="exo_controls_stop_description">"बंद करें"</string>
-  <string name="exo_controls_rewind_description">"रिवाइंड करें"</string>
+    <string name="exo_controls_rewind_description">"रिवाइंड करें"</string>
   <string name="exo_controls_fastforward_description">"फ़ास्ट फ़ॉरवर्ड"</string>
   <string name="exo_controls_repeat_all_description">"सभी को दोहराएं"</string>
   <string name="exo_controls_repeat_off_description">"कुछ भी न दोहराएं"</string>
   <string name="exo_controls_repeat_one_description">"एक दोहराएं"</string>
   <string name="exo_controls_shuffle_description">"शफ़ल करें"</string>
-  <string name="exo_controls_fullscreen_description">पूर्ण-स्क्रीन मोड</string>
 </resources>

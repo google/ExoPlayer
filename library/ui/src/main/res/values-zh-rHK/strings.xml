@@ -19,12 +19,10 @@
   <string name="exo_controls_next_description">"下一首曲目"</string>
   <string name="exo_controls_pause_description">"暫停"</string>
   <string name="exo_controls_play_description">"播放"</string>
-  <string name="exo_controls_stop_description">"停止"</string>
-  <string name="exo_controls_rewind_description">"倒帶"</string>
+    <string name="exo_controls_rewind_description">"倒帶"</string>
   <string name="exo_controls_fastforward_description">"向前快轉"</string>
   <string name="exo_controls_repeat_all_description">"重複播放所有媒體項目"</string>
   <string name="exo_controls_repeat_off_description">"不重複播放任何媒體項目"</string>
   <string name="exo_controls_repeat_one_description">"重複播放一個媒體項目"</string>
   <string name="exo_controls_shuffle_description">"隨機播放"</string>
-  <string name="exo_controls_fullscreen_description">全螢幕模式</string>
 </resources>

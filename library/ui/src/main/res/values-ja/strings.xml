@@ -19,12 +19,10 @@
   <string name="exo_controls_next_description">"次のトラック"</string>
   <string name="exo_controls_pause_description">"一時停止"</string>
   <string name="exo_controls_play_description">"再生"</string>
-  <string name="exo_controls_stop_description">"停止"</string>
-  <string name="exo_controls_rewind_description">"巻き戻し"</string>
+    <string name="exo_controls_rewind_description">"巻き戻し"</string>
   <string name="exo_controls_fastforward_description">"早送り"</string>
   <string name="exo_controls_repeat_all_description">"全曲を繰り返し"</string>
   <string name="exo_controls_repeat_off_description">"繰り返しなし"</string>
   <string name="exo_controls_repeat_one_description">"1曲を繰り返し"</string>
   <string name="exo_controls_shuffle_description">"シャッフル"</string>
-  <string name="exo_controls_fullscreen_description">フルスクリーンモード</string>
 </resources>

@@ -19,8 +19,7 @@
   <string name="exo_controls_next_description">"შემდეგი ჩანაწერი"</string>
   <string name="exo_controls_pause_description">"პაუზა"</string>
   <string name="exo_controls_play_description">"დაკვრა"</string>
-  <string name="exo_controls_stop_description">"შეწყვეტა"</string>
-  <string name="exo_controls_rewind_description">"უკან გადახვევა"</string>
+    <string name="exo_controls_rewind_description">"უკან გადახვევა"</string>
   <string name="exo_controls_fastforward_description">"წინ გადახვევა"</string>
   <string name="exo_controls_repeat_all_description">"გამეორება ყველა"</string>
   <string name="exo_controls_repeat_off_description">"გაიმეორეთ არცერთი"</string>

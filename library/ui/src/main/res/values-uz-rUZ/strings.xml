@@ -19,8 +19,7 @@
   <string name="exo_controls_next_description">"Keyingi musiqa"</string>
   <string name="exo_controls_pause_description">"To‘xtatib turish"</string>
   <string name="exo_controls_play_description">"Ijro qilish"</string>
-  <string name="exo_controls_stop_description">"To‘xtatish"</string>
-  <string name="exo_controls_rewind_description">"Orqaga o‘tkazish"</string>
+    <string name="exo_controls_rewind_description">"Orqaga o‘tkazish"</string>
   <string name="exo_controls_fastforward_description">"Oldinga o‘tkazish"</string>
   <string name="exo_controls_repeat_all_description">"Barchasini takrorlash"</string>
   <string name="exo_controls_repeat_off_description">"Takrorlamaslik"</string>

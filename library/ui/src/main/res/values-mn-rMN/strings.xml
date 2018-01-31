@@ -19,8 +19,7 @@
   <string name="exo_controls_next_description">"Дараагийн трек"</string>
   <string name="exo_controls_pause_description">"Түр зогсоох"</string>
   <string name="exo_controls_play_description">"Тоглуулах"</string>
-  <string name="exo_controls_stop_description">"Зогсоох"</string>
-  <string name="exo_controls_rewind_description">"Буцааж хураах"</string>
+    <string name="exo_controls_rewind_description">"Буцааж хураах"</string>
   <string name="exo_controls_fastforward_description">"Хурдан урагшлуулах"</string>
   <string name="exo_controls_repeat_all_description">"Бүгдийг давтах"</string>
   <string name="exo_controls_repeat_off_description">"Алийг нь ч давтахгүй"</string>

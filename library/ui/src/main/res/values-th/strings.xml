@@ -19,12 +19,10 @@
   <string name="exo_controls_next_description">"แทร็กถัดไป"</string>
   <string name="exo_controls_pause_description">"หยุดชั่วคราว"</string>
   <string name="exo_controls_play_description">"เล่น"</string>
-  <string name="exo_controls_stop_description">"หยุด"</string>
-  <string name="exo_controls_rewind_description">"กรอกลับ"</string>
+    <string name="exo_controls_rewind_description">"กรอกลับ"</string>
   <string name="exo_controls_fastforward_description">"กรอไปข้างหน้า"</string>
   <string name="exo_controls_repeat_all_description">"เล่นซ้ำทั้งหมด"</string>
   <string name="exo_controls_repeat_off_description">"ไม่เล่นซ้ำ"</string>
   <string name="exo_controls_repeat_one_description">"เล่นซ้ำรายการเดียว"</string>
   <string name="exo_controls_shuffle_description">"สุ่มเพลง"</string>
-  <string name="exo_controls_fullscreen_description">โหมดเต็มหน้าจอ</string>
 </resources>
