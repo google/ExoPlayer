@@ -271,6 +271,7 @@ public class PlayerControlView extends FrameLayout {
     fastForwardMs = DEFAULT_FAST_FORWARD_MS;
     showTimeoutMs = DEFAULT_SHOW_TIMEOUT_MS;
     repeatToggleModes = DEFAULT_REPEAT_TOGGLE_MODES;
+    hideAtMs = C.TIME_UNSET;
     showShuffleButton = false;
     if (playbackAttrs != null) {
       TypedArray a =
@@ -937,6 +938,8 @@ public class PlayerControlView extends FrameLayout {
       } else {
         postDelayed(hideAction, delayMs);
       }
+    } else if (isVisible()) {
+      hideAfterTimeout();
     }
     updateAll();
   }
