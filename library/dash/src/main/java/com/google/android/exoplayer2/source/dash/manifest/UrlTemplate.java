@@ -135,13 +135,10 @@ public final class UrlTemplate {
         if (identifier.equals(REPRESENTATION)) {
           identifiers[identifierCount] = REPRESENTATION_ID;
         } else {
-          int formatTagIndex = identifier.indexOf("%0");
+          int formatTagIndex = identifier.indexOf("%");
           String formatTag = DEFAULT_FORMAT_TAG;
           if (formatTagIndex != -1) {
             formatTag = identifier.substring(formatTagIndex);
-            if (!formatTag.endsWith("d")) {
-              formatTag += "d";
-            }
             identifier = identifier.substring(0, formatTagIndex);
           }
           switch (identifier) {
