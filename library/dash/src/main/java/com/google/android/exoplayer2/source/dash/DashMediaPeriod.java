@@ -17,6 +17,7 @@ package com.google.android.exoplayer2.source.dash;
 
 import android.support.annotation.IntDef;
 import android.util.Pair;
+import android.util.SparseArray;
 import android.util.SparseIntArray;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
@@ -48,10 +49,8 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.IdentityHashMap;
 import java.util.List;
-import java.util.Map;
 
 /** A DASH {@link MediaPeriod}. */
 /* package */ final class DashMediaPeriod
@@ -182,7 +181,7 @@ import java.util.Map;
   @Override
   public long selectTracks(TrackSelection[] selections, boolean[] mayRetainStreamFlags,
       SampleStream[] streams, boolean[] streamResetFlags, long positionUs) {
-    Map<Integer, ChunkSampleStream<DashChunkSource>> primarySampleStreams = new HashMap<>();
+    SparseArray<ChunkSampleStream<DashChunkSource>> primarySampleStreams = new SparseArray<>();
     List<EventSampleStream> eventSampleStreamList = new ArrayList<>();
 
     selectPrimarySampleStreams(selections, mayRetainStreamFlags, streams, streamResetFlags,
@@ -193,7 +192,9 @@ import java.util.Map;
         positionUs, primarySampleStreams);
 
     sampleStreams = newSampleStreamArray(primarySampleStreams.size());
-    primarySampleStreams.values().toArray(sampleStreams);
+    for (int i = 0; i < sampleStreams.length; i++) {
+      sampleStreams[i] = primarySampleStreams.valueAt(i);
+    }
     eventSampleStreams = new EventSampleStream[eventSampleStreamList.size()];
     eventSampleStreamList.toArray(eventSampleStreams);
     compositeSequenceableLoader =
@@ -201,9 +202,13 @@ import java.util.Map;
     return positionUs;
   }
 
-  private void selectPrimarySampleStreams(TrackSelection[] selections,
-      boolean[] mayRetainStreamFlags, SampleStream[] streams, boolean[] streamResetFlags,
-      long positionUs, Map<Integer, ChunkSampleStream<DashChunkSource>> primarySampleStreams) {
+  private void selectPrimarySampleStreams(
+      TrackSelection[] selections,
+      boolean[] mayRetainStreamFlags,
+      SampleStream[] streams,
+      boolean[] streamResetFlags,
+      long positionUs,
+      SparseArray<ChunkSampleStream<DashChunkSource>> primarySampleStreams) {
     for (int i = 0; i < selections.length; i++) {
       if (streams[i] instanceof ChunkSampleStream) {
         @SuppressWarnings("unchecked")
@@ -259,9 +264,13 @@ import java.util.Map;
     }
   }
 
-  private void selectEmbeddedSampleStreams(TrackSelection[] selections,
-      boolean[] mayRetainStreamFlags, SampleStream[] streams, boolean[] streamResetFlags,
-      long positionUs, Map<Integer, ChunkSampleStream<DashChunkSource>> primarySampleStreams) {
+  private void selectEmbeddedSampleStreams(
+      TrackSelection[] selections,
+      boolean[] mayRetainStreamFlags,
+      SampleStream[] streams,
+      boolean[] streamResetFlags,
+      long positionUs,
+      SparseArray<ChunkSampleStream<DashChunkSource>> primarySampleStreams) {
     for (int i = 0; i < selections.length; i++) {
       if ((streams[i] instanceof EmbeddedSampleStream || streams[i] instanceof EmptySampleStream)
           && (selections[i] == null || !mayRetainStreamFlags[i])) {
