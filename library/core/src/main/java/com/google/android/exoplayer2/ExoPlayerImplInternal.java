@@ -72,10 +72,10 @@ import java.util.Collections;
   private static final int MSG_PERIOD_PREPARED = 9;
   private static final int MSG_SOURCE_CONTINUE_LOADING_REQUESTED = 10;
   private static final int MSG_TRACK_SELECTION_INVALIDATED = 11;
-  private static final int MSG_CUSTOM = 12;
-  private static final int MSG_SET_REPEAT_MODE = 13;
-  private static final int MSG_SET_SHUFFLE_ENABLED = 14;
-  private static final int MSG_SEND_MESSAGE_TO_TARGET = 15;
+  private static final int MSG_SET_REPEAT_MODE = 12;
+  private static final int MSG_SET_SHUFFLE_ENABLED = 13;
+  private static final int MSG_SEND_MESSAGE = 14;
+  private static final int MSG_SEND_MESSAGE_TO_TARGET_THREAD = 15;
 
   private static final int PREPARING_SOURCE_INTERVAL_MS = 10;
   private static final int RENDERING_INTERVAL_MS = 10;
@@ -104,7 +104,7 @@ import java.util.Collections;
   private final boolean retainBackBufferFromKeyframe;
   private final DefaultMediaClock mediaClock;
   private final PlaybackInfoUpdate playbackInfoUpdate;
-  private final ArrayList<CustomMessageInfo> customMessageInfos;
+  private final ArrayList<PendingMessageInfo> pendingMessages;
   private final Clock clock;
   private final MediaPeriodQueue queue;
 
@@ -123,7 +123,7 @@ import java.util.Collections;
   private int pendingPrepareCount;
   private SeekPosition pendingInitialSeekPosition;
   private long rendererPositionUs;
-  private int nextCustomMessageInfoIndex;
+  private int nextPendingMessageIndex;
 
   public ExoPlayerImplInternal(
       Renderer[] renderers,
@@ -162,7 +162,7 @@ import java.util.Collections;
       rendererCapabilities[i] = renderers[i].getCapabilities();
     }
     mediaClock = new DefaultMediaClock(this, clock);
-    customMessageInfos = new ArrayList<>();
+    pendingMessages = new ArrayList<>();
     enabledRenderers = new Renderer[0];
     window = new Timeline.Window();
     period = new Timeline.Period();
@@ -217,7 +217,7 @@ import java.util.Collections;
       message.markAsProcessed(/* isDelivered= */ false);
       return;
     }
-    handler.obtainMessage(MSG_CUSTOM, message).sendToTarget();
+    handler.obtainMessage(MSG_SEND_MESSAGE, message).sendToTarget();
   }
 
   public synchronized void release() {
@@ -324,11 +324,11 @@ import java.util.Collections;
         case MSG_TRACK_SELECTION_INVALIDATED:
           reselectTracksInternal();
           break;
-        case MSG_CUSTOM:
+        case MSG_SEND_MESSAGE:
           sendMessageInternal((PlayerMessage) msg.obj);
           break;
-        case MSG_SEND_MESSAGE_TO_TARGET:
-          sendCustomMessageToTargetThread((PlayerMessage) msg.obj);
+        case MSG_SEND_MESSAGE_TO_TARGET_THREAD:
+          sendMessageToTargetThread((PlayerMessage) msg.obj);
           break;
         case MSG_RELEASE:
           releaseInternal();
@@ -504,7 +504,7 @@ import java.util.Collections;
     } else {
       rendererPositionUs = mediaClock.syncAndGetPositionUs();
       periodPositionUs = playingPeriodHolder.toPeriodTime(rendererPositionUs);
-      maybeTriggerCustomMessages(playbackInfo.positionUs, periodPositionUs);
+      maybeTriggerPendingMessages(playbackInfo.positionUs, periodPositionUs);
       playbackInfo.positionUs = periodPositionUs;
     }
 
@@ -805,11 +805,11 @@ import java.util.Collections;
     }
     if (resetState) {
       queue.setTimeline(null);
-      for (CustomMessageInfo customMessageInfo : customMessageInfos) {
-        customMessageInfo.message.markAsProcessed(/* isDelivered= */ false);
+      for (PendingMessageInfo pendingMessageInfo : pendingMessages) {
+        pendingMessageInfo.message.markAsProcessed(/* isDelivered= */ false);
       }
-      customMessageInfos.clear();
-      nextCustomMessageInfoIndex = 0;
+      pendingMessages.clear();
+      nextPendingMessageIndex = 0;
     }
     playbackInfo =
         new PlaybackInfo(
@@ -833,48 +833,48 @@ import java.util.Collections;
   private void sendMessageInternal(PlayerMessage message) {
     if (message.getPositionMs() == C.TIME_UNSET) {
       // If no delivery time is specified, trigger immediate message delivery.
-      sendCustomMessageToTarget(message);
+      sendMessageToTarget(message);
     } else if (playbackInfo.timeline == null) {
       // Still waiting for initial timeline to resolve position.
-      customMessageInfos.add(new CustomMessageInfo(message));
+      pendingMessages.add(new PendingMessageInfo(message));
     } else {
-      CustomMessageInfo customMessageInfo = new CustomMessageInfo(message);
-      if (resolveCustomMessagePosition(customMessageInfo)) {
-        customMessageInfos.add(customMessageInfo);
+      PendingMessageInfo pendingMessageInfo = new PendingMessageInfo(message);
+      if (resolvePendingMessagePosition(pendingMessageInfo)) {
+        pendingMessages.add(pendingMessageInfo);
         // Ensure new message is inserted according to playback order.
-        Collections.sort(customMessageInfos);
+        Collections.sort(pendingMessages);
       } else {
         message.markAsProcessed(/* isDelivered= */ false);
       }
     }
   }
 
-  private void sendCustomMessageToTarget(PlayerMessage message) {
+  private void sendMessageToTarget(PlayerMessage message) {
     if (message.getHandler().getLooper() == handler.getLooper()) {
-      deliverCustomMessage(message);
+      deliverMessage(message);
       if (playbackInfo.playbackState == Player.STATE_READY
           || playbackInfo.playbackState == Player.STATE_BUFFERING) {
         // The message may have caused something to change that now requires us to do work.
         handler.sendEmptyMessage(MSG_DO_SOME_WORK);
       }
     } else {
-      handler.obtainMessage(MSG_SEND_MESSAGE_TO_TARGET, message).sendToTarget();
+      handler.obtainMessage(MSG_SEND_MESSAGE_TO_TARGET_THREAD, message).sendToTarget();
     }
   }
 
-  private void sendCustomMessageToTargetThread(final PlayerMessage message) {
+  private void sendMessageToTargetThread(final PlayerMessage message) {
     message
         .getHandler()
         .post(
             new Runnable() {
               @Override
               public void run() {
-                deliverCustomMessage(message);
+                deliverMessage(message);
               }
             });
   }
 
-  private void deliverCustomMessage(PlayerMessage message) {
+  private void deliverMessage(PlayerMessage message) {
     try {
       message.getTarget().handleMessage(message.getType(), message.getPayload());
     } catch (ExoPlaybackException e) {
@@ -884,48 +884,48 @@ import java.util.Collections;
     }
   }
 
-  private void resolveCustomMessagePositions() {
-    for (int i = customMessageInfos.size() - 1; i >= 0; i--) {
-      if (!resolveCustomMessagePosition(customMessageInfos.get(i))) {
-        // Remove messages if new position can't be resolved.
-        customMessageInfos.get(i).message.markAsProcessed(/* isDelivered= */ false);
-        customMessageInfos.remove(i);
+  private void resolvePendingMessagePositions() {
+    for (int i = pendingMessages.size() - 1; i >= 0; i--) {
+      if (!resolvePendingMessagePosition(pendingMessages.get(i))) {
+        // Unable to resolve a new position for the message. Remove it.
+        pendingMessages.get(i).message.markAsProcessed(/* isDelivered= */ false);
+        pendingMessages.remove(i);
       }
     }
     // Re-sort messages by playback order.
-    Collections.sort(customMessageInfos);
+    Collections.sort(pendingMessages);
   }
 
-  private boolean resolveCustomMessagePosition(CustomMessageInfo customMessageInfo) {
-    if (customMessageInfo.resolvedPeriodUid == null) {
+  private boolean resolvePendingMessagePosition(PendingMessageInfo pendingMessageInfo) {
+    if (pendingMessageInfo.resolvedPeriodUid == null) {
       // Position is still unresolved. Try to find window in current timeline.
       Pair<Integer, Long> periodPosition =
           resolveSeekPosition(
               new SeekPosition(
-                  customMessageInfo.message.getTimeline(),
-                  customMessageInfo.message.getWindowIndex(),
-                  C.msToUs(customMessageInfo.message.getPositionMs())),
+                  pendingMessageInfo.message.getTimeline(),
+                  pendingMessageInfo.message.getWindowIndex(),
+                  C.msToUs(pendingMessageInfo.message.getPositionMs())),
               /* trySubsequentPeriods= */ false);
       if (periodPosition == null) {
         return false;
       }
-      customMessageInfo.setResolvedPosition(
+      pendingMessageInfo.setResolvedPosition(
           periodPosition.first,
           periodPosition.second,
           playbackInfo.timeline.getPeriod(periodPosition.first, period, true).uid);
     } else {
       // Position has been resolved for a previous timeline. Try to find the updated period index.
-      int index = playbackInfo.timeline.getIndexOfPeriod(customMessageInfo.resolvedPeriodUid);
+      int index = playbackInfo.timeline.getIndexOfPeriod(pendingMessageInfo.resolvedPeriodUid);
       if (index == C.INDEX_UNSET) {
         return false;
       }
-      customMessageInfo.resolvedPeriodIndex = index;
+      pendingMessageInfo.resolvedPeriodIndex = index;
     }
     return true;
   }
 
-  private void maybeTriggerCustomMessages(long oldPeriodPositionUs, long newPeriodPositionUs) {
-    if (customMessageInfos.isEmpty() || playbackInfo.periodId.isAd()) {
+  private void maybeTriggerPendingMessages(long oldPeriodPositionUs, long newPeriodPositionUs) {
+    if (pendingMessages.isEmpty() || playbackInfo.periodId.isAd()) {
       return;
     }
     // If this is the first call from the start position, include oldPeriodPositionUs in potential
@@ -935,33 +935,29 @@ import java.util.Collections;
     }
     // Correct next index if necessary (e.g. after seeking, timeline changes, or new messages)
     int currentPeriodIndex = playbackInfo.periodId.periodIndex;
-    CustomMessageInfo prevInfo =
-        nextCustomMessageInfoIndex > 0
-            ? customMessageInfos.get(nextCustomMessageInfoIndex - 1)
-            : null;
-    while (prevInfo != null
-        && (prevInfo.resolvedPeriodIndex > currentPeriodIndex
-            || (prevInfo.resolvedPeriodIndex == currentPeriodIndex
-                && prevInfo.resolvedPeriodTimeUs > oldPeriodPositionUs))) {
-      nextCustomMessageInfoIndex--;
-      prevInfo =
-          nextCustomMessageInfoIndex > 0
-              ? customMessageInfos.get(nextCustomMessageInfoIndex - 1)
-              : null;
+    PendingMessageInfo previousInfo =
+        nextPendingMessageIndex > 0 ? pendingMessages.get(nextPendingMessageIndex - 1) : null;
+    while (previousInfo != null
+        && (previousInfo.resolvedPeriodIndex > currentPeriodIndex
+            || (previousInfo.resolvedPeriodIndex == currentPeriodIndex
+                && previousInfo.resolvedPeriodTimeUs > oldPeriodPositionUs))) {
+      nextPendingMessageIndex--;
+      previousInfo =
+          nextPendingMessageIndex > 0 ? pendingMessages.get(nextPendingMessageIndex - 1) : null;
     }
-    CustomMessageInfo nextInfo =
-        nextCustomMessageInfoIndex < customMessageInfos.size()
-            ? customMessageInfos.get(nextCustomMessageInfoIndex)
+    PendingMessageInfo nextInfo =
+        nextPendingMessageIndex < pendingMessages.size()
+            ? pendingMessages.get(nextPendingMessageIndex)
             : null;
     while (nextInfo != null
         && nextInfo.resolvedPeriodUid != null
         && (nextInfo.resolvedPeriodIndex < currentPeriodIndex
             || (nextInfo.resolvedPeriodIndex == currentPeriodIndex
                 && nextInfo.resolvedPeriodTimeUs <= oldPeriodPositionUs))) {
-      nextCustomMessageInfoIndex++;
+      nextPendingMessageIndex++;
       nextInfo =
-          nextCustomMessageInfoIndex < customMessageInfos.size()
-              ? customMessageInfos.get(nextCustomMessageInfoIndex)
+          nextPendingMessageIndex < pendingMessages.size()
+              ? pendingMessages.get(nextPendingMessageIndex)
               : null;
     }
     // Check if any message falls within the covered time span.
@@ -970,15 +966,15 @@ import java.util.Collections;
         && nextInfo.resolvedPeriodIndex == currentPeriodIndex
         && nextInfo.resolvedPeriodTimeUs > oldPeriodPositionUs
         && nextInfo.resolvedPeriodTimeUs <= newPeriodPositionUs) {
-      sendCustomMessageToTarget(nextInfo.message);
+      sendMessageToTarget(nextInfo.message);
       if (nextInfo.message.getDeleteAfterDelivery()) {
-        customMessageInfos.remove(nextCustomMessageInfoIndex);
+        pendingMessages.remove(nextPendingMessageIndex);
       } else {
-        nextCustomMessageInfoIndex++;
+        nextPendingMessageIndex++;
       }
       nextInfo =
-          nextCustomMessageInfoIndex < customMessageInfos.size()
-              ? customMessageInfos.get(nextCustomMessageInfoIndex)
+          nextPendingMessageIndex < pendingMessages.size()
+              ? pendingMessages.get(nextPendingMessageIndex)
               : null;
     }
   }
@@ -1157,7 +1153,7 @@ import java.util.Collections;
     Object manifest = sourceRefreshInfo.manifest;
     queue.setTimeline(timeline);
     playbackInfo = playbackInfo.copyWithTimeline(timeline, manifest);
-    resolveCustomMessagePositions();
+    resolvePendingMessagePositions();
 
     if (oldTimeline == null) {
       playbackInfoUpdate.incrementPendingOperationAcks(pendingPrepareCount);
@@ -1689,7 +1685,7 @@ import java.util.Collections;
     }
   }
 
-  private static final class CustomMessageInfo implements Comparable<CustomMessageInfo> {
+  private static final class PendingMessageInfo implements Comparable<PendingMessageInfo> {
 
     public final PlayerMessage message;
 
@@ -1697,7 +1693,7 @@ import java.util.Collections;
     public long resolvedPeriodTimeUs;
     public @Nullable Object resolvedPeriodUid;
 
-    public CustomMessageInfo(PlayerMessage message) {
+    public PendingMessageInfo(PlayerMessage message) {
       this.message = message;
     }
 
@@ -1708,9 +1704,9 @@ import java.util.Collections;
     }
 
     @Override
-    public int compareTo(@NonNull CustomMessageInfo other) {
+    public int compareTo(@NonNull PendingMessageInfo other) {
       if ((resolvedPeriodUid == null) != (other.resolvedPeriodUid == null)) {
-        // CustomMessageInfos with a resolved period position are always smaller.
+        // PendingMessageInfos with a resolved period position are always smaller.
         return resolvedPeriodUid != null ? -1 : 1;
       }
       if (resolvedPeriodUid == null) {
