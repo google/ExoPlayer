@@ -416,54 +416,29 @@ import java.util.Collections;
   private void setRepeatModeInternal(@Player.RepeatMode int repeatMode)
       throws ExoPlaybackException {
     this.repeatMode = repeatMode;
-    queue.setRepeatMode(repeatMode);
-    validateExistingPeriodHolders();
+    if (!queue.updateRepeatMode(repeatMode)) {
+      seekToCurrentPosition(/* sendDiscontinuity= */ true);
+    }
   }
 
   private void setShuffleModeEnabledInternal(boolean shuffleModeEnabled)
       throws ExoPlaybackException {
     this.shuffleModeEnabled = shuffleModeEnabled;
-    queue.setShuffleModeEnabled(shuffleModeEnabled);
-    validateExistingPeriodHolders();
+    if (!queue.updateShuffleModeEnabled(shuffleModeEnabled)) {
+      seekToCurrentPosition(/* sendDiscontinuity= */ true);
+    }
   }
 
-  private void validateExistingPeriodHolders() throws ExoPlaybackException {
-    // Find the last existing period holder that matches the new period order.
-    MediaPeriodHolder lastValidPeriodHolder = queue.getFrontPeriod();
-    if (lastValidPeriodHolder == null) {
-      return;
-    }
-    while (true) {
-      int nextPeriodIndex = playbackInfo.timeline.getNextPeriodIndex(
-          lastValidPeriodHolder.info.id.periodIndex, period, window, repeatMode,
-          shuffleModeEnabled);
-      while (lastValidPeriodHolder.next != null
-          && !lastValidPeriodHolder.info.isLastInTimelinePeriod) {
-        lastValidPeriodHolder = lastValidPeriodHolder.next;
-      }
-      if (nextPeriodIndex == C.INDEX_UNSET || lastValidPeriodHolder.next == null
-          || lastValidPeriodHolder.next.info.id.periodIndex != nextPeriodIndex) {
-        break;
-      }
-      lastValidPeriodHolder = lastValidPeriodHolder.next;
-    }
-
-    // Release any period holders that don't match the new period order.
-    boolean readingPeriodRemoved = queue.removeAfter(lastValidPeriodHolder);
-
-    // Update the period info for the last holder, as it may now be the last period in the timeline.
-    lastValidPeriodHolder.info = queue.getUpdatedMediaPeriodInfo(lastValidPeriodHolder.info);
-
-    if (readingPeriodRemoved && queue.hasPlayingPeriod()) {
-      // Renderers may have read from a period that's been removed. Seek back to the current
-      // position of the playing period to make sure none of the removed period is played.
-      MediaPeriodId periodId = queue.getPlayingPeriod().info.id;
-      long newPositionUs =
-          seekToPeriodPosition(
-              periodId, playbackInfo.positionUs, /* forceDisableRenderers= */ true);
-      if (newPositionUs != playbackInfo.positionUs) {
-        playbackInfo =
-            playbackInfo.fromNewPosition(periodId, newPositionUs, playbackInfo.contentPositionUs);
+  private void seekToCurrentPosition(boolean sendDiscontinuity) throws ExoPlaybackException {
+    // Renderers may have read from a period that's been removed. Seek back to the current
+    // position of the playing period to make sure none of the removed period is played.
+    MediaPeriodId periodId = queue.getPlayingPeriod().info.id;
+    long newPositionUs =
+        seekToPeriodPosition(periodId, playbackInfo.positionUs, /* forceDisableRenderers= */ true);
+    if (newPositionUs != playbackInfo.positionUs) {
+      playbackInfo =
+          playbackInfo.fromNewPosition(periodId, newPositionUs, playbackInfo.contentPositionUs);
+      if (sendDiscontinuity) {
         playbackInfoUpdate.setPositionDiscontinuity(Player.DISCONTINUITY_REASON_INTERNAL);
       }
     }
@@ -1271,13 +1246,7 @@ import java.util.Collections;
         // The holder is inconsistent with the new timeline.
         boolean readingPeriodRemoved = queue.removeAfter(previousPeriodHolder);
         if (readingPeriodRemoved) {
-          // Renderers may have read from a period that's been removed. Seek back to the current
-          // position of the playing period to make sure none of the removed period is played.
-          MediaPeriodId id = queue.getPlayingPeriod().info.id;
-          long newPositionUs =
-              seekToPeriodPosition(id, playbackInfo.positionUs, /* forceDisableRenderers= */ true);
-          playbackInfo =
-              playbackInfo.fromNewPosition(id, newPositionUs, playbackInfo.contentPositionUs);
+          seekToCurrentPosition(/* sendDiscontinuity= */ false);
         }
         break;
       }
