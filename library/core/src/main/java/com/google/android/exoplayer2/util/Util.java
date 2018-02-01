@@ -262,7 +262,7 @@ public final class Util {
     try {
       return language == null ? null : new Locale(language).getISO3Language();
     } catch (MissingResourceException e) {
-      return language.toLowerCase();
+      return toLowerInvariant(language);
     }
   }
 
