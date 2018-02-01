@@ -141,45 +141,27 @@ public final class Requirements {
     if (networkInfo == null || !networkInfo.isConnected()) {
       logd("No network info or no connection.");
       return false;
-    } else if (Util.SDK_INT >= 23) {
-      // TODO Check internet connectivity using http://clients3.google.com/generate_204 on API
-      // levels prior to 23.
-      Network activeNetwork = connectivityManager.getActiveNetwork();
-      if (activeNetwork == null) {
-        logd("No active network.");
-        return false;
-      }
-      NetworkCapabilities networkCapabilities =
-          connectivityManager.getNetworkCapabilities(activeNetwork);
-      if (networkCapabilities == null
-          || !networkCapabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED)) {
-        logd("Net capability isn't validated.");
-        return false;
-      }
     }
-    boolean activeNetworkMetered = connectivityManager.isActiveNetworkMetered();
-    switch (networkRequirement) {
-      case NETWORK_TYPE_ANY:
-        return true;
-      case NETWORK_TYPE_UNMETERED:
-        if (activeNetworkMetered) {
-          logd("Network is metered.");
-        }
-        return !activeNetworkMetered;
-      case NETWORK_TYPE_NOT_ROAMING:
-        boolean roaming = networkInfo.isRoaming();
-        if (roaming) {
-          logd("Roaming.");
-        }
-        return !roaming;
-      case NETWORK_TYPE_METERED:
-        if (!activeNetworkMetered) {
-          logd("Network isn't metered.");
-        }
-        return activeNetworkMetered;
-      default:
-        throw new IllegalStateException();
+    if (!checkInternetConnectivity(connectivityManager)) {
+      return false;
     }
+    if (networkRequirement == NETWORK_TYPE_ANY) {
+      return true;
+    }
+    if (networkRequirement == NETWORK_TYPE_NOT_ROAMING) {
+      boolean roaming = networkInfo.isRoaming();
+      logd("Roaming: " + roaming);
+      return !roaming;
+    }
+    boolean activeNetworkMetered = isActiveNetworkMetered(connectivityManager, networkInfo);
+    logd("Metered network: " + activeNetworkMetered);
+    if (networkRequirement == NETWORK_TYPE_UNMETERED) {
+      return !activeNetworkMetered;
+    }
+    if (networkRequirement == NETWORK_TYPE_METERED) {
+      return activeNetworkMetered;
+    }
+    throw new IllegalStateException();
   }
 
   private boolean checkChargingRequirement(Context context) {
@@ -204,6 +186,37 @@ public final class Requirements {
     return Util.SDK_INT >= 23
         ? !powerManager.isDeviceIdleMode()
         : Util.SDK_INT >= 20 ? !powerManager.isInteractive() : !powerManager.isScreenOn();
+  }
+
+  private static boolean checkInternetConnectivity(ConnectivityManager connectivityManager) {
+    if (Util.SDK_INT < 23) {
+      // TODO Check internet connectivity using http://clients3.google.com/generate_204 on API
+      // levels prior to 23.
+      return true;
+    }
+    Network activeNetwork = connectivityManager.getActiveNetwork();
+    if (activeNetwork == null) {
+      logd("No active network.");
+      return false;
+    }
+    NetworkCapabilities networkCapabilities =
+        connectivityManager.getNetworkCapabilities(activeNetwork);
+    boolean validated =
+        networkCapabilities == null
+            || !networkCapabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED);
+    logd("Network capability validated: " + validated);
+    return !validated;
+  }
+
+  private static boolean isActiveNetworkMetered(
+      ConnectivityManager connectivityManager, NetworkInfo networkInfo) {
+    if (Util.SDK_INT >= 16) {
+      return connectivityManager.isActiveNetworkMetered();
+    }
+    int type = networkInfo.getType();
+    return type != ConnectivityManager.TYPE_WIFI
+        && type != ConnectivityManager.TYPE_BLUETOOTH
+        && type != ConnectivityManager.TYPE_ETHERNET;
   }
 
   private static void logd(String message) {
