@@ -32,7 +32,9 @@ import android.util.Log;
 import android.view.Surface;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlaybackException;
+import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.Format;
+import com.google.android.exoplayer2.PlayerMessage.Target;
 import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
 import com.google.android.exoplayer2.drm.DrmInitData;
 import com.google.android.exoplayer2.drm.DrmSessionManager;
@@ -51,6 +53,18 @@ import java.nio.ByteBuffer;
 
 /**
  * Decodes and renders video using {@link MediaCodec}.
+ *
+ * <p>This renderer accepts the following messages sent via {@link ExoPlayer#createMessage(Target)}
+ * on the playback thread:
+ *
+ * <ul>
+ *   <li>Message with type {@link C#MSG_SET_SURFACE} to set the output surface. The message payload
+ *       should be the target {@link Surface}, or null.
+ *   <li>Message with type {@link C#MSG_SET_SCALING_MODE} to set the video scaling mode. The message
+ *       payload should be one of the integer scaling modes in {@link C.VideoScalingMode}. Note that
+ *       the scaling mode only applies if the {@link Surface} targeted by this renderer is owned by
+ *       a {@link android.view.SurfaceView}.
+ * </ul>
  */
 @TargetApi(16)
 public class MediaCodecVideoRenderer extends MediaCodecRenderer {

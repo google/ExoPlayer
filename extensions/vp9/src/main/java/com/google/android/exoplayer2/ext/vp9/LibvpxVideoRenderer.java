@@ -30,6 +30,7 @@ import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.FormatHolder;
+import com.google.android.exoplayer2.PlayerMessage.Target;
 import com.google.android.exoplayer2.decoder.DecoderCounters;
 import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
 import com.google.android.exoplayer2.drm.DrmSession;
@@ -45,7 +46,20 @@ import com.google.android.exoplayer2.video.VideoRendererEventListener.EventDispa
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
-/** Decodes and renders video using the native VP9 decoder. */
+/**
+ * Decodes and renders video using the native VP9 decoder.
+ *
+ * <p>This renderer accepts the following messages sent via {@link ExoPlayer#createMessage(Target)}
+ * on the playback thread:
+ *
+ * <ul>
+ *   <li>Message with type {@link C#MSG_SET_SURFACE} to set the output surface. The message payload
+ *       should be the target {@link Surface}, or null.
+ *   <li>Message with type {@link #MSG_SET_OUTPUT_BUFFER_RENDERER} to set the output buffer
+ *       renderer. The message payload should be the target {@link VpxOutputBufferRenderer}, or
+ *       null.
+ * </ul>
+ */
 public class LibvpxVideoRenderer extends BaseRenderer {
 
   @Retention(RetentionPolicy.SOURCE)
@@ -70,9 +84,9 @@ public class LibvpxVideoRenderer extends BaseRenderer {
   private static final int REINITIALIZATION_STATE_WAIT_END_OF_STREAM = 2;
 
   /**
-   * The type of a message that can be passed to an instance of this class via
-   * {@link ExoPlayer#sendMessages} or {@link ExoPlayer#blockingSendMessages}. The message object
-   * should be the target {@link VpxOutputBufferRenderer}, or null.
+   * The type of a message that can be passed to an instance of this class via {@link
+   * ExoPlayer#createMessage(Target)}. The message payload should be the target {@link
+   * VpxOutputBufferRenderer}, or null.
    */
   public static final int MSG_SET_OUTPUT_BUFFER_RENDERER = C.MSG_CUSTOM_BASE;
 
