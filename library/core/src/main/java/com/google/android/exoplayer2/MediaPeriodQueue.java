@@ -31,6 +31,7 @@ import com.google.android.exoplayer2.util.Assertions;
  * loading media period at the end of the queue, with methods for controlling loading and updating
  * the queue. Also has a reference to the media period currently being read.
  */
+@SuppressWarnings("UngroupedOverloads")
 /* package */ final class MediaPeriodQueue {
 
   /**
@@ -66,19 +67,21 @@ import com.google.android.exoplayer2.util.Assertions;
   }
 
   /**
-   * Sets the {@link RepeatMode}. Call {@link #getUpdatedMediaPeriodInfo} to update period
-   * information taking into account the new repeat mode.
+   * Sets the {@link RepeatMode} and returns whether the repeat mode change has been fully handled.
+   * If not, it is necessary to seek to the current playback position.
    */
-  public void setRepeatMode(@RepeatMode int repeatMode) {
+  public boolean updateRepeatMode(@RepeatMode int repeatMode) {
     this.repeatMode = repeatMode;
+    return updateForPlaybackModeChange();
   }
 
   /**
-   * Sets whether shuffling is enabled. Call {@link #getUpdatedMediaPeriodInfo} to update period
-   * information taking into account the shuffle mode.
+   * Sets whether shuffling is enabled and returns whether the shuffle mode change has been fully
+   * handled. If not, it is necessary to seek to the current playback position.
    */
-  public void setShuffleModeEnabled(boolean shuffleModeEnabled) {
+  public boolean updateShuffleModeEnabled(boolean shuffleModeEnabled) {
     this.shuffleModeEnabled = shuffleModeEnabled;
+    return updateForPlaybackModeChange();
   }
 
   /** Returns whether {@code mediaPeriod} is the current loading media period. */
@@ -288,17 +291,6 @@ import com.google.android.exoplayer2.util.Assertions;
 
   /**
    * Returns new media period info based on specified {@code mediaPeriodInfo} but taking into
-   * account the current timeline.
-   *
-   * @param mediaPeriodInfo Media period info for a media period based on an old timeline.
-   * @return The updated media period info for the current timeline.
-   */
-  public MediaPeriodInfo getUpdatedMediaPeriodInfo(MediaPeriodInfo mediaPeriodInfo) {
-    return getUpdatedMediaPeriodInfo(mediaPeriodInfo, mediaPeriodInfo.id);
-  }
-
-  /**
-   * Returns new media period info based on specified {@code mediaPeriodInfo} but taking into
    * account the current timeline, and with the period index updated to {@code newPeriodIndex}.
    *
    * @param mediaPeriodInfo Media period info for a media period based on an old timeline.
@@ -332,6 +324,47 @@ import com.google.android.exoplayer2.util.Assertions;
   }
 
   // Internal methods.
+
+  /**
+   * Updates the queue for any playback mode change, and returns whether the change was fully
+   * handled. If not, it is necessary to seek to the current playback position.
+   */
+  private boolean updateForPlaybackModeChange() {
+    // Find the last existing period holder that matches the new period order.
+    MediaPeriodHolder lastValidPeriodHolder = getFrontPeriod();
+    if (lastValidPeriodHolder == null) {
+      return true;
+    }
+    while (true) {
+      int nextPeriodIndex =
+          timeline.getNextPeriodIndex(
+              lastValidPeriodHolder.info.id.periodIndex,
+              period,
+              window,
+              repeatMode,
+              shuffleModeEnabled);
+      while (lastValidPeriodHolder.next != null
+          && !lastValidPeriodHolder.info.isLastInTimelinePeriod) {
+        lastValidPeriodHolder = lastValidPeriodHolder.next;
+      }
+      if (nextPeriodIndex == C.INDEX_UNSET
+          || lastValidPeriodHolder.next == null
+          || lastValidPeriodHolder.next.info.id.periodIndex != nextPeriodIndex) {
+        break;
+      }
+      lastValidPeriodHolder = lastValidPeriodHolder.next;
+    }
+
+    // Release any period holders that don't match the new period order.
+    boolean readingPeriodRemoved = removeAfter(lastValidPeriodHolder);
+
+    // Update the period info for the last holder, as it may now be the last period in the timeline.
+    lastValidPeriodHolder.info =
+        getUpdatedMediaPeriodInfo(lastValidPeriodHolder.info, lastValidPeriodHolder.info.id);
+
+    // If renderers may have read from a period that's been removed, it is necessary to restart.
+    return !readingPeriodRemoved || !hasPlayingPeriod();
+  }
 
   /**
    * Returns the first {@link MediaPeriodInfo} to play, based on the specified playback position.
