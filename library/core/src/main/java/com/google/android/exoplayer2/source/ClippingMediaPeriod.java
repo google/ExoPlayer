@@ -292,11 +292,13 @@ public final class ClippingMediaPeriod implements MediaPeriod, MediaPeriod.Callb
       }
       int result = childStream.readData(formatHolder, buffer, requireFormat);
       if (result == C.RESULT_FORMAT_READ) {
-        // Clear gapless playback metadata if the start/end points don't match the media.
         Format format = formatHolder.format;
-        int encoderDelay = startUs != 0 ? 0 : format.encoderDelay;
-        int encoderPadding = endUs != C.TIME_END_OF_SOURCE ? 0 : format.encoderPadding;
-        formatHolder.format = format.copyWithGaplessInfo(encoderDelay, encoderPadding);
+        if (format.encoderDelay != Format.NO_VALUE || format.encoderPadding != Format.NO_VALUE) {
+          // Clear gapless playback metadata if the start/end points don't match the media.
+          int encoderDelay = startUs != 0 ? 0 : format.encoderDelay;
+          int encoderPadding = endUs != C.TIME_END_OF_SOURCE ? 0 : format.encoderPadding;
+          formatHolder.format = format.copyWithGaplessInfo(encoderDelay, encoderPadding);
+        }
         return C.RESULT_FORMAT_READ;
       }
       if (endUs != C.TIME_END_OF_SOURCE
