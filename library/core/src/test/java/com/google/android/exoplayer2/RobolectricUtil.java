@@ -117,7 +117,14 @@ public final class RobolectricUtil {
               }
             }
             if (!isRemoved) {
-              target.dispatchMessage(pendingMessage.message);
+              try {
+                target.dispatchMessage(pendingMessage.message);
+              } catch (Throwable t) {
+                // Interrupt the main thread to terminate the test. Robolectric's HandlerThread will
+                // print the rethrown error to standard output.
+                Looper.getMainLooper().getThread().interrupt();
+                throw t;
+              }
             }
           }
           if (Util.SDK_INT >= 21) {
