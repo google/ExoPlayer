@@ -98,7 +98,7 @@ public class LibvpxVideoRenderer extends BaseRenderer {
    * The number of output buffers. The renderer may limit the minimum possible value due to
    * requiring multiple output buffers to be dequeued at a time for it to make progress.
    */
-  private static final int NUM_OUTPUT_BUFFERS = 16;
+  private static final int NUM_OUTPUT_BUFFERS = 8;
   /**
    * The initial input buffer size. Input buffers are reallocated dynamically if this value is
    * insufficient.
