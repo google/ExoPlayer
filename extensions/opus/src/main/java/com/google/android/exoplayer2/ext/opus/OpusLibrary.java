@@ -27,7 +27,7 @@ public final class OpusLibrary {
     ExoPlayerLibraryInfo.registerModule("goog.exo.opus");
   }
 
-  private static final LibraryLoader LOADER = new LibraryLoader("opus", "opusJNI");
+  private static final LibraryLoader LOADER = new LibraryLoader("opusJNI");
 
   private OpusLibrary() {}
 
