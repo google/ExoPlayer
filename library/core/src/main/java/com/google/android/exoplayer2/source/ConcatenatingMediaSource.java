@@ -18,7 +18,6 @@ package com.google.android.exoplayer2.source;
 import android.support.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlayer;
-import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.source.ShuffleOrder.DefaultShuffleOrder;
 import com.google.android.exoplayer2.upstream.Allocator;
@@ -173,10 +172,9 @@ public final class ConcatenatingMediaSource extends CompositeMediaSource<Integer
     private final Timeline[] timelines;
     private final int[] sourcePeriodOffsets;
     private final int[] sourceWindowOffsets;
-    private final boolean isAtomic;
 
     public ConcatenatedTimeline(Timeline[] timelines, boolean isAtomic, ShuffleOrder shuffleOrder) {
-      super(shuffleOrder);
+      super(isAtomic, shuffleOrder);
       int[] sourcePeriodOffsets = new int[timelines.length];
       int[] sourceWindowOffsets = new int[timelines.length];
       long periodCount = 0;
@@ -193,7 +191,6 @@ public final class ConcatenatingMediaSource extends CompositeMediaSource<Integer
       this.timelines = timelines;
       this.sourcePeriodOffsets = sourcePeriodOffsets;
       this.sourceWindowOffsets = sourceWindowOffsets;
-      this.isAtomic = isAtomic;
     }
 
     @Override
@@ -204,34 +201,6 @@ public final class ConcatenatingMediaSource extends CompositeMediaSource<Integer
     @Override
     public int getPeriodCount() {
       return sourcePeriodOffsets[sourcePeriodOffsets.length - 1];
-    }
-
-    @Override
-    public int getNextWindowIndex(int windowIndex, @Player.RepeatMode int repeatMode,
-        boolean shuffleModeEnabled) {
-      if (isAtomic && repeatMode == Player.REPEAT_MODE_ONE) {
-        repeatMode = Player.REPEAT_MODE_ALL;
-      }
-      return super.getNextWindowIndex(windowIndex, repeatMode, !isAtomic && shuffleModeEnabled);
-    }
-
-    @Override
-    public int getPreviousWindowIndex(int windowIndex, @Player.RepeatMode int repeatMode,
-        boolean shuffleModeEnabled) {
-      if (isAtomic && repeatMode == Player.REPEAT_MODE_ONE) {
-        repeatMode = Player.REPEAT_MODE_ALL;
-      }
-      return super.getPreviousWindowIndex(windowIndex, repeatMode, !isAtomic && shuffleModeEnabled);
-    }
-
-    @Override
-    public int getLastWindowIndex(boolean shuffleModeEnabled) {
-      return super.getLastWindowIndex(!isAtomic && shuffleModeEnabled);
-    }
-
-    @Override
-    public int getFirstWindowIndex(boolean shuffleModeEnabled) {
-      return super.getFirstWindowIndex(!isAtomic && shuffleModeEnabled);
     }
 
     @Override
