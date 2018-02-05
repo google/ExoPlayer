@@ -198,7 +198,7 @@ public final class Ac3Util {
     if (data.bytesLeft() > 0) {
       nextByte = data.readUnsignedByte();
       if ((nextByte & 0x01) != 0) { // flag_ec3_extension_type_a
-        mimeType = MimeTypes.AUDIO_ATMOS;
+        mimeType = MimeTypes.AUDIO_E_AC3_JOC;
       }
     }
     return Format.createAudioSampleFormat(trackId, mimeType, null, Format.NO_VALUE,
@@ -385,7 +385,7 @@ public final class Ac3Util {
       if (data.readBit()) { // addbsie
         int addbsil = data.readBits(6);
         if (addbsil == 1 && data.readBits(8) == 1) { // addbsi
-          mimeType = MimeTypes.AUDIO_ATMOS;
+          mimeType = MimeTypes.AUDIO_E_AC3_JOC;
         }
       }
     } else /* is AC-3 */ {
