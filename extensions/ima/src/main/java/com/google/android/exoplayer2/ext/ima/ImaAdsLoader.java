@@ -516,6 +516,9 @@ public final class ImaAdsLoader extends Player.DefaultEventListener implements A
       case LOG:
         Map<String, String> adData = adEvent.getAdData();
         Log.i(TAG, "Log AdEvent: " + adData);
+        if ("adLoadError".equals(adData.get("type"))) {
+          handleAdGroupLoadError();
+        }
         break;
       case ALL_ADS_COMPLETED:
       default:
@@ -894,6 +897,23 @@ public final class ImaAdsLoader extends Player.DefaultEventListener implements A
     }
   }
 
+  private void handleAdGroupLoadError() {
+    AdPlaybackState.AdGroup adGroup = adPlaybackState.adGroups[expectedAdGroupIndex];
+    // Ad group load error can be notified more than once, so check if it was already handled.
+    // TODO: Update the expected ad group index based on the position returned by
+    // getContentProgress so that it's possible to detect when more than one ad group fails to load
+    // consecutively.
+    if (adGroup.count == C.LENGTH_UNSET
+        || adGroup.states[0] == AdPlaybackState.AD_STATE_UNAVAILABLE) {
+      if (DEBUG) {
+        Log.d(TAG, "Removing ad group " + expectedAdGroupIndex + " as it failed to load");
+      }
+      adPlaybackState = adPlaybackState.withAdCount(expectedAdGroupIndex, 1);
+      adPlaybackState = adPlaybackState.withAdLoadError(expectedAdGroupIndex, 0);
+      updateAdPlaybackState();
+    }
+  }
+
   private void checkForContentComplete() {
     if (contentDurationMs != C.TIME_UNSET && pendingContentPositionMs == C.TIME_UNSET
         && player.getContentPosition() + END_OF_CONTENT_POSITION_THRESHOLD_MS >= contentDurationMs
@@ -939,6 +959,21 @@ public final class ImaAdsLoader extends Player.DefaultEventListener implements A
     return adGroupTimesUs.length == 0 ? C.INDEX_UNSET : (adGroupTimesUs.length - 1);
   }
 
+  /**
+   * Returns the next ad index in the specified ad group to load, or {@link C#INDEX_UNSET} if all
+   * ads in the ad group have loaded.
+   */
+  private int getAdIndexInAdGroupToLoad(int adGroupIndex) {
+    @AdState int[] states = adPlaybackState.adGroups[adGroupIndex].states;
+    int adIndexInAdGroup = 0;
+    // IMA loads ads in order.
+    while (adIndexInAdGroup < states.length
+        && states[adIndexInAdGroup] != AdPlaybackState.AD_STATE_UNAVAILABLE) {
+      adIndexInAdGroup++;
+    }
+    return adIndexInAdGroup == states.length ? C.INDEX_UNSET : adIndexInAdGroup;
+  }
+
   private static long[] getAdGroupTimesUs(List<Float> cuePoints) {
     if (cuePoints.isEmpty()) {
       // If no cue points are specified, there is a preroll ad.
@@ -955,18 +990,4 @@ public final class ImaAdsLoader extends Player.DefaultEventListener implements A
     return adGroupTimesUs;
   }
 
-  /**
-   * Returns the next ad index in the specified ad group to load, or {@link C#INDEX_UNSET} if all
-   * ads in the ad group have loaded.
-   */
-  private int getAdIndexInAdGroupToLoad(int adGroupIndex) {
-    @AdState int[] states = adPlaybackState.adGroups[adGroupIndex].states;
-    int adIndexInAdGroup = 0;
-    // IMA loads ads in order.
-    while (adIndexInAdGroup < states.length
-        && states[adIndexInAdGroup] != AdPlaybackState.AD_STATE_UNAVAILABLE) {
-      adIndexInAdGroup++;
-    }
-    return adIndexInAdGroup == states.length ? C.INDEX_UNSET : adIndexInAdGroup;
-  }
 }

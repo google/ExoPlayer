@@ -81,6 +81,8 @@
 * CacheDataSource: Check periodically if it's possible to read from/write to
   cache after deciding to bypass cache.
 * IMA extension:
+    * Fix the player getting stuck when an ad group fails to load
+      ([#3584](https://github.com/google/ExoPlayer/issues/3584)).
     * Work around loadAd not being called beore the LOADED AdEvent arrives
       ([#3552](https://github.com/google/ExoPlayer/issues/3552)).
     * Add support for playing non-Extractor content MediaSources in
