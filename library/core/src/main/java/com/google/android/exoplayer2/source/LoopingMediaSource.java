@@ -106,7 +106,7 @@ public final class LoopingMediaSource extends CompositeMediaSource<Void> {
     private final int loopCount;
 
     public LoopingTimeline(Timeline childTimeline, int loopCount) {
-      super(new UnshuffledShuffleOrder(loopCount));
+      super(/* isAtomic= */ false, new UnshuffledShuffleOrder(loopCount));
       this.childTimeline = childTimeline;
       childPeriodCount = childTimeline.getPeriodCount();
       childWindowCount = childTimeline.getWindowCount();

@@ -27,14 +27,18 @@ import com.google.android.exoplayer2.Timeline;
 
   private final int childCount;
   private final ShuffleOrder shuffleOrder;
+  private final boolean isAtomic;
 
   /**
    * Sets up a concatenated timeline with a shuffle order of child timelines.
    *
+   * @param isAtomic Whether the child timelines shall be treated as atomic, i.e., treated as a
+   *     single item for repeating and shuffling.
    * @param shuffleOrder A shuffle order of child timelines. The number of child timelines must
    *     match the number of elements in the shuffle order.
    */
-  public AbstractConcatenatedTimeline(ShuffleOrder shuffleOrder) {
+  public AbstractConcatenatedTimeline(boolean isAtomic, ShuffleOrder shuffleOrder) {
+    this.isAtomic = isAtomic;
     this.shuffleOrder = shuffleOrder;
     this.childCount = shuffleOrder.getLength();
   }
@@ -42,6 +46,11 @@ import com.google.android.exoplayer2.Timeline;
   @Override
   public int getNextWindowIndex(int windowIndex, @Player.RepeatMode int repeatMode,
       boolean shuffleModeEnabled) {
+    if (isAtomic) {
+      // Adapt repeat and shuffle mode to atomic concatenation.
+      repeatMode = repeatMode == Player.REPEAT_MODE_ONE ? Player.REPEAT_MODE_ALL : repeatMode;
+      shuffleModeEnabled = false;
+    }
     // Find next window within current child.
     int childIndex = getChildIndexByWindowIndex(windowIndex);
     int firstWindowIndexInChild = getFirstWindowIndexByChildIndex(childIndex);
@@ -71,6 +80,11 @@ import com.google.android.exoplayer2.Timeline;
   @Override
   public int getPreviousWindowIndex(int windowIndex, @Player.RepeatMode int repeatMode,
       boolean shuffleModeEnabled) {
+    if (isAtomic) {
+      // Adapt repeat and shuffle mode to atomic concatenation.
+      repeatMode = repeatMode == Player.REPEAT_MODE_ONE ? Player.REPEAT_MODE_ALL : repeatMode;
+      shuffleModeEnabled = false;
+    }
     // Find previous window within current child.
     int childIndex = getChildIndexByWindowIndex(windowIndex);
     int firstWindowIndexInChild = getFirstWindowIndexByChildIndex(childIndex);
@@ -103,6 +117,9 @@ import com.google.android.exoplayer2.Timeline;
     if (childCount == 0) {
       return C.INDEX_UNSET;
     }
+    if (isAtomic) {
+      shuffleModeEnabled = false;
+    }
     // Find last non-empty child.
     int lastChildIndex = shuffleModeEnabled ? shuffleOrder.getLastIndex() : childCount - 1;
     while (getTimelineByChildIndex(lastChildIndex).isEmpty()) {
@@ -120,6 +137,9 @@ import com.google.android.exoplayer2.Timeline;
   public int getFirstWindowIndex(boolean shuffleModeEnabled) {
     if (childCount == 0) {
       return C.INDEX_UNSET;
+    }
+    if (isAtomic) {
+      shuffleModeEnabled = false;
     }
     // Find first non-empty child.
     int firstChildIndex = shuffleModeEnabled ? shuffleOrder.getFirstIndex() : 0;
