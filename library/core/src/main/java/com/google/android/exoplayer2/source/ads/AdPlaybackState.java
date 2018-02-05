@@ -211,7 +211,7 @@ public final class AdPlaybackState {
   public static final int AD_STATE_ERROR = 4;
 
   /** Ad playback state with no ads. */
-  public static final AdPlaybackState NONE = new AdPlaybackState(new long[0]);
+  public static final AdPlaybackState NONE = new AdPlaybackState();
 
   /** The number of ad groups. */
   public final int adGroupCount;
@@ -233,7 +233,7 @@ public final class AdPlaybackState {
    * @param adGroupTimesUs The times of ad groups in microseconds. A final element with the value
    *     {@link C#TIME_END_OF_SOURCE} indicates that there is a postroll ad.
    */
-  public AdPlaybackState(long[] adGroupTimesUs) {
+  public AdPlaybackState(long... adGroupTimesUs) {
     int count = adGroupTimesUs.length;
     adGroupCount = count;
     this.adGroupTimesUs = Arrays.copyOf(adGroupTimesUs, count);

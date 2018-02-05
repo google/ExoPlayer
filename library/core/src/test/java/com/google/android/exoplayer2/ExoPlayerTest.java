@@ -26,6 +26,7 @@ import com.google.android.exoplayer2.source.ConcatenatingMediaSource;
 import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.source.TrackGroup;
 import com.google.android.exoplayer2.source.TrackGroupArray;
+import com.google.android.exoplayer2.source.ads.AdPlaybackState;
 import com.google.android.exoplayer2.testutil.ActionSchedule;
 import com.google.android.exoplayer2.testutil.ActionSchedule.PlayerRunnable;
 import com.google.android.exoplayer2.testutil.ActionSchedule.PlayerTarget;
@@ -382,6 +383,57 @@ public final class ExoPlayerTest {
         Player.DISCONTINUITY_REASON_PERIOD_TRANSITION,
         Player.DISCONTINUITY_REASON_PERIOD_TRANSITION);
     assertThat(renderer.isEnded).isTrue();
+  }
+
+  @Test
+  public void testAdGroupWithLoadErrorIsSkipped() throws Exception {
+    AdPlaybackState initialAdPlaybackState =
+        FakeTimeline.createAdPlaybackState(
+            /* adsPerAdGroup= */ 1, /* adGroupTimesUs= */ 5 * C.MICROS_PER_SECOND);
+    Timeline fakeTimeline =
+        new FakeTimeline(
+            new TimelineWindowDefinition(
+                /* periodCount= */ 1,
+                /* id= */ 0,
+                /* isSeekable= */ true,
+                /* isDynamic= */ false,
+                /* durationUs= */ C.MICROS_PER_SECOND,
+                initialAdPlaybackState));
+    AdPlaybackState errorAdPlaybackState = initialAdPlaybackState.withAdLoadError(0, 0);
+    final Timeline adErrorTimeline =
+        new FakeTimeline(
+            new TimelineWindowDefinition(
+                /* periodCount= */ 1,
+                /* id= */ 0,
+                /* isSeekable= */ true,
+                /* isDynamic= */ false,
+                /* durationUs= */ C.MICROS_PER_SECOND,
+                errorAdPlaybackState));
+    final FakeMediaSource fakeMediaSource =
+        new FakeMediaSource(fakeTimeline, /* manifest= */ null, Builder.VIDEO_FORMAT);
+    ActionSchedule actionSchedule =
+        new ActionSchedule.Builder("testAdGroupWithLoadErrorIsSkipped")
+            .pause()
+            .waitForPlaybackState(Player.STATE_READY)
+            .executeRunnable(
+                new Runnable() {
+                  @Override
+                  public void run() {
+                    fakeMediaSource.setNewSourceInfo(adErrorTimeline, null);
+                  }
+                })
+            .waitForTimelineChanged(adErrorTimeline)
+            .play()
+            .build();
+    ExoPlayerTestRunner testRunner =
+        new ExoPlayerTestRunner.Builder()
+            .setMediaSource(fakeMediaSource)
+            .setActionSchedule(actionSchedule)
+            .build()
+            .start()
+            .blockUntilEnded(TIMEOUT_MS);
+    // There is still one discontinuity from content to content for the failed ad insertion.
+    testRunner.assertPositionDiscontinuityReasonsEqual(Player.DISCONTINUITY_REASON_AD_INSERTION);
   }
 
   @Test

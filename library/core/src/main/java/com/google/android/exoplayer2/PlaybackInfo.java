@@ -70,11 +70,6 @@ import com.google.android.exoplayer2.trackselection.TrackSelectorResult;
     this.trackSelectorResult = trackSelectorResult;
   }
 
-  public PlaybackInfo fromNewPosition(int periodIndex, long startPositionUs,
-      long contentPositionUs) {
-    return fromNewPosition(new MediaPeriodId(periodIndex), startPositionUs, contentPositionUs);
-  }
-
   public PlaybackInfo fromNewPosition(MediaPeriodId periodId, long startPositionUs,
       long contentPositionUs) {
     return new PlaybackInfo(
@@ -82,7 +77,7 @@ import com.google.android.exoplayer2.trackselection.TrackSelectorResult;
         manifest,
         periodId,
         startPositionUs,
-        contentPositionUs,
+        periodId.isAd() ? contentPositionUs : C.TIME_UNSET,
         playbackState,
         isLoading,
         trackSelectorResult);
