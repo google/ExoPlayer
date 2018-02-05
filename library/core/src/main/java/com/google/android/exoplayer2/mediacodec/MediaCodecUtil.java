@@ -158,8 +158,8 @@ public final class MediaCodecUtil {
             + ". Assuming: " + decoderInfos.get(0).name);
       }
     }
-    if (MimeTypes.AUDIO_ATMOS.equals(mimeType)) {
-      // E-AC3 decoders can decode Atmos streams, but in 2-D rather than 3-D.
+    if (MimeTypes.AUDIO_E_AC3_JOC.equals(mimeType)) {
+      // E-AC3 decoders can decode JOC streams, but in 2-D rather than 3-D.
       CodecKey eac3Key = new CodecKey(MimeTypes.AUDIO_E_AC3, key.secure);
       ArrayList<MediaCodecInfo> eac3DecoderInfos =
           getDecoderInfosInternal(eac3Key, mediaCodecList, mimeType);
@@ -382,8 +382,8 @@ public final class MediaCodecUtil {
       return false;
     }
 
-    // MTK E-AC3 decoder doesn't support decoding Atmos streams in 2-D. See [Internal: b/69400041].
-    if (MimeTypes.AUDIO_ATMOS.equals(requestedMimeType)
+    // MTK E-AC3 decoder doesn't support decoding JOC streams in 2-D. See [Internal: b/69400041].
+    if (MimeTypes.AUDIO_E_AC3_JOC.equals(requestedMimeType)
         && "OMX.MTK.AUDIO.DECODER.DSPAC3".equals(name)) {
       return false;
     }
