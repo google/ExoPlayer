@@ -92,7 +92,7 @@ to use a video codec not supported natively by Android.
 
 The concept of injecting components that implement pieces of player
 functionality is present throughout the library. The default implementations of
-the components listed above above delegate work to further injected components.
+the components listed above delegate work to further injected components.
 This allows many sub-components to be individually replaced with custom
 implementations. For example the default `MediaSource` implementations require
 one or more `DataSource` factories to be injected via their constructors. By
