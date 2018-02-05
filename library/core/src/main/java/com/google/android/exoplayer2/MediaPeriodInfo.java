@@ -36,8 +36,9 @@ import com.google.android.exoplayer2.source.MediaSource.MediaPeriodId;
    */
   public final long contentPositionUs;
   /**
-   * The duration of the media to play within the media period, in microseconds, or {@link
-   * C#TIME_UNSET} if not known.
+   * The duration of the media period, like {@link #endPositionUs} but with {@link
+   * C#TIME_END_OF_SOURCE} resolved to the timeline period duration. May be {@link C#TIME_UNSET} if
+   * the end position is not known.
    */
   public final long durationUs;
   /**
