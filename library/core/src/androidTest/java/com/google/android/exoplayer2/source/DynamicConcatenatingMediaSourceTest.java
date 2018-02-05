@@ -47,7 +47,8 @@ public final class DynamicConcatenatingMediaSourceTest extends TestCase {
   @Override
   public void setUp() throws Exception {
     super.setUp();
-    mediaSource = new DynamicConcatenatingMediaSource(new FakeShuffleOrder(0));
+    mediaSource =
+        new DynamicConcatenatingMediaSource(/* isAtomic= */ false, new FakeShuffleOrder(0));
     testRunner = new MediaSourceTestRunner(mediaSource, null);
   }
 
@@ -625,6 +626,92 @@ public final class DynamicConcatenatingMediaSourceTest extends TestCase {
     mediaSourceWithAds.assertMediaPeriodCreated(new MediaPeriodId(1));
     mediaSourceWithAds.assertMediaPeriodCreated(new MediaPeriodId(0, 0, 0));
     mediaSourceWithAds.assertMediaPeriodCreated(new MediaPeriodId(1, 0, 0));
+  }
+
+  public void testAtomicTimelineWindowOrder() throws IOException {
+    // Release default test runner with non-atomic media source and replace with new test runner.
+    testRunner.release();
+    DynamicConcatenatingMediaSource mediaSource =
+        new DynamicConcatenatingMediaSource(/* isAtomic= */ true, new FakeShuffleOrder(0));
+    testRunner = new MediaSourceTestRunner(mediaSource, null);
+    mediaSource.addMediaSources(Arrays.<MediaSource>asList(createMediaSources(3)));
+    Timeline timeline = testRunner.prepareSource();
+    TimelineAsserts.assertWindowIds(timeline, 111, 222, 333);
+    TimelineAsserts.assertPeriodCounts(timeline, 1, 2, 3);
+    TimelineAsserts.assertPreviousWindowIndices(
+        timeline, Player.REPEAT_MODE_OFF, /* shuffleModeEnabled= */ false, C.INDEX_UNSET, 0, 1);
+    TimelineAsserts.assertPreviousWindowIndices(
+        timeline, Player.REPEAT_MODE_OFF, /* shuffleModeEnabled= */ true, C.INDEX_UNSET, 0, 1);
+    TimelineAsserts.assertPreviousWindowIndices(
+        timeline, Player.REPEAT_MODE_ONE, /* shuffleModeEnabled= */ false, 2, 0, 1);
+    TimelineAsserts.assertPreviousWindowIndices(
+        timeline, Player.REPEAT_MODE_ONE, /* shuffleModeEnabled= */ true, 2, 0, 1);
+    TimelineAsserts.assertPreviousWindowIndices(
+        timeline, Player.REPEAT_MODE_ALL, /* shuffleModeEnabled= */ false, 2, 0, 1);
+    TimelineAsserts.assertPreviousWindowIndices(
+        timeline, Player.REPEAT_MODE_ALL, /* shuffleModeEnabled= */ true, 2, 0, 1);
+    TimelineAsserts.assertNextWindowIndices(
+        timeline, Player.REPEAT_MODE_OFF, /* shuffleModeEnabled= */ false, 1, 2, C.INDEX_UNSET);
+    TimelineAsserts.assertNextWindowIndices(
+        timeline, Player.REPEAT_MODE_OFF, /* shuffleModeEnabled= */ true, 1, 2, C.INDEX_UNSET);
+    TimelineAsserts.assertNextWindowIndices(
+        timeline, Player.REPEAT_MODE_ONE, /* shuffleModeEnabled= */ false, 1, 2, 0);
+    TimelineAsserts.assertNextWindowIndices(
+        timeline, Player.REPEAT_MODE_ONE, /* shuffleModeEnabled= */ true, 1, 2, 0);
+    TimelineAsserts.assertNextWindowIndices(
+        timeline, Player.REPEAT_MODE_ALL, /* shuffleModeEnabled= */ false, 1, 2, 0);
+    TimelineAsserts.assertNextWindowIndices(
+        timeline, Player.REPEAT_MODE_ALL, /* shuffleModeEnabled= */ true, 1, 2, 0);
+    assertThat(timeline.getFirstWindowIndex(/* shuffleModeEnabled= */ false)).isEqualTo(0);
+    assertThat(timeline.getFirstWindowIndex(/* shuffleModeEnabled= */ true)).isEqualTo(0);
+    assertThat(timeline.getLastWindowIndex(/* shuffleModeEnabled= */ false)).isEqualTo(2);
+    assertThat(timeline.getLastWindowIndex(/* shuffleModeEnabled= */ true)).isEqualTo(2);
+  }
+
+  public void testNestedTimeline() throws IOException {
+    DynamicConcatenatingMediaSource nestedSource1 =
+        new DynamicConcatenatingMediaSource(/* isAtomic= */ false, new FakeShuffleOrder(0));
+    DynamicConcatenatingMediaSource nestedSource2 =
+        new DynamicConcatenatingMediaSource(/* isAtomic= */ true, new FakeShuffleOrder(0));
+    mediaSource.addMediaSource(nestedSource1);
+    mediaSource.addMediaSource(nestedSource2);
+    testRunner.prepareSource();
+    FakeMediaSource[] childSources = createMediaSources(4);
+    nestedSource1.addMediaSource(childSources[0]);
+    testRunner.assertTimelineChangeBlocking();
+    nestedSource1.addMediaSource(childSources[1]);
+    testRunner.assertTimelineChangeBlocking();
+    nestedSource2.addMediaSource(childSources[2]);
+    testRunner.assertTimelineChangeBlocking();
+    nestedSource2.addMediaSource(childSources[3]);
+    Timeline timeline = testRunner.assertTimelineChangeBlocking();
+
+    TimelineAsserts.assertWindowIds(timeline, 111, 222, 333, 444);
+    TimelineAsserts.assertPeriodCounts(timeline, 1, 2, 3, 4);
+    TimelineAsserts.assertPreviousWindowIndices(
+        timeline, Player.REPEAT_MODE_OFF, /* shuffleModeEnabled= */ false, C.INDEX_UNSET, 0, 1, 2);
+    TimelineAsserts.assertPreviousWindowIndices(
+        timeline, Player.REPEAT_MODE_ONE, /* shuffleModeEnabled= */ false, 0, 1, 3, 2);
+    TimelineAsserts.assertPreviousWindowIndices(
+        timeline, Player.REPEAT_MODE_ALL, /* shuffleModeEnabled= */ false, 3, 0, 1, 2);
+    TimelineAsserts.assertNextWindowIndices(
+        timeline, Player.REPEAT_MODE_OFF, /* shuffleModeEnabled= */ false, 1, 2, 3, C.INDEX_UNSET);
+    TimelineAsserts.assertNextWindowIndices(
+        timeline, Player.REPEAT_MODE_ONE, /* shuffleModeEnabled= */ false, 0, 1, 3, 2);
+    TimelineAsserts.assertNextWindowIndices(
+        timeline, Player.REPEAT_MODE_ALL, /* shuffleModeEnabled= */ false, 1, 2, 3, 0);
+    TimelineAsserts.assertPreviousWindowIndices(
+        timeline, Player.REPEAT_MODE_OFF, /* shuffleModeEnabled= */ true, 1, 3, C.INDEX_UNSET, 2);
+    TimelineAsserts.assertPreviousWindowIndices(
+        timeline, Player.REPEAT_MODE_ONE, /* shuffleModeEnabled= */ true, 0, 1, 3, 2);
+    TimelineAsserts.assertPreviousWindowIndices(
+        timeline, Player.REPEAT_MODE_ALL, /* shuffleModeEnabled= */ true, 1, 3, 0, 2);
+    TimelineAsserts.assertNextWindowIndices(
+        timeline, Player.REPEAT_MODE_OFF, /* shuffleModeEnabled= */ true, C.INDEX_UNSET, 0, 3, 1);
+    TimelineAsserts.assertNextWindowIndices(
+        timeline, Player.REPEAT_MODE_ONE, /* shuffleModeEnabled= */ true, 0, 1, 3, 2);
+    TimelineAsserts.assertNextWindowIndices(
+        timeline, Player.REPEAT_MODE_ALL, /* shuffleModeEnabled= */ true, 2, 0, 3, 1);
   }
 
   public void testRemoveChildSourceWithActiveMediaPeriod() throws IOException {
