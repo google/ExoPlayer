@@ -56,7 +56,7 @@ public final class DynamicConcatenatingMediaSource extends CompositeMediaSource<
   // Accessed on the playback thread.
   private final List<MediaSourceHolder> mediaSourceHolders;
   private final MediaSourceHolder query;
-  private final Map<MediaPeriod, MediaSource> mediaSourceByMediaPeriod;
+  private final Map<MediaPeriod, MediaSourceHolder> mediaSourceByMediaPeriod;
   private final List<DeferredMediaPeriod> deferredMediaPeriods;
 
   private ExoPlayer player;
@@ -355,19 +355,23 @@ public final class DynamicConcatenatingMediaSource extends CompositeMediaSource<
     } else {
       mediaPeriod = holder.mediaSource.createPeriod(idInSource, allocator);
     }
-    mediaSourceByMediaPeriod.put(mediaPeriod, holder.mediaSource);
+    mediaSourceByMediaPeriod.put(mediaPeriod, holder);
+    holder.activeMediaPeriods++;
     return mediaPeriod;
   }
 
   @Override
   public void releasePeriod(MediaPeriod mediaPeriod) {
-    MediaSource mediaSource = mediaSourceByMediaPeriod.get(mediaPeriod);
-    mediaSourceByMediaPeriod.remove(mediaPeriod);
+    MediaSourceHolder holder = mediaSourceByMediaPeriod.remove(mediaPeriod);
     if (mediaPeriod instanceof DeferredMediaPeriod) {
       deferredMediaPeriods.remove(mediaPeriod);
       ((DeferredMediaPeriod) mediaPeriod).releasePeriod();
     } else {
-      mediaSource.releasePeriod(mediaPeriod);
+      holder.mediaSource.releasePeriod(mediaPeriod);
+    }
+    holder.activeMediaPeriods--;
+    if (holder.activeMediaPeriods == 0 && holder.isRemoved) {
+      releaseChildSource(holder);
     }
   }
 
@@ -520,7 +524,10 @@ public final class DynamicConcatenatingMediaSource extends CompositeMediaSource<
         /* childIndexUpdate= */ -1,
         -oldTimeline.getWindowCount(),
         -oldTimeline.getPeriodCount());
-    releaseChildSource(holder);
+    holder.isRemoved = true;
+    if (holder.activeMediaPeriods == 0) {
+      releaseChildSource(holder);
+    }
   }
 
   private void moveMediaSourceInternal(int currentIndex, int newIndex) {
@@ -573,6 +580,8 @@ public final class DynamicConcatenatingMediaSource extends CompositeMediaSource<
     public int firstWindowIndexInChild;
     public int firstPeriodIndexInChild;
     public boolean isPrepared;
+    public boolean isRemoved;
+    public int activeMediaPeriods;
 
     public MediaSourceHolder(
         MediaSource mediaSource,

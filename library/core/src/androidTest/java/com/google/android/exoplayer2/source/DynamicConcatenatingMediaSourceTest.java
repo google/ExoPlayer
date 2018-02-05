@@ -627,6 +627,18 @@ public final class DynamicConcatenatingMediaSourceTest extends TestCase {
     mediaSourceWithAds.assertMediaPeriodCreated(new MediaPeriodId(1, 0, 0));
   }
 
+  public void testRemoveChildSourceWithActiveMediaPeriod() throws IOException {
+    FakeMediaSource childSource = createFakeMediaSource();
+    mediaSource.addMediaSource(childSource);
+    testRunner.prepareSource();
+    MediaPeriod mediaPeriod = testRunner.createPeriod(new MediaPeriodId(/* periodIndex= */ 0));
+    mediaSource.removeMediaSource(/* index= */ 0);
+    testRunner.assertTimelineChangeBlocking();
+    testRunner.releasePeriod(mediaPeriod);
+    childSource.assertReleased();
+    testRunner.releaseSource();
+  }
+
   private static FakeMediaSource[] createMediaSources(int count) {
     FakeMediaSource[] sources = new FakeMediaSource[count];
     for (int i = 0; i < count; i++) {
