@@ -212,8 +212,16 @@ public final class ConcatenatingMediaSourceTest extends TestCase {
     // Create media source with ad child source.
     Timeline timelineContentOnly = new FakeTimeline(
         new TimelineWindowDefinition(2, 111, true, false, 10 * C.MICROS_PER_SECOND));
-    Timeline timelineWithAds = new FakeTimeline(
-        new TimelineWindowDefinition(2, 222, true, false, 10 * C.MICROS_PER_SECOND, 1, 1));
+    Timeline timelineWithAds =
+        new FakeTimeline(
+            new TimelineWindowDefinition(
+                2,
+                222,
+                true,
+                false,
+                10 * C.MICROS_PER_SECOND,
+                FakeTimeline.createAdPlaybackState(
+                    /* adsPerAdGroup= */ 1, /* adGroupTimesUs= */ 0)));
     FakeMediaSource mediaSourceContentOnly = new FakeMediaSource(timelineContentOnly, null);
     FakeMediaSource mediaSourceWithAds = new FakeMediaSource(timelineWithAds, null);
     ConcatenatingMediaSource mediaSource = new ConcatenatingMediaSource(mediaSourceContentOnly,

@@ -40,8 +40,7 @@ public final class FakeTimeline extends Timeline {
     public final boolean isSeekable;
     public final boolean isDynamic;
     public final long durationUs;
-    public final int adGroupsPerPeriodCount;
-    public final int adsPerAdGroupCount;
+    public final AdPlaybackState adPlaybackState;
 
     /**
      * Creates a seekable, non-dynamic window definition with one period with a duration of
@@ -86,7 +85,7 @@ public final class FakeTimeline extends Timeline {
      */
     public TimelineWindowDefinition(int periodCount, Object id, boolean isSeekable,
         boolean isDynamic, long durationUs) {
-      this(periodCount, id, isSeekable, isDynamic, durationUs, 0, 0);
+      this(periodCount, id, isSeekable, isDynamic, durationUs, AdPlaybackState.NONE);
     }
 
     /**
@@ -98,19 +97,21 @@ public final class FakeTimeline extends Timeline {
      * @param isSeekable Whether the window is seekable.
      * @param isDynamic Whether the window is dynamic.
      * @param durationUs The duration of the window in microseconds.
-     * @param adGroupsCountPerPeriod The number of ad groups in each period. The position of the ad
-     *     groups is equally distributed in each period starting.
-     * @param adsPerAdGroupCount The number of ads in each ad group.
+     * @param adPlaybackState The ad playback state.
      */
-    public TimelineWindowDefinition(int periodCount, Object id, boolean isSeekable,
-        boolean isDynamic, long durationUs, int adGroupsCountPerPeriod, int adsPerAdGroupCount) {
+    public TimelineWindowDefinition(
+        int periodCount,
+        Object id,
+        boolean isSeekable,
+        boolean isDynamic,
+        long durationUs,
+        AdPlaybackState adPlaybackState) {
       this.periodCount = periodCount;
       this.id = id;
       this.isSeekable = isSeekable;
       this.isDynamic = isDynamic;
       this.durationUs = durationUs;
-      this.adGroupsPerPeriodCount = adGroupsCountPerPeriod;
-      this.adsPerAdGroupCount = adsPerAdGroupCount;
+      this.adPlaybackState = adPlaybackState;
     }
 
   }
@@ -119,6 +120,27 @@ public final class FakeTimeline extends Timeline {
 
   private final TimelineWindowDefinition[] windowDefinitions;
   private final int[] periodOffsets;
+
+  /**
+   * Returns an ad playback state with the specified number of ads in each of the specified ad
+   * groups, each ten seconds long.
+   *
+   * @param adsPerAdGroup The number of ads per ad group.
+   * @param adGroupTimesUs The times of ad groups, in microseconds.
+   * @return The ad playback state.
+   */
+  public static AdPlaybackState createAdPlaybackState(int adsPerAdGroup, long... adGroupTimesUs) {
+    int adGroupCount = adGroupTimesUs.length;
+    AdPlaybackState adPlaybackState = new AdPlaybackState(adGroupTimesUs);
+    long[][] adDurationsUs = new long[adGroupCount][];
+    for (int i = 0; i < adGroupCount; i++) {
+      adPlaybackState = adPlaybackState.withAdCount(i, adsPerAdGroup);
+      adDurationsUs[i] = new long[adsPerAdGroup];
+      Arrays.fill(adDurationsUs[i], AD_DURATION_US);
+    }
+    adPlaybackState = adPlaybackState.withAdDurationsUs(adDurationsUs);
+    return adPlaybackState;
+  }
 
   /**
    * Creates a fake timeline with the given number of seekable, non-dynamic windows with one period
@@ -173,27 +195,13 @@ public final class FakeTimeline extends Timeline {
     Object uid = setIds ? Pair.create(windowDefinition.id, windowPeriodIndex) : null;
     long periodDurationUs = windowDefinition.durationUs / windowDefinition.periodCount;
     long positionInWindowUs = periodDurationUs * windowPeriodIndex;
-    if (windowDefinition.adGroupsPerPeriodCount == 0) {
-      return period.set(id, uid, windowIndex, periodDurationUs, positionInWindowUs);
-    } else {
-      int adGroups = windowDefinition.adGroupsPerPeriodCount;
-      long[] adGroupTimesUs = new long[adGroups];
-      long adGroupOffset = adGroups > 1 ? periodDurationUs / (adGroups - 1) : 0;
-      for (int i = 0; i < adGroups; i++) {
-        adGroupTimesUs[i] = i * adGroupOffset;
-      }
-      AdPlaybackState adPlaybackState = new AdPlaybackState(adGroupTimesUs);
-      long[][] adDurationsUs = new long[adGroups][];
-      for (int i = 0; i < adGroups; i++) {
-        int adCount = windowDefinition.adsPerAdGroupCount;
-        adPlaybackState = adPlaybackState.withAdCount(i, adCount);
-        adDurationsUs[i] = new long[adCount];
-        Arrays.fill(adDurationsUs[i], AD_DURATION_US);
-      }
-      adPlaybackState = adPlaybackState.withAdDurationsUs(adDurationsUs);
-      return period.set(
-          id, uid, windowIndex, periodDurationUs, positionInWindowUs, adPlaybackState);
-    }
+    return period.set(
+        id,
+        uid,
+        windowIndex,
+        periodDurationUs,
+        positionInWindowUs,
+        windowDefinition.adPlaybackState);
   }
 
   @Override
