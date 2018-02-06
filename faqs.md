@@ -223,7 +223,7 @@ physical devices rather than emulators.
 [setFragmentedMp4ExtractorFlags]: https://google.github.io/ExoPlayer/doc/reference/com/google/android/exoplayer2/extractor/DefaultExtractorsFactory#setFragmentedMp4ExtractorFlags-int-
 [Wikipedia]: https://en.wikipedia.org/wiki/List_of_HTTP_status_codes
 [wget]: https://www.gnu.org/software/wget/manual/wget.html
-[DefaultHttpDataSourceFactory]: https://google.github.io/ExoPlayer/doc/reference/com/google/android/exoplayer2/upstream/DefaultHttpDataSourceFactory.html
+[`DefaultHttpDataSourceFactory`]: https://google.github.io/ExoPlayer/doc/reference/com/google/android/exoplayer2/upstream/DefaultHttpDataSourceFactory.html
 [Util.inferContentType]: https://google.github.io/ExoPlayer/doc/reference/com/google/android/exoplayer2/util/Util.html#inferContentType-android.net.Uri-
 [issue tracker]: https://github.com/google/ExoPlayer/issues
 [isCurrentWindowDynamic]: https://google.github.io/ExoPlayer/doc/reference/com/google/android/exoplayer2/ExoPlayer.html#isCurrentWindowDynamic--
