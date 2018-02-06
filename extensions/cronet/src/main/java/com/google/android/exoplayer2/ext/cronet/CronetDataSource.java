@@ -369,6 +369,7 @@ public class CronetDataSource extends UrlRequest.Callback implements HttpDataSou
         throw new HttpDataSourceException(exception, currentDataSpec,
             HttpDataSourceException.TYPE_READ);
       } else if (finished) {
+        bytesRemaining = 0;
         return C.RESULT_END_OF_INPUT;
       } else {
         // The operation didn't time out, fail or finish, and therefore data must have been read.
