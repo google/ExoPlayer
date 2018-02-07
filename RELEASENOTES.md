@@ -91,6 +91,9 @@
 * `EventLogger` moved from the demo app into the core library.
 * Fix ANR issue on Huawei P8 Lite
   ([#3724](https://github.com/google/ExoPlayer/issues/3724)).
+* Fix potential NPE when removing media sources from a
+  DynamicConcatenatingMediaSource
+  ([#3796](https://github.com/google/ExoPlayer/issues/3796)).
 
 ### 2.6.1 ###
 
