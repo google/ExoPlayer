@@ -49,8 +49,6 @@ public final class AdPlaybackState {
     public final @AdState int[] states;
     /** The durations of each ad in the ad group, in microseconds. */
     public final long[] durationsUs;
-    /** The index of the next ad that should be played, or {@link #count} if all ads were played. */
-    public final int nextAdIndexToPlay;
 
     /** Creates a new ad group with an unspecified number of ads. */
     public AdGroup() {
@@ -67,14 +65,30 @@ public final class AdPlaybackState {
       this.states = states;
       this.uris = uris;
       this.durationsUs = durationsUs;
-      int nextAdIndexToPlay;
-      for (nextAdIndexToPlay = 0; nextAdIndexToPlay < states.length; nextAdIndexToPlay++) {
+    }
+
+    /**
+     * Returns the index of the first ad in the ad group that should be played, or {@link #count} if
+     * no ads should be played.
+     */
+    public int getFirstAdIndexToPlay() {
+      return getNextAdIndexToPlay(-1);
+    }
+
+    /**
+     * Returns the index of the next ad in the ad group that should be played after playing {@code
+     * lastPlayedAdIndex}, or {@link #count} if no later ads should be played.
+     */
+    public int getNextAdIndexToPlay(int lastPlayedAdIndex) {
+      int nextAdIndexToPlay = lastPlayedAdIndex + 1;
+      while (nextAdIndexToPlay < states.length) {
         if (states[nextAdIndexToPlay] == AD_STATE_UNAVAILABLE
             || states[nextAdIndexToPlay] == AD_STATE_AVAILABLE) {
           break;
         }
+        nextAdIndexToPlay++;
       }
-      this.nextAdIndexToPlay = nextAdIndexToPlay;
+      return nextAdIndexToPlay;
     }
 
     /**

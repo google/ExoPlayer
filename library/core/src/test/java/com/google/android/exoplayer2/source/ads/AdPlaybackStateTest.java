@@ -70,29 +70,29 @@ public final class AdPlaybackStateTest {
   }
 
   @Test
-  public void testInitialNextAdIndexToPlay() {
+  public void testGetFirstAdIndexToPlayIsZero() {
     state = state.withAdCount(/* adGroupIndex= */ 0, /* adCount= */ 3);
     state = state.withAdUri(/* adGroupIndex= */ 0, /* adIndexInAdGroup= */ 0, TEST_URI);
     state = state.withAdUri(/* adGroupIndex= */ 0, /* adIndexInAdGroup= */ 2, TEST_URI);
 
-    assertThat(state.adGroups[0].nextAdIndexToPlay).isEqualTo(0);
+    assertThat(state.adGroups[0].getFirstAdIndexToPlay()).isEqualTo(0);
   }
 
   @Test
-  public void testNextAdIndexToPlayWithPlayedAd() {
+  public void testGetFirstAdIndexToPlaySkipsPlayedAd() {
     state = state.withAdCount(/* adGroupIndex= */ 0, /* adCount= */ 3);
     state = state.withAdUri(/* adGroupIndex= */ 0, /* adIndexInAdGroup= */ 0, TEST_URI);
     state = state.withAdUri(/* adGroupIndex= */ 0, /* adIndexInAdGroup= */ 2, TEST_URI);
 
     state = state.withPlayedAd(/* adGroupIndex= */ 0, /* adIndexInAdGroup= */ 0);
 
-    assertThat(state.adGroups[0].nextAdIndexToPlay).isEqualTo(1);
+    assertThat(state.adGroups[0].getFirstAdIndexToPlay()).isEqualTo(1);
     assertThat(state.adGroups[0].states[1]).isEqualTo(AdPlaybackState.AD_STATE_UNAVAILABLE);
     assertThat(state.adGroups[0].states[2]).isEqualTo(AdPlaybackState.AD_STATE_AVAILABLE);
   }
 
   @Test
-  public void testNextAdIndexToPlaySkipsErrorAds() {
+  public void testGetFirstAdIndexToPlaySkipsErrorAds() {
     state = state.withAdCount(/* adGroupIndex= */ 0, /* adCount= */ 3);
     state = state.withAdUri(/* adGroupIndex= */ 0, /* adIndexInAdGroup= */ 0, TEST_URI);
     state = state.withAdUri(/* adGroupIndex= */ 0, /* adIndexInAdGroup= */ 2, TEST_URI);
@@ -100,7 +100,17 @@ public final class AdPlaybackStateTest {
     state = state.withPlayedAd(/* adGroupIndex= */ 0, /* adIndexInAdGroup= */ 0);
     state = state.withAdLoadError(/* adGroupIndex= */ 0, /* adIndexInAdGroup= */ 1);
 
-    assertThat(state.adGroups[0].nextAdIndexToPlay).isEqualTo(2);
+    assertThat(state.adGroups[0].getFirstAdIndexToPlay()).isEqualTo(2);
+  }
+
+  @Test
+  public void testGetNextAdIndexToPlaySkipsErrorAds() {
+    state = state.withAdCount(/* adGroupIndex= */ 0, /* adCount= */ 3);
+    state = state.withAdUri(/* adGroupIndex= */ 0, /* adIndexInAdGroup= */ 1, TEST_URI);
+
+    state = state.withAdLoadError(/* adGroupIndex= */ 0, /* adIndexInAdGroup= */ 1);
+
+    assertThat(state.adGroups[0].getNextAdIndexToPlay(0)).isEqualTo(2);
   }
 
   @Test
