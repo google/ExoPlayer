@@ -477,8 +477,16 @@ public final class ImaAdsLoader extends Player.DefaultEventListener implements A
         if (DEBUG) {
           Log.d(TAG, "Loaded ad " + adPosition + " of " + adCount + " in group " + adGroupIndex);
         }
-        adPlaybackState = adPlaybackState.withAdCount(adGroupIndex, adCount);
-        updateAdPlaybackState();
+        int oldAdCount = adPlaybackState.adGroups[adGroupIndex].count;
+        if (adCount != oldAdCount) {
+          if (oldAdCount == C.LENGTH_UNSET) {
+            adPlaybackState = adPlaybackState.withAdCount(adGroupIndex, adCount);
+            updateAdPlaybackState();
+          } else {
+            // IMA sometimes unexpectedly decreases the ad count in an ad group.
+            Log.w(TAG, "Unexpected ad count in LOADED, " + adCount + ", expected " + oldAdCount);
+          }
+        }
         if (adGroupIndex != expectedAdGroupIndex) {
           Log.w(
               TAG,
@@ -486,6 +494,7 @@ public final class ImaAdsLoader extends Player.DefaultEventListener implements A
                   + expectedAdGroupIndex
                   + ", actual ad group index "
                   + adGroupIndex);
+          expectedAdGroupIndex = adGroupIndex;
         }
         break;
       case CONTENT_PAUSE_REQUESTED:
@@ -536,7 +545,7 @@ public final class ImaAdsLoader extends Player.DefaultEventListener implements A
     if (adsManager == null) {
       // No ads were loaded, so allow playback to start without any ads.
       pendingAdRequestContext = null;
-      adPlaybackState = new AdPlaybackState(new long[0]);
+      adPlaybackState = new AdPlaybackState();
       updateAdPlaybackState();
     }
     if (pendingAdErrorEvent == null) {
@@ -866,7 +875,7 @@ public final class ImaAdsLoader extends Player.DefaultEventListener implements A
         Log.d(TAG, "Unexpected CONTENT_RESUME_REQUESTED without stopAd");
       }
     }
-    if (playingAd && adGroupIndex != C.INDEX_UNSET) {
+    if (adGroupIndex != C.INDEX_UNSET) {
       adPlaybackState = adPlaybackState.withSkippedAdGroup(adGroupIndex);
       adGroupIndex = C.INDEX_UNSET;
       updateAdPlaybackState();
@@ -885,7 +894,6 @@ public final class ImaAdsLoader extends Player.DefaultEventListener implements A
   }
 
   private void stopAdInternal() {
-    Assertions.checkState(imaAdState != IMA_AD_STATE_NONE);
     imaAdState = IMA_AD_STATE_NONE;
     int adIndexInAdGroup = adPlaybackState.adGroups[adGroupIndex].getFirstAdIndexToPlay();
     // TODO: Handle the skipped event so the ad can be marked as skipped rather than played.
@@ -898,7 +906,9 @@ public final class ImaAdsLoader extends Player.DefaultEventListener implements A
   }
 
   private void handleAdGroupLoadError() {
-    AdPlaybackState.AdGroup adGroup = adPlaybackState.adGroups[expectedAdGroupIndex];
+    int adGroupIndex =
+        this.adGroupIndex == C.INDEX_UNSET ? expectedAdGroupIndex : this.adGroupIndex;
+    AdPlaybackState.AdGroup adGroup = adPlaybackState.adGroups[adGroupIndex];
     // Ad group load error can be notified more than once, so check if it was already handled.
     // TODO: Update the expected ad group index based on the position returned by
     // getContentProgress so that it's possible to detect when more than one ad group fails to load
@@ -906,10 +916,10 @@ public final class ImaAdsLoader extends Player.DefaultEventListener implements A
     if (adGroup.count == C.LENGTH_UNSET
         || adGroup.states[0] == AdPlaybackState.AD_STATE_UNAVAILABLE) {
       if (DEBUG) {
-        Log.d(TAG, "Removing ad group " + expectedAdGroupIndex + " as it failed to load");
+        Log.d(TAG, "Removing ad group " + adGroupIndex + " as it failed to load");
       }
-      adPlaybackState = adPlaybackState.withAdCount(expectedAdGroupIndex, 1);
-      adPlaybackState = adPlaybackState.withAdLoadError(expectedAdGroupIndex, 0);
+      adPlaybackState =
+          adPlaybackState.withAdCount(adGroupIndex, 1).withAdLoadError(adGroupIndex, 0);
       updateAdPlaybackState();
     }
   }
