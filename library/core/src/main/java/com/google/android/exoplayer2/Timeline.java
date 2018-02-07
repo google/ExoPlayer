@@ -381,15 +381,29 @@ public abstract class Timeline {
     }
 
     /**
-     * Returns the index of the next ad to play in the specified ad group, or the number of ads in
-     * the ad group if the ad group does not have any ads remaining to play.
+     * Returns the index of the first ad in the specified ad group that should be played, or the
+     * number of ads in the ad group if no ads should be played.
      *
      * @param adGroupIndex The ad group index.
+     * @return The index of the first ad that should be played, or the number of ads in the ad group
+     *     if no ads should be played.
+     */
+    public int getFirstAdIndexToPlay(int adGroupIndex) {
+      return adPlaybackState.adGroups[adGroupIndex].getFirstAdIndexToPlay();
+    }
+
+    /**
+     * Returns the index of the next ad in the specified ad group that should be played after
+     * playing {@code adIndexInAdGroup}, or the number of ads in the ad group if no later ads should
+     * be played.
+     *
+     * @param adGroupIndex The ad group index.
+     * @param lastPlayedAdIndex The last played ad index in the ad group.
      * @return The index of the next ad that should be played, or the number of ads in the ad group
      *     if the ad group does not have any ads remaining to play.
      */
-    public int getNextAdIndexToPlay(int adGroupIndex) {
-      return adPlaybackState.adGroups[adGroupIndex].nextAdIndexToPlay;
+    public int getNextAdIndexToPlay(int adGroupIndex, int lastPlayedAdIndex) {
+      return adPlaybackState.adGroups[adGroupIndex].getNextAdIndexToPlay(lastPlayedAdIndex);
     }
 
     /**
@@ -400,7 +414,7 @@ public abstract class Timeline {
      */
     public boolean hasPlayedAdGroup(int adGroupIndex) {
       AdPlaybackState.AdGroup adGroup = adPlaybackState.adGroups[adGroupIndex];
-      return adGroup.nextAdIndexToPlay == adGroup.count;
+      return adGroup.getFirstAdIndexToPlay() == adGroup.count;
     }
 
     /**

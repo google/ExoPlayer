@@ -887,7 +887,7 @@ public final class ImaAdsLoader extends Player.DefaultEventListener implements A
   private void stopAdInternal() {
     Assertions.checkState(imaAdState != IMA_AD_STATE_NONE);
     imaAdState = IMA_AD_STATE_NONE;
-    int adIndexInAdGroup = adPlaybackState.adGroups[adGroupIndex].nextAdIndexToPlay;
+    int adIndexInAdGroup = adPlaybackState.adGroups[adGroupIndex].getFirstAdIndexToPlay();
     // TODO: Handle the skipped event so the ad can be marked as skipped rather than played.
     adPlaybackState =
         adPlaybackState.withPlayedAd(adGroupIndex, adIndexInAdGroup).withAdResumePositionUs(0);
