@@ -140,7 +140,9 @@ public final class AdPlaybackState {
       Assertions.checkArgument(count == C.LENGTH_UNSET || index < count);
       @AdState int[] states = copyStatesWithSpaceForAdCount(this.states, index + 1);
       Assertions.checkArgument(
-          states[index] == AD_STATE_UNAVAILABLE || states[index] == AD_STATE_AVAILABLE);
+          states[index] == AD_STATE_UNAVAILABLE
+              || states[index] == AD_STATE_AVAILABLE
+              || states[index] == state);
       long[] durationsUs =
           this.durationsUs.length == states.length
               ? this.durationsUs

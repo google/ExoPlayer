@@ -495,7 +495,8 @@ public abstract class Timeline {
      * @return The duration of the ad, or {@link C#TIME_UNSET} if not yet known.
      */
     public long getAdDurationUs(int adGroupIndex, int adIndexInAdGroup) {
-      return adPlaybackState.adGroups[adGroupIndex].durationsUs[adIndexInAdGroup];
+      AdPlaybackState.AdGroup adGroup = adPlaybackState.adGroups[adGroupIndex];
+      return adGroup.count != C.LENGTH_UNSET ? adGroup.durationsUs[adIndexInAdGroup] : C.TIME_UNSET;
     }
 
     /**
