@@ -94,7 +94,8 @@
 * Fix potential NPE when removing media sources from a
   DynamicConcatenatingMediaSource
   ([#3796](https://github.com/google/ExoPlayer/issues/3796)).
-* Open source DownloadService, DownloadManager and related classes.
+* Open source DownloadService, DownloadManager and related classes
+  ([#2643](https://github.com/google/ExoPlayer/issues/2643)).
 
 ### 2.6.1 ###
 
