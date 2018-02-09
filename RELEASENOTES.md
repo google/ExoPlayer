@@ -96,6 +96,8 @@
   ([#3796](https://github.com/google/ExoPlayer/issues/3796)).
 * Open source DownloadService, DownloadManager and related classes
   ([#2643](https://github.com/google/ExoPlayer/issues/2643)).
+* Check `sys.display-size` on Philips ATVs
+  ([#3807](https://github.com/google/ExoPlayer/issues/3807)).
 
 ### 2.6.1 ###
 
