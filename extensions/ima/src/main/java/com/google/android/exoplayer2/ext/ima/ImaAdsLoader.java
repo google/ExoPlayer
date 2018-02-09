@@ -558,22 +558,27 @@ public final class ImaAdsLoader extends Player.DefaultEventListener implements A
 
   @Override
   public VideoProgressUpdate getContentProgress() {
-    boolean hasContentDuration = contentDurationMs != C.TIME_UNSET;
-    long contentDurationMs = hasContentDuration ? this.contentDurationMs : IMA_DURATION_UNSET;
     if (player == null) {
       return lastContentProgress;
-    } else if (pendingContentPositionMs != C.TIME_UNSET) {
+    }
+    boolean hasContentDuration = contentDurationMs != C.TIME_UNSET;
+    long contentPositionMs;
+    if (pendingContentPositionMs != C.TIME_UNSET) {
       sentPendingContentPositionMs = true;
-      return new VideoProgressUpdate(pendingContentPositionMs, contentDurationMs);
+      contentPositionMs = pendingContentPositionMs;
     } else if (fakeContentProgressElapsedRealtimeMs != C.TIME_UNSET) {
       long elapsedSinceEndMs = SystemClock.elapsedRealtime() - fakeContentProgressElapsedRealtimeMs;
-      long fakePositionMs = fakeContentProgressOffsetMs + elapsedSinceEndMs;
-      return new VideoProgressUpdate(fakePositionMs, contentDurationMs);
-    } else if (imaAdState != IMA_AD_STATE_NONE || !hasContentDuration) {
-      return VideoProgressUpdate.VIDEO_TIME_NOT_READY;
+      contentPositionMs = fakeContentProgressOffsetMs + elapsedSinceEndMs;
+    } else if (imaAdState == IMA_AD_STATE_NONE && hasContentDuration) {
+      contentPositionMs = player.getCurrentPosition();
     } else {
-      return new VideoProgressUpdate(player.getCurrentPosition(), contentDurationMs);
+      return VideoProgressUpdate.VIDEO_TIME_NOT_READY;
     }
+    // Keep track of the ad group index that IMA will load for the current content position.
+    expectedAdGroupIndex =
+        adPlaybackState.getAdGroupIndexAfterPositionUs(C.msToUs(contentPositionMs));
+    long contentDurationMs = hasContentDuration ? this.contentDurationMs : IMA_DURATION_UNSET;
+    return new VideoProgressUpdate(contentPositionMs, contentDurationMs);
   }
 
   // VideoAdPlayer implementation.
@@ -607,11 +612,6 @@ public final class ImaAdsLoader extends Player.DefaultEventListener implements A
     int adIndexInAdGroup = getAdIndexInAdGroupToLoad(adGroupIndex);
     adPlaybackState =
         adPlaybackState.withAdUri(adGroupIndex, adIndexInAdGroup, Uri.parse(adUriString));
-    if (getAdIndexInAdGroupToLoad(adGroupIndex) == C.INDEX_UNSET) {
-      // Keep track of the expected ad group index to use as a fallback if the LOADED event is
-      // unexpectedly not triggered.
-      expectedAdGroupIndex++;
-    }
     updateAdPlaybackState();
   }
 
@@ -774,7 +774,6 @@ public final class ImaAdsLoader extends Player.DefaultEventListener implements A
         timeline.getPeriod(0, period);
         int newAdGroupIndex = period.getAdGroupIndexForPositionUs(C.msToUs(positionMs));
         if (newAdGroupIndex != C.INDEX_UNSET) {
-          expectedAdGroupIndex = newAdGroupIndex;
           sentPendingContentPositionMs = false;
           pendingContentPositionMs = positionMs;
         }
@@ -819,7 +818,6 @@ public final class ImaAdsLoader extends Player.DefaultEventListener implements A
       // We're removing one or more ads, which means that the earliest ad (if any) will be a
       // midroll/postroll. Midroll pod indices start at 1.
       podIndexOffset = adGroupIndexForPosition - 1;
-      expectedAdGroupIndex = adGroupIndexForPosition;
     }
 
     // Start ad playback.
@@ -910,9 +908,6 @@ public final class ImaAdsLoader extends Player.DefaultEventListener implements A
         this.adGroupIndex == C.INDEX_UNSET ? expectedAdGroupIndex : this.adGroupIndex;
     AdPlaybackState.AdGroup adGroup = adPlaybackState.adGroups[adGroupIndex];
     // Ad group load error can be notified more than once, so check if it was already handled.
-    // TODO: Update the expected ad group index based on the position returned by
-    // getContentProgress so that it's possible to detect when more than one ad group fails to load
-    // consecutively.
     if (adGroup.count == C.LENGTH_UNSET
         || adGroup.states[0] == AdPlaybackState.AD_STATE_UNAVAILABLE) {
       if (DEBUG) {
