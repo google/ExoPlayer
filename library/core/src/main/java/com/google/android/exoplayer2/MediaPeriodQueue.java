@@ -291,7 +291,8 @@ import com.google.android.exoplayer2.util.Assertions;
   /**
    * Updates media periods in the queue to take into account the latest timeline, and returns
    * whether the timeline change has been fully handled. If not, it is necessary to seek to the
-   * current playback position.
+   * current playback position. The method assumes that the first media period in the queue is still
+   * consistent with the new timeline.
    *
    * @param playingPeriodId The current playing media period identifier.
    * @param rendererPositionUs The current renderer position in microseconds.
@@ -311,6 +312,11 @@ import com.google.android.exoplayer2.util.Assertions;
         periodHolder.info = getUpdatedMediaPeriodInfo(periodHolder.info, periodIndex);
       } else {
         // Check this period holder still follows the previous one, based on the new timeline.
+        if (periodIndex == C.INDEX_UNSET
+            || !periodHolder.uid.equals(timeline.getPeriod(periodIndex, period, true).uid)) {
+          // The holder uid is inconsistent with the new timeline.
+          return !removeAfter(previousPeriodHolder);
+        }
         MediaPeriodInfo periodInfo =
             getFollowingMediaPeriodInfo(previousPeriodHolder, rendererPositionUs);
         if (periodInfo == null) {
@@ -326,15 +332,10 @@ import com.google.android.exoplayer2.util.Assertions;
       }
 
       if (periodHolder.info.isLastInTimelinePeriod) {
-        // Move on to the next timeline period, if there is one.
+        // Move on to the next timeline period index, if there is one.
         periodIndex =
             timeline.getNextPeriodIndex(
                 periodIndex, period, window, repeatMode, shuffleModeEnabled);
-        if (periodIndex == C.INDEX_UNSET
-            || !periodHolder.uid.equals(timeline.getPeriod(periodIndex, period, true).uid)) {
-          // The holder is inconsistent with the new timeline.
-          return previousPeriodHolder == null || !removeAfter(previousPeriodHolder);
-        }
       }
 
       previousPeriodHolder = periodHolder;
