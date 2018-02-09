@@ -797,7 +797,7 @@ public final class ImaAdsLoader extends Player.DefaultEventListener implements A
     long[] adGroupTimesUs = getAdGroupTimesUs(adsManager.getAdCuePoints());
     adPlaybackState = new AdPlaybackState(adGroupTimesUs);
     int adGroupIndexForPosition =
-        getAdGroupIndexForPosition(adGroupTimesUs, C.msToUs(pendingContentPositionMs));
+        adPlaybackState.getAdGroupIndexForPositionUs(C.msToUs(pendingContentPositionMs));
     if (adGroupIndexForPosition == 0) {
       podIndexOffset = 0;
     } else if (adGroupIndexForPosition == C.INDEX_UNSET) {
@@ -950,23 +950,6 @@ public final class ImaAdsLoader extends Player.DefaultEventListener implements A
       webView.requestFocus();
       webView.loadUrl(FOCUS_SKIP_BUTTON_WORKAROUND_JS);
     }
-  }
-
-  /**
-   * Returns the index of the ad group that should be played before playing the content at {@code
-   * playbackPositionUs} when starting playback for the first time. This is the latest ad group at
-   * or before the specified playback position. If the first ad is after the playback position,
-   * returns {@link C#INDEX_UNSET}.
-   */
-  private int getAdGroupIndexForPosition(long[] adGroupTimesUs, long playbackPositionUs) {
-    for (int i = 0; i < adGroupTimesUs.length; i++) {
-      long adGroupTimeUs = adGroupTimesUs[i];
-      // A postroll ad is after any position in the content.
-      if (adGroupTimeUs == C.TIME_END_OF_SOURCE || playbackPositionUs < adGroupTimeUs) {
-        return i == 0 ? C.INDEX_UNSET : (i - 1);
-      }
-    }
-    return adGroupTimesUs.length == 0 ? C.INDEX_UNSET : (adGroupTimesUs.length - 1);
   }
 
   /**
