@@ -780,7 +780,7 @@ public final class DynamicConcatenatingMediaSource extends CompositeMediaSource<
     @Override
     public Period getPeriod(int periodIndex, Period period, boolean setIds) {
       timeline.getPeriod(periodIndex, period, setIds);
-      if (period.uid == replacedId) {
+      if (Util.areEqual(period.uid, replacedId)) {
         period.uid = DUMMY_ID;
       }
       return period;
@@ -788,7 +788,7 @@ public final class DynamicConcatenatingMediaSource extends CompositeMediaSource<
 
     @Override
     public int getIndexOfPeriod(Object uid) {
-      return timeline.getIndexOfPeriod(uid == DUMMY_ID ? replacedId : uid);
+      return timeline.getIndexOfPeriod(DUMMY_ID.equals(uid) ? replacedId : uid);
     }
   }
 
