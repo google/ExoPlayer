@@ -94,6 +94,8 @@
 * Fix potential NPE when removing media sources from a
   DynamicConcatenatingMediaSource
   ([#3796](https://github.com/google/ExoPlayer/issues/3796)).
+* Check `sys.display-size` on Philips ATVs
+  ([#3807](https://github.com/google/ExoPlayer/issues/3807)).
 
 ### 2.6.1 ###
 
