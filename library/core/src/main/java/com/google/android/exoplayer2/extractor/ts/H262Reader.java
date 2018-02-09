@@ -21,6 +21,7 @@ import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.extractor.ExtractorOutput;
 import com.google.android.exoplayer2.extractor.TrackOutput;
 import com.google.android.exoplayer2.extractor.ts.TsPayloadReader.TrackIdGenerator;
+import com.google.android.exoplayer2.text.cea.CeaUtil;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.NalUnitUtil;
 import com.google.android.exoplayer2.util.ParsableByteArray;
@@ -33,9 +34,12 @@ import java.util.Collections;
 public final class H262Reader implements ElementaryStreamReader {
 
   private static final int START_PICTURE = 0x00;
+  private static final int START_USER_DATA = 0xB2;
   private static final int START_SEQUENCE_HEADER = 0xB3;
   private static final int START_EXTENSION = 0xB5;
   private static final int START_GROUP = 0xB8;
+
+  private final SeiReader seiReader;
 
   private String formatId;
   private TrackOutput output;
@@ -53,9 +57,13 @@ public final class H262Reader implements ElementaryStreamReader {
   private final CsdBuffer csdBuffer;
   private long totalBytesWritten;
   private boolean startedFirstSample;
+  private final UserDataBuffer userDataBuffer;
 
   // Per packet state that gets reset at the start of each packet.
   private long pesTimeUs;
+
+  // Scratch variables to avoid allocations.
+  private final ParsableByteArray userDataWrapper;
 
   // Per sample state that gets reset at the start of each sample.
   private long samplePosition;
@@ -63,15 +71,23 @@ public final class H262Reader implements ElementaryStreamReader {
   private boolean sampleIsKeyframe;
   private boolean sampleHasPicture;
 
-  public H262Reader() {
+  public H262Reader(SeiReader seiReader) {
+    this.seiReader = seiReader;
     prefixFlags = new boolean[4];
     csdBuffer = new CsdBuffer(128);
+    userDataBuffer = new UserDataBuffer(64);
+    userDataWrapper = new ParsableByteArray();
+  }
+
+  public H262Reader() {
+    this(null);
   }
 
   @Override
   public void seek() {
     NalUnitUtil.clearPrefixFlags(prefixFlags);
     csdBuffer.reset();
+    userDataBuffer.reset();
     totalBytesWritten = 0;
     startedFirstSample = false;
   }
@@ -81,6 +97,9 @@ public final class H262Reader implements ElementaryStreamReader {
     idGenerator.generateNewId();
     formatId = idGenerator.getFormatId();
     output = extractorOutput.track(idGenerator.getTrackId(), C.TRACK_TYPE_VIDEO);
+    if (seiReader != null) {
+      seiReader.createTracks(extractorOutput, idGenerator);
+    }
   }
 
   @Override
@@ -105,6 +124,8 @@ public final class H262Reader implements ElementaryStreamReader {
         // We've scanned to the end of the data without finding another start code.
         if (!hasOutputFormat) {
           csdBuffer.onData(dataArray, offset, limit);
+        } else if (seiReader != null) {
+          userDataBuffer.onData(dataArray, offset, limit);
         }
         return;
       }
@@ -128,6 +149,20 @@ public final class H262Reader implements ElementaryStreamReader {
           output.format(result.first);
           frameDurationUs = result.second;
           hasOutputFormat = true;
+        }
+      }
+
+      if (hasOutputFormat && seiReader != null) {
+        int lengthToStartCode = startCodeOffset - offset;
+        if (lengthToStartCode > 0) {
+          userDataBuffer.onData(dataArray, offset, startCodeOffset);
+        }
+        int bytesAlreadyPassed = lengthToStartCode < 0 ? -lengthToStartCode : 0;
+        if (userDataBuffer.onStartCode(startCodeValue, bytesAlreadyPassed)) {
+          userDataWrapper.reset(userDataBuffer.data, userDataBuffer.length);
+          userDataWrapper.setPosition(4);
+          seiReader.consume(sampleTimeUs, userDataWrapper, CeaUtil.MODE_H262);
+          userDataBuffer.reset();
         }
       }
 
@@ -282,6 +317,60 @@ public final class H262Reader implements ElementaryStreamReader {
       }
       System.arraycopy(newData, offset, data, length, readLength);
       length += readLength;
+    }
+
+  }
+
+  private static final class UserDataBuffer {
+
+    private static final byte[] START_CODE = new byte[] {0, 0, 1};
+
+    private boolean isFilling;
+
+    public int length;
+    public byte[] data;
+
+    public UserDataBuffer(int initialCapacity) {
+      data = new byte[initialCapacity];
+    }
+
+    /**
+     * Resets the buffer, clearing any data that it holds.
+     */
+    public void reset() {
+      isFilling = false;
+      length = 0;
+    }
+
+    /**
+     * Called to pass stream data.
+     *
+     * @param newData Holds the data being passed.
+     * @param offset The offset of the data in {@code data}.
+     * @param limit The limit (exclusive) of the data in {@code data}.
+     */
+    public void onData(byte[] newData, int offset, int limit) {
+      if (!isFilling) {
+        return;
+      }
+      int readLength = limit - offset;
+      if (data.length < length + readLength) {
+        data = Arrays.copyOf(data, (length + readLength) * 2);
+      }
+      System.arraycopy(newData, offset, data, length, readLength);
+      length += readLength;
+    }
+
+    public boolean onStartCode(int startCodeValue, int bytesAlreadyPassed) {
+      if (isFilling) {
+        length -= bytesAlreadyPassed;
+        isFilling = false;
+        return true;
+      } else if (startCodeValue == START_USER_DATA) {
+        isFilling = true;
+      }
+      onData(START_CODE, 0, START_CODE.length);
+      return false;
     }
 
   }
