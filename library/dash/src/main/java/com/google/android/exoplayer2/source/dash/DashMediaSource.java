@@ -46,6 +46,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.net.URL;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Locale;
@@ -585,6 +586,16 @@ public final class DashMediaSource implements MediaSource {
     } else if (Util.areEqual(scheme, "urn:mpeg:dash:utc:http-xsdate:2014")
         || Util.areEqual(scheme, "urn:mpeg:dash:utc:http-xsdate:2012")) {
       resolveUtcTimingElementHttp(timingElement, new XsDateTimeParser());
+    } else if (Util.areEqual(scheme, "urn:mpeg:dash:utc:http-head:2012")
+        || Util.areEqual(scheme, "urn:mpeg:dash:utc:http-head:2014")) {
+      // According to US 9426196 B2 and ISO 23009-1, url could be a white-space
+      // separated list of URLs.
+      // As workaround for current architecture, just handle first one.
+      // TODO: find solution to support multiple urls, covered by US 9426196 B2 & ISO 23009-1
+      // and avoid redundant creation of input stream
+      String firstUrl = timingElement.value.trim().split("\\s+", 2)[0];
+      resolveUtcTimingElementHttp(
+          new UtcTimingElement(timingElement.schemeIdUri, firstUrl), new HttpHeadTimeParser());
     } else {
       // Unsupported scheme.
       onUtcTimestampResolutionError(new IOException("Unsupported UTC timing scheme"));
@@ -979,6 +990,15 @@ public final class DashMediaSource implements MediaSource {
       } catch (ParseException e) {
         throw new ParserException(e);
       }
+    }
+
+  }
+
+  private static final class HttpHeadTimeParser implements ParsingLoadable.Parser<Long> {
+
+    @Override
+    public Long parse(Uri uri, InputStream inputStream) throws IOException {
+      return new URL(uri.toString()).openConnection().getDate();
     }
 
   }
