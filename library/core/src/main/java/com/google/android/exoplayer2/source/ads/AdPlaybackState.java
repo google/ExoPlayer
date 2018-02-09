@@ -91,6 +91,11 @@ public final class AdPlaybackState {
       return nextAdIndexToPlay;
     }
 
+    /** Returns whether the ad group has at least one ad that still needs to be played. */
+    public boolean hasUnplayedAds() {
+      return count == C.LENGTH_UNSET || getFirstAdIndexToPlay() < count;
+    }
+
     /**
      * Returns a new instance with the ad count set to {@code count}. This method may only be called
      * if this instance's ad count has not yet been specified.
@@ -268,6 +273,44 @@ public final class AdPlaybackState {
     this.adGroups = adGroups;
     this.adResumePositionUs = adResumePositionUs;
     this.contentDurationUs = contentDurationUs;
+  }
+
+  /**
+   * Returns the index of the ad group at or before {@code positionUs}, if that ad group is
+   * unplayed. Returns {@link C#INDEX_UNSET} if the ad group at or before {@code positionUs} has no
+   * ads remaining to be played, or if there is no such ad group.
+   *
+   * @param positionUs The position at or before which to find an ad group, in microseconds.
+   * @return The index of the ad group, or {@link C#INDEX_UNSET}.
+   */
+  public int getAdGroupIndexForPositionUs(long positionUs) {
+    // Use a linear search as the array elements may not be increasing due to TIME_END_OF_SOURCE.
+    // In practice we expect there to be few ad groups so the search shouldn't be expensive.
+    int index = adGroupTimesUs.length - 1;
+    while (index >= 0
+        && (adGroupTimesUs[index] == C.TIME_END_OF_SOURCE || adGroupTimesUs[index] > positionUs)) {
+      index--;
+    }
+    return index >= 0 && adGroups[index].hasUnplayedAds() ? index : C.INDEX_UNSET;
+  }
+
+  /**
+   * Returns the index of the next ad group after {@code positionUs} that has ads remaining to be
+   * played. Returns {@link C#INDEX_UNSET} if there is no such ad group.
+   *
+   * @param positionUs The position after which to find an ad group, in microseconds.
+   * @return The index of the ad group, or {@link C#INDEX_UNSET}.
+   */
+  public int getAdGroupIndexAfterPositionUs(long positionUs) {
+    // Use a linear search as the array elements may not be increasing due to TIME_END_OF_SOURCE.
+    // In practice we expect there to be few ad groups so the search shouldn't be expensive.
+    int index = 0;
+    while (index < adGroupTimesUs.length
+        && adGroupTimesUs[index] != C.TIME_END_OF_SOURCE
+        && (positionUs >= adGroupTimesUs[index] || !adGroups[index].hasUnplayedAds())) {
+      index++;
+    }
+    return index < adGroupTimesUs.length ? index : C.INDEX_UNSET;
   }
 
   /**
