@@ -156,11 +156,6 @@ public class HlsDownloaderTest extends InstrumentationTestCase {
     // select something random
     hlsDownloader.selectRepresentations(new String[] {MEDIA_PLAYLIST_1_URI});
     // clear selection
-    hlsDownloader.selectRepresentations(null);
-    hlsDownloader.download(null);
-    assertCachedData(cache, fakeDataSet);
-    hlsDownloader.remove();
-
     hlsDownloader.selectRepresentations(new String[0]);
     hlsDownloader.download(null);
     assertCachedData(cache, fakeDataSet);

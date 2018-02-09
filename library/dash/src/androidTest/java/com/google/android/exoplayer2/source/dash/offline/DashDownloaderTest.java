@@ -184,11 +184,6 @@ public class DashDownloaderTest extends InstrumentationTestCase {
     // select something random
     dashDownloader.selectRepresentations(new RepresentationKey[] {new RepresentationKey(0, 0, 0)});
     // clear selection
-    dashDownloader.selectRepresentations(null);
-    dashDownloader.download(null);
-    assertCachedData(cache, fakeDataSet);
-    dashDownloader.remove();
-
     dashDownloader.selectRepresentations(new RepresentationKey[0]);
     dashDownloader.download(null);
     assertCachedData(cache, fakeDataSet);
