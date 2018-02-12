@@ -1,6 +1,5 @@
-<?xml version="1.0"?>
-<!--
-     Copyright (C) 2016 The Android Open Source Project
+<?xml version="1.0" encoding="UTF-8"?>
+<!--  Copyright (C) 2016 The Android Open Source Project
 
      Licensed under the Apache License, Version 2.0 (the "License");
      you may not use this file except in compliance with the License.
@@ -13,17 +12,24 @@
      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
      See the License for the specific language governing permissions and
      limitations under the License.
--->
-<resources>
-  <string name="exo_controls_previous_description">"Melodia anterioară"</string>
-  <string name="exo_controls_next_description">"Melodia următoare"</string>
-  <string name="exo_controls_pause_description">"Pauză"</string>
-  <string name="exo_controls_play_description">"Redați"</string>
-  <string name="exo_controls_stop_description">"Opriți"</string>
-  <string name="exo_controls_rewind_description">"Derulați"</string>
-  <string name="exo_controls_fastforward_description">"Derulați rapid înainte"</string>
-  <string name="exo_controls_repeat_all_description">"Repetați toate"</string>
-  <string name="exo_controls_repeat_off_description">"Repetați niciuna"</string>
-  <string name="exo_controls_repeat_one_description">"Repetați unul"</string>
-  <string name="exo_controls_shuffle_description">"Redați aleatoriu"</string>
+ -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="exo_controls_previous_description" msgid="4729846277375475426">"Melodia anterioară"</string>
+    <string name="exo_controls_next_description" msgid="7044845014191647105">"Următoarea înregistrare"</string>
+    <string name="exo_controls_pause_description" msgid="7924816224515798262">"Întrerupeți"</string>
+    <string name="exo_controls_play_description" msgid="2326300949114396072">"Redați"</string>
+    <string name="exo_controls_stop_description" msgid="121453720915069922">"Opriți"</string>
+    <string name="exo_controls_rewind_description" msgid="5799450167394904608">"Derulați înapoi"</string>
+    <string name="exo_controls_fastforward_description" msgid="2382411136909255532">"Derulați rapid înainte"</string>
+    <string name="exo_controls_repeat_off_description" msgid="2273550552389469729">"Nu repetați niciunul"</string>
+    <string name="exo_controls_repeat_one_description" msgid="475266640141093764">"Repetați unul"</string>
+    <string name="exo_controls_repeat_all_description" msgid="8909385102773547833">"Repetați-le pe toate"</string>
+    <string name="exo_controls_shuffle_description" msgid="1374364424026734323">"Redați aleatoriu"</string>
+    <string name="exo_controls_fullscreen_description" msgid="2643117270009811804">"Modul Ecran complet"</string>
+    <string name="exo_download_queued" msgid="5094895434694614073">"Descărcarea este în lista de așteptare"</string>
+    <string name="exo_downloading" msgid="3111729133695800638">"Se descarcă"</string>
+    <string name="exo_download_completed" msgid="73698315802218437">"Descărcarea a fost finalizată"</string>
+    <string name="exo_download_failed" msgid="6266121732877856285">"Descărcarea nu a reușit"</string>
 </resources>

@@ -1,6 +1,5 @@
-<?xml version="1.0"?>
-<!--
-     Copyright (C) 2016 The Android Open Source Project
+<?xml version="1.0" encoding="UTF-8"?>
+<!--  Copyright (C) 2016 The Android Open Source Project
 
      Licensed under the Apache License, Version 2.0 (the "License");
      you may not use this file except in compliance with the License.
@@ -13,17 +12,24 @@
      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
      See the License for the specific language governing permissions and
      limitations under the License.
--->
-<resources>
-  <string name="exo_controls_previous_description">"Pista anterior"</string>
-  <string name="exo_controls_next_description">"Siguiente pista"</string>
-  <string name="exo_controls_pause_description">"Pausar"</string>
-  <string name="exo_controls_play_description">"Reproducir"</string>
-  <string name="exo_controls_stop_description">"Detener"</string>
-  <string name="exo_controls_rewind_description">"Retroceder"</string>
-  <string name="exo_controls_fastforward_description">"Avanzar"</string>
-  <string name="exo_controls_repeat_all_description">"Repetir todo"</string>
-  <string name="exo_controls_repeat_off_description">"No repetir"</string>
-  <string name="exo_controls_repeat_one_description">"Repetir uno"</string>
-  <string name="exo_controls_shuffle_description">"Reproducir aleatoriamente"</string>
+ -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="exo_controls_previous_description" msgid="4729846277375475426">"Pista anterior"</string>
+    <string name="exo_controls_next_description" msgid="7044845014191647105">"Pista siguiente"</string>
+    <string name="exo_controls_pause_description" msgid="7924816224515798262">"Pausar"</string>
+    <string name="exo_controls_play_description" msgid="2326300949114396072">"Reproducir"</string>
+    <string name="exo_controls_stop_description" msgid="121453720915069922">"Detener"</string>
+    <string name="exo_controls_rewind_description" msgid="5799450167394904608">"Retroceder"</string>
+    <string name="exo_controls_fastforward_description" msgid="2382411136909255532">"Avanzar"</string>
+    <string name="exo_controls_repeat_off_description" msgid="2273550552389469729">"No repetir"</string>
+    <string name="exo_controls_repeat_one_description" msgid="475266640141093764">"Repetir uno"</string>
+    <string name="exo_controls_repeat_all_description" msgid="8909385102773547833">"Repetir todo"</string>
+    <string name="exo_controls_shuffle_description" msgid="1374364424026734323">"Reproducir aleatoriamente"</string>
+    <string name="exo_controls_fullscreen_description" msgid="2643117270009811804">"Modo de pantalla completa"</string>
+    <string name="exo_download_queued" msgid="5094895434694614073">"Descarga en fila"</string>
+    <string name="exo_downloading" msgid="3111729133695800638">"Descargando"</string>
+    <string name="exo_download_completed" msgid="73698315802218437">"Se completó la descarga"</string>
+    <string name="exo_download_failed" msgid="6266121732877856285">"No se pudo descargar"</string>
 </resources>
