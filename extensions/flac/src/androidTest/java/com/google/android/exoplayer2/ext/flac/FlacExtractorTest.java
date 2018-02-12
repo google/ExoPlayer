@@ -34,11 +34,14 @@ public class FlacExtractorTest extends InstrumentationTestCase {
   }
 
   public void testSample() throws Exception {
-    ExtractorAsserts.assertBehavior(new ExtractorFactory() {
-      @Override
-      public Extractor create() {
-        return new FlacExtractor();
-      }
-    }, "bear.flac", getInstrumentation());
+    ExtractorAsserts.assertBehavior(
+        new ExtractorFactory() {
+          @Override
+          public Extractor create() {
+            return new FlacExtractor();
+          }
+        },
+        "bear.flac",
+        getInstrumentation().getContext());
   }
 }
