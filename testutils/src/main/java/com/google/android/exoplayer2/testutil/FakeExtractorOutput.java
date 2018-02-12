@@ -18,7 +18,7 @@ package com.google.android.exoplayer2.testutil;
 import static com.google.common.truth.Truth.assertThat;
 import static com.google.common.truth.Truth.assertWithMessage;
 
-import android.app.Instrumentation;
+import android.content.Context;
 import android.util.SparseArray;
 import com.google.android.exoplayer2.extractor.ExtractorOutput;
 import com.google.android.exoplayer2.extractor.SeekMap;
@@ -32,9 +32,9 @@ import java.io.PrintWriter;
 public final class FakeExtractorOutput implements ExtractorOutput, Dumper.Dumpable {
 
   /**
-   * If true, makes {@link #assertOutput(Instrumentation, String)} method write dump result to
-   * {@code /sdcard/Android/data/apk_package/ + dumpfile} file instead of comparing it with an
-   * existing file.
+   * If true, makes {@link #assertOutput(Context, String)} method write dump result to {@code
+   * /sdcard/Android/data/apk_package/ + dumpfile} file instead of comparing it with an existing
+   * file.
    */
   private static final boolean WRITE_DUMP = false;
 
@@ -97,18 +97,18 @@ public final class FakeExtractorOutput implements ExtractorOutput, Dumper.Dumpab
    * actual dump will be written to {@code dumpFile}. This new dump file needs to be copied to the
    * project, {@code library/src/androidTest/assets} folder manually.
    */
-  public void assertOutput(Instrumentation instrumentation, String dumpFile) throws IOException {
+  public void assertOutput(Context context, String dumpFile) throws IOException {
     String actual = new Dumper().add(this).toString();
 
     if (WRITE_DUMP) {
-      File directory = instrumentation.getContext().getExternalFilesDir(null);
+      File directory = context.getExternalFilesDir(null);
       File file = new File(directory, dumpFile);
       file.getParentFile().mkdirs();
       PrintWriter out = new PrintWriter(file);
       out.print(actual);
       out.close();
     } else {
-      String expected = TestUtil.getString(instrumentation, dumpFile);
+      String expected = TestUtil.getString(context, dumpFile);
       assertWithMessage(dumpFile).that(actual).isEqualTo(expected);
     }
   }
