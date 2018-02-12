@@ -150,9 +150,8 @@ public class TestUtil {
     return context.getResources().getAssets().open(fileName);
   }
 
-  public static String getString(Instrumentation instrumentation, String fileName)
-      throws IOException {
-    return new String(getByteArray(instrumentation, fileName));
+  public static String getString(Context context, String fileName) throws IOException {
+    return new String(getByteArray(context, fileName));
   }
 
   /**

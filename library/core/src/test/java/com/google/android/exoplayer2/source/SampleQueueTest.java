@@ -36,13 +36,11 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
-import org.robolectric.annotation.Config;
 
 /**
  * Test for {@link SampleQueue}.
  */
 @RunWith(RobolectricTestRunner.class)
-@Config(sdk = Config.TARGET_SDK, manifest = Config.NONE)
 public final class SampleQueueTest {
 
   private static final int ALLOCATION_SIZE = 16;

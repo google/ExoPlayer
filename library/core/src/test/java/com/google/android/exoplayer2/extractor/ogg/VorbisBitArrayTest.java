@@ -21,13 +21,11 @@ import com.google.android.exoplayer2.testutil.TestUtil;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
-import org.robolectric.annotation.Config;
 
 /**
  * Unit test for {@link VorbisBitArray}.
  */
 @RunWith(RobolectricTestRunner.class)
-@Config(sdk = Config.TARGET_SDK, manifest = Config.NONE)
 public final class VorbisBitArrayTest {
 
   @Test
