@@ -38,12 +38,12 @@
   <string name="exo_controls_shuffle_description">Shuffle</string>
   <!-- Description for a media control button that toggles whether a video playback is fullscreen. [CHAR LIMIT=30] -->
   <string name="exo_controls_fullscreen_description">Fullscreen mode</string>
-  <!-- Shown in a notification or UI component to indicate a download is currently queued. [CHAR LIMIT=30] -->
+  <!-- Shown in a notification or UI component to indicate a download is currently queued. [CHAR LIMIT=40] -->
   <string name="exo_download_queued">Download queued</string>
-  <!-- Shown in a notification or UI component to indicate a download is currently downloading. [CHAR LIMIT=30] -->
+  <!-- Shown in a notification or UI component to indicate a download is currently downloading. [CHAR LIMIT=40] -->
   <string name="exo_downloading">Downloading</string>
-  <!-- Shown in a notification or UI component to indicate a download has finished downloading. [CHAR LIMIT=30] -->
+  <!-- Shown in a notification or UI component to indicate a download has finished downloading. [CHAR LIMIT=40] -->
   <string name="exo_download_completed">Download completed</string>
-  <!-- Shown in a notification or UI component to indicate a download has failed. [CHAR LIMIT=30] -->
+  <!-- Shown in a notification or UI component to indicate a download has failed. [CHAR LIMIT=40] -->
   <string name="exo_download_failed">Download failed</string>
 </resources>
