@@ -55,11 +55,7 @@ import org.robolectric.annotation.Config;
 
 /** Unit test for {@link ExoPlayer}. */
 @RunWith(RobolectricTestRunner.class)
-@Config(
-  sdk = Config.TARGET_SDK,
-  manifest = Config.NONE,
-  shadows = {RobolectricUtil.CustomLooper.class, RobolectricUtil.CustomMessageQueue.class}
-)
+@Config(shadows = {RobolectricUtil.CustomLooper.class, RobolectricUtil.CustomMessageQueue.class})
 public final class ExoPlayerTest {
 
   /**

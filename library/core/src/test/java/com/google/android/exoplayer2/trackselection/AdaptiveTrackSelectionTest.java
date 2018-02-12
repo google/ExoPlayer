@@ -38,11 +38,9 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.robolectric.RobolectricTestRunner;
-import org.robolectric.annotation.Config;
 
 /** Unit test for {@link AdaptiveTrackSelection}. */
 @RunWith(RobolectricTestRunner.class)
-@Config(sdk = Config.TARGET_SDK, manifest = Config.NONE)
 public final class AdaptiveTrackSelectionTest {
 
   @Mock private BandwidthMeter mockBandwidthMeter;

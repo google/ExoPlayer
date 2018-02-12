@@ -21,13 +21,11 @@ import java.io.ByteArrayOutputStream;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
-import org.robolectric.annotation.Config;
 
 /**
  * Tests {@link ReusableBufferedOutputStream}.
  */
 @RunWith(RobolectricTestRunner.class)
-@Config(sdk = Config.TARGET_SDK, manifest = Config.NONE)
 public final class ReusableBufferedOutputStreamTest {
 
   private static final byte[] TEST_DATA_1 = "test data 1".getBytes();
