@@ -970,11 +970,17 @@ public final class ImaAdsLoader extends Player.DefaultEventListener implements A
 
     int count = cuePoints.size();
     long[] adGroupTimesUs = new long[count];
+    int adGroupIndex = 0;
     for (int i = 0; i < count; i++) {
       double cuePoint = cuePoints.get(i);
-      adGroupTimesUs[i] =
-          cuePoint == -1.0 ? C.TIME_END_OF_SOURCE : (long) (C.MICROS_PER_SECOND * cuePoint);
+      if (cuePoint == -1.0) {
+        adGroupTimesUs[count - 1] = C.TIME_END_OF_SOURCE;
+      } else {
+        adGroupTimesUs[adGroupIndex++] = (long) (C.MICROS_PER_SECOND * cuePoint);
+      }
     }
+    // Cue points may be out of order, so sort them.
+    Arrays.sort(adGroupTimesUs, 0, adGroupIndex);
     return adGroupTimesUs;
   }
 
