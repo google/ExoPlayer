@@ -104,10 +104,8 @@ public final class HlsDownloader extends SegmentDownloader<HlsMasterPlaylist, St
   }
 
   private static HlsPlaylist loadManifest(DataSource dataSource, Uri uri) throws IOException {
-    DataSpec dataSpec = new DataSpec(uri,
-        DataSpec.FLAG_ALLOW_CACHING_UNKNOWN_LENGTH | DataSpec.FLAG_ALLOW_GZIP);
-    ParsingLoadable<HlsPlaylist> loadable = new ParsingLoadable<>(dataSource, dataSpec,
-        C.DATA_TYPE_MANIFEST, new HlsPlaylistParser());
+    ParsingLoadable<HlsPlaylist> loadable =
+        new ParsingLoadable<>(dataSource, uri, C.DATA_TYPE_MANIFEST, new HlsPlaylistParser());
     loadable.load();
     return loadable.getResult();
   }

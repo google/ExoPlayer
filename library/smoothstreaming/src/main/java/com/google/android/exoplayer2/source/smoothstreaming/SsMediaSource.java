@@ -36,13 +36,13 @@ import com.google.android.exoplayer2.source.ads.AdsMediaSource;
 import com.google.android.exoplayer2.source.smoothstreaming.manifest.SsManifest;
 import com.google.android.exoplayer2.source.smoothstreaming.manifest.SsManifest.StreamElement;
 import com.google.android.exoplayer2.source.smoothstreaming.manifest.SsManifestParser;
+import com.google.android.exoplayer2.source.smoothstreaming.manifest.SsUtil;
 import com.google.android.exoplayer2.upstream.Allocator;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.Loader;
 import com.google.android.exoplayer2.upstream.LoaderErrorThrower;
 import com.google.android.exoplayer2.upstream.ParsingLoadable;
 import com.google.android.exoplayer2.util.Assertions;
-import com.google.android.exoplayer2.util.Util;
 import java.io.IOException;
 import java.util.ArrayList;
 
@@ -403,9 +403,7 @@ public final class SsMediaSource implements MediaSource,
       MediaSourceEventListener eventListener) {
     Assertions.checkState(manifest == null || !manifest.isLive);
     this.manifest = manifest;
-    this.manifestUri = manifestUri == null ? null
-        : Util.toLowerInvariant(manifestUri.getLastPathSegment()).matches("manifest(\\(.+\\))?")
-            ? manifestUri : Uri.withAppendedPath(manifestUri, "Manifest");
+    this.manifestUri = manifestUri == null ? null : SsUtil.fixManifestUri(manifestUri);
     this.manifestDataSourceFactory = manifestDataSourceFactory;
     this.manifestParser = manifestParser;
     this.chunkSourceFactory = chunkSourceFactory;
