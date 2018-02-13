@@ -1091,7 +1091,8 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
             && "OMX.qcom.video.decoder.avc".equals(name))
         || (("tcl_eu".equals(Util.DEVICE)
                 || "SVP-DTV15".equals(Util.DEVICE)
-                || "BRAVIA_ATV2".equals(Util.DEVICE))
+                || "BRAVIA_ATV2".equals(Util.DEVICE)
+                || "panell_s".equals(Util.DEVICE))
             && "OMX.MTK.VIDEO.DECODER.AVC".equals(name))
         || ("OMX.k3.video.decoder.avc".equals(name) && "ALE-L21".equals(Util.MODEL));
   }
