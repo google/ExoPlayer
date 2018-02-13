@@ -88,6 +88,8 @@
     * Add support for playing non-Extractor content MediaSources in
       the IMA demo app
       ([#3676](https://github.com/google/ExoPlayer/issues/3676)).
+    * Fix handling of ad tags where ad groups are out of order
+      ([#3716](https://github.com/google/ExoPlayer/issues/3716)).
 * `EventLogger` moved from the demo app into the core library.
 * Fix ANR issue on Huawei P8 Lite
   ([#3724](https://github.com/google/ExoPlayer/issues/3724)).
