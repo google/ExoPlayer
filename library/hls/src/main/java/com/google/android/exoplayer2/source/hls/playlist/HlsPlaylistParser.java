@@ -100,7 +100,9 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
   private static final Pattern REGEX_MEDIA_SEQUENCE = Pattern.compile(TAG_MEDIA_SEQUENCE
       + ":(\\d+)\\b");
   private static final Pattern REGEX_MEDIA_DURATION = Pattern.compile(TAG_MEDIA_DURATION
-      + ":([\\d\\.]+)\\b");
+          + ":([\\d\\.]+)\\b");
+  private static final Pattern REGEX_MEDIA_TITLE = Pattern.compile(TAG_MEDIA_DURATION
+          + ":[\\d\\.]+\\b,(.+)?");
   private static final Pattern REGEX_TIME_OFFSET = Pattern.compile("TIME-OFFSET=(-?[\\d\\.]+)\\b");
   private static final Pattern REGEX_BYTERANGE = Pattern.compile(TAG_BYTERANGE
       + ":(\\d+(?:@\\d+)?)\\b");
@@ -315,6 +317,7 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
     List<String> tags = new ArrayList<>();
 
     long segmentDurationUs = 0;
+    String segmentTitle = null;
     boolean hasDiscontinuitySequence = false;
     int playlistDiscontinuitySequence = 0;
     int relativeDiscontinuitySequence = 0;
@@ -368,7 +371,8 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
         version = parseIntAttr(line, REGEX_VERSION);
       } else if (line.startsWith(TAG_MEDIA_DURATION)) {
         segmentDurationUs =
-            (long) (parseDoubleAttr(line, REGEX_MEDIA_DURATION) * C.MICROS_PER_SECOND);
+                (long) (parseDoubleAttr(line, REGEX_MEDIA_DURATION) * C.MICROS_PER_SECOND);
+        segmentTitle = parseOptionalStringAttr(line, REGEX_MEDIA_TITLE);
       } else if (line.startsWith(TAG_KEY)) {
         String method = parseOptionalStringAttr(line, REGEX_METHOD);
         String keyFormat = parseOptionalStringAttr(line, REGEX_KEYFORMAT);
@@ -423,11 +427,12 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
         if (segmentByteRangeLength == C.LENGTH_UNSET) {
           segmentByteRangeOffset = 0;
         }
-        segments.add(new Segment(line, segmentDurationUs, relativeDiscontinuitySequence,
+        segments.add(new Segment(line, segmentDurationUs, segmentTitle, relativeDiscontinuitySequence,
             segmentStartTimeUs, encryptionKeyUri, segmentEncryptionIV,
             segmentByteRangeOffset, segmentByteRangeLength));
         segmentStartTimeUs += segmentDurationUs;
         segmentDurationUs = 0;
+        segmentTitle = null;
         if (segmentByteRangeLength != C.LENGTH_UNSET) {
           segmentByteRangeOffset += segmentByteRangeLength;
         }

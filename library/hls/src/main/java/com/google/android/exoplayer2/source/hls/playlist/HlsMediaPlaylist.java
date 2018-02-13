@@ -42,6 +42,10 @@ public final class HlsMediaPlaylist extends HlsPlaylist {
      */
     public final long durationUs;
     /**
+     * The human-readable title of the segment as defined by #EXTINF.
+     */
+    public final String title;
+    /**
      * The number of #EXT-X-DISCONTINUITY tags in the playlist before the segment.
      */
     public final int relativeDiscontinuitySequence;
@@ -70,12 +74,13 @@ public final class HlsMediaPlaylist extends HlsPlaylist {
     public final long byterangeLength;
 
     public Segment(String uri, long byterangeOffset, long byterangeLength) {
-      this(uri, 0, -1, C.TIME_UNSET, null, null, byterangeOffset, byterangeLength);
+      this(uri, 0, null, -1, C.TIME_UNSET, null, null, byterangeOffset, byterangeLength);
     }
 
     /**
      * @param url See {@link #url}.
      * @param durationUs See {@link #durationUs}.
+     * @param title See {@link #title}.
      * @param relativeDiscontinuitySequence See {@link #relativeDiscontinuitySequence}.
      * @param relativeStartTimeUs See {@link #relativeStartTimeUs}.
      * @param fullSegmentEncryptionKeyUri See {@link #fullSegmentEncryptionKeyUri}.
@@ -83,11 +88,12 @@ public final class HlsMediaPlaylist extends HlsPlaylist {
      * @param byterangeOffset See {@link #byterangeOffset}.
      * @param byterangeLength See {@link #byterangeLength}.
      */
-    public Segment(String url, long durationUs, int relativeDiscontinuitySequence,
+    public Segment(String url, long durationUs, String title, int relativeDiscontinuitySequence,
         long relativeStartTimeUs, String fullSegmentEncryptionKeyUri,
         String encryptionIV, long byterangeOffset, long byterangeLength) {
       this.url = url;
       this.durationUs = durationUs;
+      this.title = title;
       this.relativeDiscontinuitySequence = relativeDiscontinuitySequence;
       this.relativeStartTimeUs = relativeStartTimeUs;
       this.fullSegmentEncryptionKeyUri = fullSegmentEncryptionKeyUri;
