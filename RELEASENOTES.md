@@ -91,8 +91,9 @@
     * Fix handling of ad tags where ad groups are out of order
       ([#3716](https://github.com/google/ExoPlayer/issues/3716)).
 * `EventLogger` moved from the demo app into the core library.
-* Fix ANR issue on Huawei P8 Lite
-  ([#3724](https://github.com/google/ExoPlayer/issues/3724)).
+* Fix ANR issue on the Huawei P8 Lite, Huawei Y6II and Moto C+
+  ([#3724](https://github.com/google/ExoPlayer/issues/3724),
+  [#3835](https://github.com/google/ExoPlayer/issues/3835)).
 * Fix potential NPE when removing media sources from a
   DynamicConcatenatingMediaSource
   ([#3796](https://github.com/google/ExoPlayer/issues/3796)).
