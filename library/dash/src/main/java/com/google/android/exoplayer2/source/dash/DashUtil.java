@@ -53,10 +53,8 @@ public final class DashUtil {
    */
   public static DashManifest loadManifest(DataSource dataSource, Uri uri)
       throws IOException {
-    DataSpec dataSpec = new DataSpec(uri,
-        DataSpec.FLAG_ALLOW_CACHING_UNKNOWN_LENGTH | DataSpec.FLAG_ALLOW_GZIP);
-    ParsingLoadable<DashManifest> loadable = new ParsingLoadable<>(dataSource, dataSpec,
-        C.DATA_TYPE_MANIFEST, new DashManifestParser());
+    ParsingLoadable<DashManifest> loadable =
+        new ParsingLoadable<>(dataSource, uri, C.DATA_TYPE_MANIFEST, new DashManifestParser());
     loadable.load();
     return loadable.getResult();
   }
