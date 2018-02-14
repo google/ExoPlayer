@@ -25,6 +25,8 @@ import android.view.ViewGroup;
 import android.webkit.WebView;
 import com.google.ads.interactivemedia.v3.api.Ad;
 import com.google.ads.interactivemedia.v3.api.AdDisplayContainer;
+import com.google.ads.interactivemedia.v3.api.AdError;
+import com.google.ads.interactivemedia.v3.api.AdError.AdErrorCode;
 import com.google.ads.interactivemedia.v3.api.AdErrorEvent;
 import com.google.ads.interactivemedia.v3.api.AdErrorEvent.AdErrorListener;
 import com.google.ads.interactivemedia.v3.api.AdEvent;
@@ -580,14 +582,17 @@ public final class ImaAdsLoader extends Player.DefaultEventListener implements A
 
   @Override
   public void onAdError(AdErrorEvent adErrorEvent) {
+    AdError error = adErrorEvent.getError();
     if (DEBUG) {
-      Log.d(TAG, "onAdError " + adErrorEvent);
+      Log.d(TAG, "onAdError", error);
     }
     if (adsManager == null) {
       // No ads were loaded, so allow playback to start without any ads.
       pendingAdRequestContext = null;
       adPlaybackState = new AdPlaybackState();
       updateAdPlaybackState();
+    } else if (isAdGroupLoadError(error)) {
+      handleAdGroupLoadError();
     }
     if (pendingAdErrorEvent == null) {
       pendingAdErrorEvent = adErrorEvent;
@@ -1041,4 +1046,9 @@ public final class ImaAdsLoader extends Player.DefaultEventListener implements A
     return adGroupTimesUs;
   }
 
+  private static boolean isAdGroupLoadError(AdError adError) {
+    // TODO: Find out what other errors need to be handled (if any), and whether each one relates to
+    // a single ad, ad group or the whole timeline.
+    return adError.getErrorCode() == AdErrorCode.VAST_LINEAR_ASSET_MISMATCH;
+  }
 }
