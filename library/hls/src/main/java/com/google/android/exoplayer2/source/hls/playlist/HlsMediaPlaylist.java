@@ -69,8 +69,16 @@ public final class HlsMediaPlaylist extends HlsPlaylist {
      */
     public final long byterangeLength;
 
+    /** Whether the segment is tagged with #EXT-X-GAP. */
+    public final boolean hasGapTag;
+
+    /**
+     * @param uri See {@link #url}.
+     * @param byterangeOffset See {@link #byterangeOffset}.
+     * @param byterangeLength See {@link #byterangeLength}.
+     */
     public Segment(String uri, long byterangeOffset, long byterangeLength) {
-      this(uri, 0, -1, C.TIME_UNSET, null, null, byterangeOffset, byterangeLength);
+      this(uri, 0, -1, C.TIME_UNSET, null, null, byterangeOffset, byterangeLength, false);
     }
 
     /**
@@ -82,10 +90,18 @@ public final class HlsMediaPlaylist extends HlsPlaylist {
      * @param encryptionIV See {@link #encryptionIV}.
      * @param byterangeOffset See {@link #byterangeOffset}.
      * @param byterangeLength See {@link #byterangeLength}.
+     * @param hasGapTag See {@link #hasGapTag}.
      */
-    public Segment(String url, long durationUs, int relativeDiscontinuitySequence,
-        long relativeStartTimeUs, String fullSegmentEncryptionKeyUri,
-        String encryptionIV, long byterangeOffset, long byterangeLength) {
+    public Segment(
+        String url,
+        long durationUs,
+        int relativeDiscontinuitySequence,
+        long relativeStartTimeUs,
+        String fullSegmentEncryptionKeyUri,
+        String encryptionIV,
+        long byterangeOffset,
+        long byterangeLength,
+        boolean hasGapTag) {
       this.url = url;
       this.durationUs = durationUs;
       this.relativeDiscontinuitySequence = relativeDiscontinuitySequence;
@@ -94,6 +110,7 @@ public final class HlsMediaPlaylist extends HlsPlaylist {
       this.encryptionIV = encryptionIV;
       this.byterangeOffset = byterangeOffset;
       this.byterangeLength = byterangeLength;
+      this.hasGapTag = hasGapTag;
     }
 
     @Override

@@ -67,6 +67,7 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
   private static final String TAG_ENDLIST = "#EXT-X-ENDLIST";
   private static final String TAG_KEY = "#EXT-X-KEY";
   private static final String TAG_BYTERANGE = "#EXT-X-BYTERANGE";
+  private static final String TAG_GAP = "#EXT-X-GAP";
 
   private static final String TYPE_AUDIO = "AUDIO";
   private static final String TYPE_VIDEO = "VIDEO";
@@ -357,6 +358,7 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
     long segmentByteRangeOffset = 0;
     long segmentByteRangeLength = C.LENGTH_UNSET;
     long segmentMediaSequence = 0;
+    boolean hasGapTag = false;
 
     String encryptionKeyUri = null;
     String encryptionIV = null;
@@ -449,6 +451,12 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
               C.msToUs(Util.parseXsDateTime(line.substring(line.indexOf(':') + 1)));
           playlistStartTimeUs = programDatetimeUs - segmentStartTimeUs;
         }
+      } else if (line.equals(TAG_GAP)) {
+        hasGapTag = true;
+      } else if (line.equals(TAG_INDEPENDENT_SEGMENTS)) {
+        hasIndependentSegmentsTag = true;
+      } else if (line.equals(TAG_ENDLIST)) {
+        hasEndTag = true;
       } else if (!line.startsWith("#")) {
         String segmentEncryptionIV;
         if (encryptionKeyUri == null) {
@@ -462,19 +470,24 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
         if (segmentByteRangeLength == C.LENGTH_UNSET) {
           segmentByteRangeOffset = 0;
         }
-        segments.add(new Segment(line, segmentDurationUs, relativeDiscontinuitySequence,
-            segmentStartTimeUs, encryptionKeyUri, segmentEncryptionIV,
-            segmentByteRangeOffset, segmentByteRangeLength));
+        segments.add(
+            new Segment(
+                line,
+                segmentDurationUs,
+                relativeDiscontinuitySequence,
+                segmentStartTimeUs,
+                encryptionKeyUri,
+                segmentEncryptionIV,
+                segmentByteRangeOffset,
+                segmentByteRangeLength,
+                hasGapTag));
         segmentStartTimeUs += segmentDurationUs;
         segmentDurationUs = 0;
         if (segmentByteRangeLength != C.LENGTH_UNSET) {
           segmentByteRangeOffset += segmentByteRangeLength;
         }
         segmentByteRangeLength = C.LENGTH_UNSET;
-      } else if (line.equals(TAG_INDEPENDENT_SEGMENTS)) {
-        hasIndependentSegmentsTag = true;
-      } else if (line.equals(TAG_ENDLIST)) {
-        hasEndTag = true;
+        hasGapTag = false;
       }
     }
     return new HlsMediaPlaylist(playlistType, baseUri, tags, startOffsetUs, playlistStartTimeUs,

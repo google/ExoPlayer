@@ -330,11 +330,27 @@ import java.util.List;
     Uri chunkUri = UriUtil.resolveToUri(mediaPlaylist.baseUri, segment.url);
     DataSpec dataSpec = new DataSpec(chunkUri, segment.byterangeOffset, segment.byterangeLength,
         null);
-    out.chunk = new HlsMediaChunk(extractorFactory, mediaDataSource, dataSpec, initDataSpec,
-        selectedUrl, muxedCaptionFormats, trackSelection.getSelectionReason(),
-        trackSelection.getSelectionData(), startTimeUs, startTimeUs + segment.durationUs,
-        chunkMediaSequence, discontinuitySequence, isTimestampMaster, timestampAdjuster, previous,
-        mediaPlaylist.drmInitData, encryptionKey, encryptionIv);
+    out.chunk =
+        new HlsMediaChunk(
+            extractorFactory,
+            mediaDataSource,
+            dataSpec,
+            initDataSpec,
+            selectedUrl,
+            muxedCaptionFormats,
+            trackSelection.getSelectionReason(),
+            trackSelection.getSelectionData(),
+            startTimeUs,
+            startTimeUs + segment.durationUs,
+            chunkMediaSequence,
+            discontinuitySequence,
+            segment.hasGapTag,
+            isTimestampMaster,
+            timestampAdjuster,
+            previous,
+            mediaPlaylist.drmInitData,
+            encryptionKey,
+            encryptionIv);
   }
 
   /**
