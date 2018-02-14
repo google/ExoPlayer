@@ -93,7 +93,8 @@
     * Propagate ad media preparation errors to IMA so that the ads can be
       skipped.
 * `EventLogger` moved from the demo app into the core library.
-* Fix ANR issue on the Huawei P8 Lite, Huawei Y6II and Moto C+
+* Fix ANR issue on the Huawei P8 Lite, Huawei Y6II, Moto C+, Meizu M5C,
+  Lenovo K4 Note and Sony Xperia E5.
   ([#3724](https://github.com/google/ExoPlayer/issues/3724),
   [#3835](https://github.com/google/ExoPlayer/issues/3835)).
 * Fix potential NPE when removing media sources from a
