@@ -20,13 +20,12 @@ import static org.junit.Assert.fail;
 import static org.mockito.Mockito.verify;
 
 import android.os.ConditionVariable;
-import android.os.Handler;
-import android.os.HandlerThread;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.RobolectricUtil;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.source.MediaSource.MediaPeriodId;
+import com.google.android.exoplayer2.testutil.DummyMainThread;
 import com.google.android.exoplayer2.testutil.FakeMediaSource;
 import com.google.android.exoplayer2.testutil.FakeShuffleOrder;
 import com.google.android.exoplayer2.testutil.FakeTimeline;
@@ -777,40 +776,6 @@ public final class DynamicConcatenatingMediaSourceTest {
 
   private static FakeTimeline createFakeTimeline(int index) {
     return new FakeTimeline(new TimelineWindowDefinition(index + 1, (index + 1) * 111));
-  }
-
-  private static final class DummyMainThread {
-
-    private final HandlerThread thread;
-    private final Handler handler;
-
-    private DummyMainThread() {
-      thread = new HandlerThread("DummyMainThread");
-      thread.start();
-      handler = new Handler(thread.getLooper());
-    }
-
-    /**
-     * Runs the provided {@link Runnable} on the main thread, blocking until execution completes.
-     *
-     * @param runnable The {@link Runnable} to run.
-     */
-    public void runOnMainThread(final Runnable runnable) {
-      final ConditionVariable finishedCondition = new ConditionVariable();
-      handler.post(
-          new Runnable() {
-            @Override
-            public void run() {
-              runnable.run();
-              finishedCondition.open();
-            }
-          });
-      assertThat(finishedCondition.block(MediaSourceTestRunner.TIMEOUT_MS)).isTrue();
-    }
-
-    public void release() {
-      thread.quit();
-    }
   }
 
   private static final class TimelineGrabber implements Runnable {
