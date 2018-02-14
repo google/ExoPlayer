@@ -109,6 +109,8 @@
 * Release `Extractor`s on the loading thread to avoid potentially leaking
   resources when the playback thread has quit by the time the loading task has
   completed.
+* ID3: Better handle malformed ID3 data
+  ([#3792](https://github.com/google/ExoPlayer/issues/3792).
 
 ### 2.6.1 ###
 
