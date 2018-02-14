@@ -1093,7 +1093,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
         || (("tcl_eu".equals(Util.DEVICE) // TCL Percee TV
                 || "SVP-DTV15".equals(Util.DEVICE) // Sony Bravia 4K 2015
                 || "BRAVIA_ATV2".equals(Util.DEVICE) // Sony Bravia 4K GB
-                || "panell_s".equals(Util.DEVICE) // Motorola Moto C Plus
+                || Util.DEVICE.startsWith("panell_") // Motorola Moto C Plus
                 || "F3311".equals(Util.DEVICE) // Sony Xperia E5
                 || "M5c".equals(Util.DEVICE) // Meizu M5C
                 || "A7010a48".equals(Util.DEVICE)) // Lenovo K4 Note
