@@ -90,6 +90,8 @@
       ([#3676](https://github.com/google/ExoPlayer/issues/3676)).
     * Fix handling of ad tags where ad groups are out of order
       ([#3716](https://github.com/google/ExoPlayer/issues/3716)).
+    * Propagate ad media preparation errors to IMA so that the ads can be
+      skipped.
 * `EventLogger` moved from the demo app into the core library.
 * Fix ANR issue on the Huawei P8 Lite, Huawei Y6II and Moto C+
   ([#3724](https://github.com/google/ExoPlayer/issues/3724),

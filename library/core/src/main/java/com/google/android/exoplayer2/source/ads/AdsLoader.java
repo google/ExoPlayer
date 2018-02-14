@@ -103,4 +103,13 @@ public interface AdsLoader {
    */
   void release();
 
+  /**
+   * Notifies the ads loader that the player was not able to prepare media for a given ad.
+   * Implementations should update the ad playback state as the specified ad has failed to load.
+   *
+   * @param adGroupIndex The index of the ad group.
+   * @param adIndexInAdGroup The index of the ad in the ad group.
+   * @param exception The preparation error.
+   */
+  void handlePrepareError(int adGroupIndex, int adIndexInAdGroup, IOException exception);
 }
