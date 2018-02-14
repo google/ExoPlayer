@@ -236,6 +236,8 @@ public final class AdsMediaSource extends CompositeMediaSource<MediaPeriodId> {
       MediaSource mediaSource = adGroupMediaSources[adGroupIndex][adIndexInAdGroup];
       DeferredMediaPeriod deferredMediaPeriod =
           new DeferredMediaPeriod(mediaSource, new MediaPeriodId(0), allocator);
+      deferredMediaPeriod.setPrepareErrorListener(
+          new AdPrepareErrorListener(adGroupIndex, adIndexInAdGroup));
       List<DeferredMediaPeriod> mediaPeriods = deferredMediaPeriodByAdMediaSource.get(mediaSource);
       if (mediaPeriods == null) {
         deferredMediaPeriod.createPeriod();
@@ -433,4 +435,25 @@ public final class AdsMediaSource extends CompositeMediaSource<MediaPeriodId> {
 
   }
 
+  private final class AdPrepareErrorListener implements DeferredMediaPeriod.PrepareErrorListener {
+
+    private final int adGroupIndex;
+    private final int adIndexInAdGroup;
+
+    public AdPrepareErrorListener(int adGroupIndex, int adIndexInAdGroup) {
+      this.adGroupIndex = adGroupIndex;
+      this.adIndexInAdGroup = adIndexInAdGroup;
+    }
+
+    @Override
+    public void onPrepareError(final IOException exception) {
+      mainHandler.post(
+          new Runnable() {
+            @Override
+            public void run() {
+              adsLoader.handlePrepareError(adGroupIndex, adIndexInAdGroup, exception);
+            }
+          });
+    }
+  }
 }
