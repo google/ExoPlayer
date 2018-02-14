@@ -52,7 +52,7 @@ public final class CeaUtil {
       if (payloadSize == -1 || payloadSize > seiBuffer.bytesLeft()) {
         // This might occur if we're trying to read an encrypted SEI NAL unit.
         Log.w(TAG, "Skipping remainder of malformed SEI NAL unit.");
-        seiBuffer.setPosition(seiBuffer.limit());
+        nextPayloadPosition = seiBuffer.limit();
       } else if (payloadType == PAYLOAD_TYPE_CC && payloadSize >= 8) {
         int countryCode = seiBuffer.readUnsignedByte();
         int providerCode = seiBuffer.readUnsignedShort();
