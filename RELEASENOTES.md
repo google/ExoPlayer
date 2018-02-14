@@ -76,8 +76,12 @@
   * Support resampling 24-bit and 32-bit integer to 32-bit float for high
     resolution output in `DefaultAudioSink`
     ([#3635](https://github.com/google/ExoPlayer/pull/3635)).
-* Captions: Initial support for PGS subtitles
-  ([#3008](https://github.com/google/ExoPlayer/issues/3008)).
+* Captions:
+  * Initial support for PGS subtitles
+    ([#3008](https://github.com/google/ExoPlayer/issues/3008)).
+  * Fix issue handling CEA-608 captions where multiple buffers have the same
+    presentation timestamp
+    ([#3782](https://github.com/google/ExoPlayer/issues/3782)).
 * CacheDataSource: Check periodically if it's possible to read from/write to
   cache after deciding to bypass cache.
 * IMA extension:
