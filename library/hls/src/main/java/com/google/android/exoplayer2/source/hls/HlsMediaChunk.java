@@ -66,6 +66,7 @@ import java.util.concurrent.atomic.AtomicInteger;
   private final DataSpec initDataSpec;
   private final boolean isEncrypted;
   private final boolean isMasterTimestampSource;
+  private final boolean hasGapTag;
   private final TimestampAdjuster timestampAdjuster;
   private final boolean shouldSpliceIn;
   private final Extractor extractor;
@@ -97,6 +98,7 @@ import java.util.concurrent.atomic.AtomicInteger;
    * @param endTimeUs The end time of the chunk in microseconds.
    * @param chunkMediaSequence The media sequence number of the chunk.
    * @param discontinuitySequenceNumber The discontinuity sequence number of the chunk.
+   * @param hasGapTag Whether the chunk is tagged with EXT-X-GAP.
    * @param isMasterTimestampSource True if the chunk can initialize the timestamp adjuster.
    * @param timestampAdjuster Adjuster corresponding to the provided discontinuity sequence number.
    * @param previousChunk The {@link HlsMediaChunk} that preceded this one. May be null.
@@ -119,6 +121,7 @@ import java.util.concurrent.atomic.AtomicInteger;
       long endTimeUs,
       long chunkMediaSequence,
       int discontinuitySequenceNumber,
+      boolean hasGapTag,
       boolean isMasterTimestampSource,
       TimestampAdjuster timestampAdjuster,
       HlsMediaChunk previousChunk,
@@ -141,6 +144,7 @@ import java.util.concurrent.atomic.AtomicInteger;
     this.timestampAdjuster = timestampAdjuster;
     // Note: this.dataSource and dataSource may be different.
     this.isEncrypted = this.dataSource instanceof Aes128DataSource;
+    this.hasGapTag = hasGapTag;
     Extractor previousExtractor = null;
     if (previousChunk != null) {
       shouldSpliceIn = previousChunk.hlsUrl != hlsUrl;
@@ -211,7 +215,10 @@ import java.util.concurrent.atomic.AtomicInteger;
   public void load() throws IOException, InterruptedException {
     maybeLoadInitData();
     if (!loadCanceled) {
-      loadMedia();
+      if (!hasGapTag) {
+        loadMedia();
+      }
+      loadCompleted = true;
     }
   }
 
@@ -283,7 +290,6 @@ import java.util.concurrent.atomic.AtomicInteger;
     } finally {
       Util.closeQuietly(dataSource);
     }
-    loadCompleted = true;
   }
 
   /**
