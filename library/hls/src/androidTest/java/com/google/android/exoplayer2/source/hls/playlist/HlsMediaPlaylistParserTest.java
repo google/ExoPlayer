@@ -120,7 +120,6 @@ public class HlsMediaPlaylistParserTest extends TestCase {
       assertThat(segment.relativeDiscontinuitySequence).isEqualTo(1);
       assertThat(segment.durationUs).isEqualTo(7975000);
       assertThat(segment.title).isNull();
-      assertEquals(null, segment.title);
       assertThat(segment.fullSegmentEncryptionKeyUri)
           .isEqualTo("https://priv.example.com/key.php?r=2682");
       // 0xA7A == 2682.
