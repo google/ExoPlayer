@@ -153,7 +153,7 @@ import java.util.List;
   // ChunkSampleStream.ReleaseCallback implementation.
 
   @Override
-  public void onSampleStreamReleased(ChunkSampleStream<DashChunkSource> stream) {
+  public synchronized void onSampleStreamReleased(ChunkSampleStream<DashChunkSource> stream) {
     PlayerTrackEmsgHandler trackEmsgHandler = trackEmsgHandlerBySampleStream.remove(stream);
     if (trackEmsgHandler != null) {
       trackEmsgHandler.release();
@@ -565,7 +565,10 @@ import java.util.List;
             positionUs,
             minLoadableRetryCount,
             eventDispatcher);
-    trackEmsgHandlerBySampleStream.put(stream, trackPlayerEmsgHandler);
+    synchronized (this) {
+      // The map is also accessed on the loading thread so synchronize access.
+      trackEmsgHandlerBySampleStream.put(stream, trackPlayerEmsgHandler);
+    }
     return stream;
   }
 

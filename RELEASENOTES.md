@@ -99,6 +99,9 @@
   ([#3796](https://github.com/google/ExoPlayer/issues/3796)).
 * Check `sys.display-size` on Philips ATVs
   ([#3807](https://github.com/google/ExoPlayer/issues/3807)).
+* Release `Extractor`s on the loading thread to avoid potentially leaking
+  resources when the playback thread has quit by the time the loading task has
+  completed.
 
 ### 2.6.1 ###
 

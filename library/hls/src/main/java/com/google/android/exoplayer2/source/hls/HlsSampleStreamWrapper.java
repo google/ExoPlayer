@@ -386,14 +386,14 @@ import java.util.Arrays;
   }
 
   public void release() {
-    boolean releasedSynchronously = loader.release(this);
-    if (prepared && !releasedSynchronously) {
+    if (prepared) {
       // Discard as much as we can synchronously. We only do this if we're prepared, since otherwise
       // sampleQueues may still be being modified by the loading thread.
       for (SampleQueue sampleQueue : sampleQueues) {
         sampleQueue.discardToEnd();
       }
     }
+    loader.release(this);
     handler.removeCallbacksAndMessages(null);
     released = true;
   }
