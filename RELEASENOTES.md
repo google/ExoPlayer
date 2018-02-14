@@ -97,6 +97,8 @@
       ([#3676](https://github.com/google/ExoPlayer/issues/3676)).
     * Fix handling of ad tags where ad groups are out of order
       ([#3716](https://github.com/google/ExoPlayer/issues/3716)).
+    * Fix handling of ad tags with only preroll/postroll ad groups
+      ([#3715](https://github.com/google/ExoPlayer/issues/3715)).
     * Propagate ad media preparation errors to IMA so that the ads can be
       skipped.
 * `EventLogger` moved from the demo app into the core library.

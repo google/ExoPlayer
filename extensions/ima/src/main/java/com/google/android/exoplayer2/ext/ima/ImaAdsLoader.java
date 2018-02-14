@@ -851,15 +851,14 @@ public final class ImaAdsLoader extends Player.DefaultEventListener implements A
     adsRenderingSettings.setMimeTypes(supportedMimeTypes);
 
     // Set up the ad playback state, skipping ads based on the start position as required.
-    pendingContentPositionMs = player.getCurrentPosition();
     long[] adGroupTimesUs = getAdGroupTimesUs(adsManager.getAdCuePoints());
     adPlaybackState = new AdPlaybackState(adGroupTimesUs);
+    long contentPositionMs = player.getCurrentPosition();
     int adGroupIndexForPosition =
-        adPlaybackState.getAdGroupIndexForPositionUs(C.msToUs(pendingContentPositionMs));
+        adPlaybackState.getAdGroupIndexForPositionUs(C.msToUs(contentPositionMs));
     if (adGroupIndexForPosition == 0) {
       podIndexOffset = 0;
     } else if (adGroupIndexForPosition == C.INDEX_UNSET) {
-      pendingContentPositionMs = C.TIME_UNSET;
       // There is no preroll and midroll pod indices start at 1.
       podIndexOffset = -1;
     } else /* adGroupIndexForPosition > 0 */ {
@@ -877,6 +876,11 @@ public final class ImaAdsLoader extends Player.DefaultEventListener implements A
       // We're removing one or more ads, which means that the earliest ad (if any) will be a
       // midroll/postroll. Midroll pod indices start at 1.
       podIndexOffset = adGroupIndexForPosition - 1;
+    }
+
+    if (hasMidrollAdGroups(adGroupTimesUs)) {
+      // IMA will poll the content position, so provide the player's initial position like a seek.
+      pendingContentPositionMs = contentPositionMs;
     }
 
     // Start ad playback.
@@ -1050,5 +1054,17 @@ public final class ImaAdsLoader extends Player.DefaultEventListener implements A
     // TODO: Find out what other errors need to be handled (if any), and whether each one relates to
     // a single ad, ad group or the whole timeline.
     return adError.getErrorCode() == AdErrorCode.VAST_LINEAR_ASSET_MISMATCH;
+  }
+
+  private static boolean hasMidrollAdGroups(long[] adGroupTimesUs) {
+    int count = adGroupTimesUs.length;
+    if (count == 1) {
+      return adGroupTimesUs[0] != 0 && adGroupTimesUs[0] != C.TIME_END_OF_SOURCE;
+    } else if (count == 2) {
+      return adGroupTimesUs[0] != 0 || adGroupTimesUs[1] != C.TIME_END_OF_SOURCE;
+    } else {
+      // There's at least one midroll ad group, as adGroupTimesUs is never empty.
+      return true;
+    }
   }
 }
