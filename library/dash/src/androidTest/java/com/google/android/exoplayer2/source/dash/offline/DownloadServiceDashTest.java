@@ -27,6 +27,7 @@ import com.google.android.exoplayer2.offline.DownloadManager;
 import com.google.android.exoplayer2.offline.DownloadService;
 import com.google.android.exoplayer2.offline.DownloaderConstructorHelper;
 import com.google.android.exoplayer2.source.dash.manifest.RepresentationKey;
+import com.google.android.exoplayer2.testutil.DummyMainThread;
 import com.google.android.exoplayer2.testutil.FakeDataSet;
 import com.google.android.exoplayer2.testutil.FakeDataSource;
 import com.google.android.exoplayer2.testutil.TestUtil;
@@ -38,6 +39,7 @@ import com.google.android.exoplayer2.util.Util;
 import com.google.android.exoplayer2.util.scheduler.Requirements;
 import com.google.android.exoplayer2.util.scheduler.Scheduler;
 import java.io.File;
+import java.io.IOException;
 
 /**
  * Unit tests for {@link DownloadService}.
@@ -53,10 +55,12 @@ public class DownloadServiceDashTest extends InstrumentationTestCase {
   private DownloadService dashDownloadService;
   private ConditionVariable pauseDownloadCondition;
   private TestDownloadListener testDownloadListener;
+  private DummyMainThread dummyMainThread;
 
   @Override
   public void setUp() throws Exception {
     super.setUp();
+    dummyMainThread = new DummyMainThread();
     tempFolder = Util.createTempDirectory(getInstrumentation().getContext(), "ExoPlayerTest");
     cache = new SimpleCache(tempFolder, new NoOpCacheEvictor());
 
@@ -84,31 +88,36 @@ public class DownloadServiceDashTest extends InstrumentationTestCase {
         .setRandomData("text_segment_1", 1)
         .setRandomData("text_segment_2", 2)
         .setRandomData("text_segment_3", 3);
-    DataSource.Factory fakeDataSourceFactory = new FakeDataSource.Factory(null)
-        .setFakeDataSet(fakeDataSet);
+    final DataSource.Factory fakeDataSourceFactory =
+        new FakeDataSource.Factory(null).setFakeDataSet(fakeDataSet);
     fakeRepresentationKey1 = new RepresentationKey(0, 0, 0);
     fakeRepresentationKey2 = new RepresentationKey(0, 1, 0);
 
     context = getInstrumentation().getContext();
 
-    File actionFile = Util.createTempFile(context, "ExoPlayerTest");
-    actionFile.delete();
-    final DownloadManager dashDownloadManager =
-        new DownloadManager(
-            new DownloaderConstructorHelper(cache, fakeDataSourceFactory),
-            1,
-            3,
-            actionFile.getAbsolutePath(),
-            DashDownloadAction.DESERIALIZER);
-    testDownloadListener = new TestDownloadListener(dashDownloadManager, this);
-    dashDownloadManager.addListener(testDownloadListener);
-    dashDownloadManager.startDownloads();
-
     try {
-      runTestOnUiThread(
+      dummyMainThread.runOnMainThread(
           new Runnable() {
             @Override
             public void run() {
+              File actionFile = null;
+              try {
+                actionFile = Util.createTempFile(context, "ExoPlayerTest");
+              } catch (IOException e) {
+                throw new RuntimeException(e);
+              }
+              actionFile.delete();
+              final DownloadManager dashDownloadManager =
+                  new DownloadManager(
+                      new DownloaderConstructorHelper(cache, fakeDataSourceFactory),
+                      1,
+                      3,
+                      actionFile.getAbsolutePath(),
+                      DashDownloadAction.DESERIALIZER);
+              testDownloadListener = new TestDownloadListener(dashDownloadManager, dummyMainThread);
+              dashDownloadManager.addListener(testDownloadListener);
+              dashDownloadManager.startDownloads();
+
               dashDownloadService =
                   new DownloadService(101010) {
 
@@ -143,16 +152,18 @@ public class DownloadServiceDashTest extends InstrumentationTestCase {
   @Override
   public void tearDown() throws Exception {
     try {
-      runTestOnUiThread(new Runnable() {
-          @Override
-          public void run() {
-            dashDownloadService.onDestroy();
-          }
-        });
+      dummyMainThread.runOnMainThread(
+          new Runnable() {
+            @Override
+            public void run() {
+              dashDownloadService.onDestroy();
+            }
+          });
     } catch (Throwable throwable) {
       throw new Exception(throwable);
     }
     Util.recursiveDelete(tempFolder);
+    dummyMainThread.release();
     super.tearDown();
   }
 
@@ -197,7 +208,7 @@ public class DownloadServiceDashTest extends InstrumentationTestCase {
   }
 
   private void callDownloadServiceOnStart(final DashDownloadAction action) throws Throwable {
-    runTestOnUiThread(
+    dummyMainThread.runOnMainThread(
         new Runnable() {
           @Override
           public void run() {

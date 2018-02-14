@@ -17,10 +17,10 @@ package com.google.android.exoplayer2.source.dash.offline;
 
 import static com.google.common.truth.Truth.assertThat;
 
-import android.test.InstrumentationTestCase;
 import com.google.android.exoplayer2.offline.DownloadManager;
 import com.google.android.exoplayer2.offline.DownloadManager.DownloadListener;
 import com.google.android.exoplayer2.offline.DownloadManager.DownloadState;
+import com.google.android.exoplayer2.testutil.DummyMainThread;
 
 /** A {@link DownloadListener} for testing. */
 /*package*/ final class TestDownloadListener implements DownloadListener {
@@ -28,13 +28,13 @@ import com.google.android.exoplayer2.offline.DownloadManager.DownloadState;
   private static final int TIMEOUT = 1000;
 
   private final DownloadManager downloadManager;
-  private final InstrumentationTestCase testCase;
+  private final DummyMainThread dummyMainThread;
   private final android.os.ConditionVariable downloadFinishedCondition;
   private Throwable downloadError;
 
-  public TestDownloadListener(DownloadManager downloadManager, InstrumentationTestCase testCase) {
+  public TestDownloadListener(DownloadManager downloadManager, DummyMainThread dummyMainThread) {
     this.downloadManager = downloadManager;
-    this.testCase = testCase;
+    this.dummyMainThread = dummyMainThread;
     this.downloadFinishedCondition = new android.os.ConditionVariable();
   }
 
@@ -55,7 +55,7 @@ import com.google.android.exoplayer2.offline.DownloadManager.DownloadState;
    * error.
    */
   public void blockUntilTasksCompleteAndThrowAnyDownloadError() throws Throwable {
-    testCase.runTestOnUiThread(
+    dummyMainThread.runOnMainThread(
         new Runnable() {
           @Override
           public void run() {
