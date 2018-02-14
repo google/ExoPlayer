@@ -73,7 +73,7 @@ public class ChunkSampleStream<T extends ChunkSource> implements SampleStream, S
   private final BaseMediaChunkOutput mediaChunkOutput;
 
   private Format primaryDownstreamTrackFormat;
-  private ReleaseCallback<T> releaseCallback;
+  private @Nullable ReleaseCallback<T> releaseCallback;
   private long pendingResetPositionUs;
   private long lastSeekPositionUs;
   /* package */ long decodeOnlyUntilPositionUs;
@@ -306,20 +306,17 @@ public class ChunkSampleStream<T extends ChunkSource> implements SampleStream, S
    * <p>This method should be called when the stream is no longer required. Either this method or
    * {@link #release()} can be used to release this stream.
    *
-   * @param callback A callback to be called when the release ends. Will be called synchronously
-   *     from this method if no load is in progress, or asynchronously once the load has been
-   *     canceled otherwise.
+   * @param callback An optional callback to be called on the loading thread once the loader has
+   *     been released.
    */
   public void release(@Nullable ReleaseCallback<T> callback) {
     this.releaseCallback = callback;
-    boolean releasedSynchronously = loader.release(this);
-    if (!releasedSynchronously) {
-      // Discard as much as we can synchronously.
-      primarySampleQueue.discardToEnd();
-      for (SampleQueue embeddedSampleQueue : embeddedSampleQueues) {
-        embeddedSampleQueue.discardToEnd();
-      }
+    // Discard as much as we can synchronously.
+    primarySampleQueue.discardToEnd();
+    for (SampleQueue embeddedSampleQueue : embeddedSampleQueues) {
+      embeddedSampleQueue.discardToEnd();
     }
+    loader.release(this);
   }
 
   @Override
