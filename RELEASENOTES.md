@@ -85,6 +85,8 @@
       ([#3584](https://github.com/google/ExoPlayer/issues/3584)).
     * Work around loadAd not being called beore the LOADED AdEvent arrives
       ([#3552](https://github.com/google/ExoPlayer/issues/3552)).
+    * Handle asset mismatch errors
+      ([#3801](https://github.com/google/ExoPlayer/issues/3801)).
     * Add support for playing non-Extractor content MediaSources in
       the IMA demo app
       ([#3676](https://github.com/google/ExoPlayer/issues/3676)).
