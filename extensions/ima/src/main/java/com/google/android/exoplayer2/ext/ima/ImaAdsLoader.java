@@ -163,6 +163,9 @@ public final class ImaAdsLoader extends Player.DefaultEventListener implements A
    */
   private static final long END_OF_CONTENT_POSITION_THRESHOLD_MS = 5000;
 
+  /** The maximum duration before an ad break that IMA may start preloading the next ad. */
+  private static final long MAXIMUM_PRELOAD_DURATION_MS = 8000;
+
   /**
    * The "Skip ad" button rendered in the IMA WebView does not gain focus by default and cannot be
    * clicked via a keypress event. Workaround this issue by calling focus() on the HTML element in
@@ -621,9 +624,17 @@ public final class ImaAdsLoader extends Player.DefaultEventListener implements A
           adPlaybackState.getAdGroupIndexForPositionUs(C.msToUs(contentPositionMs));
     } else if (imaAdState == IMA_AD_STATE_NONE && hasContentDuration) {
       contentPositionMs = player.getCurrentPosition();
-      // Keep track of the ad group index that IMA will load for the current content position.
-      expectedAdGroupIndex =
+      // Update the expected ad group index for the current content position. The update is delayed
+      // until MAXIMUM_PRELOAD_DURATION_MS before the ad so that an ad group load error delivered
+      // just after an ad group isn't incorrectly attributed to the next ad group.
+      int nextAdGroupIndex =
           adPlaybackState.getAdGroupIndexAfterPositionUs(C.msToUs(contentPositionMs));
+      if (nextAdGroupIndex != expectedAdGroupIndex
+          && nextAdGroupIndex != C.INDEX_UNSET
+          && C.usToMs(adPlaybackState.adGroupTimesUs[nextAdGroupIndex]) - contentPositionMs
+              < MAXIMUM_PRELOAD_DURATION_MS) {
+        expectedAdGroupIndex = nextAdGroupIndex;
+      }
     } else {
       return VideoProgressUpdate.VIDEO_TIME_NOT_READY;
     }
@@ -969,10 +980,15 @@ public final class ImaAdsLoader extends Player.DefaultEventListener implements A
   private void handleAdGroupLoadError() {
     int adGroupIndex =
         this.adGroupIndex == C.INDEX_UNSET ? expectedAdGroupIndex : this.adGroupIndex;
+    if (adGroupIndex == C.INDEX_UNSET) {
+      // Drop the error, as we don't know which ad group it relates to.
+      return;
+    }
     AdPlaybackState.AdGroup adGroup = adPlaybackState.adGroups[adGroupIndex];
     if (adGroup.count == C.LENGTH_UNSET) {
       adPlaybackState =
           adPlaybackState.withAdCount(adGroupIndex, Math.max(1, adGroup.states.length));
+      adGroup = adPlaybackState.adGroups[adGroupIndex];
     }
     for (int i = 0; i < adGroup.count; i++) {
       if (adGroup.states[i] == AdPlaybackState.AD_STATE_UNAVAILABLE) {
