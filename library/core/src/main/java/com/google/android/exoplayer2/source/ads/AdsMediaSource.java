@@ -235,7 +235,10 @@ public final class AdsMediaSource extends CompositeMediaSource<MediaPeriodId> {
       }
       MediaSource mediaSource = adGroupMediaSources[adGroupIndex][adIndexInAdGroup];
       DeferredMediaPeriod deferredMediaPeriod =
-          new DeferredMediaPeriod(mediaSource, new MediaPeriodId(0), allocator);
+          new DeferredMediaPeriod(
+              mediaSource,
+              new MediaPeriodId(/* periodIndex= */ 0, id.windowSequenceNumber),
+              allocator);
       deferredMediaPeriod.setPrepareErrorListener(
           new AdPrepareErrorListener(adGroupIndex, adIndexInAdGroup));
       List<DeferredMediaPeriod> mediaPeriods = deferredMediaPeriodByAdMediaSource.get(mediaSource);
