@@ -244,16 +244,18 @@ public class MediaSourceTestRunner {
   /**
    * Creates and releases all periods (including ad periods) defined in the last timeline to be
    * returned from {@link #prepareSource()}, {@link #assertTimelineChange()} or {@link
-   * #assertTimelineChangeBlocking()}.
+   * #assertTimelineChangeBlocking()}. The {@link MediaPeriodId#windowSequenceNumber} is set to the
+   * index of the window.
    */
   public void assertPrepareAndReleaseAllPeriods() throws InterruptedException {
     Timeline.Period period = new Timeline.Period();
     for (int i = 0; i < timeline.getPeriodCount(); i++) {
-      assertPrepareAndReleasePeriod(new MediaPeriodId(i));
       timeline.getPeriod(i, period);
+      assertPrepareAndReleasePeriod(new MediaPeriodId(i, period.windowIndex));
       for (int adGroupIndex = 0; adGroupIndex < period.getAdGroupCount(); adGroupIndex++) {
         for (int adIndex = 0; adIndex < period.getAdCountInAdGroup(adGroupIndex); adIndex++) {
-          assertPrepareAndReleasePeriod(new MediaPeriodId(i, adGroupIndex, adIndex));
+          assertPrepareAndReleasePeriod(
+              new MediaPeriodId(i, adGroupIndex, adIndex, period.windowIndex));
         }
       }
     }
