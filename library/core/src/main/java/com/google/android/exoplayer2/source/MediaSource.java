@@ -64,12 +64,6 @@ public interface MediaSource {
   final class MediaPeriodId {
 
     /**
-     * Value for unset media period identifiers.
-     */
-    public static final MediaPeriodId UNSET =
-        new MediaPeriodId(C.INDEX_UNSET, C.INDEX_UNSET, C.INDEX_UNSET);
-
-    /**
      * The timeline period index.
      */
     public final int periodIndex;
@@ -87,12 +81,31 @@ public interface MediaSource {
     public final int adIndexInAdGroup;
 
     /**
+     * The sequence number of the window in the buffered sequence of windows this media period is
+     * part of. {@link C#INDEX_UNSET} if the media period id is not part of a buffered sequence of
+     * windows.
+     */
+    public final long windowSequenceNumber;
+
+    /**
+     * Creates a media period identifier for a dummy period which is not part of a buffered sequence
+     * of windows.
+     *
+     * @param periodIndex The period index.
+     */
+    public MediaPeriodId(int periodIndex) {
+      this(periodIndex, C.INDEX_UNSET);
+    }
+
+    /**
      * Creates a media period identifier for the specified period in the timeline.
      *
      * @param periodIndex The timeline period index.
+     * @param windowSequenceNumber The sequence number of the window in the buffered sequence of
+     *     windows this media period is part of.
      */
-    public MediaPeriodId(int periodIndex) {
-      this(periodIndex, C.INDEX_UNSET, C.INDEX_UNSET);
+    public MediaPeriodId(int periodIndex, long windowSequenceNumber) {
+      this(periodIndex, C.INDEX_UNSET, C.INDEX_UNSET, windowSequenceNumber);
     }
 
     /**
@@ -102,19 +115,24 @@ public interface MediaSource {
      * @param periodIndex The index of the timeline period that contains the ad group.
      * @param adGroupIndex The index of the ad group.
      * @param adIndexInAdGroup The index of the ad in the ad group.
+     * @param windowSequenceNumber The sequence number of the window in the buffered sequence of
+     *     windows this media period is part of.
      */
-    public MediaPeriodId(int periodIndex, int adGroupIndex, int adIndexInAdGroup) {
+    public MediaPeriodId(
+        int periodIndex, int adGroupIndex, int adIndexInAdGroup, long windowSequenceNumber) {
       this.periodIndex = periodIndex;
       this.adGroupIndex = adGroupIndex;
       this.adIndexInAdGroup = adIndexInAdGroup;
+      this.windowSequenceNumber = windowSequenceNumber;
     }
 
     /**
      * Returns a copy of this period identifier but with {@code newPeriodIndex} as its period index.
      */
     public MediaPeriodId copyWithPeriodIndex(int newPeriodIndex) {
-      return periodIndex == newPeriodIndex ? this
-          : new MediaPeriodId(newPeriodIndex, adGroupIndex, adIndexInAdGroup);
+      return periodIndex == newPeriodIndex
+          ? this
+          : new MediaPeriodId(newPeriodIndex, adGroupIndex, adIndexInAdGroup, windowSequenceNumber);
     }
 
     /**
@@ -134,8 +152,10 @@ public interface MediaSource {
       }
 
       MediaPeriodId periodId = (MediaPeriodId) obj;
-      return periodIndex == periodId.periodIndex && adGroupIndex == periodId.adGroupIndex
-          && adIndexInAdGroup == periodId.adIndexInAdGroup;
+      return periodIndex == periodId.periodIndex
+          && adGroupIndex == periodId.adGroupIndex
+          && adIndexInAdGroup == periodId.adIndexInAdGroup
+          && windowSequenceNumber == periodId.windowSequenceNumber;
     }
 
     @Override
@@ -144,6 +164,7 @@ public interface MediaSource {
       result = 31 * result + periodIndex;
       result = 31 * result + adGroupIndex;
       result = 31 * result + adIndexInAdGroup;
+      result = 31 * result + (int) windowSequenceNumber;
       return result;
     }
 

@@ -1802,7 +1802,10 @@ public final class ExoPlayerTest {
     testRunner.assertPlayedPeriodIndices(0, 1);
     // Assert that the second period was re-created from the new timeline.
     assertThat(mediaSource.getCreatedMediaPeriods())
-        .containsExactly(new MediaPeriodId(0), new MediaPeriodId(1), new MediaPeriodId(1))
+        .containsExactly(
+            new MediaPeriodId(/* periodIndex= */ 0, /* windowSequenceNumber= */ 0),
+            new MediaPeriodId(/* periodIndex= */ 1, /* windowSequenceNumber= */ 1),
+            new MediaPeriodId(/* periodIndex= */ 1, /* windowSequenceNumber= */ 2))
         .inOrder();
   }
 
