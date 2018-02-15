@@ -889,8 +889,8 @@ public final class ImaAdsLoader extends Player.DefaultEventListener implements A
       podIndexOffset = adGroupIndexForPosition - 1;
     }
 
-    if (hasMidrollAdGroups(adGroupTimesUs)) {
-      // IMA will poll the content position, so provide the player's initial position like a seek.
+    if (adGroupIndexForPosition != C.INDEX_UNSET && hasMidrollAdGroups(adGroupTimesUs)) {
+      // Provide the player's initial position to trigger loading and playing the ad.
       pendingContentPositionMs = contentPositionMs;
     }
 
