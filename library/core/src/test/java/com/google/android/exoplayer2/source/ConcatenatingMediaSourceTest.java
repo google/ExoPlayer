@@ -245,12 +245,26 @@ public final class ConcatenatingMediaSourceTest {
 
       // Create all periods and assert period creation of child media sources has been called.
       testRunner.assertPrepareAndReleaseAllPeriods();
-      mediaSourceContentOnly.assertMediaPeriodCreated(new MediaPeriodId(0));
-      mediaSourceContentOnly.assertMediaPeriodCreated(new MediaPeriodId(1));
-      mediaSourceWithAds.assertMediaPeriodCreated(new MediaPeriodId(0));
-      mediaSourceWithAds.assertMediaPeriodCreated(new MediaPeriodId(1));
-      mediaSourceWithAds.assertMediaPeriodCreated(new MediaPeriodId(0, 0, 0));
-      mediaSourceWithAds.assertMediaPeriodCreated(new MediaPeriodId(1, 0, 0));
+      mediaSourceContentOnly.assertMediaPeriodCreated(
+          new MediaPeriodId(/* periodIndex= */ 0, /* windowSequenceNumber= */ 0));
+      mediaSourceContentOnly.assertMediaPeriodCreated(
+          new MediaPeriodId(/* periodIndex= */ 1, /* windowSequenceNumber= */ 0));
+      mediaSourceWithAds.assertMediaPeriodCreated(
+          new MediaPeriodId(/* periodIndex= */ 0, /* windowSequenceNumber= */ 1));
+      mediaSourceWithAds.assertMediaPeriodCreated(
+          new MediaPeriodId(/* periodIndex= */ 1, /* windowSequenceNumber= */ 1));
+      mediaSourceWithAds.assertMediaPeriodCreated(
+          new MediaPeriodId(
+              /* periodIndex= */ 0,
+              /* adGroupIndex= */ 0,
+              /* adIndexInAdGroup= */ 0,
+              /* windowSequenceNumber= */ 1));
+      mediaSourceWithAds.assertMediaPeriodCreated(
+          new MediaPeriodId(
+              /* periodIndex= */ 1,
+              /* adGroupIndex= */ 0,
+              /* adIndexInAdGroup= */ 0,
+              /* windowSequenceNumber= */ 1));
     } finally {
       testRunner.release();
     }

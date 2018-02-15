@@ -41,7 +41,7 @@ import com.google.android.exoplayer2.trackselection.TrackSelectorResult;
     this(
         timeline,
         /* manifest= */ null,
-        new MediaPeriodId(0),
+        new MediaPeriodId(/* periodIndex= */ 0),
         startPositionUs,
         /* contentPositionUs =*/ C.TIME_UNSET,
         Player.STATE_IDLE,

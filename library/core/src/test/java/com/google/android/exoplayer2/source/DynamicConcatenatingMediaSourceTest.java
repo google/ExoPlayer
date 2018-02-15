@@ -267,12 +267,16 @@ public final class DynamicConcatenatingMediaSourceTest {
 
     // Create a period from an unprepared lazy media source and assert Callback.onPrepared is not
     // called yet.
-    MediaPeriod lazyPeriod = testRunner.createPeriod(new MediaPeriodId(0));
+    MediaPeriod lazyPeriod =
+        testRunner.createPeriod(
+            new MediaPeriodId(/* periodIndex= */ 0, /* windowSequenceNumber= */ 0));
     CountDownLatch preparedCondition = testRunner.preparePeriod(lazyPeriod, 0);
     assertThat(preparedCondition.getCount()).isEqualTo(1);
 
     // Assert that a second period can also be created and released without problems.
-    MediaPeriod secondLazyPeriod = testRunner.createPeriod(new MediaPeriodId(0));
+    MediaPeriod secondLazyPeriod =
+        testRunner.createPeriod(
+            new MediaPeriodId(/* periodIndex= */ 0, /* windowSequenceNumber= */ 0));
     testRunner.releasePeriod(secondLazyPeriod);
 
     // Trigger source info refresh for lazy media source. Assert that now all information is
@@ -653,12 +657,26 @@ public final class DynamicConcatenatingMediaSourceTest {
 
     // Create all periods and assert period creation of child media sources has been called.
     testRunner.assertPrepareAndReleaseAllPeriods();
-    mediaSourceContentOnly.assertMediaPeriodCreated(new MediaPeriodId(0));
-    mediaSourceContentOnly.assertMediaPeriodCreated(new MediaPeriodId(1));
-    mediaSourceWithAds.assertMediaPeriodCreated(new MediaPeriodId(0));
-    mediaSourceWithAds.assertMediaPeriodCreated(new MediaPeriodId(1));
-    mediaSourceWithAds.assertMediaPeriodCreated(new MediaPeriodId(0, 0, 0));
-    mediaSourceWithAds.assertMediaPeriodCreated(new MediaPeriodId(1, 0, 0));
+    mediaSourceContentOnly.assertMediaPeriodCreated(
+        new MediaPeriodId(/* periodIndex= */ 0, /* windowSequenceNumber= */ 0));
+    mediaSourceContentOnly.assertMediaPeriodCreated(
+        new MediaPeriodId(/* periodIndex= */ 1, /* windowSequenceNumber= */ 0));
+    mediaSourceWithAds.assertMediaPeriodCreated(
+        new MediaPeriodId(/* periodIndex= */ 0, /* windowSequenceNumber= */ 1));
+    mediaSourceWithAds.assertMediaPeriodCreated(
+        new MediaPeriodId(/* periodIndex= */ 1, /* windowSequenceNumber= */ 1));
+    mediaSourceWithAds.assertMediaPeriodCreated(
+        new MediaPeriodId(
+            /* periodIndex= */ 0,
+            /* adGroupIndex= */ 0,
+            /* adIndexInAdGroup= */ 0,
+            /* windowSequenceNumber= */ 1));
+    mediaSourceWithAds.assertMediaPeriodCreated(
+        new MediaPeriodId(
+            /* periodIndex= */ 1,
+            /* adGroupIndex= */ 0,
+            /* adIndexInAdGroup= */ 0,
+            /* windowSequenceNumber= */ 1));
   }
 
   @Test
@@ -754,7 +772,9 @@ public final class DynamicConcatenatingMediaSourceTest {
     FakeMediaSource childSource = createFakeMediaSource();
     mediaSource.addMediaSource(childSource);
     testRunner.prepareSource();
-    MediaPeriod mediaPeriod = testRunner.createPeriod(new MediaPeriodId(/* periodIndex= */ 0));
+    MediaPeriod mediaPeriod =
+        testRunner.createPeriod(
+            new MediaPeriodId(/* periodIndex= */ 0, /* windowSequenceNumber= */ 0));
     mediaSource.removeMediaSource(/* index= */ 0);
     testRunner.assertTimelineChangeBlocking();
     testRunner.releasePeriod(mediaPeriod);
