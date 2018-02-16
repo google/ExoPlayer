@@ -16,16 +16,16 @@
 package com.google.android.exoplayer2.offline;
 
 import static com.google.common.truth.Truth.assertThat;
+import static org.junit.Assert.fail;
 
 import android.os.ConditionVariable;
 import android.support.annotation.Nullable;
-import android.test.InstrumentationTestCase;
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.RobolectricUtil;
 import com.google.android.exoplayer2.offline.DownloadManager.DownloadListener;
 import com.google.android.exoplayer2.offline.DownloadManager.DownloadState;
 import com.google.android.exoplayer2.offline.DownloadManager.DownloadState.State;
 import com.google.android.exoplayer2.testutil.DummyMainThread;
-import com.google.android.exoplayer2.testutil.MockitoUtil;
 import com.google.android.exoplayer2.upstream.DummyDataSource;
 import com.google.android.exoplayer2.upstream.cache.Cache;
 import com.google.android.exoplayer2.util.Util;
@@ -36,11 +36,22 @@ import java.util.ArrayList;
 import java.util.Locale;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mockito;
+import org.mockito.MockitoAnnotations;
+import org.robolectric.RobolectricTestRunner;
+import org.robolectric.RuntimeEnvironment;
+import org.robolectric.annotation.Config;
 
 /** Tests {@link DownloadManager}. */
-public class DownloadManagerTest extends InstrumentationTestCase {
+@RunWith(RobolectricTestRunner.class)
+@Config(shadows = {RobolectricUtil.CustomLooper.class, RobolectricUtil.CustomMessageQueue.class})
+public class DownloadManagerTest {
 
   /* Used to check if condition becomes true in this time interval. */
   private static final int ASSERT_TRUE_TIMEOUT = 10000;
@@ -56,71 +67,33 @@ public class DownloadManagerTest extends InstrumentationTestCase {
   private TestDownloadListener testDownloadListener;
   private DummyMainThread dummyMainThread;
 
-  @Override
+  @Before
   public void setUp() throws Exception {
-    super.setUp();
-    MockitoUtil.setUpMockito(this);
+    MockitoAnnotations.initMocks(this);
     dummyMainThread = new DummyMainThread();
-    actionFile = Util.createTempFile(getInstrumentation().getContext(), "ExoPlayerTest");
+    actionFile = Util.createTempFile(RuntimeEnvironment.application, "ExoPlayerTest");
     testDownloadListener = new TestDownloadListener();
     setUpDownloadManager(100);
   }
 
-  @Override
+  @After
   public void tearDown() throws Exception {
     releaseDownloadManager();
     actionFile.delete();
     dummyMainThread.release();
-    super.tearDown();
   }
 
-  private void setUpDownloadManager(final int maxActiveDownloadTasks) throws Exception {
-    if (downloadManager != null) {
-      releaseDownloadManager();
-    }
-    try {
-      runOnMainThread(
-          new Runnable() {
-            @Override
-            public void run() {
-              downloadManager =
-                  new DownloadManager(
-                      new DownloaderConstructorHelper(
-                          Mockito.mock(Cache.class), DummyDataSource.FACTORY),
-                      maxActiveDownloadTasks,
-                      MIN_RETRY_COUNT,
-                      actionFile.getAbsolutePath());
-              downloadManager.addListener(testDownloadListener);
-              downloadManager.startDownloads();
-            }
-          });
-    } catch (Throwable throwable) {
-      throw new Exception(throwable);
-    }
-  }
-
-  private void releaseDownloadManager() throws Exception {
-    try {
-      runOnMainThread(
-          new Runnable() {
-            @Override
-            public void run() {
-              downloadManager.release();
-            }
-          });
-    } catch (Throwable throwable) {
-      throw new Exception(throwable);
-    }
-  }
-
+  @Test
   public void testDownloadActionRuns() throws Throwable {
     doTestActionRuns(createDownloadAction("media 1"));
   }
 
+  @Test
   public void testRemoveActionRuns() throws Throwable {
     doTestActionRuns(createRemoveAction("media 1"));
   }
 
+  @Test
   public void testDownloadRetriesThenFails() throws Throwable {
     FakeDownloadAction downloadAction = createDownloadAction("media 1");
     downloadAction.post();
@@ -135,6 +108,7 @@ public class DownloadManagerTest extends InstrumentationTestCase {
     testDownloadListener.blockUntilTasksCompleteAndThrowAnyDownloadError();
   }
 
+  @Test
   public void testDownloadNoRetryWhenCancelled() throws Throwable {
     FakeDownloadAction downloadAction = createDownloadAction("media 1").ignoreInterrupts();
     downloadAction.getFakeDownloader().enableDownloadIOException = true;
@@ -148,6 +122,7 @@ public class DownloadManagerTest extends InstrumentationTestCase {
     testDownloadListener.blockUntilTasksCompleteAndThrowAnyDownloadError();
   }
 
+  @Test
   public void testDownloadRetriesThenContinues() throws Throwable {
     FakeDownloadAction downloadAction = createDownloadAction("media 1");
     downloadAction.post();
@@ -165,6 +140,7 @@ public class DownloadManagerTest extends InstrumentationTestCase {
     testDownloadListener.blockUntilTasksCompleteAndThrowAnyDownloadError();
   }
 
+  @Test
   @SuppressWarnings({"NonAtomicVolatileUpdate", "NonAtomicOperationOnVolatileField"})
   public void testDownloadRetryCountResetsOnProgress() throws Throwable {
     FakeDownloadAction downloadAction = createDownloadAction("media 1");
@@ -185,36 +161,37 @@ public class DownloadManagerTest extends InstrumentationTestCase {
     testDownloadListener.blockUntilTasksCompleteAndThrowAnyDownloadError();
   }
 
+  @Test
   public void testDifferentMediaDownloadActionsStartInParallel() throws Throwable {
-    doTestActionsRunInParallel(createDownloadAction("media 1"),
-        createDownloadAction("media 2"));
+    doTestActionsRunInParallel(createDownloadAction("media 1"), createDownloadAction("media 2"));
   }
 
+  @Test
   public void testDifferentMediaDifferentActionsStartInParallel() throws Throwable {
-    doTestActionsRunInParallel(createDownloadAction("media 1"),
-        createRemoveAction("media 2"));
+    doTestActionsRunInParallel(createDownloadAction("media 1"), createRemoveAction("media 2"));
   }
 
+  @Test
   public void testSameMediaDownloadActionsStartInParallel() throws Throwable {
-    doTestActionsRunInParallel(createDownloadAction("media 1"),
-        createDownloadAction("media 1"));
+    doTestActionsRunInParallel(createDownloadAction("media 1"), createDownloadAction("media 1"));
   }
 
+  @Test
   public void testSameMediaRemoveActionWaitsDownloadAction() throws Throwable {
-    doTestActionsRunSequentially(createDownloadAction("media 1"),
-        createRemoveAction("media 1"));
+    doTestActionsRunSequentially(createDownloadAction("media 1"), createRemoveAction("media 1"));
   }
 
+  @Test
   public void testSameMediaDownloadActionWaitsRemoveAction() throws Throwable {
-    doTestActionsRunSequentially(createRemoveAction("media 1"),
-        createDownloadAction("media 1"));
+    doTestActionsRunSequentially(createRemoveAction("media 1"), createDownloadAction("media 1"));
   }
 
+  @Test
   public void testSameMediaRemoveActionWaitsRemoveAction() throws Throwable {
-    doTestActionsRunSequentially(createRemoveAction("media 1"),
-        createRemoveAction("media 1"));
+    doTestActionsRunSequentially(createRemoveAction("media 1"), createRemoveAction("media 1"));
   }
 
+  @Test
   public void testSameMediaMultipleActions() throws Throwable {
     FakeDownloadAction downloadAction1 = createDownloadAction("media 1").ignoreInterrupts();
     FakeDownloadAction downloadAction2 = createDownloadAction("media 1").ignoreInterrupts();
@@ -250,6 +227,7 @@ public class DownloadManagerTest extends InstrumentationTestCase {
     testDownloadListener.blockUntilTasksCompleteAndThrowAnyDownloadError();
   }
 
+  @Test
   public void testMultipleRemoveActionWaitsLastCancelsAllOther() throws Throwable {
     FakeDownloadAction removeAction1 = createRemoveAction("media 1").ignoreInterrupts();
     FakeDownloadAction removeAction2 = createRemoveAction("media 1");
@@ -267,6 +245,7 @@ public class DownloadManagerTest extends InstrumentationTestCase {
     testDownloadListener.blockUntilTasksCompleteAndThrowAnyDownloadError();
   }
 
+  @Test
   public void testGetTasks() throws Throwable {
     FakeDownloadAction removeAction = createRemoveAction("media 1");
     FakeDownloadAction downloadAction1 = createDownloadAction("media 1");
@@ -283,6 +262,7 @@ public class DownloadManagerTest extends InstrumentationTestCase {
     assertThat(states[2].downloadAction).isEqualTo(downloadAction2);
   }
 
+  @Test
   public void testMultipleWaitingDownloadActionStartsInParallel() throws Throwable {
     FakeDownloadAction removeAction = createRemoveAction("media 1");
     FakeDownloadAction downloadAction1 = createDownloadAction("media 1");
@@ -301,6 +281,7 @@ public class DownloadManagerTest extends InstrumentationTestCase {
     testDownloadListener.blockUntilTasksCompleteAndThrowAnyDownloadError();
   }
 
+  @Test
   public void testDifferentMediaDownloadActionsPreserveOrder() throws Throwable {
     FakeDownloadAction removeAction = createRemoveAction("media 1").ignoreInterrupts();
     FakeDownloadAction downloadAction1 = createDownloadAction("media 1");
@@ -319,6 +300,7 @@ public class DownloadManagerTest extends InstrumentationTestCase {
     testDownloadListener.blockUntilTasksCompleteAndThrowAnyDownloadError();
   }
 
+  @Test
   public void testDifferentMediaRemoveActionsDoNotPreserveOrder() throws Throwable {
     FakeDownloadAction downloadAction = createDownloadAction("media 1").ignoreInterrupts();
     FakeDownloadAction removeAction1 = createRemoveAction("media 1");
@@ -337,6 +319,7 @@ public class DownloadManagerTest extends InstrumentationTestCase {
     testDownloadListener.blockUntilTasksCompleteAndThrowAnyDownloadError();
   }
 
+  @Test
   public void testStopAndResume() throws Throwable {
     FakeDownloadAction download1Action = createDownloadAction("media 1");
     FakeDownloadAction remove2Action = createRemoveAction("media 2");
@@ -385,6 +368,7 @@ public class DownloadManagerTest extends InstrumentationTestCase {
     testDownloadListener.blockUntilTasksCompleteAndThrowAnyDownloadError();
   }
 
+  @Test
   public void testResumeBeforeTotallyStopped() throws Throwable {
     setUpDownloadManager(2);
     FakeDownloadAction download1Action = createDownloadAction("media 1").ignoreInterrupts();
@@ -431,13 +415,52 @@ public class DownloadManagerTest extends InstrumentationTestCase {
     testDownloadListener.blockUntilTasksCompleteAndThrowAnyDownloadError();
   }
 
+  private void setUpDownloadManager(final int maxActiveDownloadTasks) throws Exception {
+    if (downloadManager != null) {
+      releaseDownloadManager();
+    }
+    try {
+      runOnMainThread(
+          new Runnable() {
+            @Override
+            public void run() {
+              downloadManager =
+                  new DownloadManager(
+                      new DownloaderConstructorHelper(
+                          Mockito.mock(Cache.class), DummyDataSource.FACTORY),
+                      maxActiveDownloadTasks,
+                      MIN_RETRY_COUNT,
+                      actionFile.getAbsolutePath());
+              downloadManager.addListener(testDownloadListener);
+              downloadManager.startDownloads();
+            }
+          });
+    } catch (Throwable throwable) {
+      throw new Exception(throwable);
+    }
+  }
+
+  private void releaseDownloadManager() throws Exception {
+    try {
+      runOnMainThread(
+          new Runnable() {
+            @Override
+            public void run() {
+              downloadManager.release();
+            }
+          });
+    } catch (Throwable throwable) {
+      throw new Exception(throwable);
+    }
+  }
+
   private void doTestActionRuns(FakeDownloadAction action) throws Throwable {
     action.post().assertStarted().unblock().assertEnded();
     testDownloadListener.blockUntilTasksCompleteAndThrowAnyDownloadError();
   }
 
-  private void doTestActionsRunSequentially(FakeDownloadAction action1,
-      FakeDownloadAction action2) throws Throwable {
+  private void doTestActionsRunSequentially(FakeDownloadAction action1, FakeDownloadAction action2)
+      throws Throwable {
     action1.ignoreInterrupts().post().assertStarted();
     action2.post().assertDoesNotStart();
 
@@ -448,8 +471,8 @@ public class DownloadManagerTest extends InstrumentationTestCase {
     testDownloadListener.blockUntilTasksCompleteAndThrowAnyDownloadError();
   }
 
-  private void doTestActionsRunInParallel(FakeDownloadAction action1,
-      FakeDownloadAction action2) throws Throwable {
+  private void doTestActionsRunInParallel(FakeDownloadAction action1, FakeDownloadAction action2)
+      throws Throwable {
     action1.post().assertStarted();
     action2.post().assertStarted();
     action1.unblock().assertEnded();
@@ -502,7 +525,6 @@ public class DownloadManagerTest extends InstrumentationTestCase {
         throw new Exception(downloadError);
       }
     }
-
   }
 
   private class FakeDownloadAction extends DownloadAction {
@@ -561,12 +583,13 @@ public class DownloadManagerTest extends InstrumentationTestCase {
       return this;
     }
 
-    private FakeDownloadAction assertDoesNotStart() {
-      assertThat(downloader.started.block(ASSERT_FALSE_TIME)).isFalse();
+    private FakeDownloadAction assertDoesNotStart() throws InterruptedException {
+      Thread.sleep(ASSERT_FALSE_TIME);
+      assertThat(downloader.started.getCount()).isEqualTo(1);
       return this;
     }
 
-    private FakeDownloadAction assertStarted() {
+    private FakeDownloadAction assertStarted() throws InterruptedException {
       downloader.assertStarted(ASSERT_TRUE_TIMEOUT);
       return assertState(DownloadState.STATE_STARTED);
     }
@@ -636,16 +659,18 @@ public class DownloadManagerTest extends InstrumentationTestCase {
   }
 
   private static class FakeDownloader implements Downloader {
-    private final ConditionVariable started;
+
     private final com.google.android.exoplayer2.util.ConditionVariable blocker;
     private final boolean removeAction;
+
+    private CountDownLatch started;
     private boolean ignoreInterrupts;
     private volatile boolean enableDownloadIOException;
     private volatile int downloadedBytes = C.LENGTH_UNSET;
 
     private FakeDownloader(boolean removeAction) {
       this.removeAction = removeAction;
-      this.started = new ConditionVariable();
+      this.started = new CountDownLatch(1);
       this.blocker = new com.google.android.exoplayer2.util.ConditionVariable();
     }
 
@@ -658,7 +683,7 @@ public class DownloadManagerTest extends InstrumentationTestCase {
     public void download(@Nullable ProgressListener listener)
         throws InterruptedException, IOException {
       assertThat(removeAction).isFalse();
-      started.open();
+      started.countDown();
       block();
       if (enableDownloadIOException) {
         throw new IOException();
@@ -668,7 +693,7 @@ public class DownloadManagerTest extends InstrumentationTestCase {
     @Override
     public void remove() throws InterruptedException {
       assertThat(removeAction).isTrue();
-      started.open();
+      started.countDown();
       block();
     }
 
@@ -689,9 +714,9 @@ public class DownloadManagerTest extends InstrumentationTestCase {
       }
     }
 
-    private FakeDownloader assertStarted(int timeout) {
-      assertThat(started.block(timeout)).isTrue();
-      started.close();
+    private FakeDownloader assertStarted(int timeout) throws InterruptedException {
+      assertThat(started.await(timeout, TimeUnit.MILLISECONDS)).isTrue();
+      started = new CountDownLatch(1);
       return this;
     }
 
@@ -710,5 +735,4 @@ public class DownloadManagerTest extends InstrumentationTestCase {
       return Float.NaN;
     }
   }
-
 }
