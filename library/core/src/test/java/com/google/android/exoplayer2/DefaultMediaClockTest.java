@@ -30,13 +30,11 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.robolectric.RobolectricTestRunner;
-import org.robolectric.annotation.Config;
 
 /**
  * Unit test for {@link DefaultMediaClock}.
  */
 @RunWith(RobolectricTestRunner.class)
-@Config(sdk = Config.TARGET_SDK, manifest = Config.NONE)
 public class DefaultMediaClockTest {
 
   private static final long TEST_POSITION_US = 123456789012345678L;
@@ -377,6 +375,7 @@ public class DefaultMediaClockTest {
     assertThat(mediaClock.syncAndGetPositionUs()).isEqualTo(positionAtStartUs);
   }
 
+  @SuppressWarnings("HidingField")
   private static class MediaClockRenderer extends FakeMediaClockRenderer {
 
     private final boolean playbackParametersAreMutable;

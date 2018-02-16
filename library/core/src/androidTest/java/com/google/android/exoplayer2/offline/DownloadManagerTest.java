@@ -24,6 +24,7 @@ import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.offline.DownloadManager.DownloadListener;
 import com.google.android.exoplayer2.offline.DownloadManager.DownloadState;
 import com.google.android.exoplayer2.offline.DownloadManager.DownloadState.State;
+import com.google.android.exoplayer2.testutil.DummyMainThread;
 import com.google.android.exoplayer2.testutil.MockitoUtil;
 import com.google.android.exoplayer2.upstream.DummyDataSource;
 import com.google.android.exoplayer2.upstream.cache.Cache;
@@ -53,12 +54,13 @@ public class DownloadManagerTest extends InstrumentationTestCase {
   private DownloadManager downloadManager;
   private File actionFile;
   private TestDownloadListener testDownloadListener;
+  private DummyMainThread dummyMainThread;
 
   @Override
   public void setUp() throws Exception {
     super.setUp();
     MockitoUtil.setUpMockito(this);
-
+    dummyMainThread = new DummyMainThread();
     actionFile = Util.createTempFile(getInstrumentation().getContext(), "ExoPlayerTest");
     testDownloadListener = new TestDownloadListener();
     setUpDownloadManager(100);
@@ -68,6 +70,7 @@ public class DownloadManagerTest extends InstrumentationTestCase {
   public void tearDown() throws Exception {
     releaseDownloadManager();
     actionFile.delete();
+    dummyMainThread.release();
     super.tearDown();
   }
 
@@ -76,7 +79,7 @@ public class DownloadManagerTest extends InstrumentationTestCase {
       releaseDownloadManager();
     }
     try {
-      runTestOnUiThread(
+      runOnMainThread(
           new Runnable() {
             @Override
             public void run() {
@@ -98,7 +101,7 @@ public class DownloadManagerTest extends InstrumentationTestCase {
 
   private void releaseDownloadManager() throws Exception {
     try {
-      runTestOnUiThread(
+      runOnMainThread(
           new Runnable() {
             @Override
             public void run() {
@@ -345,7 +348,7 @@ public class DownloadManagerTest extends InstrumentationTestCase {
     remove2Action.post().assertStarted();
     download2Action.post().assertDoesNotStart();
 
-    runTestOnUiThread(
+    runOnMainThread(
         new Runnable() {
           @Override
           public void run() {
@@ -368,7 +371,7 @@ public class DownloadManagerTest extends InstrumentationTestCase {
     // New download actions can be added but they don't start.
     download3Action.post().assertDoesNotStart();
 
-    runTestOnUiThread(
+    runOnMainThread(
         new Runnable() {
           @Override
           public void run() {
@@ -393,7 +396,7 @@ public class DownloadManagerTest extends InstrumentationTestCase {
     // download3Action doesn't start as DM was configured to run two downloads in parallel.
     download3Action.post().assertDoesNotStart();
 
-    runTestOnUiThread(
+    runOnMainThread(
         new Runnable() {
           @Override
           public void run() {
@@ -404,7 +407,7 @@ public class DownloadManagerTest extends InstrumentationTestCase {
     // download1Action doesn't stop yet as it ignores interrupts.
     download2Action.assertStopped();
 
-    runTestOnUiThread(
+    runOnMainThread(
         new Runnable() {
           @Override
           public void run() {
@@ -460,6 +463,10 @@ public class DownloadManagerTest extends InstrumentationTestCase {
 
   private FakeDownloadAction createRemoveAction(String mediaId) {
     return new FakeDownloadAction(mediaId, true);
+  }
+
+  private void runOnMainThread(final Runnable r) throws Throwable {
+    dummyMainThread.runOnMainThread(r);
   }
 
   private static final class TestDownloadListener implements DownloadListener {
@@ -544,7 +551,7 @@ public class DownloadManagerTest extends InstrumentationTestCase {
     }
 
     private FakeDownloadAction post() throws Throwable {
-      runTestOnUiThread(
+      runOnMainThread(
           new Runnable() {
             @Override
             public void run() {

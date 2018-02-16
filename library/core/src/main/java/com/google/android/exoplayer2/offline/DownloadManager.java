@@ -115,7 +115,12 @@ public final class DownloadManager {
 
     tasks = new ArrayList<>();
     activeDownloadTasks = new ArrayList<>();
-    handler = new Handler(Looper.getMainLooper());
+
+    Looper looper = Looper.myLooper();
+    if (looper == null) {
+      looper = Looper.getMainLooper();
+    }
+    handler = new Handler(looper);
 
     fileIOThread = new HandlerThread("DownloadManager file i/o");
     fileIOThread.start();

@@ -46,7 +46,6 @@ import org.robolectric.annotation.Config;
  * Unit test for {@link SimpleDecoderAudioRenderer}.
  */
 @RunWith(RobolectricTestRunner.class)
-@Config(sdk = Config.TARGET_SDK, manifest = Config.NONE)
 public class SimpleDecoderAudioRendererTest {
 
   private static final Format FORMAT = Format.createSampleFormat(null, MimeTypes.AUDIO_RAW, 0);

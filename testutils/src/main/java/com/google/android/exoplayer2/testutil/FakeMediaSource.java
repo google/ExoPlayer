@@ -30,6 +30,7 @@ import com.google.android.exoplayer2.upstream.Allocator;
 import com.google.android.exoplayer2.util.Assertions;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Fake {@link MediaSource} that provides a given timeline. Creating the period will return a
@@ -158,6 +159,11 @@ public class FakeMediaSource implements MediaSource {
    */
   public void assertMediaPeriodCreated(MediaPeriodId mediaPeriodId) {
     assertThat(createdMediaPeriods).contains(mediaPeriodId);
+  }
+
+  /** Returns a list of {@link MediaPeriodId}s, with one element for each created media period. */
+  public List<MediaPeriodId> getCreatedMediaPeriods() {
+    return createdMediaPeriods;
   }
 
   protected FakeMediaPeriod createFakeMediaPeriod(MediaPeriodId id, TrackGroupArray trackGroupArray,
