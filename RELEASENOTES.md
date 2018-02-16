@@ -69,6 +69,7 @@
       ([#3622](https://github.com/google/ExoPlayer/issues/3622)).
     * Use long for media sequence numbers
       ([#3747](https://github.com/google/ExoPlayer/issues/3747))
+    * Add initial support for the EXT-X-GAP tag.
 * New Cast extension: Simplifies toggling between local and Cast playbacks.
 * Audio:
   * Support TrueHD passthrough for rechunked samples in Matroska files
@@ -76,8 +77,12 @@
   * Support resampling 24-bit and 32-bit integer to 32-bit float for high
     resolution output in `DefaultAudioSink`
     ([#3635](https://github.com/google/ExoPlayer/pull/3635)).
-* Captions: Initial support for PGS subtitles
-  ([#3008](https://github.com/google/ExoPlayer/issues/3008)).
+* Captions:
+  * Initial support for PGS subtitles
+    ([#3008](https://github.com/google/ExoPlayer/issues/3008)).
+  * Fix issue handling CEA-608 captions where multiple buffers have the same
+    presentation timestamp
+    ([#3782](https://github.com/google/ExoPlayer/issues/3782)).
 * CacheDataSource: Check periodically if it's possible to read from/write to
   cache after deciding to bypass cache.
 * IMA extension:
@@ -85,17 +90,36 @@
       ([#3584](https://github.com/google/ExoPlayer/issues/3584)).
     * Work around loadAd not being called beore the LOADED AdEvent arrives
       ([#3552](https://github.com/google/ExoPlayer/issues/3552)).
+    * Handle asset mismatch errors
+      ([#3801](https://github.com/google/ExoPlayer/issues/3801)).
     * Add support for playing non-Extractor content MediaSources in
       the IMA demo app
       ([#3676](https://github.com/google/ExoPlayer/issues/3676)).
+    * Fix handling of ad tags where ad groups are out of order
+      ([#3716](https://github.com/google/ExoPlayer/issues/3716)).
+    * Fix handling of ad tags with only preroll/postroll ad groups
+      ([#3715](https://github.com/google/ExoPlayer/issues/3715)).
+    * Propagate ad media preparation errors to IMA so that the ads can be
+      skipped.
 * `EventLogger` moved from the demo app into the core library.
-* Fix ANR issue on Huawei P8 Lite
-  ([#3724](https://github.com/google/ExoPlayer/issues/3724)).
+* Fix ANR issue on the Huawei P8 Lite, Huawei Y6II, Moto C+, Meizu M5C,
+  Lenovo K4 Note and Sony Xperia E5.
+  ([#3724](https://github.com/google/ExoPlayer/issues/3724),
+  [#3835](https://github.com/google/ExoPlayer/issues/3835)).
 * Fix potential NPE when removing media sources from a
   DynamicConcatenatingMediaSource
   ([#3796](https://github.com/google/ExoPlayer/issues/3796)).
 * Open source DownloadService, DownloadManager and related classes
   ([#2643](https://github.com/google/ExoPlayer/issues/2643)).
+* Check `sys.display-size` on Philips ATVs
+  ([#3807](https://github.com/google/ExoPlayer/issues/3807)).
+* Release `Extractor`s on the loading thread to avoid potentially leaking
+  resources when the playback thread has quit by the time the loading task has
+  completed.
+* ID3: Better handle malformed ID3 data
+  ([#3792](https://github.com/google/ExoPlayer/issues/3792).
+* Support 14-bit mode and little endianness in DTS PES packets
+  ([#3340](https://github.com/google/ExoPlayer/issues/3340)).
 
 ### 2.6.1 ###
 

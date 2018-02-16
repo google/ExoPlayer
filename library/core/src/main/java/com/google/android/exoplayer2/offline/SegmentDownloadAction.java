@@ -40,16 +40,11 @@ public abstract class SegmentDownloadAction<K> extends DownloadAction {
     public DownloadAction readFromStream(int version, DataInputStream input) throws IOException {
       Uri manifestUri = Uri.parse(input.readUTF());
       String data = input.readUTF();
+      boolean removeAction = input.readBoolean();
       int keyCount = input.readInt();
-      boolean removeAction = keyCount == -1;
-      K[] keys;
-      if (removeAction) {
-        keys = null;
-      } else {
-        keys = createKeyArray(keyCount);
-        for (int i = 0; i < keyCount; i++) {
-          keys[i] = readKey(input);
-        }
+      K[] keys = createKeyArray(keyCount);
+      for (int i = 0; i < keyCount; i++) {
+        keys[i] = readKey(input);
       }
       return createDownloadAction(manifestUri, removeAction, data, keys);
     }
@@ -74,12 +69,15 @@ public abstract class SegmentDownloadAction<K> extends DownloadAction {
    * @param manifestUri The {@link Uri} of the manifest to be downloaded.
    * @param removeAction Whether the data will be removed. If {@code false} it will be downloaded.
    * @param data Optional custom data for this action. If null, an empty string is used.
-   * @param keys Keys of representations to be downloaded. If empty or null, all representations are
-   *     downloaded. If {@code removeAction} is true, this is ignored.
+   * @param keys Keys of representations to be downloaded. If empty, all representations are
+   *     downloaded. If {@code removeAction} is true, {@code keys} should be an empty array.
    */
   protected SegmentDownloadAction(Uri manifestUri, boolean removeAction, String data, K[] keys) {
     super(data);
-    Assertions.checkArgument(!removeAction || keys == null || keys.length == 0);
+    Assertions.checkNotNull(keys);
+    if (removeAction) {
+      Assertions.checkArgument(keys.length == 0);
+    }
     this.manifestUri = manifestUri;
     this.keys = keys;
     this.removeAction = removeAction;
@@ -94,13 +92,10 @@ public abstract class SegmentDownloadAction<K> extends DownloadAction {
   public final void writeToStream(DataOutputStream output) throws IOException {
     output.writeUTF(manifestUri.toString());
     output.writeUTF(getData());
-    if (isRemoveAction()) {
-      output.writeInt(-1);
-    } else {
-      output.writeInt(keys.length);
-      for (K key : keys) {
-        writeKey(output, key);
-      }
+    output.writeBoolean(removeAction);
+    output.writeInt(keys.length);
+    for (K key : keys) {
+      writeKey(output, key);
     }
   }
 
@@ -124,11 +119,9 @@ public abstract class SegmentDownloadAction<K> extends DownloadAction {
     }
     SegmentDownloadAction<?> that = (SegmentDownloadAction<?>) o;
     return manifestUri.equals(that.manifestUri)
-        && (keys == null || keys.length == 0
-            ? (that.keys == null || that.keys.length == 0)
-            : (that.keys != null
-                && that.keys.length == keys.length
-                && Arrays.asList(keys).containsAll(Arrays.asList(that.keys))));
+        && removeAction == that.removeAction
+        && keys.length == that.keys.length
+        && Arrays.asList(keys).containsAll(Arrays.asList(that.keys));
   }
 
   @Override

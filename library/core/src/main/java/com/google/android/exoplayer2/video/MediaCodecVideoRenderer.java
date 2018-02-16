@@ -1085,15 +1085,22 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
   private static boolean codecNeedsSetOutputSurfaceWorkaround(String name) {
     // Work around https://github.com/google/ExoPlayer/issues/3236,
     // https://github.com/google/ExoPlayer/issues/3355,
-    // https://github.com/google/ExoPlayer/issues/3439 and
-    // https://github.com/google/ExoPlayer/issues/3724.
-    return (("deb".equals(Util.DEVICE) || "flo".equals(Util.DEVICE))
+    // https://github.com/google/ExoPlayer/issues/3439,
+    // https://github.com/google/ExoPlayer/issues/3724 and
+    // https://github.com/google/ExoPlayer/issues/3835.
+    return (("deb".equals(Util.DEVICE) || "flo".equals(Util.DEVICE)) // Nexus 7 (2013)
             && "OMX.qcom.video.decoder.avc".equals(name))
-        || (("tcl_eu".equals(Util.DEVICE)
-                || "SVP-DTV15".equals(Util.DEVICE)
-                || "BRAVIA_ATV2".equals(Util.DEVICE))
+        || (("tcl_eu".equals(Util.DEVICE) // TCL Percee TV
+                || "SVP-DTV15".equals(Util.DEVICE) // Sony Bravia 4K 2015
+                || "BRAVIA_ATV2".equals(Util.DEVICE) // Sony Bravia 4K GB
+                || Util.DEVICE.startsWith("panell_") // Motorola Moto C Plus
+                || "F3311".equals(Util.DEVICE) // Sony Xperia E5
+                || "M5c".equals(Util.DEVICE) // Meizu M5C
+                || "A7010a48".equals(Util.DEVICE)) // Lenovo K4 Note
             && "OMX.MTK.VIDEO.DECODER.AVC".equals(name))
-        || ("OMX.k3.video.decoder.avc".equals(name) && "ALE-L21".equals(Util.MODEL));
+        || (("ALE-L21".equals(Util.MODEL) // Huawei P8 Lite
+                || "CAM-L21".equals(Util.MODEL)) // Huawei Y6II
+            && "OMX.k3.video.decoder.avc".equals(name));
   }
 
   /**

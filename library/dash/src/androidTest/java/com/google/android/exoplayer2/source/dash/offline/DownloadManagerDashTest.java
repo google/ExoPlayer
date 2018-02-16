@@ -28,6 +28,7 @@ import android.test.UiThreadTest;
 import com.google.android.exoplayer2.offline.DownloadManager;
 import com.google.android.exoplayer2.offline.DownloaderConstructorHelper;
 import com.google.android.exoplayer2.source.dash.manifest.RepresentationKey;
+import com.google.android.exoplayer2.testutil.DummyMainThread;
 import com.google.android.exoplayer2.testutil.FakeDataSet;
 import com.google.android.exoplayer2.testutil.FakeDataSource;
 import com.google.android.exoplayer2.testutil.MockitoUtil;
@@ -53,11 +54,13 @@ public class DownloadManagerDashTest extends InstrumentationTestCase {
   private RepresentationKey fakeRepresentationKey2;
   private TestDownloadListener downloadListener;
   private File actionFile;
+  private DummyMainThread dummyMainThread;
 
   @UiThreadTest
   @Override
   public void setUp() throws Exception {
     super.setUp();
+    dummyMainThread = new DummyMainThread();
     Context context = getInstrumentation().getContext();
     tempFolder = Util.createTempDirectory(context, "ExoPlayerTest");
     File cacheFolder = new File(tempFolder, "cache");
@@ -85,6 +88,7 @@ public class DownloadManagerDashTest extends InstrumentationTestCase {
   public void tearDown() throws Exception {
     downloadManager.release();
     Util.recursiveDelete(tempFolder);
+    dummyMainThread.release();
     super.tearDown();
   }
 
@@ -111,7 +115,7 @@ public class DownloadManagerDashTest extends InstrumentationTestCase {
 
     // Run DM accessing code on UI/main thread as it should be. Also not to block handling of loaded
     // actions.
-    runTestOnUiThread(
+    dummyMainThread.runOnMainThread(
         new Runnable() {
           @Override
           public void run() {
@@ -226,18 +230,25 @@ public class DownloadManagerDashTest extends InstrumentationTestCase {
   }
 
   private void createDownloadManager() {
-    Factory fakeDataSourceFactory = new FakeDataSource.Factory(null).setFakeDataSet(fakeDataSet);
-    downloadManager =
-        new DownloadManager(
-            new DownloaderConstructorHelper(cache, fakeDataSourceFactory),
-            1,
-            3,
-            actionFile.getAbsolutePath(),
-            DashDownloadAction.DESERIALIZER);
+    dummyMainThread.runOnMainThread(
+        new Runnable() {
+          @Override
+          public void run() {
+            Factory fakeDataSourceFactory =
+                new FakeDataSource.Factory(null).setFakeDataSet(fakeDataSet);
+            downloadManager =
+                new DownloadManager(
+                    new DownloaderConstructorHelper(cache, fakeDataSourceFactory),
+                    1,
+                    3,
+                    actionFile.getAbsolutePath(),
+                    DashDownloadAction.DESERIALIZER);
 
-    downloadListener = new TestDownloadListener(downloadManager, this);
-    downloadManager.addListener(downloadListener);
-    downloadManager.startDownloads();
+            downloadListener = new TestDownloadListener(downloadManager, dummyMainThread);
+            downloadManager.addListener(downloadListener);
+            downloadManager.startDownloads();
+          }
+        });
   }
 
 }

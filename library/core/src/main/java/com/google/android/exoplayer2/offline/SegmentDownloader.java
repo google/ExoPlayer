@@ -101,10 +101,10 @@ public abstract class SegmentDownloader<M, K> implements Downloader {
 
   /**
    * Selects multiple representations pointed to by the keys for downloading, checking status. Any
-   * previous selection is cleared. If keys are null or empty, all representations are downloaded.
+   * previous selection is cleared. If keys array is empty, all representations are downloaded.
    */
   public final void selectRepresentations(K[] keys) {
-    this.keys = (keys != null && keys.length > 0) ? keys.clone() : null;
+    this.keys = keys.length > 0 ? keys.clone() : null;
     resetCounters();
   }
 

@@ -33,6 +33,7 @@ import com.google.android.exoplayer2.upstream.Allocator;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Util;
 import java.io.IOException;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.TimeUnit;
 
@@ -142,30 +143,38 @@ public class MediaSourceTestRunner {
   }
 
   /**
-   * Calls {@link MediaPeriod#prepare(MediaPeriod.Callback, long)} on the playback thread.
+   * Calls {@link MediaPeriod#prepare(MediaPeriod.Callback, long)} on the playback thread and blocks
+   * until the method has been called.
    *
    * @param mediaPeriod The {@link MediaPeriod} to prepare.
    * @param positionUs The position at which to prepare.
-   * @return A {@link ConditionVariable} that will be opened when preparation completes.
+   * @return A {@link CountDownLatch} that will be counted down when preparation completes.
    */
-  public ConditionVariable preparePeriod(final MediaPeriod mediaPeriod, final long positionUs) {
-    final ConditionVariable preparedCondition = new ConditionVariable();
-    runOnPlaybackThread(new Runnable() {
-      @Override
-      public void run() {
-        mediaPeriod.prepare(new MediaPeriod.Callback() {
+  public CountDownLatch preparePeriod(final MediaPeriod mediaPeriod, final long positionUs) {
+    final ConditionVariable prepareCalled = new ConditionVariable();
+    final CountDownLatch preparedCountDown = new CountDownLatch(1);
+    runOnPlaybackThread(
+        new Runnable() {
           @Override
-          public void onPrepared(MediaPeriod mediaPeriod) {
-            preparedCondition.open();
+          public void run() {
+            mediaPeriod.prepare(
+                new MediaPeriod.Callback() {
+                  @Override
+                  public void onPrepared(MediaPeriod mediaPeriod) {
+                    preparedCountDown.countDown();
+                  }
+
+                  @Override
+                  public void onContinueLoadingRequested(MediaPeriod source) {
+                    // Do nothing.
+                  }
+                },
+                positionUs);
+            prepareCalled.open();
           }
-          @Override
-          public void onContinueLoadingRequested(MediaPeriod source) {
-            // Do nothing.
-          }
-        }, positionUs);
-      }
-    });
-    return preparedCondition;
+        });
+    prepareCalled.block();
+    return preparedCountDown;
   }
 
   /**
@@ -234,31 +243,34 @@ public class MediaSourceTestRunner {
 
   /**
    * Creates and releases all periods (including ad periods) defined in the last timeline to be
-   * returned from {@link #prepareSource()}, {@link #assertTimelineChange()} or
-   * {@link #assertTimelineChangeBlocking()}.
+   * returned from {@link #prepareSource()}, {@link #assertTimelineChange()} or {@link
+   * #assertTimelineChangeBlocking()}. The {@link MediaPeriodId#windowSequenceNumber} is set to the
+   * index of the window.
    */
-  public void assertPrepareAndReleaseAllPeriods() {
+  public void assertPrepareAndReleaseAllPeriods() throws InterruptedException {
     Timeline.Period period = new Timeline.Period();
     for (int i = 0; i < timeline.getPeriodCount(); i++) {
-      assertPrepareAndReleasePeriod(new MediaPeriodId(i));
       timeline.getPeriod(i, period);
+      assertPrepareAndReleasePeriod(new MediaPeriodId(i, period.windowIndex));
       for (int adGroupIndex = 0; adGroupIndex < period.getAdGroupCount(); adGroupIndex++) {
         for (int adIndex = 0; adIndex < period.getAdCountInAdGroup(adGroupIndex); adIndex++) {
-          assertPrepareAndReleasePeriod(new MediaPeriodId(i, adGroupIndex, adIndex));
+          assertPrepareAndReleasePeriod(
+              new MediaPeriodId(i, adGroupIndex, adIndex, period.windowIndex));
         }
       }
     }
   }
 
-  private void assertPrepareAndReleasePeriod(MediaPeriodId mediaPeriodId) {
+  private void assertPrepareAndReleasePeriod(MediaPeriodId mediaPeriodId)
+      throws InterruptedException {
     MediaPeriod mediaPeriod = createPeriod(mediaPeriodId);
-    ConditionVariable preparedCondition = preparePeriod(mediaPeriod, 0);
-    assertThat(preparedCondition.block(TIMEOUT_MS)).isTrue();
+    CountDownLatch preparedCondition = preparePeriod(mediaPeriod, 0);
+    assertThat(preparedCondition.await(TIMEOUT_MS, TimeUnit.MILLISECONDS)).isTrue();
     // MediaSource is supposed to support multiple calls to createPeriod with the same id without an
     // intervening call to releasePeriod.
     MediaPeriod secondMediaPeriod = createPeriod(mediaPeriodId);
-    ConditionVariable secondPreparedCondition = preparePeriod(secondMediaPeriod, 0);
-    assertThat(secondPreparedCondition.block(TIMEOUT_MS)).isTrue();
+    CountDownLatch secondPreparedCondition = preparePeriod(secondMediaPeriod, 0);
+    assertThat(secondPreparedCondition.await(TIMEOUT_MS, TimeUnit.MILLISECONDS)).isTrue();
     // Release the periods.
     releasePeriod(mediaPeriod);
     releasePeriod(secondMediaPeriod);

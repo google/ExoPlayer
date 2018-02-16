@@ -33,7 +33,7 @@ import junit.framework.TestCase;
  */
 public class HlsMediaPlaylistParserTest extends TestCase {
 
-  public void testParseMediaPlaylist() {
+  public void testParseMediaPlaylist() throws IOException {
     Uri playlistUri = Uri.parse("https://example.com/test.m3u8");
     String playlistString = "#EXTM3U\n"
         + "#EXT-X-VERSION:3\n"
@@ -69,21 +69,19 @@ public class HlsMediaPlaylistParserTest extends TestCase {
         + "#EXT-X-ENDLIST";
     InputStream inputStream = new ByteArrayInputStream(
         playlistString.getBytes(Charset.forName(C.UTF8_NAME)));
-    try {
-      HlsPlaylist playlist = new HlsPlaylistParser().parse(playlistUri, inputStream);
-      assertThat(playlist).isNotNull();
+    HlsPlaylist playlist = new HlsPlaylistParser().parse(playlistUri, inputStream);
 
-      HlsMediaPlaylist mediaPlaylist = (HlsMediaPlaylist) playlist;
-      assertThat(mediaPlaylist.playlistType).isEqualTo(HlsMediaPlaylist.PLAYLIST_TYPE_VOD);
-      assertThat(mediaPlaylist.startOffsetUs).isEqualTo(mediaPlaylist.durationUs - 25000000);
+    HlsMediaPlaylist mediaPlaylist = (HlsMediaPlaylist) playlist;
+    assertThat(mediaPlaylist.playlistType).isEqualTo(HlsMediaPlaylist.PLAYLIST_TYPE_VOD);
+    assertThat(mediaPlaylist.startOffsetUs).isEqualTo(mediaPlaylist.durationUs - 25000000);
 
-      assertThat(mediaPlaylist.mediaSequence).isEqualTo(2679);
-      assertThat(mediaPlaylist.version).isEqualTo(3);
-      assertThat(mediaPlaylist.hasEndTag).isTrue();
-      List<Segment> segments = mediaPlaylist.segments;
-      assertThat(segments).isNotNull();
-      assertThat(segments).hasSize(5);
-
+    assertThat(mediaPlaylist.mediaSequence).isEqualTo(2679);
+    assertThat(mediaPlaylist.version).isEqualTo(3);
+    assertThat(mediaPlaylist.hasEndTag).isTrue();
+    List<Segment> segments = mediaPlaylist.segments;
+    assertThat(segments).isNotNull();
+    assertThat(segments).hasSize(5);
+    
       Segment segment = segments.get(0);
       assertThat(mediaPlaylist.discontinuitySequence + segment.relativeDiscontinuitySequence)
           .isEqualTo(4);
@@ -141,9 +139,41 @@ public class HlsMediaPlaylistParserTest extends TestCase {
       assertThat(segment.byterangeLength).isEqualTo(C.LENGTH_UNSET);
       assertThat(segment.byterangeOffset).isEqualTo(0);
       assertThat(segment.url).isEqualTo("https://priv.example.com/fileSequence2683.ts");
-    } catch (IOException exception) {
-      fail(exception.getMessage());
-    }
+  }
+
+  public void testGapTag() throws IOException {
+    Uri playlistUri = Uri.parse("https://example.com/test2.m3u8");
+    String playlistString =
+        "#EXTM3U\n"
+            + "#EXT-X-VERSION:3\n"
+            + "#EXT-X-TARGETDURATION:5\n"
+            + "#EXT-X-PLAYLIST-TYPE:VOD\n"
+            + "#EXT-X-MEDIA-SEQUENCE:0\n"
+            + "#EXT-X-PROGRAM-DATE-TIME:2016-09-22T02:00:01+00:00\n"
+            + "#EXT-X-KEY:METHOD=AES-128,URI=\"https://example.com/key?value=something\"\n"
+            + "#EXTINF:5.005,\n"
+            + "02/00/27.ts\n"
+            + "#EXTINF:5.005,\n"
+            + "02/00/32.ts\n"
+            + "#EXT-X-KEY:METHOD=NONE\n"
+            + "#EXTINF:5.005,\n"
+            + "#EXT-X-GAP \n"
+            + "../dummy.ts\n"
+            + "#EXT-X-KEY:METHOD=AES-128,URI=\"https://key-service.bamgrid.com/1.0/key?"
+            + "hex-value=9FB8989D15EEAAF8B21B860D7ED3072A\",IV=0x410C8AC18AA42EFA18B5155484F5FC34\n"
+            + "#EXTINF:5.005,\n"
+            + "02/00/42.ts\n"
+            + "#EXTINF:5.005,\n"
+            + "02/00/47.ts\n";
+    InputStream inputStream =
+        new ByteArrayInputStream(playlistString.getBytes(Charset.forName(C.UTF8_NAME)));
+    HlsMediaPlaylist playlist =
+        (HlsMediaPlaylist) new HlsPlaylistParser().parse(playlistUri, inputStream);
+
+    assertThat(playlist.hasEndTag).isFalse();
+    assertThat(playlist.segments.get(1).hasGapTag).isFalse();
+    assertThat(playlist.segments.get(2).hasGapTag).isTrue();
+    assertThat(playlist.segments.get(3).hasGapTag).isFalse();
   }
 
 }

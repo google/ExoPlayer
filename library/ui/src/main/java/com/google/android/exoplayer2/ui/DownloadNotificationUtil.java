@@ -20,7 +20,6 @@ import android.app.Notification.BigTextStyle;
 import android.app.Notification.Builder;
 import android.content.Context;
 import android.support.annotation.Nullable;
-import com.google.android.exoplayer2.offline.DownloadAction;
 import com.google.android.exoplayer2.offline.DownloadManager;
 import com.google.android.exoplayer2.offline.DownloadManager.DownloadState;
 import com.google.android.exoplayer2.util.ErrorMessageProvider;
@@ -40,8 +39,10 @@ public final class DownloadNotificationUtil {
    * @param smallIcon A small icon for the notifications.
    * @param channelId The id of the notification channel to use. Only required for API level 26 and
    *     above.
+   * @param message An optional message to display on the notification.
    * @param errorMessageProvider An optional {@link ErrorMessageProvider} for translating download
-   *     errors into readable error messages.
+   *     errors into readable error messages. If not null and there is a download error then the
+   *     error message is displayed instead of {@code message}.
    * @return A notification for the given {@link DownloadState}, or null if no notification should
    *     be displayed.
    */
@@ -50,9 +51,10 @@ public final class DownloadNotificationUtil {
       Context context,
       int smallIcon,
       String channelId,
+      @Nullable String message,
       @Nullable ErrorMessageProvider<Throwable> errorMessageProvider) {
-    DownloadAction downloadAction = downloadState.downloadAction;
-    if (downloadAction.isRemoveAction() || downloadState.state == DownloadState.STATE_CANCELED) {
+    if (downloadState.downloadAction.isRemoveAction()
+        || downloadState.state == DownloadState.STATE_CANCELED) {
       return null;
     }
 
@@ -72,17 +74,15 @@ public final class DownloadNotificationUtil {
       notificationBuilder.setProgress(100, indeterminate ? 0 : (int) percentage, indeterminate);
     }
 
-    String message;
     if (downloadState.error != null && errorMessageProvider != null) {
       message = errorMessageProvider.getErrorMessage(downloadState.error).second;
-    } else {
-      message = downloadAction.getData();
     }
-
-    if (Util.SDK_INT >= 16) {
-      notificationBuilder.setStyle(new BigTextStyle().bigText(message));
-    } else {
-      notificationBuilder.setContentText(message);
+    if (message != null) {
+      if (Util.SDK_INT >= 16) {
+        notificationBuilder.setStyle(new BigTextStyle().bigText(message));
+      } else {
+        notificationBuilder.setContentText(message);
+      }
     }
     return notificationBuilder.getNotification();
   }

@@ -24,13 +24,11 @@ import java.util.Arrays;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
-import org.robolectric.annotation.Config;
 
 /**
  * Tests for {@link ParsableByteArray}.
  */
 @RunWith(RobolectricTestRunner.class)
-@Config(sdk = Config.TARGET_SDK, manifest = Config.NONE)
 public final class ParsableByteArrayTest {
 
   private static final byte[] TEST_DATA =

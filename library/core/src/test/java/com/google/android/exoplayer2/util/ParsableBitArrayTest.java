@@ -21,13 +21,11 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
-import org.robolectric.annotation.Config;
 
 /**
  * Tests for {@link ParsableBitArray}.
  */
 @RunWith(RobolectricTestRunner.class)
-@Config(sdk = Config.TARGET_SDK, manifest = Config.NONE)
 public final class ParsableBitArrayTest {
 
   private static final byte[] TEST_DATA = new byte[] {0x3C, (byte) 0xD2, (byte) 0x5F, (byte) 0x01,
@@ -169,6 +167,73 @@ public final class ParsableBitArrayTest {
     assertThat(testArray.getBytePosition()).isEqualTo(2);
     assertThat(testArray.getPosition()).isEqualTo(16);
     assertReadBitsToEnd(16);
+  }
+
+  @Test
+  public void testPutBitsWithinByte() {
+    ParsableBitArray output = new ParsableBitArray(new byte[4]);
+    output.skipBits(1);
+
+    output.putInt(0x3F, 5);
+
+    output.setPosition(0);
+    assertThat(output.readBits(8)).isEqualTo(0x1F << 2); // Check that only 5 bits are modified.
+  }
+
+  @Test
+  public void testPutBitsAcrossTwoBytes() {
+    ParsableBitArray output = new ParsableBitArray(new byte[4]);
+    output.setPosition(12);
+
+    output.putInt(0xFF, 8);
+    output.setPosition(8);
+
+    assertThat(output.readBits(16)).isEqualTo(0x0FF0);
+  }
+
+  @Test
+  public void testPutBitsAcrossMultipleBytes() {
+    ParsableBitArray output = new ParsableBitArray(new byte[8]);
+    output.setPosition(31); // Writing starts at 31 to test the 30th bit is not modified.
+
+    output.putInt(0xFF146098, 30); // Write only 30 to test the 61st bit is not modified.
+
+    output.setPosition(30);
+    assertThat(output.readBits(32)).isEqualTo(0x3F146098 << 1);
+  }
+
+  @Test
+  public void testPut32Bits() {
+    ParsableBitArray output = new ParsableBitArray(new byte[5]);
+    output.setPosition(4);
+
+    output.putInt(0xFF146098, 32);
+
+    output.setPosition(4);
+    assertThat(output.readBits(32)).isEqualTo(0xFF146098);
+  }
+
+  @Test
+  public void testPutFullBytes() {
+    ParsableBitArray output = new ParsableBitArray(new byte[2]);
+
+    output.putInt(0x81, 8);
+
+    output.setPosition(0);
+    assertThat(output.readBits(8)).isEqualTo(0x81);
+  }
+
+  @Test
+  public void testNoOverwriting() {
+    ParsableBitArray output =
+        new ParsableBitArray(
+            new byte[] {(byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff});
+    output.setPosition(1);
+
+    output.putInt(0, 30);
+
+    output.setPosition(0);
+    assertThat(output.readBits(32)).isEqualTo(0x80000001);
   }
 
   private void assertReadBitsToEnd(int expectedStartPosition) {
