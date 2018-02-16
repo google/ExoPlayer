@@ -116,6 +116,8 @@
   completed.
 * ID3: Better handle malformed ID3 data
   ([#3792](https://github.com/google/ExoPlayer/issues/3792).
+* Support 14-bit mode and little endianness in DTS PES packets
+  ([#3340](https://github.com/google/ExoPlayer/issues/3340)).
 
 ### 2.6.1 ###
 
