@@ -383,6 +383,11 @@ public class EventLogger
   }
 
   @Override
+  public void onInternalAdLoadError(RuntimeException error) {
+    printInternalError("internalAdLoadError", error);
+  }
+
+  @Override
   public void onAdClicked() {
     // Do nothing.
   }

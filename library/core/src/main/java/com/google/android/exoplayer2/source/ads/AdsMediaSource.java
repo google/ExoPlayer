@@ -73,13 +73,20 @@ public final class AdsMediaSource extends CompositeMediaSource<MediaPeriodId> {
   public interface EventListener extends MediaSourceEventListener {
 
     /**
-     * Called if there was an error loading ads. The media source will load the content without ads
-     * if ads can't be loaded, so listen for this event if you need to implement additional handling
-     * (for example, stopping the player).
+     * Called if there was an error loading one or more ads. The loader will skip the problematic
+     * ad(s).
      *
      * @param error The error.
      */
     void onAdLoadError(IOException error);
+
+    /**
+     * Called when an unexpected internal error is encountered while loading ads. The loader will
+     * skip all remaining ads, as the error is not recoverable.
+     *
+     * @param error The error.
+     */
+    void onInternalAdLoadError(RuntimeException error);
 
     /**
      * Called when the user clicks through an ad (for example, following a 'learn more' link).
@@ -418,7 +425,7 @@ public final class AdsMediaSource extends CompositeMediaSource<MediaPeriodId> {
     }
 
     @Override
-    public void onLoadError(final IOException error) {
+    public void onAdLoadError(final IOException error) {
       if (released) {
         return;
       }
@@ -436,6 +443,24 @@ public final class AdsMediaSource extends CompositeMediaSource<MediaPeriodId> {
       }
     }
 
+    @Override
+    public void onInternalAdLoadError(final RuntimeException error) {
+      if (released) {
+        return;
+      }
+      Log.w(TAG, "Internal ad load error", error);
+      if (eventHandler != null && eventListener != null) {
+        eventHandler.post(
+            new Runnable() {
+              @Override
+              public void run() {
+                if (!released) {
+                  eventListener.onInternalAdLoadError(error);
+                }
+              }
+            });
+      }
+    }
   }
 
   private final class AdPrepareErrorListener implements DeferredMediaPeriod.PrepareErrorListener {

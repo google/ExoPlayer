@@ -54,11 +54,19 @@ public interface AdsLoader {
     void onAdPlaybackState(AdPlaybackState adPlaybackState);
 
     /**
-     * Called when there was an error loading ads.
+     * Called when there was an error loading ads. The loader will skip the problematic ad(s).
      *
      * @param error The error.
      */
-    void onLoadError(IOException error);
+    void onAdLoadError(IOException error);
+
+    /**
+     * Called when an unexpected internal error is encountered while loading ads. The loader will
+     * skip all remaining ads, as the error is not recoverable.
+     *
+     * @param error The error.
+     */
+    void onInternalAdLoadError(RuntimeException error);
 
     /**
      * Called when the user clicks through an ad (for example, following a 'learn more' link).

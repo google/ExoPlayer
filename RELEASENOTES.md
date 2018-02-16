@@ -101,6 +101,7 @@
       ([#3715](https://github.com/google/ExoPlayer/issues/3715)).
     * Propagate ad media preparation errors to IMA so that the ads can be
       skipped.
+    * Handle exceptions in IMA callbacks so that can be logged less verbosely.
 * `EventLogger` moved from the demo app into the core library.
 * Fix ANR issue on the Huawei P8 Lite, Huawei Y6II, Moto C+, Meizu M5C,
   Lenovo K4 Note and Sony Xperia E5.
