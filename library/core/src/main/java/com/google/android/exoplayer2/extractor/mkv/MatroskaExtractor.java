@@ -18,6 +18,7 @@ package com.google.android.exoplayer2.extractor.mkv;
 import android.support.annotation.IntDef;
 import android.support.annotation.Nullable;
 import android.util.Log;
+import android.util.Pair;
 import android.util.SparseArray;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
@@ -219,6 +220,7 @@ public final class MatroskaExtractor implements Extractor {
   private static final int LACING_EBML = 3;
 
   private static final int FOURCC_COMPRESSION_VC1 = 0x31435657;
+  private static final int FOURCC_COMPRESSION_DIVX = 0x58564944;
 
   /**
    * A template for the prefix that must be added to each subrip sample. The 12 byte end timecode
@@ -1711,9 +1713,22 @@ public final class MatroskaExtractor implements Extractor {
           nalUnitLengthFieldLength = hevcConfig.nalUnitLengthFieldLength;
           break;
         case CODEC_ID_FOURCC:
-          initializationData = parseFourCcVc1Private(new ParsableByteArray(codecPrivate));
-          if (initializationData != null) {
-            mimeType = MimeTypes.VIDEO_VC1;
+          initializationData = null;
+          Pair<Integer, List<byte[]>> pair = parseFourCcVc1Private(new ParsableByteArray(codecPrivate));
+          if (pair != null) {
+            initializationData = pair.second;
+            switch (pair.first) {
+              case FOURCC_COMPRESSION_VC1:
+                mimeType = MimeTypes.VIDEO_VC1;
+                break;
+              case FOURCC_COMPRESSION_DIVX:
+                mimeType = MimeTypes.VIDEO_H263;
+                break;
+              default:
+                Log.w(TAG, "Unknown FourCC. Setting mimeType to " + MimeTypes.VIDEO_UNKNOWN);
+                mimeType = MimeTypes.VIDEO_UNKNOWN;
+                break;
+            }
           } else {
             Log.w(TAG, "Unsupported FourCC. Setting mimeType to " + MimeTypes.VIDEO_UNKNOWN);
             mimeType = MimeTypes.VIDEO_UNKNOWN;
@@ -1938,12 +1953,15 @@ public final class MatroskaExtractor implements Extractor {
      *     not VC1.
      * @throws ParserException If the initialization data could not be built.
      */
-    private static List<byte[]> parseFourCcVc1Private(ParsableByteArray buffer)
+    private static Pair<Integer, List<byte[]>> parseFourCcVc1Private(ParsableByteArray buffer)
         throws ParserException {
       try {
         buffer.skipBytes(16); // size(4), width(4), height(4), planes(2), bitcount(2).
         long compression = buffer.readLittleEndianUnsignedInt();
-        if (compression != FOURCC_COMPRESSION_VC1) {
+        if (compression == FOURCC_COMPRESSION_DIVX) {
+          return new Pair(FOURCC_COMPRESSION_DIVX, null);
+        }
+        if (compression != FOURCC_COMPRESSION_VC1)  {
           return null;
         }
 
@@ -1956,7 +1974,7 @@ public final class MatroskaExtractor implements Extractor {
               && bufferData[offset + 2] == 0x01 && bufferData[offset + 3] == 0x0F) {
             // We've found the initialization data.
             byte[] initializationData = Arrays.copyOfRange(bufferData, offset, bufferData.length);
-            return Collections.singletonList(initializationData);
+            return new Pair(FOURCC_COMPRESSION_VC1, Collections.singletonList(initializationData));
           }
         }
 
