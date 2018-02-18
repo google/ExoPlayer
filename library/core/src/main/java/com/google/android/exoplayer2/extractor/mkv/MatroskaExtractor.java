@@ -1713,26 +1713,9 @@ public final class MatroskaExtractor implements Extractor {
           nalUnitLengthFieldLength = hevcConfig.nalUnitLengthFieldLength;
           break;
         case CODEC_ID_FOURCC:
-          initializationData = null;
-          Pair<Integer, List<byte[]>> pair = parseFourCcVc1Private(new ParsableByteArray(codecPrivate));
-          if (pair != null) {
-            initializationData = pair.second;
-            switch (pair.first) {
-              case FOURCC_COMPRESSION_VC1:
-                mimeType = MimeTypes.VIDEO_VC1;
-                break;
-              case FOURCC_COMPRESSION_DIVX:
-                mimeType = MimeTypes.VIDEO_H263;
-                break;
-              default:
-                Log.w(TAG, "Unknown FourCC. Setting mimeType to " + MimeTypes.VIDEO_UNKNOWN);
-                mimeType = MimeTypes.VIDEO_UNKNOWN;
-                break;
-            }
-          } else {
-            Log.w(TAG, "Unsupported FourCC. Setting mimeType to " + MimeTypes.VIDEO_UNKNOWN);
-            mimeType = MimeTypes.VIDEO_UNKNOWN;
-          }
+          Pair<String, List<byte[]>> pair = parseFourCcPrivate(new ParsableByteArray(codecPrivate));
+          mimeType = pair.first;
+          initializationData = pair.second;
           break;
         case CODEC_ID_THEORA:
           // TODO: This can be set to the real mimeType if/when we work out what initializationData
@@ -1947,41 +1930,42 @@ public final class MatroskaExtractor implements Extractor {
     /**
      * Builds initialization data for a {@link Format} from FourCC codec private data.
      * <p>
-     * VC1 is the only supported compression type.
+     * VC1 and H263 are the only supported compression types.
      *
-     * @return The initialization data for the {@link Format}, or null if the compression type is
-     *     not VC1.
+     * @return A pair object with the first object being the codec mime type
+     * and the second object the initialization data for the {@link Format},
+     * or null if the compression type is not VC1.
      * @throws ParserException If the initialization data could not be built.
      */
-    private static Pair<Integer, List<byte[]>> parseFourCcVc1Private(ParsableByteArray buffer)
+    private static Pair<String, List<byte[]>> parseFourCcPrivate(ParsableByteArray buffer)
         throws ParserException {
       try {
         buffer.skipBytes(16); // size(4), width(4), height(4), planes(2), bitcount(2).
         long compression = buffer.readLittleEndianUnsignedInt();
         if (compression == FOURCC_COMPRESSION_DIVX) {
-          return new Pair(FOURCC_COMPRESSION_DIVX, null);
+          return new Pair<>(MimeTypes.VIDEO_H263, null);
         }
-        if (compression != FOURCC_COMPRESSION_VC1)  {
-          return null;
-        }
-
-        // Search for the initialization data from the end of the BITMAPINFOHEADER. The last 20
-        // bytes of which are: sizeImage(4), xPel/m (4), yPel/m (4), clrUsed(4), clrImportant(4).
-        int startOffset = buffer.getPosition() + 20;
-        byte[] bufferData = buffer.data;
-        for (int offset = startOffset; offset < bufferData.length - 4; offset++) {
-          if (bufferData[offset] == 0x00 && bufferData[offset + 1] == 0x00
-              && bufferData[offset + 2] == 0x01 && bufferData[offset + 3] == 0x0F) {
-            // We've found the initialization data.
-            byte[] initializationData = Arrays.copyOfRange(bufferData, offset, bufferData.length);
-            return new Pair(FOURCC_COMPRESSION_VC1, Collections.singletonList(initializationData));
+        else if (compression == FOURCC_COMPRESSION_VC1)  {
+          // Search for the initialization data from the end of the BITMAPINFOHEADER. The last 20
+          // bytes of which are: sizeImage(4), xPel/m (4), yPel/m (4), clrUsed(4), clrImportant(4).
+          int startOffset = buffer.getPosition() + 20;
+          byte[] bufferData = buffer.data;
+          for (int offset = startOffset; offset < bufferData.length - 4; offset++) {
+            if (bufferData[offset] == 0x00 && bufferData[offset + 1] == 0x00
+             && bufferData[offset + 2] == 0x01 && bufferData[offset + 3] == 0x0F) {
+              // We've found the initialization data.
+              byte[] initializationData = Arrays.copyOfRange(bufferData, offset, bufferData.length);
+              return new Pair<>(MimeTypes.VIDEO_VC1, Collections.singletonList(initializationData));
+            }
           }
+          throw new ParserException("Failed to find FourCC VC1 initialization data");
         }
-
-        throw new ParserException("Failed to find FourCC VC1 initialization data");
       } catch (ArrayIndexOutOfBoundsException e) {
-        throw new ParserException("Error parsing FourCC VC1 codec private");
+        throw new ParserException("Error parsing FourCC private data");
       }
+
+      Log.w(TAG, "Unknown FourCC. Setting mimeType to " + MimeTypes.VIDEO_UNKNOWN);
+      return new Pair<>(MimeTypes.VIDEO_UNKNOWN, null);
     }
 
     /**
