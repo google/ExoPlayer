@@ -21,6 +21,9 @@ import static com.google.android.exoplayer2.source.dash.offline.DashDownloadTest
 import static com.google.android.exoplayer2.testutil.CacheAsserts.assertCacheEmpty;
 import static com.google.android.exoplayer2.testutil.CacheAsserts.assertCachedData;
 import static com.google.android.exoplayer2.testutil.CacheAsserts.assertDataCached;
+import static com.google.common.truth.Truth.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import android.test.InstrumentationTestCase;
 import com.google.android.exoplayer2.C;
@@ -73,7 +76,7 @@ public class DashDownloaderTest extends InstrumentationTestCase {
 
     DashManifest manifest = dashDownloader.getManifest();
 
-    assertNotNull(manifest);
+    assertThat(manifest).isNotNull();
     assertCachedData(cache, fakeDataSet);
   }
 
@@ -95,12 +98,13 @@ public class DashDownloaderTest extends InstrumentationTestCase {
     } catch (IOException e) {
       // ignore
     }
-    assertDataCached(cache, TEST_MPD_URI, testMpdFirstPart);
+    DataSpec dataSpec = new DataSpec(TEST_MPD_URI, 0, testMpdFirstPart.length, null);
+    assertDataCached(cache, dataSpec, testMpdFirstPart);
 
     // on the second try it downloads the rest of the data
     DashManifest manifest = dashDownloader.getManifest();
 
-    assertNotNull(manifest);
+    assertThat(manifest).isNotNull();
     assertCachedData(cache, fakeDataSet);
   }
 
@@ -180,11 +184,6 @@ public class DashDownloaderTest extends InstrumentationTestCase {
     // select something random
     dashDownloader.selectRepresentations(new RepresentationKey[] {new RepresentationKey(0, 0, 0)});
     // clear selection
-    dashDownloader.selectRepresentations(null);
-    dashDownloader.download(null);
-    assertCachedData(cache, fakeDataSet);
-    dashDownloader.remove();
-
     dashDownloader.selectRepresentations(new RepresentationKey[0]);
     dashDownloader.download(null);
     assertCachedData(cache, fakeDataSet);
@@ -202,8 +201,8 @@ public class DashDownloaderTest extends InstrumentationTestCase {
         .setRandomData("text_segment_2", 2)
         .setRandomData("text_segment_3", 3);
     FakeDataSource fakeDataSource = new FakeDataSource(fakeDataSet);
-    Factory factory = Mockito.mock(Factory.class);
-    Mockito.when(factory.createDataSource()).thenReturn(fakeDataSource);
+    Factory factory = mock(Factory.class);
+    when(factory.createDataSource()).thenReturn(fakeDataSource);
     DashDownloader dashDownloader = new DashDownloader(TEST_MPD_URI,
         new DownloaderConstructorHelper(cache, factory));
 
@@ -212,15 +211,15 @@ public class DashDownloaderTest extends InstrumentationTestCase {
     dashDownloader.download(null);
 
     DataSpec[] openedDataSpecs = fakeDataSource.getAndClearOpenedDataSpecs();
-    assertEquals(8, openedDataSpecs.length);
-    assertEquals(TEST_MPD_URI, openedDataSpecs[0].uri);
-    assertEquals("audio_init_data", openedDataSpecs[1].uri.getPath());
-    assertEquals("audio_segment_1", openedDataSpecs[2].uri.getPath());
-    assertEquals("text_segment_1", openedDataSpecs[3].uri.getPath());
-    assertEquals("audio_segment_2", openedDataSpecs[4].uri.getPath());
-    assertEquals("text_segment_2", openedDataSpecs[5].uri.getPath());
-    assertEquals("audio_segment_3", openedDataSpecs[6].uri.getPath());
-    assertEquals("text_segment_3", openedDataSpecs[7].uri.getPath());
+    assertThat(openedDataSpecs.length).isEqualTo(8);
+    assertThat(openedDataSpecs[0].uri).isEqualTo(TEST_MPD_URI);
+    assertThat(openedDataSpecs[1].uri.getPath()).isEqualTo("audio_init_data");
+    assertThat(openedDataSpecs[2].uri.getPath()).isEqualTo("audio_segment_1");
+    assertThat(openedDataSpecs[3].uri.getPath()).isEqualTo("text_segment_1");
+    assertThat(openedDataSpecs[4].uri.getPath()).isEqualTo("audio_segment_2");
+    assertThat(openedDataSpecs[5].uri.getPath()).isEqualTo("text_segment_2");
+    assertThat(openedDataSpecs[6].uri.getPath()).isEqualTo("audio_segment_3");
+    assertThat(openedDataSpecs[7].uri.getPath()).isEqualTo("text_segment_3");
   }
 
   public void testProgressiveDownloadSeparatePeriods() throws Exception {
@@ -234,8 +233,8 @@ public class DashDownloaderTest extends InstrumentationTestCase {
         .setRandomData("period_2_segment_2", 2)
         .setRandomData("period_2_segment_3", 3);
     FakeDataSource fakeDataSource = new FakeDataSource(fakeDataSet);
-    Factory factory = Mockito.mock(Factory.class);
-    Mockito.when(factory.createDataSource()).thenReturn(fakeDataSource);
+    Factory factory = mock(Factory.class);
+    when(factory.createDataSource()).thenReturn(fakeDataSource);
     DashDownloader dashDownloader = new DashDownloader(TEST_MPD_URI,
         new DownloaderConstructorHelper(cache, factory));
 
@@ -244,15 +243,15 @@ public class DashDownloaderTest extends InstrumentationTestCase {
     dashDownloader.download(null);
 
     DataSpec[] openedDataSpecs = fakeDataSource.getAndClearOpenedDataSpecs();
-    assertEquals(8, openedDataSpecs.length);
-    assertEquals(TEST_MPD_URI, openedDataSpecs[0].uri);
-    assertEquals("audio_init_data", openedDataSpecs[1].uri.getPath());
-    assertEquals("audio_segment_1", openedDataSpecs[2].uri.getPath());
-    assertEquals("audio_segment_2", openedDataSpecs[3].uri.getPath());
-    assertEquals("audio_segment_3", openedDataSpecs[4].uri.getPath());
-    assertEquals("period_2_segment_1", openedDataSpecs[5].uri.getPath());
-    assertEquals("period_2_segment_2", openedDataSpecs[6].uri.getPath());
-    assertEquals("period_2_segment_3", openedDataSpecs[7].uri.getPath());
+    assertThat(openedDataSpecs.length).isEqualTo(8);
+    assertThat(openedDataSpecs[0].uri).isEqualTo(TEST_MPD_URI);
+    assertThat(openedDataSpecs[1].uri.getPath()).isEqualTo("audio_init_data");
+    assertThat(openedDataSpecs[2].uri.getPath()).isEqualTo("audio_segment_1");
+    assertThat(openedDataSpecs[3].uri.getPath()).isEqualTo("audio_segment_2");
+    assertThat(openedDataSpecs[4].uri.getPath()).isEqualTo("audio_segment_3");
+    assertThat(openedDataSpecs[5].uri.getPath()).isEqualTo("period_2_segment_1");
+    assertThat(openedDataSpecs[6].uri.getPath()).isEqualTo("period_2_segment_2");
+    assertThat(openedDataSpecs[7].uri.getPath()).isEqualTo("period_2_segment_3");
   }
 
   public void testDownloadRepresentationFailure() throws Exception {
@@ -399,9 +398,9 @@ public class DashDownloaderTest extends InstrumentationTestCase {
 
   private static void assertCounters(DashDownloader dashDownloader, int totalSegments,
       int downloadedSegments, int downloadedBytes) {
-    assertEquals(totalSegments, dashDownloader.getTotalSegments());
-    assertEquals(downloadedSegments, dashDownloader.getDownloadedSegments());
-    assertEquals(downloadedBytes, dashDownloader.getDownloadedBytes());
+    assertThat(dashDownloader.getTotalSegments()).isEqualTo(totalSegments);
+    assertThat(dashDownloader.getDownloadedSegments()).isEqualTo(downloadedSegments);
+    assertThat(dashDownloader.getDownloadedBytes()).isEqualTo(downloadedBytes);
   }
 
 }

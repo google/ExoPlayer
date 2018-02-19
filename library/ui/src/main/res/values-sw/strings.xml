@@ -1,6 +1,5 @@
-<?xml version="1.0"?>
-<!--
-     Copyright (C) 2016 The Android Open Source Project
+<?xml version="1.0" encoding="UTF-8"?>
+<!--  Copyright (C) 2016 The Android Open Source Project
 
      Licensed under the Apache License, Version 2.0 (the "License");
      you may not use this file except in compliance with the License.
@@ -13,17 +12,24 @@
      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
      See the License for the specific language governing permissions and
      limitations under the License.
--->
-<resources>
-  <string name="exo_controls_previous_description">"Wimbo uliotangulia"</string>
-  <string name="exo_controls_next_description">"Wimbo unaofuata"</string>
-  <string name="exo_controls_pause_description">"Sitisha"</string>
-  <string name="exo_controls_play_description">"Cheza"</string>
-  <string name="exo_controls_stop_description">"Simamisha"</string>
-  <string name="exo_controls_rewind_description">"Rudisha nyuma"</string>
-  <string name="exo_controls_fastforward_description">"Peleka mbele kwa kasi"</string>
-  <string name="exo_controls_repeat_all_description">"Rudia zote"</string>
-  <string name="exo_controls_repeat_off_description">"Usirudie Yoyote"</string>
-  <string name="exo_controls_repeat_one_description">"Rudia Moja"</string>
-  <string name="exo_controls_shuffle_description">"Changanya"</string>
+ -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="exo_controls_previous_description" msgid="4729846277375475426">"Wimbo uliotangulia"</string>
+    <string name="exo_controls_next_description" msgid="7044845014191647105">"Wimbo unaofuata"</string>
+    <string name="exo_controls_pause_description" msgid="7924816224515798262">"Sitisha"</string>
+    <string name="exo_controls_play_description" msgid="2326300949114396072">"Cheza"</string>
+    <string name="exo_controls_stop_description" msgid="121453720915069922">"Simamisha"</string>
+    <string name="exo_controls_rewind_description" msgid="5799450167394904608">"Rudisha nyuma"</string>
+    <string name="exo_controls_fastforward_description" msgid="2382411136909255532">"Sogeza mbele haraka"</string>
+    <string name="exo_controls_repeat_off_description" msgid="2273550552389469729">"Usirudie yoyote"</string>
+    <string name="exo_controls_repeat_one_description" msgid="475266640141093764">"Rudia moja"</string>
+    <string name="exo_controls_repeat_all_description" msgid="8909385102773547833">"Rudia zote"</string>
+    <string name="exo_controls_shuffle_description" msgid="1374364424026734323">"Changanya"</string>
+    <string name="exo_controls_fullscreen_description" msgid="2643117270009811804">"Hali ya skrini nzima"</string>
+    <string name="exo_download_queued" msgid="5094895434694614073">"Inasubiri kupakuliwa"</string>
+    <string name="exo_downloading" msgid="3111729133695800638">"Inapakua"</string>
+    <string name="exo_download_completed" msgid="73698315802218437">"Imepakuliwa"</string>
+    <string name="exo_download_failed" msgid="6266121732877856285">"Imeshindwa kupakua"</string>
 </resources>

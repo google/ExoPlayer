@@ -15,33 +15,6 @@
  */
 package com.google.android.exoplayer2.video;
 
-import static android.opengl.EGL14.EGL_ALPHA_SIZE;
-import static android.opengl.EGL14.EGL_BLUE_SIZE;
-import static android.opengl.EGL14.EGL_CONFIG_CAVEAT;
-import static android.opengl.EGL14.EGL_CONTEXT_CLIENT_VERSION;
-import static android.opengl.EGL14.EGL_DEFAULT_DISPLAY;
-import static android.opengl.EGL14.EGL_DEPTH_SIZE;
-import static android.opengl.EGL14.EGL_GREEN_SIZE;
-import static android.opengl.EGL14.EGL_HEIGHT;
-import static android.opengl.EGL14.EGL_NONE;
-import static android.opengl.EGL14.EGL_OPENGL_ES2_BIT;
-import static android.opengl.EGL14.EGL_RED_SIZE;
-import static android.opengl.EGL14.EGL_RENDERABLE_TYPE;
-import static android.opengl.EGL14.EGL_SURFACE_TYPE;
-import static android.opengl.EGL14.EGL_TRUE;
-import static android.opengl.EGL14.EGL_WIDTH;
-import static android.opengl.EGL14.EGL_WINDOW_BIT;
-import static android.opengl.EGL14.eglChooseConfig;
-import static android.opengl.EGL14.eglCreateContext;
-import static android.opengl.EGL14.eglCreatePbufferSurface;
-import static android.opengl.EGL14.eglDestroyContext;
-import static android.opengl.EGL14.eglDestroySurface;
-import static android.opengl.EGL14.eglGetDisplay;
-import static android.opengl.EGL14.eglInitialize;
-import static android.opengl.EGL14.eglMakeCurrent;
-import static android.opengl.GLES20.glDeleteTextures;
-import static android.opengl.GLES20.glGenTextures;
-
 import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.pm.PackageManager;
@@ -52,6 +25,7 @@ import android.opengl.EGLConfig;
 import android.opengl.EGLContext;
 import android.opengl.EGLDisplay;
 import android.opengl.EGLSurface;
+import android.opengl.GLES20;
 import android.os.Handler;
 import android.os.Handler.Callback;
 import android.os.HandlerThread;
@@ -171,7 +145,7 @@ public final class DummySurface extends Surface {
       // Pre API level 26 devices were not well tested unless they supported VR mode.
       return SECURE_MODE_NONE;
     }
-    EGLDisplay display = eglGetDisplay(EGL_DEFAULT_DISPLAY);
+    EGLDisplay display = EGL14.eglGetDisplay(EGL14.EGL_DEFAULT_DISPLAY);
     String eglExtensions = EGL14.eglQueryString(display, EGL10.EGL_EXTENSIONS);
     if (eglExtensions == null) {
       return SECURE_MODE_NONE;
@@ -282,45 +256,49 @@ public final class DummySurface extends Surface {
     }
 
     private void initInternal(@SecureMode int secureMode) {
-      display = eglGetDisplay(EGL_DEFAULT_DISPLAY);
+      display = EGL14.eglGetDisplay(EGL14.EGL_DEFAULT_DISPLAY);
       Assertions.checkState(display != null, "eglGetDisplay failed");
 
       int[] version = new int[2];
-      boolean eglInitialized = eglInitialize(display, version, 0, version, 1);
+      boolean eglInitialized = EGL14.eglInitialize(display, version, 0, version, 1);
       Assertions.checkState(eglInitialized, "eglInitialize failed");
 
-      int[] eglAttributes = new int[] {
-          EGL_RENDERABLE_TYPE, EGL_OPENGL_ES2_BIT,
-          EGL_RED_SIZE, 8,
-          EGL_GREEN_SIZE, 8,
-          EGL_BLUE_SIZE, 8,
-          EGL_ALPHA_SIZE, 8,
-          EGL_DEPTH_SIZE, 0,
-          EGL_CONFIG_CAVEAT, EGL_NONE,
-          EGL_SURFACE_TYPE, EGL_WINDOW_BIT,
-          EGL_NONE
-      };
+      int[] eglAttributes =
+          new int[] {
+            EGL14.EGL_RENDERABLE_TYPE, EGL14.EGL_OPENGL_ES2_BIT,
+            EGL14.EGL_RED_SIZE, 8,
+            EGL14.EGL_GREEN_SIZE, 8,
+            EGL14.EGL_BLUE_SIZE, 8,
+            EGL14.EGL_ALPHA_SIZE, 8,
+            EGL14.EGL_DEPTH_SIZE, 0,
+            EGL14.EGL_CONFIG_CAVEAT, EGL14.EGL_NONE,
+            EGL14.EGL_SURFACE_TYPE, EGL14.EGL_WINDOW_BIT,
+            EGL14.EGL_NONE
+          };
       EGLConfig[] configs = new EGLConfig[1];
       int[] numConfigs = new int[1];
-      boolean eglChooseConfigSuccess = eglChooseConfig(display, eglAttributes, 0, configs, 0, 1,
-          numConfigs, 0);
+      boolean eglChooseConfigSuccess =
+          EGL14.eglChooseConfig(display, eglAttributes, 0, configs, 0, 1, numConfigs, 0);
       Assertions.checkState(eglChooseConfigSuccess && numConfigs[0] > 0 && configs[0] != null,
           "eglChooseConfig failed");
 
       EGLConfig config = configs[0];
       int[] glAttributes;
       if (secureMode == SECURE_MODE_NONE) {
-        glAttributes = new int[] {
-            EGL_CONTEXT_CLIENT_VERSION, 2,
-            EGL_NONE};
+        glAttributes = new int[] {EGL14.EGL_CONTEXT_CLIENT_VERSION, 2, EGL14.EGL_NONE};
       } else {
         glAttributes =
             new int[] {
-              EGL_CONTEXT_CLIENT_VERSION, 2, EGL_PROTECTED_CONTENT_EXT, EGL_TRUE, EGL_NONE
+              EGL14.EGL_CONTEXT_CLIENT_VERSION,
+              2,
+              EGL_PROTECTED_CONTENT_EXT,
+              EGL14.EGL_TRUE,
+              EGL14.EGL_NONE
             };
       }
-      context = eglCreateContext(display, config, android.opengl.EGL14.EGL_NO_CONTEXT, glAttributes,
-          0);
+      context =
+          EGL14.eglCreateContext(
+              display, config, android.opengl.EGL14.EGL_NO_CONTEXT, glAttributes, 0);
       Assertions.checkState(context != null, "eglCreateContext failed");
 
       EGLSurface surface;
@@ -331,20 +309,26 @@ public final class DummySurface extends Surface {
         if (secureMode == SECURE_MODE_PROTECTED_PBUFFER) {
           pbufferAttributes =
               new int[] {
-                EGL_WIDTH, 1, EGL_HEIGHT, 1, EGL_PROTECTED_CONTENT_EXT, EGL_TRUE, EGL_NONE
+                EGL14.EGL_WIDTH,
+                1,
+                EGL14.EGL_HEIGHT,
+                1,
+                EGL_PROTECTED_CONTENT_EXT,
+                EGL14.EGL_TRUE,
+                EGL14.EGL_NONE
               };
         } else {
-          pbufferAttributes = new int[] {EGL_WIDTH, 1, EGL_HEIGHT, 1, EGL_NONE};
+          pbufferAttributes = new int[] {EGL14.EGL_WIDTH, 1, EGL14.EGL_HEIGHT, 1, EGL14.EGL_NONE};
         }
-        pbuffer = eglCreatePbufferSurface(display, config, pbufferAttributes, 0);
+        pbuffer = EGL14.eglCreatePbufferSurface(display, config, pbufferAttributes, 0);
         Assertions.checkState(pbuffer != null, "eglCreatePbufferSurface failed");
         surface = pbuffer;
       }
 
-      boolean eglMadeCurrent = eglMakeCurrent(display, surface, surface, context);
+      boolean eglMadeCurrent = EGL14.eglMakeCurrent(display, surface, surface, context);
       Assertions.checkState(eglMadeCurrent, "eglMakeCurrent failed");
 
-      glGenTextures(1, textureIdHolder, 0);
+      GLES20.glGenTextures(1, textureIdHolder, 0);
       surfaceTexture = new SurfaceTexture(textureIdHolder[0]);
       surfaceTexture.setOnFrameAvailableListener(this);
       this.surface = new DummySurface(this, surfaceTexture, secureMode != SECURE_MODE_NONE);
@@ -354,14 +338,14 @@ public final class DummySurface extends Surface {
       try {
         if (surfaceTexture != null) {
           surfaceTexture.release();
-          glDeleteTextures(1, textureIdHolder, 0);
+          GLES20.glDeleteTextures(1, textureIdHolder, 0);
         }
       } finally {
         if (pbuffer != null) {
-          eglDestroySurface(display, pbuffer);
+          EGL14.eglDestroySurface(display, pbuffer);
         }
         if (context != null) {
-          eglDestroyContext(display, context);
+          EGL14.eglDestroyContext(display, context);
         }
         pbuffer = null;
         context = null;

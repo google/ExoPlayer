@@ -1,6 +1,5 @@
-<?xml version="1.0"?>
-<!--
-     Copyright (C) 2016 The Android Open Source Project
+<?xml version="1.0" encoding="UTF-8"?>
+<!--  Copyright (C) 2016 The Android Open Source Project
 
      Licensed under the Apache License, Version 2.0 (the "License");
      you may not use this file except in compliance with the License.
@@ -13,17 +12,24 @@
      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
      See the License for the specific language governing permissions and
      limitations under the License.
--->
-<resources>
-  <string name="exo_controls_previous_description">"Попередня композиція"</string>
-  <string name="exo_controls_next_description">"Наступна композиція"</string>
-  <string name="exo_controls_pause_description">"Пауза"</string>
-  <string name="exo_controls_play_description">"Відтворити"</string>
-  <string name="exo_controls_stop_description">"Зупинити"</string>
-  <string name="exo_controls_rewind_description">"Перемотати назад"</string>
-  <string name="exo_controls_fastforward_description">"Перемотати вперед"</string>
-  <string name="exo_controls_repeat_all_description">"Повторити все"</string>
-  <string name="exo_controls_repeat_off_description">"Не повторювати"</string>
-  <string name="exo_controls_repeat_one_description">"Повторити один елемент"</string>
-  <string name="exo_controls_shuffle_description">"Перемішати"</string>
+ -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="exo_controls_previous_description" msgid="4729846277375475426">"Попередня композиція"</string>
+    <string name="exo_controls_next_description" msgid="7044845014191647105">"Наступна композиція"</string>
+    <string name="exo_controls_pause_description" msgid="7924816224515798262">"Призупинити"</string>
+    <string name="exo_controls_play_description" msgid="2326300949114396072">"Відтворити"</string>
+    <string name="exo_controls_stop_description" msgid="121453720915069922">"Припинити"</string>
+    <string name="exo_controls_rewind_description" msgid="5799450167394904608">"Перемотати назад"</string>
+    <string name="exo_controls_fastforward_description" msgid="2382411136909255532">"Перемотати вперед"</string>
+    <string name="exo_controls_repeat_off_description" msgid="2273550552389469729">"Не повторювати"</string>
+    <string name="exo_controls_repeat_one_description" msgid="475266640141093764">"Повторити 1"</string>
+    <string name="exo_controls_repeat_all_description" msgid="8909385102773547833">"Повторити всі"</string>
+    <string name="exo_controls_shuffle_description" msgid="1374364424026734323">"Перемішати"</string>
+    <string name="exo_controls_fullscreen_description" msgid="2643117270009811804">"Повноекранний режим"</string>
+    <string name="exo_download_queued" msgid="5094895434694614073">"Завантаження розміщено в черзі"</string>
+    <string name="exo_downloading" msgid="3111729133695800638">"Завантажується"</string>
+    <string name="exo_download_completed" msgid="73698315802218437">"Завантаження завершено"</string>
+    <string name="exo_download_failed" msgid="6266121732877856285">"Не вдалося завантажити"</string>
 </resources>

@@ -17,10 +17,10 @@ package com.google.android.exoplayer2.demo;
 
 import android.app.Application;
 import com.google.android.exoplayer2.upstream.DataSource;
-import com.google.android.exoplayer2.upstream.DefaultBandwidthMeter;
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
 import com.google.android.exoplayer2.upstream.DefaultHttpDataSourceFactory;
 import com.google.android.exoplayer2.upstream.HttpDataSource;
+import com.google.android.exoplayer2.upstream.TransferListener;
 import com.google.android.exoplayer2.util.Util;
 
 /**
@@ -36,13 +36,15 @@ public class DemoApplication extends Application {
     userAgent = Util.getUserAgent(this, "ExoPlayerDemo");
   }
 
-  public DataSource.Factory buildDataSourceFactory(DefaultBandwidthMeter bandwidthMeter) {
-    return new DefaultDataSourceFactory(this, bandwidthMeter,
-        buildHttpDataSourceFactory(bandwidthMeter));
+  /** Returns a {@link DataSource.Factory}. */
+  public DataSource.Factory buildDataSourceFactory(TransferListener<? super DataSource> listener) {
+    return new DefaultDataSourceFactory(this, listener, buildHttpDataSourceFactory(listener));
   }
 
-  public HttpDataSource.Factory buildHttpDataSourceFactory(DefaultBandwidthMeter bandwidthMeter) {
-    return new DefaultHttpDataSourceFactory(userAgent, bandwidthMeter);
+  /** Returns a {@link HttpDataSource.Factory}. */
+  public HttpDataSource.Factory buildHttpDataSourceFactory(
+      TransferListener<? super DataSource> listener) {
+    return new DefaultHttpDataSourceFactory(userAgent, listener);
   }
 
   public boolean useExtensionRenderers() {

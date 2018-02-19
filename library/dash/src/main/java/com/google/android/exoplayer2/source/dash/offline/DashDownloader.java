@@ -75,26 +75,24 @@ public final class DashDownloader extends SegmentDownloader<DashManifest, Repres
   }
 
   @Override
-  public DashManifest getManifest(DataSource dataSource, Uri uri) throws IOException {
-    return DashUtil.loadManifest(dataSource, uri);
-  }
-
-  @Override
-  protected List<Segment> getAllSegments(DataSource dataSource, DashManifest manifest,
-      boolean allowIndexLoadErrors) throws InterruptedException, IOException {
-    ArrayList<Segment> segments = new ArrayList<>();
+  public RepresentationKey[] getAllRepresentationKeys() throws IOException {
+    ArrayList<RepresentationKey> keys = new ArrayList<>();
+    DashManifest manifest = getManifest();
     for (int periodIndex = 0; periodIndex < manifest.getPeriodCount(); periodIndex++) {
       List<AdaptationSet> adaptationSets = manifest.getPeriod(periodIndex).adaptationSets;
       for (int adaptationIndex = 0; adaptationIndex < adaptationSets.size(); adaptationIndex++) {
-        AdaptationSet adaptationSet = adaptationSets.get(adaptationIndex);
-        RepresentationKey[] keys = new RepresentationKey[adaptationSet.representations.size()];
-        for (int i = 0; i < keys.length; i++) {
-          keys[i] = new RepresentationKey(periodIndex, adaptationIndex, i);
+        int representationsCount = adaptationSets.get(adaptationIndex).representations.size();
+        for (int i = 0; i < representationsCount; i++) {
+          keys.add(new RepresentationKey(periodIndex, adaptationIndex, i));
         }
-        segments.addAll(getSegments(dataSource, manifest, keys, allowIndexLoadErrors));
       }
     }
-    return segments;
+    return keys.toArray(new RepresentationKey[keys.size()]);
+  }
+
+  @Override
+  protected DashManifest getManifest(DataSource dataSource, Uri uri) throws IOException {
+    return DashUtil.loadManifest(dataSource, uri);
   }
 
   @Override
@@ -138,9 +136,9 @@ public final class DashDownloader extends SegmentDownloader<DashManifest, Repres
         addSegment(segments, startUs, baseUrl, indexUri);
       }
 
-      int firstSegmentNum = index.getFirstSegmentNum();
-      int lastSegmentNum = firstSegmentNum + segmentCount - 1;
-      for (int j = firstSegmentNum; j <= lastSegmentNum; j++) {
+      long firstSegmentNum = index.getFirstSegmentNum();
+      long lastSegmentNum = firstSegmentNum + segmentCount - 1;
+      for (long j = firstSegmentNum; j <= lastSegmentNum; j++) {
         addSegment(segments, startUs + index.getTimeUs(j), baseUrl, index.getSegmentUrl(j));
       }
     }

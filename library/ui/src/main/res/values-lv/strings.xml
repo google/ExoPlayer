@@ -1,6 +1,5 @@
-<?xml version="1.0"?>
-<!--
-     Copyright (C) 2016 The Android Open Source Project
+<?xml version="1.0" encoding="UTF-8"?>
+<!--  Copyright (C) 2016 The Android Open Source Project
 
      Licensed under the Apache License, Version 2.0 (the "License");
      you may not use this file except in compliance with the License.
@@ -13,17 +12,24 @@
      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
      See the License for the specific language governing permissions and
      limitations under the License.
--->
-<resources>
-  <string name="exo_controls_previous_description">"Iepriekšējais ieraksts"</string>
-  <string name="exo_controls_next_description">"Nākamais ieraksts"</string>
-  <string name="exo_controls_pause_description">"Pārtraukt"</string>
-  <string name="exo_controls_play_description">"Atskaņot"</string>
-  <string name="exo_controls_stop_description">"Apturēt"</string>
-  <string name="exo_controls_rewind_description">"Attīt atpakaļ"</string>
-  <string name="exo_controls_fastforward_description">"Ātri patīt"</string>
-  <string name="exo_controls_repeat_all_description">"Atkārtot visu"</string>
-  <string name="exo_controls_repeat_off_description">"Neatkārtot nevienu"</string>
-  <string name="exo_controls_repeat_one_description">"Atkārtot vienu"</string>
-  <string name="exo_controls_shuffle_description">"Atskaņot jauktā secībā"</string>
+ -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="exo_controls_previous_description" msgid="4729846277375475426">"Iepriekšējais ieraksts"</string>
+    <string name="exo_controls_next_description" msgid="7044845014191647105">"Nākamais ieraksts"</string>
+    <string name="exo_controls_pause_description" msgid="7924816224515798262">"Pauzēt"</string>
+    <string name="exo_controls_play_description" msgid="2326300949114396072">"Atskaņot"</string>
+    <string name="exo_controls_stop_description" msgid="121453720915069922">"Apturēt"</string>
+    <string name="exo_controls_rewind_description" msgid="5799450167394904608">"Attīt atpakaļ"</string>
+    <string name="exo_controls_fastforward_description" msgid="2382411136909255532">"Pārtīt uz priekšu"</string>
+    <string name="exo_controls_repeat_off_description" msgid="2273550552389469729">"Neatkārtot nevienu"</string>
+    <string name="exo_controls_repeat_one_description" msgid="475266640141093764">"Atkārtot vienu"</string>
+    <string name="exo_controls_repeat_all_description" msgid="8909385102773547833">"Atkārtot visu"</string>
+    <string name="exo_controls_shuffle_description" msgid="1374364424026734323">"Atskaņot jauktā secībā"</string>
+    <string name="exo_controls_fullscreen_description" msgid="2643117270009811804">"Pilnekrāna režīms"</string>
+    <string name="exo_download_queued" msgid="5094895434694614073">"Lejupielāde gaida rindā"</string>
+    <string name="exo_downloading" msgid="3111729133695800638">"Notiek lejupielāde"</string>
+    <string name="exo_download_completed" msgid="73698315802218437">"Lejupielāde ir pabeigta"</string>
+    <string name="exo_download_failed" msgid="6266121732877856285">"Lejupielāde neizdevās"</string>
 </resources>

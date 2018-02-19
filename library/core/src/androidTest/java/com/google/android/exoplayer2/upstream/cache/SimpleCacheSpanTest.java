@@ -15,6 +15,9 @@
  */
 package com.google.android.exoplayer2.upstream.cache;
 
+import static com.google.common.truth.Truth.assertThat;
+import static com.google.common.truth.Truth.assertWithMessage;
+
 import android.test.InstrumentationTestCase;
 import com.google.android.exoplayer2.util.Util;
 import java.io.File;
@@ -48,6 +51,7 @@ public class SimpleCacheSpanTest extends InstrumentationTestCase {
 
   @Override
   protected void setUp() throws Exception {
+    super.setUp();
     cacheDir = Util.createTempDirectory(getInstrumentation().getContext(), "ExoPlayerTest");
     index = new CachedContentIndex(cacheDir);
   }
@@ -55,6 +59,7 @@ public class SimpleCacheSpanTest extends InstrumentationTestCase {
   @Override
   protected void tearDown() throws Exception {
     Util.recursiveDelete(cacheDir);
+    super.tearDown();
   }
 
   public void testCacheFile() throws Exception {
@@ -86,39 +91,39 @@ public class SimpleCacheSpanTest extends InstrumentationTestCase {
     for (File file : cacheDir.listFiles()) {
       SimpleCacheSpan cacheEntry = SimpleCacheSpan.createCacheEntry(file, index);
       if (file.equals(wrongEscapedV2file)) {
-        assertNull(cacheEntry);
+        assertThat(cacheEntry).isNull();
       } else {
-        assertNotNull(cacheEntry);
+        assertThat(cacheEntry).isNotNull();
       }
     }
 
-    assertTrue(v3file.exists());
-    assertFalse(v2file.exists());
-    assertTrue(wrongEscapedV2file.exists());
-    assertFalse(v1File.exists());
+    assertThat(v3file.exists()).isTrue();
+    assertThat(v2file.exists()).isFalse();
+    assertThat(wrongEscapedV2file.exists()).isTrue();
+    assertThat(v1File.exists()).isFalse();
 
     File[] files = cacheDir.listFiles();
-    assertEquals(4, files.length);
+    assertThat(files).hasLength(4);
 
     Set<String> keys = index.getKeys();
-    assertEquals("There should be only one key for all files.", 1, keys.size());
-    assertTrue(keys.contains(key));
+    assertWithMessage("There should be only one key for all files.").that(keys).hasSize(1);
+    assertThat(keys).contains(key);
 
     TreeSet<SimpleCacheSpan> spans = index.get(key).getSpans();
-    assertTrue("upgradeOldFiles() shouldn't add any spans.", spans.isEmpty());
+    assertWithMessage("upgradeOldFiles() shouldn't add any spans.").that(spans.isEmpty()).isTrue();
 
     HashMap<Long, Long> cachedPositions = new HashMap<>();
     for (File file : files) {
       SimpleCacheSpan cacheSpan = SimpleCacheSpan.createCacheEntry(file, index);
       if (cacheSpan != null) {
-        assertEquals(key, cacheSpan.key);
+        assertThat(cacheSpan.key).isEqualTo(key);
         cachedPositions.put(cacheSpan.position, cacheSpan.lastAccessTimestamp);
       }
     }
 
-    assertEquals(1, (long) cachedPositions.get((long) 0));
-    assertEquals(2, (long) cachedPositions.get((long) 1));
-    assertEquals(6, (long) cachedPositions.get((long) 5));
+    assertThat(cachedPositions.get((long) 0)).isEqualTo(1);
+    assertThat(cachedPositions.get((long) 1)).isEqualTo(2);
+    assertThat(cachedPositions.get((long) 5)).isEqualTo(6);
   }
 
   private static void createTestFile(File file, int length) throws IOException {
@@ -141,14 +146,14 @@ public class SimpleCacheSpanTest extends InstrumentationTestCase {
     File cacheFile = createCacheSpanFile(cacheDir, id, offset, 1, lastAccessTimestamp);
     SimpleCacheSpan cacheSpan = SimpleCacheSpan.createCacheEntry(cacheFile, index);
     String message = cacheFile.toString();
-    assertNotNull(message, cacheSpan);
-    assertEquals(message, cacheDir, cacheFile.getParentFile());
-    assertEquals(message, key, cacheSpan.key);
-    assertEquals(message, offset, cacheSpan.position);
-    assertEquals(message, 1, cacheSpan.length);
-    assertTrue(message, cacheSpan.isCached);
-    assertEquals(message, cacheFile, cacheSpan.file);
-    assertEquals(message, lastAccessTimestamp, cacheSpan.lastAccessTimestamp);
+    assertWithMessage(message).that(cacheSpan).isNotNull();
+    assertWithMessage(message).that(cacheFile.getParentFile()).isEqualTo(cacheDir);
+    assertWithMessage(message).that(cacheSpan.key).isEqualTo(key);
+    assertWithMessage(message).that(cacheSpan.position).isEqualTo(offset);
+    assertWithMessage(message).that(cacheSpan.length).isEqualTo(1);
+    assertWithMessage(message).that(cacheSpan.isCached).isTrue();
+    assertWithMessage(message).that(cacheSpan.file).isEqualTo(cacheFile);
+    assertWithMessage(message).that(cacheSpan.lastAccessTimestamp).isEqualTo(lastAccessTimestamp);
   }
 
   private void assertNullCacheSpan(File parent, String key, long offset,
@@ -156,7 +161,7 @@ public class SimpleCacheSpanTest extends InstrumentationTestCase {
     File cacheFile = SimpleCacheSpan.getCacheFile(parent, index.assignIdForKey(key), offset,
         lastAccessTimestamp);
     CacheSpan cacheSpan = SimpleCacheSpan.createCacheEntry(cacheFile, index);
-    assertNull(cacheFile.toString(), cacheSpan);
+    assertWithMessage(cacheFile.toString()).that(cacheSpan).isNull();
   }
 
 }

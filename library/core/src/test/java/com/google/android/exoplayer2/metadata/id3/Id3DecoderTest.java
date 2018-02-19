@@ -25,13 +25,11 @@ import java.nio.charset.Charset;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
-import org.robolectric.annotation.Config;
 
 /**
  * Test for {@link Id3Decoder}.
  */
 @RunWith(RobolectricTestRunner.class)
-@Config(sdk = Config.TARGET_SDK, manifest = Config.NONE)
 public final class Id3DecoderTest {
 
   private static final byte[] TAG_HEADER = new byte[] {73, 68, 51, 4, 0, 0, 0, 0, 0, 0};

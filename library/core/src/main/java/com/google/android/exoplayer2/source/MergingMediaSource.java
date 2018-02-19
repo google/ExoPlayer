@@ -16,6 +16,7 @@
 package com.google.android.exoplayer2.source;
 
 import android.support.annotation.IntDef;
+import android.support.annotation.Nullable;
 import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.upstream.Allocator;
@@ -24,14 +25,14 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 
 /**
  * Merges multiple {@link MediaSource}s.
- * <p>
- * The {@link Timeline}s of the sources being merged must have the same number of periods, and must
- * not have any dynamic windows.
+ *
+ * <p>The {@link Timeline}s of the sources being merged must have the same number of periods.
  */
-public final class MergingMediaSource implements MediaSource {
+public final class MergingMediaSource extends CompositeMediaSource<Integer> {
 
   /**
    * Thrown when a {@link MergingMediaSource} cannot merge its sources.
@@ -42,26 +43,20 @@ public final class MergingMediaSource implements MediaSource {
      * The reason the merge failed.
      */
     @Retention(RetentionPolicy.SOURCE)
-    @IntDef({REASON_WINDOWS_ARE_DYNAMIC, REASON_PERIOD_COUNT_MISMATCH})
+    @IntDef({REASON_PERIOD_COUNT_MISMATCH})
     public @interface Reason {}
     /**
-     * The merge failed because one of the sources being merged has a dynamic window.
+     * The sources have different period counts.
      */
-    public static final int REASON_WINDOWS_ARE_DYNAMIC = 0;
-    /**
-     * The merge failed because the sources have different period counts.
-     */
-    public static final int REASON_PERIOD_COUNT_MISMATCH = 1;
+    public static final int REASON_PERIOD_COUNT_MISMATCH = 0;
 
     /**
-     * The reason the merge failed. One of {@link #REASON_WINDOWS_ARE_DYNAMIC} and
-     * {@link #REASON_PERIOD_COUNT_MISMATCH}.
+     * The reason the merge failed.
      */
     @Reason public final int reason;
 
     /**
-     * @param reason The reason the merge failed. One of {@link #REASON_WINDOWS_ARE_DYNAMIC} and
-     *     {@link #REASON_PERIOD_COUNT_MISMATCH}.
+     * @param reason The reason the merge failed.
      */
     public IllegalMergeException(@Reason int reason) {
       this.reason = reason;
@@ -73,7 +68,7 @@ public final class MergingMediaSource implements MediaSource {
 
   private final MediaSource[] mediaSources;
   private final ArrayList<MediaSource> pendingTimelineSources;
-  private final Timeline.Window window;
+  private final CompositeSequenceableLoaderFactory compositeSequenceableLoaderFactory;
 
   private Listener listener;
   private Timeline primaryTimeline;
@@ -85,23 +80,29 @@ public final class MergingMediaSource implements MediaSource {
    * @param mediaSources The {@link MediaSource}s to merge.
    */
   public MergingMediaSource(MediaSource... mediaSources) {
+    this(new DefaultCompositeSequenceableLoaderFactory(), mediaSources);
+  }
+
+  /**
+   * @param compositeSequenceableLoaderFactory A factory to create composite
+   *     {@link SequenceableLoader}s for when this media source loads data from multiple streams
+   *     (video, audio etc...).
+   * @param mediaSources The {@link MediaSource}s to merge.
+   */
+  public MergingMediaSource(CompositeSequenceableLoaderFactory compositeSequenceableLoaderFactory,
+      MediaSource... mediaSources) {
     this.mediaSources = mediaSources;
+    this.compositeSequenceableLoaderFactory = compositeSequenceableLoaderFactory;
     pendingTimelineSources = new ArrayList<>(Arrays.asList(mediaSources));
-    window = new Timeline.Window();
     periodCount = PERIOD_COUNT_UNSET;
   }
 
   @Override
   public void prepareSource(ExoPlayer player, boolean isTopLevelSource, Listener listener) {
+    super.prepareSource(player, isTopLevelSource, listener);
     this.listener = listener;
     for (int i = 0; i < mediaSources.length; i++) {
-      final int sourceIndex = i;
-      mediaSources[sourceIndex].prepareSource(player, false, new Listener() {
-        @Override
-        public void onSourceInfoRefreshed(MediaSource source, Timeline timeline, Object manifest) {
-          handleSourceInfoRefreshed(sourceIndex, timeline, manifest);
-        }
-      });
+      prepareChildSource(i, mediaSources[i]);
     }
   }
 
@@ -110,9 +111,7 @@ public final class MergingMediaSource implements MediaSource {
     if (mergeError != null) {
       throw mergeError;
     }
-    for (MediaSource mediaSource : mediaSources) {
-      mediaSource.maybeThrowSourceInfoRefreshError();
-    }
+    super.maybeThrowSourceInfoRefreshError();
   }
 
   @Override
@@ -121,7 +120,7 @@ public final class MergingMediaSource implements MediaSource {
     for (int i = 0; i < periods.length; i++) {
       periods[i] = mediaSources[i].createPeriod(id, allocator);
     }
-    return new MergingMediaPeriod(periods);
+    return new MergingMediaPeriod(compositeSequenceableLoaderFactory, periods);
   }
 
   @Override
@@ -134,20 +133,27 @@ public final class MergingMediaSource implements MediaSource {
 
   @Override
   public void releaseSource() {
-    for (MediaSource mediaSource : mediaSources) {
-      mediaSource.releaseSource();
-    }
+    super.releaseSource();
+    listener = null;
+    primaryTimeline = null;
+    primaryManifest = null;
+    periodCount = PERIOD_COUNT_UNSET;
+    mergeError = null;
+    pendingTimelineSources.clear();
+    Collections.addAll(pendingTimelineSources, mediaSources);
   }
 
-  private void handleSourceInfoRefreshed(int sourceIndex, Timeline timeline, Object manifest) {
+  @Override
+  protected void onChildSourceInfoRefreshed(
+      Integer id, MediaSource mediaSource, Timeline timeline, @Nullable Object manifest) {
     if (mergeError == null) {
       mergeError = checkTimelineMerges(timeline);
     }
     if (mergeError != null) {
       return;
     }
-    pendingTimelineSources.remove(mediaSources[sourceIndex]);
-    if (sourceIndex == 0) {
+    pendingTimelineSources.remove(mediaSource);
+    if (mediaSource == mediaSources[0]) {
       primaryTimeline = timeline;
       primaryManifest = manifest;
     }
@@ -157,12 +163,6 @@ public final class MergingMediaSource implements MediaSource {
   }
 
   private IllegalMergeException checkTimelineMerges(Timeline timeline) {
-    int windowCount = timeline.getWindowCount();
-    for (int i = 0; i < windowCount; i++) {
-      if (timeline.getWindow(i, window, false).isDynamic) {
-        return new IllegalMergeException(IllegalMergeException.REASON_WINDOWS_ARE_DYNAMIC);
-      }
-    }
     if (periodCount == PERIOD_COUNT_UNSET) {
       periodCount = timeline.getPeriodCount();
     } else if (timeline.getPeriodCount() != periodCount) {

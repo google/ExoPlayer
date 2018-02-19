@@ -18,6 +18,7 @@ package com.google.android.exoplayer2.testutil;
 import android.net.Uri;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
+import com.google.android.exoplayer2.SeekParameters;
 import com.google.android.exoplayer2.source.chunk.Chunk;
 import com.google.android.exoplayer2.source.chunk.ChunkHolder;
 import com.google.android.exoplayer2.source.chunk.ChunkSource;
@@ -28,6 +29,7 @@ import com.google.android.exoplayer2.trackselection.TrackSelection;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DataSpec;
 import com.google.android.exoplayer2.util.MimeTypes;
+import com.google.android.exoplayer2.util.Util;
 import java.io.IOException;
 import java.util.List;
 
@@ -72,6 +74,17 @@ public final class FakeChunkSource implements ChunkSource {
   }
 
   @Override
+  public long getAdjustedSeekPositionUs(long positionUs, SeekParameters seekParameters) {
+    int chunkIndex = dataSet.getChunkIndexByPosition(positionUs);
+    long firstSyncUs = dataSet.getStartTime(chunkIndex);
+    long secondSyncUs =
+        firstSyncUs < positionUs && chunkIndex < dataSet.getChunkCount() - 1
+            ? dataSet.getStartTime(chunkIndex + 1)
+            : firstSyncUs;
+    return Util.resolveSeekPositionUs(positionUs, seekParameters, firstSyncUs, secondSyncUs);
+  }
+
+  @Override
   public void maybeThrowError() throws IOException {
     // Do nothing.
   }
@@ -86,8 +99,10 @@ public final class FakeChunkSource implements ChunkSource {
       ChunkHolder out) {
     long bufferedDurationUs = loadPositionUs - playbackPositionUs;
     trackSelection.updateSelectedTrack(playbackPositionUs, bufferedDurationUs, C.TIME_UNSET);
-    int chunkIndex = previous == null ? dataSet.getChunkIndexByPosition(playbackPositionUs)
-        : previous.getNextChunkIndex();
+    int chunkIndex =
+        previous == null
+            ? dataSet.getChunkIndexByPosition(playbackPositionUs)
+            : (int) previous.getNextChunkIndex();
     if (chunkIndex >= dataSet.getChunkCount()) {
       out.endOfStream = true;
     } else {

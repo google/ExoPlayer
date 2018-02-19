@@ -16,43 +16,14 @@
 package com.google.android.exoplayer2.demo;
 
 import android.text.TextUtils;
-import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
-import com.google.android.exoplayer2.drm.UnsupportedDrmException;
 import com.google.android.exoplayer2.util.MimeTypes;
-import com.google.android.exoplayer2.util.Util;
 import java.util.Locale;
-import java.util.UUID;
 
 /**
  * Utility methods for demo application.
  */
 /* package */ final class DemoUtil {
-
-  /**
-   * Derives a DRM {@link UUID} from {@code drmScheme}.
-   *
-   * @param drmScheme A protection scheme UUID string; or {@code "widevine"}, {@code "playready"} or
-   *     {@code "clearkey"}.
-   * @return The derived {@link UUID}.
-   * @throws UnsupportedDrmException If no {@link UUID} could be derived from {@code drmScheme}.
-   */
-  public static UUID getDrmUuid(String drmScheme) throws UnsupportedDrmException {
-    switch (Util.toLowerInvariant(drmScheme)) {
-      case "widevine":
-        return C.WIDEVINE_UUID;
-      case "playready":
-        return C.PLAYREADY_UUID;
-      case "clearkey":
-        return C.CLEARKEY_UUID;
-      default:
-        try {
-          return UUID.fromString(drmScheme);
-        } catch (RuntimeException e) {
-          throw new UnsupportedDrmException(UnsupportedDrmException.REASON_UNSUPPORTED_SCHEME);
-        }
-    }
-  }
 
   /**
    * Builds a track name for display.

@@ -253,7 +253,7 @@ import java.util.List;
     updateLiveEdgeTimeUs(mediaPlaylist);
 
     // Select the chunk.
-    int chunkMediaSequence;
+    long chunkMediaSequence;
     if (previous == null || switchingVariant) {
       long targetPositionUs = (previous == null || independentSegments) ? loadPositionUs
           : previous.startTimeUs;
@@ -281,7 +281,7 @@ import java.util.List;
       return;
     }
 
-    int chunkIndex = chunkMediaSequence - mediaPlaylist.mediaSequence;
+    int chunkIndex = (int) (chunkMediaSequence - mediaPlaylist.mediaSequence);
     if (chunkIndex >= mediaPlaylist.segments.size()) {
       if (mediaPlaylist.hasEndTag) {
         out.endOfStream = true;
@@ -330,11 +330,27 @@ import java.util.List;
     Uri chunkUri = UriUtil.resolveToUri(mediaPlaylist.baseUri, segment.url);
     DataSpec dataSpec = new DataSpec(chunkUri, segment.byterangeOffset, segment.byterangeLength,
         null);
-    out.chunk = new HlsMediaChunk(extractorFactory, mediaDataSource, dataSpec, initDataSpec,
-        selectedUrl, muxedCaptionFormats, trackSelection.getSelectionReason(),
-        trackSelection.getSelectionData(), startTimeUs, startTimeUs + segment.durationUs,
-        chunkMediaSequence, discontinuitySequence, isTimestampMaster, timestampAdjuster, previous,
-        mediaPlaylist.drmInitData, encryptionKey, encryptionIv);
+    out.chunk =
+        new HlsMediaChunk(
+            extractorFactory,
+            mediaDataSource,
+            dataSpec,
+            initDataSpec,
+            selectedUrl,
+            muxedCaptionFormats,
+            trackSelection.getSelectionReason(),
+            trackSelection.getSelectionData(),
+            startTimeUs,
+            startTimeUs + segment.durationUs,
+            chunkMediaSequence,
+            discontinuitySequence,
+            segment.hasGapTag,
+            isTimestampMaster,
+            timestampAdjuster,
+            previous,
+            mediaPlaylist.drmInitData,
+            encryptionKey,
+            encryptionIv);
   }
 
   /**

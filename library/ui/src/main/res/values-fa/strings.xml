@@ -1,6 +1,5 @@
-<?xml version="1.0"?>
-<!--
-     Copyright (C) 2016 The Android Open Source Project
+<?xml version="1.0" encoding="UTF-8"?>
+<!--  Copyright (C) 2016 The Android Open Source Project
 
      Licensed under the Apache License, Version 2.0 (the "License");
      you may not use this file except in compliance with the License.
@@ -13,17 +12,24 @@
      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
      See the License for the specific language governing permissions and
      limitations under the License.
--->
-<resources>
-  <string name="exo_controls_previous_description">"آهنگ قبلی"</string>
-  <string name="exo_controls_next_description">"آهنگ بعدی"</string>
-  <string name="exo_controls_pause_description">"مکث"</string>
-  <string name="exo_controls_play_description">"پخش"</string>
-  <string name="exo_controls_stop_description">"توقف"</string>
-  <string name="exo_controls_rewind_description">"عقب بردن"</string>
-  <string name="exo_controls_fastforward_description">"جلو بردن سریع"</string>
-  <string name="exo_controls_repeat_all_description">"تکرار همه"</string>
-  <string name="exo_controls_repeat_off_description">"تکرار هیچ‌کدام"</string>
-  <string name="exo_controls_repeat_one_description">"یک‌بار تکرار"</string>
-  <string name="exo_controls_shuffle_description">"پخش درهم"</string>
+ -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="exo_controls_previous_description" msgid="4729846277375475426">"آهنگ قبلی"</string>
+    <string name="exo_controls_next_description" msgid="7044845014191647105">"آهنگ بعدی"</string>
+    <string name="exo_controls_pause_description" msgid="7924816224515798262">"مکث"</string>
+    <string name="exo_controls_play_description" msgid="2326300949114396072">"پخش"</string>
+    <string name="exo_controls_stop_description" msgid="121453720915069922">"توقف"</string>
+    <string name="exo_controls_rewind_description" msgid="5799450167394904608">"عقب بردن"</string>
+    <string name="exo_controls_fastforward_description" msgid="2382411136909255532">"جلو بردن سریع"</string>
+    <string name="exo_controls_repeat_off_description" msgid="2273550552389469729">"تکرار هیچ‌کدام"</string>
+    <string name="exo_controls_repeat_one_description" msgid="475266640141093764">"یکبار تکرار"</string>
+    <string name="exo_controls_repeat_all_description" msgid="8909385102773547833">"تکرار همه"</string>
+    <string name="exo_controls_shuffle_description" msgid="1374364424026734323">"درهم"</string>
+    <string name="exo_controls_fullscreen_description" msgid="2643117270009811804">"حالت تمام‌صفحه"</string>
+    <string name="exo_download_queued" msgid="5094895434694614073">"درانتظار بارگیری"</string>
+    <string name="exo_downloading" msgid="3111729133695800638">"درحال بارگیری"</string>
+    <string name="exo_download_completed" msgid="73698315802218437">"بارگیری کامل شد"</string>
+    <string name="exo_download_failed" msgid="6266121732877856285">"بارگیری نشد"</string>
 </resources>

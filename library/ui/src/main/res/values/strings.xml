@@ -14,15 +14,36 @@
      limitations under the License.
 -->
 <resources>
+  <!-- Description for a media control button that causes the previous track to be played. [CHAR LIMIT=30] -->
   <string name="exo_controls_previous_description">Previous track</string>
+  <!-- Description for a media control button that causes the next track to be played. [CHAR LIMIT=30] -->
   <string name="exo_controls_next_description">Next track</string>
+  <!-- Description for a media control button that causes playback to be paused. [CHAR LIMIT=30] -->
   <string name="exo_controls_pause_description">Pause</string>
+  <!-- Description for a media control button that causes playback to be started. [CHAR LIMIT=30] -->
   <string name="exo_controls_play_description">Play</string>
+  <!-- Description for a media control button that causes playback to be stopped. [CHAR LIMIT=30] -->
   <string name="exo_controls_stop_description">Stop</string>
+  <!-- Description for a media control button that causes playback to be rewound. [CHAR LIMIT=30] -->
   <string name="exo_controls_rewind_description">Rewind</string>
+  <!-- Description for a media control button that causes playback to be fast-forwarded. [CHAR LIMIT=30] -->
   <string name="exo_controls_fastforward_description">Fast forward</string>
+  <!-- Description for a button that controls the repeat mode of a media playback. In this mode media is not repeated. [CHAR LIMIT=30] -->
   <string name="exo_controls_repeat_off_description">Repeat none</string>
+  <!-- Description for a button that controls the repeat mode of a media playback. In this mode the current piece of media is repeated. [CHAR LIMIT=30] -->
   <string name="exo_controls_repeat_one_description">Repeat one</string>
+  <!-- Description for a button that controls the repeat mode of a media playback. In this mode the entire playlist is repeated. [CHAR LIMIT=30] -->
   <string name="exo_controls_repeat_all_description">Repeat all</string>
+  <!-- Description for a media control button that toggles whether shuffle mode is enabled. [CHAR LIMIT=30] -->
   <string name="exo_controls_shuffle_description">Shuffle</string>
+  <!-- Description for a media control button that toggles whether a video playback is fullscreen. [CHAR LIMIT=30] -->
+  <string name="exo_controls_fullscreen_description">Fullscreen mode</string>
+  <!-- Shown in a notification or UI component to indicate a download is currently queued. [CHAR LIMIT=40] -->
+  <string name="exo_download_queued">Download queued</string>
+  <!-- Shown in a notification or UI component to indicate a download is currently downloading. [CHAR LIMIT=40] -->
+  <string name="exo_downloading">Downloading</string>
+  <!-- Shown in a notification or UI component to indicate a download has finished downloading. [CHAR LIMIT=40] -->
+  <string name="exo_download_completed">Download completed</string>
+  <!-- Shown in a notification or UI component to indicate a download has failed. [CHAR LIMIT=40] -->
+  <string name="exo_download_failed">Download failed</string>
 </resources>

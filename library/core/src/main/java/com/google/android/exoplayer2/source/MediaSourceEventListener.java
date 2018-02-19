@@ -44,7 +44,7 @@ public interface MediaSourceEventListener {
    * @param mediaStartTimeMs The start time of the media being loaded, or {@link C#TIME_UNSET} if
    *     the load is not for media data.
    * @param mediaEndTimeMs The end time of the media being loaded, or {@link C#TIME_UNSET} if the
-   *     load is not for media data.
+   *     load is not for media data or the end time is unknown.
    * @param elapsedRealtimeMs The value of {@link SystemClock#elapsedRealtime} when the load began.
    */
   void onLoadStarted(

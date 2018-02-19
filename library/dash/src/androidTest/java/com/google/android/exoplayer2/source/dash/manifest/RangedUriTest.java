@@ -15,6 +15,8 @@
  */
 package com.google.android.exoplayer2.source.dash.manifest;
 
+import static com.google.common.truth.Truth.assertThat;
+
 import com.google.android.exoplayer2.C;
 import junit.framework.TestCase;
 
@@ -72,16 +74,16 @@ public class RangedUriTest extends TestCase {
 
   private void assertMerge(RangedUri rangeA, RangedUri rangeB, RangedUri expected, String baseUrl) {
     RangedUri merged = rangeA.attemptMerge(rangeB, baseUrl);
-    assertEquals(expected, merged);
+    assertThat(merged).isEqualTo(expected);
     merged = rangeB.attemptMerge(rangeA, baseUrl);
-    assertEquals(expected, merged);
+    assertThat(merged).isEqualTo(expected);
   }
 
   private void assertNonMerge(RangedUri rangeA, RangedUri rangeB, String baseUrl) {
     RangedUri merged = rangeA.attemptMerge(rangeB, baseUrl);
-    assertNull(merged);
+    assertThat(merged).isNull();
     merged = rangeB.attemptMerge(rangeA, baseUrl);
-    assertNull(merged);
+    assertThat(merged).isNull();
   }
 
 }

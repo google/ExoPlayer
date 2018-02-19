@@ -450,7 +450,7 @@ public final class HlsPlaylistTracker implements Loader.Callback<ParsingLoadable
 
   private static Segment getFirstOldOverlappingSegment(HlsMediaPlaylist oldPlaylist,
       HlsMediaPlaylist loadedPlaylist) {
-    int mediaSequenceOffset = loadedPlaylist.mediaSequence - oldPlaylist.mediaSequence;
+    int mediaSequenceOffset = (int) (loadedPlaylist.mediaSequence - oldPlaylist.mediaSequence);
     List<Segment> oldSegments = oldPlaylist.segments;
     return mediaSequenceOffset < oldSegments.size() ? oldSegments.get(mediaSequenceOffset) : null;
   }

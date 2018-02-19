@@ -15,8 +15,7 @@
  */
 package com.google.android.exoplayer2.ext.cronet;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
+import static com.google.common.truth.Truth.assertThat;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
@@ -53,13 +52,13 @@ public final class ByteArrayUploadDataProviderTest {
 
   @Test
   public void testGetLength() {
-    assertEquals(TEST_DATA.length, byteArrayUploadDataProvider.getLength());
+    assertThat(byteArrayUploadDataProvider.getLength()).isEqualTo(TEST_DATA.length);
   }
 
   @Test
   public void testReadFullBuffer() throws IOException {
     byteArrayUploadDataProvider.read(mockUploadDataSink, byteBuffer);
-    assertArrayEquals(TEST_DATA, byteBuffer.array());
+    assertThat(byteBuffer.array()).isEqualTo(TEST_DATA);
   }
 
   @Test
@@ -69,12 +68,12 @@ public final class ByteArrayUploadDataProviderTest {
     byteBuffer = ByteBuffer.allocate(TEST_DATA.length / 2);
     // Read half of the data.
     byteArrayUploadDataProvider.read(mockUploadDataSink, byteBuffer);
-    assertArrayEquals(firstHalf, byteBuffer.array());
+    assertThat(byteBuffer.array()).isEqualTo(firstHalf);
 
     // Read the second half of the data.
     byteBuffer.rewind();
     byteArrayUploadDataProvider.read(mockUploadDataSink, byteBuffer);
-    assertArrayEquals(secondHalf, byteBuffer.array());
+    assertThat(byteBuffer.array()).isEqualTo(secondHalf);
     verify(mockUploadDataSink, times(2)).onReadSucceeded(false);
   }
 
@@ -82,13 +81,13 @@ public final class ByteArrayUploadDataProviderTest {
   public void testRewind() throws IOException {
     // Read all the data.
     byteArrayUploadDataProvider.read(mockUploadDataSink, byteBuffer);
-    assertArrayEquals(TEST_DATA, byteBuffer.array());
+    assertThat(byteBuffer.array()).isEqualTo(TEST_DATA);
 
     // Rewind and make sure it can be read again.
     byteBuffer.clear();
     byteArrayUploadDataProvider.rewind(mockUploadDataSink);
     byteArrayUploadDataProvider.read(mockUploadDataSink, byteBuffer);
-    assertArrayEquals(TEST_DATA, byteBuffer.array());
+    assertThat(byteBuffer.array()).isEqualTo(TEST_DATA);
     verify(mockUploadDataSink).onRewindSucceeded();
   }
 

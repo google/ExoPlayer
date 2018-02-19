@@ -15,6 +15,8 @@
  */
 package com.google.android.exoplayer2;
 
+import com.google.android.exoplayer2.util.Assertions;
+
 /**
  * The parameters that apply to playback.
  */
@@ -40,23 +42,25 @@ public final class PlaybackParameters {
   /**
    * Creates new playback parameters.
    *
-   * @param speed The factor by which playback will be sped up.
-   * @param pitch The factor by which the audio pitch will be scaled.
+   * @param speed The factor by which playback will be sped up. Must be greater than zero.
+   * @param pitch The factor by which the audio pitch will be scaled. Must be greater than zero.
    */
   public PlaybackParameters(float speed, float pitch) {
+    Assertions.checkArgument(speed > 0);
+    Assertions.checkArgument(pitch > 0);
     this.speed = speed;
     this.pitch = pitch;
     scaledUsPerMs = Math.round(speed * 1000f);
   }
 
   /**
-   * Scales the millisecond duration {@code timeMs} by the playback speed, returning the result in
-   * microseconds.
+   * Returns the media time in microseconds that will elapse in {@code timeMs} milliseconds of
+   * wallclock time.
    *
    * @param timeMs The time to scale, in milliseconds.
    * @return The scaled time, in microseconds.
    */
-  public long getSpeedAdjustedDurationUs(long timeMs) {
+  public long getMediaTimeUsForPlayoutTimeMs(long timeMs) {
     return timeMs * scaledUsPerMs;
   }
 
