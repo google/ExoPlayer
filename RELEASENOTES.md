@@ -2,14 +2,12 @@
 
 ### dev-v2 (not yet released) ###
 
-* SimpleExoPlayerView: Automatically apply video rotation if
-  `SimpleExoPlayerView` is configured to use `TextureView`
-  ([#91](https://github.com/google/ExoPlayer/issues/91)).
+* Downloading: Add `DownloadService`, `DownloadManager` and
+  related classes ([#2643](https://github.com/google/ExoPlayer/issues/2643)).
+
+### 2.7.0 ###
+
 * Player interface:
-  * Add `Player.VideoComponent`, `Player.TextComponent` and
-    `Player.MetadataComponent` interfaces that define optional video, text and
-    metadata output functionality. New `getVideoComponent`, `getTextComponent`
-    and `getMetadataComponent` methods provide access to this functionality.
   * Add optional parameter to `stop` to reset the player when stopping.
   * Add a reason to `EventListener.onTimelineChanged` to distinguish between
     initial preparation, reset and dynamic updates.
@@ -21,18 +19,23 @@
     more customization of the message. Now supports setting a message delivery
     playback position and/or a delivery handler
     ([#2189](https://github.com/google/ExoPlayer/issues/2189)).
-* UI components:
-  * Generalized player and control views to allow them to bind with any
-    `Player`, and renamed them to `PlayerView` and `PlayerControlView`
-    respectively.
-  * Made `PlayerView`'s play button behave correctly when the player is ended
-    ([#3689](https://github.com/google/ExoPlayer/issues/3689)), and call a
-    `PlaybackPreparer` when the player is idle.
+  * Add `Player.VideoComponent`, `Player.TextComponent` and
+    `Player.MetadataComponent` interfaces that define optional video, text and
+    metadata output functionality. New `getVideoComponent`, `getTextComponent`
+    and `getMetadataComponent` methods provide access to this functionality.
+* Add `ExoPlayer.setSeekParameters` for controlling how seek operations are
+  performed. The `SeekParameters` class contains defaults for exact seeking and
+  seeking to the closest sync points before, either side or after specified seek
+  positions. `SeekParameters` are not currently supported when playing HLS 
+  streams.
+* DefaultTrackSelector:
+  * Replace `DefaultTrackSelector.Parameters` copy methods with a builder.
+  * Support disabling of individual text track selection flags.
 * Buffering:
   * Allow a back-buffer of media to be retained behind the current playback
     position, for fast backward seeking. The back-buffer can be configured by
     custom `LoadControl` implementations.
-  * Add ability for `SequenceableLoader` to reevaluate its buffer and discard
+  * Add ability for `SequenceableLoader` to re-evaluate its buffer and discard
     buffered media so that it can be re-buffered in a different quality.
   * Allow more flexible loading strategy when playing media containing multiple
     sub-streams, by allowing injection of custom `CompositeSequenceableLoader`
@@ -40,29 +43,33 @@
     `SsMediaSource.Factory`, and `MergingMediaSource`.
   * Play out existing buffer before retrying for progressive live streams
     ([#1606](https://github.com/google/ExoPlayer/issues/1606)).
-* Add `ExoPlayer.setSeekParameters` for controlling how seek operations are
-  performed. The `SeekParameters` class contains defaults for exact seeking and
-  seeking to the closest sync points before, either side or after specified seek
-  positions.
-  * Note: `SeekParameters` are not currently supported when playing HLS streams.
+* UI components:
+  * Generalized player and control views to allow them to bind with any
+    `Player`, and renamed them to `PlayerView` and `PlayerControlView`
+    respectively.
+  * Made `PlayerView` automatically apply video rotation when configured to use
+    `TextureView` ([#91](https://github.com/google/ExoPlayer/issues/91)).
+  * Made `PlayerView` play button behave correctly when the player is ended
+    ([#3689](https://github.com/google/ExoPlayer/issues/3689)), and call a
+    `PlaybackPreparer` when the player is idle.
 * DRM: Optimistically attempt playback of DRM protected content that does not
   declare scheme specific init data in the manifest. If playback of clear
   samples without keys is allowed, delay DRM session error propagation until
   keys are actually needed
   ([#3630](https://github.com/google/ExoPlayer/issues/3630)).
 * DASH:
-  * Support in-band Emsg events targeting player with scheme id
-    "urn:mpeg:dash:event:2012" and scheme value of either "1", "2" or "3".
-  * Support DASH manifest EventStream elements.
-* DefaultTrackSelector:
-  * Replace `DefaultTrackSelector.Parameters` copy methods with a builder.
-  * Support disabling of individual text track selection flags.
+  * Support in-band Emsg events targeting the player with scheme id
+    "urn:mpeg:dash:event:2012" and scheme values "1", "2" and "3".
+  * Support EventStream elements in DASH manifests.
 * HLS:
     * Add opt-in support for chunkless preparation in HLS. This allows an
       HLS source to finish preparation without downloading any chunks, which can
       significantly reduce initial buffering time
-      ([#3149](https://github.com/google/ExoPlayer/issues/3149)).
-    * Fail on loss of sync with Transport Stream.
+      ([#3149](https://github.com/google/ExoPlayer/issues/3149)). More details
+      can be found
+      [here](https://medium.com/google-exoplayer/faster-hls-preparation-f6611aa15ea6).
+    * Fail if unable to sync with the Transport Stream, rather than entering
+      stuck in an indefinite buffering state.
     * Fix mime type propagation
       ([#3653](https://github.com/google/ExoPlayer/issues/3653)).
     * Fix ID3 context reuse across segment format changes
@@ -70,7 +77,6 @@
     * Use long for media sequence numbers
       ([#3747](https://github.com/google/ExoPlayer/issues/3747))
     * Add initial support for the EXT-X-GAP tag.
-* New Cast extension: Simplifies toggling between local and Cast playbacks.
 * Audio:
   * Support TrueHD passthrough for rechunked samples in Matroska files
     ([#2147](https://github.com/google/ExoPlayer/issues/2147)).
@@ -78,13 +84,16 @@
     resolution output in `DefaultAudioSink`
     ([#3635](https://github.com/google/ExoPlayer/pull/3635)).
 * Captions:
-  * Initial support for PGS subtitles
+  * Basic support for PGS subtitles
     ([#3008](https://github.com/google/ExoPlayer/issues/3008)).
-  * Fix issue handling CEA-608 captions where multiple buffers have the same
+  * Fix handling of CEA-608 captions where multiple buffers have the same
     presentation timestamp
     ([#3782](https://github.com/google/ExoPlayer/issues/3782)).
-* CacheDataSource: Check periodically if it's possible to read from/write to
-  cache after deciding to bypass cache.
+* Caching:
+  * Fix cache corruption issue
+    ([#3762](https://github.com/google/ExoPlayer/issues/3762)).
+  * Implement periodic check in `CacheDataSource` to see whether it's possible
+    to switch to reading/writing the cache having initially bypassed it.
 * IMA extension:
     * Fix the player getting stuck when an ad group fails to load
       ([#3584](https://github.com/google/ExoPlayer/issues/3584)).
@@ -102,6 +111,7 @@
     * Propagate ad media preparation errors to IMA so that the ads can be
       skipped.
     * Handle exceptions in IMA callbacks so that can be logged less verbosely.
+* New Cast extension. Simplifies toggling between local and Cast playbacks.
 * `EventLogger` moved from the demo app into the core library.
 * Fix ANR issue on the Huawei P8 Lite, Huawei Y6II, Moto C+, Meizu M5C,
   Lenovo K4 Note and Sony Xperia E5.
