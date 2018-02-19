@@ -1934,7 +1934,7 @@ public final class MatroskaExtractor implements Extractor {
      *
      * @return A pair object with the first object being the codec mime type
      * and the second object the initialization data for the {@link Format},
-     * or null if the compression type is not VC1.
+     * or null if the compression type is not a currently supported type (VC1 or H263).
      * @throws ParserException If the initialization data could not be built.
      */
     private static Pair<String, List<byte[]>> parseFourCcPrivate(ParsableByteArray buffer)
@@ -1944,8 +1944,7 @@ public final class MatroskaExtractor implements Extractor {
         long compression = buffer.readLittleEndianUnsignedInt();
         if (compression == FOURCC_COMPRESSION_DIVX) {
           return new Pair<>(MimeTypes.VIDEO_H263, null);
-        }
-        else if (compression == FOURCC_COMPRESSION_VC1)  {
+        } else if (compression == FOURCC_COMPRESSION_VC1)  {
           // Search for the initialization data from the end of the BITMAPINFOHEADER. The last 20
           // bytes of which are: sizeImage(4), xPel/m (4), yPel/m (4), clrUsed(4), clrImportant(4).
           int startOffset = buffer.getPosition() + 20;
