@@ -195,14 +195,14 @@ public final class CastPlayer implements Player {
   }
 
   /**
-   * Inserts a sequence of items into the media queue. If no media queue or period with id
-   * {@code periodId} exist, does nothing.
+   * Inserts a sequence of items into the media queue. If no media queue or period with id {@code
+   * periodId} exist, does nothing.
    *
-   * @param periodId The id of the period ({@see #getCurrentTimeline}) that corresponds to the item
+   * @param periodId The id of the period ({@link #getCurrentTimeline}) that corresponds to the item
    *     that will follow immediately after the inserted items.
    * @param items The items to insert.
-   * @return The Cast {@code PendingResult}, or null if no media queue or no period with id
-   *     {@code periodId} exist.
+   * @return The Cast {@code PendingResult}, or null if no media queue or no period with id {@code
+   *     periodId} exist.
    */
   public PendingResult<MediaChannelResult> addItems(int periodId, MediaQueueItem... items) {
     if (getMediaStatus() != null && (periodId == MediaQueueItem.INVALID_ITEM_ID
@@ -216,10 +216,10 @@ public final class CastPlayer implements Player {
    * Removes an item from the media queue. If no media queue or period with id {@code periodId}
    * exist, does nothing.
    *
-   * @param periodId The id of the period ({@see #getCurrentTimeline}) that corresponds to the item
+   * @param periodId The id of the period ({@link #getCurrentTimeline}) that corresponds to the item
    *     to remove.
-   * @return The Cast {@code PendingResult}, or null if no media queue or no period with id
-   *     {@code periodId} exist.
+   * @return The Cast {@code PendingResult}, or null if no media queue or no period with id {@code
+   *     periodId} exist.
    */
   public PendingResult<MediaChannelResult> removeItem(int periodId) {
     if (getMediaStatus() != null && currentTimeline.getIndexOfPeriod(periodId) != C.INDEX_UNSET) {
@@ -229,16 +229,15 @@ public final class CastPlayer implements Player {
   }
 
   /**
-   * Moves an existing item within the media queue. If no media queue or period with id
-   * {@code periodId} exist, does nothing.
+   * Moves an existing item within the media queue. If no media queue or period with id {@code
+   * periodId} exist, does nothing.
    *
-   * @param periodId The id of the period ({@see #getCurrentTimeline}) that corresponds to the item
+   * @param periodId The id of the period ({@link #getCurrentTimeline}) that corresponds to the item
    *     to move.
-   * @param newIndex The target index of the item in the media queue. Must be in the range
-   *     0 &lt;= index &lt; {@link Timeline#getPeriodCount()}, as provided by
-   *     {@link #getCurrentTimeline()}.
-   * @return The Cast {@code PendingResult}, or null if no media queue or no period with id
-   *     {@code periodId} exist.
+   * @param newIndex The target index of the item in the media queue. Must be in the range 0 &lt;=
+   *     index &lt; {@link Timeline#getPeriodCount()}, as provided by {@link #getCurrentTimeline()}.
+   * @return The Cast {@code PendingResult}, or null if no media queue or no period with id {@code
+   *     periodId} exist.
    */
   public PendingResult<MediaChannelResult> moveItem(int periodId, int newIndex) {
     Assertions.checkArgument(newIndex >= 0 && newIndex < currentTimeline.getPeriodCount());
@@ -252,7 +251,7 @@ public final class CastPlayer implements Player {
    * Returns the item that corresponds to the period with the given id, or null if no media queue or
    * period with id {@code periodId} exist.
    *
-   * @param periodId The id of the period ({@see #getCurrentTimeline}) that corresponds to the item
+   * @param periodId The id of the period ({@link #getCurrentTimeline}) that corresponds to the item
    *     to get.
    * @return The item that corresponds to the period with the given id, or null if no media queue or
    *     period with id {@code periodId} exist.
