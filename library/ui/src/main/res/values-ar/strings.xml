@@ -28,8 +28,4 @@
     <string name="exo_controls_repeat_all_description" msgid="8909385102773547833">"تكرار الكل"</string>
     <string name="exo_controls_shuffle_description" msgid="1374364424026734323">"ترتيب عشوائي"</string>
     <string name="exo_controls_fullscreen_description" msgid="2643117270009811804">"وضع ملء الشاشة"</string>
-    <string name="exo_download_queued" msgid="5094895434694614073">"التنزيل قيد الانتظار"</string>
-    <string name="exo_downloading" msgid="3111729133695800638">"تحميل"</string>
-    <string name="exo_download_completed" msgid="73698315802218437">"اكتمل التنزيل"</string>
-    <string name="exo_download_failed" msgid="6266121732877856285">"تعذّر التنزيل"</string>
 </resources>

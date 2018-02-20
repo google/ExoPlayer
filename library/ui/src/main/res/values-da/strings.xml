@@ -28,8 +28,4 @@
     <string name="exo_controls_repeat_all_description" msgid="8909385102773547833">"Gentag alle"</string>
     <string name="exo_controls_shuffle_description" msgid="1374364424026734323">"Bland"</string>
     <string name="exo_controls_fullscreen_description" msgid="2643117270009811804">"Fuld skærm"</string>
-    <string name="exo_download_queued" msgid="5094895434694614073">"Downloaden er i kø"</string>
-    <string name="exo_downloading" msgid="3111729133695800638">"Download"</string>
-    <string name="exo_download_completed" msgid="73698315802218437">"Downloaden er udført"</string>
-    <string name="exo_download_failed" msgid="6266121732877856285">"Download mislykkedes"</string>
 </resources>

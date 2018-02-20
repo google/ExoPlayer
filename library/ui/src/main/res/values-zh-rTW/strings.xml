@@ -28,8 +28,4 @@
     <string name="exo_controls_repeat_all_description" msgid="8909385102773547833">"重複播放所有項目"</string>
     <string name="exo_controls_shuffle_description" msgid="1374364424026734323">"隨機播放"</string>
     <string name="exo_controls_fullscreen_description" msgid="2643117270009811804">"全螢幕模式"</string>
-    <string name="exo_download_queued" msgid="5094895434694614073">"已排入下載佇列"</string>
-    <string name="exo_downloading" msgid="3111729133695800638">"下載中"</string>
-    <string name="exo_download_completed" msgid="73698315802218437">"下載完成"</string>
-    <string name="exo_download_failed" msgid="6266121732877856285">"無法下載"</string>
 </resources>

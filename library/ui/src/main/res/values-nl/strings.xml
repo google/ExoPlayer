@@ -28,8 +28,4 @@
     <string name="exo_controls_repeat_all_description" msgid="8909385102773547833">"Alles herhalen"</string>
     <string name="exo_controls_shuffle_description" msgid="1374364424026734323">"Shuffle"</string>
     <string name="exo_controls_fullscreen_description" msgid="2643117270009811804">"Modus \'Volledig scherm\'"</string>
-    <string name="exo_download_queued" msgid="5094895434694614073">"Download in de wachtrij"</string>
-    <string name="exo_downloading" msgid="3111729133695800638">"Downloaden"</string>
-    <string name="exo_download_completed" msgid="73698315802218437">"Downloaden voltooid"</string>
-    <string name="exo_download_failed" msgid="6266121732877856285">"Downloaden mislukt"</string>
 </resources>
