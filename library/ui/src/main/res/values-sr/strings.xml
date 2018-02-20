@@ -28,8 +28,4 @@
     <string name="exo_controls_repeat_all_description" msgid="8909385102773547833">"Понови све"</string>
     <string name="exo_controls_shuffle_description" msgid="1374364424026734323">"Пусти насумично"</string>
     <string name="exo_controls_fullscreen_description" msgid="2643117270009811804">"Режим целог екрана"</string>
-    <string name="exo_download_queued" msgid="5094895434694614073">"Преузимање је на чекању"</string>
-    <string name="exo_downloading" msgid="3111729133695800638">"Преузимање"</string>
-    <string name="exo_download_completed" msgid="73698315802218437">"Преузимање је завршено"</string>
-    <string name="exo_download_failed" msgid="6266121732877856285">"Преузимање није успело"</string>
 </resources>

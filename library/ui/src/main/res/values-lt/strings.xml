@@ -28,8 +28,4 @@
     <string name="exo_controls_repeat_all_description" msgid="8909385102773547833">"Kartoti viską"</string>
     <string name="exo_controls_shuffle_description" msgid="1374364424026734323">"Maišyti"</string>
     <string name="exo_controls_fullscreen_description" msgid="2643117270009811804">"Viso ekrano režimas"</string>
-    <string name="exo_download_queued" msgid="5094895434694614073">"Atsisiunč. elem. laukia eilėje"</string>
-    <string name="exo_downloading" msgid="3111729133695800638">"Atsisiunčiama"</string>
-    <string name="exo_download_completed" msgid="73698315802218437">"Atsisiuntimo procesas baigtas"</string>
-    <string name="exo_download_failed" msgid="6266121732877856285">"Nepavyko atsisiųsti"</string>
 </resources>

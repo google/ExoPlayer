@@ -28,8 +28,4 @@
     <string name="exo_controls_repeat_all_description" msgid="8909385102773547833">"Repetați-le pe toate"</string>
     <string name="exo_controls_shuffle_description" msgid="1374364424026734323">"Redați aleatoriu"</string>
     <string name="exo_controls_fullscreen_description" msgid="2643117270009811804">"Modul Ecran complet"</string>
-    <string name="exo_download_queued" msgid="5094895434694614073">"Descărcarea este în lista de așteptare"</string>
-    <string name="exo_downloading" msgid="3111729133695800638">"Se descarcă"</string>
-    <string name="exo_download_completed" msgid="73698315802218437">"Descărcarea a fost finalizată"</string>
-    <string name="exo_download_failed" msgid="6266121732877856285">"Descărcarea nu a reușit"</string>
 </resources>
