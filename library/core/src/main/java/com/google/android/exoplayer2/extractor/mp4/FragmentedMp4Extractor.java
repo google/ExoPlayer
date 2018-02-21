@@ -549,7 +549,7 @@ public final class FragmentedMp4Extractor implements Extractor {
    * Parses an emsg atom (defined in 23009-1).
    */
   private void onEmsgLeafAtomRead(ParsableByteArray atom) {
-    if (emsgTrackOutputs.length == 0) {
+    if (emsgTrackOutputs == null || emsgTrackOutputs.length == 0) {
       return;
     }
 
