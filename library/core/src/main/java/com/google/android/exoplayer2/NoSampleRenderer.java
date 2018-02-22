@@ -179,7 +179,7 @@ public abstract class NoSampleRenderer implements Renderer, RendererCapabilities
     return ADAPTIVE_NOT_SUPPORTED;
   }
 
-  // ExoPlayerComponent implementation.
+  // PlayerMessage.Target implementation.
 
   @Override
   public void handleMessage(int what, Object object) throws ExoPlaybackException {

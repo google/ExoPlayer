@@ -22,6 +22,7 @@ import com.google.android.exoplayer2.offline.SegmentDownloader;
 import com.google.android.exoplayer2.source.smoothstreaming.manifest.SsManifest;
 import com.google.android.exoplayer2.source.smoothstreaming.manifest.SsManifest.StreamElement;
 import com.google.android.exoplayer2.source.smoothstreaming.manifest.SsManifestParser;
+import com.google.android.exoplayer2.source.smoothstreaming.manifest.SsUtil;
 import com.google.android.exoplayer2.source.smoothstreaming.manifest.TrackKey;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DataSpec;
@@ -33,13 +34,12 @@ import java.util.List;
 /**
  * Helper class to download SmoothStreaming streams.
  *
- * <p>Except {@link #getTotalSegments()}, {@link #getDownloadedSegments()} and
- * {@link #getDownloadedBytes()}, this class isn't thread safe.
+ * <p>Except {@link #getTotalSegments()}, {@link #getDownloadedSegments()} and {@link
+ * #getDownloadedBytes()}, this class isn't thread safe.
  *
  * <p>Example usage:
  *
- * <pre>
- * {@code
+ * <pre>{@code
  * SimpleCache cache = new SimpleCache(downloadFolder, new NoOpCacheEvictor());
  * DefaultHttpDataSourceFactory factory = new DefaultHttpDataSourceFactory("ExoPlayer", null);
  * DownloaderConstructorHelper constructorHelper =
@@ -48,7 +48,7 @@ import java.util.List;
  * // Select the first track of the first stream element
  * ssDownloader.selectRepresentations(new TrackKey[] {new TrackKey(0, 0)});
  * ssDownloader.download(new ProgressListener() {
- *   @Override
+ *   {@literal @}Override
  *   public void onDownloadProgress(Downloader downloader, float downloadPercentage,
  *       long downloadedBytes) {
  *     // Invoked periodically during the download.
@@ -56,8 +56,8 @@ import java.util.List;
  * });
  * // Access downloaded data using CacheDataSource
  * CacheDataSource cacheDataSource =
- *     new CacheDataSource(cache, factory.createDataSource(), CacheDataSource.FLAG_BLOCK_ON_CACHE);}
- * </pre>
+ *     new CacheDataSource(cache, factory.createDataSource(), CacheDataSource.FLAG_BLOCK_ON_CACHE);
+ * }</pre>
  */
 public final class SsDownloader extends SegmentDownloader<SsManifest, TrackKey> {
 
@@ -65,31 +65,28 @@ public final class SsDownloader extends SegmentDownloader<SsManifest, TrackKey> 
    * @see SegmentDownloader#SegmentDownloader(Uri, DownloaderConstructorHelper)
    */
   public SsDownloader(Uri manifestUri, DownloaderConstructorHelper constructorHelper)  {
-    super(manifestUri, constructorHelper);
+    super(SsUtil.fixManifestUri(manifestUri), constructorHelper);
   }
 
   @Override
-  public SsManifest getManifest(DataSource dataSource, Uri uri) throws IOException {
-    DataSpec dataSpec = new DataSpec(uri,
-        DataSpec.FLAG_ALLOW_CACHING_UNKNOWN_LENGTH | DataSpec.FLAG_ALLOW_GZIP);
-    ParsingLoadable<SsManifest> loadable = new ParsingLoadable<>(dataSource, dataSpec,
-        C.DATA_TYPE_MANIFEST, new SsManifestParser());
-    loadable.load();
-    return loadable.getResult();
-  }
-
-  @Override
-  protected List<Segment> getAllSegments(DataSource dataSource, SsManifest manifest,
-      boolean allowIndexLoadErrors) throws InterruptedException, IOException {
-    ArrayList<Segment> segments = new ArrayList<>();
+  public TrackKey[] getAllRepresentationKeys() throws IOException {
+    ArrayList<TrackKey> keys = new ArrayList<>();
+    SsManifest manifest = getManifest();
     for (int i = 0; i < manifest.streamElements.length; i++) {
       StreamElement streamElement = manifest.streamElements[i];
       for (int j = 0; j < streamElement.formats.length; j++) {
-        segments.addAll(getSegments(dataSource, manifest, new TrackKey[] {new TrackKey(i, j)},
-            allowIndexLoadErrors));
+        keys.add(new TrackKey(i, j));
       }
     }
-    return segments;
+    return keys.toArray(new TrackKey[keys.size()]);
+  }
+
+  @Override
+  protected SsManifest getManifest(DataSource dataSource, Uri uri) throws IOException {
+    ParsingLoadable<SsManifest> loadable =
+        new ParsingLoadable<>(dataSource, uri, C.DATA_TYPE_MANIFEST, new SsManifestParser());
+    loadable.load();
+    return loadable.getResult();
   }
 
   @Override

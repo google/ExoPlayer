@@ -23,13 +23,11 @@ import java.nio.ByteBuffer;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
-import org.robolectric.annotation.Config;
 
 /**
  * Test for {@link EventMessageDecoder}.
  */
 @RunWith(RobolectricTestRunner.class)
-@Config(sdk = Config.TARGET_SDK, manifest = Config.NONE)
 public final class EventMessageDecoderTest {
 
   @Test
@@ -38,7 +36,7 @@ public final class EventMessageDecoderTest {
         117, 114, 110, 58, 116, 101, 115, 116, 0, // scheme_id_uri = "urn:test"
         49, 50, 51, 0, // value = "123"
         0, 0, -69, -128, // timescale = 48000
-        0, 0, 0, 0, // presentation_time_delta (ignored) = 0
+        0, 0, -69, -128, // presentation_time_delta = 48000
         0, 2, 50, -128, // event_duration = 144000
         0, 15, 67, -45, // id = 1000403
         0, 1, 2, 3, 4}; // message_data = {0, 1, 2, 3, 4}
@@ -53,6 +51,7 @@ public final class EventMessageDecoderTest {
     assertThat(eventMessage.durationMs).isEqualTo(3000);
     assertThat(eventMessage.id).isEqualTo(1000403);
     assertThat(eventMessage.messageData).isEqualTo(new byte[]{0, 1, 2, 3, 4});
+    assertThat(eventMessage.presentationTimeUs).isEqualTo(1000000);
   }
 
 }

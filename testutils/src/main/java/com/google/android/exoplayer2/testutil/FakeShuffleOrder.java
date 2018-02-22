@@ -65,4 +65,8 @@ public final class FakeShuffleOrder implements ShuffleOrder {
     return new FakeShuffleOrder(length - 1);
   }
 
+  @Override
+  public ShuffleOrder cloneAndClear() {
+    return new FakeShuffleOrder(/* length= */ 0);
+  }
 }

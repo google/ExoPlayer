@@ -20,6 +20,7 @@ import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
 import android.os.SystemClock;
+import android.support.annotation.Nullable;
 import android.util.Log;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.TraceUtil;
@@ -197,25 +198,17 @@ public final class Loader implements LoaderErrorThrower {
    * Releases the {@link Loader}. This method should be called when the {@link Loader} is no longer
    * required.
    *
-   * @param callback A callback to be called when the release ends. Will be called synchronously
-   *     from this method if no load is in progress, or asynchronously once the load has been
-   *     canceled otherwise. May be null.
-   * @return True if {@code callback} was called synchronously. False if it will be called
-   *     asynchronously or if {@code callback} is null.
+   * @param callback An optional callback to be called on the loading thread once the loader has
+   *     been released.
    */
-  public boolean release(ReleaseCallback callback) {
-    boolean callbackInvoked = false;
+  public void release(@Nullable ReleaseCallback callback) {
     if (currentTask != null) {
       currentTask.cancel(true);
-      if (callback != null) {
-        downloadExecutorService.execute(new ReleaseTask(callback));
-      }
-    } else if (callback != null) {
-      callback.onLoaderReleased();
-      callbackInvoked = true;
+    }
+    if (callback != null) {
+      downloadExecutorService.execute(new ReleaseTask(callback));
     }
     downloadExecutorService.shutdown();
-    return callbackInvoked;
   }
 
   // LoaderErrorThrower implementation.
@@ -419,7 +412,7 @@ public final class Loader implements LoaderErrorThrower {
 
   }
 
-  private static final class ReleaseTask extends Handler implements Runnable {
+  private static final class ReleaseTask implements Runnable {
 
     private final ReleaseCallback callback;
 
@@ -429,13 +422,6 @@ public final class Loader implements LoaderErrorThrower {
 
     @Override
     public void run() {
-      if (getLooper().getThread().isAlive()) {
-        sendEmptyMessage(0);
-      }
-    }
-
-    @Override
-    public void handleMessage(Message msg) {
       callback.onLoaderReleased();
     }
 

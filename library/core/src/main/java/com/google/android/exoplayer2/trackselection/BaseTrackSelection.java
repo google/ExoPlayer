@@ -139,6 +139,11 @@ public abstract class BaseTrackSelection implements TrackSelection {
   }
 
   @Override
+  public void onPlaybackSpeed(float playbackSpeed) {
+    // Do nothing.
+  }
+
+  @Override
   public int evaluateQueueSize(long playbackPositionUs, List<? extends MediaChunk> queue) {
     return queue.size();
   }

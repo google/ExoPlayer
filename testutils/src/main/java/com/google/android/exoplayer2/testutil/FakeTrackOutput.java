@@ -15,7 +15,8 @@
  */
 package com.google.android.exoplayer2.testutil;
 
-import android.test.MoreAsserts;
+import static com.google.common.truth.Truth.assertThat;
+
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.extractor.ExtractorInput;
@@ -25,7 +26,6 @@ import java.io.EOFException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import junit.framework.Assert;
 
 /**
  * A fake {@link TrackOutput}.
@@ -98,15 +98,15 @@ public final class FakeTrackOutput implements TrackOutput, Dumper.Dumpable {
   }
 
   public void assertSampleCount(int count) {
-    Assert.assertEquals(count, sampleTimesUs.size());
+    assertThat(sampleTimesUs).hasSize(count);
   }
 
   public void assertSample(int index, byte[] data, long timeUs, int flags, CryptoData cryptoData) {
     byte[] actualData = getSampleData(index);
-    MoreAsserts.assertEquals(data, actualData);
-    Assert.assertEquals(timeUs, (long) sampleTimesUs.get(index));
-    Assert.assertEquals(flags, (int) sampleFlags.get(index));
-    Assert.assertEquals(cryptoData, cryptoDatas.get(index));
+    assertThat(actualData).isEqualTo(data);
+    assertThat(sampleTimesUs.get(index)).isEqualTo(timeUs);
+    assertThat(sampleFlags.get(index)).isEqualTo(flags);
+    assertThat(cryptoDatas.get(index)).isEqualTo(cryptoData);
   }
 
   public byte[] getSampleData(int index) {
@@ -115,18 +115,18 @@ public final class FakeTrackOutput implements TrackOutput, Dumper.Dumpable {
   }
 
   public void assertEquals(FakeTrackOutput expected) {
-    Assert.assertEquals(expected.format, format);
-    Assert.assertEquals(expected.sampleTimesUs.size(), sampleTimesUs.size());
-    MoreAsserts.assertEquals(expected.sampleData, sampleData);
+    assertThat(format).isEqualTo(expected.format);
+    assertThat(sampleTimesUs).hasSize(expected.sampleTimesUs.size());
+    assertThat(sampleData).isEqualTo(expected.sampleData);
     for (int i = 0; i < sampleTimesUs.size(); i++) {
-      Assert.assertEquals(expected.sampleTimesUs.get(i), sampleTimesUs.get(i));
-      Assert.assertEquals(expected.sampleFlags.get(i), sampleFlags.get(i));
-      Assert.assertEquals(expected.sampleStartOffsets.get(i), sampleStartOffsets.get(i));
-      Assert.assertEquals(expected.sampleEndOffsets.get(i), sampleEndOffsets.get(i));
+      assertThat(sampleTimesUs.get(i)).isEqualTo(expected.sampleTimesUs.get(i));
+      assertThat(sampleFlags.get(i)).isEqualTo(expected.sampleFlags.get(i));
+      assertThat(sampleStartOffsets.get(i)).isEqualTo(expected.sampleStartOffsets.get(i));
+      assertThat(sampleEndOffsets.get(i)).isEqualTo(expected.sampleEndOffsets.get(i));
       if (expected.cryptoDatas.get(i) == null) {
-        Assert.assertNull(cryptoDatas.get(i));
+        assertThat(cryptoDatas.get(i)).isNull();
       } else {
-        Assert.assertEquals(expected.cryptoDatas.get(i), cryptoDatas.get(i));
+        assertThat(cryptoDatas.get(i)).isEqualTo(expected.cryptoDatas.get(i));
       }
     }
   }
@@ -160,6 +160,7 @@ public final class FakeTrackOutput implements TrackOutput, Dumper.Dumpable {
     }
     dumper.endBlock().endBlock();
 
+    dumper.add("total output bytes", sampleData.length);
     dumper.add("sample count", sampleTimesUs.size());
 
     for (int i = 0; i < sampleTimesUs.size(); i++) {

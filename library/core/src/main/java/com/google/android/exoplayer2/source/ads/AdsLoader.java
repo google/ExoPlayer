@@ -22,22 +22,22 @@ import java.io.IOException;
 
 /**
  * Interface for loaders of ads, which can be used with {@link AdsMediaSource}.
- * <p>
- * Ad loaders notify the {@link AdsMediaSource} about events via {@link EventListener}. In
+ *
+ * <p>Ad loaders notify the {@link AdsMediaSource} about events via {@link EventListener}. In
  * particular, implementations must call {@link EventListener#onAdPlaybackState(AdPlaybackState)}
  * with a new copy of the current {@link AdPlaybackState} whenever further information about ads
  * becomes known (for example, when an ad media URI is available, or an ad has played to the end).
- * <p>
- * {@link #attachPlayer(ExoPlayer, EventListener, ViewGroup)} will be called when the ads media
+ *
+ * <p>{@link #attachPlayer(ExoPlayer, EventListener, ViewGroup)} will be called when the ads media
  * source first initializes, at which point the loader can request ads. If the player enters the
  * background, {@link #detachPlayer()} will be called. Loaders should maintain any ad playback state
  * in preparation for a later call to {@link #attachPlayer(ExoPlayer, EventListener, ViewGroup)}. If
- * an ad is playing when the player is detached, store the current playback position via
- * {@link AdPlaybackState#setAdResumePositionUs(long)}.
- * <p>
- * If {@link EventListener#onAdPlaybackState(AdPlaybackState)} has been called, the implementation
- * of {@link #attachPlayer(ExoPlayer, EventListener, ViewGroup)} should invoke the same listener to
- * provide the existing playback state to the new player.
+ * an ad is playing when the player is detached, update the ad playback state with the current
+ * playback position using {@link AdPlaybackState#withAdResumePositionUs(long)}.
+ *
+ * <p>If {@link EventListener#onAdPlaybackState(AdPlaybackState)} has been called, the
+ * implementation of {@link #attachPlayer(ExoPlayer, EventListener, ViewGroup)} should invoke the
+ * same listener to provide the existing playback state to the new player.
  */
 public interface AdsLoader {
 
@@ -54,11 +54,19 @@ public interface AdsLoader {
     void onAdPlaybackState(AdPlaybackState adPlaybackState);
 
     /**
-     * Called when there was an error loading ads.
+     * Called when there was an error loading ads. The loader will skip the problematic ad(s).
      *
      * @param error The error.
      */
-    void onLoadError(IOException error);
+    void onAdLoadError(IOException error);
+
+    /**
+     * Called when an unexpected internal error is encountered while loading ads. The loader will
+     * skip all remaining ads, as the error is not recoverable.
+     *
+     * @param error The error.
+     */
+    void onInternalAdLoadError(RuntimeException error);
 
     /**
      * Called when the user clicks through an ad (for example, following a 'learn more' link).
@@ -103,4 +111,13 @@ public interface AdsLoader {
    */
   void release();
 
+  /**
+   * Notifies the ads loader that the player was not able to prepare media for a given ad.
+   * Implementations should update the ad playback state as the specified ad has failed to load.
+   *
+   * @param adGroupIndex The index of the ad group.
+   * @param adIndexInAdGroup The index of the ad in the ad group.
+   * @param exception The preparation error.
+   */
+  void handlePrepareError(int adGroupIndex, int adIndexInAdGroup, IOException exception);
 }

@@ -91,12 +91,10 @@ public final class ColorInfo implements Parcelable {
       return false;
     }
     ColorInfo other = (ColorInfo) obj;
-    if (colorSpace != other.colorSpace || colorRange != other.colorRange
-        || colorTransfer != other.colorTransfer
-        || !Arrays.equals(hdrStaticInfo, other.hdrStaticInfo)) {
-      return false;
-    }
-    return true;
+    return colorSpace == other.colorSpace
+        && colorRange == other.colorRange
+        && colorTransfer == other.colorTransfer
+        && Arrays.equals(hdrStaticInfo, other.hdrStaticInfo);
   }
 
   @Override

@@ -104,9 +104,16 @@ public abstract class SegmentDownloader<M, K> implements Downloader {
    * previous selection is cleared. If keys are null or empty, all representations are downloaded.
    */
   public final void selectRepresentations(K[] keys) {
-    this.keys = keys != null ? keys.clone() : null;
+    this.keys = (keys != null && keys.length > 0) ? keys.clone() : null;
     resetCounters();
   }
+
+  /**
+   * Returns keys for all representations.
+   *
+   * @see #selectRepresentations(Object[])
+   */
+  public abstract K[] getAllRepresentationKeys() throws IOException;
 
   /**
    * Initializes the total segments, downloaded segments and downloaded bytes counters for the
@@ -221,7 +228,7 @@ public abstract class SegmentDownloader<M, K> implements Downloader {
     if (manifest != null) {
       List<Segment> segments = null;
       try {
-        segments = getAllSegments(offlineDataSource, manifest, true);
+        segments = getSegments(offlineDataSource, manifest, getAllRepresentationKeys(), true);
       } catch (IOException e) {
         // Ignore exceptions. We do our best with what's available offline.
       }
@@ -262,14 +269,6 @@ public abstract class SegmentDownloader<M, K> implements Downloader {
   protected abstract List<Segment> getSegments(DataSource dataSource, M manifest, K[] keys,
       boolean allowIncompleteIndex) throws InterruptedException, IOException;
 
-  /**
-   * Returns a list of all segments.
-   *
-   * @see #getSegments(DataSource, M, Object[], boolean)
-   */
-  protected abstract List<Segment> getAllSegments(DataSource dataSource, M manifest,
-      boolean allowPartialIndex) throws InterruptedException, IOException;
-
   private void resetCounters() {
     totalSegments = C.LENGTH_UNSET;
     downloadedSegments = C.LENGTH_UNSET;
@@ -295,9 +294,10 @@ public abstract class SegmentDownloader<M, K> implements Downloader {
   private synchronized List<Segment> initStatus(boolean offline)
       throws IOException, InterruptedException {
     DataSource dataSource = getDataSource(offline);
-    List<Segment> segments = keys != null && keys.length > 0
-        ? getSegments(dataSource, manifest, keys, offline)
-        : getAllSegments(dataSource, manifest, offline);
+    if (keys == null) {
+      keys = getAllRepresentationKeys();
+    }
+    List<Segment> segments = getSegments(dataSource, manifest, keys, offline);
     CachingCounters cachingCounters = new CachingCounters();
     totalSegments = segments.size();
     downloadedSegments = 0;

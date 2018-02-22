@@ -30,13 +30,11 @@ import java.util.List;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
-import org.robolectric.annotation.Config;
 
 /**
  * Unit test for {@link DrmInitData}.
  */
 @RunWith(RobolectricTestRunner.class)
-@Config(sdk = Config.TARGET_SDK, manifest = Config.NONE)
 public class DrmInitDataTest {
 
   private static final SchemeData DATA_1 = new SchemeData(WIDEVINE_UUID, VIDEO_MP4,

@@ -20,12 +20,14 @@ import android.text.TextUtils;
 import android.util.Base64;
 import android.util.Log;
 import android.util.Pair;
+import android.util.Xml;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.ParserException;
 import com.google.android.exoplayer2.drm.DrmInitData;
 import com.google.android.exoplayer2.drm.DrmInitData.SchemeData;
 import com.google.android.exoplayer2.extractor.mp4.PsshAtomUtil;
+import com.google.android.exoplayer2.metadata.emsg.EventMessage;
 import com.google.android.exoplayer2.source.dash.manifest.SegmentBase.SegmentList;
 import com.google.android.exoplayer2.source.dash.manifest.SegmentBase.SegmentTemplate;
 import com.google.android.exoplayer2.source.dash.manifest.SegmentBase.SegmentTimelineElement;
@@ -36,6 +38,7 @@ import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.UriUtil;
 import com.google.android.exoplayer2.util.Util;
 import com.google.android.exoplayer2.util.XmlPullParserUtil;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -47,6 +50,7 @@ import org.xml.sax.helpers.DefaultHandler;
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
 import org.xmlpull.v1.XmlPullParserFactory;
+import org.xmlpull.v1.XmlSerializer;
 
 /**
  * A parser of media presentation description files.
@@ -198,6 +202,7 @@ public class DashManifestParser extends DefaultHandler
     long durationMs = parseDuration(xpp, "duration", C.TIME_UNSET);
     SegmentBase segmentBase = null;
     List<AdaptationSet> adaptationSets = new ArrayList<>();
+    List<EventStream> eventStreams = new ArrayList<>();
     boolean seenFirstBaseUrl = false;
     do {
       xpp.next();
@@ -208,6 +213,8 @@ public class DashManifestParser extends DefaultHandler
         }
       } else if (XmlPullParserUtil.isStartTag(xpp, "AdaptationSet")) {
         adaptationSets.add(parseAdaptationSet(xpp, baseUrl, segmentBase));
+      } else if (XmlPullParserUtil.isStartTag(xpp, "EventStream")) {
+        eventStreams.add(parseEventStream(xpp));
       } else if (XmlPullParserUtil.isStartTag(xpp, "SegmentBase")) {
         segmentBase = parseSegmentBase(xpp, null);
       } else if (XmlPullParserUtil.isStartTag(xpp, "SegmentList")) {
@@ -217,11 +224,12 @@ public class DashManifestParser extends DefaultHandler
       }
     } while (!XmlPullParserUtil.isEndTag(xpp, "Period"));
 
-    return Pair.create(buildPeriod(id, startMs, adaptationSets), durationMs);
+    return Pair.create(buildPeriod(id, startMs, adaptationSets, eventStreams), durationMs);
   }
 
-  protected Period buildPeriod(String id, long startMs, List<AdaptationSet> adaptationSets) {
-    return new Period(id, startMs, adaptationSets);
+  protected Period buildPeriod(String id, long startMs, List<AdaptationSet> adaptationSets,
+      List<EventStream> eventStreams) {
+    return new Period(id, startMs, adaptationSets, eventStreams);
   }
 
   // AdaptationSet parsing.
@@ -357,9 +365,14 @@ public class DashManifestParser extends DefaultHandler
         case "urn:mpeg:dash:mp4protection:2011":
           schemeType = xpp.getAttributeValue(null, "value");
           String defaultKid = xpp.getAttributeValue(null, "cenc:default_KID");
-          if (defaultKid != null && !"00000000-0000-0000-0000-000000000000".equals(defaultKid)) {
-            UUID keyId = UUID.fromString(defaultKid);
-            data = PsshAtomUtil.buildPsshAtom(C.COMMON_PSSH_UUID, new UUID[] {keyId}, null);
+          if (!TextUtils.isEmpty(defaultKid)
+              && !"00000000-0000-0000-0000-000000000000".equals(defaultKid)) {
+            String[] defaultKidStrings = defaultKid.split("\\s+");
+            UUID[] defaultKids = new UUID[defaultKidStrings.length];
+            for (int i = 0; i < defaultKidStrings.length; i++) {
+              defaultKids[i] = UUID.fromString(defaultKidStrings[i]);
+            }
+            data = PsshAtomUtil.buildPsshAtom(C.COMMON_PSSH_UUID, defaultKids, null);
             uuid = C.COMMON_PSSH_UUID;
           }
           break;
@@ -388,7 +401,7 @@ public class DashManifestParser extends DefaultHandler
             Log.w(TAG, "Skipping malformed cenc:pssh data");
             data = null;
           }
-        } else if (uuid == C.PLAYREADY_UUID && XmlPullParserUtil.isStartTag(xpp, "mspr:pro")
+        } else if (C.PLAYREADY_UUID.equals(uuid) && XmlPullParserUtil.isStartTag(xpp, "mspr:pro")
             && xpp.next() == XmlPullParser.TEXT) {
           // The mspr:pro element is defined in DASH Content Protection using Microsoft PlayReady.
           data = PsshAtomUtil.buildPsshAtom(C.PLAYREADY_UUID,
@@ -589,7 +602,7 @@ public class DashManifestParser extends DefaultHandler
     long presentationTimeOffset = parseLong(xpp, "presentationTimeOffset",
         parent != null ? parent.presentationTimeOffset : 0);
     long duration = parseLong(xpp, "duration", parent != null ? parent.duration : C.TIME_UNSET);
-    int startNumber = parseInt(xpp, "startNumber", parent != null ? parent.startNumber : 1);
+    long startNumber = parseLong(xpp, "startNumber", parent != null ? parent.startNumber : 1);
 
     RangedUri initialization = null;
     List<SegmentTimelineElement> timeline = null;
@@ -619,9 +632,14 @@ public class DashManifestParser extends DefaultHandler
         startNumber, duration, timeline, segments);
   }
 
-  protected SegmentList buildSegmentList(RangedUri initialization, long timescale,
-      long presentationTimeOffset, int startNumber, long duration,
-      List<SegmentTimelineElement> timeline, List<RangedUri> segments) {
+  protected SegmentList buildSegmentList(
+      RangedUri initialization,
+      long timescale,
+      long presentationTimeOffset,
+      long startNumber,
+      long duration,
+      List<SegmentTimelineElement> timeline,
+      List<RangedUri> segments) {
     return new SegmentList(initialization, timescale, presentationTimeOffset,
         startNumber, duration, timeline, segments);
   }
@@ -632,7 +650,7 @@ public class DashManifestParser extends DefaultHandler
     long presentationTimeOffset = parseLong(xpp, "presentationTimeOffset",
         parent != null ? parent.presentationTimeOffset : 0);
     long duration = parseLong(xpp, "duration", parent != null ? parent.duration : C.TIME_UNSET);
-    int startNumber = parseInt(xpp, "startNumber", parent != null ? parent.startNumber : 1);
+    long startNumber = parseLong(xpp, "startNumber", parent != null ? parent.startNumber : 1);
     UrlTemplate mediaTemplate = parseUrlTemplate(xpp, "media",
         parent != null ? parent.mediaTemplate : null);
     UrlTemplate initializationTemplate = parseUrlTemplate(xpp, "initialization",
@@ -659,12 +677,152 @@ public class DashManifestParser extends DefaultHandler
         startNumber, duration, timeline, initializationTemplate, mediaTemplate);
   }
 
-  protected SegmentTemplate buildSegmentTemplate(RangedUri initialization, long timescale,
-      long presentationTimeOffset, int startNumber, long duration,
-      List<SegmentTimelineElement> timeline, UrlTemplate initializationTemplate,
+  protected SegmentTemplate buildSegmentTemplate(
+      RangedUri initialization,
+      long timescale,
+      long presentationTimeOffset,
+      long startNumber,
+      long duration,
+      List<SegmentTimelineElement> timeline,
+      UrlTemplate initializationTemplate,
       UrlTemplate mediaTemplate) {
     return new SegmentTemplate(initialization, timescale, presentationTimeOffset,
         startNumber, duration, timeline, initializationTemplate, mediaTemplate);
+  }
+
+  /**
+   * /**
+   * Parses a single EventStream node in the manifest.
+   * <p>
+   * @param xpp The current xml parser.
+   * @return The {@link EventStream} parsed from this EventStream node.
+   * @throws XmlPullParserException If there is any error parsing this node.
+   * @throws IOException If there is any error reading from the underlying input stream.
+   */
+  protected EventStream parseEventStream(XmlPullParser xpp)
+      throws XmlPullParserException, IOException {
+    String schemeIdUri = parseString(xpp, "schemeIdUri", "");
+    String value = parseString(xpp, "value", "");
+    long timescale = parseLong(xpp, "timescale", 1);
+    List<EventMessage> eventMessages = new ArrayList<>();
+    ByteArrayOutputStream scratchOutputStream = new ByteArrayOutputStream(512);
+    do {
+      xpp.next();
+      if (XmlPullParserUtil.isStartTag(xpp, "Event")) {
+        EventMessage event = parseEvent(xpp, schemeIdUri, value, timescale,
+            scratchOutputStream);
+        eventMessages.add(event);
+      }
+    } while (!XmlPullParserUtil.isEndTag(xpp, "EventStream"));
+
+    long[] presentationTimesUs = new long[eventMessages.size()];
+    EventMessage[] events = new EventMessage[eventMessages.size()];
+    for (int i = 0; i < eventMessages.size(); i++) {
+      EventMessage event = eventMessages.get(i);
+      presentationTimesUs[i] = event.presentationTimeUs;
+      events[i] = event;
+    }
+    return buildEventStream(schemeIdUri, value, timescale, presentationTimesUs, events);
+  }
+
+  protected EventStream buildEventStream(String schemeIdUri, String value, long timescale,
+      long[] presentationTimesUs, EventMessage[] events) {
+    return new EventStream(schemeIdUri, value, timescale, presentationTimesUs, events);
+  }
+
+  /**
+   * Parses a single Event node in the manifest.
+   * <p>
+   * @param xpp The current xml parser.
+   * @param schemeIdUri The schemeIdUri of the parent EventStream.
+   * @param value The schemeIdUri of the parent EventStream.
+   * @param timescale The timescale of the parent EventStream.
+   * @param scratchOutputStream A {@link ByteArrayOutputStream} that's used when parsing event
+   *     objects.
+   * @return The {@link EventMessage} parsed from this EventStream node.
+   * @throws XmlPullParserException If there is any error parsing this node.
+   * @throws IOException If there is any error reading from the underlying input stream.
+   */
+  protected EventMessage parseEvent(XmlPullParser xpp, String schemeIdUri, String value,
+      long timescale, ByteArrayOutputStream scratchOutputStream)
+      throws IOException, XmlPullParserException {
+    long id = parseLong(xpp, "id", 0);
+    long duration = parseLong(xpp, "duration", C.TIME_UNSET);
+    long presentationTime = parseLong(xpp, "presentationTime", 0);
+    long durationMs = Util.scaleLargeTimestamp(duration, 1000, timescale);
+    long presentationTimesUs = Util.scaleLargeTimestamp(presentationTime, C.MICROS_PER_SECOND,
+        timescale);
+    byte[] eventObject = parseEventObject(xpp, scratchOutputStream);
+    return buildEvent(schemeIdUri, value, id, durationMs, eventObject, presentationTimesUs);
+  }
+
+  /**
+   * Parses an event object.
+   *
+   * @param xpp The current xml parser.
+   * @param scratchOutputStream A {@link ByteArrayOutputStream} that's used when parsing the object.
+   * @return The serialized byte array.
+   * @throws XmlPullParserException If there is any error parsing this node.
+   * @throws IOException If there is any error reading from the underlying input stream.
+   */
+  protected byte[] parseEventObject(XmlPullParser xpp, ByteArrayOutputStream scratchOutputStream)
+      throws XmlPullParserException, IOException {
+    scratchOutputStream.reset();
+    XmlSerializer xmlSerializer = Xml.newSerializer();
+    xmlSerializer.setOutput(scratchOutputStream, null);
+    // Start reading everything between <Event> and </Event>, and serialize them into an Xml
+    // byte array.
+    xpp.nextToken();
+    while (!XmlPullParserUtil.isEndTag(xpp, "Event")) {
+      switch (xpp.getEventType()) {
+        case (XmlPullParser.START_DOCUMENT):
+          xmlSerializer.startDocument(null, false);
+          break;
+        case (XmlPullParser.END_DOCUMENT):
+          xmlSerializer.endDocument();
+          break;
+        case (XmlPullParser.START_TAG):
+          xmlSerializer.startTag(xpp.getNamespace(), xpp.getName());
+          for (int i = 0; i < xpp.getAttributeCount(); i++) {
+            xmlSerializer.attribute(xpp.getAttributeNamespace(i), xpp.getAttributeName(i),
+                xpp.getAttributeValue(i));
+          }
+          break;
+        case (XmlPullParser.END_TAG):
+          xmlSerializer.endTag(xpp.getNamespace(), xpp.getName());
+          break;
+        case (XmlPullParser.TEXT):
+          xmlSerializer.text(xpp.getText());
+          break;
+        case (XmlPullParser.CDSECT):
+          xmlSerializer.cdsect(xpp.getText());
+          break;
+        case (XmlPullParser.ENTITY_REF):
+          xmlSerializer.entityRef(xpp.getText());
+          break;
+        case (XmlPullParser.IGNORABLE_WHITESPACE):
+          xmlSerializer.ignorableWhitespace(xpp.getText());
+          break;
+        case (XmlPullParser.PROCESSING_INSTRUCTION):
+          xmlSerializer.processingInstruction(xpp.getText());
+          break;
+        case (XmlPullParser.COMMENT):
+          xmlSerializer.comment(xpp.getText());
+          break;
+        case (XmlPullParser.DOCDECL):
+          xmlSerializer.docdecl(xpp.getText());
+          break;
+        default: // fall out
+      }
+      xpp.nextToken();
+    }
+    xmlSerializer.flush();
+    return scratchOutputStream.toByteArray();
+  }
+
+  protected EventMessage buildEvent(String schemeIdUri, String value, long id,
+      long durationMs, byte[] messageData, long presentationTimeUs) {
+    return new EventMessage(schemeIdUri, value, durationMs, id, messageData, presentationTimeUs);
   }
 
   protected List<SegmentTimelineElement> parseSegmentTimeline(XmlPullParser xpp)
@@ -913,7 +1071,7 @@ public class DashManifestParser extends DefaultHandler
       String schemeIdUri = descriptor.schemeIdUri;
       if ("tag:dolby.com,2014:dash:DolbyDigitalPlusExtensionType:2014".equals(schemeIdUri)
           && "ec+3".equals(descriptor.value)) {
-        return MimeTypes.AUDIO_ATMOS;
+        return MimeTypes.AUDIO_E_AC3_JOC;
       }
     }
     return MimeTypes.AUDIO_E_AC3;

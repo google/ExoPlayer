@@ -25,54 +25,32 @@ import com.google.android.exoplayer2.util.Assertions;
  */
 /* package */ final class SinglePeriodAdTimeline extends ForwardingTimeline {
 
-  private final long[] adGroupTimesUs;
-  private final int[] adCounts;
-  private final int[] adsLoadedCounts;
-  private final int[] adsPlayedCounts;
-  private final long[][] adDurationsUs;
-  private final long adResumePositionUs;
-  private final long contentDurationUs;
+  private final AdPlaybackState adPlaybackState;
 
   /**
-   * Creates a new timeline with a single period containing the specified ads.
+   * Creates a new timeline with a single period containing ads.
    *
    * @param contentTimeline The timeline of the content alongside which ads will be played. It must
    *     have one window and one period.
-   * @param adGroupTimesUs The times of ad groups relative to the start of the period, in
-   *     microseconds. A final element with the value {@link C#TIME_END_OF_SOURCE} indicates that
-   *     the period has a postroll ad.
-   * @param adCounts The number of ads in each ad group. An element may be {@link C#LENGTH_UNSET}
-   *     if the number of ads is not yet known.
-   * @param adsLoadedCounts The number of ads loaded so far in each ad group.
-   * @param adsPlayedCounts The number of ads played so far in each ad group.
-   * @param adDurationsUs The duration of each ad in each ad group, in microseconds. An element
-   *     may be {@link C#TIME_UNSET} if the duration is not yet known.
-   * @param adResumePositionUs The position offset in the earliest unplayed ad at which to begin
-   *     playback, in microseconds.
-   * @param contentDurationUs The content duration in microseconds, if known. {@link C#TIME_UNSET}
-   *     otherwise.
+   * @param adPlaybackState The state of the period's ads.
    */
-  public SinglePeriodAdTimeline(Timeline contentTimeline, long[] adGroupTimesUs, int[] adCounts,
-      int[] adsLoadedCounts, int[] adsPlayedCounts, long[][] adDurationsUs, long adResumePositionUs,
-      long contentDurationUs) {
+  public SinglePeriodAdTimeline(Timeline contentTimeline, AdPlaybackState adPlaybackState) {
     super(contentTimeline);
     Assertions.checkState(contentTimeline.getPeriodCount() == 1);
     Assertions.checkState(contentTimeline.getWindowCount() == 1);
-    this.adGroupTimesUs = adGroupTimesUs;
-    this.adCounts = adCounts;
-    this.adsLoadedCounts = adsLoadedCounts;
-    this.adsPlayedCounts = adsPlayedCounts;
-    this.adDurationsUs = adDurationsUs;
-    this.adResumePositionUs = adResumePositionUs;
-    this.contentDurationUs = contentDurationUs;
+    this.adPlaybackState = adPlaybackState;
   }
 
   @Override
   public Period getPeriod(int periodIndex, Period period, boolean setIds) {
     timeline.getPeriod(periodIndex, period, setIds);
-    period.set(period.id, period.uid, period.windowIndex, period.durationUs,
-        period.getPositionInWindowUs(), adGroupTimesUs, adCounts, adsLoadedCounts, adsPlayedCounts,
-        adDurationsUs, adResumePositionUs);
+    period.set(
+        period.id,
+        period.uid,
+        period.windowIndex,
+        period.durationUs,
+        period.getPositionInWindowUs(),
+        adPlaybackState);
     return period;
   }
 
@@ -81,7 +59,7 @@ import com.google.android.exoplayer2.util.Assertions;
       long defaultPositionProjectionUs) {
     window = super.getWindow(windowIndex, window, setIds, defaultPositionProjectionUs);
     if (window.durationUs == C.TIME_UNSET) {
-      window.durationUs = contentDurationUs;
+      window.durationUs = adPlaybackState.contentDurationUs;
     }
     return window;
   }

@@ -19,6 +19,8 @@ import android.os.Looper;
 import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.PlaybackParameters;
 import com.google.android.exoplayer2.Player;
+import com.google.android.exoplayer2.PlayerMessage;
+import com.google.android.exoplayer2.SeekParameters;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.source.TrackGroupArray;
@@ -29,6 +31,16 @@ import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
  * from every method.
  */
 public abstract class StubExoPlayer implements ExoPlayer {
+
+  @Override
+  public VideoComponent getVideoComponent() {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public TextComponent getTextComponent() {
+    throw new UnsupportedOperationException();
+  }
 
   @Override
   public Looper getPlaybackLooper() {
@@ -126,12 +138,27 @@ public abstract class StubExoPlayer implements ExoPlayer {
   }
 
   @Override
+  public void setSeekParameters(SeekParameters seekParameters) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
   public void stop() {
     throw new UnsupportedOperationException();
   }
 
   @Override
+  public void stop(boolean resetStateAndPosition) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
   public void release() {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public PlayerMessage createMessage(PlayerMessage.Target target) {
     throw new UnsupportedOperationException();
   }
 

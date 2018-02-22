@@ -14,7 +14,10 @@
      limitations under the License.
 -->
 <resources>
+  <!-- Description for a button that controls the repeat mode of a media playback. In this mode media is not repeated. [CHAR LIMIT=30] -->
   <string name="exo_media_action_repeat_off_description">Repeat none</string>
+  <!-- Description for a button that controls the repeat mode of a media playback. In this mode the current piece of media is repeated. [CHAR LIMIT=30] -->
   <string name="exo_media_action_repeat_one_description">Repeat one</string>
+  <!-- Description for a button that controls the repeat mode of a media playback. In this mode the entire playlist is repeated. [CHAR LIMIT=30] -->
   <string name="exo_media_action_repeat_all_description">Repeat all</string>
 </resources>

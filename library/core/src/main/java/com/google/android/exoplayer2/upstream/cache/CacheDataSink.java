@@ -29,10 +29,15 @@ import java.io.OutputStream;
 
 /**
  * Writes data into a cache.
+ *
+ * <p>If the {@link DataSpec} object used with {@link #open(DataSpec)} method call has the {@code
+ * length} field set to {@link C#LENGTH_UNSET} but {@link
+ * DataSpec#FLAG_ALLOW_CACHING_UNKNOWN_LENGTH} isn't set then {@link #write(byte[], int, int)} calls
+ * are ignored.
  */
 public final class CacheDataSink implements DataSink {
 
-  /** Default buffer size. */
+  /** Default buffer size in bytes. */
   public static final int DEFAULT_BUFFER_SIZE = 20480;
 
   private final Cache cache;

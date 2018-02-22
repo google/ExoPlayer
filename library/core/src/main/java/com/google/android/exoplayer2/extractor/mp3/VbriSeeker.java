@@ -18,6 +18,7 @@ package com.google.android.exoplayer2.extractor.mp3;
 import android.util.Log;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.extractor.MpegAudioHeader;
+import com.google.android.exoplayer2.extractor.SeekPoint;
 import com.google.android.exoplayer2.util.ParsableByteArray;
 import com.google.android.exoplayer2.util.Util;
 
@@ -106,8 +107,15 @@ import com.google.android.exoplayer2.util.Util;
   }
 
   @Override
-  public long getPosition(long timeUs) {
-    return positions[Util.binarySearchFloor(timesUs, timeUs, true, true)];
+  public SeekPoints getSeekPoints(long timeUs) {
+    int tableIndex = Util.binarySearchFloor(timesUs, timeUs, true, true);
+    SeekPoint seekPoint = new SeekPoint(timesUs[tableIndex], positions[tableIndex]);
+    if (seekPoint.timeUs >= timeUs || tableIndex == timesUs.length - 1) {
+      return new SeekPoints(seekPoint);
+    } else {
+      SeekPoint nextSeekPoint = new SeekPoint(timesUs[tableIndex + 1], positions[tableIndex + 1]);
+      return new SeekPoints(seekPoint, nextSeekPoint);
+    }
   }
 
   @Override

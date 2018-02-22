@@ -18,6 +18,7 @@ package com.google.android.exoplayer2.util;
 import static com.google.android.exoplayer2.util.Util.binarySearchCeil;
 import static com.google.android.exoplayer2.util.Util.binarySearchFloor;
 import static com.google.android.exoplayer2.util.Util.escapeFileName;
+import static com.google.android.exoplayer2.util.Util.getCodecsOfType;
 import static com.google.android.exoplayer2.util.Util.parseXsDateTime;
 import static com.google.android.exoplayer2.util.Util.parseXsDuration;
 import static com.google.android.exoplayer2.util.Util.unescapeFileName;
@@ -31,14 +32,48 @@ import java.util.Random;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
-import org.robolectric.annotation.Config;
 
 /**
  * Unit tests for {@link Util}.
  */
 @RunWith(RobolectricTestRunner.class)
-@Config(sdk = Config.TARGET_SDK, manifest = Config.NONE)
 public class UtilTest {
+
+  @Test
+  public void testAddWithOverflowDefault() {
+    long res = Util.addWithOverflowDefault(5, 10, /* overflowResult= */ 0);
+    assertThat(res).isEqualTo(15);
+
+    res = Util.addWithOverflowDefault(Long.MAX_VALUE - 1, 1, /* overflowResult= */ 12345);
+    assertThat(res).isEqualTo(Long.MAX_VALUE);
+
+    res = Util.addWithOverflowDefault(Long.MIN_VALUE + 1, -1, /* overflowResult= */ 12345);
+    assertThat(res).isEqualTo(Long.MIN_VALUE);
+
+    res = Util.addWithOverflowDefault(Long.MAX_VALUE, 1, /* overflowResult= */ 12345);
+    assertThat(res).isEqualTo(12345);
+
+    res = Util.addWithOverflowDefault(Long.MIN_VALUE, -1, /* overflowResult= */ 12345);
+    assertThat(res).isEqualTo(12345);
+  }
+
+  @Test
+  public void testSubtrackWithOverflowDefault() {
+    long res = Util.subtractWithOverflowDefault(5, 10, /* overflowResult= */ 0);
+    assertThat(res).isEqualTo(-5);
+
+    res = Util.subtractWithOverflowDefault(Long.MIN_VALUE + 1, 1, /* overflowResult= */ 12345);
+    assertThat(res).isEqualTo(Long.MIN_VALUE);
+
+    res = Util.subtractWithOverflowDefault(Long.MAX_VALUE - 1, -1, /* overflowResult= */ 12345);
+    assertThat(res).isEqualTo(Long.MAX_VALUE);
+
+    res = Util.subtractWithOverflowDefault(Long.MIN_VALUE, 1, /* overflowResult= */ 12345);
+    assertThat(res).isEqualTo(12345);
+
+    res = Util.subtractWithOverflowDefault(Long.MAX_VALUE, -1, /* overflowResult= */ 12345);
+    assertThat(res).isEqualTo(12345);
+  }
 
   @Test
   public void testInferContentType() {
@@ -179,6 +214,18 @@ public class UtilTest {
     assertThat(parseXsDateTime("2014-09-19T13:18:55-0800")).isEqualTo(1411161535000L);
     assertThat(parseXsDateTime("2014-09-19T13:18:55.000-0800")).isEqualTo(1411161535000L);
     assertThat(parseXsDateTime("2014-09-19T13:18:55.000-800")).isEqualTo(1411161535000L);
+  }
+
+  @Test
+  public void testGetCodecsOfType() {
+    assertThat(getCodecsOfType(null, C.TRACK_TYPE_VIDEO)).isNull();
+    assertThat(getCodecsOfType("avc1.64001e,vp9.63.1", C.TRACK_TYPE_AUDIO)).isNull();
+    assertThat(getCodecsOfType(" vp9.63.1, ec-3 ", C.TRACK_TYPE_AUDIO)).isEqualTo("ec-3");
+    assertThat(getCodecsOfType("avc1.61e, vp9.63.1, ec-3 ", C.TRACK_TYPE_VIDEO))
+        .isEqualTo("avc1.61e,vp9.63.1");
+    assertThat(getCodecsOfType("avc1.61e, vp9.63.1, ec-3 ", C.TRACK_TYPE_VIDEO))
+        .isEqualTo("avc1.61e,vp9.63.1");
+    assertThat(getCodecsOfType("invalidCodec1, invalidCodec2 ", C.TRACK_TYPE_AUDIO)).isNull();
   }
 
   @Test

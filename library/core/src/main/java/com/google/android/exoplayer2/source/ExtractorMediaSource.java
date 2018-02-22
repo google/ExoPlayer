@@ -377,8 +377,9 @@ public final class ExtractorMediaSource implements MediaSource, ExtractorMediaPe
   private void notifySourceInfoRefreshed(long durationUs, boolean isSeekable) {
     timelineDurationUs = durationUs;
     timelineIsSeekable = isSeekable;
-    sourceListener.onSourceInfoRefreshed(
-        this, new SinglePeriodTimeline(timelineDurationUs, timelineIsSeekable), null);
+    // TODO: Make timeline dynamic until its duration is known. This is non-trivial. See b/69703223.
+    sourceListener.onSourceInfoRefreshed(this,
+        new SinglePeriodTimeline(timelineDurationUs, timelineIsSeekable, false), null);
   }
 
   /**

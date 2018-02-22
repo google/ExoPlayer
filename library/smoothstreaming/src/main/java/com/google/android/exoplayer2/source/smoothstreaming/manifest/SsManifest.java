@@ -203,8 +203,20 @@ public class SsManifest {
         long timescale, String name, int maxWidth, int maxHeight, int displayWidth,
         int displayHeight, String language, Format[] formats, List<Long> chunkStartTimes,
         long lastChunkDuration) {
-      this (baseUri, chunkTemplate, type, subType, timescale, name, maxWidth, maxHeight,
-          displayWidth, displayHeight, language, formats, chunkStartTimes,
+      this(
+          baseUri,
+          chunkTemplate,
+          type,
+          subType,
+          timescale,
+          name,
+          maxWidth,
+          maxHeight,
+          displayWidth,
+          displayHeight,
+          language,
+          formats,
+          chunkStartTimes,
           Util.scaleLargeTimestamps(chunkStartTimes, C.MICROS_PER_SECOND, timescale),
           Util.scaleLargeTimestamp(lastChunkDuration, C.MICROS_PER_SECOND, timescale));
     }
