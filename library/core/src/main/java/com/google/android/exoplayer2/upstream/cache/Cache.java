@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.upstream.cache;
 
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import java.io.File;
 import java.io.IOException;
@@ -80,15 +81,16 @@ public interface Cache {
 
   /**
    * Registers a listener to listen for changes to a given key.
-   * <p>
-   * No guarantees are made about the thread or threads on which the listener is called, but it is
-   * guaranteed that listener methods will be called in a serial fashion (i.e. one at a time) and in
-   * the same order as events occurred.
+   *
+   * <p>No guarantees are made about the thread or threads on which the listener is called, but it
+   * is guaranteed that listener methods will be called in a serial fashion (i.e. one at a time) and
+   * in the same order as events occurred.
    *
    * @param key The key to listen to.
    * @param listener The listener to add.
    * @return The current spans for the key.
    */
+  @NonNull
   NavigableSet<CacheSpan> addListener(String key, Listener listener);
 
   /**
@@ -103,9 +105,10 @@ public interface Cache {
    * Returns the cached spans for a given cache key.
    *
    * @param key The key for which spans should be returned.
-   * @return The spans for the key. May be null if there are no such spans.
+   * @return The spans for the key.
    */
-  @Nullable NavigableSet<CacheSpan> getCachedSpans(String key);
+  @NonNull
+  NavigableSet<CacheSpan> getCachedSpans(String key);
 
   /**
    * Returns all keys in the cache.
@@ -124,23 +127,24 @@ public interface Cache {
   /**
    * A caller should invoke this method when they require data from a given position for a given
    * key.
-   * <p>
-   * If there is a cache entry that overlaps the position, then the returned {@link CacheSpan}
+   *
+   * <p>If there is a cache entry that overlaps the position, then the returned {@link CacheSpan}
    * defines the file in which the data is stored. {@link CacheSpan#isCached} is true. The caller
    * may read from the cache file, but does not acquire any locks.
-   * <p>
-   * If there is no cache entry overlapping {@code offset}, then the returned {@link CacheSpan}
+   *
+   * <p>If there is no cache entry overlapping {@code offset}, then the returned {@link CacheSpan}
    * defines a hole in the cache starting at {@code position} into which the caller may write as it
    * obtains the data from some other source. The returned {@link CacheSpan} serves as a lock.
    * Whilst the caller holds the lock it may write data into the hole. It may split data into
-   * multiple files. When the caller has finished writing a file it should commit it to the cache
-   * by calling {@link #commitFile(File)}. When the caller has finished writing, it must release
-   * the lock by calling {@link #releaseHoleSpan}.
+   * multiple files. When the caller has finished writing a file it should commit it to the cache by
+   * calling {@link #commitFile(File)}. When the caller has finished writing, it must release the
+   * lock by calling {@link #releaseHoleSpan}.
    *
    * @param key The key of the data being requested.
    * @param position The position of the data being requested.
    * @return The {@link CacheSpan}.
    * @throws InterruptedException If the thread was interrupted.
+   * @throws CacheException If an error is encountered.
    */
   CacheSpan startReadWrite(String key, long position) throws InterruptedException, CacheException;
 
@@ -151,8 +155,10 @@ public interface Cache {
    * @param key The key of the data being requested.
    * @param position The position of the data being requested.
    * @return The {@link CacheSpan}. Or null if the cache entry is locked.
+   * @throws CacheException If an error is encountered.
    */
-  @Nullable CacheSpan startReadWriteNonBlocking(String key, long position) throws CacheException;
+  @Nullable
+  CacheSpan startReadWriteNonBlocking(String key, long position) throws CacheException;
 
   /**
    * Obtains a cache file into which data can be written. Must only be called when holding a
@@ -163,14 +169,16 @@ public interface Cache {
    * @param maxLength The maximum length of the data to be written. Used only to ensure that there
    *     is enough space in the cache.
    * @return The file into which data should be written.
+   * @throws CacheException If an error is encountered.
    */
   File startFile(String key, long position, long maxLength) throws CacheException;
 
   /**
-   * Commits a file into the cache. Must only be called when holding a corresponding hole
-   * {@link CacheSpan} obtained from {@link #startReadWrite(String, long)}
+   * Commits a file into the cache. Must only be called when holding a corresponding hole {@link
+   * CacheSpan} obtained from {@link #startReadWrite(String, long)}
    *
    * @param file A newly written cache file.
+   * @throws CacheException If an error is encountered.
    */
   void commitFile(File file) throws CacheException;
 
@@ -186,6 +194,7 @@ public interface Cache {
    * Removes a cached {@link CacheSpan} from the cache, deleting the underlying file.
    *
    * @param span The {@link CacheSpan} to remove.
+   * @throws CacheException If an error is encountered.
    */
   void removeSpan(CacheSpan span) throws CacheException;
 
@@ -207,15 +216,16 @@ public interface Cache {
    * @param key The cache key for the data.
    * @param position The starting position of the data.
    * @param length The maximum length of the data to be returned.
-   * @return the length of the cached or not cached data block length.
+   * @return The length of the cached or not cached data block length.
    */
-  long getCachedBytes(String key, long position, long length);
+  long getCachedLength(String key, long position, long length);
 
   /**
    * Sets the content length for the given key.
    *
    * @param key The cache key for the data.
    * @param length The length of the data.
+   * @throws CacheException If an error is encountered.
    */
   void setContentLength(String key, long length) throws CacheException;
 
@@ -224,7 +234,8 @@ public interface Cache {
    * com.google.android.exoplayer2.C#LENGTH_UNSET} otherwise.
    *
    * @param key The cache key for the data.
+   * @return The content length for the given key if one set, or {@link
+   *     com.google.android.exoplayer2.C#LENGTH_UNSET} otherwise.
    */
   long getContentLength(String key);
-
 }

@@ -13,7 +13,7 @@
      See the License for the specific language governing permissions and
      limitations under the License.
 -->
-<com.google.android.exoplayer2.ui.SimpleExoPlayerView
+<com.google.android.exoplayer2.ui.PlayerView
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/player_view"
     android:layout_width="match_parent"

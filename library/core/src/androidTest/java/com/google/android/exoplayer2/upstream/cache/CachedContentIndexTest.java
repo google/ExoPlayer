@@ -1,7 +1,9 @@
 package com.google.android.exoplayer2.upstream.cache;
 
+import static com.google.common.truth.Truth.assertThat;
+import static com.google.common.truth.Truth.assertWithMessage;
+
 import android.test.InstrumentationTestCase;
-import android.test.MoreAsserts;
 import android.util.SparseArray;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.util.Util;
@@ -9,10 +11,8 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Set;
-import junit.framework.AssertionFailedError;
 
 /**
  * Tests {@link CachedContentIndex}.
@@ -36,6 +36,7 @@ public class CachedContentIndexTest extends InstrumentationTestCase {
 
   @Override
   public void setUp() throws Exception {
+    super.setUp();
     cacheDir = Util.createTempDirectory(getInstrumentation().getContext(), "ExoPlayerTest");
     index = new CachedContentIndex(cacheDir);
   }
@@ -43,6 +44,7 @@ public class CachedContentIndexTest extends InstrumentationTestCase {
   @Override
   protected void tearDown() throws Exception {
     Util.recursiveDelete(cacheDir);
+    super.tearDown();
   }
 
   public void testAddGetRemove() throws Exception {
@@ -53,48 +55,46 @@ public class CachedContentIndexTest extends InstrumentationTestCase {
     // Add two CachedContents with add methods
     CachedContent cachedContent1 = new CachedContent(5, key1, 10);
     index.addNew(cachedContent1);
-    CachedContent cachedContent2 = index.add(key2);
-    assertTrue(cachedContent1.id != cachedContent2.id);
+    CachedContent cachedContent2 = index.getOrAdd(key2);
+    assertThat(cachedContent1.id != cachedContent2.id).isTrue();
 
     // add a span
     File cacheSpanFile = SimpleCacheSpanTest
         .createCacheSpanFile(cacheDir, cachedContent1.id, 10, 20, 30);
     SimpleCacheSpan span = SimpleCacheSpan.createCacheEntry(cacheSpanFile, index);
-    assertNotNull(span);
+    assertThat(span).isNotNull();
     cachedContent1.addSpan(span);
 
     // Check if they are added and get method returns null if the key isn't found
-    assertEquals(cachedContent1, index.get(key1));
-    assertEquals(cachedContent2, index.get(key2));
-    assertNull(index.get(key3));
+    assertThat(index.get(key1)).isEqualTo(cachedContent1);
+    assertThat(index.get(key2)).isEqualTo(cachedContent2);
+    assertThat(index.get(key3)).isNull();
 
     // test getAll()
     Collection<CachedContent> cachedContents = index.getAll();
-    assertEquals(2, cachedContents.size());
-    assertTrue(Arrays.asList(cachedContent1, cachedContent2).containsAll(cachedContents));
+    assertThat(cachedContents).containsExactly(cachedContent1, cachedContent2);
 
     // test getKeys()
     Set<String> keys = index.getKeys();
-    assertEquals(2, keys.size());
-    assertTrue(Arrays.asList(key1, key2).containsAll(keys));
+    assertThat(keys).containsExactly(key1, key2);
 
     // test getKeyForId()
-    assertEquals(key1, index.getKeyForId(cachedContent1.id));
-    assertEquals(key2, index.getKeyForId(cachedContent2.id));
+    assertThat(index.getKeyForId(cachedContent1.id)).isEqualTo(key1);
+    assertThat(index.getKeyForId(cachedContent2.id)).isEqualTo(key2);
 
     // test remove()
-    index.removeEmpty(key2);
-    index.removeEmpty(key3);
-    assertEquals(cachedContent1, index.get(key1));
-    assertNull(index.get(key2));
-    assertTrue(cacheSpanFile.exists());
+    index.maybeRemove(key2);
+    index.maybeRemove(key3);
+    assertThat(index.get(key1)).isEqualTo(cachedContent1);
+    assertThat(index.get(key2)).isNull();
+    assertThat(cacheSpanFile.exists()).isTrue();
 
     // test removeEmpty()
     index.addNew(cachedContent2);
     index.removeEmpty();
-    assertEquals(cachedContent1, index.get(key1));
-    assertNull(index.get(key2));
-    assertTrue(cacheSpanFile.exists());
+    assertThat(index.get(key1)).isEqualTo(cachedContent1);
+    assertThat(index.get(key2)).isNull();
+    assertThat(cacheSpanFile.exists()).isTrue();
   }
 
   public void testStoreAndLoad() throws Exception {
@@ -107,11 +107,11 @@ public class CachedContentIndexTest extends InstrumentationTestCase {
     fos.close();
 
     index.load();
-    assertEquals(2, index.getAll().size());
-    assertEquals(5, index.assignIdForKey("ABCDE"));
-    assertEquals(10, index.getContentLength("ABCDE"));
-    assertEquals(2, index.assignIdForKey("KLMNO"));
-    assertEquals(2560, index.getContentLength("KLMNO"));
+    assertThat(index.getAll()).hasSize(2);
+    assertThat(index.assignIdForKey("ABCDE")).isEqualTo(5);
+    assertThat(index.getContentLength("ABCDE")).isEqualTo(10);
+    assertThat(index.assignIdForKey("KLMNO")).isEqualTo(2);
+    assertThat(index.getContentLength("KLMNO")).isEqualTo(2560);
   }
 
   public void testStoreV1() throws Exception {
@@ -122,13 +122,13 @@ public class CachedContentIndexTest extends InstrumentationTestCase {
 
     byte[] buffer = new byte[testIndexV1File.length];
     FileInputStream fos = new FileInputStream(new File(cacheDir, CachedContentIndex.FILE_NAME));
-    assertEquals(testIndexV1File.length, fos.read(buffer));
-    assertEquals(-1, fos.read());
+    assertThat(fos.read(buffer)).isEqualTo(testIndexV1File.length);
+    assertThat(fos.read()).isEqualTo(-1);
     fos.close();
 
     // TODO: The order of the CachedContent stored in index file isn't defined so this test may fail
     // on a different implementation of the underlying set
-    MoreAsserts.assertEquals(testIndexV1File, buffer);
+    assertThat(buffer).isEqualTo(testIndexV1File);
   }
 
   public void testAssignIdForKeyAndGetKeyForId() throws Exception {
@@ -136,29 +136,29 @@ public class CachedContentIndexTest extends InstrumentationTestCase {
     final String key2 = "key2";
     int id1 = index.assignIdForKey(key1);
     int id2 = index.assignIdForKey(key2);
-    assertEquals(key1, index.getKeyForId(id1));
-    assertEquals(key2, index.getKeyForId(id2));
-    assertTrue(id1 != id2);
-    assertEquals(id1, index.assignIdForKey(key1));
-    assertEquals(id2, index.assignIdForKey(key2));
+    assertThat(index.getKeyForId(id1)).isEqualTo(key1);
+    assertThat(index.getKeyForId(id2)).isEqualTo(key2);
+    assertThat(id1 != id2).isTrue();
+    assertThat(index.assignIdForKey(key1)).isEqualTo(id1);
+    assertThat(index.assignIdForKey(key2)).isEqualTo(id2);
   }
 
   public void testSetGetContentLength() throws Exception {
     final String key1 = "key1";
-    assertEquals(C.LENGTH_UNSET, index.getContentLength(key1));
+    assertThat(index.getContentLength(key1)).isEqualTo(C.LENGTH_UNSET);
     index.setContentLength(key1, 10);
-    assertEquals(10, index.getContentLength(key1));
+    assertThat(index.getContentLength(key1)).isEqualTo(10);
   }
 
   public void testGetNewId() throws Exception {
     SparseArray<String> idToKey = new SparseArray<>();
-    assertEquals(0, CachedContentIndex.getNewId(idToKey));
+    assertThat(CachedContentIndex.getNewId(idToKey)).isEqualTo(0);
     idToKey.put(10, "");
-    assertEquals(11, CachedContentIndex.getNewId(idToKey));
+    assertThat(CachedContentIndex.getNewId(idToKey)).isEqualTo(11);
     idToKey.put(Integer.MAX_VALUE, "");
-    assertEquals(0, CachedContentIndex.getNewId(idToKey));
+    assertThat(CachedContentIndex.getNewId(idToKey)).isEqualTo(0);
     idToKey.put(0, "");
-    assertEquals(1, CachedContentIndex.getNewId(idToKey));
+    assertThat(CachedContentIndex.getNewId(idToKey)).isEqualTo(1);
   }
 
   public void testEncryption() throws Exception {
@@ -171,36 +171,40 @@ public class CachedContentIndexTest extends InstrumentationTestCase {
     // Rename the index file from the test above
     File file1 = new File(cacheDir, CachedContentIndex.FILE_NAME);
     File file2 = new File(cacheDir, "file2compare");
-    assertTrue(file1.renameTo(file2));
+    assertThat(file1.renameTo(file2)).isTrue();
 
     // Write a new index file
     assertStoredAndLoadedEqual(new CachedContentIndex(cacheDir, key),
         new CachedContentIndex(cacheDir, key));
 
-    assertEquals(file2.length(), file1.length());
+    assertThat(file1.length()).isEqualTo(file2.length());
     // Assert file content is different
     FileInputStream fis1 = new FileInputStream(file1);
     FileInputStream fis2 = new FileInputStream(file2);
     for (int b; (b = fis1.read()) == fis2.read(); ) {
-      assertTrue(b != -1);
+      assertThat(b != -1).isTrue();
     }
 
     boolean threw = false;
     try {
       assertStoredAndLoadedEqual(new CachedContentIndex(cacheDir, key),
           new CachedContentIndex(cacheDir, key2));
-    } catch (AssertionFailedError e) {
+    } catch (AssertionError e) {
       threw = true;
     }
-    assertTrue("Encrypted index file can not be read with different encryption key", threw);
+    assertWithMessage("Encrypted index file can not be read with different encryption key")
+        .that(threw)
+        .isTrue();
 
     try {
       assertStoredAndLoadedEqual(new CachedContentIndex(cacheDir, key),
           new CachedContentIndex(cacheDir));
-    } catch (AssertionFailedError e) {
+    } catch (AssertionError e) {
       threw = true;
     }
-    assertTrue("Encrypted index file can not be read without encryption key", threw);
+    assertWithMessage("Encrypted index file can not be read without encryption key")
+        .that(threw)
+        .isTrue();
 
     // Non encrypted index file can be read even when encryption key provided.
     assertStoredAndLoadedEqual(new CachedContentIndex(cacheDir),
@@ -213,19 +217,51 @@ public class CachedContentIndexTest extends InstrumentationTestCase {
     assertStoredAndLoadedEqual(index, new CachedContentIndex(cacheDir, key));
   }
 
+  public void testRemoveEmptyNotLockedCachedContent() throws Exception {
+    CachedContent cachedContent = new CachedContent(5, "key1", 10);
+    index.addNew(cachedContent);
+
+    index.maybeRemove(cachedContent.key);
+
+    assertThat(index.get(cachedContent.key)).isNull();
+  }
+
+  public void testCantRemoveNotEmptyCachedContent() throws Exception {
+    CachedContent cachedContent = new CachedContent(5, "key1", 10);
+    index.addNew(cachedContent);
+    File cacheSpanFile =
+        SimpleCacheSpanTest.createCacheSpanFile(cacheDir, cachedContent.id, 10, 20, 30);
+    SimpleCacheSpan span = SimpleCacheSpan.createCacheEntry(cacheSpanFile, index);
+    cachedContent.addSpan(span);
+
+    index.maybeRemove(cachedContent.key);
+
+    assertThat(index.get(cachedContent.key)).isNotNull();
+  }
+
+  public void testCantRemoveLockedCachedContent() throws Exception {
+    CachedContent cachedContent = new CachedContent(5, "key1", 10);
+    cachedContent.setLocked(true);
+    index.addNew(cachedContent);
+
+    index.maybeRemove(cachedContent.key);
+
+    assertThat(index.get(cachedContent.key)).isNotNull();
+  }
+
   private void assertStoredAndLoadedEqual(CachedContentIndex index, CachedContentIndex index2)
       throws IOException {
     index.addNew(new CachedContent(5, "key1", 10));
-    index.add("key2");
+    index.getOrAdd("key2");
     index.store();
 
     index2.load();
     Set<String> keys = index.getKeys();
     Set<String> keys2 = index2.getKeys();
-    assertEquals(keys, keys2);
+    assertThat(keys2).isEqualTo(keys);
     for (String key : keys) {
-      assertEquals(index.getContentLength(key), index2.getContentLength(key));
-      assertEquals(index.get(key).getSpans(), index2.get(key).getSpans());
+      assertThat(index2.getContentLength(key)).isEqualTo(index.getContentLength(key));
+      assertThat(index2.get(key).getSpans()).isEqualTo(index.get(key).getSpans());
     }
   }
 

@@ -20,6 +20,7 @@ import android.support.annotation.Nullable;
 import com.google.android.exoplayer2.drm.DrmSessionManager;
 import com.google.android.exoplayer2.drm.FrameworkMediaCrypto;
 import com.google.android.exoplayer2.trackselection.TrackSelector;
+import com.google.android.exoplayer2.util.Clock;
 
 /**
  * A factory for {@link ExoPlayer} instances.
@@ -160,7 +161,7 @@ public final class ExoPlayerFactory {
    */
   public static ExoPlayer newInstance(Renderer[] renderers, TrackSelector trackSelector,
       LoadControl loadControl) {
-    return new ExoPlayerImpl(renderers, trackSelector, loadControl);
+    return new ExoPlayerImpl(renderers, trackSelector, loadControl, Clock.DEFAULT);
   }
 
 }

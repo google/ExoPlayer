@@ -218,7 +218,6 @@ static int convert_16_to_8_neon(const vpx_image_t* const img, jbyte* const data,
       dstV += 8;
     }
 
-    i *= 4;
     uint32_t randval = 0;
     while (i < uvWidth) {
       if (!randval) randval = random();
@@ -283,7 +282,7 @@ static void convert_16_to_8_standard(const vpx_image_t* const img,
   }
 }
 
-DECODER_FUNC(jlong, vpxInit) {
+DECODER_FUNC(jlong, vpxInit, jboolean disableLoopFilter) {
   vpx_codec_ctx_t* context = new vpx_codec_ctx_t();
   vpx_codec_dec_cfg_t cfg = {0, 0, 0};
   cfg.threads = android_getCpuCount();
@@ -294,6 +293,9 @@ DECODER_FUNC(jlong, vpxInit) {
     LOGE("ERROR: Failed to initialize libvpx decoder, error = %d.", err);
     errorCode = err;
     return 0;
+  }
+  if (disableLoopFilter) {
+    vpx_codec_control_(context, VP9_SET_SKIP_LOOP_FILTER, true);
   }
 
   // Populate JNI References.
@@ -360,7 +362,7 @@ DECODER_FUNC(jint, vpxGetFrame, jlong jContext, jobject jOutputBuffer) {
     // resize buffer if required.
     jboolean initResult = env->CallBooleanMethod(jOutputBuffer, initForRgbFrame,
                                                  img->d_w, img->d_h);
-    if (initResult == JNI_FALSE) {
+    if (env->ExceptionCheck() || !initResult) {
       return -1;
     }
 
@@ -398,7 +400,7 @@ DECODER_FUNC(jint, vpxGetFrame, jlong jContext, jobject jOutputBuffer) {
     jboolean initResult = env->CallBooleanMethod(
         jOutputBuffer, initForYuvFrame, img->d_w, img->d_h,
         img->stride[VPX_PLANE_Y], img->stride[VPX_PLANE_U], colorspace);
-    if (initResult == JNI_FALSE) {
+    if (env->ExceptionCheck() || !initResult) {
       return -1;
     }
 

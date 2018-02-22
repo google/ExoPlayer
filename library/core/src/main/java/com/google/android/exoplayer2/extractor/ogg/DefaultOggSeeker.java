@@ -18,6 +18,7 @@ package com.google.android.exoplayer2.extractor.ogg;
 import com.google.android.exoplayer2.ParserException;
 import com.google.android.exoplayer2.extractor.ExtractorInput;
 import com.google.android.exoplayer2.extractor.SeekMap;
+import com.google.android.exoplayer2.extractor.SeekPoint;
 import com.google.android.exoplayer2.util.Assertions;
 import java.io.EOFException;
 import java.io.IOException;
@@ -219,12 +220,13 @@ import java.io.IOException;
     }
 
     @Override
-    public long getPosition(long timeUs) {
+    public SeekPoints getSeekPoints(long timeUs) {
       if (timeUs == 0) {
-        return startPosition;
+        return new SeekPoints(new SeekPoint(0, startPosition));
       }
       long granule = streamReader.convertTimeToGranule(timeUs);
-      return getEstimatedPosition(startPosition, granule, DEFAULT_OFFSET);
+      long estimatedPosition = getEstimatedPosition(startPosition, granule, DEFAULT_OFFSET);
+      return new SeekPoints(new SeekPoint(timeUs, estimatedPosition));
     }
 
     @Override

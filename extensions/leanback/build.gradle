@@ -30,7 +30,7 @@ dependencies {
 }
 
 ext {
-    javadocTitle = 'Leanback extension for Exoplayer library'
+    javadocTitle = 'Leanback extension'
 }
 apply from: '../../javadoc_library.gradle'
 

@@ -15,10 +15,7 @@
  */
 package com.google.android.exoplayer2.ext.cronet;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
@@ -222,7 +219,7 @@ public final class CronetDataSourceTest {
   @Test
   public void testRequestOpen() throws HttpDataSourceException {
     mockResponseStartSuccess();
-    assertEquals(TEST_CONTENT_LENGTH, dataSourceUnderTest.open(testDataSpec));
+    assertThat(dataSourceUnderTest.open(testDataSpec)).isEqualTo(TEST_CONTENT_LENGTH);
     verify(mockTransferListener).onTransferStart(dataSourceUnderTest, testDataSpec);
   }
 
@@ -234,7 +231,7 @@ public final class CronetDataSourceTest {
     testResponseHeader.put("Content-Length", Long.toString(50L));
     mockResponseStartSuccess();
 
-    assertEquals(5000 /* contentLength */, dataSourceUnderTest.open(testDataSpec));
+    assertThat(dataSourceUnderTest.open(testDataSpec)).isEqualTo(5000 /* contentLength */);
     verify(mockTransferListener).onTransferStart(dataSourceUnderTest, testDataSpec);
   }
 
@@ -247,7 +244,7 @@ public final class CronetDataSourceTest {
       fail("HttpDataSource.HttpDataSourceException expected");
     } catch (HttpDataSourceException e) {
       // Check for connection not automatically closed.
-      assertFalse(e.getCause() instanceof UnknownHostException);
+      assertThat(e.getCause() instanceof UnknownHostException).isFalse();
       verify(mockUrlRequest, never()).cancel();
       verify(mockTransferListener, never()).onTransferStart(dataSourceUnderTest, testDataSpec);
     }
@@ -264,7 +261,7 @@ public final class CronetDataSourceTest {
       fail("HttpDataSource.HttpDataSourceException expected");
     } catch (HttpDataSourceException e) {
       // Check for connection not automatically closed.
-      assertTrue(e.getCause() instanceof UnknownHostException);
+      assertThat(e.getCause() instanceof UnknownHostException).isTrue();
       verify(mockUrlRequest, never()).cancel();
       verify(mockTransferListener, never()).onTransferStart(dataSourceUnderTest, testDataSpec);
     }
@@ -279,7 +276,7 @@ public final class CronetDataSourceTest {
       dataSourceUnderTest.open(testDataSpec);
       fail("HttpDataSource.HttpDataSourceException expected");
     } catch (HttpDataSourceException e) {
-      assertTrue(e instanceof HttpDataSource.InvalidResponseCodeException);
+      assertThat(e instanceof HttpDataSource.InvalidResponseCodeException).isTrue();
       // Check for connection not automatically closed.
       verify(mockUrlRequest, never()).cancel();
       verify(mockTransferListener, never()).onTransferStart(dataSourceUnderTest, testDataSpec);
@@ -295,7 +292,7 @@ public final class CronetDataSourceTest {
       dataSourceUnderTest.open(testDataSpec);
       fail("HttpDataSource.HttpDataSourceException expected");
     } catch (HttpDataSourceException e) {
-      assertTrue(e instanceof HttpDataSource.InvalidContentTypeException);
+      assertThat(e instanceof HttpDataSource.InvalidContentTypeException).isTrue();
       // Check for connection not automatically closed.
       verify(mockUrlRequest, never()).cancel();
       verify(mockContentTypePredicate).evaluate(TEST_CONTENT_TYPE);
@@ -307,7 +304,7 @@ public final class CronetDataSourceTest {
     mockResponseStartSuccess();
 
     dataSourceUnderTest.setRequestProperty("Content-Type", TEST_CONTENT_TYPE);
-    assertEquals(TEST_CONTENT_LENGTH, dataSourceUnderTest.open(testPostDataSpec));
+    assertThat(dataSourceUnderTest.open(testPostDataSpec)).isEqualTo(TEST_CONTENT_LENGTH);
     verify(mockTransferListener).onTransferStart(dataSourceUnderTest, testPostDataSpec);
   }
 
@@ -346,13 +343,13 @@ public final class CronetDataSourceTest {
 
     byte[] returnedBuffer = new byte[8];
     int bytesRead = dataSourceUnderTest.read(returnedBuffer, 0, 8);
-    assertArrayEquals(buildTestDataArray(0, 8), returnedBuffer);
-    assertEquals(8, bytesRead);
+    assertThat(returnedBuffer).isEqualTo(buildTestDataArray(0, 8));
+    assertThat(bytesRead).isEqualTo(8);
 
     returnedBuffer = new byte[8];
     bytesRead = dataSourceUnderTest.read(returnedBuffer, 0, 8);
-    assertArrayEquals(buildTestDataArray(8, 8), returnedBuffer);
-    assertEquals(8, bytesRead);
+    assertThat(returnedBuffer).isEqualTo(buildTestDataArray(8, 8));
+    assertThat(bytesRead).isEqualTo(8);
 
     // Should have only called read on cronet once.
     verify(mockUrlRequest, times(1)).read(any(ByteBuffer.class));
@@ -378,11 +375,11 @@ public final class CronetDataSourceTest {
     dataSourceUnderTest.open(testDataSpec);
     returnedBuffer = new byte[16];
     int bytesRead = dataSourceUnderTest.read(returnedBuffer, 0, 10);
-    assertEquals(10, bytesRead);
+    assertThat(bytesRead).isEqualTo(10);
     bytesRead = dataSourceUnderTest.read(returnedBuffer, 0, 10);
-    assertEquals(6, bytesRead);
+    assertThat(bytesRead).isEqualTo(6);
     bytesRead = dataSourceUnderTest.read(returnedBuffer, 0, 10);
-    assertEquals(C.RESULT_END_OF_INPUT, bytesRead);
+    assertThat(bytesRead).isEqualTo(C.RESULT_END_OF_INPUT);
   }
 
   @Test
@@ -394,8 +391,8 @@ public final class CronetDataSourceTest {
 
     byte[] returnedBuffer = new byte[16];
     int bytesRead = dataSourceUnderTest.read(returnedBuffer, 8, 8);
-    assertEquals(8, bytesRead);
-    assertArrayEquals(prefixZeros(buildTestDataArray(0, 8), 16), returnedBuffer);
+    assertThat(bytesRead).isEqualTo(8);
+    assertThat(returnedBuffer).isEqualTo(prefixZeros(buildTestDataArray(0, 8), 16));
     verify(mockTransferListener).onBytesTransferred(dataSourceUnderTest, 8);
   }
 
@@ -410,8 +407,8 @@ public final class CronetDataSourceTest {
 
     byte[] returnedBuffer = new byte[16];
     int bytesRead = dataSourceUnderTest.read(returnedBuffer, 0, 16);
-    assertEquals(16, bytesRead);
-    assertArrayEquals(buildTestDataArray(1000, 16), returnedBuffer);
+    assertThat(bytesRead).isEqualTo(16);
+    assertThat(returnedBuffer).isEqualTo(buildTestDataArray(1000, 16));
     verify(mockTransferListener).onBytesTransferred(dataSourceUnderTest, 16);
   }
 
@@ -426,8 +423,8 @@ public final class CronetDataSourceTest {
 
     byte[] returnedBuffer = new byte[16];
     int bytesRead = dataSourceUnderTest.read(returnedBuffer, 0, 16);
-    assertEquals(16, bytesRead);
-    assertArrayEquals(buildTestDataArray(1000, 16), returnedBuffer);
+    assertThat(bytesRead).isEqualTo(16);
+    assertThat(returnedBuffer).isEqualTo(buildTestDataArray(1000, 16));
     verify(mockTransferListener).onBytesTransferred(dataSourceUnderTest, 16);
   }
 
@@ -441,8 +438,8 @@ public final class CronetDataSourceTest {
 
     byte[] returnedBuffer = new byte[16];
     int bytesRead = dataSourceUnderTest.read(returnedBuffer, 8, 8);
-    assertArrayEquals(prefixZeros(buildTestDataArray(0, 8), 16), returnedBuffer);
-    assertEquals(8, bytesRead);
+    assertThat(returnedBuffer).isEqualTo(prefixZeros(buildTestDataArray(0, 8), 16));
+    assertThat(bytesRead).isEqualTo(8);
     verify(mockTransferListener).onBytesTransferred(dataSourceUnderTest, 8);
   }
 
@@ -455,8 +452,8 @@ public final class CronetDataSourceTest {
 
     byte[] returnedBuffer = new byte[24];
     int bytesRead = dataSourceUnderTest.read(returnedBuffer, 0, 24);
-    assertArrayEquals(suffixZeros(buildTestDataArray(0, 16), 24), returnedBuffer);
-    assertEquals(16, bytesRead);
+    assertThat(returnedBuffer).isEqualTo(suffixZeros(buildTestDataArray(0, 16), 24));
+    assertThat(bytesRead).isEqualTo(16);
     verify(mockTransferListener).onBytesTransferred(dataSourceUnderTest, 16);
   }
 
@@ -470,8 +467,8 @@ public final class CronetDataSourceTest {
 
     byte[] returnedBuffer = new byte[8];
     bytesRead += dataSourceUnderTest.read(returnedBuffer, 0, 8);
-    assertArrayEquals(buildTestDataArray(0, 8), returnedBuffer);
-    assertEquals(8, bytesRead);
+    assertThat(returnedBuffer).isEqualTo(buildTestDataArray(0, 8));
+    assertThat(bytesRead).isEqualTo(8);
 
     dataSourceUnderTest.close();
     verify(mockTransferListener).onTransferEnd(dataSourceUnderTest);
@@ -484,7 +481,7 @@ public final class CronetDataSourceTest {
     }
 
     // 16 bytes were attempted but only 8 should have been successfully read.
-    assertEquals(8, bytesRead);
+    assertThat(bytesRead).isEqualTo(8);
   }
 
   @Test
@@ -498,20 +495,20 @@ public final class CronetDataSourceTest {
 
     byte[] returnedBuffer = new byte[8];
     int bytesRead = dataSourceUnderTest.read(returnedBuffer, 0, 8);
-    assertEquals(8, bytesRead);
-    assertArrayEquals(buildTestDataArray(0, 8), returnedBuffer);
+    assertThat(bytesRead).isEqualTo(8);
+    assertThat(returnedBuffer).isEqualTo(buildTestDataArray(0, 8));
 
     // The current buffer is kept if not completely consumed by DataSource reader.
     returnedBuffer = new byte[8];
     bytesRead += dataSourceUnderTest.read(returnedBuffer, 0, 6);
-    assertEquals(14, bytesRead);
-    assertArrayEquals(suffixZeros(buildTestDataArray(8, 6), 8), returnedBuffer);
+    assertThat(bytesRead).isEqualTo(14);
+    assertThat(returnedBuffer).isEqualTo(suffixZeros(buildTestDataArray(8, 6), 8));
 
     // 2 bytes left at this point.
     returnedBuffer = new byte[8];
     bytesRead += dataSourceUnderTest.read(returnedBuffer, 0, 8);
-    assertEquals(16, bytesRead);
-    assertArrayEquals(suffixZeros(buildTestDataArray(14, 2), 8), returnedBuffer);
+    assertThat(bytesRead).isEqualTo(16);
+    assertThat(returnedBuffer).isEqualTo(suffixZeros(buildTestDataArray(14, 2), 8));
 
     // Should have only called read on cronet once.
     verify(mockUrlRequest, times(1)).read(any(ByteBuffer.class));
@@ -524,8 +521,8 @@ public final class CronetDataSourceTest {
     // Return C.RESULT_END_OF_INPUT
     returnedBuffer = new byte[16];
     int bytesOverRead = dataSourceUnderTest.read(returnedBuffer, 0, 16);
-    assertEquals(C.RESULT_END_OF_INPUT, bytesOverRead);
-    assertArrayEquals(new byte[16], returnedBuffer);
+    assertThat(bytesOverRead).isEqualTo(C.RESULT_END_OF_INPUT);
+    assertThat(returnedBuffer).isEqualTo(new byte[16]);
     // C.RESULT_END_OF_INPUT should not be reported though the TransferListener.
     verify(mockTransferListener, never()).onBytesTransferred(dataSourceUnderTest,
         C.RESULT_END_OF_INPUT);
@@ -533,7 +530,7 @@ public final class CronetDataSourceTest {
     verify(mockUrlRequest, times(1)).read(any(ByteBuffer.class));
     // Check for connection not automatically closed.
     verify(mockUrlRequest, never()).cancel();
-    assertEquals(16, bytesRead);
+    assertThat(bytesRead).isEqualTo(16);
   }
 
   @Test
@@ -550,11 +547,10 @@ public final class CronetDataSourceTest {
           fail();
         } catch (HttpDataSourceException e) {
           // Expected.
-          assertTrue(e instanceof CronetDataSource.OpenException);
-          assertTrue(e.getCause() instanceof SocketTimeoutException);
-          assertEquals(
-              TEST_CONNECTION_STATUS,
-              ((CronetDataSource.OpenException) e).cronetConnectionStatus);
+          assertThat(e instanceof CronetDataSource.OpenException).isTrue();
+          assertThat(e.getCause() instanceof SocketTimeoutException).isTrue();
+          assertThat(((CronetDataSource.OpenException) e).cronetConnectionStatus)
+              .isEqualTo(TEST_CONNECTION_STATUS);
           timedOutCondition.open();
         }
       }
@@ -562,10 +558,10 @@ public final class CronetDataSourceTest {
     startCondition.block();
 
     // We should still be trying to open.
-    assertFalse(timedOutCondition.block(50));
+    assertThat(timedOutCondition.block(50)).isFalse();
     // We should still be trying to open as we approach the timeout.
     when(mockClock.elapsedRealtime()).thenReturn((long) TEST_CONNECT_TIMEOUT_MS - 1);
-    assertFalse(timedOutCondition.block(50));
+    assertThat(timedOutCondition.block(50)).isFalse();
     // Now we timeout.
     when(mockClock.elapsedRealtime()).thenReturn((long) TEST_CONNECT_TIMEOUT_MS);
     timedOutCondition.block();
@@ -588,11 +584,10 @@ public final class CronetDataSourceTest {
               fail();
             } catch (HttpDataSourceException e) {
               // Expected.
-              assertTrue(e instanceof CronetDataSource.OpenException);
-              assertTrue(e.getCause() instanceof CronetDataSource.InterruptedIOException);
-              assertEquals(
-                  TEST_INVALID_CONNECTION_STATUS,
-                  ((CronetDataSource.OpenException) e).cronetConnectionStatus);
+              assertThat(e instanceof CronetDataSource.OpenException).isTrue();
+              assertThat(e.getCause() instanceof CronetDataSource.InterruptedIOException).isTrue();
+              assertThat(((CronetDataSource.OpenException) e).cronetConnectionStatus)
+                  .isEqualTo(TEST_INVALID_CONNECTION_STATUS);
               timedOutCondition.open();
             }
           }
@@ -601,10 +596,10 @@ public final class CronetDataSourceTest {
     startCondition.block();
 
     // We should still be trying to open.
-    assertFalse(timedOutCondition.block(50));
+    assertThat(timedOutCondition.block(50)).isFalse();
     // We should still be trying to open as we approach the timeout.
     when(mockClock.elapsedRealtime()).thenReturn((long) TEST_CONNECT_TIMEOUT_MS - 1);
-    assertFalse(timedOutCondition.block(50));
+    assertThat(timedOutCondition.block(50)).isFalse();
     // Now we interrupt.
     thread.interrupt();
     timedOutCondition.block();
@@ -632,10 +627,10 @@ public final class CronetDataSourceTest {
     startCondition.block();
 
     // We should still be trying to open.
-    assertFalse(openCondition.block(50));
+    assertThat(openCondition.block(50)).isFalse();
     // We should still be trying to open as we approach the timeout.
     when(mockClock.elapsedRealtime()).thenReturn((long) TEST_CONNECT_TIMEOUT_MS - 1);
-    assertFalse(openCondition.block(50));
+    assertThat(openCondition.block(50)).isFalse();
     // The response arrives just in time.
     dataSourceUnderTest.onResponseStarted(mockUrlRequest, testUrlResponseInfo);
     openCondition.block();
@@ -656,8 +651,8 @@ public final class CronetDataSourceTest {
           fail();
         } catch (HttpDataSourceException e) {
           // Expected.
-          assertTrue(e instanceof CronetDataSource.OpenException);
-          assertTrue(e.getCause() instanceof SocketTimeoutException);
+          assertThat(e instanceof CronetDataSource.OpenException).isTrue();
+          assertThat(e.getCause() instanceof SocketTimeoutException).isTrue();
           openExceptions.getAndIncrement();
           timedOutCondition.open();
         }
@@ -666,10 +661,10 @@ public final class CronetDataSourceTest {
     startCondition.block();
 
     // We should still be trying to open.
-    assertFalse(timedOutCondition.block(50));
+    assertThat(timedOutCondition.block(50)).isFalse();
     // We should still be trying to open as we approach the timeout.
     when(mockClock.elapsedRealtime()).thenReturn((long) TEST_CONNECT_TIMEOUT_MS - 1);
-    assertFalse(timedOutCondition.block(50));
+    assertThat(timedOutCondition.block(50)).isFalse();
     // A redirect arrives just in time.
     dataSourceUnderTest.onRedirectReceived(mockUrlRequest, testUrlResponseInfo,
         "RandomRedirectedUrl1");
@@ -677,9 +672,9 @@ public final class CronetDataSourceTest {
     long newTimeoutMs = 2 * TEST_CONNECT_TIMEOUT_MS - 1;
     when(mockClock.elapsedRealtime()).thenReturn(newTimeoutMs - 1);
     // Give the thread some time to run.
-    assertFalse(timedOutCondition.block(newTimeoutMs));
+    assertThat(timedOutCondition.block(newTimeoutMs)).isFalse();
     // We should still be trying to open as we approach the new timeout.
-    assertFalse(timedOutCondition.block(50));
+    assertThat(timedOutCondition.block(50)).isFalse();
     // A redirect arrives just in time.
     dataSourceUnderTest.onRedirectReceived(mockUrlRequest, testUrlResponseInfo,
         "RandomRedirectedUrl2");
@@ -687,15 +682,15 @@ public final class CronetDataSourceTest {
     newTimeoutMs = 3 * TEST_CONNECT_TIMEOUT_MS - 2;
     when(mockClock.elapsedRealtime()).thenReturn(newTimeoutMs - 1);
     // Give the thread some time to run.
-    assertFalse(timedOutCondition.block(newTimeoutMs));
+    assertThat(timedOutCondition.block(newTimeoutMs)).isFalse();
     // We should still be trying to open as we approach the new timeout.
-    assertFalse(timedOutCondition.block(50));
+    assertThat(timedOutCondition.block(50)).isFalse();
     // Now we timeout.
     when(mockClock.elapsedRealtime()).thenReturn(newTimeoutMs);
     timedOutCondition.block();
 
     verify(mockTransferListener, never()).onTransferStart(dataSourceUnderTest, testDataSpec);
-    assertEquals(1, openExceptions.get());
+    assertThat(openExceptions.get()).isEqualTo(1);
   }
 
   @Test
@@ -855,7 +850,7 @@ public final class CronetDataSourceTest {
               fail();
             } catch (HttpDataSourceException e) {
               // Expected.
-              assertTrue(e.getCause() instanceof CronetDataSource.InterruptedIOException);
+              assertThat(e.getCause() instanceof CronetDataSource.InterruptedIOException).isTrue();
               timedOutCondition.open();
             }
           }
@@ -863,7 +858,7 @@ public final class CronetDataSourceTest {
     thread.start();
     startCondition.block();
 
-    assertFalse(timedOutCondition.block(50));
+    assertThat(timedOutCondition.block(50)).isFalse();
     // Now we interrupt.
     thread.interrupt();
     timedOutCondition.block();

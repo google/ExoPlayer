@@ -1,0 +1,56 @@
+// Copyright (C) 2017 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+apply from: '../../constants.gradle'
+apply plugin: 'com.android.library'
+
+android {
+    compileSdkVersion project.ext.compileSdkVersion
+    buildToolsVersion project.ext.buildToolsVersion
+
+    defaultConfig {
+        minSdkVersion 14
+        targetSdkVersion project.ext.targetSdkVersion
+        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+    }
+}
+
+dependencies {
+    // This dependency is necessary to force the supportLibraryVersion of
+    // com.android.support:support-v4 to be used. Else an older version (25.2.0)
+    // is included via:
+    // com.google.android.gms:play-services-cast-framework:11.4.2
+    // |-- com.google.android.gms:play-services-basement:11.4.2
+    //   |-- com.android.support:support-v4:25.2.0
+    compile 'com.android.support:support-v4:' + supportLibraryVersion
+    compile 'com.android.support:appcompat-v7:' + supportLibraryVersion
+    compile 'com.android.support:mediarouter-v7:' + supportLibraryVersion
+    compile 'com.google.android.gms:play-services-cast-framework:' + playServicesLibraryVersion
+    compile project(modulePrefix + 'library-core')
+    compile project(modulePrefix + 'library-ui')
+    testCompile project(modulePrefix + 'testutils')
+    testCompile 'junit:junit:' + junitVersion
+    testCompile 'org.mockito:mockito-core:' + mockitoVersion
+    testCompile 'org.robolectric:robolectric:' + robolectricVersion
+}
+
+ext {
+    javadocTitle = 'Cast extension'
+}
+apply from: '../../javadoc_library.gradle'
+
+ext {
+    releaseArtifact = 'extension-cast'
+    releaseDescription = 'Cast extension for ExoPlayer.'
+}
+apply from: '../../publish.gradle'

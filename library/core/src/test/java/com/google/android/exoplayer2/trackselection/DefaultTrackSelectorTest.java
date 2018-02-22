@@ -15,6 +15,7 @@ import com.google.android.exoplayer2.RendererCapabilities;
 import com.google.android.exoplayer2.source.TrackGroup;
 import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector.Parameters;
+import com.google.android.exoplayer2.trackselection.DefaultTrackSelector.ParametersBuilder;
 import com.google.android.exoplayer2.trackselection.TrackSelector.InvalidationListener;
 import com.google.android.exoplayer2.util.MimeTypes;
 import java.util.HashMap;
@@ -24,16 +25,13 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.robolectric.RobolectricTestRunner;
-import org.robolectric.annotation.Config;
 
 /**
  * Unit tests for {@link DefaultTrackSelector}.
  */
 @RunWith(RobolectricTestRunner.class)
-@Config(sdk = Config.TARGET_SDK, manifest = Config.NONE)
 public final class DefaultTrackSelectorTest {
 
-  private static final Parameters DEFAULT_PARAMETERS = new Parameters();
   private static final RendererCapabilities ALL_AUDIO_FORMAT_SUPPORTED_RENDERER_CAPABILITIES =
       new FakeRendererCapabilities(C.TRACK_TYPE_AUDIO);
   private static final RendererCapabilities ALL_TEXT_FORMAT_SUPPORTED_RENDERER_CAPABILITIES =
@@ -61,7 +59,6 @@ public final class DefaultTrackSelectorTest {
   public void testSetParameterWithDefaultParametersDoesNotNotifyInvalidationListener()
       throws Exception {
     trackSelector.init(invalidationListener);
-    trackSelector.setParameters(DEFAULT_PARAMETERS);
 
     verify(invalidationListener, never()).onTrackSelectionsInvalidated();
   }
@@ -73,7 +70,7 @@ public final class DefaultTrackSelectorTest {
   @Test
   public void testSetParameterWithNonDefaultParameterNotifyInvalidationListener()
       throws Exception {
-    Parameters parameters = DEFAULT_PARAMETERS.withPreferredAudioLanguage("en");
+    Parameters parameters = new ParametersBuilder().setPreferredAudioLanguage("eng").build();
     trackSelector.init(invalidationListener);
     trackSelector.setParameters(parameters);
 
@@ -88,10 +85,10 @@ public final class DefaultTrackSelectorTest {
   @Test
   public void testSetParameterWithSameParametersDoesNotNotifyInvalidationListenerAgain()
       throws Exception {
-    Parameters parameters = DEFAULT_PARAMETERS.withPreferredAudioLanguage("en");
+    ParametersBuilder builder = new ParametersBuilder().setPreferredAudioLanguage("eng");
     trackSelector.init(invalidationListener);
-    trackSelector.setParameters(parameters);
-    trackSelector.setParameters(parameters);
+    trackSelector.setParameters(builder.build());
+    trackSelector.setParameters(builder.build());
 
     verify(invalidationListener, times(1)).onTrackSelectionsInvalidated();
   }
@@ -122,15 +119,14 @@ public final class DefaultTrackSelectorTest {
   @Test
   public void testSelectTracksSelectPreferredAudioLanguage()
       throws Exception {
-    Parameters parameters = DEFAULT_PARAMETERS.withPreferredAudioLanguage("en");
-    trackSelector.setParameters(parameters);
+    trackSelector.setParameters(new ParametersBuilder().setPreferredAudioLanguage("eng").build());
 
     Format frAudioFormat =
         Format.createAudioSampleFormat("audio", MimeTypes.AUDIO_AAC, null, Format.NO_VALUE,
-            Format.NO_VALUE, 2, 44100, null, null, 0, "fr");
+            Format.NO_VALUE, 2, 44100, null, null, 0, "fra");
     Format enAudioFormat =
         Format.createAudioSampleFormat("audio", MimeTypes.AUDIO_AAC, null, Format.NO_VALUE,
-            Format.NO_VALUE, 2, 44100, null, null, 0, "en");
+            Format.NO_VALUE, 2, 44100, null, null, 0, "eng");
 
     TrackSelectorResult result = trackSelector.selectTracks(
         new RendererCapabilities[] {ALL_AUDIO_FORMAT_SUPPORTED_RENDERER_CAPABILITIES},
@@ -146,19 +142,18 @@ public final class DefaultTrackSelectorTest {
   @Test
   public void testSelectTracksSelectPreferredAudioLanguageOverSelectionFlag()
       throws Exception {
-    Parameters parameters = DEFAULT_PARAMETERS.withPreferredAudioLanguage("en");
-    trackSelector.setParameters(parameters);
+    trackSelector.setParameters(new ParametersBuilder().setPreferredAudioLanguage("eng").build());
 
     Format frAudioFormat =
         Format.createAudioSampleFormat("audio", MimeTypes.AUDIO_AAC, null, Format.NO_VALUE,
-            Format.NO_VALUE, 2, 44100, null, null, C.SELECTION_FLAG_DEFAULT, "fr");
+            Format.NO_VALUE, 2, 44100, null, null, C.SELECTION_FLAG_DEFAULT, "fra");
     Format enAudioFormat =
         Format.createAudioSampleFormat("audio", MimeTypes.AUDIO_AAC, null, Format.NO_VALUE,
-            Format.NO_VALUE, 2, 44100, null, null, 0, "en");
+            Format.NO_VALUE, 2, 44100, null, null, 0, "eng");
 
     TrackSelectorResult result = trackSelector.selectTracks(
         new RendererCapabilities[] {ALL_AUDIO_FORMAT_SUPPORTED_RENDERER_CAPABILITIES},
-        singleTrackGroup(frAudioFormat, enAudioFormat));
+        wrapFormats(frAudioFormat, enAudioFormat));
 
     assertThat(result.selections.get(0).getSelectedFormat()).isEqualTo(enAudioFormat);
   }
@@ -168,8 +163,7 @@ public final class DefaultTrackSelectorTest {
    * track that exceed renderer's capabilities.
    */
   @Test
-  public void testSelectTracksPreferTrackWithinCapabilities()
-      throws Exception {
+  public void testSelectTracksPreferTrackWithinCapabilities() throws Exception {
     Format supportedFormat =
         Format.createAudioSampleFormat("supportedFormat", MimeTypes.AUDIO_AAC, null,
             Format.NO_VALUE, Format.NO_VALUE, 2, 44100, null, null, 0, null);
@@ -197,7 +191,6 @@ public final class DefaultTrackSelectorTest {
   @Test
   public void testSelectTracksWithNoTrackWithinCapabilitiesSelectExceededCapabilityTrack()
       throws Exception {
-
     Format audioFormat =
         Format.createAudioSampleFormat("audio", MimeTypes.AUDIO_AAC, null, Format.NO_VALUE,
             Format.NO_VALUE, 2, 44100, null, null, 0, null);
@@ -216,8 +209,8 @@ public final class DefaultTrackSelectorTest {
   @Test
   public void testSelectTracksWithNoTrackWithinCapabilitiesAndSetByParamsReturnNoSelection()
       throws Exception {
-    Parameters parameters = DEFAULT_PARAMETERS.withExceedRendererCapabilitiesIfNecessary(false);
-    trackSelector.setParameters(parameters);
+    trackSelector.setParameters(
+        new ParametersBuilder().setExceedRendererCapabilitiesIfNecessary(false).build());
 
     Format audioFormat =
         Format.createAudioSampleFormat("audio", MimeTypes.AUDIO_AAC, null, Format.NO_VALUE,
@@ -264,15 +257,14 @@ public final class DefaultTrackSelectorTest {
   @Test
   public void testSelectTracksPreferTrackWithinCapabilitiesOverPreferredLanguage()
       throws Exception {
-    Parameters parameters = DEFAULT_PARAMETERS.withPreferredAudioLanguage("en");
-    trackSelector.setParameters(parameters);
+    trackSelector.setParameters(new ParametersBuilder().setPreferredAudioLanguage("eng").build());
 
     Format supportedFrFormat =
         Format.createAudioSampleFormat("supportedFormat", MimeTypes.AUDIO_AAC, null,
-            Format.NO_VALUE, Format.NO_VALUE, 2, 44100, null, null, 0, "fr");
+            Format.NO_VALUE, Format.NO_VALUE, 2, 44100, null, null, 0, "fra");
     Format exceededEnFormat =
         Format.createAudioSampleFormat("exceededFormat", MimeTypes.AUDIO_AAC, null,
-            Format.NO_VALUE, Format.NO_VALUE, 2, 44100, null, null, 0, "en");
+            Format.NO_VALUE, Format.NO_VALUE, 2, 44100, null, null, 0, "eng");
 
     Map<String, Integer> mappedCapabilities = new HashMap<>();
     mappedCapabilities.put(exceededEnFormat.id, FORMAT_EXCEEDS_CAPABILITIES);
@@ -295,15 +287,14 @@ public final class DefaultTrackSelectorTest {
   @Test
   public void testSelectTracksPreferTrackWithinCapabilitiesOverSelectionFlagAndPreferredLanguage()
       throws Exception {
-    Parameters parameters = DEFAULT_PARAMETERS.withPreferredAudioLanguage("en");
-    trackSelector.setParameters(parameters);
+    trackSelector.setParameters(new ParametersBuilder().setPreferredAudioLanguage("eng").build());
 
     Format supportedFrFormat =
         Format.createAudioSampleFormat("supportedFormat", MimeTypes.AUDIO_AAC, null,
-            Format.NO_VALUE, Format.NO_VALUE, 2, 44100, null, null, 0, "fr");
+            Format.NO_VALUE, Format.NO_VALUE, 2, 44100, null, null, 0, "fra");
     Format exceededDefaultSelectionEnFormat =
-        Format.createAudioSampleFormat("exceededFormat", MimeTypes.AUDIO_AAC, null,
-            Format.NO_VALUE, Format.NO_VALUE, 2, 44100, null, null, C.SELECTION_FLAG_DEFAULT, "en");
+        Format.createAudioSampleFormat("exceededFormat", MimeTypes.AUDIO_AAC, null, Format.NO_VALUE,
+            Format.NO_VALUE, 2, 44100, null, null, C.SELECTION_FLAG_DEFAULT, "eng");
 
     Map<String, Integer> mappedCapabilities = new HashMap<>();
     mappedCapabilities.put(exceededDefaultSelectionEnFormat.id, FORMAT_EXCEEDS_CAPABILITIES);
@@ -536,6 +527,134 @@ public final class DefaultTrackSelectorTest {
         .isEqualTo(lowerSampleRateHigherBitrateFormat);
   }
 
+  /** Tests text track selection flags. */
+  @Test
+  public void testsTextTrackSelectionFlags() throws ExoPlaybackException {
+    Format forcedOnly =
+        Format.createTextContainerFormat(
+            "forcedOnly",
+            null,
+            MimeTypes.TEXT_VTT,
+            null,
+            Format.NO_VALUE,
+            C.SELECTION_FLAG_FORCED,
+            "eng");
+    Format forcedDefault =
+        Format.createTextContainerFormat(
+            "forcedDefault",
+            null,
+            MimeTypes.TEXT_VTT,
+            null,
+            Format.NO_VALUE,
+            C.SELECTION_FLAG_FORCED | C.SELECTION_FLAG_DEFAULT,
+            "eng");
+    Format defaultOnly =
+        Format.createTextContainerFormat(
+            "defaultOnly",
+            null,
+            MimeTypes.TEXT_VTT,
+            null,
+            Format.NO_VALUE,
+            C.SELECTION_FLAG_DEFAULT,
+            "eng");
+    Format forcedOnlySpanish =
+        Format.createTextContainerFormat(
+            "forcedOnlySpanish",
+            null,
+            MimeTypes.TEXT_VTT,
+            null,
+            Format.NO_VALUE,
+            C.SELECTION_FLAG_FORCED,
+            "spa");
+    Format noFlag =
+        Format.createTextContainerFormat(
+            "noFlag", null, MimeTypes.TEXT_VTT, null, Format.NO_VALUE, 0, "eng");
+
+    RendererCapabilities[] textRendererCapabilities =
+        new RendererCapabilities[] {ALL_TEXT_FORMAT_SUPPORTED_RENDERER_CAPABILITIES};
+
+    TrackSelectorResult result;
+
+    // There is no text language preference, the first track flagged as default should be selected.
+    result =
+        trackSelector.selectTracks(
+            textRendererCapabilities, wrapFormats(forcedOnly, forcedDefault, defaultOnly, noFlag));
+    assertThat(result.selections.get(0).getFormat(0)).isSameAs(forcedDefault);
+
+    // Ditto.
+    result =
+        trackSelector.selectTracks(
+            textRendererCapabilities, wrapFormats(forcedOnly, noFlag, defaultOnly));
+    assertThat(result.selections.get(0).getFormat(0)).isSameAs(defaultOnly);
+
+    // With no language preference and no text track flagged as default, the first forced should be
+    // selected.
+    result = trackSelector.selectTracks(textRendererCapabilities, wrapFormats(forcedOnly, noFlag));
+    assertThat(result.selections.get(0).getFormat(0)).isSameAs(forcedOnly);
+
+    trackSelector.setParameters(
+        Parameters.DEFAULT
+            .buildUpon()
+            .setDisabledTextTrackSelectionFlags(C.SELECTION_FLAG_DEFAULT)
+            .build());
+
+    // Default flags are disabled, so the first track flagged as forced should be selected.
+    result =
+        trackSelector.selectTracks(
+            textRendererCapabilities, wrapFormats(defaultOnly, noFlag, forcedOnly, forcedDefault));
+    assertThat(result.selections.get(0).getFormat(0)).isSameAs(forcedOnly);
+
+    trackSelector.setParameters(
+        trackSelector.getParameters().buildUpon().setPreferredAudioLanguage("spa").build());
+
+    // Default flags are disabled, but there is a text track flagged as forced whose language
+    // matches the preferred audio language.
+    result =
+        trackSelector.selectTracks(
+            textRendererCapabilities,
+            wrapFormats(forcedDefault, forcedOnly, defaultOnly, noFlag, forcedOnlySpanish));
+    assertThat(result.selections.get(0).getFormat(0)).isSameAs(forcedOnlySpanish);
+
+    trackSelector.setParameters(
+        trackSelector
+            .getParameters()
+            .buildUpon()
+            .setDisabledTextTrackSelectionFlags(C.SELECTION_FLAG_DEFAULT | C.SELECTION_FLAG_FORCED)
+            .build());
+
+    // All selection flags are disabled and there is no language preference, so nothing should be
+    // selected.
+    result =
+        trackSelector.selectTracks(
+            textRendererCapabilities, wrapFormats(forcedOnly, forcedDefault, defaultOnly, noFlag));
+    assertThat(result.selections.get(0)).isNull();
+
+    trackSelector.setParameters(
+        Parameters.DEFAULT.buildUpon().setPreferredTextLanguage("eng").build());
+
+    // There is a preferred language, so the first language-matching track flagged as default should
+    // be selected.
+    result =
+        trackSelector.selectTracks(
+            textRendererCapabilities, wrapFormats(forcedOnly, forcedDefault, defaultOnly, noFlag));
+    assertThat(result.selections.get(0).getFormat(0)).isSameAs(forcedDefault);
+
+    trackSelector.setParameters(
+        trackSelector
+            .getParameters()
+            .buildUpon()
+            .setDisabledTextTrackSelectionFlags(C.SELECTION_FLAG_DEFAULT)
+            .build());
+
+    // Same as above, but the default flag is disabled. If multiple tracks match the preferred
+    // language, those not flagged as forced are preferred, as they likely include the contents of
+    // forced subtitles.
+    result =
+        trackSelector.selectTracks(
+            textRendererCapabilities, wrapFormats(noFlag, forcedOnly, forcedDefault, defaultOnly));
+    assertThat(result.selections.get(0).getFormat(0)).isSameAs(noFlag);
+  }
+
   /**
    * Tests that the default track selector will select a text track with undetermined language if no
    * text track with the preferred language is available but
@@ -561,12 +680,14 @@ public final class DefaultTrackSelectorTest {
         wrapFormats(spanish, german, undeterminedUnd, undeterminedNull));
     assertThat(result.selections.get(0)).isNull();
 
-    trackSelector.setParameters(DEFAULT_PARAMETERS.withSelectUndeterminedTextLanguage(true));
+    trackSelector.setParameters(
+        new ParametersBuilder().setSelectUndeterminedTextLanguage(true).build());
     result = trackSelector.selectTracks(textRendererCapabilites,
         wrapFormats(spanish, german, undeterminedUnd, undeterminedNull));
     assertThat(result.selections.get(0).getFormat(0)).isSameAs(undeterminedUnd);
 
-    trackSelector.setParameters(DEFAULT_PARAMETERS.withPreferredTextLanguage("spa"));
+    ParametersBuilder builder = new ParametersBuilder().setPreferredTextLanguage("spa");
+    trackSelector.setParameters(builder.build());
     result = trackSelector.selectTracks(textRendererCapabilites,
         wrapFormats(spanish, german, undeterminedUnd, undeterminedNull));
     assertThat(result.selections.get(0).getFormat(0)).isSameAs(spanish);
@@ -575,8 +696,7 @@ public final class DefaultTrackSelectorTest {
         wrapFormats(german, undeterminedUnd, undeterminedNull));
     assertThat(result.selections.get(0)).isNull();
 
-    trackSelector.setParameters(
-        trackSelector.getParameters().withSelectUndeterminedTextLanguage(true));
+    trackSelector.setParameters(builder.setSelectUndeterminedTextLanguage(true).build());
     result = trackSelector.selectTracks(textRendererCapabilites,
         wrapFormats(german, undeterminedUnd, undeterminedNull));
     assertThat(result.selections.get(0).getFormat(0)).isSameAs(undeterminedUnd);
@@ -596,8 +716,7 @@ public final class DefaultTrackSelectorTest {
   @Test
   public void testSelectTracksWithinCapabilitiesAndForceLowestBitrateSelectLowerBitrate()
       throws Exception {
-    Parameters parameters = DEFAULT_PARAMETERS.withForceLowestBitrate(true);
-    trackSelector.setParameters(parameters);
+    trackSelector.setParameters(new ParametersBuilder().setForceLowestBitrate(true).build());
 
     Format lowerBitrateFormat =
         Format.createAudioSampleFormat("audioFormat", MimeTypes.AUDIO_AAC, null, 15000,

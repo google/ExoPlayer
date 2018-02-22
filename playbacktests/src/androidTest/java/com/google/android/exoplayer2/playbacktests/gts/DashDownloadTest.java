@@ -15,6 +15,9 @@
  */
 package com.google.android.exoplayer2.playbacktests.gts;
 
+import static com.google.common.truth.Truth.assertThat;
+import static com.google.common.truth.Truth.assertWithMessage;
+
 import android.net.Uri;
 import android.test.ActivityInstrumentationTestCase2;
 import android.util.Log;
@@ -89,15 +92,16 @@ public final class DashDownloadTest extends ActivityInstrumentationTestCase2<Hos
 
     // Download representations
     DashDownloader dashDownloader = downloadContent(false, Float.NaN);
-    assertEquals(cache.getCacheSpace() - manifestLength, dashDownloader.getDownloadedBytes());
+    assertThat(dashDownloader.getDownloadedBytes())
+        .isEqualTo(cache.getCacheSpace() - manifestLength);
 
     testRunner.setStreamName("test_h264_fixed_download").
         setDataSourceFactory(newOfflineCacheDataSourceFactory()).run();
 
     dashDownloader.remove();
 
-    assertEquals("There should be no content left.", 0, cache.getKeys().size());
-    assertEquals("There should be no content left.", 0, cache.getCacheSpace());
+    assertWithMessage("There should be no cache key left").that(cache.getKeys()).isEmpty();
+    assertWithMessage("There should be no content left").that(cache.getCacheSpace()).isEqualTo(0);
   }
 
   public void testPartialDownload() throws Exception {
@@ -114,7 +118,7 @@ public final class DashDownloadTest extends ActivityInstrumentationTestCase2<Hos
 
     // Make sure it doesn't download any data
     dashDownloader = downloadContent(true, Float.NaN);
-    assertEquals(downloadedBytes, dashDownloader.getDownloadedBytes());
+    assertThat(dashDownloader.getDownloadedBytes()).isEqualTo(downloadedBytes);
 
     testRunner.setStreamName("test_h264_fixed_partial_download")
         .setDataSourceFactory(newOfflineCacheDataSourceFactory()).run();
