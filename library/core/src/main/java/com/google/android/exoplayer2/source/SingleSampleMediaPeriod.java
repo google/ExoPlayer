@@ -18,6 +18,7 @@ package com.google.android.exoplayer2.source;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.FormatHolder;
+import com.google.android.exoplayer2.SeekParameters;
 import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
 import com.google.android.exoplayer2.source.MediaSourceEventListener.EventDispatcher;
 import com.google.android.exoplayer2.trackselection.TrackSelection;
@@ -25,6 +26,7 @@ import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DataSpec;
 import com.google.android.exoplayer2.upstream.Loader;
 import com.google.android.exoplayer2.upstream.Loader.Loadable;
+import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.Util;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -118,7 +120,12 @@ import java.util.Arrays;
   }
 
   @Override
-  public void discardBuffer(long positionUs) {
+  public void discardBuffer(long positionUs, boolean toKeyframe) {
+    // Do nothing.
+  }
+
+  @Override
+  public void reevaluateBuffer(long positionUs) {
     // Do nothing.
   }
 
@@ -127,10 +134,21 @@ import java.util.Arrays;
     if (loadingFinished || loader.isLoading()) {
       return false;
     }
-    loader.startLoading(
-        new SourceLoadable(dataSpec, dataSourceFactory.createDataSource()),
-        this,
-        minLoadableRetryCount);
+    long elapsedRealtimeMs =
+        loader.startLoading(
+            new SourceLoadable(dataSpec, dataSourceFactory.createDataSource()),
+            this,
+            minLoadableRetryCount);
+    eventDispatcher.loadStarted(
+        dataSpec,
+        C.DATA_TYPE_MEDIA,
+        C.TRACK_TYPE_UNKNOWN,
+        format,
+        C.SELECTION_REASON_UNKNOWN,
+        /* trackSelectionData= */ null,
+        /* mediaStartTimeUs= */ 0,
+        durationUs,
+        elapsedRealtimeMs);
     return true;
   }
 
@@ -152,8 +170,13 @@ import java.util.Arrays;
   @Override
   public long seekToUs(long positionUs) {
     for (int i = 0; i < sampleStreams.size(); i++) {
-      sampleStreams.get(i).seekToUs(positionUs);
+      sampleStreams.get(i).reset();
     }
+    return positionUs;
+  }
+
+  @Override
+  public long getAdjustedSeekPositionUs(long positionUs, SeekParameters seekParameters) {
     return positionUs;
   }
 
@@ -230,8 +253,9 @@ import java.util.Arrays;
     private static final int STREAM_STATE_END_OF_STREAM = 2;
 
     private int streamState;
+    private boolean formatSent;
 
-    public void seekToUs(long positionUs) {
+    public void reset() {
       if (streamState == STREAM_STATE_END_OF_STREAM) {
         streamState = STREAM_STATE_SEND_SAMPLE;
       }
@@ -265,6 +289,7 @@ import java.util.Arrays;
           buffer.addFlag(C.BUFFER_FLAG_KEY_FRAME);
           buffer.ensureSpaceForWrite(sampleSize);
           buffer.data.put(sampleData, 0, sampleSize);
+          sendFormat();
         } else {
           buffer.addFlag(C.BUFFER_FLAG_END_OF_STREAM);
         }
@@ -278,11 +303,23 @@ import java.util.Arrays;
     public int skipData(long positionUs) {
       if (positionUs > 0 && streamState != STREAM_STATE_END_OF_STREAM) {
         streamState = STREAM_STATE_END_OF_STREAM;
+        sendFormat();
         return 1;
       }
       return 0;
     }
 
+    private void sendFormat() {
+      if (!formatSent) {
+        eventDispatcher.downstreamFormatChanged(
+            MimeTypes.getTrackType(format.sampleMimeType),
+            format,
+            C.SELECTION_REASON_UNKNOWN,
+            /* trackSelectionData= */ null,
+            /* mediaTimeUs= */ 0);
+        formatSent = true;
+      }
+    }
   }
 
   /* package */ static final class SourceLoadable implements Loadable {

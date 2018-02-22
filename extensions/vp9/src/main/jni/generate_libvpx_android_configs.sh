@@ -102,7 +102,10 @@ for i in $(seq 0 ${limit}); do
   # configure and make
   echo "build_android_configs: "
   echo "configure ${config[${i}]} ${common_params}"
-  ../../libvpx/configure ${config[${i}]} ${common_params}
+  ../../libvpx/configure ${config[${i}]} ${common_params} --extra-cflags=" \
+    -isystem $ndk/sysroot/usr/include/arm-linux-androideabi \
+    -isystem $ndk/sysroot/usr/include \
+    "
   rm -f libvpx_srcs.txt
   for f in ${allowed_files}; do
     # the build system supports multiple different configurations. avoid

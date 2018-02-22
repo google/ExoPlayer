@@ -27,9 +27,7 @@ import com.google.android.exoplayer2.util.ParsableBitArray;
 import com.google.android.exoplayer2.util.ParsableByteArray;
 import java.nio.ByteBuffer;
 
-/**
- * Utility methods for parsing (E-)AC-3 syncframes, which are access units in (E-)AC-3 bitstreams.
- */
+/** Utility methods for parsing Dolby TrueHD and (E-)AC3 syncframes. */
 public final class Ac3Util {
 
   /**
@@ -92,6 +90,17 @@ public final class Ac3Util {
     }
 
   }
+
+  /**
+   * The number of samples to store in each output chunk when rechunking TrueHD streams. The number
+   * of samples extracted from the container corresponding to one syncframe must be an integer
+   * multiple of this value.
+   */
+  public static final int TRUEHD_RECHUNK_SAMPLE_COUNT = 8;
+  /**
+   * The number of bytes that must be parsed from a TrueHD syncframe to calculate the sample count.
+   */
+  public static final int TRUEHD_SYNCFRAME_PREFIX_LENGTH = 12;
 
   /**
    * The number of new samples per (E-)AC-3 audio block.
@@ -189,7 +198,7 @@ public final class Ac3Util {
     if (data.bytesLeft() > 0) {
       nextByte = data.readUnsignedByte();
       if ((nextByte & 0x01) != 0) { // flag_ec3_extension_type_a
-        mimeType = MimeTypes.AUDIO_ATMOS;
+        mimeType = MimeTypes.AUDIO_E_AC3_JOC;
       }
     }
     return Format.createAudioSampleFormat(trackId, mimeType, null, Format.NO_VALUE,
@@ -376,7 +385,7 @@ public final class Ac3Util {
       if (data.readBit()) { // addbsie
         int addbsil = data.readBits(6);
         if (addbsil == 1 && data.readBits(8) == 1) { // addbsi
-          mimeType = MimeTypes.AUDIO_ATMOS;
+          mimeType = MimeTypes.AUDIO_E_AC3_JOC;
         }
       }
     } else /* is AC-3 */ {
@@ -439,6 +448,43 @@ public final class Ac3Util {
     int fscod = (buffer.get(buffer.position() + 4) & 0xC0) >> 6;
     return AUDIO_SAMPLES_PER_AUDIO_BLOCK * (fscod == 0x03 ? 6
         : BLOCKS_PER_SYNCFRAME_BY_NUMBLKSCOD[(buffer.get(buffer.position() + 4) & 0x30) >> 4]);
+  }
+
+  /**
+   * Returns the number of audio samples represented by the given TrueHD syncframe, or 0 if the
+   * buffer is not the start of a syncframe.
+   *
+   * @param syncframe The bytes from which to read the syncframe. Must be at least {@link
+   *     #TRUEHD_SYNCFRAME_PREFIX_LENGTH} bytes long.
+   * @return The number of audio samples represented by the syncframe, or 0 if the buffer doesn't
+   *     contain the start of a syncframe.
+   */
+  public static int parseTrueHdSyncframeAudioSampleCount(byte[] syncframe) {
+    // TODO: Link to specification if available.
+    if (syncframe[4] != (byte) 0xF8
+        || syncframe[5] != (byte) 0x72
+        || syncframe[6] != (byte) 0x6F
+        || syncframe[7] != (byte) 0xBA) {
+      return 0;
+    }
+    return 40 << (syncframe[8] & 7);
+  }
+
+  /**
+   * Reads the number of audio samples represented by the given TrueHD syncframe, or 0 if the buffer
+   * is not the start of a syncframe. The buffer's position is not modified.
+   *
+   * @param buffer The {@link ByteBuffer} from which to read the syncframe. Must have at least
+   *     {@link #TRUEHD_SYNCFRAME_PREFIX_LENGTH} bytes remaining.
+   * @return The number of audio samples represented by the syncframe, or 0 if the buffer is not the
+   *     start of a syncframe.
+   */
+  public static int parseTrueHdSyncframeAudioSampleCount(ByteBuffer buffer) {
+    // TODO: Link to specification if available.
+    if (buffer.getInt(buffer.position() + 4) != 0xBA6F72F8) {
+      return 0;
+    }
+    return 40 << (buffer.get(buffer.position() + 8) & 0x07);
   }
 
   private static int getAc3SyncframeSize(int fscod, int frmsizecod) {

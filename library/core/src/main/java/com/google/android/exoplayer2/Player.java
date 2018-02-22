@@ -18,8 +18,14 @@ package com.google.android.exoplayer2;
 import android.os.Looper;
 import android.support.annotation.IntDef;
 import android.support.annotation.Nullable;
+import android.view.Surface;
+import android.view.SurfaceHolder;
+import android.view.SurfaceView;
+import android.view.TextureView;
 import com.google.android.exoplayer2.source.TrackGroupArray;
+import com.google.android.exoplayer2.text.TextOutput;
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
+import com.google.android.exoplayer2.video.VideoListener;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
@@ -44,6 +50,130 @@ import java.lang.annotation.RetentionPolicy;
  */
 public interface Player {
 
+  /** The video component of a {@link Player}. */
+  interface VideoComponent {
+
+    /**
+     * Sets the video scaling mode.
+     *
+     * @param videoScalingMode The video scaling mode.
+     */
+    void setVideoScalingMode(@C.VideoScalingMode int videoScalingMode);
+
+    /** Returns the video scaling mode. */
+    @C.VideoScalingMode
+    int getVideoScalingMode();
+
+    /**
+     * Adds a listener to receive video events.
+     *
+     * @param listener The listener to register.
+     */
+    void addVideoListener(VideoListener listener);
+
+    /**
+     * Removes a listener of video events.
+     *
+     * @param listener The listener to unregister.
+     */
+    void removeVideoListener(VideoListener listener);
+
+    /**
+     * Clears any {@link Surface}, {@link SurfaceHolder}, {@link SurfaceView} or {@link TextureView}
+     * currently set on the player.
+     */
+    void clearVideoSurface();
+
+    /**
+     * Sets the {@link Surface} onto which video will be rendered. The caller is responsible for
+     * tracking the lifecycle of the surface, and must clear the surface by calling {@code
+     * setVideoSurface(null)} if the surface is destroyed.
+     *
+     * <p>If the surface is held by a {@link SurfaceView}, {@link TextureView} or {@link
+     * SurfaceHolder} then it's recommended to use {@link #setVideoSurfaceView(SurfaceView)}, {@link
+     * #setVideoTextureView(TextureView)} or {@link #setVideoSurfaceHolder(SurfaceHolder)} rather
+     * than this method, since passing the holder allows the player to track the lifecycle of the
+     * surface automatically.
+     *
+     * @param surface The {@link Surface}.
+     */
+    void setVideoSurface(Surface surface);
+
+    /**
+     * Clears the {@link Surface} onto which video is being rendered if it matches the one passed.
+     * Else does nothing.
+     *
+     * @param surface The surface to clear.
+     */
+    void clearVideoSurface(Surface surface);
+
+    /**
+     * Sets the {@link SurfaceHolder} that holds the {@link Surface} onto which video will be
+     * rendered. The player will track the lifecycle of the surface automatically.
+     *
+     * @param surfaceHolder The surface holder.
+     */
+    void setVideoSurfaceHolder(SurfaceHolder surfaceHolder);
+
+    /**
+     * Clears the {@link SurfaceHolder} that holds the {@link Surface} onto which video is being
+     * rendered if it matches the one passed. Else does nothing.
+     *
+     * @param surfaceHolder The surface holder to clear.
+     */
+    void clearVideoSurfaceHolder(SurfaceHolder surfaceHolder);
+
+    /**
+     * Sets the {@link SurfaceView} onto which video will be rendered. The player will track the
+     * lifecycle of the surface automatically.
+     *
+     * @param surfaceView The surface view.
+     */
+    void setVideoSurfaceView(SurfaceView surfaceView);
+
+    /**
+     * Clears the {@link SurfaceView} onto which video is being rendered if it matches the one
+     * passed. Else does nothing.
+     *
+     * @param surfaceView The texture view to clear.
+     */
+    void clearVideoSurfaceView(SurfaceView surfaceView);
+
+    /**
+     * Sets the {@link TextureView} onto which video will be rendered. The player will track the
+     * lifecycle of the surface automatically.
+     *
+     * @param textureView The texture view.
+     */
+    void setVideoTextureView(TextureView textureView);
+
+    /**
+     * Clears the {@link TextureView} onto which video is being rendered if it matches the one
+     * passed. Else does nothing.
+     *
+     * @param textureView The texture view to clear.
+     */
+    void clearVideoTextureView(TextureView textureView);
+  }
+
+  /** The text component of a {@link Player}. */
+  interface TextComponent {
+
+    /**
+     * Registers an output to receive text events.
+     *
+     * @param listener The output to register.
+     */
+    void addTextOutput(TextOutput listener);
+
+    /**
+     * Removes a text output.
+     *
+     * @param listener The output to remove.
+     */
+    void removeTextOutput(TextOutput listener);
+  }
+
   /**
    * Listener of changes in player state.
    */
@@ -59,8 +189,9 @@ public interface Player {
      *
      * @param timeline The latest timeline. Never null, but may be empty.
      * @param manifest The latest manifest. May be null.
+     * @param reason The {@link TimelineChangeReason} responsible for this timeline change.
      */
-    void onTimelineChanged(Timeline timeline, Object manifest);
+    void onTimelineChanged(Timeline timeline, Object manifest, @TimelineChangeReason int reason);
 
     /**
      * Called when the available or selected tracks change.
@@ -118,7 +249,8 @@ public interface Player {
      * when the source introduces a discontinuity internally).
      * <p>
      * When a position discontinuity occurs as a result of a change to the timeline this method is
-     * <em>not</em> called. {@link #onTimelineChanged(Timeline, Object)} is called in this case.
+     * <em>not</em> called. {@link #onTimelineChanged(Timeline, Object, int)} is called in this
+     * case.
      *
      * @param reason The {@link DiscontinuityReason} responsible for the discontinuity.
      */
@@ -149,8 +281,10 @@ public interface Player {
   abstract class DefaultEventListener implements EventListener {
 
     @Override
-    public void onTimelineChanged(Timeline timeline, Object manifest) {
-      // Do nothing.
+    public void onTimelineChanged(Timeline timeline, Object manifest,
+        @TimelineChangeReason int reason) {
+      // Call deprecated version. Otherwise, do nothing.
+      onTimelineChanged(timeline, manifest);
     }
 
     @Override
@@ -198,6 +332,15 @@ public interface Player {
       // Do nothing.
     }
 
+    /**
+     * @deprecated Use {@link DefaultEventListener#onTimelineChanged(Timeline, Object, int)}
+     *     instead.
+     */
+    @Deprecated
+    public void onTimelineChanged(Timeline timeline, Object manifest) {
+      // Do nothing.
+    }
+
   }
 
   /**
@@ -238,31 +381,60 @@ public interface Player {
    */
   int REPEAT_MODE_ALL = 2;
 
-  /**
-   * Reasons for position discontinuities.
-   */
+  /** Reasons for position discontinuities. */
   @Retention(RetentionPolicy.SOURCE)
-  @IntDef({DISCONTINUITY_REASON_PERIOD_TRANSITION, DISCONTINUITY_REASON_SEEK,
-      DISCONTINUITY_REASON_SEEK_ADJUSTMENT, DISCONTINUITY_REASON_INTERNAL})
+  @IntDef({
+    DISCONTINUITY_REASON_PERIOD_TRANSITION,
+    DISCONTINUITY_REASON_SEEK,
+    DISCONTINUITY_REASON_SEEK_ADJUSTMENT,
+    DISCONTINUITY_REASON_AD_INSERTION,
+    DISCONTINUITY_REASON_INTERNAL
+  })
   public @interface DiscontinuityReason {}
   /**
    * Automatic playback transition from one period in the timeline to the next. The period index may
    * be the same as it was before the discontinuity in case the current period is repeated.
    */
   int DISCONTINUITY_REASON_PERIOD_TRANSITION = 0;
-  /**
-   * Seek within the current period or to another period.
-   */
+  /** Seek within the current period or to another period. */
   int DISCONTINUITY_REASON_SEEK = 1;
   /**
    * Seek adjustment due to being unable to seek to the requested position or because the seek was
    * permitted to be inexact.
    */
   int DISCONTINUITY_REASON_SEEK_ADJUSTMENT = 2;
+  /** Discontinuity to or from an ad within one period in the timeline. */
+  int DISCONTINUITY_REASON_AD_INSERTION = 3;
+  /** Discontinuity introduced internally by the source. */
+  int DISCONTINUITY_REASON_INTERNAL = 4;
+
   /**
-   * Discontinuity introduced internally by the source.
+   * Reasons for timeline and/or manifest changes.
    */
-  int DISCONTINUITY_REASON_INTERNAL = 3;
+  @Retention(RetentionPolicy.SOURCE)
+  @IntDef({TIMELINE_CHANGE_REASON_PREPARED, TIMELINE_CHANGE_REASON_RESET,
+      TIMELINE_CHANGE_REASON_DYNAMIC})
+  public @interface TimelineChangeReason {}
+  /**
+   * Timeline and manifest changed as a result of a player initialization with new media.
+   */
+  int TIMELINE_CHANGE_REASON_PREPARED = 0;
+  /**
+   * Timeline and manifest changed as a result of a player reset.
+   */
+  int TIMELINE_CHANGE_REASON_RESET = 1;
+  /**
+   * Timeline or manifest changed as a result of an dynamic update introduced by the played media.
+   */
+  int TIMELINE_CHANGE_REASON_DYNAMIC = 2;
+
+  /** Returns the component of this player for video output, or null if video is not supported. */
+  @Nullable
+  VideoComponent getVideoComponent();
+
+  /** Returns the component of this player for text output, or null if text is not supported. */
+  @Nullable
+  TextComponent getTextComponent();
 
   /**
    * Register a listener to receive events from the player. The listener's methods will be called on
@@ -396,16 +568,28 @@ public interface Player {
   PlaybackParameters getPlaybackParameters();
 
   /**
-   * Stops playback. Use {@code setPlayWhenReady(false)} rather than this method if the intention
-   * is to pause playback.
-   * <p>
-   * Calling this method will cause the playback state to transition to {@link #STATE_IDLE}. The
+   * Stops playback without resetting the player. Use {@code setPlayWhenReady(false)} rather than
+   * this method if the intention is to pause playback.
+   *
+   * <p>Calling this method will cause the playback state to transition to {@link #STATE_IDLE}. The
    * player instance can still be used, and {@link #release()} must still be called on the player if
    * it's no longer required.
-   * <p>
-   * Calling this method does not reset the playback position.
+   *
+   * <p>Calling this method does not reset the playback position.
    */
   void stop();
+
+  /**
+   * Stops playback and optionally resets the player. Use {@code setPlayWhenReady(false)} rather
+   * than this method if the intention is to pause playback.
+   *
+   * <p>Calling this method will cause the playback state to transition to {@link #STATE_IDLE}. The
+   * player instance can still be used, and {@link #release()} must still be called on the player if
+   * it's no longer required.
+   *
+   * @param reset Whether the player should be reset.
+   */
+  void stop(boolean reset);
 
   /**
    * Releases the player. This method must be called when the player is no longer required. The

@@ -185,18 +185,32 @@ public class DefaultRenderersFactory implements RenderersFactory {
     }
 
     try {
-      Class<?> clazz =
-          Class.forName("com.google.android.exoplayer2.ext.vp9.LibvpxVideoRenderer");
-      Constructor<?> constructor = clazz.getConstructor(boolean.class, long.class, Handler.class,
-          VideoRendererEventListener.class, int.class);
-      Renderer renderer = (Renderer) constructor.newInstance(true, allowedVideoJoiningTimeMs,
-          eventHandler, eventListener, MAX_DROPPED_VIDEO_FRAME_COUNT_TO_NOTIFY);
+      // Full class names used for constructor args so the LINT rule triggers if any of them move.
+      // LINT.IfChange
+      Class<?> clazz = Class.forName("com.google.android.exoplayer2.ext.vp9.LibvpxVideoRenderer");
+      Constructor<?> constructor =
+          clazz.getConstructor(
+              boolean.class,
+              long.class,
+              android.os.Handler.class,
+              com.google.android.exoplayer2.video.VideoRendererEventListener.class,
+              int.class);
+      // LINT.ThenChange(../../../../../../../proguard-rules.txt)
+      Renderer renderer =
+          (Renderer)
+              constructor.newInstance(
+                  true,
+                  allowedVideoJoiningTimeMs,
+                  eventHandler,
+                  eventListener,
+                  MAX_DROPPED_VIDEO_FRAME_COUNT_TO_NOTIFY);
       out.add(extensionRendererIndex++, renderer);
       Log.i(TAG, "Loaded LibvpxVideoRenderer.");
     } catch (ClassNotFoundException e) {
       // Expected if the app was built without the extension.
     } catch (Exception e) {
-      throw new RuntimeException(e);
+      // The extension is present, but instantiation failed.
+      throw new RuntimeException("Error instantiating VP9 extension", e);
     }
   }
 
@@ -230,48 +244,67 @@ public class DefaultRenderersFactory implements RenderersFactory {
     }
 
     try {
-      Class<?> clazz =
-          Class.forName("com.google.android.exoplayer2.ext.opus.LibopusAudioRenderer");
-      Constructor<?> constructor = clazz.getConstructor(Handler.class,
-          AudioRendererEventListener.class, AudioProcessor[].class);
-      Renderer renderer = (Renderer) constructor.newInstance(eventHandler, eventListener,
-          audioProcessors);
+      // Full class names used for constructor args so the LINT rule triggers if any of them move.
+      // LINT.IfChange
+      Class<?> clazz = Class.forName("com.google.android.exoplayer2.ext.opus.LibopusAudioRenderer");
+      Constructor<?> constructor =
+          clazz.getConstructor(
+              android.os.Handler.class,
+              com.google.android.exoplayer2.audio.AudioRendererEventListener.class,
+              com.google.android.exoplayer2.audio.AudioProcessor[].class);
+      // LINT.ThenChange(../../../../../../../proguard-rules.txt)
+      Renderer renderer =
+          (Renderer) constructor.newInstance(eventHandler, eventListener, audioProcessors);
       out.add(extensionRendererIndex++, renderer);
       Log.i(TAG, "Loaded LibopusAudioRenderer.");
     } catch (ClassNotFoundException e) {
       // Expected if the app was built without the extension.
     } catch (Exception e) {
-      throw new RuntimeException(e);
+      // The extension is present, but instantiation failed.
+      throw new RuntimeException("Error instantiating Opus extension", e);
     }
 
     try {
-      Class<?> clazz =
-          Class.forName("com.google.android.exoplayer2.ext.flac.LibflacAudioRenderer");
-      Constructor<?> constructor = clazz.getConstructor(Handler.class,
-          AudioRendererEventListener.class, AudioProcessor[].class);
-      Renderer renderer = (Renderer) constructor.newInstance(eventHandler, eventListener,
-          audioProcessors);
+      // Full class names used for constructor args so the LINT rule triggers if any of them move.
+      // LINT.IfChange
+      Class<?> clazz = Class.forName("com.google.android.exoplayer2.ext.flac.LibflacAudioRenderer");
+      Constructor<?> constructor =
+          clazz.getConstructor(
+              android.os.Handler.class,
+              com.google.android.exoplayer2.audio.AudioRendererEventListener.class,
+              com.google.android.exoplayer2.audio.AudioProcessor[].class);
+      // LINT.ThenChange(../../../../../../../proguard-rules.txt)
+      Renderer renderer =
+          (Renderer) constructor.newInstance(eventHandler, eventListener, audioProcessors);
       out.add(extensionRendererIndex++, renderer);
       Log.i(TAG, "Loaded LibflacAudioRenderer.");
     } catch (ClassNotFoundException e) {
       // Expected if the app was built without the extension.
     } catch (Exception e) {
-      throw new RuntimeException(e);
+      // The extension is present, but instantiation failed.
+      throw new RuntimeException("Error instantiating FLAC extension", e);
     }
 
     try {
+      // Full class names used for constructor args so the LINT rule triggers if any of them move.
+      // LINT.IfChange
       Class<?> clazz =
           Class.forName("com.google.android.exoplayer2.ext.ffmpeg.FfmpegAudioRenderer");
-      Constructor<?> constructor = clazz.getConstructor(Handler.class,
-          AudioRendererEventListener.class, AudioProcessor[].class);
-      Renderer renderer = (Renderer) constructor.newInstance(eventHandler, eventListener,
-          audioProcessors);
+      Constructor<?> constructor =
+          clazz.getConstructor(
+              android.os.Handler.class,
+              com.google.android.exoplayer2.audio.AudioRendererEventListener.class,
+              com.google.android.exoplayer2.audio.AudioProcessor[].class);
+      // LINT.ThenChange(../../../../../../../proguard-rules.txt)
+      Renderer renderer =
+          (Renderer) constructor.newInstance(eventHandler, eventListener, audioProcessors);
       out.add(extensionRendererIndex++, renderer);
       Log.i(TAG, "Loaded FfmpegAudioRenderer.");
     } catch (ClassNotFoundException e) {
       // Expected if the app was built without the extension.
     } catch (Exception e) {
-      throw new RuntimeException(e);
+      // The extension is present, but instantiation failed.
+      throw new RuntimeException("Error instantiating FFmpeg extension", e);
     }
   }
 

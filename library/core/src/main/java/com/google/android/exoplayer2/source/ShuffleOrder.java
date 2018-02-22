@@ -136,6 +136,11 @@ public interface ShuffleOrder {
       return new DefaultShuffleOrder(newShuffled, new Random(random.nextLong()));
     }
 
+    @Override
+    public ShuffleOrder cloneAndClear() {
+      return new DefaultShuffleOrder(/* length= */ 0, new Random(random.nextLong()));
+    }
+
     private static int[] createShuffledList(int length, Random random) {
       int[] shuffled = new int[length];
       for (int i = 0; i < length; i++) {
@@ -199,6 +204,10 @@ public interface ShuffleOrder {
       return new UnshuffledShuffleOrder(length - 1);
     }
 
+    @Override
+    public ShuffleOrder cloneAndClear() {
+      return new UnshuffledShuffleOrder(/* length= */ 0);
+    }
   }
 
   /**
@@ -237,7 +246,7 @@ public interface ShuffleOrder {
   int getFirstIndex();
 
   /**
-   * Return a copy of the shuffle order with newly inserted elements.
+   * Returns a copy of the shuffle order with newly inserted elements.
    *
    * @param insertionIndex The index in the unshuffled order at which elements are inserted.
    * @param insertionCount The number of elements inserted at {@code insertionIndex}.
@@ -246,11 +255,13 @@ public interface ShuffleOrder {
   ShuffleOrder cloneAndInsert(int insertionIndex, int insertionCount);
 
   /**
-   * Return a copy of the shuffle order with one element removed.
+   * Returns a copy of the shuffle order with one element removed.
    *
    * @param removalIndex The index of the element in the unshuffled order which is to be removed.
    * @return A copy of this {@link ShuffleOrder} without the removed element.
    */
   ShuffleOrder cloneAndRemove(int removalIndex);
 
+  /** Returns a copy of the shuffle order with all elements removed. */
+  ShuffleOrder cloneAndClear();
 }

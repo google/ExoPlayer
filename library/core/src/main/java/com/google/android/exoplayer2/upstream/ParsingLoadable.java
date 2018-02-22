@@ -72,7 +72,11 @@ public final class ParsingLoadable<T> implements Loadable {
    * @param parser Parses the object from the response.
    */
   public ParsingLoadable(DataSource dataSource, Uri uri, int type, Parser<? extends T> parser) {
-    this(dataSource, new DataSpec(uri, DataSpec.FLAG_ALLOW_GZIP), type, parser);
+    this(
+        dataSource,
+        new DataSpec(uri, DataSpec.FLAG_ALLOW_GZIP | DataSpec.FLAG_ALLOW_CACHING_UNKNOWN_LENGTH),
+        type,
+        parser);
   }
 
   /**

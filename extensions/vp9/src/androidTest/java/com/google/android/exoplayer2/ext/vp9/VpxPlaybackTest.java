@@ -15,6 +15,8 @@
  */
 package com.google.android.exoplayer2.ext.vp9;
 
+import static com.google.common.truth.Truth.assertThat;
+
 import android.content.Context;
 import android.net.Uri;
 import android.os.Looper;
@@ -73,8 +75,8 @@ public class VpxPlaybackTest extends InstrumentationTestCase {
       playUri(INVALID_BITSTREAM_URI);
       fail();
     } catch (Exception e) {
-      assertNotNull(e.getCause());
-      assertTrue(e.getCause() instanceof VpxDecoderException);
+      assertThat(e.getCause()).isNotNull();
+      assertThat(e.getCause()).isInstanceOf(VpxDecoderException.class);
     }
   }
 
@@ -119,9 +121,11 @@ public class VpxPlaybackTest extends InstrumentationTestCase {
                   new DefaultDataSourceFactory(context, "ExoPlayerExtVp9Test"))
               .setExtractorsFactory(MatroskaExtractor.FACTORY)
               .createMediaSource(uri);
-      player.sendMessages(new ExoPlayer.ExoPlayerMessage(videoRenderer,
-          LibvpxVideoRenderer.MSG_SET_OUTPUT_BUFFER_RENDERER,
-          new VpxVideoSurfaceView(context)));
+      player
+          .createMessage(videoRenderer)
+          .setType(LibvpxVideoRenderer.MSG_SET_OUTPUT_BUFFER_RENDERER)
+          .setPayload(new VpxVideoSurfaceView(context))
+          .send();
       player.prepare(mediaSource);
       player.setPlayWhenReady(true);
       Looper.loop();

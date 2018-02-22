@@ -15,14 +15,18 @@
  */
 package com.google.android.exoplayer2.testutil;
 
+import static com.google.common.truth.Truth.assertThat;
+
+import android.os.Handler;
+import android.support.annotation.Nullable;
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.SeekParameters;
 import com.google.android.exoplayer2.source.MediaPeriod;
 import com.google.android.exoplayer2.source.SampleStream;
 import com.google.android.exoplayer2.source.TrackGroup;
 import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.trackselection.TrackSelection;
 import java.io.IOException;
-import junit.framework.Assert;
 
 /**
  * Fake {@link MediaPeriod} that provides tracks from the given {@link TrackGroupArray}. Selecting
@@ -32,38 +36,98 @@ public class FakeMediaPeriod implements MediaPeriod {
 
   private final TrackGroupArray trackGroupArray;
 
-  private boolean preparedPeriod;
+  @Nullable private Handler playerHandler;
+  @Nullable private Callback prepareCallback;
 
+  private boolean deferOnPrepared;
+  private boolean prepared;
+  private long seekOffsetUs;
+  private long discontinuityPositionUs;
+
+  /**
+   * @param trackGroupArray The track group array.
+   */
   public FakeMediaPeriod(TrackGroupArray trackGroupArray) {
+    this(trackGroupArray, false);
+  }
+
+  /**
+   * @param trackGroupArray The track group array.
+   * @param deferOnPrepared Whether {@link MediaPeriod.Callback#onPrepared(MediaPeriod)} should be
+   *     called only after {@link #setPreparationComplete()} has been called. If {@code false}
+   *     preparation completes immediately.
+   */
+  public FakeMediaPeriod(TrackGroupArray trackGroupArray, boolean deferOnPrepared) {
     this.trackGroupArray = trackGroupArray;
+    this.deferOnPrepared = deferOnPrepared;
+    discontinuityPositionUs = C.TIME_UNSET;
+  }
+
+  /**
+   * Sets a discontinuity position to be returned from the next call to
+   * {@link #readDiscontinuity()}.
+   *
+   * @param discontinuityPositionUs The position to be returned, in microseconds.
+   */
+  public void setDiscontinuityPositionUs(long discontinuityPositionUs) {
+    this.discontinuityPositionUs = discontinuityPositionUs;
+  }
+
+  /**
+   * Allows the fake media period to complete preparation. May be called on any thread.
+   */
+  public synchronized void setPreparationComplete() {
+    deferOnPrepared = false;
+    if (playerHandler != null && prepareCallback != null) {
+      playerHandler.post(new Runnable() {
+        @Override
+        public void run() {
+          prepared = true;
+          prepareCallback.onPrepared(FakeMediaPeriod.this);
+        }
+      });
+    }
+  }
+
+  /**
+   * Sets an offset to be applied to positions returned by {@link #seekToUs(long)}.
+   *
+   * @param seekOffsetUs The offset to be applied, in microseconds.
+   */
+  public void setSeekToUsOffset(long seekOffsetUs) {
+    this.seekOffsetUs = seekOffsetUs;
   }
 
   public void release() {
-    preparedPeriod = false;
+    prepared = false;
   }
 
   @Override
-  public void prepare(Callback callback, long positionUs) {
-    Assert.assertFalse(preparedPeriod);
-    preparedPeriod = true;
-    callback.onPrepared(this);
+  public synchronized void prepare(Callback callback, long positionUs) {
+    if (deferOnPrepared) {
+      playerHandler = new Handler();
+      prepareCallback = callback;
+    } else {
+      prepared = true;
+      callback.onPrepared(this);
+    }
   }
 
   @Override
   public void maybeThrowPrepareError() throws IOException {
-    Assert.assertTrue(preparedPeriod);
+    // Do nothing.
   }
 
   @Override
   public TrackGroupArray getTrackGroups() {
-    Assert.assertTrue(preparedPeriod);
+    assertThat(prepared).isTrue();
     return trackGroupArray;
   }
 
   @Override
   public long selectTracks(TrackSelection[] selections, boolean[] mayRetainStreamFlags,
       SampleStream[] streams, boolean[] streamResetFlags, long positionUs) {
-    Assert.assertTrue(preparedPeriod);
+    assertThat(prepared).isTrue();
     int rendererCount = selections.length;
     for (int i = 0; i < rendererCount; i++) {
       if (streams[i] != null && (selections[i] == null || !mayRetainStreamFlags[i])) {
@@ -71,12 +135,12 @@ public class FakeMediaPeriod implements MediaPeriod {
       }
       if (streams[i] == null && selections[i] != null) {
         TrackSelection selection = selections[i];
-        Assert.assertTrue(1 <= selection.length());
+        assertThat(selection.length()).isAtLeast(1);
         TrackGroup trackGroup = selection.getTrackGroup();
-        Assert.assertTrue(trackGroupArray.indexOf(trackGroup) != C.INDEX_UNSET);
+        assertThat(trackGroupArray.indexOf(trackGroup) != C.INDEX_UNSET).isTrue();
         int indexInTrackGroup = selection.getIndexInTrackGroup(selection.getSelectedIndex());
-        Assert.assertTrue(0 <= indexInTrackGroup);
-        Assert.assertTrue(indexInTrackGroup < trackGroup.length);
+        assertThat(indexInTrackGroup).isAtLeast(0);
+        assertThat(indexInTrackGroup).isLessThan(trackGroup.length);
         streams[i] = createSampleStream(selection);
         streamResetFlags[i] = true;
       }
@@ -85,37 +149,49 @@ public class FakeMediaPeriod implements MediaPeriod {
   }
 
   @Override
-  public void discardBuffer(long positionUs) {
+  public void discardBuffer(long positionUs, boolean toKeyframe) {
+    // Do nothing.
+  }
+
+  @Override
+  public void reevaluateBuffer(long positionUs) {
     // Do nothing.
   }
 
   @Override
   public long readDiscontinuity() {
-    Assert.assertTrue(preparedPeriod);
-    return C.TIME_UNSET;
+    assertThat(prepared).isTrue();
+    long positionDiscontinuityUs = this.discontinuityPositionUs;
+    this.discontinuityPositionUs = C.TIME_UNSET;
+    return positionDiscontinuityUs;
   }
 
   @Override
   public long getBufferedPositionUs() {
-    Assert.assertTrue(preparedPeriod);
+    assertThat(prepared).isTrue();
     return C.TIME_END_OF_SOURCE;
   }
 
   @Override
   public long seekToUs(long positionUs) {
-    Assert.assertTrue(preparedPeriod);
+    assertThat(prepared).isTrue();
+    return positionUs + seekOffsetUs;
+  }
+
+  @Override
+  public long getAdjustedSeekPositionUs(long positionUs, SeekParameters seekParameters) {
     return positionUs;
   }
 
   @Override
   public long getNextLoadPositionUs() {
-    Assert.assertTrue(preparedPeriod);
+    assertThat(prepared).isTrue();
     return C.TIME_END_OF_SOURCE;
   }
 
   @Override
   public boolean continueLoading(long positionUs) {
-    Assert.assertTrue(preparedPeriod);
+    assertThat(prepared).isTrue();
     return false;
   }
 

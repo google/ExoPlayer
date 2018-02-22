@@ -18,6 +18,7 @@ package com.google.android.exoplayer2.source.smoothstreaming;
 import android.net.Uri;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
+import com.google.android.exoplayer2.SeekParameters;
 import com.google.android.exoplayer2.extractor.mp4.FragmentedMp4Extractor;
 import com.google.android.exoplayer2.extractor.mp4.Track;
 import com.google.android.exoplayer2.extractor.mp4.TrackEncryptionBox;
@@ -34,6 +35,7 @@ import com.google.android.exoplayer2.trackselection.TrackSelection;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DataSpec;
 import com.google.android.exoplayer2.upstream.LoaderErrorThrower;
+import com.google.android.exoplayer2.util.Util;
 import java.io.IOException;
 import java.util.List;
 
@@ -62,7 +64,7 @@ public class DefaultSsChunkSource implements SsChunkSource {
   }
 
   private final LoaderErrorThrower manifestLoaderErrorThrower;
-  private final int elementIndex;
+  private final int streamElementIndex;
   private final TrackSelection trackSelection;
   private final ChunkExtractorWrapper[] extractorWrappers;
   private final DataSource dataSource;
@@ -75,22 +77,25 @@ public class DefaultSsChunkSource implements SsChunkSource {
   /**
    * @param manifestLoaderErrorThrower Throws errors affecting loading of manifests.
    * @param manifest The initial manifest.
-   * @param elementIndex The index of the stream element in the manifest.
+   * @param streamElementIndex The index of the stream element in the manifest.
    * @param trackSelection The track selection.
    * @param dataSource A {@link DataSource} suitable for loading the media data.
    * @param trackEncryptionBoxes Track encryption boxes for the stream.
    */
-  public DefaultSsChunkSource(LoaderErrorThrower manifestLoaderErrorThrower, SsManifest manifest,
-      int elementIndex, TrackSelection trackSelection, DataSource dataSource,
+  public DefaultSsChunkSource(
+      LoaderErrorThrower manifestLoaderErrorThrower,
+      SsManifest manifest,
+      int streamElementIndex,
+      TrackSelection trackSelection,
+      DataSource dataSource,
       TrackEncryptionBox[] trackEncryptionBoxes) {
     this.manifestLoaderErrorThrower = manifestLoaderErrorThrower;
     this.manifest = manifest;
-    this.elementIndex = elementIndex;
+    this.streamElementIndex = streamElementIndex;
     this.trackSelection = trackSelection;
     this.dataSource = dataSource;
 
-    StreamElement streamElement = manifest.streamElements[elementIndex];
-
+    StreamElement streamElement = manifest.streamElements[streamElementIndex];
     extractorWrappers = new ChunkExtractorWrapper[trackSelection.length()];
     for (int i = 0; i < extractorWrappers.length; i++) {
       int manifestTrackIndex = trackSelection.getIndexInTrackGroup(i);
@@ -107,10 +112,22 @@ public class DefaultSsChunkSource implements SsChunkSource {
   }
 
   @Override
+  public long getAdjustedSeekPositionUs(long positionUs, SeekParameters seekParameters) {
+    StreamElement streamElement = manifest.streamElements[streamElementIndex];
+    int chunkIndex = streamElement.getChunkIndex(positionUs);
+    long firstSyncUs = streamElement.getStartTimeUs(chunkIndex);
+    long secondSyncUs =
+        firstSyncUs < positionUs && chunkIndex < streamElement.chunkCount - 1
+            ? streamElement.getStartTimeUs(chunkIndex + 1)
+            : firstSyncUs;
+    return Util.resolveSeekPositionUs(positionUs, seekParameters, firstSyncUs, secondSyncUs);
+  }
+
+  @Override
   public void updateManifest(SsManifest newManifest) {
-    StreamElement currentElement = manifest.streamElements[elementIndex];
+    StreamElement currentElement = manifest.streamElements[streamElementIndex];
     int currentElementChunkCount = currentElement.chunkCount;
-    StreamElement newElement = newManifest.streamElements[elementIndex];
+    StreamElement newElement = newManifest.streamElements[streamElementIndex];
     if (currentElementChunkCount == 0 || newElement.chunkCount == 0) {
       // There's no overlap between the old and new elements because at least one is empty.
       currentManifestChunkOffset += currentElementChunkCount;
@@ -155,7 +172,7 @@ public class DefaultSsChunkSource implements SsChunkSource {
       return;
     }
 
-    StreamElement streamElement = manifest.streamElements[elementIndex];
+    StreamElement streamElement = manifest.streamElements[streamElementIndex];
     if (streamElement.chunkCount == 0) {
       // There aren't any chunks for us to load.
       out.endOfStream = !manifest.isLive;
@@ -166,7 +183,7 @@ public class DefaultSsChunkSource implements SsChunkSource {
     if (previous == null) {
       chunkIndex = streamElement.getChunkIndex(loadPositionUs);
     } else {
-      chunkIndex = previous.getNextChunkIndex() - currentManifestChunkOffset;
+      chunkIndex = (int) (previous.getNextChunkIndex() - currentManifestChunkOffset);
       if (chunkIndex < 0) {
         // This is before the first chunk in the current manifest.
         fatalError = new BehindLiveWindowException();
@@ -229,7 +246,7 @@ public class DefaultSsChunkSource implements SsChunkSource {
       return C.TIME_UNSET;
     }
 
-    StreamElement currentElement = manifest.streamElements[elementIndex];
+    StreamElement currentElement = manifest.streamElements[streamElementIndex];
     int lastChunkIndex = currentElement.chunkCount - 1;
     long lastChunkEndTimeUs = currentElement.getStartTimeUs(lastChunkIndex)
         + currentElement.getChunkDurationUs(lastChunkIndex);

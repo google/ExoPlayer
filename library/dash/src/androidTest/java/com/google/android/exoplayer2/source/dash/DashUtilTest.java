@@ -15,6 +15,8 @@
  */
 package com.google.android.exoplayer2.source.dash;
 
+import static com.google.common.truth.Truth.assertThat;
+
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.drm.DrmInitData;
@@ -36,25 +38,25 @@ public final class DashUtilTest extends TestCase {
   public void testLoadDrmInitDataFromManifest() throws Exception {
     Period period = newPeriod(newAdaptationSets(newRepresentations(newDrmInitData())));
     DrmInitData drmInitData = DashUtil.loadDrmInitData(DummyDataSource.INSTANCE, period);
-    assertEquals(newDrmInitData(), drmInitData);
+    assertThat(drmInitData).isEqualTo(newDrmInitData());
   }
 
   public void testLoadDrmInitDataMissing() throws Exception {
     Period period = newPeriod(newAdaptationSets(newRepresentations(null /* no init data */)));
     DrmInitData drmInitData = DashUtil.loadDrmInitData(DummyDataSource.INSTANCE, period);
-    assertNull(drmInitData);
+    assertThat(drmInitData).isNull();
   }
 
   public void testLoadDrmInitDataNoRepresentations() throws Exception {
     Period period = newPeriod(newAdaptationSets(/* no representation */));
     DrmInitData drmInitData = DashUtil.loadDrmInitData(DummyDataSource.INSTANCE, period);
-    assertNull(drmInitData);
+    assertThat(drmInitData).isNull();
   }
 
   public void testLoadDrmInitDataNoAdaptationSets() throws Exception {
     Period period = newPeriod(/* no adaptation set */);
     DrmInitData drmInitData = DashUtil.loadDrmInitData(DummyDataSource.INSTANCE, period);
-    assertNull(drmInitData);
+    assertThat(drmInitData).isNull();
   }
 
   private static Period newPeriod(AdaptationSet... adaptationSets) {

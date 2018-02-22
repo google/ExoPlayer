@@ -49,7 +49,8 @@ public final class DataSpec {
   public static final int FLAG_ALLOW_GZIP = 1 << 0;
 
   /**
-   * Permits content to be cached even if its length can not be resolved.
+   * Permits content to be cached even if its length can not be resolved. Typically this's the case
+   * for progressive live streams and when {@link #FLAG_ALLOW_GZIP} is used.
    */
   public static final int FLAG_ALLOW_CACHING_UNKNOWN_LENGTH = 1 << 1;
 

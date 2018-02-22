@@ -26,13 +26,11 @@ import java.util.List;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
-import org.robolectric.annotation.Config;
 
 /**
  * Unit test for {@link WebvttSubtitle}.
  */
 @RunWith(RobolectricTestRunner.class)
-@Config(sdk = Config.TARGET_SDK, manifest = Config.NONE)
 public class WebvttSubtitleTest {
 
   private static final String FIRST_SUBTITLE_STRING = "This is the first subtitle.";

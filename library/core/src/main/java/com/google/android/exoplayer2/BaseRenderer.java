@@ -157,7 +157,7 @@ public abstract class BaseRenderer implements Renderer, RendererCapabilities {
     return ADAPTIVE_NOT_SUPPORTED;
   }
 
-  // ExoPlayerComponent implementation.
+  // PlayerMessage.Target implementation.
 
   @Override
   public void handleMessage(int what, Object object) throws ExoPlaybackException {

@@ -25,13 +25,11 @@ import java.util.List;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
-import org.robolectric.annotation.Config;
 
 /**
  * Unit test for {@link Mp4WebvttDecoder}.
  */
 @RunWith(RobolectricTestRunner.class)
-@Config(sdk = Config.TARGET_SDK, manifest = Config.NONE)
 public final class Mp4WebvttDecoderTest {
 
   private static final byte[] SINGLE_CUE_SAMPLE = {

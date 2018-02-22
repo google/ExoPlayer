@@ -15,6 +15,8 @@
  */
 package com.google.android.exoplayer2.upstream;
 
+import static com.google.common.truth.Truth.assertThat;
+
 import android.app.Instrumentation;
 import android.content.ContentProvider;
 import android.content.ContentResolver;
@@ -75,7 +77,7 @@ public final class ContentDataSourceTest extends InstrumentationTestCase {
       fail();
     } catch (ContentDataSource.ContentDataSourceException e) {
       // Expected.
-      assertTrue(e.getCause() instanceof FileNotFoundException);
+      assertThat(e.getCause()).isInstanceOf(FileNotFoundException.class);
     } finally {
       dataSource.close();
     }
