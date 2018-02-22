@@ -54,7 +54,7 @@ import java.util.List;
  * // Select the first representation of the first adaptation set of the first period
  * dashDownloader.selectRepresentations(new RepresentationKey[] {new RepresentationKey(0, 0, 0)});
  * dashDownloader.download(new ProgressListener() {
- *   @Override
+ *   {@literal @}Override
  *   public void onDownloadProgress(Downloader downloader, float downloadPercentage,
  *       long downloadedBytes) {
  *     // Invoked periodically during the download.
