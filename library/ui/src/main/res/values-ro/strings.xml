@@ -27,5 +27,4 @@
     <string name="exo_controls_repeat_one_description" msgid="475266640141093764">"Repetați unul"</string>
     <string name="exo_controls_repeat_all_description" msgid="8909385102773547833">"Repetați-le pe toate"</string>
     <string name="exo_controls_shuffle_description" msgid="1374364424026734323">"Redați aleatoriu"</string>
-    <string name="exo_controls_fullscreen_description" msgid="2643117270009811804">"Modul Ecran complet"</string>
 </resources>

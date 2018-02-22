@@ -27,5 +27,4 @@
     <string name="exo_controls_repeat_one_description" msgid="475266640141093764">"Repetir uma"</string>
     <string name="exo_controls_repeat_all_description" msgid="8909385102773547833">"Repetir tudo"</string>
     <string name="exo_controls_shuffle_description" msgid="1374364424026734323">"Aleatório"</string>
-    <string name="exo_controls_fullscreen_description" msgid="2643117270009811804">"Modo de tela cheia"</string>
 </resources>
