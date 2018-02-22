@@ -15,6 +15,8 @@
  */
 package com.google.android.exoplayer2.source.dash.manifest;
 
+import static com.google.common.truth.Truth.assertThat;
+
 import junit.framework.TestCase;
 
 /**
@@ -26,31 +28,31 @@ public class UrlTemplateTest extends TestCase {
     String template = "QualityLevels($Bandwidth$)/Fragments(video=$Time$,format=mpd-time-csf)";
     UrlTemplate urlTemplate = UrlTemplate.compile(template);
     String url = urlTemplate.buildUri("abc1", 10, 650000, 5000);
-    assertEquals("QualityLevels(650000)/Fragments(video=5000,format=mpd-time-csf)", url);
+    assertThat(url).isEqualTo("QualityLevels(650000)/Fragments(video=5000,format=mpd-time-csf)");
 
     template = "$RepresentationID$/$Number$";
     urlTemplate = UrlTemplate.compile(template);
     url = urlTemplate.buildUri("abc1", 10, 650000, 5000);
-    assertEquals("abc1/10", url);
+    assertThat(url).isEqualTo("abc1/10");
 
     template = "chunk_ctvideo_cfm4s_rid$RepresentationID$_cn$Number$_w2073857842_mpd.m4s";
     urlTemplate = UrlTemplate.compile(template);
     url = urlTemplate.buildUri("abc1", 10, 650000, 5000);
-    assertEquals("chunk_ctvideo_cfm4s_ridabc1_cn10_w2073857842_mpd.m4s", url);
+    assertThat(url).isEqualTo("chunk_ctvideo_cfm4s_ridabc1_cn10_w2073857842_mpd.m4s");
   }
 
   public void testFull() {
     String template = "$Bandwidth$_a_$RepresentationID$_b_$Time$_c_$Number$";
     UrlTemplate urlTemplate = UrlTemplate.compile(template);
     String url = urlTemplate.buildUri("abc1", 10, 650000, 5000);
-    assertEquals("650000_a_abc1_b_5000_c_10", url);
+    assertThat(url).isEqualTo("650000_a_abc1_b_5000_c_10");
   }
 
   public void testFullWithDollarEscaping() {
     String template = "$$$Bandwidth$$$_a$$_$RepresentationID$_b_$Time$_c_$Number$$$";
     UrlTemplate urlTemplate = UrlTemplate.compile(template);
     String url = urlTemplate.buildUri("abc1", 10, 650000, 5000);
-    assertEquals("$650000$_a$_abc1_b_5000_c_10$", url);
+    assertThat(url).isEqualTo("$650000$_a$_abc1_b_5000_c_10$");
   }
 
   public void testInvalidSubstitution() {

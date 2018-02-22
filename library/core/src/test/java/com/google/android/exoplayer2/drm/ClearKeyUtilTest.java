@@ -19,7 +19,6 @@ import static com.google.common.truth.Truth.assertThat;
 
 import com.google.android.exoplayer2.C;
 import java.nio.charset.Charset;
-import java.util.Arrays;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
@@ -32,7 +31,7 @@ import org.robolectric.annotation.Config;
 @RunWith(RobolectricTestRunner.class)
 public final class ClearKeyUtilTest {
 
-  @Config(sdk = 26, manifest = Config.NONE)
+  @Config(sdk = 26)
   @Test
   public void testAdjustResponseDataV26() {
     byte[] data = ("{\"keys\":[{"
@@ -47,10 +46,10 @@ public final class ClearKeyUtilTest {
         + "\"kid\":\"ab\\/cde+f\"}],"
         + "\"type\":\"abc_def-"
         + "\"}").getBytes(Charset.forName(C.UTF8_NAME));
-    assertThat(Arrays.equals(expected, ClearKeyUtil.adjustResponseData(data))).isTrue();
+    assertThat(ClearKeyUtil.adjustResponseData(data)).isEqualTo(expected);
   }
 
-  @Config(sdk = 26, manifest = Config.NONE)
+  @Config(sdk = 26)
   @Test
   public void testAdjustRequestDataV26() {
     byte[] data = "{\"kids\":[\"abc+def/\",\"ab+cde/f\"],\"type\":\"abc+def/\"}"
@@ -58,7 +57,7 @@ public final class ClearKeyUtilTest {
     // We expect "+" and "/" to be replaced with "-" and "_" respectively, for "kids".
     byte[] expected = "{\"kids\":[\"abc-def_\",\"ab-cde_f\"],\"type\":\"abc+def/\"}"
         .getBytes(Charset.forName(C.UTF8_NAME));
-    assertThat(Arrays.equals(expected, ClearKeyUtil.adjustRequestData(data))).isTrue();
+    assertThat(ClearKeyUtil.adjustRequestData(data)).isEqualTo(expected);
   }
 
 }

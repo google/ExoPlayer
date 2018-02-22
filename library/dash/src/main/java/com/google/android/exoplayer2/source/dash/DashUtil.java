@@ -53,10 +53,8 @@ public final class DashUtil {
    */
   public static DashManifest loadManifest(DataSource dataSource, Uri uri)
       throws IOException {
-    DataSpec dataSpec = new DataSpec(uri,
-        DataSpec.FLAG_ALLOW_CACHING_UNKNOWN_LENGTH | DataSpec.FLAG_ALLOW_GZIP);
-    ParsingLoadable<DashManifest> loadable = new ParsingLoadable<>(dataSource, dataSpec,
-        C.DATA_TYPE_MANIFEST, new DashManifestParser());
+    ParsingLoadable<DashManifest> loadable =
+        new ParsingLoadable<>(dataSource, uri, C.DATA_TYPE_MANIFEST, new DashManifestParser());
     loadable.load();
     return loadable.getResult();
   }
@@ -81,14 +79,11 @@ public final class DashUtil {
         return null;
       }
     }
-    DrmInitData drmInitData = representation.format.drmInitData;
-    if (drmInitData != null) {
-      // Prefer drmInitData obtained from the manifest over drmInitData obtained from the stream,
-      // as per DASH IF Interoperability Recommendations V3.0, 7.5.3.
-      return drmInitData;
-    }
+    Format manifestFormat = representation.format;
     Format sampleFormat = DashUtil.loadSampleFormat(dataSource, primaryTrackType, representation);
-    return sampleFormat == null ? null : sampleFormat.drmInitData;
+    return sampleFormat == null
+        ? manifestFormat.drmInitData
+        : sampleFormat.copyWithManifestFormatInfo(manifestFormat).drmInitData;
   }
 
   /**

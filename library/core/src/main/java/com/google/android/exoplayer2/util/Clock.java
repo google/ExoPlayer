@@ -16,10 +16,12 @@
 package com.google.android.exoplayer2.util;
 
 import android.os.Handler;
+import android.os.Looper;
+import android.support.annotation.Nullable;
 
 /**
- * An interface through which system clocks can be read. The {@link #DEFAULT} implementation
- * must be used for all non-test cases.
+ * An interface through which system clocks can be read and {@link HandlerWrapper}s created. The
+ * {@link #DEFAULT} implementation must be used for all non-test cases.
  */
 public interface Clock {
 
@@ -28,24 +30,20 @@ public interface Clock {
    */
   Clock DEFAULT = new SystemClock();
 
-  /**
-   * @see android.os.SystemClock#elapsedRealtime()
-   */
+  /** @see android.os.SystemClock#elapsedRealtime() */
   long elapsedRealtime();
 
-  /**
-   * @see android.os.SystemClock#sleep(long)
-   */
+  /** @see android.os.SystemClock#uptimeMillis() */
+  long uptimeMillis();
+
+  /** @see android.os.SystemClock#sleep(long) */
   void sleep(long sleepTimeMs);
 
   /**
-   * Post a {@link Runnable} on a {@link Handler} thread with a delay measured by this clock.
-   * @see Handler#postDelayed(Runnable, long)
+   * Creates a {@link HandlerWrapper} using a specified looper and a specified callback for handling
+   * messages.
    *
-   * @param handler The {@link Handler} to post the {@code runnable} on.
-   * @param runnable A {@link Runnable} to be posted.
-   * @param delayMs The delay in milliseconds as measured by this clock.
+   * @see Handler#Handler(Looper, Handler.Callback)
    */
-  void postDelayed(Handler handler, Runnable runnable, long delayMs);
-
+  HandlerWrapper createHandler(Looper looper, @Nullable Handler.Callback callback);
 }

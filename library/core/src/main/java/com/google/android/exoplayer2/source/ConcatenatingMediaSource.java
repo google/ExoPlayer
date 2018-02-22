@@ -15,15 +15,14 @@
  */
 package com.google.android.exoplayer2.source;
 
+import android.support.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlayer;
-import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.source.ShuffleOrder.DefaultShuffleOrder;
 import com.google.android.exoplayer2.upstream.Allocator;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Util;
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.IdentityHashMap;
 import java.util.Map;
@@ -32,13 +31,12 @@ import java.util.Map;
  * Concatenates multiple {@link MediaSource}s. It is valid for the same {@link MediaSource} instance
  * to be present more than once in the concatenation.
  */
-public final class ConcatenatingMediaSource implements MediaSource {
+public final class ConcatenatingMediaSource extends CompositeMediaSource<Integer> {
 
   private final MediaSource[] mediaSources;
   private final Timeline[] timelines;
   private final Object[] manifests;
   private final Map<MediaPeriod, Integer> sourceIndexByMediaPeriod;
-  private final boolean[] duplicateFlags;
   private final boolean isAtomic;
   private final ShuffleOrder shuffleOrder;
 
@@ -84,35 +82,20 @@ public final class ConcatenatingMediaSource implements MediaSource {
     timelines = new Timeline[mediaSources.length];
     manifests = new Object[mediaSources.length];
     sourceIndexByMediaPeriod = new HashMap<>();
-    duplicateFlags = buildDuplicateFlags(mediaSources);
   }
 
   @Override
   public void prepareSource(ExoPlayer player, boolean isTopLevelSource, Listener listener) {
+    super.prepareSource(player, isTopLevelSource, listener);
     this.listener = listener;
+    boolean[] duplicateFlags = buildDuplicateFlags(mediaSources);
     if (mediaSources.length == 0) {
       listener.onSourceInfoRefreshed(this, Timeline.EMPTY, null);
     } else {
       for (int i = 0; i < mediaSources.length; i++) {
         if (!duplicateFlags[i]) {
-          final int index = i;
-          mediaSources[i].prepareSource(player, false, new Listener() {
-            @Override
-            public void onSourceInfoRefreshed(MediaSource source, Timeline timeline,
-                Object manifest) {
-              handleSourceInfoRefreshed(index, timeline, manifest);
-            }
-          });
+          prepareChildSource(i, mediaSources[i]);
         }
-      }
-    }
-  }
-
-  @Override
-  public void maybeThrowSourceInfoRefreshError() throws IOException {
-    for (int i = 0; i < mediaSources.length; i++) {
-      if (!duplicateFlags[i]) {
-        mediaSources[i].maybeThrowSourceInfoRefreshError();
       }
     }
   }
@@ -136,21 +119,23 @@ public final class ConcatenatingMediaSource implements MediaSource {
 
   @Override
   public void releaseSource() {
-    for (int i = 0; i < mediaSources.length; i++) {
-      if (!duplicateFlags[i]) {
-        mediaSources[i].releaseSource();
-      }
-    }
+    super.releaseSource();
+    listener = null;
+    timeline = null;
   }
 
-  private void handleSourceInfoRefreshed(int sourceFirstIndex, Timeline sourceTimeline,
-      Object sourceManifest) {
+  @Override
+  protected void onChildSourceInfoRefreshed(
+      Integer sourceFirstIndex,
+      MediaSource mediaSource,
+      Timeline sourceTimeline,
+      @Nullable Object sourceManifest) {
     // Set the timeline and manifest.
     timelines[sourceFirstIndex] = sourceTimeline;
     manifests[sourceFirstIndex] = sourceManifest;
     // Also set the timeline and manifest for any duplicate entries of the same source.
     for (int i = sourceFirstIndex + 1; i < mediaSources.length; i++) {
-      if (mediaSources[i] == mediaSources[sourceFirstIndex]) {
+      if (mediaSources[i] == mediaSource) {
         timelines[i] = sourceTimeline;
         manifests[i] = sourceManifest;
       }
@@ -187,10 +172,9 @@ public final class ConcatenatingMediaSource implements MediaSource {
     private final Timeline[] timelines;
     private final int[] sourcePeriodOffsets;
     private final int[] sourceWindowOffsets;
-    private final boolean isAtomic;
 
     public ConcatenatedTimeline(Timeline[] timelines, boolean isAtomic, ShuffleOrder shuffleOrder) {
-      super(shuffleOrder);
+      super(isAtomic, shuffleOrder);
       int[] sourcePeriodOffsets = new int[timelines.length];
       int[] sourceWindowOffsets = new int[timelines.length];
       long periodCount = 0;
@@ -207,7 +191,6 @@ public final class ConcatenatingMediaSource implements MediaSource {
       this.timelines = timelines;
       this.sourcePeriodOffsets = sourcePeriodOffsets;
       this.sourceWindowOffsets = sourceWindowOffsets;
-      this.isAtomic = isAtomic;
     }
 
     @Override
@@ -218,34 +201,6 @@ public final class ConcatenatingMediaSource implements MediaSource {
     @Override
     public int getPeriodCount() {
       return sourcePeriodOffsets[sourcePeriodOffsets.length - 1];
-    }
-
-    @Override
-    public int getNextWindowIndex(int windowIndex, @Player.RepeatMode int repeatMode,
-        boolean shuffleModeEnabled) {
-      if (isAtomic && repeatMode == Player.REPEAT_MODE_ONE) {
-        repeatMode = Player.REPEAT_MODE_ALL;
-      }
-      return super.getNextWindowIndex(windowIndex, repeatMode, !isAtomic && shuffleModeEnabled);
-    }
-
-    @Override
-    public int getPreviousWindowIndex(int windowIndex, @Player.RepeatMode int repeatMode,
-        boolean shuffleModeEnabled) {
-      if (isAtomic && repeatMode == Player.REPEAT_MODE_ONE) {
-        repeatMode = Player.REPEAT_MODE_ALL;
-      }
-      return super.getPreviousWindowIndex(windowIndex, repeatMode, !isAtomic && shuffleModeEnabled);
-    }
-
-    @Override
-    public int getLastWindowIndex(boolean shuffleModeEnabled) {
-      return super.getLastWindowIndex(!isAtomic && shuffleModeEnabled);
-    }
-
-    @Override
-    public int getFirstWindowIndex(boolean shuffleModeEnabled) {
-      return super.getFirstWindowIndex(!isAtomic && shuffleModeEnabled);
     }
 
     @Override

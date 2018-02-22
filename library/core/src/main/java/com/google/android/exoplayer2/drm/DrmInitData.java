@@ -22,6 +22,7 @@ import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.drm.DrmInitData.SchemeData;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Util;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
@@ -31,6 +32,58 @@ import java.util.UUID;
  * Initialization data for one or more DRM schemes.
  */
 public final class DrmInitData implements Comparator<SchemeData>, Parcelable {
+
+  /**
+   * Merges {@link DrmInitData} obtained from a media manifest and a media stream.
+   *
+   * <p>The result is generated as follows.
+   *
+   * <ol>
+   *   <li>
+   *     Include all {@link SchemeData}s from {@code manifestData} where {@link
+   *     SchemeData#hasData()} is true.
+   *   </li>
+   *   <li>
+   *     Include all {@link SchemeData}s in {@code mediaData} where {@link SchemeData#hasData()} is
+   *     true and for which we did not include an entry from the manifest targeting the same UUID.
+   *   </li>
+   *   <li>
+   *     If available, the scheme type from the manifest is used. If not, the scheme type from the
+   *     media is used.
+   *   </li>
+   * </ol>
+   *
+   * @param manifestData DRM session acquisition data obtained from the manifest.
+   * @param mediaData DRM session acquisition data obtained from the media.
+   * @return A {@link DrmInitData} obtained from merging a media manifest and a media stream.
+   */
+  public static @Nullable DrmInitData createSessionCreationData(
+      @Nullable DrmInitData manifestData, @Nullable DrmInitData mediaData) {
+    ArrayList<SchemeData> result = new ArrayList<>();
+    String schemeType = null;
+    if (manifestData != null) {
+      schemeType = manifestData.schemeType;
+      for (SchemeData data : manifestData.schemeDatas) {
+        if (data.hasData()) {
+          result.add(data);
+        }
+      }
+    }
+
+    if (mediaData != null) {
+      if (schemeType == null) {
+        schemeType = mediaData.schemeType;
+      }
+      int manifestDatasCount = result.size();
+      for (SchemeData data : mediaData.schemeDatas) {
+        if (data.hasData() && !containsSchemeDataWithUuid(result, manifestDatasCount, data.uuid)) {
+          result.add(data);
+        }
+      }
+    }
+
+    return result.isEmpty() ? null : new DrmInitData(schemeType, result);
+  }
 
   private final SchemeData[] schemeDatas;
 
@@ -192,6 +245,18 @@ public final class DrmInitData implements Comparator<SchemeData>, Parcelable {
     }
 
   };
+
+  // Internal methods.
+
+  private static boolean containsSchemeDataWithUuid(
+      ArrayList<SchemeData> datas, int limit, UUID uuid) {
+    for (int i = 0; i < limit; i++) {
+      if (datas.get(i).uuid.equals(uuid)) {
+        return true;
+      }
+    }
+    return false;
+  }
 
   /**
    * Scheme initialization data.

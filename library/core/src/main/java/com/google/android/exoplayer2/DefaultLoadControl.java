@@ -25,7 +25,7 @@ import com.google.android.exoplayer2.util.Util;
 /**
  * The default {@link LoadControl} implementation.
  */
-public final class DefaultLoadControl implements LoadControl {
+public class DefaultLoadControl implements LoadControl {
 
   /**
    * The default minimum duration of media that the player will attempt to ensure is buffered at all
@@ -90,8 +90,8 @@ public final class DefaultLoadControl implements LoadControl {
         allocator,
         DEFAULT_MIN_BUFFER_MS,
         DEFAULT_MAX_BUFFER_MS,
-        DEFAULT_BUFFER_FOR_PLAYBACK_AFTER_REBUFFER_MS,
         DEFAULT_BUFFER_FOR_PLAYBACK_MS,
+        DEFAULT_BUFFER_FOR_PLAYBACK_AFTER_REBUFFER_MS,
         DEFAULT_TARGET_BUFFER_BYTES,
         DEFAULT_PRIORITIZE_TIME_OVER_SIZE_THRESHOLDS);
   }
@@ -166,9 +166,9 @@ public final class DefaultLoadControl implements LoadControl {
     this.allocator = allocator;
     minBufferUs = minBufferMs * 1000L;
     maxBufferUs = maxBufferMs * 1000L;
-    targetBufferBytesOverwrite = targetBufferBytes;
     bufferForPlaybackUs = bufferForPlaybackMs * 1000L;
     bufferForPlaybackAfterRebufferUs = bufferForPlaybackAfterRebufferMs * 1000L;
+    targetBufferBytesOverwrite = targetBufferBytes;
     this.prioritizeTimeOverSizeThresholds = prioritizeTimeOverSizeThresholds;
     this.priorityTaskManager = priorityTaskManager;
   }
@@ -204,16 +204,17 @@ public final class DefaultLoadControl implements LoadControl {
   }
 
   @Override
-  public boolean shouldStartPlayback(long bufferedDurationUs, boolean rebuffering) {
-    long minBufferDurationUs = rebuffering ? bufferForPlaybackAfterRebufferUs : bufferForPlaybackUs;
-    return minBufferDurationUs <= 0
-        || bufferedDurationUs >= minBufferDurationUs
-        || (!prioritizeTimeOverSizeThresholds
-            && allocator.getTotalBytesAllocated() >= targetBufferSize);
+  public long getBackBufferDurationUs() {
+    return 0;
   }
 
   @Override
-  public boolean shouldContinueLoading(long bufferedDurationUs) {
+  public boolean retainBackBufferFromKeyframe() {
+    return false;
+  }
+
+  @Override
+  public boolean shouldContinueLoading(long bufferedDurationUs, float playbackSpeed) {
     boolean targetBufferSizeReached = allocator.getTotalBytesAllocated() >= targetBufferSize;
     boolean wasBuffering = isBuffering;
     if (prioritizeTimeOverSizeThresholds) {
@@ -236,6 +237,17 @@ public final class DefaultLoadControl implements LoadControl {
       }
     }
     return isBuffering;
+  }
+
+  @Override
+  public boolean shouldStartPlayback(
+      long bufferedDurationUs, float playbackSpeed, boolean rebuffering) {
+    bufferedDurationUs = Util.getPlayoutDurationForMediaDuration(bufferedDurationUs, playbackSpeed);
+    long minBufferDurationUs = rebuffering ? bufferForPlaybackAfterRebufferUs : bufferForPlaybackUs;
+    return minBufferDurationUs <= 0
+        || bufferedDurationUs >= minBufferDurationUs
+        || (!prioritizeTimeOverSizeThresholds
+            && allocator.getTotalBytesAllocated() >= targetBufferSize);
   }
 
   /**

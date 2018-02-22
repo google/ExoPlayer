@@ -66,6 +66,7 @@ import java.util.concurrent.atomic.AtomicInteger;
   private final DataSpec initDataSpec;
   private final boolean isEncrypted;
   private final boolean isMasterTimestampSource;
+  private final boolean hasGapTag;
   private final TimestampAdjuster timestampAdjuster;
   private final boolean shouldSpliceIn;
   private final Extractor extractor;
@@ -83,8 +84,8 @@ import java.util.concurrent.atomic.AtomicInteger;
   private volatile boolean loadCompleted;
 
   /**
-   * @param extractorFactory A {@link HlsExtractorFactory} from which the HLS media chunk
-   *     extractor is obtained.
+   * @param extractorFactory A {@link HlsExtractorFactory} from which the HLS media chunk extractor
+   *     is obtained.
    * @param dataSource The source from which the data should be loaded.
    * @param dataSpec Defines the data to be loaded.
    * @param initDataSpec Defines the initialization data to be fed to new extractors. May be null.
@@ -95,8 +96,9 @@ import java.util.concurrent.atomic.AtomicInteger;
    * @param trackSelectionData See {@link #trackSelectionData}.
    * @param startTimeUs The start time of the chunk in microseconds.
    * @param endTimeUs The end time of the chunk in microseconds.
-   * @param chunkIndex The media sequence number of the chunk.
+   * @param chunkMediaSequence The media sequence number of the chunk.
    * @param discontinuitySequenceNumber The discontinuity sequence number of the chunk.
+   * @param hasGapTag Whether the chunk is tagged with EXT-X-GAP.
    * @param isMasterTimestampSource True if the chunk can initialize the timestamp adjuster.
    * @param timestampAdjuster Adjuster corresponding to the provided discontinuity sequence number.
    * @param previousChunk The {@link HlsMediaChunk} that preceded this one. May be null.
@@ -106,15 +108,35 @@ import java.util.concurrent.atomic.AtomicInteger;
    * @param encryptionIv The AES initialization vector, or null if the segment is not fully
    *     encrypted.
    */
-  public HlsMediaChunk(HlsExtractorFactory extractorFactory, DataSource dataSource,
-      DataSpec dataSpec, DataSpec initDataSpec, HlsUrl hlsUrl, List<Format> muxedCaptionFormats,
-      int trackSelectionReason, Object trackSelectionData, long startTimeUs, long endTimeUs,
-      int chunkIndex, int discontinuitySequenceNumber, boolean isMasterTimestampSource,
-      TimestampAdjuster timestampAdjuster, HlsMediaChunk previousChunk, DrmInitData drmInitData,
-      byte[] fullSegmentEncryptionKey, byte[] encryptionIv) {
-    super(buildDataSource(dataSource, fullSegmentEncryptionKey, encryptionIv), dataSpec,
-        hlsUrl.format, trackSelectionReason, trackSelectionData, startTimeUs, endTimeUs,
-        chunkIndex);
+  public HlsMediaChunk(
+      HlsExtractorFactory extractorFactory,
+      DataSource dataSource,
+      DataSpec dataSpec,
+      DataSpec initDataSpec,
+      HlsUrl hlsUrl,
+      List<Format> muxedCaptionFormats,
+      int trackSelectionReason,
+      Object trackSelectionData,
+      long startTimeUs,
+      long endTimeUs,
+      long chunkMediaSequence,
+      int discontinuitySequenceNumber,
+      boolean hasGapTag,
+      boolean isMasterTimestampSource,
+      TimestampAdjuster timestampAdjuster,
+      HlsMediaChunk previousChunk,
+      DrmInitData drmInitData,
+      byte[] fullSegmentEncryptionKey,
+      byte[] encryptionIv) {
+    super(
+        buildDataSource(dataSource, fullSegmentEncryptionKey, encryptionIv),
+        dataSpec,
+        hlsUrl.format,
+        trackSelectionReason,
+        trackSelectionData,
+        startTimeUs,
+        endTimeUs,
+        chunkMediaSequence);
     this.discontinuitySequenceNumber = discontinuitySequenceNumber;
     this.initDataSpec = initDataSpec;
     this.hlsUrl = hlsUrl;
@@ -122,6 +144,7 @@ import java.util.concurrent.atomic.AtomicInteger;
     this.timestampAdjuster = timestampAdjuster;
     // Note: this.dataSource and dataSource may be different.
     this.isEncrypted = this.dataSource instanceof Aes128DataSource;
+    this.hasGapTag = hasGapTag;
     Extractor previousExtractor = null;
     if (previousChunk != null) {
       shouldSpliceIn = previousChunk.hlsUrl != hlsUrl;
@@ -137,9 +160,13 @@ import java.util.concurrent.atomic.AtomicInteger;
     reusingExtractor = extractor == previousExtractor;
     initLoadCompleted = reusingExtractor && initDataSpec != null;
     if (isPackedAudioExtractor) {
-      id3Decoder = previousChunk != null ? previousChunk.id3Decoder : new Id3Decoder();
-      id3Data =  previousChunk != null ? previousChunk.id3Data
-          : new ParsableByteArray(Id3Decoder.ID3_HEADER_LENGTH);
+      if (previousChunk != null && previousChunk.id3Data != null) {
+        id3Decoder = previousChunk.id3Decoder;
+        id3Data = previousChunk.id3Data;
+      } else {
+        id3Decoder = new Id3Decoder();
+        id3Data = new ParsableByteArray(Id3Decoder.ID3_HEADER_LENGTH);
+      }
     } else {
       id3Decoder = null;
       id3Data = null;
@@ -156,7 +183,7 @@ import java.util.concurrent.atomic.AtomicInteger;
    */
   public void init(HlsSampleStreamWrapper output) {
     this.output = output;
-    output.init(uid, shouldSpliceIn);
+    output.init(uid, shouldSpliceIn, reusingExtractor);
     if (!reusingExtractor) {
       extractor.init(output);
     }
@@ -188,7 +215,10 @@ import java.util.concurrent.atomic.AtomicInteger;
   public void load() throws IOException, InterruptedException {
     maybeLoadInitData();
     if (!loadCanceled) {
-      loadMedia();
+      if (!hasGapTag) {
+        loadMedia();
+      }
+      loadCompleted = true;
     }
   }
 
@@ -260,7 +290,6 @@ import java.util.concurrent.atomic.AtomicInteger;
     } finally {
       Util.closeQuietly(dataSource);
     }
-    loadCompleted = true;
   }
 
   /**

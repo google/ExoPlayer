@@ -15,6 +15,8 @@
  */
 package com.google.android.exoplayer2.source.hls.playlist;
 
+import static com.google.common.truth.Truth.assertThat;
+
 import android.net.Uri;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.source.hls.playlist.HlsMediaPlaylist.Segment;
@@ -31,7 +33,7 @@ import junit.framework.TestCase;
  */
 public class HlsMediaPlaylistParserTest extends TestCase {
 
-  public void testParseMediaPlaylist() {
+  public void testParseMediaPlaylist() throws IOException {
     Uri playlistUri = Uri.parse("https://example.com/test.m3u8");
     String playlistString = "#EXTM3U\n"
         + "#EXT-X-VERSION:3\n"
@@ -67,72 +69,106 @@ public class HlsMediaPlaylistParserTest extends TestCase {
         + "#EXT-X-ENDLIST";
     InputStream inputStream = new ByteArrayInputStream(
         playlistString.getBytes(Charset.forName(C.UTF8_NAME)));
-    try {
-      HlsPlaylist playlist = new HlsPlaylistParser().parse(playlistUri, inputStream);
-      assertNotNull(playlist);
+    HlsPlaylist playlist = new HlsPlaylistParser().parse(playlistUri, inputStream);
 
-      HlsMediaPlaylist mediaPlaylist = (HlsMediaPlaylist) playlist;
-      assertEquals(HlsMediaPlaylist.PLAYLIST_TYPE_VOD, mediaPlaylist.playlistType);
-      assertEquals(mediaPlaylist.durationUs - 25000000, mediaPlaylist.startOffsetUs);
+    HlsMediaPlaylist mediaPlaylist = (HlsMediaPlaylist) playlist;
+    assertThat(mediaPlaylist.playlistType).isEqualTo(HlsMediaPlaylist.PLAYLIST_TYPE_VOD);
+    assertThat(mediaPlaylist.startOffsetUs).isEqualTo(mediaPlaylist.durationUs - 25000000);
 
-      assertEquals(2679, mediaPlaylist.mediaSequence);
-      assertEquals(3, mediaPlaylist.version);
-      assertTrue(mediaPlaylist.hasEndTag);
-      List<Segment> segments = mediaPlaylist.segments;
-      assertNotNull(segments);
-      assertEquals(5, segments.size());
+    assertThat(mediaPlaylist.mediaSequence).isEqualTo(2679);
+    assertThat(mediaPlaylist.version).isEqualTo(3);
+    assertThat(mediaPlaylist.hasEndTag).isTrue();
+    List<Segment> segments = mediaPlaylist.segments;
+    assertThat(segments).isNotNull();
+    assertThat(segments).hasSize(5);
 
-      Segment segment = segments.get(0);
-      assertEquals(4, mediaPlaylist.discontinuitySequence + segment.relativeDiscontinuitySequence);
-      assertEquals(7975000, segment.durationUs);
-      assertNull(segment.fullSegmentEncryptionKeyUri);
-      assertNull(segment.encryptionIV);
-      assertEquals(51370, segment.byterangeLength);
-      assertEquals(0, segment.byterangeOffset);
-      assertEquals("https://priv.example.com/fileSequence2679.ts", segment.url);
+    Segment segment = segments.get(0);
+    assertThat(mediaPlaylist.discontinuitySequence + segment.relativeDiscontinuitySequence)
+        .isEqualTo(4);
+    assertThat(segment.durationUs).isEqualTo(7975000);
+    assertThat(segment.fullSegmentEncryptionKeyUri).isNull();
+    assertThat(segment.encryptionIV).isNull();
+    assertThat(segment.byterangeLength).isEqualTo(51370);
+    assertThat(segment.byterangeOffset).isEqualTo(0);
+    assertThat(segment.url).isEqualTo("https://priv.example.com/fileSequence2679.ts");
 
-      segment = segments.get(1);
-      assertEquals(0, segment.relativeDiscontinuitySequence);
-      assertEquals(7975000, segment.durationUs);
-      assertEquals("https://priv.example.com/key.php?r=2680", segment.fullSegmentEncryptionKeyUri);
-      assertEquals("0x1566B", segment.encryptionIV);
-      assertEquals(51501, segment.byterangeLength);
-      assertEquals(2147483648L, segment.byterangeOffset);
-      assertEquals("https://priv.example.com/fileSequence2680.ts", segment.url);
+    segment = segments.get(1);
+    assertThat(segment.relativeDiscontinuitySequence).isEqualTo(0);
+    assertThat(segment.durationUs).isEqualTo(7975000);
+    assertThat(segment.fullSegmentEncryptionKeyUri)
+        .isEqualTo("https://priv.example.com/key.php?r=2680");
+    assertThat(segment.encryptionIV).isEqualTo("0x1566B");
+    assertThat(segment.byterangeLength).isEqualTo(51501);
+    assertThat(segment.byterangeOffset).isEqualTo(2147483648L);
+    assertThat(segment.url).isEqualTo("https://priv.example.com/fileSequence2680.ts");
 
-      segment = segments.get(2);
-      assertEquals(0, segment.relativeDiscontinuitySequence);
-      assertEquals(7941000, segment.durationUs);
-      assertNull(segment.fullSegmentEncryptionKeyUri);
-      assertEquals(null, segment.encryptionIV);
-      assertEquals(51501, segment.byterangeLength);
-      assertEquals(2147535149L, segment.byterangeOffset);
-      assertEquals("https://priv.example.com/fileSequence2681.ts", segment.url);
+    segment = segments.get(2);
+    assertThat(segment.relativeDiscontinuitySequence).isEqualTo(0);
+    assertThat(segment.durationUs).isEqualTo(7941000);
+    assertThat(segment.fullSegmentEncryptionKeyUri).isNull();
+    assertThat(segment.encryptionIV).isEqualTo(null);
+    assertThat(segment.byterangeLength).isEqualTo(51501);
+    assertThat(segment.byterangeOffset).isEqualTo(2147535149L);
+    assertThat(segment.url).isEqualTo("https://priv.example.com/fileSequence2681.ts");
 
-      segment = segments.get(3);
-      assertEquals(1, segment.relativeDiscontinuitySequence);
-      assertEquals(7975000, segment.durationUs);
-      assertEquals("https://priv.example.com/key.php?r=2682", segment.fullSegmentEncryptionKeyUri);
-      // 0xA7A == 2682.
-      assertNotNull(segment.encryptionIV);
-      assertEquals("A7A", segment.encryptionIV.toUpperCase(Locale.getDefault()));
-      assertEquals(51740, segment.byterangeLength);
-      assertEquals(2147586650L, segment.byterangeOffset);
-      assertEquals("https://priv.example.com/fileSequence2682.ts", segment.url);
+    segment = segments.get(3);
+    assertThat(segment.relativeDiscontinuitySequence).isEqualTo(1);
+    assertThat(segment.durationUs).isEqualTo(7975000);
+    assertThat(segment.fullSegmentEncryptionKeyUri)
+        .isEqualTo("https://priv.example.com/key.php?r=2682");
+    // 0xA7A == 2682.
+    assertThat(segment.encryptionIV).isNotNull();
+    assertThat(segment.encryptionIV.toUpperCase(Locale.getDefault())).isEqualTo("A7A");
+    assertThat(segment.byterangeLength).isEqualTo(51740);
+    assertThat(segment.byterangeOffset).isEqualTo(2147586650L);
+    assertThat(segment.url).isEqualTo("https://priv.example.com/fileSequence2682.ts");
 
-      segment = segments.get(4);
-      assertEquals(1, segment.relativeDiscontinuitySequence);
-      assertEquals(7975000, segment.durationUs);
-      assertEquals("https://priv.example.com/key.php?r=2682", segment.fullSegmentEncryptionKeyUri);
-      // 0xA7B == 2683.
-      assertNotNull(segment.encryptionIV);
-      assertEquals("A7B", segment.encryptionIV.toUpperCase(Locale.getDefault()));
-      assertEquals(C.LENGTH_UNSET, segment.byterangeLength);
-      assertEquals(0, segment.byterangeOffset);
-      assertEquals("https://priv.example.com/fileSequence2683.ts", segment.url);
-    } catch (IOException exception) {
-      fail(exception.getMessage());
-    }
+    segment = segments.get(4);
+    assertThat(segment.relativeDiscontinuitySequence).isEqualTo(1);
+    assertThat(segment.durationUs).isEqualTo(7975000);
+    assertThat(segment.fullSegmentEncryptionKeyUri)
+        .isEqualTo("https://priv.example.com/key.php?r=2682");
+    // 0xA7B == 2683.
+    assertThat(segment.encryptionIV).isNotNull();
+    assertThat(segment.encryptionIV.toUpperCase(Locale.getDefault())).isEqualTo("A7B");
+    assertThat(segment.byterangeLength).isEqualTo(C.LENGTH_UNSET);
+    assertThat(segment.byterangeOffset).isEqualTo(0);
+    assertThat(segment.url).isEqualTo("https://priv.example.com/fileSequence2683.ts");
+  }
+
+  public void testGapTag() throws IOException {
+    Uri playlistUri = Uri.parse("https://example.com/test2.m3u8");
+    String playlistString =
+        "#EXTM3U\n"
+            + "#EXT-X-VERSION:3\n"
+            + "#EXT-X-TARGETDURATION:5\n"
+            + "#EXT-X-PLAYLIST-TYPE:VOD\n"
+            + "#EXT-X-MEDIA-SEQUENCE:0\n"
+            + "#EXT-X-PROGRAM-DATE-TIME:2016-09-22T02:00:01+00:00\n"
+            + "#EXT-X-KEY:METHOD=AES-128,URI=\"https://example.com/key?value=something\"\n"
+            + "#EXTINF:5.005,\n"
+            + "02/00/27.ts\n"
+            + "#EXTINF:5.005,\n"
+            + "02/00/32.ts\n"
+            + "#EXT-X-KEY:METHOD=NONE\n"
+            + "#EXTINF:5.005,\n"
+            + "#EXT-X-GAP \n"
+            + "../dummy.ts\n"
+            + "#EXT-X-KEY:METHOD=AES-128,URI=\"https://key-service.bamgrid.com/1.0/key?"
+            + "hex-value=9FB8989D15EEAAF8B21B860D7ED3072A\",IV=0x410C8AC18AA42EFA18B5155484F5FC34\n"
+            + "#EXTINF:5.005,\n"
+            + "02/00/42.ts\n"
+            + "#EXTINF:5.005,\n"
+            + "02/00/47.ts\n";
+    InputStream inputStream =
+        new ByteArrayInputStream(playlistString.getBytes(Charset.forName(C.UTF8_NAME)));
+    HlsMediaPlaylist playlist =
+        (HlsMediaPlaylist) new HlsPlaylistParser().parse(playlistUri, inputStream);
+
+    assertThat(playlist.hasEndTag).isFalse();
+    assertThat(playlist.segments.get(1).hasGapTag).isFalse();
+    assertThat(playlist.segments.get(2).hasGapTag).isTrue();
+    assertThat(playlist.segments.get(3).hasGapTag).isFalse();
   }
 
 }

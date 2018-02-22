@@ -44,13 +44,11 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.RuntimeEnvironment;
-import org.robolectric.annotation.Config;
 
 /**
  * Tests {@link CacheUtil}.
  */
 @RunWith(RobolectricTestRunner.class)
-@Config(sdk = Config.TARGET_SDK, manifest = Config.NONE)
 public final class CacheUtilTest {
 
   /**
@@ -72,7 +70,7 @@ public final class CacheUtilTest {
     }
 
     @Override
-    public long getCachedBytes(String key, long position, long length) {
+    public long getCachedLength(String key, long position, long length) {
       for (int i = 0; i < spansAndGaps.length; i++) {
         int spanOrGap = spansAndGaps[i];
         if (position < spanOrGap) {

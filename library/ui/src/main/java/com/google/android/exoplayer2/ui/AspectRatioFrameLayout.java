@@ -28,12 +28,16 @@ import java.lang.annotation.RetentionPolicy;
  */
 public final class AspectRatioFrameLayout extends FrameLayout {
 
-  /**
-   * Resize modes for {@link AspectRatioFrameLayout}.
-   */
+  // LINT.IfChange
+  /** Resize modes for {@link AspectRatioFrameLayout}. */
   @Retention(RetentionPolicy.SOURCE)
-  @IntDef({RESIZE_MODE_FIT, RESIZE_MODE_FIXED_WIDTH, RESIZE_MODE_FIXED_HEIGHT, RESIZE_MODE_FILL,
-      RESIZE_MODE_ZOOM})
+  @IntDef({
+    RESIZE_MODE_FIT,
+    RESIZE_MODE_FIXED_WIDTH,
+    RESIZE_MODE_FIXED_HEIGHT,
+    RESIZE_MODE_FILL,
+    RESIZE_MODE_ZOOM
+  })
   public @interface ResizeMode {}
 
   /**
@@ -56,12 +60,13 @@ public final class AspectRatioFrameLayout extends FrameLayout {
    * Either the width or height is increased to obtain the desired aspect ratio.
    */
   public static final int RESIZE_MODE_ZOOM = 4;
+  // LINT.ThenChange(../../../../../../res/values/attrs.xml)
 
   /**
    * The {@link FrameLayout} will not resize itself if the fractional difference between its natural
    * aspect ratio and the requested aspect ratio falls below this threshold.
-   * <p>
-   * This tolerance allows the view to occupy the whole of the screen when the requested aspect
+   *
+   * <p>This tolerance allows the view to occupy the whole of the screen when the requested aspect
    * ratio is very close, but not exactly equal to, the aspect ratio of the screen. This may reduce
    * the number of view layers that need to be composited by the underlying system, which can help
    * to reduce power consumption.

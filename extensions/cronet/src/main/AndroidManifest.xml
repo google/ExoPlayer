@@ -14,7 +14,7 @@
 -->
 
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.google.android.exoplayer.ext.cronet">
+    package="com.google.android.exoplayer2.ext.cronet">
 
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
 

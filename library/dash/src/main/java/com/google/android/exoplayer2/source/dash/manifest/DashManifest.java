@@ -147,7 +147,9 @@ public class DashManifest {
         Period period = getPeriod(periodIndex);
         ArrayList<AdaptationSet> copyAdaptationSets =
             copyAdaptationSets(period.adaptationSets, keys);
-        copyPeriods.add(new Period(period.id, period.startMs - shiftMs, copyAdaptationSets));
+        Period copiedPeriod = new Period(period.id, period.startMs - shiftMs, copyAdaptationSets,
+            period.eventStreams);
+        copyPeriods.add(copiedPeriod);
       }
     }
     long newDuration = durationMs != C.TIME_UNSET ? durationMs - shiftMs : C.TIME_UNSET;

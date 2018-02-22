@@ -21,7 +21,8 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
 /**
- * An {@link AudioProcessor} that converts audio data to {@link C#ENCODING_PCM_16BIT}.
+ * An {@link AudioProcessor} that converts 8-bit, 24-bit and 32-bit integer PCM audio to 16-bit
+ * integer PCM audio.
  */
 /* package */ final class ResamplingAudioProcessor implements AudioProcessor {
 
@@ -102,6 +103,7 @@ import java.nio.ByteOrder;
         resampledSize = size / 2;
         break;
       case C.ENCODING_PCM_16BIT:
+      case C.ENCODING_PCM_FLOAT:
       case C.ENCODING_INVALID:
       case Format.NO_VALUE:
       default:

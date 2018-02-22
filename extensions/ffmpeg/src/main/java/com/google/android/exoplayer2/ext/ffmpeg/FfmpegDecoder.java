@@ -69,18 +69,23 @@ import java.util.List;
   }
 
   @Override
-  public DecoderInputBuffer createInputBuffer() {
+  protected DecoderInputBuffer createInputBuffer() {
     return new DecoderInputBuffer(DecoderInputBuffer.BUFFER_REPLACEMENT_MODE_DIRECT);
   }
 
   @Override
-  public SimpleOutputBuffer createOutputBuffer() {
+  protected SimpleOutputBuffer createOutputBuffer() {
     return new SimpleOutputBuffer(this);
   }
 
   @Override
-  public FfmpegDecoderException decode(DecoderInputBuffer inputBuffer,
-      SimpleOutputBuffer outputBuffer, boolean reset) {
+  protected FfmpegDecoderException createUnexpectedDecodeException(Throwable error) {
+    return new FfmpegDecoderException("Unexpected decode error", error);
+  }
+
+  @Override
+  protected FfmpegDecoderException decode(
+      DecoderInputBuffer inputBuffer, SimpleOutputBuffer outputBuffer, boolean reset) {
     if (reset) {
       nativeContext = ffmpegReset(nativeContext, extraData);
       if (nativeContext == 0) {
