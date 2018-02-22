@@ -39,18 +39,18 @@ public final class DrmInitData implements Comparator<SchemeData>, Parcelable {
    * <p>The result is generated as follows.
    *
    * <ol>
-   *   <ol>
+   *   <li>
    *     Include all {@link SchemeData}s from {@code manifestData} where {@link
    *     SchemeData#hasData()} is true.
-   *   </ol>
-   *   <ol>
+   *   </li>
+   *   <li>
    *     Include all {@link SchemeData}s in {@code mediaData} where {@link SchemeData#hasData()} is
    *     true and for which we did not include an entry from the manifest targeting the same UUID.
-   *   </ol>
-   *   <ol>
+   *   </li>
+   *   <li>
    *     If available, the scheme type from the manifest is used. If not, the scheme type from the
    *     media is used.
-   *   </ol>
+   *   </li>
    * </ol>
    *
    * @param manifestData DRM session acquisition data obtained from the manifest.

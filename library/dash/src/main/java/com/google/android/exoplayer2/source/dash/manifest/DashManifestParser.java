@@ -737,8 +737,8 @@ public class DashManifestParser extends DefaultHandler
    * @param schemeIdUri The schemeIdUri of the parent EventStream.
    * @param value The schemeIdUri of the parent EventStream.
    * @param timescale The timescale of the parent EventStream.
-   * @param scratchOutputStream A {@link ByteArrayOutputStream} that is used to write serialize data
-   *     in between <Event> and </Event> tags into.
+   * @param scratchOutputStream A {@link ByteArrayOutputStream} that's used when parsing event
+   *     objects.
    * @return The {@link EventMessage} parsed from this EventStream node.
    * @throws XmlPullParserException If there is any error parsing this node.
    * @throws IOException If there is any error reading from the underlying input stream.
@@ -757,11 +757,10 @@ public class DashManifestParser extends DefaultHandler
   }
 
   /**
-   * Parses everything between <Event></Event> as a byte array string.
+   * Parses an event object.
    *
    * @param xpp The current xml parser.
-   * @param scratchOutputStream A {@link ByteArrayOutputStream} that is used to write serialize byte
-   *     array data into.
+   * @param scratchOutputStream A {@link ByteArrayOutputStream} that's used when parsing the object.
    * @return The serialized byte array.
    * @throws XmlPullParserException If there is any error parsing this node.
    * @throws IOException If there is any error reading from the underlying input stream.

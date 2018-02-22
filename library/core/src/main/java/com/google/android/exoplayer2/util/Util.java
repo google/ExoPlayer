@@ -942,7 +942,7 @@ public final class Util {
   }
 
   /**
-   * Returns whether {@code encoding} is high resolution (> 16-bit) integer PCM.
+   * Returns whether {@code encoding} is high resolution (&gt; 16-bit) integer PCM.
    *
    * @param encoding The encoding of the audio data.
    * @return Whether the encoding is high resolution integer PCM.
