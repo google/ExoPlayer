@@ -1,10 +1,5 @@
 # Release notes #
 
-### dev-v2 (not yet released) ###
-
-* Downloading: Add `DownloadService`, `DownloadManager` and
-  related classes ([#2643](https://github.com/google/ExoPlayer/issues/2643)).
-
 ### 2.7.0 ###
 
 * Player interface:
