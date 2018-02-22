@@ -185,21 +185,21 @@ SimpleExoPlayer player =
 
 ### Attaching the player to a view ###
 
-The ExoPlayer library provides a `SimpleExoPlayerView`, which encapsulates a
-`PlaybackControlView` and a `Surface` onto which video is rendered. A
-`SimpleExoPlayerView` can be included in your application's layout xml.
-Binding the player to the view is as simple as:
+The ExoPlayer library provides a `PlayerView`, which encapsulates a
+`PlayerControlView` and a `Surface` onto which video is rendered. A `PlayerView`
+can be included in your application's layout xml. Binding the player to the view
+is as simple as:
 
 {% highlight java %}
 // Bind the player to the view.
-simpleExoPlayerView.setPlayer(player);
+playerView.setPlayer(player);
 {% endhighlight %}
 
 If you require fine-grained control over the player controls and the `Surface`
 onto which video is rendered, you can set the player's target `SurfaceView`,
 `TextureView`, `SurfaceHolder` or `Surface` directly using `SimpleExoPlayer`'s
 `setVideoSurfaceView`, `setVideoTextureView`, `setVideoSurfaceHolder` and
-`setVideoSurface` methods respectively. You can use `PlaybackControlView` as a
+`setVideoSurface` methods respectively. You can use `PlayerControlView` as a
 standalone component, or implement your own playback controls that interact
 directly with the player. `setTextOutput` and `setId3Output` can be used to
 receive caption and ID3 metadata output during playback.
@@ -236,9 +236,9 @@ playback, the various `seekTo` methods can be used to seek within the media,
 `setRepeatMode` can be used to control if and how the media is looped, and
 `setPlaybackParameters` can be used to adjust the playback speed and pitch.
 
-If the player is bound to a `SimpleExoPlayerView` or `PlaybackControlView` then
-user interaction with these components will cause corresponding methods on the
-player to be invoked.
+If the player is bound to a `PlayerView` or `PlayerControlView` then user
+interaction with these components will cause corresponding methods on the player
+to be invoked.
 
 ### Releasing the player ###
 
@@ -411,11 +411,20 @@ use a `Handler` associated with the app’s main thread.
 
 ## Sending messages to components ##
 
-Some ExoPlayer components allow changes in configuration during playback. By
-convention, you make these changes by passing messages through the `ExoPlayer`
-to the component, using the `sendMessages` or `blockingSendMessages` methods.
-This approach ensures both thread safety and that the configuration change is
-executed in order with any other operations being performed on the player.
+It's possible to send messages to ExoPlayer components. These can be created
+using `createMessage` and then sent using `PlayerMessage.send`. By default,
+messages are delivered on the playback thread as soon as possible, but this can
+be customized by setting another callback thread (using
+`PlayerMessage.setHandler`) or by specifying a delivery playback position
+(using `PlayerMessage.setPosition`). Sending messages through the `ExoPlayer`
+ensures that the operation is executed in order with any other operations being
+performed on the player.
+
+Most of ExoPlayer's out-of-the-box renderers support messages that allow
+changes to their configuration during playback. For example, the audio
+renderers accept messages to set the volume and the video renderers accept
+messages to set the surface. These messages should be delivered
+on the playback thread to ensure thread safety.
 
 ## Customization ##
 
