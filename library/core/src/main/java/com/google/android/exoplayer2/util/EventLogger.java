@@ -556,10 +556,10 @@ public class EventLogger
   }
 
   protected void logd(String tag, String msg) {
-	Log.d(tag, msg);
+    Log.d(tag, msg);
   }
 
   protected void loge(String tag, String msg, Throwable tr) {
-    Log.d(tag, msg, tr);
+    Log.e(tag, msg, tr);
   }
 }
