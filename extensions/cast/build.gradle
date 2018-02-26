@@ -38,10 +38,7 @@ dependencies {
     compile 'com.google.android.gms:play-services-cast-framework:' + playServicesLibraryVersion
     compile project(modulePrefix + 'library-core')
     compile project(modulePrefix + 'library-ui')
-    testCompile project(modulePrefix + 'testutils')
-    testCompile 'junit:junit:' + junitVersion
-    testCompile 'org.mockito:mockito-core:' + mockitoVersion
-    testCompile 'org.robolectric:robolectric:' + robolectricVersion
+    testCompile project(modulePrefix + 'testutils-robolectric')
 }
 
 ext {
