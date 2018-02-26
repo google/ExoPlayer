@@ -35,4 +35,5 @@ dependencies {
     compile project(modulePrefix + 'library-core')
     compile 'org.mockito:mockito-core:' + mockitoVersion
     compile 'com.google.truth:truth:' + truthVersion
+    testCompile project(modulePrefix + 'testutils-robolectric')
 }

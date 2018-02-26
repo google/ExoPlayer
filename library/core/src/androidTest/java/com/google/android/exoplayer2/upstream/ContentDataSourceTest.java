@@ -89,7 +89,7 @@ public final class ContentDataSourceTest extends InstrumentationTestCase {
     ContentDataSource dataSource = new ContentDataSource(instrumentation.getContext());
     try {
       DataSpec dataSpec = new DataSpec(contentUri, offset, length, null);
-      byte[] completeData = TestUtil.getByteArray(instrumentation, DATA_PATH);
+      byte[] completeData = TestUtil.getByteArray(instrumentation.getContext(), DATA_PATH);
       byte[] expectedData = Arrays.copyOfRange(completeData, offset,
           length == C.LENGTH_UNSET ? completeData.length : offset + length);
       TestUtil.assertDataSourceContent(dataSource, dataSpec, expectedData, !pipeMode);
