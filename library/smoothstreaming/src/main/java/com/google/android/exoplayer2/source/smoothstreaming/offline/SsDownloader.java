@@ -48,7 +48,7 @@ import java.util.List;
  * // Select the first track of the first stream element
  * ssDownloader.selectRepresentations(new TrackKey[] {new TrackKey(0, 0)});
  * ssDownloader.download(new ProgressListener() {
- *   @Override
+ *   {@literal @}Override
  *   public void onDownloadProgress(Downloader downloader, float downloadPercentage,
  *       long downloadedBytes) {
  *     // Invoked periodically during the download.
