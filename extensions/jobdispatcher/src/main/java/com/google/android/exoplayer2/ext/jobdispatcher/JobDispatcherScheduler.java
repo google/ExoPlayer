@@ -29,9 +29,9 @@ import com.firebase.jobdispatcher.Job.Builder;
 import com.firebase.jobdispatcher.JobParameters;
 import com.firebase.jobdispatcher.JobService;
 import com.firebase.jobdispatcher.Lifetime;
+import com.google.android.exoplayer2.scheduler.Requirements;
+import com.google.android.exoplayer2.scheduler.Scheduler;
 import com.google.android.exoplayer2.util.Util;
-import com.google.android.exoplayer2.util.scheduler.Requirements;
-import com.google.android.exoplayer2.util.scheduler.Scheduler;
 
 /**
  * A {@link Scheduler} which uses {@link com.firebase.jobdispatcher.FirebaseJobDispatcher} to

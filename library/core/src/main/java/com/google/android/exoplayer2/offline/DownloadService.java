@@ -30,10 +30,10 @@ import android.support.annotation.Nullable;
 import android.util.Log;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.offline.DownloadManager.DownloadState;
+import com.google.android.exoplayer2.scheduler.Requirements;
+import com.google.android.exoplayer2.scheduler.RequirementsWatcher;
+import com.google.android.exoplayer2.scheduler.Scheduler;
 import com.google.android.exoplayer2.util.Util;
-import com.google.android.exoplayer2.util.scheduler.Requirements;
-import com.google.android.exoplayer2.util.scheduler.RequirementsWatcher;
-import com.google.android.exoplayer2.util.scheduler.Scheduler;
 import java.io.IOException;
 
 /**
