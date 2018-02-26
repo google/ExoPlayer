@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.android.exoplayer2.util.scheduler;
+package com.google.android.exoplayer2.scheduler;
 
 /**
  * Implementer of this interface schedules one implementation specific job to be run when some
