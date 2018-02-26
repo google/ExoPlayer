@@ -105,6 +105,7 @@ public abstract class SimpleDecoderAudioRenderer extends BaseRenderer implements
   private boolean audioTrackNeedsConfigure;
 
   private long currentPositionUs;
+  private boolean allowFirstBufferPositionDiscontinuity;
   private boolean allowPositionDiscontinuity;
   private boolean inputStreamEnded;
   private boolean outputStreamEnded;
@@ -416,6 +417,7 @@ public abstract class SimpleDecoderAudioRenderer extends BaseRenderer implements
       return false;
     }
     inputBuffer.flip();
+    onQueueInputBuffer(inputBuffer);
     decoder.queueInputBuffer(inputBuffer);
     decoderReceivedBuffers = true;
     decoderCounters.inputBufferCount++;
@@ -504,6 +506,7 @@ public abstract class SimpleDecoderAudioRenderer extends BaseRenderer implements
   protected void onPositionReset(long positionUs, boolean joining) throws ExoPlaybackException {
     audioSink.reset();
     currentPositionUs = positionUs;
+    allowFirstBufferPositionDiscontinuity = true;
     allowPositionDiscontinuity = true;
     inputStreamEnded = false;
     outputStreamEnded = false;
@@ -652,6 +655,18 @@ public abstract class SimpleDecoderAudioRenderer extends BaseRenderer implements
     encoderPadding = newFormat.encoderPadding == Format.NO_VALUE ? 0 : newFormat.encoderPadding;
 
     eventDispatcher.inputFormatChanged(newFormat);
+  }
+
+  private void onQueueInputBuffer(DecoderInputBuffer buffer) {
+    if (allowFirstBufferPositionDiscontinuity && !buffer.isDecodeOnly()) {
+      // TODO: Remove this hack once we have a proper fix for [Internal: b/71876314].
+      // Allow the position to jump if the first presentable input buffer has a timestamp that
+      // differs significantly from what was expected.
+      if (Math.abs(buffer.timeUs - currentPositionUs) > 500000) {
+        currentPositionUs = buffer.timeUs;
+      }
+      allowFirstBufferPositionDiscontinuity = false;
+    }
   }
 
   private void updateCurrentPosition() {
