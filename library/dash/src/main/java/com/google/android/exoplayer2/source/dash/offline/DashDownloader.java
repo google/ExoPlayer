@@ -39,13 +39,12 @@ import java.util.List;
 /**
  * Helper class to download DASH streams.
  *
- * <p>Except {@link #getTotalSegments()}, {@link #getDownloadedSegments()} and
- * {@link #getDownloadedBytes()}, this class isn't thread safe.
+ * <p>Except {@link #getTotalSegments()}, {@link #getDownloadedSegments()} and {@link
+ * #getDownloadedBytes()}, this class isn't thread safe.
  *
  * <p>Example usage:
  *
- * <pre>
- * {@code
+ * <pre>{@code
  * SimpleCache cache = new SimpleCache(downloadFolder, new NoOpCacheEvictor());
  * DefaultHttpDataSourceFactory factory = new DefaultHttpDataSourceFactory("ExoPlayer", null);
  * DownloaderConstructorHelper constructorHelper =
@@ -54,7 +53,7 @@ import java.util.List;
  * // Select the first representation of the first adaptation set of the first period
  * dashDownloader.selectRepresentations(new RepresentationKey[] {new RepresentationKey(0, 0, 0)});
  * dashDownloader.download(new ProgressListener() {
- *   @Override
+ *   {@literal @}Override
  *   public void onDownloadProgress(Downloader downloader, float downloadPercentage,
  *       long downloadedBytes) {
  *     // Invoked periodically during the download.
@@ -62,8 +61,8 @@ import java.util.List;
  * });
  * // Access downloaded data using CacheDataSource
  * CacheDataSource cacheDataSource =
- *     new CacheDataSource(cache, factory.createDataSource(), CacheDataSource.FLAG_BLOCK_ON_CACHE);}
- * </pre>
+ *     new CacheDataSource(cache, factory.createDataSource(), CacheDataSource.FLAG_BLOCK_ON_CACHE);
+ * }</pre>
  */
 public final class DashDownloader extends SegmentDownloader<DashManifest, RepresentationKey> {
 
