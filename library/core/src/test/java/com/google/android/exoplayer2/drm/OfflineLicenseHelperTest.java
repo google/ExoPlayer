@@ -22,8 +22,8 @@ import static org.mockito.Mockito.when;
 
 import android.util.Pair;
 import com.google.android.exoplayer2.C;
-import com.google.android.exoplayer2.RobolectricUtil;
 import com.google.android.exoplayer2.drm.DrmInitData.SchemeData;
+import com.google.android.exoplayer2.testutil.RobolectricUtil;
 import java.util.HashMap;
 import org.junit.After;
 import org.junit.Before;

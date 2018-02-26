@@ -50,6 +50,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.nio.charset.Charset;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Locale;
@@ -1113,7 +1114,9 @@ public final class DashMediaSource implements MediaSource {
 
     @Override
     public Long parse(Uri uri, InputStream inputStream) throws IOException {
-      String firstLine = new BufferedReader(new InputStreamReader(inputStream)).readLine();
+      String firstLine =
+          new BufferedReader(new InputStreamReader(inputStream, Charset.forName(C.UTF8_NAME)))
+              .readLine();
       try {
         Matcher matcher = TIMESTAMP_WITH_TIMEZONE_PATTERN.matcher(firstLine);
         if (!matcher.matches()) {

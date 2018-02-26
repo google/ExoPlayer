@@ -18,7 +18,6 @@ package com.google.android.exoplayer2.testutil;
 import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.fail;
 
-import android.app.Instrumentation;
 import android.content.Context;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.extractor.Extractor;
@@ -132,18 +131,8 @@ public class TestUtil {
     return joined;
   }
 
-  public static byte[] getByteArray(Instrumentation instrumentation, String fileName)
-      throws IOException {
-    return getByteArray(instrumentation.getContext(), fileName);
-  }
-
   public static byte[] getByteArray(Context context, String fileName) throws IOException {
     return Util.toByteArray(getInputStream(context, fileName));
-  }
-
-  public static InputStream getInputStream(Instrumentation instrumentation, String fileName)
-      throws IOException {
-    return getInputStream(instrumentation.getContext(), fileName);
   }
 
   public static InputStream getInputStream(Context context, String fileName) throws IOException {
