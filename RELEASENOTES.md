@@ -4,6 +4,9 @@
 
 * Downloading: Add `DownloadService`, `DownloadManager` and
   related classes ([#2643](https://github.com/google/ExoPlayer/issues/2643)).
+* MediaSources: Allow reusing media sources after they have been released and
+  also in parallel to allow adding them multiple times to a concatenation.
+  ([#3498](https://github.com/google/ExoPlayer/issues/3498)).
 
 ### 2.7.0 ###
 

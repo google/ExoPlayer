@@ -270,6 +270,63 @@ public final class ConcatenatingMediaSourceTest {
     }
   }
 
+  @Test
+  public void testDuplicateMediaSources() throws IOException, InterruptedException {
+    FakeMediaSource childSource =
+        new FakeMediaSource(new FakeTimeline(/* windowCount= */ 2), /* manifest= */ null);
+    ConcatenatingMediaSource mediaSource =
+        new ConcatenatingMediaSource(childSource, childSource, childSource);
+    MediaSourceTestRunner testRunner = new MediaSourceTestRunner(mediaSource, null);
+    try {
+      Timeline timeline = testRunner.prepareSource();
+      TimelineAsserts.assertPeriodCounts(timeline, 1, 1, 1, 1, 1, 1);
+
+      testRunner.assertPrepareAndReleaseAllPeriods();
+      assertThat(childSource.getCreatedMediaPeriods())
+          .containsAllOf(
+              new MediaPeriodId(/* periodIndex= */ 0, /* windowSequenceNumber= */ 0),
+              new MediaPeriodId(/* periodIndex= */ 0, /* windowSequenceNumber= */ 2),
+              new MediaPeriodId(/* periodIndex= */ 0, /* windowSequenceNumber= */ 4),
+              new MediaPeriodId(/* periodIndex= */ 1, /* windowSequenceNumber= */ 1),
+              new MediaPeriodId(/* periodIndex= */ 1, /* windowSequenceNumber= */ 3),
+              new MediaPeriodId(/* periodIndex= */ 1, /* windowSequenceNumber= */ 5));
+
+      testRunner.releaseSource();
+      childSource.assertReleased();
+    } finally {
+      testRunner.release();
+    }
+  }
+
+  @Test
+  public void testDuplicateNestedMediaSources() throws IOException, InterruptedException {
+    FakeMediaSource childSource =
+        new FakeMediaSource(new FakeTimeline(/* windowCount= */ 1), /* manifest= */ null);
+    ConcatenatingMediaSource nestedConcatenation =
+        new ConcatenatingMediaSource(childSource, childSource);
+    ConcatenatingMediaSource mediaSource =
+        new ConcatenatingMediaSource(childSource, nestedConcatenation, nestedConcatenation);
+    MediaSourceTestRunner testRunner = new MediaSourceTestRunner(mediaSource, null);
+    try {
+      Timeline timeline = testRunner.prepareSource();
+      TimelineAsserts.assertPeriodCounts(timeline, 1, 1, 1, 1, 1);
+
+      testRunner.assertPrepareAndReleaseAllPeriods();
+      assertThat(childSource.getCreatedMediaPeriods())
+          .containsAllOf(
+              new MediaPeriodId(/* periodIndex= */ 0, /* windowSequenceNumber= */ 0),
+              new MediaPeriodId(/* periodIndex= */ 0, /* windowSequenceNumber= */ 1),
+              new MediaPeriodId(/* periodIndex= */ 0, /* windowSequenceNumber= */ 2),
+              new MediaPeriodId(/* periodIndex= */ 0, /* windowSequenceNumber= */ 3),
+              new MediaPeriodId(/* periodIndex= */ 0, /* windowSequenceNumber= */ 4));
+
+      testRunner.releaseSource();
+      childSource.assertReleased();
+    } finally {
+      testRunner.release();
+    }
+  }
+
   /**
    * Wraps the specified timelines in a {@link ConcatenatingMediaSource} and returns the
    * concatenated timeline.

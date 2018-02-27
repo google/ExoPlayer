@@ -118,6 +118,7 @@ public final class TimelineAsserts {
    */
   public static void assertPeriodCounts(Timeline timeline, int... expectedPeriodCounts) {
     int windowCount = timeline.getWindowCount();
+    assertThat(windowCount).isEqualTo(expectedPeriodCounts.length);
     int[] accumulatedPeriodCounts = new int[windowCount + 1];
     accumulatedPeriodCounts[0] = 0;
     for (int i = 0; i < windowCount; i++) {

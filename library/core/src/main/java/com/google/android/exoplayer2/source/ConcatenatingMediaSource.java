@@ -40,7 +40,6 @@ public final class ConcatenatingMediaSource extends CompositeMediaSource<Integer
   private final boolean isAtomic;
   private final ShuffleOrder shuffleOrder;
 
-  private Listener listener;
   private ConcatenatedTimeline timeline;
 
   /**
@@ -85,12 +84,11 @@ public final class ConcatenatingMediaSource extends CompositeMediaSource<Integer
   }
 
   @Override
-  public void prepareSource(ExoPlayer player, boolean isTopLevelSource, Listener listener) {
-    super.prepareSource(player, isTopLevelSource, listener);
-    this.listener = listener;
+  public void prepareSourceInternal(ExoPlayer player, boolean isTopLevelSource) {
+    super.prepareSourceInternal(player, isTopLevelSource);
     boolean[] duplicateFlags = buildDuplicateFlags(mediaSources);
     if (mediaSources.length == 0) {
-      listener.onSourceInfoRefreshed(this, Timeline.EMPTY, null);
+      refreshSourceInfo(Timeline.EMPTY, /* manifest= */ null);
     } else {
       for (int i = 0; i < mediaSources.length; i++) {
         if (!duplicateFlags[i]) {
@@ -118,23 +116,22 @@ public final class ConcatenatingMediaSource extends CompositeMediaSource<Integer
   }
 
   @Override
-  public void releaseSource() {
-    super.releaseSource();
-    listener = null;
+  public void releaseSourceInternal() {
+    super.releaseSourceInternal();
     timeline = null;
   }
 
   @Override
   protected void onChildSourceInfoRefreshed(
-      Integer sourceFirstIndex,
+      Integer index,
       MediaSource mediaSource,
       Timeline sourceTimeline,
       @Nullable Object sourceManifest) {
     // Set the timeline and manifest.
-    timelines[sourceFirstIndex] = sourceTimeline;
-    manifests[sourceFirstIndex] = sourceManifest;
+    timelines[index] = sourceTimeline;
+    manifests[index] = sourceManifest;
     // Also set the timeline and manifest for any duplicate entries of the same source.
-    for (int i = sourceFirstIndex + 1; i < mediaSources.length; i++) {
+    for (int i = index + 1; i < mediaSources.length; i++) {
       if (mediaSources[i] == mediaSource) {
         timelines[i] = sourceTimeline;
         manifests[i] = sourceManifest;
@@ -147,7 +144,7 @@ public final class ConcatenatingMediaSource extends CompositeMediaSource<Integer
       }
     }
     timeline = new ConcatenatedTimeline(timelines.clone(), isAtomic, shuffleOrder);
-    listener.onSourceInfoRefreshed(this, timeline, manifests.clone());
+    refreshSourceInfo(timeline, manifests.clone());
   }
 
   private static boolean[] buildDuplicateFlags(MediaSource[] mediaSources) {

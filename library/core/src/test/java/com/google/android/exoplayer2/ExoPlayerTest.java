@@ -227,9 +227,9 @@ public final class ExoPlayerTest {
     MediaSource secondSource =
         new FakeMediaSource(timeline, new Object(), Builder.VIDEO_FORMAT) {
           @Override
-          public synchronized void prepareSource(
-              ExoPlayer player, boolean isTopLevelSource, Listener listener) {
-            super.prepareSource(player, isTopLevelSource, listener);
+          public synchronized void prepareSourceInternal(
+              ExoPlayer player, boolean isTopLevelSource) {
+            super.prepareSourceInternal(player, isTopLevelSource);
             // We've queued a source info refresh on the playback thread's event queue. Allow the
             // test thread to prepare the player with the third source, and block this thread (the
             // playback thread) until the test thread's call to prepare() has returned.

@@ -31,7 +31,7 @@ import java.io.IOException;
 /**
  * Loads data at a given {@link Uri} as a single sample belonging to a single {@link MediaPeriod}.
  */
-public final class SingleSampleMediaSource implements MediaSource {
+public final class SingleSampleMediaSource extends BaseMediaSource {
 
   /**
    * Listener of {@link SingleSampleMediaSource} events.
@@ -250,8 +250,8 @@ public final class SingleSampleMediaSource implements MediaSource {
   // MediaSource implementation.
 
   @Override
-  public void prepareSource(ExoPlayer player, boolean isTopLevelSource, Listener listener) {
-    listener.onSourceInfoRefreshed(this, timeline, null);
+  public void prepareSourceInternal(ExoPlayer player, boolean isTopLevelSource) {
+    refreshSourceInfo(timeline, /* manifest= */ null);
   }
 
   @Override
@@ -278,7 +278,7 @@ public final class SingleSampleMediaSource implements MediaSource {
   }
 
   @Override
-  public void releaseSource() {
+  public void releaseSourceInternal() {
     // Do nothing.
   }
 

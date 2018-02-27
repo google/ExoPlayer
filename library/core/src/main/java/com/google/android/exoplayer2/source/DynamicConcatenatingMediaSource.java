@@ -39,7 +39,8 @@ import java.util.Map;
 
 /**
  * Concatenates multiple {@link MediaSource}s. The list of {@link MediaSource}s can be modified
- * during playback. Access to this class is thread-safe.
+ * during playback. It is valid for the same {@link MediaSource} instance to be present more than
+ * once in the concatenation. Access to this class is thread-safe.
  */
 public final class DynamicConcatenatingMediaSource extends CompositeMediaSource<MediaSourceHolder>
     implements PlayerMessage.Target {
@@ -63,7 +64,6 @@ public final class DynamicConcatenatingMediaSource extends CompositeMediaSource<
   private final boolean isAtomic;
 
   private ExoPlayer player;
-  private Listener listener;
   private boolean listenerNotificationScheduled;
   private ShuffleOrder shuffleOrder;
   private int windowCount;
@@ -107,9 +107,6 @@ public final class DynamicConcatenatingMediaSource extends CompositeMediaSource<
 
   /**
    * Appends a {@link MediaSource} to the playlist.
-   * <p>
-   * Note: {@link MediaSource} instances are not designed to be re-used. If you want to add the same
-   * piece of media multiple times, use a new instance each time.
    *
    * @param mediaSource The {@link MediaSource} to be added to the list.
    */
@@ -119,9 +116,6 @@ public final class DynamicConcatenatingMediaSource extends CompositeMediaSource<
 
   /**
    * Appends a {@link MediaSource} to the playlist and executes a custom action on completion.
-   * <p>
-   * Note: {@link MediaSource} instances are not designed to be re-used. If you want to add the same
-   * piece of media multiple times, use a new instance each time.
    *
    * @param mediaSource The {@link MediaSource} to be added to the list.
    * @param actionOnCompletion A {@link Runnable} which is executed immediately after the media
@@ -134,9 +128,6 @@ public final class DynamicConcatenatingMediaSource extends CompositeMediaSource<
 
   /**
    * Adds a {@link MediaSource} to the playlist.
-   * <p>
-   * Note: {@link MediaSource} instances are not designed to be re-used. If you want to add the same
-   * piece of media multiple times, use a new instance each time.
    *
    * @param index The index at which the new {@link MediaSource} will be inserted. This index must
    *     be in the range of 0 &lt;= index &lt;= {@link #getSize()}.
@@ -148,9 +139,6 @@ public final class DynamicConcatenatingMediaSource extends CompositeMediaSource<
 
   /**
    * Adds a {@link MediaSource} to the playlist and executes a custom action on completion.
-   * <p>
-   * Note: {@link MediaSource} instances are not designed to be re-used. If you want to add the same
-   * piece of media multiple times, use a new instance each time.
    *
    * @param index The index at which the new {@link MediaSource} will be inserted. This index must
    *     be in the range of 0 &lt;= index &lt;= {@link #getSize()}.
@@ -161,7 +149,6 @@ public final class DynamicConcatenatingMediaSource extends CompositeMediaSource<
   public synchronized void addMediaSource(int index, MediaSource mediaSource,
       @Nullable Runnable actionOnCompletion) {
     Assertions.checkNotNull(mediaSource);
-    Assertions.checkArgument(!mediaSourcesPublic.contains(mediaSource));
     mediaSourcesPublic.add(index, mediaSource);
     if (player != null) {
       player
@@ -176,9 +163,6 @@ public final class DynamicConcatenatingMediaSource extends CompositeMediaSource<
 
   /**
    * Appends multiple {@link MediaSource}s to the playlist.
-   * <p>
-   * Note: {@link MediaSource} instances are not designed to be re-used. If you want to add the same
-   * piece of media multiple times, use a new instance each time.
    *
    * @param mediaSources A collection of {@link MediaSource}s to be added to the list. The media
    *     sources are added in the order in which they appear in this collection.
@@ -190,9 +174,6 @@ public final class DynamicConcatenatingMediaSource extends CompositeMediaSource<
   /**
    * Appends multiple {@link MediaSource}s to the playlist and executes a custom action on
    * completion.
-   * <p>
-   * Note: {@link MediaSource} instances are not designed to be re-used. If you want to add the same
-   * piece of media multiple times, use a new instance each time.
    *
    * @param mediaSources A collection of {@link MediaSource}s to be added to the list. The media
    *     sources are added in the order in which they appear in this collection.
@@ -206,9 +187,6 @@ public final class DynamicConcatenatingMediaSource extends CompositeMediaSource<
 
   /**
    * Adds multiple {@link MediaSource}s to the playlist.
-   * <p>
-   * Note: {@link MediaSource} instances are not designed to be re-used. If you want to add the same
-   * piece of media multiple times, use a new instance each time.
    *
    * @param index The index at which the new {@link MediaSource}s will be inserted. This index must
    *     be in the range of 0 &lt;= index &lt;= {@link #getSize()}.
@@ -221,9 +199,6 @@ public final class DynamicConcatenatingMediaSource extends CompositeMediaSource<
 
   /**
    * Adds multiple {@link MediaSource}s to the playlist and executes a custom action on completion.
-   * <p>
-   * Note: {@link MediaSource} instances are not designed to be re-used. If you want to add the same
-   * piece of media multiple times, use a new instance each time.
    *
    * @param index The index at which the new {@link MediaSource}s will be inserted. This index must
    *     be in the range of 0 &lt;= index &lt;= {@link #getSize()}.
@@ -236,7 +211,6 @@ public final class DynamicConcatenatingMediaSource extends CompositeMediaSource<
       @Nullable Runnable actionOnCompletion) {
     for (MediaSource mediaSource : mediaSources) {
       Assertions.checkNotNull(mediaSource);
-      Assertions.checkArgument(!mediaSourcesPublic.contains(mediaSource));
     }
     mediaSourcesPublic.addAll(index, mediaSources);
     if (player != null && !mediaSources.isEmpty()) {
@@ -252,10 +226,9 @@ public final class DynamicConcatenatingMediaSource extends CompositeMediaSource<
 
   /**
    * Removes a {@link MediaSource} from the playlist.
-   * <p>
-   * Note: {@link MediaSource} instances are not designed to be re-used, and so the instance being
-   * removed should not be re-added. If you want to move the instance use
-   * {@link #moveMediaSource(int, int)} instead.
+   *
+   * <p>Note: If you want to move the instance, it's preferable to use {@link #moveMediaSource(int,
+   * int)} instead.
    *
    * @param index The index at which the media source will be removed. This index must be in the
    *     range of 0 &lt;= index &lt; {@link #getSize()}.
@@ -266,10 +239,9 @@ public final class DynamicConcatenatingMediaSource extends CompositeMediaSource<
 
   /**
    * Removes a {@link MediaSource} from the playlist and executes a custom action on completion.
-   * <p>
-   * Note: {@link MediaSource} instances are not designed to be re-used, and so the instance being
-   * removed should not be re-added. If you want to move the instance use
-   * {@link #moveMediaSource(int, int)} instead.
+   *
+   * <p>Note: If you want to move the instance, it's preferable to use {@link #moveMediaSource(int,
+   * int)} instead.
    *
    * @param index The index at which the media source will be removed. This index must be in the
    *     range of 0 &lt;= index &lt; {@link #getSize()}.
@@ -347,11 +319,9 @@ public final class DynamicConcatenatingMediaSource extends CompositeMediaSource<
   }
 
   @Override
-  public synchronized void prepareSource(ExoPlayer player, boolean isTopLevelSource,
-      Listener listener) {
-    super.prepareSource(player, isTopLevelSource, listener);
+  public synchronized void prepareSourceInternal(ExoPlayer player, boolean isTopLevelSource) {
+    super.prepareSourceInternal(player, isTopLevelSource);
     this.player = player;
-    this.listener = listener;
     shuffleOrder = shuffleOrder.cloneAndInsert(0, mediaSourcesPublic.size());
     addMediaSourcesInternal(0, mediaSourcesPublic);
     scheduleListenerNotification(/* actionOnCompletion= */ null);
@@ -391,11 +361,10 @@ public final class DynamicConcatenatingMediaSource extends CompositeMediaSource<
   }
 
   @Override
-  public void releaseSource() {
-    super.releaseSource();
+  public void releaseSourceInternal() {
+    super.releaseSourceInternal();
     mediaSourceHolders.clear();
     player = null;
-    listener = null;
     shuffleOrder = shuffleOrder.cloneAndClear();
     windowCount = 0;
     periodCount = 0;
@@ -473,8 +442,7 @@ public final class DynamicConcatenatingMediaSource extends CompositeMediaSource<
             ? Collections.<EventDispatcher>emptyList()
             : new ArrayList<>(pendingOnCompletionActions);
     pendingOnCompletionActions.clear();
-    listener.onSourceInfoRefreshed(
-        this,
+    refreshSourceInfo(
         new ConcatenatedTimeline(
             mediaSourceHolders, windowCount, periodCount, shuffleOrder, isAtomic),
         /* manifest= */ null);

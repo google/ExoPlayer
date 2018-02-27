@@ -22,6 +22,7 @@ import android.support.annotation.Nullable;
 import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.Timeline;
+import com.google.android.exoplayer2.source.BaseMediaSource;
 import com.google.android.exoplayer2.source.MediaPeriod;
 import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.source.TrackGroup;
@@ -33,10 +34,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Fake {@link MediaSource} that provides a given timeline. Creating the period will return a
- * {@link FakeMediaPeriod} with a {@link TrackGroupArray} using the given {@link Format}s.
+ * Fake {@link MediaSource} that provides a given timeline. Creating the period will return a {@link
+ * FakeMediaPeriod} with a {@link TrackGroupArray} using the given {@link Format}s.
  */
-public class FakeMediaSource implements MediaSource {
+public class FakeMediaSource extends BaseMediaSource {
 
   private final TrackGroupArray trackGroupArray;
   private final ArrayList<FakeMediaPeriod> activeMediaPeriods;
@@ -46,7 +47,6 @@ public class FakeMediaSource implements MediaSource {
   private Object manifest;
   private boolean preparedSource;
   private boolean releasedSource;
-  private Listener listener;
   private Handler sourceInfoRefreshHandler;
 
   /**
@@ -75,15 +75,13 @@ public class FakeMediaSource implements MediaSource {
   }
 
   @Override
-  public synchronized void prepareSource(
-      ExoPlayer player, boolean isTopLevelSource, Listener listener) {
+  public synchronized void prepareSourceInternal(ExoPlayer player, boolean isTopLevelSource) {
     assertThat(preparedSource).isFalse();
     preparedSource = true;
     releasedSource = false;
-    this.listener = listener;
     sourceInfoRefreshHandler = new Handler();
     if (timeline != null) {
-      listener.onSourceInfoRefreshed(this, timeline, manifest);
+      refreshSourceInfo(timeline, manifest);
     }
   }
 
@@ -113,7 +111,7 @@ public class FakeMediaSource implements MediaSource {
   }
 
   @Override
-  public void releaseSource() {
+  public void releaseSourceInternal() {
     assertThat(preparedSource).isTrue();
     assertThat(releasedSource).isFalse();
     assertThat(activeMediaPeriods.isEmpty()).isTrue();
@@ -121,7 +119,6 @@ public class FakeMediaSource implements MediaSource {
     preparedSource = false;
     sourceInfoRefreshHandler.removeCallbacksAndMessages(null);
     sourceInfoRefreshHandler = null;
-    listener = null;
   }
 
   /**
@@ -138,7 +135,7 @@ public class FakeMediaSource implements MediaSource {
               assertThat(preparedSource).isTrue();
               timeline = newTimeline;
               manifest = newManifest;
-              listener.onSourceInfoRefreshed(FakeMediaSource.this, timeline, manifest);
+              refreshSourceInfo(timeline, manifest);
             }
           });
     } else {
