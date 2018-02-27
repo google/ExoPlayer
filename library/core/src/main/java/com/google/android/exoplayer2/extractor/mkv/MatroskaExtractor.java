@@ -1929,12 +1929,12 @@ public final class MatroskaExtractor implements Extractor {
 
     /**
      * Builds initialization data for a {@link Format} from FourCC codec private data.
-     * <p>
-     * VC1 and H263 are the only supported compression types.
      *
-     * @return A pair object with the first object being the codec mime type
-     * and the second object the initialization data for the {@link Format},
-     * or null if the compression type is not a currently supported type (VC1 or H263).
+     * <p>VC1 and H263 are the only supported compression types.
+     *
+     * @return The codec mime type and initialization data. If the compression type is not supported
+     *     then the mime type is set to {@link MimeTypes#VIDEO_UNKNOWN} and the initialization data
+     *     is {@code null}.
      * @throws ParserException If the initialization data could not be built.
      */
     private static Pair<String, List<byte[]>> parseFourCcPrivate(ParsableByteArray buffer)
@@ -1944,14 +1944,16 @@ public final class MatroskaExtractor implements Extractor {
         long compression = buffer.readLittleEndianUnsignedInt();
         if (compression == FOURCC_COMPRESSION_DIVX) {
           return new Pair<>(MimeTypes.VIDEO_H263, null);
-        } else if (compression == FOURCC_COMPRESSION_VC1)  {
+        } else if (compression == FOURCC_COMPRESSION_VC1) {
           // Search for the initialization data from the end of the BITMAPINFOHEADER. The last 20
           // bytes of which are: sizeImage(4), xPel/m (4), yPel/m (4), clrUsed(4), clrImportant(4).
           int startOffset = buffer.getPosition() + 20;
           byte[] bufferData = buffer.data;
           for (int offset = startOffset; offset < bufferData.length - 4; offset++) {
-            if (bufferData[offset] == 0x00 && bufferData[offset + 1] == 0x00
-             && bufferData[offset + 2] == 0x01 && bufferData[offset + 3] == 0x0F) {
+            if (bufferData[offset] == 0x00
+                && bufferData[offset + 1] == 0x00
+                && bufferData[offset + 2] == 0x01
+                && bufferData[offset + 3] == 0x0F) {
               // We've found the initialization data.
               byte[] initializationData = Arrays.copyOfRange(bufferData, offset, bufferData.length);
               return new Pair<>(MimeTypes.VIDEO_VC1, Collections.singletonList(initializationData));
