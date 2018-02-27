@@ -354,15 +354,15 @@ public final class MediaCodecUtil {
     // Work around https://github.com/google/ExoPlayer/issues/3249.
     if (Util.SDK_INT < 24
         && ("OMX.SEC.aac.dec".equals(name) || "OMX.Exynos.AAC.Decoder".equals(name))
-        && Util.MANUFACTURER.equals("samsung")
+        && "samsung".equals(Util.MANUFACTURER)
         && (Util.DEVICE.startsWith("zeroflte") // Galaxy S6
             || Util.DEVICE.startsWith("zerolte") // Galaxy S6 Edge
             || Util.DEVICE.startsWith("zenlte") // Galaxy S6 Edge+
-            || Util.DEVICE.equals("SC-05G") // Galaxy S6
-            || Util.DEVICE.equals("marinelteatt") // Galaxy S6 Active
-            || Util.DEVICE.equals("404SC") // Galaxy S6 Edge
-            || Util.DEVICE.equals("SC-04G")
-            || Util.DEVICE.equals("SCV31"))) {
+            || "SC-05G".equals(Util.DEVICE) // Galaxy S6
+            || "marinelteatt".equals(Util.DEVICE) // Galaxy S6 Active
+            || "404SC".equals(Util.DEVICE) // Galaxy S6 Edge
+            || "SC-04G".equals(Util.DEVICE)
+            || "SCV31".equals(Util.DEVICE))) {
       return false;
     }
 
@@ -421,7 +421,7 @@ public final class MediaCodecUtil {
    */
   private static boolean codecNeedsDisableAdaptationWorkaround(String name) {
     return Util.SDK_INT <= 22
-        && (Util.MODEL.equals("ODROID-XU3") || Util.MODEL.equals("Nexus 10"))
+        && ("ODROID-XU3".equals(Util.MODEL) || "Nexus 10".equals(Util.MODEL))
         && ("OMX.Exynos.AVC.Decoder".equals(name) || "OMX.Exynos.AVC.Decoder.secure".equals(name));
   }
 
