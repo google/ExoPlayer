@@ -205,7 +205,7 @@ public final class DynamicConcatenatingMediaSourceTest {
         timeline, Player.REPEAT_MODE_OFF, true, 1, 2, C.INDEX_UNSET);
 
     testRunner.assertPrepareAndReleaseAllPeriods();
-    mediaSource.releaseSource();
+    testRunner.releaseSource();
     for (int i = 1; i < 4; i++) {
       childSources[i].assertReleased();
     }
@@ -404,24 +404,6 @@ public final class DynamicConcatenatingMediaSourceTest {
       mediaSource.addMediaSources(Arrays.asList(mediaSources));
       fail("Null mediaSource not allowed.");
     } catch (NullPointerException e) {
-      // Expected.
-    }
-
-    // Duplicate sources.
-    mediaSource.addMediaSource(validSource);
-    try {
-      mediaSource.addMediaSource(validSource);
-      fail("Duplicate mediaSource not allowed.");
-    } catch (IllegalArgumentException e) {
-      // Expected.
-    }
-
-    mediaSources =
-        new MediaSource[] {new FakeMediaSource(createFakeTimeline(2), null), validSource};
-    try {
-      mediaSource.addMediaSources(Arrays.asList(mediaSources));
-      fail("Duplicate mediaSource not allowed.");
-    } catch (IllegalArgumentException e) {
       // Expected.
     }
   }
@@ -780,6 +762,63 @@ public final class DynamicConcatenatingMediaSourceTest {
     testRunner.releasePeriod(mediaPeriod);
     childSource.assertReleased();
     testRunner.releaseSource();
+  }
+
+  @Test
+  public void testDuplicateMediaSources() throws IOException, InterruptedException {
+    FakeMediaSource childSource =
+        new FakeMediaSource(new FakeTimeline(/* windowCount= */ 2), /* manifest= */ null);
+
+    mediaSource.addMediaSource(childSource);
+    mediaSource.addMediaSource(childSource);
+    testRunner.prepareSource();
+    mediaSource.addMediaSources(Arrays.<MediaSource>asList(childSource, childSource));
+    Timeline timeline = testRunner.assertTimelineChangeBlocking();
+
+    TimelineAsserts.assertPeriodCounts(timeline, 1, 1, 1, 1, 1, 1, 1, 1);
+    testRunner.assertPrepareAndReleaseAllPeriods();
+    assertThat(childSource.getCreatedMediaPeriods())
+        .containsAllOf(
+            new MediaPeriodId(/* periodIndex= */ 0, /* windowSequenceNumber= */ 0),
+            new MediaPeriodId(/* periodIndex= */ 0, /* windowSequenceNumber= */ 2),
+            new MediaPeriodId(/* periodIndex= */ 0, /* windowSequenceNumber= */ 4),
+            new MediaPeriodId(/* periodIndex= */ 0, /* windowSequenceNumber= */ 6),
+            new MediaPeriodId(/* periodIndex= */ 1, /* windowSequenceNumber= */ 1),
+            new MediaPeriodId(/* periodIndex= */ 1, /* windowSequenceNumber= */ 3),
+            new MediaPeriodId(/* periodIndex= */ 1, /* windowSequenceNumber= */ 5),
+            new MediaPeriodId(/* periodIndex= */ 1, /* windowSequenceNumber= */ 7));
+
+    testRunner.releaseSource();
+    childSource.assertReleased();
+  }
+
+  @Test
+  public void testDuplicateNestedMediaSources() throws IOException, InterruptedException {
+    FakeMediaSource childSource =
+        new FakeMediaSource(new FakeTimeline(/* windowCount= */ 1), /* manifest= */ null);
+    DynamicConcatenatingMediaSource nestedConcatenation = new DynamicConcatenatingMediaSource();
+
+    testRunner.prepareSource();
+    mediaSource.addMediaSources(
+        Arrays.<MediaSource>asList(childSource, nestedConcatenation, nestedConcatenation));
+    testRunner.assertTimelineChangeBlocking();
+    nestedConcatenation.addMediaSource(childSource);
+    testRunner.assertTimelineChangeBlocking();
+    nestedConcatenation.addMediaSource(childSource);
+    Timeline timeline = testRunner.assertTimelineChangeBlocking();
+
+    TimelineAsserts.assertPeriodCounts(timeline, 1, 1, 1, 1, 1);
+    testRunner.assertPrepareAndReleaseAllPeriods();
+    assertThat(childSource.getCreatedMediaPeriods())
+        .containsAllOf(
+            new MediaPeriodId(/* periodIndex= */ 0, /* windowSequenceNumber= */ 0),
+            new MediaPeriodId(/* periodIndex= */ 0, /* windowSequenceNumber= */ 1),
+            new MediaPeriodId(/* periodIndex= */ 0, /* windowSequenceNumber= */ 2),
+            new MediaPeriodId(/* periodIndex= */ 0, /* windowSequenceNumber= */ 3),
+            new MediaPeriodId(/* periodIndex= */ 0, /* windowSequenceNumber= */ 4));
+
+    testRunner.releaseSource();
+    childSource.assertReleased();
   }
 
   private static FakeMediaSource[] createMediaSources(int count) {

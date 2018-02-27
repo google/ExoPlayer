@@ -27,6 +27,7 @@ import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.ExoPlayerLibraryInfo;
 import com.google.android.exoplayer2.ParserException;
 import com.google.android.exoplayer2.Timeline;
+import com.google.android.exoplayer2.source.BaseMediaSource;
 import com.google.android.exoplayer2.source.CompositeSequenceableLoaderFactory;
 import com.google.android.exoplayer2.source.DefaultCompositeSequenceableLoaderFactory;
 import com.google.android.exoplayer2.source.MediaPeriod;
@@ -59,7 +60,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /** A DASH {@link MediaSource}. */
-public final class DashMediaSource implements MediaSource {
+public final class DashMediaSource extends BaseMediaSource {
 
   static {
     ExoPlayerLibraryInfo.registerModule("goog.exo.dash");
@@ -283,7 +284,6 @@ public final class DashMediaSource implements MediaSource {
   private final PlayerEmsgCallback playerEmsgCallback;
   private final LoaderErrorThrower manifestLoadErrorThrower;
 
-  private Listener sourceListener;
   private DataSource dataSource;
   private Loader loader;
 
@@ -497,8 +497,7 @@ public final class DashMediaSource implements MediaSource {
   // MediaSource implementation.
 
   @Override
-  public void prepareSource(ExoPlayer player, boolean isTopLevelSource, Listener listener) {
-    sourceListener = listener;
+  public void prepareSourceInternal(ExoPlayer player, boolean isTopLevelSource) {
     if (sideloadedManifest) {
       processManifest(false);
     } else {
@@ -544,7 +543,7 @@ public final class DashMediaSource implements MediaSource {
   }
 
   @Override
-  public void releaseSource() {
+  public void releaseSourceInternal() {
     manifestLoadPending = false;
     dataSource = null;
     if (loader != null) {
@@ -810,7 +809,7 @@ public final class DashMediaSource implements MediaSource {
     DashTimeline timeline = new DashTimeline(manifest.availabilityStartTimeMs, windowStartTimeMs,
         firstPeriodId, currentStartTimeUs, windowDurationUs, windowDefaultStartPositionUs,
         manifest);
-    sourceListener.onSourceInfoRefreshed(this, timeline, manifest);
+    refreshSourceInfo(timeline, manifest);
 
     if (!sideloadedManifest) {
       // Remove any pending simulated refresh.

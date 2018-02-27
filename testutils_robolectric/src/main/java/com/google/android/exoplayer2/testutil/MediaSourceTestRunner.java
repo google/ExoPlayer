@@ -193,13 +193,13 @@ public class MediaSourceTestRunner {
         });
   }
 
-  /** Calls {@link MediaSource#releaseSource()} on the playback thread. */
+  /** Calls {@link MediaSource#releaseSource(Listener)} on the playback thread. */
   public void releaseSource() {
     runOnPlaybackThread(
         new Runnable() {
           @Override
           public void run() {
-            mediaSource.releaseSource();
+            mediaSource.releaseSource(mediaSourceListener);
           }
         });
   }

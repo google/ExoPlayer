@@ -28,9 +28,9 @@ import java.util.HashMap;
  *
  * @param <T> The type of the id used to identify prepared child sources.
  */
-public abstract class CompositeMediaSource<T> implements MediaSource {
+public abstract class CompositeMediaSource<T> extends BaseMediaSource {
 
-  private final HashMap<T, MediaSource> childSources;
+  private final HashMap<T, MediaSourceAndListener> childSources;
   private ExoPlayer player;
 
   /** Create composite media source without child sources. */
@@ -40,23 +40,23 @@ public abstract class CompositeMediaSource<T> implements MediaSource {
 
   @Override
   @CallSuper
-  public void prepareSource(ExoPlayer player, boolean isTopLevelSource, Listener listener) {
+  public void prepareSourceInternal(ExoPlayer player, boolean isTopLevelSource) {
     this.player = player;
   }
 
   @Override
   @CallSuper
   public void maybeThrowSourceInfoRefreshError() throws IOException {
-    for (MediaSource childSource : childSources.values()) {
-      childSource.maybeThrowSourceInfoRefreshError();
+    for (MediaSourceAndListener childSource : childSources.values()) {
+      childSource.mediaSource.maybeThrowSourceInfoRefreshError();
     }
   }
 
   @Override
   @CallSuper
-  public void releaseSource() {
-    for (MediaSource childSource : childSources.values()) {
-      childSource.releaseSource();
+  public void releaseSourceInternal() {
+    for (MediaSourceAndListener childSource : childSources.values()) {
+      childSource.mediaSource.releaseSource(childSource.listener);
     }
     childSources.clear();
     player = null;
@@ -81,24 +81,23 @@ public abstract class CompositeMediaSource<T> implements MediaSource {
    * this method.
    *
    * <p>Any child sources that aren't explicitly released with {@link #releaseChildSource(Object)}
-   * will be released in {@link #releaseSource()}.
+   * will be released in {@link #releaseSourceInternal()}.
    *
    * @param id A unique id to identify the child source preparation. Null is allowed as an id.
    * @param mediaSource The child {@link MediaSource}.
    */
-  protected void prepareChildSource(@Nullable final T id, final MediaSource mediaSource) {
+  protected final void prepareChildSource(@Nullable final T id, MediaSource mediaSource) {
     Assertions.checkArgument(!childSources.containsKey(id));
-    childSources.put(id, mediaSource);
-    mediaSource.prepareSource(
-        player,
-        /* isTopLevelSource= */ false,
+    Listener sourceListener =
         new Listener() {
           @Override
           public void onSourceInfoRefreshed(
               MediaSource source, Timeline timeline, @Nullable Object manifest) {
-            onChildSourceInfoRefreshed(id, mediaSource, timeline, manifest);
+            onChildSourceInfoRefreshed(id, source, timeline, manifest);
           }
-        });
+        };
+    childSources.put(id, new MediaSourceAndListener(mediaSource, sourceListener));
+    mediaSource.prepareSource(player, /* isTopLevelSource= */ false, sourceListener);
   }
 
   /**
@@ -106,8 +105,19 @@ public abstract class CompositeMediaSource<T> implements MediaSource {
    *
    * @param id The unique id used to prepare the child source.
    */
-  protected void releaseChildSource(@Nullable T id) {
-    MediaSource removedChild = childSources.remove(id);
-    removedChild.releaseSource();
+  protected final void releaseChildSource(@Nullable T id) {
+    MediaSourceAndListener removedChild = childSources.remove(id);
+    removedChild.mediaSource.releaseSource(removedChild.listener);
+  }
+
+  private static final class MediaSourceAndListener {
+
+    public final MediaSource mediaSource;
+    public final Listener listener;
+
+    public MediaSourceAndListener(MediaSource mediaSource, Listener listener) {
+      this.mediaSource = mediaSource;
+      this.listener = listener;
+    }
   }
 }

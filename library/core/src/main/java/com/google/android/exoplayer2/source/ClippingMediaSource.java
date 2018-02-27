@@ -84,7 +84,6 @@ public final class ClippingMediaSource extends CompositeMediaSource<Void> {
   private final boolean enableInitialDiscontinuity;
   private final ArrayList<ClippingMediaPeriod> mediaPeriods;
 
-  private MediaSource.Listener sourceListener;
   private IllegalClippingException clippingError;
 
   /**
@@ -131,9 +130,8 @@ public final class ClippingMediaSource extends CompositeMediaSource<Void> {
   }
 
   @Override
-  public void prepareSource(ExoPlayer player, boolean isTopLevelSource, Listener listener) {
-    super.prepareSource(player, isTopLevelSource, listener);
-    sourceListener = listener;
+  public void prepareSourceInternal(ExoPlayer player, boolean isTopLevelSource) {
+    super.prepareSourceInternal(player, isTopLevelSource);
     prepareChildSource(/* id= */ null, mediaSource);
   }
 
@@ -161,10 +159,9 @@ public final class ClippingMediaSource extends CompositeMediaSource<Void> {
   }
 
   @Override
-  public void releaseSource() {
-    super.releaseSource();
+  public void releaseSourceInternal() {
+    super.releaseSourceInternal();
     clippingError = null;
-    sourceListener = null;
   }
 
   @Override
@@ -180,7 +177,7 @@ public final class ClippingMediaSource extends CompositeMediaSource<Void> {
       clippingError = e;
       return;
     }
-    sourceListener.onSourceInfoRefreshed(this, clippingTimeline, manifest);
+    refreshSourceInfo(clippingTimeline, manifest);
     int count = mediaPeriods.size();
     for (int i = 0; i < count; i++) {
       mediaPeriods.get(i).setClipping(startUs, endUs);

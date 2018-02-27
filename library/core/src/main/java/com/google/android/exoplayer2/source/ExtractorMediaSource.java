@@ -35,16 +35,17 @@ import java.io.IOException;
 
 /**
  * Provides one period that loads data from a {@link Uri} and extracted using an {@link Extractor}.
- * <p>
- * If the possible input stream container formats are known, pass a factory that instantiates
- * extractors for them to the constructor. Otherwise, pass a {@link DefaultExtractorsFactory} to
- * use the default extractors. When reading a new stream, the first {@link Extractor} in the array
- * of extractors created by the factory that returns {@code true} from {@link Extractor#sniff} will
- * be used to extract samples from the input stream.
- * <p>
- * Note that the built-in extractors for AAC, MPEG PS/TS and FLV streams do not support seeking.
+ *
+ * <p>If the possible input stream container formats are known, pass a factory that instantiates
+ * extractors for them to the constructor. Otherwise, pass a {@link DefaultExtractorsFactory} to use
+ * the default extractors. When reading a new stream, the first {@link Extractor} in the array of
+ * extractors created by the factory that returns {@code true} from {@link Extractor#sniff} will be
+ * used to extract samples from the input stream.
+ *
+ * <p>Note that the built-in extractors for AAC, MPEG PS/TS and FLV streams do not support seeking.
  */
-public final class ExtractorMediaSource implements MediaSource, ExtractorMediaPeriod.Listener {
+public final class ExtractorMediaSource extends BaseMediaSource
+    implements ExtractorMediaPeriod.Listener {
   /**
    * Listener of {@link ExtractorMediaSource} events.
    *
@@ -100,7 +101,6 @@ public final class ExtractorMediaSource implements MediaSource, ExtractorMediaPe
   private final String customCacheKey;
   private final int continueLoadingCheckIntervalBytes;
 
-  private MediaSource.Listener sourceListener;
   private long timelineDurationUs;
   private boolean timelineIsSeekable;
 
@@ -324,8 +324,7 @@ public final class ExtractorMediaSource implements MediaSource, ExtractorMediaPe
   }
 
   @Override
-  public void prepareSource(ExoPlayer player, boolean isTopLevelSource, Listener listener) {
-    sourceListener = listener;
+  public void prepareSourceInternal(ExoPlayer player, boolean isTopLevelSource) {
     notifySourceInfoRefreshed(C.TIME_UNSET, false);
   }
 
@@ -355,8 +354,8 @@ public final class ExtractorMediaSource implements MediaSource, ExtractorMediaPe
   }
 
   @Override
-  public void releaseSource() {
-    sourceListener = null;
+  public void releaseSourceInternal() {
+    // Do nothing.
   }
 
   // ExtractorMediaPeriod.Listener implementation.
@@ -378,8 +377,9 @@ public final class ExtractorMediaSource implements MediaSource, ExtractorMediaPe
     timelineDurationUs = durationUs;
     timelineIsSeekable = isSeekable;
     // TODO: Make timeline dynamic until its duration is known. This is non-trivial. See b/69703223.
-    sourceListener.onSourceInfoRefreshed(this,
-        new SinglePeriodTimeline(timelineDurationUs, timelineIsSeekable, false), null);
+    refreshSourceInfo(
+        new SinglePeriodTimeline(timelineDurationUs, timelineIsSeekable, /* isDynamic= */ false),
+        /* manifest= */ null);
   }
 
   /**

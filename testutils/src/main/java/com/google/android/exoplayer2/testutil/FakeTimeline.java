@@ -43,14 +43,6 @@ public final class FakeTimeline extends Timeline {
     public final AdPlaybackState adPlaybackState;
 
     /**
-     * Creates a seekable, non-dynamic window definition with one period with a duration of
-     * {@link #DEFAULT_WINDOW_DURATION_US}.
-     */
-    public TimelineWindowDefinition() {
-      this(1, 0, true, false, DEFAULT_WINDOW_DURATION_US);
-    }
-
-    /**
      * Creates a seekable, non-dynamic window definition with a duration of
      * {@link #DEFAULT_WINDOW_DURATION_US}.
      *
@@ -217,7 +209,9 @@ public final class FakeTimeline extends Timeline {
 
   private static TimelineWindowDefinition[] createDefaultWindowDefinitions(int windowCount) {
     TimelineWindowDefinition[] windowDefinitions = new TimelineWindowDefinition[windowCount];
-    Arrays.fill(windowDefinitions, new TimelineWindowDefinition());
+    for (int i = 0; i < windowCount; i++) {
+      windowDefinitions[i] = new TimelineWindowDefinition(/* periodCount= */ 1, /* id= */ i);
+    }
     return windowDefinitions;
   }
 

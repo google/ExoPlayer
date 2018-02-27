@@ -70,7 +70,6 @@ public final class MergingMediaSource extends CompositeMediaSource<Integer> {
   private final ArrayList<MediaSource> pendingTimelineSources;
   private final CompositeSequenceableLoaderFactory compositeSequenceableLoaderFactory;
 
-  private Listener listener;
   private Timeline primaryTimeline;
   private Object primaryManifest;
   private int periodCount;
@@ -98,9 +97,8 @@ public final class MergingMediaSource extends CompositeMediaSource<Integer> {
   }
 
   @Override
-  public void prepareSource(ExoPlayer player, boolean isTopLevelSource, Listener listener) {
-    super.prepareSource(player, isTopLevelSource, listener);
-    this.listener = listener;
+  public void prepareSourceInternal(ExoPlayer player, boolean isTopLevelSource) {
+    super.prepareSourceInternal(player, isTopLevelSource);
     for (int i = 0; i < mediaSources.length; i++) {
       prepareChildSource(i, mediaSources[i]);
     }
@@ -132,9 +130,8 @@ public final class MergingMediaSource extends CompositeMediaSource<Integer> {
   }
 
   @Override
-  public void releaseSource() {
-    super.releaseSource();
-    listener = null;
+  public void releaseSourceInternal() {
+    super.releaseSourceInternal();
     primaryTimeline = null;
     primaryManifest = null;
     periodCount = PERIOD_COUNT_UNSET;
@@ -158,7 +155,7 @@ public final class MergingMediaSource extends CompositeMediaSource<Integer> {
       primaryManifest = manifest;
     }
     if (pendingTimelineSources.isEmpty()) {
-      listener.onSourceInfoRefreshed(this, primaryTimeline, primaryManifest);
+      refreshSourceInfo(primaryTimeline, primaryManifest);
     }
   }
 

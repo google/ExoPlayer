@@ -799,7 +799,7 @@ import java.util.Collections;
             resetState ? emptyTrackSelectorResult : playbackInfo.trackSelectorResult);
     if (releaseMediaSource) {
       if (mediaSource != null) {
-        mediaSource.releaseSource();
+        mediaSource.releaseSource(/* listener= */ this);
         mediaSource = null;
       }
     }
