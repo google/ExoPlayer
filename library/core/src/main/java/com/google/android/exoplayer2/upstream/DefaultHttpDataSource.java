@@ -614,8 +614,8 @@ public class DefaultHttpDataSource implements HttpDataSource {
       }
       String className = inputStream.getClass().getName();
       if ("com.android.okhttp.internal.http.HttpTransport$ChunkedInputStream".equals(className)
-          || "com.android.okhttp.internal.http.HttpTransport$FixedLengthInputStream".equals(
-          className)) {
+          || "com.android.okhttp.internal.http.HttpTransport$FixedLengthInputStream"
+              .equals(className)) {
         Class<?> superclass = inputStream.getClass().getSuperclass();
         Method unexpectedEndOfInput = superclass.getDeclaredMethod("unexpectedEndOfInput");
         unexpectedEndOfInput.setAccessible(true);

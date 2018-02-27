@@ -38,8 +38,8 @@ repositories {
 }
 ```
 
-Next add a gradle compile dependency to the `build.gradle` file of your app
-module. The following will add a dependency to the full library:
+Next add a dependency in the `build.gradle` file of your app module. The
+following will add a dependency to the full library:
 
 ```gradle
 implementation 'com.google.android.exoplayer:exoplayer:2.X.X'
