@@ -48,7 +48,8 @@ public final class DynamicConcatenatingMediaSource extends CompositeMediaSource<
   private static final int MSG_ADD_MULTIPLE = 1;
   private static final int MSG_REMOVE = 2;
   private static final int MSG_MOVE = 3;
-  private static final int MSG_ON_COMPLETION = 4;
+  private static final int MSG_NOTIFY_LISTENER = 4;
+  private static final int MSG_ON_COMPLETION = 5;
 
   // Accessed on the app thread.
   private final List<MediaSource> mediaSourcesPublic;
@@ -58,12 +59,13 @@ public final class DynamicConcatenatingMediaSource extends CompositeMediaSource<
   private final MediaSourceHolder query;
   private final Map<MediaPeriod, MediaSourceHolder> mediaSourceByMediaPeriod;
   private final List<DeferredMediaPeriod> deferredMediaPeriods;
+  private final List<EventDispatcher> pendingOnCompletionActions;
   private final boolean isAtomic;
 
   private ExoPlayer player;
   private Listener listener;
+  private boolean listenerNotificationScheduled;
   private ShuffleOrder shuffleOrder;
-  private boolean preventListenerNotification;
   private int windowCount;
   private int periodCount;
 
@@ -98,6 +100,7 @@ public final class DynamicConcatenatingMediaSource extends CompositeMediaSource<
     this.mediaSourcesPublic = new ArrayList<>();
     this.mediaSourceHolders = new ArrayList<>();
     this.deferredMediaPeriods = new ArrayList<>(1);
+    this.pendingOnCompletionActions = new ArrayList<>();
     this.query = new MediaSourceHolder(null, null, -1, -1, -1);
     this.isAtomic = isAtomic;
   }
@@ -349,11 +352,9 @@ public final class DynamicConcatenatingMediaSource extends CompositeMediaSource<
     super.prepareSource(player, isTopLevelSource, listener);
     this.player = player;
     this.listener = listener;
-    preventListenerNotification = true;
     shuffleOrder = shuffleOrder.cloneAndInsert(0, mediaSourcesPublic.size());
     addMediaSourcesInternal(0, mediaSourcesPublic);
-    preventListenerNotification = false;
-    maybeNotifyListener(null);
+    scheduleListenerNotification(/* actionOnCompletion= */ null);
   }
 
   @Override
@@ -412,62 +413,73 @@ public final class DynamicConcatenatingMediaSource extends CompositeMediaSource<
   @Override
   @SuppressWarnings("unchecked")
   public void handleMessage(int messageType, Object message) throws ExoPlaybackException {
-    if (messageType == MSG_ON_COMPLETION) {
-      ((EventDispatcher) message).dispatchEvent();
-      return;
-    }
-    preventListenerNotification = true;
-    EventDispatcher actionOnCompletion;
     switch (messageType) {
-      case MSG_ADD: {
-        MessageData<MediaSource> messageData = (MessageData<MediaSource>) message;
-        shuffleOrder = shuffleOrder.cloneAndInsert(messageData.index, 1);
-        addMediaSourceInternal(messageData.index, messageData.customData);
-        actionOnCompletion = messageData.actionOnCompletion;
+      case MSG_ADD:
+        MessageData<MediaSource> addMessage = (MessageData<MediaSource>) message;
+        shuffleOrder = shuffleOrder.cloneAndInsert(addMessage.index, 1);
+        addMediaSourceInternal(addMessage.index, addMessage.customData);
+        scheduleListenerNotification(addMessage.actionOnCompletion);
         break;
-      }
-      case MSG_ADD_MULTIPLE: {
-        MessageData<Collection<MediaSource>> messageData =
+      case MSG_ADD_MULTIPLE:
+        MessageData<Collection<MediaSource>> addMultipleMessage =
             (MessageData<Collection<MediaSource>>) message;
-        shuffleOrder = shuffleOrder.cloneAndInsert(messageData.index,
-            messageData.customData.size());
-        addMediaSourcesInternal(messageData.index, messageData.customData);
-        actionOnCompletion = messageData.actionOnCompletion;
+        shuffleOrder =
+            shuffleOrder.cloneAndInsert(
+                addMultipleMessage.index, addMultipleMessage.customData.size());
+        addMediaSourcesInternal(addMultipleMessage.index, addMultipleMessage.customData);
+        scheduleListenerNotification(addMultipleMessage.actionOnCompletion);
         break;
-      }
-      case MSG_REMOVE: {
-        MessageData<Void> messageData = (MessageData<Void>) message;
-        shuffleOrder = shuffleOrder.cloneAndRemove(messageData.index);
-        removeMediaSourceInternal(messageData.index);
-        actionOnCompletion = messageData.actionOnCompletion;
+      case MSG_REMOVE:
+        MessageData<Void> removeMessage = (MessageData<Void>) message;
+        shuffleOrder = shuffleOrder.cloneAndRemove(removeMessage.index);
+        removeMediaSourceInternal(removeMessage.index);
+        scheduleListenerNotification(removeMessage.actionOnCompletion);
         break;
-      }
-      case MSG_MOVE: {
-        MessageData<Integer> messageData = (MessageData<Integer>) message;
-        shuffleOrder = shuffleOrder.cloneAndRemove(messageData.index);
-        shuffleOrder = shuffleOrder.cloneAndInsert(messageData.customData, 1);
-        moveMediaSourceInternal(messageData.index, messageData.customData);
-        actionOnCompletion = messageData.actionOnCompletion;
+      case MSG_MOVE:
+        MessageData<Integer> moveMessage = (MessageData<Integer>) message;
+        shuffleOrder = shuffleOrder.cloneAndRemove(moveMessage.index);
+        shuffleOrder = shuffleOrder.cloneAndInsert(moveMessage.customData, 1);
+        moveMediaSourceInternal(moveMessage.index, moveMessage.customData);
+        scheduleListenerNotification(moveMessage.actionOnCompletion);
         break;
-      }
-      default: {
+      case MSG_NOTIFY_LISTENER:
+        notifyListener();
+        break;
+      case MSG_ON_COMPLETION:
+        List<EventDispatcher> actionsOnCompletion = ((List<EventDispatcher>) message);
+        for (int i = 0; i < actionsOnCompletion.size(); i++) {
+          actionsOnCompletion.get(i).dispatchEvent();
+        }
+        break;
+      default:
         throw new IllegalStateException();
-      }
     }
-    preventListenerNotification = false;
-    maybeNotifyListener(actionOnCompletion);
   }
 
-  private void maybeNotifyListener(@Nullable EventDispatcher actionOnCompletion) {
-    if (!preventListenerNotification) {
-      listener.onSourceInfoRefreshed(
-          this,
-          new ConcatenatedTimeline(
-              mediaSourceHolders, windowCount, periodCount, shuffleOrder, isAtomic),
-          null);
-      if (actionOnCompletion != null) {
-        player.createMessage(this).setType(MSG_ON_COMPLETION).setPayload(actionOnCompletion).send();
-      }
+  private void scheduleListenerNotification(@Nullable EventDispatcher actionOnCompletion) {
+    if (!listenerNotificationScheduled) {
+      player.createMessage(this).setType(MSG_NOTIFY_LISTENER).send();
+      listenerNotificationScheduled = true;
+    }
+    if (actionOnCompletion != null) {
+      pendingOnCompletionActions.add(actionOnCompletion);
+    }
+  }
+
+  private void notifyListener() {
+    listenerNotificationScheduled = false;
+    List<EventDispatcher> actionsOnCompletion =
+        pendingOnCompletionActions.isEmpty()
+            ? Collections.<EventDispatcher>emptyList()
+            : new ArrayList<>(pendingOnCompletionActions);
+    pendingOnCompletionActions.clear();
+    listener.onSourceInfoRefreshed(
+        this,
+        new ConcatenatedTimeline(
+            mediaSourceHolders, windowCount, periodCount, shuffleOrder, isAtomic),
+        /* manifest= */ null);
+    if (!actionsOnCompletion.isEmpty()) {
+      player.createMessage(this).setType(MSG_ON_COMPLETION).setPayload(actionsOnCompletion).send();
     }
   }
 
@@ -528,7 +540,7 @@ public final class DynamicConcatenatingMediaSource extends CompositeMediaSource<
       }
     }
     mediaSourceHolder.isPrepared = true;
-    maybeNotifyListener(null);
+    scheduleListenerNotification(/* actionOnCompletion= */ null);
   }
 
   private void removeMediaSourceInternal(int index) {
