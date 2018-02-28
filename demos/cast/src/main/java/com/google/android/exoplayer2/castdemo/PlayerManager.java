@@ -31,7 +31,7 @@ import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.Timeline.Period;
 import com.google.android.exoplayer2.castdemo.DemoUtil.Sample;
 import com.google.android.exoplayer2.ext.cast.CastPlayer;
-import com.google.android.exoplayer2.source.DynamicConcatenatingMediaSource;
+import com.google.android.exoplayer2.source.ConcatenatingMediaSource;
 import com.google.android.exoplayer2.source.ExtractorMediaSource;
 import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.source.dash.DashMediaSource;
@@ -80,7 +80,7 @@ import java.util.ArrayList;
   private final ArrayList<DemoUtil.Sample> mediaQueue;
   private final QueuePositionListener queuePositionListener;
 
-  private DynamicConcatenatingMediaSource dynamicConcatenatingMediaSource;
+  private ConcatenatingMediaSource concatenatingMediaSource;
   private boolean castMediaQueueCreationPending;
   private int currentItemIndex;
   private Player currentPlayer;
@@ -155,7 +155,7 @@ import java.util.ArrayList;
   public void addItem(Sample sample) {
     mediaQueue.add(sample);
     if (currentPlayer == exoPlayer) {
-      dynamicConcatenatingMediaSource.addMediaSource(buildMediaSource(sample));
+      concatenatingMediaSource.addMediaSource(buildMediaSource(sample));
     } else {
       castPlayer.addItems(buildMediaQueueItem(sample));
     }
@@ -186,7 +186,7 @@ import java.util.ArrayList;
    */
   public boolean removeItem(int itemIndex) {
     if (currentPlayer == exoPlayer) {
-      dynamicConcatenatingMediaSource.removeMediaSource(itemIndex);
+      concatenatingMediaSource.removeMediaSource(itemIndex);
     } else {
       if (castPlayer.getPlaybackState() != Player.STATE_IDLE) {
         Timeline castTimeline = castPlayer.getCurrentTimeline();
@@ -215,7 +215,7 @@ import java.util.ArrayList;
   public boolean moveItem(int fromIndex, int toIndex) {
     // Player update.
     if (currentPlayer == exoPlayer) {
-      dynamicConcatenatingMediaSource.moveMediaSource(fromIndex, toIndex);
+      concatenatingMediaSource.moveMediaSource(fromIndex, toIndex);
     } else if (castPlayer.getPlaybackState() != Player.STATE_IDLE) {
       Timeline castTimeline = castPlayer.getCurrentTimeline();
       int periodCount = castTimeline.getPeriodCount();
@@ -349,11 +349,11 @@ import java.util.ArrayList;
     // Media queue management.
     castMediaQueueCreationPending = currentPlayer == castPlayer;
     if (currentPlayer == exoPlayer) {
-      dynamicConcatenatingMediaSource = new DynamicConcatenatingMediaSource();
+      concatenatingMediaSource = new ConcatenatingMediaSource();
       for (int i = 0; i < mediaQueue.size(); i++) {
-        dynamicConcatenatingMediaSource.addMediaSource(buildMediaSource(mediaQueue.get(i)));
+        concatenatingMediaSource.addMediaSource(buildMediaSource(mediaQueue.get(i)));
       }
-      exoPlayer.prepare(dynamicConcatenatingMediaSource);
+      exoPlayer.prepare(concatenatingMediaSource);
     }
 
     // Playback transition.
