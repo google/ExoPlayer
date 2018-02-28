@@ -53,8 +53,9 @@ public interface MediaPeriod extends SequenceableLoader {
    * {@link #maybeThrowPrepareError()} will throw an {@link IOException}.
    *
    * <p>If preparation succeeds and results in a source timeline change (e.g. the period duration
-   * becoming known), {@link MediaSource.Listener#onSourceInfoRefreshed(MediaSource, Timeline,
-   * Object)} will be called before {@code callback.onPrepared}.
+   * becoming known), {@link
+   * MediaSource.SourceInfoRefreshListener#onSourceInfoRefreshed(MediaSource, Timeline, Object)}
+   * will be called before {@code callback.onPrepared}.
    *
    * @param callback Callback to receive updates from this period, including being notified when
    *     preparation completes.

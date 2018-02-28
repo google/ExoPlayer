@@ -48,7 +48,7 @@ import java.util.Collections;
     implements Handler.Callback,
         MediaPeriod.Callback,
         TrackSelector.InvalidationListener,
-        MediaSource.Listener,
+        MediaSource.SourceInfoRefreshListener,
         PlaybackParameterListener,
         PlayerMessage.Sender {
 
@@ -243,7 +243,7 @@ import java.util.Collections;
     return internalPlaybackThread.getLooper();
   }
 
-  // MediaSource.Listener implementation.
+  // MediaSource.SourceInfoRefreshListener implementation.
 
   @Override
   public void onSourceInfoRefreshed(MediaSource source, Timeline timeline, Object manifest) {

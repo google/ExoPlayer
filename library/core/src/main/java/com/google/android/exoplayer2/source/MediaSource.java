@@ -29,8 +29,9 @@ import java.io.IOException;
  * <ul>
  *   <li>To provide the player with a {@link Timeline} defining the structure of its media, and to
  *       provide a new timeline whenever the structure of the media changes. The MediaSource
- *       provides these timelines by calling {@link Listener#onSourceInfoRefreshed} on the {@link
- *       Listener}s passed to {@link #prepareSource(ExoPlayer, boolean, Listener)}.
+ *       provides these timelines by calling {@link SourceInfoRefreshListener#onSourceInfoRefreshed}
+ *       on the {@link SourceInfoRefreshListener}s passed to {@link #prepareSource(ExoPlayer,
+ *       boolean, SourceInfoRefreshListener)}.
  *   <li>To provide {@link MediaPeriod} instances for the periods in its timeline. MediaPeriods are
  *       obtained by calling {@link #createPeriod(MediaPeriodId, Allocator)}, and provide a way for
  *       the player to load and read the media.
@@ -42,10 +43,8 @@ import java.io.IOException;
  */
 public interface MediaSource {
 
-  /**
-   * Listener for source events.
-   */
-  interface Listener {
+  /** Listener for source events. */
+  interface SourceInfoRefreshListener {
 
     /**
      * Called when manifest and/or timeline has been refreshed.
@@ -180,17 +179,18 @@ public interface MediaSource {
    *
    * <p>The listener will be also be notified if the source already has a timeline and/or manifest.
    *
-   * <p>For each call to this method, a call to {@link #releaseSource(Listener)} is needed to remove
-   * the listener and to release the source if no longer required.
+   * <p>For each call to this method, a call to {@link #releaseSource(SourceInfoRefreshListener)} is
+   * needed to remove the listener and to release the source if no longer required.
    *
    * @param player The player for which this source is being prepared.
    * @param isTopLevelSource Whether this source has been passed directly to {@link
    *     ExoPlayer#prepare(MediaSource)} or {@link ExoPlayer#prepare(MediaSource, boolean,
    *     boolean)}. If {@code false}, this source is being prepared by another source (e.g. {@link
    *     ConcatenatingMediaSource}) for composition.
-   * @param listener The listener for source info updates to be added.
+   * @param listener The listener to be added.
    */
-  void prepareSource(ExoPlayer player, boolean isTopLevelSource, Listener listener);
+  void prepareSource(
+      ExoPlayer player, boolean isTopLevelSource, SourceInfoRefreshListener listener);
 
   /**
    * Throws any pending error encountered while loading or refreshing source information.
@@ -227,7 +227,7 @@ public interface MediaSource {
    *
    * <p>Should not be called directly from application code.
    *
-   * @param listener The listener for source info updates to be removed.
+   * @param listener The listener to be removed.
    */
-  void releaseSource(Listener listener);
+  void releaseSource(SourceInfoRefreshListener listener);
 }

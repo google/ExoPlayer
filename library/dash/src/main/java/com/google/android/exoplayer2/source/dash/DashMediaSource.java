@@ -256,8 +256,8 @@ public final class DashMediaSource extends BaseMediaSource {
   public static final long DEFAULT_LIVE_PRESENTATION_DELAY_FIXED_MS = 30000;
 
   /**
-   * The interval in milliseconds between invocations of
-   * {@link MediaSource.Listener#onSourceInfoRefreshed(MediaSource, Timeline, Object)} when the
+   * The interval in milliseconds between invocations of {@link
+   * SourceInfoRefreshListener#onSourceInfoRefreshed(MediaSource, Timeline, Object)} when the
    * source's {@link Timeline} is changing dynamically (for example, for incomplete live streams).
    */
   private static final int NOTIFY_MANIFEST_INTERVAL_MS = 5000;
