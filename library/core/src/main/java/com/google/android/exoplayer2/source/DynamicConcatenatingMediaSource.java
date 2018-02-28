@@ -322,9 +322,13 @@ public final class DynamicConcatenatingMediaSource extends CompositeMediaSource<
   public synchronized void prepareSourceInternal(ExoPlayer player, boolean isTopLevelSource) {
     super.prepareSourceInternal(player, isTopLevelSource);
     this.player = player;
-    shuffleOrder = shuffleOrder.cloneAndInsert(0, mediaSourcesPublic.size());
-    addMediaSourcesInternal(0, mediaSourcesPublic);
-    scheduleListenerNotification(/* actionOnCompletion= */ null);
+    if (mediaSourcesPublic.isEmpty()) {
+      notifyListener();
+    } else {
+      shuffleOrder = shuffleOrder.cloneAndInsert(0, mediaSourcesPublic.size());
+      addMediaSourcesInternal(0, mediaSourcesPublic);
+      scheduleListenerNotification(/* actionOnCompletion= */ null);
+    }
   }
 
   @Override
