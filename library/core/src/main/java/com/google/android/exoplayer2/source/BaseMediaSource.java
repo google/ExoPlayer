@@ -29,7 +29,7 @@ import java.util.ArrayList;
  */
 public abstract class BaseMediaSource implements MediaSource {
 
-  private final ArrayList<Listener> sourceInfoListeners;
+  private final ArrayList<SourceInfoRefreshListener> sourceInfoListeners;
 
   private ExoPlayer player;
   private Timeline timeline;
@@ -65,13 +65,14 @@ public abstract class BaseMediaSource implements MediaSource {
   protected final void refreshSourceInfo(Timeline timeline, @Nullable Object manifest) {
     this.timeline = timeline;
     this.manifest = manifest;
-    for (Listener listener : sourceInfoListeners) {
+    for (SourceInfoRefreshListener listener : sourceInfoListeners) {
       listener.onSourceInfoRefreshed(/* source= */ this, timeline, manifest);
     }
   }
 
   @Override
-  public final void prepareSource(ExoPlayer player, boolean isTopLevelSource, Listener listener) {
+  public final void prepareSource(
+      ExoPlayer player, boolean isTopLevelSource, SourceInfoRefreshListener listener) {
     Assertions.checkArgument(this.player == null || this.player == player);
     sourceInfoListeners.add(listener);
     if (this.player == null) {
@@ -83,7 +84,7 @@ public abstract class BaseMediaSource implements MediaSource {
   }
 
   @Override
-  public final void releaseSource(Listener listener) {
+  public final void releaseSource(SourceInfoRefreshListener listener) {
     sourceInfoListeners.remove(listener);
     if (sourceInfoListeners.isEmpty()) {
       player = null;

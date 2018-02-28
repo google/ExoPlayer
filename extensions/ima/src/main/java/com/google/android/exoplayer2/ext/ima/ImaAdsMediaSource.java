@@ -38,7 +38,7 @@ public final class ImaAdsMediaSource extends BaseMediaSource {
 
   private final AdsMediaSource adsMediaSource;
 
-  private Listener adsMediaSourceListener;
+  private SourceInfoRefreshListener adsMediaSourceListener;
 
   /**
    * Constructs a new source that inserts ads linearly with the content specified by
@@ -79,7 +79,7 @@ public final class ImaAdsMediaSource extends BaseMediaSource {
   @Override
   public void prepareSourceInternal(final ExoPlayer player, boolean isTopLevelSource) {
     adsMediaSourceListener =
-        new Listener() {
+        new SourceInfoRefreshListener() {
           @Override
           public void onSourceInfoRefreshed(
               MediaSource source, Timeline timeline, @Nullable Object manifest) {

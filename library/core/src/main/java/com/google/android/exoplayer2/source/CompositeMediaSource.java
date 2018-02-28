@@ -88,8 +88,8 @@ public abstract class CompositeMediaSource<T> extends BaseMediaSource {
    */
   protected final void prepareChildSource(@Nullable final T id, MediaSource mediaSource) {
     Assertions.checkArgument(!childSources.containsKey(id));
-    Listener sourceListener =
-        new Listener() {
+    SourceInfoRefreshListener sourceListener =
+        new SourceInfoRefreshListener() {
           @Override
           public void onSourceInfoRefreshed(
               MediaSource source, Timeline timeline, @Nullable Object manifest) {
@@ -113,9 +113,9 @@ public abstract class CompositeMediaSource<T> extends BaseMediaSource {
   private static final class MediaSourceAndListener {
 
     public final MediaSource mediaSource;
-    public final Listener listener;
+    public final SourceInfoRefreshListener listener;
 
-    public MediaSourceAndListener(MediaSource mediaSource, Listener listener) {
+    public MediaSourceAndListener(MediaSource mediaSource, SourceInfoRefreshListener listener) {
       this.mediaSource = mediaSource;
       this.listener = listener;
     }
