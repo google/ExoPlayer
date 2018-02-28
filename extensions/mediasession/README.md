@@ -12,7 +12,7 @@ behaviour can be extended to support other playback and custom actions.
 The easiest way to use the extension is to add it as a gradle dependency:
 
 ```gradle
-compile 'com.google.android.exoplayer:extension-mediasession:rX.X.X'
+implementation 'com.google.android.exoplayer:extension-mediasession:rX.X.X'
 ```
 
 where `rX.X.X` is the version, which must match the version of the ExoPlayer

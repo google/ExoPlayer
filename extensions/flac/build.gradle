@@ -31,8 +31,8 @@ android {
 }
 
 dependencies {
-    compile project(modulePrefix + 'library-core')
-    androidTestCompile project(modulePrefix + 'testutils')
+    implementation project(modulePrefix + 'library-core')
+    androidTestImplementation project(modulePrefix + 'testutils')
 }
 
 ext {
