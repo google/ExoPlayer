@@ -7,6 +7,9 @@
 * MediaSources: Allow reusing media sources after they have been released and
   also in parallel to allow adding them multiple times to a concatenation.
   ([#3498](https://github.com/google/ExoPlayer/issues/3498)).
+* Allow clipping of child media sources where the period and window have a
+  non-zero offset with `ClippingMediaSource`
+  ([#3888](https://github.com/google/ExoPlayer/issues/3888)).
 
 ### 2.7.0 ###
 
