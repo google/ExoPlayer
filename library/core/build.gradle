@@ -45,15 +45,15 @@ android {
 }
 
 dependencies {
-    compile 'com.android.support:support-annotations:' + supportLibraryVersion
-    androidTestCompile 'com.google.dexmaker:dexmaker:' + dexmakerVersion
-    androidTestCompile 'com.google.dexmaker:dexmaker-mockito:' + dexmakerVersion
-    androidTestCompile 'com.google.truth:truth:' + truthVersion
-    androidTestCompile 'org.mockito:mockito-core:' + mockitoVersion
-    testCompile 'com.google.truth:truth:' + truthVersion
-    testCompile 'junit:junit:' + junitVersion
-    testCompile 'org.mockito:mockito-core:' + mockitoVersion
-    testCompile 'org.robolectric:robolectric:' + robolectricVersion
+    implementation 'com.android.support:support-annotations:' + supportLibraryVersion
+    androidTestImplementation 'com.google.dexmaker:dexmaker:' + dexmakerVersion
+    androidTestImplementation 'com.google.dexmaker:dexmaker-mockito:' + dexmakerVersion
+    androidTestImplementation 'com.google.truth:truth:' + truthVersion
+    androidTestImplementation 'org.mockito:mockito-core:' + mockitoVersion
+    testImplementation 'com.google.truth:truth:' + truthVersion
+    testImplementation 'junit:junit:' + junitVersion
+    testImplementation 'org.mockito:mockito-core:' + mockitoVersion
+    testImplementation 'org.robolectric:robolectric:' + robolectricVersion
 }
 
 ext {
