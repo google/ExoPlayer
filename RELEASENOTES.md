@@ -2,6 +2,12 @@
 
 ### dev-v2 (not yet released) ###
 
+* Gradle: Replace 'compile' configuration (deprecated) with 'implementation' and
+  'api'. Note: This may lead to build breakage for applications upgrading from
+  previous version that rely on indirect dependency for certain modules. In such
+  cases, application developers need to add the missing dependency directly to
+  resolve this issue. You can read more about the new dependency configurations
+  [here](https://developer.android.com/studio/build/gradle-plugin-3-0-0-migration.html#new_configurations).
 * Downloading: Add `DownloadService`, `DownloadManager` and
   related classes ([#2643](https://github.com/google/ExoPlayer/issues/2643)).
 * MediaSources:

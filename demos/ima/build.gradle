@@ -41,10 +41,11 @@ android {
 }
 
 dependencies {
-    compile project(modulePrefix + 'library-core')
-    compile project(modulePrefix + 'library-ui')
-    compile project(modulePrefix + 'library-dash')
-    compile project(modulePrefix + 'library-hls')
-    compile project(modulePrefix + 'library-smoothstreaming')
-    compile project(modulePrefix + 'extension-ima')
+    implementation project(modulePrefix + 'library-core')
+    implementation project(modulePrefix + 'library-ui')
+    implementation project(modulePrefix + 'library-dash')
+    implementation project(modulePrefix + 'library-hls')
+    implementation project(modulePrefix + 'library-smoothstreaming')
+    implementation project(modulePrefix + 'extension-ima')
+    implementation 'com.android.support:support-annotations:' + supportLibraryVersion
 }

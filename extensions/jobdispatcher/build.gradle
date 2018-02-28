@@ -27,8 +27,8 @@ android {
 }
 
 dependencies {
-    compile project(modulePrefix + 'library-core')
-    compile 'com.firebase:firebase-jobdispatcher:0.8.5'
+    implementation project(modulePrefix + 'library-core')
+    implementation 'com.firebase:firebase-jobdispatcher:0.8.5'
 }
 
 ext {
