@@ -175,7 +175,7 @@ public final class ClippingMediaPeriod implements MediaPeriod, MediaPeriod.Callb
 
   @Override
   public long getAdjustedSeekPositionUs(long positionUs, SeekParameters seekParameters) {
-    if (positionUs == startUs) {
+    if (positionUs == 0) {
       // Never adjust seeks to the start of the clipped view.
       return 0;
     }
