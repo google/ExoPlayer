@@ -111,7 +111,9 @@ import java.util.List;
  *   <li><b>{@code surface_type}</b> - The type of surface view used for video playbacks. Valid
  *       values are {@code surface_view}, {@code texture_view} and {@code none}. Using {@code none}
  *       is recommended for audio only applications, since creating the surface can be expensive.
- *       Using {@code surface_view} is recommended for video applications.
+ *       Using {@code surface_view} is recommended for video applications. Note, TextureView can
+ *       only be used in a hardware accelerated window. When rendered in software, TextureView will
+ *       draw nothing.
  *       <ul>
  *         <li>Corresponding method: None
  *         <li>Default: {@code surface_view}
