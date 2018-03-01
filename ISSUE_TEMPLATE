@@ -24,7 +24,7 @@ Describe how the issue can be reproduced, ideally using the ExoPlayer demo app.
 ### Link to test content
 Provide a link to media that reproduces the issue. If you don't wish to post it
 publicly, please submit the issue, then email the link to
-dev.exoplayer@gmail.com including the issue number in the subject line.
+dev.exoplayer@gmail.com using a subject in the format "Issue #1234".
 
 ### Version of ExoPlayer being used
 Specify the absolute version number. Avoid using terms such as "latest".
@@ -38,5 +38,6 @@ devices and Android versions.
 Capture a full bug report using "adb bugreport". Output from "adb logcat" or a
 log snippet is NOT sufficient. Please attach the captured bug report as a file.
 If you don't wish to post it publicly, please submit the issue, then email the
-bug report to dev.exoplayer@gmail.com including the issue number in the subject
-line.
+bug report to dev.exoplayer@gmail.com using a subject in the format
+"Issue #1234".
+
