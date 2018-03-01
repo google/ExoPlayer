@@ -44,6 +44,7 @@ import com.google.android.exoplayer2.mediacodec.MediaCodecRenderer;
 import com.google.android.exoplayer2.mediacodec.MediaCodecSelector;
 import com.google.android.exoplayer2.mediacodec.MediaCodecUtil;
 import com.google.android.exoplayer2.mediacodec.MediaCodecUtil.DecoderQueryException;
+import com.google.android.exoplayer2.mediacodec.MediaFormatUtil;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.TraceUtil;
@@ -91,7 +92,6 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
   private final boolean deviceNeedsAutoFrcWorkaround;
   private final long[] pendingOutputStreamOffsetsUs;
 
-  private Format[] streamFormats;
   private CodecMaxValues codecMaxValues;
   private boolean codecNeedsSetOutputSurfaceWorkaround;
 
@@ -258,7 +258,6 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
 
   @Override
   protected void onStreamChanged(Format[] formats, long offsetUs) throws ExoPlaybackException {
-    streamFormats = formats;
     if (outputStreamOffsetUs == C.TIME_UNSET) {
       outputStreamOffsetUs = offsetUs;
     } else {
@@ -352,7 +351,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
       scalingMode = (Integer) message;
       MediaCodec codec = getCodec();
       if (codec != null) {
-        setVideoScalingMode(codec, scalingMode);
+        codec.setVideoScalingMode(scalingMode);
       }
     } else {
       super.handleMessage(messageType, message);
@@ -415,7 +414,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
   @Override
   protected void configureCodec(MediaCodecInfo codecInfo, MediaCodec codec, Format format,
       MediaCrypto crypto) throws DecoderQueryException {
-    codecMaxValues = getCodecMaxValues(codecInfo, format, streamFormats);
+    codecMaxValues = getCodecMaxValues(codecInfo, format, getStreamFormats());
     MediaFormat mediaFormat = getMediaFormat(format, codecMaxValues, deviceNeedsAutoFrcWorkaround,
         tunnelingAudioSessionId);
     if (surface == null) {
@@ -429,6 +428,20 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
     if (Util.SDK_INT >= 23 && tunneling) {
       tunnelingOnFrameRenderedListener = new OnFrameRenderedListenerV23(codec);
     }
+  }
+
+  @Override
+  protected @KeepCodecResult int canKeepCodec(
+      MediaCodec codec, boolean codecIsAdaptive, Format oldFormat, Format newFormat) {
+    if (areAdaptationCompatible(codecIsAdaptive, oldFormat, newFormat)
+        && newFormat.width <= codecMaxValues.width
+        && newFormat.height <= codecMaxValues.height
+        && getMaxInputSize(newFormat) <= codecMaxValues.inputSize) {
+      return oldFormat.initializationDataEquals(newFormat)
+          ? KEEP_CODEC_RESULT_YES_WITHOUT_RECONFIGURATION
+          : KEEP_CODEC_RESULT_YES_WITH_RECONFIGURATION;
+    }
+    return KEEP_CODEC_RESULT_NO;
   }
 
   @CallSuper
@@ -468,8 +481,8 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
   protected void onInputFormatChanged(Format newFormat) throws ExoPlaybackException {
     super.onInputFormatChanged(newFormat);
     eventDispatcher.inputFormatChanged(newFormat);
-    pendingPixelWidthHeightRatio = getPixelWidthHeightRatio(newFormat);
-    pendingRotationDegrees = getRotationDegrees(newFormat);
+    pendingPixelWidthHeightRatio = newFormat.pixelWidthHeightRatio;
+    pendingRotationDegrees = newFormat.rotationDegrees;
   }
 
   /**
@@ -513,15 +526,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
       currentUnappliedRotationDegrees = pendingRotationDegrees;
     }
     // Must be applied each time the output format changes.
-    setVideoScalingMode(codec, scalingMode);
-  }
-
-  @Override
-  protected boolean canReconfigureCodec(MediaCodec codec, boolean codecIsAdaptive,
-      Format oldFormat, Format newFormat) {
-    return areAdaptationCompatible(codecIsAdaptive, oldFormat, newFormat)
-        && newFormat.width <= codecMaxValues.width && newFormat.height <= codecMaxValues.height
-        && getMaxInputSize(newFormat) <= codecMaxValues.inputSize;
+    codec.setVideoScalingMode(scalingMode);
   }
 
   @Override
@@ -908,33 +913,48 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
   }
 
   /**
-   * Returns the framework {@link MediaFormat} that should be used to configure the decoder when
-   * playing media in the specified input format.
+   * Returns the framework {@link MediaFormat} that should be used to configure the decoder.
    *
-   * @param format The format of input media.
-   * @param codecMaxValues The codec's maximum supported values.
+   * @param format The format of media.
+   * @param codecMaxValues Codec max values that should be used when configuring the decoder.
    * @param deviceNeedsAutoFrcWorkaround Whether the device is known to enable frame-rate conversion
    *     logic that negatively impacts ExoPlayer.
-   * @param tunnelingAudioSessionId The audio session id to use for tunneling, or
-   *     {@link C#AUDIO_SESSION_ID_UNSET} if tunneling should not be enabled.
+   * @param tunnelingAudioSessionId The audio session id to use for tunneling, or {@link
+   *     C#AUDIO_SESSION_ID_UNSET} if tunneling should not be enabled.
    * @return The framework {@link MediaFormat} that should be used to configure the decoder.
    */
   @SuppressLint("InlinedApi")
-  protected MediaFormat getMediaFormat(Format format, CodecMaxValues codecMaxValues,
-      boolean deviceNeedsAutoFrcWorkaround, int tunnelingAudioSessionId) {
-    MediaFormat frameworkMediaFormat = getMediaFormatForPlayback(format);
-    frameworkMediaFormat.setInteger(MediaFormat.KEY_MAX_WIDTH, codecMaxValues.width);
-    frameworkMediaFormat.setInteger(MediaFormat.KEY_MAX_HEIGHT, codecMaxValues.height);
-    if (codecMaxValues.inputSize != Format.NO_VALUE) {
-      frameworkMediaFormat.setInteger(MediaFormat.KEY_MAX_INPUT_SIZE, codecMaxValues.inputSize);
+  protected MediaFormat getMediaFormat(
+      Format format,
+      CodecMaxValues codecMaxValues,
+      boolean deviceNeedsAutoFrcWorkaround,
+      int tunnelingAudioSessionId) {
+    MediaFormat mediaFormat = new MediaFormat();
+    // Set format parameters that should always be set.
+    mediaFormat.setString(MediaFormat.KEY_MIME, format.sampleMimeType);
+    mediaFormat.setInteger(MediaFormat.KEY_WIDTH, format.width);
+    mediaFormat.setInteger(MediaFormat.KEY_HEIGHT, format.height);
+    MediaFormatUtil.setCsdBuffers(mediaFormat, format.initializationData);
+    // Set format parameters that may be unset.
+    MediaFormatUtil.maybeSetFloat(mediaFormat, MediaFormat.KEY_FRAME_RATE, format.frameRate);
+    MediaFormatUtil.maybeSetInteger(mediaFormat, MediaFormat.KEY_ROTATION, format.rotationDegrees);
+    MediaFormatUtil.maybeSetColorInfo(mediaFormat, format.colorInfo);
+    // Set codec max values.
+    mediaFormat.setInteger(MediaFormat.KEY_MAX_WIDTH, codecMaxValues.width);
+    mediaFormat.setInteger(MediaFormat.KEY_MAX_HEIGHT, codecMaxValues.height);
+    MediaFormatUtil.maybeSetInteger(
+        mediaFormat, MediaFormat.KEY_MAX_INPUT_SIZE, codecMaxValues.inputSize);
+    // Set codec configuration values.
+    if (Util.SDK_INT >= 23) {
+      mediaFormat.setInteger(MediaFormat.KEY_PRIORITY, 0 /* realtime priority */);
     }
     if (deviceNeedsAutoFrcWorkaround) {
-      frameworkMediaFormat.setInteger("auto-frc", 0);
+      mediaFormat.setInteger("auto-frc", 0);
     }
     if (tunnelingAudioSessionId != C.AUDIO_SESSION_ID_UNSET) {
-      configureTunnelingV21(frameworkMediaFormat, tunnelingAudioSessionId);
+      configureTunnelingV21(mediaFormat, tunnelingAudioSessionId);
     }
-    return frameworkMediaFormat;
+    return mediaFormat;
   }
 
   /**
@@ -1054,8 +1074,21 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
     return (maxPixels * 3) / (2 * minCompressionRatio);
   }
 
-  private static void setVideoScalingMode(MediaCodec codec, int scalingMode) {
-    codec.setVideoScalingMode(scalingMode);
+  /**
+   * Returns whether a codec with suitable {@link CodecMaxValues} will support adaptation between
+   * two {@link Format}s.
+   *
+   * @param codecIsAdaptive Whether the codec supports seamless resolution switches.
+   * @param first The first format.
+   * @param second The second format.
+   * @return Whether the codec will support adaptation between the two {@link Format}s.
+   */
+  private static boolean areAdaptationCompatible(
+      boolean codecIsAdaptive, Format first, Format second) {
+    return first.sampleMimeType.equals(second.sampleMimeType)
+        && first.rotationDegrees == second.rotationDegrees
+        && (codecIsAdaptive || (first.width == second.width && first.height == second.height))
+        && Util.areEqual(first.colorInfo, second.colorInfo);
   }
 
   /**
@@ -1101,30 +1134,6 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
         || (("ALE-L21".equals(Util.MODEL) // Huawei P8 Lite
                 || "CAM-L21".equals(Util.MODEL)) // Huawei Y6II
             && "OMX.k3.video.decoder.avc".equals(name));
-  }
-
-  /**
-   * Returns whether a codec with suitable {@link CodecMaxValues} will support adaptation between
-   * two {@link Format}s.
-   *
-   * @param codecIsAdaptive Whether the codec supports seamless resolution switches.
-   * @param first The first format.
-   * @param second The second format.
-   * @return Whether the codec will support adaptation between the two {@link Format}s.
-   */
-  private static boolean areAdaptationCompatible(boolean codecIsAdaptive, Format first,
-      Format second) {
-    return first.sampleMimeType.equals(second.sampleMimeType)
-        && getRotationDegrees(first) == getRotationDegrees(second)
-        && (codecIsAdaptive || (first.width == second.width && first.height == second.height));
-  }
-
-  private static float getPixelWidthHeightRatio(Format format) {
-    return format.pixelWidthHeightRatio == Format.NO_VALUE ? 1 : format.pixelWidthHeightRatio;
-  }
-
-  private static int getRotationDegrees(Format format) {
-    return format.rotationDegrees == Format.NO_VALUE ? 0 : format.rotationDegrees;
   }
 
   protected static final class CodecMaxValues {

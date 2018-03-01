@@ -15,9 +15,6 @@
  */
 package com.google.android.exoplayer2;
 
-import android.annotation.SuppressLint;
-import android.annotation.TargetApi;
-import android.media.MediaFormat;
 import android.os.Parcel;
 import android.os.Parcelable;
 import com.google.android.exoplayer2.drm.DrmInitData;
@@ -25,7 +22,6 @@ import com.google.android.exoplayer2.metadata.Metadata;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.Util;
 import com.google.android.exoplayer2.video.ColorInfo;
-import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -109,14 +105,10 @@ public final class Format implements Parcelable {
   public final float frameRate;
   /**
    * The clockwise rotation that should be applied to the video for it to be rendered in the correct
-   * orientation, or {@link #NO_VALUE} if unknown or not applicable. Only 0, 90, 180 and 270 are
-   * supported.
+   * orientation, or 0 if unknown or not applicable. Only 0, 90, 180 and 270 are supported.
    */
   public final int rotationDegrees;
-  /**
-   * The width to height ratio of pixels in the video, or {@link #NO_VALUE} if unknown or not
-   * applicable.
-   */
+  /** The width to height ratio of pixels in the video, or 1.0 if unknown or not applicable. */
   public final float pixelWidthHeightRatio;
   /**
    * The stereo layout for 360/3D/VR video, or {@link #NO_VALUE} if not applicable. Valid stereo
@@ -153,11 +145,12 @@ public final class Format implements Parcelable {
   @C.PcmEncoding
   public final int pcmEncoding;
   /**
-   * The number of samples to trim from the start of the decoded audio stream.
+   * The number of samples to trim from the start of the decoded audio stream, or 0 if not
+   * applicable.
    */
   public final int encoderDelay;
   /**
-   * The number of samples to trim from the end of the decoded audio stream.
+   * The number of samples to trim from the end of the decoded audio stream, or 0 if not applicable.
    */
   public final int encoderPadding;
 
@@ -402,16 +395,17 @@ public final class Format implements Parcelable {
     this.width = width;
     this.height = height;
     this.frameRate = frameRate;
-    this.rotationDegrees = rotationDegrees;
-    this.pixelWidthHeightRatio = pixelWidthHeightRatio;
+    this.rotationDegrees = rotationDegrees == Format.NO_VALUE ? 0 : rotationDegrees;
+    this.pixelWidthHeightRatio =
+        pixelWidthHeightRatio == Format.NO_VALUE ? 1 : pixelWidthHeightRatio;
     this.projectionData = projectionData;
     this.stereoMode = stereoMode;
     this.colorInfo = colorInfo;
     this.channelCount = channelCount;
     this.sampleRate = sampleRate;
     this.pcmEncoding = pcmEncoding;
-    this.encoderDelay = encoderDelay;
-    this.encoderPadding = encoderPadding;
+    this.encoderDelay = encoderDelay == Format.NO_VALUE ? 0 : encoderDelay;
+    this.encoderPadding = encoderPadding == Format.NO_VALUE ? 0 : encoderPadding;
     this.selectionFlags = selectionFlags;
     this.language = language;
     this.accessibilityChannel = accessibilityChannel;
@@ -550,29 +544,6 @@ public final class Format implements Parcelable {
     return width == NO_VALUE || height == NO_VALUE ? NO_VALUE : (width * height);
   }
 
-  /**
-   * Returns a {@link MediaFormat} representation of this format.
-   */
-  @SuppressLint("InlinedApi")
-  @TargetApi(16)
-  public final MediaFormat getFrameworkMediaFormatV16() {
-    MediaFormat format = new MediaFormat();
-    format.setString(MediaFormat.KEY_MIME, sampleMimeType);
-    maybeSetStringV16(format, MediaFormat.KEY_LANGUAGE, language);
-    maybeSetIntegerV16(format, MediaFormat.KEY_MAX_INPUT_SIZE, maxInputSize);
-    maybeSetIntegerV16(format, MediaFormat.KEY_WIDTH, width);
-    maybeSetIntegerV16(format, MediaFormat.KEY_HEIGHT, height);
-    maybeSetFloatV16(format, MediaFormat.KEY_FRAME_RATE, frameRate);
-    maybeSetIntegerV16(format, "rotation-degrees", rotationDegrees);
-    maybeSetIntegerV16(format, MediaFormat.KEY_CHANNEL_COUNT, channelCount);
-    maybeSetIntegerV16(format, MediaFormat.KEY_SAMPLE_RATE, sampleRate);
-    for (int i = 0; i < initializationData.size(); i++) {
-      format.setByteBuffer("csd-" + i, ByteBuffer.wrap(initializationData.get(i)));
-    }
-    maybeSetColorInfoV24(format, colorInfo);
-    return format;
-  }
-
   @Override
   public String toString() {
     return "Format(" + id + ", " + containerMimeType + ", " + sampleMimeType + ", " + bitrate + ", "
@@ -611,24 +582,44 @@ public final class Format implements Parcelable {
       return false;
     }
     Format other = (Format) obj;
-    if (bitrate != other.bitrate || maxInputSize != other.maxInputSize
-        || width != other.width || height != other.height || frameRate != other.frameRate
-        || rotationDegrees != other.rotationDegrees
-        || pixelWidthHeightRatio != other.pixelWidthHeightRatio || stereoMode != other.stereoMode
-        || channelCount != other.channelCount || sampleRate != other.sampleRate
-        || pcmEncoding != other.pcmEncoding || encoderDelay != other.encoderDelay
-        || encoderPadding != other.encoderPadding || subsampleOffsetUs != other.subsampleOffsetUs
-        || selectionFlags != other.selectionFlags || !Util.areEqual(id, other.id)
-        || !Util.areEqual(language, other.language)
-        || accessibilityChannel != other.accessibilityChannel
-        || !Util.areEqual(containerMimeType, other.containerMimeType)
-        || !Util.areEqual(sampleMimeType, other.sampleMimeType)
-        || !Util.areEqual(codecs, other.codecs)
-        || !Util.areEqual(drmInitData, other.drmInitData)
-        || !Util.areEqual(metadata, other.metadata)
-        || !Util.areEqual(colorInfo, other.colorInfo)
-        || !Arrays.equals(projectionData, other.projectionData)
-        || initializationData.size() != other.initializationData.size()) {
+    return bitrate == other.bitrate
+        && maxInputSize == other.maxInputSize
+        && width == other.width
+        && height == other.height
+        && frameRate == other.frameRate
+        && rotationDegrees == other.rotationDegrees
+        && pixelWidthHeightRatio == other.pixelWidthHeightRatio
+        && stereoMode == other.stereoMode
+        && channelCount == other.channelCount
+        && sampleRate == other.sampleRate
+        && pcmEncoding == other.pcmEncoding
+        && encoderDelay == other.encoderDelay
+        && encoderPadding == other.encoderPadding
+        && subsampleOffsetUs == other.subsampleOffsetUs
+        && selectionFlags == other.selectionFlags
+        && Util.areEqual(id, other.id)
+        && Util.areEqual(language, other.language)
+        && accessibilityChannel == other.accessibilityChannel
+        && Util.areEqual(containerMimeType, other.containerMimeType)
+        && Util.areEqual(sampleMimeType, other.sampleMimeType)
+        && Util.areEqual(codecs, other.codecs)
+        && Util.areEqual(drmInitData, other.drmInitData)
+        && Util.areEqual(metadata, other.metadata)
+        && Util.areEqual(colorInfo, other.colorInfo)
+        && Arrays.equals(projectionData, other.projectionData)
+        && initializationDataEquals(other);
+  }
+
+  /**
+   * Returns whether the {@link #initializationData}s belonging to this format and {@code other} are
+   * equal.
+   *
+   * @param other The other format whose {@link #initializationData} is being compared.
+   * @return Whether the {@link #initializationData}s belonging to this format and {@code other} are
+   *     equal.
+   */
+  public boolean initializationDataEquals(Format other) {
+    if (initializationData.size() != other.initializationData.size()) {
       return false;
     }
     for (int i = 0; i < initializationData.size(); i++) {
@@ -637,45 +628,6 @@ public final class Format implements Parcelable {
       }
     }
     return true;
-  }
-
-  @TargetApi(24)
-  private static void maybeSetColorInfoV24(MediaFormat format, ColorInfo colorInfo) {
-    if (colorInfo == null) {
-      return;
-    }
-    maybeSetIntegerV16(format, MediaFormat.KEY_COLOR_TRANSFER, colorInfo.colorTransfer);
-    maybeSetIntegerV16(format, MediaFormat.KEY_COLOR_STANDARD, colorInfo.colorSpace);
-    maybeSetIntegerV16(format, MediaFormat.KEY_COLOR_RANGE, colorInfo.colorRange);
-    maybeSetByteBufferV16(format, MediaFormat.KEY_HDR_STATIC_INFO, colorInfo.hdrStaticInfo);
-  }
-
-  @TargetApi(16)
-  private static void maybeSetStringV16(MediaFormat format, String key, String value) {
-    if (value != null) {
-      format.setString(key, value);
-    }
-  }
-
-  @TargetApi(16)
-  private static void maybeSetIntegerV16(MediaFormat format, String key, int value) {
-    if (value != NO_VALUE) {
-      format.setInteger(key, value);
-    }
-  }
-
-  @TargetApi(16)
-  private static void maybeSetFloatV16(MediaFormat format, String key, float value) {
-    if (value != NO_VALUE) {
-      format.setFloat(key, value);
-    }
-  }
-
-  @TargetApi(16)
-  private static void maybeSetByteBufferV16(MediaFormat format, String key, byte[] value) {
-    if (value != null) {
-      format.setByteBuffer(key, ByteBuffer.wrap(value));
-    }
   }
 
   // Utility methods

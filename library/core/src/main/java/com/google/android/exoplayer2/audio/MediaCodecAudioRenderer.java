@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.audio;
 
+import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.media.MediaCodec;
 import android.media.MediaCrypto;
@@ -37,6 +38,7 @@ import com.google.android.exoplayer2.mediacodec.MediaCodecInfo;
 import com.google.android.exoplayer2.mediacodec.MediaCodecRenderer;
 import com.google.android.exoplayer2.mediacodec.MediaCodecSelector;
 import com.google.android.exoplayer2.mediacodec.MediaCodecUtil.DecoderQueryException;
+import com.google.android.exoplayer2.mediacodec.MediaFormatUtil;
 import com.google.android.exoplayer2.util.MediaClock;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.Util;
@@ -62,6 +64,7 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
   private final EventDispatcher eventDispatcher;
   private final AudioSink audioSink;
 
+  private int codecMaxInputSize;
   private boolean passthroughEnabled;
   private boolean codecNeedsDiscardChannelsWorkaround;
   private android.media.MediaFormat passthroughMediaFormat;
@@ -254,8 +257,9 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
   @Override
   protected void configureCodec(MediaCodecInfo codecInfo, MediaCodec codec, Format format,
       MediaCrypto crypto) {
+    codecMaxInputSize = getCodecMaxInputSize(format, getStreamFormats());
     codecNeedsDiscardChannelsWorkaround = codecNeedsDiscardChannelsWorkaround(codecInfo.name);
-    MediaFormat mediaFormat = getMediaFormatForPlayback(format);
+    MediaFormat mediaFormat = getMediaFormat(format, codecMaxInputSize);
     if (passthroughEnabled) {
       // Override the MIME type used to configure the codec if we are using a passthrough decoder.
       passthroughMediaFormat = mediaFormat;
@@ -266,6 +270,15 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
       codec.configure(mediaFormat, null, crypto, 0);
       passthroughMediaFormat = null;
     }
+  }
+
+  @Override
+  protected @KeepCodecResult int canKeepCodec(
+      MediaCodec codec, boolean codecIsAdaptive, Format oldFormat, Format newFormat) {
+    return newFormat.maxInputSize <= codecMaxInputSize
+            && areAdaptationCompatible(oldFormat, newFormat)
+        ? KEEP_CODEC_RESULT_YES_WITHOUT_RECONFIGURATION
+        : KEEP_CODEC_RESULT_NO;
   }
 
   @Override
@@ -288,8 +301,8 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
     pcmEncoding = MimeTypes.AUDIO_RAW.equals(newFormat.sampleMimeType) ? newFormat.pcmEncoding
         : C.ENCODING_PCM_16BIT;
     channelCount = newFormat.channelCount;
-    encoderDelay = newFormat.encoderDelay != Format.NO_VALUE ? newFormat.encoderDelay : 0;
-    encoderPadding = newFormat.encoderPadding != Format.NO_VALUE ? newFormat.encoderPadding : 0;
+    encoderDelay = newFormat.encoderDelay;
+    encoderPadding = newFormat.encoderPadding;
   }
 
   @Override
@@ -494,6 +507,53 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
     }
   }
 
+  /**
+   * Returns a maximum input size suitable for configuring a codec for {@code format} in a way that
+   * will allow possible adaptation to other compatible formats in {@code streamFormats}.
+   *
+   * @param format The format for which the codec is being configured.
+   * @param streamFormats The possible stream formats.
+   * @return A suitable maximum input size.
+   */
+  protected int getCodecMaxInputSize(Format format, Format[] streamFormats) {
+    int maxInputSize = format.maxInputSize;
+    if (streamFormats.length == 1) {
+      // The single entry in streamFormats must correspond to the format for which the codec is
+      // being configured.
+      return maxInputSize;
+    }
+    for (Format streamFormat : streamFormats) {
+      if (areAdaptationCompatible(format, streamFormat)) {
+        maxInputSize = Math.max(maxInputSize, streamFormat.maxInputSize);
+      }
+    }
+    return maxInputSize;
+  }
+
+  /**
+   * Returns the framework {@link MediaFormat} that can be used to configure a {@link MediaCodec}
+   * for decoding the given {@link Format} for playback.
+   *
+   * @param format The format of the media.
+   * @return The framework media format.
+   */
+  @SuppressLint("InlinedApi")
+  protected MediaFormat getMediaFormat(Format format, int codecMaxInputSize) {
+    MediaFormat mediaFormat = new MediaFormat();
+    // Set format parameters that should always be set.
+    mediaFormat.setString(MediaFormat.KEY_MIME, format.sampleMimeType);
+    mediaFormat.setInteger(MediaFormat.KEY_CHANNEL_COUNT, format.channelCount);
+    mediaFormat.setInteger(MediaFormat.KEY_SAMPLE_RATE, format.sampleRate);
+    MediaFormatUtil.setCsdBuffers(mediaFormat, format.initializationData);
+    // Set codec max values.
+    MediaFormatUtil.maybeSetInteger(mediaFormat, MediaFormat.KEY_MAX_INPUT_SIZE, codecMaxInputSize);
+    // Set codec configuration values.
+    if (Util.SDK_INT >= 23) {
+      mediaFormat.setInteger(MediaFormat.KEY_PRIORITY, 0 /* realtime priority */);
+    }
+    return mediaFormat;
+  }
+
   private void updateCurrentPosition() {
     long newCurrentPositionUs = audioSink.getCurrentPositionUs(isEnded());
     if (newCurrentPositionUs != AudioSink.CURRENT_POSITION_NOT_SET) {
@@ -503,6 +563,25 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
               : Math.max(currentPositionUs, newCurrentPositionUs);
       allowPositionDiscontinuity = false;
     }
+  }
+
+  /**
+   * Returns whether a codec with suitable maximum input size will support adaptation between two
+   * {@link Format}s.
+   *
+   * @param first The first format.
+   * @param second The second format.
+   * @return Whether the codec will support adaptation between the two {@link Format}s.
+   */
+  private static boolean areAdaptationCompatible(Format first, Format second) {
+    return first.sampleMimeType.equals(second.sampleMimeType)
+        && first.channelCount == second.channelCount
+        && first.sampleRate == second.sampleRate
+        && first.encoderDelay == 0
+        && first.encoderPadding == 0
+        && second.encoderDelay == 0
+        && second.encoderPadding == 0
+        && first.initializationDataEquals(second);
   }
 
   /**
