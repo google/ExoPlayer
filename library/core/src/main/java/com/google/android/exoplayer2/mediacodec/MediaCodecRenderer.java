@@ -129,6 +129,24 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
    */
   private static final long MAX_CODEC_HOTSWAP_TIME_MS = 1000;
 
+  /** The possible return values for {@link #canKeepCodec(MediaCodec, boolean, Format, Format)}. */
+  @Retention(RetentionPolicy.SOURCE)
+  @IntDef({
+    KEEP_CODEC_RESULT_NO,
+    KEEP_CODEC_RESULT_YES_WITHOUT_RECONFIGURATION,
+    KEEP_CODEC_RESULT_YES_WITH_RECONFIGURATION
+  })
+  protected @interface KeepCodecResult {}
+  /** The codec cannot be kept. */
+  protected static final int KEEP_CODEC_RESULT_NO = 0;
+  /** The codec can be kept. No reconfiguration is required. */
+  protected static final int KEEP_CODEC_RESULT_YES_WITHOUT_RECONFIGURATION = 1;
+  /**
+   * The codec can be kept, but must be reconfigured by prefixing the next input buffer with the new
+   * format's configuration data.
+   */
+  protected static final int KEEP_CODEC_RESULT_YES_WITH_RECONFIGURATION = 3;
+
   @Retention(RetentionPolicy.SOURCE)
   @IntDef({RECONFIGURATION_STATE_NONE, RECONFIGURATION_STATE_WRITE_PENDING,
       RECONFIGURATION_STATE_QUEUE_PENDING})
@@ -430,21 +448,6 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
 
   protected final MediaCodecInfo getCodecInfo() {
     return codecInfo;
-  }
-
-  /**
-   * Returns the framework {@link MediaFormat} that can be used to configure a {@link MediaCodec}
-   * for decoding the given {@link Format} for playback.
-   *
-   * @param format The format of the media.
-   * @return The framework media format.
-   */
-  protected final MediaFormat getMediaFormatForPlayback(Format format) {
-    MediaFormat mediaFormat = format.getFrameworkMediaFormatV16();
-    if (Util.SDK_INT >= 23) {
-      configureMediaFormatForPlaybackV23(mediaFormat);
-    }
-    return mediaFormat;
   }
 
   @Override
@@ -863,8 +866,8 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
     Format oldFormat = format;
     format = newFormat;
 
-    boolean drmInitDataChanged = !Util.areEqual(format.drmInitData, oldFormat == null ? null
-        : oldFormat.drmInitData);
+    boolean drmInitDataChanged =
+        !Util.areEqual(format.drmInitData, oldFormat == null ? null : oldFormat.drmInitData);
     if (drmInitDataChanged) {
       if (format.drmInitData != null) {
         if (drmSessionManager == null) {
@@ -880,15 +883,31 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
       }
     }
 
-    if (pendingDrmSession == drmSession && codec != null
-        && canReconfigureCodec(codec, codecInfo.adaptive, oldFormat, format)) {
-      codecReconfigured = true;
-      codecReconfigurationState = RECONFIGURATION_STATE_WRITE_PENDING;
-      codecNeedsAdaptationWorkaroundBuffer =
-          codecAdaptationWorkaroundMode == ADAPTATION_WORKAROUND_MODE_ALWAYS
-          || (codecAdaptationWorkaroundMode == ADAPTATION_WORKAROUND_MODE_SAME_RESOLUTION
-              && format.width == oldFormat.width && format.height == oldFormat.height);
-    } else {
+    boolean keepingCodec = false;
+    if (pendingDrmSession == drmSession && codec != null) {
+      switch (canKeepCodec(codec, codecInfo.adaptive, oldFormat, format)) {
+        case KEEP_CODEC_RESULT_NO:
+          // Do nothing.
+          break;
+        case KEEP_CODEC_RESULT_YES_WITHOUT_RECONFIGURATION:
+          keepingCodec = true;
+          break;
+        case KEEP_CODEC_RESULT_YES_WITH_RECONFIGURATION:
+          keepingCodec = true;
+          codecReconfigured = true;
+          codecReconfigurationState = RECONFIGURATION_STATE_WRITE_PENDING;
+          codecNeedsAdaptationWorkaroundBuffer =
+              codecAdaptationWorkaroundMode == ADAPTATION_WORKAROUND_MODE_ALWAYS
+                  || (codecAdaptationWorkaroundMode == ADAPTATION_WORKAROUND_MODE_SAME_RESOLUTION
+                      && format.width == oldFormat.width
+                      && format.height == oldFormat.height);
+          break;
+        default:
+          throw new IllegalStateException(); // Never happens.
+      }
+    }
+
+    if (!keepingCodec) {
       if (codecReceivedBuffers) {
         // Signal end of stream and wait for any final output buffers before re-initialization.
         codecReinitializationState = REINITIALIZATION_STATE_SIGNAL_END_OF_STREAM;
@@ -937,23 +956,20 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
   }
 
   /**
-   * Determines whether the existing {@link MediaCodec} should be reconfigured for a new format by
-   * sending codec specific initialization data at the start of the next input buffer. If true is
-   * returned then the {@link MediaCodec} instance will be reconfigured in this way. If false is
-   * returned then the instance will be released, and a new instance will be created for the new
-   * format.
-   * <p>
-   * The default implementation returns false.
+   * Determines whether the existing {@link MediaCodec} can be kept for a new format, and if it can
+   * whether it requires reconfiguration.
+   *
+   * <p>The default implementation returns {@link #KEEP_CODEC_RESULT_NO}.
    *
    * @param codec The existing {@link MediaCodec} instance.
    * @param codecIsAdaptive Whether the codec is adaptive.
    * @param oldFormat The format for which the existing instance is configured.
    * @param newFormat The new format.
-   * @return Whether the existing instance can be reconfigured.
+   * @return Whether the instance can be kept, and if it can whether it requires reconfiguration.
    */
-  protected boolean canReconfigureCodec(MediaCodec codec, boolean codecIsAdaptive, Format oldFormat,
-      Format newFormat) {
-    return false;
+  protected @KeepCodecResult int canKeepCodec(
+      MediaCodec codec, boolean codecIsAdaptive, Format oldFormat, Format newFormat) {
+    return KEEP_CODEC_RESULT_NO;
   }
 
   @Override
@@ -1183,11 +1199,6 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
       }
     }
     return false;
-  }
-
-  @TargetApi(23)
-  private static void configureMediaFormatForPlaybackV23(MediaFormat mediaFormat) {
-    mediaFormat.setInteger(MediaFormat.KEY_PRIORITY, 0 /* realtime priority */);
   }
 
   /**

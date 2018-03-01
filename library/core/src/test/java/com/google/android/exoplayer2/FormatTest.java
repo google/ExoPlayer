@@ -20,20 +20,14 @@ import static com.google.android.exoplayer2.util.MimeTypes.VIDEO_MP4;
 import static com.google.android.exoplayer2.util.MimeTypes.VIDEO_WEBM;
 import static com.google.common.truth.Truth.assertThat;
 
-import android.annotation.SuppressLint;
-import android.annotation.TargetApi;
-import android.media.MediaFormat;
 import android.os.Parcel;
 import com.google.android.exoplayer2.drm.DrmInitData;
 import com.google.android.exoplayer2.metadata.Metadata;
 import com.google.android.exoplayer2.metadata.id3.TextInformationFrame;
 import com.google.android.exoplayer2.testutil.TestUtil;
 import com.google.android.exoplayer2.util.MimeTypes;
-import com.google.android.exoplayer2.util.Util;
 import com.google.android.exoplayer2.video.ColorInfo;
-import java.nio.ByteBuffer;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import org.junit.Test;
@@ -83,75 +77,6 @@ public final class FormatTest {
     assertThat(formatFromParcel).isEqualTo(formatToParcel);
 
     parcel.recycle();
-  }
-
-  @Test
-  public void testConversionToFrameworkMediaFormat() {
-    if (Util.SDK_INT < 16) {
-      // Test doesn't apply.
-      return;
-    }
-
-    testConversionToFrameworkMediaFormatV16(Format.createVideoSampleFormat(null, "video/xyz", null,
-        5000, 102400, 1280, 720, 30, INIT_DATA, null));
-    testConversionToFrameworkMediaFormatV16(Format.createVideoSampleFormat(null, "video/xyz", null,
-        5000, Format.NO_VALUE, 1280, 720, 30, null, null));
-    testConversionToFrameworkMediaFormatV16(Format.createAudioSampleFormat(null, "audio/xyz", null,
-        500, 128, 5, 44100, INIT_DATA, null, 0, null));
-    testConversionToFrameworkMediaFormatV16(Format.createAudioSampleFormat(null, "audio/xyz", null,
-        500, Format.NO_VALUE, 5, 44100, null, null, 0, null));
-    testConversionToFrameworkMediaFormatV16(Format.createTextSampleFormat(null, "text/xyz", 0,
-        "eng"));
-    testConversionToFrameworkMediaFormatV16(Format.createTextSampleFormat(null, "text/xyz", 0,
-        null));
-  }
-
-  @SuppressLint("InlinedApi")
-  @TargetApi(16)
-  private static void testConversionToFrameworkMediaFormatV16(Format in) {
-    MediaFormat out = in.getFrameworkMediaFormatV16();
-    assertThat(out.getString(MediaFormat.KEY_MIME)).isEqualTo(in.sampleMimeType);
-    assertOptionalV16(out, MediaFormat.KEY_LANGUAGE, in.language);
-    assertOptionalV16(out, MediaFormat.KEY_MAX_INPUT_SIZE, in.maxInputSize);
-    assertOptionalV16(out, MediaFormat.KEY_WIDTH, in.width);
-    assertOptionalV16(out, MediaFormat.KEY_HEIGHT, in.height);
-    assertOptionalV16(out, MediaFormat.KEY_CHANNEL_COUNT, in.channelCount);
-    assertOptionalV16(out, MediaFormat.KEY_SAMPLE_RATE, in.sampleRate);
-    assertOptionalV16(out, MediaFormat.KEY_FRAME_RATE, in.frameRate);
-
-    for (int i = 0; i < in.initializationData.size(); i++) {
-      byte[] originalData = in.initializationData.get(i);
-      ByteBuffer frameworkBuffer = out.getByteBuffer("csd-" + i);
-      byte[] frameworkData = Arrays.copyOf(frameworkBuffer.array(), frameworkBuffer.limit());
-      assertThat(frameworkData).isEqualTo(originalData);
-    }
-  }
-
-  @TargetApi(16)
-  private static void assertOptionalV16(MediaFormat format, String key, String value) {
-    if (value == null) {
-      assertThat(format.containsKey(key)).isEqualTo(false);
-    } else {
-      assertThat(format.getString(key)).isEqualTo(value);
-    }
-  }
-
-  @TargetApi(16)
-  private static void assertOptionalV16(MediaFormat format, String key, int value) {
-    if (value == Format.NO_VALUE) {
-      assertThat(format.containsKey(key)).isEqualTo(false);
-    } else {
-      assertThat(format.getInteger(key)).isEqualTo(value);
-    }
-  }
-
-  @TargetApi(16)
-  private static void assertOptionalV16(MediaFormat format, String key, float value) {
-    if (value == Format.NO_VALUE) {
-      assertThat(format.containsKey(key)).isEqualTo(false);
-    } else {
-      assertThat(format.getFloat(key)).isEqualTo(value);
-    }
   }
 
 }
