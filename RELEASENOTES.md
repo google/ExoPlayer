@@ -2,6 +2,9 @@
 
 ### dev-v2 (not yet released) ###
 
+* UI components:
+  * Add support for listening to `AspectRatioFrameLayout`'s aspect ratio update
+    ([#3736](https://github.com/google/ExoPlayer/issues/3736)).
 * Gradle: Replace 'compile' configuration (deprecated) with 'implementation' and
   'api'. Note: This may lead to build breakage for applications upgrading from
   previous version that rely on indirect dependency for certain modules. In such

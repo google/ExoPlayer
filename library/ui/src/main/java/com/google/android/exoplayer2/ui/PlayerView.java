@@ -478,6 +478,12 @@ public class PlayerView extends FrameLayout {
     contentFrame.setResizeMode(resizeMode);
   }
 
+  /** Returns the resize mode. */
+  public @ResizeMode int getResizeMode() {
+    Assertions.checkState(contentFrame != null);
+    return contentFrame.getResizeMode();
+  }
+
   /** Returns whether artwork is displayed if present in the media. */
   public boolean getUseArtwork() {
     return useArtwork;
@@ -748,6 +754,17 @@ public class PlayerView extends FrameLayout {
   public void setShowMultiWindowTimeBar(boolean showMultiWindowTimeBar) {
     Assertions.checkState(controller != null);
     controller.setShowMultiWindowTimeBar(showMultiWindowTimeBar);
+  }
+
+  /**
+   * Set the {@link AspectRatioFrameLayout.AspectRatioListener}.
+   *
+   * @param listener The listener to be notified about aspect ratios changes of the video content or
+   *     the content frame.
+   */
+  public void setAspectRatioListener(AspectRatioFrameLayout.AspectRatioListener listener) {
+    Assertions.checkState(contentFrame != null);
+    contentFrame.setAspectRatioListener(listener);
   }
 
   /**
