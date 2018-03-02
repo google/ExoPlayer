@@ -83,7 +83,6 @@ public final class HlsPlaylistTracker implements Loader.Callback<ParsingLoadable
      * @param mediaPlaylist The primary playlist new snapshot.
      */
     void onPrimaryPlaylistRefreshed(HlsMediaPlaylist mediaPlaylist);
-
   }
 
   /**
@@ -128,6 +127,7 @@ public final class HlsPlaylistTracker implements Loader.Callback<ParsingLoadable
   private HlsUrl primaryHlsUrl;
   private HlsMediaPlaylist primaryUrlSnapshot;
   private boolean isLive;
+  private long initialStartTimeUs;
 
   /**
    * @param initialPlaylistUri Uri for the initial playlist of the stream. Can refer a media
@@ -153,6 +153,7 @@ public final class HlsPlaylistTracker implements Loader.Callback<ParsingLoadable
     initialPlaylistLoader = new Loader("HlsPlaylistTracker:MasterPlaylist");
     playlistBundles = new IdentityHashMap<>();
     playlistRefreshHandler = new Handler();
+    initialStartTimeUs = C.TIME_UNSET;
   }
 
   /**
@@ -206,6 +207,11 @@ public final class HlsPlaylistTracker implements Loader.Callback<ParsingLoadable
       maybeSetPrimaryUrl(url);
     }
     return snapshot;
+  }
+
+  /** Returns the start time of the first loaded primary playlist. */
+  public long getInitialStartTimeUs() {
+    return initialStartTimeUs;
   }
 
   /**
@@ -371,6 +377,7 @@ public final class HlsPlaylistTracker implements Loader.Callback<ParsingLoadable
       if (primaryUrlSnapshot == null) {
         // This is the first primary url snapshot.
         isLive = !newSnapshot.hasEndTag;
+        initialStartTimeUs = newSnapshot.startTimeUs;
       }
       primaryUrlSnapshot = newSnapshot;
       primaryPlaylistListener.onPrimaryPlaylistRefreshed(newSnapshot);
