@@ -22,6 +22,12 @@
   * Allow clipping of child media sources where the period and window have a
     non-zero offset with `ClippingMediaSource`
     ([#3888](https://github.com/google/ExoPlayer/issues/3888)).
+  * HlsMediaSource: make HLS periods start at zero instead of the epoch.
+    Note: applications that rely on HLS timelines having a period starting at
+    the epoch will need to update their handling of HLS timelines. The program
+    date time is still available via the informational
+    `Timeline.Window.windowStartTimeMs` field
+    ([#3865](https://github.com/google/ExoPlayer/issues/3865)).
 
 ### 2.7.0 ###
 
@@ -44,7 +50,7 @@
 * Add `ExoPlayer.setSeekParameters` for controlling how seek operations are
   performed. The `SeekParameters` class contains defaults for exact seeking and
   seeking to the closest sync points before, either side or after specified seek
-  positions. `SeekParameters` are not currently supported when playing HLS 
+  positions. `SeekParameters` are not currently supported when playing HLS
   streams.
 * DefaultTrackSelector:
   * Replace `DefaultTrackSelector.Parameters` copy methods with a builder.

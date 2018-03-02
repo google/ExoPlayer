@@ -362,28 +362,50 @@ public final class HlsMediaSource extends BaseMediaSource
   @Override
   public void onPrimaryPlaylistRefreshed(HlsMediaPlaylist playlist) {
     SinglePeriodTimeline timeline;
-    long presentationStartTimeMs = playlist.hasProgramDateTime ? 0 : C.TIME_UNSET;
     long windowStartTimeMs = playlist.hasProgramDateTime ? C.usToMs(playlist.startTimeUs)
         : C.TIME_UNSET;
+    // For playlist types EVENT and VOD we know segments are never removed, so the presentation
+    // started at the same time as the window. Otherwise, we don't know the presentation start time.
+    long presentationStartTimeMs =
+        playlist.playlistType == HlsMediaPlaylist.PLAYLIST_TYPE_EVENT
+                || playlist.playlistType == HlsMediaPlaylist.PLAYLIST_TYPE_VOD
+            ? windowStartTimeMs
+            : C.TIME_UNSET;
     long windowDefaultStartPositionUs = playlist.startOffsetUs;
     if (playlistTracker.isLive()) {
-      long periodDurationUs = playlist.hasEndTag ? (playlist.startTimeUs + playlist.durationUs)
-          : C.TIME_UNSET;
+      long offsetFromInitialStartTimeUs =
+          playlist.startTimeUs - playlistTracker.getInitialStartTimeUs();
+      long periodDurationUs =
+          playlist.hasEndTag ? offsetFromInitialStartTimeUs + playlist.durationUs : C.TIME_UNSET;
       List<HlsMediaPlaylist.Segment> segments = playlist.segments;
       if (windowDefaultStartPositionUs == C.TIME_UNSET) {
         windowDefaultStartPositionUs = segments.isEmpty() ? 0
             : segments.get(Math.max(0, segments.size() - 3)).relativeStartTimeUs;
       }
-      timeline = new SinglePeriodTimeline(presentationStartTimeMs, windowStartTimeMs,
-          periodDurationUs, playlist.durationUs, playlist.startTimeUs, windowDefaultStartPositionUs,
-          true, !playlist.hasEndTag);
+      timeline =
+          new SinglePeriodTimeline(
+              presentationStartTimeMs,
+              windowStartTimeMs,
+              periodDurationUs,
+              /* windowDurationUs= */ playlist.durationUs,
+              /* windowPositionInPeriodUs= */ offsetFromInitialStartTimeUs,
+              windowDefaultStartPositionUs,
+              /* isSeekable= */ true,
+              /* isDynamic= */ !playlist.hasEndTag);
     } else /* not live */ {
       if (windowDefaultStartPositionUs == C.TIME_UNSET) {
         windowDefaultStartPositionUs = 0;
       }
-      timeline = new SinglePeriodTimeline(presentationStartTimeMs, windowStartTimeMs,
-          playlist.startTimeUs + playlist.durationUs, playlist.durationUs, playlist.startTimeUs,
-          windowDefaultStartPositionUs, true, false);
+      timeline =
+          new SinglePeriodTimeline(
+              presentationStartTimeMs,
+              windowStartTimeMs,
+              /* periodDurationUs= */ playlist.durationUs,
+              /* windowDurationUs= */ playlist.durationUs,
+              /* windowPositionInPeriodUs= */ 0,
+              windowDefaultStartPositionUs,
+              /* isSeekable= */ true,
+              /* isDynamic= */ false);
     }
     refreshSourceInfo(timeline, new HlsManifest(playlistTracker.getMasterPlaylist(), playlist));
   }
