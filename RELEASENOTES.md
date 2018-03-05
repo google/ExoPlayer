@@ -2,6 +2,8 @@
 
 ### dev-v2 (not yet released) ###
 
+* Moved initial bitrate estimate from `AdaptiveTrackSelection` to
+  `DefaultBandwidthMeter`.
 * UI components:
   * Add support for listening to `AspectRatioFrameLayout`'s aspect ratio update
     ([#3736](https://github.com/google/ExoPlayer/issues/3736)).

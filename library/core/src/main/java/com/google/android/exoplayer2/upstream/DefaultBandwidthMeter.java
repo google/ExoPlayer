@@ -28,7 +28,7 @@ import com.google.android.exoplayer2.util.SlidingPercentile;
 public final class DefaultBandwidthMeter implements BandwidthMeter, TransferListener<Object> {
 
   /** Default initial bitrate estimate in bits per second. */
-  public static final long DEFAULT_INITIAL_BITRATE_ESTIMATE = BandwidthMeter.NO_ESTIMATE;
+  public static final long DEFAULT_INITIAL_BITRATE_ESTIMATE = 1_000_000;
 
   /** Default maximum weight for the sliding window. */
   public static final int DEFAULT_SLIDING_WINDOW_MAX_WEIGHT = 2000;
