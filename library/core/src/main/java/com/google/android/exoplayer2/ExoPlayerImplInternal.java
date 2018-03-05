@@ -339,7 +339,7 @@ import java.util.Collections;
       }
       maybeNotifyPlaybackInfoChanged();
     } catch (ExoPlaybackException e) {
-      Log.e(TAG, "Renderer error.", e);
+      Log.e(TAG, "Playback error.", e);
       stopInternal(/* reset= */ false, /* acknowledgeStop= */ false);
       eventHandler.obtainMessage(MSG_ERROR, e).sendToTarget();
       maybeNotifyPlaybackInfoChanged();
@@ -805,7 +805,7 @@ import java.util.Collections;
     }
   }
 
-  private void sendMessageInternal(PlayerMessage message) {
+  private void sendMessageInternal(PlayerMessage message) throws ExoPlaybackException {
     if (message.getPositionMs() == C.TIME_UNSET) {
       // If no delivery time is specified, trigger immediate message delivery.
       sendMessageToTarget(message);
@@ -824,7 +824,7 @@ import java.util.Collections;
     }
   }
 
-  private void sendMessageToTarget(PlayerMessage message) {
+  private void sendMessageToTarget(PlayerMessage message) throws ExoPlaybackException {
     if (message.getHandler().getLooper() == handler.getLooper()) {
       deliverMessage(message);
       if (playbackInfo.playbackState == Player.STATE_READY
@@ -838,22 +838,24 @@ import java.util.Collections;
   }
 
   private void sendMessageToTargetThread(final PlayerMessage message) {
-    message
-        .getHandler()
-        .post(
-            new Runnable() {
-              @Override
-              public void run() {
-                deliverMessage(message);
-              }
-            });
+    Handler handler = message.getHandler();
+    handler.post(
+        new Runnable() {
+          @Override
+          public void run() {
+            try {
+              deliverMessage(message);
+            } catch (ExoPlaybackException e) {
+              Log.e(TAG, "Unexpected error delivering message on external thread.", e);
+              throw new RuntimeException(e);
+            }
+          }
+        });
   }
 
-  private void deliverMessage(PlayerMessage message) {
+  private void deliverMessage(PlayerMessage message) throws ExoPlaybackException {
     try {
       message.getTarget().handleMessage(message.getType(), message.getPayload());
-    } catch (ExoPlaybackException e) {
-      eventHandler.obtainMessage(MSG_ERROR, e).sendToTarget();
     } finally {
       message.markAsProcessed(/* isDelivered= */ true);
     }
@@ -899,7 +901,8 @@ import java.util.Collections;
     return true;
   }
 
-  private void maybeTriggerPendingMessages(long oldPeriodPositionUs, long newPeriodPositionUs) {
+  private void maybeTriggerPendingMessages(long oldPeriodPositionUs, long newPeriodPositionUs)
+      throws ExoPlaybackException {
     if (pendingMessages.isEmpty() || playbackInfo.periodId.isAd()) {
       return;
     }
