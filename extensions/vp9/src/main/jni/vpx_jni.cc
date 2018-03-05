@@ -295,7 +295,11 @@ DECODER_FUNC(jlong, vpxInit, jboolean disableLoopFilter) {
     return 0;
   }
   if (disableLoopFilter) {
-    vpx_codec_control_(context, VP9_SET_SKIP_LOOP_FILTER, true);
+    // TODO(b/71930387): Use vpx_codec_control(), not vpx_codec_control_().
+    err = vpx_codec_control_(context, VP9_SET_SKIP_LOOP_FILTER, true);
+    if (err) {
+      LOGE("ERROR: Failed to shut off libvpx loop filter, error = %d.", err);
+    }
   }
 
   // Populate JNI References.
