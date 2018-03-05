@@ -47,7 +47,6 @@ import com.google.android.exoplayer2.trackselection.MappingTrackSelector;
 import com.google.android.exoplayer2.trackselection.MappingTrackSelector.MappedTrackInfo;
 import com.google.android.exoplayer2.trackselection.TrackSelection;
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
-import com.google.android.exoplayer2.upstream.DataSpec;
 import com.google.android.exoplayer2.video.VideoRendererEventListener;
 import java.io.IOException;
 import java.text.NumberFormat;
@@ -362,49 +361,36 @@ public class EventLogger
   // MediaSourceEventListener
 
   @Override
-  public void onLoadStarted(
-      DataSpec dataSpec,
-      int dataType,
-      int trackType,
-      Format trackFormat,
-      int trackSelectionReason,
-      Object trackSelectionData,
-      long mediaStartTimeMs,
-      long mediaEndTimeMs,
-      long elapsedRealtimeMs) {
+  public void onLoadStarted(LoadEventInfo loadEventInfo, MediaLoadData mediaLoadData) {
     // Do nothing.
   }
 
   @Override
-  public void onLoadError(DataSpec dataSpec, int dataType, int trackType, Format trackFormat,
-      int trackSelectionReason, Object trackSelectionData, long mediaStartTimeMs,
-      long mediaEndTimeMs, long elapsedRealtimeMs, long loadDurationMs, long bytesLoaded,
-      IOException error, boolean wasCanceled) {
+  public void onLoadError(
+      LoadEventInfo loadEventInfo,
+      MediaLoadData mediaLoadData,
+      IOException error,
+      boolean wasCanceled) {
     printInternalError("loadError", error);
   }
 
   @Override
-  public void onLoadCanceled(DataSpec dataSpec, int dataType, int trackType, Format trackFormat,
-      int trackSelectionReason, Object trackSelectionData, long mediaStartTimeMs,
-      long mediaEndTimeMs, long elapsedRealtimeMs, long loadDurationMs, long bytesLoaded) {
+  public void onLoadCanceled(LoadEventInfo loadEventInfo, MediaLoadData mediaLoadData) {
     // Do nothing.
   }
 
   @Override
-  public void onLoadCompleted(DataSpec dataSpec, int dataType, int trackType, Format trackFormat,
-      int trackSelectionReason, Object trackSelectionData, long mediaStartTimeMs,
-      long mediaEndTimeMs, long elapsedRealtimeMs, long loadDurationMs, long bytesLoaded) {
+  public void onLoadCompleted(LoadEventInfo loadEventInfo, MediaLoadData mediaLoadData) {
     // Do nothing.
   }
 
   @Override
-  public void onUpstreamDiscarded(int trackType, long mediaStartTimeMs, long mediaEndTimeMs) {
+  public void onUpstreamDiscarded(MediaLoadData mediaLoadData) {
     // Do nothing.
   }
 
   @Override
-  public void onDownstreamFormatChanged(int trackType, Format trackFormat, int trackSelectionReason,
-      Object trackSelectionData, long mediaTimeMs) {
+  public void onDownstreamFormatChanged(MediaLoadData mediaLoadData) {
     // Do nothing.
   }
 

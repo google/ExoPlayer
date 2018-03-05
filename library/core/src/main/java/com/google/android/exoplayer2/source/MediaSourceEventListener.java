@@ -27,107 +27,127 @@ import java.io.IOException;
 
 /** Interface for callbacks to be notified of {@link MediaSource} events. */
 public interface MediaSourceEventListener {
+
+  /** Media source load event information. */
+  final class LoadEventInfo {
+
+    /** Defines the data being loaded. */
+    public final DataSpec dataSpec;
+    /** The value of {@link SystemClock#elapsedRealtime} at the time of the load event. */
+    public final long elapsedRealtimeMs;
+    /** The duration of the load up to the event time. */
+    public final long loadDurationMs;
+    /** The number of bytes that were loaded up to the event time. */
+    public final long bytesLoaded;
+
+    /**
+     * Creates load event info.
+     *
+     * @param dataSpec Defines the data being loaded.
+     * @param elapsedRealtimeMs The value of {@link SystemClock#elapsedRealtime} at the time of the
+     *     load event.
+     * @param loadDurationMs The duration of the load up to the event time.
+     * @param bytesLoaded The number of bytes that were loaded up to the event time.
+     */
+    public LoadEventInfo(
+        DataSpec dataSpec, long elapsedRealtimeMs, long loadDurationMs, long bytesLoaded) {
+      this.dataSpec = dataSpec;
+      this.elapsedRealtimeMs = elapsedRealtimeMs;
+      this.loadDurationMs = loadDurationMs;
+      this.bytesLoaded = bytesLoaded;
+    }
+  }
+
+  /** Descriptor for data being loaded or selected by a media source. */
+  final class MediaLoadData {
+    /** One of the {@link C} {@code DATA_TYPE_*} constants defining the type of data. */
+    public final int dataType;
+    /**
+     * One of the {@link C} {@code TRACK_TYPE_*} constants if the data corresponds to media of a
+     * specific type. {@link C#TRACK_TYPE_UNKNOWN} otherwise.
+     */
+    public final int trackType;
+    /**
+     * The format of the track to which the data belongs. Null if the data does not belong to a
+     * specific track.
+     */
+    public final @Nullable Format trackFormat;
+    /**
+     * One of the {@link C} {@code SELECTION_REASON_*} constants if the data belongs to a track.
+     * {@link C#SELECTION_REASON_UNKNOWN} otherwise.
+     */
+    public final int trackSelectionReason;
+    /**
+     * Optional data associated with the selection of the track to which the data belongs. Null if
+     * the data does not belong to a track.
+     */
+    public final @Nullable Object trackSelectionData;
+    /** The start time of the media, or {@link C#TIME_UNSET} if the data is not for media. */
+    public final long mediaStartTimeMs;
+    /**
+     * The end time of the media, or {@link C#TIME_UNSET} if the data is not for media or the end
+     * time is unknown.
+     */
+    public final long mediaEndTimeMs;
+
+    /**
+     * Creates media load data.
+     *
+     * @param dataType One of the {@link C} {@code DATA_TYPE_*} constants defining the type of data.
+     * @param trackType One of the {@link C} {@code TRACK_TYPE_*} constants if the data corresponds
+     *     to media of a specific type. {@link C#TRACK_TYPE_UNKNOWN} otherwise.
+     * @param trackFormat The format of the track to which the data belongs. Null if the data does
+     *     not belong to a track.
+     * @param trackSelectionReason One of the {@link C} {@code SELECTION_REASON_*} constants if the
+     *     data belongs to a track. {@link C#SELECTION_REASON_UNKNOWN} otherwise.
+     * @param trackSelectionData Optional data associated with the selection of the track to which
+     *     the data belongs. Null if the data does not belong to a track.
+     * @param mediaStartTimeMs The start time of the media, or {@link C#TIME_UNSET} if the data is
+     *     not for media.
+     * @param mediaEndTimeMs The end time of the media, or {@link C#TIME_UNSET} if the data is not
+     *     for media or the end time is unknown.
+     */
+    public MediaLoadData(
+        int dataType,
+        int trackType,
+        @Nullable Format trackFormat,
+        int trackSelectionReason,
+        @Nullable Object trackSelectionData,
+        long mediaStartTimeMs,
+        long mediaEndTimeMs) {
+      this.dataType = dataType;
+      this.trackType = trackType;
+      this.trackFormat = trackFormat;
+      this.trackSelectionReason = trackSelectionReason;
+      this.trackSelectionData = trackSelectionData;
+      this.mediaStartTimeMs = mediaStartTimeMs;
+      this.mediaEndTimeMs = mediaEndTimeMs;
+    }
+  }
+
   /**
    * Called when a load begins.
    *
-   * @param dataSpec Defines the data being loaded.
-   * @param dataType One of the {@link C} {@code DATA_TYPE_*} constants defining the type of data
-   *     being loaded.
-   * @param trackType One of the {@link C} {@code TRACK_TYPE_*} constants if the data corresponds to
-   *     media of a specific type. {@link C#TRACK_TYPE_UNKNOWN} otherwise.
-   * @param trackFormat The format of the track to which the data belongs. Null if the data does not
-   *     belong to a track.
-   * @param trackSelectionReason One of the {@link C} {@code SELECTION_REASON_*} constants if the
-   *     data belongs to a track. {@link C#SELECTION_REASON_UNKNOWN} otherwise.
-   * @param trackSelectionData Optional data associated with the selection of the track to which the
-   *     data belongs. Null if the data does not belong to a track.
-   * @param mediaStartTimeMs The start time of the media being loaded, or {@link C#TIME_UNSET} if
-   *     the load is not for media data.
-   * @param mediaEndTimeMs The end time of the media being loaded, or {@link C#TIME_UNSET} if the
-   *     load is not for media data or the end time is unknown.
-   * @param elapsedRealtimeMs The value of {@link SystemClock#elapsedRealtime} when the load began.
+   * @param loadEventInfo The {@link LoadEventInfo} defining the load event.
+   * @param mediaLoadData The {@link MediaLoadData} defining the data being loaded.
    */
-  void onLoadStarted(
-      DataSpec dataSpec,
-      int dataType,
-      int trackType,
-      Format trackFormat,
-      int trackSelectionReason,
-      Object trackSelectionData,
-      long mediaStartTimeMs,
-      long mediaEndTimeMs,
-      long elapsedRealtimeMs);
+  void onLoadStarted(LoadEventInfo loadEventInfo, MediaLoadData mediaLoadData);
 
   /**
    * Called when a load ends.
    *
-   * @param dataSpec Defines the data being loaded.
-   * @param dataType One of the {@link C} {@code DATA_TYPE_*} constants defining the type of data
-   *     being loaded.
-   * @param trackType One of the {@link C} {@code TRACK_TYPE_*} constants if the data corresponds to
-   *     media of a specific type. {@link C#TRACK_TYPE_UNKNOWN} otherwise.
-   * @param trackFormat The format of the track to which the data belongs. Null if the data does not
-   *     belong to a track.
-   * @param trackSelectionReason One of the {@link C} {@code SELECTION_REASON_*} constants if the
-   *     data belongs to a track. {@link C#SELECTION_REASON_UNKNOWN} otherwise.
-   * @param trackSelectionData Optional data associated with the selection of the track to which the
-   *     data belongs. Null if the data does not belong to a track.
-   * @param mediaStartTimeMs The start time of the media being loaded, or {@link C#TIME_UNSET} if
-   *     the load is not for media data.
-   * @param mediaEndTimeMs The end time of the media being loaded, or {@link C#TIME_UNSET} if the
-   *     load is not for media data.
-   * @param elapsedRealtimeMs The value of {@link SystemClock#elapsedRealtime} when the load ended.
-   * @param loadDurationMs The duration of the load.
-   * @param bytesLoaded The number of bytes that were loaded.
+   * @param loadEventInfo The {@link LoadEventInfo} defining the load event.
+   * @param mediaLoadData The {@link MediaLoadData} defining the data being loaded.
    */
-  void onLoadCompleted(
-      DataSpec dataSpec,
-      int dataType,
-      int trackType,
-      Format trackFormat,
-      int trackSelectionReason,
-      Object trackSelectionData,
-      long mediaStartTimeMs,
-      long mediaEndTimeMs,
-      long elapsedRealtimeMs,
-      long loadDurationMs,
-      long bytesLoaded);
+  void onLoadCompleted(LoadEventInfo loadEventInfo, MediaLoadData mediaLoadData);
 
   /**
    * Called when a load is canceled.
    *
-   * @param dataSpec Defines the data being loaded.
-   * @param dataType One of the {@link C} {@code DATA_TYPE_*} constants defining the type of data
-   *     being loaded.
-   * @param trackType One of the {@link C} {@code TRACK_TYPE_*} constants if the data corresponds to
-   *     media of a specific type. {@link C#TRACK_TYPE_UNKNOWN} otherwise.
-   * @param trackFormat The format of the track to which the data belongs. Null if the data does not
-   *     belong to a track.
-   * @param trackSelectionReason One of the {@link C} {@code SELECTION_REASON_*} constants if the
-   *     data belongs to a track. {@link C#SELECTION_REASON_UNKNOWN} otherwise.
-   * @param trackSelectionData Optional data associated with the selection of the track to which the
-   *     data belongs. Null if the data does not belong to a track.
-   * @param mediaStartTimeMs The start time of the media being loaded, or {@link C#TIME_UNSET} if
-   *     the load is not for media data.
-   * @param mediaEndTimeMs The end time of the media being loaded, or {@link C#TIME_UNSET} if the
-   *     load is not for media data.
-   * @param elapsedRealtimeMs The value of {@link SystemClock#elapsedRealtime} when the load was
-   *     canceled.
-   * @param loadDurationMs The duration of the load up to the point at which it was canceled.
-   * @param bytesLoaded The number of bytes that were loaded prior to cancelation.
+   * @param loadEventInfo The {@link LoadEventInfo} defining the load event.
+   * @param mediaLoadData The {@link MediaLoadData} defining the data being loaded.
    */
-  void onLoadCanceled(
-      DataSpec dataSpec,
-      int dataType,
-      int trackType,
-      Format trackFormat,
-      int trackSelectionReason,
-      Object trackSelectionData,
-      long mediaStartTimeMs,
-      long mediaEndTimeMs,
-      long elapsedRealtimeMs,
-      long loadDurationMs,
-      long bytesLoaded);
+  void onLoadCanceled(LoadEventInfo loadEventInfo, MediaLoadData mediaLoadData);
 
   /**
    * Called when a load error occurs.
@@ -143,40 +163,14 @@ public interface MediaSourceEventListener {
    * such behavior). This method is called to provide the application with an opportunity to log the
    * error if it wishes to do so.
    *
-   * @param dataSpec Defines the data being loaded.
-   * @param dataType One of the {@link C} {@code DATA_TYPE_*} constants defining the type of data
-   *     being loaded.
-   * @param trackType One of the {@link C} {@code TRACK_TYPE_*} constants if the data corresponds to
-   *     media of a specific type. {@link C#TRACK_TYPE_UNKNOWN} otherwise.
-   * @param trackFormat The format of the track to which the data belongs. Null if the data does not
-   *     belong to a track.
-   * @param trackSelectionReason One of the {@link C} {@code SELECTION_REASON_*} constants if the
-   *     data belongs to a track. {@link C#SELECTION_REASON_UNKNOWN} otherwise.
-   * @param trackSelectionData Optional data associated with the selection of the track to which the
-   *     data belongs. Null if the data does not belong to a track.
-   * @param mediaStartTimeMs The start time of the media being loaded, or {@link C#TIME_UNSET} if
-   *     the load is not for media data.
-   * @param mediaEndTimeMs The end time of the media being loaded, or {@link C#TIME_UNSET} if the
-   *     load is not for media data.
-   * @param elapsedRealtimeMs The value of {@link SystemClock#elapsedRealtime} when the error
-   *     occurred.
-   * @param loadDurationMs The duration of the load up to the point at which the error occurred.
-   * @param bytesLoaded The number of bytes that were loaded prior to the error.
+   * @param loadEventInfo The {@link LoadEventInfo} defining the load event.
+   * @param mediaLoadData The {@link MediaLoadData} defining the data being loaded.
    * @param error The load error.
    * @param wasCanceled Whether the load was canceled as a result of the error.
    */
   void onLoadError(
-      DataSpec dataSpec,
-      int dataType,
-      int trackType,
-      Format trackFormat,
-      int trackSelectionReason,
-      Object trackSelectionData,
-      long mediaStartTimeMs,
-      long mediaEndTimeMs,
-      long elapsedRealtimeMs,
-      long loadDurationMs,
-      long bytesLoaded,
+      LoadEventInfo loadEventInfo,
+      MediaLoadData mediaLoadData,
       IOException error,
       boolean wasCanceled);
 
@@ -184,31 +178,17 @@ public interface MediaSourceEventListener {
    * Called when data is removed from the back of a media buffer, typically so that it can be
    * re-buffered in a different format.
    *
-   * @param trackType The type of the media. One of the {@link C} {@code TRACK_TYPE_*} constants.
-   * @param mediaStartTimeMs The start time of the media being discarded.
-   * @param mediaEndTimeMs The end time of the media being discarded.
+   * @param mediaLoadData The {@link MediaLoadData} defining the media being discarded.
    */
-  void onUpstreamDiscarded(int trackType, long mediaStartTimeMs, long mediaEndTimeMs);
+  void onUpstreamDiscarded(MediaLoadData mediaLoadData);
 
   /**
    * Called when a downstream format change occurs (i.e. when the format of the media being read
    * from one or more {@link SampleStream}s provided by the source changes).
    *
-   * @param trackType The type of the media. One of the {@link C} {@code TRACK_TYPE_*} constants.
-   * @param trackFormat The format of the track to which the data belongs. Null if the data does not
-   *     belong to a track.
-   * @param trackSelectionReason One of the {@link C} {@code SELECTION_REASON_*} constants if the
-   *     data belongs to a track. {@link C#SELECTION_REASON_UNKNOWN} otherwise.
-   * @param trackSelectionData Optional data associated with the selection of the track to which the
-   *     data belongs. Null if the data does not belong to a track.
-   * @param mediaTimeMs The media time at which the change occurred.
+   * @param mediaLoadData The {@link MediaLoadData} defining the newly selected downstream data.
    */
-  void onDownstreamFormatChanged(
-      int trackType,
-      Format trackFormat,
-      int trackSelectionReason,
-      Object trackSelectionData,
-      long mediaTimeMs);
+  void onDownstreamFormatChanged(MediaLoadData mediaLoadData);
 
   /** Dispatches events to a {@link MediaSourceEventListener}. */
   final class EventDispatcher {
@@ -247,13 +227,14 @@ public interface MediaSourceEventListener {
           elapsedRealtimeMs);
     }
 
+    /** Dispatches {@link #onLoadStarted(LoadEventInfo, MediaLoadData)}. */
     public void loadStarted(
         final DataSpec dataSpec,
         final int dataType,
         final int trackType,
-        final Format trackFormat,
+        final @Nullable Format trackFormat,
         final int trackSelectionReason,
-        final Object trackSelectionData,
+        final @Nullable Object trackSelectionData,
         final long mediaStartTimeUs,
         final long mediaEndTimeUs,
         final long elapsedRealtimeMs) {
@@ -263,20 +244,22 @@ public interface MediaSourceEventListener {
               @Override
               public void run() {
                 listener.onLoadStarted(
-                    dataSpec,
-                    dataType,
-                    trackType,
-                    trackFormat,
-                    trackSelectionReason,
-                    trackSelectionData,
-                    adjustMediaTime(mediaStartTimeUs),
-                    adjustMediaTime(mediaEndTimeUs),
-                    elapsedRealtimeMs);
+                    new LoadEventInfo(
+                        dataSpec, elapsedRealtimeMs, /* loadDurationMs= */ 0, /* bytesLoaded= */ 0),
+                    new MediaLoadData(
+                        dataType,
+                        trackType,
+                        trackFormat,
+                        trackSelectionReason,
+                        trackSelectionData,
+                        adjustMediaTime(mediaStartTimeUs),
+                        adjustMediaTime(mediaEndTimeUs)));
               }
             });
       }
     }
 
+    /** Dispatches {@link #onLoadCompleted(LoadEventInfo, MediaLoadData)}. */
     public void loadCompleted(
         DataSpec dataSpec,
         int dataType,
@@ -297,13 +280,14 @@ public interface MediaSourceEventListener {
           bytesLoaded);
     }
 
+    /** Dispatches {@link #onLoadCompleted(LoadEventInfo, MediaLoadData)}. */
     public void loadCompleted(
         final DataSpec dataSpec,
         final int dataType,
         final int trackType,
-        final Format trackFormat,
+        final @Nullable Format trackFormat,
         final int trackSelectionReason,
-        final Object trackSelectionData,
+        final @Nullable Object trackSelectionData,
         final long mediaStartTimeUs,
         final long mediaEndTimeUs,
         final long elapsedRealtimeMs,
@@ -315,22 +299,21 @@ public interface MediaSourceEventListener {
               @Override
               public void run() {
                 listener.onLoadCompleted(
-                    dataSpec,
-                    dataType,
-                    trackType,
-                    trackFormat,
-                    trackSelectionReason,
-                    trackSelectionData,
-                    adjustMediaTime(mediaStartTimeUs),
-                    adjustMediaTime(mediaEndTimeUs),
-                    elapsedRealtimeMs,
-                    loadDurationMs,
-                    bytesLoaded);
+                    new LoadEventInfo(dataSpec, elapsedRealtimeMs, loadDurationMs, bytesLoaded),
+                    new MediaLoadData(
+                        dataType,
+                        trackType,
+                        trackFormat,
+                        trackSelectionReason,
+                        trackSelectionData,
+                        adjustMediaTime(mediaStartTimeUs),
+                        adjustMediaTime(mediaEndTimeUs)));
               }
             });
       }
     }
 
+    /** Dispatches {@link #onLoadCanceled(LoadEventInfo, MediaLoadData)}. */
     public void loadCanceled(
         DataSpec dataSpec,
         int dataType,
@@ -351,13 +334,14 @@ public interface MediaSourceEventListener {
           bytesLoaded);
     }
 
+    /** Dispatches {@link #onLoadCanceled(LoadEventInfo, MediaLoadData)}. */
     public void loadCanceled(
         final DataSpec dataSpec,
         final int dataType,
         final int trackType,
-        final Format trackFormat,
+        final @Nullable Format trackFormat,
         final int trackSelectionReason,
-        final Object trackSelectionData,
+        final @Nullable Object trackSelectionData,
         final long mediaStartTimeUs,
         final long mediaEndTimeUs,
         final long elapsedRealtimeMs,
@@ -369,22 +353,21 @@ public interface MediaSourceEventListener {
               @Override
               public void run() {
                 listener.onLoadCanceled(
-                    dataSpec,
-                    dataType,
-                    trackType,
-                    trackFormat,
-                    trackSelectionReason,
-                    trackSelectionData,
-                    adjustMediaTime(mediaStartTimeUs),
-                    adjustMediaTime(mediaEndTimeUs),
-                    elapsedRealtimeMs,
-                    loadDurationMs,
-                    bytesLoaded);
+                    new LoadEventInfo(dataSpec, elapsedRealtimeMs, loadDurationMs, bytesLoaded),
+                    new MediaLoadData(
+                        dataType,
+                        trackType,
+                        trackFormat,
+                        trackSelectionReason,
+                        trackSelectionData,
+                        adjustMediaTime(mediaStartTimeUs),
+                        adjustMediaTime(mediaEndTimeUs)));
               }
             });
       }
     }
 
+    /** Dispatches {@link #onLoadError(LoadEventInfo, MediaLoadData, IOException, boolean)}. */
     public void loadError(
         DataSpec dataSpec,
         int dataType,
@@ -409,13 +392,14 @@ public interface MediaSourceEventListener {
           wasCanceled);
     }
 
+    /** Dispatches {@link #onLoadError(LoadEventInfo, MediaLoadData, IOException, boolean)}. */
     public void loadError(
         final DataSpec dataSpec,
         final int dataType,
         final int trackType,
-        final Format trackFormat,
+        final @Nullable Format trackFormat,
         final int trackSelectionReason,
-        final Object trackSelectionData,
+        final @Nullable Object trackSelectionData,
         final long mediaStartTimeUs,
         final long mediaEndTimeUs,
         final long elapsedRealtimeMs,
@@ -429,17 +413,15 @@ public interface MediaSourceEventListener {
               @Override
               public void run() {
                 listener.onLoadError(
-                    dataSpec,
-                    dataType,
-                    trackType,
-                    trackFormat,
-                    trackSelectionReason,
-                    trackSelectionData,
-                    adjustMediaTime(mediaStartTimeUs),
-                    adjustMediaTime(mediaEndTimeUs),
-                    elapsedRealtimeMs,
-                    loadDurationMs,
-                    bytesLoaded,
+                    new LoadEventInfo(dataSpec, elapsedRealtimeMs, loadDurationMs, bytesLoaded),
+                    new MediaLoadData(
+                        dataType,
+                        trackType,
+                        trackFormat,
+                        trackSelectionReason,
+                        trackSelectionData,
+                        adjustMediaTime(mediaStartTimeUs),
+                        adjustMediaTime(mediaEndTimeUs)),
                     error,
                     wasCanceled);
               }
@@ -447,6 +429,7 @@ public interface MediaSourceEventListener {
       }
     }
 
+    /** Dispatches {@link #onUpstreamDiscarded(MediaLoadData)}. */
     public void upstreamDiscarded(
         final int trackType, final long mediaStartTimeUs, final long mediaEndTimeUs) {
       if (listener != null && handler != null) {
@@ -455,17 +438,25 @@ public interface MediaSourceEventListener {
               @Override
               public void run() {
                 listener.onUpstreamDiscarded(
-                    trackType, adjustMediaTime(mediaStartTimeUs), adjustMediaTime(mediaEndTimeUs));
+                    new MediaLoadData(
+                        C.DATA_TYPE_MEDIA,
+                        trackType,
+                        /* trackFormat= */ null,
+                        C.SELECTION_REASON_ADAPTIVE,
+                        /* trackSelectionData= */ null,
+                        adjustMediaTime(mediaStartTimeUs),
+                        adjustMediaTime(mediaEndTimeUs)));
               }
             });
       }
     }
 
+    /** Dispatches {@link #onDownstreamFormatChanged(MediaLoadData)}. */
     public void downstreamFormatChanged(
         final int trackType,
-        final Format trackFormat,
+        final @Nullable Format trackFormat,
         final int trackSelectionReason,
-        final Object trackSelectionData,
+        final @Nullable Object trackSelectionData,
         final long mediaTimeUs) {
       if (listener != null && handler != null) {
         handler.post(
@@ -473,11 +464,14 @@ public interface MediaSourceEventListener {
               @Override
               public void run() {
                 listener.onDownstreamFormatChanged(
-                    trackType,
-                    trackFormat,
-                    trackSelectionReason,
-                    trackSelectionData,
-                    adjustMediaTime(mediaTimeUs));
+                    new MediaLoadData(
+                        C.DATA_TYPE_MEDIA,
+                        trackType,
+                        trackFormat,
+                        trackSelectionReason,
+                        trackSelectionData,
+                        adjustMediaTime(mediaTimeUs),
+                        /* mediaEndTimeMs= */ C.TIME_UNSET));
               }
             });
       }

@@ -286,7 +286,7 @@ public final class SingleSampleMediaSource extends BaseMediaSource {
    * Wraps a deprecated {@link EventListener}, invoking its callback from the equivalent callback in
    * {@link MediaSourceEventListener}.
    */
-  private static final class EventListenerWrapper implements MediaSourceEventListener {
+  private static final class EventListenerWrapper extends DefaultMediaSourceEventListener {
 
     private final EventListener eventListener;
     private final int eventSourceId;
@@ -297,82 +297,12 @@ public final class SingleSampleMediaSource extends BaseMediaSource {
     }
 
     @Override
-    public void onLoadStarted(
-        DataSpec dataSpec,
-        int dataType,
-        int trackType,
-        Format trackFormat,
-        int trackSelectionReason,
-        Object trackSelectionData,
-        long mediaStartTimeMs,
-        long mediaEndTimeMs,
-        long elapsedRealtimeMs) {
-      // Do nothing.
-    }
-
-    @Override
-    public void onLoadCompleted(
-        DataSpec dataSpec,
-        int dataType,
-        int trackType,
-        Format trackFormat,
-        int trackSelectionReason,
-        Object trackSelectionData,
-        long mediaStartTimeMs,
-        long mediaEndTimeMs,
-        long elapsedRealtimeMs,
-        long loadDurationMs,
-        long bytesLoaded) {
-      // Do nothing.
-    }
-
-    @Override
-    public void onLoadCanceled(
-        DataSpec dataSpec,
-        int dataType,
-        int trackType,
-        Format trackFormat,
-        int trackSelectionReason,
-        Object trackSelectionData,
-        long mediaStartTimeMs,
-        long mediaEndTimeMs,
-        long elapsedRealtimeMs,
-        long loadDurationMs,
-        long bytesLoaded) {
-      // Do nothing.
-    }
-
-    @Override
     public void onLoadError(
-        DataSpec dataSpec,
-        int dataType,
-        int trackType,
-        Format trackFormat,
-        int trackSelectionReason,
-        Object trackSelectionData,
-        long mediaStartTimeMs,
-        long mediaEndTimeMs,
-        long elapsedRealtimeMs,
-        long loadDurationMs,
-        long bytesLoaded,
+        LoadEventInfo loadEventInfo,
+        MediaLoadData mediaLoadData,
         IOException error,
         boolean wasCanceled) {
       eventListener.onLoadError(eventSourceId, error);
-    }
-
-    @Override
-    public void onUpstreamDiscarded(int trackType, long mediaStartTimeMs, long mediaEndTimeMs) {
-      // Do nothing.
-    }
-
-    @Override
-    public void onDownstreamFormatChanged(
-        int trackType,
-        Format trackFormat,
-        int trackSelectionReason,
-        Object trackSelectionData,
-        long mediaTimeMs) {
-      // Do nothing.
     }
   }
 }
