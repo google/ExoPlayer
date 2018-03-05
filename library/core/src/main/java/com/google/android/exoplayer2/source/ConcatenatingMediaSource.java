@@ -50,8 +50,9 @@ public class ConcatenatingMediaSource extends CompositeMediaSource<MediaSourceHo
   private static final int MSG_ADD_MULTIPLE = 1;
   private static final int MSG_REMOVE = 2;
   private static final int MSG_MOVE = 3;
-  private static final int MSG_NOTIFY_LISTENER = 4;
-  private static final int MSG_ON_COMPLETION = 5;
+  private static final int MSG_CLEAR = 4;
+  private static final int MSG_NOTIFY_LISTENER = 5;
+  private static final int MSG_ON_COMPLETION = 6;
 
   // Accessed on the app thread.
   private final List<MediaSource> mediaSourcesPublic;
@@ -333,6 +334,30 @@ public class ConcatenatingMediaSource extends CompositeMediaSource<MediaSourceHo
     }
   }
 
+  /** Clears the playlist. */
+  public final synchronized void clear() {
+    clear(/* actionOnCompletion= */ null);
+  }
+
+  /**
+   * Clears the playlist and executes a custom action on completion.
+   *
+   * @param actionOnCompletion A {@link Runnable} which is executed immediately after the playlist
+   *     has been cleared.
+   */
+  public final synchronized void clear(@Nullable Runnable actionOnCompletion) {
+    mediaSourcesPublic.clear();
+    if (player != null) {
+      player
+          .createMessage(this)
+          .setType(MSG_CLEAR)
+          .setPayload(actionOnCompletion != null ? new EventDispatcher(actionOnCompletion) : null)
+          .send();
+    } else if (actionOnCompletion != null) {
+      actionOnCompletion.run();
+    }
+  }
+
   /** Returns the number of media sources in the playlist. */
   public final synchronized int getSize() {
     return mediaSourcesPublic.size();
@@ -445,6 +470,10 @@ public class ConcatenatingMediaSource extends CompositeMediaSource<MediaSourceHo
         moveMediaSourceInternal(moveMessage.index, moveMessage.customData);
         scheduleListenerNotification(moveMessage.actionOnCompletion);
         break;
+      case MSG_CLEAR:
+        clearInternal();
+        scheduleListenerNotification((EventDispatcher) message);
+        break;
       case MSG_NOTIFY_LISTENER:
         notifyListener();
         break;
@@ -545,9 +574,14 @@ public class ConcatenatingMediaSource extends CompositeMediaSource<MediaSourceHo
     scheduleListenerNotification(/* actionOnCompletion= */ null);
   }
 
+  private void clearInternal() {
+    for (int index = mediaSourceHolders.size() - 1; index >= 0; index--) {
+      removeMediaSourceInternal(index);
+    }
+  }
+
   private void removeMediaSourceInternal(int index) {
-    MediaSourceHolder holder = mediaSourceHolders.get(index);
-    mediaSourceHolders.remove(index);
+    MediaSourceHolder holder = mediaSourceHolders.remove(index);
     Timeline oldTimeline = holder.timeline;
     correctOffsets(
         index,

@@ -820,6 +820,37 @@ public final class ConcatenatingMediaSourceTest {
     childSource.assertReleased();
   }
 
+  @Test
+  public void testClear() throws IOException {
+    DummyMainThread dummyMainThread = new DummyMainThread();
+    final FakeMediaSource preparedChildSource = createFakeMediaSource();
+    final FakeMediaSource unpreparedChildSource =
+        new FakeMediaSource(/* timeline= */ null, /* manifest= */ null);
+    dummyMainThread.runOnMainThread(
+        new Runnable() {
+          @Override
+          public void run() {
+            mediaSource.addMediaSource(preparedChildSource);
+            mediaSource.addMediaSource(unpreparedChildSource);
+          }
+        });
+    testRunner.prepareSource();
+    final TimelineGrabber timelineGrabber = new TimelineGrabber(testRunner);
+
+    dummyMainThread.runOnMainThread(
+        new Runnable() {
+          @Override
+          public void run() {
+            mediaSource.clear(timelineGrabber);
+          }
+        });
+
+    Timeline timeline = timelineGrabber.assertTimelineChangeBlocking();
+    assertThat(timeline.isEmpty()).isTrue();
+    preparedChildSource.assertReleased();
+    unpreparedChildSource.assertReleased();
+  }
+
   private static FakeMediaSource[] createMediaSources(int count) {
     FakeMediaSource[] sources = new FakeMediaSource[count];
     for (int i = 0; i < count; i++) {
