@@ -20,7 +20,6 @@ import android.os.Handler;
 import android.support.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlayer;
-import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.extractor.DefaultExtractorsFactory;
 import com.google.android.exoplayer2.extractor.Extractor;
@@ -29,7 +28,6 @@ import com.google.android.exoplayer2.source.MediaSourceEventListener.EventDispat
 import com.google.android.exoplayer2.source.ads.AdsMediaSource;
 import com.google.android.exoplayer2.upstream.Allocator;
 import com.google.android.exoplayer2.upstream.DataSource;
-import com.google.android.exoplayer2.upstream.DataSpec;
 import com.google.android.exoplayer2.util.Assertions;
 import java.io.IOException;
 
@@ -386,7 +384,7 @@ public final class ExtractorMediaSource extends BaseMediaSource
    * Wraps a deprecated {@link EventListener}, invoking its callback from the equivalent callback in
    * {@link MediaSourceEventListener}.
    */
-  private static final class EventListenerWrapper implements MediaSourceEventListener {
+  private static final class EventListenerWrapper extends DefaultMediaSourceEventListener {
     private final EventListener eventListener;
 
     public EventListenerWrapper(EventListener eventListener) {
@@ -394,82 +392,12 @@ public final class ExtractorMediaSource extends BaseMediaSource
     }
 
     @Override
-    public void onLoadStarted(
-        DataSpec dataSpec,
-        int dataType,
-        int trackType,
-        Format trackFormat,
-        int trackSelectionReason,
-        Object trackSelectionData,
-        long mediaStartTimeMs,
-        long mediaEndTimeMs,
-        long elapsedRealtimeMs) {
-      // Do nothing.
-    }
-
-    @Override
-    public void onLoadCompleted(
-        DataSpec dataSpec,
-        int dataType,
-        int trackType,
-        Format trackFormat,
-        int trackSelectionReason,
-        Object trackSelectionData,
-        long mediaStartTimeMs,
-        long mediaEndTimeMs,
-        long elapsedRealtimeMs,
-        long loadDurationMs,
-        long bytesLoaded) {
-      // Do nothing.
-    }
-
-    @Override
-    public void onLoadCanceled(
-        DataSpec dataSpec,
-        int dataType,
-        int trackType,
-        Format trackFormat,
-        int trackSelectionReason,
-        Object trackSelectionData,
-        long mediaStartTimeMs,
-        long mediaEndTimeMs,
-        long elapsedRealtimeMs,
-        long loadDurationMs,
-        long bytesLoaded) {
-      // Do nothing.
-    }
-
-    @Override
     public void onLoadError(
-        DataSpec dataSpec,
-        int dataType,
-        int trackType,
-        Format trackFormat,
-        int trackSelectionReason,
-        Object trackSelectionData,
-        long mediaStartTimeMs,
-        long mediaEndTimeMs,
-        long elapsedRealtimeMs,
-        long loadDurationMs,
-        long bytesLoaded,
+        LoadEventInfo loadEventInfo,
+        MediaLoadData mediaLoadData,
         IOException error,
         boolean wasCanceled) {
       eventListener.onLoadError(error);
-    }
-
-    @Override
-    public void onUpstreamDiscarded(int trackType, long mediaStartTimeMs, long mediaEndTimeMs) {
-      // Do nothing.
-    }
-
-    @Override
-    public void onDownstreamFormatChanged(
-        int trackType,
-        Format trackFormat,
-        int trackSelectionReason,
-        Object trackSelectionData,
-        long mediaTimeMs) {
-      // Do nothing.
     }
   }
 }
