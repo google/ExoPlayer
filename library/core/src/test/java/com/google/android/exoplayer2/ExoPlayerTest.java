@@ -1351,6 +1351,38 @@ public final class ExoPlayerTest {
   }
 
   @Test
+  public void testPlaybackErrorTwiceStillKeepsTimeline() throws Exception {
+    final Timeline timeline = new FakeTimeline(/* windowCount= */ 1);
+    final FakeMediaSource mediaSource2 =
+        new FakeMediaSource(/* timeline= */ null, /* manifest= */ null);
+    ActionSchedule actionSchedule =
+        new ActionSchedule.Builder("testPlaybackErrorDoesNotResetPosition")
+            .pause()
+            .waitForPlaybackState(Player.STATE_READY)
+            .throwPlaybackException(ExoPlaybackException.createForSource(new IOException()))
+            .waitForPlaybackState(Player.STATE_IDLE)
+            .prepareSource(mediaSource2, /* resetPosition= */ false, /* resetState= */ false)
+            .waitForPlaybackState(Player.STATE_BUFFERING)
+            .throwPlaybackException(ExoPlaybackException.createForSource(new IOException()))
+            .waitForPlaybackState(Player.STATE_IDLE)
+            .build();
+    ExoPlayerTestRunner testRunner =
+        new ExoPlayerTestRunner.Builder()
+            .setTimeline(timeline)
+            .setActionSchedule(actionSchedule)
+            .build();
+    try {
+      testRunner.start().blockUntilActionScheduleFinished(TIMEOUT_MS).blockUntilEnded(TIMEOUT_MS);
+      fail();
+    } catch (ExoPlaybackException e) {
+      // Expected exception.
+    }
+    testRunner.assertTimelinesEqual(timeline, timeline);
+    testRunner.assertTimelineChangeReasonsEqual(
+        Player.TIMELINE_CHANGE_REASON_PREPARED, Player.TIMELINE_CHANGE_REASON_PREPARED);
+  }
+
+  @Test
   public void testSendMessagesDuringPreparation() throws Exception {
     Timeline timeline = new FakeTimeline(/* windowCount= */ 1);
     PositionGrabbingMessageTarget target = new PositionGrabbingMessageTarget();
