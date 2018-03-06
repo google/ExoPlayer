@@ -170,7 +170,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
     // because it uses a callback.
     hasPendingPrepare = true;
     pendingOperationAcks++;
-    internalPlayer.prepare(mediaSource, resetPosition);
+    internalPlayer.prepare(mediaSource, resetPosition, resetState);
     updatePlaybackInfo(
         playbackInfo,
         /* positionDiscontinuity= */ false,
@@ -567,10 +567,6 @@ import java.util.concurrent.CopyOnWriteArraySet;
       @DiscontinuityReason int positionDiscontinuityReason) {
     pendingOperationAcks -= operationAcks;
     if (pendingOperationAcks == 0) {
-      if (playbackInfo.timeline == null) {
-        // Replace internal null timeline with externally visible empty timeline.
-        playbackInfo = playbackInfo.copyWithTimeline(Timeline.EMPTY, playbackInfo.manifest);
-      }
       if (playbackInfo.startPositionUs == C.TIME_UNSET) {
         // Replace internal unset start position with externally visible start position of zero.
         playbackInfo =
