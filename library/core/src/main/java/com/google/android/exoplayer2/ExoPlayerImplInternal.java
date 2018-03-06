@@ -792,7 +792,7 @@ import java.util.Collections;
             resetState ? null : playbackInfo.manifest,
             resetPosition ? new MediaPeriodId(getFirstPeriodIndex()) : playbackInfo.periodId,
             // Set the start position to TIME_UNSET so that a subsequent seek to 0 isn't ignored.
-            resetPosition ? C.TIME_UNSET : playbackInfo.startPositionUs,
+            resetPosition ? C.TIME_UNSET : playbackInfo.positionUs,
             resetPosition ? C.TIME_UNSET : playbackInfo.contentPositionUs,
             playbackInfo.playbackState,
             /* isLoading= */ false,
