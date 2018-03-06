@@ -32,6 +32,7 @@ import java.net.HttpURLConnection;
 import java.net.NoRouteToHostException;
 import java.net.ProtocolException;
 import java.net.URL;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
@@ -247,6 +248,10 @@ public class DefaultHttpDataSource implements HttpDataSource {
 
     try {
       inputStream = connection.getInputStream();
+      String smetaint = connection.getHeaderField( "icy-metaint" );
+      Log.e(TAG,smetaint+"");
+      Log.e(TAG, Arrays.toString(connection.getHeaderFields().values().toArray()) +"");
+
     } catch (IOException e) {
       closeConnectionQuietly();
       throw new HttpDataSourceException(e, dataSpec, HttpDataSourceException.TYPE_OPEN);
@@ -391,6 +396,7 @@ public class DefaultHttpDataSource implements HttpDataSource {
   private HttpURLConnection makeConnection(URL url, byte[] postBody, long position,
       long length, boolean allowGzip, boolean followRedirects) throws IOException {
     HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+//    connection.setRequestProperty("Icy-Metadata", "1");
     connection.setConnectTimeout(connectTimeoutMillis);
     connection.setReadTimeout(readTimeoutMillis);
     if (defaultRequestProperties != null) {
@@ -602,6 +608,8 @@ public class DefaultHttpDataSource implements HttpDataSource {
 
     try {
       InputStream inputStream = connection.getInputStream();
+
+
       if (bytesRemaining == C.LENGTH_UNSET) {
         // If the input stream has already ended, do nothing. The socket may be re-used.
         if (inputStream.read() == -1) {
