@@ -55,7 +55,7 @@ public class ConcatenatingMediaSource extends CompositeMediaSource<MediaSourceHo
   private static final int MSG_ON_COMPLETION = 6;
 
   // Accessed on the app thread.
-  private final List<MediaSource> mediaSourcesPublic;
+  private final List<MediaSourceHolder> mediaSourcesPublic;
 
   // Accessed on the playback thread.
   private final List<MediaSourceHolder> mediaSourceHolders;
@@ -129,12 +129,13 @@ public class ConcatenatingMediaSource extends CompositeMediaSource<MediaSourceHo
     }
     this.shuffleOrder = shuffleOrder.getLength() > 0 ? shuffleOrder.cloneAndClear() : shuffleOrder;
     this.mediaSourceByMediaPeriod = new IdentityHashMap<>();
-    this.mediaSourcesPublic = new ArrayList<>(Arrays.asList(mediaSources));
+    this.mediaSourcesPublic = new ArrayList<>();
     this.mediaSourceHolders = new ArrayList<>();
     this.deferredMediaPeriods = new ArrayList<>(1);
     this.pendingOnCompletionActions = new ArrayList<>();
-    this.query = new MediaSourceHolder(null, null, -1, -1, -1);
+    this.query = new MediaSourceHolder(/* mediaSource= */ null);
     this.isAtomic = isAtomic;
+    addMediaSources(Arrays.asList(mediaSources));
   }
 
   /**
@@ -181,12 +182,13 @@ public class ConcatenatingMediaSource extends CompositeMediaSource<MediaSourceHo
   public final synchronized void addMediaSource(
       int index, MediaSource mediaSource, @Nullable Runnable actionOnCompletion) {
     Assertions.checkNotNull(mediaSource);
-    mediaSourcesPublic.add(index, mediaSource);
+    MediaSourceHolder mediaSourceHolder = new MediaSourceHolder(mediaSource);
+    mediaSourcesPublic.add(index, mediaSourceHolder);
     if (player != null) {
       player
           .createMessage(this)
           .setType(MSG_ADD)
-          .setPayload(new MessageData<>(index, mediaSource, actionOnCompletion))
+          .setPayload(new MessageData<>(index, mediaSourceHolder, actionOnCompletion))
           .send();
     } else if (actionOnCompletion != null) {
       actionOnCompletion.run();
@@ -244,12 +246,16 @@ public class ConcatenatingMediaSource extends CompositeMediaSource<MediaSourceHo
     for (MediaSource mediaSource : mediaSources) {
       Assertions.checkNotNull(mediaSource);
     }
-    mediaSourcesPublic.addAll(index, mediaSources);
+    List<MediaSourceHolder> mediaSourceHolders = new ArrayList<>(mediaSources.size());
+    for (MediaSource mediaSource : mediaSources) {
+      mediaSourceHolders.add(new MediaSourceHolder(mediaSource));
+    }
+    mediaSourcesPublic.addAll(index, mediaSourceHolders);
     if (player != null && !mediaSources.isEmpty()) {
       player
           .createMessage(this)
           .setType(MSG_ADD_MULTIPLE)
-          .setPayload(new MessageData<>(index, mediaSources, actionOnCompletion))
+          .setPayload(new MessageData<>(index, mediaSourceHolders, actionOnCompletion))
           .send();
     } else if (actionOnCompletion != null) {
       actionOnCompletion.run();
@@ -370,7 +376,7 @@ public class ConcatenatingMediaSource extends CompositeMediaSource<MediaSourceHo
    * @return The {@link MediaSource} at this index.
    */
   public final synchronized MediaSource getMediaSource(int index) {
-    return mediaSourcesPublic.get(index);
+    return mediaSourcesPublic.get(index).mediaSource;
   }
 
   @Override
@@ -443,14 +449,14 @@ public class ConcatenatingMediaSource extends CompositeMediaSource<MediaSourceHo
   public final void handleMessage(int messageType, Object message) throws ExoPlaybackException {
     switch (messageType) {
       case MSG_ADD:
-        MessageData<MediaSource> addMessage = (MessageData<MediaSource>) message;
+        MessageData<MediaSourceHolder> addMessage = (MessageData<MediaSourceHolder>) message;
         shuffleOrder = shuffleOrder.cloneAndInsert(addMessage.index, 1);
         addMediaSourceInternal(addMessage.index, addMessage.customData);
         scheduleListenerNotification(addMessage.actionOnCompletion);
         break;
       case MSG_ADD_MULTIPLE:
-        MessageData<Collection<MediaSource>> addMultipleMessage =
-            (MessageData<Collection<MediaSource>>) message;
+        MessageData<Collection<MediaSourceHolder>> addMultipleMessage =
+            (MessageData<Collection<MediaSourceHolder>>) message;
         shuffleOrder =
             shuffleOrder.cloneAndInsert(
                 addMultipleMessage.index, addMultipleMessage.customData.size());
@@ -514,33 +520,30 @@ public class ConcatenatingMediaSource extends CompositeMediaSource<MediaSourceHo
     }
   }
 
-  private void addMediaSourceInternal(int newIndex, MediaSource newMediaSource) {
-    final MediaSourceHolder newMediaSourceHolder;
-    DeferredTimeline newTimeline = new DeferredTimeline();
+  private void addMediaSourceInternal(int newIndex, MediaSourceHolder newMediaSourceHolder) {
     if (newIndex > 0) {
       MediaSourceHolder previousHolder = mediaSourceHolders.get(newIndex - 1);
-      newMediaSourceHolder =
-          new MediaSourceHolder(
-              newMediaSource,
-              newTimeline,
-              newIndex,
-              previousHolder.firstWindowIndexInChild + previousHolder.timeline.getWindowCount(),
-              previousHolder.firstPeriodIndexInChild + previousHolder.timeline.getPeriodCount());
+      newMediaSourceHolder.reset(
+          newIndex,
+          previousHolder.firstWindowIndexInChild + previousHolder.timeline.getWindowCount(),
+          previousHolder.firstPeriodIndexInChild + previousHolder.timeline.getPeriodCount());
     } else {
-      newMediaSourceHolder = new MediaSourceHolder(newMediaSource, newTimeline, 0, 0, 0);
+      newMediaSourceHolder.reset(
+          newIndex, /* firstWindowIndexInChild= */ 0, /* firstPeriodIndexInChild= */ 0);
     }
     correctOffsets(
         newIndex,
         /* childIndexUpdate= */ 1,
-        newTimeline.getWindowCount(),
-        newTimeline.getPeriodCount());
+        newMediaSourceHolder.timeline.getWindowCount(),
+        newMediaSourceHolder.timeline.getPeriodCount());
     mediaSourceHolders.add(newIndex, newMediaSourceHolder);
     prepareChildSource(newMediaSourceHolder, newMediaSourceHolder.mediaSource);
   }
 
-  private void addMediaSourcesInternal(int index, Collection<MediaSource> mediaSources) {
-    for (MediaSource mediaSource : mediaSources) {
-      addMediaSourceInternal(index++, mediaSource);
+  private void addMediaSourcesInternal(
+      int index, Collection<MediaSourceHolder> mediaSourceHolders) {
+    for (MediaSourceHolder mediaSourceHolder : mediaSourceHolders) {
+      addMediaSourceInternal(index++, mediaSourceHolder);
     }
   }
 
@@ -647,18 +650,19 @@ public class ConcatenatingMediaSource extends CompositeMediaSource<MediaSourceHo
     public boolean isRemoved;
     public int activeMediaPeriods;
 
-    public MediaSourceHolder(
-        MediaSource mediaSource,
-        DeferredTimeline timeline,
-        int childIndex,
-        int window,
-        int period) {
+    public MediaSourceHolder(MediaSource mediaSource) {
       this.mediaSource = mediaSource;
-      this.timeline = timeline;
-      this.childIndex = childIndex;
-      this.firstWindowIndexInChild = window;
-      this.firstPeriodIndexInChild = period;
       this.uid = System.identityHashCode(this);
+      this.timeline = new DeferredTimeline();
+    }
+
+    public void reset(int childIndex, int firstWindowIndexInChild, int firstPeriodIndexInChild) {
+      this.childIndex = childIndex;
+      this.firstWindowIndexInChild = firstWindowIndexInChild;
+      this.firstPeriodIndexInChild = firstPeriodIndexInChild;
+      this.isPrepared = false;
+      this.isRemoved = false;
+      this.activeMediaPeriods = 0;
     }
 
     @Override
