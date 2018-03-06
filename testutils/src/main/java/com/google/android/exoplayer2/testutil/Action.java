@@ -447,6 +447,36 @@ public abstract class Action {
 
   }
 
+  /** Throws a playback exception on the playback thread. */
+  public static final class ThrowPlaybackException extends Action {
+
+    private final ExoPlaybackException exception;
+
+    /**
+     * @param tag A tag to use for logging.
+     * @param exception The exception to throw.
+     */
+    public ThrowPlaybackException(String tag, ExoPlaybackException exception) {
+      super(tag, "ThrowPlaybackException:" + exception);
+      this.exception = exception;
+    }
+
+    @Override
+    protected void doActionImpl(
+        SimpleExoPlayer player, MappingTrackSelector trackSelector, Surface surface) {
+      player
+          .createMessage(
+              new Target() {
+                @Override
+                public void handleMessage(int messageType, Object payload)
+                    throws ExoPlaybackException {
+                  throw exception;
+                }
+              })
+          .send();
+    }
+  }
+
   /**
    * Schedules a play action to be executed, waits until the player reaches the specified position,
    * and pauses the player again.
