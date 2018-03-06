@@ -24,7 +24,7 @@ import com.google.android.exoplayer2.trackselection.TrackSelectorResult;
  */
 /* package */ final class PlaybackInfo {
 
-  public final @Nullable Timeline timeline;
+  public final Timeline timeline;
   public final @Nullable Object manifest;
   public final MediaPeriodId periodId;
   public final long startPositionUs;
@@ -37,7 +37,7 @@ import com.google.android.exoplayer2.trackselection.TrackSelectorResult;
   public volatile long bufferedPositionUs;
 
   public PlaybackInfo(
-      @Nullable Timeline timeline, long startPositionUs, TrackSelectorResult trackSelectorResult) {
+      Timeline timeline, long startPositionUs, TrackSelectorResult trackSelectorResult) {
     this(
         timeline,
         /* manifest= */ null,
@@ -50,7 +50,7 @@ import com.google.android.exoplayer2.trackselection.TrackSelectorResult;
   }
 
   public PlaybackInfo(
-      @Nullable Timeline timeline,
+      Timeline timeline,
       @Nullable Object manifest,
       MediaPeriodId periodId,
       long startPositionUs,
