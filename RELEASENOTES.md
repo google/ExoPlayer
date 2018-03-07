@@ -32,6 +32,8 @@
     ([#3865](https://github.com/google/ExoPlayer/issues/3865)).
 * Enable seeking in MP4 streams where duration is set incorrectly in the track
   header ([#3926](https://github.com/google/ExoPlayer/issues/3926)).
+* Video: force rendering a frame periodically in `MediaCodecVideoRenderer` and
+  `LibvpxVideoRenderer`, even if it is late.
 
 ### 2.7.0 ###
 

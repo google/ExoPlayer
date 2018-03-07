@@ -119,7 +119,6 @@ public class LibvpxVideoRenderer extends BaseRenderer {
   private VpxDecoder decoder;
   private VpxInputBuffer inputBuffer;
   private VpxOutputBuffer outputBuffer;
-  private VpxOutputBuffer nextOutputBuffer;
   private DrmSession<ExoMediaCrypto> drmSession;
   private DrmSession<ExoMediaCrypto> pendingDrmSession;
 
@@ -128,7 +127,6 @@ public class LibvpxVideoRenderer extends BaseRenderer {
 
   private Bitmap bitmap;
   private boolean renderedFirstFrame;
-  private boolean forceRenderFrame;
   private long joiningDeadlineMs;
   private Surface surface;
   private VpxOutputBufferRenderer outputBufferRenderer;
@@ -144,6 +142,7 @@ public class LibvpxVideoRenderer extends BaseRenderer {
   private int droppedFrames;
   private int consecutiveDroppedFrameCount;
   private int buffersInCodecCount;
+  private long lastRenderTimeUs;
 
   protected DecoderCounters decoderCounters;
 
@@ -254,7 +253,7 @@ public class LibvpxVideoRenderer extends BaseRenderer {
       try {
         // Rendering loop.
         TraceUtil.beginSection("drainAndFeed");
-        while (drainOutputBuffer(positionUs)) {}
+        while (drainOutputBuffer(positionUs, elapsedRealtimeUs)) {}
         while (feedInputBuffer()) {}
         TraceUtil.endSection();
       } catch (VpxDecoderException e) {
@@ -319,6 +318,7 @@ public class LibvpxVideoRenderer extends BaseRenderer {
   protected void onStarted() {
     droppedFrames = 0;
     droppedFrameAccumulationStartTimeMs = SystemClock.elapsedRealtime();
+    lastRenderTimeUs = SystemClock.elapsedRealtime() * 1000;
   }
 
   @Override
@@ -379,7 +379,6 @@ public class LibvpxVideoRenderer extends BaseRenderer {
   @CallSuper
   protected void flushDecoder() throws ExoPlaybackException {
     waitingForKeys = false;
-    forceRenderFrame = false;
     buffersInCodecCount = 0;
     if (decoderReinitializationState != REINITIALIZATION_STATE_NONE) {
       releaseDecoder();
@@ -389,10 +388,6 @@ public class LibvpxVideoRenderer extends BaseRenderer {
       if (outputBuffer != null) {
         outputBuffer.release();
         outputBuffer = null;
-      }
-      if (nextOutputBuffer != null) {
-        nextOutputBuffer.release();
-        nextOutputBuffer = null;
       }
       decoder.flush();
       decoderReceivedBuffers = false;
@@ -408,13 +403,11 @@ public class LibvpxVideoRenderer extends BaseRenderer {
 
     inputBuffer = null;
     outputBuffer = null;
-    nextOutputBuffer = null;
     decoder.release();
     decoder = null;
     decoderCounters.decoderReleaseCount++;
     decoderReinitializationState = REINITIALIZATION_STATE_NONE;
     decoderReceivedBuffers = false;
-    forceRenderFrame = false;
     buffersInCodecCount = 0;
   }
 
@@ -482,22 +475,15 @@ public class LibvpxVideoRenderer extends BaseRenderer {
   }
 
   /**
-   * Returns whether the current frame should be dropped.
+   * Returns whether the buffer being processed should be dropped.
    *
-   * @param outputBufferTimeUs The timestamp of the current output buffer.
-   * @param nextOutputBufferTimeUs The timestamp of the next output buffer or {@link C#TIME_UNSET}
-   *     if the next output buffer is unavailable.
-   * @param positionUs The current playback position.
-   * @param joiningDeadlineMs The joining deadline.
-   * @return Returns whether to drop the current output buffer.
+   * @param earlyUs The time until the buffer should be presented in microseconds. A negative value
+   *     indicates that the buffer is late.
+   * @param elapsedRealtimeUs {@link android.os.SystemClock#elapsedRealtime()} in microseconds,
+   *     measured at the start of the current iteration of the rendering loop.
    */
-  protected boolean shouldDropOutputBuffer(
-      long outputBufferTimeUs,
-      long nextOutputBufferTimeUs,
-      long positionUs,
-      long joiningDeadlineMs) {
-    return isBufferLate(outputBufferTimeUs - positionUs)
-        && (joiningDeadlineMs != C.TIME_UNSET || nextOutputBufferTimeUs != C.TIME_UNSET);
+  protected boolean shouldDropOutputBuffer(long earlyUs, long elapsedRealtimeUs) {
+    return isBufferLate(earlyUs);
   }
 
   /**
@@ -506,9 +492,24 @@ public class LibvpxVideoRenderer extends BaseRenderer {
    *
    * @param earlyUs The time until the current buffer should be presented in microseconds. A
    *     negative value indicates that the buffer is late.
+   * @param elapsedRealtimeUs {@link android.os.SystemClock#elapsedRealtime()} in microseconds,
+   *     measured at the start of the current iteration of the rendering loop.
    */
-  protected boolean shouldDropBuffersToKeyframe(long earlyUs) {
+  protected boolean shouldDropBuffersToKeyframe(long earlyUs, long elapsedRealtimeUs) {
     return isBufferVeryLate(earlyUs);
+  }
+
+  /**
+   * Returns whether to force rendering an output buffer.
+   *
+   * @param earlyUs The time until the current buffer should be presented in microseconds. A
+   *     negative value indicates that the buffer is late.
+   * @param elapsedSinceLastRenderUs The elapsed time since the last output buffer was rendered, in
+   *     microseconds.
+   * @return Returns whether to force rendering an output buffer.
+   */
+  protected boolean shouldForceRenderOutputBuffer(long earlyUs, long elapsedSinceLastRenderUs) {
+    return isBufferLate(earlyUs) && elapsedSinceLastRenderUs > 100000;
   }
 
   /**
@@ -543,6 +544,7 @@ public class LibvpxVideoRenderer extends BaseRenderer {
     int bufferMode = outputBuffer.mode;
     boolean renderRgb = bufferMode == VpxDecoder.OUTPUT_MODE_RGB && surface != null;
     boolean renderYuv = bufferMode == VpxDecoder.OUTPUT_MODE_YUV && outputBufferRenderer != null;
+    lastRenderTimeUs = SystemClock.elapsedRealtime() * 1000;
     if (!renderRgb && !renderYuv) {
       dropOutputBuffer(outputBuffer);
     } else {
@@ -755,31 +757,23 @@ public class LibvpxVideoRenderer extends BaseRenderer {
 
   /**
    * Attempts to dequeue an output buffer from the decoder and, if successful, passes it to {@link
-   * #processOutputBuffer(long)}.
+   * #processOutputBuffer(long, long)}.
    *
    * @param positionUs The player's current position.
+   * @param elapsedRealtimeUs {@link android.os.SystemClock#elapsedRealtime()} in microseconds,
+   *     measured at the start of the current iteration of the rendering loop.
    * @return Whether it may be possible to drain more output data.
    * @throws ExoPlaybackException If an error occurs draining the output buffer.
    */
-  private boolean drainOutputBuffer(long positionUs)
+  private boolean drainOutputBuffer(long positionUs, long elapsedRealtimeUs)
       throws ExoPlaybackException, VpxDecoderException {
-    // Acquire outputBuffer either from nextOutputBuffer or from the decoder.
     if (outputBuffer == null) {
-      if (nextOutputBuffer != null) {
-        outputBuffer = nextOutputBuffer;
-        nextOutputBuffer = null;
-      } else {
-        outputBuffer = decoder.dequeueOutputBuffer();
-      }
+      outputBuffer = decoder.dequeueOutputBuffer();
       if (outputBuffer == null) {
         return false;
       }
       decoderCounters.skippedOutputBufferCount += outputBuffer.skippedOutputBufferCount;
       buffersInCodecCount -= outputBuffer.skippedOutputBufferCount;
-    }
-
-    if (nextOutputBuffer == null) {
-      nextOutputBuffer = decoder.dequeueOutputBuffer();
     }
 
     if (outputBuffer.isEndOfStream()) {
@@ -795,7 +789,12 @@ public class LibvpxVideoRenderer extends BaseRenderer {
       return false;
     }
 
-    return processOutputBuffer(positionUs);
+    boolean processedOutputBuffer = processOutputBuffer(positionUs, elapsedRealtimeUs);
+    if (processedOutputBuffer) {
+      onProcessedOutputBuffer(outputBuffer.timeUs);
+      outputBuffer = null;
+    }
+    return processedOutputBuffer;
   }
 
   /**
@@ -803,53 +802,47 @@ public class LibvpxVideoRenderer extends BaseRenderer {
    * whether it may be possible to process another output buffer.
    *
    * @param positionUs The player's current position.
+   * @param elapsedRealtimeUs {@link android.os.SystemClock#elapsedRealtime()} in microseconds,
+   *     measured at the start of the current iteration of the rendering loop.
    * @return Whether it may be possible to drain another output buffer.
    * @throws ExoPlaybackException If an error occurs processing the output buffer.
    */
-  private boolean processOutputBuffer(long positionUs) throws ExoPlaybackException {
+  private boolean processOutputBuffer(long positionUs, long elapsedRealtimeUs)
+      throws ExoPlaybackException {
+    long earlyUs = outputBuffer.timeUs - positionUs;
     if (outputMode == VpxDecoder.OUTPUT_MODE_NONE) {
       // Skip frames in sync with playback, so we'll be at the right frame if the mode changes.
-      if (isBufferLate(outputBuffer.timeUs - positionUs)) {
-        forceRenderFrame = false;
+      if (isBufferLate(earlyUs)) {
         skipOutputBuffer(outputBuffer);
-        onProcessedOutputBuffer(outputBuffer.timeUs);
-        outputBuffer = null;
         return true;
       }
       return false;
     }
 
-    if (forceRenderFrame) {
-      forceRenderFrame = false;
+    long elapsedRealtimeNowUs = SystemClock.elapsedRealtime() * 1000;
+    boolean isStarted = getState() == STATE_STARTED;
+    if (!renderedFirstFrame
+        || (isStarted
+            && shouldForceRenderOutputBuffer(earlyUs, elapsedRealtimeNowUs - lastRenderTimeUs))) {
       renderOutputBuffer(outputBuffer);
-      onProcessedOutputBuffer(outputBuffer.timeUs);
-      outputBuffer = null;
       return true;
     }
 
-    long nextOutputBufferTimeUs =
-        nextOutputBuffer != null && !nextOutputBuffer.isEndOfStream()
-            ? nextOutputBuffer.timeUs
-            : C.TIME_UNSET;
-
-    long earlyUs = outputBuffer.timeUs - positionUs;
-    if (shouldDropBuffersToKeyframe(earlyUs) && maybeDropBuffersToKeyframe(positionUs)) {
-      forceRenderFrame = true;
+    if (!isStarted) {
       return false;
-    } else if (shouldDropOutputBuffer(
-        outputBuffer.timeUs, nextOutputBufferTimeUs, positionUs, joiningDeadlineMs)) {
+    }
+
+    if (shouldDropBuffersToKeyframe(earlyUs, elapsedRealtimeUs)
+        && maybeDropBuffersToKeyframe(positionUs)) {
+      return false;
+    } else if (shouldDropOutputBuffer(earlyUs, elapsedRealtimeUs)) {
       dropOutputBuffer(outputBuffer);
-      onProcessedOutputBuffer(outputBuffer.timeUs);
-      outputBuffer = null;
       return true;
     }
 
-    // If we have yet to render a frame to the current output (either initially or immediately
-    // following a seek), render one irrespective of the state or current position.
-    if (!renderedFirstFrame || (getState() == STATE_STARTED && earlyUs <= 30000)) {
+    if (earlyUs < 30000) {
       renderOutputBuffer(outputBuffer);
-      onProcessedOutputBuffer(outputBuffer.timeUs);
-      outputBuffer = null;
+      return true;
     }
 
     return false;
