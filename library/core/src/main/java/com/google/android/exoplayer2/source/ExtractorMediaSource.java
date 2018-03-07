@@ -319,11 +319,12 @@ public final class ExtractorMediaSource extends BaseMediaSource
     this.eventDispatcher = new EventDispatcher(eventHandler, eventListener);
     this.customCacheKey = customCacheKey;
     this.continueLoadingCheckIntervalBytes = continueLoadingCheckIntervalBytes;
+    this.timelineDurationUs = C.TIME_UNSET;
   }
 
   @Override
   public void prepareSourceInternal(ExoPlayer player, boolean isTopLevelSource) {
-    notifySourceInfoRefreshed(C.TIME_UNSET, false);
+    notifySourceInfoRefreshed(timelineDurationUs, /* isSeekable= */ false);
   }
 
   @Override
