@@ -237,7 +237,8 @@ public class DefaultLoadControl implements LoadControl {
       boolean prioritizeTimeOverSizeThresholds,
       PriorityTaskManager priorityTaskManager) {
     assertGreaterOrEqual(bufferForPlaybackMs, 0, "bufferForPlaybackMs", "0");
-    assertGreaterOrEqual(bufferForPlaybackAfterRebufferMs, 0, "bufferForPlaybackMs", "0");
+    assertGreaterOrEqual(
+        bufferForPlaybackAfterRebufferMs, 0, "bufferForPlaybackAfterRebufferMs", "0");
     assertGreaterOrEqual(minBufferMs, bufferForPlaybackMs, "minBufferMs", "bufferForPlaybackMs");
     assertGreaterOrEqual(
         minBufferMs,
