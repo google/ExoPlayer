@@ -64,4 +64,12 @@ public interface ControlDispatcher {
    */
   boolean dispatchSetShuffleModeEnabled(Player player, boolean shuffleModeEnabled);
 
+  /**
+   * Dispatches a {@link Player#stop()} operation.
+   *
+   * @param player The {@link Player} to which the operation should be dispatched.
+   * @param reset Whether the player should be reset.
+   * @return True if the operation was dispatched. False if suppressed.
+   */
+  boolean dispatchStop(Player player, boolean reset);
 }

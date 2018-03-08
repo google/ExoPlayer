@@ -35,6 +35,7 @@
   header ([#3926](https://github.com/google/ExoPlayer/issues/3926)).
 * Video: force rendering a frame periodically in `MediaCodecVideoRenderer` and
   `LibvpxVideoRenderer`, even if it is late.
+* Add PlayerNotificationManager.
 
 ### 2.7.0 ###
 
