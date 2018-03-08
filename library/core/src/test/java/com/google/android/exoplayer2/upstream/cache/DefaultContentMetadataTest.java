@@ -20,6 +20,7 @@ import static com.google.common.truth.Truth.assertThat;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.upstream.cache.Cache.CacheException;
 import com.google.android.exoplayer2.upstream.cache.ContentMetadata.Editor;
+import com.google.android.exoplayer2.upstream.cache.DefaultContentMetadata.ChangeListener;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -30,14 +31,16 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
 
-/** Tests {@link AbstractContentMetadata}. */
+/** Tests {@link DefaultContentMetadata}. */
 @RunWith(RobolectricTestRunner.class)
-public class AbstractContentMetadataTest {
+public class DefaultContentMetadataTest {
 
-  private FakeAbstractContentMetadata contentMetadata;
+  private DefaultContentMetadata contentMetadata;
+  private FakeChangeListener changeListener;
 
   @Before
   public void setUp() throws Exception {
+    changeListener = new FakeChangeListener();
     contentMetadata = createAbstractContentMetadata();
   }
 
@@ -156,32 +159,31 @@ public class AbstractContentMetadataTest {
     editor.set("metadata name", "edited value");
     editor.remove("metadata name2");
     editor.commit();
-    assertThat(contentMetadata.remainingValues).containsExactly("metadata name", "metadata name3");
+    assertThat(changeListener.remainingValues).containsExactly("metadata name", "metadata name3");
   }
 
-  private FakeAbstractContentMetadata createAbstractContentMetadata(String... pairs) {
+  private DefaultContentMetadata createAbstractContentMetadata(String... pairs) {
     assertThat(pairs.length % 2).isEqualTo(0);
     HashMap<String, byte[]> map = new HashMap<>();
     for (int i = 0; i < pairs.length; i += 2) {
       map.put(pairs[i], getBytes(pairs[i + 1]));
     }
-    return new FakeAbstractContentMetadata(Collections.unmodifiableMap(map));
+    DefaultContentMetadata metadata = new DefaultContentMetadata(Collections.unmodifiableMap(map));
+    metadata.setChangeListener(changeListener);
+    return metadata;
   }
 
   private static byte[] getBytes(String value) {
     return value.getBytes(Charset.forName(C.UTF8_NAME));
   }
 
-  private static class FakeAbstractContentMetadata extends AbstractContentMetadata {
+  private static class FakeChangeListener implements ChangeListener {
 
     private ArrayList<String> remainingValues;
 
-    private FakeAbstractContentMetadata(Map<String, byte[]> metadataValues) {
-      super(metadataValues);
-    }
-
     @Override
-    protected void onChange(Map<String, byte[]> metadataValues) throws CacheException {
+    public void onChange(DefaultContentMetadata contentMetadata, Map<String, byte[]> metadataValues)
+        throws CacheException {
       remainingValues = new ArrayList<>(metadataValues.keySet());
     }
   }

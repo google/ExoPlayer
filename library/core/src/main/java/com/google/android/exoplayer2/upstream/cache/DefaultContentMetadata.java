@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.upstream.cache;
 
+import android.support.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.upstream.cache.Cache.CacheException;
 import com.google.android.exoplayer2.util.Assertions;
@@ -25,18 +26,43 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-/** Abstract implementation of {@link ContentMetadata}. Values are stored as byte arrays. */
-public abstract class AbstractContentMetadata implements ContentMetadata {
+/** Default implementation of {@link ContentMetadata}. Values are stored as byte arrays. */
+public final class DefaultContentMetadata implements ContentMetadata {
+
+  /** Listener for metadata change event. */
+  public interface ChangeListener {
+    /**
+     * Called when any metadata value is changed or removed.
+     *
+     * @param contentMetadata The reporting instance.
+     * @param metadataValues All metadata name, value pairs. It shouldn't be accessed out of this
+     *     method.
+     */
+    void onChange(DefaultContentMetadata contentMetadata, Map<String, byte[]> metadataValues)
+        throws CacheException;
+  }
 
   private final Map<String, byte[]> metadata;
+  @Nullable private ChangeListener changeListener;
 
-  protected AbstractContentMetadata() {
+  public DefaultContentMetadata() {
     this.metadata = new HashMap<>();
   }
 
-  /** @param metadata Initial name value pairs. */
-  protected AbstractContentMetadata(Map<String, byte[]> metadata) {
+  /**
+   * Constructs a {@link DefaultContentMetadata} using name, value pairs data which was passed to
+   * {@link ChangeListener#onChange(DefaultContentMetadata, Map)}.
+   *
+   * @param metadata Initial name, value pairs.
+   */
+  public DefaultContentMetadata(Map<String, byte[]> metadata) {
     this.metadata = new HashMap<>(metadata);
+  }
+
+  /** Sets a {@link ChangeListener}. This method can be called once. */
+  public void setChangeListener(ChangeListener changeListener) {
+    Assertions.checkState(this.changeListener == null);
+    this.changeListener = Assertions.checkNotNull(changeListener);
   }
 
   @Override
@@ -86,14 +112,6 @@ public abstract class AbstractContentMetadata implements ContentMetadata {
     }
   }
 
-  /**
-   * Called when any metadata value is changed or removed. {@code metadataValues} shouldn't be
-   * accessed out of this method.
-   *
-   * @param metadataValues All metadata name, value pairs.
-   */
-  protected abstract void onChange(Map<String, byte[]> metadataValues) throws CacheException;
-
   private void apply(ArrayList<String> removedValues, Map<String, byte[]> editedValues)
       throws CacheException {
     synchronized (metadata) {
@@ -101,7 +119,9 @@ public abstract class AbstractContentMetadata implements ContentMetadata {
         metadata.remove(removedValues.get(i));
       }
       metadata.putAll(editedValues);
-      onChange(Collections.unmodifiableMap(metadata));
+      if (changeListener != null) {
+        changeListener.onChange(this, Collections.unmodifiableMap(metadata));
+      }
     }
   }
 
