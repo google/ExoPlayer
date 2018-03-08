@@ -4,6 +4,7 @@
 
 * Moved initial bitrate estimate from `AdaptiveTrackSelection` to
   `DefaultBandwidthMeter`.
+* Updated default max buffer length in `DefaultLoadControl`.
 * UI components:
   * Add support for listening to `AspectRatioFrameLayout`'s aspect ratio update
     ([#3736](https://github.com/google/ExoPlayer/issues/3736)).
