@@ -590,7 +590,7 @@ public final class DefaultAudioSink implements AudioSink {
       // position for a short time after is has been released. Avoid writing data until the playback
       // head position actually returns to zero.
       if (audioTrack.getPlayState() == PLAYSTATE_STOPPED
-          && audioTrackUtil.getPlaybackHeadPosition() != 0) {
+          && audioTrack.getPlaybackHeadPosition() != 0) {
         return false;
       }
     }
