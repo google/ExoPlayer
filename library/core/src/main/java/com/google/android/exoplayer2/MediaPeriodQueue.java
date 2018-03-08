@@ -52,6 +52,8 @@ import com.google.android.exoplayer2.util.Assertions;
   private MediaPeriodHolder reading;
   private MediaPeriodHolder loading;
   private int length;
+  private Object oldFrontPeriodUid;
+  private long oldFrontPeriodWindowSequenceNumber;
 
   /** Creates a new media period queue. */
   public MediaPeriodQueue() {
@@ -162,6 +164,7 @@ import com.google.android.exoplayer2.util.Assertions;
       Assertions.checkState(hasPlayingPeriod());
       loading.next = newPeriodHolder;
     }
+    oldFrontPeriodUid = null;
     loading = newPeriodHolder;
     length++;
     return newPeriodHolder.mediaPeriod;
@@ -276,12 +279,21 @@ import com.google.android.exoplayer2.util.Assertions;
     return removedReading;
   }
 
-  /** Clears the queue. */
-  public void clear() {
+  /**
+   * Clears the queue.
+   *
+   * @param keepFrontPeriodUid Whether the queue should keep the id of the media period in the front
+   *     of queue (typically the playing one) for later reuse.
+   */
+  public void clear(boolean keepFrontPeriodUid) {
     MediaPeriodHolder front = getFrontPeriod();
     if (front != null) {
+      oldFrontPeriodUid = keepFrontPeriodUid ? front.uid : null;
+      oldFrontPeriodWindowSequenceNumber = front.info.id.windowSequenceNumber;
       front.release();
       removeAfter(front);
+    } else if (!keepFrontPeriodUid) {
+      oldFrontPeriodUid = null;
     }
     playing = null;
     loading = null;
@@ -408,6 +420,17 @@ import com.google.android.exoplayer2.util.Assertions;
    */
   private long resolvePeriodIndexToWindowSequenceNumber(int periodIndex) {
     Object periodUid = timeline.getPeriod(periodIndex, period, /* setIds= */ true).uid;
+    int windowIndex = period.windowIndex;
+    if (oldFrontPeriodUid != null) {
+      int oldFrontPeriodIndex = timeline.getIndexOfPeriod(oldFrontPeriodUid);
+      if (oldFrontPeriodIndex != C.INDEX_UNSET) {
+        int oldFrontWindowIndex = timeline.getPeriod(oldFrontPeriodIndex, period).windowIndex;
+        if (oldFrontWindowIndex == windowIndex) {
+          // Try to match old front uid after the queue has been cleared.
+          return oldFrontPeriodWindowSequenceNumber;
+        }
+      }
+    }
     MediaPeriodHolder mediaPeriodHolder = getFrontPeriod();
     while (mediaPeriodHolder != null) {
       if (mediaPeriodHolder.uid.equals(periodUid)) {
@@ -416,7 +439,6 @@ import com.google.android.exoplayer2.util.Assertions;
       }
       mediaPeriodHolder = mediaPeriodHolder.next;
     }
-    int windowIndex = period.windowIndex;
     mediaPeriodHolder = getFrontPeriod();
     while (mediaPeriodHolder != null) {
       int indexOfHolderInTimeline = timeline.getIndexOfPeriod(mediaPeriodHolder.uid);
