@@ -691,7 +691,7 @@ import java.util.Collections;
       resetRendererPosition(periodPositionUs);
       maybeContinueLoading();
     } else {
-      queue.clear();
+      queue.clear(/* keepFrontPeriodUid= */ true);
       resetRendererPosition(periodPositionUs);
     }
 
@@ -776,7 +776,7 @@ import java.util.Collections;
       }
     }
     enabledRenderers = new Renderer[0];
-    queue.clear();
+    queue.clear(/* keepFrontPeriodUid= */ !resetPosition);
     setIsLoading(false);
     if (resetPosition) {
       pendingInitialSeekPosition = null;
