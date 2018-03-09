@@ -125,6 +125,36 @@ public final class ClippingMediaSourceTest {
   }
 
   @Test
+  public void testClippingToEndOfSourceWithDurationSetsDuration() throws IOException {
+    // Create a child timeline that has a known duration.
+    Timeline timeline =
+        new SinglePeriodTimeline(
+            /* durationUs= */ TEST_PERIOD_DURATION_US,
+            /* isSeekable= */ true,
+            /* isDynamic= */ false);
+
+    // When clipping to the end, the clipped timeline should also have a duration.
+    Timeline clippedTimeline =
+        getClippedTimeline(timeline, TEST_CLIP_AMOUNT_US, C.TIME_END_OF_SOURCE);
+    assertThat(clippedTimeline.getWindow(/* windowIndex= */ 0, window).getDurationUs())
+        .isEqualTo(TEST_PERIOD_DURATION_US - TEST_CLIP_AMOUNT_US);
+  }
+
+  @Test
+  public void testClippingToEndOfSourceWithUnsetDurationDoesNotSetDuration() throws IOException {
+    // Create a child timeline that has an unknown duration.
+    Timeline timeline =
+        new SinglePeriodTimeline(
+            /* durationUs= */ C.TIME_UNSET, /* isSeekable= */ true, /* isDynamic= */ false);
+
+    // When clipping to the end, the clipped timeline should also have an unset duration.
+    Timeline clippedTimeline =
+        getClippedTimeline(timeline, TEST_CLIP_AMOUNT_US, C.TIME_END_OF_SOURCE);
+    assertThat(clippedTimeline.getWindow(/* windowIndex= */ 0, window).getDurationUs())
+        .isEqualTo(C.TIME_UNSET);
+  }
+
+  @Test
   public void testClippingStartAndEnd() throws IOException {
     Timeline timeline = new SinglePeriodTimeline(C.msToUs(TEST_PERIOD_DURATION_US), true, false);
 
