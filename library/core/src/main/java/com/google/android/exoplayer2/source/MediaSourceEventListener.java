@@ -17,6 +17,7 @@ package com.google.android.exoplayer2.source;
 
 import android.os.Handler;
 import android.os.SystemClock;
+import android.support.annotation.CheckResult;
 import android.support.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
@@ -24,6 +25,7 @@ import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.upstream.DataSpec;
 import com.google.android.exoplayer2.util.Assertions;
 import java.io.IOException;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 /** Interface for callbacks to be notified of {@link MediaSource} events. */
 public interface MediaSourceEventListener {
@@ -190,30 +192,61 @@ public interface MediaSourceEventListener {
    */
   void onDownstreamFormatChanged(MediaLoadData mediaLoadData);
 
-  /** Dispatches events to a {@link MediaSourceEventListener}. */
+  /** Dispatches events to {@link MediaSourceEventListener}s. */
   final class EventDispatcher {
 
-    @Nullable private final Handler handler;
-    @Nullable private final MediaSourceEventListener listener;
+    private final CopyOnWriteArrayList<ListenerAndHandler> listenerAndHandlers;
     private final long mediaTimeOffsetMs;
 
-    public EventDispatcher(@Nullable Handler handler, @Nullable MediaSourceEventListener listener) {
-      this(handler, listener, 0);
+    /** Create event dispatcher. */
+    /* package */ EventDispatcher() {
+      this(
+          /* listenerAndHandlers= */ new CopyOnWriteArrayList<ListenerAndHandler>(),
+          /* mediaTimeOffsetMs= */ 0);
     }
 
-    public EventDispatcher(
-        @Nullable Handler handler,
-        @Nullable MediaSourceEventListener listener,
-        long mediaTimeOffsetMs) {
-      this.handler = listener != null ? Assertions.checkNotNull(handler) : null;
-      this.listener = listener;
+    private EventDispatcher(
+        CopyOnWriteArrayList<ListenerAndHandler> listenerAndHandlers, long mediaTimeOffsetMs) {
+      this.listenerAndHandlers = listenerAndHandlers;
       this.mediaTimeOffsetMs = mediaTimeOffsetMs;
     }
 
-    public EventDispatcher copyWithMediaTimeOffsetMs(long mediaTimeOffsetMs) {
-      return new EventDispatcher(handler, listener, mediaTimeOffsetMs);
+    /**
+     * Creates a view of the event dispatcher with a media time offset.
+     *
+     * @param mediaTimeOffsetMs The offset to be added to all media times, in milliseconds.
+     * @return A view of the event dispatcher with the added media time offset.
+     */
+    @CheckResult
+    public EventDispatcher withMediaTimeOffsetMs(long mediaTimeOffsetMs) {
+      return new EventDispatcher(listenerAndHandlers, mediaTimeOffsetMs);
     }
 
+    /**
+     * Adds a listener to the event dispatcher.
+     *
+     * @param handler A handler on the which listener events will be posted.
+     * @param eventListener The listener to be added.
+     */
+    public void addEventListener(Handler handler, MediaSourceEventListener eventListener) {
+      Assertions.checkArgument(handler != null && eventListener != null);
+      listenerAndHandlers.add(new ListenerAndHandler(handler, eventListener));
+    }
+
+    /**
+     * Removes a listener from the event dispatcher.
+     *
+     * @param eventListener The listener to be removed.
+     */
+    public void removeEventListener(MediaSourceEventListener eventListener) {
+      for (ListenerAndHandler listenerAndHandler : listenerAndHandlers) {
+        if (listenerAndHandler.listener == eventListener) {
+          listenerAndHandlers.remove(listenerAndHandler);
+        }
+      }
+    }
+
+    /** Dispatches {@link #onLoadStarted(LoadEventInfo, MediaLoadData)}. */
     public void loadStarted(DataSpec dataSpec, int dataType, long elapsedRealtimeMs) {
       loadStarted(
           dataSpec,
@@ -238,12 +271,12 @@ public interface MediaSourceEventListener {
         final long mediaStartTimeUs,
         final long mediaEndTimeUs,
         final long elapsedRealtimeMs) {
-      if (listener != null && handler != null) {
-        handler.post(
+      for (final ListenerAndHandler listenerAndHandler : listenerAndHandlers) {
+        listenerAndHandler.handler.post(
             new Runnable() {
               @Override
               public void run() {
-                listener.onLoadStarted(
+                listenerAndHandler.listener.onLoadStarted(
                     new LoadEventInfo(
                         dataSpec, elapsedRealtimeMs, /* loadDurationMs= */ 0, /* bytesLoaded= */ 0),
                     new MediaLoadData(
@@ -293,12 +326,12 @@ public interface MediaSourceEventListener {
         final long elapsedRealtimeMs,
         final long loadDurationMs,
         final long bytesLoaded) {
-      if (listener != null && handler != null) {
-        handler.post(
+      for (final ListenerAndHandler listenerAndHandler : listenerAndHandlers) {
+        listenerAndHandler.handler.post(
             new Runnable() {
               @Override
               public void run() {
-                listener.onLoadCompleted(
+                listenerAndHandler.listener.onLoadCompleted(
                     new LoadEventInfo(dataSpec, elapsedRealtimeMs, loadDurationMs, bytesLoaded),
                     new MediaLoadData(
                         dataType,
@@ -347,12 +380,12 @@ public interface MediaSourceEventListener {
         final long elapsedRealtimeMs,
         final long loadDurationMs,
         final long bytesLoaded) {
-      if (listener != null && handler != null) {
-        handler.post(
+      for (final ListenerAndHandler listenerAndHandler : listenerAndHandlers) {
+        listenerAndHandler.handler.post(
             new Runnable() {
               @Override
               public void run() {
-                listener.onLoadCanceled(
+                listenerAndHandler.listener.onLoadCanceled(
                     new LoadEventInfo(dataSpec, elapsedRealtimeMs, loadDurationMs, bytesLoaded),
                     new MediaLoadData(
                         dataType,
@@ -407,12 +440,12 @@ public interface MediaSourceEventListener {
         final long bytesLoaded,
         final IOException error,
         final boolean wasCanceled) {
-      if (listener != null && handler != null) {
-        handler.post(
+      for (final ListenerAndHandler listenerAndHandler : listenerAndHandlers) {
+        listenerAndHandler.handler.post(
             new Runnable() {
               @Override
               public void run() {
-                listener.onLoadError(
+                listenerAndHandler.listener.onLoadError(
                     new LoadEventInfo(dataSpec, elapsedRealtimeMs, loadDurationMs, bytesLoaded),
                     new MediaLoadData(
                         dataType,
@@ -432,12 +465,12 @@ public interface MediaSourceEventListener {
     /** Dispatches {@link #onUpstreamDiscarded(MediaLoadData)}. */
     public void upstreamDiscarded(
         final int trackType, final long mediaStartTimeUs, final long mediaEndTimeUs) {
-      if (listener != null && handler != null) {
-        handler.post(
+      for (final ListenerAndHandler listenerAndHandler : listenerAndHandlers) {
+        listenerAndHandler.handler.post(
             new Runnable() {
               @Override
               public void run() {
-                listener.onUpstreamDiscarded(
+                listenerAndHandler.listener.onUpstreamDiscarded(
                     new MediaLoadData(
                         C.DATA_TYPE_MEDIA,
                         trackType,
@@ -458,12 +491,12 @@ public interface MediaSourceEventListener {
         final int trackSelectionReason,
         final @Nullable Object trackSelectionData,
         final long mediaTimeUs) {
-      if (listener != null && handler != null) {
-        handler.post(
+      for (final ListenerAndHandler listenerAndHandler : listenerAndHandlers) {
+        listenerAndHandler.handler.post(
             new Runnable() {
               @Override
               public void run() {
-                listener.onDownstreamFormatChanged(
+                listenerAndHandler.listener.onDownstreamFormatChanged(
                     new MediaLoadData(
                         C.DATA_TYPE_MEDIA,
                         trackType,
@@ -480,6 +513,17 @@ public interface MediaSourceEventListener {
     private long adjustMediaTime(long mediaTimeUs) {
       long mediaTimeMs = C.usToMs(mediaTimeUs);
       return mediaTimeMs == C.TIME_UNSET ? C.TIME_UNSET : mediaTimeOffsetMs + mediaTimeMs;
+    }
+
+    private static final class ListenerAndHandler {
+
+      public final Handler handler;
+      public final MediaSourceEventListener listener;
+
+      public ListenerAndHandler(Handler handler, MediaSourceEventListener listener) {
+        this.handler = handler;
+        this.listener = listener;
+      }
     }
   }
 }

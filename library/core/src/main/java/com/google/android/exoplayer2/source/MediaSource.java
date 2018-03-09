@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.source;
 
+import android.os.Handler;
 import android.support.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlayer;
@@ -170,6 +171,23 @@ public interface MediaSource {
     }
 
   }
+
+  /**
+   * Adds a {@link MediaSourceEventListener} to the list of listeners which are notified of media
+   * source events.
+   *
+   * @param handler A handler on the which listener events will be posted.
+   * @param eventListener The listener to be added.
+   */
+  void addEventListener(Handler handler, MediaSourceEventListener eventListener);
+
+  /**
+   * Removes a {@link MediaSourceEventListener} from the list of listeners which are notified of
+   * media source events.
+   *
+   * @param eventListener The listener to be removed.
+   */
+  void removeEventListener(MediaSourceEventListener eventListener);
 
   /**
    * Starts source preparation if not yet started, and adds a listener for timeline and/or manifest

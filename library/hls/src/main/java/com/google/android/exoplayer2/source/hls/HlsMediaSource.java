@@ -164,28 +164,12 @@ public final class HlsMediaSource extends BaseMediaSource
     }
 
     /**
-     * Returns a new {@link HlsMediaSource} using the current parameters. Media source events will
-     * not be delivered.
-     *
-     * @return The new {@link HlsMediaSource}.
-     */
-    public HlsMediaSource createMediaSource(Uri playlistUri) {
-      return createMediaSource(playlistUri, null, null);
-    }
-
-    /**
      * Returns a new {@link HlsMediaSource} using the current parameters.
      *
-     * @param playlistUri The playlist {@link Uri}.
-     * @param eventHandler A handler for events.
-     * @param eventListener A listener of events.
      * @return The new {@link HlsMediaSource}.
      */
     @Override
-    public HlsMediaSource createMediaSource(
-        Uri playlistUri,
-        @Nullable Handler eventHandler,
-        @Nullable MediaSourceEventListener eventListener) {
+    public HlsMediaSource createMediaSource(Uri playlistUri) {
       isCreateCalled = true;
       if (playlistParser == null) {
         playlistParser = new HlsPlaylistParser();
@@ -196,10 +180,24 @@ public final class HlsMediaSource extends BaseMediaSource
           extractorFactory,
           compositeSequenceableLoaderFactory,
           minLoadableRetryCount,
-          eventHandler,
-          eventListener,
           playlistParser,
           allowChunklessPreparation);
+    }
+
+    /**
+     * @deprecated Use {@link #createMediaSource(Uri)} and {@link #addEventListener(Handler,
+     *     MediaSourceEventListener)} instead.
+     */
+    @Deprecated
+    public HlsMediaSource createMediaSource(
+        Uri playlistUri,
+        @Nullable Handler eventHandler,
+        @Nullable MediaSourceEventListener eventListener) {
+      HlsMediaSource mediaSource = createMediaSource(playlistUri);
+      if (eventHandler != null && eventListener != null) {
+        mediaSource.addEventListener(eventHandler, eventListener);
+      }
+      return mediaSource;
     }
 
     @Override
@@ -294,10 +292,11 @@ public final class HlsMediaSource extends BaseMediaSource
         extractorFactory,
         new DefaultCompositeSequenceableLoaderFactory(),
         minLoadableRetryCount,
-        eventHandler,
-        eventListener,
         playlistParser,
         false);
+    if (eventHandler != null && eventListener != null) {
+      addEventListener(eventHandler, eventListener);
+    }
   }
 
   private HlsMediaSource(
@@ -306,8 +305,6 @@ public final class HlsMediaSource extends BaseMediaSource
       HlsExtractorFactory extractorFactory,
       CompositeSequenceableLoaderFactory compositeSequenceableLoaderFactory,
       int minLoadableRetryCount,
-      Handler eventHandler,
-      MediaSourceEventListener eventListener,
       ParsingLoadable.Parser<HlsPlaylist> playlistParser,
       boolean allowChunklessPreparation) {
     this.manifestUri = manifestUri;
@@ -317,7 +314,7 @@ public final class HlsMediaSource extends BaseMediaSource
     this.minLoadableRetryCount = minLoadableRetryCount;
     this.playlistParser = playlistParser;
     this.allowChunklessPreparation = allowChunklessPreparation;
-    eventDispatcher = new EventDispatcher(eventHandler, eventListener);
+    eventDispatcher = getEventDispatcher();
   }
 
   @Override

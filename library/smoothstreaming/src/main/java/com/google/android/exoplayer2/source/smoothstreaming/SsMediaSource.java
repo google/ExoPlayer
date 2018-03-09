@@ -153,15 +153,10 @@ public final class SsMediaSource extends BaseMediaSource
      * manifest.
      *
      * @param manifest The manifest. {@link SsManifest#isLive} must be false.
-     * @param eventHandler A handler for events.
-     * @param eventListener A listener of events.
      * @return The new {@link SsMediaSource}.
      * @throws IllegalArgumentException If {@link SsManifest#isLive} is true.
      */
-    public SsMediaSource createMediaSource(
-        SsManifest manifest,
-        @Nullable Handler eventHandler,
-        @Nullable MediaSourceEventListener eventListener) {
+    public SsMediaSource createMediaSource(SsManifest manifest) {
       Assertions.checkArgument(!manifest.isLive);
       isCreateCalled = true;
       return new SsMediaSource(
@@ -172,35 +167,33 @@ public final class SsMediaSource extends BaseMediaSource
           chunkSourceFactory,
           compositeSequenceableLoaderFactory,
           minLoadableRetryCount,
-          livePresentationDelayMs,
-          eventHandler,
-          eventListener);
+          livePresentationDelayMs);
     }
 
     /**
-     * Returns a new {@link SsMediaSource} using the current parameters. Media source events will
-     * not be delivered.
-     *
-     * @param manifestUri The manifest {@link Uri}.
-     * @return The new {@link SsMediaSource}.
+     * @deprecated Use {@link #createMediaSource(SsManifest)} and {@link #addEventListener(Handler,
+     *     MediaSourceEventListener)} instead.
      */
-    public SsMediaSource createMediaSource(Uri manifestUri) {
-      return createMediaSource(manifestUri, null, null);
+    @Deprecated
+    public SsMediaSource createMediaSource(
+        SsManifest manifest,
+        @Nullable Handler eventHandler,
+        @Nullable MediaSourceEventListener eventListener) {
+      SsMediaSource mediaSource = createMediaSource(manifest);
+      if (eventHandler != null && eventListener != null) {
+        mediaSource.addEventListener(eventHandler, eventListener);
+      }
+      return mediaSource;
     }
 
     /**
      * Returns a new {@link SsMediaSource} using the current parameters.
      *
      * @param manifestUri The manifest {@link Uri}.
-     * @param eventHandler A handler for events.
-     * @param eventListener A listener of events.
      * @return The new {@link SsMediaSource}.
      */
     @Override
-    public SsMediaSource createMediaSource(
-        Uri manifestUri,
-        @Nullable Handler eventHandler,
-        @Nullable MediaSourceEventListener eventListener) {
+    public SsMediaSource createMediaSource(Uri manifestUri) {
       isCreateCalled = true;
       if (manifestParser == null) {
         manifestParser = new SsManifestParser();
@@ -213,9 +206,23 @@ public final class SsMediaSource extends BaseMediaSource
           chunkSourceFactory,
           compositeSequenceableLoaderFactory,
           minLoadableRetryCount,
-          livePresentationDelayMs,
-          eventHandler,
-          eventListener);
+          livePresentationDelayMs);
+    }
+
+    /**
+     * @deprecated Use {@link #createMediaSource(Uri)} and {@link #addEventListener(Handler,
+     *     MediaSourceEventListener)} instead.
+     */
+    @Deprecated
+    public SsMediaSource createMediaSource(
+        Uri manifestUri,
+        @Nullable Handler eventHandler,
+        @Nullable MediaSourceEventListener eventListener) {
+      SsMediaSource mediaSource = createMediaSource(manifestUri);
+      if (eventHandler != null && eventListener != null) {
+        mediaSource.addEventListener(eventHandler, eventListener);
+      }
+      return mediaSource;
     }
 
     @Override
@@ -300,9 +307,18 @@ public final class SsMediaSource extends BaseMediaSource
       int minLoadableRetryCount,
       Handler eventHandler,
       MediaSourceEventListener eventListener) {
-    this(manifest, null, null, null, chunkSourceFactory,
-        new DefaultCompositeSequenceableLoaderFactory(), minLoadableRetryCount,
-        DEFAULT_LIVE_PRESENTATION_DELAY_MS, eventHandler, eventListener);
+    this(
+        manifest,
+        null,
+        null,
+        null,
+        chunkSourceFactory,
+        new DefaultCompositeSequenceableLoaderFactory(),
+        minLoadableRetryCount,
+        DEFAULT_LIVE_PRESENTATION_DELAY_MS);
+    if (eventHandler != null && eventListener != null) {
+      addEventListener(eventHandler, eventListener);
+    }
   }
 
   /**
@@ -383,9 +399,18 @@ public final class SsMediaSource extends BaseMediaSource
       long livePresentationDelayMs,
       Handler eventHandler,
       MediaSourceEventListener eventListener) {
-    this(null, manifestUri, manifestDataSourceFactory, manifestParser, chunkSourceFactory,
-        new DefaultCompositeSequenceableLoaderFactory(), minLoadableRetryCount,
-        livePresentationDelayMs, eventHandler, eventListener);
+    this(
+        null,
+        manifestUri,
+        manifestDataSourceFactory,
+        manifestParser,
+        chunkSourceFactory,
+        new DefaultCompositeSequenceableLoaderFactory(),
+        minLoadableRetryCount,
+        livePresentationDelayMs);
+    if (eventHandler != null && eventListener != null) {
+      addEventListener(eventHandler, eventListener);
+    }
   }
 
   private SsMediaSource(
@@ -396,9 +421,7 @@ public final class SsMediaSource extends BaseMediaSource
       SsChunkSource.Factory chunkSourceFactory,
       CompositeSequenceableLoaderFactory compositeSequenceableLoaderFactory,
       int minLoadableRetryCount,
-      long livePresentationDelayMs,
-      Handler eventHandler,
-      MediaSourceEventListener eventListener) {
+      long livePresentationDelayMs) {
     Assertions.checkState(manifest == null || !manifest.isLive);
     this.manifest = manifest;
     this.manifestUri = manifestUri == null ? null : SsUtil.fixManifestUri(manifestUri);
@@ -408,7 +431,7 @@ public final class SsMediaSource extends BaseMediaSource
     this.compositeSequenceableLoaderFactory = compositeSequenceableLoaderFactory;
     this.minLoadableRetryCount = minLoadableRetryCount;
     this.livePresentationDelayMs = livePresentationDelayMs;
-    this.eventDispatcher = new EventDispatcher(eventHandler, eventListener);
+    this.eventDispatcher = getEventDispatcher();
     sideloadedManifest = manifest != null;
     mediaPeriods = new ArrayList<>();
   }
