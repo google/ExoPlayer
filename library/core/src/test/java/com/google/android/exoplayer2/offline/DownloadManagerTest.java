@@ -607,8 +607,7 @@ public class DownloadManagerTest {
     }
 
     private FakeDownloadAction assertStopped() {
-      assertState(DownloadState.STATE_STOPPING);
-      return assertState(DownloadState.STATE_WAITING);
+      return assertState(DownloadState.STATE_QUEUED);
     }
 
     private FakeDownloadAction assertState(@State int expectedState) {
