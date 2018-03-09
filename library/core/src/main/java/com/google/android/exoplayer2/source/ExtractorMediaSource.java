@@ -187,34 +187,38 @@ public final class ExtractorMediaSource extends BaseMediaSource
     }
 
     /**
-     * Returns a new {@link ExtractorMediaSource} using the current parameters. Media source events
-     * will not be delivered.
-     *
-     * @param uri The {@link Uri}.
-     * @return The new {@link ExtractorMediaSource}.
-     */
-    public ExtractorMediaSource createMediaSource(Uri uri) {
-      return createMediaSource(uri, null, null);
-    }
-
-    /**
      * Returns a new {@link ExtractorMediaSource} using the current parameters.
      *
      * @param uri The {@link Uri}.
-     * @param eventHandler A handler for events.
-     * @param eventListener A listener of events.
      * @return The new {@link ExtractorMediaSource}.
      */
     @Override
-    public ExtractorMediaSource createMediaSource(
-        Uri uri, @Nullable Handler eventHandler, @Nullable MediaSourceEventListener eventListener) {
+    public ExtractorMediaSource createMediaSource(Uri uri) {
       isCreateCalled = true;
       if (extractorsFactory == null) {
         extractorsFactory = new DefaultExtractorsFactory();
       }
-      return new ExtractorMediaSource(uri, dataSourceFactory, extractorsFactory,
-          minLoadableRetryCount, eventHandler, eventListener, customCacheKey,
+      return new ExtractorMediaSource(
+          uri,
+          dataSourceFactory,
+          extractorsFactory,
+          minLoadableRetryCount,
+          customCacheKey,
           continueLoadingCheckIntervalBytes);
+    }
+
+    /**
+     * @deprecated Use {@link #createMediaSource(Uri)} and {@link #addEventListener(Handler,
+     *     MediaSourceEventListener)} instead.
+     */
+    @Deprecated
+    public ExtractorMediaSource createMediaSource(
+        Uri uri, @Nullable Handler eventHandler, @Nullable MediaSourceEventListener eventListener) {
+      ExtractorMediaSource mediaSource = createMediaSource(uri);
+      if (eventHandler != null && eventListener != null) {
+        mediaSource.addEventListener(eventHandler, eventListener);
+      }
+      return mediaSource;
     }
 
     @Override
@@ -297,10 +301,11 @@ public final class ExtractorMediaSource extends BaseMediaSource
         dataSourceFactory,
         extractorsFactory,
         minLoadableRetryCount,
-        eventHandler,
-        eventListener == null ? null : new EventListenerWrapper(eventListener),
         customCacheKey,
         continueLoadingCheckIntervalBytes);
+    if (eventListener != null && eventHandler != null) {
+      addEventListener(eventHandler, new EventListenerWrapper(eventListener));
+    }
   }
 
   private ExtractorMediaSource(
@@ -308,15 +313,13 @@ public final class ExtractorMediaSource extends BaseMediaSource
       DataSource.Factory dataSourceFactory,
       ExtractorsFactory extractorsFactory,
       int minLoadableRetryCount,
-      @Nullable Handler eventHandler,
-      @Nullable MediaSourceEventListener eventListener,
       @Nullable String customCacheKey,
       int continueLoadingCheckIntervalBytes) {
     this.uri = uri;
     this.dataSourceFactory = dataSourceFactory;
     this.extractorsFactory = extractorsFactory;
     this.minLoadableRetryCount = minLoadableRetryCount;
-    this.eventDispatcher = new EventDispatcher(eventHandler, eventListener);
+    this.eventDispatcher = getEventDispatcher();
     this.customCacheKey = customCacheKey;
     this.continueLoadingCheckIntervalBytes = continueLoadingCheckIntervalBytes;
     this.timelineDurationUs = C.TIME_UNSET;

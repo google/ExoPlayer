@@ -21,7 +21,6 @@ import android.support.annotation.Nullable;
 import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.Timeline;
-import com.google.android.exoplayer2.source.MediaSourceEventListener.EventDispatcher;
 import com.google.android.exoplayer2.upstream.Allocator;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DataSpec;
@@ -102,8 +101,7 @@ public final class SingleSampleMediaSource extends BaseMediaSource {
     }
 
     /**
-     * Returns a new {@link ExtractorMediaSource} using the current parameters. Media source events
-     * will not be delivered.
+     * Returns a new {@link ExtractorMediaSource} using the current parameters.
      *
      * @param uri The {@link Uri}.
      * @param format The {@link Format} of the media stream.
@@ -111,25 +109,6 @@ public final class SingleSampleMediaSource extends BaseMediaSource {
      * @return The new {@link ExtractorMediaSource}.
      */
     public SingleSampleMediaSource createMediaSource(Uri uri, Format format, long durationUs) {
-      return createMediaSource(uri, format, durationUs, null, null);
-    }
-
-    /**
-     * Returns a new {@link SingleSampleMediaSource} using the current parameters.
-     *
-     * @param uri The {@link Uri}.
-     * @param format The {@link Format} of the media stream.
-     * @param durationUs The duration of the media stream in microseconds.
-     * @param eventHandler A handler for events.
-     * @param eventListener A listener of events., Format format, long durationUs
-     * @return The newly built {@link SingleSampleMediaSource}.
-     */
-    public SingleSampleMediaSource createMediaSource(
-        Uri uri,
-        Format format,
-        long durationUs,
-        @Nullable Handler eventHandler,
-        @Nullable MediaSourceEventListener eventListener) {
       isCreateCalled = true;
       return new SingleSampleMediaSource(
           uri,
@@ -137,9 +116,25 @@ public final class SingleSampleMediaSource extends BaseMediaSource {
           format,
           durationUs,
           minLoadableRetryCount,
-          eventHandler,
-          eventListener,
           treatLoadErrorsAsEndOfStream);
+    }
+
+    /**
+     * @deprecated Use {@link #createMediaSource(Uri, Format, long)} and {@link
+     *     #addEventListener(Handler, MediaSourceEventListener)} instead.
+     */
+    @Deprecated
+    public SingleSampleMediaSource createMediaSource(
+        Uri uri,
+        Format format,
+        long durationUs,
+        @Nullable Handler eventHandler,
+        @Nullable MediaSourceEventListener eventListener) {
+      SingleSampleMediaSource mediaSource = createMediaSource(uri, format, durationUs);
+      if (eventHandler != null && eventListener != null) {
+        mediaSource.addEventListener(eventHandler, eventListener);
+      }
+      return mediaSource;
     }
 
   }
@@ -188,7 +183,13 @@ public final class SingleSampleMediaSource extends BaseMediaSource {
       Format format,
       long durationUs,
       int minLoadableRetryCount) {
-    this(uri, dataSourceFactory, format, durationUs, minLoadableRetryCount, null, null, false);
+    this(
+        uri,
+        dataSourceFactory,
+        format,
+        durationUs,
+        minLoadableRetryCount,
+        /* treatLoadErrorsAsEndOfStream= */ false);
   }
 
   /**
@@ -223,9 +224,10 @@ public final class SingleSampleMediaSource extends BaseMediaSource {
         format,
         durationUs,
         minLoadableRetryCount,
-        eventHandler,
-        eventListener == null ? null : new EventListenerWrapper(eventListener, eventSourceId),
         treatLoadErrorsAsEndOfStream);
+    if (eventHandler != null && eventListener != null) {
+      addEventListener(eventHandler, new EventListenerWrapper(eventListener, eventSourceId));
+    }
   }
 
   private SingleSampleMediaSource(
@@ -234,15 +236,13 @@ public final class SingleSampleMediaSource extends BaseMediaSource {
       Format format,
       long durationUs,
       int minLoadableRetryCount,
-      Handler eventHandler,
-      MediaSourceEventListener eventListener,
       boolean treatLoadErrorsAsEndOfStream) {
     this.dataSourceFactory = dataSourceFactory;
     this.format = format;
     this.durationUs = durationUs;
     this.minLoadableRetryCount = minLoadableRetryCount;
     this.treatLoadErrorsAsEndOfStream = treatLoadErrorsAsEndOfStream;
-    this.eventDispatcher = new EventDispatcher(eventHandler, eventListener);
+    this.eventDispatcher = getEventDispatcher();
     dataSpec = new DataSpec(uri);
     timeline = new SinglePeriodTimeline(durationUs, true, false);
   }

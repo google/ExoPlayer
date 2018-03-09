@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.source;
 
+import android.os.Handler;
 import android.support.annotation.Nullable;
 import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.Timeline;
@@ -22,7 +23,8 @@ import com.google.android.exoplayer2.util.Assertions;
 import java.util.ArrayList;
 
 /**
- * Base {@link MediaSource} implementation to handle parallel reuse.
+ * Base {@link MediaSource} implementation to handle parallel reuse and to keep a list of {@link
+ * MediaSourceEventListener}s.
  *
  * <p>Whenever an implementing subclass needs to provide a new timeline and/or manifest, it must
  * call {@link #refreshSourceInfo(Timeline, Object)} to notify all listeners.
@@ -30,6 +32,7 @@ import java.util.ArrayList;
 public abstract class BaseMediaSource implements MediaSource {
 
   private final ArrayList<SourceInfoRefreshListener> sourceInfoListeners;
+  private final MediaSourceEventListener.EventDispatcher eventDispatcher;
 
   private ExoPlayer player;
   private Timeline timeline;
@@ -37,6 +40,7 @@ public abstract class BaseMediaSource implements MediaSource {
 
   public BaseMediaSource() {
     sourceInfoListeners = new ArrayList<>(/* initialCapacity= */ 1);
+    eventDispatcher = new MediaSourceEventListener.EventDispatcher();
   }
 
   /**
@@ -68,6 +72,24 @@ public abstract class BaseMediaSource implements MediaSource {
     for (SourceInfoRefreshListener listener : sourceInfoListeners) {
       listener.onSourceInfoRefreshed(/* source= */ this, timeline, manifest);
     }
+  }
+
+  /**
+   * Returns a {@link MediaSourceEventListener.EventDispatcher} which dispatches all events to the
+   * registered listeners.
+   */
+  protected final MediaSourceEventListener.EventDispatcher getEventDispatcher() {
+    return eventDispatcher;
+  }
+
+  @Override
+  public final void addEventListener(Handler handler, MediaSourceEventListener eventListener) {
+    eventDispatcher.addEventListener(handler, eventListener);
+  }
+
+  @Override
+  public final void removeEventListener(MediaSourceEventListener eventListener) {
+    eventDispatcher.removeEventListener(eventListener);
   }
 
   @Override

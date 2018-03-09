@@ -51,13 +51,9 @@ public final class AdsMediaSource extends CompositeMediaSource<MediaPeriodId> {
      * Creates a new {@link MediaSource} for loading the ad media with the specified {@code uri}.
      *
      * @param uri The URI of the media or manifest to play.
-     * @param handler A handler for listener events. May be null if delivery of events is not
-     *     required.
-     * @param listener A listener for events. May be null if delivery of events is not required.
      * @return The new media source.
      */
-    MediaSource createMediaSource(
-        Uri uri, @Nullable Handler handler, @Nullable MediaSourceEventListener listener);
+    MediaSource createMediaSource(Uri uri);
 
     /**
      * Returns the content types supported by media sources created by this factory. Each element
@@ -224,8 +220,8 @@ public final class AdsMediaSource extends CompositeMediaSource<MediaPeriodId> {
       int adIndexInAdGroup = id.adIndexInAdGroup;
       if (adGroupMediaSources[adGroupIndex].length <= adIndexInAdGroup) {
         Uri adUri = adPlaybackState.adGroups[id.adGroupIndex].uris[id.adIndexInAdGroup];
-        MediaSource adMediaSource =
-            adMediaSourceFactory.createMediaSource(adUri, eventHandler, eventListener);
+        MediaSource adMediaSource = adMediaSourceFactory.createMediaSource(adUri);
+        adMediaSource.addEventListener(eventHandler, eventListener);
         int oldAdCount = adGroupMediaSources[id.adGroupIndex].length;
         if (adIndexInAdGroup >= oldAdCount) {
           int adCount = adIndexInAdGroup + 1;

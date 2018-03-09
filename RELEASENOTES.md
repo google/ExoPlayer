@@ -31,6 +31,8 @@
     date time is still available via the informational
     `Timeline.Window.windowStartTimeMs` field
     ([#3865](https://github.com/google/ExoPlayer/issues/3865)).
+  * Allow adding and removing `MediaSourceEventListener`s to MediaSources after
+    they have been created.
 * Enable seeking in MP4 streams where duration is set incorrectly in the track
   header ([#3926](https://github.com/google/ExoPlayer/issues/3926)).
 * Video: force rendering a frame periodically in `MediaCodecVideoRenderer` and

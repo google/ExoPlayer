@@ -167,15 +167,10 @@ public final class DashMediaSource extends BaseMediaSource {
      * sideloaded manifest.
      *
      * @param manifest The manifest. {@link DashManifest#dynamic} must be false.
-     * @param eventHandler A handler for events.
-     * @param eventListener A listener of events.
      * @return The new {@link DashMediaSource}.
      * @throws IllegalArgumentException If {@link DashManifest#dynamic} is true.
      */
-    public DashMediaSource createMediaSource(
-        DashManifest manifest,
-        @Nullable Handler eventHandler,
-        @Nullable MediaSourceEventListener eventListener) {
+    public DashMediaSource createMediaSource(DashManifest manifest) {
       Assertions.checkArgument(!manifest.dynamic);
       isCreateCalled = true;
       return new DashMediaSource(
@@ -186,35 +181,33 @@ public final class DashMediaSource extends BaseMediaSource {
           chunkSourceFactory,
           compositeSequenceableLoaderFactory,
           minLoadableRetryCount,
-          livePresentationDelayMs,
-          eventHandler,
-          eventListener);
+          livePresentationDelayMs);
     }
 
     /**
-     * Returns a new {@link DashMediaSource} using the current parameters. Media source events will
-     * not be delivered.
-     *
-     * @param manifestUri The manifest {@link Uri}.
-     * @return The new {@link DashMediaSource}.
+     * @deprecated Use {@link #createMediaSource(DashManifest)} and {@link
+     *     #addEventListener(Handler, MediaSourceEventListener)} instead.
      */
-    public DashMediaSource createMediaSource(Uri manifestUri) {
-      return createMediaSource(manifestUri, null, null);
+    @Deprecated
+    public DashMediaSource createMediaSource(
+        DashManifest manifest,
+        @Nullable Handler eventHandler,
+        @Nullable MediaSourceEventListener eventListener) {
+      DashMediaSource mediaSource = createMediaSource(manifest);
+      if (eventHandler != null && eventListener != null) {
+        mediaSource.addEventListener(eventHandler, eventListener);
+      }
+      return mediaSource;
     }
 
     /**
      * Returns a new {@link DashMediaSource} using the current parameters.
      *
      * @param manifestUri The manifest {@link Uri}.
-     * @param eventHandler A handler for events.
-     * @param eventListener A listener of events.
      * @return The new {@link DashMediaSource}.
      */
     @Override
-    public DashMediaSource createMediaSource(
-        Uri manifestUri,
-        @Nullable Handler eventHandler,
-        @Nullable MediaSourceEventListener eventListener) {
+    public DashMediaSource createMediaSource(Uri manifestUri) {
       isCreateCalled = true;
       if (manifestParser == null) {
         manifestParser = new DashManifestParser();
@@ -227,9 +220,23 @@ public final class DashMediaSource extends BaseMediaSource {
           chunkSourceFactory,
           compositeSequenceableLoaderFactory,
           minLoadableRetryCount,
-          livePresentationDelayMs,
-          eventHandler,
-          eventListener);
+          livePresentationDelayMs);
+    }
+
+    /**
+     * @deprecated Use {@link #createMediaSource(Uri)} and {@link #addEventListener(Handler,
+     *     MediaSourceEventListener)} instead.
+     */
+    @Deprecated
+    public DashMediaSource createMediaSource(
+        Uri manifestUri,
+        @Nullable Handler eventHandler,
+        @Nullable MediaSourceEventListener eventListener) {
+      DashMediaSource mediaSource = createMediaSource(manifestUri);
+      if (eventHandler != null && eventListener != null) {
+        mediaSource.addEventListener(eventHandler, eventListener);
+      }
+      return mediaSource;
     }
 
     @Override
@@ -340,9 +347,18 @@ public final class DashMediaSource extends BaseMediaSource {
       int minLoadableRetryCount,
       Handler eventHandler,
       MediaSourceEventListener eventListener) {
-    this(manifest, null, null, null, chunkSourceFactory,
-        new DefaultCompositeSequenceableLoaderFactory(), minLoadableRetryCount,
-        DEFAULT_LIVE_PRESENTATION_DELAY_PREFER_MANIFEST_MS, eventHandler, eventListener);
+    this(
+        manifest,
+        null,
+        null,
+        null,
+        chunkSourceFactory,
+        new DefaultCompositeSequenceableLoaderFactory(),
+        minLoadableRetryCount,
+        DEFAULT_LIVE_PRESENTATION_DELAY_PREFER_MANIFEST_MS);
+    if (eventHandler != null && eventListener != null) {
+      addEventListener(eventHandler, eventListener);
+    }
   }
 
   /**
@@ -427,9 +443,18 @@ public final class DashMediaSource extends BaseMediaSource {
       long livePresentationDelayMs,
       Handler eventHandler,
       MediaSourceEventListener eventListener) {
-    this(null, manifestUri, manifestDataSourceFactory, manifestParser, chunkSourceFactory,
-        new DefaultCompositeSequenceableLoaderFactory(), minLoadableRetryCount,
-        livePresentationDelayMs, eventHandler, eventListener);
+    this(
+        null,
+        manifestUri,
+        manifestDataSourceFactory,
+        manifestParser,
+        chunkSourceFactory,
+        new DefaultCompositeSequenceableLoaderFactory(),
+        minLoadableRetryCount,
+        livePresentationDelayMs);
+    if (eventHandler != null && eventListener != null) {
+      addEventListener(eventHandler, eventListener);
+    }
   }
 
   private DashMediaSource(
@@ -440,9 +465,7 @@ public final class DashMediaSource extends BaseMediaSource {
       DashChunkSource.Factory chunkSourceFactory,
       CompositeSequenceableLoaderFactory compositeSequenceableLoaderFactory,
       int minLoadableRetryCount,
-      long livePresentationDelayMs,
-      Handler eventHandler,
-      MediaSourceEventListener eventListener) {
+      long livePresentationDelayMs) {
     this.initialManifestUri = manifestUri;
     this.manifest = manifest;
     this.manifestUri = manifestUri;
@@ -453,7 +476,7 @@ public final class DashMediaSource extends BaseMediaSource {
     this.livePresentationDelayMs = livePresentationDelayMs;
     this.compositeSequenceableLoaderFactory = compositeSequenceableLoaderFactory;
     sideloadedManifest = manifest != null;
-    eventDispatcher = new EventDispatcher(eventHandler, eventListener);
+    eventDispatcher = getEventDispatcher();
     manifestUriLock = new Object();
     periodsById = new SparseArray<>();
     playerEmsgCallback = new DefaultPlayerEmsgCallback();
@@ -516,8 +539,8 @@ public final class DashMediaSource extends BaseMediaSource {
   @Override
   public MediaPeriod createPeriod(MediaPeriodId periodId, Allocator allocator) {
     int periodIndex = periodId.periodIndex;
-    EventDispatcher periodEventDispatcher = eventDispatcher.copyWithMediaTimeOffsetMs(
-        manifest.getPeriod(periodIndex).startMs);
+    EventDispatcher periodEventDispatcher =
+        eventDispatcher.withMediaTimeOffsetMs(manifest.getPeriod(periodIndex).startMs);
     DashMediaPeriod mediaPeriod =
         new DashMediaPeriod(
             firstPeriodId + periodIndex,

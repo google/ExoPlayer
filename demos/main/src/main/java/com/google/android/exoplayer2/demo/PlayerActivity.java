@@ -53,7 +53,6 @@ import com.google.android.exoplayer2.source.BehindLiveWindowException;
 import com.google.android.exoplayer2.source.ConcatenatingMediaSource;
 import com.google.android.exoplayer2.source.ExtractorMediaSource;
 import com.google.android.exoplayer2.source.MediaSource;
-import com.google.android.exoplayer2.source.MediaSourceEventListener;
 import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.source.ads.AdsLoader;
 import com.google.android.exoplayer2.source.ads.AdsMediaSource;
@@ -342,7 +341,8 @@ public class PlayerActivity extends Activity
       }
       MediaSource[] mediaSources = new MediaSource[uris.length];
       for (int i = 0; i < uris.length; i++) {
-        mediaSources[i] = buildMediaSource(uris[i], extensions[i], mainHandler, eventLogger);
+        mediaSources[i] = buildMediaSource(uris[i], extensions[i]);
+        mediaSources[i].addEventListener(mainHandler, eventLogger);
       }
       mediaSource =
           mediaSources.length == 1 ? mediaSources[0] : new ConcatenatingMediaSource(mediaSources);
@@ -372,11 +372,7 @@ public class PlayerActivity extends Activity
     updateButtonVisibilities();
   }
 
-  private MediaSource buildMediaSource(
-      Uri uri,
-      String overrideExtension,
-      @Nullable Handler handler,
-      @Nullable MediaSourceEventListener listener) {
+  private MediaSource buildMediaSource(Uri uri, String overrideExtension) {
     @ContentType int type = TextUtils.isEmpty(overrideExtension) ? Util.inferContentType(uri)
         : Util.inferContentType("." + overrideExtension);
     switch (type) {
@@ -384,18 +380,16 @@ public class PlayerActivity extends Activity
         return new DashMediaSource.Factory(
                 new DefaultDashChunkSource.Factory(mediaDataSourceFactory),
                 buildDataSourceFactory(false))
-            .createMediaSource(uri, handler, listener);
+            .createMediaSource(uri);
       case C.TYPE_SS:
         return new SsMediaSource.Factory(
                 new DefaultSsChunkSource.Factory(mediaDataSourceFactory),
                 buildDataSourceFactory(false))
-            .createMediaSource(uri, handler, listener);
+            .createMediaSource(uri);
       case C.TYPE_HLS:
-        return new HlsMediaSource.Factory(mediaDataSourceFactory)
-            .createMediaSource(uri, handler, listener);
+        return new HlsMediaSource.Factory(mediaDataSourceFactory).createMediaSource(uri);
       case C.TYPE_OTHER:
-        return new ExtractorMediaSource.Factory(mediaDataSourceFactory)
-            .createMediaSource(uri, handler, listener);
+        return new ExtractorMediaSource.Factory(mediaDataSourceFactory).createMediaSource(uri);
       default: {
         throw new IllegalStateException("Unsupported type: " + type);
       }
@@ -488,10 +482,8 @@ public class PlayerActivity extends Activity
       AdsMediaSource.MediaSourceFactory adMediaSourceFactory =
           new AdsMediaSource.MediaSourceFactory() {
             @Override
-            public MediaSource createMediaSource(
-                Uri uri, @Nullable Handler handler, @Nullable MediaSourceEventListener listener) {
-              return PlayerActivity.this.buildMediaSource(
-                  uri, /* overrideExtension= */ null, handler, listener);
+            public MediaSource createMediaSource(Uri uri) {
+              return PlayerActivity.this.buildMediaSource(uri, /* overrideExtension= */ null);
             }
 
             @Override
