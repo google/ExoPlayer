@@ -226,7 +226,7 @@ public final class ClippingMediaSource extends CompositeMediaSource<Void> {
       }
       this.startUs = startUs;
       this.endUs = resolvedEndUs;
-      durationUs = endUs == C.TIME_UNSET ? C.TIME_UNSET : endUs - startUs;
+      durationUs = resolvedEndUs == C.TIME_UNSET ? C.TIME_UNSET : (resolvedEndUs - startUs);
     }
 
     @Override
