@@ -16,12 +16,10 @@
 package com.google.android.exoplayer2.offline;
 
 import static com.google.android.exoplayer2.offline.DownloadManager.DownloadState.STATE_CANCELED;
-import static com.google.android.exoplayer2.offline.DownloadManager.DownloadState.STATE_CANCELING;
 import static com.google.android.exoplayer2.offline.DownloadManager.DownloadState.STATE_ENDED;
 import static com.google.android.exoplayer2.offline.DownloadManager.DownloadState.STATE_ERROR;
+import static com.google.android.exoplayer2.offline.DownloadManager.DownloadState.STATE_QUEUED;
 import static com.google.android.exoplayer2.offline.DownloadManager.DownloadState.STATE_STARTED;
-import static com.google.android.exoplayer2.offline.DownloadManager.DownloadState.STATE_STOPPING;
-import static com.google.android.exoplayer2.offline.DownloadManager.DownloadState.STATE_WAITING;
 
 import android.os.ConditionVariable;
 import android.os.Handler;
@@ -31,7 +29,6 @@ import android.support.annotation.IntDef;
 import android.util.Log;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.offline.DownloadAction.Deserializer;
-import com.google.android.exoplayer2.offline.DownloadManager.DownloadState.State;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
@@ -264,7 +261,7 @@ public final class DownloadManager {
       return false;
     }
     for (int i = 0; i < tasks.size(); i++) {
-      if (tasks.get(i).isRunning()) {
+      if (tasks.get(i).isActive()) {
         return false;
       }
     }
@@ -344,7 +341,7 @@ public final class DownloadManager {
       return;
     }
     logd("Task state is changed", downloadTask);
-    boolean stopped = !downloadTask.isRunning();
+    boolean stopped = !downloadTask.isActive();
     if (stopped) {
       activeDownloadTasks.remove(downloadTask);
     }
@@ -446,62 +443,39 @@ public final class DownloadManager {
     /**
      * Task states.
      *
-     * <p>Transition map (vertical states are source states):
+     * <p>Transition diagram:
+     *
      * <pre>
-     *           +-------+-------+-----+---------+--------+--------+-----+
-     *           |waiting|started|ended|canceling|canceled|stopping|error|
-     * +---------+-------+-------+-----+---------+--------+--------+-----+
-     * |waiting  |       |   X   |     |    X    |        |        |     |
-     * |started  |       |       |  X  |    X    |        |   X    |  X  |
-     * |canceling|       |       |     |         |   X    |        |     |
-     * |stopping |   X   |       |     |         |        |        |     |
-     * +---------+-------+-------+-----+---------+--------+--------+-----+
+     *                    -> canceled
+     * queued <-> started -> ended
+     *                    -> error
      * </pre>
      */
     @Retention(RetentionPolicy.SOURCE)
-    @IntDef({STATE_WAITING, STATE_STARTED, STATE_ENDED, STATE_CANCELING, STATE_CANCELED,
-        STATE_STOPPING, STATE_ERROR})
+    @IntDef({STATE_QUEUED, STATE_STARTED, STATE_ENDED, STATE_CANCELED, STATE_ERROR})
     public @interface State {}
     /** The task is waiting to be started. */
-    public static final int STATE_WAITING = 0;
+    public static final int STATE_QUEUED = 0;
     /** The task is currently started. */
     public static final int STATE_STARTED = 1;
     /** The task completed. */
     public static final int STATE_ENDED = 2;
-    /** The task is about to be canceled. */
-    public static final int STATE_CANCELING = 3;
     /** The task was canceled. */
-    public static final int STATE_CANCELED = 4;
-    /** The task is about to be stopped. */
-    public static final int STATE_STOPPING = 5;
+    public static final int STATE_CANCELED = 3;
     /** The task failed. */
-    public static final int STATE_ERROR = 6;
-
-    /** Returns whether the task is running. */
-    public static boolean isRunning(int state) {
-      return state == STATE_STARTED || state == STATE_STOPPING || state == STATE_CANCELING;
-    }
-
-    /** Returns whether the task is finished. */
-    public static boolean isFinished(int state) {
-      return state == STATE_ERROR || state == STATE_ENDED || state == STATE_CANCELED;
-    }
+    public static final int STATE_ERROR = 4;
 
     /** Returns the state string for the given state value. */
     public static String getStateString(@State int state) {
       switch (state) {
-        case STATE_WAITING:
-          return "WAITING";
+        case STATE_QUEUED:
+          return "QUEUED";
         case STATE_STARTED:
           return "STARTED";
         case STATE_ENDED:
           return "ENDED";
-        case STATE_CANCELING:
-          return "CANCELING";
         case STATE_CANCELED:
           return "CANCELED";
-        case STATE_STOPPING:
-          return "STOPPING";
         case STATE_ERROR:
           return "ERROR";
         default:
@@ -531,7 +505,7 @@ public final class DownloadManager {
     private DownloadState(
         int taskId,
         DownloadAction downloadAction,
-        int state,
+        @State int state,
         float downloadPercentage,
         long downloadedBytes,
         Throwable error) {
@@ -543,24 +517,51 @@ public final class DownloadManager {
       this.error = error;
     }
 
-    /** Returns whether the task is finished. */
-    public boolean isFinished() {
-      return isFinished(state);
-    }
-
-    /** Returns whether the task is running. */
-    public boolean isRunning() {
-      return isRunning(state);
-    }
   }
 
   private static final class DownloadTask implements Runnable {
+
+    /**
+     * Task states.
+     *
+     * <p>Transition map (vertical states are source states):
+     *
+     * <pre>
+     *             +------+-------+-----+-----------+-----------+--------+--------+-----+
+     *             |queued|started|ended|q_canceling|s_canceling|canceled|stopping|error|
+     * +-----------+------+-------+-----+-----------+-----------+--------+--------+-----+
+     * |queued     |      |   X   |     |     X     |           |        |        |     |
+     * |started    |      |       |  X  |           |     X     |        |   X    |  X  |
+     * |q_canceling|      |       |     |           |           |   X    |        |     |
+     * |s_canceling|      |       |     |           |           |   X    |        |     |
+     * |stopping   |   X  |       |     |           |           |        |        |     |
+     * +-----------+------+-------+-----+-----------+-----------+--------+--------+-----+
+     * </pre>
+     */
+    @Retention(RetentionPolicy.SOURCE)
+    @IntDef({
+      STATE_QUEUED,
+      STATE_STARTED,
+      STATE_ENDED,
+      STATE_CANCELED,
+      STATE_ERROR,
+      STATE_QUEUED_CANCELING,
+      STATE_STARTED_CANCELING,
+      STATE_STARTED_STOPPING
+    })
+    public @interface InternalState {}
+    /** The task is about to be canceled. */
+    public static final int STATE_QUEUED_CANCELING = 5;
+    /** The task is about to be canceled. */
+    public static final int STATE_STARTED_CANCELING = 6;
+    /** The task is about to be stopped. */
+    public static final int STATE_STARTED_STOPPING = 7;
 
     private final int id;
     private final DownloadManager downloadManager;
     private final DownloadAction downloadAction;
     private final int minRetryCount;
-    private volatile @State int currentState;
+    private volatile @InternalState int currentState;
     private volatile Downloader downloader;
     private Thread thread;
     private Throwable error;
@@ -570,28 +571,29 @@ public final class DownloadManager {
       this.id = id;
       this.downloadManager = downloadManager;
       this.downloadAction = downloadAction;
-      this.currentState = STATE_WAITING;
+      this.currentState = STATE_QUEUED;
       this.minRetryCount = minRetryCount;
     }
 
     public DownloadState getDownloadState() {
+      int externalState = getExternalState();
       return new DownloadState(
-          id, downloadAction, currentState, getDownloadPercentage(), getDownloadedBytes(), error);
-    }
-
-    /** Returns the state of the task. */
-    public @State int getState() {
-      return currentState;
+          id, downloadAction, externalState, getDownloadPercentage(), getDownloadedBytes(), error);
     }
 
     /** Returns whether the task is finished. */
     public boolean isFinished() {
-      return DownloadState.isFinished(currentState);
+      return currentState == STATE_ERROR
+          || currentState == STATE_ENDED
+          || currentState == STATE_CANCELED;
     }
 
-    /** Returns whether the task is running. */
-    public boolean isRunning() {
-      return DownloadState.isRunning(currentState);
+    /** Returns whether the task is started. */
+    public boolean isActive() {
+      return currentState == STATE_QUEUED_CANCELING
+          || currentState == STATE_STARTED
+          || currentState == STATE_STARTED_STOPPING
+          || currentState == STATE_STARTED_CANCELING;
     }
 
     /**
@@ -621,52 +623,80 @@ public final class DownloadManager {
           + ' '
           + downloadAction.getData()
           + ' '
-          + DownloadState.getStateString(currentState);
+          + getStateString();
+    }
+
+    private String getStateString() {
+      switch (currentState) {
+        case STATE_QUEUED_CANCELING:
+        case STATE_STARTED_CANCELING:
+          return "CANCELING";
+        case STATE_STARTED_STOPPING:
+          return "STOPPING";
+        default:
+          return DownloadState.getStateString(currentState);
+      }
+    }
+
+    private int getExternalState() {
+      switch (currentState) {
+        case STATE_QUEUED_CANCELING:
+          return STATE_QUEUED;
+        case STATE_STARTED_CANCELING:
+        case STATE_STARTED_STOPPING:
+          return STATE_STARTED;
+        default:
+          return currentState;
+      }
     }
 
     private void start() {
-      if (changeStateAndNotify(STATE_WAITING, STATE_STARTED)) {
+      if (changeStateAndNotify(STATE_QUEUED, STATE_STARTED)) {
         thread = new Thread(this);
         thread.start();
       }
     }
 
     private boolean canStart() {
-      return currentState == STATE_WAITING;
+      return currentState == STATE_QUEUED;
     }
 
     private void cancel() {
-      if (changeStateAndNotify(STATE_WAITING, STATE_CANCELING)) {
-        downloadManager.handler.post(new Runnable() {
-          @Override
-          public void run() {
-            changeStateAndNotify(STATE_CANCELING, STATE_CANCELED);
-          }
-        });
-      } else if (changeStateAndNotify(STATE_STARTED, STATE_CANCELING)) {
+      if (changeStateAndNotify(STATE_QUEUED, STATE_QUEUED_CANCELING)) {
+        downloadManager.handler.post(
+            new Runnable() {
+              @Override
+              public void run() {
+                changeStateAndNotify(STATE_QUEUED_CANCELING, STATE_CANCELED);
+              }
+            });
+      } else if (changeStateAndNotify(STATE_STARTED, STATE_STARTED_CANCELING)) {
         thread.interrupt();
       }
     }
 
     private void stop() {
-      if (changeStateAndNotify(STATE_STARTED, STATE_STOPPING)) {
+      if (changeStateAndNotify(STATE_STARTED, STATE_STARTED_STOPPING)) {
         downloadManager.logd("Stopping", this);
         thread.interrupt();
       }
     }
 
-    private boolean changeStateAndNotify(@State int oldState, @State int newState) {
+    private boolean changeStateAndNotify(@InternalState int oldState, @InternalState int newState) {
       return changeStateAndNotify(oldState, newState, null);
     }
 
-    private boolean changeStateAndNotify(@State int oldState, @State int newState,
-        Throwable error) {
+    private boolean changeStateAndNotify(
+        @InternalState int oldState, @InternalState int newState, Throwable error) {
       if (currentState != oldState) {
         return false;
       }
       currentState = newState;
       this.error = error;
-      downloadManager.onTaskStateChange(DownloadTask.this);
+      boolean isInternalState = currentState != getExternalState();
+      if (!isInternalState) {
+        downloadManager.onTaskStateChange(DownloadTask.this);
+      }
       return true;
     }
 
@@ -707,18 +737,19 @@ public final class DownloadManager {
         error = e;
       }
       final Throwable finalError = error;
-      downloadManager.handler.post(new Runnable() {
-        @Override
-        public void run() {
-          if (changeStateAndNotify(STATE_STARTED,
-              finalError != null ? STATE_ERROR : STATE_ENDED, finalError)
-              || changeStateAndNotify(STATE_CANCELING, STATE_CANCELED)
-              || changeStateAndNotify(STATE_STOPPING, STATE_WAITING)) {
-            return;
-          }
-          throw new IllegalStateException();
-        }
-      });
+      downloadManager.handler.post(
+          new Runnable() {
+            @Override
+            public void run() {
+              if (changeStateAndNotify(
+                      STATE_STARTED, finalError != null ? STATE_ERROR : STATE_ENDED, finalError)
+                  || changeStateAndNotify(STATE_STARTED_CANCELING, STATE_CANCELED)
+                  || changeStateAndNotify(STATE_STARTED_STOPPING, STATE_QUEUED)) {
+                return;
+              }
+              throw new IllegalStateException();
+            }
+          });
     }
 
     private int getRetryDelayMillis(int errorCount) {

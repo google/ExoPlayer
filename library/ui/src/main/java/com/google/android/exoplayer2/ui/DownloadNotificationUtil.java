@@ -67,11 +67,15 @@ public final class DownloadNotificationUtil {
     int titleStringId = getTitleStringId(downloadState);
     notificationBuilder.setContentTitle(context.getResources().getString(titleStringId));
 
-    if (downloadState.isRunning()) {
+    if (downloadState.state == DownloadState.STATE_STARTED) {
       notificationBuilder.setOngoing(true);
       float percentage = downloadState.downloadPercentage;
       boolean indeterminate = Float.isNaN(percentage);
       notificationBuilder.setProgress(100, indeterminate ? 0 : (int) percentage, indeterminate);
+    }
+    if (Util.SDK_INT >= 17) {
+      // Hide timestamp on the notification while download progresses.
+      notificationBuilder.setShowWhen(downloadState.state != DownloadState.STATE_STARTED);
     }
 
     if (downloadState.error != null && errorMessageProvider != null) {
@@ -90,12 +94,10 @@ public final class DownloadNotificationUtil {
   private static int getTitleStringId(DownloadState downloadState) {
     int titleStringId;
     switch (downloadState.state) {
-      case DownloadState.STATE_WAITING:
+      case DownloadState.STATE_QUEUED:
         titleStringId = R.string.exo_download_queued;
         break;
       case DownloadState.STATE_STARTED:
-      case DownloadState.STATE_STOPPING:
-      case DownloadState.STATE_CANCELING:
         titleStringId = R.string.exo_downloading;
         break;
       case DownloadState.STATE_ENDED:
