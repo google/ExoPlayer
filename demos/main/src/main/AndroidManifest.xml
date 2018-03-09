@@ -15,15 +15,13 @@
 -->
 
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.google.android.exoplayer2.demo"
-    android:versionCode="2700"
-    android:versionName="2.7.0">
+    package="com.google.android.exoplayer2.demo">
 
   <uses-permission android:name="android.permission.INTERNET"/>
   <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
   <uses-feature android:name="android.software.leanback" android:required="false"/>
   <uses-feature android:name="android.hardware.touchscreen" android:required="false"/>
-  <uses-sdk android:minSdkVersion="16" android:targetSdkVersion="27"/>
+  <uses-sdk/>
 
   <application
       android:label="@string/application_name"
