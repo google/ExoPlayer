@@ -61,7 +61,6 @@ public class ConcatenatingMediaSource extends CompositeMediaSource<MediaSourceHo
   private final List<MediaSourceHolder> mediaSourceHolders;
   private final MediaSourceHolder query;
   private final Map<MediaPeriod, MediaSourceHolder> mediaSourceByMediaPeriod;
-  private final List<DeferredMediaPeriod> deferredMediaPeriods;
   private final List<EventDispatcher> pendingOnCompletionActions;
   private final boolean isAtomic;
 
@@ -131,7 +130,6 @@ public class ConcatenatingMediaSource extends CompositeMediaSource<MediaSourceHo
     this.mediaSourceByMediaPeriod = new IdentityHashMap<>();
     this.mediaSourcesPublic = new ArrayList<>();
     this.mediaSourceHolders = new ArrayList<>();
-    this.deferredMediaPeriods = new ArrayList<>(1);
     this.pendingOnCompletionActions = new ArrayList<>();
     this.query = new MediaSourceHolder(/* mediaSource= */ null);
     this.isAtomic = isAtomic;
@@ -398,29 +396,22 @@ public class ConcatenatingMediaSource extends CompositeMediaSource<MediaSourceHo
     MediaSourceHolder holder = mediaSourceHolders.get(mediaSourceHolderIndex);
     MediaPeriodId idInSource =
         id.copyWithPeriodIndex(id.periodIndex - holder.firstPeriodIndexInChild);
-    MediaPeriod mediaPeriod;
-    if (!holder.isPrepared) {
-      mediaPeriod = new DeferredMediaPeriod(holder.mediaSource, idInSource, allocator);
-      deferredMediaPeriods.add((DeferredMediaPeriod) mediaPeriod);
-    } else {
-      mediaPeriod = holder.mediaSource.createPeriod(idInSource, allocator);
-    }
+    DeferredMediaPeriod mediaPeriod =
+        new DeferredMediaPeriod(holder.mediaSource, idInSource, allocator);
     mediaSourceByMediaPeriod.put(mediaPeriod, holder);
-    holder.activeMediaPeriods++;
+    holder.activeMediaPeriods.add(mediaPeriod);
+    if (holder.isPrepared) {
+      mediaPeriod.createPeriod();
+    }
     return mediaPeriod;
   }
 
   @Override
   public final void releasePeriod(MediaPeriod mediaPeriod) {
     MediaSourceHolder holder = mediaSourceByMediaPeriod.remove(mediaPeriod);
-    if (mediaPeriod instanceof DeferredMediaPeriod) {
-      deferredMediaPeriods.remove(mediaPeriod);
-      ((DeferredMediaPeriod) mediaPeriod).releasePeriod();
-    } else {
-      holder.mediaSource.releasePeriod(mediaPeriod);
-    }
-    holder.activeMediaPeriods--;
-    if (holder.activeMediaPeriods == 0 && holder.isRemoved) {
+    ((DeferredMediaPeriod) mediaPeriod).releasePeriod();
+    holder.activeMediaPeriods.remove(mediaPeriod);
+    if (holder.activeMediaPeriods.isEmpty() && holder.isRemoved) {
       releaseChildSource(holder);
     }
   }
@@ -566,11 +557,8 @@ public class ConcatenatingMediaSource extends CompositeMediaSource<MediaSourceHo
     }
     mediaSourceHolder.timeline = deferredTimeline.cloneWithNewTimeline(timeline);
     if (!mediaSourceHolder.isPrepared) {
-      for (int i = deferredMediaPeriods.size() - 1; i >= 0; i--) {
-        if (deferredMediaPeriods.get(i).mediaSource == mediaSourceHolder.mediaSource) {
-          deferredMediaPeriods.get(i).createPeriod();
-          deferredMediaPeriods.remove(i);
-        }
+      for (int i = 0; i < mediaSourceHolder.activeMediaPeriods.size(); i++) {
+        mediaSourceHolder.activeMediaPeriods.get(i).createPeriod();
       }
     }
     mediaSourceHolder.isPrepared = true;
@@ -592,7 +580,7 @@ public class ConcatenatingMediaSource extends CompositeMediaSource<MediaSourceHo
         -oldTimeline.getWindowCount(),
         -oldTimeline.getPeriodCount());
     holder.isRemoved = true;
-    if (holder.activeMediaPeriods == 0) {
+    if (holder.activeMediaPeriods.isEmpty()) {
       releaseChildSource(holder);
     }
   }
@@ -648,12 +636,13 @@ public class ConcatenatingMediaSource extends CompositeMediaSource<MediaSourceHo
     public int firstPeriodIndexInChild;
     public boolean isPrepared;
     public boolean isRemoved;
-    public int activeMediaPeriods;
+    public List<DeferredMediaPeriod> activeMediaPeriods;
 
     public MediaSourceHolder(MediaSource mediaSource) {
       this.mediaSource = mediaSource;
       this.uid = System.identityHashCode(this);
       this.timeline = new DeferredTimeline();
+      this.activeMediaPeriods = new ArrayList<>();
     }
 
     public void reset(int childIndex, int firstWindowIndexInChild, int firstPeriodIndexInChild) {
@@ -662,7 +651,7 @@ public class ConcatenatingMediaSource extends CompositeMediaSource<MediaSourceHo
       this.firstPeriodIndexInChild = firstPeriodIndexInChild;
       this.isPrepared = false;
       this.isRemoved = false;
-      this.activeMediaPeriods = 0;
+      this.activeMediaPeriods.clear();
     }
 
     @Override
