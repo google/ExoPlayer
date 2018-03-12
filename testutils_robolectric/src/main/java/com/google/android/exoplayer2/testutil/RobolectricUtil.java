@@ -185,9 +185,9 @@ public final class RobolectricUtil {
 
     @Override
     public int compareTo(@NonNull PendingMessage other) {
-      int res = Long.compare(this.when, other.when);
+      int res = Util.compareLong(this.when, other.when);
       if (res == 0 && this != other) {
-        res = Long.compare(this.sequenceNumber, other.sequenceNumber);
+        res = Util.compareLong(this.sequenceNumber, other.sequenceNumber);
       }
       return res;
     }
