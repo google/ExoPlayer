@@ -15,62 +15,8 @@
  */
 package com.google.android.exoplayer2.upstream.cache;
 
-import com.google.android.exoplayer2.upstream.cache.Cache.CacheException;
-
 /** Interface for accessing cached content metadata which is stored as name, value pairs. */
 public interface ContentMetadata {
-
-  /**
-   * Interface for modifying values in a {@link ContentMetadata} object. The changes you make in an
-   * editor are not copied back to the original {@link ContentMetadata} until you call {@link
-   * #commit()}.
-   */
-  interface Editor {
-    /**
-     * Sets a metadata value, to be committed once {@link #commit()} is called. Passing {@code null}
-     * as {@code value} isn't allowed. {@code value} byte array shouldn't be modified after passed
-     * to this method.
-     *
-     * @param name The name of the metadata value.
-     * @param value The value to be set.
-     * @return This Editor instance, for convenience.
-     */
-    Editor set(String name, byte[] value);
-    /**
-     * Sets a metadata value, to be committed once {@link #commit()} is called. Passing {@code null}
-     * as value isn't allowed.
-     *
-     * @param name The name of the metadata value.
-     * @param value The value to be set.
-     * @return This Editor instance, for convenience.
-     */
-    Editor set(String name, String value);
-    /**
-     * Sets a metadata value, to be committed once {@link #commit()} is called.
-     *
-     * @param name The name of the metadata value.
-     * @param value The value to be set.
-     * @return This Editor instance, for convenience.
-     */
-    Editor set(String name, long value);
-    /**
-     * Sets a metadata value, to be committed once {@link #commit()} is called. Passing {@code null}
-     * as value isn't allowed.
-     *
-     * @param name The name of the metadata value.
-     * @return This Editor instance, for convenience.
-     */
-    Editor remove(String name);
-    /**
-     * Commits changes. It can be called only once.
-     *
-     * @throws CacheException If the commit fails.
-     */
-    void commit() throws CacheException;
-  }
-
-  /** Returns an editor to change metadata values. */
-  Editor edit();
 
   /**
    * Returns a metadata value.

@@ -28,14 +28,16 @@ import java.util.TreeSet;
  */
 /*package*/ final class CachedContent {
 
+  private static final String EXOPLAYER_METADATA_NAME_PREFIX = "exo_";
+  private static final String METADATA_NAME_LENGTH = EXOPLAYER_METADATA_NAME_PREFIX + "len";
   /** The cache file id that uniquely identifies the original stream. */
   public final int id;
   /** The cache key that uniquely identifies the original stream. */
   public final String key;
   /** The cached spans of this content. */
   private final TreeSet<SimpleCacheSpan> cachedSpans;
-  /** The length of the original stream, or {@link C#LENGTH_UNSET} if the length is unknown. */
-  private long length;
+  /** Metadata values. */
+  private DefaultContentMetadata metadata;
   /** Whether the content is locked. */
   private boolean locked;
 
@@ -45,8 +47,13 @@ import java.util.TreeSet;
    * @param input Input stream containing values needed to initialize CachedContent instance.
    * @throws IOException If an error occurs during reading values.
    */
-  public CachedContent(DataInputStream input) throws IOException {
-    this(input.readInt(), input.readUTF(), input.readLong());
+  public static CachedContent readFromStream(DataInputStream input) throws IOException {
+    int id = input.readInt();
+    String key = input.readUTF();
+    long length = input.readLong();
+    CachedContent cachedContent = new CachedContent(id, key);
+    cachedContent.setLength(length);
+    return cachedContent;
   }
 
   /**
@@ -54,12 +61,11 @@ import java.util.TreeSet;
    *
    * @param id The cache file id.
    * @param key The cache stream key.
-   * @param length The length of the original stream.
    */
-  public CachedContent(int id, String key, long length) {
+  public CachedContent(int id, String key) {
     this.id = id;
     this.key = key;
-    this.length = length;
+    this.metadata = new DefaultContentMetadata();
     this.cachedSpans = new TreeSet<>();
   }
 
@@ -72,17 +78,21 @@ import java.util.TreeSet;
   public void writeToStream(DataOutputStream output) throws IOException {
     output.writeInt(id);
     output.writeUTF(key);
-    output.writeLong(length);
+    output.writeLong(getLength());
   }
 
-  /** Returns the length of the content. */
+  /**
+   * Returns the length of the original stream, or {@link C#LENGTH_UNSET} if the length is unknown.
+   */
   public long getLength() {
-    return length;
+    return metadata.get(METADATA_NAME_LENGTH, C.LENGTH_UNSET);
   }
 
   /** Sets the length of the content. */
   public void setLength(long length) {
-    this.length = length;
+    ContentMetadataMutations mutations =
+        new ContentMetadataMutations().set(METADATA_NAME_LENGTH, length);
+    metadata = new DefaultContentMetadata(metadata, mutations);
   }
 
   /** Returns whether the content is locked. */
@@ -194,6 +204,7 @@ import java.util.TreeSet;
 
   /** Calculates a hash code for the header of this {@code CachedContent}. */
   public int headerHashCode() {
+    long length = getLength();
     int result = id;
     result = 31 * result + key.hashCode();
     result = 31 * result + (int) (length ^ (length >>> 32));
