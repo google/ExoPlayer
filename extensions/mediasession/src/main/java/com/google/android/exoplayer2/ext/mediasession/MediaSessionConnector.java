@@ -674,12 +674,8 @@ public final class MediaSessionConnector {
         // active queue item and queue navigation actions may need to be updated
         updateMediaSessionPlaybackState();
       }
-      if (currentWindowCount != windowCount) {
-        // active queue item and queue navigation actions may need to be updated
-        updateMediaSessionPlaybackState();
-      }
       currentWindowCount = windowCount;
-      currentWindowIndex = player.getCurrentWindowIndex();
+      currentWindowIndex = windowIndex;
       updateMediaSessionMetadata();
     }
 
