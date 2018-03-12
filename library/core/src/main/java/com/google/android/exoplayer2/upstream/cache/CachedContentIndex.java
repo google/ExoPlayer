@@ -45,9 +45,7 @@ import javax.crypto.NoSuchPaddingException;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 
-/**
- * This class maintains the index of cached content.
- */
+/** Maintains the index of cached content. */
 /*package*/ class CachedContentIndex {
 
   public static final String FILE_NAME = "cached_content_index.exi";
@@ -259,7 +257,7 @@ import javax.crypto.spec.SecretKeySpec;
       int count = input.readInt();
       int hashCode = 0;
       for (int i = 0; i < count; i++) {
-        CachedContent cachedContent = new CachedContent(input);
+        CachedContent cachedContent = CachedContent.readFromStream(input);
         add(cachedContent);
         hashCode += cachedContent.headerHashCode();
       }
@@ -339,7 +337,8 @@ import javax.crypto.spec.SecretKeySpec;
 
   private CachedContent addNew(String key, long length) {
     int id = getNewId(idToKey);
-    CachedContent cachedContent = new CachedContent(id, key, length);
+    CachedContent cachedContent = new CachedContent(id, key);
+    cachedContent.setLength(length);
     addNew(cachedContent);
     return cachedContent;
   }
