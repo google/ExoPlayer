@@ -20,12 +20,15 @@ import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
 import android.os.SystemClock;
+import android.support.annotation.IntDef;
 import android.support.annotation.Nullable;
 import android.util.Log;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.TraceUtil;
 import com.google.android.exoplayer2.util.Util;
 import java.io.IOException;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 import java.util.concurrent.ExecutorService;
 
 /**
@@ -104,20 +107,20 @@ public final class Loader implements LoaderErrorThrower {
 
     /**
      * Called when a load encounters an error.
-     * <p>
-     * Note: There is guaranteed to be a memory barrier between {@link Loadable#load()} exiting and
-     * this callback being called.
+     *
+     * <p>Note: There is guaranteed to be a memory barrier between {@link Loadable#load()} exiting
+     * and this callback being called.
      *
      * @param loadable The loadable whose load has encountered an error.
      * @param elapsedRealtimeMs {@link SystemClock#elapsedRealtime} when the error occurred.
      * @param loadDurationMs The duration of the load up to the point at which the error occurred.
      * @param error The load error.
-     * @return The desired retry action. One of {@link Loader#RETRY},
-     *     {@link Loader#RETRY_RESET_ERROR_COUNT}, {@link Loader#DONT_RETRY} and
-     *     {@link Loader#DONT_RETRY_FATAL}.
+     * @return The desired retry action. One of {@link Loader#RETRY}, {@link
+     *     Loader#RETRY_RESET_ERROR_COUNT}, {@link Loader#DONT_RETRY} and {@link
+     *     Loader#DONT_RETRY_FATAL}.
      */
+    @RetryAction
     int onLoadError(T loadable, long elapsedRealtimeMs, long loadDurationMs, IOException error);
-
   }
 
   /**
@@ -131,6 +134,11 @@ public final class Loader implements LoaderErrorThrower {
     void onLoaderReleased();
 
   }
+
+  /** Actions that can be taken in response to a load error. */
+  @Retention(RetentionPolicy.SOURCE)
+  @IntDef({RETRY, RETRY_RESET_ERROR_COUNT, DONT_RETRY, DONT_RETRY_FATAL})
+  public @interface RetryAction {}
 
   public static final int RETRY = 0;
   public static final int RETRY_RESET_ERROR_COUNT = 1;

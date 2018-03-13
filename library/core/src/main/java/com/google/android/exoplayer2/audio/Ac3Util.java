@@ -15,41 +15,35 @@
  */
 package com.google.android.exoplayer2.audio;
 
-import static com.google.android.exoplayer2.audio.Ac3Util.Ac3SyncFrameInfo.STREAM_TYPE_TYPE0;
-import static com.google.android.exoplayer2.audio.Ac3Util.Ac3SyncFrameInfo.STREAM_TYPE_TYPE1;
-import static com.google.android.exoplayer2.audio.Ac3Util.Ac3SyncFrameInfo.STREAM_TYPE_UNDEFINED;
-
+import android.support.annotation.IntDef;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
+import com.google.android.exoplayer2.audio.Ac3Util.SyncFrameInfo.StreamType;
 import com.google.android.exoplayer2.drm.DrmInitData;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.ParsableBitArray;
 import com.google.android.exoplayer2.util.ParsableByteArray;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 import java.nio.ByteBuffer;
 
 /** Utility methods for parsing Dolby TrueHD and (E-)AC3 syncframes. */
 public final class Ac3Util {
 
-  /**
-   * Holds sample format information as presented by a syncframe header.
-   */
-  public static final class Ac3SyncFrameInfo {
+  /** Holds sample format information as presented by a syncframe header. */
+  public static final class SyncFrameInfo {
 
-    /**
-     * Undefined AC3 stream type.
-     */
+    /** AC3 stream types. See also ETSI TS 102 366 E.1.3.1.1. */
+    @Retention(RetentionPolicy.SOURCE)
+    @IntDef({STREAM_TYPE_UNDEFINED, STREAM_TYPE_TYPE0, STREAM_TYPE_TYPE1, STREAM_TYPE_TYPE2})
+    public @interface StreamType {}
+    /** Undefined AC3 stream type. */
     public static final int STREAM_TYPE_UNDEFINED = -1;
-    /**
-     * Type 0 AC3 stream type. See ETSI TS 102 366 E.1.3.1.1.
-     */
+    /** Type 0 AC3 stream type. */
     public static final int STREAM_TYPE_TYPE0 = 0;
-    /**
-     * Type 1 AC3 stream type. See ETSI TS 102 366 E.1.3.1.1.
-     */
+    /** Type 1 AC3 stream type. */
     public static final int STREAM_TYPE_TYPE1 = 1;
-    /**
-     * Type 2 AC3 stream type. See ETSI TS 102 366 E.1.3.1.1.
-     */
+    /** Type 2 AC3 stream type. */
     public static final int STREAM_TYPE_TYPE2 = 2;
 
     /**
@@ -58,10 +52,10 @@ public final class Ac3Util {
      */
     public final String mimeType;
     /**
-     * The type of the stream if {@link #mimeType} is {@link MimeTypes#AUDIO_E_AC3}, or
-     * {@link #STREAM_TYPE_UNDEFINED} otherwise.
+     * The type of the stream if {@link #mimeType} is {@link MimeTypes#AUDIO_E_AC3}, or {@link
+     * #STREAM_TYPE_UNDEFINED} otherwise.
      */
-    public final int streamType;
+    public final @StreamType int streamType;
     /**
      * The audio sampling rate in Hz.
      */
@@ -79,8 +73,13 @@ public final class Ac3Util {
      */
     public final int sampleCount;
 
-    private Ac3SyncFrameInfo(String mimeType, int streamType, int channelCount, int sampleRate,
-        int frameSize, int sampleCount) {
+    private SyncFrameInfo(
+        String mimeType,
+        @StreamType int streamType,
+        int channelCount,
+        int sampleRate,
+        int frameSize,
+        int sampleCount) {
       this.mimeType = mimeType;
       this.streamType = streamType;
       this.channelCount = channelCount;
@@ -212,13 +211,13 @@ public final class Ac3Util {
    * @param data The data to parse, positioned at the start of the syncframe.
    * @return The (E-)AC-3 format data parsed from the header.
    */
-  public static Ac3SyncFrameInfo parseAc3SyncframeInfo(ParsableBitArray data) {
+  public static SyncFrameInfo parseAc3SyncframeInfo(ParsableBitArray data) {
     int initialPosition = data.getPosition();
     data.skipBits(40);
     boolean isEac3 = data.readBits(5) == 16;
     data.setPosition(initialPosition);
     String mimeType;
-    int streamType = STREAM_TYPE_UNDEFINED;
+    @StreamType int streamType = SyncFrameInfo.STREAM_TYPE_UNDEFINED;
     int sampleRate;
     int acmod;
     int frameSize;
@@ -228,7 +227,20 @@ public final class Ac3Util {
     if (isEac3) {
       // Syntax from ETSI TS 102 366 V1.2.1 subsections E.1.2.1 and E.1.2.2.
       data.skipBits(16); // syncword
-      streamType = data.readBits(2);
+      switch (data.readBits(2)) { // strmtyp
+        case 0:
+          streamType = SyncFrameInfo.STREAM_TYPE_TYPE0;
+          break;
+        case 1:
+          streamType = SyncFrameInfo.STREAM_TYPE_TYPE1;
+          break;
+        case 2:
+          streamType = SyncFrameInfo.STREAM_TYPE_TYPE2;
+          break;
+        default:
+          streamType = SyncFrameInfo.STREAM_TYPE_UNDEFINED;
+          break;
+      }
       data.skipBits(3); // substreamid
       frameSize = (data.readBits(11) + 1) * 2;
       int fscod = data.readBits(2);
@@ -257,7 +269,7 @@ public final class Ac3Util {
           data.skipBits(8); // compr2
         }
       }
-      if (streamType == STREAM_TYPE_TYPE1 && data.readBit()) { // chanmape
+      if (streamType == SyncFrameInfo.STREAM_TYPE_TYPE1 && data.readBit()) { // chanmape
         data.skipBits(16); // chanmap
       }
       if (data.readBit()) { // mixmdate
@@ -273,7 +285,7 @@ public final class Ac3Util {
         if (lfeon && data.readBit()) { // lfemixlevcode
           data.skipBits(5); // lfemixlevcod
         }
-        if (streamType == STREAM_TYPE_TYPE0) {
+        if (streamType == SyncFrameInfo.STREAM_TYPE_TYPE0) {
           if (data.readBit()) { // pgmscle
             data.skipBits(6); //pgmscl
           }
@@ -375,10 +387,11 @@ public final class Ac3Util {
           data.skipBit(); // sourcefscod
         }
       }
-      if (streamType == 0 && numblkscod != 3) {
+      if (streamType == SyncFrameInfo.STREAM_TYPE_TYPE0 && numblkscod != 3) {
         data.skipBit(); // convsync
       }
-      if (streamType == 2 && (numblkscod == 3 || data.readBit())) { // blkid
+      if (streamType == SyncFrameInfo.STREAM_TYPE_TYPE2
+          && (numblkscod == 3 || data.readBit())) { // blkid
         data.skipBits(6); // frmsizecod
       }
       mimeType = MimeTypes.AUDIO_E_AC3;
@@ -410,8 +423,8 @@ public final class Ac3Util {
       lfeon = data.readBit();
       channelCount = CHANNEL_COUNT_BY_ACMOD[acmod] + (lfeon ? 1 : 0);
     }
-    return new Ac3SyncFrameInfo(mimeType, streamType, channelCount, sampleRate, frameSize,
-        sampleCount);
+    return new SyncFrameInfo(
+        mimeType, streamType, channelCount, sampleRate, frameSize, sampleCount);
   }
 
   /**

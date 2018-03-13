@@ -80,6 +80,10 @@ public final class DefaultAudioSink implements AudioSink {
    */
   private static final int BUFFER_MULTIPLICATION_FACTOR = 4;
 
+  /** {@link AudioTrack} playback states. */
+  @Retention(RetentionPolicy.SOURCE)
+  @IntDef({PLAYSTATE_STOPPED, PLAYSTATE_PAUSED, PLAYSTATE_PLAYING})
+  private @interface PlayState {}
   /**
    * @see AudioTrack#PLAYSTATE_STOPPED
    */
@@ -965,8 +969,7 @@ public final class DefaultAudioSink implements AudioSink {
       startMediaTimeState = START_NOT_SET;
       latencyUs = 0;
       resetSyncParams();
-      int playState = audioTrack.getPlayState();
-      if (playState == PLAYSTATE_PLAYING) {
+      if (audioTrack.getPlayState() == PLAYSTATE_PLAYING) {
         audioTrack.pause();
       }
       // AudioTrack.release can take some time, so we call it on a background thread.
@@ -1426,8 +1429,8 @@ public final class DefaultAudioSink implements AudioSink {
         return Math.min(endPlaybackHeadPosition, stopPlaybackHeadPosition + framesSinceStop);
       }
 
-      int state = audioTrack.getPlayState();
-      if (state == PLAYSTATE_STOPPED) {
+      @PlayState int playState = audioTrack.getPlayState();
+      if (playState == PLAYSTATE_STOPPED) {
         // The audio track hasn't been started.
         return 0;
       }
@@ -1437,15 +1440,16 @@ public final class DefaultAudioSink implements AudioSink {
         // Work around an issue with passthrough/direct AudioTracks on platform API versions 21/22
         // where the playback head position jumps back to zero on paused passthrough/direct audio
         // tracks. See [Internal: b/19187573].
-        if (state == PLAYSTATE_PAUSED && rawPlaybackHeadPosition == 0) {
+        if (playState == PLAYSTATE_PAUSED && rawPlaybackHeadPosition == 0) {
           passthroughWorkaroundPauseOffset = lastRawPlaybackHeadPosition;
         }
         rawPlaybackHeadPosition += passthroughWorkaroundPauseOffset;
       }
 
       if (Util.SDK_INT <= 28) {
-        if (rawPlaybackHeadPosition == 0 && lastRawPlaybackHeadPosition > 0
-            && state == PLAYSTATE_PLAYING) {
+        if (rawPlaybackHeadPosition == 0
+            && lastRawPlaybackHeadPosition > 0
+            && playState == PLAYSTATE_PLAYING) {
           // If connecting a Bluetooth audio device fails, the AudioTrack may be left in a state
           // where its Java API is in the playing state, but the native track is stopped. When this
           // happens the playback head position gets stuck at zero. In this case, return the old

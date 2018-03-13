@@ -448,100 +448,6 @@ public final class MatroskaExtractor implements Extractor {
     return Extractor.RESULT_CONTINUE;
   }
 
-  /* package */ int getElementType(int id) {
-    switch (id) {
-      case ID_EBML:
-      case ID_SEGMENT:
-      case ID_SEEK_HEAD:
-      case ID_SEEK:
-      case ID_INFO:
-      case ID_CLUSTER:
-      case ID_TRACKS:
-      case ID_TRACK_ENTRY:
-      case ID_AUDIO:
-      case ID_VIDEO:
-      case ID_CONTENT_ENCODINGS:
-      case ID_CONTENT_ENCODING:
-      case ID_CONTENT_COMPRESSION:
-      case ID_CONTENT_ENCRYPTION:
-      case ID_CONTENT_ENCRYPTION_AES_SETTINGS:
-      case ID_CUES:
-      case ID_CUE_POINT:
-      case ID_CUE_TRACK_POSITIONS:
-      case ID_BLOCK_GROUP:
-      case ID_PROJECTION:
-      case ID_COLOUR:
-      case ID_MASTERING_METADATA:
-        return EbmlReader.TYPE_MASTER;
-      case ID_EBML_READ_VERSION:
-      case ID_DOC_TYPE_READ_VERSION:
-      case ID_SEEK_POSITION:
-      case ID_TIMECODE_SCALE:
-      case ID_TIME_CODE:
-      case ID_BLOCK_DURATION:
-      case ID_PIXEL_WIDTH:
-      case ID_PIXEL_HEIGHT:
-      case ID_DISPLAY_WIDTH:
-      case ID_DISPLAY_HEIGHT:
-      case ID_DISPLAY_UNIT:
-      case ID_TRACK_NUMBER:
-      case ID_TRACK_TYPE:
-      case ID_FLAG_DEFAULT:
-      case ID_FLAG_FORCED:
-      case ID_DEFAULT_DURATION:
-      case ID_CODEC_DELAY:
-      case ID_SEEK_PRE_ROLL:
-      case ID_CHANNELS:
-      case ID_AUDIO_BIT_DEPTH:
-      case ID_CONTENT_ENCODING_ORDER:
-      case ID_CONTENT_ENCODING_SCOPE:
-      case ID_CONTENT_COMPRESSION_ALGORITHM:
-      case ID_CONTENT_ENCRYPTION_ALGORITHM:
-      case ID_CONTENT_ENCRYPTION_AES_SETTINGS_CIPHER_MODE:
-      case ID_CUE_TIME:
-      case ID_CUE_CLUSTER_POSITION:
-      case ID_REFERENCE_BLOCK:
-      case ID_STEREO_MODE:
-      case ID_COLOUR_RANGE:
-      case ID_COLOUR_TRANSFER:
-      case ID_COLOUR_PRIMARIES:
-      case ID_MAX_CLL:
-      case ID_MAX_FALL:
-        return EbmlReader.TYPE_UNSIGNED_INT;
-      case ID_DOC_TYPE:
-      case ID_CODEC_ID:
-      case ID_LANGUAGE:
-        return EbmlReader.TYPE_STRING;
-      case ID_SEEK_ID:
-      case ID_CONTENT_COMPRESSION_SETTINGS:
-      case ID_CONTENT_ENCRYPTION_KEY_ID:
-      case ID_SIMPLE_BLOCK:
-      case ID_BLOCK:
-      case ID_CODEC_PRIVATE:
-      case ID_PROJECTION_PRIVATE:
-        return EbmlReader.TYPE_BINARY;
-      case ID_DURATION:
-      case ID_SAMPLING_FREQUENCY:
-      case ID_PRIMARY_R_CHROMATICITY_X:
-      case ID_PRIMARY_R_CHROMATICITY_Y:
-      case ID_PRIMARY_G_CHROMATICITY_X:
-      case ID_PRIMARY_G_CHROMATICITY_Y:
-      case ID_PRIMARY_B_CHROMATICITY_X:
-      case ID_PRIMARY_B_CHROMATICITY_Y:
-      case ID_WHITE_POINT_CHROMATICITY_X:
-      case ID_WHITE_POINT_CHROMATICITY_Y:
-      case ID_LUMNINANCE_MAX:
-      case ID_LUMNINANCE_MIN:
-        return EbmlReader.TYPE_FLOAT;
-      default:
-        return EbmlReader.TYPE_UNKNOWN;
-    }
-  }
-
-  /* package */ boolean isLevel1Element(int id) {
-    return id == ID_SEGMENT_INFO || id == ID_CLUSTER || id == ID_CUES || id == ID_TRACKS;
-  }
-
   /* package */ void startMasterElement(int id, long contentPosition, long contentSize)
       throws ParserException {
     switch (id) {
@@ -1501,12 +1407,98 @@ public final class MatroskaExtractor implements Extractor {
 
     @Override
     public int getElementType(int id) {
-      return MatroskaExtractor.this.getElementType(id);
+      switch (id) {
+        case ID_EBML:
+        case ID_SEGMENT:
+        case ID_SEEK_HEAD:
+        case ID_SEEK:
+        case ID_INFO:
+        case ID_CLUSTER:
+        case ID_TRACKS:
+        case ID_TRACK_ENTRY:
+        case ID_AUDIO:
+        case ID_VIDEO:
+        case ID_CONTENT_ENCODINGS:
+        case ID_CONTENT_ENCODING:
+        case ID_CONTENT_COMPRESSION:
+        case ID_CONTENT_ENCRYPTION:
+        case ID_CONTENT_ENCRYPTION_AES_SETTINGS:
+        case ID_CUES:
+        case ID_CUE_POINT:
+        case ID_CUE_TRACK_POSITIONS:
+        case ID_BLOCK_GROUP:
+        case ID_PROJECTION:
+        case ID_COLOUR:
+        case ID_MASTERING_METADATA:
+          return TYPE_MASTER;
+        case ID_EBML_READ_VERSION:
+        case ID_DOC_TYPE_READ_VERSION:
+        case ID_SEEK_POSITION:
+        case ID_TIMECODE_SCALE:
+        case ID_TIME_CODE:
+        case ID_BLOCK_DURATION:
+        case ID_PIXEL_WIDTH:
+        case ID_PIXEL_HEIGHT:
+        case ID_DISPLAY_WIDTH:
+        case ID_DISPLAY_HEIGHT:
+        case ID_DISPLAY_UNIT:
+        case ID_TRACK_NUMBER:
+        case ID_TRACK_TYPE:
+        case ID_FLAG_DEFAULT:
+        case ID_FLAG_FORCED:
+        case ID_DEFAULT_DURATION:
+        case ID_CODEC_DELAY:
+        case ID_SEEK_PRE_ROLL:
+        case ID_CHANNELS:
+        case ID_AUDIO_BIT_DEPTH:
+        case ID_CONTENT_ENCODING_ORDER:
+        case ID_CONTENT_ENCODING_SCOPE:
+        case ID_CONTENT_COMPRESSION_ALGORITHM:
+        case ID_CONTENT_ENCRYPTION_ALGORITHM:
+        case ID_CONTENT_ENCRYPTION_AES_SETTINGS_CIPHER_MODE:
+        case ID_CUE_TIME:
+        case ID_CUE_CLUSTER_POSITION:
+        case ID_REFERENCE_BLOCK:
+        case ID_STEREO_MODE:
+        case ID_COLOUR_RANGE:
+        case ID_COLOUR_TRANSFER:
+        case ID_COLOUR_PRIMARIES:
+        case ID_MAX_CLL:
+        case ID_MAX_FALL:
+          return TYPE_UNSIGNED_INT;
+        case ID_DOC_TYPE:
+        case ID_CODEC_ID:
+        case ID_LANGUAGE:
+          return TYPE_STRING;
+        case ID_SEEK_ID:
+        case ID_CONTENT_COMPRESSION_SETTINGS:
+        case ID_CONTENT_ENCRYPTION_KEY_ID:
+        case ID_SIMPLE_BLOCK:
+        case ID_BLOCK:
+        case ID_CODEC_PRIVATE:
+        case ID_PROJECTION_PRIVATE:
+          return TYPE_BINARY;
+        case ID_DURATION:
+        case ID_SAMPLING_FREQUENCY:
+        case ID_PRIMARY_R_CHROMATICITY_X:
+        case ID_PRIMARY_R_CHROMATICITY_Y:
+        case ID_PRIMARY_G_CHROMATICITY_X:
+        case ID_PRIMARY_G_CHROMATICITY_Y:
+        case ID_PRIMARY_B_CHROMATICITY_X:
+        case ID_PRIMARY_B_CHROMATICITY_Y:
+        case ID_WHITE_POINT_CHROMATICITY_X:
+        case ID_WHITE_POINT_CHROMATICITY_Y:
+        case ID_LUMNINANCE_MAX:
+        case ID_LUMNINANCE_MIN:
+          return TYPE_FLOAT;
+        default:
+          return TYPE_UNKNOWN;
+      }
     }
 
     @Override
     public boolean isLevel1Element(int id) {
-      return MatroskaExtractor.this.isLevel1Element(id);
+      return id == ID_SEGMENT_INFO || id == ID_CLUSTER || id == ID_CUES || id == ID_TRACKS;
     }
 
     @Override

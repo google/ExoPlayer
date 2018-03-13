@@ -524,8 +524,8 @@ import java.util.Arrays;
   }
 
   @Override
-  public int onLoadError(ExtractingLoadable loadable, long elapsedRealtimeMs,
-      long loadDurationMs, IOException error) {
+  public @Loader.RetryAction int onLoadError(
+      ExtractingLoadable loadable, long elapsedRealtimeMs, long loadDurationMs, IOException error) {
     boolean isErrorFatal = isLoadableExceptionFatal(error);
     eventDispatcher.loadError(
         loadable.dataSpec,
