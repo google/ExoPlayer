@@ -17,6 +17,10 @@ package com.google.android.exoplayer2.upstream.cache;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -30,7 +34,7 @@ public class DefaultContentMetadataTest {
 
   @Before
   public void setUp() throws Exception {
-    contentMetadata = createAbstractContentMetadata();
+    contentMetadata = createContentMetadata();
   }
 
   @Test
@@ -40,7 +44,7 @@ public class DefaultContentMetadataTest {
 
   @Test
   public void testContainsReturnsTrueForInitialValue() throws Exception {
-    contentMetadata = createAbstractContentMetadata("metadata name", "value");
+    contentMetadata = createContentMetadata("metadata name", "value");
     assertThat(contentMetadata.contains("metadata name")).isTrue();
   }
 
@@ -51,7 +55,7 @@ public class DefaultContentMetadataTest {
 
   @Test
   public void testGetReturnsInitialValue() throws Exception {
-    contentMetadata = createAbstractContentMetadata("metadata name", "value");
+    contentMetadata = createContentMetadata("metadata name", "value");
     assertThat(contentMetadata.get("metadata name", "default value")).isEqualTo("value");
   }
 
@@ -95,7 +99,7 @@ public class DefaultContentMetadataTest {
 
   @Test
   public void testEditMetadata() throws Exception {
-    contentMetadata = createAbstractContentMetadata("metadata name", "value");
+    contentMetadata = createContentMetadata("metadata name", "value");
     ContentMetadataMutations mutations = new ContentMetadataMutations();
     mutations.set("metadata name", "edited value");
     contentMetadata = new DefaultContentMetadata(contentMetadata, mutations);
@@ -104,7 +108,7 @@ public class DefaultContentMetadataTest {
 
   @Test
   public void testRemoveMetadata() throws Exception {
-    contentMetadata = createAbstractContentMetadata("metadata name", "value");
+    contentMetadata = createContentMetadata("metadata name", "value");
     ContentMetadataMutations mutations = new ContentMetadataMutations();
     mutations.remove("metadata name");
     contentMetadata = new DefaultContentMetadata(contentMetadata, mutations);
@@ -129,7 +133,27 @@ public class DefaultContentMetadataTest {
     assertThat(contentMetadata.get("metadata name", "default value")).isEqualTo("value");
   }
 
-  private DefaultContentMetadata createAbstractContentMetadata(String... pairs) {
+  @Test
+  public void testSerializeDeserialize() throws Exception {
+    ContentMetadataMutations mutations = new ContentMetadataMutations();
+    mutations.set("metadata1 name", "value");
+    mutations.set("metadata2 name", 12345);
+    byte[] metadata3 = {1, 2, 3};
+    mutations.set("metadata3 name", metadata3);
+    contentMetadata = new DefaultContentMetadata(contentMetadata, mutations);
+
+    ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+    contentMetadata.writeToStream(new DataOutputStream(outputStream));
+    ByteArrayInputStream inputStream = new ByteArrayInputStream(outputStream.toByteArray());
+    DefaultContentMetadata contentMetadata2 =
+        DefaultContentMetadata.readFromStream(new DataInputStream(inputStream));
+
+    assertThat(contentMetadata2.get("metadata1 name", "default value")).isEqualTo("value");
+    assertThat(contentMetadata2.get("metadata2 name", 0)).isEqualTo(12345);
+    assertThat(contentMetadata2.get("metadata3 name", new byte[] {})).isEqualTo(metadata3);
+  }
+
+  private DefaultContentMetadata createContentMetadata(String... pairs) {
     assertThat(pairs.length % 2).isEqualTo(0);
     ContentMetadataMutations mutations = new ContentMetadataMutations();
     for (int i = 0; i < pairs.length; i += 2) {
