@@ -77,6 +77,17 @@ public final class CacheDataSource implements DataSource {
    */
   public static final int FLAG_IGNORE_CACHE_FOR_UNSET_LENGTH_REQUESTS = 1 << 2;
 
+  /** Reasons the cache may be ignored. */
+  @Retention(RetentionPolicy.SOURCE)
+  @IntDef({CACHE_IGNORED_REASON_ERROR, CACHE_IGNORED_REASON_UNSET_LENGTH})
+  public @interface CacheIgnoredReason {}
+
+  /** Cache ignored due to a cache related error */
+  public static final int CACHE_IGNORED_REASON_ERROR = 0;
+
+  /** Cache ignored due to a request with an unset length */
+  public static final int CACHE_IGNORED_REASON_UNSET_LENGTH = 1;
+
   /**
    * Listener of {@link CacheDataSource} events.
    */
@@ -90,6 +101,12 @@ public final class CacheDataSource implements DataSource {
      */
     void onCachedBytesRead(long cacheSizeBytes, long cachedBytesRead);
 
+    /**
+     * Called when the current request ignores cache.
+     *
+     * @param reason Reason cache is bypassed.
+     */
+    void onCacheIgnored(@CacheIgnoredReason int reason);
   }
 
   /** Minimum number of bytes to read before checking cache for availability. */
@@ -294,6 +311,13 @@ public final class CacheDataSource implements DataSource {
     CacheSpan nextSpan;
     if (currentRequestIgnoresCache) {
       nextSpan = null;
+      if (eventListener != null) {
+        int reason =
+            ignoreCacheOnError && seenCacheError
+                ? CACHE_IGNORED_REASON_ERROR
+                : CACHE_IGNORED_REASON_UNSET_LENGTH;
+        eventListener.onCacheIgnored(reason);
+      }
     } else if (blockOnCache) {
       try {
         nextSpan = cache.startReadWrite(key, readPosition);
