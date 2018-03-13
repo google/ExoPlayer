@@ -258,7 +258,7 @@ public final class SsMediaSource extends BaseMediaSource
   private final CompositeSequenceableLoaderFactory compositeSequenceableLoaderFactory;
   private final int minLoadableRetryCount;
   private final long livePresentationDelayMs;
-  private final EventDispatcher eventDispatcher;
+  private final EventDispatcher manifestEventDispatcher;
   private final ParsingLoadable.Parser<? extends SsManifest> manifestParser;
   private final ArrayList<SsMediaPeriod> mediaPeriods;
 
@@ -431,7 +431,7 @@ public final class SsMediaSource extends BaseMediaSource
     this.compositeSequenceableLoaderFactory = compositeSequenceableLoaderFactory;
     this.minLoadableRetryCount = minLoadableRetryCount;
     this.livePresentationDelayMs = livePresentationDelayMs;
-    this.eventDispatcher = getEventDispatcher();
+    this.manifestEventDispatcher = createEventDispatcher(/* mediaPeriodId= */ null);
     sideloadedManifest = manifest != null;
     mediaPeriods = new ArrayList<>();
   }
@@ -460,6 +460,7 @@ public final class SsMediaSource extends BaseMediaSource
   @Override
   public MediaPeriod createPeriod(MediaPeriodId id, Allocator allocator) {
     Assertions.checkArgument(id.periodIndex == 0);
+    EventDispatcher eventDispatcher = createEventDispatcher(id);
     SsMediaPeriod period = new SsMediaPeriod(manifest, chunkSourceFactory,
         compositeSequenceableLoaderFactory, minLoadableRetryCount, eventDispatcher,
         manifestLoaderErrorThrower, allocator);
@@ -493,8 +494,12 @@ public final class SsMediaSource extends BaseMediaSource
   @Override
   public void onLoadCompleted(ParsingLoadable<SsManifest> loadable, long elapsedRealtimeMs,
       long loadDurationMs) {
-    eventDispatcher.loadCompleted(loadable.dataSpec, loadable.type, elapsedRealtimeMs,
-        loadDurationMs, loadable.bytesLoaded());
+    manifestEventDispatcher.loadCompleted(
+        loadable.dataSpec,
+        loadable.type,
+        elapsedRealtimeMs,
+        loadDurationMs,
+        loadable.bytesLoaded());
     manifest = loadable.getResult();
     manifestLoadStartTimestamp = elapsedRealtimeMs - loadDurationMs;
     processManifest();
@@ -504,7 +509,7 @@ public final class SsMediaSource extends BaseMediaSource
   @Override
   public void onLoadCanceled(ParsingLoadable<SsManifest> loadable, long elapsedRealtimeMs,
       long loadDurationMs, boolean released) {
-    eventDispatcher.loadCanceled(
+    manifestEventDispatcher.loadCanceled(
         loadable.dataSpec,
         loadable.type,
         elapsedRealtimeMs,
@@ -516,8 +521,14 @@ public final class SsMediaSource extends BaseMediaSource
   public int onLoadError(ParsingLoadable<SsManifest> loadable, long elapsedRealtimeMs,
       long loadDurationMs, IOException error) {
     boolean isFatal = error instanceof ParserException;
-    eventDispatcher.loadError(loadable.dataSpec, loadable.type, elapsedRealtimeMs, loadDurationMs,
-        loadable.bytesLoaded(), error, isFatal);
+    manifestEventDispatcher.loadError(
+        loadable.dataSpec,
+        loadable.type,
+        elapsedRealtimeMs,
+        loadDurationMs,
+        loadable.bytesLoaded(),
+        error,
+        isFatal);
     return isFatal ? Loader.DONT_RETRY_FATAL : Loader.RETRY;
   }
 
@@ -584,7 +595,7 @@ public final class SsMediaSource extends BaseMediaSource
     ParsingLoadable<SsManifest> loadable = new ParsingLoadable<>(manifestDataSource,
         manifestUri, C.DATA_TYPE_MANIFEST, manifestParser);
     long elapsedRealtimeMs = manifestLoader.startLoading(loadable, this, minLoadableRetryCount);
-    eventDispatcher.loadStarted(loadable.dataSpec, loadable.type, elapsedRealtimeMs);
+    manifestEventDispatcher.loadStarted(loadable.dataSpec, loadable.type, elapsedRealtimeMs);
   }
 
 }
