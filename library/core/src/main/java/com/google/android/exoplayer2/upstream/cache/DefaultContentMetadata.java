@@ -16,20 +16,50 @@
 package com.google.android.exoplayer2.upstream.cache;
 
 import com.google.android.exoplayer2.C;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 /** Default implementation of {@link ContentMetadata}. Values are stored as byte arrays. */
 public final class DefaultContentMetadata implements ContentMetadata {
+
+  private static final int MAX_VALUE_LENGTH = 10 * 1024 * 1024;
+
+  /**
+   * Deserializes a {@link DefaultContentMetadata} from the given input stream.
+   *
+   * @param input Input stream to read from.
+   * @return a {@link DefaultContentMetadata} instance.
+   * @throws IOException If an error occurs during reading from input.
+   */
+  public static DefaultContentMetadata readFromStream(DataInputStream input) throws IOException {
+    int size = input.readInt();
+    HashMap<String, byte[]> metadata = new HashMap<>();
+    for (int i = 0; i < size; i++) {
+      String name = input.readUTF();
+      int valueSize = input.readInt();
+      if (valueSize < 0 || valueSize > MAX_VALUE_LENGTH) {
+        throw new IOException("Invalid value size: " + valueSize);
+      }
+      byte[] value = new byte[valueSize];
+      input.readFully(value);
+      metadata.put(name, value);
+    }
+    return new DefaultContentMetadata(metadata);
+  }
 
   private final Map<String, byte[]> metadata;
 
   /** Constructs an empty {@link DefaultContentMetadata}. */
   public DefaultContentMetadata() {
-    this.metadata = new HashMap<>();
+    this(Collections.<String, byte[]>emptyMap());
   }
 
   /**
@@ -37,53 +67,66 @@ public final class DefaultContentMetadata implements ContentMetadata {
    * applying {@code mutations}.
    */
   public DefaultContentMetadata(DefaultContentMetadata other, ContentMetadataMutations mutations) {
-    this.metadata = new HashMap<>(other.metadata);
-    applyMutations(mutations);
+    this(applyMutations(other.metadata, mutations));
+  }
+
+  private DefaultContentMetadata(Map<String, byte[]> metadata) {
+    this.metadata = Collections.unmodifiableMap(metadata);
+  }
+
+  /**
+   * Serializes itself to a {@link DataOutputStream}.
+   *
+   * @param output Output stream to store the values.
+   * @throws IOException If an error occurs during writing values to output.
+   */
+  public void writeToStream(DataOutputStream output) throws IOException {
+    output.writeInt(metadata.size());
+    for (Entry<String, byte[]> entry : metadata.entrySet()) {
+      output.writeUTF(entry.getKey());
+      byte[] value = entry.getValue();
+      output.writeInt(value.length);
+      output.write(value);
+    }
   }
 
   @Override
   public final byte[] get(String name, byte[] defaultValue) {
-    synchronized (metadata) {
-      if (metadata.containsKey(name)) {
-        return metadata.get(name);
-      } else {
-        return defaultValue;
-      }
+    if (metadata.containsKey(name)) {
+      return metadata.get(name);
+    } else {
+      return defaultValue;
     }
   }
 
   @Override
   public final String get(String name, String defaultValue) {
-    synchronized (metadata) {
-      if (metadata.containsKey(name)) {
-        byte[] bytes = metadata.get(name);
-        return new String(bytes, Charset.forName(C.UTF8_NAME));
-      } else {
-        return defaultValue;
-      }
+    if (metadata.containsKey(name)) {
+      byte[] bytes = metadata.get(name);
+      return new String(bytes, Charset.forName(C.UTF8_NAME));
+    } else {
+      return defaultValue;
     }
   }
 
   @Override
   public final long get(String name, long defaultValue) {
-    synchronized (metadata) {
-      if (metadata.containsKey(name)) {
-        byte[] bytes = metadata.get(name);
-        return ByteBuffer.wrap(bytes).getLong();
-      } else {
-        return defaultValue;
-      }
+    if (metadata.containsKey(name)) {
+      byte[] bytes = metadata.get(name);
+      return ByteBuffer.wrap(bytes).getLong();
+    } else {
+      return defaultValue;
     }
   }
 
   @Override
   public final boolean contains(String name) {
-    synchronized (metadata) {
-      return metadata.containsKey(name);
-    }
+    return metadata.containsKey(name);
   }
 
-  private void applyMutations(ContentMetadataMutations mutations) {
+  private static Map<String, byte[]> applyMutations(
+      Map<String, byte[]> otherMetadata, ContentMetadataMutations mutations) {
+    HashMap<String, byte[]> metadata = new HashMap<>(otherMetadata);
     List<String> removedValues = mutations.getRemovedValues();
     for (int i = 0; i < removedValues.size(); i++) {
       metadata.remove(removedValues.get(i));
@@ -91,8 +134,16 @@ public final class DefaultContentMetadata implements ContentMetadata {
     Map<String, Object> editedValues = mutations.getEditedValues();
     for (String name : editedValues.keySet()) {
       Object value = editedValues.get(name);
-      metadata.put(name, getBytes(value));
+      byte[] bytes = getBytes(value);
+      if (bytes.length > MAX_VALUE_LENGTH) {
+        throw new IllegalArgumentException(
+            String.format(
+                "The size of %s (%d) is greater than maximum allowed: %d",
+                name, bytes.length, MAX_VALUE_LENGTH));
+      }
+      metadata.put(name, bytes);
     }
+    return metadata;
   }
 
   private static byte[] getBytes(Object value) {
