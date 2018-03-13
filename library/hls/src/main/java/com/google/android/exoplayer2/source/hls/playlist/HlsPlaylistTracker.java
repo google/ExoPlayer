@@ -320,8 +320,11 @@ public final class HlsPlaylistTracker implements Loader.Callback<ParsingLoadable
   }
 
   @Override
-  public int onLoadError(ParsingLoadable<HlsPlaylist> loadable, long elapsedRealtimeMs,
-      long loadDurationMs, IOException error) {
+  public @Loader.RetryAction int onLoadError(
+      ParsingLoadable<HlsPlaylist> loadable,
+      long elapsedRealtimeMs,
+      long loadDurationMs,
+      IOException error) {
     boolean isFatal = error instanceof ParserException;
     eventDispatcher.loadError(loadable.dataSpec, C.DATA_TYPE_MANIFEST, elapsedRealtimeMs,
         loadDurationMs, loadable.bytesLoaded(), error, isFatal);
@@ -554,8 +557,11 @@ public final class HlsPlaylistTracker implements Loader.Callback<ParsingLoadable
     }
 
     @Override
-    public int onLoadError(ParsingLoadable<HlsPlaylist> loadable, long elapsedRealtimeMs,
-        long loadDurationMs, IOException error) {
+    public @Loader.RetryAction int onLoadError(
+        ParsingLoadable<HlsPlaylist> loadable,
+        long elapsedRealtimeMs,
+        long loadDurationMs,
+        IOException error) {
       boolean isFatal = error instanceof ParserException;
       eventDispatcher.loadError(loadable.dataSpec, C.DATA_TYPE_MANIFEST, elapsedRealtimeMs,
           loadDurationMs, loadable.bytesLoaded(), error, isFatal);

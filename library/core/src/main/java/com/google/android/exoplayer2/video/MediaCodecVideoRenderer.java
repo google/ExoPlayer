@@ -375,7 +375,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
     // We only need to update the codec if the surface has changed.
     if (this.surface != surface) {
       this.surface = surface;
-      int state = getState();
+      @State int state = getState();
       if (state == STATE_ENABLED || state == STATE_STARTED) {
         MediaCodec codec = getCodec();
         if (Util.SDK_INT >= 23 && codec != null && surface != null

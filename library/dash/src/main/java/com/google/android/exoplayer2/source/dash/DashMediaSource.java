@@ -692,8 +692,12 @@ public final class DashMediaSource extends BaseMediaSource {
     }
   }
 
-  /* package */ int onManifestLoadError(ParsingLoadable<DashManifest> loadable,
-      long elapsedRealtimeMs, long loadDurationMs, IOException error) {
+  /* package */ @Loader.RetryAction
+  int onManifestLoadError(
+      ParsingLoadable<DashManifest> loadable,
+      long elapsedRealtimeMs,
+      long loadDurationMs,
+      IOException error) {
     boolean isFatal = error instanceof ParserException;
     manifestEventDispatcher.loadError(
         loadable.dataSpec,
@@ -717,8 +721,12 @@ public final class DashMediaSource extends BaseMediaSource {
     onUtcTimestampResolved(loadable.getResult() - elapsedRealtimeMs);
   }
 
-  /* package */ int onUtcTimestampLoadError(ParsingLoadable<Long> loadable, long elapsedRealtimeMs,
-      long loadDurationMs, IOException error) {
+  /* package */ @Loader.RetryAction
+  int onUtcTimestampLoadError(
+      ParsingLoadable<Long> loadable,
+      long elapsedRealtimeMs,
+      long loadDurationMs,
+      IOException error) {
     manifestEventDispatcher.loadError(
         loadable.dataSpec,
         loadable.type,
@@ -1114,8 +1122,11 @@ public final class DashMediaSource extends BaseMediaSource {
     }
 
     @Override
-    public int onLoadError(ParsingLoadable<DashManifest> loadable,
-        long elapsedRealtimeMs, long loadDurationMs, IOException error) {
+    public @Loader.RetryAction int onLoadError(
+        ParsingLoadable<DashManifest> loadable,
+        long elapsedRealtimeMs,
+        long loadDurationMs,
+        IOException error) {
       return onManifestLoadError(loadable, elapsedRealtimeMs, loadDurationMs, error);
     }
 
@@ -1136,8 +1147,11 @@ public final class DashMediaSource extends BaseMediaSource {
     }
 
     @Override
-    public int onLoadError(ParsingLoadable<Long> loadable, long elapsedRealtimeMs,
-        long loadDurationMs, IOException error) {
+    public @Loader.RetryAction int onLoadError(
+        ParsingLoadable<Long> loadable,
+        long elapsedRealtimeMs,
+        long loadDurationMs,
+        IOException error) {
       return onUtcTimestampLoadError(loadable, elapsedRealtimeMs, loadDurationMs, error);
     }
 

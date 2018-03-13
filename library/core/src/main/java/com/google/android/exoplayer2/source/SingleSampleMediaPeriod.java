@@ -221,8 +221,8 @@ import java.util.Arrays;
   }
 
   @Override
-  public int onLoadError(SourceLoadable loadable, long elapsedRealtimeMs, long loadDurationMs,
-      IOException error) {
+  public @Loader.RetryAction int onLoadError(
+      SourceLoadable loadable, long elapsedRealtimeMs, long loadDurationMs, IOException error) {
     errorCount++;
     boolean cancel = treatLoadErrorsAsEndOfStream && errorCount >= minLoadableRetryCount;
     eventDispatcher.loadError(
