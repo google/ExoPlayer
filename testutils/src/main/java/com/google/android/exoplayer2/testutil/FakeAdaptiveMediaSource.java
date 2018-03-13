@@ -47,8 +47,9 @@ public class FakeAdaptiveMediaSource extends FakeMediaSource {
   protected FakeMediaPeriod createFakeMediaPeriod(MediaPeriodId id, TrackGroupArray trackGroupArray,
       Allocator allocator) {
     Period period = timeline.getPeriod(id.periodIndex, new Period());
+    MediaSourceEventListener.EventDispatcher eventDispatcher = createEventDispatcher(id);
     return new FakeAdaptiveMediaPeriod(
-        trackGroupArray, getEventDispatcher(), allocator, chunkSourceFactory, period.durationUs);
+        trackGroupArray, eventDispatcher, allocator, chunkSourceFactory, period.durationUs);
   }
 
 }

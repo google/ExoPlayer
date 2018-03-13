@@ -148,7 +148,6 @@ public final class SingleSampleMediaSource extends BaseMediaSource {
   private final DataSource.Factory dataSourceFactory;
   private final Format format;
   private final long durationUs;
-  private final MediaSourceEventListener.EventDispatcher eventDispatcher;
   private final int minLoadableRetryCount;
   private final boolean treatLoadErrorsAsEndOfStream;
   private final Timeline timeline;
@@ -242,7 +241,6 @@ public final class SingleSampleMediaSource extends BaseMediaSource {
     this.durationUs = durationUs;
     this.minLoadableRetryCount = minLoadableRetryCount;
     this.treatLoadErrorsAsEndOfStream = treatLoadErrorsAsEndOfStream;
-    this.eventDispatcher = getEventDispatcher();
     dataSpec = new DataSpec(uri);
     timeline = new SinglePeriodTimeline(durationUs, true, false);
   }
@@ -268,7 +266,7 @@ public final class SingleSampleMediaSource extends BaseMediaSource {
         format,
         durationUs,
         minLoadableRetryCount,
-        eventDispatcher,
+        createEventDispatcher(id),
         treatLoadErrorsAsEndOfStream);
   }
 

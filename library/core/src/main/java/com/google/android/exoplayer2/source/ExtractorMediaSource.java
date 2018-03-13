@@ -24,7 +24,6 @@ import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.extractor.DefaultExtractorsFactory;
 import com.google.android.exoplayer2.extractor.Extractor;
 import com.google.android.exoplayer2.extractor.ExtractorsFactory;
-import com.google.android.exoplayer2.source.MediaSourceEventListener.EventDispatcher;
 import com.google.android.exoplayer2.source.ads.AdsMediaSource;
 import com.google.android.exoplayer2.upstream.Allocator;
 import com.google.android.exoplayer2.upstream.DataSource;
@@ -95,7 +94,6 @@ public final class ExtractorMediaSource extends BaseMediaSource
   private final DataSource.Factory dataSourceFactory;
   private final ExtractorsFactory extractorsFactory;
   private final int minLoadableRetryCount;
-  private final EventDispatcher eventDispatcher;
   private final String customCacheKey;
   private final int continueLoadingCheckIntervalBytes;
 
@@ -319,7 +317,6 @@ public final class ExtractorMediaSource extends BaseMediaSource
     this.dataSourceFactory = dataSourceFactory;
     this.extractorsFactory = extractorsFactory;
     this.minLoadableRetryCount = minLoadableRetryCount;
-    this.eventDispatcher = getEventDispatcher();
     this.customCacheKey = customCacheKey;
     this.continueLoadingCheckIntervalBytes = continueLoadingCheckIntervalBytes;
     this.timelineDurationUs = C.TIME_UNSET;
@@ -343,7 +340,7 @@ public final class ExtractorMediaSource extends BaseMediaSource
         dataSourceFactory.createDataSource(),
         extractorsFactory.createExtractors(),
         minLoadableRetryCount,
-        eventDispatcher,
+        createEventDispatcher(id),
         this,
         allocator,
         customCacheKey,

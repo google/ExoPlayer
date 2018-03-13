@@ -281,7 +281,7 @@ public final class DashMediaSource extends BaseMediaSource {
   private final CompositeSequenceableLoaderFactory compositeSequenceableLoaderFactory;
   private final int minLoadableRetryCount;
   private final long livePresentationDelayMs;
-  private final EventDispatcher eventDispatcher;
+  private final EventDispatcher manifestEventDispatcher;
   private final ParsingLoadable.Parser<? extends DashManifest> manifestParser;
   private final ManifestCallback manifestCallback;
   private final Object manifestUriLock;
@@ -476,7 +476,7 @@ public final class DashMediaSource extends BaseMediaSource {
     this.livePresentationDelayMs = livePresentationDelayMs;
     this.compositeSequenceableLoaderFactory = compositeSequenceableLoaderFactory;
     sideloadedManifest = manifest != null;
-    eventDispatcher = getEventDispatcher();
+    manifestEventDispatcher = createEventDispatcher(/* mediaPeriodId= */ null);
     manifestUriLock = new Object();
     periodsById = new SparseArray<>();
     playerEmsgCallback = new DefaultPlayerEmsgCallback();
@@ -540,7 +540,7 @@ public final class DashMediaSource extends BaseMediaSource {
   public MediaPeriod createPeriod(MediaPeriodId periodId, Allocator allocator) {
     int periodIndex = periodId.periodIndex;
     EventDispatcher periodEventDispatcher =
-        eventDispatcher.withMediaTimeOffsetMs(manifest.getPeriod(periodIndex).startMs);
+        createEventDispatcher(periodId, manifest.getPeriod(periodIndex).startMs);
     DashMediaPeriod mediaPeriod =
         new DashMediaPeriod(
             firstPeriodId + periodIndex,
@@ -612,8 +612,12 @@ public final class DashMediaSource extends BaseMediaSource {
 
   /* package */ void onManifestLoadCompleted(ParsingLoadable<DashManifest> loadable,
       long elapsedRealtimeMs, long loadDurationMs) {
-    eventDispatcher.loadCompleted(loadable.dataSpec, loadable.type, elapsedRealtimeMs,
-        loadDurationMs, loadable.bytesLoaded());
+    manifestEventDispatcher.loadCompleted(
+        loadable.dataSpec,
+        loadable.type,
+        elapsedRealtimeMs,
+        loadDurationMs,
+        loadable.bytesLoaded());
     DashManifest newManifest = loadable.getResult();
 
     int periodCount = manifest == null ? 0 : manifest.getPeriodCount();
@@ -691,30 +695,50 @@ public final class DashMediaSource extends BaseMediaSource {
   /* package */ int onManifestLoadError(ParsingLoadable<DashManifest> loadable,
       long elapsedRealtimeMs, long loadDurationMs, IOException error) {
     boolean isFatal = error instanceof ParserException;
-    eventDispatcher.loadError(loadable.dataSpec, loadable.type, elapsedRealtimeMs, loadDurationMs,
-        loadable.bytesLoaded(), error, isFatal);
+    manifestEventDispatcher.loadError(
+        loadable.dataSpec,
+        loadable.type,
+        elapsedRealtimeMs,
+        loadDurationMs,
+        loadable.bytesLoaded(),
+        error,
+        isFatal);
     return isFatal ? Loader.DONT_RETRY_FATAL : Loader.RETRY;
   }
 
   /* package */ void onUtcTimestampLoadCompleted(ParsingLoadable<Long> loadable,
       long elapsedRealtimeMs, long loadDurationMs) {
-    eventDispatcher.loadCompleted(loadable.dataSpec, loadable.type, elapsedRealtimeMs,
-        loadDurationMs, loadable.bytesLoaded());
+    manifestEventDispatcher.loadCompleted(
+        loadable.dataSpec,
+        loadable.type,
+        elapsedRealtimeMs,
+        loadDurationMs,
+        loadable.bytesLoaded());
     onUtcTimestampResolved(loadable.getResult() - elapsedRealtimeMs);
   }
 
   /* package */ int onUtcTimestampLoadError(ParsingLoadable<Long> loadable, long elapsedRealtimeMs,
       long loadDurationMs, IOException error) {
-    eventDispatcher.loadError(loadable.dataSpec, loadable.type, elapsedRealtimeMs, loadDurationMs,
-        loadable.bytesLoaded(), error, true);
+    manifestEventDispatcher.loadError(
+        loadable.dataSpec,
+        loadable.type,
+        elapsedRealtimeMs,
+        loadDurationMs,
+        loadable.bytesLoaded(),
+        error,
+        true);
     onUtcTimestampResolutionError(error);
     return Loader.DONT_RETRY;
   }
 
   /* package */ void onLoadCanceled(ParsingLoadable<?> loadable, long elapsedRealtimeMs,
       long loadDurationMs) {
-    eventDispatcher.loadCanceled(loadable.dataSpec, loadable.type, elapsedRealtimeMs,
-        loadDurationMs, loadable.bytesLoaded());
+    manifestEventDispatcher.loadCanceled(
+        loadable.dataSpec,
+        loadable.type,
+        elapsedRealtimeMs,
+        loadDurationMs,
+        loadable.bytesLoaded());
   }
 
   // Internal methods.
@@ -889,7 +913,7 @@ public final class DashMediaSource extends BaseMediaSource {
   private <T> void startLoading(ParsingLoadable<T> loadable,
       Loader.Callback<ParsingLoadable<T>> callback, int minRetryCount) {
     long elapsedRealtimeMs = loader.startLoading(loadable, callback, minRetryCount);
-    eventDispatcher.loadStarted(loadable.dataSpec, loadable.type, elapsedRealtimeMs);
+    manifestEventDispatcher.loadStarted(loadable.dataSpec, loadable.type, elapsedRealtimeMs);
   }
 
   private long getNowUnixTimeUs() {

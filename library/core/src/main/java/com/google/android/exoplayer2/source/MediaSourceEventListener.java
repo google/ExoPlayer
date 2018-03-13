@@ -22,6 +22,7 @@ import android.support.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.Player;
+import com.google.android.exoplayer2.source.MediaSource.MediaPeriodId;
 import com.google.android.exoplayer2.upstream.DataSpec;
 import com.google.android.exoplayer2.util.Assertions;
 import java.io.IOException;
@@ -62,6 +63,14 @@ public interface MediaSourceEventListener {
 
   /** Descriptor for data being loaded or selected by a media source. */
   final class MediaLoadData {
+
+    /** The window index in the timeline of the media source this data belongs to. */
+    public final int windowIndex;
+    /**
+     * The {@link MediaPeriodId} this data belongs to. Null if the data does not belong to a
+     * specific media period.
+     */
+    public final @Nullable MediaPeriodId mediaPeriodId;
     /** One of the {@link C} {@code DATA_TYPE_*} constants defining the type of data. */
     public final int dataType;
     /**
@@ -84,17 +93,23 @@ public interface MediaSourceEventListener {
      * the data does not belong to a track.
      */
     public final @Nullable Object trackSelectionData;
-    /** The start time of the media, or {@link C#TIME_UNSET} if the data is not for media. */
+    /**
+     * The start time of the media, or {@link C#TIME_UNSET} if the data does not belong to a
+     * specific media period.
+     */
     public final long mediaStartTimeMs;
     /**
-     * The end time of the media, or {@link C#TIME_UNSET} if the data is not for media or the end
-     * time is unknown.
+     * The end time of the media, or {@link C#TIME_UNSET} if the data does not belong to a specific
+     * media period or the end time is unknown.
      */
     public final long mediaEndTimeMs;
 
     /**
      * Creates media load data.
      *
+     * @param windowIndex The window index in the timeline of the media source this load belongs to.
+     * @param mediaPeriodId The {@link MediaPeriodId} this load belongs to. Null if the data does
+     *     not belong to a specific media period.
      * @param dataType One of the {@link C} {@code DATA_TYPE_*} constants defining the type of data.
      * @param trackType One of the {@link C} {@code TRACK_TYPE_*} constants if the data corresponds
      *     to media of a specific type. {@link C#TRACK_TYPE_UNKNOWN} otherwise.
@@ -104,12 +119,14 @@ public interface MediaSourceEventListener {
      *     data belongs to a track. {@link C#SELECTION_REASON_UNKNOWN} otherwise.
      * @param trackSelectionData Optional data associated with the selection of the track to which
      *     the data belongs. Null if the data does not belong to a track.
-     * @param mediaStartTimeMs The start time of the media, or {@link C#TIME_UNSET} if the data is
-     *     not for media.
-     * @param mediaEndTimeMs The end time of the media, or {@link C#TIME_UNSET} if the data is not
-     *     for media or the end time is unknown.
+     * @param mediaStartTimeMs The start time of the media, or {@link C#TIME_UNSET} if the data does
+     *     not belong to a specific media period.
+     * @param mediaEndTimeMs The end time of the media, or {@link C#TIME_UNSET} if the data does not
+     *     belong to a specific media period or the end time is unknown.
      */
     public MediaLoadData(
+        int windowIndex,
+        @Nullable MediaPeriodId mediaPeriodId,
         int dataType,
         int trackType,
         @Nullable Format trackFormat,
@@ -117,6 +134,8 @@ public interface MediaSourceEventListener {
         @Nullable Object trackSelectionData,
         long mediaStartTimeMs,
         long mediaEndTimeMs) {
+      this.windowIndex = windowIndex;
+      this.mediaPeriodId = mediaPeriodId;
       this.dataType = dataType;
       this.trackType = trackType;
       this.trackFormat = trackFormat;
@@ -196,30 +215,44 @@ public interface MediaSourceEventListener {
   final class EventDispatcher {
 
     private final CopyOnWriteArrayList<ListenerAndHandler> listenerAndHandlers;
+    private final int windowIndex;
+    private final @Nullable MediaPeriodId mediaPeriodId;
     private final long mediaTimeOffsetMs;
 
-    /** Create event dispatcher. */
+    /** Creates an event dispatcher. */
     /* package */ EventDispatcher() {
       this(
           /* listenerAndHandlers= */ new CopyOnWriteArrayList<ListenerAndHandler>(),
+          /* windowIndex= */ 0,
+          /* mediaPeriodId= */ null,
           /* mediaTimeOffsetMs= */ 0);
     }
 
     private EventDispatcher(
-        CopyOnWriteArrayList<ListenerAndHandler> listenerAndHandlers, long mediaTimeOffsetMs) {
+        CopyOnWriteArrayList<ListenerAndHandler> listenerAndHandlers,
+        int windowIndex,
+        @Nullable MediaPeriodId mediaPeriodId,
+        long mediaTimeOffsetMs) {
       this.listenerAndHandlers = listenerAndHandlers;
+      this.windowIndex = windowIndex;
+      this.mediaPeriodId = mediaPeriodId;
       this.mediaTimeOffsetMs = mediaTimeOffsetMs;
     }
 
     /**
-     * Creates a view of the event dispatcher with a media time offset.
+     * Creates a view of the event dispatcher with pre-configured window index, media period id, and
+     * media time offset.
      *
+     * @param windowIndex The timeline window index to be reported with the events.
+     * @param mediaPeriodId The {@link MediaPeriodId} to be reported with the events.
      * @param mediaTimeOffsetMs The offset to be added to all media times, in milliseconds.
-     * @return A view of the event dispatcher with the added media time offset.
+     * @return A view of the event dispatcher with the pre-configured parameters.
      */
     @CheckResult
-    public EventDispatcher withMediaTimeOffsetMs(long mediaTimeOffsetMs) {
-      return new EventDispatcher(listenerAndHandlers, mediaTimeOffsetMs);
+    /* package */ EventDispatcher withParameters(
+        int windowIndex, @Nullable MediaPeriodId mediaPeriodId, long mediaTimeOffsetMs) {
+      return new EventDispatcher(
+          listenerAndHandlers, windowIndex, mediaPeriodId, mediaTimeOffsetMs);
     }
 
     /**
@@ -280,6 +313,8 @@ public interface MediaSourceEventListener {
                     new LoadEventInfo(
                         dataSpec, elapsedRealtimeMs, /* loadDurationMs= */ 0, /* bytesLoaded= */ 0),
                     new MediaLoadData(
+                        windowIndex,
+                        mediaPeriodId,
                         dataType,
                         trackType,
                         trackFormat,
@@ -334,6 +369,8 @@ public interface MediaSourceEventListener {
                 listenerAndHandler.listener.onLoadCompleted(
                     new LoadEventInfo(dataSpec, elapsedRealtimeMs, loadDurationMs, bytesLoaded),
                     new MediaLoadData(
+                        windowIndex,
+                        mediaPeriodId,
                         dataType,
                         trackType,
                         trackFormat,
@@ -388,6 +425,8 @@ public interface MediaSourceEventListener {
                 listenerAndHandler.listener.onLoadCanceled(
                     new LoadEventInfo(dataSpec, elapsedRealtimeMs, loadDurationMs, bytesLoaded),
                     new MediaLoadData(
+                        windowIndex,
+                        mediaPeriodId,
                         dataType,
                         trackType,
                         trackFormat,
@@ -448,6 +487,8 @@ public interface MediaSourceEventListener {
                 listenerAndHandler.listener.onLoadError(
                     new LoadEventInfo(dataSpec, elapsedRealtimeMs, loadDurationMs, bytesLoaded),
                     new MediaLoadData(
+                        windowIndex,
+                        mediaPeriodId,
                         dataType,
                         trackType,
                         trackFormat,
@@ -472,6 +513,8 @@ public interface MediaSourceEventListener {
               public void run() {
                 listenerAndHandler.listener.onUpstreamDiscarded(
                     new MediaLoadData(
+                        windowIndex,
+                        mediaPeriodId,
                         C.DATA_TYPE_MEDIA,
                         trackType,
                         /* trackFormat= */ null,
@@ -498,6 +541,8 @@ public interface MediaSourceEventListener {
               public void run() {
                 listenerAndHandler.listener.onDownstreamFormatChanged(
                     new MediaLoadData(
+                        windowIndex,
+                        mediaPeriodId,
                         C.DATA_TYPE_MEDIA,
                         trackType,
                         trackFormat,

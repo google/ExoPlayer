@@ -216,7 +216,6 @@ public final class HlsMediaSource extends BaseMediaSource
   private final HlsDataSourceFactory dataSourceFactory;
   private final CompositeSequenceableLoaderFactory compositeSequenceableLoaderFactory;
   private final int minLoadableRetryCount;
-  private final EventDispatcher eventDispatcher;
   private final ParsingLoadable.Parser<HlsPlaylist> playlistParser;
   private final boolean allowChunklessPreparation;
 
@@ -314,11 +313,11 @@ public final class HlsMediaSource extends BaseMediaSource
     this.minLoadableRetryCount = minLoadableRetryCount;
     this.playlistParser = playlistParser;
     this.allowChunklessPreparation = allowChunklessPreparation;
-    eventDispatcher = getEventDispatcher();
   }
 
   @Override
   public void prepareSourceInternal(ExoPlayer player, boolean isTopLevelSource) {
+    EventDispatcher eventDispatcher = createEventDispatcher(/* mediaPeriodId= */ null);
     playlistTracker = new HlsPlaylistTracker(manifestUri, dataSourceFactory, eventDispatcher,
         minLoadableRetryCount, this, playlistParser);
     playlistTracker.start();
@@ -332,6 +331,7 @@ public final class HlsMediaSource extends BaseMediaSource
   @Override
   public MediaPeriod createPeriod(MediaPeriodId id, Allocator allocator) {
     Assertions.checkArgument(id.periodIndex == 0);
+    EventDispatcher eventDispatcher = createEventDispatcher(id);
     return new HlsMediaPeriod(
         extractorFactory,
         playlistTracker,
