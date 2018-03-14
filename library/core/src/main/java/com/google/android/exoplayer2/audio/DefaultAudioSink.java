@@ -1443,7 +1443,7 @@ public final class DefaultAudioSink implements AudioSink {
         rawPlaybackHeadPosition += passthroughWorkaroundPauseOffset;
       }
 
-      if (Util.SDK_INT <= 26) {
+      if (Util.SDK_INT <= 28) {
         if (rawPlaybackHeadPosition == 0 && lastRawPlaybackHeadPosition > 0
             && state == PLAYSTATE_PLAYING) {
           // If connecting a Bluetooth audio device fails, the AudioTrack may be left in a state

@@ -25,8 +25,8 @@ android {
 }
 
 dependencies {
-    compile project(modulePrefix + 'library-core')
-    compile 'com.google.vr:sdk-audio:1.80.0'
+    implementation project(modulePrefix + 'library-core')
+    implementation 'com.google.vr:sdk-audio:1.80.0'
 }
 
 ext {

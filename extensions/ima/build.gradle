@@ -26,7 +26,6 @@ android {
 }
 
 dependencies {
-    compile project(modulePrefix + 'library-core')
     // This dependency is necessary to force the supportLibraryVersion of
     // com.android.support:support-v4 to be used. Else an older version (25.2.0)
     // is included via:
@@ -34,14 +33,10 @@ dependencies {
     // |-- com.google.android.gms:play-services-ads-lite:11.4.2
     //   |-- com.google.android.gms:play-services-basement:11.4.2
     //     |-- com.android.support:support-v4:25.2.0
-    compile 'com.android.support:support-v4:' + supportLibraryVersion
-    compile 'com.google.ads.interactivemedia.v3:interactivemedia:3.7.4'
-    compile 'com.google.android.gms:play-services-ads:' + playServicesLibraryVersion
-    androidTestCompile project(modulePrefix + 'library')
-    androidTestCompile 'com.google.dexmaker:dexmaker:' + dexmakerVersion
-    androidTestCompile 'com.google.dexmaker:dexmaker-mockito:' + dexmakerVersion
-    androidTestCompile 'org.mockito:mockito-core:' + mockitoVersion
-    androidTestCompile 'com.android.support.test:runner:' + testSupportLibraryVersion
+    api 'com.android.support:support-v4:' + supportLibraryVersion
+    api 'com.google.ads.interactivemedia.v3:interactivemedia:3.7.4'
+    implementation project(modulePrefix + 'library-core')
+    implementation 'com.google.android.gms:play-services-ads:' + playServicesLibraryVersion
 }
 
 ext {

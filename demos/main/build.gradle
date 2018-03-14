@@ -19,6 +19,8 @@ android {
     buildToolsVersion project.ext.buildToolsVersion
 
     defaultConfig {
+        versionName project.ext.releaseVersion
+        versionCode project.ext.releaseVersionCode
         minSdkVersion 16
         targetSdkVersion project.ext.targetSdkVersion
     }
@@ -55,15 +57,16 @@ android {
 }
 
 dependencies {
-    compile project(modulePrefix + 'library-core')
-    compile project(modulePrefix + 'library-dash')
-    compile project(modulePrefix + 'library-hls')
-    compile project(modulePrefix + 'library-smoothstreaming')
-    compile project(modulePrefix + 'library-ui')
-    withExtensionsCompile project(path: modulePrefix + 'extension-ffmpeg')
-    withExtensionsCompile project(path: modulePrefix + 'extension-flac')
-    withExtensionsCompile project(path: modulePrefix + 'extension-ima')
-    withExtensionsCompile project(path: modulePrefix + 'extension-opus')
-    withExtensionsCompile project(path: modulePrefix + 'extension-vp9')
-    withExtensionsCompile project(path: modulePrefix + 'extension-rtmp')
+    implementation 'com.android.support:support-annotations:' + supportLibraryVersion
+    implementation project(modulePrefix + 'library-core')
+    implementation project(modulePrefix + 'library-dash')
+    implementation project(modulePrefix + 'library-hls')
+    implementation project(modulePrefix + 'library-smoothstreaming')
+    implementation project(modulePrefix + 'library-ui')
+    withExtensionsImplementation project(path: modulePrefix + 'extension-ffmpeg')
+    withExtensionsImplementation project(path: modulePrefix + 'extension-flac')
+    withExtensionsImplementation project(path: modulePrefix + 'extension-ima')
+    withExtensionsImplementation project(path: modulePrefix + 'extension-opus')
+    withExtensionsImplementation project(path: modulePrefix + 'extension-vp9')
+    withExtensionsImplementation project(path: modulePrefix + 'extension-rtmp')
 }

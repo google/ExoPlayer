@@ -25,6 +25,7 @@ import com.google.android.exoplayer2.ExoPlayerFactory;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.Player.DefaultEventListener;
 import com.google.android.exoplayer2.Player.DiscontinuityReason;
+import com.google.android.exoplayer2.Player.TimelineChangeReason;
 import com.google.android.exoplayer2.RenderersFactory;
 import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.Timeline;
@@ -281,8 +282,12 @@ import java.util.ArrayList;
   }
 
   @Override
-  public void onTimelineChanged(Timeline timeline, Object manifest) {
+  public void onTimelineChanged(
+      Timeline timeline, Object manifest, @TimelineChangeReason int reason) {
     updateCurrentItemIndex();
+    if (timeline.isEmpty()) {
+      castMediaQueueCreationPending = true;
+    }
   }
 
   // CastPlayer.SessionAvailabilityListener implementation.

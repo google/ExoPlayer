@@ -100,12 +100,12 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
   @C.VideoScalingMode
   private int scalingMode;
   private boolean renderedFirstFrame;
-  private boolean forceRenderFrame;
   private long joiningDeadlineMs;
   private long droppedFrameAccumulationStartTimeMs;
   private int droppedFrames;
   private int consecutiveDroppedFrameCount;
   private int buffersInCodecCount;
+  private long lastRenderTimeUs;
 
   private int pendingRotationDegrees;
   private float pendingPixelWidthHeightRatio;
@@ -314,6 +314,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
     super.onStarted();
     droppedFrames = 0;
     droppedFrameAccumulationStartTimeMs = SystemClock.elapsedRealtime();
+    lastRenderTimeUs = SystemClock.elapsedRealtime() * 1000;
   }
 
   @Override
@@ -438,7 +439,6 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
       super.releaseCodec();
     } finally {
       buffersInCodecCount = 0;
-      forceRenderFrame = false;
       if (dummySurface != null) {
         if (surface == dummySurface) {
           surface = null;
@@ -454,7 +454,6 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
   protected void flushCodec() throws ExoPlaybackException {
     super.flushCodec();
     buffersInCodecCount = 0;
-    forceRenderFrame = false;
   }
 
   @Override
@@ -546,15 +545,17 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
     if (surface == dummySurface) {
       // Skip frames in sync with playback, so we'll be at the right frame if the mode changes.
       if (isBufferLate(earlyUs)) {
-        forceRenderFrame = false;
         skipOutputBuffer(codec, bufferIndex, presentationTimeUs);
         return true;
       }
       return false;
     }
 
-    if (!renderedFirstFrame || forceRenderFrame) {
-      forceRenderFrame = false;
+    long elapsedRealtimeNowUs = SystemClock.elapsedRealtime() * 1000;
+    boolean isStarted = getState() == STATE_STARTED;
+    if (!renderedFirstFrame
+        || (isStarted
+            && shouldForceRenderOutputBuffer(earlyUs, elapsedRealtimeNowUs - lastRenderTimeUs))) {
       if (Util.SDK_INT >= 21) {
         renderOutputBufferV21(codec, bufferIndex, presentationTimeUs, System.nanoTime());
       } else {
@@ -563,13 +564,13 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
       return true;
     }
 
-    if (getState() != STATE_STARTED) {
+    if (!isStarted) {
       return false;
     }
 
     // Fine-grained adjustment of earlyUs based on the elapsed time since the start of the current
     // iteration of the rendering loop.
-    long elapsedSinceStartOfLoopUs = (SystemClock.elapsedRealtime() * 1000) - elapsedRealtimeUs;
+    long elapsedSinceStartOfLoopUs = elapsedRealtimeNowUs - elapsedRealtimeUs;
     earlyUs -= elapsedSinceStartOfLoopUs;
 
     // Compute the buffer's desired release time in nanoseconds.
@@ -583,7 +584,6 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
 
     if (shouldDropBuffersToKeyframe(earlyUs, elapsedRealtimeUs)
         && maybeDropBuffersToKeyframe(codec, bufferIndex, presentationTimeUs, positionUs)) {
-      forceRenderFrame = true;
       return false;
     } else if (shouldDropOutputBuffer(earlyUs, elapsedRealtimeUs)) {
       dropOutputBuffer(codec, bufferIndex, presentationTimeUs);
@@ -607,6 +607,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
             Thread.sleep((earlyUs - 10000) / 1000);
           } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
+            return false;
           }
         }
         renderOutputBuffer(codec, bufferIndex, presentationTimeUs);
@@ -652,6 +653,19 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
    */
   protected boolean shouldDropBuffersToKeyframe(long earlyUs, long elapsedRealtimeUs) {
     return isBufferVeryLate(earlyUs);
+  }
+
+  /**
+   * Returns whether to force rendering an output buffer.
+   *
+   * @param earlyUs The time until the current buffer should be presented in microseconds. A
+   *     negative value indicates that the buffer is late.
+   * @param elapsedSinceLastRenderUs The elapsed time since the last output buffer was rendered, in
+   *     microseconds.
+   * @return Returns whether to force rendering an output buffer.
+   */
+  protected boolean shouldForceRenderOutputBuffer(long earlyUs, long elapsedSinceLastRenderUs) {
+    return isBufferLate(earlyUs) && elapsedSinceLastRenderUs > 100000;
   }
 
   /**
@@ -738,6 +752,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
     TraceUtil.beginSection("releaseOutputBuffer");
     codec.releaseOutputBuffer(index, true);
     TraceUtil.endSection();
+    lastRenderTimeUs = SystemClock.elapsedRealtime() * 1000;
     decoderCounters.renderedOutputBufferCount++;
     consecutiveDroppedFrameCount = 0;
     maybeNotifyRenderedFirstFrame();
@@ -753,12 +768,13 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
    * @param releaseTimeNs The wallclock time at which the frame should be displayed, in nanoseconds.
    */
   @TargetApi(21)
-  protected void renderOutputBufferV21(MediaCodec codec, int index, long presentationTimeUs,
-      long releaseTimeNs) {
+  protected void renderOutputBufferV21(
+      MediaCodec codec, int index, long presentationTimeUs, long releaseTimeNs) {
     maybeNotifyVideoSizeChanged();
     TraceUtil.beginSection("releaseOutputBuffer");
     codec.releaseOutputBuffer(index, releaseTimeNs);
     TraceUtil.endSection();
+    lastRenderTimeUs = SystemClock.elapsedRealtime() * 1000;
     decoderCounters.renderedOutputBufferCount++;
     consecutiveDroppedFrameCount = 0;
     maybeNotifyRenderedFirstFrame();

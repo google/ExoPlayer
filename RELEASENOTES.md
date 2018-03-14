@@ -1,5 +1,25 @@
 # Release notes #
 
+### 2.7.1 ###
+
+* Gradle: Replaced 'compile' (deprecated) with 'implementation' and
+  'api'. This may lead to build breakage for applications upgrading from
+  previous version that rely on indirect dependencies of certain modules. In
+  such cases, application developers need to add the missing dependency to
+  their gradle file. You can read more about the new dependency configurations
+  [here](https://developer.android.com/studio/build/gradle-plugin-3-0-0-migration.html#new_configurations).
+* HlsMediaSource: Make HLS periods start at zero instead of the epoch.
+  Applications that rely on HLS timelines having a period starting at
+  the epoch will need to update their handling of HLS timelines. The program
+  date time is still available via the informational
+  `Timeline.Window.windowStartTimeMs` field
+  ([#3865](https://github.com/google/ExoPlayer/issues/3865),
+  [#3888](https://github.com/google/ExoPlayer/issues/3888)).
+* Enable seeking in MP4 streams where duration is set incorrectly in the track
+  header ([#3926](https://github.com/google/ExoPlayer/issues/3926)).
+* Video: Force rendering a frame periodically in `MediaCodecVideoRenderer` and
+  `LibvpxVideoRenderer`, even if it is late.
+
 ### 2.7.0 ###
 
 * Player interface:
@@ -21,7 +41,7 @@
 * Add `ExoPlayer.setSeekParameters` for controlling how seek operations are
   performed. The `SeekParameters` class contains defaults for exact seeking and
   seeking to the closest sync points before, either side or after specified seek
-  positions. `SeekParameters` are not currently supported when playing HLS 
+  positions. `SeekParameters` are not currently supported when playing HLS
   streams.
 * DefaultTrackSelector:
   * Replace `DefaultTrackSelector.Parameters` copy methods with a builder.
