@@ -35,16 +35,13 @@ android {
 }
 
 dependencies {
-    compile project(modulePrefix + 'library-core')
-    compile files('libs/cronet_api.jar')
-    compile files('libs/cronet_impl_common_java.jar')
-    compile files('libs/cronet_impl_native_java.jar')
-    androidTestCompile project(modulePrefix + 'library')
-    androidTestCompile project(modulePrefix + 'testutils')
-    androidTestCompile 'com.google.dexmaker:dexmaker:' + dexmakerVersion
-    androidTestCompile 'com.google.dexmaker:dexmaker-mockito:' + dexmakerVersion
-    androidTestCompile 'org.mockito:mockito-core:' + mockitoVersion
-    androidTestCompile 'com.android.support.test:runner:' + testSupportLibraryVersion
+    api files('libs/cronet_api.jar')
+    implementation files('libs/cronet_impl_common_java.jar')
+    implementation files('libs/cronet_impl_native_java.jar')
+    implementation project(modulePrefix + 'library-core')
+    implementation 'com.android.support:support-annotations:' + supportLibraryVersion
+    testImplementation project(modulePrefix + 'library')
+    testImplementation project(modulePrefix + 'testutils-robolectric')
 }
 
 ext {

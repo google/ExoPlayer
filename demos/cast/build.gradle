@@ -19,6 +19,8 @@ android {
     buildToolsVersion project.ext.buildToolsVersion
 
     defaultConfig {
+        versionName project.ext.releaseVersion
+        versionCode project.ext.releaseVersionCode
         minSdkVersion 16
         targetSdkVersion project.ext.targetSdkVersion
     }
@@ -42,11 +44,13 @@ android {
 }
 
 dependencies {
-    compile project(modulePrefix + 'library-core')
-    compile project(modulePrefix + 'library-dash')
-    compile project(modulePrefix + 'library-hls')
-    compile project(modulePrefix + 'library-smoothstreaming')
-    compile project(modulePrefix + 'library-ui')
-    compile project(modulePrefix + 'extension-cast')
-    compile 'com.android.support:recyclerview-v7:' + supportLibraryVersion
+    implementation project(modulePrefix + 'library-core')
+    implementation project(modulePrefix + 'library-dash')
+    implementation project(modulePrefix + 'library-hls')
+    implementation project(modulePrefix + 'library-smoothstreaming')
+    implementation project(modulePrefix + 'library-ui')
+    implementation project(modulePrefix + 'extension-cast')
+    implementation 'com.android.support:support-v4:' + supportLibraryVersion
+    implementation 'com.android.support:appcompat-v7:' + supportLibraryVersion
+    implementation 'com.android.support:recyclerview-v7:' + supportLibraryVersion
 }

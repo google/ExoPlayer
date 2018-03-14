@@ -19,13 +19,13 @@ import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.fail;
 
 import com.google.android.exoplayer2.C;
-import com.google.android.exoplayer2.RobolectricUtil;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.source.MergingMediaSource.IllegalMergeException;
 import com.google.android.exoplayer2.testutil.FakeMediaSource;
 import com.google.android.exoplayer2.testutil.FakeTimeline;
 import com.google.android.exoplayer2.testutil.FakeTimeline.TimelineWindowDefinition;
 import com.google.android.exoplayer2.testutil.MediaSourceTestRunner;
+import com.google.android.exoplayer2.testutil.RobolectricUtil;
 import java.io.IOException;
 import org.junit.Test;
 import org.junit.runner.RunWith;

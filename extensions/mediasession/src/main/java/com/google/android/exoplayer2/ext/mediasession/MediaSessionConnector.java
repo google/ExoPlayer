@@ -105,23 +105,24 @@ public final class MediaSessionConnector {
    */
   public interface PlaybackPreparer extends CommandReceiver {
 
-    long ACTIONS = PlaybackStateCompat.ACTION_PREPARE
-        | PlaybackStateCompat.ACTION_PREPARE_FROM_MEDIA_ID
-        | PlaybackStateCompat.ACTION_PREPARE_FROM_SEARCH
-        | PlaybackStateCompat.ACTION_PREPARE_FROM_URI
-        | PlaybackStateCompat.ACTION_PLAY_FROM_MEDIA_ID
-        | PlaybackStateCompat.ACTION_PLAY_FROM_SEARCH
-        | PlaybackStateCompat.ACTION_PLAY_FROM_URI;
+    long ACTIONS =
+        PlaybackStateCompat.ACTION_PREPARE
+            | PlaybackStateCompat.ACTION_PREPARE_FROM_MEDIA_ID
+            | PlaybackStateCompat.ACTION_PREPARE_FROM_SEARCH
+            | PlaybackStateCompat.ACTION_PREPARE_FROM_URI
+            | PlaybackStateCompat.ACTION_PLAY_FROM_MEDIA_ID
+            | PlaybackStateCompat.ACTION_PLAY_FROM_SEARCH
+            | PlaybackStateCompat.ACTION_PLAY_FROM_URI;
 
     /**
      * Returns the actions which are supported by the preparer. The supported actions must be a
-     * bitmask combined out of {@link PlaybackStateCompat#ACTION_PREPARE},
-     * {@link PlaybackStateCompat#ACTION_PREPARE_FROM_MEDIA_ID},
-     * {@link PlaybackStateCompat#ACTION_PREPARE_FROM_SEARCH},
-     * {@link PlaybackStateCompat#ACTION_PREPARE_FROM_URI},
-     * {@link PlaybackStateCompat#ACTION_PLAY_FROM_MEDIA_ID},
-     * {@link PlaybackStateCompat#ACTION_PLAY_FROM_SEARCH} and
-     * {@link PlaybackStateCompat#ACTION_PLAY_FROM_URI}.
+     * bitmask combined out of {@link PlaybackStateCompat#ACTION_PREPARE}, {@link
+     * PlaybackStateCompat#ACTION_PREPARE_FROM_MEDIA_ID}, {@link
+     * PlaybackStateCompat#ACTION_PREPARE_FROM_SEARCH}, {@link
+     * PlaybackStateCompat#ACTION_PREPARE_FROM_URI}, {@link
+     * PlaybackStateCompat#ACTION_PLAY_FROM_MEDIA_ID}, {@link
+     * PlaybackStateCompat#ACTION_PLAY_FROM_SEARCH} and {@link
+     * PlaybackStateCompat#ACTION_PLAY_FROM_URI}.
      *
      * @return The bitmask of the supported media actions.
      */
@@ -264,15 +265,6 @@ public final class MediaSessionConnector {
    */
   public interface QueueEditor extends CommandReceiver {
 
-    long ACTIONS = PlaybackStateCompat.ACTION_SET_RATING;
-
-    /**
-     * Returns {@link PlaybackStateCompat#ACTION_SET_RATING} or {@code 0}. The Media API does
-     * not declare action constants for adding and removing queue items.
-     *
-     * @param player The {@link Player}.
-     */
-    long getSupportedQueueEditorActions(@Nullable Player player);
     /**
      * See {@link MediaSessionCompat.Callback#onAddQueueItem(MediaDescriptionCompat description)}.
      */
@@ -291,9 +283,14 @@ public final class MediaSessionConnector {
      * See {@link MediaSessionCompat.Callback#onRemoveQueueItemAt(int index)}.
      */
     void onRemoveQueueItemAt(Player player, int index);
-    /**
-     * See {@link MediaSessionCompat.Callback#onSetRating(RatingCompat)}.
-     */
+  }
+
+  /** Callback receiving a user rating for the active media item. */
+  public interface RatingCallback extends CommandReceiver {
+
+    long ACTIONS = PlaybackStateCompat.ACTION_SET_RATING;
+
+    /** See {@link MediaSessionCompat.Callback#onSetRating(RatingCompat)}. */
     void onSetRating(Player player, RatingCompat rating);
   }
 
@@ -341,6 +338,7 @@ public final class MediaSessionConnector {
   private PlaybackPreparer playbackPreparer;
   private QueueNavigator queueNavigator;
   private QueueEditor queueEditor;
+  private RatingCallback ratingCallback;
   private ExoPlaybackException playbackException;
 
   /**
@@ -471,6 +469,17 @@ public final class MediaSessionConnector {
         : EDITOR_MEDIA_SESSION_FLAGS);
   }
 
+  /**
+   * Sets the {@link RatingCallback} to handle user ratings.
+   *
+   * @param ratingCallback The rating callback.
+   */
+  public void setRatingCallback(RatingCallback ratingCallback) {
+    unregisterCommandReceiver(this.ratingCallback);
+    this.ratingCallback = ratingCallback;
+    registerCommandReceiver(this.ratingCallback);
+  }
+
   private void registerCommandReceiver(CommandReceiver commandReceiver) {
     if (commandReceiver != null && commandReceiver.getCommands() != null) {
       for (String command : commandReceiver.getCommands()) {
@@ -539,8 +548,8 @@ public final class MediaSessionConnector {
       actions |= (QueueNavigator.ACTIONS & queueNavigator.getSupportedQueueNavigatorActions(
           player));
     }
-    if (queueEditor != null) {
-      actions |= (QueueEditor.ACTIONS & queueEditor.getSupportedQueueEditorActions(player));
+    if (ratingCallback != null) {
+      actions |= RatingCallback.ACTIONS;
     }
     return actions;
   }
@@ -634,6 +643,10 @@ public final class MediaSessionConnector {
         & PlaybackPreparer.ACTIONS & action) != 0;
   }
 
+  private boolean canDispatchToRatingCallback(long action) {
+    return ratingCallback != null && (RatingCallback.ACTIONS & action) != 0;
+  }
+
   private boolean canDispatchToPlaybackController(long action) {
     return (playbackController.getSupportedPlaybackActions(player)
         & PlaybackController.ACTIONS & action) != 0;
@@ -642,11 +655,6 @@ public final class MediaSessionConnector {
   private boolean canDispatchToQueueNavigator(long action) {
     return queueNavigator != null && (queueNavigator.getSupportedQueueNavigatorActions(player)
         & QueueNavigator.ACTIONS & action) != 0;
-  }
-
-  private boolean canDispatchToQueueEditor(long action) {
-    return queueEditor != null && (queueEditor.getSupportedQueueEditorActions(player)
-        & QueueEditor.ACTIONS & action) != 0;
   }
 
   private class ExoPlayerEventListener extends Player.DefaultEventListener {
@@ -880,6 +888,13 @@ public final class MediaSessionConnector {
     }
 
     @Override
+    public void onSetRating(RatingCompat rating) {
+      if (canDispatchToRatingCallback(PlaybackStateCompat.ACTION_SET_RATING)) {
+        ratingCallback.onSetRating(player, rating);
+      }
+    }
+
+    @Override
     public void onAddQueueItem(MediaDescriptionCompat description) {
       if (queueEditor != null) {
         queueEditor.onAddQueueItem(player, description);
@@ -904,13 +919,6 @@ public final class MediaSessionConnector {
     public void onRemoveQueueItemAt(int index) {
       if (queueEditor != null) {
         queueEditor.onRemoveQueueItemAt(player, index);
-      }
-    }
-
-    @Override
-    public void onSetRating(RatingCompat rating) {
-      if (canDispatchToQueueEditor(PlaybackStateCompat.ACTION_SET_RATING)) {
-        queueEditor.onSetRating(player, rating);
       }
     }
 

@@ -33,12 +33,9 @@ android {
 }
 
 dependencies {
-    compile project(modulePrefix + 'library-core')
-    compile 'com.android.support:support-annotations:' + supportLibraryVersion
-    androidTestCompile project(modulePrefix + 'testutils')
-    androidTestCompile 'com.google.dexmaker:dexmaker:' + dexmakerVersion
-    androidTestCompile 'com.google.dexmaker:dexmaker-mockito:' + dexmakerVersion
-    androidTestCompile 'org.mockito:mockito-core:' + mockitoVersion
+    implementation project(modulePrefix + 'library-core')
+    implementation 'com.android.support:support-annotations:' + supportLibraryVersion
+    testImplementation project(modulePrefix + 'testutils-robolectric')
 }
 
 ext {

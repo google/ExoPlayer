@@ -31,8 +31,9 @@ android {
 }
 
 dependencies {
-    compile project(modulePrefix + 'library-core')
-    androidTestCompile 'com.google.truth:truth:' + truthVersion
+    implementation project(modulePrefix + 'library-core')
+    implementation 'com.android.support:support-annotations:' + supportLibraryVersion
+    androidTestImplementation 'com.google.truth:truth:' + truthVersion
 }
 
 ext {
