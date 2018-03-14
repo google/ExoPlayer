@@ -55,8 +55,12 @@ public final class DefaultAudioSink implements AudioSink {
    */
   public static final class InvalidAudioTrackTimestampException extends RuntimeException {
 
-    /** @param message The detail message for this exception. */
-    public InvalidAudioTrackTimestampException(String message) {
+    /**
+     * Creates a new invalid timestamp exception with the specified message.
+     *
+     * @param message The detail message for this exception.
+     */
+    private InvalidAudioTrackTimestampException(String message) {
       super(message);
     }
 
@@ -188,8 +192,8 @@ public final class DefaultAudioSink implements AudioSink {
   private boolean isInputPcm;
   private boolean shouldConvertHighResIntPcmToFloat;
   private int inputSampleRate;
-  private int sampleRate;
-  private int channelConfig;
+  private int outputSampleRate;
+  private int outputChannelConfig;
   private @C.Encoding int outputEncoding;
   private AudioAttributes audioAttributes;
   private boolean processingEnabled;
@@ -271,8 +275,7 @@ public final class DefaultAudioSink implements AudioSink {
     releasingConditionVariable = new ConditionVariable(true);
     if (Util.SDK_INT >= 18) {
       try {
-        getLatencyMethod =
-            AudioTrack.class.getMethod("getLatency", (Class<?>[]) null);
+        getLatencyMethod = AudioTrack.class.getMethod("getLatency", (Class<?>[]) null);
       } catch (NoSuchMethodException e) {
         // There's no guarantee this method exists. Do nothing.
       }
@@ -305,6 +308,8 @@ public final class DefaultAudioSink implements AudioSink {
     playbackParametersCheckpoints = new ArrayDeque<>();
   }
 
+  // AudioSink implementation.
+
   @Override
   public void setListener(Listener listener) {
     this.listener = listener;
@@ -312,7 +317,7 @@ public final class DefaultAudioSink implements AudioSink {
 
   @Override
   public boolean isEncodingSupported(@C.Encoding int encoding) {
-    if (isEncodingPcm(encoding)) {
+    if (Util.isEncodingPcm(encoding)) {
       // AudioTrack supports 16-bit integer PCM output in all platform API versions, and float
       // output from platform API version 21 only. Other integer PCM encodings are resampled by this
       // sink to 16-bit PCM.
@@ -338,9 +343,10 @@ public final class DefaultAudioSink implements AudioSink {
     long positionUs;
     if (audioTimestampSet) {
       // Calculate the speed-adjusted position using the timestamp (which may be in the future).
-      long elapsedSinceTimestampUs = systemClockUs - (audioTrackUtil.getTimestampNanoTime() / 1000);
+      long elapsedSinceTimestampUs = systemClockUs - audioTrackUtil.getTimestampSystemTimeUs();
       long elapsedSinceTimestampFrames = durationUsToFrames(elapsedSinceTimestampUs);
-      long elapsedFrames = audioTrackUtil.getTimestampFramePosition() + elapsedSinceTimestampFrames;
+      long elapsedFrames =
+          audioTrackUtil.getTimestampPositionFrames() + elapsedSinceTimestampFrames;
       positionUs = framesToDurationUs(elapsedFrames);
     } else {
       if (playheadOffsetCount == 0) {
@@ -369,7 +375,7 @@ public final class DefaultAudioSink implements AudioSink {
     this.inputSampleRate = inputSampleRate;
     int channelCount = inputChannelCount;
     int sampleRate = inputSampleRate;
-    isInputPcm = isEncodingPcm(inputEncoding);
+    isInputPcm = Util.isEncodingPcm(inputEncoding);
     shouldConvertHighResIntPcmToFloat =
         enableConvertHighResIntPcmToFloat
             && isEncodingSupported(C.ENCODING_PCM_32BIT)
@@ -448,8 +454,11 @@ public final class DefaultAudioSink implements AudioSink {
       channelConfig = AudioFormat.CHANNEL_OUT_STEREO;
     }
 
-    if (!flush && isInitialized() && outputEncoding == encoding && this.sampleRate == sampleRate
-        && this.channelConfig == channelConfig) {
+    if (!flush
+        && isInitialized()
+        && outputEncoding == encoding
+        && outputSampleRate == sampleRate
+        && outputChannelConfig == channelConfig) {
       // We already have an audio track with the correct sample rate, channel config and encoding.
       return;
     }
@@ -457,12 +466,11 @@ public final class DefaultAudioSink implements AudioSink {
     reset();
 
     this.processingEnabled = processingEnabled;
-    this.sampleRate = sampleRate;
-    this.channelConfig = channelConfig;
+    outputSampleRate = sampleRate;
+    outputChannelConfig = channelConfig;
     outputEncoding = encoding;
-    if (isInputPcm) {
-      outputPcmFrameSize = Util.getPcmFrameSize(outputEncoding, channelCount);
-    }
+    outputPcmFrameSize =
+        isInputPcm ? Util.getPcmFrameSize(outputEncoding, channelCount) : C.LENGTH_UNSET;
     if (specifiedBufferSize != 0) {
       bufferSize = specifiedBufferSize;
     } else if (isInputPcm) {
@@ -550,6 +558,7 @@ public final class DefaultAudioSink implements AudioSink {
     audioTrackUtil.reconfigure(audioTrack, needsPassthroughWorkarounds());
     setVolumeInternal();
     hasData = false;
+    latencyUs = 0;
   }
 
   @Override
@@ -967,7 +976,6 @@ public final class DefaultAudioSink implements AudioSink {
       avSyncHeader = null;
       bytesUntilNextAvSync = 0;
       startMediaTimeState = START_NOT_SET;
-      latencyUs = 0;
       resetSyncParams();
       if (audioTrack.getPlayState() == PLAYSTATE_PLAYING) {
         audioTrack.pause();
@@ -1067,15 +1075,15 @@ public final class DefaultAudioSink implements AudioSink {
       // The AudioTrack hasn't output anything yet.
       return;
     }
-    long systemClockUs = System.nanoTime() / 1000;
-    if (systemClockUs - lastPlayheadSampleTimeUs >= MIN_PLAYHEAD_OFFSET_SAMPLE_INTERVAL_US) {
+    long systemTimeUs = System.nanoTime() / 1000;
+    if (systemTimeUs - lastPlayheadSampleTimeUs >= MIN_PLAYHEAD_OFFSET_SAMPLE_INTERVAL_US) {
       // Take a new sample and update the smoothed offset between the system clock and the playhead.
-      playheadOffsets[nextPlayheadOffsetIndex] = playbackPositionUs - systemClockUs;
+      playheadOffsets[nextPlayheadOffsetIndex] = playbackPositionUs - systemTimeUs;
       nextPlayheadOffsetIndex = (nextPlayheadOffsetIndex + 1) % MAX_PLAYHEAD_OFFSET_COUNT;
       if (playheadOffsetCount < MAX_PLAYHEAD_OFFSET_COUNT) {
         playheadOffsetCount++;
       }
-      lastPlayheadSampleTimeUs = systemClockUs;
+      lastPlayheadSampleTimeUs = systemTimeUs;
       smoothedPlayheadOffsetUs = 0;
       for (int i = 0; i < playheadOffsetCount; i++) {
         smoothedPlayheadOffsetUs += playheadOffsets[i] / playheadOffsetCount;
@@ -1088,31 +1096,52 @@ public final class DefaultAudioSink implements AudioSink {
       return;
     }
 
-    if (systemClockUs - lastTimestampSampleTimeUs >= MIN_TIMESTAMP_SAMPLE_INTERVAL_US) {
+    if (systemTimeUs - lastTimestampSampleTimeUs >= MIN_TIMESTAMP_SAMPLE_INTERVAL_US) {
       audioTimestampSet = audioTrackUtil.updateTimestamp();
       if (audioTimestampSet) {
         // Perform sanity checks on the timestamp.
-        long audioTimestampUs = audioTrackUtil.getTimestampNanoTime() / 1000;
-        long audioTimestampFramePosition = audioTrackUtil.getTimestampFramePosition();
-        if (audioTimestampUs < resumeSystemTimeUs) {
+        long audioTimestampSystemTimeUs = audioTrackUtil.getTimestampSystemTimeUs();
+        long audioTimestampPositionFrames = audioTrackUtil.getTimestampPositionFrames();
+        if (audioTimestampSystemTimeUs < resumeSystemTimeUs) {
           // The timestamp corresponds to a time before the track was most recently resumed.
           audioTimestampSet = false;
-        } else if (Math.abs(audioTimestampUs - systemClockUs) > MAX_AUDIO_TIMESTAMP_OFFSET_US) {
+        } else if (Math.abs(audioTimestampSystemTimeUs - systemTimeUs)
+            > MAX_AUDIO_TIMESTAMP_OFFSET_US) {
           // The timestamp time base is probably wrong.
-          String message = "Spurious audio timestamp (system clock mismatch): "
-              + audioTimestampFramePosition + ", " + audioTimestampUs + ", " + systemClockUs + ", "
-              + playbackPositionUs + ", " + getSubmittedFrames() + ", " + getWrittenFrames();
+          String message =
+              "Spurious audio timestamp (system clock mismatch): "
+                  + audioTimestampPositionFrames
+                  + ", "
+                  + audioTimestampSystemTimeUs
+                  + ", "
+                  + systemTimeUs
+                  + ", "
+                  + playbackPositionUs
+                  + ", "
+                  + getSubmittedFrames()
+                  + ", "
+                  + getWrittenFrames();
           if (failOnSpuriousAudioTimestamp) {
             throw new InvalidAudioTrackTimestampException(message);
           }
           Log.w(TAG, message);
           audioTimestampSet = false;
-        } else if (Math.abs(framesToDurationUs(audioTimestampFramePosition) - playbackPositionUs)
+        } else if (Math.abs(framesToDurationUs(audioTimestampPositionFrames) - playbackPositionUs)
             > MAX_AUDIO_TIMESTAMP_OFFSET_US) {
           // The timestamp frame position is probably wrong.
-          String message = "Spurious audio timestamp (frame position mismatch): "
-              + audioTimestampFramePosition + ", " + audioTimestampUs + ", " + systemClockUs + ", "
-              + playbackPositionUs + ", " + getSubmittedFrames() + ", " + getWrittenFrames();
+          String message =
+              "Spurious audio timestamp (frame position mismatch): "
+                  + audioTimestampPositionFrames
+                  + ", "
+                  + audioTimestampSystemTimeUs
+                  + ", "
+                  + systemTimeUs
+                  + ", "
+                  + playbackPositionUs
+                  + ", "
+                  + getSubmittedFrames()
+                  + ", "
+                  + getWrittenFrames();
           if (failOnSpuriousAudioTimestamp) {
             throw new InvalidAudioTrackTimestampException(message);
           }
@@ -1138,7 +1167,7 @@ public final class DefaultAudioSink implements AudioSink {
           getLatencyMethod = null;
         }
       }
-      lastTimestampSampleTimeUs = systemClockUs;
+      lastTimestampSampleTimeUs = systemTimeUs;
     }
   }
 
@@ -1151,11 +1180,11 @@ public final class DefaultAudioSink implements AudioSink {
   }
 
   private long framesToDurationUs(long frameCount) {
-    return (frameCount * C.MICROS_PER_SECOND) / sampleRate;
+    return (frameCount * C.MICROS_PER_SECOND) / outputSampleRate;
   }
 
   private long durationUsToFrames(long durationUs) {
-    return (durationUs * sampleRate) / C.MICROS_PER_SECOND;
+    return (durationUs * outputSampleRate) / C.MICROS_PER_SECOND;
   }
 
   private long getSubmittedFrames() {
@@ -1203,12 +1232,25 @@ public final class DefaultAudioSink implements AudioSink {
     } else {
       int streamType = Util.getStreamTypeForAudioUsage(audioAttributes.usage);
       if (audioSessionId == C.AUDIO_SESSION_ID_UNSET) {
-        audioTrack = new AudioTrack(streamType, sampleRate, channelConfig, outputEncoding,
-            bufferSize, MODE_STREAM);
+        audioTrack =
+            new AudioTrack(
+                streamType,
+                outputSampleRate,
+                outputChannelConfig,
+                outputEncoding,
+                bufferSize,
+                MODE_STREAM);
       } else {
         // Re-attach to the same audio session.
-        audioTrack = new AudioTrack(streamType, sampleRate, channelConfig, outputEncoding,
-            bufferSize, MODE_STREAM, audioSessionId);
+        audioTrack =
+            new AudioTrack(
+                streamType,
+                outputSampleRate,
+                outputChannelConfig,
+                outputEncoding,
+                bufferSize,
+                MODE_STREAM,
+                audioSessionId);
       }
     }
 
@@ -1220,7 +1262,7 @@ public final class DefaultAudioSink implements AudioSink {
         // The track has already failed to initialize, so it wouldn't be that surprising if release
         // were to fail too. Swallow the exception.
       }
-      throw new InitializationException(state, sampleRate, channelConfig, bufferSize);
+      throw new InitializationException(state, outputSampleRate, outputChannelConfig, bufferSize);
     }
     return audioTrack;
   }
@@ -1237,11 +1279,12 @@ public final class DefaultAudioSink implements AudioSink {
     } else {
       attributes = audioAttributes.getAudioAttributesV21();
     }
-    AudioFormat format = new AudioFormat.Builder()
-        .setChannelMask(channelConfig)
-        .setEncoding(outputEncoding)
-        .setSampleRate(sampleRate)
-        .build();
+    AudioFormat format =
+        new AudioFormat.Builder()
+            .setChannelMask(outputChannelConfig)
+            .setEncoding(outputEncoding)
+            .setSampleRate(outputSampleRate)
+            .build();
     int audioSessionId = this.audioSessionId != C.AUDIO_SESSION_ID_UNSET ? this.audioSessionId
         : AudioManager.AUDIO_SESSION_ID_GENERATE;
     return new AudioTrack(attributes, format, bufferSize, MODE_STREAM, audioSessionId);
@@ -1260,12 +1303,6 @@ public final class DefaultAudioSink implements AudioSink {
     return shouldConvertHighResIntPcmToFloat
         ? toFloatPcmAvailableAudioProcessors
         : toIntPcmAvailableAudioProcessors;
-  }
-
-  private static boolean isEncodingPcm(@C.Encoding int encoding) {
-    return encoding == C.ENCODING_PCM_8BIT || encoding == C.ENCODING_PCM_16BIT
-        || encoding == C.ENCODING_PCM_24BIT || encoding == C.ENCODING_PCM_32BIT
-        || encoding == C.ENCODING_PCM_FLOAT;
   }
 
   private static int getFramesPerEncodedSample(@C.Encoding int encoding, ByteBuffer buffer) {
@@ -1480,8 +1517,8 @@ public final class DefaultAudioSink implements AudioSink {
     }
 
     /**
-     * Updates the values returned by {@link #getTimestampNanoTime()} and
-     * {@link #getTimestampFramePosition()}.
+     * Updates the values returned by {@link #getTimestampSystemTimeUs()} and {@link
+     * #getTimestampPositionFrames()}.
      *
      * @return Whether the timestamp values were updated.
      */
@@ -1490,31 +1527,31 @@ public final class DefaultAudioSink implements AudioSink {
     }
 
     /**
-     * Returns the {@link android.media.AudioTimestamp#nanoTime} obtained during the most recent
-     * call to {@link #updateTimestamp()} that returned true.
+     * Returns the system time in microseconds of the last {@link AudioTimestamp}, obtained during
+     * the most recent call to {@link #updateTimestamp()} that returned true.
      *
-     * @return The nanoTime obtained during the most recent call to {@link #updateTimestamp()} that
-     *     returned true.
+     * @return The system time in microseconds of the last {@link AudioTimestamp}, obtained during
+     *     the most recent call to {@link #updateTimestamp()} that returned true.
      * @throws UnsupportedOperationException If the implementation does not support audio timestamp
      *     queries. {@link #updateTimestamp()} will always return false in this case.
      */
-    public long getTimestampNanoTime() {
+    public long getTimestampSystemTimeUs() {
       // Should never be called if updateTimestamp() returned false.
       throw new UnsupportedOperationException();
     }
 
     /**
-     * Returns the {@link android.media.AudioTimestamp#framePosition} obtained during the most
+     * Returns the position in frames of the last {@link AudioTimestamp}, obtained during the most
      * recent call to {@link #updateTimestamp()} that returned true. The value is adjusted so that
      * wrap around only occurs if the value exceeds {@link Long#MAX_VALUE} (which in practice will
      * never happen).
      *
-     * @return The framePosition obtained during the most recent call to {@link #updateTimestamp()}
-     *     that returned true.
+     * @return The position in frames of the last {@link AudioTimestamp}, obtained during the most
+     *     recent call to {@link #updateTimestamp()} that returned true.
      * @throws UnsupportedOperationException If the implementation does not support audio timestamp
      *     queries. {@link #updateTimestamp()} will always return false in this case.
      */
-    public long getTimestampFramePosition() {
+    public long getTimestampPositionFrames() {
       // Should never be called if updateTimestamp() returned false.
       throw new UnsupportedOperationException();
     }
@@ -1526,9 +1563,9 @@ public final class DefaultAudioSink implements AudioSink {
 
     private final AudioTimestamp audioTimestamp;
 
-    private long rawTimestampFramePositionWrapCount;
-    private long lastRawTimestampFramePosition;
-    private long lastTimestampFramePosition;
+    private long rawTimestampPositionFramesWrapCount;
+    private long lastRawTimestampPositionFrames;
+    private long lastTimestampPositionFrames;
 
     public AudioTrackUtilV19() {
       audioTimestamp = new AudioTimestamp();
@@ -1537,34 +1574,35 @@ public final class DefaultAudioSink implements AudioSink {
     @Override
     public void reconfigure(AudioTrack audioTrack, boolean needsPassthroughWorkaround) {
       super.reconfigure(audioTrack, needsPassthroughWorkaround);
-      rawTimestampFramePositionWrapCount = 0;
-      lastRawTimestampFramePosition = 0;
-      lastTimestampFramePosition = 0;
+      rawTimestampPositionFramesWrapCount = 0;
+      lastRawTimestampPositionFrames = 0;
+      lastTimestampPositionFrames = 0;
     }
 
     @Override
     public boolean updateTimestamp() {
       boolean updated = audioTrack.getTimestamp(audioTimestamp);
       if (updated) {
-        long rawFramePosition = audioTimestamp.framePosition;
-        if (lastRawTimestampFramePosition > rawFramePosition) {
+        long rawPositionFrames = audioTimestamp.framePosition;
+        if (lastRawTimestampPositionFrames > rawPositionFrames) {
           // The value must have wrapped around.
-          rawTimestampFramePositionWrapCount++;
+          rawTimestampPositionFramesWrapCount++;
         }
-        lastRawTimestampFramePosition = rawFramePosition;
-        lastTimestampFramePosition = rawFramePosition + (rawTimestampFramePositionWrapCount << 32);
+        lastRawTimestampPositionFrames = rawPositionFrames;
+        lastTimestampPositionFrames =
+            rawPositionFrames + (rawTimestampPositionFramesWrapCount << 32);
       }
       return updated;
     }
 
     @Override
-    public long getTimestampNanoTime() {
-      return audioTimestamp.nanoTime;
+    public long getTimestampSystemTimeUs() {
+      return audioTimestamp.nanoTime / 1000;
     }
 
     @Override
-    public long getTimestampFramePosition() {
-      return lastTimestampFramePosition;
+    public long getTimestampPositionFrames() {
+      return lastTimestampPositionFrames;
     }
 
   }
