@@ -412,4 +412,27 @@ public final class SimpleCache implements Cache {
     return index.getContentLength(key);
   }
 
+  /**
+   * Applies {@code mutations} to the {@link ContentMetadata} for the given key. A new {@link
+   * CachedContent} is added if there isn't one already with the given key.
+   *
+   * @param key The cache key for the data.
+   * @param mutations Contains mutations to be applied to the metadata.
+   * @throws CacheException If an error is encountered.
+   */
+  public void applyContentMetadataMutations(String key, ContentMetadataMutations mutations)
+      throws CacheException {
+    index.applyContentMetadataMutations(key, mutations);
+    index.store();
+  }
+
+  /**
+   * Returns a snapshot of the {@link ContentMetadata} for the given key.
+   *
+   * @param key The cache key for the data.
+   * @return A snapshot of the {@link ContentMetadata} for the given key.
+   */
+  public ContentMetadata getContentMetadataSnapshot(String key) {
+    return index.getContentMetadataSnapshot(key);
+  }
 }
