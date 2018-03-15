@@ -238,4 +238,23 @@ public interface Cache {
    *     com.google.android.exoplayer2.C#LENGTH_UNSET} otherwise.
    */
   long getContentLength(String key);
+
+  /**
+   * Applies {@code mutations} to the {@link ContentMetadata} for the given key. A new {@link
+   * CachedContent} is added if there isn't one already with the given key.
+   *
+   * @param key The cache key for the data.
+   * @param mutations Contains mutations to be applied to the metadata.
+   * @throws CacheException If an error is encountered.
+   */
+  void applyContentMetadataMutations(String key, ContentMetadataMutations mutations)
+      throws CacheException;
+
+  /**
+   * Returns a snapshot of the {@link ContentMetadata} for the given key.
+   *
+   * @param key The cache key for the data.
+   * @return A snapshot of the {@link ContentMetadata} for the given key.
+   */
+  ContentMetadata getContentMetadataSnapshot(String key);
 }
