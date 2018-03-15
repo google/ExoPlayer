@@ -16,6 +16,7 @@
 package com.google.android.exoplayer2.testutil;
 
 import static com.google.common.truth.Truth.assertThat;
+import static com.google.common.truth.Truth.assertWithMessage;
 import static org.junit.Assert.fail;
 
 import android.os.ConditionVariable;
@@ -29,10 +30,18 @@ import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.source.MediaPeriod;
 import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.source.MediaSource.MediaPeriodId;
+import com.google.android.exoplayer2.source.MediaSourceEventListener;
+import com.google.android.exoplayer2.source.MediaSourceEventListener.LoadEventInfo;
+import com.google.android.exoplayer2.source.MediaSourceEventListener.MediaLoadData;
 import com.google.android.exoplayer2.upstream.Allocator;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Util;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
+import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.TimeUnit;
@@ -50,6 +59,7 @@ public class MediaSourceTestRunner {
   private final Allocator allocator;
 
   private final LinkedBlockingDeque<Timeline> timelines;
+  private final CopyOnWriteArraySet<MediaLoadData> completedLoads;
   private Timeline timeline;
 
   /**
@@ -66,6 +76,8 @@ public class MediaSourceTestRunner {
     player = new EventHandlingExoPlayer(playbackLooper);
     mediaSourceListener = new MediaSourceListener();
     timelines = new LinkedBlockingDeque<>();
+    completedLoads = new CopyOnWriteArraySet<>();
+    mediaSource.addEventListener(playbackHandler, mediaSourceListener);
   }
 
   /**
@@ -280,17 +292,98 @@ public class MediaSourceTestRunner {
     releasePeriod(secondMediaPeriod);
   }
 
+  /**
+   * Asserts that the media source reported completed loads via {@link
+   * MediaSourceEventListener#onLoadCompleted(LoadEventInfo, MediaLoadData)} for each specified
+   * window index and a null period id. Also asserts that no other loads with media period id null
+   * are reported.
+   */
+  public void assertCompletedManifestLoads(Integer... windowIndices) {
+    List<Integer> expectedWindowIndices = new ArrayList<>(Arrays.asList(windowIndices));
+    for (MediaLoadData mediaLoadData : completedLoads) {
+      if (mediaLoadData.mediaPeriodId == null) {
+        boolean loadExpected = expectedWindowIndices.remove((Integer) mediaLoadData.windowIndex);
+        assertThat(loadExpected).isTrue();
+      }
+    }
+    assertWithMessage("Not all expected media source loads have been completed.")
+        .that(expectedWindowIndices)
+        .isEmpty();
+  }
+
+  /**
+   * Asserts that the media source reported completed loads via {@link
+   * MediaSourceEventListener#onLoadCompleted(LoadEventInfo, MediaLoadData)} for each specified
+   * media period id, and asserts that the associated window index matches the one in the last known
+   * timeline returned from {@link #prepareSource()}, {@link #assertTimelineChange()} or {@link
+   * #assertTimelineChangeBlocking()}.
+   */
+  public void assertCompletedMediaPeriodLoads(MediaPeriodId... mediaPeriodIds) {
+    Timeline.Period period = new Timeline.Period();
+    HashSet<MediaPeriodId> expectedLoads = new HashSet<>(Arrays.asList(mediaPeriodIds));
+    for (MediaLoadData mediaLoadData : completedLoads) {
+      if (expectedLoads.remove(mediaLoadData.mediaPeriodId)) {
+        assertThat(mediaLoadData.windowIndex)
+            .isEqualTo(
+                timeline.getPeriod(mediaLoadData.mediaPeriodId.periodIndex, period).windowIndex);
+      }
+    }
+    assertWithMessage("Not all expected media source loads have been completed.")
+        .that(expectedLoads)
+        .isEmpty();
+  }
+
   /** Releases the runner. Should be called when the runner is no longer required. */
   public void release() {
     playbackThread.quit();
   }
 
-  private class MediaSourceListener implements MediaSource.SourceInfoRefreshListener {
+  private class MediaSourceListener
+      implements MediaSource.SourceInfoRefreshListener, MediaSourceEventListener {
+
+    // SourceInfoRefreshListener methods.
 
     @Override
     public void onSourceInfoRefreshed(MediaSource source, Timeline timeline, Object manifest) {
       Assertions.checkState(Looper.myLooper() == playbackThread.getLooper());
       timelines.addLast(timeline);
+    }
+
+    // MediaSourceEventListener methods.
+
+    @Override
+    public void onLoadStarted(LoadEventInfo loadEventInfo, MediaLoadData mediaLoadData) {
+      Assertions.checkState(Looper.myLooper() == playbackThread.getLooper());
+    }
+
+    @Override
+    public void onLoadCompleted(LoadEventInfo loadEventInfo, MediaLoadData mediaLoadData) {
+      Assertions.checkState(Looper.myLooper() == playbackThread.getLooper());
+      completedLoads.add(mediaLoadData);
+    }
+
+    @Override
+    public void onLoadCanceled(LoadEventInfo loadEventInfo, MediaLoadData mediaLoadData) {
+      Assertions.checkState(Looper.myLooper() == playbackThread.getLooper());
+    }
+
+    @Override
+    public void onLoadError(
+        LoadEventInfo loadEventInfo,
+        MediaLoadData mediaLoadData,
+        IOException error,
+        boolean wasCanceled) {
+      Assertions.checkState(Looper.myLooper() == playbackThread.getLooper());
+    }
+
+    @Override
+    public void onUpstreamDiscarded(MediaLoadData mediaLoadData) {
+      Assertions.checkState(Looper.myLooper() == playbackThread.getLooper());
+    }
+
+    @Override
+    public void onDownstreamFormatChanged(MediaLoadData mediaLoadData) {
+      Assertions.checkState(Looper.myLooper() == playbackThread.getLooper());
     }
   }
 

@@ -295,33 +295,40 @@ public interface MediaSourceEventListener {
 
     /** Dispatches {@link #onLoadStarted(LoadEventInfo, MediaLoadData)}. */
     public void loadStarted(
-        final DataSpec dataSpec,
-        final int dataType,
-        final int trackType,
-        final @Nullable Format trackFormat,
-        final int trackSelectionReason,
-        final @Nullable Object trackSelectionData,
-        final long mediaStartTimeUs,
-        final long mediaEndTimeUs,
-        final long elapsedRealtimeMs) {
-      for (final ListenerAndHandler listenerAndHandler : listenerAndHandlers) {
-        listenerAndHandler.handler.post(
+        DataSpec dataSpec,
+        int dataType,
+        int trackType,
+        @Nullable Format trackFormat,
+        int trackSelectionReason,
+        @Nullable Object trackSelectionData,
+        long mediaStartTimeUs,
+        long mediaEndTimeUs,
+        long elapsedRealtimeMs) {
+      loadStarted(
+          new LoadEventInfo(
+              dataSpec, elapsedRealtimeMs, /* loadDurationMs= */ 0, /* bytesLoaded= */ 0),
+          new MediaLoadData(
+              windowIndex,
+              mediaPeriodId,
+              dataType,
+              trackType,
+              trackFormat,
+              trackSelectionReason,
+              trackSelectionData,
+              adjustMediaTime(mediaStartTimeUs),
+              adjustMediaTime(mediaEndTimeUs)));
+    }
+
+    /** Dispatches {@link #onLoadStarted(LoadEventInfo, MediaLoadData)}. */
+    public void loadStarted(final LoadEventInfo loadEventInfo, final MediaLoadData mediaLoadData) {
+      for (ListenerAndHandler listenerAndHandler : listenerAndHandlers) {
+        Handler handler = listenerAndHandler.handler;
+        final MediaSourceEventListener listener = listenerAndHandler.listener;
+        handler.post(
             new Runnable() {
               @Override
               public void run() {
-                listenerAndHandler.listener.onLoadStarted(
-                    new LoadEventInfo(
-                        dataSpec, elapsedRealtimeMs, /* loadDurationMs= */ 0, /* bytesLoaded= */ 0),
-                    new MediaLoadData(
-                        windowIndex,
-                        mediaPeriodId,
-                        dataType,
-                        trackType,
-                        trackFormat,
-                        trackSelectionReason,
-                        trackSelectionData,
-                        adjustMediaTime(mediaStartTimeUs),
-                        adjustMediaTime(mediaEndTimeUs)));
+                listener.onLoadStarted(loadEventInfo, mediaLoadData);
               }
             });
       }
@@ -350,34 +357,42 @@ public interface MediaSourceEventListener {
 
     /** Dispatches {@link #onLoadCompleted(LoadEventInfo, MediaLoadData)}. */
     public void loadCompleted(
-        final DataSpec dataSpec,
-        final int dataType,
-        final int trackType,
-        final @Nullable Format trackFormat,
-        final int trackSelectionReason,
-        final @Nullable Object trackSelectionData,
-        final long mediaStartTimeUs,
-        final long mediaEndTimeUs,
-        final long elapsedRealtimeMs,
-        final long loadDurationMs,
-        final long bytesLoaded) {
-      for (final ListenerAndHandler listenerAndHandler : listenerAndHandlers) {
-        listenerAndHandler.handler.post(
+        DataSpec dataSpec,
+        int dataType,
+        int trackType,
+        @Nullable Format trackFormat,
+        int trackSelectionReason,
+        @Nullable Object trackSelectionData,
+        long mediaStartTimeUs,
+        long mediaEndTimeUs,
+        long elapsedRealtimeMs,
+        long loadDurationMs,
+        long bytesLoaded) {
+      loadCompleted(
+          new LoadEventInfo(dataSpec, elapsedRealtimeMs, loadDurationMs, bytesLoaded),
+          new MediaLoadData(
+              windowIndex,
+              mediaPeriodId,
+              dataType,
+              trackType,
+              trackFormat,
+              trackSelectionReason,
+              trackSelectionData,
+              adjustMediaTime(mediaStartTimeUs),
+              adjustMediaTime(mediaEndTimeUs)));
+    }
+
+    /** Dispatches {@link #onLoadCompleted(LoadEventInfo, MediaLoadData)}. */
+    public void loadCompleted(
+        final LoadEventInfo loadEventInfo, final MediaLoadData mediaLoadData) {
+      for (ListenerAndHandler listenerAndHandler : listenerAndHandlers) {
+        Handler handler = listenerAndHandler.handler;
+        final MediaSourceEventListener listener = listenerAndHandler.listener;
+        handler.post(
             new Runnable() {
               @Override
               public void run() {
-                listenerAndHandler.listener.onLoadCompleted(
-                    new LoadEventInfo(dataSpec, elapsedRealtimeMs, loadDurationMs, bytesLoaded),
-                    new MediaLoadData(
-                        windowIndex,
-                        mediaPeriodId,
-                        dataType,
-                        trackType,
-                        trackFormat,
-                        trackSelectionReason,
-                        trackSelectionData,
-                        adjustMediaTime(mediaStartTimeUs),
-                        adjustMediaTime(mediaEndTimeUs)));
+                listener.onLoadCompleted(loadEventInfo, mediaLoadData);
               }
             });
       }
@@ -406,34 +421,41 @@ public interface MediaSourceEventListener {
 
     /** Dispatches {@link #onLoadCanceled(LoadEventInfo, MediaLoadData)}. */
     public void loadCanceled(
-        final DataSpec dataSpec,
-        final int dataType,
-        final int trackType,
-        final @Nullable Format trackFormat,
-        final int trackSelectionReason,
-        final @Nullable Object trackSelectionData,
-        final long mediaStartTimeUs,
-        final long mediaEndTimeUs,
-        final long elapsedRealtimeMs,
-        final long loadDurationMs,
-        final long bytesLoaded) {
-      for (final ListenerAndHandler listenerAndHandler : listenerAndHandlers) {
-        listenerAndHandler.handler.post(
+        DataSpec dataSpec,
+        int dataType,
+        int trackType,
+        @Nullable Format trackFormat,
+        int trackSelectionReason,
+        @Nullable Object trackSelectionData,
+        long mediaStartTimeUs,
+        long mediaEndTimeUs,
+        long elapsedRealtimeMs,
+        long loadDurationMs,
+        long bytesLoaded) {
+      loadCanceled(
+          new LoadEventInfo(dataSpec, elapsedRealtimeMs, loadDurationMs, bytesLoaded),
+          new MediaLoadData(
+              windowIndex,
+              mediaPeriodId,
+              dataType,
+              trackType,
+              trackFormat,
+              trackSelectionReason,
+              trackSelectionData,
+              adjustMediaTime(mediaStartTimeUs),
+              adjustMediaTime(mediaEndTimeUs)));
+    }
+
+    /** Dispatches {@link #onLoadCanceled(LoadEventInfo, MediaLoadData)}. */
+    public void loadCanceled(final LoadEventInfo loadEventInfo, final MediaLoadData mediaLoadData) {
+      for (ListenerAndHandler listenerAndHandler : listenerAndHandlers) {
+        Handler handler = listenerAndHandler.handler;
+        final MediaSourceEventListener listener = listenerAndHandler.listener;
+        handler.post(
             new Runnable() {
               @Override
               public void run() {
-                listenerAndHandler.listener.onLoadCanceled(
-                    new LoadEventInfo(dataSpec, elapsedRealtimeMs, loadDurationMs, bytesLoaded),
-                    new MediaLoadData(
-                        windowIndex,
-                        mediaPeriodId,
-                        dataType,
-                        trackType,
-                        trackFormat,
-                        trackSelectionReason,
-                        trackSelectionData,
-                        adjustMediaTime(mediaStartTimeUs),
-                        adjustMediaTime(mediaEndTimeUs)));
+                listener.onLoadCanceled(loadEventInfo, mediaLoadData);
               }
             });
       }
@@ -466,62 +488,79 @@ public interface MediaSourceEventListener {
 
     /** Dispatches {@link #onLoadError(LoadEventInfo, MediaLoadData, IOException, boolean)}. */
     public void loadError(
-        final DataSpec dataSpec,
-        final int dataType,
-        final int trackType,
-        final @Nullable Format trackFormat,
-        final int trackSelectionReason,
-        final @Nullable Object trackSelectionData,
-        final long mediaStartTimeUs,
-        final long mediaEndTimeUs,
-        final long elapsedRealtimeMs,
-        final long loadDurationMs,
-        final long bytesLoaded,
+        DataSpec dataSpec,
+        int dataType,
+        int trackType,
+        @Nullable Format trackFormat,
+        int trackSelectionReason,
+        @Nullable Object trackSelectionData,
+        long mediaStartTimeUs,
+        long mediaEndTimeUs,
+        long elapsedRealtimeMs,
+        long loadDurationMs,
+        long bytesLoaded,
+        IOException error,
+        boolean wasCanceled) {
+      loadError(
+          new LoadEventInfo(dataSpec, elapsedRealtimeMs, loadDurationMs, bytesLoaded),
+          new MediaLoadData(
+              windowIndex,
+              mediaPeriodId,
+              dataType,
+              trackType,
+              trackFormat,
+              trackSelectionReason,
+              trackSelectionData,
+              adjustMediaTime(mediaStartTimeUs),
+              adjustMediaTime(mediaEndTimeUs)),
+          error,
+          wasCanceled);
+    }
+
+    /** Dispatches {@link #onLoadError(LoadEventInfo, MediaLoadData, IOException, boolean)}. */
+    public void loadError(
+        final LoadEventInfo loadEventInfo,
+        final MediaLoadData mediaLoadData,
         final IOException error,
         final boolean wasCanceled) {
-      for (final ListenerAndHandler listenerAndHandler : listenerAndHandlers) {
-        listenerAndHandler.handler.post(
+      for (ListenerAndHandler listenerAndHandler : listenerAndHandlers) {
+        Handler handler = listenerAndHandler.handler;
+        final MediaSourceEventListener listener = listenerAndHandler.listener;
+        handler.post(
             new Runnable() {
               @Override
               public void run() {
-                listenerAndHandler.listener.onLoadError(
-                    new LoadEventInfo(dataSpec, elapsedRealtimeMs, loadDurationMs, bytesLoaded),
-                    new MediaLoadData(
-                        windowIndex,
-                        mediaPeriodId,
-                        dataType,
-                        trackType,
-                        trackFormat,
-                        trackSelectionReason,
-                        trackSelectionData,
-                        adjustMediaTime(mediaStartTimeUs),
-                        adjustMediaTime(mediaEndTimeUs)),
-                    error,
-                    wasCanceled);
+                listener.onLoadError(loadEventInfo, mediaLoadData, error, wasCanceled);
               }
             });
       }
     }
 
     /** Dispatches {@link #onUpstreamDiscarded(MediaLoadData)}. */
-    public void upstreamDiscarded(
-        final int trackType, final long mediaStartTimeUs, final long mediaEndTimeUs) {
-      for (final ListenerAndHandler listenerAndHandler : listenerAndHandlers) {
-        listenerAndHandler.handler.post(
+    public void upstreamDiscarded(int trackType, long mediaStartTimeUs, long mediaEndTimeUs) {
+      upstreamDiscarded(
+          new MediaLoadData(
+              windowIndex,
+              mediaPeriodId,
+              C.DATA_TYPE_MEDIA,
+              trackType,
+              /* trackFormat= */ null,
+              C.SELECTION_REASON_ADAPTIVE,
+              /* trackSelectionData= */ null,
+              adjustMediaTime(mediaStartTimeUs),
+              adjustMediaTime(mediaEndTimeUs)));
+    }
+
+    /** Dispatches {@link #onUpstreamDiscarded(MediaLoadData)}. */
+    public void upstreamDiscarded(final MediaLoadData mediaLoadData) {
+      for (ListenerAndHandler listenerAndHandler : listenerAndHandlers) {
+        Handler handler = listenerAndHandler.handler;
+        final MediaSourceEventListener listener = listenerAndHandler.listener;
+        handler.post(
             new Runnable() {
               @Override
               public void run() {
-                listenerAndHandler.listener.onUpstreamDiscarded(
-                    new MediaLoadData(
-                        windowIndex,
-                        mediaPeriodId,
-                        C.DATA_TYPE_MEDIA,
-                        trackType,
-                        /* trackFormat= */ null,
-                        C.SELECTION_REASON_ADAPTIVE,
-                        /* trackSelectionData= */ null,
-                        adjustMediaTime(mediaStartTimeUs),
-                        adjustMediaTime(mediaEndTimeUs)));
+                listener.onUpstreamDiscarded(mediaLoadData);
               }
             });
       }
@@ -529,27 +568,34 @@ public interface MediaSourceEventListener {
 
     /** Dispatches {@link #onDownstreamFormatChanged(MediaLoadData)}. */
     public void downstreamFormatChanged(
-        final int trackType,
-        final @Nullable Format trackFormat,
-        final int trackSelectionReason,
-        final @Nullable Object trackSelectionData,
-        final long mediaTimeUs) {
-      for (final ListenerAndHandler listenerAndHandler : listenerAndHandlers) {
-        listenerAndHandler.handler.post(
+        int trackType,
+        @Nullable Format trackFormat,
+        int trackSelectionReason,
+        @Nullable Object trackSelectionData,
+        long mediaTimeUs) {
+      downstreamFormatChanged(
+          new MediaLoadData(
+              windowIndex,
+              mediaPeriodId,
+              C.DATA_TYPE_MEDIA,
+              trackType,
+              trackFormat,
+              trackSelectionReason,
+              trackSelectionData,
+              adjustMediaTime(mediaTimeUs),
+              /* mediaEndTimeMs= */ C.TIME_UNSET));
+    }
+
+    /** Dispatches {@link #onDownstreamFormatChanged(MediaLoadData)}. */
+    public void downstreamFormatChanged(final MediaLoadData mediaLoadData) {
+      for (ListenerAndHandler listenerAndHandler : listenerAndHandlers) {
+        Handler handler = listenerAndHandler.handler;
+        final MediaSourceEventListener listener = listenerAndHandler.listener;
+        handler.post(
             new Runnable() {
               @Override
               public void run() {
-                listenerAndHandler.listener.onDownstreamFormatChanged(
-                    new MediaLoadData(
-                        windowIndex,
-                        mediaPeriodId,
-                        C.DATA_TYPE_MEDIA,
-                        trackType,
-                        trackFormat,
-                        trackSelectionReason,
-                        trackSelectionData,
-                        adjustMediaTime(mediaTimeUs),
-                        /* mediaEndTimeMs= */ C.TIME_UNSET));
+                listener.onDownstreamFormatChanged(mediaLoadData);
               }
             });
       }
