@@ -181,6 +181,7 @@ public final class DefaultAudioSink implements AudioSink {
   private final ConditionVariable releasingConditionVariable;
   private final long[] playheadOffsets;
   private final AudioTrackUtil audioTrackUtil;
+  private final AudioTrackPositionErrorListener audioTrackPositionErrorListener;
   private final ArrayDeque<PlaybackParametersCheckpoint> playbackParametersCheckpoints;
 
   @Nullable private Listener listener;
@@ -285,6 +286,7 @@ public final class DefaultAudioSink implements AudioSink {
     } else {
       audioTrackUtil = new AudioTrackUtil();
     }
+    audioTrackPositionErrorListener = new DefaultAudioTrackPositionErrorListener();
     channelMappingAudioProcessor = new ChannelMappingAudioProcessor();
     trimmingAudioProcessor = new TrimmingAudioProcessor();
     sonicAudioProcessor = new SonicAudioProcessor();
@@ -611,8 +613,7 @@ public final class DefaultAudioSink implements AudioSink {
     boolean hadData = hasData;
     hasData = hasPendingData();
     if (hadData && !hasData && audioTrack.getPlayState() != PLAYSTATE_STOPPED && listener != null) {
-      long elapsedSinceLastFeedMs = SystemClock.elapsedRealtime() - lastFeedElapsedRealtimeMs;
-      listener.onUnderrun(bufferSize, C.usToMs(bufferSizeUs), elapsedSinceLastFeedMs);
+      audioTrackPositionErrorListener.onUnderrun(bufferSize, C.usToMs(bufferSizeUs));
     }
 
     if (inputBuffer == null) {
@@ -1107,45 +1108,19 @@ public final class DefaultAudioSink implements AudioSink {
           audioTimestampSet = false;
         } else if (Math.abs(audioTimestampSystemTimeUs - systemTimeUs)
             > MAX_AUDIO_TIMESTAMP_OFFSET_US) {
-          // The timestamp time base is probably wrong.
-          String message =
-              "Spurious audio timestamp (system clock mismatch): "
-                  + audioTimestampPositionFrames
-                  + ", "
-                  + audioTimestampSystemTimeUs
-                  + ", "
-                  + systemTimeUs
-                  + ", "
-                  + playbackPositionUs
-                  + ", "
-                  + getSubmittedFrames()
-                  + ", "
-                  + getWrittenFrames();
-          if (failOnSpuriousAudioTimestamp) {
-            throw new InvalidAudioTrackTimestampException(message);
-          }
-          Log.w(TAG, message);
+          audioTrackPositionErrorListener.onSystemTimeUsMismatch(
+              audioTimestampPositionFrames,
+              audioTimestampSystemTimeUs,
+              systemTimeUs,
+              playbackPositionUs);
           audioTimestampSet = false;
         } else if (Math.abs(framesToDurationUs(audioTimestampPositionFrames) - playbackPositionUs)
             > MAX_AUDIO_TIMESTAMP_OFFSET_US) {
-          // The timestamp frame position is probably wrong.
-          String message =
-              "Spurious audio timestamp (frame position mismatch): "
-                  + audioTimestampPositionFrames
-                  + ", "
-                  + audioTimestampSystemTimeUs
-                  + ", "
-                  + systemTimeUs
-                  + ", "
-                  + playbackPositionUs
-                  + ", "
-                  + getSubmittedFrames()
-                  + ", "
-                  + getWrittenFrames();
-          if (failOnSpuriousAudioTimestamp) {
-            throw new InvalidAudioTrackTimestampException(message);
-          }
-          Log.w(TAG, message);
+          audioTrackPositionErrorListener.onPositionFramesMismatch(
+              audioTimestampPositionFrames,
+              audioTimestampSystemTimeUs,
+              systemTimeUs,
+              playbackPositionUs);
           audioTimestampSet = false;
         }
       }
@@ -1159,7 +1134,7 @@ public final class DefaultAudioSink implements AudioSink {
           latencyUs = Math.max(latencyUs, 0);
           // Sanity check that the latency isn't too large.
           if (latencyUs > MAX_LATENCY_US) {
-            Log.w(TAG, "Ignoring impossibly large audio latency: " + latencyUs);
+            audioTrackPositionErrorListener.onInvalidLatency(latencyUs);
             latencyUs = 0;
           }
         } catch (Exception e) {
@@ -1625,4 +1600,126 @@ public final class DefaultAudioSink implements AudioSink {
 
   }
 
+  // TODO(b/74325207): Factor out position tracking functionality into a separate class.
+
+  /** Interface for errors relating to the audio track position. */
+  private interface AudioTrackPositionErrorListener {
+
+    /**
+     * Called when the frame position is too far from the expected frame position.
+     *
+     * @param audioTimestampPositionFrames The frame position of the last known audio track
+     *     timestamp.
+     * @param audioTimestampSystemTimeUs The system time associated with the last known audio track
+     *     timestamp, in microseconds.
+     * @param systemTimeUs The current time.
+     * @param playbackPositionUs The current playback head position in microseconds.
+     */
+    void onPositionFramesMismatch(
+        long audioTimestampPositionFrames,
+        long audioTimestampSystemTimeUs,
+        long systemTimeUs,
+        long playbackPositionUs);
+
+    /**
+     * Called when the system time associated with the last known audio track timestamp is
+     * unexpectedly far from the current time.
+     *
+     * @param audioTimestampPositionFrames The frame position of the last known audio track
+     *     timestamp.
+     * @param audioTimestampSystemTimeUs The system time associated with the last known audio track
+     *     timestamp, in microseconds.
+     * @param systemTimeUs The current time.
+     * @param playbackPositionUs The current playback head position in microseconds.
+     */
+    void onSystemTimeUsMismatch(
+        long audioTimestampPositionFrames,
+        long audioTimestampSystemTimeUs,
+        long systemTimeUs,
+        long playbackPositionUs);
+
+    /**
+     * Called when the audio track has provided an invalid latency.
+     *
+     * @param latencyUs The reported latency in microseconds.
+     */
+    void onInvalidLatency(long latencyUs);
+
+    /**
+     * Called if the audio track runs out of data to play.
+     *
+     * @param bufferSize The size of the sink's buffer, in bytes.
+     * @param bufferSizeMs The size of the sink's buffer, in milliseconds, if it is configured for
+     *     PCM output. {@link C#TIME_UNSET} if it is configured for encoded audio output, as the
+     *     buffered media can have a variable bitrate so the duration may be unknown.
+     */
+    void onUnderrun(int bufferSize, long bufferSizeMs);
+  }
+
+  private final class DefaultAudioTrackPositionErrorListener
+      implements AudioTrackPositionErrorListener {
+
+    @Override
+    public void onPositionFramesMismatch(
+        long audioTimestampPositionFrames,
+        long audioTimestampSystemTimeUs,
+        long systemTimeUs,
+        long playbackPositionUs) {
+      String message =
+          "Spurious audio timestamp (frame position mismatch): "
+              + audioTimestampPositionFrames
+              + ", "
+              + audioTimestampSystemTimeUs
+              + ", "
+              + systemTimeUs
+              + ", "
+              + playbackPositionUs
+              + ", "
+              + getSubmittedFrames()
+              + ", "
+              + getWrittenFrames();
+      if (failOnSpuriousAudioTimestamp) {
+        throw new InvalidAudioTrackTimestampException(message);
+      }
+      Log.w(TAG, message);
+    }
+
+    @Override
+    public void onSystemTimeUsMismatch(
+        long audioTimestampPositionFrames,
+        long audioTimestampSystemTimeUs,
+        long systemTimeUs,
+        long playbackPositionUs) {
+      String message =
+          "Spurious audio timestamp (system clock mismatch): "
+              + audioTimestampPositionFrames
+              + ", "
+              + audioTimestampSystemTimeUs
+              + ", "
+              + systemTimeUs
+              + ", "
+              + playbackPositionUs
+              + ", "
+              + getSubmittedFrames()
+              + ", "
+              + getWrittenFrames();
+      if (failOnSpuriousAudioTimestamp) {
+        throw new InvalidAudioTrackTimestampException(message);
+      }
+      Log.w(TAG, message);
+    }
+
+    @Override
+    public void onInvalidLatency(long latencyUs) {
+      Log.w(TAG, "Ignoring impossibly large audio latency: " + latencyUs);
+    }
+
+    @Override
+    public void onUnderrun(int bufferSize, long bufferSizeMs) {
+      if (listener != null) {
+        long elapsedSinceLastFeedMs = SystemClock.elapsedRealtime() - lastFeedElapsedRealtimeMs;
+        listener.onUnderrun(bufferSize, bufferSizeMs, elapsedSinceLastFeedMs);
+      }
+    }
+  }
 }
