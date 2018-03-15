@@ -15,6 +15,8 @@
  */
 package com.google.android.exoplayer2.extractor.mp4;
 
+import static com.google.android.exoplayer2.util.MimeTypes.getMimeTypeFromMp4ObjectType;
+
 import android.util.Log;
 import android.util.Pair;
 import com.google.android.exoplayer2.C;
@@ -1030,47 +1032,11 @@ import java.util.List;
 
     // Set the MIME type based on the object type indication (14496-1 table 5).
     int objectTypeIndication = parent.readUnsignedByte();
-    String mimeType;
-    switch (objectTypeIndication) {
-      case 0x60:
-      case 0x61:
-        mimeType = MimeTypes.VIDEO_MPEG2;
-        break;
-      case 0x20:
-        mimeType = MimeTypes.VIDEO_MP4V;
-        break;
-      case 0x21:
-        mimeType = MimeTypes.VIDEO_H264;
-        break;
-      case 0x23:
-        mimeType = MimeTypes.VIDEO_H265;
-        break;
-      case 0x6B:
-        mimeType = MimeTypes.AUDIO_MPEG;
-        return Pair.create(mimeType, null);
-      case 0x40:
-      case 0x66:
-      case 0x67:
-      case 0x68:
-        mimeType = MimeTypes.AUDIO_AAC;
-        break;
-      case 0xA5:
-        mimeType = MimeTypes.AUDIO_AC3;
-        break;
-      case 0xA6:
-        mimeType = MimeTypes.AUDIO_E_AC3;
-        break;
-      case 0xA9:
-      case 0xAC:
-        mimeType = MimeTypes.AUDIO_DTS;
-        return Pair.create(mimeType, null);
-      case 0xAA:
-      case 0xAB:
-        mimeType = MimeTypes.AUDIO_DTS_HD;
-        return Pair.create(mimeType, null);
-      default:
-        mimeType = null;
-        break;
+    String mimeType = getMimeTypeFromMp4ObjectType(objectTypeIndication);
+    if (MimeTypes.AUDIO_MPEG.equals(mimeType)
+        || MimeTypes.AUDIO_DTS.equals(mimeType)
+        || MimeTypes.AUDIO_DTS_HD.equals(mimeType)) {
+      return Pair.create(mimeType, null);
     }
 
     parent.skipBytes(12);
