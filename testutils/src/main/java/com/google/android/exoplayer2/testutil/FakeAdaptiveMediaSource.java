@@ -20,6 +20,7 @@ import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.Timeline.Period;
 import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.source.MediaSourceEventListener;
+import com.google.android.exoplayer2.source.MediaSourceEventListener.EventDispatcher;
 import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.upstream.Allocator;
 
@@ -44,10 +45,12 @@ public class FakeAdaptiveMediaSource extends FakeMediaSource {
   }
 
   @Override
-  protected FakeMediaPeriod createFakeMediaPeriod(MediaPeriodId id, TrackGroupArray trackGroupArray,
-      Allocator allocator) {
+  protected FakeMediaPeriod createFakeMediaPeriod(
+      MediaPeriodId id,
+      TrackGroupArray trackGroupArray,
+      Allocator allocator,
+      EventDispatcher eventDispatcher) {
     Period period = timeline.getPeriod(id.periodIndex, new Period());
-    MediaSourceEventListener.EventDispatcher eventDispatcher = createEventDispatcher(id);
     return new FakeAdaptiveMediaPeriod(
         trackGroupArray, eventDispatcher, allocator, chunkSourceFactory, period.durationUs);
   }
