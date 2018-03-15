@@ -2,6 +2,8 @@
 
 ### dev-v2 (not yet released) ###
 
+* Match codecs starting with "mp4a" to different Audio MimeTypes
+  ([#3779](https://github.com/google/ExoPlayer/issues/3779)).
 * Moved initial bitrate estimate from `AdaptiveTrackSelection` to
   `DefaultBandwidthMeter`.
 * Updated default max buffer length in `DefaultLoadControl`.
