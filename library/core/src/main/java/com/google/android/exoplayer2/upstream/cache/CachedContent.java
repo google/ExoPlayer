@@ -28,8 +28,10 @@ import java.util.TreeSet;
  */
 /*package*/ final class CachedContent {
 
+  private static final int VERSION_METADATA_INTRODUCED = 2;
   private static final String EXOPLAYER_METADATA_NAME_PREFIX = "exo_";
   private static final String METADATA_NAME_LENGTH = EXOPLAYER_METADATA_NAME_PREFIX + "len";
+
   /** The cache file id that uniquely identifies the original stream. */
   public final int id;
   /** The cache key that uniquely identifies the original stream. */
@@ -44,15 +46,22 @@ import java.util.TreeSet;
   /**
    * Reads an instance from a {@link DataInputStream}.
    *
+   * @param version Version of the encoded data.
    * @param input Input stream containing values needed to initialize CachedContent instance.
    * @throws IOException If an error occurs during reading values.
    */
-  public static CachedContent readFromStream(DataInputStream input) throws IOException {
+  public static CachedContent readFromStream(int version, DataInputStream input)
+      throws IOException {
     int id = input.readInt();
     String key = input.readUTF();
-    long length = input.readLong();
-    CachedContent cachedContent = new CachedContent(id, key);
-    cachedContent.setLength(length);
+    CachedContent cachedContent;
+    if (version < VERSION_METADATA_INTRODUCED) {
+      cachedContent = new CachedContent(id, key);
+      long length = input.readLong();
+      cachedContent.setLength(length);
+    } else {
+      cachedContent = new CachedContent(id, key, DefaultContentMetadata.readFromStream(input));
+    }
     return cachedContent;
   }
 
@@ -63,9 +72,13 @@ import java.util.TreeSet;
    * @param key The cache stream key.
    */
   public CachedContent(int id, String key) {
+    this(id, key, new DefaultContentMetadata());
+  }
+
+  private CachedContent(int id, String key, DefaultContentMetadata metadata) {
     this.id = id;
     this.key = key;
-    this.metadata = new DefaultContentMetadata();
+    this.metadata = metadata;
     this.cachedSpans = new TreeSet<>();
   }
 
@@ -78,7 +91,7 @@ import java.util.TreeSet;
   public void writeToStream(DataOutputStream output) throws IOException {
     output.writeInt(id);
     output.writeUTF(key);
-    output.writeLong(getLength());
+    metadata.writeToStream(output);
   }
 
   /**
@@ -202,12 +215,19 @@ import java.util.TreeSet;
     return false;
   }
 
-  /** Calculates a hash code for the header of this {@code CachedContent}. */
-  public int headerHashCode() {
-    long length = getLength();
+  /**
+   * Calculates a hash code for the header of this {@code CachedContent} which is compatible with
+   * the index file with {@code version}.
+   */
+  public int headerHashCode(int version) {
     int result = id;
     result = 31 * result + key.hashCode();
-    result = 31 * result + (int) (length ^ (length >>> 32));
+    if (version < VERSION_METADATA_INTRODUCED) {
+      long length = getLength();
+      result = 31 * result + (int) (length ^ (length >>> 32));
+    } else {
+      result = 31 * result + metadata.hashCode();
+    }
     return result;
   }
 

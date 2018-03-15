@@ -135,12 +135,10 @@ public class DefaultContentMetadataTest {
 
   @Test
   public void testSerializeDeserialize() throws Exception {
-    ContentMetadataMutations mutations = new ContentMetadataMutations();
-    mutations.set("metadata1 name", "value");
-    mutations.set("metadata2 name", 12345);
     byte[] metadata3 = {1, 2, 3};
-    mutations.set("metadata3 name", metadata3);
-    contentMetadata = new DefaultContentMetadata(contentMetadata, mutations);
+    contentMetadata =
+        createContentMetadata(
+            "metadata1 name", "value", "metadata2 name", 12345, "metadata3 name", metadata3);
 
     ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
     contentMetadata.writeToStream(new DataOutputStream(outputStream));
@@ -153,11 +151,48 @@ public class DefaultContentMetadataTest {
     assertThat(contentMetadata2.get("metadata3 name", new byte[] {})).isEqualTo(metadata3);
   }
 
-  private DefaultContentMetadata createContentMetadata(String... pairs) {
+  @Test
+  public void testEqualsStringValues() throws Exception {
+    DefaultContentMetadata metadata1 = createContentMetadata("metadata1", "value");
+    DefaultContentMetadata metadata2 = createContentMetadata("metadata1", "value");
+    assertThat(metadata1).isEqualTo(metadata2);
+  }
+
+  @Test
+  public void testEquals() throws Exception {
+    DefaultContentMetadata metadata1 =
+        createContentMetadata(
+            "metadata1", "value", "metadata2", 12345, "metadata3", new byte[] {1, 2, 3});
+    DefaultContentMetadata metadata2 =
+        createContentMetadata(
+            "metadata2", 12345, "metadata3", new byte[] {1, 2, 3}, "metadata1", "value");
+    assertThat(metadata1).isEqualTo(metadata2);
+    assertThat(metadata1.hashCode()).isEqualTo(metadata2.hashCode());
+  }
+
+  @Test
+  public void testNotEquals() throws Exception {
+    DefaultContentMetadata metadata1 = createContentMetadata("metadata1", new byte[] {1, 2, 3});
+    DefaultContentMetadata metadata2 = createContentMetadata("metadata1", new byte[] {3, 2, 1});
+    assertThat(metadata1).isNotEqualTo(metadata2);
+    assertThat(metadata1.hashCode()).isNotEqualTo(metadata2.hashCode());
+  }
+
+  private DefaultContentMetadata createContentMetadata(Object... pairs) {
     assertThat(pairs.length % 2).isEqualTo(0);
     ContentMetadataMutations mutations = new ContentMetadataMutations();
     for (int i = 0; i < pairs.length; i += 2) {
-      mutations.set(pairs[i], pairs[i + 1]);
+      String name = (String) pairs[i];
+      Object value = pairs[i + 1];
+      if (value instanceof String) {
+        mutations.set(name, (String) value);
+      } else if (value instanceof byte[]) {
+        mutations.set(name, (byte[]) value);
+      } else if (value instanceof Number) {
+        mutations.set(name, ((Number) value).longValue());
+      } else {
+        throw new IllegalArgumentException();
+      }
     }
     return new DefaultContentMetadata(new DefaultContentMetadata(), mutations);
   }

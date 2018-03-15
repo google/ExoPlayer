@@ -29,6 +29,25 @@ public class CachedContentIndexTest extends InstrumentationTestCase {
       0, 0, 0, 0, 0, 0, 10, 0, // original_content_length
       (byte) 0xF6, (byte) 0xFB, 0x50, 0x41 // hashcode_of_CachedContent_array
   };
+
+  private final byte[] testIndexV2File = {
+      0, 0, 0, 2, // version
+      0, 0, 0, 0, // flags
+      0, 0, 0, 2, // number_of_CachedContent
+      0, 0, 0, 1, // cache_id
+      0, 5, 65, 66, 67, 68, 69, // cache_key "ABCDE"
+      0, 0, 0, 1, // metadata count
+      0, 7, 101, 120, 111, 95, 108, 101, 110, // "exo_len"
+      0, 0, 0, 8, // value length
+      0, 0, 0, 0, 0, 0, 0, 10, // original_content_length
+      0, 0, 0, 0, // cache_id
+      0, 5, 75, 76, 77, 78, 79, // cache_key "KLMNO"
+      0, 0, 0, 1, // metadata count
+      0, 7, 101, 120, 111, 95, 108, 101, 110, // "exo_len"
+      0, 0, 0, 8, // value length
+      0, 0, 0, 0, 0, 0, 10, 0, // original_content_length
+      (byte) 0x42, (byte) 0x4A, (byte) 0x4F, (byte) 0x6F // hashcode_of_CachedContent_array
+  };
   private CachedContentIndex index;
   private File cacheDir;
 
@@ -51,8 +70,7 @@ public class CachedContentIndexTest extends InstrumentationTestCase {
     final String key3 = "key3";
 
     // Add two CachedContents with add methods
-    CachedContent cachedContent1 = new CachedContent(5, key1);
-    index.addNew(cachedContent1);
+    CachedContent cachedContent1 = index.getOrAdd(key1);
     CachedContent cachedContent2 = index.getOrAdd(key2);
     assertThat(cachedContent1.id != cachedContent2.id).isTrue();
 
@@ -88,7 +106,7 @@ public class CachedContentIndexTest extends InstrumentationTestCase {
     assertThat(cacheSpanFile.exists()).isTrue();
 
     // test removeEmpty()
-    index.addNew(cachedContent2);
+    index.getOrAdd(key2);
     index.removeEmpty();
     assertThat(index.get(key1)).isEqualTo(cachedContent1);
     assertThat(index.get(key2)).isNull();
@@ -112,25 +130,33 @@ public class CachedContentIndexTest extends InstrumentationTestCase {
     assertThat(index.getContentLength("KLMNO")).isEqualTo(2560);
   }
 
-  public void testStoreV1() throws Exception {
-    CachedContent cachedContent1 = new CachedContent(2, "KLMNO");
+  public void testLoadV2() throws Exception {
+    FileOutputStream fos = new FileOutputStream(new File(cacheDir, CachedContentIndex.FILE_NAME));
+    fos.write(testIndexV2File);
+    fos.close();
+
+    index.load();
+    assertThat(index.getAll()).hasSize(2);
+    assertThat(index.assignIdForKey("ABCDE")).isEqualTo(1);
+    assertThat(index.getContentLength("ABCDE")).isEqualTo(10);
+    assertThat(index.assignIdForKey("KLMNO")).isEqualTo(0);
+    assertThat(index.getContentLength("KLMNO")).isEqualTo(2560);
+  }
+
+  public void testStore() throws Exception {
+    CachedContent cachedContent1 = index.getOrAdd("KLMNO");
     cachedContent1.setLength(2560);
-    index.addNew(cachedContent1);
-    CachedContent cachedContent2 = new CachedContent(5, "ABCDE");
+    CachedContent cachedContent2 = index.getOrAdd("ABCDE");
     cachedContent2.setLength(10);
-    index.addNew(cachedContent2);
 
     index.store();
 
-    byte[] buffer = new byte[testIndexV1File.length];
     FileInputStream fos = new FileInputStream(new File(cacheDir, CachedContentIndex.FILE_NAME));
-    assertThat(fos.read(buffer)).isEqualTo(testIndexV1File.length);
-    assertThat(fos.read()).isEqualTo(-1);
-    fos.close();
+    byte[] buffer = Util.toByteArray(fos);
 
     // TODO: The order of the CachedContent stored in index file isn't defined so this test may fail
     // on a different implementation of the underlying set
-    assertThat(buffer).isEqualTo(testIndexV1File);
+    assertThat(buffer).isEqualTo(testIndexV2File);
   }
 
   public void testAssignIdForKeyAndGetKeyForId() throws Exception {
@@ -214,14 +240,13 @@ public class CachedContentIndexTest extends InstrumentationTestCase {
 
     // Test multiple store() calls
     CachedContentIndex index = new CachedContentIndex(cacheDir, key);
-    index.addNew(new CachedContent(15, "key3"));
+    index.getOrAdd("key3");
     index.store();
     assertStoredAndLoadedEqual(index, new CachedContentIndex(cacheDir, key));
   }
 
   public void testRemoveEmptyNotLockedCachedContent() throws Exception {
-    CachedContent cachedContent = new CachedContent(5, "key1");
-    index.addNew(cachedContent);
+    CachedContent cachedContent = index.getOrAdd("key1");
 
     index.maybeRemove(cachedContent.key);
 
@@ -229,8 +254,7 @@ public class CachedContentIndexTest extends InstrumentationTestCase {
   }
 
   public void testCantRemoveNotEmptyCachedContent() throws Exception {
-    CachedContent cachedContent = new CachedContent(5, "key1");
-    index.addNew(cachedContent);
+    CachedContent cachedContent = index.getOrAdd("key1");
     File cacheSpanFile =
         SimpleCacheSpanTest.createCacheSpanFile(cacheDir, cachedContent.id, 10, 20, 30);
     SimpleCacheSpan span = SimpleCacheSpan.createCacheEntry(cacheSpanFile, index);
@@ -242,9 +266,8 @@ public class CachedContentIndexTest extends InstrumentationTestCase {
   }
 
   public void testCantRemoveLockedCachedContent() throws Exception {
-    CachedContent cachedContent = new CachedContent(5, "key1");
+    CachedContent cachedContent = index.getOrAdd("key1");
     cachedContent.setLocked(true);
-    index.addNew(cachedContent);
 
     index.maybeRemove(cachedContent.key);
 
@@ -253,7 +276,7 @@ public class CachedContentIndexTest extends InstrumentationTestCase {
 
   private void assertStoredAndLoadedEqual(CachedContentIndex index, CachedContentIndex index2)
       throws IOException {
-    index.addNew(new CachedContent(5, "key1"));
+    index.getOrAdd("key1");
     index.getOrAdd("key2");
     index.store();
 
