@@ -1,5 +1,10 @@
 # Release notes #
 
+### 2.7.2 ###
+
+* Match codecs starting with "mp4a" to different Audio MimeTypes
+  ([#3779](https://github.com/google/ExoPlayer/issues/3779)).
+
 ### 2.7.1 ###
 
 * Gradle: Replaced 'compile' (deprecated) with 'implementation' and
