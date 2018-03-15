@@ -218,6 +218,21 @@ import javax.crypto.spec.SecretKeySpec;
     return cachedContent == null ? C.LENGTH_UNSET : cachedContent.getLength();
   }
 
+  /**
+   * Applies {@code mutations} to the {@link ContentMetadata} for the given key. A new {@link
+   * CachedContent} is added if there isn't one already with the given key.
+   */
+  public void applyContentMetadataMutations(String key, ContentMetadataMutations mutations) {
+    CachedContent cachedContent = getOrAdd(key);
+    cachedContent.applyMetadataMutations(mutations);
+  }
+
+  /** Returns a snapshot of the {@link ContentMetadata} for the given key. */
+  public ContentMetadata getContentMetadataSnapshot(String key) {
+    CachedContent cachedContent = get(key);
+    return cachedContent != null ? cachedContent.getMetadata() : DefaultContentMetadata.EMPTY;
+  }
+
   private boolean readFile() {
     DataInputStream input = null;
     try {

@@ -62,7 +62,7 @@ public class DefaultContentMetadataTest {
   @Test
   public void testEmptyMutationDoesNotFail() throws Exception {
     ContentMetadataMutations mutations = new ContentMetadataMutations();
-    new DefaultContentMetadata(new DefaultContentMetadata(), mutations);
+    new DefaultContentMetadata(DefaultContentMetadata.EMPTY, mutations);
   }
 
   @Test
@@ -194,6 +194,6 @@ public class DefaultContentMetadataTest {
         throw new IllegalArgumentException();
       }
     }
-    return new DefaultContentMetadata(new DefaultContentMetadata(), mutations);
+    return new DefaultContentMetadata(DefaultContentMetadata.EMPTY, mutations);
   }
 }

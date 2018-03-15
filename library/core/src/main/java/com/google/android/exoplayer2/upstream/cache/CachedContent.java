@@ -54,13 +54,12 @@ import java.util.TreeSet;
       throws IOException {
     int id = input.readInt();
     String key = input.readUTF();
-    CachedContent cachedContent;
+    CachedContent cachedContent = new CachedContent(id, key);
     if (version < VERSION_METADATA_INTRODUCED) {
-      cachedContent = new CachedContent(id, key);
       long length = input.readLong();
       cachedContent.setLength(length);
     } else {
-      cachedContent = new CachedContent(id, key, DefaultContentMetadata.readFromStream(input));
+      cachedContent.metadata = DefaultContentMetadata.readFromStream(input);
     }
     return cachedContent;
   }
@@ -72,13 +71,9 @@ import java.util.TreeSet;
    * @param key The cache stream key.
    */
   public CachedContent(int id, String key) {
-    this(id, key, new DefaultContentMetadata());
-  }
-
-  private CachedContent(int id, String key, DefaultContentMetadata metadata) {
     this.id = id;
     this.key = key;
-    this.metadata = metadata;
+    this.metadata = DefaultContentMetadata.EMPTY;
     this.cachedSpans = new TreeSet<>();
   }
 
@@ -94,6 +89,16 @@ import java.util.TreeSet;
     metadata.writeToStream(output);
   }
 
+  /** Returns the metadata. */
+  public ContentMetadata getMetadata() {
+    return metadata;
+  }
+
+  /** Applies {@code mutations} to the metadata. */
+  public void applyMetadataMutations(ContentMetadataMutations mutations) {
+    this.metadata = new DefaultContentMetadata(metadata, mutations);
+  }
+
   /**
    * Returns the length of the original stream, or {@link C#LENGTH_UNSET} if the length is unknown.
    */
@@ -103,9 +108,7 @@ import java.util.TreeSet;
 
   /** Sets the length of the content. */
   public void setLength(long length) {
-    ContentMetadataMutations mutations =
-        new ContentMetadataMutations().set(METADATA_NAME_LENGTH, length);
-    metadata = new DefaultContentMetadata(metadata, mutations);
+    applyMetadataMutations(new ContentMetadataMutations().set(METADATA_NAME_LENGTH, length));
   }
 
   /** Returns whether the content is locked. */

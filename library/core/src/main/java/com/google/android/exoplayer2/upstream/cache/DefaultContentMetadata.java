@@ -31,6 +31,10 @@ import java.util.Map.Entry;
 /** Default implementation of {@link ContentMetadata}. Values are stored as byte arrays. */
 public final class DefaultContentMetadata implements ContentMetadata {
 
+  /** An empty DefaultContentMetadata. */
+  public static final DefaultContentMetadata EMPTY =
+      new DefaultContentMetadata(Collections.<String, byte[]>emptyMap());
+
   private static final int MAX_VALUE_LENGTH = 10 * 1024 * 1024;
   private int hashCode;
 
@@ -58,11 +62,6 @@ public final class DefaultContentMetadata implements ContentMetadata {
   }
 
   private final Map<String, byte[]> metadata;
-
-  /** Constructs an empty {@link DefaultContentMetadata}. */
-  public DefaultContentMetadata() {
-    this(Collections.<String, byte[]>emptyMap());
-  }
 
   /**
    * Constructs a {@link DefaultContentMetadata} by copying metadata values from {@code other} and
@@ -165,13 +164,20 @@ public final class DefaultContentMetadata implements ContentMetadata {
   private static Map<String, byte[]> applyMutations(
       Map<String, byte[]> otherMetadata, ContentMetadataMutations mutations) {
     HashMap<String, byte[]> metadata = new HashMap<>(otherMetadata);
-    List<String> removedValues = mutations.getRemovedValues();
-    for (int i = 0; i < removedValues.size(); i++) {
-      metadata.remove(removedValues.get(i));
+    removeValues(metadata, mutations.getRemovedValues());
+    addValues(metadata, mutations.getEditedValues());
+    return metadata;
+  }
+
+  private static void removeValues(HashMap<String, byte[]> metadata, List<String> names) {
+    for (int i = 0; i < names.size(); i++) {
+      metadata.remove(names.get(i));
     }
-    Map<String, Object> editedValues = mutations.getEditedValues();
-    for (String name : editedValues.keySet()) {
-      Object value = editedValues.get(name);
+  }
+
+  private static void addValues(HashMap<String, byte[]> metadata, Map<String, Object> values) {
+    for (String name : values.keySet()) {
+      Object value = values.get(name);
       byte[] bytes = getBytes(value);
       if (bytes.length > MAX_VALUE_LENGTH) {
         throw new IllegalArgumentException(
@@ -181,7 +187,6 @@ public final class DefaultContentMetadata implements ContentMetadata {
       }
       metadata.put(name, bytes);
     }
-    return metadata;
   }
 
   private static byte[] getBytes(Object value) {

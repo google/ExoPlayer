@@ -144,10 +144,10 @@ public class CachedContentIndexTest extends InstrumentationTestCase {
   }
 
   public void testStore() throws Exception {
-    CachedContent cachedContent1 = index.getOrAdd("KLMNO");
-    cachedContent1.setLength(2560);
-    CachedContent cachedContent2 = index.getOrAdd("ABCDE");
-    cachedContent2.setLength(10);
+    index.getOrAdd("KLMNO");
+    index.setContentLength("KLMNO", 2560);
+    index.getOrAdd("ABCDE");
+    index.setContentLength("ABCDE", 10);
 
     index.store();
 
