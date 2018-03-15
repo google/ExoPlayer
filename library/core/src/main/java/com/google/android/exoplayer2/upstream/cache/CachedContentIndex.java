@@ -50,7 +50,7 @@ import javax.crypto.spec.SecretKeySpec;
 
   public static final String FILE_NAME = "cached_content_index.exi";
 
-  private static final int VERSION = 1;
+  private static final int VERSION = 2;
 
   private static final int FLAG_ENCRYPTED_INDEX = 1;
 
@@ -139,10 +139,7 @@ import javax.crypto.spec.SecretKeySpec;
    */
   public CachedContent getOrAdd(String key) {
     CachedContent cachedContent = keyToContent.get(key);
-    if (cachedContent == null) {
-      cachedContent = addNew(key, C.LENGTH_UNSET);
-    }
-    return cachedContent;
+    return cachedContent == null ? addNew(key) : cachedContent;
   }
 
   /** Returns a CachedContent instance with the given key or null if there isn't one. */
@@ -205,14 +202,10 @@ import javax.crypto.spec.SecretKeySpec;
    * one already with the given key.
    */
   public void setContentLength(String key, long length) {
-    CachedContent cachedContent = get(key);
-    if (cachedContent != null) {
-      if (cachedContent.getLength() != length) {
-        cachedContent.setLength(length);
-        changed = true;
-      }
-    } else {
-      addNew(key, length);
+    CachedContent cachedContent = getOrAdd(key);
+    if (cachedContent.getLength() != length) {
+      cachedContent.setLength(length);
+      changed = true;
     }
   }
 
@@ -231,8 +224,7 @@ import javax.crypto.spec.SecretKeySpec;
       InputStream inputStream = new BufferedInputStream(atomicFile.openRead());
       input = new DataInputStream(inputStream);
       int version = input.readInt();
-      if (version != VERSION) {
-        // Currently there is no other version
+      if (version < 0 || version > VERSION) {
         return false;
       }
 
@@ -257,9 +249,9 @@ import javax.crypto.spec.SecretKeySpec;
       int count = input.readInt();
       int hashCode = 0;
       for (int i = 0; i < count; i++) {
-        CachedContent cachedContent = CachedContent.readFromStream(input);
+        CachedContent cachedContent = CachedContent.readFromStream(version, input);
         add(cachedContent);
-        hashCode += cachedContent.headerHashCode();
+        hashCode += cachedContent.headerHashCode(version);
       }
       if (input.readInt() != hashCode) {
         return false;
@@ -310,7 +302,7 @@ import javax.crypto.spec.SecretKeySpec;
       int hashCode = 0;
       for (CachedContent cachedContent : keyToContent.values()) {
         cachedContent.writeToStream(output);
-        hashCode += cachedContent.headerHashCode();
+        hashCode += cachedContent.headerHashCode(VERSION);
       }
       output.writeInt(hashCode);
       atomicFile.endWrite(output);
@@ -324,23 +316,17 @@ import javax.crypto.spec.SecretKeySpec;
     }
   }
 
+  private CachedContent addNew(String key) {
+    int id = getNewId(idToKey);
+    CachedContent cachedContent = new CachedContent(id, key);
+    add(cachedContent);
+    changed = true;
+    return cachedContent;
+  }
+
   private void add(CachedContent cachedContent) {
     keyToContent.put(cachedContent.key, cachedContent);
     idToKey.put(cachedContent.id, cachedContent.key);
-  }
-
-  /** Adds the given CachedContent to the index. */
-  /*package*/ void addNew(CachedContent cachedContent) {
-    add(cachedContent);
-    changed = true;
-  }
-
-  private CachedContent addNew(String key, long length) {
-    int id = getNewId(idToKey);
-    CachedContent cachedContent = new CachedContent(id, key);
-    cachedContent.setLength(length);
-    addNew(cachedContent);
-    return cachedContent;
   }
 
   private static Cipher getCipher() throws NoSuchPaddingException, NoSuchAlgorithmException {

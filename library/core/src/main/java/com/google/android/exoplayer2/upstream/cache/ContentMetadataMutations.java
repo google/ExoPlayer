@@ -17,11 +17,17 @@ package com.google.android.exoplayer2.upstream.cache;
 
 import com.google.android.exoplayer2.util.Assertions;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
-/** Defines multiple mutations on metadata value which are applied atomically. */
+/**
+ * Defines multiple mutations on metadata value which are applied atomically. This class isn't
+ * thread safe.
+ */
 public class ContentMetadataMutations {
 
   private final Map<String, Object> editedValues;
@@ -34,7 +40,8 @@ public class ContentMetadataMutations {
   }
 
   /**
-   * Adds a mutation to set a metadata value. Passing {@code null} as {@code value} isn't allowed.
+   * Adds a mutation to set a metadata value. Passing {@code null} as {@code name} or {@code value}
+   * isn't allowed.
    *
    * @param name The name of the metadata value.
    * @param value The value to be set.
@@ -45,7 +52,7 @@ public class ContentMetadataMutations {
   }
 
   /**
-   * Adds a mutation to set a metadata value.
+   * Adds a mutation to set a metadata value. Passing {@code null} as {@code name} isn't allowed.
    *
    * @param name The name of the metadata value.
    * @param value The value to be set.
@@ -56,15 +63,15 @@ public class ContentMetadataMutations {
   }
 
   /**
-   * Adds a mutation to set a metadata value. Passing {@code null} as {@code value} isn't allowed.
-   * {@code value} byte array shouldn't be modified after passed to this method.
+   * Adds a mutation to set a metadata value. Passing {@code null} as {@code name} or {@code value}
+   * isn't allowed.
    *
    * @param name The name of the metadata value.
    * @param value The value to be set.
    * @return This Editor instance, for convenience.
    */
   public ContentMetadataMutations set(String name, byte[] value) {
-    return checkAndSet(name, value);
+    return checkAndSet(name, Arrays.copyOf(value, value.length));
   }
 
   /**
@@ -79,24 +86,26 @@ public class ContentMetadataMutations {
     return this;
   }
 
-  /**
-   * Returns a list of names of metadata values to be removed. The returned array shouldn't be
-   * modified.
-   */
+  /** Returns a list of names of metadata values to be removed. */
   public List<String> getRemovedValues() {
-    return removedValues;
+    return Collections.unmodifiableList(new ArrayList<>(removedValues));
   }
 
-  /**
-   * Returns a map of metadata name, value pairs to be set. The returned map and the values in it
-   * shouldn't be modified.
-   */
+  /** Returns a map of metadata name, value pairs to be set. Values are copied.  */
   public Map<String, Object> getEditedValues() {
-    return editedValues;
+    HashMap<String, Object> hashMap = new HashMap<>(editedValues);
+    for (Entry<String, Object> entry : hashMap.entrySet()) {
+      Object value = entry.getValue();
+      if (value instanceof byte[]) {
+        byte[] bytes = (byte[]) value;
+        entry.setValue(Arrays.copyOf(bytes, bytes.length));
+      }
+    }
+    return Collections.unmodifiableMap(hashMap);
   }
 
   private ContentMetadataMutations checkAndSet(String name, Object value) {
-    editedValues.put(name, Assertions.checkNotNull(value));
+    editedValues.put(Assertions.checkNotNull(name), Assertions.checkNotNull(value));
     removedValues.remove(name);
     return this;
   }

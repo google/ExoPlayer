@@ -21,6 +21,7 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -31,6 +32,7 @@ import java.util.Map.Entry;
 public final class DefaultContentMetadata implements ContentMetadata {
 
   private static final int MAX_VALUE_LENGTH = 10 * 1024 * 1024;
+  private int hashCode;
 
   /**
    * Deserializes a {@link DefaultContentMetadata} from the given input stream.
@@ -93,7 +95,8 @@ public final class DefaultContentMetadata implements ContentMetadata {
   @Override
   public final byte[] get(String name, byte[] defaultValue) {
     if (metadata.containsKey(name)) {
-      return metadata.get(name);
+      byte[] bytes = metadata.get(name);
+      return Arrays.copyOf(bytes, bytes.length);
     } else {
       return defaultValue;
     }
@@ -122,6 +125,41 @@ public final class DefaultContentMetadata implements ContentMetadata {
   @Override
   public final boolean contains(String name) {
     return metadata.containsKey(name);
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+    DefaultContentMetadata that = (DefaultContentMetadata) o;
+    Map<String, byte[]> otherMetadata = that.metadata;
+    if (metadata.size() != otherMetadata.size()) {
+      return false;
+    }
+    for (Entry<String, byte[]> entry : metadata.entrySet()) {
+      byte[] value = entry.getValue();
+      byte[] otherValue = otherMetadata.get(entry.getKey());
+      if (!Arrays.equals(value, otherValue)) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  @Override
+  public int hashCode() {
+    if (hashCode == 0) {
+      int result = 0;
+      for (Entry<String, byte[]> entry : metadata.entrySet()) {
+        result += entry.getKey().hashCode() ^ Arrays.hashCode(entry.getValue());
+      }
+      hashCode = result;
+    }
+    return hashCode;
   }
 
   private static Map<String, byte[]> applyMutations(
@@ -154,7 +192,7 @@ public final class DefaultContentMetadata implements ContentMetadata {
     } else if (value instanceof byte[]) {
       return (byte[]) value;
     } else {
-      throw new IllegalStateException();
+      throw new IllegalArgumentException();
     }
   }
 
