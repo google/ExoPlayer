@@ -21,6 +21,7 @@
     deprecated `DynamicConcatenatingMediaSource`.
   * Allow clipping of child media sources where the period and window have a
     non-zero offset with `ClippingMediaSource`.
+* Audio: Factor out `AudioTrack` position tracking from `DefaultAudioSink`.
 
 ### 2.7.1 ###
 
