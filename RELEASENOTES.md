@@ -22,6 +22,10 @@
   * Allow clipping of child media sources where the period and window have a
     non-zero offset with `ClippingMediaSource`.
 * Audio: Factor out `AudioTrack` position tracking from `DefaultAudioSink`.
+* Caching:
+  * Add release method to Cache interface.
+  * Prevent multiple instances of SimpleCache in the same folder. 
+    Previous instance must be released.
 
 ### 2.7.1 ###
 
