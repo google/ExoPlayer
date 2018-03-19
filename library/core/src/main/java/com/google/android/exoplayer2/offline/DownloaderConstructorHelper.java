@@ -93,7 +93,7 @@ public final class DownloaderConstructorHelper {
     } else {
       DataSink cacheWriteDataSink = cacheWriteDataSinkFactory != null
           ? cacheWriteDataSinkFactory.createDataSink()
-          : new CacheDataSink(cache, CacheDataSource.DEFAULT_MAX_CACHE_FILE_SIZE);
+          : new CacheDataSink(cache, CacheDataSource.DEFAULT_MAX_CACHE_FILE_SIZE, false);
       DataSource upstream = upstreamDataSourceFactory.createDataSource();
       upstream = priorityTaskManager == null ? upstream
           : new PriorityDataSource(upstream, priorityTaskManager, C.PRIORITY_DOWNLOAD);
