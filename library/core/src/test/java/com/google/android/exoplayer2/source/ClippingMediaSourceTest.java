@@ -18,18 +18,24 @@ package com.google.android.exoplayer2.source;
 import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.fail;
 
+import android.os.Handler;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.Timeline.Period;
 import com.google.android.exoplayer2.Timeline.Window;
 import com.google.android.exoplayer2.source.ClippingMediaSource.IllegalClippingException;
+import com.google.android.exoplayer2.source.MediaSource.MediaPeriodId;
+import com.google.android.exoplayer2.source.MediaSourceEventListener.EventDispatcher;
+import com.google.android.exoplayer2.source.MediaSourceEventListener.MediaLoadData;
+import com.google.android.exoplayer2.testutil.FakeMediaPeriod;
 import com.google.android.exoplayer2.testutil.FakeMediaSource;
 import com.google.android.exoplayer2.testutil.FakeTimeline;
 import com.google.android.exoplayer2.testutil.FakeTimeline.TimelineWindowDefinition;
 import com.google.android.exoplayer2.testutil.MediaSourceTestRunner;
 import com.google.android.exoplayer2.testutil.RobolectricUtil;
 import com.google.android.exoplayer2.testutil.TimelineAsserts;
+import com.google.android.exoplayer2.upstream.Allocator;
 import java.io.IOException;
 import org.junit.Before;
 import org.junit.Test;
@@ -187,13 +193,134 @@ public final class ClippingMediaSourceTest {
     TimelineAsserts.assertNextWindowIndices(clippedTimeline, Player.REPEAT_MODE_ALL, false, 0);
   }
 
+  @Test
+  public void testEventTimeWithinClippedRange() throws IOException {
+    MediaLoadData mediaLoadData =
+        getClippingMediaSourceMediaLoadData(
+            /* clippingStartUs= */ TEST_CLIP_AMOUNT_US,
+            /* clippingEndUs= */ TEST_PERIOD_DURATION_US - TEST_CLIP_AMOUNT_US,
+            /* eventStartUs= */ TEST_CLIP_AMOUNT_US + 1000,
+            /* eventEndUs= */ TEST_PERIOD_DURATION_US - TEST_CLIP_AMOUNT_US - 1000);
+    assertThat(C.msToUs(mediaLoadData.mediaStartTimeMs)).isEqualTo(1000);
+    assertThat(C.msToUs(mediaLoadData.mediaEndTimeMs))
+        .isEqualTo(TEST_PERIOD_DURATION_US - 2 * TEST_CLIP_AMOUNT_US - 1000);
+  }
+
+  @Test
+  public void testEventTimeOutsideClippedRange() throws IOException {
+    MediaLoadData mediaLoadData =
+        getClippingMediaSourceMediaLoadData(
+            /* clippingStartUs= */ TEST_CLIP_AMOUNT_US,
+            /* clippingEndUs= */ TEST_PERIOD_DURATION_US - TEST_CLIP_AMOUNT_US,
+            /* eventStartUs= */ TEST_CLIP_AMOUNT_US - 1000,
+            /* eventEndUs= */ TEST_PERIOD_DURATION_US - TEST_CLIP_AMOUNT_US + 1000);
+    assertThat(C.msToUs(mediaLoadData.mediaStartTimeMs)).isEqualTo(0);
+    assertThat(C.msToUs(mediaLoadData.mediaEndTimeMs))
+        .isEqualTo(TEST_PERIOD_DURATION_US - 2 * TEST_CLIP_AMOUNT_US);
+  }
+
+  @Test
+  public void testUnsetEventTime() throws IOException {
+    MediaLoadData mediaLoadData =
+        getClippingMediaSourceMediaLoadData(
+            /* clippingStartUs= */ TEST_CLIP_AMOUNT_US,
+            /* clippingEndUs= */ TEST_PERIOD_DURATION_US - TEST_CLIP_AMOUNT_US,
+            /* eventStartUs= */ C.TIME_UNSET,
+            /* eventEndUs= */ C.TIME_UNSET);
+    assertThat(C.msToUs(mediaLoadData.mediaStartTimeMs)).isEqualTo(C.TIME_UNSET);
+    assertThat(C.msToUs(mediaLoadData.mediaEndTimeMs)).isEqualTo(C.TIME_UNSET);
+  }
+
+  @Test
+  public void testEventTimeWithUnsetDuration() throws IOException {
+    MediaLoadData mediaLoadData =
+        getClippingMediaSourceMediaLoadData(
+            /* clippingStartUs= */ TEST_CLIP_AMOUNT_US,
+            /* clippingEndUs= */ C.TIME_END_OF_SOURCE,
+            /* eventStartUs= */ TEST_CLIP_AMOUNT_US,
+            /* eventEndUs= */ TEST_CLIP_AMOUNT_US + 1_000_000);
+    assertThat(C.msToUs(mediaLoadData.mediaStartTimeMs)).isEqualTo(0);
+    assertThat(C.msToUs(mediaLoadData.mediaEndTimeMs)).isEqualTo(1_000_000);
+  }
+
+  /**
+   * Wraps a timeline of duration {@link #TEST_PERIOD_DURATION_US} in a {@link ClippingMediaSource},
+   * sends a media source event from the child source and returns the reported {@link MediaLoadData}
+   * for the clipping media source.
+   *
+   * @param clippingStartUs The start time of the media source clipping, in microseconds.
+   * @param clippingEndUs The end time of the media source clipping, in microseconds.
+   * @param eventStartUs The start time of the media source event (before clipping), in
+   *     microseconds.
+   * @param eventEndUs The end time of the media source event (before clipping), in microseconds.
+   * @return The reported {@link MediaLoadData} for that event.
+   */
+  private static MediaLoadData getClippingMediaSourceMediaLoadData(
+      long clippingStartUs, long clippingEndUs, final long eventStartUs, final long eventEndUs)
+      throws IOException {
+    FakeMediaSource fakeMediaSource =
+        new FakeMediaSource(
+            new SinglePeriodTimeline(
+                TEST_PERIOD_DURATION_US, /* isSeekable= */ true, /* isDynamic= */ false),
+            /* manifest= */ null) {
+          @Override
+          protected FakeMediaPeriod createFakeMediaPeriod(
+              MediaPeriodId id,
+              TrackGroupArray trackGroupArray,
+              Allocator allocator,
+              EventDispatcher eventDispatcher) {
+            eventDispatcher.downstreamFormatChanged(
+                new MediaLoadData(
+                    /* windowIndex= */ 0,
+                    id,
+                    C.DATA_TYPE_MEDIA,
+                    C.TRACK_TYPE_UNKNOWN,
+                    /* trackFormat= */ null,
+                    C.SELECTION_REASON_UNKNOWN,
+                    /* trackSelectionData= */ null,
+                    C.usToMs(eventStartUs),
+                    C.usToMs(eventEndUs)));
+            return super.createFakeMediaPeriod(id, trackGroupArray, allocator, eventDispatcher);
+          }
+        };
+    final ClippingMediaSource clippingMediaSource =
+        new ClippingMediaSource(fakeMediaSource, clippingStartUs, clippingEndUs);
+    MediaSourceTestRunner testRunner =
+        new MediaSourceTestRunner(clippingMediaSource, /* allocator= */ null);
+    final MediaLoadData[] reportedMediaLoadData = new MediaLoadData[1];
+    try {
+      testRunner.runOnPlaybackThread(
+          new Runnable() {
+            @Override
+            public void run() {
+              clippingMediaSource.addEventListener(
+                  new Handler(),
+                  new DefaultMediaSourceEventListener() {
+                    @Override
+                    public void onDownstreamFormatChanged(MediaLoadData mediaLoadData) {
+                      reportedMediaLoadData[0] = mediaLoadData;
+                    }
+                  });
+            }
+          });
+      testRunner.prepareSource();
+      // Create period to send the test event configured above.
+      testRunner.createPeriod(
+          new MediaPeriodId(/* periodIndex= */ 0, /* windowSequenceNumber= */ 0));
+      assertThat(reportedMediaLoadData[0]).isNotNull();
+    } finally {
+      testRunner.release();
+    }
+    return reportedMediaLoadData[0];
+  }
+
   /**
    * Wraps the specified timeline in a {@link ClippingMediaSource} and returns the clipped timeline.
    */
-  private static Timeline getClippedTimeline(Timeline timeline, long startMs, long endMs)
+  private static Timeline getClippedTimeline(Timeline timeline, long startUs, long endUs)
       throws IOException {
     FakeMediaSource fakeMediaSource = new FakeMediaSource(timeline, null);
-    ClippingMediaSource mediaSource = new ClippingMediaSource(fakeMediaSource, startMs, endMs);
+    ClippingMediaSource mediaSource = new ClippingMediaSource(fakeMediaSource, startUs, endUs);
     MediaSourceTestRunner testRunner = new MediaSourceTestRunner(mediaSource, null);
     try {
       Timeline clippedTimeline = testRunner.prepareSource();

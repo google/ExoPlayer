@@ -16,6 +16,7 @@
 package com.google.android.exoplayer2.source;
 
 import android.os.Handler;
+import android.os.Looper;
 import android.os.SystemClock;
 import android.support.annotation.CheckResult;
 import android.support.annotation.Nullable;
@@ -322,9 +323,9 @@ public interface MediaSourceEventListener {
     /** Dispatches {@link #onLoadStarted(LoadEventInfo, MediaLoadData)}. */
     public void loadStarted(final LoadEventInfo loadEventInfo, final MediaLoadData mediaLoadData) {
       for (ListenerAndHandler listenerAndHandler : listenerAndHandlers) {
-        Handler handler = listenerAndHandler.handler;
         final MediaSourceEventListener listener = listenerAndHandler.listener;
-        handler.post(
+        postOrRun(
+            listenerAndHandler.handler,
             new Runnable() {
               @Override
               public void run() {
@@ -386,9 +387,9 @@ public interface MediaSourceEventListener {
     public void loadCompleted(
         final LoadEventInfo loadEventInfo, final MediaLoadData mediaLoadData) {
       for (ListenerAndHandler listenerAndHandler : listenerAndHandlers) {
-        Handler handler = listenerAndHandler.handler;
         final MediaSourceEventListener listener = listenerAndHandler.listener;
-        handler.post(
+        postOrRun(
+            listenerAndHandler.handler,
             new Runnable() {
               @Override
               public void run() {
@@ -449,9 +450,9 @@ public interface MediaSourceEventListener {
     /** Dispatches {@link #onLoadCanceled(LoadEventInfo, MediaLoadData)}. */
     public void loadCanceled(final LoadEventInfo loadEventInfo, final MediaLoadData mediaLoadData) {
       for (ListenerAndHandler listenerAndHandler : listenerAndHandlers) {
-        Handler handler = listenerAndHandler.handler;
         final MediaSourceEventListener listener = listenerAndHandler.listener;
-        handler.post(
+        postOrRun(
+            listenerAndHandler.handler,
             new Runnable() {
               @Override
               public void run() {
@@ -524,9 +525,9 @@ public interface MediaSourceEventListener {
         final IOException error,
         final boolean wasCanceled) {
       for (ListenerAndHandler listenerAndHandler : listenerAndHandlers) {
-        Handler handler = listenerAndHandler.handler;
         final MediaSourceEventListener listener = listenerAndHandler.listener;
-        handler.post(
+        postOrRun(
+            listenerAndHandler.handler,
             new Runnable() {
               @Override
               public void run() {
@@ -554,9 +555,9 @@ public interface MediaSourceEventListener {
     /** Dispatches {@link #onUpstreamDiscarded(MediaLoadData)}. */
     public void upstreamDiscarded(final MediaLoadData mediaLoadData) {
       for (ListenerAndHandler listenerAndHandler : listenerAndHandlers) {
-        Handler handler = listenerAndHandler.handler;
         final MediaSourceEventListener listener = listenerAndHandler.listener;
-        handler.post(
+        postOrRun(
+            listenerAndHandler.handler,
             new Runnable() {
               @Override
               public void run() {
@@ -589,9 +590,9 @@ public interface MediaSourceEventListener {
     /** Dispatches {@link #onDownstreamFormatChanged(MediaLoadData)}. */
     public void downstreamFormatChanged(final MediaLoadData mediaLoadData) {
       for (ListenerAndHandler listenerAndHandler : listenerAndHandlers) {
-        Handler handler = listenerAndHandler.handler;
         final MediaSourceEventListener listener = listenerAndHandler.listener;
-        handler.post(
+        postOrRun(
+            listenerAndHandler.handler,
             new Runnable() {
               @Override
               public void run() {
@@ -604,6 +605,14 @@ public interface MediaSourceEventListener {
     private long adjustMediaTime(long mediaTimeUs) {
       long mediaTimeMs = C.usToMs(mediaTimeUs);
       return mediaTimeMs == C.TIME_UNSET ? C.TIME_UNSET : mediaTimeOffsetMs + mediaTimeMs;
+    }
+
+    private void postOrRun(Handler handler, Runnable runnable) {
+      if (handler.getLooper() == Looper.myLooper()) {
+        runnable.run();
+      } else {
+        handler.post(runnable);
+      }
     }
 
     private static final class ListenerAndHandler {

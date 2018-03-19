@@ -436,6 +436,27 @@ public class ConcatenatingMediaSource extends CompositeMediaSource<MediaSourceHo
   }
 
   @Override
+  protected @Nullable MediaPeriodId getMediaPeriodIdForChildMediaPeriodId(
+      MediaSourceHolder mediaSourceHolder, MediaPeriodId mediaPeriodId) {
+    for (int i = 0; i < mediaSourceHolder.activeMediaPeriods.size(); i++) {
+      // Ensure the reported media period id has the same window sequence number as the one created
+      // by this media source. Otherwise it does not belong to this child source.
+      if (mediaSourceHolder.activeMediaPeriods.get(i).id.windowSequenceNumber
+          == mediaPeriodId.windowSequenceNumber) {
+        return mediaPeriodId.copyWithPeriodIndex(
+            mediaPeriodId.periodIndex + mediaSourceHolder.firstPeriodIndexInChild);
+      }
+    }
+    return null;
+  }
+
+  @Override
+  protected int getWindowIndexForChildWindowIndex(
+      MediaSourceHolder mediaSourceHolder, int windowIndex) {
+    return windowIndex + mediaSourceHolder.firstWindowIndexInChild;
+  }
+
+  @Override
   @SuppressWarnings("unchecked")
   public final void handleMessage(int messageType, Object message) throws ExoPlaybackException {
     switch (messageType) {

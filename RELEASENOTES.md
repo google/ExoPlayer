@@ -21,6 +21,9 @@
     deprecated `DynamicConcatenatingMediaSource`.
   * Allow clipping of child media sources where the period and window have a
     non-zero offset with `ClippingMediaSource`.
+  * Allow adding and removing `MediaSourceEventListener`s to MediaSources after
+    they have been created. Listening to events is now supported for all
+    media sources including composite sources.
 * Audio: Factor out `AudioTrack` position tracking from `DefaultAudioSink`.
 * Caching:
   * Add release method to Cache interface.

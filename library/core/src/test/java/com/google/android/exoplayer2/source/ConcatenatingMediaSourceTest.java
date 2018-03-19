@@ -34,6 +34,7 @@ import com.google.android.exoplayer2.testutil.MediaSourceTestRunner;
 import com.google.android.exoplayer2.testutil.RobolectricUtil;
 import com.google.android.exoplayer2.testutil.TimelineAsserts;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.concurrent.CountDownLatch;
 import org.junit.After;
@@ -134,6 +135,10 @@ public final class ConcatenatingMediaSourceTest {
       childSources[i].assertReleased();
     }
 
+    // Assert the correct child source preparation load events have been returned (with the
+    // respective window index at the time of preparation).
+    testRunner.assertCompletedManifestLoads(0, 0, 2, 1, 3, 4, 5);
+
     // Assert correct next and previous indices behavior after some insertions and removals.
     TimelineAsserts.assertNextWindowIndices(
         timeline, Player.REPEAT_MODE_OFF, false, 1, 2, C.INDEX_UNSET);
@@ -156,8 +161,9 @@ public final class ConcatenatingMediaSourceTest {
     assertThat(timeline.getFirstWindowIndex(true)).isEqualTo(timeline.getWindowCount() - 1);
     assertThat(timeline.getLastWindowIndex(true)).isEqualTo(0);
 
-    // Assert all periods can be prepared.
+    // Assert all periods can be prepared and the respective load events are returned.
     testRunner.assertPrepareAndReleaseAllPeriods();
+    assertCompletedAllMediaPeriodLoads(timeline);
 
     // Remove at front of queue.
     mediaSource.removeMediaSource(0);
@@ -205,6 +211,8 @@ public final class ConcatenatingMediaSourceTest {
         timeline, Player.REPEAT_MODE_OFF, true, 1, 2, C.INDEX_UNSET);
 
     testRunner.assertPrepareAndReleaseAllPeriods();
+    testRunner.assertCompletedManifestLoads(0, 1, 2);
+    assertCompletedAllMediaPeriodLoads(timeline);
     testRunner.releaseSource();
     for (int i = 1; i < 4; i++) {
       childSources[i].assertReleased();
@@ -250,6 +258,8 @@ public final class ConcatenatingMediaSourceTest {
     TimelineAsserts.assertWindowIds(timeline, 111, 999);
     TimelineAsserts.assertWindowIsDynamic(timeline, false, false);
     testRunner.assertPrepareAndReleaseAllPeriods();
+    testRunner.assertCompletedManifestLoads(0, 1);
+    assertCompletedAllMediaPeriodLoads(timeline);
 
     // Add further lazy and normal sources after preparation. Also remove one lazy source again to
     // check it doesn't throw or change the result.
@@ -325,6 +335,7 @@ public final class ConcatenatingMediaSourceTest {
             }));
     timeline = testRunner.assertTimelineChangeBlocking();
     TimelineAsserts.assertEmpty(timeline);
+    testRunner.assertCompletedManifestLoads(/* empty */ );
 
     // Insert non-empty media source to leave empty sources at the start, the end, and the middle
     // (with single and multiple empty sources in a row).
@@ -358,6 +369,8 @@ public final class ConcatenatingMediaSourceTest {
     assertThat(timeline.getFirstWindowIndex(true)).isEqualTo(2);
     assertThat(timeline.getLastWindowIndex(true)).isEqualTo(0);
     testRunner.assertPrepareAndReleaseAllPeriods();
+    testRunner.assertCompletedManifestLoads(0, 1, 2);
+    assertCompletedAllMediaPeriodLoads(timeline);
   }
 
   @Test
@@ -659,6 +672,8 @@ public final class ConcatenatingMediaSourceTest {
             /* adGroupIndex= */ 0,
             /* adIndexInAdGroup= */ 0,
             /* windowSequenceNumber= */ 1));
+    testRunner.assertCompletedManifestLoads(0, 1);
+    assertCompletedAllMediaPeriodLoads(timeline);
   }
 
   @Test
@@ -787,6 +802,9 @@ public final class ConcatenatingMediaSourceTest {
             new MediaPeriodId(/* periodIndex= */ 1, /* windowSequenceNumber= */ 3),
             new MediaPeriodId(/* periodIndex= */ 1, /* windowSequenceNumber= */ 5),
             new MediaPeriodId(/* periodIndex= */ 1, /* windowSequenceNumber= */ 7));
+    // Assert that only one manifest load is reported because the source is reused.
+    testRunner.assertCompletedManifestLoads(/* windowIndices= */ 0);
+    assertCompletedAllMediaPeriodLoads(timeline);
 
     testRunner.releaseSource();
     childSource.assertReleased();
@@ -816,6 +834,9 @@ public final class ConcatenatingMediaSourceTest {
             new MediaPeriodId(/* periodIndex= */ 0, /* windowSequenceNumber= */ 2),
             new MediaPeriodId(/* periodIndex= */ 0, /* windowSequenceNumber= */ 3),
             new MediaPeriodId(/* periodIndex= */ 0, /* windowSequenceNumber= */ 4));
+    // Assert that only one manifest load is needed because the source is reused.
+    testRunner.assertCompletedManifestLoads(/* windowIndices= */ 0);
+    assertCompletedAllMediaPeriodLoads(timeline);
 
     testRunner.releaseSource();
     childSource.assertReleased();
@@ -872,6 +893,47 @@ public final class ConcatenatingMediaSourceTest {
     assertThat(newPeriodId0).isEqualTo(periodId1);
     assertThat(newPeriodId1).isEqualTo(periodId2);
     assertThat(newPeriodId2).isEqualTo(periodId0);
+  }
+
+  @Test
+  public void testChildTimelineChangeWithActiveMediaPeriod() throws IOException {
+    FakeMediaSource[] nestedChildSources = createMediaSources(/* count= */ 2);
+    ConcatenatingMediaSource childSource = new ConcatenatingMediaSource(nestedChildSources);
+    mediaSource.addMediaSource(childSource);
+
+    testRunner.prepareSource();
+    MediaPeriod mediaPeriod =
+        testRunner.createPeriod(
+            new MediaPeriodId(/* periodIndex= */ 1, /* windowSequenceNumber= */ 0));
+    childSource.moveMediaSource(/* currentIndex= */ 0, /* newIndex= */ 1);
+    testRunner.assertTimelineChangeBlocking();
+    testRunner.preparePeriod(mediaPeriod, /* positionUs= */ 0);
+
+    testRunner.assertCompletedMediaPeriodLoads(
+        new MediaPeriodId(/* periodIndex= */ 0, /* windowSequenceNumber= */ 0));
+  }
+
+  private void assertCompletedAllMediaPeriodLoads(Timeline timeline) {
+    Timeline.Period period = new Timeline.Period();
+    Timeline.Window window = new Timeline.Window();
+    ArrayList<MediaPeriodId> expectedMediaPeriodIds = new ArrayList<>();
+    for (int windowIndex = 0; windowIndex < timeline.getWindowCount(); windowIndex++) {
+      timeline.getWindow(windowIndex, window);
+      for (int periodIndex = window.firstPeriodIndex;
+          periodIndex <= window.lastPeriodIndex;
+          periodIndex++) {
+        timeline.getPeriod(periodIndex, period);
+        expectedMediaPeriodIds.add(new MediaPeriodId(periodIndex, windowIndex));
+        for (int adGroupIndex = 0; adGroupIndex < period.getAdGroupCount(); adGroupIndex++) {
+          for (int adIndex = 0; adIndex < period.getAdCountInAdGroup(adGroupIndex); adIndex++) {
+            expectedMediaPeriodIds.add(
+                new MediaPeriodId(periodIndex, adGroupIndex, adIndex, windowIndex));
+          }
+        }
+      }
+    }
+    testRunner.assertCompletedMediaPeriodLoads(
+        expectedMediaPeriodIds.toArray(new MediaPeriodId[0]));
   }
 
   private static FakeMediaSource[] createMediaSources(int count) {
