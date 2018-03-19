@@ -80,6 +80,12 @@ public interface Cache {
   }
 
   /**
+   * Releases the cache. This method must be called when the cache is no longer required. The cache
+   * must not be used after calling this method.
+   */
+  void release() throws CacheException;
+
+  /**
    * Registers a listener to listen for changes to a given key.
    *
    * <p>No guarantees are made about the thread or threads on which the listener is called, but it
