@@ -40,8 +40,8 @@ public final class DeferredMediaPeriod implements MediaPeriod, MediaPeriod.Callb
   }
 
   public final MediaSource mediaSource;
+  public final MediaPeriodId id;
 
-  private final MediaPeriodId id;
   private final Allocator allocator;
 
   private MediaPeriod mediaPeriod;

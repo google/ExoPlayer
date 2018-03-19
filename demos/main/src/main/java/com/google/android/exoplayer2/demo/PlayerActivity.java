@@ -342,7 +342,6 @@ public class PlayerActivity extends Activity
       MediaSource[] mediaSources = new MediaSource[uris.length];
       for (int i = 0; i < uris.length; i++) {
         mediaSources[i] = buildMediaSource(uris[i], extensions[i]);
-        mediaSources[i].addEventListener(mainHandler, eventLogger);
       }
       mediaSource =
           mediaSources.length == 1 ? mediaSources[0] : new ConcatenatingMediaSource(mediaSources);
@@ -362,6 +361,7 @@ public class PlayerActivity extends Activity
       } else {
         releaseAdsLoader();
       }
+      mediaSource.addEventListener(mainHandler, eventLogger);
     }
     boolean haveResumePosition = resumeWindow != C.INDEX_UNSET;
     if (haveResumePosition) {

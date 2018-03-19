@@ -303,6 +303,14 @@ public final class AdsMediaSource extends CompositeMediaSource<MediaPeriodId> {
     }
   }
 
+  @Override
+  protected @Nullable MediaPeriodId getMediaPeriodIdForChildMediaPeriodId(
+      MediaPeriodId childId, MediaPeriodId mediaPeriodId) {
+    // The child id for the content period is just a dummy without window sequence number. That's
+    // why we need to forward the reported mediaPeriodId in this case.
+    return childId.isAd() ? childId : mediaPeriodId;
+  }
+
   // Internal methods.
 
   private void onAdPlaybackState(AdPlaybackState adPlaybackState) {

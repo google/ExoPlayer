@@ -15,10 +15,12 @@
  */
 package com.google.android.exoplayer2.source;
 
+import android.os.Handler;
 import android.support.annotation.CallSuper;
 import android.support.annotation.Nullable;
 import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.Timeline;
+import com.google.android.exoplayer2.source.MediaSourceEventListener.MediaLoadData;
 import com.google.android.exoplayer2.util.Assertions;
 import java.io.IOException;
 import java.util.HashMap;
@@ -31,7 +33,9 @@ import java.util.HashMap;
 public abstract class CompositeMediaSource<T> extends BaseMediaSource {
 
   private final HashMap<T, MediaSourceAndListener> childSources;
+
   private ExoPlayer player;
+  private Handler eventHandler;
 
   /** Create composite media source without child sources. */
   protected CompositeMediaSource() {
@@ -42,6 +46,7 @@ public abstract class CompositeMediaSource<T> extends BaseMediaSource {
   @CallSuper
   public void prepareSourceInternal(ExoPlayer player, boolean isTopLevelSource) {
     this.player = player;
+    eventHandler = new Handler();
   }
 
   @Override
@@ -57,6 +62,7 @@ public abstract class CompositeMediaSource<T> extends BaseMediaSource {
   public void releaseSourceInternal() {
     for (MediaSourceAndListener childSource : childSources.values()) {
       childSource.mediaSource.releaseSource(childSource.listener);
+      childSource.mediaSource.removeEventListener(childSource.eventListener);
     }
     childSources.clear();
     player = null;
@@ -96,7 +102,9 @@ public abstract class CompositeMediaSource<T> extends BaseMediaSource {
             onChildSourceInfoRefreshed(id, source, timeline, manifest);
           }
         };
-    childSources.put(id, new MediaSourceAndListener(mediaSource, sourceListener));
+    MediaSourceEventListener eventListener = new ForwardingEventListener(id);
+    childSources.put(id, new MediaSourceAndListener(mediaSource, sourceListener, eventListener));
+    mediaSource.addEventListener(eventHandler, eventListener);
     mediaSource.prepareSource(player, /* isTopLevelSource= */ false, sourceListener);
   }
 
@@ -108,16 +116,148 @@ public abstract class CompositeMediaSource<T> extends BaseMediaSource {
   protected final void releaseChildSource(@Nullable T id) {
     MediaSourceAndListener removedChild = childSources.remove(id);
     removedChild.mediaSource.releaseSource(removedChild.listener);
+    removedChild.mediaSource.removeEventListener(removedChild.eventListener);
+  }
+
+  /**
+   * Returns the window index in the composite source corresponding to the specified window index in
+   * a child source. The default implementation does not change the window index.
+   *
+   * @param id The unique id used to prepare the child source.
+   * @param windowIndex A window index of the child source.
+   * @return The corresponding window index in the composite source.
+   */
+  protected int getWindowIndexForChildWindowIndex(@Nullable T id, int windowIndex) {
+    return windowIndex;
+  }
+
+  /**
+   * Returns the {@link MediaPeriodId} in the composite source corresponding to the specified {@link
+   * MediaPeriodId} in a child source. The default implementation does not change the media period
+   * id.
+   *
+   * @param id The unique id used to prepare the child source.
+   * @param mediaPeriodId A {@link MediaPeriodId} of the child source.
+   * @return The corresponding {@link MediaPeriodId} in the composite source. Null if no
+   *     corresponding media period id can be determined.
+   */
+  protected @Nullable MediaPeriodId getMediaPeriodIdForChildMediaPeriodId(
+      @Nullable T id, MediaPeriodId mediaPeriodId) {
+    return mediaPeriodId;
+  }
+
+  /**
+   * Returns the media time in the composite source corresponding to the specified media time in a
+   * child source. The default implementation does not change the media time.
+   *
+   * @param id The unique id used to prepare the child source.
+   * @param mediaTimeMs A media time of the child source, in milliseconds.
+   * @return The corresponding media time in the composite source, in milliseconds.
+   */
+  protected long getMediaTimeForChildMediaTime(@Nullable T id, long mediaTimeMs) {
+    return mediaTimeMs;
   }
 
   private static final class MediaSourceAndListener {
 
     public final MediaSource mediaSource;
     public final SourceInfoRefreshListener listener;
+    public final MediaSourceEventListener eventListener;
 
-    public MediaSourceAndListener(MediaSource mediaSource, SourceInfoRefreshListener listener) {
+    public MediaSourceAndListener(
+        MediaSource mediaSource,
+        SourceInfoRefreshListener listener,
+        MediaSourceEventListener eventListener) {
       this.mediaSource = mediaSource;
       this.listener = listener;
+      this.eventListener = eventListener;
+    }
+  }
+
+  private final class ForwardingEventListener implements MediaSourceEventListener {
+
+    private final EventDispatcher eventDispatcher;
+    private final @Nullable T id;
+
+    public ForwardingEventListener(@Nullable T id) {
+      this.eventDispatcher = createEventDispatcher(/* mediaPeriodId= */ null);
+      this.id = id;
+    }
+
+    @Override
+    public void onLoadStarted(LoadEventInfo loadEventData, MediaLoadData mediaLoadData) {
+      MediaLoadData correctedMediaLoadData = correctMediaLoadData(mediaLoadData);
+      if (correctedMediaLoadData != null) {
+        eventDispatcher.loadStarted(loadEventData, correctedMediaLoadData);
+      }
+    }
+
+    @Override
+    public void onLoadCompleted(LoadEventInfo loadEventData, MediaLoadData mediaLoadData) {
+      MediaLoadData correctedMediaLoadData = correctMediaLoadData(mediaLoadData);
+      if (correctedMediaLoadData != null) {
+        eventDispatcher.loadCompleted(loadEventData, correctedMediaLoadData);
+      }
+    }
+
+    @Override
+    public void onLoadCanceled(LoadEventInfo loadEventData, MediaLoadData mediaLoadData) {
+      MediaLoadData correctedMediaLoadData = correctMediaLoadData(mediaLoadData);
+      if (correctedMediaLoadData != null) {
+        eventDispatcher.loadCanceled(loadEventData, correctedMediaLoadData);
+      }
+    }
+
+    @Override
+    public void onLoadError(
+        LoadEventInfo loadEventData,
+        MediaLoadData mediaLoadData,
+        IOException error,
+        boolean wasCanceled) {
+      MediaLoadData correctedMediaLoadData = correctMediaLoadData(mediaLoadData);
+      if (correctedMediaLoadData != null) {
+        eventDispatcher.loadError(loadEventData, correctedMediaLoadData, error, wasCanceled);
+      }
+    }
+
+    @Override
+    public void onUpstreamDiscarded(MediaLoadData mediaLoadData) {
+      MediaLoadData correctedMediaLoadData = correctMediaLoadData(mediaLoadData);
+      if (correctedMediaLoadData != null) {
+        eventDispatcher.upstreamDiscarded(correctedMediaLoadData);
+      }
+    }
+
+    @Override
+    public void onDownstreamFormatChanged(MediaLoadData mediaLoadData) {
+      MediaLoadData correctedMediaLoadData = correctMediaLoadData(mediaLoadData);
+      if (correctedMediaLoadData != null) {
+        eventDispatcher.downstreamFormatChanged(correctedMediaLoadData);
+      }
+    }
+
+    private @Nullable MediaLoadData correctMediaLoadData(MediaLoadData mediaLoadData) {
+      MediaPeriodId mediaPeriodId = null;
+      if (mediaLoadData.mediaPeriodId != null) {
+        mediaPeriodId = getMediaPeriodIdForChildMediaPeriodId(id, mediaLoadData.mediaPeriodId);
+        if (mediaPeriodId == null) {
+          // Media period not found. Ignore event.
+          return null;
+        }
+      }
+      int windowIndex = getWindowIndexForChildWindowIndex(id, mediaLoadData.windowIndex);
+      long mediaStartTimeMs = getMediaTimeForChildMediaTime(id, mediaLoadData.mediaStartTimeMs);
+      long mediaEndTimeMs = getMediaTimeForChildMediaTime(id, mediaLoadData.mediaEndTimeMs);
+      return new MediaLoadData(
+          windowIndex,
+          mediaPeriodId,
+          mediaLoadData.dataType,
+          mediaLoadData.trackType,
+          mediaLoadData.trackFormat,
+          mediaLoadData.trackSelectionReason,
+          mediaLoadData.trackSelectionData,
+          mediaStartTimeMs,
+          mediaEndTimeMs);
     }
   }
 }
