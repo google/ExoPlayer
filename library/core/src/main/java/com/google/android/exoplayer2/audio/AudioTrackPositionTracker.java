@@ -148,7 +148,7 @@ import java.lang.reflect.Method;
 
   private boolean needsPassthroughWorkarounds;
   private @Nullable AudioTimestampV19 audioTimestamp;
-  private boolean shouldSampleLatency;
+  private boolean isOutputPcm;
   private long lastLatencySampleTimeUs;
   private long lastRawPlaybackHeadPosition;
   private long rawPlaybackHeadWrapCount;
@@ -197,12 +197,11 @@ import java.lang.reflect.Method;
     this.outputPcmFrameSize = outputPcmFrameSize;
     outputSampleRate = audioTrack.getSampleRate();
     needsPassthroughWorkarounds = needsPassthroughWorkarounds(outputEncoding);
-    boolean isOutputPcm = Util.isEncodingPcm(outputEncoding);
+    isOutputPcm = Util.isEncodingPcm(outputEncoding);
     bufferSizeUs = isOutputPcm ? framesToDurationUs(bufferSize / outputPcmFrameSize) : C.TIME_UNSET;
     if (Util.SDK_INT >= 19) {
       audioTimestamp = new AudioTimestampV19(audioTrack);
     }
-    shouldSampleLatency = isOutputPcm && getLatencyMethod != null;
     lastRawPlaybackHeadPosition = 0;
     rawPlaybackHeadWrapCount = 0;
     passthroughWorkaroundPauseOffset = 0;
@@ -419,7 +418,8 @@ import java.lang.reflect.Method;
   }
 
   private void maybeUpdateLatency(long systemTimeUs) {
-    if (shouldSampleLatency
+    if (isOutputPcm
+        && getLatencyMethod != null
         && systemTimeUs - lastLatencySampleTimeUs >= MIN_LATENCY_SAMPLE_INTERVAL_US) {
       try {
         // Compute the audio track latency, excluding the latency due to the buffer (leaving
