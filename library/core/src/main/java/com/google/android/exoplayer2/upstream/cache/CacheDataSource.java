@@ -157,7 +157,7 @@ public final class CacheDataSource implements DataSource {
    */
   public CacheDataSource(Cache cache, DataSource upstream, @Flags int flags,
       long maxCacheFileSize) {
-    this(cache, upstream, new FileDataSource(), new CacheDataSink(cache, maxCacheFileSize),
+    this(cache, upstream, new FileDataSource(), new CacheDataSink(cache, maxCacheFileSize, false),
         flags, null);
   }
 
