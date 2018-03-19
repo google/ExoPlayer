@@ -141,10 +141,13 @@ public final class ClippingMediaSource extends CompositeMediaSource<Void> {
 
   @Override
   public MediaPeriod createPeriod(MediaPeriodId id, Allocator allocator) {
-    ClippingMediaPeriod mediaPeriod = new ClippingMediaPeriod(
-        mediaSource.createPeriod(id, allocator), enableInitialDiscontinuity);
+    ClippingMediaPeriod mediaPeriod =
+        new ClippingMediaPeriod(
+            mediaSource.createPeriod(id, allocator),
+            enableInitialDiscontinuity,
+            periodStartUs,
+            periodEndUs);
     mediaPeriods.add(mediaPeriod);
-    mediaPeriod.setClipping(periodStartUs, periodEndUs);
     return mediaPeriod;
   }
 
@@ -183,7 +186,7 @@ public final class ClippingMediaSource extends CompositeMediaSource<Void> {
         endUs == C.TIME_END_OF_SOURCE ? C.TIME_END_OF_SOURCE : windowPositionInPeriodUs + endUs;
     int count = mediaPeriods.size();
     for (int i = 0; i < count; i++) {
-      mediaPeriods.get(i).setClipping(periodStartUs, periodEndUs);
+      mediaPeriods.get(i).updateClipping(periodStartUs, periodEndUs);
     }
   }
 
@@ -233,7 +236,7 @@ public final class ClippingMediaSource extends CompositeMediaSource<Void> {
     public Window getWindow(int windowIndex, Window window, boolean setIds,
         long defaultPositionProjectionUs) {
       timeline.getWindow(/* windowIndex= */ 0, window, setIds, defaultPositionProjectionUs);
-      window.positionInFirstPeriodUs = 0;
+      window.positionInFirstPeriodUs += startUs;
       window.durationUs = durationUs;
       if (window.defaultPositionUs != C.TIME_UNSET) {
         window.defaultPositionUs = Math.max(window.defaultPositionUs, startUs);
@@ -254,10 +257,11 @@ public final class ClippingMediaSource extends CompositeMediaSource<Void> {
     @Override
     public Period getPeriod(int periodIndex, Period period, boolean setIds) {
       timeline.getPeriod(/* periodIndex= */ 0, period, setIds);
+      long positionInClippedWindowUs = period.getPositionInWindowUs() - startUs;
+      long periodDurationUs =
+          durationUs == C.TIME_UNSET ? C.TIME_UNSET : durationUs - positionInClippedWindowUs;
       return period.set(
-          period.id, period.uid, /* windowIndex= */ 0, durationUs, /* positionInWindowUs= */ 0);
+          period.id, period.uid, /* windowIndex= */ 0, periodDurationUs, positionInClippedWindowUs);
     }
-
   }
-
 }
