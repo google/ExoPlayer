@@ -4,6 +4,8 @@
 
 * Match codecs starting with "mp4a" to different Audio MimeTypes
   ([#3779](https://github.com/google/ExoPlayer/issues/3779)).
+* MediaSession extension: Omit fast forward and rewind actions when media is not
+  seekable ([#4001](https://github.com/google/ExoPlayer/issues/4001)).
 
 ### 2.7.1 ###
 
