@@ -63,6 +63,7 @@ public class ConcatenatingMediaSource extends CompositeMediaSource<MediaSourceHo
   private final Map<MediaPeriod, MediaSourceHolder> mediaSourceByMediaPeriod;
   private final List<EventDispatcher> pendingOnCompletionActions;
   private final boolean isAtomic;
+  private final Timeline.Window window;
 
   private ExoPlayer player;
   private boolean listenerNotificationScheduled;
@@ -133,6 +134,7 @@ public class ConcatenatingMediaSource extends CompositeMediaSource<MediaSourceHo
     this.pendingOnCompletionActions = new ArrayList<>();
     this.query = new MediaSourceHolder(/* mediaSource= */ null);
     this.isAtomic = isAtomic;
+    window = new Timeline.Window();
     addMediaSources(Arrays.asList(mediaSources));
   }
 
@@ -577,12 +579,17 @@ public class ConcatenatingMediaSource extends CompositeMediaSource<MediaSourceHo
           periodOffsetUpdate);
     }
     mediaSourceHolder.timeline = deferredTimeline.cloneWithNewTimeline(timeline);
-    if (!mediaSourceHolder.isPrepared) {
+    if (!mediaSourceHolder.isPrepared && !timeline.isEmpty()) {
+      timeline.getWindow(/* windowIndex= */ 0, window);
+      long defaultPeriodPositionUs =
+          window.getPositionInFirstPeriodUs() + window.getDefaultPositionUs();
       for (int i = 0; i < mediaSourceHolder.activeMediaPeriods.size(); i++) {
-        mediaSourceHolder.activeMediaPeriods.get(i).createPeriod();
+        DeferredMediaPeriod deferredMediaPeriod = mediaSourceHolder.activeMediaPeriods.get(i);
+        deferredMediaPeriod.setDefaultPreparePositionUs(defaultPeriodPositionUs);
+        deferredMediaPeriod.createPeriod();
       }
+      mediaSourceHolder.isPrepared = true;
     }
-    mediaSourceHolder.isPrepared = true;
     scheduleListenerNotification(/* actionOnCompletion= */ null);
   }
 
@@ -859,14 +866,15 @@ public class ConcatenatingMediaSource extends CompositeMediaSource<MediaSourceHo
     @Override
     public Window getWindow(
         int windowIndex, Window window, boolean setIds, long defaultPositionProjectionUs) {
-      // Dynamic window to indicate pending timeline updates.
       return window.set(
           /* id= */ null,
           /* presentationStartTimeMs= */ C.TIME_UNSET,
           /* windowStartTimeMs= */ C.TIME_UNSET,
           /* isSeekable= */ false,
+          // Dynamic window to indicate pending timeline updates.
           /* isDynamic= */ true,
-          /* defaultPositionUs= */ 0,
+          // Position can't be projected yet as the default position is still unknown.
+          /* defaultPositionUs= */ defaultPositionProjectionUs > 0 ? C.TIME_UNSET : 0,
           /* durationUs= */ C.TIME_UNSET,
           /* firstPeriodIndex= */ 0,
           /* lastPeriodIndex= */ 0,
@@ -885,7 +893,7 @@ public class ConcatenatingMediaSource extends CompositeMediaSource<MediaSourceHo
           /* uid= */ null,
           /* windowIndex= */ 0,
           /* durationUs = */ C.TIME_UNSET,
-          /* positionInWindowUs= */ C.TIME_UNSET);
+          /* positionInWindowUs= */ 0);
     }
 
     @Override
