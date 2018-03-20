@@ -77,11 +77,10 @@ public class DefaultPlaybackController implements MediaSessionConnector.Playback
   public long getSupportedPlaybackActions(Player player) {
     if (player == null || player.getCurrentTimeline().isEmpty()) {
       return 0;
+    } else if (!player.isCurrentWindowSeekable()) {
+      return BASE_ACTIONS;
     }
-    long actions = BASE_ACTIONS;
-    if (player.isCurrentWindowSeekable()) {
-      actions |= PlaybackStateCompat.ACTION_SEEK_TO;
-    }
+    long actions = BASE_ACTIONS | PlaybackStateCompat.ACTION_SEEK_TO;
     if (fastForwardIncrementMs > 0) {
       actions |= PlaybackStateCompat.ACTION_FAST_FORWARD;
     }
