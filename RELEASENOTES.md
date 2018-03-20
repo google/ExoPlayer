@@ -24,10 +24,14 @@
   * Allow adding and removing `MediaSourceEventListener`s to MediaSources after
     they have been created. Listening to events is now supported for all
     media sources including composite sources.
-* Audio: Factor out `AudioTrack` position tracking from `DefaultAudioSink`.
+* Audio:
+  * Factor out `AudioTrack` position tracking from `DefaultAudioSink`.
+  * Fix an issue where the playback position would pause just after playback
+    begins, and poll the audio timestamp less frequently once it starts
+    advancing ([#3841](https://github.com/google/ExoPlayer/issues/3841)).
 * Caching:
   * Add release method to Cache interface.
-  * Prevent multiple instances of SimpleCache in the same folder. 
+  * Prevent multiple instances of SimpleCache in the same folder.
     Previous instance must be released.
 
 ### 2.7.1 ###

@@ -15,12 +15,10 @@
  */
 package com.google.android.exoplayer2.audio;
 
-import android.annotation.TargetApi;
 import android.media.AudioTimestamp;
 import android.media.AudioTrack;
 import android.os.SystemClock;
 import android.support.annotation.IntDef;
-import android.support.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Util;
@@ -125,29 +123,26 @@ import java.lang.reflect.Method;
 
   private static final int MAX_PLAYHEAD_OFFSET_COUNT = 10;
   private static final int MIN_PLAYHEAD_OFFSET_SAMPLE_INTERVAL_US = 30000;
-  private static final int MIN_TIMESTAMP_SAMPLE_INTERVAL_US = 500000;
   private static final int MIN_LATENCY_SAMPLE_INTERVAL_US = 500000;
 
   private final Listener listener;
   private final long[] playheadOffsets;
+
   private AudioTrack audioTrack;
-  private int outputSampleRate;
+  private int outputPcmFrameSize;
   private int bufferSize;
+  private AudioTimestampPoller audioTimestampPoller;
+  private int outputSampleRate;
+  private boolean needsPassthroughWorkarounds;
   private long bufferSizeUs;
 
   private long smoothedPlayheadOffsetUs;
   private long lastPlayheadSampleTimeUs;
-  private boolean audioTimestampSet;
-  private long lastTimestampSampleTimeUs;
 
   private Method getLatencyMethod;
-  private int outputPcmFrameSize;
-  private long resumeSystemTimeUs;
   private long latencyUs;
   private boolean hasData;
 
-  private boolean needsPassthroughWorkarounds;
-  private @Nullable AudioTimestampV19 audioTimestamp;
   private boolean isOutputPcm;
   private long lastLatencySampleTimeUs;
   private long lastRawPlaybackHeadPosition;
@@ -193,15 +188,13 @@ import java.lang.reflect.Method;
       int outputPcmFrameSize,
       int bufferSize) {
     this.audioTrack = audioTrack;
-    this.bufferSize = bufferSize;
     this.outputPcmFrameSize = outputPcmFrameSize;
+    this.bufferSize = bufferSize;
+    audioTimestampPoller = new AudioTimestampPoller(audioTrack);
     outputSampleRate = audioTrack.getSampleRate();
     needsPassthroughWorkarounds = needsPassthroughWorkarounds(outputEncoding);
     isOutputPcm = Util.isEncodingPcm(outputEncoding);
     bufferSizeUs = isOutputPcm ? framesToDurationUs(bufferSize / outputPcmFrameSize) : C.TIME_UNSET;
-    if (Util.SDK_INT >= 19) {
-      audioTimestamp = new AudioTimestampV19(audioTrack);
-    }
     lastRawPlaybackHeadPosition = 0;
     rawPlaybackHeadWrapCount = 0;
     passthroughWorkaroundPauseOffset = 0;
@@ -219,15 +212,17 @@ import java.lang.reflect.Method;
     // If the device supports it, use the playback timestamp from AudioTrack.getTimestamp.
     // Otherwise, derive a smoothed position by sampling the track's frame position.
     long systemTimeUs = System.nanoTime() / 1000;
-    long positionUs;
-    if (audioTimestamp != null && audioTimestampSet) {
+    if (audioTimestampPoller.hasTimestamp()) {
       // Calculate the speed-adjusted position using the timestamp (which may be in the future).
-      long elapsedSinceTimestampUs = systemTimeUs - audioTimestamp.getTimestampSystemTimeUs();
-      long elapsedSinceTimestampFrames = durationUsToFrames(elapsedSinceTimestampUs);
-      long elapsedFrames =
-          audioTimestamp.getTimestampPositionFrames() + elapsedSinceTimestampFrames;
-      positionUs = framesToDurationUs(elapsedFrames);
+      long timestampPositionFrames = audioTimestampPoller.getTimestampPositionFrames();
+      long timestampPositionUs = framesToDurationUs(timestampPositionFrames);
+      if (!audioTimestampPoller.isTimestampAdvancing()) {
+        return timestampPositionUs;
+      }
+      long elapsedSinceTimestampUs = systemTimeUs - audioTimestampPoller.getTimestampSystemTimeUs();
+      return timestampPositionUs + elapsedSinceTimestampUs;
     } else {
+      long positionUs;
       if (playheadOffsetCount == 0) {
         // The AudioTrack has started, but we don't have any samples to compute a smoothed position.
         positionUs = getPlaybackHeadPositionUs();
@@ -240,13 +235,13 @@ import java.lang.reflect.Method;
       if (!sourceEnded) {
         positionUs -= latencyUs;
       }
+      return positionUs;
     }
-    return positionUs;
   }
 
   /** Starts position tracking. Must be called immediately before {@link AudioTrack#play()}. */
   public void start() {
-    resumeSystemTimeUs = System.nanoTime() / 1000;
+    audioTimestampPoller.reset();
   }
 
   /** Returns whether the audio track is in the playing state. */
@@ -341,7 +336,14 @@ import java.lang.reflect.Method;
    */
   public boolean pause() {
     resetSyncParams();
-    return stopTimestampUs == C.TIME_UNSET;
+    if (stopTimestampUs == C.TIME_UNSET) {
+      // The audio track is going to be paused, so reset the timestamp poller to ensure it doesn't
+      // supply an advancing position.
+      audioTimestampPoller.reset();
+      return true;
+    }
+    // We've handled the end of the stream already, so there's no need to pause the track.
+    return false;
   }
 
   /**
@@ -351,7 +353,7 @@ import java.lang.reflect.Method;
   public void reset() {
     resetSyncParams();
     audioTrack = null;
-    audioTimestamp = null;
+    audioTimestampPoller = null;
   }
 
   private void maybeSampleSyncParams() {
@@ -380,40 +382,36 @@ import java.lang.reflect.Method;
       // platform API versions 21/22, as incorrect values are returned. See [Internal: b/21145353].
       return;
     }
-    maybeUpdateAudioTimestamp(systemTimeUs, playbackPositionUs);
+
+    maybePollAndCheckTimestamp(systemTimeUs, playbackPositionUs);
     maybeUpdateLatency(systemTimeUs);
   }
 
-  private void maybeUpdateAudioTimestamp(long systemTimeUs, long playbackPositionUs) {
-    if (audioTimestamp != null
-        && systemTimeUs - lastTimestampSampleTimeUs >= MIN_TIMESTAMP_SAMPLE_INTERVAL_US) {
-      audioTimestampSet = audioTimestamp.maybeUpdateTimestamp();
-      if (audioTimestampSet) {
-        // Perform sanity checks on the timestamp.
-        long audioTimestampSystemTimeUs = audioTimestamp.getTimestampSystemTimeUs();
-        long audioTimestampPositionFrames = audioTimestamp.getTimestampPositionFrames();
-        if (audioTimestampSystemTimeUs < resumeSystemTimeUs) {
-          // The timestamp corresponds to a time before the track was most recently resumed.
-          audioTimestampSet = false;
-        } else if (Math.abs(audioTimestampSystemTimeUs - systemTimeUs)
-            > MAX_AUDIO_TIMESTAMP_OFFSET_US) {
-          listener.onSystemTimeUsMismatch(
-              audioTimestampPositionFrames,
-              audioTimestampSystemTimeUs,
-              systemTimeUs,
-              playbackPositionUs);
-          audioTimestampSet = false;
-        } else if (Math.abs(framesToDurationUs(audioTimestampPositionFrames) - playbackPositionUs)
-            > MAX_AUDIO_TIMESTAMP_OFFSET_US) {
-          listener.onPositionFramesMismatch(
-              audioTimestampPositionFrames,
-              audioTimestampSystemTimeUs,
-              systemTimeUs,
-              playbackPositionUs);
-          audioTimestampSet = false;
-        }
-      }
-      lastTimestampSampleTimeUs = systemTimeUs;
+  private void maybePollAndCheckTimestamp(long systemTimeUs, long playbackPositionUs) {
+    if (!audioTimestampPoller.maybePollTimestamp(systemTimeUs)) {
+      return;
+    }
+
+    // Perform sanity checks on the timestamp and accept/reject it.
+    long audioTimestampSystemTimeUs = audioTimestampPoller.getTimestampSystemTimeUs();
+    long audioTimestampPositionFrames = audioTimestampPoller.getTimestampPositionFrames();
+    if (Math.abs(audioTimestampSystemTimeUs - systemTimeUs) > MAX_AUDIO_TIMESTAMP_OFFSET_US) {
+      listener.onSystemTimeUsMismatch(
+          audioTimestampPositionFrames,
+          audioTimestampSystemTimeUs,
+          systemTimeUs,
+          playbackPositionUs);
+      audioTimestampPoller.rejectTimestamp();
+    } else if (Math.abs(framesToDurationUs(audioTimestampPositionFrames) - playbackPositionUs)
+        > MAX_AUDIO_TIMESTAMP_OFFSET_US) {
+      listener.onPositionFramesMismatch(
+          audioTimestampPositionFrames,
+          audioTimestampSystemTimeUs,
+          systemTimeUs,
+          playbackPositionUs);
+      audioTimestampPoller.rejectTimestamp();
+    } else {
+      audioTimestampPoller.acceptTimestamp();
     }
   }
 
@@ -445,17 +443,11 @@ import java.lang.reflect.Method;
     return (frameCount * C.MICROS_PER_SECOND) / outputSampleRate;
   }
 
-  private long durationUsToFrames(long durationUs) {
-    return (durationUs * outputSampleRate) / C.MICROS_PER_SECOND;
-  }
-
   private void resetSyncParams() {
     smoothedPlayheadOffsetUs = 0;
     playheadOffsetCount = 0;
     nextPlayheadOffsetIndex = 0;
     lastPlayheadSampleTimeUs = 0;
-    audioTimestampSet = false;
-    lastTimestampSampleTimeUs = 0;
   }
 
   /**
@@ -539,71 +531,5 @@ import java.lang.reflect.Method;
     }
     lastRawPlaybackHeadPosition = rawPlaybackHeadPosition;
     return rawPlaybackHeadPosition + (rawPlaybackHeadWrapCount << 32);
-  }
-
-  @TargetApi(19)
-  private static final class AudioTimestampV19 {
-
-    private final AudioTrack audioTrack;
-    private final AudioTimestamp audioTimestamp;
-
-    private long rawTimestampFramePositionWrapCount;
-    private long lastTimestampRawPositionFrames;
-    private long lastTimestampPositionFrames;
-
-    /**
-     * Creates a new {@link AudioTimestamp} wrapper.
-     *
-     * @param audioTrack The audio track that will provide timestamps.
-     */
-    public AudioTimestampV19(AudioTrack audioTrack) {
-      this.audioTrack = audioTrack;
-      audioTimestamp = new AudioTimestamp();
-    }
-
-    /**
-     * Attempts to update the audio track timestamp. Returns {@code true} if the timestamp was
-     * updated, in which case the updated timestamp system time and position can be accessed with
-     * {@link #getTimestampSystemTimeUs()} and {@link #getTimestampPositionFrames()}. Returns {@code
-     * false} if no timestamp is available, in which case those methods should not be called.
-     */
-    public boolean maybeUpdateTimestamp() {
-      boolean updated = audioTrack.getTimestamp(audioTimestamp);
-      if (updated) {
-        long rawPositionFrames = audioTimestamp.framePosition;
-        if (lastTimestampRawPositionFrames > rawPositionFrames) {
-          // The value must have wrapped around.
-          rawTimestampFramePositionWrapCount++;
-        }
-        lastTimestampRawPositionFrames = rawPositionFrames;
-        lastTimestampPositionFrames =
-            rawPositionFrames + (rawTimestampFramePositionWrapCount << 32);
-      }
-      return updated;
-    }
-
-    /**
-     * Returns the {@link android.media.AudioTimestamp#nanoTime} obtained during the most recent
-     * call to {@link #maybeUpdateTimestamp()} that returned true.
-     *
-     * @return The nanoTime obtained during the most recent call to {@link #maybeUpdateTimestamp()}
-     *     that returned true.
-     */
-    public long getTimestampSystemTimeUs() {
-      return audioTimestamp.nanoTime / 1000;
-    }
-
-    /**
-     * Returns the {@link android.media.AudioTimestamp#framePosition} obtained during the most
-     * recent call to {@link #maybeUpdateTimestamp()} that returned true. The value is adjusted so
-     * that wrap around only occurs if the value exceeds {@link Long#MAX_VALUE} (which in practice
-     * will never happen).
-     *
-     * @return The framePosition obtained during the most recent call to {@link
-     *     #maybeUpdateTimestamp()} that returned true.
-     */
-    public long getTimestampPositionFrames() {
-      return lastTimestampPositionFrames;
-    }
   }
 }
