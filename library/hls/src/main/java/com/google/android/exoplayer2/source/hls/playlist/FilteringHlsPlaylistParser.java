@@ -16,6 +16,7 @@
 package com.google.android.exoplayer2.source.hls.playlist;
 
 import android.net.Uri;
+import android.support.annotation.Nullable;
 import com.google.android.exoplayer2.upstream.ParsingLoadable.Parser;
 import java.io.IOException;
 import java.io.InputStream;
@@ -27,8 +28,11 @@ public final class FilteringHlsPlaylistParser implements Parser<HlsPlaylist> {
   private final HlsPlaylistParser hlsPlaylistParser;
   private final List<String> filter;
 
-  /** @param filter The urls to renditions that should be retained in the parsed playlists. */
-  public FilteringHlsPlaylistParser(List<String> filter) {
+  /**
+   * @param filter The urls to renditions that should be retained in the parsed playlists. If null,
+   *     all renditions are retained.
+   */
+  public FilteringHlsPlaylistParser(@Nullable List<String> filter) {
     this.hlsPlaylistParser = new HlsPlaylistParser();
     this.filter = filter;
   }
@@ -37,7 +41,8 @@ public final class FilteringHlsPlaylistParser implements Parser<HlsPlaylist> {
   public HlsPlaylist parse(Uri uri, InputStream inputStream) throws IOException {
     HlsPlaylist hlsPlaylist = hlsPlaylistParser.parse(uri, inputStream);
     if (hlsPlaylist instanceof HlsMasterPlaylist) {
-      return ((HlsMasterPlaylist) hlsPlaylist).copy(filter);
+      HlsMasterPlaylist masterPlaylist = (HlsMasterPlaylist) hlsPlaylist;
+      return filter != null ? masterPlaylist.copy(filter) : masterPlaylist;
     } else {
       return hlsPlaylist;
     }

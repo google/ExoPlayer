@@ -21,9 +21,9 @@ import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Parcelable;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.text.TextUtils;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -58,9 +58,14 @@ import com.google.android.exoplayer2.source.ads.AdsLoader;
 import com.google.android.exoplayer2.source.ads.AdsMediaSource;
 import com.google.android.exoplayer2.source.dash.DashMediaSource;
 import com.google.android.exoplayer2.source.dash.DefaultDashChunkSource;
+import com.google.android.exoplayer2.source.dash.manifest.FilteringDashManifestParser;
+import com.google.android.exoplayer2.source.dash.manifest.RepresentationKey;
 import com.google.android.exoplayer2.source.hls.HlsMediaSource;
+import com.google.android.exoplayer2.source.hls.playlist.FilteringHlsPlaylistParser;
 import com.google.android.exoplayer2.source.smoothstreaming.DefaultSsChunkSource;
 import com.google.android.exoplayer2.source.smoothstreaming.SsMediaSource;
+import com.google.android.exoplayer2.source.smoothstreaming.manifest.FilteringSsManifestParser;
+import com.google.android.exoplayer2.source.smoothstreaming.manifest.TrackKey;
 import com.google.android.exoplayer2.trackselection.AdaptiveTrackSelection;
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
 import com.google.android.exoplayer2.trackselection.MappingTrackSelector.MappedTrackInfo;
@@ -73,11 +78,13 @@ import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DefaultBandwidthMeter;
 import com.google.android.exoplayer2.upstream.HttpDataSource;
 import com.google.android.exoplayer2.util.EventLogger;
+import com.google.android.exoplayer2.util.ParcelableArray;
 import com.google.android.exoplayer2.util.Util;
 import java.lang.reflect.Constructor;
 import java.net.CookieHandler;
 import java.net.CookieManager;
 import java.net.CookiePolicy;
+import java.util.List;
 import java.util.UUID;
 
 /** An activity that plays media using {@link SimpleExoPlayer}. */
@@ -92,11 +99,14 @@ public class PlayerActivity extends Activity
 
   public static final String ACTION_VIEW = "com.google.android.exoplayer.demo.action.VIEW";
   public static final String EXTENSION_EXTRA = "extension";
+  public static final String MANIFEST_FILTER_EXTRA = "manifest_filter";
 
   public static final String ACTION_VIEW_LIST =
       "com.google.android.exoplayer.demo.action.VIEW_LIST";
   public static final String URI_LIST_EXTRA = "uri_list";
   public static final String EXTENSION_LIST_EXTRA = "extension_list";
+  public static final String MANIFEST_FILTER_LIST_EXTRA = "manifest_filter_list";
+
   public static final String AD_TAG_URI_EXTRA = "ad_tag_uri";
 
   // For backwards compatibility.
@@ -318,9 +328,11 @@ public class PlayerActivity extends Activity
       String action = intent.getAction();
       Uri[] uris;
       String[] extensions;
+      Parcelable[] manifestFilters;
       if (ACTION_VIEW.equals(action)) {
         uris = new Uri[] {intent.getData()};
         extensions = new String[] {intent.getStringExtra(EXTENSION_EXTRA)};
+        manifestFilters = new Parcelable[] {intent.getParcelableExtra(MANIFEST_FILTER_EXTRA)};
       } else if (ACTION_VIEW_LIST.equals(action)) {
         String[] uriStrings = intent.getStringArrayExtra(URI_LIST_EXTRA);
         uris = new Uri[uriStrings.length];
@@ -331,6 +343,7 @@ public class PlayerActivity extends Activity
         if (extensions == null) {
           extensions = new String[uriStrings.length];
         }
+        manifestFilters = intent.getParcelableArrayExtra(MANIFEST_FILTER_LIST_EXTRA);
       } else {
         showToast(getString(R.string.unexpected_intent_action, action));
         return;
@@ -341,7 +354,9 @@ public class PlayerActivity extends Activity
       }
       MediaSource[] mediaSources = new MediaSource[uris.length];
       for (int i = 0; i < uris.length; i++) {
-        mediaSources[i] = buildMediaSource(uris[i], extensions[i]);
+        ParcelableArray<?> manifestFilter = (ParcelableArray<?>) manifestFilters[i];
+        List<?> filter = manifestFilter != null ? manifestFilter.asList() : null;
+        mediaSources[i] = buildMediaSource(uris[i], extensions[i], filter);
       }
       mediaSource =
           mediaSources.length == 1 ? mediaSources[0] : new ConcatenatingMediaSource(mediaSources);
@@ -372,22 +387,32 @@ public class PlayerActivity extends Activity
     updateButtonVisibilities();
   }
 
-  private MediaSource buildMediaSource(Uri uri, String overrideExtension) {
-    @ContentType int type = TextUtils.isEmpty(overrideExtension) ? Util.inferContentType(uri)
-        : Util.inferContentType("." + overrideExtension);
+  private MediaSource buildMediaSource(Uri uri) {
+    return buildMediaSource(uri, null, null);
+  }
+
+  @SuppressWarnings("unchecked")
+  private MediaSource buildMediaSource(
+      Uri uri, @Nullable String overrideExtension, @Nullable List<?> manifestFilter) {
+    @ContentType int type = Util.inferContentType(uri, overrideExtension);
     switch (type) {
       case C.TYPE_DASH:
         return new DashMediaSource.Factory(
                 new DefaultDashChunkSource.Factory(mediaDataSourceFactory),
                 buildDataSourceFactory(false))
+            .setManifestParser(
+                new FilteringDashManifestParser((List<RepresentationKey>) manifestFilter))
             .createMediaSource(uri);
       case C.TYPE_SS:
         return new SsMediaSource.Factory(
                 new DefaultSsChunkSource.Factory(mediaDataSourceFactory),
                 buildDataSourceFactory(false))
+            .setManifestParser(new FilteringSsManifestParser((List<TrackKey>) manifestFilter))
             .createMediaSource(uri);
       case C.TYPE_HLS:
-        return new HlsMediaSource.Factory(mediaDataSourceFactory).createMediaSource(uri);
+        return new HlsMediaSource.Factory(mediaDataSourceFactory)
+            .setPlaylistParser(new FilteringHlsPlaylistParser((List<String>) manifestFilter))
+            .createMediaSource(uri);
       case C.TYPE_OTHER:
         return new ExtractorMediaSource.Factory(mediaDataSourceFactory).createMediaSource(uri);
       default: {
@@ -483,7 +508,7 @@ public class PlayerActivity extends Activity
           new AdsMediaSource.MediaSourceFactory() {
             @Override
             public MediaSource createMediaSource(Uri uri) {
-              return PlayerActivity.this.buildMediaSource(uri, /* overrideExtension= */ null);
+              return PlayerActivity.this.buildMediaSource(uri);
             }
 
             @Override
