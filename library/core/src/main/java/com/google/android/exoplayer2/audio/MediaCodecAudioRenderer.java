@@ -393,8 +393,8 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
 
   @Override
   protected void onStopped() {
-    audioSink.pause();
     updateCurrentPosition();
+    audioSink.pause();
     super.onStopped();
   }
 

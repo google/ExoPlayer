@@ -522,8 +522,8 @@ public abstract class SimpleDecoderAudioRenderer extends BaseRenderer implements
 
   @Override
   protected void onStopped() {
-    audioSink.pause();
     updateCurrentPosition();
+    audioSink.pause();
   }
 
   @Override
