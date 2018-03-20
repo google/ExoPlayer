@@ -16,6 +16,7 @@
 package com.google.android.exoplayer2.source.smoothstreaming.manifest;
 
 import android.net.Uri;
+import android.support.annotation.Nullable;
 import com.google.android.exoplayer2.upstream.ParsingLoadable.Parser;
 import java.io.IOException;
 import java.io.InputStream;
@@ -29,14 +30,18 @@ public final class FilteringSsManifestParser implements Parser<SsManifest> {
   private final SsManifestParser ssManifestParser;
   private final List<TrackKey> filter;
 
-  /** @param filter The track keys that should be retained in the parsed manifests. */
-  public FilteringSsManifestParser(List<TrackKey> filter) {
+  /**
+   * @param filter The track keys that should be retained in the parsed manifests. If null, all
+   *     tracks are retained.
+   */
+  public FilteringSsManifestParser(@Nullable List<TrackKey> filter) {
     this.ssManifestParser = new SsManifestParser();
     this.filter = filter;
   }
 
   @Override
   public SsManifest parse(Uri uri, InputStream inputStream) throws IOException {
-    return ssManifestParser.parse(uri, inputStream).copy(filter);
+    SsManifest manifest = ssManifestParser.parse(uri, inputStream);
+    return filter != null ? manifest.copy(filter) : manifest;
   }
 }

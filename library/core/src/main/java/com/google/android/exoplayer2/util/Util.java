@@ -1097,6 +1097,20 @@ public final class Util {
    * Makes a best guess to infer the type from a {@link Uri}.
    *
    * @param uri The {@link Uri}.
+   * @param overrideExtension If not null, used to infer the type.
+   * @return The content type.
+   */
+  @C.ContentType
+  public static int inferContentType(Uri uri, String overrideExtension) {
+    return TextUtils.isEmpty(overrideExtension)
+        ? inferContentType(uri)
+        : inferContentType("." + overrideExtension);
+  }
+
+  /**
+   * Makes a best guess to infer the type from a {@link Uri}.
+   *
+   * @param uri The {@link Uri}.
    * @return The content type.
    */
   @C.ContentType

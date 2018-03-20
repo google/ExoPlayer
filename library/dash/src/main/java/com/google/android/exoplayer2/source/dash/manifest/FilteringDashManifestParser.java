@@ -16,10 +16,11 @@
 package com.google.android.exoplayer2.source.dash.manifest;
 
 import android.net.Uri;
+import android.support.annotation.Nullable;
 import com.google.android.exoplayer2.upstream.ParsingLoadable.Parser;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
+import java.util.List;
 
 /**
  * A parser of media presentation description files which includes only the representations
@@ -28,16 +29,20 @@ import java.util.ArrayList;
 public final class FilteringDashManifestParser implements Parser<DashManifest> {
 
   private final DashManifestParser dashManifestParser;
-  private final ArrayList<RepresentationKey> filter;
+  private final List<RepresentationKey> filter;
 
-  /** @param filter The representation keys that should be retained in the parsed manifests. */
-  public FilteringDashManifestParser(ArrayList<RepresentationKey> filter) {
+  /**
+   * @param filter The representation keys that should be retained in the parsed manifests. If null,
+   *     all representation are retained.
+   */
+  public FilteringDashManifestParser(@Nullable List<RepresentationKey> filter) {
     this.dashManifestParser = new DashManifestParser();
     this.filter = filter;
   }
 
   @Override
   public DashManifest parse(Uri uri, InputStream inputStream) throws IOException {
-    return dashManifestParser.parse(uri, inputStream).copy(filter);
+    DashManifest manifest = dashManifestParser.parse(uri, inputStream);
+    return filter != null ? manifest.copy(filter) : manifest;
   }
 }
