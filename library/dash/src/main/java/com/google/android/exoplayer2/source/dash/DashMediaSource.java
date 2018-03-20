@@ -639,7 +639,8 @@ public final class DashMediaSource extends BaseMediaSource {
         Log.w(TAG, "Loaded out of sync manifest");
         isManifestStale = true;
       } else if (dynamicMediaPresentationEnded
-          || newManifest.publishTimeMs <= expiredManifestPublishTimeUs) {
+          || (expiredManifestPublishTimeUs != C.TIME_UNSET
+              && newManifest.publishTimeMs * 1000 <= expiredManifestPublishTimeUs)) {
         // If we receive a dynamic manifest that's older than expected (i.e. its publish time has
         // expired, or it's dynamic and we know the presentation has ended), then this manifest is
         // stale.
