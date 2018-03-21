@@ -30,7 +30,6 @@ import com.google.android.exoplayer2.source.ExtractorMediaSource;
 import com.google.android.exoplayer2.source.MediaPeriod;
 import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.source.MediaSource.MediaPeriodId;
-import com.google.android.exoplayer2.source.MediaSourceEventListener;
 import com.google.android.exoplayer2.upstream.Allocator;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.util.Assertions;
@@ -66,7 +65,7 @@ public final class AdsMediaSource extends CompositeMediaSource<MediaPeriodId> {
   }
 
   /** Listener for ads media source events. */
-  public interface EventListener extends MediaSourceEventListener {
+  public interface EventListener {
 
     /**
      * Called if there was an error loading one or more ads. The loader will skip the problematic
@@ -221,7 +220,6 @@ public final class AdsMediaSource extends CompositeMediaSource<MediaPeriodId> {
       if (adGroupMediaSources[adGroupIndex].length <= adIndexInAdGroup) {
         Uri adUri = adPlaybackState.adGroups[id.adGroupIndex].uris[id.adIndexInAdGroup];
         MediaSource adMediaSource = adMediaSourceFactory.createMediaSource(adUri);
-        adMediaSource.addEventListener(eventHandler, eventListener);
         int oldAdCount = adGroupMediaSources[id.adGroupIndex].length;
         if (adIndexInAdGroup >= oldAdCount) {
           int adCount = adIndexInAdGroup + 1;
