@@ -1140,15 +1140,15 @@ public final class FragmentedMp4Extractor implements Extractor {
       }
       sampleSize = currentTrackBundle.fragment
           .sampleSizeTable[currentTrackBundle.currentSampleIndex];
+      if (currentTrackBundle.track.sampleTransformation == Track.TRANSFORMATION_CEA608_CDAT) {
+        sampleSize -= Atom.HEADER_SIZE;
+        input.skipFully(Atom.HEADER_SIZE);
+      }
       if (currentTrackBundle.fragment.definesEncryptionData) {
         sampleBytesWritten = appendSampleEncryptionData(currentTrackBundle);
         sampleSize += sampleBytesWritten;
       } else {
         sampleBytesWritten = 0;
-      }
-      if (currentTrackBundle.track.sampleTransformation == Track.TRANSFORMATION_CEA608_CDAT) {
-        sampleSize -= Atom.HEADER_SIZE;
-        input.skipFully(Atom.HEADER_SIZE);
       }
       parserState = STATE_READING_SAMPLE_CONTINUE;
       sampleCurrentNalBytesRemaining = 0;
