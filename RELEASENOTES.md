@@ -4,6 +4,8 @@
 
 * Match codecs starting with "mp4a" to different Audio MimeTypes
   ([#3779](https://github.com/google/ExoPlayer/issues/3779)).
+* Fix ANR issue on Redmi 4X and Redmi Note 4
+  ([#4006](https://github.com/google/ExoPlayer/issues/4006)).
 * MediaSession extension: Omit fast forward and rewind actions when media is not
   seekable ([#4001](https://github.com/google/ExoPlayer/issues/4001)).
 
