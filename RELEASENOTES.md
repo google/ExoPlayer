@@ -33,6 +33,8 @@
   * Add release method to Cache interface.
   * Prevent multiple instances of SimpleCache in the same folder.
     Previous instance must be released.
+* Fix ANR issue on Redmi 4X and Redmi Note 4
+  ([#4006](https://github.com/google/ExoPlayer/issues/4006)).
 
 ### 2.7.1 ###
 
