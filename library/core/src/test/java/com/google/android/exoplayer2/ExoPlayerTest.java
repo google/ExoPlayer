@@ -181,8 +181,7 @@ public final class ExoPlayerTest {
             // media clock position will be the start of the timeline until the stream is set to be
             // final, at which point it jumps to the end of the timeline allowing the playing period
             // to advance.
-            // TODO: Avoid hard-coding ExoPlayerImplInternal.RENDERER_TIMESTAMP_OFFSET_US.
-            return isCurrentStreamFinal() ? 60000030 : 60000000;
+            return isCurrentStreamFinal() ? 30 : 0;
           }
 
           @Override
