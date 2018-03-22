@@ -132,7 +132,6 @@ import com.google.android.exoplayer2.util.Assertions;
    * and returns it.
    *
    * @param rendererCapabilities The renderer capabilities.
-   * @param rendererTimestampOffsetUs The base time offset added to for renderers.
    * @param trackSelector The track selector.
    * @param allocator The allocator.
    * @param mediaSource The media source that produced the media period.
@@ -141,7 +140,6 @@ import com.google.android.exoplayer2.util.Assertions;
    */
   public MediaPeriod enqueueNextMediaPeriod(
       RendererCapabilities[] rendererCapabilities,
-      long rendererTimestampOffsetUs,
       TrackSelector trackSelector,
       Allocator allocator,
       MediaSource mediaSource,
@@ -149,7 +147,7 @@ import com.google.android.exoplayer2.util.Assertions;
       MediaPeriodInfo info) {
     long rendererPositionOffsetUs =
         loading == null
-            ? (info.startPositionUs + rendererTimestampOffsetUs)
+            ? info.startPositionUs
             : (loading.getRendererOffset() + loading.info.durationUs);
     MediaPeriodHolder newPeriodHolder =
         new MediaPeriodHolder(

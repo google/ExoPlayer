@@ -81,14 +81,6 @@ import java.util.Collections;
   private static final int RENDERING_INTERVAL_MS = 10;
   private static final int IDLE_INTERVAL_MS = 1000;
 
-  /**
-   * Offset added to all sample timestamps read by renderers to make them non-negative. This is
-   * provided for convenience of sources that may return negative timestamps due to prerolling
-   * samples from a keyframe before their first sample with timestamp zero, so it must be set to a
-   * value greater than or equal to the maximum key-frame interval in seekable periods.
-   */
-  private static final int RENDERER_TIMESTAMP_OFFSET_US = 60000000;
-
   private final Renderer[] renderers;
   private final RendererCapabilities[] rendererCapabilities;
   private final TrackSelector trackSelector;
@@ -715,7 +707,7 @@ import java.util.Collections;
   private void resetRendererPosition(long periodPositionUs) throws ExoPlaybackException {
     rendererPositionUs =
         !queue.hasPlayingPeriod()
-            ? periodPositionUs + RENDERER_TIMESTAMP_OFFSET_US
+            ? periodPositionUs
             : queue.getPlayingPeriod().toRendererTime(periodPositionUs);
     mediaClock.resetPosition(rendererPositionUs);
     for (Renderer renderer : enabledRenderers) {
@@ -766,7 +758,7 @@ import java.util.Collections;
     handler.removeMessages(MSG_DO_SOME_WORK);
     rebuffering = false;
     mediaClock.stop();
-    rendererPositionUs = RENDERER_TIMESTAMP_OFFSET_US;
+    rendererPositionUs = 0;
     for (Renderer renderer : enabledRenderers) {
       try {
         disableRenderer(renderer);
@@ -1485,7 +1477,6 @@ import java.util.Collections;
         MediaPeriod mediaPeriod =
             queue.enqueueNextMediaPeriod(
                 rendererCapabilities,
-                RENDERER_TIMESTAMP_OFFSET_US,
                 trackSelector,
                 loadControl.getAllocator(),
                 mediaSource,
