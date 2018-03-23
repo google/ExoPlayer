@@ -94,7 +94,7 @@
   ([#3630](https://github.com/google/ExoPlayer/issues/3630)).
 * DASH:
   * Support in-band Emsg events targeting the player with scheme id
-    "urn:mpeg:dash:event:2012" and scheme values "1", "2" and "3".
+    "urn:mpeg`:dash:`event:2012" and scheme values "1", "2" and "3".
   * Support EventStream elements in DASH manifests.
 * HLS:
     * Add opt-in support for chunkless preparation in HLS. This allows an
