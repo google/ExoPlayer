@@ -166,7 +166,7 @@ public final class CacheDataSourceTest2 {
         ? new AesCipherDataSource(Util.getUtf8Bytes(secretKey), file) : file;
 
     // Sink and cipher
-    CacheDataSink cacheSink = new CacheDataSink(cache, EXO_CACHE_MAX_FILESIZE, false);
+    CacheDataSink cacheSink = new CacheDataSink(cache, EXO_CACHE_MAX_FILESIZE);
     byte[] scratch = new byte[3897];
     DataSink cacheWriteDataSink = useAesEncryption
         ? new AesCipherDataSink(Util.getUtf8Bytes(secretKey), cacheSink, scratch) : cacheSink;

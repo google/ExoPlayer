@@ -43,7 +43,7 @@ public final class CacheDataSink implements DataSink {
   private final Cache cache;
   private final long maxCacheFileSize;
   private final int bufferSize;
-  private final boolean skipFDSync;
+  private final boolean syncFileDescriptor;
 
   private DataSpec dataSpec;
   private File file;
@@ -71,10 +71,22 @@ public final class CacheDataSink implements DataSink {
    * @param maxCacheFileSize The maximum size of a cache file, in bytes. If the sink is opened for
    *    a {@link DataSpec} whose size exceeds this value, then the data will be fragmented into
    *    multiple cache files.
-   * @param skipFDSync Skip file descriptor sync when closing current output stream.
    */
-  public CacheDataSink(Cache cache, long maxCacheFileSize, boolean skipFDSync) {
-    this(cache, maxCacheFileSize, DEFAULT_BUFFER_SIZE, skipFDSync);
+  public CacheDataSink(Cache cache, long maxCacheFileSize) {
+    this(cache, maxCacheFileSize, DEFAULT_BUFFER_SIZE, true);
+  }
+
+  /**
+   * Constructs a CacheDataSink using the {@link #DEFAULT_BUFFER_SIZE}.
+   *
+   * @param cache The cache into which data should be written.
+   * @param maxCacheFileSize The maximum size of a cache file, in bytes. If the sink is opened for
+   *    a {@link DataSpec} whose size exceeds this value, then the data will be fragmented into
+   *    multiple cache files.
+   * @param syncFileDescriptor Skip file descriptor sync when closing current output stream.
+   */
+  public CacheDataSink(Cache cache, long maxCacheFileSize, boolean syncFileDescriptor) {
+    this(cache, maxCacheFileSize, DEFAULT_BUFFER_SIZE, syncFileDescriptor);
   }
 
   /**
@@ -84,13 +96,13 @@ public final class CacheDataSink implements DataSink {
    *    multiple cache files.
    * @param bufferSize The buffer size in bytes for writing to a cache file. A zero or negative
    *    value disables buffering.
-   * @param skipFDSync Skip file descriptor sync when closing current output stream.
+   * @param syncFileDescriptor Sync file descriptor when closing current output stream.
    */
-  public CacheDataSink(Cache cache, long maxCacheFileSize, int bufferSize, boolean skipFDSync) {
+  public CacheDataSink(Cache cache, long maxCacheFileSize, int bufferSize, boolean syncFileDescriptor) {
     this.cache = Assertions.checkNotNull(cache);
     this.maxCacheFileSize = maxCacheFileSize;
     this.bufferSize = bufferSize;
-    this.skipFDSync = skipFDSync;
+    this.syncFileDescriptor = syncFileDescriptor;
   }
 
   @Override
@@ -174,7 +186,7 @@ public final class CacheDataSink implements DataSink {
     boolean success = false;
     try {
       outputStream.flush();
-      if (!skipFDSync) {
+      if (syncFileDescriptor) {
         underlyingFileOutputStream.getFD().sync();
       }
       success = true;

@@ -79,22 +79,22 @@ public final class CacheDataSourceTest {
 
   @Test
   public void testCacheAndRead() throws Exception {
-    assertCacheAndRead(false, false, false);
+    assertCacheAndRead(false, false, true);
   }
 
   @Test
   public void testCacheAndReadUnboundedRequest() throws Exception {
-    assertCacheAndRead(true, false, false);
+    assertCacheAndRead(true, false, true);
   }
 
   @Test
   public void testCacheAndReadUnknownLength() throws Exception {
-    assertCacheAndRead(false, true, false);
+    assertCacheAndRead(false, true, true);
   }
 
   @Test
   public void testCacheAndReadUnboundedRequestUnknownLength() throws Exception {
-    assertCacheAndRead(true, true, false);
+    assertCacheAndRead(true, true, true);
   }
 
   @Test
@@ -121,7 +121,7 @@ public final class CacheDataSourceTest {
   public void testUnsatisfiableRange() throws Exception {
     // Bounded request but the content length is unknown. This forces all data to be cached but not
     // the length
-    assertCacheAndRead(false, true, false);
+    assertCacheAndRead(false, true, true);
 
     // Now do an unbounded request. This will read all of the data from cache and then try to read
     // more from upstream which will cause to a 416 so CDS will store the length.
@@ -368,10 +368,10 @@ public final class CacheDataSourceTest {
   }
 
   private void assertCacheAndRead(boolean unboundedRequest, boolean simulateUnknownLength,
-      boolean skipFDSync)
+      boolean syncFD)
       throws IOException {
     // Read all data from upstream and write to cache
-    CacheDataSource cacheDataSource = createCacheDataSource(false, simulateUnknownLength, skipFDSync);
+    CacheDataSource cacheDataSource = createCacheDataSource(false, simulateUnknownLength, syncFD);
     assertReadDataContentLength(cacheDataSource, unboundedRequest, simulateUnknownLength);
 
     // Just read from cache
@@ -412,19 +412,19 @@ public final class CacheDataSourceTest {
 
   private CacheDataSource createCacheDataSource(boolean setReadException,
       boolean simulateUnknownLength) {
-    return createCacheDataSource(setReadException, simulateUnknownLength, false);
+    return createCacheDataSource(setReadException, simulateUnknownLength, true);
   }
 
   private CacheDataSource createCacheDataSource(boolean setReadException,
-      boolean simulateUnknownLength, boolean skipFDSync) {
+      boolean simulateUnknownLength, boolean syncFD) {
     return createCacheDataSource(setReadException, simulateUnknownLength,
-        CacheDataSource.FLAG_BLOCK_ON_CACHE, skipFDSync);
+        CacheDataSource.FLAG_BLOCK_ON_CACHE, syncFD);
   }
 
   private CacheDataSource createCacheDataSource(boolean setReadException,
-      boolean simulateUnknownLength, @CacheDataSource.Flags int flags, boolean skipFDSync) {
+      boolean simulateUnknownLength, @CacheDataSource.Flags int flags, boolean syncFD) {
     return createCacheDataSource(setReadException, simulateUnknownLength, flags,
-        new CacheDataSink(cache, MAX_CACHE_FILE_SIZE, skipFDSync));
+        new CacheDataSink(cache, MAX_CACHE_FILE_SIZE, syncFD));
   }
 
   private CacheDataSource createCacheDataSource(boolean setReadException,

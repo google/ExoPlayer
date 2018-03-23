@@ -44,7 +44,7 @@ public final class CacheDataSinkFactory implements DataSink.Factory {
 
   @Override
   public DataSink createDataSink() {
-    return new CacheDataSink(cache, maxCacheFileSize, bufferSize, false);
+    return new CacheDataSink(cache, maxCacheFileSize, bufferSize, true);
   }
 
 }
