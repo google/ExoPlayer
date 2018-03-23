@@ -25,8 +25,8 @@ import android.support.annotation.NonNull;
 import android.text.TextUtils;
 import android.util.Log;
 import com.google.android.exoplayer2.C;
-import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.drm.DefaultDrmSession.ProvisioningManager;
+import com.google.android.exoplayer2.drm.DefaultDrmSessionEventListener.EventDispatcher;
 import com.google.android.exoplayer2.drm.DrmInitData.SchemeData;
 import com.google.android.exoplayer2.drm.DrmSession.DrmSessionException;
 import com.google.android.exoplayer2.drm.ExoMediaDrm.OnEventListener;
@@ -48,41 +48,9 @@ import java.util.UUID;
 public class DefaultDrmSessionManager<T extends ExoMediaCrypto> implements DrmSessionManager<T>,
     ProvisioningManager<T> {
 
-  /**
-   * Listener of {@link DefaultDrmSessionManager} events.
-   */
-  public interface EventListener {
-
-    /**
-     * Called each time keys are loaded.
-     */
-    void onDrmKeysLoaded();
-
-    /**
-     * Called when a drm error occurs.
-     * <p>
-     * This method being called does not indicate that playback has failed, or that it will fail.
-     * The player may be able to recover from the error and continue. Hence applications should
-     * <em>not</em> implement this method to display a user visible error or initiate an application
-     * level retry ({@link Player.EventListener#onPlayerError} is the appropriate place to implement
-     * such behavior). This method is called to provide the application with an opportunity to log
-     * the error if it wishes to do so.
-     *
-     * @param e The corresponding exception.
-     */
-    void onDrmSessionManagerError(Exception e);
-
-    /**
-     * Called each time offline keys are restored.
-     */
-    void onDrmKeysRestored();
-
-    /**
-     * Called each time offline keys are removed.
-     */
-    void onDrmKeysRemoved();
-
-  }
+  /** @deprecated Use {@link DefaultDrmSessionEventListener}. */
+  @Deprecated
+  public interface EventListener extends DefaultDrmSessionEventListener {}
 
   /**
    * Signals that the {@link DrmInitData} passed to {@link #acquireSession} does not contain does
@@ -127,8 +95,7 @@ public class DefaultDrmSessionManager<T extends ExoMediaCrypto> implements DrmSe
   private final ExoMediaDrm<T> mediaDrm;
   private final MediaDrmCallback callback;
   private final HashMap<String, String> optionalKeyRequestParameters;
-  private final Handler eventHandler;
-  private final EventListener eventListener;
+  private final EventDispatcher eventDispatcher;
   private final boolean multiSession;
   private final int initialDrmRequestRetryCount;
 
@@ -142,39 +109,65 @@ public class DefaultDrmSessionManager<T extends ExoMediaCrypto> implements DrmSe
   /* package */ volatile MediaDrmHandler mediaDrmHandler;
 
   /**
+   * @deprecated Use {@link #newWidevineInstance(MediaDrmCallback, HashMap)} and {@link
+   *     #addListener(Handler, DefaultDrmSessionEventListener)}.
+   */
+  @Deprecated
+  public static DefaultDrmSessionManager<FrameworkMediaCrypto> newWidevineInstance(
+      MediaDrmCallback callback,
+      HashMap<String, String> optionalKeyRequestParameters,
+      Handler eventHandler,
+      DefaultDrmSessionEventListener eventListener)
+      throws UnsupportedDrmException {
+    DefaultDrmSessionManager<FrameworkMediaCrypto> drmSessionManager =
+        newWidevineInstance(callback, optionalKeyRequestParameters);
+    drmSessionManager.addListener(eventHandler, eventListener);
+    return drmSessionManager;
+  }
+
+  /**
    * Instantiates a new instance using the Widevine scheme.
    *
    * @param callback Performs key and provisioning requests.
    * @param optionalKeyRequestParameters An optional map of parameters to pass as the last argument
    *     to {@link ExoMediaDrm#getKeyRequest(byte[], byte[], String, int, HashMap)}. May be null.
-   * @param eventHandler A handler to use when delivering events to {@code eventListener}. May be
-   *     null if delivery of events is not required.
-   * @param eventListener A listener of events. May be null if delivery of events is not required.
    * @throws UnsupportedDrmException If the specified DRM scheme is not supported.
    */
   public static DefaultDrmSessionManager<FrameworkMediaCrypto> newWidevineInstance(
-      MediaDrmCallback callback, HashMap<String, String> optionalKeyRequestParameters,
-      Handler eventHandler, EventListener eventListener) throws UnsupportedDrmException {
-    return newFrameworkInstance(C.WIDEVINE_UUID, callback, optionalKeyRequestParameters,
-        eventHandler, eventListener);
+      MediaDrmCallback callback, HashMap<String, String> optionalKeyRequestParameters)
+      throws UnsupportedDrmException {
+    return newFrameworkInstance(C.WIDEVINE_UUID, callback, optionalKeyRequestParameters);
+  }
+
+  /**
+   * @deprecated Use {@link #newPlayReadyInstance(MediaDrmCallback, String)} and {@link
+   *     #addListener(Handler, DefaultDrmSessionEventListener)}.
+   */
+  @Deprecated
+  public static DefaultDrmSessionManager<FrameworkMediaCrypto> newPlayReadyInstance(
+      MediaDrmCallback callback,
+      String customData,
+      Handler eventHandler,
+      DefaultDrmSessionEventListener eventListener)
+      throws UnsupportedDrmException {
+    DefaultDrmSessionManager<FrameworkMediaCrypto> drmSessionManager =
+        newPlayReadyInstance(callback, customData);
+    drmSessionManager.addListener(eventHandler, eventListener);
+    return drmSessionManager;
   }
 
   /**
    * Instantiates a new instance using the PlayReady scheme.
-   * <p>
-   * Note that PlayReady is unsupported by most Android devices, with the exception of Android TV
+   *
+   * <p>Note that PlayReady is unsupported by most Android devices, with the exception of Android TV
    * devices, which do provide support.
    *
    * @param callback Performs key and provisioning requests.
    * @param customData Optional custom data to include in requests generated by the instance.
-   * @param eventHandler A handler to use when delivering events to {@code eventListener}. May be
-   *     null if delivery of events is not required.
-   * @param eventListener A listener of events. May be null if delivery of events is not required.
    * @throws UnsupportedDrmException If the specified DRM scheme is not supported.
    */
   public static DefaultDrmSessionManager<FrameworkMediaCrypto> newPlayReadyInstance(
-      MediaDrmCallback callback, String customData, Handler eventHandler,
-      EventListener eventListener) throws UnsupportedDrmException {
+      MediaDrmCallback callback, String customData) throws UnsupportedDrmException {
     HashMap<String, String> optionalKeyRequestParameters;
     if (!TextUtils.isEmpty(customData)) {
       optionalKeyRequestParameters = new HashMap<>();
@@ -182,8 +175,25 @@ public class DefaultDrmSessionManager<T extends ExoMediaCrypto> implements DrmSe
     } else {
       optionalKeyRequestParameters = null;
     }
-    return newFrameworkInstance(C.PLAYREADY_UUID, callback, optionalKeyRequestParameters,
-        eventHandler, eventListener);
+    return newFrameworkInstance(C.PLAYREADY_UUID, callback, optionalKeyRequestParameters);
+  }
+
+  /**
+   * @deprecated Use {@link #newFrameworkInstance(UUID, MediaDrmCallback, HashMap)} and {@link
+   *     #addListener(Handler, DefaultDrmSessionEventListener)}.
+   */
+  @Deprecated
+  public static DefaultDrmSessionManager<FrameworkMediaCrypto> newFrameworkInstance(
+      UUID uuid,
+      MediaDrmCallback callback,
+      HashMap<String, String> optionalKeyRequestParameters,
+      Handler eventHandler,
+      DefaultDrmSessionEventListener eventListener)
+      throws UnsupportedDrmException {
+    DefaultDrmSessionManager<FrameworkMediaCrypto> drmSessionManager =
+        newFrameworkInstance(uuid, callback, optionalKeyRequestParameters);
+    drmSessionManager.addListener(eventHandler, eventListener);
+    return drmSessionManager;
   }
 
   /**
@@ -193,34 +203,34 @@ public class DefaultDrmSessionManager<T extends ExoMediaCrypto> implements DrmSe
    * @param callback Performs key and provisioning requests.
    * @param optionalKeyRequestParameters An optional map of parameters to pass as the last argument
    *     to {@link ExoMediaDrm#getKeyRequest(byte[], byte[], String, int, HashMap)}. May be null.
-   * @param eventHandler A handler to use when delivering events to {@code eventListener}. May be
-   *     null if delivery of events is not required.
-   * @param eventListener A listener of events. May be null if delivery of events is not required.
    * @throws UnsupportedDrmException If the specified DRM scheme is not supported.
    */
   public static DefaultDrmSessionManager<FrameworkMediaCrypto> newFrameworkInstance(
-      UUID uuid, MediaDrmCallback callback, HashMap<String, String> optionalKeyRequestParameters,
-      Handler eventHandler, EventListener eventListener) throws UnsupportedDrmException {
-    return new DefaultDrmSessionManager<>(uuid, FrameworkMediaDrm.newInstance(uuid), callback,
-        optionalKeyRequestParameters, eventHandler, eventListener, false,
+      UUID uuid, MediaDrmCallback callback, HashMap<String, String> optionalKeyRequestParameters)
+      throws UnsupportedDrmException {
+    return new DefaultDrmSessionManager<>(
+        uuid,
+        FrameworkMediaDrm.newInstance(uuid),
+        callback,
+        optionalKeyRequestParameters,
+        /* multiSession= */ false,
         INITIAL_DRM_REQUEST_RETRY_COUNT);
   }
 
   /**
-   * @param uuid The UUID of the drm scheme.
-   * @param mediaDrm An underlying {@link ExoMediaDrm} for use by the manager.
-   * @param callback Performs key and provisioning requests.
-   * @param optionalKeyRequestParameters An optional map of parameters to pass as the last argument
-   *     to {@link ExoMediaDrm#getKeyRequest(byte[], byte[], String, int, HashMap)}. May be null.
-   * @param eventHandler A handler to use when delivering events to {@code eventListener}. May be
-   *     null if delivery of events is not required.
-   * @param eventListener A listener of events. May be null if delivery of events is not required.
+   * @deprecated Use {@link #DefaultDrmSessionManager(UUID, ExoMediaDrm, MediaDrmCallback, HashMap)}
+   *     and {@link #addListener(Handler, DefaultDrmSessionEventListener)}.
    */
-  public DefaultDrmSessionManager(UUID uuid, ExoMediaDrm<T> mediaDrm, MediaDrmCallback callback,
-      HashMap<String, String> optionalKeyRequestParameters, Handler eventHandler,
-      EventListener eventListener) {
-    this(uuid, mediaDrm, callback, optionalKeyRequestParameters, eventHandler, eventListener,
-        false, INITIAL_DRM_REQUEST_RETRY_COUNT);
+  @Deprecated
+  public DefaultDrmSessionManager(
+      UUID uuid,
+      ExoMediaDrm<T> mediaDrm,
+      MediaDrmCallback callback,
+      HashMap<String, String> optionalKeyRequestParameters,
+      Handler eventHandler,
+      DefaultDrmSessionEventListener eventListener) {
+    this(uuid, mediaDrm, callback, optionalKeyRequestParameters);
+    addListener(eventHandler, eventListener);
   }
 
   /**
@@ -229,17 +239,84 @@ public class DefaultDrmSessionManager<T extends ExoMediaCrypto> implements DrmSe
    * @param callback Performs key and provisioning requests.
    * @param optionalKeyRequestParameters An optional map of parameters to pass as the last argument
    *     to {@link ExoMediaDrm#getKeyRequest(byte[], byte[], String, int, HashMap)}. May be null.
-   * @param eventHandler A handler to use when delivering events to {@code eventListener}. May be
-   *     null if delivery of events is not required.
-   * @param eventListener A listener of events. May be null if delivery of events is not required.
+   */
+  public DefaultDrmSessionManager(
+      UUID uuid,
+      ExoMediaDrm<T> mediaDrm,
+      MediaDrmCallback callback,
+      HashMap<String, String> optionalKeyRequestParameters) {
+    this(
+        uuid,
+        mediaDrm,
+        callback,
+        optionalKeyRequestParameters,
+        /* multiSession= */ false,
+        INITIAL_DRM_REQUEST_RETRY_COUNT);
+  }
+
+  /**
+   * @deprecated Use {@link #DefaultDrmSessionManager(UUID, ExoMediaDrm, MediaDrmCallback, HashMap,
+   *     boolean)} and {@link #addListener(Handler, DefaultDrmSessionEventListener)}.
+   */
+  @Deprecated
+  public DefaultDrmSessionManager(
+      UUID uuid,
+      ExoMediaDrm<T> mediaDrm,
+      MediaDrmCallback callback,
+      HashMap<String, String> optionalKeyRequestParameters,
+      Handler eventHandler,
+      DefaultDrmSessionEventListener eventListener,
+      boolean multiSession) {
+    this(uuid, mediaDrm, callback, optionalKeyRequestParameters, multiSession);
+    addListener(eventHandler, eventListener);
+  }
+
+  /**
+   * @param uuid The UUID of the drm scheme.
+   * @param mediaDrm An underlying {@link ExoMediaDrm} for use by the manager.
+   * @param callback Performs key and provisioning requests.
+   * @param optionalKeyRequestParameters An optional map of parameters to pass as the last argument
+   *     to {@link ExoMediaDrm#getKeyRequest(byte[], byte[], String, int, HashMap)}. May be null.
    * @param multiSession A boolean that specify whether multiple key session support is enabled.
    *     Default is false.
    */
-  public DefaultDrmSessionManager(UUID uuid, ExoMediaDrm<T> mediaDrm, MediaDrmCallback callback,
-      HashMap<String, String> optionalKeyRequestParameters, Handler eventHandler,
-      EventListener eventListener, boolean multiSession) {
-    this(uuid, mediaDrm, callback, optionalKeyRequestParameters, eventHandler, eventListener,
-        multiSession, INITIAL_DRM_REQUEST_RETRY_COUNT);
+  public DefaultDrmSessionManager(
+      UUID uuid,
+      ExoMediaDrm<T> mediaDrm,
+      MediaDrmCallback callback,
+      HashMap<String, String> optionalKeyRequestParameters,
+      boolean multiSession) {
+    this(
+        uuid,
+        mediaDrm,
+        callback,
+        optionalKeyRequestParameters,
+        multiSession,
+        INITIAL_DRM_REQUEST_RETRY_COUNT);
+  }
+
+  /**
+   * @deprecated Use {@link #DefaultDrmSessionManager(UUID, ExoMediaDrm, MediaDrmCallback, HashMap,
+   *     boolean, int)} and {@link #addListener(Handler, DefaultDrmSessionEventListener)}.
+   */
+  @Deprecated
+  public DefaultDrmSessionManager(
+      UUID uuid,
+      ExoMediaDrm<T> mediaDrm,
+      MediaDrmCallback callback,
+      HashMap<String, String> optionalKeyRequestParameters,
+      Handler eventHandler,
+      DefaultDrmSessionEventListener eventListener,
+      boolean multiSession,
+      int initialDrmRequestRetryCount) {
+    this(
+        uuid,
+        mediaDrm,
+        callback,
+        optionalKeyRequestParameters,
+        multiSession,
+        initialDrmRequestRetryCount);
+    addListener(eventHandler, eventListener);
   }
 
   /**
@@ -248,17 +325,18 @@ public class DefaultDrmSessionManager<T extends ExoMediaCrypto> implements DrmSe
    * @param callback Performs key and provisioning requests.
    * @param optionalKeyRequestParameters An optional map of parameters to pass as the last argument
    *     to {@link ExoMediaDrm#getKeyRequest(byte[], byte[], String, int, HashMap)}. May be null.
-   * @param eventHandler A handler to use when delivering events to {@code eventListener}. May be
-   *     null if delivery of events is not required.
-   * @param eventListener A listener of events. May be null if delivery of events is not required.
    * @param multiSession A boolean that specify whether multiple key session support is enabled.
    *     Default is false.
    * @param initialDrmRequestRetryCount The number of times to retry for initial provisioning and
    *     key request before reporting error.
    */
-  public DefaultDrmSessionManager(UUID uuid, ExoMediaDrm<T> mediaDrm, MediaDrmCallback callback,
-      HashMap<String, String> optionalKeyRequestParameters, Handler eventHandler,
-      EventListener eventListener, boolean multiSession, int initialDrmRequestRetryCount) {
+  public DefaultDrmSessionManager(
+      UUID uuid,
+      ExoMediaDrm<T> mediaDrm,
+      MediaDrmCallback callback,
+      HashMap<String, String> optionalKeyRequestParameters,
+      boolean multiSession,
+      int initialDrmRequestRetryCount) {
     Assertions.checkNotNull(uuid);
     Assertions.checkNotNull(mediaDrm);
     Assertions.checkArgument(!C.COMMON_PSSH_UUID.equals(uuid), "Use C.CLEARKEY_UUID instead");
@@ -266,8 +344,7 @@ public class DefaultDrmSessionManager<T extends ExoMediaCrypto> implements DrmSe
     this.mediaDrm = mediaDrm;
     this.callback = callback;
     this.optionalKeyRequestParameters = optionalKeyRequestParameters;
-    this.eventHandler = eventHandler;
-    this.eventListener = eventListener;
+    this.eventDispatcher = new EventDispatcher();
     this.multiSession = multiSession;
     this.initialDrmRequestRetryCount = initialDrmRequestRetryCount;
     mode = MODE_PLAYBACK;
@@ -277,6 +354,25 @@ public class DefaultDrmSessionManager<T extends ExoMediaCrypto> implements DrmSe
       mediaDrm.setPropertyString("sessionSharing", "enable");
     }
     mediaDrm.setOnEventListener(new MediaDrmEventListener());
+  }
+
+  /**
+   * Adds a {@link DefaultDrmSessionEventListener} to listen to drm session events.
+   *
+   * @param handler A handler to use when delivering events to {@code eventListener}.
+   * @param eventListener A listener of events.
+   */
+  public final void addListener(Handler handler, DefaultDrmSessionEventListener eventListener) {
+    eventDispatcher.addListener(handler, eventListener);
+  }
+
+  /**
+   * Removes a {@link DefaultDrmSessionEventListener} from the list of drm session event listeners.
+   *
+   * @param eventListener The listener to remove.
+   */
+  public final void removeListener(DefaultDrmSessionEventListener eventListener) {
+    eventDispatcher.removeListener(eventListener);
   }
 
   /**
@@ -406,15 +502,7 @@ public class DefaultDrmSessionManager<T extends ExoMediaCrypto> implements DrmSe
       SchemeData data = getSchemeData(drmInitData, uuid, false);
       if (data == null) {
         final MissingSchemeDataException error = new MissingSchemeDataException(uuid);
-        if (eventHandler != null && eventListener != null) {
-          eventHandler.post(
-              new Runnable() {
-                @Override
-                public void run() {
-                  eventListener.onDrmSessionManagerError(error);
-                }
-              });
-        }
+        eventDispatcher.drmSessionManagerError(error);
         return new ErrorStateDrmSession<>(new DrmSessionException(error));
       }
       initData = getSchemeInitData(data, uuid);
@@ -437,9 +525,20 @@ public class DefaultDrmSessionManager<T extends ExoMediaCrypto> implements DrmSe
 
     if (session == null) {
       // Create a new session.
-      session = new DefaultDrmSession<>(uuid, mediaDrm, this, initData, mimeType, mode,
-          offlineLicenseKeySetId, optionalKeyRequestParameters, callback, playbackLooper,
-          eventHandler, eventListener, initialDrmRequestRetryCount);
+      session =
+          new DefaultDrmSession<>(
+              uuid,
+              mediaDrm,
+              this,
+              initData,
+              mimeType,
+              mode,
+              offlineLicenseKeySetId,
+              optionalKeyRequestParameters,
+              callback,
+              playbackLooper,
+              eventDispatcher,
+              initialDrmRequestRetryCount);
       sessions.add(session);
     }
     session.acquire();

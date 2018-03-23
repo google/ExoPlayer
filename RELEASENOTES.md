@@ -33,6 +33,7 @@
   * Add release method to Cache interface.
   * Prevent multiple instances of SimpleCache in the same folder.
     Previous instance must be released.
+* DRM: Allow multiple listeners for `DefaultDrmSessionManager`.
 * Fix ANR issue on Redmi 4X and Redmi Note 4
   ([#4006](https://github.com/google/ExoPlayer/issues/4006)).
 * Removed default renderer time offset of 60000000 from internal player. The

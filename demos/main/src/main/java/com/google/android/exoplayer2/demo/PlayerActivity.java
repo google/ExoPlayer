@@ -432,8 +432,11 @@ public class PlayerActivity extends Activity
             keyRequestPropertiesArray[i + 1]);
       }
     }
-    return new DefaultDrmSessionManager<>(uuid, FrameworkMediaDrm.newInstance(uuid), drmCallback,
-        null, mainHandler, eventLogger, multiSession);
+    DefaultDrmSessionManager<FrameworkMediaCrypto> drmSessionManager =
+        new DefaultDrmSessionManager<>(
+            uuid, FrameworkMediaDrm.newInstance(uuid), drmCallback, null, multiSession);
+    drmSessionManager.addListener(mainHandler, eventLogger);
+    return drmSessionManager;
   }
 
   private void releasePlayer() {
