@@ -46,7 +46,7 @@ class JavaDataSource : public DataSource {
 
   ssize_t readAt(off64_t offset, void *const data, size_t size) {
     jobject byteBuffer = env->NewDirectByteBuffer(data, size);
-    int result = env->CallIntMethod(flacDecoderJni, readMethodId(), byteBuffer);
+    int result = env->CallIntMethod(flacDecoderJni, readMethodId(), byteBuffer, offset);
     if (env->ExceptionCheck()) {
       // Exception is thrown in Java when returning from the native call.
       result = -1;
@@ -66,7 +66,7 @@ class JavaDataSource : public DataSource {
 
   jmethodID readMethodId() {
     jclass cls = env->GetObjectClass(flacDecoderJni);
-    jmethodID mid = env->GetMethodID(cls, "read", "(Ljava/nio/ByteBuffer;)I");
+    jmethodID mid = env->GetMethodID(cls, "read", "(Ljava/nio/ByteBuffer;I)I");
     env->DeleteLocalRef(cls);
     return mid;
   }
@@ -172,6 +172,11 @@ DECODER_FUNC(void, flacFlush, jlong jContext) {
 DECODER_FUNC(void, flacReset, jlong jContext, jlong newPosition) {
   Context *context = reinterpret_cast<Context *>(jContext);
   context->parser->reset(newPosition);
+}
+
+DECODER_FUNC(void, flacSeekAbsolute, jlong jContext, jlong timeUs) {
+  Context *context = reinterpret_cast<Context *>(jContext);
+  context->parser->seekAbsolute(timeUs);
 }
 
 DECODER_FUNC(void, flacRelease, jlong jContext) {

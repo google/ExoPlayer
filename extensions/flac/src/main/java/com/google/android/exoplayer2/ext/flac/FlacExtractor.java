@@ -66,6 +66,7 @@ public final class FlacExtractor implements Extractor {
 
   private ParsableByteArray outputBuffer;
   private ByteBuffer outputByteBuffer;
+  private long absoluteSeekTimeUs = 0;
 
   @Override
   public void init(ExtractorOutput output) {
@@ -105,11 +106,7 @@ public final class FlacExtractor implements Extractor {
       }
       metadataParsed = true;
 
-      boolean isSeekable = decoderJni.getSeekPosition(0) != -1;
-      extractorOutput.seekMap(
-          isSeekable
-              ? new FlacSeekMap(streamInfo.durationUs(), decoderJni)
-              : new SeekMap.Unseekable(streamInfo.durationUs(), 0));
+      extractorOutput.seekMap(new FlacSeekMap(streamInfo.durationUs(), decoderJni));
       Format mediaFormat =
           Format.createAudioSampleFormat(
               null,
@@ -131,6 +128,10 @@ public final class FlacExtractor implements Extractor {
     }
 
     outputBuffer.reset();
+    if (absoluteSeekTimeUs != 0) {
+      decoderJni.seekAbsolute(absoluteSeekTimeUs);
+      absoluteSeekTimeUs = 0;
+    }
     long lastDecodePosition = decoderJni.getDecodePosition();
     int size;
     try {
@@ -158,6 +159,9 @@ public final class FlacExtractor implements Extractor {
       metadataParsed = false;
     }
     if (decoderJni != null) {
+      if (position == 0){
+        absoluteSeekTimeUs = timeUs;
+      }
       decoderJni.reset(position);
     }
   }
@@ -188,7 +192,8 @@ public final class FlacExtractor implements Extractor {
     @Override
     public SeekPoints getSeekPoints(long timeUs) {
       // TODO: Access the seek table via JNI to return two seek points when appropriate.
-      return new SeekPoints(new SeekPoint(timeUs, decoderJni.getSeekPosition(timeUs)));
+      long pos = decoderJni.getSeekPosition(timeUs);
+      return new SeekPoints(new SeekPoint(timeUs, pos == -1 ? 0 : pos));
     }
 
     @Override
