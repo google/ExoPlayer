@@ -116,6 +116,17 @@ import java.nio.ByteBuffer;
     return byteCount;
   }
 
+  /**
+   * This method is called from the native code.
+   */
+  public long getStreamLength() {
+    if (extractorInput != null) {
+      return extractorInput.getLength();
+    } else {
+      return -1;
+    }
+  }
+
   public FlacStreamInfo decodeMetadata() throws IOException, InterruptedException {
     return flacDecodeMetadata(nativeDecoderContext);
   }

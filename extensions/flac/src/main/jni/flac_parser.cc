@@ -139,7 +139,12 @@ FLAC__StreamDecoderTellStatus FLACParser::tellCallback(
 
 FLAC__StreamDecoderLengthStatus FLACParser::lengthCallback(
     FLAC__uint64 *stream_length) {
-  return FLAC__STREAM_DECODER_LENGTH_STATUS_UNSUPPORTED;
+  ssize_t length = (FLAC__uint64)mDataSource->getStreamLength();
+  if (length == -1) {
+    return FLAC__STREAM_DECODER_LENGTH_STATUS_UNSUPPORTED;
+  }
+  *stream_length = (FLAC__uint64)length;
+  return FLAC__STREAM_DECODER_LENGTH_STATUS_OK;
 }
 
 FLAC__bool FLACParser::eofCallback() { return mEOF; }

@@ -27,6 +27,8 @@ class DataSource {
   // this returns zero; it just means the given offset is equal to, or
   // beyond, the end of the source.
   virtual ssize_t readAt(off64_t offset, void* const data, size_t size) = 0;
+
+  virtual ssize_t getStreamLength() = 0;
 };
 
 #endif  // INCLUDE_DATA_SOURCE_H_
