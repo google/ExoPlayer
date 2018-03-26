@@ -134,6 +134,22 @@ public interface MediaSourceEventListener {
   }
 
   /**
+   * Called when a media period is created by the media source.
+   *
+   * @param windowIndex The window index in the timeline this media period belongs to.
+   * @param mediaPeriodId The {@link MediaPeriodId} of the created media period.
+   */
+  void onMediaPeriodCreated(int windowIndex, MediaPeriodId mediaPeriodId);
+
+  /**
+   * Called when a media period is released by the media source.
+   *
+   * @param windowIndex The window index in the timeline this media period belongs to.
+   * @param mediaPeriodId The {@link MediaPeriodId} of the released media period.
+   */
+  void onMediaPeriodReleased(int windowIndex, MediaPeriodId mediaPeriodId);
+
+  /**
    * Called when a load begins.
    *
    * @param windowIndex The window index in the timeline of the media source this load belongs to.
@@ -207,6 +223,14 @@ public interface MediaSourceEventListener {
       MediaLoadData mediaLoadData,
       IOException error,
       boolean wasCanceled);
+
+  /**
+   * Called when a media period is first being read from.
+   *
+   * @param windowIndex The window index in the timeline this media period belongs to.
+   * @param mediaPeriodId The {@link MediaPeriodId} of the media period being read from.
+   */
+  void onReadingStarted(int windowIndex, MediaPeriodId mediaPeriodId);
 
   /**
    * Called when data is removed from the back of a media buffer, typically so that it can be
@@ -298,6 +322,38 @@ public interface MediaSourceEventListener {
         if (listenerAndHandler.listener == eventListener) {
           listenerAndHandlers.remove(listenerAndHandler);
         }
+      }
+    }
+
+    /** Dispatches {@link #onMediaPeriodCreated(int, MediaPeriodId)}. */
+    public void mediaPeriodCreated() {
+      Assertions.checkState(mediaPeriodId != null);
+      for (ListenerAndHandler listenerAndHandler : listenerAndHandlers) {
+        final MediaSourceEventListener listener = listenerAndHandler.listener;
+        postOrRun(
+            listenerAndHandler.handler,
+            new Runnable() {
+              @Override
+              public void run() {
+                listener.onMediaPeriodCreated(windowIndex, mediaPeriodId);
+              }
+            });
+      }
+    }
+
+    /** Dispatches {@link #onMediaPeriodReleased(int, MediaPeriodId)}. */
+    public void mediaPeriodReleased() {
+      Assertions.checkState(mediaPeriodId != null);
+      for (ListenerAndHandler listenerAndHandler : listenerAndHandlers) {
+        final MediaSourceEventListener listener = listenerAndHandler.listener;
+        postOrRun(
+            listenerAndHandler.handler,
+            new Runnable() {
+              @Override
+              public void run() {
+                listener.onMediaPeriodReleased(windowIndex, mediaPeriodId);
+              }
+            });
       }
     }
 
@@ -555,6 +611,22 @@ public interface MediaSourceEventListener {
               public void run() {
                 listener.onLoadError(
                     windowIndex, mediaPeriodId, loadEventInfo, mediaLoadData, error, wasCanceled);
+              }
+            });
+      }
+    }
+
+    /** Dispatches {@link #onReadingStarted(int, MediaPeriodId)}. */
+    public void readingStarted() {
+      Assertions.checkState(mediaPeriodId != null);
+      for (ListenerAndHandler listenerAndHandler : listenerAndHandlers) {
+        final MediaSourceEventListener listener = listenerAndHandler.listener;
+        postOrRun(
+            listenerAndHandler.handler,
+            new Runnable() {
+              @Override
+              public void run() {
+                listener.onReadingStarted(windowIndex, mediaPeriodId);
               }
             });
       }

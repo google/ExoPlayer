@@ -56,6 +56,7 @@ import java.util.Arrays;
   /* package */ final Format format;
   /* package */ final boolean treatLoadErrorsAsEndOfStream;
 
+  /* package */ boolean notifiedReadingStarted;
   /* package */ boolean loadingFinished;
   /* package */ boolean loadingSucceeded;
   /* package */ byte[] sampleData;
@@ -80,10 +81,12 @@ import java.util.Arrays;
     tracks = new TrackGroupArray(new TrackGroup(format));
     sampleStreams = new ArrayList<>();
     loader = new Loader("Loader:SingleSampleMediaPeriod");
+    eventDispatcher.mediaPeriodCreated();
   }
 
   public void release() {
     loader.release();
+    eventDispatcher.mediaPeriodReleased();
   }
 
   @Override
@@ -154,6 +157,10 @@ import java.util.Arrays;
 
   @Override
   public long readDiscontinuity() {
+    if (!notifiedReadingStarted) {
+      eventDispatcher.readingStarted();
+      notifiedReadingStarted = true;
+    }
     return C.TIME_UNSET;
   }
 

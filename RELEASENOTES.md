@@ -24,6 +24,8 @@
   * Allow adding and removing `MediaSourceEventListener`s to MediaSources after
     they have been created. Listening to events is now supported for all
     media sources including composite sources.
+  * Added callbacks to `MediaSourceEventListener` to get notified when media
+    periods are created, released and being read from.
 * Audio:
   * Factor out `AudioTrack` position tracking from `DefaultAudioSink`.
   * Fix an issue where the playback position would pause just after playback

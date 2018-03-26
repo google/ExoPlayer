@@ -186,6 +186,20 @@ public abstract class CompositeMediaSource<T> extends BaseMediaSource {
     }
 
     @Override
+    public void onMediaPeriodCreated(int windowIndex, MediaPeriodId mediaPeriodId) {
+      if (maybeUpdateEventDispatcher(windowIndex, mediaPeriodId)) {
+        eventDispatcher.mediaPeriodCreated();
+      }
+    }
+
+    @Override
+    public void onMediaPeriodReleased(int windowIndex, MediaPeriodId mediaPeriodId) {
+      if (maybeUpdateEventDispatcher(windowIndex, mediaPeriodId)) {
+        eventDispatcher.mediaPeriodReleased();
+      }
+    }
+
+    @Override
     public void onLoadStarted(
         int windowIndex,
         @Nullable MediaPeriodId mediaPeriodId,
@@ -229,6 +243,13 @@ public abstract class CompositeMediaSource<T> extends BaseMediaSource {
       if (maybeUpdateEventDispatcher(windowIndex, mediaPeriodId)) {
         eventDispatcher.loadError(
             loadEventData, maybeUpdateMediaLoadData(mediaLoadData), error, wasCanceled);
+      }
+    }
+
+    @Override
+    public void onReadingStarted(int windowIndex, MediaPeriodId mediaPeriodId) {
+      if (maybeUpdateEventDispatcher(windowIndex, mediaPeriodId)) {
+        eventDispatcher.readingStarted();
       }
     }
 

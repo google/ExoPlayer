@@ -363,6 +363,16 @@ public class EventLogger
   // MediaSourceEventListener
 
   @Override
+  public void onMediaPeriodCreated(int windowIndex, MediaPeriodId mediaPeriodId) {
+    // Do nothing.
+  }
+
+  @Override
+  public void onMediaPeriodReleased(int windowIndex, MediaPeriodId mediaPeriodId) {
+    // Do nothing.
+  }
+
+  @Override
   public void onLoadStarted(
       int windowIndex,
       @Nullable MediaPeriodId mediaPeriodId,
@@ -397,6 +407,11 @@ public class EventLogger
       @Nullable MediaPeriodId mediaPeriodId,
       LoadEventInfo loadEventInfo,
       MediaLoadData mediaLoadData) {
+    // Do nothing.
+  }
+
+  @Override
+  public void onReadingStarted(int windowIndex, MediaPeriodId mediaPeriodId) {
     // Do nothing.
   }
 
