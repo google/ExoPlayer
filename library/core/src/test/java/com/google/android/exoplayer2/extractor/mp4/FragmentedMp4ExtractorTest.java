@@ -37,6 +37,12 @@ public final class FragmentedMp4ExtractorTest {
   }
 
   @Test
+  public void testSampleSeekable() throws Exception {
+    ExtractorAsserts.assertBehavior(
+        getExtractorFactory(Collections.<Format>emptyList()), "mp4/sample_fragmented_seekable.mp4");
+  }
+
+  @Test
   public void testSampleWithSeiPayloadParsing() throws Exception {
     // Enabling the CEA-608 track enables SEI payload parsing.
     ExtractorFactory extractorFactory =
