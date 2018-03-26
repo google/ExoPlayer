@@ -227,8 +227,8 @@ import javax.crypto.spec.SecretKeySpec;
     cachedContent.applyMetadataMutations(mutations);
   }
 
-  /** Returns a snapshot of the {@link ContentMetadata} for the given key. */
-  public ContentMetadata getContentMetadataSnapshot(String key) {
+  /** Returns a {@link ContentMetadata} for the given key. */
+  public ContentMetadata getContentMetadata(String key) {
     CachedContent cachedContent = get(key);
     return cachedContent != null ? cachedContent.getMetadata() : DefaultContentMetadata.EMPTY;
   }

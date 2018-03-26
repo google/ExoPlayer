@@ -15,7 +15,7 @@
  */
 package com.google.android.exoplayer2.upstream.cache;
 
-/** Interface for accessing cached content metadata which is stored as name, value pairs. */
+/** Interface for an immutable snapshot of keyed metadata. */
 public interface ContentMetadata {
 
   /**

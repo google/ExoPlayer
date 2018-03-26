@@ -466,7 +466,7 @@ public final class SimpleCache implements Cache {
   }
 
   @Override
-  public ContentMetadata getContentMetadataSnapshot(String key) {
-    return index.getContentMetadataSnapshot(key);
+  public ContentMetadata getContentMetadata(String key) {
+    return index.getContentMetadata(key);
   }
 }
