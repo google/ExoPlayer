@@ -257,10 +257,10 @@ public interface Cache {
       throws CacheException;
 
   /**
-   * Returns a snapshot of the {@link ContentMetadata} for the given key.
+   * Returns a {@link ContentMetadata} for the given key.
    *
    * @param key The cache key for the data.
-   * @return A snapshot of the {@link ContentMetadata} for the given key.
+   * @return A {@link ContentMetadata} for the given key.
    */
-  ContentMetadata getContentMetadataSnapshot(String key);
+  ContentMetadata getContentMetadata(String key);
 }
