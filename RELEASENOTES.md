@@ -35,7 +35,9 @@
   * Add release method to Cache interface.
   * Prevent multiple instances of SimpleCache in the same folder.
     Previous instance must be released.
-* DRM: Allow multiple listeners for `DefaultDrmSessionManager`.
+* DRM:
+  * Allow multiple listeners for `DefaultDrmSessionManager`.
+  * Pass `DrmSessionManager` to `ExoPlayerFactory` instead of `RendererFactory`.
 * Fix handling of zero padded strings when parsing Matroska streams
   ([#4010](https://github.com/google/ExoPlayer/issues/4010)).
 * Fix ANR issue on Redmi 4X and Redmi Note 4

@@ -90,28 +90,37 @@ public class DefaultRenderersFactory implements RenderersFactory {
    * @param context A {@link Context}.
    */
   public DefaultRenderersFactory(Context context) {
-    this(context, null);
+    this(context, EXTENSION_RENDERER_MODE_OFF);
   }
 
   /**
-   * @param context A {@link Context}.
-   * @param drmSessionManager An optional {@link DrmSessionManager}. May be null if DRM protected
-   *     playbacks are not required.
+   * @deprecated Use {@link #DefaultRenderersFactory(Context)} and pass {@link DrmSessionManager}
+   *     directly to {@link SimpleExoPlayer} or {@link ExoPlayerFactory}.
    */
-  public DefaultRenderersFactory(Context context,
-      @Nullable DrmSessionManager<FrameworkMediaCrypto> drmSessionManager) {
+  @Deprecated
+  public DefaultRenderersFactory(
+      Context context, @Nullable DrmSessionManager<FrameworkMediaCrypto> drmSessionManager) {
     this(context, drmSessionManager, EXTENSION_RENDERER_MODE_OFF);
   }
 
   /**
    * @param context A {@link Context}.
-   * @param drmSessionManager An optional {@link DrmSessionManager}. May be null if DRM protected
-   *     playbacks are not required.
-   * @param extensionRendererMode The extension renderer mode, which determines if and how
-   *     available extension renderers are used. Note that extensions must be included in the
-   *     application build for them to be considered available.
+   * @param extensionRendererMode The extension renderer mode, which determines if and how available
+   *     extension renderers are used. Note that extensions must be included in the application
+   *     build for them to be considered available.
    */
-  public DefaultRenderersFactory(Context context,
+  public DefaultRenderersFactory(
+      Context context, @ExtensionRendererMode int extensionRendererMode) {
+    this(context, null, extensionRendererMode, DEFAULT_ALLOWED_VIDEO_JOINING_TIME_MS);
+  }
+
+  /**
+   * @deprecated Use {@link #DefaultRenderersFactory(Context, int)} and pass {@link
+   *     DrmSessionManager} directly to {@link SimpleExoPlayer} or {@link ExoPlayerFactory}.
+   */
+  @Deprecated
+  public DefaultRenderersFactory(
+      Context context,
       @Nullable DrmSessionManager<FrameworkMediaCrypto> drmSessionManager,
       @ExtensionRendererMode int extensionRendererMode) {
     this(context, drmSessionManager, extensionRendererMode, DEFAULT_ALLOWED_VIDEO_JOINING_TIME_MS);
@@ -119,28 +128,46 @@ public class DefaultRenderersFactory implements RenderersFactory {
 
   /**
    * @param context A {@link Context}.
-   * @param drmSessionManager An optional {@link DrmSessionManager}. May be null if DRM protected
-   *     playbacks are not required.
-   * @param extensionRendererMode The extension renderer mode, which determines if and how
-   *     available extension renderers are used. Note that extensions must be included in the
-   *     application build for them to be considered available.
-   * @param allowedVideoJoiningTimeMs The maximum duration for which video renderers can attempt
-   *     to seamlessly join an ongoing playback.
+   * @param extensionRendererMode The extension renderer mode, which determines if and how available
+   *     extension renderers are used. Note that extensions must be included in the application
+   *     build for them to be considered available.
+   * @param allowedVideoJoiningTimeMs The maximum duration for which video renderers can attempt to
+   *     seamlessly join an ongoing playback.
    */
-  public DefaultRenderersFactory(Context context,
+  public DefaultRenderersFactory(
+      Context context,
+      @ExtensionRendererMode int extensionRendererMode,
+      long allowedVideoJoiningTimeMs) {
+    this(context, null, extensionRendererMode, allowedVideoJoiningTimeMs);
+  }
+
+  /**
+   * @deprecated Use {@link #DefaultRenderersFactory(Context, int, long)} and pass {@link
+   *     DrmSessionManager} directly to {@link SimpleExoPlayer} or {@link ExoPlayerFactory}.
+   */
+  @Deprecated
+  public DefaultRenderersFactory(
+      Context context,
       @Nullable DrmSessionManager<FrameworkMediaCrypto> drmSessionManager,
-      @ExtensionRendererMode int extensionRendererMode, long allowedVideoJoiningTimeMs) {
+      @ExtensionRendererMode int extensionRendererMode,
+      long allowedVideoJoiningTimeMs) {
     this.context = context;
-    this.drmSessionManager = drmSessionManager;
     this.extensionRendererMode = extensionRendererMode;
     this.allowedVideoJoiningTimeMs = allowedVideoJoiningTimeMs;
+    this.drmSessionManager = drmSessionManager;
   }
 
   @Override
-  public Renderer[] createRenderers(Handler eventHandler,
+  public Renderer[] createRenderers(
+      Handler eventHandler,
       VideoRendererEventListener videoRendererEventListener,
       AudioRendererEventListener audioRendererEventListener,
-      TextOutput textRendererOutput, MetadataOutput metadataRendererOutput) {
+      TextOutput textRendererOutput,
+      MetadataOutput metadataRendererOutput,
+      @Nullable DrmSessionManager<FrameworkMediaCrypto> drmSessionManager) {
+    if (drmSessionManager == null) {
+      drmSessionManager = this.drmSessionManager;
+    }
     ArrayList<Renderer> renderersList = new ArrayList<>();
     buildVideoRenderers(context, drmSessionManager, allowedVideoJoiningTimeMs,
         eventHandler, videoRendererEventListener, extensionRendererMode, renderersList);

@@ -30,6 +30,8 @@ import android.view.TextureView;
 import com.google.android.exoplayer2.audio.AudioAttributes;
 import com.google.android.exoplayer2.audio.AudioRendererEventListener;
 import com.google.android.exoplayer2.decoder.DecoderCounters;
+import com.google.android.exoplayer2.drm.DrmSessionManager;
+import com.google.android.exoplayer2.drm.FrameworkMediaCrypto;
 import com.google.android.exoplayer2.metadata.Metadata;
 import com.google.android.exoplayer2.metadata.MetadataOutput;
 import com.google.android.exoplayer2.source.MediaSource;
@@ -88,16 +90,23 @@ public class SimpleExoPlayer implements ExoPlayer, Player.VideoComponent, Player
    * @param renderersFactory A factory for creating {@link Renderer}s to be used by the instance.
    * @param trackSelector The {@link TrackSelector} that will be used by the instance.
    * @param loadControl The {@link LoadControl} that will be used by the instance.
+   * @param drmSessionManager An optional {@link DrmSessionManager}. May be null if the instance
+   *     will not be used for DRM protected playbacks.
    */
   protected SimpleExoPlayer(
-      RenderersFactory renderersFactory, TrackSelector trackSelector, LoadControl loadControl) {
-    this(renderersFactory, trackSelector, loadControl, Clock.DEFAULT);
+      RenderersFactory renderersFactory,
+      TrackSelector trackSelector,
+      LoadControl loadControl,
+      @Nullable DrmSessionManager<FrameworkMediaCrypto> drmSessionManager) {
+    this(renderersFactory, trackSelector, loadControl, drmSessionManager, Clock.DEFAULT);
   }
 
   /**
    * @param renderersFactory A factory for creating {@link Renderer}s to be used by the instance.
    * @param trackSelector The {@link TrackSelector} that will be used by the instance.
    * @param loadControl The {@link LoadControl} that will be used by the instance.
+   * @param drmSessionManager An optional {@link DrmSessionManager}. May be null if the instance
+   *     will not be used for DRM protected playbacks.
    * @param clock The {@link Clock} that will be used by the instance. Should always be {@link
    *     Clock#DEFAULT}, unless the player is being used from a test.
    */
@@ -105,6 +114,7 @@ public class SimpleExoPlayer implements ExoPlayer, Player.VideoComponent, Player
       RenderersFactory renderersFactory,
       TrackSelector trackSelector,
       LoadControl loadControl,
+      @Nullable DrmSessionManager<FrameworkMediaCrypto> drmSessionManager,
       Clock clock) {
     componentListener = new ComponentListener();
     videoListeners = new CopyOnWriteArraySet<>();
@@ -114,8 +124,14 @@ public class SimpleExoPlayer implements ExoPlayer, Player.VideoComponent, Player
     audioDebugListeners = new CopyOnWriteArraySet<>();
     Looper eventLooper = Looper.myLooper() != null ? Looper.myLooper() : Looper.getMainLooper();
     Handler eventHandler = new Handler(eventLooper);
-    renderers = renderersFactory.createRenderers(eventHandler, componentListener, componentListener,
-        componentListener, componentListener);
+    renderers =
+        renderersFactory.createRenderers(
+            eventHandler,
+            componentListener,
+            componentListener,
+            componentListener,
+            componentListener,
+            drmSessionManager);
 
     // Set initial values.
     audioVolume = 1;

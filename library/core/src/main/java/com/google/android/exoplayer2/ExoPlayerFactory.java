@@ -58,8 +58,8 @@ public final class ExoPlayerFactory {
   public static SimpleExoPlayer newSimpleInstance(Context context, TrackSelector trackSelector,
       LoadControl loadControl,
       @Nullable DrmSessionManager<FrameworkMediaCrypto> drmSessionManager) {
-    RenderersFactory renderersFactory = new DefaultRenderersFactory(context, drmSessionManager);
-    return newSimpleInstance(renderersFactory, trackSelector, loadControl);
+    RenderersFactory renderersFactory = new DefaultRenderersFactory(context);
+    return newSimpleInstance(renderersFactory, trackSelector, loadControl, drmSessionManager);
   }
 
   /**
@@ -79,9 +79,8 @@ public final class ExoPlayerFactory {
   public static SimpleExoPlayer newSimpleInstance(Context context, TrackSelector trackSelector,
       LoadControl loadControl, @Nullable DrmSessionManager<FrameworkMediaCrypto> drmSessionManager,
       @DefaultRenderersFactory.ExtensionRendererMode int extensionRendererMode) {
-    RenderersFactory renderersFactory = new DefaultRenderersFactory(context, drmSessionManager,
-        extensionRendererMode);
-    return newSimpleInstance(renderersFactory, trackSelector, loadControl);
+    RenderersFactory renderersFactory = new DefaultRenderersFactory(context, extensionRendererMode);
+    return newSimpleInstance(renderersFactory, trackSelector, loadControl, drmSessionManager);
   }
 
   /**
@@ -104,9 +103,9 @@ public final class ExoPlayerFactory {
       LoadControl loadControl, @Nullable DrmSessionManager<FrameworkMediaCrypto> drmSessionManager,
       @DefaultRenderersFactory.ExtensionRendererMode int extensionRendererMode,
       long allowedVideoJoiningTimeMs) {
-    RenderersFactory renderersFactory = new DefaultRenderersFactory(context, drmSessionManager,
-        extensionRendererMode, allowedVideoJoiningTimeMs);
-    return newSimpleInstance(renderersFactory, trackSelector, loadControl);
+    RenderersFactory renderersFactory =
+        new DefaultRenderersFactory(context, extensionRendererMode, allowedVideoJoiningTimeMs);
+    return newSimpleInstance(renderersFactory, trackSelector, loadControl, drmSessionManager);
   }
 
   /**
@@ -135,11 +134,45 @@ public final class ExoPlayerFactory {
    *
    * @param renderersFactory A factory for creating {@link Renderer}s to be used by the instance.
    * @param trackSelector The {@link TrackSelector} that will be used by the instance.
+   * @param drmSessionManager An optional {@link DrmSessionManager}. May be null if the instance
+   *     will not be used for DRM protected playbacks.
+   */
+  public static SimpleExoPlayer newSimpleInstance(
+      RenderersFactory renderersFactory,
+      TrackSelector trackSelector,
+      @Nullable DrmSessionManager<FrameworkMediaCrypto> drmSessionManager) {
+    return newSimpleInstance(
+        renderersFactory, trackSelector, new DefaultLoadControl(), drmSessionManager);
+  }
+
+  /**
+   * Creates a {@link SimpleExoPlayer} instance.
+   *
+   * @param renderersFactory A factory for creating {@link Renderer}s to be used by the instance.
+   * @param trackSelector The {@link TrackSelector} that will be used by the instance.
    * @param loadControl The {@link LoadControl} that will be used by the instance.
    */
   public static SimpleExoPlayer newSimpleInstance(RenderersFactory renderersFactory,
       TrackSelector trackSelector, LoadControl loadControl) {
-    return new SimpleExoPlayer(renderersFactory, trackSelector, loadControl);
+    return new SimpleExoPlayer(
+        renderersFactory, trackSelector, loadControl, /* drmSessionManager= */ null);
+  }
+
+  /**
+   * Creates a {@link SimpleExoPlayer} instance.
+   *
+   * @param renderersFactory A factory for creating {@link Renderer}s to be used by the instance.
+   * @param trackSelector The {@link TrackSelector} that will be used by the instance.
+   * @param loadControl The {@link LoadControl} that will be used by the instance.
+   * @param drmSessionManager An optional {@link DrmSessionManager}. May be null if the instance
+   *     will not be used for DRM protected playbacks.
+   */
+  public static SimpleExoPlayer newSimpleInstance(
+      RenderersFactory renderersFactory,
+      TrackSelector trackSelector,
+      LoadControl loadControl,
+      @Nullable DrmSessionManager<FrameworkMediaCrypto> drmSessionManager) {
+    return new SimpleExoPlayer(renderersFactory, trackSelector, loadControl, drmSessionManager);
   }
 
   /**
