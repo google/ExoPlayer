@@ -120,7 +120,7 @@ import java.util.ArrayList;
     concatenatingMediaSource = new ConcatenatingMediaSource();
 
     DefaultTrackSelector trackSelector = new DefaultTrackSelector(BANDWIDTH_METER);
-    RenderersFactory renderersFactory = new DefaultRenderersFactory(context, null);
+    RenderersFactory renderersFactory = new DefaultRenderersFactory(context);
     exoPlayer = ExoPlayerFactory.newSimpleInstance(renderersFactory, trackSelector);
     exoPlayer.addListener(this);
     localPlayerView.setPlayer(exoPlayer);

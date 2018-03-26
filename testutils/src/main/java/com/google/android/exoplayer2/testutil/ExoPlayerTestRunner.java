@@ -29,6 +29,8 @@ import com.google.android.exoplayer2.RenderersFactory;
 import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.audio.AudioRendererEventListener;
+import com.google.android.exoplayer2.drm.DrmSessionManager;
+import com.google.android.exoplayer2.drm.FrameworkMediaCrypto;
 import com.google.android.exoplayer2.metadata.MetadataOutput;
 import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.source.TrackGroupArray;
@@ -298,7 +300,8 @@ public final class ExoPlayerTestRunner extends Player.DefaultEventListener
                   VideoRendererEventListener videoRendererEventListener,
                   AudioRendererEventListener audioRendererEventListener,
                   TextOutput textRendererOutput,
-                  MetadataOutput metadataRendererOutput) {
+                  MetadataOutput metadataRendererOutput,
+                  DrmSessionManager<FrameworkMediaCrypto> drmSessionManager) {
                 return renderers;
               }
             };
@@ -634,7 +637,7 @@ public final class ExoPlayerTestRunner extends Player.DefaultEventListener
         TrackSelector trackSelector,
         LoadControl loadControl,
         Clock clock) {
-      super(renderersFactory, trackSelector, loadControl, clock);
+      super(renderersFactory, trackSelector, loadControl, /* drmSessionManager= */ null, clock);
     }
   }
 }
