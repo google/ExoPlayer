@@ -34,6 +34,8 @@
   * Prevent multiple instances of SimpleCache in the same folder.
     Previous instance must be released.
 * DRM: Allow multiple listeners for `DefaultDrmSessionManager`.
+* Fix handling of zero padded strings when parsing Matroska streams
+  ([#4010](https://github.com/google/ExoPlayer/issues/4010)).
 * Fix ANR issue on Redmi 4X and Redmi Note 4
   ([#4006](https://github.com/google/ExoPlayer/issues/4006)).
 * Removed default renderer time offset of 60000000 from internal player. The
