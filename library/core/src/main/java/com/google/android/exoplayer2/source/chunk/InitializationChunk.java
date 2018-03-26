@@ -78,7 +78,7 @@ public final class InitializationChunk extends Chunk {
       ExtractorInput input = new DefaultExtractorInput(dataSource,
           loadDataSpec.absoluteStreamPosition, dataSource.open(loadDataSpec));
       if (bytesLoaded == 0) {
-        extractorWrapper.init(null);
+        extractorWrapper.init(/* trackOutputProvider= */ null, C.TIME_UNSET);
       }
       // Load and decode the initialization data.
       try {
