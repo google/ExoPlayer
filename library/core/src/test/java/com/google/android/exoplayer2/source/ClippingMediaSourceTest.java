@@ -19,6 +19,7 @@ import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.fail;
 
 import android.os.Handler;
+import android.support.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.Timeline;
@@ -271,8 +272,6 @@ public final class ClippingMediaSourceTest {
               EventDispatcher eventDispatcher) {
             eventDispatcher.downstreamFormatChanged(
                 new MediaLoadData(
-                    /* windowIndex= */ 0,
-                    id,
                     C.DATA_TYPE_MEDIA,
                     C.TRACK_TYPE_UNKNOWN,
                     /* trackFormat= */ null,
@@ -297,7 +296,10 @@ public final class ClippingMediaSourceTest {
                   new Handler(),
                   new DefaultMediaSourceEventListener() {
                     @Override
-                    public void onDownstreamFormatChanged(MediaLoadData mediaLoadData) {
+                    public void onDownstreamFormatChanged(
+                        int windowIndex,
+                        @Nullable MediaPeriodId mediaPeriodId,
+                        MediaLoadData mediaLoadData) {
                       reportedMediaLoadData[0] = mediaLoadData;
                     }
                   });

@@ -16,6 +16,7 @@
 package com.google.android.exoplayer2.util;
 
 import android.os.SystemClock;
+import android.support.annotation.Nullable;
 import android.util.Log;
 import android.view.Surface;
 import com.google.android.exoplayer2.C;
@@ -39,6 +40,7 @@ import com.google.android.exoplayer2.metadata.id3.PrivFrame;
 import com.google.android.exoplayer2.metadata.id3.TextInformationFrame;
 import com.google.android.exoplayer2.metadata.id3.UrlLinkFrame;
 import com.google.android.exoplayer2.metadata.scte35.SpliceCommand;
+import com.google.android.exoplayer2.source.MediaSource.MediaPeriodId;
 import com.google.android.exoplayer2.source.MediaSourceEventListener;
 import com.google.android.exoplayer2.source.TrackGroup;
 import com.google.android.exoplayer2.source.TrackGroupArray;
@@ -361,12 +363,18 @@ public class EventLogger
   // MediaSourceEventListener
 
   @Override
-  public void onLoadStarted(LoadEventInfo loadEventInfo, MediaLoadData mediaLoadData) {
+  public void onLoadStarted(
+      int windowIndex,
+      @Nullable MediaPeriodId mediaPeriodId,
+      LoadEventInfo loadEventInfo,
+      MediaLoadData mediaLoadData) {
     // Do nothing.
   }
 
   @Override
   public void onLoadError(
+      int windowIndex,
+      @Nullable MediaPeriodId mediaPeriodId,
       LoadEventInfo loadEventInfo,
       MediaLoadData mediaLoadData,
       IOException error,
@@ -375,22 +383,32 @@ public class EventLogger
   }
 
   @Override
-  public void onLoadCanceled(LoadEventInfo loadEventInfo, MediaLoadData mediaLoadData) {
+  public void onLoadCanceled(
+      int windowIndex,
+      @Nullable MediaPeriodId mediaPeriodId,
+      LoadEventInfo loadEventInfo,
+      MediaLoadData mediaLoadData) {
     // Do nothing.
   }
 
   @Override
-  public void onLoadCompleted(LoadEventInfo loadEventInfo, MediaLoadData mediaLoadData) {
+  public void onLoadCompleted(
+      int windowIndex,
+      @Nullable MediaPeriodId mediaPeriodId,
+      LoadEventInfo loadEventInfo,
+      MediaLoadData mediaLoadData) {
     // Do nothing.
   }
 
   @Override
-  public void onUpstreamDiscarded(MediaLoadData mediaLoadData) {
+  public void onUpstreamDiscarded(
+      int windowIndex, @Nullable MediaPeriodId mediaPeriodId, MediaLoadData mediaLoadData) {
     // Do nothing.
   }
 
   @Override
-  public void onDownstreamFormatChanged(MediaLoadData mediaLoadData) {
+  public void onDownstreamFormatChanged(
+      int windowIndex, @Nullable MediaPeriodId mediaPeriodId, MediaLoadData mediaLoadData) {
     // Do nothing.
   }
 

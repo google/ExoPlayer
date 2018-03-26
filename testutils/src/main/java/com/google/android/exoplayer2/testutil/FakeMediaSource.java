@@ -200,8 +200,6 @@ public class FakeMediaSource extends BaseMediaSource {
     if (!timeline.isEmpty()) {
       MediaLoadData mediaLoadData =
           new MediaLoadData(
-              /* windowIndex= */ 0,
-              /* mediaPeriodId= */ null,
               C.DATA_TYPE_MANIFEST,
               C.TRACK_TYPE_UNKNOWN,
               /* trackFormat= */ null,
