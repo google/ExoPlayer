@@ -131,7 +131,8 @@ public interface MediaPeriod extends SequenceableLoader {
    * <p>After this method has returned a value other than {@link C#TIME_UNSET}, all {@link
    * SampleStream}s provided by the period are guaranteed to start from a key frame.
    *
-   * <p>This method should only be called after the period has been prepared.
+   * <p>This method should only be called after the period has been prepared. It must be called
+   * before attempting to read from any {@link SampleStream}s provided by the period.
    *
    * @return If a discontinuity was read then the playback position in microseconds after the
    *     discontinuity. Else {@link C#TIME_UNSET}.

@@ -65,6 +65,7 @@ public final class HlsMediaPeriod implements MediaPeriod, HlsSampleStreamWrapper
   private HlsSampleStreamWrapper[] sampleStreamWrappers;
   private HlsSampleStreamWrapper[] enabledSampleStreamWrappers;
   private SequenceableLoader compositeSequenceableLoader;
+  private boolean notifiedReadingStarted;
 
   public HlsMediaPeriod(
       HlsExtractorFactory extractorFactory,
@@ -88,6 +89,7 @@ public final class HlsMediaPeriod implements MediaPeriod, HlsSampleStreamWrapper
     continueLoadingHandler = new Handler();
     sampleStreamWrappers = new HlsSampleStreamWrapper[0];
     enabledSampleStreamWrappers = new HlsSampleStreamWrapper[0];
+    eventDispatcher.mediaPeriodCreated();
   }
 
   public void release() {
@@ -96,6 +98,7 @@ public final class HlsMediaPeriod implements MediaPeriod, HlsSampleStreamWrapper
     for (HlsSampleStreamWrapper sampleStreamWrapper : sampleStreamWrappers) {
       sampleStreamWrapper.release();
     }
+    eventDispatcher.mediaPeriodReleased();
   }
 
   @Override
@@ -221,6 +224,10 @@ public final class HlsMediaPeriod implements MediaPeriod, HlsSampleStreamWrapper
 
   @Override
   public long readDiscontinuity() {
+    if (!notifiedReadingStarted) {
+      eventDispatcher.readingStarted();
+      notifiedReadingStarted = true;
+    }
     return C.TIME_UNSET;
   }
 

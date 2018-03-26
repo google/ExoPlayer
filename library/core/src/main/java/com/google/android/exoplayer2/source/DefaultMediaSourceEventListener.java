@@ -26,6 +26,16 @@ import java.io.IOException;
 public abstract class DefaultMediaSourceEventListener implements MediaSourceEventListener {
 
   @Override
+  public void onMediaPeriodCreated(int windowIndex, MediaPeriodId mediaPeriodId) {
+    // Do nothing.
+  }
+
+  @Override
+  public void onMediaPeriodReleased(int windowIndex, MediaPeriodId mediaPeriodId) {
+    // Do nothing.
+  }
+
+  @Override
   public void onLoadStarted(
       int windowIndex,
       @Nullable MediaPeriodId mediaPeriodId,
@@ -60,6 +70,11 @@ public abstract class DefaultMediaSourceEventListener implements MediaSourceEven
       MediaLoadData mediaLoadData,
       IOException error,
       boolean wasCanceled) {
+    // Do nothing.
+  }
+
+  @Override
+  public void onReadingStarted(int windowIndex, MediaPeriodId mediaPeriodId) {
     // Do nothing.
   }
 

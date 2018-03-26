@@ -100,6 +100,7 @@ import java.util.Arrays;
 
   private boolean seenFirstTrackSelection;
   private boolean notifyDiscontinuity;
+  private boolean notifiedReadingStarted;
   private int enabledTrackCount;
   private TrackGroupArray tracks;
   private long durationUs;
@@ -176,6 +177,7 @@ import java.util.Arrays;
         minLoadableRetryCount == ExtractorMediaSource.MIN_RETRY_COUNT_DEFAULT_FOR_MEDIA
         ? ExtractorMediaSource.DEFAULT_MIN_LOADABLE_RETRY_COUNT_ON_DEMAND
         : minLoadableRetryCount;
+    eventDispatcher.mediaPeriodCreated();
   }
 
   public void release() {
@@ -189,6 +191,7 @@ import java.util.Arrays;
     loader.release(this);
     handler.removeCallbacksAndMessages(null);
     released = true;
+    eventDispatcher.mediaPeriodReleased();
   }
 
   @Override
@@ -319,6 +322,10 @@ import java.util.Arrays;
 
   @Override
   public long readDiscontinuity() {
+    if (!notifiedReadingStarted) {
+      eventDispatcher.readingStarted();
+      notifiedReadingStarted = true;
+    }
     if (notifyDiscontinuity
         && (loadingFinished || getExtractedSamplesCount() > extractedSamplesCountAtStartOfLoad)) {
       notifyDiscontinuity = false;

@@ -58,10 +58,10 @@ public class FakeAdaptiveMediaPeriod extends FakeMediaPeriod
 
   @Override
   public void release() {
-    super.release();
     for (ChunkSampleStream<FakeChunkSource> sampleStream : sampleStreams) {
       sampleStream.release();
     }
+    super.release();
   }
 
   @Override

@@ -48,6 +48,7 @@ public class FakeMediaPeriod implements MediaPeriod {
   @Nullable private Callback prepareCallback;
 
   private boolean deferOnPrepared;
+  private boolean notifiedReadingStarted;
   private boolean prepared;
   private long seekOffsetUs;
   private long discontinuityPositionUs;
@@ -73,6 +74,7 @@ public class FakeMediaPeriod implements MediaPeriod {
     this.eventDispatcher = eventDispatcher;
     this.deferOnPrepared = deferOnPrepared;
     discontinuityPositionUs = C.TIME_UNSET;
+    eventDispatcher.mediaPeriodCreated();
   }
 
   /**
@@ -112,6 +114,7 @@ public class FakeMediaPeriod implements MediaPeriod {
 
   public void release() {
     prepared = false;
+    eventDispatcher.mediaPeriodReleased();
   }
 
   @Override
@@ -182,6 +185,10 @@ public class FakeMediaPeriod implements MediaPeriod {
   @Override
   public long readDiscontinuity() {
     assertThat(prepared).isTrue();
+    if (!notifiedReadingStarted) {
+      eventDispatcher.readingStarted();
+      notifiedReadingStarted = true;
+    }
     long positionDiscontinuityUs = this.discontinuityPositionUs;
     this.discontinuityPositionUs = C.TIME_UNSET;
     return positionDiscontinuityUs;
