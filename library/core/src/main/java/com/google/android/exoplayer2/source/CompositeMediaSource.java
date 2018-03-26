@@ -22,6 +22,7 @@ import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.source.MediaSourceEventListener.MediaLoadData;
 import com.google.android.exoplayer2.util.Assertions;
+import com.google.android.exoplayer2.util.Util;
 import java.io.IOException;
 import java.util.HashMap;
 
@@ -176,8 +177,8 @@ public abstract class CompositeMediaSource<T> extends BaseMediaSource {
 
   private final class ForwardingEventListener implements MediaSourceEventListener {
 
-    private final EventDispatcher eventDispatcher;
     private final @Nullable T id;
+    private EventDispatcher eventDispatcher;
 
     public ForwardingEventListener(@Nullable T id) {
       this.eventDispatcher = createEventDispatcher(/* mediaPeriodId= */ null);
@@ -185,72 +186,96 @@ public abstract class CompositeMediaSource<T> extends BaseMediaSource {
     }
 
     @Override
-    public void onLoadStarted(LoadEventInfo loadEventData, MediaLoadData mediaLoadData) {
-      MediaLoadData correctedMediaLoadData = correctMediaLoadData(mediaLoadData);
-      if (correctedMediaLoadData != null) {
-        eventDispatcher.loadStarted(loadEventData, correctedMediaLoadData);
+    public void onLoadStarted(
+        int windowIndex,
+        @Nullable MediaPeriodId mediaPeriodId,
+        LoadEventInfo loadEventData,
+        MediaLoadData mediaLoadData) {
+      if (maybeUpdateEventDispatcher(windowIndex, mediaPeriodId)) {
+        eventDispatcher.loadStarted(loadEventData, maybeUpdateMediaLoadData(mediaLoadData));
       }
     }
 
     @Override
-    public void onLoadCompleted(LoadEventInfo loadEventData, MediaLoadData mediaLoadData) {
-      MediaLoadData correctedMediaLoadData = correctMediaLoadData(mediaLoadData);
-      if (correctedMediaLoadData != null) {
-        eventDispatcher.loadCompleted(loadEventData, correctedMediaLoadData);
+    public void onLoadCompleted(
+        int windowIndex,
+        @Nullable MediaPeriodId mediaPeriodId,
+        LoadEventInfo loadEventData,
+        MediaLoadData mediaLoadData) {
+      if (maybeUpdateEventDispatcher(windowIndex, mediaPeriodId)) {
+        eventDispatcher.loadCompleted(loadEventData, maybeUpdateMediaLoadData(mediaLoadData));
       }
     }
 
     @Override
-    public void onLoadCanceled(LoadEventInfo loadEventData, MediaLoadData mediaLoadData) {
-      MediaLoadData correctedMediaLoadData = correctMediaLoadData(mediaLoadData);
-      if (correctedMediaLoadData != null) {
-        eventDispatcher.loadCanceled(loadEventData, correctedMediaLoadData);
+    public void onLoadCanceled(
+        int windowIndex,
+        @Nullable MediaPeriodId mediaPeriodId,
+        LoadEventInfo loadEventData,
+        MediaLoadData mediaLoadData) {
+      if (maybeUpdateEventDispatcher(windowIndex, mediaPeriodId)) {
+        eventDispatcher.loadCanceled(loadEventData, maybeUpdateMediaLoadData(mediaLoadData));
       }
     }
 
     @Override
     public void onLoadError(
+        int windowIndex,
+        @Nullable MediaPeriodId mediaPeriodId,
         LoadEventInfo loadEventData,
         MediaLoadData mediaLoadData,
         IOException error,
         boolean wasCanceled) {
-      MediaLoadData correctedMediaLoadData = correctMediaLoadData(mediaLoadData);
-      if (correctedMediaLoadData != null) {
-        eventDispatcher.loadError(loadEventData, correctedMediaLoadData, error, wasCanceled);
+      if (maybeUpdateEventDispatcher(windowIndex, mediaPeriodId)) {
+        eventDispatcher.loadError(
+            loadEventData, maybeUpdateMediaLoadData(mediaLoadData), error, wasCanceled);
       }
     }
 
     @Override
-    public void onUpstreamDiscarded(MediaLoadData mediaLoadData) {
-      MediaLoadData correctedMediaLoadData = correctMediaLoadData(mediaLoadData);
-      if (correctedMediaLoadData != null) {
-        eventDispatcher.upstreamDiscarded(correctedMediaLoadData);
+    public void onUpstreamDiscarded(
+        int windowIndex, @Nullable MediaPeriodId mediaPeriodId, MediaLoadData mediaLoadData) {
+      if (maybeUpdateEventDispatcher(windowIndex, mediaPeriodId)) {
+        eventDispatcher.upstreamDiscarded(maybeUpdateMediaLoadData(mediaLoadData));
       }
     }
 
     @Override
-    public void onDownstreamFormatChanged(MediaLoadData mediaLoadData) {
-      MediaLoadData correctedMediaLoadData = correctMediaLoadData(mediaLoadData);
-      if (correctedMediaLoadData != null) {
-        eventDispatcher.downstreamFormatChanged(correctedMediaLoadData);
+    public void onDownstreamFormatChanged(
+        int windowIndex, @Nullable MediaPeriodId mediaPeriodId, MediaLoadData mediaLoadData) {
+      if (maybeUpdateEventDispatcher(windowIndex, mediaPeriodId)) {
+        eventDispatcher.downstreamFormatChanged(maybeUpdateMediaLoadData(mediaLoadData));
       }
     }
 
-    private @Nullable MediaLoadData correctMediaLoadData(MediaLoadData mediaLoadData) {
+    /** Updates the event dispatcher and returns whether the event should be dispatched. */
+    private boolean maybeUpdateEventDispatcher(
+        int childWindowIndex, @Nullable MediaPeriodId childMediaPeriodId) {
       MediaPeriodId mediaPeriodId = null;
-      if (mediaLoadData.mediaPeriodId != null) {
-        mediaPeriodId = getMediaPeriodIdForChildMediaPeriodId(id, mediaLoadData.mediaPeriodId);
+      if (childMediaPeriodId != null) {
+        mediaPeriodId = getMediaPeriodIdForChildMediaPeriodId(id, childMediaPeriodId);
         if (mediaPeriodId == null) {
           // Media period not found. Ignore event.
-          return null;
+          return false;
         }
       }
-      int windowIndex = getWindowIndexForChildWindowIndex(id, mediaLoadData.windowIndex);
+      int windowIndex = getWindowIndexForChildWindowIndex(id, childWindowIndex);
+      if (eventDispatcher.windowIndex != windowIndex
+          || !Util.areEqual(eventDispatcher.mediaPeriodId, mediaPeriodId)) {
+        eventDispatcher =
+            createEventDispatcher(windowIndex, mediaPeriodId, /* mediaTimeOffsetMs= */ 0);
+      }
+      return true;
+    }
+
+    private MediaLoadData maybeUpdateMediaLoadData(MediaLoadData mediaLoadData) {
       long mediaStartTimeMs = getMediaTimeForChildMediaTime(id, mediaLoadData.mediaStartTimeMs);
       long mediaEndTimeMs = getMediaTimeForChildMediaTime(id, mediaLoadData.mediaEndTimeMs);
+      if (mediaStartTimeMs == mediaLoadData.mediaStartTimeMs
+          && mediaEndTimeMs == mediaLoadData.mediaEndTimeMs) {
+        return mediaLoadData;
+      }
       return new MediaLoadData(
-          windowIndex,
-          mediaPeriodId,
           mediaLoadData.dataType,
           mediaLoadData.trackType,
           mediaLoadData.trackFormat,

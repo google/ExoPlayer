@@ -296,6 +296,8 @@ public final class SingleSampleMediaSource extends BaseMediaSource {
 
     @Override
     public void onLoadError(
+        int windowIndex,
+        @Nullable MediaPeriodId mediaPeriodId,
         LoadEventInfo loadEventInfo,
         MediaLoadData mediaLoadData,
         IOException error,

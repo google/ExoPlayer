@@ -24,6 +24,8 @@ import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Looper;
 import android.os.Message;
+import android.support.annotation.Nullable;
+import android.util.Pair;
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.PlayerMessage;
 import com.google.android.exoplayer2.Timeline;
@@ -41,7 +43,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
-import java.util.concurrent.CopyOnWriteArraySet;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.TimeUnit;
@@ -59,7 +61,7 @@ public class MediaSourceTestRunner {
   private final Allocator allocator;
 
   private final LinkedBlockingDeque<Timeline> timelines;
-  private final CopyOnWriteArraySet<MediaLoadData> completedLoads;
+  private final CopyOnWriteArrayList<Pair<Integer, MediaPeriodId>> completedLoads;
   private Timeline timeline;
 
   /**
@@ -76,7 +78,7 @@ public class MediaSourceTestRunner {
     player = new EventHandlingExoPlayer(playbackLooper);
     mediaSourceListener = new MediaSourceListener();
     timelines = new LinkedBlockingDeque<>();
-    completedLoads = new CopyOnWriteArraySet<>();
+    completedLoads = new CopyOnWriteArrayList<>();
     mediaSource.addEventListener(playbackHandler, mediaSourceListener);
   }
 
@@ -294,15 +296,15 @@ public class MediaSourceTestRunner {
 
   /**
    * Asserts that the media source reported completed loads via {@link
-   * MediaSourceEventListener#onLoadCompleted(LoadEventInfo, MediaLoadData)} for each specified
-   * window index and a null period id. Also asserts that no other loads with media period id null
-   * are reported.
+   * MediaSourceEventListener#onLoadCompleted(int, MediaPeriodId, LoadEventInfo, MediaLoadData)} for
+   * each specified window index and a null period id. Also asserts that no other loads with media
+   * period id null are reported.
    */
   public void assertCompletedManifestLoads(Integer... windowIndices) {
     List<Integer> expectedWindowIndices = new ArrayList<>(Arrays.asList(windowIndices));
-    for (MediaLoadData mediaLoadData : completedLoads) {
-      if (mediaLoadData.mediaPeriodId == null) {
-        boolean loadExpected = expectedWindowIndices.remove((Integer) mediaLoadData.windowIndex);
+    for (Pair<Integer, MediaPeriodId> windowIndexAndMediaPeriodId : completedLoads) {
+      if (windowIndexAndMediaPeriodId.second == null) {
+        boolean loadExpected = expectedWindowIndices.remove(windowIndexAndMediaPeriodId.first);
         assertThat(loadExpected).isTrue();
       }
     }
@@ -313,19 +315,20 @@ public class MediaSourceTestRunner {
 
   /**
    * Asserts that the media source reported completed loads via {@link
-   * MediaSourceEventListener#onLoadCompleted(LoadEventInfo, MediaLoadData)} for each specified
-   * media period id, and asserts that the associated window index matches the one in the last known
-   * timeline returned from {@link #prepareSource()}, {@link #assertTimelineChange()} or {@link
-   * #assertTimelineChangeBlocking()}.
+   * MediaSourceEventListener#onLoadCompleted(int, MediaPeriodId, LoadEventInfo, MediaLoadData)} for
+   * each specified media period id, and asserts that the associated window index matches the one in
+   * the last known timeline returned from {@link #prepareSource()}, {@link #assertTimelineChange()}
+   * or {@link #assertTimelineChangeBlocking()}.
    */
   public void assertCompletedMediaPeriodLoads(MediaPeriodId... mediaPeriodIds) {
     Timeline.Period period = new Timeline.Period();
     HashSet<MediaPeriodId> expectedLoads = new HashSet<>(Arrays.asList(mediaPeriodIds));
-    for (MediaLoadData mediaLoadData : completedLoads) {
-      if (expectedLoads.remove(mediaLoadData.mediaPeriodId)) {
-        assertThat(mediaLoadData.windowIndex)
-            .isEqualTo(
-                timeline.getPeriod(mediaLoadData.mediaPeriodId.periodIndex, period).windowIndex);
+    for (Pair<Integer, MediaPeriodId> windowIndexAndMediaPeriodId : completedLoads) {
+      int windowIndex = windowIndexAndMediaPeriodId.first;
+      MediaPeriodId mediaPeriodId = windowIndexAndMediaPeriodId.second;
+      if (expectedLoads.remove(mediaPeriodId)) {
+        assertThat(windowIndex)
+            .isEqualTo(timeline.getPeriod(mediaPeriodId.periodIndex, period).windowIndex);
       }
     }
     assertWithMessage("Not all expected media source loads have been completed.")
@@ -352,23 +355,37 @@ public class MediaSourceTestRunner {
     // MediaSourceEventListener methods.
 
     @Override
-    public void onLoadStarted(LoadEventInfo loadEventInfo, MediaLoadData mediaLoadData) {
+    public void onLoadStarted(
+        int windowIndex,
+        @Nullable MediaPeriodId mediaPeriodId,
+        LoadEventInfo loadEventInfo,
+        MediaLoadData mediaLoadData) {
       Assertions.checkState(Looper.myLooper() == playbackThread.getLooper());
     }
 
     @Override
-    public void onLoadCompleted(LoadEventInfo loadEventInfo, MediaLoadData mediaLoadData) {
+    public void onLoadCompleted(
+        int windowIndex,
+        @Nullable MediaPeriodId mediaPeriodId,
+        LoadEventInfo loadEventInfo,
+        MediaLoadData mediaLoadData) {
       Assertions.checkState(Looper.myLooper() == playbackThread.getLooper());
-      completedLoads.add(mediaLoadData);
+      completedLoads.add(Pair.create(windowIndex, mediaPeriodId));
     }
 
     @Override
-    public void onLoadCanceled(LoadEventInfo loadEventInfo, MediaLoadData mediaLoadData) {
+    public void onLoadCanceled(
+        int windowIndex,
+        @Nullable MediaPeriodId mediaPeriodId,
+        LoadEventInfo loadEventInfo,
+        MediaLoadData mediaLoadData) {
       Assertions.checkState(Looper.myLooper() == playbackThread.getLooper());
     }
 
     @Override
     public void onLoadError(
+        int windowIndex,
+        @Nullable MediaPeriodId mediaPeriodId,
         LoadEventInfo loadEventInfo,
         MediaLoadData mediaLoadData,
         IOException error,
@@ -377,12 +394,14 @@ public class MediaSourceTestRunner {
     }
 
     @Override
-    public void onUpstreamDiscarded(MediaLoadData mediaLoadData) {
+    public void onUpstreamDiscarded(
+        int windowIndex, @Nullable MediaPeriodId mediaPeriodId, MediaLoadData mediaLoadData) {
       Assertions.checkState(Looper.myLooper() == playbackThread.getLooper());
     }
 
     @Override
-    public void onDownstreamFormatChanged(MediaLoadData mediaLoadData) {
+    public void onDownstreamFormatChanged(
+        int windowIndex, @Nullable MediaPeriodId mediaPeriodId, MediaLoadData mediaLoadData) {
       Assertions.checkState(Looper.myLooper() == playbackThread.getLooper());
     }
   }

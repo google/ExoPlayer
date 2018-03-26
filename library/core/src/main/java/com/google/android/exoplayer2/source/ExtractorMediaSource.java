@@ -394,6 +394,8 @@ public final class ExtractorMediaSource extends BaseMediaSource
 
     @Override
     public void onLoadError(
+        int windowIndex,
+        @Nullable MediaPeriodId mediaPeriodId,
         LoadEventInfo loadEventInfo,
         MediaLoadData mediaLoadData,
         IOException error,
