@@ -20,8 +20,6 @@ android.libraryVariants.all { variant ->
         description = "Generates Javadoc for the ${javadocTitle}."
         title = "ExoPlayer ${javadocTitle}"
         source = variant.javaCompile.source
-        classpath = files(variant.javaCompile.classpath.files,
-	                  project.android.getBootClasspath())
         options {
             links "http://docs.oracle.com/javase/7/docs/api/"
             linksOffline "https://developer.android.com/reference",
@@ -30,6 +28,12 @@ android.libraryVariants.all { variant ->
         }
         exclude "**/BuildConfig.java"
         exclude "**/R.java"
+        doFirst {
+            classpath =
+                files(
+                    variant.javaCompile.classpath.files,
+                    project.android.getBootClasspath())
+        }
         doLast {
             copy {
                 from "src/main/javadoc"
