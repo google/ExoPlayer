@@ -2,6 +2,8 @@
 
 ### dev-v2 (not yet released) ###
 
+* Gradle: Upgrade Gradle version from 4.1 to 4.4 so it can work with Android
+  Studio 3.1 ([#3708](https://github.com/google/ExoPlayer/issues/3708)).
 * Optimize seeking in FMP4 by enabling seeking to the nearest sync sample within
   a fragment. This benefits standalone FMP4 playbacks, DASH and SmoothStreaming.
 * Optimize seeking in FMP4.
