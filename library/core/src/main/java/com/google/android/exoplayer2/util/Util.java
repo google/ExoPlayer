@@ -25,6 +25,7 @@ import android.content.pm.PackageManager.NameNotFoundException;
 import android.graphics.Point;
 import android.net.Uri;
 import android.os.Build;
+import android.os.Parcel;
 import android.support.annotation.NonNull;
 import android.text.TextUtils;
 import android.util.Log;
@@ -249,6 +250,28 @@ public final class Util {
     } catch (IOException e) {
       // Ignore.
     }
+  }
+
+  /**
+   * Reads an integer from a {@link Parcel} and interprets it as a boolean, with 0 mapping to false
+   * and all other values mapping to true.
+   *
+   * @param parcel The {@link Parcel} to read from.
+   * @return The read value.
+   */
+  public static boolean readBoolean(Parcel parcel) {
+    return parcel.readInt() != 0;
+  }
+
+  /**
+   * Writes a boolean to a {@link Parcel}. The boolean is written as an integer with value 1 (true)
+   * or 0 (false).
+   *
+   * @param parcel The {@link Parcel} to write to.
+   * @param value The value to write.
+   */
+  public static void writeBoolean(Parcel parcel, boolean value) {
+    parcel.writeInt(value ? 1 : 0);
   }
 
   /**

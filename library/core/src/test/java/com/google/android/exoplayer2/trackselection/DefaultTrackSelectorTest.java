@@ -8,6 +8,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.MockitoAnnotations.initMocks;
 
+import android.os.Parcel;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.Format;
@@ -48,6 +49,37 @@ public final class DefaultTrackSelectorTest {
   public void setUp() {
     initMocks(this);
     trackSelector = new DefaultTrackSelector();
+  }
+
+  /** Tests {@link Parameters} {@link android.os.Parcelable} implementation. */
+  @Test
+  public void testParametersParcelable() {
+    Parameters parametersToParcel =
+        new Parameters(
+            /* preferredAudioLanguage= */ "en",
+            /* preferredTextLanguage= */ "de",
+            /* selectUndeterminedTextLanguage= */ false,
+            /* disabledTextTrackSelectionFlags= */ 0,
+            /* forceLowestBitrate= */ true,
+            /* allowMixedMimeAdaptiveness= */ false,
+            /* allowNonSeamlessAdaptiveness= */ true,
+            /* maxVideoWidth= */ 1,
+            /* maxVideoHeight= */ 2,
+            /* maxVideoBitrate= */ 3,
+            /* exceedVideoConstraintsIfNecessary= */ false,
+            /* exceedRendererCapabilitiesIfNecessary= */ true,
+            /* viewportWidth= */ 4,
+            /* viewportHeight= */ 5,
+            /* viewportOrientationMayChange= */ false);
+
+    Parcel parcel = Parcel.obtain();
+    parametersToParcel.writeToParcel(parcel, 0);
+    parcel.setDataPosition(0);
+
+    Parameters parametersFromParcel = Parameters.CREATOR.createFromParcel(parcel);
+    assertThat(parametersFromParcel).isEqualTo(parametersToParcel);
+
+    parcel.recycle();
   }
 
   /**
