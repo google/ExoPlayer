@@ -43,36 +43,35 @@ public final class ClippingMediaPeriod implements MediaPeriod, MediaPeriod.Callb
   /* package */ long endUs;
 
   /**
-   * Creates a new clipping media period that provides a clipped view of the specified {@link
-   * MediaPeriod}'s sample streams.
-   *
-   * <p>If the start point is guaranteed to be a key frame, pass {@code false} to {@code
+   * Creates a new clipping media period that provides a clipped view of the specified
+   * {@link MediaPeriod}'s sample streams.
+   * <p>
+   * The clipping start/end positions must be specified by calling {@link #setClipping(long, long)}
+   * on the playback thread before preparation completes.
+   * <p>
+   * If the start point is guaranteed to be a key frame, pass {@code false} to {@code
    * enableInitialPositionDiscontinuity} to suppress an initial discontinuity when the period is
    * first read from.
    *
    * @param mediaPeriod The media period to clip.
    * @param enableInitialDiscontinuity Whether the initial discontinuity should be enabled.
-   * @param startUs The clipping start time, in microseconds.
-   * @param endUs The clipping end time, in microseconds, or {@link C#TIME_END_OF_SOURCE} to
-   *     indicate the end of the period.
    */
-  public ClippingMediaPeriod(
-      MediaPeriod mediaPeriod, boolean enableInitialDiscontinuity, long startUs, long endUs) {
+  public ClippingMediaPeriod(MediaPeriod mediaPeriod, boolean enableInitialDiscontinuity) {
     this.mediaPeriod = mediaPeriod;
     sampleStreams = new ClippingSampleStream[0];
-    pendingInitialDiscontinuityPositionUs = enableInitialDiscontinuity ? startUs : C.TIME_UNSET;
-    this.startUs = startUs;
-    this.endUs = endUs;
+    pendingInitialDiscontinuityPositionUs = enableInitialDiscontinuity ? 0 : C.TIME_UNSET;
+    startUs = C.TIME_UNSET;
+    endUs = C.TIME_UNSET;
   }
 
   /**
-   * Updates the clipping start/end times for this period, in microseconds.
+   * Sets the clipping start/end times for this period, in microseconds.
    *
    * @param startUs The clipping start time, in microseconds.
    * @param endUs The clipping end time, in microseconds, or {@link C#TIME_END_OF_SOURCE} to
    *     indicate the end of the period.
    */
-  public void updateClipping(long startUs, long endUs) {
+  public void setClipping(long startUs, long endUs) {
     this.startUs = startUs;
     this.endUs = endUs;
   }
@@ -80,7 +79,7 @@ public final class ClippingMediaPeriod implements MediaPeriod, MediaPeriod.Callb
   @Override
   public void prepare(MediaPeriod.Callback callback, long positionUs) {
     this.callback = callback;
-    mediaPeriod.prepare(this, positionUs);
+    mediaPeriod.prepare(this, startUs + positionUs);
   }
 
   @Override
@@ -102,19 +101,13 @@ public final class ClippingMediaPeriod implements MediaPeriod, MediaPeriod.Callb
       sampleStreams[i] = (ClippingSampleStream) streams[i];
       childStreams[i] = sampleStreams[i] != null ? sampleStreams[i].childStream : null;
     }
-    long enablePositionUs =
-        mediaPeriod.selectTracks(
-            selections, mayRetainStreamFlags, childStreams, streamResetFlags, positionUs);
-    pendingInitialDiscontinuityPositionUs =
-        isPendingInitialDiscontinuity()
-                && positionUs == startUs
-                && shouldKeepInitialDiscontinuity(startUs, selections)
-            ? enablePositionUs
-            : C.TIME_UNSET;
-    Assertions.checkState(
-        enablePositionUs == positionUs
-            || (enablePositionUs >= startUs
-                && (endUs == C.TIME_END_OF_SOURCE || enablePositionUs <= endUs)));
+    long enablePositionUs = mediaPeriod.selectTracks(selections, mayRetainStreamFlags,
+        childStreams, streamResetFlags, positionUs + startUs) - startUs;
+    pendingInitialDiscontinuityPositionUs = isPendingInitialDiscontinuity() && positionUs == 0
+        && shouldKeepInitialDiscontinuity(startUs, selections) ? enablePositionUs : C.TIME_UNSET;
+    Assertions.checkState(enablePositionUs == positionUs
+        || (enablePositionUs >= 0
+        && (endUs == C.TIME_END_OF_SOURCE || startUs + enablePositionUs <= endUs)));
     for (int i = 0; i < streams.length; i++) {
       if (childStreams[i] == null) {
         sampleStreams[i] = null;
@@ -128,12 +121,12 @@ public final class ClippingMediaPeriod implements MediaPeriod, MediaPeriod.Callb
 
   @Override
   public void discardBuffer(long positionUs, boolean toKeyframe) {
-    mediaPeriod.discardBuffer(positionUs, toKeyframe);
+    mediaPeriod.discardBuffer(positionUs + startUs, toKeyframe);
   }
 
   @Override
   public void reevaluateBuffer(long positionUs) {
-    mediaPeriod.reevaluateBuffer(positionUs);
+    mediaPeriod.reevaluateBuffer(positionUs + startUs);
   }
 
   @Override
@@ -151,7 +144,7 @@ public final class ClippingMediaPeriod implements MediaPeriod, MediaPeriod.Callb
     }
     Assertions.checkState(discontinuityUs >= startUs);
     Assertions.checkState(endUs == C.TIME_END_OF_SOURCE || discontinuityUs <= endUs);
-    return discontinuityUs;
+    return discontinuityUs - startUs;
   }
 
   @Override
@@ -161,7 +154,7 @@ public final class ClippingMediaPeriod implements MediaPeriod, MediaPeriod.Callb
         || (endUs != C.TIME_END_OF_SOURCE && bufferedPositionUs >= endUs)) {
       return C.TIME_END_OF_SOURCE;
     }
-    return bufferedPositionUs;
+    return Math.max(0, bufferedPositionUs - startUs);
   }
 
   @Override
@@ -172,21 +165,23 @@ public final class ClippingMediaPeriod implements MediaPeriod, MediaPeriod.Callb
         sampleStream.clearSentEos();
       }
     }
-    long seekUs = mediaPeriod.seekToUs(positionUs);
+    long offsetPositionUs = positionUs + startUs;
+    long seekUs = mediaPeriod.seekToUs(offsetPositionUs);
     Assertions.checkState(
-        seekUs == positionUs
+        seekUs == offsetPositionUs
             || (seekUs >= startUs && (endUs == C.TIME_END_OF_SOURCE || seekUs <= endUs)));
-    return seekUs;
+    return seekUs - startUs;
   }
 
   @Override
   public long getAdjustedSeekPositionUs(long positionUs, SeekParameters seekParameters) {
-    if (positionUs == startUs) {
+    if (positionUs == 0) {
       // Never adjust seeks to the start of the clipped view.
-      return startUs;
+      return 0;
     }
-    SeekParameters clippedSeekParameters = clipSeekParameters(positionUs, seekParameters);
-    return mediaPeriod.getAdjustedSeekPositionUs(positionUs, clippedSeekParameters);
+    long offsetPositionUs = positionUs + startUs;
+    SeekParameters clippedSeekParameters = clipSeekParameters(offsetPositionUs, seekParameters);
+    return mediaPeriod.getAdjustedSeekPositionUs(offsetPositionUs, clippedSeekParameters) - startUs;
   }
 
   @Override
@@ -196,18 +191,19 @@ public final class ClippingMediaPeriod implements MediaPeriod, MediaPeriod.Callb
         || (endUs != C.TIME_END_OF_SOURCE && nextLoadPositionUs >= endUs)) {
       return C.TIME_END_OF_SOURCE;
     }
-    return nextLoadPositionUs;
+    return nextLoadPositionUs - startUs;
   }
 
   @Override
   public boolean continueLoading(long positionUs) {
-    return mediaPeriod.continueLoading(positionUs);
+    return mediaPeriod.continueLoading(positionUs + startUs);
   }
 
   // MediaPeriod.Callback implementation.
 
   @Override
   public void onPrepared(MediaPeriod mediaPeriod) {
+    Assertions.checkState(startUs != C.TIME_UNSET && endUs != C.TIME_UNSET);
     callback.onPrepared(this);
   }
 
@@ -220,17 +216,17 @@ public final class ClippingMediaPeriod implements MediaPeriod, MediaPeriod.Callb
     return pendingInitialDiscontinuityPositionUs != C.TIME_UNSET;
   }
 
-  private SeekParameters clipSeekParameters(long positionUs, SeekParameters seekParameters) {
-    long toleranceBeforeUs = Math.min(positionUs - startUs, seekParameters.toleranceBeforeUs);
-    long toleranceAfterUs =
+  private SeekParameters clipSeekParameters(long offsetPositionUs, SeekParameters seekParameters) {
+    long toleranceBeforeMs = Math.min(offsetPositionUs - startUs, seekParameters.toleranceBeforeUs);
+    long toleranceAfterMs =
         endUs == C.TIME_END_OF_SOURCE
             ? seekParameters.toleranceAfterUs
-            : Math.min(endUs - positionUs, seekParameters.toleranceAfterUs);
-    if (toleranceBeforeUs == seekParameters.toleranceBeforeUs
-        && toleranceAfterUs == seekParameters.toleranceAfterUs) {
+            : Math.min(endUs - offsetPositionUs, seekParameters.toleranceAfterUs);
+    if (toleranceBeforeMs == seekParameters.toleranceBeforeUs
+        && toleranceAfterMs == seekParameters.toleranceAfterUs) {
       return seekParameters;
     } else {
-      return new SeekParameters(toleranceBeforeUs, toleranceAfterUs);
+      return new SeekParameters(toleranceBeforeMs, toleranceAfterMs);
     }
   }
 
@@ -314,6 +310,9 @@ public final class ClippingMediaPeriod implements MediaPeriod, MediaPeriod.Callb
         sentEos = true;
         return C.RESULT_BUFFER_READ;
       }
+      if (result == C.RESULT_BUFFER_READ && !buffer.isEndOfStream()) {
+        buffer.timeUs -= startUs;
+      }
       return result;
     }
 
@@ -322,7 +321,7 @@ public final class ClippingMediaPeriod implements MediaPeriod, MediaPeriod.Callb
       if (isPendingInitialDiscontinuity()) {
         return C.RESULT_NOTHING_READ;
       }
-      return childStream.skipData(positionUs);
+      return childStream.skipData(startUs + positionUs);
     }
 
   }
