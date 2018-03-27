@@ -121,11 +121,15 @@ import java.lang.annotation.RetentionPolicy;
     boolean updatedTimestamp = audioTimestamp.maybeUpdateTimestamp();
     switch (state) {
       case STATE_INITIALIZING:
-        if (updatedTimestamp
-            && audioTimestamp.getTimestampSystemTimeUs() >= initializeSystemTimeUs) {
-          // We have an initial timestamp, but don't know if it's advancing yet.
-          initialTimestampPositionFrames = audioTimestamp.getTimestampPositionFrames();
-          updateState(STATE_TIMESTAMP);
+        if (updatedTimestamp) {
+          if (audioTimestamp.getTimestampSystemTimeUs() >= initializeSystemTimeUs) {
+            // We have an initial timestamp, but don't know if it's advancing yet.
+            initialTimestampPositionFrames = audioTimestamp.getTimestampPositionFrames();
+            updateState(STATE_TIMESTAMP);
+          } else {
+            // Drop the timestamp, as it was sampled before the last reset.
+            updatedTimestamp = false;
+          }
         } else if (systemTimeUs - initializeSystemTimeUs > INITIALIZING_DURATION_US) {
           // We haven't received a timestamp for a while, so they probably aren't available for the
           // current audio route. Poll infrequently in case the route changes later.
