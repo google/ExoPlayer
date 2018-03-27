@@ -429,7 +429,7 @@ public final class Format implements Parcelable {
     frameRate = in.readFloat();
     rotationDegrees = in.readInt();
     pixelWidthHeightRatio = in.readFloat();
-    boolean hasProjectionData = in.readInt() != 0;
+    boolean hasProjectionData = Util.readBoolean(in);
     projectionData = hasProjectionData ? in.createByteArray() : null;
     stereoMode = in.readInt();
     colorInfo = in.readParcelable(ColorInfo.class.getClassLoader());
@@ -682,7 +682,7 @@ public final class Format implements Parcelable {
     dest.writeFloat(frameRate);
     dest.writeInt(rotationDegrees);
     dest.writeFloat(pixelWidthHeightRatio);
-    dest.writeInt(projectionData != null ? 1 : 0);
+    Util.writeBoolean(dest, projectionData != null);
     if (projectionData != null) {
       dest.writeByteArray(projectionData);
     }

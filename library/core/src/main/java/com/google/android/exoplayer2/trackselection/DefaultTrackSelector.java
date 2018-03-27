@@ -17,6 +17,8 @@ package com.google.android.exoplayer2.trackselection;
 
 import android.content.Context;
 import android.graphics.Point;
+import android.os.Parcel;
+import android.os.Parcelable;
 import android.support.annotation.NonNull;
 import android.text.TextUtils;
 import com.google.android.exoplayer2.C;
@@ -321,10 +323,8 @@ public class DefaultTrackSelector extends MappingTrackSelector {
 
   }
 
-  /**
-   * Constraint parameters for {@link DefaultTrackSelector}.
-   */
-  public static final class Parameters {
+  /** Constraint parameters for {@link DefaultTrackSelector}. */
+  public static final class Parameters implements Parcelable {
 
     /**
      * An instance with default values:
@@ -442,7 +442,7 @@ public class DefaultTrackSelector extends MappingTrackSelector {
           true);
     }
 
-    private Parameters(
+    /* package */ Parameters(
         String preferredAudioLanguage,
         String preferredTextLanguage,
         boolean selectUndeterminedTextLanguage,
@@ -473,6 +473,24 @@ public class DefaultTrackSelector extends MappingTrackSelector {
       this.viewportWidth = viewportWidth;
       this.viewportHeight = viewportHeight;
       this.viewportOrientationMayChange = viewportOrientationMayChange;
+    }
+
+    /* package */ Parameters(Parcel in) {
+      this.preferredAudioLanguage = in.readString();
+      this.preferredTextLanguage = in.readString();
+      this.selectUndeterminedTextLanguage = Util.readBoolean(in);
+      this.disabledTextTrackSelectionFlags = in.readInt();
+      this.forceLowestBitrate = Util.readBoolean(in);
+      this.allowMixedMimeAdaptiveness = Util.readBoolean(in);
+      this.allowNonSeamlessAdaptiveness = Util.readBoolean(in);
+      this.maxVideoWidth = in.readInt();
+      this.maxVideoHeight = in.readInt();
+      this.maxVideoBitrate = in.readInt();
+      this.exceedVideoConstraintsIfNecessary = Util.readBoolean(in);
+      this.exceedRendererCapabilitiesIfNecessary = Util.readBoolean(in);
+      this.viewportWidth = in.readInt();
+      this.viewportHeight = in.readInt();
+      this.viewportOrientationMayChange = Util.readBoolean(in);
     }
 
     /**
@@ -528,6 +546,45 @@ public class DefaultTrackSelector extends MappingTrackSelector {
       return result;
     }
 
+    // Parcelable implementation.
+
+    @Override
+    public int describeContents() {
+      return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+      dest.writeString(preferredAudioLanguage);
+      dest.writeString(preferredTextLanguage);
+      Util.writeBoolean(dest, selectUndeterminedTextLanguage);
+      dest.writeInt(disabledTextTrackSelectionFlags);
+      Util.writeBoolean(dest, forceLowestBitrate);
+      Util.writeBoolean(dest, allowMixedMimeAdaptiveness);
+      Util.writeBoolean(dest, allowNonSeamlessAdaptiveness);
+      dest.writeInt(maxVideoWidth);
+      dest.writeInt(maxVideoHeight);
+      dest.writeInt(maxVideoBitrate);
+      Util.writeBoolean(dest, exceedVideoConstraintsIfNecessary);
+      Util.writeBoolean(dest, exceedRendererCapabilitiesIfNecessary);
+      dest.writeInt(viewportWidth);
+      dest.writeInt(viewportHeight);
+      Util.writeBoolean(dest, viewportOrientationMayChange);
+    }
+
+    public static final Parcelable.Creator<Parameters> CREATOR =
+        new Parcelable.Creator<Parameters>() {
+
+          @Override
+          public Parameters createFromParcel(Parcel in) {
+            return new Parameters(in);
+          }
+
+          @Override
+          public Parameters[] newArray(int size) {
+            return new Parameters[size];
+          }
+        };
   }
 
   /**
