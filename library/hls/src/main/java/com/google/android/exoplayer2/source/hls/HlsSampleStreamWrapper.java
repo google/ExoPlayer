@@ -414,8 +414,8 @@ import java.util.Arrays;
     chunkSource.setIsTimestampMaster(isTimestampMaster);
   }
 
-  public void onPlaylistBlacklisted(HlsUrl url, long blacklistMs) {
-    chunkSource.onPlaylistBlacklisted(url, blacklistMs);
+  public boolean onPlaylistError(HlsUrl url, boolean shouldBlacklist) {
+    return chunkSource.onPlaylistError(url, shouldBlacklist);
   }
 
   // SampleStream implementation.

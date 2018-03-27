@@ -305,11 +305,13 @@ public final class HlsMediaPeriod implements MediaPeriod, HlsSampleStreamWrapper
   }
 
   @Override
-  public void onPlaylistBlacklisted(HlsUrl url, long blacklistMs) {
+  public boolean onPlaylistError(HlsUrl url, boolean shouldBlacklist) {
+    boolean noBlacklistingFailure = true;
     for (HlsSampleStreamWrapper streamWrapper : sampleStreamWrappers) {
-      streamWrapper.onPlaylistBlacklisted(url, blacklistMs);
+      noBlacklistingFailure &= streamWrapper.onPlaylistError(url, shouldBlacklist);
     }
     callback.onContinueLoadingRequested(this);
+    return noBlacklistingFailure;
   }
 
   // Internal methods.

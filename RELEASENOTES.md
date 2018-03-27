@@ -50,6 +50,8 @@
 * Removed default renderer time offset of 60000000 from internal player. The
   actual renderer timestamp offset can be obtained by listening to
   `BaseRenderer.onStreamChanged`.
+* HLS: Fix playlist loading error propagation when the current selection does
+  not include all of the playlist's variants.
 
 ### 2.7.1 ###
 
