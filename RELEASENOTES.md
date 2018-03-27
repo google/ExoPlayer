@@ -2,6 +2,8 @@
 
 ### 2.7.2 ###
 
+* Gradle: Upgrade Gradle version from 4.1 to 4.4 so it can work with Android
+  Studio 3.1 ([#3708](https://github.com/google/ExoPlayer/issues/3708)).
 * Match codecs starting with "mp4a" to different Audio MimeTypes
   ([#3779](https://github.com/google/ExoPlayer/issues/3779)).
 * Fix ANR issue on Redmi 4X and Redmi Note 4
@@ -85,7 +87,7 @@
   ([#3630](https://github.com/google/ExoPlayer/issues/3630)).
 * DASH:
   * Support in-band Emsg events targeting the player with scheme id
-    `urn:mpeg:dash:event:2012` and scheme values "1", "2" and "3".
+    "urn:mpeg:dash:event:2012" and scheme values "1", "2" and "3".
   * Support EventStream elements in DASH manifests.
 * HLS:
     * Add opt-in support for chunkless preparation in HLS. This allows an
