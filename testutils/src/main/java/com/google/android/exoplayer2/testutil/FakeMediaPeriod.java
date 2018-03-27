@@ -219,7 +219,6 @@ public class FakeMediaPeriod implements MediaPeriod {
 
   @Override
   public boolean continueLoading(long positionUs) {
-    assertThat(prepared).isTrue();
     return false;
   }
 
