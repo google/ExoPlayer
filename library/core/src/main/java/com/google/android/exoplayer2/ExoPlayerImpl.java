@@ -92,7 +92,6 @@ import java.util.concurrent.CopyOnWriteArraySet;
     this.listeners = new CopyOnWriteArraySet<>();
     emptyTrackSelectorResult =
         new TrackSelectorResult(
-            TrackGroupArray.EMPTY,
             new boolean[renderers.length],
             new TrackSelectionArray(new TrackSelection[renderers.length]),
             null,
@@ -108,7 +107,11 @@ import java.util.concurrent.CopyOnWriteArraySet;
       }
     };
     playbackInfo =
-        new PlaybackInfo(Timeline.EMPTY, /* startPositionUs= */ 0, emptyTrackSelectorResult);
+        new PlaybackInfo(
+            Timeline.EMPTY,
+            /* startPositionUs= */ 0,
+            TrackGroupArray.EMPTY,
+            emptyTrackSelectorResult);
     internalPlayer =
         new ExoPlayerImplInternal(
             renderers,
@@ -512,7 +515,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
 
   @Override
   public TrackGroupArray getCurrentTrackGroups() {
-    return playbackInfo.trackSelectorResult.groups;
+    return playbackInfo.trackGroups;
   }
 
   @Override
@@ -616,6 +619,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
         playbackInfo.contentPositionUs,
         playbackState,
         /* isLoading= */ false,
+        resetState ? TrackGroupArray.EMPTY : playbackInfo.trackGroups,
         resetState ? emptyTrackSelectorResult : playbackInfo.trackSelectorResult);
   }
 
@@ -648,7 +652,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
       trackSelector.onSelectionActivated(playbackInfo.trackSelectorResult.info);
       for (Player.EventListener listener : listeners) {
         listener.onTracksChanged(
-            playbackInfo.trackSelectorResult.groups, playbackInfo.trackSelectorResult.selections);
+            playbackInfo.trackGroups, playbackInfo.trackSelectorResult.selections);
       }
     }
     if (isLoadingChanged) {

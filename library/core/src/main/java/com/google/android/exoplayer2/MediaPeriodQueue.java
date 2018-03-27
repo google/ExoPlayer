@@ -22,7 +22,6 @@ import com.google.android.exoplayer2.source.MediaPeriod;
 import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.source.MediaSource.MediaPeriodId;
 import com.google.android.exoplayer2.trackselection.TrackSelector;
-import com.google.android.exoplayer2.trackselection.TrackSelectorResult;
 import com.google.android.exoplayer2.upstream.Allocator;
 import com.google.android.exoplayer2.util.Assertions;
 
@@ -166,17 +165,6 @@ import com.google.android.exoplayer2.util.Assertions;
     loading = newPeriodHolder;
     length++;
     return newPeriodHolder.mediaPeriod;
-  }
-
-  /**
-   * Handles the loading media period being prepared.
-   *
-   * @param playbackSpeed The current playback speed.
-   * @return The result of selecting tracks on the newly prepared loading media period.
-   */
-  public TrackSelectorResult handleLoadingPeriodPrepared(float playbackSpeed)
-      throws ExoPlaybackException {
-    return loading.handlePrepared(playbackSpeed);
   }
 
   /**
