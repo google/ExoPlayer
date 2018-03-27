@@ -99,11 +99,10 @@ public final class HlsPlaylistTracker implements Loader.Callback<ParsingLoadable
      * Called if an error is encountered while loading a playlist.
      *
      * @param url The loaded url that caused the error.
-     * @param blacklistDurationMs The number of milliseconds for which the playlist has been
-     *     blacklisted.
+     * @param shouldBlacklist Whether the playlist should be blacklisted.
+     * @return True if blacklisting did not encounter errors. False otherwise.
      */
-    void onPlaylistBlacklisted(HlsUrl url, long blacklistDurationMs);
-
+    boolean onPlaylistError(HlsUrl url, boolean shouldBlacklist);
   }
 
   /**
@@ -391,11 +390,13 @@ public final class HlsPlaylistTracker implements Loader.Callback<ParsingLoadable
     }
   }
 
-  private void notifyPlaylistBlacklisting(HlsUrl url, long blacklistMs) {
+  private boolean notifyPlaylistError(HlsUrl playlistUrl, boolean shouldBlacklist) {
     int listenersSize = listeners.size();
+    boolean anyBlacklistingFailed = false;
     for (int i = 0; i < listenersSize; i++) {
-      listeners.get(i).onPlaylistBlacklisted(url, blacklistMs);
+      anyBlacklistingFailed |= !listeners.get(i).onPlaylistError(playlistUrl, shouldBlacklist);
     }
+    return anyBlacklistingFailed;
   }
 
   private HlsMediaPlaylist getLatestPlaylistSnapshot(HlsMediaPlaylist oldPlaylist,
@@ -565,14 +566,15 @@ public final class HlsPlaylistTracker implements Loader.Callback<ParsingLoadable
       boolean isFatal = error instanceof ParserException;
       eventDispatcher.loadError(loadable.dataSpec, C.DATA_TYPE_MANIFEST, elapsedRealtimeMs,
           loadDurationMs, loadable.bytesLoaded(), error, isFatal);
+      boolean shouldBlacklist = ChunkedTrackBlacklistUtil.shouldBlacklist(error);
+      boolean shouldRetryIfNotFatal = notifyPlaylistError(playlistUrl, shouldBlacklist);
       if (isFatal) {
         return Loader.DONT_RETRY_FATAL;
       }
-      boolean shouldRetry = true;
-      if (ChunkedTrackBlacklistUtil.shouldBlacklist(error)) {
-        shouldRetry = blacklistPlaylist();
+      if (shouldBlacklist) {
+        shouldRetryIfNotFatal |= blacklistPlaylist();
       }
-      return shouldRetry ? Loader.RETRY : Loader.DONT_RETRY;
+      return shouldRetryIfNotFatal ? Loader.RETRY : Loader.DONT_RETRY;
     }
 
     // Runnable implementation.
@@ -603,11 +605,13 @@ public final class HlsPlaylistTracker implements Loader.Callback<ParsingLoadable
             < playlistSnapshot.mediaSequence) {
           // The media sequence jumped backwards. The server has probably reset.
           playlistError = new PlaylistResetException(playlistUrl.url);
+          notifyPlaylistError(playlistUrl, false);
         } else if (currentTimeMs - lastSnapshotChangeMs
             > C.usToMs(playlistSnapshot.targetDurationUs)
                 * PLAYLIST_STUCK_TARGET_DURATION_COEFFICIENT) {
           // The playlist seems to be stuck. Blacklist it.
           playlistError = new PlaylistStuckException(playlistUrl.url);
+          notifyPlaylistError(playlistUrl, true);
           blacklistPlaylist();
         }
       }
@@ -631,7 +635,6 @@ public final class HlsPlaylistTracker implements Loader.Callback<ParsingLoadable
     private boolean blacklistPlaylist() {
       blacklistUntilMs = SystemClock.elapsedRealtime()
           + ChunkedTrackBlacklistUtil.DEFAULT_TRACK_BLACKLIST_MS;
-      notifyPlaylistBlacklisting(playlistUrl, ChunkedTrackBlacklistUtil.DEFAULT_TRACK_BLACKLIST_MS);
       return primaryHlsUrl == playlistUrl && !maybeSelectNewPrimaryUrl();
     }
 

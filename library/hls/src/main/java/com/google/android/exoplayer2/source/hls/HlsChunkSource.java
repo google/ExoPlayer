@@ -105,6 +105,7 @@ import java.util.List;
   // in TrackSelection to avoid unexpected behavior.
   private TrackSelection trackSelection;
   private long liveEdgeTimeUs;
+  private boolean seenExpectedPlaylistError;
 
   /**
    * @param extractorFactory An {@link HlsExtractorFactory} from which to obtain the extractors for
@@ -150,7 +151,7 @@ import java.util.List;
     if (fatalError != null) {
       throw fatalError;
     }
-    if (expectedPlaylistUrl != null) {
+    if (expectedPlaylistUrl != null && seenExpectedPlaylistError) {
       playlistTracker.maybeThrowPlaylistRefreshError(expectedPlaylistUrl);
     }
   }
@@ -217,8 +218,6 @@ import java.util.List;
       HlsChunkHolder out) {
     int oldVariantIndex = previous == null ? C.INDEX_UNSET
         : trackGroup.indexOf(previous.trackFormat);
-    expectedPlaylistUrl = null;
-
     long bufferedDurationUs = loadPositionUs - playbackPositionUs;
     long timeToLiveEdgeUs = resolveTimeToLiveEdgeUs(playbackPositionUs);
     if (previous != null && !independentSegments) {
@@ -243,6 +242,7 @@ import java.util.List;
     HlsUrl selectedUrl = variants[selectedVariantIndex];
     if (!playlistTracker.isSnapshotValid(selectedUrl)) {
       out.playlist = selectedUrl;
+      seenExpectedPlaylistError &= expectedPlaylistUrl == selectedUrl;
       expectedPlaylistUrl = selectedUrl;
       // Retry when playlist is refreshed.
       return;
@@ -291,10 +291,14 @@ import java.util.List;
         out.endOfStream = true;
       } else /* Live */ {
         out.playlist = selectedUrl;
+        seenExpectedPlaylistError &= expectedPlaylistUrl == selectedUrl;
         expectedPlaylistUrl = selectedUrl;
       }
       return;
     }
+    // We have a valid playlist snapshot, we can discard any playlist errors at this point.
+    seenExpectedPlaylistError = false;
+    expectedPlaylistUrl = null;
 
     // Handle encryption.
     HlsMediaPlaylist.Segment segment = mediaPlaylist.segments.get(chunkIndex);
@@ -389,19 +393,25 @@ import java.util.List;
   }
 
   /**
-   * Called when a playlist is blacklisted.
+   * Called when a playlist load encounters an error.
    *
-   * @param url The url that references the blacklisted playlist.
-   * @param blacklistMs The amount of milliseconds for which the playlist was blacklisted.
+   * @param url The url of the playlist whose load encountered an error.
+   * @param shouldBlacklist Whether the playlist should be blacklisted.
+   * @return True if blacklisting did not encounter errors. False otherwise.
    */
-  public void onPlaylistBlacklisted(HlsUrl url, long blacklistMs) {
+  public boolean onPlaylistError(HlsUrl url, boolean shouldBlacklist) {
     int trackGroupIndex = trackGroup.indexOf(url.format);
-    if (trackGroupIndex != C.INDEX_UNSET) {
-      int trackSelectionIndex = trackSelection.indexOf(trackGroupIndex);
-      if (trackSelectionIndex != C.INDEX_UNSET) {
-        trackSelection.blacklist(trackSelectionIndex, blacklistMs);
-      }
+    if (trackGroupIndex == C.INDEX_UNSET) {
+      return true;
     }
+    int trackSelectionIndex = trackSelection.indexOf(trackGroupIndex);
+    if (trackSelectionIndex == C.INDEX_UNSET) {
+      return true;
+    }
+    seenExpectedPlaylistError |= expectedPlaylistUrl == url;
+    return !shouldBlacklist
+        || trackSelection.blacklist(
+            trackSelectionIndex, ChunkedTrackBlacklistUtil.DEFAULT_TRACK_BLACKLIST_MS);
   }
 
   // Private methods.
