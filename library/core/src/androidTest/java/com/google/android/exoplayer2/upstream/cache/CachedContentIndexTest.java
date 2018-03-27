@@ -21,11 +21,11 @@ public class CachedContentIndexTest extends InstrumentationTestCase {
       0, 0, 0, 1, // version
       0, 0, 0, 0, // flags
       0, 0, 0, 2, // number_of_CachedContent
-      0, 0, 0, 5, // cache_id
-      0, 5, 65, 66, 67, 68, 69, // cache_key
+      0, 0, 0, 5, // cache_id 5
+      0, 5, 65, 66, 67, 68, 69, // cache_key "ABCDE"
       0, 0, 0, 0, 0, 0, 0, 10, // original_content_length
-      0, 0, 0, 2, // cache_id
-      0, 5, 75, 76, 77, 78, 79, // cache_key
+      0, 0, 0, 2, // cache_id 2
+      0, 5, 75, 76, 77, 78, 79, // cache_key "KLMNO"
       0, 0, 0, 0, 0, 0, 10, 0, // original_content_length
       (byte) 0xF6, (byte) 0xFB, 0x50, 0x41 // hashcode_of_CachedContent_array
   };
@@ -285,8 +285,7 @@ public class CachedContentIndexTest extends InstrumentationTestCase {
     Set<String> keys2 = index2.getKeys();
     assertThat(keys2).isEqualTo(keys);
     for (String key : keys) {
-      assertThat(index2.getContentLength(key)).isEqualTo(index.getContentLength(key));
-      assertThat(index2.get(key).getSpans()).isEqualTo(index.get(key).getSpans());
+      assertThat(index2.get(key)).isEqualTo(index.get(key));
     }
   }
 }

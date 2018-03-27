@@ -38,6 +38,8 @@
   * Add release method to Cache interface.
   * Prevent multiple instances of SimpleCache in the same folder.
     Previous instance must be released.
+  * Store redirected URI
+  ([#2360](https://github.com/google/ExoPlayer/issues/2360)).
 * DRM:
   * Allow multiple listeners for `DefaultDrmSessionManager`.
   * Pass `DrmSessionManager` to `ExoPlayerFactory` instead of `RendererFactory`.

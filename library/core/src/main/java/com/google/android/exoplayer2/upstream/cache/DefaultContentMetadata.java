@@ -63,16 +63,20 @@ public final class DefaultContentMetadata implements ContentMetadata {
 
   private final Map<String, byte[]> metadata;
 
-  /**
-   * Constructs a {@link DefaultContentMetadata} by copying metadata values from {@code other} and
-   * applying {@code mutations}.
-   */
-  public DefaultContentMetadata(DefaultContentMetadata other, ContentMetadataMutations mutations) {
-    this(applyMutations(other.metadata, mutations));
-  }
-
   private DefaultContentMetadata(Map<String, byte[]> metadata) {
     this.metadata = Collections.unmodifiableMap(metadata);
+  }
+
+  /**
+   * Returns a copy {@link DefaultContentMetadata} with {@code mutations} applied. If {@code
+   * mutations} don't change anything, returns this instance.
+   */
+  public DefaultContentMetadata copyWithMutationsApplied(ContentMetadataMutations mutations) {
+    Map<String, byte[]> mutatedMetadata = applyMutations(metadata, mutations);
+    if (isMetadataEqual(mutatedMetadata)) {
+      return this;
+    }
+    return new DefaultContentMetadata(mutatedMetadata);
   }
 
   /**
@@ -134,8 +138,10 @@ public final class DefaultContentMetadata implements ContentMetadata {
     if (o == null || getClass() != o.getClass()) {
       return false;
     }
-    DefaultContentMetadata that = (DefaultContentMetadata) o;
-    Map<String, byte[]> otherMetadata = that.metadata;
+    return isMetadataEqual(((DefaultContentMetadata) o).metadata);
+  }
+
+  private boolean isMetadataEqual(Map<String, byte[]> otherMetadata) {
     if (metadata.size() != otherMetadata.size()) {
       return false;
     }

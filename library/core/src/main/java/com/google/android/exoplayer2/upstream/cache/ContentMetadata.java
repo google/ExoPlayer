@@ -15,8 +15,20 @@
  */
 package com.google.android.exoplayer2.upstream.cache;
 
-/** Interface for an immutable snapshot of keyed metadata. */
+/**
+ * Interface for an immutable snapshot of keyed metadata.
+ *
+ * <p>Internal metadata names are prefixed with {@value #INTERNAL_METADATA_NAME_PREFIX}. Custom
+ * metadata names should avoid this prefix to prevent clashes.
+ */
 public interface ContentMetadata {
+
+  /** Prefix of internal metadata names. */
+  String INTERNAL_METADATA_NAME_PREFIX = "exo_";
+  /** Name of internal metadata to hold redirected URI. */
+  String METADATA_NAME_REDIRECTED_URI = INTERNAL_METADATA_NAME_PREFIX + "redir";
+  /** Name of internal metadata to hold content length. */
+  String METADATA_NAME_LENGTH = INTERNAL_METADATA_NAME_PREFIX + "len";
 
   /**
    * Returns a metadata value.
