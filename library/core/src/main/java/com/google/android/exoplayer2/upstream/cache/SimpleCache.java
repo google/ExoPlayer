@@ -309,6 +309,18 @@ public final class SimpleCache implements Cache {
     return index.getContentLength(key);
   }
 
+  @Override
+  public void applyContentMetadataMutations(String key, ContentMetadataMutations mutations)
+      throws CacheException {
+    index.applyContentMetadataMutations(key, mutations);
+    index.store();
+  }
+
+  @Override
+  public ContentMetadata getContentMetadata(String key) {
+    return index.getContentMetadata(key);
+  }
+
   /**
    * Returns the cache {@link SimpleCacheSpan} corresponding to the provided lookup {@link
    * SimpleCacheSpan}.
@@ -457,16 +469,5 @@ public final class SimpleCache implements Cache {
 
   private static synchronized void releaseFolder(File cacheDir) {
     lockedCacheDirs.remove(cacheDir.getAbsoluteFile());
-  }
-  @Override
-  public void applyContentMetadataMutations(String key, ContentMetadataMutations mutations)
-      throws CacheException {
-    index.applyContentMetadataMutations(key, mutations);
-    index.store();
-  }
-
-  @Override
-  public ContentMetadata getContentMetadata(String key) {
-    return index.getContentMetadata(key);
   }
 }

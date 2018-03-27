@@ -224,7 +224,9 @@ import javax.crypto.spec.SecretKeySpec;
    */
   public void applyContentMetadataMutations(String key, ContentMetadataMutations mutations) {
     CachedContent cachedContent = getOrAdd(key);
-    cachedContent.applyMetadataMutations(mutations);
+    if (cachedContent.applyMetadataMutations(mutations)) {
+      changed = true;
+    }
   }
 
   /** Returns a {@link ContentMetadata} for the given key. */
