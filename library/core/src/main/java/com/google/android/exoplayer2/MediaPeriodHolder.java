@@ -21,6 +21,7 @@ import com.google.android.exoplayer2.source.EmptySampleStream;
 import com.google.android.exoplayer2.source.MediaPeriod;
 import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.source.SampleStream;
+import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.trackselection.TrackSelection;
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
 import com.google.android.exoplayer2.trackselection.TrackSelector;
@@ -43,6 +44,7 @@ import com.google.android.exoplayer2.util.Assertions;
   public boolean hasEnabledTracks;
   public MediaPeriodInfo info;
   public MediaPeriodHolder next;
+  public TrackGroupArray trackGroups;
   public TrackSelectorResult trackSelectorResult;
 
   private final RendererCapabilities[] rendererCapabilities;
@@ -132,13 +134,13 @@ import com.google.android.exoplayer2.util.Assertions;
     return !prepared ? 0 : mediaPeriod.getNextLoadPositionUs();
   }
 
-  public TrackSelectorResult handlePrepared(float playbackSpeed) throws ExoPlaybackException {
+  public void handlePrepared(float playbackSpeed) throws ExoPlaybackException {
     prepared = true;
+    trackGroups = mediaPeriod.getTrackGroups();
     selectTracks(playbackSpeed);
     long newStartPositionUs = applyTrackSelection(info.startPositionUs, false);
     rendererPositionOffsetUs += info.startPositionUs - newStartPositionUs;
     info = info.copyWithStartPositionUs(newStartPositionUs);
-    return trackSelectorResult;
   }
 
   public void reevaluateBuffer(long rendererPositionUs) {
@@ -154,7 +156,7 @@ import com.google.android.exoplayer2.util.Assertions;
 
   public boolean selectTracks(float playbackSpeed) throws ExoPlaybackException {
     TrackSelectorResult selectorResult =
-        trackSelector.selectTracks(rendererCapabilities, mediaPeriod.getTrackGroups());
+        trackSelector.selectTracks(rendererCapabilities, trackGroups);
     if (selectorResult.isEquivalent(periodTrackSelectorResult)) {
       return false;
     }

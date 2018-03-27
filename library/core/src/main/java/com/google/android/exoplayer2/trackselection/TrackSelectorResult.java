@@ -16,7 +16,6 @@
 package com.google.android.exoplayer2.trackselection;
 
 import com.google.android.exoplayer2.RendererConfiguration;
-import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.util.Util;
 
 /**
@@ -24,10 +23,6 @@ import com.google.android.exoplayer2.util.Util;
  */
 public final class TrackSelectorResult {
 
-  /**
-   * The track groups that were provided to the {@link TrackSelector}.
-   */
-  public final TrackGroupArray groups;
   /**
    * An array containing whether each renderer is enabled after the track selection operation.
    */
@@ -47,19 +42,19 @@ public final class TrackSelectorResult {
   public final RendererConfiguration[] rendererConfigurations;
 
   /**
-   * @param groups The track groups provided to the {@link TrackSelector}.
    * @param renderersEnabled An array containing whether each renderer is enabled after the track
    *     selection operation.
    * @param selections A {@link TrackSelectionArray} containing the selection for each renderer.
-   * @param info An opaque object that will be returned to
-   *     {@link TrackSelector#onSelectionActivated(Object)} should the selection be activated.
-   * @param rendererConfigurations A {@link RendererConfiguration} for each enabled renderer,
-   *     to be used with the selections.
+   * @param info An opaque object that will be returned to {@link
+   *     TrackSelector#onSelectionActivated(Object)} should the selection be activated.
+   * @param rendererConfigurations A {@link RendererConfiguration} for each enabled renderer, to be
+   *     used with the selections.
    */
-  public TrackSelectorResult(TrackGroupArray groups, boolean[] renderersEnabled,
-      TrackSelectionArray selections, Object info,
+  public TrackSelectorResult(
+      boolean[] renderersEnabled,
+      TrackSelectionArray selections,
+      Object info,
       RendererConfiguration[] rendererConfigurations) {
-    this.groups = groups;
     this.renderersEnabled = renderersEnabled;
     this.selections = selections;
     this.info = info;
