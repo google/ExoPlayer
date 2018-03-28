@@ -10,6 +10,7 @@
   ([#4006](https://github.com/google/ExoPlayer/issues/4006)).
 * Fix handling of zero padded strings when parsing Matroska streams
   ([#4010](https://github.com/google/ExoPlayer/issues/4010)).
+* Fix "Decoder input buffer too small" error when playing some FLAC streams.
 * MediaSession extension: Omit fast forward and rewind actions when media is not
   seekable ([#4001](https://github.com/google/ExoPlayer/issues/4001)).
 
