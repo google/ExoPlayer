@@ -29,6 +29,7 @@ import android.support.annotation.IntDef;
 import android.util.Log;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.offline.DownloadAction.Deserializer;
+import com.google.android.exoplayer2.util.Assertions;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
@@ -67,6 +68,11 @@ public final class DownloadManager {
     void onIdle(DownloadManager downloadManager);
   }
 
+  /** The default maximum number of simultaneous downloads. */
+  public static final int DEFAULT_MAX_SIMULTANEOUS_DOWNLOADS = 1;
+  /** The default minimum number of times the downloads must be retried before failing. */
+  public static final int DEFAULT_MIN_RETRY_COUNT = 5;
+
   private static final String TAG = "DownloadManager";
   private static final boolean DEBUG = false;
 
@@ -92,19 +98,42 @@ public final class DownloadManager {
    *
    * @param constructorHelper A {@link DownloaderConstructorHelper} to create {@link Downloader}s
    *     for downloading data.
-   * @param maxActiveDownloadTasks Max number of download tasks to be started in parallel.
+   * @param actionSaveFile File to save active actions.
+   * @param deserializers Used to deserialize {@link DownloadAction}s.
+   */
+  public DownloadManager(
+      DownloaderConstructorHelper constructorHelper,
+      String actionSaveFile,
+      Deserializer... deserializers) {
+    this(
+        constructorHelper,
+        DEFAULT_MAX_SIMULTANEOUS_DOWNLOADS,
+        DEFAULT_MIN_RETRY_COUNT,
+        actionSaveFile,
+        deserializers);
+  }
+
+  /**
+   * Constructs a {@link DownloadManager}.
+   *
+   * @param constructorHelper A {@link DownloaderConstructorHelper} to create {@link Downloader}s
+   *     for downloading data.
+   * @param maxSimultaneousDownloads The maximum number of simultaneous downloads.
    * @param minRetryCount The minimum number of times the downloads must be retried before failing.
    * @param actionSaveFile File to save active actions.
    * @param deserializers Used to deserialize {@link DownloadAction}s.
    */
   public DownloadManager(
       DownloaderConstructorHelper constructorHelper,
-      int maxActiveDownloadTasks,
+      int maxSimultaneousDownloads,
       int minRetryCount,
       String actionSaveFile,
       Deserializer... deserializers) {
+    Assertions.checkArgument(
+        deserializers.length > 0, "At least one Deserializer should be given.");
+
     this.downloaderConstructorHelper = constructorHelper;
-    this.maxActiveDownloadTasks = maxActiveDownloadTasks;
+    this.maxActiveDownloadTasks = maxSimultaneousDownloads;
     this.minRetryCount = minRetryCount;
     this.actionFile = new ActionFile(new File(actionSaveFile));
     this.deserializers = deserializers;

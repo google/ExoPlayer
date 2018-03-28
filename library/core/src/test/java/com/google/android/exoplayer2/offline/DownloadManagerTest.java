@@ -430,7 +430,8 @@ public class DownloadManagerTest {
                           Mockito.mock(Cache.class), DummyDataSource.FACTORY),
                       maxActiveDownloadTasks,
                       MIN_RETRY_COUNT,
-                      actionFile.getAbsolutePath());
+                      actionFile.getAbsolutePath(),
+                      ProgressiveDownloadAction.DESERIALIZER);
               downloadManager.addListener(testDownloadListener);
               downloadManager.startDownloads();
             }
