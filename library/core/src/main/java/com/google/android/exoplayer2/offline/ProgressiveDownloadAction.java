@@ -15,7 +15,9 @@
  */
 package com.google.android.exoplayer2.offline;
 
+import android.net.Uri;
 import android.support.annotation.Nullable;
+import com.google.android.exoplayer2.upstream.cache.CacheUtil;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Util;
 import java.io.DataInputStream;
@@ -49,13 +51,13 @@ public final class ProgressiveDownloadAction extends DownloadAction {
 
   /**
    * @param uri Uri of the data to be downloaded.
-   * @param customCacheKey A custom key that uniquely identifies the original stream. Used for cache
-   *     indexing. May be null.
+   * @param customCacheKey A custom key that uniquely identifies the original stream. If not null it
+   *     is used for cache indexing.
    * @param removeAction Whether the data should be downloaded or removed.
    * @param data Optional custom data for this action. If null, an empty string is used.
    */
-  public ProgressiveDownloadAction(String uri, @Nullable String customCacheKey,
-      boolean removeAction, String data) {
+  public ProgressiveDownloadAction(
+      String uri, @Nullable String customCacheKey, boolean removeAction, @Nullable String data) {
     super(data);
     this.uri = Assertions.checkNotNull(uri);
     this.customCacheKey = customCacheKey;
@@ -94,9 +96,7 @@ public final class ProgressiveDownloadAction extends DownloadAction {
     if (!(other instanceof ProgressiveDownloadAction)) {
       return false;
     }
-    ProgressiveDownloadAction action = (ProgressiveDownloadAction) other;
-    return customCacheKey != null ? customCacheKey.equals(action.customCacheKey)
-        : uri.equals(action.uri);
+    return getCacheKey().equals(((ProgressiveDownloadAction) other).getCacheKey());
   }
 
   @Override
@@ -119,4 +119,7 @@ public final class ProgressiveDownloadAction extends DownloadAction {
     return result;
   }
 
+  private String getCacheKey() {
+    return customCacheKey != null ? customCacheKey : CacheUtil.generateKey(Uri.parse(uri));
+  }
 }

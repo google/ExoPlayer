@@ -61,28 +61,35 @@ public class ProgressiveDownloadActionTest {
   public void testSameUriCacheKeyDifferentAction_IsSameMedia() throws Exception {
     ProgressiveDownloadAction action1 = new ProgressiveDownloadAction("uri", null, true, null);
     ProgressiveDownloadAction action2 = new ProgressiveDownloadAction("uri", null, false, null);
-    assertThat(action1.isSameMedia(action2)).isTrue();
+    assertSameMedia(action1, action2);
   }
 
   @Test
   public void testNullCacheKeyDifferentUriAction_IsNotSameMedia() throws Exception {
     ProgressiveDownloadAction action3 = new ProgressiveDownloadAction("uri2", null, true, null);
     ProgressiveDownloadAction action4 = new ProgressiveDownloadAction("uri", null, false, null);
-    assertThat(action3.isSameMedia(action4)).isFalse();
+    assertNotSameMedia(action3, action4);
   }
 
   @Test
   public void testSameCacheKeyDifferentUriAction_IsSameMedia() throws Exception {
     ProgressiveDownloadAction action5 = new ProgressiveDownloadAction("uri2", "key", true, null);
     ProgressiveDownloadAction action6 = new ProgressiveDownloadAction("uri", "key", false, null);
-    assertThat(action5.isSameMedia(action6)).isTrue();
+    assertSameMedia(action5, action6);
   }
 
   @Test
   public void testSameUriDifferentCacheKeyAction_IsNotSameMedia() throws Exception {
     ProgressiveDownloadAction action7 = new ProgressiveDownloadAction("uri", "key", true, null);
     ProgressiveDownloadAction action8 = new ProgressiveDownloadAction("uri", "key2", false, null);
-    assertThat(action7.isSameMedia(action8)).isFalse();
+    assertNotSameMedia(action7, action8);
+  }
+
+  @Test
+  public void testSameUriNullCacheKeyAction_IsNotSameMedia() throws Exception {
+    ProgressiveDownloadAction action1 = new ProgressiveDownloadAction("uri", "key", true, null);
+    ProgressiveDownloadAction action2 = new ProgressiveDownloadAction("uri", null, false, null);
+    assertNotSameMedia(action1, action2);
   }
 
   @Test
@@ -121,6 +128,18 @@ public class ProgressiveDownloadActionTest {
   public void testSerializerWriteRead() throws Exception {
     doTestSerializationRoundTrip(new ProgressiveDownloadAction("uri1", null, false, null));
     doTestSerializationRoundTrip(new ProgressiveDownloadAction("uri2", "key", true, null));
+  }
+
+  private void assertSameMedia(
+      ProgressiveDownloadAction action1, ProgressiveDownloadAction action2) {
+    assertThat(action1.isSameMedia(action2)).isTrue();
+    assertThat(action2.isSameMedia(action1)).isTrue();
+  }
+
+  private void assertNotSameMedia(
+      ProgressiveDownloadAction action1, ProgressiveDownloadAction action2) {
+    assertThat(action1.isSameMedia(action2)).isFalse();
+    assertThat(action2.isSameMedia(action1)).isFalse();
   }
 
   private static void doTestSerializationRoundTrip(ProgressiveDownloadAction action1)

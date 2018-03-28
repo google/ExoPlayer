@@ -16,6 +16,7 @@
 package com.google.android.exoplayer2.source.hls.offline;
 
 import android.net.Uri;
+import android.support.annotation.Nullable;
 import com.google.android.exoplayer2.offline.DownloadAction;
 import com.google.android.exoplayer2.offline.DownloaderConstructorHelper;
 import com.google.android.exoplayer2.offline.SegmentDownloadAction;
@@ -54,7 +55,8 @@ public final class HlsDownloadAction extends SegmentDownloadAction<String> {
   private static final String TYPE = "HlsDownloadAction";
 
   /** @see SegmentDownloadAction#SegmentDownloadAction(Uri, boolean, String, Object[]) */
-  public HlsDownloadAction(Uri manifestUri, boolean removeAction, String data, String... keys) {
+  public HlsDownloadAction(
+      Uri manifestUri, boolean removeAction, @Nullable String data, String... keys) {
     super(manifestUri, removeAction, data, keys);
   }
 

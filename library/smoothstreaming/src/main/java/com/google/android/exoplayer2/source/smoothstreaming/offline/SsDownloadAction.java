@@ -16,6 +16,7 @@
 package com.google.android.exoplayer2.source.smoothstreaming.offline;
 
 import android.net.Uri;
+import android.support.annotation.Nullable;
 import com.google.android.exoplayer2.offline.DownloadAction;
 import com.google.android.exoplayer2.offline.DownloaderConstructorHelper;
 import com.google.android.exoplayer2.offline.SegmentDownloadAction;
@@ -56,7 +57,8 @@ public final class SsDownloadAction extends SegmentDownloadAction<TrackKey> {
   private static final String TYPE = "SsDownloadAction";
 
   /** @see SegmentDownloadAction#SegmentDownloadAction(Uri, boolean, String, Object[]) */
-  public SsDownloadAction(Uri manifestUri, boolean removeAction, String data, TrackKey... keys) {
+  public SsDownloadAction(
+      Uri manifestUri, boolean removeAction, @Nullable String data, TrackKey... keys) {
     super(manifestUri, removeAction, data, keys);
   }
 

@@ -16,6 +16,7 @@
 package com.google.android.exoplayer2.offline;
 
 import android.net.Uri;
+import android.support.annotation.Nullable;
 import com.google.android.exoplayer2.util.Assertions;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -72,15 +73,15 @@ public abstract class SegmentDownloadAction<K> extends DownloadAction {
    * @param keys Keys of representations to be downloaded. If empty, all representations are
    *     downloaded. If {@code removeAction} is true, {@code keys} should be an empty array.
    */
-  protected SegmentDownloadAction(Uri manifestUri, boolean removeAction, String data, K[] keys) {
+  protected SegmentDownloadAction(
+      Uri manifestUri, boolean removeAction, @Nullable String data, K[] keys) {
     super(data);
-    Assertions.checkNotNull(keys);
+    this.manifestUri = manifestUri;
+    this.keys = Assertions.checkNotNull(keys);
+    this.removeAction = removeAction;
     if (removeAction) {
       Assertions.checkArgument(keys.length == 0);
     }
-    this.manifestUri = manifestUri;
-    this.keys = keys;
-    this.removeAction = removeAction;
   }
 
   @Override

@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.offline;
 
+import android.support.annotation.Nullable;
 import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -108,7 +109,7 @@ public abstract class DownloadAction {
   private final String data;
 
   /** @param data Optional custom data for this action. If null, an empty string is used. */
-  protected DownloadAction(String data) {
+  protected DownloadAction(@Nullable String data) {
     this.data = data != null ? data : "";
   }
 
