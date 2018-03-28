@@ -265,12 +265,33 @@ public class PlayerActivity extends Activity
   private void initializePlayer() {
     if (player == null) {
       Intent intent = getIntent();
-      TrackSelection.Factory adaptiveTrackSelectionFactory =
-          new AdaptiveTrackSelection.Factory(BANDWIDTH_METER);
-      trackSelector = new DefaultTrackSelector(adaptiveTrackSelectionFactory);
-      trackSelectionHelper = new TrackSelectionHelper(trackSelector, adaptiveTrackSelectionFactory);
-      lastSeenTrackGroupArray = null;
-      eventLogger = new EventLogger(trackSelector);
+      String action = intent.getAction();
+      Uri[] uris;
+      String[] extensions;
+      Parcelable[] manifestFilters;
+      if (ACTION_VIEW.equals(action)) {
+        uris = new Uri[] {intent.getData()};
+        extensions = new String[] {intent.getStringExtra(EXTENSION_EXTRA)};
+        manifestFilters = new Parcelable[] {intent.getParcelableExtra(MANIFEST_FILTER_EXTRA)};
+      } else if (ACTION_VIEW_LIST.equals(action)) {
+        String[] uriStrings = intent.getStringArrayExtra(URI_LIST_EXTRA);
+        uris = new Uri[uriStrings.length];
+        for (int i = 0; i < uriStrings.length; i++) {
+          uris[i] = Uri.parse(uriStrings[i]);
+        }
+        extensions = intent.getStringArrayExtra(EXTENSION_LIST_EXTRA);
+        if (extensions == null) {
+          extensions = new String[uriStrings.length];
+        }
+        manifestFilters = intent.getParcelableArrayExtra(MANIFEST_FILTER_LIST_EXTRA);
+      } else {
+        showToast(getString(R.string.unexpected_intent_action, action));
+        return;
+      }
+      if (Util.maybeRequestReadExternalStoragePermission(this, uris)) {
+        // The player will be reinitialized if the permission is granted.
+        return;
+      }
 
       DrmSessionManager<FrameworkMediaCrypto> drmSessionManager = null;
       if (intent.hasExtra(DRM_SCHEME_EXTRA) || intent.hasExtra(DRM_SCHEME_UUID_EXTRA)) {
@@ -312,8 +333,14 @@ public class PlayerActivity extends Activity
       DefaultRenderersFactory renderersFactory =
           new DefaultRenderersFactory(this, extensionRendererMode);
 
-      player =
-          ExoPlayerFactory.newSimpleInstance(renderersFactory, trackSelector, drmSessionManager);
+      TrackSelection.Factory adaptiveTrackSelectionFactory =
+          new AdaptiveTrackSelection.Factory(BANDWIDTH_METER);
+      trackSelector = new DefaultTrackSelector(adaptiveTrackSelectionFactory);
+      trackSelectionHelper = new TrackSelectionHelper(trackSelector, adaptiveTrackSelectionFactory);
+      lastSeenTrackGroupArray = null;
+      eventLogger = new EventLogger(trackSelector);
+
+      player = ExoPlayerFactory.newSimpleInstance(renderersFactory, trackSelector);
       player.addListener(new PlayerEventListener());
       player.addListener(eventLogger);
       player.addMetadataOutput(eventLogger);
@@ -326,33 +353,6 @@ public class PlayerActivity extends Activity
       debugViewHelper = new DebugTextViewHelper(player, debugTextView);
       debugViewHelper.start();
 
-      String action = intent.getAction();
-      Uri[] uris;
-      String[] extensions;
-      Parcelable[] manifestFilters;
-      if (ACTION_VIEW.equals(action)) {
-        uris = new Uri[] {intent.getData()};
-        extensions = new String[] {intent.getStringExtra(EXTENSION_EXTRA)};
-        manifestFilters = new Parcelable[] {intent.getParcelableExtra(MANIFEST_FILTER_EXTRA)};
-      } else if (ACTION_VIEW_LIST.equals(action)) {
-        String[] uriStrings = intent.getStringArrayExtra(URI_LIST_EXTRA);
-        uris = new Uri[uriStrings.length];
-        for (int i = 0; i < uriStrings.length; i++) {
-          uris[i] = Uri.parse(uriStrings[i]);
-        }
-        extensions = intent.getStringArrayExtra(EXTENSION_LIST_EXTRA);
-        if (extensions == null) {
-          extensions = new String[uriStrings.length];
-        }
-        manifestFilters = intent.getParcelableArrayExtra(MANIFEST_FILTER_LIST_EXTRA);
-      } else {
-        showToast(getString(R.string.unexpected_intent_action, action));
-        return;
-      }
-      if (Util.maybeRequestReadExternalStoragePermission(this, uris)) {
-        // The player will be reinitialized if the permission is granted.
-        return;
-      }
       MediaSource[] mediaSources = new MediaSource[uris.length];
       for (int i = 0; i < uris.length; i++) {
         ParcelableArray<?> manifestFilter = (ParcelableArray<?>) manifestFilters[i];
