@@ -138,6 +138,7 @@ public final class DefaultAudioSink implements AudioSink {
   private final boolean enableConvertHighResIntPcmToFloat;
   private final ChannelMappingAudioProcessor channelMappingAudioProcessor;
   private final TrimmingAudioProcessor trimmingAudioProcessor;
+  private final SilenceSkippingAudioProcessor silenceSkippingAudioProcessor;
   private final SonicAudioProcessor sonicAudioProcessor;
   private final AudioProcessor[] toIntPcmAvailableAudioProcessors;
   private final AudioProcessor[] toFloatPcmAvailableAudioProcessors;
@@ -226,14 +227,16 @@ public final class DefaultAudioSink implements AudioSink {
     audioTrackPositionTracker = new AudioTrackPositionTracker(new PositionTrackerListener());
     channelMappingAudioProcessor = new ChannelMappingAudioProcessor();
     trimmingAudioProcessor = new TrimmingAudioProcessor();
+    silenceSkippingAudioProcessor = new SilenceSkippingAudioProcessor();
     sonicAudioProcessor = new SonicAudioProcessor();
-    toIntPcmAvailableAudioProcessors = new AudioProcessor[4 + audioProcessors.length];
+    toIntPcmAvailableAudioProcessors = new AudioProcessor[5 + audioProcessors.length];
     toIntPcmAvailableAudioProcessors[0] = new ResamplingAudioProcessor();
     toIntPcmAvailableAudioProcessors[1] = channelMappingAudioProcessor;
     toIntPcmAvailableAudioProcessors[2] = trimmingAudioProcessor;
     System.arraycopy(
         audioProcessors, 0, toIntPcmAvailableAudioProcessors, 3, audioProcessors.length);
-    toIntPcmAvailableAudioProcessors[3 + audioProcessors.length] = sonicAudioProcessor;
+    toIntPcmAvailableAudioProcessors[3 + audioProcessors.length] = silenceSkippingAudioProcessor;
+    toIntPcmAvailableAudioProcessors[4 + audioProcessors.length] = sonicAudioProcessor;
     toFloatPcmAvailableAudioProcessors = new AudioProcessor[] {new FloatResamplingAudioProcessor()};
     volume = 1.0f;
     startMediaTimeState = START_NOT_SET;
@@ -272,7 +275,7 @@ public final class DefaultAudioSink implements AudioSink {
     }
     long positionUs = audioTrackPositionTracker.getCurrentPositionUs(sourceEnded);
     positionUs = Math.min(positionUs, framesToDurationUs(getWrittenFrames()));
-    return startMediaTimeUs + applySpeedup(positionUs);
+    return startMediaTimeUs + applySkipping(applySpeedup(positionUs));
   }
 
   @Override
@@ -936,6 +939,10 @@ public final class DefaultAudioSink implements AudioSink {
     return playbackParametersOffsetUs
         + Util.getMediaDurationForPlayoutDuration(
             positionUs - playbackParametersPositionUs, playbackParameters.speed);
+  }
+
+  private long applySkipping(long positionUs) {
+    return positionUs + framesToDurationUs(silenceSkippingAudioProcessor.getSkippedFrames());
   }
 
   private boolean isInitialized() {
