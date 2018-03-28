@@ -284,6 +284,9 @@ public class PlayerActivity extends Activity
           extensions = new String[uriStrings.length];
         }
         manifestFilters = intent.getParcelableArrayExtra(MANIFEST_FILTER_LIST_EXTRA);
+        if (manifestFilters == null) {
+          manifestFilters = new Parcelable[uriStrings.length];
+        }
       } else {
         showToast(getString(R.string.unexpected_intent_action, action));
         return;
