@@ -16,6 +16,7 @@
 package com.google.android.exoplayer2.source.dash.offline;
 
 import android.net.Uri;
+import android.support.annotation.Nullable;
 import com.google.android.exoplayer2.offline.DownloadAction;
 import com.google.android.exoplayer2.offline.DownloaderConstructorHelper;
 import com.google.android.exoplayer2.offline.SegmentDownloadAction;
@@ -56,8 +57,8 @@ public final class DashDownloadAction extends SegmentDownloadAction<Representati
   private static final String TYPE = "DashDownloadAction";
 
   /** @see SegmentDownloadAction#SegmentDownloadAction(Uri, boolean, String, Object[]) */
-  public DashDownloadAction(Uri manifestUri, boolean removeAction, String data,
-      RepresentationKey... keys) {
+  public DashDownloadAction(
+      Uri manifestUri, boolean removeAction, @Nullable String data, RepresentationKey... keys) {
     super(manifestUri, removeAction, data, keys);
   }
 
