@@ -138,7 +138,7 @@ public abstract class DownloadAction {
   /** Serializes itself into the {@code output}. */
   protected abstract void writeToStream(DataOutputStream output) throws IOException;
 
-  /** Returns whether this is action is for the same media as the {@code other}. */
+  /** Returns whether this is an action for the same media as the {@code other}. */
   protected abstract boolean isSameMedia(DownloadAction other);
 
   /** Creates a {@link Downloader} with the given parameters. */
