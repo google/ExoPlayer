@@ -378,10 +378,11 @@ public final class ActionSchedule {
     /**
      * Schedules a delay until the timeline changed to a specified expected timeline.
      *
-     * @param expectedTimeline The expected timeline to wait for.
+     * @param expectedTimeline The expected timeline to wait for. If null, wait for any timeline
+     *     change.
      * @return The builder, for convenience.
      */
-    public Builder waitForTimelineChanged(Timeline expectedTimeline) {
+    public Builder waitForTimelineChanged(@Nullable Timeline expectedTimeline) {
       return apply(new WaitForTimelineChanged(tag, expectedTimeline));
     }
 
