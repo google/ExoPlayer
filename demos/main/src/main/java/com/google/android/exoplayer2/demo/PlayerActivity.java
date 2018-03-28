@@ -340,7 +340,8 @@ public class PlayerActivity extends Activity
       lastSeenTrackGroupArray = null;
       eventLogger = new EventLogger(trackSelector);
 
-      player = ExoPlayerFactory.newSimpleInstance(renderersFactory, trackSelector);
+      player =
+          ExoPlayerFactory.newSimpleInstance(renderersFactory, trackSelector, drmSessionManager);
       player.addListener(new PlayerEventListener());
       player.addListener(eventLogger);
       player.addMetadataOutput(eventLogger);
