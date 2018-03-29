@@ -9,7 +9,7 @@ track 0:
     id = null
     containerMimeType = null
     sampleMimeType = audio/raw
-    maxInputSize = -1
+    maxInputSize = 16384
     width = -1
     height = -1
     frameRate = -1.0

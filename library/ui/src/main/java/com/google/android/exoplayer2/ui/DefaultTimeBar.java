@@ -250,7 +250,7 @@ public class DefaultTimeBar extends View implements TimeBar {
       try {
         scrubberDrawable = a.getDrawable(R.styleable.DefaultTimeBar_scrubber_drawable);
         if (scrubberDrawable != null) {
-          setDrawableLayoutDirection(scrubberDrawable, getLayoutDirection());
+          setDrawableLayoutDirection(scrubberDrawable);
           defaultTouchTargetHeight =
               Math.max(scrubberDrawable.getMinimumHeight(), defaultTouchTargetHeight);
         }
@@ -747,8 +747,8 @@ public class DefaultTimeBar extends View implements TimeBar {
     return true;
   }
 
-  private static int dpToPx(DisplayMetrics displayMetrics, int dps) {
-    return (int) (dps * displayMetrics.density + 0.5f);
+  private boolean setDrawableLayoutDirection(Drawable drawable) {
+    return Util.SDK_INT >= 23 && setDrawableLayoutDirection(drawable, getLayoutDirection());
   }
 
   private static boolean setDrawableLayoutDirection(Drawable drawable, int layoutDirection) {
@@ -771,4 +771,7 @@ public class DefaultTimeBar extends View implements TimeBar {
     return 0x33000000 | (adMarkerColor & 0x00FFFFFF);
   }
 
+  private static int dpToPx(DisplayMetrics displayMetrics, int dps) {
+    return (int) (dps * displayMetrics.density + 0.5f);
+  }
 }

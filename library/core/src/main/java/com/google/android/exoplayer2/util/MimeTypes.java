@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.util;
 
+import android.support.annotation.Nullable;
 import android.text.TextUtils;
 import com.google.android.exoplayer2.C;
 
@@ -194,7 +195,20 @@ public final class MimeTypes {
     } else if (codec.startsWith("vp8") || codec.startsWith("vp08")) {
       return MimeTypes.VIDEO_VP8;
     } else if (codec.startsWith("mp4a")) {
-      return MimeTypes.AUDIO_AAC;
+      String mimeType = null;
+      if (codec.startsWith("mp4a.")) {
+        String objectTypeString = codec.substring(5); // remove the 'mp4a.' prefix
+        if (objectTypeString.length() >= 2) {
+          try {
+            String objectTypeHexString = Util.toUpperInvariant(objectTypeString.substring(0, 2));
+            int objectTypeInt = Integer.parseInt(objectTypeHexString, 16);
+            mimeType = getMimeTypeFromMp4ObjectType(objectTypeInt);
+          } catch (NumberFormatException ignored) {
+            // ignored
+          }
+        }
+      }
+      return mimeType == null ? MimeTypes.AUDIO_AAC : mimeType;
     } else if (codec.startsWith("ac-3") || codec.startsWith("dac3")) {
       return MimeTypes.AUDIO_AC3;
     } else if (codec.startsWith("ec-3") || codec.startsWith("dec3")) {
@@ -211,6 +225,50 @@ public final class MimeTypes {
       return MimeTypes.AUDIO_VORBIS;
     }
     return null;
+  }
+
+  /**
+   * Derives a mimeType from MP4 object type identifier, as defined in RFC 6381 and
+   * http://www.mp4ra.org/object.html.
+   *
+   * @param objectType The objectType identifier to derive.
+   * @return The mimeType, or null if it could not be derived.
+   */
+  @Nullable
+  public static String getMimeTypeFromMp4ObjectType(int objectType) {
+    switch (objectType) {
+      case 0x60:
+      case 0x61:
+        return MimeTypes.VIDEO_MPEG2;
+      case 0x20:
+        return MimeTypes.VIDEO_MP4V;
+      case 0x21:
+        return MimeTypes.VIDEO_H264;
+      case 0x23:
+        return MimeTypes.VIDEO_H265;
+      case 0x69:
+      case 0x6B:
+        return MimeTypes.AUDIO_MPEG;
+      case 0x40:
+      case 0x66:
+      case 0x67:
+      case 0x68:
+        return MimeTypes.AUDIO_AAC;
+      case 0xA5:
+        return MimeTypes.AUDIO_AC3;
+      case 0xA6:
+        return MimeTypes.AUDIO_E_AC3;
+      case 0xA9:
+      case 0xAC:
+        return MimeTypes.AUDIO_DTS;
+      case 0xAA:
+      case 0xAB:
+        return MimeTypes.AUDIO_DTS_HD;
+      case 0xAD:
+        return MimeTypes.AUDIO_OPUS;
+      default:
+        return null;
+    }
   }
 
   /**
