@@ -20,12 +20,12 @@ import static com.google.common.truth.Truth.assertThat;
 import android.net.Uri;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.source.hls.playlist.HlsMediaPlaylist.Segment;
+import com.google.android.exoplayer2.util.Util;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.Charset;
 import java.util.List;
-import java.util.Locale;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
@@ -122,7 +122,7 @@ public class HlsMediaPlaylistParserTest {
         .isEqualTo("https://priv.example.com/key.php?r=2682");
     // 0xA7A == 2682.
     assertThat(segment.encryptionIV).isNotNull();
-    assertThat(segment.encryptionIV.toUpperCase(Locale.getDefault())).isEqualTo("A7A");
+    assertThat(Util.toUpperInvariant(segment.encryptionIV)).isEqualTo("A7A");
     assertThat(segment.byterangeLength).isEqualTo(51740);
     assertThat(segment.byterangeOffset).isEqualTo(2147586650L);
     assertThat(segment.url).isEqualTo("https://priv.example.com/fileSequence2682.ts");
@@ -134,7 +134,7 @@ public class HlsMediaPlaylistParserTest {
         .isEqualTo("https://priv.example.com/key.php?r=2682");
     // 0xA7B == 2683.
     assertThat(segment.encryptionIV).isNotNull();
-    assertThat(segment.encryptionIV.toUpperCase(Locale.getDefault())).isEqualTo("A7B");
+    assertThat(Util.toUpperInvariant(segment.encryptionIV)).isEqualTo("A7B");
     assertThat(segment.byterangeLength).isEqualTo(C.LENGTH_UNSET);
     assertThat(segment.byterangeOffset).isEqualTo(0);
     assertThat(segment.url).isEqualTo("https://priv.example.com/fileSequence2683.ts");
