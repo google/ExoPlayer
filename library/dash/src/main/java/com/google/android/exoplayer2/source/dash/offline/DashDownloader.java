@@ -116,7 +116,8 @@ public final class DashDownloader extends SegmentDownloader<DashManifest, Repres
         }
       }
 
-      int segmentCount = index.getSegmentCount(C.TIME_UNSET);
+      long periodDurationUs = manifest.getPeriodDurationUs(key.periodIndex);
+      int segmentCount = index.getSegmentCount(periodDurationUs);
       if (segmentCount == DashSegmentIndex.INDEX_UNBOUNDED) {
         throw new DownloadException("Unbounded index for representation: " + key);
       }
