@@ -266,7 +266,7 @@ public interface MediaSourceEventListener {
     private final long mediaTimeOffsetMs;
 
     /** Creates an event dispatcher. */
-    /* package */ EventDispatcher() {
+    public EventDispatcher() {
       this(
           /* listenerAndHandlers= */ new CopyOnWriteArrayList<ListenerAndHandler>(),
           /* windowIndex= */ 0,
@@ -295,7 +295,7 @@ public interface MediaSourceEventListener {
      * @return A view of the event dispatcher with the pre-configured parameters.
      */
     @CheckResult
-    /* package */ EventDispatcher withParameters(
+    public EventDispatcher withParameters(
         int windowIndex, @Nullable MediaPeriodId mediaPeriodId, long mediaTimeOffsetMs) {
       return new EventDispatcher(
           listenerAndHandlers, windowIndex, mediaPeriodId, mediaTimeOffsetMs);
