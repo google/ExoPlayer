@@ -49,6 +49,12 @@ class CombinedJavadocPlugin implements Plugin<Project> {
             }
           }
           doLast {
+            libraryModules.each { libraryModule ->
+              project.copy {
+                from "${libraryModule.projectDir}/src/main/javadoc"
+                into "${project.buildDir}/docs/javadoc"
+              }
+            }
             project.fixJavadoc()
           }
         }
