@@ -22,7 +22,7 @@ project.ext {
     minSdkVersion = 14
     targetSdkVersion = 27
     compileSdkVersion = 27
-    buildToolsVersion = '26.0.2'
+    buildToolsVersion = '27.0.3'
     testSupportLibraryVersion = '0.5'
     supportLibraryVersion = '27.0.0'
     playServicesLibraryVersion = '11.4.2'
