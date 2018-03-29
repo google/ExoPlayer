@@ -37,7 +37,7 @@ android.libraryVariants.all { variant ->
                     project.android.getBootClasspath())
         }
         doLast {
-            project.javadocFixLinks()
+            project.fixJavadoc()
         }
     }
 }
