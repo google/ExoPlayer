@@ -15,9 +15,11 @@
  */
 package com.google.android.exoplayer2.audio;
 
+import android.support.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.C.Encoding;
 import com.google.android.exoplayer2.Format;
+import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Util;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -64,7 +66,7 @@ public final class SonicAudioProcessor implements AudioProcessor {
   private int channelCount;
   private int sampleRateHz;
 
-  private Sonic sonic;
+  private @Nullable Sonic sonic;
   private float speed;
   private float pitch;
   private int outputSampleRateHz;
@@ -185,6 +187,7 @@ public final class SonicAudioProcessor implements AudioProcessor {
 
   @Override
   public void queueInput(ByteBuffer inputBuffer) {
+    Assertions.checkState(sonic != null);
     if (inputBuffer.hasRemaining()) {
       ShortBuffer shortBuffer = inputBuffer.asShortBuffer();
       int inputSize = inputBuffer.remaining();
@@ -210,6 +213,7 @@ public final class SonicAudioProcessor implements AudioProcessor {
 
   @Override
   public void queueEndOfStream() {
+    Assertions.checkState(sonic != null);
     sonic.queueEndOfStream();
     inputEnded = true;
   }
@@ -228,7 +232,8 @@ public final class SonicAudioProcessor implements AudioProcessor {
 
   @Override
   public void flush() {
-    sonic = new Sonic(sampleRateHz, channelCount, speed, pitch, outputSampleRateHz);
+    sonic =
+        isActive() ? new Sonic(sampleRateHz, channelCount, speed, pitch, outputSampleRateHz) : null;
     outputBuffer = EMPTY_BUFFER;
     inputBytes = 0;
     outputBytes = 0;
@@ -237,17 +242,19 @@ public final class SonicAudioProcessor implements AudioProcessor {
 
   @Override
   public void reset() {
-    sonic = null;
-    buffer = EMPTY_BUFFER;
-    shortBuffer = buffer.asShortBuffer();
-    outputBuffer = EMPTY_BUFFER;
+    speed = 1f;
+    pitch = 1f;
     channelCount = Format.NO_VALUE;
     sampleRateHz = Format.NO_VALUE;
     outputSampleRateHz = Format.NO_VALUE;
+    buffer = EMPTY_BUFFER;
+    shortBuffer = buffer.asShortBuffer();
+    outputBuffer = EMPTY_BUFFER;
+    pendingOutputSampleRateHz = SAMPLE_RATE_NO_CHANGE;
+    sonic = null;
     inputBytes = 0;
     outputBytes = 0;
     inputEnded = false;
-    pendingOutputSampleRateHz = SAMPLE_RATE_NO_CHANGE;
   }
 
 }

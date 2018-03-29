@@ -147,10 +147,9 @@ public final class DefaultAudioSink implements AudioSink {
   private final ArrayDeque<PlaybackParametersCheckpoint> playbackParametersCheckpoints;
 
   @Nullable private Listener listener;
-  /**
-   * Used to keep the audio session active on pre-V21 builds (see {@link #initialize()}).
-   */
-  private AudioTrack keepSessionIdAudioTrack;
+  /** Used to keep the audio session active on pre-V21 builds (see {@link #initialize()}). */
+  @Nullable private AudioTrack keepSessionIdAudioTrack;
+
   private AudioTrack audioTrack;
   private boolean isInputPcm;
   private boolean shouldConvertHighResIntPcmToFloat;
@@ -163,12 +162,12 @@ public final class DefaultAudioSink implements AudioSink {
   private boolean canApplyPlaybackParameters;
   private int bufferSize;
 
-  private PlaybackParameters drainingPlaybackParameters;
+  @Nullable private PlaybackParameters drainingPlaybackParameters;
   private PlaybackParameters playbackParameters;
   private long playbackParametersOffsetUs;
   private long playbackParametersPositionUs;
 
-  private ByteBuffer avSyncHeader;
+  @Nullable private ByteBuffer avSyncHeader;
   private int bytesUntilNextAvSync;
 
   private int pcmFrameSize;
@@ -184,8 +183,8 @@ public final class DefaultAudioSink implements AudioSink {
 
   private AudioProcessor[] audioProcessors;
   private ByteBuffer[] outputBuffers;
-  private ByteBuffer inputBuffer;
-  private ByteBuffer outputBuffer;
+  @Nullable private ByteBuffer inputBuffer;
+  @Nullable private ByteBuffer outputBuffer;
   private byte[] preV21OutputBuffer;
   private int preV21OutputBufferOffset;
   private int drainingAudioProcessorIndex;
@@ -408,7 +407,7 @@ public final class DefaultAudioSink implements AudioSink {
     }
   }
 
-  private void resetAudioProcessors() {
+  private void setupAudioProcessors() {
     ArrayList<AudioProcessor> newAudioProcessors = new ArrayList<>();
     for (AudioProcessor audioProcessor : getAvailableAudioProcessors()) {
       if (audioProcessor.isActive()) {
@@ -420,7 +419,11 @@ public final class DefaultAudioSink implements AudioSink {
     int count = newAudioProcessors.size();
     audioProcessors = newAudioProcessors.toArray(new AudioProcessor[count]);
     outputBuffers = new ByteBuffer[count];
-    for (int i = 0; i < count; i++) {
+    flushAudioProcessors();
+  }
+
+  private void flushAudioProcessors() {
+    for (int i = 0; i < audioProcessors.length; i++) {
       AudioProcessor audioProcessor = audioProcessors[i];
       audioProcessor.flush();
       outputBuffers[i] = audioProcessor.getOutput();
@@ -436,13 +439,6 @@ public final class DefaultAudioSink implements AudioSink {
     releasingConditionVariable.block();
 
     audioTrack = initializeAudioTrack();
-
-    // The old playback parameters may no longer be applicable so try to reset them now.
-    setPlaybackParameters(playbackParameters);
-
-    // Flush and reset active audio processors.
-    resetAudioProcessors();
-
     int audioSessionId = audioTrack.getAudioSessionId();
     if (enablePreV21AudioSessionWorkaround) {
       if (Util.SDK_INT < 21) {
@@ -463,6 +459,10 @@ public final class DefaultAudioSink implements AudioSink {
         listener.onAudioSessionId(audioSessionId);
       }
     }
+
+    // The old playback parameters may no longer be applicable so try to reset them now.
+    setPlaybackParameters(playbackParameters);
+    setupAudioProcessors();
 
     audioTrackPositionTracker.setAudioTrack(
         audioTrack, outputEncoding, outputPcmFrameSize, bufferSize);
@@ -533,7 +533,7 @@ public final class DefaultAudioSink implements AudioSink {
         drainingPlaybackParameters = null;
         // The audio processors have drained, so flush them. This will cause any active speed
         // adjustment audio processor to start producing audio with the new parameters.
-        resetAudioProcessors();
+        setupAudioProcessors();
       }
 
       if (startMediaTimeState == START_NOT_SET) {
@@ -849,11 +849,7 @@ public final class DefaultAudioSink implements AudioSink {
       playbackParametersPositionUs = 0;
       inputBuffer = null;
       outputBuffer = null;
-      for (int i = 0; i < audioProcessors.length; i++) {
-        AudioProcessor audioProcessor = audioProcessors[i];
-        audioProcessor.flush();
-        outputBuffers[i] = audioProcessor.getOutput();
-      }
+      flushAudioProcessors();
       handledEndOfStream = false;
       drainingAudioProcessorIndex = C.INDEX_UNSET;
       avSyncHeader = null;

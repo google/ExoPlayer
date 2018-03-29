@@ -22,19 +22,17 @@ import java.nio.ByteOrder;
 /**
  * Interface for audio processors, which take audio data as input and transform it, potentially
  * modifying its channel count, encoding and/or sample rate.
- * <p>
- * Call {@link #configure(int, int, int)} to configure the processor to receive input audio, then
- * call {@link #isActive()} to determine whether the processor is active.
- * {@link #queueInput(ByteBuffer)}, {@link #queueEndOfStream()}, {@link #getOutput()},
- * {@link #isEnded()}, {@link #getOutputChannelCount()}, {@link #getOutputEncoding()} and
- * {@link #getOutputSampleRateHz()} may only be called if the processor is active. Call
- * {@link #reset()} to reset the processor to its unconfigured state.
+ *
+ * <p>Call {@link #configure(int, int, int)} to configure the processor to receive input audio, then
+ * call {@link #isActive()} to determine whether the processor is active. {@link
+ * #queueInput(ByteBuffer)}, {@link #queueEndOfStream()}, {@link #getOutput()}, {@link #isEnded()},
+ * {@link #getOutputChannelCount()}, {@link #getOutputEncoding()} and {@link
+ * #getOutputSampleRateHz()} may only be called if the processor is active. Call {@link #reset()} to
+ * reset the processor to its unconfigured state and release any resources.
  */
 public interface AudioProcessor {
 
-  /**
-   * Exception thrown when a processor can't be configured for a given input audio format.
-   */
+  /** Exception thrown when a processor can't be configured for a given input audio format. */
   final class UnhandledFormatException extends Exception {
 
     public UnhandledFormatException(int sampleRateHz, int channelCount, @C.Encoding int encoding) {
@@ -44,33 +42,26 @@ public interface AudioProcessor {
 
   }
 
-  /**
-   * An empty, direct {@link ByteBuffer}.
-   */
+  /** An empty, direct {@link ByteBuffer}. */
   ByteBuffer EMPTY_BUFFER = ByteBuffer.allocateDirect(0).order(ByteOrder.nativeOrder());
 
   /**
-   * Configures the processor to process input audio with the specified format. After calling this
-   * method, {@link #isActive()} returns whether the processor needs to handle buffers; if not, the
-   * processor will not accept any buffers until it is reconfigured. Returns {@code true} if the
-   * processor must be flushed, or if the value returned by {@link #isActive()} has changed as a
-   * result of the call. If it's active, {@link #getOutputSampleRateHz()},
-   * {@link #getOutputChannelCount()} and {@link #getOutputEncoding()} return the processor's output
-   * format.
+   * Configures the processor to process input audio with the specified format and returns whether
+   * to {@link #flush()} it. After calling this method, {@link #isActive()} returns whether the
+   * processor needs to handle buffers; if not, the processor will not accept any buffers until it
+   * is reconfigured. If the processor is active, {@link #getOutputSampleRateHz()}, {@link
+   * #getOutputChannelCount()} and {@link #getOutputEncoding()} return its output format.
    *
    * @param sampleRateHz The sample rate of input audio in Hz.
    * @param channelCount The number of interleaved channels in input audio.
    * @param encoding The encoding of input audio.
-   * @return {@code true} if the processor must be flushed or the value returned by
-   *     {@link #isActive()} has changed as a result of the call.
+   * @return Whether to {@link #flush()} the processor.
    * @throws UnhandledFormatException Thrown if the specified format can't be handled as input.
    */
   boolean configure(int sampleRateHz, int channelCount, @C.Encoding int encoding)
       throws UnhandledFormatException;
 
-  /**
-   * Returns whether the processor is configured and active.
-   */
+  /** Returns whether the processor is configured and active. */
   boolean isActive();
 
   /**
@@ -130,14 +121,9 @@ public interface AudioProcessor {
    */
   boolean isEnded();
 
-  /**
-   * Clears any state in preparation for receiving a new stream of input buffers.
-   */
+  /** Clears any state in preparation for receiving a new stream of input buffers. */
   void flush();
 
-  /**
-   * Resets the processor to its unconfigured state.
-   */
+  /** Resets the processor to its unconfigured state. */
   void reset();
-
 }

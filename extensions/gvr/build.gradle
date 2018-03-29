@@ -26,6 +26,7 @@ android {
 
 dependencies {
     implementation project(modulePrefix + 'library-core')
+    implementation 'com.android.support:support-annotations:' + supportLibraryVersion
     implementation 'com.google.vr:sdk-audio:1.80.0'
 }
 
