@@ -63,7 +63,7 @@ public final class ClippingMediaSourceTest {
 
   @Test
   public void testNoClipping() throws IOException {
-    Timeline timeline = new SinglePeriodTimeline(C.msToUs(TEST_PERIOD_DURATION_US), true, false);
+    Timeline timeline = new SinglePeriodTimeline(TEST_PERIOD_DURATION_US, true, false);
 
     Timeline clippedTimeline = getClippedTimeline(timeline, 0, TEST_PERIOD_DURATION_US);
 
@@ -77,7 +77,7 @@ public final class ClippingMediaSourceTest {
 
   @Test
   public void testClippingUnseekableWindowThrows() throws IOException {
-    Timeline timeline = new SinglePeriodTimeline(C.msToUs(TEST_PERIOD_DURATION_US), false, false);
+    Timeline timeline = new SinglePeriodTimeline(TEST_PERIOD_DURATION_US, false, false);
 
     // If the unseekable window isn't clipped, clipping succeeds.
     getClippedTimeline(timeline, 0, TEST_PERIOD_DURATION_US);
@@ -92,7 +92,7 @@ public final class ClippingMediaSourceTest {
 
   @Test
   public void testClippingStart() throws IOException {
-    Timeline timeline = new SinglePeriodTimeline(C.msToUs(TEST_PERIOD_DURATION_US), true, false);
+    Timeline timeline = new SinglePeriodTimeline(TEST_PERIOD_DURATION_US, true, false);
 
     Timeline clippedTimeline =
         getClippedTimeline(timeline, TEST_CLIP_AMOUNT_US, TEST_PERIOD_DURATION_US);
@@ -104,7 +104,7 @@ public final class ClippingMediaSourceTest {
 
   @Test
   public void testClippingEnd() throws IOException {
-    Timeline timeline = new SinglePeriodTimeline(C.msToUs(TEST_PERIOD_DURATION_US), true, false);
+    Timeline timeline = new SinglePeriodTimeline(TEST_PERIOD_DURATION_US, true, false);
 
     Timeline clippedTimeline =
         getClippedTimeline(timeline, 0, TEST_PERIOD_DURATION_US - TEST_CLIP_AMOUNT_US);
@@ -163,7 +163,7 @@ public final class ClippingMediaSourceTest {
 
   @Test
   public void testClippingStartAndEnd() throws IOException {
-    Timeline timeline = new SinglePeriodTimeline(C.msToUs(TEST_PERIOD_DURATION_US), true, false);
+    Timeline timeline = new SinglePeriodTimeline(TEST_PERIOD_DURATION_US, true, false);
 
     Timeline clippedTimeline =
         getClippedTimeline(
@@ -172,6 +172,206 @@ public final class ClippingMediaSourceTest {
         .isEqualTo(TEST_PERIOD_DURATION_US - TEST_CLIP_AMOUNT_US * 3);
     assertThat(clippedTimeline.getPeriod(0, period).getDurationUs())
         .isEqualTo(TEST_PERIOD_DURATION_US - TEST_CLIP_AMOUNT_US * 2);
+  }
+
+  @Test
+  public void testClippingFromDefaultPosition() throws IOException {
+    Timeline timeline =
+        new SinglePeriodTimeline(
+            /* periodDurationUs= */ 3 * TEST_PERIOD_DURATION_US,
+            /* windowDurationUs= */ TEST_PERIOD_DURATION_US,
+            /* windowPositionInPeriodUs= */ TEST_PERIOD_DURATION_US,
+            /* windowDefaultStartPositionUs= */ TEST_CLIP_AMOUNT_US,
+            /* isSeekable= */ true,
+            /* isDynamic= */ true);
+
+    Timeline clippedTimeline = getClippedTimeline(timeline, /* durationUs= */ TEST_CLIP_AMOUNT_US);
+    assertThat(clippedTimeline.getWindow(0, window).getDurationUs()).isEqualTo(TEST_CLIP_AMOUNT_US);
+    assertThat(clippedTimeline.getWindow(0, window).getDefaultPositionUs()).isEqualTo(0);
+    assertThat(clippedTimeline.getWindow(0, window).getPositionInFirstPeriodUs())
+        .isEqualTo(TEST_PERIOD_DURATION_US + TEST_CLIP_AMOUNT_US);
+    assertThat(clippedTimeline.getPeriod(0, period).getDurationUs())
+        .isEqualTo(TEST_PERIOD_DURATION_US + 2 * TEST_CLIP_AMOUNT_US);
+  }
+
+  @Test
+  public void testAllowDynamicUpdatesWithOverlappingLiveWindow() throws IOException {
+    Timeline timeline1 =
+        new SinglePeriodTimeline(
+            /* periodDurationUs= */ 2 * TEST_PERIOD_DURATION_US,
+            /* windowDurationUs= */ TEST_PERIOD_DURATION_US,
+            /* windowPositionInPeriodUs= */ TEST_PERIOD_DURATION_US,
+            /* windowDefaultStartPositionUs= */ TEST_CLIP_AMOUNT_US,
+            /* isSeekable= */ true,
+            /* isDynamic= */ true);
+    Timeline timeline2 =
+        new SinglePeriodTimeline(
+            /* periodDurationUs= */ 3 * TEST_PERIOD_DURATION_US,
+            /* windowDurationUs= */ TEST_PERIOD_DURATION_US,
+            /* windowPositionInPeriodUs= */ 2 * TEST_PERIOD_DURATION_US,
+            /* windowDefaultStartPositionUs= */ TEST_CLIP_AMOUNT_US,
+            /* isSeekable= */ true,
+            /* isDynamic= */ true);
+
+    Timeline[] clippedTimelines =
+        getClippedTimelines(
+            /* startUs= */ 0,
+            /* endUs= */ TEST_PERIOD_DURATION_US,
+            /* allowDynamicUpdates= */ true,
+            /* fromDefaultPosition= */ true,
+            timeline1,
+            timeline2);
+    assertThat(clippedTimelines[0].getWindow(0, window).getDurationUs())
+        .isEqualTo(TEST_PERIOD_DURATION_US - TEST_CLIP_AMOUNT_US);
+    assertThat(clippedTimelines[0].getWindow(0, window).getDefaultPositionUs()).isEqualTo(0);
+    assertThat(clippedTimelines[0].getWindow(0, window).isDynamic).isTrue();
+    assertThat(clippedTimelines[0].getWindow(0, window).getPositionInFirstPeriodUs())
+        .isEqualTo(TEST_PERIOD_DURATION_US + TEST_CLIP_AMOUNT_US);
+    assertThat(clippedTimelines[0].getPeriod(0, period).getDurationUs())
+        .isEqualTo(2 * TEST_PERIOD_DURATION_US);
+    assertThat(clippedTimelines[1].getWindow(0, window).getDurationUs())
+        .isEqualTo(TEST_PERIOD_DURATION_US - TEST_CLIP_AMOUNT_US);
+    assertThat(clippedTimelines[1].getWindow(0, window).getDefaultPositionUs()).isEqualTo(0);
+    assertThat(clippedTimelines[1].getWindow(0, window).isDynamic).isTrue();
+    assertThat(clippedTimelines[1].getWindow(0, window).getPositionInFirstPeriodUs())
+        .isEqualTo(2 * TEST_PERIOD_DURATION_US + TEST_CLIP_AMOUNT_US);
+    assertThat(clippedTimelines[1].getPeriod(0, period).getDurationUs())
+        .isEqualTo(3 * TEST_PERIOD_DURATION_US);
+  }
+
+  @Test
+  public void testAllowDynamicUpdatesWithNonOverlappingLiveWindow() throws IOException {
+    Timeline timeline1 =
+        new SinglePeriodTimeline(
+            /* periodDurationUs= */ 2 * TEST_PERIOD_DURATION_US,
+            /* windowDurationUs= */ TEST_PERIOD_DURATION_US,
+            /* windowPositionInPeriodUs= */ TEST_PERIOD_DURATION_US,
+            /* windowDefaultStartPositionUs= */ TEST_CLIP_AMOUNT_US,
+            /* isSeekable= */ true,
+            /* isDynamic= */ true);
+    Timeline timeline2 =
+        new SinglePeriodTimeline(
+            /* periodDurationUs= */ 4 * TEST_PERIOD_DURATION_US,
+            /* windowDurationUs= */ TEST_PERIOD_DURATION_US,
+            /* windowPositionInPeriodUs= */ 3 * TEST_PERIOD_DURATION_US,
+            /* windowDefaultStartPositionUs= */ TEST_CLIP_AMOUNT_US,
+            /* isSeekable= */ true,
+            /* isDynamic= */ true);
+
+    Timeline[] clippedTimelines =
+        getClippedTimelines(
+            /* startUs= */ 0,
+            /* endUs= */ TEST_PERIOD_DURATION_US,
+            /* allowDynamicUpdates= */ true,
+            /* fromDefaultPosition= */ true,
+            timeline1,
+            timeline2);
+    assertThat(clippedTimelines[0].getWindow(0, window).getDurationUs())
+        .isEqualTo(TEST_PERIOD_DURATION_US - TEST_CLIP_AMOUNT_US);
+    assertThat(clippedTimelines[0].getWindow(0, window).getDefaultPositionUs()).isEqualTo(0);
+    assertThat(clippedTimelines[0].getWindow(0, window).isDynamic).isTrue();
+    assertThat(clippedTimelines[0].getWindow(0, window).getPositionInFirstPeriodUs())
+        .isEqualTo(TEST_PERIOD_DURATION_US + TEST_CLIP_AMOUNT_US);
+    assertThat(clippedTimelines[0].getPeriod(0, period).getDurationUs())
+        .isEqualTo(2 * TEST_PERIOD_DURATION_US);
+    assertThat(clippedTimelines[1].getWindow(0, window).getDurationUs())
+        .isEqualTo(TEST_PERIOD_DURATION_US - TEST_CLIP_AMOUNT_US);
+    assertThat(clippedTimelines[1].getWindow(0, window).getDefaultPositionUs()).isEqualTo(0);
+    assertThat(clippedTimelines[1].getWindow(0, window).isDynamic).isTrue();
+    assertThat(clippedTimelines[1].getWindow(0, window).getPositionInFirstPeriodUs())
+        .isEqualTo(3 * TEST_PERIOD_DURATION_US + TEST_CLIP_AMOUNT_US);
+    assertThat(clippedTimelines[1].getPeriod(0, period).getDurationUs())
+        .isEqualTo(4 * TEST_PERIOD_DURATION_US);
+  }
+
+  @Test
+  public void testDisallowDynamicUpdatesWithOverlappingLiveWindow() throws IOException {
+    Timeline timeline1 =
+        new SinglePeriodTimeline(
+            /* periodDurationUs= */ 2 * TEST_PERIOD_DURATION_US,
+            /* windowDurationUs= */ TEST_PERIOD_DURATION_US,
+            /* windowPositionInPeriodUs= */ TEST_PERIOD_DURATION_US,
+            /* windowDefaultStartPositionUs= */ TEST_CLIP_AMOUNT_US,
+            /* isSeekable= */ true,
+            /* isDynamic= */ true);
+    Timeline timeline2 =
+        new SinglePeriodTimeline(
+            /* periodDurationUs= */ 3 * TEST_PERIOD_DURATION_US,
+            /* windowDurationUs= */ TEST_PERIOD_DURATION_US,
+            /* windowPositionInPeriodUs= */ 2 * TEST_PERIOD_DURATION_US,
+            /* windowDefaultStartPositionUs= */ TEST_CLIP_AMOUNT_US,
+            /* isSeekable= */ true,
+            /* isDynamic= */ true);
+
+    Timeline[] clippedTimelines =
+        getClippedTimelines(
+            /* startUs= */ 0,
+            /* endUs= */ TEST_PERIOD_DURATION_US,
+            /* allowDynamicUpdates= */ false,
+            /* fromDefaultPosition= */ true,
+            timeline1,
+            timeline2);
+    assertThat(clippedTimelines[0].getWindow(0, window).getDurationUs())
+        .isEqualTo(TEST_PERIOD_DURATION_US - TEST_CLIP_AMOUNT_US);
+    assertThat(clippedTimelines[0].getWindow(0, window).getDefaultPositionUs()).isEqualTo(0);
+    assertThat(clippedTimelines[0].getWindow(0, window).isDynamic).isTrue();
+    assertThat(clippedTimelines[0].getWindow(0, window).getPositionInFirstPeriodUs())
+        .isEqualTo(TEST_PERIOD_DURATION_US + TEST_CLIP_AMOUNT_US);
+    assertThat(clippedTimelines[0].getPeriod(0, period).getDurationUs())
+        .isEqualTo(2 * TEST_PERIOD_DURATION_US);
+    assertThat(clippedTimelines[1].getWindow(0, window).getDurationUs())
+        .isEqualTo(TEST_CLIP_AMOUNT_US);
+    assertThat(clippedTimelines[1].getWindow(0, window).getDefaultPositionUs())
+        .isEqualTo(TEST_CLIP_AMOUNT_US);
+    assertThat(clippedTimelines[1].getWindow(0, window).isDynamic).isFalse();
+    assertThat(clippedTimelines[1].getWindow(0, window).getPositionInFirstPeriodUs())
+        .isEqualTo(2 * TEST_PERIOD_DURATION_US);
+    assertThat(clippedTimelines[1].getPeriod(0, period).getDurationUs())
+        .isEqualTo(2 * TEST_PERIOD_DURATION_US + TEST_CLIP_AMOUNT_US);
+  }
+
+  @Test
+  public void testDisallowDynamicUpdatesWithNonOverlappingLiveWindow() throws IOException {
+    Timeline timeline1 =
+        new SinglePeriodTimeline(
+            /* periodDurationUs= */ 2 * TEST_PERIOD_DURATION_US,
+            /* windowDurationUs= */ TEST_PERIOD_DURATION_US,
+            /* windowPositionInPeriodUs= */ TEST_PERIOD_DURATION_US,
+            /* windowDefaultStartPositionUs= */ TEST_CLIP_AMOUNT_US,
+            /* isSeekable= */ true,
+            /* isDynamic= */ true);
+    Timeline timeline2 =
+        new SinglePeriodTimeline(
+            /* periodDurationUs= */ 4 * TEST_PERIOD_DURATION_US,
+            /* windowDurationUs= */ TEST_PERIOD_DURATION_US,
+            /* windowPositionInPeriodUs= */ 3 * TEST_PERIOD_DURATION_US,
+            /* windowDefaultStartPositionUs= */ TEST_CLIP_AMOUNT_US,
+            /* isSeekable= */ true,
+            /* isDynamic= */ true);
+
+    Timeline[] clippedTimelines =
+        getClippedTimelines(
+            /* startUs= */ 0,
+            /* endUs= */ TEST_PERIOD_DURATION_US,
+            /* allowDynamicUpdates= */ false,
+            /* fromDefaultPosition= */ true,
+            timeline1,
+            timeline2);
+    assertThat(clippedTimelines[0].getWindow(0, window).getDurationUs())
+        .isEqualTo(TEST_PERIOD_DURATION_US - TEST_CLIP_AMOUNT_US);
+    assertThat(clippedTimelines[0].getWindow(0, window).getDefaultPositionUs()).isEqualTo(0);
+    assertThat(clippedTimelines[0].getWindow(0, window).isDynamic).isTrue();
+    assertThat(clippedTimelines[0].getWindow(0, window).getPositionInFirstPeriodUs())
+        .isEqualTo(TEST_PERIOD_DURATION_US + TEST_CLIP_AMOUNT_US);
+    assertThat(clippedTimelines[0].getPeriod(0, period).getDurationUs())
+        .isEqualTo(2 * TEST_PERIOD_DURATION_US);
+    assertThat(clippedTimelines[1].getWindow(0, window).getDurationUs()).isEqualTo(0);
+    assertThat(clippedTimelines[1].getWindow(0, window).getDefaultPositionUs()).isEqualTo(0);
+    assertThat(clippedTimelines[1].getWindow(0, window).isDynamic).isFalse();
+    assertThat(clippedTimelines[1].getWindow(0, window).getPositionInFirstPeriodUs())
+        .isEqualTo(3 * TEST_PERIOD_DURATION_US);
+    assertThat(clippedTimelines[1].getPeriod(0, period).getDurationUs())
+        .isEqualTo(3 * TEST_PERIOD_DURATION_US);
   }
 
   @Test
@@ -321,14 +521,66 @@ public final class ClippingMediaSourceTest {
    */
   private static Timeline getClippedTimeline(Timeline timeline, long startUs, long endUs)
       throws IOException {
-    FakeMediaSource fakeMediaSource = new FakeMediaSource(timeline, null);
+    FakeMediaSource fakeMediaSource = new FakeMediaSource(timeline, /* manifest= */ null);
     ClippingMediaSource mediaSource = new ClippingMediaSource(fakeMediaSource, startUs, endUs);
-    MediaSourceTestRunner testRunner = new MediaSourceTestRunner(mediaSource, null);
+    return getClippedTimelines(fakeMediaSource, mediaSource)[0];
+  }
+
+  /**
+   * Wraps the specified timeline in a {@link ClippingMediaSource} and returns the clipped timeline.
+   */
+  private static Timeline getClippedTimeline(Timeline timeline, long durationUs)
+      throws IOException {
+    FakeMediaSource fakeMediaSource = new FakeMediaSource(timeline, /* manifest= */ null);
+    ClippingMediaSource mediaSource = new ClippingMediaSource(fakeMediaSource, durationUs);
+    return getClippedTimelines(fakeMediaSource, mediaSource)[0];
+  }
+
+  /**
+   * Wraps the specified timelines in a {@link ClippingMediaSource} and returns the clipped timeline
+   * for each timeline update.
+   */
+  private static Timeline[] getClippedTimelines(
+      long startUs,
+      long endUs,
+      boolean allowDynamicUpdates,
+      boolean fromDefaultPosition,
+      Timeline firstTimeline,
+      Timeline... additionalTimelines)
+      throws IOException {
+    FakeMediaSource fakeMediaSource = new FakeMediaSource(firstTimeline, /* manifest= */ null);
+    ClippingMediaSource mediaSource =
+        new ClippingMediaSource(
+            fakeMediaSource,
+            startUs,
+            endUs,
+            /* enableInitialDiscontinuity= */ true,
+            allowDynamicUpdates,
+            fromDefaultPosition);
+    return getClippedTimelines(fakeMediaSource, mediaSource, additionalTimelines);
+  }
+
+  private static Timeline[] getClippedTimelines(
+      FakeMediaSource fakeMediaSource,
+      ClippingMediaSource clippingMediaSource,
+      Timeline... additionalTimelines)
+      throws IOException {
+    MediaSourceTestRunner testRunner =
+        new MediaSourceTestRunner(clippingMediaSource, /* allocator= */ null);
+    Timeline[] clippedTimelines = new Timeline[additionalTimelines.length + 1];
     try {
-      Timeline clippedTimeline = testRunner.prepareSource();
+      clippedTimelines[0] = testRunner.prepareSource();
+      MediaPeriod mediaPeriod =
+          testRunner.createPeriod(
+              new MediaPeriodId(/* periodIndex= */ 0, /* windowSequenceNumber= */ 0));
+      for (int i = 0; i < additionalTimelines.length; i++) {
+        fakeMediaSource.setNewSourceInfo(additionalTimelines[i], /* newManifest= */ null);
+        clippedTimelines[i + 1] = testRunner.assertTimelineChangeBlocking();
+      }
+      testRunner.releasePeriod(mediaPeriod);
       testRunner.releaseSource();
       fakeMediaSource.assertReleased();
-      return clippedTimeline;
+      return clippedTimelines;
     } finally {
       testRunner.release();
     }
