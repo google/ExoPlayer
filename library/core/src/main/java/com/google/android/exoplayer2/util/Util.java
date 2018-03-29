@@ -307,6 +307,16 @@ public final class Util {
   }
 
   /**
+   * Converts text to upper case using {@link Locale#US}.
+   *
+   * @param text The text to convert.
+   * @return The upper case text, or null if {@code text} is null.
+   */
+  public static String toUpperInvariant(String text) {
+    return text == null ? null : text.toUpperCase(Locale.US);
+  }
+
+  /**
    * Divides a {@code numerator} by a {@code denominator}, returning the ceiled result.
    *
    * @param numerator The numerator to divide.
