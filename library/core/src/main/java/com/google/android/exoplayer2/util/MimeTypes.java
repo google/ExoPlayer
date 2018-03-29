@@ -200,7 +200,7 @@ public final class MimeTypes {
         String objectTypeString = codec.substring(5); // remove the 'mp4a.' prefix
         if (objectTypeString.length() >= 2) {
           try {
-            String objectTypeHexString = objectTypeString.toUpperCase().substring(0, 2);
+            String objectTypeHexString = Util.toUpperInvariant(objectTypeString.substring(0, 2));
             int objectTypeInt = Integer.parseInt(objectTypeHexString, 16);
             mimeType = getMimeTypeFromMp4ObjectType(objectTypeInt);
           } catch (NumberFormatException ignored) {

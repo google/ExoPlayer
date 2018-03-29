@@ -330,6 +330,16 @@ public final class Util {
   }
 
   /**
+   * Converts text to upper case using {@link Locale#US}.
+   *
+   * @param text The text to convert.
+   * @return The upper case text, or null if {@code text} is null.
+   */
+  public static String toUpperInvariant(String text) {
+    return text == null ? null : text.toUpperCase(Locale.US);
+  }
+
+  /**
    * Formats a string using {@link Locale#US}.
    *
    * @see String#format(String, Object...)
