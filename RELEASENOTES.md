@@ -31,6 +31,7 @@
     media sources including composite sources.
   * Added callbacks to `MediaSourceEventListener` to get notified when media
     periods are created, released and being read from.
+  * Support live stream clipping with `ClippingMediaSource`.
 * Audio:
   * Factor out `AudioTrack` position tracking from `DefaultAudioSink`.
   * Fix an issue where the playback position would pause just after playback

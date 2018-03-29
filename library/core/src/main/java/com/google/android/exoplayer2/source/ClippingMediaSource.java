@@ -76,14 +76,20 @@ public final class ClippingMediaSource extends CompositeMediaSource<Void> {
   private final long startUs;
   private final long endUs;
   private final boolean enableInitialDiscontinuity;
+  private final boolean allowDynamicClippingUpdates;
+  private final boolean relativeToDefaultPosition;
   private final ArrayList<ClippingMediaPeriod> mediaPeriods;
+  private final Timeline.Window window;
 
+  private @Nullable Object manifest;
+  private ClippingTimeline clippingTimeline;
   private IllegalClippingException clippingError;
   private long periodStartUs;
   private long periodEndUs;
 
   /**
-   * Creates a new clipping source that wraps the specified source.
+   * Creates a new clipping source that wraps the specified source and provides samples between the
+   * specified start and end position.
    *
    * @param mediaSource The single-period source to wrap.
    * @param startPositionUs The start position within {@code mediaSource}'s window at which to start
@@ -95,34 +101,83 @@ public final class ClippingMediaSource extends CompositeMediaSource<Void> {
    *     being clipped.
    */
   public ClippingMediaSource(MediaSource mediaSource, long startPositionUs, long endPositionUs) {
-    this(mediaSource, startPositionUs, endPositionUs, true);
+    this(
+        mediaSource,
+        startPositionUs,
+        endPositionUs,
+        /* enableInitialDiscontinuity= */ true,
+        /* allowDynamicClippingUpdates= */ false,
+        /* relativeToDefaultPosition= */ false);
+  }
+
+  /**
+   * Creates a new clipping source that wraps the specified source and provides samples from the
+   * default position for the specified duration.
+   *
+   * @param mediaSource The single-period source to wrap.
+   * @param durationUs The duration from the default position in the window in {@code mediaSource}'s
+   *     timeline at which to stop providing samples. Specifying a duration that exceeds the {@code
+   *     mediaSource}'s duration will result in the end of the source not being clipped.
+   */
+  public ClippingMediaSource(MediaSource mediaSource, long durationUs) {
+    this(
+        mediaSource,
+        /* startPositionUs= */ 0,
+        /* endPositionUs= */ durationUs,
+        /* enableInitialDiscontinuity= */ true,
+        /* allowDynamicClippingUpdates= */ false,
+        /* relativeToDefaultPosition= */ true);
   }
 
   /**
    * Creates a new clipping source that wraps the specified source.
-   * <p>
-   * If the start point is guaranteed to be a key frame, pass {@code false} to
-   * {@code enableInitialPositionDiscontinuity} to suppress an initial discontinuity when a period
-   * is first read from.
+   *
+   * <p>If the start point is guaranteed to be a key frame, pass {@code false} to {@code
+   * enableInitialPositionDiscontinuity} to suppress an initial discontinuity when a period is first
+   * read from.
+   *
+   * <p>For live streams, if the clipping positions should move with the live window, pass {@code
+   * true} to {@code allowDynamicClippingUpdates}. Otherwise, the live stream ends when the playback
+   * reaches {@code endPositionUs} in the last reported live window at the time a media period was
+   * created.
    *
    * @param mediaSource The single-period source to wrap.
-   * @param startPositionUs The start position within {@code mediaSource}'s timeline at which to
-   *     start providing samples, in microseconds.
-   * @param endPositionUs The end position within {@code mediaSource}'s timeline at which to stop
-   *     providing samples, in microseconds. Specify {@link C#TIME_END_OF_SOURCE} to provide samples
-   *     from the specified start point up to the end of the source. Specifying a position that
-   *     exceeds the {@code mediaSource}'s duration will also result in the end of the source not
-   *     being clipped.
+   * @param startPositionUs The start position at which to start providing samples, in microseconds.
+   *     If {@code relativeToDefaultPosition} is {@code false}, this position is relative to the
+   *     start of the window in {@code mediaSource}'s timeline. If {@code relativeToDefaultPosition}
+   *     is {@code true}, this position is relative to the default position in the window in {@code
+   *     mediaSource}'s timeline.
+   * @param endPositionUs The end position at which to stop providing samples, in microseconds.
+   *     Specify {@link C#TIME_END_OF_SOURCE} to provide samples from the specified start point up
+   *     to the end of the source. Specifying a position that exceeds the {@code mediaSource}'s
+   *     duration will also result in the end of the source not being clipped. If {@code
+   *     relativeToDefaultPosition} is {@code false}, the specified position is relative to the
+   *     start of the window in {@code mediaSource}'s timeline. If {@code relativeToDefaultPosition}
+   *     is {@code true}, this position is relative to the default position in the window in {@code
+   *     mediaSource}'s timeline.
    * @param enableInitialDiscontinuity Whether the initial discontinuity should be enabled.
+   * @param allowDynamicClippingUpdates Whether the clipping of active media periods moves with a
+   *     live window. If {@code false}, playback ends when it reaches {@code endPositionUs} in the
+   *     last reported live window at the time a media period was created.
+   * @param relativeToDefaultPosition Whether {@code startPositionUs} and {@code endPositionUs} are
+   *     relative to the default position in the window in {@code mediaSource}'s timeline.
    */
-  public ClippingMediaSource(MediaSource mediaSource, long startPositionUs, long endPositionUs,
-      boolean enableInitialDiscontinuity) {
+  public ClippingMediaSource(
+      MediaSource mediaSource,
+      long startPositionUs,
+      long endPositionUs,
+      boolean enableInitialDiscontinuity,
+      boolean allowDynamicClippingUpdates,
+      boolean relativeToDefaultPosition) {
     Assertions.checkArgument(startPositionUs >= 0);
     this.mediaSource = Assertions.checkNotNull(mediaSource);
     startUs = startPositionUs;
     endUs = endPositionUs;
     this.enableInitialDiscontinuity = enableInitialDiscontinuity;
+    this.allowDynamicClippingUpdates = allowDynamicClippingUpdates;
+    this.relativeToDefaultPosition = relativeToDefaultPosition;
     mediaPeriods = new ArrayList<>();
+    window = new Timeline.Window();
   }
 
   @Override
@@ -155,12 +210,16 @@ public final class ClippingMediaSource extends CompositeMediaSource<Void> {
   public void releasePeriod(MediaPeriod mediaPeriod) {
     Assertions.checkState(mediaPeriods.remove(mediaPeriod));
     mediaSource.releasePeriod(((ClippingMediaPeriod) mediaPeriod).mediaPeriod);
+    if (mediaPeriods.isEmpty() && !allowDynamicClippingUpdates) {
+      refreshClippedTimeline(clippingTimeline.timeline);
+    }
   }
 
   @Override
   public void releaseSourceInternal() {
     super.releaseSourceInternal();
     clippingError = null;
+    clippingTimeline = null;
   }
 
   @Override
@@ -169,25 +228,47 @@ public final class ClippingMediaSource extends CompositeMediaSource<Void> {
     if (clippingError != null) {
       return;
     }
-    ClippingTimeline clippingTimeline;
+    this.manifest = manifest;
+    refreshClippedTimeline(timeline);
+  }
+
+  private void refreshClippedTimeline(Timeline timeline) {
+    long windowStartUs;
+    long windowEndUs;
+    timeline.getWindow(/* windowIndex= */ 0, window);
+    long windowPositionInPeriodUs = window.getPositionInFirstPeriodUs();
+    if (clippingTimeline == null || mediaPeriods.isEmpty() || allowDynamicClippingUpdates) {
+      windowStartUs = startUs;
+      windowEndUs = endUs;
+      if (relativeToDefaultPosition) {
+        long windowDefaultPositionUs = window.getDefaultPositionUs();
+        windowStartUs += windowDefaultPositionUs;
+        windowEndUs += windowDefaultPositionUs;
+      }
+      periodStartUs = windowPositionInPeriodUs + windowStartUs;
+      periodEndUs =
+          endUs == C.TIME_END_OF_SOURCE
+              ? C.TIME_END_OF_SOURCE
+              : windowPositionInPeriodUs + windowEndUs;
+      int count = mediaPeriods.size();
+      for (int i = 0; i < count; i++) {
+        mediaPeriods.get(i).updateClipping(periodStartUs, periodEndUs);
+      }
+    } else {
+      // Keep window fixed at previous period position.
+      windowStartUs = periodStartUs - windowPositionInPeriodUs;
+      windowEndUs =
+          endUs == C.TIME_END_OF_SOURCE
+              ? C.TIME_END_OF_SOURCE
+              : periodEndUs - windowPositionInPeriodUs;
+    }
     try {
-      clippingTimeline = new ClippingTimeline(timeline, startUs, endUs);
+      clippingTimeline = new ClippingTimeline(timeline, windowStartUs, windowEndUs);
     } catch (IllegalClippingException e) {
       clippingError = e;
       return;
     }
     refreshSourceInfo(clippingTimeline, manifest);
-    long windowPositionInPeriodUs =
-        timeline
-            .getWindow(/* windowIndex= */ 0, new Timeline.Window())
-            .getPositionInFirstPeriodUs();
-    periodStartUs = windowPositionInPeriodUs + startUs;
-    periodEndUs =
-        endUs == C.TIME_END_OF_SOURCE ? C.TIME_END_OF_SOURCE : windowPositionInPeriodUs + endUs;
-    int count = mediaPeriods.size();
-    for (int i = 0; i < count; i++) {
-      mediaPeriods.get(i).updateClipping(periodStartUs, periodEndUs);
-    }
   }
 
   @Override
@@ -211,6 +292,7 @@ public final class ClippingMediaSource extends CompositeMediaSource<Void> {
     private final long startUs;
     private final long endUs;
     private final long durationUs;
+    private final boolean isDynamic;
 
     /**
      * Creates a new clipping timeline that wraps the specified timeline.
@@ -228,7 +310,8 @@ public final class ClippingMediaSource extends CompositeMediaSource<Void> {
         throw new IllegalClippingException(IllegalClippingException.REASON_INVALID_PERIOD_COUNT);
       }
       Window window = timeline.getWindow(0, new Window(), false);
-      long resolvedEndUs = endUs == C.TIME_END_OF_SOURCE ? window.durationUs : endUs;
+      startUs = Math.max(0, startUs);
+      long resolvedEndUs = endUs == C.TIME_END_OF_SOURCE ? window.durationUs : Math.max(0, endUs);
       if (window.durationUs != C.TIME_UNSET) {
         if (resolvedEndUs > window.durationUs) {
           resolvedEndUs = window.durationUs;
@@ -243,14 +326,20 @@ public final class ClippingMediaSource extends CompositeMediaSource<Void> {
       this.startUs = startUs;
       this.endUs = resolvedEndUs;
       durationUs = resolvedEndUs == C.TIME_UNSET ? C.TIME_UNSET : (resolvedEndUs - startUs);
+      isDynamic =
+          window.isDynamic
+              && (resolvedEndUs == C.TIME_UNSET
+                  || (window.durationUs != C.TIME_UNSET && resolvedEndUs == window.durationUs));
     }
 
     @Override
     public Window getWindow(int windowIndex, Window window, boolean setIds,
         long defaultPositionProjectionUs) {
-      timeline.getWindow(/* windowIndex= */ 0, window, setIds, defaultPositionProjectionUs);
+      timeline.getWindow(
+          /* windowIndex= */ 0, window, setIds, /* defaultPositionProjectionUs= */ 0);
       window.positionInFirstPeriodUs += startUs;
       window.durationUs = durationUs;
+      window.isDynamic = isDynamic;
       if (window.defaultPositionUs != C.TIME_UNSET) {
         window.defaultPositionUs = Math.max(window.defaultPositionUs, startUs);
         window.defaultPositionUs = endUs == C.TIME_UNSET ? window.defaultPositionUs

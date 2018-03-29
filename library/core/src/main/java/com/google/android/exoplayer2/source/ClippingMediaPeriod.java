@@ -23,6 +23,7 @@ import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
 import com.google.android.exoplayer2.trackselection.TrackSelection;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.MimeTypes;
+import com.google.android.exoplayer2.util.Util;
 import java.io.IOException;
 
 /**
@@ -221,11 +222,14 @@ public final class ClippingMediaPeriod implements MediaPeriod, MediaPeriod.Callb
   }
 
   private SeekParameters clipSeekParameters(long positionUs, SeekParameters seekParameters) {
-    long toleranceBeforeUs = Math.min(positionUs - startUs, seekParameters.toleranceBeforeUs);
+    long toleranceBeforeUs =
+        Util.constrainValue(
+            seekParameters.toleranceBeforeUs, /* min= */ 0, /* max= */ positionUs - startUs);
     long toleranceAfterUs =
-        endUs == C.TIME_END_OF_SOURCE
-            ? seekParameters.toleranceAfterUs
-            : Math.min(endUs - positionUs, seekParameters.toleranceAfterUs);
+        Util.constrainValue(
+            seekParameters.toleranceAfterUs,
+            /* min= */ 0,
+            /* max= */ endUs == C.TIME_END_OF_SOURCE ? Long.MAX_VALUE : endUs - positionUs);
     if (toleranceBeforeUs == seekParameters.toleranceBeforeUs
         && toleranceAfterUs == seekParameters.toleranceAfterUs) {
       return seekParameters;
