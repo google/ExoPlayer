@@ -22,9 +22,11 @@ import com.google.android.exoplayer2.util.Assertions;
  */
 public final class PlaybackParameters {
 
-  /** The default playback parameters: real-time playback with no pitch modification. */
-  public static final PlaybackParameters DEFAULT =
-      new PlaybackParameters(/* speed= */ 1f, /* pitch= */ 1f, /* skipSilence= */ false);
+  /**
+   * The default playback parameters: real-time playback with no pitch modification or silence
+   * skipping.
+   */
+  public static final PlaybackParameters DEFAULT = new PlaybackParameters(/* speed= */ 1f);
 
   /** The factor by which playback will be sped up. */
   public final float speed;
@@ -38,7 +40,16 @@ public final class PlaybackParameters {
   private final int scaledUsPerMs;
 
   /**
-   * Creates new playback parameters.
+   * Creates new playback parameters that set the playback speed.
+   *
+   * @param speed The factor by which playback will be sped up. Must be greater than zero.
+   */
+  public PlaybackParameters(float speed) {
+    this(speed, /* pitch= */ 1f, /* skipSilence= */ false);
+  }
+
+  /**
+   * Creates new playback parameters that set the playback speed and audio pitch scaling factor.
    *
    * @param speed The factor by which playback will be sped up. Must be greater than zero.
    * @param pitch The factor by which the audio pitch will be scaled. Must be greater than zero.
@@ -48,7 +59,8 @@ public final class PlaybackParameters {
   }
 
   /**
-   * Creates new playback parameters.
+   * Creates new playback parameters that set the playback speed, audio pitch scaling factor and
+   * whether to skip silence in the audio stream.
    *
    * @param speed The factor by which playback will be sped up. Must be greater than zero.
    * @param pitch The factor by which the audio pitch will be scaled. Must be greater than zero.

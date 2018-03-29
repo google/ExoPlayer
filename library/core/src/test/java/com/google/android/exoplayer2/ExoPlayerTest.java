@@ -914,7 +914,7 @@ public final class ExoPlayerTest {
                   }
                 })
             // Set playback parameters (while the fake media period is not yet prepared).
-            .setPlaybackParameters(new PlaybackParameters(2f, 2f))
+            .setPlaybackParameters(new PlaybackParameters(/* speed= */ 2f, /* pitch= */ 2f))
             // Complete preparation of the fake media period.
             .executeRunnable(
                 new Runnable() {
