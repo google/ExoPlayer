@@ -37,6 +37,8 @@
   * Fix an issue where the playback position would pause just after playback
     begins, and poll the audio timestamp less frequently once it starts
     advancing ([#3841](https://github.com/google/ExoPlayer/issues/3841)).
+  * Add an option to skip silent audio in `PlaybackParameters`
+    ((#2635)[https://github.com/google/ExoPlayer/issues/2635]).
 * Caching:
   * Add release method to Cache interface.
   * Prevent multiple instances of SimpleCache in the same folder.
