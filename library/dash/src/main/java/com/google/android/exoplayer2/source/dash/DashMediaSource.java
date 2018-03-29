@@ -879,7 +879,7 @@ public final class DashMediaSource extends BaseMediaSource {
       } else if (scheduleRefresh && manifest.dynamic) {
         // Schedule an explicit refresh if needed.
         long minUpdatePeriodMs = manifest.minUpdatePeriodMs;
-        if (minUpdatePeriodMs == 0) {
+        if (minUpdatePeriodMs <= 0) {
           // TODO: This is a temporary hack to avoid constantly refreshing the MPD in cases where
           // minimumUpdatePeriod is set to 0. In such cases we shouldn't refresh unless there is
           // explicit signaling in the stream, according to:
