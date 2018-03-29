@@ -2,13 +2,9 @@
 
 ### dev-v2 (not yet released) ###
 
-* Gradle: Upgrade Gradle version from 4.1 to 4.4 so it can work with Android
-  Studio 3.1 ([#3708](https://github.com/google/ExoPlayer/issues/3708)).
 * Optimize seeking in FMP4 by enabling seeking to the nearest sync sample within
   a fragment. This benefits standalone FMP4 playbacks, DASH and SmoothStreaming.
 * Optimize seeking in FMP4.
-* Match codecs starting with "mp4a" to different Audio MimeTypes
-  ([#3779](https://github.com/google/ExoPlayer/issues/3779)).
 * Moved initial bitrate estimate from `AdaptiveTrackSelection` to
   `DefaultBandwidthMeter`.
 * Updated default max buffer length in `DefaultLoadControl`.
@@ -48,16 +44,25 @@
 * DRM:
   * Allow multiple listeners for `DefaultDrmSessionManager`.
   * Pass `DrmSessionManager` to `ExoPlayerFactory` instead of `RendererFactory`.
-* Fix "Decoder input buffer too small" error when playing some FLAC streams.
-* Fix handling of zero padded strings when parsing Matroska streams
-  ([#4010](https://github.com/google/ExoPlayer/issues/4010)).
-* Fix ANR issue on Redmi 4X and Redmi Note 4
-  ([#4006](https://github.com/google/ExoPlayer/issues/4006)).
 * Removed default renderer time offset of 60000000 from internal player. The
   actual renderer timestamp offset can be obtained by listening to
   `BaseRenderer.onStreamChanged`.
 * HLS: Fix playlist loading error propagation when the current selection does
   not include all of the playlist's variants.
+
+### 2.7.2 ###
+
+* Gradle: Upgrade Gradle version from 4.1 to 4.4 so it can work with Android
+  Studio 3.1 ([#3708](https://github.com/google/ExoPlayer/issues/3708)).
+* Match codecs starting with "mp4a" to different Audio MimeTypes
+  ([#3779](https://github.com/google/ExoPlayer/issues/3779)).
+* Fix ANR issue on Redmi 4X and Redmi Note 4
+  ([#4006](https://github.com/google/ExoPlayer/issues/4006)).
+* Fix handling of zero padded strings when parsing Matroska streams
+  ([#4010](https://github.com/google/ExoPlayer/issues/4010)).
+* Fix "Decoder input buffer too small" error when playing some FLAC streams.
+* MediaSession extension: Omit fast forward and rewind actions when media is not
+  seekable ([#4001](https://github.com/google/ExoPlayer/issues/4001)).
 
 ### 2.7.1 ###
 
