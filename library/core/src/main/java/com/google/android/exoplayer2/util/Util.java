@@ -330,6 +330,15 @@ public final class Util {
   }
 
   /**
+   * Formats a string using {@link Locale#US}.
+   *
+   * @see String#format(String, Object...)
+   */
+  public static String formatInvariant(String format, Object... args) {
+    return String.format(Locale.US, format, args);
+  }
+
+  /**
    * Divides a {@code numerator} by a {@code denominator}, returning the ceiled result.
    *
    * @param numerator The numerator to divide.

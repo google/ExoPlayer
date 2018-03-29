@@ -31,15 +31,6 @@ import com.google.android.exoplayer2.decoder.DecoderCounters;
 import com.google.android.exoplayer2.drm.DefaultDrmSessionEventListener;
 import com.google.android.exoplayer2.metadata.Metadata;
 import com.google.android.exoplayer2.metadata.MetadataOutput;
-import com.google.android.exoplayer2.metadata.emsg.EventMessage;
-import com.google.android.exoplayer2.metadata.id3.ApicFrame;
-import com.google.android.exoplayer2.metadata.id3.CommentFrame;
-import com.google.android.exoplayer2.metadata.id3.GeobFrame;
-import com.google.android.exoplayer2.metadata.id3.Id3Frame;
-import com.google.android.exoplayer2.metadata.id3.PrivFrame;
-import com.google.android.exoplayer2.metadata.id3.TextInformationFrame;
-import com.google.android.exoplayer2.metadata.id3.UrlLinkFrame;
-import com.google.android.exoplayer2.metadata.scte35.SpliceCommand;
 import com.google.android.exoplayer2.source.MediaSource.MediaPeriodId;
 import com.google.android.exoplayer2.source.MediaSourceEventListener;
 import com.google.android.exoplayer2.source.TrackGroup;
@@ -123,9 +114,9 @@ public class EventLogger
   @Override
   public void onPlaybackParametersChanged(PlaybackParameters playbackParameters) {
     logd(
-        "playbackParameters "
-            + String.format(
-                "[speed=%.2f, pitch=%.2f]", playbackParameters.speed, playbackParameters.pitch));
+        Util.formatInvariant(
+            "playbackParameters [speed=%.2f, pitch=%.2f]",
+            playbackParameters.speed, playbackParameters.pitch));
   }
 
   @Override
@@ -476,55 +467,7 @@ public class EventLogger
 
   private void printMetadata(Metadata metadata, String prefix) {
     for (int i = 0; i < metadata.length(); i++) {
-      Metadata.Entry entry = metadata.get(i);
-      if (entry instanceof TextInformationFrame) {
-        TextInformationFrame textInformationFrame = (TextInformationFrame) entry;
-        logd(
-            prefix
-                + String.format(
-                    "%s: value=%s", textInformationFrame.id, textInformationFrame.value));
-      } else if (entry instanceof UrlLinkFrame) {
-        UrlLinkFrame urlLinkFrame = (UrlLinkFrame) entry;
-        logd(prefix + String.format("%s: url=%s", urlLinkFrame.id, urlLinkFrame.url));
-      } else if (entry instanceof PrivFrame) {
-        PrivFrame privFrame = (PrivFrame) entry;
-        logd(prefix + String.format("%s: owner=%s", privFrame.id, privFrame.owner));
-      } else if (entry instanceof GeobFrame) {
-        GeobFrame geobFrame = (GeobFrame) entry;
-        logd(
-            prefix
-                + String.format(
-                    "%s: mimeType=%s, filename=%s, description=%s",
-                    geobFrame.id, geobFrame.mimeType, geobFrame.filename, geobFrame.description));
-      } else if (entry instanceof ApicFrame) {
-        ApicFrame apicFrame = (ApicFrame) entry;
-        logd(
-            prefix
-                + String.format(
-                    "%s: mimeType=%s, description=%s",
-                    apicFrame.id, apicFrame.mimeType, apicFrame.description));
-      } else if (entry instanceof CommentFrame) {
-        CommentFrame commentFrame = (CommentFrame) entry;
-        logd(
-            prefix
-                + String.format(
-                    "%s: language=%s, description=%s",
-                    commentFrame.id, commentFrame.language, commentFrame.description));
-      } else if (entry instanceof Id3Frame) {
-        Id3Frame id3Frame = (Id3Frame) entry;
-        logd(prefix + id3Frame.id);
-      } else if (entry instanceof EventMessage) {
-        EventMessage eventMessage = (EventMessage) entry;
-        logd(
-            prefix
-                + String.format(
-                    "EMSG: scheme=%s, id=%d, value=%s",
-                    eventMessage.schemeIdUri, eventMessage.id, eventMessage.value));
-      } else if (entry instanceof SpliceCommand) {
-        String description =
-            String.format("SCTE-35 splice command: type=%s.", entry.getClass().getSimpleName());
-        logd(prefix + description);
-      }
+      logd(prefix + metadata.get(i));
     }
   }
 
