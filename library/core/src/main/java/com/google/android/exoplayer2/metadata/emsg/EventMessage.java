@@ -117,6 +117,11 @@ public final class EventMessage implements Metadata.Entry {
         && Util.areEqual(value, other.value) && Arrays.equals(messageData, other.messageData);
   }
 
+  @Override
+  public String toString() {
+    return "EMSG: scheme=" + schemeIdUri + ", id=" + id + ", value=" + value;
+  }
+
   // Parcelable implementation.
 
   @Override
