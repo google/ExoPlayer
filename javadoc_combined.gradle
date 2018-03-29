@@ -49,7 +49,7 @@ class CombinedJavadocPlugin implements Plugin<Project> {
             }
           }
           doLast {
-            project.javadocFixLinks()
+            project.fixJavadoc()
           }
         }
       }
