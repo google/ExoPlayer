@@ -22,9 +22,7 @@ import com.google.android.exoplayer2.util.Util;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
-/**
- * Audio processor for trimming samples from the start/end of data.
- */
+/** Audio processor for trimming samples from the start/end of data. */
 /* package */ final class TrimmingAudioProcessor implements AudioProcessor {
 
   private boolean isActive;
@@ -40,13 +38,13 @@ import java.nio.ByteOrder;
   private int endBufferSize;
   private boolean inputEnded;
 
-  /**
-   * Creates a new audio processor for trimming samples from the start/end of data.
-   */
+  /** Creates a new audio processor for trimming samples from the start/end of data. */
   public TrimmingAudioProcessor() {
     buffer = EMPTY_BUFFER;
     outputBuffer = EMPTY_BUFFER;
     channelCount = Format.NO_VALUE;
+    sampleRateHz = Format.NO_VALUE;
+    endBuffer = new byte[0];
   }
 
   /**
@@ -182,7 +180,7 @@ import java.nio.ByteOrder;
     buffer = EMPTY_BUFFER;
     channelCount = Format.NO_VALUE;
     sampleRateHz = Format.NO_VALUE;
-    endBuffer = null;
+    endBuffer = new byte[0];
   }
 
 }

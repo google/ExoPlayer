@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.ext.gvr;
 
+import android.support.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlayerLibraryInfo;
 import com.google.android.exoplayer2.Format;
@@ -39,7 +40,7 @@ public final class GvrAudioProcessor implements AudioProcessor {
 
   private int sampleRateHz;
   private int channelCount;
-  private GvrAudioSurround gvrAudioSurround;
+  @Nullable private GvrAudioSurround gvrAudioSurround;
   private ByteBuffer buffer;
   private boolean inputEnded;
 
@@ -48,14 +49,13 @@ public final class GvrAudioProcessor implements AudioProcessor {
   private float y;
   private float z;
 
-  /**
-   * Creates a new GVR audio processor.
-   */
+  /** Creates a new GVR audio processor. */
   public GvrAudioProcessor() {
     // Use the identity for the initial orientation.
     w = 1f;
     sampleRateHz = Format.NO_VALUE;
     channelCount = Format.NO_VALUE;
+    buffer = EMPTY_BUFFER;
   }
 
   /**
@@ -77,9 +77,11 @@ public final class GvrAudioProcessor implements AudioProcessor {
     }
   }
 
+  @SuppressWarnings("ReferenceEquality")
   @Override
-  public synchronized boolean configure(int sampleRateHz, int channelCount,
-      @C.Encoding int encoding) throws UnhandledFormatException {
+  public synchronized boolean configure(
+      int sampleRateHz, int channelCount, @C.Encoding int encoding)
+      throws UnhandledFormatException {
     if (encoding != C.ENCODING_PCM_16BIT) {
       maybeReleaseGvrAudioSurround();
       throw new UnhandledFormatException(sampleRateHz, channelCount, encoding);
@@ -116,7 +118,7 @@ public final class GvrAudioProcessor implements AudioProcessor {
     gvrAudioSurround = new GvrAudioSurround(surroundFormat, sampleRateHz, channelCount,
         FRAMES_PER_OUTPUT_BUFFER);
     gvrAudioSurround.updateNativeOrientation(w, x, y, z);
-    if (buffer == null) {
+    if (buffer == EMPTY_BUFFER) {
       buffer = ByteBuffer.allocateDirect(FRAMES_PER_OUTPUT_BUFFER * OUTPUT_FRAME_SIZE)
           .order(ByteOrder.nativeOrder());
     }
@@ -179,10 +181,11 @@ public final class GvrAudioProcessor implements AudioProcessor {
   @Override
   public synchronized void reset() {
     maybeReleaseGvrAudioSurround();
+    updateOrientation(/* w= */ 1f, /* x= */ 0f, /* y= */ 0f, /* z= */ 0f);
     inputEnded = false;
-    buffer = null;
     sampleRateHz = Format.NO_VALUE;
     channelCount = Format.NO_VALUE;
+    buffer = EMPTY_BUFFER;
   }
 
   private void maybeReleaseGvrAudioSurround() {

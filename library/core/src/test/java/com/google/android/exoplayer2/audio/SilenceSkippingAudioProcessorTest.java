@@ -68,12 +68,10 @@ public final class SilenceSkippingAudioProcessorTest {
     silenceSkippingAudioProcessor.setEnabled(false);
 
     // When configuring it.
-    boolean reconfigured =
-        silenceSkippingAudioProcessor.configure(
-            TEST_SIGNAL_SAMPLE_RATE_HZ, TEST_SIGNAL_CHANNEL_COUNT, C.ENCODING_PCM_16BIT);
+    silenceSkippingAudioProcessor.configure(
+        TEST_SIGNAL_SAMPLE_RATE_HZ, TEST_SIGNAL_CHANNEL_COUNT, C.ENCODING_PCM_16BIT);
 
     // It's not active.
-    assertThat(reconfigured).isFalse();
     assertThat(silenceSkippingAudioProcessor.isActive()).isFalse();
   }
 
@@ -81,12 +79,10 @@ public final class SilenceSkippingAudioProcessorTest {
   public void testDefaultProcessor_isNotEnabled() throws Exception {
     // Given a processor in its default state.
     // When reconfigured.
-    boolean reconfigured =
-        silenceSkippingAudioProcessor.configure(
-            TEST_SIGNAL_SAMPLE_RATE_HZ, TEST_SIGNAL_CHANNEL_COUNT, C.ENCODING_PCM_16BIT);
+    silenceSkippingAudioProcessor.configure(
+        TEST_SIGNAL_SAMPLE_RATE_HZ, TEST_SIGNAL_CHANNEL_COUNT, C.ENCODING_PCM_16BIT);
 
     // It's not active.
-    assertThat(reconfigured).isFalse();
     assertThat(silenceSkippingAudioProcessor.isActive()).isFalse();
   }
 
@@ -97,7 +93,9 @@ public final class SilenceSkippingAudioProcessorTest {
     boolean reconfigured =
         silenceSkippingAudioProcessor.configure(
             TEST_SIGNAL_SAMPLE_RATE_HZ, TEST_SIGNAL_CHANNEL_COUNT, C.ENCODING_PCM_16BIT);
-    assertThat(reconfigured).isTrue();
+    if (reconfigured) {
+      silenceSkippingAudioProcessor.flush();
+    }
 
     // When reconfiguring it with a different sample rate.
     reconfigured =
@@ -305,6 +303,7 @@ public final class SilenceSkippingAudioProcessorTest {
       InputBufferProvider inputBufferProvider,
       int inputBufferSize)
       throws UnhandledFormatException {
+    processor.flush();
     long totalOutputFrames = 0;
     while (inputBufferProvider.hasRemaining()) {
       ByteBuffer inputBuffer = inputBufferProvider.getNextInputBuffer(inputBufferSize);

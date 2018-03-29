@@ -72,7 +72,6 @@ import java.nio.ByteOrder;
   private int bytesPerFrame;
 
   private boolean enabled;
-  private boolean isActive;
 
   private ByteBuffer buffer;
   private ByteBuffer outputBuffer;
@@ -103,11 +102,13 @@ import java.nio.ByteOrder;
     outputBuffer = EMPTY_BUFFER;
     channelCount = Format.NO_VALUE;
     sampleRateHz = Format.NO_VALUE;
+    maybeSilenceBuffer = new byte[0];
+    paddingBuffer = new byte[0];
   }
 
   /**
-   * Sets whether to skip silence in the input. After calling this method, call {@link
-   * #configure(int, int, int)} to apply the new setting.
+   * Sets whether to skip silence in the input. The new setting will take effect after calling
+   * {@link #flush()}.
    *
    * @param enabled Whether to skip silence in the input.
    */
@@ -131,33 +132,18 @@ import java.nio.ByteOrder;
     if (encoding != C.ENCODING_PCM_16BIT) {
       throw new UnhandledFormatException(sampleRateHz, channelCount, encoding);
     }
-
-    boolean wasActive = isActive;
-    isActive = enabled;
-    if (!isActive) {
-      return wasActive;
-    }
-
-    if (wasActive && this.sampleRateHz == sampleRateHz && this.channelCount == channelCount) {
+    if (this.sampleRateHz == sampleRateHz && this.channelCount == channelCount) {
       return false;
     }
-
     this.sampleRateHz = sampleRateHz;
     this.channelCount = channelCount;
     bytesPerFrame = channelCount * 2;
-    int maybeSilenceBufferSize = durationUsToFrames(MINIMUM_SILENCE_DURATION_US) * bytesPerFrame;
-    if (maybeSilenceBuffer == null || maybeSilenceBuffer.length != maybeSilenceBufferSize) {
-      maybeSilenceBuffer = new byte[maybeSilenceBufferSize];
-    }
-    paddingSize = durationUsToFrames(PADDING_SILENCE_US) * bytesPerFrame;
-    paddingBuffer = new byte[paddingSize];
-    state = STATE_NOISY;
     return true;
   }
 
   @Override
   public boolean isActive() {
-    return isActive;
+    return enabled;
   }
 
   @Override
@@ -221,6 +207,17 @@ import java.nio.ByteOrder;
 
   @Override
   public void flush() {
+    if (isActive()) {
+      int maybeSilenceBufferSize = durationUsToFrames(MINIMUM_SILENCE_DURATION_US) * bytesPerFrame;
+      if (maybeSilenceBuffer.length != maybeSilenceBufferSize) {
+        maybeSilenceBuffer = new byte[maybeSilenceBufferSize];
+      }
+      paddingSize = durationUsToFrames(PADDING_SILENCE_US) * bytesPerFrame;
+      if (paddingBuffer.length != paddingSize) {
+        paddingBuffer = new byte[paddingSize];
+      }
+    }
+    state = STATE_NOISY;
     outputBuffer = EMPTY_BUFFER;
     inputEnded = false;
     skippedFrames = 0;
@@ -230,11 +227,14 @@ import java.nio.ByteOrder;
 
   @Override
   public void reset() {
+    enabled = false;
     flush();
     buffer = EMPTY_BUFFER;
     channelCount = Format.NO_VALUE;
     sampleRateHz = Format.NO_VALUE;
-    maybeSilenceBuffer = null;
+    paddingSize = 0;
+    maybeSilenceBuffer = new byte[0];
+    paddingBuffer = new byte[0];
   }
 
   // Internal methods.
