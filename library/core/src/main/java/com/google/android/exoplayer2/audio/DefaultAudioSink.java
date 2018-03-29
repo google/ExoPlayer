@@ -738,9 +738,12 @@ public final class DefaultAudioSink implements AudioSink {
       this.playbackParameters = PlaybackParameters.DEFAULT;
       return this.playbackParameters;
     }
-    playbackParameters = new PlaybackParameters(
-        sonicAudioProcessor.setSpeed(playbackParameters.speed),
-        sonicAudioProcessor.setPitch(playbackParameters.pitch));
+    playbackParameters =
+        new PlaybackParameters(
+            sonicAudioProcessor.setSpeed(playbackParameters.speed),
+            sonicAudioProcessor.setPitch(playbackParameters.pitch),
+            playbackParameters.skipSilence);
+    silenceSkippingAudioProcessor.setEnabled(playbackParameters.skipSilence);
     PlaybackParameters lastSetPlaybackParameters =
         drainingPlaybackParameters != null ? drainingPlaybackParameters
             : !playbackParametersCheckpoints.isEmpty()

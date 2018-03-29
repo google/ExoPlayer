@@ -115,8 +115,8 @@ public class EventLogger
   public void onPlaybackParametersChanged(PlaybackParameters playbackParameters) {
     logd(
         Util.formatInvariant(
-            "playbackParameters [speed=%.2f, pitch=%.2f]",
-            playbackParameters.speed, playbackParameters.pitch));
+            "playbackParameters [speed=%.2f, pitch=%.2f, skipSilence=%s]",
+            playbackParameters.speed, playbackParameters.pitch, playbackParameters.skipSilence));
   }
 
   @Override

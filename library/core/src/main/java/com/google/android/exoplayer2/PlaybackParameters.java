@@ -22,20 +22,18 @@ import com.google.android.exoplayer2.util.Assertions;
  */
 public final class PlaybackParameters {
 
-  /**
-   * The default playback parameters: real-time playback with no pitch modification.
-   */
-  public static final PlaybackParameters DEFAULT = new PlaybackParameters(1f, 1f);
+  /** The default playback parameters: real-time playback with no pitch modification. */
+  public static final PlaybackParameters DEFAULT =
+      new PlaybackParameters(/* speed= */ 1f, /* pitch= */ 1f, /* skipSilence= */ false);
 
-  /**
-   * The factor by which playback will be sped up.
-   */
+  /** The factor by which playback will be sped up. */
   public final float speed;
 
-  /**
-   * The factor by which the audio pitch will be scaled.
-   */
+  /** The factor by which the audio pitch will be scaled. */
   public final float pitch;
+
+  /** Whether to skip silence in the input. */
+  public final boolean skipSilence;
 
   private final int scaledUsPerMs;
 
@@ -46,10 +44,22 @@ public final class PlaybackParameters {
    * @param pitch The factor by which the audio pitch will be scaled. Must be greater than zero.
    */
   public PlaybackParameters(float speed, float pitch) {
+    this(speed, pitch, /* skipSilence= */ false);
+  }
+
+  /**
+   * Creates new playback parameters.
+   *
+   * @param speed The factor by which playback will be sped up. Must be greater than zero.
+   * @param pitch The factor by which the audio pitch will be scaled. Must be greater than zero.
+   * @param skipSilence Whether to skip silences in the audio stream.
+   */
+  public PlaybackParameters(float speed, float pitch, boolean skipSilence) {
     Assertions.checkArgument(speed > 0);
     Assertions.checkArgument(pitch > 0);
     this.speed = speed;
     this.pitch = pitch;
+    this.skipSilence = skipSilence;
     scaledUsPerMs = Math.round(speed * 1000f);
   }
 
@@ -73,14 +83,17 @@ public final class PlaybackParameters {
       return false;
     }
     PlaybackParameters other = (PlaybackParameters) obj;
-    return this.speed == other.speed && this.pitch == other.pitch;
+    return this.speed == other.speed
+        && this.pitch == other.pitch
+        && this.skipSilence == other.skipSilence;
   }
-  
+
   @Override
   public int hashCode() {
     int result = 17;
     result = 31 * result + Float.floatToRawIntBits(speed);
     result = 31 * result + Float.floatToRawIntBits(pitch);
+    result = 31 * result + (skipSilence ? 1 : 0);
     return result;
   }
 
