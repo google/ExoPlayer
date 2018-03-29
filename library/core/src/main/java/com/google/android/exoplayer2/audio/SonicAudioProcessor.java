@@ -195,7 +195,7 @@ public final class SonicAudioProcessor implements AudioProcessor {
       sonic.queueInput(shortBuffer);
       inputBuffer.position(inputBuffer.position() + inputSize);
     }
-    int outputSize = sonic.getSamplesAvailable() * channelCount * 2;
+    int outputSize = sonic.getFramesAvailable() * channelCount * 2;
     if (outputSize > 0) {
       if (buffer.capacity() < outputSize) {
         buffer = ByteBuffer.allocateDirect(outputSize).order(ByteOrder.nativeOrder());
@@ -227,7 +227,7 @@ public final class SonicAudioProcessor implements AudioProcessor {
 
   @Override
   public boolean isEnded() {
-    return inputEnded && (sonic == null || sonic.getSamplesAvailable() == 0);
+    return inputEnded && (sonic == null || sonic.getFramesAvailable() == 0);
   }
 
   @Override
