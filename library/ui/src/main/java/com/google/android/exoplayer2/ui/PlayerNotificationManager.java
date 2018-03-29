@@ -498,8 +498,8 @@ public class PlayerNotificationManager {
   }
 
   /**
-   * Sets whether the notification should be colorized (whether the notification color should be
-   * applied).
+   * Sets whether the notification should be colorized. When set, the color set with {@link
+   * setColor(int)} will be used as the background color for the notification.
    *
    * <p>See {@link NotificationCompat.Builder#setColorized(boolean)}.
    *
@@ -527,14 +527,11 @@ public class PlayerNotificationManager {
   }
 
   /**
-   * Sets the color of the notification as a color value like for instance solid {@link
-   * Color#BLACK)}. When set to {@link Color#TRANSPARENT} and a large icon is provided the
-   * notification is colored with a color taken from the palette if the icon (when a media session
-   * token is provided).
+   * Sets the accent color of the notification.
    *
    * <p>See {@link NotificationCompat.Builder#setColor(int)}.
    *
-   * @param color The color.
+   * @param color The color, in ARGB integer form like the constants in {@link Color}.
    */
   public final void setColor(int color) {
     if (this.color != color) {

@@ -475,9 +475,9 @@ public final class DownloadManager {
      * <p>Transition diagram:
      *
      * <pre>
-     *                    -> canceled
-     * queued <-> started -> ended
-     *                    -> error
+     *                    -&gt; canceled
+     * queued &lt;-&gt; started -&gt; ended
+     *                    -&gt; error
      * </pre>
      */
     @Retention(RetentionPolicy.SOURCE)
