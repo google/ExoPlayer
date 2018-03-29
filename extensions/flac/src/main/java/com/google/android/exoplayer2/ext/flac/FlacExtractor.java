@@ -116,7 +116,7 @@ public final class FlacExtractor implements Extractor {
               MimeTypes.AUDIO_RAW,
               null,
               streamInfo.bitRate(),
-              Format.NO_VALUE,
+              streamInfo.maxDecodedFrameSize(),
               streamInfo.channels,
               streamInfo.sampleRate,
               getPcmEncoding(streamInfo.bitsPerSample),

@@ -1,5 +1,19 @@
 # Release notes #
 
+### 2.7.2 ###
+
+* Gradle: Upgrade Gradle version from 4.1 to 4.4 so it can work with Android
+  Studio 3.1 ([#3708](https://github.com/google/ExoPlayer/issues/3708)).
+* Match codecs starting with "mp4a" to different Audio MimeTypes
+  ([#3779](https://github.com/google/ExoPlayer/issues/3779)).
+* Fix ANR issue on Redmi 4X and Redmi Note 4
+  ([#4006](https://github.com/google/ExoPlayer/issues/4006)).
+* Fix handling of zero padded strings when parsing Matroska streams
+  ([#4010](https://github.com/google/ExoPlayer/issues/4010)).
+* Fix "Decoder input buffer too small" error when playing some FLAC streams.
+* MediaSession extension: Omit fast forward and rewind actions when media is not
+  seekable ([#4001](https://github.com/google/ExoPlayer/issues/4001)).
+
 ### 2.7.1 ###
 
 * Gradle: Replaced 'compile' (deprecated) with 'implementation' and

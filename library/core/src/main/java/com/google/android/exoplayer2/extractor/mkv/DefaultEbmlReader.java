@@ -202,10 +202,11 @@ import java.util.Stack;
   }
 
   /**
-   * Reads and returns a string of length {@code byteLength} from the {@link ExtractorInput}.
+   * Reads a string of length {@code byteLength} from the {@link ExtractorInput}. Zero padding is
+   * removed, so the returned string may be shorter than {@code byteLength}.
    *
    * @param input The {@link ExtractorInput} from which to read.
-   * @param byteLength The length of the float being read.
+   * @param byteLength The length of the string being read, including zero padding.
    * @return The read string value.
    * @throws IOException If an error occurs reading from the input.
    * @throws InterruptedException If the thread is interrupted.
@@ -217,7 +218,12 @@ import java.util.Stack;
     }
     byte[] stringBytes = new byte[byteLength];
     input.readFully(stringBytes, 0, byteLength);
-    return new String(stringBytes);
+    // Remove zero padding.
+    int trimmedLength = byteLength;
+    while (trimmedLength > 0 && stringBytes[trimmedLength - 1] == 0) {
+      trimmedLength--;
+    }
+    return new String(stringBytes, 0, trimmedLength);
   }
 
   /**

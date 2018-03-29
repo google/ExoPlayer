@@ -13,8 +13,8 @@
 // limitations under the License.
 project.ext {
     // ExoPlayer version and version code.
-    releaseVersion = '2.7.1'
-    releaseVersionCode = 2701
+    releaseVersion = '2.7.2'
+    releaseVersionCode = 2702
     // Important: ExoPlayer specifies a minSdkVersion of 14 because various
     // components provided by the library may be of use on older devices.
     // However, please note that the core media playback functionality provided
@@ -22,7 +22,7 @@ project.ext {
     minSdkVersion = 14
     targetSdkVersion = 27
     compileSdkVersion = 27
-    buildToolsVersion = '26.0.2'
+    buildToolsVersion = '27.0.3'
     testSupportLibraryVersion = '0.5'
     supportLibraryVersion = '27.0.0'
     playServicesLibraryVersion = '11.4.2'

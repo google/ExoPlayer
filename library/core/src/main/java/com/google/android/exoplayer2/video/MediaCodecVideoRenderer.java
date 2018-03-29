@@ -1102,9 +1102,13 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
     // Work around https://github.com/google/ExoPlayer/issues/3236,
     // https://github.com/google/ExoPlayer/issues/3355,
     // https://github.com/google/ExoPlayer/issues/3439,
-    // https://github.com/google/ExoPlayer/issues/3724 and
-    // https://github.com/google/ExoPlayer/issues/3835.
-    return (("deb".equals(Util.DEVICE) || "flo".equals(Util.DEVICE)) // Nexus 7 (2013)
+    // https://github.com/google/ExoPlayer/issues/3724,
+    // https://github.com/google/ExoPlayer/issues/3835 and
+    // https://github.com/google/ExoPlayer/issues/4006.
+    return (("deb".equals(Util.DEVICE) // Nexus 7 (2013)
+                || "flo".equals(Util.DEVICE) // Nexus 7 (2013)
+                || "mido".equals(Util.DEVICE) // Redmi Note 4
+                || "santoni".equals(Util.DEVICE)) // Redmi 4X
             && "OMX.qcom.video.decoder.avc".equals(name))
         || (("tcl_eu".equals(Util.DEVICE) // TCL Percee TV
                 || "SVP-DTV15".equals(Util.DEVICE) // Sony Bravia 4K 2015

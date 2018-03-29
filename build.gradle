@@ -17,8 +17,8 @@ buildscript {
         google()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:3.0.1'
-        classpath 'com.novoda:bintray-release:0.5.0'
+        classpath 'com.android.tools.build:gradle:3.1.0'
+        classpath 'com.novoda:bintray-release:0.8.1'
     }
     // Workaround for the following test coverage issue. Remove when fixed:
     // https://code.google.com/p/android/issues/detail?id=226070
