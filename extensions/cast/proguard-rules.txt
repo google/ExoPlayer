@@ -1,0 +1,4 @@
+# Proguard rules specific to the Cast extension.
+
+# DefaultCastOptionsProvider is commonly referred to only by the app's manifest.
+-keep class com.google.android.exoplayer2.ext.cast.DefaultCastOptionsProvider
