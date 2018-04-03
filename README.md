@@ -27,7 +27,7 @@ repository and depend on the modules locally.
 
 ### From JCenter ###
 
-The easiest way to get started using ExoPlayer is to add it as a gradle
+The easiest way to get started using ExoPlayer is to add it as a Gradle
 dependency. You need to make sure you have the JCenter and Google repositories
 included in the `build.gradle` file in the root of your project:
 
@@ -38,7 +38,7 @@ repositories {
 }
 ```
 
-Next add a dependency in the `build.gradle` file of your app module. The
+Next, add a dependency in the `build.gradle` file of your app module. The
 following will add a dependency to the full library:
 
 ```gradle
@@ -46,8 +46,8 @@ implementation 'com.google.android.exoplayer:exoplayer:2.X.X'
 ```
 
 where `2.X.X` is your preferred version. Alternatively, you can depend on only
-the library modules that you actually need. For example the following will add
-dependencies on the Core, DASH and UI library modules, as might be required for
+the library modules that you actually need. For example, the following will add
+dependencies to the Core, DASH and UI library modules, as might be required for
 an app that plays DASH content:
 
 ```gradle
