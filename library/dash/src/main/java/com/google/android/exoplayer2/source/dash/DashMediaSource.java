@@ -876,7 +876,9 @@ public final class DashMediaSource extends BaseMediaSource {
       }
       if (manifestLoadPending) {
         startLoadingManifest();
-      } else if (scheduleRefresh && manifest.dynamic) {
+      } else if (scheduleRefresh
+          && manifest.dynamic
+          && manifest.minUpdatePeriodMs != C.TIME_UNSET) {
         // Schedule an explicit refresh if needed.
         long minUpdatePeriodMs = manifest.minUpdatePeriodMs;
         if (minUpdatePeriodMs == 0) {
