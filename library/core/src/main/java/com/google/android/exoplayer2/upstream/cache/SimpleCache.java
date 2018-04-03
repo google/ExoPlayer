@@ -306,14 +306,16 @@ public final class SimpleCache implements Cache {
   }
 
   @Override
-  public void applyContentMetadataMutations(String key, ContentMetadataMutations mutations)
-      throws CacheException {
+  public synchronized void applyContentMetadataMutations(
+      String key, ContentMetadataMutations mutations) throws CacheException {
+    Assertions.checkState(!released);
     index.applyContentMetadataMutations(key, mutations);
     index.store();
   }
 
   @Override
-  public ContentMetadata getContentMetadata(String key) {
+  public synchronized ContentMetadata getContentMetadata(String key) {
+    Assertions.checkState(!released);
     return index.getContentMetadata(key);
   }
 
