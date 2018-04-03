@@ -531,8 +531,12 @@ public final class DefaultAudioSink implements AudioSink {
             drainingPlaybackParameters, Math.max(0, presentationTimeUs),
             framesToDurationUs(getWrittenFrames())));
         drainingPlaybackParameters = null;
-        // The audio processors have drained, so flush them. This will cause any active speed
-        // adjustment audio processor to start producing audio with the new parameters.
+
+        // Flush the audio processors so that any new parameters take effect.
+        // TODO: Move parameter setting from setPlaybackParameters to here, so that it's not
+        // necessary to flush the processors twice.
+        sonicAudioProcessor.flush();
+        silenceSkippingAudioProcessor.flush();
         setupAudioProcessors();
       }
 

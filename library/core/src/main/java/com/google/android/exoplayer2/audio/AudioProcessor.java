@@ -29,6 +29,9 @@ import java.nio.ByteOrder;
  * {@link #getOutputChannelCount()}, {@link #getOutputEncoding()} and {@link
  * #getOutputSampleRateHz()} may only be called if the processor is active. Call {@link #reset()} to
  * reset the processor to its unconfigured state and release any resources.
+ *
+ * <p>In addition to being able to modify the format of audio, implementations may allow parameters
+ * to be set that affect the output audio and whether the processor is active/inactive.
  */
 public interface AudioProcessor {
 
@@ -47,10 +50,9 @@ public interface AudioProcessor {
 
   /**
    * Configures the processor to process input audio with the specified format and returns whether
-   * to {@link #flush()} it. After calling this method, {@link #isActive()} returns whether the
-   * processor needs to handle buffers; if not, the processor will not accept any buffers until it
-   * is reconfigured. If the processor is active, {@link #getOutputSampleRateHz()}, {@link
-   * #getOutputChannelCount()} and {@link #getOutputEncoding()} return its output format.
+   * to {@link #flush()} it. After calling this method, if the processor is active, {@link
+   * #getOutputSampleRateHz()}, {@link #getOutputChannelCount()} and {@link #getOutputEncoding()}
+   * return its output format.
    *
    * @param sampleRateHz The sample rate of input audio in Hz.
    * @param channelCount The number of interleaved channels in input audio.
@@ -61,7 +63,7 @@ public interface AudioProcessor {
   boolean configure(int sampleRateHz, int channelCount, @C.Encoding int encoding)
       throws UnhandledFormatException;
 
-  /** Returns whether the processor is configured and active. */
+  /** Returns whether the processor is configured and will process input buffers. */
   boolean isActive();
 
   /**
