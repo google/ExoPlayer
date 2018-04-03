@@ -41,17 +41,14 @@ import java.util.Arrays;
   private final int maxRequiredFrameCount;
   private final short[] downSampleBuffer;
 
-  private int inputBufferSizeFrames;
   private short[] inputBuffer;
-  private int outputBufferSize;
+  private int inputFrameCount;
   private short[] outputBuffer;
-  private int pitchBufferSize;
+  private int outputFrameCount;
   private short[] pitchBuffer;
+  private int pitchFrameCount;
   private int oldRatePosition;
   private int newRatePosition;
-  private int inputFrameCount;
-  private int outputFrameCount;
-  private int pitchFrameCount;
   private int remainingInputToCopyFrameCount;
   private int prevPeriod;
   private int prevMinDiff;
@@ -71,22 +68,16 @@ import java.util.Arrays;
       int inputSampleRateHz, int channelCount, float speed, float pitch, int outputSampleRateHz) {
     this.inputSampleRateHz = inputSampleRateHz;
     this.channelCount = channelCount;
+    this.speed = speed;
+    this.pitch = pitch;
+    rate = (float) inputSampleRateHz / outputSampleRateHz;
     minPeriod = inputSampleRateHz / MAXIMUM_PITCH;
     maxPeriod = inputSampleRateHz / MINIMUM_PITCH;
     maxRequiredFrameCount = 2 * maxPeriod;
     downSampleBuffer = new short[maxRequiredFrameCount];
-    inputBufferSizeFrames = maxRequiredFrameCount;
     inputBuffer = new short[maxRequiredFrameCount * channelCount];
-    outputBufferSize = maxRequiredFrameCount;
     outputBuffer = new short[maxRequiredFrameCount * channelCount];
-    pitchBufferSize = maxRequiredFrameCount;
     pitchBuffer = new short[maxRequiredFrameCount * channelCount];
-    oldRatePosition = 0;
-    newRatePosition = 0;
-    prevPeriod = 0;
-    this.speed = speed;
-    this.pitch = pitch;
-    this.rate = (float) inputSampleRateHz / outputSampleRateHz;
   }
 
   /**
@@ -98,7 +89,7 @@ import java.util.Arrays;
   public void queueInput(ShortBuffer buffer) {
     int framesToWrite = buffer.remaining() / channelCount;
     int bytesToWrite = framesToWrite * channelCount * 2;
-    enlargeInputBufferIfNeeded(framesToWrite);
+    inputBuffer = ensureSpaceForAdditionalFrames(inputBuffer, inputFrameCount, framesToWrite);
     buffer.get(inputBuffer, inputFrameCount * channelCount, bytesToWrite / 2);
     inputFrameCount += framesToWrite;
     processStreamInput();
@@ -134,7 +125,9 @@ import java.util.Arrays;
         outputFrameCount + (int) ((remainingFrameCount / s + pitchFrameCount) / r + 0.5f);
 
     // Add enough silence to flush both input and pitch buffers.
-    enlargeInputBufferIfNeeded(remainingFrameCount + 2 * maxRequiredFrameCount);
+    inputBuffer =
+        ensureSpaceForAdditionalFrames(
+            inputBuffer, inputFrameCount, remainingFrameCount + 2 * maxRequiredFrameCount);
     for (int xSample = 0; xSample < 2 * maxRequiredFrameCount * channelCount; xSample++) {
       inputBuffer[remainingFrameCount * channelCount + xSample] = 0;
     }
@@ -157,17 +150,24 @@ import java.util.Arrays;
 
   // Internal methods.
 
-  private void enlargeOutputBufferIfNeeded(int frameCount) {
-    if (outputFrameCount + frameCount > outputBufferSize) {
-      outputBufferSize += (outputBufferSize / 2) + frameCount;
-      outputBuffer = Arrays.copyOf(outputBuffer, outputBufferSize * channelCount);
-    }
-  }
-
-  private void enlargeInputBufferIfNeeded(int frameCount) {
-    if (inputFrameCount + frameCount > inputBufferSizeFrames) {
-      inputBufferSizeFrames += (inputBufferSizeFrames / 2) + frameCount;
-      inputBuffer = Arrays.copyOf(inputBuffer, inputBufferSizeFrames * channelCount);
+  /**
+   * Returns {@code buffer} or a copy of it, such that there is enough space in the returned buffer
+   * to store {@code newFrameCount} additional frames.
+   *
+   * @param buffer The buffer.
+   * @param frameCount The number of frames already in the buffer.
+   * @param additionalFrameCount The number of additional frames that need to be stored in the
+   *     buffer.
+   * @return A buffer with enough space for the additional frames.
+   */
+  private short[] ensureSpaceForAdditionalFrames(
+      short[] buffer, int frameCount, int additionalFrameCount) {
+    int currentCapacityFrames = buffer.length / channelCount;
+    if (frameCount + additionalFrameCount <= currentCapacityFrames) {
+      return buffer;
+    } else {
+      int newCapacityFrames = 3 * currentCapacityFrames / 2 + additionalFrameCount;
+      return Arrays.copyOf(buffer, newCapacityFrames * channelCount);
     }
   }
 
@@ -179,7 +179,7 @@ import java.util.Arrays;
   }
 
   private void copyToOutput(short[] samples, int positionFrames, int frameCount) {
-    enlargeOutputBufferIfNeeded(frameCount);
+    outputBuffer = ensureSpaceForAdditionalFrames(outputBuffer, outputFrameCount, frameCount);
     System.arraycopy(
         samples,
         positionFrames * channelCount,
@@ -306,10 +306,7 @@ import java.util.Arrays;
 
   private void moveNewSamplesToPitchBuffer(int originalOutputFrameCount) {
     int frameCount = outputFrameCount - originalOutputFrameCount;
-    if (pitchFrameCount + frameCount > pitchBufferSize) {
-      pitchBufferSize += (pitchBufferSize / 2) + frameCount;
-      pitchBuffer = Arrays.copyOf(pitchBuffer, pitchBufferSize * channelCount);
-    }
+    pitchBuffer = ensureSpaceForAdditionalFrames(pitchBuffer, pitchFrameCount, frameCount);
     System.arraycopy(
         outputBuffer,
         originalOutputFrameCount * channelCount,
@@ -359,7 +356,9 @@ import java.util.Arrays;
     // Leave at least one pitch sample in the buffer.
     for (int position = 0; position < pitchFrameCount - 1; position++) {
       while ((oldRatePosition + 1) * newSampleRate > newRatePosition * oldSampleRate) {
-        enlargeOutputBufferIfNeeded(1);
+        outputBuffer =
+            ensureSpaceForAdditionalFrames(
+                outputBuffer, outputFrameCount, /* additionalFrameCount= */ 1);
         for (int i = 0; i < channelCount; i++) {
           outputBuffer[outputFrameCount * channelCount + i] =
               interpolate(pitchBuffer, position * channelCount + i, oldSampleRate, newSampleRate);
@@ -386,7 +385,7 @@ import java.util.Arrays;
       newFrameCount = period;
       remainingInputToCopyFrameCount = (int) (period * (2.0f - speed) / (speed - 1.0f));
     }
-    enlargeOutputBufferIfNeeded(newFrameCount);
+    outputBuffer = ensureSpaceForAdditionalFrames(outputBuffer, outputFrameCount, newFrameCount);
     overlapAdd(
         newFrameCount,
         channelCount,
@@ -409,7 +408,8 @@ import java.util.Arrays;
       newFrameCount = period;
       remainingInputToCopyFrameCount = (int) (period * (2.0f * speed - 1.0f) / (1.0f - speed));
     }
-    enlargeOutputBufferIfNeeded(period + newFrameCount);
+    outputBuffer =
+        ensureSpaceForAdditionalFrames(outputBuffer, outputFrameCount, period + newFrameCount);
     System.arraycopy(
         samples,
         position * channelCount,
