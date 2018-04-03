@@ -111,6 +111,36 @@ public final class ClippingMediaSource extends CompositeMediaSource<Void> {
   }
 
   /**
+   * Creates a new clipping source that wraps the specified source and provides samples between the
+   * specified start and end position.
+   *
+   * @param mediaSource The single-period source to wrap.
+   * @param startPositionUs The start position within {@code mediaSource}'s window at which to start
+   *     providing samples, in microseconds.
+   * @param endPositionUs The end position within {@code mediaSource}'s window at which to stop
+   *     providing samples, in microseconds. Specify {@link C#TIME_END_OF_SOURCE} to provide samples
+   *     from the specified start point up to the end of the source. Specifying a position that
+   *     exceeds the {@code mediaSource}'s duration will also result in the end of the source not
+   *     being clipped.
+   * @param enableInitialDiscontinuity Whether the initial discontinuity should be enabled.
+   */
+  // TODO: remove this when the new API is public.
+  @Deprecated
+  public ClippingMediaSource(
+      MediaSource mediaSource,
+      long startPositionUs,
+      long endPositionUs,
+      boolean enableInitialDiscontinuity) {
+    this(
+        mediaSource,
+        startPositionUs,
+        endPositionUs,
+        enableInitialDiscontinuity,
+        /* allowDynamicClippingUpdates= */ false,
+        /* relativeToDefaultPosition= */ false);
+  }
+
+  /**
    * Creates a new clipping source that wraps the specified source and provides samples from the
    * default position for the specified duration.
    *
