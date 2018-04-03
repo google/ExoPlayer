@@ -72,6 +72,7 @@ import java.nio.ByteOrder;
   private int bytesPerFrame;
 
   private boolean enabled;
+  private boolean pendingEnabled;
 
   private ByteBuffer buffer;
   private ByteBuffer outputBuffer;
@@ -113,7 +114,7 @@ import java.nio.ByteOrder;
    * @param enabled Whether to skip silence in the input.
    */
   public void setEnabled(boolean enabled) {
-    this.enabled = enabled;
+    pendingEnabled = enabled;
   }
 
   /**
@@ -207,6 +208,7 @@ import java.nio.ByteOrder;
 
   @Override
   public void flush() {
+    enabled = pendingEnabled;
     if (isActive()) {
       int maybeSilenceBufferSize = durationUsToFrames(MINIMUM_SILENCE_DURATION_US) * bytesPerFrame;
       if (maybeSilenceBuffer.length != maybeSilenceBufferSize) {
@@ -228,6 +230,7 @@ import java.nio.ByteOrder;
   @Override
   public void reset() {
     enabled = false;
+    pendingEnabled = false;
     flush();
     buffer = EMPTY_BUFFER;
     channelCount = Format.NO_VALUE;

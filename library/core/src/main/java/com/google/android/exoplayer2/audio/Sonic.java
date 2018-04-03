@@ -143,6 +143,20 @@ import java.util.Arrays;
     pitchFrameCount = 0;
   }
 
+  /** Clears state in preparation for receiving a new stream of input buffers. */
+  public void flush() {
+    inputFrameCount = 0;
+    outputFrameCount = 0;
+    pitchFrameCount = 0;
+    oldRatePosition = 0;
+    newRatePosition = 0;
+    remainingInputToCopyFrameCount = 0;
+    prevPeriod = 0;
+    prevMinDiff = 0;
+    minDiff = 0;
+    maxDiff = 0;
+  }
+
   /** Returns the number of output frames that can be read with {@link #getOutput(ShortBuffer)}. */
   public int getFramesAvailable() {
     return outputFrameCount;

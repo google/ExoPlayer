@@ -56,6 +56,7 @@ public final class SilenceSkippingAudioProcessorTest {
     boolean reconfigured =
         silenceSkippingAudioProcessor.configure(
             TEST_SIGNAL_SAMPLE_RATE_HZ, TEST_SIGNAL_CHANNEL_COUNT, C.ENCODING_PCM_16BIT);
+    silenceSkippingAudioProcessor.flush();
 
     // It's active.
     assertThat(reconfigured).isTrue();
@@ -115,6 +116,7 @@ public final class SilenceSkippingAudioProcessorTest {
         silenceSkippingAudioProcessor.configure(
             TEST_SIGNAL_SAMPLE_RATE_HZ, TEST_SIGNAL_CHANNEL_COUNT, C.ENCODING_PCM_16BIT);
     assertThat(reconfigured).isTrue();
+    silenceSkippingAudioProcessor.flush();
 
     // When reconfiguring it with the same sample rate.
     reconfigured =
@@ -142,6 +144,7 @@ public final class SilenceSkippingAudioProcessorTest {
     boolean reconfigured =
         silenceSkippingAudioProcessor.configure(
             TEST_SIGNAL_SAMPLE_RATE_HZ, TEST_SIGNAL_CHANNEL_COUNT, C.ENCODING_PCM_16BIT);
+    silenceSkippingAudioProcessor.flush();
     assertThat(reconfigured).isTrue();
     assertThat(silenceSkippingAudioProcessor.isActive()).isTrue();
     long totalOutputFrames =
@@ -170,6 +173,7 @@ public final class SilenceSkippingAudioProcessorTest {
     boolean reconfigured =
         silenceSkippingAudioProcessor.configure(
             TEST_SIGNAL_SAMPLE_RATE_HZ, TEST_SIGNAL_CHANNEL_COUNT, C.ENCODING_PCM_16BIT);
+    silenceSkippingAudioProcessor.flush();
     assertThat(reconfigured).isTrue();
     assertThat(silenceSkippingAudioProcessor.isActive()).isTrue();
     long totalOutputFrames =
@@ -199,6 +203,7 @@ public final class SilenceSkippingAudioProcessorTest {
     boolean reconfigured =
         silenceSkippingAudioProcessor.configure(
             TEST_SIGNAL_SAMPLE_RATE_HZ, TEST_SIGNAL_CHANNEL_COUNT, C.ENCODING_PCM_16BIT);
+    silenceSkippingAudioProcessor.flush();
     assertThat(reconfigured).isTrue();
     assertThat(silenceSkippingAudioProcessor.isActive()).isTrue();
     long totalOutputFrames =
@@ -228,6 +233,7 @@ public final class SilenceSkippingAudioProcessorTest {
     boolean reconfigured =
         silenceSkippingAudioProcessor.configure(
             TEST_SIGNAL_SAMPLE_RATE_HZ, TEST_SIGNAL_CHANNEL_COUNT, C.ENCODING_PCM_16BIT);
+    silenceSkippingAudioProcessor.flush();
     assertThat(reconfigured).isTrue();
     assertThat(silenceSkippingAudioProcessor.isActive()).isTrue();
     long totalOutputFrames =
@@ -257,6 +263,7 @@ public final class SilenceSkippingAudioProcessorTest {
     boolean reconfigured =
         silenceSkippingAudioProcessor.configure(
             TEST_SIGNAL_SAMPLE_RATE_HZ, TEST_SIGNAL_CHANNEL_COUNT, C.ENCODING_PCM_16BIT);
+    silenceSkippingAudioProcessor.flush();
     assertThat(reconfigured).isTrue();
     assertThat(silenceSkippingAudioProcessor.isActive()).isTrue();
     long totalOutputFrames =
@@ -285,6 +292,7 @@ public final class SilenceSkippingAudioProcessorTest {
     boolean reconfigured =
         silenceSkippingAudioProcessor.configure(
             TEST_SIGNAL_SAMPLE_RATE_HZ, TEST_SIGNAL_CHANNEL_COUNT, C.ENCODING_PCM_16BIT);
+    silenceSkippingAudioProcessor.flush();
     assertThat(reconfigured).isTrue();
     assertThat(silenceSkippingAudioProcessor.isActive()).isTrue();
     process(silenceSkippingAudioProcessor, inputBufferProvider, INPUT_BUFFER_SIZE);
