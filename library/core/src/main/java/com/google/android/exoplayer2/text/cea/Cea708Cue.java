@@ -45,13 +45,16 @@ import com.google.android.exoplayer2.text.Cue;
    * @param size See {@link #size}.
    * @param windowColorSet See {@link #windowColorSet}.
    * @param windowColor See {@link #windowColor}.
+   * @param backgroundColorSet See {@link #backgroundColorSet}.
+   * @param backgroundColor See {@link #backgroundColor}.
    * @param priority See (@link #priority}.
    */
   public Cea708Cue(CharSequence text, Alignment textAlignment, float line, @LineType int lineType,
       @AnchorType int lineAnchor, float position, @AnchorType int positionAnchor, float size,
-      boolean windowColorSet, int windowColor, int priority) {
+      boolean windowColorSet, int windowColor, boolean backgroundColorSet, int backgroundColor,
+      int priority) {
     super(text, textAlignment, line, lineType, lineAnchor, position, positionAnchor, size,
-        windowColorSet, windowColor);
+        windowColorSet, windowColor, backgroundColorSet, backgroundColor);
     this.priority = priority;
   }
 

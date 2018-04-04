@@ -185,6 +185,16 @@ public class Cue {
   public final int windowColor;
 
   /**
+   * Specifies whether or not the {@link #backgroundColor} property is set.
+   */
+  public final boolean backgroundColorSet;
+
+  /**
+   * The background color of the window.
+   */
+  public final int backgroundColor;
+
+  /**
    * Creates an image cue.
    *
    * @param bitmap See {@link #bitmap}.
@@ -204,7 +214,8 @@ public class Cue {
   public Cue(Bitmap bitmap, float horizontalPosition, @AnchorType int horizontalPositionAnchor,
       float verticalPosition, @AnchorType int verticalPositionAnchor, float width, float height) {
     this(null, null, bitmap, verticalPosition, LINE_TYPE_FRACTION, verticalPositionAnchor,
-        horizontalPosition, horizontalPositionAnchor, width, height, false, Color.BLACK);
+        horizontalPosition, horizontalPositionAnchor, width, height, false, Color.BLACK, false,
+            Color.BLACK);
   }
 
   /**
@@ -232,7 +243,7 @@ public class Cue {
   public Cue(CharSequence text, Alignment textAlignment, float line, @LineType int lineType,
       @AnchorType int lineAnchor, float position, @AnchorType int positionAnchor, float size) {
     this(text, textAlignment, line, lineType, lineAnchor, position, positionAnchor, size, false,
-        Color.BLACK);
+        Color.BLACK, false, Color.BLACK);
   }
 
   /**
@@ -248,18 +259,20 @@ public class Cue {
    * @param size See {@link #size}.
    * @param windowColorSet See {@link #windowColorSet}.
    * @param windowColor See {@link #windowColor}.
+   * @param backgroundColorSet See {@link #backgroundColorSet}.
+   * @param backgroundColor See {@link #backgroundColor}.
    */
   public Cue(CharSequence text, Alignment textAlignment, float line, @LineType int lineType,
       @AnchorType int lineAnchor, float position, @AnchorType int positionAnchor, float size,
-      boolean windowColorSet, int windowColor) {
+      boolean windowColorSet, int windowColor, boolean backgroundColorSet, int backgroundColor) {
     this(text, textAlignment, null, line, lineType, lineAnchor, position, positionAnchor, size,
-        DIMEN_UNSET, windowColorSet, windowColor);
+        DIMEN_UNSET, windowColorSet, windowColor, backgroundColorSet, backgroundColor);
   }
 
   private Cue(CharSequence text, Alignment textAlignment, Bitmap bitmap, float line,
       @LineType int lineType, @AnchorType int lineAnchor, float position,
       @AnchorType int positionAnchor, float size, float bitmapHeight, boolean windowColorSet,
-      int windowColor) {
+      int windowColor, boolean backgroundColorSet, int backgroundColor) {
     this.text = text;
     this.textAlignment = textAlignment;
     this.bitmap = bitmap;
@@ -272,6 +285,8 @@ public class Cue {
     this.bitmapHeight = bitmapHeight;
     this.windowColorSet = windowColorSet;
     this.windowColor = windowColor;
+    this.backgroundColorSet = backgroundColorSet;
+    this.backgroundColor = backgroundColor;
   }
 
 }
