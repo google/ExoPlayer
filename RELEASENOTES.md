@@ -50,6 +50,11 @@
 * HLS: Fix playlist loading error propagation when the current selection does
   not include all of the playlist's variants.
 
+### 2.7.3 ###
+
+* Fix ProGuard configuration for Cast, IMA and OkHttp extensions.
+* Update OkHttp extension to depend on OkHttp 3.10.0.
+
 ### 2.7.2 ###
 
 * Gradle: Upgrade Gradle version from 4.1 to 4.4 so it can work with Android
