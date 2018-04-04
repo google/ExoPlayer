@@ -121,7 +121,9 @@ public class DefaultDrmSessionManager<T extends ExoMediaCrypto> implements DrmSe
       throws UnsupportedDrmException {
     DefaultDrmSessionManager<FrameworkMediaCrypto> drmSessionManager =
         newWidevineInstance(callback, optionalKeyRequestParameters);
-    drmSessionManager.addListener(eventHandler, eventListener);
+    if (eventHandler != null && eventListener != null) {
+      drmSessionManager.addListener(eventHandler, eventListener);
+    }
     return drmSessionManager;
   }
 
@@ -152,7 +154,9 @@ public class DefaultDrmSessionManager<T extends ExoMediaCrypto> implements DrmSe
       throws UnsupportedDrmException {
     DefaultDrmSessionManager<FrameworkMediaCrypto> drmSessionManager =
         newPlayReadyInstance(callback, customData);
-    drmSessionManager.addListener(eventHandler, eventListener);
+    if (eventHandler != null && eventListener != null) {
+      drmSessionManager.addListener(eventHandler, eventListener);
+    }
     return drmSessionManager;
   }
 
@@ -192,7 +196,9 @@ public class DefaultDrmSessionManager<T extends ExoMediaCrypto> implements DrmSe
       throws UnsupportedDrmException {
     DefaultDrmSessionManager<FrameworkMediaCrypto> drmSessionManager =
         newFrameworkInstance(uuid, callback, optionalKeyRequestParameters);
-    drmSessionManager.addListener(eventHandler, eventListener);
+    if (eventHandler != null && eventListener != null) {
+      drmSessionManager.addListener(eventHandler, eventListener);
+    }
     return drmSessionManager;
   }
 
@@ -230,7 +236,9 @@ public class DefaultDrmSessionManager<T extends ExoMediaCrypto> implements DrmSe
       Handler eventHandler,
       DefaultDrmSessionEventListener eventListener) {
     this(uuid, mediaDrm, callback, optionalKeyRequestParameters);
-    addListener(eventHandler, eventListener);
+    if (eventHandler != null && eventListener != null) {
+      addListener(eventHandler, eventListener);
+    }
   }
 
   /**
@@ -268,7 +276,9 @@ public class DefaultDrmSessionManager<T extends ExoMediaCrypto> implements DrmSe
       DefaultDrmSessionEventListener eventListener,
       boolean multiSession) {
     this(uuid, mediaDrm, callback, optionalKeyRequestParameters, multiSession);
-    addListener(eventHandler, eventListener);
+    if (eventHandler != null && eventListener != null) {
+      addListener(eventHandler, eventListener);
+    }
   }
 
   /**
@@ -316,7 +326,9 @@ public class DefaultDrmSessionManager<T extends ExoMediaCrypto> implements DrmSe
         optionalKeyRequestParameters,
         multiSession,
         initialDrmRequestRetryCount);
-    addListener(eventHandler, eventListener);
+    if (eventHandler != null && eventListener != null) {
+      addListener(eventHandler, eventListener);
+    }
   }
 
   /**
