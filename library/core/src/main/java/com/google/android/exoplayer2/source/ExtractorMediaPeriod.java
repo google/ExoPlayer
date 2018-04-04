@@ -31,6 +31,7 @@ import com.google.android.exoplayer2.extractor.PositionHolder;
 import com.google.android.exoplayer2.extractor.SeekMap;
 import com.google.android.exoplayer2.extractor.SeekMap.SeekPoints;
 import com.google.android.exoplayer2.extractor.TrackOutput;
+import com.google.android.exoplayer2.extractor.ts.TsExtractor;
 import com.google.android.exoplayer2.source.MediaSourceEventListener.EventDispatcher;
 import com.google.android.exoplayer2.source.SampleQueue.UpstreamFormatChangedListener;
 import com.google.android.exoplayer2.trackselection.TrackSelection;
@@ -851,6 +852,10 @@ import java.util.Arrays;
           }
           input = new DefaultExtractorInput(dataSource, position, length);
           Extractor extractor = extractorHolder.selectExtractor(input, dataSource.getUri());
+          if (extractor instanceof TsExtractor && length != C.LENGTH_UNSET){
+            // We have a TsExtractor, give it a chance to read the duration (might recreate the source)
+            ((TsExtractor) extractor).readDuration(dataSource, dataSpec);
+          }
           if (pendingExtractorSeek) {
             extractor.seek(position, seekTimeUs);
             pendingExtractorSeek = false;
