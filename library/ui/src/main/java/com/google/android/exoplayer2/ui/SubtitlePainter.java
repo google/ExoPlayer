@@ -154,6 +154,7 @@ import com.google.android.exoplayer2.util.Util;
       int cueBoxLeft, int cueBoxTop, int cueBoxRight, int cueBoxBottom) {
     boolean isTextCue = cue.bitmap == null;
     int windowColor = Color.BLACK;
+    int backgroundColor = Color.BLACK;
     if (isTextCue) {
       if (TextUtils.isEmpty(cue.text)) {
         // Nothing to draw.
@@ -161,6 +162,9 @@ import com.google.android.exoplayer2.util.Util;
       }
       windowColor = (cue.windowColorSet && applyEmbeddedStyles)
           ? cue.windowColor : style.windowColor;
+
+      backgroundColor = (cue.backgroundColorSet && applyEmbeddedStyles)
+              ? cue.backgroundColor : style.backgroundColor;
     }
     if (areCharSequencesEqual(this.cueText, cue.text)
         && Util.areEqual(this.cueTextAlignment, cue.textAlignment)
@@ -175,7 +179,7 @@ import com.google.android.exoplayer2.util.Util;
         && this.applyEmbeddedStyles == applyEmbeddedStyles
         && this.applyEmbeddedFontSizes == applyEmbeddedFontSizes
         && this.foregroundColor == style.foregroundColor
-        && this.backgroundColor == style.backgroundColor
+        && this.backgroundColor == backgroundColor
         && this.windowColor == windowColor
         && this.edgeType == style.edgeType
         && this.edgeColor == style.edgeColor
@@ -204,7 +208,7 @@ import com.google.android.exoplayer2.util.Util;
     this.applyEmbeddedStyles = applyEmbeddedStyles;
     this.applyEmbeddedFontSizes = applyEmbeddedFontSizes;
     this.foregroundColor = style.foregroundColor;
-    this.backgroundColor = style.backgroundColor;
+    this.backgroundColor = backgroundColor;
     this.windowColor = windowColor;
     this.edgeType = style.edgeType;
     this.edgeColor = style.edgeColor;

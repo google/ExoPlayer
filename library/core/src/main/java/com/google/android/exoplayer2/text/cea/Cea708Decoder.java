@@ -1204,7 +1204,7 @@ public final class Cea708Decoder extends CeaDecoder {
 
       return new Cea708Cue(cueString, alignment, line, Cue.LINE_TYPE_FRACTION, verticalAnchorType,
           position, horizontalAnchorType, Cue.DIMEN_UNSET, windowColorSet, windowFillColor,
-          priority);
+          windowColorSet, windowFillColor, priority);
     }
 
     public static int getArgbColorFromCeaColor(int red, int green, int blue) {
