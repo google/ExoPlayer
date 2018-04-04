@@ -550,7 +550,7 @@ public class PlayerActivity extends Activity
         button.setText(label);
         button.setTag(i);
         button.setOnClickListener(this);
-        debugRootView.addView(button, debugRootView.getChildCount() - 1);
+        debugRootView.addView(button);
       }
     }
   }
