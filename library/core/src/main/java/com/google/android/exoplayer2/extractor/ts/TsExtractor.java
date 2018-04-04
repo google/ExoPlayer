@@ -385,12 +385,15 @@ public final class TsExtractor implements Extractor, SeekMap {
     ParsableByteArray packetBuffer = new ParsableByteArray(TS_PACKET_SIZE * DURATION_READ_PACKETS);
 
     input.readFully(packetBuffer.data, 0, packetBuffer.limit());
-    for (int i = 0; i < DURATION_READ_PACKETS; i++){
-      int endOfPacket = (i * TS_PACKET_SIZE) + TS_PACKET_SIZE;
+    for (int i = 0; i < DURATION_READ_PACKETS && packetBuffer.bytesLeft() >= TS_PACKET_SIZE; i++){
+      while (packetBuffer.peekUnsignedByte() != TS_SYNC_BYTE && packetBuffer.bytesLeft() > TS_PACKET_SIZE) {
+        packetBuffer.readUnsignedByte();
+      }
       if (packetBuffer.peekUnsignedByte() != TS_SYNC_BYTE) {
-        // We're having some strange offset here, skip this packet
+        // We weren't able to find the start of a packet
         continue;
       }
+      int endOfPacket = packetBuffer.getPosition() + TS_PACKET_SIZE;
 
       long positionUs = readPcrFromPacket(packetBuffer);
       if (positionUs != C.TIME_UNSET && positionUs < minPositionUs) minPositionUs = positionUs;
@@ -408,12 +411,15 @@ public final class TsExtractor implements Extractor, SeekMap {
     packetBuffer.setPosition(0);
     input.readFully(packetBuffer.data, 0, packetBuffer.limit());
 
-    for (int i = 0; i < DURATION_READ_PACKETS; i++){
-      int endOfPacket = (i * TS_PACKET_SIZE) + TS_PACKET_SIZE;
+    for (int i = 0; i < DURATION_READ_PACKETS && packetBuffer.bytesLeft() >= TS_PACKET_SIZE; i++){
+      while (packetBuffer.peekUnsignedByte() != TS_SYNC_BYTE && packetBuffer.bytesLeft() > TS_PACKET_SIZE) {
+        packetBuffer.readUnsignedByte();
+      }
       if (packetBuffer.peekUnsignedByte() != TS_SYNC_BYTE) {
-        // We're having some strange offset here, skip this packet
+        // We weren't able to find the start of a packet
         continue;
       }
+      int endOfPacket = packetBuffer.getPosition() + TS_PACKET_SIZE;
 
       long positionUs = readPcrFromPacket(packetBuffer);
       if (positionUs != C.TIME_UNSET && positionUs > maxPositionUs) maxPositionUs = positionUs;
