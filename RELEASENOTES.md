@@ -4,7 +4,6 @@
 
 * Optimize seeking in FMP4 by enabling seeking to the nearest sync sample within
   a fragment. This benefits standalone FMP4 playbacks, DASH and SmoothStreaming.
-* Optimize seeking in FMP4.
 * Moved initial bitrate estimate from `AdaptiveTrackSelection` to
   `DefaultBandwidthMeter`.
 * Updated default max buffer length in `DefaultLoadControl`.
