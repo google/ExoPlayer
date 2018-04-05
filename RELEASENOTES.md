@@ -36,6 +36,9 @@
     advancing ([#3841](https://github.com/google/ExoPlayer/issues/3841)).
   * Add an option to skip silent audio in `PlaybackParameters`
     ((#2635)[https://github.com/google/ExoPlayer/issues/2635]).
+  * Fix an issue where playback of TrueHD streams would get stuck after seeking
+    due to not finding a syncframe
+    ((#3845)[https://github.com/google/ExoPlayer/issues/3845]).
 * Caching:
   * Add release method to Cache interface.
   * Prevent multiple instances of SimpleCache in the same folder.
