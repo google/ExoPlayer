@@ -75,50 +75,50 @@ public final class ConcatenatingMediaSourceTest {
     mediaSource.addMediaSource(childSources[0]);
     timeline = testRunner.assertTimelineChangeBlocking();
     TimelineAsserts.assertPeriodCounts(timeline, 1);
-    TimelineAsserts.assertWindowIds(timeline, 111);
+    TimelineAsserts.assertWindowTags(timeline, 111);
 
     // Add at front of queue.
     mediaSource.addMediaSource(0, childSources[1]);
     timeline = testRunner.assertTimelineChangeBlocking();
     TimelineAsserts.assertPeriodCounts(timeline, 2, 1);
-    TimelineAsserts.assertWindowIds(timeline, 222, 111);
+    TimelineAsserts.assertWindowTags(timeline, 222, 111);
 
     // Add at back of queue.
     mediaSource.addMediaSource(childSources[2]);
     timeline = testRunner.assertTimelineChangeBlocking();
     TimelineAsserts.assertPeriodCounts(timeline, 2, 1, 3);
-    TimelineAsserts.assertWindowIds(timeline, 222, 111, 333);
+    TimelineAsserts.assertWindowTags(timeline, 222, 111, 333);
 
     // Add in the middle.
     mediaSource.addMediaSource(1, childSources[3]);
     timeline = testRunner.assertTimelineChangeBlocking();
     TimelineAsserts.assertPeriodCounts(timeline, 2, 4, 1, 3);
-    TimelineAsserts.assertWindowIds(timeline, 222, 444, 111, 333);
+    TimelineAsserts.assertWindowTags(timeline, 222, 444, 111, 333);
 
     // Add bulk.
     mediaSource.addMediaSources(
         3, Arrays.<MediaSource>asList(childSources[4], childSources[5], childSources[6]));
     timeline = testRunner.assertTimelineChangeBlocking();
     TimelineAsserts.assertPeriodCounts(timeline, 2, 4, 1, 5, 6, 7, 3);
-    TimelineAsserts.assertWindowIds(timeline, 222, 444, 111, 555, 666, 777, 333);
+    TimelineAsserts.assertWindowTags(timeline, 222, 444, 111, 555, 666, 777, 333);
 
     // Move sources.
     mediaSource.moveMediaSource(2, 3);
     timeline = testRunner.assertTimelineChangeBlocking();
     TimelineAsserts.assertPeriodCounts(timeline, 2, 4, 5, 1, 6, 7, 3);
-    TimelineAsserts.assertWindowIds(timeline, 222, 444, 555, 111, 666, 777, 333);
+    TimelineAsserts.assertWindowTags(timeline, 222, 444, 555, 111, 666, 777, 333);
     mediaSource.moveMediaSource(3, 2);
     timeline = testRunner.assertTimelineChangeBlocking();
     TimelineAsserts.assertPeriodCounts(timeline, 2, 4, 1, 5, 6, 7, 3);
-    TimelineAsserts.assertWindowIds(timeline, 222, 444, 111, 555, 666, 777, 333);
+    TimelineAsserts.assertWindowTags(timeline, 222, 444, 111, 555, 666, 777, 333);
     mediaSource.moveMediaSource(0, 6);
     timeline = testRunner.assertTimelineChangeBlocking();
     TimelineAsserts.assertPeriodCounts(timeline, 4, 1, 5, 6, 7, 3, 2);
-    TimelineAsserts.assertWindowIds(timeline, 444, 111, 555, 666, 777, 333, 222);
+    TimelineAsserts.assertWindowTags(timeline, 444, 111, 555, 666, 777, 333, 222);
     mediaSource.moveMediaSource(6, 0);
     timeline = testRunner.assertTimelineChangeBlocking();
     TimelineAsserts.assertPeriodCounts(timeline, 2, 4, 1, 5, 6, 7, 3);
-    TimelineAsserts.assertWindowIds(timeline, 222, 444, 111, 555, 666, 777, 333);
+    TimelineAsserts.assertWindowTags(timeline, 222, 444, 111, 555, 666, 777, 333);
 
     // Remove in the middle.
     mediaSource.removeMediaSource(3);
@@ -130,7 +130,7 @@ public final class ConcatenatingMediaSourceTest {
     mediaSource.removeMediaSource(1);
     timeline = testRunner.assertTimelineChangeBlocking();
     TimelineAsserts.assertPeriodCounts(timeline, 2, 1, 3);
-    TimelineAsserts.assertWindowIds(timeline, 222, 111, 333);
+    TimelineAsserts.assertWindowTags(timeline, 222, 111, 333);
     for (int i = 3; i <= 6; i++) {
       childSources[i].assertReleased();
     }
@@ -169,14 +169,14 @@ public final class ConcatenatingMediaSourceTest {
     mediaSource.removeMediaSource(0);
     timeline = testRunner.assertTimelineChangeBlocking();
     TimelineAsserts.assertPeriodCounts(timeline, 1, 3);
-    TimelineAsserts.assertWindowIds(timeline, 111, 333);
+    TimelineAsserts.assertWindowTags(timeline, 111, 333);
     childSources[1].assertReleased();
 
     // Remove at back of queue.
     mediaSource.removeMediaSource(1);
     timeline = testRunner.assertTimelineChangeBlocking();
     TimelineAsserts.assertPeriodCounts(timeline, 1);
-    TimelineAsserts.assertWindowIds(timeline, 111);
+    TimelineAsserts.assertWindowTags(timeline, 111);
     childSources[2].assertReleased();
 
     // Remove last source.
@@ -200,7 +200,7 @@ public final class ConcatenatingMediaSourceTest {
 
     Timeline timeline = testRunner.prepareSource();
     TimelineAsserts.assertPeriodCounts(timeline, 3, 4, 2);
-    TimelineAsserts.assertWindowIds(timeline, 333, 444, 222);
+    TimelineAsserts.assertWindowTags(timeline, 333, 444, 222);
     TimelineAsserts.assertNextWindowIndices(
         timeline, Player.REPEAT_MODE_OFF, false, 1, 2, C.INDEX_UNSET);
     TimelineAsserts.assertPreviousWindowIndices(
@@ -241,7 +241,7 @@ public final class ConcatenatingMediaSourceTest {
     // placeholder information for lazy sources.
     Timeline timeline = testRunner.prepareSource();
     TimelineAsserts.assertPeriodCounts(timeline, 1, 1);
-    TimelineAsserts.assertWindowIds(timeline, 111, null);
+    TimelineAsserts.assertWindowTags(timeline, 111, null);
     TimelineAsserts.assertWindowIsDynamic(timeline, false, true);
 
     // Trigger source info refresh for lazy source and check that the timeline now contains all
@@ -255,7 +255,7 @@ public final class ConcatenatingMediaSourceTest {
         });
     timeline = testRunner.assertTimelineChangeBlocking();
     TimelineAsserts.assertPeriodCounts(timeline, 1, 9);
-    TimelineAsserts.assertWindowIds(timeline, 111, 999);
+    TimelineAsserts.assertWindowTags(timeline, 111, 999);
     TimelineAsserts.assertWindowIsDynamic(timeline, false, false);
     testRunner.assertPrepareAndReleaseAllPeriods();
     testRunner.assertCompletedManifestLoads(0, 1);
@@ -272,7 +272,7 @@ public final class ConcatenatingMediaSourceTest {
     mediaSource.removeMediaSource(2);
     timeline = testRunner.assertTimelineChangeBlocking();
     TimelineAsserts.assertPeriodCounts(timeline, 1, 1, 2, 9);
-    TimelineAsserts.assertWindowIds(timeline, null, 111, 222, 999);
+    TimelineAsserts.assertWindowTags(timeline, null, 111, 222, 999);
     TimelineAsserts.assertWindowIsDynamic(timeline, true, false, false, false);
 
     // Create a period from an unprepared lazy media source and assert Callback.onPrepared is not
@@ -300,7 +300,7 @@ public final class ConcatenatingMediaSourceTest {
         });
     timeline = testRunner.assertTimelineChangeBlocking();
     TimelineAsserts.assertPeriodCounts(timeline, 8, 1, 2, 9);
-    TimelineAsserts.assertWindowIds(timeline, 888, 111, 222, 999);
+    TimelineAsserts.assertWindowTags(timeline, 888, 111, 222, 999);
     TimelineAsserts.assertWindowIsDynamic(timeline, false, false, false, false);
     assertThat(preparedCondition.getCount()).isEqualTo(0);
 
@@ -346,7 +346,7 @@ public final class ConcatenatingMediaSourceTest {
     testRunner.assertTimelineChangeBlocking();
     mediaSource.addMediaSource(6, mediaSources[2]);
     timeline = testRunner.assertTimelineChangeBlocking();
-    TimelineAsserts.assertWindowIds(timeline, 111, 222, 333);
+    TimelineAsserts.assertWindowTags(timeline, 111, 222, 333);
     TimelineAsserts.assertPeriodCounts(timeline, 1, 2, 3);
     TimelineAsserts.assertPreviousWindowIndices(
         timeline, Player.REPEAT_MODE_OFF, false, C.INDEX_UNSET, 0, 1);
@@ -685,7 +685,7 @@ public final class ConcatenatingMediaSourceTest {
     testRunner = new MediaSourceTestRunner(mediaSource, null);
     mediaSource.addMediaSources(Arrays.<MediaSource>asList(createMediaSources(3)));
     Timeline timeline = testRunner.prepareSource();
-    TimelineAsserts.assertWindowIds(timeline, 111, 222, 333);
+    TimelineAsserts.assertWindowTags(timeline, 111, 222, 333);
     TimelineAsserts.assertPeriodCounts(timeline, 1, 2, 3);
     TimelineAsserts.assertPreviousWindowIndices(
         timeline, Player.REPEAT_MODE_OFF, /* shuffleModeEnabled= */ false, C.INDEX_UNSET, 0, 1);
@@ -736,7 +736,7 @@ public final class ConcatenatingMediaSourceTest {
     nestedSource2.addMediaSource(childSources[3]);
     Timeline timeline = testRunner.assertTimelineChangeBlocking();
 
-    TimelineAsserts.assertWindowIds(timeline, 111, 222, 333, 444);
+    TimelineAsserts.assertWindowTags(timeline, 111, 222, 333, 444);
     TimelineAsserts.assertPeriodCounts(timeline, 1, 2, 3, 4);
     TimelineAsserts.assertPreviousWindowIndices(
         timeline, Player.REPEAT_MODE_OFF, /* shuffleModeEnabled= */ false, C.INDEX_UNSET, 0, 1, 2);

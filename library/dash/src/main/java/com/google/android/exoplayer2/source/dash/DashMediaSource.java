@@ -77,6 +77,7 @@ public final class DashMediaSource extends BaseMediaSource {
     private int minLoadableRetryCount;
     private long livePresentationDelayMs;
     private boolean isCreateCalled;
+    private @Nullable Object tag;
 
     /**
      * Creates a new factory for {@link DashMediaSource}s.
@@ -95,6 +96,21 @@ public final class DashMediaSource extends BaseMediaSource {
       minLoadableRetryCount = DEFAULT_MIN_LOADABLE_RETRY_COUNT;
       livePresentationDelayMs = DEFAULT_LIVE_PRESENTATION_DELAY_PREFER_MANIFEST_MS;
       compositeSequenceableLoaderFactory = new DefaultCompositeSequenceableLoaderFactory();
+    }
+
+    /**
+     * Sets a tag for the media source which will be published in the {@link
+     * com.google.android.exoplayer2.Timeline} of the source as {@link
+     * com.google.android.exoplayer2.Timeline.Window#tag}.
+     *
+     * @param tag A tag for the media source.
+     * @return This factory, for convenience.
+     * @throws IllegalStateException If one of the {@code create} methods has already been called.
+     */
+    public Factory setTag(Object tag) {
+      Assertions.checkState(!isCreateCalled);
+      this.tag = tag;
+      return this;
     }
 
     /**
@@ -175,13 +191,14 @@ public final class DashMediaSource extends BaseMediaSource {
       isCreateCalled = true;
       return new DashMediaSource(
           manifest,
-          null,
-          null,
-          null,
+          /* manifestUri= */ null,
+          /* manifestDataSourceFactory= */ null,
+          /* manifestParser= */ null,
           chunkSourceFactory,
           compositeSequenceableLoaderFactory,
           minLoadableRetryCount,
-          livePresentationDelayMs);
+          livePresentationDelayMs,
+          tag);
     }
 
     /**
@@ -213,14 +230,15 @@ public final class DashMediaSource extends BaseMediaSource {
         manifestParser = new DashManifestParser();
       }
       return new DashMediaSource(
-          null,
+          /* manifest= */ null,
           Assertions.checkNotNull(manifestUri),
           manifestDataSourceFactory,
           manifestParser,
           chunkSourceFactory,
           compositeSequenceableLoaderFactory,
           minLoadableRetryCount,
-          livePresentationDelayMs);
+          livePresentationDelayMs,
+          tag);
     }
 
     /**
@@ -290,6 +308,7 @@ public final class DashMediaSource extends BaseMediaSource {
   private final Runnable simulateManifestRefreshRunnable;
   private final PlayerEmsgCallback playerEmsgCallback;
   private final LoaderErrorThrower manifestLoadErrorThrower;
+  private final @Nullable Object tag;
 
   private DataSource dataSource;
   private Loader loader;
@@ -349,13 +368,14 @@ public final class DashMediaSource extends BaseMediaSource {
       MediaSourceEventListener eventListener) {
     this(
         manifest,
-        null,
-        null,
-        null,
+        /* manifestUri= */ null,
+        /* manifestDataSourceFactory= */ null,
+        /* manifestParser= */ null,
         chunkSourceFactory,
         new DefaultCompositeSequenceableLoaderFactory(),
         minLoadableRetryCount,
-        DEFAULT_LIVE_PRESENTATION_DELAY_PREFER_MANIFEST_MS);
+        DEFAULT_LIVE_PRESENTATION_DELAY_PREFER_MANIFEST_MS,
+        /* tag= */ null);
     if (eventHandler != null && eventListener != null) {
       addEventListener(eventHandler, eventListener);
     }
@@ -444,14 +464,15 @@ public final class DashMediaSource extends BaseMediaSource {
       Handler eventHandler,
       MediaSourceEventListener eventListener) {
     this(
-        null,
+        /* manifest= */ null,
         manifestUri,
         manifestDataSourceFactory,
         manifestParser,
         chunkSourceFactory,
         new DefaultCompositeSequenceableLoaderFactory(),
         minLoadableRetryCount,
-        livePresentationDelayMs);
+        livePresentationDelayMs,
+        /* tag= */ null);
     if (eventHandler != null && eventListener != null) {
       addEventListener(eventHandler, eventListener);
     }
@@ -465,7 +486,8 @@ public final class DashMediaSource extends BaseMediaSource {
       DashChunkSource.Factory chunkSourceFactory,
       CompositeSequenceableLoaderFactory compositeSequenceableLoaderFactory,
       int minLoadableRetryCount,
-      long livePresentationDelayMs) {
+      long livePresentationDelayMs,
+      @Nullable Object tag) {
     this.initialManifestUri = manifestUri;
     this.manifest = manifest;
     this.manifestUri = manifestUri;
@@ -475,6 +497,7 @@ public final class DashMediaSource extends BaseMediaSource {
     this.minLoadableRetryCount = minLoadableRetryCount;
     this.livePresentationDelayMs = livePresentationDelayMs;
     this.compositeSequenceableLoaderFactory = compositeSequenceableLoaderFactory;
+    this.tag = tag;
     sideloadedManifest = manifest != null;
     manifestEventDispatcher = createEventDispatcher(/* mediaPeriodId= */ null);
     manifestUriLock = new Object();
@@ -862,9 +885,16 @@ public final class DashMediaSource extends BaseMediaSource {
     }
     long windowStartTimeMs = manifest.availabilityStartTimeMs
         + manifest.getPeriod(0).startMs + C.usToMs(currentStartTimeUs);
-    DashTimeline timeline = new DashTimeline(manifest.availabilityStartTimeMs, windowStartTimeMs,
-        firstPeriodId, currentStartTimeUs, windowDurationUs, windowDefaultStartPositionUs,
-        manifest);
+    DashTimeline timeline =
+        new DashTimeline(
+            manifest.availabilityStartTimeMs,
+            windowStartTimeMs,
+            firstPeriodId,
+            currentStartTimeUs,
+            windowDurationUs,
+            windowDefaultStartPositionUs,
+            manifest,
+            tag);
     refreshSourceInfo(timeline, manifest);
 
     if (!sideloadedManifest) {
@@ -993,10 +1023,17 @@ public final class DashMediaSource extends BaseMediaSource {
     private final long windowDurationUs;
     private final long windowDefaultStartPositionUs;
     private final DashManifest manifest;
+    private final @Nullable Object windowTag;
 
-    public DashTimeline(long presentationStartTimeMs, long windowStartTimeMs, int firstPeriodId,
-        long offsetInFirstPeriodUs, long windowDurationUs, long windowDefaultStartPositionUs,
-        DashManifest manifest) {
+    public DashTimeline(
+        long presentationStartTimeMs,
+        long windowStartTimeMs,
+        int firstPeriodId,
+        long offsetInFirstPeriodUs,
+        long windowDurationUs,
+        long windowDefaultStartPositionUs,
+        DashManifest manifest,
+        @Nullable Object windowTag) {
       this.presentationStartTimeMs = presentationStartTimeMs;
       this.windowStartTimeMs = windowStartTimeMs;
       this.firstPeriodId = firstPeriodId;
@@ -1004,6 +1041,7 @@ public final class DashMediaSource extends BaseMediaSource {
       this.windowDurationUs = windowDurationUs;
       this.windowDefaultStartPositionUs = windowDefaultStartPositionUs;
       this.manifest = manifest;
+      this.windowTag = windowTag;
     }
 
     @Override
@@ -1028,14 +1066,23 @@ public final class DashMediaSource extends BaseMediaSource {
     }
 
     @Override
-    public Window getWindow(int windowIndex, Window window, boolean setIdentifier,
-        long defaultPositionProjectionUs) {
+    public Window getWindow(
+        int windowIndex, Window window, boolean setTag, long defaultPositionProjectionUs) {
       Assertions.checkIndex(windowIndex, 0, 1);
       long windowDefaultStartPositionUs = getAdjustedWindowDefaultStartPositionUs(
           defaultPositionProjectionUs);
-      return window.set(null, presentationStartTimeMs, windowStartTimeMs, true /* isSeekable */,
-          manifest.dynamic, windowDefaultStartPositionUs, windowDurationUs, 0,
-          manifest.getPeriodCount() - 1, offsetInFirstPeriodUs);
+      Object tag = setTag ? windowTag : null;
+      return window.set(
+          tag,
+          presentationStartTimeMs,
+          windowStartTimeMs,
+          /* isSeekable= */ true,
+          manifest.dynamic,
+          windowDefaultStartPositionUs,
+          windowDurationUs,
+          /* firstPeriodIndex= */ 0,
+          manifest.getPeriodCount() - 1,
+          offsetInFirstPeriodUs);
     }
 
     @Override

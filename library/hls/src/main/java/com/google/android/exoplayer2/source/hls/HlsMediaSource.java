@@ -62,6 +62,7 @@ public final class HlsMediaSource extends BaseMediaSource
     private int minLoadableRetryCount;
     private boolean allowChunklessPreparation;
     private boolean isCreateCalled;
+    private @Nullable Object tag;
 
     /**
      * Creates a new factory for {@link HlsMediaSource}s.
@@ -85,6 +86,21 @@ public final class HlsMediaSource extends BaseMediaSource
       extractorFactory = HlsExtractorFactory.DEFAULT;
       minLoadableRetryCount = DEFAULT_MIN_LOADABLE_RETRY_COUNT;
       compositeSequenceableLoaderFactory = new DefaultCompositeSequenceableLoaderFactory();
+    }
+
+    /**
+     * Sets a tag for the media source which will be published in the {@link
+     * com.google.android.exoplayer2.Timeline} of the source as {@link
+     * com.google.android.exoplayer2.Timeline.Window#tag}.
+     *
+     * @param tag A tag for the media source.
+     * @return This factory, for convenience.
+     * @throws IllegalStateException If one of the {@code create} methods has already been called.
+     */
+    public Factory setTag(Object tag) {
+      Assertions.checkState(!isCreateCalled);
+      this.tag = tag;
+      return this;
     }
 
     /**
@@ -181,7 +197,8 @@ public final class HlsMediaSource extends BaseMediaSource
           compositeSequenceableLoaderFactory,
           minLoadableRetryCount,
           playlistParser,
-          allowChunklessPreparation);
+          allowChunklessPreparation,
+          tag);
     }
 
     /**
@@ -218,6 +235,7 @@ public final class HlsMediaSource extends BaseMediaSource
   private final int minLoadableRetryCount;
   private final ParsingLoadable.Parser<HlsPlaylist> playlistParser;
   private final boolean allowChunklessPreparation;
+  private final @Nullable Object tag;
 
   private HlsPlaylistTracker playlistTracker;
 
@@ -292,7 +310,8 @@ public final class HlsMediaSource extends BaseMediaSource
         new DefaultCompositeSequenceableLoaderFactory(),
         minLoadableRetryCount,
         playlistParser,
-        false);
+        /* allowChunklessPreparation= */ false,
+        /* tag= */ null);
     if (eventHandler != null && eventListener != null) {
       addEventListener(eventHandler, eventListener);
     }
@@ -305,7 +324,8 @@ public final class HlsMediaSource extends BaseMediaSource
       CompositeSequenceableLoaderFactory compositeSequenceableLoaderFactory,
       int minLoadableRetryCount,
       ParsingLoadable.Parser<HlsPlaylist> playlistParser,
-      boolean allowChunklessPreparation) {
+      boolean allowChunklessPreparation,
+      @Nullable Object tag) {
     this.manifestUri = manifestUri;
     this.dataSourceFactory = dataSourceFactory;
     this.extractorFactory = extractorFactory;
@@ -313,6 +333,7 @@ public final class HlsMediaSource extends BaseMediaSource
     this.minLoadableRetryCount = minLoadableRetryCount;
     this.playlistParser = playlistParser;
     this.allowChunklessPreparation = allowChunklessPreparation;
+    this.tag = tag;
   }
 
   @Override
@@ -388,7 +409,8 @@ public final class HlsMediaSource extends BaseMediaSource
               /* windowPositionInPeriodUs= */ offsetFromInitialStartTimeUs,
               windowDefaultStartPositionUs,
               /* isSeekable= */ true,
-              /* isDynamic= */ !playlist.hasEndTag);
+              /* isDynamic= */ !playlist.hasEndTag,
+              tag);
     } else /* not live */ {
       if (windowDefaultStartPositionUs == C.TIME_UNSET) {
         windowDefaultStartPositionUs = 0;
@@ -402,7 +424,8 @@ public final class HlsMediaSource extends BaseMediaSource
               /* windowPositionInPeriodUs= */ 0,
               windowDefaultStartPositionUs,
               /* isSeekable= */ true,
-              /* isDynamic= */ false);
+              /* isDynamic= */ false,
+              tag);
     }
     refreshSourceInfo(timeline, new HlsManifest(playlistTracker.getMasterPlaylist(), playlist));
   }

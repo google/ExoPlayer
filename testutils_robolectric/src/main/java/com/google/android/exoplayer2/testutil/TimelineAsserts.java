@@ -34,7 +34,7 @@ public final class TimelineAsserts {
 
   /** Assert that timeline is empty (i.e. has no windows or periods). */
   public static void assertEmpty(Timeline timeline) {
-    assertWindowIds(timeline);
+    assertWindowTags(timeline);
     assertPeriodCounts(timeline);
     for (boolean shuffled : new boolean[] {false, true}) {
       assertThat(timeline.getFirstWindowIndex(shuffled)).isEqualTo(C.INDEX_UNSET);
@@ -43,18 +43,18 @@ public final class TimelineAsserts {
   }
 
   /**
-   * Asserts that window IDs are set correctly.
+   * Asserts that window tags are set correctly.
    *
-   * @param expectedWindowIds A list of expected window IDs. If an ID is unknown or not important
+   * @param expectedWindowTags A list of expected window tags. If a tag is unknown or not important
    *     {@code null} can be passed to skip this window.
    */
-  public static void assertWindowIds(Timeline timeline, Object... expectedWindowIds) {
+  public static void assertWindowTags(Timeline timeline, Object... expectedWindowTags) {
     Window window = new Window();
-    assertThat(timeline.getWindowCount()).isEqualTo(expectedWindowIds.length);
+    assertThat(timeline.getWindowCount()).isEqualTo(expectedWindowTags.length);
     for (int i = 0; i < timeline.getWindowCount(); i++) {
       timeline.getWindow(i, window, true);
-      if (expectedWindowIds[i] != null) {
-        assertThat(window.id).isEqualTo(expectedWindowIds[i]);
+      if (expectedWindowTags[i] != null) {
+        assertThat(window.tag).isEqualTo(expectedWindowTags[i]);
       }
     }
   }

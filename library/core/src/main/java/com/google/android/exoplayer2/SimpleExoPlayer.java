@@ -665,6 +665,11 @@ public class SimpleExoPlayer implements ExoPlayer, Player.VideoComponent, Player
   }
 
   @Override
+  public @Nullable Object getCurrentTag() {
+    return player.getCurrentTag();
+  }
+
+  @Override
   public void stop() {
     player.stop();
   }

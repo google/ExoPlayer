@@ -481,6 +481,14 @@ public final class CastPlayer implements Player {
         : currentTimeline.getPreviousWindowIndex(getCurrentWindowIndex(), repeatMode, false);
   }
 
+  @Override
+  public @Nullable Object getCurrentTag() {
+    int windowIndex = getCurrentWindowIndex();
+    return windowIndex > currentTimeline.getWindowCount()
+        ? null
+        : currentTimeline.getWindow(windowIndex, window, /* setTag= */ true).tag;
+  }
+
   // TODO: Fill the cast timeline information with ProgressListener's duration updates.
   // See [Internal: b/65152553].
   @Override
