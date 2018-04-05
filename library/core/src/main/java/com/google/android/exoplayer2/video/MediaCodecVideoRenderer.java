@@ -1142,8 +1142,9 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
     // https://github.com/google/ExoPlayer/issues/3355,
     // https://github.com/google/ExoPlayer/issues/3439,
     // https://github.com/google/ExoPlayer/issues/3724,
-    // https://github.com/google/ExoPlayer/issues/3835 and
-    // https://github.com/google/ExoPlayer/issues/4006.
+    // https://github.com/google/ExoPlayer/issues/3835,
+    // https://github.com/google/ExoPlayer/issues/4006 and
+    // https://github.com/google/ExoPlayer/issues/4084.
     return (("deb".equals(Util.DEVICE) // Nexus 7 (2013)
                 || "flo".equals(Util.DEVICE) // Nexus 7 (2013)
                 || "mido".equals(Util.DEVICE) // Redmi Note 4
@@ -1159,7 +1160,9 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
             && "OMX.MTK.VIDEO.DECODER.AVC".equals(name))
         || (("ALE-L21".equals(Util.MODEL) // Huawei P8 Lite
                 || "CAM-L21".equals(Util.MODEL)) // Huawei Y6II
-            && "OMX.k3.video.decoder.avc".equals(name));
+            && "OMX.k3.video.decoder.avc".equals(name))
+        || (("HUAWEI VNS-L21".equals(Util.MODEL)) // Huawei P9 Lite
+            && "OMX.IMG.MSVDX.Decoder.AVC".equals(name));
   }
 
   protected static final class CodecMaxValues {
