@@ -1076,8 +1076,11 @@ public final class DefaultAudioSink implements AudioSink {
     } else if (encoding == C.ENCODING_E_AC3) {
       return Ac3Util.parseEAc3SyncframeAudioSampleCount(buffer);
     } else if (encoding == C.ENCODING_DOLBY_TRUEHD) {
-      return Ac3Util.parseTrueHdSyncframeAudioSampleCount(buffer)
-          * Ac3Util.TRUEHD_RECHUNK_SAMPLE_COUNT;
+      int syncframeOffset = Ac3Util.findTrueHdSyncframeOffset(buffer);
+      return syncframeOffset == C.INDEX_UNSET
+          ? 0
+          : (Ac3Util.parseTrueHdSyncframeAudioSampleCount(buffer, syncframeOffset)
+              * Ac3Util.TRUEHD_RECHUNK_SAMPLE_COUNT);
     } else {
       throw new IllegalStateException("Unexpected audio encoding: " + encoding);
     }
