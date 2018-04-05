@@ -95,7 +95,7 @@ public final class Ac3Util {
    * of samples extracted from the container corresponding to one syncframe must be an integer
    * multiple of this value.
    */
-  public static final int TRUEHD_RECHUNK_SAMPLE_COUNT = 8;
+  public static final int TRUEHD_RECHUNK_SAMPLE_COUNT = 16;
   /**
    * The number of bytes that must be parsed from a TrueHD syncframe to calculate the sample count.
    */
@@ -474,10 +474,11 @@ public final class Ac3Util {
    */
   public static int parseTrueHdSyncframeAudioSampleCount(byte[] syncframe) {
     // TODO: Link to specification if available.
+    // The syncword ends 0xBA for TrueHD or 0xBB for MLP.
     if (syncframe[4] != (byte) 0xF8
         || syncframe[5] != (byte) 0x72
         || syncframe[6] != (byte) 0x6F
-        || syncframe[7] != (byte) 0xBA) {
+        || (syncframe[7] & 0xFE) != 0xBA) {
       return 0;
     }
     return 40 << (syncframe[8] & 7);
@@ -494,7 +495,8 @@ public final class Ac3Util {
    */
   public static int parseTrueHdSyncframeAudioSampleCount(ByteBuffer buffer) {
     // TODO: Link to specification if available.
-    if (buffer.getInt(buffer.position() + 4) != 0xBA6F72F8) {
+    // The syncword ends 0xBA for TrueHD or 0xBB for MLP.
+    if ((buffer.getInt(buffer.position() + 4) & 0xFEFFFFFF) != 0xBA6F72F8) {
       return 0;
     }
     return 40 << (buffer.get(buffer.position() + 8) & 0x07);
