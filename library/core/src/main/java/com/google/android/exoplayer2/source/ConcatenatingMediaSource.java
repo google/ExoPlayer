@@ -865,9 +865,9 @@ public class ConcatenatingMediaSource extends CompositeMediaSource<MediaSourceHo
 
     @Override
     public Window getWindow(
-        int windowIndex, Window window, boolean setIds, long defaultPositionProjectionUs) {
+        int windowIndex, Window window, boolean setTag, long defaultPositionProjectionUs) {
       return window.set(
-          /* id= */ null,
+          /* tag= */ null,
           /* presentationStartTimeMs= */ C.TIME_UNSET,
           /* windowStartTimeMs= */ C.TIME_UNSET,
           /* isSeekable= */ false,

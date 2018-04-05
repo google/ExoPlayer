@@ -16,6 +16,7 @@
 package com.google.android.exoplayer2.testutil;
 
 import android.os.Looper;
+import android.support.annotation.Nullable;
 import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.PlaybackParameters;
 import com.google.android.exoplayer2.Player;
@@ -139,6 +140,11 @@ public abstract class StubExoPlayer implements ExoPlayer {
 
   @Override
   public void setSeekParameters(SeekParameters seekParameters) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public @Nullable Object getCurrentTag() {
     throw new UnsupportedOperationException();
   }
 

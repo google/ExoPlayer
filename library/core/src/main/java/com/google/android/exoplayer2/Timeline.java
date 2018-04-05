@@ -118,10 +118,8 @@ public abstract class Timeline {
    */
   public static final class Window {
 
-    /**
-     * An identifier for the window. Not necessarily unique.
-     */
-    public Object id;
+    /** A custom tag for the window. Not necessarily unique. */
+    public Object tag;
 
     /**
      * The start time of the presentation to which this window belongs in milliseconds since the
@@ -174,13 +172,19 @@ public abstract class Timeline {
      */
     public long positionInFirstPeriodUs;
 
-    /**
-     * Sets the data held by this window.
-     */
-    public Window set(Object id, long presentationStartTimeMs, long windowStartTimeMs,
-        boolean isSeekable, boolean isDynamic, long defaultPositionUs, long durationUs,
-        int firstPeriodIndex, int lastPeriodIndex, long positionInFirstPeriodUs) {
-      this.id = id;
+    /** Sets the data held by this window. */
+    public Window set(
+        Object tag,
+        long presentationStartTimeMs,
+        long windowStartTimeMs,
+        boolean isSeekable,
+        boolean isDynamic,
+        long defaultPositionUs,
+        long durationUs,
+        int firstPeriodIndex,
+        int lastPeriodIndex,
+        long positionInFirstPeriodUs) {
+      this.tag = tag;
       this.presentationStartTimeMs = presentationStartTimeMs;
       this.windowStartTimeMs = windowStartTimeMs;
       this.isSeekable = isSeekable;
@@ -486,38 +490,36 @@ public abstract class Timeline {
 
   }
 
-  /**
-   * An empty timeline.
-   */
-  public static final Timeline EMPTY = new Timeline() {
+  /** An empty timeline. */
+  public static final Timeline EMPTY =
+      new Timeline() {
 
-    @Override
-    public int getWindowCount() {
-      return 0;
-    }
+        @Override
+        public int getWindowCount() {
+          return 0;
+        }
 
-    @Override
-    public Window getWindow(int windowIndex, Window window, boolean setIds,
-        long defaultPositionProjectionUs) {
-      throw new IndexOutOfBoundsException();
-    }
+        @Override
+        public Window getWindow(
+            int windowIndex, Window window, boolean setTag, long defaultPositionProjectionUs) {
+          throw new IndexOutOfBoundsException();
+        }
 
-    @Override
-    public int getPeriodCount() {
-      return 0;
-    }
+        @Override
+        public int getPeriodCount() {
+          return 0;
+        }
 
-    @Override
-    public Period getPeriod(int periodIndex, Period period, boolean setIds) {
-      throw new IndexOutOfBoundsException();
-    }
+        @Override
+        public Period getPeriod(int periodIndex, Period period, boolean setIds) {
+          throw new IndexOutOfBoundsException();
+        }
 
-    @Override
-    public int getIndexOfPeriod(Object uid) {
-      return C.INDEX_UNSET;
-    }
-
-  };
+        @Override
+        public int getIndexOfPeriod(Object uid) {
+          return C.INDEX_UNSET;
+        }
+      };
 
   /**
    * Returns whether the timeline is empty.
@@ -607,7 +609,7 @@ public abstract class Timeline {
 
   /**
    * Populates a {@link Window} with data for the window at the specified index. Does not populate
-   * {@link Window#id}.
+   * {@link Window#tag}.
    *
    * @param windowIndex The index of the window.
    * @param window The {@link Window} to populate. Must not be null.
@@ -622,12 +624,12 @@ public abstract class Timeline {
    *
    * @param windowIndex The index of the window.
    * @param window The {@link Window} to populate. Must not be null.
-   * @param setIds Whether {@link Window#id} should be populated. If false, the field will be set to
-   *     null. The caller should pass false for efficiency reasons unless the field is required.
+   * @param setTag Whether {@link Window#tag} should be populated. If false, the field will be set
+   *     to null. The caller should pass false for efficiency reasons unless the field is required.
    * @return The populated {@link Window}, for convenience.
    */
-  public final Window getWindow(int windowIndex, Window window, boolean setIds) {
-    return getWindow(windowIndex, window, setIds, 0);
+  public final Window getWindow(int windowIndex, Window window, boolean setTag) {
+    return getWindow(windowIndex, window, setTag, 0);
   }
 
   /**
@@ -635,14 +637,14 @@ public abstract class Timeline {
    *
    * @param windowIndex The index of the window.
    * @param window The {@link Window} to populate. Must not be null.
-   * @param setIds Whether {@link Window#id} should be populated. If false, the field will be set to
-   *     null. The caller should pass false for efficiency reasons unless the field is required.
+   * @param setTag Whether {@link Window#tag} should be populated. If false, the field will be set
+   *     to null. The caller should pass false for efficiency reasons unless the field is required.
    * @param defaultPositionProjectionUs A duration into the future that the populated window's
    *     default start position should be projected.
    * @return The populated {@link Window}, for convenience.
    */
-  public abstract Window getWindow(int windowIndex, Window window, boolean setIds,
-      long defaultPositionProjectionUs);
+  public abstract Window getWindow(
+      int windowIndex, Window window, boolean setTag, long defaultPositionProjectionUs);
 
   /**
    * Returns the number of periods in the timeline.

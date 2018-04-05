@@ -96,6 +96,7 @@ public final class ExtractorMediaSource extends BaseMediaSource
   private final int minLoadableRetryCount;
   private final String customCacheKey;
   private final int continueLoadingCheckIntervalBytes;
+  private final @Nullable Object tag;
 
   private long timelineDurationUs;
   private boolean timelineIsSeekable;
@@ -107,6 +108,7 @@ public final class ExtractorMediaSource extends BaseMediaSource
 
     private @Nullable ExtractorsFactory extractorsFactory;
     private @Nullable String customCacheKey;
+    private @Nullable Object tag;
     private int minLoadableRetryCount;
     private int continueLoadingCheckIntervalBytes;
     private boolean isCreateCalled;
@@ -150,6 +152,21 @@ public final class ExtractorMediaSource extends BaseMediaSource
     public Factory setCustomCacheKey(String customCacheKey) {
       Assertions.checkState(!isCreateCalled);
       this.customCacheKey = customCacheKey;
+      return this;
+    }
+
+    /**
+     * Sets a tag for the media source which will be published in the {@link
+     * com.google.android.exoplayer2.Timeline} of the source as {@link
+     * com.google.android.exoplayer2.Timeline.Window#tag}.
+     *
+     * @param tag A tag for the media source.
+     * @return This factory, for convenience.
+     * @throws IllegalStateException If one of the {@code create} methods has already been called.
+     */
+    public Factory setTag(Object tag) {
+      Assertions.checkState(!isCreateCalled);
+      this.tag = tag;
       return this;
     }
 
@@ -202,7 +219,8 @@ public final class ExtractorMediaSource extends BaseMediaSource
           extractorsFactory,
           minLoadableRetryCount,
           customCacheKey,
-          continueLoadingCheckIntervalBytes);
+          continueLoadingCheckIntervalBytes,
+          tag);
     }
 
     /**
@@ -300,7 +318,8 @@ public final class ExtractorMediaSource extends BaseMediaSource
         extractorsFactory,
         minLoadableRetryCount,
         customCacheKey,
-        continueLoadingCheckIntervalBytes);
+        continueLoadingCheckIntervalBytes,
+        /* tag= */ null);
     if (eventListener != null && eventHandler != null) {
       addEventListener(eventHandler, new EventListenerWrapper(eventListener));
     }
@@ -312,7 +331,8 @@ public final class ExtractorMediaSource extends BaseMediaSource
       ExtractorsFactory extractorsFactory,
       int minLoadableRetryCount,
       @Nullable String customCacheKey,
-      int continueLoadingCheckIntervalBytes) {
+      int continueLoadingCheckIntervalBytes,
+      @Nullable Object tag) {
     this.uri = uri;
     this.dataSourceFactory = dataSourceFactory;
     this.extractorsFactory = extractorsFactory;
@@ -320,6 +340,7 @@ public final class ExtractorMediaSource extends BaseMediaSource
     this.customCacheKey = customCacheKey;
     this.continueLoadingCheckIntervalBytes = continueLoadingCheckIntervalBytes;
     this.timelineDurationUs = C.TIME_UNSET;
+    this.tag = tag;
   }
 
   @Override
@@ -377,7 +398,8 @@ public final class ExtractorMediaSource extends BaseMediaSource
     timelineIsSeekable = isSeekable;
     // TODO: Make timeline dynamic until its duration is known. This is non-trivial. See b/69703223.
     refreshSourceInfo(
-        new SinglePeriodTimeline(timelineDurationUs, timelineIsSeekable, /* isDynamic= */ false),
+        new SinglePeriodTimeline(
+            timelineDurationUs, timelineIsSeekable, /* isDynamic= */ false, tag),
         /* manifest= */ null);
   }
 

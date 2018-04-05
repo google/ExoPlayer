@@ -58,6 +58,7 @@ public final class SingleSampleMediaSource extends BaseMediaSource {
     private int minLoadableRetryCount;
     private boolean treatLoadErrorsAsEndOfStream;
     private boolean isCreateCalled;
+    private @Nullable Object tag;
 
     /**
      * Creates a factory for {@link SingleSampleMediaSource}s.
@@ -68,6 +69,20 @@ public final class SingleSampleMediaSource extends BaseMediaSource {
     public Factory(DataSource.Factory dataSourceFactory) {
       this.dataSourceFactory = Assertions.checkNotNull(dataSourceFactory);
       this.minLoadableRetryCount = DEFAULT_MIN_LOADABLE_RETRY_COUNT;
+    }
+
+    /**
+     * Sets a tag for the media source which will be published in the {@link Timeline} of the source
+     * as {@link Timeline.Window#tag}.
+     *
+     * @param tag A tag for the media source.
+     * @return This factory, for convenience.
+     * @throws IllegalStateException If one of the {@code create} methods has already been called.
+     */
+    public Factory setTag(Object tag) {
+      Assertions.checkState(!isCreateCalled);
+      this.tag = tag;
+      return this;
     }
 
     /**
@@ -116,7 +131,8 @@ public final class SingleSampleMediaSource extends BaseMediaSource {
           format,
           durationUs,
           minLoadableRetryCount,
-          treatLoadErrorsAsEndOfStream);
+          treatLoadErrorsAsEndOfStream,
+          tag);
     }
 
     /**
@@ -188,7 +204,8 @@ public final class SingleSampleMediaSource extends BaseMediaSource {
         format,
         durationUs,
         minLoadableRetryCount,
-        /* treatLoadErrorsAsEndOfStream= */ false);
+        /* treatLoadErrorsAsEndOfStream= */ false,
+        /* tag= */ null);
   }
 
   /**
@@ -223,7 +240,8 @@ public final class SingleSampleMediaSource extends BaseMediaSource {
         format,
         durationUs,
         minLoadableRetryCount,
-        treatLoadErrorsAsEndOfStream);
+        treatLoadErrorsAsEndOfStream,
+        /* tag= */ null);
     if (eventHandler != null && eventListener != null) {
       addEventListener(eventHandler, new EventListenerWrapper(eventListener, eventSourceId));
     }
@@ -235,14 +253,16 @@ public final class SingleSampleMediaSource extends BaseMediaSource {
       Format format,
       long durationUs,
       int minLoadableRetryCount,
-      boolean treatLoadErrorsAsEndOfStream) {
+      boolean treatLoadErrorsAsEndOfStream,
+      @Nullable Object tag) {
     this.dataSourceFactory = dataSourceFactory;
     this.format = format;
     this.durationUs = durationUs;
     this.minLoadableRetryCount = minLoadableRetryCount;
     this.treatLoadErrorsAsEndOfStream = treatLoadErrorsAsEndOfStream;
     dataSpec = new DataSpec(uri);
-    timeline = new SinglePeriodTimeline(durationUs, true, false);
+    timeline =
+        new SinglePeriodTimeline(durationUs, /* isSeekable= */ true, /* isDynamic= */ false, tag);
   }
 
   // MediaSource implementation.

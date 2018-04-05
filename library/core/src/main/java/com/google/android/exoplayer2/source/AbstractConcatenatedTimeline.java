@@ -155,13 +155,14 @@ import com.google.android.exoplayer2.Timeline;
   }
 
   @Override
-  public final Window getWindow(int windowIndex, Window window, boolean setIds,
-      long defaultPositionProjectionUs) {
+  public final Window getWindow(
+      int windowIndex, Window window, boolean setTag, long defaultPositionProjectionUs) {
     int childIndex = getChildIndexByWindowIndex(windowIndex);
     int firstWindowIndexInChild = getFirstWindowIndexByChildIndex(childIndex);
     int firstPeriodIndexInChild = getFirstPeriodIndexByChildIndex(childIndex);
-    getTimelineByChildIndex(childIndex).getWindow(windowIndex - firstWindowIndexInChild, window,
-        setIds, defaultPositionProjectionUs);
+    getTimelineByChildIndex(childIndex)
+        .getWindow(
+            windowIndex - firstWindowIndexInChild, window, setTag, defaultPositionProjectionUs);
     window.firstPeriodIndex += firstPeriodIndexInChild;
     window.lastPeriodIndex += firstPeriodIndexInChild;
     return window;

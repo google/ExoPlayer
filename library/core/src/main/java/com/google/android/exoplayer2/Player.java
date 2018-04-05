@@ -656,6 +656,12 @@ public interface Player {
   int getPreviousWindowIndex();
 
   /**
+   * Returns the tag of the currently playing window in the timeline. May be null if no tag is set
+   * or the timeline is not yet available.
+   */
+  @Nullable Object getCurrentTag();
+
+  /**
    * Returns the duration of the current window in milliseconds, or {@link C#TIME_UNSET} if the
    * duration is not known.
    */

@@ -312,6 +312,14 @@ import java.util.concurrent.CopyOnWriteArraySet;
   }
 
   @Override
+  public @Nullable Object getCurrentTag() {
+    int windowIndex = getCurrentWindowIndex();
+    return windowIndex > playbackInfo.timeline.getWindowCount()
+        ? null
+        : playbackInfo.timeline.getWindow(windowIndex, window, /* setTag= */ true).tag;
+  }
+
+  @Override
   public void stop() {
     stop(/* reset= */ false);
   }
