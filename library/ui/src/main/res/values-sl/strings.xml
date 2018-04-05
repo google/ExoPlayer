@@ -1,35 +1,19 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!--  Copyright (C) 2016 The Android Open Source Project
-
-     Licensed under the Apache License, Version 2.0 (the "License");
-     you may not use this file except in compliance with the License.
-     You may obtain a copy of the License at
-
-          http://www.apache.org/licenses/LICENSE-2.0
-
-     Unless required by applicable law or agreed to in writing, software
-     distributed under the License is distributed on an "AS IS" BASIS,
-     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-     See the License for the specific language governing permissions and
-     limitations under the License.
- -->
-
-<resources xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <string name="exo_controls_previous_description" msgid="4729846277375475426">"Prejšnja skladba"</string>
-    <string name="exo_controls_next_description" msgid="7044845014191647105">"Naslednja skladba"</string>
-    <string name="exo_controls_pause_description" msgid="7924816224515798262">"Zaustavitev"</string>
-    <string name="exo_controls_play_description" msgid="2326300949114396072">"Predvajanje"</string>
-    <string name="exo_controls_stop_description" msgid="121453720915069922">"Ustavitev"</string>
-    <string name="exo_controls_rewind_description" msgid="5799450167394904608">"Previjanje nazaj"</string>
-    <string name="exo_controls_fastforward_description" msgid="2382411136909255532">"Previjanje naprej"</string>
-    <string name="exo_controls_repeat_off_description" msgid="2273550552389469729">"Brez ponavljanja"</string>
-    <string name="exo_controls_repeat_one_description" msgid="475266640141093764">"Ponavljanje ene"</string>
-    <string name="exo_controls_repeat_all_description" msgid="8909385102773547833">"Ponavljanje vseh"</string>
-    <string name="exo_controls_shuffle_description" msgid="1374364424026734323">"Naključno predvajanje"</string>
-    <string name="exo_controls_fullscreen_description" msgid="2643117270009811804">"Celozaslonski način"</string>
-    <string name="exo_download_queued" msgid="5094895434694614073">"Prenos je v čakalni vrsti"</string>
-    <string name="exo_downloading" msgid="3111729133695800638">"Prenašanje"</string>
-    <string name="exo_download_completed" msgid="73698315802218437">"Prenos je končan"</string>
-    <string name="exo_download_failed" msgid="6266121732877856285">"Prenos ni uspel"</string>
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <string name="exo_controls_previous_description">Prejšnja skladba</string>
+  <string name="exo_controls_next_description">Naslednja skladba</string>
+  <string name="exo_controls_pause_description">Zaustavitev</string>
+  <string name="exo_controls_play_description">Predvajanje</string>
+  <string name="exo_controls_stop_description">Ustavitev</string>
+  <string name="exo_controls_rewind_description">Previjanje nazaj</string>
+  <string name="exo_controls_fastforward_description">Previjanje naprej</string>
+  <string name="exo_controls_repeat_off_description">Brez ponavljanja</string>
+  <string name="exo_controls_repeat_one_description">Ponavljanje ene</string>
+  <string name="exo_controls_repeat_all_description">Ponavljanje vseh</string>
+  <string name="exo_controls_shuffle_description">Naključno predvajanje</string>
+  <string name="exo_controls_fullscreen_description">Celozaslonski način</string>
+  <string name="exo_download_queued">Prenos je v čakalni vrsti</string>
+  <string name="exo_downloading">Prenašanje</string>
+  <string name="exo_download_completed">Prenos je končan</string>
+  <string name="exo_download_failed">Prenos ni uspel</string>
 </resources>
