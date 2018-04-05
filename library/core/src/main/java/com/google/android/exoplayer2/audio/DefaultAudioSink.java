@@ -278,9 +278,15 @@ public final class DefaultAudioSink implements AudioSink {
   }
 
   @Override
-  public void configure(@C.Encoding int inputEncoding, int inputChannelCount, int inputSampleRate,
-      int specifiedBufferSize, @Nullable int[] outputChannels, int trimStartSamples,
-      int trimEndSamples) throws ConfigurationException {
+  public void configure(
+      @C.Encoding int inputEncoding,
+      int inputChannelCount,
+      int inputSampleRate,
+      int specifiedBufferSize,
+      @Nullable int[] outputChannels,
+      int trimStartFrames,
+      int trimEndFrames)
+      throws ConfigurationException {
     boolean flush = false;
     this.inputSampleRate = inputSampleRate;
     int channelCount = inputChannelCount;
@@ -297,7 +303,7 @@ public final class DefaultAudioSink implements AudioSink {
     boolean processingEnabled = isInputPcm && inputEncoding != C.ENCODING_PCM_FLOAT;
     canApplyPlaybackParameters = processingEnabled && !shouldConvertHighResIntPcmToFloat;
     if (processingEnabled) {
-      trimmingAudioProcessor.setTrimSampleCount(trimStartSamples, trimEndSamples);
+      trimmingAudioProcessor.setTrimFrameCount(trimStartFrames, trimEndFrames);
       channelMappingAudioProcessor.setChannelMap(outputChannels);
       for (AudioProcessor audioProcessor : getAvailableAudioProcessors()) {
         try {

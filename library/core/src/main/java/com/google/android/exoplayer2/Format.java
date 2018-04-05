@@ -145,12 +145,12 @@ public final class Format implements Parcelable {
   @C.PcmEncoding
   public final int pcmEncoding;
   /**
-   * The number of samples to trim from the start of the decoded audio stream, or 0 if not
+   * The number of frames to trim from the start of the decoded audio stream, or 0 if not
    * applicable.
    */
   public final int encoderDelay;
   /**
-   * The number of samples to trim from the end of the decoded audio stream, or 0 if not applicable.
+   * The number of frames to trim from the end of the decoded audio stream, or 0 if not applicable.
    */
   public final int encoderPadding;
 
