@@ -86,6 +86,25 @@ public class DefaultLoadControlTest {
   }
 
   @Test
+  public void testShouldContinueLoadingWithMinBufferReached_inFastPlayback() {
+    createDefaultLoadControl();
+
+    // At normal playback speed, we stop buffering when the buffer reaches the minimum.
+    assertThat(loadControl.shouldContinueLoading(MIN_BUFFER_US, SPEED)).isFalse();
+
+    // At double playback speed, we continue loading.
+    assertThat(loadControl.shouldContinueLoading(MIN_BUFFER_US, /* playbackSpeed= */ 2f)).isTrue();
+  }
+
+  @Test
+  public void testShouldNotContinueLoadingWithMaxBufferReached_inFastPlayback() {
+    createDefaultLoadControl();
+
+    assertThat(loadControl.shouldContinueLoading(MAX_BUFFER_US + 1, /* playbackSpeed= */ 100f))
+        .isFalse();
+  }
+
+  @Test
   public void testStartsPlayback_whenMinBufferSizeReached() {
     createDefaultLoadControl();
     assertThat(loadControl.shouldStartPlayback(MIN_BUFFER_US, SPEED, /* rebuffering= */ false))
