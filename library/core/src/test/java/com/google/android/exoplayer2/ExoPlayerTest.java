@@ -726,13 +726,7 @@ public final class ExoPlayerTest {
         new ActionSchedule.Builder("testChangeTrackSelection")
             .pause()
             .waitForPlaybackState(Player.STATE_READY)
-            .executeRunnable(
-                new Runnable() {
-                  @Override
-                  public void run() {
-                    trackSelector.setRendererDisabled(0, true);
-                  }
-                })
+            .disableRenderer(0)
             .play()
             .build();
 
@@ -773,13 +767,7 @@ public final class ExoPlayerTest {
         new ActionSchedule.Builder("testReuseTrackSelection")
             .pause()
             .waitForPlaybackState(Player.STATE_READY)
-            .executeRunnable(
-                new Runnable() {
-                  @Override
-                  public void run() {
-                    trackSelector.setRendererDisabled(0, true);
-                  }
-                })
+            .disableRenderer(0)
             .play()
             .build();
 
