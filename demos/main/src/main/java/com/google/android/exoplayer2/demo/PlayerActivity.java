@@ -42,7 +42,6 @@ import com.google.android.exoplayer2.PlaybackPreparer;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.drm.DefaultDrmSessionManager;
-import com.google.android.exoplayer2.drm.DrmSessionManager;
 import com.google.android.exoplayer2.drm.FrameworkMediaCrypto;
 import com.google.android.exoplayer2.drm.FrameworkMediaDrm;
 import com.google.android.exoplayer2.drm.HttpMediaDrmCallback;
@@ -120,7 +119,6 @@ public class PlayerActivity extends Activity
   }
 
   private Handler mainHandler;
-  private EventLogger eventLogger;
   private PlayerView playerView;
   private LinearLayout debugRootView;
   private TextView debugTextView;
@@ -296,7 +294,7 @@ public class PlayerActivity extends Activity
         return;
       }
 
-      DrmSessionManager<FrameworkMediaCrypto> drmSessionManager = null;
+      DefaultDrmSessionManager<FrameworkMediaCrypto> drmSessionManager = null;
       if (intent.hasExtra(DRM_SCHEME_EXTRA) || intent.hasExtra(DRM_SCHEME_UUID_EXTRA)) {
         String drmLicenseUrl = intent.getStringExtra(DRM_LICENSE_URL);
         String[] keyRequestPropertiesArray = intent.getStringArrayExtra(DRM_KEY_REQUEST_PROPERTIES);
@@ -341,17 +339,21 @@ public class PlayerActivity extends Activity
       trackSelector = new DefaultTrackSelector(adaptiveTrackSelectionFactory);
       trackSelectionHelper = new TrackSelectionHelper(trackSelector, adaptiveTrackSelectionFactory);
       lastSeenTrackGroupArray = null;
-      eventLogger = new EventLogger(trackSelector);
 
       player =
           ExoPlayerFactory.newSimpleInstance(renderersFactory, trackSelector, drmSessionManager);
       player.addListener(new PlayerEventListener());
+
+      EventLogger eventLogger = new EventLogger(trackSelector);
       player.addListener(eventLogger);
       player.addMetadataOutput(eventLogger);
       player.addAudioDebugListener(eventLogger);
       player.addVideoDebugListener(eventLogger);
-      player.setPlayWhenReady(shouldAutoPlay);
+      if (drmSessionManager != null) {
+        drmSessionManager.addListener(mainHandler, eventLogger);
+      }
 
+      player.setPlayWhenReady(shouldAutoPlay);
       playerView.setPlayer(player);
       playerView.setPlaybackPreparer(this);
       debugViewHelper = new DebugTextViewHelper(player, debugTextView);
@@ -372,7 +374,8 @@ public class PlayerActivity extends Activity
           releaseAdsLoader();
           loadedAdTagUri = adTagUri;
         }
-        MediaSource adsMediaSource = createAdsMediaSource(mediaSource, Uri.parse(adTagUriString));
+        MediaSource adsMediaSource =
+            createAdsMediaSource(mediaSource, Uri.parse(adTagUriString), eventLogger);
         if (adsMediaSource != null) {
           mediaSource = adsMediaSource;
         } else {
@@ -426,8 +429,8 @@ public class PlayerActivity extends Activity
     }
   }
 
-  private DrmSessionManager<FrameworkMediaCrypto> buildDrmSessionManagerV18(UUID uuid,
-      String licenseUrl, String[] keyRequestPropertiesArray, boolean multiSession)
+  private DefaultDrmSessionManager<FrameworkMediaCrypto> buildDrmSessionManagerV18(
+      UUID uuid, String licenseUrl, String[] keyRequestPropertiesArray, boolean multiSession)
       throws UnsupportedDrmException {
     HttpMediaDrmCallback drmCallback = new HttpMediaDrmCallback(licenseUrl,
         buildHttpDataSourceFactory(false));
@@ -440,7 +443,6 @@ public class PlayerActivity extends Activity
     DefaultDrmSessionManager<FrameworkMediaCrypto> drmSessionManager =
         new DefaultDrmSessionManager<>(
             uuid, FrameworkMediaDrm.newInstance(uuid), drmCallback, null, multiSession);
-    drmSessionManager.addListener(mainHandler, eventLogger);
     return drmSessionManager;
   }
 
@@ -455,7 +457,6 @@ public class PlayerActivity extends Activity
       mediaSource = null;
       trackSelector = null;
       trackSelectionHelper = null;
-      eventLogger = null;
     }
   }
 
@@ -494,7 +495,8 @@ public class PlayerActivity extends Activity
   }
 
   /** Returns an ads media source, reusing the ads loader if one exists. */
-  private @Nullable MediaSource createAdsMediaSource(MediaSource mediaSource, Uri adTagUri) {
+  private @Nullable MediaSource createAdsMediaSource(
+      MediaSource mediaSource, Uri adTagUri, EventLogger eventLogger) {
     // Load the extension source using reflection so the demo app doesn't have to depend on it.
     // The ads loader is reused for multiple playbacks, so that ad playback can resume.
     try {
