@@ -93,6 +93,10 @@ public final class SimpleCache implements Cache {
    * @param index The CachedContentIndex to be used.
    */
   /*package*/ SimpleCache(File cacheDir, CacheEvictor evictor, CachedContentIndex index) {
+    if (!lockFolder(cacheDir)) {
+      throw new IllegalStateException("Another SimpleCache instance uses the folder: " + cacheDir);
+    }
+
     this.cacheDir = cacheDir;
     this.evictor = evictor;
     this.index = index;
