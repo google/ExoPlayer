@@ -491,10 +491,34 @@ public final class TsExtractor implements Extractor, SeekMap {
     if (mid == -1) return null;
 
     SeekPoint seekPoint = seekPoints.get(mid);
-    if (timeUs - seekPoint.timeUs > MAX_SEEK_OFFSET_US) {
-      // Didn't find a near seek point, so we'll have to read through the data until we find one
+
+    long timeDiff = timeUs - seekPoint.timeUs;
+    if (Math.abs(timeDiff) > MAX_SEEK_OFFSET_US) {
       seekPid = usedSeekPid;
-      seekTimeUs = timeUs;
+
+      if (timeDiff > 0) seekTimeUs = timeUs;
+
+      // Fast Seeking: Interpolate a seek point using duration and input length.
+      // This hugely improves seek performance, but it's based on heuristics.
+      // In the worst case, seeking might jump to a position that is a bit after the
+      // actual position for the requested time.
+      if (endSeekPoint != null && endSeekPoint.timeUs != C.LENGTH_UNSET &&
+          endSeekPoint.position != C.LENGTH_UNSET) {
+        float bytesPerUs = ((float) endSeekPoint.position) / ((float) endSeekPoint.timeUs);
+        long estimatedBytesDiff = (long) (bytesPerUs * ((float) timeDiff));
+
+        // Make sure the estimated point is always before the actual point
+        float reductionFactor = timeDiff > 0 ? 0.8f : 1.2f;
+        estimatedBytesDiff = (long) (((float) estimatedBytesDiff) * reductionFactor);
+        timeDiff = (long) (((float) timeDiff) * reductionFactor);
+
+        seekPoint = new SeekPoint(seekPoint.timeUs + timeDiff,
+            seekPoint.position + estimatedBytesDiff);
+
+        // The interpolated seek point is before the actual point even if the nearest actual
+        // seek point is after it.
+        seekTimeUs = timeUs;
+      }
     }
     return new SeekPoints(seekPoint);
   }
