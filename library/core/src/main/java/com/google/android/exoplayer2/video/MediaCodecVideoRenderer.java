@@ -23,6 +23,7 @@ import android.media.MediaCodec;
 import android.media.MediaCodecInfo.CodecCapabilities;
 import android.media.MediaCrypto;
 import android.media.MediaFormat;
+import android.os.Bundle;
 import android.os.Handler;
 import android.os.SystemClock;
 import android.support.annotation.CallSuper;
@@ -469,6 +470,19 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
   protected void flushCodec() throws ExoPlaybackException {
     super.flushCodec();
     buffersInCodecCount = 0;
+  }
+
+  @TargetApi(23)
+  @Override
+  protected void updateCodecOperatingRate(Format format) {
+    if (format.frameRate == Format.NO_VALUE) {
+      return;
+    }
+    MediaCodec codec = getCodec();
+    float codecOperatingRate = getCodecOperatingRate();
+    Bundle codecParameters = new Bundle();
+    codecParameters.putFloat(MediaFormat.KEY_OPERATING_RATE, format.frameRate * codecOperatingRate);
+    codec.setParameters(codecParameters);
   }
 
   @Override
@@ -969,6 +983,10 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
     // Set codec configuration values.
     if (Util.SDK_INT >= 23) {
       mediaFormat.setInteger(MediaFormat.KEY_PRIORITY, 0 /* realtime priority */);
+      if (format.frameRate != Format.NO_VALUE) {
+        float codecOperatingRate = getCodecOperatingRate();
+        mediaFormat.setFloat(MediaFormat.KEY_OPERATING_RATE, codecOperatingRate * format.frameRate);
+      }
     }
     if (deviceNeedsAutoFrcWorkaround) {
       mediaFormat.setInteger("auto-frc", 0);
