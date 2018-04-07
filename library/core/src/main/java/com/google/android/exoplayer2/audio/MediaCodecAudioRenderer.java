@@ -21,6 +21,7 @@ import android.media.MediaCodec;
 import android.media.MediaCrypto;
 import android.media.MediaFormat;
 import android.media.audiofx.Virtualizer;
+import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.Nullable;
 import com.google.android.exoplayer2.C;
@@ -284,6 +285,19 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
   @Override
   public MediaClock getMediaClock() {
     return this;
+  }
+
+  @TargetApi(23)
+  @Override
+  protected void updateCodecOperatingRate(Format format) {
+    if (format.sampleRate == Format.NO_VALUE) {
+      return;
+    }
+    MediaCodec codec = getCodec();
+    float codecOperatingRate = getCodecOperatingRate();
+    Bundle codecParameters = new Bundle();
+    codecParameters.putFloat(MediaFormat.KEY_OPERATING_RATE, format.sampleRate * codecOperatingRate);
+    codec.setParameters(codecParameters);
   }
 
   @Override
@@ -550,6 +564,11 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
     // Set codec configuration values.
     if (Util.SDK_INT >= 23) {
       mediaFormat.setInteger(MediaFormat.KEY_PRIORITY, 0 /* realtime priority */);
+      if (format.sampleRate != Format.NO_VALUE) {
+        float codecOperatingRate = getCodecOperatingRate();
+        mediaFormat.setFloat(
+            MediaFormat.KEY_OPERATING_RATE, codecOperatingRate * format.sampleRate);
+      }
     }
     return mediaFormat;
   }

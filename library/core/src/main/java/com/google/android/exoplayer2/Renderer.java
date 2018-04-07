@@ -193,6 +193,13 @@ public interface Renderer extends PlayerMessage.Target {
   void resetPosition(long positionUs) throws ExoPlaybackException;
 
   /**
+   * Sets the operating rate of this renderer.
+   *
+   * @param operatingRate The renderer operating rate.
+   */
+  void setOperatingRate(float operatingRate);
+
+  /**
    * Incrementally renders the {@link SampleStream}.
    * <p>
    * If the renderer is in the {@link #STATE_ENABLED} state then each call to this method will do

@@ -137,6 +137,11 @@ public abstract class BaseRenderer implements Renderer, RendererCapabilities {
   }
 
   @Override
+  public void setOperatingRate(float operatingRate) {
+    onOperatingRateChanged(operatingRate);
+  }
+
+  @Override
   public final void stop() throws ExoPlaybackException {
     Assertions.checkState(state == STATE_STARTED);
     state = STATE_ENABLED;
@@ -213,6 +218,17 @@ public abstract class BaseRenderer implements Renderer, RendererCapabilities {
    * @throws ExoPlaybackException If an error occurs.
    */
   protected void onPositionReset(long positionUs, boolean joining) throws ExoPlaybackException {
+    // Do nothing.
+  }
+
+  /**
+   * Called when the operating rate is changed.
+   * <p>
+   * The default implementation is a no-op.
+   *
+   * @param operatingRate The new operating rate.
+   */
+  protected void onOperatingRateChanged(float operatingRate) {
     // Do nothing.
   }
 
