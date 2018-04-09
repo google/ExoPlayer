@@ -23,10 +23,13 @@ import com.google.android.exoplayer2.util.Util;
  */
 public final class TrackSelectorResult {
 
+  /** The number of selections in the result. Greater than or equal to zero. */
+  public final int length;
   /**
-   * An array containing whether each renderer is enabled after the track selection operation.
+   * A {@link RendererConfiguration} for each renderer. A null entry indicates the corresponding
+   * renderer should be disabled.
    */
-  public final boolean[] renderersEnabled;
+  public final RendererConfiguration[] rendererConfigurations;
   /**
    * A {@link TrackSelectionArray} containing the track selection for each renderer.
    */
@@ -36,29 +39,25 @@ public final class TrackSelectorResult {
    * should the selections be activated.
    */
   public final Object info;
-  /**
-   * A {@link RendererConfiguration} for each enabled renderer, to be used with the selections.
-   */
-  public final RendererConfiguration[] rendererConfigurations;
 
   /**
-   * @param renderersEnabled An array containing whether each renderer is enabled after the track
-   *     selection operation.
+   * @param rendererConfigurations A {@link RendererConfiguration} for each renderer. A null entry
+   *     indicates the corresponding renderer should be disabled.
    * @param selections A {@link TrackSelectionArray} containing the selection for each renderer.
    * @param info An opaque object that will be returned to {@link
    *     TrackSelector#onSelectionActivated(Object)} should the selection be activated.
-   * @param rendererConfigurations A {@link RendererConfiguration} for each enabled renderer, to be
-   *     used with the selections.
    */
   public TrackSelectorResult(
-      boolean[] renderersEnabled,
-      TrackSelectionArray selections,
-      Object info,
-      RendererConfiguration[] rendererConfigurations) {
-    this.renderersEnabled = renderersEnabled;
-    this.selections = selections;
-    this.info = info;
+      RendererConfiguration[] rendererConfigurations, TrackSelection[] selections, Object info) {
     this.rendererConfigurations = rendererConfigurations;
+    this.selections = new TrackSelectionArray(selections);
+    this.info = info;
+    length = rendererConfigurations.length;
+  }
+
+  /** Returns whether the renderer at the specified index is enabled. */
+  public boolean isRendererEnabled(int index) {
+    return rendererConfigurations[index] != null;
   }
 
   /**
@@ -95,9 +94,8 @@ public final class TrackSelectorResult {
     if (other == null) {
       return false;
     }
-    return renderersEnabled[index] == other.renderersEnabled[index]
-        && Util.areEqual(selections.get(index), other.selections.get(index))
-        && Util.areEqual(rendererConfigurations[index], other.rendererConfigurations[index]);
+    return Util.areEqual(rendererConfigurations[index], other.rendererConfigurations[index])
+        && Util.areEqual(selections.get(index), other.selections.get(index));
   }
 
 }

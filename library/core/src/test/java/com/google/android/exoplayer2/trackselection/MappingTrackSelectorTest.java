@@ -121,11 +121,9 @@ public final class MappingTrackSelectorTest {
     FakeMappingTrackSelector trackSelector = new FakeMappingTrackSelector(
         TRACK_SELECTIONS);
     TrackSelectorResult result = trackSelector.selectTracks(RENDERER_CAPABILITIES, TRACK_GROUPS);
-    assertThat(result.selections.get(0)).isEqualTo(TRACK_SELECTIONS[0]);
-    assertThat(result.selections.get(1)).isEqualTo(TRACK_SELECTIONS[1]);
-    assertThat(new boolean[] {true, true}).isEqualTo(result.renderersEnabled);
-    assertThat(new RendererConfiguration[] {DEFAULT, DEFAULT})
-        .isEqualTo(result.rendererConfigurations);
+    assertTrackSelections(result, TRACK_SELECTIONS);
+    assertThat(result.rendererConfigurations)
+        .isEqualTo(new RendererConfiguration[] {DEFAULT, DEFAULT});
   }
 
   /**
@@ -137,11 +135,9 @@ public final class MappingTrackSelectorTest {
         TRACK_SELECTIONS);
     trackSelector.setSelectionOverride(0, new TrackGroupArray(VIDEO_TRACK_GROUP), null);
     TrackSelectorResult result = trackSelector.selectTracks(RENDERER_CAPABILITIES, TRACK_GROUPS);
-    assertThat(result.selections.get(0)).isNull();
-    assertThat(result.selections.get(1)).isEqualTo(TRACK_SELECTIONS[1]);
-    assertThat(new boolean[] {false, true}).isEqualTo(result.renderersEnabled);
-    assertThat(new RendererConfiguration[] {null, DEFAULT})
-        .isEqualTo(result.rendererConfigurations);
+    assertTrackSelections(result, new TrackSelection[] {null, TRACK_SELECTIONS[1]});
+    assertThat(result.rendererConfigurations)
+        .isEqualTo(new RendererConfiguration[] {null, DEFAULT});
   }
 
   /**
@@ -154,11 +150,9 @@ public final class MappingTrackSelectorTest {
     trackSelector.setSelectionOverride(0, new TrackGroupArray(VIDEO_TRACK_GROUP), null);
     trackSelector.clearSelectionOverride(0, new TrackGroupArray(VIDEO_TRACK_GROUP));
     TrackSelectorResult result = trackSelector.selectTracks(RENDERER_CAPABILITIES, TRACK_GROUPS);
-    assertThat(result.selections.get(0)).isEqualTo(TRACK_SELECTIONS[0]);
-    assertThat(result.selections.get(1)).isEqualTo(TRACK_SELECTIONS[1]);
-    assertThat(new boolean[] {true, true}).isEqualTo(result.renderersEnabled);
-    assertThat(new RendererConfiguration[] {DEFAULT, DEFAULT})
-        .isEqualTo(result.rendererConfigurations);
+    assertTrackSelections(result, TRACK_SELECTIONS);
+    assertThat(result.rendererConfigurations)
+        .isEqualTo(new RendererConfiguration[] {DEFAULT, DEFAULT});
   }
 
   /**
@@ -171,11 +165,9 @@ public final class MappingTrackSelectorTest {
     trackSelector.setSelectionOverride(0, new TrackGroupArray(VIDEO_TRACK_GROUP), null);
     TrackSelectorResult result = trackSelector.selectTracks(RENDERER_CAPABILITIES,
         new TrackGroupArray(VIDEO_TRACK_GROUP, AUDIO_TRACK_GROUP, VIDEO_TRACK_GROUP));
-    assertThat(result.selections.get(0)).isEqualTo(TRACK_SELECTIONS[0]);
-    assertThat(result.selections.get(1)).isEqualTo(TRACK_SELECTIONS[1]);
-    assertThat(new boolean[] {true, true}).isEqualTo(result.renderersEnabled);
-    assertThat(new RendererConfiguration[] {DEFAULT, DEFAULT})
-        .isEqualTo(result.rendererConfigurations);
+    assertTrackSelections(result, TRACK_SELECTIONS);
+    assertThat(result.rendererConfigurations)
+        .isEqualTo(new RendererConfiguration[] {DEFAULT, DEFAULT});
   }
 
   /**
@@ -186,16 +178,13 @@ public final class MappingTrackSelectorTest {
    */
   @Test
   public void testSelectTracksWithNoSampleRenderer() throws ExoPlaybackException {
-    TrackSelection[] expectedTrackSelection = TRACK_SELECTIONS_WITH_NO_SAMPLE_RENDERER;
-    FakeMappingTrackSelector trackSelector = new FakeMappingTrackSelector(expectedTrackSelection);
+    FakeMappingTrackSelector trackSelector =
+        new FakeMappingTrackSelector(TRACK_SELECTIONS_WITH_NO_SAMPLE_RENDERER);
     TrackSelectorResult result = trackSelector.selectTracks(
         RENDERER_CAPABILITIES_WITH_NO_SAMPLE_RENDERER, TRACK_GROUPS);
-    assertThat(result.selections.get(0)).isEqualTo(expectedTrackSelection[0]);
-    assertThat(result.selections.get(1)).isEqualTo(expectedTrackSelection[1]);
-    assertThat(result.selections.get(2)).isNull();
-    assertThat(new boolean[] {true, true, true}).isEqualTo(result.renderersEnabled);
-    assertThat(new RendererConfiguration[] {DEFAULT, DEFAULT, DEFAULT})
-        .isEqualTo(result.rendererConfigurations);
+    assertTrackSelections(result, TRACK_SELECTIONS_WITH_NO_SAMPLE_RENDERER);
+    assertThat(result.rendererConfigurations)
+        .isEqualTo(new RendererConfiguration[] {DEFAULT, DEFAULT, DEFAULT});
   }
 
   /**
@@ -211,9 +200,8 @@ public final class MappingTrackSelectorTest {
     assertThat(result.selections.get(0)).isNull();
     assertThat(result.selections.get(1)).isEqualTo(expectedTrackSelection[1]);
     assertThat(result.selections.get(2)).isNull();
-    assertThat(new boolean[] {false, true, true}).isEqualTo(result.renderersEnabled);
-    assertThat(new RendererConfiguration[] {null, DEFAULT, DEFAULT})
-        .isEqualTo(result.rendererConfigurations);
+    assertThat(result.rendererConfigurations)
+        .isEqualTo(new RendererConfiguration[] {null, DEFAULT, DEFAULT});
   }
 
   /**
@@ -222,18 +210,15 @@ public final class MappingTrackSelectorTest {
   @Test
   public void testSelectTracksWithNoSampleRendererWithClearedNullOverride()
       throws ExoPlaybackException {
-    TrackSelection[] expectedTrackSelection = TRACK_SELECTIONS_WITH_NO_SAMPLE_RENDERER;
-    FakeMappingTrackSelector trackSelector = new FakeMappingTrackSelector(expectedTrackSelection);
+    FakeMappingTrackSelector trackSelector =
+        new FakeMappingTrackSelector(TRACK_SELECTIONS_WITH_NO_SAMPLE_RENDERER);
     trackSelector.setSelectionOverride(0, new TrackGroupArray(VIDEO_TRACK_GROUP), null);
     trackSelector.clearSelectionOverride(0, new TrackGroupArray(VIDEO_TRACK_GROUP));
     TrackSelectorResult result = trackSelector.selectTracks(
         RENDERER_CAPABILITIES_WITH_NO_SAMPLE_RENDERER, TRACK_GROUPS);
-    assertThat(result.selections.get(0)).isEqualTo(expectedTrackSelection[0]);
-    assertThat(result.selections.get(1)).isEqualTo(expectedTrackSelection[1]);
-    assertThat(result.selections.get(2)).isNull();
-    assertThat(new boolean[] {true, true, true}).isEqualTo(result.renderersEnabled);
-    assertThat(new RendererConfiguration[] {DEFAULT, DEFAULT, DEFAULT})
-        .isEqualTo(result.rendererConfigurations);
+    assertTrackSelections(result, TRACK_SELECTIONS_WITH_NO_SAMPLE_RENDERER);
+    assertThat(result.rendererConfigurations)
+        .isEqualTo(new RendererConfiguration[] {DEFAULT, DEFAULT, DEFAULT});
   }
 
   /**
@@ -249,12 +234,9 @@ public final class MappingTrackSelectorTest {
     TrackSelectorResult result = trackSelector.selectTracks(
         RENDERER_CAPABILITIES_WITH_NO_SAMPLE_RENDERER,
         new TrackGroupArray(VIDEO_TRACK_GROUP, AUDIO_TRACK_GROUP, VIDEO_TRACK_GROUP));
-    assertThat(result.selections.get(0)).isEqualTo(expectedTrackSelection[0]);
-    assertThat(result.selections.get(1)).isEqualTo(expectedTrackSelection[1]);
-    assertThat(result.selections.get(2)).isNull();
-    assertThat(new boolean[] {true, true, true}).isEqualTo(result.renderersEnabled);
-    assertThat(new RendererConfiguration[] {DEFAULT, DEFAULT, DEFAULT})
-        .isEqualTo(result.rendererConfigurations);
+    assertTrackSelections(result, TRACK_SELECTIONS_WITH_NO_SAMPLE_RENDERER);
+    assertThat(result.rendererConfigurations)
+        .isEqualTo(new RendererConfiguration[] {DEFAULT, DEFAULT, DEFAULT});
   }
 
   /**
@@ -263,15 +245,13 @@ public final class MappingTrackSelectorTest {
   @Test
   public void testSelectTracksDisablingNormalRendererWithNoSampleRenderer()
       throws ExoPlaybackException {
-    TrackSelection[] expectedTrackSelection = TRACK_SELECTIONS_WITH_NO_SAMPLE_RENDERER;
-    FakeMappingTrackSelector trackSelector = new FakeMappingTrackSelector(expectedTrackSelection);
+    FakeMappingTrackSelector trackSelector =
+        new FakeMappingTrackSelector(TRACK_SELECTIONS_WITH_NO_SAMPLE_RENDERER);
     trackSelector.setRendererDisabled(0, true);
     TrackSelectorResult result = trackSelector.selectTracks(
         RENDERER_CAPABILITIES_WITH_NO_SAMPLE_RENDERER, TRACK_GROUPS);
-    assertThat(result.selections.get(0)).isNull();
-    assertThat(result.selections.get(1)).isEqualTo(expectedTrackSelection[1]);
-    assertThat(result.selections.get(2)).isNull();
-    assertThat(new boolean[] {false, true, true}).isEqualTo(result.renderersEnabled);
+    assertTrackSelections(
+        result, new TrackSelection[] {null, TRACK_SELECTIONS_WITH_NO_SAMPLE_RENDERER[1], null});
     assertThat(new RendererConfiguration[] {null, DEFAULT, DEFAULT})
         .isEqualTo(result.rendererConfigurations);
   }
@@ -290,9 +270,15 @@ public final class MappingTrackSelectorTest {
     assertThat(result.selections.get(0)).isEqualTo(expectedTrackSelection[0]);
     assertThat(result.selections.get(1)).isEqualTo(expectedTrackSelection[1]);
     assertThat(result.selections.get(2)).isNull();
-    assertThat(new boolean[] {true, true, false}).isEqualTo(result.renderersEnabled);
     assertThat(new RendererConfiguration[] {DEFAULT, DEFAULT, null})
         .isEqualTo(result.rendererConfigurations);
+  }
+
+  private static void assertTrackSelections(TrackSelectorResult result, TrackSelection[] expected) {
+    assertThat(result.length).isEqualTo(expected.length);
+    for (int i = 0; i < expected.length; i++) {
+      assertThat(result.selections.get(i)).isEqualTo(expected[i]);
+    }
   }
 
   /**
