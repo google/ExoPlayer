@@ -17,20 +17,27 @@ package com.google.android.exoplayer2.ext.flac;
 
 import static com.google.android.exoplayer2.util.Util.getPcmEncoding;
 
+import android.support.annotation.IntDef;
+import android.support.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.extractor.Extractor;
 import com.google.android.exoplayer2.extractor.ExtractorInput;
 import com.google.android.exoplayer2.extractor.ExtractorOutput;
 import com.google.android.exoplayer2.extractor.ExtractorsFactory;
+import com.google.android.exoplayer2.extractor.Id3Peeker;
 import com.google.android.exoplayer2.extractor.PositionHolder;
 import com.google.android.exoplayer2.extractor.SeekMap;
 import com.google.android.exoplayer2.extractor.SeekPoint;
 import com.google.android.exoplayer2.extractor.TrackOutput;
+import com.google.android.exoplayer2.metadata.Metadata;
+import com.google.android.exoplayer2.metadata.id3.Id3Decoder;
 import com.google.android.exoplayer2.util.FlacStreamInfo;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.ParsableByteArray;
 import java.io.IOException;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
 
@@ -51,21 +58,56 @@ public final class FlacExtractor implements Extractor {
 
   };
 
+  /** Flags controlling the behavior of the extractor. */
+  @Retention(RetentionPolicy.SOURCE)
+  @IntDef(
+    flag = true,
+    value = {FLAG_DISABLE_ID3_METADATA}
+  )
+  public @interface Flags {}
+
+  /**
+   * Flag to disable parsing of ID3 metadata. Can be set to save memory if ID3 metadata is not
+   * required.
+   */
+  public static final int FLAG_DISABLE_ID3_METADATA = 1;
+
   /**
    * FLAC signature: first 4 is the signature word, second 4 is the sizeof STREAMINFO. 0x22 is the
    * mandatory STREAMINFO.
    */
   private static final byte[] FLAC_SIGNATURE = {'f', 'L', 'a', 'C', 0, 0, 0, 0x22};
 
-  private ExtractorOutput extractorOutput;
-  private TrackOutput trackOutput;
+  private final Id3Peeker id3Peeker;
+  private final @Flags int flags;
 
   private FlacDecoderJni decoderJni;
 
-  private boolean metadataParsed;
+  private ExtractorOutput extractorOutput;
+  private TrackOutput trackOutput;
 
   private ParsableByteArray outputBuffer;
   private ByteBuffer outputByteBuffer;
+
+  private Metadata id3Metadata;
+  private long id3SectionSize;
+
+  private boolean metadataParsed;
+
+  /** Constructs an instance with flags = 0. */
+  public FlacExtractor() {
+    this(0);
+  }
+
+  /**
+   * Constructs an instance.
+   *
+   * @param flags Flags that control the extractor's behavior.
+   */
+  public FlacExtractor(int flags) {
+    this.flags = flags;
+    id3Peeker = new Id3Peeker();
+  }
 
   @Override
   public void init(ExtractorOutput output) {
@@ -81,14 +123,27 @@ public final class FlacExtractor implements Extractor {
 
   @Override
   public boolean sniff(ExtractorInput input) throws IOException, InterruptedException {
-    byte[] header = new byte[FLAC_SIGNATURE.length];
-    input.peekFully(header, 0, FLAC_SIGNATURE.length);
-    return Arrays.equals(header, FLAC_SIGNATURE);
+    if (input.getPosition() == 0) {
+      id3Metadata = peekId3Data(input);
+      id3SectionSize = input.getPeekPosition();
+    }
+    boolean isFlacFormat = peekFlacSignature(input);
+    if (isFlacFormat) {
+      // If this is FLAC format, we should skip the whole ID3 section.
+      skipFullyId3Section(input);
+    }
+    return isFlacFormat;
   }
 
   @Override
   public int read(final ExtractorInput input, PositionHolder seekPosition)
       throws IOException, InterruptedException {
+    if (input.getPosition() == 0) {
+      id3Metadata = peekId3Data(input);
+      id3SectionSize = input.getPeekPosition();
+    }
+    skipFullyId3Section(input);
+
     decoderJni.setData(input);
 
     if (!metadataParsed) {
@@ -100,7 +155,7 @@ public final class FlacExtractor implements Extractor {
         }
       } catch (IOException e) {
         decoderJni.reset(0);
-        input.setRetryPosition(0, e);
+        input.setRetryPosition(id3SectionSize, e);
         throw e; // never executes
       }
       metadataParsed = true;
@@ -108,22 +163,25 @@ public final class FlacExtractor implements Extractor {
       boolean isSeekable = decoderJni.getSeekPosition(0) != -1;
       extractorOutput.seekMap(
           isSeekable
-              ? new FlacSeekMap(streamInfo.durationUs(), decoderJni)
+              ? new FlacSeekMap(streamInfo.durationUs(), decoderJni, id3SectionSize)
               : new SeekMap.Unseekable(streamInfo.durationUs(), 0));
       Format mediaFormat =
           Format.createAudioSampleFormat(
-              null,
+              /* id= */ null,
               MimeTypes.AUDIO_RAW,
-              null,
+              /* codecs= */ null,
               streamInfo.bitRate(),
               streamInfo.maxDecodedFrameSize(),
               streamInfo.channels,
               streamInfo.sampleRate,
               getPcmEncoding(streamInfo.bitsPerSample),
-              null,
-              null,
-              0,
-              null);
+              /* encoderDelay= */ 0,
+              /* encoderPadding= */ 0,
+              /* initializationData= */ null,
+              /* drmInitData= */ null,
+              /* selectionFlags= */ 0,
+              /* language= */ null,
+              (flags & FLAG_DISABLE_ID3_METADATA) != 0 ? null : id3Metadata);
       trackOutput.format(mediaFormat);
 
       outputBuffer = new ParsableByteArray(streamInfo.maxDecodedFrameSize());
@@ -138,7 +196,7 @@ public final class FlacExtractor implements Extractor {
     } catch (IOException e) {
       if (lastDecodePosition >= 0) {
         decoderJni.reset(lastDecodePosition);
-        input.setRetryPosition(lastDecodePosition, e);
+        input.setRetryPosition(id3SectionSize + lastDecodePosition, e);
       }
       throw e;
     }
@@ -154,11 +212,12 @@ public final class FlacExtractor implements Extractor {
 
   @Override
   public void seek(long position, long timeUs) {
-    if (position == 0) {
+    if (position <= id3SectionSize) {
       metadataParsed = false;
     }
+    long flacStreamPosition = Math.max(0, position - id3SectionSize);
     if (decoderJni != null) {
-      decoderJni.reset(position);
+      decoderJni.reset(flacStreamPosition);
     }
   }
 
@@ -170,14 +229,48 @@ public final class FlacExtractor implements Extractor {
     }
   }
 
+  /**
+   * Peeks ID3 tag data (if present) at the beginning of the input.
+   *
+   * @return The first ID3 tag decoded into a {@link Metadata} object. May be null if ID3 tag is not
+   *     present in the input.
+   */
+  @Nullable
+  private Metadata peekId3Data(ExtractorInput input) throws IOException, InterruptedException {
+    input.resetPeekPosition();
+    boolean disableId3Frames = (flags & FLAG_DISABLE_ID3_METADATA) != 0;
+    Id3Decoder.FramePredicate id3FramePredicate =
+        disableId3Frames ? Id3Decoder.NO_FRAMES_PREDICATE : null;
+    return id3Peeker.peekId3Data(input, id3FramePredicate);
+  }
+
+  /**
+   * Peeks from the beginning of the input to see if {@link #FLAC_SIGNATURE} is present.
+   *
+   * @return Whether the input begins with {@link #FLAC_SIGNATURE}.
+   */
+  private boolean peekFlacSignature(ExtractorInput input) throws IOException, InterruptedException {
+    byte[] header = new byte[FLAC_SIGNATURE.length];
+    input.peekFully(header, 0, FLAC_SIGNATURE.length);
+    return Arrays.equals(header, FLAC_SIGNATURE);
+  }
+
+  /** Skips input until we have passed the whole Id3 section. */
+  private void skipFullyId3Section(ExtractorInput input) throws IOException, InterruptedException {
+    int bytesToSkip = Math.max(0, (int) (id3SectionSize - input.getPosition()));
+    input.skipFully(bytesToSkip);
+  }
+
   private static final class FlacSeekMap implements SeekMap {
 
     private final long durationUs;
     private final FlacDecoderJni decoderJni;
+    private final long id3SectionSize;
 
-    public FlacSeekMap(long durationUs, FlacDecoderJni decoderJni) {
+    public FlacSeekMap(long durationUs, FlacDecoderJni decoderJni, long id3SectionSize) {
       this.durationUs = durationUs;
       this.decoderJni = decoderJni;
+      this.id3SectionSize = id3SectionSize;
     }
 
     @Override
@@ -188,7 +281,8 @@ public final class FlacExtractor implements Extractor {
     @Override
     public SeekPoints getSeekPoints(long timeUs) {
       // TODO: Access the seek table via JNI to return two seek points when appropriate.
-      return new SeekPoints(new SeekPoint(timeUs, decoderJni.getSeekPosition(timeUs)));
+      return new SeekPoints(
+          new SeekPoint(timeUs, id3SectionSize + decoderJni.getSeekPosition(timeUs)));
     }
 
     @Override
