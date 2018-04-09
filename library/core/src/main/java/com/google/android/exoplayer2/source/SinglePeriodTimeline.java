@@ -54,7 +54,7 @@ public final class SinglePeriodTimeline extends Timeline {
    * @param durationUs The duration of the period, in microseconds.
    * @param isSeekable Whether seeking is supported within the period.
    * @param isDynamic Whether the window may change when the timeline is updated.
-   * @param tag A custom tag used for {@link Timeline.Window#tag}.
+   * @param tag A tag used for {@link Timeline.Window#tag}.
    */
   public SinglePeriodTimeline(
       long durationUs, boolean isSeekable, boolean isDynamic, @Nullable Object tag) {
@@ -80,7 +80,7 @@ public final class SinglePeriodTimeline extends Timeline {
    *     which to begin playback, in microseconds.
    * @param isSeekable Whether seeking is supported within the window.
    * @param isDynamic Whether the window may change when the timeline is updated.
-   * @param tag A custom tag used for {@link Timeline.Window#tag}.
+   * @param tag A tag used for {@link Timeline.Window#tag}.
    */
   public SinglePeriodTimeline(
       long periodDurationUs,
@@ -117,8 +117,7 @@ public final class SinglePeriodTimeline extends Timeline {
    *     which to begin playback, in microseconds.
    * @param isSeekable Whether seeking is supported within the window.
    * @param isDynamic Whether the window may change when the timeline is updated.
-   * @param tag A custom tag used for {@link Timeline.Window#tag}. If null, an arbitrary default tag
-   *     is used.
+   * @param tag A tag used for {@link Timeline.Window#tag}.
    */
   public SinglePeriodTimeline(
       long presentationStartTimeMs,
