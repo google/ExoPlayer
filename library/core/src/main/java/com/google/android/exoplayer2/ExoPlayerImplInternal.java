@@ -1438,7 +1438,7 @@ import java.util.Collections;
         readingPeriodHolder.mediaPeriod.readDiscontinuity() != C.TIME_UNSET;
     for (int i = 0; i < renderers.length; i++) {
       Renderer renderer = renderers[i];
-      boolean rendererWasEnabled = oldTrackSelectorResult.renderersEnabled[i];
+      boolean rendererWasEnabled = oldTrackSelectorResult.isRendererEnabled(i);
       if (!rendererWasEnabled) {
         // The renderer was disabled and will be enabled when we play the next period.
       } else if (initialDiscontinuity) {
@@ -1447,7 +1447,7 @@ import java.util.Collections;
         renderer.setCurrentStreamFinal();
       } else if (!renderer.isCurrentStreamFinal()) {
         TrackSelection newSelection = newTrackSelectorResult.selections.get(i);
-        boolean newRendererEnabled = newTrackSelectorResult.renderersEnabled[i];
+        boolean newRendererEnabled = newTrackSelectorResult.isRendererEnabled(i);
         boolean isNoSampleRenderer = rendererCapabilities[i].getTrackType() == C.TRACK_TYPE_NONE;
         RendererConfiguration oldConfig = oldTrackSelectorResult.rendererConfigurations[i];
         RendererConfiguration newConfig = newTrackSelectorResult.rendererConfigurations[i];
@@ -1551,11 +1551,11 @@ import java.util.Collections;
     for (int i = 0; i < renderers.length; i++) {
       Renderer renderer = renderers[i];
       rendererWasEnabledFlags[i] = renderer.getState() != Renderer.STATE_DISABLED;
-      if (newPlayingPeriodHolder.trackSelectorResult.renderersEnabled[i]) {
+      if (newPlayingPeriodHolder.trackSelectorResult.isRendererEnabled(i)) {
         enabledRendererCount++;
       }
       if (rendererWasEnabledFlags[i]
-          && (!newPlayingPeriodHolder.trackSelectorResult.renderersEnabled[i]
+          && (!newPlayingPeriodHolder.trackSelectorResult.isRendererEnabled(i)
               || (renderer.isCurrentStreamFinal()
                   && renderer.getStream() == oldPlayingPeriodHolder.sampleStreams[i]))) {
         // The renderer should be disabled before playing the next period, either because it's not
@@ -1576,7 +1576,7 @@ import java.util.Collections;
     int enabledRendererCount = 0;
     MediaPeriodHolder playingPeriodHolder = queue.getPlayingPeriod();
     for (int i = 0; i < renderers.length; i++) {
-      if (playingPeriodHolder.trackSelectorResult.renderersEnabled[i]) {
+      if (playingPeriodHolder.trackSelectorResult.isRendererEnabled(i)) {
         enableRenderer(i, rendererWasEnabledFlags[i], enabledRendererCount++);
       }
     }

@@ -597,11 +597,7 @@ public abstract class MappingTrackSelector extends TrackSelector {
     maybeConfigureRenderersForTunneling(rendererCapabilities, rendererTrackGroupArrays,
         rendererFormatSupports, rendererConfigurations, trackSelections, tunnelingAudioSessionId);
 
-    return new TrackSelectorResult(
-        rendererEnabled,
-        new TrackSelectionArray(trackSelections),
-        mappedTrackInfo,
-        rendererConfigurations);
+    return new TrackSelectorResult(rendererConfigurations, trackSelections, mappedTrackInfo);
   }
 
   private boolean[] determineEnabledRenderers(RendererCapabilities[] rendererCapabilities,

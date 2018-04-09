@@ -179,8 +179,7 @@ import com.google.android.exoplayer2.util.Assertions;
 
   public long applyTrackSelection(
       long positionUs, boolean forceRecreateStreams, boolean[] streamResetFlags) {
-    TrackSelectionArray trackSelections = trackSelectorResult.selections;
-    for (int i = 0; i < trackSelections.length; i++) {
+    for (int i = 0; i < trackSelectorResult.length; i++) {
       mayRetainStreamFlags[i] =
           !forceRecreateStreams && trackSelectorResult.isEquivalent(periodTrackSelectorResult, i);
     }
@@ -190,6 +189,7 @@ import com.google.android.exoplayer2.util.Assertions;
     disassociateNoSampleRenderersWithEmptySampleStream(sampleStreams);
     updatePeriodTrackSelectorResult(trackSelectorResult);
     // Disable streams on the period and get new streams for updated/newly-enabled tracks.
+    TrackSelectionArray trackSelections = trackSelectorResult.selections;
     positionUs =
         mediaPeriod.selectTracks(
             trackSelections.getAll(),
@@ -203,7 +203,7 @@ import com.google.android.exoplayer2.util.Assertions;
     hasEnabledTracks = false;
     for (int i = 0; i < sampleStreams.length; i++) {
       if (sampleStreams[i] != null) {
-        Assertions.checkState(trackSelectorResult.renderersEnabled[i]);
+        Assertions.checkState(trackSelectorResult.isRendererEnabled(i));
         // hasEnabledTracks should be true only when non-empty streams exists.
         if (rendererCapabilities[i].getTrackType() != C.TRACK_TYPE_NONE) {
           hasEnabledTracks = true;
@@ -240,8 +240,8 @@ import com.google.android.exoplayer2.util.Assertions;
   }
 
   private void enableTrackSelectionsInResult(TrackSelectorResult trackSelectorResult) {
-    for (int i = 0; i < trackSelectorResult.renderersEnabled.length; i++) {
-      boolean rendererEnabled = trackSelectorResult.renderersEnabled[i];
+    for (int i = 0; i < trackSelectorResult.length; i++) {
+      boolean rendererEnabled = trackSelectorResult.isRendererEnabled(i);
       TrackSelection trackSelection = trackSelectorResult.selections.get(i);
       if (rendererEnabled && trackSelection != null) {
         trackSelection.enable();
@@ -250,8 +250,8 @@ import com.google.android.exoplayer2.util.Assertions;
   }
 
   private void disableTrackSelectionsInResult(TrackSelectorResult trackSelectorResult) {
-    for (int i = 0; i < trackSelectorResult.renderersEnabled.length; i++) {
-      boolean rendererEnabled = trackSelectorResult.renderersEnabled[i];
+    for (int i = 0; i < trackSelectorResult.length; i++) {
+      boolean rendererEnabled = trackSelectorResult.isRendererEnabled(i);
       TrackSelection trackSelection = trackSelectorResult.selections.get(i);
       if (rendererEnabled && trackSelection != null) {
         trackSelection.disable();
@@ -278,7 +278,7 @@ import com.google.android.exoplayer2.util.Assertions;
   private void associateNoSampleRenderersWithEmptySampleStream(SampleStream[] sampleStreams) {
     for (int i = 0; i < rendererCapabilities.length; i++) {
       if (rendererCapabilities[i].getTrackType() == C.TRACK_TYPE_NONE
-          && trackSelectorResult.renderersEnabled[i]) {
+          && trackSelectorResult.isRendererEnabled(i)) {
         sampleStreams[i] = new EmptySampleStream();
       }
     }

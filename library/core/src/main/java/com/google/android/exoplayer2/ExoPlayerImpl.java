@@ -92,10 +92,9 @@ import java.util.concurrent.CopyOnWriteArraySet;
     this.listeners = new CopyOnWriteArraySet<>();
     emptyTrackSelectorResult =
         new TrackSelectorResult(
-            new boolean[renderers.length],
-            new TrackSelectionArray(new TrackSelection[renderers.length]),
-            null,
-            new RendererConfiguration[renderers.length]);
+            new RendererConfiguration[renderers.length],
+            new TrackSelection[renderers.length],
+            null);
     window = new Timeline.Window();
     period = new Timeline.Period();
     playbackParameters = PlaybackParameters.DEFAULT;
