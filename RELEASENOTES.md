@@ -30,6 +30,8 @@
   * Allow setting tags for all media sources in their factories. The tag of the
     current window can be retrieved with `ExoPlayer.getCurrentTag`.
 * Audio:
+  * FLAC: Sniff FLAC files correctly if they have ID3 headers
+    ([#4055](https://github.com/google/ExoPlayer/issues/4055)).
   * Factor out `AudioTrack` position tracking from `DefaultAudioSink`.
   * Fix an issue where the playback position would pause just after playback
     begins, and poll the audio timestamp less frequently once it starts
