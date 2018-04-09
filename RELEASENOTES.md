@@ -27,8 +27,8 @@
   * Added callbacks to `MediaSourceEventListener` to get notified when media
     periods are created, released and being read from.
   * Support live stream clipping with `ClippingMediaSource`.
-  * Allow setting custom tags for all media sources in their factories. The tag
-    of the current window can be retrieved with `ExoPlayer.getCurrentTag`.
+  * Allow setting tags for all media sources in their factories. The tag of the
+    current window can be retrieved with `ExoPlayer.getCurrentTag`.
 * Audio:
   * Factor out `AudioTrack` position tracking from `DefaultAudioSink`.
   * Fix an issue where the playback position would pause just after playback

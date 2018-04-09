@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2;
 
+import android.support.annotation.Nullable;
 import android.util.Pair;
 import com.google.android.exoplayer2.source.ads.AdPlaybackState;
 import com.google.android.exoplayer2.util.Assertions;
@@ -118,8 +119,8 @@ public abstract class Timeline {
    */
   public static final class Window {
 
-    /** A custom tag for the window. Not necessarily unique. */
-    public Object tag;
+    /** A tag for the window. Not necessarily unique. */
+    public @Nullable Object tag;
 
     /**
      * The start time of the presentation to which this window belongs in milliseconds since the
@@ -174,7 +175,7 @@ public abstract class Timeline {
 
     /** Sets the data held by this window. */
     public Window set(
-        Object tag,
+        @Nullable Object tag,
         long presentationStartTimeMs,
         long windowStartTimeMs,
         boolean isSeekable,
