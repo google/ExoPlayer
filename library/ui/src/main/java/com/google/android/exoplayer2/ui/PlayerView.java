@@ -759,6 +759,22 @@ public class PlayerView extends FrameLayout {
   }
 
   /**
+   * Sets the millisecond positions of extra ad markers relative to the start of the window (or
+   * timeline, if in multi-window mode) and whether each extra ad has been played or not. The
+   * markers are shown in addition to any ad markers for ads in the player's timeline.
+   *
+   * @param extraAdGroupTimesMs The millisecond timestamps of the extra ad markers to show, or
+   *     {@code null} to show no extra ad markers.
+   * @param extraPlayedAdGroups Whether each ad has been played, or {@code null} to show no extra ad
+   *     markers.
+   */
+  public void setExtraAdGroupMarkers(
+      @Nullable long[] extraAdGroupTimesMs, @Nullable boolean[] extraPlayedAdGroups) {
+    Assertions.checkState(controller != null);
+    controller.setExtraAdGroupMarkers(extraAdGroupTimesMs, extraPlayedAdGroups);
+  }
+
+  /**
    * Set the {@link AspectRatioFrameLayout.AspectRatioListener}.
    *
    * @param listener The listener to be notified about aspect ratios changes of the video content or
