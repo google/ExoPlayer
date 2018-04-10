@@ -243,6 +243,16 @@ public final class HlsMediaPeriod implements MediaPeriod, HlsSampleStreamWrapper
   }
 
   @Override
+  public void pause() {
+    // Do nothing.
+  }
+
+  @Override
+  public void resume() {
+    // Do nothing.
+  }
+
+  @Override
   public long seekToUs(long positionUs) {
     if (enabledSampleStreamWrappers.length > 0) {
       // We need to reset all wrappers if the one responsible for initializing timestamp adjusters

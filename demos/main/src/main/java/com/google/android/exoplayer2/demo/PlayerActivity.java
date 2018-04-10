@@ -62,6 +62,8 @@ import com.google.android.exoplayer2.source.dash.manifest.FilteringDashManifestP
 import com.google.android.exoplayer2.source.dash.manifest.RepresentationKey;
 import com.google.android.exoplayer2.source.hls.HlsMediaSource;
 import com.google.android.exoplayer2.source.hls.playlist.FilteringHlsPlaylistParser;
+import com.google.android.exoplayer2.source.rtsp.RtspDefaultClient;
+import com.google.android.exoplayer2.source.rtsp.RtspMediaSource;
 import com.google.android.exoplayer2.source.smoothstreaming.DefaultSsChunkSource;
 import com.google.android.exoplayer2.source.smoothstreaming.SsMediaSource;
 import com.google.android.exoplayer2.source.smoothstreaming.manifest.FilteringSsManifestParser;
@@ -419,7 +421,13 @@ public class PlayerActivity extends Activity
             .setPlaylistParser(new FilteringHlsPlaylistParser((List<String>) manifestFilter))
             .createMediaSource(uri);
       case C.TYPE_OTHER:
-        return new ExtractorMediaSource.Factory(mediaDataSourceFactory).createMediaSource(uri);
+        if (uri.getScheme().equals("rtsp")) {
+          return new RtspMediaSource.Factory(RtspDefaultClient.factory())
+                  .createMediaSource(uri);
+        } else {
+          return new ExtractorMediaSource.Factory(mediaDataSourceFactory)
+                  .createMediaSource(uri);
+        }
       default: {
         throw new IllegalStateException("Unsupported type: " + type);
       }

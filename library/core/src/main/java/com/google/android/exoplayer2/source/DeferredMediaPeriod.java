@@ -177,6 +177,16 @@ public final class DeferredMediaPeriod implements MediaPeriod, MediaPeriod.Callb
   }
 
   @Override
+  public void pause() {
+    mediaPeriod.pause();
+  }
+
+  @Override
+  public void resume() {
+    mediaPeriod.resume();
+  }
+
+  @Override
   public long seekToUs(long positionUs) {
     return mediaPeriod.seekToUs(positionUs);
   }

@@ -28,7 +28,7 @@ import java.net.SocketException;
 /**
  * A UDP {@link DataSource}.
  */
-public final class UdpDataSource implements DataSource {
+public class UdpDataSource implements DataSource {
 
   /**
    * Thrown when an error is encountered when trying to read from a {@link UdpDataSource}.
@@ -57,7 +57,7 @@ public final class UdpDataSource implements DataSource {
   private final DatagramPacket packet;
 
   private Uri uri;
-  private DatagramSocket socket;
+  protected DatagramSocket socket;
   private MulticastSocket multicastSocket;
   private InetAddress address;
   private InetSocketAddress socketAddress;
@@ -108,7 +108,12 @@ public final class UdpDataSource implements DataSource {
         multicastSocket.joinGroup(address);
         socket = multicastSocket;
       } else {
-        socket = new DatagramSocket(socketAddress);
+        if (dataSpec.isFlagSet(DataSpec.FLAG_FORCE_BOUND_LOCAL_ADDRESS)) {
+          socket = new DatagramSocket(uri.getPort());
+        } else {
+          socket = new DatagramSocket();
+          socket.connect(socketAddress);
+        }
       }
     } catch (IOException e) {
       throw new UdpDataSourceException(e);

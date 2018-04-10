@@ -140,6 +140,24 @@ public interface MediaPeriod extends SequenceableLoader {
   long readDiscontinuity();
 
   /**
+   * Attempts to pause to the specified position in microseconds.
+   *
+   * <p>This method should only be called after the period has been prepared.
+   *
+   * @return nothing.
+   */
+  void pause();
+
+  /**
+   * Attempts to resume to the specified position in microseconds.
+   *
+   * <p>This method should only be called after the period has been prepared.
+   *
+   * @return nothing.
+   */
+  void resume();
+
+  /**
    * Attempts to seek to the specified position in microseconds.
    *
    * <p>After this method has been called, all {@link SampleStream}s provided by the period are

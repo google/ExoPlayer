@@ -814,7 +814,7 @@ public class SimpleExoPlayer implements ExoPlayer, Player.VideoComponent, Player
    */
   protected ExoPlayer createExoPlayerImpl(
       Renderer[] renderers, TrackSelector trackSelector, LoadControl loadControl, Clock clock) {
-    return new ExoPlayerImpl(renderers, trackSelector, loadControl, clock);
+    return new ExoPlayerImpl(renderers, trackSelector, loadControl, clock, this);
   }
 
   private void removeSurfaceCallbacks() {

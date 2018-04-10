@@ -33,7 +33,8 @@ public final class DataSpec {
    * The flags that apply to any request for data.
    */
   @Retention(RetentionPolicy.SOURCE)
-  @IntDef(flag = true, value = {FLAG_ALLOW_GZIP, FLAG_ALLOW_CACHING_UNKNOWN_LENGTH})
+  @IntDef(flag = true, value = {FLAG_ALLOW_GZIP, FLAG_ALLOW_CACHING_UNKNOWN_LENGTH,
+          FLAG_FORCE_BOUND_LOCAL_ADDRESS})
   public @interface Flags {}
   /**
    * Permits an underlying network stack to request that the server use gzip compression.
@@ -53,6 +54,11 @@ public final class DataSpec {
    * for progressive live streams and when {@link #FLAG_ALLOW_GZIP} is used.
    */
   public static final int FLAG_ALLOW_CACHING_UNKNOWN_LENGTH = 1 << 1;
+
+  /**
+   * Force the source to bound to local address.
+   */
+  public static final int FLAG_FORCE_BOUND_LOCAL_ADDRESS = 1 << 2;
 
   /**
    * The source from which data should be read.

@@ -128,6 +128,18 @@ public final class FakeExtractorInput implements ExtractorInput {
   }
 
   @Override
+  public int peek(byte[] target, int offset, int length) throws IOException, InterruptedException {
+    checkIOException(peekPosition, failedPeekPositions);
+    if (!checkX(peekPosition, length)) {
+      return 0;
+    }
+    length = Math.min(peekPosition + length, data.length - peekPosition);
+    System.arraycopy(data, peekPosition, target, offset, length);
+    peekPosition += length;
+    return length;
+  }
+
+  @Override
   public boolean peekFully(byte[] target, int offset, int length, boolean allowEndOfInput)
       throws IOException {
     checkIOException(peekPosition, failedPeekPositions);
@@ -193,6 +205,14 @@ public final class FakeExtractorInput implements ExtractorInput {
       peekPosition = readPosition;
       throw new SimulatedIOException("Simulated IO error at position: " + position);
     }
+  }
+
+  private boolean checkX(int position, int length)
+          throws EOFException {
+    if (length > 0 && position == data.length) {
+      return false;
+    }
+    return true;
   }
 
   private boolean checkXFully(boolean allowEndOfInput, int position, int length)

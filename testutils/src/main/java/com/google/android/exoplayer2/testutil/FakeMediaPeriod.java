@@ -201,6 +201,18 @@ public class FakeMediaPeriod implements MediaPeriod {
   }
 
   @Override
+  public void pause() {
+    assertThat(prepared).isTrue();
+    // Do nothing.
+  }
+
+  @Override
+  public void resume() {
+    assertThat(prepared).isTrue();
+    // Do nothing.
+  }
+
+  @Override
   public long seekToUs(long positionUs) {
     assertThat(prepared).isTrue();
     return positionUs + seekOffsetUs;

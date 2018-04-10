@@ -31,11 +31,11 @@ import com.google.android.exoplayer2.extractor.TrackOutput;
 import com.google.android.exoplayer2.extractor.ts.DefaultTsPayloadReaderFactory.Flags;
 import com.google.android.exoplayer2.extractor.ts.TsPayloadReader.DvbSubtitleInfo;
 import com.google.android.exoplayer2.extractor.ts.TsPayloadReader.EsInfo;
-import com.google.android.exoplayer2.extractor.ts.TsPayloadReader.TrackIdGenerator;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.ParsableBitArray;
 import com.google.android.exoplayer2.util.ParsableByteArray;
 import com.google.android.exoplayer2.util.TimestampAdjuster;
+import com.google.android.exoplayer2.util.TrackIdGenerator;
 import com.google.android.exoplayer2.util.Util;
 import java.io.IOException;
 import java.lang.annotation.Retention;
@@ -200,9 +200,9 @@ public final class TsExtractor implements Extractor {
 
   @Override
   public void seek(long position, long timeUs) {
-    int timestampAdjustersCount = timestampAdjusters.size();
-    for (int i = 0; i < timestampAdjustersCount; i++) {
-      timestampAdjusters.get(i).reset();
+    for (TimestampAdjuster timestampAdjuster : timestampAdjusters) {
+      timestampAdjuster.reset();
+      timestampAdjuster.setFirstSampleTimestampUs(timeUs);
     }
     tsPacketBuffer.reset();
     continuityCounters.clear();

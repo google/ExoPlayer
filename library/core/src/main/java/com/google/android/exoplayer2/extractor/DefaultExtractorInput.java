@@ -111,6 +111,22 @@ public final class DefaultExtractorInput implements ExtractorInput {
   }
 
   @Override
+  public int peek(byte[] target, int offset, int length) throws IOException, InterruptedException {
+    ensureSpaceForPeek(length);
+    int bytesPeeked = Math.min(peekBufferLength - peekBufferPosition, length);
+    if (bytesPeeked < length) {
+      bytesPeeked = readFromDataSource(peekBuffer, peekBufferPosition, length, bytesPeeked, true);
+    }
+
+    System.arraycopy(peekBuffer, peekBufferPosition, target, offset, bytesPeeked);
+
+    peekBufferPosition += bytesPeeked;
+    peekBufferLength = Math.max(peekBufferLength, peekBufferPosition);
+
+    return bytesPeeked;
+  }
+
+  @Override
   public boolean peekFully(byte[] target, int offset, int length, boolean allowEndOfInput)
       throws IOException, InterruptedException {
     if (!advancePeekPosition(length, allowEndOfInput)) {

@@ -175,6 +175,16 @@ import java.util.Arrays;
   }
 
   @Override
+  public void pause() {
+    // Do nothing.
+  }
+
+  @Override
+  public void resume() {
+    // Do nothing.
+  }
+
+  @Override
   public long seekToUs(long positionUs) {
     for (int i = 0; i < sampleStreams.size(); i++) {
       sampleStreams.get(i).reset();

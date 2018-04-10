@@ -360,6 +360,16 @@ import java.util.Arrays;
   }
 
   @Override
+  public void pause() {
+    // Do nothing.
+  }
+
+  @Override
+  public void resume() {
+    // Do nothing.
+  }
+
+  @Override
   public long seekToUs(long positionUs) {
     // Treat all seeks into non-seekable media as being to t=0.
     positionUs = seekMap.isSeekable() ? positionUs : 0;

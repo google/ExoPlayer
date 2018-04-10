@@ -53,6 +53,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
   private final CopyOnWriteArraySet<Player.EventListener> listeners;
   private final Timeline.Window window;
   private final Timeline.Period period;
+  private final VideoComponent videoComponent;
 
   private boolean playWhenReady;
   private @RepeatMode int repeatMode;
@@ -80,12 +81,28 @@ import java.util.concurrent.CopyOnWriteArraySet;
    */
   @SuppressLint("HandlerLeak")
   public ExoPlayerImpl(
-      Renderer[] renderers, TrackSelector trackSelector, LoadControl loadControl, Clock clock) {
+          Renderer[] renderers, TrackSelector trackSelector, LoadControl loadControl, Clock clock) {
+    this(renderers, trackSelector, loadControl, clock, null);
+  }
+
+  /**
+   * Constructs an instance. Must be called from a thread that has an associated {@link Looper}.
+   *
+   * @param renderers The {@link Renderer}s that will be used by the instance.
+   * @param trackSelector The {@link TrackSelector} that will be used by the instance.
+   * @param loadControl The {@link LoadControl} that will be used by the instance.
+   * @param clock The {@link Clock} that will be used by the instance.
+   */
+  @SuppressLint("HandlerLeak")
+  public ExoPlayerImpl(
+      Renderer[] renderers, TrackSelector trackSelector, LoadControl loadControl, Clock clock,
+      VideoComponent videoComponent) {
     Log.i(TAG, "Init " + Integer.toHexString(System.identityHashCode(this)) + " ["
         + ExoPlayerLibraryInfo.VERSION_SLASHY + "] [" + Util.DEVICE_DEBUG_INFO + "]");
     Assertions.checkState(renderers.length > 0);
     this.renderers = Assertions.checkNotNull(renderers);
     this.trackSelector = Assertions.checkNotNull(trackSelector);
+    this.videoComponent = videoComponent;
     this.playWhenReady = false;
     this.repeatMode = Player.REPEAT_MODE_OFF;
     this.shuffleModeEnabled = false;
@@ -129,7 +146,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
 
   @Override
   public VideoComponent getVideoComponent() {
-    return null;
+    return videoComponent;
   }
 
   @Override

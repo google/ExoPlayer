@@ -1,5 +1,66 @@
 [
   {
+    "name": "RTSP Streams",
+    "samples": [
+      {
+        "name": "Live stream TV from HDIPCam IP Camera",
+        "uri": "rtsp://80.28.249.45:8114/rtsph2641080p"
+      },
+      {
+        "name": "Live stream TV from Hessdalen - Camera 2",
+        "uri": "rtsp://freja.hiof.no:1935/rtplive/_definst_/hessdalen02.stream"
+      },
+      {
+        "name": "Live stream TV from Hessdalen - Camera 3",
+        "uri": "rtsp://freja.hiof.no:1935/rtplive/_definst_/hessdalen03.stream"
+      },
+      {
+        "name": "Live stream from the radar in Hessdalen",
+        "uri": "rtsp://freja.hiof.no:1935/rtplive/_definst_/hessdalen05.stream"
+      },
+      {
+        "name": "Video on Demand - Big Buck Bunny Comedy Film",
+        "uri": "rtsp://184.72.239.149/vod/mp4:BigBuckBunny_175k.mov"
+      },
+      {
+        "name": "University British Columbia Tim Hortons Camera",
+        "uri": "rtsp://streamserve.ok.ubc.ca:1935/timcam/timcam.stream"
+      },
+      {
+        "name": "Live stream TV from France - Grand Lille TV",
+        "uri": "rtsp://str81.creacast.com/grandlilletv/high"
+      },
+      {
+        "name": "Live stream TV from France - Gong TV",
+        "uri": "rtsp://ec.playmedia.fr:1935/gong-base/live"
+      },
+      {
+        "name": "Live stream TV from Bulgaria - Balkanika MTV",
+        "uri": "rtsp://stream.teracomm.bg/balkanika"
+      },
+      {
+        "name": "Live stream TV from Bulgaria - Planeta TV",
+        "uri": "rtsp://stream.teracomm.bg/planeta"
+      },
+      {
+        "name": "Live stream TV from Bulgaria - FEN TV",
+        "uri": "rtsp://stream.teracomm.bg/fen"
+      },
+      {
+        "name": "Live stream TV from Hungarian TV - M1 TV",
+        "uri": "rtsp://live.trm.md:1935/live/M1Mlive"
+      },
+      {
+        "name": "Live stream TV from Italian TV - Alto Adige TV",
+        "uri": "rtsp://77.72.196.214:8554/live/mp4:AltoAdigeTV"
+      },
+      {
+        "name": "Live stream TV from Spanish TV - Logos TV",
+        "uri": "rtsp://streamer1.streamhost.org:1935/salive/GMIalfah"
+      }
+    ]
+  },
+  {
     "name": "YouTube DASH",
     "samples": [
       {

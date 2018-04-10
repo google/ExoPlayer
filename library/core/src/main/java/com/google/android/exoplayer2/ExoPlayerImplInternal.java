@@ -402,14 +402,33 @@ import java.util.Collections;
     this.playWhenReady = playWhenReady;
     if (!playWhenReady) {
       stopRenderers();
+      setPauseInternal();
       updatePlaybackPositions();
     } else {
       if (playbackInfo.playbackState == Player.STATE_READY) {
         startRenderers();
+        setResumeInternal();
         handler.sendEmptyMessage(MSG_DO_SOME_WORK);
       } else if (playbackInfo.playbackState == Player.STATE_BUFFERING) {
+        setResumeInternal();
         handler.sendEmptyMessage(MSG_DO_SOME_WORK);
       }
+    }
+  }
+
+  private void setPauseInternal(){
+    MediaPeriodHolder playingPeriodHolder = queue.getPlayingPeriod();
+
+    if (playingPeriodHolder != null) {
+      playingPeriodHolder.mediaPeriod.pause();
+    }
+  }
+
+  private void setResumeInternal(){
+    MediaPeriodHolder playingPeriodHolder = queue.getPlayingPeriod();
+
+    if (playingPeriodHolder != null) {
+      playingPeriodHolder.mediaPeriod.resume();
     }
   }
 
@@ -616,6 +635,7 @@ import java.util.Collections;
             /* releaseMediaSource= */ false, /* resetPosition= */ true, /* resetState= */ false);
       } else {
         // Execute the seek in the current media periods.
+        Log.v("ExoPlayerImplInt", "seekToInternal: periodPositionUs=[" + periodPositionUs + "]");
         long newPeriodPositionUs = periodPositionUs;
         if (periodId.equals(playbackInfo.periodId)) {
           MediaPeriodHolder playingPeriodHolder = queue.getPlayingPeriod();
@@ -680,6 +700,7 @@ import java.util.Collections;
     if (newPlayingPeriodHolder != null) {
       updatePlayingPeriodRenderers(oldPlayingPeriodHolder);
       if (newPlayingPeriodHolder.hasEnabledTracks) {
+        Log.v("ExoPlayerImplInt", "seekToPeriodPosition: periodPositionUs=[" + periodPositionUs + "]");
         periodPositionUs = newPlayingPeriodHolder.mediaPeriod.seekToUs(periodPositionUs);
         newPlayingPeriodHolder.mediaPeriod.discardBuffer(
             periodPositionUs - backBufferDurationUs, retainBackBufferFromKeyframe);

@@ -36,6 +36,7 @@ public final class MimeTypes {
   public static final String VIDEO_H265 = BASE_TYPE_VIDEO + "/hevc";
   public static final String VIDEO_VP8 = BASE_TYPE_VIDEO + "/x-vnd.on2.vp8";
   public static final String VIDEO_VP9 = BASE_TYPE_VIDEO + "/x-vnd.on2.vp9";
+  public static final String VIDEO_MP2T = BASE_TYPE_VIDEO + "/mp2t";
   public static final String VIDEO_MP4V = BASE_TYPE_VIDEO + "/mp4v-es";
   public static final String VIDEO_MPEG = BASE_TYPE_VIDEO + "/mpeg";
   public static final String VIDEO_MPEG2 = BASE_TYPE_VIDEO + "/mpeg2";
@@ -65,6 +66,7 @@ public final class MimeTypes {
   public static final String AUDIO_FLAC = BASE_TYPE_AUDIO + "/flac";
   public static final String AUDIO_ALAC = BASE_TYPE_AUDIO + "/alac";
   public static final String AUDIO_MSGSM = BASE_TYPE_AUDIO + "/gsm";
+  public static final String AUDIO_L16 = BASE_TYPE_AUDIO + "/l16";
   public static final String AUDIO_UNKNOWN = BASE_TYPE_AUDIO + "/x-unknown";
 
   public static final String TEXT_VTT = BASE_TYPE_TEXT + "/vtt";
