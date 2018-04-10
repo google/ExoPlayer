@@ -50,6 +50,8 @@
 * DRM:
   * Allow multiple listeners for `DefaultDrmSessionManager`.
   * Pass `DrmSessionManager` to `ExoPlayerFactory` instead of `RendererFactory`.
+  * Change minimum API requirement for CBC and pattern encryption from 24 to 25
+    ([#4022][https://github.com/google/ExoPlayer/issues/4022]).
 * Removed default renderer time offset of 60000000 from internal player. The
   actual renderer timestamp offset can be obtained by listening to
   `BaseRenderer.onStreamChanged`.
