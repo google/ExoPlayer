@@ -1,7 +1,23 @@
+/*
+ * Copyright (C) 2018 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package com.google.android.exoplayer2.trackselection;
 
 import static com.google.android.exoplayer2.RendererCapabilities.FORMAT_EXCEEDS_CAPABILITIES;
 import static com.google.android.exoplayer2.RendererCapabilities.FORMAT_HANDLED;
+import static com.google.android.exoplayer2.RendererConfiguration.DEFAULT;
 import static com.google.common.truth.Truth.assertThat;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
@@ -13,6 +29,7 @@ import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.RendererCapabilities;
+import com.google.android.exoplayer2.RendererConfiguration;
 import com.google.android.exoplayer2.source.TrackGroup;
 import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector.Parameters;
@@ -39,6 +56,54 @@ public final class DefaultTrackSelectorTest {
       new FakeRendererCapabilities(C.TRACK_TYPE_TEXT);
   private static final RendererCapabilities ALL_AUDIO_FORMAT_EXCEEDED_RENDERER_CAPABILITIES =
       new FakeRendererCapabilities(C.TRACK_TYPE_AUDIO, FORMAT_EXCEEDS_CAPABILITIES);
+
+  private static final RendererCapabilities VIDEO_CAPABILITIES =
+      new FakeRendererCapabilities(C.TRACK_TYPE_VIDEO);
+  private static final RendererCapabilities AUDIO_CAPABILITIES =
+      new FakeRendererCapabilities(C.TRACK_TYPE_AUDIO);
+  private static final RendererCapabilities NO_SAMPLE_CAPABILITIES =
+      new FakeRendererCapabilities(C.TRACK_TYPE_NONE);
+  private static final RendererCapabilities[] RENDERER_CAPABILITIES =
+      new RendererCapabilities[] {VIDEO_CAPABILITIES, AUDIO_CAPABILITIES};
+  private static final RendererCapabilities[] RENDERER_CAPABILITIES_WITH_NO_SAMPLE_RENDERER =
+      new RendererCapabilities[] {VIDEO_CAPABILITIES, NO_SAMPLE_CAPABILITIES};
+
+  private static final TrackGroup VIDEO_TRACK_GROUP =
+      new TrackGroup(
+          Format.createVideoSampleFormat(
+              "video",
+              MimeTypes.VIDEO_H264,
+              null,
+              Format.NO_VALUE,
+              Format.NO_VALUE,
+              1024,
+              768,
+              Format.NO_VALUE,
+              null,
+              null));
+  private static final TrackGroup AUDIO_TRACK_GROUP =
+      new TrackGroup(
+          Format.createAudioSampleFormat(
+              "audio",
+              MimeTypes.AUDIO_AAC,
+              null,
+              Format.NO_VALUE,
+              Format.NO_VALUE,
+              2,
+              44100,
+              null,
+              null,
+              0,
+              null));
+  private static final TrackGroupArray TRACK_GROUPS =
+      new TrackGroupArray(VIDEO_TRACK_GROUP, AUDIO_TRACK_GROUP);
+
+  private static final TrackSelection[] TRACK_SELECTIONS =
+      new TrackSelection[] {
+        new FixedTrackSelection(VIDEO_TRACK_GROUP, 0), new FixedTrackSelection(AUDIO_TRACK_GROUP, 0)
+      };
+  private static final TrackSelection[] TRACK_SELECTIONS_WITH_NO_SAMPLE_RENDERER =
+      new TrackSelection[] {new FixedTrackSelection(VIDEO_TRACK_GROUP, 0), null};
 
   @Mock
   private InvalidationListener invalidationListener;
@@ -80,6 +145,89 @@ public final class DefaultTrackSelectorTest {
     assertThat(parametersFromParcel).isEqualTo(parametersToParcel);
 
     parcel.recycle();
+  }
+
+  /** Tests that a null override clears a track selection. */
+  @Test
+  public void testSelectTracksWithNullOverride() throws ExoPlaybackException {
+    DefaultTrackSelector trackSelector = new DefaultTrackSelector();
+    trackSelector.setSelectionOverride(0, new TrackGroupArray(VIDEO_TRACK_GROUP), null);
+    TrackSelectorResult result = trackSelector.selectTracks(RENDERER_CAPABILITIES, TRACK_GROUPS);
+    assertTrackSelections(result, new TrackSelection[] {null, TRACK_SELECTIONS[1]});
+    assertThat(result.rendererConfigurations)
+        .isEqualTo(new RendererConfiguration[] {null, DEFAULT});
+  }
+
+  /** Tests that a null override can be cleared. */
+  @Test
+  public void testSelectTracksWithClearedNullOverride() throws ExoPlaybackException {
+    DefaultTrackSelector trackSelector = new DefaultTrackSelector();
+    trackSelector.setSelectionOverride(0, new TrackGroupArray(VIDEO_TRACK_GROUP), null);
+    trackSelector.clearSelectionOverride(0, new TrackGroupArray(VIDEO_TRACK_GROUP));
+    TrackSelectorResult result = trackSelector.selectTracks(RENDERER_CAPABILITIES, TRACK_GROUPS);
+    assertTrackSelections(result, TRACK_SELECTIONS);
+    assertThat(result.rendererConfigurations)
+        .isEqualTo(new RendererConfiguration[] {DEFAULT, DEFAULT});
+  }
+
+  /** Tests that an override is not applied for a different set of available track groups. */
+  @Test
+  public void testSelectTracksWithNullOverrideForDifferentTracks() throws ExoPlaybackException {
+    DefaultTrackSelector trackSelector = new DefaultTrackSelector();
+    trackSelector.setSelectionOverride(0, new TrackGroupArray(VIDEO_TRACK_GROUP), null);
+    TrackSelectorResult result =
+        trackSelector.selectTracks(
+            RENDERER_CAPABILITIES,
+            new TrackGroupArray(VIDEO_TRACK_GROUP, AUDIO_TRACK_GROUP, VIDEO_TRACK_GROUP));
+    assertTrackSelections(result, TRACK_SELECTIONS);
+    assertThat(result.rendererConfigurations)
+        .isEqualTo(new RendererConfiguration[] {DEFAULT, DEFAULT});
+  }
+
+  /** Tests disabling a renderer. */
+  @Test
+  public void testSelectTracksWithDisabledRenderer() throws ExoPlaybackException {
+    DefaultTrackSelector trackSelector = new DefaultTrackSelector();
+    trackSelector.setRendererDisabled(1, true);
+    TrackSelectorResult result = trackSelector.selectTracks(RENDERER_CAPABILITIES, TRACK_GROUPS);
+    assertTrackSelections(result, new TrackSelection[] {TRACK_SELECTIONS[0], null});
+    assertThat(new RendererConfiguration[] {DEFAULT, null})
+        .isEqualTo(result.rendererConfigurations);
+  }
+
+  /** Tests that a disabled renderer can be enabled again. */
+  @Test
+  public void testSelectTracksWithClearedDisabledRenderer() throws ExoPlaybackException {
+    DefaultTrackSelector trackSelector = new DefaultTrackSelector();
+    trackSelector.setRendererDisabled(1, true);
+    trackSelector.setRendererDisabled(1, false);
+    TrackSelectorResult result = trackSelector.selectTracks(RENDERER_CAPABILITIES, TRACK_GROUPS);
+    assertTrackSelections(result, TRACK_SELECTIONS);
+    assertThat(new RendererConfiguration[] {DEFAULT, DEFAULT})
+        .isEqualTo(result.rendererConfigurations);
+  }
+
+  /** Tests a no-sample renderer is enabled without a track selection by default. */
+  @Test
+  public void testSelectTracksWithNoSampleRenderer() throws ExoPlaybackException {
+    DefaultTrackSelector trackSelector = new DefaultTrackSelector();
+    TrackSelectorResult result =
+        trackSelector.selectTracks(RENDERER_CAPABILITIES_WITH_NO_SAMPLE_RENDERER, TRACK_GROUPS);
+    assertTrackSelections(result, TRACK_SELECTIONS_WITH_NO_SAMPLE_RENDERER);
+    assertThat(new RendererConfiguration[] {DEFAULT, DEFAULT})
+        .isEqualTo(result.rendererConfigurations);
+  }
+
+  /** Tests disabling a no-sample renderer. */
+  @Test
+  public void testSelectTracksWithDisabledNoSampleRenderer() throws ExoPlaybackException {
+    DefaultTrackSelector trackSelector = new DefaultTrackSelector();
+    trackSelector.setRendererDisabled(1, true);
+    TrackSelectorResult result =
+        trackSelector.selectTracks(RENDERER_CAPABILITIES_WITH_NO_SAMPLE_RENDERER, TRACK_GROUPS);
+    assertTrackSelections(result, TRACK_SELECTIONS_WITH_NO_SAMPLE_RENDERER);
+    assertThat(new RendererConfiguration[] {DEFAULT, null})
+        .isEqualTo(result.rendererConfigurations);
   }
 
   /**
@@ -762,6 +910,13 @@ public final class DefaultTrackSelectorTest {
         singleTrackGroup(lowerBitrateFormat, higherBitrateFormat));
 
     assertThat(result.selections.get(0).getSelectedFormat()).isEqualTo(lowerBitrateFormat);
+  }
+
+  private static void assertTrackSelections(TrackSelectorResult result, TrackSelection[] expected) {
+    assertThat(result.length).isEqualTo(expected.length);
+    for (int i = 0; i < expected.length; i++) {
+      assertThat(result.selections.get(i)).isEqualTo(expected[i]);
+    }
   }
 
   private static TrackGroupArray singleTrackGroup(Format... formats) {
