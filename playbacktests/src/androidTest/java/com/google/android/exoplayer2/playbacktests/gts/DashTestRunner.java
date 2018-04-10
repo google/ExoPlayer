@@ -50,6 +50,7 @@ import com.google.android.exoplayer2.testutil.ExoHostedTest;
 import com.google.android.exoplayer2.testutil.HostActivity;
 import com.google.android.exoplayer2.testutil.HostActivity.HostedTest;
 import com.google.android.exoplayer2.testutil.MetricsLogger;
+import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
 import com.google.android.exoplayer2.trackselection.FixedTrackSelection;
 import com.google.android.exoplayer2.trackselection.MappingTrackSelector;
 import com.google.android.exoplayer2.trackselection.RandomTrackSelection;
@@ -264,8 +265,8 @@ public final class DashTestRunner {
     }
 
     @Override
-    protected MappingTrackSelector buildTrackSelector(HostActivity host,
-        BandwidthMeter bandwidthMeter) {
+    protected DefaultTrackSelector buildTrackSelector(
+        HostActivity host, BandwidthMeter bandwidthMeter) {
       return trackSelector;
     }
 
@@ -375,7 +376,7 @@ public final class DashTestRunner {
 
   }
 
-  private static final class DashTestTrackSelector extends MappingTrackSelector {
+  private static final class DashTestTrackSelector extends DefaultTrackSelector {
 
     private final String tag;
     private final String audioFormatId;
