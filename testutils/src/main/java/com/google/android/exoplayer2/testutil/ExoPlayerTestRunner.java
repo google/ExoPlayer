@@ -36,7 +36,6 @@ import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.text.TextOutput;
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
-import com.google.android.exoplayer2.trackselection.MappingTrackSelector;
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
 import com.google.android.exoplayer2.trackselection.TrackSelector;
 import com.google.android.exoplayer2.util.Clock;
@@ -78,7 +77,7 @@ public final class ExoPlayerTestRunner extends Player.DefaultEventListener
     private Timeline timeline;
     private Object manifest;
     private MediaSource mediaSource;
-    private MappingTrackSelector trackSelector;
+    private DefaultTrackSelector trackSelector;
     private LoadControl loadControl;
     private Format[] supportedFormats;
     private Renderer[] renderers;
@@ -137,13 +136,13 @@ public final class ExoPlayerTestRunner extends Player.DefaultEventListener
     }
 
     /**
-     * Sets a {@link MappingTrackSelector} to be used by the test runner. The default value is a
-     * {@link DefaultTrackSelector}.
+     * Sets a {@link DefaultTrackSelector} to be used by the test runner. The default value is a
+     * {@link DefaultTrackSelector} in its initial configuration.
      *
-     * @param trackSelector A {@link MappingTrackSelector} to be used by the test runner.
+     * @param trackSelector A {@link DefaultTrackSelector} to be used by the test runner.
      * @return This builder.
      */
-    public Builder setTrackSelector(MappingTrackSelector trackSelector) {
+    public Builder setTrackSelector(DefaultTrackSelector trackSelector) {
       this.trackSelector = trackSelector;
       return this;
     }
@@ -338,7 +337,7 @@ public final class ExoPlayerTestRunner extends Player.DefaultEventListener
   private final Clock clock;
   private final MediaSource mediaSource;
   private final RenderersFactory renderersFactory;
-  private final MappingTrackSelector trackSelector;
+  private final DefaultTrackSelector trackSelector;
   private final LoadControl loadControl;
   private final @Nullable ActionSchedule actionSchedule;
   private final @Nullable Player.EventListener eventListener;
@@ -364,7 +363,7 @@ public final class ExoPlayerTestRunner extends Player.DefaultEventListener
       Clock clock,
       MediaSource mediaSource,
       RenderersFactory renderersFactory,
-      MappingTrackSelector trackSelector,
+      DefaultTrackSelector trackSelector,
       LoadControl loadControl,
       @Nullable ActionSchedule actionSchedule,
       @Nullable Player.EventListener eventListener,

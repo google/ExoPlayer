@@ -20,13 +20,13 @@ import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.RendererCapabilities;
 import com.google.android.exoplayer2.source.TrackGroup;
 import com.google.android.exoplayer2.source.TrackGroupArray;
-import com.google.android.exoplayer2.trackselection.MappingTrackSelector;
+import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
 import com.google.android.exoplayer2.trackselection.TrackSelection;
 import java.util.ArrayList;
 import java.util.List;
 
-/** A fake {@link MappingTrackSelector} that returns {@link FakeTrackSelection}s. */
-public class FakeTrackSelector extends MappingTrackSelector {
+/** A fake {@link DefaultTrackSelector} that returns {@link FakeTrackSelection}s. */
+public class FakeTrackSelector extends DefaultTrackSelector {
 
   private final List<FakeTrackSelection> selectedTrackSelections = new ArrayList<>();
   private final boolean mayReuseTrackSelection;
