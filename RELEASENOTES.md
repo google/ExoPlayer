@@ -41,6 +41,8 @@
   * Fix an issue where playback of TrueHD streams would get stuck after seeking
     due to not finding a syncframe
     ((#3845)[https://github.com/google/ExoPlayer/issues/3845]).
+  * Handle non-empty end-of-stream buffers, to fix gapless playback of streams
+    with encoder padding when the decoder returns a non-empty final buffer.
 * Caching:
   * Add release method to Cache interface.
   * Prevent multiple instances of SimpleCache in the same folder.

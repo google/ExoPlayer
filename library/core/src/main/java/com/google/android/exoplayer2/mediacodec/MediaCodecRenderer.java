@@ -1027,7 +1027,8 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
           shouldSkipAdaptationWorkaroundOutputBuffer = false;
           codec.releaseOutputBuffer(outputIndex, false);
           return true;
-        } else if ((outputBufferInfo.flags & MediaCodec.BUFFER_FLAG_END_OF_STREAM) != 0) {
+        } else if (outputBufferInfo.size == 0
+            && (outputBufferInfo.flags & MediaCodec.BUFFER_FLAG_END_OF_STREAM) != 0) {
           // The dequeued buffer indicates the end of the stream. Process it immediately.
           processEndOfStream();
           return false;
@@ -1094,8 +1095,12 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
 
     if (processedOutputBuffer) {
       onProcessedOutputBuffer(outputBufferInfo.presentationTimeUs);
+      boolean isEndOfStream = (outputBufferInfo.flags & MediaCodec.BUFFER_FLAG_END_OF_STREAM) != 0;
       resetOutputBuffer();
-      return true;
+      if (!isEndOfStream) {
+        return true;
+      }
+      processEndOfStream();
     }
 
     return false;
