@@ -30,9 +30,9 @@ dependencies {
     // com.android.support:support-v4, com.android.support:appcompat-v7 and
     // com.android.support:mediarouter-v7 to be used. Else older versions are
     // used, for example:
-    // com.google.android.gms:play-services-cast-framework:11.4.2
-    // |-- com.google.android.gms:play-services-basement:11.4.2
-    //   |-- com.android.support:support-v4:25.2.0
+    // com.google.android.gms:play-services-cast-framework:12.0.0
+    // |-- com.google.android.gms:play-services-basement:12.0.0
+    //   |-- com.android.support:support-v4:26.1.0
     api 'com.android.support:support-v4:' + supportLibraryVersion
     api 'com.android.support:appcompat-v7:' + supportLibraryVersion
     api 'com.android.support:mediarouter-v7:' + supportLibraryVersion
