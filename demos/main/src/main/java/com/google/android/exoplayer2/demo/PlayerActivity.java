@@ -215,11 +215,16 @@ public class PlayerActivity extends Activity
   @Override
   public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
       @NonNull int[] grantResults) {
-    if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-      initializePlayer();
+    if (grantResults.length > 0) {
+      if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+        initializePlayer();
+      } else {
+        showToast(R.string.storage_permission_denied);
+        finish();
+      }
     } else {
-      showToast(R.string.storage_permission_denied);
-      finish();
+      // Empty results are triggered if a permission is requested while another request was already
+      // pending and can be safely ignored in this case.
     }
   }
 
