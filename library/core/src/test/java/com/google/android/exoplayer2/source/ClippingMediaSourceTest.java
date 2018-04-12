@@ -99,7 +99,7 @@ public final class ClippingMediaSourceTest {
     assertThat(clippedTimeline.getWindow(0, window).getDurationUs())
         .isEqualTo(TEST_PERIOD_DURATION_US - TEST_CLIP_AMOUNT_US);
     assertThat(clippedTimeline.getPeriod(0, period).getDurationUs())
-        .isEqualTo(TEST_PERIOD_DURATION_US);
+        .isEqualTo(TEST_PERIOD_DURATION_US - TEST_CLIP_AMOUNT_US);
   }
 
   @Test
@@ -128,7 +128,7 @@ public final class ClippingMediaSourceTest {
     assertThat(clippedTimeline.getWindow(0, window).getDurationUs())
         .isEqualTo(TEST_PERIOD_DURATION_US - TEST_CLIP_AMOUNT_US * 3);
     assertThat(clippedTimeline.getPeriod(0, period).getDurationUs())
-        .isEqualTo(TEST_PERIOD_DURATION_US - TEST_CLIP_AMOUNT_US * 2);
+        .isEqualTo(TEST_PERIOD_DURATION_US - TEST_CLIP_AMOUNT_US * 3);
   }
 
   @Test
@@ -171,7 +171,7 @@ public final class ClippingMediaSourceTest {
     assertThat(clippedTimeline.getWindow(0, window).getDurationUs())
         .isEqualTo(TEST_PERIOD_DURATION_US - TEST_CLIP_AMOUNT_US * 3);
     assertThat(clippedTimeline.getPeriod(0, period).getDurationUs())
-        .isEqualTo(TEST_PERIOD_DURATION_US - TEST_CLIP_AMOUNT_US * 2);
+        .isEqualTo(TEST_PERIOD_DURATION_US - TEST_CLIP_AMOUNT_US * 3);
   }
 
   @Test
