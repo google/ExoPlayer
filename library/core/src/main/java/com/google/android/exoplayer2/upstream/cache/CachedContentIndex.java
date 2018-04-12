@@ -17,7 +17,6 @@ package com.google.android.exoplayer2.upstream.cache;
 
 import android.util.Log;
 import android.util.SparseArray;
-import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.upstream.cache.Cache.CacheException;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.AtomicFile;
@@ -195,27 +194,6 @@ import javax.crypto.spec.SecretKeySpec;
    */
   public Set<String> getKeys() {
     return keyToContent.keySet();
-  }
-
-  /**
-   * Sets the content length for the given key. A new {@link CachedContent} is added if there isn't
-   * one already with the given key.
-   */
-  public void setContentLength(String key, long length) {
-    CachedContent cachedContent = getOrAdd(key);
-    if (cachedContent.getLength() != length) {
-      cachedContent.setLength(length);
-      changed = true;
-    }
-  }
-
-  /**
-   * Returns the content length for the given key if one set, or {@link
-   * com.google.android.exoplayer2.C#LENGTH_UNSET} otherwise.
-   */
-  public long getContentLength(String key) {
-    CachedContent cachedContent = get(key);
-    return cachedContent == null ? C.LENGTH_UNSET : cachedContent.getLength();
   }
 
   /**
