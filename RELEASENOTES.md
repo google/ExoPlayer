@@ -61,8 +61,9 @@
   not include all of the playlist's variants.
 * Fix ClearKey decryption error if the key contains a forward slash
   ([#4075](https://github.com/google/ExoPlayer/issues/4075)).
-* Fix IllegalStateException when switching surface on Huawei P9 Lite
-  ([#4084](https://github.com/google/ExoPlayer/issues/4084)).
+* Fix crash when switching surface on Huawei P9 Lite
+  ([#4084](https://github.com/google/ExoPlayer/issues/4084)), and Philips QM163E
+  ([#4104](https://github.com/google/ExoPlayer/issues/4104)).
 
 ### 2.7.3 ###
 
