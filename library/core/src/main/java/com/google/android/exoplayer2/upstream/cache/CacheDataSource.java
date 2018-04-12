@@ -422,9 +422,9 @@ public final class CacheDataSource implements DataSource {
     ContentMetadataMutations mutations = new ContentMetadataMutations();
     boolean isRedirected = !uri.equals(actualUri);
     if (isRedirected) {
-      mutations.set(ContentMetadata.METADATA_NAME_REDIRECTED_URI, actualUri.toString());
+      ContentMetadataInternal.setRedirectedUri(mutations, actualUri);
     } else {
-      mutations.remove(ContentMetadata.METADATA_NAME_REDIRECTED_URI);
+      ContentMetadataInternal.removeRedirectedUri(mutations);
     }
     try {
       cache.applyContentMetadataMutations(key, mutations);
@@ -437,9 +437,9 @@ public final class CacheDataSource implements DataSource {
   }
 
   private static Uri loadRedirectedUriOrReturnGivenUri(Cache cache, String key, Uri uri) {
-    ContentMetadata metadata = cache.getContentMetadata(key);
-    String redirection = metadata.get(ContentMetadata.METADATA_NAME_REDIRECTED_URI, (String) null);
-    return redirection == null ? uri : Uri.parse(redirection);
+    ContentMetadata contentMetadata = cache.getContentMetadata(key);
+    Uri redirectedUri = ContentMetadataInternal.getRedirectedUri(contentMetadata);
+    return redirectedUri == null ? uri : redirectedUri;
   }
 
   private static boolean isCausedByPositionOutOfRange(IOException e) {

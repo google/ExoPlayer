@@ -1,8 +1,24 @@
+/*
+ * Copyright (C) 2018 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package com.google.android.exoplayer2.upstream.cache;
 
 import static com.google.common.truth.Truth.assertThat;
 import static com.google.common.truth.Truth.assertWithMessage;
 
+import android.net.Uri;
 import android.test.InstrumentationTestCase;
 import android.util.SparseArray;
 import com.google.android.exoplayer2.C;
@@ -34,19 +50,22 @@ public class CachedContentIndexTest extends InstrumentationTestCase {
       0, 0, 0, 2, // version
       0, 0, 0, 0, // flags
       0, 0, 0, 2, // number_of_CachedContent
-      0, 0, 0, 1, // cache_id
+      0, 0, 0, 5, // cache_id 5
       0, 5, 65, 66, 67, 68, 69, // cache_key "ABCDE"
-      0, 0, 0, 1, // metadata count
+      0, 0, 0, 2, // metadata count
+      0, 9, 101, 120, 111, 95, 114, 101, 100, 105, 114, // "exo_redir"
+      0, 0, 0, 5, // value length
+      97, 98, 99, 100, 101, // Redirected Uri "abcde"
       0, 7, 101, 120, 111, 95, 108, 101, 110, // "exo_len"
       0, 0, 0, 8, // value length
       0, 0, 0, 0, 0, 0, 0, 10, // original_content_length
-      0, 0, 0, 0, // cache_id
+      0, 0, 0, 2, // cache_id 2
       0, 5, 75, 76, 77, 78, 79, // cache_key "KLMNO"
       0, 0, 0, 1, // metadata count
       0, 7, 101, 120, 111, 95, 108, 101, 110, // "exo_len"
       0, 0, 0, 8, // value length
       0, 0, 0, 0, 0, 0, 10, 0, // original_content_length
-      (byte) 0x42, (byte) 0x4A, (byte) 0x4F, (byte) 0x6F // hashcode_of_CachedContent_array
+      0x12, 0x15, 0x66, (byte) 0x8A // hashcode_of_CachedContent_array
   };
   private CachedContentIndex index;
   private File cacheDir;
@@ -124,10 +143,14 @@ public class CachedContentIndexTest extends InstrumentationTestCase {
 
     index.load();
     assertThat(index.getAll()).hasSize(2);
+
     assertThat(index.assignIdForKey("ABCDE")).isEqualTo(5);
-    assertThat(index.getContentLength("ABCDE")).isEqualTo(10);
+    ContentMetadata metadata = index.get("ABCDE").getMetadata();
+    assertThat(ContentMetadataInternal.getContentLength(metadata)).isEqualTo(10);
+
     assertThat(index.assignIdForKey("KLMNO")).isEqualTo(2);
-    assertThat(index.getContentLength("KLMNO")).isEqualTo(2560);
+    ContentMetadata metadata2 = index.get("KLMNO").getMetadata();
+    assertThat(ContentMetadataInternal.getContentLength(metadata2)).isEqualTo(2560);
   }
 
   public void testLoadV2() throws Exception {
@@ -137,26 +160,15 @@ public class CachedContentIndexTest extends InstrumentationTestCase {
 
     index.load();
     assertThat(index.getAll()).hasSize(2);
-    assertThat(index.assignIdForKey("ABCDE")).isEqualTo(1);
-    assertThat(index.getContentLength("ABCDE")).isEqualTo(10);
-    assertThat(index.assignIdForKey("KLMNO")).isEqualTo(0);
-    assertThat(index.getContentLength("KLMNO")).isEqualTo(2560);
-  }
 
-  public void testStore() throws Exception {
-    index.getOrAdd("KLMNO");
-    index.setContentLength("KLMNO", 2560);
-    index.getOrAdd("ABCDE");
-    index.setContentLength("ABCDE", 10);
+    assertThat(index.assignIdForKey("ABCDE")).isEqualTo(5);
+    ContentMetadata metadata = index.get("ABCDE").getMetadata();
+    assertThat(ContentMetadataInternal.getContentLength(metadata)).isEqualTo(10);
+    assertThat(ContentMetadataInternal.getRedirectedUri(metadata)).isEqualTo(Uri.parse("abcde"));
 
-    index.store();
-
-    FileInputStream fos = new FileInputStream(new File(cacheDir, CachedContentIndex.FILE_NAME));
-    byte[] buffer = Util.toByteArray(fos);
-
-    // TODO: The order of the CachedContent stored in index file isn't defined so this test may fail
-    // on a different implementation of the underlying set
-    assertThat(buffer).isEqualTo(testIndexV2File);
+    assertThat(index.assignIdForKey("KLMNO")).isEqualTo(2);
+    ContentMetadata metadata2 = index.get("KLMNO").getMetadata();
+    assertThat(ContentMetadataInternal.getContentLength(metadata2)).isEqualTo(2560);
   }
 
   public void testAssignIdForKeyAndGetKeyForId() throws Exception {
@@ -169,13 +181,6 @@ public class CachedContentIndexTest extends InstrumentationTestCase {
     assertThat(id1 != id2).isTrue();
     assertThat(index.assignIdForKey(key1)).isEqualTo(id1);
     assertThat(index.assignIdForKey(key2)).isEqualTo(id2);
-  }
-
-  public void testSetGetContentLength() throws Exception {
-    final String key1 = "key1";
-    assertThat(index.getContentLength(key1)).isEqualTo(C.LENGTH_UNSET);
-    index.setContentLength(key1, 10);
-    assertThat(index.getContentLength(key1)).isEqualTo(10);
   }
 
   public void testGetNewId() throws Exception {
@@ -276,8 +281,13 @@ public class CachedContentIndexTest extends InstrumentationTestCase {
 
   private void assertStoredAndLoadedEqual(CachedContentIndex index, CachedContentIndex index2)
       throws IOException {
-    index.getOrAdd("key1");
-    index.getOrAdd("key2");
+    ContentMetadataMutations mutations1 = new ContentMetadataMutations();
+    ContentMetadataInternal.setContentLength(mutations1, 2560);
+    index.getOrAdd("KLMNO").applyMetadataMutations(mutations1);
+    ContentMetadataMutations mutations2 = new ContentMetadataMutations();
+    ContentMetadataInternal.setContentLength(mutations2, 10);
+    ContentMetadataInternal.setRedirectedUri(mutations2, Uri.parse("abcde"));
+    index.getOrAdd("ABCDE").applyMetadataMutations(mutations2);
     index.store();
 
     index2.load();
