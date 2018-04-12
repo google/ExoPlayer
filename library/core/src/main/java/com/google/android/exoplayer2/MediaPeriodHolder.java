@@ -83,12 +83,9 @@ import com.google.android.exoplayer2.util.Assertions;
     mayRetainStreamFlags = new boolean[rendererCapabilities.length];
     MediaPeriod mediaPeriod = mediaSource.createPeriod(info.id, allocator);
     if (info.endPositionUs != C.TIME_END_OF_SOURCE) {
-      mediaPeriod =
-          new ClippingMediaPeriod(
-              mediaPeriod,
-              /* enableInitialDiscontinuity= */ true,
-              /* startUs= */ 0,
-              info.endPositionUs);
+      ClippingMediaPeriod clippingMediaPeriod = new ClippingMediaPeriod(mediaPeriod, true);
+      clippingMediaPeriod.setClipping(0, info.endPositionUs);
+      mediaPeriod = clippingMediaPeriod;
     }
     this.mediaPeriod = mediaPeriod;
   }
