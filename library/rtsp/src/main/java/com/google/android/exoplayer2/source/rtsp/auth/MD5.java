@@ -19,7 +19,7 @@ import java.io.UnsupportedEncodingException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
-public final class MD5 {
+final class MD5 {
     private final static char[] hexArray = {'0','1','2','3','4','5','6','7','8','9','a','b','c','d','e','f'};
 
     private static String bytesToHex(byte[] bytes) {

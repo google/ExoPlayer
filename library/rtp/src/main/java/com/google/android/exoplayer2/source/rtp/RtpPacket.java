@@ -99,8 +99,11 @@ public final class RtpPacket {
         this.ssrc = builder.ssrc;
         this.csrc = builder.csrc;
         this.payload = builder.payload;
+        this.hdrExtension = builder.hdrExtension;
+        this.padLen = builder.padLen;
 
         csrcCount = csrc != null ? csrc.length : 0;
+        extLen = (extension) ? hdrExtension.length : 0;
     }
 
     RtpPacket(int version, int padLen, byte[] hdrExtension, boolean marker, int payloadType,
@@ -146,7 +149,8 @@ public final class RtpPacket {
     public byte[] toBytes() {
         // build the header
         int payloadLen = (payload == null) ? 0 : payload.length;
-        byte[] packet = new byte[RTP_HDR_SIZE + payloadLen];
+        int cscrLen = csrcCount * 4;
+        byte[] packet = new byte[RTP_HDR_SIZE + cscrLen + extLen + payloadLen + padLen];
 
         // fill the header array of byte with RTP header fields
         packet[0] = (byte)(version << 6 | (padding ? 1 : 0) << 5 | (extension ? 1 : 0) << 4 | csrcCount);
@@ -162,8 +166,30 @@ public final class RtpPacket {
         packet[10] = (byte)(ssrc >> 8);
         packet[11] = (byte)(ssrc & 0xFF);
 
+        // fill the contributing source identifiers
+        if (csrcCount > 0) {
+            for (int ndx = 0, offset = RTP_HDR_SIZE; ndx < csrcCount; ndx++, offset += 4) {
+                packet[offset] = (byte) (csrc[ndx] >> 24);
+                packet[offset + 1] = (byte) (csrc[ndx] >> 16);
+                packet[offset + 2] = (byte) (csrc[ndx] >> 8);
+                packet[offset + 3] = (byte) (csrc[ndx] & 0xFF);
+            }
+        }
+
+        // fill the extension header
+        if (extLen > 0) {
+            System.arraycopy(hdrExtension, 0, packet, RTP_HDR_SIZE + cscrLen, extLen);
+        }
+
+        // fill the payload data
         if (payloadLen > 0) {
-            System.arraycopy(payload, 0, packet, RTP_HDR_SIZE, payloadLen);
+            System.arraycopy(payload, 0, packet, RTP_HDR_SIZE + cscrLen + extLen, payloadLen);
+        }
+
+        // fill the padding data
+        if (padLen > 0) {
+            int paddingStart = RTP_HDR_SIZE + cscrLen + extLen + payloadLen;
+            Arrays.fill(packet, paddingStart, paddingStart + padLen - 1, (byte)0);
         }
 
         return packet;
@@ -307,6 +333,7 @@ public final class RtpPacket {
     public static class Builder {
         int version;
         boolean padding;
+        int padLen;
         boolean extension;
 
         boolean marker;
@@ -318,6 +345,7 @@ public final class RtpPacket {
 
         long[] csrc;
         byte[] payload;
+        byte[] hdrExtension;
 
         public Builder() {
             // fill by default header fields
@@ -359,6 +387,24 @@ public final class RtpPacket {
 
         public Builder payload(byte[] payload) {
             this.payload = payload;
+            return this;
+        }
+
+        public Builder extension(byte[] hdrExtension) {
+            if (hdrExtension != null && hdrExtension.length > 0) {
+                this.hdrExtension = hdrExtension;
+                extension = true;
+            }
+
+            return this;
+        }
+
+        public Builder padding(int padlen) {
+            if (padLen > 0) {
+                this.padLen = padlen;
+                padding = true;
+            }
+
             return this;
         }
 

@@ -635,7 +635,6 @@ import java.util.Collections;
             /* releaseMediaSource= */ false, /* resetPosition= */ true, /* resetState= */ false);
       } else {
         // Execute the seek in the current media periods.
-        Log.v("ExoPlayerImplInt", "seekToInternal: periodPositionUs=[" + periodPositionUs + "]");
         long newPeriodPositionUs = periodPositionUs;
         if (periodId.equals(playbackInfo.periodId)) {
           MediaPeriodHolder playingPeriodHolder = queue.getPlayingPeriod();
@@ -700,7 +699,6 @@ import java.util.Collections;
     if (newPlayingPeriodHolder != null) {
       updatePlayingPeriodRenderers(oldPlayingPeriodHolder);
       if (newPlayingPeriodHolder.hasEnabledTracks) {
-        Log.v("ExoPlayerImplInt", "seekToPeriodPosition: periodPositionUs=[" + periodPositionUs + "]");
         periodPositionUs = newPlayingPeriodHolder.mediaPeriod.seekToUs(periodPositionUs);
         newPlayingPeriodHolder.mediaPeriod.discardBuffer(
             periodPositionUs - backBufferDurationUs, retainBackBufferFromKeyframe);

@@ -347,7 +347,7 @@ import javax.net.SocketFactory;
      * Monitor the request/reply message.
      */
     /* package */ final class RequestMonitor {
-        private final long DEFAULT_TIMEOUT_REQUEST = 3000;
+        private final long DEFAULT_TIMEOUT_REQUEST = 5000;
 
         private final ExecutorService executorService = Executors.newSingleThreadExecutor();
         private final Map<Integer, Future<?>> tasks;

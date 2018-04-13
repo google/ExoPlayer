@@ -17,7 +17,6 @@ package com.google.android.exoplayer2.source.rtsp.media;
 
 import android.net.Uri;
 import android.support.annotation.IntDef;
-import android.util.Log;
 
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.source.rtsp.RtspSampleStreamWrapper;
@@ -86,9 +85,7 @@ public final class MediaSession implements VideoListener {
     private final String password;
     private final Client client;
 
-    private final ExecutorService executor = Executors.newSingleThreadExecutor();
-
-    private volatile boolean keepAliveEnabled;
+    private final KeepAliveMonitor keepAliveMonitor;
 
     private @SessionState int state;
 
@@ -110,6 +107,8 @@ public final class MediaSession implements VideoListener {
 
         state = IDLE;
         timeout = DEFAULT_TIMEOUT_MILLIS;
+
+        keepAliveMonitor = new KeepAliveMonitor();
 
         pendingResetPosition = C.TIME_UNSET;
     }
@@ -208,13 +207,10 @@ public final class MediaSession implements VideoListener {
     }
 
     public void pause() {
-        Log.v("MediaSession", "pause");
         client.sendPauseRequest();
     }
 
     public void onPauseSuccess() {
-        Log.v("MediaSession", "onPauseSuccess: state=[" + state +
-                "], pendingResetPosition=[" + pendingResetPosition + "]");
         if (pendingResetPosition == C.TIME_UNSET) {
             if (state != PAUSED) {
                 state = PAUSED;
@@ -231,15 +227,15 @@ public final class MediaSession implements VideoListener {
     }
 
     public void resume() {
-        Log.v("MediaSession", "resume");
         client.sendPlayRequest(Range.parse("npt=-end"), 1);
     }
 
     public void onPlaySuccess() {
-        Log.v("MediaSession", "onPlaySuccess: state=[" + state +
-                "], pendingResetPosition=[" + pendingResetPosition + "]");
         if (pendingResetPosition == C.TIME_UNSET) {
-            startKeepAlive();
+
+            if (state == PREPARED) {
+                keepAliveMonitor.start();
+            }
 
             if (state == PAUSED) {
                 for (EventListener listener : listeners) {
@@ -264,14 +260,10 @@ public final class MediaSession implements VideoListener {
 
     public void seekTo(long position) {
         if (state == PLAYING || state == PAUSED) {
-            Log.v("MediaSession", "seekTo: position=[" + position + "]");
             pendingResetPosition = position;
             if (state == PLAYING) {
                 client.sendPauseRequest();
             } else {
-                /*for (EventListener listener : listeners) {
-                    listener.onSeekPlayback();
-                }*/
                 client.sendPlayRequest(Range.parse("npt=" + position + "-end"));
             }
         }
@@ -285,7 +277,10 @@ public final class MediaSession implements VideoListener {
     }
 
     public void release() {
-        stopKeepAlive();
+        if (state > PREPARED && state < STOPPED) {
+            keepAliveMonitor.cancel();
+            state = STOPPED;
+        }
 
         for (EventListener listener : listeners) {
             listener.onStopPlayback();
@@ -374,61 +369,61 @@ public final class MediaSession implements VideoListener {
 
     @Override
     public void onRenderedFirstFrame() {
-        Log.v("MediaSession", "onRenderedFirstFrame: state=[" + state + "]");
         if (state == PAUSED) {
             client.sendPauseRequest();
         }
     }
 
-    private void startKeepAlive() {
-        if (state == PREPARED) {
-            keepAliveEnabled = true;
+    /**
+     * Monitor the keep alive message.
+     */
+    /* package */ final class KeepAliveMonitor {
+        private final ExecutorService executor = Executors.newSingleThreadExecutor();
 
-            if (timeout > 0) {
-                keepAliveRunnable();
-            }
-        }
-    }
+        private volatile boolean enabled;
+        private final Runnable keepAliveRunnable;
 
-    private void stopKeepAlive() {
-        if (state > PREPARED && state < STOPPED) {
-            if (!executor.isShutdown()) {
-                executor.shutdown();
-            }
+        public KeepAliveMonitor() {
+            this.keepAliveRunnable = new Runnable() {
 
-            keepAliveEnabled = false;
-            state = STOPPED;
-        }
-    }
+                @Override
+                public void run() {
+                    try {
 
-    private void keepAliveRunnable() {
-        executor.execute(new Runnable() {
+                        while (enabled) {
 
-            @Override
-            public void run() {
-                try {
+                            try {
 
-                    while (keepAliveEnabled) {
+                                while (!Thread.currentThread().isInterrupted() && enabled) {
+                                    Thread.sleep(timeout / 2);
+                                    client.sendKeepAlive();
+                                }
 
-                        try {
-
-                            while (!Thread.currentThread().isInterrupted() && keepAliveEnabled) {
-                                Thread.sleep(timeout / 2);
-                                client.sendKeepAlive();
+                            } catch (InterruptedException e) {
+                                Thread.currentThread().interrupt();
                             }
+                        }
 
-                        } catch (InterruptedException e) {
-                            Thread.currentThread().interrupt();
+                    } finally {
+                        if (!executor.isShutdown()) {
+                            executor.shutdown();
                         }
                     }
-
-                } finally {
-                    if (!executor.isShutdown()) {
-                        executor.shutdown();
-                    }
                 }
+            };
+        }
+
+        public void start() {
+            enabled = true;
+            executor.execute(keepAliveRunnable);
+        }
+
+        public void cancel() {
+            if (enabled) {
+                enabled = false;
+                executor.shutdown();
             }
-        });
+        }
     }
 
 
@@ -456,7 +451,8 @@ public final class MediaSession implements VideoListener {
         private void buildCredentialsByUri(Uri uri) {
             if (uri == null) throw new NullPointerException("uri is null");
 
-            this.uri = Uri.parse(uri.getScheme() + "://" + uri.getHost() + ":" + uri.getPort() +
+            this.uri = Uri.parse(uri.getScheme() + "://" + uri.getHost() +
+                    ((uri.getPort() > 0) ? ":" + uri.getPort() : "") +
                     uri.getPath() + ((uri.getQuery() != null) ? "?" + uri.getQuery() : ""));
 
             if (uri.getUserInfo() != null) {
@@ -468,8 +464,6 @@ public final class MediaSession implements VideoListener {
                 if (username == null) throw new IllegalStateException("username is null");
                 if (password == null) throw new IllegalStateException("password is null");
             }
-
-            this.uri = uri;
         }
     }
 }

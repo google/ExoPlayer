@@ -15,7 +15,7 @@
  */
 package com.google.android.exoplayer2.source.rtsp.auth;
 
-public abstract class AuthCipher {
+abstract class AuthCipher {
 
     public abstract String username();
     public abstract String password();
