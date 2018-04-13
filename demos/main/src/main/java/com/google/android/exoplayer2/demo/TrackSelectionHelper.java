@@ -29,10 +29,10 @@ import android.widget.CheckedTextView;
 import com.google.android.exoplayer2.RendererCapabilities;
 import com.google.android.exoplayer2.source.TrackGroup;
 import com.google.android.exoplayer2.source.TrackGroupArray;
+import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
+import com.google.android.exoplayer2.trackselection.DefaultTrackSelector.SelectionOverride;
 import com.google.android.exoplayer2.trackselection.FixedTrackSelection;
-import com.google.android.exoplayer2.trackselection.MappingTrackSelector;
 import com.google.android.exoplayer2.trackselection.MappingTrackSelector.MappedTrackInfo;
-import com.google.android.exoplayer2.trackselection.MappingTrackSelector.SelectionOverride;
 import com.google.android.exoplayer2.trackselection.RandomTrackSelection;
 import com.google.android.exoplayer2.trackselection.TrackSelection;
 import java.util.Arrays;
@@ -46,7 +46,7 @@ import java.util.Arrays;
   private static final TrackSelection.Factory FIXED_FACTORY = new FixedTrackSelection.Factory();
   private static final TrackSelection.Factory RANDOM_FACTORY = new RandomTrackSelection.Factory();
 
-  private final MappingTrackSelector selector;
+  private final DefaultTrackSelector selector;
   private final TrackSelection.Factory adaptiveTrackSelectionFactory;
 
   private MappedTrackInfo trackInfo;
@@ -63,11 +63,11 @@ import java.util.Arrays;
 
   /**
    * @param selector The track selector.
-   * @param adaptiveTrackSelectionFactory A factory for adaptive {@link TrackSelection}s, or null
-   *     if the selection helper should not support adaptive tracks.
+   * @param adaptiveTrackSelectionFactory A factory for adaptive {@link TrackSelection}s, or null if
+   *     the selection helper should not support adaptive tracks.
    */
-  public TrackSelectionHelper(MappingTrackSelector selector,
-      TrackSelection.Factory adaptiveTrackSelectionFactory) {
+  public TrackSelectionHelper(
+      DefaultTrackSelector selector, TrackSelection.Factory adaptiveTrackSelectionFactory) {
     this.selector = selector;
     this.adaptiveTrackSelectionFactory = adaptiveTrackSelectionFactory;
   }
