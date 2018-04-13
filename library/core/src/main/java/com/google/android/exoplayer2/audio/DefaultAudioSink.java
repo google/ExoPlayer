@@ -466,8 +466,10 @@ public final class DefaultAudioSink implements AudioSink {
       }
     }
 
-    // The old playback parameters may no longer be applicable so try to reset them now.
-    setPlaybackParameters(playbackParameters);
+    playbackParameters =
+        canApplyPlaybackParameters
+            ? applyPlaybackParameters(playbackParameters)
+            : PlaybackParameters.DEFAULT;
     setupAudioProcessors();
 
     audioTrackPositionTracker.setAudioTrack(
