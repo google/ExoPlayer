@@ -51,13 +51,15 @@
   * Add release method to Cache interface.
   * Prevent multiple instances of SimpleCache in the same folder.
     Previous instance must be released.
-  * Store redirected URI
-  ([#2360](https://github.com/google/ExoPlayer/issues/2360)).
+  * Cache redirect URLs
+    ([#2360](https://github.com/google/ExoPlayer/issues/2360)).
 * DRM:
   * Allow multiple listeners for `DefaultDrmSessionManager`.
   * Pass `DrmSessionManager` to `ExoPlayerFactory` instead of `RendererFactory`.
   * Change minimum API requirement for CBC and pattern encryption from 24 to 25
     ([#4022][https://github.com/google/ExoPlayer/issues/4022]).
+  * Fix handling of 307/308 redirects when making license requests
+    ([#4108](https://github.com/google/ExoPlayer/issues/4108)).
 * Removed default renderer time offset of 60000000 from internal player. The
   actual renderer timestamp offset can be obtained by listening to
   `BaseRenderer.onStreamChanged`.
