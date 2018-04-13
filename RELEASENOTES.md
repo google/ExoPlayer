@@ -31,6 +31,8 @@
   * Support live stream clipping with `ClippingMediaSource`.
   * Allow setting tags for all media sources in their factories. The tag of the
     current window can be retrieved with `ExoPlayer.getCurrentTag`.
+* IMA: Allow setting the ad media load timeout
+  ([#3691](https://github.com/google/ExoPlayer/issues/3691)).
 * Audio:
   * FLAC: Sniff FLAC files correctly if they have ID3 headers
     ([#4055](https://github.com/google/ExoPlayer/issues/4055)).
