@@ -34,8 +34,11 @@
 * IMA: Allow setting the ad media load timeout
   ([#3691](https://github.com/google/ExoPlayer/issues/3691)).
 * Audio:
-  * FLAC: Sniff FLAC files correctly if they have ID3 headers
-    ([#4055](https://github.com/google/ExoPlayer/issues/4055)).
+  * FLAC:
+    * Sniff FLAC files correctly if they have ID3 headers
+      ([#4055](https://github.com/google/ExoPlayer/issues/4055)).
+    * Supports FLAC files with high sample rate (176400 and 192000)
+      ([#3769](https://github.com/google/ExoPlayer/issues/3769)).
   * Factor out `AudioTrack` position tracking from `DefaultAudioSink`.
   * Fix an issue where the playback position would pause just after playback
     begins, and poll the audio timestamp less frequently once it starts
