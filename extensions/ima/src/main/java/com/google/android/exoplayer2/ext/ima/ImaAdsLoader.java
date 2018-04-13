@@ -80,7 +80,8 @@ public final class ImaAdsLoader extends Player.DefaultEventListener implements A
     private final Context context;
 
     private @Nullable ImaSdkSettings imaSdkSettings;
-    private long vastLoadTimeoutMs;
+    private int vastLoadTimeoutMs;
+    private int mediaLoadTimeoutMs;
 
     /**
      * Creates a new builder for {@link ImaAdsLoader}.
@@ -89,7 +90,8 @@ public final class ImaAdsLoader extends Player.DefaultEventListener implements A
      */
     public Builder(Context context) {
       this.context = Assertions.checkNotNull(context);
-      vastLoadTimeoutMs = C.TIME_UNSET;
+      vastLoadTimeoutMs = TIMEOUT_UNSET;
+      mediaLoadTimeoutMs = TIMEOUT_UNSET;
     }
 
     /**
@@ -113,9 +115,22 @@ public final class ImaAdsLoader extends Player.DefaultEventListener implements A
      * @return This builder, for convenience.
      * @see AdsRequest#setVastLoadTimeout(float)
      */
-    public Builder setVastLoadTimeoutMs(long vastLoadTimeoutMs) {
+    public Builder setVastLoadTimeoutMs(int vastLoadTimeoutMs) {
       Assertions.checkArgument(vastLoadTimeoutMs >= 0);
       this.vastLoadTimeoutMs = vastLoadTimeoutMs;
+      return this;
+    }
+
+    /**
+     * Sets the ad media load timeout, in milliseconds.
+     *
+     * @param mediaLoadTimeoutMs The ad media load timeout, in milliseconds.
+     * @return This builder, for convenience.
+     * @see AdsRenderingSettings#setLoadVideoTimeout(int)
+     */
+    public Builder setMediaLoadTimeoutMs(int mediaLoadTimeoutMs) {
+      Assertions.checkArgument(mediaLoadTimeoutMs >= 0);
+      this.mediaLoadTimeoutMs = mediaLoadTimeoutMs;
       return this;
     }
 
@@ -128,7 +143,8 @@ public final class ImaAdsLoader extends Player.DefaultEventListener implements A
      * @return The new {@link ImaAdsLoader}.
      */
     public ImaAdsLoader buildForAdTag(Uri adTagUri) {
-      return new ImaAdsLoader(context, adTagUri, imaSdkSettings, null, vastLoadTimeoutMs);
+      return new ImaAdsLoader(
+          context, adTagUri, imaSdkSettings, null, vastLoadTimeoutMs, mediaLoadTimeoutMs);
     }
 
     /**
@@ -139,7 +155,8 @@ public final class ImaAdsLoader extends Player.DefaultEventListener implements A
      * @return The new {@link ImaAdsLoader}.
      */
     public ImaAdsLoader buildForAdsResponse(String adsResponse) {
-      return new ImaAdsLoader(context, null, imaSdkSettings, adsResponse, vastLoadTimeoutMs);
+      return new ImaAdsLoader(
+          context, null, imaSdkSettings, adsResponse, vastLoadTimeoutMs, mediaLoadTimeoutMs);
     }
   }
 
@@ -174,6 +191,8 @@ public final class ImaAdsLoader extends Player.DefaultEventListener implements A
   private static final String FOCUS_SKIP_BUTTON_WORKAROUND_JS = "javascript:"
       + "try{ document.getElementsByClassName(\"videoAdUiSkipButton\")[0].focus(); } catch (e) {}";
 
+  private static final int TIMEOUT_UNSET = -1;
+
   /** The state of ad playback. */
   @Retention(RetentionPolicy.SOURCE)
   @IntDef({IMA_AD_STATE_NONE, IMA_AD_STATE_PLAYING, IMA_AD_STATE_PAUSED})
@@ -193,7 +212,8 @@ public final class ImaAdsLoader extends Player.DefaultEventListener implements A
 
   private final @Nullable Uri adTagUri;
   private final @Nullable String adsResponse;
-  private final long vastLoadTimeoutMs;
+  private final int vastLoadTimeoutMs;
+  private final int mediaLoadTimeoutMs;
   private final Timeline.Period period;
   private final List<VideoAdPlayerCallback> adCallbacks;
   private final ImaSdkFactory imaSdkFactory;
@@ -282,7 +302,13 @@ public final class ImaAdsLoader extends Player.DefaultEventListener implements A
    *     more information.
    */
   public ImaAdsLoader(Context context, Uri adTagUri) {
-    this(context, adTagUri, null, null, C.TIME_UNSET);
+    this(
+        context,
+        adTagUri,
+        /* imaSdkSettings= */ null,
+        /* adsResponse= */ null,
+        /* vastLoadTimeoutMs= */ TIMEOUT_UNSET,
+        /* mediaLoadTimeoutMs= */ TIMEOUT_UNSET);
   }
 
   /**
@@ -298,7 +324,13 @@ public final class ImaAdsLoader extends Player.DefaultEventListener implements A
    */
   @Deprecated
   public ImaAdsLoader(Context context, Uri adTagUri, ImaSdkSettings imaSdkSettings) {
-    this(context, adTagUri, imaSdkSettings, null, C.TIME_UNSET);
+    this(
+        context,
+        adTagUri,
+        imaSdkSettings,
+        /* adsResponse= */ null,
+        /* vastLoadTimeoutMs= */ TIMEOUT_UNSET,
+        /* mediaLoadTimeoutMs= */ TIMEOUT_UNSET);
   }
 
   private ImaAdsLoader(
@@ -306,11 +338,13 @@ public final class ImaAdsLoader extends Player.DefaultEventListener implements A
       @Nullable Uri adTagUri,
       @Nullable ImaSdkSettings imaSdkSettings,
       @Nullable String adsResponse,
-      long vastLoadTimeoutMs) {
+      int vastLoadTimeoutMs,
+      int mediaLoadTimeoutMs) {
     Assertions.checkArgument(adTagUri != null || adsResponse != null);
     this.adTagUri = adTagUri;
     this.adsResponse = adsResponse;
     this.vastLoadTimeoutMs = vastLoadTimeoutMs;
+    this.mediaLoadTimeoutMs = mediaLoadTimeoutMs;
     period = new Timeline.Period();
     adCallbacks = new ArrayList<>(1);
     imaSdkFactory = ImaSdkFactory.getInstance();
@@ -361,7 +395,7 @@ public final class ImaAdsLoader extends Player.DefaultEventListener implements A
     } else /* adsResponse != null */ {
       request.setAdsResponse(adsResponse);
     }
-    if (vastLoadTimeoutMs != C.TIME_UNSET) {
+    if (vastLoadTimeoutMs != TIMEOUT_UNSET) {
       request.setVastLoadTimeout(vastLoadTimeoutMs);
     }
     request.setAdDisplayContainer(adDisplayContainer);
@@ -796,6 +830,9 @@ public final class ImaAdsLoader extends Player.DefaultEventListener implements A
     AdsRenderingSettings adsRenderingSettings = imaSdkFactory.createAdsRenderingSettings();
     adsRenderingSettings.setEnablePreloading(ENABLE_PRELOADING);
     adsRenderingSettings.setMimeTypes(supportedMimeTypes);
+    if (mediaLoadTimeoutMs != TIMEOUT_UNSET) {
+      adsRenderingSettings.setLoadVideoTimeout(mediaLoadTimeoutMs);
+    }
 
     // Set up the ad playback state, skipping ads based on the start position as required.
     long[] adGroupTimesUs = getAdGroupTimesUs(adsManager.getAdCuePoints());
