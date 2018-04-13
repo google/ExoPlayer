@@ -17,10 +17,12 @@ package com.google.android.exoplayer2.trackselection;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import android.util.Pair;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.RendererCapabilities;
+import com.google.android.exoplayer2.RendererConfiguration;
 import com.google.android.exoplayer2.source.TrackGroup;
 import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.util.MimeTypes;
@@ -90,25 +92,28 @@ public final class MappingTrackSelectorTest {
   }
 
   /**
-   * A {@link MappingTrackSelector} that returns a fixed result from
-   * {@link #selectTracks(RendererCapabilities[], TrackGroupArray[], int[][][])}.
+   * A {@link MappingTrackSelector} that stashes the {@link MappedTrackInfo} passed to {@link
+   * #selectTracks(RendererCapabilities[], MappedTrackInfo)}.
    */
   private static final class FakeMappingTrackSelector extends MappingTrackSelector {
 
-    private TrackGroupArray[] lastRendererTrackGroupArrays;
+    private MappedTrackInfo lastMappedTrackInfo;
 
     @Override
-    protected TrackSelection[] selectTracks(RendererCapabilities[] rendererCapabilities,
-        TrackGroupArray[] rendererTrackGroupArrays, int[][][] rendererFormatSupports)
+    protected Pair<RendererConfiguration[], TrackSelection[]> selectTracks(
+        RendererCapabilities[] rendererCapabilities, MappedTrackInfo mappedTrackInfo)
         throws ExoPlaybackException {
-      lastRendererTrackGroupArrays = rendererTrackGroupArrays;
-      return new TrackSelection[rendererCapabilities.length];
+      lastMappedTrackInfo = mappedTrackInfo;
+      return Pair.create(
+          new RendererConfiguration[rendererCapabilities.length],
+          new TrackSelection[rendererCapabilities.length]);
     }
 
     public void assertMappedTrackGroups(int rendererIndex, TrackGroup... expected) {
-      assertThat(lastRendererTrackGroupArrays[rendererIndex].length).isEqualTo(expected.length);
+      TrackGroupArray rendererTrackGroupArray = lastMappedTrackInfo.getTrackGroups(rendererIndex);
+      assertThat(rendererTrackGroupArray.length).isEqualTo(expected.length);
       for (int i = 0; i < expected.length; i++) {
-        assertThat(lastRendererTrackGroupArrays[rendererIndex].get(i)).isEqualTo(expected[i]);
+        assertThat(rendererTrackGroupArray.get(i)).isEqualTo(expected[i]);
       }
     }
 

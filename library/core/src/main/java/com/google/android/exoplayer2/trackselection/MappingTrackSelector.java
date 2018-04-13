@@ -15,13 +15,10 @@
  */
 package com.google.android.exoplayer2.trackselection;
 
-import android.content.Context;
 import android.support.annotation.IntDef;
-import android.util.SparseArray;
-import android.util.SparseBooleanArray;
+import android.util.Pair;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlaybackException;
-import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.Renderer;
 import com.google.android.exoplayer2.RendererCapabilities;
 import com.google.android.exoplayer2.RendererConfiguration;
@@ -31,51 +28,11 @@ import com.google.android.exoplayer2.util.Util;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * Base class for {@link TrackSelector}s that first establish a mapping between {@link TrackGroup}s
  * and {@link Renderer}s, and then from that mapping create a {@link TrackSelection} for each
  * renderer.
- *
- * <h3>Track overrides</h3>
- * Mapping track selectors support overriding of track selections for each renderer. To specify an
- * override for a renderer it's first necessary to obtain the tracks that have been mapped to it:
- * <pre>
- * {@code
- * MappedTrackInfo mappedTrackInfo = trackSelector.getCurrentMappedTrackInfo();
- * TrackGroupArray rendererTrackGroups = mappedTrackInfo == null ? null
- *     : mappedTrackInfo.getTrackGroups(rendererIndex);}
- * </pre>
- * If {@code rendererTrackGroups} is null then there aren't any currently mapped tracks, and so
- * setting an override isn't possible. Note that a {@link Player.EventListener} registered on the
- * player can be used to determine when the current tracks (and therefore the mapping) changes. If
- * {@code rendererTrackGroups} is non-null then an override can be set. The next step is to query
- * the properties of the available tracks to determine the {@code groupIndex} of the track group you
- * want to select and the {@code trackIndices} within it. You can then create and set the override:
- * <pre>
- * {@code
- * trackSelector.setSelectionOverride(rendererIndex, rendererTrackGroups,
- *     new SelectionOverride(trackSelectionFactory, groupIndex, trackIndices));}
- * </pre>
- * where {@code trackSelectionFactory} is a {@link TrackSelection.Factory} for generating concrete
- * {@link TrackSelection} instances for the override. It's also possible to pass {@code null} as the
- * selection override if you don't want any tracks to be selected.
- * <p>
- * Note that an override applies only when the track groups available to the renderer match the
- * {@link TrackGroupArray} for which the override was specified. Overrides can be cleared using
- * the {@code clearSelectionOverride} methods.
- *
- * <h3>Disabling renderers</h3>
- * Renderers can be disabled using {@link #setRendererDisabled(int, boolean)}. Disabling a renderer
- * differs from setting a {@code null} override because the renderer is disabled unconditionally,
- * whereas a {@code null} override is applied only when the track groups available to the renderer
- * match the {@link TrackGroupArray} for which it was specified.
- *
- * <h3>Tunneling</h3>
- * Tunneled playback can be enabled in cases where the combination of renderers and selected tracks
- * support it. See {@link #setTunnelingAudioSessionId(int)} for more details.
  */
 public abstract class MappingTrackSelector extends TrackSelector {
 
@@ -145,6 +102,18 @@ public abstract class MappingTrackSelector extends TrackSelector {
      */
     public TrackGroupArray getTrackGroups(int rendererIndex) {
       return trackGroups[rendererIndex];
+    }
+
+    /**
+     * Returns the extent to which a renderer can play each of the tracks in the track groups mapped
+     * to it.
+     *
+     * @param rendererIndex The renderer index.
+     * @return The result of {@link RendererCapabilities#supportsFormat} for each track mapped to
+     *     the renderer, indexed by track group and track index (in that order).
+     */
+    public int[][] getRendererTrackSupport(int rendererIndex) {
+      return formatSupport[rendererIndex];
     }
 
     /**
@@ -295,63 +264,18 @@ public abstract class MappingTrackSelector extends TrackSelector {
 
   }
 
-  /**
-   * A track selection override.
-   */
-  public static final class SelectionOverride {
+  // TODO: Make DefaultTrackSelector.SelectionOverride final when this is removed.
+  /** @deprecated Use {@link DefaultTrackSelector.SelectionOverride} */
+  @Deprecated
+  public static final class SelectionOverride extends DefaultTrackSelector.SelectionOverride {
 
-    public final TrackSelection.Factory factory;
-    public final int groupIndex;
-    public final int[] tracks;
-    public final int length;
-
-    /**
-     * @param factory A factory for creating selections from this override.
-     * @param groupIndex The overriding track group index.
-     * @param tracks The overriding track indices within the track group.
-     */
     public SelectionOverride(TrackSelection.Factory factory, int groupIndex, int... tracks) {
-      this.factory = factory;
-      this.groupIndex = groupIndex;
-      this.tracks = tracks;
-      this.length = tracks.length;
-    }
-
-    /**
-     * Creates an selection from this override.
-     *
-     * @param groups The track groups whose selection is being overridden.
-     * @return The selection.
-     */
-    public TrackSelection createTrackSelection(TrackGroupArray groups) {
-      return factory.createTrackSelection(groups.get(groupIndex), tracks);
-    }
-
-    /**
-     * Returns whether this override contains the specified track index.
-     */
-    public boolean containsTrack(int track) {
-      for (int overrideTrack : tracks) {
-        if (overrideTrack == track) {
-          return true;
-        }
-      }
-      return false;
+      super(factory, groupIndex, tracks);
     }
 
   }
-
-  private final SparseArray<Map<TrackGroupArray, SelectionOverride>> selectionOverrides;
-  private final SparseBooleanArray rendererDisabledFlags;
-  private int tunnelingAudioSessionId;
 
   private MappedTrackInfo currentMappedTrackInfo;
-
-  public MappingTrackSelector() {
-    selectionOverrides = new SparseArray<>();
-    rendererDisabledFlags = new SparseBooleanArray();
-    tunnelingAudioSessionId = C.AUDIO_SESSION_ID_UNSET;
-  }
 
   /**
    * Returns the mapping information for the currently active track selection, or null if no
@@ -361,157 +285,12 @@ public abstract class MappingTrackSelector extends TrackSelector {
     return currentMappedTrackInfo;
   }
 
-  /**
-   * Sets whether the renderer at the specified index is disabled. Disabling a renderer prevents the
-   * selector from selecting any tracks for it.
-   *
-   * @param rendererIndex The renderer index.
-   * @param disabled Whether the renderer is disabled.
-   */
-  public final void setRendererDisabled(int rendererIndex, boolean disabled) {
-    if (rendererDisabledFlags.get(rendererIndex) == disabled) {
-      // The disabled flag is unchanged.
-      return;
-    }
-    rendererDisabledFlags.put(rendererIndex, disabled);
-    invalidate();
-  }
-
-  /**
-   * Returns whether the renderer is disabled.
-   *
-   * @param rendererIndex The renderer index.
-   * @return Whether the renderer is disabled.
-   */
-  public final boolean getRendererDisabled(int rendererIndex) {
-    return rendererDisabledFlags.get(rendererIndex);
-  }
-
-  /**
-   * Overrides the track selection for the renderer at the specified index.
-   * <p>
-   * When the {@link TrackGroupArray} mapped to the renderer matches the one provided, the override
-   * is applied. When the {@link TrackGroupArray} does not match, the override has no effect. The
-   * override replaces any previous override for the specified {@link TrackGroupArray} for the
-   * specified {@link Renderer}.
-   * <p>
-   * Passing a {@code null} override will cause the renderer to be disabled when the
-   * {@link TrackGroupArray} mapped to it matches the one provided. When the {@link TrackGroupArray}
-   * does not match a {@code null} override has no effect. Hence a {@code null} override differs
-   * from disabling the renderer using {@link #setRendererDisabled(int, boolean)} because the
-   * renderer is disabled conditionally on the {@link TrackGroupArray} mapped to it, where-as
-   * {@link #setRendererDisabled(int, boolean)} disables the renderer unconditionally.
-   * <p>
-   * To remove overrides use {@link #clearSelectionOverride(int, TrackGroupArray)},
-   * {@link #clearSelectionOverrides(int)} or {@link #clearSelectionOverrides()}.
-   *
-   * @param rendererIndex The renderer index.
-   * @param groups The {@link TrackGroupArray} for which the override should be applied.
-   * @param override The override.
-   */
-  public final void setSelectionOverride(int rendererIndex, TrackGroupArray groups,
-      SelectionOverride override) {
-    Map<TrackGroupArray, SelectionOverride> overrides = selectionOverrides.get(rendererIndex);
-    if (overrides == null) {
-      overrides = new HashMap<>();
-      selectionOverrides.put(rendererIndex, overrides);
-    }
-    if (overrides.containsKey(groups) && Util.areEqual(overrides.get(groups), override)) {
-      // The override is unchanged.
-      return;
-    }
-    overrides.put(groups, override);
-    invalidate();
-  }
-
-  /**
-   * Returns whether there is an override for the specified renderer and {@link TrackGroupArray}.
-   *
-   * @param rendererIndex The renderer index.
-   * @param groups The {@link TrackGroupArray}.
-   * @return Whether there is an override.
-   */
-  public final boolean hasSelectionOverride(int rendererIndex, TrackGroupArray groups) {
-    Map<TrackGroupArray, SelectionOverride> overrides = selectionOverrides.get(rendererIndex);
-    return overrides != null && overrides.containsKey(groups);
-  }
-
-  /**
-   * Returns the override for the specified renderer and {@link TrackGroupArray}.
-   *
-   * @param rendererIndex The renderer index.
-   * @param groups The {@link TrackGroupArray}.
-   * @return The override, or null if no override exists.
-   */
-  public final SelectionOverride getSelectionOverride(int rendererIndex, TrackGroupArray groups) {
-    Map<TrackGroupArray, SelectionOverride> overrides = selectionOverrides.get(rendererIndex);
-    return overrides != null ? overrides.get(groups) : null;
-  }
-
-  /**
-   * Clears a track selection override for the specified renderer and {@link TrackGroupArray}.
-   *
-   * @param rendererIndex The renderer index.
-   * @param groups The {@link TrackGroupArray} for which the override should be cleared.
-   */
-  public final void clearSelectionOverride(int rendererIndex, TrackGroupArray groups) {
-    Map<TrackGroupArray, SelectionOverride> overrides = selectionOverrides.get(rendererIndex);
-    if (overrides == null || !overrides.containsKey(groups)) {
-      // Nothing to clear.
-      return;
-    }
-    overrides.remove(groups);
-    if (overrides.isEmpty()) {
-      selectionOverrides.remove(rendererIndex);
-    }
-    invalidate();
-  }
-
-  /**
-   * Clears all track selection overrides for the specified renderer.
-   *
-   * @param rendererIndex The renderer index.
-   */
-  public final void clearSelectionOverrides(int rendererIndex) {
-    Map<TrackGroupArray, ?> overrides = selectionOverrides.get(rendererIndex);
-    if (overrides == null || overrides.isEmpty()) {
-      // Nothing to clear.
-      return;
-    }
-    selectionOverrides.remove(rendererIndex);
-    invalidate();
-  }
-
-  /**
-   * Clears all track selection overrides for all renderers.
-   */
-  public final void clearSelectionOverrides() {
-    if (selectionOverrides.size() == 0) {
-      // Nothing to clear.
-      return;
-    }
-    selectionOverrides.clear();
-    invalidate();
-  }
-
-  /**
-   * Enables or disables tunneling. To enable tunneling, pass an audio session id to use when in
-   * tunneling mode. Session ids can be generated using
-   * {@link C#generateAudioSessionIdV21(Context)}. To disable tunneling pass
-   * {@link C#AUDIO_SESSION_ID_UNSET}. Tunneling will only be activated if it's both enabled and
-   * supported by the audio and video renderers for the selected tracks.
-   *
-   * @param tunnelingAudioSessionId The audio session id to use when tunneling, or
-   *     {@link C#AUDIO_SESSION_ID_UNSET} to disable tunneling.
-   */
-  public void setTunnelingAudioSessionId(int tunnelingAudioSessionId) {
-    if (this.tunnelingAudioSessionId != tunnelingAudioSessionId) {
-      this.tunnelingAudioSessionId = tunnelingAudioSessionId;
-      invalidate();
-    }
-  }
-
   // TrackSelector implementation.
+
+  @Override
+  public final void onSelectionActivated(Object info) {
+    currentMappedTrackInfo = (MappedTrackInfo) info;
+  }
 
   @Override
   public final TrackSelectorResult selectTracks(RendererCapabilities[] rendererCapabilities,
@@ -562,75 +341,33 @@ public abstract class MappingTrackSelector extends TrackSelector {
     TrackGroupArray unassociatedTrackGroupArray = new TrackGroupArray(Arrays.copyOf(
         rendererTrackGroups[rendererCapabilities.length], unassociatedTrackGroupCount));
 
-    TrackSelection[] trackSelections = selectTracks(rendererCapabilities, rendererTrackGroupArrays,
-        rendererFormatSupports);
-
-    // Apply track disabling and overriding.
-    for (int i = 0; i < rendererCapabilities.length; i++) {
-      if (rendererDisabledFlags.get(i)) {
-        trackSelections[i] = null;
-      } else {
-        TrackGroupArray rendererTrackGroup = rendererTrackGroupArrays[i];
-        if (hasSelectionOverride(i, rendererTrackGroup)) {
-          SelectionOverride override = selectionOverrides.get(i).get(rendererTrackGroup);
-          trackSelections[i] = override == null ? null
-              : override.createTrackSelection(rendererTrackGroup);
-        }
-      }
-    }
-
-    boolean[] rendererEnabled = determineEnabledRenderers(rendererCapabilities, trackSelections);
-
     // Package up the track information and selections.
-    MappedTrackInfo mappedTrackInfo = new MappedTrackInfo(rendererTrackTypes,
-        rendererTrackGroupArrays, mixedMimeTypeAdaptationSupport, rendererFormatSupports,
-        unassociatedTrackGroupArray);
+    MappedTrackInfo mappedTrackInfo =
+        new MappedTrackInfo(
+            rendererTrackTypes,
+            rendererTrackGroupArrays,
+            mixedMimeTypeAdaptationSupport,
+            rendererFormatSupports,
+            unassociatedTrackGroupArray);
 
-    // Initialize the renderer configurations to the default configuration for all renderers with
-    // selections, and null otherwise.
-    RendererConfiguration[] rendererConfigurations =
-        new RendererConfiguration[rendererCapabilities.length];
-    for (int i = 0; i < rendererCapabilities.length; i++) {
-      rendererConfigurations[i] = rendererEnabled[i] ? RendererConfiguration.DEFAULT : null;
-    }
-    // Configure audio and video renderers to use tunneling if appropriate.
-    maybeConfigureRenderersForTunneling(rendererCapabilities, rendererTrackGroupArrays,
-        rendererFormatSupports, rendererConfigurations, trackSelections, tunnelingAudioSessionId);
-
-    return new TrackSelectorResult(rendererConfigurations, trackSelections, mappedTrackInfo);
-  }
-
-  private boolean[] determineEnabledRenderers(RendererCapabilities[] rendererCapabilities,
-      TrackSelection[] trackSelections) {
-    boolean[] rendererEnabled = new boolean[trackSelections.length];
-    for (int i = 0; i < rendererEnabled.length; i++) {
-      boolean forceRendererDisabled = rendererDisabledFlags.get(i);
-      rendererEnabled[i] = !forceRendererDisabled
-          && (rendererCapabilities[i].getTrackType() == C.TRACK_TYPE_NONE
-          || trackSelections[i] != null);
-    }
-    return rendererEnabled;
-  }
-
-  @Override
-  public final void onSelectionActivated(Object info) {
-    currentMappedTrackInfo = (MappedTrackInfo) info;
+    Pair<RendererConfiguration[], TrackSelection[]> result =
+        selectTracks(rendererCapabilities, mappedTrackInfo);
+    return new TrackSelectorResult(result.first, result.second, mappedTrackInfo);
   }
 
   /**
-   * Given an array of renderer capabilities and the {@link TrackGroupArray}s mapped to each of
-   * them, provides a {@link TrackSelection} per renderer.
+   * Given mapped track information, returns a track selection and configuration for each renderer.
    *
-   * @param rendererCapabilities The {@link RendererCapabilities} of the renderers for which
-   *     {@link TrackSelection}s are to be generated.
-   * @param rendererTrackGroupArrays The {@link TrackGroupArray}s mapped to each of the renderers.
-   * @param rendererFormatSupports The result of {@link RendererCapabilities#supportsFormat} for
-   *     each mapped track, indexed by renderer index, track group index and track index (in that
-   *     order).
+   * @param rendererCapabilities The {@link RendererCapabilities} of each renderer.
+   * @param mappedTrackInfo Mapped track information.
+   * @return A pair consisting of the track selections and configurations for each renderer. A null
+   *     configuration indicates the renderer should be disabled, in which case the track selection
+   *     will also be null. A track selection may also be null for a non-disabled renderer if {@link
+   *     RendererCapabilities#getTrackType()} is {@link C#TRACK_TYPE_NONE}.
    * @throws ExoPlaybackException If an error occurs while selecting the tracks.
    */
-  protected abstract TrackSelection[] selectTracks(RendererCapabilities[] rendererCapabilities,
-      TrackGroupArray[] rendererTrackGroupArrays, int[][][] rendererFormatSupports)
+  protected abstract Pair<RendererConfiguration[], TrackSelection[]> selectTracks(
+      RendererCapabilities[] rendererCapabilities, MappedTrackInfo mappedTrackInfo)
       throws ExoPlaybackException;
 
   /**
@@ -710,94 +447,6 @@ public abstract class MappingTrackSelector extends TrackSelector {
       mixedMimeTypeAdaptationSupport[i] = rendererCapabilities[i].supportsMixedMimeTypeAdaptation();
     }
     return mixedMimeTypeAdaptationSupport;
-  }
-
-  /**
-   * Determines whether tunneling should be enabled, replacing {@link RendererConfiguration}s in
-   * {@code rendererConfigurations} with configurations that enable tunneling on the appropriate
-   * renderers if so.
-   *
-   * @param rendererCapabilities The {@link RendererCapabilities} of the renderers for which
-   *     {@link TrackSelection}s are to be generated.
-   * @param rendererTrackGroupArrays An array of {@link TrackGroupArray}s where each entry
-   *     corresponds to the renderer of equal index in {@code renderers}.
-   * @param rendererFormatSupports Maps every available track to a specific level of support as
-   *     defined by the renderer {@code FORMAT_*} constants.
-   * @param rendererConfigurations The renderer configurations. Configurations may be replaced with
-   *     ones that enable tunneling as a result of this call.
-   * @param trackSelections The renderer track selections.
-   * @param tunnelingAudioSessionId The audio session id to use when tunneling, or
-   *     {@link C#AUDIO_SESSION_ID_UNSET} if tunneling should not be enabled.
-   */
-  private static void maybeConfigureRenderersForTunneling(
-      RendererCapabilities[] rendererCapabilities, TrackGroupArray[] rendererTrackGroupArrays,
-      int[][][] rendererFormatSupports, RendererConfiguration[] rendererConfigurations,
-      TrackSelection[] trackSelections, int tunnelingAudioSessionId) {
-    if (tunnelingAudioSessionId == C.AUDIO_SESSION_ID_UNSET) {
-      return;
-    }
-    // Check whether we can enable tunneling. To enable tunneling we require exactly one audio and
-    // one video renderer to support tunneling and have a selection.
-    int tunnelingAudioRendererIndex = -1;
-    int tunnelingVideoRendererIndex = -1;
-    boolean enableTunneling = true;
-    for (int i = 0; i < rendererCapabilities.length; i++) {
-      int rendererType = rendererCapabilities[i].getTrackType();
-      TrackSelection trackSelection = trackSelections[i];
-      if ((rendererType == C.TRACK_TYPE_AUDIO || rendererType == C.TRACK_TYPE_VIDEO)
-          && trackSelection != null) {
-        if (rendererSupportsTunneling(rendererFormatSupports[i], rendererTrackGroupArrays[i],
-            trackSelection)) {
-          if (rendererType == C.TRACK_TYPE_AUDIO) {
-            if (tunnelingAudioRendererIndex != -1) {
-              enableTunneling = false;
-              break;
-            } else {
-              tunnelingAudioRendererIndex = i;
-            }
-          } else {
-            if (tunnelingVideoRendererIndex != -1) {
-              enableTunneling = false;
-              break;
-            } else {
-              tunnelingVideoRendererIndex = i;
-            }
-          }
-        }
-      }
-    }
-    enableTunneling &= tunnelingAudioRendererIndex != -1 && tunnelingVideoRendererIndex != -1;
-    if (enableTunneling) {
-      RendererConfiguration tunnelingRendererConfiguration =
-          new RendererConfiguration(tunnelingAudioSessionId);
-      rendererConfigurations[tunnelingAudioRendererIndex] = tunnelingRendererConfiguration;
-      rendererConfigurations[tunnelingVideoRendererIndex] = tunnelingRendererConfiguration;
-    }
-  }
-
-  /**
-   * Returns whether a renderer supports tunneling for a {@link TrackSelection}.
-   *
-   * @param formatSupport The result of {@link RendererCapabilities#supportsFormat} for each
-   *     track, indexed by group index and track index (in that order).
-   * @param trackGroups The {@link TrackGroupArray}s for the renderer.
-   * @param selection The track selection.
-   * @return Whether the renderer supports tunneling for the {@link TrackSelection}.
-   */
-  private static boolean rendererSupportsTunneling(int[][] formatSupport,
-      TrackGroupArray trackGroups, TrackSelection selection) {
-    if (selection == null) {
-      return false;
-    }
-    int trackGroupIndex = trackGroups.indexOf(selection.getTrackGroup());
-    for (int i = 0; i < selection.length(); i++) {
-      int trackFormatSupport = formatSupport[trackGroupIndex][selection.getIndexInTrackGroup(i)];
-      if ((trackFormatSupport & RendererCapabilities.TUNNELING_SUPPORT_MASK)
-          != RendererCapabilities.TUNNELING_SUPPORTED) {
-        return false;
-      }
-    }
-    return true;
   }
 
 }
