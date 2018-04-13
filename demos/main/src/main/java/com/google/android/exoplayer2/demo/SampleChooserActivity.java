@@ -45,7 +45,6 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.UUID;
 
 /**
  * An activity for selecting from a list of samples.
@@ -178,13 +177,14 @@ public class SampleChooserActivity extends Activity {
       String sampleName = null;
       String uri = null;
       String extension = null;
-      UUID drmUuid = null;
+      String drmScheme = null;
       String drmLicenseUrl = null;
       String[] drmKeyRequestProperties = null;
       boolean drmMultiSession = false;
       boolean preferExtensionDecoders = false;
       ArrayList<UriSample> playlistSamples = null;
       String adTagUri = null;
+      String abrAlgorithm = null;
 
       reader.beginObject();
       while (reader.hasNext()) {
@@ -201,9 +201,7 @@ public class SampleChooserActivity extends Activity {
             break;
           case "drm_scheme":
             Assertions.checkState(!insidePlaylist, "Invalid attribute on nested item: drm_scheme");
-            String drmScheme = reader.nextString();
-            drmUuid = Util.getDrmUuid(drmScheme);
-            Assertions.checkState(drmUuid != null, "Invalid drm_scheme: " + drmScheme);
+            drmScheme = reader.nextString();
             break;
           case "drm_license_url":
             Assertions.checkState(!insidePlaylist,
@@ -242,21 +240,28 @@ public class SampleChooserActivity extends Activity {
           case "ad_tag_uri":
             adTagUri = reader.nextString();
             break;
+          case "abr_algorithm":
+            Assertions.checkState(
+                !insidePlaylist, "Invalid attribute on nested item: abr_algorithm");
+            abrAlgorithm = reader.nextString();
+            break;
           default:
             throw new ParserException("Unsupported attribute name: " + name);
         }
       }
       reader.endObject();
-      DrmInfo drmInfo = drmUuid == null ? null : new DrmInfo(drmUuid, drmLicenseUrl,
-          drmKeyRequestProperties, drmMultiSession);
+      DrmInfo drmInfo =
+          drmScheme == null
+              ? null
+              : new DrmInfo(drmScheme, drmLicenseUrl, drmKeyRequestProperties, drmMultiSession);
       if (playlistSamples != null) {
         UriSample[] playlistSamplesArray = playlistSamples.toArray(
             new UriSample[playlistSamples.size()]);
-        return new PlaylistSample(sampleName, preferExtensionDecoders, drmInfo,
-            playlistSamplesArray);
+        return new PlaylistSample(
+            sampleName, preferExtensionDecoders, abrAlgorithm, drmInfo, playlistSamplesArray);
       } else {
-        return new UriSample(sampleName, preferExtensionDecoders, drmInfo, uri, extension,
-            adTagUri);
+        return new UriSample(
+            sampleName, preferExtensionDecoders, abrAlgorithm, drmInfo, uri, extension, adTagUri);
       }
     }
 
@@ -362,14 +367,17 @@ public class SampleChooserActivity extends Activity {
   }
 
   private static final class DrmInfo {
-    public final UUID drmSchemeUuid;
+    public final String drmScheme;
     public final String drmLicenseUrl;
     public final String[] drmKeyRequestProperties;
     public final boolean drmMultiSession;
 
-    public DrmInfo(UUID drmSchemeUuid, String drmLicenseUrl,
-        String[] drmKeyRequestProperties, boolean drmMultiSession) {
-      this.drmSchemeUuid = drmSchemeUuid;
+    public DrmInfo(
+        String drmScheme,
+        String drmLicenseUrl,
+        String[] drmKeyRequestProperties,
+        boolean drmMultiSession) {
+      this.drmScheme = drmScheme;
       this.drmLicenseUrl = drmLicenseUrl;
       this.drmKeyRequestProperties = drmKeyRequestProperties;
       this.drmMultiSession = drmMultiSession;
@@ -377,31 +385,34 @@ public class SampleChooserActivity extends Activity {
 
     public void updateIntent(Intent intent) {
       Assertions.checkNotNull(intent);
-      intent.putExtra(PlayerActivity.DRM_SCHEME_EXTRA, drmSchemeUuid.toString());
-      intent.putExtra(PlayerActivity.DRM_LICENSE_URL, drmLicenseUrl);
-      intent.putExtra(PlayerActivity.DRM_KEY_REQUEST_PROPERTIES, drmKeyRequestProperties);
-      intent.putExtra(PlayerActivity.DRM_MULTI_SESSION, drmMultiSession);
+      intent.putExtra(PlayerActivity.DRM_SCHEME_EXTRA, drmScheme);
+      intent.putExtra(PlayerActivity.DRM_LICENSE_URL_EXTRA, drmLicenseUrl);
+      intent.putExtra(PlayerActivity.DRM_KEY_REQUEST_PROPERTIES_EXTRA, drmKeyRequestProperties);
+      intent.putExtra(PlayerActivity.DRM_MULTI_SESSION_EXTRA, drmMultiSession);
     }
   }
 
   private abstract static class Sample {
     public final String name;
     public final boolean preferExtensionDecoders;
+    public final String abrAlgorithm;
     public final DrmInfo drmInfo;
 
-    public Sample(String name, boolean preferExtensionDecoders, DrmInfo drmInfo) {
+    public Sample(
+        String name, boolean preferExtensionDecoders, String abrAlgorithm, DrmInfo drmInfo) {
       this.name = name;
       this.preferExtensionDecoders = preferExtensionDecoders;
+      this.abrAlgorithm = abrAlgorithm;
       this.drmInfo = drmInfo;
     }
 
     public Intent buildIntent(Context context) {
       Intent intent = new Intent(context, PlayerActivity.class);
-      intent.putExtra(PlayerActivity.PREFER_EXTENSION_DECODERS, preferExtensionDecoders);
+      intent.putExtra(PlayerActivity.PREFER_EXTENSION_DECODERS_EXTRA, preferExtensionDecoders);
+      intent.putExtra(PlayerActivity.ABR_ALGORITHM_EXTRA, abrAlgorithm);
       if (drmInfo != null) {
         drmInfo.updateIntent(intent);
       }
-
       return intent;
     }
 
@@ -413,9 +424,15 @@ public class SampleChooserActivity extends Activity {
     public final String extension;
     public final String adTagUri;
 
-    public UriSample(String name, boolean preferExtensionDecoders, DrmInfo drmInfo, String uri,
-        String extension, String adTagUri) {
-      super(name, preferExtensionDecoders, drmInfo);
+    public UriSample(
+        String name,
+        boolean preferExtensionDecoders,
+        String abrAlgorithm,
+        DrmInfo drmInfo,
+        String uri,
+        String extension,
+        String adTagUri) {
+      super(name, preferExtensionDecoders, abrAlgorithm, drmInfo);
       this.uri = uri;
       this.extension = extension;
       this.adTagUri = adTagUri;
@@ -436,9 +453,13 @@ public class SampleChooserActivity extends Activity {
 
     public final UriSample[] children;
 
-    public PlaylistSample(String name, boolean preferExtensionDecoders, DrmInfo drmInfo,
+    public PlaylistSample(
+        String name,
+        boolean preferExtensionDecoders,
+        String abrAlgorithm,
+        DrmInfo drmInfo,
         UriSample... children) {
-      super(name, preferExtensionDecoders, drmInfo);
+      super(name, preferExtensionDecoders, abrAlgorithm, drmInfo);
       this.children = children;
     }
 

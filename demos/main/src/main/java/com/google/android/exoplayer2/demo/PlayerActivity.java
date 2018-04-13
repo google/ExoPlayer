@@ -68,6 +68,7 @@ import com.google.android.exoplayer2.source.smoothstreaming.manifest.TrackKey;
 import com.google.android.exoplayer2.trackselection.AdaptiveTrackSelection;
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
 import com.google.android.exoplayer2.trackselection.MappingTrackSelector.MappedTrackInfo;
+import com.google.android.exoplayer2.trackselection.RandomTrackSelection;
 import com.google.android.exoplayer2.trackselection.TrackSelection;
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
 import com.google.android.exoplayer2.ui.DebugTextViewHelper;
@@ -91,10 +92,10 @@ public class PlayerActivity extends Activity
     implements OnClickListener, PlaybackPreparer, PlayerControlView.VisibilityListener {
 
   public static final String DRM_SCHEME_EXTRA = "drm_scheme";
-  public static final String DRM_LICENSE_URL = "drm_license_url";
-  public static final String DRM_KEY_REQUEST_PROPERTIES = "drm_key_request_properties";
-  public static final String DRM_MULTI_SESSION = "drm_multi_session";
-  public static final String PREFER_EXTENSION_DECODERS = "prefer_extension_decoders";
+  public static final String DRM_LICENSE_URL_EXTRA = "drm_license_url";
+  public static final String DRM_KEY_REQUEST_PROPERTIES_EXTRA = "drm_key_request_properties";
+  public static final String DRM_MULTI_SESSION_EXTRA = "drm_multi_session";
+  public static final String PREFER_EXTENSION_DECODERS_EXTRA = "prefer_extension_decoders";
 
   public static final String ACTION_VIEW = "com.google.android.exoplayer.demo.action.VIEW";
   public static final String EXTENSION_EXTRA = "extension";
@@ -108,7 +109,11 @@ public class PlayerActivity extends Activity
 
   public static final String AD_TAG_URI_EXTRA = "ad_tag_uri";
 
-  // For backwards compatibility.
+  public static final String ABR_ALGORITHM_EXTRA = "abr_algorithm";
+  private static final String ABR_ALGORITHM_DEFAULT = "default";
+  private static final String ABR_ALGORITHM_RANDOM = "random";
+
+  // For backwards compatibility only.
   private static final String DRM_SCHEME_UUID_EXTRA = "drm_scheme_uuid";
 
   private static final DefaultBandwidthMeter BANDWIDTH_METER = new DefaultBandwidthMeter();
@@ -292,6 +297,7 @@ public class PlayerActivity extends Activity
         }
       } else {
         showToast(getString(R.string.unexpected_intent_action, action));
+        finish();
         return;
       }
       if (Util.maybeRequestReadExternalStoragePermission(this, uris)) {
@@ -301,9 +307,10 @@ public class PlayerActivity extends Activity
 
       DefaultDrmSessionManager<FrameworkMediaCrypto> drmSessionManager = null;
       if (intent.hasExtra(DRM_SCHEME_EXTRA) || intent.hasExtra(DRM_SCHEME_UUID_EXTRA)) {
-        String drmLicenseUrl = intent.getStringExtra(DRM_LICENSE_URL);
-        String[] keyRequestPropertiesArray = intent.getStringArrayExtra(DRM_KEY_REQUEST_PROPERTIES);
-        boolean multiSession = intent.getBooleanExtra(DRM_MULTI_SESSION, false);
+        String drmLicenseUrl = intent.getStringExtra(DRM_LICENSE_URL_EXTRA);
+        String[] keyRequestPropertiesArray =
+            intent.getStringArrayExtra(DRM_KEY_REQUEST_PROPERTIES_EXTRA);
+        boolean multiSession = intent.getBooleanExtra(DRM_MULTI_SESSION_EXTRA, false);
         int errorStringId = R.string.error_drm_unknown;
         if (Util.SDK_INT < 18) {
           errorStringId = R.string.error_drm_not_supported;
@@ -326,11 +333,25 @@ public class PlayerActivity extends Activity
         }
         if (drmSessionManager == null) {
           showToast(errorStringId);
+          finish();
           return;
         }
       }
 
-      boolean preferExtensionDecoders = intent.getBooleanExtra(PREFER_EXTENSION_DECODERS, false);
+      TrackSelection.Factory trackSelectionFactory;
+      String abrAlgorithm = intent.getStringExtra(ABR_ALGORITHM_EXTRA);
+      if (abrAlgorithm == null || ABR_ALGORITHM_DEFAULT.equals(abrAlgorithm)) {
+        trackSelectionFactory = new AdaptiveTrackSelection.Factory(BANDWIDTH_METER);
+      } else if (ABR_ALGORITHM_RANDOM.equals(abrAlgorithm)) {
+        trackSelectionFactory = new RandomTrackSelection.Factory();
+      } else {
+        showToast(R.string.error_unrecognized_abr_algorithm);
+        finish();
+        return;
+      }
+
+      boolean preferExtensionDecoders =
+          intent.getBooleanExtra(PREFER_EXTENSION_DECODERS_EXTRA, false);
       @DefaultRenderersFactory.ExtensionRendererMode int extensionRendererMode =
           ((DemoApplication) getApplication()).useExtensionRenderers()
               ? (preferExtensionDecoders ? DefaultRenderersFactory.EXTENSION_RENDERER_MODE_PREFER
@@ -339,10 +360,8 @@ public class PlayerActivity extends Activity
       DefaultRenderersFactory renderersFactory =
           new DefaultRenderersFactory(this, extensionRendererMode);
 
-      TrackSelection.Factory adaptiveTrackSelectionFactory =
-          new AdaptiveTrackSelection.Factory(BANDWIDTH_METER);
-      trackSelector = new DefaultTrackSelector(adaptiveTrackSelectionFactory);
-      trackSelectionHelper = new TrackSelectionHelper(trackSelector, adaptiveTrackSelectionFactory);
+      trackSelector = new DefaultTrackSelector(trackSelectionFactory);
+      trackSelectionHelper = new TrackSelectionHelper(trackSelector, trackSelectionFactory);
       lastSeenTrackGroupArray = null;
 
       player =

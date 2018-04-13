@@ -31,9 +31,7 @@ import com.google.android.exoplayer2.source.TrackGroup;
 import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector.SelectionOverride;
-import com.google.android.exoplayer2.trackselection.FixedTrackSelection;
 import com.google.android.exoplayer2.trackselection.MappingTrackSelector.MappedTrackInfo;
-import com.google.android.exoplayer2.trackselection.RandomTrackSelection;
 import com.google.android.exoplayer2.trackselection.TrackSelection;
 import java.util.Arrays;
 
@@ -43,11 +41,8 @@ import java.util.Arrays;
 /* package */ final class TrackSelectionHelper implements View.OnClickListener,
     DialogInterface.OnClickListener {
 
-  private static final TrackSelection.Factory FIXED_FACTORY = new FixedTrackSelection.Factory();
-  private static final TrackSelection.Factory RANDOM_FACTORY = new RandomTrackSelection.Factory();
-
   private final DefaultTrackSelector selector;
-  private final TrackSelection.Factory adaptiveTrackSelectionFactory;
+  private final TrackSelection.Factory trackSelectionFactory;
 
   private MappedTrackInfo trackInfo;
   private int rendererIndex;
@@ -58,18 +53,16 @@ import java.util.Arrays;
 
   private CheckedTextView disableView;
   private CheckedTextView defaultView;
-  private CheckedTextView enableRandomAdaptationView;
   private CheckedTextView[][] trackViews;
 
   /**
    * @param selector The track selector.
-   * @param adaptiveTrackSelectionFactory A factory for adaptive {@link TrackSelection}s, or null if
-   *     the selection helper should not support adaptive tracks.
+   * @param trackSelectionFactory A factory for overriding {@link TrackSelection}s.
    */
   public TrackSelectionHelper(
-      DefaultTrackSelector selector, TrackSelection.Factory adaptiveTrackSelectionFactory) {
+      DefaultTrackSelector selector, TrackSelection.Factory trackSelectionFactory) {
     this.selector = selector;
-    this.adaptiveTrackSelectionFactory = adaptiveTrackSelectionFactory;
+    this.trackSelectionFactory = trackSelectionFactory;
   }
 
   /**
@@ -88,10 +81,10 @@ import java.util.Arrays;
     trackGroups = trackInfo.getTrackGroups(rendererIndex);
     trackGroupsAdaptive = new boolean[trackGroups.length];
     for (int i = 0; i < trackGroups.length; i++) {
-      trackGroupsAdaptive[i] = adaptiveTrackSelectionFactory != null
-          && trackInfo.getAdaptiveSupport(rendererIndex, i, false)
-              != RendererCapabilities.ADAPTIVE_NOT_SUPPORTED
-          && trackGroups.get(i).length > 1;
+      trackGroupsAdaptive[i] =
+          trackInfo.getAdaptiveSupport(rendererIndex, i, false)
+                  != RendererCapabilities.ADAPTIVE_NOT_SUPPORTED
+              && trackGroups.get(i).length > 1;
     }
     isDisabled = selector.getRendererDisabled(rendererIndex);
     override = selector.getSelectionOverride(rendererIndex, trackGroups);
@@ -136,12 +129,10 @@ import java.util.Arrays;
     root.addView(defaultView);
 
     // Per-track views.
-    boolean haveAdaptiveTracks = false;
     trackViews = new CheckedTextView[trackGroups.length][];
     for (int groupIndex = 0; groupIndex < trackGroups.length; groupIndex++) {
       TrackGroup group = trackGroups.get(groupIndex);
       boolean groupIsAdaptive = trackGroupsAdaptive[groupIndex];
-      haveAdaptiveTracks |= groupIsAdaptive;
       trackViews[groupIndex] = new CheckedTextView[group.length];
       for (int trackIndex = 0; trackIndex < group.length; trackIndex++) {
         if (trackIndex == 0) {
@@ -167,17 +158,6 @@ import java.util.Arrays;
       }
     }
 
-    if (haveAdaptiveTracks) {
-      // View for using random adaptation.
-      enableRandomAdaptationView = (CheckedTextView) inflater.inflate(
-          android.R.layout.simple_list_item_multiple_choice, root, false);
-      enableRandomAdaptationView.setBackgroundResource(selectableItemBackgroundResourceId);
-      enableRandomAdaptationView.setText(R.string.enable_random_adaptation);
-      enableRandomAdaptationView.setOnClickListener(this);
-      root.addView(inflater.inflate(R.layout.list_divider, root, false));
-      root.addView(enableRandomAdaptationView);
-    }
-
     updateViews();
     return view;
   }
@@ -189,15 +169,6 @@ import java.util.Arrays;
       for (int j = 0; j < trackViews[i].length; j++) {
         trackViews[i][j].setChecked(override != null && override.groupIndex == i
             && override.containsTrack(j));
-      }
-    }
-    if (enableRandomAdaptationView != null) {
-      boolean enableView = !isDisabled && override != null && override.length > 1;
-      enableRandomAdaptationView.setEnabled(enableView);
-      enableRandomAdaptationView.setFocusable(enableView);
-      if (enableView) {
-        enableRandomAdaptationView.setChecked(!isDisabled
-            && override.factory instanceof RandomTrackSelection.Factory);
       }
     }
   }
@@ -224,8 +195,6 @@ import java.util.Arrays;
     } else if (view == defaultView) {
       isDisabled = false;
       override = null;
-    } else if (view == enableRandomAdaptationView) {
-      setOverride(override.groupIndex, override.tracks, !enableRandomAdaptationView.isChecked());
     } else {
       isDisabled = false;
       @SuppressWarnings("unchecked")
@@ -234,7 +203,7 @@ import java.util.Arrays;
       int trackIndex = tag.second;
       if (!trackGroupsAdaptive[groupIndex] || override == null
           || override.groupIndex != groupIndex) {
-        override = new SelectionOverride(FIXED_FACTORY, groupIndex, trackIndex);
+        setOverride(groupIndex, trackIndex);
       } else {
         // The group being modified is adaptive and we already have a non-null override.
         boolean isEnabled = ((CheckedTextView) view).isChecked();
@@ -246,13 +215,11 @@ import java.util.Arrays;
             override = null;
             isDisabled = true;
           } else {
-            setOverride(groupIndex, getTracksRemoving(override, trackIndex),
-                enableRandomAdaptationView.isChecked());
+            setOverride(groupIndex, getTracksRemoving(override, trackIndex));
           }
         } else {
           // Add the track to the override.
-          setOverride(groupIndex, getTracksAdding(override, trackIndex),
-              enableRandomAdaptationView.isChecked());
+          setOverride(groupIndex, getTracksAdding(override, trackIndex));
         }
       }
     }
@@ -260,10 +227,8 @@ import java.util.Arrays;
     updateViews();
   }
 
-  private void setOverride(int group, int[] tracks, boolean enableRandomAdaptation) {
-    TrackSelection.Factory factory = tracks.length == 1 ? FIXED_FACTORY
-        : (enableRandomAdaptation ? RANDOM_FACTORY : adaptiveTrackSelectionFactory);
-    override = new SelectionOverride(factory, group, tracks);
+  private void setOverride(int group, int... tracks) {
+    override = new SelectionOverride(trackSelectionFactory, group, tracks);
   }
 
   // Track array manipulation.
