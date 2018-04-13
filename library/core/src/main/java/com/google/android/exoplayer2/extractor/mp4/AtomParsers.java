@@ -54,6 +54,12 @@ import java.util.List;
   private static final int TYPE_meta = Util.getIntegerCodeForString("meta");
 
   /**
+   * The threshold number of samples to trim from the start/end of an audio track when applying an
+   * edit below which gapless info can be used (rather than removing samples from the sample table).
+   */
+  private static final int MAX_GAPLESS_TRIM_SIZE_SAMPLES = 3;
+
+  /**
    * Parses a trak atom (defined in 14496-12).
    *
    * @param trak Atom to decode.
@@ -311,22 +317,18 @@ import java.util.List;
 
     // See the BMFF spec (ISO 14496-12) subsection 8.6.6. Edit lists that require prerolling from a
     // sync sample after reordering are not supported. Partial audio sample truncation is only
-    // supported in edit lists with one edit that removes less than one sample from the start/end of
-    // the track, for gapless audio playback. This implementation handles simple discarding/delaying
-    // of samples. The extractor may place further restrictions on what edited streams are playable.
+    // supported in edit lists with one edit that removes less than MAX_GAPLESS_TRIM_SIZE_SAMPLES
+    // samples from the start/end of the track. This implementation handles simple
+    // discarding/delaying of samples. The extractor may place further restrictions on what edited
+    // streams are playable.
 
-    if (track.editListDurations.length == 1 && track.type == C.TRACK_TYPE_AUDIO
+    if (track.editListDurations.length == 1
+        && track.type == C.TRACK_TYPE_AUDIO
         && timestamps.length >= 2) {
-      // Handle the edit by setting gapless playback metadata, if possible. This implementation
-      // assumes that only one "roll" sample is needed, which is the case for AAC, so the start/end
-      // points of the edit must lie within the first/last samples respectively.
       long editStartTime = track.editListMediaTimes[0];
       long editEndTime = editStartTime + Util.scaleLargeTimestamp(track.editListDurations[0],
           track.timescale, track.movieTimescale);
-      if (timestamps[0] <= editStartTime
-          && editStartTime < timestamps[1]
-          && timestamps[timestamps.length - 1] < editEndTime
-          && editEndTime <= duration) {
+      if (canApplyEditWithGaplessInfo(timestamps, duration, editStartTime, editEndTime)) {
         long paddingTimeUnits = duration - editEndTime;
         long encoderDelay = Util.scaleLargeTimestamp(editStartTime - timestamps[0],
             track.format.sampleRate, track.timescale);
@@ -1178,6 +1180,19 @@ import java.util.List;
       size = (size << 7) | (currentByte & 0x7F);
     }
     return size;
+  }
+
+  /** Returns whether it's possible to apply the specified edit using gapless playback info. */
+  private static boolean canApplyEditWithGaplessInfo(
+      long[] timestamps, long duration, long editStartTime, long editEndTime) {
+    int lastIndex = timestamps.length - 1;
+    int latestDelayIndex = Util.constrainValue(MAX_GAPLESS_TRIM_SIZE_SAMPLES, 0, lastIndex);
+    int earliestPaddingIndex =
+        Util.constrainValue(timestamps.length - MAX_GAPLESS_TRIM_SIZE_SAMPLES, 0, lastIndex);
+    return timestamps[0] <= editStartTime
+        && editStartTime < timestamps[latestDelayIndex]
+        && timestamps[earliestPaddingIndex] < editEndTime
+        && editEndTime <= duration;
   }
 
   private AtomParsers() {
