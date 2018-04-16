@@ -264,17 +264,6 @@ public abstract class MappingTrackSelector extends TrackSelector {
 
   }
 
-  // TODO: Make DefaultTrackSelector.SelectionOverride final when this is removed.
-  /** @deprecated Use {@link DefaultTrackSelector.SelectionOverride} */
-  @Deprecated
-  public static final class SelectionOverride extends DefaultTrackSelector.SelectionOverride {
-
-    public SelectionOverride(TrackSelection.Factory factory, int groupIndex, int... tracks) {
-      super(factory, groupIndex, tracks);
-    }
-
-  }
-
   private MappedTrackInfo currentMappedTrackInfo;
 
   /**

@@ -361,7 +361,7 @@ public class PlayerActivity extends Activity
           new DefaultRenderersFactory(this, extensionRendererMode);
 
       trackSelector = new DefaultTrackSelector(trackSelectionFactory);
-      trackSelectionHelper = new TrackSelectionHelper(trackSelector, trackSelectionFactory);
+      trackSelectionHelper = new TrackSelectionHelper(trackSelector);
       lastSeenTrackGroupArray = null;
 
       player =
