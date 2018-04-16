@@ -1,19 +1,30 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--
+     Copyright (C) 2016 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
 <resources>
-  <string name="exo_controls_previous_description">Ankstesnis takelis</string>
-  <string name="exo_controls_next_description">Kitas takelis</string>
-  <string name="exo_controls_pause_description">Pristabdyti</string>
-  <string name="exo_controls_play_description">Leisti</string>
-  <string name="exo_controls_stop_description">Sustabdyti</string>
-  <string name="exo_controls_rewind_description">Sukti atgal</string>
-  <string name="exo_controls_fastforward_description">Sukti pirmyn</string>
-  <string name="exo_controls_repeat_off_description">Nekartoti nieko</string>
-  <string name="exo_controls_repeat_one_description">Kartoti vieną</string>
-  <string name="exo_controls_repeat_all_description">Kartoti viską</string>
-  <string name="exo_controls_shuffle_description">Maišyti</string>
+  <string name="exo_controls_previous_description">"Ankstesnis takelis"</string>
+  <string name="exo_controls_next_description">"Kitas takelis"</string>
+  <string name="exo_controls_pause_description">"Pristabdyti"</string>
+  <string name="exo_controls_play_description">"Leisti"</string>
+  <string name="exo_controls_stop_description">"Stabdyti"</string>
+  <string name="exo_controls_rewind_description">"Sukti atgal"</string>
+  <string name="exo_controls_fastforward_description">"Sukti pirmyn"</string>
+  <string name="exo_controls_repeat_all_description">"Kartoti viską"</string>
+  <string name="exo_controls_repeat_off_description">"Nekartoti nieko"</string>
+  <string name="exo_controls_repeat_one_description">"Kartoti vieną"</string>
+  <string name="exo_controls_shuffle_description">"Maišyti"</string>
   <string name="exo_controls_fullscreen_description">Viso ekrano režimas</string>
-  <string name="exo_download_queued">Atsisiunč. elem. laukia eilėje</string>
-  <string name="exo_downloading">Atsisiunčiama</string>
-  <string name="exo_download_completed">Atsisiuntimo procesas baigtas</string>
-  <string name="exo_download_failed">Nepavyko atsisiųsti</string>
 </resources>

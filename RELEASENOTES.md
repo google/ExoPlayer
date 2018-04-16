@@ -65,9 +65,6 @@
     ([#4022][https://github.com/google/ExoPlayer/issues/4022]).
   * Fix handling of 307/308 redirects when making license requests
     ([#4108](https://github.com/google/ExoPlayer/issues/4108)).
-* Removed default renderer time offset of 60000000 from internal player. The
-  actual renderer timestamp offset can be obtained by listening to
-  `BaseRenderer.onStreamChanged`.
 * HLS: Fix playlist loading error propagation when the current selection does
   not include all of the playlist's variants.
 * Fix ClearKey decryption error if the key contains a forward slash
@@ -75,6 +72,10 @@
 * Fix crash when switching surface on Huawei P9 Lite
   ([#4084](https://github.com/google/ExoPlayer/issues/4084)), and Philips QM163E
   ([#4104](https://github.com/google/ExoPlayer/issues/4104)).
+* Support ZLIB compressed PGS subtitles.
+* Removed default renderer time offset of 60000000 from internal player. The
+  actual renderer timestamp offset can be obtained by listening to
+  `BaseRenderer.onStreamChanged`.
 
 ### 2.7.3 ###
 
