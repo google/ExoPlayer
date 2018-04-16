@@ -25,10 +25,8 @@ import com.google.android.exoplayer2.util.Util;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.io.ByteArrayOutputStream;
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.util.zip.InflaterInputStream;
+import java.util.zip.DataFormatException;
+import java.util.zip.Inflater;
 
 /** A {@link SimpleSubtitleDecoder} for PGS subtitles. */
 public final class PgsDecoder extends SimpleSubtitleDecoder {
@@ -38,29 +36,28 @@ public final class PgsDecoder extends SimpleSubtitleDecoder {
   private static final int SECTION_TYPE_IDENTIFIER = 0x16;
   private static final int SECTION_TYPE_END = 0x80;
 
-  private static final int INFLATE_HEADER = 0x78;
-  private static final int INFLATE_BUFFER_SIZE = 5;
+  private static final byte INFLATE_HEADER = 0x78;
 
   private final ParsableByteArray buffer;
   private final CueBuilder cueBuilder;
-  private final ByteArrayOutputStream inflateBuffer;
-  private final byte[] inflateReadBuffer;
+
+  private Inflater inflater;
+  private byte[] inflatedData;
+  private int inflatedDataSize;
 
   public PgsDecoder() {
     super("PgsDecoder");
     buffer = new ParsableByteArray();
     cueBuilder = new CueBuilder();
-    inflateBuffer = new ByteArrayOutputStream();
-    inflateReadBuffer = new byte[INFLATE_BUFFER_SIZE];
   }
 
   @Override
   protected Subtitle decode(byte[] data, int size, boolean reset) throws SubtitleDecoderException {
-    byte[] inflated = tryInflateBuffer(data, size);
-    if (inflated == null)
+    if (maybeInflateData(data, size)) {
+      buffer.reset(inflatedData, inflatedDataSize);
+    } else {
       buffer.reset(data, size);
-    else
-      buffer.reset(inflated, inflated.length);
+    }
     cueBuilder.reset();
     ArrayList<Cue> cues = new ArrayList<>();
     while (buffer.bytesLeft() >= 3) {
@@ -72,23 +69,32 @@ public final class PgsDecoder extends SimpleSubtitleDecoder {
     return new PgsSubtitle(Collections.unmodifiableList(cues));
   }
 
-  private byte[] tryInflateBuffer(byte[] data, int size) {
-    if (size > 0 && (((int) data[0]) & 0xff) != INFLATE_HEADER) return null;
-
-    inflateBuffer.reset();
-
-    try {
-      InflaterInputStream iis = new InflaterInputStream(new ByteArrayInputStream(data, 0, size));
-      int len = -1;
-
-      while ((len = iis.read(inflateReadBuffer)) != -1) {
-        inflateBuffer.write(inflateReadBuffer, 0, len);
-      }
-      return inflateBuffer.toByteArray();
+  private boolean maybeInflateData(byte[] data, int size) {
+    if (size == 0 || data[0] != INFLATE_HEADER) {
+      return false;
     }
-    catch (IOException e) { }
-
-    return null;
+    if (inflater == null) {
+      inflater = new Inflater();
+      inflatedData = new byte[size];
+    }
+    inflatedDataSize = 0;
+    inflater.setInput(data, 0, size);
+    try {
+      while (!inflater.finished() && !inflater.needsDictionary() && !inflater.needsInput()) {
+        if (inflatedDataSize == inflatedData.length) {
+          inflatedData = Arrays.copyOf(inflatedData, inflatedData.length * 2);
+        }
+        inflatedDataSize +=
+            inflater.inflate(
+                inflatedData, inflatedDataSize, inflatedData.length - inflatedDataSize);
+      }
+      return inflater.finished();
+    } catch (DataFormatException e) {
+      // Assume data is not compressed.
+      return false;
+    } finally {
+      inflater.reset();
+    }
   }
 
   private static Cue readNextSection(ParsableByteArray buffer, CueBuilder cueBuilder) {

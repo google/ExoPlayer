@@ -80,10 +80,10 @@ public final class CacheDataSink implements DataSink {
    * Constructs a CacheDataSink using the {@link #DEFAULT_BUFFER_SIZE}.
    *
    * @param cache The cache into which data should be written.
-   * @param maxCacheFileSize The maximum size of a cache file, in bytes. If the sink is opened for
-   *    a {@link DataSpec} whose size exceeds this value, then the data will be fragmented into
-   *    multiple cache files.
-   * @param syncFileDescriptor Skip file descriptor sync when closing current output stream.
+   * @param maxCacheFileSize The maximum size of a cache file, in bytes. If the sink is opened for a
+   *     {@link DataSpec} whose size exceeds this value, then the data will be fragmented into
+   *     multiple cache files.
+   * @param syncFileDescriptor Whether file descriptors are sync'd when closing output streams.
    */
   public CacheDataSink(Cache cache, long maxCacheFileSize, boolean syncFileDescriptor) {
     this(cache, maxCacheFileSize, DEFAULT_BUFFER_SIZE, syncFileDescriptor);
@@ -91,14 +91,27 @@ public final class CacheDataSink implements DataSink {
 
   /**
    * @param cache The cache into which data should be written.
-   * @param maxCacheFileSize The maximum size of a cache file, in bytes. If the sink is opened for
-   *    a {@link DataSpec} whose size exceeds this value, then the data will be fragmented into
-   *    multiple cache files.
+   * @param maxCacheFileSize The maximum size of a cache file, in bytes. If the sink is opened for a
+   *     {@link DataSpec} whose size exceeds this value, then the data will be fragmented into
+   *     multiple cache files.
    * @param bufferSize The buffer size in bytes for writing to a cache file. A zero or negative
-   *    value disables buffering.
-   * @param syncFileDescriptor Sync file descriptor when closing current output stream.
+   *     value disables buffering.
    */
-  public CacheDataSink(Cache cache, long maxCacheFileSize, int bufferSize, boolean syncFileDescriptor) {
+  public CacheDataSink(Cache cache, long maxCacheFileSize, int bufferSize) {
+    this(cache, maxCacheFileSize, bufferSize, true);
+  }
+
+  /**
+   * @param cache The cache into which data should be written.
+   * @param maxCacheFileSize The maximum size of a cache file, in bytes. If the sink is opened for a
+   *     {@link DataSpec} whose size exceeds this value, then the data will be fragmented into
+   *     multiple cache files.
+   * @param bufferSize The buffer size in bytes for writing to a cache file. A zero or negative
+   *     value disables buffering.
+   * @param syncFileDescriptor Whether file descriptors are sync'd when closing output streams.
+   */
+  public CacheDataSink(
+      Cache cache, long maxCacheFileSize, int bufferSize, boolean syncFileDescriptor) {
     this.cache = Assertions.checkNotNull(cache);
     this.maxCacheFileSize = maxCacheFileSize;
     this.bufferSize = bufferSize;

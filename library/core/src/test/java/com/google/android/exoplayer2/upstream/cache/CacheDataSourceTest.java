@@ -79,49 +79,29 @@ public final class CacheDataSourceTest {
 
   @Test
   public void testCacheAndRead() throws Exception {
-    assertCacheAndRead(false, false, true);
+    assertCacheAndRead(false, false);
   }
 
   @Test
   public void testCacheAndReadUnboundedRequest() throws Exception {
-    assertCacheAndRead(true, false, true);
+    assertCacheAndRead(true, false);
   }
 
   @Test
   public void testCacheAndReadUnknownLength() throws Exception {
-    assertCacheAndRead(false, true, true);
+    assertCacheAndRead(false, true);
   }
 
   @Test
   public void testCacheAndReadUnboundedRequestUnknownLength() throws Exception {
-    assertCacheAndRead(true, true, true);
-  }
-
-  @Test
-  public void testCacheAndReadSkipFDSync() throws Exception {
-    assertCacheAndRead(false, false, false);
-  }
-
-  @Test
-  public void testCacheAndReadUnboundedRequestSkipFDSync() throws Exception {
-    assertCacheAndRead(true, false, false);
-  }
-
-  @Test
-  public void testCacheAndReadUnknownLengthSkipFDSync() throws Exception {
-    assertCacheAndRead(false, true, false);
-  }
-
-  @Test
-  public void testCacheAndReadUnboundedRequestUnknownLengthSkipFDSync() throws Exception {
-    assertCacheAndRead(true, true, false);
+    assertCacheAndRead(true, true);
   }
 
   @Test
   public void testUnsatisfiableRange() throws Exception {
     // Bounded request but the content length is unknown. This forces all data to be cached but not
     // the length
-    assertCacheAndRead(false, true, true);
+    assertCacheAndRead(false, true);
 
     // Now do an unbounded request. This will read all of the data from cache and then try to read
     // more from upstream which will cause to a 416 so CDS will store the length.
@@ -367,11 +347,10 @@ public final class CacheDataSourceTest {
     cacheDataSource.close();
   }
 
-  private void assertCacheAndRead(boolean unboundedRequest, boolean simulateUnknownLength,
-      boolean syncFD)
+  private void assertCacheAndRead(boolean unboundedRequest, boolean simulateUnknownLength)
       throws IOException {
     // Read all data from upstream and write to cache
-    CacheDataSource cacheDataSource = createCacheDataSource(false, simulateUnknownLength, syncFD);
+    CacheDataSource cacheDataSource = createCacheDataSource(false, simulateUnknownLength);
     assertReadDataContentLength(cacheDataSource, unboundedRequest, simulateUnknownLength);
 
     // Just read from cache
@@ -412,19 +391,14 @@ public final class CacheDataSourceTest {
 
   private CacheDataSource createCacheDataSource(boolean setReadException,
       boolean simulateUnknownLength) {
-    return createCacheDataSource(setReadException, simulateUnknownLength, true);
-  }
-
-  private CacheDataSource createCacheDataSource(boolean setReadException,
-      boolean simulateUnknownLength, boolean syncFD) {
     return createCacheDataSource(setReadException, simulateUnknownLength,
-        CacheDataSource.FLAG_BLOCK_ON_CACHE, syncFD);
+        CacheDataSource.FLAG_BLOCK_ON_CACHE);
   }
 
   private CacheDataSource createCacheDataSource(boolean setReadException,
-      boolean simulateUnknownLength, @CacheDataSource.Flags int flags, boolean syncFD) {
+      boolean simulateUnknownLength, @CacheDataSource.Flags int flags) {
     return createCacheDataSource(setReadException, simulateUnknownLength, flags,
-        new CacheDataSink(cache, MAX_CACHE_FILE_SIZE, syncFD));
+        new CacheDataSink(cache, MAX_CACHE_FILE_SIZE));
   }
 
   private CacheDataSource createCacheDataSource(boolean setReadException,
