@@ -289,7 +289,6 @@ public abstract class DownloadService extends Service implements DownloadManager
   @Override
   public void onIdle(DownloadManager downloadManager) {
     // Make sure startForeground is called before stopping.
-    // Workaround for https://buganizer.corp.google.com/issues/69424260
     if (Util.SDK_INT >= 26) {
       Builder notificationBuilder = new Builder(this, getNotificationChannelId());
       Notification foregroundNotification = notificationBuilder.build();
