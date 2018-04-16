@@ -632,31 +632,18 @@ public class DefaultTrackSelector extends MappingTrackSelector {
   /** A track selection override. */
   public static class SelectionOverride {
 
-    public final TrackSelection.Factory factory;
     public final int groupIndex;
     public final int[] tracks;
     public final int length;
 
     /**
-     * @param factory A factory for creating selections from this override.
      * @param groupIndex The overriding track group index.
      * @param tracks The overriding track indices within the track group.
      */
-    public SelectionOverride(TrackSelection.Factory factory, int groupIndex, int... tracks) {
-      this.factory = factory;
+    public SelectionOverride(int groupIndex, int... tracks) {
       this.groupIndex = groupIndex;
       this.tracks = tracks;
       this.length = tracks.length;
-    }
-
-    /**
-     * Creates an selection from this override.
-     *
-     * @param groups The track groups whose selection is being overridden.
-     * @return The selection.
-     */
-    public TrackSelection createTrackSelection(TrackGroupArray groups) {
-      return factory.createTrackSelection(groups.get(groupIndex), tracks);
     }
 
     /** Returns whether this override contains the specified track index. */
@@ -905,8 +892,17 @@ public class DefaultTrackSelector extends MappingTrackSelector {
         TrackGroupArray rendererTrackGroup = mappedTrackInfo.getTrackGroups(i);
         if (hasSelectionOverride(i, rendererTrackGroup)) {
           SelectionOverride override = selectionOverrides.get(i).get(rendererTrackGroup);
-          rendererTrackSelections[i] =
-              override == null ? null : override.createTrackSelection(rendererTrackGroup);
+          if (override == null) {
+            rendererTrackSelections[i] = null;
+          } else if (override.length == 1) {
+            rendererTrackSelections[i] =
+                new FixedTrackSelection(
+                    rendererTrackGroup.get(override.groupIndex), override.tracks[0]);
+          } else {
+            rendererTrackSelections[i] =
+                adaptiveTrackSelectionFactory.createTrackSelection(
+                    rendererTrackGroup.get(override.groupIndex), override.tracks);
+          }
         }
       }
     }

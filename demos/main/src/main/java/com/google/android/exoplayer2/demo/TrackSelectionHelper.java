@@ -32,7 +32,6 @@ import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector.SelectionOverride;
 import com.google.android.exoplayer2.trackselection.MappingTrackSelector.MappedTrackInfo;
-import com.google.android.exoplayer2.trackselection.TrackSelection;
 import java.util.Arrays;
 
 /**
@@ -42,7 +41,6 @@ import java.util.Arrays;
     DialogInterface.OnClickListener {
 
   private final DefaultTrackSelector selector;
-  private final TrackSelection.Factory trackSelectionFactory;
 
   private MappedTrackInfo trackInfo;
   private int rendererIndex;
@@ -55,14 +53,9 @@ import java.util.Arrays;
   private CheckedTextView defaultView;
   private CheckedTextView[][] trackViews;
 
-  /**
-   * @param selector The track selector.
-   * @param trackSelectionFactory A factory for overriding {@link TrackSelection}s.
-   */
-  public TrackSelectionHelper(
-      DefaultTrackSelector selector, TrackSelection.Factory trackSelectionFactory) {
+  /** @param selector The track selector. */
+  public TrackSelectionHelper(DefaultTrackSelector selector) {
     this.selector = selector;
-    this.trackSelectionFactory = trackSelectionFactory;
   }
 
   /**
@@ -228,7 +221,7 @@ import java.util.Arrays;
   }
 
   private void setOverride(int group, int... tracks) {
-    override = new SelectionOverride(trackSelectionFactory, group, tracks);
+    override = new SelectionOverride(group, tracks);
   }
 
   // Track array manipulation.
