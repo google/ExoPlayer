@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <string name="exo_controls_previous_description">Նախորդը</string>
+  <string name="exo_controls_next_description">Հաջորդը</string>
+  <string name="exo_controls_pause_description">Դադարեցնել</string>
+  <string name="exo_controls_play_description">Նվագարկել</string>
+  <string name="exo_controls_stop_description">Կանգնեցնել</string>
+  <string name="exo_controls_rewind_description">Հետ</string>
+  <string name="exo_controls_fastforward_description">Առաջ</string>
+  <string name="exo_controls_repeat_off_description">Չկրկնել</string>
+  <string name="exo_controls_repeat_one_description">Կրկնել մեկը</string>
+  <string name="exo_controls_repeat_all_description">Կրկնել բոլորը</string>
+  <string name="exo_controls_shuffle_description">Խառնել</string>
+  <string name="exo_controls_fullscreen_description">Լիաէկրան ռեժիմ</string>
+  <string name="exo_download_queued">Ներբեռնումը շուտով կսկսվի</string>
+  <string name="exo_downloading">Ներբեռնում</string>
+  <string name="exo_download_completed">Ներբեռնումն ավարտվեց</string>
+  <string name="exo_download_failed">Չհաջողվեց ներբեռնել</string>
+</resources>

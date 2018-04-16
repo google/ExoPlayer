@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <string name="exo_controls_previous_description">Fyrra lag</string>
+  <string name="exo_controls_next_description">Næsta lag</string>
+  <string name="exo_controls_pause_description">Hlé</string>
+  <string name="exo_controls_play_description">Spila</string>
+  <string name="exo_controls_stop_description">Stöðva</string>
+  <string name="exo_controls_rewind_description">Spóla til baka</string>
+  <string name="exo_controls_fastforward_description">Spóla áfram</string>
+  <string name="exo_controls_repeat_off_description">Endurtaka ekkert</string>
+  <string name="exo_controls_repeat_one_description">Endurtaka eitt</string>
+  <string name="exo_controls_repeat_all_description">Endurtaka allt</string>
+  <string name="exo_controls_shuffle_description">Stokka</string>
+  <string name="exo_controls_fullscreen_description">Allur skjárinn</string>
+  <string name="exo_download_queued">Niðurhal í bið</string>
+  <string name="exo_downloading">Sækir</string>
+  <string name="exo_download_completed">Niðurhali lokið</string>
+  <string name="exo_download_failed">Niðurhal mistókst</string>
+</resources>

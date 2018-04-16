@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <string name="exo_controls_previous_description">मागील ट्रॅक</string>
+  <string name="exo_controls_next_description">पुढील ट्रॅक</string>
+  <string name="exo_controls_pause_description">विराम</string>
+  <string name="exo_controls_play_description">प्‍ले करा</string>
+  <string name="exo_controls_stop_description">थांबा</string>
+  <string name="exo_controls_rewind_description">रीवाइंड करा</string>
+  <string name="exo_controls_fastforward_description">फास्ट फॉरवर्ड करा</string>
+  <string name="exo_controls_repeat_off_description">रीपीट करू नका</string>
+  <string name="exo_controls_repeat_one_description">एक रीपीट करा</string>
+  <string name="exo_controls_repeat_all_description">सर्व रीपीट करा</string>
+  <string name="exo_controls_shuffle_description">शफल करा</string>
+  <string name="exo_controls_fullscreen_description">पूर्ण स्क्रीन मोड</string>
+  <string name="exo_download_queued">रांगेत लावलेले डाउनलोड करा</string>
+  <string name="exo_downloading">डाउनलोड होत आहे</string>
+  <string name="exo_download_completed">डाउनलोड पूर्ण झाले</string>
+  <string name="exo_download_failed">डाउनलोड अयशस्वी झाले</string>
+</resources>

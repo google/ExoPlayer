@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <string name="exo_controls_previous_description">Өмнөх бичлэг</string>
+  <string name="exo_controls_next_description">Дараагийн бичлэг</string>
+  <string name="exo_controls_pause_description">Түр зогсоох</string>
+  <string name="exo_controls_play_description">Тоглуулах</string>
+  <string name="exo_controls_stop_description">Зогсоох</string>
+  <string name="exo_controls_rewind_description">Ухраах</string>
+  <string name="exo_controls_fastforward_description">Хурдан урагшлуулах</string>
+  <string name="exo_controls_repeat_off_description">Алийг нь ч дахин тоглуулахгүй</string>
+  <string name="exo_controls_repeat_one_description">Одоогийн тоглуулж буй медиаг дахин тоглуулах</string>
+  <string name="exo_controls_repeat_all_description">Бүгдийг нь дахин тоглуулах</string>
+  <string name="exo_controls_shuffle_description">Холих</string>
+  <string name="exo_controls_fullscreen_description">Бүтэн дэлгэцийн горим</string>
+  <string name="exo_download_queued">Татан авалтыг жагсаасан</string>
+  <string name="exo_downloading">Татаж байна</string>
+  <string name="exo_download_completed">Татаж дууссан</string>
+  <string name="exo_download_failed">Татаж чадсангүй</string>
+</resources>

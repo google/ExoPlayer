@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <string name="exo_controls_previous_description">Папярэдні трэк</string>
+  <string name="exo_controls_next_description">Наступны трэк</string>
+  <string name="exo_controls_pause_description">Паўза</string>
+  <string name="exo_controls_play_description">Гуляць</string>
+  <string name="exo_controls_stop_description">Спыніць</string>
+  <string name="exo_controls_rewind_description">Пераматаць назад</string>
+  <string name="exo_controls_fastforward_description">Пераматаць уперад</string>
+  <string name="exo_controls_repeat_off_description">Не паўтараць нічога</string>
+  <string name="exo_controls_repeat_one_description">Паўтарыць адзін элемент</string>
+  <string name="exo_controls_repeat_all_description">Паўтарыць усе</string>
+  <string name="exo_controls_shuffle_description">Перамяшаць</string>
+  <string name="exo_controls_fullscreen_description">Поўнаэкранны рэжым</string>
+  <string name="exo_download_queued">Спампоўка пастаўлена ў чаргу</string>
+  <string name="exo_downloading">Спампоўка</string>
+  <string name="exo_download_completed">Спампоўка завершана</string>
+  <string name="exo_download_failed">Збой спампоўкі</string>
+</resources>

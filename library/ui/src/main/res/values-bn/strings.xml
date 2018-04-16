@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <string name="exo_controls_previous_description">আগের ট্র্যাক</string>
+  <string name="exo_controls_next_description">পরবর্তী ট্র্যাক</string>
+  <string name="exo_controls_pause_description">পজ করুন</string>
+  <string name="exo_controls_play_description">চালান</string>
+  <string name="exo_controls_stop_description">থামান</string>
+  <string name="exo_controls_rewind_description">পিছিয়ে যান</string>
+  <string name="exo_controls_fastforward_description">দ্রুত এগিয়ে যান</string>
+  <string name="exo_controls_repeat_off_description">কোনও আইটেম আবার চালাবেন না</string>
+  <string name="exo_controls_repeat_one_description">একটি আইটেম আবার চালান</string>
+  <string name="exo_controls_repeat_all_description">সবগুলি আইটেম আবার চালান</string>
+  <string name="exo_controls_shuffle_description">শাফেল করুন</string>
+  <string name="exo_controls_fullscreen_description">পূর্ণ স্ক্রিন মোড</string>
+  <string name="exo_download_queued">ডাউনলোড অপেক্ষমান</string>
+  <string name="exo_downloading">ডাউনলোড হচ্ছে</string>
+  <string name="exo_download_completed">ডাউনলোড হয়ে গেছে</string>
+  <string name="exo_download_failed">ডাউনলোড করা যায়নি</string>
+</resources>
