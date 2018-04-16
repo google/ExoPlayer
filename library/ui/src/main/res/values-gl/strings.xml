@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <string name="exo_controls_previous_description">Pista anterior</string>
+  <string name="exo_controls_next_description">Pista seguinte</string>
+  <string name="exo_controls_pause_description">Pausar</string>
+  <string name="exo_controls_play_description">Reproducir</string>
+  <string name="exo_controls_stop_description">Deter</string>
+  <string name="exo_controls_rewind_description">Rebobinar</string>
+  <string name="exo_controls_fastforward_description">Avance rápido</string>
+  <string name="exo_controls_repeat_off_description">Non repetir</string>
+  <string name="exo_controls_repeat_one_description">Repetir unha pista</string>
+  <string name="exo_controls_repeat_all_description">Repetir todas as pistas</string>
+  <string name="exo_controls_shuffle_description">Reprodución aleatoria</string>
+  <string name="exo_controls_fullscreen_description">Modo de pantalla completa</string>
+  <string name="exo_download_queued">A descarga está na cola</string>
+  <string name="exo_downloading">Descargando</string>
+  <string name="exo_download_completed">Completouse a descarga</string>
+  <string name="exo_download_failed">Produciuse un erro na descarga</string>
+</resources>

@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <string name="exo_controls_previous_description">පෙර ඛණ්ඩය</string>
+  <string name="exo_controls_next_description">ඊළඟ ඛණ්ඩය</string>
+  <string name="exo_controls_pause_description">විරාම කරන්න</string>
+  <string name="exo_controls_play_description">ධාවනය කරන්න</string>
+  <string name="exo_controls_stop_description">නවත්වන්න</string>
+  <string name="exo_controls_rewind_description">නැවත ඔතන්න</string>
+  <string name="exo_controls_fastforward_description">වේගයෙන් ඉදිරියට</string>
+  <string name="exo_controls_repeat_off_description">කිසිවක් පුනරාවර්තනය නොකරන්න</string>
+  <string name="exo_controls_repeat_one_description">එකක් පුනරාවර්තනය කරන්න</string>
+  <string name="exo_controls_repeat_all_description">සියල්ල පුනරාවර්තනය කරන්න</string>
+  <string name="exo_controls_shuffle_description">කලවම් කරන්න</string>
+  <string name="exo_controls_fullscreen_description">සම්පූර්ණ තිර ප්‍රකාරය</string>
+  <string name="exo_download_queued">බාගැනීම පේළියට තබන ලදී</string>
+  <string name="exo_downloading">බාගනිමින්</string>
+  <string name="exo_download_completed">බාගැනීම සම්පූර්ණ කරන ලදී</string>
+  <string name="exo_download_failed">බාගැනීම අසමත් විය</string>
+</resources>
