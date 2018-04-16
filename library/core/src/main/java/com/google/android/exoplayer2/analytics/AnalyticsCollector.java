@@ -44,6 +44,7 @@ import com.google.android.exoplayer2.video.VideoRendererEventListener;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
 
@@ -154,6 +155,22 @@ public class AnalyticsCollector
     EventTime eventTime = generatePlayingMediaPeriodEventTime();
     for (AnalyticsListener listener : listeners) {
       listener.onNetworkTypeChanged(eventTime, networkInfo);
+    }
+  }
+
+  /**
+   * Resets the analytics collector for a new media source. Should be called before the player is
+   * prepared with a new media source.
+   */
+  public final void resetForNewMediaSource() {
+    // Copying the list is needed because onMediaPeriodReleased will modify the list.
+    List<MediaPeriodId> activeMediaPeriods =
+        new ArrayList<>(mediaPeriodQueueTracker.activeMediaPeriods);
+    Timeline timeline = mediaPeriodQueueTracker.timeline;
+    for (MediaPeriodId mediaPeriod : activeMediaPeriods) {
+      int windowIndex =
+          timeline.isEmpty() ? 0 : timeline.getPeriod(mediaPeriod.periodIndex, period).windowIndex;
+      onMediaPeriodReleased(windowIndex, mediaPeriod);
     }
   }
 
@@ -631,6 +648,9 @@ public class AnalyticsCollector
   /** Keeps track of the active media periods and currently playing and reading media period. */
   private static final class MediaPeriodQueueTracker {
 
+    // TODO: Investigate reporting MediaPeriodId in renderer events and adding a listener of queue
+    // changes, which would hopefully remove the need to track the queue here.
+
     private final ArrayList<MediaPeriodId> activeMediaPeriods;
     private final Period period;
 
@@ -642,6 +662,7 @@ public class AnalyticsCollector
     public MediaPeriodQueueTracker() {
       activeMediaPeriods = new ArrayList<>();
       period = new Period();
+      timeline = Timeline.EMPTY;
     }
 
     /**
@@ -763,13 +784,14 @@ public class AnalyticsCollector
     }
 
     private void updateLastReportedPlayingMediaPeriod() {
-      lastReportedPlayingMediaPeriod =
-          activeMediaPeriods.isEmpty() ? null : activeMediaPeriods.get(0);
+      if (!activeMediaPeriods.isEmpty()) {
+        lastReportedPlayingMediaPeriod = activeMediaPeriods.get(0);
+      }
     }
 
     private MediaPeriodId updateMediaPeriodIdToNewTimeline(
         MediaPeriodId mediaPeriodId, Timeline newTimeline) {
-      if (newTimeline.isEmpty()) {
+      if (newTimeline.isEmpty() || timeline.isEmpty()) {
         return mediaPeriodId;
       }
       Object uid = timeline.getPeriod(mediaPeriodId.periodIndex, period, /* setIds= */ true).uid;
