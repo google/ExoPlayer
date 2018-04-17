@@ -12,7 +12,6 @@
   <string name="exo_controls_repeat_all_description">Ponavljanje vseh</string>
   <string name="exo_controls_shuffle_description">Naključno predvajanje</string>
   <string name="exo_controls_fullscreen_description">Celozaslonski način</string>
-  <string name="exo_download_queued">Prenos je v čakalni vrsti</string>
   <string name="exo_downloading">Prenašanje</string>
   <string name="exo_download_completed">Prenos je končan</string>
   <string name="exo_download_failed">Prenos ni uspel</string>

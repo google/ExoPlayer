@@ -12,7 +12,6 @@
   <string name="exo_controls_repeat_all_description">ਸਾਰਿਆਂ ਨੂੰ ਦੁਹਰਾਓ</string>
   <string name="exo_controls_shuffle_description">ਬੇਤਰਤੀਬ ਕਰੋ</string>
   <string name="exo_controls_fullscreen_description">ਪੂਰੀ-ਸਕ੍ਰੀਨ ਮੋਡ</string>
-  <string name="exo_download_queued">ਡਾਊਨਲੋਡ ਕਤਾਰਬੱਧ ਕੀਤਾ ਗਿਆ</string>
   <string name="exo_downloading">ਡਾਊਨਲੋਡ ਕੀਤਾ ਜਾ ਰਿਹਾ ਹੈ</string>
   <string name="exo_download_completed">ਡਾਊਨਲੋਡ ਮੁਕੰਮਲ ਹੋਇਆ</string>
   <string name="exo_download_failed">ਡਾਊਨਲੋਡ ਅਸਫਲ ਰਿਹਾ</string>

@@ -12,7 +12,6 @@
   <string name="exo_controls_repeat_all_description">എല്ലാം ആവർത്തിക്കുക</string>
   <string name="exo_controls_shuffle_description">ഇടകലര്‍ത്തുക</string>
   <string name="exo_controls_fullscreen_description">പൂർണ്ണ സ്‌ക്രീൻ മോഡ്</string>
-  <string name="exo_download_queued">ഡൗൺലോഡ് ‌ക്യൂവിലാണ്</string>
   <string name="exo_downloading">ഡൗൺലോഡ് ചെയ്യുന്നു</string>
   <string name="exo_download_completed">ഡൗൺലോഡ് പൂർത്തിയായി</string>
   <string name="exo_download_failed">ഡൗൺലോഡ് പരാജയപ്പെട്ടു</string>

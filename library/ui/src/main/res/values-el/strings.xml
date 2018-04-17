@@ -12,7 +12,6 @@
   <string name="exo_controls_repeat_all_description">Επανάληψη όλων</string>
   <string name="exo_controls_shuffle_description">Τυχαία αναπαραγωγή</string>
   <string name="exo_controls_fullscreen_description">Λειτουργία πλήρους οθόνης</string>
-  <string name="exo_download_queued">Η λήψη προστέθηκε στην ουρά</string>
   <string name="exo_downloading">Λήψη</string>
   <string name="exo_download_completed">Η λήψη ολοκληρώθηκε</string>
   <string name="exo_download_failed">Η λήψη απέτυχε</string>

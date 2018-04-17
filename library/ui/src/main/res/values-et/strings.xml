@@ -12,7 +12,6 @@
   <string name="exo_controls_repeat_all_description">Korda kõiki</string>
   <string name="exo_controls_shuffle_description">Esita juhuslikus järjekorras</string>
   <string name="exo_controls_fullscreen_description">Täisekraani režiim</string>
-  <string name="exo_download_queued">Allalaadimine on järjekorras</string>
   <string name="exo_downloading">Allalaadimine</string>
   <string name="exo_download_completed">Allalaadimine lõpetati</string>
   <string name="exo_download_failed">Allalaadimine ebaõnnestus</string>

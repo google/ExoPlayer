@@ -12,7 +12,6 @@
   <string name="exo_controls_repeat_all_description">सबै दोहोर्‍याउनुहोस्</string>
   <string name="exo_controls_shuffle_description">मिसाउनुहोस्</string>
   <string name="exo_controls_fullscreen_description">पूर्ण स्क्रिन मोड</string>
-  <string name="exo_download_queued">डाउनलोडलाई लाइनमा राखियो</string>
   <string name="exo_downloading">डाउनलोड गरिँदै छ</string>
   <string name="exo_download_completed">डाउनलोड सम्पन्न भयो</string>
   <string name="exo_download_failed">डाउनलोड गर्न सकिएन</string>

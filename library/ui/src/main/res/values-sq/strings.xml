@@ -12,7 +12,6 @@
   <string name="exo_controls_repeat_all_description">Përsërit të gjitha</string>
   <string name="exo_controls_shuffle_description">Përziej</string>
   <string name="exo_controls_fullscreen_description">Modaliteti me ekran të plotë</string>
-  <string name="exo_download_queued">Shkarkimi u vendos në radhë</string>
   <string name="exo_downloading">Po shkarkohet</string>
   <string name="exo_download_completed">Shkarkimi përfundoi</string>
   <string name="exo_download_failed">Shkarkimi dështoi</string>

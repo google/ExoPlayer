@@ -12,7 +12,6 @@
   <string name="exo_controls_repeat_all_description">ሁሉንም ድገም</string>
   <string name="exo_controls_shuffle_description">በውዝ</string>
   <string name="exo_controls_fullscreen_description">የሙሉ ማያ ሁነታ</string>
-  <string name="exo_download_queued">ማውረድ ወረፋ ይዟል</string>
   <string name="exo_downloading">በማውረድ ላይ</string>
   <string name="exo_download_completed">ማውረድ ተጠናቋል</string>
   <string name="exo_download_failed">ማውረድ አልተሳካም</string>

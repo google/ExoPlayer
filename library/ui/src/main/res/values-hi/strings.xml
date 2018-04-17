@@ -12,7 +12,6 @@
   <string name="exo_controls_repeat_all_description">सभी को दोहराएं</string>
   <string name="exo_controls_shuffle_description">शफ़ल करें</string>
   <string name="exo_controls_fullscreen_description">फ़ुलस्क्रीन मोड</string>
-  <string name="exo_download_queued">डाउनलोड को कतार में लगाया गया</string>
   <string name="exo_downloading">डाउनलोड हो रहा है</string>
   <string name="exo_download_completed">डाउनलोड पूरा हुआ</string>
   <string name="exo_download_failed">डाउनलोड नहीं हो सका</string>

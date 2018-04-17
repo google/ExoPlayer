@@ -16,23 +16,71 @@
 package com.google.android.exoplayer2.ui;
 
 import android.app.Notification;
-import android.app.Notification.BigTextStyle;
-import android.app.Notification.Builder;
 import android.content.Context;
 import android.support.annotation.Nullable;
+import android.support.v4.app.NotificationCompat;
 import com.google.android.exoplayer2.offline.DownloadManager;
 import com.google.android.exoplayer2.offline.DownloadManager.DownloadState;
 import com.google.android.exoplayer2.util.ErrorMessageProvider;
-import com.google.android.exoplayer2.util.Util;
 
 /** Helper class to create notifications for downloads using {@link DownloadManager}. */
 public final class DownloadNotificationUtil {
 
+  private static final int NULL_STRING_ID = 0;
+
   private DownloadNotificationUtil() {}
 
   /**
-   * Returns a notification for the given {@link DownloadState}, or null if no notification should
-   * be displayed.
+   * Returns a progress notification for the given {@link DownloadState}s.
+   *
+   * @param downloadStates States of the downloads.
+   * @param context Used to access resources.
+   * @param smallIcon A small icon for the notification.
+   * @param channelId The id of the notification channel to use. Only required for API level 26 and
+   *     above.
+   * @param message An optional message to display on the notification.
+   * @return A progress notification for the given {@link DownloadState}s.
+   */
+  public static @Nullable Notification createProgressNotification(
+      DownloadState[] downloadStates,
+      Context context,
+      int smallIcon,
+      String channelId,
+      @Nullable String message) {
+    float totalPercentage = 0;
+    int determinatePercentageCount = 0;
+    boolean isAnyDownloadActive = false;
+    for (DownloadState downloadState : downloadStates) {
+      if (downloadState.downloadAction.isRemoveAction()
+          || downloadState.state != DownloadState.STATE_STARTED) {
+        continue;
+      }
+      float percentage = downloadState.downloadPercentage;
+      if (!Float.isNaN(percentage)) {
+        totalPercentage += percentage;
+        determinatePercentageCount++;
+      }
+      isAnyDownloadActive = true;
+    }
+
+    int titleStringId = isAnyDownloadActive ? R.string.exo_downloading : NULL_STRING_ID;
+    NotificationCompat.Builder notificationBuilder =
+        createNotificationBuilder(context, smallIcon, channelId, message, titleStringId);
+
+    notificationBuilder.setOngoing(true);
+    int max = 100;
+    int progress = (int) (totalPercentage / determinatePercentageCount);
+    boolean indeterminate = determinatePercentageCount == 0;
+    notificationBuilder.setProgress(max, progress, indeterminate);
+
+    notificationBuilder.setShowWhen(false);
+    return notificationBuilder.build();
+  }
+
+  /**
+   * Returns a notification for a {@link DownloadState} which is in either {@link
+   * DownloadState#STATE_ENDED} or {@link DownloadState#STATE_ERROR} states. Returns null if it's
+   * some other state or it's state of a remove action.
    *
    * @param downloadState State of the download.
    * @param context Used to access resources.
@@ -43,10 +91,11 @@ public final class DownloadNotificationUtil {
    * @param errorMessageProvider An optional {@link ErrorMessageProvider} for translating download
    *     errors into readable error messages. If not null and there is a download error then the
    *     error message is displayed instead of {@code message}.
-   * @return A notification for the given {@link DownloadState}, or null if no notification should
-   *     be displayed.
+   * @return A notification for a {@link DownloadState} which is in either {@link
+   *     DownloadState#STATE_ENDED} or {@link DownloadState#STATE_ERROR} states. Returns null if
+   *     it's some other state or it's state of a remove action.
    */
-  public static @Nullable Notification createNotification(
+  public static @Nullable Notification createDownloadFinishedNotification(
       DownloadState downloadState,
       Context context,
       int smallIcon,
@@ -54,63 +103,36 @@ public final class DownloadNotificationUtil {
       @Nullable String message,
       @Nullable ErrorMessageProvider<Throwable> errorMessageProvider) {
     if (downloadState.downloadAction.isRemoveAction()
-        || downloadState.state == DownloadState.STATE_CANCELED) {
+        || (downloadState.state != DownloadState.STATE_ENDED
+            && downloadState.state != DownloadState.STATE_ERROR)) {
       return null;
     }
-
-    Builder notificationBuilder = new Builder(context);
-    if (Util.SDK_INT >= 26) {
-      notificationBuilder.setChannelId(channelId);
-    }
-    notificationBuilder.setSmallIcon(smallIcon);
-
-    int titleStringId = getTitleStringId(downloadState);
-    notificationBuilder.setContentTitle(context.getResources().getString(titleStringId));
-
-    if (downloadState.state == DownloadState.STATE_STARTED) {
-      notificationBuilder.setOngoing(true);
-      float percentage = downloadState.downloadPercentage;
-      boolean indeterminate = Float.isNaN(percentage);
-      notificationBuilder.setProgress(100, indeterminate ? 0 : (int) percentage, indeterminate);
-    }
-    if (Util.SDK_INT >= 17) {
-      // Hide timestamp on the notification while download progresses.
-      notificationBuilder.setShowWhen(downloadState.state != DownloadState.STATE_STARTED);
-    }
-
     if (downloadState.error != null && errorMessageProvider != null) {
       message = errorMessageProvider.getErrorMessage(downloadState.error).second;
     }
-    if (message != null) {
-      if (Util.SDK_INT >= 16) {
-        notificationBuilder.setStyle(new BigTextStyle().bigText(message));
-      } else {
-        notificationBuilder.setContentText(message);
-      }
-    }
-    return notificationBuilder.getNotification();
+    int titleStringId =
+        downloadState.state == DownloadState.STATE_ENDED
+            ? R.string.exo_download_completed
+            : R.string.exo_download_failed;
+    NotificationCompat.Builder notificationBuilder =
+        createNotificationBuilder(context, smallIcon, channelId, message, titleStringId);
+    return notificationBuilder.build();
   }
 
-  private static int getTitleStringId(DownloadState downloadState) {
-    int titleStringId;
-    switch (downloadState.state) {
-      case DownloadState.STATE_QUEUED:
-        titleStringId = R.string.exo_download_queued;
-        break;
-      case DownloadState.STATE_STARTED:
-        titleStringId = R.string.exo_downloading;
-        break;
-      case DownloadState.STATE_ENDED:
-        titleStringId = R.string.exo_download_completed;
-        break;
-      case DownloadState.STATE_ERROR:
-        titleStringId = R.string.exo_download_failed;
-        break;
-      case DownloadState.STATE_CANCELED:
-      default:
-        // Never happens.
-        throw new IllegalStateException();
+  private static NotificationCompat.Builder createNotificationBuilder(
+      Context context,
+      int smallIcon,
+      String channelId,
+      @Nullable String message,
+      int titleStringId) {
+    NotificationCompat.Builder notificationBuilder =
+        new NotificationCompat.Builder(context, channelId).setSmallIcon(smallIcon);
+    if (titleStringId != NULL_STRING_ID) {
+      notificationBuilder.setContentTitle(context.getResources().getString(titleStringId));
     }
-    return titleStringId;
+    if (message != null) {
+      notificationBuilder.setStyle(new NotificationCompat.BigTextStyle().bigText(message));
+    }
+    return notificationBuilder;
   }
 }

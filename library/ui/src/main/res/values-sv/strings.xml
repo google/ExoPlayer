@@ -12,7 +12,6 @@
   <string name="exo_controls_repeat_all_description">Upprepa alla</string>
   <string name="exo_controls_shuffle_description">Blanda spår</string>
   <string name="exo_controls_fullscreen_description">Helskärmsläge</string>
-  <string name="exo_download_queued">Nedladdningen har köplacerats</string>
   <string name="exo_downloading">Laddar ned</string>
   <string name="exo_download_completed">Nedladdningen är klar</string>
   <string name="exo_download_failed">Nedladdningen misslyckades</string>

@@ -12,7 +12,6 @@
   <string name="exo_controls_repeat_all_description">Repeteix tot</string>
   <string name="exo_controls_shuffle_description">Reprodueix aleatòriament</string>
   <string name="exo_controls_fullscreen_description">Mode de pantalla completa</string>
-  <string name="exo_download_queued">La baixada s\'ha posat a la cua</string>
   <string name="exo_downloading">S\'està baixant</string>
   <string name="exo_download_completed">S\'ha completat la baixada</string>
   <string name="exo_download_failed">No s\'ha pogut baixar</string>

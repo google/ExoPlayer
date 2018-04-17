@@ -12,7 +12,6 @@
   <string name="exo_controls_repeat_all_description">Повторять все</string>
   <string name="exo_controls_shuffle_description">Перемешать</string>
   <string name="exo_controls_fullscreen_description">Полноэкранный режим</string>
-  <string name="exo_download_queued">В очереди на скачивание</string>
   <string name="exo_downloading">Загрузка файлов</string>
   <string name="exo_download_completed">Скачивание завершено</string>
   <string name="exo_download_failed">Ошибка скачивания</string>

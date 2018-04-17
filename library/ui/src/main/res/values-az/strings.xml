@@ -12,7 +12,6 @@
   <string name="exo_controls_repeat_all_description">Hamısı təkrarlansın</string>
   <string name="exo_controls_shuffle_description">Qarışdırın</string>
   <string name="exo_controls_fullscreen_description">Tam ekran rejimi</string>
-  <string name="exo_download_queued">Endirmə gözlənilir</string>
   <string name="exo_downloading">Endirilir</string>
   <string name="exo_download_completed">Endirmə tamamlandı</string>
   <string name="exo_download_failed">Endirmə alınmadı</string>
