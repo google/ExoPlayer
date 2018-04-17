@@ -12,7 +12,6 @@
   <string name="exo_controls_repeat_all_description">Opakovat vše</string>
   <string name="exo_controls_shuffle_description">Náhodně</string>
   <string name="exo_controls_fullscreen_description">Režim celé obrazovky</string>
-  <string name="exo_download_queued">Zařazeno do fronty stahování</string>
   <string name="exo_downloading">Stahování</string>
   <string name="exo_download_completed">Stahování bylo dokončeno</string>
   <string name="exo_download_failed">Stažení se nezdařilo</string>

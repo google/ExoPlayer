@@ -12,7 +12,6 @@
   <string name="exo_controls_repeat_all_description">تکرار همه</string>
   <string name="exo_controls_shuffle_description">درهم</string>
   <string name="exo_controls_fullscreen_description">حالت تمام‌صفحه</string>
-  <string name="exo_download_queued">درانتظار بارگیری</string>
   <string name="exo_downloading">درحال بارگیری</string>
   <string name="exo_download_completed">بارگیری کامل شد</string>
   <string name="exo_download_failed">بارگیری نشد</string>

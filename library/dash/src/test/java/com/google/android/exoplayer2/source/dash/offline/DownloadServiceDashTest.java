@@ -20,9 +20,12 @@ import static com.google.android.exoplayer2.source.dash.offline.DashDownloadTest
 import static com.google.android.exoplayer2.testutil.CacheAsserts.assertCacheEmpty;
 import static com.google.android.exoplayer2.testutil.CacheAsserts.assertCachedData;
 
+import android.app.Notification;
 import android.content.Context;
 import android.content.Intent;
+import android.support.annotation.Nullable;
 import com.google.android.exoplayer2.offline.DownloadManager;
+import com.google.android.exoplayer2.offline.DownloadManager.DownloadState;
 import com.google.android.exoplayer2.offline.DownloadService;
 import com.google.android.exoplayer2.offline.DownloaderConstructorHelper;
 import com.google.android.exoplayer2.scheduler.Requirements;
@@ -44,6 +47,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mockito;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.RuntimeEnvironment;
 import org.robolectric.annotation.Config;
@@ -107,7 +111,7 @@ public class DownloadServiceDashTest {
           new Runnable() {
             @Override
             public void run() {
-              File actionFile = null;
+              File actionFile;
               try {
                 actionFile = Util.createTempFile(context, "ExoPlayerTest");
               } catch (IOException e) {
@@ -126,7 +130,7 @@ public class DownloadServiceDashTest {
               dashDownloadManager.startDownloads();
 
               dashDownloadService =
-                  new DownloadService(101010) {
+                  new DownloadService(/*foregroundNotificationId=*/ 1) {
 
                     @Override
                     protected DownloadManager getDownloadManager() {
@@ -134,15 +138,18 @@ public class DownloadServiceDashTest {
                     }
 
                     @Override
-                    protected String getNotificationChannelId() {
-                      return "";
+                    protected Notification getForegroundNotification(
+                        DownloadState[] downloadStates) {
+                      return Mockito.mock(Notification.class);
                     }
 
+                    @Nullable
                     @Override
                     protected Scheduler getScheduler() {
                       return null;
                     }
 
+                    @Nullable
                     @Override
                     protected Requirements getRequirements() {
                       return null;
@@ -216,7 +223,7 @@ public class DownloadServiceDashTest {
     callDownloadServiceOnStart(new DashDownloadAction(TEST_MPD_URI, false, null, keys));
   }
 
-  private void callDownloadServiceOnStart(final DashDownloadAction action) throws Throwable {
+  private void callDownloadServiceOnStart(final DashDownloadAction action) {
     dummyMainThread.runOnMainThread(
         new Runnable() {
           @Override

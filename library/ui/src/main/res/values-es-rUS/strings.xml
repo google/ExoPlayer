@@ -12,7 +12,6 @@
   <string name="exo_controls_repeat_all_description">Repetir todo</string>
   <string name="exo_controls_shuffle_description">Reproducir aleatoriamente</string>
   <string name="exo_controls_fullscreen_description">Modo de pantalla completa</string>
-  <string name="exo_download_queued">Descarga en fila</string>
   <string name="exo_downloading">Descargando</string>
   <string name="exo_download_completed">Se completó la descarga</string>
   <string name="exo_download_failed">No se pudo descargar</string>

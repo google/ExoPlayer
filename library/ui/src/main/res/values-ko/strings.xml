@@ -12,7 +12,6 @@
   <string name="exo_controls_repeat_all_description">모두 반복</string>
   <string name="exo_controls_shuffle_description">셔플</string>
   <string name="exo_controls_fullscreen_description">전체화면 모드</string>
-  <string name="exo_download_queued">다운로드 대기 중</string>
   <string name="exo_downloading">다운로드하는 중</string>
   <string name="exo_download_completed">다운로드 완료</string>
   <string name="exo_download_failed">다운로드 실패</string>

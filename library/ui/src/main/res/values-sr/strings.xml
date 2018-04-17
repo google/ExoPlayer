@@ -12,7 +12,6 @@
   <string name="exo_controls_repeat_all_description">Понови све</string>
   <string name="exo_controls_shuffle_description">Пусти насумично</string>
   <string name="exo_controls_fullscreen_description">Режим целог екрана</string>
-  <string name="exo_download_queued">Преузимање је на чекању</string>
   <string name="exo_downloading">Преузимање</string>
   <string name="exo_download_completed">Преузимање је завршено</string>
   <string name="exo_download_failed">Преузимање није успело</string>

@@ -12,7 +12,6 @@
   <string name="exo_controls_repeat_all_description">تكرار الكل</string>
   <string name="exo_controls_shuffle_description">ترتيب عشوائي</string>
   <string name="exo_controls_fullscreen_description">وضع ملء الشاشة</string>
-  <string name="exo_download_queued">التنزيل قيد الانتظار</string>
   <string name="exo_downloading">تحميل</string>
   <string name="exo_download_completed">اكتمل التنزيل</string>
   <string name="exo_download_failed">تعذّر التنزيل</string>

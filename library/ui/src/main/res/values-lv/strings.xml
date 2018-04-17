@@ -12,7 +12,6 @@
   <string name="exo_controls_repeat_all_description">Atkārtot visu</string>
   <string name="exo_controls_shuffle_description">Atskaņot jauktā secībā</string>
   <string name="exo_controls_fullscreen_description">Pilnekrāna režīms</string>
-  <string name="exo_download_queued">Lejupielāde gaida rindā</string>
   <string name="exo_downloading">Notiek lejupielāde</string>
   <string name="exo_download_completed">Lejupielāde ir pabeigta</string>
   <string name="exo_download_failed">Lejupielāde neizdevās</string>

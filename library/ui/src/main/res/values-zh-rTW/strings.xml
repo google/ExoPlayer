@@ -12,7 +12,6 @@
   <string name="exo_controls_repeat_all_description">重複播放所有項目</string>
   <string name="exo_controls_shuffle_description">隨機播放</string>
   <string name="exo_controls_fullscreen_description">全螢幕模式</string>
-  <string name="exo_download_queued">已排入下載佇列</string>
   <string name="exo_downloading">下載中</string>
   <string name="exo_download_completed">下載完成</string>
   <string name="exo_download_failed">無法下載</string>

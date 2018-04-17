@@ -12,7 +12,6 @@
   <string name="exo_controls_repeat_all_description">Alles herhalen</string>
   <string name="exo_controls_shuffle_description">Shuffle</string>
   <string name="exo_controls_fullscreen_description">Modus \'Volledig scherm\'</string>
-  <string name="exo_download_queued">Download in de wachtrij</string>
   <string name="exo_downloading">Downloaden</string>
   <string name="exo_download_completed">Downloaden voltooid</string>
   <string name="exo_download_failed">Downloaden mislukt</string>

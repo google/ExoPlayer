@@ -12,7 +12,6 @@
   <string name="exo_controls_repeat_all_description">সবগুলি আইটেম আবার চালান</string>
   <string name="exo_controls_shuffle_description">শাফেল করুন</string>
   <string name="exo_controls_fullscreen_description">পূর্ণ স্ক্রিন মোড</string>
-  <string name="exo_download_queued">ডাউনলোড অপেক্ষমান</string>
   <string name="exo_downloading">ডাউনলোড হচ্ছে</string>
   <string name="exo_download_completed">ডাউনলোড হয়ে গেছে</string>
   <string name="exo_download_failed">ডাউনলোড করা যায়নি</string>

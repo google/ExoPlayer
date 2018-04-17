@@ -12,7 +12,6 @@
   <string name="exo_controls_repeat_all_description">Барлығын қайталау</string>
   <string name="exo_controls_shuffle_description">Араластыру</string>
   <string name="exo_controls_fullscreen_description">Толық экран режимі</string>
-  <string name="exo_download_queued">Жүктеп алу кезегіне қойылды</string>
   <string name="exo_downloading">Жүктеп алынуда</string>
   <string name="exo_download_completed">Жүктеп алынды</string>
   <string name="exo_download_failed">Жүктеп алынбады</string>

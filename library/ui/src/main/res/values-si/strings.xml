@@ -12,7 +12,6 @@
   <string name="exo_controls_repeat_all_description">සියල්ල පුනරාවර්තනය කරන්න</string>
   <string name="exo_controls_shuffle_description">කලවම් කරන්න</string>
   <string name="exo_controls_fullscreen_description">සම්පූර්ණ තිර ප්‍රකාරය</string>
-  <string name="exo_download_queued">බාගැනීම පේළියට තබන ලදී</string>
   <string name="exo_downloading">බාගනිමින්</string>
   <string name="exo_download_completed">බාගැනීම සම්පූර්ණ කරන ලදී</string>
   <string name="exo_download_failed">බාගැනීම අසමත් විය</string>
