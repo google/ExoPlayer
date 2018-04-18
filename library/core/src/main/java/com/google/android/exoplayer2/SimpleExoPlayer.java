@@ -654,6 +654,11 @@ public class SimpleExoPlayer implements ExoPlayer, Player.VideoComponent, Player
   }
 
   @Override
+  public ExoPlaybackException getPlaybackError() {
+    return player.getPlaybackError();
+  }
+
+  @Override
   public void prepare(MediaSource mediaSource) {
     prepare(mediaSource, /* resetPosition= */ true, /* resetState= */ true);
   }

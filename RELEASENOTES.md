@@ -9,6 +9,7 @@
 * Updated default max buffer length in `DefaultLoadControl`.
 * Added `AnalyticsListener` interface which can be registered in
   `SimpleExoPlayer` to receive detailed meta data for each ExoPlayer event.
+* Added `getPlaybackError` to `Player` interface.
 * UI components:
   * Add support for listening to `AspectRatioFrameLayout`'s aspect ratio update
     ([#3736](https://github.com/google/ExoPlayer/issues/3736)).

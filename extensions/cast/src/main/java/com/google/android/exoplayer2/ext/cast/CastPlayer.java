@@ -308,6 +308,11 @@ public final class CastPlayer implements Player {
   }
 
   @Override
+  public Exception getPlaybackError() {
+    return null;
+  }
+
+  @Override
   public void setPlayWhenReady(boolean playWhenReady) {
     if (remoteMediaClient == null) {
       return;
