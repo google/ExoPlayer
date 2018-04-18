@@ -118,11 +118,11 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
               + "|"
               + METHOD_AES_128
               + "|"
-              + METHOD_SAMPLE_AES
-              + "|"
               + METHOD_SAMPLE_AES_CENC
               + "|"
               + METHOD_SAMPLE_AES_CTR
+              + "|"
+              + METHOD_SAMPLE_AES
               + ")");
   private static final Pattern REGEX_KEYFORMAT = Pattern.compile("KEYFORMAT=\"(.+?)\"");
   private static final Pattern REGEX_URI = Pattern.compile("URI=\"(.+?)\"");
