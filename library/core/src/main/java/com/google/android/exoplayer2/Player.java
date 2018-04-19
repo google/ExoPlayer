@@ -461,7 +461,7 @@ public interface Player {
 
   /**
    * Returns the error that caused playback to fail. This is the same error that will have been
-   * reported via @link Player.EventListener#onPlayerError(ExoPlaybackException)} at the time of
+   * reported via {@link Player.EventListener#onPlayerError(ExoPlaybackException)} at the time of
    * failure. It can be queried using this method until {@code stop(true)} is called or the player
    * is re-prepared.
    *
