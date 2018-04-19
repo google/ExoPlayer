@@ -37,6 +37,7 @@ import com.google.android.exoplayer2.upstream.BandwidthMeter;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Util;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -630,7 +631,7 @@ public class DefaultTrackSelector extends MappingTrackSelector {
   }
 
   /** A track selection override. */
-  public static class SelectionOverride {
+  public static final class SelectionOverride implements Parcelable {
 
     public final int groupIndex;
     public final int[] tracks;
@@ -646,6 +647,13 @@ public class DefaultTrackSelector extends MappingTrackSelector {
       this.length = tracks.length;
     }
 
+    /* package */ SelectionOverride(Parcel in) {
+      groupIndex = in.readInt();
+      length = in.readByte();
+      tracks = new int[length];
+      in.readIntArray(tracks);
+    }
+
     /** Returns whether this override contains the specified track index. */
     public boolean containsTrack(int track) {
       for (int overrideTrack : tracks) {
@@ -655,6 +663,51 @@ public class DefaultTrackSelector extends MappingTrackSelector {
       }
       return false;
     }
+
+    @Override
+    public int hashCode() {
+      return 31 * groupIndex + Arrays.hashCode(tracks);
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+      if (this == obj) {
+        return true;
+      }
+      if (obj == null || getClass() != obj.getClass()) {
+        return false;
+      }
+      SelectionOverride other = (SelectionOverride) obj;
+      return groupIndex == other.groupIndex && Arrays.equals(tracks, other.tracks);
+    }
+
+    // Parcelable implementation.
+
+    @Override
+    public int describeContents() {
+      return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+      dest.writeInt(groupIndex);
+      dest.writeInt(tracks.length);
+      dest.writeIntArray(tracks);
+    }
+
+    public static final Parcelable.Creator<SelectionOverride> CREATOR =
+        new Parcelable.Creator<SelectionOverride>() {
+
+          @Override
+          public SelectionOverride createFromParcel(Parcel in) {
+            return new SelectionOverride(in);
+          }
+
+          @Override
+          public SelectionOverride[] newArray(int size) {
+            return new SelectionOverride[size];
+          }
+        };
   }
 
   /**
