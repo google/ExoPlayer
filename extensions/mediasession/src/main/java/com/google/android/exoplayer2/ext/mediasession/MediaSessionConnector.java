@@ -403,16 +403,18 @@ public final class MediaSessionConnector {
 
   /**
    * Sets the player to be connected to the media session.
-   * <p>
-   * The order in which any {@link CustomActionProvider}s are passed determines the order of the
+   *
+   * <p>The order in which any {@link CustomActionProvider}s are passed determines the order of the
    * actions published with the playback state of the session.
    *
    * @param player The player to be connected to the {@code MediaSession}.
    * @param playbackPreparer An optional {@link PlaybackPreparer} for preparing the player.
-   * @param customActionProviders An optional {@link CustomActionProvider}s to publish and handle
+   * @param customActionProviders Optional {@link CustomActionProvider}s to publish and handle
    *     custom actions.
    */
-  public void setPlayer(Player player, PlaybackPreparer playbackPreparer,
+  public void setPlayer(
+      Player player,
+      @Nullable PlaybackPreparer playbackPreparer,
       CustomActionProvider... customActionProviders) {
     if (this.player != null) {
       this.player.removeListener(exoPlayerEventListener);

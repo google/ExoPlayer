@@ -357,7 +357,7 @@ public class PlayerNotificationManager {
    * <p>If the player is released it must be removed from the manager by calling {@code
    * setPlayer(null)}. This will cancel the notification.
    */
-  public final void setPlayer(Player player) {
+  public final void setPlayer(@Nullable Player player) {
     if (this.player == player) {
       return;
     }
