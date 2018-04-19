@@ -123,7 +123,8 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
               + METHOD_SAMPLE_AES_CENC
               + "|"
               + METHOD_SAMPLE_AES_CTR
-              + ")");
+              + ")"
+              + "\\s*(,|$)");
   private static final Pattern REGEX_KEYFORMAT = Pattern.compile("KEYFORMAT=\"(.+?)\"");
   private static final Pattern REGEX_URI = Pattern.compile("URI=\"(.+?)\"");
   private static final Pattern REGEX_IV = Pattern.compile("IV=([^,.*]+)");

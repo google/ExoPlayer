@@ -66,8 +66,11 @@
     ([#4022][https://github.com/google/ExoPlayer/issues/4022]).
   * Fix handling of 307/308 redirects when making license requests
     ([#4108](https://github.com/google/ExoPlayer/issues/4108)).
-* HLS: Fix playlist loading error propagation when the current selection does
-  not include all of the playlist's variants.
+* HLS:
+  * Fix playlist loading error propagation when the current selection does
+    not include all of the playlist's variants.
+  * Fix SAMPLE-AES-CENC and SAMPLE-AES-CTR EXT-X-KEY methods
+    ([#4145](https://github.com/google/ExoPlayer/issues/4145)).
 * Fix ClearKey decryption error if the key contains a forward slash
   ([#4075](https://github.com/google/ExoPlayer/issues/4075)).
 * Fix crash when switching surface on Huawei P9 Lite
