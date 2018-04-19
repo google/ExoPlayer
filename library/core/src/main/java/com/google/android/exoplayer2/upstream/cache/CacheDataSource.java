@@ -85,10 +85,13 @@ public final class CacheDataSource implements DataSource {
   @IntDef({CACHE_IGNORED_REASON_ERROR, CACHE_IGNORED_REASON_UNSET_LENGTH})
   public @interface CacheIgnoredReason {}
 
-  /** Cache ignored due to a cache related error */
+  /** Cache not ignored. */
+  private static final int CACHE_NOT_IGNORED = -1;
+
+  /** Cache ignored due to a cache related error. */
   public static final int CACHE_IGNORED_REASON_ERROR = 0;
 
-  /** Cache ignored due to a request with an unset length */
+  /** Cache ignored due to a request with an unset length. */
   public static final int CACHE_IGNORED_REASON_UNSET_LENGTH = 1;
 
   /**
@@ -221,8 +224,13 @@ public final class CacheDataSource implements DataSource {
       actualUri = loadRedirectedUriOrReturnGivenUri(cache, key, uri);
       flags = dataSpec.flags;
       readPosition = dataSpec.position;
-      currentRequestIgnoresCache = (ignoreCacheOnError && seenCacheError)
-          || (dataSpec.length == C.LENGTH_UNSET && ignoreCacheForUnsetLengthRequests);
+
+      int reason = shouldIgnoreCacheForRequest(dataSpec);
+      currentRequestIgnoresCache = reason != CACHE_NOT_IGNORED;
+      if (currentRequestIgnoresCache) {
+        notifyCacheIgnored(reason);
+      }
+
       if (dataSpec.length != C.LENGTH_UNSET || currentRequestIgnoresCache) {
         bytesRemaining = dataSpec.length;
       } else {
@@ -317,13 +325,6 @@ public final class CacheDataSource implements DataSource {
     CacheSpan nextSpan;
     if (currentRequestIgnoresCache) {
       nextSpan = null;
-      if (eventListener != null) {
-        int reason =
-            ignoreCacheOnError && seenCacheError
-                ? CACHE_IGNORED_REASON_ERROR
-                : CACHE_IGNORED_REASON_UNSET_LENGTH;
-        eventListener.onCacheIgnored(reason);
-      }
     } else if (blockOnCache) {
       try {
         nextSpan = cache.startReadWrite(key, readPosition);
@@ -498,6 +499,22 @@ public final class CacheDataSource implements DataSource {
   private void handleBeforeThrow(IOException exception) {
     if (isReadingFromCache() || exception instanceof CacheException) {
       seenCacheError = true;
+    }
+  }
+
+  private int shouldIgnoreCacheForRequest(DataSpec dataSpec) {
+    if (ignoreCacheOnError && seenCacheError) {
+      return CACHE_IGNORED_REASON_ERROR;
+    } else if (ignoreCacheForUnsetLengthRequests && dataSpec.length == C.LENGTH_UNSET) {
+      return CACHE_IGNORED_REASON_UNSET_LENGTH;
+    } else {
+      return CACHE_NOT_IGNORED;
+    }
+  }
+
+  private void notifyCacheIgnored(@CacheIgnoredReason int reason) {
+    if (eventListener != null) {
+      eventListener.onCacheIgnored(reason);
     }
   }
 
