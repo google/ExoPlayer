@@ -53,6 +53,8 @@
     with encoder padding when the decoder returns a non-empty final buffer.
   * Allow trimming more than one sample when applying an elst audio edit via
     gapless playback info.
+  * Allow overriding skipping/scaling with custom `AudioProcessor`s
+    ((#3142)[https://github.com/google/ExoPlayer/issues/3142]).
 * Caching:
   * Add release method to Cache interface.
   * Prevent multiple instances of SimpleCache in the same folder.
