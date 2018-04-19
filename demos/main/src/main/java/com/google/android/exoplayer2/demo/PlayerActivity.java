@@ -21,7 +21,6 @@ import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.Parcelable;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.view.KeyEvent;
@@ -84,6 +83,7 @@ import java.lang.reflect.Constructor;
 import java.net.CookieHandler;
 import java.net.CookieManager;
 import java.net.CookiePolicy;
+import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 
@@ -276,11 +276,15 @@ public class PlayerActivity extends Activity
       String action = intent.getAction();
       Uri[] uris;
       String[] extensions;
-      Parcelable[] manifestFilters;
+      Object[] manifestFilters;
       if (ACTION_VIEW.equals(action)) {
         uris = new Uri[] {intent.getData()};
         extensions = new String[] {intent.getStringExtra(EXTENSION_EXTRA)};
-        manifestFilters = new Parcelable[] {intent.getParcelableExtra(MANIFEST_FILTER_EXTRA)};
+        Object filter = intent.getParcelableExtra(MANIFEST_FILTER_EXTRA);
+        if (filter == null) {
+          filter = intent.getStringArrayExtra(MANIFEST_FILTER_EXTRA);
+        }
+        manifestFilters = new Object[] {filter};
       } else if (ACTION_VIEW_LIST.equals(action)) {
         String[] uriStrings = intent.getStringArrayExtra(URI_LIST_EXTRA);
         uris = new Uri[uriStrings.length];
@@ -293,7 +297,7 @@ public class PlayerActivity extends Activity
         }
         manifestFilters = intent.getParcelableArrayExtra(MANIFEST_FILTER_LIST_EXTRA);
         if (manifestFilters == null) {
-          manifestFilters = new Parcelable[uriStrings.length];
+          manifestFilters = new Object[uriStrings.length];
         }
       } else {
         showToast(getString(R.string.unexpected_intent_action, action));
@@ -385,8 +389,15 @@ public class PlayerActivity extends Activity
 
       MediaSource[] mediaSources = new MediaSource[uris.length];
       for (int i = 0; i < uris.length; i++) {
-        ParcelableArray<?> manifestFilter = (ParcelableArray<?>) manifestFilters[i];
-        List<?> filter = manifestFilter != null ? manifestFilter.asList() : null;
+        List<?> filter;
+        Object manifestFilter = manifestFilters[i];
+        if (manifestFilter instanceof ParcelableArray<?>) {
+          filter = ((ParcelableArray<?>) manifestFilter).asList();
+        } else if (manifestFilter instanceof String[]) {
+          filter = Arrays.asList((String[]) manifestFilter);
+        } else {
+          filter = null;
+        }
         mediaSources[i] = buildMediaSource(uris[i], extensions[i], filter);
       }
       mediaSource =
