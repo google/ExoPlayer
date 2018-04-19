@@ -34,6 +34,7 @@ import com.google.android.exoplayer2.source.TrackGroup;
 import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector.Parameters;
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector.ParametersBuilder;
+import com.google.android.exoplayer2.trackselection.DefaultTrackSelector.SelectionOverride;
 import com.google.android.exoplayer2.trackselection.TrackSelector.InvalidationListener;
 import com.google.android.exoplayer2.util.MimeTypes;
 import java.util.HashMap;
@@ -143,6 +144,24 @@ public final class DefaultTrackSelectorTest {
 
     Parameters parametersFromParcel = Parameters.CREATOR.createFromParcel(parcel);
     assertThat(parametersFromParcel).isEqualTo(parametersToParcel);
+
+    parcel.recycle();
+  }
+
+  /** Tests {@link SelectionOverride}'s {@link android.os.Parcelable} implementation. */
+  @Test
+  public void testSelectionOverrideParcelable() {
+    int[] tracks = new int[] {2, 3};
+    SelectionOverride selectionOverrideToParcel =
+        new SelectionOverride(/* groupIndex= */ 1, tracks);
+
+    Parcel parcel = Parcel.obtain();
+    selectionOverrideToParcel.writeToParcel(parcel, 0);
+    parcel.setDataPosition(0);
+
+    SelectionOverride selectionOverrideFromParcel =
+        SelectionOverride.CREATOR.createFromParcel(parcel);
+    assertThat(selectionOverrideFromParcel).isEqualTo(selectionOverrideToParcel);
 
     parcel.recycle();
   }
