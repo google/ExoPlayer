@@ -246,6 +246,7 @@
   ([#3792](https://github.com/google/ExoPlayer/issues/3792).
 * Support 14-bit mode and little endianness in DTS PES packets
   ([#3340](https://github.com/google/ExoPlayer/issues/3340)).
+* Demo app: Add ability to download not DRM protected content.
 
 ### 2.6.1 ###
 

@@ -55,4 +55,24 @@
 
   <string name="ima_not_loaded">Playing sample without ads, as the IMA extension was not loaded</string>
 
+  <string name="download_notifications_channel_name">Downloads</string>
+
+  <string name="sample">Sample:</string>
+
+  <string name="manifest_download_error">Manifest failed to download</string>
+
+  <string name="download">Download</string>
+
+  <string name="play">Play</string>
+
+  <string name="remove_all">Remove All</string>
+
+  <string name="removing_all">Removing all cached data.</string>
+
+  <string name="refresh">Refresh</string>
+
+  <string name="not_supported_content_type">Not supported content type.</string>
+
+  <string name="supports_downloading_only_single_not_drm_protected">Currently only downloading of single, not DRM protected content is demonstrated in this app.</string>
+
 </resources>

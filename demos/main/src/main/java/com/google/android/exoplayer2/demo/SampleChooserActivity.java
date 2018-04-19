@@ -26,13 +26,16 @@ import android.util.JsonReader;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.BaseExpandableListAdapter;
 import android.widget.ExpandableListView;
 import android.widget.ExpandableListView.OnChildClickListener;
+import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 import com.google.android.exoplayer2.ParserException;
+import com.google.android.exoplayer2.offline.DownloadService;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DataSourceInputStream;
 import com.google.android.exoplayer2.upstream.DataSpec;
@@ -81,6 +84,18 @@ public class SampleChooserActivity extends Activity {
     }
     SampleListLoader loaderTask = new SampleListLoader();
     loaderTask.execute(uris);
+
+    startDownloadServiceForeground();
+  }
+
+  private void startDownloadServiceForeground() {
+    Intent serviceIntent =
+        new Intent(DownloadService.ACTION_INIT).setPackage("com.google.android.exoplayer2.demo");
+    if (Util.SDK_INT >= 26) {
+      startForegroundService(serviceIntent);
+    } else {
+      startService(serviceIntent);
+    }
   }
 
   private void onSampleGroups(final List<SampleGroup> groups, boolean sawError) {
@@ -102,6 +117,21 @@ public class SampleChooserActivity extends Activity {
 
   private void onSampleSelected(Sample sample) {
     startActivity(sample.buildIntent(this));
+  }
+
+  private void onSampleDownloadButtonClicked(Sample sample) {
+    if (!(sample instanceof UriSample) || sample.drmInfo != null) {
+      Toast.makeText(
+              getApplicationContext(),
+              R.string.supports_downloading_only_single_not_drm_protected,
+              Toast.LENGTH_SHORT)
+          .show();
+      return;
+    }
+    Intent intent = new Intent(this, DownloaderActivity.class);
+    intent.putExtra(DownloaderActivity.SAMPLE_NAME, sample.name);
+    intent.putExtra(DownloaderActivity.PLAYER_INTENT, sample.buildIntent(this));
+    startActivity(intent);
   }
 
   private final class SampleListLoader extends AsyncTask<String, Void, List<SampleGroup>> {
@@ -278,10 +308,11 @@ public class SampleChooserActivity extends Activity {
 
   }
 
-  private static final class SampleAdapter extends BaseExpandableListAdapter {
+  private final class SampleAdapter extends BaseExpandableListAdapter {
 
     private final Context context;
     private final List<SampleGroup> sampleGroups;
+    private OnClickListener onClickListener;
 
     public SampleAdapter(Context context, List<SampleGroup> sampleGroups) {
       this.context = context;
@@ -303,10 +334,9 @@ public class SampleChooserActivity extends Activity {
         View convertView, ViewGroup parent) {
       View view = convertView;
       if (view == null) {
-        view = LayoutInflater.from(context).inflate(android.R.layout.simple_list_item_1, parent,
-            false);
+        view = LayoutInflater.from(context).inflate(R.layout.sample_list_item, parent, false);
       }
-      ((TextView) view).setText(getChild(groupPosition, childPosition).name);
+      initializeChildView(view, getChild(groupPosition, childPosition));
       return view;
     }
 
@@ -352,6 +382,28 @@ public class SampleChooserActivity extends Activity {
       return true;
     }
 
+    private void initializeChildView(View view, Sample sample) {
+      TextView sampleTitle = view.findViewById(R.id.sample_title);
+      sampleTitle.setText(sample.name);
+
+      ImageButton downloadButton = view.findViewById(R.id.download_button);
+      downloadButton.setFocusable(false);
+      downloadButton.setOnClickListener(getOnClickListener());
+      downloadButton.setTag(sample);
+    }
+
+    private OnClickListener getOnClickListener() {
+      if (onClickListener == null) {
+        onClickListener =
+            new OnClickListener() {
+              @Override
+              public void onClick(View v) {
+                onSampleDownloadButtonClicked((Sample) v.getTag());
+              }
+            };
+      }
+      return onClickListener;
+    }
   }
 
   private static final class SampleGroup {
