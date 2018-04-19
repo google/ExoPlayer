@@ -683,7 +683,8 @@ public final class ImaAdsLoader extends Player.DefaultEventListener implements A
     if (DEBUG) {
       Log.d(TAG, "pauseAd");
     }
-    if (imaAdState == IMA_AD_STATE_NONE) {
+    //If there is ad playing, dont trigger this function
+    if (imaAdState == IMA_AD_STATE_NONE || imaAdState == IMA_AD_STATE_PLAYING) {
       // This method is called after content is resumed.
       return;
     }
@@ -883,6 +884,10 @@ public final class ImaAdsLoader extends Player.DefaultEventListener implements A
         if (ad.isSkippable()) {
           focusSkipButton();
         }
+        break;
+      case RESUMED:
+        //After resumed, update the ima state back to playing
+        imaAdState = IMA_AD_STATE_PLAYING;
         break;
       case TAPPED:
         if (eventListener != null) {
