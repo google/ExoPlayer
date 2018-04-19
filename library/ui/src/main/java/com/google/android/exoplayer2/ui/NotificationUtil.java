@@ -15,18 +15,46 @@
  */
 package com.google.android.exoplayer2.ui;
 
+import android.annotation.SuppressLint;
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.content.Context;
 import android.content.Intent;
+import android.support.annotation.IntDef;
 import android.support.annotation.Nullable;
+import android.support.annotation.StringRes;
 import com.google.android.exoplayer2.util.Util;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 
 /** Utility methods for displaying {@link android.app.Notification}s. */
+@SuppressLint("InlinedApi")
 public final class NotificationUtil {
 
-  private NotificationUtil() {}
+  /** Notification channel importance levels. */
+  @Retention(RetentionPolicy.SOURCE)
+  @IntDef({
+    IMPORTANCE_UNSPECIFIED,
+    IMPORTANCE_NONE,
+    IMPORTANCE_MIN,
+    IMPORTANCE_LOW,
+    IMPORTANCE_DEFAULT,
+    IMPORTANCE_HIGH
+  })
+  public @interface Importance {}
+  /** @see NotificationManager#IMPORTANCE_UNSPECIFIED */
+  public static final int IMPORTANCE_UNSPECIFIED = NotificationManager.IMPORTANCE_UNSPECIFIED;
+  /** @see NotificationManager#IMPORTANCE_NONE */
+  public static final int IMPORTANCE_NONE = NotificationManager.IMPORTANCE_NONE;
+  /** @see NotificationManager#IMPORTANCE_MIN */
+  public static final int IMPORTANCE_MIN = NotificationManager.IMPORTANCE_MIN;
+  /** @see NotificationManager#IMPORTANCE_LOW */
+  public static final int IMPORTANCE_LOW = NotificationManager.IMPORTANCE_LOW;
+  /** @see NotificationManager#IMPORTANCE_DEFAULT */
+  public static final int IMPORTANCE_DEFAULT = NotificationManager.IMPORTANCE_DEFAULT;
+  /** @see NotificationManager#IMPORTANCE_HIGH */
+  public static final int IMPORTANCE_HIGH = NotificationManager.IMPORTANCE_HIGH;
 
   /**
    * Creates a notification channel that notifications can be posted to. See {@link
@@ -36,20 +64,23 @@ public final class NotificationUtil {
    * @param context A {@link Context} to retrieve {@link NotificationManager}.
    * @param id The id of the channel. Must be unique per package. The value may be truncated if it
    *     is too long.
-   * @param name The user visible name of the channel. You can rename this channel when the system
-   *     locale changes by listening for the {@link Intent#ACTION_LOCALE_CHANGED} broadcast. The
-   *     recommended maximum length is 40 characters; the value may be truncated if it is too long.
+   * @param name A string resource identifier for the user visible name of the channel. You can
+   *     rename this channel when the system locale changes by listening for the {@link
+   *     Intent#ACTION_LOCALE_CHANGED} broadcast. The recommended maximum length is 40 characters;
+   *     the value may be truncated if it is too long.
    * @param importance The importance of the channel. This controls how interruptive notifications
-   *     posted to this channel are.
+   *     posted to this channel are. One of {@link #IMPORTANCE_UNSPECIFIED}, {@link
+   *     #IMPORTANCE_NONE}, {@link #IMPORTANCE_MIN}, {@link #IMPORTANCE_LOW}, {@link
+   *     #IMPORTANCE_DEFAULT} and {@link #IMPORTANCE_HIGH}.
    */
   public static void createNotificationChannel(
-      Context context, String id, int name, int importance) {
+      Context context, String id, @StringRes int name, @Importance int importance) {
     if (Util.SDK_INT >= 26) {
       NotificationManager notificationManager =
           (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
-      NotificationChannel mChannel =
+      NotificationChannel channel =
           new NotificationChannel(id, context.getString(name), importance);
-      notificationManager.createNotificationChannel(mChannel);
+      notificationManager.createNotificationChannel(channel);
     }
   }
 
@@ -73,4 +104,6 @@ public final class NotificationUtil {
       notificationManager.cancel(id);
     }
   }
+
+  private NotificationUtil() {}
 }
