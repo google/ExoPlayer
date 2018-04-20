@@ -27,6 +27,7 @@ import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.os.Handler;
 import android.os.Looper;
+import android.support.annotation.DrawableRes;
 import android.support.annotation.IntDef;
 import android.support.annotation.Nullable;
 import android.support.annotation.StringRes;
@@ -271,7 +272,7 @@ public class PlayerNotificationManager {
   private boolean colorized;
   private int defaults;
   private int color;
-  private int smallIconResourceId;
+  private @DrawableRes int smallIconResourceId;
   private int visibility;
   private boolean ongoing;
   private boolean useChronometer;
@@ -594,7 +595,7 @@ public class PlayerNotificationManager {
    *
    * @param smallIconResourceId The resource id of the small icon.
    */
-  public final void setSmallIcon(int smallIconResourceId) {
+  public final void setSmallIcon(@DrawableRes int smallIconResourceId) {
     if (this.smallIconResourceId != smallIconResourceId) {
       this.smallIconResourceId = smallIconResourceId;
       maybeUpdateNotification();
