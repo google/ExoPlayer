@@ -296,17 +296,17 @@ public class SimpleCacheTest {
     }
   }
 
-  //   @Test
-  //   public void testMultipleSimpleCacheWithSameCacheDirThrowsException() throws Exception {
-  //     new SimpleCache(cacheDir, new NoOpCacheEvictor());
-  //
-  //     try {
-  //       new SimpleCache(cacheDir, new NoOpCacheEvictor());
-  //       assertWithMessage("Exception was expected").fail();
-  //     } catch (IllegalStateException e) {
-  //       // Expected. Do nothing.
-  //     }
-  //   }
+  @Test
+  public void testMultipleSimpleCacheWithSameCacheDirThrowsException() throws Exception {
+    new SimpleCache(cacheDir, new NoOpCacheEvictor());
+
+    try {
+      new SimpleCache(cacheDir, new NoOpCacheEvictor());
+      assertWithMessage("Exception was expected").fail();
+    } catch (IllegalStateException e) {
+      // Expected. Do nothing.
+    }
+  }
 
   @Test
   public void testMultipleSimpleCacheWithSameCacheDirDoesNotThrowsExceptionAfterRelease()
