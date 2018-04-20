@@ -16,7 +16,6 @@
 package com.google.android.exoplayer2.demo;
 
 import android.app.Notification;
-import android.app.NotificationManager;
 import android.util.Pair;
 import com.google.android.exoplayer2.offline.DownloadManager;
 import com.google.android.exoplayer2.offline.DownloadManager.DownloadState;
@@ -54,7 +53,7 @@ public class DemoDownloadService extends DownloadService {
         this,
         CHANNEL_ID,
         R.string.download_notifications_channel_name,
-        NotificationManager.IMPORTANCE_LOW);
+        NotificationUtil.IMPORTANCE_LOW);
     super.onCreate();
   }
 
