@@ -170,7 +170,7 @@ public class OkHttpDataSource implements HttpDataSource {
 
     // Check for a valid response code.
     if (!response.isSuccessful()) {
-      Map<String, List<String>> headers = request.headers().toMultimap();
+      Map<String, List<String>> headers = response.headers().toMultimap();
       closeConnectionQuietly();
       InvalidResponseCodeException exception = new InvalidResponseCodeException(
           responseCode, headers, dataSpec);
