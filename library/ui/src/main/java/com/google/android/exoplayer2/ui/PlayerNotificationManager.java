@@ -244,17 +244,17 @@ public class PlayerNotificationManager {
   private static final long MAX_POSITION_FOR_SEEK_TO_PREVIOUS = 3000;
 
   private final Context context;
+  private final String channelId;
+  private final int notificationId;
+  private final MediaDescriptionAdapter mediaDescriptionAdapter;
+  private final CustomActionReceiver customActionReceiver;
   private final Handler mainHandler;
   private final NotificationManagerCompat notificationManager;
   private final IntentFilter intentFilter;
   private final Player.EventListener playerListener;
   private final NotificationBroadcastReceiver notificationBroadcastReceiver;
-  private final MediaDescriptionAdapter mediaDescriptionAdapter;
-  private final int notificationId;
-  private final String channelId;
   private final Map<String, NotificationCompat.Action> playbackActions;
   private final Map<String, NotificationCompat.Action> customActions;
-  private final CustomActionReceiver customActionReceiver;
 
   private Player player;
   private ControlDispatcher controlDispatcher;
@@ -283,22 +283,22 @@ public class PlayerNotificationManager {
    * {@code channelId} and {@code channelName}.
    *
    * @param context The {@link Context}.
-   * @param mediaDescriptionAdapter The {@link MediaDescriptionAdapter}.
    * @param channelId The id of the notification channel.
    * @param channelName A string resource identifier for the user visible name of the channel. The
    *     recommended maximum length is 40 characters; the value may be truncated if it is too long.
    * @param notificationId The id of the notification.
+   * @param mediaDescriptionAdapter The {@link MediaDescriptionAdapter}.
    */
   public static PlayerNotificationManager createWithNotificationChannel(
       Context context,
-      MediaDescriptionAdapter mediaDescriptionAdapter,
       String channelId,
       @StringRes int channelName,
-      int notificationId) {
+      int notificationId,
+      MediaDescriptionAdapter mediaDescriptionAdapter) {
     NotificationUtil.createNotificationChannel(
         context, channelId, channelName, NotificationUtil.IMPORTANCE_LOW);
     return new PlayerNotificationManager(
-        context, mediaDescriptionAdapter, channelId, notificationId);
+        context, channelId, notificationId, mediaDescriptionAdapter);
   }
 
   /**
@@ -306,20 +306,20 @@ public class PlayerNotificationManager {
    * is responsible for creating the notification channel.
    *
    * @param context The {@link Context}.
-   * @param mediaDescriptionAdapter The {@link MediaDescriptionAdapter}.
    * @param channelId The id of the notification channel.
    * @param notificationId The id of the notification.
+   * @param mediaDescriptionAdapter The {@link MediaDescriptionAdapter}.
    */
   public PlayerNotificationManager(
       Context context,
-      MediaDescriptionAdapter mediaDescriptionAdapter,
       String channelId,
-      int notificationId) {
+      int notificationId,
+      MediaDescriptionAdapter mediaDescriptionAdapter) {
     this(
         context,
-        mediaDescriptionAdapter,
         channelId,
         notificationId,
+        mediaDescriptionAdapter,
         /* customActionReceiver= */ null);
   }
 
@@ -328,22 +328,22 @@ public class PlayerNotificationManager {
    * CustomActionReceiver}. The caller is responsible for creating the notification channel.
    *
    * @param context The {@link Context}.
-   * @param mediaDescriptionAdapter The {@link MediaDescriptionAdapter}.
    * @param channelId The id of the notification channel.
    * @param notificationId The id of the notification.
+   * @param mediaDescriptionAdapter The {@link MediaDescriptionAdapter}.
    * @param customActionReceiver The {@link CustomActionReceiver}.
    */
   public PlayerNotificationManager(
       Context context,
-      MediaDescriptionAdapter mediaDescriptionAdapter,
       String channelId,
       int notificationId,
+      MediaDescriptionAdapter mediaDescriptionAdapter,
       @Nullable CustomActionReceiver customActionReceiver) {
     this.context = context.getApplicationContext();
-    this.mediaDescriptionAdapter = mediaDescriptionAdapter;
     this.channelId = channelId;
-    this.customActionReceiver = customActionReceiver;
     this.notificationId = notificationId;
+    this.mediaDescriptionAdapter = mediaDescriptionAdapter;
+    this.customActionReceiver = customActionReceiver;
     this.controlDispatcher = new DefaultControlDispatcher();
     mainHandler = new Handler(Looper.getMainLooper());
     notificationManager = NotificationManagerCompat.from(context);
