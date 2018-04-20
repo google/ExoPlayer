@@ -73,6 +73,8 @@
     not include all of the playlist's variants.
   * Fix SAMPLE-AES-CENC and SAMPLE-AES-CTR EXT-X-KEY methods
     ([#4145](https://github.com/google/ExoPlayer/issues/4145)).
+  * Preeptively declare an ID3 track in chunkless preparation
+    ([#4016](https://github.com/google/ExoPlayer/issues/4016)).
 * Fix ClearKey decryption error if the key contains a forward slash
   ([#4075](https://github.com/google/ExoPlayer/issues/4075)).
 * Fix crash when switching surface on Huawei P9 Lite
