@@ -29,17 +29,18 @@ import android.os.Handler;
 import android.os.Looper;
 import android.support.annotation.IntDef;
 import android.support.annotation.Nullable;
+import android.support.annotation.StringRes;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationManagerCompat;
 import android.support.v4.media.app.NotificationCompat.MediaStyle;
 import android.support.v4.media.session.MediaSessionCompat;
-import android.support.v4.util.Pair;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ControlDispatcher;
 import com.google.android.exoplayer2.DefaultControlDispatcher;
 import com.google.android.exoplayer2.PlaybackParameters;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.Timeline;
+import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Util;
 import java.lang.annotation.Retention;
 import java.util.ArrayList;
@@ -262,7 +263,8 @@ public class PlayerNotificationManager {
   private NotificationListener notificationListener;
   private MediaSessionCompat.Token mediaSessionToken;
   private boolean useNavigationActions;
-  private Pair<String, NotificationCompat.Action> stopAction;
+  private @Nullable String stopAction;
+  private @Nullable PendingIntent stopPendingIntent;
   private long fastForwardMs;
   private long rewindMs;
   private int badgeIconType;
@@ -277,7 +279,31 @@ public class PlayerNotificationManager {
   private int lastPlaybackState;
 
   /**
-   * Creates the manager.
+   * Creates a notification manager and a low-priority notification channel with the specified
+   * {@code channelId} and {@code channelName}.
+   *
+   * @param context The {@link Context}.
+   * @param mediaDescriptionAdapter The {@link MediaDescriptionAdapter}.
+   * @param channelId The id of the notification channel.
+   * @param channelName A string resource identifier for the user visible name of the channel. The
+   *     recommended maximum length is 40 characters; the value may be truncated if it is too long.
+   * @param notificationId The id of the notification.
+   */
+  public static PlayerNotificationManager createWithNotificationChannel(
+      Context context,
+      MediaDescriptionAdapter mediaDescriptionAdapter,
+      String channelId,
+      @StringRes int channelName,
+      int notificationId) {
+    NotificationUtil.createNotificationChannel(
+        context, channelId, channelName, NotificationUtil.IMPORTANCE_LOW);
+    return new PlayerNotificationManager(
+        context, mediaDescriptionAdapter, channelId, notificationId);
+  }
+
+  /**
+   * Creates a notification manager using the specified notification {@code channelId}. The caller
+   * is responsible for creating the notification channel.
    *
    * @param context The {@link Context}.
    * @param mediaDescriptionAdapter The {@link MediaDescriptionAdapter}.
@@ -289,11 +315,17 @@ public class PlayerNotificationManager {
       MediaDescriptionAdapter mediaDescriptionAdapter,
       String channelId,
       int notificationId) {
-    this(context, mediaDescriptionAdapter, channelId, notificationId, null);
+    this(
+        context,
+        mediaDescriptionAdapter,
+        channelId,
+        notificationId,
+        /* customActionReceiver= */ null);
   }
 
   /**
-   * Creates the manager with a {@link CustomActionReceiver}.
+   * Creates a notification manager using the specified notification {@code channelId} and {@link
+   * CustomActionReceiver}. The caller is responsible for creating the notification channel.
    *
    * @param context The {@link Context}.
    * @param mediaDescriptionAdapter The {@link MediaDescriptionAdapter}.
@@ -446,18 +478,17 @@ public class PlayerNotificationManager {
    *     provided by the {@link CustomActionReceiver}. {@code null} to omit the stop action.
    */
   public final void setStopAction(@Nullable String stopAction) {
-    if ((this.stopAction == null && stopAction == null)
-        || (this.stopAction != null && this.stopAction.first.equals(stopAction))) {
+    if (Util.areEqual(stopAction, this.stopAction)) {
       return;
     }
-    if (stopAction == null) {
-      this.stopAction = null;
-    } else if (ACTION_STOP.equals(stopAction)) {
-      this.stopAction = new Pair<>(stopAction, playbackActions.get(ACTION_STOP));
-    } else if (customActions.containsKey(stopAction)) {
-      this.stopAction = new Pair<>(stopAction, customActions.get(stopAction));
+    this.stopAction = stopAction;
+    if (ACTION_STOP.equals(stopAction)) {
+      stopPendingIntent = playbackActions.get(ACTION_STOP).actionIntent;
+    } else if (stopAction != null) {
+      Assertions.checkArgument(customActions.containsKey(stopAction));
+      stopPendingIntent = customActions.get(stopAction).actionIntent;
     } else {
-      throw new IllegalArgumentException();
+      stopPendingIntent = null;
     }
     maybeUpdateNotification();
   }
@@ -499,7 +530,7 @@ public class PlayerNotificationManager {
 
   /**
    * Sets whether the notification should be colorized. When set, the color set with {@link
-   * setColor(int)} will be used as the background color for the notification.
+   * #setColor(int)} will be used as the background color for the notification.
    *
    * <p>See {@link NotificationCompat.Builder#setColorized(boolean)}.
    *
@@ -734,9 +765,8 @@ public class PlayerNotificationManager {
     boolean useStopAction = stopAction != null && !isPlayingAd;
     mediaStyle.setShowCancelButton(useStopAction);
     if (useStopAction) {
-      PendingIntent stopIntent = stopAction.second.actionIntent;
-      builder.setDeleteIntent(stopIntent);
-      mediaStyle.setCancelButtonIntent(stopIntent);
+      builder.setDeleteIntent(stopPendingIntent);
+      mediaStyle.setCancelButtonIntent(stopPendingIntent);
     }
     // Set notification properties from getters.
     builder
@@ -818,8 +848,8 @@ public class PlayerNotificationManager {
       if (!customActions.isEmpty()) {
         stringActions.addAll(customActionReceiver.getCustomActions(player));
       }
-      if (stopAction != null) {
-        stringActions.add(stopAction.first);
+      if (ACTION_STOP.equals(stopAction)) {
+        stringActions.add(stopAction);
       }
     }
     return stringActions;
