@@ -126,4 +126,15 @@ public final class RangedUri {
         && referenceUri.equals(other.referenceUri);
   }
 
+  @Override
+  public String toString() {
+    return "RangedUri("
+        + "referenceUri="
+        + referenceUri
+        + ", start="
+        + start
+        + ", length="
+        + length
+        + ")";
+  }
 }
