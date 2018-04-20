@@ -15,4 +15,6 @@
   <string name="exo_downloading">Prenašanje</string>
   <string name="exo_download_completed">Prenos je končan</string>
   <string name="exo_download_failed">Prenos ni uspel</string>
+  <string name="exo_track_selection_none">None</string>
+  <string name="exo_track_selection_auto">Auto</string>
 </resources>

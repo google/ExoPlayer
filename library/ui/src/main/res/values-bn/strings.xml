@@ -15,4 +15,6 @@
   <string name="exo_downloading">ডাউনলোড হচ্ছে</string>
   <string name="exo_download_completed">ডাউনলোড হয়ে গেছে</string>
   <string name="exo_download_failed">ডাউনলোড করা যায়নি</string>
+  <string name="exo_track_selection_none">None</string>
+  <string name="exo_track_selection_auto">Auto</string>
 </resources>

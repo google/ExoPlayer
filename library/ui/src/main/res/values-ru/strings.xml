@@ -15,4 +15,6 @@
   <string name="exo_downloading">Загрузка файлов</string>
   <string name="exo_download_completed">Скачивание завершено</string>
   <string name="exo_download_failed">Ошибка скачивания</string>
+  <string name="exo_track_selection_none">None</string>
+  <string name="exo_track_selection_auto">Auto</string>
 </resources>

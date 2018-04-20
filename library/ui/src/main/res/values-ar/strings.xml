@@ -15,4 +15,6 @@
   <string name="exo_downloading">تحميل</string>
   <string name="exo_download_completed">اكتمل التنزيل</string>
   <string name="exo_download_failed">تعذّر التنزيل</string>
+  <string name="exo_track_selection_none">None</string>
+  <string name="exo_track_selection_auto">Auto</string>
 </resources>

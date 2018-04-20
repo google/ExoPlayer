@@ -15,4 +15,6 @@
   <string name="exo_downloading">Laster ned</string>
   <string name="exo_download_completed">Nedlastingen er fullført</string>
   <string name="exo_download_failed">Nedlastingen mislyktes</string>
+  <string name="exo_track_selection_none">None</string>
+  <string name="exo_track_selection_auto">Auto</string>
 </resources>

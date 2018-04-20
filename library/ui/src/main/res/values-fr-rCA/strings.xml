@@ -15,4 +15,6 @@
   <string name="exo_downloading">Téléchargement en cours…</string>
   <string name="exo_download_completed">Téléchargement terminé</string>
   <string name="exo_download_failed">Échec du téléchargement</string>
+  <string name="exo_track_selection_none">None</string>
+  <string name="exo_track_selection_auto">Auto</string>
 </resources>

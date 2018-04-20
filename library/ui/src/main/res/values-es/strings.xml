@@ -15,4 +15,6 @@
   <string name="exo_downloading">Descarga de archivos</string>
   <string name="exo_download_completed">Descarga de archivos completado</string>
   <string name="exo_download_failed">No se ha podido descargar</string>
+  <string name="exo_track_selection_none">None</string>
+  <string name="exo_track_selection_auto">Auto</string>
 </resources>

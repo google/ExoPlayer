@@ -15,4 +15,6 @@
   <string name="exo_downloading">Preuzimanje datoteka</string>
   <string name="exo_download_completed">Preuzimanje je dovršeno</string>
   <string name="exo_download_failed">Preuzimanje nije uspjelo</string>
+  <string name="exo_track_selection_none">None</string>
+  <string name="exo_track_selection_auto">Auto</string>
 </resources>

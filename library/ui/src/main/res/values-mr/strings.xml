@@ -15,4 +15,6 @@
   <string name="exo_downloading">डाउनलोड होत आहे</string>
   <string name="exo_download_completed">डाउनलोड पूर्ण झाले</string>
   <string name="exo_download_failed">डाउनलोड अयशस्वी झाले</string>
+  <string name="exo_track_selection_none">None</string>
+  <string name="exo_track_selection_auto">Auto</string>
 </resources>

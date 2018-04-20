@@ -15,4 +15,6 @@
   <string name="exo_downloading">მიმდინარეობს ჩამოტვირთვა</string>
   <string name="exo_download_completed">ჩამოტვირთვა დასრულდა</string>
   <string name="exo_download_failed">ჩამოტვირთვა ვერ მოხერხდა</string>
+  <string name="exo_track_selection_none">None</string>
+  <string name="exo_track_selection_auto">Auto</string>
 </resources>

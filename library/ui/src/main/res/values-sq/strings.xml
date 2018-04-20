@@ -15,4 +15,6 @@
   <string name="exo_downloading">Po shkarkohet</string>
   <string name="exo_download_completed">Shkarkimi përfundoi</string>
   <string name="exo_download_failed">Shkarkimi dështoi</string>
+  <string name="exo_track_selection_none">None</string>
+  <string name="exo_track_selection_auto">Auto</string>
 </resources>

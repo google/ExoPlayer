@@ -15,4 +15,6 @@
   <string name="exo_downloading">Laddar ned</string>
   <string name="exo_download_completed">Nedladdningen är klar</string>
   <string name="exo_download_failed">Nedladdningen misslyckades</string>
+  <string name="exo_track_selection_none">None</string>
+  <string name="exo_track_selection_auto">Auto</string>
 </resources>

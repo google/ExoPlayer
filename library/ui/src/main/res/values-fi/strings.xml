@@ -15,4 +15,6 @@
   <string name="exo_downloading">Ladataan</string>
   <string name="exo_download_completed">Lataus valmis</string>
   <string name="exo_download_failed">Lataus epäonnistui</string>
+  <string name="exo_track_selection_none">None</string>
+  <string name="exo_track_selection_auto">Auto</string>
 </resources>

@@ -15,4 +15,6 @@
   <string name="exo_downloading">S\'està baixant</string>
   <string name="exo_download_completed">S\'ha completat la baixada</string>
   <string name="exo_download_failed">No s\'ha pogut baixar</string>
+  <string name="exo_track_selection_none">None</string>
+  <string name="exo_track_selection_auto">Auto</string>
 </resources>

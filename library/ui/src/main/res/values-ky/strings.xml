@@ -15,4 +15,6 @@
   <string name="exo_downloading">Жүктөлүп алынууда</string>
   <string name="exo_download_completed">Жүктөп алуу аяктады</string>
   <string name="exo_download_failed">Жүктөлүп алынбай калды</string>
+  <string name="exo_track_selection_none">None</string>
+  <string name="exo_track_selection_auto">Auto</string>
 </resources>

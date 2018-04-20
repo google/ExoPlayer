@@ -15,4 +15,6 @@
   <string name="exo_downloading">Se descarcă</string>
   <string name="exo_download_completed">Descărcarea a fost finalizată</string>
   <string name="exo_download_failed">Descărcarea nu a reușit</string>
+  <string name="exo_track_selection_none">None</string>
+  <string name="exo_track_selection_auto">Auto</string>
 </resources>

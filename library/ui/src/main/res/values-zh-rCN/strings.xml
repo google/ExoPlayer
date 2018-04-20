@@ -15,4 +15,6 @@
   <string name="exo_downloading">正在下载</string>
   <string name="exo_download_completed">下载完毕</string>
   <string name="exo_download_failed">下载失败</string>
+  <string name="exo_track_selection_none">None</string>
+  <string name="exo_track_selection_auto">Auto</string>
 </resources>

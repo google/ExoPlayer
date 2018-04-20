@@ -15,4 +15,6 @@
   <string name="exo_downloading">Sækir</string>
   <string name="exo_download_completed">Niðurhali lokið</string>
   <string name="exo_download_failed">Niðurhal mistókst</string>
+  <string name="exo_track_selection_none">None</string>
+  <string name="exo_track_selection_auto">Auto</string>
 </resources>

@@ -15,4 +15,6 @@
   <string name="exo_downloading">درحال بارگیری</string>
   <string name="exo_download_completed">بارگیری کامل شد</string>
   <string name="exo_download_failed">بارگیری نشد</string>
+  <string name="exo_track_selection_none">None</string>
+  <string name="exo_track_selection_auto">Auto</string>
 </resources>

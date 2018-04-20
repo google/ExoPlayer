@@ -15,4 +15,6 @@
   <string name="exo_downloading">Λήψη</string>
   <string name="exo_download_completed">Η λήψη ολοκληρώθηκε</string>
   <string name="exo_download_failed">Η λήψη απέτυχε</string>
+  <string name="exo_track_selection_none">None</string>
+  <string name="exo_track_selection_auto">Auto</string>
 </resources>

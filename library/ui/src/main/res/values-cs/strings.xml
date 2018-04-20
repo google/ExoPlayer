@@ -15,4 +15,6 @@
   <string name="exo_downloading">Stahování</string>
   <string name="exo_download_completed">Stahování bylo dokončeno</string>
   <string name="exo_download_failed">Stažení se nezdařilo</string>
+  <string name="exo_track_selection_none">None</string>
+  <string name="exo_track_selection_auto">Auto</string>
 </resources>
