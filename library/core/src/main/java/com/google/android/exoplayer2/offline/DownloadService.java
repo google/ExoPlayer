@@ -145,6 +145,8 @@ public abstract class DownloadService extends Service {
         requirementsWatcher =
             new RequirementsWatcher(getApplicationContext(), listener, requirements);
         requirementsWatcher.start();
+      } else {
+        downloadManager.startDownloads();
       }
     }
   }
