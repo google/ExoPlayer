@@ -15,4 +15,6 @@
   <string name="exo_downloading">İndiriliyor</string>
   <string name="exo_download_completed">İndirme işlemi tamamlandı</string>
   <string name="exo_download_failed">İndirilemedi</string>
+  <string name="exo_track_selection_none">None</string>
+  <string name="exo_track_selection_auto">Auto</string>
 </resources>

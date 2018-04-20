@@ -44,4 +44,8 @@
   <string name="exo_download_completed">Download completed</string>
   <!-- Shown in a notification or UI component to indicate a download has failed. [CHAR LIMIT=40] -->
   <string name="exo_download_failed">Download failed</string>
+  <!-- An option in a track selection view (e.g. a view that allows the user to choose between multiple media tracks) to indicate that no track should be selected. [CHAR LIMIT=20] -->
+  <string name="exo_track_selection_none">None</string>
+  <!-- An option in a track selection view (e.g. a view that allows the user to choose between multiple media tracks) to indicate that the automatic or default track should be selected.[CHAR LIMIT=20] -->
+  <string name="exo_track_selection_auto">Auto</string>
 </resources>

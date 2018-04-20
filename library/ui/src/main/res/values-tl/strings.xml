@@ -15,4 +15,6 @@
   <string name="exo_downloading">Nagda-download</string>
   <string name="exo_download_completed">Tapos na ang pag-download</string>
   <string name="exo_download_failed">Hindi na-download</string>
+  <string name="exo_track_selection_none">None</string>
+  <string name="exo_track_selection_auto">Auto</string>
 </resources>

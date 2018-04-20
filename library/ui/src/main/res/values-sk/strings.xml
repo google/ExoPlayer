@@ -15,4 +15,6 @@
   <string name="exo_downloading">Sťahuje sa</string>
   <string name="exo_download_completed">Sťahovanie bolo dokončené</string>
   <string name="exo_download_failed">Nepodarilo sa stiahnuť</string>
+  <string name="exo_track_selection_none">None</string>
+  <string name="exo_track_selection_auto">Auto</string>
 </resources>

@@ -15,4 +15,6 @@
   <string name="exo_downloading">பதிவிறக்கப்படுகிறது</string>
   <string name="exo_download_completed">பதிவிறக்கப்பட்டது</string>
   <string name="exo_download_failed">பதிவிறக்க முடியவில்லை</string>
+  <string name="exo_track_selection_none">None</string>
+  <string name="exo_track_selection_auto">Auto</string>
 </resources>

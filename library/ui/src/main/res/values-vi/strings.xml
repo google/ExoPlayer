@@ -15,4 +15,6 @@
   <string name="exo_downloading">Đang tải xuống</string>
   <string name="exo_download_completed">Đã hoàn tất tải xuống</string>
   <string name="exo_download_failed">Không tải xuống được</string>
+  <string name="exo_track_selection_none">None</string>
+  <string name="exo_track_selection_auto">Auto</string>
 </resources>

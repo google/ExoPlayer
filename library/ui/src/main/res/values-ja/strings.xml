@@ -15,4 +15,6 @@
   <string name="exo_downloading">ダウンロードしています</string>
   <string name="exo_download_completed">ダウンロードが完了しました</string>
   <string name="exo_download_failed">ダウンロードに失敗しました</string>
+  <string name="exo_track_selection_none">None</string>
+  <string name="exo_track_selection_auto">Auto</string>
 </resources>

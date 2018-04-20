@@ -15,4 +15,6 @@
   <string name="exo_downloading">Deskargatzen</string>
   <string name="exo_download_completed">Osatu da deskarga</string>
   <string name="exo_download_failed">Ezin izan da deskargatu</string>
+  <string name="exo_track_selection_none">None</string>
+  <string name="exo_track_selection_auto">Auto</string>
 </resources>

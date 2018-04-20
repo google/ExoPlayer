@@ -15,4 +15,6 @@
   <string name="exo_downloading">Ներբեռնում</string>
   <string name="exo_download_completed">Ներբեռնումն ավարտվեց</string>
   <string name="exo_download_failed">Չհաջողվեց ներբեռնել</string>
+  <string name="exo_track_selection_none">None</string>
+  <string name="exo_track_selection_auto">Auto</string>
 </resources>

@@ -15,4 +15,6 @@
   <string name="exo_downloading">በማውረድ ላይ</string>
   <string name="exo_download_completed">ማውረድ ተጠናቋል</string>
   <string name="exo_download_failed">ማውረድ አልተሳካም</string>
+  <string name="exo_track_selection_none">None</string>
+  <string name="exo_track_selection_auto">Auto</string>
 </resources>

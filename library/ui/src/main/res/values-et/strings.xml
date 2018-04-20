@@ -15,4 +15,6 @@
   <string name="exo_downloading">Allalaadimine</string>
   <string name="exo_download_completed">Allalaadimine lõpetati</string>
   <string name="exo_download_failed">Allalaadimine ebaõnnestus</string>
+  <string name="exo_track_selection_none">None</string>
+  <string name="exo_track_selection_auto">Auto</string>
 </resources>

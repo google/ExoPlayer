@@ -15,4 +15,6 @@
   <string name="exo_downloading">กำลังดาวน์โหลด</string>
   <string name="exo_download_completed">การดาวน์โหลดเสร็จสมบูรณ์</string>
   <string name="exo_download_failed">การดาวน์โหลดล้มเหลว</string>
+  <string name="exo_track_selection_none">None</string>
+  <string name="exo_track_selection_auto">Auto</string>
 </resources>

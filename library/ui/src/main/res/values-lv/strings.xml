@@ -15,4 +15,6 @@
   <string name="exo_downloading">Notiek lejupielāde</string>
   <string name="exo_download_completed">Lejupielāde ir pabeigta</string>
   <string name="exo_download_failed">Lejupielāde neizdevās</string>
+  <string name="exo_track_selection_none">None</string>
+  <string name="exo_track_selection_auto">Auto</string>
 </resources>

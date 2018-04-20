@@ -15,4 +15,6 @@
   <string name="exo_downloading">Завантажується</string>
   <string name="exo_download_completed">Завантаження завершено</string>
   <string name="exo_download_failed">Не вдалося завантажити</string>
+  <string name="exo_track_selection_none">None</string>
+  <string name="exo_track_selection_auto">Auto</string>
 </resources>
