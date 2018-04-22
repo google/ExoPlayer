@@ -345,7 +345,8 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
     long targetDurationUs = C.TIME_UNSET;
     boolean hasIndependentSegmentsTag = false;
     boolean hasEndTag = false;
-    Segment initializationSegment = null;
+    int initializationSegmentIndex = -1;
+    List<Segment> initializationSegments = new ArrayList<>();
     List<Segment> segments = new ArrayList<>();
     List<String> tags = new ArrayList<>();
 
@@ -392,7 +393,9 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
             segmentByteRangeOffset = Long.parseLong(splitByteRange[1]);
           }
         }
-        initializationSegment = new Segment(uri, segmentByteRangeOffset, segmentByteRangeLength);
+        initializationSegments.add(
+            new Segment(uri, segmentByteRangeOffset, segmentByteRangeLength));
+        initializationSegmentIndex++;
         segmentByteRangeOffset = 0;
         segmentByteRangeLength = C.LENGTH_UNSET;
       } else if (line.startsWith(TAG_TARGET_DURATION)) {
@@ -480,7 +483,8 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
                 segmentEncryptionIV,
                 segmentByteRangeOffset,
                 segmentByteRangeLength,
-                hasGapTag));
+                hasGapTag,
+                initializationSegmentIndex));
         segmentStartTimeUs += segmentDurationUs;
         segmentDurationUs = 0;
         if (segmentByteRangeLength != C.LENGTH_UNSET) {
@@ -493,7 +497,7 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
     return new HlsMediaPlaylist(playlistType, baseUri, tags, startOffsetUs, playlistStartTimeUs,
         hasDiscontinuitySequence, playlistDiscontinuitySequence, mediaSequence, version,
         targetDurationUs, hasIndependentSegmentsTag, hasEndTag, playlistStartTimeUs != 0,
-        drmInitData, initializationSegment, segments);
+        drmInitData, initializationSegments, segments);
   }
 
   private static SchemeData parseWidevineSchemeData(String line, String keyFormat)

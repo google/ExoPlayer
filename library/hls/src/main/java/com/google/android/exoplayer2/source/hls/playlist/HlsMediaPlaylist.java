@@ -72,13 +72,16 @@ public final class HlsMediaPlaylist extends HlsPlaylist {
     /** Whether the segment is tagged with #EXT-X-GAP. */
     public final boolean hasGapTag;
 
+    /** index of {@link HlsMediaPlaylist#initializationSegments} */
+    public final int initializationSegmentIndex;
+
     /**
      * @param uri See {@link #url}.
      * @param byterangeOffset See {@link #byterangeOffset}.
      * @param byterangeLength See {@link #byterangeLength}.
      */
     public Segment(String uri, long byterangeOffset, long byterangeLength) {
-      this(uri, 0, -1, C.TIME_UNSET, null, null, byterangeOffset, byterangeLength, false);
+      this(uri, 0, -1, C.TIME_UNSET, null, null, byterangeOffset, byterangeLength, false, -1);
     }
 
     /**
@@ -91,6 +94,7 @@ public final class HlsMediaPlaylist extends HlsPlaylist {
      * @param byterangeOffset See {@link #byterangeOffset}.
      * @param byterangeLength See {@link #byterangeLength}.
      * @param hasGapTag See {@link #hasGapTag}.
+     * @param initializationSegmentIndex See {@link #initializationSegmentIndex}.
      */
     public Segment(
         String url,
@@ -101,7 +105,8 @@ public final class HlsMediaPlaylist extends HlsPlaylist {
         String encryptionIV,
         long byterangeOffset,
         long byterangeLength,
-        boolean hasGapTag) {
+        boolean hasGapTag,
+        int initializationSegmentIndex) {
       this.url = url;
       this.durationUs = durationUs;
       this.relativeDiscontinuitySequence = relativeDiscontinuitySequence;
@@ -111,6 +116,7 @@ public final class HlsMediaPlaylist extends HlsPlaylist {
       this.byterangeOffset = byterangeOffset;
       this.byterangeLength = byterangeLength;
       this.hasGapTag = hasGapTag;
+      this.initializationSegmentIndex = initializationSegmentIndex;
     }
 
     @Override
@@ -185,7 +191,7 @@ public final class HlsMediaPlaylist extends HlsPlaylist {
   /**
    * The initialization segment, as defined by #EXT-X-MAP.
    */
-  public final Segment initializationSegment;
+  public final List<Segment>  initializationSegments;
   /**
    * The list of segments in the playlist.
    */
@@ -210,7 +216,7 @@ public final class HlsMediaPlaylist extends HlsPlaylist {
    * @param hasEndTag See {@link #hasEndTag}.
    * @param hasProgramDateTime See {@link #hasProgramDateTime}.
    * @param drmInitData See {@link #drmInitData}.
-   * @param initializationSegment See {@link #initializationSegment}.
+   * @param initializationSegments See {@link #initializationSegments}.
    * @param segments See {@link #segments}.
    */
   public HlsMediaPlaylist(
@@ -228,7 +234,7 @@ public final class HlsMediaPlaylist extends HlsPlaylist {
       boolean hasEndTag,
       boolean hasProgramDateTime,
       DrmInitData drmInitData,
-      Segment initializationSegment,
+      List<Segment> initializationSegments,
       List<Segment> segments) {
     super(baseUri, tags);
     this.playlistType = playlistType;
@@ -242,7 +248,7 @@ public final class HlsMediaPlaylist extends HlsPlaylist {
     this.hasEndTag = hasEndTag;
     this.hasProgramDateTime = hasProgramDateTime;
     this.drmInitData = drmInitData;
-    this.initializationSegment = initializationSegment;
+    this.initializationSegments = initializationSegments;
     this.segments = Collections.unmodifiableList(segments);
     if (!segments.isEmpty()) {
       Segment last = segments.get(segments.size() - 1);
@@ -293,7 +299,7 @@ public final class HlsMediaPlaylist extends HlsPlaylist {
   public HlsMediaPlaylist copyWith(long startTimeUs, int discontinuitySequence) {
     return new HlsMediaPlaylist(playlistType, baseUri, tags, startOffsetUs, startTimeUs, true,
         discontinuitySequence, mediaSequence, version, targetDurationUs, hasIndependentSegmentsTag,
-        hasEndTag, hasProgramDateTime, drmInitData, initializationSegment, segments);
+        hasEndTag, hasProgramDateTime, drmInitData, initializationSegments, segments);
   }
 
   /**
@@ -308,7 +314,7 @@ public final class HlsMediaPlaylist extends HlsPlaylist {
     }
     return new HlsMediaPlaylist(playlistType, baseUri, tags, startOffsetUs, startTimeUs,
         hasDiscontinuitySequence, discontinuitySequence, mediaSequence, version, targetDurationUs,
-        hasIndependentSegmentsTag, true, hasProgramDateTime, drmInitData, initializationSegment,
+        hasIndependentSegmentsTag, true, hasProgramDateTime, drmInitData, initializationSegments,
         segments);
   }
 
