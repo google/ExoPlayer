@@ -76,19 +76,17 @@
       </intent-filter>
     </activity>
 
-    <activity android:name=".DownloaderActivity"/>
+    <activity android:name="com.google.android.exoplayer2.demo.DownloadActivity"/>
 
-    <service
-        android:exported="false"
-        android:name=".DemoDownloadService">
+    <service android:name="com.google.android.exoplayer2.demo.DemoDownloadService"
+        android:exported="false">
       <intent-filter>
         <action android:name="com.google.android.exoplayer.downloadService.action.INIT"/>
         <category android:name="android.intent.category.DEFAULT"/>
       </intent-filter>
     </service>
 
-    <service
-        android:name="com.google.android.exoplayer2.scheduler.PlatformScheduler$PlatformSchedulerService"
+    <service android:name="com.google.android.exoplayer2.scheduler.PlatformScheduler$PlatformSchedulerService"
         android:permission="android.permission.BIND_JOB_SERVICE"
         android:exported="true"/>
 

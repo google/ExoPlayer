@@ -49,9 +49,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-/**
- * An activity for selecting from a list of samples.
- */
+/** An activity for selecting from a list of media samples. */
 public class SampleChooserActivity extends Activity {
 
   private static final String TAG = "SampleChooserActivity";
@@ -128,9 +126,9 @@ public class SampleChooserActivity extends Activity {
           .show();
       return;
     }
-    Intent intent = new Intent(this, DownloaderActivity.class);
-    intent.putExtra(DownloaderActivity.SAMPLE_NAME, sample.name);
-    intent.putExtra(DownloaderActivity.PLAYER_INTENT, sample.buildIntent(this));
+    Intent intent = new Intent(this, DownloadActivity.class);
+    intent.putExtra(DownloadActivity.SAMPLE_NAME, sample.name);
+    intent.putExtra(DownloadActivity.PLAYER_INTENT, sample.buildIntent(this));
     startActivity(intent);
   }
 

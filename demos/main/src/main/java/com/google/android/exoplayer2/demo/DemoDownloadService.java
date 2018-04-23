@@ -31,7 +31,7 @@ import com.google.android.exoplayer2.ui.DownloadNotificationUtil;
 import com.google.android.exoplayer2.ui.NotificationUtil;
 import com.google.android.exoplayer2.util.ErrorMessageProvider;
 
-/** Demo DownloadService implementation. */
+/** A service for downloading media. */
 public class DemoDownloadService extends DownloadService {
 
   private static final String CHANNEL_ID = "download_channel";
