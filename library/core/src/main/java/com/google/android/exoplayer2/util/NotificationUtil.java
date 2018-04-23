@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.android.exoplayer2.ui;
+package com.google.android.exoplayer2.util;
 
 import android.annotation.SuppressLint;
 import android.app.Notification;
@@ -24,7 +24,6 @@ import android.content.Intent;
 import android.support.annotation.IntDef;
 import android.support.annotation.Nullable;
 import android.support.annotation.StringRes;
-import com.google.android.exoplayer2.util.Util;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
