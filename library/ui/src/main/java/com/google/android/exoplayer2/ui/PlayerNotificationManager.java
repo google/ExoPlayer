@@ -276,6 +276,7 @@ public class PlayerNotificationManager {
   private NotificationListener notificationListener;
   private MediaSessionCompat.Token mediaSessionToken;
   private boolean useNavigationActions;
+  private boolean usePlayPauseActions;
   private @Nullable String stopAction;
   private @Nullable PendingIntent stopPendingIntent;
   private long fastForwardMs;
@@ -381,6 +382,7 @@ public class PlayerNotificationManager {
     setStopAction(ACTION_STOP);
 
     useNavigationActions = true;
+    usePlayPauseActions = true;
     ongoing = true;
     colorized = true;
     useChronometer = true;
@@ -481,6 +483,18 @@ public class PlayerNotificationManager {
   public final void setUseNavigationActions(boolean useNavigationActions) {
     if (this.useNavigationActions != useNavigationActions) {
       this.useNavigationActions = useNavigationActions;
+      maybeUpdateNotification();
+    }
+  }
+
+  /**
+   * Sets whether the play and pause actions should be used.
+   *
+   * @param usePlayPauseActions Whether to use play and pause actions.
+   */
+  public final void setUsePlayPauseActions(boolean usePlayPauseActions) {
+    if (this.usePlayPauseActions != usePlayPauseActions) {
+      this.usePlayPauseActions = usePlayPauseActions;
       maybeUpdateNotification();
     }
   }
@@ -878,10 +892,12 @@ public class PlayerNotificationManager {
       if (rewindMs > 0) {
         stringActions.add(ACTION_REWIND);
       }
-      if (player.getPlayWhenReady()) {
-        stringActions.add(ACTION_PAUSE);
-      } else if (!player.getPlayWhenReady()) {
-        stringActions.add(ACTION_PLAY);
+      if (usePlayPauseActions) {
+        if (player.getPlayWhenReady()) {
+          stringActions.add(ACTION_PAUSE);
+        } else {
+          stringActions.add(ACTION_PLAY);
+        }
       }
       if (fastForwardMs > 0) {
         stringActions.add(ACTION_FAST_FORWARD);
@@ -908,6 +924,9 @@ public class PlayerNotificationManager {
    * @param player The player for which state to build a notification.
    */
   protected int[] getActionIndicesForCompactView(Player player) {
+    if (!usePlayPauseActions) {
+      return new int[0];
+    }
     int actionIndex = useNavigationActions ? 1 : 0;
     actionIndex += fastForwardMs > 0 ? 1 : 0;
     return new int[] {actionIndex};
