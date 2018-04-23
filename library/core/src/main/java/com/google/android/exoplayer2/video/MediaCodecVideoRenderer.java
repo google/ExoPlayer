@@ -144,7 +144,13 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
    */
   public MediaCodecVideoRenderer(Context context, MediaCodecSelector mediaCodecSelector,
       long allowedJoiningTimeMs) {
-    this(context, mediaCodecSelector, allowedJoiningTimeMs, null, null, -1);
+    this(
+        context,
+        mediaCodecSelector,
+        allowedJoiningTimeMs,
+        /* eventHandler= */ null,
+        /* eventListener= */ null,
+        -1);
   }
 
   /**
@@ -161,8 +167,15 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
   public MediaCodecVideoRenderer(Context context, MediaCodecSelector mediaCodecSelector,
       long allowedJoiningTimeMs, @Nullable Handler eventHandler,
       @Nullable VideoRendererEventListener eventListener, int maxDroppedFrameCountToNotify) {
-    this(context, mediaCodecSelector, allowedJoiningTimeMs, null, false, eventHandler,
-        eventListener, maxDroppedFrameCountToNotify);
+    this(
+        context,
+        mediaCodecSelector,
+        allowedJoiningTimeMs,
+        /* drmSessionManager= */ null,
+        /* playClearSamplesWithoutKeys= */ false,
+        eventHandler,
+        eventListener,
+        maxDroppedFrameCountToNotify);
   }
 
   /**
