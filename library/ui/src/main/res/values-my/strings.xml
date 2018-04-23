@@ -15,6 +15,6 @@
   <string name="exo_downloading">ဒေါင်းလုဒ်လုပ်နေသည်</string>
   <string name="exo_download_completed">ဒေါင်းလုဒ်လုပ်ပြီးပါပြီ</string>
   <string name="exo_download_failed">ဒေါင်းလုဒ်လုပ်၍ မရပါ</string>
-  <string name="exo_track_selection_none">None</string>
-  <string name="exo_track_selection_auto">Auto</string>
+  <string name="exo_track_selection_none">မရှိ</string>
+  <string name="exo_track_selection_auto">အလိုအလျောက်</string>
 </resources>

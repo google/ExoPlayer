@@ -137,7 +137,7 @@ import java.util.Arrays;
             trackViewLayoutId, root, false);
         trackView.setBackgroundResource(selectableItemBackgroundResourceId);
         trackView.setText(DemoUtil.buildTrackName(group.getFormat(trackIndex)));
-        if (trackInfo.getTrackFormatSupport(rendererIndex, groupIndex, trackIndex)
+        if (trackInfo.getTrackSupport(rendererIndex, groupIndex, trackIndex)
             == RendererCapabilities.FORMAT_HANDLED) {
           trackView.setFocusable(true);
           trackView.setTag(Pair.create(groupIndex, trackIndex));
