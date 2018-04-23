@@ -52,6 +52,15 @@ public final class MediaCodecInfo {
    */
   public final String name;
 
+  /** The MIME type handled by the codec, or {@code null} if this is a passthrough codec. */
+  public final @Nullable String mimeType;
+
+  /**
+   * The capabilities of the decoder, like the profiles/levels it supports, or {@code null} if this
+   * is a passthrough codec.
+   */
+  public final @Nullable CodecCapabilities capabilities;
+
   /**
    * Whether the decoder supports seamless resolution switches.
    *
@@ -75,14 +84,6 @@ public final class MediaCodecInfo {
    * @see CodecCapabilities#FEATURE_SecurePlayback
    */
   public final boolean secure;
-
-  /**
-   * The capabilities of the decoder, like the profiles/levels it supports, or {@code null} if this
-   * is a passthrough codec.
-   */
-  public final @Nullable CodecCapabilities capabilities;
-
-  private final String mimeType;
 
   /**
    * Creates an instance representing an audio passthrough decoder.
@@ -134,13 +135,13 @@ public final class MediaCodecInfo {
 
   private MediaCodecInfo(
       String name,
-      String mimeType,
+      @Nullable String mimeType,
       @Nullable CodecCapabilities capabilities,
       boolean forceDisableAdaptive,
       boolean forceSecure) {
     this.name = Assertions.checkNotNull(name);
-    this.capabilities = capabilities;
     this.mimeType = mimeType;
+    this.capabilities = capabilities;
     adaptive = !forceDisableAdaptive && capabilities != null && isAdaptive(capabilities);
     tunneling = capabilities != null && isTunneling(capabilities);
     secure = forceSecure || (capabilities != null && isSecure(capabilities));

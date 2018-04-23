@@ -259,15 +259,14 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
       MediaCrypto crypto) {
     codecMaxInputSize = getCodecMaxInputSize(format, getStreamFormats());
     codecNeedsDiscardChannelsWorkaround = codecNeedsDiscardChannelsWorkaround(codecInfo.name);
-    MediaFormat mediaFormat = getMediaFormat(format, codecMaxInputSize);
+    String codecMimeType = codecInfo.mimeType == null ? MimeTypes.AUDIO_RAW : codecInfo.mimeType;
+    MediaFormat mediaFormat = getMediaFormat(format, codecMimeType, codecMaxInputSize);
+    codec.configure(mediaFormat, /* surface= */ null, crypto, /* flags= */ 0);
     if (passthroughEnabled) {
-      // Override the MIME type used to configure the codec if we are using a passthrough decoder.
+      // Store the input MIME type if we're using the passthrough codec.
       passthroughMediaFormat = mediaFormat;
-      passthroughMediaFormat.setString(MediaFormat.KEY_MIME, MimeTypes.AUDIO_RAW);
-      codec.configure(passthroughMediaFormat, null, crypto, 0);
       passthroughMediaFormat.setString(MediaFormat.KEY_MIME, format.sampleMimeType);
     } else {
-      codec.configure(mediaFormat, null, crypto, 0);
       passthroughMediaFormat = null;
     }
   }
@@ -535,13 +534,15 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
    * for decoding the given {@link Format} for playback.
    *
    * @param format The format of the media.
+   * @param codecMimeType The MIME type handled by the codec.
+   * @param codecMaxInputSize The maximum input size supported by the codec.
    * @return The framework media format.
    */
   @SuppressLint("InlinedApi")
-  protected MediaFormat getMediaFormat(Format format, int codecMaxInputSize) {
+  protected MediaFormat getMediaFormat(Format format, String codecMimeType, int codecMaxInputSize) {
     MediaFormat mediaFormat = new MediaFormat();
     // Set format parameters that should always be set.
-    mediaFormat.setString(MediaFormat.KEY_MIME, format.sampleMimeType);
+    mediaFormat.setString(MediaFormat.KEY_MIME, codecMimeType);
     mediaFormat.setInteger(MediaFormat.KEY_CHANNEL_COUNT, format.channelCount);
     mediaFormat.setInteger(MediaFormat.KEY_SAMPLE_RATE, format.sampleRate);
     MediaFormatUtil.setCsdBuffers(mediaFormat, format.initializationData);
