@@ -23,11 +23,13 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
 import android.support.annotation.Nullable;
+import android.support.annotation.StringRes;
 import android.util.Log;
 import com.google.android.exoplayer2.offline.DownloadManager.DownloadState;
 import com.google.android.exoplayer2.scheduler.Requirements;
 import com.google.android.exoplayer2.scheduler.RequirementsWatcher;
 import com.google.android.exoplayer2.scheduler.Scheduler;
+import com.google.android.exoplayer2.util.NotificationUtil;
 import com.google.android.exoplayer2.util.Util;
 import java.io.IOException;
 
@@ -69,6 +71,8 @@ public abstract class DownloadService extends Service {
   private static Scheduler scheduler;
 
   private final ForegroundNotificationUpdater foregroundNotificationUpdater;
+  private final @Nullable String channelId;
+  private final @StringRes int channelName;
 
   private DownloadManager downloadManager;
   private DownloadListener downloadListener;
@@ -94,9 +98,37 @@ public abstract class DownloadService extends Service {
    */
   protected DownloadService(
       int foregroundNotificationId, long foregroundNotificationUpdateInterval) {
+    this(
+        foregroundNotificationId,
+        foregroundNotificationUpdateInterval,
+        /* channelId= */ null,
+        /* channelName= */ 0);
+  }
+
+  /**
+   * Creates a DownloadService.
+   *
+   * @param foregroundNotificationId The notification id for the foreground notification, must not
+   *     be 0.
+   * @param foregroundNotificationUpdateInterval The maximum interval to update foreground
+   *     notification, in milliseconds.
+   * @param channelId An id for a low priority notification channel to create, or {@code null} if
+   *     the app will take care of creating a notification channel if needed. If specified, must be
+   *     unique per package and the value may be truncated if it is too long.
+   * @param channelName A string resource identifier for the user visible name of the channel, if
+   *     {@code channelId} is specified. The recommended maximum length is 40 characters; the value
+   *     may be truncated if it is too long.
+   */
+  protected DownloadService(
+      int foregroundNotificationId,
+      long foregroundNotificationUpdateInterval,
+      @Nullable String channelId,
+      @StringRes int channelName) {
     foregroundNotificationUpdater =
         new ForegroundNotificationUpdater(
             foregroundNotificationId, foregroundNotificationUpdateInterval);
+    this.channelId = channelId;
+    this.channelName = channelName;
   }
 
   /**
@@ -132,10 +164,13 @@ public abstract class DownloadService extends Service {
   @Override
   public void onCreate() {
     logd("onCreate");
+    if (channelId != null) {
+      NotificationUtil.createNotificationChannel(
+          this, channelId, channelName, NotificationUtil.IMPORTANCE_LOW);
+    }
     downloadManager = getDownloadManager();
     downloadListener = new DownloadListener();
     downloadManager.addListener(downloadListener);
-
     if (requirementsWatcher == null) {
       Requirements requirements = getRequirements();
       if (requirements != null) {

@@ -107,7 +107,7 @@ public final class DownloadManager {
   public DownloadManager(
       Cache cache,
       DataSource.Factory upstreamDataSourceFactory,
-      String actionSaveFile,
+      File actionSaveFile,
       Deserializer... deserializers) {
     this(
         new DownloaderConstructorHelper(cache, upstreamDataSourceFactory),

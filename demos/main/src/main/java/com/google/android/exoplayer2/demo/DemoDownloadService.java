@@ -28,8 +28,8 @@ import com.google.android.exoplayer2.source.dash.offline.DashDownloadAction;
 import com.google.android.exoplayer2.source.hls.offline.HlsDownloadAction;
 import com.google.android.exoplayer2.source.smoothstreaming.offline.SsDownloadAction;
 import com.google.android.exoplayer2.ui.DownloadNotificationUtil;
-import com.google.android.exoplayer2.ui.NotificationUtil;
 import com.google.android.exoplayer2.util.ErrorMessageProvider;
+import com.google.android.exoplayer2.util.NotificationUtil;
 
 /** A service for downloading media. */
 public class DemoDownloadService extends DownloadService {
@@ -41,17 +41,11 @@ public class DemoDownloadService extends DownloadService {
   private static DownloadManager downloadManager;
 
   public DemoDownloadService() {
-    super(FOREGROUND_NOTIFICATION_ID);
-  }
-
-  @Override
-  public void onCreate() {
-    NotificationUtil.createNotificationChannel(
-        this,
+    super(
+        FOREGROUND_NOTIFICATION_ID,
+        DEFAULT_FOREGROUND_NOTIFICATION_UPDATE_INTERVAL,
         CHANNEL_ID,
-        R.string.exo_download_notification_channel_name,
-        NotificationUtil.IMPORTANCE_LOW);
-    super.onCreate();
+        R.string.exo_download_notification_channel_name);
   }
 
   @Override
