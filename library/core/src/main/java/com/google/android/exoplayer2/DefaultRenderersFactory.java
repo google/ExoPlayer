@@ -268,6 +268,7 @@ public class DefaultRenderersFactory implements RenderersFactory {
       ArrayList<Renderer> out) {
     out.add(
         new MediaCodecAudioRenderer(
+            context,
             MediaCodecSelector.DEFAULT,
             drmSessionManager,
             /* playClearSamplesWithoutKeys= */ false,

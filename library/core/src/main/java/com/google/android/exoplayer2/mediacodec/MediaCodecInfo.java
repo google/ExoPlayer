@@ -85,6 +85,9 @@ public final class MediaCodecInfo {
    */
   public final boolean secure;
 
+  /** Whether this instance describes a passthrough codec. */
+  public final boolean passthrough;
+
   /**
    * Creates an instance representing an audio passthrough decoder.
    *
@@ -96,6 +99,7 @@ public final class MediaCodecInfo {
         name,
         /* mimeType= */ null,
         /* capabilities= */ null,
+        /* passthrough= */ true,
         /* forceDisableAdaptive= */ false,
         /* forceSecure= */ false);
   }
@@ -111,7 +115,12 @@ public final class MediaCodecInfo {
   public static MediaCodecInfo newInstance(String name, String mimeType,
       CodecCapabilities capabilities) {
     return new MediaCodecInfo(
-        name, mimeType, capabilities, /* forceDisableAdaptive= */ false, /* forceSecure= */ false);
+        name,
+        mimeType,
+        capabilities,
+        /* passthrough= */ false,
+        /* forceDisableAdaptive= */ false,
+        /* forceSecure= */ false);
   }
 
   /**
@@ -130,18 +139,21 @@ public final class MediaCodecInfo {
       CodecCapabilities capabilities,
       boolean forceDisableAdaptive,
       boolean forceSecure) {
-    return new MediaCodecInfo(name, mimeType, capabilities, forceDisableAdaptive, forceSecure);
+    return new MediaCodecInfo(
+        name, mimeType, capabilities, /* passthrough= */ false, forceDisableAdaptive, forceSecure);
   }
 
   private MediaCodecInfo(
       String name,
       @Nullable String mimeType,
       @Nullable CodecCapabilities capabilities,
+      boolean passthrough,
       boolean forceDisableAdaptive,
       boolean forceSecure) {
     this.name = Assertions.checkNotNull(name);
     this.mimeType = mimeType;
     this.capabilities = capabilities;
+    this.passthrough = passthrough;
     adaptive = !forceDisableAdaptive && capabilities != null && isAdaptive(capabilities);
     tunneling = capabilities != null && isTunneling(capabilities);
     secure = forceSecure || (capabilities != null && isSecure(capabilities));
