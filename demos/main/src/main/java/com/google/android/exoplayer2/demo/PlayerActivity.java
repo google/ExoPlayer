@@ -381,7 +381,7 @@ public class PlayerActivity extends Activity
       boolean preferExtensionDecoders =
           intent.getBooleanExtra(PREFER_EXTENSION_DECODERS_EXTRA, false);
       @DefaultRenderersFactory.ExtensionRendererMode int extensionRendererMode =
-          DemoApplication.USE_EXTENSION_RENDERERS
+          ((DemoApplication) getApplication()).useExtensionRenderers()
               ? (preferExtensionDecoders ? DefaultRenderersFactory.EXTENSION_RENDERER_MODE_PREFER
               : DefaultRenderersFactory.EXTENSION_RENDERER_MODE_ON)
               : DefaultRenderersFactory.EXTENSION_RENDERER_MODE_OFF;

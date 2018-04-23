@@ -35,8 +35,6 @@ import java.io.File;
  */
 public class DemoApplication extends Application {
 
-  public static final boolean USE_EXTENSION_RENDERERS = "withExtensions".equals(BuildConfig.FLAVOR);
-
   private static final String DOWNLOAD_ACTION_FILE = "actions";
   private static final String DOWNLOAD_CONTENT_DIRECTORY = "downloads";
 
@@ -61,6 +59,11 @@ public class DemoApplication extends Application {
   public HttpDataSource.Factory buildHttpDataSourceFactory(
       TransferListener<? super DataSource> listener) {
     return new DefaultHttpDataSourceFactory(userAgent, listener);
+  }
+
+  /** Returns whether extension renderers should be used. */
+  public boolean useExtensionRenderers() {
+    return "withExtensions".equals(BuildConfig.FLAVOR);
   }
 
   /** Returns the download {@link Cache}. */
