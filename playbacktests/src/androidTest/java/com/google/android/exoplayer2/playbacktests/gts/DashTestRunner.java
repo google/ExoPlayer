@@ -397,7 +397,8 @@ public final class DashTestRunner {
     protected TrackSelection[] selectAllTracks(
         MappedTrackInfo mappedTrackInfo,
         int[][][] rendererFormatSupports,
-        int[] rendererMixedMimeTypeAdaptationSupports)
+        int[] rendererMixedMimeTypeAdaptationSupports,
+        Parameters parameters)
         throws ExoPlaybackException {
       Assertions.checkState(
           mappedTrackInfo.getRendererType(VIDEO_RENDERER_INDEX) == C.TRACK_TYPE_VIDEO);

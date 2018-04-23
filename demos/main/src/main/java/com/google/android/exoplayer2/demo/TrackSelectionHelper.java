@@ -30,6 +30,8 @@ import com.google.android.exoplayer2.RendererCapabilities;
 import com.google.android.exoplayer2.source.TrackGroup;
 import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
+import com.google.android.exoplayer2.trackselection.DefaultTrackSelector.Parameters;
+import com.google.android.exoplayer2.trackselection.DefaultTrackSelector.ParametersBuilder;
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector.SelectionOverride;
 import com.google.android.exoplayer2.trackselection.MappingTrackSelector.MappedTrackInfo;
 import java.util.Arrays;
@@ -79,8 +81,9 @@ import java.util.Arrays;
                   != RendererCapabilities.ADAPTIVE_NOT_SUPPORTED
               && trackGroups.get(i).length > 1;
     }
-    isDisabled = selector.getRendererDisabled(rendererIndex);
-    override = selector.getSelectionOverride(rendererIndex, trackGroups);
+    Parameters parameters = selector.getParameters();
+    isDisabled = parameters.getRendererDisabled(rendererIndex);
+    override = parameters.getSelectionOverride(rendererIndex, trackGroups);
 
     AlertDialog.Builder builder = new AlertDialog.Builder(activity);
     builder.setTitle(title)
@@ -170,12 +173,14 @@ import java.util.Arrays;
 
   @Override
   public void onClick(DialogInterface dialog, int which) {
-    selector.setRendererDisabled(rendererIndex, isDisabled);
+    ParametersBuilder parametersBuilder = selector.buildUponParameters();
+    parametersBuilder.setRendererDisabled(rendererIndex, isDisabled);
     if (override != null) {
-      selector.setSelectionOverride(rendererIndex, trackGroups, override);
+      parametersBuilder.setSelectionOverride(rendererIndex, trackGroups, override);
     } else {
-      selector.clearSelectionOverrides(rendererIndex);
+      parametersBuilder.clearSelectionOverrides(rendererIndex);
     }
+    selector.setParameters(parametersBuilder);
   }
 
   // View.OnClickListener
