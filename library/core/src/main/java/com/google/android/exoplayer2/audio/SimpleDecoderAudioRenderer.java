@@ -112,7 +112,7 @@ public abstract class SimpleDecoderAudioRenderer extends BaseRenderer implements
   private boolean waitingForKeys;
 
   public SimpleDecoderAudioRenderer() {
-    this(null, null);
+    this(/* eventHandler= */ null, /* eventListener= */ null);
   }
 
   /**
@@ -123,7 +123,13 @@ public abstract class SimpleDecoderAudioRenderer extends BaseRenderer implements
    */
   public SimpleDecoderAudioRenderer(Handler eventHandler, AudioRendererEventListener eventListener,
       AudioProcessor... audioProcessors) {
-    this(eventHandler, eventListener, null, null, false, audioProcessors);
+    this(
+        eventHandler,
+        eventListener,
+        /* audioCapabilities= */ null,
+        /* drmSessionManager= */ null,
+        /* playClearSamplesWithoutKeys= */ false,
+        audioProcessors);
   }
 
   /**
@@ -135,7 +141,12 @@ public abstract class SimpleDecoderAudioRenderer extends BaseRenderer implements
    */
   public SimpleDecoderAudioRenderer(Handler eventHandler, AudioRendererEventListener eventListener,
       AudioCapabilities audioCapabilities) {
-    this(eventHandler, eventListener, audioCapabilities, null, false);
+    this(
+        eventHandler,
+        eventListener,
+        audioCapabilities,
+        /* drmSessionManager= */ null,
+        /* playClearSamplesWithoutKeys= */ false);
   }
 
   /**

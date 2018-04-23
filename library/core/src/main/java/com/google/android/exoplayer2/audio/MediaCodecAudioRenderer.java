@@ -81,7 +81,10 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
    * @param mediaCodecSelector A decoder selector.
    */
   public MediaCodecAudioRenderer(MediaCodecSelector mediaCodecSelector) {
-    this(mediaCodecSelector, null, true);
+    this(
+        mediaCodecSelector,
+        /* drmSessionManager= */ null,
+        /* playClearSamplesWithoutKeys= */ false);
   }
 
   /**
@@ -97,7 +100,12 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
   public MediaCodecAudioRenderer(MediaCodecSelector mediaCodecSelector,
       @Nullable DrmSessionManager<FrameworkMediaCrypto> drmSessionManager,
       boolean playClearSamplesWithoutKeys) {
-    this(mediaCodecSelector, drmSessionManager, playClearSamplesWithoutKeys, null, null);
+    this(
+        mediaCodecSelector,
+        drmSessionManager,
+        playClearSamplesWithoutKeys,
+        /* eventHandler= */ null,
+        /* eventListener= */ null);
   }
 
   /**
@@ -108,7 +116,12 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
    */
   public MediaCodecAudioRenderer(MediaCodecSelector mediaCodecSelector,
       @Nullable Handler eventHandler, @Nullable AudioRendererEventListener eventListener) {
-    this(mediaCodecSelector, null, true, eventHandler, eventListener);
+    this(
+        mediaCodecSelector,
+        /* drmSessionManager= */ null,
+        /* playClearSamplesWithoutKeys= */ false,
+        eventHandler,
+        eventListener);
   }
 
   /**
