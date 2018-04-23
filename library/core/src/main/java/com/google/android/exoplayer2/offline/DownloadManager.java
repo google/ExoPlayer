@@ -29,6 +29,8 @@ import android.support.annotation.IntDef;
 import android.util.Log;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.offline.DownloadAction.Deserializer;
+import com.google.android.exoplayer2.upstream.DataSource;
+import com.google.android.exoplayer2.upstream.cache.Cache;
 import com.google.android.exoplayer2.util.Assertions;
 import java.io.ByteArrayInputStream;
 import java.io.File;
@@ -92,6 +94,26 @@ public final class DownloadManager {
   private boolean actionFileLoadCompleted;
   private boolean released;
   private boolean downloadsStopped;
+
+  /**
+   * Creates a {@link DownloadManager}.
+   *
+   * @param cache Cache instance to be used to store downloaded data.
+   * @param upstreamDataSourceFactory A {@link DataSource.Factory} for creating data sources for
+   *     downloading upstream data.
+   * @param actionSaveFile File to save active actions.
+   * @param deserializers Used to deserialize {@link DownloadAction}s.
+   */
+  public DownloadManager(
+      Cache cache,
+      DataSource.Factory upstreamDataSourceFactory,
+      String actionSaveFile,
+      Deserializer... deserializers) {
+    this(
+        new DownloaderConstructorHelper(cache, upstreamDataSourceFactory),
+        actionSaveFile,
+        deserializers);
+  }
 
   /**
    * Constructs a {@link DownloadManager}.
