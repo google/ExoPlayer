@@ -116,6 +116,12 @@ public class PlayerActivity extends Activity
   // For backwards compatibility only.
   private static final String DRM_SCHEME_UUID_EXTRA = "drm_scheme_uuid";
 
+  // Saved instance state keys.
+  private static final String KEY_TRACK_SELECTOR_PARAMETERS = "track_selector_parameters";
+  private static final String KEY_WINDOW = "window";
+  private static final String KEY_POSITION = "position";
+  private static final String KEY_AUTO_PLAY = "auto_play";
+
   private static final DefaultBandwidthMeter BANDWIDTH_METER = new DefaultBandwidthMeter();
   private static final CookieManager DEFAULT_COOKIE_MANAGER;
   static {
@@ -132,14 +138,15 @@ public class PlayerActivity extends Activity
   private SimpleExoPlayer player;
   private MediaSource mediaSource;
   private DefaultTrackSelector trackSelector;
+  private DefaultTrackSelector.Parameters trackSelectorParameters;
   private TrackSelectionHelper trackSelectionHelper;
   private DebugTextViewHelper debugViewHelper;
   private boolean inErrorState;
   private TrackGroupArray lastSeenTrackGroupArray;
 
-  private boolean shouldAutoPlay;
-  private int resumeWindow;
-  private long resumePosition;
+  private boolean startAutoPlay;
+  private int startWindow;
+  private long startPosition;
 
   // Fields used only for ad playback. The ads loader is loaded via reflection.
 
@@ -152,8 +159,6 @@ public class PlayerActivity extends Activity
   @Override
   public void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
-    shouldAutoPlay = true;
-    clearResumePosition();
     mediaDataSourceFactory = buildDataSourceFactory(true);
     mainHandler = new Handler();
     if (CookieHandler.getDefault() != DEFAULT_COOKIE_MANAGER) {
@@ -169,13 +174,22 @@ public class PlayerActivity extends Activity
     playerView = findViewById(R.id.player_view);
     playerView.setControllerVisibilityListener(this);
     playerView.requestFocus();
+
+    if (savedInstanceState != null) {
+      trackSelectorParameters = savedInstanceState.getParcelable(KEY_TRACK_SELECTOR_PARAMETERS);
+      startAutoPlay = savedInstanceState.getBoolean(KEY_AUTO_PLAY);
+      startWindow = savedInstanceState.getInt(KEY_WINDOW);
+      startPosition = savedInstanceState.getLong(KEY_POSITION);
+    } else {
+      trackSelectorParameters = new DefaultTrackSelector.ParametersBuilder().build();
+      clearStartPosition();
+    }
   }
 
   @Override
   public void onNewIntent(Intent intent) {
     releasePlayer();
-    shouldAutoPlay = true;
-    clearResumePosition();
+    clearStartPosition();
     setIntent(intent);
   }
 
@@ -231,6 +245,16 @@ public class PlayerActivity extends Activity
       // Empty results are triggered if a permission is requested while another request was already
       // pending and can be safely ignored in this case.
     }
+  }
+
+  @Override
+  public void onSaveInstanceState(Bundle outState) {
+    updateTrackSelectorParameters();
+    updateStartPosition();
+    outState.putParcelable(KEY_TRACK_SELECTOR_PARAMETERS, trackSelectorParameters);
+    outState.putBoolean(KEY_AUTO_PLAY, startAutoPlay);
+    outState.putInt(KEY_WINDOW, startWindow);
+    outState.putLong(KEY_POSITION, startPosition);
   }
 
   // Activity input
@@ -365,6 +389,7 @@ public class PlayerActivity extends Activity
           new DefaultRenderersFactory(this, extensionRendererMode);
 
       trackSelector = new DefaultTrackSelector(trackSelectionFactory);
+      trackSelector.setParameters(trackSelectorParameters);
       trackSelectionHelper = new TrackSelectionHelper(trackSelector);
       lastSeenTrackGroupArray = null;
 
@@ -381,7 +406,7 @@ public class PlayerActivity extends Activity
         drmSessionManager.addListener(mainHandler, eventLogger);
       }
 
-      player.setPlayWhenReady(shouldAutoPlay);
+      player.setPlayWhenReady(startAutoPlay);
       playerView.setPlayer(player);
       playerView.setPlaybackPreparer(this);
       debugViewHelper = new DebugTextViewHelper(player, debugTextView);
@@ -421,11 +446,11 @@ public class PlayerActivity extends Activity
       }
       mediaSource.addEventListener(mainHandler, eventLogger);
     }
-    boolean haveResumePosition = resumeWindow != C.INDEX_UNSET;
-    if (haveResumePosition) {
-      player.seekTo(resumeWindow, resumePosition);
+    boolean haveStartPosition = startWindow != C.INDEX_UNSET;
+    if (haveStartPosition) {
+      player.seekTo(startWindow, startPosition);
     }
-    player.prepare(mediaSource, !haveResumePosition, false);
+    player.prepare(mediaSource, !haveStartPosition, false);
     inErrorState = false;
     updateButtonVisibilities();
   }
@@ -483,10 +508,10 @@ public class PlayerActivity extends Activity
 
   private void releasePlayer() {
     if (player != null) {
+      updateTrackSelectorParameters();
+      updateStartPosition();
       debugViewHelper.stop();
       debugViewHelper = null;
-      shouldAutoPlay = player.getPlayWhenReady();
-      updateResumePosition();
       player.release();
       player = null;
       mediaSource = null;
@@ -495,14 +520,24 @@ public class PlayerActivity extends Activity
     }
   }
 
-  private void updateResumePosition() {
-    resumeWindow = player.getCurrentWindowIndex();
-    resumePosition = Math.max(0, player.getContentPosition());
+  private void updateTrackSelectorParameters() {
+    if (trackSelector != null) {
+      trackSelectorParameters = trackSelector.getParameters();
+    }
   }
 
-  private void clearResumePosition() {
-    resumeWindow = C.INDEX_UNSET;
-    resumePosition = C.TIME_UNSET;
+  private void updateStartPosition() {
+    if (player != null) {
+      startAutoPlay = player.getPlayWhenReady();
+      startWindow = player.getCurrentWindowIndex();
+      startPosition = Math.max(0, player.getContentPosition());
+    }
+  }
+
+  private void clearStartPosition() {
+    startAutoPlay = true;
+    startWindow = C.INDEX_UNSET;
+    startPosition = C.TIME_UNSET;
   }
 
   /**
@@ -661,7 +696,7 @@ public class PlayerActivity extends Activity
         // This will only occur if the user has performed a seek whilst in the error state. Update
         // the resume position so that if the user then retries, playback will resume from the
         // position to which they seeked.
-        updateResumePosition();
+        updateStartPosition();
       }
     }
 
@@ -695,10 +730,10 @@ public class PlayerActivity extends Activity
       }
       inErrorState = true;
       if (isBehindLiveWindow(e)) {
-        clearResumePosition();
+        clearStartPosition();
         initializePlayer();
       } else {
-        updateResumePosition();
+        updateStartPosition();
         updateButtonVisibilities();
         showControls();
       }

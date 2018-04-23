@@ -48,7 +48,8 @@ public class FakeTrackSelector extends DefaultTrackSelector {
   protected TrackSelection[] selectAllTracks(
       MappedTrackInfo mappedTrackInfo,
       int[][][] rendererFormatSupports,
-      int[] rendererMixedMimeTypeAdaptationSupports)
+      int[] rendererMixedMimeTypeAdaptationSupports,
+      Parameters params)
       throws ExoPlaybackException {
     TrackSelection[] selections = new TrackSelection[mappedTrackInfo.length];
     for (int i = 0; i < mappedTrackInfo.length; i++) {
