@@ -15,6 +15,6 @@
   <string name="exo_downloading">Mendownload</string>
   <string name="exo_download_completed">Download selesai</string>
   <string name="exo_download_failed">Download gagal</string>
-  <string name="exo_track_selection_none">None</string>
-  <string name="exo_track_selection_auto">Auto</string>
+  <string name="exo_track_selection_none">Tidak ada</string>
+  <string name="exo_track_selection_auto">Otomatis</string>
 </resources>

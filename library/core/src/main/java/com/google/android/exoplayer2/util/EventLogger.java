@@ -170,7 +170,8 @@ public class EventLogger
     }
     logd("Tracks [");
     // Log tracks associated to renderers.
-    for (int rendererIndex = 0; rendererIndex < mappedTrackInfo.length; rendererIndex++) {
+    int rendererCount = mappedTrackInfo.getRendererCount();
+    for (int rendererIndex = 0; rendererIndex < rendererCount; rendererIndex++) {
       TrackGroupArray rendererTrackGroups = mappedTrackInfo.getTrackGroups(rendererIndex);
       TrackSelection trackSelection = trackSelections.get(rendererIndex);
       if (rendererTrackGroups.length > 0) {
@@ -186,7 +187,7 @@ public class EventLogger
             String status = getTrackStatusString(trackSelection, trackGroup, trackIndex);
             String formatSupport =
                 getFormatSupportString(
-                    mappedTrackInfo.getTrackFormatSupport(rendererIndex, groupIndex, trackIndex));
+                    mappedTrackInfo.getTrackSupport(rendererIndex, groupIndex, trackIndex));
             logd(
                 "      "
                     + status
@@ -215,7 +216,7 @@ public class EventLogger
       }
     }
     // Log tracks not associated with a renderer.
-    TrackGroupArray unassociatedTrackGroups = mappedTrackInfo.getUnassociatedTrackGroups();
+    TrackGroupArray unassociatedTrackGroups = mappedTrackInfo.getUnmappedTrackGroups();
     if (unassociatedTrackGroups.length > 0) {
       logd("  Renderer:None [");
       for (int groupIndex = 0; groupIndex < unassociatedTrackGroups.length; groupIndex++) {
