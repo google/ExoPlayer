@@ -30,15 +30,12 @@ import com.google.android.exoplayer2.source.smoothstreaming.offline.SsDownloadAc
 import com.google.android.exoplayer2.ui.DownloadNotificationUtil;
 import com.google.android.exoplayer2.ui.NotificationUtil;
 import com.google.android.exoplayer2.util.ErrorMessageProvider;
-import java.io.File;
 
 /** Demo DownloadService implementation. */
 public class DemoDownloadService extends DownloadService {
 
-  private static final String CHANNEL_ID = "my_channel_01";
-
+  private static final String CHANNEL_ID = "download_channel";
   private static final int JOB_ID = 1;
-
   private static final int FOREGROUND_NOTIFICATION_ID = 1;
 
   private static DownloadManager downloadManager;
@@ -52,7 +49,7 @@ public class DemoDownloadService extends DownloadService {
     NotificationUtil.createNotificationChannel(
         this,
         CHANNEL_ID,
-        R.string.download_notifications_channel_name,
+        R.string.exo_download_notification_channel_name,
         NotificationUtil.IMPORTANCE_LOW);
     super.onCreate();
   }
@@ -64,13 +61,12 @@ public class DemoDownloadService extends DownloadService {
       DownloaderConstructorHelper constructorHelper =
           new DownloaderConstructorHelper(
               application.getDownloadCache(), application.buildHttpDataSourceFactory(null));
-      String actionFilePath = new File(getExternalCacheDir(), "actionFile").getAbsolutePath();
       downloadManager =
           new DownloadManager(
               constructorHelper,
               /*maxSimultaneousDownloads=*/ 2,
               DownloadManager.DEFAULT_MIN_RETRY_COUNT,
-              actionFilePath,
+              application.getDownloadActionFile(),
               DashDownloadAction.DESERIALIZER,
               HlsDownloadAction.DESERIALIZER,
               SsDownloadAction.DESERIALIZER,

@@ -123,7 +123,7 @@ public class DownloadServiceDashTest {
                       new DownloaderConstructorHelper(cache, fakeDataSourceFactory),
                       1,
                       3,
-                      actionFile.getAbsolutePath(),
+                      actionFile,
                       DashDownloadAction.DESERIALIZER);
               testDownloadListener = new TestDownloadListener(dashDownloadManager, dummyMainThread);
               dashDownloadManager.addListener(testDownloadListener);

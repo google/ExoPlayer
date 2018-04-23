@@ -12,9 +12,14 @@
   <string name="exo_controls_repeat_all_description">Ulang semua</string>
   <string name="exo_controls_shuffle_description">Rombak</string>
   <string name="exo_controls_fullscreen_description">Mod skrin penuh</string>
-  <string name="exo_downloading">Memuat turun</string>
+  <string name="exo_download_description">Download</string>
+  <string name="exo_download_notification_channel_name">Downloads</string>
+  <string name="exo_download_downloading">Downloading</string>
   <string name="exo_download_completed">Muat turun selesai</string>
   <string name="exo_download_failed">Muat turun gagal</string>
+  <string name="exo_track_selection_title_video">Video</string>
+  <string name="exo_track_selection_title_audio">Audio</string>
+  <string name="exo_track_selection_title_text">Text</string>
   <string name="exo_track_selection_none">None</string>
   <string name="exo_track_selection_auto">Auto</string>
 </resources>

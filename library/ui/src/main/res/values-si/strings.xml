@@ -12,9 +12,14 @@
   <string name="exo_controls_repeat_all_description">සියල්ල පුනරාවර්තනය කරන්න</string>
   <string name="exo_controls_shuffle_description">කලවම් කරන්න</string>
   <string name="exo_controls_fullscreen_description">සම්පූර්ණ තිර ප්‍රකාරය</string>
-  <string name="exo_downloading">බාගනිමින්</string>
+  <string name="exo_download_description">Download</string>
+  <string name="exo_download_notification_channel_name">Downloads</string>
+  <string name="exo_download_downloading">Downloading</string>
   <string name="exo_download_completed">බාගැනීම සම්පූර්ණ කරන ලදී</string>
   <string name="exo_download_failed">බාගැනීම අසමත් විය</string>
+  <string name="exo_track_selection_title_video">Video</string>
+  <string name="exo_track_selection_title_audio">Audio</string>
+  <string name="exo_track_selection_title_text">Text</string>
   <string name="exo_track_selection_none">කිසිවක් නැත</string>
   <string name="exo_track_selection_auto">ස්වයං</string>
 </resources>

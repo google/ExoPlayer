@@ -36,7 +36,7 @@
       android:id="@+id/download_button"
       android:layout_width="35dip"
       android:layout_height="wrap_content"
-      android:contentDescription="Download the sample"
+      android:contentDescription="@string/exo_download_description"
       android:gravity="center_vertical"
       android:src="@android:drawable/stat_sys_download"/>
 

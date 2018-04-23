@@ -63,7 +63,7 @@ public final class DownloadNotificationUtil {
       isAnyDownloadActive = true;
     }
 
-    int titleStringId = isAnyDownloadActive ? R.string.exo_downloading : NULL_STRING_ID;
+    int titleStringId = isAnyDownloadActive ? R.string.exo_download_downloading : NULL_STRING_ID;
     NotificationCompat.Builder notificationBuilder =
         createNotificationBuilder(context, smallIcon, channelId, message, titleStringId);
 

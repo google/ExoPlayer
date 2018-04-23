@@ -261,9 +261,9 @@ public class DownloadManagerDashTest {
             downloadManager =
                 new DownloadManager(
                     new DownloaderConstructorHelper(cache, fakeDataSourceFactory),
-                    1,
-                    3,
-                    actionFile.getAbsolutePath(),
+                    /* maxSimultaneousDownloads= */ 1,
+                    /* minRetryCount= */ 3,
+                    actionFile,
                     DashDownloadAction.DESERIALIZER);
 
             downloadListener = new TestDownloadListener(downloadManager, dummyMainThread);

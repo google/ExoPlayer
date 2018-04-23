@@ -98,18 +98,18 @@ public final class DownloadManager {
    *
    * @param constructorHelper A {@link DownloaderConstructorHelper} to create {@link Downloader}s
    *     for downloading data.
-   * @param actionSaveFile File to save active actions.
+   * @param actionFile The file in which active actions are saved.
    * @param deserializers Used to deserialize {@link DownloadAction}s.
    */
   public DownloadManager(
       DownloaderConstructorHelper constructorHelper,
-      String actionSaveFile,
+      File actionFile,
       Deserializer... deserializers) {
     this(
         constructorHelper,
         DEFAULT_MAX_SIMULTANEOUS_DOWNLOADS,
         DEFAULT_MIN_RETRY_COUNT,
-        actionSaveFile,
+        actionFile,
         deserializers);
   }
 
@@ -120,14 +120,14 @@ public final class DownloadManager {
    *     for downloading data.
    * @param maxSimultaneousDownloads The maximum number of simultaneous downloads.
    * @param minRetryCount The minimum number of times the downloads must be retried before failing.
-   * @param actionSaveFile File to save active actions.
+   * @param actionFile The file in which active actions are saved.
    * @param deserializers Used to deserialize {@link DownloadAction}s.
    */
   public DownloadManager(
       DownloaderConstructorHelper constructorHelper,
       int maxSimultaneousDownloads,
       int minRetryCount,
-      String actionSaveFile,
+      File actionFile,
       Deserializer... deserializers) {
     Assertions.checkArgument(
         deserializers.length > 0, "At least one Deserializer should be given.");
@@ -135,7 +135,7 @@ public final class DownloadManager {
     this.downloaderConstructorHelper = constructorHelper;
     this.maxActiveDownloadTasks = maxSimultaneousDownloads;
     this.minRetryCount = minRetryCount;
-    this.actionFile = new ActionFile(new File(actionSaveFile));
+    this.actionFile = new ActionFile(actionFile);
     this.deserializers = deserializers;
     this.downloadsStopped = true;
 
