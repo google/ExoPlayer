@@ -35,9 +35,13 @@ import java.io.File;
  */
 public class DemoApplication extends Application {
 
-  private static final String DOWNLOAD_CACHE_FOLDER = "downloads";
+  public static final boolean USE_EXTENSION_RENDERERS = "withExtensions".equals(BuildConfig.FLAVOR);
+
+  private static final String DOWNLOAD_ACTION_FILE = "actions";
+  private static final String DOWNLOAD_CONTENT_DIRECTORY = "downloads";
 
   protected String userAgent;
+  private File downloadDirectory;
   private Cache downloadCache;
 
   @Override
@@ -60,20 +64,27 @@ public class DemoApplication extends Application {
   }
 
   /** Returns the download {@link Cache}. */
-  public Cache getDownloadCache() {
+  public synchronized Cache getDownloadCache() {
     if (downloadCache == null) {
-      File dir = getExternalFilesDir(null);
-      if (dir == null) {
-        dir = getFilesDir();
-      }
-      File downloadCacheFolder = new File(dir, DOWNLOAD_CACHE_FOLDER);
-      downloadCache = new SimpleCache(downloadCacheFolder, new NoOpCacheEvictor());
+      File downloadContentDirectory = new File(getDownloadDirectory(), DOWNLOAD_CONTENT_DIRECTORY);
+      downloadCache = new SimpleCache(downloadContentDirectory, new NoOpCacheEvictor());
     }
     return downloadCache;
   }
 
-  public boolean useExtensionRenderers() {
-    return "withExtensions".equals(BuildConfig.FLAVOR);
+  /** Returns the file in which active download actions should be saved. */
+  public synchronized File getDownloadActionFile() {
+    return new File(getDownloadDirectory(), DOWNLOAD_ACTION_FILE);
+  }
+
+  private File getDownloadDirectory() {
+    if (downloadDirectory == null) {
+      downloadDirectory = getExternalFilesDir(null);
+      if (downloadDirectory == null) {
+        downloadDirectory = getFilesDir();
+      }
+    }
+    return downloadDirectory;
   }
 
   private static CacheDataSourceFactory createReadOnlyCacheDataSource(

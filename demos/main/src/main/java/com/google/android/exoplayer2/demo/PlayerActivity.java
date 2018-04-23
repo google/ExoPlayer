@@ -381,7 +381,7 @@ public class PlayerActivity extends Activity
       boolean preferExtensionDecoders =
           intent.getBooleanExtra(PREFER_EXTENSION_DECODERS_EXTRA, false);
       @DefaultRenderersFactory.ExtensionRendererMode int extensionRendererMode =
-          ((DemoApplication) getApplication()).useExtensionRenderers()
+          DemoApplication.USE_EXTENSION_RENDERERS
               ? (preferExtensionDecoders ? DefaultRenderersFactory.EXTENSION_RENDERER_MODE_PREFER
               : DefaultRenderersFactory.EXTENSION_RENDERER_MODE_ON)
               : DefaultRenderersFactory.EXTENSION_RENDERER_MODE_OFF;
@@ -635,13 +635,13 @@ public class PlayerActivity extends Activity
         int label;
         switch (player.getRendererType(i)) {
           case C.TRACK_TYPE_AUDIO:
-            label = R.string.audio;
+            label = R.string.exo_track_selection_title_audio;
             break;
           case C.TRACK_TYPE_VIDEO:
-            label = R.string.video;
+            label = R.string.exo_track_selection_title_video;
             break;
           case C.TRACK_TYPE_TEXT:
-            label = R.string.text;
+            label = R.string.exo_track_selection_title_text;
             break;
           default:
             continue;

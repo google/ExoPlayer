@@ -12,9 +12,14 @@
   <string name="exo_controls_repeat_all_description">ਸਾਰਿਆਂ ਨੂੰ ਦੁਹਰਾਓ</string>
   <string name="exo_controls_shuffle_description">ਬੇਤਰਤੀਬ ਕਰੋ</string>
   <string name="exo_controls_fullscreen_description">ਪੂਰੀ-ਸਕ੍ਰੀਨ ਮੋਡ</string>
-  <string name="exo_downloading">ਡਾਊਨਲੋਡ ਕੀਤਾ ਜਾ ਰਿਹਾ ਹੈ</string>
+  <string name="exo_download_description">Download</string>
+  <string name="exo_download_notification_channel_name">Downloads</string>
+  <string name="exo_download_downloading">Downloading</string>
   <string name="exo_download_completed">ਡਾਊਨਲੋਡ ਮੁਕੰਮਲ ਹੋਇਆ</string>
   <string name="exo_download_failed">ਡਾਊਨਲੋਡ ਅਸਫਲ ਰਿਹਾ</string>
+  <string name="exo_track_selection_title_video">Video</string>
+  <string name="exo_track_selection_title_audio">Audio</string>
+  <string name="exo_track_selection_title_text">Text</string>
   <string name="exo_track_selection_none">None</string>
   <string name="exo_track_selection_auto">Auto</string>
 </resources>

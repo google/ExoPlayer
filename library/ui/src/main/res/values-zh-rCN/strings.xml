@@ -12,9 +12,14 @@
   <string name="exo_controls_repeat_all_description">全部重复播放</string>
   <string name="exo_controls_shuffle_description">随机播放</string>
   <string name="exo_controls_fullscreen_description">全屏模式</string>
-  <string name="exo_downloading">正在下载</string>
+  <string name="exo_download_description">Download</string>
+  <string name="exo_download_notification_channel_name">Downloads</string>
+  <string name="exo_download_downloading">Downloading</string>
   <string name="exo_download_completed">下载完毕</string>
   <string name="exo_download_failed">下载失败</string>
+  <string name="exo_track_selection_title_video">Video</string>
+  <string name="exo_track_selection_title_audio">Audio</string>
+  <string name="exo_track_selection_title_text">Text</string>
   <string name="exo_track_selection_none">None</string>
   <string name="exo_track_selection_auto">Auto</string>
 </resources>

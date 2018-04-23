@@ -12,9 +12,14 @@
   <string name="exo_controls_repeat_all_description">Ponavljanje vseh</string>
   <string name="exo_controls_shuffle_description">Naključno predvajanje</string>
   <string name="exo_controls_fullscreen_description">Celozaslonski način</string>
-  <string name="exo_downloading">Prenašanje</string>
+  <string name="exo_download_description">Download</string>
+  <string name="exo_download_notification_channel_name">Downloads</string>
+  <string name="exo_download_downloading">Downloading</string>
   <string name="exo_download_completed">Prenos je končan</string>
   <string name="exo_download_failed">Prenos ni uspel</string>
+  <string name="exo_track_selection_title_video">Video</string>
+  <string name="exo_track_selection_title_audio">Audio</string>
+  <string name="exo_track_selection_title_text">Text</string>
   <string name="exo_track_selection_none">None</string>
   <string name="exo_track_selection_auto">Auto</string>
 </resources>

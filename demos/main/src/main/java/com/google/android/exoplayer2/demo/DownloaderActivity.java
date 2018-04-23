@@ -15,23 +15,18 @@
  */
 package com.google.android.exoplayer2.demo;
 
-import static com.google.android.exoplayer2.demo.PlayerActivity.DRM_SCHEME_EXTRA;
 import static com.google.android.exoplayer2.demo.PlayerActivity.EXTENSION_EXTRA;
 
 import android.app.Activity;
-import android.app.AlertDialog;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Parcelable;
-import android.util.Log;
 import android.util.SparseBooleanArray;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
-import android.widget.TextView;
 import android.widget.Toast;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
@@ -59,11 +54,10 @@ import java.util.List;
 public class DownloaderActivity extends Activity {
 
   public static final String PLAYER_INTENT = "player_intent";
-  public static final String SAMPLE_NAME = "stream_name";
-
-  private static final String TAG = "DownloaderActivity";
+  public static final String SAMPLE_NAME = "sample_name";
 
   private Intent playerIntent;
+  private String sampleName;
 
   @SuppressWarnings("rawtypes")
   private AsyncTask manifestDownloaderTask;
@@ -72,8 +66,6 @@ public class DownloaderActivity extends Activity {
 
   private ListView representationList;
   private ArrayAdapter<RepresentationItem> arrayAdapter;
-  private AlertDialog cancelDialog;
-  private String sampleName;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -82,21 +74,15 @@ public class DownloaderActivity extends Activity {
 
     Intent intent = getIntent();
     playerIntent = intent.getParcelableExtra(PLAYER_INTENT);
-
-    TextView streamName = findViewById(R.id.sample_name);
+    Uri sampleUri = playerIntent.getData();
     sampleName = intent.getStringExtra(SAMPLE_NAME);
-    streamName.setText(sampleName);
+    getActionBar().setTitle(sampleName);
 
     arrayAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_multiple_choice);
     representationList = findViewById(R.id.representation_list);
     representationList.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
     representationList.setAdapter(arrayAdapter);
 
-    if (playerIntent.hasExtra(DRM_SCHEME_EXTRA)) {
-      showToastAndFinish(R.string.not_supported_content_type);
-    }
-
-    Uri sampleUri = playerIntent.getData();
     DemoApplication application = (DemoApplication) getApplication();
     DownloaderConstructorHelper constructorHelper =
         new DownloaderConstructorHelper(
@@ -107,33 +93,35 @@ public class DownloaderActivity extends Activity {
       case C.TYPE_DASH:
         downloadUtilMethods = new DashDownloadUtilMethods(sampleUri, constructorHelper);
         break;
-      case C.TYPE_HLS:
-        downloadUtilMethods = new HlsDownloadUtilMethods(sampleUri, constructorHelper);
-        break;
       case C.TYPE_SS:
         downloadUtilMethods = new SsDownloadUtilMethods(sampleUri, constructorHelper);
+        break;
+      case C.TYPE_HLS:
+        downloadUtilMethods = new HlsDownloadUtilMethods(sampleUri, constructorHelper);
         break;
       case C.TYPE_OTHER:
         downloadUtilMethods = new ProgressiveDownloadUtilMethods(sampleUri, constructorHelper);
         break;
       default:
-        showToastAndFinish(R.string.not_supported_content_type);
-        break;
+        throw new IllegalStateException("Unsupported type: " + type);
     }
 
     updateRepresentationsList();
   }
 
   @Override
-  protected void onPause() {
-    stopAll();
-    super.onPause();
+  protected void onStart() {
+    super.onStart();
+    updateRepresentationsList();
   }
 
   @Override
-  protected void onResume() {
-    super.onResume();
-    updateRepresentationsList();
+  protected void onStop() {
+    if (manifestDownloaderTask != null) {
+      manifestDownloaderTask.cancel(true);
+      manifestDownloaderTask = null;
+    }
+    super.onStop();
   }
 
   // This method is referenced in the layout file
@@ -143,34 +131,35 @@ public class DownloaderActivity extends Activity {
     if (id == R.id.download_button) {
       startDownload();
     } else if (id == R.id.remove_all_button) {
-      removeDownloaded();
-    } else if (id == R.id.refresh) {
+      removeDownload();
+    } else if (id == R.id.refresh_button) {
       updateRepresentationsList();
     } else if (id == R.id.play_button) {
-      playDownloaded();
+      playDownload();
     }
   }
 
   private void startDownload() {
-    ArrayList<Object> representationKeys = getSelectedRepresentationKeys(true);
-    if (representationKeys == null) {
-      return;
+    ArrayList<Object> representationKeys = getSelectedRepresentationKeys();
+    if (!representationKeys.isEmpty()) {
+      DownloadService.addDownloadAction(
+          this,
+          DemoDownloadService.class,
+          downloadUtilMethods.getDownloadAction(sampleName, representationKeys));
     }
-    DownloadService.addDownloadAction(
-        this,
-        DemoDownloadService.class,
-        downloadUtilMethods.getDownloadAction(sampleName, representationKeys));
   }
 
-  private void removeDownloaded() {
+  private void removeDownload() {
     DownloadService.addDownloadAction(
         this, DemoDownloadService.class, downloadUtilMethods.getRemoveAction());
-    showToastAndFinish(R.string.removing_all);
+    for (int i = 0; i < representationList.getChildCount(); i++) {
+      representationList.setItemChecked(i, false);
+    }
   }
 
   @SuppressWarnings("SuspiciousToArrayCall")
-  private void playDownloaded() {
-    ArrayList<Object> selectedRepresentationKeys = getSelectedRepresentationKeys(false);
+  private void playDownload() {
+    ArrayList<Object> selectedRepresentationKeys = getSelectedRepresentationKeys();
     if (selectedRepresentationKeys.isEmpty()) {
       playerIntent.removeExtra(PlayerActivity.MANIFEST_FILTER_EXTRA);
     } else if (selectedRepresentationKeys.get(0) instanceof Parcelable) {
@@ -186,37 +175,14 @@ public class DownloaderActivity extends Activity {
     startActivity(playerIntent);
   }
 
-  private void stopAll() {
-    if (cancelDialog != null) {
-      cancelDialog.dismiss();
-    }
-
+  private void updateRepresentationsList() {
     if (manifestDownloaderTask != null) {
       manifestDownloaderTask.cancel(true);
-      manifestDownloaderTask = null;
     }
-  }
-
-  private void updateRepresentationsList() {
-    if (cancelDialog == null) {
-      cancelDialog =
-          new AlertDialog.Builder(this)
-              .setMessage("Please wait")
-              .setOnCancelListener(
-                  new DialogInterface.OnCancelListener() {
-                    @Override
-                    public void onCancel(DialogInterface dialog) {
-                      stopAll();
-                    }
-                  })
-              .create();
-    }
-    cancelDialog.setTitle("Updating representations");
-    cancelDialog.show();
     manifestDownloaderTask = new ManifestDownloaderTask().execute();
   }
 
-  private ArrayList<Object> getSelectedRepresentationKeys(boolean unselect) {
+  private ArrayList<Object> getSelectedRepresentationKeys() {
     SparseBooleanArray checked = representationList.getCheckedItemPositions();
     ArrayList<Object> representations = new ArrayList<>(checked.size());
     for (int i = 0; i < checked.size(); i++) {
@@ -225,35 +191,26 @@ public class DownloaderActivity extends Activity {
         RepresentationItem item =
             (RepresentationItem) representationList.getItemAtPosition(position);
         representations.add(item.key);
-        if (unselect) {
-          representationList.setItemChecked(position, false);
-        }
       }
     }
     return representations;
   }
 
-  private void showToastAndFinish(int resId) {
-    showToast(resId);
-    finish();
-  }
-
-  private void showToast(int resId) {
-    Toast.makeText(getApplicationContext(), resId, Toast.LENGTH_LONG).show();
-  }
-
   private static final class RepresentationItem {
+
     public final Object key;
     public final String title;
+    public final int percentDownloaded;
 
-    public RepresentationItem(Object key, String title) {
+    public RepresentationItem(Object key, String title, float percentDownloaded) {
       this.key = key;
       this.title = title;
+      this.percentDownloaded = (int) percentDownloaded;
     }
 
     @Override
     public String toString() {
-      return title;
+      return title + " (" + percentDownloaded + "%)";
     }
   }
 
@@ -262,27 +219,25 @@ public class DownloaderActivity extends Activity {
 
     @Override
     protected List<RepresentationItem> doInBackground(Void... ignore) {
-      List<RepresentationItem> items;
       try {
-        items = downloadUtilMethods.getRepresentationItems();
+        return downloadUtilMethods.getRepresentationItems();
       } catch (IOException | InterruptedException e) {
-        Log.e(TAG, "Getting representations failed", e);
         return null;
       }
-      return items;
     }
 
     @Override
     protected void onPostExecute(List<RepresentationItem> items) {
       if (items == null) {
-        showToastAndFinish(R.string.manifest_download_error);
+        Toast.makeText(
+                getApplicationContext(), R.string.download_manifest_load_error, Toast.LENGTH_LONG)
+            .show();
         return;
       }
       arrayAdapter.clear();
       for (RepresentationItem representationItem : items) {
         arrayAdapter.add(representationItem);
       }
-      stopAll();
     }
   }
 
@@ -332,13 +287,7 @@ public class DownloaderActivity extends Activity {
                 .representations
                 .get(key.representationIndex);
         String trackName = DemoUtil.buildTrackName(representation.format);
-        int totalSegments = downloader.getTotalSegments();
-        int downloadedRatio = 0;
-        if (totalSegments != 0) {
-          downloadedRatio = (downloader.getDownloadedSegments() * 100) / totalSegments;
-        }
-        String name = key.toString() + ' ' + trackName + ' ' + downloadedRatio + '%';
-        items.add(new RepresentationItem(key, name));
+        items.add(new RepresentationItem(key, trackName, downloader.getDownloadPercentage()));
       }
       return items;
     }
@@ -346,13 +295,9 @@ public class DownloaderActivity extends Activity {
     @Override
     public DownloadAction getDownloadAction(
         String sampleName, ArrayList<Object> representationKeys) {
-      StringBuilder sb = new StringBuilder(sampleName);
       RepresentationKey[] keys =
           representationKeys.toArray(new RepresentationKey[representationKeys.size()]);
-      for (RepresentationKey representationKey : keys) {
-        sb.append('-').append(representationKey);
-      }
-      return new DashDownloadAction(manifestUri, false, sb.toString(), keys);
+      return new DashDownloadAction(manifestUri, false, sampleName, keys);
     }
 
     @Override
@@ -379,13 +324,7 @@ public class DownloaderActivity extends Activity {
         } catch (IOException e) {
           continue;
         }
-        int totalSegments = downloader.getTotalSegments();
-        int downloadedRatio = 0;
-        if (totalSegments != 0) {
-          downloadedRatio = (downloader.getDownloadedSegments() * 100) / totalSegments;
-        }
-        String name = key + ' ' /*+ trackName + ' '*/ + downloadedRatio + '%';
-        items.add(new RepresentationItem(key, name));
+        items.add(new RepresentationItem(key, key, downloader.getDownloadPercentage()));
       }
       return items;
     }
@@ -393,12 +332,8 @@ public class DownloaderActivity extends Activity {
     @Override
     public DownloadAction getDownloadAction(
         String sampleName, ArrayList<Object> representationKeys) {
-      StringBuilder sb = new StringBuilder(sampleName);
       String[] keys = representationKeys.toArray(new String[representationKeys.size()]);
-      for (String key : keys) {
-        sb.append('-').append(key);
-      }
-      return new HlsDownloadAction(manifestUri, false, sb.toString(), keys);
+      return new HlsDownloadAction(manifestUri, false, sampleName, keys);
     }
 
     @Override
@@ -428,13 +363,7 @@ public class DownloaderActivity extends Activity {
         Format format =
             downloader.getManifest().streamElements[key.streamElementIndex].formats[key.trackIndex];
         String trackName = DemoUtil.buildTrackName(format);
-        int totalSegments = downloader.getTotalSegments();
-        int downloadedRatio = 0;
-        if (totalSegments != 0) {
-          downloadedRatio = (downloader.getDownloadedSegments() * 100) / totalSegments;
-        }
-        String name = key.toString() + ' ' + trackName + ' ' + downloadedRatio + '%';
-        items.add(new RepresentationItem(key, name));
+        items.add(new RepresentationItem(key, trackName, downloader.getDownloadPercentage()));
       }
       return items;
     }
@@ -442,12 +371,8 @@ public class DownloaderActivity extends Activity {
     @Override
     public DownloadAction getDownloadAction(
         String sampleName, ArrayList<Object> representationKeys) {
-      StringBuilder sb = new StringBuilder(sampleName);
       TrackKey[] keys = representationKeys.toArray(new TrackKey[representationKeys.size()]);
-      for (TrackKey trackKey : keys) {
-        sb.append('-').append(trackKey);
-      }
-      return new SsDownloadAction(manifestUri, false, sb.toString(), keys);
+      return new SsDownloadAction(manifestUri, false, sampleName, keys);
     }
 
     @Override
@@ -470,9 +395,7 @@ public class DownloaderActivity extends Activity {
       ArrayList<RepresentationItem> items = new ArrayList<>();
       {
         downloader.init();
-        int downloadedRatio = (int) downloader.getDownloadPercentage();
-        String name = "track 1 - " + downloadedRatio + '%';
-        items.add(new RepresentationItem(null, name));
+        items.add(new RepresentationItem(null, "Stream", downloader.getDownloadPercentage()));
       }
       return items;
     }

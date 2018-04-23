@@ -123,7 +123,7 @@ public class SampleChooserActivity extends Activity {
     if (!(sample instanceof UriSample) || sample.drmInfo != null) {
       Toast.makeText(
               getApplicationContext(),
-              R.string.supports_downloading_only_single_not_drm_protected,
+              R.string.download_only_single_period_non_drm_protected,
               Toast.LENGTH_SHORT)
           .show();
       return;

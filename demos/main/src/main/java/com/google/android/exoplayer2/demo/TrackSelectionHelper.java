@@ -109,7 +109,7 @@ import java.util.Arrays;
     disableView = (CheckedTextView) inflater.inflate(
         android.R.layout.simple_list_item_single_choice, root, false);
     disableView.setBackgroundResource(selectableItemBackgroundResourceId);
-    disableView.setText(R.string.selection_disabled);
+    disableView.setText(R.string.exo_track_selection_none);
     disableView.setFocusable(true);
     disableView.setOnClickListener(this);
     root.addView(disableView);
@@ -118,7 +118,7 @@ import java.util.Arrays;
     defaultView = (CheckedTextView) inflater.inflate(
         android.R.layout.simple_list_item_single_choice, root, false);
     defaultView.setBackgroundResource(selectableItemBackgroundResourceId);
-    defaultView.setText(R.string.selection_default);
+    defaultView.setText(R.string.exo_track_selection_auto);
     defaultView.setFocusable(true);
     defaultView.setOnClickListener(this);
     root.addView(inflater.inflate(R.layout.list_divider, root, false));

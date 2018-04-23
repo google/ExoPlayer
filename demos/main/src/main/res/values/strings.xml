@@ -17,16 +17,6 @@
 
   <string name="application_name">ExoPlayer</string>
 
-  <string name="video">Video</string>
-
-  <string name="audio">Audio</string>
-
-  <string name="text">Text</string>
-
-  <string name="selection_disabled">Disabled</string>
-
-  <string name="selection_default">Default</string>
-
   <string name="unexpected_intent_action">Unexpected intent action: <xliff:g id="action">%1$s</xliff:g></string>
 
   <string name="error_unrecognized_abr_algorithm">Unrecognized ABR algorithm</string>
@@ -55,24 +45,12 @@
 
   <string name="ima_not_loaded">Playing sample without ads, as the IMA extension was not loaded</string>
 
-  <string name="download_notifications_channel_name">Downloads</string>
+  <string name="download_manifest_load_error">Failed to download manifest</string>
 
-  <string name="sample">Sample:</string>
+  <string name="download_remove_all">Remove all</string>
 
-  <string name="manifest_download_error">Manifest failed to download</string>
+  <string name="download_refresh">Refresh</string>
 
-  <string name="download">Download</string>
-
-  <string name="play">Play</string>
-
-  <string name="remove_all">Remove All</string>
-
-  <string name="removing_all">Removing all cached data.</string>
-
-  <string name="refresh">Refresh</string>
-
-  <string name="not_supported_content_type">Not supported content type.</string>
-
-  <string name="supports_downloading_only_single_not_drm_protected">Currently only downloading of single, not DRM protected content is demonstrated in this app.</string>
+  <string name="download_only_single_period_non_drm_protected">Currently only downloading of single period non-DRM protected content is demonstrated in this app.</string>
 
 </resources>

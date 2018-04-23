@@ -12,9 +12,14 @@
   <string name="exo_controls_repeat_all_description">ಎಲ್ಲವನ್ನು ಪುನರಾವರ್ತಿಸಿ</string>
   <string name="exo_controls_shuffle_description">ಶಫಲ್‌</string>
   <string name="exo_controls_fullscreen_description">ಪೂರ್ಣ ಪರದೆ ಮೋಡ್</string>
-  <string name="exo_downloading">ಡೌನ್‌ಲೋಡ್ ಮಾಡಲಾಗುತ್ತಿದೆ</string>
+  <string name="exo_download_description">Download</string>
+  <string name="exo_download_notification_channel_name">Downloads</string>
+  <string name="exo_download_downloading">Downloading</string>
   <string name="exo_download_completed">ಡೌನ್‌ಲೋಡ್ ಪೂರ್ಣಗೊಂಡಿದೆ</string>
   <string name="exo_download_failed">ಡೌನ್‌ಲೋಡ್‌ ವಿಫಲಗೊಂಡಿದೆ</string>
+  <string name="exo_track_selection_title_video">Video</string>
+  <string name="exo_track_selection_title_audio">Audio</string>
+  <string name="exo_track_selection_title_text">Text</string>
   <string name="exo_track_selection_none">None</string>
   <string name="exo_track_selection_auto">Auto</string>
 </resources>
