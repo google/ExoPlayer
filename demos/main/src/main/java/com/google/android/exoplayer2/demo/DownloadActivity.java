@@ -50,8 +50,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-/** An activity that downloads streams. */
-public class DownloaderActivity extends Activity {
+/** An activity for downloading media. */
+public class DownloadActivity extends Activity {
 
   public static final String PLAYER_INTENT = "player_intent";
   public static final String SAMPLE_NAME = "sample_name";
