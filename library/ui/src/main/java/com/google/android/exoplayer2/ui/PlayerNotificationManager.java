@@ -237,6 +237,17 @@ public class PlayerNotificationManager {
   })
   public @interface Visibility {}
 
+  /** Priority of the notification (required for API 25 and lower). */
+  @Retention(SOURCE)
+  @IntDef({
+    NotificationCompat.PRIORITY_DEFAULT,
+    NotificationCompat.PRIORITY_MAX,
+    NotificationCompat.PRIORITY_HIGH,
+    NotificationCompat.PRIORITY_LOW,
+    NotificationCompat.PRIORITY_MIN
+  })
+  public @interface Priority {}
+
   /** The default fast forward increment, in milliseconds. */
   public static final int DEFAULT_FAST_FORWARD_MS = 15000;
   /** The default rewind increment, in milliseconds. */
@@ -274,6 +285,7 @@ public class PlayerNotificationManager {
   private int color;
   private @DrawableRes int smallIconResourceId;
   private int visibility;
+  private @Priority int priority;
   private boolean ongoing;
   private boolean useChronometer;
   private boolean wasPlayWhenReady;
@@ -374,6 +386,7 @@ public class PlayerNotificationManager {
     color = Color.TRANSPARENT;
     smallIconResourceId = R.drawable.exo_notification_small_icon;
     defaults = 0;
+    priority = NotificationCompat.PRIORITY_LOW;
     fastForwardMs = DEFAULT_FAST_FORWARD_MS;
     rewindMs = DEFAULT_REWIND_MS;
     setBadgeIconType(NotificationCompat.BADGE_ICON_SMALL);
@@ -589,6 +602,34 @@ public class PlayerNotificationManager {
   }
 
   /**
+   * Sets the priority of the notification required for API 25 and lower.
+   *
+   * <p>See {@link NotificationCompat.Builder#setPriority(int)}.
+   *
+   * @param priority The priority which can be one of {@link NotificationCompat#PRIORITY_DEFAULT},
+   *     {@link NotificationCompat#PRIORITY_MAX}, {@link NotificationCompat#PRIORITY_HIGH}, {@link
+   *     NotificationCompat#PRIORITY_LOW} or {@link NotificationCompat#PRIORITY_MIN}. If not set
+   *     {@link NotificationCompat#PRIORITY_LOW} is used by default.
+   */
+  public final void setPriority(@Priority int priority) {
+    if (this.priority == priority) {
+      return;
+    }
+    switch (priority) {
+      case NotificationCompat.PRIORITY_DEFAULT:
+      case NotificationCompat.PRIORITY_MAX:
+      case NotificationCompat.PRIORITY_HIGH:
+      case NotificationCompat.PRIORITY_LOW:
+      case NotificationCompat.PRIORITY_MIN:
+        this.priority = priority;
+        break;
+      default:
+        throw new IllegalArgumentException();
+    }
+    maybeUpdateNotification();
+  }
+
+  /**
    * Sets the small icon of the notification which is also shown in the system status bar.
    *
    * <p>See {@link NotificationCompat.Builder#setSmallIcon(int)}.
@@ -777,6 +818,7 @@ public class PlayerNotificationManager {
         .setColorized(colorized)
         .setSmallIcon(smallIconResourceId)
         .setVisibility(visibility)
+        .setPriority(priority)
         .setDefaults(defaults);
     if (useChronometer
         && !player.isCurrentWindowDynamic()
