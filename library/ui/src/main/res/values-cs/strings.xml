@@ -20,6 +20,6 @@
   <string name="exo_track_selection_title_video">Video</string>
   <string name="exo_track_selection_title_audio">Audio</string>
   <string name="exo_track_selection_title_text">Text</string>
-  <string name="exo_track_selection_none">None</string>
-  <string name="exo_track_selection_auto">Auto</string>
+  <string name="exo_track_selection_none">Žádné</string>
+  <string name="exo_track_selection_auto">Automaticky</string>
 </resources>
