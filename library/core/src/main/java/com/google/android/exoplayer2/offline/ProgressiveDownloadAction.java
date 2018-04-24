@@ -27,49 +27,36 @@ import java.io.IOException;
 /** An action to download or remove downloaded progressive streams. */
 public final class ProgressiveDownloadAction extends DownloadAction {
 
+  private static final String TYPE = "ProgressiveDownloadAction";
+
   public static final Deserializer DESERIALIZER =
-      new Deserializer() {
-
-        @Override
-        public String getType() {
-          return TYPE;
-        }
-
+      new Deserializer(TYPE) {
         @Override
         public ProgressiveDownloadAction readFromStream(int version, DataInputStream input)
             throws IOException {
-          return new ProgressiveDownloadAction(
-              Uri.parse(input.readUTF()),
-              input.readBoolean() ? input.readUTF() : null,
-              input.readBoolean(),
-              input.readUTF());
+          boolean isRemoveAction = input.readBoolean();
+          String data = input.readUTF();
+          Uri uri = Uri.parse(input.readUTF());
+          String customCacheKey = input.readBoolean() ? input.readUTF() : null;
+          return new ProgressiveDownloadAction(isRemoveAction, data, uri, customCacheKey);
         }
       };
 
-  private static final String TYPE = "ProgressiveDownloadAction";
-
   private final Uri uri;
   private final @Nullable String customCacheKey;
-  private final boolean removeAction;
 
   /**
+   * @param isRemoveAction Whether this is a remove action. If false, this is a download action.
+   * @param data Optional custom data for this action. If null, an empty string is used.
    * @param uri Uri of the data to be downloaded.
    * @param customCacheKey A custom key that uniquely identifies the original stream. If not null it
    *     is used for cache indexing.
-   * @param removeAction Whether the data should be downloaded or removed.
-   * @param data Optional custom data for this action. If null, an empty string is used.
    */
   public ProgressiveDownloadAction(
-      Uri uri, @Nullable String customCacheKey, boolean removeAction, @Nullable String data) {
-    super(data);
+      boolean isRemoveAction, @Nullable String data, Uri uri, @Nullable String customCacheKey) {
+    super(TYPE, isRemoveAction, data);
     this.uri = Assertions.checkNotNull(uri);
     this.customCacheKey = customCacheKey;
-    this.removeAction = removeAction;
-  }
-
-  @Override
-  public boolean isRemoveAction() {
-    return removeAction;
   }
 
   @Override
@@ -78,20 +65,15 @@ public final class ProgressiveDownloadAction extends DownloadAction {
   }
 
   @Override
-  protected String getType() {
-    return TYPE;
-  }
-
-  @Override
   protected void writeToStream(DataOutputStream output) throws IOException {
+    output.writeBoolean(isRemoveAction);
+    output.writeUTF(data);
     output.writeUTF(uri.toString());
-    boolean customCacheKeyAvailable = customCacheKey != null;
-    output.writeBoolean(customCacheKeyAvailable);
-    if (customCacheKeyAvailable) {
+    boolean customCacheKeySet = customCacheKey != null;
+    output.writeBoolean(customCacheKeySet);
+    if (customCacheKeySet) {
       output.writeUTF(customCacheKey);
     }
-    output.writeBoolean(isRemoveAction());
-    output.writeUTF(getData());
   }
 
   @Override

@@ -95,7 +95,7 @@ public class DemoDownloadService extends DownloadService {
             this,
             R.drawable.exo_controls_play,
             CHANNEL_ID,
-            downloadState.downloadAction.getData(),
+            downloadState.downloadAction.data,
             new ErrorMessageProvider<Throwable>() {
               @Override
               public Pair<Integer, String> getErrorMessage(Throwable throwable) {

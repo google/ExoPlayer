@@ -244,11 +244,11 @@ public class DownloadManagerDashTest {
   }
 
   private void handleDownloadAction(RepresentationKey... keys) {
-    downloadManager.handleAction(new DashDownloadAction(TEST_MPD_URI, false, null, keys));
+    downloadManager.handleAction(new DashDownloadAction(false, null, TEST_MPD_URI, keys));
   }
 
   private void handleRemoveAction() {
-    downloadManager.handleAction(new DashDownloadAction(TEST_MPD_URI, true, null));
+    downloadManager.handleAction(new DashDownloadAction(true, null, TEST_MPD_URI));
   }
 
   private void createDownloadManager() {

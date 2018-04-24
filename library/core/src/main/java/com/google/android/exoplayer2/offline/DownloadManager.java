@@ -264,7 +264,7 @@ public final class DownloadManager {
   public int handleAction(DownloadAction downloadAction) {
     DownloadTask downloadTask = createDownloadTask(downloadAction);
     saveActions();
-    if (downloadsStopped && !downloadAction.isRemoveAction()) {
+    if (downloadsStopped && !downloadAction.isRemoveAction) {
       logd("Can't start the task as downloads are stopped", downloadTask);
     } else {
       maybeStartTasks();
@@ -345,7 +345,7 @@ public final class DownloadManager {
       }
 
       DownloadAction downloadAction = downloadTask.downloadAction;
-      boolean removeAction = downloadAction.isRemoveAction();
+      boolean removeAction = downloadAction.isRemoveAction;
       if (!removeAction && skipDownloadActions) {
         continue;
       }
@@ -359,7 +359,7 @@ public final class DownloadManager {
             logd(downloadTask + " clashes with " + task);
             task.cancel();
             // Continue loop to cancel any other preceding clashing tasks.
-          } else if (task.downloadAction.isRemoveAction()) {
+          } else if (task.downloadAction.isRemoveAction) {
             canStartTask = false;
             skipDownloadActions = true;
             break;
@@ -668,11 +668,11 @@ public final class DownloadManager {
       if (!DEBUG) {
         return super.toString();
       }
-      return downloadAction.getType()
+      return downloadAction.type
           + ' '
-          + (downloadAction.isRemoveAction() ? "remove" : "download")
+          + (downloadAction.isRemoveAction ? "remove" : "download")
           + ' '
-          + downloadAction.getData()
+          + downloadAction.data
           + ' '
           + getStateString();
     }
@@ -759,7 +759,7 @@ public final class DownloadManager {
       Throwable error = null;
       try {
         downloader = downloadAction.createDownloader(downloadManager.downloaderConstructorHelper);
-        if (downloadAction.isRemoveAction()) {
+        if (downloadAction.isRemoveAction) {
           downloader.remove();
         } else {
           int errorCount = 0;

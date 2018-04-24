@@ -28,13 +28,10 @@ import java.io.IOException;
 /** An action to download or remove downloaded HLS streams. */
 public final class HlsDownloadAction extends SegmentDownloadAction<RenditionKey> {
 
-  public static final Deserializer DESERIALIZER =
-      new SegmentDownloadActionDeserializer<RenditionKey>() {
+  private static final String TYPE = "HlsDownloadAction";
 
-        @Override
-        public String getType() {
-          return TYPE;
-        }
+  public static final Deserializer DESERIALIZER =
+      new SegmentDownloadActionDeserializer<RenditionKey>(TYPE) {
 
         @Override
         protected RenditionKey readKey(DataInputStream input) throws IOException {
@@ -48,30 +45,23 @@ public final class HlsDownloadAction extends SegmentDownloadAction<RenditionKey>
 
         @Override
         protected DownloadAction createDownloadAction(
-            Uri manifestUri, boolean removeAction, String data, RenditionKey[] keys) {
-          return new HlsDownloadAction(manifestUri, removeAction, data, keys);
+            boolean isRemoveAction, String data, Uri manifestUri, RenditionKey[] keys) {
+          return new HlsDownloadAction(isRemoveAction, data, manifestUri, keys);
         }
       };
 
-  private static final String TYPE = "HlsDownloadAction";
-
-  /** @see SegmentDownloadAction#SegmentDownloadAction(Uri, boolean, String, Object[]) */
+  /**
+   * @see SegmentDownloadAction#SegmentDownloadAction(String, boolean, String, Uri, Comparable[])
+   */
   public HlsDownloadAction(
-      Uri manifestUri, boolean removeAction, @Nullable String data, RenditionKey... keys) {
-    super(manifestUri, removeAction, data, keys);
-  }
-
-  @Override
-  protected String getType() {
-    return TYPE;
+      boolean isRemoveAction, @Nullable String data, Uri manifestUri, RenditionKey... keys) {
+    super(TYPE, isRemoveAction, data, manifestUri, keys);
   }
 
   @Override
   protected HlsDownloader createDownloader(DownloaderConstructorHelper constructorHelper) {
     HlsDownloader downloader = new HlsDownloader(manifestUri, constructorHelper);
-    if (!isRemoveAction()) {
-      downloader.selectRepresentations(keys);
-    }
+    downloader.selectRepresentations(keys);
     return downloader;
   }
 
