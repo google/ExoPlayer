@@ -80,24 +80,35 @@ public class ActionFileTest {
 
   @Test
   public void testLoadAction() throws Exception {
-    DownloadAction[] actions = loadActions(
-        new Object[] {DownloadAction.MASTER_VERSION, /*action count*/1, /*action 1*/"type2", 321},
-        new FakeDeserializer("type2"));
+    DownloadAction[] actions =
+        loadActions(
+            new Object[] {
+              DownloadAction.MASTER_VERSION, /*action count*/ 1, /*action 1*/ "type2", "321"
+            },
+            new FakeDeserializer("type2"));
     assertThat(actions).isNotNull();
     assertThat(actions).hasLength(1);
-    assertAction(actions[0], "type2", DownloadAction.MASTER_VERSION, 321);
+    assertAction(actions[0], "type2", DownloadAction.MASTER_VERSION, "321");
   }
 
   @Test
   public void testLoadActions() throws Exception {
-    DownloadAction[] actions = loadActions(
-        new Object[] {DownloadAction.MASTER_VERSION, /*action count*/2, /*action 1*/"type1", 123,
-            /*action 2*/"type2", 321}, // Action 2
-        new FakeDeserializer("type1"), new FakeDeserializer("type2"));
+    DownloadAction[] actions =
+        loadActions(
+            new Object[] {
+              DownloadAction.MASTER_VERSION, /*action count*/
+              2, /*action 1*/
+              "type1",
+              "123",
+              /*action 2*/ "type2",
+              "321"
+            }, // Action 2
+            new FakeDeserializer("type1"),
+            new FakeDeserializer("type2"));
     assertThat(actions).isNotNull();
     assertThat(actions).hasLength(2);
-    assertAction(actions[0], "type1", DownloadAction.MASTER_VERSION, 123);
-    assertAction(actions[1], "type2", DownloadAction.MASTER_VERSION, 321);
+    assertAction(actions[0], "type1", DownloadAction.MASTER_VERSION, "123");
+    assertAction(actions[1], "type2", DownloadAction.MASTER_VERSION, "321");
   }
 
   @Test
@@ -129,10 +140,13 @@ public class ActionFileTest {
 
   @Test
   public void testStoreAndLoadActions() throws Exception {
-    doTestSerializationRoundTrip(new DownloadAction[] {
-        new FakeDownloadAction("type1", DownloadAction.MASTER_VERSION, 123),
-        new FakeDownloadAction("type2", DownloadAction.MASTER_VERSION, 321),
-    }, new FakeDeserializer("type1"), new FakeDeserializer("type2"));
+    doTestSerializationRoundTrip(
+        new DownloadAction[] {
+          new FakeDownloadAction("type1", DownloadAction.MASTER_VERSION, "123"),
+          new FakeDownloadAction("type2", DownloadAction.MASTER_VERSION, "321"),
+        },
+        new FakeDeserializer("type1"),
+        new FakeDeserializer("type2"));
   }
 
   private void doTestSerializationRoundTrip(DownloadAction[] actions,
@@ -149,9 +163,9 @@ public class ActionFileTest {
     try {
       for (Object value : values) {
         if (value instanceof Integer) {
-          dataOutputStream.writeInt((Integer) value); // Action count
+          dataOutputStream.writeInt((Integer) value);
         } else if (value instanceof String) {
-          dataOutputStream.writeUTF((String) value); // Action count
+          dataOutputStream.writeUTF((String) value);
         } else {
           throw new IllegalArgumentException();
         }
@@ -162,56 +176,37 @@ public class ActionFileTest {
     return new ActionFile(tempFile).load(deserializers);
   }
 
-  private static void assertAction(DownloadAction action, String type, int version, int data) {
+  private static void assertAction(DownloadAction action, String type, int version, String data) {
     assertThat(action).isInstanceOf(FakeDownloadAction.class);
-    assertThat(action.getType()).isEqualTo(type);
+    assertThat(action.type).isEqualTo(type);
     assertThat(((FakeDownloadAction) action).version).isEqualTo(version);
     assertThat(((FakeDownloadAction) action).data).isEqualTo(data);
   }
 
-  private static class FakeDeserializer implements Deserializer {
-    final String type;
+  private static class FakeDeserializer extends Deserializer {
 
     FakeDeserializer(String type) {
-      this.type = type;
-    }
-
-    @Override
-    public String getType() {
-      return type;
+      super(type);
     }
 
     @Override
     public DownloadAction readFromStream(int version, DataInputStream input) throws IOException {
-      return new FakeDownloadAction(type, version, input.readInt());
+      return new FakeDownloadAction(type, version, input.readUTF());
     }
   }
 
   private static class FakeDownloadAction extends DownloadAction {
-    final String type;
-    final int version;
-    final int data;
 
-    private FakeDownloadAction(String type, int version, int data) {
-      super(null);
-      this.type = type;
+    public final int version;
+
+    private FakeDownloadAction(String type, int version, String data) {
+      super(type, false, data);
       this.version = version;
-      this.data = data;
-    }
-
-    @Override
-    protected String getType() {
-      return type;
     }
 
     @Override
     protected void writeToStream(DataOutputStream output) throws IOException {
-      output.writeInt(data);
-    }
-
-    @Override
-    public boolean isRemoveAction() {
-      return false;
+      output.writeUTF(data);
     }
 
     @Override
@@ -235,14 +230,14 @@ public class ActionFileTest {
         return false;
       }
       FakeDownloadAction that = (FakeDownloadAction) o;
-      return version == that.version && data == that.data && type.equals(that.type);
+      return version == that.version && data.equals(that.data) && type.equals(that.type);
     }
 
     @Override
     public int hashCode() {
       int result = type.hashCode();
       result = 31 * result + version;
-      result = 31 * result + data;
+      result = 31 * result + data.hashCode();
       return result;
     }
   }

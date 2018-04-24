@@ -28,51 +28,40 @@ import java.io.IOException;
 /** An action to download or remove downloaded SmoothStreaming streams. */
 public final class SsDownloadAction extends SegmentDownloadAction<TrackKey> {
 
-  public static final Deserializer DESERIALIZER =
-      new SegmentDownloadActionDeserializer<TrackKey>() {
-
-    @Override
-    public String getType() {
-      return TYPE;
-    }
-
-    @Override
-    protected TrackKey readKey(DataInputStream input) throws IOException {
-      return new TrackKey(input.readInt(), input.readInt());
-    }
-
-    @Override
-    protected TrackKey[] createKeyArray(int keyCount) {
-      return new TrackKey[keyCount];
-    }
-
-    @Override
-    protected DownloadAction createDownloadAction(Uri manifestUri, boolean removeAction,
-        String data, TrackKey[] keys) {
-      return new SsDownloadAction(manifestUri, removeAction, data, keys);
-    }
-
-  };
-
   private static final String TYPE = "SsDownloadAction";
 
-  /** @see SegmentDownloadAction#SegmentDownloadAction(Uri, boolean, String, Object[]) */
-  public SsDownloadAction(
-      Uri manifestUri, boolean removeAction, @Nullable String data, TrackKey... keys) {
-    super(manifestUri, removeAction, data, keys);
-  }
+  public static final Deserializer DESERIALIZER =
+      new SegmentDownloadActionDeserializer<TrackKey>(TYPE) {
 
-  @Override
-  protected String getType() {
-    return TYPE;
+        @Override
+        protected TrackKey readKey(DataInputStream input) throws IOException {
+          return new TrackKey(input.readInt(), input.readInt());
+        }
+
+        @Override
+        protected TrackKey[] createKeyArray(int keyCount) {
+          return new TrackKey[keyCount];
+        }
+
+        @Override
+        protected DownloadAction createDownloadAction(
+            boolean isRemoveAction, String data, Uri manifestUri, TrackKey[] keys) {
+          return new SsDownloadAction(isRemoveAction, data, manifestUri, keys);
+        }
+      };
+
+  /**
+   * @see SegmentDownloadAction#SegmentDownloadAction(String, boolean, String, Uri, Comparable[])
+   */
+  public SsDownloadAction(
+      boolean isRemoveAction, @Nullable String data, Uri manifestUri, TrackKey... keys) {
+    super(TYPE, isRemoveAction, data, manifestUri, keys);
   }
 
   @Override
   protected SsDownloader createDownloader(DownloaderConstructorHelper constructorHelper) {
     SsDownloader downloader = new SsDownloader(manifestUri, constructorHelper);
-    if (!isRemoveAction()) {
-      downloader.selectRepresentations(keys);
-    }
+    downloader.selectRepresentations(keys);
     return downloader;
   }
 

@@ -293,12 +293,12 @@ public class DownloadActivity extends Activity {
         String sampleName, ArrayList<Object> representationKeys) {
       RepresentationKey[] keys =
           representationKeys.toArray(new RepresentationKey[representationKeys.size()]);
-      return new DashDownloadAction(manifestUri, false, sampleName, keys);
+      return new DashDownloadAction(/* isRemoveAction= */ false, sampleName, manifestUri, keys);
     }
 
     @Override
     public DownloadAction getRemoveAction() {
-      return new DashDownloadAction(manifestUri, true, null);
+      return new DashDownloadAction(/* isRemoveAction= */ true, /* data= */ null, manifestUri);
     }
   }
 
@@ -329,12 +329,12 @@ public class DownloadActivity extends Activity {
     public DownloadAction getDownloadAction(
         String sampleName, ArrayList<Object> representationKeys) {
       RenditionKey[] keys = representationKeys.toArray(new RenditionKey[representationKeys.size()]);
-      return new HlsDownloadAction(manifestUri, false, sampleName, keys);
+      return new HlsDownloadAction(/* isRemoveAction= */ false, sampleName, manifestUri, keys);
     }
 
     @Override
     public DownloadAction getRemoveAction() {
-      return new HlsDownloadAction(manifestUri, true, null);
+      return new HlsDownloadAction(/* isRemoveAction= */ true, /* data= */ null, manifestUri);
     }
   }
 
@@ -368,12 +368,12 @@ public class DownloadActivity extends Activity {
     public DownloadAction getDownloadAction(
         String sampleName, ArrayList<Object> representationKeys) {
       TrackKey[] keys = representationKeys.toArray(new TrackKey[representationKeys.size()]);
-      return new SsDownloadAction(manifestUri, false, sampleName, keys);
+      return new SsDownloadAction(/* isRemoveAction= */ false, sampleName, manifestUri, keys);
     }
 
     @Override
     public DownloadAction getRemoveAction() {
-      return new SsDownloadAction(manifestUri, true, null);
+      return new SsDownloadAction(/* isRemoveAction= */ true, /* data= */ null, manifestUri);
     }
   }
 
@@ -399,12 +399,14 @@ public class DownloadActivity extends Activity {
     @Override
     public DownloadAction getDownloadAction(
         String sampleName, ArrayList<Object> representationKeys) {
-      return new ProgressiveDownloadAction(manifestUri, null, false, sampleName);
+      return new ProgressiveDownloadAction(
+          /* isRemoveAction= */ false, /* data= */ null, manifestUri, /* customCacheKey= */ null);
     }
 
     @Override
     public DownloadAction getRemoveAction() {
-      return new ProgressiveDownloadAction(manifestUri, null, true, null);
+      return new ProgressiveDownloadAction(
+          /* isRemoveAction= */ true, /* data= */ null, manifestUri, /* customCacheKey= */ null);
     }
   }
 }

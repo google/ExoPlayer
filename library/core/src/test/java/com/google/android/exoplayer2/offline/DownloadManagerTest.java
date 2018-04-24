@@ -482,11 +482,11 @@ public class DownloadManagerTest {
   }
 
   private FakeDownloadAction createDownloadAction(String mediaId) {
-    return new FakeDownloadAction(mediaId, false);
+    return new FakeDownloadAction(/* isRemoveAction= */ false, mediaId);
   }
 
   private FakeDownloadAction createRemoveAction(String mediaId) {
-    return new FakeDownloadAction(mediaId, true);
+    return new FakeDownloadAction(/* isRemoveAction= */ true, mediaId);
   }
 
   private void runOnMainThread(final Runnable r) throws Throwable {
@@ -531,31 +531,19 @@ public class DownloadManagerTest {
   private class FakeDownloadAction extends DownloadAction {
 
     private final String mediaId;
-    private final boolean removeAction;
     private final FakeDownloader downloader;
     private final BlockingQueue<Integer> states;
 
-    private FakeDownloadAction(String mediaId, boolean removeAction) {
-      super(mediaId);
+    private FakeDownloadAction(boolean isRemoveAction, @Nullable String mediaId) {
+      super("FakeDownloadAction", isRemoveAction, mediaId);
       this.mediaId = mediaId;
-      this.removeAction = removeAction;
-      this.downloader = new FakeDownloader(removeAction);
+      this.downloader = new FakeDownloader(isRemoveAction);
       this.states = new ArrayBlockingQueue<>(10);
-    }
-
-    @Override
-    protected String getType() {
-      return "FakeDownloadAction";
     }
 
     @Override
     protected void writeToStream(DataOutputStream output) throws IOException {
       // do nothing.
-    }
-
-    @Override
-    public boolean isRemoveAction() {
-      return removeAction;
     }
 
     @Override
@@ -661,15 +649,15 @@ public class DownloadManagerTest {
   private static class FakeDownloader implements Downloader {
 
     private final com.google.android.exoplayer2.util.ConditionVariable blocker;
-    private final boolean removeAction;
+    private final boolean isRemoveAction;
 
     private CountDownLatch started;
     private boolean ignoreInterrupts;
     private volatile boolean enableDownloadIOException;
     private volatile int downloadedBytes = C.LENGTH_UNSET;
 
-    private FakeDownloader(boolean removeAction) {
-      this.removeAction = removeAction;
+    private FakeDownloader(boolean isRemoveAction) {
+      this.isRemoveAction = isRemoveAction;
       this.started = new CountDownLatch(1);
       this.blocker = new com.google.android.exoplayer2.util.ConditionVariable();
     }
@@ -682,7 +670,7 @@ public class DownloadManagerTest {
     @Override
     public void download(@Nullable ProgressListener listener)
         throws InterruptedException, IOException {
-      assertThat(removeAction).isFalse();
+      assertThat(isRemoveAction).isFalse();
       started.countDown();
       block();
       if (enableDownloadIOException) {
@@ -692,7 +680,7 @@ public class DownloadManagerTest {
 
     @Override
     public void remove() throws InterruptedException {
-      assertThat(removeAction).isTrue();
+      assertThat(isRemoveAction).isTrue();
       started.countDown();
       block();
     }

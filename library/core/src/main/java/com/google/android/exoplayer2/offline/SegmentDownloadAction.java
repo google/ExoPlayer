@@ -28,26 +28,31 @@ import java.util.Arrays;
  *
  * @param <K> The type of the representation key object.
  */
-public abstract class SegmentDownloadAction<K> extends DownloadAction {
+public abstract class SegmentDownloadAction<K extends Comparable> extends DownloadAction {
 
   /**
    * Base class for {@link SegmentDownloadAction} {@link Deserializer}s.
    *
    * @param <K> The type of the representation key object.
    */
-  protected abstract static class SegmentDownloadActionDeserializer<K> implements Deserializer {
+  protected abstract static class SegmentDownloadActionDeserializer<K> extends Deserializer {
+
+    public SegmentDownloadActionDeserializer(String type) {
+      super(type);
+    }
 
     @Override
-    public DownloadAction readFromStream(int version, DataInputStream input) throws IOException {
-      Uri manifestUri = Uri.parse(input.readUTF());
+    public final DownloadAction readFromStream(int version, DataInputStream input)
+        throws IOException {
+      boolean isRemoveAction = input.readBoolean();
       String data = input.readUTF();
-      boolean removeAction = input.readBoolean();
+      Uri manifestUri = Uri.parse(input.readUTF());
       int keyCount = input.readInt();
       K[] keys = createKeyArray(keyCount);
       for (int i = 0; i < keyCount; i++) {
         keys[i] = readKey(input);
       }
-      return createDownloadAction(manifestUri, removeAction, data, keys);
+      return createDownloadAction(isRemoveAction, data, manifestUri, keys);
     }
 
     /** Deserializes a key from the {@code input}. */
@@ -57,43 +62,39 @@ public abstract class SegmentDownloadAction<K> extends DownloadAction {
     protected abstract K[] createKeyArray(int keyCount);
 
     /** Returns a {@link DownloadAction}. */
-    protected abstract DownloadAction createDownloadAction(Uri manifestUri, boolean removeAction,
-        String data, K[] keys);
-
+    protected abstract DownloadAction createDownloadAction(
+        boolean isRemoveAction, String data, Uri manifestUri, K[] keys);
   }
 
   protected final Uri manifestUri;
   protected final K[] keys;
-  private final boolean removeAction;
 
   /**
-   * @param manifestUri The {@link Uri} of the manifest to be downloaded.
-   * @param removeAction Whether the data will be removed. If {@code false} it will be downloaded.
+   * @param type The type of the action.
    * @param data Optional custom data for this action. If null, an empty string is used.
+   * @param isRemoveAction Whether the data will be removed. If {@code false} it will be downloaded.
+   * @param manifestUri The {@link Uri} of the manifest to be downloaded.
    * @param keys Keys of representations to be downloaded. If empty, all representations are
-   *     downloaded. If {@code removeAction} is true, {@code keys} should be an empty array.
+   *     downloaded. If {@code removeAction} is true, {@code keys} must be an empty array.
    */
   protected SegmentDownloadAction(
-      Uri manifestUri, boolean removeAction, @Nullable String data, K[] keys) {
-    super(data);
+      String type, boolean isRemoveAction, @Nullable String data, Uri manifestUri, K[] keys) {
+    super(type, isRemoveAction, data);
     this.manifestUri = manifestUri;
-    this.keys = Assertions.checkNotNull(keys);
-    this.removeAction = removeAction;
-    if (removeAction) {
+    if (isRemoveAction) {
       Assertions.checkArgument(keys.length == 0);
+      this.keys = keys;
+    } else {
+      this.keys = keys.clone();
+      Arrays.sort(this.keys);
     }
   }
 
   @Override
-  public final boolean isRemoveAction() {
-    return removeAction;
-  }
-
-  @Override
   public final void writeToStream(DataOutputStream output) throws IOException {
+    output.writeBoolean(isRemoveAction);
+    output.writeUTF(data);
     output.writeUTF(manifestUri.toString());
-    output.writeUTF(getData());
-    output.writeBoolean(removeAction);
     output.writeInt(keys.length);
     for (K key : keys) {
       writeKey(output, key);
@@ -102,7 +103,6 @@ public abstract class SegmentDownloadAction<K> extends DownloadAction {
 
   /** Serializes the {@code key} into the {@code output}. */
   protected abstract void writeKey(DataOutputStream output, K key) throws IOException;
-
 
   @Override
   public boolean isSameMedia(DownloadAction other) {
@@ -119,10 +119,7 @@ public abstract class SegmentDownloadAction<K> extends DownloadAction {
       return false;
     }
     SegmentDownloadAction<?> that = (SegmentDownloadAction<?>) o;
-    return manifestUri.equals(that.manifestUri)
-        && removeAction == that.removeAction
-        && keys.length == that.keys.length
-        && Arrays.asList(keys).containsAll(Arrays.asList(that.keys));
+    return manifestUri.equals(that.manifestUri) && Arrays.equals(keys, that.keys);
   }
 
   @Override

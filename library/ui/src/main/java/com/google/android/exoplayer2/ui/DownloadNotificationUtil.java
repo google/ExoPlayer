@@ -51,7 +51,7 @@ public final class DownloadNotificationUtil {
     int determinatePercentageCount = 0;
     boolean isAnyDownloadActive = false;
     for (DownloadState downloadState : downloadStates) {
-      if (downloadState.downloadAction.isRemoveAction()
+      if (downloadState.downloadAction.isRemoveAction
           || downloadState.state != DownloadState.STATE_STARTED) {
         continue;
       }
@@ -102,7 +102,7 @@ public final class DownloadNotificationUtil {
       String channelId,
       @Nullable String message,
       @Nullable ErrorMessageProvider<Throwable> errorMessageProvider) {
-    if (downloadState.downloadAction.isRemoveAction()
+    if (downloadState.downloadAction.isRemoveAction
         || (downloadState.state != DownloadState.STATE_ENDED
             && downloadState.state != DownloadState.STATE_ERROR)) {
       return null;

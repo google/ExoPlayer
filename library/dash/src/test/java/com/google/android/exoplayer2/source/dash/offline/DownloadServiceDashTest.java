@@ -216,11 +216,11 @@ public class DownloadServiceDashTest {
   }
 
   private void removeAll() throws Throwable {
-    callDownloadServiceOnStart(new DashDownloadAction(TEST_MPD_URI, true, null));
+    callDownloadServiceOnStart(new DashDownloadAction(true, null, TEST_MPD_URI));
   }
 
   private void downloadKeys(RepresentationKey... keys) throws Throwable {
-    callDownloadServiceOnStart(new DashDownloadAction(TEST_MPD_URI, false, null, keys));
+    callDownloadServiceOnStart(new DashDownloadAction(false, null, TEST_MPD_URI, keys));
   }
 
   private void callDownloadServiceOnStart(final DashDownloadAction action) {

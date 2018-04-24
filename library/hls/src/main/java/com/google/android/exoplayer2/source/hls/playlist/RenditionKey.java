@@ -17,9 +17,10 @@ package com.google.android.exoplayer2.source.hls.playlist;
 
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.support.annotation.NonNull;
 
 /** Uniquely identifies a rendition in an {@link HlsMasterPlaylist}. */
-public final class RenditionKey implements Parcelable {
+public final class RenditionKey implements Parcelable, Comparable<RenditionKey> {
 
   public final String url;
 
@@ -51,4 +52,11 @@ public final class RenditionKey implements Parcelable {
           return new RenditionKey[size];
         }
       };
+
+  // Comparable implementation.
+
+  @Override
+  public int compareTo(@NonNull RenditionKey o) {
+    return url.compareTo(o.url);
+  }
 }
