@@ -26,13 +26,13 @@ import java.util.List;
 public final class FilteringHlsPlaylistParser implements Parser<HlsPlaylist> {
 
   private final HlsPlaylistParser hlsPlaylistParser;
-  private final List<String> filter;
+  private final List<RenditionKey> filter;
 
   /**
    * @param filter The urls to renditions that should be retained in the parsed playlists. If null,
    *     all renditions are retained.
    */
-  public FilteringHlsPlaylistParser(@Nullable List<String> filter) {
+  public FilteringHlsPlaylistParser(@Nullable List<RenditionKey> filter) {
     this.hlsPlaylistParser = new HlsPlaylistParser();
     this.filter = filter;
   }

@@ -111,16 +111,21 @@ public final class HlsMasterPlaylist extends HlsPlaylist {
 
   /**
    * Returns a copy of this playlist which includes only the renditions identified by the given
-   * urls.
+   * keys.
    *
-   * @param renditionUrls List of rendition urls.
+   * @param renditionKeys List of rendition keys.
    * @return A copy of this playlist which includes only the renditions identified by the given
    *     urls.
    */
-  public HlsMasterPlaylist copy(List<String> renditionUrls) {
-    return new HlsMasterPlaylist(baseUri, tags, copyRenditionsList(variants, renditionUrls),
-        copyRenditionsList(audios, renditionUrls), copyRenditionsList(subtitles, renditionUrls),
-        muxedAudioFormat, muxedCaptionFormats);
+  public HlsMasterPlaylist copy(List<RenditionKey> renditionKeys) {
+    return new HlsMasterPlaylist(
+        baseUri,
+        tags,
+        copyRenditionsList(variants, renditionKeys),
+        copyRenditionsList(audios, renditionKeys),
+        copyRenditionsList(subtitles, renditionKeys),
+        muxedAudioFormat,
+        muxedCaptionFormats);
   }
 
   /**
@@ -136,12 +141,17 @@ public final class HlsMasterPlaylist extends HlsPlaylist {
         emptyList, null, null);
   }
 
-  private static List<HlsUrl> copyRenditionsList(List<HlsUrl> renditions, List<String> urls) {
-    List<HlsUrl> copiedRenditions = new ArrayList<>(urls.size());
+  private static List<HlsUrl> copyRenditionsList(
+      List<HlsUrl> renditions, List<RenditionKey> renditionKeys) {
+    List<HlsUrl> copiedRenditions = new ArrayList<>(renditionKeys.size());
     for (int i = 0; i < renditions.size(); i++) {
       HlsUrl rendition = renditions.get(i);
-      if (urls.contains(rendition.url)) {
-        copiedRenditions.add(rendition);
+      for (int j = 0; j < renditionKeys.size(); j++) {
+        RenditionKey renditionKey = renditionKeys.get(j);
+        if (renditionKey.url.equals(rendition.url)) {
+          copiedRenditions.add(rendition);
+          break;
+        }
       }
     }
     return copiedRenditions;

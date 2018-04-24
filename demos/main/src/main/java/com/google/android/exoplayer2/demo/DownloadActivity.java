@@ -41,6 +41,7 @@ import com.google.android.exoplayer2.source.dash.offline.DashDownloadAction;
 import com.google.android.exoplayer2.source.dash.offline.DashDownloader;
 import com.google.android.exoplayer2.source.hls.offline.HlsDownloadAction;
 import com.google.android.exoplayer2.source.hls.offline.HlsDownloader;
+import com.google.android.exoplayer2.source.hls.playlist.RenditionKey;
 import com.google.android.exoplayer2.source.smoothstreaming.manifest.TrackKey;
 import com.google.android.exoplayer2.source.smoothstreaming.offline.SsDownloadAction;
 import com.google.android.exoplayer2.source.smoothstreaming.offline.SsDownloader;
@@ -63,7 +64,6 @@ public class DownloadActivity extends Activity {
   private AsyncTask manifestDownloaderTask;
 
   private DownloadUtilMethods downloadUtilMethods;
-
   private ListView representationList;
   private ArrayAdapter<RepresentationItem> arrayAdapter;
 
@@ -162,15 +162,11 @@ public class DownloadActivity extends Activity {
     ArrayList<Object> selectedRepresentationKeys = getSelectedRepresentationKeys();
     if (selectedRepresentationKeys.isEmpty()) {
       playerIntent.removeExtra(PlayerActivity.MANIFEST_FILTER_EXTRA);
-    } else if (selectedRepresentationKeys.get(0) instanceof Parcelable) {
+    } else {
       Parcelable[] parcelables = new Parcelable[selectedRepresentationKeys.size()];
       selectedRepresentationKeys.toArray(parcelables);
       playerIntent.putExtra(
           PlayerActivity.MANIFEST_FILTER_EXTRA, new ParcelableArray<>(parcelables));
-    } else {
-      String[] strings = new String[selectedRepresentationKeys.size()];
-      selectedRepresentationKeys.toArray(strings);
-      playerIntent.putExtra(PlayerActivity.MANIFEST_FILTER_EXTRA, strings);
     }
     startActivity(playerIntent);
   }
@@ -198,11 +194,11 @@ public class DownloadActivity extends Activity {
 
   private static final class RepresentationItem {
 
-    public final Object key;
+    public final Parcelable key;
     public final String title;
     public final int percentDownloaded;
 
-    public RepresentationItem(Object key, String title, float percentDownloaded) {
+    public RepresentationItem(Parcelable key, String title, float percentDownloaded) {
       this.key = key;
       this.title = title;
       this.percentDownloaded = (int) percentDownloaded;
@@ -317,14 +313,14 @@ public class DownloadActivity extends Activity {
         throws IOException, InterruptedException {
       HlsDownloader downloader = new HlsDownloader(manifestUri, constructorHelper);
       ArrayList<RepresentationItem> items = new ArrayList<>();
-      for (String key : downloader.getAllRepresentationKeys()) {
-        downloader.selectRepresentations(new String[] {key});
+      for (RenditionKey key : downloader.getAllRepresentationKeys()) {
+        downloader.selectRepresentations(new RenditionKey[] {key});
         try {
           downloader.init();
         } catch (IOException e) {
           continue;
         }
-        items.add(new RepresentationItem(key, key, downloader.getDownloadPercentage()));
+        items.add(new RepresentationItem(key, key.url, downloader.getDownloadPercentage()));
       }
       return items;
     }
@@ -332,7 +328,7 @@ public class DownloadActivity extends Activity {
     @Override
     public DownloadAction getDownloadAction(
         String sampleName, ArrayList<Object> representationKeys) {
-      String[] keys = representationKeys.toArray(new String[representationKeys.size()]);
+      RenditionKey[] keys = representationKeys.toArray(new RenditionKey[representationKeys.size()]);
       return new HlsDownloadAction(manifestUri, false, sampleName, keys);
     }
 
