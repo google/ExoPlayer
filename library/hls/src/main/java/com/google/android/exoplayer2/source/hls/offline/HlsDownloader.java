@@ -16,6 +16,7 @@
 package com.google.android.exoplayer2.source.hls.offline;
 
 import android.net.Uri;
+import android.util.SparseArray;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.offline.DownloaderConstructorHelper;
 import com.google.android.exoplayer2.offline.SegmentDownloader;
@@ -90,7 +91,7 @@ public final class HlsDownloader extends SegmentDownloader<HlsMasterPlaylist, St
         continue;
       }
 
-      List<HlsMediaPlaylist.Segment> initSegments = mediaPlaylist.initializationSegments;
+      SparseArray<HlsMediaPlaylist.Segment> initSegments = mediaPlaylist.initializationSegments;
       for (int i = 0; i < initSegments.size(); i++) {
         addSegment(segments, mediaPlaylist, initSegments.get(i), encryptionKeyUris);
       }

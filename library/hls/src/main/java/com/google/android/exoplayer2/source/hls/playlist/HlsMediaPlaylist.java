@@ -17,6 +17,7 @@ package com.google.android.exoplayer2.source.hls.playlist;
 
 import android.support.annotation.IntDef;
 import android.support.annotation.NonNull;
+import android.util.SparseArray;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.drm.DrmInitData;
 import java.lang.annotation.Retention;
@@ -72,16 +73,13 @@ public final class HlsMediaPlaylist extends HlsPlaylist {
     /** Whether the segment is tagged with #EXT-X-GAP. */
     public final boolean hasGapTag;
 
-    /** index of {@link HlsMediaPlaylist#initializationSegments} */
-    public final int initializationSegmentIndex;
-
     /**
      * @param uri See {@link #url}.
      * @param byterangeOffset See {@link #byterangeOffset}.
      * @param byterangeLength See {@link #byterangeLength}.
      */
     public Segment(String uri, long byterangeOffset, long byterangeLength) {
-      this(uri, 0, -1, C.TIME_UNSET, null, null, byterangeOffset, byterangeLength, false, -1);
+      this(uri, 0, -1, C.TIME_UNSET, null, null, byterangeOffset, byterangeLength, false);
     }
 
     /**
@@ -94,7 +92,6 @@ public final class HlsMediaPlaylist extends HlsPlaylist {
      * @param byterangeOffset See {@link #byterangeOffset}.
      * @param byterangeLength See {@link #byterangeLength}.
      * @param hasGapTag See {@link #hasGapTag}.
-     * @param initializationSegmentIndex See {@link #initializationSegmentIndex}.
      */
     public Segment(
         String url,
@@ -105,8 +102,7 @@ public final class HlsMediaPlaylist extends HlsPlaylist {
         String encryptionIV,
         long byterangeOffset,
         long byterangeLength,
-        boolean hasGapTag,
-        int initializationSegmentIndex) {
+        boolean hasGapTag) {
       this.url = url;
       this.durationUs = durationUs;
       this.relativeDiscontinuitySequence = relativeDiscontinuitySequence;
@@ -116,7 +112,6 @@ public final class HlsMediaPlaylist extends HlsPlaylist {
       this.byterangeOffset = byterangeOffset;
       this.byterangeLength = byterangeLength;
       this.hasGapTag = hasGapTag;
-      this.initializationSegmentIndex = initializationSegmentIndex;
     }
 
     @Override
@@ -189,9 +184,9 @@ public final class HlsMediaPlaylist extends HlsPlaylist {
    */
   public final DrmInitData drmInitData;
   /**
-   * The initialization segment, as defined by #EXT-X-MAP.
+   * The initialization segments, as defined by #EXT-X-MAP.
    */
-  public final List<Segment>  initializationSegments;
+  public final SparseArray<Segment> initializationSegments;
   /**
    * The list of segments in the playlist.
    */
@@ -234,7 +229,7 @@ public final class HlsMediaPlaylist extends HlsPlaylist {
       boolean hasEndTag,
       boolean hasProgramDateTime,
       DrmInitData drmInitData,
-      List<Segment> initializationSegments,
+      SparseArray<Segment> initializationSegments,
       List<Segment> segments) {
     super(baseUri, tags);
     this.playlistType = playlistType;

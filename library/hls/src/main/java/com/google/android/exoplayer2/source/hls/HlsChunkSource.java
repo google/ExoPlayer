@@ -320,14 +320,12 @@ import java.util.List;
     }
 
     DataSpec initDataSpec = null;
-    if (segment.initializationSegmentIndex != -1) {
-      Segment initSegment =
-          mediaPlaylist.initializationSegments.get(segment.initializationSegmentIndex);
-      if (initSegment != null) {
-        Uri initSegmentUri = UriUtil.resolveToUri(mediaPlaylist.baseUri, initSegment.url);
-        initDataSpec = new DataSpec(initSegmentUri, initSegment.byterangeOffset,
-            initSegment.byterangeLength, null);
-      }
+    Segment initSegment =
+        mediaPlaylist.initializationSegments.get(segment.relativeDiscontinuitySequence);
+    if (initSegment != null) {
+      Uri initSegmentUri = UriUtil.resolveToUri(mediaPlaylist.baseUri, initSegment.url);
+      initDataSpec = new DataSpec(initSegmentUri, initSegment.byterangeOffset,
+          initSegment.byterangeLength, null);
     }
 
     // Compute start time of the next chunk.

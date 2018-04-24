@@ -17,6 +17,7 @@ package com.google.android.exoplayer2.source.hls.playlist;
 
 import android.net.Uri;
 import android.util.Base64;
+import android.util.SparseArray;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.ParserException;
@@ -345,8 +346,7 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
     long targetDurationUs = C.TIME_UNSET;
     boolean hasIndependentSegmentsTag = false;
     boolean hasEndTag = false;
-    int initializationSegmentIndex = -1;
-    List<Segment> initializationSegments = new ArrayList<>();
+    SparseArray<Segment> initializationSegments = new SparseArray<>();
     List<Segment> segments = new ArrayList<>();
     List<String> tags = new ArrayList<>();
 
@@ -393,9 +393,8 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
             segmentByteRangeOffset = Long.parseLong(splitByteRange[1]);
           }
         }
-        initializationSegments.add(
+        initializationSegments.put(relativeDiscontinuitySequence,
             new Segment(uri, segmentByteRangeOffset, segmentByteRangeLength));
-        initializationSegmentIndex++;
         segmentByteRangeOffset = 0;
         segmentByteRangeLength = C.LENGTH_UNSET;
       } else if (line.startsWith(TAG_TARGET_DURATION)) {
@@ -483,8 +482,7 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
                 segmentEncryptionIV,
                 segmentByteRangeOffset,
                 segmentByteRangeLength,
-                hasGapTag,
-                initializationSegmentIndex));
+                hasGapTag));
         segmentStartTimeUs += segmentDurationUs;
         segmentDurationUs = 0;
         if (segmentByteRangeLength != C.LENGTH_UNSET) {
