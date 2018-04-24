@@ -35,6 +35,7 @@ import static com.google.common.truth.Truth.assertThat;
 import android.net.Uri;
 import com.google.android.exoplayer2.offline.DownloaderConstructorHelper;
 import com.google.android.exoplayer2.source.hls.playlist.HlsMasterPlaylist;
+import com.google.android.exoplayer2.source.hls.playlist.RenditionKey;
 import com.google.android.exoplayer2.testutil.FakeDataSet;
 import com.google.android.exoplayer2.testutil.FakeDataSource.Factory;
 import com.google.android.exoplayer2.upstream.cache.NoOpCacheEvictor;
@@ -91,8 +92,8 @@ public class HlsDownloaderTest {
 
   @Test
   public void testSelectRepresentationsClearsPreviousSelection() throws Exception {
-    hlsDownloader.selectRepresentations(new String[] {MEDIA_PLAYLIST_1_URI});
-    hlsDownloader.selectRepresentations(new String[] {MEDIA_PLAYLIST_2_URI});
+    hlsDownloader.selectRepresentations(getKeys(MEDIA_PLAYLIST_1_URI));
+    hlsDownloader.selectRepresentations(getKeys(MEDIA_PLAYLIST_2_URI));
     hlsDownloader.download(null);
 
     assertCachedData(
@@ -107,7 +108,7 @@ public class HlsDownloaderTest {
 
   @Test
   public void testCounterMethods() throws Exception {
-    hlsDownloader.selectRepresentations(new String[] {MEDIA_PLAYLIST_1_URI});
+    hlsDownloader.selectRepresentations(getKeys(MEDIA_PLAYLIST_1_URI));
     hlsDownloader.download(null);
 
     assertThat(hlsDownloader.getTotalSegments()).isEqualTo(4);
@@ -118,11 +119,11 @@ public class HlsDownloaderTest {
 
   @Test
   public void testInitStatus() throws Exception {
-    hlsDownloader.selectRepresentations(new String[] {MEDIA_PLAYLIST_1_URI});
+    hlsDownloader.selectRepresentations(getKeys(MEDIA_PLAYLIST_1_URI));
     hlsDownloader.download(null);
 
     HlsDownloader newHlsDownloader = getHlsDownloader(MASTER_PLAYLIST_URI);
-    newHlsDownloader.selectRepresentations(new String[] {MEDIA_PLAYLIST_1_URI});
+    newHlsDownloader.selectRepresentations(getKeys(MEDIA_PLAYLIST_1_URI));
     newHlsDownloader.init();
 
     assertThat(newHlsDownloader.getTotalSegments()).isEqualTo(4);
@@ -133,7 +134,7 @@ public class HlsDownloaderTest {
 
   @Test
   public void testDownloadRepresentation() throws Exception {
-    hlsDownloader.selectRepresentations(new String[] {MEDIA_PLAYLIST_1_URI});
+    hlsDownloader.selectRepresentations(getKeys(MEDIA_PLAYLIST_1_URI));
     hlsDownloader.download(null);
 
     assertCachedData(
@@ -148,7 +149,7 @@ public class HlsDownloaderTest {
 
   @Test
   public void testDownloadMultipleRepresentations() throws Exception {
-    hlsDownloader.selectRepresentations(new String[] {MEDIA_PLAYLIST_1_URI, MEDIA_PLAYLIST_2_URI});
+    hlsDownloader.selectRepresentations(getKeys(MEDIA_PLAYLIST_1_URI, MEDIA_PLAYLIST_2_URI));
     hlsDownloader.download(null);
 
     assertCachedData(cache, fakeDataSet);
@@ -174,9 +175,9 @@ public class HlsDownloaderTest {
     hlsDownloader.remove();
 
     // select something random
-    hlsDownloader.selectRepresentations(new String[] {MEDIA_PLAYLIST_1_URI});
+    hlsDownloader.selectRepresentations(getKeys(MEDIA_PLAYLIST_1_URI));
     // clear selection
-    hlsDownloader.selectRepresentations(new String[0]);
+    hlsDownloader.selectRepresentations(getKeys());
     hlsDownloader.download(null);
     assertCachedData(cache, fakeDataSet);
     hlsDownloader.remove();
@@ -184,7 +185,7 @@ public class HlsDownloaderTest {
 
   @Test
   public void testRemoveAll() throws Exception {
-    hlsDownloader.selectRepresentations(new String[] {MEDIA_PLAYLIST_1_URI, MEDIA_PLAYLIST_2_URI});
+    hlsDownloader.selectRepresentations(getKeys(MEDIA_PLAYLIST_1_URI, MEDIA_PLAYLIST_2_URI));
     hlsDownloader.download(null);
     hlsDownloader.remove();
 
@@ -194,7 +195,7 @@ public class HlsDownloaderTest {
   @Test
   public void testDownloadMediaPlaylist() throws Exception {
     hlsDownloader = getHlsDownloader(MEDIA_PLAYLIST_1_URI);
-    hlsDownloader.selectRepresentations(new String[] {MEDIA_PLAYLIST_1_URI});
+    hlsDownloader.selectRepresentations(getKeys(MEDIA_PLAYLIST_1_URI));
     hlsDownloader.download(null);
 
     assertCachedData(
@@ -217,7 +218,7 @@ public class HlsDownloaderTest {
             .setRandomData("fileSequence1.ts", 11)
             .setRandomData("fileSequence2.ts", 12);
     hlsDownloader = getHlsDownloader(ENC_MEDIA_PLAYLIST_URI);
-    hlsDownloader.selectRepresentations(new String[] {ENC_MEDIA_PLAYLIST_URI});
+    hlsDownloader.selectRepresentations(getKeys(ENC_MEDIA_PLAYLIST_URI));
     hlsDownloader.download(null);
 
     assertCachedData(cache, fakeDataSet);
@@ -227,5 +228,13 @@ public class HlsDownloaderTest {
     Factory factory = new Factory(null).setFakeDataSet(fakeDataSet);
     return new HlsDownloader(
         Uri.parse(mediaPlaylistUri), new DownloaderConstructorHelper(cache, factory));
+  }
+
+  private static RenditionKey[] getKeys(String... urls) {
+    RenditionKey[] renditionKeys = new RenditionKey[urls.length];
+    for (int i = 0; i < urls.length; i++) {
+      renditionKeys[i] = new RenditionKey(urls[i]);
+    }
+    return renditionKeys;
   }
 }

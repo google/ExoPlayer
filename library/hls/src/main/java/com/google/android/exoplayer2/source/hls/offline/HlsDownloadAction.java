@@ -20,15 +20,16 @@ import android.support.annotation.Nullable;
 import com.google.android.exoplayer2.offline.DownloadAction;
 import com.google.android.exoplayer2.offline.DownloaderConstructorHelper;
 import com.google.android.exoplayer2.offline.SegmentDownloadAction;
+import com.google.android.exoplayer2.source.hls.playlist.RenditionKey;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 
 /** An action to download or remove downloaded HLS streams. */
-public final class HlsDownloadAction extends SegmentDownloadAction<String> {
+public final class HlsDownloadAction extends SegmentDownloadAction<RenditionKey> {
 
   public static final Deserializer DESERIALIZER =
-      new SegmentDownloadActionDeserializer<String>() {
+      new SegmentDownloadActionDeserializer<RenditionKey>() {
 
         @Override
         public String getType() {
@@ -36,18 +37,18 @@ public final class HlsDownloadAction extends SegmentDownloadAction<String> {
         }
 
         @Override
-        protected String readKey(DataInputStream input) throws IOException {
-          return input.readUTF();
+        protected RenditionKey readKey(DataInputStream input) throws IOException {
+          return new RenditionKey(input.readUTF());
         }
 
         @Override
-        protected String[] createKeyArray(int keyCount) {
-          return new String[keyCount];
+        protected RenditionKey[] createKeyArray(int keyCount) {
+          return new RenditionKey[keyCount];
         }
 
         @Override
         protected DownloadAction createDownloadAction(
-            Uri manifestUri, boolean removeAction, String data, String[] keys) {
+            Uri manifestUri, boolean removeAction, String data, RenditionKey[] keys) {
           return new HlsDownloadAction(manifestUri, removeAction, data, keys);
         }
       };
@@ -56,7 +57,7 @@ public final class HlsDownloadAction extends SegmentDownloadAction<String> {
 
   /** @see SegmentDownloadAction#SegmentDownloadAction(Uri, boolean, String, Object[]) */
   public HlsDownloadAction(
-      Uri manifestUri, boolean removeAction, @Nullable String data, String... keys) {
+      Uri manifestUri, boolean removeAction, @Nullable String data, RenditionKey... keys) {
     super(manifestUri, removeAction, data, keys);
   }
 
@@ -75,8 +76,8 @@ public final class HlsDownloadAction extends SegmentDownloadAction<String> {
   }
 
   @Override
-  protected void writeKey(DataOutputStream output, String key) throws IOException {
-    output.writeUTF(key);
+  protected void writeKey(DataOutputStream output, RenditionKey key) throws IOException {
+    output.writeUTF(key.url);
   }
 
 }
