@@ -46,8 +46,8 @@ public final class ProgressiveDownloader implements Downloader {
    * @param constructorHelper a {@link DownloaderConstructorHelper} instance.
    */
   public ProgressiveDownloader(
-      String uri, String customCacheKey, DownloaderConstructorHelper constructorHelper) {
-    this.dataSpec = new DataSpec(Uri.parse(uri), 0, C.LENGTH_UNSET, customCacheKey, 0);
+      Uri uri, String customCacheKey, DownloaderConstructorHelper constructorHelper) {
+    this.dataSpec = new DataSpec(uri, 0, C.LENGTH_UNSET, customCacheKey, 0);
     this.cache = constructorHelper.getCache();
     this.dataSource = constructorHelper.buildCacheDataSource(false);
     this.priorityTaskManager = constructorHelper.getPriorityTaskManager();

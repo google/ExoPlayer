@@ -27,25 +27,28 @@ import java.io.IOException;
 /** An action to download or remove downloaded progressive streams. */
 public final class ProgressiveDownloadAction extends DownloadAction {
 
-  public static final Deserializer DESERIALIZER = new Deserializer() {
+  public static final Deserializer DESERIALIZER =
+      new Deserializer() {
 
-    @Override
-    public String getType() {
-      return TYPE;
-    }
+        @Override
+        public String getType() {
+          return TYPE;
+        }
 
-    @Override
-    public ProgressiveDownloadAction readFromStream(int version, DataInputStream input)
-        throws IOException {
-      return new ProgressiveDownloadAction(input.readUTF(),
-          input.readBoolean() ? input.readUTF() : null, input.readBoolean(), input.readUTF());
-    }
-
-  };
+        @Override
+        public ProgressiveDownloadAction readFromStream(int version, DataInputStream input)
+            throws IOException {
+          return new ProgressiveDownloadAction(
+              Uri.parse(input.readUTF()),
+              input.readBoolean() ? input.readUTF() : null,
+              input.readBoolean(),
+              input.readUTF());
+        }
+      };
 
   private static final String TYPE = "ProgressiveDownloadAction";
 
-  private final String uri;
+  private final Uri uri;
   private final @Nullable String customCacheKey;
   private final boolean removeAction;
 
@@ -57,7 +60,7 @@ public final class ProgressiveDownloadAction extends DownloadAction {
    * @param data Optional custom data for this action. If null, an empty string is used.
    */
   public ProgressiveDownloadAction(
-      String uri, @Nullable String customCacheKey, boolean removeAction, @Nullable String data) {
+      Uri uri, @Nullable String customCacheKey, boolean removeAction, @Nullable String data) {
     super(data);
     this.uri = Assertions.checkNotNull(uri);
     this.customCacheKey = customCacheKey;
@@ -81,7 +84,7 @@ public final class ProgressiveDownloadAction extends DownloadAction {
 
   @Override
   protected void writeToStream(DataOutputStream output) throws IOException {
-    output.writeUTF(uri);
+    output.writeUTF(uri.toString());
     boolean customCacheKeyAvailable = customCacheKey != null;
     output.writeBoolean(customCacheKeyAvailable);
     if (customCacheKeyAvailable) {
@@ -120,6 +123,6 @@ public final class ProgressiveDownloadAction extends DownloadAction {
   }
 
   private String getCacheKey() {
-    return customCacheKey != null ? customCacheKey : CacheUtil.generateKey(Uri.parse(uri));
+    return customCacheKey != null ? customCacheKey : CacheUtil.generateKey(uri);
   }
 }

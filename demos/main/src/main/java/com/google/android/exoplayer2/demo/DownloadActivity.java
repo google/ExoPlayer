@@ -387,7 +387,7 @@ public class DownloadActivity extends Activity {
     @Override
     public List<RepresentationItem> getRepresentationItems() {
       ProgressiveDownloader downloader =
-          new ProgressiveDownloader(manifestUri.toString(), null, constructorHelper);
+          new ProgressiveDownloader(manifestUri, null, constructorHelper);
       ArrayList<RepresentationItem> items = new ArrayList<>();
       {
         downloader.init();
@@ -399,12 +399,12 @@ public class DownloadActivity extends Activity {
     @Override
     public DownloadAction getDownloadAction(
         String sampleName, ArrayList<Object> representationKeys) {
-      return new ProgressiveDownloadAction(manifestUri.toString(), null, false, sampleName);
+      return new ProgressiveDownloadAction(manifestUri, null, false, sampleName);
     }
 
     @Override
     public DownloadAction getRemoveAction() {
-      return new ProgressiveDownloadAction(manifestUri.toString(), null, true, null);
+      return new ProgressiveDownloadAction(manifestUri, null, true, null);
     }
   }
 }
