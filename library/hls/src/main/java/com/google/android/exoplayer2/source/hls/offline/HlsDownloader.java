@@ -93,7 +93,7 @@ public final class HlsDownloader extends SegmentDownloader<HlsMasterPlaylist, St
 
       SparseArray<HlsMediaPlaylist.Segment> initSegments = mediaPlaylist.initializationSegments;
       for (int i = 0; i < initSegments.size(); i++) {
-        addSegment(segments, mediaPlaylist, initSegments.get(i), encryptionKeyUris);
+        addSegment(segments, mediaPlaylist, initSegments.valueAt(i), encryptionKeyUris);
       }
 
       List<HlsMediaPlaylist.Segment> hlsSegments = mediaPlaylist.segments;
