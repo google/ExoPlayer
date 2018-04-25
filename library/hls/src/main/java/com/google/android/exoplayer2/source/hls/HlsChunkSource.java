@@ -320,7 +320,7 @@ import java.util.List;
     }
 
     DataSpec initDataSpec = null;
-    Segment initSegment = mediaPlaylist.initializationSegment;
+    Segment initSegment = segment.initializationSegment;
     if (initSegment != null) {
       Uri initSegmentUri = UriUtil.resolveToUri(mediaPlaylist.baseUri, initSegment.url);
       initDataSpec = new DataSpec(initSegmentUri, initSegment.byterangeOffset,

@@ -247,4 +247,35 @@ public class HlsMediaPlaylistParserTest {
     assertThat(playlist.segments.get(2).hasGapTag).isTrue();
     assertThat(playlist.segments.get(3).hasGapTag).isFalse();
   }
+
+  @Test
+  public void testMapTag() throws IOException {
+    Uri playlistUri = Uri.parse("https://example.com/test3.m3u8");
+    String playlistString =
+        "#EXTM3U\n"
+            + "#EXT-X-VERSION:3\n"
+            + "#EXT-X-TARGETDURATION:5\n"
+            + "#EXT-X-MEDIA-SEQUENCE:10\n"
+            + "#EXTINF:5.005,\n"
+            + "02/00/27.ts\n"
+            + "#EXT-X-MAP:URI=\"init1.ts\""
+            + "#EXTINF:5.005,\n"
+            + "02/00/32.ts\n"
+            + "#EXTINF:5.005,\n"
+            + "02/00/42.ts\n"
+            + "#EXT-X-MAP:URI=\"init2.ts\""
+            + "#EXTINF:5.005,\n"
+            + "02/00/47.ts\n";
+    InputStream inputStream =
+        new ByteArrayInputStream(playlistString.getBytes(Charset.forName(C.UTF8_NAME)));
+    HlsMediaPlaylist playlist =
+        (HlsMediaPlaylist) new HlsPlaylistParser().parse(playlistUri, inputStream);
+
+    List<Segment> segments = playlist.segments;
+    assertThat(segments.get(0).initializationSegment).isNull();
+    assertThat(segments.get(1).initializationSegment)
+        .isSameAs(segments.get(2).initializationSegment);
+    assertThat(segments.get(1).initializationSegment.url).isEqualTo("init1.ts");
+    assertThat(segments.get(3).initializationSegment.url).isEqualTo("init2.ts");
+  }
 }
