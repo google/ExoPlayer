@@ -17,6 +17,7 @@ package com.google.android.exoplayer2.source.hls.playlist;
 
 import android.support.annotation.IntDef;
 import android.support.annotation.NonNull;
+import android.util.SparseArray;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.drm.DrmInitData;
 import java.lang.annotation.Retention;
@@ -183,9 +184,9 @@ public final class HlsMediaPlaylist extends HlsPlaylist {
    */
   public final DrmInitData drmInitData;
   /**
-   * The initialization segment, as defined by #EXT-X-MAP.
+   * The initialization segments, as defined by #EXT-X-MAP.
    */
-  public final Segment initializationSegment;
+  public final SparseArray<Segment> initializationSegments;
   /**
    * The list of segments in the playlist.
    */
@@ -210,7 +211,7 @@ public final class HlsMediaPlaylist extends HlsPlaylist {
    * @param hasEndTag See {@link #hasEndTag}.
    * @param hasProgramDateTime See {@link #hasProgramDateTime}.
    * @param drmInitData See {@link #drmInitData}.
-   * @param initializationSegment See {@link #initializationSegment}.
+   * @param initializationSegments See {@link #initializationSegments}.
    * @param segments See {@link #segments}.
    */
   public HlsMediaPlaylist(
@@ -228,7 +229,7 @@ public final class HlsMediaPlaylist extends HlsPlaylist {
       boolean hasEndTag,
       boolean hasProgramDateTime,
       DrmInitData drmInitData,
-      Segment initializationSegment,
+      SparseArray<Segment> initializationSegments,
       List<Segment> segments) {
     super(baseUri, tags);
     this.playlistType = playlistType;
@@ -242,7 +243,7 @@ public final class HlsMediaPlaylist extends HlsPlaylist {
     this.hasEndTag = hasEndTag;
     this.hasProgramDateTime = hasProgramDateTime;
     this.drmInitData = drmInitData;
-    this.initializationSegment = initializationSegment;
+    this.initializationSegments = initializationSegments;
     this.segments = Collections.unmodifiableList(segments);
     if (!segments.isEmpty()) {
       Segment last = segments.get(segments.size() - 1);
@@ -293,7 +294,7 @@ public final class HlsMediaPlaylist extends HlsPlaylist {
   public HlsMediaPlaylist copyWith(long startTimeUs, int discontinuitySequence) {
     return new HlsMediaPlaylist(playlistType, baseUri, tags, startOffsetUs, startTimeUs, true,
         discontinuitySequence, mediaSequence, version, targetDurationUs, hasIndependentSegmentsTag,
-        hasEndTag, hasProgramDateTime, drmInitData, initializationSegment, segments);
+        hasEndTag, hasProgramDateTime, drmInitData, initializationSegments, segments);
   }
 
   /**
@@ -308,7 +309,7 @@ public final class HlsMediaPlaylist extends HlsPlaylist {
     }
     return new HlsMediaPlaylist(playlistType, baseUri, tags, startOffsetUs, startTimeUs,
         hasDiscontinuitySequence, discontinuitySequence, mediaSequence, version, targetDurationUs,
-        hasIndependentSegmentsTag, true, hasProgramDateTime, drmInitData, initializationSegment,
+        hasIndependentSegmentsTag, true, hasProgramDateTime, drmInitData, initializationSegments,
         segments);
   }
 

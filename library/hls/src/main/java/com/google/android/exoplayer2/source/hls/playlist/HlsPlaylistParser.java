@@ -17,6 +17,7 @@ package com.google.android.exoplayer2.source.hls.playlist;
 
 import android.net.Uri;
 import android.util.Base64;
+import android.util.SparseArray;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.ParserException;
@@ -345,7 +346,7 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
     long targetDurationUs = C.TIME_UNSET;
     boolean hasIndependentSegmentsTag = false;
     boolean hasEndTag = false;
-    Segment initializationSegment = null;
+    SparseArray<Segment> initializationSegments = new SparseArray<>();
     List<Segment> segments = new ArrayList<>();
     List<String> tags = new ArrayList<>();
 
@@ -392,7 +393,8 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
             segmentByteRangeOffset = Long.parseLong(splitByteRange[1]);
           }
         }
-        initializationSegment = new Segment(uri, segmentByteRangeOffset, segmentByteRangeLength);
+        initializationSegments.put(relativeDiscontinuitySequence,
+            new Segment(uri, segmentByteRangeOffset, segmentByteRangeLength));
         segmentByteRangeOffset = 0;
         segmentByteRangeLength = C.LENGTH_UNSET;
       } else if (line.startsWith(TAG_TARGET_DURATION)) {
@@ -493,7 +495,7 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
     return new HlsMediaPlaylist(playlistType, baseUri, tags, startOffsetUs, playlistStartTimeUs,
         hasDiscontinuitySequence, playlistDiscontinuitySequence, mediaSequence, version,
         targetDurationUs, hasIndependentSegmentsTag, hasEndTag, playlistStartTimeUs != 0,
-        drmInitData, initializationSegment, segments);
+        drmInitData, initializationSegments, segments);
   }
 
   private static SchemeData parseWidevineSchemeData(String line, String keyFormat)
