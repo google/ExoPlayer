@@ -16,7 +16,6 @@
  package com.google.android.exoplayer2.offline;
 
 import android.net.Uri;
-import android.support.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.upstream.DataSpec;
 import com.google.android.exoplayer2.upstream.cache.Cache;
@@ -60,19 +59,12 @@ public final class ProgressiveDownloader implements Downloader {
   }
 
   @Override
-  public void download(@Nullable ProgressListener listener) throws InterruptedException,
-      IOException {
+  public void download() throws InterruptedException, IOException {
     priorityTaskManager.add(C.PRIORITY_DOWNLOAD);
     try {
       byte[] buffer = new byte[BUFFER_SIZE_BYTES];
       CacheUtil.cache(dataSpec, cache, dataSource, buffer, priorityTaskManager, C.PRIORITY_DOWNLOAD,
           cachingCounters, true);
-      // TODO: Work out how to call onDownloadProgress periodically during the download, or else
-      // get rid of ProgressListener and move to a model where the manager periodically polls
-      // Downloaders.
-      if (listener != null) {
-        listener.onDownloadProgress(this, 100, cachingCounters.contentLength);
-      }
     } finally {
       priorityTaskManager.remove(C.PRIORITY_DOWNLOAD);
     }

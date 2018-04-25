@@ -12,14 +12,14 @@
   <string name="exo_controls_repeat_all_description">تكرار الكل</string>
   <string name="exo_controls_shuffle_description">ترتيب عشوائي</string>
   <string name="exo_controls_fullscreen_description">وضع ملء الشاشة</string>
-  <string name="exo_download_description">Download</string>
-  <string name="exo_download_notification_channel_name">Downloads</string>
-  <string name="exo_download_downloading">Downloading</string>
+  <string name="exo_download_description">تنزيل</string>
+  <string name="exo_download_notification_channel_name">التنزيلات</string>
+  <string name="exo_download_downloading">جارٍ التنزيل.</string>
   <string name="exo_download_completed">اكتمل التنزيل</string>
   <string name="exo_download_failed">تعذّر التنزيل</string>
-  <string name="exo_track_selection_title_video">Video</string>
-  <string name="exo_track_selection_title_audio">Audio</string>
-  <string name="exo_track_selection_title_text">Text</string>
+  <string name="exo_track_selection_title_video">فيديو</string>
+  <string name="exo_track_selection_title_audio">صوت</string>
+  <string name="exo_track_selection_title_text">نص</string>
   <string name="exo_track_selection_none">بدون اختيار</string>
   <string name="exo_track_selection_auto">تلقائي</string>
 </resources>

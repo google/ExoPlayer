@@ -12,14 +12,14 @@
   <string name="exo_controls_repeat_all_description">Tümünü tekrarla</string>
   <string name="exo_controls_shuffle_description">Karıştır</string>
   <string name="exo_controls_fullscreen_description">Tam ekran modu</string>
-  <string name="exo_download_description">Download</string>
-  <string name="exo_download_notification_channel_name">Downloads</string>
-  <string name="exo_download_downloading">Downloading</string>
+  <string name="exo_download_description">İndir</string>
+  <string name="exo_download_notification_channel_name">İndirilenler</string>
+  <string name="exo_download_downloading">İndiriliyor</string>
   <string name="exo_download_completed">İndirme işlemi tamamlandı</string>
   <string name="exo_download_failed">İndirilemedi</string>
   <string name="exo_track_selection_title_video">Video</string>
-  <string name="exo_track_selection_title_audio">Audio</string>
-  <string name="exo_track_selection_title_text">Text</string>
+  <string name="exo_track_selection_title_audio">Ses</string>
+  <string name="exo_track_selection_title_text">Metin</string>
   <string name="exo_track_selection_none">Yok</string>
   <string name="exo_track_selection_auto">Otomatik</string>
 </resources>

@@ -12,14 +12,14 @@
   <string name="exo_controls_repeat_all_description">Повтаряне на всички</string>
   <string name="exo_controls_shuffle_description">Разбъркване</string>
   <string name="exo_controls_fullscreen_description">Режим на цял екран</string>
-  <string name="exo_download_description">Download</string>
-  <string name="exo_download_notification_channel_name">Downloads</string>
-  <string name="exo_download_downloading">Downloading</string>
+  <string name="exo_download_description">Изтегляне</string>
+  <string name="exo_download_notification_channel_name">Изтегляния</string>
+  <string name="exo_download_downloading">Изтегля се</string>
   <string name="exo_download_completed">Изтеглянето завърши</string>
   <string name="exo_download_failed">Изтеглянето не бе успешно</string>
-  <string name="exo_track_selection_title_video">Video</string>
-  <string name="exo_track_selection_title_audio">Audio</string>
-  <string name="exo_track_selection_title_text">Text</string>
+  <string name="exo_track_selection_title_video">Видеозапис</string>
+  <string name="exo_track_selection_title_audio">Аудиозапис</string>
+  <string name="exo_track_selection_title_text">Текст</string>
   <string name="exo_track_selection_none">Нищо</string>
   <string name="exo_track_selection_auto">Автоматично</string>
 </resources>

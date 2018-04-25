@@ -12,14 +12,14 @@
   <string name="exo_controls_repeat_all_description">Herhaal alles</string>
   <string name="exo_controls_shuffle_description">Skommel</string>
   <string name="exo_controls_fullscreen_description">Volskermmodus</string>
-  <string name="exo_download_description">Download</string>
-  <string name="exo_download_notification_channel_name">Downloads</string>
-  <string name="exo_download_downloading">Downloading</string>
+  <string name="exo_download_description">Aflaai</string>
+  <string name="exo_download_notification_channel_name">Aflaaie</string>
+  <string name="exo_download_downloading">Laai tans af</string>
   <string name="exo_download_completed">Aflaai is voltooi</string>
   <string name="exo_download_failed">Kon nie aflaai nie</string>
   <string name="exo_track_selection_title_video">Video</string>
-  <string name="exo_track_selection_title_audio">Audio</string>
-  <string name="exo_track_selection_title_text">Text</string>
+  <string name="exo_track_selection_title_audio">Oudio</string>
+  <string name="exo_track_selection_title_text">SMS</string>
   <string name="exo_track_selection_none">Geen</string>
   <string name="exo_track_selection_auto">Outo</string>
 </resources>

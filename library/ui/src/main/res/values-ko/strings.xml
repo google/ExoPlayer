@@ -12,14 +12,14 @@
   <string name="exo_controls_repeat_all_description">모두 반복</string>
   <string name="exo_controls_shuffle_description">셔플</string>
   <string name="exo_controls_fullscreen_description">전체화면 모드</string>
-  <string name="exo_download_description">Download</string>
-  <string name="exo_download_notification_channel_name">Downloads</string>
-  <string name="exo_download_downloading">Downloading</string>
+  <string name="exo_download_description">다운로드</string>
+  <string name="exo_download_notification_channel_name">다운로드</string>
+  <string name="exo_download_downloading">다운로드 중</string>
   <string name="exo_download_completed">다운로드 완료</string>
   <string name="exo_download_failed">다운로드 실패</string>
-  <string name="exo_track_selection_title_video">Video</string>
-  <string name="exo_track_selection_title_audio">Audio</string>
-  <string name="exo_track_selection_title_text">Text</string>
+  <string name="exo_track_selection_title_video">동영상</string>
+  <string name="exo_track_selection_title_audio">오디오</string>
+  <string name="exo_track_selection_title_text">문자 메시지</string>
   <string name="exo_track_selection_none">없음</string>
   <string name="exo_track_selection_auto">자동</string>
 </resources>

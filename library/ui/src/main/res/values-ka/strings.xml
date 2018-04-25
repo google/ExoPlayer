@@ -12,14 +12,14 @@
   <string name="exo_controls_repeat_all_description">ყველას გამეორება</string>
   <string name="exo_controls_shuffle_description">არეულად დაკვრა</string>
   <string name="exo_controls_fullscreen_description">სრულეკრანიანი რეჟიმი</string>
-  <string name="exo_download_description">Download</string>
-  <string name="exo_download_notification_channel_name">Downloads</string>
-  <string name="exo_download_downloading">Downloading</string>
+  <string name="exo_download_description">ჩამოტვირთვა</string>
+  <string name="exo_download_notification_channel_name">ჩამოტვირთვები</string>
+  <string name="exo_download_downloading">მიმდინარეობს ჩამოტვირთვა</string>
   <string name="exo_download_completed">ჩამოტვირთვა დასრულდა</string>
   <string name="exo_download_failed">ჩამოტვირთვა ვერ მოხერხდა</string>
-  <string name="exo_track_selection_title_video">Video</string>
-  <string name="exo_track_selection_title_audio">Audio</string>
-  <string name="exo_track_selection_title_text">Text</string>
+  <string name="exo_track_selection_title_video">ვიდეო</string>
+  <string name="exo_track_selection_title_audio">აუდიო</string>
+  <string name="exo_track_selection_title_text">SMS</string>
   <string name="exo_track_selection_none">არცერთი</string>
   <string name="exo_track_selection_auto">ავტომატური</string>
 </resources>

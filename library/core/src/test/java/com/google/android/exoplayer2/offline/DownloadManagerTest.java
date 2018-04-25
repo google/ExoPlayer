@@ -668,8 +668,7 @@ public class DownloadManagerTest {
     }
 
     @Override
-    public void download(@Nullable ProgressListener listener)
-        throws InterruptedException, IOException {
+    public void download() throws InterruptedException, IOException {
       assertThat(isRemoveAction).isFalse();
       started.countDown();
       block();
