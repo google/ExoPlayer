@@ -20,9 +20,6 @@ import static com.google.common.truth.Truth.assertWithMessage;
 
 import android.net.Uri;
 import android.test.ActivityInstrumentationTestCase2;
-import android.util.Log;
-import com.google.android.exoplayer2.offline.Downloader;
-import com.google.android.exoplayer2.offline.Downloader.ProgressListener;
 import com.google.android.exoplayer2.offline.DownloaderConstructorHelper;
 import com.google.android.exoplayer2.source.dash.manifest.AdaptationSet;
 import com.google.android.exoplayer2.source.dash.manifest.DashManifest;
@@ -87,11 +84,11 @@ public final class DashDownloadTest extends ActivityInstrumentationTestCase2<Hos
     }
 
     // Download manifest only
-    createDashDownloader(false).getManifest();
+    createDashDownloader().getManifest();
     long manifestLength = cache.getCacheSpace();
 
     // Download representations
-    DashDownloader dashDownloader = downloadContent(false, Float.NaN);
+    DashDownloader dashDownloader = downloadContent();
     assertThat(dashDownloader.getDownloadedBytes())
         .isEqualTo(cache.getCacheSpace() - manifestLength);
 
@@ -104,28 +101,8 @@ public final class DashDownloadTest extends ActivityInstrumentationTestCase2<Hos
     assertWithMessage("There should be no content left").that(cache.getCacheSpace()).isEqualTo(0);
   }
 
-  public void testPartialDownload() throws Exception {
-    if (Util.SDK_INT < 16) {
-      return; // Pass.
-    }
-
-    // Just download the first half and manifest
-    downloadContent(false, 0.5f);
-
-    // Download the rest
-    DashDownloader dashDownloader = downloadContent(false, Float.NaN);
-    long downloadedBytes = dashDownloader.getDownloadedBytes();
-
-    // Make sure it doesn't download any data
-    dashDownloader = downloadContent(true, Float.NaN);
-    assertThat(dashDownloader.getDownloadedBytes()).isEqualTo(downloadedBytes);
-
-    testRunner.setStreamName("test_h264_fixed_partial_download")
-        .setDataSourceFactory(newOfflineCacheDataSourceFactory()).run();
-  }
-
-  private DashDownloader downloadContent(boolean offline, float stopAt) throws Exception {
-    DashDownloader dashDownloader = createDashDownloader(offline);
+  private DashDownloader downloadContent() throws Exception {
+    DashDownloader dashDownloader = createDashDownloader();
     DashManifest dashManifest = dashDownloader.getManifest();
     try {
       ArrayList<RepresentationKey> keys = new ArrayList<>();
@@ -143,8 +120,7 @@ public final class DashDownloadTest extends ActivityInstrumentationTestCase2<Hos
           }
         }
         dashDownloader.selectRepresentations(keys.toArray(new RepresentationKey[keys.size()]));
-        TestProgressListener listener = new TestProgressListener(stopAt);
-        dashDownloader.download(listener);
+        dashDownloader.download();
       }
     } catch (InterruptedException e) {
       // do nothing
@@ -161,36 +137,15 @@ public final class DashDownloadTest extends ActivityInstrumentationTestCase2<Hos
     return dashDownloader;
   }
 
-  private DashDownloader createDashDownloader(boolean offline) {
-    DownloaderConstructorHelper constructorHelper = new DownloaderConstructorHelper(cache,
-        offline ? DummyDataSource.FACTORY : new DefaultHttpDataSourceFactory("ExoPlayer", null));
+  private DashDownloader createDashDownloader() {
+    DownloaderConstructorHelper constructorHelper =
+        new DownloaderConstructorHelper(cache, new DefaultHttpDataSourceFactory("ExoPlayer", null));
     return new DashDownloader(Uri.parse(DashTestData.H264_MANIFEST), constructorHelper);
   }
 
   private CacheDataSourceFactory newOfflineCacheDataSourceFactory() {
     return new CacheDataSourceFactory(cache, DummyDataSource.FACTORY,
         CacheDataSource.FLAG_BLOCK_ON_CACHE);
-  }
-
-  private static class TestProgressListener implements ProgressListener {
-
-    private final float stopAt;
-
-    private TestProgressListener(float stopAt) {
-      this.stopAt = stopAt;
-    }
-
-    @Override
-    public void onDownloadProgress(Downloader downloader, float downloadPercentage,
-        long downloadedBytes) {
-      Log.d("DashDownloadTest",
-          String.format("onDownloadProgress downloadPercentage = [%g], downloadedData = [%d]%n",
-          downloadPercentage, downloadedBytes));
-      if (downloadPercentage >= stopAt) {
-        Thread.currentThread().interrupt();
-      }
-    }
-
   }
 
 }

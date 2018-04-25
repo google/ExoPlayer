@@ -12,14 +12,14 @@
   <string name="exo_controls_repeat_all_description">Alles herhalen</string>
   <string name="exo_controls_shuffle_description">Shuffle</string>
   <string name="exo_controls_fullscreen_description">Modus \'Volledig scherm\'</string>
-  <string name="exo_download_description">Download</string>
+  <string name="exo_download_description">Downloaden</string>
   <string name="exo_download_notification_channel_name">Downloads</string>
-  <string name="exo_download_downloading">Downloading</string>
+  <string name="exo_download_downloading">Downloaden</string>
   <string name="exo_download_completed">Downloaden voltooid</string>
   <string name="exo_download_failed">Downloaden mislukt</string>
   <string name="exo_track_selection_title_video">Video</string>
   <string name="exo_track_selection_title_audio">Audio</string>
-  <string name="exo_track_selection_title_text">Text</string>
+  <string name="exo_track_selection_title_text">Tekst</string>
   <string name="exo_track_selection_none">Geen</string>
   <string name="exo_track_selection_auto">Auto</string>
 </resources>

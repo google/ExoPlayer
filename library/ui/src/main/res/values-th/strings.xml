@@ -12,14 +12,14 @@
   <string name="exo_controls_repeat_all_description">เล่นซ้ำทั้งหมด</string>
   <string name="exo_controls_shuffle_description">สุ่ม</string>
   <string name="exo_controls_fullscreen_description">โหมดเต็มหน้าจอ</string>
-  <string name="exo_download_description">Download</string>
-  <string name="exo_download_notification_channel_name">Downloads</string>
-  <string name="exo_download_downloading">Downloading</string>
+  <string name="exo_download_description">ดาวน์โหลด</string>
+  <string name="exo_download_notification_channel_name">ดาวน์โหลด</string>
+  <string name="exo_download_downloading">กำลังดาวน์โหลด</string>
   <string name="exo_download_completed">การดาวน์โหลดเสร็จสมบูรณ์</string>
   <string name="exo_download_failed">การดาวน์โหลดล้มเหลว</string>
-  <string name="exo_track_selection_title_video">Video</string>
-  <string name="exo_track_selection_title_audio">Audio</string>
-  <string name="exo_track_selection_title_text">Text</string>
+  <string name="exo_track_selection_title_video">วิดีโอ</string>
+  <string name="exo_track_selection_title_audio">เสียง</string>
+  <string name="exo_track_selection_title_text">ข้อความ</string>
   <string name="exo_track_selection_none">ไม่มี</string>
   <string name="exo_track_selection_auto">ยานยนต์</string>
 </resources>

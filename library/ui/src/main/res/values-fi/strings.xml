@@ -12,14 +12,14 @@
   <string name="exo_controls_repeat_all_description">Toista kaikki uudelleen</string>
   <string name="exo_controls_shuffle_description">Satunnaistoisto</string>
   <string name="exo_controls_fullscreen_description">Koko näytön tila</string>
-  <string name="exo_download_description">Download</string>
-  <string name="exo_download_notification_channel_name">Downloads</string>
-  <string name="exo_download_downloading">Downloading</string>
+  <string name="exo_download_description">Lataa</string>
+  <string name="exo_download_notification_channel_name">Lataukset</string>
+  <string name="exo_download_downloading">Ladataan</string>
   <string name="exo_download_completed">Lataus valmis</string>
   <string name="exo_download_failed">Lataus epäonnistui</string>
   <string name="exo_track_selection_title_video">Video</string>
-  <string name="exo_track_selection_title_audio">Audio</string>
-  <string name="exo_track_selection_title_text">Text</string>
+  <string name="exo_track_selection_title_audio">Ääni</string>
+  <string name="exo_track_selection_title_text">Teksti</string>
   <string name="exo_track_selection_none">–</string>
   <string name="exo_track_selection_auto">Automaattinen</string>
 </resources>

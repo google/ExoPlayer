@@ -17,7 +17,6 @@ package com.google.android.exoplayer2.offline;
 
 import android.net.Uri;
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DataSpec;
@@ -146,19 +145,16 @@ public abstract class SegmentDownloader<M, K> implements Downloader {
    * Downloads the content for the selected representations in sync or resumes a previously stopped
    * download.
    *
-   * @param listener If not null, called during download.
    * @throws IOException Thrown when there is an io error while downloading.
    * @throws DownloadException Thrown if the media cannot be downloaded.
    * @throws InterruptedException If the thread has been interrupted.
    */
   @Override
-  public final synchronized void download(@Nullable ProgressListener listener)
-      throws IOException, InterruptedException {
+  public final synchronized void download() throws IOException, InterruptedException {
     priorityTaskManager.add(C.PRIORITY_DOWNLOAD);
     try {
       getManifestIfNeeded(false);
       List<Segment> segments = initStatus(false);
-      notifyListener(listener); // Initial notification.
       Collections.sort(segments);
       byte[] buffer = new byte[BUFFER_SIZE_BYTES];
       CachingCounters cachingCounters = new CachingCounters();
@@ -167,7 +163,6 @@ public abstract class SegmentDownloader<M, K> implements Downloader {
             priorityTaskManager, C.PRIORITY_DOWNLOAD, cachingCounters, true);
         downloadedBytes += cachingCounters.newlyCachedBytes;
         downloadedSegments++;
-        notifyListener(listener);
       }
     } finally {
       priorityTaskManager.remove(C.PRIORITY_DOWNLOAD);
@@ -277,12 +272,6 @@ public abstract class SegmentDownloader<M, K> implements Downloader {
 
   private void remove(Uri uri) {
     CacheUtil.remove(cache, CacheUtil.generateKey(uri));
-  }
-
-  private void notifyListener(ProgressListener listener) {
-    if (listener != null) {
-      listener.onDownloadProgress(this, getDownloadPercentage(), downloadedBytes);
-    }
   }
 
   /**

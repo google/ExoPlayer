@@ -12,14 +12,14 @@
   <string name="exo_controls_repeat_all_description">ሁሉንም ድገም</string>
   <string name="exo_controls_shuffle_description">በውዝ</string>
   <string name="exo_controls_fullscreen_description">የሙሉ ማያ ሁነታ</string>
-  <string name="exo_download_description">Download</string>
-  <string name="exo_download_notification_channel_name">Downloads</string>
-  <string name="exo_download_downloading">Downloading</string>
+  <string name="exo_download_description">አውርድ</string>
+  <string name="exo_download_notification_channel_name">የወረዱ</string>
+  <string name="exo_download_downloading">በማውረድ ላይ</string>
   <string name="exo_download_completed">ማውረድ ተጠናቋል</string>
   <string name="exo_download_failed">ማውረድ አልተሳካም</string>
-  <string name="exo_track_selection_title_video">Video</string>
-  <string name="exo_track_selection_title_audio">Audio</string>
-  <string name="exo_track_selection_title_text">Text</string>
+  <string name="exo_track_selection_title_video">ቪዲዮ</string>
+  <string name="exo_track_selection_title_audio">ኦዲዮ</string>
+  <string name="exo_track_selection_title_text">ጽሑፍ</string>
   <string name="exo_track_selection_none">ምንም</string>
   <string name="exo_track_selection_auto">ራስ-ሰር</string>
 </resources>

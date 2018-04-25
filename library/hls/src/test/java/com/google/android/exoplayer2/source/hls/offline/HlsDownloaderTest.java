@@ -94,7 +94,7 @@ public class HlsDownloaderTest {
   public void testSelectRepresentationsClearsPreviousSelection() throws Exception {
     hlsDownloader.selectRepresentations(getKeys(MEDIA_PLAYLIST_1_URI));
     hlsDownloader.selectRepresentations(getKeys(MEDIA_PLAYLIST_2_URI));
-    hlsDownloader.download(null);
+    hlsDownloader.download();
 
     assertCachedData(
         cache,
@@ -109,7 +109,7 @@ public class HlsDownloaderTest {
   @Test
   public void testCounterMethods() throws Exception {
     hlsDownloader.selectRepresentations(getKeys(MEDIA_PLAYLIST_1_URI));
-    hlsDownloader.download(null);
+    hlsDownloader.download();
 
     assertThat(hlsDownloader.getTotalSegments()).isEqualTo(4);
     assertThat(hlsDownloader.getDownloadedSegments()).isEqualTo(4);
@@ -120,7 +120,7 @@ public class HlsDownloaderTest {
   @Test
   public void testInitStatus() throws Exception {
     hlsDownloader.selectRepresentations(getKeys(MEDIA_PLAYLIST_1_URI));
-    hlsDownloader.download(null);
+    hlsDownloader.download();
 
     HlsDownloader newHlsDownloader = getHlsDownloader(MASTER_PLAYLIST_URI);
     newHlsDownloader.selectRepresentations(getKeys(MEDIA_PLAYLIST_1_URI));
@@ -135,7 +135,7 @@ public class HlsDownloaderTest {
   @Test
   public void testDownloadRepresentation() throws Exception {
     hlsDownloader.selectRepresentations(getKeys(MEDIA_PLAYLIST_1_URI));
-    hlsDownloader.download(null);
+    hlsDownloader.download();
 
     assertCachedData(
         cache,
@@ -150,7 +150,7 @@ public class HlsDownloaderTest {
   @Test
   public void testDownloadMultipleRepresentations() throws Exception {
     hlsDownloader.selectRepresentations(getKeys(MEDIA_PLAYLIST_1_URI, MEDIA_PLAYLIST_2_URI));
-    hlsDownloader.download(null);
+    hlsDownloader.download();
 
     assertCachedData(cache, fakeDataSet);
   }
@@ -170,7 +170,7 @@ public class HlsDownloaderTest {
     hlsDownloader = getHlsDownloader(MASTER_PLAYLIST_URI);
 
     // hlsDownloader.selectRepresentations() isn't called
-    hlsDownloader.download(null);
+    hlsDownloader.download();
     assertCachedData(cache, fakeDataSet);
     hlsDownloader.remove();
 
@@ -178,7 +178,7 @@ public class HlsDownloaderTest {
     hlsDownloader.selectRepresentations(getKeys(MEDIA_PLAYLIST_1_URI));
     // clear selection
     hlsDownloader.selectRepresentations(getKeys());
-    hlsDownloader.download(null);
+    hlsDownloader.download();
     assertCachedData(cache, fakeDataSet);
     hlsDownloader.remove();
   }
@@ -186,7 +186,7 @@ public class HlsDownloaderTest {
   @Test
   public void testRemoveAll() throws Exception {
     hlsDownloader.selectRepresentations(getKeys(MEDIA_PLAYLIST_1_URI, MEDIA_PLAYLIST_2_URI));
-    hlsDownloader.download(null);
+    hlsDownloader.download();
     hlsDownloader.remove();
 
     assertCacheEmpty(cache);
@@ -196,7 +196,7 @@ public class HlsDownloaderTest {
   public void testDownloadMediaPlaylist() throws Exception {
     hlsDownloader = getHlsDownloader(MEDIA_PLAYLIST_1_URI);
     hlsDownloader.selectRepresentations(getKeys(MEDIA_PLAYLIST_1_URI));
-    hlsDownloader.download(null);
+    hlsDownloader.download();
 
     assertCachedData(
         cache,
@@ -219,7 +219,7 @@ public class HlsDownloaderTest {
             .setRandomData("fileSequence2.ts", 12);
     hlsDownloader = getHlsDownloader(ENC_MEDIA_PLAYLIST_URI);
     hlsDownloader.selectRepresentations(getKeys(ENC_MEDIA_PLAYLIST_URI));
-    hlsDownloader.download(null);
+    hlsDownloader.download();
 
     assertCachedData(cache, fakeDataSet);
   }

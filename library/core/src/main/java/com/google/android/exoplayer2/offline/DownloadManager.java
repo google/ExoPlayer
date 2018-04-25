@@ -766,7 +766,7 @@ public final class DownloadManager {
           long errorPosition = C.LENGTH_UNSET;
           while (true) {
             try {
-              downloader.download(null);
+              downloader.download();
               break;
             } catch (IOException e) {
               long downloadedBytes = downloader.getDownloadedBytes();

@@ -15,7 +15,6 @@
  */
 package com.google.android.exoplayer2.offline;
 
-import android.support.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import java.io.IOException;
 
@@ -23,26 +22,6 @@ import java.io.IOException;
  * An interface for stream downloaders.
  */
 public interface Downloader {
-
-  /**
-   * Listener notified when download progresses.
-   * <p>
-   * No guarantees are made about the thread or threads on which the listener is called, but it is
-   * guaranteed that listener methods will be called in a serial fashion (i.e. one at a time) and in
-   * the same order as events occurred.
-   */
-  interface ProgressListener {
-    /**
-     * Called during the download. Calling intervals depend on the {@link Downloader}
-     * implementation.
-     *
-     * @param downloader The reporting instance.
-     * @param downloadPercentage The download percentage. This value can be an estimation.
-     * @param downloadedBytes Total number of downloaded bytes.
-     * @see #download(ProgressListener)
-     */
-    void onDownloadProgress(Downloader downloader, float downloadPercentage, long downloadedBytes);
-  }
 
   /**
    * Initializes the downloader.
@@ -58,13 +37,11 @@ public interface Downloader {
   /**
    * Downloads the media.
    *
-   * @param listener If not null, called during download.
    * @throws DownloadException Thrown if the media cannot be downloaded.
    * @throws InterruptedException If the thread has been interrupted.
    * @throws IOException Thrown when there is an io error while downloading.
    */
-  void download(@Nullable ProgressListener listener)
-      throws InterruptedException, IOException;
+  void download() throws InterruptedException, IOException;
 
   /**
    * Removes all of the downloaded data of the media.

@@ -12,14 +12,14 @@
   <string name="exo_controls_repeat_all_description">Ponovi sve</string>
   <string name="exo_controls_shuffle_description">Reproduciraj nasumično</string>
   <string name="exo_controls_fullscreen_description">Prikaz na cijelom zaslonu</string>
-  <string name="exo_download_description">Download</string>
-  <string name="exo_download_notification_channel_name">Downloads</string>
-  <string name="exo_download_downloading">Downloading</string>
+  <string name="exo_download_description">Preuzmi</string>
+  <string name="exo_download_notification_channel_name">Preuzimanja</string>
+  <string name="exo_download_downloading">Preuzimanje</string>
   <string name="exo_download_completed">Preuzimanje je dovršeno</string>
   <string name="exo_download_failed">Preuzimanje nije uspjelo</string>
-  <string name="exo_track_selection_title_video">Video</string>
-  <string name="exo_track_selection_title_audio">Audio</string>
-  <string name="exo_track_selection_title_text">Text</string>
+  <string name="exo_track_selection_title_video">Videozapis</string>
+  <string name="exo_track_selection_title_audio">Audiozapis</string>
+  <string name="exo_track_selection_title_text">Tekst</string>
   <string name="exo_track_selection_none">Ništa</string>
   <string name="exo_track_selection_auto">Automatski</string>
 </resources>

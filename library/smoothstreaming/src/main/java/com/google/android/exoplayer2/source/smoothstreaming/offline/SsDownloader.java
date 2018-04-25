@@ -47,13 +47,7 @@ import java.util.List;
  * SsDownloader ssDownloader = new SsDownloader(manifestUrl, constructorHelper);
  * // Select the first track of the first stream element
  * ssDownloader.selectRepresentations(new TrackKey[] {new TrackKey(0, 0)});
- * ssDownloader.download(new ProgressListener() {
- *   {@literal @}Override
- *   public void onDownloadProgress(Downloader downloader, float downloadPercentage,
- *       long downloadedBytes) {
- *     // Invoked periodically during the download.
- *   }
- * });
+ * ssDownloader.download();
  * // Access downloaded data using CacheDataSource
  * CacheDataSource cacheDataSource =
  *     new CacheDataSource(cache, factory.createDataSource(), CacheDataSource.FLAG_BLOCK_ON_CACHE);

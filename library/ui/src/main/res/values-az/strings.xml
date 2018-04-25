@@ -12,14 +12,14 @@
   <string name="exo_controls_repeat_all_description">Hamısı təkrarlansın</string>
   <string name="exo_controls_shuffle_description">Qarışdırın</string>
   <string name="exo_controls_fullscreen_description">Tam ekran rejimi</string>
-  <string name="exo_download_description">Download</string>
-  <string name="exo_download_notification_channel_name">Downloads</string>
-  <string name="exo_download_downloading">Downloading</string>
+  <string name="exo_download_description">Endirin</string>
+  <string name="exo_download_notification_channel_name">Endirmələr</string>
+  <string name="exo_download_downloading">Endirilir</string>
   <string name="exo_download_completed">Endirmə tamamlandı</string>
   <string name="exo_download_failed">Endirmə alınmadı</string>
   <string name="exo_track_selection_title_video">Video</string>
   <string name="exo_track_selection_title_audio">Audio</string>
-  <string name="exo_track_selection_title_text">Text</string>
+  <string name="exo_track_selection_title_text">Mətn</string>
   <string name="exo_track_selection_none">Yoxdur</string>
   <string name="exo_track_selection_auto">Avtomatik</string>
 </resources>
