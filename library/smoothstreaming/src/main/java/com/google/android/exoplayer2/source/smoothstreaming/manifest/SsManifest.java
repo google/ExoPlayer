@@ -18,6 +18,7 @@ package com.google.android.exoplayer2.source.smoothstreaming.manifest;
 import android.net.Uri;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
+import com.google.android.exoplayer2.offline.FilterableManifest;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.UriUtil;
 import com.google.android.exoplayer2.util.Util;
@@ -30,10 +31,10 @@ import java.util.UUID;
 /**
  * Represents a SmoothStreaming manifest.
  *
- * @see <a href="http://msdn.microsoft.com/en-us/library/ee673436(v=vs.90).aspx">
- * IIS Smooth Streaming Client Manifest Format</a>
+ * @see <a href="http://msdn.microsoft.com/en-us/library/ee673436(v=vs.90).aspx">IIS Smooth
+ *     Streaming Client Manifest Format</a>
  */
-public class SsManifest {
+public class SsManifest implements FilterableManifest<SsManifest, TrackKey> {
 
   public static final int UNSET_LOOKAHEAD = -1;
 

@@ -254,6 +254,11 @@ public final class HlsMediaPlaylist extends HlsPlaylist {
         : startOffsetUs >= 0 ? startOffsetUs : durationUs + startOffsetUs;
   }
 
+  @Override
+  public HlsMediaPlaylist copy(List<RenditionKey> renditionKeys) {
+    return this;
+  }
+
   /**
    * Returns whether this playlist is newer than {@code other}.
    *
