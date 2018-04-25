@@ -189,7 +189,7 @@ public class DefaultTrackSelector extends MappingTrackSelector {
      *     obtained.
      */
     private ParametersBuilder(Parameters initialValues) {
-      selectionOverrides = initialValues.selectionOverrides.clone();
+      selectionOverrides = cloneSelectionOverrides(initialValues.selectionOverrides);
       rendererDisabledFlags = initialValues.rendererDisabledFlags.clone();
       preferredAudioLanguage = initialValues.preferredAudioLanguage;
       preferredTextLanguage = initialValues.preferredTextLanguage;
@@ -527,6 +527,14 @@ public class DefaultTrackSelector extends MappingTrackSelector {
           tunnelingAudioSessionId);
     }
 
+    private static SparseArray<Map<TrackGroupArray, SelectionOverride>> cloneSelectionOverrides(
+        SparseArray<Map<TrackGroupArray, SelectionOverride>> selectionOverrides) {
+      SparseArray<Map<TrackGroupArray, SelectionOverride>> clone = new SparseArray<>();
+      for (int i = 0; i < selectionOverrides.size(); i++) {
+        clone.put(selectionOverrides.keyAt(i), new HashMap<>(selectionOverrides.valueAt(i)));
+      }
+      return clone;
+    }
   }
 
   /** Constraint parameters for {@link DefaultTrackSelector}. */
@@ -956,8 +964,9 @@ public class DefaultTrackSelector extends MappingTrackSelector {
      */
     public SelectionOverride(int groupIndex, int... tracks) {
       this.groupIndex = groupIndex;
-      this.tracks = tracks;
+      this.tracks = Arrays.copyOf(tracks, tracks.length);
       this.length = tracks.length;
+      Arrays.sort(this.tracks);
     }
 
     /* package */ SelectionOverride(Parcel in) {
