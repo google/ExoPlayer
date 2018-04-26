@@ -19,6 +19,7 @@ import android.app.Notification;
 import android.content.Context;
 import android.support.annotation.Nullable;
 import android.support.v4.app.NotificationCompat;
+import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.offline.DownloadManager;
 import com.google.android.exoplayer2.offline.DownloadManager.DownloadState;
 import com.google.android.exoplayer2.util.ErrorMessageProvider;
@@ -48,31 +49,31 @@ public final class DownloadNotificationUtil {
       String channelId,
       @Nullable String message) {
     float totalPercentage = 0;
-    int determinatePercentageCount = 0;
-    boolean isAnyDownloadActive = false;
+    int downloadTaskCount = 0;
+    boolean allDownloadPercentagesUnknown = true;
+    boolean haveDownloadedBytes = false;
     for (DownloadState downloadState : downloadStates) {
       if (downloadState.downloadAction.isRemoveAction
           || downloadState.state != DownloadState.STATE_STARTED) {
         continue;
       }
-      float percentage = downloadState.downloadPercentage;
-      if (!Float.isNaN(percentage)) {
-        totalPercentage += percentage;
-        determinatePercentageCount++;
+      if (downloadState.downloadPercentage != C.PERCENTAGE_UNSET) {
+        allDownloadPercentagesUnknown = false;
+        totalPercentage += downloadState.downloadPercentage;
       }
-      isAnyDownloadActive = true;
+      haveDownloadedBytes |= downloadState.downloadedBytes > 0;
+      downloadTaskCount++;
     }
 
-    int titleStringId = isAnyDownloadActive ? R.string.exo_download_downloading : NULL_STRING_ID;
+    boolean haveDownloadTasks = downloadTaskCount > 0;
+    int titleStringId = haveDownloadTasks ? R.string.exo_download_downloading : NULL_STRING_ID;
     NotificationCompat.Builder notificationBuilder =
         createNotificationBuilder(context, smallIcon, channelId, message, titleStringId);
 
+    int progress = haveDownloadTasks ? (int) (totalPercentage / downloadTaskCount) : 0;
+    boolean indeterminate = allDownloadPercentagesUnknown && haveDownloadedBytes;
+    notificationBuilder.setProgress(/* max= */ 100, progress, indeterminate);
     notificationBuilder.setOngoing(true);
-    int max = 100;
-    int progress = (int) (totalPercentage / determinatePercentageCount);
-    boolean indeterminate = determinatePercentageCount == 0;
-    notificationBuilder.setProgress(max, progress, indeterminate);
-
     notificationBuilder.setShowWhen(false);
     return notificationBuilder.build();
   }

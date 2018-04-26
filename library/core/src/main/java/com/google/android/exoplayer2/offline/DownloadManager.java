@@ -541,14 +541,11 @@ public final class DownloadManager {
     /** The state of the task. See {@link State}. */
     public final @State int state;
     /**
-     * The download percentage, or {@link Float#NaN} if it can't be calculated or the task is for
-     * removing.
+     * The estimated download percentage, or {@link C#PERCENTAGE_UNSET} if no estimate is available
+     * or if this is a removal task.
      */
     public final float downloadPercentage;
-    /**
-     * The downloaded bytes, or {@link C#LENGTH_UNSET} if it hasn't been calculated yet or the task
-     * is for removing.
-     */
+    /** The total number of downloaded bytes. */
     public final long downloadedBytes;
     /** If {@link #state} is {@link #STATE_ERROR} then this is the cause, otherwise null. */
     public final Throwable error;
@@ -648,19 +645,16 @@ public final class DownloadManager {
     }
 
     /**
-     * Returns the download percentage, or {@link Float#NaN} if it can't be calculated yet. This
-     * value can be an estimation.
+     * Returns the estimated download percentage, or {@link C#PERCENTAGE_UNSET} if no estimate is
+     * available.
      */
     public float getDownloadPercentage() {
-      return downloader != null ? downloader.getDownloadPercentage() : Float.NaN;
+      return downloader != null ? downloader.getDownloadPercentage() : C.PERCENTAGE_UNSET;
     }
 
-    /**
-     * Returns the total number of downloaded bytes, or {@link C#LENGTH_UNSET} if it hasn't been
-     * calculated yet.
-     */
+    /** Returns the total number of downloaded bytes. */
     public long getDownloadedBytes() {
-      return downloader != null ? downloader.getDownloadedBytes() : C.LENGTH_UNSET;
+      return downloader != null ? downloader.getDownloadedBytes() : 0;
     }
 
     @Override

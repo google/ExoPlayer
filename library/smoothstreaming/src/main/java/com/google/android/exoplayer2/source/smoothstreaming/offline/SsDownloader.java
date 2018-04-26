@@ -16,6 +16,7 @@
 package com.google.android.exoplayer2.source.smoothstreaming.offline;
 
 import android.net.Uri;
+import android.util.Pair;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.offline.DownloaderConstructorHelper;
 import com.google.android.exoplayer2.offline.SegmentDownloader;
@@ -33,9 +34,6 @@ import java.util.List;
 
 /**
  * Helper class to download SmoothStreaming streams.
- *
- * <p>Except {@link #getTotalSegments()}, {@link #getDownloadedSegments()} and {@link
- * #getDownloadedBytes()}, this class isn't thread safe.
  *
  * <p>Example usage:
  *
@@ -84,9 +82,8 @@ public final class SsDownloader extends SegmentDownloader<SsManifest, TrackKey> 
   }
 
   @Override
-  protected List<Segment> getSegments(
-      DataSource dataSource, SsManifest manifest, boolean allowIndexLoadErrors)
-      throws InterruptedException, IOException {
+  protected Pair<List<Segment>, Boolean> getSegments(
+      DataSource dataSource, SsManifest manifest, boolean allowIndexLoadErrors) throws IOException {
     ArrayList<Segment> segments = new ArrayList<>();
     for (StreamElement streamElement : manifest.streamElements) {
       for (int i = 0; i < streamElement.formats.length; i++) {
@@ -98,7 +95,7 @@ public final class SsDownloader extends SegmentDownloader<SsManifest, TrackKey> 
         }
       }
     }
-    return segments;
+    return Pair.<List<Segment>, Boolean>create(segments, true);
   }
 
 }

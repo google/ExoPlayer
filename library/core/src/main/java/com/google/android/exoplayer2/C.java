@@ -64,6 +64,9 @@ public final class C {
    */
   public static final int LENGTH_UNSET = -1;
 
+  /** Represents an unset or unknown percentage. */
+  public static final int PERCENTAGE_UNSET = -1;
+
   /**
    * The number of microseconds in one second.
    */

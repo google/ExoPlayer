@@ -204,7 +204,8 @@ public class DownloadActivity extends Activity {
     public RepresentationItem(Parcelable key, String title, float percentDownloaded) {
       this.key = key;
       this.title = title;
-      this.percentDownloaded = (int) percentDownloaded;
+      this.percentDownloaded =
+          (int) (percentDownloaded == C.PERCENTAGE_UNSET ? 0 : percentDownloaded);
     }
 
     @Override
