@@ -26,6 +26,7 @@ import com.google.android.exoplayer2.upstream.cache.CacheUtil;
 import com.google.android.exoplayer2.upstream.cache.CacheUtil.CachingCounters;
 import com.google.android.exoplayer2.util.PriorityTaskManager;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -38,7 +39,8 @@ import java.util.List;
  * @param <M> The type of the manifest object.
  * @param <K> The type of the representation key object.
  */
-public abstract class SegmentDownloader<M, K> implements Downloader {
+public abstract class SegmentDownloader<M extends FilterableManifest<M, K>, K>
+    implements Downloader {
 
   /** Smallest unit of content to be downloaded. */
   protected static class Segment implements Comparable<Segment> {
@@ -68,9 +70,9 @@ public abstract class SegmentDownloader<M, K> implements Downloader {
   private final Cache cache;
   private final CacheDataSource dataSource;
   private final CacheDataSource offlineDataSource;
+  private final ArrayList<K> keys;
 
   private M manifest;
-  private K[] keys;
   private volatile int totalSegments;
   private volatile int downloadedSegments;
   private volatile long downloadedBytes;
@@ -85,6 +87,7 @@ public abstract class SegmentDownloader<M, K> implements Downloader {
     this.dataSource = constructorHelper.buildCacheDataSource(false);
     this.offlineDataSource = constructorHelper.buildCacheDataSource(true);
     this.priorityTaskManager = constructorHelper.getPriorityTaskManager();
+    keys = new ArrayList<>();
     resetCounters();
   }
 
@@ -100,10 +103,12 @@ public abstract class SegmentDownloader<M, K> implements Downloader {
 
   /**
    * Selects multiple representations pointed to by the keys for downloading, checking status. Any
-   * previous selection is cleared. If keys array is empty, all representations are downloaded.
+   * previous selection is cleared. If keys array is null or empty then all representations are
+   * downloaded.
    */
   public final void selectRepresentations(K[] keys) {
-    this.keys = keys.length > 0 ? keys.clone() : null;
+    this.keys.clear();
+    Collections.addAll(this.keys, keys);
     resetCounters();
   }
 
@@ -223,7 +228,7 @@ public abstract class SegmentDownloader<M, K> implements Downloader {
     if (manifest != null) {
       List<Segment> segments = null;
       try {
-        segments = getSegments(offlineDataSource, manifest, getAllRepresentationKeys(), true);
+        segments = getSegments(offlineDataSource, manifest, true);
       } catch (IOException e) {
         // Ignore exceptions. We do our best with what's available offline.
       }
@@ -248,11 +253,10 @@ public abstract class SegmentDownloader<M, K> implements Downloader {
   protected abstract M getManifest(DataSource dataSource, Uri uri) throws IOException;
 
   /**
-   * Returns a list of {@link Segment}s for given keys.
+   * Returns a list of all downloadable {@link Segment}s for a given manifest.
    *
    * @param dataSource The {@link DataSource} through which to load any required data.
    * @param manifest The manifest containing the segments.
-   * @param keys The selected representation keys.
    * @param allowIncompleteIndex Whether to continue in the case that a load error prevents all
    *     segments from being listed. If true then a partial segment list will be returned. If false
    *     an {@link IOException} will be thrown.
@@ -261,8 +265,9 @@ public abstract class SegmentDownloader<M, K> implements Downloader {
    *     the media is not in a form that allows for its segments to be listed.
    * @return A list of {@link Segment}s for given keys.
    */
-  protected abstract List<Segment> getSegments(DataSource dataSource, M manifest, K[] keys,
-      boolean allowIncompleteIndex) throws InterruptedException, IOException;
+  protected abstract List<Segment> getSegments(
+      DataSource dataSource, M manifest, boolean allowIncompleteIndex)
+      throws InterruptedException, IOException;
 
   private void resetCounters() {
     totalSegments = C.LENGTH_UNSET;
@@ -283,10 +288,8 @@ public abstract class SegmentDownloader<M, K> implements Downloader {
   private synchronized List<Segment> initStatus(boolean offline)
       throws IOException, InterruptedException {
     DataSource dataSource = getDataSource(offline);
-    if (keys == null) {
-      keys = getAllRepresentationKeys();
-    }
-    List<Segment> segments = getSegments(dataSource, manifest, keys, offline);
+    M filteredManifest = keys.isEmpty() ? manifest : manifest.copy(keys);
+    List<Segment> segments = getSegments(dataSource, filteredManifest, offline);
     CachingCounters cachingCounters = new CachingCounters();
     totalSegments = segments.size();
     downloadedSegments = 0;

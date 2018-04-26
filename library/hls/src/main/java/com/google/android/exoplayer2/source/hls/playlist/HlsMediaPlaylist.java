@@ -25,10 +25,8 @@ import java.lang.annotation.RetentionPolicy;
 import java.util.Collections;
 import java.util.List;
 
-/**
- * Represents an HLS media playlist.
- */
-public final class HlsMediaPlaylist extends HlsPlaylist {
+/** Represents an HLS media playlist. */
+public final class HlsMediaPlaylist extends HlsPlaylist<HlsMediaPlaylist> {
 
   /** Media segment reference. */
   @SuppressWarnings("ComparableType")
