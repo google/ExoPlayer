@@ -84,14 +84,18 @@ public final class SsDownloader extends SegmentDownloader<SsManifest, TrackKey> 
   }
 
   @Override
-  protected List<Segment> getSegments(DataSource dataSource, SsManifest manifest,
-      TrackKey[] keys, boolean allowIndexLoadErrors) throws InterruptedException, IOException {
+  protected List<Segment> getSegments(
+      DataSource dataSource, SsManifest manifest, boolean allowIndexLoadErrors)
+      throws InterruptedException, IOException {
     ArrayList<Segment> segments = new ArrayList<>();
-    for (TrackKey key : keys) {
-      StreamElement streamElement = manifest.streamElements[key.streamElementIndex];
-      for (int i = 0; i < streamElement.chunkCount; i++) {
-        segments.add(new Segment(streamElement.getStartTimeUs(i),
-            new DataSpec(streamElement.buildRequestUri(key.trackIndex, i))));
+    for (StreamElement streamElement : manifest.streamElements) {
+      for (int i = 0; i < streamElement.formats.length; i++) {
+        for (int j = 0; j < streamElement.chunkCount; j++) {
+          segments.add(
+              new Segment(
+                  streamElement.getStartTimeUs(j),
+                  new DataSpec(streamElement.buildRequestUri(i, j))));
+        }
       }
     }
     return segments;

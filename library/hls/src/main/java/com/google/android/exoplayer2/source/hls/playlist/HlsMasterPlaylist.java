@@ -21,10 +21,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-/**
- * Represents an HLS master playlist.
- */
-public final class HlsMasterPlaylist extends HlsPlaylist {
+/** Represents an HLS master playlist. */
+public final class HlsMasterPlaylist extends HlsPlaylist<HlsMasterPlaylist> {
 
   /**
    * Represents a url in an HLS master playlist.

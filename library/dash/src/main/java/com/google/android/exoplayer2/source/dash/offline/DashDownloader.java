@@ -89,77 +89,92 @@ public final class DashDownloader extends SegmentDownloader<DashManifest, Repres
   }
 
   @Override
-  protected List<Segment> getSegments(DataSource dataSource, DashManifest manifest,
-      RepresentationKey[] keys, boolean allowIndexLoadErrors)
+  protected List<Segment> getSegments(
+      DataSource dataSource, DashManifest manifest, boolean allowIndexLoadErrors)
       throws InterruptedException, IOException {
     ArrayList<Segment> segments = new ArrayList<>();
-    for (RepresentationKey key : keys) {
+    for (int i = 0; i < manifest.getPeriodCount(); i++) {
+      Period period = manifest.getPeriod(i);
+      long periodStartUs = C.msToUs(period.startMs);
+      long periodDurationUs = manifest.getPeriodDurationUs(i);
+      List<AdaptationSet> adaptationSets = period.adaptationSets;
+      for (int j = 0; j < adaptationSets.size(); j++) {
+        addSegmentsForAdaptationSet(
+            dataSource,
+            adaptationSets.get(j),
+            periodStartUs,
+            periodDurationUs,
+            allowIndexLoadErrors,
+            segments);
+      }
+    }
+    return segments;
+  }
+
+  private static void addSegmentsForAdaptationSet(
+      DataSource dataSource,
+      AdaptationSet adaptationSet,
+      long periodStartUs,
+      long periodDurationUs,
+      boolean allowIndexLoadErrors,
+      ArrayList<Segment> out)
+      throws IOException, InterruptedException {
+    for (int i = 0; i < adaptationSet.representations.size(); i++) {
+      Representation representation = adaptationSet.representations.get(i);
       DashSegmentIndex index;
       try {
-        index = getSegmentIndex(dataSource, manifest, key);
+        index = getSegmentIndex(dataSource, adaptationSet.type, representation);
         if (index == null) {
-          // Loading succeeded but there was no index. This is always a failure.
-          throw new DownloadException("No index for representation: " + key);
+          // Loading succeeded but there was no index.
+          throw new DownloadException("Missing segment index");
         }
       } catch (IOException e) {
         if (allowIndexLoadErrors) {
-          // Loading failed, but load errors are allowed. Advance to the next key.
+          // Loading failed, but load errors are allowed. Advance to the next representation.
           continue;
         } else {
           throw e;
         }
       }
 
-      long periodDurationUs = manifest.getPeriodDurationUs(key.periodIndex);
       int segmentCount = index.getSegmentCount(periodDurationUs);
       if (segmentCount == DashSegmentIndex.INDEX_UNBOUNDED) {
-        throw new DownloadException("Unbounded index for representation: " + key);
+        throw new DownloadException("Unbounded segment index");
       }
 
-      Period period = manifest.getPeriod(key.periodIndex);
-      Representation representation = period.adaptationSets.get(key.adaptationSetIndex)
-          .representations.get(key.representationIndex);
-      long startUs = C.msToUs(period.startMs);
       String baseUrl = representation.baseUrl;
       RangedUri initializationUri = representation.getInitializationUri();
       if (initializationUri != null) {
-        addSegment(segments, startUs, baseUrl, initializationUri);
+        addSegment(periodStartUs, baseUrl, initializationUri, out);
       }
       RangedUri indexUri = representation.getIndexUri();
       if (indexUri != null) {
-        addSegment(segments, startUs, baseUrl, indexUri);
+        addSegment(periodStartUs, baseUrl, indexUri, out);
       }
-
       long firstSegmentNum = index.getFirstSegmentNum();
       long lastSegmentNum = firstSegmentNum + segmentCount - 1;
       for (long j = firstSegmentNum; j <= lastSegmentNum; j++) {
-        addSegment(segments, startUs + index.getTimeUs(j), baseUrl, index.getSegmentUrl(j));
+        addSegment(periodStartUs + index.getTimeUs(j), baseUrl, index.getSegmentUrl(j), out);
       }
     }
-    return segments;
   }
 
-  /**
-   * Returns DashSegmentIndex for given representation.
-   */
-  private DashSegmentIndex getSegmentIndex(DataSource dataSource, DashManifest manifest,
-      RepresentationKey key) throws IOException, InterruptedException {
-    AdaptationSet adaptationSet = manifest.getPeriod(key.periodIndex).adaptationSets.get(
-        key.adaptationSetIndex);
-    Representation representation = adaptationSet.representations.get(key.representationIndex);
+  private static void addSegment(
+      long startTimeUs, String baseUrl, RangedUri rangedUri, ArrayList<Segment> out) {
+    DataSpec dataSpec =
+        new DataSpec(rangedUri.resolveUri(baseUrl), rangedUri.start, rangedUri.length, null);
+    out.add(new Segment(startTimeUs, dataSpec));
+  }
+
+  private static DashSegmentIndex getSegmentIndex(
+      DataSource dataSource, int trackType, Representation representation)
+      throws IOException, InterruptedException {
     DashSegmentIndex index = representation.getIndex();
     if (index != null) {
       return index;
     }
-    ChunkIndex seekMap = DashUtil.loadChunkIndex(dataSource, adaptationSet.type, representation);
+    ChunkIndex seekMap = DashUtil.loadChunkIndex(dataSource, trackType, representation);
     return seekMap == null ? null : new DashWrappingSegmentIndex(seekMap);
-  }
-
-  private static void addSegment(ArrayList<Segment> segments, long startTimeUs, String baseUrl,
-      RangedUri rangedUri) {
-    DataSpec dataSpec = new DataSpec(rangedUri.resolveUri(baseUrl), rangedUri.start,
-        rangedUri.length, null);
-    segments.add(new Segment(startTimeUs, dataSpec));
   }
 
 }

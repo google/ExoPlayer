@@ -73,14 +73,17 @@ public final class HlsDownloader extends SegmentDownloader<HlsMasterPlaylist, Re
   protected List<Segment> getSegments(
       DataSource dataSource,
       HlsMasterPlaylist manifest,
-      RenditionKey[] keys,
       boolean allowIndexLoadErrors)
       throws InterruptedException, IOException {
     HashSet<Uri> encryptionKeyUris = new HashSet<>();
+    ArrayList<HlsUrl> renditionUrls = new ArrayList<>();
+    renditionUrls.addAll(manifest.variants);
+    renditionUrls.addAll(manifest.audios);
+    renditionUrls.addAll(manifest.subtitles);
     ArrayList<Segment> segments = new ArrayList<>();
-    for (RenditionKey renditionKey : keys) {
+    for (HlsUrl renditionUrl : renditionUrls) {
       HlsMediaPlaylist mediaPlaylist = null;
-      Uri uri = UriUtil.resolveToUri(manifest.baseUri, renditionKey.url);
+      Uri uri = UriUtil.resolveToUri(manifest.baseUri, renditionUrl.url);
       try {
         mediaPlaylist = (HlsMediaPlaylist) loadManifest(dataSource, uri);
       } catch (IOException e) {
