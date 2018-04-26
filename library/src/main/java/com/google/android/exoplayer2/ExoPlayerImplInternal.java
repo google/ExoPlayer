@@ -1013,8 +1013,14 @@ import java.io.IOException;
       return;
     }
 
+    // Issue #4185: If end of Period is reached then this triggers next Period also
+    boolean isAtEndOfPeriod = false;
+    if (playingPeriodHolder != null && playingPeriodHolder.next != null) {
+      isAtEndOfPeriod = (rendererPositionUs >= playingPeriodHolder.next.rendererPositionOffsetUs);
+    }
+
     for (Renderer renderer : enabledRenderers) {
-      if (!renderer.hasReadStreamToEnd()) {
+      if (!renderer.hasReadStreamToEnd() && !isAtEndOfPeriod) {
         return;
       }
     }
