@@ -16,6 +16,7 @@
 package com.google.android.exoplayer2.source.dash.offline;
 
 import android.net.Uri;
+import android.util.Pair;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.extractor.ChunkIndex;
 import com.google.android.exoplayer2.offline.DownloadException;
@@ -38,9 +39,6 @@ import java.util.List;
 
 /**
  * Helper class to download DASH streams.
- *
- * <p>Except {@link #getTotalSegments()}, {@link #getDownloadedSegments()} and {@link
- * #getDownloadedBytes()}, this class isn't thread safe.
  *
  * <p>Example usage:
  *
@@ -89,29 +87,32 @@ public final class DashDownloader extends SegmentDownloader<DashManifest, Repres
   }
 
   @Override
-  protected List<Segment> getSegments(
+  protected Pair<List<Segment>, Boolean> getSegments(
       DataSource dataSource, DashManifest manifest, boolean allowIndexLoadErrors)
       throws InterruptedException, IOException {
     ArrayList<Segment> segments = new ArrayList<>();
+    boolean segmentListComplete = true;
     for (int i = 0; i < manifest.getPeriodCount(); i++) {
       Period period = manifest.getPeriod(i);
       long periodStartUs = C.msToUs(period.startMs);
       long periodDurationUs = manifest.getPeriodDurationUs(i);
       List<AdaptationSet> adaptationSets = period.adaptationSets;
       for (int j = 0; j < adaptationSets.size(); j++) {
-        addSegmentsForAdaptationSet(
+        if (!addSegmentsForAdaptationSet(
             dataSource,
             adaptationSets.get(j),
             periodStartUs,
             periodDurationUs,
             allowIndexLoadErrors,
-            segments);
+            segments)) {
+          segmentListComplete = false;
+        }
       }
     }
-    return segments;
+    return Pair.<List<Segment>, Boolean>create(segments, segmentListComplete);
   }
 
-  private static void addSegmentsForAdaptationSet(
+  private static boolean addSegmentsForAdaptationSet(
       DataSource dataSource,
       AdaptationSet adaptationSet,
       long periodStartUs,
@@ -119,6 +120,7 @@ public final class DashDownloader extends SegmentDownloader<DashManifest, Repres
       boolean allowIndexLoadErrors,
       ArrayList<Segment> out)
       throws IOException, InterruptedException {
+    boolean segmentListComplete = true;
     for (int i = 0; i < adaptationSet.representations.size(); i++) {
       Representation representation = adaptationSet.representations.get(i);
       DashSegmentIndex index;
@@ -129,12 +131,12 @@ public final class DashDownloader extends SegmentDownloader<DashManifest, Repres
           throw new DownloadException("Missing segment index");
         }
       } catch (IOException e) {
-        if (allowIndexLoadErrors) {
-          // Loading failed, but load errors are allowed. Advance to the next representation.
-          continue;
-        } else {
+        if (!allowIndexLoadErrors) {
           throw e;
         }
+        // Loading failed, but load errors are allowed. Advance to the next representation.
+        segmentListComplete = false;
+        continue;
       }
 
       int segmentCount = index.getSegmentCount(periodDurationUs);
@@ -157,6 +159,8 @@ public final class DashDownloader extends SegmentDownloader<DashManifest, Repres
         addSegment(periodStartUs + index.getTimeUs(j), baseUrl, index.getSegmentUrl(j), out);
       }
     }
+
+    return segmentListComplete;
   }
 
   private static void addSegment(

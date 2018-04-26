@@ -16,6 +16,7 @@
 package com.google.android.exoplayer2.source.hls.offline;
 
 import android.net.Uri;
+import android.util.Pair;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.offline.DownloaderConstructorHelper;
 import com.google.android.exoplayer2.offline.SegmentDownloader;
@@ -70,17 +71,17 @@ public final class HlsDownloader extends SegmentDownloader<HlsMasterPlaylist, Re
   }
 
   @Override
-  protected List<Segment> getSegments(
-      DataSource dataSource,
-      HlsMasterPlaylist manifest,
-      boolean allowIndexLoadErrors)
-      throws InterruptedException, IOException {
+  protected Pair<List<Segment>, Boolean> getSegments(
+      DataSource dataSource, HlsMasterPlaylist manifest, boolean allowIndexLoadErrors)
+      throws IOException {
     HashSet<Uri> encryptionKeyUris = new HashSet<>();
     ArrayList<HlsUrl> renditionUrls = new ArrayList<>();
     renditionUrls.addAll(manifest.variants);
     renditionUrls.addAll(manifest.audios);
     renditionUrls.addAll(manifest.subtitles);
     ArrayList<Segment> segments = new ArrayList<>();
+
+    boolean segmentListComplete = true;
     for (HlsUrl renditionUrl : renditionUrls) {
       HlsMediaPlaylist mediaPlaylist = null;
       Uri uri = UriUtil.resolveToUri(manifest.baseUri, renditionUrl.url);
@@ -90,6 +91,7 @@ public final class HlsDownloader extends SegmentDownloader<HlsMasterPlaylist, Re
         if (!allowIndexLoadErrors) {
           throw e;
         }
+        segmentListComplete = false;
       }
       segments.add(new Segment(mediaPlaylist != null ? mediaPlaylist.startTimeUs : Long.MIN_VALUE,
           new DataSpec(uri)));
@@ -109,7 +111,7 @@ public final class HlsDownloader extends SegmentDownloader<HlsMasterPlaylist, Re
         addSegment(segments, mediaPlaylist, segment, encryptionKeyUris);
       }
     }
-    return segments;
+    return Pair.<List<Segment>, Boolean>create(segments, segmentListComplete);
   }
 
   private static HlsPlaylist loadManifest(DataSource dataSource, Uri uri) throws IOException {

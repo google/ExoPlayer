@@ -29,8 +29,6 @@ public interface Downloader {
    * @throws DownloadException Thrown if the media cannot be downloaded.
    * @throws InterruptedException If the thread has been interrupted.
    * @throws IOException Thrown when there is an io error while reading from cache.
-   * @see #getDownloadedBytes()
-   * @see #getDownloadPercentage()
    */
   void init() throws InterruptedException, IOException;
 
@@ -50,20 +48,12 @@ public interface Downloader {
    */
   void remove() throws InterruptedException;
 
-  /**
-   * Returns the total number of downloaded bytes, or {@link C#LENGTH_UNSET} if it hasn't been
-   * calculated yet.
-   *
-   * @see #init()
-   */
+  /** Returns the total number of downloaded bytes. */
   long getDownloadedBytes();
 
   /**
-   * Returns the download percentage, or {@link Float#NaN} if it can't be calculated yet. This
-   * value can be an estimation.
-   *
-   * @see #init()
+   * Returns the estimated download percentage, or {@link C#PERCENTAGE_UNSET} if no estimate is
+   * available.
    */
   float getDownloadPercentage();
-
 }

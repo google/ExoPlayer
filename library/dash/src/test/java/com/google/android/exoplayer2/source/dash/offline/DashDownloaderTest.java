@@ -26,7 +26,6 @@ import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.offline.DownloadException;
 import com.google.android.exoplayer2.offline.DownloaderConstructorHelper;
 import com.google.android.exoplayer2.source.dash.manifest.DashManifest;
@@ -65,7 +64,7 @@ public class DashDownloaderTest {
   }
 
   @After
-  public void tearDown() throws Exception {
+  public void tearDown() {
     Util.recursiveDelete(tempFolder);
   }
 
@@ -311,11 +310,11 @@ public class DashDownloaderTest {
             .setRandomData("audio_segment_3", 6);
     DashDownloader dashDownloader = getDashDownloader(fakeDataSet);
 
-    assertCounters(dashDownloader, C.LENGTH_UNSET, C.LENGTH_UNSET, C.LENGTH_UNSET);
+    assertThat(dashDownloader.getDownloadedBytes()).isEqualTo(0);
 
     dashDownloader.selectRepresentations(new RepresentationKey[] {new RepresentationKey(0, 0, 0)});
     dashDownloader.init();
-    assertCounters(dashDownloader, C.LENGTH_UNSET, C.LENGTH_UNSET, C.LENGTH_UNSET);
+    assertThat(dashDownloader.getDownloadedBytes()).isEqualTo(0);
 
     // downloadRepresentations fails after downloading init data, segment 1 and 2 bytes in segment 2
     try {
@@ -325,11 +324,10 @@ public class DashDownloaderTest {
       // ignore
     }
     dashDownloader.init();
-    assertCounters(dashDownloader, 4, 2, 10 + 4 + 2);
+    assertThat(dashDownloader.getDownloadedBytes()).isEqualTo(10 + 4 + 2);
 
     dashDownloader.download();
-
-    assertCounters(dashDownloader, 4, 4, 10 + 4 + 5 + 6);
+    assertThat(dashDownloader.getDownloadedBytes()).isEqualTo(10 + 4 + 5 + 6);
   }
 
   @Test
@@ -399,13 +397,4 @@ public class DashDownloaderTest {
     return new DashDownloader(TEST_MPD_URI, new DownloaderConstructorHelper(cache, factory));
   }
 
-  private static void assertCounters(
-      DashDownloader dashDownloader,
-      int totalSegments,
-      int downloadedSegments,
-      int downloadedBytes) {
-    assertThat(dashDownloader.getTotalSegments()).isEqualTo(totalSegments);
-    assertThat(dashDownloader.getDownloadedSegments()).isEqualTo(downloadedSegments);
-    assertThat(dashDownloader.getDownloadedBytes()).isEqualTo(downloadedBytes);
-  }
 }

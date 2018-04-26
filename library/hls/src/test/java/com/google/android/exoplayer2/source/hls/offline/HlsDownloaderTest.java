@@ -111,8 +111,6 @@ public class HlsDownloaderTest {
     hlsDownloader.selectRepresentations(getKeys(MEDIA_PLAYLIST_1_URI));
     hlsDownloader.download();
 
-    assertThat(hlsDownloader.getTotalSegments()).isEqualTo(4);
-    assertThat(hlsDownloader.getDownloadedSegments()).isEqualTo(4);
     assertThat(hlsDownloader.getDownloadedBytes())
         .isEqualTo(MEDIA_PLAYLIST_DATA.length + 10 + 11 + 12);
   }
@@ -126,8 +124,6 @@ public class HlsDownloaderTest {
     newHlsDownloader.selectRepresentations(getKeys(MEDIA_PLAYLIST_1_URI));
     newHlsDownloader.init();
 
-    assertThat(newHlsDownloader.getTotalSegments()).isEqualTo(4);
-    assertThat(newHlsDownloader.getDownloadedSegments()).isEqualTo(4);
     assertThat(newHlsDownloader.getDownloadedBytes())
         .isEqualTo(MEDIA_PLAYLIST_DATA.length + 10 + 11 + 12);
   }
