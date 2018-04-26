@@ -13,7 +13,7 @@
      See the License for the specific language governing permissions and
      limitations under the License.
 -->
-<resources>
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
   <!-- Description for a media control button that causes the previous track to be played. [CHAR LIMIT=30] -->
   <string name="exo_controls_previous_description">Previous track</string>
   <!-- Description for a media control button that causes the next track to be played. [CHAR LIMIT=30] -->
@@ -58,4 +58,22 @@
   <string name="exo_track_selection_none">None</string>
   <!-- An option in a track selection view (e.g. a view that allows the user to choose between multiple media tracks) to indicate that the automatic or default track should be selected. [CHAR LIMIT=20] -->
   <string name="exo_track_selection_auto">Auto</string>
+  <!-- Name of a media track about which nothing is known. [CHAR LIMIT=20] -->
+  <string name="exo_track_unknown">Unknown</string>
+  <!-- Resolution of a video track. [CHAR LIMIT=20] -->
+  <string name="exo_track_resolution"><xliff:g id="width" example="1024">%1$d</xliff:g> × <xliff:g id="height" example="768">%2$d</xliff:g></string>
+  <!-- Describes an audio track with one channel. [CHAR LIMIT=20] -->
+  <string name="exo_track_mono">Mono</string>
+  <!-- Describes an audio track with two channels. [CHAR LIMIT=20] -->
+  <string name="exo_track_stereo">Stereo</string>
+  <!-- Describes a surround sound audio track. [CHAR LIMIT=40] -->
+  <string name="exo_track_surround">Surround sound</string>
+  <!-- Describes a 5.1 surround sound (https://en.wikipedia.org/wiki/5.1_surround_sound) audio track. [CHAR LIMIT=40] -->
+  <string name="exo_track_surround_5_point_1">5.1 surround sound</string>
+  <!-- Describes a 7.1 (https://en.wikipedia.org/wiki/7.1_surround_sound) audio track. [CHAR LIMIT=40] -->
+  <string name="exo_track_surround_7_point_1">7.1 surround sound</string>
+  <!-- Describes the bitrate of a media track in Megabits (https://en.wikipedia.org/wiki/Megabit) per second. [CHAR LIMIT=20] -->
+  <string name="exo_track_bitrate"><xliff:g id="bitrate" example="5.2">%1$.2f</xliff:g> Mbps</string>
+  <!-- Defines a way of appending an item to a list of items. For example appending "banana" to "apple, pear" to get "apple, pear, banana". [CHAR LIMIT=40] -->
+  <string name="exo_item_list"><xliff:g id="list" example="apple, pear">%1$s</xliff:g>, <xliff:g id="item" example="banana">%2$s</xliff:g></string>
 </resources>

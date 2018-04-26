@@ -16,6 +16,7 @@
 package com.google.android.exoplayer2.demo;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
@@ -24,6 +25,7 @@ import android.os.Handler;
 import android.os.Parcelable;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.util.Pair;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -76,6 +78,7 @@ import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
 import com.google.android.exoplayer2.ui.DebugTextViewHelper;
 import com.google.android.exoplayer2.ui.PlayerControlView;
 import com.google.android.exoplayer2.ui.PlayerView;
+import com.google.android.exoplayer2.ui.TrackSelectionView;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DefaultBandwidthMeter;
 import com.google.android.exoplayer2.upstream.HttpDataSource;
@@ -141,7 +144,6 @@ public class PlayerActivity extends Activity
   private MediaSource mediaSource;
   private DefaultTrackSelector trackSelector;
   private DefaultTrackSelector.Parameters trackSelectorParameters;
-  private TrackSelectionHelper trackSelectionHelper;
   private DebugTextViewHelper debugViewHelper;
   private boolean inErrorState;
   private TrackGroupArray lastSeenTrackGroupArray;
@@ -274,8 +276,19 @@ public class PlayerActivity extends Activity
     if (view.getParent() == debugRootView) {
       MappedTrackInfo mappedTrackInfo = trackSelector.getCurrentMappedTrackInfo();
       if (mappedTrackInfo != null) {
-        trackSelectionHelper.showSelectionDialog(
-            this, ((Button) view).getText(), mappedTrackInfo, (int) view.getTag());
+        CharSequence title = ((Button) view).getText();
+        int rendererIndex = (int) view.getTag();
+        int rendererType = mappedTrackInfo.getRendererType(rendererIndex);
+        boolean allowAdaptiveSelections =
+            rendererType == C.TRACK_TYPE_VIDEO
+                || (rendererType == C.TRACK_TYPE_AUDIO
+                    && mappedTrackInfo.getTypeSupport(C.TRACK_TYPE_VIDEO)
+                        == MappedTrackInfo.RENDERER_SUPPORT_NO_TRACKS);
+        Pair<AlertDialog, TrackSelectionView> dialogPair =
+            TrackSelectionView.getDialog(this, title, trackSelector, rendererIndex);
+        dialogPair.second.setShowDisableOption(true);
+        dialogPair.second.setAllowAdaptiveSelections(allowAdaptiveSelections);
+        dialogPair.first.show();
       }
     }
   }
@@ -388,7 +401,6 @@ public class PlayerActivity extends Activity
 
       trackSelector = new DefaultTrackSelector(trackSelectionFactory);
       trackSelector.setParameters(trackSelectorParameters);
-      trackSelectionHelper = new TrackSelectionHelper(trackSelector);
       lastSeenTrackGroupArray = null;
 
       player =
@@ -512,7 +524,6 @@ public class PlayerActivity extends Activity
       player = null;
       mediaSource = null;
       trackSelector = null;
-      trackSelectionHelper = null;
     }
   }
 

@@ -17,7 +17,7 @@
     android:layout_width="wrap_content"
     android:layout_height="match_parent">
 
-  <LinearLayout android:id="@+id/root"
+  <com.google.android.exoplayer2.ui.TrackSelectionView android:id="@+id/exo_track_selection_view"
       android:orientation="vertical"
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"/>

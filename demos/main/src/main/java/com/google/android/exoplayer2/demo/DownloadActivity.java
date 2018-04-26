@@ -45,6 +45,8 @@ import com.google.android.exoplayer2.source.hls.playlist.RenditionKey;
 import com.google.android.exoplayer2.source.smoothstreaming.manifest.TrackKey;
 import com.google.android.exoplayer2.source.smoothstreaming.offline.SsDownloadAction;
 import com.google.android.exoplayer2.source.smoothstreaming.offline.SsDownloader;
+import com.google.android.exoplayer2.ui.DefaultTrackNameProvider;
+import com.google.android.exoplayer2.ui.TrackNameProvider;
 import com.google.android.exoplayer2.util.ParcelableArray;
 import com.google.android.exoplayer2.util.Util;
 import java.io.IOException;
@@ -60,7 +62,7 @@ public class DownloadActivity extends Activity {
   private Intent playerIntent;
   private String sampleName;
 
-  @SuppressWarnings("rawtypes")
+  private TrackNameProvider trackNameProvider;
   private AsyncTask manifestDownloaderTask;
 
   private DownloadUtilMethods downloadUtilMethods;
@@ -71,6 +73,7 @@ public class DownloadActivity extends Activity {
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     setContentView(R.layout.downloader_activity);
+    trackNameProvider = new DefaultTrackNameProvider(getResources());
 
     Intent intent = getIntent();
     playerIntent = intent.getParcelableExtra(PLAYER_INTENT);
@@ -216,7 +219,7 @@ public class DownloadActivity extends Activity {
     @Override
     protected List<RepresentationItem> doInBackground(Void... ignore) {
       try {
-        return downloadUtilMethods.getRepresentationItems();
+        return downloadUtilMethods.getRepresentationItems(trackNameProvider);
       } catch (IOException | InterruptedException e) {
         return null;
       }
@@ -247,8 +250,8 @@ public class DownloadActivity extends Activity {
       this.constructorHelper = constructorHelper;
     }
 
-    public abstract List<RepresentationItem> getRepresentationItems()
-        throws IOException, InterruptedException;
+    public abstract List<RepresentationItem> getRepresentationItems(
+        TrackNameProvider trackNameProvider) throws IOException, InterruptedException;
 
     public abstract DownloadAction getDownloadAction(
         String sampleName, ArrayList<Object> representationKeys);
@@ -263,7 +266,7 @@ public class DownloadActivity extends Activity {
     }
 
     @Override
-    public List<RepresentationItem> getRepresentationItems()
+    public List<RepresentationItem> getRepresentationItems(TrackNameProvider trackNameProvider)
         throws IOException, InterruptedException {
       DashDownloader downloader = new DashDownloader(manifestUri, constructorHelper);
       ArrayList<RepresentationItem> items = new ArrayList<>();
@@ -282,7 +285,7 @@ public class DownloadActivity extends Activity {
                 .get(key.adaptationSetIndex)
                 .representations
                 .get(key.representationIndex);
-        String trackName = DemoUtil.buildTrackName(representation.format);
+        String trackName = trackNameProvider.getTrackName(representation.format);
         items.add(new RepresentationItem(key, trackName, downloader.getDownloadPercentage()));
       }
       return items;
@@ -309,7 +312,7 @@ public class DownloadActivity extends Activity {
     }
 
     @Override
-    public List<RepresentationItem> getRepresentationItems()
+    public List<RepresentationItem> getRepresentationItems(TrackNameProvider trackNameProvider)
         throws IOException, InterruptedException {
       HlsDownloader downloader = new HlsDownloader(manifestUri, constructorHelper);
       ArrayList<RepresentationItem> items = new ArrayList<>();
@@ -345,7 +348,7 @@ public class DownloadActivity extends Activity {
     }
 
     @Override
-    public List<RepresentationItem> getRepresentationItems()
+    public List<RepresentationItem> getRepresentationItems(TrackNameProvider trackNameProvider)
         throws IOException, InterruptedException {
       SsDownloader downloader = new SsDownloader(manifestUri, constructorHelper);
       ArrayList<RepresentationItem> items = new ArrayList<>();
@@ -358,7 +361,7 @@ public class DownloadActivity extends Activity {
         }
         Format format =
             downloader.getManifest().streamElements[key.streamElementIndex].formats[key.trackIndex];
-        String trackName = DemoUtil.buildTrackName(format);
+        String trackName = trackNameProvider.getTrackName(format);
         items.add(new RepresentationItem(key, trackName, downloader.getDownloadPercentage()));
       }
       return items;
@@ -385,7 +388,7 @@ public class DownloadActivity extends Activity {
     }
 
     @Override
-    public List<RepresentationItem> getRepresentationItems() {
+    public List<RepresentationItem> getRepresentationItems(TrackNameProvider trackNameProvider) {
       ProgressiveDownloader downloader =
           new ProgressiveDownloader(manifestUri, null, constructorHelper);
       ArrayList<RepresentationItem> items = new ArrayList<>();
