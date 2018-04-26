@@ -35,6 +35,8 @@
 * IMA: Allow setting the ad media load timeout
   ([#3691](https://github.com/google/ExoPlayer/issues/3691)).
 * Audio:
+  * Support extracting data from AMR container formats, including both narrow
+    and wide band ([#2527](https://github.com/google/ExoPlayer/issues/2527)).
   * FLAC:
     * Sniff FLAC files correctly if they have ID3 headers
       ([#4055](https://github.com/google/ExoPlayer/issues/4055)).
