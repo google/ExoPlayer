@@ -54,9 +54,9 @@
   <string name="exo_track_selection_title_audio">Audio</string>
   <!-- The title of a track selection view for text (i.e. subtitle or caption) tracks. [CHAR LIMIT=20] -->
   <string name="exo_track_selection_title_text">Text</string>
-  <!-- An option in a track selection view (e.g. a view that allows the user to choose between multiple media tracks) to indicate that no track should be selected. [CHAR LIMIT=20] -->
+  <!-- An option in a track selection view (e.g. a view that allows the user to choose between multiple media tracks) to indicate that no track should be selected. Examples: When playing a video, if this option is selected for audio, playback will proceed without sound. If this option is selected for video, playback will proceed without visual output. [CHAR LIMIT=20] -->
   <string name="exo_track_selection_none">None</string>
-  <!-- An option in a track selection view (e.g. a view that allows the user to choose between multiple media tracks) to indicate that the automatic or default track should be selected. [CHAR LIMIT=20] -->
+  <!-- An option in a track selection view (e.g. a view that allows the user to choose between multiple media tracks) to indicate that the automatic or default track should be selected. Examples: If there are multiple audio tracks in different languages, the automatic selection would normally be the track in the user's native language. If there are multiple video tracks at different qualities, the automatic selection would normally be the highest quality track that can be played without buffering over the current network. [CHAR LIMIT=20] -->
   <string name="exo_track_selection_auto">Auto</string>
   <!-- Name of a media track about which nothing is known. [CHAR LIMIT=20] -->
   <string name="exo_track_unknown">Unknown</string>

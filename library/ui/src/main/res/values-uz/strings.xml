@@ -12,9 +12,9 @@
   <string name="exo_controls_repeat_all_description">Hammasini takrorlash</string>
   <string name="exo_controls_shuffle_description">Aralash</string>
   <string name="exo_controls_fullscreen_description">Butun ekran rejimi</string>
-  <string name="exo_download_description">Saqlash</string>
+  <string name="exo_download_description">Yuklab olish</string>
   <string name="exo_download_notification_channel_name">Yuklanmalar</string>
-  <string name="exo_download_downloading">Yuklab olish</string>
+  <string name="exo_download_downloading">Yuklab olinmoqda</string>
   <string name="exo_download_completed">Yuklab olindi</string>
   <string name="exo_download_failed">Yuklab olinmadi</string>
   <string name="exo_track_selection_title_video">Video</string>
@@ -22,13 +22,13 @@
   <string name="exo_track_selection_title_text">Matn</string>
   <string name="exo_track_selection_none">Hech qanday</string>
   <string name="exo_track_selection_auto">Avtomatik</string>
-  <string name="exo_track_unknown">Unknown</string>
+  <string name="exo_track_unknown">Notanish</string>
   <string name="exo_track_resolution">%1$d × %2$d</string>
   <string name="exo_track_mono">Mono</string>
   <string name="exo_track_stereo">Stereo</string>
-  <string name="exo_track_surround">Surround sound</string>
-  <string name="exo_track_surround_5_point_1">5.1 surround sound</string>
-  <string name="exo_track_surround_7_point_1">7.1 surround sound</string>
-  <string name="exo_track_bitrate">%1$.2f Mbps</string>
+  <string name="exo_track_surround">Qamrovli ovoz</string>
+  <string name="exo_track_surround_5_point_1">5.1 qamrovli ovoz</string>
+  <string name="exo_track_surround_7_point_1">7.1 qamrovli ovoz</string>
+  <string name="exo_track_bitrate">%1$.2f Mbit/s</string>
   <string name="exo_item_list">%1$s, %2$s</string>
 </resources>
