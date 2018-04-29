@@ -22,11 +22,11 @@
   <string name="exo_track_selection_title_text">Teks</string>
   <string name="exo_track_selection_none">Tidak ada</string>
   <string name="exo_track_selection_auto">Otomatis</string>
-  <string name="exo_track_unknown">Unknown</string>
+  <string name="exo_track_unknown">Tidak diketahui</string>
   <string name="exo_track_resolution">%1$d × %2$d</string>
   <string name="exo_track_mono">Mono</string>
   <string name="exo_track_stereo">Stereo</string>
-  <string name="exo_track_surround">Surround sound</string>
+  <string name="exo_track_surround">Suara surround</string>
   <string name="exo_track_surround_5_point_1">5.1 surround sound</string>
   <string name="exo_track_surround_7_point_1">7.1 surround sound</string>
   <string name="exo_track_bitrate">%1$.2f Mbps</string>

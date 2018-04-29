@@ -22,13 +22,13 @@
   <string name="exo_track_selection_title_text">Umbhalo</string>
   <string name="exo_track_selection_none">Lutho</string>
   <string name="exo_track_selection_auto">Okuzenzakalelayo</string>
-  <string name="exo_track_unknown">Unknown</string>
+  <string name="exo_track_unknown">Akwaziwa</string>
   <string name="exo_track_resolution">%1$d × %2$d</string>
-  <string name="exo_track_mono">Mono</string>
-  <string name="exo_track_stereo">Stereo</string>
-  <string name="exo_track_surround">Surround sound</string>
-  <string name="exo_track_surround_5_point_1">5.1 surround sound</string>
-  <string name="exo_track_surround_7_point_1">7.1 surround sound</string>
+  <string name="exo_track_mono">Okukodwa</string>
+  <string name="exo_track_stereo">I-Stereo</string>
+  <string name="exo_track_surround">Umsindo ozungelezile</string>
+  <string name="exo_track_surround_5_point_1">Umsindo ozungelezile ongu-5.1</string>
+  <string name="exo_track_surround_7_point_1">Umsindo ozungelezile ongu-7.1</string>
   <string name="exo_track_bitrate">%1$.2f Mbps</string>
   <string name="exo_item_list">%1$s, %2$s</string>
 </resources>
