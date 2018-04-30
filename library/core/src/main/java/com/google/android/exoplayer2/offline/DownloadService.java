@@ -32,6 +32,7 @@ import com.google.android.exoplayer2.scheduler.Scheduler;
 import com.google.android.exoplayer2.util.NotificationUtil;
 import com.google.android.exoplayer2.util.Util;
 import java.io.IOException;
+import java.util.HashMap;
 
 /**
  * A {@link Service} that downloads streams in the background.
@@ -56,8 +57,8 @@ public abstract class DownloadService extends Service {
   private static final String ACTION_START =
       "com.google.android.exoplayer.downloadService.action.START";
 
-  /** A {@link DownloadAction} to be executed. */
-  public static final String DOWNLOAD_ACTION = "DownloadAction";
+  /** Key for the {@link DownloadAction} in an {@link #ACTION_ADD} intent. */
+  public static final String KEY_DOWNLOAD_ACTION = "download_action";
 
   /** Default foreground notification update interval in milliseconds. */
   public static final long DEFAULT_FOREGROUND_NOTIFICATION_UPDATE_INTERVAL = 1000;
@@ -65,10 +66,11 @@ public abstract class DownloadService extends Service {
   private static final String TAG = "DownloadService";
   private static final boolean DEBUG = false;
 
-  // Keep requirementsWatcher and scheduler alive beyond DownloadService life span (until the app is
-  // killed) because it may take long time for Scheduler to start the service.
-  private static RequirementsWatcher requirementsWatcher;
-  private static Scheduler scheduler;
+  // Keep the requirements helper for each DownloadService as long as there are tasks (and the
+  // process is running). This allows tasks to resume when there's no scheduler. It may also allow
+  // tasks the resume more quickly than when relying on the scheduler alone.
+  private static final HashMap<Class<? extends DownloadService>, RequirementsHelper>
+      requirementsHelpers = new HashMap<>();
 
   private final ForegroundNotificationUpdater foregroundNotificationUpdater;
   private final @Nullable String channelId;
@@ -108,10 +110,10 @@ public abstract class DownloadService extends Service {
   /**
    * Creates a DownloadService.
    *
-   * @param foregroundNotificationId The notification id for the foreground notification, must not
+   * @param foregroundNotificationId The notification id for the foreground notification. Must not
    *     be 0.
-   * @param foregroundNotificationUpdateInterval The maximum interval to update foreground
-   *     notification, in milliseconds.
+   * @param foregroundNotificationUpdateInterval The maximum interval between updates to the
+   *     foreground notification, in milliseconds.
    * @param channelId An id for a low priority notification channel to create, or {@code null} if
    *     the app will take care of creating a notification channel if needed. If specified, must be
    *     unique per package and the value may be truncated if it is too long.
@@ -144,7 +146,7 @@ public abstract class DownloadService extends Service {
       Context context, Class<? extends DownloadService> clazz, DownloadAction downloadAction) {
     return new Intent(context, clazz)
         .setAction(ACTION_ADD)
-        .putExtra(DOWNLOAD_ACTION, downloadAction.toByteArray());
+        .putExtra(KEY_DOWNLOAD_ACTION, downloadAction.toByteArray());
   }
 
   /**
@@ -171,19 +173,17 @@ public abstract class DownloadService extends Service {
     downloadManager = getDownloadManager();
     downloadListener = new DownloadListener();
     downloadManager.addListener(downloadListener);
-    if (requirementsWatcher == null) {
-      Requirements requirements = getRequirements();
-      if (requirements != null) {
-        scheduler = getScheduler();
-        RequirementsListener listener =
-            new RequirementsListener(getApplicationContext(), getClass(), scheduler);
-        requirementsWatcher =
-            new RequirementsWatcher(getApplicationContext(), listener, requirements);
-        requirementsWatcher.start();
-      } else {
-        downloadManager.startDownloads();
+
+    RequirementsHelper requirementsHelper;
+    synchronized (requirementsHelpers) {
+      Class<? extends DownloadService> clazz = getClass();
+      requirementsHelper = requirementsHelpers.get(clazz);
+      if (requirementsHelper == null) {
+        requirementsHelper = new RequirementsHelper(this, getRequirements(), getScheduler(), clazz);
+        requirementsHelpers.put(clazz, requirementsHelper);
       }
     }
+    requirementsHelper.start();
   }
 
   @Override
@@ -192,13 +192,11 @@ public abstract class DownloadService extends Service {
     foregroundNotificationUpdater.stopPeriodicUpdates();
     downloadManager.removeListener(downloadListener);
     if (downloadManager.getTaskCount() == 0) {
-      if (requirementsWatcher != null) {
-        requirementsWatcher.stop();
-        requirementsWatcher = null;
-      }
-      if (scheduler != null) {
-        scheduler.cancel();
-        scheduler = null;
+      synchronized (requirementsHelpers) {
+        RequirementsHelper requirementsHelper = requirementsHelpers.remove(getClass());
+        if (requirementsHelper != null) {
+          requirementsHelper.stop();
+        }
       }
     }
   }
@@ -223,14 +221,14 @@ public abstract class DownloadService extends Service {
         // or remove tasks loaded from file, they will start if the requirements are met.
         break;
       case ACTION_ADD:
-        byte[] actionData = intent.getByteArrayExtra(DOWNLOAD_ACTION);
+        byte[] actionData = intent.getByteArrayExtra(KEY_DOWNLOAD_ACTION);
         if (actionData == null) {
-          onCommandError(new IllegalArgumentException("DownloadAction is missing."));
+          Log.e(TAG, "Ignoring ADD action with no action data");
         } else {
           try {
             downloadManager.handleAction(actionData);
           } catch (IOException e) {
-            onCommandError(e);
+            Log.e(TAG, "Failed to handle ADD action", e);
           }
         }
         break;
@@ -241,7 +239,7 @@ public abstract class DownloadService extends Service {
         downloadManager.startDownloads();
         break;
       default:
-        onCommandError(new IllegalArgumentException("Unknown action: " + intentAction));
+        Log.e(TAG, "Ignoring unrecognized action: " + intentAction);
         break;
     }
     if (downloadManager.isIdle()) {
@@ -257,14 +255,19 @@ public abstract class DownloadService extends Service {
   protected abstract DownloadManager getDownloadManager();
 
   /**
-   * Returns a {@link Scheduler} which contains a job to initialize {@link DownloadService} when the
-   * requirements are met, or null. If not null, scheduler is used to start downloads even when the
-   * app isn't running.
+   * Returns a {@link Scheduler} to restart the service when requirements allowing downloads to take
+   * place are met. If {@code null}, the service will only be restarted if the process is still in
+   * memory when the requirements are met.
    */
   protected abstract @Nullable Scheduler getScheduler();
 
-  /** Returns requirements for downloads to take place, or null. */
-  protected abstract @Nullable Requirements getRequirements();
+  /**
+   * Returns requirements for downloads to take place. By default the only requirement is that the
+   * device has network connectivity.
+   */
+  protected Requirements getRequirements() {
+    return new Requirements(Requirements.NETWORK_TYPE_ANY, false, false);
+  }
 
   /**
    * Returns a notification to be displayed when this service running in the foreground.
@@ -287,14 +290,9 @@ public abstract class DownloadService extends Service {
     // Do nothing.
   }
 
-  private void onCommandError(Exception error) {
-    Log.e(TAG, "Command error", error);
-  }
-
   private void stop() {
     foregroundNotificationUpdater.stopPeriodicUpdates();
-    // Make sure startForeground is called before stopping.
-    // Workaround for [Internal: b/69424260]
+    // Make sure startForeground is called before stopping. Workaround for [Internal: b/69424260].
     if (Util.SDK_INT >= 26) {
       foregroundNotificationUpdater.showNotificationIfNotAlready();
     }
@@ -372,17 +370,35 @@ public abstract class DownloadService extends Service {
     }
   }
 
-  private static final class RequirementsListener implements RequirementsWatcher.Listener {
+  private static final class RequirementsHelper implements RequirementsWatcher.Listener {
 
     private final Context context;
+    private final Requirements requirements;
+    private final @Nullable Scheduler scheduler;
     private final Class<? extends DownloadService> serviceClass;
-    private final Scheduler scheduler;
+    private final RequirementsWatcher requirementsWatcher;
 
-    private RequirementsListener(
-        Context context, Class<? extends DownloadService> serviceClass, Scheduler scheduler) {
+    private RequirementsHelper(
+        Context context,
+        Requirements requirements,
+        @Nullable Scheduler scheduler,
+        Class<? extends DownloadService> serviceClass) {
       this.context = context;
-      this.serviceClass = serviceClass;
+      this.requirements = requirements;
       this.scheduler = scheduler;
+      this.serviceClass = serviceClass;
+      requirementsWatcher = new RequirementsWatcher(context, this, requirements);
+    }
+
+    public void start() {
+      requirementsWatcher.start();
+    }
+
+    public void stop() {
+      requirementsWatcher.stop();
+      if (scheduler != null) {
+        scheduler.cancel();
+      }
     }
 
     @Override
@@ -397,7 +413,8 @@ public abstract class DownloadService extends Service {
     public void requirementsNotMet(RequirementsWatcher requirementsWatcher) {
       startServiceWithAction(DownloadService.ACTION_STOP);
       if (scheduler != null) {
-        if (!scheduler.schedule()) {
+        boolean success = scheduler.schedule(requirements, context.getPackageName(), ACTION_INIT);
+        if (!success) {
           Log.e(TAG, "Scheduling downloads failed.");
         }
       }
