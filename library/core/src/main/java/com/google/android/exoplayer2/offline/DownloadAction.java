@@ -43,7 +43,7 @@ public abstract class DownloadAction {
     }
 
     /**
-     * Deserializes a {@link DownloadAction} from the {@code input}.
+     * Deserializes an action from the {@code input}.
      *
      * @param version Version of the data.
      * @param input DataInputStream to read data from.
@@ -55,17 +55,17 @@ public abstract class DownloadAction {
   }
 
   /**
-   * Deserializes one {@code action} which was serialized by {@link
-   * #serializeToStream(DownloadAction, OutputStream)} from the {@code input} using one of the
-   * {@link Deserializer}s which supports the type of the action.
+   * Deserializes one action that was serialized with {@link #serializeToStream(DownloadAction,
+   * OutputStream)} from the {@code input}, using the {@link Deserializer}s that supports the
+   * action's type.
    *
    * <p>The caller is responsible for closing the given {@link InputStream}.
    *
-   * @param deserializers Array of {@link Deserializer}s to deserialize a {@link DownloadAction}.
+   * @param deserializers {@link Deserializer}s for supported actions.
    * @param input Input stream to read serialized data.
-   * @return The deserialized {@link DownloadAction}.
-   * @throws IOException If there is an IO error from {@code input} or the action type isn't
-   *     supported by any of the {@code deserializers}.
+   * @return The deserialized action.
+   * @throws IOException If there is an IO error reading from {@code input}, or if the action type
+   *     isn't supported by any of the {@code deserializers}.
    */
   public static DownloadAction deserializeFromStream(
       Deserializer[] deserializers, InputStream input) throws IOException {
@@ -79,10 +79,10 @@ public abstract class DownloadAction {
    *
    * <p>The caller is responsible for closing the given {@link InputStream}.
    *
-   * @param deserializers Array of {@link Deserializer}s to deserialize a {@link DownloadAction}.
+   * @param deserializers {@link Deserializer}s for supported actions.
    * @param input Input stream to read serialized data.
    * @param version Master version of the serialization. See {@link DownloadAction#MASTER_VERSION}.
-   * @return The deserialized {@link DownloadAction}.
+   * @return The deserialized action.
    * @throws IOException If there is an IO error from {@code input}.
    * @throws DownloadException If the action type isn't supported by any of the {@code
    *     deserializers}.

@@ -25,7 +25,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.support.annotation.Nullable;
 import com.google.android.exoplayer2.offline.DownloadManager;
-import com.google.android.exoplayer2.offline.DownloadManager.DownloadState;
+import com.google.android.exoplayer2.offline.DownloadManager.TaskState;
 import com.google.android.exoplayer2.offline.DownloadService;
 import com.google.android.exoplayer2.offline.DownloaderConstructorHelper;
 import com.google.android.exoplayer2.scheduler.Requirements;
@@ -139,8 +139,7 @@ public class DownloadServiceDashTest {
                     }
 
                     @Override
-                    protected Notification getForegroundNotification(
-                        DownloadState[] downloadStates) {
+                    protected Notification getForegroundNotification(TaskState[] taskStates) {
                       return Mockito.mock(Notification.class);
                     }
 

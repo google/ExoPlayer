@@ -18,7 +18,7 @@ package com.google.android.exoplayer2.demo;
 import android.app.Notification;
 import android.util.Pair;
 import com.google.android.exoplayer2.offline.DownloadManager;
-import com.google.android.exoplayer2.offline.DownloadManager.DownloadState;
+import com.google.android.exoplayer2.offline.DownloadManager.TaskState;
 import com.google.android.exoplayer2.offline.DownloadService;
 import com.google.android.exoplayer2.offline.DownloaderConstructorHelper;
 import com.google.android.exoplayer2.offline.ProgressiveDownloadAction;
@@ -75,21 +75,21 @@ public class DemoDownloadService extends DownloadService {
   }
 
   @Override
-  protected Notification getForegroundNotification(DownloadState[] downloadStates) {
+  protected Notification getForegroundNotification(TaskState[] taskStates) {
     return DownloadNotificationUtil.createProgressNotification(
-        downloadStates, this, R.drawable.exo_controls_play, CHANNEL_ID, null);
+        taskStates, this, R.drawable.exo_controls_play, CHANNEL_ID, null);
   }
 
   @Override
-  protected void onStateChange(DownloadState downloadState) {
-    int notificationId = FOREGROUND_NOTIFICATION_ID + 1 + downloadState.taskId;
+  protected void onTaskStateChanged(TaskState taskState) {
+    int notificationId = FOREGROUND_NOTIFICATION_ID + 1 + taskState.taskId;
     Notification downloadNotification =
         DownloadNotificationUtil.createDownloadFinishedNotification(
-            downloadState,
+            taskState,
             this,
             R.drawable.exo_controls_play,
             CHANNEL_ID,
-            downloadState.downloadAction.data,
+            taskState.action.data,
             new ErrorMessageProvider<Throwable>() {
               @Override
               public Pair<Integer, String> getErrorMessage(Throwable throwable) {

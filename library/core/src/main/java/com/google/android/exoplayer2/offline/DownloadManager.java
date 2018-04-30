@@ -15,17 +15,18 @@
  */
 package com.google.android.exoplayer2.offline;
 
-import static com.google.android.exoplayer2.offline.DownloadManager.DownloadState.STATE_CANCELED;
-import static com.google.android.exoplayer2.offline.DownloadManager.DownloadState.STATE_ENDED;
-import static com.google.android.exoplayer2.offline.DownloadManager.DownloadState.STATE_ERROR;
-import static com.google.android.exoplayer2.offline.DownloadManager.DownloadState.STATE_QUEUED;
-import static com.google.android.exoplayer2.offline.DownloadManager.DownloadState.STATE_STARTED;
+import static com.google.android.exoplayer2.offline.DownloadManager.TaskState.STATE_CANCELED;
+import static com.google.android.exoplayer2.offline.DownloadManager.TaskState.STATE_ENDED;
+import static com.google.android.exoplayer2.offline.DownloadManager.TaskState.STATE_ERROR;
+import static com.google.android.exoplayer2.offline.DownloadManager.TaskState.STATE_QUEUED;
+import static com.google.android.exoplayer2.offline.DownloadManager.TaskState.STATE_STARTED;
 
 import android.os.ConditionVariable;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Looper;
 import android.support.annotation.IntDef;
+import android.support.annotation.Nullable;
 import android.util.Log;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.offline.DownloadAction.Deserializer;
@@ -43,24 +44,24 @@ import java.util.concurrent.CopyOnWriteArraySet;
 /**
  * Manages multiple stream download and remove requests.
  *
- * <p>By default downloads are stopped. Call {@link #startDownloads()} to start downloads.
+ * <p>A download manager instance must be accessed only from the thread that created it, unless that
+ * thread does not have a {@link Looper}. In that case, it must be accessed only from the
+ * application's main thread. Registered listeners will be called on the same thread.
  *
- * <p>WARNING: Methods of this class must be called only on the main thread of the application.
+ * <p>By default download tasks are stopped, so {@link #startDownloads()} must be called to start
+ * them.
  */
 public final class DownloadManager {
 
-  /**
-   * Listener for download events. Listener methods are called on the main thread of the
-   * application.
-   */
+  /** Listener for {@link DownloadManager} events. */
   public interface DownloadListener {
     /**
-     * Called on download state change.
+     * Called when the state of a task changes.
      *
      * @param downloadManager The reporting instance.
-     * @param downloadState The download task.
+     * @param taskState The state of the task.
      */
-    void onStateChange(DownloadManager downloadManager, DownloadState downloadState);
+    void onTaskStateChanged(DownloadManager downloadManager, TaskState taskState);
 
     /**
      * Called when there is no active task left.
@@ -70,9 +71,9 @@ public final class DownloadManager {
     void onIdle(DownloadManager downloadManager);
   }
 
-  /** The default maximum number of simultaneous downloads. */
+  /** The default maximum number of simultaneous download tasks. */
   public static final int DEFAULT_MAX_SIMULTANEOUS_DOWNLOADS = 1;
-  /** The default minimum number of times the downloads must be retried before failing. */
+  /** The default minimum number of times a task must be retried before failing. */
   public static final int DEFAULT_MIN_RETRY_COUNT = 5;
 
   private static final String TAG = "DownloadManager";
@@ -83,8 +84,8 @@ public final class DownloadManager {
   private final int minRetryCount;
   private final ActionFile actionFile;
   private final DownloadAction.Deserializer[] deserializers;
-  private final ArrayList<DownloadTask> tasks;
-  private final ArrayList<DownloadTask> activeDownloadTasks;
+  private final ArrayList<Task> tasks;
+  private final ArrayList<Task> activeDownloadTasks;
   private final Handler handler;
   private final HandlerThread fileIOThread;
   private final Handler fileIOHandler;
@@ -140,8 +141,8 @@ public final class DownloadManager {
    *
    * @param constructorHelper A {@link DownloaderConstructorHelper} to create {@link Downloader}s
    *     for downloading data.
-   * @param maxSimultaneousDownloads The maximum number of simultaneous downloads.
-   * @param minRetryCount The minimum number of times the downloads must be retried before failing.
+   * @param maxSimultaneousDownloads The maximum number of simultaneous download tasks.
+   * @param minRetryCount The minimum number of times a task must be retried before failing.
    * @param actionFile The file in which active actions are saved.
    * @param deserializers Used to deserialize {@link DownloadAction}s.
    */
@@ -151,8 +152,7 @@ public final class DownloadManager {
       int minRetryCount,
       File actionFile,
       Deserializer... deserializers) {
-    Assertions.checkArgument(
-        deserializers.length > 0, "At least one Deserializer should be given.");
+    Assertions.checkArgument(deserializers.length > 0, "At least one Deserializer is required.");
 
     this.downloaderConstructorHelper = constructorHelper;
     this.maxActiveDownloadTasks = maxSimultaneousDownloads;
@@ -177,7 +177,7 @@ public final class DownloadManager {
     listeners = new CopyOnWriteArraySet<>();
 
     loadActions();
-    logd("DownloadManager is created");
+    logd("Created");
   }
 
   /**
@@ -198,7 +198,7 @@ public final class DownloadManager {
     });
     fileIOFinishedCondition.block();
     fileIOThread.quit();
-    logd("DownloadManager is released");
+    logd("Released");
   }
 
   /** Stops all of the download tasks. Call {@link #startDownloads()} to restart tasks. */
@@ -240,12 +240,12 @@ public final class DownloadManager {
   }
 
   /**
-   * Deserializes one {@link DownloadAction} from {@code actionData} and calls {@link
+   * Deserializes an action from {@code actionData}, and calls {@link
    * #handleAction(DownloadAction)}.
    *
-   * @param actionData Serialized {@link DownloadAction} data.
-   * @return The task id.
-   * @throws IOException If an error occurs during handling action.
+   * @param actionData Serialized version of the action to be executed.
+   * @return The id of the newly created task.
+   * @throws IOException If an error occurs deserializing the action.
    */
   public int handleAction(byte[] actionData) throws IOException {
     ByteArrayInputStream input = new ByteArrayInputStream(actionData);
@@ -254,41 +254,40 @@ public final class DownloadManager {
   }
 
   /**
-   * Handles the given {@link DownloadAction}. A task is created and added to the task queue. If
-   * it's a remove action then this method cancels any download tasks which works on the same media
-   * immediately.
+   * Handles the given action. A task is created and added to the task queue. If it's a remove
+   * action then any download tasks for the same media are immediately canceled.
    *
-   * @param downloadAction Action to be executed.
-   * @return The task id.
+   * @param action The action to be executed.
+   * @return The id of the newly created task.
    */
-  public int handleAction(DownloadAction downloadAction) {
-    DownloadTask downloadTask = createDownloadTask(downloadAction);
+  public int handleAction(DownloadAction action) {
+    Task task = createTask(action);
     saveActions();
-    if (downloadsStopped && !downloadAction.isRemoveAction) {
-      logd("Can't start the task as downloads are stopped", downloadTask);
+    if (downloadsStopped && !action.isRemoveAction) {
+      logd("Can't start the task as downloads are stopped", task);
     } else {
       maybeStartTasks();
     }
-    return downloadTask.id;
+    return task.id;
   }
 
-  private DownloadTask createDownloadTask(DownloadAction downloadAction) {
-    DownloadTask downloadTask = new DownloadTask(nextTaskId++, this, downloadAction, minRetryCount);
-    tasks.add(downloadTask);
-    logd("Task is added", downloadTask);
-    notifyListenersTaskStateChange(downloadTask);
-    return downloadTask;
+  private Task createTask(DownloadAction action) {
+    Task task = new Task(nextTaskId++, this, action, minRetryCount);
+    tasks.add(task);
+    logd("Task is added", task);
+    notifyListenersTaskStateChange(task);
+    return task;
   }
 
-  /** Returns number of tasks. */
+  /** Returns the current number of tasks. */
   public int getTaskCount() {
     return tasks.size();
   }
 
-  /** Returns a {@link DownloadTask} for a task. */
-  public DownloadState getDownloadState(int taskId) {
+  /** Returns the state of a task, or null if no such task exists */
+  public @Nullable TaskState getTaskState(int taskId) {
     for (int i = 0; i < tasks.size(); i++) {
-      DownloadTask task = tasks.get(i);
+      Task task = tasks.get(i);
       if (task.id == taskId) {
         return task.getDownloadState();
       }
@@ -296,14 +295,13 @@ public final class DownloadManager {
     return null;
   }
 
-  /** Returns {@link DownloadState}s for all tasks. */
-  public DownloadState[] getDownloadStates() {
-    return getDownloadStates(tasks);
-  }
-
-  /** Returns an array of {@link DownloadState}s for active download tasks. */
-  public DownloadState[] getActiveDownloadStates() {
-    return getDownloadStates(activeDownloadTasks);
+  /** Returns the states of all current tasks. */
+  public TaskState[] getAllTaskStates() {
+    TaskState[] states = new TaskState[tasks.size()];
+    for (int i = 0; i < states.length; i++) {
+      states[i] = tasks.get(i).getDownloadState();
+    }
+    return states;
   }
 
   /** Returns whether there are no active tasks. */
@@ -339,12 +337,12 @@ public final class DownloadManager {
     boolean skipDownloadActions = downloadsStopped
         || activeDownloadTasks.size() == maxActiveDownloadTasks;
     for (int i = 0; i < tasks.size(); i++) {
-      DownloadTask downloadTask = tasks.get(i);
-      if (!downloadTask.canStart()) {
+      Task task = tasks.get(i);
+      if (!task.canStart()) {
         continue;
       }
 
-      DownloadAction downloadAction = downloadTask.downloadAction;
+      DownloadAction downloadAction = task.action;
       boolean removeAction = downloadAction.isRemoveAction;
       if (!removeAction && skipDownloadActions) {
         continue;
@@ -352,14 +350,14 @@ public final class DownloadManager {
 
       boolean canStartTask = true;
       for (int j = 0; j < i; j++) {
-        DownloadTask task = tasks.get(j);
-        if (task.downloadAction.isSameMedia(downloadAction)) {
+        Task otherTask = tasks.get(j);
+        if (otherTask.action.isSameMedia(downloadAction)) {
           if (removeAction) {
             canStartTask = false;
-            logd(downloadTask + " clashes with " + task);
-            task.cancel();
+            logd(task + " clashes with " + otherTask);
+            otherTask.cancel();
             // Continue loop to cancel any other preceding clashing tasks.
-          } else if (task.downloadAction.isRemoveAction) {
+          } else if (otherTask.action.isRemoveAction) {
             canStartTask = false;
             skipDownloadActions = true;
             break;
@@ -368,9 +366,9 @@ public final class DownloadManager {
       }
 
       if (canStartTask) {
-        downloadTask.start();
+        task.start();
         if (!removeAction) {
-          activeDownloadTasks.add(downloadTask);
+          activeDownloadTasks.add(task);
           skipDownloadActions = activeDownloadTasks.size() == maxActiveDownloadTasks;
         }
       }
@@ -387,18 +385,18 @@ public final class DownloadManager {
     }
   }
 
-  private void onTaskStateChange(DownloadTask downloadTask) {
+  private void onTaskStateChange(Task task) {
     if (released) {
       return;
     }
-    logd("Task state is changed", downloadTask);
-    boolean stopped = !downloadTask.isActive();
+    logd("Task state is changed", task);
+    boolean stopped = !task.isActive();
     if (stopped) {
-      activeDownloadTasks.remove(downloadTask);
+      activeDownloadTasks.remove(task);
     }
-    notifyListenersTaskStateChange(downloadTask);
-    if (downloadTask.isFinished()) {
-      tasks.remove(downloadTask);
+    notifyListenersTaskStateChange(task);
+    if (task.isFinished()) {
+      tasks.remove(task);
       saveActions();
     }
     if (stopped) {
@@ -407,10 +405,10 @@ public final class DownloadManager {
     }
   }
 
-  private void notifyListenersTaskStateChange(DownloadTask downloadTask) {
-    DownloadState downloadState = downloadTask.getDownloadState();
+  private void notifyListenersTaskStateChange(Task task) {
+    TaskState taskState = task.getDownloadState();
     for (DownloadListener listener : listeners) {
-      listener.onStateChange(this, downloadState);
+      listener.onTaskStateChanged(this, taskState);
     }
   }
 
@@ -434,7 +432,7 @@ public final class DownloadManager {
                   public void run() {
                     try {
                       for (DownloadAction action : actions) {
-                        createDownloadTask(action);
+                        createTask(action);
                       }
                       logd("Tasks are created.");
                       maybeStartTasks();
@@ -454,7 +452,7 @@ public final class DownloadManager {
     }
     final DownloadAction[] actions = new DownloadAction[tasks.size()];
     for (int i = 0; i < tasks.size(); i++) {
-      actions[i] = tasks.get(i).downloadAction;
+      actions[i] = tasks.get(i).action;
     }
     fileIOHandler.post(new Runnable() {
       @Override
@@ -475,21 +473,12 @@ public final class DownloadManager {
     }
   }
 
-  private void logd(String message, DownloadTask task) {
+  private void logd(String message, Task task) {
     logd(message + ": " + task);
   }
 
-  private static DownloadState[] getDownloadStates(ArrayList<DownloadTask> tasks) {
-    DownloadState[] states = new DownloadState[tasks.size()];
-    for (int i = 0; i < tasks.size(); i++) {
-      DownloadTask task = tasks.get(i);
-      states[i] = task.getDownloadState();
-    }
-    return states;
-  }
-
-  /** Represents state of a download task. */
-  public static final class DownloadState {
+  /** Represents state of a task. */
+  public static final class TaskState {
 
     /**
      * Task states.
@@ -534,12 +523,13 @@ public final class DownloadManager {
       }
     }
 
-    /** Unique id of the task. */
+    /** The unique task id. */
     public final int taskId;
-    /** The {@link DownloadAction} which is being executed. */
-    public final DownloadAction downloadAction;
-    /** The state of the task. See {@link State}. */
+    /** The action being executed. */
+    public final DownloadAction action;
+    /** The state of the task. */
     public final @State int state;
+
     /**
      * The estimated download percentage, or {@link C#PERCENTAGE_UNSET} if no estimate is available
      * or if this is a removal task.
@@ -547,18 +537,19 @@ public final class DownloadManager {
     public final float downloadPercentage;
     /** The total number of downloaded bytes. */
     public final long downloadedBytes;
+
     /** If {@link #state} is {@link #STATE_ERROR} then this is the cause, otherwise null. */
     public final Throwable error;
 
-    private DownloadState(
+    private TaskState(
         int taskId,
-        DownloadAction downloadAction,
+        DownloadAction action,
         @State int state,
         float downloadPercentage,
         long downloadedBytes,
         Throwable error) {
       this.taskId = taskId;
-      this.downloadAction = downloadAction;
+      this.action = action;
       this.state = state;
       this.downloadPercentage = downloadPercentage;
       this.downloadedBytes = downloadedBytes;
@@ -567,7 +558,7 @@ public final class DownloadManager {
 
   }
 
-  private static final class DownloadTask implements Runnable {
+  private static final class Task implements Runnable {
 
     /**
      * Task states.
@@ -607,26 +598,26 @@ public final class DownloadManager {
 
     private final int id;
     private final DownloadManager downloadManager;
-    private final DownloadAction downloadAction;
+    private final DownloadAction action;
     private final int minRetryCount;
     private volatile @InternalState int currentState;
     private volatile Downloader downloader;
     private Thread thread;
     private Throwable error;
 
-    private DownloadTask(
-        int id, DownloadManager downloadManager, DownloadAction downloadAction, int minRetryCount) {
+    private Task(
+        int id, DownloadManager downloadManager, DownloadAction action, int minRetryCount) {
       this.id = id;
       this.downloadManager = downloadManager;
-      this.downloadAction = downloadAction;
+      this.action = action;
       this.currentState = STATE_QUEUED;
       this.minRetryCount = minRetryCount;
     }
 
-    public DownloadState getDownloadState() {
+    public TaskState getDownloadState() {
       int externalState = getExternalState();
-      return new DownloadState(
-          id, downloadAction, externalState, getDownloadPercentage(), getDownloadedBytes(), error);
+      return new TaskState(
+          id, action, externalState, getDownloadPercentage(), getDownloadedBytes(), error);
     }
 
     /** Returns whether the task is finished. */
@@ -662,11 +653,11 @@ public final class DownloadManager {
       if (!DEBUG) {
         return super.toString();
       }
-      return downloadAction.type
+      return action.type
           + ' '
-          + (downloadAction.isRemoveAction ? "remove" : "download")
+          + (action.isRemoveAction ? "remove" : "download")
           + ' '
-          + downloadAction.data
+          + action.data
           + ' '
           + getStateString();
     }
@@ -679,7 +670,7 @@ public final class DownloadManager {
         case STATE_STARTED_STOPPING:
           return "STOPPING";
         default:
-          return DownloadState.getStateString(currentState);
+          return TaskState.getStateString(currentState);
       }
     }
 
@@ -740,7 +731,7 @@ public final class DownloadManager {
       this.error = error;
       boolean isInternalState = currentState != getExternalState();
       if (!isInternalState) {
-        downloadManager.onTaskStateChange(DownloadTask.this);
+        downloadManager.onTaskStateChange(this);
       }
       return true;
     }
@@ -749,11 +740,11 @@ public final class DownloadManager {
 
     @Override
     public void run() {
-      downloadManager.logd("Task is started", DownloadTask.this);
+      downloadManager.logd("Task is started", this);
       Throwable error = null;
       try {
-        downloader = downloadAction.createDownloader(downloadManager.downloaderConstructorHelper);
-        if (downloadAction.isRemoveAction) {
+        downloader = action.createDownloader(downloadManager.downloaderConstructorHelper);
+        if (action.isRemoveAction) {
           downloader.remove();
         } else {
           int errorCount = 0;
