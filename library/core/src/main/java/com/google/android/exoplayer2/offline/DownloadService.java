@@ -25,7 +25,7 @@ import android.os.Looper;
 import android.support.annotation.Nullable;
 import android.support.annotation.StringRes;
 import android.util.Log;
-import com.google.android.exoplayer2.offline.DownloadManager.DownloadState;
+import com.google.android.exoplayer2.offline.DownloadManager.TaskState;
 import com.google.android.exoplayer2.scheduler.Requirements;
 import com.google.android.exoplayer2.scheduler.RequirementsWatcher;
 import com.google.android.exoplayer2.scheduler.Scheduler;
@@ -272,21 +272,25 @@ public abstract class DownloadService extends Service {
   /**
    * Returns a notification to be displayed when this service running in the foreground.
    *
-   * <p>This method is called when there is a download task state change and periodically while
-   * there is an active download. Update interval can be set using {@link #DownloadService(int,
+   * <p>This method is called when there is a task state change and periodically while there are
+   * active tasks. The periodic update interval can be set using {@link #DownloadService(int,
    * long)}.
    *
-   * <p>On API level 26 and above, it may be also called just before the service stops with an empty
-   * {@code downloadStates} array, returned notification is used to satisfy system requirements for
-   * foreground services.
+   * <p>On API level 26 and above, this method may also be called just before the service stops,
+   * with an empty {@code taskStates} array. The returned notification is used to satisfy system
+   * requirements for foreground services.
    *
-   * @param downloadStates DownloadState for all tasks.
-   * @return A notification to be displayed when this service running in the foreground.
+   * @param taskStates The states of all current tasks.
+   * @return The foreground notification to display.
    */
-  protected abstract Notification getForegroundNotification(DownloadState[] downloadStates);
+  protected abstract Notification getForegroundNotification(TaskState[] taskStates);
 
-  /** Called when the download state changes. */
-  protected void onStateChange(DownloadState downloadState) {
+  /**
+   * Called when the state of a task changes.
+   *
+   * @param taskState The state of the task.
+   */
+  protected void onTaskStateChanged(TaskState taskState) {
     // Do nothing.
   }
 
@@ -308,9 +312,9 @@ public abstract class DownloadService extends Service {
 
   private final class DownloadListener implements DownloadManager.DownloadListener {
     @Override
-    public void onStateChange(DownloadManager downloadManager, DownloadState downloadState) {
-      DownloadService.this.onStateChange(downloadState);
-      if (downloadState.state == DownloadState.STATE_STARTED) {
+    public void onTaskStateChanged(DownloadManager downloadManager, TaskState taskState) {
+      DownloadService.this.onTaskStateChanged(taskState);
+      if (taskState.state == TaskState.STATE_STARTED) {
         foregroundNotificationUpdater.startPeriodicUpdates();
       } else {
         foregroundNotificationUpdater.update();
@@ -349,8 +353,8 @@ public abstract class DownloadService extends Service {
     }
 
     public void update() {
-      DownloadState[] downloadStates = downloadManager.getDownloadStates();
-      startForeground(notificationId, getForegroundNotification(downloadStates));
+      TaskState[] taskStates = downloadManager.getAllTaskStates();
+      startForeground(notificationId, getForegroundNotification(taskStates));
       notificationDisplayed = true;
       if (periodicUpdatesStarted) {
         handler.removeCallbacks(this);

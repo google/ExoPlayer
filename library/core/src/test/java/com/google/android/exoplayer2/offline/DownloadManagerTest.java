@@ -22,8 +22,8 @@ import android.os.ConditionVariable;
 import android.support.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.offline.DownloadManager.DownloadListener;
-import com.google.android.exoplayer2.offline.DownloadManager.DownloadState;
-import com.google.android.exoplayer2.offline.DownloadManager.DownloadState.State;
+import com.google.android.exoplayer2.offline.DownloadManager.TaskState;
+import com.google.android.exoplayer2.offline.DownloadManager.TaskState.State;
 import com.google.android.exoplayer2.testutil.DummyMainThread;
 import com.google.android.exoplayer2.testutil.RobolectricUtil;
 import com.google.android.exoplayer2.upstream.DummyDataSource;
@@ -255,11 +255,11 @@ public class DownloadManagerTest {
     downloadAction1.post().assertDoesNotStart();
     downloadAction2.post().assertDoesNotStart();
 
-    DownloadState[] states = downloadManager.getDownloadStates();
+    TaskState[] states = downloadManager.getAllTaskStates();
     assertThat(states).hasLength(3);
-    assertThat(states[0].downloadAction).isEqualTo(removeAction);
-    assertThat(states[1].downloadAction).isEqualTo(downloadAction1);
-    assertThat(states[2].downloadAction).isEqualTo(downloadAction2);
+    assertThat(states[0].action).isEqualTo(removeAction);
+    assertThat(states[1].action).isEqualTo(downloadAction1);
+    assertThat(states[2].action).isEqualTo(downloadAction2);
   }
 
   @Test
@@ -503,11 +503,11 @@ public class DownloadManagerTest {
     }
 
     @Override
-    public void onStateChange(DownloadManager downloadManager, DownloadState downloadState) {
-      if (downloadState.state == DownloadState.STATE_ERROR && downloadError == null) {
-        downloadError = downloadState.error;
+    public void onTaskStateChanged(DownloadManager downloadManager, TaskState taskState) {
+      if (taskState.state == TaskState.STATE_ERROR && downloadError == null) {
+        downloadError = taskState.error;
       }
-      ((FakeDownloadAction) downloadState.downloadAction).onStateChange(downloadState.state);
+      ((FakeDownloadAction) taskState.action).onStateChange(taskState.state);
     }
 
     @Override
@@ -580,23 +580,23 @@ public class DownloadManagerTest {
 
     private FakeDownloadAction assertStarted() throws InterruptedException {
       downloader.assertStarted(ASSERT_TRUE_TIMEOUT);
-      return assertState(DownloadState.STATE_STARTED);
+      return assertState(TaskState.STATE_STARTED);
     }
 
     private FakeDownloadAction assertEnded() {
-      return assertState(DownloadState.STATE_ENDED);
+      return assertState(TaskState.STATE_ENDED);
     }
 
     private FakeDownloadAction assertError() {
-      return assertState(DownloadState.STATE_ERROR);
+      return assertState(TaskState.STATE_ERROR);
     }
 
     private FakeDownloadAction assertCancelled() {
-      return assertState(DownloadState.STATE_CANCELED);
+      return assertState(TaskState.STATE_CANCELED);
     }
 
     private FakeDownloadAction assertStopped() {
-      return assertState(DownloadState.STATE_QUEUED);
+      return assertState(TaskState.STATE_QUEUED);
     }
 
     private FakeDownloadAction assertState(@State int expectedState) {
@@ -619,13 +619,13 @@ public class DownloadManagerTest {
             if (i > 0) {
               sb.append(',');
             }
-            sb.append(DownloadState.getStateString(receivedStates.get(i)));
+            sb.append(TaskState.getStateString(receivedStates.get(i)));
           }
           fail(
               String.format(
                   Locale.US,
                   "expected:<%s> but was:<%s>",
-                  DownloadState.getStateString(expectedState),
+                  TaskState.getStateString(expectedState),
                   sb));
         }
       }

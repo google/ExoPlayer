@@ -19,7 +19,6 @@ import static com.google.common.truth.Truth.assertThat;
 
 import com.google.android.exoplayer2.offline.DownloadManager;
 import com.google.android.exoplayer2.offline.DownloadManager.DownloadListener;
-import com.google.android.exoplayer2.offline.DownloadManager.DownloadState;
 import com.google.android.exoplayer2.testutil.DummyMainThread;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -40,9 +39,10 @@ import java.util.concurrent.TimeUnit;
   }
 
   @Override
-  public void onStateChange(DownloadManager downloadManager, DownloadState downloadState) {
-    if (downloadState.state == DownloadState.STATE_ERROR && downloadError == null) {
-      downloadError = downloadState.error;
+  public void onTaskStateChanged(
+      DownloadManager downloadManager, DownloadManager.TaskState taskState) {
+    if (taskState.state == DownloadManager.TaskState.STATE_ERROR && downloadError == null) {
+      downloadError = taskState.error;
     }
   }
 

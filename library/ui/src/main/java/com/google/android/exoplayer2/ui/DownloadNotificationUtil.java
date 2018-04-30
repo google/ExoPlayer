@@ -21,7 +21,7 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.NotificationCompat;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.offline.DownloadManager;
-import com.google.android.exoplayer2.offline.DownloadManager.DownloadState;
+import com.google.android.exoplayer2.offline.DownloadManager.TaskState;
 import com.google.android.exoplayer2.util.ErrorMessageProvider;
 
 /** Helper class to create notifications for downloads using {@link DownloadManager}. */
@@ -32,18 +32,18 @@ public final class DownloadNotificationUtil {
   private DownloadNotificationUtil() {}
 
   /**
-   * Returns a progress notification for the given {@link DownloadState}s.
+   * Returns a progress notification for the given {@link TaskState}s.
    *
-   * @param downloadStates States of the downloads.
+   * @param taskStates States of the downloads.
    * @param context Used to access resources.
    * @param smallIcon A small icon for the notification.
    * @param channelId The id of the notification channel to use. Only required for API level 26 and
    *     above.
    * @param message An optional message to display on the notification.
-   * @return A progress notification for the given {@link DownloadState}s.
+   * @return A progress notification for the given {@link TaskState}s.
    */
   public static @Nullable Notification createProgressNotification(
-      DownloadState[] downloadStates,
+      TaskState[] taskStates,
       Context context,
       int smallIcon,
       String channelId,
@@ -52,16 +52,15 @@ public final class DownloadNotificationUtil {
     int downloadTaskCount = 0;
     boolean allDownloadPercentagesUnknown = true;
     boolean haveDownloadedBytes = false;
-    for (DownloadState downloadState : downloadStates) {
-      if (downloadState.downloadAction.isRemoveAction
-          || downloadState.state != DownloadState.STATE_STARTED) {
+    for (TaskState taskState : taskStates) {
+      if (taskState.action.isRemoveAction || taskState.state != TaskState.STATE_STARTED) {
         continue;
       }
-      if (downloadState.downloadPercentage != C.PERCENTAGE_UNSET) {
+      if (taskState.downloadPercentage != C.PERCENTAGE_UNSET) {
         allDownloadPercentagesUnknown = false;
-        totalPercentage += downloadState.downloadPercentage;
+        totalPercentage += taskState.downloadPercentage;
       }
-      haveDownloadedBytes |= downloadState.downloadedBytes > 0;
+      haveDownloadedBytes |= taskState.downloadedBytes > 0;
       downloadTaskCount++;
     }
 
@@ -79,11 +78,11 @@ public final class DownloadNotificationUtil {
   }
 
   /**
-   * Returns a notification for a {@link DownloadState} which is in either {@link
-   * DownloadState#STATE_ENDED} or {@link DownloadState#STATE_ERROR} states. Returns null if it's
-   * some other state or it's state of a remove action.
+   * Returns a notification for a {@link TaskState} which is in either {@link TaskState#STATE_ENDED}
+   * or {@link TaskState#STATE_ERROR} states. Returns null if it's some other state or it's state of
+   * a remove action.
    *
-   * @param downloadState State of the download.
+   * @param taskState State of the download.
    * @param context Used to access resources.
    * @param smallIcon A small icon for the notifications.
    * @param channelId The id of the notification channel to use. Only required for API level 26 and
@@ -92,27 +91,26 @@ public final class DownloadNotificationUtil {
    * @param errorMessageProvider An optional {@link ErrorMessageProvider} for translating download
    *     errors into readable error messages. If not null and there is a download error then the
    *     error message is displayed instead of {@code message}.
-   * @return A notification for a {@link DownloadState} which is in either {@link
-   *     DownloadState#STATE_ENDED} or {@link DownloadState#STATE_ERROR} states. Returns null if
-   *     it's some other state or it's state of a remove action.
+   * @return A notification for a {@link TaskState} which is in either {@link TaskState#STATE_ENDED}
+   *     or {@link TaskState#STATE_ERROR} states. Returns null if it's some other state or it's
+   *     state of a remove action.
    */
   public static @Nullable Notification createDownloadFinishedNotification(
-      DownloadState downloadState,
+      TaskState taskState,
       Context context,
       int smallIcon,
       String channelId,
       @Nullable String message,
       @Nullable ErrorMessageProvider<Throwable> errorMessageProvider) {
-    if (downloadState.downloadAction.isRemoveAction
-        || (downloadState.state != DownloadState.STATE_ENDED
-            && downloadState.state != DownloadState.STATE_ERROR)) {
+    if (taskState.action.isRemoveAction
+        || (taskState.state != TaskState.STATE_ENDED && taskState.state != TaskState.STATE_ERROR)) {
       return null;
     }
-    if (downloadState.error != null && errorMessageProvider != null) {
-      message = errorMessageProvider.getErrorMessage(downloadState.error).second;
+    if (taskState.error != null && errorMessageProvider != null) {
+      message = errorMessageProvider.getErrorMessage(taskState.error).second;
     }
     int titleStringId =
-        downloadState.state == DownloadState.STATE_ENDED
+        taskState.state == TaskState.STATE_ENDED
             ? R.string.exo_download_completed
             : R.string.exo_download_failed;
     NotificationCompat.Builder notificationBuilder =
