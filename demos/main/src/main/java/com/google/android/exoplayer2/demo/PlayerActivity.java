@@ -406,17 +406,8 @@ public class PlayerActivity extends Activity
       player =
           ExoPlayerFactory.newSimpleInstance(renderersFactory, trackSelector, drmSessionManager);
       player.addListener(new PlayerEventListener());
-
-      EventLogger eventLogger = new EventLogger(trackSelector);
-      player.addListener(eventLogger);
-      player.addMetadataOutput(eventLogger);
-      player.addAudioDebugListener(eventLogger);
-      player.addVideoDebugListener(eventLogger);
-      if (drmSessionManager != null) {
-        drmSessionManager.addListener(mainHandler, eventLogger);
-      }
-
       player.setPlayWhenReady(startAutoPlay);
+      player.addAnalyticsListener(new EventLogger(trackSelector));
       playerView.setPlayer(player);
       playerView.setPlaybackPreparer(this);
       debugViewHelper = new DebugTextViewHelper(player, debugTextView);
@@ -437,8 +428,7 @@ public class PlayerActivity extends Activity
           releaseAdsLoader();
           loadedAdTagUri = adTagUri;
         }
-        MediaSource adsMediaSource =
-            createAdsMediaSource(mediaSource, Uri.parse(adTagUriString), eventLogger);
+        MediaSource adsMediaSource = createAdsMediaSource(mediaSource, Uri.parse(adTagUriString));
         if (adsMediaSource != null) {
           mediaSource = adsMediaSource;
         } else {
@@ -447,7 +437,6 @@ public class PlayerActivity extends Activity
       } else {
         releaseAdsLoader();
       }
-      mediaSource.addEventListener(mainHandler, eventLogger);
     }
     boolean haveStartPosition = startWindow != C.INDEX_UNSET;
     if (haveStartPosition) {
@@ -508,10 +497,8 @@ public class PlayerActivity extends Activity
             keyRequestPropertiesArray[i + 1]);
       }
     }
-    DefaultDrmSessionManager<FrameworkMediaCrypto> drmSessionManager =
-        new DefaultDrmSessionManager<>(
-            uuid, FrameworkMediaDrm.newInstance(uuid), drmCallback, null, multiSession);
-    return drmSessionManager;
+    return new DefaultDrmSessionManager<>(
+        uuid, FrameworkMediaDrm.newInstance(uuid), drmCallback, null, multiSession);
   }
 
   private void releasePlayer() {
@@ -572,8 +559,7 @@ public class PlayerActivity extends Activity
   }
 
   /** Returns an ads media source, reusing the ads loader if one exists. */
-  private @Nullable MediaSource createAdsMediaSource(
-      MediaSource mediaSource, Uri adTagUri, EventLogger eventLogger) {
+  private @Nullable MediaSource createAdsMediaSource(MediaSource mediaSource, Uri adTagUri) {
     // Load the extension source using reflection so the demo app doesn't have to depend on it.
     // The ads loader is reused for multiple playbacks, so that ad playback can resume.
     try {
@@ -604,7 +590,12 @@ public class PlayerActivity extends Activity
             }
           };
       return new AdsMediaSource(
-          mediaSource, adMediaSourceFactory, adsLoader, adUiViewGroup, mainHandler, eventLogger);
+          mediaSource,
+          adMediaSourceFactory,
+          adsLoader,
+          adUiViewGroup,
+          mainHandler,
+          player.getAnalyticsCollector());
     } catch (ClassNotFoundException e) {
       // IMA extension not loaded.
       return null;
