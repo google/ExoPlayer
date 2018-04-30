@@ -26,6 +26,7 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.os.PersistableBundle;
+import android.support.annotation.RequiresPermission;
 import android.util.Log;
 import com.google.android.exoplayer2.util.Util;
 
@@ -78,6 +79,7 @@ public final class PlatformScheduler implements Scheduler {
    * @param serviceAction The action which the service will be started with.
    * @param servicePackage The package of the service which contains the logic of the job.
    */
+  @RequiresPermission(android.Manifest.permission.RECEIVE_BOOT_COMPLETED)
   public PlatformScheduler(
       Context context,
       Requirements requirements,
@@ -103,6 +105,8 @@ public final class PlatformScheduler implements Scheduler {
     return true;
   }
 
+  // @RequiresPermission constructor annotation should ensure the permission is present.
+  @SuppressWarnings("MissingPermission")
   private static JobInfo buildJobInfo(
       Context context,
       Requirements requirements,
