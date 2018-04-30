@@ -17,6 +17,7 @@
   <string name="exo_download_downloading">다운로드 중</string>
   <string name="exo_download_completed">다운로드 완료</string>
   <string name="exo_download_failed">다운로드 실패</string>
+  <string name="exo_download_removing">Removing downloads</string>
   <string name="exo_track_selection_title_video">동영상</string>
   <string name="exo_track_selection_title_audio">오디오</string>
   <string name="exo_track_selection_title_text">문자 메시지</string>

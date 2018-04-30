@@ -17,6 +17,7 @@
   <string name="exo_download_downloading">Notiek lejupielāde</string>
   <string name="exo_download_completed">Lejupielāde ir pabeigta</string>
   <string name="exo_download_failed">Lejupielāde neizdevās</string>
+  <string name="exo_download_removing">Removing downloads</string>
   <string name="exo_track_selection_title_video">Video</string>
   <string name="exo_track_selection_title_audio">Audio</string>
   <string name="exo_track_selection_title_text">Teksts</string>

@@ -17,6 +17,7 @@
   <string name="exo_download_downloading">Се презема</string>
   <string name="exo_download_completed">Преземањето заврши</string>
   <string name="exo_download_failed">Неуспешно преземање</string>
+  <string name="exo_download_removing">Removing downloads</string>
   <string name="exo_track_selection_title_video">Видео</string>
   <string name="exo_track_selection_title_audio">Аудио</string>
   <string name="exo_track_selection_title_text">Текст</string>

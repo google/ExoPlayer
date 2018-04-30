@@ -17,6 +17,7 @@
   <string name="exo_download_downloading">Λήψη</string>
   <string name="exo_download_completed">Η λήψη ολοκληρώθηκε</string>
   <string name="exo_download_failed">Η λήψη απέτυχε</string>
+  <string name="exo_download_removing">Removing downloads</string>
   <string name="exo_track_selection_title_video">Βίντεο</string>
   <string name="exo_track_selection_title_audio">Ήχος</string>
   <string name="exo_track_selection_title_text">Κείμενο</string>

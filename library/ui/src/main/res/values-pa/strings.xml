@@ -17,6 +17,7 @@
   <string name="exo_download_downloading">ਡਾਊਨਲੋਡ ਕੀਤਾ ਜਾ ਰਿਹਾ ਹੈ</string>
   <string name="exo_download_completed">ਡਾਊਨਲੋਡ ਮੁਕੰਮਲ ਹੋਇਆ</string>
   <string name="exo_download_failed">ਡਾਊਨਲੋਡ ਅਸਫਲ ਰਿਹਾ</string>
+  <string name="exo_download_removing">Removing downloads</string>
   <string name="exo_track_selection_title_video">ਵੀਡੀਓ</string>
   <string name="exo_track_selection_title_audio">ਆਡੀਓ</string>
   <string name="exo_track_selection_title_text">ਲਿਖਤ</string>

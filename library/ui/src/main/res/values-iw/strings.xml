@@ -17,6 +17,7 @@
   <string name="exo_download_downloading">ההורדה מתבצעת</string>
   <string name="exo_download_completed">ההורדה הושלמה</string>
   <string name="exo_download_failed">ההורדה לא הושלמה</string>
+  <string name="exo_download_removing">Removing downloads</string>
   <string name="exo_track_selection_title_video">סרטון</string>
   <string name="exo_track_selection_title_audio">אודיו</string>
   <string name="exo_track_selection_title_text">טקסט</string>
