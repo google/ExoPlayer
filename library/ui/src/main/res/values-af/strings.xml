@@ -17,6 +17,7 @@
   <string name="exo_download_downloading">Laai tans af</string>
   <string name="exo_download_completed">Aflaai is voltooi</string>
   <string name="exo_download_failed">Kon nie aflaai nie</string>
+  <string name="exo_download_removing">Removing downloads</string>
   <string name="exo_track_selection_title_video">Video</string>
   <string name="exo_track_selection_title_audio">Oudio</string>
   <string name="exo_track_selection_title_text">SMS</string>

@@ -17,6 +17,7 @@
   <string name="exo_download_downloading">Завантажується</string>
   <string name="exo_download_completed">Завантаження завершено</string>
   <string name="exo_download_failed">Не вдалося завантажити</string>
+  <string name="exo_download_removing">Removing downloads</string>
   <string name="exo_track_selection_title_video">Відео</string>
   <string name="exo_track_selection_title_audio">Аудіо</string>
   <string name="exo_track_selection_title_text">Текст</string>

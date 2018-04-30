@@ -65,12 +65,16 @@ public final class DownloadNotificationUtil {
     }
 
     boolean haveDownloadTasks = downloadTaskCount > 0;
-    int titleStringId = haveDownloadTasks ? R.string.exo_download_downloading : NULL_STRING_ID;
+    int titleStringId =
+        haveDownloadTasks
+            ? R.string.exo_download_downloading
+            : (taskStates.length > 0 ? R.string.exo_download_removing : NULL_STRING_ID);
     NotificationCompat.Builder notificationBuilder =
         createNotificationBuilder(context, smallIcon, channelId, message, titleStringId);
 
     int progress = haveDownloadTasks ? (int) (totalPercentage / downloadTaskCount) : 0;
-    boolean indeterminate = allDownloadPercentagesUnknown && haveDownloadedBytes;
+    boolean indeterminate =
+        !haveDownloadTasks || (allDownloadPercentagesUnknown && haveDownloadedBytes);
     notificationBuilder.setProgress(/* max= */ 100, progress, indeterminate);
     notificationBuilder.setOngoing(true);
     notificationBuilder.setShowWhen(false);

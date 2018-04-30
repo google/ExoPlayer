@@ -17,6 +17,7 @@
   <string name="exo_download_downloading">በማውረድ ላይ</string>
   <string name="exo_download_completed">ማውረድ ተጠናቋል</string>
   <string name="exo_download_failed">ማውረድ አልተሳካም</string>
+  <string name="exo_download_removing">Removing downloads</string>
   <string name="exo_track_selection_title_video">ቪዲዮ</string>
   <string name="exo_track_selection_title_audio">ኦዲዮ</string>
   <string name="exo_track_selection_title_text">ጽሑፍ</string>

@@ -17,6 +17,7 @@
   <string name="exo_download_downloading">ກຳລັງດາວໂຫລດ</string>
   <string name="exo_download_completed">ດາວໂຫລດສຳເລັດແລ້ວ</string>
   <string name="exo_download_failed">ດາວໂຫຼດບໍ່ສຳເລັດ</string>
+  <string name="exo_download_removing">Removing downloads</string>
   <string name="exo_track_selection_title_video">ວິດີໂອ</string>
   <string name="exo_track_selection_title_audio">ສຽງ</string>
   <string name="exo_track_selection_title_text">ຂໍ້ຄວາມ</string>
