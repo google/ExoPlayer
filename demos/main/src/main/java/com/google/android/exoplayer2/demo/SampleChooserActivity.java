@@ -87,13 +87,8 @@ public class SampleChooserActivity extends Activity {
   }
 
   private void startDownloadServiceForeground() {
-    Intent serviceIntent =
-        new Intent(DownloadService.ACTION_INIT).setPackage("com.google.android.exoplayer2.demo");
-    if (Util.SDK_INT >= 26) {
-      startForegroundService(serviceIntent);
-    } else {
-      startService(serviceIntent);
-    }
+    Intent intent = new Intent(DownloadService.ACTION_INIT).setPackage(getPackageName());
+    Util.startForegroundService(this, intent);
   }
 
   private void onSampleGroups(final List<SampleGroup> groups, boolean sawError) {

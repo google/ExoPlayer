@@ -180,11 +180,7 @@ public final class JobDispatcherScheduler implements Scheduler {
         String servicePackage = extras.getString(SERVICE_PACKAGE);
         Intent intent = new Intent(serviceAction).setPackage(servicePackage);
         logd("starting service action: " + serviceAction + " package: " + servicePackage);
-        if (Util.SDK_INT >= 26) {
-          startForegroundService(intent);
-        } else {
-          startService(intent);
-        }
+        Util.startForegroundService(this, intent);
       } else {
         logd("requirements are not met");
         jobFinished(params, /* needsReschedule */ true);

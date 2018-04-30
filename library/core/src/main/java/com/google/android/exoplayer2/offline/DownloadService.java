@@ -405,11 +405,7 @@ public abstract class DownloadService extends Service {
 
     private void startServiceWithAction(String action) {
       Intent intent = new Intent(context, serviceClass).setAction(action);
-      if (Util.SDK_INT >= 26) {
-        context.startForegroundService(intent);
-      } else {
-        context.startService(intent);
-      }
+      Util.startForegroundService(context, intent);
     }
   }
 }
