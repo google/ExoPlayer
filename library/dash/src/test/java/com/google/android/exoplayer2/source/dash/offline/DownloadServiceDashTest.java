@@ -45,6 +45,7 @@ import java.io.File;
 import java.io.IOException;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
@@ -180,6 +181,7 @@ public class DownloadServiceDashTest {
     dummyMainThread.release();
   }
 
+  @Ignore // b/78877092
   @Test
   public void testMultipleDownloadAction() throws Throwable {
     downloadKeys(fakeRepresentationKey1);
@@ -190,6 +192,7 @@ public class DownloadServiceDashTest {
     assertCachedData(cache, fakeDataSet);
   }
 
+  @Ignore // b/78877092
   @Test
   public void testRemoveAction() throws Throwable {
     downloadKeys(fakeRepresentationKey1, fakeRepresentationKey2);
@@ -203,6 +206,7 @@ public class DownloadServiceDashTest {
     assertCacheEmpty(cache);
   }
 
+  @Ignore // b/78877092
   @Test
   public void testRemoveBeforeDownloadComplete() throws Throwable {
     pauseDownloadCondition = new ConditionVariable();

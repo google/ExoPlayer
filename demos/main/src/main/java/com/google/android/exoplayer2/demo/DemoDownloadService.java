@@ -23,13 +23,13 @@ import com.google.android.exoplayer2.offline.DownloadService;
 import com.google.android.exoplayer2.offline.DownloaderConstructorHelper;
 import com.google.android.exoplayer2.offline.ProgressiveDownloadAction;
 import com.google.android.exoplayer2.scheduler.PlatformScheduler;
-import com.google.android.exoplayer2.scheduler.Requirements;
 import com.google.android.exoplayer2.source.dash.offline.DashDownloadAction;
 import com.google.android.exoplayer2.source.hls.offline.HlsDownloadAction;
 import com.google.android.exoplayer2.source.smoothstreaming.offline.SsDownloadAction;
 import com.google.android.exoplayer2.ui.DownloadNotificationUtil;
 import com.google.android.exoplayer2.util.ErrorMessageProvider;
 import com.google.android.exoplayer2.util.NotificationUtil;
+import com.google.android.exoplayer2.util.Util;
 
 /** A service for downloading media. */
 public class DemoDownloadService extends DownloadService {
@@ -58,7 +58,7 @@ public class DemoDownloadService extends DownloadService {
       downloadManager =
           new DownloadManager(
               constructorHelper,
-              /*maxSimultaneousDownloads=*/ 2,
+              /* maxSimultaneousDownloads= */ 2,
               DownloadManager.DEFAULT_MIN_RETRY_COUNT,
               application.getDownloadActionFile(),
               DashDownloadAction.DESERIALIZER,
@@ -71,13 +71,7 @@ public class DemoDownloadService extends DownloadService {
 
   @Override
   protected PlatformScheduler getScheduler() {
-    return new PlatformScheduler(
-        getApplicationContext(), getRequirements(), JOB_ID, ACTION_INIT, getPackageName());
-  }
-
-  @Override
-  protected Requirements getRequirements() {
-    return new Requirements(Requirements.NETWORK_TYPE_UNMETERED, false, false);
+    return Util.SDK_INT >= 21 ? new PlatformScheduler(this, JOB_ID) : null;
   }
 
   @Override
