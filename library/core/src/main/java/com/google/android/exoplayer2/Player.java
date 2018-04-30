@@ -468,7 +468,7 @@ public interface Player {
    * @return The error, or {@code null}.
    */
   @Nullable
-  Exception getPlaybackError();
+  ExoPlaybackException getPlaybackError();
 
   /**
    * Sets whether playback should proceed when {@link #getPlaybackState()} == {@link #STATE_READY}.
