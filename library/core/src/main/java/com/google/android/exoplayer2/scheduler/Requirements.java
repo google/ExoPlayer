@@ -32,8 +32,6 @@ import java.lang.annotation.RetentionPolicy;
 
 /**
  * Defines a set of device state requirements.
- *
- * <p>To use network type requirement, application needs to have ACCESS_NETWORK_STATE permission.
  */
 public final class Requirements {
 
