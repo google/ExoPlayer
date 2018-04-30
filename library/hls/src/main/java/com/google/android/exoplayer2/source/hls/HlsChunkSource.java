@@ -261,10 +261,12 @@ import java.util.List;
         // If the playlist is too old to contain the chunk, we need to refresh it.
         chunkMediaSequence = mediaPlaylist.mediaSequence + mediaPlaylist.segments.size();
       } else {
+        // The playlist start time is subtracted from the target position because the segment start
+        // times are relative to the start of the playlist, but the target position is not.
         chunkMediaSequence =
             Util.binarySearchFloor(
                     mediaPlaylist.segments,
-                    targetPositionUs,
+                    /* value= */ targetPositionUs - mediaPlaylist.startTimeUs,
                     /* inclusive= */ true,
                     /* stayInBounds= */ !playlistTracker.isLive() || previous == null)
                 + mediaPlaylist.mediaSequence;

@@ -81,6 +81,8 @@
     ([#4016](https://github.com/google/ExoPlayer/issues/4016)).
   * Add support for multiple #EXT-X-MAP tags in a media playlist
     ([#4164](https://github.com/google/ExoPlayer/issues/4182)).
+  * Fix seeking in live streams
+    ([#4187](https://github.com/google/ExoPlayer/issues/4187)).
 * Fix ClearKey decryption error if the key contains a forward slash
   ([#4075](https://github.com/google/ExoPlayer/issues/4075)).
 * Fix crash when switching surface on Huawei P9 Lite
