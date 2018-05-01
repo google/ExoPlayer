@@ -21,7 +21,6 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Handler;
 import android.os.Parcelable;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -134,7 +133,6 @@ public class PlayerActivity extends Activity
     DEFAULT_COOKIE_MANAGER.setCookiePolicy(CookiePolicy.ACCEPT_ORIGINAL_SERVER);
   }
 
-  private Handler mainHandler;
   private PlayerView playerView;
   private LinearLayout debugRootView;
   private TextView debugTextView;
@@ -164,7 +162,6 @@ public class PlayerActivity extends Activity
   public void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     mediaDataSourceFactory = buildDataSourceFactory(true);
-    mainHandler = new Handler();
     if (CookieHandler.getDefault() != DEFAULT_COOKIE_MANAGER) {
       CookieHandler.setDefault(DEFAULT_COOKIE_MANAGER);
     }
@@ -594,8 +591,8 @@ public class PlayerActivity extends Activity
           adMediaSourceFactory,
           adsLoader,
           adUiViewGroup,
-          mainHandler,
-          player.getAnalyticsCollector());
+          /* eventHandler= */ null,
+          /* eventListener= */ null);
     } catch (ClassNotFoundException e) {
       // IMA extension not loaded.
       return null;

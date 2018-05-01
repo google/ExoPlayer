@@ -35,7 +35,6 @@ import com.google.android.exoplayer2.metadata.MetadataOutput;
 import com.google.android.exoplayer2.source.MediaSource.MediaPeriodId;
 import com.google.android.exoplayer2.source.MediaSourceEventListener;
 import com.google.android.exoplayer2.source.TrackGroupArray;
-import com.google.android.exoplayer2.source.ads.AdsMediaSource;
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
 import com.google.android.exoplayer2.upstream.BandwidthMeter;
 import com.google.android.exoplayer2.util.Assertions;
@@ -59,7 +58,6 @@ public class AnalyticsCollector
         VideoRendererEventListener,
         MediaSourceEventListener,
         BandwidthMeter.EventListener,
-        AdsMediaSource.EventListener,
         DefaultDrmSessionEventListener {
 
   /** Factory for an analytics collector. */
@@ -531,40 +529,6 @@ public class AnalyticsCollector
     EventTime eventTime = generateReadingMediaPeriodEventTime();
     for (AnalyticsListener listener : listeners) {
       listener.onDrmKeysRemoved(eventTime);
-    }
-  }
-
-  // AdsMediaSource.EventListener implementation.
-
-  @Override
-  public final void onAdLoadError(IOException error) {
-    EventTime eventTime = generatePlayingMediaPeriodEventTime();
-    for (AnalyticsListener listener : listeners) {
-      listener.onAdLoadError(eventTime, error);
-    }
-  }
-
-  @Override
-  public final void onInternalAdLoadError(RuntimeException error) {
-    EventTime eventTime = generatePlayingMediaPeriodEventTime();
-    for (AnalyticsListener listener : listeners) {
-      listener.onInternalAdLoadError(eventTime, error);
-    }
-  }
-
-  @Override
-  public final void onAdClicked() {
-    EventTime eventTime = generatePlayingMediaPeriodEventTime();
-    for (AnalyticsListener listener : listeners) {
-      listener.onAdClicked(eventTime);
-    }
-  }
-
-  @Override
-  public final void onAdTapped() {
-    EventTime eventTime = generatePlayingMediaPeriodEventTime();
-    for (AnalyticsListener listener : listeners) {
-      listener.onAdTapped(eventTime);
     }
   }
 

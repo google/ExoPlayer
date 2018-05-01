@@ -434,38 +434,6 @@ public interface AnalyticsListener {
   void onRenderedFirstFrame(EventTime eventTime, Surface surface);
 
   /**
-   * Called if there was an error loading one or more ads. The ads loader will skip the problematic
-   * ad(s).
-   *
-   * @param eventTime The event time.
-   * @param error The error.
-   */
-  void onAdLoadError(EventTime eventTime, IOException error);
-
-  /**
-   * Called when an unexpected internal error is encountered while loading ads. The ads loader will
-   * skip all remaining ads, as the error is not recoverable.
-   *
-   * @param eventTime The event time.
-   * @param error The error.
-   */
-  void onInternalAdLoadError(EventTime eventTime, RuntimeException error);
-
-  /**
-   * Called when the user clicks through an ad (for example, following a 'learn more' link).
-   *
-   * @param eventTime The event time.
-   */
-  void onAdClicked(EventTime eventTime);
-
-  /**
-   * Called when the user taps a non-clickthrough part of an ad.
-   *
-   * @param eventTime The event time.
-   */
-  void onAdTapped(EventTime eventTime);
-
-  /**
    * Called each time drm keys are loaded.
    *
    * @param eventTime The event time.

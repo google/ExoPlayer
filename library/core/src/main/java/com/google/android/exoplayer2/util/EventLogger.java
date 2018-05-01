@@ -403,26 +403,6 @@ public class EventLogger implements AnalyticsListener {
     logd(eventTime, "drmKeysLoaded");
   }
 
-  @Override
-  public void onAdLoadError(EventTime eventTime, IOException error) {
-    printInternalError(eventTime, "adLoadError", error);
-  }
-
-  @Override
-  public void onInternalAdLoadError(EventTime eventTime, RuntimeException error) {
-    printInternalError(eventTime, "internalAdLoadError", error);
-  }
-
-  @Override
-  public void onAdClicked(EventTime eventTime) {
-    logd(eventTime, "adClicked");
-  }
-
-  @Override
-  public void onAdTapped(EventTime eventTime) {
-    logd(eventTime, "adTapped");
-  }
-
   /**
    * Logs a debug message.
    *
