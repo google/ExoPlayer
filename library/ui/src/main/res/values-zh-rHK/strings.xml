@@ -27,9 +27,9 @@
   <string name="exo_track_resolution">%1$d × %2$d</string>
   <string name="exo_track_mono">單聲道</string>
   <string name="exo_track_stereo">立體聲</string>
-  <string name="exo_track_surround">環繞音效</string>
-  <string name="exo_track_surround_5_point_1">5.1 環繞音效</string>
-  <string name="exo_track_surround_7_point_1">7.1 環繞音效</string>
+  <string name="exo_track_surround">環迴立體聲</string>
+  <string name="exo_track_surround_5_point_1">5.1 環迴立體聲</string>
+  <string name="exo_track_surround_7_point_1">7.1 環迴立體聲</string>
   <string name="exo_track_bitrate">%1$.2f Mbps</string>
   <string name="exo_item_list">%1$s、%2$s</string>
 </resources>

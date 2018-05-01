@@ -16,8 +16,6 @@
 package com.google.android.exoplayer2.demo;
 
 import android.app.Notification;
-import android.app.PendingIntent;
-import android.content.Intent;
 import android.util.Pair;
 import com.google.android.exoplayer2.offline.DownloadManager;
 import com.google.android.exoplayer2.offline.DownloadManager.TaskState;
@@ -83,7 +81,7 @@ public class DemoDownloadService extends DownloadService {
         /* context= */ this,
         R.drawable.exo_controls_play,
         CHANNEL_ID,
-        getContentIntent(),
+        /* contentIntent= */ null,
         /* message= */ null);
   }
 
@@ -96,7 +94,7 @@ public class DemoDownloadService extends DownloadService {
             /* context= */ this,
             R.drawable.exo_controls_play,
             CHANNEL_ID,
-            getContentIntent(),
+            /* contentIntent= */ null,
             taskState.action.data,
             new ErrorMessageProvider<Throwable>() {
               @Override
@@ -105,11 +103,5 @@ public class DemoDownloadService extends DownloadService {
               }
             });
     NotificationUtil.setNotification(/* context= */ this, notificationId, downloadNotification);
-  }
-
-  private PendingIntent getContentIntent() {
-    Intent intent = new Intent(/* packageContext= */ this, DownloadActivity.class);
-    return PendingIntent.getActivity(
-        /* context= */ this, /* requestCode= */ 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
   }
 }
