@@ -47,9 +47,6 @@ import java.util.concurrent.CopyOnWriteArraySet;
  * <p>A download manager instance must be accessed only from the thread that created it, unless that
  * thread does not have a {@link Looper}. In that case, it must be accessed only from the
  * application's main thread. Registered listeners will be called on the same thread.
- *
- * <p>By default download tasks are stopped, so {@link #startDownloads()} must be called to start
- * them.
  */
 public final class DownloadManager {
 
