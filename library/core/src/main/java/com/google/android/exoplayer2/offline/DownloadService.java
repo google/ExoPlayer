@@ -250,7 +250,9 @@ public abstract class DownloadService extends Service {
 
   /**
    * Returns a {@link DownloadManager} to be used to downloaded content. Called only once in the
-   * life cycle of the service.
+   * life cycle of the service. The service will call {@link DownloadManager#startDownloads()} and
+   * {@link DownloadManager#stopDownloads} as necessary when requirements returned by {@link
+   * #getRequirements()} are met or stop being met.
    */
   protected abstract DownloadManager getDownloadManager();
 
