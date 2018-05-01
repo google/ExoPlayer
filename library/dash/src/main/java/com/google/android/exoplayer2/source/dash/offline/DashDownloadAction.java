@@ -60,9 +60,7 @@ public final class DashDownloadAction extends SegmentDownloadAction<Representati
 
   @Override
   protected DashDownloader createDownloader(DownloaderConstructorHelper constructorHelper) {
-    DashDownloader downloader = new DashDownloader(manifestUri, constructorHelper);
-    downloader.selectRepresentations(keys);
-    return downloader;
+    return new DashDownloader(manifestUri, constructorHelper, keys);
   }
 
   @Override

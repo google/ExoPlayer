@@ -663,11 +663,6 @@ public class DownloadManagerTest {
     }
 
     @Override
-    public void init() throws InterruptedException, IOException {
-      // do nothing.
-    }
-
-    @Override
     public void download() throws InterruptedException, IOException {
       assertThat(isRemoveAction).isFalse();
       started.countDown();

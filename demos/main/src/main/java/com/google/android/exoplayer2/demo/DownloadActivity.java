@@ -29,28 +29,34 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.Toast;
 import com.google.android.exoplayer2.C;
-import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.offline.DownloadAction;
 import com.google.android.exoplayer2.offline.DownloadService;
-import com.google.android.exoplayer2.offline.DownloaderConstructorHelper;
 import com.google.android.exoplayer2.offline.ProgressiveDownloadAction;
-import com.google.android.exoplayer2.offline.ProgressiveDownloader;
+import com.google.android.exoplayer2.source.dash.manifest.AdaptationSet;
+import com.google.android.exoplayer2.source.dash.manifest.DashManifest;
+import com.google.android.exoplayer2.source.dash.manifest.DashManifestParser;
 import com.google.android.exoplayer2.source.dash.manifest.Representation;
 import com.google.android.exoplayer2.source.dash.manifest.RepresentationKey;
 import com.google.android.exoplayer2.source.dash.offline.DashDownloadAction;
-import com.google.android.exoplayer2.source.dash.offline.DashDownloader;
 import com.google.android.exoplayer2.source.hls.offline.HlsDownloadAction;
-import com.google.android.exoplayer2.source.hls.offline.HlsDownloader;
+import com.google.android.exoplayer2.source.hls.playlist.HlsMasterPlaylist;
+import com.google.android.exoplayer2.source.hls.playlist.HlsMediaPlaylist;
+import com.google.android.exoplayer2.source.hls.playlist.HlsPlaylist;
+import com.google.android.exoplayer2.source.hls.playlist.HlsPlaylistParser;
 import com.google.android.exoplayer2.source.hls.playlist.RenditionKey;
+import com.google.android.exoplayer2.source.smoothstreaming.manifest.SsManifest;
+import com.google.android.exoplayer2.source.smoothstreaming.manifest.SsManifestParser;
 import com.google.android.exoplayer2.source.smoothstreaming.manifest.TrackKey;
 import com.google.android.exoplayer2.source.smoothstreaming.offline.SsDownloadAction;
-import com.google.android.exoplayer2.source.smoothstreaming.offline.SsDownloader;
 import com.google.android.exoplayer2.ui.DefaultTrackNameProvider;
 import com.google.android.exoplayer2.ui.TrackNameProvider;
+import com.google.android.exoplayer2.upstream.DataSource;
+import com.google.android.exoplayer2.upstream.ParsingLoadable;
 import com.google.android.exoplayer2.util.ParcelableArray;
 import com.google.android.exoplayer2.util.Util;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /** An activity for downloading media. */
@@ -87,23 +93,22 @@ public class DownloadActivity extends Activity {
     representationList.setAdapter(arrayAdapter);
 
     DemoApplication application = (DemoApplication) getApplication();
-    DownloaderConstructorHelper constructorHelper =
-        new DownloaderConstructorHelper(
-            application.getDownloadCache(), application.buildHttpDataSourceFactory(null));
+    DataSource.Factory manifestDataSourceFactory =
+        application.buildDataSourceFactory(/* listener= */ null);
     String extension = playerIntent.getStringExtra(EXTENSION_EXTRA);
     int type = Util.inferContentType(sampleUri, extension);
     switch (type) {
       case C.TYPE_DASH:
-        downloadUtilMethods = new DashDownloadUtilMethods(sampleUri, constructorHelper);
+        downloadUtilMethods = new DashDownloadUtilMethods(sampleUri, manifestDataSourceFactory);
         break;
       case C.TYPE_SS:
-        downloadUtilMethods = new SsDownloadUtilMethods(sampleUri, constructorHelper);
+        downloadUtilMethods = new SsDownloadUtilMethods(sampleUri, manifestDataSourceFactory);
         break;
       case C.TYPE_HLS:
-        downloadUtilMethods = new HlsDownloadUtilMethods(sampleUri, constructorHelper);
+        downloadUtilMethods = new HlsDownloadUtilMethods(sampleUri, manifestDataSourceFactory);
         break;
       case C.TYPE_OTHER:
-        downloadUtilMethods = new ProgressiveDownloadUtilMethods(sampleUri, constructorHelper);
+        downloadUtilMethods = new ProgressiveDownloadUtilMethods(sampleUri);
         break;
       default:
         throw new IllegalStateException("Unsupported type: " + type);
@@ -148,13 +153,17 @@ public class DownloadActivity extends Activity {
       DownloadService.addDownloadAction(
           this,
           DemoDownloadService.class,
-          downloadUtilMethods.getDownloadAction(sampleName, representationKeys));
+          downloadUtilMethods.getDownloadAction(
+              /* isRemoveAction= */ false, sampleName, representationKeys));
     }
   }
 
   private void removeDownload() {
     DownloadService.addDownloadAction(
-        this, DemoDownloadService.class, downloadUtilMethods.getRemoveAction());
+        this,
+        DemoDownloadService.class,
+        downloadUtilMethods.getDownloadAction(
+            /* isRemoveAction= */ true, sampleName, Collections.emptyList()));
     for (int i = 0; i < representationList.getChildCount(); i++) {
       representationList.setItemChecked(i, false);
     }
@@ -199,18 +208,15 @@ public class DownloadActivity extends Activity {
 
     public final Parcelable key;
     public final String title;
-    public final int percentDownloaded;
 
-    public RepresentationItem(Parcelable key, String title, float percentDownloaded) {
+    public RepresentationItem(Parcelable key, String title) {
       this.key = key;
       this.title = title;
-      this.percentDownloaded =
-          (int) (percentDownloaded == C.PERCENTAGE_UNSET ? 0 : percentDownloaded);
     }
 
     @Override
     public String toString() {
-      return title + " (" + percentDownloaded + "%)";
+      return title;
     }
   }
 
@@ -220,7 +226,7 @@ public class DownloadActivity extends Activity {
     @Override
     protected List<RepresentationItem> doInBackground(Void... ignore) {
       try {
-        return downloadUtilMethods.getRepresentationItems(trackNameProvider);
+        return downloadUtilMethods.loadRepresentationItems(trackNameProvider);
       } catch (IOException | InterruptedException e) {
         return null;
       }
@@ -244,173 +250,152 @@ public class DownloadActivity extends Activity {
   private abstract static class DownloadUtilMethods {
 
     protected final Uri manifestUri;
-    protected final DownloaderConstructorHelper constructorHelper;
 
-    public DownloadUtilMethods(Uri manifestUri, DownloaderConstructorHelper constructorHelper) {
+    public DownloadUtilMethods(Uri manifestUri) {
       this.manifestUri = manifestUri;
-      this.constructorHelper = constructorHelper;
     }
 
-    public abstract List<RepresentationItem> getRepresentationItems(
+    public abstract List<RepresentationItem> loadRepresentationItems(
         TrackNameProvider trackNameProvider) throws IOException, InterruptedException;
 
     public abstract DownloadAction getDownloadAction(
-        String sampleName, ArrayList<Object> representationKeys);
-
-    public abstract DownloadAction getRemoveAction();
+        boolean isRemoveAction, String sampleName, List<Object> representationKeys);
   }
 
   private static final class DashDownloadUtilMethods extends DownloadUtilMethods {
 
-    public DashDownloadUtilMethods(Uri manifestUri, DownloaderConstructorHelper constructorHelper) {
-      super(manifestUri, constructorHelper);
+    private final DataSource.Factory manifestDataSourceFactory;
+
+    public DashDownloadUtilMethods(Uri manifestUri, DataSource.Factory manifestDataSourceFactory) {
+      super(manifestUri);
+      this.manifestDataSourceFactory = manifestDataSourceFactory;
     }
 
     @Override
-    public List<RepresentationItem> getRepresentationItems(TrackNameProvider trackNameProvider)
+    public List<RepresentationItem> loadRepresentationItems(TrackNameProvider trackNameProvider)
         throws IOException, InterruptedException {
-      DashDownloader downloader = new DashDownloader(manifestUri, constructorHelper);
+      DataSource dataSource = manifestDataSourceFactory.createDataSource();
+      DashManifest manifest =
+          ParsingLoadable.load(dataSource, new DashManifestParser(), manifestUri);
+
       ArrayList<RepresentationItem> items = new ArrayList<>();
-      for (RepresentationKey key : downloader.getAllRepresentationKeys()) {
-        downloader.selectRepresentations(new RepresentationKey[] {key});
-        try {
-          downloader.init();
-        } catch (IOException e) {
-          continue;
+      for (int periodIndex = 0; periodIndex < manifest.getPeriodCount(); periodIndex++) {
+        List<AdaptationSet> adaptationSets = manifest.getPeriod(periodIndex).adaptationSets;
+        for (int adaptationIndex = 0; adaptationIndex < adaptationSets.size(); adaptationIndex++) {
+          List<Representation> representations =
+              adaptationSets.get(adaptationIndex).representations;
+          int representationsCount = representations.size();
+          for (int i = 0; i < representationsCount; i++) {
+            RepresentationKey key = new RepresentationKey(periodIndex, adaptationIndex, i);
+            String trackName = trackNameProvider.getTrackName(representations.get(i).format);
+            items.add(new RepresentationItem(key, trackName));
+          }
         }
-        Representation representation =
-            downloader
-                .getManifest()
-                .getPeriod(key.periodIndex)
-                .adaptationSets
-                .get(key.adaptationSetIndex)
-                .representations
-                .get(key.representationIndex);
-        String trackName = trackNameProvider.getTrackName(representation.format);
-        items.add(new RepresentationItem(key, trackName, downloader.getDownloadPercentage()));
       }
       return items;
     }
 
     @Override
     public DownloadAction getDownloadAction(
-        String sampleName, ArrayList<Object> representationKeys) {
+        boolean isRemoveAction, String sampleName, List<Object> representationKeys) {
       RepresentationKey[] keys =
           representationKeys.toArray(new RepresentationKey[representationKeys.size()]);
-      return new DashDownloadAction(/* isRemoveAction= */ false, sampleName, manifestUri, keys);
+      return new DashDownloadAction(isRemoveAction, sampleName, manifestUri, keys);
     }
 
-    @Override
-    public DownloadAction getRemoveAction() {
-      return new DashDownloadAction(/* isRemoveAction= */ true, /* data= */ null, manifestUri);
-    }
   }
 
   private static final class HlsDownloadUtilMethods extends DownloadUtilMethods {
 
-    public HlsDownloadUtilMethods(Uri manifestUri, DownloaderConstructorHelper constructorHelper) {
-      super(manifestUri, constructorHelper);
+    private final DataSource.Factory manifestDataSourceFactory;
+
+    public HlsDownloadUtilMethods(Uri manifestUri, DataSource.Factory manifestDataSourceFactory) {
+      super(manifestUri);
+      this.manifestDataSourceFactory = manifestDataSourceFactory;
     }
 
     @Override
-    public List<RepresentationItem> getRepresentationItems(TrackNameProvider trackNameProvider)
+    public List<RepresentationItem> loadRepresentationItems(TrackNameProvider trackNameProvider)
         throws IOException, InterruptedException {
-      HlsDownloader downloader = new HlsDownloader(manifestUri, constructorHelper);
+      DataSource dataSource = manifestDataSourceFactory.createDataSource();
+      HlsPlaylist<?> playlist =
+          ParsingLoadable.load(dataSource, new HlsPlaylistParser(), manifestUri);
+
       ArrayList<RepresentationItem> items = new ArrayList<>();
-      for (RenditionKey key : downloader.getAllRepresentationKeys()) {
-        downloader.selectRepresentations(new RenditionKey[] {key});
-        try {
-          downloader.init();
-        } catch (IOException e) {
-          continue;
+      if (playlist instanceof HlsMediaPlaylist) {
+        items.add(new RepresentationItem(null, "Stream"));
+      } else {
+        HlsMasterPlaylist masterPlaylist = (HlsMasterPlaylist) playlist;
+        ArrayList<HlsMasterPlaylist.HlsUrl> hlsUrls = new ArrayList<>();
+        hlsUrls.addAll(masterPlaylist.variants);
+        hlsUrls.addAll(masterPlaylist.audios);
+        hlsUrls.addAll(masterPlaylist.subtitles);
+        for (HlsMasterPlaylist.HlsUrl hlsUrl : hlsUrls) {
+          items.add(new RepresentationItem(new RenditionKey(hlsUrl.url), hlsUrl.url));
         }
-        items.add(new RepresentationItem(key, key.url, downloader.getDownloadPercentage()));
       }
       return items;
     }
 
     @Override
     public DownloadAction getDownloadAction(
-        String sampleName, ArrayList<Object> representationKeys) {
+        boolean isRemoveAction, String sampleName, List<Object> representationKeys) {
       RenditionKey[] keys = representationKeys.toArray(new RenditionKey[representationKeys.size()]);
-      return new HlsDownloadAction(/* isRemoveAction= */ false, sampleName, manifestUri, keys);
-    }
-
-    @Override
-    public DownloadAction getRemoveAction() {
-      return new HlsDownloadAction(/* isRemoveAction= */ true, /* data= */ null, manifestUri);
+      return new HlsDownloadAction(isRemoveAction, sampleName, manifestUri, keys);
     }
   }
 
   private static final class SsDownloadUtilMethods extends DownloadUtilMethods {
 
-    public SsDownloadUtilMethods(Uri manifestUri, DownloaderConstructorHelper constructorHelper) {
-      super(manifestUri, constructorHelper);
+    private final DataSource.Factory manifestDataSourceFactory;
+
+    public SsDownloadUtilMethods(Uri manifestUri, DataSource.Factory manifestDataSourceFactory) {
+      super(manifestUri);
+      this.manifestDataSourceFactory = manifestDataSourceFactory;
     }
 
     @Override
-    public List<RepresentationItem> getRepresentationItems(TrackNameProvider trackNameProvider)
+    public List<RepresentationItem> loadRepresentationItems(TrackNameProvider trackNameProvider)
         throws IOException, InterruptedException {
-      SsDownloader downloader = new SsDownloader(manifestUri, constructorHelper);
+      DataSource dataSource = manifestDataSourceFactory.createDataSource();
+      SsManifest manifest = ParsingLoadable.load(dataSource, new SsManifestParser(), manifestUri);
+
       ArrayList<RepresentationItem> items = new ArrayList<>();
-      for (TrackKey key : downloader.getAllRepresentationKeys()) {
-        downloader.selectRepresentations(new TrackKey[] {key});
-        try {
-          downloader.init();
-        } catch (IOException e) {
-          continue;
+      for (int i = 0; i < manifest.streamElements.length; i++) {
+        SsManifest.StreamElement streamElement = manifest.streamElements[i];
+        for (int j = 0; j < streamElement.formats.length; j++) {
+          TrackKey key = new TrackKey(i, j);
+          String trackName = trackNameProvider.getTrackName(streamElement.formats[j]);
+          items.add(new RepresentationItem(key, trackName));
         }
-        Format format =
-            downloader.getManifest().streamElements[key.streamElementIndex].formats[key.trackIndex];
-        String trackName = trackNameProvider.getTrackName(format);
-        items.add(new RepresentationItem(key, trackName, downloader.getDownloadPercentage()));
       }
       return items;
     }
 
     @Override
     public DownloadAction getDownloadAction(
-        String sampleName, ArrayList<Object> representationKeys) {
+        boolean isRemoveAction, String sampleName, List<Object> representationKeys) {
       TrackKey[] keys = representationKeys.toArray(new TrackKey[representationKeys.size()]);
-      return new SsDownloadAction(/* isRemoveAction= */ false, sampleName, manifestUri, keys);
-    }
-
-    @Override
-    public DownloadAction getRemoveAction() {
-      return new SsDownloadAction(/* isRemoveAction= */ true, /* data= */ null, manifestUri);
+      return new SsDownloadAction(isRemoveAction, sampleName, manifestUri, keys);
     }
   }
 
   private static final class ProgressiveDownloadUtilMethods extends DownloadUtilMethods {
 
-    public ProgressiveDownloadUtilMethods(
-        Uri manifestUri, DownloaderConstructorHelper constructorHelper) {
-      super(manifestUri, constructorHelper);
+    public ProgressiveDownloadUtilMethods(Uri manifestUri) {
+      super(manifestUri);
     }
 
     @Override
-    public List<RepresentationItem> getRepresentationItems(TrackNameProvider trackNameProvider) {
-      ProgressiveDownloader downloader =
-          new ProgressiveDownloader(manifestUri, null, constructorHelper);
-      ArrayList<RepresentationItem> items = new ArrayList<>();
-      {
-        downloader.init();
-        items.add(new RepresentationItem(null, "Stream", downloader.getDownloadPercentage()));
-      }
-      return items;
+    public List<RepresentationItem> loadRepresentationItems(TrackNameProvider trackNameProvider) {
+      return Collections.singletonList(new RepresentationItem(null, "Stream"));
     }
 
     @Override
     public DownloadAction getDownloadAction(
-        String sampleName, ArrayList<Object> representationKeys) {
+        boolean isRemoveAction, String sampleName, List<Object> representationKeys) {
       return new ProgressiveDownloadAction(
-          /* isRemoveAction= */ false, /* data= */ null, manifestUri, /* customCacheKey= */ null);
-    }
-
-    @Override
-    public DownloadAction getRemoveAction() {
-      return new ProgressiveDownloadAction(
-          /* isRemoveAction= */ true, /* data= */ null, manifestUri, /* customCacheKey= */ null);
+          isRemoveAction, sampleName, manifestUri, /* customCacheKey= */ null);
     }
   }
 }

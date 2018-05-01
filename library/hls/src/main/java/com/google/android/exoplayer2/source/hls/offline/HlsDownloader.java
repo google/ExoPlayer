@@ -16,7 +16,6 @@
 package com.google.android.exoplayer2.source.hls.offline;
 
 import android.net.Uri;
-import android.util.Pair;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.offline.DownloaderConstructorHelper;
 import com.google.android.exoplayer2.offline.SegmentDownloader;
@@ -35,29 +34,13 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 
-/**
- * Helper class to download HLS streams.
- *
- * <p>A subset of renditions can be downloaded by selecting them using {@link
- * #selectRepresentations(Object[])}.
- */
+/** A downloader for HLS streams. */
 public final class HlsDownloader extends SegmentDownloader<HlsMasterPlaylist, RenditionKey> {
 
-  /**
-   * @see SegmentDownloader#SegmentDownloader(Uri, DownloaderConstructorHelper)
-   */
-  public HlsDownloader(Uri manifestUri, DownloaderConstructorHelper constructorHelper)  {
-    super(manifestUri, constructorHelper);
-  }
-
-  @Override
-  public RenditionKey[] getAllRepresentationKeys() throws IOException {
-    ArrayList<RenditionKey> renditionKeys = new ArrayList<>();
-    HlsMasterPlaylist manifest = getManifest();
-    extractUrls(manifest.variants, renditionKeys);
-    extractUrls(manifest.audios, renditionKeys);
-    extractUrls(manifest.subtitles, renditionKeys);
-    return renditionKeys.toArray(new RenditionKey[renditionKeys.size()]);
+  /** @see SegmentDownloader#SegmentDownloader(Uri, DownloaderConstructorHelper, Object[]) */
+  public HlsDownloader(
+      Uri manifestUri, DownloaderConstructorHelper constructorHelper, RenditionKey[] trackKeys) {
+    super(manifestUri, constructorHelper, trackKeys);
   }
 
   @Override
@@ -71,8 +54,8 @@ public final class HlsDownloader extends SegmentDownloader<HlsMasterPlaylist, Re
   }
 
   @Override
-  protected Pair<List<Segment>, Boolean> getSegments(
-      DataSource dataSource, HlsMasterPlaylist manifest, boolean allowIndexLoadErrors)
+  protected List<Segment> getSegments(
+      DataSource dataSource, HlsMasterPlaylist manifest, boolean allowIncompleteList)
       throws IOException {
     HashSet<Uri> encryptionKeyUris = new HashSet<>();
     ArrayList<HlsUrl> renditionUrls = new ArrayList<>();
@@ -81,17 +64,15 @@ public final class HlsDownloader extends SegmentDownloader<HlsMasterPlaylist, Re
     renditionUrls.addAll(manifest.subtitles);
     ArrayList<Segment> segments = new ArrayList<>();
 
-    boolean segmentListComplete = true;
     for (HlsUrl renditionUrl : renditionUrls) {
       HlsMediaPlaylist mediaPlaylist = null;
       Uri uri = UriUtil.resolveToUri(manifest.baseUri, renditionUrl.url);
       try {
         mediaPlaylist = (HlsMediaPlaylist) loadManifest(dataSource, uri);
       } catch (IOException e) {
-        if (!allowIndexLoadErrors) {
+        if (!allowIncompleteList) {
           throw e;
         }
-        segmentListComplete = false;
       }
       segments.add(new Segment(mediaPlaylist != null ? mediaPlaylist.startTimeUs : Long.MIN_VALUE,
           new DataSpec(uri)));
@@ -111,7 +92,7 @@ public final class HlsDownloader extends SegmentDownloader<HlsMasterPlaylist, Re
         addSegment(segments, mediaPlaylist, segment, encryptionKeyUris);
       }
     }
-    return Pair.<List<Segment>, Boolean>create(segments, segmentListComplete);
+    return segments;
   }
 
   private static HlsPlaylist loadManifest(DataSource dataSource, Uri uri) throws IOException {
@@ -137,12 +118,6 @@ public final class HlsDownloader extends SegmentDownloader<HlsMasterPlaylist, Re
     Uri resolvedUri = UriUtil.resolveToUri(mediaPlaylist.baseUri, hlsSegment.url);
     segments.add(new Segment(startTimeUs,
         new DataSpec(resolvedUri, hlsSegment.byterangeOffset, hlsSegment.byterangeLength, null)));
-  }
-
-  private static void extractUrls(List<HlsUrl> hlsUrls, ArrayList<RenditionKey> renditionKeys) {
-    for (int i = 0; i < hlsUrls.size(); i++) {
-      renditionKeys.add(new RenditionKey(hlsUrls.get(i).url));
-    }
   }
 
 }

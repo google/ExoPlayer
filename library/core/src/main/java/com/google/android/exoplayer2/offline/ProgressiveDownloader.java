@@ -54,25 +54,21 @@ public final class ProgressiveDownloader implements Downloader {
   }
 
   @Override
-  public void init() {
-    CacheUtil.getCached(dataSpec, cache, cachingCounters);
-  }
-
-  @Override
   public void download() throws InterruptedException, IOException {
     priorityTaskManager.add(C.PRIORITY_DOWNLOAD);
     try {
-      byte[] buffer = new byte[BUFFER_SIZE_BYTES];
-      CacheUtil.cache(dataSpec, cache, dataSource, buffer, priorityTaskManager, C.PRIORITY_DOWNLOAD,
-          cachingCounters, true);
+      CacheUtil.cache(
+          dataSpec,
+          cache,
+          dataSource,
+          new byte[BUFFER_SIZE_BYTES],
+          priorityTaskManager,
+          C.PRIORITY_DOWNLOAD,
+          cachingCounters,
+          /* enableEOFException= */ true);
     } finally {
       priorityTaskManager.remove(C.PRIORITY_DOWNLOAD);
     }
-  }
-
-  @Override
-  public void remove() {
-    CacheUtil.remove(cache, CacheUtil.getKey(dataSpec));
   }
 
   @Override
@@ -88,4 +84,8 @@ public final class ProgressiveDownloader implements Downloader {
         : ((cachingCounters.totalCachedBytes() * 100f) / contentLength);
   }
 
+  @Override
+  public void remove() {
+    CacheUtil.remove(cache, CacheUtil.getKey(dataSpec));
+  }
 }
