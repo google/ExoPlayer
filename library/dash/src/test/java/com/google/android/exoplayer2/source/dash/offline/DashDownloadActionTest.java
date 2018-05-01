@@ -200,17 +200,18 @@ public class DashDownloadActionTest {
     assertThat(action2).isEqualTo(action1);
   }
 
-  private static void doTestSerializationRoundTrip(DashDownloadAction action1) throws IOException {
+  private static void doTestSerializationRoundTrip(DashDownloadAction action) throws IOException {
     ByteArrayOutputStream out = new ByteArrayOutputStream();
     DataOutputStream output = new DataOutputStream(out);
-    action1.writeToStream(output);
+    DownloadAction.serializeToStream(action, output);
 
     ByteArrayInputStream in = new ByteArrayInputStream(out.toByteArray());
     DataInputStream input = new DataInputStream(in);
     DownloadAction action2 =
-        DashDownloadAction.DESERIALIZER.readFromStream(DownloadAction.MASTER_VERSION, input);
+        DownloadAction.deserializeFromStream(
+            new DownloadAction.Deserializer[] {DashDownloadAction.DESERIALIZER}, input);
 
-    assertThat(action1).isEqualTo(action2);
+    assertThat(action).isEqualTo(action2);
   }
 
 }

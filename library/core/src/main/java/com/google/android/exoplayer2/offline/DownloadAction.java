@@ -26,29 +26,23 @@ import java.io.OutputStream;
 /** Contains the necessary parameters for a download or remove action. */
 public abstract class DownloadAction {
 
-  /**
-   * Master version for all {@link DownloadAction} serialization/deserialization implementations. On
-   * each change on any {@link DownloadAction} serialization format this version needs to be
-   * increased.
-   */
-  public static final int MASTER_VERSION = 0;
-
   /** Used to deserialize {@link DownloadAction}s. */
   public abstract static class Deserializer {
 
-    public String type;
+    public final String type;
+    public final int version;
 
-    public Deserializer(String type) {
+    public Deserializer(String type, int version) {
       this.type = type;
+      this.version = version;
     }
 
     /**
      * Deserializes an action from the {@code input}.
      *
-     * @param version Version of the data.
-     * @param input DataInputStream to read data from.
+     * @param version The version of the serialized action.
+     * @param input The stream from which to read the action.
      * @see DownloadAction#writeToStream(DataOutputStream)
-     * @see DownloadAction#MASTER_VERSION
      */
     public abstract DownloadAction readFromStream(int version, DataInputStream input)
         throws IOException;
@@ -62,42 +56,23 @@ public abstract class DownloadAction {
    * <p>The caller is responsible for closing the given {@link InputStream}.
    *
    * @param deserializers {@link Deserializer}s for supported actions.
-   * @param input Input stream to read serialized data.
+   * @param input The stream from which to read the action.
    * @return The deserialized action.
    * @throws IOException If there is an IO error reading from {@code input}, or if the action type
    *     isn't supported by any of the {@code deserializers}.
    */
   public static DownloadAction deserializeFromStream(
       Deserializer[] deserializers, InputStream input) throws IOException {
-    return deserializeFromStream(deserializers, input, MASTER_VERSION);
-  }
-
-  /**
-   * Deserializes one {@code action} which was serialized by {@link
-   * #serializeToStream(DownloadAction, OutputStream)} from the {@code input} using one of the
-   * {@link Deserializer}s which supports the type of the action.
-   *
-   * <p>The caller is responsible for closing the given {@link InputStream}.
-   *
-   * @param deserializers {@link Deserializer}s for supported actions.
-   * @param input Input stream to read serialized data.
-   * @param version Master version of the serialization. See {@link DownloadAction#MASTER_VERSION}.
-   * @return The deserialized action.
-   * @throws IOException If there is an IO error from {@code input}.
-   * @throws DownloadException If the action type isn't supported by any of the {@code
-   *     deserializers}.
-   */
-  public static DownloadAction deserializeFromStream(
-      Deserializer[] deserializers, InputStream input, int version) throws IOException {
     // Don't close the stream as it closes the underlying stream too.
     DataInputStream dataInputStream = new DataInputStream(input);
     String type = dataInputStream.readUTF();
+    int version = dataInputStream.readInt();
     for (Deserializer deserializer : deserializers) {
-      if (type.equals(deserializer.type)) {
+      if (type.equals(deserializer.type) && deserializer.version >= version) {
         return deserializer.readFromStream(version, dataInputStream);
       }
     }
-    throw new DownloadException("No Deserializer can be found to parse the data.");
+    throw new DownloadException("No deserializer found for:" + type + ", " + version);
   }
 
   /** Serializes {@code action} type and data into the {@code output}. */
@@ -106,12 +81,15 @@ public abstract class DownloadAction {
     // Don't close the stream as it closes the underlying stream too.
     DataOutputStream dataOutputStream = new DataOutputStream(output);
     dataOutputStream.writeUTF(action.type);
+    dataOutputStream.writeInt(action.version);
     action.writeToStream(dataOutputStream);
     dataOutputStream.flush();
   }
 
   /** The type of the action. */
   public final String type;
+  /** The action version. */
+  public final int version;
   /** Whether this is a remove action. If false, this is a download action. */
   public final boolean isRemoveAction;
   /** Custom data for this action. May be the empty string if no custom data was specified. */
@@ -119,11 +97,14 @@ public abstract class DownloadAction {
 
   /**
    * @param type The type of the action.
+   * @param version The action version.
    * @param isRemoveAction Whether this is a remove action. If false, this is a download action.
    * @param data Optional custom data for this action. If null, an empty string is used.
    */
-  protected DownloadAction(String type, boolean isRemoveAction, @Nullable String data) {
+  protected DownloadAction(
+      String type, int version, boolean isRemoveAction, @Nullable String data) {
     this.type = type;
+    this.version = version;
     this.isRemoveAction = isRemoveAction;
     this.data = data != null ? data : "";
   }

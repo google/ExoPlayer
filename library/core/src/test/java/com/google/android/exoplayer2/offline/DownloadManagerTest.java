@@ -535,7 +535,7 @@ public class DownloadManagerTest {
     private final BlockingQueue<Integer> states;
 
     private FakeDownloadAction(boolean isRemoveAction, @Nullable String mediaId) {
-      super("FakeDownloadAction", isRemoveAction, mediaId);
+      super("FakeDownloadAction", /* version= */ 0, isRemoveAction, mediaId);
       this.mediaId = mediaId;
       this.downloader = new FakeDownloader(isRemoveAction);
       this.states = new ArrayBlockingQueue<>(10);

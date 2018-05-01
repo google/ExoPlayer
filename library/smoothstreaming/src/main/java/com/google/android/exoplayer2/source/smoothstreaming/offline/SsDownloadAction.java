@@ -29,9 +29,10 @@ import java.io.IOException;
 public final class SsDownloadAction extends SegmentDownloadAction<TrackKey> {
 
   private static final String TYPE = "SsDownloadAction";
+  private static final int VERSION = 0;
 
   public static final Deserializer DESERIALIZER =
-      new SegmentDownloadActionDeserializer<TrackKey>(TYPE) {
+      new SegmentDownloadActionDeserializer<TrackKey>(TYPE, VERSION) {
 
         @Override
         protected TrackKey readKey(DataInputStream input) throws IOException {
@@ -51,11 +52,12 @@ public final class SsDownloadAction extends SegmentDownloadAction<TrackKey> {
       };
 
   /**
-   * @see SegmentDownloadAction#SegmentDownloadAction(String, boolean, String, Uri, Comparable[])
+   * @see SegmentDownloadAction#SegmentDownloadAction(String, int, boolean, String, Uri,
+   *     Comparable[])
    */
   public SsDownloadAction(
       boolean isRemoveAction, @Nullable String data, Uri manifestUri, TrackKey... keys) {
-    super(TYPE, isRemoveAction, data, manifestUri, keys);
+    super(TYPE, VERSION, isRemoveAction, data, manifestUri, keys);
   }
 
   @Override
