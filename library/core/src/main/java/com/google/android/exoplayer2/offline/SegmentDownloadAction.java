@@ -37,8 +37,8 @@ public abstract class SegmentDownloadAction<K extends Comparable> extends Downlo
    */
   protected abstract static class SegmentDownloadActionDeserializer<K> extends Deserializer {
 
-    public SegmentDownloadActionDeserializer(String type) {
-      super(type);
+    public SegmentDownloadActionDeserializer(String type, int version) {
+      super(type, version);
     }
 
     @Override
@@ -71,15 +71,21 @@ public abstract class SegmentDownloadAction<K extends Comparable> extends Downlo
 
   /**
    * @param type The type of the action.
-   * @param data Optional custom data for this action. If null, an empty string is used.
+   * @param version The action version.
    * @param isRemoveAction Whether the data will be removed. If {@code false} it will be downloaded.
+   * @param data Optional custom data for this action. If null, an empty string is used.
    * @param manifestUri The {@link Uri} of the manifest to be downloaded.
    * @param keys Keys of representations to be downloaded. If empty, all representations are
    *     downloaded. If {@code removeAction} is true, {@code keys} must be an empty array.
    */
   protected SegmentDownloadAction(
-      String type, boolean isRemoveAction, @Nullable String data, Uri manifestUri, K[] keys) {
-    super(type, isRemoveAction, data);
+      String type,
+      int version,
+      boolean isRemoveAction,
+      @Nullable String data,
+      Uri manifestUri,
+      K[] keys) {
+    super(type, version, isRemoveAction, data);
     this.manifestUri = manifestUri;
     if (isRemoveAction) {
       Assertions.checkArgument(keys.length == 0);

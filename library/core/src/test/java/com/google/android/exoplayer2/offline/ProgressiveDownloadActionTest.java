@@ -153,18 +153,19 @@ public class ProgressiveDownloadActionTest {
     assertThat(action2.isSameMedia(action1)).isFalse();
   }
 
-  private static void doTestSerializationRoundTrip(ProgressiveDownloadAction action1)
+  private static void doTestSerializationRoundTrip(ProgressiveDownloadAction action)
       throws IOException {
     ByteArrayOutputStream out = new ByteArrayOutputStream();
     DataOutputStream output = new DataOutputStream(out);
-    action1.writeToStream(output);
+    DownloadAction.serializeToStream(action, output);
 
     ByteArrayInputStream in = new ByteArrayInputStream(out.toByteArray());
     DataInputStream input = new DataInputStream(in);
     DownloadAction action2 =
-        ProgressiveDownloadAction.DESERIALIZER.readFromStream(DownloadAction.MASTER_VERSION, input);
+        DownloadAction.deserializeFromStream(
+            new DownloadAction.Deserializer[] {ProgressiveDownloadAction.DESERIALIZER}, input);
 
-    assertThat(action2).isEqualTo(action1);
+    assertThat(action2).isEqualTo(action);
   }
 
 }

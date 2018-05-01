@@ -29,9 +29,10 @@ import java.io.IOException;
 public final class DashDownloadAction extends SegmentDownloadAction<RepresentationKey> {
 
   private static final String TYPE = "DashDownloadAction";
+  private static final int VERSION = 0;
 
   public static final Deserializer DESERIALIZER =
-      new SegmentDownloadActionDeserializer<RepresentationKey>(TYPE) {
+      new SegmentDownloadActionDeserializer<RepresentationKey>(TYPE, VERSION) {
 
         @Override
         protected RepresentationKey readKey(DataInputStream input) throws IOException {
@@ -51,11 +52,12 @@ public final class DashDownloadAction extends SegmentDownloadAction<Representati
       };
 
   /**
-   * @see SegmentDownloadAction#SegmentDownloadAction(String, boolean, String, Uri, Comparable[])
+   * @see SegmentDownloadAction#SegmentDownloadAction(String, int, boolean, String, Uri,
+   *     Comparable[])
    */
   public DashDownloadAction(
       boolean isRemoveAction, @Nullable String data, Uri manifestUri, RepresentationKey... keys) {
-    super(TYPE, isRemoveAction, data, manifestUri, keys);
+    super(TYPE, VERSION, isRemoveAction, data, manifestUri, keys);
   }
 
   @Override

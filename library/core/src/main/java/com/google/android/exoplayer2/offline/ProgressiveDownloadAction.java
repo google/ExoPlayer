@@ -28,9 +28,10 @@ import java.io.IOException;
 public final class ProgressiveDownloadAction extends DownloadAction {
 
   private static final String TYPE = "ProgressiveDownloadAction";
+  private static final int VERSION = 0;
 
   public static final Deserializer DESERIALIZER =
-      new Deserializer(TYPE) {
+      new Deserializer(TYPE, VERSION) {
         @Override
         public ProgressiveDownloadAction readFromStream(int version, DataInputStream input)
             throws IOException {
@@ -54,7 +55,7 @@ public final class ProgressiveDownloadAction extends DownloadAction {
    */
   public ProgressiveDownloadAction(
       boolean isRemoveAction, @Nullable String data, Uri uri, @Nullable String customCacheKey) {
-    super(TYPE, isRemoveAction, data);
+    super(TYPE, VERSION, isRemoveAction, data);
     this.uri = Assertions.checkNotNull(uri);
     this.customCacheKey = customCacheKey;
   }
