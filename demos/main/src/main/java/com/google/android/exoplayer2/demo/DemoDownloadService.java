@@ -16,7 +16,6 @@
 package com.google.android.exoplayer2.demo;
 
 import android.app.Notification;
-import android.util.Pair;
 import com.google.android.exoplayer2.offline.DownloadManager;
 import com.google.android.exoplayer2.offline.DownloadManager.TaskState;
 import com.google.android.exoplayer2.offline.DownloadService;
@@ -27,7 +26,6 @@ import com.google.android.exoplayer2.source.dash.offline.DashDownloadAction;
 import com.google.android.exoplayer2.source.hls.offline.HlsDownloadAction;
 import com.google.android.exoplayer2.source.smoothstreaming.offline.SsDownloadAction;
 import com.google.android.exoplayer2.ui.DownloadNotificationUtil;
-import com.google.android.exoplayer2.util.ErrorMessageProvider;
 import com.google.android.exoplayer2.util.NotificationUtil;
 import com.google.android.exoplayer2.util.Util;
 
@@ -76,32 +74,39 @@ public class DemoDownloadService extends DownloadService {
 
   @Override
   protected Notification getForegroundNotification(TaskState[] taskStates) {
-    return DownloadNotificationUtil.createProgressNotification(
-        taskStates,
+    return DownloadNotificationUtil.buildProgressNotification(
         /* context= */ this,
         R.drawable.exo_controls_play,
         CHANNEL_ID,
         /* contentIntent= */ null,
-        /* message= */ null);
+        /* message= */ null,
+        taskStates);
   }
 
   @Override
   protected void onTaskStateChanged(TaskState taskState) {
+    if (taskState.action.isRemoveAction) {
+      return;
+    }
+    Notification notification = null;
+    if (taskState.state == TaskState.STATE_COMPLETED) {
+      notification =
+          DownloadNotificationUtil.buildDownloadCompletedNotification(
+              /* context= */ this,
+              R.drawable.exo_controls_play,
+              CHANNEL_ID,
+              /* contentIntent= */ null,
+              taskState.action.data);
+    } else if (taskState.state == TaskState.STATE_FAILED) {
+      notification =
+          DownloadNotificationUtil.buildDownloadFailedNotification(
+              /* context= */ this,
+              R.drawable.exo_controls_play,
+              CHANNEL_ID,
+              /* contentIntent= */ null,
+              taskState.action.data);
+    }
     int notificationId = FOREGROUND_NOTIFICATION_ID + 1 + taskState.taskId;
-    Notification downloadNotification =
-        DownloadNotificationUtil.createDownloadFinishedNotification(
-            taskState,
-            /* context= */ this,
-            R.drawable.exo_controls_play,
-            CHANNEL_ID,
-            /* contentIntent= */ null,
-            taskState.action.data,
-            new ErrorMessageProvider<Throwable>() {
-              @Override
-              public Pair<Integer, String> getErrorMessage(Throwable throwable) {
-                return new Pair<>(0, throwable.getLocalizedMessage());
-              }
-            });
-    NotificationUtil.setNotification(/* context= */ this, notificationId, downloadNotification);
+    NotificationUtil.setNotification(this, notificationId, notification);
   }
 }

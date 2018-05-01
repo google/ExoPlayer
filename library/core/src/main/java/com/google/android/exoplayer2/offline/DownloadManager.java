@@ -16,8 +16,8 @@
 package com.google.android.exoplayer2.offline;
 
 import static com.google.android.exoplayer2.offline.DownloadManager.TaskState.STATE_CANCELED;
-import static com.google.android.exoplayer2.offline.DownloadManager.TaskState.STATE_ENDED;
-import static com.google.android.exoplayer2.offline.DownloadManager.TaskState.STATE_ERROR;
+import static com.google.android.exoplayer2.offline.DownloadManager.TaskState.STATE_COMPLETED;
+import static com.google.android.exoplayer2.offline.DownloadManager.TaskState.STATE_FAILED;
 import static com.google.android.exoplayer2.offline.DownloadManager.TaskState.STATE_QUEUED;
 import static com.google.android.exoplayer2.offline.DownloadManager.TaskState.STATE_STARTED;
 
@@ -487,23 +487,23 @@ public final class DownloadManager {
      *
      * <pre>
      *                    -&gt; canceled
-     * queued &lt;-&gt; started -&gt; ended
-     *                    -&gt; error
+     * queued &lt;-&gt; started -&gt; completed
+     *                    -&gt; failed
      * </pre>
      */
     @Retention(RetentionPolicy.SOURCE)
-    @IntDef({STATE_QUEUED, STATE_STARTED, STATE_ENDED, STATE_CANCELED, STATE_ERROR})
+    @IntDef({STATE_QUEUED, STATE_STARTED, STATE_COMPLETED, STATE_CANCELED, STATE_FAILED})
     public @interface State {}
     /** The task is waiting to be started. */
     public static final int STATE_QUEUED = 0;
     /** The task is currently started. */
     public static final int STATE_STARTED = 1;
     /** The task completed. */
-    public static final int STATE_ENDED = 2;
+    public static final int STATE_COMPLETED = 2;
     /** The task was canceled. */
     public static final int STATE_CANCELED = 3;
     /** The task failed. */
-    public static final int STATE_ERROR = 4;
+    public static final int STATE_FAILED = 4;
 
     /** Returns the state string for the given state value. */
     public static String getStateString(@State int state) {
@@ -512,12 +512,12 @@ public final class DownloadManager {
           return "QUEUED";
         case STATE_STARTED:
           return "STARTED";
-        case STATE_ENDED:
-          return "ENDED";
+        case STATE_COMPLETED:
+          return "COMPLETED";
         case STATE_CANCELED:
           return "CANCELED";
-        case STATE_ERROR:
-          return "ERROR";
+        case STATE_FAILED:
+          return "FAILED";
         default:
           throw new IllegalStateException();
       }
@@ -538,7 +538,7 @@ public final class DownloadManager {
     /** The total number of downloaded bytes. */
     public final long downloadedBytes;
 
-    /** If {@link #state} is {@link #STATE_ERROR} then this is the cause, otherwise null. */
+    /** If {@link #state} is {@link #STATE_FAILED} then this is the cause, otherwise null. */
     public final Throwable error;
 
     private TaskState(
@@ -566,24 +566,24 @@ public final class DownloadManager {
      * <p>Transition map (vertical states are source states):
      *
      * <pre>
-     *             +------+-------+-----+-----------+-----------+--------+--------+-----+
-     *             |queued|started|ended|q_canceling|s_canceling|canceled|stopping|error|
-     * +-----------+------+-------+-----+-----------+-----------+--------+--------+-----+
-     * |queued     |      |   X   |     |     X     |           |        |        |     |
-     * |started    |      |       |  X  |           |     X     |        |   X    |  X  |
-     * |q_canceling|      |       |     |           |           |   X    |        |     |
-     * |s_canceling|      |       |     |           |           |   X    |        |     |
-     * |stopping   |   X  |       |     |           |           |        |        |     |
-     * +-----------+------+-------+-----+-----------+-----------+--------+--------+-----+
+     *             +------+-------+---------+-----------+-----------+--------+--------+------+
+     *             |queued|started|completed|q_canceling|s_canceling|canceled|stopping|failed|
+     * +-----------+------+-------+---------+-----------+-----------+--------+--------+------+
+     * |queued     |      |   X   |         |     X     |           |        |        |      |
+     * |started    |      |       |    X    |           |     X     |        |   X    |   X  |
+     * |q_canceling|      |       |         |           |           |   X    |        |      |
+     * |s_canceling|      |       |         |           |           |   X    |        |      |
+     * |stopping   |   X  |       |         |           |           |        |        |      |
+     * +-----------+------+-------+---------+-----------+-----------+--------+--------+------+
      * </pre>
      */
     @Retention(RetentionPolicy.SOURCE)
     @IntDef({
       STATE_QUEUED,
       STATE_STARTED,
-      STATE_ENDED,
+      STATE_COMPLETED,
       STATE_CANCELED,
-      STATE_ERROR,
+      STATE_FAILED,
       STATE_QUEUED_CANCELING,
       STATE_STARTED_CANCELING,
       STATE_STARTED_STOPPING
@@ -622,8 +622,8 @@ public final class DownloadManager {
 
     /** Returns whether the task is finished. */
     public boolean isFinished() {
-      return currentState == STATE_ERROR
-          || currentState == STATE_ENDED
+      return currentState == STATE_FAILED
+          || currentState == STATE_COMPLETED
           || currentState == STATE_CANCELED;
     }
 
@@ -778,7 +778,9 @@ public final class DownloadManager {
             @Override
             public void run() {
               if (changeStateAndNotify(
-                      STATE_STARTED, finalError != null ? STATE_ERROR : STATE_ENDED, finalError)
+                      STATE_STARTED,
+                      finalError != null ? STATE_FAILED : STATE_COMPLETED,
+                      finalError)
                   || changeStateAndNotify(STATE_STARTED_CANCELING, STATE_CANCELED)
                   || changeStateAndNotify(STATE_STARTED_STOPPING, STATE_QUEUED)) {
                 return;

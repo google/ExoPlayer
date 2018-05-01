@@ -41,7 +41,7 @@ import java.util.concurrent.TimeUnit;
   @Override
   public void onTaskStateChanged(
       DownloadManager downloadManager, DownloadManager.TaskState taskState) {
-    if (taskState.state == DownloadManager.TaskState.STATE_ERROR && downloadError == null) {
+    if (taskState.state == DownloadManager.TaskState.STATE_FAILED && downloadError == null) {
       downloadError = taskState.error;
     }
   }
