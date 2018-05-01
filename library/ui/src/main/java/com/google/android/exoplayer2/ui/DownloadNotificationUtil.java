@@ -16,8 +16,11 @@
 package com.google.android.exoplayer2.ui;
 
 import android.app.Notification;
+import android.app.PendingIntent;
 import android.content.Context;
+import android.support.annotation.DrawableRes;
 import android.support.annotation.Nullable;
+import android.support.annotation.StringRes;
 import android.support.v4.app.NotificationCompat;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.offline.DownloadManager;
@@ -27,7 +30,7 @@ import com.google.android.exoplayer2.util.ErrorMessageProvider;
 /** Helper class to create notifications for downloads using {@link DownloadManager}. */
 public final class DownloadNotificationUtil {
 
-  private static final int NULL_STRING_ID = 0;
+  private static final @StringRes int NULL_STRING_ID = 0;
 
   private DownloadNotificationUtil() {}
 
@@ -39,14 +42,16 @@ public final class DownloadNotificationUtil {
    * @param smallIcon A small icon for the notification.
    * @param channelId The id of the notification channel to use. Only required for API level 26 and
    *     above.
+   * @param contentIntent An optional content intent to send when the notification is clicked.
    * @param message An optional message to display on the notification.
    * @return A progress notification for the given {@link TaskState}s.
    */
   public static @Nullable Notification createProgressNotification(
       TaskState[] taskStates,
       Context context,
-      int smallIcon,
+      @DrawableRes int smallIcon,
       String channelId,
+      @Nullable PendingIntent contentIntent,
       @Nullable String message) {
     float totalPercentage = 0;
     int downloadTaskCount = 0;
@@ -70,7 +75,8 @@ public final class DownloadNotificationUtil {
             ? R.string.exo_download_downloading
             : (taskStates.length > 0 ? R.string.exo_download_removing : NULL_STRING_ID);
     NotificationCompat.Builder notificationBuilder =
-        createNotificationBuilder(context, smallIcon, channelId, message, titleStringId);
+        createNotificationBuilder(
+            context, smallIcon, channelId, contentIntent, message, titleStringId);
 
     int progress = haveDownloadTasks ? (int) (totalPercentage / downloadTaskCount) : 0;
     boolean indeterminate =
@@ -91,6 +97,7 @@ public final class DownloadNotificationUtil {
    * @param smallIcon A small icon for the notifications.
    * @param channelId The id of the notification channel to use. Only required for API level 26 and
    *     above.
+   * @param contentIntent An optional content intent to send when the notification is clicked.
    * @param message An optional message to display on the notification.
    * @param errorMessageProvider An optional {@link ErrorMessageProvider} for translating download
    *     errors into readable error messages. If not null and there is a download error then the
@@ -102,8 +109,9 @@ public final class DownloadNotificationUtil {
   public static @Nullable Notification createDownloadFinishedNotification(
       TaskState taskState,
       Context context,
-      int smallIcon,
+      @DrawableRes int smallIcon,
       String channelId,
+      @Nullable PendingIntent contentIntent,
       @Nullable String message,
       @Nullable ErrorMessageProvider<Throwable> errorMessageProvider) {
     if (taskState.action.isRemoveAction
@@ -113,25 +121,31 @@ public final class DownloadNotificationUtil {
     if (taskState.error != null && errorMessageProvider != null) {
       message = errorMessageProvider.getErrorMessage(taskState.error).second;
     }
+    @StringRes
     int titleStringId =
         taskState.state == TaskState.STATE_ENDED
             ? R.string.exo_download_completed
             : R.string.exo_download_failed;
     NotificationCompat.Builder notificationBuilder =
-        createNotificationBuilder(context, smallIcon, channelId, message, titleStringId);
+        createNotificationBuilder(
+            context, smallIcon, channelId, contentIntent, message, titleStringId);
     return notificationBuilder.build();
   }
 
   private static NotificationCompat.Builder createNotificationBuilder(
       Context context,
-      int smallIcon,
+      @DrawableRes int smallIcon,
       String channelId,
+      @Nullable PendingIntent contentIntent,
       @Nullable String message,
-      int titleStringId) {
+      @StringRes int titleStringId) {
     NotificationCompat.Builder notificationBuilder =
         new NotificationCompat.Builder(context, channelId).setSmallIcon(smallIcon);
     if (titleStringId != NULL_STRING_ID) {
       notificationBuilder.setContentTitle(context.getResources().getString(titleStringId));
+    }
+    if (contentIntent != null) {
+      notificationBuilder.setContentIntent(contentIntent);
     }
     if (message != null) {
       notificationBuilder.setStyle(new NotificationCompat.BigTextStyle().bigText(message));
