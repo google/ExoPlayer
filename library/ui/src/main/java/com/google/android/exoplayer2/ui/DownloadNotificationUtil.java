@@ -23,11 +23,9 @@ import android.support.annotation.Nullable;
 import android.support.annotation.StringRes;
 import android.support.v4.app.NotificationCompat;
 import com.google.android.exoplayer2.C;
-import com.google.android.exoplayer2.offline.DownloadManager;
 import com.google.android.exoplayer2.offline.DownloadManager.TaskState;
-import com.google.android.exoplayer2.util.ErrorMessageProvider;
 
-/** Helper class to create notifications for downloads using {@link DownloadManager}. */
+/** Helper for creating download notifications. */
 public final class DownloadNotificationUtil {
 
   private static final @StringRes int NULL_STRING_ID = 0;
@@ -35,24 +33,24 @@ public final class DownloadNotificationUtil {
   private DownloadNotificationUtil() {}
 
   /**
-   * Returns a progress notification for the given {@link TaskState}s.
+   * Returns a progress notification for the given task states.
    *
-   * @param taskStates States of the downloads.
-   * @param context Used to access resources.
+   * @param context A context for accessing resources.
    * @param smallIcon A small icon for the notification.
    * @param channelId The id of the notification channel to use. Only required for API level 26 and
    *     above.
    * @param contentIntent An optional content intent to send when the notification is clicked.
    * @param message An optional message to display on the notification.
-   * @return A progress notification for the given {@link TaskState}s.
+   * @param taskStates The task states.
+   * @return The notification.
    */
-  public static @Nullable Notification createProgressNotification(
-      TaskState[] taskStates,
+  public static Notification buildProgressNotification(
       Context context,
       @DrawableRes int smallIcon,
       String channelId,
       @Nullable PendingIntent contentIntent,
-      @Nullable String message) {
+      @Nullable String message,
+      TaskState[] taskStates) {
     float totalPercentage = 0;
     int downloadTaskCount = 0;
     boolean allDownloadPercentagesUnknown = true;
@@ -75,7 +73,7 @@ public final class DownloadNotificationUtil {
             ? R.string.exo_download_downloading
             : (taskStates.length > 0 ? R.string.exo_download_removing : NULL_STRING_ID);
     NotificationCompat.Builder notificationBuilder =
-        createNotificationBuilder(
+        newNotificationBuilder(
             context, smallIcon, channelId, contentIntent, message, titleStringId);
 
     int progress = haveDownloadTasks ? (int) (totalPercentage / downloadTaskCount) : 0;
@@ -88,51 +86,52 @@ public final class DownloadNotificationUtil {
   }
 
   /**
-   * Returns a notification for a {@link TaskState} which is in either {@link TaskState#STATE_ENDED}
-   * or {@link TaskState#STATE_ERROR} states. Returns null if it's some other state or it's state of
-   * a remove action.
+   * Returns a notification for a completed download.
    *
-   * @param taskState State of the download.
-   * @param context Used to access resources.
+   * @param context A context for accessing resources.
    * @param smallIcon A small icon for the notifications.
    * @param channelId The id of the notification channel to use. Only required for API level 26 and
    *     above.
    * @param contentIntent An optional content intent to send when the notification is clicked.
    * @param message An optional message to display on the notification.
-   * @param errorMessageProvider An optional {@link ErrorMessageProvider} for translating download
-   *     errors into readable error messages. If not null and there is a download error then the
-   *     error message is displayed instead of {@code message}.
-   * @return A notification for a {@link TaskState} which is in either {@link TaskState#STATE_ENDED}
-   *     or {@link TaskState#STATE_ERROR} states. Returns null if it's some other state or it's
-   *     state of a remove action.
+   * @return The notification.
    */
-  public static @Nullable Notification createDownloadFinishedNotification(
-      TaskState taskState,
+  public static Notification buildDownloadCompletedNotification(
       Context context,
       @DrawableRes int smallIcon,
       String channelId,
       @Nullable PendingIntent contentIntent,
-      @Nullable String message,
-      @Nullable ErrorMessageProvider<Throwable> errorMessageProvider) {
-    if (taskState.action.isRemoveAction
-        || (taskState.state != TaskState.STATE_ENDED && taskState.state != TaskState.STATE_ERROR)) {
-      return null;
-    }
-    if (taskState.error != null && errorMessageProvider != null) {
-      message = errorMessageProvider.getErrorMessage(taskState.error).second;
-    }
-    @StringRes
-    int titleStringId =
-        taskState.state == TaskState.STATE_ENDED
-            ? R.string.exo_download_completed
-            : R.string.exo_download_failed;
-    NotificationCompat.Builder notificationBuilder =
-        createNotificationBuilder(
-            context, smallIcon, channelId, contentIntent, message, titleStringId);
-    return notificationBuilder.build();
+      @Nullable String message) {
+    int titleStringId = R.string.exo_download_completed;
+    return newNotificationBuilder(
+            context, smallIcon, channelId, contentIntent, message, titleStringId)
+        .build();
   }
 
-  private static NotificationCompat.Builder createNotificationBuilder(
+  /**
+   * Returns a notification for a failed download.
+   *
+   * @param context A context for accessing resources.
+   * @param smallIcon A small icon for the notifications.
+   * @param channelId The id of the notification channel to use. Only required for API level 26 and
+   *     above.
+   * @param contentIntent An optional content intent to send when the notification is clicked.
+   * @param message An optional message to display on the notification.
+   * @return The notification.
+   */
+  public static Notification buildDownloadFailedNotification(
+      Context context,
+      @DrawableRes int smallIcon,
+      String channelId,
+      @Nullable PendingIntent contentIntent,
+      @Nullable String message) {
+    @StringRes int titleStringId = R.string.exo_download_failed;
+    return newNotificationBuilder(
+            context, smallIcon, channelId, contentIntent, message, titleStringId)
+        .build();
+  }
+
+  private static NotificationCompat.Builder newNotificationBuilder(
       Context context,
       @DrawableRes int smallIcon,
       String channelId,

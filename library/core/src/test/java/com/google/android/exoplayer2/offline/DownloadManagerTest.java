@@ -102,21 +102,21 @@ public class DownloadManagerTest {
     for (int i = 0; i <= MIN_RETRY_COUNT; i++) {
       fakeDownloader.assertStarted(MAX_RETRY_DELAY).unblock();
     }
-    downloadAction.assertError();
+    downloadAction.assertFailed();
     testDownloadListener.clearDownloadError();
 
     testDownloadListener.blockUntilTasksCompleteAndThrowAnyDownloadError();
   }
 
   @Test
-  public void testDownloadNoRetryWhenCancelled() throws Throwable {
+  public void testDownloadNoRetryWhenCanceled() throws Throwable {
     FakeDownloadAction downloadAction = createDownloadAction("media 1").ignoreInterrupts();
     downloadAction.getFakeDownloader().enableDownloadIOException = true;
     downloadAction.post().assertStarted();
 
     FakeDownloadAction removeAction = createRemoveAction("media 1").post();
 
-    downloadAction.unblock().assertCancelled();
+    downloadAction.unblock().assertCanceled();
     removeAction.unblock();
 
     testDownloadListener.blockUntilTasksCompleteAndThrowAnyDownloadError();
@@ -135,7 +135,7 @@ public class DownloadManagerTest {
       }
       fakeDownloader.unblock();
     }
-    downloadAction.assertEnded();
+    downloadAction.assertCompleted();
 
     testDownloadListener.blockUntilTasksCompleteAndThrowAnyDownloadError();
   }
@@ -156,7 +156,7 @@ public class DownloadManagerTest {
       }
       fakeDownloader.unblock();
     }
-    downloadAction.assertEnded();
+    downloadAction.assertCompleted();
 
     testDownloadListener.blockUntilTasksCompleteAndThrowAnyDownloadError();
   }
@@ -207,13 +207,13 @@ public class DownloadManagerTest {
     removeAction1.post().assertDoesNotStart();
 
     // downloadAction2 finishes but it isn't enough to start removeAction1.
-    downloadAction2.unblock().assertCancelled();
+    downloadAction2.unblock().assertCanceled();
     removeAction1.assertDoesNotStart();
     // downloadAction3 is post to DownloadManager but it waits for removeAction1 to finish.
     downloadAction3.post().assertDoesNotStart();
 
     // When downloadAction1 finishes, removeAction1 starts.
-    downloadAction1.unblock().assertCancelled();
+    downloadAction1.unblock().assertCanceled();
     removeAction1.assertStarted();
     // downloadAction3 still waits removeAction1
     downloadAction3.assertDoesNotStart();
@@ -221,9 +221,9 @@ public class DownloadManagerTest {
     // removeAction2 is posted. removeAction1 and downloadAction3 is canceled so removeAction2
     // starts immediately.
     removeAction2.post();
-    removeAction1.assertCancelled();
-    downloadAction3.assertCancelled();
-    removeAction2.assertStarted().unblock().assertEnded();
+    removeAction1.assertCanceled();
+    downloadAction3.assertCanceled();
+    removeAction2.assertStarted().unblock().assertCompleted();
     testDownloadListener.blockUntilTasksCompleteAndThrowAnyDownloadError();
   }
 
@@ -237,10 +237,10 @@ public class DownloadManagerTest {
     removeAction2.post().assertDoesNotStart();
     removeAction3.post().assertDoesNotStart();
 
-    removeAction2.assertCancelled();
+    removeAction2.assertCanceled();
 
-    removeAction1.unblock().assertCancelled();
-    removeAction3.assertStarted().unblock().assertEnded();
+    removeAction1.unblock().assertCanceled();
+    removeAction3.assertStarted().unblock().assertCompleted();
 
     testDownloadListener.blockUntilTasksCompleteAndThrowAnyDownloadError();
   }
@@ -272,11 +272,11 @@ public class DownloadManagerTest {
     downloadAction1.post().assertDoesNotStart();
     downloadAction2.post().assertDoesNotStart();
 
-    removeAction.unblock().assertEnded();
+    removeAction.unblock().assertCompleted();
     downloadAction1.assertStarted();
     downloadAction2.assertStarted();
-    downloadAction1.unblock().assertEnded();
-    downloadAction2.unblock().assertEnded();
+    downloadAction1.unblock().assertCompleted();
+    downloadAction2.unblock().assertCompleted();
 
     testDownloadListener.blockUntilTasksCompleteAndThrowAnyDownloadError();
   }
@@ -291,11 +291,11 @@ public class DownloadManagerTest {
     downloadAction1.post().assertDoesNotStart();
     downloadAction2.post().assertDoesNotStart();
 
-    removeAction.unblock().assertEnded();
+    removeAction.unblock().assertCompleted();
     downloadAction1.assertStarted();
     downloadAction2.assertStarted();
-    downloadAction1.unblock().assertEnded();
-    downloadAction2.unblock().assertEnded();
+    downloadAction1.unblock().assertCompleted();
+    downloadAction2.unblock().assertCompleted();
 
     testDownloadListener.blockUntilTasksCompleteAndThrowAnyDownloadError();
   }
@@ -310,11 +310,11 @@ public class DownloadManagerTest {
     removeAction1.post().assertDoesNotStart();
     removeAction2.post().assertStarted();
 
-    downloadAction.unblock().assertCancelled();
-    removeAction2.unblock().assertEnded();
+    downloadAction.unblock().assertCanceled();
+    removeAction2.unblock().assertCompleted();
 
     removeAction1.assertStarted();
-    removeAction1.unblock().assertEnded();
+    removeAction1.unblock().assertCompleted();
 
     testDownloadListener.blockUntilTasksCompleteAndThrowAnyDownloadError();
   }
@@ -342,14 +342,14 @@ public class DownloadManagerTest {
     download1Action.assertStopped();
 
     // remove actions aren't stopped.
-    remove2Action.unblock().assertEnded();
+    remove2Action.unblock().assertCompleted();
     // Although remove2Action is finished, download2Action doesn't start.
     download2Action.assertDoesNotStart();
 
     // When a new remove action is added, it cancels stopped download actions with the same media.
     remove1Action.post();
-    download1Action.assertCancelled();
-    remove1Action.assertStarted().unblock().assertEnded();
+    download1Action.assertCanceled();
+    remove1Action.assertStarted().unblock().assertCompleted();
 
     // New download actions can be added but they don't start.
     download3Action.post().assertDoesNotStart();
@@ -362,8 +362,8 @@ public class DownloadManagerTest {
           }
         });
 
-    download2Action.assertStarted().unblock().assertEnded();
-    download3Action.assertStarted().unblock().assertEnded();
+    download2Action.assertStarted().unblock().assertCompleted();
+    download3Action.assertStarted().unblock().assertCompleted();
 
     testDownloadListener.blockUntilTasksCompleteAndThrowAnyDownloadError();
   }
@@ -456,7 +456,7 @@ public class DownloadManagerTest {
   }
 
   private void doTestActionRuns(FakeDownloadAction action) throws Throwable {
-    action.post().assertStarted().unblock().assertEnded();
+    action.post().assertStarted().unblock().assertCompleted();
     testDownloadListener.blockUntilTasksCompleteAndThrowAnyDownloadError();
   }
 
@@ -468,7 +468,7 @@ public class DownloadManagerTest {
     action1.unblock();
     action2.assertStarted();
 
-    action2.unblock().assertEnded();
+    action2.unblock().assertCompleted();
     testDownloadListener.blockUntilTasksCompleteAndThrowAnyDownloadError();
   }
 
@@ -476,8 +476,8 @@ public class DownloadManagerTest {
       throws Throwable {
     action1.post().assertStarted();
     action2.post().assertStarted();
-    action1.unblock().assertEnded();
-    action2.unblock().assertEnded();
+    action1.unblock().assertCompleted();
+    action2.unblock().assertCompleted();
     testDownloadListener.blockUntilTasksCompleteAndThrowAnyDownloadError();
   }
 
@@ -504,7 +504,7 @@ public class DownloadManagerTest {
 
     @Override
     public void onTaskStateChanged(DownloadManager downloadManager, TaskState taskState) {
-      if (taskState.state == TaskState.STATE_ERROR && downloadError == null) {
+      if (taskState.state == TaskState.STATE_FAILED && downloadError == null) {
         downloadError = taskState.error;
       }
       ((FakeDownloadAction) taskState.action).onStateChange(taskState.state);
@@ -583,15 +583,15 @@ public class DownloadManagerTest {
       return assertState(TaskState.STATE_STARTED);
     }
 
-    private FakeDownloadAction assertEnded() {
-      return assertState(TaskState.STATE_ENDED);
+    private FakeDownloadAction assertCompleted() {
+      return assertState(TaskState.STATE_COMPLETED);
     }
 
-    private FakeDownloadAction assertError() {
-      return assertState(TaskState.STATE_ERROR);
+    private FakeDownloadAction assertFailed() {
+      return assertState(TaskState.STATE_FAILED);
     }
 
-    private FakeDownloadAction assertCancelled() {
+    private FakeDownloadAction assertCanceled() {
       return assertState(TaskState.STATE_CANCELED);
     }
 
