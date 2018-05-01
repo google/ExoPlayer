@@ -15,12 +15,12 @@
  */
 package com.google.android.exoplayer2.playbacktests.gts;
 
-import static com.google.common.truth.Truth.assertThat;
 import static com.google.common.truth.Truth.assertWithMessage;
 
 import android.net.Uri;
 import android.test.ActivityInstrumentationTestCase2;
 import com.google.android.exoplayer2.offline.DownloaderConstructorHelper;
+import com.google.android.exoplayer2.source.dash.DashUtil;
 import com.google.android.exoplayer2.source.dash.manifest.AdaptationSet;
 import com.google.android.exoplayer2.source.dash.manifest.DashManifest;
 import com.google.android.exoplayer2.source.dash.manifest.Representation;
@@ -35,8 +35,6 @@ import com.google.android.exoplayer2.upstream.cache.NoOpCacheEvictor;
 import com.google.android.exoplayer2.upstream.cache.SimpleCache;
 import com.google.android.exoplayer2.util.Util;
 import java.io.File;
-import java.io.IOException;
-import java.io.InterruptedIOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -47,9 +45,13 @@ public final class DashDownloadTest extends ActivityInstrumentationTestCase2<Hos
 
   private static final String TAG = "DashDownloadTest";
 
+  private static final Uri MANIFEST_URI = Uri.parse(DashTestData.H264_MANIFEST);
+
   private DashTestRunner testRunner;
   private File tempFolder;
   private SimpleCache cache;
+  private DefaultHttpDataSourceFactory httpDataSourceFactory;
+  private CacheDataSourceFactory offlineDataSourceFactory;
 
   public DashDownloadTest() {
     super(HostActivity.class);
@@ -66,6 +68,10 @@ public final class DashDownloadTest extends ActivityInstrumentationTestCase2<Hos
             DashTestData.H264_CDD_FIXED);
     tempFolder = Util.createTempDirectory(getActivity(), "ExoPlayerTest");
     cache = new SimpleCache(tempFolder, new NoOpCacheEvictor());
+    httpDataSourceFactory = new DefaultHttpDataSourceFactory("ExoPlayer", null);
+    offlineDataSourceFactory =
+        new CacheDataSourceFactory(
+            cache, DummyDataSource.FACTORY, CacheDataSource.FLAG_BLOCK_ON_CACHE);
   }
 
   @Override
@@ -83,17 +89,13 @@ public final class DashDownloadTest extends ActivityInstrumentationTestCase2<Hos
       return; // Pass.
     }
 
-    // Download manifest only
-    createDashDownloader().getManifest();
-    long manifestLength = cache.getCacheSpace();
-
-    // Download representations
     DashDownloader dashDownloader = downloadContent();
-    assertThat(dashDownloader.getDownloadedBytes())
-        .isEqualTo(cache.getCacheSpace() - manifestLength);
+    dashDownloader.download();
 
-    testRunner.setStreamName("test_h264_fixed_download").
-        setDataSourceFactory(newOfflineCacheDataSourceFactory()).run();
+    testRunner
+        .setStreamName("test_h264_fixed_download")
+        .setDataSourceFactory(offlineDataSourceFactory)
+        .run();
 
     dashDownloader.remove();
 
@@ -102,50 +104,27 @@ public final class DashDownloadTest extends ActivityInstrumentationTestCase2<Hos
   }
 
   private DashDownloader downloadContent() throws Exception {
-    DashDownloader dashDownloader = createDashDownloader();
-    DashManifest dashManifest = dashDownloader.getManifest();
-    try {
-      ArrayList<RepresentationKey> keys = new ArrayList<>();
-      for (int pIndex = 0; pIndex < dashManifest.getPeriodCount(); pIndex++) {
-        List<AdaptationSet> adaptationSets = dashManifest.getPeriod(pIndex).adaptationSets;
-        for (int aIndex = 0; aIndex < adaptationSets.size(); aIndex++) {
-          AdaptationSet adaptationSet = adaptationSets.get(aIndex);
-          List<Representation> representations = adaptationSet.representations;
-          for (int rIndex = 0; rIndex < representations.size(); rIndex++) {
-            String id = representations.get(rIndex).format.id;
-            if (DashTestData.AAC_AUDIO_REPRESENTATION_ID.equals(id)
-                || DashTestData.H264_CDD_FIXED.equals(id)) {
-              keys.add(new RepresentationKey(pIndex, aIndex, rIndex));
-            }
+    DashManifest dashManifest =
+        DashUtil.loadManifest(httpDataSourceFactory.createDataSource(), MANIFEST_URI);
+    ArrayList<RepresentationKey> keys = new ArrayList<>();
+    for (int pIndex = 0; pIndex < dashManifest.getPeriodCount(); pIndex++) {
+      List<AdaptationSet> adaptationSets = dashManifest.getPeriod(pIndex).adaptationSets;
+      for (int aIndex = 0; aIndex < adaptationSets.size(); aIndex++) {
+        AdaptationSet adaptationSet = adaptationSets.get(aIndex);
+        List<Representation> representations = adaptationSet.representations;
+        for (int rIndex = 0; rIndex < representations.size(); rIndex++) {
+          String id = representations.get(rIndex).format.id;
+          if (DashTestData.AAC_AUDIO_REPRESENTATION_ID.equals(id)
+              || DashTestData.H264_CDD_FIXED.equals(id)) {
+            keys.add(new RepresentationKey(pIndex, aIndex, rIndex));
           }
         }
-        dashDownloader.selectRepresentations(keys.toArray(new RepresentationKey[keys.size()]));
-        dashDownloader.download();
       }
-    } catch (InterruptedException e) {
-      // do nothing
-    } catch (IOException e) {
-      Throwable exception = e;
-      while (!(exception instanceof InterruptedIOException)) {
-        if (exception == null) {
-          throw e;
-        }
-        exception = exception.getCause();
-      }
-      // else do nothing
     }
-    return dashDownloader;
-  }
-
-  private DashDownloader createDashDownloader() {
     DownloaderConstructorHelper constructorHelper =
-        new DownloaderConstructorHelper(cache, new DefaultHttpDataSourceFactory("ExoPlayer", null));
-    return new DashDownloader(Uri.parse(DashTestData.H264_MANIFEST), constructorHelper);
-  }
-
-  private CacheDataSourceFactory newOfflineCacheDataSourceFactory() {
-    return new CacheDataSourceFactory(cache, DummyDataSource.FACTORY,
-        CacheDataSource.FLAG_BLOCK_ON_CACHE);
+        new DownloaderConstructorHelper(cache, httpDataSourceFactory);
+    return new DashDownloader(
+        MANIFEST_URI, constructorHelper, keys.toArray(new RepresentationKey[keys.size()]));
   }
 
 }

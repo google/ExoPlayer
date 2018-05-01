@@ -20,7 +20,6 @@ import static com.google.android.exoplayer2.source.dash.offline.DashDownloadTest
 import static com.google.android.exoplayer2.source.dash.offline.DashDownloadTestData.TEST_MPD_URI;
 import static com.google.android.exoplayer2.testutil.CacheAsserts.assertCacheEmpty;
 import static com.google.android.exoplayer2.testutil.CacheAsserts.assertCachedData;
-import static com.google.android.exoplayer2.testutil.CacheAsserts.assertDataCached;
 import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
@@ -28,7 +27,6 @@ import static org.mockito.Mockito.when;
 
 import com.google.android.exoplayer2.offline.DownloadException;
 import com.google.android.exoplayer2.offline.DownloaderConstructorHelper;
-import com.google.android.exoplayer2.source.dash.manifest.DashManifest;
 import com.google.android.exoplayer2.source.dash.manifest.RepresentationKey;
 import com.google.android.exoplayer2.testutil.FakeDataSet;
 import com.google.android.exoplayer2.testutil.FakeDataSource;
@@ -40,7 +38,6 @@ import com.google.android.exoplayer2.upstream.cache.SimpleCache;
 import com.google.android.exoplayer2.util.Util;
 import java.io.File;
 import java.io.IOException;
-import java.util.Arrays;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -69,47 +66,6 @@ public class DashDownloaderTest {
   }
 
   @Test
-  public void testGetManifest() throws Exception {
-    FakeDataSet fakeDataSet = new FakeDataSet().setData(TEST_MPD_URI, TEST_MPD);
-    DashDownloader dashDownloader = getDashDownloader(fakeDataSet);
-
-    DashManifest manifest = dashDownloader.getManifest();
-
-    assertThat(manifest).isNotNull();
-    assertCachedData(cache, fakeDataSet);
-  }
-
-  @Test
-  public void testDownloadManifestFailure() throws Exception {
-    byte[] testMpdFirstPart = Arrays.copyOf(TEST_MPD, 10);
-    byte[] testMpdSecondPart = Arrays.copyOfRange(TEST_MPD, 10, TEST_MPD.length);
-    FakeDataSet fakeDataSet =
-        new FakeDataSet()
-            .newData(TEST_MPD_URI)
-            .appendReadData(testMpdFirstPart)
-            .appendReadError(new IOException())
-            .appendReadData(testMpdSecondPart)
-            .endData();
-    DashDownloader dashDownloader = getDashDownloader(fakeDataSet);
-
-    // fails on the first try
-    try {
-      dashDownloader.getManifest();
-      fail();
-    } catch (IOException e) {
-      // ignore
-    }
-    DataSpec dataSpec = new DataSpec(TEST_MPD_URI, 0, testMpdFirstPart.length, null);
-    assertDataCached(cache, dataSpec, testMpdFirstPart);
-
-    // on the second try it downloads the rest of the data
-    DashManifest manifest = dashDownloader.getManifest();
-
-    assertThat(manifest).isNotNull();
-    assertCachedData(cache, fakeDataSet);
-  }
-
-  @Test
   public void testDownloadRepresentation() throws Exception {
     FakeDataSet fakeDataSet =
         new FakeDataSet()
@@ -118,11 +74,9 @@ public class DashDownloaderTest {
             .setRandomData("audio_segment_1", 4)
             .setRandomData("audio_segment_2", 5)
             .setRandomData("audio_segment_3", 6);
-    DashDownloader dashDownloader = getDashDownloader(fakeDataSet);
 
-    dashDownloader.selectRepresentations(new RepresentationKey[] {new RepresentationKey(0, 0, 0)});
+    DashDownloader dashDownloader = getDashDownloader(fakeDataSet, new RepresentationKey(0, 0, 0));
     dashDownloader.download();
-
     assertCachedData(cache, fakeDataSet);
   }
 
@@ -139,11 +93,9 @@ public class DashDownloaderTest {
             .endData()
             .setRandomData("audio_segment_2", 5)
             .setRandomData("audio_segment_3", 6);
-    DashDownloader dashDownloader = getDashDownloader(fakeDataSet);
 
-    dashDownloader.selectRepresentations(new RepresentationKey[] {new RepresentationKey(0, 0, 0)});
+    DashDownloader dashDownloader = getDashDownloader(fakeDataSet, new RepresentationKey(0, 0, 0));
     dashDownloader.download();
-
     assertCachedData(cache, fakeDataSet);
   }
 
@@ -159,12 +111,11 @@ public class DashDownloaderTest {
             .setRandomData("text_segment_1", 1)
             .setRandomData("text_segment_2", 2)
             .setRandomData("text_segment_3", 3);
-    DashDownloader dashDownloader = getDashDownloader(fakeDataSet);
 
-    dashDownloader.selectRepresentations(
-        new RepresentationKey[] {new RepresentationKey(0, 0, 0), new RepresentationKey(0, 1, 0)});
+    DashDownloader dashDownloader =
+        getDashDownloader(
+            fakeDataSet, new RepresentationKey(0, 0, 0), new RepresentationKey(0, 1, 0));
     dashDownloader.download();
-
     assertCachedData(cache, fakeDataSet);
   }
 
@@ -183,20 +134,10 @@ public class DashDownloaderTest {
             .setRandomData("period_2_segment_1", 1)
             .setRandomData("period_2_segment_2", 2)
             .setRandomData("period_2_segment_3", 3);
+
     DashDownloader dashDownloader = getDashDownloader(fakeDataSet);
-
-    // dashDownloader.selectRepresentations() isn't called
     dashDownloader.download();
     assertCachedData(cache, fakeDataSet);
-    dashDownloader.remove();
-
-    // select something random
-    dashDownloader.selectRepresentations(new RepresentationKey[] {new RepresentationKey(0, 0, 0)});
-    // clear selection
-    dashDownloader.selectRepresentations(new RepresentationKey[0]);
-    dashDownloader.download();
-    assertCachedData(cache, fakeDataSet);
-    dashDownloader.remove();
   }
 
   @Test
@@ -214,11 +155,9 @@ public class DashDownloaderTest {
     FakeDataSource fakeDataSource = new FakeDataSource(fakeDataSet);
     Factory factory = mock(Factory.class);
     when(factory.createDataSource()).thenReturn(fakeDataSource);
-    DashDownloader dashDownloader =
-        new DashDownloader(TEST_MPD_URI, new DownloaderConstructorHelper(cache, factory));
 
-    dashDownloader.selectRepresentations(
-        new RepresentationKey[] {new RepresentationKey(0, 0, 0), new RepresentationKey(0, 1, 0)});
+    DashDownloader dashDownloader =
+        getDashDownloader(factory, new RepresentationKey(0, 0, 0), new RepresentationKey(0, 1, 0));
     dashDownloader.download();
 
     DataSpec[] openedDataSpecs = fakeDataSource.getAndClearOpenedDataSpecs();
@@ -248,11 +187,9 @@ public class DashDownloaderTest {
     FakeDataSource fakeDataSource = new FakeDataSource(fakeDataSet);
     Factory factory = mock(Factory.class);
     when(factory.createDataSource()).thenReturn(fakeDataSource);
-    DashDownloader dashDownloader =
-        new DashDownloader(TEST_MPD_URI, new DownloaderConstructorHelper(cache, factory));
 
-    dashDownloader.selectRepresentations(
-        new RepresentationKey[] {new RepresentationKey(0, 0, 0), new RepresentationKey(1, 0, 0)});
+    DashDownloader dashDownloader =
+        getDashDownloader(factory, new RepresentationKey(0, 0, 0), new RepresentationKey(1, 0, 0));
     dashDownloader.download();
 
     DataSpec[] openedDataSpecs = fakeDataSource.getAndClearOpenedDataSpecs();
@@ -280,18 +217,15 @@ public class DashDownloaderTest {
             .appendReadData(TestUtil.buildTestData(3))
             .endData()
             .setRandomData("audio_segment_3", 6);
-    DashDownloader dashDownloader = getDashDownloader(fakeDataSet);
 
-    dashDownloader.selectRepresentations(new RepresentationKey[] {new RepresentationKey(0, 0, 0)});
-    // downloadRepresentations fails on the first try
+    DashDownloader dashDownloader = getDashDownloader(fakeDataSet, new RepresentationKey(0, 0, 0));
     try {
       dashDownloader.download();
       fail();
     } catch (IOException e) {
-      // ignore
+      // Expected.
     }
     dashDownloader.download();
-
     assertCachedData(cache, fakeDataSet);
   }
 
@@ -308,22 +242,16 @@ public class DashDownloaderTest {
             .appendReadData(TestUtil.buildTestData(3))
             .endData()
             .setRandomData("audio_segment_3", 6);
-    DashDownloader dashDownloader = getDashDownloader(fakeDataSet);
 
+    DashDownloader dashDownloader = getDashDownloader(fakeDataSet, new RepresentationKey(0, 0, 0));
     assertThat(dashDownloader.getDownloadedBytes()).isEqualTo(0);
 
-    dashDownloader.selectRepresentations(new RepresentationKey[] {new RepresentationKey(0, 0, 0)});
-    dashDownloader.init();
-    assertThat(dashDownloader.getDownloadedBytes()).isEqualTo(0);
-
-    // downloadRepresentations fails after downloading init data, segment 1 and 2 bytes in segment 2
     try {
       dashDownloader.download();
       fail();
     } catch (IOException e) {
-      // ignore
+      // Failure expected after downloading init data, segment 1 and 2 bytes in segment 2.
     }
-    dashDownloader.init();
     assertThat(dashDownloader.getDownloadedBytes()).isEqualTo(10 + 4 + 2);
 
     dashDownloader.download();
@@ -331,7 +259,7 @@ public class DashDownloaderTest {
   }
 
   @Test
-  public void testRemoveAll() throws Exception {
+  public void testRemove() throws Exception {
     FakeDataSet fakeDataSet =
         new FakeDataSet()
             .setData(TEST_MPD_URI, TEST_MPD)
@@ -342,13 +270,12 @@ public class DashDownloaderTest {
             .setRandomData("text_segment_1", 1)
             .setRandomData("text_segment_2", 2)
             .setRandomData("text_segment_3", 3);
-    DashDownloader dashDownloader = getDashDownloader(fakeDataSet);
-    dashDownloader.selectRepresentations(
-        new RepresentationKey[] {new RepresentationKey(0, 0, 0), new RepresentationKey(0, 1, 0)});
+
+    DashDownloader dashDownloader =
+        getDashDownloader(
+            fakeDataSet, new RepresentationKey(0, 0, 0), new RepresentationKey(0, 1, 0));
     dashDownloader.download();
-
     dashDownloader.remove();
-
     assertCacheEmpty(cache);
   }
 
@@ -358,43 +285,24 @@ public class DashDownloaderTest {
         new FakeDataSet()
             .setData(TEST_MPD_URI, TEST_MPD_NO_INDEX)
             .setRandomData("test_segment_1", 4);
-    DashDownloader dashDownloader = getDashDownloader(fakeDataSet);
 
-    dashDownloader.selectRepresentations(new RepresentationKey[] {new RepresentationKey(0, 0, 0)});
-    dashDownloader.init();
+    DashDownloader dashDownloader = getDashDownloader(fakeDataSet, new RepresentationKey(0, 0, 0));
     try {
       dashDownloader.download();
       fail();
     } catch (DownloadException e) {
-      // expected exception.
+      // Expected.
     }
     dashDownloader.remove();
-
     assertCacheEmpty(cache);
   }
 
-  @Test
-  public void testSelectRepresentationsClearsPreviousSelection() throws Exception {
-    FakeDataSet fakeDataSet =
-        new FakeDataSet()
-            .setData(TEST_MPD_URI, TEST_MPD)
-            .setRandomData("audio_init_data", 10)
-            .setRandomData("audio_segment_1", 4)
-            .setRandomData("audio_segment_2", 5)
-            .setRandomData("audio_segment_3", 6);
-    DashDownloader dashDownloader = getDashDownloader(fakeDataSet);
-
-    dashDownloader.selectRepresentations(
-        new RepresentationKey[] {new RepresentationKey(0, 0, 0), new RepresentationKey(0, 1, 0)});
-    dashDownloader.selectRepresentations(new RepresentationKey[] {new RepresentationKey(0, 0, 0)});
-    dashDownloader.download();
-
-    assertCachedData(cache, fakeDataSet);
+  private DashDownloader getDashDownloader(FakeDataSet fakeDataSet, RepresentationKey... keys) {
+    return getDashDownloader(new Factory(null).setFakeDataSet(fakeDataSet), keys);
   }
 
-  private DashDownloader getDashDownloader(FakeDataSet fakeDataSet) {
-    Factory factory = new Factory(null).setFakeDataSet(fakeDataSet);
-    return new DashDownloader(TEST_MPD_URI, new DownloaderConstructorHelper(cache, factory));
+  private DashDownloader getDashDownloader(Factory factory, RepresentationKey... keys) {
+    return new DashDownloader(TEST_MPD_URI, new DownloaderConstructorHelper(cache, factory), keys);
   }
 
 }

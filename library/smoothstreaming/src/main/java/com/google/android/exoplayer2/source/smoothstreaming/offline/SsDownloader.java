@@ -16,7 +16,6 @@
 package com.google.android.exoplayer2.source.smoothstreaming.offline;
 
 import android.net.Uri;
-import android.util.Pair;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.offline.DownloaderConstructorHelper;
 import com.google.android.exoplayer2.offline.SegmentDownloader;
@@ -33,7 +32,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Helper class to download SmoothStreaming streams.
+ * A downloader for SmoothStreaming streams.
  *
  * <p>Example usage:
  *
@@ -42,9 +41,10 @@ import java.util.List;
  * DefaultHttpDataSourceFactory factory = new DefaultHttpDataSourceFactory("ExoPlayer", null);
  * DownloaderConstructorHelper constructorHelper =
  *     new DownloaderConstructorHelper(cache, factory);
- * SsDownloader ssDownloader = new SsDownloader(manifestUrl, constructorHelper);
- * // Select the first track of the first stream element
- * ssDownloader.selectRepresentations(new TrackKey[] {new TrackKey(0, 0)});
+ * // Create a downloader for the first track of the first stream element.
+ * SsDownloader ssDownloader = new SsDownloader(
+ *     manifestUrl, constructorHelper, new TrackKey[] {new TrackKey(0, 0)});
+ * // Perform the download.
  * ssDownloader.download();
  * // Access downloaded data using CacheDataSource
  * CacheDataSource cacheDataSource =
@@ -53,24 +53,10 @@ import java.util.List;
  */
 public final class SsDownloader extends SegmentDownloader<SsManifest, TrackKey> {
 
-  /**
-   * @see SegmentDownloader#SegmentDownloader(Uri, DownloaderConstructorHelper)
-   */
-  public SsDownloader(Uri manifestUri, DownloaderConstructorHelper constructorHelper)  {
-    super(SsUtil.fixManifestUri(manifestUri), constructorHelper);
-  }
-
-  @Override
-  public TrackKey[] getAllRepresentationKeys() throws IOException {
-    ArrayList<TrackKey> keys = new ArrayList<>();
-    SsManifest manifest = getManifest();
-    for (int i = 0; i < manifest.streamElements.length; i++) {
-      StreamElement streamElement = manifest.streamElements[i];
-      for (int j = 0; j < streamElement.formats.length; j++) {
-        keys.add(new TrackKey(i, j));
-      }
-    }
-    return keys.toArray(new TrackKey[keys.size()]);
+  /** @see SegmentDownloader#SegmentDownloader(Uri, DownloaderConstructorHelper, Object[]) */
+  public SsDownloader(
+      Uri manifestUri, DownloaderConstructorHelper constructorHelper, TrackKey[] trackKeys) {
+    super(SsUtil.fixManifestUri(manifestUri), constructorHelper, trackKeys);
   }
 
   @Override
@@ -82,8 +68,8 @@ public final class SsDownloader extends SegmentDownloader<SsManifest, TrackKey> 
   }
 
   @Override
-  protected Pair<List<Segment>, Boolean> getSegments(
-      DataSource dataSource, SsManifest manifest, boolean allowIndexLoadErrors) throws IOException {
+  protected List<Segment> getSegments(
+      DataSource dataSource, SsManifest manifest, boolean allowIncompleteList) throws IOException {
     ArrayList<Segment> segments = new ArrayList<>();
     for (StreamElement streamElement : manifest.streamElements) {
       for (int i = 0; i < streamElement.formats.length; i++) {
@@ -95,7 +81,7 @@ public final class SsDownloader extends SegmentDownloader<SsManifest, TrackKey> 
         }
       }
     }
-    return Pair.<List<Segment>, Boolean>create(segments, true);
+    return segments;
   }
 
 }

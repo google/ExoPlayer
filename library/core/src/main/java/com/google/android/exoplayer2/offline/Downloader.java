@@ -24,15 +24,6 @@ import java.io.IOException;
 public interface Downloader {
 
   /**
-   * Initializes the downloader.
-   *
-   * @throws DownloadException Thrown if the media cannot be downloaded.
-   * @throws InterruptedException If the thread has been interrupted.
-   * @throws IOException Thrown when there is an io error while reading from cache.
-   */
-  void init() throws InterruptedException, IOException;
-
-  /**
    * Downloads the media.
    *
    * @throws DownloadException Thrown if the media cannot be downloaded.
@@ -40,13 +31,6 @@ public interface Downloader {
    * @throws IOException Thrown when there is an io error while downloading.
    */
   void download() throws InterruptedException, IOException;
-
-  /**
-   * Removes all of the downloaded data of the media.
-   *
-   * @throws InterruptedException Thrown if the thread was interrupted.
-   */
-  void remove() throws InterruptedException;
 
   /** Returns the total number of downloaded bytes. */
   long getDownloadedBytes();
@@ -56,4 +40,11 @@ public interface Downloader {
    * available.
    */
   float getDownloadPercentage();
+
+  /**
+   * Removes the media.
+   *
+   * @throws InterruptedException Thrown if the thread was interrupted.
+   */
+  void remove() throws InterruptedException;
 }

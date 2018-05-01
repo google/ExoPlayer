@@ -60,9 +60,7 @@ public final class SsDownloadAction extends SegmentDownloadAction<TrackKey> {
 
   @Override
   protected SsDownloader createDownloader(DownloaderConstructorHelper constructorHelper) {
-    SsDownloader downloader = new SsDownloader(manifestUri, constructorHelper);
-    downloader.selectRepresentations(keys);
-    return downloader;
+    return new SsDownloader(manifestUri, constructorHelper, keys);
   }
 
   @Override

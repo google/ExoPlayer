@@ -60,9 +60,7 @@ public final class HlsDownloadAction extends SegmentDownloadAction<RenditionKey>
 
   @Override
   protected HlsDownloader createDownloader(DownloaderConstructorHelper constructorHelper) {
-    HlsDownloader downloader = new HlsDownloader(manifestUri, constructorHelper);
-    downloader.selectRepresentations(keys);
-    return downloader;
+    return new HlsDownloader(manifestUri, constructorHelper, keys);
   }
 
   @Override
