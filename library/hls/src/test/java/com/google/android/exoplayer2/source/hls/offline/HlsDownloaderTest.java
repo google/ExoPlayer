@@ -17,6 +17,8 @@ package com.google.android.exoplayer2.source.hls.offline;
 
 import static com.google.android.exoplayer2.source.hls.offline.HlsDownloadTestData.ENC_MEDIA_PLAYLIST_DATA;
 import static com.google.android.exoplayer2.source.hls.offline.HlsDownloadTestData.ENC_MEDIA_PLAYLIST_URI;
+import static com.google.android.exoplayer2.source.hls.offline.HlsDownloadTestData.MASTER_MEDIA_PLAYLIST_1_INDEX;
+import static com.google.android.exoplayer2.source.hls.offline.HlsDownloadTestData.MASTER_MEDIA_PLAYLIST_2_INDEX;
 import static com.google.android.exoplayer2.source.hls.offline.HlsDownloadTestData.MASTER_PLAYLIST_DATA;
 import static com.google.android.exoplayer2.source.hls.offline.HlsDownloadTestData.MASTER_PLAYLIST_URI;
 import static com.google.android.exoplayer2.source.hls.offline.HlsDownloadTestData.MEDIA_PLAYLIST_0_DIR;
@@ -82,7 +84,8 @@ public class HlsDownloaderTest {
 
   @Test
   public void testCounterMethods() throws Exception {
-    HlsDownloader downloader = getHlsDownloader(MASTER_PLAYLIST_URI, getKeys(MEDIA_PLAYLIST_1_URI));
+    HlsDownloader downloader =
+        getHlsDownloader(MASTER_PLAYLIST_URI, getKeys(MASTER_MEDIA_PLAYLIST_1_INDEX));
     downloader.download();
 
     assertThat(downloader.getDownloadedBytes())
@@ -91,7 +94,8 @@ public class HlsDownloaderTest {
 
   @Test
   public void testDownloadRepresentation() throws Exception {
-    HlsDownloader downloader = getHlsDownloader(MASTER_PLAYLIST_URI, getKeys(MEDIA_PLAYLIST_1_URI));
+    HlsDownloader downloader =
+        getHlsDownloader(MASTER_PLAYLIST_URI, getKeys(MASTER_MEDIA_PLAYLIST_1_INDEX));
     downloader.download();
 
     assertCachedData(
@@ -107,7 +111,9 @@ public class HlsDownloaderTest {
   @Test
   public void testDownloadMultipleRepresentations() throws Exception {
     HlsDownloader downloader =
-        getHlsDownloader(MASTER_PLAYLIST_URI, getKeys(MEDIA_PLAYLIST_1_URI, MEDIA_PLAYLIST_2_URI));
+        getHlsDownloader(
+            MASTER_PLAYLIST_URI,
+            getKeys(MASTER_MEDIA_PLAYLIST_1_INDEX, MASTER_MEDIA_PLAYLIST_2_INDEX));
     downloader.download();
 
     assertCachedData(cache, fakeDataSet);
@@ -135,7 +141,9 @@ public class HlsDownloaderTest {
   @Test
   public void testRemove() throws Exception {
     HlsDownloader downloader =
-        getHlsDownloader(MASTER_PLAYLIST_URI, getKeys(MEDIA_PLAYLIST_1_URI, MEDIA_PLAYLIST_2_URI));
+        getHlsDownloader(
+            MASTER_PLAYLIST_URI,
+            getKeys(MASTER_MEDIA_PLAYLIST_1_INDEX, MASTER_MEDIA_PLAYLIST_2_INDEX));
     downloader.download();
     downloader.remove();
 
@@ -144,8 +152,7 @@ public class HlsDownloaderTest {
 
   @Test
   public void testDownloadMediaPlaylist() throws Exception {
-    HlsDownloader downloader =
-        getHlsDownloader(MEDIA_PLAYLIST_1_URI, getKeys(MEDIA_PLAYLIST_1_URI));
+    HlsDownloader downloader = getHlsDownloader(MEDIA_PLAYLIST_1_URI);
     downloader.download();
 
     assertCachedData(
@@ -168,22 +175,21 @@ public class HlsDownloaderTest {
             .setRandomData("fileSequence1.ts", 11)
             .setRandomData("fileSequence2.ts", 12);
 
-    HlsDownloader downloader =
-        getHlsDownloader(ENC_MEDIA_PLAYLIST_URI, getKeys(ENC_MEDIA_PLAYLIST_URI));
+    HlsDownloader downloader = getHlsDownloader(ENC_MEDIA_PLAYLIST_URI);
     downloader.download();
     assertCachedData(cache, fakeDataSet);
   }
 
-  private HlsDownloader getHlsDownloader(String mediaPlaylistUri, @Nullable RenditionKey[] keys) {
+  private HlsDownloader getHlsDownloader(String mediaPlaylistUri, @Nullable RenditionKey... keys) {
     Factory factory = new Factory(null).setFakeDataSet(fakeDataSet);
     return new HlsDownloader(
         Uri.parse(mediaPlaylistUri), new DownloaderConstructorHelper(cache, factory), keys);
   }
 
-  private static RenditionKey[] getKeys(String... urls) {
-    RenditionKey[] renditionKeys = new RenditionKey[urls.length];
-    for (int i = 0; i < urls.length; i++) {
-      renditionKeys[i] = new RenditionKey(urls[i]);
+  private static RenditionKey[] getKeys(int... variantIndices) {
+    RenditionKey[] renditionKeys = new RenditionKey[variantIndices.length];
+    for (int i = 0; i < variantIndices.length; i++) {
+      renditionKeys[i] = new RenditionKey(RenditionKey.GROUP_VARIANTS, variantIndices[i]);
     }
     return renditionKeys;
   }

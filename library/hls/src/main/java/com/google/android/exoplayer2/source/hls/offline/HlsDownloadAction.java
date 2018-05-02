@@ -36,7 +36,9 @@ public final class HlsDownloadAction extends SegmentDownloadAction<RenditionKey>
 
         @Override
         protected RenditionKey readKey(DataInputStream input) throws IOException {
-          return new RenditionKey(input.readUTF());
+          int renditionGroup = input.readInt();
+          int trackIndex = input.readInt();
+          return new RenditionKey(renditionGroup, trackIndex);
         }
 
         @Override
@@ -67,7 +69,8 @@ public final class HlsDownloadAction extends SegmentDownloadAction<RenditionKey>
 
   @Override
   protected void writeKey(DataOutputStream output, RenditionKey key) throws IOException {
-    output.writeUTF(key.url);
+    output.writeInt(key.renditionGroup);
+    output.writeInt(key.trackIndex);
   }
 
 }

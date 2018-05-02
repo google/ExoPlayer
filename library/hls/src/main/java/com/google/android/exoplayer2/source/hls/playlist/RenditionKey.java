@@ -22,10 +22,16 @@ import android.support.annotation.NonNull;
 /** Uniquely identifies a rendition in an {@link HlsMasterPlaylist}. */
 public final class RenditionKey implements Parcelable, Comparable<RenditionKey> {
 
-  public final String url;
+  public static final int GROUP_VARIANTS = 0;
+  public static final int GROUP_AUDIOS = 1;
+  public static final int GROUP_SUBTITLES = 2;
 
-  public RenditionKey(String url) {
-    this.url = url;
+  public final int renditionGroup;
+  public final int trackIndex;
+
+  public RenditionKey(int renditionGroup, int trackIndex) {
+    this.renditionGroup = renditionGroup;
+    this.trackIndex = trackIndex;
   }
 
   // Parcelable implementation.
@@ -37,14 +43,15 @@ public final class RenditionKey implements Parcelable, Comparable<RenditionKey> 
 
   @Override
   public void writeToParcel(Parcel dest, int flags) {
-    dest.writeString(url);
+    dest.writeInt(renditionGroup);
+    dest.writeInt(trackIndex);
   }
 
   public static final Creator<RenditionKey> CREATOR =
       new Creator<RenditionKey>() {
         @Override
         public RenditionKey createFromParcel(Parcel in) {
-          return new RenditionKey(in.readString());
+          return new RenditionKey(in.readInt(), in.readInt());
         }
 
         @Override
@@ -56,7 +63,11 @@ public final class RenditionKey implements Parcelable, Comparable<RenditionKey> 
   // Comparable implementation.
 
   @Override
-  public int compareTo(@NonNull RenditionKey o) {
-    return url.compareTo(o.url);
+  public int compareTo(@NonNull RenditionKey other) {
+    int result = renditionGroup - other.renditionGroup;
+    if (result == 0) {
+      result = trackIndex - other.trackIndex;
+    }
+    return result;
   }
 }

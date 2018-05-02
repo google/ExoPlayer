@@ -17,7 +17,7 @@
   <string name="exo_download_downloading">Inapakua</string>
   <string name="exo_download_completed">Imepakuliwa</string>
   <string name="exo_download_failed">Imeshindwa kupakua</string>
-  <string name="exo_download_removing">Removing downloads</string>
+  <string name="exo_download_removing">Inaondoa vipakuliwa</string>
   <string name="exo_track_selection_title_video">Video</string>
   <string name="exo_track_selection_title_audio">Sauti</string>
   <string name="exo_track_selection_title_text">SMS</string>

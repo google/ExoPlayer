@@ -40,6 +40,7 @@ import com.google.android.exoplayer2.source.dash.manifest.RepresentationKey;
 import com.google.android.exoplayer2.source.dash.offline.DashDownloadAction;
 import com.google.android.exoplayer2.source.hls.offline.HlsDownloadAction;
 import com.google.android.exoplayer2.source.hls.playlist.HlsMasterPlaylist;
+import com.google.android.exoplayer2.source.hls.playlist.HlsMasterPlaylist.HlsUrl;
 import com.google.android.exoplayer2.source.hls.playlist.HlsMediaPlaylist;
 import com.google.android.exoplayer2.source.hls.playlist.HlsPlaylist;
 import com.google.android.exoplayer2.source.hls.playlist.HlsPlaylistParser;
@@ -326,15 +327,18 @@ public class DownloadActivity extends Activity {
         items.add(new RepresentationItem(null, "Stream"));
       } else {
         HlsMasterPlaylist masterPlaylist = (HlsMasterPlaylist) playlist;
-        ArrayList<HlsMasterPlaylist.HlsUrl> hlsUrls = new ArrayList<>();
-        hlsUrls.addAll(masterPlaylist.variants);
-        hlsUrls.addAll(masterPlaylist.audios);
-        hlsUrls.addAll(masterPlaylist.subtitles);
-        for (HlsMasterPlaylist.HlsUrl hlsUrl : hlsUrls) {
-          items.add(new RepresentationItem(new RenditionKey(hlsUrl.url), hlsUrl.url));
-        }
+        addRepresentationItems(masterPlaylist.variants, RenditionKey.GROUP_VARIANTS, items);
+        addRepresentationItems(masterPlaylist.audios, RenditionKey.GROUP_AUDIOS, items);
+        addRepresentationItems(masterPlaylist.subtitles, RenditionKey.GROUP_SUBTITLES, items);
       }
       return items;
+    }
+
+    private void addRepresentationItems(
+        List<HlsUrl> renditions, int renditionGroup, List<RepresentationItem> out) {
+      for (int i = 0; i < renditions.size(); i++) {
+        out.add(new RepresentationItem(new RenditionKey(renditionGroup, i), renditions.get(i).url));
+      }
     }
 
     @Override
