@@ -31,6 +31,7 @@ project.ext {
     junitVersion = '4.12'
     truthVersion = '0.39'
     robolectricVersion = '3.7.1'
+    checkerframeworkVersion = '2.5.0'
     modulePrefix = ':'
     if (gradle.ext.has('exoplayerModulePrefix')) {
         modulePrefix += gradle.ext.exoplayerModulePrefix
