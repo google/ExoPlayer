@@ -23,13 +23,13 @@
   <string name="exo_track_selection_title_text">ടെക്‌സ്റ്റ്</string>
   <string name="exo_track_selection_none">ഒന്നുമില്ല</string>
   <string name="exo_track_selection_auto">സ്വമേധയാ</string>
-  <string name="exo_track_unknown">Unknown</string>
+  <string name="exo_track_unknown">അജ്ഞാതം</string>
   <string name="exo_track_resolution">%1$d × %2$d</string>
-  <string name="exo_track_mono">Mono</string>
-  <string name="exo_track_stereo">Stereo</string>
-  <string name="exo_track_surround">Surround sound</string>
-  <string name="exo_track_surround_5_point_1">5.1 surround sound</string>
-  <string name="exo_track_surround_7_point_1">7.1 surround sound</string>
+  <string name="exo_track_mono">മോണോ</string>
+  <string name="exo_track_stereo">സ്റ്റീരിയോ</string>
+  <string name="exo_track_surround">സറൗണ്ട് സൗണ്ട്</string>
+  <string name="exo_track_surround_5_point_1">5.1 സറൗണ്ട് സൗണ്ട്</string>
+  <string name="exo_track_surround_7_point_1">7.1 സറൗണ്ട് സൗണ്ട്</string>
   <string name="exo_track_bitrate">%1$.2f Mbps</string>
   <string name="exo_item_list">%1$s, %2$s</string>
 </resources>
