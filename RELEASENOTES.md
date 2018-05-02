@@ -2,6 +2,7 @@
 
 ### dev-v2 (not yet released) ###
 
+* Added dependency on checkerframework annotations for static code analysis.
 * Optimize seeking in FMP4 by enabling seeking to the nearest sync sample within
   a fragment. This benefits standalone FMP4 playbacks, DASH and SmoothStreaming.
 * Moved initial bitrate estimate from `AdaptiveTrackSelection` to

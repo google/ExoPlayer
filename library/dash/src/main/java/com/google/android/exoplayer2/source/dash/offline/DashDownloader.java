@@ -151,7 +151,7 @@ public final class DashDownloader extends SegmentDownloader<DashManifest, Repres
     out.add(new Segment(startTimeUs, dataSpec));
   }
 
-  private static DashSegmentIndex getSegmentIndex(
+  private static @Nullable DashSegmentIndex getSegmentIndex(
       DataSource dataSource, int trackType, Representation representation)
       throws IOException, InterruptedException {
     DashSegmentIndex index = representation.getIndex();
