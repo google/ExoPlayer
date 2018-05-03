@@ -76,6 +76,6 @@
   <string name="exo_track_surround_7_point_1">7.1 surround sound</string>
   <!-- Describes the bitrate of a media track in Megabits (https://en.wikipedia.org/wiki/Megabit) per second. [CHAR LIMIT=20] -->
   <string name="exo_track_bitrate"><xliff:g id="bitrate" example="5.2">%1$.2f</xliff:g> Mbps</string>
-  <!-- Defines a way of appending an item to a list of items. For example appending "banana" to "apple, pear" to get "apple, pear, banana". [CHAR LIMIT=40] -->
+  <!-- Defines a way of appending an item to a list of items. For example appending "banana" to "apple, pear" to get "apple, pear, banana". Note: the command separator will appear between all consecutive list items, so do not use an equivalent of 'and'. [CHAR LIMIT=40] -->
   <string name="exo_item_list"><xliff:g id="list" example="apple, pear">%1$s</xliff:g>, <xliff:g id="item" example="banana">%2$s</xliff:g></string>
 </resources>
