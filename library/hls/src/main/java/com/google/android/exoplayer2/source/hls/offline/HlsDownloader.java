@@ -37,9 +37,11 @@ import java.util.List;
 /** A downloader for HLS streams. */
 public final class HlsDownloader extends SegmentDownloader<HlsMasterPlaylist, RenditionKey> {
 
-  /** @see SegmentDownloader#SegmentDownloader(Uri, DownloaderConstructorHelper, Object[]) */
+  /** @see SegmentDownloader#SegmentDownloader(Uri, DownloaderConstructorHelper, List) */
   public HlsDownloader(
-      Uri manifestUri, DownloaderConstructorHelper constructorHelper, RenditionKey[] trackKeys) {
+      Uri manifestUri,
+      DownloaderConstructorHelper constructorHelper,
+      List<RenditionKey> trackKeys) {
     super(manifestUri, constructorHelper, trackKeys);
   }
 

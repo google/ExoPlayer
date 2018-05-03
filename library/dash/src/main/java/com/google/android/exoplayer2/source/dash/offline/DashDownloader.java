@@ -49,8 +49,11 @@ import java.util.List;
  *     new DownloaderConstructorHelper(cache, factory);
  * // Create a downloader for the first representation of the first adaptation set of the first
  * // period.
- * DashDownloader dashDownloader = new DashDownloader(
- *     manifestUrl, constructorHelper, new RepresentationKey[] {new RepresentationKey(0, 0, 0)});
+ * DashDownloader dashDownloader =
+ *     new DashDownloader(
+ *         manifestUrl,
+ *         constructorHelper,
+ *         Collections.singletonList(new RepresentationKey(0, 0, 0)));
  * // Perform the download.
  * dashDownloader.download();
  * // Access downloaded data using CacheDataSource
@@ -60,11 +63,11 @@ import java.util.List;
  */
 public final class DashDownloader extends SegmentDownloader<DashManifest, RepresentationKey> {
 
-  /** @see SegmentDownloader#SegmentDownloader(Uri, DownloaderConstructorHelper, Object[]) */
+  /** @see SegmentDownloader#SegmentDownloader(Uri, DownloaderConstructorHelper, List) */
   public DashDownloader(
       Uri manifestUri,
       DownloaderConstructorHelper constructorHelper,
-      @Nullable RepresentationKey[] trackKeys) {
+      List<RepresentationKey> trackKeys) {
     super(manifestUri, constructorHelper, trackKeys);
   }
 

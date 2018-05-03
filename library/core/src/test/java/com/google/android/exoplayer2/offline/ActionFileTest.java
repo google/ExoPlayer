@@ -17,6 +17,7 @@ package com.google.android.exoplayer2.offline;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import android.net.Uri;
 import com.google.android.exoplayer2.offline.DownloadAction.Deserializer;
 import com.google.android.exoplayer2.util.Util;
 import java.io.DataInputStream;
@@ -236,7 +237,7 @@ public class ActionFileTest {
     public static final int VERSION = 0;
 
     private FakeDownloadAction(String type, String data) {
-      super(type, VERSION, /* isRemoveAction= */ false, data);
+      super(type, VERSION, Uri.parse("http://test.com"), /* isRemoveAction= */ false, data);
     }
 
     @Override
@@ -245,36 +246,10 @@ public class ActionFileTest {
     }
 
     @Override
-    protected boolean isSameMedia(DownloadAction other) {
-      return false;
-    }
-
-    @Override
     protected Downloader createDownloader(DownloaderConstructorHelper downloaderConstructorHelper) {
       return null;
     }
 
-    // auto generated code
-
-    @Override
-    public boolean equals(Object o) {
-      if (this == o) {
-        return true;
-      }
-      if (o == null || getClass() != o.getClass()) {
-        return false;
-      }
-      FakeDownloadAction that = (FakeDownloadAction) o;
-      return version == that.version && data.equals(that.data) && type.equals(that.type);
-    }
-
-    @Override
-    public int hashCode() {
-      int result = type.hashCode();
-      result = 31 * result + version;
-      result = 31 * result + data.hashCode();
-      return result;
-    }
   }
 
 }

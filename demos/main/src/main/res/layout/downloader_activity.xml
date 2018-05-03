@@ -37,12 +37,6 @@
         android:onClick="onClick"
         android:text="@string/download_remove_all"/>
 
-    <Button android:id="@+id/refresh_button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:onClick="onClick"
-        android:text="@string/download_refresh"/>
-
     <Button android:id="@+id/play_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

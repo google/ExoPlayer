@@ -17,7 +17,6 @@ package com.google.android.exoplayer2.offline;
 
 import android.net.Uri;
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DataSpec;
@@ -77,20 +76,16 @@ public abstract class SegmentDownloader<M extends FilterableManifest<M, K>, K>
   /**
    * @param manifestUri The {@link Uri} of the manifest to be downloaded.
    * @param constructorHelper a {@link DownloaderConstructorHelper} instance.
-   * @param trackKeys Track keys to select when downloading. If null or empty, all tracks are
-   *     downloaded.
+   * @param trackKeys Track keys to select when downloading. If empty, all tracks are downloaded.
    */
   public SegmentDownloader(
-      Uri manifestUri, DownloaderConstructorHelper constructorHelper, @Nullable K[] trackKeys) {
+      Uri manifestUri, DownloaderConstructorHelper constructorHelper, List<K> trackKeys) {
     this.manifestUri = manifestUri;
     this.cache = constructorHelper.getCache();
     this.dataSource = constructorHelper.buildCacheDataSource(false);
     this.offlineDataSource = constructorHelper.buildCacheDataSource(true);
     this.priorityTaskManager = constructorHelper.getPriorityTaskManager();
-    keys = new ArrayList<>();
-    if (trackKeys != null) {
-      Collections.addAll(this.keys, trackKeys);
-    }
+    keys = new ArrayList<>(trackKeys);
     totalSegments = C.LENGTH_UNSET;
   }
 

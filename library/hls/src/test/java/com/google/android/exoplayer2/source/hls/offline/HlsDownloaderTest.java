@@ -35,7 +35,6 @@ import static com.google.android.exoplayer2.testutil.CacheAsserts.assertCachedDa
 import static com.google.common.truth.Truth.assertThat;
 
 import android.net.Uri;
-import android.support.annotation.Nullable;
 import com.google.android.exoplayer2.offline.DownloaderConstructorHelper;
 import com.google.android.exoplayer2.source.hls.playlist.RenditionKey;
 import com.google.android.exoplayer2.testutil.FakeDataSet;
@@ -44,6 +43,8 @@ import com.google.android.exoplayer2.upstream.cache.NoOpCacheEvictor;
 import com.google.android.exoplayer2.upstream.cache.SimpleCache;
 import com.google.android.exoplayer2.util.Util;
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -78,7 +79,7 @@ public class HlsDownloaderTest {
   }
 
   @After
-  public void tearDown() throws Exception {
+  public void tearDown() {
     Util.recursiveDelete(tempFolder);
   }
 
@@ -132,7 +133,7 @@ public class HlsDownloaderTest {
         .setRandomData(MEDIA_PLAYLIST_3_DIR + "fileSequence1.ts", 14)
         .setRandomData(MEDIA_PLAYLIST_3_DIR + "fileSequence2.ts", 15);
 
-    HlsDownloader downloader = getHlsDownloader(MASTER_PLAYLIST_URI, null);
+    HlsDownloader downloader = getHlsDownloader(MASTER_PLAYLIST_URI, getKeys());
     downloader.download();
 
     assertCachedData(cache, fakeDataSet);
@@ -152,7 +153,7 @@ public class HlsDownloaderTest {
 
   @Test
   public void testDownloadMediaPlaylist() throws Exception {
-    HlsDownloader downloader = getHlsDownloader(MEDIA_PLAYLIST_1_URI);
+    HlsDownloader downloader = getHlsDownloader(MEDIA_PLAYLIST_1_URI, getKeys());
     downloader.download();
 
     assertCachedData(
@@ -175,21 +176,21 @@ public class HlsDownloaderTest {
             .setRandomData("fileSequence1.ts", 11)
             .setRandomData("fileSequence2.ts", 12);
 
-    HlsDownloader downloader = getHlsDownloader(ENC_MEDIA_PLAYLIST_URI);
+    HlsDownloader downloader = getHlsDownloader(ENC_MEDIA_PLAYLIST_URI, getKeys());
     downloader.download();
     assertCachedData(cache, fakeDataSet);
   }
 
-  private HlsDownloader getHlsDownloader(String mediaPlaylistUri, @Nullable RenditionKey... keys) {
+  private HlsDownloader getHlsDownloader(String mediaPlaylistUri, List<RenditionKey> keys) {
     Factory factory = new Factory(null).setFakeDataSet(fakeDataSet);
     return new HlsDownloader(
         Uri.parse(mediaPlaylistUri), new DownloaderConstructorHelper(cache, factory), keys);
   }
 
-  private static RenditionKey[] getKeys(int... variantIndices) {
-    RenditionKey[] renditionKeys = new RenditionKey[variantIndices.length];
-    for (int i = 0; i < variantIndices.length; i++) {
-      renditionKeys[i] = new RenditionKey(RenditionKey.GROUP_VARIANTS, variantIndices[i]);
+  private static ArrayList<RenditionKey> getKeys(int... variantIndices) {
+    ArrayList<RenditionKey> renditionKeys = new ArrayList<>();
+    for (int variantIndex : variantIndices) {
+      renditionKeys.add(new RenditionKey(RenditionKey.GROUP_VARIANTS, variantIndex));
     }
     return renditionKeys;
   }

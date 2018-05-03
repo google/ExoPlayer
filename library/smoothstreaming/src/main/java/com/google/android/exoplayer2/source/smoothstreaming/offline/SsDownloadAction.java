@@ -24,11 +24,12 @@ import com.google.android.exoplayer2.source.smoothstreaming.manifest.TrackKey;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.util.List;
 
 /** An action to download or remove downloaded SmoothStreaming streams. */
 public final class SsDownloadAction extends SegmentDownloadAction<TrackKey> {
 
-  private static final String TYPE = "SsDownloadAction";
+  private static final String TYPE = "ss";
   private static final int VERSION = 0;
 
   public static final Deserializer DESERIALIZER =
@@ -40,29 +41,27 @@ public final class SsDownloadAction extends SegmentDownloadAction<TrackKey> {
         }
 
         @Override
-        protected TrackKey[] createKeyArray(int keyCount) {
-          return new TrackKey[keyCount];
-        }
-
-        @Override
         protected DownloadAction createDownloadAction(
-            boolean isRemoveAction, String data, Uri manifestUri, TrackKey[] keys) {
-          return new SsDownloadAction(isRemoveAction, data, manifestUri, keys);
+            Uri uri, boolean isRemoveAction, String data, List<TrackKey> keys) {
+          return new SsDownloadAction(uri, isRemoveAction, data, keys);
         }
       };
 
   /**
-   * @see SegmentDownloadAction#SegmentDownloadAction(String, int, boolean, String, Uri,
-   *     Comparable[])
+   * @param uri The SmoothStreaming manifest URI.
+   * @param isRemoveAction Whether the data will be removed. If {@code false} it will be downloaded.
+   * @param data Optional custom data for this action.
+   * @param keys Keys of tracks to be downloaded. If empty, all tracks are downloaded. If {@code
+   *     removeAction} is true, {@code keys} must be empty.
    */
   public SsDownloadAction(
-      boolean isRemoveAction, @Nullable String data, Uri manifestUri, TrackKey... keys) {
-    super(TYPE, VERSION, isRemoveAction, data, manifestUri, keys);
+      Uri uri, boolean isRemoveAction, @Nullable String data, List<TrackKey> keys) {
+    super(TYPE, VERSION, uri, isRemoveAction, data, keys);
   }
 
   @Override
   protected SsDownloader createDownloader(DownloaderConstructorHelper constructorHelper) {
-    return new SsDownloader(manifestUri, constructorHelper, keys);
+    return new SsDownloader(uri, constructorHelper, keys);
   }
 
   @Override

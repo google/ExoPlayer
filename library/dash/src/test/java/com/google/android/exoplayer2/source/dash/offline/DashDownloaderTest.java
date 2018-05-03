@@ -38,6 +38,8 @@ import com.google.android.exoplayer2.upstream.cache.SimpleCache;
 import com.google.android.exoplayer2.util.Util;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collections;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -302,7 +304,14 @@ public class DashDownloaderTest {
   }
 
   private DashDownloader getDashDownloader(Factory factory, RepresentationKey... keys) {
-    return new DashDownloader(TEST_MPD_URI, new DownloaderConstructorHelper(cache, factory), keys);
+    return new DashDownloader(
+        TEST_MPD_URI, new DownloaderConstructorHelper(cache, factory), keysList(keys));
+  }
+
+  private static ArrayList<RepresentationKey> keysList(RepresentationKey... keys) {
+    ArrayList<RepresentationKey> keysList = new ArrayList<>();
+    Collections.addAll(keysList, keys);
+    return keysList;
   }
 
 }

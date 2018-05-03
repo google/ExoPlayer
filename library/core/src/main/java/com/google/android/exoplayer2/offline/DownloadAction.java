@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.offline;
 
+import android.net.Uri;
 import android.support.annotation.Nullable;
 import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
@@ -90,21 +91,25 @@ public abstract class DownloadAction {
   public final String type;
   /** The action version. */
   public final int version;
+  /** The uri being downloaded or removed. */
+  public final Uri uri;
   /** Whether this is a remove action. If false, this is a download action. */
   public final boolean isRemoveAction;
-  /** Custom data for this action. May be the empty string if no custom data was specified. */
+  /** Custom data for this action, or the empty string if no custom data was specified. */
   public final String data;
 
   /**
    * @param type The type of the action.
    * @param version The action version.
+   * @param uri The uri being downloaded or removed.
    * @param isRemoveAction Whether this is a remove action. If false, this is a download action.
-   * @param data Optional custom data for this action. If null, an empty string is used.
+   * @param data Optional custom data for this action.
    */
   protected DownloadAction(
-      String type, int version, boolean isRemoveAction, @Nullable String data) {
+      String type, int version, Uri uri, boolean isRemoveAction, @Nullable String data) {
     this.type = type;
     this.version = version;
+    this.uri = uri;
     this.isRemoveAction = isRemoveAction;
     this.data = data != null ? data : "";
   }
@@ -121,11 +126,13 @@ public abstract class DownloadAction {
     return output.toByteArray();
   }
 
+  /** Returns whether this is an action for the same media as the {@code other}. */
+  public boolean isSameMedia(DownloadAction other) {
+    return uri.equals(other.uri);
+  }
+
   /** Serializes itself into the {@code output}. */
   protected abstract void writeToStream(DataOutputStream output) throws IOException;
-
-  /** Returns whether this is an action for the same media as the {@code other}. */
-  protected abstract boolean isSameMedia(DownloadAction other);
 
   /** Creates a {@link Downloader} with the given parameters. */
   protected abstract Downloader createDownloader(
@@ -137,13 +144,18 @@ public abstract class DownloadAction {
       return false;
     }
     DownloadAction that = (DownloadAction) o;
-    return data.equals(that.data) && isRemoveAction == that.isRemoveAction;
+    return type.equals(that.type)
+        && version == that.version
+        && uri.equals(that.uri)
+        && isRemoveAction == that.isRemoveAction
+        && data.equals(that.data);
   }
 
   @Override
   public int hashCode() {
-    int result = data.hashCode();
+    int result = uri.hashCode();
     result = 31 * result + (isRemoveAction ? 1 : 0);
+    result = 31 * result + data.hashCode();
     return result;
   }
 
