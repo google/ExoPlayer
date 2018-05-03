@@ -17,7 +17,7 @@
   <string name="exo_download_downloading">正在下載</string>
   <string name="exo_download_completed">下載完畢</string>
   <string name="exo_download_failed">下載失敗</string>
-  <string name="exo_download_removing">Removing downloads</string>
+  <string name="exo_download_removing">正在移除下載內容</string>
   <string name="exo_track_selection_title_video">影片</string>
   <string name="exo_track_selection_title_audio">音訊</string>
   <string name="exo_track_selection_title_text">文字</string>
