@@ -24,11 +24,12 @@ import com.google.android.exoplayer2.source.dash.manifest.RepresentationKey;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.util.List;
 
 /** An action to download or remove downloaded DASH streams. */
 public final class DashDownloadAction extends SegmentDownloadAction<RepresentationKey> {
 
-  private static final String TYPE = "DashDownloadAction";
+  private static final String TYPE = "dash";
   private static final int VERSION = 0;
 
   public static final Deserializer DESERIALIZER =
@@ -40,29 +41,27 @@ public final class DashDownloadAction extends SegmentDownloadAction<Representati
         }
 
         @Override
-        protected RepresentationKey[] createKeyArray(int keyCount) {
-          return new RepresentationKey[keyCount];
-        }
-
-        @Override
         protected DownloadAction createDownloadAction(
-            boolean isRemoveAction, String data, Uri manifestUri, RepresentationKey[] keys) {
-          return new DashDownloadAction(isRemoveAction, data, manifestUri, keys);
+            Uri uri, boolean isRemoveAction, String data, List<RepresentationKey> keys) {
+          return new DashDownloadAction(uri, isRemoveAction, data, keys);
         }
       };
 
   /**
-   * @see SegmentDownloadAction#SegmentDownloadAction(String, int, boolean, String, Uri,
-   *     Comparable[])
+   * @param uri The DASH manifest URI.
+   * @param isRemoveAction Whether the data will be removed. If {@code false} it will be downloaded.
+   * @param data Optional custom data for this action. If null, an empty string is used.
+   * @param keys Keys of representations to be downloaded. If empty, all representations are
+   *     downloaded. If {@code removeAction} is true, {@code keys} must be empty.
    */
   public DashDownloadAction(
-      boolean isRemoveAction, @Nullable String data, Uri manifestUri, RepresentationKey... keys) {
-    super(TYPE, VERSION, isRemoveAction, data, manifestUri, keys);
+      Uri uri, boolean isRemoveAction, @Nullable String data, List<RepresentationKey> keys) {
+    super(TYPE, VERSION, uri, isRemoveAction, data, keys);
   }
 
   @Override
   protected DashDownloader createDownloader(DownloaderConstructorHelper constructorHelper) {
-    return new DashDownloader(manifestUri, constructorHelper, keys);
+    return new DashDownloader(uri, constructorHelper, keys);
   }
 
   @Override

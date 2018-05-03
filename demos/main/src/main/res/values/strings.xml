@@ -51,8 +51,6 @@
 
   <string name="download_remove_all">Remove all</string>
 
-  <string name="download_refresh">Refresh</string>
-
   <string name="download_only_single_period_non_drm_protected">Currently only downloading of single period non-DRM protected content is demonstrated in this app.</string>
 
 </resources>

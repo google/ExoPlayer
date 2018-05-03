@@ -42,8 +42,11 @@ import java.util.List;
  * DownloaderConstructorHelper constructorHelper =
  *     new DownloaderConstructorHelper(cache, factory);
  * // Create a downloader for the first track of the first stream element.
- * SsDownloader ssDownloader = new SsDownloader(
- *     manifestUrl, constructorHelper, new TrackKey[] {new TrackKey(0, 0)});
+ * SsDownloader ssDownloader =
+ *     new SsDownloader(
+ *         manifestUrl,
+ *         constructorHelper,
+ *         Collections.singletonList(new TrackKey(0, 0)));
  * // Perform the download.
  * ssDownloader.download();
  * // Access downloaded data using CacheDataSource
@@ -53,9 +56,9 @@ import java.util.List;
  */
 public final class SsDownloader extends SegmentDownloader<SsManifest, TrackKey> {
 
-  /** @see SegmentDownloader#SegmentDownloader(Uri, DownloaderConstructorHelper, Object[]) */
+  /** @see SegmentDownloader#SegmentDownloader(Uri, DownloaderConstructorHelper, List) */
   public SsDownloader(
-      Uri manifestUri, DownloaderConstructorHelper constructorHelper, TrackKey[] trackKeys) {
+      Uri manifestUri, DownloaderConstructorHelper constructorHelper, List<TrackKey> trackKeys) {
     super(SsUtil.fixManifestUri(manifestUri), constructorHelper, trackKeys);
   }
 
@@ -69,7 +72,7 @@ public final class SsDownloader extends SegmentDownloader<SsManifest, TrackKey> 
 
   @Override
   protected List<Segment> getSegments(
-      DataSource dataSource, SsManifest manifest, boolean allowIncompleteList) throws IOException {
+      DataSource dataSource, SsManifest manifest, boolean allowIncompleteList) {
     ArrayList<Segment> segments = new ArrayList<>();
     for (StreamElement streamElement : manifest.streamElements) {
       for (int i = 0; i < streamElement.formats.length; i++) {

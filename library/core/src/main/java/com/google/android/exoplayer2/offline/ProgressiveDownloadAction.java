@@ -18,7 +18,6 @@ package com.google.android.exoplayer2.offline;
 import android.net.Uri;
 import android.support.annotation.Nullable;
 import com.google.android.exoplayer2.upstream.cache.CacheUtil;
-import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Util;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -27,7 +26,7 @@ import java.io.IOException;
 /** An action to download or remove downloaded progressive streams. */
 public final class ProgressiveDownloadAction extends DownloadAction {
 
-  private static final String TYPE = "ProgressiveDownloadAction";
+  private static final String TYPE = "progressive";
   private static final int VERSION = 0;
 
   public static final Deserializer DESERIALIZER =
@@ -35,28 +34,26 @@ public final class ProgressiveDownloadAction extends DownloadAction {
         @Override
         public ProgressiveDownloadAction readFromStream(int version, DataInputStream input)
             throws IOException {
+          Uri uri = Uri.parse(input.readUTF());
           boolean isRemoveAction = input.readBoolean();
           String data = input.readUTF();
-          Uri uri = Uri.parse(input.readUTF());
           String customCacheKey = input.readBoolean() ? input.readUTF() : null;
-          return new ProgressiveDownloadAction(isRemoveAction, data, uri, customCacheKey);
+          return new ProgressiveDownloadAction(uri, isRemoveAction, data, customCacheKey);
         }
       };
 
-  private final Uri uri;
-  private final @Nullable String customCacheKey;
+  public final @Nullable String customCacheKey;
 
   /**
+   * @param uri Uri of the data to be downloaded.
    * @param isRemoveAction Whether this is a remove action. If false, this is a download action.
    * @param data Optional custom data for this action. If null, an empty string is used.
-   * @param uri Uri of the data to be downloaded.
    * @param customCacheKey A custom key that uniquely identifies the original stream. If not null it
    *     is used for cache indexing.
    */
   public ProgressiveDownloadAction(
-      boolean isRemoveAction, @Nullable String data, Uri uri, @Nullable String customCacheKey) {
-    super(TYPE, VERSION, isRemoveAction, data);
-    this.uri = Assertions.checkNotNull(uri);
+      Uri uri, boolean isRemoveAction, @Nullable String data, @Nullable String customCacheKey) {
+    super(TYPE, VERSION, uri, isRemoveAction, data);
     this.customCacheKey = customCacheKey;
   }
 
@@ -67,9 +64,9 @@ public final class ProgressiveDownloadAction extends DownloadAction {
 
   @Override
   protected void writeToStream(DataOutputStream output) throws IOException {
+    output.writeUTF(uri.toString());
     output.writeBoolean(isRemoveAction);
     output.writeUTF(data);
-    output.writeUTF(uri.toString());
     boolean customCacheKeySet = customCacheKey != null;
     output.writeBoolean(customCacheKeySet);
     if (customCacheKeySet) {
@@ -78,11 +75,9 @@ public final class ProgressiveDownloadAction extends DownloadAction {
   }
 
   @Override
-  protected boolean isSameMedia(DownloadAction other) {
-    if (!(other instanceof ProgressiveDownloadAction)) {
-      return false;
-    }
-    return getCacheKey().equals(((ProgressiveDownloadAction) other).getCacheKey());
+  public boolean isSameMedia(DownloadAction other) {
+    return ((other instanceof ProgressiveDownloadAction)
+        && getCacheKey().equals(((ProgressiveDownloadAction) other).getCacheKey()));
   }
 
   @Override
@@ -94,13 +89,12 @@ public final class ProgressiveDownloadAction extends DownloadAction {
       return false;
     }
     ProgressiveDownloadAction that = (ProgressiveDownloadAction) o;
-    return uri.equals(that.uri) && Util.areEqual(customCacheKey, that.customCacheKey);
+    return Util.areEqual(customCacheKey, that.customCacheKey);
   }
 
   @Override
   public int hashCode() {
     int result = super.hashCode();
-    result = 31 * result + uri.hashCode();
     result = 31 * result + (customCacheKey != null ? customCacheKey.hashCode() : 0);
     return result;
   }

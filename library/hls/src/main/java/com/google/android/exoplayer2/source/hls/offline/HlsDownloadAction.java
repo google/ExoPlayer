@@ -24,11 +24,12 @@ import com.google.android.exoplayer2.source.hls.playlist.RenditionKey;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.util.List;
 
 /** An action to download or remove downloaded HLS streams. */
 public final class HlsDownloadAction extends SegmentDownloadAction<RenditionKey> {
 
-  private static final String TYPE = "HlsDownloadAction";
+  private static final String TYPE = "hls";
   private static final int VERSION = 0;
 
   public static final Deserializer DESERIALIZER =
@@ -42,29 +43,27 @@ public final class HlsDownloadAction extends SegmentDownloadAction<RenditionKey>
         }
 
         @Override
-        protected RenditionKey[] createKeyArray(int keyCount) {
-          return new RenditionKey[keyCount];
-        }
-
-        @Override
         protected DownloadAction createDownloadAction(
-            boolean isRemoveAction, String data, Uri manifestUri, RenditionKey[] keys) {
-          return new HlsDownloadAction(isRemoveAction, data, manifestUri, keys);
+            Uri uri, boolean isRemoveAction, String data, List<RenditionKey> keys) {
+          return new HlsDownloadAction(uri, isRemoveAction, data, keys);
         }
       };
 
   /**
-   * @see SegmentDownloadAction#SegmentDownloadAction(String, int, boolean, String, Uri,
-   *     Comparable[])
+   * @param uri The HLS playlist URI.
+   * @param isRemoveAction Whether the data will be removed. If {@code false} it will be downloaded.
+   * @param data Optional custom data for this action.
+   * @param keys Keys of renditions to be downloaded. If empty, all renditions are downloaded. If
+   *     {@code removeAction} is true, {@code keys} must empty.
    */
   public HlsDownloadAction(
-      boolean isRemoveAction, @Nullable String data, Uri manifestUri, RenditionKey... keys) {
-    super(TYPE, VERSION, isRemoveAction, data, manifestUri, keys);
+      Uri uri, boolean isRemoveAction, @Nullable String data, List<RenditionKey> keys) {
+    super(TYPE, VERSION, uri, isRemoveAction, data, keys);
   }
 
   @Override
   protected HlsDownloader createDownloader(DownloaderConstructorHelper constructorHelper) {
-    return new HlsDownloader(manifestUri, constructorHelper, keys);
+    return new HlsDownloader(uri, constructorHelper, keys);
   }
 
   @Override

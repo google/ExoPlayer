@@ -22,6 +22,7 @@ import static com.google.android.exoplayer2.testutil.CacheAsserts.assertCachedDa
 import static com.google.common.truth.Truth.assertThat;
 
 import android.content.Context;
+import android.net.Uri;
 import android.os.ConditionVariable;
 import com.google.android.exoplayer2.offline.DownloadManager;
 import com.google.android.exoplayer2.offline.DownloaderConstructorHelper;
@@ -36,6 +37,8 @@ import com.google.android.exoplayer2.upstream.cache.NoOpCacheEvictor;
 import com.google.android.exoplayer2.upstream.cache.SimpleCache;
 import com.google.android.exoplayer2.util.Util;
 import java.io.File;
+import java.util.ArrayList;
+import java.util.Collections;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Ignore;
@@ -244,11 +247,11 @@ public class DownloadManagerDashTest {
   }
 
   private void handleDownloadAction(RepresentationKey... keys) {
-    downloadManager.handleAction(new DashDownloadAction(false, null, TEST_MPD_URI, keys));
+    downloadManager.handleAction(newAction(TEST_MPD_URI, false, null, keys));
   }
 
   private void handleRemoveAction() {
-    downloadManager.handleAction(new DashDownloadAction(true, null, TEST_MPD_URI));
+    downloadManager.handleAction(newAction(TEST_MPD_URI, true, null));
   }
 
   private void createDownloadManager() {
@@ -271,5 +274,12 @@ public class DownloadManagerDashTest {
             downloadManager.startDownloads();
           }
         });
+  }
+
+  private static DashDownloadAction newAction(
+      Uri uri, boolean isRemoveAction, String data, RepresentationKey... keys) {
+    ArrayList<RepresentationKey> keysList = new ArrayList<>();
+    Collections.addAll(keysList, keys);
+    return new DashDownloadAction(uri, isRemoveAction, data, keysList);
   }
 }

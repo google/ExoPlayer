@@ -23,6 +23,7 @@ import static com.google.android.exoplayer2.testutil.CacheAsserts.assertCachedDa
 import android.app.Notification;
 import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
 import android.support.annotation.Nullable;
 import com.google.android.exoplayer2.offline.DownloadManager;
 import com.google.android.exoplayer2.offline.DownloadManager.TaskState;
@@ -43,6 +44,8 @@ import com.google.android.exoplayer2.util.ConditionVariable;
 import com.google.android.exoplayer2.util.Util;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collections;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Ignore;
@@ -219,11 +222,11 @@ public class DownloadServiceDashTest {
   }
 
   private void removeAll() throws Throwable {
-    callDownloadServiceOnStart(new DashDownloadAction(true, null, TEST_MPD_URI));
+    callDownloadServiceOnStart(newAction(TEST_MPD_URI, true, null));
   }
 
-  private void downloadKeys(RepresentationKey... keys) throws Throwable {
-    callDownloadServiceOnStart(new DashDownloadAction(false, null, TEST_MPD_URI, keys));
+  private void downloadKeys(RepresentationKey... keys) {
+    callDownloadServiceOnStart(newAction(TEST_MPD_URI, false, null, keys));
   }
 
   private void callDownloadServiceOnStart(final DashDownloadAction action) {
@@ -237,5 +240,12 @@ public class DownloadServiceDashTest {
             dashDownloadService.onStartCommand(startIntent, 0, 0);
           }
         });
+  }
+
+  private static DashDownloadAction newAction(
+      Uri uri, boolean isRemoveAction, String data, RepresentationKey... keys) {
+    ArrayList<RepresentationKey> keysList = new ArrayList<>();
+    Collections.addAll(keysList, keys);
+    return new DashDownloadAction(uri, isRemoveAction, data, keysList);
   }
 }
