@@ -334,7 +334,7 @@ public final class MediaSessionConnector {
   private Player player;
   private CustomActionProvider[] customActionProviders;
   private Map<String, CustomActionProvider> customActionMap;
-  private ErrorMessageProvider<? super ExoPlaybackException> errorMessageProvider;
+  private @Nullable ErrorMessageProvider<? super ExoPlaybackException> errorMessageProvider;
   private PlaybackPreparer playbackPreparer;
   private QueueNavigator queueNavigator;
   private QueueEditor queueEditor;
@@ -436,12 +436,12 @@ public final class MediaSessionConnector {
   }
 
   /**
-   * Sets the {@link ErrorMessageProvider}.
+   * Sets the optional {@link ErrorMessageProvider}.
    *
    * @param errorMessageProvider The error message provider.
    */
   public void setErrorMessageProvider(
-      ErrorMessageProvider<? super ExoPlaybackException> errorMessageProvider) {
+      @Nullable ErrorMessageProvider<? super ExoPlaybackException> errorMessageProvider) {
     if (this.errorMessageProvider != errorMessageProvider) {
       this.errorMessageProvider = errorMessageProvider;
       updateMediaSessionPlaybackState();

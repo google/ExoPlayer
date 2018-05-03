@@ -36,9 +36,11 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
+import android.widget.TextView;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ControlDispatcher;
 import com.google.android.exoplayer2.DefaultControlDispatcher;
+import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.PlaybackPreparer;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.Player.DiscontinuityReason;
@@ -51,6 +53,7 @@ import com.google.android.exoplayer2.trackselection.TrackSelection;
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
 import com.google.android.exoplayer2.ui.AspectRatioFrameLayout.ResizeMode;
 import com.google.android.exoplayer2.util.Assertions;
+import com.google.android.exoplayer2.util.ErrorMessageProvider;
 import com.google.android.exoplayer2.util.RepeatModeUtil;
 import com.google.android.exoplayer2.util.Util;
 import com.google.android.exoplayer2.video.VideoListener;
@@ -101,6 +104,12 @@ import java.util.List;
  *       <ul>
  *         <li>Corresponding method: {@link #setControllerHideDuringAds(boolean)}
  *         <li>Default: {@code true}
+ *       </ul>
+ *   <li><b>{@code show_buffering}</b> - Whether the buffering spinner is displayed when the player
+ *       is buffering.
+ *       <ul>
+ *         <li>Corresponding method: {@link #setShowBuffering(boolean)}
+ *         <li>Default: {@code false}
  *       </ul>
  *   <li><b>{@code resize_mode}</b> - Controls how video and album art is resized within the view.
  *       Valid values are {@code fit}, {@code fixed_width}, {@code fixed_height} and {@code fill}.
@@ -164,6 +173,11 @@ import java.util.List;
  *       <ul>
  *         <li>Type: {@link View}
  *       </ul>
+ *   <li><b>{@code exo_buffering}</b> - A view that's made visible when the player is buffering.
+ *       This view typically displays a buffering spinner or animation.
+ *       <ul>
+ *         <li>Type: {@link View}
+ *       </ul>
  *   <li><b>{@code exo_subtitles}</b> - Displays subtitles.
  *       <ul>
  *         <li>Type: {@link SubtitleView}
@@ -171,6 +185,10 @@ import java.util.List;
  *   <li><b>{@code exo_artwork}</b> - Displays album art.
  *       <ul>
  *         <li>Type: {@link ImageView}
+ *       </ul>
+ *   <li><b>{@code exo_error_message}</b> - Displays an error message to the user if playback fails.
+ *       <ul>
+ *         <li>Type: {@link TextView}
  *       </ul>
  *   <li><b>{@code exo_controller_placeholder}</b> - A placeholder that's replaced with the inflated
  *       {@link PlayerControlView}. Ignored if an {@code exo_controller} view exists.
@@ -213,6 +231,8 @@ public class PlayerView extends FrameLayout {
   private final View surfaceView;
   private final ImageView artworkView;
   private final SubtitleView subtitleView;
+  private final @Nullable View bufferingView;
+  private final @Nullable TextView errorMessageView;
   private final PlayerControlView controller;
   private final ComponentListener componentListener;
   private final FrameLayout overlayFrameLayout;
@@ -221,6 +241,9 @@ public class PlayerView extends FrameLayout {
   private boolean useController;
   private boolean useArtwork;
   private Bitmap defaultArtwork;
+  private boolean showBuffering;
+  private @Nullable ErrorMessageProvider<? super ExoPlaybackException> errorMessageProvider;
+  private @Nullable CharSequence customErrorMessage;
   private int controllerShowTimeoutMs;
   private boolean controllerAutoShow;
   private boolean controllerHideDuringAds;
@@ -244,6 +267,8 @@ public class PlayerView extends FrameLayout {
       surfaceView = null;
       artworkView = null;
       subtitleView = null;
+      bufferingView = null;
+      errorMessageView = null;
       controller = null;
       componentListener = null;
       overlayFrameLayout = null;
@@ -269,6 +294,7 @@ public class PlayerView extends FrameLayout {
     boolean controllerHideOnTouch = true;
     boolean controllerAutoShow = true;
     boolean controllerHideDuringAds = true;
+    boolean showBuffering = false;
     if (attrs != null) {
       TypedArray a = context.getTheme().obtainStyledAttributes(attrs, R.styleable.PlayerView, 0, 0);
       try {
@@ -286,6 +312,7 @@ public class PlayerView extends FrameLayout {
         controllerHideOnTouch =
             a.getBoolean(R.styleable.PlayerView_hide_on_touch, controllerHideOnTouch);
         controllerAutoShow = a.getBoolean(R.styleable.PlayerView_auto_show, controllerAutoShow);
+        showBuffering = a.getBoolean(R.styleable.PlayerView_show_buffering, showBuffering);
         controllerHideDuringAds =
             a.getBoolean(R.styleable.PlayerView_hide_during_ads, controllerHideDuringAds);
       } finally {
@@ -339,6 +366,19 @@ public class PlayerView extends FrameLayout {
     if (subtitleView != null) {
       subtitleView.setUserDefaultStyle();
       subtitleView.setUserDefaultTextSize();
+    }
+
+    // Buffering view.
+    bufferingView = findViewById(R.id.exo_buffering);
+    if (bufferingView != null) {
+      bufferingView.setVisibility(View.GONE);
+    }
+    this.showBuffering = showBuffering;
+
+    // Error message view.
+    errorMessageView = findViewById(R.id.exo_error_message);
+    if (errorMessageView != null) {
+      errorMessageView.setVisibility(View.GONE);
     }
 
     // Playback control view.
@@ -438,6 +478,8 @@ public class PlayerView extends FrameLayout {
     if (subtitleView != null) {
       subtitleView.setCues(null);
     }
+    updateBuffering();
+    updateErrorMessage();
     if (player != null) {
       Player.VideoComponent newVideoComponent = player.getVideoComponent();
       if (newVideoComponent != null) {
@@ -556,6 +598,44 @@ public class PlayerView extends FrameLayout {
     if (shutterView != null) {
       shutterView.setBackgroundColor(color);
     }
+  }
+
+  /**
+   * Sets whether a buffering spinner is displayed when the player is in the buffering state. The
+   * buffering spinner is not displayed by default.
+   *
+   * @param showBuffering Whether the buffering icon is displayer
+   */
+  public void setShowBuffering(boolean showBuffering) {
+    if (this.showBuffering != showBuffering) {
+      this.showBuffering = showBuffering;
+      updateBuffering();
+    }
+  }
+
+  /**
+   * Sets the optional {@link ErrorMessageProvider}.
+   *
+   * @param errorMessageProvider The error message provider.
+   */
+  public void setErrorMessageProvider(
+      @Nullable ErrorMessageProvider<? super ExoPlaybackException> errorMessageProvider) {
+    if (this.errorMessageProvider != errorMessageProvider) {
+      this.errorMessageProvider = errorMessageProvider;
+      updateErrorMessage();
+    }
+  }
+
+  /**
+   * Sets a custom error message to be displayed by the view. The error message will be displayed
+   * permanently, unless it is cleared by passing {@code null} to this method.
+   *
+   * @param message The message to display, or {@code null} to clear a previously set message.
+   */
+  public void setCustomErrorMessage(@Nullable CharSequence message) {
+    Assertions.checkState(errorMessageView != null);
+    customErrorMessage = message;
+    updateErrorMessage();
   }
 
   @Override
@@ -954,6 +1034,40 @@ public class PlayerView extends FrameLayout {
     }
   }
 
+  private void updateBuffering() {
+    if (bufferingView != null) {
+      boolean showBufferingSpinner =
+          showBuffering
+              && player != null
+              && player.getPlaybackState() == Player.STATE_BUFFERING
+              && player.getPlayWhenReady();
+      bufferingView.setVisibility(showBufferingSpinner ? View.VISIBLE : View.GONE);
+    }
+  }
+
+  private void updateErrorMessage() {
+    if (errorMessageView != null) {
+      if (customErrorMessage != null) {
+        errorMessageView.setText(customErrorMessage);
+        errorMessageView.setVisibility(View.VISIBLE);
+        return;
+      }
+      ExoPlaybackException error = null;
+      if (player != null
+          && player.getPlaybackState() == Player.STATE_IDLE
+          && errorMessageProvider != null) {
+        error = player.getPlaybackError();
+      }
+      if (error != null) {
+        CharSequence errorMessage = errorMessageProvider.getErrorMessage(error).second;
+        errorMessageView.setText(errorMessage);
+        errorMessageView.setVisibility(View.VISIBLE);
+      } else {
+        errorMessageView.setVisibility(View.GONE);
+      }
+    }
+  }
+
   @TargetApi(23)
   private static void configureEditModeLogoV23(Resources resources, ImageView logo) {
     logo.setImageDrawable(resources.getDrawable(R.drawable.exo_edit_mode_logo, null));
@@ -1070,6 +1184,8 @@ public class PlayerView extends FrameLayout {
 
     @Override
     public void onPlayerStateChanged(boolean playWhenReady, int playbackState) {
+      updateBuffering();
+      updateErrorMessage();
       if (isPlayingAd() && controllerHideDuringAds) {
         hideController();
       } else {

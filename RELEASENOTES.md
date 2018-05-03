@@ -12,9 +12,12 @@
   `SimpleExoPlayer` to receive detailed meta data for each ExoPlayer event.
 * Added `getPlaybackError` to `Player` interface.
 * UI components:
+  * Add support for displaying error messages and a buffering spinner in
+    `PlayerView`.
   * Add support for listening to `AspectRatioFrameLayout`'s aspect ratio update
     ([#3736](https://github.com/google/ExoPlayer/issues/3736)).
-  * Add PlayerNotificationManager.
+  * Add `PlayerNotificationManager` for displaying notifications reflecting the
+    player state.
 * Downloading: Add `DownloadService`, `DownloadManager` and
   related classes ([#2643](https://github.com/google/ExoPlayer/issues/2643)).
 * MediaSources:

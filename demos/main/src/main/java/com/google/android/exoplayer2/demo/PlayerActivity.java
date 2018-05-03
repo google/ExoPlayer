@@ -81,6 +81,7 @@ import com.google.android.exoplayer2.ui.TrackSelectionView;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DefaultBandwidthMeter;
 import com.google.android.exoplayer2.upstream.HttpDataSource;
+import com.google.android.exoplayer2.util.ErrorMessageProvider;
 import com.google.android.exoplayer2.util.EventLogger;
 import com.google.android.exoplayer2.util.ParcelableArray;
 import com.google.android.exoplayer2.util.Util;
@@ -143,7 +144,6 @@ public class PlayerActivity extends Activity
   private DefaultTrackSelector trackSelector;
   private DefaultTrackSelector.Parameters trackSelectorParameters;
   private DebugTextViewHelper debugViewHelper;
-  private boolean inErrorState;
   private TrackGroupArray lastSeenTrackGroupArray;
 
   private boolean startAutoPlay;
@@ -174,6 +174,7 @@ public class PlayerActivity extends Activity
 
     playerView = findViewById(R.id.player_view);
     playerView.setControllerVisibilityListener(this);
+    playerView.setErrorMessageProvider(new PlayerErrorMessageProvider());
     playerView.requestFocus();
 
     if (savedInstanceState != null) {
@@ -235,16 +236,16 @@ public class PlayerActivity extends Activity
   @Override
   public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
       @NonNull int[] grantResults) {
-    if (grantResults.length > 0) {
-      if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-        initializePlayer();
-      } else {
-        showToast(R.string.storage_permission_denied);
-        finish();
-      }
-    } else {
+    if (grantResults.length == 0) {
       // Empty results are triggered if a permission is requested while another request was already
       // pending and can be safely ignored in this case.
+      return;
+    }
+    if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+      initializePlayer();
+    } else {
+      showToast(R.string.storage_permission_denied);
+      finish();
     }
   }
 
@@ -440,7 +441,6 @@ public class PlayerActivity extends Activity
       player.seekTo(startWindow, startPosition);
     }
     player.prepare(mediaSource, !haveStartPosition, false);
-    inErrorState = false;
     updateButtonVisibilities();
   }
 
@@ -486,8 +486,10 @@ public class PlayerActivity extends Activity
   private DefaultDrmSessionManager<FrameworkMediaCrypto> buildDrmSessionManagerV18(
       UUID uuid, String licenseUrl, String[] keyRequestPropertiesArray, boolean multiSession)
       throws UnsupportedDrmException {
-    HttpMediaDrmCallback drmCallback = new HttpMediaDrmCallback(licenseUrl,
-        buildHttpDataSourceFactory(false));
+    HttpDataSource.Factory licenseDataSourceFactory =
+        ((DemoApplication) getApplication()).buildHttpDataSourceFactory(/* listener= */ null);
+    HttpMediaDrmCallback drmCallback =
+        new HttpMediaDrmCallback(licenseUrl, licenseDataSourceFactory);
     if (keyRequestPropertiesArray != null) {
       for (int i = 0; i < keyRequestPropertiesArray.length - 1; i += 2) {
         drmCallback.setKeyRequestProperty(keyRequestPropertiesArray[i],
@@ -541,18 +543,6 @@ public class PlayerActivity extends Activity
   private DataSource.Factory buildDataSourceFactory(boolean useBandwidthMeter) {
     return ((DemoApplication) getApplication())
         .buildDataSourceFactory(useBandwidthMeter ? BANDWIDTH_METER : null);
-  }
-
-  /**
-   * Returns a new HttpDataSource factory.
-   *
-   * @param useBandwidthMeter Whether to set {@link #BANDWIDTH_METER} as a listener to the new
-   *     DataSource factory.
-   * @return A new HttpDataSource factory.
-   */
-  private HttpDataSource.Factory buildHttpDataSourceFactory(boolean useBandwidthMeter) {
-    return ((DemoApplication) getApplication())
-        .buildHttpDataSourceFactory(useBandwidthMeter ? BANDWIDTH_METER : null);
   }
 
   /** Returns an ads media source, reusing the ads loader if one exists. */
@@ -623,7 +613,7 @@ public class PlayerActivity extends Activity
       return;
     }
 
-    for (int i = 0; i < mappedTrackInfo.length; i++) {
+    for (int i = 0; i < mappedTrackInfo.getRendererCount(); i++) {
       TrackGroupArray trackGroups = mappedTrackInfo.getTrackGroups(i);
       if (trackGroups.length != 0) {
         Button button = new Button(this);
@@ -687,43 +677,15 @@ public class PlayerActivity extends Activity
 
     @Override
     public void onPositionDiscontinuity(@Player.DiscontinuityReason int reason) {
-      if (inErrorState) {
-        // This will only occur if the user has performed a seek whilst in the error state. Update
-        // the resume position so that if the user then retries, playback will resume from the
-        // position to which they seeked.
+      if (player.getPlaybackError() != null) {
+        // The user has performed a seek whilst in the error state. Update the resume position so
+        // that if the user then retries, playback resumes from the position to which they seeked.
         updateStartPosition();
       }
     }
 
     @Override
     public void onPlayerError(ExoPlaybackException e) {
-      String errorString = null;
-      if (e.type == ExoPlaybackException.TYPE_RENDERER) {
-        Exception cause = e.getRendererException();
-        if (cause instanceof DecoderInitializationException) {
-          // Special case for decoder initialization failures.
-          DecoderInitializationException decoderInitializationException =
-              (DecoderInitializationException) cause;
-          if (decoderInitializationException.decoderName == null) {
-            if (decoderInitializationException.getCause() instanceof DecoderQueryException) {
-              errorString = getString(R.string.error_querying_decoders);
-            } else if (decoderInitializationException.secureDecoderRequired) {
-              errorString = getString(R.string.error_no_secure_decoder,
-                  decoderInitializationException.mimeType);
-            } else {
-              errorString = getString(R.string.error_no_decoder,
-                  decoderInitializationException.mimeType);
-            }
-          } else {
-            errorString = getString(R.string.error_instantiating_decoder,
-                decoderInitializationException.decoderName);
-          }
-        }
-      }
-      if (errorString != null) {
-        showToast(errorString);
-      }
-      inErrorState = true;
       if (isBehindLiveWindow(e)) {
         clearStartPosition();
         initializePlayer();
@@ -753,7 +715,40 @@ public class PlayerActivity extends Activity
         lastSeenTrackGroupArray = trackGroups;
       }
     }
+  }
 
+  private class PlayerErrorMessageProvider implements ErrorMessageProvider<ExoPlaybackException> {
+
+    @Override
+    public Pair<Integer, String> getErrorMessage(ExoPlaybackException e) {
+      String errorString = getString(R.string.error_generic);
+      if (e.type == ExoPlaybackException.TYPE_RENDERER) {
+        Exception cause = e.getRendererException();
+        if (cause instanceof DecoderInitializationException) {
+          // Special case for decoder initialization failures.
+          DecoderInitializationException decoderInitializationException =
+              (DecoderInitializationException) cause;
+          if (decoderInitializationException.decoderName == null) {
+            if (decoderInitializationException.getCause() instanceof DecoderQueryException) {
+              errorString = getString(R.string.error_querying_decoders);
+            } else if (decoderInitializationException.secureDecoderRequired) {
+              errorString =
+                  getString(
+                      R.string.error_no_secure_decoder, decoderInitializationException.mimeType);
+            } else {
+              errorString =
+                  getString(R.string.error_no_decoder, decoderInitializationException.mimeType);
+            }
+          } else {
+            errorString =
+                getString(
+                    R.string.error_instantiating_decoder,
+                    decoderInitializationException.decoderName);
+          }
+        }
+      }
+      return Pair.create(0, errorString);
+    }
   }
 
 }
