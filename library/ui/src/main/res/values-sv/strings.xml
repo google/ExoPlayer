@@ -17,7 +17,7 @@
   <string name="exo_download_downloading">Laddar ned</string>
   <string name="exo_download_completed">Nedladdningen är klar</string>
   <string name="exo_download_failed">Nedladdningen misslyckades</string>
-  <string name="exo_download_removing">Removing downloads</string>
+  <string name="exo_download_removing">Nedladdningar tas bort</string>
   <string name="exo_track_selection_title_video">Video</string>
   <string name="exo_track_selection_title_audio">Ljud</string>
   <string name="exo_track_selection_title_text">Text</string>

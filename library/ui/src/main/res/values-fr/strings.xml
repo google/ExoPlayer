@@ -17,7 +17,7 @@
   <string name="exo_download_downloading">Téléchargement…</string>
   <string name="exo_download_completed">Téléchargement terminé</string>
   <string name="exo_download_failed">Échec du téléchargement</string>
-  <string name="exo_download_removing">Removing downloads</string>
+  <string name="exo_download_removing">Suppression des téléchargements…</string>
   <string name="exo_track_selection_title_video">Vidéo</string>
   <string name="exo_track_selection_title_audio">Audio</string>
   <string name="exo_track_selection_title_text">Texte</string>

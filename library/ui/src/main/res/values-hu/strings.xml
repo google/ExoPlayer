@@ -17,7 +17,7 @@
   <string name="exo_download_downloading">Letöltés folyamatban</string>
   <string name="exo_download_completed">A letöltés befejeződött</string>
   <string name="exo_download_failed">Nem sikerült a letöltés</string>
-  <string name="exo_download_removing">Removing downloads</string>
+  <string name="exo_download_removing">Letöltések törlése folyamatban</string>
   <string name="exo_track_selection_title_video">Videó</string>
   <string name="exo_track_selection_title_audio">Hang</string>
   <string name="exo_track_selection_title_text">Szöveg</string>
