@@ -16,6 +16,13 @@
 package com.google.android.exoplayer2.demo;
 
 import android.app.Application;
+import com.google.android.exoplayer2.offline.DownloadAction.Deserializer;
+import com.google.android.exoplayer2.offline.DownloadManager;
+import com.google.android.exoplayer2.offline.DownloaderConstructorHelper;
+import com.google.android.exoplayer2.offline.ProgressiveDownloadAction;
+import com.google.android.exoplayer2.source.dash.offline.DashDownloadAction;
+import com.google.android.exoplayer2.source.hls.offline.HlsDownloadAction;
+import com.google.android.exoplayer2.source.smoothstreaming.offline.SsDownloadAction;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
 import com.google.android.exoplayer2.upstream.DefaultHttpDataSourceFactory;
@@ -37,10 +44,20 @@ public class DemoApplication extends Application {
 
   private static final String DOWNLOAD_ACTION_FILE = "actions";
   private static final String DOWNLOAD_CONTENT_DIRECTORY = "downloads";
+  private static final int MAX_SIMULTANEOUS_DOWNLOADS = 2;
+  private static final Deserializer[] DOWNLOAD_DESERIALIZERS =
+      new Deserializer[] {
+        DashDownloadAction.DESERIALIZER,
+        HlsDownloadAction.DESERIALIZER,
+        SsDownloadAction.DESERIALIZER,
+        ProgressiveDownloadAction.DESERIALIZER
+      };
 
   protected String userAgent;
+
   private File downloadDirectory;
   private Cache downloadCache;
+  private DownloadManager downloadManager;
 
   @Override
   public void onCreate() {
@@ -52,7 +69,7 @@ public class DemoApplication extends Application {
   public DataSource.Factory buildDataSourceFactory(TransferListener<? super DataSource> listener) {
     DefaultDataSourceFactory upstreamFactory =
         new DefaultDataSourceFactory(this, listener, buildHttpDataSourceFactory(listener));
-    return createReadOnlyCacheDataSource(upstreamFactory, getDownloadCache());
+    return buildReadOnlyCacheDataSource(upstreamFactory, getDownloadCache());
   }
 
   /** Returns a {@link HttpDataSource.Factory}. */
@@ -66,18 +83,28 @@ public class DemoApplication extends Application {
     return "withExtensions".equals(BuildConfig.FLAVOR);
   }
 
-  /** Returns the download {@link Cache}. */
-  public synchronized Cache getDownloadCache() {
+  /** Returns the download manager used by the application. */
+  public synchronized DownloadManager getDownloadManager() {
+    if (downloadManager == null) {
+      DownloaderConstructorHelper constructorHelper =
+          new DownloaderConstructorHelper(getDownloadCache(), buildHttpDataSourceFactory(null));
+      downloadManager =
+          new DownloadManager(
+              constructorHelper,
+              MAX_SIMULTANEOUS_DOWNLOADS,
+              DownloadManager.DEFAULT_MIN_RETRY_COUNT,
+              new File(getDownloadDirectory(), DOWNLOAD_ACTION_FILE),
+              DOWNLOAD_DESERIALIZERS);
+    }
+    return downloadManager;
+  }
+
+  private synchronized Cache getDownloadCache() {
     if (downloadCache == null) {
       File downloadContentDirectory = new File(getDownloadDirectory(), DOWNLOAD_CONTENT_DIRECTORY);
       downloadCache = new SimpleCache(downloadContentDirectory, new NoOpCacheEvictor());
     }
     return downloadCache;
-  }
-
-  /** Returns the file in which active download actions should be saved. */
-  public synchronized File getDownloadActionFile() {
-    return new File(getDownloadDirectory(), DOWNLOAD_ACTION_FILE);
   }
 
   private File getDownloadDirectory() {
@@ -90,14 +117,14 @@ public class DemoApplication extends Application {
     return downloadDirectory;
   }
 
-  private static CacheDataSourceFactory createReadOnlyCacheDataSource(
+  private static CacheDataSourceFactory buildReadOnlyCacheDataSource(
       DefaultDataSourceFactory upstreamFactory, Cache cache) {
     return new CacheDataSourceFactory(
         cache,
         upstreamFactory,
         new FileDataSourceFactory(),
-        /*cacheWriteDataSinkFactory=*/ null,
+        /* cacheWriteDataSinkFactory= */ null,
         CacheDataSource.FLAG_IGNORE_CACHE_ON_ERROR,
-        /*eventListener=*/ null);
+        /* eventListener= */ null);
   }
 }

@@ -19,12 +19,7 @@ import android.app.Notification;
 import com.google.android.exoplayer2.offline.DownloadManager;
 import com.google.android.exoplayer2.offline.DownloadManager.TaskState;
 import com.google.android.exoplayer2.offline.DownloadService;
-import com.google.android.exoplayer2.offline.DownloaderConstructorHelper;
-import com.google.android.exoplayer2.offline.ProgressiveDownloadAction;
 import com.google.android.exoplayer2.scheduler.PlatformScheduler;
-import com.google.android.exoplayer2.source.dash.offline.DashDownloadAction;
-import com.google.android.exoplayer2.source.hls.offline.HlsDownloadAction;
-import com.google.android.exoplayer2.source.smoothstreaming.offline.SsDownloadAction;
 import com.google.android.exoplayer2.ui.DownloadNotificationUtil;
 import com.google.android.exoplayer2.util.NotificationUtil;
 import com.google.android.exoplayer2.util.Util;
@@ -36,8 +31,6 @@ public class DemoDownloadService extends DownloadService {
   private static final int JOB_ID = 1;
   private static final int FOREGROUND_NOTIFICATION_ID = 1;
 
-  private static DownloadManager downloadManager;
-
   public DemoDownloadService() {
     super(
         FOREGROUND_NOTIFICATION_ID,
@@ -48,23 +41,7 @@ public class DemoDownloadService extends DownloadService {
 
   @Override
   protected DownloadManager getDownloadManager() {
-    if (downloadManager == null) {
-      DemoApplication application = (DemoApplication) getApplication();
-      DownloaderConstructorHelper constructorHelper =
-          new DownloaderConstructorHelper(
-              application.getDownloadCache(), application.buildHttpDataSourceFactory(null));
-      downloadManager =
-          new DownloadManager(
-              constructorHelper,
-              /* maxSimultaneousDownloads= */ 2,
-              DownloadManager.DEFAULT_MIN_RETRY_COUNT,
-              application.getDownloadActionFile(),
-              DashDownloadAction.DESERIALIZER,
-              HlsDownloadAction.DESERIALIZER,
-              SsDownloadAction.DESERIALIZER,
-              ProgressiveDownloadAction.DESERIALIZER);
-    }
-    return downloadManager;
+    return ((DemoApplication) getApplication()).getDownloadManager();
   }
 
   @Override
