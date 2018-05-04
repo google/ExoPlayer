@@ -19,22 +19,18 @@ import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.fail;
 
 import android.net.Uri;
-import android.os.ConditionVariable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.offline.DownloadManager.TaskState;
 import com.google.android.exoplayer2.offline.DownloadManager.TaskState.State;
 import com.google.android.exoplayer2.testutil.DummyMainThread;
 import com.google.android.exoplayer2.testutil.RobolectricUtil;
+import com.google.android.exoplayer2.testutil.TestDownloadManagerListener;
 import com.google.android.exoplayer2.upstream.DummyDataSource;
 import com.google.android.exoplayer2.upstream.cache.Cache;
 import com.google.android.exoplayer2.util.Util;
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Locale;
-import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import org.junit.After;
@@ -77,7 +73,6 @@ public class DownloadManagerTest {
     uri3 = Uri.parse("http://abc.com/media3");
     dummyMainThread = new DummyMainThread();
     actionFile = Util.createTempFile(RuntimeEnvironment.application, "ExoPlayerTest");
-    downloadManagerListener = new TestDownloadManagerListener();
     setUpDownloadManager(100);
   }
 
@@ -437,6 +432,8 @@ public class DownloadManagerTest {
                       MIN_RETRY_COUNT,
                       actionFile,
                       ProgressiveDownloadAction.DESERIALIZER);
+              downloadManagerListener =
+                  new TestDownloadManagerListener(downloadManager, dummyMainThread);
               downloadManager.addListener(downloadManagerListener);
               downloadManager.startDownloads();
             }
@@ -498,50 +495,13 @@ public class DownloadManagerTest {
     dummyMainThread.runOnMainThread(r);
   }
 
-  private static final class TestDownloadManagerListener implements DownloadManager.Listener {
-
-    private ConditionVariable downloadFinishedCondition;
-    private Throwable downloadError;
-
-    private TestDownloadManagerListener() {
-      downloadFinishedCondition = new ConditionVariable();
-    }
-
-    @Override
-    public void onTaskStateChanged(DownloadManager downloadManager, TaskState taskState) {
-      if (taskState.state == TaskState.STATE_FAILED && downloadError == null) {
-        downloadError = taskState.error;
-      }
-      ((FakeDownloadAction) taskState.action).onStateChange(taskState.state);
-    }
-
-    @Override
-    public void onIdle(DownloadManager downloadManager) {
-      downloadFinishedCondition.open();
-    }
-
-    private void clearDownloadError() {
-      this.downloadError = null;
-    }
-
-    private void blockUntilTasksCompleteAndThrowAnyDownloadError() throws Throwable {
-      assertThat(downloadFinishedCondition.block(ASSERT_TRUE_TIMEOUT)).isTrue();
-      downloadFinishedCondition.close();
-      if (downloadError != null) {
-        throw new Exception(downloadError);
-      }
-    }
-  }
-
   private class FakeDownloadAction extends DownloadAction {
 
     private final FakeDownloader downloader;
-    private final BlockingQueue<Integer> states;
 
     private FakeDownloadAction(Uri uri, boolean isRemoveAction) {
       super("Fake", /* version= */ 0, uri, isRemoveAction, /* data= */ null);
       this.downloader = new FakeDownloader(isRemoveAction);
-      this.states = new ArrayBlockingQueue<>(10);
     }
 
     @Override
@@ -558,7 +518,7 @@ public class DownloadManagerTest {
       return downloader;
     }
 
-    private FakeDownloadAction post() throws Throwable {
+    private FakeDownloadAction post() {
       runOnMainThread(
           new Runnable() {
             @Override
@@ -597,33 +557,15 @@ public class DownloadManagerTest {
     }
 
     private FakeDownloadAction assertState(@State int expectedState) {
-      ArrayList<Integer> receivedStates = new ArrayList<>();
       while (true) {
         Integer state = null;
         try {
-          state = states.poll(ASSERT_TRUE_TIMEOUT, TimeUnit.MILLISECONDS);
+          state = downloadManagerListener.pollStateChange(this, ASSERT_TRUE_TIMEOUT);
         } catch (InterruptedException e) {
           fail(e.getMessage());
         }
-        if (state != null) {
-          if (expectedState == state) {
-            return this;
-          }
-          receivedStates.add(state);
-        } else {
-          StringBuilder sb = new StringBuilder();
-          for (int i = 0; i < receivedStates.size(); i++) {
-            if (i > 0) {
-              sb.append(',');
-            }
-            sb.append(TaskState.getStateString(receivedStates.get(i)));
-          }
-          fail(
-              String.format(
-                  Locale.US,
-                  "expected:<%s> but was:<%s>",
-                  TaskState.getStateString(expectedState),
-                  sb));
+        if (expectedState == state) {
+          return this;
         }
       }
     }
@@ -636,10 +578,6 @@ public class DownloadManagerTest {
     private FakeDownloadAction ignoreInterrupts() {
       downloader.ignoreInterrupts = true;
       return this;
-    }
-
-    private void onStateChange(int state) {
-      states.add(state);
     }
   }
 
