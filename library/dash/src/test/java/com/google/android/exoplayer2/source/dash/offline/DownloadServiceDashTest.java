@@ -36,6 +36,7 @@ import com.google.android.exoplayer2.testutil.DummyMainThread;
 import com.google.android.exoplayer2.testutil.FakeDataSet;
 import com.google.android.exoplayer2.testutil.FakeDataSource;
 import com.google.android.exoplayer2.testutil.RobolectricUtil;
+import com.google.android.exoplayer2.testutil.TestDownloadManagerListener;
 import com.google.android.exoplayer2.testutil.TestUtil;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.cache.NoOpCacheEvictor;
@@ -73,7 +74,7 @@ public class DownloadServiceDashTest {
   private DummyMainThread dummyMainThread;
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() throws IOException {
     dummyMainThread = new DummyMainThread();
     context = RuntimeEnvironment.application;
     tempFolder = Util.createTempDirectory(context, "ExoPlayerTest");
@@ -110,76 +111,68 @@ public class DownloadServiceDashTest {
     fakeRepresentationKey1 = new RepresentationKey(0, 0, 0);
     fakeRepresentationKey2 = new RepresentationKey(0, 1, 0);
 
-    try {
-      dummyMainThread.runOnMainThread(
-          new Runnable() {
-            @Override
-            public void run() {
-              File actionFile;
-              try {
-                actionFile = Util.createTempFile(context, "ExoPlayerTest");
-              } catch (IOException e) {
-                throw new RuntimeException(e);
-              }
-              actionFile.delete();
-              final DownloadManager dashDownloadManager =
-                  new DownloadManager(
-                      new DownloaderConstructorHelper(cache, fakeDataSourceFactory),
-                      1,
-                      3,
-                      actionFile,
-                      DashDownloadAction.DESERIALIZER);
-              downloadManagerListener =
-                  new TestDownloadManagerListener(dashDownloadManager, dummyMainThread);
-              dashDownloadManager.addListener(downloadManagerListener);
-              dashDownloadManager.startDownloads();
-
-              dashDownloadService =
-                  new DownloadService(/*foregroundNotificationId=*/ 1) {
-
-                    @Override
-                    protected DownloadManager getDownloadManager() {
-                      return dashDownloadManager;
-                    }
-
-                    @Override
-                    protected Notification getForegroundNotification(TaskState[] taskStates) {
-                      return Mockito.mock(Notification.class);
-                    }
-
-                    @Nullable
-                    @Override
-                    protected Scheduler getScheduler() {
-                      return null;
-                    }
-
-                    @Nullable
-                    @Override
-                    protected Requirements getRequirements() {
-                      return null;
-                    }
-                  };
-              dashDownloadService.onCreate();
+    dummyMainThread.runOnMainThread(
+        new Runnable() {
+          @Override
+          public void run() {
+            File actionFile;
+            try {
+              actionFile = Util.createTempFile(context, "ExoPlayerTest");
+            } catch (IOException e) {
+              throw new RuntimeException(e);
             }
-          });
-    } catch (Throwable throwable) {
-      throw new Exception(throwable);
-    }
+            actionFile.delete();
+            final DownloadManager dashDownloadManager =
+                new DownloadManager(
+                    new DownloaderConstructorHelper(cache, fakeDataSourceFactory),
+                    1,
+                    3,
+                    actionFile,
+                    DashDownloadAction.DESERIALIZER);
+            downloadManagerListener =
+                new TestDownloadManagerListener(dashDownloadManager, dummyMainThread);
+            dashDownloadManager.addListener(downloadManagerListener);
+            dashDownloadManager.startDownloads();
+
+            dashDownloadService =
+                new DownloadService(/*foregroundNotificationId=*/ 1) {
+
+                  @Override
+                  protected DownloadManager getDownloadManager() {
+                    return dashDownloadManager;
+                  }
+
+                  @Override
+                  protected Notification getForegroundNotification(TaskState[] taskStates) {
+                    return Mockito.mock(Notification.class);
+                  }
+
+                  @Nullable
+                  @Override
+                  protected Scheduler getScheduler() {
+                    return null;
+                  }
+
+                  @Nullable
+                  @Override
+                  protected Requirements getRequirements() {
+                    return null;
+                  }
+                };
+            dashDownloadService.onCreate();
+          }
+        });
   }
 
   @After
-  public void tearDown() throws Exception {
-    try {
-      dummyMainThread.runOnMainThread(
-          new Runnable() {
-            @Override
-            public void run() {
-              dashDownloadService.onDestroy();
-            }
-          });
-    } catch (Throwable throwable) {
-      throw new Exception(throwable);
-    }
+  public void tearDown() {
+    dummyMainThread.runOnMainThread(
+        new Runnable() {
+          @Override
+          public void run() {
+            dashDownloadService.onDestroy();
+          }
+        });
     Util.recursiveDelete(tempFolder);
     dummyMainThread.release();
   }

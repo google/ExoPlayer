@@ -13,22 +13,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.android.exoplayer2.source.dash.offline;
+package com.google.android.exoplayer2.testutil;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import com.google.android.exoplayer2.offline.DownloadAction;
 import com.google.android.exoplayer2.offline.DownloadManager;
-import com.google.android.exoplayer2.testutil.DummyMainThread;
+import java.util.HashMap;
+import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 /** A {@link DownloadManager.Listener} for testing. */
-/* package */ final class TestDownloadManagerListener implements DownloadManager.Listener {
+public final class TestDownloadManagerListener implements DownloadManager.Listener {
 
   private static final int TIMEOUT = 1000;
 
   private final DownloadManager downloadManager;
   private final DummyMainThread dummyMainThread;
+  private final HashMap<DownloadAction, ArrayBlockingQueue<Integer>> actionStates;
+
   private CountDownLatch downloadFinishedCondition;
   private Throwable downloadError;
 
@@ -36,6 +40,15 @@ import java.util.concurrent.TimeUnit;
       DownloadManager downloadManager, DummyMainThread dummyMainThread) {
     this.downloadManager = downloadManager;
     this.dummyMainThread = dummyMainThread;
+    actionStates = new HashMap<>();
+  }
+
+  public int pollStateChange(DownloadAction action, long timeoutMs) throws InterruptedException {
+    return getStateQueue(action).poll(timeoutMs, TimeUnit.MILLISECONDS);
+  }
+
+  public void clearDownloadError() {
+    this.downloadError = null;
   }
 
   @Override
@@ -44,6 +57,7 @@ import java.util.concurrent.TimeUnit;
     if (taskState.state == DownloadManager.TaskState.STATE_FAILED && downloadError == null) {
       downloadError = taskState.error;
     }
+    getStateQueue(taskState.action).add(taskState.state);
   }
 
   @Override
@@ -73,6 +87,15 @@ import java.util.concurrent.TimeUnit;
     assertThat(downloadFinishedCondition.await(TIMEOUT, TimeUnit.MILLISECONDS)).isTrue();
     if (downloadError != null) {
       throw new Exception(downloadError);
+    }
+  }
+
+  private ArrayBlockingQueue<Integer> getStateQueue(DownloadAction action) {
+    synchronized (actionStates) {
+      if (!actionStates.containsKey(action)) {
+        actionStates.put(action, new ArrayBlockingQueue<Integer>(10));
+      }
+      return actionStates.get(action);
     }
   }
 }
