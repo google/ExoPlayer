@@ -68,7 +68,7 @@ public final class HlsDownloadAction extends SegmentDownloadAction<RenditionKey>
 
   @Override
   protected void writeKey(DataOutputStream output, RenditionKey key) throws IOException {
-    output.writeInt(key.renditionGroup);
+    output.writeInt(key.type);
     output.writeInt(key.trackIndex);
   }
 

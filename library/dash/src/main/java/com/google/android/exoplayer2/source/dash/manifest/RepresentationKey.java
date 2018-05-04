@@ -40,6 +40,43 @@ public final class RepresentationKey implements Parcelable, Comparable<Represent
     return periodIndex + "." + adaptationSetIndex + "." + representationIndex;
   }
 
+  @Override
+  public boolean equals(@Nullable Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+
+    RepresentationKey that = (RepresentationKey) o;
+    return periodIndex == that.periodIndex
+        && adaptationSetIndex == that.adaptationSetIndex
+        && representationIndex == that.representationIndex;
+  }
+
+  @Override
+  public int hashCode() {
+    int result = periodIndex;
+    result = 31 * result + adaptationSetIndex;
+    result = 31 * result + representationIndex;
+    return result;
+  }
+
+  // Comparable implementation.
+
+  @Override
+  public int compareTo(@NonNull RepresentationKey o) {
+    int result = periodIndex - o.periodIndex;
+    if (result == 0) {
+      result = adaptationSetIndex - o.adaptationSetIndex;
+      if (result == 0) {
+        result = representationIndex - o.representationIndex;
+      }
+    }
+    return result;
+  }
+
   // Parcelable implementation.
 
   @Override
@@ -66,42 +103,5 @@ public final class RepresentationKey implements Parcelable, Comparable<Represent
           return new RepresentationKey[size];
         }
       };
-
-  // Comparable implementation.
-
-  @Override
-  public int compareTo(@NonNull RepresentationKey o) {
-    int result = periodIndex - o.periodIndex;
-    if (result == 0) {
-      result = adaptationSetIndex - o.adaptationSetIndex;
-      if (result == 0) {
-        result = representationIndex - o.representationIndex;
-      }
-    }
-    return result;
-  }
-
-  @Override
-  public boolean equals(@Nullable Object o) {
-    if (this == o) {
-      return true;
-    }
-    if (o == null || getClass() != o.getClass()) {
-      return false;
-    }
-
-    RepresentationKey that = (RepresentationKey) o;
-    return periodIndex == that.periodIndex
-        && adaptationSetIndex == that.adaptationSetIndex
-        && representationIndex == that.representationIndex;
-  }
-
-  @Override
-  public int hashCode() {
-    int result = periodIndex;
-    result = 31 * result + adaptationSetIndex;
-    result = 31 * result + representationIndex;
-    return result;
-  }
 
 }

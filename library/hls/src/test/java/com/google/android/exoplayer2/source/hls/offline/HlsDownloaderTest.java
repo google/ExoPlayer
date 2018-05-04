@@ -190,7 +190,7 @@ public class HlsDownloaderTest {
   private static ArrayList<RenditionKey> getKeys(int... variantIndices) {
     ArrayList<RenditionKey> renditionKeys = new ArrayList<>();
     for (int variantIndex : variantIndices) {
-      renditionKeys.add(new RenditionKey(RenditionKey.GROUP_VARIANTS, variantIndex));
+      renditionKeys.add(new RenditionKey(RenditionKey.TYPE_VARIANT, variantIndex));
     }
     return renditionKeys;
   }

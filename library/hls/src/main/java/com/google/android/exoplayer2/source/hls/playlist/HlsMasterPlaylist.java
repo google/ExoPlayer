@@ -119,9 +119,9 @@ public final class HlsMasterPlaylist extends HlsPlaylist<HlsMasterPlaylist> {
     return new HlsMasterPlaylist(
         baseUri,
         tags,
-        copyRenditionsList(variants, RenditionKey.GROUP_VARIANTS, renditionKeys),
-        copyRenditionsList(audios, RenditionKey.GROUP_AUDIOS, renditionKeys),
-        copyRenditionsList(subtitles, RenditionKey.GROUP_SUBTITLES, renditionKeys),
+        copyRenditionsList(variants, RenditionKey.TYPE_VARIANT, renditionKeys),
+        copyRenditionsList(audios, RenditionKey.TYPE_AUDIO, renditionKeys),
+        copyRenditionsList(subtitles, RenditionKey.TYPE_SUBTITLE, renditionKeys),
         muxedAudioFormat,
         muxedCaptionFormats);
   }
@@ -140,13 +140,13 @@ public final class HlsMasterPlaylist extends HlsPlaylist<HlsMasterPlaylist> {
   }
 
   private static List<HlsUrl> copyRenditionsList(
-      List<HlsUrl> renditions, int renditionGroup, List<RenditionKey> renditionKeys) {
+      List<HlsUrl> renditions, int renditionType, List<RenditionKey> renditionKeys) {
     List<HlsUrl> copiedRenditions = new ArrayList<>(renditionKeys.size());
     for (int i = 0; i < renditions.size(); i++) {
       HlsUrl rendition = renditions.get(i);
       for (int j = 0; j < renditionKeys.size(); j++) {
         RenditionKey renditionKey = renditionKeys.get(j);
-        if (renditionKey.renditionGroup == renditionGroup && renditionKey.trackIndex == i) {
+        if (renditionKey.type == renditionType && renditionKey.trackIndex == i) {
           copiedRenditions.add(rendition);
           break;
         }
