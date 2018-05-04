@@ -51,7 +51,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
 public final class DownloadManager {
 
   /** Listener for {@link DownloadManager} events. */
-  public interface DownloadListener {
+  public interface Listener {
     /**
      * Called when the state of a task changes.
      *
@@ -86,7 +86,7 @@ public final class DownloadManager {
   private final Handler handler;
   private final HandlerThread fileIOThread;
   private final Handler fileIOHandler;
-  private final CopyOnWriteArraySet<DownloadListener> listeners;
+  private final CopyOnWriteArraySet<Listener> listeners;
 
   private int nextTaskId;
   private boolean actionFileLoadCompleted;
@@ -219,20 +219,20 @@ public final class DownloadManager {
   }
 
   /**
-   * Adds a {@link DownloadListener}.
+   * Adds a {@link Listener}.
    *
    * @param listener The listener to be added.
    */
-  public void addListener(DownloadListener listener) {
+  public void addListener(Listener listener) {
     listeners.add(listener);
   }
 
   /**
-   * Removes a {@link DownloadListener}.
+   * Removes a {@link Listener}.
    *
    * @param listener The listener to be removed.
    */
-  public void removeListener(DownloadListener listener) {
+  public void removeListener(Listener listener) {
     listeners.remove(listener);
   }
 
@@ -377,7 +377,7 @@ public final class DownloadManager {
       return;
     }
     logd("Notify idle state");
-    for (DownloadListener listener : listeners) {
+    for (Listener listener : listeners) {
       listener.onIdle(this);
     }
   }
@@ -404,7 +404,7 @@ public final class DownloadManager {
 
   private void notifyListenersTaskStateChange(Task task) {
     TaskState taskState = task.getDownloadState();
-    for (DownloadListener listener : listeners) {
+    for (Listener listener : listeners) {
       listener.onTaskStateChanged(this, taskState);
     }
   }

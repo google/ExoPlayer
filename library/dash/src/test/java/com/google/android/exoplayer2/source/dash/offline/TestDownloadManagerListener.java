@@ -18,13 +18,12 @@ package com.google.android.exoplayer2.source.dash.offline;
 import static com.google.common.truth.Truth.assertThat;
 
 import com.google.android.exoplayer2.offline.DownloadManager;
-import com.google.android.exoplayer2.offline.DownloadManager.DownloadListener;
 import com.google.android.exoplayer2.testutil.DummyMainThread;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
-/** A {@link DownloadListener} for testing. */
-/*package*/ final class TestDownloadListener implements DownloadListener {
+/** A {@link DownloadManager.Listener} for testing. */
+/* package */ final class TestDownloadManagerListener implements DownloadManager.Listener {
 
   private static final int TIMEOUT = 1000;
 
@@ -33,7 +32,8 @@ import java.util.concurrent.TimeUnit;
   private CountDownLatch downloadFinishedCondition;
   private Throwable downloadError;
 
-  public TestDownloadListener(DownloadManager downloadManager, DummyMainThread dummyMainThread) {
+  public TestDownloadManagerListener(
+      DownloadManager downloadManager, DummyMainThread dummyMainThread) {
     this.downloadManager = downloadManager;
     this.dummyMainThread = dummyMainThread;
   }

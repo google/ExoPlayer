@@ -77,7 +77,7 @@ public abstract class DownloadService extends Service {
   private final @StringRes int channelName;
 
   private DownloadManager downloadManager;
-  private DownloadListener downloadListener;
+  private DownloadManagerListener downloadManagerListener;
   private int lastStartId;
 
   /**
@@ -171,8 +171,8 @@ public abstract class DownloadService extends Service {
           this, channelId, channelName, NotificationUtil.IMPORTANCE_LOW);
     }
     downloadManager = getDownloadManager();
-    downloadListener = new DownloadListener();
-    downloadManager.addListener(downloadListener);
+    downloadManagerListener = new DownloadManagerListener();
+    downloadManager.addListener(downloadManagerListener);
 
     RequirementsHelper requirementsHelper;
     synchronized (requirementsHelpers) {
@@ -190,7 +190,7 @@ public abstract class DownloadService extends Service {
   public void onDestroy() {
     logd("onDestroy");
     foregroundNotificationUpdater.stopPeriodicUpdates();
-    downloadManager.removeListener(downloadListener);
+    downloadManager.removeListener(downloadManagerListener);
     if (downloadManager.getTaskCount() == 0) {
       synchronized (requirementsHelpers) {
         RequirementsHelper requirementsHelper = requirementsHelpers.remove(getClass());
@@ -312,7 +312,7 @@ public abstract class DownloadService extends Service {
     }
   }
 
-  private final class DownloadListener implements DownloadManager.DownloadListener {
+  private final class DownloadManagerListener implements DownloadManager.Listener {
     @Override
     public void onTaskStateChanged(DownloadManager downloadManager, TaskState taskState) {
       DownloadService.this.onTaskStateChanged(taskState);
