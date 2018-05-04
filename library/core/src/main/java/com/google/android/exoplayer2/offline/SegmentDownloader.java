@@ -75,7 +75,7 @@ public abstract class SegmentDownloader<M extends FilterableManifest<M, K>, K>
 
   /**
    * @param manifestUri The {@link Uri} of the manifest to be downloaded.
-   * @param constructorHelper a {@link DownloaderConstructorHelper} instance.
+   * @param constructorHelper A {@link DownloaderConstructorHelper} instance.
    * @param trackKeys Track keys to select when downloading. If empty, all tracks are downloaded.
    */
   public SegmentDownloader(
