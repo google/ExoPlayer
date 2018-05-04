@@ -3,6 +3,9 @@
 ### dev-v2 (not yet released) ###
 
 * Added dependency on checkerframework annotations for static code analysis.
+* IMA: Expose ad load errors via `MediaSourceEventListener` on `AdsMediaSource`,
+  and allow setting an ad event listener on `ImaAdsLoader`. Deprecate the
+  `AdsMediaSource.EventListener`.
 
 ### 2.8.0 ###
 
