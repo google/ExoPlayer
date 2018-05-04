@@ -23,6 +23,7 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.Arrays;
 
 /** Contains the necessary parameters for a download or remove action. */
 public abstract class DownloadAction {
@@ -95,8 +96,8 @@ public abstract class DownloadAction {
   public final Uri uri;
   /** Whether this is a remove action. If false, this is a download action. */
   public final boolean isRemoveAction;
-  /** Custom data for this action, or the empty string if no custom data was specified. */
-  public final String data;
+  /** Custom data for this action. May be empty. */
+  public final byte[] data;
 
   /**
    * @param type The type of the action.
@@ -106,12 +107,12 @@ public abstract class DownloadAction {
    * @param data Optional custom data for this action.
    */
   protected DownloadAction(
-      String type, int version, Uri uri, boolean isRemoveAction, @Nullable String data) {
+      String type, int version, Uri uri, boolean isRemoveAction, @Nullable byte[] data) {
     this.type = type;
     this.version = version;
     this.uri = uri;
     this.isRemoveAction = isRemoveAction;
-    this.data = data != null ? data : "";
+    this.data = data != null ? data : new byte[0];
   }
 
   /** Serializes itself into a byte array. */
@@ -148,14 +149,14 @@ public abstract class DownloadAction {
         && version == that.version
         && uri.equals(that.uri)
         && isRemoveAction == that.isRemoveAction
-        && data.equals(that.data);
+        && Arrays.equals(data, that.data);
   }
 
   @Override
   public int hashCode() {
     int result = uri.hashCode();
     result = 31 * result + (isRemoveAction ? 1 : 0);
-    result = 31 * result + data.hashCode();
+    result = 31 * result + Arrays.hashCode(data);
     return result;
   }
 

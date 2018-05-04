@@ -73,7 +73,7 @@ public class DemoDownloadService extends DownloadService {
               R.drawable.exo_controls_play,
               CHANNEL_ID,
               /* contentIntent= */ null,
-              taskState.action.data);
+              Util.fromUtf8Bytes(taskState.action.data));
     } else if (taskState.state == TaskState.STATE_FAILED) {
       notification =
           DownloadNotificationUtil.buildDownloadFailedNotification(
@@ -81,7 +81,7 @@ public class DemoDownloadService extends DownloadService {
               R.drawable.exo_controls_play,
               CHANNEL_ID,
               /* contentIntent= */ null,
-              taskState.action.data);
+              Util.fromUtf8Bytes(taskState.action.data));
     }
     int notificationId = FOREGROUND_NOTIFICATION_ID + 1 + taskState.taskId;
     NotificationUtil.setNotification(this, notificationId, notification);

@@ -42,7 +42,7 @@ public final class DashDownloadAction extends SegmentDownloadAction<Representati
 
         @Override
         protected DownloadAction createDownloadAction(
-            Uri uri, boolean isRemoveAction, String data, List<RepresentationKey> keys) {
+            Uri uri, boolean isRemoveAction, byte[] data, List<RepresentationKey> keys) {
           return new DashDownloadAction(uri, isRemoveAction, data, keys);
         }
       };
@@ -50,12 +50,12 @@ public final class DashDownloadAction extends SegmentDownloadAction<Representati
   /**
    * @param uri The DASH manifest URI.
    * @param isRemoveAction Whether the data will be removed. If {@code false} it will be downloaded.
-   * @param data Optional custom data for this action. If null, an empty string is used.
+   * @param data Optional custom data for this action.
    * @param keys Keys of representations to be downloaded. If empty, all representations are
    *     downloaded. If {@code removeAction} is true, {@code keys} must be empty.
    */
   public DashDownloadAction(
-      Uri uri, boolean isRemoveAction, @Nullable String data, List<RepresentationKey> keys) {
+      Uri uri, boolean isRemoveAction, @Nullable byte[] data, List<RepresentationKey> keys) {
     super(TYPE, VERSION, uri, isRemoveAction, data, keys);
   }
 

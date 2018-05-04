@@ -44,7 +44,7 @@ public final class HlsDownloadAction extends SegmentDownloadAction<RenditionKey>
 
         @Override
         protected DownloadAction createDownloadAction(
-            Uri uri, boolean isRemoveAction, String data, List<RenditionKey> keys) {
+            Uri uri, boolean isRemoveAction, byte[] data, List<RenditionKey> keys) {
           return new HlsDownloadAction(uri, isRemoveAction, data, keys);
         }
       };
@@ -57,7 +57,7 @@ public final class HlsDownloadAction extends SegmentDownloadAction<RenditionKey>
    *     {@code removeAction} is true, {@code keys} must empty.
    */
   public HlsDownloadAction(
-      Uri uri, boolean isRemoveAction, @Nullable String data, List<RenditionKey> keys) {
+      Uri uri, boolean isRemoveAction, @Nullable byte[] data, List<RenditionKey> keys) {
     super(TYPE, VERSION, uri, isRemoveAction, data, keys);
   }
 

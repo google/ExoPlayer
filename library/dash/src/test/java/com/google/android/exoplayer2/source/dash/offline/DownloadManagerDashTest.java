@@ -24,6 +24,7 @@ import static com.google.common.truth.Truth.assertThat;
 import android.content.Context;
 import android.net.Uri;
 import android.os.ConditionVariable;
+import android.support.annotation.Nullable;
 import com.google.android.exoplayer2.offline.DownloadManager;
 import com.google.android.exoplayer2.offline.DownloaderConstructorHelper;
 import com.google.android.exoplayer2.source.dash.manifest.RepresentationKey;
@@ -279,7 +280,7 @@ public class DownloadManagerDashTest {
   }
 
   private static DashDownloadAction newAction(
-      Uri uri, boolean isRemoveAction, String data, RepresentationKey... keys) {
+      Uri uri, boolean isRemoveAction, @Nullable byte[] data, RepresentationKey... keys) {
     ArrayList<RepresentationKey> keysList = new ArrayList<>();
     Collections.addAll(keysList, keys);
     return new DashDownloadAction(uri, isRemoveAction, data, keysList);

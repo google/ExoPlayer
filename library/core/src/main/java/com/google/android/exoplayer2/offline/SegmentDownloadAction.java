@@ -48,7 +48,9 @@ public abstract class SegmentDownloadAction<K extends Comparable<K>> extends Dow
         throws IOException {
       Uri uri = Uri.parse(input.readUTF());
       boolean isRemoveAction = input.readBoolean();
-      String data = input.readUTF();
+      int dataLength = input.readInt();
+      byte[] data = new byte[dataLength];
+      input.readFully(data);
       int keyCount = input.readInt();
       List<K> keys = new ArrayList<>();
       for (int i = 0; i < keyCount; i++) {
@@ -62,7 +64,7 @@ public abstract class SegmentDownloadAction<K extends Comparable<K>> extends Dow
 
     /** Returns a {@link DownloadAction}. */
     protected abstract DownloadAction createDownloadAction(
-        Uri manifestUri, boolean isRemoveAction, String data, List<K> keys);
+        Uri manifestUri, boolean isRemoveAction, byte[] data, List<K> keys);
   }
 
   public final List<K> keys;
@@ -72,7 +74,7 @@ public abstract class SegmentDownloadAction<K extends Comparable<K>> extends Dow
    * @param version The action version.
    * @param uri The URI of the media being downloaded.
    * @param isRemoveAction Whether the data will be removed. If {@code false} it will be downloaded.
-   * @param data Optional custom data for this action.
+   * @param data Optional custom data for this action. If {@code null} an empty array will be used.
    * @param keys Keys of tracks to be downloaded. If empty, all tracks will be downloaded. If {@code
    *     removeAction} is true, {@code keys} must be empty.
    */
@@ -81,7 +83,7 @@ public abstract class SegmentDownloadAction<K extends Comparable<K>> extends Dow
       int version,
       Uri uri,
       boolean isRemoveAction,
-      @Nullable String data,
+      @Nullable byte[] data,
       List<K> keys) {
     super(type, version, uri, isRemoveAction, data);
     if (isRemoveAction) {
@@ -98,7 +100,8 @@ public abstract class SegmentDownloadAction<K extends Comparable<K>> extends Dow
   public final void writeToStream(DataOutputStream output) throws IOException {
     output.writeUTF(uri.toString());
     output.writeBoolean(isRemoveAction);
-    output.writeUTF(data);
+    output.writeInt(data.length);
+    output.write(data);
     output.writeInt(keys.size());
     for (int i = 0; i < keys.size(); i++) {
       writeKey(output, keys.get(i));
