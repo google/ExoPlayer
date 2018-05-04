@@ -55,6 +55,8 @@ dependencies {
     testImplementation 'junit:junit:' + junitVersion
     testImplementation 'org.mockito:mockito-core:' + mockitoVersion
     testImplementation 'org.robolectric:robolectric:' + robolectricVersion
+    testImplementation 'com.google.auto.value:auto-value-annotations:' + autoValueVersion
+    testAnnotationProcessor 'com.google.auto.value:auto-value:' + autoValueVersion
 }
 
 ext {
