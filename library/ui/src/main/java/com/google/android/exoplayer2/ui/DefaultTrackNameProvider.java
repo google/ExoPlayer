@@ -22,7 +22,6 @@ import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.Util;
-
 import java.util.Locale;
 
 /** A default {@link TrackNameProvider}. */
@@ -38,9 +37,10 @@ public class DefaultTrackNameProvider implements TrackNameProvider {
   @Override
   public String getTrackName(Format format) {
     String trackName;
-    if (MimeTypes.isVideo(format.sampleMimeType)) {
+    int trackType = inferPrimaryTrackType(format);
+    if (trackType == C.TRACK_TYPE_VIDEO) {
       trackName = joinWithSeparator(buildResolutionString(format), buildBitrateString(format));
-    } else if (MimeTypes.isAudio(format.sampleMimeType)) {
+    } else if (trackType == C.TRACK_TYPE_AUDIO) {
       trackName =
           joinWithSeparator(
               buildLanguageString(format),
@@ -111,5 +111,25 @@ public class DefaultTrackNameProvider implements TrackNameProvider {
       }
     }
     return itemList;
+  }
+
+  private static int inferPrimaryTrackType(Format format) {
+    int trackType = MimeTypes.getTrackType(format.sampleMimeType);
+    if (trackType != C.TRACK_TYPE_UNKNOWN) {
+      return trackType;
+    }
+    if (MimeTypes.getVideoMediaMimeType(format.codecs) != null) {
+      return C.TRACK_TYPE_VIDEO;
+    }
+    if (MimeTypes.getAudioMediaMimeType(format.codecs) != null) {
+      return C.TRACK_TYPE_AUDIO;
+    }
+    if (format.width != Format.NO_VALUE || format.height != Format.NO_VALUE) {
+      return C.TRACK_TYPE_VIDEO;
+    }
+    if (format.channelCount != Format.NO_VALUE || format.sampleRate != Format.NO_VALUE) {
+      return C.TRACK_TYPE_AUDIO;
+    }
+    return C.TRACK_TYPE_UNKNOWN;
   }
 }
