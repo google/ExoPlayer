@@ -654,8 +654,6 @@ public final class DownloadManager {
           + ' '
           + (action.isRemoveAction ? "remove" : "download")
           + ' '
-          + action.data
-          + ' '
           + getStateString();
     }
 

@@ -275,7 +275,8 @@ public class DownloadActivity extends Activity {
     @Override
     public DownloadAction getDownloadAction(
         boolean isRemoveAction, String sampleName, int... trackIndices) {
-      return new DashDownloadAction(uri, isRemoveAction, sampleName, getTrackKeys(trackIndices));
+      return new DashDownloadAction(
+          uri, isRemoveAction, Util.getUtf8Bytes(sampleName), getTrackKeys(trackIndices));
     }
   }
 
@@ -310,7 +311,8 @@ public class DownloadActivity extends Activity {
     @Override
     public DownloadAction getDownloadAction(
         boolean isRemoveAction, String sampleName, int... trackIndices) {
-      return new HlsDownloadAction(uri, isRemoveAction, sampleName, getTrackKeys(trackIndices));
+      return new HlsDownloadAction(
+          uri, isRemoveAction, Util.getUtf8Bytes(sampleName), getTrackKeys(trackIndices));
     }
   }
 
@@ -337,7 +339,8 @@ public class DownloadActivity extends Activity {
     @Override
     public DownloadAction getDownloadAction(
         boolean isRemoveAction, String sampleName, int... trackIndices) {
-      return new SsDownloadAction(uri, isRemoveAction, sampleName, getTrackKeys(trackIndices));
+      return new SsDownloadAction(
+          uri, isRemoveAction, Util.getUtf8Bytes(sampleName), getTrackKeys(trackIndices));
     }
   }
 
@@ -356,7 +359,7 @@ public class DownloadActivity extends Activity {
     public DownloadAction getDownloadAction(
         boolean isRemoveAction, String sampleName, int... trackIndices) {
       return new ProgressiveDownloadAction(
-          uri, isRemoveAction, sampleName, /* customCacheKey= */ null);
+          uri, isRemoveAction, Util.getUtf8Bytes(sampleName), /* customCacheKey= */ null);
     }
   }
 }

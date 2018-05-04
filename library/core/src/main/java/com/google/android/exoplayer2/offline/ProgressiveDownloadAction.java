@@ -36,7 +36,9 @@ public final class ProgressiveDownloadAction extends DownloadAction {
             throws IOException {
           Uri uri = Uri.parse(input.readUTF());
           boolean isRemoveAction = input.readBoolean();
-          String data = input.readUTF();
+          int dataLength = input.readInt();
+          byte[] data = new byte[dataLength];
+          input.readFully(data);
           String customCacheKey = input.readBoolean() ? input.readUTF() : null;
           return new ProgressiveDownloadAction(uri, isRemoveAction, data, customCacheKey);
         }
@@ -47,12 +49,12 @@ public final class ProgressiveDownloadAction extends DownloadAction {
   /**
    * @param uri Uri of the data to be downloaded.
    * @param isRemoveAction Whether this is a remove action. If false, this is a download action.
-   * @param data Optional custom data for this action. If null, an empty string is used.
+   * @param data Optional custom data for this action.
    * @param customCacheKey A custom key that uniquely identifies the original stream. If not null it
    *     is used for cache indexing.
    */
   public ProgressiveDownloadAction(
-      Uri uri, boolean isRemoveAction, @Nullable String data, @Nullable String customCacheKey) {
+      Uri uri, boolean isRemoveAction, @Nullable byte[] data, @Nullable String customCacheKey) {
     super(TYPE, VERSION, uri, isRemoveAction, data);
     this.customCacheKey = customCacheKey;
   }
@@ -66,7 +68,8 @@ public final class ProgressiveDownloadAction extends DownloadAction {
   protected void writeToStream(DataOutputStream output) throws IOException {
     output.writeUTF(uri.toString());
     output.writeBoolean(isRemoveAction);
-    output.writeUTF(data);
+    output.writeInt(data.length);
+    output.write(data);
     boolean customCacheKeySet = customCacheKey != null;
     output.writeBoolean(customCacheKeySet);
     if (customCacheKeySet) {

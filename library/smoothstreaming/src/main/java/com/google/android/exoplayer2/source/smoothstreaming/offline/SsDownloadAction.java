@@ -42,7 +42,7 @@ public final class SsDownloadAction extends SegmentDownloadAction<TrackKey> {
 
         @Override
         protected DownloadAction createDownloadAction(
-            Uri uri, boolean isRemoveAction, String data, List<TrackKey> keys) {
+            Uri uri, boolean isRemoveAction, byte[] data, List<TrackKey> keys) {
           return new SsDownloadAction(uri, isRemoveAction, data, keys);
         }
       };
@@ -55,7 +55,7 @@ public final class SsDownloadAction extends SegmentDownloadAction<TrackKey> {
    *     removeAction} is true, {@code keys} must be empty.
    */
   public SsDownloadAction(
-      Uri uri, boolean isRemoveAction, @Nullable String data, List<TrackKey> keys) {
+      Uri uri, boolean isRemoveAction, @Nullable byte[] data, List<TrackKey> keys) {
     super(TYPE, VERSION, uri, isRemoveAction, data, keys);
   }
 
