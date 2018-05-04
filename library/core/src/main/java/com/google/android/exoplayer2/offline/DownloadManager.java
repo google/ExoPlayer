@@ -339,17 +339,17 @@ public final class DownloadManager {
         continue;
       }
 
-      DownloadAction downloadAction = task.action;
-      boolean removeAction = downloadAction.isRemoveAction;
-      if (!removeAction && skipDownloadActions) {
+      DownloadAction action = task.action;
+      boolean isRemoveAction = action.isRemoveAction;
+      if (!isRemoveAction && skipDownloadActions) {
         continue;
       }
 
       boolean canStartTask = true;
       for (int j = 0; j < i; j++) {
         Task otherTask = tasks.get(j);
-        if (otherTask.action.isSameMedia(downloadAction)) {
-          if (removeAction) {
+        if (otherTask.action.isSameMedia(action)) {
+          if (isRemoveAction) {
             canStartTask = false;
             logd(task + " clashes with " + otherTask);
             otherTask.cancel();
@@ -364,7 +364,7 @@ public final class DownloadManager {
 
       if (canStartTask) {
         task.start();
-        if (!removeAction) {
+        if (!isRemoveAction) {
           activeDownloadTasks.add(task);
           skipDownloadActions = activeDownloadTasks.size() == maxActiveDownloadTasks;
         }
