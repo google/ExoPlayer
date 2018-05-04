@@ -29,6 +29,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * Base class for multi segment stream downloaders.
@@ -68,6 +69,7 @@ public abstract class SegmentDownloader<M extends FilterableManifest<M, K>, K>
   private final CacheDataSource dataSource;
   private final CacheDataSource offlineDataSource;
   private final ArrayList<K> keys;
+  private final AtomicBoolean isCanceled;
 
   private volatile int totalSegments;
   private volatile int downloadedSegments;
@@ -87,6 +89,7 @@ public abstract class SegmentDownloader<M extends FilterableManifest<M, K>, K>
     this.priorityTaskManager = constructorHelper.getPriorityTaskManager();
     keys = new ArrayList<>(trackKeys);
     totalSegments = C.LENGTH_UNSET;
+    isCanceled = new AtomicBoolean();
   }
 
   /**
@@ -118,6 +121,7 @@ public abstract class SegmentDownloader<M extends FilterableManifest<M, K>, K>
               priorityTaskManager,
               C.PRIORITY_DOWNLOAD,
               cachingCounters,
+              isCanceled,
               true);
           downloadedSegments++;
         } finally {
@@ -127,6 +131,11 @@ public abstract class SegmentDownloader<M extends FilterableManifest<M, K>, K>
     } finally {
       priorityTaskManager.remove(C.PRIORITY_DOWNLOAD);
     }
+  }
+
+  @Override
+  public void cancel() {
+    isCanceled.set(true);
   }
 
   @Override
