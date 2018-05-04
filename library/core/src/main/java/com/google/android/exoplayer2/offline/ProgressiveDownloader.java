@@ -24,6 +24,7 @@ import com.google.android.exoplayer2.upstream.cache.CacheUtil;
 import com.google.android.exoplayer2.upstream.cache.CacheUtil.CachingCounters;
 import com.google.android.exoplayer2.util.PriorityTaskManager;
 import java.io.IOException;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * A downloader for progressive media streams.
@@ -37,6 +38,7 @@ public final class ProgressiveDownloader implements Downloader {
   private final CacheDataSource dataSource;
   private final PriorityTaskManager priorityTaskManager;
   private final CacheUtil.CachingCounters cachingCounters;
+  private final AtomicBoolean isCanceled;
 
   /**
    * @param uri Uri of the data to be downloaded.
@@ -51,6 +53,7 @@ public final class ProgressiveDownloader implements Downloader {
     this.dataSource = constructorHelper.buildCacheDataSource(false);
     this.priorityTaskManager = constructorHelper.getPriorityTaskManager();
     cachingCounters = new CachingCounters();
+    isCanceled = new AtomicBoolean();
   }
 
   @Override
@@ -65,10 +68,16 @@ public final class ProgressiveDownloader implements Downloader {
           priorityTaskManager,
           C.PRIORITY_DOWNLOAD,
           cachingCounters,
+          isCanceled,
           /* enableEOFException= */ true);
     } finally {
       priorityTaskManager.remove(C.PRIORITY_DOWNLOAD);
     }
+  }
+
+  @Override
+  public void cancel() {
+    isCanceled.set(true);
   }
 
   @Override

@@ -608,6 +608,11 @@ public class DownloadManagerTest {
     }
 
     @Override
+    public void cancel() {
+      // Do nothing.
+    }
+
+    @Override
     public void remove() throws InterruptedException {
       assertThat(isRemoveAction).isTrue();
       started.countDown();

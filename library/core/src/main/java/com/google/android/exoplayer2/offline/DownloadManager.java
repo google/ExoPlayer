@@ -704,7 +704,7 @@ public final class DownloadManager {
               }
             });
       } else if (changeStateAndNotify(STATE_STARTED, STATE_STARTED_CANCELING)) {
-        thread.interrupt();
+        cancelDownload();
       }
     }
 
@@ -733,7 +733,14 @@ public final class DownloadManager {
       return true;
     }
 
-    /* Methods running on download thread. */
+    private void cancelDownload() {
+      if (downloader != null) {
+        downloader.cancel();
+      }
+      thread.interrupt();
+    }
+
+    // Methods running on download thread.
 
     @Override
     public void run() {
@@ -746,7 +753,7 @@ public final class DownloadManager {
         } else {
           int errorCount = 0;
           long errorPosition = C.LENGTH_UNSET;
-          while (true) {
+          while (!Thread.interrupted()) {
             try {
               downloader.download();
               break;

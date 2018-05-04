@@ -32,6 +32,9 @@ public interface Downloader {
    */
   void download() throws InterruptedException, IOException;
 
+  /** Interrupts any current download operation and prevents future operations from running. */
+  void cancel();
+
   /** Returns the total number of downloaded bytes. */
   long getDownloadedBytes();
 
