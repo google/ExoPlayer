@@ -294,9 +294,9 @@ public class DownloadActivity extends Activity {
         trackFormats.add(DUMMY_FORMAT);
       } else {
         HlsMasterPlaylist masterPlaylist = (HlsMasterPlaylist) playlist;
-        addRepresentationItems(masterPlaylist.variants, RenditionKey.GROUP_VARIANTS);
-        addRepresentationItems(masterPlaylist.audios, RenditionKey.GROUP_AUDIOS);
-        addRepresentationItems(masterPlaylist.subtitles, RenditionKey.GROUP_SUBTITLES);
+        addRepresentationItems(masterPlaylist.variants, RenditionKey.TYPE_VARIANT);
+        addRepresentationItems(masterPlaylist.audios, RenditionKey.TYPE_AUDIO);
+        addRepresentationItems(masterPlaylist.subtitles, RenditionKey.TYPE_SUBTITLE);
       }
     }
 

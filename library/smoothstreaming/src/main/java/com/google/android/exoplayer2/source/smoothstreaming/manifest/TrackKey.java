@@ -18,6 +18,7 @@ package com.google.android.exoplayer2.source.smoothstreaming.manifest;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 
 /**
  * Uniquely identifies a track in a {@link SsManifest}.
@@ -35,6 +36,37 @@ public final class TrackKey implements Parcelable, Comparable<TrackKey> {
   @Override
   public String toString() {
     return streamElementIndex + "." + trackIndex;
+  }
+
+  @Override
+  public boolean equals(@Nullable Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+
+    TrackKey that = (TrackKey) o;
+    return streamElementIndex == that.streamElementIndex && trackIndex == that.trackIndex;
+  }
+
+  @Override
+  public int hashCode() {
+    int result = streamElementIndex;
+    result = 31 * result + trackIndex;
+    return result;
+  }
+
+  // Comparable implementation.
+
+  @Override
+  public int compareTo(@NonNull TrackKey o) {
+    int result = streamElementIndex - o.streamElementIndex;
+    if (result == 0) {
+      result = trackIndex - o.trackIndex;
+    }
+    return result;
   }
 
   // Parcelable implementation.
@@ -61,16 +93,4 @@ public final class TrackKey implements Parcelable, Comparable<TrackKey> {
       return new TrackKey[size];
     }
   };
-
-  // Comparable implementation.
-
-  @Override
-  public int compareTo(@NonNull TrackKey o) {
-    int result = streamElementIndex - o.streamElementIndex;
-    if (result == 0) {
-      result = trackIndex - o.trackIndex;
-    }
-    return result;
-  }
-
 }

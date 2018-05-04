@@ -17,21 +17,66 @@ package com.google.android.exoplayer2.source.hls.playlist;
 
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.support.annotation.IntDef;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 
 /** Uniquely identifies a rendition in an {@link HlsMasterPlaylist}. */
 public final class RenditionKey implements Parcelable, Comparable<RenditionKey> {
 
-  public static final int GROUP_VARIANTS = 0;
-  public static final int GROUP_AUDIOS = 1;
-  public static final int GROUP_SUBTITLES = 2;
+  /** Types of rendition. */
+  @Retention(RetentionPolicy.SOURCE)
+  @IntDef({TYPE_VARIANT, TYPE_AUDIO, TYPE_SUBTITLE})
+  public @interface Type {}
 
-  public final int renditionGroup;
+  public static final int TYPE_VARIANT = 0;
+  public static final int TYPE_AUDIO = 1;
+  public static final int TYPE_SUBTITLE = 2;
+
+  public final @Type int type;
   public final int trackIndex;
 
-  public RenditionKey(int renditionGroup, int trackIndex) {
-    this.renditionGroup = renditionGroup;
+  public RenditionKey(@Type int type, int trackIndex) {
+    this.type = type;
     this.trackIndex = trackIndex;
+  }
+
+  @Override
+  public String toString() {
+    return type + "." + trackIndex;
+  }
+
+  @Override
+  public boolean equals(@Nullable Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+
+    RenditionKey that = (RenditionKey) o;
+    return type == that.type && trackIndex == that.trackIndex;
+  }
+
+  @Override
+  public int hashCode() {
+    int result = type;
+    result = 31 * result + trackIndex;
+    return result;
+  }
+
+  // Comparable implementation.
+
+  @Override
+  public int compareTo(@NonNull RenditionKey other) {
+    int result = type - other.type;
+    if (result == 0) {
+      result = trackIndex - other.trackIndex;
+    }
+    return result;
   }
 
   // Parcelable implementation.
@@ -43,7 +88,7 @@ public final class RenditionKey implements Parcelable, Comparable<RenditionKey> 
 
   @Override
   public void writeToParcel(Parcel dest, int flags) {
-    dest.writeInt(renditionGroup);
+    dest.writeInt(type);
     dest.writeInt(trackIndex);
   }
 
@@ -59,15 +104,4 @@ public final class RenditionKey implements Parcelable, Comparable<RenditionKey> 
           return new RenditionKey[size];
         }
       };
-
-  // Comparable implementation.
-
-  @Override
-  public int compareTo(@NonNull RenditionKey other) {
-    int result = renditionGroup - other.renditionGroup;
-    if (result == 0) {
-      result = trackIndex - other.trackIndex;
-    }
-    return result;
-  }
 }
