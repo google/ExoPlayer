@@ -326,6 +326,7 @@ public final class CacheDataSource implements DataSource {
       try {
         nextSpan = cache.startReadWrite(key, readPosition);
       } catch (InterruptedException e) {
+        Thread.currentThread().interrupt();
         throw new InterruptedIOException();
       }
     } else {

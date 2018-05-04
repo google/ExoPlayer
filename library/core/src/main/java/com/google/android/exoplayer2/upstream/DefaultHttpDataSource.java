@@ -526,7 +526,7 @@ public class DefaultHttpDataSource implements HttpDataSource {
     while (bytesSkipped != bytesToSkip) {
       int readLength = (int) Math.min(bytesToSkip - bytesSkipped, skipBuffer.length);
       int read = inputStream.read(skipBuffer, 0, readLength);
-      if (Thread.interrupted()) {
+      if (Thread.currentThread().isInterrupted()) {
         throw new InterruptedIOException();
       }
       if (read == -1) {
