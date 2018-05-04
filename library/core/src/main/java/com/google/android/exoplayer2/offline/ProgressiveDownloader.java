@@ -42,7 +42,7 @@ public final class ProgressiveDownloader implements Downloader {
    * @param uri Uri of the data to be downloaded.
    * @param customCacheKey A custom key that uniquely identifies the original stream. Used for cache
    *     indexing. May be null.
-   * @param constructorHelper a {@link DownloaderConstructorHelper} instance.
+   * @param constructorHelper A {@link DownloaderConstructorHelper} instance.
    */
   public ProgressiveDownloader(
       Uri uri, String customCacheKey, DownloaderConstructorHelper constructorHelper) {
