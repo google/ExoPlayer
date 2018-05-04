@@ -576,13 +576,7 @@ public class PlayerActivity extends Activity
               return new int[] {C.TYPE_DASH, C.TYPE_SS, C.TYPE_HLS, C.TYPE_OTHER};
             }
           };
-      return new AdsMediaSource(
-          mediaSource,
-          adMediaSourceFactory,
-          adsLoader,
-          adUiViewGroup,
-          /* eventHandler= */ null,
-          /* eventListener= */ null);
+      return new AdsMediaSource(mediaSource, adMediaSourceFactory, adsLoader, adUiViewGroup);
     } catch (ClassNotFoundException e) {
       // IMA extension not loaded.
       return null;
