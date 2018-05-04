@@ -21,7 +21,6 @@ import static org.junit.Assert.fail;
 import android.net.Uri;
 import android.os.ConditionVariable;
 import com.google.android.exoplayer2.C;
-import com.google.android.exoplayer2.offline.DownloadManager.DownloadListener;
 import com.google.android.exoplayer2.offline.DownloadManager.TaskState;
 import com.google.android.exoplayer2.offline.DownloadManager.TaskState.State;
 import com.google.android.exoplayer2.testutil.DummyMainThread;
@@ -67,7 +66,7 @@ public class DownloadManagerTest {
   private Uri uri3;
   private DummyMainThread dummyMainThread;
   private File actionFile;
-  private TestDownloadListener testDownloadListener;
+  private TestDownloadManagerListener downloadManagerListener;
   private DownloadManager downloadManager;
 
   @Before
@@ -78,7 +77,7 @@ public class DownloadManagerTest {
     uri3 = Uri.parse("http://abc.com/media3");
     dummyMainThread = new DummyMainThread();
     actionFile = Util.createTempFile(RuntimeEnvironment.application, "ExoPlayerTest");
-    testDownloadListener = new TestDownloadListener();
+    downloadManagerListener = new TestDownloadManagerListener();
     setUpDownloadManager(100);
   }
 
@@ -109,9 +108,9 @@ public class DownloadManagerTest {
       fakeDownloader.assertStarted(MAX_RETRY_DELAY).unblock();
     }
     downloadAction.assertFailed();
-    testDownloadListener.clearDownloadError();
+    downloadManagerListener.clearDownloadError();
 
-    testDownloadListener.blockUntilTasksCompleteAndThrowAnyDownloadError();
+    downloadManagerListener.blockUntilTasksCompleteAndThrowAnyDownloadError();
   }
 
   @Test
@@ -125,7 +124,7 @@ public class DownloadManagerTest {
     downloadAction.unblock().assertCanceled();
     removeAction.unblock();
 
-    testDownloadListener.blockUntilTasksCompleteAndThrowAnyDownloadError();
+    downloadManagerListener.blockUntilTasksCompleteAndThrowAnyDownloadError();
   }
 
   @Test
@@ -143,7 +142,7 @@ public class DownloadManagerTest {
     }
     downloadAction.assertCompleted();
 
-    testDownloadListener.blockUntilTasksCompleteAndThrowAnyDownloadError();
+    downloadManagerListener.blockUntilTasksCompleteAndThrowAnyDownloadError();
   }
 
   @Test
@@ -164,7 +163,7 @@ public class DownloadManagerTest {
     }
     downloadAction.assertCompleted();
 
-    testDownloadListener.blockUntilTasksCompleteAndThrowAnyDownloadError();
+    downloadManagerListener.blockUntilTasksCompleteAndThrowAnyDownloadError();
   }
 
   @Test
@@ -230,7 +229,7 @@ public class DownloadManagerTest {
     removeAction1.assertCanceled();
     downloadAction3.assertCanceled();
     removeAction2.assertStarted().unblock().assertCompleted();
-    testDownloadListener.blockUntilTasksCompleteAndThrowAnyDownloadError();
+    downloadManagerListener.blockUntilTasksCompleteAndThrowAnyDownloadError();
   }
 
   @Test
@@ -248,7 +247,7 @@ public class DownloadManagerTest {
     removeAction1.unblock().assertCanceled();
     removeAction3.assertStarted().unblock().assertCompleted();
 
-    testDownloadListener.blockUntilTasksCompleteAndThrowAnyDownloadError();
+    downloadManagerListener.blockUntilTasksCompleteAndThrowAnyDownloadError();
   }
 
   @Test
@@ -284,7 +283,7 @@ public class DownloadManagerTest {
     downloadAction1.unblock().assertCompleted();
     downloadAction2.unblock().assertCompleted();
 
-    testDownloadListener.blockUntilTasksCompleteAndThrowAnyDownloadError();
+    downloadManagerListener.blockUntilTasksCompleteAndThrowAnyDownloadError();
   }
 
   @Test
@@ -303,7 +302,7 @@ public class DownloadManagerTest {
     downloadAction1.unblock().assertCompleted();
     downloadAction2.unblock().assertCompleted();
 
-    testDownloadListener.blockUntilTasksCompleteAndThrowAnyDownloadError();
+    downloadManagerListener.blockUntilTasksCompleteAndThrowAnyDownloadError();
   }
 
   @Test
@@ -322,7 +321,7 @@ public class DownloadManagerTest {
     removeAction1.assertStarted();
     removeAction1.unblock().assertCompleted();
 
-    testDownloadListener.blockUntilTasksCompleteAndThrowAnyDownloadError();
+    downloadManagerListener.blockUntilTasksCompleteAndThrowAnyDownloadError();
   }
 
   @Test
@@ -371,7 +370,7 @@ public class DownloadManagerTest {
     download2Action.assertStarted().unblock().assertCompleted();
     download3Action.assertStarted().unblock().assertCompleted();
 
-    testDownloadListener.blockUntilTasksCompleteAndThrowAnyDownloadError();
+    downloadManagerListener.blockUntilTasksCompleteAndThrowAnyDownloadError();
   }
 
   @Test
@@ -418,7 +417,7 @@ public class DownloadManagerTest {
     download2Action.unblock();
     download3Action.unblock();
 
-    testDownloadListener.blockUntilTasksCompleteAndThrowAnyDownloadError();
+    downloadManagerListener.blockUntilTasksCompleteAndThrowAnyDownloadError();
   }
 
   private void setUpDownloadManager(final int maxActiveDownloadTasks) throws Exception {
@@ -438,7 +437,7 @@ public class DownloadManagerTest {
                       MIN_RETRY_COUNT,
                       actionFile,
                       ProgressiveDownloadAction.DESERIALIZER);
-              downloadManager.addListener(testDownloadListener);
+              downloadManager.addListener(downloadManagerListener);
               downloadManager.startDownloads();
             }
           });
@@ -463,7 +462,7 @@ public class DownloadManagerTest {
 
   private void doTestActionRuns(FakeDownloadAction action) throws Throwable {
     action.post().assertStarted().unblock().assertCompleted();
-    testDownloadListener.blockUntilTasksCompleteAndThrowAnyDownloadError();
+    downloadManagerListener.blockUntilTasksCompleteAndThrowAnyDownloadError();
   }
 
   private void doTestActionsRunSequentially(FakeDownloadAction action1, FakeDownloadAction action2)
@@ -475,7 +474,7 @@ public class DownloadManagerTest {
     action2.assertStarted();
 
     action2.unblock().assertCompleted();
-    testDownloadListener.blockUntilTasksCompleteAndThrowAnyDownloadError();
+    downloadManagerListener.blockUntilTasksCompleteAndThrowAnyDownloadError();
   }
 
   private void doTestActionsRunInParallel(FakeDownloadAction action1, FakeDownloadAction action2)
@@ -484,7 +483,7 @@ public class DownloadManagerTest {
     action2.post().assertStarted();
     action1.unblock().assertCompleted();
     action2.unblock().assertCompleted();
-    testDownloadListener.blockUntilTasksCompleteAndThrowAnyDownloadError();
+    downloadManagerListener.blockUntilTasksCompleteAndThrowAnyDownloadError();
   }
 
   private FakeDownloadAction createDownloadAction(Uri uri) {
@@ -495,16 +494,16 @@ public class DownloadManagerTest {
     return new FakeDownloadAction(uri, /* isRemoveAction= */ true);
   }
 
-  private void runOnMainThread(final Runnable r) throws Throwable {
+  private void runOnMainThread(final Runnable r) {
     dummyMainThread.runOnMainThread(r);
   }
 
-  private static final class TestDownloadListener implements DownloadListener {
+  private static final class TestDownloadManagerListener implements DownloadManager.Listener {
 
     private ConditionVariable downloadFinishedCondition;
     private Throwable downloadError;
 
-    private TestDownloadListener() {
+    private TestDownloadManagerListener() {
       downloadFinishedCondition = new ConditionVariable();
     }
 

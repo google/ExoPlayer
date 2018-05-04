@@ -69,7 +69,7 @@ public class DownloadServiceDashTest {
   private Context context;
   private DownloadService dashDownloadService;
   private ConditionVariable pauseDownloadCondition;
-  private TestDownloadListener testDownloadListener;
+  private TestDownloadManagerListener downloadManagerListener;
   private DummyMainThread dummyMainThread;
 
   @Before
@@ -129,8 +129,9 @@ public class DownloadServiceDashTest {
                       3,
                       actionFile,
                       DashDownloadAction.DESERIALIZER);
-              testDownloadListener = new TestDownloadListener(dashDownloadManager, dummyMainThread);
-              dashDownloadManager.addListener(testDownloadListener);
+              downloadManagerListener =
+                  new TestDownloadManagerListener(dashDownloadManager, dummyMainThread);
+              dashDownloadManager.addListener(downloadManagerListener);
               dashDownloadManager.startDownloads();
 
               dashDownloadService =
@@ -189,7 +190,7 @@ public class DownloadServiceDashTest {
     downloadKeys(fakeRepresentationKey1);
     downloadKeys(fakeRepresentationKey2);
 
-    testDownloadListener.blockUntilTasksCompleteAndThrowAnyDownloadError();
+    downloadManagerListener.blockUntilTasksCompleteAndThrowAnyDownloadError();
 
     assertCachedData(cache, fakeDataSet);
   }
@@ -199,11 +200,11 @@ public class DownloadServiceDashTest {
   public void testRemoveAction() throws Throwable {
     downloadKeys(fakeRepresentationKey1, fakeRepresentationKey2);
 
-    testDownloadListener.blockUntilTasksCompleteAndThrowAnyDownloadError();
+    downloadManagerListener.blockUntilTasksCompleteAndThrowAnyDownloadError();
 
     removeAll();
 
-    testDownloadListener.blockUntilTasksCompleteAndThrowAnyDownloadError();
+    downloadManagerListener.blockUntilTasksCompleteAndThrowAnyDownloadError();
 
     assertCacheEmpty(cache);
   }
@@ -216,7 +217,7 @@ public class DownloadServiceDashTest {
 
     removeAll();
 
-    testDownloadListener.blockUntilTasksCompleteAndThrowAnyDownloadError();
+    downloadManagerListener.blockUntilTasksCompleteAndThrowAnyDownloadError();
 
     assertCacheEmpty(cache);
   }

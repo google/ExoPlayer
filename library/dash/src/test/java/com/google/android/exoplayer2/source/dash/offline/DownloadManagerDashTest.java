@@ -62,7 +62,7 @@ public class DownloadManagerDashTest {
   private DownloadManager downloadManager;
   private RepresentationKey fakeRepresentationKey1;
   private RepresentationKey fakeRepresentationKey2;
-  private TestDownloadListener downloadListener;
+  private TestDownloadManagerListener downloadManagerListener;
   private File actionFile;
   private DummyMainThread dummyMainThread;
 
@@ -243,7 +243,7 @@ public class DownloadManagerDashTest {
   }
 
   private void blockUntilTasksCompleteAndThrowAnyDownloadError() throws Throwable {
-    downloadListener.blockUntilTasksCompleteAndThrowAnyDownloadError();
+    downloadManagerListener.blockUntilTasksCompleteAndThrowAnyDownloadError();
   }
 
   private void handleDownloadAction(RepresentationKey... keys) {
@@ -269,8 +269,9 @@ public class DownloadManagerDashTest {
                     actionFile,
                     DashDownloadAction.DESERIALIZER);
 
-            downloadListener = new TestDownloadListener(downloadManager, dummyMainThread);
-            downloadManager.addListener(downloadListener);
+            downloadManagerListener =
+                new TestDownloadManagerListener(downloadManager, dummyMainThread);
+            downloadManager.addListener(downloadManagerListener);
             downloadManager.startDownloads();
           }
         });
