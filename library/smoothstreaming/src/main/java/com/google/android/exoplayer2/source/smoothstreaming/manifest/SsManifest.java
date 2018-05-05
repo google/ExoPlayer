@@ -24,7 +24,6 @@ import com.google.android.exoplayer2.util.UriUtil;
 import com.google.android.exoplayer2.util.Util;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.UUID;
 
@@ -34,7 +33,7 @@ import java.util.UUID;
  * @see <a href="http://msdn.microsoft.com/en-us/library/ee673436(v=vs.90).aspx">IIS Smooth
  *     Streaming Client Manifest Format</a>
  */
-public class SsManifest implements FilterableManifest<SsManifest, TrackKey> {
+public class SsManifest implements FilterableManifest<SsManifest, StreamKey> {
 
   public static final int UNSET_LOOKAHEAD = -1;
 
@@ -128,15 +127,16 @@ public class SsManifest implements FilterableManifest<SsManifest, TrackKey> {
    * @return A copy of this manifest with the selected tracks.
    * @throws IndexOutOfBoundsException If a key has an invalid index.
    */
-  public final SsManifest copy(List<TrackKey> trackKeys) {
-    LinkedList<TrackKey> sortedKeys = new LinkedList<>(trackKeys);
+  @Override
+  public final SsManifest copy(List<StreamKey> trackKeys) {
+    ArrayList<StreamKey> sortedKeys = new ArrayList<>(trackKeys);
     Collections.sort(sortedKeys);
 
     StreamElement currentStreamElement = null;
     List<StreamElement> copiedStreamElements = new ArrayList<>();
     List<Format> copiedFormats = new ArrayList<>();
     for (int i = 0; i < sortedKeys.size(); i++) {
-      TrackKey key = sortedKeys.get(i);
+      StreamKey key = sortedKeys.get(i);
       StreamElement streamElement = streamElements[key.streamElementIndex];
       if (streamElement != currentStreamElement && currentStreamElement != null) {
         // We're advancing to a new stream element. Add the current one.

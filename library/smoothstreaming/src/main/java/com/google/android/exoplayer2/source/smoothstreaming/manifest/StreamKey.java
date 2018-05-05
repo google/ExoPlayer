@@ -20,15 +20,13 @@ import android.os.Parcelable;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
-/**
- * Uniquely identifies a track in a {@link SsManifest}.
- */
-public final class TrackKey implements Parcelable, Comparable<TrackKey> {
+/** Uniquely identifies a track in a {@link SsManifest}. */
+public final class StreamKey implements Parcelable, Comparable<StreamKey> {
 
   public final int streamElementIndex;
   public final int trackIndex;
 
-  public TrackKey(int streamElementIndex, int trackIndex) {
+  public StreamKey(int streamElementIndex, int trackIndex) {
     this.streamElementIndex = streamElementIndex;
     this.trackIndex = trackIndex;
   }
@@ -47,7 +45,7 @@ public final class TrackKey implements Parcelable, Comparable<TrackKey> {
       return false;
     }
 
-    TrackKey that = (TrackKey) o;
+    StreamKey that = (StreamKey) o;
     return streamElementIndex == that.streamElementIndex && trackIndex == that.trackIndex;
   }
 
@@ -61,7 +59,7 @@ public final class TrackKey implements Parcelable, Comparable<TrackKey> {
   // Comparable implementation.
 
   @Override
-  public int compareTo(@NonNull TrackKey o) {
+  public int compareTo(@NonNull StreamKey o) {
     int result = streamElementIndex - o.streamElementIndex;
     if (result == 0) {
       result = trackIndex - o.trackIndex;
@@ -82,15 +80,16 @@ public final class TrackKey implements Parcelable, Comparable<TrackKey> {
     dest.writeInt(trackIndex);
   }
 
-  public static final Creator<TrackKey> CREATOR = new Creator<TrackKey>() {
-    @Override
-    public TrackKey createFromParcel(Parcel in) {
-      return new TrackKey(in.readInt(), in.readInt());
-    }
+  public static final Creator<StreamKey> CREATOR =
+      new Creator<StreamKey>() {
+        @Override
+        public StreamKey createFromParcel(Parcel in) {
+          return new StreamKey(in.readInt(), in.readInt());
+        }
 
-    @Override
-    public TrackKey[] newArray(int size) {
-      return new TrackKey[size];
-    }
-  };
+        @Override
+        public StreamKey[] newArray(int size) {
+          return new StreamKey[size];
+        }
+      };
 }

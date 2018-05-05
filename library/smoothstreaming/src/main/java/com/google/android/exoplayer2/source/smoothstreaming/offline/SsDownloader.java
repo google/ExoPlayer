@@ -23,7 +23,7 @@ import com.google.android.exoplayer2.source.smoothstreaming.manifest.SsManifest;
 import com.google.android.exoplayer2.source.smoothstreaming.manifest.SsManifest.StreamElement;
 import com.google.android.exoplayer2.source.smoothstreaming.manifest.SsManifestParser;
 import com.google.android.exoplayer2.source.smoothstreaming.manifest.SsUtil;
-import com.google.android.exoplayer2.source.smoothstreaming.manifest.TrackKey;
+import com.google.android.exoplayer2.source.smoothstreaming.manifest.StreamKey;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DataSpec;
 import com.google.android.exoplayer2.upstream.ParsingLoadable;
@@ -46,7 +46,7 @@ import java.util.List;
  *     new SsDownloader(
  *         manifestUrl,
  *         constructorHelper,
- *         Collections.singletonList(new TrackKey(0, 0)));
+ *         Collections.singletonList(new StreamKey(0, 0)));
  * // Perform the download.
  * ssDownloader.download();
  * // Access downloaded data using CacheDataSource
@@ -54,11 +54,11 @@ import java.util.List;
  *     new CacheDataSource(cache, factory.createDataSource(), CacheDataSource.FLAG_BLOCK_ON_CACHE);
  * }</pre>
  */
-public final class SsDownloader extends SegmentDownloader<SsManifest, TrackKey> {
+public final class SsDownloader extends SegmentDownloader<SsManifest, StreamKey> {
 
   /** @see SegmentDownloader#SegmentDownloader(Uri, DownloaderConstructorHelper, List) */
   public SsDownloader(
-      Uri manifestUri, DownloaderConstructorHelper constructorHelper, List<TrackKey> trackKeys) {
+      Uri manifestUri, DownloaderConstructorHelper constructorHelper, List<StreamKey> trackKeys) {
     super(SsUtil.fixManifestUri(manifestUri), constructorHelper, trackKeys);
   }
 
