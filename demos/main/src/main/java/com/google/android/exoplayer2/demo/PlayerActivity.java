@@ -67,7 +67,7 @@ import com.google.android.exoplayer2.source.hls.playlist.RenditionKey;
 import com.google.android.exoplayer2.source.smoothstreaming.DefaultSsChunkSource;
 import com.google.android.exoplayer2.source.smoothstreaming.SsMediaSource;
 import com.google.android.exoplayer2.source.smoothstreaming.manifest.SsManifestParser;
-import com.google.android.exoplayer2.source.smoothstreaming.manifest.TrackKey;
+import com.google.android.exoplayer2.source.smoothstreaming.manifest.StreamKey;
 import com.google.android.exoplayer2.trackselection.AdaptiveTrackSelection;
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
 import com.google.android.exoplayer2.trackselection.MappingTrackSelector.MappedTrackInfo;
@@ -467,7 +467,7 @@ public class PlayerActivity extends Activity
                 buildDataSourceFactory(false))
             .setManifestParser(
                 new FilteringManifestParser<>(
-                    new SsManifestParser(), (List<TrackKey>) manifestFilter))
+                    new SsManifestParser(), (List<StreamKey>) manifestFilter))
             .createMediaSource(uri);
       case C.TYPE_HLS:
         return new HlsMediaSource.Factory(mediaDataSourceFactory)

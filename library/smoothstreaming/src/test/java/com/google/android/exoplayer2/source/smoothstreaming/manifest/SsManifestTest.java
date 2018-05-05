@@ -43,7 +43,8 @@ public class SsManifestTest {
     SsManifest sourceManifest =
         newSsManifest(newStreamElement("1", formats[0]), newStreamElement("2", formats[1]));
 
-    List<TrackKey> keys = Arrays.asList(new TrackKey(0, 0), new TrackKey(0, 2), new TrackKey(1, 0));
+    List<StreamKey> keys =
+        Arrays.asList(new StreamKey(0, 0), new StreamKey(0, 2), new StreamKey(1, 0));
     // Keys don't need to be in any particular order
     Collections.shuffle(keys, new Random(0));
 
@@ -62,7 +63,7 @@ public class SsManifestTest {
     SsManifest sourceManifest =
         newSsManifest(newStreamElement("1", formats[0]), newStreamElement("2", formats[1]));
 
-    List<TrackKey> keys = Arrays.asList(new TrackKey(1, 0));
+    List<StreamKey> keys = Arrays.asList(new StreamKey(1, 0));
     // Keys don't need to be in any particular order
     Collections.shuffle(keys, new Random(0));
 
