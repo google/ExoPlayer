@@ -115,6 +115,7 @@ public final class HlsMasterPlaylist extends HlsPlaylist<HlsMasterPlaylist> {
    * @return A copy of this playlist which includes only the renditions identified by the given
    *     urls.
    */
+  @Override
   public HlsMasterPlaylist copy(List<RenditionKey> renditionKeys) {
     return new HlsMasterPlaylist(
         baseUri,
