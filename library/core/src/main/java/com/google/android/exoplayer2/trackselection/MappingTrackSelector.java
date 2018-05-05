@@ -62,15 +62,15 @@ public abstract class MappingTrackSelector extends TrackSelector {
     /**
      * The renderer has tracks mapped to it and at least one is of a supported type, but all such
      * tracks exceed the renderer's capabilities. In other words, {@link #getTrackSupport(int, int,
-     * int)} returns {@link RendererCapabilities##FORMAT_EXCEEDS_CAPABILITIES} for at least one
+     * int)} returns {@link RendererCapabilities#FORMAT_EXCEEDS_CAPABILITIES} for at least one
      * track mapped to the renderer, but does not return {@link
-     * RendererCapabilities##FORMAT_HANDLED} for any tracks mapped to the renderer.
+     * RendererCapabilities#FORMAT_HANDLED} for any tracks mapped to the renderer.
      */
     public static final int RENDERER_SUPPORT_EXCEEDS_CAPABILITIES_TRACKS = 2;
     /**
      * The renderer has tracks mapped to it, and at least one such track is playable. In other
      * words, {@link #getTrackSupport(int, int, int)} returns {@link
-     * RendererCapabilities##FORMAT_HANDLED} for at least one track mapped to the renderer.
+     * RendererCapabilities#FORMAT_HANDLED} for at least one track mapped to the renderer.
      */
     public static final int RENDERER_SUPPORT_PLAYABLE_TRACKS = 3;
 

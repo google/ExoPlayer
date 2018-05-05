@@ -97,7 +97,7 @@ public abstract class DownloadHelper {
    * completes.
    *
    * @param periodIndex The period index.
-   * @return The track groups for the period. May be {@link TrackGroupArray.EMPTY} for single stream
+   * @return The track groups for the period. May be {@link TrackGroupArray#EMPTY} for single stream
    *     content.
    */
   public abstract TrackGroupArray getTrackGroups(int periodIndex);
