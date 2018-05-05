@@ -43,7 +43,7 @@ public final class HlsDownloadHelper extends DownloadHelper {
   private final Uri uri;
   private final DataSource.Factory manifestDataSourceFactory;
 
-  private @MonotonicNonNull HlsPlaylist<?> playlist;
+  private @MonotonicNonNull HlsPlaylist playlist;
   private int[] renditionTypes;
 
   public HlsDownloadHelper(Uri uri, DataSource.Factory manifestDataSourceFactory) {

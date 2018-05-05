@@ -20,8 +20,7 @@ import java.util.Collections;
 import java.util.List;
 
 /** Represents an HLS playlist. */
-public abstract class HlsPlaylist<T extends HlsPlaylist<T>>
-    implements FilterableManifest<T, RenditionKey> {
+public abstract class HlsPlaylist implements FilterableManifest<HlsPlaylist, RenditionKey> {
 
   /**
    * The base uri. Used to resolve relative paths.

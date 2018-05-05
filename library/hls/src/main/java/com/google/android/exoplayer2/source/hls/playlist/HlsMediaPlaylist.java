@@ -26,7 +26,7 @@ import java.util.Collections;
 import java.util.List;
 
 /** Represents an HLS media playlist. */
-public final class HlsMediaPlaylist extends HlsPlaylist<HlsMediaPlaylist> {
+public final class HlsMediaPlaylist extends HlsPlaylist {
 
   /** Media segment reference. */
   @SuppressWarnings("ComparableType")

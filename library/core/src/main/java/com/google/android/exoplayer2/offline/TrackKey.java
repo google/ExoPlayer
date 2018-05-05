@@ -19,10 +19,13 @@ package com.google.android.exoplayer2.offline;
  * Identifies a given track by the index of the containing period, the index of the containing group
  * within the period, and the index of the track within the group.
  */
-public class TrackKey {
+public final class TrackKey {
 
+  /** The period index. */
   public final int periodIndex;
+  /** The group index. */
   public final int groupIndex;
+  /** The track index. */
   public final int trackIndex;
 
   /**

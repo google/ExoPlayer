@@ -123,7 +123,7 @@ public final class DashDownloadTest extends ActivityInstrumentationTestCase2<Hos
     }
     DownloaderConstructorHelper constructorHelper =
         new DownloaderConstructorHelper(cache, httpDataSourceFactory);
-    return new DashDownloader(MANIFEST_URI, constructorHelper, keys);
+    return new DashDownloader(MANIFEST_URI, keys, constructorHelper);
   }
 
 }

@@ -184,7 +184,7 @@ public class HlsDownloaderTest {
   private HlsDownloader getHlsDownloader(String mediaPlaylistUri, List<RenditionKey> keys) {
     Factory factory = new Factory(null).setFakeDataSet(fakeDataSet);
     return new HlsDownloader(
-        Uri.parse(mediaPlaylistUri), new DownloaderConstructorHelper(cache, factory), keys);
+        Uri.parse(mediaPlaylistUri), keys, new DownloaderConstructorHelper(cache, factory));
   }
 
   private static ArrayList<RenditionKey> getKeys(int... variantIndices) {
