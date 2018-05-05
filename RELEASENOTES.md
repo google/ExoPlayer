@@ -2,10 +2,7 @@
 
 ### dev-v2 (not yet released) ###
 
-* Added dependency on checkerframework annotations for static code analysis.
-* IMA: Expose ad load errors via `MediaSourceEventListener` on `AdsMediaSource`,
-  and allow setting an ad event listener on `ImaAdsLoader`. Deprecate the
-  `AdsMediaSource.EventListener`.
+* Coming soon...
 
 ### 2.8.0 ###
 
@@ -82,8 +79,12 @@
     ([#4164](https://github.com/google/ExoPlayer/issues/4182)).
   * Fix seeking in live streams
     ([#4187](https://github.com/google/ExoPlayer/issues/4187)).
-* IMA: Allow setting the ad media load timeout
-  ([#3691](https://github.com/google/ExoPlayer/issues/3691)).
+* IMA:
+  * Allow setting the ad media load timeout
+    ([#3691](https://github.com/google/ExoPlayer/issues/3691)).
+  * Expose ad load errors via `MediaSourceEventListener` on `AdsMediaSource`,
+    and allow setting an ad event listener on `ImaAdsLoader`. Deprecate the
+    `AdsMediaSource.EventListener`.
 * Add `AnalyticsListener` interface which can be registered in
   `SimpleExoPlayer` to receive detailed metadata for each ExoPlayer event.
 * Optimize seeking in FMP4 by enabling seeking to the nearest sync sample within
@@ -101,6 +102,7 @@
 * Removed default renderer time offset of 60000000 from internal player. The
   actual renderer timestamp offset can be obtained by listening to
   `BaseRenderer.onStreamChanged`.
+* Added dependencies on checkerframework annotations for static code analysis.
 
 ### 2.7.3 ###
 

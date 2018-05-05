@@ -130,6 +130,7 @@ public class DashManifest implements FilterableManifest<DashManifest, Representa
    * @return A copy of this manifest with the selected representations.
    * @throws IndexOutOfBoundsException If a key has an invalid index.
    */
+  @Override
   public final DashManifest copy(List<RepresentationKey> representationKeys) {
     LinkedList<RepresentationKey> keys = new LinkedList<>(representationKeys);
     Collections.sort(keys);
