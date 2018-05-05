@@ -98,29 +98,22 @@ public class SampleChooserActivity extends Activity {
     }
     ExpandableListView sampleList = findViewById(R.id.sample_list);
     sampleList.setAdapter(new SampleAdapter(this, groups));
-    sampleList.setOnChildClickListener(new OnChildClickListener() {
-      @Override
-      public boolean onChildClick(ExpandableListView parent, View view, int groupPosition,
-          int childPosition, long id) {
-        onSampleSelected(groups.get(groupPosition).samples.get(childPosition));
-        return true;
-      }
-    });
+    sampleList.setOnChildClickListener(
+        new OnChildClickListener() {
+          @Override
+          public boolean onChildClick(
+              ExpandableListView parent, View view, int groupPosition, int childPosition, long id) {
+            onSampleClicked(groups.get(groupPosition).samples.get(childPosition));
+            return true;
+          }
+        });
   }
 
-  private void onSampleSelected(Sample sample) {
+  private void onSampleClicked(Sample sample) {
     startActivity(sample.buildIntent(this));
   }
 
   private void onSampleDownloadButtonClicked(Sample sample) {
-    if (!(sample instanceof UriSample) || sample.drmInfo != null) {
-      Toast.makeText(
-              getApplicationContext(),
-              R.string.download_only_single_period_non_drm_protected,
-              Toast.LENGTH_SHORT)
-          .show();
-      return;
-    }
     Intent intent = new Intent(this, DownloadActivity.class);
     intent.putExtra(DownloadActivity.SAMPLE_NAME, sample.name);
     intent.putExtra(DownloadActivity.PLAYER_INTENT, sample.buildIntent(this));
@@ -198,7 +191,7 @@ public class SampleChooserActivity extends Activity {
 
     private Sample readEntry(JsonReader reader, boolean insidePlaylist) throws IOException {
       String sampleName = null;
-      String uri = null;
+      Uri uri = null;
       String extension = null;
       String drmScheme = null;
       String drmLicenseUrl = null;
@@ -217,7 +210,7 @@ public class SampleChooserActivity extends Activity {
             sampleName = reader.nextString();
             break;
           case "uri":
-            uri = reader.nextString();
+            uri = Uri.parse(reader.nextString());
             break;
           case "extension":
             extension = reader.nextString();
@@ -301,11 +294,10 @@ public class SampleChooserActivity extends Activity {
 
   }
 
-  private final class SampleAdapter extends BaseExpandableListAdapter {
+  private final class SampleAdapter extends BaseExpandableListAdapter implements OnClickListener {
 
     private final Context context;
     private final List<SampleGroup> sampleGroups;
-    private OnClickListener onClickListener;
 
     public SampleAdapter(Context context, List<SampleGroup> sampleGroups) {
       this.context = context;
@@ -328,6 +320,7 @@ public class SampleChooserActivity extends Activity {
       View view = convertView;
       if (view == null) {
         view = LayoutInflater.from(context).inflate(R.layout.sample_list_item, parent, false);
+        view.findViewById(R.id.download_button).setOnClickListener(this);
       }
       initializeChildView(view, getChild(groupPosition, childPosition));
       return view;
@@ -375,27 +368,30 @@ public class SampleChooserActivity extends Activity {
       return true;
     }
 
+    @Override
+    public void onClick(View view) {
+      onSampleDownloadButtonClicked((Sample) view.getTag());
+    }
+
     private void initializeChildView(View view, Sample sample) {
       TextView sampleTitle = view.findViewById(R.id.sample_title);
       sampleTitle.setText(sample.name);
-
       ImageButton downloadButton = view.findViewById(R.id.download_button);
-      downloadButton.setFocusable(false);
-      downloadButton.setOnClickListener(getOnClickListener());
       downloadButton.setTag(sample);
+      downloadButton.setColorFilter(0xFFBBBBBB);
+      downloadButton.setVisibility(canDownload(sample) ? View.VISIBLE : View.GONE);
     }
 
-    private OnClickListener getOnClickListener() {
-      if (onClickListener == null) {
-        onClickListener =
-            new OnClickListener() {
-              @Override
-              public void onClick(View v) {
-                onSampleDownloadButtonClicked((Sample) v.getTag());
-              }
-            };
+    private boolean canDownload(Sample sample) {
+      if (!(sample instanceof UriSample)) {
+        return false;
       }
-      return onClickListener;
+      UriSample uriSample = (UriSample) sample;
+      if (uriSample.drmInfo != null || uriSample.adTagUri != null) {
+        return false;
+      }
+      String scheme = uriSample.uri.getScheme();
+      return "http".equals(scheme) || "https".equals(scheme);
     }
   }
 
@@ -465,7 +461,7 @@ public class SampleChooserActivity extends Activity {
 
   private static final class UriSample extends Sample {
 
-    public final String uri;
+    public final Uri uri;
     public final String extension;
     public final String adTagUri;
 
@@ -474,7 +470,7 @@ public class SampleChooserActivity extends Activity {
         boolean preferExtensionDecoders,
         String abrAlgorithm,
         DrmInfo drmInfo,
-        String uri,
+        Uri uri,
         String extension,
         String adTagUri) {
       super(name, preferExtensionDecoders, abrAlgorithm, drmInfo);
@@ -486,7 +482,7 @@ public class SampleChooserActivity extends Activity {
     @Override
     public Intent buildIntent(Context context) {
       return super.buildIntent(context)
-          .setData(Uri.parse(uri))
+          .setData(uri)
           .putExtra(PlayerActivity.EXTENSION_EXTRA, extension)
           .putExtra(PlayerActivity.AD_TAG_URI_EXTRA, adTagUri)
           .setAction(PlayerActivity.ACTION_VIEW);
@@ -510,7 +506,7 @@ public class SampleChooserActivity extends Activity {
 
     @Override
     public Intent buildIntent(Context context) {
-      String[] uris = new String[children.length];
+      Uri[] uris = new Uri[children.length];
       String[] extensions = new String[children.length];
       for (int i = 0; i < children.length; i++) {
         uris[i] = children[i].uri;
