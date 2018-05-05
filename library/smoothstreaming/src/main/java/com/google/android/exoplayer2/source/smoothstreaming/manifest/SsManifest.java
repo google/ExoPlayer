@@ -120,16 +120,9 @@ public class SsManifest implements FilterableManifest<SsManifest, StreamKey> {
     this.streamElements = streamElements;
   }
 
-  /**
-   * Creates a copy of this manifest which includes only the tracks identified by the given keys.
-   *
-   * @param trackKeys List of keys for the tracks to be included in the copy.
-   * @return A copy of this manifest with the selected tracks.
-   * @throws IndexOutOfBoundsException If a key has an invalid index.
-   */
   @Override
-  public final SsManifest copy(List<StreamKey> trackKeys) {
-    ArrayList<StreamKey> sortedKeys = new ArrayList<>(trackKeys);
+  public final SsManifest copy(List<StreamKey> streamKeys) {
+    ArrayList<StreamKey> sortedKeys = new ArrayList<>(streamKeys);
     Collections.sort(sortedKeys);
 
     StreamElement currentStreamElement = null;

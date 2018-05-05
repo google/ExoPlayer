@@ -45,8 +45,8 @@ import java.util.List;
  * SsDownloader ssDownloader =
  *     new SsDownloader(
  *         manifestUrl,
- *         constructorHelper,
- *         Collections.singletonList(new StreamKey(0, 0)));
+ *         Collections.singletonList(new StreamKey(0, 0)),
+ *         constructorHelper);
  * // Perform the download.
  * ssDownloader.download();
  * // Access downloaded data using CacheDataSource
@@ -56,10 +56,15 @@ import java.util.List;
  */
 public final class SsDownloader extends SegmentDownloader<SsManifest, StreamKey> {
 
-  /** @see SegmentDownloader#SegmentDownloader(Uri, DownloaderConstructorHelper, List) */
+  /**
+   * @param manifestUri The {@link Uri} of the manifest to be downloaded.
+   * @param streamKeys Keys defining which streams in the manifest should be selected for download.
+   *     If empty, all streams are downloaded.
+   * @param constructorHelper A {@link DownloaderConstructorHelper} instance.
+   */
   public SsDownloader(
-      Uri manifestUri, DownloaderConstructorHelper constructorHelper, List<StreamKey> trackKeys) {
-    super(SsUtil.fixManifestUri(manifestUri), constructorHelper, trackKeys);
+      Uri manifestUri, List<StreamKey> streamKeys, DownloaderConstructorHelper constructorHelper) {
+    super(SsUtil.fixManifestUri(manifestUri), streamKeys, constructorHelper);
   }
 
   @Override

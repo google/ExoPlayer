@@ -35,7 +35,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * Base class for multi segment stream downloaders.
  *
  * @param <M> The type of the manifest object.
- * @param <K> The type of the track key object.
+ * @param <K> The type of the streams key object.
  */
 public abstract class SegmentDownloader<M extends FilterableManifest<M, K>, K>
     implements Downloader {
@@ -68,7 +68,7 @@ public abstract class SegmentDownloader<M extends FilterableManifest<M, K>, K>
   private final Cache cache;
   private final CacheDataSource dataSource;
   private final CacheDataSource offlineDataSource;
-  private final ArrayList<K> keys;
+  private final ArrayList<K> streamKeys;
   private final AtomicBoolean isCanceled;
 
   private volatile int totalSegments;
@@ -77,23 +77,24 @@ public abstract class SegmentDownloader<M extends FilterableManifest<M, K>, K>
 
   /**
    * @param manifestUri The {@link Uri} of the manifest to be downloaded.
+   * @param streamKeys Keys defining which streams in the manifest should be selected for download.
+   *     If empty, all streams are downloaded.
    * @param constructorHelper A {@link DownloaderConstructorHelper} instance.
-   * @param trackKeys Track keys to select when downloading. If empty, all tracks are downloaded.
    */
   public SegmentDownloader(
-      Uri manifestUri, DownloaderConstructorHelper constructorHelper, List<K> trackKeys) {
+      Uri manifestUri, List<K> streamKeys, DownloaderConstructorHelper constructorHelper) {
     this.manifestUri = manifestUri;
+    this.streamKeys = new ArrayList<>(streamKeys);
     this.cache = constructorHelper.getCache();
     this.dataSource = constructorHelper.buildCacheDataSource(false);
     this.offlineDataSource = constructorHelper.buildCacheDataSource(true);
     this.priorityTaskManager = constructorHelper.getPriorityTaskManager();
-    keys = new ArrayList<>(trackKeys);
     totalSegments = C.LENGTH_UNSET;
     isCanceled = new AtomicBoolean();
   }
 
   /**
-   * Downloads the selected tracks in the media. If multiple tracks are selected, they are
+   * Downloads the selected streams in the media. If multiple streams are selected, they are
    * downloaded in sync with one another.
    *
    * @throws IOException Thrown when there is an error downloading.
@@ -202,8 +203,8 @@ public abstract class SegmentDownloader<M extends FilterableManifest<M, K>, K>
   /** Initializes the download, returning a list of {@link Segment}s that need to be downloaded. */
   private List<Segment> initDownload() throws IOException, InterruptedException {
     M manifest = getManifest(dataSource, manifestUri);
-    if (!keys.isEmpty()) {
-      manifest = manifest.copy(keys);
+    if (!streamKeys.isEmpty()) {
+      manifest = manifest.copy(streamKeys);
     }
     List<Segment> segments = getSegments(dataSource, manifest, /* allowIncompleteList= */ false);
     CachingCounters cachingCounters = new CachingCounters();

@@ -122,17 +122,9 @@ public class DashManifest implements FilterableManifest<DashManifest, Representa
     return C.msToUs(getPeriodDurationMs(index));
   }
 
-  /**
-   * Creates a copy of this manifest which includes only the representations identified by the given
-   * keys.
-   *
-   * @param representationKeys List of keys for the representations to be included in the copy.
-   * @return A copy of this manifest with the selected representations.
-   * @throws IndexOutOfBoundsException If a key has an invalid index.
-   */
   @Override
-  public final DashManifest copy(List<RepresentationKey> representationKeys) {
-    LinkedList<RepresentationKey> keys = new LinkedList<>(representationKeys);
+  public final DashManifest copy(List<RepresentationKey> streamKeys) {
+    LinkedList<RepresentationKey> keys = new LinkedList<>(streamKeys);
     Collections.sort(keys);
     keys.add(new RepresentationKey(-1, -1, -1)); // Add a stopper key to the end
 

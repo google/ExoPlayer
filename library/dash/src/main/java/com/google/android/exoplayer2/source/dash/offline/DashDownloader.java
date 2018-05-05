@@ -52,8 +52,8 @@ import java.util.List;
  * DashDownloader dashDownloader =
  *     new DashDownloader(
  *         manifestUrl,
- *         constructorHelper,
- *         Collections.singletonList(new RepresentationKey(0, 0, 0)));
+ *         Collections.singletonList(new RepresentationKey(0, 0, 0)),
+ *         constructorHelper);
  * // Perform the download.
  * dashDownloader.download();
  * // Access downloaded data using CacheDataSource
@@ -63,12 +63,17 @@ import java.util.List;
  */
 public final class DashDownloader extends SegmentDownloader<DashManifest, RepresentationKey> {
 
-  /** @see SegmentDownloader#SegmentDownloader(Uri, DownloaderConstructorHelper, List) */
+  /**
+   * @param manifestUri The {@link Uri} of the manifest to be downloaded.
+   * @param representationKeys Keys defining which representations in the manifest should be
+   *     selected for download. If empty, all representations are downloaded.
+   * @param constructorHelper A {@link DownloaderConstructorHelper} instance.
+   */
   public DashDownloader(
       Uri manifestUri,
-      DownloaderConstructorHelper constructorHelper,
-      List<RepresentationKey> trackKeys) {
-    super(manifestUri, constructorHelper, trackKeys);
+      List<RepresentationKey> representationKeys,
+      DownloaderConstructorHelper constructorHelper) {
+    super(manifestUri, representationKeys, constructorHelper);
   }
 
   @Override

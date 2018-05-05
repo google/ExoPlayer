@@ -18,19 +18,20 @@ package com.google.android.exoplayer2.offline;
 import java.util.List;
 
 /**
- * A manifest that can generate copies of itself including only the tracks specified by the given
- * track keys.
+ * A manifest that can generate copies of itself including only the streams specified by the given
+ * keys.
  *
  * @param <T> The manifest type.
- * @param <K> The track key type.
+ * @param <K> The stream key type.
  */
 public interface FilterableManifest<T, K> {
 
   /**
-   * Returns a copy of the manifest including only the tracks specified by the given track keys.
+   * Returns a copy of the manifest including only the streams specified by the given keys. If the
+   * manifest is unchanged then the instance may return itself.
    *
-   * @param trackKeys A non-empty list of track keys.
+   * @param streamKeys A non-empty list of stream keys.
    * @return The filtered manifest.
    */
-  T copy(List<K> trackKeys);
+  T copy(List<K> streamKeys);
 }

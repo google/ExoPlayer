@@ -51,7 +51,7 @@ public final class SsDownloadAction extends SegmentDownloadAction<StreamKey> {
    * @param uri The SmoothStreaming manifest URI.
    * @param isRemoveAction Whether the data will be removed. If {@code false} it will be downloaded.
    * @param data Optional custom data for this action.
-   * @param keys Keys of tracks to be downloaded. If empty, all tracks are downloaded. If {@code
+   * @param keys Keys of streams to be downloaded. If empty, all streams are downloaded. If {@code
    *     removeAction} is true, {@code keys} must be empty.
    */
   public SsDownloadAction(
@@ -61,7 +61,7 @@ public final class SsDownloadAction extends SegmentDownloadAction<StreamKey> {
 
   @Override
   protected SsDownloader createDownloader(DownloaderConstructorHelper constructorHelper) {
-    return new SsDownloader(uri, constructorHelper, keys);
+    return new SsDownloader(uri, keys, constructorHelper);
   }
 
   @Override
