@@ -320,7 +320,9 @@ public class SampleChooserActivity extends Activity {
       View view = convertView;
       if (view == null) {
         view = LayoutInflater.from(context).inflate(R.layout.sample_list_item, parent, false);
-        view.findViewById(R.id.download_button).setOnClickListener(this);
+        View downloadButton = view.findViewById(R.id.download_button);
+        downloadButton.setOnClickListener(this);
+        downloadButton.setFocusable(false);
       }
       initializeChildView(view, getChild(groupPosition, childPosition));
       return view;

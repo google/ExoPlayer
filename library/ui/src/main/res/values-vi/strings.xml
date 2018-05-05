@@ -17,7 +17,7 @@
   <string name="exo_download_downloading">Đang tải xuống</string>
   <string name="exo_download_completed">Đã hoàn tất tải xuống</string>
   <string name="exo_download_failed">Không tải xuống được</string>
-  <string name="exo_download_removing">Đang xóa các mục tải xuống</string>
+  <string name="exo_download_removing">Đang xóa các mục đã tải xuống</string>
   <string name="exo_track_selection_title_video">Video</string>
   <string name="exo_track_selection_title_audio">Âm thanh</string>
   <string name="exo_track_selection_title_text">Văn bản</string>
