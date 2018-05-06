@@ -54,6 +54,12 @@ public final class DownloadManager {
   /** Listener for {@link DownloadManager} events. */
   public interface Listener {
     /**
+     * Called when all actions have been restored.
+     *
+     * @param downloadManager The reporting instance.
+     */
+    void onInitialized(DownloadManager downloadManager);
+    /**
      * Called when the state of a task changes.
      *
      * @param downloadManager The reporting instance.
@@ -90,7 +96,7 @@ public final class DownloadManager {
   private final CopyOnWriteArraySet<Listener> listeners;
 
   private int nextTaskId;
-  private boolean actionFileLoadCompleted;
+  private boolean initialized;
   private boolean released;
   private boolean downloadsStopped;
 
@@ -243,10 +249,15 @@ public final class DownloadManager {
   public int handleAction(DownloadAction action) {
     Assertions.checkState(!released);
     Task task = addTaskForAction(action);
-    if (actionFileLoadCompleted) {
+    if (initialized) {
       notifyListenersTaskStateChange(task);
       saveActions();
       maybeStartTasks();
+      if (task.currentState == STATE_QUEUED) {
+        // Task did not change out of its initial state, and so its initial state won't have been
+        // reported to listeners. Do so now.
+        notifyListenersTaskStateChange(task);
+      }
     }
     return task.id;
   }
@@ -279,10 +290,16 @@ public final class DownloadManager {
     return states;
   }
 
+  /** Returns whether the manager has completed initialization. */
+  public boolean isInitialized() {
+    Assertions.checkState(!released);
+    return initialized;
+  }
+
   /** Returns whether there are no active tasks. */
   public boolean isIdle() {
     Assertions.checkState(!released);
-    if (!actionFileLoadCompleted) {
+    if (!initialized) {
       return false;
     }
     for (int i = 0; i < tasks.size(); i++) {
@@ -337,7 +354,7 @@ public final class DownloadManager {
    * If the task is a remove action then preceding conflicting tasks are canceled.
    */
   private void maybeStartTasks() {
-    if (!actionFileLoadCompleted || released) {
+    if (!initialized || released) {
       return;
     }
 
@@ -437,26 +454,34 @@ public final class DownloadManager {
                 new Runnable() {
                   @Override
                   public void run() {
-                    actionFileLoadCompleted = true;
                     if (released) {
                       return;
                     }
                     List<Task> pendingTasks = new ArrayList<>(tasks);
                     tasks.clear();
                     for (DownloadAction action : actions) {
-                      Task task = addTaskForAction(action);
-                      notifyListenersTaskStateChange(task);
+                      addTaskForAction(action);
+                    }
+                    logd("Tasks are created.");
+                    initialized = true;
+                    for (Listener listener : listeners) {
+                      listener.onInitialized(DownloadManager.this);
                     }
                     if (!pendingTasks.isEmpty()) {
                       for (int i = 0; i < pendingTasks.size(); i++) {
-                        Task pendingTask = pendingTasks.get(i);
-                        tasks.add(pendingTask);
-                        notifyListenersTaskStateChange(pendingTask);
+                        tasks.add(pendingTasks.get(i));
                       }
                       saveActions();
                     }
-                    logd("Tasks are created.");
                     maybeStartTasks();
+                    for (int i = 0; i < pendingTasks.size(); i++) {
+                      Task pendingTask = pendingTasks.get(i);
+                      if (pendingTask.currentState == STATE_QUEUED) {
+                        // Task did not change out of its initial state, and so its initial state
+                        // won't have been reported to listeners. Do so now.
+                        notifyListenersTaskStateChange(pendingTask);
+                      }
+                    }
                   }
                 });
           }

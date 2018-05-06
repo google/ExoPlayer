@@ -314,6 +314,11 @@ public abstract class DownloadService extends Service {
 
   private final class DownloadManagerListener implements DownloadManager.Listener {
     @Override
+    public void onInitialized(DownloadManager downloadManager) {
+      // Do nothing.
+    }
+
+    @Override
     public void onTaskStateChanged(DownloadManager downloadManager, TaskState taskState) {
       DownloadService.this.onTaskStateChanged(taskState);
       if (taskState.state == TaskState.STATE_STARTED) {
