@@ -137,6 +137,11 @@ public class DownloadTracker implements DownloadManager.Listener {
   // DownloadManager.Listener
 
   @Override
+  public void onInitialized(DownloadManager downloadManager) {
+    // Do nothing.
+  }
+
+  @Override
   public void onTaskStateChanged(DownloadManager downloadManager, TaskState taskState) {
     DownloadAction action = taskState.action;
     Uri uri = action.uri;

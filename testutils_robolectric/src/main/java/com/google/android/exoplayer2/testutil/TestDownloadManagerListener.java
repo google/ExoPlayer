@@ -52,6 +52,11 @@ public final class TestDownloadManagerListener implements DownloadManager.Listen
   }
 
   @Override
+  public void onInitialized(DownloadManager downloadManager) {
+    // Do nothing.
+  }
+
+  @Override
   public void onTaskStateChanged(
       DownloadManager downloadManager, DownloadManager.TaskState taskState) {
     if (taskState.state == DownloadManager.TaskState.STATE_FAILED && downloadError == null) {
