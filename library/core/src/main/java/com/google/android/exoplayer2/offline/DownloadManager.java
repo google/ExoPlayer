@@ -179,52 +179,6 @@ public final class DownloadManager {
   }
 
   /**
-   * Stops all of the tasks and releases resources. If the action file isn't up to date, waits for
-   * the changes to be written. The manager must not be accessed after this method has been called.
-   */
-  public void release() {
-    if (released) {
-      return;
-    }
-    released = true;
-    for (int i = 0; i < tasks.size(); i++) {
-      tasks.get(i).stop();
-    }
-    final ConditionVariable fileIOFinishedCondition = new ConditionVariable();
-    fileIOHandler.post(new Runnable() {
-      @Override
-      public void run() {
-        fileIOFinishedCondition.open();
-      }
-    });
-    fileIOFinishedCondition.block();
-    fileIOThread.quit();
-    logd("Released");
-  }
-
-  /** Stops all of the download tasks. Call {@link #startDownloads()} to restart tasks. */
-  public void stopDownloads() {
-    Assertions.checkState(!released);
-    if (!downloadsStopped) {
-      downloadsStopped = true;
-      for (int i = 0; i < activeDownloadTasks.size(); i++) {
-        activeDownloadTasks.get(i).stop();
-      }
-      logd("Downloads are stopping");
-    }
-  }
-
-  /** Starts the download tasks. */
-  public void startDownloads() {
-    Assertions.checkState(!released);
-    if (downloadsStopped) {
-      downloadsStopped = false;
-      maybeStartTasks();
-      logd("Downloads are started");
-    }
-  }
-
-  /**
    * Adds a {@link Listener}.
    *
    * @param listener The listener to be added.
@@ -240,6 +194,28 @@ public final class DownloadManager {
    */
   public void removeListener(Listener listener) {
     listeners.remove(listener);
+  }
+
+  /** Starts the download tasks. */
+  public void startDownloads() {
+    Assertions.checkState(!released);
+    if (downloadsStopped) {
+      downloadsStopped = false;
+      maybeStartTasks();
+      logd("Downloads are started");
+    }
+  }
+
+  /** Stops all of the download tasks. Call {@link #startDownloads()} to restart tasks. */
+  public void stopDownloads() {
+    Assertions.checkState(!released);
+    if (!downloadsStopped) {
+      downloadsStopped = true;
+      for (int i = 0; i < activeDownloadTasks.size(); i++) {
+        activeDownloadTasks.get(i).stop();
+      }
+      logd("Downloads are stopping");
+    }
   }
 
   /**
@@ -273,13 +249,6 @@ public final class DownloadManager {
       maybeStartTasks();
     }
     return task.id;
-  }
-
-  private Task addTaskForAction(DownloadAction action) {
-    Task task = new Task(nextTaskId++, this, action, minRetryCount);
-    tasks.add(task);
-    logd("Task is added", task);
-    return task;
   }
 
   /** Returns the current number of tasks. */
@@ -322,6 +291,37 @@ public final class DownloadManager {
       }
     }
     return true;
+  }
+
+  /**
+   * Stops all of the tasks and releases resources. If the action file isn't up to date, waits for
+   * the changes to be written. The manager must not be accessed after this method has been called.
+   */
+  public void release() {
+    if (released) {
+      return;
+    }
+    released = true;
+    for (int i = 0; i < tasks.size(); i++) {
+      tasks.get(i).stop();
+    }
+    final ConditionVariable fileIOFinishedCondition = new ConditionVariable();
+    fileIOHandler.post(new Runnable() {
+      @Override
+      public void run() {
+        fileIOFinishedCondition.open();
+      }
+    });
+    fileIOFinishedCondition.block();
+    fileIOThread.quit();
+    logd("Released");
+  }
+
+  private Task addTaskForAction(DownloadAction action) {
+    Task task = new Task(nextTaskId++, this, action, minRetryCount);
+    tasks.add(task);
+    logd("Task is added", task);
+    return task;
   }
 
   /**
