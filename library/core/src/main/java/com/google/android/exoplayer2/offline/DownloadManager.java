@@ -39,6 +39,7 @@ import java.io.IOException;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.CopyOnWriteArraySet;
 
 /**
@@ -178,10 +179,13 @@ public final class DownloadManager {
   }
 
   /**
-   * Stops all of the tasks and releases resources. If the action file isn't up to date,
-   * waits for the changes to be written.
+   * Stops all of the tasks and releases resources. If the action file isn't up to date, waits for
+   * the changes to be written. The manager must not be accessed after this method has been called.
    */
   public void release() {
+    if (released) {
+      return;
+    }
     released = true;
     for (int i = 0; i < tasks.size(); i++) {
       tasks.get(i).stop();
@@ -200,6 +204,7 @@ public final class DownloadManager {
 
   /** Stops all of the download tasks. Call {@link #startDownloads()} to restart tasks. */
   public void stopDownloads() {
+    Assertions.checkState(!released);
     if (!downloadsStopped) {
       downloadsStopped = true;
       for (int i = 0; i < activeDownloadTasks.size(); i++) {
@@ -211,6 +216,7 @@ public final class DownloadManager {
 
   /** Starts the download tasks. */
   public void startDownloads() {
+    Assertions.checkState(!released);
     if (downloadsStopped) {
       downloadsStopped = false;
       maybeStartTasks();
@@ -245,6 +251,7 @@ public final class DownloadManager {
    * @throws IOException If an error occurs deserializing the action.
    */
   public int handleAction(byte[] actionData) throws IOException {
+    Assertions.checkState(!released);
     ByteArrayInputStream input = new ByteArrayInputStream(actionData);
     DownloadAction action = DownloadAction.deserializeFromStream(deserializers, input);
     return handleAction(action);
@@ -258,31 +265,32 @@ public final class DownloadManager {
    * @return The id of the newly created task.
    */
   public int handleAction(DownloadAction action) {
-    Task task = createTask(action);
-    saveActions();
-    if (downloadsStopped && !action.isRemoveAction) {
-      logd("Can't start the task as downloads are stopped", task);
-    } else {
+    Assertions.checkState(!released);
+    Task task = addTaskForAction(action);
+    if (actionFileLoadCompleted) {
+      notifyListenersTaskStateChange(task);
+      saveActions();
       maybeStartTasks();
     }
     return task.id;
   }
 
-  private Task createTask(DownloadAction action) {
+  private Task addTaskForAction(DownloadAction action) {
     Task task = new Task(nextTaskId++, this, action, minRetryCount);
     tasks.add(task);
     logd("Task is added", task);
-    notifyListenersTaskStateChange(task);
     return task;
   }
 
   /** Returns the current number of tasks. */
   public int getTaskCount() {
+    Assertions.checkState(!released);
     return tasks.size();
   }
 
   /** Returns the state of a task, or null if no such task exists */
   public @Nullable TaskState getTaskState(int taskId) {
+    Assertions.checkState(!released);
     for (int i = 0; i < tasks.size(); i++) {
       Task task = tasks.get(i);
       if (task.id == taskId) {
@@ -294,6 +302,7 @@ public final class DownloadManager {
 
   /** Returns the states of all current tasks. */
   public TaskState[] getAllTaskStates() {
+    Assertions.checkState(!released);
     TaskState[] states = new TaskState[tasks.size()];
     for (int i = 0; i < states.length; i++) {
       states[i] = tasks.get(i).getDownloadState();
@@ -303,6 +312,7 @@ public final class DownloadManager {
 
   /** Returns whether there are no active tasks. */
   public boolean isIdle() {
+    Assertions.checkState(!released);
     if (!actionFileLoadCompleted) {
       return false;
     }
@@ -327,7 +337,7 @@ public final class DownloadManager {
    * If the task is a remove action then preceding conflicting tasks are canceled.
    */
   private void maybeStartTasks() {
-    if (released) {
+    if (!actionFileLoadCompleted || released) {
       return;
     }
 
@@ -427,16 +437,26 @@ public final class DownloadManager {
                 new Runnable() {
                   @Override
                   public void run() {
-                    try {
-                      for (DownloadAction action : actions) {
-                        createTask(action);
-                      }
-                      logd("Tasks are created.");
-                      maybeStartTasks();
-                    } finally {
-                      actionFileLoadCompleted = true;
-                      maybeNotifyListenersIdle();
+                    actionFileLoadCompleted = true;
+                    if (released) {
+                      return;
                     }
+                    List<Task> pendingTasks = new ArrayList<>(tasks);
+                    tasks.clear();
+                    for (DownloadAction action : actions) {
+                      Task task = addTaskForAction(action);
+                      notifyListenersTaskStateChange(task);
+                    }
+                    if (!pendingTasks.isEmpty()) {
+                      for (int i = 0; i < pendingTasks.size(); i++) {
+                        Task pendingTask = pendingTasks.get(i);
+                        tasks.add(pendingTask);
+                        notifyListenersTaskStateChange(pendingTask);
+                      }
+                      saveActions();
+                    }
+                    logd("Tasks are created.");
+                    maybeStartTasks();
                   }
                 });
           }
@@ -444,7 +464,7 @@ public final class DownloadManager {
   }
 
   private void saveActions() {
-    if (!actionFileLoadCompleted || released) {
+    if (released) {
       return;
     }
     final DownloadAction[] actions = new DownloadAction[tasks.size()];
