@@ -91,10 +91,12 @@ public class SampleChooserActivity extends Activity
     }
 
     downloadTracker = ((DemoApplication) getApplication()).getDownloadTracker();
-    startDownloadServiceForeground();
-
     SampleListLoader loaderTask = new SampleListLoader();
     loaderTask.execute(uris);
+
+    // Ping the download service in case it's not running (but should be).
+    startService(
+        new Intent(this, DemoDownloadService.class).setAction(DownloadService.ACTION_INIT));
   }
 
   @Override
@@ -113,11 +115,6 @@ public class SampleChooserActivity extends Activity
   @Override
   public void onDownloadsChanged() {
     sampleAdapter.notifyDataSetChanged();
-  }
-
-  private void startDownloadServiceForeground() {
-    Intent intent = new Intent(DownloadService.ACTION_INIT).setPackage(getPackageName());
-    Util.startForegroundService(this, intent);
   }
 
   private void onSampleGroups(final List<SampleGroup> groups, boolean sawError) {
