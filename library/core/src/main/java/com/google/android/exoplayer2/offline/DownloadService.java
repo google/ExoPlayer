@@ -202,6 +202,7 @@ public abstract class DownloadService extends Service {
 
   @Override
   public int onStartCommand(Intent intent, int flags, int startId) {
+    lastStartId = startId;
     String intentAction = null;
     if (intent != null) {
       intentAction = intent.getAction();
