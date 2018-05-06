@@ -15,8 +15,6 @@
  */
 package com.google.android.exoplayer2.source.hls.playlist;
 
-import android.os.Parcel;
-import android.os.Parcelable;
 import android.support.annotation.IntDef;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -24,7 +22,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
 /** Uniquely identifies a rendition in an {@link HlsMasterPlaylist}. */
-public final class RenditionKey implements Parcelable, Comparable<RenditionKey> {
+public final class RenditionKey implements Comparable<RenditionKey> {
 
   /** Types of rendition. */
   @Retention(RetentionPolicy.SOURCE)
@@ -78,30 +76,4 @@ public final class RenditionKey implements Parcelable, Comparable<RenditionKey> 
     }
     return result;
   }
-
-  // Parcelable implementation.
-
-  @Override
-  public int describeContents() {
-    return 0;
-  }
-
-  @Override
-  public void writeToParcel(Parcel dest, int flags) {
-    dest.writeInt(type);
-    dest.writeInt(trackIndex);
-  }
-
-  public static final Creator<RenditionKey> CREATOR =
-      new Creator<RenditionKey>() {
-        @Override
-        public RenditionKey createFromParcel(Parcel in) {
-          return new RenditionKey(in.readInt(), in.readInt());
-        }
-
-        @Override
-        public RenditionKey[] newArray(int size) {
-          return new RenditionKey[size];
-        }
-      };
 }

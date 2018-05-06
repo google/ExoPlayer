@@ -75,8 +75,6 @@
       </intent-filter>
     </activity>
 
-    <activity android:name="com.google.android.exoplayer2.demo.DownloadActivity"/>
-
     <service android:name="com.google.android.exoplayer2.demo.DemoDownloadService"
         android:exported="false">
       <intent-filter>
