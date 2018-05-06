@@ -229,8 +229,7 @@ public class DownloadServiceDashTest {
           @Override
           public void run() {
             Intent startIntent =
-                DownloadService.createAddDownloadActionIntent(
-                    context, DownloadService.class, action);
+                DownloadService.buildAddActionIntent(context, DownloadService.class, action, false);
             dashDownloadService.onStartCommand(startIntent, 0, 0);
           }
         });

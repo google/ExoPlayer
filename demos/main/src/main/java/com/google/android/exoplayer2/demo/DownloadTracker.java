@@ -126,7 +126,7 @@ public class DownloadTracker implements DownloadManager.Listener {
     if (isDownloaded(uri)) {
       DownloadAction removeAction =
           getDownloadHelper(uri, extension).getRemoveAction(Util.getUtf8Bytes(name));
-      addDownloadAction(removeAction);
+      startServiceWithAction(removeAction);
     } else {
       StartDownloadDialogHelper helper =
           new StartDownloadDialogHelper(activity, getDownloadHelper(uri, extension), name);
@@ -197,11 +197,11 @@ public class DownloadTracker implements DownloadManager.Listener {
     }
     trackedDownloadStates.put(action.uri, action);
     handleTrackedDownloadStatesChanged();
-    addDownloadAction(action);
+    startServiceWithAction(action);
   }
 
-  private void addDownloadAction(DownloadAction action) {
-    DownloadService.addDownloadAction(context, DemoDownloadService.class, action);
+  private void startServiceWithAction(DownloadAction action) {
+    DownloadService.startWithAction(context, DemoDownloadService.class, action, false);
   }
 
   private DownloadHelper getDownloadHelper(Uri uri, String extension) {
