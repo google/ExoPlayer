@@ -24,7 +24,6 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.JsonReader;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
@@ -47,17 +46,27 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 /** An activity for selecting from a list of media samples. */
-public class SampleChooserActivity extends Activity {
+public class SampleChooserActivity extends Activity
+    implements DownloadTracker.Listener, OnChildClickListener {
 
   private static final String TAG = "SampleChooserActivity";
+
+  private DownloadTracker downloadTracker;
+  private SampleAdapter sampleAdapter;
 
   @Override
   public void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     setContentView(R.layout.sample_chooser_activity);
+    sampleAdapter = new SampleAdapter();
+    ExpandableListView sampleListView = findViewById(R.id.sample_list);
+    sampleListView.setAdapter(sampleAdapter);
+    sampleListView.setOnChildClickListener(this);
+
     Intent intent = getIntent();
     String dataUri = intent.getDataString();
     String[] uris;
@@ -80,10 +89,30 @@ public class SampleChooserActivity extends Activity {
       uriList.toArray(uris);
       Arrays.sort(uris);
     }
+
+    downloadTracker = ((DemoApplication) getApplication()).getDownloadTracker();
+    startDownloadServiceForeground();
+
     SampleListLoader loaderTask = new SampleListLoader();
     loaderTask.execute(uris);
+  }
 
-    startDownloadServiceForeground();
+  @Override
+  public void onStart() {
+    super.onStart();
+    downloadTracker.addListener(this);
+    sampleAdapter.notifyDataSetChanged();
+  }
+
+  @Override
+  public void onStop() {
+    downloadTracker.removeListener(this);
+    super.onStop();
+  }
+
+  @Override
+  public void onDownloadsChanged() {
+    sampleAdapter.notifyDataSetChanged();
   }
 
   private void startDownloadServiceForeground() {
@@ -96,28 +125,44 @@ public class SampleChooserActivity extends Activity {
       Toast.makeText(getApplicationContext(), R.string.sample_list_load_error, Toast.LENGTH_LONG)
           .show();
     }
-    ExpandableListView sampleList = findViewById(R.id.sample_list);
-    sampleList.setAdapter(new SampleAdapter(this, groups));
-    sampleList.setOnChildClickListener(
-        new OnChildClickListener() {
-          @Override
-          public boolean onChildClick(
-              ExpandableListView parent, View view, int groupPosition, int childPosition, long id) {
-            onSampleClicked(groups.get(groupPosition).samples.get(childPosition));
-            return true;
-          }
-        });
+    sampleAdapter.setSampleGroups(groups);
   }
 
-  private void onSampleClicked(Sample sample) {
+  @Override
+  public boolean onChildClick(
+      ExpandableListView parent, View view, int groupPosition, int childPosition, long id) {
+    Sample sample = (Sample) view.getTag();
     startActivity(sample.buildIntent(this));
+    return true;
   }
 
   private void onSampleDownloadButtonClicked(Sample sample) {
-    Intent intent = new Intent(this, DownloadActivity.class);
-    intent.putExtra(DownloadActivity.SAMPLE_NAME, sample.name);
-    intent.putExtra(DownloadActivity.PLAYER_INTENT, sample.buildIntent(this));
-    startActivity(intent);
+    int downloadUnsupportedStringId = getDownloadUnsupportedStringId(sample);
+    if (downloadUnsupportedStringId != 0) {
+      Toast.makeText(getApplicationContext(), downloadUnsupportedStringId, Toast.LENGTH_LONG)
+          .show();
+    } else {
+      UriSample uriSample = (UriSample) sample;
+      downloadTracker.toggleDownload(this, sample.name, uriSample.uri, uriSample.extension);
+    }
+  }
+
+  private int getDownloadUnsupportedStringId(Sample sample) {
+    if (sample instanceof PlaylistSample) {
+      return R.string.download_playlist_unsupported;
+    }
+    UriSample uriSample = (UriSample) sample;
+    if (uriSample.drmInfo != null) {
+      return R.string.download_drm_unsupported;
+    }
+    if (uriSample.adTagUri != null) {
+      return R.string.download_ads_unsupported;
+    }
+    String scheme = uriSample.uri.getScheme();
+    if (!("http".equals(scheme) || "https".equals(scheme))) {
+      return R.string.download_scheme_unsupported;
+    }
+    return 0;
   }
 
   private final class SampleListLoader extends AsyncTask<String, Void, List<SampleGroup>> {
@@ -296,12 +341,15 @@ public class SampleChooserActivity extends Activity {
 
   private final class SampleAdapter extends BaseExpandableListAdapter implements OnClickListener {
 
-    private final Context context;
-    private final List<SampleGroup> sampleGroups;
+    private List<SampleGroup> sampleGroups;
 
-    public SampleAdapter(Context context, List<SampleGroup> sampleGroups) {
-      this.context = context;
+    public SampleAdapter() {
+      sampleGroups = Collections.emptyList();
+    }
+
+    public void setSampleGroups(List<SampleGroup> sampleGroups) {
       this.sampleGroups = sampleGroups;
+      notifyDataSetChanged();
     }
 
     @Override
@@ -319,7 +367,7 @@ public class SampleChooserActivity extends Activity {
         View convertView, ViewGroup parent) {
       View view = convertView;
       if (view == null) {
-        view = LayoutInflater.from(context).inflate(R.layout.sample_list_item, parent, false);
+        view = getLayoutInflater().inflate(R.layout.sample_list_item, parent, false);
         View downloadButton = view.findViewById(R.id.download_button);
         downloadButton.setOnClickListener(this);
         downloadButton.setFocusable(false);
@@ -348,8 +396,9 @@ public class SampleChooserActivity extends Activity {
         ViewGroup parent) {
       View view = convertView;
       if (view == null) {
-        view = LayoutInflater.from(context).inflate(android.R.layout.simple_expandable_list_item_1,
-            parent, false);
+        view =
+            getLayoutInflater()
+                .inflate(android.R.layout.simple_expandable_list_item_1, parent, false);
       }
       ((TextView) view).setText(getGroup(groupPosition).title);
       return view;
@@ -376,24 +425,18 @@ public class SampleChooserActivity extends Activity {
     }
 
     private void initializeChildView(View view, Sample sample) {
+      view.setTag(sample);
       TextView sampleTitle = view.findViewById(R.id.sample_title);
       sampleTitle.setText(sample.name);
+
+      boolean canDownload = getDownloadUnsupportedStringId(sample) == 0;
+      boolean isDownloaded = canDownload && downloadTracker.isDownloaded(((UriSample) sample).uri);
       ImageButton downloadButton = view.findViewById(R.id.download_button);
       downloadButton.setTag(sample);
-      downloadButton.setColorFilter(0xFFBBBBBB);
-      downloadButton.setVisibility(canDownload(sample) ? View.VISIBLE : View.GONE);
-    }
-
-    private boolean canDownload(Sample sample) {
-      if (!(sample instanceof UriSample)) {
-        return false;
-      }
-      UriSample uriSample = (UriSample) sample;
-      if (uriSample.drmInfo != null || uriSample.adTagUri != null) {
-        return false;
-      }
-      String scheme = uriSample.uri.getScheme();
-      return "http".equals(scheme) || "https".equals(scheme);
+      downloadButton.setColorFilter(
+          canDownload ? (isDownloaded ? 0xFF42A5F5 : 0xFFBDBDBD) : 0xFFEEEEEE);
+      downloadButton.setImageResource(
+          isDownloaded ? R.drawable.ic_download_done : R.drawable.ic_download);
     }
   }
 

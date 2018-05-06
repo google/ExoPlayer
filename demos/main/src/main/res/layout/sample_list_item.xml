@@ -33,7 +33,6 @@
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
       android:contentDescription="@string/exo_download_description"
-      android:background="@android:color/transparent"
-      android:src="@drawable/ic_offline_pin_white_36dp"/>
+      android:background="@android:color/transparent"/>
 
 </LinearLayout>

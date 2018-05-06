@@ -21,7 +21,6 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Parcelable;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.Pair;
@@ -83,7 +82,6 @@ import com.google.android.exoplayer2.upstream.DefaultBandwidthMeter;
 import com.google.android.exoplayer2.upstream.HttpDataSource;
 import com.google.android.exoplayer2.util.ErrorMessageProvider;
 import com.google.android.exoplayer2.util.EventLogger;
-import com.google.android.exoplayer2.util.ParcelableArray;
 import com.google.android.exoplayer2.util.Util;
 import java.lang.reflect.Constructor;
 import java.net.CookieHandler;
@@ -104,13 +102,11 @@ public class PlayerActivity extends Activity
 
   public static final String ACTION_VIEW = "com.google.android.exoplayer.demo.action.VIEW";
   public static final String EXTENSION_EXTRA = "extension";
-  public static final String MANIFEST_FILTER_EXTRA = "manifest_filter";
 
   public static final String ACTION_VIEW_LIST =
       "com.google.android.exoplayer.demo.action.VIEW_LIST";
   public static final String URI_LIST_EXTRA = "uri_list";
   public static final String EXTENSION_LIST_EXTRA = "extension_list";
-  public static final String MANIFEST_FILTER_LIST_EXTRA = "manifest_filter_list";
 
   public static final String AD_TAG_URI_EXTRA = "ad_tag_uri";
 
@@ -313,11 +309,9 @@ public class PlayerActivity extends Activity
       String action = intent.getAction();
       Uri[] uris;
       String[] extensions;
-      Parcelable[] manifestFilters;
       if (ACTION_VIEW.equals(action)) {
         uris = new Uri[] {intent.getData()};
         extensions = new String[] {intent.getStringExtra(EXTENSION_EXTRA)};
-        manifestFilters = new Parcelable[] {intent.getParcelableExtra(MANIFEST_FILTER_EXTRA)};
       } else if (ACTION_VIEW_LIST.equals(action)) {
         String[] uriStrings = intent.getStringArrayExtra(URI_LIST_EXTRA);
         uris = new Uri[uriStrings.length];
@@ -327,10 +321,6 @@ public class PlayerActivity extends Activity
         extensions = intent.getStringArrayExtra(EXTENSION_LIST_EXTRA);
         if (extensions == null) {
           extensions = new String[uriStrings.length];
-        }
-        manifestFilters = intent.getParcelableArrayExtra(MANIFEST_FILTER_LIST_EXTRA);
-        if (manifestFilters == null) {
-          manifestFilters = new Parcelable[uriStrings.length];
         }
       } else {
         showToast(getString(R.string.unexpected_intent_action, action));
@@ -413,9 +403,7 @@ public class PlayerActivity extends Activity
 
       MediaSource[] mediaSources = new MediaSource[uris.length];
       for (int i = 0; i < uris.length; i++) {
-        ParcelableArray<?> manifestFilter = (ParcelableArray<?>) manifestFilters[i];
-        List<?> filter = manifestFilter != null ? manifestFilter.asList() : null;
-        mediaSources[i] = buildMediaSource(uris[i], extensions[i], filter);
+        mediaSources[i] = buildMediaSource(uris[i], extensions[i]);
       }
       mediaSource =
           mediaSources.length == 1 ? mediaSources[0] : new ConcatenatingMediaSource(mediaSources);
@@ -445,12 +433,11 @@ public class PlayerActivity extends Activity
   }
 
   private MediaSource buildMediaSource(Uri uri) {
-    return buildMediaSource(uri, null, null);
+    return buildMediaSource(uri, null);
   }
 
   @SuppressWarnings("unchecked")
-  private MediaSource buildMediaSource(
-      Uri uri, @Nullable String overrideExtension, @Nullable List<?> manifestFilter) {
+  private MediaSource buildMediaSource(Uri uri, @Nullable String overrideExtension) {
     @ContentType int type = Util.inferContentType(uri, overrideExtension);
     switch (type) {
       case C.TYPE_DASH:
@@ -459,7 +446,7 @@ public class PlayerActivity extends Activity
                 buildDataSourceFactory(false))
             .setManifestParser(
                 new FilteringManifestParser<>(
-                    new DashManifestParser(), (List<RepresentationKey>) manifestFilter))
+                    new DashManifestParser(), (List<RepresentationKey>) getOfflineStreamKeys(uri)))
             .createMediaSource(uri);
       case C.TYPE_SS:
         return new SsMediaSource.Factory(
@@ -467,13 +454,13 @@ public class PlayerActivity extends Activity
                 buildDataSourceFactory(false))
             .setManifestParser(
                 new FilteringManifestParser<>(
-                    new SsManifestParser(), (List<StreamKey>) manifestFilter))
+                    new SsManifestParser(), (List<StreamKey>) getOfflineStreamKeys(uri)))
             .createMediaSource(uri);
       case C.TYPE_HLS:
         return new HlsMediaSource.Factory(mediaDataSourceFactory)
             .setPlaylistParser(
                 new FilteringManifestParser<>(
-                    new HlsPlaylistParser(), (List<RenditionKey>) manifestFilter))
+                    new HlsPlaylistParser(), (List<RenditionKey>) getOfflineStreamKeys(uri)))
             .createMediaSource(uri);
       case C.TYPE_OTHER:
         return new ExtractorMediaSource.Factory(mediaDataSourceFactory).createMediaSource(uri);
@@ -481,6 +468,10 @@ public class PlayerActivity extends Activity
         throw new IllegalStateException("Unsupported type: " + type);
       }
     }
+  }
+
+  private List<?> getOfflineStreamKeys(Uri uri) {
+    return ((DemoApplication) getApplication()).getDownloadTracker().getOfflineStreamKeys(uri);
   }
 
   private DefaultDrmSessionManager<FrameworkMediaCrypto> buildDrmSessionManagerV18(

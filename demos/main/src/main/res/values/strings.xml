@@ -47,8 +47,14 @@
 
   <string name="ima_not_loaded">Playing sample without ads, as the IMA extension was not loaded</string>
 
-  <string name="download_manifest_load_error">Failed to download manifest</string>
+  <string name="download_start_error">Failed to start download</string>
 
-  <string name="download_remove_all">Remove all</string>
+  <string name="download_playlist_unsupported">This demo app does not support downloading playlists</string>
+
+  <string name="download_drm_unsupported">This demo app does not support downloading protected content</string>
+
+  <string name="download_scheme_unsupported">This demo app only supports downloading http streams</string>
+
+  <string name="download_ads_unsupported">IMA does not support offline ads</string>
 
 </resources>

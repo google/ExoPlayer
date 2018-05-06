@@ -15,13 +15,11 @@
  */
 package com.google.android.exoplayer2.source.smoothstreaming.manifest;
 
-import android.os.Parcel;
-import android.os.Parcelable;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
 /** Uniquely identifies a track in a {@link SsManifest}. */
-public final class StreamKey implements Parcelable, Comparable<StreamKey> {
+public final class StreamKey implements Comparable<StreamKey> {
 
   public final int streamElementIndex;
   public final int trackIndex;
@@ -66,30 +64,4 @@ public final class StreamKey implements Parcelable, Comparable<StreamKey> {
     }
     return result;
   }
-
-  // Parcelable implementation.
-
-  @Override
-  public int describeContents() {
-    return 0;
-  }
-
-  @Override
-  public void writeToParcel(Parcel dest, int flags) {
-    dest.writeInt(streamElementIndex);
-    dest.writeInt(trackIndex);
-  }
-
-  public static final Creator<StreamKey> CREATOR =
-      new Creator<StreamKey>() {
-        @Override
-        public StreamKey createFromParcel(Parcel in) {
-          return new StreamKey(in.readInt(), in.readInt());
-        }
-
-        @Override
-        public StreamKey[] newArray(int size) {
-          return new StreamKey[size];
-        }
-      };
 }

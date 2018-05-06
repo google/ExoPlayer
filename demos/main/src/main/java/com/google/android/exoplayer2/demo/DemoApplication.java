@@ -43,6 +43,7 @@ import java.io.File;
 public class DemoApplication extends Application {
 
   private static final String DOWNLOAD_ACTION_FILE = "actions";
+  private static final String DOWNLOAD_TRACKER_ACTION_FILE = "tracked_actions";
   private static final String DOWNLOAD_CONTENT_DIRECTORY = "downloads";
   private static final int MAX_SIMULTANEOUS_DOWNLOADS = 2;
   private static final Deserializer[] DOWNLOAD_DESERIALIZERS =
@@ -58,6 +59,7 @@ public class DemoApplication extends Application {
   private File downloadDirectory;
   private Cache downloadCache;
   private DownloadManager downloadManager;
+  private DownloadTracker downloadTracker;
 
   @Override
   public void onCreate() {
@@ -83,20 +85,36 @@ public class DemoApplication extends Application {
     return "withExtensions".equals(BuildConfig.FLAVOR);
   }
 
-  /** Returns the download manager used by the application. */
-  public synchronized DownloadManager getDownloadManager() {
+  public DownloadManager getDownloadManager() {
+    initDownloadManager();
+    return downloadManager;
+  }
+
+  public DownloadTracker getDownloadTracker() {
+    initDownloadManager();
+    return downloadTracker;
+  }
+
+  private synchronized void initDownloadManager() {
     if (downloadManager == null) {
-      DownloaderConstructorHelper constructorHelper =
-          new DownloaderConstructorHelper(getDownloadCache(), buildHttpDataSourceFactory(null));
+      DownloaderConstructorHelper downloaderConstructorHelper =
+          new DownloaderConstructorHelper(
+              getDownloadCache(), buildHttpDataSourceFactory(/* listener= */ null));
       downloadManager =
           new DownloadManager(
-              constructorHelper,
+              downloaderConstructorHelper,
               MAX_SIMULTANEOUS_DOWNLOADS,
               DownloadManager.DEFAULT_MIN_RETRY_COUNT,
               new File(getDownloadDirectory(), DOWNLOAD_ACTION_FILE),
               DOWNLOAD_DESERIALIZERS);
+      downloadTracker =
+          new DownloadTracker(
+              /* context= */ this,
+              buildDataSourceFactory(/* listener= */ null),
+              new File(getDownloadDirectory(), DOWNLOAD_TRACKER_ACTION_FILE),
+              DOWNLOAD_DESERIALIZERS);
+      downloadManager.addListener(downloadTracker);
     }
-    return downloadManager;
   }
 
   private synchronized Cache getDownloadCache() {
