@@ -1,9 +1,5 @@
 # Release notes #
 
-### dev-v2 (not yet released) ###
-
-* Coming soon...
-
 ### 2.8.0 ###
 
 * Downloading:
