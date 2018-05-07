@@ -6,8 +6,15 @@
 
 ### 2.8.0 ###
 
-* Downloading: Add `DownloadService`, `DownloadManager` and
-  related classes ([#2643](https://github.com/google/ExoPlayer/issues/2643)).
+* Downloading:
+  * Add `DownloadService`, `DownloadManager` and related classes
+    ([#2643](https://github.com/google/ExoPlayer/issues/2643)). Information on
+    using these components to download progressive formats can be found
+    [here](https://medium.com/google-exoplayer/downloading-streams-6d259eec7f95).
+    To see how to download DASH, HLS and SmoothStreaming media, take a look at
+    the app.
+  * Updated main demo app to support downloading DASH, HLS, SmoothStreaming and
+    progressive media.
 * MediaSources:
   * Allow reusing media sources after they have been released and
     also in parallel to allow adding them multiple times to a concatenation.
@@ -31,6 +38,13 @@
     ([#3736](https://github.com/google/ExoPlayer/issues/3736)).
   * Add `PlayerNotificationManager` for displaying notifications reflecting the
     player state.
+  * Add `TrackSelectionView` for selecting tracks with `DefaultTrackSelector`.
+  * Add `TrackNameProvider` for converting track `Format`s to textual
+    descriptions, and `DefaultTrackNameProvider` as a default implementation.
+* Track selection:
+  * Reworked `MappingTrackSelector` and `DefaultTrackSelector`.
+  * `DefaultTrackSelector.Parameters` now implements `Parcelable`.
+  * Added UI components for track selection (see above).
 * Audio:
   * Support extracting data from AMR container formats, including both narrow
     and wide band ([#2527](https://github.com/google/ExoPlayer/issues/2527)).
