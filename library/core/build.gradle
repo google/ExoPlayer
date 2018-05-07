@@ -42,6 +42,10 @@ android {
         //    testCoverageEnabled = true
         // }
     }
+
+    lintOptions {
+        lintConfig file("../../checker-framework-lint.xml")
+    }
 }
 
 dependencies {
