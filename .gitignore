@@ -1,0 +1,24 @@
+# Android generated
+bin
+gen
+libs
+obj
+lint.xml
+
+# IntelliJ IDEA
+.idea
+*.iml
+*.ipr
+*.iws
+classes
+gen-external-apklibs
+
+# Gradle
+.gradle
+build
+buildout
+out
+
+# Other
+.DS_Store
+local.properties
