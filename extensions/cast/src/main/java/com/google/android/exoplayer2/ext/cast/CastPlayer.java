@@ -18,7 +18,6 @@ package com.google.android.exoplayer2.ext.cast;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.Log;
-
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.PlaybackParameters;
 import com.google.android.exoplayer2.Player;
@@ -49,13 +48,17 @@ import java.util.List;
 import java.util.concurrent.CopyOnWriteArraySet;
 
 /**
- * {@link Player} implementation that communicates with a Cast receiver app. <p> <p>The behavior of
- * this class depends on the underlying Cast session, which is obtained from the Cast context passed
- * to {@link #CastPlayer}. To keep track of the session, {@link #isCastSessionAvailable()} can be
- * queried and {@link SessionAvailabilityListener} can be implemented and attached to the
- * player.</p> <p> <p> If no session is available, the player state will remain unchanged and calls
- * to methods that alter it will be ignored. Querying the player state is possible even when no
- * session is available, in which case, the last observed receiver app state is reported.</p> <p>
+ * {@link Player} implementation that communicates with a Cast receiver app.
+ *
+ * <p>The behavior of this class depends on the underlying Cast session, which is obtained from the
+ * Cast context passed to {@link #CastPlayer}. To keep track of the session,
+ * {@link #isCastSessionAvailable()} can be queried and {@link SessionAvailabilityListener} can be
+ * implemented and attached to the player.</p>
+ *
+ * <p> If no session is available, the player state will remain unchanged and calls to methods that
+ * alter it will be ignored. Querying the player state is possible even when no session is
+ * available, in which case, the last observed receiver app state is reported.</p>
+ *
  * <p>Methods should be called on the application's main thread.</p>
  */
 public final class CastPlayer implements Player {
@@ -161,8 +164,8 @@ public final class CastPlayer implements Player {
    *
    * @param item The item to load.
    * @param positionMs The position at which the playback should start in milliseconds relative to
-   * the start of the item at {@code startIndex}. If {@link C#TIME_UNSET} is passed, playback starts
-   * at position 0.
+   *     the start of the item at {@code startIndex}. If {@link C#TIME_UNSET} is passed, playback
+   *     starts at position 0.
    * @return The Cast {@code PendingResult}, or null if no session is available.
    */
   public PendingResult<MediaChannelResult> loadItem(MediaQueueItem item, long positionMs) {
@@ -177,8 +180,8 @@ public final class CastPlayer implements Player {
    * @param items The items to load.
    * @param startIndex The index of the item at which playback should start.
    * @param positionMs The position at which the playback should start in milliseconds relative to
-   * the start of the item at {@code startIndex}. If {@link C#TIME_UNSET} is passed, playback starts
-   * at position 0.
+   *     the start of the item at {@code startIndex}. If {@link C#TIME_UNSET} is passed, playback
+   *     starts at position 0.
    * @param repeatMode The repeat mode for the created media queue.
    * @return The Cast {@code PendingResult}, or null if no session is available.
    */
@@ -211,10 +214,10 @@ public final class CastPlayer implements Player {
    * periodId} exist, does nothing.
    *
    * @param periodId The id of the period ({@link #getCurrentTimeline}) that corresponds to the item
-   * that will follow immediately after the inserted items.
+   *     that will follow immediately after the inserted items.
    * @param items The items to insert.
    * @return The Cast {@code PendingResult}, or null if no media queue or no period with id {@code
-   * periodId} exist.
+   *     periodId} exist.
    */
   public PendingResult<MediaChannelResult> addItems(int periodId, MediaQueueItem... items) {
     if (getMediaStatus() != null && (periodId == MediaQueueItem.INVALID_ITEM_ID
@@ -436,8 +439,7 @@ public final class CastPlayer implements Player {
   }
 
   @Override
-  @RepeatMode
-  public int getRepeatMode() {
+  @RepeatMode public int getRepeatMode() {
     return repeatMode;
   }
 
@@ -468,8 +470,7 @@ public final class CastPlayer implements Player {
   }
 
   @Override
-  @Nullable
-  public Object getCurrentManifest() {
+  @Nullable public Object getCurrentManifest() {
     return null;
   }
 
@@ -701,8 +702,7 @@ public final class CastPlayer implements Player {
     }
   }
 
-  private @Nullable
-  MediaStatus getMediaStatus() {
+  private @Nullable MediaStatus getMediaStatus() {
     return remoteMediaClient != null ? remoteMediaClient.getMediaStatus() : null;
   }
 
@@ -726,8 +726,8 @@ public final class CastPlayer implements Player {
   }
 
   /**
-   * Retrieves the repeat mode from {@code remoteMediaClient} and maps it into a {@link
-   * Player.RepeatMode}.
+   * Retrieves the repeat mode from {@code remoteMediaClient} and maps it into a
+   * {@link Player.RepeatMode}.
    */
   @RepeatMode
   private static int fetchRepeatMode(RemoteMediaClient remoteMediaClient) {
@@ -808,7 +808,8 @@ public final class CastPlayer implements Player {
     }
 
     @Override
-    public void onMetadataUpdated() {}
+    public void onMetadataUpdated() {
+    }
 
     @Override
     public void onQueueStatusUpdated() {
@@ -816,13 +817,16 @@ public final class CastPlayer implements Player {
     }
 
     @Override
-    public void onPreloadStatusUpdated() {}
+    public void onPreloadStatusUpdated() {
+    }
 
     @Override
-    public void onSendingRemoteMediaRequest() {}
+    public void onSendingRemoteMediaRequest() {
+    }
 
     @Override
-    public void onAdBreakStatusUpdated() {}
+    public void onAdBreakStatusUpdated() {
+    }
 
     // SessionManagerListener implementation.
 
