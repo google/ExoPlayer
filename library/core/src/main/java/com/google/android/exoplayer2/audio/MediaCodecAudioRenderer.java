@@ -327,10 +327,13 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
   @Override
   protected @KeepCodecResult int canKeepCodec(
       MediaCodec codec, MediaCodecInfo codecInfo, Format oldFormat, Format newFormat) {
-    return getCodecMaxInputSize(codecInfo, newFormat) <= codecMaxInputSize
-            && areAdaptationCompatible(oldFormat, newFormat)
-        ? KEEP_CODEC_RESULT_YES_WITHOUT_RECONFIGURATION
-        : KEEP_CODEC_RESULT_NO;
+    return KEEP_CODEC_RESULT_NO;
+    // TODO: Determine when codecs can be safely kept. When doing so, also uncomment the commented
+    // out code in getCodecMaxInputSize.
+    // return getCodecMaxInputSize(codecInfo, newFormat) <= codecMaxInputSize
+    //         && areAdaptationCompatible(oldFormat, newFormat)
+    //     ? KEEP_CODEC_RESULT_YES_WITHOUT_RECONFIGURATION
+    //     : KEEP_CODEC_RESULT_NO;
   }
 
   @Override
@@ -571,16 +574,16 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
   protected int getCodecMaxInputSize(
       MediaCodecInfo codecInfo, Format format, Format[] streamFormats) {
     int maxInputSize = getCodecMaxInputSize(codecInfo, format);
-    if (streamFormats.length == 1) {
-      // The single entry in streamFormats must correspond to the format for which the codec is
-      // being configured.
-      return maxInputSize;
-    }
-    for (Format streamFormat : streamFormats) {
-      if (areAdaptationCompatible(format, streamFormat)) {
-        maxInputSize = Math.max(maxInputSize, getCodecMaxInputSize(codecInfo, streamFormat));
-      }
-    }
+    // if (streamFormats.length == 1) {
+    //   // The single entry in streamFormats must correspond to the format for which the codec is
+    //   // being configured.
+    //   return maxInputSize;
+    // }
+    // for (Format streamFormat : streamFormats) {
+    //   if (areAdaptationCompatible(format, streamFormat)) {
+    //     maxInputSize = Math.max(maxInputSize, getCodecMaxInputSize(codecInfo, streamFormat));
+    //   }
+    // }
     return maxInputSize;
   }
 
