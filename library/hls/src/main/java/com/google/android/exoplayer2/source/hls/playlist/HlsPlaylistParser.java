@@ -433,6 +433,8 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
                       schemeData);
             }
           }
+        } else {
+          drmInitData = null;
         }
       } else if (line.startsWith(TAG_BYTERANGE)) {
         String byteRange = parseStringAttr(line, REGEX_BYTERANGE);
