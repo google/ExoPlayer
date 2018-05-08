@@ -15,13 +15,17 @@
  */
 package com.google.android.exoplayer.videodemo;
 
+import static com.google.android.exoplayer.videodemo.Samples.AD_TAG_URI;
 import static com.google.android.exoplayer.videodemo.Samples.MP4_URI;
 
 import android.app.Activity;
 import android.os.Bundle;
 import com.google.android.exoplayer2.ExoPlayerFactory;
 import com.google.android.exoplayer2.SimpleExoPlayer;
+import com.google.android.exoplayer2.ext.ima.ImaAdsLoader;
 import com.google.android.exoplayer2.source.ExtractorMediaSource;
+import com.google.android.exoplayer2.source.MediaSource;
+import com.google.android.exoplayer2.source.ads.AdsMediaSource;
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
 import com.google.android.exoplayer2.ui.PlayerView;
 import com.google.android.exoplayer2.upstream.DataSource;
@@ -32,6 +36,7 @@ public class MainActivity extends Activity {
 
   private PlayerView playerView;
   private SimpleExoPlayer player;
+  private ImaAdsLoader adsLoader;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -39,6 +44,7 @@ public class MainActivity extends Activity {
     setContentView(R.layout.main_activity);
 
     playerView = findViewById(R.id.player_view);
+    adsLoader = new ImaAdsLoader(this, AD_TAG_URI);
   }
 
   @Override
@@ -53,7 +59,9 @@ public class MainActivity extends Activity {
         Util.getUserAgent(this, getString(R.string.application_name)));
     ExtractorMediaSource mediaSource = new ExtractorMediaSource.Factory(dataSourceFactory)
         .createMediaSource(MP4_URI);
-    player.prepare(mediaSource);
+    MediaSource adsMediaSource = new AdsMediaSource(
+        mediaSource, dataSourceFactory, adsLoader, playerView.getOverlayFrameLayout());
+    player.prepare(adsMediaSource);
 
     player.setPlayWhenReady(true);
   }
@@ -65,6 +73,13 @@ public class MainActivity extends Activity {
     player = null;
 
     super.onStop();
+  }
+
+  @Override
+  protected void onDestroy() {
+    adsLoader.release();
+
+    super.onDestroy();
   }
 
 }

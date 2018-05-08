@@ -34,4 +34,5 @@ android {
 dependencies {
     implementation 'com.google.android.exoplayer:exoplayer-core:2.8.0'
     implementation 'com.google.android.exoplayer:exoplayer-ui:2.8.0'
+    implementation 'com.google.android.exoplayer:extension-ima:2.8.0'
 }
