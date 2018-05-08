@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer.audiodemo;
 
+import static com.google.android.exoplayer.audiodemo.C.MEDIA_SESSION_TAG;
 import static com.google.android.exoplayer.audiodemo.C.PLAYBACK_CHANNEL_ID;
 import static com.google.android.exoplayer.audiodemo.C.PLAYBACK_NOTIFICATION_ID;
 import static com.google.android.exoplayer.audiodemo.Samples.SAMPLES;
@@ -27,9 +28,13 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
+import android.support.v4.media.MediaDescriptionCompat;
+import android.support.v4.media.session.MediaSessionCompat;
 import com.google.android.exoplayer2.ExoPlayerFactory;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.SimpleExoPlayer;
+import com.google.android.exoplayer2.ext.mediasession.MediaSessionConnector;
+import com.google.android.exoplayer2.ext.mediasession.TimelineQueueNavigator;
 import com.google.android.exoplayer2.source.ConcatenatingMediaSource;
 import com.google.android.exoplayer2.source.ExtractorMediaSource;
 import com.google.android.exoplayer2.source.MediaSource;
@@ -45,6 +50,8 @@ public class AudioPlayerService extends Service {
 
   private SimpleExoPlayer player;
   private PlayerNotificationManager playerNotificationManager;
+  private MediaSessionCompat mediaSession;
+  private MediaSessionConnector mediaSessionConnector;
 
   @Override
   public void onCreate() {
@@ -106,10 +113,25 @@ public class AudioPlayerService extends Service {
       }
     });
     playerNotificationManager.setPlayer(player);
+
+    mediaSession = new MediaSessionCompat(context, MEDIA_SESSION_TAG);
+    mediaSession.setActive(true);
+    playerNotificationManager.setMediaSessionToken(mediaSession.getSessionToken());
+
+    mediaSessionConnector = new MediaSessionConnector(mediaSession);
+    mediaSessionConnector.setQueueNavigator(new TimelineQueueNavigator(mediaSession) {
+      @Override
+      public MediaDescriptionCompat getMediaDescription(Player player, int windowIndex) {
+        return Samples.getMediaDescription(context, SAMPLES[windowIndex]);
+      }
+    });
+    mediaSessionConnector.setPlayer(player, null);
   }
 
   @Override
   public void onDestroy() {
+    mediaSession.release();
+    mediaSessionConnector.setPlayer(null, null);
     playerNotificationManager.setPlayer(null);
     player.release();
     player = null;
