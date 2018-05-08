@@ -44,6 +44,8 @@ import com.google.android.exoplayer2.ui.PlayerNotificationManager.BitmapCallback
 import com.google.android.exoplayer2.ui.PlayerNotificationManager.MediaDescriptionAdapter;
 import com.google.android.exoplayer2.ui.PlayerNotificationManager.NotificationListener;
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
+import com.google.android.exoplayer2.upstream.cache.CacheDataSource;
+import com.google.android.exoplayer2.upstream.cache.CacheDataSourceFactory;
 import com.google.android.exoplayer2.util.Util;
 
 public class AudioPlayerService extends Service {
@@ -61,9 +63,13 @@ public class AudioPlayerService extends Service {
     player = ExoPlayerFactory.newSimpleInstance(context, new DefaultTrackSelector());
     DefaultDataSourceFactory dataSourceFactory = new DefaultDataSourceFactory(
         context, Util.getUserAgent(context, getString(R.string.application_name)));
+    CacheDataSourceFactory cacheDataSourceFactory = new CacheDataSourceFactory(
+        DownloadUtil.getCache(context),
+        dataSourceFactory,
+        CacheDataSource.FLAG_IGNORE_CACHE_ON_ERROR);
     ConcatenatingMediaSource concatenatingMediaSource = new ConcatenatingMediaSource();
     for (Samples.Sample sample : SAMPLES) {
-      MediaSource mediaSource = new ExtractorMediaSource.Factory(dataSourceFactory)
+      MediaSource mediaSource = new ExtractorMediaSource.Factory(cacheDataSourceFactory)
           .createMediaSource(sample.uri);
       concatenatingMediaSource.addMediaSource(mediaSource);
     }

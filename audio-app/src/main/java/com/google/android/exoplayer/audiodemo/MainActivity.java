@@ -15,7 +15,7 @@
  */
 package com.google.android.exoplayer.audiodemo;
 
-import static java.util.Collections.emptyList;
+import static com.google.android.exoplayer.audiodemo.Samples.SAMPLES;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -25,6 +25,7 @@ import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import com.google.android.exoplayer2.offline.ProgressiveDownloadAction;
 import com.google.android.exoplayer2.util.Util;
 
 public class MainActivity extends Activity {
@@ -39,10 +40,17 @@ public class MainActivity extends Activity {
 
     ListView listView = findViewById(R.id.list_view);
     listView.setAdapter(
-        new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, emptyList()));
+        new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, SAMPLES));
     listView.setOnItemClickListener(new OnItemClickListener() {
       @Override
       public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+        ProgressiveDownloadAction action = new ProgressiveDownloadAction(
+            SAMPLES[position].uri, false, null, null);
+        AudioDownloadService.startWithAction(
+            MainActivity.this,
+            AudioDownloadService.class,
+            action,
+            false);
       }
     });
   }
