@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.extractor.mp4;
 
+import android.support.annotation.Nullable;
 import android.util.Log;
 import com.google.android.exoplayer2.util.ParsableByteArray;
 import java.nio.ByteBuffer;
@@ -36,7 +37,7 @@ public final class PsshAtomUtil {
    * @param data The scheme specific data.
    * @return The PSSH atom.
    */
-  public static byte[] buildPsshAtom(UUID systemId, byte[] data) {
+  public static byte[] buildPsshAtom(UUID systemId, @Nullable byte[] data) {
     return buildPsshAtom(systemId, null, data);
   }
 
@@ -48,7 +49,8 @@ public final class PsshAtomUtil {
    * @param data The scheme specific data.
    * @return The PSSH atom.
    */
-  public static byte[] buildPsshAtom(UUID systemId, UUID[] keyIds, byte[] data) {
+  public static byte[] buildPsshAtom(
+      UUID systemId, @Nullable UUID[] keyIds, @Nullable byte[] data) {
     boolean buildV1Atom = keyIds != null;
     int dataLength = data != null ? data.length : 0;
     int psshBoxLength = Atom.FULL_HEADER_SIZE + 16 /* SystemId */ + 4 /* DataSize */ + dataLength;
@@ -77,14 +79,14 @@ public final class PsshAtomUtil {
 
   /**
    * Parses the UUID from a PSSH atom. Version 0 and 1 PSSH atoms are supported.
-   * <p>
-   * The UUID is only parsed if the data is a valid PSSH atom.
+   *
+   * <p>The UUID is only parsed if the data is a valid PSSH atom.
    *
    * @param atom The atom to parse.
-   * @return The parsed UUID. Null if the input is not a valid PSSH atom, or if the PSSH atom has
-   *     an unsupported version.
+   * @return The parsed UUID. Null if the input is not a valid PSSH atom, or if the PSSH atom has an
+   *     unsupported version.
    */
-  public static UUID parseUuid(byte[] atom) {
+  public static @Nullable UUID parseUuid(byte[] atom) {
     PsshAtom parsedAtom = parsePsshAtom(atom);
     if (parsedAtom == null) {
       return null;
@@ -111,8 +113,8 @@ public final class PsshAtomUtil {
 
   /**
    * Parses the scheme specific data from a PSSH atom. Version 0 and 1 PSSH atoms are supported.
-   * <p>
-   * The scheme specific data is only parsed if the data is a valid PSSH atom matching the given
+   *
+   * <p>The scheme specific data is only parsed if the data is a valid PSSH atom matching the given
    * UUID, or if the data is a valid PSSH atom of any type in the case that the passed UUID is null.
    *
    * @param atom The atom to parse.
@@ -120,7 +122,7 @@ public final class PsshAtomUtil {
    * @return The parsed scheme specific data. Null if the input is not a valid PSSH atom, or if the
    *     PSSH atom has an unsupported version, or if the PSSH atom does not match the passed UUID.
    */
-  public static byte[] parseSchemeSpecificData(byte[] atom, UUID uuid) {
+  public static @Nullable byte[] parseSchemeSpecificData(byte[] atom, UUID uuid) {
     PsshAtom parsedAtom = parsePsshAtom(atom);
     if (parsedAtom == null) {
       return null;
@@ -140,7 +142,7 @@ public final class PsshAtomUtil {
    *     has an unsupported version.
    */
   // TODO: Support parsing of the key ids for version 1 PSSH atoms.
-  private static PsshAtom parsePsshAtom(byte[] atom) {
+  private static @Nullable PsshAtom parsePsshAtom(byte[] atom) {
     ParsableByteArray atomData = new ParsableByteArray(atom);
     if (atomData.limit() < Atom.FULL_HEADER_SIZE + 16 /* UUID */ + 4 /* DataSize */) {
       // Data too short.

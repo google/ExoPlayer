@@ -17,26 +17,38 @@ package com.google.android.exoplayer2.testutil;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import android.net.Uri;
 import android.os.Handler;
+import android.os.SystemClock;
 import android.support.annotation.Nullable;
+import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.Timeline;
+import com.google.android.exoplayer2.Timeline.Period;
+import com.google.android.exoplayer2.source.BaseMediaSource;
 import com.google.android.exoplayer2.source.MediaPeriod;
 import com.google.android.exoplayer2.source.MediaSource;
+import com.google.android.exoplayer2.source.MediaSourceEventListener.EventDispatcher;
+import com.google.android.exoplayer2.source.MediaSourceEventListener.LoadEventInfo;
+import com.google.android.exoplayer2.source.MediaSourceEventListener.MediaLoadData;
 import com.google.android.exoplayer2.source.TrackGroup;
 import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.upstream.Allocator;
+import com.google.android.exoplayer2.upstream.DataSpec;
 import com.google.android.exoplayer2.util.Assertions;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Fake {@link MediaSource} that provides a given timeline. Creating the period will return a
- * {@link FakeMediaPeriod} with a {@link TrackGroupArray} using the given {@link Format}s.
+ * Fake {@link MediaSource} that provides a given timeline. Creating the period will return a {@link
+ * FakeMediaPeriod} with a {@link TrackGroupArray} using the given {@link Format}s.
  */
-public class FakeMediaSource implements MediaSource {
+public class FakeMediaSource extends BaseMediaSource {
+
+  private static final DataSpec FAKE_DATA_SPEC = new DataSpec(Uri.parse("http://manifest.uri"));
+  private static final int MANIFEST_LOAD_BYTES = 100;
 
   private final TrackGroupArray trackGroupArray;
   private final ArrayList<FakeMediaPeriod> activeMediaPeriods;
@@ -46,7 +58,6 @@ public class FakeMediaSource implements MediaSource {
   private Object manifest;
   private boolean preparedSource;
   private boolean releasedSource;
-  private Listener listener;
   private Handler sourceInfoRefreshHandler;
 
   /**
@@ -75,15 +86,13 @@ public class FakeMediaSource implements MediaSource {
   }
 
   @Override
-  public synchronized void prepareSource(
-      ExoPlayer player, boolean isTopLevelSource, Listener listener) {
+  public synchronized void prepareSourceInternal(ExoPlayer player, boolean isTopLevelSource) {
     assertThat(preparedSource).isFalse();
     preparedSource = true;
     releasedSource = false;
-    this.listener = listener;
     sourceInfoRefreshHandler = new Handler();
     if (timeline != null) {
-      listener.onSourceInfoRefreshed(this, timeline, manifest);
+      finishSourcePreparation();
     }
   }
 
@@ -97,7 +106,11 @@ public class FakeMediaSource implements MediaSource {
     assertThat(preparedSource).isTrue();
     assertThat(releasedSource).isFalse();
     Assertions.checkIndex(id.periodIndex, 0, timeline.getPeriodCount());
-    FakeMediaPeriod mediaPeriod = createFakeMediaPeriod(id, trackGroupArray, allocator);
+    Period period = timeline.getPeriod(id.periodIndex, new Period());
+    EventDispatcher eventDispatcher =
+        createEventDispatcher(period.windowIndex, id, period.getPositionInWindowMs());
+    FakeMediaPeriod mediaPeriod =
+        createFakeMediaPeriod(id, trackGroupArray, allocator, eventDispatcher);
     activeMediaPeriods.add(mediaPeriod);
     createdMediaPeriods.add(id);
     return mediaPeriod;
@@ -113,7 +126,7 @@ public class FakeMediaSource implements MediaSource {
   }
 
   @Override
-  public void releaseSource() {
+  public void releaseSourceInternal() {
     assertThat(preparedSource).isTrue();
     assertThat(releasedSource).isFalse();
     assertThat(activeMediaPeriods.isEmpty()).isTrue();
@@ -121,7 +134,6 @@ public class FakeMediaSource implements MediaSource {
     preparedSource = false;
     sourceInfoRefreshHandler.removeCallbacksAndMessages(null);
     sourceInfoRefreshHandler = null;
-    listener = null;
   }
 
   /**
@@ -138,7 +150,7 @@ public class FakeMediaSource implements MediaSource {
               assertThat(preparedSource).isTrue();
               timeline = newTimeline;
               manifest = newManifest;
-              listener.onSourceInfoRefreshed(FakeMediaSource.this, timeline, manifest);
+              finishSourcePreparation();
             }
           });
     } else {
@@ -166,9 +178,49 @@ public class FakeMediaSource implements MediaSource {
     return createdMediaPeriods;
   }
 
-  protected FakeMediaPeriod createFakeMediaPeriod(MediaPeriodId id, TrackGroupArray trackGroupArray,
-      Allocator allocator) {
-    return new FakeMediaPeriod(trackGroupArray);
+  /**
+   * Creates a {@link FakeMediaPeriod} for this media source.
+   *
+   * @param id The identifier of the period.
+   * @param trackGroupArray The {@link TrackGroupArray} supported by the media period.
+   * @param allocator An {@link Allocator} from which to obtain media buffer allocations.
+   * @param eventDispatcher An {@link EventDispatcher} to dispatch media source events.
+   * @return A new {@link FakeMediaPeriod}.
+   */
+  protected FakeMediaPeriod createFakeMediaPeriod(
+      MediaPeriodId id,
+      TrackGroupArray trackGroupArray,
+      Allocator allocator,
+      EventDispatcher eventDispatcher) {
+    return new FakeMediaPeriod(trackGroupArray, eventDispatcher);
+  }
+
+  private void finishSourcePreparation() {
+    refreshSourceInfo(timeline, manifest);
+    if (!timeline.isEmpty()) {
+      MediaLoadData mediaLoadData =
+          new MediaLoadData(
+              C.DATA_TYPE_MANIFEST,
+              C.TRACK_TYPE_UNKNOWN,
+              /* trackFormat= */ null,
+              C.SELECTION_REASON_UNKNOWN,
+              /* trackSelectionData= */ null,
+              /* mediaStartTimeMs= */ C.TIME_UNSET,
+              /* mediaEndTimeMs = */ C.TIME_UNSET);
+      long elapsedRealTimeMs = SystemClock.elapsedRealtime();
+      EventDispatcher eventDispatcher = createEventDispatcher(/* mediaPeriodId= */ null);
+      eventDispatcher.loadStarted(
+          new LoadEventInfo(
+              FAKE_DATA_SPEC, elapsedRealTimeMs, /* loadDurationMs= */ 0, /* bytesLoaded= */ 0),
+          mediaLoadData);
+      eventDispatcher.loadCompleted(
+          new LoadEventInfo(
+              FAKE_DATA_SPEC,
+              elapsedRealTimeMs,
+              /* loadDurationMs= */ 0,
+              /* bytesLoaded= */ MANIFEST_LOAD_BYTES),
+          mediaLoadData);
+    }
   }
 
   private static TrackGroupArray buildTrackGroupArray(Format... formats) {

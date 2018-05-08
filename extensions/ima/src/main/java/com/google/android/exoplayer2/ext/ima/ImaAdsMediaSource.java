@@ -20,6 +20,7 @@ import android.support.annotation.Nullable;
 import android.view.ViewGroup;
 import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.Timeline;
+import com.google.android.exoplayer2.source.BaseMediaSource;
 import com.google.android.exoplayer2.source.MediaPeriod;
 import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.source.ads.AdsMediaSource;
@@ -33,9 +34,11 @@ import java.io.IOException;
  * @deprecated Use com.google.android.exoplayer2.source.ads.AdsMediaSource with ImaAdsLoader.
  */
 @Deprecated
-public final class ImaAdsMediaSource implements MediaSource {
+public final class ImaAdsMediaSource extends BaseMediaSource {
 
   private final AdsMediaSource adsMediaSource;
+
+  private SourceInfoRefreshListener adsMediaSourceListener;
 
   /**
    * Constructs a new source that inserts ads linearly with the content specified by
@@ -74,18 +77,16 @@ public final class ImaAdsMediaSource implements MediaSource {
   }
 
   @Override
-  public void prepareSource(
-      final ExoPlayer player, boolean isTopLevelSource, final Listener listener) {
-    adsMediaSource.prepareSource(
-        player,
-        isTopLevelSource,
-        new Listener() {
+  public void prepareSourceInternal(final ExoPlayer player, boolean isTopLevelSource) {
+    adsMediaSourceListener =
+        new SourceInfoRefreshListener() {
           @Override
           public void onSourceInfoRefreshed(
               MediaSource source, Timeline timeline, @Nullable Object manifest) {
-            listener.onSourceInfoRefreshed(ImaAdsMediaSource.this, timeline, manifest);
+            refreshSourceInfo(timeline, manifest);
           }
-        });
+        };
+    adsMediaSource.prepareSource(player, isTopLevelSource, adsMediaSourceListener);
   }
 
   @Override
@@ -104,7 +105,7 @@ public final class ImaAdsMediaSource implements MediaSource {
   }
 
   @Override
-  public void releaseSource() {
-    adsMediaSource.releaseSource();
+  public void releaseSourceInternal() {
+    adsMediaSource.releaseSource(adsMediaSourceListener);
   }
 }

@@ -61,6 +61,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
   private boolean hasPendingPrepare;
   private boolean hasPendingSeek;
   private PlaybackParameters playbackParameters;
+  private @Nullable ExoPlaybackException playbackError;
 
   // Playback information when there is no pending seek/set source operation.
   private PlaybackInfo playbackInfo;
@@ -92,11 +93,9 @@ import java.util.concurrent.CopyOnWriteArraySet;
     this.listeners = new CopyOnWriteArraySet<>();
     emptyTrackSelectorResult =
         new TrackSelectorResult(
-            TrackGroupArray.EMPTY,
-            new boolean[renderers.length],
-            new TrackSelectionArray(new TrackSelection[renderers.length]),
-            null,
-            new RendererConfiguration[renderers.length]);
+            new RendererConfiguration[renderers.length],
+            new TrackSelection[renderers.length],
+            null);
     window = new Timeline.Window();
     period = new Timeline.Period();
     playbackParameters = PlaybackParameters.DEFAULT;
@@ -108,7 +107,11 @@ import java.util.concurrent.CopyOnWriteArraySet;
       }
     };
     playbackInfo =
-        new PlaybackInfo(Timeline.EMPTY, /* startPositionUs= */ 0, emptyTrackSelectorResult);
+        new PlaybackInfo(
+            Timeline.EMPTY,
+            /* startPositionUs= */ 0,
+            TrackGroupArray.EMPTY,
+            emptyTrackSelectorResult);
     internalPlayer =
         new ExoPlayerImplInternal(
             renderers,
@@ -155,12 +158,18 @@ import java.util.concurrent.CopyOnWriteArraySet;
   }
 
   @Override
+  public @Nullable ExoPlaybackException getPlaybackError() {
+    return playbackError;
+  }
+
+  @Override
   public void prepare(MediaSource mediaSource) {
     prepare(mediaSource, true, true);
   }
 
   @Override
   public void prepare(MediaSource mediaSource, boolean resetPosition, boolean resetState) {
+    playbackError = null;
     PlaybackInfo playbackInfo =
         getResetPlaybackInfo(
             resetPosition, resetState, /* playbackState= */ Player.STATE_BUFFERING);
@@ -309,12 +318,23 @@ import java.util.concurrent.CopyOnWriteArraySet;
   }
 
   @Override
+  public @Nullable Object getCurrentTag() {
+    int windowIndex = getCurrentWindowIndex();
+    return windowIndex > playbackInfo.timeline.getWindowCount()
+        ? null
+        : playbackInfo.timeline.getWindow(windowIndex, window, /* setTag= */ true).tag;
+  }
+
+  @Override
   public void stop() {
     stop(/* reset= */ false);
   }
 
   @Override
   public void stop(boolean reset) {
+    if (reset) {
+      playbackError = null;
+    }
     PlaybackInfo playbackInfo =
         getResetPlaybackInfo(
             /* resetPosition= */ reset,
@@ -512,7 +532,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
 
   @Override
   public TrackGroupArray getCurrentTrackGroups() {
-    return playbackInfo.trackSelectorResult.groups;
+    return playbackInfo.trackGroups;
   }
 
   @Override
@@ -550,9 +570,9 @@ import java.util.concurrent.CopyOnWriteArraySet;
         }
         break;
       case ExoPlayerImplInternal.MSG_ERROR:
-        ExoPlaybackException exception = (ExoPlaybackException) msg.obj;
+        playbackError = (ExoPlaybackException) msg.obj;
         for (Player.EventListener listener : listeners) {
-          listener.onPlayerError(exception);
+          listener.onPlayerError(playbackError);
         }
         break;
       default:
@@ -616,6 +636,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
         playbackInfo.contentPositionUs,
         playbackState,
         /* isLoading= */ false,
+        resetState ? TrackGroupArray.EMPTY : playbackInfo.trackGroups,
         resetState ? emptyTrackSelectorResult : playbackInfo.trackSelectorResult);
   }
 
@@ -648,7 +669,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
       trackSelector.onSelectionActivated(playbackInfo.trackSelectorResult.info);
       for (Player.EventListener listener : listeners) {
         listener.onTracksChanged(
-            playbackInfo.trackSelectorResult.groups, playbackInfo.trackSelectorResult.selections);
+            playbackInfo.trackGroups, playbackInfo.trackSelectorResult.selections);
       }
     }
     if (isLoadingChanged) {

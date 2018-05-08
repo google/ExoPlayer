@@ -100,6 +100,7 @@ public final class PlayerEmsgHandler implements Handler.Callback {
    *     messages that generate DASH media source events.
    * @param allocator An {@link Allocator} from which allocations can be obtained.
    */
+  @SuppressWarnings("nullness")
   public PlayerEmsgHandler(
       DashManifest manifest, PlayerEmsgCallback playerEmsgCallback, Allocator allocator) {
     this.manifest = manifest;
@@ -237,11 +238,10 @@ public final class PlayerEmsgHandler implements Handler.Callback {
   // Internal methods.
 
   private void handleManifestExpiredMessage(long eventTimeUs, long manifestPublishTimeMsInEmsg) {
-    if (!manifestPublishTimeToExpiryTimeUs.containsKey(manifestPublishTimeMsInEmsg)) {
+    Long previousExpiryTimeUs = manifestPublishTimeToExpiryTimeUs.get(manifestPublishTimeMsInEmsg);
+    if (previousExpiryTimeUs == null) {
       manifestPublishTimeToExpiryTimeUs.put(manifestPublishTimeMsInEmsg, eventTimeUs);
     } else {
-      long previousExpiryTimeUs =
-          manifestPublishTimeToExpiryTimeUs.get(manifestPublishTimeMsInEmsg);
       if (previousExpiryTimeUs > eventTimeUs) {
         manifestPublishTimeToExpiryTimeUs.put(manifestPublishTimeMsInEmsg, eventTimeUs);
       }
@@ -253,10 +253,7 @@ public final class PlayerEmsgHandler implements Handler.Callback {
     notifySourceMediaPresentationEnded();
   }
 
-  private Map.Entry<Long, Long> ceilingExpiryEntryForPublishTime(long publishTimeMs) {
-    if (manifestPublishTimeToExpiryTimeUs.isEmpty()) {
-      return null;
-    }
+  private @Nullable Map.Entry<Long, Long> ceilingExpiryEntryForPublishTime(long publishTimeMs) {
     return manifestPublishTimeToExpiryTimeUs.ceilingEntry(publishTimeMs);
   }
 

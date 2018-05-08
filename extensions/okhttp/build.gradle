@@ -23,19 +23,12 @@ android {
         targetSdkVersion project.ext.targetSdkVersion
         consumerProguardFiles 'proguard-rules.txt'
     }
-
-    lintOptions {
-        // See: https://github.com/square/okio/issues/58
-        warning 'InvalidPackage'
-    }
 }
 
 dependencies {
     implementation project(modulePrefix + 'library-core')
     implementation 'com.android.support:support-annotations:' + supportLibraryVersion
-    api('com.squareup.okhttp3:okhttp:3.10.0') {
-        exclude group: 'org.json'
-    }
+    api 'com.squareup.okhttp3:okhttp:3.10.0'
 }
 
 ext {

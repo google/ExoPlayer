@@ -328,9 +328,18 @@ public class DefaultDashChunkSource implements DashChunkSource {
 
     int maxSegmentCount =
         (int) Math.min(maxSegmentsPerLoad, lastAvailableSegmentNum - segmentNum + 1);
-    out.chunk = newMediaChunk(representationHolder, dataSource, trackType,
-        trackSelection.getSelectedFormat(), trackSelection.getSelectionReason(),
-        trackSelection.getSelectionData(), segmentNum, maxSegmentCount);
+    long seekTimeUs = previous == null ? loadPositionUs : C.TIME_UNSET;
+    out.chunk =
+        newMediaChunk(
+            representationHolder,
+            dataSource,
+            trackType,
+            trackSelection.getSelectedFormat(),
+            trackSelection.getSelectionReason(),
+            trackSelection.getSelectionData(),
+            segmentNum,
+            maxSegmentCount,
+            seekTimeUs);
   }
 
   @Override
@@ -442,7 +451,8 @@ public class DefaultDashChunkSource implements DashChunkSource {
       int trackSelectionReason,
       Object trackSelectionData,
       long firstSegmentNum,
-      int maxSegmentCount) {
+      int maxSegmentCount,
+      long seekTimeUs) {
     Representation representation = representationHolder.representation;
     long startTimeUs = representationHolder.getSegmentStartTimeUs(firstSegmentNum);
     RangedUri segmentUri = representationHolder.getSegmentUrl(firstSegmentNum);
@@ -469,9 +479,19 @@ public class DefaultDashChunkSource implements DashChunkSource {
       DataSpec dataSpec = new DataSpec(segmentUri.resolveUri(baseUrl),
           segmentUri.start, segmentUri.length, representation.getCacheKey());
       long sampleOffsetUs = -representation.presentationTimeOffsetUs;
-      return new ContainerMediaChunk(dataSource, dataSpec, trackFormat, trackSelectionReason,
-          trackSelectionData, startTimeUs, endTimeUs, firstSegmentNum, segmentCount,
-          sampleOffsetUs, representationHolder.extractorWrapper);
+      return new ContainerMediaChunk(
+          dataSource,
+          dataSpec,
+          trackFormat,
+          trackSelectionReason,
+          trackSelectionData,
+          startTimeUs,
+          endTimeUs,
+          seekTimeUs,
+          firstSegmentNum,
+          segmentCount,
+          sampleOffsetUs,
+          representationHolder.extractorWrapper);
     }
   }
 

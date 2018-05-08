@@ -21,6 +21,7 @@ import com.google.android.exoplayer2.trackselection.TrackSelection;
 import com.google.android.exoplayer2.util.Assertions;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.IdentityHashMap;
 
 /**
@@ -32,9 +33,9 @@ import java.util.IdentityHashMap;
 
   private final IdentityHashMap<SampleStream, Integer> streamPeriodIndices;
   private final CompositeSequenceableLoaderFactory compositeSequenceableLoaderFactory;
+  private final ArrayList<MediaPeriod> childrenPendingPreparation;
 
   private Callback callback;
-  private int pendingChildPrepareCount;
   private TrackGroupArray trackGroups;
 
   private MediaPeriod[] enabledPeriods;
@@ -44,13 +45,16 @@ import java.util.IdentityHashMap;
       MediaPeriod... periods) {
     this.compositeSequenceableLoaderFactory = compositeSequenceableLoaderFactory;
     this.periods = periods;
+    childrenPendingPreparation = new ArrayList<>();
+    compositeSequenceableLoader =
+        compositeSequenceableLoaderFactory.createCompositeSequenceableLoader();
     streamPeriodIndices = new IdentityHashMap<>();
   }
 
   @Override
   public void prepare(Callback callback, long positionUs) {
     this.callback = callback;
-    pendingChildPrepareCount = periods.length;
+    Collections.addAll(childrenPendingPreparation, periods);
     for (MediaPeriod period : periods) {
       period.prepare(this, positionUs);
     }
@@ -104,7 +108,7 @@ import java.util.IdentityHashMap;
       if (i == 0) {
         positionUs = selectPositionUs;
       } else if (selectPositionUs != positionUs) {
-        throw new IllegalStateException("Children enabled at different positions");
+        throw new IllegalStateException("Children enabled at different positions.");
       }
       boolean periodEnabled = false;
       for (int j = 0; j < selections.length; j++) {
@@ -147,7 +151,16 @@ import java.util.IdentityHashMap;
 
   @Override
   public boolean continueLoading(long positionUs) {
-    return compositeSequenceableLoader.continueLoading(positionUs);
+    if (!childrenPendingPreparation.isEmpty()) {
+      // Preparation is still going on.
+      int childrenPendingPreparationSize = childrenPendingPreparation.size();
+      for (int i = 0; i < childrenPendingPreparationSize; i++) {
+        childrenPendingPreparation.get(i).continueLoading(positionUs);
+      }
+      return false;
+    } else {
+      return compositeSequenceableLoader.continueLoading(positionUs);
+    }
   }
 
   @Override
@@ -161,7 +174,7 @@ import java.util.IdentityHashMap;
     // Periods other than the first one are not allowed to report discontinuities.
     for (int i = 1; i < periods.length; i++) {
       if (periods[i].readDiscontinuity() != C.TIME_UNSET) {
-        throw new IllegalStateException("Child reported discontinuity");
+        throw new IllegalStateException("Child reported discontinuity.");
       }
     }
     // It must be possible to seek enabled periods to the new position, if there is one.
@@ -169,7 +182,7 @@ import java.util.IdentityHashMap;
       for (MediaPeriod enabledPeriod : enabledPeriods) {
         if (enabledPeriod != periods[0]
             && enabledPeriod.seekToUs(positionUs) != positionUs) {
-          throw new IllegalStateException("Children seeked to different positions");
+          throw new IllegalStateException("Unexpected child seekToUs result.");
         }
       }
     }
@@ -187,7 +200,7 @@ import java.util.IdentityHashMap;
     // Additional periods must seek to the same position.
     for (int i = 1; i < enabledPeriods.length; i++) {
       if (enabledPeriods[i].seekToUs(positionUs) != positionUs) {
-        throw new IllegalStateException("Children seeked to different positions");
+        throw new IllegalStateException("Unexpected child seekToUs result.");
       }
     }
     return positionUs;
@@ -201,8 +214,9 @@ import java.util.IdentityHashMap;
   // MediaPeriod.Callback implementation
 
   @Override
-  public void onPrepared(MediaPeriod ignored) {
-    if (--pendingChildPrepareCount > 0) {
+  public void onPrepared(MediaPeriod preparedPeriod) {
+    childrenPendingPreparation.remove(preparedPeriod);
+    if (!childrenPendingPreparation.isEmpty()) {
       return;
     }
     int totalTrackGroupCount = 0;
@@ -224,10 +238,6 @@ import java.util.IdentityHashMap;
 
   @Override
   public void onContinueLoadingRequested(MediaPeriod ignored) {
-    if (trackGroups == null) {
-      // Still preparing.
-      return;
-    }
     callback.onContinueLoadingRequested(this);
   }
 

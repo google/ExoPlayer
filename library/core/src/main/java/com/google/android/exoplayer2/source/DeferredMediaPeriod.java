@@ -16,6 +16,7 @@
 package com.google.android.exoplayer2.source;
 
 import android.support.annotation.Nullable;
+import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.SeekParameters;
 import com.google.android.exoplayer2.source.MediaSource.MediaPeriodId;
 import com.google.android.exoplayer2.trackselection.TrackSelection;
@@ -36,12 +37,12 @@ public final class DeferredMediaPeriod implements MediaPeriod, MediaPeriod.Callb
     /**
      * Called the first time an error occurs while refreshing source info or preparing the period.
      */
-    void onPrepareError(IOException exception);
+    void onPrepareError(MediaPeriodId mediaPeriodId, IOException exception);
   }
 
   public final MediaSource mediaSource;
+  public final MediaPeriodId id;
 
-  private final MediaPeriodId id;
   private final Allocator allocator;
 
   private MediaPeriod mediaPeriod;
@@ -49,6 +50,7 @@ public final class DeferredMediaPeriod implements MediaPeriod, MediaPeriod.Callb
   private long preparePositionUs;
   private @Nullable PrepareErrorListener listener;
   private boolean notifiedPrepareError;
+  private long preparePositionOverrideUs;
 
   /**
    * Creates a new deferred media period.
@@ -61,6 +63,7 @@ public final class DeferredMediaPeriod implements MediaPeriod, MediaPeriod.Callb
     this.id = id;
     this.allocator = allocator;
     this.mediaSource = mediaSource;
+    preparePositionOverrideUs = C.TIME_UNSET;
   }
 
   /**
@@ -72,6 +75,25 @@ public final class DeferredMediaPeriod implements MediaPeriod, MediaPeriod.Callb
    */
   public void setPrepareErrorListener(PrepareErrorListener listener) {
     this.listener = listener;
+  }
+
+  /**
+   * Sets the default prepare position at which to prepare the media period. This value is only used
+   * if the call to {@link MediaPeriod#prepare(Callback, long)} is being deferred and the call was
+   * made with a (presumably default) prepare position of 0.
+   *
+   * <p>Note that this will override an intentional seek to zero in the corresponding non-seekable
+   * timeline window. This is unlikely to be a problem as a non-zero default position usually only
+   * occurs for live playbacks and seeking to zero in a live window would cause
+   * BehindLiveWindowExceptions anyway.
+   *
+   * @param defaultPreparePositionUs The actual default prepare position, in microseconds.
+   */
+  public void setDefaultPreparePositionUs(long defaultPreparePositionUs) {
+    if (preparePositionUs == 0 && defaultPreparePositionUs != 0) {
+      preparePositionOverrideUs = defaultPreparePositionUs;
+      preparePositionUs = defaultPreparePositionUs;
+    }
   }
 
   /**
@@ -118,7 +140,7 @@ public final class DeferredMediaPeriod implements MediaPeriod, MediaPeriod.Callb
       }
       if (!notifiedPrepareError) {
         notifiedPrepareError = true;
-        listener.onPrepareError(e);
+        listener.onPrepareError(id, e);
       }
     }
   }
@@ -131,6 +153,10 @@ public final class DeferredMediaPeriod implements MediaPeriod, MediaPeriod.Callb
   @Override
   public long selectTracks(TrackSelection[] selections, boolean[] mayRetainStreamFlags,
       SampleStream[] streams, boolean[] streamResetFlags, long positionUs) {
+    if (preparePositionOverrideUs != C.TIME_UNSET && positionUs == 0) {
+      positionUs = preparePositionOverrideUs;
+      preparePositionOverrideUs = C.TIME_UNSET;
+    }
     return mediaPeriod.selectTracks(selections, mayRetainStreamFlags, streams, streamResetFlags,
         positionUs);
   }

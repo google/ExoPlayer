@@ -28,15 +28,12 @@ import java.nio.ByteOrder;
 
   private int sampleRateHz;
   private int channelCount;
-  @C.PcmEncoding
-  private int encoding;
+  private @C.PcmEncoding int encoding;
   private ByteBuffer buffer;
   private ByteBuffer outputBuffer;
   private boolean inputEnded;
 
-  /**
-   * Creates a new audio processor that converts audio data to {@link C#ENCODING_PCM_16BIT}.
-   */
+  /** Creates a new audio processor that converts audio data to {@link C#ENCODING_PCM_16BIT}. */
   public ResamplingAudioProcessor() {
     sampleRateHz = Format.NO_VALUE;
     channelCount = Format.NO_VALUE;
@@ -59,9 +56,6 @@ import java.nio.ByteOrder;
     this.sampleRateHz = sampleRateHz;
     this.channelCount = channelCount;
     this.encoding = encoding;
-    if (encoding == C.ENCODING_PCM_16BIT) {
-      buffer = EMPTY_BUFFER;
-    }
     return true;
   }
 
@@ -139,6 +133,7 @@ import java.nio.ByteOrder;
         }
         break;
       case C.ENCODING_PCM_16BIT:
+      case C.ENCODING_PCM_FLOAT:
       case C.ENCODING_INVALID:
       case Format.NO_VALUE:
       default:
@@ -177,10 +172,10 @@ import java.nio.ByteOrder;
   @Override
   public void reset() {
     flush();
-    buffer = EMPTY_BUFFER;
     sampleRateHz = Format.NO_VALUE;
     channelCount = Format.NO_VALUE;
     encoding = C.ENCODING_INVALID;
+    buffer = EMPTY_BUFFER;
   }
 
 }
