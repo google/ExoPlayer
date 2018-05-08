@@ -91,6 +91,7 @@ app. The schema is as follows, where [O] indicates an optional attribute.
         "uri": "The URI/URL of the sample",
         "extension": "[O] Sample type hint. Values: mpd, ism, m3u8",
         "prefer_extension_decoders": "[O] Boolean to prefer extension decoders",
+        "abr_algorithm": "[O] ABR algorithm for adaptive playbacks. Values: default, random",
         "drm_scheme": "[O] Drm scheme if protected. Values: widevine, playready, clearkey",
         "drm_license_url": "[O] URL of the license server if protected",
         "drm_key_request_properties": "[O] Key request headers if protected",
@@ -113,6 +114,7 @@ Playlists of samples can be specified using the schema:
       {
         "name": "Name of playlist sample",
         "prefer_extension_decoders": "[O] Boolean to prefer extension decoders",
+        "abr_algorithm": "[O] ABR algorithm for adaptive playbacks. Values: default, random",
         "drm_scheme": "[O] Drm scheme if protected. Values: widevine, playready, clearkey",
         "drm_license_url": "[O] URL of the license server if protected",
         "drm_key_request_properties": "[O] Key request headers if protected",
@@ -180,8 +182,10 @@ Supported optional extras for a single sample intent are:
 * `extension` [String] Sample type hint. Valid values: mpd, ism, m3u8
 * `prefer_extension_decoders` [Boolean] Whether extension decoders are preferred
   to platform ones
-* `drm_scheme` [String] Drm scheme UUID if protected. `widevine`,
-  `playready` and `clearkey` are also accepted
+* `abr_algorithm` [String] ABR algorithm for adaptive playbacks. Valid values
+  are `default` and `random`.
+* `drm_scheme` [String] DRM scheme if protected. Valid values are `widevine`,
+  `playready` and `clearkey`. DRM scheme UUIDs are also accepted.
 * `drm_license_url` [String] Url of the license server if protected
 * `drm_key_request_properties` [String array] Key request headers packed as
   name1, value1, name2, value2 etc. if protected
@@ -206,8 +210,8 @@ Supported optional extras for a playlist intent are:
 
 * `extension_list` [String array] Sample type hints. Entries may be empty or one
   of: mpd, ism, m3u8
-* `prefer_extension_decoders`, `drm_scheme`, `drm_license_url`,
+* `prefer_extension_decoders`, `abr_algorithm`, `drm_scheme`, `drm_license_url`,
   `drm_key_request_properties` and `drm_multi_session`, all as described above
 
 [GitHub project]: https://github.com/google/ExoPlayer
-[FAQ - Does ExoPlayer support emulators?]: https://google.github.io/ExoPlayer/faqs.html#does-exoplayer-support-emulators
+[FAQ - Does ExoPlayer support emulators?]: {{ site.baseurl }}/faqs.html#does-exoplayer-support-emulators

@@ -50,7 +50,8 @@ details).
 | **Metadata** |||
 | EMSG metadata | YES | Embedded in FMP4 |
 | **Content protection** |||
-| Widevine | YES | API 19+ ("cenc" scheme) and 24+ ("cbcs", "cbc1" and "cens") |
+| Widevine | YES | API 19+ ("cenc" scheme) and 25+ ("cbcs", "cbc1" and "cens"
+  schemes) |
 | PlayReady SL2000 | YES | Android TV only |
 | ClearKey | YES | API 21+ |
 
@@ -94,7 +95,7 @@ HLS content producers to generate high quality HLS streams, as described
 | **Content protection** |||
 | AES-128 | YES ||
 | Sample AES-128 | NO ||
-| Widevine | YES | API 19+ ("cenc" scheme) and 24+ ("cbcs" scheme) |
+| Widevine | YES | API 19+ ("cenc" scheme) and 25+ ("cbcs" scheme) |
 
 ## Standalone container formats ##
 
@@ -134,10 +135,10 @@ In addition to using Android's platform decoders, ExoPlayer can also make use of
 software decoder extensions. These must be manually built and included in
 projects that wish to make use of them. We currently provide software decoder
 extensions for
-[VP9](https://github.com/google/ExoPlayer/tree/release-v2/extensions/vp9),
-[Flac](https://github.com/google/ExoPlayer/tree/release-v2/extensions/flac),
-[Opus](https://github.com/google/ExoPlayer/tree/release-v2/extensions/opus) and
-[FFmpeg](https://github.com/google/ExoPlayer/tree/release-v2/extensions/ffmpeg).
+[VP9]({{ site.releasev2 }}/extensions/vp9),
+[Flac]({{ site.releasev2 }}/extensions/flac),
+[Opus]({{ site.releasev2 }}/extensions/opus) and
+[FFmpeg]({{ site.releasev2 }}/extensions/ffmpeg).
 
 ### FFmpeg extension ###
 
@@ -161,11 +162,11 @@ arguments to FFmpeg's `configure` script:
 | TrueHD         | --enable-decoder=mlp --enable-decoder=truehd |
 
 See the extension's
-[README.md](https://github.com/google/ExoPlayer/tree/release-v2/extensions/ffmpeg/README.md)
+[README.md]({{ site.releasev2 }}/extensions/ffmpeg/README.md)
 for an example command line to `configure`.
 
-[Flac extension]: https://github.com/google/ExoPlayer/tree/release-v2/extensions/flac
-[FFmpeg extension]: https://github.com/google/ExoPlayer/tree/release-v2/extensions/ffmpeg
+[Flac extension]: {{ site.releasev2 }}/extensions/flac
+[FFmpeg extension]: {{ site.releasev2 }}/extensions/ffmpeg
 
 ## Standalone subtitle formats ##
 
@@ -181,4 +182,4 @@ files can be side-loaded as described in the [Developer guide][].
 | SubStationAlpha (SSA) | YES ||
 | ASS | YES | Use MimeTypes.TEXT_SSA |
 
-[Developer guide]: https://google.github.io/ExoPlayer/guide.html#side-loading-a-subtitle-file
+[Developer guide]: {{ site.baseurl }}/guide.html#side-loading-a-subtitle-file

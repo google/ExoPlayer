@@ -1,3 +1,4 @@
 baseurl: /ExoPlayer
 sdkurl: https://developer.android.com/reference
+releasev2: https://github.com/google/ExoPlayer/tree/release-v2
 excerpt_separator: <!--more-->

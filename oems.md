@@ -1,7 +1,7 @@
 ---
 layout: default
 title: OEM testing
-weight: 6
+weight: 7
 ---
 
 ExoPlayer is used by a large number of Android applications. As an OEM, it's

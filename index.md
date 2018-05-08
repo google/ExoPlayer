@@ -23,10 +23,10 @@ Read news, hints and tips on the
 * The [class reference][] documents the ExoPlayer library classes.
 * The [release notes][] document the major changes in each release.
 
-[developer guide]: https://google.github.io/ExoPlayer/guide.html
-[FAQs page]: https://google.github.io/ExoPlayer/faqs.html
-[class reference]: https://google.github.io/ExoPlayer/doc/reference
-[release notes]: https://github.com/google/ExoPlayer/blob/dev-v2/RELEASENOTES.md
+[developer guide]: {{ site.baseurl }}/guide.html
+[FAQs page]: {{ site.baseurl }}/faqs.html
+[class reference]: {{ site.baseurl }}/doc/reference
+[release notes]: {{ site.releasev2 }}/RELEASENOTES.md
 
 ## Source code ##
 

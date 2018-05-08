@@ -54,10 +54,9 @@ ExoPlayer has a number of advantages over Android's built in MediaPlayer:
 
 It's important to note that there are also some disadvantages:
 
-* **ExoPlayer's standard audio and video components rely on Android's
-  `MediaCodec` API, which was released in Android 4.1 (API level 16). Hence they
-  do not work on earlier versions of Android. Widevine common encryption is
-  available on Android 4.4 (API level 19) and higher.**
+* For audio only playback on some devices, ExoPlayer may consume significantly
+  more battery than MediaPlayer. See the [Battery consumption page][] for
+  details.
 
 ## Library overview ##
 
@@ -113,7 +112,7 @@ the following steps:
 These steps are outlined in more detail below. For a complete example, refer to
 `PlayerActivity` in the [main demo app][].
 
-### Add ExoPlayer as a dependency ###
+### Adding ExoPlayer as a dependency ###
 
 The first step to getting started is to make sure you have the JCenter and
 Google repositories included in the `build.gradle` file in the root of your
@@ -240,6 +239,28 @@ If the player is bound to a `PlayerView` or `PlayerControlView` then user
 interaction with these components will cause corresponding methods on the player
 to be invoked.
 
+### Listening to player events ###
+
+Events such as changes in state and playback errors are reported to registered
+`Player.EventListener` instances. Registering a listener to receive such events
+is easy:
+
+{% highlight java %}
+// Add a listener to receive events from the player.
+player.addListener(eventListener);
+{% endhighlight %}
+
+If you're only interested in a subset of events, extending
+`Player.DefaultEventListener` rather than implementing `Player.EventListener`
+allows you to implement only the methods you're interested in.
+
+When using `SimpleExoPlayer`, additional listeners can be set on the player. The
+`addVideoListener` method allows you to receive events related to video
+rendering that may be useful for adjusting the UI (e.g., the aspect ratio of the
+`Surface` onto which video is being rendered). The `addAnalyticsListener` method
+allows you to receive detailed events, which may be useful for analytics
+purposes.
+
 ### Releasing the player ###
 
 It's important to release the player when it's no longer needed, so as to free
@@ -254,18 +275,13 @@ SmoothStreaming (`SsMediaSource`), HLS (`HlsMediaSource`) and regular media
 files (`ExtractorMediaSource`). Examples of how to instantiate all four can be
 found in `PlayerActivity` in the [main demo app][].
 
-{% include infobox.html content="`MediaSource` instances are not designed to be
-re-used. If you want to prepare a player more than once with the same piece of
-media, use a new instance each time." %}
-
 In addition to the MediaSource implementations described above, the ExoPlayer
-library also provides `MergingMediaSource`, `LoopingMediaSource`,
-`ConcatenatingMediaSource` and `DynamicConcatenatingMediaSource`. These
-`MediaSource` implementations enable more complex playback functionality through
-composition. Some of the common use cases are described below. Note that
-although the following examples are described in the context of video playback,
-they apply equally to audio only playback too, and indeed to the playback of any
-supported media type(s).
+library also provides `MergingMediaSource`, `LoopingMediaSource` and
+`ConcatenatingMediaSource`. These `MediaSource` implementations enable more
+complex playback functionality through composition. Some of the common use
+cases are described below. Note that although the following examples are
+described in the context of video playback, they apply equally to audio only
+playback too, and indeed to the playback of any supported media type(s).
 
 ### Side-loading a subtitle file ###
 
@@ -292,7 +308,7 @@ MergingMediaSource mergedSource =
 
 ### Looping a video ###
 
-{% include infobox.html content="To loop indefinitely, it is usually better to
+{% include info-box.html content="To loop indefinitely, it is usually better to
 use `ExoPlayer.setRepeatMode` instead of `LoopingMediaSource`." %}
 
 A video can be seamlessly looped a fixed number of times using a
@@ -307,13 +323,15 @@ LoopingMediaSource loopingSource = new LoopingMediaSource(source, 2);
 
 ### Playing a sequence of videos ###
 
-`ConcatenatingMediaSource` enables sequential playback of two or more individual
+`ConcatenatingMediaSource` enables sequential playback of multiple individual
 `MediaSource`s. The following example plays two videos in sequence. Transitions
 between sources are seamless. There is no requirement that the sources being
 concatenated are of the same format (e.g., it’s fine to concatenate a video file
 containing 480p H264 with one that contains 720p VP9). The sources may even be
 of different types (e.g., it’s fine to concatenate a video with an audio only
-stream).
+stream). It's also allowed to use individual `MediaSource`s multiple times
+within a concatenation. `MediaSource`s can also be dynamically added, removed
+and moved both before and during playback.
 
 {% highlight java %}
 MediaSource firstSource =
@@ -324,16 +342,6 @@ MediaSource secondSource =
 ConcatenatingMediaSource concatenatedSource =
     new ConcatenatingMediaSource(firstSource, secondSource);
 {% endhighlight %}
-
-`DynamicConcatenatingMediaSource` is similar to `ConcatenatingMediaSource`,
-except that it allows `MediaSource`s to be dynamically added, removed and moved
-both before and during playback. `DynamicConcatenatingMediaSource` is
-well suited to playlist use cases where the user is able to modify the playlist
-during playback.
-
-{% include infobox.html content="A `MediaSource` instance should not be added
-more than once to a `DynamicConcatenatingMediaSource`, or be re-added having
-previously been removed. Use a new instance instead." %}
 
 ### Advanced composition ###
 
@@ -366,48 +374,6 @@ MediaSource secondSource =
 ConcatenatingMediaSource concatenatedSource =
     new ConcatenatingMediaSource(firstSource, firstSource, secondSource);
 {% endhighlight %}
-
-{% include infobox.html content="It is important to avoid using the same
-`MediaSource` instance multiple times in a composition, unless explicitly
-allowed according to the documentation. The use of firstSource twice in the
-example above is one such case, since the Javadoc for `ConcatenatingMediaSource`
-explicitly states that duplicate entries are allowed. In general, however, the
-graph of objects formed by a composition should be a tree. Using multiple
-equivalent `MediaSource` instances in a composition is allowed." %}
-
-## Player events ##
-
-During playback, your app can listen for events generated by ExoPlayer that
-indicate the overall state of the player. These events are useful as triggers
-for updating user interface components such as playback controls. Many ExoPlayer
-components also report their own component specific low level events, which can
-be useful for performance monitoring.
-
-### High level events ###
-
-ExoPlayer allows `EventListener`s to be added and removed by calling the
-`addListener` and `removeListener` methods. Registered listeners are notified of
-changes in playback state, as well as when errors occur that cause playback to
-fail.
-
-Developers who implement custom playback controls should register a listener and
-use it to update their controls as the player’s state changes. An app should
-also show an appropriate error to the user if playback fails.
-
-When using `SimpleExoPlayer`, additional listeners can be set on the player. In
-particular `addVideoListener` allows an application to receive events related to
-video rendering that may be useful for adjusting the UI (e.g., the aspect ratio
-of the `Surface` onto which video is being rendered). Listeners can also be set
-to receive debugging information, for example by calling `setVideoDebugListener`
-and `setAudioDebugListener`.
-
-### Low level events ###
-
-In addition to high level listeners, many of the individual components provided
-by the ExoPlayer library allow their own event listeners. You are typically
-required to pass a `Handler` object to such components, which determines the
-thread on which the listener's methods are invoked. In most cases, you should
-use a `Handler` associated with the app’s main thread.
 
 ## Sending messages to components ##
 
@@ -457,7 +423,7 @@ library. Here are some use cases for building custom components:
   a custom protocol, using a custom HTTP stack, or from a custom persistent
   cache.
 
-### Customization guidelines ###
+When building custom components, we recommend the following:
 
 * If a custom component needs to report events back to the app, we recommend
   that you do so using the same model as existing ExoPlayer components, where an
@@ -471,34 +437,33 @@ library. Here are some use cases for building custom components:
   changes by calling ExoPlayer’s `sendMessages` and `blockingSendMessages`
   methods.
 
-## Digital Rights Management ##
+## Advanced topics ##  
 
-On Android 4.4 (API level 19) and higher, ExoPlayer supports Digital Rights
-Management (DRM) protected playback. In order to play DRM protected content with
-ExoPlayer, your app must inject a `DrmSessionManager` when instantiating the
-player. `ExoPlayerFactory` provides factory methods allowing this. A
-`DrmSessionManager` object is responsible for providing `DrmSession` instances,
-which provide `MediaCrypto` objects for decryption as well as ensuring that the
-required decryption keys are available to the underlying DRM module being used.
+### Digital Rights Management ###
 
-The ExoPlayer library provides a default implementation of `DrmSessionManager`,
-called `DefaultDrmSessionManager`, which uses `MediaDrm`. The session manager
-supports any DRM scheme for which a modular DRM component exists on the device.
-All Android devices are required to support Widevine modular DRM (with L3
-security, although many devices also support L1). Some devices may support
-additional schemes such as PlayReady. All Android TV devices support PlayReady.
+ExoPlayer supports Digital Rights Management (DRM) protected playback from
+Android 4.4 (API level 19). See the [DRM page][] for more details.
 
-`PlayerActivity` in the [main demo app][] demonstrates how a
-`DefaultDrmSessionManager` can be created and injected when instantiating the
-player.
+### Battery consumption ###
 
-[Supported formats]: https://google.github.io/ExoPlayer/supported-formats.html
-[IMA extension]: https://github.com/google/ExoPlayer/tree/release-v2/extensions/ima
+Information about battery consumption when using ExoPlayer can be found on the
+[Battery consumption page][].
+
+### Shrinking the ExoPlayer library ###
+
+Advice on minimizing the size of the ExoPlayer library can be found on the
+[Shrinking ExoPlayer page][].
+
+[Supported formats]: {{ site.baseurl }} /supported-formats.html
+[IMA extension]: {{ site.releasev2 }}/extensions/ima
 [Interactive Media Ads SDK]: https://developers.google.com/interactive-media-ads
-[ExoPlayer library]: https://github.com/google/ExoPlayer/tree/release-v2/library
-[main demo app]: https://github.com/google/ExoPlayer/tree/release-v2/demos/main
+[Battery consumption page]: {{ site.baseurl }}/battery-consumption.html
+[DRM page]: {{ site.baseurl }}/drm.html
+[Shrinking ExoPlayer page]: {{ site.baseurl }}/shrinking.html
+[ExoPlayer library]: {{ site.releasev2 }}/library
+[main demo app]: {{ site.releasev2 }}/demos/main
 [`MediaPlayer`]: {{ site.sdkurl }}/android/media/MediaPlayer.html
 [`MediaCodec`]: {{ site.sdkurl }}/android/media/MediaCodec.html
 [`AudioTrack`]: {{ site.sdkurl }}/android/media/AudioTrack.html
 [`MediaDrm`]: {{ site.sdkurl }}/android/media/MediaDrm.html
-[extensions directory]: https://github.com/google/ExoPlayer/tree/release-v2/extensions/
+[extensions directory]: {{ site.releasev2 }}/extensions/
