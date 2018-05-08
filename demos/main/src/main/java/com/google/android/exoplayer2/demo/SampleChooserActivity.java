@@ -548,10 +548,10 @@ public class SampleChooserActivity extends Activity
 
     @Override
     public Intent buildIntent(Context context) {
-      Uri[] uris = new Uri[children.length];
+      String[] uris = new String[children.length];
       String[] extensions = new String[children.length];
       for (int i = 0; i < children.length; i++) {
-        uris[i] = children[i].uri;
+        uris[i] = children[i].uri.toString();
         extensions[i] = children[i].extension;
       }
       return super.buildIntent(context)
