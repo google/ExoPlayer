@@ -33,6 +33,7 @@ import com.google.android.exoplayer2.testutil.ActionSchedule.ActionNode;
 import com.google.android.exoplayer2.testutil.ActionSchedule.PlayerRunnable;
 import com.google.android.exoplayer2.testutil.ActionSchedule.PlayerTarget;
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
+import com.google.android.exoplayer2.trackselection.DefaultTrackSelector.Parameters;
 import com.google.android.exoplayer2.util.HandlerWrapper;
 
 /**
@@ -219,7 +220,10 @@ public abstract class Action {
 
   }
 
-  /** Calls {@link DefaultTrackSelector#setRendererDisabled(int, boolean)}. */
+  /**
+   * Updates the {@link Parameters} of a {@link DefaultTrackSelector} to specify whether the
+   * renderer at a given index should be disabled.
+   */
   public static final class SetRendererDisabled extends Action {
 
     private final int rendererIndex;
@@ -239,7 +243,8 @@ public abstract class Action {
     @Override
     protected void doActionImpl(
         SimpleExoPlayer player, DefaultTrackSelector trackSelector, Surface surface) {
-      trackSelector.setRendererDisabled(rendererIndex, disabled);
+      trackSelector.setParameters(
+          trackSelector.buildUponParameters().setRendererDisabled(rendererIndex, disabled));
     }
 
   }

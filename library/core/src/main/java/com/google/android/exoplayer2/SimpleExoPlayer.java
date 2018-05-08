@@ -47,6 +47,7 @@ import com.google.android.exoplayer2.util.Clock;
 import com.google.android.exoplayer2.util.Util;
 import com.google.android.exoplayer2.video.VideoRendererEventListener;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArraySet;
 
@@ -181,8 +182,8 @@ public class SimpleExoPlayer implements ExoPlayer, Player.VideoComponent, Player
     player = createExoPlayerImpl(renderers, trackSelector, loadControl, clock);
     analyticsCollector = analyticsCollectorFactory.createAnalyticsCollector(player, clock);
     addListener(analyticsCollector);
-    addVideoDebugListener(analyticsCollector);
-    addAudioDebugListener(analyticsCollector);
+    videoDebugListeners.add(analyticsCollector);
+    audioDebugListeners.add(analyticsCollector);
     addMetadataOutput(analyticsCollector);
     if (drmSessionManager instanceof DefaultDrmSessionManager) {
       ((DefaultDrmSessionManager) drmSessionManager).addListener(eventHandler, analyticsCollector);
@@ -534,10 +535,20 @@ public class SimpleExoPlayer implements ExoPlayer, Player.VideoComponent, Player
     removeTextOutput(output);
   }
 
+  /**
+   * Adds a {@link MetadataOutput} to receive metadata.
+   *
+   * @param listener The output to register.
+   */
   public void addMetadataOutput(MetadataOutput listener) {
     metadataOutputs.add(listener);
   }
 
+  /**
+   * Removes a {@link MetadataOutput}.
+   *
+   * @param listener The output to remove.
+   */
   public void removeMetadataOutput(MetadataOutput listener) {
     metadataOutputs.remove(listener);
   }
@@ -550,7 +561,7 @@ public class SimpleExoPlayer implements ExoPlayer, Player.VideoComponent, Player
    */
   @Deprecated
   public void setMetadataOutput(MetadataOutput output) {
-    metadataOutputs.clear();
+    metadataOutputs.retainAll(Collections.singleton(analyticsCollector));
     if (output != null) {
       addMetadataOutput(output);
     }
@@ -568,65 +579,61 @@ public class SimpleExoPlayer implements ExoPlayer, Player.VideoComponent, Player
   }
 
   /**
-   * Sets a listener to receive debug events from the video renderer.
-   *
-   * @param listener The listener.
-   * @deprecated Use {@link #addVideoDebugListener(VideoRendererEventListener)}.
+   * @deprecated Use {@link #addAnalyticsListener(AnalyticsListener)} to get more detailed debug
+   *     information.
    */
   @Deprecated
   public void setVideoDebugListener(VideoRendererEventListener listener) {
-    videoDebugListeners.clear();
+    videoDebugListeners.retainAll(Collections.singleton(analyticsCollector));
     if (listener != null) {
       addVideoDebugListener(listener);
     }
   }
 
   /**
-   * Adds a listener to receive debug events from the video renderer.
-   *
-   * @param listener The listener.
+   * @deprecated Use {@link #addAnalyticsListener(AnalyticsListener)} to get more detailed debug
+   *     information.
    */
+  @Deprecated
   public void addVideoDebugListener(VideoRendererEventListener listener) {
     videoDebugListeners.add(listener);
   }
 
   /**
-   * Removes a listener to receive debug events from the video renderer.
-   *
-   * @param listener The listener.
+   * @deprecated Use {@link #addAnalyticsListener(AnalyticsListener)} and {@link
+   *     #removeAnalyticsListener(AnalyticsListener)} to get more detailed debug information.
    */
+  @Deprecated
   public void removeVideoDebugListener(VideoRendererEventListener listener) {
     videoDebugListeners.remove(listener);
   }
 
   /**
-   * Sets a listener to receive debug events from the audio renderer.
-   *
-   * @param listener The listener.
-   * @deprecated Use {@link #addAudioDebugListener(AudioRendererEventListener)}.
+   * @deprecated Use {@link #addAnalyticsListener(AnalyticsListener)} to get more detailed debug
+   *     information.
    */
   @Deprecated
   public void setAudioDebugListener(AudioRendererEventListener listener) {
-    audioDebugListeners.clear();
+    audioDebugListeners.retainAll(Collections.singleton(analyticsCollector));
     if (listener != null) {
       addAudioDebugListener(listener);
     }
   }
 
   /**
-   * Adds a listener to receive debug events from the audio renderer.
-   *
-   * @param listener The listener.
+   * @deprecated Use {@link #addAnalyticsListener(AnalyticsListener)} to get more detailed debug
+   *     information.
    */
+  @Deprecated
   public void addAudioDebugListener(AudioRendererEventListener listener) {
     audioDebugListeners.add(listener);
   }
 
   /**
-   * Removes a listener to receive debug events from the audio renderer.
-   *
-   * @param listener The listener.
+   * @deprecated Use {@link #addAnalyticsListener(AnalyticsListener)} and {@link
+   *     #removeAnalyticsListener(AnalyticsListener)} to get more detailed debug information.
    */
+  @Deprecated
   public void removeAudioDebugListener(AudioRendererEventListener listener) {
     audioDebugListeners.remove(listener);
   }
@@ -651,6 +658,11 @@ public class SimpleExoPlayer implements ExoPlayer, Player.VideoComponent, Player
   @Override
   public int getPlaybackState() {
     return player.getPlaybackState();
+  }
+
+  @Override
+  public ExoPlaybackException getPlaybackError() {
+    return player.getPlaybackError();
   }
 
   @Override

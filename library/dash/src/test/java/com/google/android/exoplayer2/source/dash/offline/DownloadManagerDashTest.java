@@ -22,7 +22,9 @@ import static com.google.android.exoplayer2.testutil.CacheAsserts.assertCachedDa
 import static com.google.common.truth.Truth.assertThat;
 
 import android.content.Context;
+import android.net.Uri;
 import android.os.ConditionVariable;
+import android.support.annotation.Nullable;
 import com.google.android.exoplayer2.offline.DownloadManager;
 import com.google.android.exoplayer2.offline.DownloaderConstructorHelper;
 import com.google.android.exoplayer2.source.dash.manifest.RepresentationKey;
@@ -30,12 +32,15 @@ import com.google.android.exoplayer2.testutil.DummyMainThread;
 import com.google.android.exoplayer2.testutil.FakeDataSet;
 import com.google.android.exoplayer2.testutil.FakeDataSource;
 import com.google.android.exoplayer2.testutil.RobolectricUtil;
+import com.google.android.exoplayer2.testutil.TestDownloadManagerListener;
 import com.google.android.exoplayer2.testutil.TestUtil;
 import com.google.android.exoplayer2.upstream.DataSource.Factory;
 import com.google.android.exoplayer2.upstream.cache.NoOpCacheEvictor;
 import com.google.android.exoplayer2.upstream.cache.SimpleCache;
 import com.google.android.exoplayer2.util.Util;
 import java.io.File;
+import java.util.ArrayList;
+import java.util.Collections;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Ignore;
@@ -59,7 +64,7 @@ public class DownloadManagerDashTest {
   private DownloadManager downloadManager;
   private RepresentationKey fakeRepresentationKey1;
   private RepresentationKey fakeRepresentationKey2;
-  private TestDownloadListener downloadListener;
+  private TestDownloadManagerListener downloadManagerListener;
   private File actionFile;
   private DummyMainThread dummyMainThread;
 
@@ -240,15 +245,15 @@ public class DownloadManagerDashTest {
   }
 
   private void blockUntilTasksCompleteAndThrowAnyDownloadError() throws Throwable {
-    downloadListener.blockUntilTasksCompleteAndThrowAnyDownloadError();
+    downloadManagerListener.blockUntilTasksCompleteAndThrowAnyDownloadError();
   }
 
   private void handleDownloadAction(RepresentationKey... keys) {
-    downloadManager.handleAction(new DashDownloadAction(TEST_MPD_URI, false, null, keys));
+    downloadManager.handleAction(newAction(TEST_MPD_URI, false, null, keys));
   }
 
   private void handleRemoveAction() {
-    downloadManager.handleAction(new DashDownloadAction(TEST_MPD_URI, true, null));
+    downloadManager.handleAction(newAction(TEST_MPD_URI, true, null));
   }
 
   private void createDownloadManager() {
@@ -261,15 +266,23 @@ public class DownloadManagerDashTest {
             downloadManager =
                 new DownloadManager(
                     new DownloaderConstructorHelper(cache, fakeDataSourceFactory),
-                    1,
-                    3,
-                    actionFile.getAbsolutePath(),
+                    /* maxSimultaneousDownloads= */ 1,
+                    /* minRetryCount= */ 3,
+                    actionFile,
                     DashDownloadAction.DESERIALIZER);
 
-            downloadListener = new TestDownloadListener(downloadManager, dummyMainThread);
-            downloadManager.addListener(downloadListener);
+            downloadManagerListener =
+                new TestDownloadManagerListener(downloadManager, dummyMainThread);
+            downloadManager.addListener(downloadManagerListener);
             downloadManager.startDownloads();
           }
         });
+  }
+
+  private static DashDownloadAction newAction(
+      Uri uri, boolean isRemoveAction, @Nullable byte[] data, RepresentationKey... keys) {
+    ArrayList<RepresentationKey> keysList = new ArrayList<>();
+    Collections.addAll(keysList, keys);
+    return new DashDownloadAction(uri, isRemoveAction, data, keysList);
   }
 }

@@ -37,6 +37,8 @@ public final class SimpleCache implements Cache {
   private static final String TAG = "SimpleCache";
   private static final HashSet<File> lockedCacheDirs = new HashSet<>();
 
+  private static boolean cacheFolderLockingDisabled;
+
   private final File cacheDir;
   private final CacheEvictor evictor;
   private final CachedContentIndex index;
@@ -44,6 +46,31 @@ public final class SimpleCache implements Cache {
 
   private long totalSpace;
   private boolean released;
+
+  /**
+   * Returns whether {@code cacheFolder} is locked by a {@link SimpleCache} instance. To unlock the
+   * folder the {@link SimpleCache} instance should be released.
+   */
+  public static synchronized boolean isCacheFolderLocked(File cacheFolder) {
+    return lockedCacheDirs.contains(cacheFolder.getAbsoluteFile());
+  }
+
+  /**
+   * Disables locking the cache folders which {@link SimpleCache} instances are using and releases
+   * any previous lock.
+   *
+   * <p>The locking prevents multiple {@link SimpleCache} instances from being created for the same
+   * folder. Disabling it may cause the cache data to be corrupted. Use at your own risk.
+   *
+   * @deprecated Don't create multiple {@link SimpleCache} instances for the same cache folder. If
+   *     you need to create another instance, make sure you call {@link #release()} on the previous
+   *     instance.
+   */
+  @Deprecated
+  public static synchronized void disableCacheFolderLocking() {
+    cacheFolderLockingDisabled = true;
+    lockedCacheDirs.clear();
+  }
 
   /**
    * Constructs the cache. The cache will delete any unrecognized files from the directory. Hence
@@ -93,6 +120,10 @@ public final class SimpleCache implements Cache {
    * @param index The CachedContentIndex to be used.
    */
   /*package*/ SimpleCache(File cacheDir, CacheEvictor evictor, CachedContentIndex index) {
+    if (!lockFolder(cacheDir)) {
+      throw new IllegalStateException("Another SimpleCache instance uses the folder: " + cacheDir);
+    }
+
     this.cacheDir = cacheDir;
     this.evictor = evictor;
     this.index = index;
@@ -122,7 +153,7 @@ public final class SimpleCache implements Cache {
     try {
       removeStaleSpansAndCachedContents();
     } finally {
-      releaseFolder(cacheDir);
+      unlockFolder(cacheDir);
       released = true;
     }
   }
@@ -461,10 +492,15 @@ public final class SimpleCache implements Cache {
   }
 
   private static synchronized boolean lockFolder(File cacheDir) {
+    if (cacheFolderLockingDisabled) {
+      return true;
+    }
     return lockedCacheDirs.add(cacheDir.getAbsoluteFile());
   }
 
-  private static synchronized void releaseFolder(File cacheDir) {
-    lockedCacheDirs.remove(cacheDir.getAbsoluteFile());
+  private static synchronized void unlockFolder(File cacheDir) {
+    if (!cacheFolderLockingDisabled) {
+      lockedCacheDirs.remove(cacheDir.getAbsoluteFile());
+    }
   }
 }

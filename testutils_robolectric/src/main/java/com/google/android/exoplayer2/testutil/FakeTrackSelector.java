@@ -17,7 +17,6 @@ package com.google.android.exoplayer2.testutil;
 
 import android.support.annotation.NonNull;
 import com.google.android.exoplayer2.ExoPlaybackException;
-import com.google.android.exoplayer2.RendererCapabilities;
 import com.google.android.exoplayer2.source.TrackGroup;
 import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
@@ -47,7 +46,10 @@ public class FakeTrackSelector extends DefaultTrackSelector {
 
   @Override
   protected TrackSelection[] selectAllTracks(
-      RendererCapabilities[] rendererCapabilities, MappedTrackInfo mappedTrackInfo)
+      MappedTrackInfo mappedTrackInfo,
+      int[][][] rendererFormatSupports,
+      int[] rendererMixedMimeTypeAdaptationSupports,
+      Parameters params)
       throws ExoPlaybackException {
     TrackSelection[] selections = new TrackSelection[mappedTrackInfo.length];
     for (int i = 0; i < mappedTrackInfo.length; i++) {

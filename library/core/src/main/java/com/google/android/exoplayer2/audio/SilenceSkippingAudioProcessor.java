@@ -27,7 +27,7 @@ import java.nio.ByteOrder;
  * An {@link AudioProcessor} that skips silence in the input stream. Input and output are 16-bit
  * PCM.
  */
-/* package */ final class SilenceSkippingAudioProcessor implements AudioProcessor {
+public final class SilenceSkippingAudioProcessor implements AudioProcessor {
 
   /**
    * The minimum duration of audio that must be below {@link #SILENCE_THRESHOLD_LEVEL} to classify

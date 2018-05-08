@@ -395,23 +395,26 @@ public final class DashTestRunner {
 
     @Override
     protected TrackSelection[] selectAllTracks(
-        RendererCapabilities[] rendererCapabilities, MappedTrackInfo mappedTrackInfo)
+        MappedTrackInfo mappedTrackInfo,
+        int[][][] rendererFormatSupports,
+        int[] rendererMixedMimeTypeAdaptationSupports,
+        Parameters parameters)
         throws ExoPlaybackException {
-      Assertions.checkState(rendererCapabilities[VIDEO_RENDERER_INDEX].getTrackType()
-          == C.TRACK_TYPE_VIDEO);
-      Assertions.checkState(rendererCapabilities[AUDIO_RENDERER_INDEX].getTrackType()
-          == C.TRACK_TYPE_AUDIO);
+      Assertions.checkState(
+          mappedTrackInfo.getRendererType(VIDEO_RENDERER_INDEX) == C.TRACK_TYPE_VIDEO);
+      Assertions.checkState(
+          mappedTrackInfo.getRendererType(AUDIO_RENDERER_INDEX) == C.TRACK_TYPE_AUDIO);
       TrackGroupArray videoTrackGroups = mappedTrackInfo.getTrackGroups(VIDEO_RENDERER_INDEX);
       TrackGroupArray audioTrackGroups = mappedTrackInfo.getTrackGroups(AUDIO_RENDERER_INDEX);
       Assertions.checkState(videoTrackGroups.length == 1);
       Assertions.checkState(audioTrackGroups.length == 1);
-      TrackSelection[] selections = new TrackSelection[rendererCapabilities.length];
+      TrackSelection[] selections = new TrackSelection[mappedTrackInfo.getRendererCount()];
       selections[VIDEO_RENDERER_INDEX] =
           new RandomTrackSelection(
               videoTrackGroups.get(0),
               getVideoTrackIndices(
                   videoTrackGroups.get(0),
-                  mappedTrackInfo.getRendererTrackSupport(VIDEO_RENDERER_INDEX)[0],
+                  rendererFormatSupports[VIDEO_RENDERER_INDEX][0],
                   videoFormatIds,
                   canIncludeAdditionalVideoFormats),
               0 /* seed */);
@@ -423,8 +426,11 @@ public final class DashTestRunner {
       return selections;
     }
 
-    private int[] getVideoTrackIndices(TrackGroup trackGroup, int[] formatSupport,
-        String[] formatIds, boolean canIncludeAdditionalFormats) {
+    private int[] getVideoTrackIndices(
+        TrackGroup trackGroup,
+        int[] formatSupports,
+        String[] formatIds,
+        boolean canIncludeAdditionalFormats) {
       List<Integer> trackIndices = new ArrayList<>();
 
       // Always select explicitly listed representations.
@@ -438,7 +444,7 @@ public final class DashTestRunner {
       // Select additional video representations, if supported by the device.
       if (canIncludeAdditionalFormats) {
         for (int i = 0; i < trackGroup.length; i++) {
-          if (!trackIndices.contains(i) && isFormatHandled(formatSupport[i])) {
+          if (!trackIndices.contains(i) && isFormatHandled(formatSupports[i])) {
             Log.d(tag, "Adding extra video format: "
                 + Format.toLogString(trackGroup.getFormat(i)));
             trackIndices.add(i);

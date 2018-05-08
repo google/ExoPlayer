@@ -52,6 +52,8 @@ import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.source.ads.AdPlaybackState;
 import com.google.android.exoplayer2.source.ads.AdPlaybackState.AdState;
 import com.google.android.exoplayer2.source.ads.AdsLoader;
+import com.google.android.exoplayer2.source.ads.AdsMediaSource.AdLoadException;
+import com.google.android.exoplayer2.upstream.DataSpec;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.Util;
@@ -80,6 +82,7 @@ public final class ImaAdsLoader extends Player.DefaultEventListener implements A
     private final Context context;
 
     private @Nullable ImaSdkSettings imaSdkSettings;
+    private @Nullable AdEventListener adEventListener;
     private int vastLoadTimeoutMs;
     private int mediaLoadTimeoutMs;
 
@@ -105,6 +108,18 @@ public final class ImaAdsLoader extends Player.DefaultEventListener implements A
      */
     public Builder setImaSdkSettings(ImaSdkSettings imaSdkSettings) {
       this.imaSdkSettings = Assertions.checkNotNull(imaSdkSettings);
+      return this;
+    }
+
+    /**
+     * Sets a listener for ad events that will be passed to {@link
+     * AdsManager#addAdEventListener(AdEventListener)}.
+     *
+     * @param adEventListener The ad event listener.
+     * @return This builder, for convenience.
+     */
+    public Builder setAdEventListener(AdEventListener adEventListener) {
+      this.adEventListener = Assertions.checkNotNull(adEventListener);
       return this;
     }
 
@@ -144,7 +159,13 @@ public final class ImaAdsLoader extends Player.DefaultEventListener implements A
      */
     public ImaAdsLoader buildForAdTag(Uri adTagUri) {
       return new ImaAdsLoader(
-          context, adTagUri, imaSdkSettings, null, vastLoadTimeoutMs, mediaLoadTimeoutMs);
+          context,
+          adTagUri,
+          imaSdkSettings,
+          null,
+          vastLoadTimeoutMs,
+          mediaLoadTimeoutMs,
+          adEventListener);
     }
 
     /**
@@ -156,7 +177,13 @@ public final class ImaAdsLoader extends Player.DefaultEventListener implements A
      */
     public ImaAdsLoader buildForAdsResponse(String adsResponse) {
       return new ImaAdsLoader(
-          context, null, imaSdkSettings, adsResponse, vastLoadTimeoutMs, mediaLoadTimeoutMs);
+          context,
+          null,
+          imaSdkSettings,
+          adsResponse,
+          vastLoadTimeoutMs,
+          mediaLoadTimeoutMs,
+          adEventListener);
     }
   }
 
@@ -214,6 +241,7 @@ public final class ImaAdsLoader extends Player.DefaultEventListener implements A
   private final @Nullable String adsResponse;
   private final int vastLoadTimeoutMs;
   private final int mediaLoadTimeoutMs;
+  private final @Nullable AdEventListener adEventListener;
   private final Timeline.Period period;
   private final List<VideoAdPlayerCallback> adCallbacks;
   private final ImaSdkFactory imaSdkFactory;
@@ -229,7 +257,7 @@ public final class ImaAdsLoader extends Player.DefaultEventListener implements A
   private VideoProgressUpdate lastAdProgress;
 
   private AdsManager adsManager;
-  private AdErrorEvent pendingAdErrorEvent;
+  private AdLoadException pendingAdLoadError;
   private Timeline timeline;
   private long contentDurationMs;
   private int podIndexOffset;
@@ -308,7 +336,8 @@ public final class ImaAdsLoader extends Player.DefaultEventListener implements A
         /* imaSdkSettings= */ null,
         /* adsResponse= */ null,
         /* vastLoadTimeoutMs= */ TIMEOUT_UNSET,
-        /* mediaLoadTimeoutMs= */ TIMEOUT_UNSET);
+        /* mediaLoadTimeoutMs= */ TIMEOUT_UNSET,
+        /* adEventListener= */ null);
   }
 
   /**
@@ -330,7 +359,8 @@ public final class ImaAdsLoader extends Player.DefaultEventListener implements A
         imaSdkSettings,
         /* adsResponse= */ null,
         /* vastLoadTimeoutMs= */ TIMEOUT_UNSET,
-        /* mediaLoadTimeoutMs= */ TIMEOUT_UNSET);
+        /* mediaLoadTimeoutMs= */ TIMEOUT_UNSET,
+        /* adEventListener= */ null);
   }
 
   private ImaAdsLoader(
@@ -339,12 +369,14 @@ public final class ImaAdsLoader extends Player.DefaultEventListener implements A
       @Nullable ImaSdkSettings imaSdkSettings,
       @Nullable String adsResponse,
       int vastLoadTimeoutMs,
-      int mediaLoadTimeoutMs) {
+      int mediaLoadTimeoutMs,
+      @Nullable AdEventListener adEventListener) {
     Assertions.checkArgument(adTagUri != null || adsResponse != null);
     this.adTagUri = adTagUri;
     this.adsResponse = adsResponse;
     this.vastLoadTimeoutMs = vastLoadTimeoutMs;
     this.mediaLoadTimeoutMs = mediaLoadTimeoutMs;
+    this.adEventListener = adEventListener;
     period = new Timeline.Period();
     adCallbacks = new ArrayList<>(1);
     imaSdkFactory = ImaSdkFactory.getInstance();
@@ -500,6 +532,9 @@ public final class ImaAdsLoader extends Player.DefaultEventListener implements A
     this.adsManager = adsManager;
     adsManager.addAdErrorListener(this);
     adsManager.addAdEventListener(this);
+    if (adEventListener != null) {
+      adsManager.addAdEventListener(adEventListener);
+    }
     if (player != null) {
       // If a player is attached already, start playback immediately.
       try {
@@ -544,13 +579,13 @@ public final class ImaAdsLoader extends Player.DefaultEventListener implements A
       updateAdPlaybackState();
     } else if (isAdGroupLoadError(error)) {
       try {
-        handleAdGroupLoadError();
+        handleAdGroupLoadError(error);
       } catch (Exception e) {
         maybeNotifyInternalError("onAdError", e);
       }
     }
-    if (pendingAdErrorEvent == null) {
-      pendingAdErrorEvent = adErrorEvent;
+    if (pendingAdLoadError == null) {
+      pendingAdLoadError = AdLoadException.createForAllAds(error);
     }
     maybeNotifyPendingAdLoadError();
   }
@@ -937,9 +972,10 @@ public final class ImaAdsLoader extends Player.DefaultEventListener implements A
         break;
       case LOG:
         Map<String, String> adData = adEvent.getAdData();
-        Log.i(TAG, "Log AdEvent: " + adData);
+        String message = "AdEvent: " + adData;
+        Log.i(TAG, message);
         if ("adLoadError".equals(adData.get("type"))) {
-          handleAdGroupLoadError();
+          handleAdGroupLoadError(new IOException(message));
         }
         break;
       case ALL_ADS_COMPLETED:
@@ -1011,7 +1047,7 @@ public final class ImaAdsLoader extends Player.DefaultEventListener implements A
     }
   }
 
-  private void handleAdGroupLoadError() {
+  private void handleAdGroupLoadError(Exception error) {
     int adGroupIndex =
         this.adGroupIndex == C.INDEX_UNSET ? expectedAdGroupIndex : this.adGroupIndex;
     if (adGroupIndex == C.INDEX_UNSET) {
@@ -1033,6 +1069,9 @@ public final class ImaAdsLoader extends Player.DefaultEventListener implements A
       }
     }
     updateAdPlaybackState();
+    if (pendingAdLoadError == null) {
+      pendingAdLoadError = AdLoadException.createForAdGroup(error, adGroupIndex);
+    }
   }
 
   private void handleAdPrepareError(int adGroupIndex, int adIndexInAdGroup, Exception exception) {
@@ -1111,21 +1150,15 @@ public final class ImaAdsLoader extends Player.DefaultEventListener implements A
   }
 
   private void maybeNotifyPendingAdLoadError() {
-    if (pendingAdErrorEvent != null) {
-      if (eventListener != null) {
-        eventListener.onAdLoadError(
-            new IOException("Ad error: " + pendingAdErrorEvent, pendingAdErrorEvent.getError()));
-      }
-      pendingAdErrorEvent = null;
+    if (pendingAdLoadError != null && eventListener != null) {
+      eventListener.onAdLoadError(pendingAdLoadError, new DataSpec(adTagUri));
+      pendingAdLoadError = null;
     }
   }
 
   private void maybeNotifyInternalError(String name, Exception cause) {
     String message = "Internal error in " + name;
     Log.e(TAG, message, cause);
-    if (eventListener != null) {
-      eventListener.onInternalAdLoadError(new RuntimeException(message, cause));
-    }
     // We can't recover from an unexpected error in general, so skip all remaining ads.
     if (adPlaybackState == null) {
       adPlaybackState = new AdPlaybackState();
@@ -1135,6 +1168,11 @@ public final class ImaAdsLoader extends Player.DefaultEventListener implements A
       }
     }
     updateAdPlaybackState();
+    if (eventListener != null) {
+      eventListener.onAdLoadError(
+          AdLoadException.createForUnexpected(new RuntimeException(message, cause)),
+          new DataSpec(adTagUri));
+    }
   }
 
   private static long[] getAdGroupTimesUs(List<Float> cuePoints) {

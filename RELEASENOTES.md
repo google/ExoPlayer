@@ -2,19 +2,19 @@
 
 ### dev-v2 (not yet released) ###
 
-* Optimize seeking in FMP4 by enabling seeking to the nearest sync sample within
-  a fragment. This benefits standalone FMP4 playbacks, DASH and SmoothStreaming.
-* Moved initial bitrate estimate from `AdaptiveTrackSelection` to
-  `DefaultBandwidthMeter`.
-* Updated default max buffer length in `DefaultLoadControl`.
-* Added `AnalyticsListener` interface which can be registered in
-  `SimpleExoPlayer` to receive detailed meta data for each ExoPlayer event.
-* UI components:
-  * Add support for listening to `AspectRatioFrameLayout`'s aspect ratio update
-    ([#3736](https://github.com/google/ExoPlayer/issues/3736)).
-  * Add PlayerNotificationManager.
-* Downloading: Add `DownloadService`, `DownloadManager` and
-  related classes ([#2643](https://github.com/google/ExoPlayer/issues/2643)).
+* Coming soon...
+
+### 2.8.0 ###
+
+* Downloading:
+  * Add `DownloadService`, `DownloadManager` and related classes
+    ([#2643](https://github.com/google/ExoPlayer/issues/2643)). Information on
+    using these components to download progressive formats can be found
+    [here](https://medium.com/google-exoplayer/downloading-streams-6d259eec7f95).
+    To see how to download DASH, HLS and SmoothStreaming media, take a look at
+    the app.
+  * Updated main demo app to support downloading DASH, HLS, SmoothStreaming and
+    progressive media.
 * MediaSources:
   * Allow reusing media sources after they have been released and
     also in parallel to allow adding them multiple times to a concatenation.
@@ -31,9 +31,23 @@
   * Support live stream clipping with `ClippingMediaSource`.
   * Allow setting tags for all media sources in their factories. The tag of the
     current window can be retrieved with `ExoPlayer.getCurrentTag`.
-* IMA: Allow setting the ad media load timeout
-  ([#3691](https://github.com/google/ExoPlayer/issues/3691)).
+* UI components:
+  * Add support for displaying error messages and a buffering spinner in
+    `PlayerView`.
+  * Add support for listening to `AspectRatioFrameLayout`'s aspect ratio update
+    ([#3736](https://github.com/google/ExoPlayer/issues/3736)).
+  * Add `PlayerNotificationManager` for displaying notifications reflecting the
+    player state.
+  * Add `TrackSelectionView` for selecting tracks with `DefaultTrackSelector`.
+  * Add `TrackNameProvider` for converting track `Format`s to textual
+    descriptions, and `DefaultTrackNameProvider` as a default implementation.
+* Track selection:
+  * Reworked `MappingTrackSelector` and `DefaultTrackSelector`.
+  * `DefaultTrackSelector.Parameters` now implements `Parcelable`.
+  * Added UI components for track selection (see above).
 * Audio:
+  * Support extracting data from AMR container formats, including both narrow
+    and wide band ([#2527](https://github.com/google/ExoPlayer/issues/2527)).
   * FLAC:
     * Sniff FLAC files correctly if they have ID3 headers
       ([#4055](https://github.com/google/ExoPlayer/issues/4055)).
@@ -48,14 +62,17 @@
   * Fix an issue where playback of TrueHD streams would get stuck after seeking
     due to not finding a syncframe
     ((#3845)[https://github.com/google/ExoPlayer/issues/3845]).
+  * Fix an issue with eac3-joc playback where a codec would fail to configure
+    ((#4165)[https://github.com/google/ExoPlayer/issues/4165]).
   * Handle non-empty end-of-stream buffers, to fix gapless playback of streams
     with encoder padding when the decoder returns a non-empty final buffer.
   * Allow trimming more than one sample when applying an elst audio edit via
     gapless playback info.
+  * Allow overriding skipping/scaling with custom `AudioProcessor`s
+    ((#3142)[https://github.com/google/ExoPlayer/issues/3142]).
 * Caching:
-  * Add release method to Cache interface.
-  * Prevent multiple instances of SimpleCache in the same folder.
-    Previous instance must be released.
+  * Add release method to the `Cache` interface, and prevent multiple instances
+    of `SimpleCache` using the same folder at the same time.
   * Cache redirect URLs
     ([#2360](https://github.com/google/ExoPlayer/issues/2360)).
 * DRM:
@@ -65,17 +82,41 @@
     ([#4022][https://github.com/google/ExoPlayer/issues/4022]).
   * Fix handling of 307/308 redirects when making license requests
     ([#4108](https://github.com/google/ExoPlayer/issues/4108)).
-* HLS: Fix playlist loading error propagation when the current selection does
-  not include all of the playlist's variants.
+* HLS:
+  * Fix playlist loading error propagation when the current selection does
+    not include all of the playlist's variants.
+  * Fix SAMPLE-AES-CENC and SAMPLE-AES-CTR EXT-X-KEY methods
+    ([#4145](https://github.com/google/ExoPlayer/issues/4145)).
+  * Preeptively declare an ID3 track in chunkless preparation
+    ([#4016](https://github.com/google/ExoPlayer/issues/4016)).
+  * Add support for multiple #EXT-X-MAP tags in a media playlist
+    ([#4164](https://github.com/google/ExoPlayer/issues/4182)).
+  * Fix seeking in live streams
+    ([#4187](https://github.com/google/ExoPlayer/issues/4187)).
+* IMA:
+  * Allow setting the ad media load timeout
+    ([#3691](https://github.com/google/ExoPlayer/issues/3691)).
+  * Expose ad load errors via `MediaSourceEventListener` on `AdsMediaSource`,
+    and allow setting an ad event listener on `ImaAdsLoader`. Deprecate the
+    `AdsMediaSource.EventListener`.
+* Add `AnalyticsListener` interface which can be registered in
+  `SimpleExoPlayer` to receive detailed metadata for each ExoPlayer event.
+* Optimize seeking in FMP4 by enabling seeking to the nearest sync sample within
+  a fragment. This benefits standalone FMP4 playbacks, DASH and SmoothStreaming.
+* Updated default max buffer length in `DefaultLoadControl`.
 * Fix ClearKey decryption error if the key contains a forward slash
   ([#4075](https://github.com/google/ExoPlayer/issues/4075)).
 * Fix crash when switching surface on Huawei P9 Lite
   ([#4084](https://github.com/google/ExoPlayer/issues/4084)), and Philips QM163E
   ([#4104](https://github.com/google/ExoPlayer/issues/4104)).
 * Support ZLIB compressed PGS subtitles.
+* Added `getPlaybackError` to `Player` interface.
+* Moved initial bitrate estimate from `AdaptiveTrackSelection` to
+  `DefaultBandwidthMeter`.
 * Removed default renderer time offset of 60000000 from internal player. The
   actual renderer timestamp offset can be obtained by listening to
   `BaseRenderer.onStreamChanged`.
+* Added dependencies on checkerframework annotations for static code analysis.
 
 ### 2.7.3 ###
 
@@ -240,6 +281,7 @@
   ([#3792](https://github.com/google/ExoPlayer/issues/3792).
 * Support 14-bit mode and little endianness in DTS PES packets
   ([#3340](https://github.com/google/ExoPlayer/issues/3340)).
+* Demo app: Add ability to download not DRM protected content.
 
 ### 2.6.1 ###
 

@@ -25,6 +25,8 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.MockitoAnnotations.initMocks;
 
 import android.os.Parcel;
+import android.util.SparseArray;
+import android.util.SparseBooleanArray;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.Format;
@@ -34,6 +36,7 @@ import com.google.android.exoplayer2.source.TrackGroup;
 import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector.Parameters;
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector.ParametersBuilder;
+import com.google.android.exoplayer2.trackselection.DefaultTrackSelector.SelectionOverride;
 import com.google.android.exoplayer2.trackselection.TrackSelector.InvalidationListener;
 import com.google.android.exoplayer2.util.MimeTypes;
 import java.util.HashMap;
@@ -119,8 +122,18 @@ public final class DefaultTrackSelectorTest {
   /** Tests {@link Parameters} {@link android.os.Parcelable} implementation. */
   @Test
   public void testParametersParcelable() {
+    SparseArray<Map<TrackGroupArray, SelectionOverride>> selectionOverrides = new SparseArray<>();
+    Map<TrackGroupArray, SelectionOverride> videoOverrides = new HashMap<>();
+    videoOverrides.put(new TrackGroupArray(VIDEO_TRACK_GROUP), new SelectionOverride(0, 1));
+    selectionOverrides.put(2, videoOverrides);
+
+    SparseBooleanArray rendererDisabledFlags = new SparseBooleanArray();
+    rendererDisabledFlags.put(3, true);
+
     Parameters parametersToParcel =
         new Parameters(
+            selectionOverrides,
+            rendererDisabledFlags,
             /* preferredAudioLanguage= */ "en",
             /* preferredTextLanguage= */ "de",
             /* selectUndeterminedTextLanguage= */ false,
@@ -135,7 +148,8 @@ public final class DefaultTrackSelectorTest {
             /* exceedRendererCapabilitiesIfNecessary= */ true,
             /* viewportWidth= */ 4,
             /* viewportHeight= */ 5,
-            /* viewportOrientationMayChange= */ false);
+            /* viewportOrientationMayChange= */ false,
+            /* tunnelingAudioSessionId= */ C.AUDIO_SESSION_ID_UNSET);
 
     Parcel parcel = Parcel.obtain();
     parametersToParcel.writeToParcel(parcel, 0);
@@ -147,11 +161,32 @@ public final class DefaultTrackSelectorTest {
     parcel.recycle();
   }
 
+  /** Tests {@link SelectionOverride}'s {@link android.os.Parcelable} implementation. */
+  @Test
+  public void testSelectionOverrideParcelable() {
+    int[] tracks = new int[] {2, 3};
+    SelectionOverride selectionOverrideToParcel =
+        new SelectionOverride(/* groupIndex= */ 1, tracks);
+
+    Parcel parcel = Parcel.obtain();
+    selectionOverrideToParcel.writeToParcel(parcel, 0);
+    parcel.setDataPosition(0);
+
+    SelectionOverride selectionOverrideFromParcel =
+        SelectionOverride.CREATOR.createFromParcel(parcel);
+    assertThat(selectionOverrideFromParcel).isEqualTo(selectionOverrideToParcel);
+
+    parcel.recycle();
+  }
+
   /** Tests that a null override clears a track selection. */
   @Test
   public void testSelectTracksWithNullOverride() throws ExoPlaybackException {
     DefaultTrackSelector trackSelector = new DefaultTrackSelector();
-    trackSelector.setSelectionOverride(0, new TrackGroupArray(VIDEO_TRACK_GROUP), null);
+    trackSelector.setParameters(
+        trackSelector
+            .buildUponParameters()
+            .setSelectionOverride(0, new TrackGroupArray(VIDEO_TRACK_GROUP), null));
     TrackSelectorResult result = trackSelector.selectTracks(RENDERER_CAPABILITIES, TRACK_GROUPS);
     assertTrackSelections(result, new TrackSelection[] {null, TRACK_SELECTIONS[1]});
     assertThat(result.rendererConfigurations)
@@ -162,8 +197,11 @@ public final class DefaultTrackSelectorTest {
   @Test
   public void testSelectTracksWithClearedNullOverride() throws ExoPlaybackException {
     DefaultTrackSelector trackSelector = new DefaultTrackSelector();
-    trackSelector.setSelectionOverride(0, new TrackGroupArray(VIDEO_TRACK_GROUP), null);
-    trackSelector.clearSelectionOverride(0, new TrackGroupArray(VIDEO_TRACK_GROUP));
+    trackSelector.setParameters(
+        trackSelector
+            .buildUponParameters()
+            .setSelectionOverride(0, new TrackGroupArray(VIDEO_TRACK_GROUP), null)
+            .clearSelectionOverride(0, new TrackGroupArray(VIDEO_TRACK_GROUP)));
     TrackSelectorResult result = trackSelector.selectTracks(RENDERER_CAPABILITIES, TRACK_GROUPS);
     assertTrackSelections(result, TRACK_SELECTIONS);
     assertThat(result.rendererConfigurations)
@@ -174,7 +212,10 @@ public final class DefaultTrackSelectorTest {
   @Test
   public void testSelectTracksWithNullOverrideForDifferentTracks() throws ExoPlaybackException {
     DefaultTrackSelector trackSelector = new DefaultTrackSelector();
-    trackSelector.setSelectionOverride(0, new TrackGroupArray(VIDEO_TRACK_GROUP), null);
+    trackSelector.setParameters(
+        trackSelector
+            .buildUponParameters()
+            .setSelectionOverride(0, new TrackGroupArray(VIDEO_TRACK_GROUP), null));
     TrackSelectorResult result =
         trackSelector.selectTracks(
             RENDERER_CAPABILITIES,
@@ -188,7 +229,7 @@ public final class DefaultTrackSelectorTest {
   @Test
   public void testSelectTracksWithDisabledRenderer() throws ExoPlaybackException {
     DefaultTrackSelector trackSelector = new DefaultTrackSelector();
-    trackSelector.setRendererDisabled(1, true);
+    trackSelector.setParameters(trackSelector.buildUponParameters().setRendererDisabled(1, true));
     TrackSelectorResult result = trackSelector.selectTracks(RENDERER_CAPABILITIES, TRACK_GROUPS);
     assertTrackSelections(result, new TrackSelection[] {TRACK_SELECTIONS[0], null});
     assertThat(new RendererConfiguration[] {DEFAULT, null})
@@ -199,8 +240,11 @@ public final class DefaultTrackSelectorTest {
   @Test
   public void testSelectTracksWithClearedDisabledRenderer() throws ExoPlaybackException {
     DefaultTrackSelector trackSelector = new DefaultTrackSelector();
-    trackSelector.setRendererDisabled(1, true);
-    trackSelector.setRendererDisabled(1, false);
+    trackSelector.setParameters(
+        trackSelector
+            .buildUponParameters()
+            .setRendererDisabled(1, true)
+            .setRendererDisabled(1, false));
     TrackSelectorResult result = trackSelector.selectTracks(RENDERER_CAPABILITIES, TRACK_GROUPS);
     assertTrackSelections(result, TRACK_SELECTIONS);
     assertThat(new RendererConfiguration[] {DEFAULT, DEFAULT})
@@ -222,7 +266,7 @@ public final class DefaultTrackSelectorTest {
   @Test
   public void testSelectTracksWithDisabledNoSampleRenderer() throws ExoPlaybackException {
     DefaultTrackSelector trackSelector = new DefaultTrackSelector();
-    trackSelector.setRendererDisabled(1, true);
+    trackSelector.setParameters(trackSelector.buildUponParameters().setRendererDisabled(1, true));
     TrackSelectorResult result =
         trackSelector.selectTracks(RENDERER_CAPABILITIES_WITH_NO_SAMPLE_RENDERER, TRACK_GROUPS);
     assertTrackSelections(result, TRACK_SELECTIONS_WITH_NO_SAMPLE_RENDERER);

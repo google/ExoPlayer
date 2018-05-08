@@ -93,7 +93,7 @@ public final class MappingTrackSelectorTest {
 
   /**
    * A {@link MappingTrackSelector} that stashes the {@link MappedTrackInfo} passed to {@link
-   * #selectTracks(RendererCapabilities[], MappedTrackInfo)}.
+   * #selectTracks(MappedTrackInfo, int[][][], int[])}.
    */
   private static final class FakeMappingTrackSelector extends MappingTrackSelector {
 
@@ -101,12 +101,14 @@ public final class MappingTrackSelectorTest {
 
     @Override
     protected Pair<RendererConfiguration[], TrackSelection[]> selectTracks(
-        RendererCapabilities[] rendererCapabilities, MappedTrackInfo mappedTrackInfo)
+        MappedTrackInfo mappedTrackInfo,
+        int[][][] rendererFormatSupports,
+        int[] rendererMixedMimeTypeAdaptationSupports)
         throws ExoPlaybackException {
+      int rendererCount = mappedTrackInfo.getRendererCount();
       lastMappedTrackInfo = mappedTrackInfo;
       return Pair.create(
-          new RendererConfiguration[rendererCapabilities.length],
-          new TrackSelection[rendererCapabilities.length]);
+          new RendererConfiguration[rendererCount], new TrackSelection[rendererCount]);
     }
 
     public void assertMappedTrackGroups(int rendererIndex, TrackGroup... expected) {

@@ -19,6 +19,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.Log;
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.PlaybackParameters;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.Timeline;
@@ -305,6 +306,11 @@ public final class CastPlayer implements Player {
   @Override
   public int getPlaybackState() {
     return playbackState;
+  }
+
+  @Override
+  public ExoPlaybackException getPlaybackError() {
+    return null;
   }
 
   @Override

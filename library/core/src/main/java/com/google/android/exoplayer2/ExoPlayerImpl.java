@@ -61,6 +61,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
   private boolean hasPendingPrepare;
   private boolean hasPendingSeek;
   private PlaybackParameters playbackParameters;
+  private @Nullable ExoPlaybackException playbackError;
 
   // Playback information when there is no pending seek/set source operation.
   private PlaybackInfo playbackInfo;
@@ -157,12 +158,18 @@ import java.util.concurrent.CopyOnWriteArraySet;
   }
 
   @Override
+  public @Nullable ExoPlaybackException getPlaybackError() {
+    return playbackError;
+  }
+
+  @Override
   public void prepare(MediaSource mediaSource) {
     prepare(mediaSource, true, true);
   }
 
   @Override
   public void prepare(MediaSource mediaSource, boolean resetPosition, boolean resetState) {
+    playbackError = null;
     PlaybackInfo playbackInfo =
         getResetPlaybackInfo(
             resetPosition, resetState, /* playbackState= */ Player.STATE_BUFFERING);
@@ -325,6 +332,9 @@ import java.util.concurrent.CopyOnWriteArraySet;
 
   @Override
   public void stop(boolean reset) {
+    if (reset) {
+      playbackError = null;
+    }
     PlaybackInfo playbackInfo =
         getResetPlaybackInfo(
             /* resetPosition= */ reset,
@@ -560,9 +570,9 @@ import java.util.concurrent.CopyOnWriteArraySet;
         }
         break;
       case ExoPlayerImplInternal.MSG_ERROR:
-        ExoPlaybackException exception = (ExoPlaybackException) msg.obj;
+        playbackError = (ExoPlaybackException) msg.obj;
         for (Player.EventListener listener : listeners) {
-          listener.onPlayerError(exception);
+          listener.onPlayerError(playbackError);
         }
         break;
       default:

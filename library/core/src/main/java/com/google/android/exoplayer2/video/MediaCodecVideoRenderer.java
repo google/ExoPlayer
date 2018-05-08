@@ -144,7 +144,13 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
    */
   public MediaCodecVideoRenderer(Context context, MediaCodecSelector mediaCodecSelector,
       long allowedJoiningTimeMs) {
-    this(context, mediaCodecSelector, allowedJoiningTimeMs, null, null, -1);
+    this(
+        context,
+        mediaCodecSelector,
+        allowedJoiningTimeMs,
+        /* eventHandler= */ null,
+        /* eventListener= */ null,
+        -1);
   }
 
   /**
@@ -161,8 +167,15 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
   public MediaCodecVideoRenderer(Context context, MediaCodecSelector mediaCodecSelector,
       long allowedJoiningTimeMs, @Nullable Handler eventHandler,
       @Nullable VideoRendererEventListener eventListener, int maxDroppedFrameCountToNotify) {
-    this(context, mediaCodecSelector, allowedJoiningTimeMs, null, false, eventHandler,
-        eventListener, maxDroppedFrameCountToNotify);
+    this(
+        context,
+        mediaCodecSelector,
+        allowedJoiningTimeMs,
+        /* drmSessionManager= */ null,
+        /* playClearSamplesWithoutKeys= */ false,
+        eventHandler,
+        eventListener,
+        maxDroppedFrameCountToNotify);
   }
 
   /**
@@ -442,8 +455,8 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
 
   @Override
   protected @KeepCodecResult int canKeepCodec(
-      MediaCodec codec, boolean codecIsAdaptive, Format oldFormat, Format newFormat) {
-    if (areAdaptationCompatible(codecIsAdaptive, oldFormat, newFormat)
+      MediaCodec codec, MediaCodecInfo codecInfo, Format oldFormat, Format newFormat) {
+    if (areAdaptationCompatible(codecInfo.adaptive, oldFormat, newFormat)
         && newFormat.width <= codecMaxValues.width
         && newFormat.height <= codecMaxValues.height
         && getMaxInputSize(newFormat) <= codecMaxValues.inputSize) {
@@ -909,50 +922,6 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
   }
 
   /**
-   * Returns {@link CodecMaxValues} suitable for configuring a codec for {@code format} in a way
-   * that will allow possible adaptation to other compatible formats in {@code streamFormats}.
-   *
-   * @param codecInfo Information about the {@link MediaCodec} being configured.
-   * @param format The format for which the codec is being configured.
-   * @param streamFormats The possible stream formats.
-   * @return Suitable {@link CodecMaxValues}.
-   * @throws DecoderQueryException If an error occurs querying {@code codecInfo}.
-   */
-  protected CodecMaxValues getCodecMaxValues(MediaCodecInfo codecInfo, Format format,
-      Format[] streamFormats) throws DecoderQueryException {
-    int maxWidth = format.width;
-    int maxHeight = format.height;
-    int maxInputSize = getMaxInputSize(format);
-    if (streamFormats.length == 1) {
-      // The single entry in streamFormats must correspond to the format for which the codec is
-      // being configured.
-      return new CodecMaxValues(maxWidth, maxHeight, maxInputSize);
-    }
-    boolean haveUnknownDimensions = false;
-    for (Format streamFormat : streamFormats) {
-      if (areAdaptationCompatible(codecInfo.adaptive, format, streamFormat)) {
-        haveUnknownDimensions |= (streamFormat.width == Format.NO_VALUE
-            || streamFormat.height == Format.NO_VALUE);
-        maxWidth = Math.max(maxWidth, streamFormat.width);
-        maxHeight = Math.max(maxHeight, streamFormat.height);
-        maxInputSize = Math.max(maxInputSize, getMaxInputSize(streamFormat));
-      }
-    }
-    if (haveUnknownDimensions) {
-      Log.w(TAG, "Resolutions unknown. Codec max resolution: " + maxWidth + "x" + maxHeight);
-      Point codecMaxSize = getCodecMaxSize(codecInfo, format);
-      if (codecMaxSize != null) {
-        maxWidth = Math.max(maxWidth, codecMaxSize.x);
-        maxHeight = Math.max(maxHeight, codecMaxSize.y);
-        maxInputSize = Math.max(maxInputSize,
-            getMaxInputSize(format.sampleMimeType, maxWidth, maxHeight));
-        Log.w(TAG, "Codec max resolution adjusted to: " + maxWidth + "x" + maxHeight);
-      }
-    }
-    return new CodecMaxValues(maxWidth, maxHeight, maxInputSize);
-  }
-
-  /**
    * Returns the framework {@link MediaFormat} that should be used to configure the decoder.
    *
    * @param format The format of media.
@@ -995,6 +964,51 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
       configureTunnelingV21(mediaFormat, tunnelingAudioSessionId);
     }
     return mediaFormat;
+  }
+
+  /**
+   * Returns {@link CodecMaxValues} suitable for configuring a codec for {@code format} in a way
+   * that will allow possible adaptation to other compatible formats in {@code streamFormats}.
+   *
+   * @param codecInfo Information about the {@link MediaCodec} being configured.
+   * @param format The format for which the codec is being configured.
+   * @param streamFormats The possible stream formats.
+   * @return Suitable {@link CodecMaxValues}.
+   * @throws DecoderQueryException If an error occurs querying {@code codecInfo}.
+   */
+  protected CodecMaxValues getCodecMaxValues(
+      MediaCodecInfo codecInfo, Format format, Format[] streamFormats)
+      throws DecoderQueryException {
+    int maxWidth = format.width;
+    int maxHeight = format.height;
+    int maxInputSize = getMaxInputSize(format);
+    if (streamFormats.length == 1) {
+      // The single entry in streamFormats must correspond to the format for which the codec is
+      // being configured.
+      return new CodecMaxValues(maxWidth, maxHeight, maxInputSize);
+    }
+    boolean haveUnknownDimensions = false;
+    for (Format streamFormat : streamFormats) {
+      if (areAdaptationCompatible(codecInfo.adaptive, format, streamFormat)) {
+        haveUnknownDimensions |=
+            (streamFormat.width == Format.NO_VALUE || streamFormat.height == Format.NO_VALUE);
+        maxWidth = Math.max(maxWidth, streamFormat.width);
+        maxHeight = Math.max(maxHeight, streamFormat.height);
+        maxInputSize = Math.max(maxInputSize, getMaxInputSize(streamFormat));
+      }
+    }
+    if (haveUnknownDimensions) {
+      Log.w(TAG, "Resolutions unknown. Codec max resolution: " + maxWidth + "x" + maxHeight);
+      Point codecMaxSize = getCodecMaxSize(codecInfo, format);
+      if (codecMaxSize != null) {
+        maxWidth = Math.max(maxWidth, codecMaxSize.x);
+        maxHeight = Math.max(maxHeight, codecMaxSize.y);
+        maxInputSize =
+            Math.max(maxInputSize, getMaxInputSize(format.sampleMimeType, maxWidth, maxHeight));
+        Log.w(TAG, "Codec max resolution adjusted to: " + maxWidth + "x" + maxHeight);
+      }
+    }
+    return new CodecMaxValues(maxWidth, maxHeight, maxInputSize);
   }
 
   /**

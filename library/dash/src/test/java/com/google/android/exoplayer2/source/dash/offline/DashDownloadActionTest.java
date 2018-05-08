@@ -18,6 +18,7 @@ package com.google.android.exoplayer2.source.dash.offline;
 import static com.google.common.truth.Truth.assertThat;
 
 import android.net.Uri;
+import android.support.annotation.Nullable;
 import com.google.android.exoplayer2.offline.DownloadAction;
 import com.google.android.exoplayer2.offline.DownloaderConstructorHelper;
 import com.google.android.exoplayer2.source.dash.manifest.RepresentationKey;
@@ -28,6 +29,9 @@ import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collections;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
@@ -40,100 +44,132 @@ import org.robolectric.RobolectricTestRunner;
 @RunWith(RobolectricTestRunner.class)
 public class DashDownloadActionTest {
 
-  @Test
-  public void testDownloadActionIsNotRemoveAction() throws Exception {
-    DashDownloadAction action = new DashDownloadAction(Uri.parse("uri"), false, null);
-    assertThat(action.isRemoveAction()).isFalse();
+  private Uri uri1;
+  private Uri uri2;
+
+  @Before
+  public void setUp() {
+    uri1 = Uri.parse("http://test1.uri");
+    uri2 = Uri.parse("http://test2.uri");
   }
 
   @Test
-  public void testRemoveActionIsRemoveAction() throws Exception {
-    DashDownloadAction action2 = new DashDownloadAction(Uri.parse("uri"), true, null);
-    assertThat(action2.isRemoveAction()).isTrue();
+  public void testDownloadActionIsNotRemoveAction() {
+    DashDownloadAction action = newAction(uri1, /* isRemoveAction= */ false, /* data= */ null);
+    assertThat(action.isRemoveAction).isFalse();
   }
 
   @Test
-  public void testCreateDownloader() throws Exception {
+  public void testRemoveActionisRemoveAction() {
+    DashDownloadAction action2 = newAction(uri1, /* isRemoveAction= */ true, /* data= */ null);
+    assertThat(action2.isRemoveAction).isTrue();
+  }
+
+  @Test
+  public void testCreateDownloader() {
     MockitoAnnotations.initMocks(this);
-    DashDownloadAction action = new DashDownloadAction(Uri.parse("uri"), false, null);
+    DashDownloadAction action = newAction(uri1, /* isRemoveAction= */ false, /* data= */ null);
     DownloaderConstructorHelper constructorHelper = new DownloaderConstructorHelper(
         Mockito.mock(Cache.class), DummyDataSource.FACTORY);
     assertThat(action.createDownloader(constructorHelper)).isNotNull();
   }
 
   @Test
-  public void testSameUriDifferentAction_IsSameMedia() throws Exception {
-    DashDownloadAction action1 = new DashDownloadAction(Uri.parse("uri"), true, null);
-    DashDownloadAction action2 = new DashDownloadAction(Uri.parse("uri"), false, null);
+  public void testSameUriDifferentAction_IsSameMedia() {
+    DashDownloadAction action1 = newAction(uri1, /* isRemoveAction= */ true, /* data= */ null);
+    DashDownloadAction action2 = newAction(uri1, /* isRemoveAction= */ false, /* data= */ null);
     assertThat(action1.isSameMedia(action2)).isTrue();
   }
 
   @Test
-  public void testDifferentUriAndAction_IsNotSameMedia() throws Exception {
-    DashDownloadAction action3 = new DashDownloadAction(Uri.parse("uri2"), true, null);
-    DashDownloadAction action4 = new DashDownloadAction(Uri.parse("uri"), false, null);
+  public void testDifferentUriAndAction_IsNotSameMedia() {
+    DashDownloadAction action3 = newAction(uri2, /* isRemoveAction= */ true, /* data= */ null);
+    DashDownloadAction action4 = newAction(uri1, /* isRemoveAction= */ false, /* data= */ null);
     assertThat(action3.isSameMedia(action4)).isFalse();
   }
 
   @SuppressWarnings("EqualsWithItself")
   @Test
-  public void testEquals() throws Exception {
-    DashDownloadAction action1 = new DashDownloadAction(Uri.parse("uri"), true, null);
+  public void testEquals() {
+    DashDownloadAction action1 = newAction(uri1, /* isRemoveAction= */ true, /* data= */ null);
     assertThat(action1.equals(action1)).isTrue();
 
-    DashDownloadAction action2 = new DashDownloadAction(Uri.parse("uri"), true, null);
-    DashDownloadAction action3 = new DashDownloadAction(Uri.parse("uri"), true, null);
+    DashDownloadAction action2 = newAction(uri1, /* isRemoveAction= */ true, /* data= */ null);
+    DashDownloadAction action3 = newAction(uri1, /* isRemoveAction= */ true, /* data= */ null);
     assertEqual(action2, action3);
 
-    DashDownloadAction action4 = new DashDownloadAction(Uri.parse("uri"), true, null);
-    DashDownloadAction action5 = new DashDownloadAction(Uri.parse("uri"), false, null);
+    DashDownloadAction action4 = newAction(uri1, /* isRemoveAction= */ true, /* data= */ null);
+    DashDownloadAction action5 = newAction(uri1, /* isRemoveAction= */ false, /* data= */ null);
     assertNotEqual(action4, action5);
 
-    DashDownloadAction action6 = new DashDownloadAction(Uri.parse("uri"), false, null);
+    DashDownloadAction action6 = newAction(uri1, /* isRemoveAction= */ false, /* data= */ null);
     DashDownloadAction action7 =
-        new DashDownloadAction(Uri.parse("uri"), false, null, new RepresentationKey(0, 0, 0));
+        newAction(
+            uri1, /* isRemoveAction= */ false, /* data= */ null, new RepresentationKey(0, 0, 0));
     assertNotEqual(action6, action7);
 
     DashDownloadAction action8 =
-        new DashDownloadAction(Uri.parse("uri"), false, null, new RepresentationKey(1, 1, 1));
+        newAction(
+            uri1, /* isRemoveAction= */ false, /* data= */ null, new RepresentationKey(1, 1, 1));
     DashDownloadAction action9 =
-        new DashDownloadAction(Uri.parse("uri"), false, null, new RepresentationKey(0, 0, 0));
+        newAction(
+            uri1, /* isRemoveAction= */ false, /* data= */ null, new RepresentationKey(0, 0, 0));
     assertNotEqual(action8, action9);
 
-    DashDownloadAction action10 = new DashDownloadAction(Uri.parse("uri"), true, null);
-    DashDownloadAction action11 = new DashDownloadAction(Uri.parse("uri2"), true, null);
+    DashDownloadAction action10 = newAction(uri1, /* isRemoveAction= */ true, /* data= */ null);
+    DashDownloadAction action11 = newAction(uri2, /* isRemoveAction= */ true, /* data= */ null);
     assertNotEqual(action10, action11);
 
-    DashDownloadAction action12 = new DashDownloadAction(Uri.parse("uri"), false, null,
-        new RepresentationKey(0, 0, 0), new RepresentationKey(1, 1, 1));
-    DashDownloadAction action13 = new DashDownloadAction(Uri.parse("uri"), false, null,
-        new RepresentationKey(1, 1, 1), new RepresentationKey(0, 0, 0));
+    DashDownloadAction action12 =
+        newAction(
+            uri1,
+            /* isRemoveAction= */ false,
+            /* data= */ null,
+            new RepresentationKey(0, 0, 0),
+            new RepresentationKey(1, 1, 1));
+    DashDownloadAction action13 =
+        newAction(
+            uri1,
+            /* isRemoveAction= */ false,
+            /* data= */ null,
+            new RepresentationKey(1, 1, 1),
+            new RepresentationKey(0, 0, 0));
     assertEqual(action12, action13);
 
-    DashDownloadAction action14 = new DashDownloadAction(Uri.parse("uri"), false, null,
-        new RepresentationKey(0, 0, 0));
-    DashDownloadAction action15 = new DashDownloadAction(Uri.parse("uri"), false, null,
-        new RepresentationKey(1, 1, 1), new RepresentationKey(0, 0, 0));
+    DashDownloadAction action14 =
+        newAction(
+            uri1, /* isRemoveAction= */ false, /* data= */ null, new RepresentationKey(0, 0, 0));
+    DashDownloadAction action15 =
+        newAction(
+            uri1,
+            /* isRemoveAction= */ false,
+            /* data= */ null,
+            new RepresentationKey(1, 1, 1),
+            new RepresentationKey(0, 0, 0));
     assertNotEqual(action14, action15);
 
-    DashDownloadAction action16 = new DashDownloadAction(Uri.parse("uri"), false, null);
-    DashDownloadAction action17 =
-        new DashDownloadAction(Uri.parse("uri"), false, null, new RepresentationKey[0]);
+    DashDownloadAction action16 = newAction(uri1, /* isRemoveAction= */ false, /* data= */ null);
+    DashDownloadAction action17 = newAction(uri1, /* isRemoveAction= */ false, /* data= */ null);
     assertEqual(action16, action17);
   }
 
   @Test
-  public void testSerializerGetType() throws Exception {
-    DashDownloadAction action = new DashDownloadAction(Uri.parse("uri"), false, null);
-    assertThat(action.getType()).isNotNull();
+  public void testSerializerGetType() {
+    DashDownloadAction action = newAction(uri1, /* isRemoveAction= */ false, /* data= */ null);
+    assertThat(action.type).isNotNull();
   }
 
   @Test
   public void testSerializerWriteRead() throws Exception {
-    doTestSerializationRoundTrip(new DashDownloadAction(Uri.parse("uri"), false, null));
-    doTestSerializationRoundTrip(new DashDownloadAction(Uri.parse("uri"), true, null));
-    doTestSerializationRoundTrip(new DashDownloadAction(Uri.parse("uri2"), false, null,
-        new RepresentationKey(0, 0, 0), new RepresentationKey(1, 1, 1)));
+    doTestSerializationRoundTrip(newAction(uri1, /* isRemoveAction= */ false, /* data= */ null));
+    doTestSerializationRoundTrip(newAction(uri1, /* isRemoveAction= */ true, /* data= */ null));
+    doTestSerializationRoundTrip(
+        newAction(
+            uri2,
+            /* isRemoveAction= */ false,
+            /* data= */ null,
+            new RepresentationKey(0, 0, 0),
+            new RepresentationKey(1, 1, 1)));
   }
 
   private static void assertNotEqual(DashDownloadAction action1, DashDownloadAction action2) {
@@ -146,17 +182,24 @@ public class DashDownloadActionTest {
     assertThat(action2).isEqualTo(action1);
   }
 
-  private static void doTestSerializationRoundTrip(DashDownloadAction action1) throws IOException {
+  private static void doTestSerializationRoundTrip(DashDownloadAction action) throws IOException {
     ByteArrayOutputStream out = new ByteArrayOutputStream();
     DataOutputStream output = new DataOutputStream(out);
-    action1.writeToStream(output);
+    DownloadAction.serializeToStream(action, output);
 
     ByteArrayInputStream in = new ByteArrayInputStream(out.toByteArray());
     DataInputStream input = new DataInputStream(in);
     DownloadAction action2 =
-        DashDownloadAction.DESERIALIZER.readFromStream(DownloadAction.MASTER_VERSION, input);
+        DownloadAction.deserializeFromStream(
+            new DownloadAction.Deserializer[] {DashDownloadAction.DESERIALIZER}, input);
 
-    assertThat(action1).isEqualTo(action2);
+    assertThat(action).isEqualTo(action2);
   }
 
+  private static DashDownloadAction newAction(
+      Uri uri, boolean isRemoveAction, @Nullable byte[] data, RepresentationKey... keys) {
+    ArrayList<RepresentationKey> keysList = new ArrayList<>();
+    Collections.addAll(keysList, keys);
+    return new DashDownloadAction(uri, isRemoveAction, data, keysList);
+  }
 }

@@ -64,6 +64,9 @@ public final class C {
    */
   public static final int LENGTH_UNSET = -1;
 
+  /** Represents an unset or unknown percentage. */
+  public static final int PERCENTAGE_UNSET = -1;
+
   /**
    * The number of microseconds in one second.
    */
@@ -490,6 +493,8 @@ public final class C {
    * A data type constant for time synchronization data.
    */
   public static final int DATA_TYPE_TIME_SYNCHRONIZATION = 5;
+  /** A data type constant for ads loader data. */
+  public static final int DATA_TYPE_AD = 6;
   /**
    * Applications or extensions may define custom {@code DATA_TYPE_*} constants greater than or
    * equal to this value.

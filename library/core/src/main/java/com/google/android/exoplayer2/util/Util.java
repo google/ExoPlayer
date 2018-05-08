@@ -18,7 +18,9 @@ package com.google.android.exoplayer2.util;
 import android.Manifest.permission;
 import android.annotation.TargetApi;
 import android.app.Activity;
+import android.content.ComponentName;
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
@@ -27,6 +29,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Parcel;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.Display;
@@ -129,6 +132,22 @@ public final class Util {
   }
 
   /**
+   * Calls {@link Context#startForegroundService(Intent)} if {@link #SDK_INT} is 26 or higher, or
+   * {@link Context#startService(Intent)} otherwise.
+   *
+   * @param context The context to call.
+   * @param intent The intent to pass to the called method.
+   * @return The result of the called method.
+   */
+  public static ComponentName startForegroundService(Context context, Intent intent) {
+    if (Util.SDK_INT >= 26) {
+      return context.startForegroundService(intent);
+    } else {
+      return context.startService(intent);
+    }
+  }
+
+  /**
    * Checks whether it's necessary to request the {@link permission#READ_EXTERNAL_STORAGE}
    * permission read the specified {@link Uri}s, requesting the permission if necessary.
    *
@@ -172,7 +191,7 @@ public final class Util {
    * @param o2 The second object.
    * @return {@code o1 == null ? o2 == null : o1.equals(o2)}.
    */
-  public static boolean areEqual(Object o1, Object o2) {
+  public static boolean areEqual(@Nullable Object o1, @Nullable Object o2) {
     return o1 == null ? o2 == null : o1.equals(o2);
   }
 
@@ -204,6 +223,20 @@ public final class Util {
    */
   public static <T> void removeRange(List<T> list, int fromIndex, int toIndex) {
     list.subList(fromIndex, toIndex).clear();
+  }
+
+  /**
+   * Copies and optionally truncates an array. Prevents null array elements created by {@link
+   * Arrays#copyOf(Object[], int)} by ensuring the new length does not exceed the current length.
+   *
+   * @param input The input array.
+   * @param length The output array length. Must be less or equal to the length of the input array.
+   * @return The copied array.
+   */
+  @SuppressWarnings("nullness:assignment.type.incompatible")
+  public static <T> T[] nullSafeArrayCopy(T[] input, int length) {
+    Assertions.checkArgument(length <= input.length);
+    return Arrays.copyOf(input, length);
   }
 
   /**
