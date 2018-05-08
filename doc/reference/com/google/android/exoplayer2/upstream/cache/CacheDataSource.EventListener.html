@@ -16,7 +16,7 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":6};
+var methods = {"i0":6,"i1":6};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],4:["t3","Abstract Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -46,7 +46,7 @@ var activeTableTab = "activeTableTab";
 </div>
 <div class="subNav">
 <ul class="navList">
-<li><a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheDataSource.html" title="class in com.google.android.exoplayer2.upstream.cache"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
+<li><a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheDataSource.CacheIgnoredReason.html" title="annotation in com.google.android.exoplayer2.upstream.cache"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
 <li><a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheDataSource.Flags.html" title="annotation in com.google.android.exoplayer2.upstream.cache"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
 </ul>
 <ul class="navList">
@@ -129,6 +129,12 @@ var activeTableTab = "activeTableTab";
 <div class="block">Called when bytes have been read from the cache.</div>
 </td>
 </tr>
+<tr id="i1" class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheDataSource.EventListener.html#onCacheIgnored-int-">onCacheIgnored</a></span>(int&nbsp;reason)</code>
+<div class="block">Called when the current request ignores cache.</div>
+</td>
+</tr>
 </table>
 </li>
 </ul>
@@ -147,7 +153,7 @@ var activeTableTab = "activeTableTab";
 <a name="onCachedBytesRead-long-long-">
 <!--   -->
 </a>
-<ul class="blockListLast">
+<ul class="blockList">
 <li class="blockList">
 <h4>onCachedBytesRead</h4>
 <pre>void&nbsp;onCachedBytesRead(long&nbsp;cacheSizeBytes,
@@ -157,6 +163,20 @@ var activeTableTab = "activeTableTab";
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>cacheSizeBytes</code> - Current cache size in bytes.</dd>
 <dd><code>cachedBytesRead</code> - Total bytes read from the cache since this method was last called.</dd>
+</dl>
+</li>
+</ul>
+<a name="onCacheIgnored-int-">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>onCacheIgnored</h4>
+<pre>void&nbsp;onCacheIgnored(int&nbsp;reason)</pre>
+<div class="block">Called when the current request ignores cache.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>reason</code> - Reason cache is bypassed.</dd>
 </dl>
 </li>
 </ul>
@@ -187,7 +207,7 @@ var activeTableTab = "activeTableTab";
 </div>
 <div class="subNav">
 <ul class="navList">
-<li><a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheDataSource.html" title="class in com.google.android.exoplayer2.upstream.cache"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
+<li><a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheDataSource.CacheIgnoredReason.html" title="annotation in com.google.android.exoplayer2.upstream.cache"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
 <li><a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheDataSource.Flags.html" title="annotation in com.google.android.exoplayer2.upstream.cache"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
 </ul>
 <ul class="navList">

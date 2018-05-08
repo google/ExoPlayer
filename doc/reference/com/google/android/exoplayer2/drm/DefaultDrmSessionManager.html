@@ -16,8 +16,8 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":9,"i5":9,"i6":9,"i7":10,"i8":10,"i9":10,"i10":10,"i11":10,"i12":10,"i13":10};
-var tabs = {65535:["t0","All Methods"],1:["t1","Static Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
+var methods = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":9,"i6":41,"i7":9,"i8":41,"i9":9,"i10":41,"i11":10,"i12":10,"i13":10,"i14":10,"i15":10,"i16":10,"i17":10,"i18":10};
+var tabs = {65535:["t0","All Methods"],1:["t1","Static Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"],32:["t6","Deprecated Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
@@ -46,7 +46,7 @@ var activeTableTab = "activeTableTab";
 </div>
 <div class="subNav">
 <ul class="navList">
-<li><a href="../../../../../com/google/android/exoplayer2/drm/DecryptionException.html" title="class in com.google.android.exoplayer2.drm"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
+<li><a href="../../../../../com/google/android/exoplayer2/drm/DefaultDrmSessionEventListener.EventDispatcher.html" title="class in com.google.android.exoplayer2.drm"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
 <li><a href="../../../../../com/google/android/exoplayer2/drm/DefaultDrmSessionManager.EventListener.html" title="interface in com.google.android.exoplayer2.drm"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
 </ul>
 <ul class="navList">
@@ -135,7 +135,9 @@ implements <a href="../../../../../com/google/android/exoplayer2/drm/DrmSessionM
 <tr class="altColor">
 <td class="colFirst"><code>static interface&nbsp;</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/drm/DefaultDrmSessionManager.EventListener.html" title="interface in com.google.android.exoplayer2.drm">DefaultDrmSessionManager.EventListener</a></span></code>
-<div class="block">Listener of <a href="../../../../../com/google/android/exoplayer2/drm/DefaultDrmSessionManager.html" title="class in com.google.android.exoplayer2.drm"><code>DefaultDrmSessionManager</code></a> events.</div>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;
+<div class="block"><span class="deprecationComment">Use <a href="../../../../../com/google/android/exoplayer2/drm/DefaultDrmSessionEventListener.html" title="interface in com.google.android.exoplayer2.drm"><code>DefaultDrmSessionEventListener</code></a>.</span></div>
+</div>
 </td>
 </tr>
 <tr class="rowColor">
@@ -217,31 +219,67 @@ implements <a href="../../../../../com/google/android/exoplayer2/drm/DrmSessionM
 <th class="colOne" scope="col">Constructor and Description</th>
 </tr>
 <tr class="altColor">
-<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/drm/DefaultDrmSessionManager.html#DefaultDrmSessionManager-java.util.UUID-com.google.android.exoplayer2.drm.ExoMediaDrm-com.google.android.exoplayer2.drm.MediaDrmCallback-java.util.HashMap-android.os.Handler-com.google.android.exoplayer2.drm.DefaultDrmSessionManager.EventListener-">DefaultDrmSessionManager</a></span>(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/UUID.html" target="_top" title="class or interface in java.util">UUID</a>&nbsp;uuid,
+<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/drm/DefaultDrmSessionManager.html#DefaultDrmSessionManager-java.util.UUID-com.google.android.exoplayer2.drm.ExoMediaDrm-com.google.android.exoplayer2.drm.MediaDrmCallback-java.util.HashMap-">DefaultDrmSessionManager</a></span>(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/UUID.html" target="_top" title="class or interface in java.util">UUID</a>&nbsp;uuid,
                         <a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm.html" title="interface in com.google.android.exoplayer2.drm">ExoMediaDrm</a>&lt;<a href="../../../../../com/google/android/exoplayer2/drm/DefaultDrmSessionManager.html" title="type parameter in DefaultDrmSessionManager">T</a>&gt;&nbsp;mediaDrm,
                         <a href="../../../../../com/google/android/exoplayer2/drm/MediaDrmCallback.html" title="interface in com.google.android.exoplayer2.drm">MediaDrmCallback</a>&nbsp;callback,
-                        <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/HashMap.html" target="_top" title="class or interface in java.util">HashMap</a>&lt;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>,<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&gt;&nbsp;optionalKeyRequestParameters,
-                        <a href="https://developer.android.com/reference/android/os/Handler.html" target="_top" title="class or interface in android.os">Handler</a>&nbsp;eventHandler,
-                        <a href="../../../../../com/google/android/exoplayer2/drm/DefaultDrmSessionManager.EventListener.html" title="interface in com.google.android.exoplayer2.drm">DefaultDrmSessionManager.EventListener</a>&nbsp;eventListener)</code>&nbsp;</td>
+                        <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/HashMap.html" target="_top" title="class or interface in java.util">HashMap</a>&lt;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>,<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&gt;&nbsp;optionalKeyRequestParameters)</code>&nbsp;</td>
 </tr>
 <tr class="rowColor">
-<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/drm/DefaultDrmSessionManager.html#DefaultDrmSessionManager-java.util.UUID-com.google.android.exoplayer2.drm.ExoMediaDrm-com.google.android.exoplayer2.drm.MediaDrmCallback-java.util.HashMap-android.os.Handler-com.google.android.exoplayer2.drm.DefaultDrmSessionManager.EventListener-boolean-">DefaultDrmSessionManager</a></span>(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/UUID.html" target="_top" title="class or interface in java.util">UUID</a>&nbsp;uuid,
+<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/drm/DefaultDrmSessionManager.html#DefaultDrmSessionManager-java.util.UUID-com.google.android.exoplayer2.drm.ExoMediaDrm-com.google.android.exoplayer2.drm.MediaDrmCallback-java.util.HashMap-boolean-">DefaultDrmSessionManager</a></span>(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/UUID.html" target="_top" title="class or interface in java.util">UUID</a>&nbsp;uuid,
                         <a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm.html" title="interface in com.google.android.exoplayer2.drm">ExoMediaDrm</a>&lt;<a href="../../../../../com/google/android/exoplayer2/drm/DefaultDrmSessionManager.html" title="type parameter in DefaultDrmSessionManager">T</a>&gt;&nbsp;mediaDrm,
                         <a href="../../../../../com/google/android/exoplayer2/drm/MediaDrmCallback.html" title="interface in com.google.android.exoplayer2.drm">MediaDrmCallback</a>&nbsp;callback,
                         <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/HashMap.html" target="_top" title="class or interface in java.util">HashMap</a>&lt;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>,<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&gt;&nbsp;optionalKeyRequestParameters,
-                        <a href="https://developer.android.com/reference/android/os/Handler.html" target="_top" title="class or interface in android.os">Handler</a>&nbsp;eventHandler,
-                        <a href="../../../../../com/google/android/exoplayer2/drm/DefaultDrmSessionManager.EventListener.html" title="interface in com.google.android.exoplayer2.drm">DefaultDrmSessionManager.EventListener</a>&nbsp;eventListener,
                         boolean&nbsp;multiSession)</code>&nbsp;</td>
 </tr>
 <tr class="altColor">
-<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/drm/DefaultDrmSessionManager.html#DefaultDrmSessionManager-java.util.UUID-com.google.android.exoplayer2.drm.ExoMediaDrm-com.google.android.exoplayer2.drm.MediaDrmCallback-java.util.HashMap-android.os.Handler-com.google.android.exoplayer2.drm.DefaultDrmSessionManager.EventListener-boolean-int-">DefaultDrmSessionManager</a></span>(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/UUID.html" target="_top" title="class or interface in java.util">UUID</a>&nbsp;uuid,
+<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/drm/DefaultDrmSessionManager.html#DefaultDrmSessionManager-java.util.UUID-com.google.android.exoplayer2.drm.ExoMediaDrm-com.google.android.exoplayer2.drm.MediaDrmCallback-java.util.HashMap-boolean-int-">DefaultDrmSessionManager</a></span>(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/UUID.html" target="_top" title="class or interface in java.util">UUID</a>&nbsp;uuid,
+                        <a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm.html" title="interface in com.google.android.exoplayer2.drm">ExoMediaDrm</a>&lt;<a href="../../../../../com/google/android/exoplayer2/drm/DefaultDrmSessionManager.html" title="type parameter in DefaultDrmSessionManager">T</a>&gt;&nbsp;mediaDrm,
+                        <a href="../../../../../com/google/android/exoplayer2/drm/MediaDrmCallback.html" title="interface in com.google.android.exoplayer2.drm">MediaDrmCallback</a>&nbsp;callback,
+                        <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/HashMap.html" target="_top" title="class or interface in java.util">HashMap</a>&lt;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>,<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&gt;&nbsp;optionalKeyRequestParameters,
+                        boolean&nbsp;multiSession,
+                        int&nbsp;initialDrmRequestRetryCount)</code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/drm/DefaultDrmSessionManager.html#DefaultDrmSessionManager-java.util.UUID-com.google.android.exoplayer2.drm.ExoMediaDrm-com.google.android.exoplayer2.drm.MediaDrmCallback-java.util.HashMap-android.os.Handler-com.google.android.exoplayer2.drm.DefaultDrmSessionEventListener-">DefaultDrmSessionManager</a></span>(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/UUID.html" target="_top" title="class or interface in java.util">UUID</a>&nbsp;uuid,
                         <a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm.html" title="interface in com.google.android.exoplayer2.drm">ExoMediaDrm</a>&lt;<a href="../../../../../com/google/android/exoplayer2/drm/DefaultDrmSessionManager.html" title="type parameter in DefaultDrmSessionManager">T</a>&gt;&nbsp;mediaDrm,
                         <a href="../../../../../com/google/android/exoplayer2/drm/MediaDrmCallback.html" title="interface in com.google.android.exoplayer2.drm">MediaDrmCallback</a>&nbsp;callback,
                         <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/HashMap.html" target="_top" title="class or interface in java.util">HashMap</a>&lt;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>,<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&gt;&nbsp;optionalKeyRequestParameters,
                         <a href="https://developer.android.com/reference/android/os/Handler.html" target="_top" title="class or interface in android.os">Handler</a>&nbsp;eventHandler,
-                        <a href="../../../../../com/google/android/exoplayer2/drm/DefaultDrmSessionManager.EventListener.html" title="interface in com.google.android.exoplayer2.drm">DefaultDrmSessionManager.EventListener</a>&nbsp;eventListener,
+                        <a href="../../../../../com/google/android/exoplayer2/drm/DefaultDrmSessionEventListener.html" title="interface in com.google.android.exoplayer2.drm">DefaultDrmSessionEventListener</a>&nbsp;eventListener)</code>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;
+<div class="block"><span class="deprecationComment">Use <a href="../../../../../com/google/android/exoplayer2/drm/DefaultDrmSessionManager.html#DefaultDrmSessionManager-java.util.UUID-com.google.android.exoplayer2.drm.ExoMediaDrm-com.google.android.exoplayer2.drm.MediaDrmCallback-java.util.HashMap-"><code>DefaultDrmSessionManager(UUID, ExoMediaDrm, MediaDrmCallback, HashMap)</code></a>
+     and <a href="../../../../../com/google/android/exoplayer2/drm/DefaultDrmSessionManager.html#addListener-android.os.Handler-com.google.android.exoplayer2.drm.DefaultDrmSessionEventListener-"><code>addListener(Handler, DefaultDrmSessionEventListener)</code></a>.</span></div>
+</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/drm/DefaultDrmSessionManager.html#DefaultDrmSessionManager-java.util.UUID-com.google.android.exoplayer2.drm.ExoMediaDrm-com.google.android.exoplayer2.drm.MediaDrmCallback-java.util.HashMap-android.os.Handler-com.google.android.exoplayer2.drm.DefaultDrmSessionEventListener-boolean-">DefaultDrmSessionManager</a></span>(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/UUID.html" target="_top" title="class or interface in java.util">UUID</a>&nbsp;uuid,
+                        <a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm.html" title="interface in com.google.android.exoplayer2.drm">ExoMediaDrm</a>&lt;<a href="../../../../../com/google/android/exoplayer2/drm/DefaultDrmSessionManager.html" title="type parameter in DefaultDrmSessionManager">T</a>&gt;&nbsp;mediaDrm,
+                        <a href="../../../../../com/google/android/exoplayer2/drm/MediaDrmCallback.html" title="interface in com.google.android.exoplayer2.drm">MediaDrmCallback</a>&nbsp;callback,
+                        <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/HashMap.html" target="_top" title="class or interface in java.util">HashMap</a>&lt;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>,<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&gt;&nbsp;optionalKeyRequestParameters,
+                        <a href="https://developer.android.com/reference/android/os/Handler.html" target="_top" title="class or interface in android.os">Handler</a>&nbsp;eventHandler,
+                        <a href="../../../../../com/google/android/exoplayer2/drm/DefaultDrmSessionEventListener.html" title="interface in com.google.android.exoplayer2.drm">DefaultDrmSessionEventListener</a>&nbsp;eventListener,
+                        boolean&nbsp;multiSession)</code>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;
+<div class="block"><span class="deprecationComment">Use <a href="../../../../../com/google/android/exoplayer2/drm/DefaultDrmSessionManager.html#DefaultDrmSessionManager-java.util.UUID-com.google.android.exoplayer2.drm.ExoMediaDrm-com.google.android.exoplayer2.drm.MediaDrmCallback-java.util.HashMap-boolean-"><code>DefaultDrmSessionManager(UUID, ExoMediaDrm, MediaDrmCallback, HashMap,
+     boolean)</code></a> and <a href="../../../../../com/google/android/exoplayer2/drm/DefaultDrmSessionManager.html#addListener-android.os.Handler-com.google.android.exoplayer2.drm.DefaultDrmSessionEventListener-"><code>addListener(Handler, DefaultDrmSessionEventListener)</code></a>.</span></div>
+</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/drm/DefaultDrmSessionManager.html#DefaultDrmSessionManager-java.util.UUID-com.google.android.exoplayer2.drm.ExoMediaDrm-com.google.android.exoplayer2.drm.MediaDrmCallback-java.util.HashMap-android.os.Handler-com.google.android.exoplayer2.drm.DefaultDrmSessionEventListener-boolean-int-">DefaultDrmSessionManager</a></span>(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/UUID.html" target="_top" title="class or interface in java.util">UUID</a>&nbsp;uuid,
+                        <a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm.html" title="interface in com.google.android.exoplayer2.drm">ExoMediaDrm</a>&lt;<a href="../../../../../com/google/android/exoplayer2/drm/DefaultDrmSessionManager.html" title="type parameter in DefaultDrmSessionManager">T</a>&gt;&nbsp;mediaDrm,
+                        <a href="../../../../../com/google/android/exoplayer2/drm/MediaDrmCallback.html" title="interface in com.google.android.exoplayer2.drm">MediaDrmCallback</a>&nbsp;callback,
+                        <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/HashMap.html" target="_top" title="class or interface in java.util">HashMap</a>&lt;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>,<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&gt;&nbsp;optionalKeyRequestParameters,
+                        <a href="https://developer.android.com/reference/android/os/Handler.html" target="_top" title="class or interface in android.os">Handler</a>&nbsp;eventHandler,
+                        <a href="../../../../../com/google/android/exoplayer2/drm/DefaultDrmSessionEventListener.html" title="interface in com.google.android.exoplayer2.drm">DefaultDrmSessionEventListener</a>&nbsp;eventListener,
                         boolean&nbsp;multiSession,
-                        int&nbsp;initialDrmRequestRetryCount)</code>&nbsp;</td>
+                        int&nbsp;initialDrmRequestRetryCount)</code>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;
+<div class="block"><span class="deprecationComment">Use <a href="../../../../../com/google/android/exoplayer2/drm/DefaultDrmSessionManager.html#DefaultDrmSessionManager-java.util.UUID-com.google.android.exoplayer2.drm.ExoMediaDrm-com.google.android.exoplayer2.drm.MediaDrmCallback-java.util.HashMap-boolean-int-"><code>DefaultDrmSessionManager(UUID, ExoMediaDrm, MediaDrmCallback, HashMap,
+     boolean, int)</code></a> and <a href="../../../../../com/google/android/exoplayer2/drm/DefaultDrmSessionManager.html#addListener-android.os.Handler-com.google.android.exoplayer2.drm.DefaultDrmSessionEventListener-"><code>addListener(Handler, DefaultDrmSessionEventListener)</code></a>.</span></div>
+</div>
+</td>
 </tr>
 </table>
 </li>
@@ -253,7 +291,7 @@ implements <a href="../../../../../com/google/android/exoplayer2/drm/DrmSessionM
 </a>
 <h3>Method Summary</h3>
 <table class="memberSummary" border="0" cellpadding="3" cellspacing="0" summary="Method Summary table, listing methods, and an explanation">
-<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t1" class="tableTab"><span><a href="javascript:show(1);">Static Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t1" class="tableTab"><span><a href="javascript:show(1);">Static Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t6" class="tableTab"><span><a href="javascript:show(32);">Deprecated Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
 <th class="colLast" scope="col">Method and Description</th>
@@ -266,91 +304,132 @@ implements <a href="../../../../../com/google/android/exoplayer2/drm/DrmSessionM
 </td>
 </tr>
 <tr id="i1" class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/drm/DefaultDrmSessionManager.html#addListener-android.os.Handler-com.google.android.exoplayer2.drm.DefaultDrmSessionEventListener-">addListener</a></span>(<a href="https://developer.android.com/reference/android/os/Handler.html" target="_top" title="class or interface in android.os">Handler</a>&nbsp;handler,
+           <a href="../../../../../com/google/android/exoplayer2/drm/DefaultDrmSessionEventListener.html" title="interface in com.google.android.exoplayer2.drm">DefaultDrmSessionEventListener</a>&nbsp;eventListener)</code>
+<div class="block">Adds a <a href="../../../../../com/google/android/exoplayer2/drm/DefaultDrmSessionEventListener.html" title="interface in com.google.android.exoplayer2.drm"><code>DefaultDrmSessionEventListener</code></a> to listen to drm session events.</div>
+</td>
+</tr>
+<tr id="i2" class="altColor">
 <td class="colFirst"><code>boolean</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/drm/DefaultDrmSessionManager.html#canAcquireSession-com.google.android.exoplayer2.drm.DrmInitData-">canAcquireSession</a></span>(<a href="../../../../../com/google/android/exoplayer2/drm/DrmInitData.html" title="class in com.google.android.exoplayer2.drm">DrmInitData</a>&nbsp;drmInitData)</code>
 <div class="block">Returns whether the manager is capable of acquiring a session for the given
  <a href="../../../../../com/google/android/exoplayer2/drm/DrmInitData.html" title="class in com.google.android.exoplayer2.drm"><code>DrmInitData</code></a>.</div>
 </td>
 </tr>
-<tr id="i2" class="altColor">
+<tr id="i3" class="rowColor">
 <td class="colFirst"><code>byte[]</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/drm/DefaultDrmSessionManager.html#getPropertyByteArray-java.lang.String-">getPropertyByteArray</a></span>(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;key)</code>
 <div class="block">Provides access to <a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm.html#getPropertyByteArray-java.lang.String-"><code>ExoMediaDrm.getPropertyByteArray(String)</code></a>.</div>
 </td>
 </tr>
-<tr id="i3" class="rowColor">
+<tr id="i4" class="altColor">
 <td class="colFirst"><code><a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/drm/DefaultDrmSessionManager.html#getPropertyString-java.lang.String-">getPropertyString</a></span>(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;key)</code>
 <div class="block">Provides access to <a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm.html#getPropertyString-java.lang.String-"><code>ExoMediaDrm.getPropertyString(String)</code></a>.</div>
 </td>
 </tr>
-<tr id="i4" class="altColor">
-<td class="colFirst"><code>static <a href="../../../../../com/google/android/exoplayer2/drm/DefaultDrmSessionManager.html" title="class in com.google.android.exoplayer2.drm">DefaultDrmSessionManager</a>&lt;<a href="../../../../../com/google/android/exoplayer2/drm/FrameworkMediaCrypto.html" title="class in com.google.android.exoplayer2.drm">FrameworkMediaCrypto</a>&gt;</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/drm/DefaultDrmSessionManager.html#newFrameworkInstance-java.util.UUID-com.google.android.exoplayer2.drm.MediaDrmCallback-java.util.HashMap-android.os.Handler-com.google.android.exoplayer2.drm.DefaultDrmSessionManager.EventListener-">newFrameworkInstance</a></span>(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/UUID.html" target="_top" title="class or interface in java.util">UUID</a>&nbsp;uuid,
-                    <a href="../../../../../com/google/android/exoplayer2/drm/MediaDrmCallback.html" title="interface in com.google.android.exoplayer2.drm">MediaDrmCallback</a>&nbsp;callback,
-                    <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/HashMap.html" target="_top" title="class or interface in java.util">HashMap</a>&lt;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>,<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&gt;&nbsp;optionalKeyRequestParameters,
-                    <a href="https://developer.android.com/reference/android/os/Handler.html" target="_top" title="class or interface in android.os">Handler</a>&nbsp;eventHandler,
-                    <a href="../../../../../com/google/android/exoplayer2/drm/DefaultDrmSessionManager.EventListener.html" title="interface in com.google.android.exoplayer2.drm">DefaultDrmSessionManager.EventListener</a>&nbsp;eventListener)</code>
-<div class="block">Instantiates a new instance.</div>
-</td>
-</tr>
 <tr id="i5" class="rowColor">
 <td class="colFirst"><code>static <a href="../../../../../com/google/android/exoplayer2/drm/DefaultDrmSessionManager.html" title="class in com.google.android.exoplayer2.drm">DefaultDrmSessionManager</a>&lt;<a href="../../../../../com/google/android/exoplayer2/drm/FrameworkMediaCrypto.html" title="class in com.google.android.exoplayer2.drm">FrameworkMediaCrypto</a>&gt;</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/drm/DefaultDrmSessionManager.html#newPlayReadyInstance-com.google.android.exoplayer2.drm.MediaDrmCallback-java.lang.String-android.os.Handler-com.google.android.exoplayer2.drm.DefaultDrmSessionManager.EventListener-">newPlayReadyInstance</a></span>(<a href="../../../../../com/google/android/exoplayer2/drm/MediaDrmCallback.html" title="interface in com.google.android.exoplayer2.drm">MediaDrmCallback</a>&nbsp;callback,
-                    <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;customData,
-                    <a href="https://developer.android.com/reference/android/os/Handler.html" target="_top" title="class or interface in android.os">Handler</a>&nbsp;eventHandler,
-                    <a href="../../../../../com/google/android/exoplayer2/drm/DefaultDrmSessionManager.EventListener.html" title="interface in com.google.android.exoplayer2.drm">DefaultDrmSessionManager.EventListener</a>&nbsp;eventListener)</code>
-<div class="block">Instantiates a new instance using the PlayReady scheme.</div>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/drm/DefaultDrmSessionManager.html#newFrameworkInstance-java.util.UUID-com.google.android.exoplayer2.drm.MediaDrmCallback-java.util.HashMap-">newFrameworkInstance</a></span>(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/UUID.html" target="_top" title="class or interface in java.util">UUID</a>&nbsp;uuid,
+                    <a href="../../../../../com/google/android/exoplayer2/drm/MediaDrmCallback.html" title="interface in com.google.android.exoplayer2.drm">MediaDrmCallback</a>&nbsp;callback,
+                    <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/HashMap.html" target="_top" title="class or interface in java.util">HashMap</a>&lt;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>,<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&gt;&nbsp;optionalKeyRequestParameters)</code>
+<div class="block">Instantiates a new instance.</div>
 </td>
 </tr>
 <tr id="i6" class="altColor">
 <td class="colFirst"><code>static <a href="../../../../../com/google/android/exoplayer2/drm/DefaultDrmSessionManager.html" title="class in com.google.android.exoplayer2.drm">DefaultDrmSessionManager</a>&lt;<a href="../../../../../com/google/android/exoplayer2/drm/FrameworkMediaCrypto.html" title="class in com.google.android.exoplayer2.drm">FrameworkMediaCrypto</a>&gt;</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/drm/DefaultDrmSessionManager.html#newWidevineInstance-com.google.android.exoplayer2.drm.MediaDrmCallback-java.util.HashMap-android.os.Handler-com.google.android.exoplayer2.drm.DefaultDrmSessionManager.EventListener-">newWidevineInstance</a></span>(<a href="../../../../../com/google/android/exoplayer2/drm/MediaDrmCallback.html" title="interface in com.google.android.exoplayer2.drm">MediaDrmCallback</a>&nbsp;callback,
-                   <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/HashMap.html" target="_top" title="class or interface in java.util">HashMap</a>&lt;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>,<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&gt;&nbsp;optionalKeyRequestParameters,
-                   <a href="https://developer.android.com/reference/android/os/Handler.html" target="_top" title="class or interface in android.os">Handler</a>&nbsp;eventHandler,
-                   <a href="../../../../../com/google/android/exoplayer2/drm/DefaultDrmSessionManager.EventListener.html" title="interface in com.google.android.exoplayer2.drm">DefaultDrmSessionManager.EventListener</a>&nbsp;eventListener)</code>
-<div class="block">Instantiates a new instance using the Widevine scheme.</div>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/drm/DefaultDrmSessionManager.html#newFrameworkInstance-java.util.UUID-com.google.android.exoplayer2.drm.MediaDrmCallback-java.util.HashMap-android.os.Handler-com.google.android.exoplayer2.drm.DefaultDrmSessionEventListener-">newFrameworkInstance</a></span>(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/UUID.html" target="_top" title="class or interface in java.util">UUID</a>&nbsp;uuid,
+                    <a href="../../../../../com/google/android/exoplayer2/drm/MediaDrmCallback.html" title="interface in com.google.android.exoplayer2.drm">MediaDrmCallback</a>&nbsp;callback,
+                    <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/HashMap.html" target="_top" title="class or interface in java.util">HashMap</a>&lt;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>,<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&gt;&nbsp;optionalKeyRequestParameters,
+                    <a href="https://developer.android.com/reference/android/os/Handler.html" target="_top" title="class or interface in android.os">Handler</a>&nbsp;eventHandler,
+                    <a href="../../../../../com/google/android/exoplayer2/drm/DefaultDrmSessionEventListener.html" title="interface in com.google.android.exoplayer2.drm">DefaultDrmSessionEventListener</a>&nbsp;eventListener)</code>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;
+<div class="block"><span class="deprecationComment">Use <a href="../../../../../com/google/android/exoplayer2/drm/DefaultDrmSessionManager.html#newFrameworkInstance-java.util.UUID-com.google.android.exoplayer2.drm.MediaDrmCallback-java.util.HashMap-"><code>newFrameworkInstance(UUID, MediaDrmCallback, HashMap)</code></a> and <a href="../../../../../com/google/android/exoplayer2/drm/DefaultDrmSessionManager.html#addListener-android.os.Handler-com.google.android.exoplayer2.drm.DefaultDrmSessionEventListener-"><code>addListener(Handler, DefaultDrmSessionEventListener)</code></a>.</span></div>
+</div>
 </td>
 </tr>
 <tr id="i7" class="rowColor">
+<td class="colFirst"><code>static <a href="../../../../../com/google/android/exoplayer2/drm/DefaultDrmSessionManager.html" title="class in com.google.android.exoplayer2.drm">DefaultDrmSessionManager</a>&lt;<a href="../../../../../com/google/android/exoplayer2/drm/FrameworkMediaCrypto.html" title="class in com.google.android.exoplayer2.drm">FrameworkMediaCrypto</a>&gt;</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/drm/DefaultDrmSessionManager.html#newPlayReadyInstance-com.google.android.exoplayer2.drm.MediaDrmCallback-java.lang.String-">newPlayReadyInstance</a></span>(<a href="../../../../../com/google/android/exoplayer2/drm/MediaDrmCallback.html" title="interface in com.google.android.exoplayer2.drm">MediaDrmCallback</a>&nbsp;callback,
+                    <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;customData)</code>
+<div class="block">Instantiates a new instance using the PlayReady scheme.</div>
+</td>
+</tr>
+<tr id="i8" class="altColor">
+<td class="colFirst"><code>static <a href="../../../../../com/google/android/exoplayer2/drm/DefaultDrmSessionManager.html" title="class in com.google.android.exoplayer2.drm">DefaultDrmSessionManager</a>&lt;<a href="../../../../../com/google/android/exoplayer2/drm/FrameworkMediaCrypto.html" title="class in com.google.android.exoplayer2.drm">FrameworkMediaCrypto</a>&gt;</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/drm/DefaultDrmSessionManager.html#newPlayReadyInstance-com.google.android.exoplayer2.drm.MediaDrmCallback-java.lang.String-android.os.Handler-com.google.android.exoplayer2.drm.DefaultDrmSessionEventListener-">newPlayReadyInstance</a></span>(<a href="../../../../../com/google/android/exoplayer2/drm/MediaDrmCallback.html" title="interface in com.google.android.exoplayer2.drm">MediaDrmCallback</a>&nbsp;callback,
+                    <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;customData,
+                    <a href="https://developer.android.com/reference/android/os/Handler.html" target="_top" title="class or interface in android.os">Handler</a>&nbsp;eventHandler,
+                    <a href="../../../../../com/google/android/exoplayer2/drm/DefaultDrmSessionEventListener.html" title="interface in com.google.android.exoplayer2.drm">DefaultDrmSessionEventListener</a>&nbsp;eventListener)</code>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;
+<div class="block"><span class="deprecationComment">Use <a href="../../../../../com/google/android/exoplayer2/drm/DefaultDrmSessionManager.html#newPlayReadyInstance-com.google.android.exoplayer2.drm.MediaDrmCallback-java.lang.String-"><code>newPlayReadyInstance(MediaDrmCallback, String)</code></a> and <a href="../../../../../com/google/android/exoplayer2/drm/DefaultDrmSessionManager.html#addListener-android.os.Handler-com.google.android.exoplayer2.drm.DefaultDrmSessionEventListener-"><code>addListener(Handler, DefaultDrmSessionEventListener)</code></a>.</span></div>
+</div>
+</td>
+</tr>
+<tr id="i9" class="rowColor">
+<td class="colFirst"><code>static <a href="../../../../../com/google/android/exoplayer2/drm/DefaultDrmSessionManager.html" title="class in com.google.android.exoplayer2.drm">DefaultDrmSessionManager</a>&lt;<a href="../../../../../com/google/android/exoplayer2/drm/FrameworkMediaCrypto.html" title="class in com.google.android.exoplayer2.drm">FrameworkMediaCrypto</a>&gt;</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/drm/DefaultDrmSessionManager.html#newWidevineInstance-com.google.android.exoplayer2.drm.MediaDrmCallback-java.util.HashMap-">newWidevineInstance</a></span>(<a href="../../../../../com/google/android/exoplayer2/drm/MediaDrmCallback.html" title="interface in com.google.android.exoplayer2.drm">MediaDrmCallback</a>&nbsp;callback,
+                   <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/HashMap.html" target="_top" title="class or interface in java.util">HashMap</a>&lt;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>,<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&gt;&nbsp;optionalKeyRequestParameters)</code>
+<div class="block">Instantiates a new instance using the Widevine scheme.</div>
+</td>
+</tr>
+<tr id="i10" class="altColor">
+<td class="colFirst"><code>static <a href="../../../../../com/google/android/exoplayer2/drm/DefaultDrmSessionManager.html" title="class in com.google.android.exoplayer2.drm">DefaultDrmSessionManager</a>&lt;<a href="../../../../../com/google/android/exoplayer2/drm/FrameworkMediaCrypto.html" title="class in com.google.android.exoplayer2.drm">FrameworkMediaCrypto</a>&gt;</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/drm/DefaultDrmSessionManager.html#newWidevineInstance-com.google.android.exoplayer2.drm.MediaDrmCallback-java.util.HashMap-android.os.Handler-com.google.android.exoplayer2.drm.DefaultDrmSessionEventListener-">newWidevineInstance</a></span>(<a href="../../../../../com/google/android/exoplayer2/drm/MediaDrmCallback.html" title="interface in com.google.android.exoplayer2.drm">MediaDrmCallback</a>&nbsp;callback,
+                   <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/HashMap.html" target="_top" title="class or interface in java.util">HashMap</a>&lt;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>,<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&gt;&nbsp;optionalKeyRequestParameters,
+                   <a href="https://developer.android.com/reference/android/os/Handler.html" target="_top" title="class or interface in android.os">Handler</a>&nbsp;eventHandler,
+                   <a href="../../../../../com/google/android/exoplayer2/drm/DefaultDrmSessionEventListener.html" title="interface in com.google.android.exoplayer2.drm">DefaultDrmSessionEventListener</a>&nbsp;eventListener)</code>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;
+<div class="block"><span class="deprecationComment">Use <a href="../../../../../com/google/android/exoplayer2/drm/DefaultDrmSessionManager.html#newWidevineInstance-com.google.android.exoplayer2.drm.MediaDrmCallback-java.util.HashMap-"><code>newWidevineInstance(MediaDrmCallback, HashMap)</code></a> and <a href="../../../../../com/google/android/exoplayer2/drm/DefaultDrmSessionManager.html#addListener-android.os.Handler-com.google.android.exoplayer2.drm.DefaultDrmSessionEventListener-"><code>addListener(Handler, DefaultDrmSessionEventListener)</code></a>.</span></div>
+</div>
+</td>
+</tr>
+<tr id="i11" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/drm/DefaultDrmSessionManager.html#onProvisionCompleted--">onProvisionCompleted</a></span>()</code>
 <div class="block">Called by a session when it successfully completes a provisioning operation.</div>
 </td>
 </tr>
-<tr id="i8" class="altColor">
+<tr id="i12" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/drm/DefaultDrmSessionManager.html#onProvisionError-java.lang.Exception-">onProvisionError</a></span>(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Exception.html" target="_top" title="class or interface in java.lang">Exception</a>&nbsp;error)</code>
 <div class="block">Called by a session when it fails to perform a provisioning operation.</div>
 </td>
 </tr>
-<tr id="i9" class="rowColor">
+<tr id="i13" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/drm/DefaultDrmSessionManager.html#provisionRequired-com.google.android.exoplayer2.drm.DefaultDrmSession-">provisionRequired</a></span>(com.google.android.exoplayer2.drm.DefaultDrmSession&lt;<a href="../../../../../com/google/android/exoplayer2/drm/DefaultDrmSessionManager.html" title="type parameter in DefaultDrmSessionManager">T</a>&gt;&nbsp;session)</code>
 <div class="block">Called when a session requires provisioning.</div>
 </td>
 </tr>
-<tr id="i10" class="altColor">
+<tr id="i14" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/drm/DefaultDrmSessionManager.html#releaseSession-com.google.android.exoplayer2.drm.DrmSession-">releaseSession</a></span>(<a href="../../../../../com/google/android/exoplayer2/drm/DrmSession.html" title="interface in com.google.android.exoplayer2.drm">DrmSession</a>&lt;<a href="../../../../../com/google/android/exoplayer2/drm/DefaultDrmSessionManager.html" title="type parameter in DefaultDrmSessionManager">T</a>&gt;&nbsp;session)</code>
 <div class="block">Releases a <a href="../../../../../com/google/android/exoplayer2/drm/DrmSession.html" title="interface in com.google.android.exoplayer2.drm"><code>DrmSession</code></a>.</div>
 </td>
 </tr>
-<tr id="i11" class="rowColor">
+<tr id="i15" class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/drm/DefaultDrmSessionManager.html#removeListener-com.google.android.exoplayer2.drm.DefaultDrmSessionEventListener-">removeListener</a></span>(<a href="../../../../../com/google/android/exoplayer2/drm/DefaultDrmSessionEventListener.html" title="interface in com.google.android.exoplayer2.drm">DefaultDrmSessionEventListener</a>&nbsp;eventListener)</code>
+<div class="block">Removes a <a href="../../../../../com/google/android/exoplayer2/drm/DefaultDrmSessionEventListener.html" title="interface in com.google.android.exoplayer2.drm"><code>DefaultDrmSessionEventListener</code></a> from the list of drm session event listeners.</div>
+</td>
+</tr>
+<tr id="i16" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/drm/DefaultDrmSessionManager.html#setMode-int-byte:A-">setMode</a></span>(int&nbsp;mode,
        byte[]&nbsp;offlineLicenseKeySetId)</code>
 <div class="block">Sets the mode, which determines the role of sessions acquired from the instance.</div>
 </td>
 </tr>
-<tr id="i12" class="altColor">
+<tr id="i17" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/drm/DefaultDrmSessionManager.html#setPropertyByteArray-java.lang.String-byte:A-">setPropertyByteArray</a></span>(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;key,
                     byte[]&nbsp;value)</code>
 <div class="block">Provides access to <a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm.html#setPropertyByteArray-java.lang.String-byte:A-"><code>ExoMediaDrm.setPropertyByteArray(String, byte[])</code></a>.</div>
 </td>
 </tr>
-<tr id="i13" class="rowColor">
+<tr id="i18" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/drm/DefaultDrmSessionManager.html#setPropertyString-java.lang.String-java.lang.String-">setPropertyString</a></span>(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;key,
                  <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;value)</code>
@@ -472,7 +551,24 @@ implements <a href="../../../../../com/google/android/exoplayer2/drm/DrmSessionM
 <!--   -->
 </a>
 <h3>Constructor Detail</h3>
-<a name="DefaultDrmSessionManager-java.util.UUID-com.google.android.exoplayer2.drm.ExoMediaDrm-com.google.android.exoplayer2.drm.MediaDrmCallback-java.util.HashMap-android.os.Handler-com.google.android.exoplayer2.drm.DefaultDrmSessionManager.EventListener-">
+<a name="DefaultDrmSessionManager-java.util.UUID-com.google.android.exoplayer2.drm.ExoMediaDrm-com.google.android.exoplayer2.drm.MediaDrmCallback-java.util.HashMap-android.os.Handler-com.google.android.exoplayer2.drm.DefaultDrmSessionEventListener-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>DefaultDrmSessionManager</h4>
+<pre><a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Deprecated.html" target="_top" title="class or interface in java.lang">@Deprecated</a>
+public&nbsp;DefaultDrmSessionManager(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/UUID.html" target="_top" title="class or interface in java.util">UUID</a>&nbsp;uuid,
+                                            <a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm.html" title="interface in com.google.android.exoplayer2.drm">ExoMediaDrm</a>&lt;<a href="../../../../../com/google/android/exoplayer2/drm/DefaultDrmSessionManager.html" title="type parameter in DefaultDrmSessionManager">T</a>&gt;&nbsp;mediaDrm,
+                                            <a href="../../../../../com/google/android/exoplayer2/drm/MediaDrmCallback.html" title="interface in com.google.android.exoplayer2.drm">MediaDrmCallback</a>&nbsp;callback,
+                                            <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/HashMap.html" target="_top" title="class or interface in java.util">HashMap</a>&lt;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>,<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&gt;&nbsp;optionalKeyRequestParameters,
+                                            <a href="https://developer.android.com/reference/android/os/Handler.html" target="_top" title="class or interface in android.os">Handler</a>&nbsp;eventHandler,
+                                            <a href="../../../../../com/google/android/exoplayer2/drm/DefaultDrmSessionEventListener.html" title="interface in com.google.android.exoplayer2.drm">DefaultDrmSessionEventListener</a>&nbsp;eventListener)</pre>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;<span class="deprecationComment">Use <a href="../../../../../com/google/android/exoplayer2/drm/DefaultDrmSessionManager.html#DefaultDrmSessionManager-java.util.UUID-com.google.android.exoplayer2.drm.ExoMediaDrm-com.google.android.exoplayer2.drm.MediaDrmCallback-java.util.HashMap-"><code>DefaultDrmSessionManager(UUID, ExoMediaDrm, MediaDrmCallback, HashMap)</code></a>
+     and <a href="../../../../../com/google/android/exoplayer2/drm/DefaultDrmSessionManager.html#addListener-android.os.Handler-com.google.android.exoplayer2.drm.DefaultDrmSessionEventListener-"><code>addListener(Handler, DefaultDrmSessionEventListener)</code></a>.</span></div>
+</li>
+</ul>
+<a name="DefaultDrmSessionManager-java.util.UUID-com.google.android.exoplayer2.drm.ExoMediaDrm-com.google.android.exoplayer2.drm.MediaDrmCallback-java.util.HashMap-">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -481,9 +577,7 @@ implements <a href="../../../../../com/google/android/exoplayer2/drm/DrmSessionM
 <pre>public&nbsp;DefaultDrmSessionManager(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/UUID.html" target="_top" title="class or interface in java.util">UUID</a>&nbsp;uuid,
                                 <a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm.html" title="interface in com.google.android.exoplayer2.drm">ExoMediaDrm</a>&lt;<a href="../../../../../com/google/android/exoplayer2/drm/DefaultDrmSessionManager.html" title="type parameter in DefaultDrmSessionManager">T</a>&gt;&nbsp;mediaDrm,
                                 <a href="../../../../../com/google/android/exoplayer2/drm/MediaDrmCallback.html" title="interface in com.google.android.exoplayer2.drm">MediaDrmCallback</a>&nbsp;callback,
-                                <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/HashMap.html" target="_top" title="class or interface in java.util">HashMap</a>&lt;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>,<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&gt;&nbsp;optionalKeyRequestParameters,
-                                <a href="https://developer.android.com/reference/android/os/Handler.html" target="_top" title="class or interface in android.os">Handler</a>&nbsp;eventHandler,
-                                <a href="../../../../../com/google/android/exoplayer2/drm/DefaultDrmSessionManager.EventListener.html" title="interface in com.google.android.exoplayer2.drm">DefaultDrmSessionManager.EventListener</a>&nbsp;eventListener)</pre>
+                                <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/HashMap.html" target="_top" title="class or interface in java.util">HashMap</a>&lt;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>,<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&gt;&nbsp;optionalKeyRequestParameters)</pre>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>uuid</code> - The UUID of the drm scheme.</dd>
@@ -491,13 +585,28 @@ implements <a href="../../../../../com/google/android/exoplayer2/drm/DrmSessionM
 <dd><code>callback</code> - Performs key and provisioning requests.</dd>
 <dd><code>optionalKeyRequestParameters</code> - An optional map of parameters to pass as the last argument
      to <a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm.html#getKeyRequest-byte:A-byte:A-java.lang.String-int-java.util.HashMap-"><code>ExoMediaDrm.getKeyRequest(byte[], byte[], String, int, HashMap)</code></a>. May be null.</dd>
-<dd><code>eventHandler</code> - A handler to use when delivering events to <code>eventListener</code>. May be
-     null if delivery of events is not required.</dd>
-<dd><code>eventListener</code> - A listener of events. May be null if delivery of events is not required.</dd>
 </dl>
 </li>
 </ul>
-<a name="DefaultDrmSessionManager-java.util.UUID-com.google.android.exoplayer2.drm.ExoMediaDrm-com.google.android.exoplayer2.drm.MediaDrmCallback-java.util.HashMap-android.os.Handler-com.google.android.exoplayer2.drm.DefaultDrmSessionManager.EventListener-boolean-">
+<a name="DefaultDrmSessionManager-java.util.UUID-com.google.android.exoplayer2.drm.ExoMediaDrm-com.google.android.exoplayer2.drm.MediaDrmCallback-java.util.HashMap-android.os.Handler-com.google.android.exoplayer2.drm.DefaultDrmSessionEventListener-boolean-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>DefaultDrmSessionManager</h4>
+<pre><a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Deprecated.html" target="_top" title="class or interface in java.lang">@Deprecated</a>
+public&nbsp;DefaultDrmSessionManager(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/UUID.html" target="_top" title="class or interface in java.util">UUID</a>&nbsp;uuid,
+                                            <a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm.html" title="interface in com.google.android.exoplayer2.drm">ExoMediaDrm</a>&lt;<a href="../../../../../com/google/android/exoplayer2/drm/DefaultDrmSessionManager.html" title="type parameter in DefaultDrmSessionManager">T</a>&gt;&nbsp;mediaDrm,
+                                            <a href="../../../../../com/google/android/exoplayer2/drm/MediaDrmCallback.html" title="interface in com.google.android.exoplayer2.drm">MediaDrmCallback</a>&nbsp;callback,
+                                            <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/HashMap.html" target="_top" title="class or interface in java.util">HashMap</a>&lt;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>,<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&gt;&nbsp;optionalKeyRequestParameters,
+                                            <a href="https://developer.android.com/reference/android/os/Handler.html" target="_top" title="class or interface in android.os">Handler</a>&nbsp;eventHandler,
+                                            <a href="../../../../../com/google/android/exoplayer2/drm/DefaultDrmSessionEventListener.html" title="interface in com.google.android.exoplayer2.drm">DefaultDrmSessionEventListener</a>&nbsp;eventListener,
+                                            boolean&nbsp;multiSession)</pre>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;<span class="deprecationComment">Use <a href="../../../../../com/google/android/exoplayer2/drm/DefaultDrmSessionManager.html#DefaultDrmSessionManager-java.util.UUID-com.google.android.exoplayer2.drm.ExoMediaDrm-com.google.android.exoplayer2.drm.MediaDrmCallback-java.util.HashMap-boolean-"><code>DefaultDrmSessionManager(UUID, ExoMediaDrm, MediaDrmCallback, HashMap,
+     boolean)</code></a> and <a href="../../../../../com/google/android/exoplayer2/drm/DefaultDrmSessionManager.html#addListener-android.os.Handler-com.google.android.exoplayer2.drm.DefaultDrmSessionEventListener-"><code>addListener(Handler, DefaultDrmSessionEventListener)</code></a>.</span></div>
+</li>
+</ul>
+<a name="DefaultDrmSessionManager-java.util.UUID-com.google.android.exoplayer2.drm.ExoMediaDrm-com.google.android.exoplayer2.drm.MediaDrmCallback-java.util.HashMap-boolean-">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -507,8 +616,6 @@ implements <a href="../../../../../com/google/android/exoplayer2/drm/DrmSessionM
                                 <a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm.html" title="interface in com.google.android.exoplayer2.drm">ExoMediaDrm</a>&lt;<a href="../../../../../com/google/android/exoplayer2/drm/DefaultDrmSessionManager.html" title="type parameter in DefaultDrmSessionManager">T</a>&gt;&nbsp;mediaDrm,
                                 <a href="../../../../../com/google/android/exoplayer2/drm/MediaDrmCallback.html" title="interface in com.google.android.exoplayer2.drm">MediaDrmCallback</a>&nbsp;callback,
                                 <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/HashMap.html" target="_top" title="class or interface in java.util">HashMap</a>&lt;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>,<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&gt;&nbsp;optionalKeyRequestParameters,
-                                <a href="https://developer.android.com/reference/android/os/Handler.html" target="_top" title="class or interface in android.os">Handler</a>&nbsp;eventHandler,
-                                <a href="../../../../../com/google/android/exoplayer2/drm/DefaultDrmSessionManager.EventListener.html" title="interface in com.google.android.exoplayer2.drm">DefaultDrmSessionManager.EventListener</a>&nbsp;eventListener,
                                 boolean&nbsp;multiSession)</pre>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -517,15 +624,31 @@ implements <a href="../../../../../com/google/android/exoplayer2/drm/DrmSessionM
 <dd><code>callback</code> - Performs key and provisioning requests.</dd>
 <dd><code>optionalKeyRequestParameters</code> - An optional map of parameters to pass as the last argument
      to <a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm.html#getKeyRequest-byte:A-byte:A-java.lang.String-int-java.util.HashMap-"><code>ExoMediaDrm.getKeyRequest(byte[], byte[], String, int, HashMap)</code></a>. May be null.</dd>
-<dd><code>eventHandler</code> - A handler to use when delivering events to <code>eventListener</code>. May be
-     null if delivery of events is not required.</dd>
-<dd><code>eventListener</code> - A listener of events. May be null if delivery of events is not required.</dd>
 <dd><code>multiSession</code> - A boolean that specify whether multiple key session support is enabled.
      Default is false.</dd>
 </dl>
 </li>
 </ul>
-<a name="DefaultDrmSessionManager-java.util.UUID-com.google.android.exoplayer2.drm.ExoMediaDrm-com.google.android.exoplayer2.drm.MediaDrmCallback-java.util.HashMap-android.os.Handler-com.google.android.exoplayer2.drm.DefaultDrmSessionManager.EventListener-boolean-int-">
+<a name="DefaultDrmSessionManager-java.util.UUID-com.google.android.exoplayer2.drm.ExoMediaDrm-com.google.android.exoplayer2.drm.MediaDrmCallback-java.util.HashMap-android.os.Handler-com.google.android.exoplayer2.drm.DefaultDrmSessionEventListener-boolean-int-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>DefaultDrmSessionManager</h4>
+<pre><a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Deprecated.html" target="_top" title="class or interface in java.lang">@Deprecated</a>
+public&nbsp;DefaultDrmSessionManager(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/UUID.html" target="_top" title="class or interface in java.util">UUID</a>&nbsp;uuid,
+                                            <a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm.html" title="interface in com.google.android.exoplayer2.drm">ExoMediaDrm</a>&lt;<a href="../../../../../com/google/android/exoplayer2/drm/DefaultDrmSessionManager.html" title="type parameter in DefaultDrmSessionManager">T</a>&gt;&nbsp;mediaDrm,
+                                            <a href="../../../../../com/google/android/exoplayer2/drm/MediaDrmCallback.html" title="interface in com.google.android.exoplayer2.drm">MediaDrmCallback</a>&nbsp;callback,
+                                            <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/HashMap.html" target="_top" title="class or interface in java.util">HashMap</a>&lt;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>,<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&gt;&nbsp;optionalKeyRequestParameters,
+                                            <a href="https://developer.android.com/reference/android/os/Handler.html" target="_top" title="class or interface in android.os">Handler</a>&nbsp;eventHandler,
+                                            <a href="../../../../../com/google/android/exoplayer2/drm/DefaultDrmSessionEventListener.html" title="interface in com.google.android.exoplayer2.drm">DefaultDrmSessionEventListener</a>&nbsp;eventListener,
+                                            boolean&nbsp;multiSession,
+                                            int&nbsp;initialDrmRequestRetryCount)</pre>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;<span class="deprecationComment">Use <a href="../../../../../com/google/android/exoplayer2/drm/DefaultDrmSessionManager.html#DefaultDrmSessionManager-java.util.UUID-com.google.android.exoplayer2.drm.ExoMediaDrm-com.google.android.exoplayer2.drm.MediaDrmCallback-java.util.HashMap-boolean-int-"><code>DefaultDrmSessionManager(UUID, ExoMediaDrm, MediaDrmCallback, HashMap,
+     boolean, int)</code></a> and <a href="../../../../../com/google/android/exoplayer2/drm/DefaultDrmSessionManager.html#addListener-android.os.Handler-com.google.android.exoplayer2.drm.DefaultDrmSessionEventListener-"><code>addListener(Handler, DefaultDrmSessionEventListener)</code></a>.</span></div>
+</li>
+</ul>
+<a name="DefaultDrmSessionManager-java.util.UUID-com.google.android.exoplayer2.drm.ExoMediaDrm-com.google.android.exoplayer2.drm.MediaDrmCallback-java.util.HashMap-boolean-int-">
 <!--   -->
 </a>
 <ul class="blockListLast">
@@ -535,8 +658,6 @@ implements <a href="../../../../../com/google/android/exoplayer2/drm/DrmSessionM
                                 <a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm.html" title="interface in com.google.android.exoplayer2.drm">ExoMediaDrm</a>&lt;<a href="../../../../../com/google/android/exoplayer2/drm/DefaultDrmSessionManager.html" title="type parameter in DefaultDrmSessionManager">T</a>&gt;&nbsp;mediaDrm,
                                 <a href="../../../../../com/google/android/exoplayer2/drm/MediaDrmCallback.html" title="interface in com.google.android.exoplayer2.drm">MediaDrmCallback</a>&nbsp;callback,
                                 <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/HashMap.html" target="_top" title="class or interface in java.util">HashMap</a>&lt;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>,<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&gt;&nbsp;optionalKeyRequestParameters,
-                                <a href="https://developer.android.com/reference/android/os/Handler.html" target="_top" title="class or interface in android.os">Handler</a>&nbsp;eventHandler,
-                                <a href="../../../../../com/google/android/exoplayer2/drm/DefaultDrmSessionManager.EventListener.html" title="interface in com.google.android.exoplayer2.drm">DefaultDrmSessionManager.EventListener</a>&nbsp;eventListener,
                                 boolean&nbsp;multiSession,
                                 int&nbsp;initialDrmRequestRetryCount)</pre>
 <dl>
@@ -546,9 +667,6 @@ implements <a href="../../../../../com/google/android/exoplayer2/drm/DrmSessionM
 <dd><code>callback</code> - Performs key and provisioning requests.</dd>
 <dd><code>optionalKeyRequestParameters</code> - An optional map of parameters to pass as the last argument
      to <a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm.html#getKeyRequest-byte:A-byte:A-java.lang.String-int-java.util.HashMap-"><code>ExoMediaDrm.getKeyRequest(byte[], byte[], String, int, HashMap)</code></a>. May be null.</dd>
-<dd><code>eventHandler</code> - A handler to use when delivering events to <code>eventListener</code>. May be
-     null if delivery of events is not required.</dd>
-<dd><code>eventListener</code> - A listener of events. May be null if delivery of events is not required.</dd>
 <dd><code>multiSession</code> - A boolean that specify whether multiple key session support is enabled.
      Default is false.</dd>
 <dd><code>initialDrmRequestRetryCount</code> - The number of times to retry for initial provisioning and
@@ -564,16 +682,33 @@ implements <a href="../../../../../com/google/android/exoplayer2/drm/DrmSessionM
 <!--   -->
 </a>
 <h3>Method Detail</h3>
-<a name="newWidevineInstance-com.google.android.exoplayer2.drm.MediaDrmCallback-java.util.HashMap-android.os.Handler-com.google.android.exoplayer2.drm.DefaultDrmSessionManager.EventListener-">
+<a name="newWidevineInstance-com.google.android.exoplayer2.drm.MediaDrmCallback-java.util.HashMap-android.os.Handler-com.google.android.exoplayer2.drm.DefaultDrmSessionEventListener-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>newWidevineInstance</h4>
+<pre><a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Deprecated.html" target="_top" title="class or interface in java.lang">@Deprecated</a>
+public static&nbsp;<a href="../../../../../com/google/android/exoplayer2/drm/DefaultDrmSessionManager.html" title="class in com.google.android.exoplayer2.drm">DefaultDrmSessionManager</a>&lt;<a href="../../../../../com/google/android/exoplayer2/drm/FrameworkMediaCrypto.html" title="class in com.google.android.exoplayer2.drm">FrameworkMediaCrypto</a>&gt;&nbsp;newWidevineInstance(<a href="../../../../../com/google/android/exoplayer2/drm/MediaDrmCallback.html" title="interface in com.google.android.exoplayer2.drm">MediaDrmCallback</a>&nbsp;callback,
+                                                                                             <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/HashMap.html" target="_top" title="class or interface in java.util">HashMap</a>&lt;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>,<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&gt;&nbsp;optionalKeyRequestParameters,
+                                                                                             <a href="https://developer.android.com/reference/android/os/Handler.html" target="_top" title="class or interface in android.os">Handler</a>&nbsp;eventHandler,
+                                                                                             <a href="../../../../../com/google/android/exoplayer2/drm/DefaultDrmSessionEventListener.html" title="interface in com.google.android.exoplayer2.drm">DefaultDrmSessionEventListener</a>&nbsp;eventListener)
+                                                                                      throws <a href="../../../../../com/google/android/exoplayer2/drm/UnsupportedDrmException.html" title="class in com.google.android.exoplayer2.drm">UnsupportedDrmException</a></pre>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;<span class="deprecationComment">Use <a href="../../../../../com/google/android/exoplayer2/drm/DefaultDrmSessionManager.html#newWidevineInstance-com.google.android.exoplayer2.drm.MediaDrmCallback-java.util.HashMap-"><code>newWidevineInstance(MediaDrmCallback, HashMap)</code></a> and <a href="../../../../../com/google/android/exoplayer2/drm/DefaultDrmSessionManager.html#addListener-android.os.Handler-com.google.android.exoplayer2.drm.DefaultDrmSessionEventListener-"><code>addListener(Handler, DefaultDrmSessionEventListener)</code></a>.</span></div>
+<dl>
+<dt><span class="throwsLabel">Throws:</span></dt>
+<dd><code><a href="../../../../../com/google/android/exoplayer2/drm/UnsupportedDrmException.html" title="class in com.google.android.exoplayer2.drm">UnsupportedDrmException</a></code></dd>
+</dl>
+</li>
+</ul>
+<a name="newWidevineInstance-com.google.android.exoplayer2.drm.MediaDrmCallback-java.util.HashMap-">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>newWidevineInstance</h4>
 <pre>public static&nbsp;<a href="../../../../../com/google/android/exoplayer2/drm/DefaultDrmSessionManager.html" title="class in com.google.android.exoplayer2.drm">DefaultDrmSessionManager</a>&lt;<a href="../../../../../com/google/android/exoplayer2/drm/FrameworkMediaCrypto.html" title="class in com.google.android.exoplayer2.drm">FrameworkMediaCrypto</a>&gt;&nbsp;newWidevineInstance(<a href="../../../../../com/google/android/exoplayer2/drm/MediaDrmCallback.html" title="interface in com.google.android.exoplayer2.drm">MediaDrmCallback</a>&nbsp;callback,
-                                                                                 <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/HashMap.html" target="_top" title="class or interface in java.util">HashMap</a>&lt;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>,<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&gt;&nbsp;optionalKeyRequestParameters,
-                                                                                 <a href="https://developer.android.com/reference/android/os/Handler.html" target="_top" title="class or interface in android.os">Handler</a>&nbsp;eventHandler,
-                                                                                 <a href="../../../../../com/google/android/exoplayer2/drm/DefaultDrmSessionManager.EventListener.html" title="interface in com.google.android.exoplayer2.drm">DefaultDrmSessionManager.EventListener</a>&nbsp;eventListener)
+                                                                                 <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/HashMap.html" target="_top" title="class or interface in java.util">HashMap</a>&lt;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>,<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&gt;&nbsp;optionalKeyRequestParameters)
                                                                           throws <a href="../../../../../com/google/android/exoplayer2/drm/UnsupportedDrmException.html" title="class in com.google.android.exoplayer2.drm">UnsupportedDrmException</a></pre>
 <div class="block">Instantiates a new instance using the Widevine scheme.</div>
 <dl>
@@ -581,42 +716,73 @@ implements <a href="../../../../../com/google/android/exoplayer2/drm/DrmSessionM
 <dd><code>callback</code> - Performs key and provisioning requests.</dd>
 <dd><code>optionalKeyRequestParameters</code> - An optional map of parameters to pass as the last argument
      to <a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm.html#getKeyRequest-byte:A-byte:A-java.lang.String-int-java.util.HashMap-"><code>ExoMediaDrm.getKeyRequest(byte[], byte[], String, int, HashMap)</code></a>. May be null.</dd>
-<dd><code>eventHandler</code> - A handler to use when delivering events to <code>eventListener</code>. May be
-     null if delivery of events is not required.</dd>
-<dd><code>eventListener</code> - A listener of events. May be null if delivery of events is not required.</dd>
 <dt><span class="throwsLabel">Throws:</span></dt>
 <dd><code><a href="../../../../../com/google/android/exoplayer2/drm/UnsupportedDrmException.html" title="class in com.google.android.exoplayer2.drm">UnsupportedDrmException</a></code> - If the specified DRM scheme is not supported.</dd>
 </dl>
 </li>
 </ul>
-<a name="newPlayReadyInstance-com.google.android.exoplayer2.drm.MediaDrmCallback-java.lang.String-android.os.Handler-com.google.android.exoplayer2.drm.DefaultDrmSessionManager.EventListener-">
+<a name="newPlayReadyInstance-com.google.android.exoplayer2.drm.MediaDrmCallback-java.lang.String-android.os.Handler-com.google.android.exoplayer2.drm.DefaultDrmSessionEventListener-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>newPlayReadyInstance</h4>
+<pre><a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Deprecated.html" target="_top" title="class or interface in java.lang">@Deprecated</a>
+public static&nbsp;<a href="../../../../../com/google/android/exoplayer2/drm/DefaultDrmSessionManager.html" title="class in com.google.android.exoplayer2.drm">DefaultDrmSessionManager</a>&lt;<a href="../../../../../com/google/android/exoplayer2/drm/FrameworkMediaCrypto.html" title="class in com.google.android.exoplayer2.drm">FrameworkMediaCrypto</a>&gt;&nbsp;newPlayReadyInstance(<a href="../../../../../com/google/android/exoplayer2/drm/MediaDrmCallback.html" title="interface in com.google.android.exoplayer2.drm">MediaDrmCallback</a>&nbsp;callback,
+                                                                                              <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;customData,
+                                                                                              <a href="https://developer.android.com/reference/android/os/Handler.html" target="_top" title="class or interface in android.os">Handler</a>&nbsp;eventHandler,
+                                                                                              <a href="../../../../../com/google/android/exoplayer2/drm/DefaultDrmSessionEventListener.html" title="interface in com.google.android.exoplayer2.drm">DefaultDrmSessionEventListener</a>&nbsp;eventListener)
+                                                                                       throws <a href="../../../../../com/google/android/exoplayer2/drm/UnsupportedDrmException.html" title="class in com.google.android.exoplayer2.drm">UnsupportedDrmException</a></pre>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;<span class="deprecationComment">Use <a href="../../../../../com/google/android/exoplayer2/drm/DefaultDrmSessionManager.html#newPlayReadyInstance-com.google.android.exoplayer2.drm.MediaDrmCallback-java.lang.String-"><code>newPlayReadyInstance(MediaDrmCallback, String)</code></a> and <a href="../../../../../com/google/android/exoplayer2/drm/DefaultDrmSessionManager.html#addListener-android.os.Handler-com.google.android.exoplayer2.drm.DefaultDrmSessionEventListener-"><code>addListener(Handler, DefaultDrmSessionEventListener)</code></a>.</span></div>
+<dl>
+<dt><span class="throwsLabel">Throws:</span></dt>
+<dd><code><a href="../../../../../com/google/android/exoplayer2/drm/UnsupportedDrmException.html" title="class in com.google.android.exoplayer2.drm">UnsupportedDrmException</a></code></dd>
+</dl>
+</li>
+</ul>
+<a name="newPlayReadyInstance-com.google.android.exoplayer2.drm.MediaDrmCallback-java.lang.String-">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>newPlayReadyInstance</h4>
 <pre>public static&nbsp;<a href="../../../../../com/google/android/exoplayer2/drm/DefaultDrmSessionManager.html" title="class in com.google.android.exoplayer2.drm">DefaultDrmSessionManager</a>&lt;<a href="../../../../../com/google/android/exoplayer2/drm/FrameworkMediaCrypto.html" title="class in com.google.android.exoplayer2.drm">FrameworkMediaCrypto</a>&gt;&nbsp;newPlayReadyInstance(<a href="../../../../../com/google/android/exoplayer2/drm/MediaDrmCallback.html" title="interface in com.google.android.exoplayer2.drm">MediaDrmCallback</a>&nbsp;callback,
-                                                                                  <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;customData,
-                                                                                  <a href="https://developer.android.com/reference/android/os/Handler.html" target="_top" title="class or interface in android.os">Handler</a>&nbsp;eventHandler,
-                                                                                  <a href="../../../../../com/google/android/exoplayer2/drm/DefaultDrmSessionManager.EventListener.html" title="interface in com.google.android.exoplayer2.drm">DefaultDrmSessionManager.EventListener</a>&nbsp;eventListener)
+                                                                                  <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;customData)
                                                                            throws <a href="../../../../../com/google/android/exoplayer2/drm/UnsupportedDrmException.html" title="class in com.google.android.exoplayer2.drm">UnsupportedDrmException</a></pre>
 <div class="block">Instantiates a new instance using the PlayReady scheme.
- <p>
- Note that PlayReady is unsupported by most Android devices, with the exception of Android TV
+
+ <p>Note that PlayReady is unsupported by most Android devices, with the exception of Android TV
  devices, which do provide support.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>callback</code> - Performs key and provisioning requests.</dd>
 <dd><code>customData</code> - Optional custom data to include in requests generated by the instance.</dd>
-<dd><code>eventHandler</code> - A handler to use when delivering events to <code>eventListener</code>. May be
-     null if delivery of events is not required.</dd>
-<dd><code>eventListener</code> - A listener of events. May be null if delivery of events is not required.</dd>
 <dt><span class="throwsLabel">Throws:</span></dt>
 <dd><code><a href="../../../../../com/google/android/exoplayer2/drm/UnsupportedDrmException.html" title="class in com.google.android.exoplayer2.drm">UnsupportedDrmException</a></code> - If the specified DRM scheme is not supported.</dd>
 </dl>
 </li>
 </ul>
-<a name="newFrameworkInstance-java.util.UUID-com.google.android.exoplayer2.drm.MediaDrmCallback-java.util.HashMap-android.os.Handler-com.google.android.exoplayer2.drm.DefaultDrmSessionManager.EventListener-">
+<a name="newFrameworkInstance-java.util.UUID-com.google.android.exoplayer2.drm.MediaDrmCallback-java.util.HashMap-android.os.Handler-com.google.android.exoplayer2.drm.DefaultDrmSessionEventListener-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>newFrameworkInstance</h4>
+<pre><a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Deprecated.html" target="_top" title="class or interface in java.lang">@Deprecated</a>
+public static&nbsp;<a href="../../../../../com/google/android/exoplayer2/drm/DefaultDrmSessionManager.html" title="class in com.google.android.exoplayer2.drm">DefaultDrmSessionManager</a>&lt;<a href="../../../../../com/google/android/exoplayer2/drm/FrameworkMediaCrypto.html" title="class in com.google.android.exoplayer2.drm">FrameworkMediaCrypto</a>&gt;&nbsp;newFrameworkInstance(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/UUID.html" target="_top" title="class or interface in java.util">UUID</a>&nbsp;uuid,
+                                                                                              <a href="../../../../../com/google/android/exoplayer2/drm/MediaDrmCallback.html" title="interface in com.google.android.exoplayer2.drm">MediaDrmCallback</a>&nbsp;callback,
+                                                                                              <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/HashMap.html" target="_top" title="class or interface in java.util">HashMap</a>&lt;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>,<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&gt;&nbsp;optionalKeyRequestParameters,
+                                                                                              <a href="https://developer.android.com/reference/android/os/Handler.html" target="_top" title="class or interface in android.os">Handler</a>&nbsp;eventHandler,
+                                                                                              <a href="../../../../../com/google/android/exoplayer2/drm/DefaultDrmSessionEventListener.html" title="interface in com.google.android.exoplayer2.drm">DefaultDrmSessionEventListener</a>&nbsp;eventListener)
+                                                                                       throws <a href="../../../../../com/google/android/exoplayer2/drm/UnsupportedDrmException.html" title="class in com.google.android.exoplayer2.drm">UnsupportedDrmException</a></pre>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;<span class="deprecationComment">Use <a href="../../../../../com/google/android/exoplayer2/drm/DefaultDrmSessionManager.html#newFrameworkInstance-java.util.UUID-com.google.android.exoplayer2.drm.MediaDrmCallback-java.util.HashMap-"><code>newFrameworkInstance(UUID, MediaDrmCallback, HashMap)</code></a> and <a href="../../../../../com/google/android/exoplayer2/drm/DefaultDrmSessionManager.html#addListener-android.os.Handler-com.google.android.exoplayer2.drm.DefaultDrmSessionEventListener-"><code>addListener(Handler, DefaultDrmSessionEventListener)</code></a>.</span></div>
+<dl>
+<dt><span class="throwsLabel">Throws:</span></dt>
+<dd><code><a href="../../../../../com/google/android/exoplayer2/drm/UnsupportedDrmException.html" title="class in com.google.android.exoplayer2.drm">UnsupportedDrmException</a></code></dd>
+</dl>
+</li>
+</ul>
+<a name="newFrameworkInstance-java.util.UUID-com.google.android.exoplayer2.drm.MediaDrmCallback-java.util.HashMap-">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -624,9 +790,7 @@ implements <a href="../../../../../com/google/android/exoplayer2/drm/DrmSessionM
 <h4>newFrameworkInstance</h4>
 <pre>public static&nbsp;<a href="../../../../../com/google/android/exoplayer2/drm/DefaultDrmSessionManager.html" title="class in com.google.android.exoplayer2.drm">DefaultDrmSessionManager</a>&lt;<a href="../../../../../com/google/android/exoplayer2/drm/FrameworkMediaCrypto.html" title="class in com.google.android.exoplayer2.drm">FrameworkMediaCrypto</a>&gt;&nbsp;newFrameworkInstance(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/UUID.html" target="_top" title="class or interface in java.util">UUID</a>&nbsp;uuid,
                                                                                   <a href="../../../../../com/google/android/exoplayer2/drm/MediaDrmCallback.html" title="interface in com.google.android.exoplayer2.drm">MediaDrmCallback</a>&nbsp;callback,
-                                                                                  <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/HashMap.html" target="_top" title="class or interface in java.util">HashMap</a>&lt;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>,<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&gt;&nbsp;optionalKeyRequestParameters,
-                                                                                  <a href="https://developer.android.com/reference/android/os/Handler.html" target="_top" title="class or interface in android.os">Handler</a>&nbsp;eventHandler,
-                                                                                  <a href="../../../../../com/google/android/exoplayer2/drm/DefaultDrmSessionManager.EventListener.html" title="interface in com.google.android.exoplayer2.drm">DefaultDrmSessionManager.EventListener</a>&nbsp;eventListener)
+                                                                                  <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/HashMap.html" target="_top" title="class or interface in java.util">HashMap</a>&lt;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>,<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&gt;&nbsp;optionalKeyRequestParameters)
                                                                            throws <a href="../../../../../com/google/android/exoplayer2/drm/UnsupportedDrmException.html" title="class in com.google.android.exoplayer2.drm">UnsupportedDrmException</a></pre>
 <div class="block">Instantiates a new instance.</div>
 <dl>
@@ -635,11 +799,38 @@ implements <a href="../../../../../com/google/android/exoplayer2/drm/DrmSessionM
 <dd><code>callback</code> - Performs key and provisioning requests.</dd>
 <dd><code>optionalKeyRequestParameters</code> - An optional map of parameters to pass as the last argument
      to <a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm.html#getKeyRequest-byte:A-byte:A-java.lang.String-int-java.util.HashMap-"><code>ExoMediaDrm.getKeyRequest(byte[], byte[], String, int, HashMap)</code></a>. May be null.</dd>
-<dd><code>eventHandler</code> - A handler to use when delivering events to <code>eventListener</code>. May be
-     null if delivery of events is not required.</dd>
-<dd><code>eventListener</code> - A listener of events. May be null if delivery of events is not required.</dd>
 <dt><span class="throwsLabel">Throws:</span></dt>
 <dd><code><a href="../../../../../com/google/android/exoplayer2/drm/UnsupportedDrmException.html" title="class in com.google.android.exoplayer2.drm">UnsupportedDrmException</a></code> - If the specified DRM scheme is not supported.</dd>
+</dl>
+</li>
+</ul>
+<a name="addListener-android.os.Handler-com.google.android.exoplayer2.drm.DefaultDrmSessionEventListener-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>addListener</h4>
+<pre>public final&nbsp;void&nbsp;addListener(<a href="https://developer.android.com/reference/android/os/Handler.html" target="_top" title="class or interface in android.os">Handler</a>&nbsp;handler,
+                              <a href="../../../../../com/google/android/exoplayer2/drm/DefaultDrmSessionEventListener.html" title="interface in com.google.android.exoplayer2.drm">DefaultDrmSessionEventListener</a>&nbsp;eventListener)</pre>
+<div class="block">Adds a <a href="../../../../../com/google/android/exoplayer2/drm/DefaultDrmSessionEventListener.html" title="interface in com.google.android.exoplayer2.drm"><code>DefaultDrmSessionEventListener</code></a> to listen to drm session events.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>handler</code> - A handler to use when delivering events to <code>eventListener</code>.</dd>
+<dd><code>eventListener</code> - A listener of events.</dd>
+</dl>
+</li>
+</ul>
+<a name="removeListener-com.google.android.exoplayer2.drm.DefaultDrmSessionEventListener-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>removeListener</h4>
+<pre>public final&nbsp;void&nbsp;removeListener(<a href="../../../../../com/google/android/exoplayer2/drm/DefaultDrmSessionEventListener.html" title="interface in com.google.android.exoplayer2.drm">DefaultDrmSessionEventListener</a>&nbsp;eventListener)</pre>
+<div class="block">Removes a <a href="../../../../../com/google/android/exoplayer2/drm/DefaultDrmSessionEventListener.html" title="interface in com.google.android.exoplayer2.drm"><code>DefaultDrmSessionEventListener</code></a> from the list of drm session event listeners.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>eventListener</code> - The listener to remove.</dd>
 </dl>
 </li>
 </ul>
@@ -886,7 +1077,7 @@ implements <a href="../../../../../com/google/android/exoplayer2/drm/DrmSessionM
 </div>
 <div class="subNav">
 <ul class="navList">
-<li><a href="../../../../../com/google/android/exoplayer2/drm/DecryptionException.html" title="class in com.google.android.exoplayer2.drm"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
+<li><a href="../../../../../com/google/android/exoplayer2/drm/DefaultDrmSessionEventListener.EventDispatcher.html" title="class in com.google.android.exoplayer2.drm"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
 <li><a href="../../../../../com/google/android/exoplayer2/drm/DefaultDrmSessionManager.EventListener.html" title="interface in com.google.android.exoplayer2.drm"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
 </ul>
 <ul class="navList">

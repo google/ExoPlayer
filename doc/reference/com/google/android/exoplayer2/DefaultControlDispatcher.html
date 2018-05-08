@@ -16,7 +16,7 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":10,"i1":10,"i2":10,"i3":10};
+var methods = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -179,6 +179,13 @@ implements <a href="../../../../com/google/android/exoplayer2/ControlDispatcher.
 <div class="block">Dispatches a <a href="../../../../com/google/android/exoplayer2/Player.html#setShuffleModeEnabled-boolean-"><code>Player.setShuffleModeEnabled(boolean)</code></a> operation.</div>
 </td>
 </tr>
+<tr id="i4" class="altColor">
+<td class="colFirst"><code>boolean</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/DefaultControlDispatcher.html#dispatchStop-com.google.android.exoplayer2.Player-boolean-">dispatchStop</a></span>(<a href="../../../../com/google/android/exoplayer2/Player.html" title="interface in com.google.android.exoplayer2">Player</a>&nbsp;player,
+            boolean&nbsp;reset)</code>
+<div class="block">Dispatches a <a href="../../../../com/google/android/exoplayer2/Player.html#stop--"><code>Player.stop()</code></a> operation.</div>
+</td>
+</tr>
 </table>
 <ul class="blockList">
 <li class="blockList"><a name="methods.inherited.from.class.java.lang.Object">
@@ -287,7 +294,7 @@ implements <a href="../../../../com/google/android/exoplayer2/ControlDispatcher.
 <a name="dispatchSetShuffleModeEnabled-com.google.android.exoplayer2.Player-boolean-">
 <!--   -->
 </a>
-<ul class="blockListLast">
+<ul class="blockList">
 <li class="blockList">
 <h4>dispatchSetShuffleModeEnabled</h4>
 <pre>public&nbsp;boolean&nbsp;dispatchSetShuffleModeEnabled(<a href="../../../../com/google/android/exoplayer2/Player.html" title="interface in com.google.android.exoplayer2">Player</a>&nbsp;player,
@@ -300,6 +307,27 @@ implements <a href="../../../../com/google/android/exoplayer2/ControlDispatcher.
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>player</code> - The <a href="../../../../com/google/android/exoplayer2/Player.html" title="interface in com.google.android.exoplayer2"><code>Player</code></a> to which the operation should be dispatched.</dd>
 <dd><code>shuffleModeEnabled</code> - Whether shuffling is enabled.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>True if the operation was dispatched. False if suppressed.</dd>
+</dl>
+</li>
+</ul>
+<a name="dispatchStop-com.google.android.exoplayer2.Player-boolean-">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>dispatchStop</h4>
+<pre>public&nbsp;boolean&nbsp;dispatchStop(<a href="../../../../com/google/android/exoplayer2/Player.html" title="interface in com.google.android.exoplayer2">Player</a>&nbsp;player,
+                            boolean&nbsp;reset)</pre>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../com/google/android/exoplayer2/ControlDispatcher.html#dispatchStop-com.google.android.exoplayer2.Player-boolean-">ControlDispatcher</a></code></span></div>
+<div class="block">Dispatches a <a href="../../../../com/google/android/exoplayer2/Player.html#stop--"><code>Player.stop()</code></a> operation.</div>
+<dl>
+<dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
+<dd><code><a href="../../../../com/google/android/exoplayer2/ControlDispatcher.html#dispatchStop-com.google.android.exoplayer2.Player-boolean-">dispatchStop</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../com/google/android/exoplayer2/ControlDispatcher.html" title="interface in com.google.android.exoplayer2">ControlDispatcher</a></code></dd>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>player</code> - The <a href="../../../../com/google/android/exoplayer2/Player.html" title="interface in com.google.android.exoplayer2"><code>Player</code></a> to which the operation should be dispatched.</dd>
+<dd><code>reset</code> - Whether the player should be reset.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>True if the operation was dispatched. False if suppressed.</dd>
 </dl>

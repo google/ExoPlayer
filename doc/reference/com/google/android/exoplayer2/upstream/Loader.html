@@ -151,6 +151,12 @@ implements <a href="../../../../../com/google/android/exoplayer2/upstream/Loader
 </td>
 </tr>
 <tr class="rowColor">
+<td class="colFirst"><code>static interface&nbsp;</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/upstream/Loader.RetryAction.html" title="annotation in com.google.android.exoplayer2.upstream">Loader.RetryAction</a></span></code>
+<div class="block">Actions that can be taken in response to a load error.</div>
+</td>
+</tr>
+<tr class="altColor">
 <td class="colFirst"><code>static class&nbsp;</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/upstream/Loader.UnexpectedLoaderException.html" title="class in com.google.android.exoplayer2.upstream">Loader.UnexpectedLoaderException</a></span></code>
 <div class="block">Thrown when an unexpected exception or error is encountered during loading.</div>
@@ -389,17 +395,15 @@ implements <a href="../../../../../com/google/android/exoplayer2/upstream/Loader
                                                      <a href="../../../../../com/google/android/exoplayer2/upstream/Loader.Callback.html" title="interface in com.google.android.exoplayer2.upstream">Loader.Callback</a>&lt;T&gt;&nbsp;callback,
                                                      int&nbsp;defaultMinRetryCount)</pre>
 <div class="block">Starts loading a <a href="../../../../../com/google/android/exoplayer2/upstream/Loader.Loadable.html" title="interface in com.google.android.exoplayer2.upstream"><code>Loader.Loadable</code></a>.
- <p>
- The calling thread must be a <a href="https://developer.android.com/reference/android/os/Looper.html" target="_top" title="class or interface in android.os"><code>Looper</code></a> thread, which is the thread on which the
- <a href="../../../../../com/google/android/exoplayer2/upstream/Loader.Callback.html" title="interface in com.google.android.exoplayer2.upstream"><code>Loader.Callback</code></a> will be called.</div>
+
+ <p>The calling thread must be a <a href="https://developer.android.com/reference/android/os/Looper.html" target="_top" title="class or interface in android.os"><code>Looper</code></a> thread, which is the thread on which the <a href="../../../../../com/google/android/exoplayer2/upstream/Loader.Callback.html" title="interface in com.google.android.exoplayer2.upstream"><code>Loader.Callback</code></a> will be called.</div>
 <dl>
 <dt><span class="paramLabel">Type Parameters:</span></dt>
 <dd><code>T</code> - The type of the loadable.</dd>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>loadable</code> - The <a href="../../../../../com/google/android/exoplayer2/upstream/Loader.Loadable.html" title="interface in com.google.android.exoplayer2.upstream"><code>Loader.Loadable</code></a> to load.</dd>
 <dd><code>callback</code> - A callback to be called when the load ends.</dd>
-<dd><code>defaultMinRetryCount</code> - The minimum number of times the load must be retried before
-     <a href="../../../../../com/google/android/exoplayer2/upstream/Loader.html#maybeThrowError--"><code>maybeThrowError()</code></a> will propagate an error.</dd>
+<dd><code>defaultMinRetryCount</code> - The minimum number of times the load must be retried before <a href="../../../../../com/google/android/exoplayer2/upstream/Loader.html#maybeThrowError--"><code>maybeThrowError()</code></a> will propagate an error.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd><a href="https://developer.android.com/reference/android/os/SystemClock.html?is-external=true#elapsedRealtime--" title="class or interface in android.os"><code>SystemClock.elapsedRealtime()</code></a> when the load started.</dd>
 <dt><span class="throwsLabel">Throws:</span></dt>

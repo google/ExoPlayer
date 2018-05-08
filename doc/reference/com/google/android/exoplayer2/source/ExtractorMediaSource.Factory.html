@@ -16,8 +16,8 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10};
-var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
+var methods = {"i0":10,"i1":42,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10};
+var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"],32:["t6","Deprecated Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
@@ -150,7 +150,7 @@ implements <a href="../../../../../com/google/android/exoplayer2/source/ads/AdsM
 </a>
 <h3>Method Summary</h3>
 <table class="memberSummary" border="0" cellpadding="3" cellspacing="0" summary="Method Summary table, listing methods, and an explanation">
-<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t6" class="tableTab"><span><a href="javascript:show(32);">Deprecated Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
 <th class="colLast" scope="col">Method and Description</th>
@@ -166,7 +166,10 @@ implements <a href="../../../../../com/google/android/exoplayer2/source/ads/AdsM
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/source/ExtractorMediaSource.Factory.html#createMediaSource-android.net.Uri-android.os.Handler-com.google.android.exoplayer2.source.MediaSourceEventListener-">createMediaSource</a></span>(<a href="https://developer.android.com/reference/android/net/Uri.html" target="_top" title="class or interface in android.net">Uri</a>&nbsp;uri,
                  <a href="https://developer.android.com/reference/android/os/Handler.html" target="_top" title="class or interface in android.os">Handler</a>&nbsp;eventHandler,
                  <a href="../../../../../com/google/android/exoplayer2/source/MediaSourceEventListener.html" title="interface in com.google.android.exoplayer2.source">MediaSourceEventListener</a>&nbsp;eventListener)</code>
-<div class="block">Returns a new <a href="../../../../../com/google/android/exoplayer2/source/ExtractorMediaSource.html" title="class in com.google.android.exoplayer2.source"><code>ExtractorMediaSource</code></a> using the current parameters.</div>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;
+<div class="block"><span class="deprecationComment">Use <a href="../../../../../com/google/android/exoplayer2/source/ExtractorMediaSource.Factory.html#createMediaSource-android.net.Uri-"><code>createMediaSource(Uri)</code></a> and <a href="../../../../../com/google/android/exoplayer2/source/BaseMediaSource.html#addEventListener-android.os.Handler-com.google.android.exoplayer2.source.MediaSourceEventListener-"><code>BaseMediaSource.addEventListener(Handler,
+     MediaSourceEventListener)</code></a> instead.</span></div>
+</div>
 </td>
 </tr>
 <tr id="i2" class="altColor">
@@ -197,6 +200,12 @@ implements <a href="../../../../../com/google/android/exoplayer2/source/ads/AdsM
 <td class="colFirst"><code><a href="../../../../../com/google/android/exoplayer2/source/ExtractorMediaSource.Factory.html" title="class in com.google.android.exoplayer2.source">ExtractorMediaSource.Factory</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/source/ExtractorMediaSource.Factory.html#setMinLoadableRetryCount-int-">setMinLoadableRetryCount</a></span>(int&nbsp;minLoadableRetryCount)</code>
 <div class="block">Sets the minimum number of times to retry if a loading error occurs.</div>
+</td>
+</tr>
+<tr id="i7" class="rowColor">
+<td class="colFirst"><code><a href="../../../../../com/google/android/exoplayer2/source/ExtractorMediaSource.Factory.html" title="class in com.google.android.exoplayer2.source">ExtractorMediaSource.Factory</a></code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/source/ExtractorMediaSource.Factory.html#setTag-java.lang.Object-">setTag</a></span>(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Object.html" target="_top" title="class or interface in java.lang">Object</a>&nbsp;tag)</code>
+<div class="block">Sets a tag for the media source which will be published in the <a href="../../../../../com/google/android/exoplayer2/Timeline.html" title="class in com.google.android.exoplayer2"><code>Timeline</code></a> of the source as <a href="../../../../../com/google/android/exoplayer2/Timeline.Window.html#tag"><code>Timeline.Window.tag</code></a>.</div>
 </td>
 </tr>
 </table>
@@ -284,6 +293,24 @@ implements <a href="../../../../../com/google/android/exoplayer2/source/ads/AdsM
 </dl>
 </li>
 </ul>
+<a name="setTag-java.lang.Object-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setTag</h4>
+<pre>public&nbsp;<a href="../../../../../com/google/android/exoplayer2/source/ExtractorMediaSource.Factory.html" title="class in com.google.android.exoplayer2.source">ExtractorMediaSource.Factory</a>&nbsp;setTag(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Object.html" target="_top" title="class or interface in java.lang">Object</a>&nbsp;tag)</pre>
+<div class="block">Sets a tag for the media source which will be published in the <a href="../../../../../com/google/android/exoplayer2/Timeline.html" title="class in com.google.android.exoplayer2"><code>Timeline</code></a> of the source as <a href="../../../../../com/google/android/exoplayer2/Timeline.Window.html#tag"><code>Timeline.Window.tag</code></a>.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>tag</code> - A tag for the media source.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>This factory, for convenience.</dd>
+<dt><span class="throwsLabel">Throws:</span></dt>
+<dd><code><a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/IllegalStateException.html" target="_top" title="class or interface in java.lang">IllegalStateException</a></code> - If one of the <code>create</code> methods has already been called.</dd>
+</dl>
+</li>
+</ul>
 <a name="setMinLoadableRetryCount-int-">
 <!--   -->
 </a>
@@ -330,9 +357,10 @@ implements <a href="../../../../../com/google/android/exoplayer2/source/ads/AdsM
 <li class="blockList">
 <h4>createMediaSource</h4>
 <pre>public&nbsp;<a href="../../../../../com/google/android/exoplayer2/source/ExtractorMediaSource.html" title="class in com.google.android.exoplayer2.source">ExtractorMediaSource</a>&nbsp;createMediaSource(<a href="https://developer.android.com/reference/android/net/Uri.html" target="_top" title="class or interface in android.net">Uri</a>&nbsp;uri)</pre>
-<div class="block">Returns a new <a href="../../../../../com/google/android/exoplayer2/source/ExtractorMediaSource.html" title="class in com.google.android.exoplayer2.source"><code>ExtractorMediaSource</code></a> using the current parameters. Media source events
- will not be delivered.</div>
+<div class="block">Returns a new <a href="../../../../../com/google/android/exoplayer2/source/ExtractorMediaSource.html" title="class in com.google.android.exoplayer2.source"><code>ExtractorMediaSource</code></a> using the current parameters.</div>
 <dl>
+<dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
+<dd><code><a href="../../../../../com/google/android/exoplayer2/source/ads/AdsMediaSource.MediaSourceFactory.html#createMediaSource-android.net.Uri-">createMediaSource</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/source/ads/AdsMediaSource.MediaSourceFactory.html" title="interface in com.google.android.exoplayer2.source.ads">AdsMediaSource.MediaSourceFactory</a></code></dd>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>uri</code> - The <a href="https://developer.android.com/reference/android/net/Uri.html" target="_top" title="class or interface in android.net"><code>Uri</code></a>.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
@@ -346,22 +374,14 @@ implements <a href="../../../../../com/google/android/exoplayer2/source/ads/AdsM
 <ul class="blockList">
 <li class="blockList">
 <h4>createMediaSource</h4>
-<pre>public&nbsp;<a href="../../../../../com/google/android/exoplayer2/source/ExtractorMediaSource.html" title="class in com.google.android.exoplayer2.source">ExtractorMediaSource</a>&nbsp;createMediaSource(<a href="https://developer.android.com/reference/android/net/Uri.html" target="_top" title="class or interface in android.net">Uri</a>&nbsp;uri,
-                                              <a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
-                                              <a href="https://developer.android.com/reference/android/os/Handler.html" target="_top" title="class or interface in android.os">Handler</a>&nbsp;eventHandler,
-                                              <a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
-                                              <a href="../../../../../com/google/android/exoplayer2/source/MediaSourceEventListener.html" title="interface in com.google.android.exoplayer2.source">MediaSourceEventListener</a>&nbsp;eventListener)</pre>
-<div class="block">Returns a new <a href="../../../../../com/google/android/exoplayer2/source/ExtractorMediaSource.html" title="class in com.google.android.exoplayer2.source"><code>ExtractorMediaSource</code></a> using the current parameters.</div>
-<dl>
-<dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code><a href="../../../../../com/google/android/exoplayer2/source/ads/AdsMediaSource.MediaSourceFactory.html#createMediaSource-android.net.Uri-android.os.Handler-com.google.android.exoplayer2.source.MediaSourceEventListener-">createMediaSource</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/source/ads/AdsMediaSource.MediaSourceFactory.html" title="interface in com.google.android.exoplayer2.source.ads">AdsMediaSource.MediaSourceFactory</a></code></dd>
-<dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>uri</code> - The <a href="https://developer.android.com/reference/android/net/Uri.html" target="_top" title="class or interface in android.net"><code>Uri</code></a>.</dd>
-<dd><code>eventHandler</code> - A handler for events.</dd>
-<dd><code>eventListener</code> - A listener of events.</dd>
-<dt><span class="returnLabel">Returns:</span></dt>
-<dd>The new <a href="../../../../../com/google/android/exoplayer2/source/ExtractorMediaSource.html" title="class in com.google.android.exoplayer2.source"><code>ExtractorMediaSource</code></a>.</dd>
-</dl>
+<pre><a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Deprecated.html" target="_top" title="class or interface in java.lang">@Deprecated</a>
+public&nbsp;<a href="../../../../../com/google/android/exoplayer2/source/ExtractorMediaSource.html" title="class in com.google.android.exoplayer2.source">ExtractorMediaSource</a>&nbsp;createMediaSource(<a href="https://developer.android.com/reference/android/net/Uri.html" target="_top" title="class or interface in android.net">Uri</a>&nbsp;uri,
+                                                          <a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
+                                                          <a href="https://developer.android.com/reference/android/os/Handler.html" target="_top" title="class or interface in android.os">Handler</a>&nbsp;eventHandler,
+                                                          <a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
+                                                          <a href="../../../../../com/google/android/exoplayer2/source/MediaSourceEventListener.html" title="interface in com.google.android.exoplayer2.source">MediaSourceEventListener</a>&nbsp;eventListener)</pre>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;<span class="deprecationComment">Use <a href="../../../../../com/google/android/exoplayer2/source/ExtractorMediaSource.Factory.html#createMediaSource-android.net.Uri-"><code>createMediaSource(Uri)</code></a> and <a href="../../../../../com/google/android/exoplayer2/source/BaseMediaSource.html#addEventListener-android.os.Handler-com.google.android.exoplayer2.source.MediaSourceEventListener-"><code>BaseMediaSource.addEventListener(Handler,
+     MediaSourceEventListener)</code></a> instead.</span></div>
 </li>
 </ul>
 <a name="getSupportedTypes--">

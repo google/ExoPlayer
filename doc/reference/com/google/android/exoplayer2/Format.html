@@ -196,13 +196,14 @@ implements <a href="https://developer.android.com/reference/android/os/Parcelabl
 <tr class="altColor">
 <td class="colFirst"><code>int</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/Format.html#encoderDelay">encoderDelay</a></span></code>
-<div class="block">The number of samples to trim from the start of the decoded audio stream.</div>
+<div class="block">The number of frames to trim from the start of the decoded audio stream, or 0 if not
+ applicable.</div>
 </td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>int</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/Format.html#encoderPadding">encoderPadding</a></span></code>
-<div class="block">The number of samples to trim from the end of the decoded audio stream.</div>
+<div class="block">The number of frames to trim from the end of the decoded audio stream, or 0 if not applicable.</div>
 </td>
 </tr>
 <tr class="altColor">
@@ -270,8 +271,7 @@ implements <a href="https://developer.android.com/reference/android/os/Parcelabl
 <tr class="altColor">
 <td class="colFirst"><code>float</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/Format.html#pixelWidthHeightRatio">pixelWidthHeightRatio</a></span></code>
-<div class="block">The width to height ratio of pixels in the video, or <a href="../../../../com/google/android/exoplayer2/Format.html#NO_VALUE"><code>NO_VALUE</code></a> if unknown or not
- applicable.</div>
+<div class="block">The width to height ratio of pixels in the video, or 1.0 if unknown or not applicable.</div>
 </td>
 </tr>
 <tr class="rowColor">
@@ -284,7 +284,7 @@ implements <a href="https://developer.android.com/reference/android/os/Parcelabl
 <td class="colFirst"><code>int</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/Format.html#rotationDegrees">rotationDegrees</a></span></code>
 <div class="block">The clockwise rotation that should be applied to the video for it to be rendered in the correct
- orientation, or <a href="../../../../com/google/android/exoplayer2/Format.html#NO_VALUE"><code>NO_VALUE</code></a> if unknown or not applicable.</div>
+ orientation, or 0 if unknown or not applicable.</div>
 </td>
 </tr>
 <tr class="rowColor">
@@ -620,21 +620,22 @@ implements <a href="https://developer.android.com/reference/android/os/Parcelabl
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/Format.html#equals-java.lang.Object-">equals</a></span>(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Object.html" target="_top" title="class or interface in java.lang">Object</a>&nbsp;obj)</code>&nbsp;</td>
 </tr>
 <tr id="i29" class="rowColor">
-<td class="colFirst"><code><a href="https://developer.android.com/reference/android/media/MediaFormat.html" target="_top" title="class or interface in android.media">MediaFormat</a></code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/Format.html#getFrameworkMediaFormatV16--">getFrameworkMediaFormatV16</a></span>()</code>
-<div class="block">Returns a <a href="https://developer.android.com/reference/android/media/MediaFormat.html" target="_top" title="class or interface in android.media"><code>MediaFormat</code></a> representation of this format.</div>
-</td>
-</tr>
-<tr id="i30" class="altColor">
 <td class="colFirst"><code>int</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/Format.html#getPixelCount--">getPixelCount</a></span>()</code>
 <div class="block">Returns the number of pixels if this is a video format whose <a href="../../../../com/google/android/exoplayer2/Format.html#width"><code>width</code></a> and <a href="../../../../com/google/android/exoplayer2/Format.html#height"><code>height</code></a>
  are known, or <a href="../../../../com/google/android/exoplayer2/Format.html#NO_VALUE"><code>NO_VALUE</code></a> otherwise</div>
 </td>
 </tr>
-<tr id="i31" class="rowColor">
+<tr id="i30" class="altColor">
 <td class="colFirst"><code>int</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/Format.html#hashCode--">hashCode</a></span>()</code>&nbsp;</td>
+</tr>
+<tr id="i31" class="rowColor">
+<td class="colFirst"><code>boolean</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/Format.html#initializationDataEquals-com.google.android.exoplayer2.Format-">initializationDataEquals</a></span>(<a href="../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;other)</code>
+<div class="block">Returns whether the <a href="../../../../com/google/android/exoplayer2/Format.html#initializationData"><code>initializationData</code></a>s belonging to this format and <code>other</code> are
+ equal.</div>
+</td>
 </tr>
 <tr id="i32" class="altColor">
 <td class="colFirst"><code>static <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a></code></td>
@@ -708,7 +709,8 @@ implements <a href="https://developer.android.com/reference/android/os/Parcelabl
 <ul class="blockList">
 <li class="blockList">
 <h4>id</h4>
-<pre>public final&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a> id</pre>
+<pre><a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
+public final&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a> id</pre>
 <div class="block">An identifier for the format, or null if unknown or not applicable.</div>
 </li>
 </ul>
@@ -728,7 +730,8 @@ implements <a href="https://developer.android.com/reference/android/os/Parcelabl
 <ul class="blockList">
 <li class="blockList">
 <h4>codecs</h4>
-<pre>public final&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a> codecs</pre>
+<pre><a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
+public final&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a> codecs</pre>
 <div class="block">Codecs of the format as described in RFC 6381, or null if unknown or not applicable.</div>
 </li>
 </ul>
@@ -738,7 +741,8 @@ implements <a href="https://developer.android.com/reference/android/os/Parcelabl
 <ul class="blockList">
 <li class="blockList">
 <h4>metadata</h4>
-<pre>public final&nbsp;<a href="../../../../com/google/android/exoplayer2/metadata/Metadata.html" title="class in com.google.android.exoplayer2.metadata">Metadata</a> metadata</pre>
+<pre><a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
+public final&nbsp;<a href="../../../../com/google/android/exoplayer2/metadata/Metadata.html" title="class in com.google.android.exoplayer2.metadata">Metadata</a> metadata</pre>
 <div class="block">Metadata, or null if unknown or not applicable.</div>
 </li>
 </ul>
@@ -748,7 +752,8 @@ implements <a href="https://developer.android.com/reference/android/os/Parcelabl
 <ul class="blockList">
 <li class="blockList">
 <h4>containerMimeType</h4>
-<pre>public final&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a> containerMimeType</pre>
+<pre><a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
+public final&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a> containerMimeType</pre>
 <div class="block">The mime type of the container, or null if unknown or not applicable.</div>
 </li>
 </ul>
@@ -758,7 +763,8 @@ implements <a href="https://developer.android.com/reference/android/os/Parcelabl
 <ul class="blockList">
 <li class="blockList">
 <h4>sampleMimeType</h4>
-<pre>public final&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a> sampleMimeType</pre>
+<pre><a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
+public final&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a> sampleMimeType</pre>
 <div class="block">The mime type of the elementary stream (i.e. the individual samples), or null if unknown or not
  applicable.</div>
 </li>
@@ -791,7 +797,8 @@ implements <a href="https://developer.android.com/reference/android/os/Parcelabl
 <ul class="blockList">
 <li class="blockList">
 <h4>drmInitData</h4>
-<pre>public final&nbsp;<a href="../../../../com/google/android/exoplayer2/drm/DrmInitData.html" title="class in com.google.android.exoplayer2.drm">DrmInitData</a> drmInitData</pre>
+<pre><a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
+public final&nbsp;<a href="../../../../com/google/android/exoplayer2/drm/DrmInitData.html" title="class in com.google.android.exoplayer2.drm">DrmInitData</a> drmInitData</pre>
 <div class="block">DRM initialization data if the stream is protected, or null otherwise.</div>
 </li>
 </ul>
@@ -833,8 +840,7 @@ implements <a href="https://developer.android.com/reference/android/os/Parcelabl
 <h4>rotationDegrees</h4>
 <pre>public final&nbsp;int rotationDegrees</pre>
 <div class="block">The clockwise rotation that should be applied to the video for it to be rendered in the correct
- orientation, or <a href="../../../../com/google/android/exoplayer2/Format.html#NO_VALUE"><code>NO_VALUE</code></a> if unknown or not applicable. Only 0, 90, 180 and 270 are
- supported.</div>
+ orientation, or 0 if unknown or not applicable. Only 0, 90, 180 and 270 are supported.</div>
 </li>
 </ul>
 <a name="pixelWidthHeightRatio">
@@ -844,8 +850,7 @@ implements <a href="https://developer.android.com/reference/android/os/Parcelabl
 <li class="blockList">
 <h4>pixelWidthHeightRatio</h4>
 <pre>public final&nbsp;float pixelWidthHeightRatio</pre>
-<div class="block">The width to height ratio of pixels in the video, or <a href="../../../../com/google/android/exoplayer2/Format.html#NO_VALUE"><code>NO_VALUE</code></a> if unknown or not
- applicable.</div>
+<div class="block">The width to height ratio of pixels in the video, or 1.0 if unknown or not applicable.</div>
 </li>
 </ul>
 <a name="stereoMode">
@@ -865,7 +870,8 @@ implements <a href="https://developer.android.com/reference/android/os/Parcelabl
 <ul class="blockList">
 <li class="blockList">
 <h4>projectionData</h4>
-<pre>public final&nbsp;byte[] projectionData</pre>
+<pre><a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
+public final&nbsp;byte[] projectionData</pre>
 <div class="block">The projection data for 360/VR video, or null if not applicable.</div>
 </li>
 </ul>
@@ -875,7 +881,8 @@ implements <a href="https://developer.android.com/reference/android/os/Parcelabl
 <ul class="blockList">
 <li class="blockList">
 <h4>colorInfo</h4>
-<pre>public final&nbsp;<a href="../../../../com/google/android/exoplayer2/video/ColorInfo.html" title="class in com.google.android.exoplayer2.video">ColorInfo</a> colorInfo</pre>
+<pre><a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
+public final&nbsp;<a href="../../../../com/google/android/exoplayer2/video/ColorInfo.html" title="class in com.google.android.exoplayer2.video">ColorInfo</a> colorInfo</pre>
 <div class="block">The color metadata associated with the video, helps with accurate color reproduction.</div>
 </li>
 </ul>
@@ -919,7 +926,8 @@ implements <a href="https://developer.android.com/reference/android/os/Parcelabl
 <li class="blockList">
 <h4>encoderDelay</h4>
 <pre>public final&nbsp;int encoderDelay</pre>
-<div class="block">The number of samples to trim from the start of the decoded audio stream.</div>
+<div class="block">The number of frames to trim from the start of the decoded audio stream, or 0 if not
+ applicable.</div>
 </li>
 </ul>
 <a name="encoderPadding">
@@ -929,7 +937,7 @@ implements <a href="https://developer.android.com/reference/android/os/Parcelabl
 <li class="blockList">
 <h4>encoderPadding</h4>
 <pre>public final&nbsp;int encoderPadding</pre>
-<div class="block">The number of samples to trim from the end of the decoded audio stream.</div>
+<div class="block">The number of frames to trim from the end of the decoded audio stream, or 0 if not applicable.</div>
 </li>
 </ul>
 <a name="subsampleOffsetUs">
@@ -960,7 +968,8 @@ implements <a href="https://developer.android.com/reference/android/os/Parcelabl
 <ul class="blockList">
 <li class="blockList">
 <h4>language</h4>
-<pre>public final&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a> language</pre>
+<pre><a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
+public final&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a> language</pre>
 <div class="block">The language, or null if unknown or not applicable.</div>
 </li>
 </ul>
@@ -997,7 +1006,9 @@ implements <a href="https://developer.android.com/reference/android/os/Parcelabl
 <ul class="blockList">
 <li class="blockList">
 <h4>createVideoContainerFormat</h4>
-<pre>public static&nbsp;<a href="../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;createVideoContainerFormat(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;id,
+<pre>public static&nbsp;<a href="../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;createVideoContainerFormat(<a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
+                                                <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;id,
+                                                <a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
                                                 <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;containerMimeType,
                                                 <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;sampleMimeType,
                                                 <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;codecs,
@@ -1015,8 +1026,11 @@ implements <a href="https://developer.android.com/reference/android/os/Parcelabl
 <ul class="blockList">
 <li class="blockList">
 <h4>createVideoSampleFormat</h4>
-<pre>public static&nbsp;<a href="../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;createVideoSampleFormat(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;id,
+<pre>public static&nbsp;<a href="../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;createVideoSampleFormat(<a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
+                                             <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;id,
+                                             <a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
                                              <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;sampleMimeType,
+                                             <a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
                                              <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;codecs,
                                              int&nbsp;bitrate,
                                              int&nbsp;maxInputSize,
@@ -1024,6 +1038,7 @@ implements <a href="https://developer.android.com/reference/android/os/Parcelabl
                                              int&nbsp;height,
                                              float&nbsp;frameRate,
                                              <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/List.html" target="_top" title="class or interface in java.util">List</a>&lt;byte[]&gt;&nbsp;initializationData,
+                                             <a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
                                              <a href="../../../../com/google/android/exoplayer2/drm/DrmInitData.html" title="class in com.google.android.exoplayer2.drm">DrmInitData</a>&nbsp;drmInitData)</pre>
 </li>
 </ul>
@@ -1033,8 +1048,11 @@ implements <a href="https://developer.android.com/reference/android/os/Parcelabl
 <ul class="blockList">
 <li class="blockList">
 <h4>createVideoSampleFormat</h4>
-<pre>public static&nbsp;<a href="../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;createVideoSampleFormat(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;id,
+<pre>public static&nbsp;<a href="../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;createVideoSampleFormat(<a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
+                                             <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;id,
+                                             <a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
                                              <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;sampleMimeType,
+                                             <a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
                                              <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;codecs,
                                              int&nbsp;bitrate,
                                              int&nbsp;maxInputSize,
@@ -1044,6 +1062,7 @@ implements <a href="https://developer.android.com/reference/android/os/Parcelabl
                                              <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/List.html" target="_top" title="class or interface in java.util">List</a>&lt;byte[]&gt;&nbsp;initializationData,
                                              int&nbsp;rotationDegrees,
                                              float&nbsp;pixelWidthHeightRatio,
+                                             <a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
                                              <a href="../../../../com/google/android/exoplayer2/drm/DrmInitData.html" title="class in com.google.android.exoplayer2.drm">DrmInitData</a>&nbsp;drmInitData)</pre>
 </li>
 </ul>
@@ -1053,8 +1072,11 @@ implements <a href="https://developer.android.com/reference/android/os/Parcelabl
 <ul class="blockList">
 <li class="blockList">
 <h4>createVideoSampleFormat</h4>
-<pre>public static&nbsp;<a href="../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;createVideoSampleFormat(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;id,
+<pre>public static&nbsp;<a href="../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;createVideoSampleFormat(<a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
+                                             <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;id,
+                                             <a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
                                              <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;sampleMimeType,
+                                             <a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
                                              <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;codecs,
                                              int&nbsp;bitrate,
                                              int&nbsp;maxInputSize,
@@ -1066,7 +1088,9 @@ implements <a href="https://developer.android.com/reference/android/os/Parcelabl
                                              float&nbsp;pixelWidthHeightRatio,
                                              byte[]&nbsp;projectionData,
                                              int&nbsp;stereoMode,
+                                             <a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
                                              <a href="../../../../com/google/android/exoplayer2/video/ColorInfo.html" title="class in com.google.android.exoplayer2.video">ColorInfo</a>&nbsp;colorInfo,
+                                             <a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
                                              <a href="../../../../com/google/android/exoplayer2/drm/DrmInitData.html" title="class in com.google.android.exoplayer2.drm">DrmInitData</a>&nbsp;drmInitData)</pre>
 </li>
 </ul>
@@ -1076,15 +1100,20 @@ implements <a href="https://developer.android.com/reference/android/os/Parcelabl
 <ul class="blockList">
 <li class="blockList">
 <h4>createAudioContainerFormat</h4>
-<pre>public static&nbsp;<a href="../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;createAudioContainerFormat(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;id,
+<pre>public static&nbsp;<a href="../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;createAudioContainerFormat(<a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
+                                                <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;id,
+                                                <a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
                                                 <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;containerMimeType,
+                                                <a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
                                                 <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;sampleMimeType,
+                                                <a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
                                                 <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;codecs,
                                                 int&nbsp;bitrate,
                                                 int&nbsp;channelCount,
                                                 int&nbsp;sampleRate,
                                                 <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/List.html" target="_top" title="class or interface in java.util">List</a>&lt;byte[]&gt;&nbsp;initializationData,
                                                 int&nbsp;selectionFlags,
+                                                <a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
                                                 <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;language)</pre>
 </li>
 </ul>
@@ -1094,16 +1123,21 @@ implements <a href="https://developer.android.com/reference/android/os/Parcelabl
 <ul class="blockList">
 <li class="blockList">
 <h4>createAudioSampleFormat</h4>
-<pre>public static&nbsp;<a href="../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;createAudioSampleFormat(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;id,
+<pre>public static&nbsp;<a href="../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;createAudioSampleFormat(<a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
+                                             <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;id,
+                                             <a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
                                              <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;sampleMimeType,
+                                             <a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
                                              <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;codecs,
                                              int&nbsp;bitrate,
                                              int&nbsp;maxInputSize,
                                              int&nbsp;channelCount,
                                              int&nbsp;sampleRate,
                                              <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/List.html" target="_top" title="class or interface in java.util">List</a>&lt;byte[]&gt;&nbsp;initializationData,
+                                             <a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
                                              <a href="../../../../com/google/android/exoplayer2/drm/DrmInitData.html" title="class in com.google.android.exoplayer2.drm">DrmInitData</a>&nbsp;drmInitData,
                                              int&nbsp;selectionFlags,
+                                             <a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
                                              <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;language)</pre>
 </li>
 </ul>
@@ -1113,8 +1147,11 @@ implements <a href="https://developer.android.com/reference/android/os/Parcelabl
 <ul class="blockList">
 <li class="blockList">
 <h4>createAudioSampleFormat</h4>
-<pre>public static&nbsp;<a href="../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;createAudioSampleFormat(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;id,
+<pre>public static&nbsp;<a href="../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;createAudioSampleFormat(<a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
+                                             <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;id,
+                                             <a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
                                              <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;sampleMimeType,
+                                             <a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
                                              <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;codecs,
                                              int&nbsp;bitrate,
                                              int&nbsp;maxInputSize,
@@ -1122,8 +1159,10 @@ implements <a href="https://developer.android.com/reference/android/os/Parcelabl
                                              int&nbsp;sampleRate,
                                              int&nbsp;pcmEncoding,
                                              <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/List.html" target="_top" title="class or interface in java.util">List</a>&lt;byte[]&gt;&nbsp;initializationData,
+                                             <a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
                                              <a href="../../../../com/google/android/exoplayer2/drm/DrmInitData.html" title="class in com.google.android.exoplayer2.drm">DrmInitData</a>&nbsp;drmInitData,
                                              int&nbsp;selectionFlags,
+                                             <a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
                                              <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;language)</pre>
 </li>
 </ul>
@@ -1133,8 +1172,11 @@ implements <a href="https://developer.android.com/reference/android/os/Parcelabl
 <ul class="blockList">
 <li class="blockList">
 <h4>createAudioSampleFormat</h4>
-<pre>public static&nbsp;<a href="../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;createAudioSampleFormat(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;id,
+<pre>public static&nbsp;<a href="../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;createAudioSampleFormat(<a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
+                                             <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;id,
+                                             <a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
                                              <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;sampleMimeType,
+                                             <a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
                                              <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;codecs,
                                              int&nbsp;bitrate,
                                              int&nbsp;maxInputSize,
@@ -1144,9 +1186,12 @@ implements <a href="https://developer.android.com/reference/android/os/Parcelabl
                                              int&nbsp;encoderDelay,
                                              int&nbsp;encoderPadding,
                                              <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/List.html" target="_top" title="class or interface in java.util">List</a>&lt;byte[]&gt;&nbsp;initializationData,
+                                             <a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
                                              <a href="../../../../com/google/android/exoplayer2/drm/DrmInitData.html" title="class in com.google.android.exoplayer2.drm">DrmInitData</a>&nbsp;drmInitData,
                                              int&nbsp;selectionFlags,
+                                             <a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
                                              <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;language,
+                                             <a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
                                              <a href="../../../../com/google/android/exoplayer2/metadata/Metadata.html" title="class in com.google.android.exoplayer2.metadata">Metadata</a>&nbsp;metadata)</pre>
 </li>
 </ul>
@@ -1156,12 +1201,17 @@ implements <a href="https://developer.android.com/reference/android/os/Parcelabl
 <ul class="blockList">
 <li class="blockList">
 <h4>createTextContainerFormat</h4>
-<pre>public static&nbsp;<a href="../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;createTextContainerFormat(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;id,
+<pre>public static&nbsp;<a href="../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;createTextContainerFormat(<a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
+                                               <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;id,
+                                               <a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
                                                <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;containerMimeType,
+                                               <a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
                                                <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;sampleMimeType,
+                                               <a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
                                                <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;codecs,
                                                int&nbsp;bitrate,
                                                int&nbsp;selectionFlags,
+                                               <a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
                                                <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;language)</pre>
 </li>
 </ul>
@@ -1171,12 +1221,17 @@ implements <a href="https://developer.android.com/reference/android/os/Parcelabl
 <ul class="blockList">
 <li class="blockList">
 <h4>createTextContainerFormat</h4>
-<pre>public static&nbsp;<a href="../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;createTextContainerFormat(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;id,
+<pre>public static&nbsp;<a href="../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;createTextContainerFormat(<a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
+                                               <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;id,
+                                               <a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
                                                <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;containerMimeType,
+                                               <a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
                                                <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;sampleMimeType,
+                                               <a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
                                                <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;codecs,
                                                int&nbsp;bitrate,
                                                int&nbsp;selectionFlags,
+                                               <a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
                                                <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;language,
                                                int&nbsp;accessibilityChannel)</pre>
 </li>
@@ -1187,9 +1242,11 @@ implements <a href="https://developer.android.com/reference/android/os/Parcelabl
 <ul class="blockList">
 <li class="blockList">
 <h4>createTextSampleFormat</h4>
-<pre>public static&nbsp;<a href="../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;createTextSampleFormat(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;id,
+<pre>public static&nbsp;<a href="../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;createTextSampleFormat(<a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
+                                            <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;id,
                                             <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;sampleMimeType,
                                             int&nbsp;selectionFlags,
+                                            <a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
                                             <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;language)</pre>
 </li>
 </ul>
@@ -1199,10 +1256,13 @@ implements <a href="https://developer.android.com/reference/android/os/Parcelabl
 <ul class="blockList">
 <li class="blockList">
 <h4>createTextSampleFormat</h4>
-<pre>public static&nbsp;<a href="../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;createTextSampleFormat(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;id,
+<pre>public static&nbsp;<a href="../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;createTextSampleFormat(<a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
+                                            <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;id,
                                             <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;sampleMimeType,
                                             int&nbsp;selectionFlags,
+                                            <a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
                                             <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;language,
+                                            <a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
                                             <a href="../../../../com/google/android/exoplayer2/drm/DrmInitData.html" title="class in com.google.android.exoplayer2.drm">DrmInitData</a>&nbsp;drmInitData)</pre>
 </li>
 </ul>
@@ -1212,13 +1272,18 @@ implements <a href="https://developer.android.com/reference/android/os/Parcelabl
 <ul class="blockList">
 <li class="blockList">
 <h4>createTextSampleFormat</h4>
-<pre>public static&nbsp;<a href="../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;createTextSampleFormat(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;id,
+<pre>public static&nbsp;<a href="../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;createTextSampleFormat(<a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
+                                            <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;id,
+                                            <a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
                                             <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;sampleMimeType,
+                                            <a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
                                             <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;codecs,
                                             int&nbsp;bitrate,
                                             int&nbsp;selectionFlags,
+                                            <a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
                                             <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;language,
                                             int&nbsp;accessibilityChannel,
+                                            <a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
                                             <a href="../../../../com/google/android/exoplayer2/drm/DrmInitData.html" title="class in com.google.android.exoplayer2.drm">DrmInitData</a>&nbsp;drmInitData)</pre>
 </li>
 </ul>
@@ -1228,12 +1293,17 @@ implements <a href="https://developer.android.com/reference/android/os/Parcelabl
 <ul class="blockList">
 <li class="blockList">
 <h4>createTextSampleFormat</h4>
-<pre>public static&nbsp;<a href="../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;createTextSampleFormat(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;id,
+<pre>public static&nbsp;<a href="../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;createTextSampleFormat(<a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
+                                            <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;id,
+                                            <a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
                                             <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;sampleMimeType,
+                                            <a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
                                             <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;codecs,
                                             int&nbsp;bitrate,
                                             int&nbsp;selectionFlags,
+                                            <a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
                                             <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;language,
+                                            <a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
                                             <a href="../../../../com/google/android/exoplayer2/drm/DrmInitData.html" title="class in com.google.android.exoplayer2.drm">DrmInitData</a>&nbsp;drmInitData,
                                             long&nbsp;subsampleOffsetUs)</pre>
 </li>
@@ -1244,13 +1314,18 @@ implements <a href="https://developer.android.com/reference/android/os/Parcelabl
 <ul class="blockList">
 <li class="blockList">
 <h4>createTextSampleFormat</h4>
-<pre>public static&nbsp;<a href="../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;createTextSampleFormat(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;id,
+<pre>public static&nbsp;<a href="../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;createTextSampleFormat(<a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
+                                            <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;id,
+                                            <a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
                                             <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;sampleMimeType,
+                                            <a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
                                             <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;codecs,
                                             int&nbsp;bitrate,
                                             int&nbsp;selectionFlags,
+                                            <a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
                                             <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;language,
                                             int&nbsp;accessibilityChannel,
+                                            <a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
                                             <a href="../../../../com/google/android/exoplayer2/drm/DrmInitData.html" title="class in com.google.android.exoplayer2.drm">DrmInitData</a>&nbsp;drmInitData,
                                             long&nbsp;subsampleOffsetUs,
                                             <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/List.html" target="_top" title="class or interface in java.util">List</a>&lt;byte[]&gt;&nbsp;initializationData)</pre>
@@ -1262,13 +1337,18 @@ implements <a href="https://developer.android.com/reference/android/os/Parcelabl
 <ul class="blockList">
 <li class="blockList">
 <h4>createImageSampleFormat</h4>
-<pre>public static&nbsp;<a href="../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;createImageSampleFormat(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;id,
+<pre>public static&nbsp;<a href="../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;createImageSampleFormat(<a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
+                                             <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;id,
+                                             <a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
                                              <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;sampleMimeType,
+                                             <a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
                                              <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;codecs,
                                              int&nbsp;bitrate,
                                              int&nbsp;selectionFlags,
                                              <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/List.html" target="_top" title="class or interface in java.util">List</a>&lt;byte[]&gt;&nbsp;initializationData,
+                                             <a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
                                              <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;language,
+                                             <a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
                                              <a href="../../../../com/google/android/exoplayer2/drm/DrmInitData.html" title="class in com.google.android.exoplayer2.drm">DrmInitData</a>&nbsp;drmInitData)</pre>
 </li>
 </ul>
@@ -1278,12 +1358,17 @@ implements <a href="https://developer.android.com/reference/android/os/Parcelabl
 <ul class="blockList">
 <li class="blockList">
 <h4>createContainerFormat</h4>
-<pre>public static&nbsp;<a href="../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;createContainerFormat(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;id,
+<pre>public static&nbsp;<a href="../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;createContainerFormat(<a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
+                                           <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;id,
+                                           <a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
                                            <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;containerMimeType,
+                                           <a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
                                            <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;sampleMimeType,
+                                           <a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
                                            <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;codecs,
                                            int&nbsp;bitrate,
                                            int&nbsp;selectionFlags,
+                                           <a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
                                            <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;language)</pre>
 </li>
 </ul>
@@ -1293,7 +1378,9 @@ implements <a href="https://developer.android.com/reference/android/os/Parcelabl
 <ul class="blockList">
 <li class="blockList">
 <h4>createSampleFormat</h4>
-<pre>public static&nbsp;<a href="../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;createSampleFormat(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;id,
+<pre>public static&nbsp;<a href="../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;createSampleFormat(<a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
+                                        <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;id,
+                                        <a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
                                         <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;sampleMimeType,
                                         long&nbsp;subsampleOffsetUs)</pre>
 </li>
@@ -1304,10 +1391,14 @@ implements <a href="https://developer.android.com/reference/android/os/Parcelabl
 <ul class="blockList">
 <li class="blockList">
 <h4>createSampleFormat</h4>
-<pre>public static&nbsp;<a href="../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;createSampleFormat(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;id,
+<pre>public static&nbsp;<a href="../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;createSampleFormat(<a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
+                                        <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;id,
+                                        <a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
                                         <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;sampleMimeType,
+                                        <a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
                                         <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;codecs,
                                         int&nbsp;bitrate,
+                                        <a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
                                         <a href="../../../../com/google/android/exoplayer2/drm/DrmInitData.html" title="class in com.google.android.exoplayer2.drm">DrmInitData</a>&nbsp;drmInitData)</pre>
 </li>
 </ul>
@@ -1335,13 +1426,17 @@ implements <a href="https://developer.android.com/reference/android/os/Parcelabl
 <ul class="blockList">
 <li class="blockList">
 <h4>copyWithContainerInfo</h4>
-<pre>public&nbsp;<a href="../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;copyWithContainerInfo(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;id,
+<pre>public&nbsp;<a href="../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;copyWithContainerInfo(<a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
+                                    <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;id,
+                                    <a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
                                     <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;sampleMimeType,
+                                    <a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
                                     <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;codecs,
                                     int&nbsp;bitrate,
                                     int&nbsp;width,
                                     int&nbsp;height,
                                     int&nbsp;selectionFlags,
+                                    <a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
                                     <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;language)</pre>
 </li>
 </ul>
@@ -1370,7 +1465,8 @@ implements <a href="https://developer.android.com/reference/android/os/Parcelabl
 <ul class="blockList">
 <li class="blockList">
 <h4>copyWithDrmInitData</h4>
-<pre>public&nbsp;<a href="../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;copyWithDrmInitData(<a href="../../../../com/google/android/exoplayer2/drm/DrmInitData.html" title="class in com.google.android.exoplayer2.drm">DrmInitData</a>&nbsp;drmInitData)</pre>
+<pre>public&nbsp;<a href="../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;copyWithDrmInitData(<a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
+                                  <a href="../../../../com/google/android/exoplayer2/drm/DrmInitData.html" title="class in com.google.android.exoplayer2.drm">DrmInitData</a>&nbsp;drmInitData)</pre>
 </li>
 </ul>
 <a name="copyWithMetadata-com.google.android.exoplayer2.metadata.Metadata-">
@@ -1379,7 +1475,8 @@ implements <a href="https://developer.android.com/reference/android/os/Parcelabl
 <ul class="blockList">
 <li class="blockList">
 <h4>copyWithMetadata</h4>
-<pre>public&nbsp;<a href="../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;copyWithMetadata(<a href="../../../../com/google/android/exoplayer2/metadata/Metadata.html" title="class in com.google.android.exoplayer2.metadata">Metadata</a>&nbsp;metadata)</pre>
+<pre>public&nbsp;<a href="../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;copyWithMetadata(<a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
+                               <a href="../../../../com/google/android/exoplayer2/metadata/Metadata.html" title="class in com.google.android.exoplayer2.metadata">Metadata</a>&nbsp;metadata)</pre>
 </li>
 </ul>
 <a name="copyWithRotationDegrees-int-">
@@ -1400,16 +1497,6 @@ implements <a href="https://developer.android.com/reference/android/os/Parcelabl
 <pre>public&nbsp;int&nbsp;getPixelCount()</pre>
 <div class="block">Returns the number of pixels if this is a video format whose <a href="../../../../com/google/android/exoplayer2/Format.html#width"><code>width</code></a> and <a href="../../../../com/google/android/exoplayer2/Format.html#height"><code>height</code></a>
  are known, or <a href="../../../../com/google/android/exoplayer2/Format.html#NO_VALUE"><code>NO_VALUE</code></a> otherwise</div>
-</li>
-</ul>
-<a name="getFrameworkMediaFormatV16--">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>getFrameworkMediaFormatV16</h4>
-<pre>public final&nbsp;<a href="https://developer.android.com/reference/android/media/MediaFormat.html" target="_top" title="class or interface in android.media">MediaFormat</a>&nbsp;getFrameworkMediaFormatV16()</pre>
-<div class="block">Returns a <a href="https://developer.android.com/reference/android/media/MediaFormat.html" target="_top" title="class or interface in android.media"><code>MediaFormat</code></a> representation of this format.</div>
 </li>
 </ul>
 <a name="toString--">
@@ -1444,10 +1531,29 @@ implements <a href="https://developer.android.com/reference/android/os/Parcelabl
 <ul class="blockList">
 <li class="blockList">
 <h4>equals</h4>
-<pre>public&nbsp;boolean&nbsp;equals(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Object.html" target="_top" title="class or interface in java.lang">Object</a>&nbsp;obj)</pre>
+<pre>public&nbsp;boolean&nbsp;equals(<a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
+                      <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Object.html" target="_top" title="class or interface in java.lang">Object</a>&nbsp;obj)</pre>
 <dl>
 <dt><span class="overrideSpecifyLabel">Overrides:</span></dt>
 <dd><code><a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Object.html?is-external=true#equals-java.lang.Object-" title="class or interface in java.lang">equals</a></code>&nbsp;in class&nbsp;<code><a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html" target="_top" title="class or interface in java.lang">Object</a></code></dd>
+</dl>
+</li>
+</ul>
+<a name="initializationDataEquals-com.google.android.exoplayer2.Format-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>initializationDataEquals</h4>
+<pre>public&nbsp;boolean&nbsp;initializationDataEquals(<a href="../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;other)</pre>
+<div class="block">Returns whether the <a href="../../../../com/google/android/exoplayer2/Format.html#initializationData"><code>initializationData</code></a>s belonging to this format and <code>other</code> are
+ equal.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>other</code> - The other format whose <a href="../../../../com/google/android/exoplayer2/Format.html#initializationData"><code>initializationData</code></a> is being compared.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>Whether the <a href="../../../../com/google/android/exoplayer2/Format.html#initializationData"><code>initializationData</code></a>s belonging to this format and <code>other</code> are
+     equal.</dd>
 </dl>
 </li>
 </ul>

@@ -16,7 +16,7 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":10,"i1":10,"i2":10};
+var methods = {"i0":10,"i1":10};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -46,8 +46,8 @@ var activeTableTab = "activeTableTab";
 </div>
 <div class="subNav">
 <ul class="navList">
-<li>Prev&nbsp;Class</li>
-<li>Next&nbsp;Class</li>
+<li><a href="../../../../../../../com/google/android/exoplayer2/source/dash/offline/DashDownloadAction.html" title="class in com.google.android.exoplayer2.source.dash.offline"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
+<li><a href="../../../../../../../com/google/android/exoplayer2/source/dash/offline/DashDownloadHelper.html" title="class in com.google.android.exoplayer2.source.dash.offline"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
 </ul>
 <ul class="navList">
 <li><a href="../../../../../../../index.html?com/google/android/exoplayer2/source/dash/offline/DashDownloader.html" target="_top">Frames</a></li>
@@ -117,33 +117,28 @@ var activeTableTab = "activeTableTab";
 <br>
 <pre>public final class <span class="typeNameLabel">DashDownloader</span>
 extends <a href="../../../../../../../com/google/android/exoplayer2/offline/SegmentDownloader.html" title="class in com.google.android.exoplayer2.offline">SegmentDownloader</a>&lt;<a href="../../../../../../../com/google/android/exoplayer2/source/dash/manifest/DashManifest.html" title="class in com.google.android.exoplayer2.source.dash.manifest">DashManifest</a>,<a href="../../../../../../../com/google/android/exoplayer2/source/dash/manifest/RepresentationKey.html" title="class in com.google.android.exoplayer2.source.dash.manifest">RepresentationKey</a>&gt;</pre>
-<div class="block">Helper class to download DASH streams.
-
- <p>Except <a href="../../../../../../../com/google/android/exoplayer2/offline/SegmentDownloader.html#getTotalSegments--"><code>SegmentDownloader.getTotalSegments()</code></a>, <a href="../../../../../../../com/google/android/exoplayer2/offline/SegmentDownloader.html#getDownloadedSegments--"><code>SegmentDownloader.getDownloadedSegments()</code></a> and
- <a href="../../../../../../../com/google/android/exoplayer2/offline/SegmentDownloader.html#getDownloadedBytes--"><code>SegmentDownloader.getDownloadedBytes()</code></a>, this class isn't thread safe.
+<div class="block">A downloader for DASH streams.
 
  <p>Example usage:
 
- <pre>
- <code>
+ <pre><code>
  SimpleCache cache = new SimpleCache(downloadFolder, new NoOpCacheEvictor());
  DefaultHttpDataSourceFactory factory = new DefaultHttpDataSourceFactory("ExoPlayer", null);
  DownloaderConstructorHelper constructorHelper =
      new DownloaderConstructorHelper(cache, factory);
- DashDownloader dashDownloader = new DashDownloader(manifestUrl, constructorHelper);
- // Select the first representation of the first adaptation set of the first period
- dashDownloader.selectRepresentations(new RepresentationKey[] {new RepresentationKey(0, 0, 0)});
- dashDownloader.download(new ProgressListener() {
-   {@literal @}Override
-   public void onDownloadProgress(Downloader downloader, float downloadPercentage,
-       long downloadedBytes) {
-     // Invoked periodically during the download.
-   }
- });
+ // Create a downloader for the first representation of the first adaptation set of the first
+ // period.
+ DashDownloader dashDownloader =
+     new DashDownloader(
+         manifestUrl,
+         Collections.singletonList(new RepresentationKey(0, 0, 0)),
+         constructorHelper);
+ // Perform the download.
+ dashDownloader.download();
  // Access downloaded data using CacheDataSource
  CacheDataSource cacheDataSource =
-     new CacheDataSource(cache, factory.createDataSource(), CacheDataSource.FLAG_BLOCK_ON_CACHE);</code>
- </pre></div>
+     new CacheDataSource(cache, factory.createDataSource(), CacheDataSource.FLAG_BLOCK_ON_CACHE);
+ </code></pre></div>
 </li>
 </ul>
 </div>
@@ -163,13 +158,6 @@ extends <a href="../../../../../../../com/google/android/exoplayer2/offline/Segm
 <h3>Nested classes/interfaces inherited from class&nbsp;com.google.android.exoplayer2.offline.<a href="../../../../../../../com/google/android/exoplayer2/offline/SegmentDownloader.html" title="class in com.google.android.exoplayer2.offline">SegmentDownloader</a></h3>
 <code><a href="../../../../../../../com/google/android/exoplayer2/offline/SegmentDownloader.Segment.html" title="class in com.google.android.exoplayer2.offline">SegmentDownloader.Segment</a></code></li>
 </ul>
-<ul class="blockList">
-<li class="blockList"><a name="nested.classes.inherited.from.class.com.google.android.exoplayer2.offline.Downloader">
-<!--   -->
-</a>
-<h3>Nested classes/interfaces inherited from interface&nbsp;com.google.android.exoplayer2.offline.<a href="../../../../../../../com/google/android/exoplayer2/offline/Downloader.html" title="interface in com.google.android.exoplayer2.offline">Downloader</a></h3>
-<code><a href="../../../../../../../com/google/android/exoplayer2/offline/Downloader.ProgressListener.html" title="interface in com.google.android.exoplayer2.offline">Downloader.ProgressListener</a></code></li>
-</ul>
 </li>
 </ul>
 <!-- ======== CONSTRUCTOR SUMMARY ======== -->
@@ -184,7 +172,8 @@ extends <a href="../../../../../../../com/google/android/exoplayer2/offline/Segm
 <th class="colOne" scope="col">Constructor and Description</th>
 </tr>
 <tr class="altColor">
-<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../../../com/google/android/exoplayer2/source/dash/offline/DashDownloader.html#DashDownloader-android.net.Uri-com.google.android.exoplayer2.offline.DownloaderConstructorHelper-">DashDownloader</a></span>(<a href="https://developer.android.com/reference/android/net/Uri.html" target="_top" title="class or interface in android.net">Uri</a>&nbsp;manifestUri,
+<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../../../com/google/android/exoplayer2/source/dash/offline/DashDownloader.html#DashDownloader-android.net.Uri-java.util.List-com.google.android.exoplayer2.offline.DownloaderConstructorHelper-">DashDownloader</a></span>(<a href="https://developer.android.com/reference/android/net/Uri.html" target="_top" title="class or interface in android.net">Uri</a>&nbsp;manifestUri,
+              <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/List.html" target="_top" title="class or interface in java.util">List</a>&lt;<a href="../../../../../../../com/google/android/exoplayer2/source/dash/manifest/RepresentationKey.html" title="class in com.google.android.exoplayer2.source.dash.manifest">RepresentationKey</a>&gt;&nbsp;representationKeys,
               <a href="../../../../../../../com/google/android/exoplayer2/offline/DownloaderConstructorHelper.html" title="class in com.google.android.exoplayer2.offline">DownloaderConstructorHelper</a>&nbsp;constructorHelper)</code>&nbsp;</td>
 </tr>
 </table>
@@ -203,25 +192,18 @@ extends <a href="../../../../../../../com/google/android/exoplayer2/offline/Segm
 <th class="colLast" scope="col">Method and Description</th>
 </tr>
 <tr id="i0" class="altColor">
-<td class="colFirst"><code><a href="../../../../../../../com/google/android/exoplayer2/source/dash/manifest/RepresentationKey.html" title="class in com.google.android.exoplayer2.source.dash.manifest">RepresentationKey</a>[]</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../../com/google/android/exoplayer2/source/dash/offline/DashDownloader.html#getAllRepresentationKeys--">getAllRepresentationKeys</a></span>()</code>
-<div class="block">Returns keys for all representations.</div>
-</td>
-</tr>
-<tr id="i1" class="rowColor">
 <td class="colFirst"><code>protected <a href="../../../../../../../com/google/android/exoplayer2/source/dash/manifest/DashManifest.html" title="class in com.google.android.exoplayer2.source.dash.manifest">DashManifest</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../../com/google/android/exoplayer2/source/dash/offline/DashDownloader.html#getManifest-com.google.android.exoplayer2.upstream.DataSource-android.net.Uri-">getManifest</a></span>(<a href="../../../../../../../com/google/android/exoplayer2/upstream/DataSource.html" title="interface in com.google.android.exoplayer2.upstream">DataSource</a>&nbsp;dataSource,
            <a href="https://developer.android.com/reference/android/net/Uri.html" target="_top" title="class or interface in android.net">Uri</a>&nbsp;uri)</code>
 <div class="block">Loads and parses the manifest.</div>
 </td>
 </tr>
-<tr id="i2" class="altColor">
+<tr id="i1" class="rowColor">
 <td class="colFirst"><code>protected <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/List.html" target="_top" title="class or interface in java.util">List</a>&lt;<a href="../../../../../../../com/google/android/exoplayer2/offline/SegmentDownloader.Segment.html" title="class in com.google.android.exoplayer2.offline">SegmentDownloader.Segment</a>&gt;</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../../com/google/android/exoplayer2/source/dash/offline/DashDownloader.html#getSegments-com.google.android.exoplayer2.upstream.DataSource-com.google.android.exoplayer2.source.dash.manifest.DashManifest-com.google.android.exoplayer2.source.dash.manifest.RepresentationKey:A-boolean-">getSegments</a></span>(<a href="../../../../../../../com/google/android/exoplayer2/upstream/DataSource.html" title="interface in com.google.android.exoplayer2.upstream">DataSource</a>&nbsp;dataSource,
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../../com/google/android/exoplayer2/source/dash/offline/DashDownloader.html#getSegments-com.google.android.exoplayer2.upstream.DataSource-com.google.android.exoplayer2.source.dash.manifest.DashManifest-boolean-">getSegments</a></span>(<a href="../../../../../../../com/google/android/exoplayer2/upstream/DataSource.html" title="interface in com.google.android.exoplayer2.upstream">DataSource</a>&nbsp;dataSource,
            <a href="../../../../../../../com/google/android/exoplayer2/source/dash/manifest/DashManifest.html" title="class in com.google.android.exoplayer2.source.dash.manifest">DashManifest</a>&nbsp;manifest,
-           <a href="../../../../../../../com/google/android/exoplayer2/source/dash/manifest/RepresentationKey.html" title="class in com.google.android.exoplayer2.source.dash.manifest">RepresentationKey</a>[]&nbsp;keys,
-           boolean&nbsp;allowIndexLoadErrors)</code>
-<div class="block">Returns a list of <a href="../../../../../../../com/google/android/exoplayer2/offline/SegmentDownloader.Segment.html" title="class in com.google.android.exoplayer2.offline"><code>SegmentDownloader.Segment</code></a>s for given keys.</div>
+           boolean&nbsp;allowIncompleteList)</code>
+<div class="block">Returns a list of all downloadable <a href="../../../../../../../com/google/android/exoplayer2/offline/SegmentDownloader.Segment.html" title="class in com.google.android.exoplayer2.offline"><code>SegmentDownloader.Segment</code></a>s for a given manifest.</div>
 </td>
 </tr>
 </table>
@@ -230,7 +212,7 @@ extends <a href="../../../../../../../com/google/android/exoplayer2/offline/Segm
 <!--   -->
 </a>
 <h3>Methods inherited from class&nbsp;com.google.android.exoplayer2.offline.<a href="../../../../../../../com/google/android/exoplayer2/offline/SegmentDownloader.html" title="class in com.google.android.exoplayer2.offline">SegmentDownloader</a></h3>
-<code><a href="../../../../../../../com/google/android/exoplayer2/offline/SegmentDownloader.html#download-com.google.android.exoplayer2.offline.Downloader.ProgressListener-">download</a>, <a href="../../../../../../../com/google/android/exoplayer2/offline/SegmentDownloader.html#getDownloadedBytes--">getDownloadedBytes</a>, <a href="../../../../../../../com/google/android/exoplayer2/offline/SegmentDownloader.html#getDownloadedSegments--">getDownloadedSegments</a>, <a href="../../../../../../../com/google/android/exoplayer2/offline/SegmentDownloader.html#getDownloadPercentage--">getDownloadPercentage</a>, <a href="../../../../../../../com/google/android/exoplayer2/offline/SegmentDownloader.html#getManifest--">getManifest</a>, <a href="../../../../../../../com/google/android/exoplayer2/offline/SegmentDownloader.html#getTotalSegments--">getTotalSegments</a>, <a href="../../../../../../../com/google/android/exoplayer2/offline/SegmentDownloader.html#init--">init</a>, <a href="../../../../../../../com/google/android/exoplayer2/offline/SegmentDownloader.html#remove--">remove</a>, <a href="../../../../../../../com/google/android/exoplayer2/offline/SegmentDownloader.html#selectRepresentations-K:A-">selectRepresentations</a></code></li>
+<code><a href="../../../../../../../com/google/android/exoplayer2/offline/SegmentDownloader.html#cancel--">cancel</a>, <a href="../../../../../../../com/google/android/exoplayer2/offline/SegmentDownloader.html#download--">download</a>, <a href="../../../../../../../com/google/android/exoplayer2/offline/SegmentDownloader.html#getDownloadedBytes--">getDownloadedBytes</a>, <a href="../../../../../../../com/google/android/exoplayer2/offline/SegmentDownloader.html#getDownloadPercentage--">getDownloadPercentage</a>, <a href="../../../../../../../com/google/android/exoplayer2/offline/SegmentDownloader.html#remove--">remove</a></code></li>
 </ul>
 <ul class="blockList">
 <li class="blockList"><a name="methods.inherited.from.class.java.lang.Object">
@@ -253,17 +235,21 @@ extends <a href="../../../../../../../com/google/android/exoplayer2/offline/Segm
 <!--   -->
 </a>
 <h3>Constructor Detail</h3>
-<a name="DashDownloader-android.net.Uri-com.google.android.exoplayer2.offline.DownloaderConstructorHelper-">
+<a name="DashDownloader-android.net.Uri-java.util.List-com.google.android.exoplayer2.offline.DownloaderConstructorHelper-">
 <!--   -->
 </a>
 <ul class="blockListLast">
 <li class="blockList">
 <h4>DashDownloader</h4>
 <pre>public&nbsp;DashDownloader(<a href="https://developer.android.com/reference/android/net/Uri.html" target="_top" title="class or interface in android.net">Uri</a>&nbsp;manifestUri,
+                      <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/List.html" target="_top" title="class or interface in java.util">List</a>&lt;<a href="../../../../../../../com/google/android/exoplayer2/source/dash/manifest/RepresentationKey.html" title="class in com.google.android.exoplayer2.source.dash.manifest">RepresentationKey</a>&gt;&nbsp;representationKeys,
                       <a href="../../../../../../../com/google/android/exoplayer2/offline/DownloaderConstructorHelper.html" title="class in com.google.android.exoplayer2.offline">DownloaderConstructorHelper</a>&nbsp;constructorHelper)</pre>
 <dl>
-<dt><span class="seeLabel">See Also:</span></dt>
-<dd><a href="../../../../../../../com/google/android/exoplayer2/offline/SegmentDownloader.html#SegmentDownloader-android.net.Uri-com.google.android.exoplayer2.offline.DownloaderConstructorHelper-"><code>SegmentDownloader.SegmentDownloader(Uri, DownloaderConstructorHelper)</code></a></dd>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>manifestUri</code> - The <a href="https://developer.android.com/reference/android/net/Uri.html" target="_top" title="class or interface in android.net"><code>Uri</code></a> of the manifest to be downloaded.</dd>
+<dd><code>representationKeys</code> - Keys defining which representations in the manifest should be
+     selected for download. If empty, all representations are downloaded.</dd>
+<dd><code>constructorHelper</code> - A <a href="../../../../../../../com/google/android/exoplayer2/offline/DownloaderConstructorHelper.html" title="class in com.google.android.exoplayer2.offline"><code>DownloaderConstructorHelper</code></a> instance.</dd>
 </dl>
 </li>
 </ul>
@@ -275,26 +261,6 @@ extends <a href="../../../../../../../com/google/android/exoplayer2/offline/Segm
 <!--   -->
 </a>
 <h3>Method Detail</h3>
-<a name="getAllRepresentationKeys--">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>getAllRepresentationKeys</h4>
-<pre>public&nbsp;<a href="../../../../../../../com/google/android/exoplayer2/source/dash/manifest/RepresentationKey.html" title="class in com.google.android.exoplayer2.source.dash.manifest">RepresentationKey</a>[]&nbsp;getAllRepresentationKeys()
-                                             throws <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/io/IOException.html" target="_top" title="class or interface in java.io">IOException</a></pre>
-<div class="block"><span class="descfrmTypeLabel">Description copied from class:&nbsp;<code><a href="../../../../../../../com/google/android/exoplayer2/offline/SegmentDownloader.html#getAllRepresentationKeys--">SegmentDownloader</a></code></span></div>
-<div class="block">Returns keys for all representations.</div>
-<dl>
-<dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code><a href="../../../../../../../com/google/android/exoplayer2/offline/SegmentDownloader.html#getAllRepresentationKeys--">getAllRepresentationKeys</a></code>&nbsp;in class&nbsp;<code><a href="../../../../../../../com/google/android/exoplayer2/offline/SegmentDownloader.html" title="class in com.google.android.exoplayer2.offline">SegmentDownloader</a>&lt;<a href="../../../../../../../com/google/android/exoplayer2/source/dash/manifest/DashManifest.html" title="class in com.google.android.exoplayer2.source.dash.manifest">DashManifest</a>,<a href="../../../../../../../com/google/android/exoplayer2/source/dash/manifest/RepresentationKey.html" title="class in com.google.android.exoplayer2.source.dash.manifest">RepresentationKey</a>&gt;</code></dd>
-<dt><span class="throwsLabel">Throws:</span></dt>
-<dd><code><a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/io/IOException.html" target="_top" title="class or interface in java.io">IOException</a></code></dd>
-<dt><span class="seeLabel">See Also:</span></dt>
-<dd><a href="../../../../../../../com/google/android/exoplayer2/offline/SegmentDownloader.html#selectRepresentations-K:A-"><code>SegmentDownloader.selectRepresentations(Object[])</code></a></dd>
-</dl>
-</li>
-</ul>
 <a name="getManifest-com.google.android.exoplayer2.upstream.DataSource-android.net.Uri-">
 <!--   -->
 </a>
@@ -319,7 +285,7 @@ extends <a href="../../../../../../../com/google/android/exoplayer2/offline/Segm
 </dl>
 </li>
 </ul>
-<a name="getSegments-com.google.android.exoplayer2.upstream.DataSource-com.google.android.exoplayer2.source.dash.manifest.DashManifest-com.google.android.exoplayer2.source.dash.manifest.RepresentationKey:A-boolean-">
+<a name="getSegments-com.google.android.exoplayer2.upstream.DataSource-com.google.android.exoplayer2.source.dash.manifest.DashManifest-boolean-">
 <!--   -->
 </a>
 <ul class="blockListLast">
@@ -327,24 +293,22 @@ extends <a href="../../../../../../../com/google/android/exoplayer2/offline/Segm
 <h4>getSegments</h4>
 <pre>protected&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/List.html" target="_top" title="class or interface in java.util">List</a>&lt;<a href="../../../../../../../com/google/android/exoplayer2/offline/SegmentDownloader.Segment.html" title="class in com.google.android.exoplayer2.offline">SegmentDownloader.Segment</a>&gt;&nbsp;getSegments(<a href="../../../../../../../com/google/android/exoplayer2/upstream/DataSource.html" title="interface in com.google.android.exoplayer2.upstream">DataSource</a>&nbsp;dataSource,
                                                       <a href="../../../../../../../com/google/android/exoplayer2/source/dash/manifest/DashManifest.html" title="class in com.google.android.exoplayer2.source.dash.manifest">DashManifest</a>&nbsp;manifest,
-                                                      <a href="../../../../../../../com/google/android/exoplayer2/source/dash/manifest/RepresentationKey.html" title="class in com.google.android.exoplayer2.source.dash.manifest">RepresentationKey</a>[]&nbsp;keys,
-                                                      boolean&nbsp;allowIndexLoadErrors)
+                                                      boolean&nbsp;allowIncompleteList)
                                                throws <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/InterruptedException.html" target="_top" title="class or interface in java.lang">InterruptedException</a>,
                                                       <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/io/IOException.html" target="_top" title="class or interface in java.io">IOException</a></pre>
-<div class="block"><span class="descfrmTypeLabel">Description copied from class:&nbsp;<code><a href="../../../../../../../com/google/android/exoplayer2/offline/SegmentDownloader.html#getSegments-com.google.android.exoplayer2.upstream.DataSource-M-K:A-boolean-">SegmentDownloader</a></code></span></div>
-<div class="block">Returns a list of <a href="../../../../../../../com/google/android/exoplayer2/offline/SegmentDownloader.Segment.html" title="class in com.google.android.exoplayer2.offline"><code>SegmentDownloader.Segment</code></a>s for given keys.</div>
+<div class="block"><span class="descfrmTypeLabel">Description copied from class:&nbsp;<code><a href="../../../../../../../com/google/android/exoplayer2/offline/SegmentDownloader.html#getSegments-com.google.android.exoplayer2.upstream.DataSource-M-boolean-">SegmentDownloader</a></code></span></div>
+<div class="block">Returns a list of all downloadable <a href="../../../../../../../com/google/android/exoplayer2/offline/SegmentDownloader.Segment.html" title="class in com.google.android.exoplayer2.offline"><code>SegmentDownloader.Segment</code></a>s for a given manifest.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code><a href="../../../../../../../com/google/android/exoplayer2/offline/SegmentDownloader.html#getSegments-com.google.android.exoplayer2.upstream.DataSource-M-K:A-boolean-">getSegments</a></code>&nbsp;in class&nbsp;<code><a href="../../../../../../../com/google/android/exoplayer2/offline/SegmentDownloader.html" title="class in com.google.android.exoplayer2.offline">SegmentDownloader</a>&lt;<a href="../../../../../../../com/google/android/exoplayer2/source/dash/manifest/DashManifest.html" title="class in com.google.android.exoplayer2.source.dash.manifest">DashManifest</a>,<a href="../../../../../../../com/google/android/exoplayer2/source/dash/manifest/RepresentationKey.html" title="class in com.google.android.exoplayer2.source.dash.manifest">RepresentationKey</a>&gt;</code></dd>
+<dd><code><a href="../../../../../../../com/google/android/exoplayer2/offline/SegmentDownloader.html#getSegments-com.google.android.exoplayer2.upstream.DataSource-M-boolean-">getSegments</a></code>&nbsp;in class&nbsp;<code><a href="../../../../../../../com/google/android/exoplayer2/offline/SegmentDownloader.html" title="class in com.google.android.exoplayer2.offline">SegmentDownloader</a>&lt;<a href="../../../../../../../com/google/android/exoplayer2/source/dash/manifest/DashManifest.html" title="class in com.google.android.exoplayer2.source.dash.manifest">DashManifest</a>,<a href="../../../../../../../com/google/android/exoplayer2/source/dash/manifest/RepresentationKey.html" title="class in com.google.android.exoplayer2.source.dash.manifest">RepresentationKey</a>&gt;</code></dd>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>dataSource</code> - The <a href="../../../../../../../com/google/android/exoplayer2/upstream/DataSource.html" title="interface in com.google.android.exoplayer2.upstream"><code>DataSource</code></a> through which to load any required data.</dd>
 <dd><code>manifest</code> - The manifest containing the segments.</dd>
-<dd><code>keys</code> - The selected representation keys.</dd>
-<dd><code>allowIndexLoadErrors</code> - Whether to continue in the case that a load error prevents all
+<dd><code>allowIncompleteList</code> - Whether to continue in the case that a load error prevents all
      segments from being listed. If true then a partial segment list will be returned. If false
      an <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/io/IOException.html" target="_top" title="class or interface in java.io"><code>IOException</code></a> will be thrown.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
-<dd>A list of <a href="../../../../../../../com/google/android/exoplayer2/offline/SegmentDownloader.Segment.html" title="class in com.google.android.exoplayer2.offline"><code>SegmentDownloader.Segment</code></a>s for given keys.</dd>
+<dd>The list of downloadable <a href="../../../../../../../com/google/android/exoplayer2/offline/SegmentDownloader.Segment.html" title="class in com.google.android.exoplayer2.offline"><code>SegmentDownloader.Segment</code></a>s.</dd>
 <dt><span class="throwsLabel">Throws:</span></dt>
 <dd><code><a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/InterruptedException.html" target="_top" title="class or interface in java.lang">InterruptedException</a></code> - Thrown if the thread was interrupted.</dd>
 <dd><code><a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/io/IOException.html" target="_top" title="class or interface in java.io">IOException</a></code> - Thrown if <code>allowPartialIndex</code> is false and a load error occurs, or if
@@ -379,8 +343,8 @@ extends <a href="../../../../../../../com/google/android/exoplayer2/offline/Segm
 </div>
 <div class="subNav">
 <ul class="navList">
-<li>Prev&nbsp;Class</li>
-<li>Next&nbsp;Class</li>
+<li><a href="../../../../../../../com/google/android/exoplayer2/source/dash/offline/DashDownloadAction.html" title="class in com.google.android.exoplayer2.source.dash.offline"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
+<li><a href="../../../../../../../com/google/android/exoplayer2/source/dash/offline/DashDownloadHelper.html" title="class in com.google.android.exoplayer2.source.dash.offline"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
 </ul>
 <ul class="navList">
 <li><a href="../../../../../../../index.html?com/google/android/exoplayer2/source/dash/offline/DashDownloader.html" target="_top">Frames</a></li>

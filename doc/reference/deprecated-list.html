@@ -94,6 +94,18 @@
 </td>
 </tr>
 <tr class="rowColor">
+<td class="colOne"><a href="com/google/android/exoplayer2/source/ads/AdsMediaSource.EventListener.html" title="interface in com.google.android.exoplayer2.source.ads">com.google.android.exoplayer2.source.ads.AdsMediaSource.EventListener</a>
+<div class="block"><span class="deprecationComment">To listen for ad load error events, add a listener via <a href="com/google/android/exoplayer2/source/BaseMediaSource.html#addEventListener-android.os.Handler-com.google.android.exoplayer2.source.MediaSourceEventListener-"><code>BaseMediaSource.addEventListener(Handler, MediaSourceEventListener)</code></a> and check for <a href="com/google/android/exoplayer2/source/ads/AdsMediaSource.AdLoadException.html" title="class in com.google.android.exoplayer2.source.ads"><code>AdsMediaSource.AdLoadException</code></a>s in <code>MediaSourceEventListener#onLoadError(int, MediaPeriodId,
+     LoadEventInfo, MediaLoadData, IOException, boolean)</code>. Individual ads loader implementations
+     should expose ad interaction events, if applicable.</span></div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colOne"><a href="com/google/android/exoplayer2/drm/DefaultDrmSessionManager.EventListener.html" title="interface in com.google.android.exoplayer2.drm">com.google.android.exoplayer2.drm.DefaultDrmSessionManager.EventListener</a>
+<div class="block"><span class="deprecationComment">Use <a href="com/google/android/exoplayer2/drm/DefaultDrmSessionEventListener.html" title="interface in com.google.android.exoplayer2.drm"><code>DefaultDrmSessionEventListener</code></a>.</span></div>
+</td>
+</tr>
+<tr class="rowColor">
 <td class="colOne"><a href="com/google/android/exoplayer2/ExoPlayer.EventListener.html" title="interface in com.google.android.exoplayer2">com.google.android.exoplayer2.ExoPlayer.EventListener</a>
 <div class="block"><span class="deprecationComment">Use <a href="com/google/android/exoplayer2/Player.EventListener.html" title="interface in com.google.android.exoplayer2"><code>Player.EventListener</code></a> instead.</span></div>
 </td>
@@ -154,21 +166,26 @@
 </tr>
 <tbody>
 <tr class="altColor">
+<td class="colOne"><a href="com/google/android/exoplayer2/source/DynamicConcatenatingMediaSource.html" title="class in com.google.android.exoplayer2.source">com.google.android.exoplayer2.source.DynamicConcatenatingMediaSource</a>
+<div class="block"><span class="deprecationComment">Use <a href="com/google/android/exoplayer2/source/ConcatenatingMediaSource.html" title="class in com.google.android.exoplayer2.source"><code>ConcatenatingMediaSource</code></a> instead.</span></div>
+</td>
+</tr>
+<tr class="rowColor">
 <td class="colOne"><a href="com/google/android/exoplayer2/ExoPlayer.ExoPlayerMessage.html" title="class in com.google.android.exoplayer2">com.google.android.exoplayer2.ExoPlayer.ExoPlayerMessage</a>
 <div class="block"><span class="deprecationComment">Use <a href="com/google/android/exoplayer2/PlayerMessage.html" title="class in com.google.android.exoplayer2"><code>PlayerMessage</code></a> instead.</span></div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colOne"><a href="com/google/android/exoplayer2/ext/ima/ImaAdsMediaSource.html" title="class in com.google.android.exoplayer2.ext.ima">com.google.android.exoplayer2.ext.ima.ImaAdsMediaSource</a>
 <div class="block"><span class="deprecationComment">Use com.google.android.exoplayer2.source.ads.AdsMediaSource with ImaAdsLoader.</span></div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colOne"><a href="com/google/android/exoplayer2/ui/PlaybackControlView.html" title="class in com.google.android.exoplayer2.ui">com.google.android.exoplayer2.ui.PlaybackControlView</a>
 <div class="block"><span class="deprecationComment">Use <a href="com/google/android/exoplayer2/ui/PlayerControlView.html" title="class in com.google.android.exoplayer2.ui"><code>PlayerControlView</code></a>.</span></div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colOne"><a href="com/google/android/exoplayer2/ui/SimpleExoPlayerView.html" title="class in com.google.android.exoplayer2.ui">com.google.android.exoplayer2.ui.SimpleExoPlayerView</a>
 <div class="block"><span class="deprecationComment">Use <a href="com/google/android/exoplayer2/ui/PlayerView.html" title="class in com.google.android.exoplayer2.ui"><code>PlayerView</code></a>.</span></div>
 </td>
@@ -194,36 +211,41 @@
 </td>
 </tr>
 <tr class="rowColor">
+<td class="colOne"><a href="com/google/android/exoplayer2/trackselection/MappingTrackSelector.MappedTrackInfo.html#length">com.google.android.exoplayer2.trackselection.MappingTrackSelector.MappedTrackInfo.length</a>
+<div class="block"><span class="deprecationComment">Use <a href="com/google/android/exoplayer2/trackselection/MappingTrackSelector.MappedTrackInfo.html#getRendererCount--"><code>MappingTrackSelector.MappedTrackInfo.getRendererCount()</code></a>.</span></div>
+</td>
+</tr>
+<tr class="altColor">
 <td class="colOne"><a href="com/google/android/exoplayer2/ExoPlayer.html#REPEAT_MODE_ALL">com.google.android.exoplayer2.ExoPlayer.REPEAT_MODE_ALL</a>
 <div class="block"><span class="deprecationComment">Use <a href="com/google/android/exoplayer2/Player.html#REPEAT_MODE_ALL"><code>Player.REPEAT_MODE_ALL</code></a> instead.</span></div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colOne"><a href="com/google/android/exoplayer2/ExoPlayer.html#REPEAT_MODE_OFF">com.google.android.exoplayer2.ExoPlayer.REPEAT_MODE_OFF</a>
 <div class="block"><span class="deprecationComment">Use <a href="com/google/android/exoplayer2/Player.html#REPEAT_MODE_OFF"><code>Player.REPEAT_MODE_OFF</code></a> instead.</span></div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colOne"><a href="com/google/android/exoplayer2/ExoPlayer.html#REPEAT_MODE_ONE">com.google.android.exoplayer2.ExoPlayer.REPEAT_MODE_ONE</a>
 <div class="block"><span class="deprecationComment">Use <a href="com/google/android/exoplayer2/Player.html#REPEAT_MODE_ONE"><code>Player.REPEAT_MODE_ONE</code></a> instead.</span></div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colOne"><a href="com/google/android/exoplayer2/ExoPlayer.html#STATE_BUFFERING">com.google.android.exoplayer2.ExoPlayer.STATE_BUFFERING</a>
 <div class="block"><span class="deprecationComment">Use <a href="com/google/android/exoplayer2/Player.html#STATE_BUFFERING"><code>Player.STATE_BUFFERING</code></a> instead.</span></div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colOne"><a href="com/google/android/exoplayer2/ExoPlayer.html#STATE_ENDED">com.google.android.exoplayer2.ExoPlayer.STATE_ENDED</a>
 <div class="block"><span class="deprecationComment">Use <a href="com/google/android/exoplayer2/Player.html#STATE_ENDED"><code>Player.STATE_ENDED</code></a> instead.</span></div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colOne"><a href="com/google/android/exoplayer2/ExoPlayer.html#STATE_IDLE">com.google.android.exoplayer2.ExoPlayer.STATE_IDLE</a>
 <div class="block"><span class="deprecationComment">Use <a href="com/google/android/exoplayer2/Player.html#STATE_IDLE"><code>Player.STATE_IDLE</code></a> instead.</span></div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colOne"><a href="com/google/android/exoplayer2/ExoPlayer.html#STATE_READY">com.google.android.exoplayer2.ExoPlayer.STATE_READY</a>
 <div class="block"><span class="deprecationComment">Use <a href="com/google/android/exoplayer2/Player.html#STATE_READY"><code>Player.STATE_READY</code></a> instead.</span></div>
 </td>
@@ -243,6 +265,18 @@
 <th class="colOne" scope="col">Method and Description</th>
 </tr>
 <tbody>
+<tr class="altColor">
+<td class="colOne"><a href="com/google/android/exoplayer2/SimpleExoPlayer.html#addAudioDebugListener-com.google.android.exoplayer2.audio.AudioRendererEventListener-">com.google.android.exoplayer2.SimpleExoPlayer.addAudioDebugListener(AudioRendererEventListener)</a>
+<div class="block"><span class="deprecationComment">Use <a href="com/google/android/exoplayer2/SimpleExoPlayer.html#addAnalyticsListener-com.google.android.exoplayer2.analytics.AnalyticsListener-"><code>SimpleExoPlayer.addAnalyticsListener(AnalyticsListener)</code></a> to get more detailed debug
+     information.</span></div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colOne"><a href="com/google/android/exoplayer2/SimpleExoPlayer.html#addVideoDebugListener-com.google.android.exoplayer2.video.VideoRendererEventListener-">com.google.android.exoplayer2.SimpleExoPlayer.addVideoDebugListener(VideoRendererEventListener)</a>
+<div class="block"><span class="deprecationComment">Use <a href="com/google/android/exoplayer2/SimpleExoPlayer.html#addAnalyticsListener-com.google.android.exoplayer2.analytics.AnalyticsListener-"><code>SimpleExoPlayer.addAnalyticsListener(AnalyticsListener)</code></a> to get more detailed debug
+     information.</span></div>
+</td>
+</tr>
 <tr class="altColor">
 <td class="colOne"><a href="com/google/android/exoplayer2/ExoPlayer.html#blockingSendMessages-com.google.android.exoplayer2.ExoPlayer.ExoPlayerMessage...-">com.google.android.exoplayer2.ExoPlayer.blockingSendMessages(ExoPlayer.ExoPlayerMessage...)</a>
 <div class="block"><span class="deprecationComment">Use <a href="com/google/android/exoplayer2/ExoPlayer.html#createMessage-com.google.android.exoplayer2.PlayerMessage.Target-"><code>ExoPlayer.createMessage(PlayerMessage.Target)</code></a> with <a href="com/google/android/exoplayer2/PlayerMessage.html#blockUntilDelivered--"><code>PlayerMessage.blockUntilDelivered()</code></a>.</span></div>
@@ -270,43 +304,150 @@
 </td>
 </tr>
 <tr class="altColor">
+<td class="colOne"><a href="com/google/android/exoplayer2/trackselection/DefaultTrackSelector.html#clearSelectionOverride-int-com.google.android.exoplayer2.source.TrackGroupArray-">com.google.android.exoplayer2.trackselection.DefaultTrackSelector.clearSelectionOverride(int, TrackGroupArray)</a>
+<div class="block"><span class="deprecationComment">Use <a href="com/google/android/exoplayer2/trackselection/DefaultTrackSelector.ParametersBuilder.html#clearSelectionOverride-int-com.google.android.exoplayer2.source.TrackGroupArray-"><code>DefaultTrackSelector.ParametersBuilder.clearSelectionOverride(int, TrackGroupArray)</code></a>.</span></div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colOne"><a href="com/google/android/exoplayer2/trackselection/DefaultTrackSelector.html#clearSelectionOverrides--">com.google.android.exoplayer2.trackselection.DefaultTrackSelector.clearSelectionOverrides()</a>
+<div class="block"><span class="deprecationComment">Use <a href="com/google/android/exoplayer2/trackselection/DefaultTrackSelector.ParametersBuilder.html#clearSelectionOverrides--"><code>DefaultTrackSelector.ParametersBuilder.clearSelectionOverrides()</code></a>.</span></div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colOne"><a href="com/google/android/exoplayer2/trackselection/DefaultTrackSelector.html#clearSelectionOverrides-int-">com.google.android.exoplayer2.trackselection.DefaultTrackSelector.clearSelectionOverrides(int)</a>
+<div class="block"><span class="deprecationComment">Use <a href="com/google/android/exoplayer2/trackselection/DefaultTrackSelector.ParametersBuilder.html#clearSelectionOverrides-int-"><code>DefaultTrackSelector.ParametersBuilder.clearSelectionOverrides(int)</code></a>.</span></div>
+</td>
+</tr>
+<tr class="rowColor">
 <td class="colOne"><a href="com/google/android/exoplayer2/SimpleExoPlayer.html#clearTextOutput-com.google.android.exoplayer2.text.TextOutput-">com.google.android.exoplayer2.SimpleExoPlayer.clearTextOutput(TextOutput)</a>
 <div class="block"><span class="deprecationComment">Use <a href="com/google/android/exoplayer2/SimpleExoPlayer.html#removeTextOutput-com.google.android.exoplayer2.text.TextOutput-"><code>SimpleExoPlayer.removeTextOutput(TextOutput)</code></a>.</span></div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colOne"><a href="com/google/android/exoplayer2/SimpleExoPlayer.html#clearVideoListener-com.google.android.exoplayer2.SimpleExoPlayer.VideoListener-">com.google.android.exoplayer2.SimpleExoPlayer.clearVideoListener(SimpleExoPlayer.VideoListener)</a>
 <div class="block"><span class="deprecationComment">Use <a href="com/google/android/exoplayer2/SimpleExoPlayer.html#removeVideoListener-com.google.android.exoplayer2.video.VideoListener-"><code>SimpleExoPlayer.removeVideoListener(com.google.android.exoplayer2.video.VideoListener)</code></a>.</span></div>
 </td>
 </tr>
+<tr class="rowColor">
+<td class="colOne"><a href="com/google/android/exoplayer2/source/dash/DashMediaSource.Factory.html#createMediaSource-com.google.android.exoplayer2.source.dash.manifest.DashManifest-android.os.Handler-com.google.android.exoplayer2.source.MediaSourceEventListener-">com.google.android.exoplayer2.source.dash.DashMediaSource.Factory.createMediaSource(DashManifest, Handler, MediaSourceEventListener)</a>
+<div class="block"><span class="deprecationComment">Use <a href="com/google/android/exoplayer2/source/dash/DashMediaSource.Factory.html#createMediaSource-com.google.android.exoplayer2.source.dash.manifest.DashManifest-"><code>DashMediaSource.Factory.createMediaSource(DashManifest)</code></a> and <a href="com/google/android/exoplayer2/source/BaseMediaSource.html#addEventListener-android.os.Handler-com.google.android.exoplayer2.source.MediaSourceEventListener-"><code>BaseMediaSource.addEventListener(Handler, MediaSourceEventListener)</code></a> instead.</span></div>
+</td>
+</tr>
 <tr class="altColor">
+<td class="colOne"><a href="com/google/android/exoplayer2/source/smoothstreaming/SsMediaSource.Factory.html#createMediaSource-com.google.android.exoplayer2.source.smoothstreaming.manifest.SsManifest-android.os.Handler-com.google.android.exoplayer2.source.MediaSourceEventListener-">com.google.android.exoplayer2.source.smoothstreaming.SsMediaSource.Factory.createMediaSource(SsManifest, Handler, MediaSourceEventListener)</a>
+<div class="block"><span class="deprecationComment">Use <a href="com/google/android/exoplayer2/source/smoothstreaming/SsMediaSource.Factory.html#createMediaSource-com.google.android.exoplayer2.source.smoothstreaming.manifest.SsManifest-"><code>SsMediaSource.Factory.createMediaSource(SsManifest)</code></a> and <a href="com/google/android/exoplayer2/source/BaseMediaSource.html#addEventListener-android.os.Handler-com.google.android.exoplayer2.source.MediaSourceEventListener-"><code>BaseMediaSource.addEventListener(Handler,
+     MediaSourceEventListener)</code></a> instead.</span></div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colOne"><a href="com/google/android/exoplayer2/source/SingleSampleMediaSource.Factory.html#createMediaSource-android.net.Uri-com.google.android.exoplayer2.Format-long-android.os.Handler-com.google.android.exoplayer2.source.MediaSourceEventListener-">com.google.android.exoplayer2.source.SingleSampleMediaSource.Factory.createMediaSource(Uri, Format, long, Handler, MediaSourceEventListener)</a>
+<div class="block"><span class="deprecationComment">Use <a href="com/google/android/exoplayer2/source/SingleSampleMediaSource.Factory.html#createMediaSource-android.net.Uri-com.google.android.exoplayer2.Format-long-"><code>SingleSampleMediaSource.Factory.createMediaSource(Uri, Format, long)</code></a> and <a href="com/google/android/exoplayer2/source/BaseMediaSource.html#addEventListener-android.os.Handler-com.google.android.exoplayer2.source.MediaSourceEventListener-"><code>BaseMediaSource.addEventListener(Handler, MediaSourceEventListener)</code></a> instead.</span></div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colOne"><a href="com/google/android/exoplayer2/source/ExtractorMediaSource.Factory.html#createMediaSource-android.net.Uri-android.os.Handler-com.google.android.exoplayer2.source.MediaSourceEventListener-">com.google.android.exoplayer2.source.ExtractorMediaSource.Factory.createMediaSource(Uri, Handler, MediaSourceEventListener)</a>
+<div class="block"><span class="deprecationComment">Use <a href="com/google/android/exoplayer2/source/ExtractorMediaSource.Factory.html#createMediaSource-android.net.Uri-"><code>ExtractorMediaSource.Factory.createMediaSource(Uri)</code></a> and <a href="com/google/android/exoplayer2/source/BaseMediaSource.html#addEventListener-android.os.Handler-com.google.android.exoplayer2.source.MediaSourceEventListener-"><code>BaseMediaSource.addEventListener(Handler,
+     MediaSourceEventListener)</code></a> instead.</span></div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colOne"><a href="com/google/android/exoplayer2/source/dash/DashMediaSource.Factory.html#createMediaSource-android.net.Uri-android.os.Handler-com.google.android.exoplayer2.source.MediaSourceEventListener-">com.google.android.exoplayer2.source.dash.DashMediaSource.Factory.createMediaSource(Uri, Handler, MediaSourceEventListener)</a>
+<div class="block"><span class="deprecationComment">Use <a href="com/google/android/exoplayer2/source/dash/DashMediaSource.Factory.html#createMediaSource-android.net.Uri-"><code>DashMediaSource.Factory.createMediaSource(Uri)</code></a> and <a href="com/google/android/exoplayer2/source/BaseMediaSource.html#addEventListener-android.os.Handler-com.google.android.exoplayer2.source.MediaSourceEventListener-"><code>BaseMediaSource.addEventListener(Handler,
+     MediaSourceEventListener)</code></a> instead.</span></div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colOne"><a href="com/google/android/exoplayer2/source/hls/HlsMediaSource.Factory.html#createMediaSource-android.net.Uri-android.os.Handler-com.google.android.exoplayer2.source.MediaSourceEventListener-">com.google.android.exoplayer2.source.hls.HlsMediaSource.Factory.createMediaSource(Uri, Handler, MediaSourceEventListener)</a>
+<div class="block"><span class="deprecationComment">Use <a href="com/google/android/exoplayer2/source/hls/HlsMediaSource.Factory.html#createMediaSource-android.net.Uri-"><code>HlsMediaSource.Factory.createMediaSource(Uri)</code></a> and <a href="com/google/android/exoplayer2/source/BaseMediaSource.html#addEventListener-android.os.Handler-com.google.android.exoplayer2.source.MediaSourceEventListener-"><code>BaseMediaSource.addEventListener(Handler,
+     MediaSourceEventListener)</code></a> instead.</span></div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colOne"><a href="com/google/android/exoplayer2/source/smoothstreaming/SsMediaSource.Factory.html#createMediaSource-android.net.Uri-android.os.Handler-com.google.android.exoplayer2.source.MediaSourceEventListener-">com.google.android.exoplayer2.source.smoothstreaming.SsMediaSource.Factory.createMediaSource(Uri, Handler, MediaSourceEventListener)</a>
+<div class="block"><span class="deprecationComment">Use <a href="com/google/android/exoplayer2/source/smoothstreaming/SsMediaSource.Factory.html#createMediaSource-android.net.Uri-"><code>SsMediaSource.Factory.createMediaSource(Uri)</code></a> and <a href="com/google/android/exoplayer2/source/BaseMediaSource.html#addEventListener-android.os.Handler-com.google.android.exoplayer2.source.MediaSourceEventListener-"><code>BaseMediaSource.addEventListener(Handler,
+     MediaSourceEventListener)</code></a> instead.</span></div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colOne"><a href="com/google/android/exoplayer2/upstream/cache/SimpleCache.html#disableCacheFolderLocking--">com.google.android.exoplayer2.upstream.cache.SimpleCache.disableCacheFolderLocking()</a>
+<div class="block"><span class="deprecationComment">Don't create multiple <a href="com/google/android/exoplayer2/upstream/cache/SimpleCache.html" title="class in com.google.android.exoplayer2.upstream.cache"><code>SimpleCache</code></a> instances for the same cache folder. If
+     you need to create another instance, make sure you call <a href="com/google/android/exoplayer2/upstream/cache/SimpleCache.html#release--"><code>SimpleCache.release()</code></a> on the previous
+     instance.</span></div>
+</td>
+</tr>
+<tr class="rowColor">
 <td class="colOne"><a href="com/google/android/exoplayer2/drm/DrmInitData.html#get-java.util.UUID-">com.google.android.exoplayer2.drm.DrmInitData.get(UUID)</a>
 <div class="block"><span class="deprecationComment">Use <a href="com/google/android/exoplayer2/drm/DrmInitData.html#get-int-"><code>DrmInitData.get(int)</code></a> and <a href="com/google/android/exoplayer2/drm/DrmInitData.SchemeData.html#matches-java.util.UUID-"><code>DrmInitData.SchemeData.matches(UUID)</code></a> instead.</span></div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colOne"><a href="com/google/android/exoplayer2/SimpleExoPlayer.html#getAudioStreamType--">com.google.android.exoplayer2.SimpleExoPlayer.getAudioStreamType()</a>
 <div class="block"><span class="deprecationComment">Use <a href="com/google/android/exoplayer2/SimpleExoPlayer.html#getAudioAttributes--"><code>SimpleExoPlayer.getAudioAttributes()</code></a>.</span></div>
 </td>
 </tr>
+<tr class="rowColor">
+<td class="colOne"><a href="com/google/android/exoplayer2/trackselection/DefaultTrackSelector.html#getRendererDisabled-int-">com.google.android.exoplayer2.trackselection.DefaultTrackSelector.getRendererDisabled(int)</a>
+<div class="block"><span class="deprecationComment">Use <a href="com/google/android/exoplayer2/trackselection/DefaultTrackSelector.Parameters.html#getRendererDisabled-int-"><code>DefaultTrackSelector.Parameters.getRendererDisabled(int)</code></a>. *</span></div>
+</td>
+</tr>
 <tr class="altColor">
+<td class="colOne"><a href="com/google/android/exoplayer2/trackselection/DefaultTrackSelector.html#getSelectionOverride-int-com.google.android.exoplayer2.source.TrackGroupArray-">com.google.android.exoplayer2.trackselection.DefaultTrackSelector.getSelectionOverride(int, TrackGroupArray)</a>
+<div class="block"><span class="deprecationComment">Use <a href="com/google/android/exoplayer2/trackselection/DefaultTrackSelector.Parameters.html#getSelectionOverride-int-com.google.android.exoplayer2.source.TrackGroupArray-"><code>DefaultTrackSelector.Parameters.getSelectionOverride(int, TrackGroupArray)</code></a>.</span></div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colOne"><a href="com/google/android/exoplayer2/trackselection/MappingTrackSelector.MappedTrackInfo.html#getTrackFormatSupport-int-int-int-">com.google.android.exoplayer2.trackselection.MappingTrackSelector.MappedTrackInfo.getTrackFormatSupport(int, int, int)</a>
+<div class="block"><span class="deprecationComment">Use <a href="com/google/android/exoplayer2/trackselection/MappingTrackSelector.MappedTrackInfo.html#getTrackSupport-int-int-int-"><code>MappingTrackSelector.MappedTrackInfo.getTrackSupport(int, int, int)</code></a>.</span></div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colOne"><a href="com/google/android/exoplayer2/trackselection/MappingTrackSelector.MappedTrackInfo.html#getTrackTypeRendererSupport-int-">com.google.android.exoplayer2.trackselection.MappingTrackSelector.MappedTrackInfo.getTrackTypeRendererSupport(int)</a>
+<div class="block"><span class="deprecationComment">Use <a href="com/google/android/exoplayer2/trackselection/MappingTrackSelector.MappedTrackInfo.html#getTypeSupport-int-"><code>MappingTrackSelector.MappedTrackInfo.getTypeSupport(int)</code></a>.</span></div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colOne"><a href="com/google/android/exoplayer2/trackselection/MappingTrackSelector.MappedTrackInfo.html#getUnassociatedTrackGroups--">com.google.android.exoplayer2.trackselection.MappingTrackSelector.MappedTrackInfo.getUnassociatedTrackGroups()</a>
+<div class="block"><span class="deprecationComment">Use <a href="com/google/android/exoplayer2/trackselection/MappingTrackSelector.MappedTrackInfo.html#getUnmappedTrackGroups--"><code>MappingTrackSelector.MappedTrackInfo.getUnmappedTrackGroups()</code></a>.</span></div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colOne"><a href="com/google/android/exoplayer2/trackselection/DefaultTrackSelector.html#hasSelectionOverride-int-com.google.android.exoplayer2.source.TrackGroupArray-">com.google.android.exoplayer2.trackselection.DefaultTrackSelector.hasSelectionOverride(int, TrackGroupArray)</a>
+<div class="block"><span class="deprecationComment">Use <a href="com/google/android/exoplayer2/trackselection/DefaultTrackSelector.Parameters.html#hasSelectionOverride-int-com.google.android.exoplayer2.source.TrackGroupArray-"><code>DefaultTrackSelector.Parameters.hasSelectionOverride(int, TrackGroupArray)</code></a>. *</span></div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colOne"><a href="com/google/android/exoplayer2/drm/DefaultDrmSessionManager.html#newFrameworkInstance-java.util.UUID-com.google.android.exoplayer2.drm.MediaDrmCallback-java.util.HashMap-android.os.Handler-com.google.android.exoplayer2.drm.DefaultDrmSessionEventListener-">com.google.android.exoplayer2.drm.DefaultDrmSessionManager.newFrameworkInstance(UUID, MediaDrmCallback, HashMap&lt;String, String&gt;, Handler, DefaultDrmSessionEventListener)</a>
+<div class="block"><span class="deprecationComment">Use <a href="com/google/android/exoplayer2/drm/DefaultDrmSessionManager.html#newFrameworkInstance-java.util.UUID-com.google.android.exoplayer2.drm.MediaDrmCallback-java.util.HashMap-"><code>DefaultDrmSessionManager.newFrameworkInstance(UUID, MediaDrmCallback, HashMap)</code></a> and <a href="com/google/android/exoplayer2/drm/DefaultDrmSessionManager.html#addListener-android.os.Handler-com.google.android.exoplayer2.drm.DefaultDrmSessionEventListener-"><code>DefaultDrmSessionManager.addListener(Handler, DefaultDrmSessionEventListener)</code></a>.</span></div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colOne"><a href="com/google/android/exoplayer2/drm/DefaultDrmSessionManager.html#newPlayReadyInstance-com.google.android.exoplayer2.drm.MediaDrmCallback-java.lang.String-android.os.Handler-com.google.android.exoplayer2.drm.DefaultDrmSessionEventListener-">com.google.android.exoplayer2.drm.DefaultDrmSessionManager.newPlayReadyInstance(MediaDrmCallback, String, Handler, DefaultDrmSessionEventListener)</a>
+<div class="block"><span class="deprecationComment">Use <a href="com/google/android/exoplayer2/drm/DefaultDrmSessionManager.html#newPlayReadyInstance-com.google.android.exoplayer2.drm.MediaDrmCallback-java.lang.String-"><code>DefaultDrmSessionManager.newPlayReadyInstance(MediaDrmCallback, String)</code></a> and <a href="com/google/android/exoplayer2/drm/DefaultDrmSessionManager.html#addListener-android.os.Handler-com.google.android.exoplayer2.drm.DefaultDrmSessionEventListener-"><code>DefaultDrmSessionManager.addListener(Handler, DefaultDrmSessionEventListener)</code></a>.</span></div>
+</td>
+</tr>
+<tr class="rowColor">
 <td class="colOne"><a href="com/google/android/exoplayer2/ExoPlayerFactory.html#newSimpleInstance-android.content.Context-com.google.android.exoplayer2.trackselection.TrackSelector-com.google.android.exoplayer2.LoadControl-">com.google.android.exoplayer2.ExoPlayerFactory.newSimpleInstance(Context, TrackSelector, LoadControl)</a>
 <div class="block"><span class="deprecationComment">Use <a href="com/google/android/exoplayer2/ExoPlayerFactory.html#newSimpleInstance-com.google.android.exoplayer2.RenderersFactory-com.google.android.exoplayer2.trackselection.TrackSelector-com.google.android.exoplayer2.LoadControl-"><code>ExoPlayerFactory.newSimpleInstance(RenderersFactory, TrackSelector, LoadControl)</code></a>.</span></div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colOne"><a href="com/google/android/exoplayer2/ExoPlayerFactory.html#newSimpleInstance-android.content.Context-com.google.android.exoplayer2.trackselection.TrackSelector-com.google.android.exoplayer2.LoadControl-com.google.android.exoplayer2.drm.DrmSessionManager-">com.google.android.exoplayer2.ExoPlayerFactory.newSimpleInstance(Context, TrackSelector, LoadControl, DrmSessionManager&lt;FrameworkMediaCrypto&gt;)</a>
 <div class="block"><span class="deprecationComment">Use <a href="com/google/android/exoplayer2/ExoPlayerFactory.html#newSimpleInstance-com.google.android.exoplayer2.RenderersFactory-com.google.android.exoplayer2.trackselection.TrackSelector-com.google.android.exoplayer2.LoadControl-"><code>ExoPlayerFactory.newSimpleInstance(RenderersFactory, TrackSelector, LoadControl)</code></a>.</span></div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colOne"><a href="com/google/android/exoplayer2/ExoPlayerFactory.html#newSimpleInstance-android.content.Context-com.google.android.exoplayer2.trackselection.TrackSelector-com.google.android.exoplayer2.LoadControl-com.google.android.exoplayer2.drm.DrmSessionManager-int-">com.google.android.exoplayer2.ExoPlayerFactory.newSimpleInstance(Context, TrackSelector, LoadControl, DrmSessionManager&lt;FrameworkMediaCrypto&gt;, int)</a>
 <div class="block"><span class="deprecationComment">Use <a href="com/google/android/exoplayer2/ExoPlayerFactory.html#newSimpleInstance-com.google.android.exoplayer2.RenderersFactory-com.google.android.exoplayer2.trackselection.TrackSelector-com.google.android.exoplayer2.LoadControl-"><code>ExoPlayerFactory.newSimpleInstance(RenderersFactory, TrackSelector, LoadControl)</code></a>.</span></div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colOne"><a href="com/google/android/exoplayer2/ExoPlayerFactory.html#newSimpleInstance-android.content.Context-com.google.android.exoplayer2.trackselection.TrackSelector-com.google.android.exoplayer2.LoadControl-com.google.android.exoplayer2.drm.DrmSessionManager-int-long-">com.google.android.exoplayer2.ExoPlayerFactory.newSimpleInstance(Context, TrackSelector, LoadControl, DrmSessionManager&lt;FrameworkMediaCrypto&gt;, int, long)</a>
 <div class="block"><span class="deprecationComment">Use <a href="com/google/android/exoplayer2/ExoPlayerFactory.html#newSimpleInstance-com.google.android.exoplayer2.RenderersFactory-com.google.android.exoplayer2.trackselection.TrackSelector-com.google.android.exoplayer2.LoadControl-"><code>ExoPlayerFactory.newSimpleInstance(RenderersFactory, TrackSelector, LoadControl)</code></a>.</span></div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colOne"><a href="com/google/android/exoplayer2/drm/DefaultDrmSessionManager.html#newWidevineInstance-com.google.android.exoplayer2.drm.MediaDrmCallback-java.util.HashMap-android.os.Handler-com.google.android.exoplayer2.drm.DefaultDrmSessionEventListener-">com.google.android.exoplayer2.drm.DefaultDrmSessionManager.newWidevineInstance(MediaDrmCallback, HashMap&lt;String, String&gt;, Handler, DefaultDrmSessionEventListener)</a>
+<div class="block"><span class="deprecationComment">Use <a href="com/google/android/exoplayer2/drm/DefaultDrmSessionManager.html#newWidevineInstance-com.google.android.exoplayer2.drm.MediaDrmCallback-java.util.HashMap-"><code>DefaultDrmSessionManager.newWidevineInstance(MediaDrmCallback, HashMap)</code></a> and <a href="com/google/android/exoplayer2/drm/DefaultDrmSessionManager.html#addListener-android.os.Handler-com.google.android.exoplayer2.drm.DefaultDrmSessionEventListener-"><code>DefaultDrmSessionManager.addListener(Handler, DefaultDrmSessionEventListener)</code></a>.</span></div>
 </td>
 </tr>
 <tr class="altColor">
@@ -316,13 +457,24 @@
 </td>
 </tr>
 <tr class="rowColor">
+<td class="colOne"><a href="com/google/android/exoplayer2/SimpleExoPlayer.html#removeAudioDebugListener-com.google.android.exoplayer2.audio.AudioRendererEventListener-">com.google.android.exoplayer2.SimpleExoPlayer.removeAudioDebugListener(AudioRendererEventListener)</a>
+<div class="block"><span class="deprecationComment">Use <a href="com/google/android/exoplayer2/SimpleExoPlayer.html#addAnalyticsListener-com.google.android.exoplayer2.analytics.AnalyticsListener-"><code>SimpleExoPlayer.addAnalyticsListener(AnalyticsListener)</code></a> and <a href="com/google/android/exoplayer2/SimpleExoPlayer.html#removeAnalyticsListener-com.google.android.exoplayer2.analytics.AnalyticsListener-"><code>SimpleExoPlayer.removeAnalyticsListener(AnalyticsListener)</code></a> to get more detailed debug information.</span></div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colOne"><a href="com/google/android/exoplayer2/SimpleExoPlayer.html#removeVideoDebugListener-com.google.android.exoplayer2.video.VideoRendererEventListener-">com.google.android.exoplayer2.SimpleExoPlayer.removeVideoDebugListener(VideoRendererEventListener)</a>
+<div class="block"><span class="deprecationComment">Use <a href="com/google/android/exoplayer2/SimpleExoPlayer.html#addAnalyticsListener-com.google.android.exoplayer2.analytics.AnalyticsListener-"><code>SimpleExoPlayer.addAnalyticsListener(AnalyticsListener)</code></a> and <a href="com/google/android/exoplayer2/SimpleExoPlayer.html#removeAnalyticsListener-com.google.android.exoplayer2.analytics.AnalyticsListener-"><code>SimpleExoPlayer.removeAnalyticsListener(AnalyticsListener)</code></a> to get more detailed debug information.</span></div>
+</td>
+</tr>
+<tr class="rowColor">
 <td class="colOne"><a href="com/google/android/exoplayer2/ExoPlayer.html#sendMessages-com.google.android.exoplayer2.ExoPlayer.ExoPlayerMessage...-">com.google.android.exoplayer2.ExoPlayer.sendMessages(ExoPlayer.ExoPlayerMessage...)</a>
 <div class="block"><span class="deprecationComment">Use <a href="com/google/android/exoplayer2/ExoPlayer.html#createMessage-com.google.android.exoplayer2.PlayerMessage.Target-"><code>ExoPlayer.createMessage(PlayerMessage.Target)</code></a> instead.</span></div>
 </td>
 </tr>
 <tr class="altColor">
 <td class="colOne"><a href="com/google/android/exoplayer2/SimpleExoPlayer.html#setAudioDebugListener-com.google.android.exoplayer2.audio.AudioRendererEventListener-">com.google.android.exoplayer2.SimpleExoPlayer.setAudioDebugListener(AudioRendererEventListener)</a>
-<div class="block"><span class="deprecationComment">Use <a href="com/google/android/exoplayer2/SimpleExoPlayer.html#addAudioDebugListener-com.google.android.exoplayer2.audio.AudioRendererEventListener-"><code>SimpleExoPlayer.addAudioDebugListener(AudioRendererEventListener)</code></a>.</span></div>
+<div class="block"><span class="deprecationComment">Use <a href="com/google/android/exoplayer2/SimpleExoPlayer.html#addAnalyticsListener-com.google.android.exoplayer2.analytics.AnalyticsListener-"><code>SimpleExoPlayer.addAnalyticsListener(AnalyticsListener)</code></a> to get more detailed debug
+     information.</span></div>
 </td>
 </tr>
 <tr class="rowColor">
@@ -349,16 +501,33 @@
 </td>
 </tr>
 <tr class="altColor">
+<td class="colOne"><a href="com/google/android/exoplayer2/trackselection/DefaultTrackSelector.html#setRendererDisabled-int-boolean-">com.google.android.exoplayer2.trackselection.DefaultTrackSelector.setRendererDisabled(int, boolean)</a>
+<div class="block"><span class="deprecationComment">Use <a href="com/google/android/exoplayer2/trackselection/DefaultTrackSelector.ParametersBuilder.html#setRendererDisabled-int-boolean-"><code>DefaultTrackSelector.ParametersBuilder.setRendererDisabled(int, boolean)</code></a>.</span></div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colOne"><a href="com/google/android/exoplayer2/trackselection/DefaultTrackSelector.html#setSelectionOverride-int-com.google.android.exoplayer2.source.TrackGroupArray-com.google.android.exoplayer2.trackselection.DefaultTrackSelector.SelectionOverride-">com.google.android.exoplayer2.trackselection.DefaultTrackSelector.setSelectionOverride(int, TrackGroupArray, DefaultTrackSelector.SelectionOverride)</a>
+<div class="block"><span class="deprecationComment">Use <a href="com/google/android/exoplayer2/trackselection/DefaultTrackSelector.html#setSelectionOverride-int-com.google.android.exoplayer2.source.TrackGroupArray-com.google.android.exoplayer2.trackselection.DefaultTrackSelector.SelectionOverride-"><code>DefaultTrackSelector.setSelectionOverride(int, TrackGroupArray,
+     SelectionOverride)</code></a>.</span></div>
+</td>
+</tr>
+<tr class="altColor">
 <td class="colOne"><a href="com/google/android/exoplayer2/SimpleExoPlayer.html#setTextOutput-com.google.android.exoplayer2.text.TextOutput-">com.google.android.exoplayer2.SimpleExoPlayer.setTextOutput(TextOutput)</a>
 <div class="block"><span class="deprecationComment">Use <a href="com/google/android/exoplayer2/SimpleExoPlayer.html#addTextOutput-com.google.android.exoplayer2.text.TextOutput-"><code>SimpleExoPlayer.addTextOutput(TextOutput)</code></a>.</span></div>
 </td>
 </tr>
 <tr class="rowColor">
-<td class="colOne"><a href="com/google/android/exoplayer2/SimpleExoPlayer.html#setVideoDebugListener-com.google.android.exoplayer2.video.VideoRendererEventListener-">com.google.android.exoplayer2.SimpleExoPlayer.setVideoDebugListener(VideoRendererEventListener)</a>
-<div class="block"><span class="deprecationComment">Use <a href="com/google/android/exoplayer2/SimpleExoPlayer.html#addVideoDebugListener-com.google.android.exoplayer2.video.VideoRendererEventListener-"><code>SimpleExoPlayer.addVideoDebugListener(VideoRendererEventListener)</code></a>.</span></div>
+<td class="colOne"><a href="com/google/android/exoplayer2/trackselection/DefaultTrackSelector.html#setTunnelingAudioSessionId-int-">com.google.android.exoplayer2.trackselection.DefaultTrackSelector.setTunnelingAudioSessionId(int)</a>
+<div class="block"><span class="deprecationComment">Use <a href="com/google/android/exoplayer2/trackselection/DefaultTrackSelector.ParametersBuilder.html#setTunnelingAudioSessionId-int-"><code>DefaultTrackSelector.ParametersBuilder.setTunnelingAudioSessionId(int)</code></a>.</span></div>
 </td>
 </tr>
 <tr class="altColor">
+<td class="colOne"><a href="com/google/android/exoplayer2/SimpleExoPlayer.html#setVideoDebugListener-com.google.android.exoplayer2.video.VideoRendererEventListener-">com.google.android.exoplayer2.SimpleExoPlayer.setVideoDebugListener(VideoRendererEventListener)</a>
+<div class="block"><span class="deprecationComment">Use <a href="com/google/android/exoplayer2/SimpleExoPlayer.html#addAnalyticsListener-com.google.android.exoplayer2.analytics.AnalyticsListener-"><code>SimpleExoPlayer.addAnalyticsListener(AnalyticsListener)</code></a> to get more detailed debug
+     information.</span></div>
+</td>
+</tr>
+<tr class="rowColor">
 <td class="colOne"><a href="com/google/android/exoplayer2/SimpleExoPlayer.html#setVideoListener-com.google.android.exoplayer2.SimpleExoPlayer.VideoListener-">com.google.android.exoplayer2.SimpleExoPlayer.setVideoListener(SimpleExoPlayer.VideoListener)</a>
 <div class="block"><span class="deprecationComment">Use <a href="com/google/android/exoplayer2/SimpleExoPlayer.html#addVideoListener-com.google.android.exoplayer2.video.VideoListener-"><code>SimpleExoPlayer.addVideoListener(com.google.android.exoplayer2.video.VideoListener)</code></a>.</span></div>
 </td>
@@ -379,106 +548,198 @@
 </tr>
 <tbody>
 <tr class="altColor">
+<td class="colOne"><a href="com/google/android/exoplayer2/source/ads/AdsMediaSource.html#AdsMediaSource-com.google.android.exoplayer2.source.MediaSource-com.google.android.exoplayer2.source.ads.AdsMediaSource.MediaSourceFactory-com.google.android.exoplayer2.source.ads.AdsLoader-android.view.ViewGroup-android.os.Handler-com.google.android.exoplayer2.source.ads.AdsMediaSource.EventListener-">com.google.android.exoplayer2.source.ads.AdsMediaSource(MediaSource, AdsMediaSource.MediaSourceFactory, AdsLoader, ViewGroup, Handler, AdsMediaSource.EventListener)</a>
+<div class="block"><span class="deprecationComment">To listen for ad load error events, add a listener via <a href="com/google/android/exoplayer2/source/BaseMediaSource.html#addEventListener-android.os.Handler-com.google.android.exoplayer2.source.MediaSourceEventListener-"><code>BaseMediaSource.addEventListener(Handler, MediaSourceEventListener)</code></a> and check for <a href="com/google/android/exoplayer2/source/ads/AdsMediaSource.AdLoadException.html" title="class in com.google.android.exoplayer2.source.ads"><code>AdsMediaSource.AdLoadException</code></a>s in <code>MediaSourceEventListener#onLoadError(int, MediaPeriodId,
+     LoadEventInfo, MediaLoadData, IOException, boolean)</code>. Individual ads loader implementations
+     should expose ad interaction events, if applicable.</span></div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colOne"><a href="com/google/android/exoplayer2/source/ads/AdsMediaSource.html#AdsMediaSource-com.google.android.exoplayer2.source.MediaSource-com.google.android.exoplayer2.upstream.DataSource.Factory-com.google.android.exoplayer2.source.ads.AdsLoader-android.view.ViewGroup-android.os.Handler-com.google.android.exoplayer2.source.ads.AdsMediaSource.EventListener-">com.google.android.exoplayer2.source.ads.AdsMediaSource(MediaSource, DataSource.Factory, AdsLoader, ViewGroup, Handler, AdsMediaSource.EventListener)</a>
+<div class="block"><span class="deprecationComment">To listen for ad load error events, add a listener via <a href="com/google/android/exoplayer2/source/BaseMediaSource.html#addEventListener-android.os.Handler-com.google.android.exoplayer2.source.MediaSourceEventListener-"><code>BaseMediaSource.addEventListener(Handler, MediaSourceEventListener)</code></a> and check for <a href="com/google/android/exoplayer2/source/ads/AdsMediaSource.AdLoadException.html" title="class in com.google.android.exoplayer2.source.ads"><code>AdsMediaSource.AdLoadException</code></a>s in <code>MediaSourceEventListener#onLoadError(int, MediaPeriodId,
+     LoadEventInfo, MediaLoadData, IOException, boolean)</code>. Individual ads loader implementations
+     should expose ad interaction events, if applicable.</span></div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colOne"><a href="com/google/android/exoplayer2/source/ClippingMediaSource.html#ClippingMediaSource-com.google.android.exoplayer2.source.MediaSource-long-long-boolean-">com.google.android.exoplayer2.source.ClippingMediaSource(MediaSource, long, long, boolean)</a></td>
+</tr>
+<tr class="rowColor">
 <td class="colOne"><a href="com/google/android/exoplayer2/source/dash/DashMediaSource.html#DashMediaSource-com.google.android.exoplayer2.source.dash.manifest.DashManifest-com.google.android.exoplayer2.source.dash.DashChunkSource.Factory-android.os.Handler-com.google.android.exoplayer2.source.MediaSourceEventListener-">com.google.android.exoplayer2.source.dash.DashMediaSource(DashManifest, DashChunkSource.Factory, Handler, MediaSourceEventListener)</a>
 <div class="block"><span class="deprecationComment">Use <a href="com/google/android/exoplayer2/source/dash/DashMediaSource.Factory.html" title="class in com.google.android.exoplayer2.source.dash"><code>DashMediaSource.Factory</code></a> instead.</span></div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colOne"><a href="com/google/android/exoplayer2/source/dash/DashMediaSource.html#DashMediaSource-com.google.android.exoplayer2.source.dash.manifest.DashManifest-com.google.android.exoplayer2.source.dash.DashChunkSource.Factory-int-android.os.Handler-com.google.android.exoplayer2.source.MediaSourceEventListener-">com.google.android.exoplayer2.source.dash.DashMediaSource(DashManifest, DashChunkSource.Factory, int, Handler, MediaSourceEventListener)</a>
 <div class="block"><span class="deprecationComment">Use <a href="com/google/android/exoplayer2/source/dash/DashMediaSource.Factory.html" title="class in com.google.android.exoplayer2.source.dash"><code>DashMediaSource.Factory</code></a> instead.</span></div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colOne"><a href="com/google/android/exoplayer2/source/dash/DashMediaSource.html#DashMediaSource-android.net.Uri-com.google.android.exoplayer2.upstream.DataSource.Factory-com.google.android.exoplayer2.source.dash.DashChunkSource.Factory-android.os.Handler-com.google.android.exoplayer2.source.MediaSourceEventListener-">com.google.android.exoplayer2.source.dash.DashMediaSource(Uri, DataSource.Factory, DashChunkSource.Factory, Handler, MediaSourceEventListener)</a>
 <div class="block"><span class="deprecationComment">Use <a href="com/google/android/exoplayer2/source/dash/DashMediaSource.Factory.html" title="class in com.google.android.exoplayer2.source.dash"><code>DashMediaSource.Factory</code></a> instead.</span></div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colOne"><a href="com/google/android/exoplayer2/source/dash/DashMediaSource.html#DashMediaSource-android.net.Uri-com.google.android.exoplayer2.upstream.DataSource.Factory-com.google.android.exoplayer2.source.dash.DashChunkSource.Factory-int-long-android.os.Handler-com.google.android.exoplayer2.source.MediaSourceEventListener-">com.google.android.exoplayer2.source.dash.DashMediaSource(Uri, DataSource.Factory, DashChunkSource.Factory, int, long, Handler, MediaSourceEventListener)</a>
 <div class="block"><span class="deprecationComment">Use <a href="com/google/android/exoplayer2/source/dash/DashMediaSource.Factory.html" title="class in com.google.android.exoplayer2.source.dash"><code>DashMediaSource.Factory</code></a> instead.</span></div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colOne"><a href="com/google/android/exoplayer2/source/dash/DashMediaSource.html#DashMediaSource-android.net.Uri-com.google.android.exoplayer2.upstream.DataSource.Factory-com.google.android.exoplayer2.upstream.ParsingLoadable.Parser-com.google.android.exoplayer2.source.dash.DashChunkSource.Factory-int-long-android.os.Handler-com.google.android.exoplayer2.source.MediaSourceEventListener-">com.google.android.exoplayer2.source.dash.DashMediaSource(Uri, DataSource.Factory, ParsingLoadable.Parser&lt;? extends DashManifest&gt;, DashChunkSource.Factory, int, long, Handler, MediaSourceEventListener)</a>
 <div class="block"><span class="deprecationComment">Use <a href="com/google/android/exoplayer2/source/dash/DashMediaSource.Factory.html" title="class in com.google.android.exoplayer2.source.dash"><code>DashMediaSource.Factory</code></a> instead.</span></div>
 </td>
 </tr>
+<tr class="altColor">
+<td class="colOne"><a href="com/google/android/exoplayer2/upstream/DefaultBandwidthMeter.html#DefaultBandwidthMeter-android.os.Handler-com.google.android.exoplayer2.upstream.BandwidthMeter.EventListener-">com.google.android.exoplayer2.upstream.DefaultBandwidthMeter(Handler, BandwidthMeter.EventListener)</a>
+<div class="block"><span class="deprecationComment">Use <a href="com/google/android/exoplayer2/upstream/DefaultBandwidthMeter.Builder.html" title="class in com.google.android.exoplayer2.upstream"><code>DefaultBandwidthMeter.Builder</code></a> instead.</span></div>
+</td>
+</tr>
 <tr class="rowColor">
+<td class="colOne"><a href="com/google/android/exoplayer2/upstream/DefaultBandwidthMeter.html#DefaultBandwidthMeter-android.os.Handler-com.google.android.exoplayer2.upstream.BandwidthMeter.EventListener-int-">com.google.android.exoplayer2.upstream.DefaultBandwidthMeter(Handler, BandwidthMeter.EventListener, int)</a>
+<div class="block"><span class="deprecationComment">Use <a href="com/google/android/exoplayer2/upstream/DefaultBandwidthMeter.Builder.html" title="class in com.google.android.exoplayer2.upstream"><code>DefaultBandwidthMeter.Builder</code></a> instead.</span></div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colOne"><a href="com/google/android/exoplayer2/drm/DefaultDrmSessionManager.html#DefaultDrmSessionManager-java.util.UUID-com.google.android.exoplayer2.drm.ExoMediaDrm-com.google.android.exoplayer2.drm.MediaDrmCallback-java.util.HashMap-android.os.Handler-com.google.android.exoplayer2.drm.DefaultDrmSessionEventListener-">com.google.android.exoplayer2.drm.DefaultDrmSessionManager(UUID, ExoMediaDrm&lt;T&gt;, MediaDrmCallback, HashMap&lt;String, String&gt;, Handler, DefaultDrmSessionEventListener)</a>
+<div class="block"><span class="deprecationComment">Use <a href="com/google/android/exoplayer2/drm/DefaultDrmSessionManager.html#DefaultDrmSessionManager-java.util.UUID-com.google.android.exoplayer2.drm.ExoMediaDrm-com.google.android.exoplayer2.drm.MediaDrmCallback-java.util.HashMap-"><code>DefaultDrmSessionManager.DefaultDrmSessionManager(UUID, ExoMediaDrm, MediaDrmCallback, HashMap)</code></a>
+     and <a href="com/google/android/exoplayer2/drm/DefaultDrmSessionManager.html#addListener-android.os.Handler-com.google.android.exoplayer2.drm.DefaultDrmSessionEventListener-"><code>DefaultDrmSessionManager.addListener(Handler, DefaultDrmSessionEventListener)</code></a>.</span></div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colOne"><a href="com/google/android/exoplayer2/drm/DefaultDrmSessionManager.html#DefaultDrmSessionManager-java.util.UUID-com.google.android.exoplayer2.drm.ExoMediaDrm-com.google.android.exoplayer2.drm.MediaDrmCallback-java.util.HashMap-android.os.Handler-com.google.android.exoplayer2.drm.DefaultDrmSessionEventListener-boolean-">com.google.android.exoplayer2.drm.DefaultDrmSessionManager(UUID, ExoMediaDrm&lt;T&gt;, MediaDrmCallback, HashMap&lt;String, String&gt;, Handler, DefaultDrmSessionEventListener, boolean)</a>
+<div class="block"><span class="deprecationComment">Use <a href="com/google/android/exoplayer2/drm/DefaultDrmSessionManager.html#DefaultDrmSessionManager-java.util.UUID-com.google.android.exoplayer2.drm.ExoMediaDrm-com.google.android.exoplayer2.drm.MediaDrmCallback-java.util.HashMap-boolean-"><code>DefaultDrmSessionManager.DefaultDrmSessionManager(UUID, ExoMediaDrm, MediaDrmCallback, HashMap,
+     boolean)</code></a> and <a href="com/google/android/exoplayer2/drm/DefaultDrmSessionManager.html#addListener-android.os.Handler-com.google.android.exoplayer2.drm.DefaultDrmSessionEventListener-"><code>DefaultDrmSessionManager.addListener(Handler, DefaultDrmSessionEventListener)</code></a>.</span></div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colOne"><a href="com/google/android/exoplayer2/drm/DefaultDrmSessionManager.html#DefaultDrmSessionManager-java.util.UUID-com.google.android.exoplayer2.drm.ExoMediaDrm-com.google.android.exoplayer2.drm.MediaDrmCallback-java.util.HashMap-android.os.Handler-com.google.android.exoplayer2.drm.DefaultDrmSessionEventListener-boolean-int-">com.google.android.exoplayer2.drm.DefaultDrmSessionManager(UUID, ExoMediaDrm&lt;T&gt;, MediaDrmCallback, HashMap&lt;String, String&gt;, Handler, DefaultDrmSessionEventListener, boolean, int)</a>
+<div class="block"><span class="deprecationComment">Use <a href="com/google/android/exoplayer2/drm/DefaultDrmSessionManager.html#DefaultDrmSessionManager-java.util.UUID-com.google.android.exoplayer2.drm.ExoMediaDrm-com.google.android.exoplayer2.drm.MediaDrmCallback-java.util.HashMap-boolean-int-"><code>DefaultDrmSessionManager.DefaultDrmSessionManager(UUID, ExoMediaDrm, MediaDrmCallback, HashMap,
+     boolean, int)</code></a> and <a href="com/google/android/exoplayer2/drm/DefaultDrmSessionManager.html#addListener-android.os.Handler-com.google.android.exoplayer2.drm.DefaultDrmSessionEventListener-"><code>DefaultDrmSessionManager.addListener(Handler, DefaultDrmSessionEventListener)</code></a>.</span></div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colOne"><a href="com/google/android/exoplayer2/DefaultLoadControl.html#DefaultLoadControl-com.google.android.exoplayer2.upstream.DefaultAllocator-">com.google.android.exoplayer2.DefaultLoadControl(DefaultAllocator)</a>
+<div class="block"><span class="deprecationComment">Use <a href="com/google/android/exoplayer2/DefaultLoadControl.Builder.html" title="class in com.google.android.exoplayer2"><code>DefaultLoadControl.Builder</code></a> instead.</span></div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colOne"><a href="com/google/android/exoplayer2/DefaultLoadControl.html#DefaultLoadControl-com.google.android.exoplayer2.upstream.DefaultAllocator-int-int-int-int-int-boolean-">com.google.android.exoplayer2.DefaultLoadControl(DefaultAllocator, int, int, int, int, int, boolean)</a>
+<div class="block"><span class="deprecationComment">Use <a href="com/google/android/exoplayer2/DefaultLoadControl.Builder.html" title="class in com.google.android.exoplayer2"><code>DefaultLoadControl.Builder</code></a> instead.</span></div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colOne"><a href="com/google/android/exoplayer2/DefaultLoadControl.html#DefaultLoadControl-com.google.android.exoplayer2.upstream.DefaultAllocator-int-int-int-int-int-boolean-com.google.android.exoplayer2.util.PriorityTaskManager-">com.google.android.exoplayer2.DefaultLoadControl(DefaultAllocator, int, int, int, int, int, boolean, PriorityTaskManager)</a>
+<div class="block"><span class="deprecationComment">Use <a href="com/google/android/exoplayer2/DefaultLoadControl.Builder.html" title="class in com.google.android.exoplayer2"><code>DefaultLoadControl.Builder</code></a> instead.</span></div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colOne"><a href="com/google/android/exoplayer2/DefaultRenderersFactory.html#DefaultRenderersFactory-android.content.Context-com.google.android.exoplayer2.drm.DrmSessionManager-">com.google.android.exoplayer2.DefaultRenderersFactory(Context, DrmSessionManager&lt;FrameworkMediaCrypto&gt;)</a>
+<div class="block"><span class="deprecationComment">Use <a href="com/google/android/exoplayer2/DefaultRenderersFactory.html#DefaultRenderersFactory-android.content.Context-"><code>DefaultRenderersFactory.DefaultRenderersFactory(Context)</code></a> and pass <a href="com/google/android/exoplayer2/drm/DrmSessionManager.html" title="interface in com.google.android.exoplayer2.drm"><code>DrmSessionManager</code></a>
+     directly to <a href="com/google/android/exoplayer2/SimpleExoPlayer.html" title="class in com.google.android.exoplayer2"><code>SimpleExoPlayer</code></a> or <a href="com/google/android/exoplayer2/ExoPlayerFactory.html" title="class in com.google.android.exoplayer2"><code>ExoPlayerFactory</code></a>.</span></div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colOne"><a href="com/google/android/exoplayer2/DefaultRenderersFactory.html#DefaultRenderersFactory-android.content.Context-com.google.android.exoplayer2.drm.DrmSessionManager-int-">com.google.android.exoplayer2.DefaultRenderersFactory(Context, DrmSessionManager&lt;FrameworkMediaCrypto&gt;, int)</a>
+<div class="block"><span class="deprecationComment">Use <a href="com/google/android/exoplayer2/DefaultRenderersFactory.html#DefaultRenderersFactory-android.content.Context-int-"><code>DefaultRenderersFactory.DefaultRenderersFactory(Context, int)</code></a> and pass <a href="com/google/android/exoplayer2/drm/DrmSessionManager.html" title="interface in com.google.android.exoplayer2.drm"><code>DrmSessionManager</code></a> directly to <a href="com/google/android/exoplayer2/SimpleExoPlayer.html" title="class in com.google.android.exoplayer2"><code>SimpleExoPlayer</code></a> or <a href="com/google/android/exoplayer2/ExoPlayerFactory.html" title="class in com.google.android.exoplayer2"><code>ExoPlayerFactory</code></a>.</span></div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colOne"><a href="com/google/android/exoplayer2/DefaultRenderersFactory.html#DefaultRenderersFactory-android.content.Context-com.google.android.exoplayer2.drm.DrmSessionManager-int-long-">com.google.android.exoplayer2.DefaultRenderersFactory(Context, DrmSessionManager&lt;FrameworkMediaCrypto&gt;, int, long)</a>
+<div class="block"><span class="deprecationComment">Use <a href="com/google/android/exoplayer2/DefaultRenderersFactory.html#DefaultRenderersFactory-android.content.Context-int-long-"><code>DefaultRenderersFactory.DefaultRenderersFactory(Context, int, long)</code></a> and pass <a href="com/google/android/exoplayer2/drm/DrmSessionManager.html" title="interface in com.google.android.exoplayer2.drm"><code>DrmSessionManager</code></a> directly to <a href="com/google/android/exoplayer2/SimpleExoPlayer.html" title="class in com.google.android.exoplayer2"><code>SimpleExoPlayer</code></a> or <a href="com/google/android/exoplayer2/ExoPlayerFactory.html" title="class in com.google.android.exoplayer2"><code>ExoPlayerFactory</code></a>.</span></div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colOne"><a href="com/google/android/exoplayer2/source/DynamicConcatenatingMediaSource.html#DynamicConcatenatingMediaSource--">com.google.android.exoplayer2.source.DynamicConcatenatingMediaSource()</a>
+<div class="block"><span class="deprecationComment">Use <a href="com/google/android/exoplayer2/source/ConcatenatingMediaSource.html#ConcatenatingMediaSource--"><code>ConcatenatingMediaSource.ConcatenatingMediaSource()</code></a> instead.</span></div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colOne"><a href="com/google/android/exoplayer2/source/DynamicConcatenatingMediaSource.html#DynamicConcatenatingMediaSource-boolean-">com.google.android.exoplayer2.source.DynamicConcatenatingMediaSource(boolean)</a>
+<div class="block"><span class="deprecationComment">Use <a href="com/google/android/exoplayer2/source/ConcatenatingMediaSource.html#ConcatenatingMediaSource-boolean-"><code>ConcatenatingMediaSource.ConcatenatingMediaSource(boolean)</code></a> instead.</span></div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colOne"><a href="com/google/android/exoplayer2/source/DynamicConcatenatingMediaSource.html#DynamicConcatenatingMediaSource-boolean-com.google.android.exoplayer2.source.ShuffleOrder-">com.google.android.exoplayer2.source.DynamicConcatenatingMediaSource(boolean, ShuffleOrder)</a>
+<div class="block"><span class="deprecationComment">Use <a href="com/google/android/exoplayer2/source/ConcatenatingMediaSource.html#ConcatenatingMediaSource-boolean-com.google.android.exoplayer2.source.ShuffleOrder-"><code>ConcatenatingMediaSource.ConcatenatingMediaSource(boolean,
+     ShuffleOrder)</code></a> instead.</span></div>
+</td>
+</tr>
+<tr class="altColor">
 <td class="colOne"><a href="com/google/android/exoplayer2/ExoPlayer.ExoPlayerMessage.html#ExoPlayerMessage-com.google.android.exoplayer2.PlayerMessage.Target-int-java.lang.Object-">com.google.android.exoplayer2.ExoPlayer.ExoPlayerMessage(PlayerMessage.Target, int, Object)</a>
 <div class="block"><span class="deprecationComment">Use <a href="com/google/android/exoplayer2/ExoPlayer.html#createMessage-com.google.android.exoplayer2.PlayerMessage.Target-"><code>ExoPlayer.createMessage(PlayerMessage.Target)</code></a> instead.</span></div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colOne"><a href="com/google/android/exoplayer2/source/ExtractorMediaSource.html#ExtractorMediaSource-android.net.Uri-com.google.android.exoplayer2.upstream.DataSource.Factory-com.google.android.exoplayer2.extractor.ExtractorsFactory-android.os.Handler-com.google.android.exoplayer2.source.ExtractorMediaSource.EventListener-">com.google.android.exoplayer2.source.ExtractorMediaSource(Uri, DataSource.Factory, ExtractorsFactory, Handler, ExtractorMediaSource.EventListener)</a>
 <div class="block"><span class="deprecationComment">Use <a href="com/google/android/exoplayer2/source/ExtractorMediaSource.Factory.html" title="class in com.google.android.exoplayer2.source"><code>ExtractorMediaSource.Factory</code></a> instead.</span></div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colOne"><a href="com/google/android/exoplayer2/source/ExtractorMediaSource.html#ExtractorMediaSource-android.net.Uri-com.google.android.exoplayer2.upstream.DataSource.Factory-com.google.android.exoplayer2.extractor.ExtractorsFactory-android.os.Handler-com.google.android.exoplayer2.source.ExtractorMediaSource.EventListener-java.lang.String-">com.google.android.exoplayer2.source.ExtractorMediaSource(Uri, DataSource.Factory, ExtractorsFactory, Handler, ExtractorMediaSource.EventListener, String)</a>
 <div class="block"><span class="deprecationComment">Use <a href="com/google/android/exoplayer2/source/ExtractorMediaSource.Factory.html" title="class in com.google.android.exoplayer2.source"><code>ExtractorMediaSource.Factory</code></a> instead.</span></div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colOne"><a href="com/google/android/exoplayer2/source/ExtractorMediaSource.html#ExtractorMediaSource-android.net.Uri-com.google.android.exoplayer2.upstream.DataSource.Factory-com.google.android.exoplayer2.extractor.ExtractorsFactory-int-android.os.Handler-com.google.android.exoplayer2.source.ExtractorMediaSource.EventListener-java.lang.String-int-">com.google.android.exoplayer2.source.ExtractorMediaSource(Uri, DataSource.Factory, ExtractorsFactory, int, Handler, ExtractorMediaSource.EventListener, String, int)</a>
 <div class="block"><span class="deprecationComment">Use <a href="com/google/android/exoplayer2/source/ExtractorMediaSource.Factory.html" title="class in com.google.android.exoplayer2.source"><code>ExtractorMediaSource.Factory</code></a> instead.</span></div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colOne"><a href="com/google/android/exoplayer2/source/hls/HlsMediaSource.html#HlsMediaSource-android.net.Uri-com.google.android.exoplayer2.upstream.DataSource.Factory-android.os.Handler-com.google.android.exoplayer2.source.MediaSourceEventListener-">com.google.android.exoplayer2.source.hls.HlsMediaSource(Uri, DataSource.Factory, Handler, MediaSourceEventListener)</a>
 <div class="block"><span class="deprecationComment">Use <a href="com/google/android/exoplayer2/source/hls/HlsMediaSource.Factory.html" title="class in com.google.android.exoplayer2.source.hls"><code>HlsMediaSource.Factory</code></a> instead.</span></div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colOne"><a href="com/google/android/exoplayer2/source/hls/HlsMediaSource.html#HlsMediaSource-android.net.Uri-com.google.android.exoplayer2.upstream.DataSource.Factory-int-android.os.Handler-com.google.android.exoplayer2.source.MediaSourceEventListener-">com.google.android.exoplayer2.source.hls.HlsMediaSource(Uri, DataSource.Factory, int, Handler, MediaSourceEventListener)</a>
 <div class="block"><span class="deprecationComment">Use <a href="com/google/android/exoplayer2/source/hls/HlsMediaSource.Factory.html" title="class in com.google.android.exoplayer2.source.hls"><code>HlsMediaSource.Factory</code></a> instead.</span></div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colOne"><a href="com/google/android/exoplayer2/source/hls/HlsMediaSource.html#HlsMediaSource-android.net.Uri-com.google.android.exoplayer2.source.hls.HlsDataSourceFactory-com.google.android.exoplayer2.source.hls.HlsExtractorFactory-int-android.os.Handler-com.google.android.exoplayer2.source.MediaSourceEventListener-com.google.android.exoplayer2.upstream.ParsingLoadable.Parser-">com.google.android.exoplayer2.source.hls.HlsMediaSource(Uri, HlsDataSourceFactory, HlsExtractorFactory, int, Handler, MediaSourceEventListener, ParsingLoadable.Parser&lt;HlsPlaylist&gt;)</a>
 <div class="block"><span class="deprecationComment">Use <a href="com/google/android/exoplayer2/source/hls/HlsMediaSource.Factory.html" title="class in com.google.android.exoplayer2.source.hls"><code>HlsMediaSource.Factory</code></a> instead.</span></div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colOne"><a href="com/google/android/exoplayer2/ext/ima/ImaAdsLoader.html#ImaAdsLoader-android.content.Context-android.net.Uri-com.google.ads.interactivemedia.v3.api.ImaSdkSettings-">com.google.android.exoplayer2.ext.ima.ImaAdsLoader(Context, Uri, ImaSdkSettings)</a>
 <div class="block"><span class="deprecationComment">Use <a href="com/google/android/exoplayer2/ext/ima/ImaAdsLoader.Builder.html" title="class in com.google.android.exoplayer2.ext.ima"><code>ImaAdsLoader.Builder</code></a>.</span></div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colOne"><a href="com/google/android/exoplayer2/source/SingleSampleMediaSource.html#SingleSampleMediaSource-android.net.Uri-com.google.android.exoplayer2.upstream.DataSource.Factory-com.google.android.exoplayer2.Format-long-">com.google.android.exoplayer2.source.SingleSampleMediaSource(Uri, DataSource.Factory, Format, long)</a>
 <div class="block"><span class="deprecationComment">Use <a href="com/google/android/exoplayer2/source/SingleSampleMediaSource.Factory.html" title="class in com.google.android.exoplayer2.source"><code>SingleSampleMediaSource.Factory</code></a> instead.</span></div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colOne"><a href="com/google/android/exoplayer2/source/SingleSampleMediaSource.html#SingleSampleMediaSource-android.net.Uri-com.google.android.exoplayer2.upstream.DataSource.Factory-com.google.android.exoplayer2.Format-long-int-">com.google.android.exoplayer2.source.SingleSampleMediaSource(Uri, DataSource.Factory, Format, long, int)</a>
 <div class="block"><span class="deprecationComment">Use <a href="com/google/android/exoplayer2/source/SingleSampleMediaSource.Factory.html" title="class in com.google.android.exoplayer2.source"><code>SingleSampleMediaSource.Factory</code></a> instead.</span></div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colOne"><a href="com/google/android/exoplayer2/source/SingleSampleMediaSource.html#SingleSampleMediaSource-android.net.Uri-com.google.android.exoplayer2.upstream.DataSource.Factory-com.google.android.exoplayer2.Format-long-int-android.os.Handler-com.google.android.exoplayer2.source.SingleSampleMediaSource.EventListener-int-boolean-">com.google.android.exoplayer2.source.SingleSampleMediaSource(Uri, DataSource.Factory, Format, long, int, Handler, SingleSampleMediaSource.EventListener, int, boolean)</a>
 <div class="block"><span class="deprecationComment">Use <a href="com/google/android/exoplayer2/source/SingleSampleMediaSource.Factory.html" title="class in com.google.android.exoplayer2.source"><code>SingleSampleMediaSource.Factory</code></a> instead.</span></div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colOne"><a href="com/google/android/exoplayer2/source/smoothstreaming/SsMediaSource.html#SsMediaSource-com.google.android.exoplayer2.source.smoothstreaming.manifest.SsManifest-com.google.android.exoplayer2.source.smoothstreaming.SsChunkSource.Factory-android.os.Handler-com.google.android.exoplayer2.source.MediaSourceEventListener-">com.google.android.exoplayer2.source.smoothstreaming.SsMediaSource(SsManifest, SsChunkSource.Factory, Handler, MediaSourceEventListener)</a>
 <div class="block"><span class="deprecationComment">Use <a href="com/google/android/exoplayer2/source/smoothstreaming/SsMediaSource.Factory.html" title="class in com.google.android.exoplayer2.source.smoothstreaming"><code>SsMediaSource.Factory</code></a> instead.</span></div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colOne"><a href="com/google/android/exoplayer2/source/smoothstreaming/SsMediaSource.html#SsMediaSource-com.google.android.exoplayer2.source.smoothstreaming.manifest.SsManifest-com.google.android.exoplayer2.source.smoothstreaming.SsChunkSource.Factory-int-android.os.Handler-com.google.android.exoplayer2.source.MediaSourceEventListener-">com.google.android.exoplayer2.source.smoothstreaming.SsMediaSource(SsManifest, SsChunkSource.Factory, int, Handler, MediaSourceEventListener)</a>
 <div class="block"><span class="deprecationComment">Use <a href="com/google/android/exoplayer2/source/smoothstreaming/SsMediaSource.Factory.html" title="class in com.google.android.exoplayer2.source.smoothstreaming"><code>SsMediaSource.Factory</code></a> instead.</span></div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colOne"><a href="com/google/android/exoplayer2/source/smoothstreaming/SsMediaSource.html#SsMediaSource-android.net.Uri-com.google.android.exoplayer2.upstream.DataSource.Factory-com.google.android.exoplayer2.upstream.ParsingLoadable.Parser-com.google.android.exoplayer2.source.smoothstreaming.SsChunkSource.Factory-int-long-android.os.Handler-com.google.android.exoplayer2.source.MediaSourceEventListener-">com.google.android.exoplayer2.source.smoothstreaming.SsMediaSource(Uri, DataSource.Factory, ParsingLoadable.Parser&lt;? extends SsManifest&gt;, SsChunkSource.Factory, int, long, Handler, MediaSourceEventListener)</a>
 <div class="block"><span class="deprecationComment">Use <a href="com/google/android/exoplayer2/source/smoothstreaming/SsMediaSource.Factory.html" title="class in com.google.android.exoplayer2.source.smoothstreaming"><code>SsMediaSource.Factory</code></a> instead.</span></div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colOne"><a href="com/google/android/exoplayer2/source/smoothstreaming/SsMediaSource.html#SsMediaSource-android.net.Uri-com.google.android.exoplayer2.upstream.DataSource.Factory-com.google.android.exoplayer2.source.smoothstreaming.SsChunkSource.Factory-android.os.Handler-com.google.android.exoplayer2.source.MediaSourceEventListener-">com.google.android.exoplayer2.source.smoothstreaming.SsMediaSource(Uri, DataSource.Factory, SsChunkSource.Factory, Handler, MediaSourceEventListener)</a>
 <div class="block"><span class="deprecationComment">Use <a href="com/google/android/exoplayer2/source/smoothstreaming/SsMediaSource.Factory.html" title="class in com.google.android.exoplayer2.source.smoothstreaming"><code>SsMediaSource.Factory</code></a> instead.</span></div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colOne"><a href="com/google/android/exoplayer2/source/smoothstreaming/SsMediaSource.html#SsMediaSource-android.net.Uri-com.google.android.exoplayer2.upstream.DataSource.Factory-com.google.android.exoplayer2.source.smoothstreaming.SsChunkSource.Factory-int-long-android.os.Handler-com.google.android.exoplayer2.source.MediaSourceEventListener-">com.google.android.exoplayer2.source.smoothstreaming.SsMediaSource(Uri, DataSource.Factory, SsChunkSource.Factory, int, long, Handler, MediaSourceEventListener)</a>
 <div class="block"><span class="deprecationComment">Use <a href="com/google/android/exoplayer2/source/smoothstreaming/SsMediaSource.Factory.html" title="class in com.google.android.exoplayer2.source.smoothstreaming"><code>SsMediaSource.Factory</code></a> instead.</span></div>
 </td>

@@ -16,7 +16,7 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":10,"i11":10,"i12":10,"i13":10,"i14":10,"i15":10,"i16":10,"i17":10,"i18":10,"i19":10,"i20":10,"i21":10,"i22":10,"i23":10,"i24":10,"i25":10,"i26":10,"i27":10,"i28":10,"i29":10,"i30":10,"i31":10,"i32":10,"i33":10,"i34":10,"i35":9};
+var methods = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":10,"i11":10,"i12":10,"i13":10,"i14":10,"i15":10,"i16":10,"i17":10,"i18":10,"i19":10,"i20":10,"i21":10,"i22":10,"i23":10,"i24":10,"i25":10,"i26":10,"i27":10,"i28":10,"i29":10,"i30":10,"i31":10,"i32":10,"i33":10,"i34":10,"i35":10,"i36":10,"i37":10,"i38":10,"i39":10,"i40":10,"i41":9};
 var tabs = {65535:["t0","All Methods"],1:["t1","Static Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -46,7 +46,7 @@ var activeTableTab = "activeTableTab";
 </div>
 <div class="subNav">
 <ul class="navList">
-<li><a href="../../../../../com/google/android/exoplayer2/ui/PlayerControlView.VisibilityListener.html" title="interface in com.google.android.exoplayer2.ui"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
+<li><a href="../../../../../com/google/android/exoplayer2/ui/PlayerNotificationManager.Visibility.html" title="annotation in com.google.android.exoplayer2.ui"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
 <li><a href="../../../../../com/google/android/exoplayer2/ui/SimpleExoPlayerView.html" title="class in com.google.android.exoplayer2.ui"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
 </ul>
 <ul class="navList">
@@ -176,6 +176,12 @@ extends <a href="https://developer.android.com/reference/android/widget/FrameLay
          <li>Corresponding method: <a href="../../../../../com/google/android/exoplayer2/ui/PlayerView.html#setControllerHideDuringAds-boolean-"><code>setControllerHideDuringAds(boolean)</code></a>
          <li>Default: <code>true</code>
        </ul>
+   <li><b><code>show_buffering</code></b> - Whether the buffering spinner is displayed when the player
+       is buffering.
+       <ul>
+         <li>Corresponding method: <a href="../../../../../com/google/android/exoplayer2/ui/PlayerView.html#setShowBuffering-boolean-"><code>setShowBuffering(boolean)</code></a>
+         <li>Default: <code>false</code>
+       </ul>
    <li><b><code>resize_mode</code></b> - Controls how video and album art is resized within the view.
        Valid values are <code>fit</code>, <code>fixed_width</code>, <code>fixed_height</code> and <code>fill</code>.
        <ul>
@@ -185,7 +191,9 @@ extends <a href="https://developer.android.com/reference/android/widget/FrameLay
    <li><b><code>surface_type</code></b> - The type of surface view used for video playbacks. Valid
        values are <code>surface_view</code>, <code>texture_view</code> and <code>none</code>. Using <code>none</code>
        is recommended for audio only applications, since creating the surface can be expensive.
-       Using <code>surface_view</code> is recommended for video applications.
+       Using <code>surface_view</code> is recommended for video applications. Note, TextureView can
+       only be used in a hardware accelerated window. When rendered in software, TextureView will
+       draw nothing.
        <ul>
          <li>Corresponding method: None
          <li>Default: <code>surface_view</code>
@@ -236,6 +244,11 @@ extends <a href="https://developer.android.com/reference/android/widget/FrameLay
        <ul>
          <li>Type: <a href="https://developer.android.com/reference/android/view/View.html" target="_top" title="class or interface in android.view"><code>View</code></a>
        </ul>
+   <li><b><code>exo_buffering</code></b> - A view that's made visible when the player is buffering.
+       This view typically displays a buffering spinner or animation.
+       <ul>
+         <li>Type: <a href="https://developer.android.com/reference/android/view/View.html" target="_top" title="class or interface in android.view"><code>View</code></a>
+       </ul>
    <li><b><code>exo_subtitles</code></b> - Displays subtitles.
        <ul>
          <li>Type: <a href="../../../../../com/google/android/exoplayer2/ui/SubtitleView.html" title="class in com.google.android.exoplayer2.ui"><code>SubtitleView</code></a>
@@ -243,6 +256,10 @@ extends <a href="https://developer.android.com/reference/android/widget/FrameLay
    <li><b><code>exo_artwork</code></b> - Displays album art.
        <ul>
          <li>Type: <a href="https://developer.android.com/reference/android/widget/ImageView.html" target="_top" title="class or interface in android.widget"><code>ImageView</code></a>
+       </ul>
+   <li><b><code>exo_error_message</code></b> - Displays an error message to the user if playback fails.
+       <ul>
+         <li>Type: <a href="https://developer.android.com/reference/android/widget/TextView.html" target="_top" title="class or interface in android.widget"><code>TextView</code></a>
        </ul>
    <li><b><code>exo_controller_placeholder</code></b> - A placeholder that's replaced with the inflated
        <a href="../../../../../com/google/android/exoplayer2/ui/PlayerControlView.html" title="class in com.google.android.exoplayer2.ui"><code>PlayerControlView</code></a>. Ignored if an <code>exo_controller</code> view exists.
@@ -415,164 +432,202 @@ extends <a href="https://developer.android.com/reference/android/widget/FrameLay
 </td>
 </tr>
 <tr id="i8" class="altColor">
+<td class="colFirst"><code>int</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/ui/PlayerView.html#getResizeMode--">getResizeMode</a></span>()</code>
+<div class="block">Returns the resize mode.</div>
+</td>
+</tr>
+<tr id="i9" class="rowColor">
 <td class="colFirst"><code><a href="../../../../../com/google/android/exoplayer2/ui/SubtitleView.html" title="class in com.google.android.exoplayer2.ui">SubtitleView</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/ui/PlayerView.html#getSubtitleView--">getSubtitleView</a></span>()</code>
 <div class="block">Gets the <a href="../../../../../com/google/android/exoplayer2/ui/SubtitleView.html" title="class in com.google.android.exoplayer2.ui"><code>SubtitleView</code></a>.</div>
 </td>
 </tr>
-<tr id="i9" class="rowColor">
+<tr id="i10" class="altColor">
 <td class="colFirst"><code>boolean</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/ui/PlayerView.html#getUseArtwork--">getUseArtwork</a></span>()</code>
 <div class="block">Returns whether artwork is displayed if present in the media.</div>
 </td>
 </tr>
-<tr id="i10" class="altColor">
+<tr id="i11" class="rowColor">
 <td class="colFirst"><code>boolean</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/ui/PlayerView.html#getUseController--">getUseController</a></span>()</code>
 <div class="block">Returns whether the playback controls can be shown.</div>
 </td>
 </tr>
-<tr id="i11" class="rowColor">
+<tr id="i12" class="altColor">
 <td class="colFirst"><code><a href="https://developer.android.com/reference/android/view/View.html" target="_top" title="class or interface in android.view">View</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/ui/PlayerView.html#getVideoSurfaceView--">getVideoSurfaceView</a></span>()</code>
 <div class="block">Gets the view onto which video is rendered.</div>
 </td>
 </tr>
-<tr id="i12" class="altColor">
+<tr id="i13" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/ui/PlayerView.html#hideController--">hideController</a></span>()</code>
 <div class="block">Hides the playback controls.</div>
 </td>
 </tr>
-<tr id="i13" class="rowColor">
+<tr id="i14" class="altColor">
 <td class="colFirst"><code>boolean</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/ui/PlayerView.html#onTouchEvent-android.view.MotionEvent-">onTouchEvent</a></span>(<a href="https://developer.android.com/reference/android/view/MotionEvent.html" target="_top" title="class or interface in android.view">MotionEvent</a>&nbsp;ev)</code>&nbsp;</td>
 </tr>
-<tr id="i14" class="altColor">
+<tr id="i15" class="rowColor">
 <td class="colFirst"><code>boolean</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/ui/PlayerView.html#onTrackballEvent-android.view.MotionEvent-">onTrackballEvent</a></span>(<a href="https://developer.android.com/reference/android/view/MotionEvent.html" target="_top" title="class or interface in android.view">MotionEvent</a>&nbsp;ev)</code>&nbsp;</td>
 </tr>
-<tr id="i15" class="rowColor">
+<tr id="i16" class="altColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/ui/PlayerView.html#setAspectRatioListener-com.google.android.exoplayer2.ui.AspectRatioFrameLayout.AspectRatioListener-">setAspectRatioListener</a></span>(<a href="../../../../../com/google/android/exoplayer2/ui/AspectRatioFrameLayout.AspectRatioListener.html" title="interface in com.google.android.exoplayer2.ui">AspectRatioFrameLayout.AspectRatioListener</a>&nbsp;listener)</code>
+<div class="block">Set the <a href="../../../../../com/google/android/exoplayer2/ui/AspectRatioFrameLayout.AspectRatioListener.html" title="interface in com.google.android.exoplayer2.ui"><code>AspectRatioFrameLayout.AspectRatioListener</code></a>.</div>
+</td>
+</tr>
+<tr id="i17" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/ui/PlayerView.html#setControlDispatcher-com.google.android.exoplayer2.ControlDispatcher-">setControlDispatcher</a></span>(<a href="../../../../../com/google/android/exoplayer2/ControlDispatcher.html" title="interface in com.google.android.exoplayer2">ControlDispatcher</a>&nbsp;controlDispatcher)</code>
 <div class="block">Sets the <a href="../../../../../com/google/android/exoplayer2/ControlDispatcher.html" title="interface in com.google.android.exoplayer2"><code>ControlDispatcher</code></a>.</div>
 </td>
 </tr>
-<tr id="i16" class="altColor">
+<tr id="i18" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/ui/PlayerView.html#setControllerAutoShow-boolean-">setControllerAutoShow</a></span>(boolean&nbsp;controllerAutoShow)</code>
 <div class="block">Sets whether the playback controls are automatically shown when playback starts, pauses, ends,
  or fails.</div>
 </td>
 </tr>
-<tr id="i17" class="rowColor">
+<tr id="i19" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/ui/PlayerView.html#setControllerHideDuringAds-boolean-">setControllerHideDuringAds</a></span>(boolean&nbsp;controllerHideDuringAds)</code>
 <div class="block">Sets whether the playback controls are hidden when ads are playing.</div>
 </td>
 </tr>
-<tr id="i18" class="altColor">
+<tr id="i20" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/ui/PlayerView.html#setControllerHideOnTouch-boolean-">setControllerHideOnTouch</a></span>(boolean&nbsp;controllerHideOnTouch)</code>
 <div class="block">Sets whether the playback controls are hidden by touch events.</div>
 </td>
 </tr>
-<tr id="i19" class="rowColor">
+<tr id="i21" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/ui/PlayerView.html#setControllerShowTimeoutMs-int-">setControllerShowTimeoutMs</a></span>(int&nbsp;controllerShowTimeoutMs)</code>
 <div class="block">Sets the playback controls timeout.</div>
 </td>
 </tr>
-<tr id="i20" class="altColor">
+<tr id="i22" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/ui/PlayerView.html#setControllerVisibilityListener-com.google.android.exoplayer2.ui.PlayerControlView.VisibilityListener-">setControllerVisibilityListener</a></span>(<a href="../../../../../com/google/android/exoplayer2/ui/PlayerControlView.VisibilityListener.html" title="interface in com.google.android.exoplayer2.ui">PlayerControlView.VisibilityListener</a>&nbsp;listener)</code>
 <div class="block">Set the <a href="../../../../../com/google/android/exoplayer2/ui/PlayerControlView.VisibilityListener.html" title="interface in com.google.android.exoplayer2.ui"><code>PlayerControlView.VisibilityListener</code></a>.</div>
 </td>
 </tr>
-<tr id="i21" class="rowColor">
+<tr id="i23" class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/ui/PlayerView.html#setCustomErrorMessage-java.lang.CharSequence-">setCustomErrorMessage</a></span>(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/CharSequence.html" target="_top" title="class or interface in java.lang">CharSequence</a>&nbsp;message)</code>
+<div class="block">Sets a custom error message to be displayed by the view.</div>
+</td>
+</tr>
+<tr id="i24" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/ui/PlayerView.html#setDefaultArtwork-android.graphics.Bitmap-">setDefaultArtwork</a></span>(<a href="https://developer.android.com/reference/android/graphics/Bitmap.html" target="_top" title="class or interface in android.graphics">Bitmap</a>&nbsp;defaultArtwork)</code>
 <div class="block">Sets the default artwork to display if <code>useArtwork</code> is <code>true</code> and no artwork is
  present in the media.</div>
 </td>
 </tr>
-<tr id="i22" class="altColor">
+<tr id="i25" class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/ui/PlayerView.html#setErrorMessageProvider-com.google.android.exoplayer2.util.ErrorMessageProvider-">setErrorMessageProvider</a></span>(<a href="../../../../../com/google/android/exoplayer2/util/ErrorMessageProvider.html" title="interface in com.google.android.exoplayer2.util">ErrorMessageProvider</a>&lt;? super <a href="../../../../../com/google/android/exoplayer2/ExoPlaybackException.html" title="class in com.google.android.exoplayer2">ExoPlaybackException</a>&gt;&nbsp;errorMessageProvider)</code>
+<div class="block">Sets the optional <a href="../../../../../com/google/android/exoplayer2/util/ErrorMessageProvider.html" title="interface in com.google.android.exoplayer2.util"><code>ErrorMessageProvider</code></a>.</div>
+</td>
+</tr>
+<tr id="i26" class="altColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/ui/PlayerView.html#setExtraAdGroupMarkers-long:A-boolean:A-">setExtraAdGroupMarkers</a></span>(long[]&nbsp;extraAdGroupTimesMs,
+                      boolean[]&nbsp;extraPlayedAdGroups)</code>
+<div class="block">Sets the millisecond positions of extra ad markers relative to the start of the window (or
+ timeline, if in multi-window mode) and whether each extra ad has been played or not.</div>
+</td>
+</tr>
+<tr id="i27" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/ui/PlayerView.html#setFastForwardIncrementMs-int-">setFastForwardIncrementMs</a></span>(int&nbsp;fastForwardMs)</code>
 <div class="block">Sets the fast forward increment in milliseconds.</div>
 </td>
 </tr>
-<tr id="i23" class="rowColor">
+<tr id="i28" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/ui/PlayerView.html#setPlaybackPreparer-com.google.android.exoplayer2.PlaybackPreparer-">setPlaybackPreparer</a></span>(<a href="../../../../../com/google/android/exoplayer2/PlaybackPreparer.html" title="interface in com.google.android.exoplayer2">PlaybackPreparer</a>&nbsp;playbackPreparer)</code>
 <div class="block">Sets the <a href="../../../../../com/google/android/exoplayer2/PlaybackPreparer.html" title="interface in com.google.android.exoplayer2"><code>PlaybackPreparer</code></a>.</div>
 </td>
 </tr>
-<tr id="i24" class="altColor">
+<tr id="i29" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/ui/PlayerView.html#setPlayer-com.google.android.exoplayer2.Player-">setPlayer</a></span>(<a href="../../../../../com/google/android/exoplayer2/Player.html" title="interface in com.google.android.exoplayer2">Player</a>&nbsp;player)</code>
 <div class="block">Set the <a href="../../../../../com/google/android/exoplayer2/Player.html" title="interface in com.google.android.exoplayer2"><code>Player</code></a> to use.</div>
 </td>
 </tr>
-<tr id="i25" class="rowColor">
+<tr id="i30" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/ui/PlayerView.html#setRepeatToggleModes-int-">setRepeatToggleModes</a></span>(int&nbsp;repeatToggleModes)</code>
 <div class="block">Sets which repeat toggle modes are enabled.</div>
 </td>
 </tr>
-<tr id="i26" class="altColor">
+<tr id="i31" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/ui/PlayerView.html#setResizeMode-int-">setResizeMode</a></span>(int&nbsp;resizeMode)</code>
 <div class="block">Sets the resize mode.</div>
 </td>
 </tr>
-<tr id="i27" class="rowColor">
+<tr id="i32" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/ui/PlayerView.html#setRewindIncrementMs-int-">setRewindIncrementMs</a></span>(int&nbsp;rewindMs)</code>
 <div class="block">Sets the rewind increment in milliseconds.</div>
 </td>
 </tr>
-<tr id="i28" class="altColor">
+<tr id="i33" class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/ui/PlayerView.html#setShowBuffering-boolean-">setShowBuffering</a></span>(boolean&nbsp;showBuffering)</code>
+<div class="block">Sets whether a buffering spinner is displayed when the player is in the buffering state.</div>
+</td>
+</tr>
+<tr id="i34" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/ui/PlayerView.html#setShowMultiWindowTimeBar-boolean-">setShowMultiWindowTimeBar</a></span>(boolean&nbsp;showMultiWindowTimeBar)</code>
 <div class="block">Sets whether the time bar should show all windows, as opposed to just the current one.</div>
 </td>
 </tr>
-<tr id="i29" class="rowColor">
+<tr id="i35" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/ui/PlayerView.html#setShowShuffleButton-boolean-">setShowShuffleButton</a></span>(boolean&nbsp;showShuffleButton)</code>
 <div class="block">Sets whether the shuffle button is shown.</div>
 </td>
 </tr>
-<tr id="i30" class="altColor">
+<tr id="i36" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/ui/PlayerView.html#setShutterBackgroundColor-int-">setShutterBackgroundColor</a></span>(int&nbsp;color)</code>
 <div class="block">Sets the background color of the <code>exo_shutter</code> view.</div>
 </td>
 </tr>
-<tr id="i31" class="rowColor">
+<tr id="i37" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/ui/PlayerView.html#setUseArtwork-boolean-">setUseArtwork</a></span>(boolean&nbsp;useArtwork)</code>
 <div class="block">Sets whether artwork is displayed if present in the media.</div>
 </td>
 </tr>
-<tr id="i32" class="altColor">
+<tr id="i38" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/ui/PlayerView.html#setUseController-boolean-">setUseController</a></span>(boolean&nbsp;useController)</code>
 <div class="block">Sets whether the playback controls can be shown.</div>
 </td>
 </tr>
-<tr id="i33" class="rowColor">
+<tr id="i39" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/ui/PlayerView.html#setVisibility-int-">setVisibility</a></span>(int&nbsp;visibility)</code>&nbsp;</td>
 </tr>
-<tr id="i34" class="altColor">
+<tr id="i40" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/ui/PlayerView.html#showController--">showController</a></span>()</code>
 <div class="block">Shows the playback controls.</div>
 </td>
 </tr>
-<tr id="i35" class="rowColor">
+<tr id="i41" class="rowColor">
 <td class="colFirst"><code>static void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/ui/PlayerView.html#switchTargetView-com.google.android.exoplayer2.Player-com.google.android.exoplayer2.ui.PlayerView-com.google.android.exoplayer2.ui.PlayerView-">switchTargetView</a></span>(<a href="../../../../../com/google/android/exoplayer2/Player.html" title="interface in com.google.android.exoplayer2">Player</a>&nbsp;player,
                 <a href="../../../../../com/google/android/exoplayer2/ui/PlayerView.html" title="class in com.google.android.exoplayer2.ui">PlayerView</a>&nbsp;oldPlayerView,
@@ -746,6 +801,16 @@ extends <a href="https://developer.android.com/reference/android/widget/FrameLay
 </dl>
 </li>
 </ul>
+<a name="getResizeMode--">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getResizeMode</h4>
+<pre>public&nbsp;int&nbsp;getResizeMode()</pre>
+<div class="block">Returns the resize mode.</div>
+</li>
+</ul>
 <a name="getUseArtwork--">
 <!--   -->
 </a>
@@ -831,6 +896,52 @@ extends <a href="https://developer.android.com/reference/android/widget/FrameLay
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>color</code> - The background color.</dd>
+</dl>
+</li>
+</ul>
+<a name="setShowBuffering-boolean-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setShowBuffering</h4>
+<pre>public&nbsp;void&nbsp;setShowBuffering(boolean&nbsp;showBuffering)</pre>
+<div class="block">Sets whether a buffering spinner is displayed when the player is in the buffering state. The
+ buffering spinner is not displayed by default.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>showBuffering</code> - Whether the buffering icon is displayer</dd>
+</dl>
+</li>
+</ul>
+<a name="setErrorMessageProvider-com.google.android.exoplayer2.util.ErrorMessageProvider-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setErrorMessageProvider</h4>
+<pre>public&nbsp;void&nbsp;setErrorMessageProvider(<a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
+                                    <a href="../../../../../com/google/android/exoplayer2/util/ErrorMessageProvider.html" title="interface in com.google.android.exoplayer2.util">ErrorMessageProvider</a>&lt;? super <a href="../../../../../com/google/android/exoplayer2/ExoPlaybackException.html" title="class in com.google.android.exoplayer2">ExoPlaybackException</a>&gt;&nbsp;errorMessageProvider)</pre>
+<div class="block">Sets the optional <a href="../../../../../com/google/android/exoplayer2/util/ErrorMessageProvider.html" title="interface in com.google.android.exoplayer2.util"><code>ErrorMessageProvider</code></a>.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>errorMessageProvider</code> - The error message provider.</dd>
+</dl>
+</li>
+</ul>
+<a name="setCustomErrorMessage-java.lang.CharSequence-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setCustomErrorMessage</h4>
+<pre>public&nbsp;void&nbsp;setCustomErrorMessage(<a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
+                                  <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/CharSequence.html" target="_top" title="class or interface in java.lang">CharSequence</a>&nbsp;message)</pre>
+<div class="block">Sets a custom error message to be displayed by the view. The error message will be displayed
+ permanently, unless it is cleared by passing <code>null</code> to this method.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>message</code> - The message to display, or <code>null</code> to clear a previously set message.</dd>
 </dl>
 </li>
 </ul>
@@ -1101,6 +1212,43 @@ extends <a href="https://developer.android.com/reference/android/widget/FrameLay
 </dl>
 </li>
 </ul>
+<a name="setExtraAdGroupMarkers-long:A-boolean:A-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setExtraAdGroupMarkers</h4>
+<pre>public&nbsp;void&nbsp;setExtraAdGroupMarkers(<a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
+                                   long[]&nbsp;extraAdGroupTimesMs,
+                                   <a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
+                                   boolean[]&nbsp;extraPlayedAdGroups)</pre>
+<div class="block">Sets the millisecond positions of extra ad markers relative to the start of the window (or
+ timeline, if in multi-window mode) and whether each extra ad has been played or not. The
+ markers are shown in addition to any ad markers for ads in the player's timeline.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>extraAdGroupTimesMs</code> - The millisecond timestamps of the extra ad markers to show, or
+     <code>null</code> to show no extra ad markers.</dd>
+<dd><code>extraPlayedAdGroups</code> - Whether each ad has been played, or <code>null</code> to show no extra ad
+     markers.</dd>
+</dl>
+</li>
+</ul>
+<a name="setAspectRatioListener-com.google.android.exoplayer2.ui.AspectRatioFrameLayout.AspectRatioListener-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setAspectRatioListener</h4>
+<pre>public&nbsp;void&nbsp;setAspectRatioListener(<a href="../../../../../com/google/android/exoplayer2/ui/AspectRatioFrameLayout.AspectRatioListener.html" title="interface in com.google.android.exoplayer2.ui">AspectRatioFrameLayout.AspectRatioListener</a>&nbsp;listener)</pre>
+<div class="block">Set the <a href="../../../../../com/google/android/exoplayer2/ui/AspectRatioFrameLayout.AspectRatioListener.html" title="interface in com.google.android.exoplayer2.ui"><code>AspectRatioFrameLayout.AspectRatioListener</code></a>.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>listener</code> - The listener to be notified about aspect ratios changes of the video content or
+     the content frame.</dd>
+</dl>
+</li>
+</ul>
 <a name="getVideoSurfaceView--">
 <!--   -->
 </a>
@@ -1205,7 +1353,7 @@ extends <a href="https://developer.android.com/reference/android/widget/FrameLay
 </div>
 <div class="subNav">
 <ul class="navList">
-<li><a href="../../../../../com/google/android/exoplayer2/ui/PlayerControlView.VisibilityListener.html" title="interface in com.google.android.exoplayer2.ui"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
+<li><a href="../../../../../com/google/android/exoplayer2/ui/PlayerNotificationManager.Visibility.html" title="annotation in com.google.android.exoplayer2.ui"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
 <li><a href="../../../../../com/google/android/exoplayer2/ui/SimpleExoPlayerView.html" title="class in com.google.android.exoplayer2.ui"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
 </ul>
 <ul class="navList">

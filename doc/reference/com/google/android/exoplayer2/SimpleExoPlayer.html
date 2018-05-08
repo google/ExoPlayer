@@ -16,7 +16,7 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":42,"i8":42,"i9":42,"i10":10,"i11":10,"i12":10,"i13":10,"i14":10,"i15":10,"i16":10,"i17":10,"i18":10,"i19":10,"i20":10,"i21":42,"i22":10,"i23":10,"i24":10,"i25":10,"i26":10,"i27":10,"i28":10,"i29":10,"i30":10,"i31":10,"i32":10,"i33":10,"i34":10,"i35":10,"i36":10,"i37":10,"i38":10,"i39":10,"i40":10,"i41":10,"i42":10,"i43":10,"i44":10,"i45":10,"i46":10,"i47":10,"i48":10,"i49":10,"i50":10,"i51":10,"i52":10,"i53":10,"i54":10,"i55":10,"i56":10,"i57":10,"i58":10,"i59":10,"i60":10,"i61":10,"i62":10,"i63":10,"i64":10,"i65":10,"i66":10,"i67":10,"i68":10,"i69":10,"i70":42,"i71":42,"i72":42,"i73":10,"i74":42,"i75":10,"i76":10,"i77":10,"i78":10,"i79":42,"i80":42,"i81":42,"i82":10,"i83":10,"i84":10,"i85":10,"i86":10,"i87":10,"i88":10,"i89":10};
+var methods = {"i0":10,"i1":42,"i2":10,"i3":10,"i4":10,"i5":42,"i6":10,"i7":10,"i8":42,"i9":42,"i10":42,"i11":10,"i12":10,"i13":10,"i14":10,"i15":10,"i16":10,"i17":10,"i18":10,"i19":10,"i20":10,"i21":10,"i22":10,"i23":42,"i24":10,"i25":10,"i26":10,"i27":10,"i28":10,"i29":10,"i30":10,"i31":10,"i32":10,"i33":10,"i34":10,"i35":10,"i36":10,"i37":10,"i38":10,"i39":10,"i40":10,"i41":10,"i42":10,"i43":10,"i44":10,"i45":10,"i46":10,"i47":10,"i48":10,"i49":10,"i50":10,"i51":10,"i52":10,"i53":10,"i54":10,"i55":10,"i56":10,"i57":10,"i58":10,"i59":10,"i60":10,"i61":10,"i62":10,"i63":42,"i64":10,"i65":10,"i66":10,"i67":42,"i68":10,"i69":10,"i70":10,"i71":10,"i72":10,"i73":10,"i74":10,"i75":42,"i76":42,"i77":42,"i78":10,"i79":42,"i80":10,"i81":10,"i82":10,"i83":10,"i84":42,"i85":42,"i86":42,"i87":10,"i88":10,"i89":10,"i90":10,"i91":10,"i92":10,"i93":10,"i94":10};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"],32:["t6","Deprecated Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -205,15 +205,26 @@ implements <a href="../../../../com/google/android/exoplayer2/ExoPlayer.html" ti
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>protected </code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/SimpleExoPlayer.html#SimpleExoPlayer-com.google.android.exoplayer2.RenderersFactory-com.google.android.exoplayer2.trackselection.TrackSelector-com.google.android.exoplayer2.LoadControl-">SimpleExoPlayer</a></span>(<a href="../../../../com/google/android/exoplayer2/RenderersFactory.html" title="interface in com.google.android.exoplayer2">RenderersFactory</a>&nbsp;renderersFactory,
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/SimpleExoPlayer.html#SimpleExoPlayer-com.google.android.exoplayer2.RenderersFactory-com.google.android.exoplayer2.trackselection.TrackSelector-com.google.android.exoplayer2.LoadControl-com.google.android.exoplayer2.drm.DrmSessionManager-">SimpleExoPlayer</a></span>(<a href="../../../../com/google/android/exoplayer2/RenderersFactory.html" title="interface in com.google.android.exoplayer2">RenderersFactory</a>&nbsp;renderersFactory,
                <a href="../../../../com/google/android/exoplayer2/trackselection/TrackSelector.html" title="class in com.google.android.exoplayer2.trackselection">TrackSelector</a>&nbsp;trackSelector,
-               <a href="../../../../com/google/android/exoplayer2/LoadControl.html" title="interface in com.google.android.exoplayer2">LoadControl</a>&nbsp;loadControl)</code>&nbsp;</td>
+               <a href="../../../../com/google/android/exoplayer2/LoadControl.html" title="interface in com.google.android.exoplayer2">LoadControl</a>&nbsp;loadControl,
+               <a href="../../../../com/google/android/exoplayer2/drm/DrmSessionManager.html" title="interface in com.google.android.exoplayer2.drm">DrmSessionManager</a>&lt;<a href="../../../../com/google/android/exoplayer2/drm/FrameworkMediaCrypto.html" title="class in com.google.android.exoplayer2.drm">FrameworkMediaCrypto</a>&gt;&nbsp;drmSessionManager)</code>&nbsp;</td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>protected </code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/SimpleExoPlayer.html#SimpleExoPlayer-com.google.android.exoplayer2.RenderersFactory-com.google.android.exoplayer2.trackselection.TrackSelector-com.google.android.exoplayer2.LoadControl-com.google.android.exoplayer2.util.Clock-">SimpleExoPlayer</a></span>(<a href="../../../../com/google/android/exoplayer2/RenderersFactory.html" title="interface in com.google.android.exoplayer2">RenderersFactory</a>&nbsp;renderersFactory,
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/SimpleExoPlayer.html#SimpleExoPlayer-com.google.android.exoplayer2.RenderersFactory-com.google.android.exoplayer2.trackselection.TrackSelector-com.google.android.exoplayer2.LoadControl-com.google.android.exoplayer2.drm.DrmSessionManager-com.google.android.exoplayer2.analytics.AnalyticsCollector.Factory-">SimpleExoPlayer</a></span>(<a href="../../../../com/google/android/exoplayer2/RenderersFactory.html" title="interface in com.google.android.exoplayer2">RenderersFactory</a>&nbsp;renderersFactory,
                <a href="../../../../com/google/android/exoplayer2/trackselection/TrackSelector.html" title="class in com.google.android.exoplayer2.trackselection">TrackSelector</a>&nbsp;trackSelector,
                <a href="../../../../com/google/android/exoplayer2/LoadControl.html" title="interface in com.google.android.exoplayer2">LoadControl</a>&nbsp;loadControl,
+               <a href="../../../../com/google/android/exoplayer2/drm/DrmSessionManager.html" title="interface in com.google.android.exoplayer2.drm">DrmSessionManager</a>&lt;<a href="../../../../com/google/android/exoplayer2/drm/FrameworkMediaCrypto.html" title="class in com.google.android.exoplayer2.drm">FrameworkMediaCrypto</a>&gt;&nbsp;drmSessionManager,
+               <a href="../../../../com/google/android/exoplayer2/analytics/AnalyticsCollector.Factory.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsCollector.Factory</a>&nbsp;analyticsCollectorFactory)</code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>protected </code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/SimpleExoPlayer.html#SimpleExoPlayer-com.google.android.exoplayer2.RenderersFactory-com.google.android.exoplayer2.trackselection.TrackSelector-com.google.android.exoplayer2.LoadControl-com.google.android.exoplayer2.drm.DrmSessionManager-com.google.android.exoplayer2.analytics.AnalyticsCollector.Factory-com.google.android.exoplayer2.util.Clock-">SimpleExoPlayer</a></span>(<a href="../../../../com/google/android/exoplayer2/RenderersFactory.html" title="interface in com.google.android.exoplayer2">RenderersFactory</a>&nbsp;renderersFactory,
+               <a href="../../../../com/google/android/exoplayer2/trackselection/TrackSelector.html" title="class in com.google.android.exoplayer2.trackselection">TrackSelector</a>&nbsp;trackSelector,
+               <a href="../../../../com/google/android/exoplayer2/LoadControl.html" title="interface in com.google.android.exoplayer2">LoadControl</a>&nbsp;loadControl,
+               <a href="../../../../com/google/android/exoplayer2/drm/DrmSessionManager.html" title="interface in com.google.android.exoplayer2.drm">DrmSessionManager</a>&lt;<a href="../../../../com/google/android/exoplayer2/drm/FrameworkMediaCrypto.html" title="class in com.google.android.exoplayer2.drm">FrameworkMediaCrypto</a>&gt;&nbsp;drmSessionManager,
+               <a href="../../../../com/google/android/exoplayer2/analytics/AnalyticsCollector.Factory.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsCollector.Factory</a>&nbsp;analyticsCollectorFactory,
                <a href="../../../../com/google/android/exoplayer2/util/Clock.html" title="interface in com.google.android.exoplayer2.util">Clock</a>&nbsp;clock)</code>&nbsp;</td>
 </tr>
 </table>
@@ -233,43 +244,57 @@ implements <a href="../../../../com/google/android/exoplayer2/ExoPlayer.html" ti
 </tr>
 <tr id="i0" class="altColor">
 <td class="colFirst"><code>void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/SimpleExoPlayer.html#addAudioDebugListener-com.google.android.exoplayer2.audio.AudioRendererEventListener-">addAudioDebugListener</a></span>(<a href="../../../../com/google/android/exoplayer2/audio/AudioRendererEventListener.html" title="interface in com.google.android.exoplayer2.audio">AudioRendererEventListener</a>&nbsp;listener)</code>
-<div class="block">Adds a listener to receive debug events from the audio renderer.</div>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/SimpleExoPlayer.html#addAnalyticsListener-com.google.android.exoplayer2.analytics.AnalyticsListener-">addAnalyticsListener</a></span>(<a href="../../../../com/google/android/exoplayer2/analytics/AnalyticsListener.html" title="interface in com.google.android.exoplayer2.analytics">AnalyticsListener</a>&nbsp;listener)</code>
+<div class="block">Adds an <a href="../../../../com/google/android/exoplayer2/analytics/AnalyticsListener.html" title="interface in com.google.android.exoplayer2.analytics"><code>AnalyticsListener</code></a> to receive analytics events.</div>
 </td>
 </tr>
 <tr id="i1" class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/SimpleExoPlayer.html#addAudioDebugListener-com.google.android.exoplayer2.audio.AudioRendererEventListener-">addAudioDebugListener</a></span>(<a href="../../../../com/google/android/exoplayer2/audio/AudioRendererEventListener.html" title="interface in com.google.android.exoplayer2.audio">AudioRendererEventListener</a>&nbsp;listener)</code>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;
+<div class="block"><span class="deprecationComment">Use <a href="../../../../com/google/android/exoplayer2/SimpleExoPlayer.html#addAnalyticsListener-com.google.android.exoplayer2.analytics.AnalyticsListener-"><code>addAnalyticsListener(AnalyticsListener)</code></a> to get more detailed debug
+     information.</span></div>
+</div>
+</td>
+</tr>
+<tr id="i2" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/SimpleExoPlayer.html#addListener-com.google.android.exoplayer2.Player.EventListener-">addListener</a></span>(<a href="../../../../com/google/android/exoplayer2/Player.EventListener.html" title="interface in com.google.android.exoplayer2">Player.EventListener</a>&nbsp;listener)</code>
 <div class="block">Register a listener to receive events from the player.</div>
 </td>
 </tr>
-<tr id="i2" class="altColor">
-<td class="colFirst"><code>void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/SimpleExoPlayer.html#addMetadataOutput-com.google.android.exoplayer2.metadata.MetadataOutput-">addMetadataOutput</a></span>(<a href="../../../../com/google/android/exoplayer2/metadata/MetadataOutput.html" title="interface in com.google.android.exoplayer2.metadata">MetadataOutput</a>&nbsp;listener)</code>&nbsp;</td>
-</tr>
 <tr id="i3" class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/SimpleExoPlayer.html#addMetadataOutput-com.google.android.exoplayer2.metadata.MetadataOutput-">addMetadataOutput</a></span>(<a href="../../../../com/google/android/exoplayer2/metadata/MetadataOutput.html" title="interface in com.google.android.exoplayer2.metadata">MetadataOutput</a>&nbsp;listener)</code>
+<div class="block">Adds a <a href="../../../../com/google/android/exoplayer2/metadata/MetadataOutput.html" title="interface in com.google.android.exoplayer2.metadata"><code>MetadataOutput</code></a> to receive metadata.</div>
+</td>
+</tr>
+<tr id="i4" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/SimpleExoPlayer.html#addTextOutput-com.google.android.exoplayer2.text.TextOutput-">addTextOutput</a></span>(<a href="../../../../com/google/android/exoplayer2/text/TextOutput.html" title="interface in com.google.android.exoplayer2.text">TextOutput</a>&nbsp;listener)</code>
 <div class="block">Registers an output to receive text events.</div>
 </td>
 </tr>
-<tr id="i4" class="altColor">
+<tr id="i5" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/SimpleExoPlayer.html#addVideoDebugListener-com.google.android.exoplayer2.video.VideoRendererEventListener-">addVideoDebugListener</a></span>(<a href="../../../../com/google/android/exoplayer2/video/VideoRendererEventListener.html" title="interface in com.google.android.exoplayer2.video">VideoRendererEventListener</a>&nbsp;listener)</code>
-<div class="block">Adds a listener to receive debug events from the video renderer.</div>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;
+<div class="block"><span class="deprecationComment">Use <a href="../../../../com/google/android/exoplayer2/SimpleExoPlayer.html#addAnalyticsListener-com.google.android.exoplayer2.analytics.AnalyticsListener-"><code>addAnalyticsListener(AnalyticsListener)</code></a> to get more detailed debug
+     information.</span></div>
+</div>
 </td>
 </tr>
-<tr id="i5" class="rowColor">
+<tr id="i6" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/SimpleExoPlayer.html#addVideoListener-com.google.android.exoplayer2.video.VideoListener-">addVideoListener</a></span>(<a href="../../../../com/google/android/exoplayer2/video/VideoListener.html" title="interface in com.google.android.exoplayer2.video">VideoListener</a>&nbsp;listener)</code>
 <div class="block">Adds a listener to receive video events.</div>
 </td>
 </tr>
-<tr id="i6" class="altColor">
+<tr id="i7" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/SimpleExoPlayer.html#blockingSendMessages-com.google.android.exoplayer2.ExoPlayer.ExoPlayerMessage...-">blockingSendMessages</a></span>(<a href="../../../../com/google/android/exoplayer2/ExoPlayer.ExoPlayerMessage.html" title="class in com.google.android.exoplayer2">ExoPlayer.ExoPlayerMessage</a>...&nbsp;messages)</code>&nbsp;</td>
 </tr>
-<tr id="i7" class="rowColor">
+<tr id="i8" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/SimpleExoPlayer.html#clearMetadataOutput-com.google.android.exoplayer2.metadata.MetadataOutput-">clearMetadataOutput</a></span>(<a href="../../../../com/google/android/exoplayer2/metadata/MetadataOutput.html" title="interface in com.google.android.exoplayer2.metadata">MetadataOutput</a>&nbsp;output)</code>
 <div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;
@@ -277,7 +302,7 @@ implements <a href="../../../../com/google/android/exoplayer2/ExoPlayer.html" ti
 </div>
 </td>
 </tr>
-<tr id="i8" class="altColor">
+<tr id="i9" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/SimpleExoPlayer.html#clearTextOutput-com.google.android.exoplayer2.text.TextOutput-">clearTextOutput</a></span>(<a href="../../../../com/google/android/exoplayer2/text/TextOutput.html" title="interface in com.google.android.exoplayer2.text">TextOutput</a>&nbsp;output)</code>
 <div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;
@@ -285,7 +310,7 @@ implements <a href="../../../../com/google/android/exoplayer2/ExoPlayer.html" ti
 </div>
 </td>
 </tr>
-<tr id="i9" class="rowColor">
+<tr id="i10" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/SimpleExoPlayer.html#clearVideoListener-com.google.android.exoplayer2.SimpleExoPlayer.VideoListener-">clearVideoListener</a></span>(<a href="../../../../com/google/android/exoplayer2/SimpleExoPlayer.VideoListener.html" title="interface in com.google.android.exoplayer2">SimpleExoPlayer.VideoListener</a>&nbsp;listener)</code>
 <div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;
@@ -293,41 +318,41 @@ implements <a href="../../../../com/google/android/exoplayer2/ExoPlayer.html" ti
 </div>
 </td>
 </tr>
-<tr id="i10" class="altColor">
+<tr id="i11" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/SimpleExoPlayer.html#clearVideoSurface--">clearVideoSurface</a></span>()</code>
 <div class="block">Clears any <a href="https://developer.android.com/reference/android/view/Surface.html" target="_top" title="class or interface in android.view"><code>Surface</code></a>, <a href="https://developer.android.com/reference/android/view/SurfaceHolder.html" target="_top" title="class or interface in android.view"><code>SurfaceHolder</code></a>, <a href="https://developer.android.com/reference/android/view/SurfaceView.html" target="_top" title="class or interface in android.view"><code>SurfaceView</code></a> or <a href="https://developer.android.com/reference/android/view/TextureView.html" target="_top" title="class or interface in android.view"><code>TextureView</code></a>
  currently set on the player.</div>
 </td>
 </tr>
-<tr id="i11" class="rowColor">
+<tr id="i12" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/SimpleExoPlayer.html#clearVideoSurface-android.view.Surface-">clearVideoSurface</a></span>(<a href="https://developer.android.com/reference/android/view/Surface.html" target="_top" title="class or interface in android.view">Surface</a>&nbsp;surface)</code>
 <div class="block">Clears the <a href="https://developer.android.com/reference/android/view/Surface.html" target="_top" title="class or interface in android.view"><code>Surface</code></a> onto which video is being rendered if it matches the one passed.</div>
 </td>
 </tr>
-<tr id="i12" class="altColor">
+<tr id="i13" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/SimpleExoPlayer.html#clearVideoSurfaceHolder-android.view.SurfaceHolder-">clearVideoSurfaceHolder</a></span>(<a href="https://developer.android.com/reference/android/view/SurfaceHolder.html" target="_top" title="class or interface in android.view">SurfaceHolder</a>&nbsp;surfaceHolder)</code>
 <div class="block">Clears the <a href="https://developer.android.com/reference/android/view/SurfaceHolder.html" target="_top" title="class or interface in android.view"><code>SurfaceHolder</code></a> that holds the <a href="https://developer.android.com/reference/android/view/Surface.html" target="_top" title="class or interface in android.view"><code>Surface</code></a> onto which video is being
  rendered if it matches the one passed.</div>
 </td>
 </tr>
-<tr id="i13" class="rowColor">
+<tr id="i14" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/SimpleExoPlayer.html#clearVideoSurfaceView-android.view.SurfaceView-">clearVideoSurfaceView</a></span>(<a href="https://developer.android.com/reference/android/view/SurfaceView.html" target="_top" title="class or interface in android.view">SurfaceView</a>&nbsp;surfaceView)</code>
 <div class="block">Clears the <a href="https://developer.android.com/reference/android/view/SurfaceView.html" target="_top" title="class or interface in android.view"><code>SurfaceView</code></a> onto which video is being rendered if it matches the one
  passed.</div>
 </td>
 </tr>
-<tr id="i14" class="altColor">
+<tr id="i15" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/SimpleExoPlayer.html#clearVideoTextureView-android.view.TextureView-">clearVideoTextureView</a></span>(<a href="https://developer.android.com/reference/android/view/TextureView.html" target="_top" title="class or interface in android.view">TextureView</a>&nbsp;textureView)</code>
 <div class="block">Clears the <a href="https://developer.android.com/reference/android/view/TextureView.html" target="_top" title="class or interface in android.view"><code>TextureView</code></a> onto which video is being rendered if it matches the one
  passed.</div>
 </td>
 </tr>
-<tr id="i15" class="rowColor">
+<tr id="i16" class="altColor">
 <td class="colFirst"><code>protected <a href="../../../../com/google/android/exoplayer2/ExoPlayer.html" title="interface in com.google.android.exoplayer2">ExoPlayer</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/SimpleExoPlayer.html#createExoPlayerImpl-com.google.android.exoplayer2.Renderer:A-com.google.android.exoplayer2.trackselection.TrackSelector-com.google.android.exoplayer2.LoadControl-com.google.android.exoplayer2.util.Clock-">createExoPlayerImpl</a></span>(<a href="../../../../com/google/android/exoplayer2/Renderer.html" title="interface in com.google.android.exoplayer2">Renderer</a>[]&nbsp;renderers,
                    <a href="../../../../com/google/android/exoplayer2/trackselection/TrackSelector.html" title="class in com.google.android.exoplayer2.trackselection">TrackSelector</a>&nbsp;trackSelector,
@@ -336,37 +361,43 @@ implements <a href="../../../../com/google/android/exoplayer2/ExoPlayer.html" ti
 <div class="block">Creates the <a href="../../../../com/google/android/exoplayer2/ExoPlayer.html" title="interface in com.google.android.exoplayer2"><code>ExoPlayer</code></a> implementation used by this instance.</div>
 </td>
 </tr>
-<tr id="i16" class="altColor">
+<tr id="i17" class="rowColor">
 <td class="colFirst"><code><a href="../../../../com/google/android/exoplayer2/PlayerMessage.html" title="class in com.google.android.exoplayer2">PlayerMessage</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/SimpleExoPlayer.html#createMessage-com.google.android.exoplayer2.PlayerMessage.Target-">createMessage</a></span>(<a href="../../../../com/google/android/exoplayer2/PlayerMessage.Target.html" title="interface in com.google.android.exoplayer2">PlayerMessage.Target</a>&nbsp;target)</code>
 <div class="block">Creates a message that can be sent to a <a href="../../../../com/google/android/exoplayer2/PlayerMessage.Target.html" title="interface in com.google.android.exoplayer2"><code>PlayerMessage.Target</code></a>.</div>
 </td>
 </tr>
-<tr id="i17" class="rowColor">
+<tr id="i18" class="altColor">
+<td class="colFirst"><code><a href="../../../../com/google/android/exoplayer2/analytics/AnalyticsCollector.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsCollector</a></code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/SimpleExoPlayer.html#getAnalyticsCollector--">getAnalyticsCollector</a></span>()</code>
+<div class="block">Returns the <a href="../../../../com/google/android/exoplayer2/analytics/AnalyticsCollector.html" title="class in com.google.android.exoplayer2.analytics"><code>AnalyticsCollector</code></a> used for collecting analytics events.</div>
+</td>
+</tr>
+<tr id="i19" class="rowColor">
 <td class="colFirst"><code><a href="../../../../com/google/android/exoplayer2/audio/AudioAttributes.html" title="class in com.google.android.exoplayer2.audio">AudioAttributes</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/SimpleExoPlayer.html#getAudioAttributes--">getAudioAttributes</a></span>()</code>
 <div class="block">Returns the attributes for audio playback.</div>
 </td>
 </tr>
-<tr id="i18" class="altColor">
+<tr id="i20" class="altColor">
 <td class="colFirst"><code><a href="../../../../com/google/android/exoplayer2/decoder/DecoderCounters.html" title="class in com.google.android.exoplayer2.decoder">DecoderCounters</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/SimpleExoPlayer.html#getAudioDecoderCounters--">getAudioDecoderCounters</a></span>()</code>
 <div class="block">Returns <a href="../../../../com/google/android/exoplayer2/decoder/DecoderCounters.html" title="class in com.google.android.exoplayer2.decoder"><code>DecoderCounters</code></a> for audio, or null if no audio is being played.</div>
 </td>
 </tr>
-<tr id="i19" class="rowColor">
+<tr id="i21" class="rowColor">
 <td class="colFirst"><code><a href="../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/SimpleExoPlayer.html#getAudioFormat--">getAudioFormat</a></span>()</code>
 <div class="block">Returns the audio format currently being played, or null if no audio is being played.</div>
 </td>
 </tr>
-<tr id="i20" class="altColor">
+<tr id="i22" class="altColor">
 <td class="colFirst"><code>int</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/SimpleExoPlayer.html#getAudioSessionId--">getAudioSessionId</a></span>()</code>
 <div class="block">Returns the audio session identifier, or <a href="../../../../com/google/android/exoplayer2/C.html#AUDIO_SESSION_ID_UNSET"><code>C.AUDIO_SESSION_ID_UNSET</code></a> if not set.</div>
 </td>
 </tr>
-<tr id="i21" class="rowColor">
+<tr id="i23" class="rowColor">
 <td class="colFirst"><code>int</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/SimpleExoPlayer.html#getAudioStreamType--">getAudioStreamType</a></span>()</code>
 <div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;
@@ -374,220 +405,232 @@ implements <a href="../../../../com/google/android/exoplayer2/ExoPlayer.html" ti
 </div>
 </td>
 </tr>
-<tr id="i22" class="altColor">
+<tr id="i24" class="altColor">
 <td class="colFirst"><code>int</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/SimpleExoPlayer.html#getBufferedPercentage--">getBufferedPercentage</a></span>()</code>
 <div class="block">Returns an estimate of the percentage in the current window up to which data is buffered, or 0
  if no estimate is available.</div>
 </td>
 </tr>
-<tr id="i23" class="rowColor">
+<tr id="i25" class="rowColor">
 <td class="colFirst"><code>long</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/SimpleExoPlayer.html#getBufferedPosition--">getBufferedPosition</a></span>()</code>
 <div class="block">Returns an estimate of the position in the current window up to which data is buffered, in
  milliseconds.</div>
 </td>
 </tr>
-<tr id="i24" class="altColor">
+<tr id="i26" class="altColor">
 <td class="colFirst"><code>long</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/SimpleExoPlayer.html#getContentPosition--">getContentPosition</a></span>()</code>
 <div class="block">If <a href="../../../../com/google/android/exoplayer2/Player.html#isPlayingAd--"><code>Player.isPlayingAd()</code></a> returns <code>true</code>, returns the content position that will be
  played once all ads in the ad group have finished playing, in milliseconds.</div>
 </td>
 </tr>
-<tr id="i25" class="rowColor">
+<tr id="i27" class="rowColor">
 <td class="colFirst"><code>int</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/SimpleExoPlayer.html#getCurrentAdGroupIndex--">getCurrentAdGroupIndex</a></span>()</code>
 <div class="block">If <a href="../../../../com/google/android/exoplayer2/Player.html#isPlayingAd--"><code>Player.isPlayingAd()</code></a> returns true, returns the index of the ad group in the period
  currently being played.</div>
 </td>
 </tr>
-<tr id="i26" class="altColor">
+<tr id="i28" class="altColor">
 <td class="colFirst"><code>int</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/SimpleExoPlayer.html#getCurrentAdIndexInAdGroup--">getCurrentAdIndexInAdGroup</a></span>()</code>
 <div class="block">If <a href="../../../../com/google/android/exoplayer2/Player.html#isPlayingAd--"><code>Player.isPlayingAd()</code></a> returns true, returns the index of the ad in its ad group.</div>
 </td>
 </tr>
-<tr id="i27" class="rowColor">
+<tr id="i29" class="rowColor">
 <td class="colFirst"><code><a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Object.html" target="_top" title="class or interface in java.lang">Object</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/SimpleExoPlayer.html#getCurrentManifest--">getCurrentManifest</a></span>()</code>
 <div class="block">Returns the current manifest.</div>
 </td>
 </tr>
-<tr id="i28" class="altColor">
+<tr id="i30" class="altColor">
 <td class="colFirst"><code>int</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/SimpleExoPlayer.html#getCurrentPeriodIndex--">getCurrentPeriodIndex</a></span>()</code>
 <div class="block">Returns the index of the period currently being played.</div>
 </td>
 </tr>
-<tr id="i29" class="rowColor">
+<tr id="i31" class="rowColor">
 <td class="colFirst"><code>long</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/SimpleExoPlayer.html#getCurrentPosition--">getCurrentPosition</a></span>()</code>
 <div class="block">Returns the playback position in the current window, in milliseconds.</div>
 </td>
 </tr>
-<tr id="i30" class="altColor">
+<tr id="i32" class="altColor">
+<td class="colFirst"><code><a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Object.html" target="_top" title="class or interface in java.lang">Object</a></code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/SimpleExoPlayer.html#getCurrentTag--">getCurrentTag</a></span>()</code>
+<div class="block">Returns the tag of the currently playing window in the timeline.</div>
+</td>
+</tr>
+<tr id="i33" class="rowColor">
 <td class="colFirst"><code><a href="../../../../com/google/android/exoplayer2/Timeline.html" title="class in com.google.android.exoplayer2">Timeline</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/SimpleExoPlayer.html#getCurrentTimeline--">getCurrentTimeline</a></span>()</code>
 <div class="block">Returns the current <a href="../../../../com/google/android/exoplayer2/Timeline.html" title="class in com.google.android.exoplayer2"><code>Timeline</code></a>.</div>
 </td>
 </tr>
-<tr id="i31" class="rowColor">
+<tr id="i34" class="altColor">
 <td class="colFirst"><code><a href="../../../../com/google/android/exoplayer2/source/TrackGroupArray.html" title="class in com.google.android.exoplayer2.source">TrackGroupArray</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/SimpleExoPlayer.html#getCurrentTrackGroups--">getCurrentTrackGroups</a></span>()</code>
 <div class="block">Returns the available track groups.</div>
 </td>
 </tr>
-<tr id="i32" class="altColor">
+<tr id="i35" class="rowColor">
 <td class="colFirst"><code><a href="../../../../com/google/android/exoplayer2/trackselection/TrackSelectionArray.html" title="class in com.google.android.exoplayer2.trackselection">TrackSelectionArray</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/SimpleExoPlayer.html#getCurrentTrackSelections--">getCurrentTrackSelections</a></span>()</code>
 <div class="block">Returns the current track selections for each renderer.</div>
 </td>
 </tr>
-<tr id="i33" class="rowColor">
+<tr id="i36" class="altColor">
 <td class="colFirst"><code>int</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/SimpleExoPlayer.html#getCurrentWindowIndex--">getCurrentWindowIndex</a></span>()</code>
 <div class="block">Returns the index of the window currently being played.</div>
 </td>
 </tr>
-<tr id="i34" class="altColor">
+<tr id="i37" class="rowColor">
 <td class="colFirst"><code>long</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/SimpleExoPlayer.html#getDuration--">getDuration</a></span>()</code>
 <div class="block">Returns the duration of the current window in milliseconds, or <a href="../../../../com/google/android/exoplayer2/C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a> if the
  duration is not known.</div>
 </td>
 </tr>
-<tr id="i35" class="rowColor">
+<tr id="i38" class="altColor">
 <td class="colFirst"><code>int</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/SimpleExoPlayer.html#getNextWindowIndex--">getNextWindowIndex</a></span>()</code>
 <div class="block">Returns the index of the next timeline window to be played, which may depend on the current
  repeat mode and whether shuffle mode is enabled.</div>
 </td>
 </tr>
-<tr id="i36" class="altColor">
+<tr id="i39" class="rowColor">
+<td class="colFirst"><code><a href="../../../../com/google/android/exoplayer2/ExoPlaybackException.html" title="class in com.google.android.exoplayer2">ExoPlaybackException</a></code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/SimpleExoPlayer.html#getPlaybackError--">getPlaybackError</a></span>()</code>
+<div class="block">Returns the error that caused playback to fail.</div>
+</td>
+</tr>
+<tr id="i40" class="altColor">
 <td class="colFirst"><code><a href="https://developer.android.com/reference/android/os/Looper.html" target="_top" title="class or interface in android.os">Looper</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/SimpleExoPlayer.html#getPlaybackLooper--">getPlaybackLooper</a></span>()</code>
 <div class="block">Gets the <a href="https://developer.android.com/reference/android/os/Looper.html" target="_top" title="class or interface in android.os"><code>Looper</code></a> associated with the playback thread.</div>
 </td>
 </tr>
-<tr id="i37" class="rowColor">
+<tr id="i41" class="rowColor">
 <td class="colFirst"><code><a href="../../../../com/google/android/exoplayer2/PlaybackParameters.html" title="class in com.google.android.exoplayer2">PlaybackParameters</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/SimpleExoPlayer.html#getPlaybackParameters--">getPlaybackParameters</a></span>()</code>
 <div class="block">Returns the currently active playback parameters.</div>
 </td>
 </tr>
-<tr id="i38" class="altColor">
+<tr id="i42" class="altColor">
 <td class="colFirst"><code>int</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/SimpleExoPlayer.html#getPlaybackState--">getPlaybackState</a></span>()</code>
 <div class="block">Returns the current state of the player.</div>
 </td>
 </tr>
-<tr id="i39" class="rowColor">
+<tr id="i43" class="rowColor">
 <td class="colFirst"><code>boolean</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/SimpleExoPlayer.html#getPlayWhenReady--">getPlayWhenReady</a></span>()</code>
 <div class="block">Whether playback will proceed when <a href="../../../../com/google/android/exoplayer2/Player.html#getPlaybackState--"><code>Player.getPlaybackState()</code></a> == <a href="../../../../com/google/android/exoplayer2/Player.html#STATE_READY"><code>Player.STATE_READY</code></a>.</div>
 </td>
 </tr>
-<tr id="i40" class="altColor">
+<tr id="i44" class="altColor">
 <td class="colFirst"><code>int</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/SimpleExoPlayer.html#getPreviousWindowIndex--">getPreviousWindowIndex</a></span>()</code>
 <div class="block">Returns the index of the previous timeline window to be played, which may depend on the current
  repeat mode and whether shuffle mode is enabled.</div>
 </td>
 </tr>
-<tr id="i41" class="rowColor">
+<tr id="i45" class="rowColor">
 <td class="colFirst"><code>int</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/SimpleExoPlayer.html#getRendererCount--">getRendererCount</a></span>()</code>
 <div class="block">Returns the number of renderers.</div>
 </td>
 </tr>
-<tr id="i42" class="altColor">
+<tr id="i46" class="altColor">
 <td class="colFirst"><code>int</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/SimpleExoPlayer.html#getRendererType-int-">getRendererType</a></span>(int&nbsp;index)</code>
 <div class="block">Returns the track type that the renderer at a given index handles.</div>
 </td>
 </tr>
-<tr id="i43" class="rowColor">
+<tr id="i47" class="rowColor">
 <td class="colFirst"><code>int</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/SimpleExoPlayer.html#getRepeatMode--">getRepeatMode</a></span>()</code>
 <div class="block">Returns the current <a href="../../../../com/google/android/exoplayer2/Player.RepeatMode.html" title="annotation in com.google.android.exoplayer2"><code>Player.RepeatMode</code></a> used for playback.</div>
 </td>
 </tr>
-<tr id="i44" class="altColor">
+<tr id="i48" class="altColor">
 <td class="colFirst"><code>boolean</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/SimpleExoPlayer.html#getShuffleModeEnabled--">getShuffleModeEnabled</a></span>()</code>
 <div class="block">Returns whether shuffling of windows is enabled.</div>
 </td>
 </tr>
-<tr id="i45" class="rowColor">
+<tr id="i49" class="rowColor">
 <td class="colFirst"><code><a href="../../../../com/google/android/exoplayer2/Player.TextComponent.html" title="interface in com.google.android.exoplayer2">Player.TextComponent</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/SimpleExoPlayer.html#getTextComponent--">getTextComponent</a></span>()</code>
 <div class="block">Returns the component of this player for text output, or null if text is not supported.</div>
 </td>
 </tr>
-<tr id="i46" class="altColor">
+<tr id="i50" class="altColor">
 <td class="colFirst"><code><a href="../../../../com/google/android/exoplayer2/Player.VideoComponent.html" title="interface in com.google.android.exoplayer2">Player.VideoComponent</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/SimpleExoPlayer.html#getVideoComponent--">getVideoComponent</a></span>()</code>
 <div class="block">Returns the component of this player for video output, or null if video is not supported.</div>
 </td>
 </tr>
-<tr id="i47" class="rowColor">
+<tr id="i51" class="rowColor">
 <td class="colFirst"><code><a href="../../../../com/google/android/exoplayer2/decoder/DecoderCounters.html" title="class in com.google.android.exoplayer2.decoder">DecoderCounters</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/SimpleExoPlayer.html#getVideoDecoderCounters--">getVideoDecoderCounters</a></span>()</code>
 <div class="block">Returns <a href="../../../../com/google/android/exoplayer2/decoder/DecoderCounters.html" title="class in com.google.android.exoplayer2.decoder"><code>DecoderCounters</code></a> for video, or null if no video is being played.</div>
 </td>
 </tr>
-<tr id="i48" class="altColor">
+<tr id="i52" class="altColor">
 <td class="colFirst"><code><a href="../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/SimpleExoPlayer.html#getVideoFormat--">getVideoFormat</a></span>()</code>
 <div class="block">Returns the video format currently being played, or null if no video is being played.</div>
 </td>
 </tr>
-<tr id="i49" class="rowColor">
+<tr id="i53" class="rowColor">
 <td class="colFirst"><code>int</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/SimpleExoPlayer.html#getVideoScalingMode--">getVideoScalingMode</a></span>()</code>
 <div class="block">Returns the video scaling mode.</div>
 </td>
 </tr>
-<tr id="i50" class="altColor">
+<tr id="i54" class="altColor">
 <td class="colFirst"><code>float</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/SimpleExoPlayer.html#getVolume--">getVolume</a></span>()</code>
 <div class="block">Returns the audio volume, with 0 being silence and 1 being unity gain.</div>
 </td>
 </tr>
-<tr id="i51" class="rowColor">
+<tr id="i55" class="rowColor">
 <td class="colFirst"><code>boolean</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/SimpleExoPlayer.html#isCurrentWindowDynamic--">isCurrentWindowDynamic</a></span>()</code>
 <div class="block">Returns whether the current window is dynamic, or <code>false</code> if the <a href="../../../../com/google/android/exoplayer2/Timeline.html" title="class in com.google.android.exoplayer2"><code>Timeline</code></a> is
  empty.</div>
 </td>
 </tr>
-<tr id="i52" class="altColor">
+<tr id="i56" class="altColor">
 <td class="colFirst"><code>boolean</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/SimpleExoPlayer.html#isCurrentWindowSeekable--">isCurrentWindowSeekable</a></span>()</code>
 <div class="block">Returns whether the current window is seekable, or <code>false</code> if the <a href="../../../../com/google/android/exoplayer2/Timeline.html" title="class in com.google.android.exoplayer2"><code>Timeline</code></a> is
  empty.</div>
 </td>
 </tr>
-<tr id="i53" class="rowColor">
+<tr id="i57" class="rowColor">
 <td class="colFirst"><code>boolean</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/SimpleExoPlayer.html#isLoading--">isLoading</a></span>()</code>
 <div class="block">Whether the player is currently loading the source.</div>
 </td>
 </tr>
-<tr id="i54" class="altColor">
+<tr id="i58" class="altColor">
 <td class="colFirst"><code>boolean</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/SimpleExoPlayer.html#isPlayingAd--">isPlayingAd</a></span>()</code>
 <div class="block">Returns whether the player is currently playing an ad.</div>
 </td>
 </tr>
-<tr id="i55" class="rowColor">
+<tr id="i59" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/SimpleExoPlayer.html#prepare-com.google.android.exoplayer2.source.MediaSource-">prepare</a></span>(<a href="../../../../com/google/android/exoplayer2/source/MediaSource.html" title="interface in com.google.android.exoplayer2.source">MediaSource</a>&nbsp;mediaSource)</code>
 <div class="block">Prepares the player to play the provided <a href="../../../../com/google/android/exoplayer2/source/MediaSource.html" title="interface in com.google.android.exoplayer2.source"><code>MediaSource</code></a>.</div>
 </td>
 </tr>
-<tr id="i56" class="altColor">
+<tr id="i60" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/SimpleExoPlayer.html#prepare-com.google.android.exoplayer2.source.MediaSource-boolean-boolean-">prepare</a></span>(<a href="../../../../com/google/android/exoplayer2/source/MediaSource.html" title="interface in com.google.android.exoplayer2.source">MediaSource</a>&nbsp;mediaSource,
        boolean&nbsp;resetPosition,
@@ -596,90 +639,103 @@ implements <a href="../../../../com/google/android/exoplayer2/ExoPlayer.html" ti
  position the default position in the first <a href="../../../../com/google/android/exoplayer2/Timeline.Window.html" title="class in com.google.android.exoplayer2"><code>Timeline.Window</code></a>.</div>
 </td>
 </tr>
-<tr id="i57" class="rowColor">
+<tr id="i61" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/SimpleExoPlayer.html#release--">release</a></span>()</code>
 <div class="block">Releases the player.</div>
 </td>
 </tr>
-<tr id="i58" class="altColor">
+<tr id="i62" class="altColor">
 <td class="colFirst"><code>void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/SimpleExoPlayer.html#removeAudioDebugListener-com.google.android.exoplayer2.audio.AudioRendererEventListener-">removeAudioDebugListener</a></span>(<a href="../../../../com/google/android/exoplayer2/audio/AudioRendererEventListener.html" title="interface in com.google.android.exoplayer2.audio">AudioRendererEventListener</a>&nbsp;listener)</code>
-<div class="block">Removes a listener to receive debug events from the audio renderer.</div>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/SimpleExoPlayer.html#removeAnalyticsListener-com.google.android.exoplayer2.analytics.AnalyticsListener-">removeAnalyticsListener</a></span>(<a href="../../../../com/google/android/exoplayer2/analytics/AnalyticsListener.html" title="interface in com.google.android.exoplayer2.analytics">AnalyticsListener</a>&nbsp;listener)</code>
+<div class="block">Removes an <a href="../../../../com/google/android/exoplayer2/analytics/AnalyticsListener.html" title="interface in com.google.android.exoplayer2.analytics"><code>AnalyticsListener</code></a>.</div>
 </td>
 </tr>
-<tr id="i59" class="rowColor">
+<tr id="i63" class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/SimpleExoPlayer.html#removeAudioDebugListener-com.google.android.exoplayer2.audio.AudioRendererEventListener-">removeAudioDebugListener</a></span>(<a href="../../../../com/google/android/exoplayer2/audio/AudioRendererEventListener.html" title="interface in com.google.android.exoplayer2.audio">AudioRendererEventListener</a>&nbsp;listener)</code>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;
+<div class="block"><span class="deprecationComment">Use <a href="../../../../com/google/android/exoplayer2/SimpleExoPlayer.html#addAnalyticsListener-com.google.android.exoplayer2.analytics.AnalyticsListener-"><code>addAnalyticsListener(AnalyticsListener)</code></a> and <a href="../../../../com/google/android/exoplayer2/SimpleExoPlayer.html#removeAnalyticsListener-com.google.android.exoplayer2.analytics.AnalyticsListener-"><code>removeAnalyticsListener(AnalyticsListener)</code></a> to get more detailed debug information.</span></div>
+</div>
+</td>
+</tr>
+<tr id="i64" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/SimpleExoPlayer.html#removeListener-com.google.android.exoplayer2.Player.EventListener-">removeListener</a></span>(<a href="../../../../com/google/android/exoplayer2/Player.EventListener.html" title="interface in com.google.android.exoplayer2">Player.EventListener</a>&nbsp;listener)</code>
 <div class="block">Unregister a listener.</div>
 </td>
 </tr>
-<tr id="i60" class="altColor">
+<tr id="i65" class="rowColor">
 <td class="colFirst"><code>void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/SimpleExoPlayer.html#removeMetadataOutput-com.google.android.exoplayer2.metadata.MetadataOutput-">removeMetadataOutput</a></span>(<a href="../../../../com/google/android/exoplayer2/metadata/MetadataOutput.html" title="interface in com.google.android.exoplayer2.metadata">MetadataOutput</a>&nbsp;listener)</code>&nbsp;</td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/SimpleExoPlayer.html#removeMetadataOutput-com.google.android.exoplayer2.metadata.MetadataOutput-">removeMetadataOutput</a></span>(<a href="../../../../com/google/android/exoplayer2/metadata/MetadataOutput.html" title="interface in com.google.android.exoplayer2.metadata">MetadataOutput</a>&nbsp;listener)</code>
+<div class="block">Removes a <a href="../../../../com/google/android/exoplayer2/metadata/MetadataOutput.html" title="interface in com.google.android.exoplayer2.metadata"><code>MetadataOutput</code></a>.</div>
+</td>
 </tr>
-<tr id="i61" class="rowColor">
+<tr id="i66" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/SimpleExoPlayer.html#removeTextOutput-com.google.android.exoplayer2.text.TextOutput-">removeTextOutput</a></span>(<a href="../../../../com/google/android/exoplayer2/text/TextOutput.html" title="interface in com.google.android.exoplayer2.text">TextOutput</a>&nbsp;listener)</code>
 <div class="block">Removes a text output.</div>
 </td>
 </tr>
-<tr id="i62" class="altColor">
+<tr id="i67" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/SimpleExoPlayer.html#removeVideoDebugListener-com.google.android.exoplayer2.video.VideoRendererEventListener-">removeVideoDebugListener</a></span>(<a href="../../../../com/google/android/exoplayer2/video/VideoRendererEventListener.html" title="interface in com.google.android.exoplayer2.video">VideoRendererEventListener</a>&nbsp;listener)</code>
-<div class="block">Removes a listener to receive debug events from the video renderer.</div>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;
+<div class="block"><span class="deprecationComment">Use <a href="../../../../com/google/android/exoplayer2/SimpleExoPlayer.html#addAnalyticsListener-com.google.android.exoplayer2.analytics.AnalyticsListener-"><code>addAnalyticsListener(AnalyticsListener)</code></a> and <a href="../../../../com/google/android/exoplayer2/SimpleExoPlayer.html#removeAnalyticsListener-com.google.android.exoplayer2.analytics.AnalyticsListener-"><code>removeAnalyticsListener(AnalyticsListener)</code></a> to get more detailed debug information.</span></div>
+</div>
 </td>
 </tr>
-<tr id="i63" class="rowColor">
+<tr id="i68" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/SimpleExoPlayer.html#removeVideoListener-com.google.android.exoplayer2.video.VideoListener-">removeVideoListener</a></span>(<a href="../../../../com/google/android/exoplayer2/video/VideoListener.html" title="interface in com.google.android.exoplayer2.video">VideoListener</a>&nbsp;listener)</code>
 <div class="block">Removes a listener of video events.</div>
 </td>
 </tr>
-<tr id="i64" class="altColor">
+<tr id="i69" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/SimpleExoPlayer.html#seekTo-int-long-">seekTo</a></span>(int&nbsp;windowIndex,
       long&nbsp;positionMs)</code>
 <div class="block">Seeks to a position specified in milliseconds in the specified window.</div>
 </td>
 </tr>
-<tr id="i65" class="rowColor">
+<tr id="i70" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/SimpleExoPlayer.html#seekTo-long-">seekTo</a></span>(long&nbsp;positionMs)</code>
 <div class="block">Seeks to a position specified in milliseconds in the current window.</div>
 </td>
 </tr>
-<tr id="i66" class="altColor">
+<tr id="i71" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/SimpleExoPlayer.html#seekToDefaultPosition--">seekToDefaultPosition</a></span>()</code>
 <div class="block">Seeks to the default position associated with the current window.</div>
 </td>
 </tr>
-<tr id="i67" class="rowColor">
+<tr id="i72" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/SimpleExoPlayer.html#seekToDefaultPosition-int-">seekToDefaultPosition</a></span>(int&nbsp;windowIndex)</code>
 <div class="block">Seeks to the default position associated with the specified window.</div>
 </td>
 </tr>
-<tr id="i68" class="altColor">
+<tr id="i73" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/SimpleExoPlayer.html#sendMessages-com.google.android.exoplayer2.ExoPlayer.ExoPlayerMessage...-">sendMessages</a></span>(<a href="../../../../com/google/android/exoplayer2/ExoPlayer.ExoPlayerMessage.html" title="class in com.google.android.exoplayer2">ExoPlayer.ExoPlayerMessage</a>...&nbsp;messages)</code>&nbsp;</td>
 </tr>
-<tr id="i69" class="rowColor">
+<tr id="i74" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/SimpleExoPlayer.html#setAudioAttributes-com.google.android.exoplayer2.audio.AudioAttributes-">setAudioAttributes</a></span>(<a href="../../../../com/google/android/exoplayer2/audio/AudioAttributes.html" title="class in com.google.android.exoplayer2.audio">AudioAttributes</a>&nbsp;audioAttributes)</code>
 <div class="block">Sets the attributes for audio playback, used by the underlying audio track.</div>
 </td>
 </tr>
-<tr id="i70" class="altColor">
+<tr id="i75" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/SimpleExoPlayer.html#setAudioDebugListener-com.google.android.exoplayer2.audio.AudioRendererEventListener-">setAudioDebugListener</a></span>(<a href="../../../../com/google/android/exoplayer2/audio/AudioRendererEventListener.html" title="interface in com.google.android.exoplayer2.audio">AudioRendererEventListener</a>&nbsp;listener)</code>
 <div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;
-<div class="block"><span class="deprecationComment">Use <a href="../../../../com/google/android/exoplayer2/SimpleExoPlayer.html#addAudioDebugListener-com.google.android.exoplayer2.audio.AudioRendererEventListener-"><code>addAudioDebugListener(AudioRendererEventListener)</code></a>.</span></div>
+<div class="block"><span class="deprecationComment">Use <a href="../../../../com/google/android/exoplayer2/SimpleExoPlayer.html#addAnalyticsListener-com.google.android.exoplayer2.analytics.AnalyticsListener-"><code>addAnalyticsListener(AnalyticsListener)</code></a> to get more detailed debug
+     information.</span></div>
 </div>
 </td>
 </tr>
-<tr id="i71" class="rowColor">
+<tr id="i76" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/SimpleExoPlayer.html#setAudioStreamType-int-">setAudioStreamType</a></span>(int&nbsp;streamType)</code>
 <div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;
@@ -687,7 +743,7 @@ implements <a href="../../../../com/google/android/exoplayer2/ExoPlayer.html" ti
 </div>
 </td>
 </tr>
-<tr id="i72" class="altColor">
+<tr id="i77" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/SimpleExoPlayer.html#setMetadataOutput-com.google.android.exoplayer2.metadata.MetadataOutput-">setMetadataOutput</a></span>(<a href="../../../../com/google/android/exoplayer2/metadata/MetadataOutput.html" title="interface in com.google.android.exoplayer2.metadata">MetadataOutput</a>&nbsp;output)</code>
 <div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;
@@ -695,13 +751,13 @@ implements <a href="../../../../com/google/android/exoplayer2/ExoPlayer.html" ti
 </div>
 </td>
 </tr>
-<tr id="i73" class="rowColor">
+<tr id="i78" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/SimpleExoPlayer.html#setPlaybackParameters-com.google.android.exoplayer2.PlaybackParameters-">setPlaybackParameters</a></span>(<a href="../../../../com/google/android/exoplayer2/PlaybackParameters.html" title="class in com.google.android.exoplayer2">PlaybackParameters</a>&nbsp;playbackParameters)</code>
 <div class="block">Attempts to set the playback parameters.</div>
 </td>
 </tr>
-<tr id="i74" class="altColor">
+<tr id="i79" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/SimpleExoPlayer.html#setPlaybackParams-android.media.PlaybackParams-">setPlaybackParams</a></span>(<a href="https://developer.android.com/reference/android/media/PlaybackParams.html" target="_top" title="class or interface in android.media">PlaybackParams</a>&nbsp;params)</code>
 <div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;
@@ -709,31 +765,31 @@ implements <a href="../../../../com/google/android/exoplayer2/ExoPlayer.html" ti
 </div>
 </td>
 </tr>
-<tr id="i75" class="rowColor">
+<tr id="i80" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/SimpleExoPlayer.html#setPlayWhenReady-boolean-">setPlayWhenReady</a></span>(boolean&nbsp;playWhenReady)</code>
 <div class="block">Sets whether playback should proceed when <a href="../../../../com/google/android/exoplayer2/Player.html#getPlaybackState--"><code>Player.getPlaybackState()</code></a> == <a href="../../../../com/google/android/exoplayer2/Player.html#STATE_READY"><code>Player.STATE_READY</code></a>.</div>
 </td>
 </tr>
-<tr id="i76" class="altColor">
+<tr id="i81" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/SimpleExoPlayer.html#setRepeatMode-int-">setRepeatMode</a></span>(int&nbsp;repeatMode)</code>
 <div class="block">Sets the <a href="../../../../com/google/android/exoplayer2/Player.RepeatMode.html" title="annotation in com.google.android.exoplayer2"><code>Player.RepeatMode</code></a> to be used for playback.</div>
 </td>
 </tr>
-<tr id="i77" class="rowColor">
+<tr id="i82" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/SimpleExoPlayer.html#setSeekParameters-com.google.android.exoplayer2.SeekParameters-">setSeekParameters</a></span>(<a href="../../../../com/google/android/exoplayer2/SeekParameters.html" title="class in com.google.android.exoplayer2">SeekParameters</a>&nbsp;seekParameters)</code>
 <div class="block">Sets the parameters that control how seek operations are performed.</div>
 </td>
 </tr>
-<tr id="i78" class="altColor">
+<tr id="i83" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/SimpleExoPlayer.html#setShuffleModeEnabled-boolean-">setShuffleModeEnabled</a></span>(boolean&nbsp;shuffleModeEnabled)</code>
 <div class="block">Sets whether shuffling of windows is enabled.</div>
 </td>
 </tr>
-<tr id="i79" class="rowColor">
+<tr id="i84" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/SimpleExoPlayer.html#setTextOutput-com.google.android.exoplayer2.text.TextOutput-">setTextOutput</a></span>(<a href="../../../../com/google/android/exoplayer2/text/TextOutput.html" title="interface in com.google.android.exoplayer2.text">TextOutput</a>&nbsp;output)</code>
 <div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;
@@ -741,15 +797,16 @@ implements <a href="../../../../com/google/android/exoplayer2/ExoPlayer.html" ti
 </div>
 </td>
 </tr>
-<tr id="i80" class="altColor">
+<tr id="i85" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/SimpleExoPlayer.html#setVideoDebugListener-com.google.android.exoplayer2.video.VideoRendererEventListener-">setVideoDebugListener</a></span>(<a href="../../../../com/google/android/exoplayer2/video/VideoRendererEventListener.html" title="interface in com.google.android.exoplayer2.video">VideoRendererEventListener</a>&nbsp;listener)</code>
 <div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;
-<div class="block"><span class="deprecationComment">Use <a href="../../../../com/google/android/exoplayer2/SimpleExoPlayer.html#addVideoDebugListener-com.google.android.exoplayer2.video.VideoRendererEventListener-"><code>addVideoDebugListener(VideoRendererEventListener)</code></a>.</span></div>
+<div class="block"><span class="deprecationComment">Use <a href="../../../../com/google/android/exoplayer2/SimpleExoPlayer.html#addAnalyticsListener-com.google.android.exoplayer2.analytics.AnalyticsListener-"><code>addAnalyticsListener(AnalyticsListener)</code></a> to get more detailed debug
+     information.</span></div>
 </div>
 </td>
 </tr>
-<tr id="i81" class="rowColor">
+<tr id="i86" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/SimpleExoPlayer.html#setVideoListener-com.google.android.exoplayer2.SimpleExoPlayer.VideoListener-">setVideoListener</a></span>(<a href="../../../../com/google/android/exoplayer2/SimpleExoPlayer.VideoListener.html" title="interface in com.google.android.exoplayer2">SimpleExoPlayer.VideoListener</a>&nbsp;listener)</code>
 <div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;
@@ -757,50 +814,50 @@ implements <a href="../../../../com/google/android/exoplayer2/ExoPlayer.html" ti
 </div>
 </td>
 </tr>
-<tr id="i82" class="altColor">
+<tr id="i87" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/SimpleExoPlayer.html#setVideoScalingMode-int-">setVideoScalingMode</a></span>(int&nbsp;videoScalingMode)</code>
 <div class="block">Sets the video scaling mode.</div>
 </td>
 </tr>
-<tr id="i83" class="rowColor">
+<tr id="i88" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/SimpleExoPlayer.html#setVideoSurface-android.view.Surface-">setVideoSurface</a></span>(<a href="https://developer.android.com/reference/android/view/Surface.html" target="_top" title="class or interface in android.view">Surface</a>&nbsp;surface)</code>
 <div class="block">Sets the <a href="https://developer.android.com/reference/android/view/Surface.html" target="_top" title="class or interface in android.view"><code>Surface</code></a> onto which video will be rendered.</div>
 </td>
 </tr>
-<tr id="i84" class="altColor">
+<tr id="i89" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/SimpleExoPlayer.html#setVideoSurfaceHolder-android.view.SurfaceHolder-">setVideoSurfaceHolder</a></span>(<a href="https://developer.android.com/reference/android/view/SurfaceHolder.html" target="_top" title="class or interface in android.view">SurfaceHolder</a>&nbsp;surfaceHolder)</code>
 <div class="block">Sets the <a href="https://developer.android.com/reference/android/view/SurfaceHolder.html" target="_top" title="class or interface in android.view"><code>SurfaceHolder</code></a> that holds the <a href="https://developer.android.com/reference/android/view/Surface.html" target="_top" title="class or interface in android.view"><code>Surface</code></a> onto which video will be
  rendered.</div>
 </td>
 </tr>
-<tr id="i85" class="rowColor">
+<tr id="i90" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/SimpleExoPlayer.html#setVideoSurfaceView-android.view.SurfaceView-">setVideoSurfaceView</a></span>(<a href="https://developer.android.com/reference/android/view/SurfaceView.html" target="_top" title="class or interface in android.view">SurfaceView</a>&nbsp;surfaceView)</code>
 <div class="block">Sets the <a href="https://developer.android.com/reference/android/view/SurfaceView.html" target="_top" title="class or interface in android.view"><code>SurfaceView</code></a> onto which video will be rendered.</div>
 </td>
 </tr>
-<tr id="i86" class="altColor">
+<tr id="i91" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/SimpleExoPlayer.html#setVideoTextureView-android.view.TextureView-">setVideoTextureView</a></span>(<a href="https://developer.android.com/reference/android/view/TextureView.html" target="_top" title="class or interface in android.view">TextureView</a>&nbsp;textureView)</code>
 <div class="block">Sets the <a href="https://developer.android.com/reference/android/view/TextureView.html" target="_top" title="class or interface in android.view"><code>TextureView</code></a> onto which video will be rendered.</div>
 </td>
 </tr>
-<tr id="i87" class="rowColor">
+<tr id="i92" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/SimpleExoPlayer.html#setVolume-float-">setVolume</a></span>(float&nbsp;audioVolume)</code>
 <div class="block">Sets the audio volume, with 0 being silence and 1 being unity gain.</div>
 </td>
 </tr>
-<tr id="i88" class="altColor">
+<tr id="i93" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/SimpleExoPlayer.html#stop--">stop</a></span>()</code>
 <div class="block">Stops playback without resetting the player.</div>
 </td>
 </tr>
-<tr id="i89" class="rowColor">
+<tr id="i94" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/SimpleExoPlayer.html#stop-boolean-">stop</a></span>(boolean&nbsp;reset)</code>
 <div class="block">Stops playback and optionally resets the player.</div>
@@ -845,7 +902,7 @@ implements <a href="../../../../com/google/android/exoplayer2/ExoPlayer.html" ti
 <!--   -->
 </a>
 <h3>Constructor Detail</h3>
-<a name="SimpleExoPlayer-com.google.android.exoplayer2.RenderersFactory-com.google.android.exoplayer2.trackselection.TrackSelector-com.google.android.exoplayer2.LoadControl-">
+<a name="SimpleExoPlayer-com.google.android.exoplayer2.RenderersFactory-com.google.android.exoplayer2.trackselection.TrackSelector-com.google.android.exoplayer2.LoadControl-com.google.android.exoplayer2.drm.DrmSessionManager-">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -853,16 +910,44 @@ implements <a href="../../../../com/google/android/exoplayer2/ExoPlayer.html" ti
 <h4>SimpleExoPlayer</h4>
 <pre>protected&nbsp;SimpleExoPlayer(<a href="../../../../com/google/android/exoplayer2/RenderersFactory.html" title="interface in com.google.android.exoplayer2">RenderersFactory</a>&nbsp;renderersFactory,
                           <a href="../../../../com/google/android/exoplayer2/trackselection/TrackSelector.html" title="class in com.google.android.exoplayer2.trackselection">TrackSelector</a>&nbsp;trackSelector,
-                          <a href="../../../../com/google/android/exoplayer2/LoadControl.html" title="interface in com.google.android.exoplayer2">LoadControl</a>&nbsp;loadControl)</pre>
+                          <a href="../../../../com/google/android/exoplayer2/LoadControl.html" title="interface in com.google.android.exoplayer2">LoadControl</a>&nbsp;loadControl,
+                          <a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
+                          <a href="../../../../com/google/android/exoplayer2/drm/DrmSessionManager.html" title="interface in com.google.android.exoplayer2.drm">DrmSessionManager</a>&lt;<a href="../../../../com/google/android/exoplayer2/drm/FrameworkMediaCrypto.html" title="class in com.google.android.exoplayer2.drm">FrameworkMediaCrypto</a>&gt;&nbsp;drmSessionManager)</pre>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>renderersFactory</code> - A factory for creating <a href="../../../../com/google/android/exoplayer2/Renderer.html" title="interface in com.google.android.exoplayer2"><code>Renderer</code></a>s to be used by the instance.</dd>
 <dd><code>trackSelector</code> - The <a href="../../../../com/google/android/exoplayer2/trackselection/TrackSelector.html" title="class in com.google.android.exoplayer2.trackselection"><code>TrackSelector</code></a> that will be used by the instance.</dd>
 <dd><code>loadControl</code> - The <a href="../../../../com/google/android/exoplayer2/LoadControl.html" title="interface in com.google.android.exoplayer2"><code>LoadControl</code></a> that will be used by the instance.</dd>
+<dd><code>drmSessionManager</code> - An optional <a href="../../../../com/google/android/exoplayer2/drm/DrmSessionManager.html" title="interface in com.google.android.exoplayer2.drm"><code>DrmSessionManager</code></a>. May be null if the instance
+     will not be used for DRM protected playbacks.</dd>
 </dl>
 </li>
 </ul>
-<a name="SimpleExoPlayer-com.google.android.exoplayer2.RenderersFactory-com.google.android.exoplayer2.trackselection.TrackSelector-com.google.android.exoplayer2.LoadControl-com.google.android.exoplayer2.util.Clock-">
+<a name="SimpleExoPlayer-com.google.android.exoplayer2.RenderersFactory-com.google.android.exoplayer2.trackselection.TrackSelector-com.google.android.exoplayer2.LoadControl-com.google.android.exoplayer2.drm.DrmSessionManager-com.google.android.exoplayer2.analytics.AnalyticsCollector.Factory-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>SimpleExoPlayer</h4>
+<pre>protected&nbsp;SimpleExoPlayer(<a href="../../../../com/google/android/exoplayer2/RenderersFactory.html" title="interface in com.google.android.exoplayer2">RenderersFactory</a>&nbsp;renderersFactory,
+                          <a href="../../../../com/google/android/exoplayer2/trackselection/TrackSelector.html" title="class in com.google.android.exoplayer2.trackselection">TrackSelector</a>&nbsp;trackSelector,
+                          <a href="../../../../com/google/android/exoplayer2/LoadControl.html" title="interface in com.google.android.exoplayer2">LoadControl</a>&nbsp;loadControl,
+                          <a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
+                          <a href="../../../../com/google/android/exoplayer2/drm/DrmSessionManager.html" title="interface in com.google.android.exoplayer2.drm">DrmSessionManager</a>&lt;<a href="../../../../com/google/android/exoplayer2/drm/FrameworkMediaCrypto.html" title="class in com.google.android.exoplayer2.drm">FrameworkMediaCrypto</a>&gt;&nbsp;drmSessionManager,
+                          <a href="../../../../com/google/android/exoplayer2/analytics/AnalyticsCollector.Factory.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsCollector.Factory</a>&nbsp;analyticsCollectorFactory)</pre>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>renderersFactory</code> - A factory for creating <a href="../../../../com/google/android/exoplayer2/Renderer.html" title="interface in com.google.android.exoplayer2"><code>Renderer</code></a>s to be used by the instance.</dd>
+<dd><code>trackSelector</code> - The <a href="../../../../com/google/android/exoplayer2/trackselection/TrackSelector.html" title="class in com.google.android.exoplayer2.trackselection"><code>TrackSelector</code></a> that will be used by the instance.</dd>
+<dd><code>loadControl</code> - The <a href="../../../../com/google/android/exoplayer2/LoadControl.html" title="interface in com.google.android.exoplayer2"><code>LoadControl</code></a> that will be used by the instance.</dd>
+<dd><code>drmSessionManager</code> - An optional <a href="../../../../com/google/android/exoplayer2/drm/DrmSessionManager.html" title="interface in com.google.android.exoplayer2.drm"><code>DrmSessionManager</code></a>. May be null if the instance
+     will not be used for DRM protected playbacks.</dd>
+<dd><code>analyticsCollectorFactory</code> - A factory for creating the <a href="../../../../com/google/android/exoplayer2/analytics/AnalyticsCollector.html" title="class in com.google.android.exoplayer2.analytics"><code>AnalyticsCollector</code></a> that
+     will collect and forward all player events.</dd>
+</dl>
+</li>
+</ul>
+<a name="SimpleExoPlayer-com.google.android.exoplayer2.RenderersFactory-com.google.android.exoplayer2.trackselection.TrackSelector-com.google.android.exoplayer2.LoadControl-com.google.android.exoplayer2.drm.DrmSessionManager-com.google.android.exoplayer2.analytics.AnalyticsCollector.Factory-com.google.android.exoplayer2.util.Clock-">
 <!--   -->
 </a>
 <ul class="blockListLast">
@@ -871,12 +956,19 @@ implements <a href="../../../../com/google/android/exoplayer2/ExoPlayer.html" ti
 <pre>protected&nbsp;SimpleExoPlayer(<a href="../../../../com/google/android/exoplayer2/RenderersFactory.html" title="interface in com.google.android.exoplayer2">RenderersFactory</a>&nbsp;renderersFactory,
                           <a href="../../../../com/google/android/exoplayer2/trackselection/TrackSelector.html" title="class in com.google.android.exoplayer2.trackselection">TrackSelector</a>&nbsp;trackSelector,
                           <a href="../../../../com/google/android/exoplayer2/LoadControl.html" title="interface in com.google.android.exoplayer2">LoadControl</a>&nbsp;loadControl,
+                          <a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
+                          <a href="../../../../com/google/android/exoplayer2/drm/DrmSessionManager.html" title="interface in com.google.android.exoplayer2.drm">DrmSessionManager</a>&lt;<a href="../../../../com/google/android/exoplayer2/drm/FrameworkMediaCrypto.html" title="class in com.google.android.exoplayer2.drm">FrameworkMediaCrypto</a>&gt;&nbsp;drmSessionManager,
+                          <a href="../../../../com/google/android/exoplayer2/analytics/AnalyticsCollector.Factory.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsCollector.Factory</a>&nbsp;analyticsCollectorFactory,
                           <a href="../../../../com/google/android/exoplayer2/util/Clock.html" title="interface in com.google.android.exoplayer2.util">Clock</a>&nbsp;clock)</pre>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>renderersFactory</code> - A factory for creating <a href="../../../../com/google/android/exoplayer2/Renderer.html" title="interface in com.google.android.exoplayer2"><code>Renderer</code></a>s to be used by the instance.</dd>
 <dd><code>trackSelector</code> - The <a href="../../../../com/google/android/exoplayer2/trackselection/TrackSelector.html" title="class in com.google.android.exoplayer2.trackselection"><code>TrackSelector</code></a> that will be used by the instance.</dd>
 <dd><code>loadControl</code> - The <a href="../../../../com/google/android/exoplayer2/LoadControl.html" title="interface in com.google.android.exoplayer2"><code>LoadControl</code></a> that will be used by the instance.</dd>
+<dd><code>drmSessionManager</code> - An optional <a href="../../../../com/google/android/exoplayer2/drm/DrmSessionManager.html" title="interface in com.google.android.exoplayer2.drm"><code>DrmSessionManager</code></a>. May be null if the instance
+     will not be used for DRM protected playbacks.</dd>
+<dd><code>analyticsCollectorFactory</code> - A factory for creating the <a href="../../../../com/google/android/exoplayer2/analytics/AnalyticsCollector.html" title="class in com.google.android.exoplayer2.analytics"><code>AnalyticsCollector</code></a> that
+     will collect and forward all player events.</dd>
 <dd><code>clock</code> - The <a href="../../../../com/google/android/exoplayer2/util/Clock.html" title="interface in com.google.android.exoplayer2.util"><code>Clock</code></a> that will be used by the instance. Should always be <a href="../../../../com/google/android/exoplayer2/util/Clock.html#DEFAULT"><code>Clock.DEFAULT</code></a>, unless the player is being used from a test.</dd>
 </dl>
 </li>
@@ -1151,6 +1243,44 @@ public&nbsp;int&nbsp;getAudioStreamType()</pre>
 <div class="block">Returns the stream type for audio playback.</div>
 </li>
 </ul>
+<a name="getAnalyticsCollector--">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getAnalyticsCollector</h4>
+<pre>public&nbsp;<a href="../../../../com/google/android/exoplayer2/analytics/AnalyticsCollector.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsCollector</a>&nbsp;getAnalyticsCollector()</pre>
+<div class="block">Returns the <a href="../../../../com/google/android/exoplayer2/analytics/AnalyticsCollector.html" title="class in com.google.android.exoplayer2.analytics"><code>AnalyticsCollector</code></a> used for collecting analytics events.</div>
+</li>
+</ul>
+<a name="addAnalyticsListener-com.google.android.exoplayer2.analytics.AnalyticsListener-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>addAnalyticsListener</h4>
+<pre>public&nbsp;void&nbsp;addAnalyticsListener(<a href="../../../../com/google/android/exoplayer2/analytics/AnalyticsListener.html" title="interface in com.google.android.exoplayer2.analytics">AnalyticsListener</a>&nbsp;listener)</pre>
+<div class="block">Adds an <a href="../../../../com/google/android/exoplayer2/analytics/AnalyticsListener.html" title="interface in com.google.android.exoplayer2.analytics"><code>AnalyticsListener</code></a> to receive analytics events.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>listener</code> - The listener to be added.</dd>
+</dl>
+</li>
+</ul>
+<a name="removeAnalyticsListener-com.google.android.exoplayer2.analytics.AnalyticsListener-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>removeAnalyticsListener</h4>
+<pre>public&nbsp;void&nbsp;removeAnalyticsListener(<a href="../../../../com/google/android/exoplayer2/analytics/AnalyticsListener.html" title="interface in com.google.android.exoplayer2.analytics">AnalyticsListener</a>&nbsp;listener)</pre>
+<div class="block">Removes an <a href="../../../../com/google/android/exoplayer2/analytics/AnalyticsListener.html" title="interface in com.google.android.exoplayer2.analytics"><code>AnalyticsListener</code></a>.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>listener</code> - The listener to be removed.</dd>
+</dl>
+</li>
+</ul>
 <a name="setAudioAttributes-com.google.android.exoplayer2.audio.AudioAttributes-">
 <!--   -->
 </a>
@@ -1416,6 +1546,11 @@ public&nbsp;void&nbsp;clearTextOutput(<a href="../../../../com/google/android/ex
 <li class="blockList">
 <h4>addMetadataOutput</h4>
 <pre>public&nbsp;void&nbsp;addMetadataOutput(<a href="../../../../com/google/android/exoplayer2/metadata/MetadataOutput.html" title="interface in com.google.android.exoplayer2.metadata">MetadataOutput</a>&nbsp;listener)</pre>
+<div class="block">Adds a <a href="../../../../com/google/android/exoplayer2/metadata/MetadataOutput.html" title="interface in com.google.android.exoplayer2.metadata"><code>MetadataOutput</code></a> to receive metadata.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>listener</code> - The output to register.</dd>
+</dl>
 </li>
 </ul>
 <a name="removeMetadataOutput-com.google.android.exoplayer2.metadata.MetadataOutput-">
@@ -1425,6 +1560,11 @@ public&nbsp;void&nbsp;clearTextOutput(<a href="../../../../com/google/android/ex
 <li class="blockList">
 <h4>removeMetadataOutput</h4>
 <pre>public&nbsp;void&nbsp;removeMetadataOutput(<a href="../../../../com/google/android/exoplayer2/metadata/MetadataOutput.html" title="interface in com.google.android.exoplayer2.metadata">MetadataOutput</a>&nbsp;listener)</pre>
+<div class="block">Removes a <a href="../../../../com/google/android/exoplayer2/metadata/MetadataOutput.html" title="interface in com.google.android.exoplayer2.metadata"><code>MetadataOutput</code></a>.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>listener</code> - The output to remove.</dd>
+</dl>
 </li>
 </ul>
 <a name="setMetadataOutput-com.google.android.exoplayer2.metadata.MetadataOutput-">
@@ -1467,12 +1607,8 @@ public&nbsp;void&nbsp;clearMetadataOutput(<a href="../../../../com/google/androi
 <h4>setVideoDebugListener</h4>
 <pre><a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Deprecated.html" target="_top" title="class or interface in java.lang">@Deprecated</a>
 public&nbsp;void&nbsp;setVideoDebugListener(<a href="../../../../com/google/android/exoplayer2/video/VideoRendererEventListener.html" title="interface in com.google.android.exoplayer2.video">VideoRendererEventListener</a>&nbsp;listener)</pre>
-<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;<span class="deprecationComment">Use <a href="../../../../com/google/android/exoplayer2/SimpleExoPlayer.html#addVideoDebugListener-com.google.android.exoplayer2.video.VideoRendererEventListener-"><code>addVideoDebugListener(VideoRendererEventListener)</code></a>.</span></div>
-<div class="block">Sets a listener to receive debug events from the video renderer.</div>
-<dl>
-<dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>listener</code> - The listener.</dd>
-</dl>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;<span class="deprecationComment">Use <a href="../../../../com/google/android/exoplayer2/SimpleExoPlayer.html#addAnalyticsListener-com.google.android.exoplayer2.analytics.AnalyticsListener-"><code>addAnalyticsListener(AnalyticsListener)</code></a> to get more detailed debug
+     information.</span></div>
 </li>
 </ul>
 <a name="addVideoDebugListener-com.google.android.exoplayer2.video.VideoRendererEventListener-">
@@ -1481,12 +1617,10 @@ public&nbsp;void&nbsp;setVideoDebugListener(<a href="../../../../com/google/andr
 <ul class="blockList">
 <li class="blockList">
 <h4>addVideoDebugListener</h4>
-<pre>public&nbsp;void&nbsp;addVideoDebugListener(<a href="../../../../com/google/android/exoplayer2/video/VideoRendererEventListener.html" title="interface in com.google.android.exoplayer2.video">VideoRendererEventListener</a>&nbsp;listener)</pre>
-<div class="block">Adds a listener to receive debug events from the video renderer.</div>
-<dl>
-<dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>listener</code> - The listener.</dd>
-</dl>
+<pre><a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Deprecated.html" target="_top" title="class or interface in java.lang">@Deprecated</a>
+public&nbsp;void&nbsp;addVideoDebugListener(<a href="../../../../com/google/android/exoplayer2/video/VideoRendererEventListener.html" title="interface in com.google.android.exoplayer2.video">VideoRendererEventListener</a>&nbsp;listener)</pre>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;<span class="deprecationComment">Use <a href="../../../../com/google/android/exoplayer2/SimpleExoPlayer.html#addAnalyticsListener-com.google.android.exoplayer2.analytics.AnalyticsListener-"><code>addAnalyticsListener(AnalyticsListener)</code></a> to get more detailed debug
+     information.</span></div>
 </li>
 </ul>
 <a name="removeVideoDebugListener-com.google.android.exoplayer2.video.VideoRendererEventListener-">
@@ -1495,12 +1629,9 @@ public&nbsp;void&nbsp;setVideoDebugListener(<a href="../../../../com/google/andr
 <ul class="blockList">
 <li class="blockList">
 <h4>removeVideoDebugListener</h4>
-<pre>public&nbsp;void&nbsp;removeVideoDebugListener(<a href="../../../../com/google/android/exoplayer2/video/VideoRendererEventListener.html" title="interface in com.google.android.exoplayer2.video">VideoRendererEventListener</a>&nbsp;listener)</pre>
-<div class="block">Removes a listener to receive debug events from the video renderer.</div>
-<dl>
-<dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>listener</code> - The listener.</dd>
-</dl>
+<pre><a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Deprecated.html" target="_top" title="class or interface in java.lang">@Deprecated</a>
+public&nbsp;void&nbsp;removeVideoDebugListener(<a href="../../../../com/google/android/exoplayer2/video/VideoRendererEventListener.html" title="interface in com.google.android.exoplayer2.video">VideoRendererEventListener</a>&nbsp;listener)</pre>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;<span class="deprecationComment">Use <a href="../../../../com/google/android/exoplayer2/SimpleExoPlayer.html#addAnalyticsListener-com.google.android.exoplayer2.analytics.AnalyticsListener-"><code>addAnalyticsListener(AnalyticsListener)</code></a> and <a href="../../../../com/google/android/exoplayer2/SimpleExoPlayer.html#removeAnalyticsListener-com.google.android.exoplayer2.analytics.AnalyticsListener-"><code>removeAnalyticsListener(AnalyticsListener)</code></a> to get more detailed debug information.</span></div>
 </li>
 </ul>
 <a name="setAudioDebugListener-com.google.android.exoplayer2.audio.AudioRendererEventListener-">
@@ -1511,12 +1642,8 @@ public&nbsp;void&nbsp;setVideoDebugListener(<a href="../../../../com/google/andr
 <h4>setAudioDebugListener</h4>
 <pre><a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Deprecated.html" target="_top" title="class or interface in java.lang">@Deprecated</a>
 public&nbsp;void&nbsp;setAudioDebugListener(<a href="../../../../com/google/android/exoplayer2/audio/AudioRendererEventListener.html" title="interface in com.google.android.exoplayer2.audio">AudioRendererEventListener</a>&nbsp;listener)</pre>
-<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;<span class="deprecationComment">Use <a href="../../../../com/google/android/exoplayer2/SimpleExoPlayer.html#addAudioDebugListener-com.google.android.exoplayer2.audio.AudioRendererEventListener-"><code>addAudioDebugListener(AudioRendererEventListener)</code></a>.</span></div>
-<div class="block">Sets a listener to receive debug events from the audio renderer.</div>
-<dl>
-<dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>listener</code> - The listener.</dd>
-</dl>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;<span class="deprecationComment">Use <a href="../../../../com/google/android/exoplayer2/SimpleExoPlayer.html#addAnalyticsListener-com.google.android.exoplayer2.analytics.AnalyticsListener-"><code>addAnalyticsListener(AnalyticsListener)</code></a> to get more detailed debug
+     information.</span></div>
 </li>
 </ul>
 <a name="addAudioDebugListener-com.google.android.exoplayer2.audio.AudioRendererEventListener-">
@@ -1525,12 +1652,10 @@ public&nbsp;void&nbsp;setAudioDebugListener(<a href="../../../../com/google/andr
 <ul class="blockList">
 <li class="blockList">
 <h4>addAudioDebugListener</h4>
-<pre>public&nbsp;void&nbsp;addAudioDebugListener(<a href="../../../../com/google/android/exoplayer2/audio/AudioRendererEventListener.html" title="interface in com.google.android.exoplayer2.audio">AudioRendererEventListener</a>&nbsp;listener)</pre>
-<div class="block">Adds a listener to receive debug events from the audio renderer.</div>
-<dl>
-<dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>listener</code> - The listener.</dd>
-</dl>
+<pre><a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Deprecated.html" target="_top" title="class or interface in java.lang">@Deprecated</a>
+public&nbsp;void&nbsp;addAudioDebugListener(<a href="../../../../com/google/android/exoplayer2/audio/AudioRendererEventListener.html" title="interface in com.google.android.exoplayer2.audio">AudioRendererEventListener</a>&nbsp;listener)</pre>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;<span class="deprecationComment">Use <a href="../../../../com/google/android/exoplayer2/SimpleExoPlayer.html#addAnalyticsListener-com.google.android.exoplayer2.analytics.AnalyticsListener-"><code>addAnalyticsListener(AnalyticsListener)</code></a> to get more detailed debug
+     information.</span></div>
 </li>
 </ul>
 <a name="removeAudioDebugListener-com.google.android.exoplayer2.audio.AudioRendererEventListener-">
@@ -1539,12 +1664,9 @@ public&nbsp;void&nbsp;setAudioDebugListener(<a href="../../../../com/google/andr
 <ul class="blockList">
 <li class="blockList">
 <h4>removeAudioDebugListener</h4>
-<pre>public&nbsp;void&nbsp;removeAudioDebugListener(<a href="../../../../com/google/android/exoplayer2/audio/AudioRendererEventListener.html" title="interface in com.google.android.exoplayer2.audio">AudioRendererEventListener</a>&nbsp;listener)</pre>
-<div class="block">Removes a listener to receive debug events from the audio renderer.</div>
-<dl>
-<dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>listener</code> - The listener.</dd>
-</dl>
+<pre><a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Deprecated.html" target="_top" title="class or interface in java.lang">@Deprecated</a>
+public&nbsp;void&nbsp;removeAudioDebugListener(<a href="../../../../com/google/android/exoplayer2/audio/AudioRendererEventListener.html" title="interface in com.google.android.exoplayer2.audio">AudioRendererEventListener</a>&nbsp;listener)</pre>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;<span class="deprecationComment">Use <a href="../../../../com/google/android/exoplayer2/SimpleExoPlayer.html#addAnalyticsListener-com.google.android.exoplayer2.analytics.AnalyticsListener-"><code>addAnalyticsListener(AnalyticsListener)</code></a> and <a href="../../../../com/google/android/exoplayer2/SimpleExoPlayer.html#removeAnalyticsListener-com.google.android.exoplayer2.analytics.AnalyticsListener-"><code>removeAnalyticsListener(AnalyticsListener)</code></a> to get more detailed debug information.</span></div>
 </li>
 </ul>
 <a name="getPlaybackLooper--">
@@ -1614,6 +1736,28 @@ public&nbsp;void&nbsp;setAudioDebugListener(<a href="../../../../com/google/andr
 <dd><code><a href="../../../../com/google/android/exoplayer2/Player.html#getPlaybackState--">getPlaybackState</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../com/google/android/exoplayer2/Player.html" title="interface in com.google.android.exoplayer2">Player</a></code></dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>One of the <code>STATE</code> constants defined in this interface.</dd>
+</dl>
+</li>
+</ul>
+<a name="getPlaybackError--">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getPlaybackError</h4>
+<pre>public&nbsp;<a href="../../../../com/google/android/exoplayer2/ExoPlaybackException.html" title="class in com.google.android.exoplayer2">ExoPlaybackException</a>&nbsp;getPlaybackError()</pre>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../com/google/android/exoplayer2/Player.html#getPlaybackError--">Player</a></code></span></div>
+<div class="block">Returns the error that caused playback to fail. This is the same error that will have been
+ reported via <a href="../../../../com/google/android/exoplayer2/Player.EventListener.html#onPlayerError-com.google.android.exoplayer2.ExoPlaybackException-"><code>Player.EventListener.onPlayerError(ExoPlaybackException)</code></a> at the time of
+ failure. It can be queried using this method until <code>stop(true)</code> is called or the player
+ is re-prepared.</div>
+<dl>
+<dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
+<dd><code><a href="../../../../com/google/android/exoplayer2/ExoPlayer.html#getPlaybackError--">getPlaybackError</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../com/google/android/exoplayer2/ExoPlayer.html" title="interface in com.google.android.exoplayer2">ExoPlayer</a></code></dd>
+<dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
+<dd><code><a href="../../../../com/google/android/exoplayer2/Player.html#getPlaybackError--">getPlaybackError</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../com/google/android/exoplayer2/Player.html" title="interface in com.google.android.exoplayer2">Player</a></code></dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>The error, or <code>null</code>.</dd>
 </dl>
 </li>
 </ul>
@@ -1918,6 +2062,23 @@ public&nbsp;void&nbsp;setAudioDebugListener(<a href="../../../../com/google/andr
 <dd><code><a href="../../../../com/google/android/exoplayer2/ExoPlayer.html#setSeekParameters-com.google.android.exoplayer2.SeekParameters-">setSeekParameters</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../com/google/android/exoplayer2/ExoPlayer.html" title="interface in com.google.android.exoplayer2">ExoPlayer</a></code></dd>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>seekParameters</code> - The seek parameters, or <code>null</code> to use the defaults.</dd>
+</dl>
+</li>
+</ul>
+<a name="getCurrentTag--">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getCurrentTag</h4>
+<pre><a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
+public&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Object.html" target="_top" title="class or interface in java.lang">Object</a>&nbsp;getCurrentTag()</pre>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../com/google/android/exoplayer2/Player.html#getCurrentTag--">Player</a></code></span></div>
+<div class="block">Returns the tag of the currently playing window in the timeline. May be null if no tag is set
+ or the timeline is not yet available.</div>
+<dl>
+<dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
+<dd><code><a href="../../../../com/google/android/exoplayer2/Player.html#getCurrentTag--">getCurrentTag</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../com/google/android/exoplayer2/Player.html" title="interface in com.google.android.exoplayer2">Player</a></code></dd>
 </dl>
 </li>
 </ul>

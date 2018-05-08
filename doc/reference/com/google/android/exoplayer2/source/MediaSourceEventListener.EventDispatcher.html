@@ -16,7 +16,7 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":10};
+var methods = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":10,"i11":10,"i12":10,"i13":10,"i14":10,"i15":10,"i16":10,"i17":10,"i18":10,"i19":10,"i20":10,"i21":10};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -47,7 +47,7 @@ var activeTableTab = "activeTableTab";
 <div class="subNav">
 <ul class="navList">
 <li><a href="../../../../../com/google/android/exoplayer2/source/MediaSourceEventListener.html" title="interface in com.google.android.exoplayer2.source"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
-<li><a href="../../../../../com/google/android/exoplayer2/source/MergingMediaSource.html" title="class in com.google.android.exoplayer2.source"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
+<li><a href="../../../../../com/google/android/exoplayer2/source/MediaSourceEventListener.LoadEventInfo.html" title="class in com.google.android.exoplayer2.source"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
 </ul>
 <ul class="navList">
 <li><a href="../../../../../index.html?com/google/android/exoplayer2/source/MediaSourceEventListener.EventDispatcher.html" target="_top">Frames</a></li>
@@ -72,13 +72,13 @@ var activeTableTab = "activeTableTab";
 <ul class="subNavList">
 <li>Summary:&nbsp;</li>
 <li>Nested&nbsp;|&nbsp;</li>
-<li>Field&nbsp;|&nbsp;</li>
+<li><a href="#field.summary">Field</a>&nbsp;|&nbsp;</li>
 <li><a href="#constructor.summary">Constr</a>&nbsp;|&nbsp;</li>
 <li><a href="#method.summary">Method</a></li>
 </ul>
 <ul class="subNavList">
 <li>Detail:&nbsp;</li>
-<li>Field&nbsp;|&nbsp;</li>
+<li><a href="#field.detail">Field</a>&nbsp;|&nbsp;</li>
 <li><a href="#constructor.detail">Constr</a>&nbsp;|&nbsp;</li>
 <li><a href="#method.detail">Method</a></li>
 </ul>
@@ -112,13 +112,40 @@ var activeTableTab = "activeTableTab";
 <br>
 <pre>public static final class <span class="typeNameLabel">MediaSourceEventListener.EventDispatcher</span>
 extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Object.html" target="_top" title="class or interface in java.lang">Object</a></pre>
-<div class="block">Dispatches events to a <a href="../../../../../com/google/android/exoplayer2/source/MediaSourceEventListener.html" title="interface in com.google.android.exoplayer2.source"><code>MediaSourceEventListener</code></a>.</div>
+<div class="block">Dispatches events to <a href="../../../../../com/google/android/exoplayer2/source/MediaSourceEventListener.html" title="interface in com.google.android.exoplayer2.source"><code>MediaSourceEventListener</code></a>s.</div>
 </li>
 </ul>
 </div>
 <div class="summary">
 <ul class="blockList">
 <li class="blockList">
+<!-- =========== FIELD SUMMARY =========== -->
+<ul class="blockList">
+<li class="blockList"><a name="field.summary">
+<!--   -->
+</a>
+<h3>Field Summary</h3>
+<table class="memberSummary" border="0" cellpadding="3" cellspacing="0" summary="Field Summary table, listing fields, and an explanation">
+<caption><span>Fields</span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colFirst" scope="col">Modifier and Type</th>
+<th class="colLast" scope="col">Field and Description</th>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code><a href="../../../../../com/google/android/exoplayer2/source/MediaSource.MediaPeriodId.html" title="class in com.google.android.exoplayer2.source">MediaSource.MediaPeriodId</a></code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/source/MediaSourceEventListener.EventDispatcher.html#mediaPeriodId">mediaPeriodId</a></span></code>
+<div class="block">The <a href="../../../../../com/google/android/exoplayer2/source/MediaSource.MediaPeriodId.html" title="class in com.google.android.exoplayer2.source"><code>MediaSource.MediaPeriodId</code></a> reported with the events.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>int</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/source/MediaSourceEventListener.EventDispatcher.html#windowIndex">windowIndex</a></span></code>
+<div class="block">The timeline window index reported with the events.</div>
+</td>
+</tr>
+</table>
+</li>
+</ul>
 <!-- ======== CONSTRUCTOR SUMMARY ======== -->
 <ul class="blockList">
 <li class="blockList"><a name="constructor.summary">
@@ -131,13 +158,9 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 <th class="colOne" scope="col">Constructor and Description</th>
 </tr>
 <tr class="altColor">
-<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/source/MediaSourceEventListener.EventDispatcher.html#EventDispatcher-android.os.Handler-com.google.android.exoplayer2.source.MediaSourceEventListener-">EventDispatcher</a></span>(<a href="https://developer.android.com/reference/android/os/Handler.html" target="_top" title="class or interface in android.os">Handler</a>&nbsp;handler,
-               <a href="../../../../../com/google/android/exoplayer2/source/MediaSourceEventListener.html" title="interface in com.google.android.exoplayer2.source">MediaSourceEventListener</a>&nbsp;listener)</code>&nbsp;</td>
-</tr>
-<tr class="rowColor">
-<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/source/MediaSourceEventListener.EventDispatcher.html#EventDispatcher-android.os.Handler-com.google.android.exoplayer2.source.MediaSourceEventListener-long-">EventDispatcher</a></span>(<a href="https://developer.android.com/reference/android/os/Handler.html" target="_top" title="class or interface in android.os">Handler</a>&nbsp;handler,
-               <a href="../../../../../com/google/android/exoplayer2/source/MediaSourceEventListener.html" title="interface in com.google.android.exoplayer2.source">MediaSourceEventListener</a>&nbsp;listener,
-               long&nbsp;mediaTimeOffsetMs)</code>&nbsp;</td>
+<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/source/MediaSourceEventListener.EventDispatcher.html#EventDispatcher--">EventDispatcher</a></span>()</code>
+<div class="block">Creates an event dispatcher.</div>
+</td>
 </tr>
 </table>
 </li>
@@ -155,8 +178,11 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 <th class="colLast" scope="col">Method and Description</th>
 </tr>
 <tr id="i0" class="altColor">
-<td class="colFirst"><code><a href="../../../../../com/google/android/exoplayer2/source/MediaSourceEventListener.EventDispatcher.html" title="class in com.google.android.exoplayer2.source">MediaSourceEventListener.EventDispatcher</a></code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/source/MediaSourceEventListener.EventDispatcher.html#copyWithMediaTimeOffsetMs-long-">copyWithMediaTimeOffsetMs</a></span>(long&nbsp;mediaTimeOffsetMs)</code>&nbsp;</td>
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/source/MediaSourceEventListener.EventDispatcher.html#addEventListener-android.os.Handler-com.google.android.exoplayer2.source.MediaSourceEventListener-">addEventListener</a></span>(<a href="https://developer.android.com/reference/android/os/Handler.html" target="_top" title="class or interface in android.os">Handler</a>&nbsp;handler,
+                <a href="../../../../../com/google/android/exoplayer2/source/MediaSourceEventListener.html" title="interface in com.google.android.exoplayer2.source">MediaSourceEventListener</a>&nbsp;eventListener)</code>
+<div class="block">Adds a listener to the event dispatcher.</div>
+</td>
 </tr>
 <tr id="i1" class="rowColor">
 <td class="colFirst"><code>void</code></td>
@@ -164,9 +190,17 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
                        <a href="../../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;trackFormat,
                        int&nbsp;trackSelectionReason,
                        <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Object.html" target="_top" title="class or interface in java.lang">Object</a>&nbsp;trackSelectionData,
-                       long&nbsp;mediaTimeUs)</code>&nbsp;</td>
+                       long&nbsp;mediaTimeUs)</code>
+<div class="block">Dispatches <code>#onDownstreamFormatChanged(int, MediaPeriodId, MediaLoadData)</code>.</div>
+</td>
 </tr>
 <tr id="i2" class="altColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/source/MediaSourceEventListener.EventDispatcher.html#downstreamFormatChanged-com.google.android.exoplayer2.source.MediaSourceEventListener.MediaLoadData-">downstreamFormatChanged</a></span>(<a href="../../../../../com/google/android/exoplayer2/source/MediaSourceEventListener.MediaLoadData.html" title="class in com.google.android.exoplayer2.source">MediaSourceEventListener.MediaLoadData</a>&nbsp;mediaLoadData)</code>
+<div class="block">Dispatches <code>#onDownstreamFormatChanged(int, MediaPeriodId, MediaLoadData)</code>.</div>
+</td>
+</tr>
+<tr id="i3" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/source/MediaSourceEventListener.EventDispatcher.html#loadCanceled-com.google.android.exoplayer2.upstream.DataSpec-int-int-com.google.android.exoplayer2.Format-int-java.lang.Object-long-long-long-long-long-">loadCanceled</a></span>(<a href="../../../../../com/google/android/exoplayer2/upstream/DataSpec.html" title="class in com.google.android.exoplayer2.upstream">DataSpec</a>&nbsp;dataSpec,
             int&nbsp;dataType,
@@ -178,17 +212,28 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
             long&nbsp;mediaEndTimeUs,
             long&nbsp;elapsedRealtimeMs,
             long&nbsp;loadDurationMs,
-            long&nbsp;bytesLoaded)</code>&nbsp;</td>
+            long&nbsp;bytesLoaded)</code>
+<div class="block">Dispatches <code>#onLoadCanceled(int, MediaPeriodId, LoadEventInfo, MediaLoadData)</code>.</div>
+</td>
 </tr>
-<tr id="i3" class="rowColor">
+<tr id="i4" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/source/MediaSourceEventListener.EventDispatcher.html#loadCanceled-com.google.android.exoplayer2.upstream.DataSpec-int-long-long-long-">loadCanceled</a></span>(<a href="../../../../../com/google/android/exoplayer2/upstream/DataSpec.html" title="class in com.google.android.exoplayer2.upstream">DataSpec</a>&nbsp;dataSpec,
             int&nbsp;dataType,
             long&nbsp;elapsedRealtimeMs,
             long&nbsp;loadDurationMs,
-            long&nbsp;bytesLoaded)</code>&nbsp;</td>
+            long&nbsp;bytesLoaded)</code>
+<div class="block">Dispatches <code>#onLoadCanceled(int, MediaPeriodId, LoadEventInfo, MediaLoadData)</code>.</div>
+</td>
 </tr>
-<tr id="i4" class="altColor">
+<tr id="i5" class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/source/MediaSourceEventListener.EventDispatcher.html#loadCanceled-com.google.android.exoplayer2.source.MediaSourceEventListener.LoadEventInfo-com.google.android.exoplayer2.source.MediaSourceEventListener.MediaLoadData-">loadCanceled</a></span>(<a href="../../../../../com/google/android/exoplayer2/source/MediaSourceEventListener.LoadEventInfo.html" title="class in com.google.android.exoplayer2.source">MediaSourceEventListener.LoadEventInfo</a>&nbsp;loadEventInfo,
+            <a href="../../../../../com/google/android/exoplayer2/source/MediaSourceEventListener.MediaLoadData.html" title="class in com.google.android.exoplayer2.source">MediaSourceEventListener.MediaLoadData</a>&nbsp;mediaLoadData)</code>
+<div class="block">Dispatches <code>#onLoadCanceled(int, MediaPeriodId, LoadEventInfo, MediaLoadData)</code>.</div>
+</td>
+</tr>
+<tr id="i6" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/source/MediaSourceEventListener.EventDispatcher.html#loadCompleted-com.google.android.exoplayer2.upstream.DataSpec-int-int-com.google.android.exoplayer2.Format-int-java.lang.Object-long-long-long-long-long-">loadCompleted</a></span>(<a href="../../../../../com/google/android/exoplayer2/upstream/DataSpec.html" title="class in com.google.android.exoplayer2.upstream">DataSpec</a>&nbsp;dataSpec,
              int&nbsp;dataType,
@@ -200,17 +245,28 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
              long&nbsp;mediaEndTimeUs,
              long&nbsp;elapsedRealtimeMs,
              long&nbsp;loadDurationMs,
-             long&nbsp;bytesLoaded)</code>&nbsp;</td>
+             long&nbsp;bytesLoaded)</code>
+<div class="block">Dispatches <code>#onLoadCompleted(int, MediaPeriodId, LoadEventInfo, MediaLoadData)</code>.</div>
+</td>
 </tr>
-<tr id="i5" class="rowColor">
+<tr id="i7" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/source/MediaSourceEventListener.EventDispatcher.html#loadCompleted-com.google.android.exoplayer2.upstream.DataSpec-int-long-long-long-">loadCompleted</a></span>(<a href="../../../../../com/google/android/exoplayer2/upstream/DataSpec.html" title="class in com.google.android.exoplayer2.upstream">DataSpec</a>&nbsp;dataSpec,
              int&nbsp;dataType,
              long&nbsp;elapsedRealtimeMs,
              long&nbsp;loadDurationMs,
-             long&nbsp;bytesLoaded)</code>&nbsp;</td>
+             long&nbsp;bytesLoaded)</code>
+<div class="block">Dispatches <code>#onLoadCompleted(int, MediaPeriodId, LoadEventInfo, MediaLoadData)</code>.</div>
+</td>
 </tr>
-<tr id="i6" class="altColor">
+<tr id="i8" class="altColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/source/MediaSourceEventListener.EventDispatcher.html#loadCompleted-com.google.android.exoplayer2.source.MediaSourceEventListener.LoadEventInfo-com.google.android.exoplayer2.source.MediaSourceEventListener.MediaLoadData-">loadCompleted</a></span>(<a href="../../../../../com/google/android/exoplayer2/source/MediaSourceEventListener.LoadEventInfo.html" title="class in com.google.android.exoplayer2.source">MediaSourceEventListener.LoadEventInfo</a>&nbsp;loadEventInfo,
+             <a href="../../../../../com/google/android/exoplayer2/source/MediaSourceEventListener.MediaLoadData.html" title="class in com.google.android.exoplayer2.source">MediaSourceEventListener.MediaLoadData</a>&nbsp;mediaLoadData)</code>
+<div class="block">Dispatches <code>#onLoadCompleted(int, MediaPeriodId, LoadEventInfo, MediaLoadData)</code>.</div>
+</td>
+</tr>
+<tr id="i9" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/source/MediaSourceEventListener.EventDispatcher.html#loadError-com.google.android.exoplayer2.upstream.DataSpec-int-int-com.google.android.exoplayer2.Format-int-java.lang.Object-long-long-long-long-long-java.io.IOException-boolean-">loadError</a></span>(<a href="../../../../../com/google/android/exoplayer2/upstream/DataSpec.html" title="class in com.google.android.exoplayer2.upstream">DataSpec</a>&nbsp;dataSpec,
          int&nbsp;dataType,
@@ -224,9 +280,12 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
          long&nbsp;loadDurationMs,
          long&nbsp;bytesLoaded,
          <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/io/IOException.html" target="_top" title="class or interface in java.io">IOException</a>&nbsp;error,
-         boolean&nbsp;wasCanceled)</code>&nbsp;</td>
+         boolean&nbsp;wasCanceled)</code>
+<div class="block">Dispatches <code>#onLoadError(int, MediaPeriodId, LoadEventInfo, MediaLoadData, IOException,
+ boolean)</code>.</div>
+</td>
 </tr>
-<tr id="i7" class="rowColor">
+<tr id="i10" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/source/MediaSourceEventListener.EventDispatcher.html#loadError-com.google.android.exoplayer2.upstream.DataSpec-int-long-long-long-java.io.IOException-boolean-">loadError</a></span>(<a href="../../../../../com/google/android/exoplayer2/upstream/DataSpec.html" title="class in com.google.android.exoplayer2.upstream">DataSpec</a>&nbsp;dataSpec,
          int&nbsp;dataType,
@@ -234,9 +293,22 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
          long&nbsp;loadDurationMs,
          long&nbsp;bytesLoaded,
          <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/io/IOException.html" target="_top" title="class or interface in java.io">IOException</a>&nbsp;error,
-         boolean&nbsp;wasCanceled)</code>&nbsp;</td>
+         boolean&nbsp;wasCanceled)</code>
+<div class="block">Dispatches <code>#onLoadError(int, MediaPeriodId, LoadEventInfo, MediaLoadData, IOException,
+ boolean)</code>.</div>
+</td>
 </tr>
-<tr id="i8" class="altColor">
+<tr id="i11" class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/source/MediaSourceEventListener.EventDispatcher.html#loadError-com.google.android.exoplayer2.source.MediaSourceEventListener.LoadEventInfo-com.google.android.exoplayer2.source.MediaSourceEventListener.MediaLoadData-java.io.IOException-boolean-">loadError</a></span>(<a href="../../../../../com/google/android/exoplayer2/source/MediaSourceEventListener.LoadEventInfo.html" title="class in com.google.android.exoplayer2.source">MediaSourceEventListener.LoadEventInfo</a>&nbsp;loadEventInfo,
+         <a href="../../../../../com/google/android/exoplayer2/source/MediaSourceEventListener.MediaLoadData.html" title="class in com.google.android.exoplayer2.source">MediaSourceEventListener.MediaLoadData</a>&nbsp;mediaLoadData,
+         <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/io/IOException.html" target="_top" title="class or interface in java.io">IOException</a>&nbsp;error,
+         boolean&nbsp;wasCanceled)</code>
+<div class="block">Dispatches <code>#onLoadError(int, MediaPeriodId, LoadEventInfo, MediaLoadData, IOException,
+ boolean)</code>.</div>
+</td>
+</tr>
+<tr id="i12" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/source/MediaSourceEventListener.EventDispatcher.html#loadStarted-com.google.android.exoplayer2.upstream.DataSpec-int-int-com.google.android.exoplayer2.Format-int-java.lang.Object-long-long-long-">loadStarted</a></span>(<a href="../../../../../com/google/android/exoplayer2/upstream/DataSpec.html" title="class in com.google.android.exoplayer2.upstream">DataSpec</a>&nbsp;dataSpec,
            int&nbsp;dataType,
@@ -246,19 +318,71 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
            <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Object.html" target="_top" title="class or interface in java.lang">Object</a>&nbsp;trackSelectionData,
            long&nbsp;mediaStartTimeUs,
            long&nbsp;mediaEndTimeUs,
-           long&nbsp;elapsedRealtimeMs)</code>&nbsp;</td>
+           long&nbsp;elapsedRealtimeMs)</code>
+<div class="block">Dispatches <code>#onLoadStarted(int, MediaPeriodId, LoadEventInfo, MediaLoadData)</code>.</div>
+</td>
 </tr>
-<tr id="i9" class="rowColor">
+<tr id="i13" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/source/MediaSourceEventListener.EventDispatcher.html#loadStarted-com.google.android.exoplayer2.upstream.DataSpec-int-long-">loadStarted</a></span>(<a href="../../../../../com/google/android/exoplayer2/upstream/DataSpec.html" title="class in com.google.android.exoplayer2.upstream">DataSpec</a>&nbsp;dataSpec,
            int&nbsp;dataType,
-           long&nbsp;elapsedRealtimeMs)</code>&nbsp;</td>
+           long&nbsp;elapsedRealtimeMs)</code>
+<div class="block">Dispatches <code>#onLoadStarted(int, MediaPeriodId, LoadEventInfo, MediaLoadData)</code>.</div>
+</td>
 </tr>
-<tr id="i10" class="altColor">
+<tr id="i14" class="altColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/source/MediaSourceEventListener.EventDispatcher.html#loadStarted-com.google.android.exoplayer2.source.MediaSourceEventListener.LoadEventInfo-com.google.android.exoplayer2.source.MediaSourceEventListener.MediaLoadData-">loadStarted</a></span>(<a href="../../../../../com/google/android/exoplayer2/source/MediaSourceEventListener.LoadEventInfo.html" title="class in com.google.android.exoplayer2.source">MediaSourceEventListener.LoadEventInfo</a>&nbsp;loadEventInfo,
+           <a href="../../../../../com/google/android/exoplayer2/source/MediaSourceEventListener.MediaLoadData.html" title="class in com.google.android.exoplayer2.source">MediaSourceEventListener.MediaLoadData</a>&nbsp;mediaLoadData)</code>
+<div class="block">Dispatches <code>#onLoadStarted(int, MediaPeriodId, LoadEventInfo, MediaLoadData)</code>.</div>
+</td>
+</tr>
+<tr id="i15" class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/source/MediaSourceEventListener.EventDispatcher.html#mediaPeriodCreated--">mediaPeriodCreated</a></span>()</code>
+<div class="block">Dispatches <code>#onMediaPeriodCreated(int, MediaPeriodId)</code>.</div>
+</td>
+</tr>
+<tr id="i16" class="altColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/source/MediaSourceEventListener.EventDispatcher.html#mediaPeriodReleased--">mediaPeriodReleased</a></span>()</code>
+<div class="block">Dispatches <code>#onMediaPeriodReleased(int, MediaPeriodId)</code>.</div>
+</td>
+</tr>
+<tr id="i17" class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/source/MediaSourceEventListener.EventDispatcher.html#readingStarted--">readingStarted</a></span>()</code>
+<div class="block">Dispatches <code>#onReadingStarted(int, MediaPeriodId)</code>.</div>
+</td>
+</tr>
+<tr id="i18" class="altColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/source/MediaSourceEventListener.EventDispatcher.html#removeEventListener-com.google.android.exoplayer2.source.MediaSourceEventListener-">removeEventListener</a></span>(<a href="../../../../../com/google/android/exoplayer2/source/MediaSourceEventListener.html" title="interface in com.google.android.exoplayer2.source">MediaSourceEventListener</a>&nbsp;eventListener)</code>
+<div class="block">Removes a listener from the event dispatcher.</div>
+</td>
+</tr>
+<tr id="i19" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/source/MediaSourceEventListener.EventDispatcher.html#upstreamDiscarded-int-long-long-">upstreamDiscarded</a></span>(int&nbsp;trackType,
                  long&nbsp;mediaStartTimeUs,
-                 long&nbsp;mediaEndTimeUs)</code>&nbsp;</td>
+                 long&nbsp;mediaEndTimeUs)</code>
+<div class="block">Dispatches <code>#onUpstreamDiscarded(int, MediaPeriodId, MediaLoadData)</code>.</div>
+</td>
+</tr>
+<tr id="i20" class="altColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/source/MediaSourceEventListener.EventDispatcher.html#upstreamDiscarded-com.google.android.exoplayer2.source.MediaSourceEventListener.MediaLoadData-">upstreamDiscarded</a></span>(<a href="../../../../../com/google/android/exoplayer2/source/MediaSourceEventListener.MediaLoadData.html" title="class in com.google.android.exoplayer2.source">MediaSourceEventListener.MediaLoadData</a>&nbsp;mediaLoadData)</code>
+<div class="block">Dispatches <code>#onUpstreamDiscarded(int, MediaPeriodId, MediaLoadData)</code>.</div>
+</td>
+</tr>
+<tr id="i21" class="rowColor">
+<td class="colFirst"><code><a href="../../../../../com/google/android/exoplayer2/source/MediaSourceEventListener.EventDispatcher.html" title="class in com.google.android.exoplayer2.source">MediaSourceEventListener.EventDispatcher</a></code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/source/MediaSourceEventListener.EventDispatcher.html#withParameters-int-com.google.android.exoplayer2.source.MediaSource.MediaPeriodId-long-">withParameters</a></span>(int&nbsp;windowIndex,
+              <a href="../../../../../com/google/android/exoplayer2/source/MediaSource.MediaPeriodId.html" title="class in com.google.android.exoplayer2.source">MediaSource.MediaPeriodId</a>&nbsp;mediaPeriodId,
+              long&nbsp;mediaTimeOffsetMs)</code>
+<div class="block">Creates a view of the event dispatcher with pre-configured window index, media period id, and
+ media time offset.</div>
+</td>
 </tr>
 </table>
 <ul class="blockList">
@@ -276,35 +400,49 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 <div class="details">
 <ul class="blockList">
 <li class="blockList">
+<!-- ============ FIELD DETAIL =========== -->
+<ul class="blockList">
+<li class="blockList"><a name="field.detail">
+<!--   -->
+</a>
+<h3>Field Detail</h3>
+<a name="windowIndex">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>windowIndex</h4>
+<pre>public final&nbsp;int windowIndex</pre>
+<div class="block">The timeline window index reported with the events.</div>
+</li>
+</ul>
+<a name="mediaPeriodId">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>mediaPeriodId</h4>
+<pre><a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
+public final&nbsp;<a href="../../../../../com/google/android/exoplayer2/source/MediaSource.MediaPeriodId.html" title="class in com.google.android.exoplayer2.source">MediaSource.MediaPeriodId</a> mediaPeriodId</pre>
+<div class="block">The <a href="../../../../../com/google/android/exoplayer2/source/MediaSource.MediaPeriodId.html" title="class in com.google.android.exoplayer2.source"><code>MediaSource.MediaPeriodId</code></a> reported with the events.</div>
+</li>
+</ul>
+</li>
+</ul>
 <!-- ========= CONSTRUCTOR DETAIL ======== -->
 <ul class="blockList">
 <li class="blockList"><a name="constructor.detail">
 <!--   -->
 </a>
 <h3>Constructor Detail</h3>
-<a name="EventDispatcher-android.os.Handler-com.google.android.exoplayer2.source.MediaSourceEventListener-">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>EventDispatcher</h4>
-<pre>public&nbsp;EventDispatcher(<a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
-                       <a href="https://developer.android.com/reference/android/os/Handler.html" target="_top" title="class or interface in android.os">Handler</a>&nbsp;handler,
-                       <a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
-                       <a href="../../../../../com/google/android/exoplayer2/source/MediaSourceEventListener.html" title="interface in com.google.android.exoplayer2.source">MediaSourceEventListener</a>&nbsp;listener)</pre>
-</li>
-</ul>
-<a name="EventDispatcher-android.os.Handler-com.google.android.exoplayer2.source.MediaSourceEventListener-long-">
+<a name="EventDispatcher--">
 <!--   -->
 </a>
 <ul class="blockListLast">
 <li class="blockList">
 <h4>EventDispatcher</h4>
-<pre>public&nbsp;EventDispatcher(<a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
-                       <a href="https://developer.android.com/reference/android/os/Handler.html" target="_top" title="class or interface in android.os">Handler</a>&nbsp;handler,
-                       <a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
-                       <a href="../../../../../com/google/android/exoplayer2/source/MediaSourceEventListener.html" title="interface in com.google.android.exoplayer2.source">MediaSourceEventListener</a>&nbsp;listener,
-                       long&nbsp;mediaTimeOffsetMs)</pre>
+<pre>public&nbsp;EventDispatcher()</pre>
+<div class="block">Creates an event dispatcher.</div>
 </li>
 </ul>
 </li>
@@ -315,13 +453,77 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 <!--   -->
 </a>
 <h3>Method Detail</h3>
-<a name="copyWithMediaTimeOffsetMs-long-">
+<a name="withParameters-int-com.google.android.exoplayer2.source.MediaSource.MediaPeriodId-long-">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
-<h4>copyWithMediaTimeOffsetMs</h4>
-<pre>public&nbsp;<a href="../../../../../com/google/android/exoplayer2/source/MediaSourceEventListener.EventDispatcher.html" title="class in com.google.android.exoplayer2.source">MediaSourceEventListener.EventDispatcher</a>&nbsp;copyWithMediaTimeOffsetMs(long&nbsp;mediaTimeOffsetMs)</pre>
+<h4>withParameters</h4>
+<pre><a href="https://developer.android.com/reference/android/support.annotation.CheckResult.html" target="_top" title="class or interface in android">@CheckResult</a>
+public&nbsp;<a href="../../../../../com/google/android/exoplayer2/source/MediaSourceEventListener.EventDispatcher.html" title="class in com.google.android.exoplayer2.source">MediaSourceEventListener.EventDispatcher</a>&nbsp;withParameters(int&nbsp;windowIndex,
+                                                                            <a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
+                                                                            <a href="../../../../../com/google/android/exoplayer2/source/MediaSource.MediaPeriodId.html" title="class in com.google.android.exoplayer2.source">MediaSource.MediaPeriodId</a>&nbsp;mediaPeriodId,
+                                                                            long&nbsp;mediaTimeOffsetMs)</pre>
+<div class="block">Creates a view of the event dispatcher with pre-configured window index, media period id, and
+ media time offset.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>windowIndex</code> - The timeline window index to be reported with the events.</dd>
+<dd><code>mediaPeriodId</code> - The <a href="../../../../../com/google/android/exoplayer2/source/MediaSource.MediaPeriodId.html" title="class in com.google.android.exoplayer2.source"><code>MediaSource.MediaPeriodId</code></a> to be reported with the events.</dd>
+<dd><code>mediaTimeOffsetMs</code> - The offset to be added to all media times, in milliseconds.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>A view of the event dispatcher with the pre-configured parameters.</dd>
+</dl>
+</li>
+</ul>
+<a name="addEventListener-android.os.Handler-com.google.android.exoplayer2.source.MediaSourceEventListener-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>addEventListener</h4>
+<pre>public&nbsp;void&nbsp;addEventListener(<a href="https://developer.android.com/reference/android/os/Handler.html" target="_top" title="class or interface in android.os">Handler</a>&nbsp;handler,
+                             <a href="../../../../../com/google/android/exoplayer2/source/MediaSourceEventListener.html" title="interface in com.google.android.exoplayer2.source">MediaSourceEventListener</a>&nbsp;eventListener)</pre>
+<div class="block">Adds a listener to the event dispatcher.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>handler</code> - A handler on the which listener events will be posted.</dd>
+<dd><code>eventListener</code> - The listener to be added.</dd>
+</dl>
+</li>
+</ul>
+<a name="removeEventListener-com.google.android.exoplayer2.source.MediaSourceEventListener-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>removeEventListener</h4>
+<pre>public&nbsp;void&nbsp;removeEventListener(<a href="../../../../../com/google/android/exoplayer2/source/MediaSourceEventListener.html" title="interface in com.google.android.exoplayer2.source">MediaSourceEventListener</a>&nbsp;eventListener)</pre>
+<div class="block">Removes a listener from the event dispatcher.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>eventListener</code> - The listener to be removed.</dd>
+</dl>
+</li>
+</ul>
+<a name="mediaPeriodCreated--">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>mediaPeriodCreated</h4>
+<pre>public&nbsp;void&nbsp;mediaPeriodCreated()</pre>
+<div class="block">Dispatches <code>#onMediaPeriodCreated(int, MediaPeriodId)</code>.</div>
+</li>
+</ul>
+<a name="mediaPeriodReleased--">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>mediaPeriodReleased</h4>
+<pre>public&nbsp;void&nbsp;mediaPeriodReleased()</pre>
+<div class="block">Dispatches <code>#onMediaPeriodReleased(int, MediaPeriodId)</code>.</div>
 </li>
 </ul>
 <a name="loadStarted-com.google.android.exoplayer2.upstream.DataSpec-int-long-">
@@ -333,6 +535,7 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 <pre>public&nbsp;void&nbsp;loadStarted(<a href="../../../../../com/google/android/exoplayer2/upstream/DataSpec.html" title="class in com.google.android.exoplayer2.upstream">DataSpec</a>&nbsp;dataSpec,
                         int&nbsp;dataType,
                         long&nbsp;elapsedRealtimeMs)</pre>
+<div class="block">Dispatches <code>#onLoadStarted(int, MediaPeriodId, LoadEventInfo, MediaLoadData)</code>.</div>
 </li>
 </ul>
 <a name="loadStarted-com.google.android.exoplayer2.upstream.DataSpec-int-int-com.google.android.exoplayer2.Format-int-java.lang.Object-long-long-long-">
@@ -344,12 +547,26 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 <pre>public&nbsp;void&nbsp;loadStarted(<a href="../../../../../com/google/android/exoplayer2/upstream/DataSpec.html" title="class in com.google.android.exoplayer2.upstream">DataSpec</a>&nbsp;dataSpec,
                         int&nbsp;dataType,
                         int&nbsp;trackType,
+                        <a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
                         <a href="../../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;trackFormat,
                         int&nbsp;trackSelectionReason,
+                        <a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
                         <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Object.html" target="_top" title="class or interface in java.lang">Object</a>&nbsp;trackSelectionData,
                         long&nbsp;mediaStartTimeUs,
                         long&nbsp;mediaEndTimeUs,
                         long&nbsp;elapsedRealtimeMs)</pre>
+<div class="block">Dispatches <code>#onLoadStarted(int, MediaPeriodId, LoadEventInfo, MediaLoadData)</code>.</div>
+</li>
+</ul>
+<a name="loadStarted-com.google.android.exoplayer2.source.MediaSourceEventListener.LoadEventInfo-com.google.android.exoplayer2.source.MediaSourceEventListener.MediaLoadData-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>loadStarted</h4>
+<pre>public&nbsp;void&nbsp;loadStarted(<a href="../../../../../com/google/android/exoplayer2/source/MediaSourceEventListener.LoadEventInfo.html" title="class in com.google.android.exoplayer2.source">MediaSourceEventListener.LoadEventInfo</a>&nbsp;loadEventInfo,
+                        <a href="../../../../../com/google/android/exoplayer2/source/MediaSourceEventListener.MediaLoadData.html" title="class in com.google.android.exoplayer2.source">MediaSourceEventListener.MediaLoadData</a>&nbsp;mediaLoadData)</pre>
+<div class="block">Dispatches <code>#onLoadStarted(int, MediaPeriodId, LoadEventInfo, MediaLoadData)</code>.</div>
 </li>
 </ul>
 <a name="loadCompleted-com.google.android.exoplayer2.upstream.DataSpec-int-long-long-long-">
@@ -363,6 +580,7 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
                           long&nbsp;elapsedRealtimeMs,
                           long&nbsp;loadDurationMs,
                           long&nbsp;bytesLoaded)</pre>
+<div class="block">Dispatches <code>#onLoadCompleted(int, MediaPeriodId, LoadEventInfo, MediaLoadData)</code>.</div>
 </li>
 </ul>
 <a name="loadCompleted-com.google.android.exoplayer2.upstream.DataSpec-int-int-com.google.android.exoplayer2.Format-int-java.lang.Object-long-long-long-long-long-">
@@ -374,14 +592,28 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 <pre>public&nbsp;void&nbsp;loadCompleted(<a href="../../../../../com/google/android/exoplayer2/upstream/DataSpec.html" title="class in com.google.android.exoplayer2.upstream">DataSpec</a>&nbsp;dataSpec,
                           int&nbsp;dataType,
                           int&nbsp;trackType,
+                          <a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
                           <a href="../../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;trackFormat,
                           int&nbsp;trackSelectionReason,
+                          <a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
                           <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Object.html" target="_top" title="class or interface in java.lang">Object</a>&nbsp;trackSelectionData,
                           long&nbsp;mediaStartTimeUs,
                           long&nbsp;mediaEndTimeUs,
                           long&nbsp;elapsedRealtimeMs,
                           long&nbsp;loadDurationMs,
                           long&nbsp;bytesLoaded)</pre>
+<div class="block">Dispatches <code>#onLoadCompleted(int, MediaPeriodId, LoadEventInfo, MediaLoadData)</code>.</div>
+</li>
+</ul>
+<a name="loadCompleted-com.google.android.exoplayer2.source.MediaSourceEventListener.LoadEventInfo-com.google.android.exoplayer2.source.MediaSourceEventListener.MediaLoadData-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>loadCompleted</h4>
+<pre>public&nbsp;void&nbsp;loadCompleted(<a href="../../../../../com/google/android/exoplayer2/source/MediaSourceEventListener.LoadEventInfo.html" title="class in com.google.android.exoplayer2.source">MediaSourceEventListener.LoadEventInfo</a>&nbsp;loadEventInfo,
+                          <a href="../../../../../com/google/android/exoplayer2/source/MediaSourceEventListener.MediaLoadData.html" title="class in com.google.android.exoplayer2.source">MediaSourceEventListener.MediaLoadData</a>&nbsp;mediaLoadData)</pre>
+<div class="block">Dispatches <code>#onLoadCompleted(int, MediaPeriodId, LoadEventInfo, MediaLoadData)</code>.</div>
 </li>
 </ul>
 <a name="loadCanceled-com.google.android.exoplayer2.upstream.DataSpec-int-long-long-long-">
@@ -395,6 +627,7 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
                          long&nbsp;elapsedRealtimeMs,
                          long&nbsp;loadDurationMs,
                          long&nbsp;bytesLoaded)</pre>
+<div class="block">Dispatches <code>#onLoadCanceled(int, MediaPeriodId, LoadEventInfo, MediaLoadData)</code>.</div>
 </li>
 </ul>
 <a name="loadCanceled-com.google.android.exoplayer2.upstream.DataSpec-int-int-com.google.android.exoplayer2.Format-int-java.lang.Object-long-long-long-long-long-">
@@ -406,14 +639,28 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 <pre>public&nbsp;void&nbsp;loadCanceled(<a href="../../../../../com/google/android/exoplayer2/upstream/DataSpec.html" title="class in com.google.android.exoplayer2.upstream">DataSpec</a>&nbsp;dataSpec,
                          int&nbsp;dataType,
                          int&nbsp;trackType,
+                         <a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
                          <a href="../../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;trackFormat,
                          int&nbsp;trackSelectionReason,
+                         <a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
                          <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Object.html" target="_top" title="class or interface in java.lang">Object</a>&nbsp;trackSelectionData,
                          long&nbsp;mediaStartTimeUs,
                          long&nbsp;mediaEndTimeUs,
                          long&nbsp;elapsedRealtimeMs,
                          long&nbsp;loadDurationMs,
                          long&nbsp;bytesLoaded)</pre>
+<div class="block">Dispatches <code>#onLoadCanceled(int, MediaPeriodId, LoadEventInfo, MediaLoadData)</code>.</div>
+</li>
+</ul>
+<a name="loadCanceled-com.google.android.exoplayer2.source.MediaSourceEventListener.LoadEventInfo-com.google.android.exoplayer2.source.MediaSourceEventListener.MediaLoadData-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>loadCanceled</h4>
+<pre>public&nbsp;void&nbsp;loadCanceled(<a href="../../../../../com/google/android/exoplayer2/source/MediaSourceEventListener.LoadEventInfo.html" title="class in com.google.android.exoplayer2.source">MediaSourceEventListener.LoadEventInfo</a>&nbsp;loadEventInfo,
+                         <a href="../../../../../com/google/android/exoplayer2/source/MediaSourceEventListener.MediaLoadData.html" title="class in com.google.android.exoplayer2.source">MediaSourceEventListener.MediaLoadData</a>&nbsp;mediaLoadData)</pre>
+<div class="block">Dispatches <code>#onLoadCanceled(int, MediaPeriodId, LoadEventInfo, MediaLoadData)</code>.</div>
 </li>
 </ul>
 <a name="loadError-com.google.android.exoplayer2.upstream.DataSpec-int-long-long-long-java.io.IOException-boolean-">
@@ -429,6 +676,8 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
                       long&nbsp;bytesLoaded,
                       <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/io/IOException.html" target="_top" title="class or interface in java.io">IOException</a>&nbsp;error,
                       boolean&nbsp;wasCanceled)</pre>
+<div class="block">Dispatches <code>#onLoadError(int, MediaPeriodId, LoadEventInfo, MediaLoadData, IOException,
+ boolean)</code>.</div>
 </li>
 </ul>
 <a name="loadError-com.google.android.exoplayer2.upstream.DataSpec-int-int-com.google.android.exoplayer2.Format-int-java.lang.Object-long-long-long-long-long-java.io.IOException-boolean-">
@@ -440,8 +689,10 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 <pre>public&nbsp;void&nbsp;loadError(<a href="../../../../../com/google/android/exoplayer2/upstream/DataSpec.html" title="class in com.google.android.exoplayer2.upstream">DataSpec</a>&nbsp;dataSpec,
                       int&nbsp;dataType,
                       int&nbsp;trackType,
+                      <a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
                       <a href="../../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;trackFormat,
                       int&nbsp;trackSelectionReason,
+                      <a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
                       <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Object.html" target="_top" title="class or interface in java.lang">Object</a>&nbsp;trackSelectionData,
                       long&nbsp;mediaStartTimeUs,
                       long&nbsp;mediaEndTimeUs,
@@ -450,6 +701,32 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
                       long&nbsp;bytesLoaded,
                       <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/io/IOException.html" target="_top" title="class or interface in java.io">IOException</a>&nbsp;error,
                       boolean&nbsp;wasCanceled)</pre>
+<div class="block">Dispatches <code>#onLoadError(int, MediaPeriodId, LoadEventInfo, MediaLoadData, IOException,
+ boolean)</code>.</div>
+</li>
+</ul>
+<a name="loadError-com.google.android.exoplayer2.source.MediaSourceEventListener.LoadEventInfo-com.google.android.exoplayer2.source.MediaSourceEventListener.MediaLoadData-java.io.IOException-boolean-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>loadError</h4>
+<pre>public&nbsp;void&nbsp;loadError(<a href="../../../../../com/google/android/exoplayer2/source/MediaSourceEventListener.LoadEventInfo.html" title="class in com.google.android.exoplayer2.source">MediaSourceEventListener.LoadEventInfo</a>&nbsp;loadEventInfo,
+                      <a href="../../../../../com/google/android/exoplayer2/source/MediaSourceEventListener.MediaLoadData.html" title="class in com.google.android.exoplayer2.source">MediaSourceEventListener.MediaLoadData</a>&nbsp;mediaLoadData,
+                      <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/io/IOException.html" target="_top" title="class or interface in java.io">IOException</a>&nbsp;error,
+                      boolean&nbsp;wasCanceled)</pre>
+<div class="block">Dispatches <code>#onLoadError(int, MediaPeriodId, LoadEventInfo, MediaLoadData, IOException,
+ boolean)</code>.</div>
+</li>
+</ul>
+<a name="readingStarted--">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>readingStarted</h4>
+<pre>public&nbsp;void&nbsp;readingStarted()</pre>
+<div class="block">Dispatches <code>#onReadingStarted(int, MediaPeriodId)</code>.</div>
 </li>
 </ul>
 <a name="upstreamDiscarded-int-long-long-">
@@ -461,19 +738,43 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 <pre>public&nbsp;void&nbsp;upstreamDiscarded(int&nbsp;trackType,
                               long&nbsp;mediaStartTimeUs,
                               long&nbsp;mediaEndTimeUs)</pre>
+<div class="block">Dispatches <code>#onUpstreamDiscarded(int, MediaPeriodId, MediaLoadData)</code>.</div>
+</li>
+</ul>
+<a name="upstreamDiscarded-com.google.android.exoplayer2.source.MediaSourceEventListener.MediaLoadData-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>upstreamDiscarded</h4>
+<pre>public&nbsp;void&nbsp;upstreamDiscarded(<a href="../../../../../com/google/android/exoplayer2/source/MediaSourceEventListener.MediaLoadData.html" title="class in com.google.android.exoplayer2.source">MediaSourceEventListener.MediaLoadData</a>&nbsp;mediaLoadData)</pre>
+<div class="block">Dispatches <code>#onUpstreamDiscarded(int, MediaPeriodId, MediaLoadData)</code>.</div>
 </li>
 </ul>
 <a name="downstreamFormatChanged-int-com.google.android.exoplayer2.Format-int-java.lang.Object-long-">
 <!--   -->
 </a>
-<ul class="blockListLast">
+<ul class="blockList">
 <li class="blockList">
 <h4>downstreamFormatChanged</h4>
 <pre>public&nbsp;void&nbsp;downstreamFormatChanged(int&nbsp;trackType,
+                                    <a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
                                     <a href="../../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;trackFormat,
                                     int&nbsp;trackSelectionReason,
+                                    <a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
                                     <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Object.html" target="_top" title="class or interface in java.lang">Object</a>&nbsp;trackSelectionData,
                                     long&nbsp;mediaTimeUs)</pre>
+<div class="block">Dispatches <code>#onDownstreamFormatChanged(int, MediaPeriodId, MediaLoadData)</code>.</div>
+</li>
+</ul>
+<a name="downstreamFormatChanged-com.google.android.exoplayer2.source.MediaSourceEventListener.MediaLoadData-">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>downstreamFormatChanged</h4>
+<pre>public&nbsp;void&nbsp;downstreamFormatChanged(<a href="../../../../../com/google/android/exoplayer2/source/MediaSourceEventListener.MediaLoadData.html" title="class in com.google.android.exoplayer2.source">MediaSourceEventListener.MediaLoadData</a>&nbsp;mediaLoadData)</pre>
+<div class="block">Dispatches <code>#onDownstreamFormatChanged(int, MediaPeriodId, MediaLoadData)</code>.</div>
 </li>
 </ul>
 </li>
@@ -504,7 +805,7 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 <div class="subNav">
 <ul class="navList">
 <li><a href="../../../../../com/google/android/exoplayer2/source/MediaSourceEventListener.html" title="interface in com.google.android.exoplayer2.source"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
-<li><a href="../../../../../com/google/android/exoplayer2/source/MergingMediaSource.html" title="class in com.google.android.exoplayer2.source"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
+<li><a href="../../../../../com/google/android/exoplayer2/source/MediaSourceEventListener.LoadEventInfo.html" title="class in com.google.android.exoplayer2.source"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
 </ul>
 <ul class="navList">
 <li><a href="../../../../../index.html?com/google/android/exoplayer2/source/MediaSourceEventListener.EventDispatcher.html" target="_top">Frames</a></li>
@@ -529,13 +830,13 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 <ul class="subNavList">
 <li>Summary:&nbsp;</li>
 <li>Nested&nbsp;|&nbsp;</li>
-<li>Field&nbsp;|&nbsp;</li>
+<li><a href="#field.summary">Field</a>&nbsp;|&nbsp;</li>
 <li><a href="#constructor.summary">Constr</a>&nbsp;|&nbsp;</li>
 <li><a href="#method.summary">Method</a></li>
 </ul>
 <ul class="subNavList">
 <li>Detail:&nbsp;</li>
-<li>Field&nbsp;|&nbsp;</li>
+<li><a href="#field.detail">Field</a>&nbsp;|&nbsp;</li>
 <li><a href="#constructor.detail">Constr</a>&nbsp;|&nbsp;</li>
 <li><a href="#method.detail">Method</a></li>
 </ul>

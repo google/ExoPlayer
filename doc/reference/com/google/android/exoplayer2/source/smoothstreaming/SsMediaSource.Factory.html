@@ -16,8 +16,8 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10};
-var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
+var methods = {"i0":10,"i1":42,"i2":10,"i3":42,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10};
+var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"],32:["t6","Deprecated Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
@@ -151,64 +151,83 @@ implements <a href="../../../../../../com/google/android/exoplayer2/source/ads/A
 </a>
 <h3>Method Summary</h3>
 <table class="memberSummary" border="0" cellpadding="3" cellspacing="0" summary="Method Summary table, listing methods, and an explanation">
-<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t6" class="tableTab"><span><a href="javascript:show(32);">Deprecated Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
 <th class="colLast" scope="col">Method and Description</th>
 </tr>
 <tr id="i0" class="altColor">
 <td class="colFirst"><code><a href="../../../../../../com/google/android/exoplayer2/source/smoothstreaming/SsMediaSource.html" title="class in com.google.android.exoplayer2.source.smoothstreaming">SsMediaSource</a></code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/source/smoothstreaming/SsMediaSource.Factory.html#createMediaSource-com.google.android.exoplayer2.source.smoothstreaming.manifest.SsManifest-android.os.Handler-com.google.android.exoplayer2.source.MediaSourceEventListener-">createMediaSource</a></span>(<a href="../../../../../../com/google/android/exoplayer2/source/smoothstreaming/manifest/SsManifest.html" title="class in com.google.android.exoplayer2.source.smoothstreaming.manifest">SsManifest</a>&nbsp;manifest,
-                 <a href="https://developer.android.com/reference/android/os/Handler.html" target="_top" title="class or interface in android.os">Handler</a>&nbsp;eventHandler,
-                 <a href="../../../../../../com/google/android/exoplayer2/source/MediaSourceEventListener.html" title="interface in com.google.android.exoplayer2.source">MediaSourceEventListener</a>&nbsp;eventListener)</code>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/source/smoothstreaming/SsMediaSource.Factory.html#createMediaSource-com.google.android.exoplayer2.source.smoothstreaming.manifest.SsManifest-">createMediaSource</a></span>(<a href="../../../../../../com/google/android/exoplayer2/source/smoothstreaming/manifest/SsManifest.html" title="class in com.google.android.exoplayer2.source.smoothstreaming.manifest">SsManifest</a>&nbsp;manifest)</code>
 <div class="block">Returns a new <a href="../../../../../../com/google/android/exoplayer2/source/smoothstreaming/SsMediaSource.html" title="class in com.google.android.exoplayer2.source.smoothstreaming"><code>SsMediaSource</code></a> using the current parameters and the specified sideloaded
  manifest.</div>
 </td>
 </tr>
 <tr id="i1" class="rowColor">
 <td class="colFirst"><code><a href="../../../../../../com/google/android/exoplayer2/source/smoothstreaming/SsMediaSource.html" title="class in com.google.android.exoplayer2.source.smoothstreaming">SsMediaSource</a></code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/source/smoothstreaming/SsMediaSource.Factory.html#createMediaSource-android.net.Uri-">createMediaSource</a></span>(<a href="https://developer.android.com/reference/android/net/Uri.html" target="_top" title="class or interface in android.net">Uri</a>&nbsp;manifestUri)</code>
-<div class="block">Returns a new <a href="../../../../../../com/google/android/exoplayer2/source/smoothstreaming/SsMediaSource.html" title="class in com.google.android.exoplayer2.source.smoothstreaming"><code>SsMediaSource</code></a> using the current parameters.</div>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/source/smoothstreaming/SsMediaSource.Factory.html#createMediaSource-com.google.android.exoplayer2.source.smoothstreaming.manifest.SsManifest-android.os.Handler-com.google.android.exoplayer2.source.MediaSourceEventListener-">createMediaSource</a></span>(<a href="../../../../../../com/google/android/exoplayer2/source/smoothstreaming/manifest/SsManifest.html" title="class in com.google.android.exoplayer2.source.smoothstreaming.manifest">SsManifest</a>&nbsp;manifest,
+                 <a href="https://developer.android.com/reference/android/os/Handler.html" target="_top" title="class or interface in android.os">Handler</a>&nbsp;eventHandler,
+                 <a href="../../../../../../com/google/android/exoplayer2/source/MediaSourceEventListener.html" title="interface in com.google.android.exoplayer2.source">MediaSourceEventListener</a>&nbsp;eventListener)</code>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;
+<div class="block"><span class="deprecationComment">Use <a href="../../../../../../com/google/android/exoplayer2/source/smoothstreaming/SsMediaSource.Factory.html#createMediaSource-com.google.android.exoplayer2.source.smoothstreaming.manifest.SsManifest-"><code>createMediaSource(SsManifest)</code></a> and <a href="../../../../../../com/google/android/exoplayer2/source/BaseMediaSource.html#addEventListener-android.os.Handler-com.google.android.exoplayer2.source.MediaSourceEventListener-"><code>BaseMediaSource.addEventListener(Handler,
+     MediaSourceEventListener)</code></a> instead.</span></div>
+</div>
 </td>
 </tr>
 <tr id="i2" class="altColor">
 <td class="colFirst"><code><a href="../../../../../../com/google/android/exoplayer2/source/smoothstreaming/SsMediaSource.html" title="class in com.google.android.exoplayer2.source.smoothstreaming">SsMediaSource</a></code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/source/smoothstreaming/SsMediaSource.Factory.html#createMediaSource-android.net.Uri-android.os.Handler-com.google.android.exoplayer2.source.MediaSourceEventListener-">createMediaSource</a></span>(<a href="https://developer.android.com/reference/android/net/Uri.html" target="_top" title="class or interface in android.net">Uri</a>&nbsp;manifestUri,
-                 <a href="https://developer.android.com/reference/android/os/Handler.html" target="_top" title="class or interface in android.os">Handler</a>&nbsp;eventHandler,
-                 <a href="../../../../../../com/google/android/exoplayer2/source/MediaSourceEventListener.html" title="interface in com.google.android.exoplayer2.source">MediaSourceEventListener</a>&nbsp;eventListener)</code>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/source/smoothstreaming/SsMediaSource.Factory.html#createMediaSource-android.net.Uri-">createMediaSource</a></span>(<a href="https://developer.android.com/reference/android/net/Uri.html" target="_top" title="class or interface in android.net">Uri</a>&nbsp;manifestUri)</code>
 <div class="block">Returns a new <a href="../../../../../../com/google/android/exoplayer2/source/smoothstreaming/SsMediaSource.html" title="class in com.google.android.exoplayer2.source.smoothstreaming"><code>SsMediaSource</code></a> using the current parameters.</div>
 </td>
 </tr>
 <tr id="i3" class="rowColor">
+<td class="colFirst"><code><a href="../../../../../../com/google/android/exoplayer2/source/smoothstreaming/SsMediaSource.html" title="class in com.google.android.exoplayer2.source.smoothstreaming">SsMediaSource</a></code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/source/smoothstreaming/SsMediaSource.Factory.html#createMediaSource-android.net.Uri-android.os.Handler-com.google.android.exoplayer2.source.MediaSourceEventListener-">createMediaSource</a></span>(<a href="https://developer.android.com/reference/android/net/Uri.html" target="_top" title="class or interface in android.net">Uri</a>&nbsp;manifestUri,
+                 <a href="https://developer.android.com/reference/android/os/Handler.html" target="_top" title="class or interface in android.os">Handler</a>&nbsp;eventHandler,
+                 <a href="../../../../../../com/google/android/exoplayer2/source/MediaSourceEventListener.html" title="interface in com.google.android.exoplayer2.source">MediaSourceEventListener</a>&nbsp;eventListener)</code>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;
+<div class="block"><span class="deprecationComment">Use <a href="../../../../../../com/google/android/exoplayer2/source/smoothstreaming/SsMediaSource.Factory.html#createMediaSource-android.net.Uri-"><code>createMediaSource(Uri)</code></a> and <a href="../../../../../../com/google/android/exoplayer2/source/BaseMediaSource.html#addEventListener-android.os.Handler-com.google.android.exoplayer2.source.MediaSourceEventListener-"><code>BaseMediaSource.addEventListener(Handler,
+     MediaSourceEventListener)</code></a> instead.</span></div>
+</div>
+</td>
+</tr>
+<tr id="i4" class="altColor">
 <td class="colFirst"><code>int[]</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/source/smoothstreaming/SsMediaSource.Factory.html#getSupportedTypes--">getSupportedTypes</a></span>()</code>
 <div class="block">Returns the content types supported by media sources created by this factory.</div>
 </td>
 </tr>
-<tr id="i4" class="altColor">
+<tr id="i5" class="rowColor">
 <td class="colFirst"><code><a href="../../../../../../com/google/android/exoplayer2/source/smoothstreaming/SsMediaSource.Factory.html" title="class in com.google.android.exoplayer2.source.smoothstreaming">SsMediaSource.Factory</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/source/smoothstreaming/SsMediaSource.Factory.html#setCompositeSequenceableLoaderFactory-com.google.android.exoplayer2.source.CompositeSequenceableLoaderFactory-">setCompositeSequenceableLoaderFactory</a></span>(<a href="../../../../../../com/google/android/exoplayer2/source/CompositeSequenceableLoaderFactory.html" title="interface in com.google.android.exoplayer2.source">CompositeSequenceableLoaderFactory</a>&nbsp;compositeSequenceableLoaderFactory)</code>
 <div class="block">Sets the factory to create composite <a href="../../../../../../com/google/android/exoplayer2/source/SequenceableLoader.html" title="interface in com.google.android.exoplayer2.source"><code>SequenceableLoader</code></a>s for when this media source
  loads data from multiple streams (video, audio etc.).</div>
 </td>
 </tr>
-<tr id="i5" class="rowColor">
+<tr id="i6" class="altColor">
 <td class="colFirst"><code><a href="../../../../../../com/google/android/exoplayer2/source/smoothstreaming/SsMediaSource.Factory.html" title="class in com.google.android.exoplayer2.source.smoothstreaming">SsMediaSource.Factory</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/source/smoothstreaming/SsMediaSource.Factory.html#setLivePresentationDelayMs-long-">setLivePresentationDelayMs</a></span>(long&nbsp;livePresentationDelayMs)</code>
 <div class="block">Sets the duration in milliseconds by which the default start position should precede the end
  of the live window for live playbacks.</div>
 </td>
 </tr>
-<tr id="i6" class="altColor">
+<tr id="i7" class="rowColor">
 <td class="colFirst"><code><a href="../../../../../../com/google/android/exoplayer2/source/smoothstreaming/SsMediaSource.Factory.html" title="class in com.google.android.exoplayer2.source.smoothstreaming">SsMediaSource.Factory</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/source/smoothstreaming/SsMediaSource.Factory.html#setManifestParser-com.google.android.exoplayer2.upstream.ParsingLoadable.Parser-">setManifestParser</a></span>(<a href="../../../../../../com/google/android/exoplayer2/upstream/ParsingLoadable.Parser.html" title="interface in com.google.android.exoplayer2.upstream">ParsingLoadable.Parser</a>&lt;? extends <a href="../../../../../../com/google/android/exoplayer2/source/smoothstreaming/manifest/SsManifest.html" title="class in com.google.android.exoplayer2.source.smoothstreaming.manifest">SsManifest</a>&gt;&nbsp;manifestParser)</code>
 <div class="block">Sets the manifest parser to parse loaded manifest data when loading a manifest URI.</div>
 </td>
 </tr>
-<tr id="i7" class="rowColor">
+<tr id="i8" class="altColor">
 <td class="colFirst"><code><a href="../../../../../../com/google/android/exoplayer2/source/smoothstreaming/SsMediaSource.Factory.html" title="class in com.google.android.exoplayer2.source.smoothstreaming">SsMediaSource.Factory</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/source/smoothstreaming/SsMediaSource.Factory.html#setMinLoadableRetryCount-int-">setMinLoadableRetryCount</a></span>(int&nbsp;minLoadableRetryCount)</code>
 <div class="block">Sets the minimum number of times to retry if a loading error occurs.</div>
+</td>
+</tr>
+<tr id="i9" class="rowColor">
+<td class="colFirst"><code><a href="../../../../../../com/google/android/exoplayer2/source/smoothstreaming/SsMediaSource.Factory.html" title="class in com.google.android.exoplayer2.source.smoothstreaming">SsMediaSource.Factory</a></code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/source/smoothstreaming/SsMediaSource.Factory.html#setTag-java.lang.Object-">setTag</a></span>(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Object.html" target="_top" title="class or interface in java.lang">Object</a>&nbsp;tag)</code>
+<div class="block">Sets a tag for the media source which will be published in the <a href="../../../../../../com/google/android/exoplayer2/Timeline.html" title="class in com.google.android.exoplayer2"><code>Timeline</code></a> of the source
+ as <code>Timeline.Window#tag</code>.</div>
 </td>
 </tr>
 </table>
@@ -260,6 +279,25 @@ implements <a href="../../../../../../com/google/android/exoplayer2/source/ads/A
 <!--   -->
 </a>
 <h3>Method Detail</h3>
+<a name="setTag-java.lang.Object-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setTag</h4>
+<pre>public&nbsp;<a href="../../../../../../com/google/android/exoplayer2/source/smoothstreaming/SsMediaSource.Factory.html" title="class in com.google.android.exoplayer2.source.smoothstreaming">SsMediaSource.Factory</a>&nbsp;setTag(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Object.html" target="_top" title="class or interface in java.lang">Object</a>&nbsp;tag)</pre>
+<div class="block">Sets a tag for the media source which will be published in the <a href="../../../../../../com/google/android/exoplayer2/Timeline.html" title="class in com.google.android.exoplayer2"><code>Timeline</code></a> of the source
+ as <code>Timeline.Window#tag</code>.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>tag</code> - A tag for the media source.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>This factory, for convenience.</dd>
+<dt><span class="throwsLabel">Throws:</span></dt>
+<dd><code><a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/IllegalStateException.html" target="_top" title="class or interface in java.lang">IllegalStateException</a></code> - If one of the <code>create</code> methods has already been called.</dd>
+</dl>
+</li>
+</ul>
 <a name="setMinLoadableRetryCount-int-">
 <!--   -->
 </a>
@@ -337,29 +375,39 @@ implements <a href="../../../../../../com/google/android/exoplayer2/source/ads/A
 </dl>
 </li>
 </ul>
+<a name="createMediaSource-com.google.android.exoplayer2.source.smoothstreaming.manifest.SsManifest-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>createMediaSource</h4>
+<pre>public&nbsp;<a href="../../../../../../com/google/android/exoplayer2/source/smoothstreaming/SsMediaSource.html" title="class in com.google.android.exoplayer2.source.smoothstreaming">SsMediaSource</a>&nbsp;createMediaSource(<a href="../../../../../../com/google/android/exoplayer2/source/smoothstreaming/manifest/SsManifest.html" title="class in com.google.android.exoplayer2.source.smoothstreaming.manifest">SsManifest</a>&nbsp;manifest)</pre>
+<div class="block">Returns a new <a href="../../../../../../com/google/android/exoplayer2/source/smoothstreaming/SsMediaSource.html" title="class in com.google.android.exoplayer2.source.smoothstreaming"><code>SsMediaSource</code></a> using the current parameters and the specified sideloaded
+ manifest.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>manifest</code> - The manifest. <a href="../../../../../../com/google/android/exoplayer2/source/smoothstreaming/manifest/SsManifest.html#isLive"><code>SsManifest.isLive</code></a> must be false.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>The new <a href="../../../../../../com/google/android/exoplayer2/source/smoothstreaming/SsMediaSource.html" title="class in com.google.android.exoplayer2.source.smoothstreaming"><code>SsMediaSource</code></a>.</dd>
+<dt><span class="throwsLabel">Throws:</span></dt>
+<dd><code><a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/IllegalArgumentException.html" target="_top" title="class or interface in java.lang">IllegalArgumentException</a></code> - If <a href="../../../../../../com/google/android/exoplayer2/source/smoothstreaming/manifest/SsManifest.html#isLive"><code>SsManifest.isLive</code></a> is true.</dd>
+</dl>
+</li>
+</ul>
 <a name="createMediaSource-com.google.android.exoplayer2.source.smoothstreaming.manifest.SsManifest-android.os.Handler-com.google.android.exoplayer2.source.MediaSourceEventListener-">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>createMediaSource</h4>
-<pre>public&nbsp;<a href="../../../../../../com/google/android/exoplayer2/source/smoothstreaming/SsMediaSource.html" title="class in com.google.android.exoplayer2.source.smoothstreaming">SsMediaSource</a>&nbsp;createMediaSource(<a href="../../../../../../com/google/android/exoplayer2/source/smoothstreaming/manifest/SsManifest.html" title="class in com.google.android.exoplayer2.source.smoothstreaming.manifest">SsManifest</a>&nbsp;manifest,
-                                       <a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
-                                       <a href="https://developer.android.com/reference/android/os/Handler.html" target="_top" title="class or interface in android.os">Handler</a>&nbsp;eventHandler,
-                                       <a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
-                                       <a href="../../../../../../com/google/android/exoplayer2/source/MediaSourceEventListener.html" title="interface in com.google.android.exoplayer2.source">MediaSourceEventListener</a>&nbsp;eventListener)</pre>
-<div class="block">Returns a new <a href="../../../../../../com/google/android/exoplayer2/source/smoothstreaming/SsMediaSource.html" title="class in com.google.android.exoplayer2.source.smoothstreaming"><code>SsMediaSource</code></a> using the current parameters and the specified sideloaded
- manifest.</div>
-<dl>
-<dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>manifest</code> - The manifest. <a href="../../../../../../com/google/android/exoplayer2/source/smoothstreaming/manifest/SsManifest.html#isLive"><code>SsManifest.isLive</code></a> must be false.</dd>
-<dd><code>eventHandler</code> - A handler for events.</dd>
-<dd><code>eventListener</code> - A listener of events.</dd>
-<dt><span class="returnLabel">Returns:</span></dt>
-<dd>The new <a href="../../../../../../com/google/android/exoplayer2/source/smoothstreaming/SsMediaSource.html" title="class in com.google.android.exoplayer2.source.smoothstreaming"><code>SsMediaSource</code></a>.</dd>
-<dt><span class="throwsLabel">Throws:</span></dt>
-<dd><code><a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/IllegalArgumentException.html" target="_top" title="class or interface in java.lang">IllegalArgumentException</a></code> - If <a href="../../../../../../com/google/android/exoplayer2/source/smoothstreaming/manifest/SsManifest.html#isLive"><code>SsManifest.isLive</code></a> is true.</dd>
-</dl>
+<pre><a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Deprecated.html" target="_top" title="class or interface in java.lang">@Deprecated</a>
+public&nbsp;<a href="../../../../../../com/google/android/exoplayer2/source/smoothstreaming/SsMediaSource.html" title="class in com.google.android.exoplayer2.source.smoothstreaming">SsMediaSource</a>&nbsp;createMediaSource(<a href="../../../../../../com/google/android/exoplayer2/source/smoothstreaming/manifest/SsManifest.html" title="class in com.google.android.exoplayer2.source.smoothstreaming.manifest">SsManifest</a>&nbsp;manifest,
+                                                   <a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
+                                                   <a href="https://developer.android.com/reference/android/os/Handler.html" target="_top" title="class or interface in android.os">Handler</a>&nbsp;eventHandler,
+                                                   <a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
+                                                   <a href="../../../../../../com/google/android/exoplayer2/source/MediaSourceEventListener.html" title="interface in com.google.android.exoplayer2.source">MediaSourceEventListener</a>&nbsp;eventListener)</pre>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;<span class="deprecationComment">Use <a href="../../../../../../com/google/android/exoplayer2/source/smoothstreaming/SsMediaSource.Factory.html#createMediaSource-com.google.android.exoplayer2.source.smoothstreaming.manifest.SsManifest-"><code>createMediaSource(SsManifest)</code></a> and <a href="../../../../../../com/google/android/exoplayer2/source/BaseMediaSource.html#addEventListener-android.os.Handler-com.google.android.exoplayer2.source.MediaSourceEventListener-"><code>BaseMediaSource.addEventListener(Handler,
+     MediaSourceEventListener)</code></a> instead.</span></div>
 </li>
 </ul>
 <a name="createMediaSource-android.net.Uri-">
@@ -369,9 +417,10 @@ implements <a href="../../../../../../com/google/android/exoplayer2/source/ads/A
 <li class="blockList">
 <h4>createMediaSource</h4>
 <pre>public&nbsp;<a href="../../../../../../com/google/android/exoplayer2/source/smoothstreaming/SsMediaSource.html" title="class in com.google.android.exoplayer2.source.smoothstreaming">SsMediaSource</a>&nbsp;createMediaSource(<a href="https://developer.android.com/reference/android/net/Uri.html" target="_top" title="class or interface in android.net">Uri</a>&nbsp;manifestUri)</pre>
-<div class="block">Returns a new <a href="../../../../../../com/google/android/exoplayer2/source/smoothstreaming/SsMediaSource.html" title="class in com.google.android.exoplayer2.source.smoothstreaming"><code>SsMediaSource</code></a> using the current parameters. Media source events will
- not be delivered.</div>
+<div class="block">Returns a new <a href="../../../../../../com/google/android/exoplayer2/source/smoothstreaming/SsMediaSource.html" title="class in com.google.android.exoplayer2.source.smoothstreaming"><code>SsMediaSource</code></a> using the current parameters.</div>
 <dl>
+<dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
+<dd><code><a href="../../../../../../com/google/android/exoplayer2/source/ads/AdsMediaSource.MediaSourceFactory.html#createMediaSource-android.net.Uri-">createMediaSource</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/source/ads/AdsMediaSource.MediaSourceFactory.html" title="interface in com.google.android.exoplayer2.source.ads">AdsMediaSource.MediaSourceFactory</a></code></dd>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>manifestUri</code> - The manifest <a href="https://developer.android.com/reference/android/net/Uri.html" target="_top" title="class or interface in android.net"><code>Uri</code></a>.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
@@ -385,22 +434,14 @@ implements <a href="../../../../../../com/google/android/exoplayer2/source/ads/A
 <ul class="blockList">
 <li class="blockList">
 <h4>createMediaSource</h4>
-<pre>public&nbsp;<a href="../../../../../../com/google/android/exoplayer2/source/smoothstreaming/SsMediaSource.html" title="class in com.google.android.exoplayer2.source.smoothstreaming">SsMediaSource</a>&nbsp;createMediaSource(<a href="https://developer.android.com/reference/android/net/Uri.html" target="_top" title="class or interface in android.net">Uri</a>&nbsp;manifestUri,
-                                       <a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
-                                       <a href="https://developer.android.com/reference/android/os/Handler.html" target="_top" title="class or interface in android.os">Handler</a>&nbsp;eventHandler,
-                                       <a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
-                                       <a href="../../../../../../com/google/android/exoplayer2/source/MediaSourceEventListener.html" title="interface in com.google.android.exoplayer2.source">MediaSourceEventListener</a>&nbsp;eventListener)</pre>
-<div class="block">Returns a new <a href="../../../../../../com/google/android/exoplayer2/source/smoothstreaming/SsMediaSource.html" title="class in com.google.android.exoplayer2.source.smoothstreaming"><code>SsMediaSource</code></a> using the current parameters.</div>
-<dl>
-<dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code><a href="../../../../../../com/google/android/exoplayer2/source/ads/AdsMediaSource.MediaSourceFactory.html#createMediaSource-android.net.Uri-android.os.Handler-com.google.android.exoplayer2.source.MediaSourceEventListener-">createMediaSource</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/source/ads/AdsMediaSource.MediaSourceFactory.html" title="interface in com.google.android.exoplayer2.source.ads">AdsMediaSource.MediaSourceFactory</a></code></dd>
-<dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>manifestUri</code> - The manifest <a href="https://developer.android.com/reference/android/net/Uri.html" target="_top" title="class or interface in android.net"><code>Uri</code></a>.</dd>
-<dd><code>eventHandler</code> - A handler for events.</dd>
-<dd><code>eventListener</code> - A listener of events.</dd>
-<dt><span class="returnLabel">Returns:</span></dt>
-<dd>The new <a href="../../../../../../com/google/android/exoplayer2/source/smoothstreaming/SsMediaSource.html" title="class in com.google.android.exoplayer2.source.smoothstreaming"><code>SsMediaSource</code></a>.</dd>
-</dl>
+<pre><a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Deprecated.html" target="_top" title="class or interface in java.lang">@Deprecated</a>
+public&nbsp;<a href="../../../../../../com/google/android/exoplayer2/source/smoothstreaming/SsMediaSource.html" title="class in com.google.android.exoplayer2.source.smoothstreaming">SsMediaSource</a>&nbsp;createMediaSource(<a href="https://developer.android.com/reference/android/net/Uri.html" target="_top" title="class or interface in android.net">Uri</a>&nbsp;manifestUri,
+                                                   <a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
+                                                   <a href="https://developer.android.com/reference/android/os/Handler.html" target="_top" title="class or interface in android.os">Handler</a>&nbsp;eventHandler,
+                                                   <a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
+                                                   <a href="../../../../../../com/google/android/exoplayer2/source/MediaSourceEventListener.html" title="interface in com.google.android.exoplayer2.source">MediaSourceEventListener</a>&nbsp;eventListener)</pre>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;<span class="deprecationComment">Use <a href="../../../../../../com/google/android/exoplayer2/source/smoothstreaming/SsMediaSource.Factory.html#createMediaSource-android.net.Uri-"><code>createMediaSource(Uri)</code></a> and <a href="../../../../../../com/google/android/exoplayer2/source/BaseMediaSource.html#addEventListener-android.os.Handler-com.google.android.exoplayer2.source.MediaSourceEventListener-"><code>BaseMediaSource.addEventListener(Handler,
+     MediaSourceEventListener)</code></a> instead.</span></div>
 </li>
 </ul>
 <a name="getSupportedTypes--">

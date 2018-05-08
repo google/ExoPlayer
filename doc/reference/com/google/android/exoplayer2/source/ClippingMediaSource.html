@@ -16,7 +16,7 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10};
+var methods = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -97,10 +97,15 @@ var activeTableTab = "activeTableTab";
 <li><a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Object.html" target="_top" title="class or interface in java.lang">java.lang.Object</a></li>
 <li>
 <ul class="inheritance">
+<li><a href="../../../../../com/google/android/exoplayer2/source/BaseMediaSource.html" title="class in com.google.android.exoplayer2.source">com.google.android.exoplayer2.source.BaseMediaSource</a></li>
+<li>
+<ul class="inheritance">
 <li><a href="../../../../../com/google/android/exoplayer2/source/CompositeMediaSource.html" title="class in com.google.android.exoplayer2.source">com.google.android.exoplayer2.source.CompositeMediaSource</a>&lt;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Void.html" target="_top" title="class or interface in java.lang">Void</a>&gt;</li>
 <li>
 <ul class="inheritance">
 <li>com.google.android.exoplayer2.source.ClippingMediaSource</li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
@@ -118,8 +123,7 @@ var activeTableTab = "activeTableTab";
 <pre>public final class <span class="typeNameLabel">ClippingMediaSource</span>
 extends <a href="../../../../../com/google/android/exoplayer2/source/CompositeMediaSource.html" title="class in com.google.android.exoplayer2.source">CompositeMediaSource</a>&lt;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Void.html" target="_top" title="class or interface in java.lang">Void</a>&gt;</pre>
 <div class="block"><a href="../../../../../com/google/android/exoplayer2/source/MediaSource.html" title="interface in com.google.android.exoplayer2.source"><code>MediaSource</code></a> that wraps a source and clips its timeline based on specified start/end
- positions. The wrapped source must consist of a single period that starts at the beginning of the
- corresponding window.</div>
+ positions. The wrapped source must consist of a single period.</div>
 </li>
 </ul>
 </div>
@@ -150,22 +154,7 @@ extends <a href="../../../../../com/google/android/exoplayer2/source/CompositeMe
 <!--   -->
 </a>
 <h3>Nested classes/interfaces inherited from interface&nbsp;com.google.android.exoplayer2.source.<a href="../../../../../com/google/android/exoplayer2/source/MediaSource.html" title="interface in com.google.android.exoplayer2.source">MediaSource</a></h3>
-<code><a href="../../../../../com/google/android/exoplayer2/source/MediaSource.Listener.html" title="interface in com.google.android.exoplayer2.source">MediaSource.Listener</a>, <a href="../../../../../com/google/android/exoplayer2/source/MediaSource.MediaPeriodId.html" title="class in com.google.android.exoplayer2.source">MediaSource.MediaPeriodId</a></code></li>
-</ul>
-</li>
-</ul>
-<!-- =========== FIELD SUMMARY =========== -->
-<ul class="blockList">
-<li class="blockList"><a name="field.summary">
-<!--   -->
-</a>
-<h3>Field Summary</h3>
-<ul class="blockList">
-<li class="blockList"><a name="fields.inherited.from.class.com.google.android.exoplayer2.source.MediaSource">
-<!--   -->
-</a>
-<h3>Fields inherited from interface&nbsp;com.google.android.exoplayer2.source.<a href="../../../../../com/google/android/exoplayer2/source/MediaSource.html" title="interface in com.google.android.exoplayer2.source">MediaSource</a></h3>
-<code><a href="../../../../../com/google/android/exoplayer2/source/MediaSource.html#MEDIA_SOURCE_REUSED_ERROR_MESSAGE">MEDIA_SOURCE_REUSED_ERROR_MESSAGE</a></code></li>
+<code><a href="../../../../../com/google/android/exoplayer2/source/MediaSource.MediaPeriodId.html" title="class in com.google.android.exoplayer2.source">MediaSource.MediaPeriodId</a>, <a href="../../../../../com/google/android/exoplayer2/source/MediaSource.SourceInfoRefreshListener.html" title="interface in com.google.android.exoplayer2.source">MediaSource.SourceInfoRefreshListener</a></code></li>
 </ul>
 </li>
 </ul>
@@ -181,17 +170,35 @@ extends <a href="../../../../../com/google/android/exoplayer2/source/CompositeMe
 <th class="colOne" scope="col">Constructor and Description</th>
 </tr>
 <tr class="altColor">
-<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/source/ClippingMediaSource.html#ClippingMediaSource-com.google.android.exoplayer2.source.MediaSource-long-long-">ClippingMediaSource</a></span>(<a href="../../../../../com/google/android/exoplayer2/source/MediaSource.html" title="interface in com.google.android.exoplayer2.source">MediaSource</a>&nbsp;mediaSource,
-                   long&nbsp;startPositionUs,
-                   long&nbsp;endPositionUs)</code>
-<div class="block">Creates a new clipping source that wraps the specified source.</div>
+<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/source/ClippingMediaSource.html#ClippingMediaSource-com.google.android.exoplayer2.source.MediaSource-long-">ClippingMediaSource</a></span>(<a href="../../../../../com/google/android/exoplayer2/source/MediaSource.html" title="interface in com.google.android.exoplayer2.source">MediaSource</a>&nbsp;mediaSource,
+                   long&nbsp;durationUs)</code>
+<div class="block">Creates a new clipping source that wraps the specified source and provides samples from the
+ default position for the specified duration.</div>
 </td>
 </tr>
 <tr class="rowColor">
+<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/source/ClippingMediaSource.html#ClippingMediaSource-com.google.android.exoplayer2.source.MediaSource-long-long-">ClippingMediaSource</a></span>(<a href="../../../../../com/google/android/exoplayer2/source/MediaSource.html" title="interface in com.google.android.exoplayer2.source">MediaSource</a>&nbsp;mediaSource,
+                   long&nbsp;startPositionUs,
+                   long&nbsp;endPositionUs)</code>
+<div class="block">Creates a new clipping source that wraps the specified source and provides samples between the
+ specified start and end position.</div>
+</td>
+</tr>
+<tr class="altColor">
 <td class="colOne"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/source/ClippingMediaSource.html#ClippingMediaSource-com.google.android.exoplayer2.source.MediaSource-long-long-boolean-">ClippingMediaSource</a></span>(<a href="../../../../../com/google/android/exoplayer2/source/MediaSource.html" title="interface in com.google.android.exoplayer2.source">MediaSource</a>&nbsp;mediaSource,
                    long&nbsp;startPositionUs,
                    long&nbsp;endPositionUs,
                    boolean&nbsp;enableInitialDiscontinuity)</code>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/source/ClippingMediaSource.html#ClippingMediaSource-com.google.android.exoplayer2.source.MediaSource-long-long-boolean-boolean-boolean-">ClippingMediaSource</a></span>(<a href="../../../../../com/google/android/exoplayer2/source/MediaSource.html" title="interface in com.google.android.exoplayer2.source">MediaSource</a>&nbsp;mediaSource,
+                   long&nbsp;startPositionUs,
+                   long&nbsp;endPositionUs,
+                   boolean&nbsp;enableInitialDiscontinuity,
+                   boolean&nbsp;allowDynamicClippingUpdates,
+                   boolean&nbsp;relativeToDefaultPosition)</code>
 <div class="block">Creates a new clipping source that wraps the specified source.</div>
 </td>
 </tr>
@@ -218,12 +225,20 @@ extends <a href="../../../../../com/google/android/exoplayer2/source/CompositeMe
 </td>
 </tr>
 <tr id="i1" class="rowColor">
+<td class="colFirst"><code>protected long</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/source/ClippingMediaSource.html#getMediaTimeForChildMediaTime-java.lang.Void-long-">getMediaTimeForChildMediaTime</a></span>(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Void.html" target="_top" title="class or interface in java.lang">Void</a>&nbsp;id,
+                             long&nbsp;mediaTimeMs)</code>
+<div class="block">Returns the media time in the composite source corresponding to the specified media time in a
+ child source.</div>
+</td>
+</tr>
+<tr id="i2" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/source/ClippingMediaSource.html#maybeThrowSourceInfoRefreshError--">maybeThrowSourceInfoRefreshError</a></span>()</code>
 <div class="block">Throws any pending error encountered while loading or refreshing source information.</div>
 </td>
 </tr>
-<tr id="i2" class="altColor">
+<tr id="i3" class="rowColor">
 <td class="colFirst"><code>protected void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/source/ClippingMediaSource.html#onChildSourceInfoRefreshed-java.lang.Void-com.google.android.exoplayer2.source.MediaSource-com.google.android.exoplayer2.Timeline-java.lang.Object-">onChildSourceInfoRefreshed</a></span>(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Void.html" target="_top" title="class or interface in java.lang">Void</a>&nbsp;id,
                           <a href="../../../../../com/google/android/exoplayer2/source/MediaSource.html" title="interface in com.google.android.exoplayer2.source">MediaSource</a>&nbsp;mediaSource,
@@ -232,23 +247,22 @@ extends <a href="../../../../../com/google/android/exoplayer2/source/CompositeMe
 <div class="block">Called when the source info of a child source has been refreshed.</div>
 </td>
 </tr>
-<tr id="i3" class="rowColor">
+<tr id="i4" class="altColor">
 <td class="colFirst"><code>void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/source/ClippingMediaSource.html#prepareSource-com.google.android.exoplayer2.ExoPlayer-boolean-com.google.android.exoplayer2.source.MediaSource.Listener-">prepareSource</a></span>(<a href="../../../../../com/google/android/exoplayer2/ExoPlayer.html" title="interface in com.google.android.exoplayer2">ExoPlayer</a>&nbsp;player,
-             boolean&nbsp;isTopLevelSource,
-             <a href="../../../../../com/google/android/exoplayer2/source/MediaSource.Listener.html" title="interface in com.google.android.exoplayer2.source">MediaSource.Listener</a>&nbsp;listener)</code>
-<div class="block">Starts preparation of the source.</div>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/source/ClippingMediaSource.html#prepareSourceInternal-com.google.android.exoplayer2.ExoPlayer-boolean-">prepareSourceInternal</a></span>(<a href="../../../../../com/google/android/exoplayer2/ExoPlayer.html" title="interface in com.google.android.exoplayer2">ExoPlayer</a>&nbsp;player,
+                     boolean&nbsp;isTopLevelSource)</code>
+<div class="block">Starts source preparation.</div>
 </td>
 </tr>
-<tr id="i4" class="altColor">
+<tr id="i5" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/source/ClippingMediaSource.html#releasePeriod-com.google.android.exoplayer2.source.MediaPeriod-">releasePeriod</a></span>(<a href="../../../../../com/google/android/exoplayer2/source/MediaPeriod.html" title="interface in com.google.android.exoplayer2.source">MediaPeriod</a>&nbsp;mediaPeriod)</code>
 <div class="block">Releases the period.</div>
 </td>
 </tr>
-<tr id="i5" class="rowColor">
+<tr id="i6" class="altColor">
 <td class="colFirst"><code>void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/source/ClippingMediaSource.html#releaseSource--">releaseSource</a></span>()</code>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/source/ClippingMediaSource.html#releaseSourceInternal--">releaseSourceInternal</a></span>()</code>
 <div class="block">Releases the source.</div>
 </td>
 </tr>
@@ -258,7 +272,14 @@ extends <a href="../../../../../com/google/android/exoplayer2/source/CompositeMe
 <!--   -->
 </a>
 <h3>Methods inherited from class&nbsp;com.google.android.exoplayer2.source.<a href="../../../../../com/google/android/exoplayer2/source/CompositeMediaSource.html" title="class in com.google.android.exoplayer2.source">CompositeMediaSource</a></h3>
-<code><a href="../../../../../com/google/android/exoplayer2/source/CompositeMediaSource.html#prepareChildSource-T-com.google.android.exoplayer2.source.MediaSource-">prepareChildSource</a>, <a href="../../../../../com/google/android/exoplayer2/source/CompositeMediaSource.html#releaseChildSource-T-">releaseChildSource</a></code></li>
+<code><a href="../../../../../com/google/android/exoplayer2/source/CompositeMediaSource.html#getMediaPeriodIdForChildMediaPeriodId-T-com.google.android.exoplayer2.source.MediaSource.MediaPeriodId-">getMediaPeriodIdForChildMediaPeriodId</a>, <a href="../../../../../com/google/android/exoplayer2/source/CompositeMediaSource.html#getWindowIndexForChildWindowIndex-T-int-">getWindowIndexForChildWindowIndex</a>, <a href="../../../../../com/google/android/exoplayer2/source/CompositeMediaSource.html#prepareChildSource-T-com.google.android.exoplayer2.source.MediaSource-">prepareChildSource</a>, <a href="../../../../../com/google/android/exoplayer2/source/CompositeMediaSource.html#releaseChildSource-T-">releaseChildSource</a></code></li>
+</ul>
+<ul class="blockList">
+<li class="blockList"><a name="methods.inherited.from.class.com.google.android.exoplayer2.source.BaseMediaSource">
+<!--   -->
+</a>
+<h3>Methods inherited from class&nbsp;com.google.android.exoplayer2.source.<a href="../../../../../com/google/android/exoplayer2/source/BaseMediaSource.html" title="class in com.google.android.exoplayer2.source">BaseMediaSource</a></h3>
+<code><a href="../../../../../com/google/android/exoplayer2/source/BaseMediaSource.html#addEventListener-android.os.Handler-com.google.android.exoplayer2.source.MediaSourceEventListener-">addEventListener</a>, <a href="../../../../../com/google/android/exoplayer2/source/BaseMediaSource.html#createEventDispatcher-int-com.google.android.exoplayer2.source.MediaSource.MediaPeriodId-long-">createEventDispatcher</a>, <a href="../../../../../com/google/android/exoplayer2/source/BaseMediaSource.html#createEventDispatcher-com.google.android.exoplayer2.source.MediaSource.MediaPeriodId-">createEventDispatcher</a>, <a href="../../../../../com/google/android/exoplayer2/source/BaseMediaSource.html#createEventDispatcher-com.google.android.exoplayer2.source.MediaSource.MediaPeriodId-long-">createEventDispatcher</a>, <a href="../../../../../com/google/android/exoplayer2/source/BaseMediaSource.html#prepareSource-com.google.android.exoplayer2.ExoPlayer-boolean-com.google.android.exoplayer2.source.MediaSource.SourceInfoRefreshListener-">prepareSource</a>, <a href="../../../../../com/google/android/exoplayer2/source/BaseMediaSource.html#refreshSourceInfo-com.google.android.exoplayer2.Timeline-java.lang.Object-">refreshSourceInfo</a>, <a href="../../../../../com/google/android/exoplayer2/source/BaseMediaSource.html#releaseSource-com.google.android.exoplayer2.source.MediaSource.SourceInfoRefreshListener-">releaseSource</a>, <a href="../../../../../com/google/android/exoplayer2/source/BaseMediaSource.html#removeEventListener-com.google.android.exoplayer2.source.MediaSourceEventListener-">removeEventListener</a></code></li>
 </ul>
 <ul class="blockList">
 <li class="blockList"><a name="methods.inherited.from.class.java.lang.Object">
@@ -290,13 +311,14 @@ extends <a href="../../../../../com/google/android/exoplayer2/source/CompositeMe
 <pre>public&nbsp;ClippingMediaSource(<a href="../../../../../com/google/android/exoplayer2/source/MediaSource.html" title="interface in com.google.android.exoplayer2.source">MediaSource</a>&nbsp;mediaSource,
                            long&nbsp;startPositionUs,
                            long&nbsp;endPositionUs)</pre>
-<div class="block">Creates a new clipping source that wraps the specified source.</div>
+<div class="block">Creates a new clipping source that wraps the specified source and provides samples between the
+ specified start and end position.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>mediaSource</code> - The single-period source to wrap.</dd>
-<dd><code>startPositionUs</code> - The start position within <code>mediaSource</code>'s timeline at which to
-     start providing samples, in microseconds.</dd>
-<dd><code>endPositionUs</code> - The end position within <code>mediaSource</code>'s timeline at which to stop
+<dd><code>startPositionUs</code> - The start position within <code>mediaSource</code>'s window at which to start
+     providing samples, in microseconds.</dd>
+<dd><code>endPositionUs</code> - The end position within <code>mediaSource</code>'s window at which to stop
      providing samples, in microseconds. Specify <a href="../../../../../com/google/android/exoplayer2/C.html#TIME_END_OF_SOURCE"><code>C.TIME_END_OF_SOURCE</code></a> to provide samples
      from the specified start point up to the end of the source. Specifying a position that
      exceeds the <code>mediaSource</code>'s duration will also result in the end of the source not
@@ -307,29 +329,88 @@ extends <a href="../../../../../com/google/android/exoplayer2/source/CompositeMe
 <a name="ClippingMediaSource-com.google.android.exoplayer2.source.MediaSource-long-long-boolean-">
 <!--   -->
 </a>
+<ul class="blockList">
+<li class="blockList">
+<h4>ClippingMediaSource</h4>
+<pre><a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Deprecated.html" target="_top" title="class or interface in java.lang">@Deprecated</a>
+public&nbsp;ClippingMediaSource(<a href="../../../../../com/google/android/exoplayer2/source/MediaSource.html" title="interface in com.google.android.exoplayer2.source">MediaSource</a>&nbsp;mediaSource,
+                                       long&nbsp;startPositionUs,
+                                       long&nbsp;endPositionUs,
+                                       boolean&nbsp;enableInitialDiscontinuity)</pre>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;</div>
+<div class="block">Creates a new clipping source that wraps the specified source and provides samples between the
+ specified start and end position.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>mediaSource</code> - The single-period source to wrap.</dd>
+<dd><code>startPositionUs</code> - The start position within <code>mediaSource</code>'s window at which to start
+     providing samples, in microseconds.</dd>
+<dd><code>endPositionUs</code> - The end position within <code>mediaSource</code>'s window at which to stop
+     providing samples, in microseconds. Specify <a href="../../../../../com/google/android/exoplayer2/C.html#TIME_END_OF_SOURCE"><code>C.TIME_END_OF_SOURCE</code></a> to provide samples
+     from the specified start point up to the end of the source. Specifying a position that
+     exceeds the <code>mediaSource</code>'s duration will also result in the end of the source not
+     being clipped.</dd>
+<dd><code>enableInitialDiscontinuity</code> - Whether the initial discontinuity should be enabled.</dd>
+</dl>
+</li>
+</ul>
+<a name="ClippingMediaSource-com.google.android.exoplayer2.source.MediaSource-long-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>ClippingMediaSource</h4>
+<pre>public&nbsp;ClippingMediaSource(<a href="../../../../../com/google/android/exoplayer2/source/MediaSource.html" title="interface in com.google.android.exoplayer2.source">MediaSource</a>&nbsp;mediaSource,
+                           long&nbsp;durationUs)</pre>
+<div class="block">Creates a new clipping source that wraps the specified source and provides samples from the
+ default position for the specified duration.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>mediaSource</code> - The single-period source to wrap.</dd>
+<dd><code>durationUs</code> - The duration from the default position in the window in <code>mediaSource</code>'s
+     timeline at which to stop providing samples. Specifying a duration that exceeds the <code>mediaSource</code>'s duration will result in the end of the source not being clipped.</dd>
+</dl>
+</li>
+</ul>
+<a name="ClippingMediaSource-com.google.android.exoplayer2.source.MediaSource-long-long-boolean-boolean-boolean-">
+<!--   -->
+</a>
 <ul class="blockListLast">
 <li class="blockList">
 <h4>ClippingMediaSource</h4>
 <pre>public&nbsp;ClippingMediaSource(<a href="../../../../../com/google/android/exoplayer2/source/MediaSource.html" title="interface in com.google.android.exoplayer2.source">MediaSource</a>&nbsp;mediaSource,
                            long&nbsp;startPositionUs,
                            long&nbsp;endPositionUs,
-                           boolean&nbsp;enableInitialDiscontinuity)</pre>
+                           boolean&nbsp;enableInitialDiscontinuity,
+                           boolean&nbsp;allowDynamicClippingUpdates,
+                           boolean&nbsp;relativeToDefaultPosition)</pre>
 <div class="block">Creates a new clipping source that wraps the specified source.
- <p>
- If the start point is guaranteed to be a key frame, pass <code>false</code> to
- <code>enableInitialPositionDiscontinuity</code> to suppress an initial discontinuity when a period
- is first read from.</div>
+
+ <p>If the start point is guaranteed to be a key frame, pass <code>false</code> to <code>enableInitialPositionDiscontinuity</code> to suppress an initial discontinuity when a period is first
+ read from.
+
+ <p>For live streams, if the clipping positions should move with the live window, pass <code>true</code> to <code>allowDynamicClippingUpdates</code>. Otherwise, the live stream ends when the playback
+ reaches <code>endPositionUs</code> in the last reported live window at the time a media period was
+ created.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>mediaSource</code> - The single-period source to wrap.</dd>
-<dd><code>startPositionUs</code> - The start position within <code>mediaSource</code>'s timeline at which to
-     start providing samples, in microseconds.</dd>
-<dd><code>endPositionUs</code> - The end position within <code>mediaSource</code>'s timeline at which to stop
-     providing samples, in microseconds. Specify <a href="../../../../../com/google/android/exoplayer2/C.html#TIME_END_OF_SOURCE"><code>C.TIME_END_OF_SOURCE</code></a> to provide samples
-     from the specified start point up to the end of the source. Specifying a position that
-     exceeds the <code>mediaSource</code>'s duration will also result in the end of the source not
-     being clipped.</dd>
+<dd><code>startPositionUs</code> - The start position at which to start providing samples, in microseconds.
+     If <code>relativeToDefaultPosition</code> is <code>false</code>, this position is relative to the
+     start of the window in <code>mediaSource</code>'s timeline. If <code>relativeToDefaultPosition</code>
+     is <code>true</code>, this position is relative to the default position in the window in <code>mediaSource</code>'s timeline.</dd>
+<dd><code>endPositionUs</code> - The end position at which to stop providing samples, in microseconds.
+     Specify <a href="../../../../../com/google/android/exoplayer2/C.html#TIME_END_OF_SOURCE"><code>C.TIME_END_OF_SOURCE</code></a> to provide samples from the specified start point up
+     to the end of the source. Specifying a position that exceeds the <code>mediaSource</code>'s
+     duration will also result in the end of the source not being clipped. If <code>relativeToDefaultPosition</code> is <code>false</code>, the specified position is relative to the
+     start of the window in <code>mediaSource</code>'s timeline. If <code>relativeToDefaultPosition</code>
+     is <code>true</code>, this position is relative to the default position in the window in <code>mediaSource</code>'s timeline.</dd>
 <dd><code>enableInitialDiscontinuity</code> - Whether the initial discontinuity should be enabled.</dd>
+<dd><code>allowDynamicClippingUpdates</code> - Whether the clipping of active media periods moves with a
+     live window. If <code>false</code>, playback ends when it reaches <code>endPositionUs</code> in the
+     last reported live window at the time a media period was created.</dd>
+<dd><code>relativeToDefaultPosition</code> - Whether <code>startPositionUs</code> and <code>endPositionUs</code> are
+     relative to the default position in the window in <code>mediaSource</code>'s timeline.</dd>
 </dl>
 </li>
 </ul>
@@ -341,31 +422,23 @@ extends <a href="../../../../../com/google/android/exoplayer2/source/CompositeMe
 <!--   -->
 </a>
 <h3>Method Detail</h3>
-<a name="prepareSource-com.google.android.exoplayer2.ExoPlayer-boolean-com.google.android.exoplayer2.source.MediaSource.Listener-">
+<a name="prepareSourceInternal-com.google.android.exoplayer2.ExoPlayer-boolean-">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
-<h4>prepareSource</h4>
-<pre>public&nbsp;void&nbsp;prepareSource(<a href="../../../../../com/google/android/exoplayer2/ExoPlayer.html" title="interface in com.google.android.exoplayer2">ExoPlayer</a>&nbsp;player,
-                          boolean&nbsp;isTopLevelSource,
-                          <a href="../../../../../com/google/android/exoplayer2/source/MediaSource.Listener.html" title="interface in com.google.android.exoplayer2.source">MediaSource.Listener</a>&nbsp;listener)</pre>
-<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/source/MediaSource.html#prepareSource-com.google.android.exoplayer2.ExoPlayer-boolean-com.google.android.exoplayer2.source.MediaSource.Listener-">MediaSource</a></code></span></div>
-<div class="block">Starts preparation of the source.
- <p>
- Should not be called directly from application code.</div>
+<h4>prepareSourceInternal</h4>
+<pre>public&nbsp;void&nbsp;prepareSourceInternal(<a href="../../../../../com/google/android/exoplayer2/ExoPlayer.html" title="interface in com.google.android.exoplayer2">ExoPlayer</a>&nbsp;player,
+                                  boolean&nbsp;isTopLevelSource)</pre>
+<div class="block"><span class="descfrmTypeLabel">Description copied from class:&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/source/BaseMediaSource.html#prepareSourceInternal-com.google.android.exoplayer2.ExoPlayer-boolean-">BaseMediaSource</a></code></span></div>
+<div class="block">Starts source preparation. This method is called at most once until the next call to <a href="../../../../../com/google/android/exoplayer2/source/BaseMediaSource.html#releaseSourceInternal--"><code>BaseMediaSource.releaseSourceInternal()</code></a>.</div>
 <dl>
-<dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code><a href="../../../../../com/google/android/exoplayer2/source/MediaSource.html#prepareSource-com.google.android.exoplayer2.ExoPlayer-boolean-com.google.android.exoplayer2.source.MediaSource.Listener-">prepareSource</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/source/MediaSource.html" title="interface in com.google.android.exoplayer2.source">MediaSource</a></code></dd>
 <dt><span class="overrideSpecifyLabel">Overrides:</span></dt>
-<dd><code><a href="../../../../../com/google/android/exoplayer2/source/CompositeMediaSource.html#prepareSource-com.google.android.exoplayer2.ExoPlayer-boolean-com.google.android.exoplayer2.source.MediaSource.Listener-">prepareSource</a></code>&nbsp;in class&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/source/CompositeMediaSource.html" title="class in com.google.android.exoplayer2.source">CompositeMediaSource</a>&lt;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Void.html" target="_top" title="class or interface in java.lang">Void</a>&gt;</code></dd>
+<dd><code><a href="../../../../../com/google/android/exoplayer2/source/CompositeMediaSource.html#prepareSourceInternal-com.google.android.exoplayer2.ExoPlayer-boolean-">prepareSourceInternal</a></code>&nbsp;in class&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/source/CompositeMediaSource.html" title="class in com.google.android.exoplayer2.source">CompositeMediaSource</a>&lt;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Void.html" target="_top" title="class or interface in java.lang">Void</a>&gt;</code></dd>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>player</code> - The player for which this source is being prepared.</dd>
-<dd><code>isTopLevelSource</code> - Whether this source has been passed directly to
-     <a href="../../../../../com/google/android/exoplayer2/ExoPlayer.html#prepare-com.google.android.exoplayer2.source.MediaSource-"><code>ExoPlayer.prepare(MediaSource)</code></a> or
-     <a href="../../../../../com/google/android/exoplayer2/ExoPlayer.html#prepare-com.google.android.exoplayer2.source.MediaSource-boolean-boolean-"><code>ExoPlayer.prepare(MediaSource, boolean, boolean)</code></a>. If <code>false</code>, this source is
-     being prepared by another source (e.g. <a href="../../../../../com/google/android/exoplayer2/source/ConcatenatingMediaSource.html" title="class in com.google.android.exoplayer2.source"><code>ConcatenatingMediaSource</code></a>) for composition.</dd>
-<dd><code>listener</code> - The listener for source events.</dd>
+<dd><code>isTopLevelSource</code> - Whether this source has been passed directly to <a href="../../../../../com/google/android/exoplayer2/ExoPlayer.html#prepare-com.google.android.exoplayer2.source.MediaSource-"><code>ExoPlayer.prepare(MediaSource)</code></a> or <a href="../../../../../com/google/android/exoplayer2/ExoPlayer.html#prepare-com.google.android.exoplayer2.source.MediaSource-boolean-boolean-"><code>ExoPlayer.prepare(MediaSource, boolean,
+     boolean)</code></a>.</dd>
 </dl>
 </li>
 </ul>
@@ -431,29 +504,25 @@ extends <a href="../../../../../com/google/android/exoplayer2/source/CompositeMe
 </dl>
 </li>
 </ul>
-<a name="releaseSource--">
+<a name="releaseSourceInternal--">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
-<h4>releaseSource</h4>
-<pre>public&nbsp;void&nbsp;releaseSource()</pre>
-<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/source/MediaSource.html#releaseSource--">MediaSource</a></code></span></div>
-<div class="block">Releases the source.
- <p>
- Should not be called directly from application code.</div>
+<h4>releaseSourceInternal</h4>
+<pre>public&nbsp;void&nbsp;releaseSourceInternal()</pre>
+<div class="block"><span class="descfrmTypeLabel">Description copied from class:&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/source/BaseMediaSource.html#releaseSourceInternal--">BaseMediaSource</a></code></span></div>
+<div class="block">Releases the source. This method is called exactly once after each call to <a href="../../../../../com/google/android/exoplayer2/source/BaseMediaSource.html#prepareSourceInternal-com.google.android.exoplayer2.ExoPlayer-boolean-"><code>BaseMediaSource.prepareSourceInternal(ExoPlayer, boolean)</code></a>.</div>
 <dl>
-<dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code><a href="../../../../../com/google/android/exoplayer2/source/MediaSource.html#releaseSource--">releaseSource</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/source/MediaSource.html" title="interface in com.google.android.exoplayer2.source">MediaSource</a></code></dd>
 <dt><span class="overrideSpecifyLabel">Overrides:</span></dt>
-<dd><code><a href="../../../../../com/google/android/exoplayer2/source/CompositeMediaSource.html#releaseSource--">releaseSource</a></code>&nbsp;in class&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/source/CompositeMediaSource.html" title="class in com.google.android.exoplayer2.source">CompositeMediaSource</a>&lt;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Void.html" target="_top" title="class or interface in java.lang">Void</a>&gt;</code></dd>
+<dd><code><a href="../../../../../com/google/android/exoplayer2/source/CompositeMediaSource.html#releaseSourceInternal--">releaseSourceInternal</a></code>&nbsp;in class&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/source/CompositeMediaSource.html" title="class in com.google.android.exoplayer2.source">CompositeMediaSource</a>&lt;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Void.html" target="_top" title="class or interface in java.lang">Void</a>&gt;</code></dd>
 </dl>
 </li>
 </ul>
 <a name="onChildSourceInfoRefreshed-java.lang.Void-com.google.android.exoplayer2.source.MediaSource-com.google.android.exoplayer2.Timeline-java.lang.Object-">
 <!--   -->
 </a>
-<ul class="blockListLast">
+<ul class="blockList">
 <li class="blockList">
 <h4>onChildSourceInfoRefreshed</h4>
 <pre>protected&nbsp;void&nbsp;onChildSourceInfoRefreshed(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Void.html" target="_top" title="class or interface in java.lang">Void</a>&nbsp;id,
@@ -471,6 +540,28 @@ extends <a href="../../../../../com/google/android/exoplayer2/source/CompositeMe
 <dd><code>mediaSource</code> - The child source whose source info has been refreshed.</dd>
 <dd><code>timeline</code> - The timeline of the child source.</dd>
 <dd><code>manifest</code> - The manifest of the child source.</dd>
+</dl>
+</li>
+</ul>
+<a name="getMediaTimeForChildMediaTime-java.lang.Void-long-">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>getMediaTimeForChildMediaTime</h4>
+<pre>protected&nbsp;long&nbsp;getMediaTimeForChildMediaTime(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Void.html" target="_top" title="class or interface in java.lang">Void</a>&nbsp;id,
+                                             long&nbsp;mediaTimeMs)</pre>
+<div class="block"><span class="descfrmTypeLabel">Description copied from class:&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/source/CompositeMediaSource.html#getMediaTimeForChildMediaTime-T-long-">CompositeMediaSource</a></code></span></div>
+<div class="block">Returns the media time in the composite source corresponding to the specified media time in a
+ child source. The default implementation does not change the media time.</div>
+<dl>
+<dt><span class="overrideSpecifyLabel">Overrides:</span></dt>
+<dd><code><a href="../../../../../com/google/android/exoplayer2/source/CompositeMediaSource.html#getMediaTimeForChildMediaTime-T-long-">getMediaTimeForChildMediaTime</a></code>&nbsp;in class&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/source/CompositeMediaSource.html" title="class in com.google.android.exoplayer2.source">CompositeMediaSource</a>&lt;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Void.html" target="_top" title="class or interface in java.lang">Void</a>&gt;</code></dd>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>id</code> - The unique id used to prepare the child source.</dd>
+<dd><code>mediaTimeMs</code> - A media time of the child source, in milliseconds.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>The corresponding media time in the composite source, in milliseconds.</dd>
 </dl>
 </li>
 </ul>

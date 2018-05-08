@@ -316,7 +316,9 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 <ul class="blockList">
 <li class="blockList">
 <h4>checkNotNull</h4>
-<pre>public static&nbsp;&lt;T&gt;&nbsp;T&nbsp;checkNotNull(T&nbsp;reference)</pre>
+<pre>@EnsuresNonNull(value="#1")
+public static&nbsp;&lt;T&gt;&nbsp;T&nbsp;checkNotNull(<a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
+                                                             T&nbsp;reference)</pre>
 <div class="block">Throws <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/NullPointerException.html" target="_top" title="class or interface in java.lang"><code>NullPointerException</code></a> if <code>reference</code> is null.</div>
 <dl>
 <dt><span class="paramLabel">Type Parameters:</span></dt>
@@ -338,8 +340,10 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 <ul class="blockList">
 <li class="blockList">
 <h4>checkNotNull</h4>
-<pre>public static&nbsp;&lt;T&gt;&nbsp;T&nbsp;checkNotNull(T&nbsp;reference,
-                                 <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Object.html" target="_top" title="class or interface in java.lang">Object</a>&nbsp;errorMessage)</pre>
+<pre>@EnsuresNonNull(value="#1")
+public static&nbsp;&lt;T&gt;&nbsp;T&nbsp;checkNotNull(<a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
+                                                             T&nbsp;reference,
+                                                             <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Object.html" target="_top" title="class or interface in java.lang">Object</a>&nbsp;errorMessage)</pre>
 <div class="block">Throws <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/NullPointerException.html" target="_top" title="class or interface in java.lang"><code>NullPointerException</code></a> if <code>reference</code> is null.</div>
 <dl>
 <dt><span class="paramLabel">Type Parameters:</span></dt>
@@ -361,7 +365,9 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 <ul class="blockList">
 <li class="blockList">
 <h4>checkNotEmpty</h4>
-<pre>public static&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;checkNotEmpty(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;string)</pre>
+<pre>@EnsuresNonNull(value="#1")
+public static&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;checkNotEmpty(<a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
+                                                               <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;string)</pre>
 <div class="block">Throws <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/IllegalArgumentException.html" target="_top" title="class or interface in java.lang"><code>IllegalArgumentException</code></a> if <code>string</code> is null or zero length.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -379,8 +385,10 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 <ul class="blockList">
 <li class="blockList">
 <h4>checkNotEmpty</h4>
-<pre>public static&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;checkNotEmpty(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;string,
-                                   <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Object.html" target="_top" title="class or interface in java.lang">Object</a>&nbsp;errorMessage)</pre>
+<pre>@EnsuresNonNull(value="#1")
+public static&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;checkNotEmpty(<a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
+                                                               <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;string,
+                                                               <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Object.html" target="_top" title="class or interface in java.lang">Object</a>&nbsp;errorMessage)</pre>
 <div class="block">Throws <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/IllegalArgumentException.html" target="_top" title="class or interface in java.lang"><code>IllegalArgumentException</code></a> if <code>string</code> is null or zero length.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>

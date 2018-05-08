@@ -176,18 +176,24 @@ implements <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/la
 </td>
 </tr>
 <tr class="altColor">
+<td class="colFirst"><code><a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsMediaPlaylist.Segment.html" title="class in com.google.android.exoplayer2.source.hls.playlist">HlsMediaPlaylist.Segment</a></code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsMediaPlaylist.Segment.html#initializationSegment">initializationSegment</a></span></code>
+<div class="block">The media initialization section for this segment, as defined by #EXT-X-MAP.</div>
+</td>
+</tr>
+<tr class="rowColor">
 <td class="colFirst"><code>int</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsMediaPlaylist.Segment.html#relativeDiscontinuitySequence">relativeDiscontinuitySequence</a></span></code>
 <div class="block">The number of #EXT-X-DISCONTINUITY tags in the playlist before the segment.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>long</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsMediaPlaylist.Segment.html#relativeStartTimeUs">relativeStartTimeUs</a></span></code>
 <div class="block">The start time of the segment in microseconds, relative to the start of the playlist.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code><a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsMediaPlaylist.Segment.html#url">url</a></span></code>
 <div class="block">The url of the segment.</div>
@@ -208,7 +214,8 @@ implements <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/la
 <th class="colOne" scope="col">Constructor and Description</th>
 </tr>
 <tr class="altColor">
-<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsMediaPlaylist.Segment.html#Segment-java.lang.String-long-int-long-java.lang.String-java.lang.String-long-long-boolean-">Segment</a></span>(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;url,
+<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsMediaPlaylist.Segment.html#Segment-java.lang.String-com.google.android.exoplayer2.source.hls.playlist.HlsMediaPlaylist.Segment-long-int-long-java.lang.String-java.lang.String-long-long-boolean-">Segment</a></span>(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;url,
+       <a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsMediaPlaylist.Segment.html" title="class in com.google.android.exoplayer2.source.hls.playlist">HlsMediaPlaylist.Segment</a>&nbsp;initializationSegment,
        long&nbsp;durationUs,
        int&nbsp;relativeDiscontinuitySequence,
        long&nbsp;relativeStartTimeUs,
@@ -272,6 +279,19 @@ implements <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/la
 <h4>url</h4>
 <pre>public final&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a> url</pre>
 <div class="block">The url of the segment.</div>
+</li>
+</ul>
+<a name="initializationSegment">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>initializationSegment</h4>
+<pre><a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
+public final&nbsp;<a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsMediaPlaylist.Segment.html" title="class in com.google.android.exoplayer2.source.hls.playlist">HlsMediaPlaylist.Segment</a> initializationSegment</pre>
+<div class="block">The media initialization section for this segment, as defined by #EXT-X-MAP. May be null if
+ the media playlist does not define a media section for this segment. The same instance is
+ used for all segments that share an EXT-X-MAP tag.</div>
 </li>
 </ul>
 <a name="durationUs">
@@ -382,13 +402,14 @@ implements <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/la
 </dl>
 </li>
 </ul>
-<a name="Segment-java.lang.String-long-int-long-java.lang.String-java.lang.String-long-long-boolean-">
+<a name="Segment-java.lang.String-com.google.android.exoplayer2.source.hls.playlist.HlsMediaPlaylist.Segment-long-int-long-java.lang.String-java.lang.String-long-long-boolean-">
 <!--   -->
 </a>
 <ul class="blockListLast">
 <li class="blockList">
 <h4>Segment</h4>
 <pre>public&nbsp;Segment(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;url,
+               <a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsMediaPlaylist.Segment.html" title="class in com.google.android.exoplayer2.source.hls.playlist">HlsMediaPlaylist.Segment</a>&nbsp;initializationSegment,
                long&nbsp;durationUs,
                int&nbsp;relativeDiscontinuitySequence,
                long&nbsp;relativeStartTimeUs,
@@ -400,6 +421,7 @@ implements <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/la
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>url</code> - See <a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsMediaPlaylist.Segment.html#url"><code>url</code></a>.</dd>
+<dd><code>initializationSegment</code> - See <a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsMediaPlaylist.Segment.html#initializationSegment"><code>initializationSegment</code></a>.</dd>
 <dd><code>durationUs</code> - See <a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsMediaPlaylist.Segment.html#durationUs"><code>durationUs</code></a>.</dd>
 <dd><code>relativeDiscontinuitySequence</code> - See <a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsMediaPlaylist.Segment.html#relativeDiscontinuitySequence"><code>relativeDiscontinuitySequence</code></a>.</dd>
 <dd><code>relativeStartTimeUs</code> - See <a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsMediaPlaylist.Segment.html#relativeStartTimeUs"><code>relativeStartTimeUs</code></a>.</dd>

@@ -16,7 +16,7 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":6,"i1":6,"i2":6,"i3":6,"i4":6,"i5":6,"i6":6,"i7":6,"i8":6,"i9":6,"i10":6,"i11":6,"i12":6,"i13":6,"i14":6};
+var methods = {"i0":6,"i1":6,"i2":6,"i3":6,"i4":6,"i5":6,"i6":6,"i7":6,"i8":6,"i9":6,"i10":6,"i11":6,"i12":6,"i13":6,"i14":6,"i15":6,"i16":6,"i17":6};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],4:["t3","Abstract Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -158,11 +158,18 @@ var activeTableTab = "activeTableTab";
 </tr>
 <tr id="i1" class="rowColor">
 <td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/upstream/cache/Cache.html#applyContentMetadataMutations-java.lang.String-com.google.android.exoplayer2.upstream.cache.ContentMetadataMutations-">applyContentMetadataMutations</a></span>(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;key,
+                             <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/ContentMetadataMutations.html" title="class in com.google.android.exoplayer2.upstream.cache">ContentMetadataMutations</a>&nbsp;mutations)</code>
+<div class="block">Applies <code>mutations</code> to the <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/ContentMetadata.html" title="interface in com.google.android.exoplayer2.upstream.cache"><code>ContentMetadata</code></a> for the given key.</div>
+</td>
+</tr>
+<tr id="i2" class="altColor">
+<td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/upstream/cache/Cache.html#commitFile-java.io.File-">commitFile</a></span>(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/io/File.html" target="_top" title="class or interface in java.io">File</a>&nbsp;file)</code>
 <div class="block">Commits a file into the cache.</div>
 </td>
 </tr>
-<tr id="i2" class="altColor">
+<tr id="i3" class="rowColor">
 <td class="colFirst"><code>long</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/upstream/cache/Cache.html#getCachedLength-java.lang.String-long-long-">getCachedLength</a></span>(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;key,
                long&nbsp;position,
@@ -171,31 +178,37 @@ var activeTableTab = "activeTableTab";
  up to <code>length</code> bytes.</div>
 </td>
 </tr>
-<tr id="i3" class="rowColor">
+<tr id="i4" class="altColor">
 <td class="colFirst"><code><a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/NavigableSet.html" target="_top" title="class or interface in java.util">NavigableSet</a>&lt;<a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheSpan.html" title="class in com.google.android.exoplayer2.upstream.cache">CacheSpan</a>&gt;</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/upstream/cache/Cache.html#getCachedSpans-java.lang.String-">getCachedSpans</a></span>(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;key)</code>
 <div class="block">Returns the cached spans for a given cache key.</div>
 </td>
 </tr>
-<tr id="i4" class="altColor">
+<tr id="i5" class="rowColor">
 <td class="colFirst"><code>long</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/upstream/cache/Cache.html#getCacheSpace--">getCacheSpace</a></span>()</code>
 <div class="block">Returns the total disk space in bytes used by the cache.</div>
 </td>
 </tr>
-<tr id="i5" class="rowColor">
+<tr id="i6" class="altColor">
 <td class="colFirst"><code>long</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/upstream/cache/Cache.html#getContentLength-java.lang.String-">getContentLength</a></span>(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;key)</code>
 <div class="block">Returns the content length for the given key if one set, or <a href="../../../../../../com/google/android/exoplayer2/C.html#LENGTH_UNSET"><code>C.LENGTH_UNSET</code></a> otherwise.</div>
 </td>
 </tr>
-<tr id="i6" class="altColor">
+<tr id="i7" class="rowColor">
+<td class="colFirst"><code><a href="../../../../../../com/google/android/exoplayer2/upstream/cache/ContentMetadata.html" title="interface in com.google.android.exoplayer2.upstream.cache">ContentMetadata</a></code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/upstream/cache/Cache.html#getContentMetadata-java.lang.String-">getContentMetadata</a></span>(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;key)</code>
+<div class="block">Returns a <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/ContentMetadata.html" title="interface in com.google.android.exoplayer2.upstream.cache"><code>ContentMetadata</code></a> for the given key.</div>
+</td>
+</tr>
+<tr id="i8" class="altColor">
 <td class="colFirst"><code><a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/Set.html" target="_top" title="class or interface in java.util">Set</a>&lt;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&gt;</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/upstream/cache/Cache.html#getKeys--">getKeys</a></span>()</code>
 <div class="block">Returns all keys in the cache.</div>
 </td>
 </tr>
-<tr id="i7" class="rowColor">
+<tr id="i9" class="rowColor">
 <td class="colFirst"><code>boolean</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/upstream/cache/Cache.html#isCached-java.lang.String-long-long-">isCached</a></span>(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;key,
         long&nbsp;position,
@@ -203,34 +216,40 @@ var activeTableTab = "activeTableTab";
 <div class="block">Queries if a range is entirely available in the cache.</div>
 </td>
 </tr>
-<tr id="i8" class="altColor">
+<tr id="i10" class="altColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/upstream/cache/Cache.html#release--">release</a></span>()</code>
+<div class="block">Releases the cache.</div>
+</td>
+</tr>
+<tr id="i11" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/upstream/cache/Cache.html#releaseHoleSpan-com.google.android.exoplayer2.upstream.cache.CacheSpan-">releaseHoleSpan</a></span>(<a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheSpan.html" title="class in com.google.android.exoplayer2.upstream.cache">CacheSpan</a>&nbsp;holeSpan)</code>
 <div class="block">Releases a <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheSpan.html" title="class in com.google.android.exoplayer2.upstream.cache"><code>CacheSpan</code></a> obtained from <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/Cache.html#startReadWrite-java.lang.String-long-"><code>startReadWrite(String, long)</code></a> which
  corresponded to a hole in the cache.</div>
 </td>
 </tr>
-<tr id="i9" class="rowColor">
+<tr id="i12" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/upstream/cache/Cache.html#removeListener-java.lang.String-com.google.android.exoplayer2.upstream.cache.Cache.Listener-">removeListener</a></span>(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;key,
               <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/Cache.Listener.html" title="interface in com.google.android.exoplayer2.upstream.cache">Cache.Listener</a>&nbsp;listener)</code>
 <div class="block">Unregisters a listener.</div>
 </td>
 </tr>
-<tr id="i10" class="altColor">
+<tr id="i13" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/upstream/cache/Cache.html#removeSpan-com.google.android.exoplayer2.upstream.cache.CacheSpan-">removeSpan</a></span>(<a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheSpan.html" title="class in com.google.android.exoplayer2.upstream.cache">CacheSpan</a>&nbsp;span)</code>
 <div class="block">Removes a cached <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheSpan.html" title="class in com.google.android.exoplayer2.upstream.cache"><code>CacheSpan</code></a> from the cache, deleting the underlying file.</div>
 </td>
 </tr>
-<tr id="i11" class="rowColor">
+<tr id="i14" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/upstream/cache/Cache.html#setContentLength-java.lang.String-long-">setContentLength</a></span>(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;key,
                 long&nbsp;length)</code>
 <div class="block">Sets the content length for the given key.</div>
 </td>
 </tr>
-<tr id="i12" class="altColor">
+<tr id="i15" class="rowColor">
 <td class="colFirst"><code><a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/io/File.html" target="_top" title="class or interface in java.io">File</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/upstream/cache/Cache.html#startFile-java.lang.String-long-long-">startFile</a></span>(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;key,
          long&nbsp;position,
@@ -238,7 +257,7 @@ var activeTableTab = "activeTableTab";
 <div class="block">Obtains a cache file into which data can be written.</div>
 </td>
 </tr>
-<tr id="i13" class="rowColor">
+<tr id="i16" class="altColor">
 <td class="colFirst"><code><a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheSpan.html" title="class in com.google.android.exoplayer2.upstream.cache">CacheSpan</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/upstream/cache/Cache.html#startReadWrite-java.lang.String-long-">startReadWrite</a></span>(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;key,
               long&nbsp;position)</code>
@@ -246,7 +265,7 @@ var activeTableTab = "activeTableTab";
  key.</div>
 </td>
 </tr>
-<tr id="i14" class="altColor">
+<tr id="i17" class="rowColor">
 <td class="colFirst"><code><a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheSpan.html" title="class in com.google.android.exoplayer2.upstream.cache">CacheSpan</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/upstream/cache/Cache.html#startReadWriteNonBlocking-java.lang.String-long-">startReadWriteNonBlocking</a></span>(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;key,
                          long&nbsp;position)</code>
@@ -268,6 +287,22 @@ var activeTableTab = "activeTableTab";
 <!--   -->
 </a>
 <h3>Method Detail</h3>
+<a name="release--">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>release</h4>
+<pre>void&nbsp;release()
+      throws <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/Cache.CacheException.html" title="class in com.google.android.exoplayer2.upstream.cache">Cache.CacheException</a></pre>
+<div class="block">Releases the cache. This method must be called when the cache is no longer required. The cache
+ must not be used after calling this method.</div>
+<dl>
+<dt><span class="throwsLabel">Throws:</span></dt>
+<dd><code><a href="../../../../../../com/google/android/exoplayer2/upstream/cache/Cache.CacheException.html" title="class in com.google.android.exoplayer2.upstream.cache">Cache.CacheException</a></code></dd>
+</dl>
+</li>
+</ul>
 <a name="addListener-java.lang.String-com.google.android.exoplayer2.upstream.cache.Cache.Listener-">
 <!--   -->
 </a>
@@ -549,7 +584,7 @@ var activeTableTab = "activeTableTab";
 <a name="getContentLength-java.lang.String-">
 <!--   -->
 </a>
-<ul class="blockListLast">
+<ul class="blockList">
 <li class="blockList">
 <h4>getContentLength</h4>
 <pre>long&nbsp;getContentLength(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;key)</pre>
@@ -559,6 +594,41 @@ var activeTableTab = "activeTableTab";
 <dd><code>key</code> - The cache key for the data.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>The content length for the given key if one set, or <a href="../../../../../../com/google/android/exoplayer2/C.html#LENGTH_UNSET"><code>C.LENGTH_UNSET</code></a> otherwise.</dd>
+</dl>
+</li>
+</ul>
+<a name="applyContentMetadataMutations-java.lang.String-com.google.android.exoplayer2.upstream.cache.ContentMetadataMutations-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>applyContentMetadataMutations</h4>
+<pre>void&nbsp;applyContentMetadataMutations(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;key,
+                                   <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/ContentMetadataMutations.html" title="class in com.google.android.exoplayer2.upstream.cache">ContentMetadataMutations</a>&nbsp;mutations)
+                            throws <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/Cache.CacheException.html" title="class in com.google.android.exoplayer2.upstream.cache">Cache.CacheException</a></pre>
+<div class="block">Applies <code>mutations</code> to the <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/ContentMetadata.html" title="interface in com.google.android.exoplayer2.upstream.cache"><code>ContentMetadata</code></a> for the given key. A new <code>CachedContent</code> is added if there isn't one already with the given key.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>key</code> - The cache key for the data.</dd>
+<dd><code>mutations</code> - Contains mutations to be applied to the metadata.</dd>
+<dt><span class="throwsLabel">Throws:</span></dt>
+<dd><code><a href="../../../../../../com/google/android/exoplayer2/upstream/cache/Cache.CacheException.html" title="class in com.google.android.exoplayer2.upstream.cache">Cache.CacheException</a></code> - If an error is encountered.</dd>
+</dl>
+</li>
+</ul>
+<a name="getContentMetadata-java.lang.String-">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>getContentMetadata</h4>
+<pre><a href="../../../../../../com/google/android/exoplayer2/upstream/cache/ContentMetadata.html" title="interface in com.google.android.exoplayer2.upstream.cache">ContentMetadata</a>&nbsp;getContentMetadata(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;key)</pre>
+<div class="block">Returns a <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/ContentMetadata.html" title="interface in com.google.android.exoplayer2.upstream.cache"><code>ContentMetadata</code></a> for the given key.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>key</code> - The cache key for the data.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>A <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/ContentMetadata.html" title="interface in com.google.android.exoplayer2.upstream.cache"><code>ContentMetadata</code></a> for the given key.</dd>
 </dl>
 </li>
 </ul>

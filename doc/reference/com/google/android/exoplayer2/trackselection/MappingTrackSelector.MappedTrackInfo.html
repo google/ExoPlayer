@@ -16,8 +16,8 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10};
-var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
+var methods = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":42,"i6":10,"i7":10,"i8":42,"i9":10,"i10":42,"i11":10};
+var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"],32:["t6","Deprecated Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
@@ -47,7 +47,7 @@ var activeTableTab = "activeTableTab";
 <div class="subNav">
 <ul class="navList">
 <li><a href="../../../../../com/google/android/exoplayer2/trackselection/MappingTrackSelector.html" title="class in com.google.android.exoplayer2.trackselection"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
-<li><a href="../../../../../com/google/android/exoplayer2/trackselection/MappingTrackSelector.SelectionOverride.html" title="class in com.google.android.exoplayer2.trackselection"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
+<li><a href="../../../../../com/google/android/exoplayer2/trackselection/RandomTrackSelection.html" title="class in com.google.android.exoplayer2.trackselection"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
 </ul>
 <ul class="navList">
 <li><a href="../../../../../index.html?com/google/android/exoplayer2/trackselection/MappingTrackSelector.MappedTrackInfo.html" target="_top">Frames</a></li>
@@ -134,14 +134,16 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 <tr class="altColor">
 <td class="colFirst"><code>int</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/trackselection/MappingTrackSelector.MappedTrackInfo.html#length">length</a></span></code>
-<div class="block">The number of renderers to which tracks are mapped.</div>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;
+<div class="block"><span class="deprecationComment">Use <a href="../../../../../com/google/android/exoplayer2/trackselection/MappingTrackSelector.MappedTrackInfo.html#getRendererCount--"><code>getRendererCount()</code></a>.</span></div>
+</div>
 </td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>static int</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/trackselection/MappingTrackSelector.MappedTrackInfo.html#RENDERER_SUPPORT_EXCEEDS_CAPABILITIES_TRACKS">RENDERER_SUPPORT_EXCEEDS_CAPABILITIES_TRACKS</a></span></code>
-<div class="block">The renderer has associated tracks and at least one is of a supported type, but all of the
- tracks whose types are supported exceed the renderer's capabilities.</div>
+<div class="block">The renderer has tracks mapped to it and at least one is of a supported type, but all such
+ tracks exceed the renderer's capabilities.</div>
 </td>
 </tr>
 <tr class="altColor">
@@ -153,13 +155,13 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 <tr class="rowColor">
 <td class="colFirst"><code>static int</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/trackselection/MappingTrackSelector.MappedTrackInfo.html#RENDERER_SUPPORT_PLAYABLE_TRACKS">RENDERER_SUPPORT_PLAYABLE_TRACKS</a></span></code>
-<div class="block">The renderer has associated tracks and can play at least one of them.</div>
+<div class="block">The renderer has tracks mapped to it, and at least one such track is playable.</div>
 </td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>static int</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/trackselection/MappingTrackSelector.MappedTrackInfo.html#RENDERER_SUPPORT_UNSUPPORTED_TRACKS">RENDERER_SUPPORT_UNSUPPORTED_TRACKS</a></span></code>
-<div class="block">The renderer has associated tracks, but all are of unsupported types.</div>
+<div class="block">The renderer has tracks mapped to it, but all are unsupported.</div>
 </td>
 </tr>
 </table>
@@ -172,7 +174,7 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 </a>
 <h3>Method Summary</h3>
 <table class="memberSummary" border="0" cellpadding="3" cellspacing="0" summary="Method Summary table, listing methods, and an explanation">
-<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t6" class="tableTab"><span><a href="javascript:show(32);">Deprecated Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
 <th class="colLast" scope="col">Method and Description</th>
@@ -191,40 +193,77 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/trackselection/MappingTrackSelector.MappedTrackInfo.html#getAdaptiveSupport-int-int-int:A-">getAdaptiveSupport</a></span>(int&nbsp;rendererIndex,
                   int&nbsp;groupIndex,
                   int[]&nbsp;trackIndices)</code>
-<div class="block">Returns the extent to which a renderer supports adaptation between specified tracks within
- a <a href="../../../../../com/google/android/exoplayer2/source/TrackGroup.html" title="class in com.google.android.exoplayer2.source"><code>TrackGroup</code></a>.</div>
+<div class="block">Returns the extent to which a renderer supports adaptation between specified tracks within a
+ <a href="../../../../../com/google/android/exoplayer2/source/TrackGroup.html" title="class in com.google.android.exoplayer2.source"><code>TrackGroup</code></a>.</div>
 </td>
 </tr>
 <tr id="i2" class="altColor">
 <td class="colFirst"><code>int</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/trackselection/MappingTrackSelector.MappedTrackInfo.html#getRendererSupport-int-">getRendererSupport</a></span>(int&nbsp;rendererIndex)</code>
-<div class="block">Returns the extent to which a renderer can play the tracks in the track groups mapped to it.</div>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/trackselection/MappingTrackSelector.MappedTrackInfo.html#getRendererCount--">getRendererCount</a></span>()</code>
+<div class="block">Returns the number of renderers.</div>
 </td>
 </tr>
 <tr id="i3" class="rowColor">
 <td class="colFirst"><code>int</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/trackselection/MappingTrackSelector.MappedTrackInfo.html#getTrackFormatSupport-int-int-int-">getTrackFormatSupport</a></span>(int&nbsp;rendererIndex,
-                     int&nbsp;groupIndex,
-                     int&nbsp;trackIndex)</code>
-<div class="block">Returns the extent to which an individual track is supported by the renderer.</div>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/trackselection/MappingTrackSelector.MappedTrackInfo.html#getRendererSupport-int-">getRendererSupport</a></span>(int&nbsp;rendererIndex)</code>
+<div class="block">Returns the extent to which a renderer can play the tracks that are mapped to it.</div>
 </td>
 </tr>
 <tr id="i4" class="altColor">
+<td class="colFirst"><code>int</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/trackselection/MappingTrackSelector.MappedTrackInfo.html#getRendererType-int-">getRendererType</a></span>(int&nbsp;rendererIndex)</code>
+<div class="block">Returns the track type that the renderer at a given index handles.</div>
+</td>
+</tr>
+<tr id="i5" class="rowColor">
+<td class="colFirst"><code>int</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/trackselection/MappingTrackSelector.MappedTrackInfo.html#getTrackFormatSupport-int-int-int-">getTrackFormatSupport</a></span>(int&nbsp;rendererIndex,
+                     int&nbsp;groupIndex,
+                     int&nbsp;trackIndex)</code>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;
+<div class="block"><span class="deprecationComment">Use <a href="../../../../../com/google/android/exoplayer2/trackselection/MappingTrackSelector.MappedTrackInfo.html#getTrackSupport-int-int-int-"><code>getTrackSupport(int, int, int)</code></a>.</span></div>
+</div>
+</td>
+</tr>
+<tr id="i6" class="altColor">
 <td class="colFirst"><code><a href="../../../../../com/google/android/exoplayer2/source/TrackGroupArray.html" title="class in com.google.android.exoplayer2.source">TrackGroupArray</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/trackselection/MappingTrackSelector.MappedTrackInfo.html#getTrackGroups-int-">getTrackGroups</a></span>(int&nbsp;rendererIndex)</code>
 <div class="block">Returns the <a href="../../../../../com/google/android/exoplayer2/source/TrackGroup.html" title="class in com.google.android.exoplayer2.source"><code>TrackGroup</code></a>s mapped to the renderer at the specified index.</div>
 </td>
 </tr>
-<tr id="i5" class="rowColor">
+<tr id="i7" class="rowColor">
 <td class="colFirst"><code>int</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/trackselection/MappingTrackSelector.MappedTrackInfo.html#getTrackTypeRendererSupport-int-">getTrackTypeRendererSupport</a></span>(int&nbsp;trackType)</code>
-<div class="block">Returns the best level of support obtained from <a href="../../../../../com/google/android/exoplayer2/trackselection/MappingTrackSelector.MappedTrackInfo.html#getRendererSupport-int-"><code>getRendererSupport(int)</code></a> for all
- renderers of the specified track type.</div>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/trackselection/MappingTrackSelector.MappedTrackInfo.html#getTrackSupport-int-int-int-">getTrackSupport</a></span>(int&nbsp;rendererIndex,
+               int&nbsp;groupIndex,
+               int&nbsp;trackIndex)</code>
+<div class="block">Returns the extent to which an individual track is supported by the renderer.</div>
 </td>
 </tr>
-<tr id="i6" class="altColor">
+<tr id="i8" class="altColor">
+<td class="colFirst"><code>int</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/trackselection/MappingTrackSelector.MappedTrackInfo.html#getTrackTypeRendererSupport-int-">getTrackTypeRendererSupport</a></span>(int&nbsp;trackType)</code>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;
+<div class="block"><span class="deprecationComment">Use <a href="../../../../../com/google/android/exoplayer2/trackselection/MappingTrackSelector.MappedTrackInfo.html#getTypeSupport-int-"><code>getTypeSupport(int)</code></a>.</span></div>
+</div>
+</td>
+</tr>
+<tr id="i9" class="rowColor">
+<td class="colFirst"><code>int</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/trackselection/MappingTrackSelector.MappedTrackInfo.html#getTypeSupport-int-">getTypeSupport</a></span>(int&nbsp;trackType)</code>
+<div class="block">Returns the extent to which tracks of a specified type are supported.</div>
+</td>
+</tr>
+<tr id="i10" class="altColor">
 <td class="colFirst"><code><a href="../../../../../com/google/android/exoplayer2/source/TrackGroupArray.html" title="class in com.google.android.exoplayer2.source">TrackGroupArray</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/trackselection/MappingTrackSelector.MappedTrackInfo.html#getUnassociatedTrackGroups--">getUnassociatedTrackGroups</a></span>()</code>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;
+<div class="block"><span class="deprecationComment">Use <a href="../../../../../com/google/android/exoplayer2/trackselection/MappingTrackSelector.MappedTrackInfo.html#getUnmappedTrackGroups--"><code>getUnmappedTrackGroups()</code></a>.</span></div>
+</div>
+</td>
+</tr>
+<tr id="i11" class="rowColor">
+<td class="colFirst"><code><a href="../../../../../com/google/android/exoplayer2/source/TrackGroupArray.html" title="class in com.google.android.exoplayer2.source">TrackGroupArray</a></code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/trackselection/MappingTrackSelector.MappedTrackInfo.html#getUnmappedTrackGroups--">getUnmappedTrackGroups</a></span>()</code>
 <div class="block">Returns <a href="../../../../../com/google/android/exoplayer2/source/TrackGroup.html" title="class in com.google.android.exoplayer2.source"><code>TrackGroup</code></a>s not mapped to any renderer.</div>
 </td>
 </tr>
@@ -271,7 +310,8 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 <li class="blockList">
 <h4>RENDERER_SUPPORT_UNSUPPORTED_TRACKS</h4>
 <pre>public static final&nbsp;int RENDERER_SUPPORT_UNSUPPORTED_TRACKS</pre>
-<div class="block">The renderer has associated tracks, but all are of unsupported types.</div>
+<div class="block">The renderer has tracks mapped to it, but all are unsupported. In other words, <a href="../../../../../com/google/android/exoplayer2/trackselection/MappingTrackSelector.MappedTrackInfo.html#getTrackSupport-int-int-int-"><code>getTrackSupport(int, int, int)</code></a> returns <a href="../../../../../com/google/android/exoplayer2/RendererCapabilities.html#FORMAT_UNSUPPORTED_DRM"><code>RendererCapabilities.FORMAT_UNSUPPORTED_DRM</code></a>,
+ <a href="../../../../../com/google/android/exoplayer2/RendererCapabilities.html#FORMAT_UNSUPPORTED_SUBTYPE"><code>RendererCapabilities.FORMAT_UNSUPPORTED_SUBTYPE</code></a> or <a href="../../../../../com/google/android/exoplayer2/RendererCapabilities.html#FORMAT_UNSUPPORTED_TYPE"><code>RendererCapabilities.FORMAT_UNSUPPORTED_TYPE</code></a> for all tracks mapped to the renderer.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
 <dd><a href="../../../../../constant-values.html#com.google.android.exoplayer2.trackselection.MappingTrackSelector.MappedTrackInfo.RENDERER_SUPPORT_UNSUPPORTED_TRACKS">Constant Field Values</a></dd>
@@ -285,8 +325,10 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 <li class="blockList">
 <h4>RENDERER_SUPPORT_EXCEEDS_CAPABILITIES_TRACKS</h4>
 <pre>public static final&nbsp;int RENDERER_SUPPORT_EXCEEDS_CAPABILITIES_TRACKS</pre>
-<div class="block">The renderer has associated tracks and at least one is of a supported type, but all of the
- tracks whose types are supported exceed the renderer's capabilities.</div>
+<div class="block">The renderer has tracks mapped to it and at least one is of a supported type, but all such
+ tracks exceed the renderer's capabilities. In other words, <a href="../../../../../com/google/android/exoplayer2/trackselection/MappingTrackSelector.MappedTrackInfo.html#getTrackSupport-int-int-int-"><code>getTrackSupport(int, int,
+ int)</code></a> returns <a href="../../../../../com/google/android/exoplayer2/RendererCapabilities.html#FORMAT_EXCEEDS_CAPABILITIES"><code>RendererCapabilities.FORMAT_EXCEEDS_CAPABILITIES</code></a> for at least one
+ track mapped to the renderer, but does not return <a href="../../../../../com/google/android/exoplayer2/RendererCapabilities.html#FORMAT_HANDLED"><code>RendererCapabilities.FORMAT_HANDLED</code></a> for any tracks mapped to the renderer.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
 <dd><a href="../../../../../constant-values.html#com.google.android.exoplayer2.trackselection.MappingTrackSelector.MappedTrackInfo.RENDERER_SUPPORT_EXCEEDS_CAPABILITIES_TRACKS">Constant Field Values</a></dd>
@@ -300,7 +342,8 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 <li class="blockList">
 <h4>RENDERER_SUPPORT_PLAYABLE_TRACKS</h4>
 <pre>public static final&nbsp;int RENDERER_SUPPORT_PLAYABLE_TRACKS</pre>
-<div class="block">The renderer has associated tracks and can play at least one of them.</div>
+<div class="block">The renderer has tracks mapped to it, and at least one such track is playable. In other
+ words, <a href="../../../../../com/google/android/exoplayer2/trackselection/MappingTrackSelector.MappedTrackInfo.html#getTrackSupport-int-int-int-"><code>getTrackSupport(int, int, int)</code></a> returns <a href="../../../../../com/google/android/exoplayer2/RendererCapabilities.html#FORMAT_HANDLED"><code>RendererCapabilities.FORMAT_HANDLED</code></a> for at least one track mapped to the renderer.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
 <dd><a href="../../../../../constant-values.html#com.google.android.exoplayer2.trackselection.MappingTrackSelector.MappedTrackInfo.RENDERER_SUPPORT_PLAYABLE_TRACKS">Constant Field Values</a></dd>
@@ -313,8 +356,9 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 <ul class="blockListLast">
 <li class="blockList">
 <h4>length</h4>
-<pre>public final&nbsp;int length</pre>
-<div class="block">The number of renderers to which tracks are mapped.</div>
+<pre><a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Deprecated.html" target="_top" title="class or interface in java.lang">@Deprecated</a>
+public final&nbsp;int length</pre>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;<span class="deprecationComment">Use <a href="../../../../../com/google/android/exoplayer2/trackselection/MappingTrackSelector.MappedTrackInfo.html#getRendererCount--"><code>getRendererCount()</code></a>.</span></div>
 </li>
 </ul>
 </li>
@@ -325,6 +369,34 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 <!--   -->
 </a>
 <h3>Method Detail</h3>
+<a name="getRendererCount--">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getRendererCount</h4>
+<pre>public&nbsp;int&nbsp;getRendererCount()</pre>
+<div class="block">Returns the number of renderers.</div>
+</li>
+</ul>
+<a name="getRendererType-int-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getRendererType</h4>
+<pre>public&nbsp;int&nbsp;getRendererType(int&nbsp;rendererIndex)</pre>
+<div class="block">Returns the track type that the renderer at a given index handles.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>rendererIndex</code> - The renderer index.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>One of the <code>TRACK_TYPE_*</code> constants defined in <a href="../../../../../com/google/android/exoplayer2/C.html" title="class in com.google.android.exoplayer2"><code>C</code></a>.</dd>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="../../../../../com/google/android/exoplayer2/Renderer.html#getTrackType--"><code>Renderer.getTrackType()</code></a></dd>
+</dl>
+</li>
+</ul>
 <a name="getTrackGroups-int-">
 <!--   -->
 </a>
@@ -348,14 +420,12 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 <li class="blockList">
 <h4>getRendererSupport</h4>
 <pre>public&nbsp;int&nbsp;getRendererSupport(int&nbsp;rendererIndex)</pre>
-<div class="block">Returns the extent to which a renderer can play the tracks in the track groups mapped to it.</div>
+<div class="block">Returns the extent to which a renderer can play the tracks that are mapped to it.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>rendererIndex</code> - The renderer index.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
-<dd>One of <a href="../../../../../com/google/android/exoplayer2/trackselection/MappingTrackSelector.MappedTrackInfo.html#RENDERER_SUPPORT_PLAYABLE_TRACKS"><code>RENDERER_SUPPORT_PLAYABLE_TRACKS</code></a>,
-     <a href="../../../../../com/google/android/exoplayer2/trackselection/MappingTrackSelector.MappedTrackInfo.html#RENDERER_SUPPORT_EXCEEDS_CAPABILITIES_TRACKS"><code>RENDERER_SUPPORT_EXCEEDS_CAPABILITIES_TRACKS</code></a>,
-     <a href="../../../../../com/google/android/exoplayer2/trackselection/MappingTrackSelector.MappedTrackInfo.html#RENDERER_SUPPORT_UNSUPPORTED_TRACKS"><code>RENDERER_SUPPORT_UNSUPPORTED_TRACKS</code></a> and <a href="../../../../../com/google/android/exoplayer2/trackselection/MappingTrackSelector.MappedTrackInfo.html#RENDERER_SUPPORT_NO_TRACKS"><code>RENDERER_SUPPORT_NO_TRACKS</code></a>.</dd>
+<dd>One of <a href="../../../../../com/google/android/exoplayer2/trackselection/MappingTrackSelector.MappedTrackInfo.html#RENDERER_SUPPORT_PLAYABLE_TRACKS"><code>RENDERER_SUPPORT_PLAYABLE_TRACKS</code></a>, <a href="../../../../../com/google/android/exoplayer2/trackselection/MappingTrackSelector.MappedTrackInfo.html#RENDERER_SUPPORT_EXCEEDS_CAPABILITIES_TRACKS"><code>RENDERER_SUPPORT_EXCEEDS_CAPABILITIES_TRACKS</code></a>, <a href="../../../../../com/google/android/exoplayer2/trackselection/MappingTrackSelector.MappedTrackInfo.html#RENDERER_SUPPORT_UNSUPPORTED_TRACKS"><code>RENDERER_SUPPORT_UNSUPPORTED_TRACKS</code></a> and <a href="../../../../../com/google/android/exoplayer2/trackselection/MappingTrackSelector.MappedTrackInfo.html#RENDERER_SUPPORT_NO_TRACKS"><code>RENDERER_SUPPORT_NO_TRACKS</code></a>.</dd>
 </dl>
 </li>
 </ul>
@@ -365,17 +435,27 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 <ul class="blockList">
 <li class="blockList">
 <h4>getTrackTypeRendererSupport</h4>
-<pre>public&nbsp;int&nbsp;getTrackTypeRendererSupport(int&nbsp;trackType)</pre>
-<div class="block">Returns the best level of support obtained from <a href="../../../../../com/google/android/exoplayer2/trackselection/MappingTrackSelector.MappedTrackInfo.html#getRendererSupport-int-"><code>getRendererSupport(int)</code></a> for all
- renderers of the specified track type. If no renderers exist for the specified type then
- <a href="../../../../../com/google/android/exoplayer2/trackselection/MappingTrackSelector.MappedTrackInfo.html#RENDERER_SUPPORT_NO_TRACKS"><code>RENDERER_SUPPORT_NO_TRACKS</code></a> is returned.</div>
+<pre><a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Deprecated.html" target="_top" title="class or interface in java.lang">@Deprecated</a>
+public&nbsp;int&nbsp;getTrackTypeRendererSupport(int&nbsp;trackType)</pre>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;<span class="deprecationComment">Use <a href="../../../../../com/google/android/exoplayer2/trackselection/MappingTrackSelector.MappedTrackInfo.html#getTypeSupport-int-"><code>getTypeSupport(int)</code></a>.</span></div>
+</li>
+</ul>
+<a name="getTypeSupport-int-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getTypeSupport</h4>
+<pre>public&nbsp;int&nbsp;getTypeSupport(int&nbsp;trackType)</pre>
+<div class="block">Returns the extent to which tracks of a specified type are supported. This is the best level
+ of support obtained from <a href="../../../../../com/google/android/exoplayer2/trackselection/MappingTrackSelector.MappedTrackInfo.html#getRendererSupport-int-"><code>getRendererSupport(int)</code></a> for all renderers that handle the
+ specified type. If no such renderers exist then <a href="../../../../../com/google/android/exoplayer2/trackselection/MappingTrackSelector.MappedTrackInfo.html#RENDERER_SUPPORT_NO_TRACKS"><code>RENDERER_SUPPORT_NO_TRACKS</code></a> is
+ returned.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>trackType</code> - The track type. One of the <a href="../../../../../com/google/android/exoplayer2/C.html" title="class in com.google.android.exoplayer2"><code>C</code></a> <code>TRACK_TYPE_*</code> constants.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
-<dd>One of <a href="../../../../../com/google/android/exoplayer2/trackselection/MappingTrackSelector.MappedTrackInfo.html#RENDERER_SUPPORT_PLAYABLE_TRACKS"><code>RENDERER_SUPPORT_PLAYABLE_TRACKS</code></a>,
-     <a href="../../../../../com/google/android/exoplayer2/trackselection/MappingTrackSelector.MappedTrackInfo.html#RENDERER_SUPPORT_EXCEEDS_CAPABILITIES_TRACKS"><code>RENDERER_SUPPORT_EXCEEDS_CAPABILITIES_TRACKS</code></a>,
-     <a href="../../../../../com/google/android/exoplayer2/trackselection/MappingTrackSelector.MappedTrackInfo.html#RENDERER_SUPPORT_UNSUPPORTED_TRACKS"><code>RENDERER_SUPPORT_UNSUPPORTED_TRACKS</code></a> and <a href="../../../../../com/google/android/exoplayer2/trackselection/MappingTrackSelector.MappedTrackInfo.html#RENDERER_SUPPORT_NO_TRACKS"><code>RENDERER_SUPPORT_NO_TRACKS</code></a>.</dd>
+<dd>One of <a href="../../../../../com/google/android/exoplayer2/trackselection/MappingTrackSelector.MappedTrackInfo.html#RENDERER_SUPPORT_PLAYABLE_TRACKS"><code>RENDERER_SUPPORT_PLAYABLE_TRACKS</code></a>, <a href="../../../../../com/google/android/exoplayer2/trackselection/MappingTrackSelector.MappedTrackInfo.html#RENDERER_SUPPORT_EXCEEDS_CAPABILITIES_TRACKS"><code>RENDERER_SUPPORT_EXCEEDS_CAPABILITIES_TRACKS</code></a>, <a href="../../../../../com/google/android/exoplayer2/trackselection/MappingTrackSelector.MappedTrackInfo.html#RENDERER_SUPPORT_UNSUPPORTED_TRACKS"><code>RENDERER_SUPPORT_UNSUPPORTED_TRACKS</code></a> and <a href="../../../../../com/google/android/exoplayer2/trackselection/MappingTrackSelector.MappedTrackInfo.html#RENDERER_SUPPORT_NO_TRACKS"><code>RENDERER_SUPPORT_NO_TRACKS</code></a>.</dd>
 </dl>
 </li>
 </ul>
@@ -385,9 +465,22 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 <ul class="blockList">
 <li class="blockList">
 <h4>getTrackFormatSupport</h4>
-<pre>public&nbsp;int&nbsp;getTrackFormatSupport(int&nbsp;rendererIndex,
-                                 int&nbsp;groupIndex,
-                                 int&nbsp;trackIndex)</pre>
+<pre><a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Deprecated.html" target="_top" title="class or interface in java.lang">@Deprecated</a>
+public&nbsp;int&nbsp;getTrackFormatSupport(int&nbsp;rendererIndex,
+                                             int&nbsp;groupIndex,
+                                             int&nbsp;trackIndex)</pre>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;<span class="deprecationComment">Use <a href="../../../../../com/google/android/exoplayer2/trackselection/MappingTrackSelector.MappedTrackInfo.html#getTrackSupport-int-int-int-"><code>getTrackSupport(int, int, int)</code></a>.</span></div>
+</li>
+</ul>
+<a name="getTrackSupport-int-int-int-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getTrackSupport</h4>
+<pre>public&nbsp;int&nbsp;getTrackSupport(int&nbsp;rendererIndex,
+                           int&nbsp;groupIndex,
+                           int&nbsp;trackIndex)</pre>
 <div class="block">Returns the extent to which an individual track is supported by the renderer.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -395,11 +488,7 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 <dd><code>groupIndex</code> - The index of the track group to which the track belongs.</dd>
 <dd><code>trackIndex</code> - The index of the track within the track group.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
-<dd>One of <a href="../../../../../com/google/android/exoplayer2/RendererCapabilities.html#FORMAT_HANDLED"><code>RendererCapabilities.FORMAT_HANDLED</code></a>,
-     <a href="../../../../../com/google/android/exoplayer2/RendererCapabilities.html#FORMAT_EXCEEDS_CAPABILITIES"><code>RendererCapabilities.FORMAT_EXCEEDS_CAPABILITIES</code></a>,
-     <a href="../../../../../com/google/android/exoplayer2/RendererCapabilities.html#FORMAT_UNSUPPORTED_DRM"><code>RendererCapabilities.FORMAT_UNSUPPORTED_DRM</code></a>,
-     <a href="../../../../../com/google/android/exoplayer2/RendererCapabilities.html#FORMAT_UNSUPPORTED_SUBTYPE"><code>RendererCapabilities.FORMAT_UNSUPPORTED_SUBTYPE</code></a> and
-     <a href="../../../../../com/google/android/exoplayer2/RendererCapabilities.html#FORMAT_UNSUPPORTED_TYPE"><code>RendererCapabilities.FORMAT_UNSUPPORTED_TYPE</code></a>.</dd>
+<dd>One of <a href="../../../../../com/google/android/exoplayer2/RendererCapabilities.html#FORMAT_HANDLED"><code>RendererCapabilities.FORMAT_HANDLED</code></a>, <a href="../../../../../com/google/android/exoplayer2/RendererCapabilities.html#FORMAT_EXCEEDS_CAPABILITIES"><code>RendererCapabilities.FORMAT_EXCEEDS_CAPABILITIES</code></a>, <a href="../../../../../com/google/android/exoplayer2/RendererCapabilities.html#FORMAT_UNSUPPORTED_DRM"><code>RendererCapabilities.FORMAT_UNSUPPORTED_DRM</code></a>, <a href="../../../../../com/google/android/exoplayer2/RendererCapabilities.html#FORMAT_UNSUPPORTED_SUBTYPE"><code>RendererCapabilities.FORMAT_UNSUPPORTED_SUBTYPE</code></a> and <a href="../../../../../com/google/android/exoplayer2/RendererCapabilities.html#FORMAT_UNSUPPORTED_TYPE"><code>RendererCapabilities.FORMAT_UNSUPPORTED_TYPE</code></a>.</dd>
 </dl>
 </li>
 </ul>
@@ -414,26 +503,17 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
                               boolean&nbsp;includeCapabilitiesExceededTracks)</pre>
 <div class="block">Returns the extent to which a renderer supports adaptation between supported tracks in a
  specified <a href="../../../../../com/google/android/exoplayer2/source/TrackGroup.html" title="class in com.google.android.exoplayer2.source"><code>TrackGroup</code></a>.
- <p>
- Tracks for which <a href="../../../../../com/google/android/exoplayer2/trackselection/MappingTrackSelector.MappedTrackInfo.html#getTrackFormatSupport-int-int-int-"><code>getTrackFormatSupport(int, int, int)</code></a> returns
- <a href="../../../../../com/google/android/exoplayer2/RendererCapabilities.html#FORMAT_HANDLED"><code>RendererCapabilities.FORMAT_HANDLED</code></a> are always considered.
- Tracks for which <a href="../../../../../com/google/android/exoplayer2/trackselection/MappingTrackSelector.MappedTrackInfo.html#getTrackFormatSupport-int-int-int-"><code>getTrackFormatSupport(int, int, int)</code></a> returns
- <a href="../../../../../com/google/android/exoplayer2/RendererCapabilities.html#FORMAT_UNSUPPORTED_DRM"><code>RendererCapabilities.FORMAT_UNSUPPORTED_DRM</code></a>,
- <a href="../../../../../com/google/android/exoplayer2/RendererCapabilities.html#FORMAT_UNSUPPORTED_TYPE"><code>RendererCapabilities.FORMAT_UNSUPPORTED_TYPE</code></a> or
- <a href="../../../../../com/google/android/exoplayer2/RendererCapabilities.html#FORMAT_UNSUPPORTED_SUBTYPE"><code>RendererCapabilities.FORMAT_UNSUPPORTED_SUBTYPE</code></a> are never considered.
- Tracks for which <a href="../../../../../com/google/android/exoplayer2/trackselection/MappingTrackSelector.MappedTrackInfo.html#getTrackFormatSupport-int-int-int-"><code>getTrackFormatSupport(int, int, int)</code></a> returns
- <a href="../../../../../com/google/android/exoplayer2/RendererCapabilities.html#FORMAT_EXCEEDS_CAPABILITIES"><code>RendererCapabilities.FORMAT_EXCEEDS_CAPABILITIES</code></a> are considered only if
- <code>includeCapabilitiesExceededTracks</code> is set to <code>true</code>.</div>
+
+ <p>Tracks for which <a href="../../../../../com/google/android/exoplayer2/trackselection/MappingTrackSelector.MappedTrackInfo.html#getTrackSupport-int-int-int-"><code>getTrackSupport(int, int, int)</code></a> returns <a href="../../../../../com/google/android/exoplayer2/RendererCapabilities.html#FORMAT_HANDLED"><code>RendererCapabilities.FORMAT_HANDLED</code></a> are always considered. Tracks for which <a href="../../../../../com/google/android/exoplayer2/trackselection/MappingTrackSelector.MappedTrackInfo.html#getTrackSupport-int-int-int-"><code>getTrackSupport(int, int, int)</code></a> returns <a href="../../../../../com/google/android/exoplayer2/RendererCapabilities.html#FORMAT_EXCEEDS_CAPABILITIES"><code>RendererCapabilities.FORMAT_EXCEEDS_CAPABILITIES</code></a> are also considered if <code>includeCapabilitiesExceededTracks</code> is set to <code>true</code>. Tracks for which <a href="../../../../../com/google/android/exoplayer2/trackselection/MappingTrackSelector.MappedTrackInfo.html#getTrackSupport-int-int-int-"><code>getTrackSupport(int, int, int)</code></a> returns <a href="../../../../../com/google/android/exoplayer2/RendererCapabilities.html#FORMAT_UNSUPPORTED_DRM"><code>RendererCapabilities.FORMAT_UNSUPPORTED_DRM</code></a>,
+ <a href="../../../../../com/google/android/exoplayer2/RendererCapabilities.html#FORMAT_UNSUPPORTED_TYPE"><code>RendererCapabilities.FORMAT_UNSUPPORTED_TYPE</code></a> or <a href="../../../../../com/google/android/exoplayer2/RendererCapabilities.html#FORMAT_UNSUPPORTED_SUBTYPE"><code>RendererCapabilities.FORMAT_UNSUPPORTED_SUBTYPE</code></a> are never considered.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>rendererIndex</code> - The renderer index.</dd>
 <dd><code>groupIndex</code> - The index of the track group.</dd>
-<dd><code>includeCapabilitiesExceededTracks</code> - True if formats that exceed the capabilities of the
-     renderer should be included when determining support. False otherwise.</dd>
+<dd><code>includeCapabilitiesExceededTracks</code> - Whether tracks that exceed the capabilities of the
+     renderer are included when determining support.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
-<dd>One of <a href="../../../../../com/google/android/exoplayer2/RendererCapabilities.html#ADAPTIVE_SEAMLESS"><code>RendererCapabilities.ADAPTIVE_SEAMLESS</code></a>,
-     <a href="../../../../../com/google/android/exoplayer2/RendererCapabilities.html#ADAPTIVE_NOT_SEAMLESS"><code>RendererCapabilities.ADAPTIVE_NOT_SEAMLESS</code></a> and
-     <a href="../../../../../com/google/android/exoplayer2/RendererCapabilities.html#ADAPTIVE_NOT_SUPPORTED"><code>RendererCapabilities.ADAPTIVE_NOT_SUPPORTED</code></a>.</dd>
+<dd>One of <a href="../../../../../com/google/android/exoplayer2/RendererCapabilities.html#ADAPTIVE_SEAMLESS"><code>RendererCapabilities.ADAPTIVE_SEAMLESS</code></a>, <a href="../../../../../com/google/android/exoplayer2/RendererCapabilities.html#ADAPTIVE_NOT_SEAMLESS"><code>RendererCapabilities.ADAPTIVE_NOT_SEAMLESS</code></a> and <a href="../../../../../com/google/android/exoplayer2/RendererCapabilities.html#ADAPTIVE_NOT_SUPPORTED"><code>RendererCapabilities.ADAPTIVE_NOT_SUPPORTED</code></a>.</dd>
 </dl>
 </li>
 </ul>
@@ -446,26 +526,35 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 <pre>public&nbsp;int&nbsp;getAdaptiveSupport(int&nbsp;rendererIndex,
                               int&nbsp;groupIndex,
                               int[]&nbsp;trackIndices)</pre>
-<div class="block">Returns the extent to which a renderer supports adaptation between specified tracks within
- a <a href="../../../../../com/google/android/exoplayer2/source/TrackGroup.html" title="class in com.google.android.exoplayer2.source"><code>TrackGroup</code></a>.</div>
+<div class="block">Returns the extent to which a renderer supports adaptation between specified tracks within a
+ <a href="../../../../../com/google/android/exoplayer2/source/TrackGroup.html" title="class in com.google.android.exoplayer2.source"><code>TrackGroup</code></a>.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>rendererIndex</code> - The renderer index.</dd>
 <dd><code>groupIndex</code> - The index of the track group.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
-<dd>One of <a href="../../../../../com/google/android/exoplayer2/RendererCapabilities.html#ADAPTIVE_SEAMLESS"><code>RendererCapabilities.ADAPTIVE_SEAMLESS</code></a>,
-     <a href="../../../../../com/google/android/exoplayer2/RendererCapabilities.html#ADAPTIVE_NOT_SEAMLESS"><code>RendererCapabilities.ADAPTIVE_NOT_SEAMLESS</code></a> and
-     <a href="../../../../../com/google/android/exoplayer2/RendererCapabilities.html#ADAPTIVE_NOT_SUPPORTED"><code>RendererCapabilities.ADAPTIVE_NOT_SUPPORTED</code></a>.</dd>
+<dd>One of <a href="../../../../../com/google/android/exoplayer2/RendererCapabilities.html#ADAPTIVE_SEAMLESS"><code>RendererCapabilities.ADAPTIVE_SEAMLESS</code></a>, <a href="../../../../../com/google/android/exoplayer2/RendererCapabilities.html#ADAPTIVE_NOT_SEAMLESS"><code>RendererCapabilities.ADAPTIVE_NOT_SEAMLESS</code></a> and <a href="../../../../../com/google/android/exoplayer2/RendererCapabilities.html#ADAPTIVE_NOT_SUPPORTED"><code>RendererCapabilities.ADAPTIVE_NOT_SUPPORTED</code></a>.</dd>
 </dl>
 </li>
 </ul>
 <a name="getUnassociatedTrackGroups--">
 <!--   -->
 </a>
-<ul class="blockListLast">
+<ul class="blockList">
 <li class="blockList">
 <h4>getUnassociatedTrackGroups</h4>
-<pre>public&nbsp;<a href="../../../../../com/google/android/exoplayer2/source/TrackGroupArray.html" title="class in com.google.android.exoplayer2.source">TrackGroupArray</a>&nbsp;getUnassociatedTrackGroups()</pre>
+<pre><a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Deprecated.html" target="_top" title="class or interface in java.lang">@Deprecated</a>
+public&nbsp;<a href="../../../../../com/google/android/exoplayer2/source/TrackGroupArray.html" title="class in com.google.android.exoplayer2.source">TrackGroupArray</a>&nbsp;getUnassociatedTrackGroups()</pre>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;<span class="deprecationComment">Use <a href="../../../../../com/google/android/exoplayer2/trackselection/MappingTrackSelector.MappedTrackInfo.html#getUnmappedTrackGroups--"><code>getUnmappedTrackGroups()</code></a>.</span></div>
+</li>
+</ul>
+<a name="getUnmappedTrackGroups--">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>getUnmappedTrackGroups</h4>
+<pre>public&nbsp;<a href="../../../../../com/google/android/exoplayer2/source/TrackGroupArray.html" title="class in com.google.android.exoplayer2.source">TrackGroupArray</a>&nbsp;getUnmappedTrackGroups()</pre>
 <div class="block">Returns <a href="../../../../../com/google/android/exoplayer2/source/TrackGroup.html" title="class in com.google.android.exoplayer2.source"><code>TrackGroup</code></a>s not mapped to any renderer.</div>
 </li>
 </ul>
@@ -497,7 +586,7 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 <div class="subNav">
 <ul class="navList">
 <li><a href="../../../../../com/google/android/exoplayer2/trackselection/MappingTrackSelector.html" title="class in com.google.android.exoplayer2.trackselection"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
-<li><a href="../../../../../com/google/android/exoplayer2/trackselection/MappingTrackSelector.SelectionOverride.html" title="class in com.google.android.exoplayer2.trackselection"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
+<li><a href="../../../../../com/google/android/exoplayer2/trackselection/RandomTrackSelection.html" title="class in com.google.android.exoplayer2.trackselection"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
 </ul>
 <ul class="navList">
 <li><a href="../../../../../index.html?com/google/android/exoplayer2/trackselection/MappingTrackSelector.MappedTrackInfo.html" target="_top">Frames</a></li>

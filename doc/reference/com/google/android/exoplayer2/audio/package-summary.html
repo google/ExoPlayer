@@ -40,7 +40,7 @@
 </div>
 <div class="subNav">
 <ul class="navList">
-<li><a href="../../../../../com/google/android/exoplayer2/package-summary.html">Prev&nbsp;Package</a></li>
+<li><a href="../../../../../com/google/android/exoplayer2/analytics/package-summary.html">Prev&nbsp;Package</a></li>
 <li><a href="../../../../../com/google/android/exoplayer2/decoder/package-summary.html">Next&nbsp;Package</a></li>
 </ul>
 <ul class="navList">
@@ -110,6 +110,13 @@
 <div class="block">Listener for audio sink events.</div>
 </td>
 </tr>
+<tr class="rowColor">
+<td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/audio/DefaultAudioSink.AudioProcessorChain.html" title="interface in com.google.android.exoplayer2.audio">DefaultAudioSink.AudioProcessorChain</a></td>
+<td class="colLast">
+<div class="block">Provides a chain of audio processors, which are used for any user-defined processing and
+ applying playback parameters (if supported).</div>
+</td>
+</tr>
 </tbody>
 </table>
 </li>
@@ -128,7 +135,7 @@
 </td>
 </tr>
 <tr class="rowColor">
-<td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/audio/Ac3Util.Ac3SyncFrameInfo.html" title="class in com.google.android.exoplayer2.audio">Ac3Util.Ac3SyncFrameInfo</a></td>
+<td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/audio/Ac3Util.SyncFrameInfo.html" title="class in com.google.android.exoplayer2.audio">Ac3Util.SyncFrameInfo</a></td>
 <td class="colLast">
 <div class="block">Holds sample format information as presented by a syncframe header.</div>
 </td>
@@ -172,15 +179,28 @@
 </td>
 </tr>
 <tr class="altColor">
+<td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/audio/DefaultAudioSink.DefaultAudioProcessorChain.html" title="class in com.google.android.exoplayer2.audio">DefaultAudioSink.DefaultAudioProcessorChain</a></td>
+<td class="colLast">
+<div class="block">The default audio processor chain, which applies a (possibly empty) chain of user-defined audio
+ processors followed by <a href="../../../../../com/google/android/exoplayer2/audio/SilenceSkippingAudioProcessor.html" title="class in com.google.android.exoplayer2.audio"><code>SilenceSkippingAudioProcessor</code></a> and <a href="../../../../../com/google/android/exoplayer2/audio/SonicAudioProcessor.html" title="class in com.google.android.exoplayer2.audio"><code>SonicAudioProcessor</code></a>.</div>
+</td>
+</tr>
+<tr class="rowColor">
 <td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/audio/DtsUtil.html" title="class in com.google.android.exoplayer2.audio">DtsUtil</a></td>
 <td class="colLast">
 <div class="block">Utility methods for parsing DTS frames.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/audio/MediaCodecAudioRenderer.html" title="class in com.google.android.exoplayer2.audio">MediaCodecAudioRenderer</a></td>
 <td class="colLast">
 <div class="block">Decodes and renders audio using <a href="https://developer.android.com/reference/android/media/MediaCodec.html" target="_top" title="class or interface in android.media"><code>MediaCodec</code></a> and an <a href="../../../../../com/google/android/exoplayer2/audio/AudioSink.html" title="interface in com.google.android.exoplayer2.audio"><code>AudioSink</code></a>.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/audio/SilenceSkippingAudioProcessor.html" title="class in com.google.android.exoplayer2.audio">SilenceSkippingAudioProcessor</a></td>
+<td class="colLast">
+<div class="block">An <a href="../../../../../com/google/android/exoplayer2/audio/AudioProcessor.html" title="interface in com.google.android.exoplayer2.audio"><code>AudioProcessor</code></a> that skips silence in the input stream.</div>
 </td>
 </tr>
 <tr class="altColor">
@@ -239,8 +259,24 @@
 <tr class="rowColor">
 <td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/audio/DefaultAudioSink.InvalidAudioTrackTimestampException.html" title="class in com.google.android.exoplayer2.audio">DefaultAudioSink.InvalidAudioTrackTimestampException</a></td>
 <td class="colLast">
-<div class="block">Thrown when <a href="https://developer.android.com/reference/android/media/AudioTrack.html?is-external=true#getTimestamp-android.media.AudioTimestamp-" title="class or interface in android.media"><code>AudioTrack.getTimestamp(android.media.AudioTimestamp)</code></a> returns a spurious timestamp, if
- <a href="../../../../../com/google/android/exoplayer2/audio/DefaultAudioSink.html#failOnSpuriousAudioTimestamp"><code>DefaultAudioSink.failOnSpuriousAudioTimestamp</code></a> is set.</div>
+<div class="block">Thrown when the audio track has provided a spurious timestamp, if <a href="../../../../../com/google/android/exoplayer2/audio/DefaultAudioSink.html#failOnSpuriousAudioTimestamp"><code>DefaultAudioSink.failOnSpuriousAudioTimestamp</code></a> is set.</div>
+</td>
+</tr>
+</tbody>
+</table>
+</li>
+<li class="blockList">
+<table class="typeSummary" border="0" cellpadding="3" cellspacing="0" summary="Annotation Types Summary table, listing annotation types, and an explanation">
+<caption><span>Annotation Types Summary</span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colFirst" scope="col">Annotation Type</th>
+<th class="colLast" scope="col">Description</th>
+</tr>
+<tbody>
+<tr class="altColor">
+<td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/audio/Ac3Util.SyncFrameInfo.StreamType.html" title="annotation in com.google.android.exoplayer2.audio">Ac3Util.SyncFrameInfo.StreamType</a></td>
+<td class="colLast">
+<div class="block">AC3 stream types.</div>
 </td>
 </tr>
 </tbody>
@@ -268,7 +304,7 @@
 </div>
 <div class="subNav">
 <ul class="navList">
-<li><a href="../../../../../com/google/android/exoplayer2/package-summary.html">Prev&nbsp;Package</a></li>
+<li><a href="../../../../../com/google/android/exoplayer2/analytics/package-summary.html">Prev&nbsp;Package</a></li>
 <li><a href="../../../../../com/google/android/exoplayer2/decoder/package-summary.html">Next&nbsp;Package</a></li>
 </ul>
 <ul class="navList">

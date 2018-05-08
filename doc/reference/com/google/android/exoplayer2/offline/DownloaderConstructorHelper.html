@@ -46,7 +46,7 @@ var activeTableTab = "activeTableTab";
 </div>
 <div class="subNav">
 <ul class="navList">
-<li><a href="../../../../../com/google/android/exoplayer2/offline/Downloader.ProgressListener.html" title="interface in com.google.android.exoplayer2.offline"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
+<li><a href="../../../../../com/google/android/exoplayer2/offline/Downloader.html" title="interface in com.google.android.exoplayer2.offline"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
 <li><a href="../../../../../com/google/android/exoplayer2/offline/DownloadException.html" title="class in com.google.android.exoplayer2.offline"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
 </ul>
 <ul class="navList">
@@ -225,12 +225,13 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>cache</code> - Cache instance to be used to store downloaded data.</dd>
 <dd><code>upstreamDataSourceFactory</code> - A <a href="../../../../../com/google/android/exoplayer2/upstream/DataSource.Factory.html" title="interface in com.google.android.exoplayer2.upstream"><code>DataSource.Factory</code></a> for downloading data.</dd>
-<dd><code>cacheReadDataSourceFactory</code> - A <a href="../../../../../com/google/android/exoplayer2/upstream/DataSource.Factory.html" title="interface in com.google.android.exoplayer2.upstream"><code>DataSource.Factory</code></a> for reading data from the cache.
-     If null, null is passed to <a href="../../../../../com/google/android/exoplayer2/offline/Downloader.html" title="interface in com.google.android.exoplayer2.offline"><code>Downloader</code></a> constructor.</dd>
+<dd><code>cacheReadDataSourceFactory</code> - A <a href="../../../../../com/google/android/exoplayer2/upstream/DataSource.Factory.html" title="interface in com.google.android.exoplayer2.upstream"><code>DataSource.Factory</code></a> for reading data from the cache. If null
+     then standard <a href="../../../../../com/google/android/exoplayer2/upstream/FileDataSource.html" title="class in com.google.android.exoplayer2.upstream"><code>FileDataSource</code></a> instances will be used.</dd>
 <dd><code>cacheWriteDataSinkFactory</code> - A <code>DataSink.Factory</code> for writing data to the cache. If
-     null, null is passed to <a href="../../../../../com/google/android/exoplayer2/offline/Downloader.html" title="interface in com.google.android.exoplayer2.offline"><code>Downloader</code></a> constructor.</dd>
-<dd><code>priorityTaskManager</code> - If one is given then the download priority is set lower than
-     loading. If null, null is passed to <a href="../../../../../com/google/android/exoplayer2/offline/Downloader.html" title="interface in com.google.android.exoplayer2.offline"><code>Downloader</code></a> constructor.</dd>
+     null then standard <a href="../../../../../com/google/android/exoplayer2/upstream/cache/CacheDataSink.html" title="class in com.google.android.exoplayer2.upstream.cache"><code>CacheDataSink</code></a> instances will be used.</dd>
+<dd><code>priorityTaskManager</code> - A <a href="../../../../../com/google/android/exoplayer2/util/PriorityTaskManager.html" title="class in com.google.android.exoplayer2.util"><code>PriorityTaskManager</code></a> to use when downloading. If non-null,
+     downloaders will register as tasks with priority <a href="../../../../../com/google/android/exoplayer2/C.html#PRIORITY_DOWNLOAD"><code>C.PRIORITY_DOWNLOAD</code></a> whilst
+     downloading.</dd>
 </dl>
 </li>
 </ul>
@@ -300,7 +301,7 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 </div>
 <div class="subNav">
 <ul class="navList">
-<li><a href="../../../../../com/google/android/exoplayer2/offline/Downloader.ProgressListener.html" title="interface in com.google.android.exoplayer2.offline"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
+<li><a href="../../../../../com/google/android/exoplayer2/offline/Downloader.html" title="interface in com.google.android.exoplayer2.offline"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
 <li><a href="../../../../../com/google/android/exoplayer2/offline/DownloadException.html" title="class in com.google.android.exoplayer2.offline"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
 </ul>
 <ul class="navList">

@@ -72,7 +72,7 @@ var activeTableTab = "activeTableTab";
 <ul class="subNavList">
 <li>Summary:&nbsp;</li>
 <li>Nested&nbsp;|&nbsp;</li>
-<li><a href="#fields.inherited.from.class.com.google.android.exoplayer2.source.chunk.MediaChunk">Field</a>&nbsp;|&nbsp;</li>
+<li><a href="#fields.inherited.from.class.com.google.android.exoplayer2.source.chunk.BaseMediaChunk">Field</a>&nbsp;|&nbsp;</li>
 <li><a href="#constructor.summary">Constr</a>&nbsp;|&nbsp;</li>
 <li><a href="#method.summary">Method</a></li>
 </ul>
@@ -141,6 +141,13 @@ extends <a href="../../../../../../com/google/android/exoplayer2/source/chunk/Ba
 </a>
 <h3>Field Summary</h3>
 <ul class="blockList">
+<li class="blockList"><a name="fields.inherited.from.class.com.google.android.exoplayer2.source.chunk.BaseMediaChunk">
+<!--   -->
+</a>
+<h3>Fields inherited from class&nbsp;com.google.android.exoplayer2.source.chunk.<a href="../../../../../../com/google/android/exoplayer2/source/chunk/BaseMediaChunk.html" title="class in com.google.android.exoplayer2.source.chunk">BaseMediaChunk</a></h3>
+<code><a href="../../../../../../com/google/android/exoplayer2/source/chunk/BaseMediaChunk.html#seekTimeUs">seekTimeUs</a></code></li>
+</ul>
+<ul class="blockList">
 <li class="blockList"><a name="fields.inherited.from.class.com.google.android.exoplayer2.source.chunk.MediaChunk">
 <!--   -->
 </a>
@@ -168,13 +175,14 @@ extends <a href="../../../../../../com/google/android/exoplayer2/source/chunk/Ba
 <th class="colOne" scope="col">Constructor and Description</th>
 </tr>
 <tr class="altColor">
-<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/source/chunk/ContainerMediaChunk.html#ContainerMediaChunk-com.google.android.exoplayer2.upstream.DataSource-com.google.android.exoplayer2.upstream.DataSpec-com.google.android.exoplayer2.Format-int-java.lang.Object-long-long-long-int-long-com.google.android.exoplayer2.source.chunk.ChunkExtractorWrapper-">ContainerMediaChunk</a></span>(<a href="../../../../../../com/google/android/exoplayer2/upstream/DataSource.html" title="interface in com.google.android.exoplayer2.upstream">DataSource</a>&nbsp;dataSource,
+<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/source/chunk/ContainerMediaChunk.html#ContainerMediaChunk-com.google.android.exoplayer2.upstream.DataSource-com.google.android.exoplayer2.upstream.DataSpec-com.google.android.exoplayer2.Format-int-java.lang.Object-long-long-long-long-int-long-com.google.android.exoplayer2.source.chunk.ChunkExtractorWrapper-">ContainerMediaChunk</a></span>(<a href="../../../../../../com/google/android/exoplayer2/upstream/DataSource.html" title="interface in com.google.android.exoplayer2.upstream">DataSource</a>&nbsp;dataSource,
                    <a href="../../../../../../com/google/android/exoplayer2/upstream/DataSpec.html" title="class in com.google.android.exoplayer2.upstream">DataSpec</a>&nbsp;dataSpec,
                    <a href="../../../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;trackFormat,
                    int&nbsp;trackSelectionReason,
                    <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Object.html" target="_top" title="class or interface in java.lang">Object</a>&nbsp;trackSelectionData,
                    long&nbsp;startTimeUs,
                    long&nbsp;endTimeUs,
+                   long&nbsp;seekTimeUs,
                    long&nbsp;chunkIndex,
                    int&nbsp;chunkCount,
                    long&nbsp;sampleOffsetUs,
@@ -267,7 +275,7 @@ extends <a href="../../../../../../com/google/android/exoplayer2/source/chunk/Ba
 <!--   -->
 </a>
 <h3>Constructor Detail</h3>
-<a name="ContainerMediaChunk-com.google.android.exoplayer2.upstream.DataSource-com.google.android.exoplayer2.upstream.DataSpec-com.google.android.exoplayer2.Format-int-java.lang.Object-long-long-long-int-long-com.google.android.exoplayer2.source.chunk.ChunkExtractorWrapper-">
+<a name="ContainerMediaChunk-com.google.android.exoplayer2.upstream.DataSource-com.google.android.exoplayer2.upstream.DataSpec-com.google.android.exoplayer2.Format-int-java.lang.Object-long-long-long-long-int-long-com.google.android.exoplayer2.source.chunk.ChunkExtractorWrapper-">
 <!--   -->
 </a>
 <ul class="blockListLast">
@@ -280,6 +288,7 @@ extends <a href="../../../../../../com/google/android/exoplayer2/source/chunk/Ba
                            <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Object.html" target="_top" title="class or interface in java.lang">Object</a>&nbsp;trackSelectionData,
                            long&nbsp;startTimeUs,
                            long&nbsp;endTimeUs,
+                           long&nbsp;seekTimeUs,
                            long&nbsp;chunkIndex,
                            int&nbsp;chunkCount,
                            long&nbsp;sampleOffsetUs,
@@ -293,6 +302,8 @@ extends <a href="../../../../../../com/google/android/exoplayer2/source/chunk/Ba
 <dd><code>trackSelectionData</code> - See <a href="../../../../../../com/google/android/exoplayer2/source/chunk/Chunk.html#trackSelectionData"><code>Chunk.trackSelectionData</code></a>.</dd>
 <dd><code>startTimeUs</code> - The start time of the media contained by the chunk, in microseconds.</dd>
 <dd><code>endTimeUs</code> - The end time of the media contained by the chunk, in microseconds.</dd>
+<dd><code>seekTimeUs</code> - The media time from which output will begin, or <a href="../../../../../../com/google/android/exoplayer2/C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a> if the
+     whole chunk should be output.</dd>
 <dd><code>chunkIndex</code> - The index of the chunk.</dd>
 <dd><code>chunkCount</code> - The number of chunks in the underlying media that are spanned by this
      instance. Normally equal to one, but may be larger if multiple chunks as defined by the
@@ -448,7 +459,7 @@ extends <a href="../../../../../../com/google/android/exoplayer2/source/chunk/Ba
 <ul class="subNavList">
 <li>Summary:&nbsp;</li>
 <li>Nested&nbsp;|&nbsp;</li>
-<li><a href="#fields.inherited.from.class.com.google.android.exoplayer2.source.chunk.MediaChunk">Field</a>&nbsp;|&nbsp;</li>
+<li><a href="#fields.inherited.from.class.com.google.android.exoplayer2.source.chunk.BaseMediaChunk">Field</a>&nbsp;|&nbsp;</li>
 <li><a href="#constructor.summary">Constr</a>&nbsp;|&nbsp;</li>
 <li><a href="#method.summary">Method</a></li>
 </ul>

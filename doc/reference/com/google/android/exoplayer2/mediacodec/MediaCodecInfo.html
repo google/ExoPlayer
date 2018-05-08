@@ -16,7 +16,7 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":9,"i7":9,"i8":9};
+var methods = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":9,"i8":9,"i9":9};
 var tabs = {65535:["t0","All Methods"],1:["t1","Static Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -134,9 +134,35 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 </td>
 </tr>
 <tr class="rowColor">
+<td class="colFirst"><code><a href="https://developer.android.com/reference/android/media/MediaCodecInfo.CodecCapabilities.html" target="_top" title="class or interface in android.media">MediaCodecInfo.CodecCapabilities</a></code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/mediacodec/MediaCodecInfo.html#capabilities">capabilities</a></span></code>
+<div class="block">The capabilities of the decoder, like the profiles/levels it supports, or <code>null</code> if this
+ is a passthrough codec.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>static int</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/mediacodec/MediaCodecInfo.html#MAX_SUPPORTED_INSTANCES_UNKNOWN">MAX_SUPPORTED_INSTANCES_UNKNOWN</a></span></code>
+<div class="block">The value returned by <a href="../../../../../com/google/android/exoplayer2/mediacodec/MediaCodecInfo.html#getMaxSupportedInstances--"><code>getMaxSupportedInstances()</code></a> if the upper bound on the maximum
+ number of supported instances is unknown.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code><a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a></code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/mediacodec/MediaCodecInfo.html#mimeType">mimeType</a></span></code>
+<div class="block">The MIME type handled by the codec, or <code>null</code> if this is a passthrough codec.</div>
+</td>
+</tr>
+<tr class="altColor">
 <td class="colFirst"><code><a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/mediacodec/MediaCodecInfo.html#name">name</a></span></code>
 <div class="block">The name of the decoder.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>boolean</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/mediacodec/MediaCodecInfo.html#passthrough">passthrough</a></span></code>
+<div class="block">Whether this instance describes a passthrough codec.</div>
 </td>
 </tr>
 <tr class="altColor">
@@ -179,30 +205,36 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 </td>
 </tr>
 <tr id="i1" class="rowColor">
+<td class="colFirst"><code>int</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/mediacodec/MediaCodecInfo.html#getMaxSupportedInstances--">getMaxSupportedInstances</a></span>()</code>
+<div class="block">Returns an upper bound on the maximum number of supported instances, or <a href="../../../../../com/google/android/exoplayer2/mediacodec/MediaCodecInfo.html#MAX_SUPPORTED_INSTANCES_UNKNOWN"><code>MAX_SUPPORTED_INSTANCES_UNKNOWN</code></a> if unknown.</div>
+</td>
+</tr>
+<tr id="i2" class="altColor">
 <td class="colFirst"><code><a href="https://developer.android.com/reference/android/media/MediaCodecInfo.CodecProfileLevel.html" target="_top" title="class or interface in android.media">MediaCodecInfo.CodecProfileLevel</a>[]</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/mediacodec/MediaCodecInfo.html#getProfileLevels--">getProfileLevels</a></span>()</code>
 <div class="block">The profile levels supported by the decoder.</div>
 </td>
 </tr>
-<tr id="i2" class="altColor">
+<tr id="i3" class="rowColor">
 <td class="colFirst"><code>boolean</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/mediacodec/MediaCodecInfo.html#isAudioChannelCountSupportedV21-int-">isAudioChannelCountSupportedV21</a></span>(int&nbsp;channelCount)</code>
 <div class="block">Whether the decoder supports audio with a given channel count.</div>
 </td>
 </tr>
-<tr id="i3" class="rowColor">
+<tr id="i4" class="altColor">
 <td class="colFirst"><code>boolean</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/mediacodec/MediaCodecInfo.html#isAudioSampleRateSupportedV21-int-">isAudioSampleRateSupportedV21</a></span>(int&nbsp;sampleRate)</code>
 <div class="block">Whether the decoder supports audio with a given sample rate.</div>
 </td>
 </tr>
-<tr id="i4" class="altColor">
+<tr id="i5" class="rowColor">
 <td class="colFirst"><code>boolean</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/mediacodec/MediaCodecInfo.html#isCodecSupported-java.lang.String-">isCodecSupported</a></span>(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;codec)</code>
 <div class="block">Whether the decoder supports the given <code>codec</code>.</div>
 </td>
 </tr>
-<tr id="i5" class="rowColor">
+<tr id="i6" class="altColor">
 <td class="colFirst"><code>boolean</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/mediacodec/MediaCodecInfo.html#isVideoSizeAndRateSupportedV21-int-int-double-">isVideoSizeAndRateSupportedV21</a></span>(int&nbsp;width,
                               int&nbsp;height,
@@ -210,7 +242,7 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 <div class="block">Whether the decoder supports video with a given width, height and frame rate.</div>
 </td>
 </tr>
-<tr id="i6" class="altColor">
+<tr id="i7" class="rowColor">
 <td class="colFirst"><code>static <a href="../../../../../com/google/android/exoplayer2/mediacodec/MediaCodecInfo.html" title="class in com.google.android.exoplayer2.mediacodec">MediaCodecInfo</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/mediacodec/MediaCodecInfo.html#newInstance-java.lang.String-java.lang.String-android.media.MediaCodecInfo.CodecCapabilities-">newInstance</a></span>(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;name,
            <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;mimeType,
@@ -218,7 +250,7 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 <div class="block">Creates an instance.</div>
 </td>
 </tr>
-<tr id="i7" class="rowColor">
+<tr id="i8" class="altColor">
 <td class="colFirst"><code>static <a href="../../../../../com/google/android/exoplayer2/mediacodec/MediaCodecInfo.html" title="class in com.google.android.exoplayer2.mediacodec">MediaCodecInfo</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/mediacodec/MediaCodecInfo.html#newInstance-java.lang.String-java.lang.String-android.media.MediaCodecInfo.CodecCapabilities-boolean-boolean-">newInstance</a></span>(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;name,
            <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;mimeType,
@@ -228,7 +260,7 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 <div class="block">Creates an instance.</div>
 </td>
 </tr>
-<tr id="i8" class="altColor">
+<tr id="i9" class="rowColor">
 <td class="colFirst"><code>static <a href="../../../../../com/google/android/exoplayer2/mediacodec/MediaCodecInfo.html" title="class in com.google.android.exoplayer2.mediacodec">MediaCodecInfo</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/mediacodec/MediaCodecInfo.html#newPassthroughInstance-java.lang.String-">newPassthroughInstance</a></span>(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;name)</code>
 <div class="block">Creates an instance representing an audio passthrough decoder.</div>
@@ -269,6 +301,21 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 </dl>
 </li>
 </ul>
+<a name="MAX_SUPPORTED_INSTANCES_UNKNOWN">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>MAX_SUPPORTED_INSTANCES_UNKNOWN</h4>
+<pre>public static final&nbsp;int MAX_SUPPORTED_INSTANCES_UNKNOWN</pre>
+<div class="block">The value returned by <a href="../../../../../com/google/android/exoplayer2/mediacodec/MediaCodecInfo.html#getMaxSupportedInstances--"><code>getMaxSupportedInstances()</code></a> if the upper bound on the maximum
+ number of supported instances is unknown.</div>
+<dl>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="../../../../../constant-values.html#com.google.android.exoplayer2.mediacodec.MediaCodecInfo.MAX_SUPPORTED_INSTANCES_UNKNOWN">Constant Field Values</a></dd>
+</dl>
+</li>
+</ul>
 <a name="name">
 <!--   -->
 </a>
@@ -280,6 +327,29 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
  <p>
  May be passed to <a href="https://developer.android.com/reference/android/media/MediaCodec.html?is-external=true#createByCodecName-java.lang.String-" title="class or interface in android.media"><code>MediaCodec.createByCodecName(String)</code></a> to create an instance of the
  decoder.</div>
+</li>
+</ul>
+<a name="mimeType">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>mimeType</h4>
+<pre><a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
+public final&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a> mimeType</pre>
+<div class="block">The MIME type handled by the codec, or <code>null</code> if this is a passthrough codec.</div>
+</li>
+</ul>
+<a name="capabilities">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>capabilities</h4>
+<pre><a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
+public final&nbsp;<a href="https://developer.android.com/reference/android/media/MediaCodecInfo.CodecCapabilities.html" target="_top" title="class or interface in android.media">MediaCodecInfo.CodecCapabilities</a> capabilities</pre>
+<div class="block">The capabilities of the decoder, like the profiles/levels it supports, or <code>null</code> if this
+ is a passthrough codec.</div>
 </li>
 </ul>
 <a name="adaptive">
@@ -315,7 +385,7 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 <a name="secure">
 <!--   -->
 </a>
-<ul class="blockListLast">
+<ul class="blockList">
 <li class="blockList">
 <h4>secure</h4>
 <pre>public final&nbsp;boolean secure</pre>
@@ -325,6 +395,16 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 <dd><a href="https://developer.android.com/reference/android/media/MediaCodecInfo.CodecCapabilities.html?is-external=true#isFeatureSupported-java.lang.String-" title="class or interface in android.media"><code>MediaCodecInfo.CodecCapabilities.isFeatureSupported(String)</code></a>, 
 <a href="https://developer.android.com/reference/android/media/MediaCodecInfo.CodecCapabilities.html?is-external=true#FEATURE_SecurePlayback" title="class or interface in android.media"><code>MediaCodecInfo.CodecCapabilities.FEATURE_SecurePlayback</code></a></dd>
 </dl>
+</li>
+</ul>
+<a name="passthrough">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>passthrough</h4>
+<pre>public final&nbsp;boolean passthrough</pre>
+<div class="block">Whether this instance describes a passthrough codec.</div>
 </li>
 </ul>
 </li>
@@ -406,6 +486,21 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 <dl>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>The profile levels supported by the decoder.</dd>
+</dl>
+</li>
+</ul>
+<a name="getMaxSupportedInstances--">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getMaxSupportedInstances</h4>
+<pre>public&nbsp;int&nbsp;getMaxSupportedInstances()</pre>
+<div class="block">Returns an upper bound on the maximum number of supported instances, or <a href="../../../../../com/google/android/exoplayer2/mediacodec/MediaCodecInfo.html#MAX_SUPPORTED_INSTANCES_UNKNOWN"><code>MAX_SUPPORTED_INSTANCES_UNKNOWN</code></a> if unknown. Applications should not expect to operate more
+ instances than the returned maximum.</div>
+<dl>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="https://developer.android.com/reference/android/media/MediaCodecInfo.CodecCapabilities.html?is-external=true#getMaxSupportedInstances--" title="class or interface in android.media"><code>MediaCodecInfo.CodecCapabilities.getMaxSupportedInstances()</code></a></dd>
 </dl>
 </li>
 </ul>

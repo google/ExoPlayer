@@ -47,7 +47,7 @@ var activeTableTab = "activeTableTab";
 <div class="subNav">
 <ul class="navList">
 <li><a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheDataSinkFactory.html" title="class in com.google.android.exoplayer2.upstream.cache"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
-<li><a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheDataSource.EventListener.html" title="interface in com.google.android.exoplayer2.upstream.cache"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
+<li><a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheDataSource.CacheIgnoredReason.html" title="annotation in com.google.android.exoplayer2.upstream.cache"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
 </ul>
 <ul class="navList">
 <li><a href="../../../../../../index.html?com/google/android/exoplayer2/upstream/cache/CacheDataSource.html" target="_top">Frames</a></li>
@@ -140,11 +140,17 @@ implements <a href="../../../../../../com/google/android/exoplayer2/upstream/Dat
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>static interface&nbsp;</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheDataSource.CacheIgnoredReason.html" title="annotation in com.google.android.exoplayer2.upstream.cache">CacheDataSource.CacheIgnoredReason</a></span></code>
+<div class="block">Reasons the cache may be ignored.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>static interface&nbsp;</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheDataSource.EventListener.html" title="interface in com.google.android.exoplayer2.upstream.cache">CacheDataSource.EventListener</a></span></code>
 <div class="block">Listener of <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheDataSource.html" title="class in com.google.android.exoplayer2.upstream.cache"><code>CacheDataSource</code></a> events.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>static interface&nbsp;</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheDataSource.Flags.html" title="annotation in com.google.android.exoplayer2.upstream.cache">CacheDataSource.Flags</a></span></code>
 <div class="block">Flags controlling the cache's behavior.</div>
@@ -171,6 +177,18 @@ implements <a href="../../../../../../com/google/android/exoplayer2/upstream/Dat
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
 <th class="colLast" scope="col">Field and Description</th>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>static int</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheDataSource.html#CACHE_IGNORED_REASON_ERROR">CACHE_IGNORED_REASON_ERROR</a></span></code>
+<div class="block">Cache ignored due to a cache related error.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>static int</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheDataSource.html#CACHE_IGNORED_REASON_UNSET_LENGTH">CACHE_IGNORED_REASON_UNSET_LENGTH</a></span></code>
+<div class="block">Cache ignored due to a request with an unset length.</div>
+</td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>static long</code></td>
@@ -359,7 +377,7 @@ implements <a href="../../../../../../com/google/android/exoplayer2/upstream/Dat
 <a name="FLAG_IGNORE_CACHE_FOR_UNSET_LENGTH_REQUESTS">
 <!--   -->
 </a>
-<ul class="blockListLast">
+<ul class="blockList">
 <li class="blockList">
 <h4>FLAG_IGNORE_CACHE_FOR_UNSET_LENGTH_REQUESTS</h4>
 <pre>public static final&nbsp;int FLAG_IGNORE_CACHE_FOR_UNSET_LENGTH_REQUESTS</pre>
@@ -368,6 +386,34 @@ implements <a href="../../../../../../com/google/android/exoplayer2/upstream/Dat
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
 <dd><a href="../../../../../../constant-values.html#com.google.android.exoplayer2.upstream.cache.CacheDataSource.FLAG_IGNORE_CACHE_FOR_UNSET_LENGTH_REQUESTS">Constant Field Values</a></dd>
+</dl>
+</li>
+</ul>
+<a name="CACHE_IGNORED_REASON_ERROR">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>CACHE_IGNORED_REASON_ERROR</h4>
+<pre>public static final&nbsp;int CACHE_IGNORED_REASON_ERROR</pre>
+<div class="block">Cache ignored due to a cache related error.</div>
+<dl>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="../../../../../../constant-values.html#com.google.android.exoplayer2.upstream.cache.CacheDataSource.CACHE_IGNORED_REASON_ERROR">Constant Field Values</a></dd>
+</dl>
+</li>
+</ul>
+<a name="CACHE_IGNORED_REASON_UNSET_LENGTH">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>CACHE_IGNORED_REASON_UNSET_LENGTH</h4>
+<pre>public static final&nbsp;int CACHE_IGNORED_REASON_UNSET_LENGTH</pre>
+<div class="block">Cache ignored due to a request with an unset length.</div>
+<dl>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="../../../../../../constant-values.html#com.google.android.exoplayer2.upstream.cache.CacheDataSource.CACHE_IGNORED_REASON_UNSET_LENGTH">Constant Field Values</a></dd>
 </dl>
 </li>
 </ul>
@@ -610,7 +656,7 @@ implements <a href="../../../../../../com/google/android/exoplayer2/upstream/Dat
 <div class="subNav">
 <ul class="navList">
 <li><a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheDataSinkFactory.html" title="class in com.google.android.exoplayer2.upstream.cache"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
-<li><a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheDataSource.EventListener.html" title="interface in com.google.android.exoplayer2.upstream.cache"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
+<li><a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheDataSource.CacheIgnoredReason.html" title="annotation in com.google.android.exoplayer2.upstream.cache"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
 </ul>
 <ul class="navList">
 <li><a href="../../../../../../index.html?com/google/android/exoplayer2/upstream/cache/CacheDataSource.html" target="_top">Frames</a></li>

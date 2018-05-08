@@ -225,15 +225,15 @@ implements <a href="../../../../../../com/google/android/exoplayer2/source/Media
 </tr>
 <tr id="i8" class="altColor">
 <td class="colFirst"><code>void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/source/hls/HlsMediaPeriod.html#onPlaylistBlacklisted-com.google.android.exoplayer2.source.hls.playlist.HlsMasterPlaylist.HlsUrl-long-">onPlaylistBlacklisted</a></span>(<a href="../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsMasterPlaylist.HlsUrl.html" title="class in com.google.android.exoplayer2.source.hls.playlist">HlsMasterPlaylist.HlsUrl</a>&nbsp;url,
-                     long&nbsp;blacklistMs)</code>
-<div class="block">Called if an error is encountered while loading a playlist.</div>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/source/hls/HlsMediaPeriod.html#onPlaylistChanged--">onPlaylistChanged</a></span>()</code>
+<div class="block">Called a playlist changes.</div>
 </td>
 </tr>
 <tr id="i9" class="rowColor">
-<td class="colFirst"><code>void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/source/hls/HlsMediaPeriod.html#onPlaylistChanged--">onPlaylistChanged</a></span>()</code>
-<div class="block">Called a playlist changes.</div>
+<td class="colFirst"><code>boolean</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/source/hls/HlsMediaPeriod.html#onPlaylistError-com.google.android.exoplayer2.source.hls.playlist.HlsMasterPlaylist.HlsUrl-boolean-">onPlaylistError</a></span>(<a href="../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsMasterPlaylist.HlsUrl.html" title="class in com.google.android.exoplayer2.source.hls.playlist">HlsMasterPlaylist.HlsUrl</a>&nbsp;url,
+               boolean&nbsp;shouldBlacklist)</code>
+<div class="block">Called if an error is encountered while loading a playlist.</div>
 </td>
 </tr>
 <tr id="i10" class="altColor">
@@ -358,8 +358,8 @@ implements <a href="../../../../../../com/google/android/exoplayer2/source/Media
  <a href="../../../../../../com/google/android/exoplayer2/source/MediaPeriod.html#maybeThrowPrepareError--"><code>MediaPeriod.maybeThrowPrepareError()</code></a> will throw an <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/io/IOException.html" target="_top" title="class or interface in java.io"><code>IOException</code></a>.
 
  <p>If preparation succeeds and results in a source timeline change (e.g. the period duration
- becoming known), <a href="../../../../../../com/google/android/exoplayer2/source/MediaSource.Listener.html#onSourceInfoRefreshed-com.google.android.exoplayer2.source.MediaSource-com.google.android.exoplayer2.Timeline-java.lang.Object-"><code>MediaSource.Listener.onSourceInfoRefreshed(MediaSource, Timeline,
- Object)</code></a> will be called before <code>callback.onPrepared</code>.</div>
+ becoming known), <a href="../../../../../../com/google/android/exoplayer2/source/MediaSource.SourceInfoRefreshListener.html#onSourceInfoRefreshed-com.google.android.exoplayer2.source.MediaSource-com.google.android.exoplayer2.Timeline-java.lang.Object-"><code>MediaSource.SourceInfoRefreshListener.onSourceInfoRefreshed(MediaSource, Timeline, Object)</code></a>
+ will be called before <code>callback.onPrepared</code>.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="../../../../../../com/google/android/exoplayer2/source/MediaPeriod.html#prepare-com.google.android.exoplayer2.source.MediaPeriod.Callback-long-">prepare</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/source/MediaPeriod.html" title="interface in com.google.android.exoplayer2.source">MediaPeriod</a></code></dd>
@@ -382,7 +382,7 @@ implements <a href="../../../../../../com/google/android/exoplayer2/source/Media
 <div class="block">Throws an error that's preventing the period from becoming prepared. Does nothing if no such
  error exists.
 
- <p>This method should only be called before the period has completed preparation.</div>
+ <p>This method is only called before the period has completed preparation.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="../../../../../../com/google/android/exoplayer2/source/MediaPeriod.html#maybeThrowPrepareError--">maybeThrowPrepareError</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/source/MediaPeriod.html" title="interface in com.google.android.exoplayer2.source">MediaPeriod</a></code></dd>
@@ -401,7 +401,7 @@ implements <a href="../../../../../../com/google/android/exoplayer2/source/Media
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/source/MediaPeriod.html#getTrackGroups--">MediaPeriod</a></code></span></div>
 <div class="block">Returns the <a href="../../../../../../com/google/android/exoplayer2/source/TrackGroup.html" title="class in com.google.android.exoplayer2.source"><code>TrackGroup</code></a>s exposed by the period.
 
- <p>This method should only be called after the period has been prepared.</div>
+ <p>This method is only called after the period has been prepared.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="../../../../../../com/google/android/exoplayer2/source/MediaPeriod.html#getTrackGroups--">getTrackGroups</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/source/MediaPeriod.html" title="interface in com.google.android.exoplayer2.source">MediaPeriod</a></code></dd>
@@ -432,7 +432,7 @@ implements <a href="../../../../../../com/google/android/exoplayer2/source/Media
  corresponding flag in <code>streamResetFlags</code> will be set to true. This flag will also be set
  if a new sample stream is created.
 
- <p>This method should only be called after the period has been prepared.</div>
+ <p>This method is only called after the period has been prepared.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="../../../../../../com/google/android/exoplayer2/source/MediaPeriod.html#selectTracks-com.google.android.exoplayer2.trackselection.TrackSelection:A-boolean:A-com.google.android.exoplayer2.source.SampleStream:A-boolean:A-long-">selectTracks</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/source/MediaPeriod.html" title="interface in com.google.android.exoplayer2.source">MediaPeriod</a></code></dd>
@@ -463,7 +463,7 @@ implements <a href="../../../../../../com/google/android/exoplayer2/source/Media
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/source/MediaPeriod.html#discardBuffer-long-boolean-">MediaPeriod</a></code></span></div>
 <div class="block">Discards buffered media up to the specified position.
 
- <p>This method should only be called after the period has been prepared.</div>
+ <p>This method is only called after the period has been prepared.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="../../../../../../com/google/android/exoplayer2/source/MediaPeriod.html#discardBuffer-long-boolean-">discardBuffer</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/source/MediaPeriod.html" title="interface in com.google.android.exoplayer2.source">MediaPeriod</a></code></dd>
@@ -484,7 +484,7 @@ implements <a href="../../../../../../com/google/android/exoplayer2/source/Media
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/source/MediaPeriod.html#reevaluateBuffer-long-">MediaPeriod</a></code></span></div>
 <div class="block">Re-evaluates the buffer given the playback position.
 
- <p>This method should only be called after the period has been prepared.
+ <p>This method is only called after the period has been prepared.
 
  <p>A period may choose to discard buffered media so that it can be re-buffered in a different
  quality.</div>
@@ -541,8 +541,8 @@ implements <a href="../../../../../../com/google/android/exoplayer2/source/Media
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/source/MediaPeriod.html#getNextLoadPositionUs--">MediaPeriod</a></code></span></div>
 <div class="block">Returns the next load time, or <a href="../../../../../../com/google/android/exoplayer2/C.html#TIME_END_OF_SOURCE"><code>C.TIME_END_OF_SOURCE</code></a> if loading has finished.
 
- <p>This method should only be called after the period has been prepared. It may be called when
- no tracks are selected.</div>
+ <p>This method is only called after the period has been prepared. It may be called when no
+ tracks are selected.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="../../../../../../com/google/android/exoplayer2/source/MediaPeriod.html#getNextLoadPositionUs--">getNextLoadPositionUs</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/source/MediaPeriod.html" title="interface in com.google.android.exoplayer2.source">MediaPeriod</a></code></dd>
@@ -563,7 +563,8 @@ implements <a href="../../../../../../com/google/android/exoplayer2/source/Media
 
  <p>After this method has returned a value other than <a href="../../../../../../com/google/android/exoplayer2/C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a>, all <a href="../../../../../../com/google/android/exoplayer2/source/SampleStream.html" title="interface in com.google.android.exoplayer2.source"><code>SampleStream</code></a>s provided by the period are guaranteed to start from a key frame.
 
- <p>This method should only be called after the period has been prepared.</div>
+ <p>This method is only called after the period has been prepared and before reading from any
+ <a href="../../../../../../com/google/android/exoplayer2/source/SampleStream.html" title="interface in com.google.android.exoplayer2.source"><code>SampleStream</code></a>s provided by the period.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="../../../../../../com/google/android/exoplayer2/source/MediaPeriod.html#readDiscontinuity--">readDiscontinuity</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/source/MediaPeriod.html" title="interface in com.google.android.exoplayer2.source">MediaPeriod</a></code></dd>
@@ -583,7 +584,7 @@ implements <a href="../../../../../../com/google/android/exoplayer2/source/Media
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/source/MediaPeriod.html#getBufferedPositionUs--">MediaPeriod</a></code></span></div>
 <div class="block">Returns an estimate of the position up to which data is buffered for the enabled tracks.
 
- <p>This method should only be called when at least one track is selected.</div>
+ <p>This method is only called when at least one track is selected.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="../../../../../../com/google/android/exoplayer2/source/MediaPeriod.html#getBufferedPositionUs--">getBufferedPositionUs</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/source/MediaPeriod.html" title="interface in com.google.android.exoplayer2.source">MediaPeriod</a></code></dd>
@@ -608,7 +609,7 @@ implements <a href="../../../../../../com/google/android/exoplayer2/source/Media
  <p>After this method has been called, all <a href="../../../../../../com/google/android/exoplayer2/source/SampleStream.html" title="interface in com.google.android.exoplayer2.source"><code>SampleStream</code></a>s provided by the period are
  guaranteed to start from a key frame.
 
- <p>This method should only be called when at least one track is selected.</div>
+ <p>This method is only called when at least one track is selected.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="../../../../../../com/google/android/exoplayer2/source/MediaPeriod.html#seekToUs-long-">seekToUs</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/source/MediaPeriod.html" title="interface in com.google.android.exoplayer2.source">MediaPeriod</a></code></dd>
@@ -631,7 +632,7 @@ implements <a href="../../../../../../com/google/android/exoplayer2/source/Media
 <div class="block">Returns the position to which a seek will be performed, given the specified seek position and
  <a href="../../../../../../com/google/android/exoplayer2/SeekParameters.html" title="class in com.google.android.exoplayer2"><code>SeekParameters</code></a>.
 
- <p>This method should only be called after the period has been prepared.</div>
+ <p>This method is only called after the period has been prepared.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="../../../../../../com/google/android/exoplayer2/source/MediaPeriod.html#getAdjustedSeekPositionUs-long-com.google.android.exoplayer2.SeekParameters-">getAdjustedSeekPositionUs</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/source/MediaPeriod.html" title="interface in com.google.android.exoplayer2.source">MediaPeriod</a></code></dd>
@@ -706,23 +707,24 @@ implements <a href="../../../../../../com/google/android/exoplayer2/source/Media
 </dl>
 </li>
 </ul>
-<a name="onPlaylistBlacklisted-com.google.android.exoplayer2.source.hls.playlist.HlsMasterPlaylist.HlsUrl-long-">
+<a name="onPlaylistError-com.google.android.exoplayer2.source.hls.playlist.HlsMasterPlaylist.HlsUrl-boolean-">
 <!--   -->
 </a>
 <ul class="blockListLast">
 <li class="blockList">
-<h4>onPlaylistBlacklisted</h4>
-<pre>public&nbsp;void&nbsp;onPlaylistBlacklisted(<a href="../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsMasterPlaylist.HlsUrl.html" title="class in com.google.android.exoplayer2.source.hls.playlist">HlsMasterPlaylist.HlsUrl</a>&nbsp;url,
-                                  long&nbsp;blacklistMs)</pre>
-<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsPlaylistTracker.PlaylistEventListener.html#onPlaylistBlacklisted-com.google.android.exoplayer2.source.hls.playlist.HlsMasterPlaylist.HlsUrl-long-">HlsPlaylistTracker.PlaylistEventListener</a></code></span></div>
+<h4>onPlaylistError</h4>
+<pre>public&nbsp;boolean&nbsp;onPlaylistError(<a href="../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsMasterPlaylist.HlsUrl.html" title="class in com.google.android.exoplayer2.source.hls.playlist">HlsMasterPlaylist.HlsUrl</a>&nbsp;url,
+                               boolean&nbsp;shouldBlacklist)</pre>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsPlaylistTracker.PlaylistEventListener.html#onPlaylistError-com.google.android.exoplayer2.source.hls.playlist.HlsMasterPlaylist.HlsUrl-boolean-">HlsPlaylistTracker.PlaylistEventListener</a></code></span></div>
 <div class="block">Called if an error is encountered while loading a playlist.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code><a href="../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsPlaylistTracker.PlaylistEventListener.html#onPlaylistBlacklisted-com.google.android.exoplayer2.source.hls.playlist.HlsMasterPlaylist.HlsUrl-long-">onPlaylistBlacklisted</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsPlaylistTracker.PlaylistEventListener.html" title="interface in com.google.android.exoplayer2.source.hls.playlist">HlsPlaylistTracker.PlaylistEventListener</a></code></dd>
+<dd><code><a href="../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsPlaylistTracker.PlaylistEventListener.html#onPlaylistError-com.google.android.exoplayer2.source.hls.playlist.HlsMasterPlaylist.HlsUrl-boolean-">onPlaylistError</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsPlaylistTracker.PlaylistEventListener.html" title="interface in com.google.android.exoplayer2.source.hls.playlist">HlsPlaylistTracker.PlaylistEventListener</a></code></dd>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>url</code> - The loaded url that caused the error.</dd>
-<dd><code>blacklistMs</code> - The number of milliseconds for which the playlist has been
-     blacklisted.</dd>
+<dd><code>shouldBlacklist</code> - Whether the playlist should be blacklisted.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>True if blacklisting did not encounter errors. False otherwise.</dd>
 </dl>
 </li>
 </ul>

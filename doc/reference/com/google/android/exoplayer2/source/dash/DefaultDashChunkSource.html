@@ -246,14 +246,15 @@ implements <a href="../../../../../../com/google/android/exoplayer2/source/dash/
 </tr>
 <tr id="i5" class="rowColor">
 <td class="colFirst"><code>protected static <a href="../../../../../../com/google/android/exoplayer2/source/chunk/Chunk.html" title="class in com.google.android.exoplayer2.source.chunk">Chunk</a></code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/source/dash/DefaultDashChunkSource.html#newMediaChunk-com.google.android.exoplayer2.source.dash.DefaultDashChunkSource.RepresentationHolder-com.google.android.exoplayer2.upstream.DataSource-int-com.google.android.exoplayer2.Format-int-java.lang.Object-long-int-">newMediaChunk</a></span>(<a href="../../../../../../com/google/android/exoplayer2/source/dash/DefaultDashChunkSource.RepresentationHolder.html" title="class in com.google.android.exoplayer2.source.dash">DefaultDashChunkSource.RepresentationHolder</a>&nbsp;representationHolder,
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/source/dash/DefaultDashChunkSource.html#newMediaChunk-com.google.android.exoplayer2.source.dash.DefaultDashChunkSource.RepresentationHolder-com.google.android.exoplayer2.upstream.DataSource-int-com.google.android.exoplayer2.Format-int-java.lang.Object-long-int-long-">newMediaChunk</a></span>(<a href="../../../../../../com/google/android/exoplayer2/source/dash/DefaultDashChunkSource.RepresentationHolder.html" title="class in com.google.android.exoplayer2.source.dash">DefaultDashChunkSource.RepresentationHolder</a>&nbsp;representationHolder,
              <a href="../../../../../../com/google/android/exoplayer2/upstream/DataSource.html" title="interface in com.google.android.exoplayer2.upstream">DataSource</a>&nbsp;dataSource,
              int&nbsp;trackType,
              <a href="../../../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;trackFormat,
              int&nbsp;trackSelectionReason,
              <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Object.html" target="_top" title="class or interface in java.lang">Object</a>&nbsp;trackSelectionData,
              long&nbsp;firstSegmentNum,
-             int&nbsp;maxSegmentCount)</code>&nbsp;</td>
+             int&nbsp;maxSegmentCount,
+             long&nbsp;seekTimeUs)</code>&nbsp;</td>
 </tr>
 <tr id="i6" class="altColor">
 <td class="colFirst"><code>void</code></td>
@@ -547,7 +548,7 @@ implements <a href="../../../../../../com/google/android/exoplayer2/source/dash/
                                               <a href="../../../../../../com/google/android/exoplayer2/source/dash/manifest/RangedUri.html" title="class in com.google.android.exoplayer2.source.dash.manifest">RangedUri</a>&nbsp;indexUri)</pre>
 </li>
 </ul>
-<a name="newMediaChunk-com.google.android.exoplayer2.source.dash.DefaultDashChunkSource.RepresentationHolder-com.google.android.exoplayer2.upstream.DataSource-int-com.google.android.exoplayer2.Format-int-java.lang.Object-long-int-">
+<a name="newMediaChunk-com.google.android.exoplayer2.source.dash.DefaultDashChunkSource.RepresentationHolder-com.google.android.exoplayer2.upstream.DataSource-int-com.google.android.exoplayer2.Format-int-java.lang.Object-long-int-long-">
 <!--   -->
 </a>
 <ul class="blockListLast">
@@ -560,7 +561,8 @@ implements <a href="../../../../../../com/google/android/exoplayer2/source/dash/
                                      int&nbsp;trackSelectionReason,
                                      <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Object.html" target="_top" title="class or interface in java.lang">Object</a>&nbsp;trackSelectionData,
                                      long&nbsp;firstSegmentNum,
-                                     int&nbsp;maxSegmentCount)</pre>
+                                     int&nbsp;maxSegmentCount,
+                                     long&nbsp;seekTimeUs)</pre>
 </li>
 </ul>
 </li>

@@ -16,7 +16,7 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10};
+var methods = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -47,7 +47,7 @@ var activeTableTab = "activeTableTab";
 <div class="subNav">
 <ul class="navList">
 <li><a href="../../../../../../com/google/android/exoplayer2/source/ads/AdsLoader.EventListener.html" title="interface in com.google.android.exoplayer2.source.ads"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
-<li><a href="../../../../../../com/google/android/exoplayer2/source/ads/AdsMediaSource.EventListener.html" title="interface in com.google.android.exoplayer2.source.ads"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
+<li><a href="../../../../../../com/google/android/exoplayer2/source/ads/AdsMediaSource.AdLoadException.html" title="class in com.google.android.exoplayer2.source.ads"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
 </ul>
 <ul class="navList">
 <li><a href="../../../../../../index.html?com/google/android/exoplayer2/source/ads/AdsMediaSource.html" target="_top">Frames</a></li>
@@ -97,10 +97,15 @@ var activeTableTab = "activeTableTab";
 <li><a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Object.html" target="_top" title="class or interface in java.lang">java.lang.Object</a></li>
 <li>
 <ul class="inheritance">
+<li><a href="../../../../../../com/google/android/exoplayer2/source/BaseMediaSource.html" title="class in com.google.android.exoplayer2.source">com.google.android.exoplayer2.source.BaseMediaSource</a></li>
+<li>
+<ul class="inheritance">
 <li><a href="../../../../../../com/google/android/exoplayer2/source/CompositeMediaSource.html" title="class in com.google.android.exoplayer2.source">com.google.android.exoplayer2.source.CompositeMediaSource</a>&lt;<a href="../../../../../../com/google/android/exoplayer2/source/MediaSource.MediaPeriodId.html" title="class in com.google.android.exoplayer2.source">MediaSource.MediaPeriodId</a>&gt;</li>
 <li>
 <ul class="inheritance">
 <li>com.google.android.exoplayer2.source.ads.AdsMediaSource</li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
@@ -137,12 +142,23 @@ extends <a href="../../../../../../com/google/android/exoplayer2/source/Composit
 <th class="colLast" scope="col">Class and Description</th>
 </tr>
 <tr class="altColor">
-<td class="colFirst"><code>static interface&nbsp;</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/source/ads/AdsMediaSource.EventListener.html" title="interface in com.google.android.exoplayer2.source.ads">AdsMediaSource.EventListener</a></span></code>
-<div class="block">Listener for ads media source events.</div>
+<td class="colFirst"><code>static class&nbsp;</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/source/ads/AdsMediaSource.AdLoadException.html" title="class in com.google.android.exoplayer2.source.ads">AdsMediaSource.AdLoadException</a></span></code>
+<div class="block">Wrapper for exceptions that occur while loading ads, which are notified via <code>MediaSourceEventListener#onLoadError(int, MediaPeriodId, LoadEventInfo, MediaLoadData,
+ IOException, boolean)</code>.</div>
 </td>
 </tr>
 <tr class="rowColor">
+<td class="colFirst"><code>static interface&nbsp;</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/source/ads/AdsMediaSource.EventListener.html" title="interface in com.google.android.exoplayer2.source.ads">AdsMediaSource.EventListener</a></span></code>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;
+<div class="block"><span class="deprecationComment">To listen for ad load error events, add a listener via <a href="../../../../../../com/google/android/exoplayer2/source/BaseMediaSource.html#addEventListener-android.os.Handler-com.google.android.exoplayer2.source.MediaSourceEventListener-"><code>BaseMediaSource.addEventListener(Handler, MediaSourceEventListener)</code></a> and check for <a href="../../../../../../com/google/android/exoplayer2/source/ads/AdsMediaSource.AdLoadException.html" title="class in com.google.android.exoplayer2.source.ads"><code>AdsMediaSource.AdLoadException</code></a>s in <code>MediaSourceEventListener#onLoadError(int, MediaPeriodId,
+     LoadEventInfo, MediaLoadData, IOException, boolean)</code>. Individual ads loader implementations
+     should expose ad interaction events, if applicable.</span></div>
+</div>
+</td>
+</tr>
+<tr class="altColor">
 <td class="colFirst"><code>static interface&nbsp;</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/source/ads/AdsMediaSource.MediaSourceFactory.html" title="interface in com.google.android.exoplayer2.source.ads">AdsMediaSource.MediaSourceFactory</a></span></code>
 <div class="block">Factory for creating <a href="../../../../../../com/google/android/exoplayer2/source/MediaSource.html" title="interface in com.google.android.exoplayer2.source"><code>MediaSource</code></a>s to play ad media.</div>
@@ -154,22 +170,7 @@ extends <a href="../../../../../../com/google/android/exoplayer2/source/Composit
 <!--   -->
 </a>
 <h3>Nested classes/interfaces inherited from interface&nbsp;com.google.android.exoplayer2.source.<a href="../../../../../../com/google/android/exoplayer2/source/MediaSource.html" title="interface in com.google.android.exoplayer2.source">MediaSource</a></h3>
-<code><a href="../../../../../../com/google/android/exoplayer2/source/MediaSource.Listener.html" title="interface in com.google.android.exoplayer2.source">MediaSource.Listener</a>, <a href="../../../../../../com/google/android/exoplayer2/source/MediaSource.MediaPeriodId.html" title="class in com.google.android.exoplayer2.source">MediaSource.MediaPeriodId</a></code></li>
-</ul>
-</li>
-</ul>
-<!-- =========== FIELD SUMMARY =========== -->
-<ul class="blockList">
-<li class="blockList"><a name="field.summary">
-<!--   -->
-</a>
-<h3>Field Summary</h3>
-<ul class="blockList">
-<li class="blockList"><a name="fields.inherited.from.class.com.google.android.exoplayer2.source.MediaSource">
-<!--   -->
-</a>
-<h3>Fields inherited from interface&nbsp;com.google.android.exoplayer2.source.<a href="../../../../../../com/google/android/exoplayer2/source/MediaSource.html" title="interface in com.google.android.exoplayer2.source">MediaSource</a></h3>
-<code><a href="../../../../../../com/google/android/exoplayer2/source/MediaSource.html#MEDIA_SOURCE_REUSED_ERROR_MESSAGE">MEDIA_SOURCE_REUSED_ERROR_MESSAGE</a></code></li>
+<code><a href="../../../../../../com/google/android/exoplayer2/source/MediaSource.MediaPeriodId.html" title="class in com.google.android.exoplayer2.source">MediaSource.MediaPeriodId</a>, <a href="../../../../../../com/google/android/exoplayer2/source/MediaSource.SourceInfoRefreshListener.html" title="interface in com.google.android.exoplayer2.source">MediaSource.SourceInfoRefreshListener</a></code></li>
 </ul>
 </li>
 </ul>
@@ -185,16 +186,28 @@ extends <a href="../../../../../../com/google/android/exoplayer2/source/Composit
 <th class="colOne" scope="col">Constructor and Description</th>
 </tr>
 <tr class="altColor">
+<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/source/ads/AdsMediaSource.html#AdsMediaSource-com.google.android.exoplayer2.source.MediaSource-com.google.android.exoplayer2.source.ads.AdsMediaSource.MediaSourceFactory-com.google.android.exoplayer2.source.ads.AdsLoader-android.view.ViewGroup-">AdsMediaSource</a></span>(<a href="../../../../../../com/google/android/exoplayer2/source/MediaSource.html" title="interface in com.google.android.exoplayer2.source">MediaSource</a>&nbsp;contentMediaSource,
+              <a href="../../../../../../com/google/android/exoplayer2/source/ads/AdsMediaSource.MediaSourceFactory.html" title="interface in com.google.android.exoplayer2.source.ads">AdsMediaSource.MediaSourceFactory</a>&nbsp;adMediaSourceFactory,
+              <a href="../../../../../../com/google/android/exoplayer2/source/ads/AdsLoader.html" title="interface in com.google.android.exoplayer2.source.ads">AdsLoader</a>&nbsp;adsLoader,
+              <a href="https://developer.android.com/reference/android/view/ViewGroup.html" target="_top" title="class or interface in android.view">ViewGroup</a>&nbsp;adUiViewGroup)</code>
+<div class="block">Constructs a new source that inserts ads linearly with the content specified by <code>contentMediaSource</code>.</div>
+</td>
+</tr>
+<tr class="rowColor">
 <td class="colOne"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/source/ads/AdsMediaSource.html#AdsMediaSource-com.google.android.exoplayer2.source.MediaSource-com.google.android.exoplayer2.source.ads.AdsMediaSource.MediaSourceFactory-com.google.android.exoplayer2.source.ads.AdsLoader-android.view.ViewGroup-android.os.Handler-com.google.android.exoplayer2.source.ads.AdsMediaSource.EventListener-">AdsMediaSource</a></span>(<a href="../../../../../../com/google/android/exoplayer2/source/MediaSource.html" title="interface in com.google.android.exoplayer2.source">MediaSource</a>&nbsp;contentMediaSource,
               <a href="../../../../../../com/google/android/exoplayer2/source/ads/AdsMediaSource.MediaSourceFactory.html" title="interface in com.google.android.exoplayer2.source.ads">AdsMediaSource.MediaSourceFactory</a>&nbsp;adMediaSourceFactory,
               <a href="../../../../../../com/google/android/exoplayer2/source/ads/AdsLoader.html" title="interface in com.google.android.exoplayer2.source.ads">AdsLoader</a>&nbsp;adsLoader,
               <a href="https://developer.android.com/reference/android/view/ViewGroup.html" target="_top" title="class or interface in android.view">ViewGroup</a>&nbsp;adUiViewGroup,
               <a href="https://developer.android.com/reference/android/os/Handler.html" target="_top" title="class or interface in android.os">Handler</a>&nbsp;eventHandler,
               <a href="../../../../../../com/google/android/exoplayer2/source/ads/AdsMediaSource.EventListener.html" title="interface in com.google.android.exoplayer2.source.ads">AdsMediaSource.EventListener</a>&nbsp;eventListener)</code>
-<div class="block">Constructs a new source that inserts ads linearly with the content specified by <code>contentMediaSource</code>.</div>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;
+<div class="block"><span class="deprecationComment">To listen for ad load error events, add a listener via <a href="../../../../../../com/google/android/exoplayer2/source/BaseMediaSource.html#addEventListener-android.os.Handler-com.google.android.exoplayer2.source.MediaSourceEventListener-"><code>BaseMediaSource.addEventListener(Handler, MediaSourceEventListener)</code></a> and check for <a href="../../../../../../com/google/android/exoplayer2/source/ads/AdsMediaSource.AdLoadException.html" title="class in com.google.android.exoplayer2.source.ads"><code>AdsMediaSource.AdLoadException</code></a>s in <code>MediaSourceEventListener#onLoadError(int, MediaPeriodId,
+     LoadEventInfo, MediaLoadData, IOException, boolean)</code>. Individual ads loader implementations
+     should expose ad interaction events, if applicable.</span></div>
+</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colOne"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/source/ads/AdsMediaSource.html#AdsMediaSource-com.google.android.exoplayer2.source.MediaSource-com.google.android.exoplayer2.upstream.DataSource.Factory-com.google.android.exoplayer2.source.ads.AdsLoader-android.view.ViewGroup-">AdsMediaSource</a></span>(<a href="../../../../../../com/google/android/exoplayer2/source/MediaSource.html" title="interface in com.google.android.exoplayer2.source">MediaSource</a>&nbsp;contentMediaSource,
               <a href="../../../../../../com/google/android/exoplayer2/upstream/DataSource.Factory.html" title="interface in com.google.android.exoplayer2.upstream">DataSource.Factory</a>&nbsp;dataSourceFactory,
               <a href="../../../../../../com/google/android/exoplayer2/source/ads/AdsLoader.html" title="interface in com.google.android.exoplayer2.source.ads">AdsLoader</a>&nbsp;adsLoader,
@@ -202,14 +215,18 @@ extends <a href="../../../../../../com/google/android/exoplayer2/source/Composit
 <div class="block">Constructs a new source that inserts ads linearly with the content specified by <code>contentMediaSource</code>.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colOne"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/source/ads/AdsMediaSource.html#AdsMediaSource-com.google.android.exoplayer2.source.MediaSource-com.google.android.exoplayer2.upstream.DataSource.Factory-com.google.android.exoplayer2.source.ads.AdsLoader-android.view.ViewGroup-android.os.Handler-com.google.android.exoplayer2.source.ads.AdsMediaSource.EventListener-">AdsMediaSource</a></span>(<a href="../../../../../../com/google/android/exoplayer2/source/MediaSource.html" title="interface in com.google.android.exoplayer2.source">MediaSource</a>&nbsp;contentMediaSource,
               <a href="../../../../../../com/google/android/exoplayer2/upstream/DataSource.Factory.html" title="interface in com.google.android.exoplayer2.upstream">DataSource.Factory</a>&nbsp;dataSourceFactory,
               <a href="../../../../../../com/google/android/exoplayer2/source/ads/AdsLoader.html" title="interface in com.google.android.exoplayer2.source.ads">AdsLoader</a>&nbsp;adsLoader,
               <a href="https://developer.android.com/reference/android/view/ViewGroup.html" target="_top" title="class or interface in android.view">ViewGroup</a>&nbsp;adUiViewGroup,
               <a href="https://developer.android.com/reference/android/os/Handler.html" target="_top" title="class or interface in android.os">Handler</a>&nbsp;eventHandler,
               <a href="../../../../../../com/google/android/exoplayer2/source/ads/AdsMediaSource.EventListener.html" title="interface in com.google.android.exoplayer2.source.ads">AdsMediaSource.EventListener</a>&nbsp;eventListener)</code>
-<div class="block">Constructs a new source that inserts ads linearly with the content specified by <code>contentMediaSource</code>.</div>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;
+<div class="block"><span class="deprecationComment">To listen for ad load error events, add a listener via <a href="../../../../../../com/google/android/exoplayer2/source/BaseMediaSource.html#addEventListener-android.os.Handler-com.google.android.exoplayer2.source.MediaSourceEventListener-"><code>BaseMediaSource.addEventListener(Handler, MediaSourceEventListener)</code></a> and check for <a href="../../../../../../com/google/android/exoplayer2/source/ads/AdsMediaSource.AdLoadException.html" title="class in com.google.android.exoplayer2.source.ads"><code>AdsMediaSource.AdLoadException</code></a>s in <code>MediaSourceEventListener#onLoadError(int, MediaPeriodId,
+     LoadEventInfo, MediaLoadData, IOException, boolean)</code>. Individual ads loader implementations
+     should expose ad interaction events, if applicable.</span></div>
+</div>
 </td>
 </tr>
 </table>
@@ -235,6 +252,13 @@ extends <a href="../../../../../../com/google/android/exoplayer2/source/Composit
 </td>
 </tr>
 <tr id="i1" class="rowColor">
+<td class="colFirst"><code>protected <a href="../../../../../../com/google/android/exoplayer2/source/MediaSource.MediaPeriodId.html" title="class in com.google.android.exoplayer2.source">MediaSource.MediaPeriodId</a></code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/source/ads/AdsMediaSource.html#getMediaPeriodIdForChildMediaPeriodId-com.google.android.exoplayer2.source.MediaSource.MediaPeriodId-com.google.android.exoplayer2.source.MediaSource.MediaPeriodId-">getMediaPeriodIdForChildMediaPeriodId</a></span>(<a href="../../../../../../com/google/android/exoplayer2/source/MediaSource.MediaPeriodId.html" title="class in com.google.android.exoplayer2.source">MediaSource.MediaPeriodId</a>&nbsp;childId,
+                                     <a href="../../../../../../com/google/android/exoplayer2/source/MediaSource.MediaPeriodId.html" title="class in com.google.android.exoplayer2.source">MediaSource.MediaPeriodId</a>&nbsp;mediaPeriodId)</code>
+<div class="block">Returns the <code>MediaPeriodId</code> in the composite source corresponding to the specified <code>MediaPeriodId</code> in a child source.</div>
+</td>
+</tr>
+<tr id="i2" class="altColor">
 <td class="colFirst"><code>protected void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/source/ads/AdsMediaSource.html#onChildSourceInfoRefreshed-com.google.android.exoplayer2.source.MediaSource.MediaPeriodId-com.google.android.exoplayer2.source.MediaSource-com.google.android.exoplayer2.Timeline-java.lang.Object-">onChildSourceInfoRefreshed</a></span>(<a href="../../../../../../com/google/android/exoplayer2/source/MediaSource.MediaPeriodId.html" title="class in com.google.android.exoplayer2.source">MediaSource.MediaPeriodId</a>&nbsp;mediaPeriodId,
                           <a href="../../../../../../com/google/android/exoplayer2/source/MediaSource.html" title="interface in com.google.android.exoplayer2.source">MediaSource</a>&nbsp;mediaSource,
@@ -243,23 +267,22 @@ extends <a href="../../../../../../com/google/android/exoplayer2/source/Composit
 <div class="block">Called when the source info of a child source has been refreshed.</div>
 </td>
 </tr>
-<tr id="i2" class="altColor">
+<tr id="i3" class="rowColor">
 <td class="colFirst"><code>void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/source/ads/AdsMediaSource.html#prepareSource-com.google.android.exoplayer2.ExoPlayer-boolean-com.google.android.exoplayer2.source.MediaSource.Listener-">prepareSource</a></span>(<a href="../../../../../../com/google/android/exoplayer2/ExoPlayer.html" title="interface in com.google.android.exoplayer2">ExoPlayer</a>&nbsp;player,
-             boolean&nbsp;isTopLevelSource,
-             <a href="../../../../../../com/google/android/exoplayer2/source/MediaSource.Listener.html" title="interface in com.google.android.exoplayer2.source">MediaSource.Listener</a>&nbsp;listener)</code>
-<div class="block">Starts preparation of the source.</div>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/source/ads/AdsMediaSource.html#prepareSourceInternal-com.google.android.exoplayer2.ExoPlayer-boolean-">prepareSourceInternal</a></span>(<a href="../../../../../../com/google/android/exoplayer2/ExoPlayer.html" title="interface in com.google.android.exoplayer2">ExoPlayer</a>&nbsp;player,
+                     boolean&nbsp;isTopLevelSource)</code>
+<div class="block">Starts source preparation.</div>
 </td>
 </tr>
-<tr id="i3" class="rowColor">
+<tr id="i4" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/source/ads/AdsMediaSource.html#releasePeriod-com.google.android.exoplayer2.source.MediaPeriod-">releasePeriod</a></span>(<a href="../../../../../../com/google/android/exoplayer2/source/MediaPeriod.html" title="interface in com.google.android.exoplayer2.source">MediaPeriod</a>&nbsp;mediaPeriod)</code>
 <div class="block">Releases the period.</div>
 </td>
 </tr>
-<tr id="i4" class="altColor">
+<tr id="i5" class="rowColor">
 <td class="colFirst"><code>void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/source/ads/AdsMediaSource.html#releaseSource--">releaseSource</a></span>()</code>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/source/ads/AdsMediaSource.html#releaseSourceInternal--">releaseSourceInternal</a></span>()</code>
 <div class="block">Releases the source.</div>
 </td>
 </tr>
@@ -269,7 +292,14 @@ extends <a href="../../../../../../com/google/android/exoplayer2/source/Composit
 <!--   -->
 </a>
 <h3>Methods inherited from class&nbsp;com.google.android.exoplayer2.source.<a href="../../../../../../com/google/android/exoplayer2/source/CompositeMediaSource.html" title="class in com.google.android.exoplayer2.source">CompositeMediaSource</a></h3>
-<code><a href="../../../../../../com/google/android/exoplayer2/source/CompositeMediaSource.html#maybeThrowSourceInfoRefreshError--">maybeThrowSourceInfoRefreshError</a>, <a href="../../../../../../com/google/android/exoplayer2/source/CompositeMediaSource.html#prepareChildSource-T-com.google.android.exoplayer2.source.MediaSource-">prepareChildSource</a>, <a href="../../../../../../com/google/android/exoplayer2/source/CompositeMediaSource.html#releaseChildSource-T-">releaseChildSource</a></code></li>
+<code><a href="../../../../../../com/google/android/exoplayer2/source/CompositeMediaSource.html#getMediaTimeForChildMediaTime-T-long-">getMediaTimeForChildMediaTime</a>, <a href="../../../../../../com/google/android/exoplayer2/source/CompositeMediaSource.html#getWindowIndexForChildWindowIndex-T-int-">getWindowIndexForChildWindowIndex</a>, <a href="../../../../../../com/google/android/exoplayer2/source/CompositeMediaSource.html#maybeThrowSourceInfoRefreshError--">maybeThrowSourceInfoRefreshError</a>, <a href="../../../../../../com/google/android/exoplayer2/source/CompositeMediaSource.html#prepareChildSource-T-com.google.android.exoplayer2.source.MediaSource-">prepareChildSource</a>, <a href="../../../../../../com/google/android/exoplayer2/source/CompositeMediaSource.html#releaseChildSource-T-">releaseChildSource</a></code></li>
+</ul>
+<ul class="blockList">
+<li class="blockList"><a name="methods.inherited.from.class.com.google.android.exoplayer2.source.BaseMediaSource">
+<!--   -->
+</a>
+<h3>Methods inherited from class&nbsp;com.google.android.exoplayer2.source.<a href="../../../../../../com/google/android/exoplayer2/source/BaseMediaSource.html" title="class in com.google.android.exoplayer2.source">BaseMediaSource</a></h3>
+<code><a href="../../../../../../com/google/android/exoplayer2/source/BaseMediaSource.html#addEventListener-android.os.Handler-com.google.android.exoplayer2.source.MediaSourceEventListener-">addEventListener</a>, <a href="../../../../../../com/google/android/exoplayer2/source/BaseMediaSource.html#createEventDispatcher-int-com.google.android.exoplayer2.source.MediaSource.MediaPeriodId-long-">createEventDispatcher</a>, <a href="../../../../../../com/google/android/exoplayer2/source/BaseMediaSource.html#createEventDispatcher-com.google.android.exoplayer2.source.MediaSource.MediaPeriodId-">createEventDispatcher</a>, <a href="../../../../../../com/google/android/exoplayer2/source/BaseMediaSource.html#createEventDispatcher-com.google.android.exoplayer2.source.MediaSource.MediaPeriodId-long-">createEventDispatcher</a>, <a href="../../../../../../com/google/android/exoplayer2/source/BaseMediaSource.html#prepareSource-com.google.android.exoplayer2.ExoPlayer-boolean-com.google.android.exoplayer2.source.MediaSource.SourceInfoRefreshListener-">prepareSource</a>, <a href="../../../../../../com/google/android/exoplayer2/source/BaseMediaSource.html#refreshSourceInfo-com.google.android.exoplayer2.Timeline-java.lang.Object-">refreshSourceInfo</a>, <a href="../../../../../../com/google/android/exoplayer2/source/BaseMediaSource.html#releaseSource-com.google.android.exoplayer2.source.MediaSource.SourceInfoRefreshListener-">releaseSource</a>, <a href="../../../../../../com/google/android/exoplayer2/source/BaseMediaSource.html#removeEventListener-com.google.android.exoplayer2.source.MediaSourceEventListener-">removeEventListener</a></code></li>
 </ul>
 <ul class="blockList">
 <li class="blockList"><a name="methods.inherited.from.class.java.lang.Object">
@@ -312,20 +342,44 @@ extends <a href="../../../../../../com/google/android/exoplayer2/source/Composit
 </dl>
 </li>
 </ul>
-<a name="AdsMediaSource-com.google.android.exoplayer2.source.MediaSource-com.google.android.exoplayer2.upstream.DataSource.Factory-com.google.android.exoplayer2.source.ads.AdsLoader-android.view.ViewGroup-android.os.Handler-com.google.android.exoplayer2.source.ads.AdsMediaSource.EventListener-">
+<a name="AdsMediaSource-com.google.android.exoplayer2.source.MediaSource-com.google.android.exoplayer2.source.ads.AdsMediaSource.MediaSourceFactory-com.google.android.exoplayer2.source.ads.AdsLoader-android.view.ViewGroup-">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>AdsMediaSource</h4>
 <pre>public&nbsp;AdsMediaSource(<a href="../../../../../../com/google/android/exoplayer2/source/MediaSource.html" title="interface in com.google.android.exoplayer2.source">MediaSource</a>&nbsp;contentMediaSource,
-                      <a href="../../../../../../com/google/android/exoplayer2/upstream/DataSource.Factory.html" title="interface in com.google.android.exoplayer2.upstream">DataSource.Factory</a>&nbsp;dataSourceFactory,
+                      <a href="../../../../../../com/google/android/exoplayer2/source/ads/AdsMediaSource.MediaSourceFactory.html" title="interface in com.google.android.exoplayer2.source.ads">AdsMediaSource.MediaSourceFactory</a>&nbsp;adMediaSourceFactory,
                       <a href="../../../../../../com/google/android/exoplayer2/source/ads/AdsLoader.html" title="interface in com.google.android.exoplayer2.source.ads">AdsLoader</a>&nbsp;adsLoader,
-                      <a href="https://developer.android.com/reference/android/view/ViewGroup.html" target="_top" title="class or interface in android.view">ViewGroup</a>&nbsp;adUiViewGroup,
-                      <a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
-                      <a href="https://developer.android.com/reference/android/os/Handler.html" target="_top" title="class or interface in android.os">Handler</a>&nbsp;eventHandler,
-                      <a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
-                      <a href="../../../../../../com/google/android/exoplayer2/source/ads/AdsMediaSource.EventListener.html" title="interface in com.google.android.exoplayer2.source.ads">AdsMediaSource.EventListener</a>&nbsp;eventListener)</pre>
+                      <a href="https://developer.android.com/reference/android/view/ViewGroup.html" target="_top" title="class or interface in android.view">ViewGroup</a>&nbsp;adUiViewGroup)</pre>
+<div class="block">Constructs a new source that inserts ads linearly with the content specified by <code>contentMediaSource</code>.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>contentMediaSource</code> - The <a href="../../../../../../com/google/android/exoplayer2/source/MediaSource.html" title="interface in com.google.android.exoplayer2.source"><code>MediaSource</code></a> providing the content to play.</dd>
+<dd><code>adMediaSourceFactory</code> - Factory for media sources used to load ad media.</dd>
+<dd><code>adsLoader</code> - The loader for ads.</dd>
+<dd><code>adUiViewGroup</code> - A <a href="https://developer.android.com/reference/android/view/ViewGroup.html" target="_top" title="class or interface in android.view"><code>ViewGroup</code></a> on top of the player that will show any ad UI.</dd>
+</dl>
+</li>
+</ul>
+<a name="AdsMediaSource-com.google.android.exoplayer2.source.MediaSource-com.google.android.exoplayer2.upstream.DataSource.Factory-com.google.android.exoplayer2.source.ads.AdsLoader-android.view.ViewGroup-android.os.Handler-com.google.android.exoplayer2.source.ads.AdsMediaSource.EventListener-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>AdsMediaSource</h4>
+<pre><a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Deprecated.html" target="_top" title="class or interface in java.lang">@Deprecated</a>
+public&nbsp;AdsMediaSource(<a href="../../../../../../com/google/android/exoplayer2/source/MediaSource.html" title="interface in com.google.android.exoplayer2.source">MediaSource</a>&nbsp;contentMediaSource,
+                                  <a href="../../../../../../com/google/android/exoplayer2/upstream/DataSource.Factory.html" title="interface in com.google.android.exoplayer2.upstream">DataSource.Factory</a>&nbsp;dataSourceFactory,
+                                  <a href="../../../../../../com/google/android/exoplayer2/source/ads/AdsLoader.html" title="interface in com.google.android.exoplayer2.source.ads">AdsLoader</a>&nbsp;adsLoader,
+                                  <a href="https://developer.android.com/reference/android/view/ViewGroup.html" target="_top" title="class or interface in android.view">ViewGroup</a>&nbsp;adUiViewGroup,
+                                  <a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
+                                  <a href="https://developer.android.com/reference/android/os/Handler.html" target="_top" title="class or interface in android.os">Handler</a>&nbsp;eventHandler,
+                                  <a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
+                                  <a href="../../../../../../com/google/android/exoplayer2/source/ads/AdsMediaSource.EventListener.html" title="interface in com.google.android.exoplayer2.source.ads">AdsMediaSource.EventListener</a>&nbsp;eventListener)</pre>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;<span class="deprecationComment">To listen for ad load error events, add a listener via <a href="../../../../../../com/google/android/exoplayer2/source/BaseMediaSource.html#addEventListener-android.os.Handler-com.google.android.exoplayer2.source.MediaSourceEventListener-"><code>BaseMediaSource.addEventListener(Handler, MediaSourceEventListener)</code></a> and check for <a href="../../../../../../com/google/android/exoplayer2/source/ads/AdsMediaSource.AdLoadException.html" title="class in com.google.android.exoplayer2.source.ads"><code>AdsMediaSource.AdLoadException</code></a>s in <code>MediaSourceEventListener#onLoadError(int, MediaPeriodId,
+     LoadEventInfo, MediaLoadData, IOException, boolean)</code>. Individual ads loader implementations
+     should expose ad interaction events, if applicable.</span></div>
 <div class="block">Constructs a new source that inserts ads linearly with the content specified by <code>contentMediaSource</code>. Ad media is loaded using <a href="../../../../../../com/google/android/exoplayer2/source/ExtractorMediaSource.html" title="class in com.google.android.exoplayer2.source"><code>ExtractorMediaSource</code></a>.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -344,14 +398,18 @@ extends <a href="../../../../../../com/google/android/exoplayer2/source/Composit
 <ul class="blockListLast">
 <li class="blockList">
 <h4>AdsMediaSource</h4>
-<pre>public&nbsp;AdsMediaSource(<a href="../../../../../../com/google/android/exoplayer2/source/MediaSource.html" title="interface in com.google.android.exoplayer2.source">MediaSource</a>&nbsp;contentMediaSource,
-                      <a href="../../../../../../com/google/android/exoplayer2/source/ads/AdsMediaSource.MediaSourceFactory.html" title="interface in com.google.android.exoplayer2.source.ads">AdsMediaSource.MediaSourceFactory</a>&nbsp;adMediaSourceFactory,
-                      <a href="../../../../../../com/google/android/exoplayer2/source/ads/AdsLoader.html" title="interface in com.google.android.exoplayer2.source.ads">AdsLoader</a>&nbsp;adsLoader,
-                      <a href="https://developer.android.com/reference/android/view/ViewGroup.html" target="_top" title="class or interface in android.view">ViewGroup</a>&nbsp;adUiViewGroup,
-                      <a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
-                      <a href="https://developer.android.com/reference/android/os/Handler.html" target="_top" title="class or interface in android.os">Handler</a>&nbsp;eventHandler,
-                      <a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
-                      <a href="../../../../../../com/google/android/exoplayer2/source/ads/AdsMediaSource.EventListener.html" title="interface in com.google.android.exoplayer2.source.ads">AdsMediaSource.EventListener</a>&nbsp;eventListener)</pre>
+<pre><a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Deprecated.html" target="_top" title="class or interface in java.lang">@Deprecated</a>
+public&nbsp;AdsMediaSource(<a href="../../../../../../com/google/android/exoplayer2/source/MediaSource.html" title="interface in com.google.android.exoplayer2.source">MediaSource</a>&nbsp;contentMediaSource,
+                                  <a href="../../../../../../com/google/android/exoplayer2/source/ads/AdsMediaSource.MediaSourceFactory.html" title="interface in com.google.android.exoplayer2.source.ads">AdsMediaSource.MediaSourceFactory</a>&nbsp;adMediaSourceFactory,
+                                  <a href="../../../../../../com/google/android/exoplayer2/source/ads/AdsLoader.html" title="interface in com.google.android.exoplayer2.source.ads">AdsLoader</a>&nbsp;adsLoader,
+                                  <a href="https://developer.android.com/reference/android/view/ViewGroup.html" target="_top" title="class or interface in android.view">ViewGroup</a>&nbsp;adUiViewGroup,
+                                  <a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
+                                  <a href="https://developer.android.com/reference/android/os/Handler.html" target="_top" title="class or interface in android.os">Handler</a>&nbsp;eventHandler,
+                                  <a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
+                                  <a href="../../../../../../com/google/android/exoplayer2/source/ads/AdsMediaSource.EventListener.html" title="interface in com.google.android.exoplayer2.source.ads">AdsMediaSource.EventListener</a>&nbsp;eventListener)</pre>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;<span class="deprecationComment">To listen for ad load error events, add a listener via <a href="../../../../../../com/google/android/exoplayer2/source/BaseMediaSource.html#addEventListener-android.os.Handler-com.google.android.exoplayer2.source.MediaSourceEventListener-"><code>BaseMediaSource.addEventListener(Handler, MediaSourceEventListener)</code></a> and check for <a href="../../../../../../com/google/android/exoplayer2/source/ads/AdsMediaSource.AdLoadException.html" title="class in com.google.android.exoplayer2.source.ads"><code>AdsMediaSource.AdLoadException</code></a>s in <code>MediaSourceEventListener#onLoadError(int, MediaPeriodId,
+     LoadEventInfo, MediaLoadData, IOException, boolean)</code>. Individual ads loader implementations
+     should expose ad interaction events, if applicable.</span></div>
 <div class="block">Constructs a new source that inserts ads linearly with the content specified by <code>contentMediaSource</code>.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -372,31 +430,23 @@ extends <a href="../../../../../../com/google/android/exoplayer2/source/Composit
 <!--   -->
 </a>
 <h3>Method Detail</h3>
-<a name="prepareSource-com.google.android.exoplayer2.ExoPlayer-boolean-com.google.android.exoplayer2.source.MediaSource.Listener-">
+<a name="prepareSourceInternal-com.google.android.exoplayer2.ExoPlayer-boolean-">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
-<h4>prepareSource</h4>
-<pre>public&nbsp;void&nbsp;prepareSource(<a href="../../../../../../com/google/android/exoplayer2/ExoPlayer.html" title="interface in com.google.android.exoplayer2">ExoPlayer</a>&nbsp;player,
-                          boolean&nbsp;isTopLevelSource,
-                          <a href="../../../../../../com/google/android/exoplayer2/source/MediaSource.Listener.html" title="interface in com.google.android.exoplayer2.source">MediaSource.Listener</a>&nbsp;listener)</pre>
-<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/source/MediaSource.html#prepareSource-com.google.android.exoplayer2.ExoPlayer-boolean-com.google.android.exoplayer2.source.MediaSource.Listener-">MediaSource</a></code></span></div>
-<div class="block">Starts preparation of the source.
- <p>
- Should not be called directly from application code.</div>
+<h4>prepareSourceInternal</h4>
+<pre>public&nbsp;void&nbsp;prepareSourceInternal(<a href="../../../../../../com/google/android/exoplayer2/ExoPlayer.html" title="interface in com.google.android.exoplayer2">ExoPlayer</a>&nbsp;player,
+                                  boolean&nbsp;isTopLevelSource)</pre>
+<div class="block"><span class="descfrmTypeLabel">Description copied from class:&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/source/BaseMediaSource.html#prepareSourceInternal-com.google.android.exoplayer2.ExoPlayer-boolean-">BaseMediaSource</a></code></span></div>
+<div class="block">Starts source preparation. This method is called at most once until the next call to <a href="../../../../../../com/google/android/exoplayer2/source/BaseMediaSource.html#releaseSourceInternal--"><code>BaseMediaSource.releaseSourceInternal()</code></a>.</div>
 <dl>
-<dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code><a href="../../../../../../com/google/android/exoplayer2/source/MediaSource.html#prepareSource-com.google.android.exoplayer2.ExoPlayer-boolean-com.google.android.exoplayer2.source.MediaSource.Listener-">prepareSource</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/source/MediaSource.html" title="interface in com.google.android.exoplayer2.source">MediaSource</a></code></dd>
 <dt><span class="overrideSpecifyLabel">Overrides:</span></dt>
-<dd><code><a href="../../../../../../com/google/android/exoplayer2/source/CompositeMediaSource.html#prepareSource-com.google.android.exoplayer2.ExoPlayer-boolean-com.google.android.exoplayer2.source.MediaSource.Listener-">prepareSource</a></code>&nbsp;in class&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/source/CompositeMediaSource.html" title="class in com.google.android.exoplayer2.source">CompositeMediaSource</a>&lt;<a href="../../../../../../com/google/android/exoplayer2/source/MediaSource.MediaPeriodId.html" title="class in com.google.android.exoplayer2.source">MediaSource.MediaPeriodId</a>&gt;</code></dd>
+<dd><code><a href="../../../../../../com/google/android/exoplayer2/source/CompositeMediaSource.html#prepareSourceInternal-com.google.android.exoplayer2.ExoPlayer-boolean-">prepareSourceInternal</a></code>&nbsp;in class&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/source/CompositeMediaSource.html" title="class in com.google.android.exoplayer2.source">CompositeMediaSource</a>&lt;<a href="../../../../../../com/google/android/exoplayer2/source/MediaSource.MediaPeriodId.html" title="class in com.google.android.exoplayer2.source">MediaSource.MediaPeriodId</a>&gt;</code></dd>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>player</code> - The player for which this source is being prepared.</dd>
-<dd><code>isTopLevelSource</code> - Whether this source has been passed directly to
-     <a href="../../../../../../com/google/android/exoplayer2/ExoPlayer.html#prepare-com.google.android.exoplayer2.source.MediaSource-"><code>ExoPlayer.prepare(MediaSource)</code></a> or
-     <a href="../../../../../../com/google/android/exoplayer2/ExoPlayer.html#prepare-com.google.android.exoplayer2.source.MediaSource-boolean-boolean-"><code>ExoPlayer.prepare(MediaSource, boolean, boolean)</code></a>. If <code>false</code>, this source is
-     being prepared by another source (e.g. <a href="../../../../../../com/google/android/exoplayer2/source/ConcatenatingMediaSource.html" title="class in com.google.android.exoplayer2.source"><code>ConcatenatingMediaSource</code></a>) for composition.</dd>
-<dd><code>listener</code> - The listener for source events.</dd>
+<dd><code>isTopLevelSource</code> - Whether this source has been passed directly to <a href="../../../../../../com/google/android/exoplayer2/ExoPlayer.html#prepare-com.google.android.exoplayer2.source.MediaSource-"><code>ExoPlayer.prepare(MediaSource)</code></a> or <a href="../../../../../../com/google/android/exoplayer2/ExoPlayer.html#prepare-com.google.android.exoplayer2.source.MediaSource-boolean-boolean-"><code>ExoPlayer.prepare(MediaSource, boolean,
+     boolean)</code></a>.</dd>
 </dl>
 </li>
 </ul>
@@ -440,29 +490,25 @@ extends <a href="../../../../../../com/google/android/exoplayer2/source/Composit
 </dl>
 </li>
 </ul>
-<a name="releaseSource--">
+<a name="releaseSourceInternal--">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
-<h4>releaseSource</h4>
-<pre>public&nbsp;void&nbsp;releaseSource()</pre>
-<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/source/MediaSource.html#releaseSource--">MediaSource</a></code></span></div>
-<div class="block">Releases the source.
- <p>
- Should not be called directly from application code.</div>
+<h4>releaseSourceInternal</h4>
+<pre>public&nbsp;void&nbsp;releaseSourceInternal()</pre>
+<div class="block"><span class="descfrmTypeLabel">Description copied from class:&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/source/BaseMediaSource.html#releaseSourceInternal--">BaseMediaSource</a></code></span></div>
+<div class="block">Releases the source. This method is called exactly once after each call to <a href="../../../../../../com/google/android/exoplayer2/source/BaseMediaSource.html#prepareSourceInternal-com.google.android.exoplayer2.ExoPlayer-boolean-"><code>BaseMediaSource.prepareSourceInternal(ExoPlayer, boolean)</code></a>.</div>
 <dl>
-<dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code><a href="../../../../../../com/google/android/exoplayer2/source/MediaSource.html#releaseSource--">releaseSource</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/source/MediaSource.html" title="interface in com.google.android.exoplayer2.source">MediaSource</a></code></dd>
 <dt><span class="overrideSpecifyLabel">Overrides:</span></dt>
-<dd><code><a href="../../../../../../com/google/android/exoplayer2/source/CompositeMediaSource.html#releaseSource--">releaseSource</a></code>&nbsp;in class&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/source/CompositeMediaSource.html" title="class in com.google.android.exoplayer2.source">CompositeMediaSource</a>&lt;<a href="../../../../../../com/google/android/exoplayer2/source/MediaSource.MediaPeriodId.html" title="class in com.google.android.exoplayer2.source">MediaSource.MediaPeriodId</a>&gt;</code></dd>
+<dd><code><a href="../../../../../../com/google/android/exoplayer2/source/CompositeMediaSource.html#releaseSourceInternal--">releaseSourceInternal</a></code>&nbsp;in class&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/source/CompositeMediaSource.html" title="class in com.google.android.exoplayer2.source">CompositeMediaSource</a>&lt;<a href="../../../../../../com/google/android/exoplayer2/source/MediaSource.MediaPeriodId.html" title="class in com.google.android.exoplayer2.source">MediaSource.MediaPeriodId</a>&gt;</code></dd>
 </dl>
 </li>
 </ul>
 <a name="onChildSourceInfoRefreshed-com.google.android.exoplayer2.source.MediaSource.MediaPeriodId-com.google.android.exoplayer2.source.MediaSource-com.google.android.exoplayer2.Timeline-java.lang.Object-">
 <!--   -->
 </a>
-<ul class="blockListLast">
+<ul class="blockList">
 <li class="blockList">
 <h4>onChildSourceInfoRefreshed</h4>
 <pre>protected&nbsp;void&nbsp;onChildSourceInfoRefreshed(<a href="../../../../../../com/google/android/exoplayer2/source/MediaSource.MediaPeriodId.html" title="class in com.google.android.exoplayer2.source">MediaSource.MediaPeriodId</a>&nbsp;mediaPeriodId,
@@ -480,6 +526,30 @@ extends <a href="../../../../../../com/google/android/exoplayer2/source/Composit
 <dd><code>mediaSource</code> - The child source whose source info has been refreshed.</dd>
 <dd><code>timeline</code> - The timeline of the child source.</dd>
 <dd><code>manifest</code> - The manifest of the child source.</dd>
+</dl>
+</li>
+</ul>
+<a name="getMediaPeriodIdForChildMediaPeriodId-com.google.android.exoplayer2.source.MediaSource.MediaPeriodId-com.google.android.exoplayer2.source.MediaSource.MediaPeriodId-">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>getMediaPeriodIdForChildMediaPeriodId</h4>
+<pre><a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
+protected&nbsp;<a href="../../../../../../com/google/android/exoplayer2/source/MediaSource.MediaPeriodId.html" title="class in com.google.android.exoplayer2.source">MediaSource.MediaPeriodId</a>&nbsp;getMediaPeriodIdForChildMediaPeriodId(<a href="../../../../../../com/google/android/exoplayer2/source/MediaSource.MediaPeriodId.html" title="class in com.google.android.exoplayer2.source">MediaSource.MediaPeriodId</a>&nbsp;childId,
+                                                                                    <a href="../../../../../../com/google/android/exoplayer2/source/MediaSource.MediaPeriodId.html" title="class in com.google.android.exoplayer2.source">MediaSource.MediaPeriodId</a>&nbsp;mediaPeriodId)</pre>
+<div class="block"><span class="descfrmTypeLabel">Description copied from class:&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/source/CompositeMediaSource.html#getMediaPeriodIdForChildMediaPeriodId-T-com.google.android.exoplayer2.source.MediaSource.MediaPeriodId-">CompositeMediaSource</a></code></span></div>
+<div class="block">Returns the <code>MediaPeriodId</code> in the composite source corresponding to the specified <code>MediaPeriodId</code> in a child source. The default implementation does not change the media period
+ id.</div>
+<dl>
+<dt><span class="overrideSpecifyLabel">Overrides:</span></dt>
+<dd><code><a href="../../../../../../com/google/android/exoplayer2/source/CompositeMediaSource.html#getMediaPeriodIdForChildMediaPeriodId-T-com.google.android.exoplayer2.source.MediaSource.MediaPeriodId-">getMediaPeriodIdForChildMediaPeriodId</a></code>&nbsp;in class&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/source/CompositeMediaSource.html" title="class in com.google.android.exoplayer2.source">CompositeMediaSource</a>&lt;<a href="../../../../../../com/google/android/exoplayer2/source/MediaSource.MediaPeriodId.html" title="class in com.google.android.exoplayer2.source">MediaSource.MediaPeriodId</a>&gt;</code></dd>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>childId</code> - The unique id used to prepare the child source.</dd>
+<dd><code>mediaPeriodId</code> - A <code>MediaPeriodId</code> of the child source.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>The corresponding <code>MediaPeriodId</code> in the composite source. Null if no
+     corresponding media period id can be determined.</dd>
 </dl>
 </li>
 </ul>
@@ -511,7 +581,7 @@ extends <a href="../../../../../../com/google/android/exoplayer2/source/Composit
 <div class="subNav">
 <ul class="navList">
 <li><a href="../../../../../../com/google/android/exoplayer2/source/ads/AdsLoader.EventListener.html" title="interface in com.google.android.exoplayer2.source.ads"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
-<li><a href="../../../../../../com/google/android/exoplayer2/source/ads/AdsMediaSource.EventListener.html" title="interface in com.google.android.exoplayer2.source.ads"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
+<li><a href="../../../../../../com/google/android/exoplayer2/source/ads/AdsMediaSource.AdLoadException.html" title="class in com.google.android.exoplayer2.source.ads"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
 </ul>
 <ul class="navList">
 <li><a href="../../../../../../index.html?com/google/android/exoplayer2/source/ads/AdsMediaSource.html" target="_top">Frames</a></li>

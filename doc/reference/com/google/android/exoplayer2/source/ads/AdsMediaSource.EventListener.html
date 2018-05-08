@@ -16,8 +16,8 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":6,"i1":6,"i2":6,"i3":6};
-var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],4:["t3","Abstract Methods"]};
+var methods = {"i0":38,"i1":38,"i2":38,"i3":38};
+var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],4:["t3","Abstract Methods"],32:["t6","Deprecated Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
@@ -46,7 +46,7 @@ var activeTableTab = "activeTableTab";
 </div>
 <div class="subNav">
 <ul class="navList">
-<li><a href="../../../../../../com/google/android/exoplayer2/source/ads/AdsMediaSource.html" title="class in com.google.android.exoplayer2.source.ads"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
+<li><a href="../../../../../../com/google/android/exoplayer2/source/ads/AdsMediaSource.AdLoadException.Type.html" title="annotation in com.google.android.exoplayer2.source.ads"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
 <li><a href="../../../../../../com/google/android/exoplayer2/source/ads/AdsMediaSource.MediaSourceFactory.html" title="interface in com.google.android.exoplayer2.source.ads"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
 </ul>
 <ul class="navList">
@@ -97,21 +97,18 @@ var activeTableTab = "activeTableTab";
 <ul class="blockList">
 <li class="blockList">
 <dl>
-<dt>All Superinterfaces:</dt>
-<dd><a href="../../../../../../com/google/android/exoplayer2/source/MediaSourceEventListener.html" title="interface in com.google.android.exoplayer2.source">MediaSourceEventListener</a></dd>
-</dl>
-<dl>
-<dt>All Known Implementing Classes:</dt>
-<dd><a href="../../../../../../com/google/android/exoplayer2/util/EventLogger.html" title="class in com.google.android.exoplayer2.util">EventLogger</a></dd>
-</dl>
-<dl>
 <dt>Enclosing class:</dt>
 <dd><a href="../../../../../../com/google/android/exoplayer2/source/ads/AdsMediaSource.html" title="class in com.google.android.exoplayer2.source.ads">AdsMediaSource</a></dd>
 </dl>
 <hr>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;
+<div class="block"><span class="deprecationComment">To listen for ad load error events, add a listener via <a href="../../../../../../com/google/android/exoplayer2/source/BaseMediaSource.html#addEventListener-android.os.Handler-com.google.android.exoplayer2.source.MediaSourceEventListener-"><code>BaseMediaSource.addEventListener(Handler, MediaSourceEventListener)</code></a> and check for <a href="../../../../../../com/google/android/exoplayer2/source/ads/AdsMediaSource.AdLoadException.html" title="class in com.google.android.exoplayer2.source.ads"><code>AdsMediaSource.AdLoadException</code></a>s in <code>MediaSourceEventListener#onLoadError(int, MediaPeriodId,
+     LoadEventInfo, MediaLoadData, IOException, boolean)</code>. Individual ads loader implementations
+     should expose ad interaction events, if applicable.</span></div>
+</div>
 <br>
-<pre>public static interface <span class="typeNameLabel">AdsMediaSource.EventListener</span>
-extends <a href="../../../../../../com/google/android/exoplayer2/source/MediaSourceEventListener.html" title="interface in com.google.android.exoplayer2.source">MediaSourceEventListener</a></pre>
+<pre><a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Deprecated.html" target="_top" title="class or interface in java.lang">@Deprecated</a>
+public static interface <span class="typeNameLabel">AdsMediaSource.EventListener</span></pre>
 <div class="block">Listener for ads media source events.</div>
 </li>
 </ul>
@@ -119,21 +116,6 @@ extends <a href="../../../../../../com/google/android/exoplayer2/source/MediaSou
 <div class="summary">
 <ul class="blockList">
 <li class="blockList">
-<!-- ======== NESTED CLASS SUMMARY ======== -->
-<ul class="blockList">
-<li class="blockList"><a name="nested.class.summary">
-<!--   -->
-</a>
-<h3>Nested Class Summary</h3>
-<ul class="blockList">
-<li class="blockList"><a name="nested.classes.inherited.from.class.com.google.android.exoplayer2.source.MediaSourceEventListener">
-<!--   -->
-</a>
-<h3>Nested classes/interfaces inherited from interface&nbsp;com.google.android.exoplayer2.source.<a href="../../../../../../com/google/android/exoplayer2/source/MediaSourceEventListener.html" title="interface in com.google.android.exoplayer2.source">MediaSourceEventListener</a></h3>
-<code><a href="../../../../../../com/google/android/exoplayer2/source/MediaSourceEventListener.EventDispatcher.html" title="class in com.google.android.exoplayer2.source">MediaSourceEventListener.EventDispatcher</a></code></li>
-</ul>
-</li>
-</ul>
 <!-- ========== METHOD SUMMARY =========== -->
 <ul class="blockList">
 <li class="blockList"><a name="method.summary">
@@ -141,7 +123,7 @@ extends <a href="../../../../../../com/google/android/exoplayer2/source/MediaSou
 </a>
 <h3>Method Summary</h3>
 <table class="memberSummary" border="0" cellpadding="3" cellspacing="0" summary="Method Summary table, listing methods, and an explanation">
-<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t3" class="tableTab"><span><a href="javascript:show(4);">Abstract Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t3" class="tableTab"><span><a href="javascript:show(4);">Abstract Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t6" class="tableTab"><span><a href="javascript:show(32);">Deprecated Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
 <th class="colLast" scope="col">Method and Description</th>
@@ -149,35 +131,32 @@ extends <a href="../../../../../../com/google/android/exoplayer2/source/MediaSou
 <tr id="i0" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/source/ads/AdsMediaSource.EventListener.html#onAdClicked--">onAdClicked</a></span>()</code>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;</div>
 <div class="block">Called when the user clicks through an ad (for example, following a 'learn more' link).</div>
 </td>
 </tr>
 <tr id="i1" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/source/ads/AdsMediaSource.EventListener.html#onAdLoadError-java.io.IOException-">onAdLoadError</a></span>(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/io/IOException.html" target="_top" title="class or interface in java.io">IOException</a>&nbsp;error)</code>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;</div>
 <div class="block">Called if there was an error loading one or more ads.</div>
 </td>
 </tr>
 <tr id="i2" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/source/ads/AdsMediaSource.EventListener.html#onAdTapped--">onAdTapped</a></span>()</code>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;</div>
 <div class="block">Called when the user taps a non-clickthrough part of an ad.</div>
 </td>
 </tr>
 <tr id="i3" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/source/ads/AdsMediaSource.EventListener.html#onInternalAdLoadError-java.lang.RuntimeException-">onInternalAdLoadError</a></span>(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/RuntimeException.html" target="_top" title="class or interface in java.lang">RuntimeException</a>&nbsp;error)</code>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;</div>
 <div class="block">Called when an unexpected internal error is encountered while loading ads.</div>
 </td>
 </tr>
 </table>
-<ul class="blockList">
-<li class="blockList"><a name="methods.inherited.from.class.com.google.android.exoplayer2.source.MediaSourceEventListener">
-<!--   -->
-</a>
-<h3>Methods inherited from interface&nbsp;com.google.android.exoplayer2.source.<a href="../../../../../../com/google/android/exoplayer2/source/MediaSourceEventListener.html" title="interface in com.google.android.exoplayer2.source">MediaSourceEventListener</a></h3>
-<code><a href="../../../../../../com/google/android/exoplayer2/source/MediaSourceEventListener.html#onDownstreamFormatChanged-int-com.google.android.exoplayer2.Format-int-java.lang.Object-long-">onDownstreamFormatChanged</a>, <a href="../../../../../../com/google/android/exoplayer2/source/MediaSourceEventListener.html#onLoadCanceled-com.google.android.exoplayer2.upstream.DataSpec-int-int-com.google.android.exoplayer2.Format-int-java.lang.Object-long-long-long-long-long-">onLoadCanceled</a>, <a href="../../../../../../com/google/android/exoplayer2/source/MediaSourceEventListener.html#onLoadCompleted-com.google.android.exoplayer2.upstream.DataSpec-int-int-com.google.android.exoplayer2.Format-int-java.lang.Object-long-long-long-long-long-">onLoadCompleted</a>, <a href="../../../../../../com/google/android/exoplayer2/source/MediaSourceEventListener.html#onLoadError-com.google.android.exoplayer2.upstream.DataSpec-int-int-com.google.android.exoplayer2.Format-int-java.lang.Object-long-long-long-long-long-java.io.IOException-boolean-">onLoadError</a>, <a href="../../../../../../com/google/android/exoplayer2/source/MediaSourceEventListener.html#onLoadStarted-com.google.android.exoplayer2.upstream.DataSpec-int-int-com.google.android.exoplayer2.Format-int-java.lang.Object-long-long-long-">onLoadStarted</a>, <a href="../../../../../../com/google/android/exoplayer2/source/MediaSourceEventListener.html#onUpstreamDiscarded-int-long-long-">onUpstreamDiscarded</a></code></li>
-</ul>
 </li>
 </ul>
 </li>
@@ -199,6 +178,7 @@ extends <a href="../../../../../../com/google/android/exoplayer2/source/MediaSou
 <li class="blockList">
 <h4>onAdLoadError</h4>
 <pre>void&nbsp;onAdLoadError(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/io/IOException.html" target="_top" title="class or interface in java.io">IOException</a>&nbsp;error)</pre>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;</div>
 <div class="block">Called if there was an error loading one or more ads. The loader will skip the problematic
  ad(s).</div>
 <dl>
@@ -214,6 +194,7 @@ extends <a href="../../../../../../com/google/android/exoplayer2/source/MediaSou
 <li class="blockList">
 <h4>onInternalAdLoadError</h4>
 <pre>void&nbsp;onInternalAdLoadError(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/RuntimeException.html" target="_top" title="class or interface in java.lang">RuntimeException</a>&nbsp;error)</pre>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;</div>
 <div class="block">Called when an unexpected internal error is encountered while loading ads. The loader will
  skip all remaining ads, as the error is not recoverable.</div>
 <dl>
@@ -229,6 +210,7 @@ extends <a href="../../../../../../com/google/android/exoplayer2/source/MediaSou
 <li class="blockList">
 <h4>onAdClicked</h4>
 <pre>void&nbsp;onAdClicked()</pre>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;</div>
 <div class="block">Called when the user clicks through an ad (for example, following a 'learn more' link).</div>
 </li>
 </ul>
@@ -239,6 +221,7 @@ extends <a href="../../../../../../com/google/android/exoplayer2/source/MediaSou
 <li class="blockList">
 <h4>onAdTapped</h4>
 <pre>void&nbsp;onAdTapped()</pre>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;</div>
 <div class="block">Called when the user taps a non-clickthrough part of an ad.</div>
 </li>
 </ul>
@@ -269,7 +252,7 @@ extends <a href="../../../../../../com/google/android/exoplayer2/source/MediaSou
 </div>
 <div class="subNav">
 <ul class="navList">
-<li><a href="../../../../../../com/google/android/exoplayer2/source/ads/AdsMediaSource.html" title="class in com.google.android.exoplayer2.source.ads"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
+<li><a href="../../../../../../com/google/android/exoplayer2/source/ads/AdsMediaSource.AdLoadException.Type.html" title="annotation in com.google.android.exoplayer2.source.ads"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
 <li><a href="../../../../../../com/google/android/exoplayer2/source/ads/AdsMediaSource.MediaSourceFactory.html" title="interface in com.google.android.exoplayer2.source.ads"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
 </ul>
 <ul class="navList">

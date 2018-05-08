@@ -47,7 +47,7 @@ var activeTableTab = "activeTableTab";
 <div class="subNav">
 <ul class="navList">
 <li><a href="../../../../../com/google/android/exoplayer2/upstream/DefaultAllocator.html" title="class in com.google.android.exoplayer2.upstream"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
-<li><a href="../../../../../com/google/android/exoplayer2/upstream/DefaultDataSource.html" title="class in com.google.android.exoplayer2.upstream"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
+<li><a href="../../../../../com/google/android/exoplayer2/upstream/DefaultBandwidthMeter.Builder.html" title="class in com.google.android.exoplayer2.upstream"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
 </ul>
 <ul class="navList">
 <li><a href="../../../../../index.html?com/google/android/exoplayer2/upstream/DefaultBandwidthMeter.html" target="_top">Frames</a></li>
@@ -71,7 +71,7 @@ var activeTableTab = "activeTableTab";
 <div>
 <ul class="subNavList">
 <li>Summary:&nbsp;</li>
-<li>Nested&nbsp;|&nbsp;</li>
+<li><a href="#nested.class.summary">Nested</a>&nbsp;|&nbsp;</li>
 <li><a href="#field.summary">Field</a>&nbsp;|&nbsp;</li>
 <li><a href="#constructor.summary">Constr</a>&nbsp;|&nbsp;</li>
 <li><a href="#method.summary">Method</a></li>
@@ -127,6 +127,19 @@ implements <a href="../../../../../com/google/android/exoplayer2/upstream/Bandwi
 <!--   -->
 </a>
 <h3>Nested Class Summary</h3>
+<table class="memberSummary" border="0" cellpadding="3" cellspacing="0" summary="Nested Class Summary table, listing nested classes, and an explanation">
+<caption><span>Nested Classes</span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colFirst" scope="col">Modifier and Type</th>
+<th class="colLast" scope="col">Class and Description</th>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>static class&nbsp;</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/upstream/DefaultBandwidthMeter.Builder.html" title="class in com.google.android.exoplayer2.upstream">DefaultBandwidthMeter.Builder</a></span></code>
+<div class="block">Builder for a bandwidth meter.</div>
+</td>
+</tr>
+</table>
 <ul class="blockList">
 <li class="blockList"><a name="nested.classes.inherited.from.class.com.google.android.exoplayer2.upstream.BandwidthMeter">
 <!--   -->
@@ -149,19 +162,18 @@ implements <a href="../../../../../com/google/android/exoplayer2/upstream/Bandwi
 <th class="colLast" scope="col">Field and Description</th>
 </tr>
 <tr class="altColor">
+<td class="colFirst"><code>static long</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/upstream/DefaultBandwidthMeter.html#DEFAULT_INITIAL_BITRATE_ESTIMATE">DEFAULT_INITIAL_BITRATE_ESTIMATE</a></span></code>
+<div class="block">Default initial bitrate estimate in bits per second.</div>
+</td>
+</tr>
+<tr class="rowColor">
 <td class="colFirst"><code>static int</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/upstream/DefaultBandwidthMeter.html#DEFAULT_MAX_WEIGHT">DEFAULT_MAX_WEIGHT</a></span></code>
-<div class="block">The default maximum weight for the sliding window.</div>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/upstream/DefaultBandwidthMeter.html#DEFAULT_SLIDING_WINDOW_MAX_WEIGHT">DEFAULT_SLIDING_WINDOW_MAX_WEIGHT</a></span></code>
+<div class="block">Default maximum weight for the sliding window.</div>
 </td>
 </tr>
 </table>
-<ul class="blockList">
-<li class="blockList"><a name="fields.inherited.from.class.com.google.android.exoplayer2.upstream.BandwidthMeter">
-<!--   -->
-</a>
-<h3>Fields inherited from interface&nbsp;com.google.android.exoplayer2.upstream.<a href="../../../../../com/google/android/exoplayer2/upstream/BandwidthMeter.html" title="interface in com.google.android.exoplayer2.upstream">BandwidthMeter</a></h3>
-<code><a href="../../../../../com/google/android/exoplayer2/upstream/BandwidthMeter.html#NO_ESTIMATE">NO_ESTIMATE</a></code></li>
-</ul>
 </li>
 </ul>
 <!-- ======== CONSTRUCTOR SUMMARY ======== -->
@@ -176,22 +188,26 @@ implements <a href="../../../../../com/google/android/exoplayer2/upstream/Bandwi
 <th class="colOne" scope="col">Constructor and Description</th>
 </tr>
 <tr class="altColor">
-<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/upstream/DefaultBandwidthMeter.html#DefaultBandwidthMeter--">DefaultBandwidthMeter</a></span>()</code>&nbsp;</td>
+<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/upstream/DefaultBandwidthMeter.html#DefaultBandwidthMeter--">DefaultBandwidthMeter</a></span>()</code>
+<div class="block">Creates a bandwidth meter with default parameters.</div>
+</td>
 </tr>
 <tr class="rowColor">
 <td class="colOne"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/upstream/DefaultBandwidthMeter.html#DefaultBandwidthMeter-android.os.Handler-com.google.android.exoplayer2.upstream.BandwidthMeter.EventListener-">DefaultBandwidthMeter</a></span>(<a href="https://developer.android.com/reference/android/os/Handler.html" target="_top" title="class or interface in android.os">Handler</a>&nbsp;eventHandler,
-                     <a href="../../../../../com/google/android/exoplayer2/upstream/BandwidthMeter.EventListener.html" title="interface in com.google.android.exoplayer2.upstream">BandwidthMeter.EventListener</a>&nbsp;eventListener)</code>&nbsp;</td>
+                     <a href="../../../../../com/google/android/exoplayer2/upstream/BandwidthMeter.EventListener.html" title="interface in com.google.android.exoplayer2.upstream">BandwidthMeter.EventListener</a>&nbsp;eventListener)</code>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;
+<div class="block"><span class="deprecationComment">Use <a href="../../../../../com/google/android/exoplayer2/upstream/DefaultBandwidthMeter.Builder.html" title="class in com.google.android.exoplayer2.upstream"><code>DefaultBandwidthMeter.Builder</code></a> instead.</span></div>
+</div>
+</td>
 </tr>
 <tr class="altColor">
 <td class="colOne"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/upstream/DefaultBandwidthMeter.html#DefaultBandwidthMeter-android.os.Handler-com.google.android.exoplayer2.upstream.BandwidthMeter.EventListener-int-">DefaultBandwidthMeter</a></span>(<a href="https://developer.android.com/reference/android/os/Handler.html" target="_top" title="class or interface in android.os">Handler</a>&nbsp;eventHandler,
                      <a href="../../../../../com/google/android/exoplayer2/upstream/BandwidthMeter.EventListener.html" title="interface in com.google.android.exoplayer2.upstream">BandwidthMeter.EventListener</a>&nbsp;eventListener,
-                     int&nbsp;maxWeight)</code>&nbsp;</td>
-</tr>
-<tr class="rowColor">
-<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/upstream/DefaultBandwidthMeter.html#DefaultBandwidthMeter-android.os.Handler-com.google.android.exoplayer2.upstream.BandwidthMeter.EventListener-int-com.google.android.exoplayer2.util.Clock-">DefaultBandwidthMeter</a></span>(<a href="https://developer.android.com/reference/android/os/Handler.html" target="_top" title="class or interface in android.os">Handler</a>&nbsp;eventHandler,
-                     <a href="../../../../../com/google/android/exoplayer2/upstream/BandwidthMeter.EventListener.html" title="interface in com.google.android.exoplayer2.upstream">BandwidthMeter.EventListener</a>&nbsp;eventListener,
-                     int&nbsp;maxWeight,
-                     <a href="../../../../../com/google/android/exoplayer2/util/Clock.html" title="interface in com.google.android.exoplayer2.util">Clock</a>&nbsp;clock)</code>&nbsp;</td>
+                     int&nbsp;maxWeight)</code>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;
+<div class="block"><span class="deprecationComment">Use <a href="../../../../../com/google/android/exoplayer2/upstream/DefaultBandwidthMeter.Builder.html" title="class in com.google.android.exoplayer2.upstream"><code>DefaultBandwidthMeter.Builder</code></a> instead.</span></div>
+</div>
+</td>
 </tr>
 </table>
 </li>
@@ -211,8 +227,7 @@ implements <a href="../../../../../com/google/android/exoplayer2/upstream/Bandwi
 <tr id="i0" class="altColor">
 <td class="colFirst"><code>long</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/upstream/DefaultBandwidthMeter.html#getBitrateEstimate--">getBitrateEstimate</a></span>()</code>
-<div class="block">Returns the estimated bandwidth in bits/sec, or <a href="../../../../../com/google/android/exoplayer2/upstream/BandwidthMeter.html#NO_ESTIMATE"><code>BandwidthMeter.NO_ESTIMATE</code></a> if an estimate is not
- available.</div>
+<div class="block">Returns the estimated bandwidth in bits/sec.</div>
 </td>
 </tr>
 <tr id="i1" class="rowColor">
@@ -257,17 +272,31 @@ implements <a href="../../../../../com/google/android/exoplayer2/upstream/Bandwi
 <!--   -->
 </a>
 <h3>Field Detail</h3>
-<a name="DEFAULT_MAX_WEIGHT">
+<a name="DEFAULT_INITIAL_BITRATE_ESTIMATE">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>DEFAULT_INITIAL_BITRATE_ESTIMATE</h4>
+<pre>public static final&nbsp;long DEFAULT_INITIAL_BITRATE_ESTIMATE</pre>
+<div class="block">Default initial bitrate estimate in bits per second.</div>
+<dl>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="../../../../../constant-values.html#com.google.android.exoplayer2.upstream.DefaultBandwidthMeter.DEFAULT_INITIAL_BITRATE_ESTIMATE">Constant Field Values</a></dd>
+</dl>
+</li>
+</ul>
+<a name="DEFAULT_SLIDING_WINDOW_MAX_WEIGHT">
 <!--   -->
 </a>
 <ul class="blockListLast">
 <li class="blockList">
-<h4>DEFAULT_MAX_WEIGHT</h4>
-<pre>public static final&nbsp;int DEFAULT_MAX_WEIGHT</pre>
-<div class="block">The default maximum weight for the sliding window.</div>
+<h4>DEFAULT_SLIDING_WINDOW_MAX_WEIGHT</h4>
+<pre>public static final&nbsp;int DEFAULT_SLIDING_WINDOW_MAX_WEIGHT</pre>
+<div class="block">Default maximum weight for the sliding window.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
-<dd><a href="../../../../../constant-values.html#com.google.android.exoplayer2.upstream.DefaultBandwidthMeter.DEFAULT_MAX_WEIGHT">Constant Field Values</a></dd>
+<dd><a href="../../../../../constant-values.html#com.google.android.exoplayer2.upstream.DefaultBandwidthMeter.DEFAULT_SLIDING_WINDOW_MAX_WEIGHT">Constant Field Values</a></dd>
 </dl>
 </li>
 </ul>
@@ -286,6 +315,7 @@ implements <a href="../../../../../com/google/android/exoplayer2/upstream/Bandwi
 <li class="blockList">
 <h4>DefaultBandwidthMeter</h4>
 <pre>public&nbsp;DefaultBandwidthMeter()</pre>
+<div class="block">Creates a bandwidth meter with default parameters.</div>
 </li>
 </ul>
 <a name="DefaultBandwidthMeter-android.os.Handler-com.google.android.exoplayer2.upstream.BandwidthMeter.EventListener-">
@@ -294,31 +324,23 @@ implements <a href="../../../../../com/google/android/exoplayer2/upstream/Bandwi
 <ul class="blockList">
 <li class="blockList">
 <h4>DefaultBandwidthMeter</h4>
-<pre>public&nbsp;DefaultBandwidthMeter(<a href="https://developer.android.com/reference/android/os/Handler.html" target="_top" title="class or interface in android.os">Handler</a>&nbsp;eventHandler,
-                             <a href="../../../../../com/google/android/exoplayer2/upstream/BandwidthMeter.EventListener.html" title="interface in com.google.android.exoplayer2.upstream">BandwidthMeter.EventListener</a>&nbsp;eventListener)</pre>
+<pre><a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Deprecated.html" target="_top" title="class or interface in java.lang">@Deprecated</a>
+public&nbsp;DefaultBandwidthMeter(<a href="https://developer.android.com/reference/android/os/Handler.html" target="_top" title="class or interface in android.os">Handler</a>&nbsp;eventHandler,
+                                         <a href="../../../../../com/google/android/exoplayer2/upstream/BandwidthMeter.EventListener.html" title="interface in com.google.android.exoplayer2.upstream">BandwidthMeter.EventListener</a>&nbsp;eventListener)</pre>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;<span class="deprecationComment">Use <a href="../../../../../com/google/android/exoplayer2/upstream/DefaultBandwidthMeter.Builder.html" title="class in com.google.android.exoplayer2.upstream"><code>DefaultBandwidthMeter.Builder</code></a> instead.</span></div>
 </li>
 </ul>
 <a name="DefaultBandwidthMeter-android.os.Handler-com.google.android.exoplayer2.upstream.BandwidthMeter.EventListener-int-">
 <!--   -->
 </a>
-<ul class="blockList">
-<li class="blockList">
-<h4>DefaultBandwidthMeter</h4>
-<pre>public&nbsp;DefaultBandwidthMeter(<a href="https://developer.android.com/reference/android/os/Handler.html" target="_top" title="class or interface in android.os">Handler</a>&nbsp;eventHandler,
-                             <a href="../../../../../com/google/android/exoplayer2/upstream/BandwidthMeter.EventListener.html" title="interface in com.google.android.exoplayer2.upstream">BandwidthMeter.EventListener</a>&nbsp;eventListener,
-                             int&nbsp;maxWeight)</pre>
-</li>
-</ul>
-<a name="DefaultBandwidthMeter-android.os.Handler-com.google.android.exoplayer2.upstream.BandwidthMeter.EventListener-int-com.google.android.exoplayer2.util.Clock-">
-<!--   -->
-</a>
 <ul class="blockListLast">
 <li class="blockList">
 <h4>DefaultBandwidthMeter</h4>
-<pre>public&nbsp;DefaultBandwidthMeter(<a href="https://developer.android.com/reference/android/os/Handler.html" target="_top" title="class or interface in android.os">Handler</a>&nbsp;eventHandler,
-                             <a href="../../../../../com/google/android/exoplayer2/upstream/BandwidthMeter.EventListener.html" title="interface in com.google.android.exoplayer2.upstream">BandwidthMeter.EventListener</a>&nbsp;eventListener,
-                             int&nbsp;maxWeight,
-                             <a href="../../../../../com/google/android/exoplayer2/util/Clock.html" title="interface in com.google.android.exoplayer2.util">Clock</a>&nbsp;clock)</pre>
+<pre><a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Deprecated.html" target="_top" title="class or interface in java.lang">@Deprecated</a>
+public&nbsp;DefaultBandwidthMeter(<a href="https://developer.android.com/reference/android/os/Handler.html" target="_top" title="class or interface in android.os">Handler</a>&nbsp;eventHandler,
+                                         <a href="../../../../../com/google/android/exoplayer2/upstream/BandwidthMeter.EventListener.html" title="interface in com.google.android.exoplayer2.upstream">BandwidthMeter.EventListener</a>&nbsp;eventListener,
+                                         int&nbsp;maxWeight)</pre>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;<span class="deprecationComment">Use <a href="../../../../../com/google/android/exoplayer2/upstream/DefaultBandwidthMeter.Builder.html" title="class in com.google.android.exoplayer2.upstream"><code>DefaultBandwidthMeter.Builder</code></a> instead.</span></div>
 </li>
 </ul>
 </li>
@@ -337,8 +359,7 @@ implements <a href="../../../../../com/google/android/exoplayer2/upstream/Bandwi
 <h4>getBitrateEstimate</h4>
 <pre>public&nbsp;long&nbsp;getBitrateEstimate()</pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/upstream/BandwidthMeter.html#getBitrateEstimate--">BandwidthMeter</a></code></span></div>
-<div class="block">Returns the estimated bandwidth in bits/sec, or <a href="../../../../../com/google/android/exoplayer2/upstream/BandwidthMeter.html#NO_ESTIMATE"><code>BandwidthMeter.NO_ESTIMATE</code></a> if an estimate is not
- available.</div>
+<div class="block">Returns the estimated bandwidth in bits/sec.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="../../../../../com/google/android/exoplayer2/upstream/BandwidthMeter.html#getBitrateEstimate--">getBitrateEstimate</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/upstream/BandwidthMeter.html" title="interface in com.google.android.exoplayer2.upstream">BandwidthMeter</a></code></dd>
@@ -429,7 +450,7 @@ implements <a href="../../../../../com/google/android/exoplayer2/upstream/Bandwi
 <div class="subNav">
 <ul class="navList">
 <li><a href="../../../../../com/google/android/exoplayer2/upstream/DefaultAllocator.html" title="class in com.google.android.exoplayer2.upstream"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
-<li><a href="../../../../../com/google/android/exoplayer2/upstream/DefaultDataSource.html" title="class in com.google.android.exoplayer2.upstream"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
+<li><a href="../../../../../com/google/android/exoplayer2/upstream/DefaultBandwidthMeter.Builder.html" title="class in com.google.android.exoplayer2.upstream"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
 </ul>
 <ul class="navList">
 <li><a href="../../../../../index.html?com/google/android/exoplayer2/upstream/DefaultBandwidthMeter.html" target="_top">Frames</a></li>
@@ -453,7 +474,7 @@ implements <a href="../../../../../com/google/android/exoplayer2/upstream/Bandwi
 <div>
 <ul class="subNavList">
 <li>Summary:&nbsp;</li>
-<li>Nested&nbsp;|&nbsp;</li>
+<li><a href="#nested.class.summary">Nested</a>&nbsp;|&nbsp;</li>
 <li><a href="#field.summary">Field</a>&nbsp;|&nbsp;</li>
 <li><a href="#constructor.summary">Constr</a>&nbsp;|&nbsp;</li>
 <li><a href="#method.summary">Method</a></li>

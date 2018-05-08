@@ -16,7 +16,7 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":10,"i1":10,"i2":10,"i3":10};
+var methods = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -164,13 +164,25 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 </tr>
 <tr id="i2" class="altColor">
 <td class="colFirst"><code><a href="../../../../../../com/google/android/exoplayer2/ext/ima/ImaAdsLoader.Builder.html" title="class in com.google.android.exoplayer2.ext.ima">ImaAdsLoader.Builder</a></code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/ext/ima/ImaAdsLoader.Builder.html#setImaSdkSettings-com.google.ads.interactivemedia.v3.api.ImaSdkSettings-">setImaSdkSettings</a></span>(com.google.ads.interactivemedia.v3.api.ImaSdkSettings&nbsp;imaSdkSettings)</code>
-<div class="block">Sets the IMA SDK settings.</div>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/ext/ima/ImaAdsLoader.Builder.html#setAdEventListener-com.google.ads.interactivemedia.v3.api.AdEvent.AdEventListener-">setAdEventListener</a></span>(com.google.ads.interactivemedia.v3.api.AdEvent.AdEventListener&nbsp;adEventListener)</code>
+<div class="block">Sets a listener for ad events that will be passed to <code>AdsManager#addAdEventListener(AdEventListener)</code>.</div>
 </td>
 </tr>
 <tr id="i3" class="rowColor">
 <td class="colFirst"><code><a href="../../../../../../com/google/android/exoplayer2/ext/ima/ImaAdsLoader.Builder.html" title="class in com.google.android.exoplayer2.ext.ima">ImaAdsLoader.Builder</a></code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/ext/ima/ImaAdsLoader.Builder.html#setVastLoadTimeoutMs-long-">setVastLoadTimeoutMs</a></span>(long&nbsp;vastLoadTimeoutMs)</code>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/ext/ima/ImaAdsLoader.Builder.html#setImaSdkSettings-com.google.ads.interactivemedia.v3.api.ImaSdkSettings-">setImaSdkSettings</a></span>(com.google.ads.interactivemedia.v3.api.ImaSdkSettings&nbsp;imaSdkSettings)</code>
+<div class="block">Sets the IMA SDK settings.</div>
+</td>
+</tr>
+<tr id="i4" class="altColor">
+<td class="colFirst"><code><a href="../../../../../../com/google/android/exoplayer2/ext/ima/ImaAdsLoader.Builder.html" title="class in com.google.android.exoplayer2.ext.ima">ImaAdsLoader.Builder</a></code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/ext/ima/ImaAdsLoader.Builder.html#setMediaLoadTimeoutMs-int-">setMediaLoadTimeoutMs</a></span>(int&nbsp;mediaLoadTimeoutMs)</code>
+<div class="block">Sets the ad media load timeout, in milliseconds.</div>
+</td>
+</tr>
+<tr id="i5" class="rowColor">
+<td class="colFirst"><code><a href="../../../../../../com/google/android/exoplayer2/ext/ima/ImaAdsLoader.Builder.html" title="class in com.google.android.exoplayer2.ext.ima">ImaAdsLoader.Builder</a></code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/ext/ima/ImaAdsLoader.Builder.html#setVastLoadTimeoutMs-int-">setVastLoadTimeoutMs</a></span>(int&nbsp;vastLoadTimeoutMs)</code>
 <div class="block">Sets the VAST load timeout, in milliseconds.</div>
 </td>
 </tr>
@@ -237,13 +249,29 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 </dl>
 </li>
 </ul>
-<a name="setVastLoadTimeoutMs-long-">
+<a name="setAdEventListener-com.google.ads.interactivemedia.v3.api.AdEvent.AdEventListener-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setAdEventListener</h4>
+<pre>public&nbsp;<a href="../../../../../../com/google/android/exoplayer2/ext/ima/ImaAdsLoader.Builder.html" title="class in com.google.android.exoplayer2.ext.ima">ImaAdsLoader.Builder</a>&nbsp;setAdEventListener(com.google.ads.interactivemedia.v3.api.AdEvent.AdEventListener&nbsp;adEventListener)</pre>
+<div class="block">Sets a listener for ad events that will be passed to <code>AdsManager#addAdEventListener(AdEventListener)</code>.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>adEventListener</code> - The ad event listener.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>This builder, for convenience.</dd>
+</dl>
+</li>
+</ul>
+<a name="setVastLoadTimeoutMs-int-">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>setVastLoadTimeoutMs</h4>
-<pre>public&nbsp;<a href="../../../../../../com/google/android/exoplayer2/ext/ima/ImaAdsLoader.Builder.html" title="class in com.google.android.exoplayer2.ext.ima">ImaAdsLoader.Builder</a>&nbsp;setVastLoadTimeoutMs(long&nbsp;vastLoadTimeoutMs)</pre>
+<pre>public&nbsp;<a href="../../../../../../com/google/android/exoplayer2/ext/ima/ImaAdsLoader.Builder.html" title="class in com.google.android.exoplayer2.ext.ima">ImaAdsLoader.Builder</a>&nbsp;setVastLoadTimeoutMs(int&nbsp;vastLoadTimeoutMs)</pre>
 <div class="block">Sets the VAST load timeout, in milliseconds.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -252,6 +280,24 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 <dd>This builder, for convenience.</dd>
 <dt><span class="seeLabel">See Also:</span></dt>
 <dd><code>AdsRequest.setVastLoadTimeout(float)</code></dd>
+</dl>
+</li>
+</ul>
+<a name="setMediaLoadTimeoutMs-int-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setMediaLoadTimeoutMs</h4>
+<pre>public&nbsp;<a href="../../../../../../com/google/android/exoplayer2/ext/ima/ImaAdsLoader.Builder.html" title="class in com.google.android.exoplayer2.ext.ima">ImaAdsLoader.Builder</a>&nbsp;setMediaLoadTimeoutMs(int&nbsp;mediaLoadTimeoutMs)</pre>
+<div class="block">Sets the ad media load timeout, in milliseconds.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>mediaLoadTimeoutMs</code> - The ad media load timeout, in milliseconds.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>This builder, for convenience.</dd>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><code>AdsRenderingSettings.setLoadVideoTimeout(int)</code></dd>
 </dl>
 </li>
 </ul>

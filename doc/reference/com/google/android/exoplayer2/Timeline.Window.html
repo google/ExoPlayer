@@ -158,41 +158,41 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 </td>
 </tr>
 <tr class="rowColor">
-<td class="colFirst"><code><a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Object.html" target="_top" title="class or interface in java.lang">Object</a></code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/Timeline.Window.html#id">id</a></span></code>
-<div class="block">An identifier for the window.</div>
-</td>
-</tr>
-<tr class="altColor">
 <td class="colFirst"><code>boolean</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/Timeline.Window.html#isDynamic">isDynamic</a></span></code>
 <div class="block">Whether this window may change when the timeline is updated.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>boolean</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/Timeline.Window.html#isSeekable">isSeekable</a></span></code>
 <div class="block">Whether it's possible to seek within this window.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>int</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/Timeline.Window.html#lastPeriodIndex">lastPeriodIndex</a></span></code>
 <div class="block">The index of the last period that belongs to this window.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>long</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/Timeline.Window.html#positionInFirstPeriodUs">positionInFirstPeriodUs</a></span></code>
 <div class="block">The position of the start of this window relative to the start of the first period belonging
  to it, in microseconds.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>long</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/Timeline.Window.html#presentationStartTimeMs">presentationStartTimeMs</a></span></code>
 <div class="block">The start time of the presentation to which this window belongs in milliseconds since the
  epoch, or <a href="../../../../com/google/android/exoplayer2/C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a> if unknown or not applicable.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code><a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Object.html" target="_top" title="class or interface in java.lang">Object</a></code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/Timeline.Window.html#tag">tag</a></span></code>
+<div class="block">A tag for the window.</div>
 </td>
 </tr>
 <tr class="rowColor">
@@ -276,7 +276,7 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 </tr>
 <tr id="i6" class="altColor">
 <td class="colFirst"><code><a href="../../../../com/google/android/exoplayer2/Timeline.Window.html" title="class in com.google.android.exoplayer2">Timeline.Window</a></code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/Timeline.Window.html#set-java.lang.Object-long-long-boolean-boolean-long-long-int-int-long-">set</a></span>(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Object.html" target="_top" title="class or interface in java.lang">Object</a>&nbsp;id,
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/Timeline.Window.html#set-java.lang.Object-long-long-boolean-boolean-long-long-int-int-long-">set</a></span>(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Object.html" target="_top" title="class or interface in java.lang">Object</a>&nbsp;tag,
    long&nbsp;presentationStartTimeMs,
    long&nbsp;windowStartTimeMs,
    boolean&nbsp;isSeekable,
@@ -311,14 +311,15 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 <!--   -->
 </a>
 <h3>Field Detail</h3>
-<a name="id">
+<a name="tag">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
-<h4>id</h4>
-<pre>public&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Object.html" target="_top" title="class or interface in java.lang">Object</a> id</pre>
-<div class="block">An identifier for the window. Not necessarily unique.</div>
+<h4>tag</h4>
+<pre><a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
+public&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Object.html" target="_top" title="class or interface in java.lang">Object</a> tag</pre>
+<div class="block">A tag for the window. Not necessarily unique.</div>
 </li>
 </ul>
 <a name="presentationStartTimeMs">
@@ -448,7 +449,8 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 <ul class="blockList">
 <li class="blockList">
 <h4>set</h4>
-<pre>public&nbsp;<a href="../../../../com/google/android/exoplayer2/Timeline.Window.html" title="class in com.google.android.exoplayer2">Timeline.Window</a>&nbsp;set(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Object.html" target="_top" title="class or interface in java.lang">Object</a>&nbsp;id,
+<pre>public&nbsp;<a href="../../../../com/google/android/exoplayer2/Timeline.Window.html" title="class in com.google.android.exoplayer2">Timeline.Window</a>&nbsp;set(<a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
+                           <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Object.html" target="_top" title="class or interface in java.lang">Object</a>&nbsp;tag,
                            long&nbsp;presentationStartTimeMs,
                            long&nbsp;windowStartTimeMs,
                            boolean&nbsp;isSeekable,

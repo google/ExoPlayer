@@ -231,9 +231,9 @@ var activeTableTab = "activeTableTab";
                 long&nbsp;loadDurationMs,
                 <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/io/IOException.html" target="_top" title="class or interface in java.io">IOException</a>&nbsp;error)</pre>
 <div class="block">Called when a load encounters an error.
- <p>
- Note: There is guaranteed to be a memory barrier between <a href="../../../../../com/google/android/exoplayer2/upstream/Loader.Loadable.html#load--"><code>Loader.Loadable.load()</code></a> exiting and
- this callback being called.</div>
+
+ <p>Note: There is guaranteed to be a memory barrier between <a href="../../../../../com/google/android/exoplayer2/upstream/Loader.Loadable.html#load--"><code>Loader.Loadable.load()</code></a> exiting
+ and this callback being called.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>loadable</code> - The loadable whose load has encountered an error.</dd>
@@ -241,9 +241,7 @@ var activeTableTab = "activeTableTab";
 <dd><code>loadDurationMs</code> - The duration of the load up to the point at which the error occurred.</dd>
 <dd><code>error</code> - The load error.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
-<dd>The desired retry action. One of <a href="../../../../../com/google/android/exoplayer2/upstream/Loader.html#RETRY"><code>Loader.RETRY</code></a>,
-     <a href="../../../../../com/google/android/exoplayer2/upstream/Loader.html#RETRY_RESET_ERROR_COUNT"><code>Loader.RETRY_RESET_ERROR_COUNT</code></a>, <a href="../../../../../com/google/android/exoplayer2/upstream/Loader.html#DONT_RETRY"><code>Loader.DONT_RETRY</code></a> and
-     <a href="../../../../../com/google/android/exoplayer2/upstream/Loader.html#DONT_RETRY_FATAL"><code>Loader.DONT_RETRY_FATAL</code></a>.</dd>
+<dd>The desired retry action. One of <a href="../../../../../com/google/android/exoplayer2/upstream/Loader.html#RETRY"><code>Loader.RETRY</code></a>, <a href="../../../../../com/google/android/exoplayer2/upstream/Loader.html#RETRY_RESET_ERROR_COUNT"><code>Loader.RETRY_RESET_ERROR_COUNT</code></a>, <a href="../../../../../com/google/android/exoplayer2/upstream/Loader.html#DONT_RETRY"><code>Loader.DONT_RETRY</code></a> and <a href="../../../../../com/google/android/exoplayer2/upstream/Loader.html#DONT_RETRY_FATAL"><code>Loader.DONT_RETRY_FATAL</code></a>.</dd>
 </dl>
 </li>
 </ul>

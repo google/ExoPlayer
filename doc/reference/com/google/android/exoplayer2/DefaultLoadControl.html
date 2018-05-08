@@ -47,7 +47,7 @@ var activeTableTab = "activeTableTab";
 <div class="subNav">
 <ul class="navList">
 <li><a href="../../../../com/google/android/exoplayer2/DefaultControlDispatcher.html" title="class in com.google.android.exoplayer2"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
-<li><a href="../../../../com/google/android/exoplayer2/DefaultRenderersFactory.html" title="class in com.google.android.exoplayer2"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
+<li><a href="../../../../com/google/android/exoplayer2/DefaultLoadControl.Builder.html" title="class in com.google.android.exoplayer2"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
 </ul>
 <ul class="navList">
 <li><a href="../../../../index.html?com/google/android/exoplayer2/DefaultLoadControl.html" target="_top">Frames</a></li>
@@ -71,7 +71,7 @@ var activeTableTab = "activeTableTab";
 <div>
 <ul class="subNavList">
 <li>Summary:&nbsp;</li>
-<li>Nested&nbsp;|&nbsp;</li>
+<li><a href="#nested.class.summary">Nested</a>&nbsp;|&nbsp;</li>
 <li><a href="#field.summary">Field</a>&nbsp;|&nbsp;</li>
 <li><a href="#constructor.summary">Constr</a>&nbsp;|&nbsp;</li>
 <li><a href="#method.summary">Method</a></li>
@@ -120,6 +120,27 @@ implements <a href="../../../../com/google/android/exoplayer2/LoadControl.html" 
 <div class="summary">
 <ul class="blockList">
 <li class="blockList">
+<!-- ======== NESTED CLASS SUMMARY ======== -->
+<ul class="blockList">
+<li class="blockList"><a name="nested.class.summary">
+<!--   -->
+</a>
+<h3>Nested Class Summary</h3>
+<table class="memberSummary" border="0" cellpadding="3" cellspacing="0" summary="Nested Class Summary table, listing nested classes, and an explanation">
+<caption><span>Nested Classes</span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colFirst" scope="col">Modifier and Type</th>
+<th class="colLast" scope="col">Class and Description</th>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>static class&nbsp;</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/DefaultLoadControl.Builder.html" title="class in com.google.android.exoplayer2">DefaultLoadControl.Builder</a></span></code>
+<div class="block">Builder for <a href="../../../../com/google/android/exoplayer2/DefaultLoadControl.html" title="class in com.google.android.exoplayer2"><code>DefaultLoadControl</code></a>.</div>
+</td>
+</tr>
+</table>
+</li>
+</ul>
 <!-- =========== FIELD SUMMARY =========== -->
 <ul class="blockList">
 <li class="blockList"><a name="field.summary">
@@ -192,7 +213,9 @@ implements <a href="../../../../com/google/android/exoplayer2/LoadControl.html" 
 </tr>
 <tr class="rowColor">
 <td class="colOne"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/DefaultLoadControl.html#DefaultLoadControl-com.google.android.exoplayer2.upstream.DefaultAllocator-">DefaultLoadControl</a></span>(<a href="../../../../com/google/android/exoplayer2/upstream/DefaultAllocator.html" title="class in com.google.android.exoplayer2.upstream">DefaultAllocator</a>&nbsp;allocator)</code>
-<div class="block">Constructs a new instance, using the <code>DEFAULT_*</code> constants defined in this class.</div>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;
+<div class="block"><span class="deprecationComment">Use <a href="../../../../com/google/android/exoplayer2/DefaultLoadControl.Builder.html" title="class in com.google.android.exoplayer2"><code>DefaultLoadControl.Builder</code></a> instead.</span></div>
+</div>
 </td>
 </tr>
 <tr class="altColor">
@@ -203,7 +226,9 @@ implements <a href="../../../../com/google/android/exoplayer2/LoadControl.html" 
                   int&nbsp;bufferForPlaybackAfterRebufferMs,
                   int&nbsp;targetBufferBytes,
                   boolean&nbsp;prioritizeTimeOverSizeThresholds)</code>
-<div class="block">Constructs a new instance.</div>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;
+<div class="block"><span class="deprecationComment">Use <a href="../../../../com/google/android/exoplayer2/DefaultLoadControl.Builder.html" title="class in com.google.android.exoplayer2"><code>DefaultLoadControl.Builder</code></a> instead.</span></div>
+</div>
 </td>
 </tr>
 <tr class="rowColor">
@@ -215,7 +240,9 @@ implements <a href="../../../../com/google/android/exoplayer2/LoadControl.html" 
                   int&nbsp;targetBufferBytes,
                   boolean&nbsp;prioritizeTimeOverSizeThresholds,
                   <a href="../../../../com/google/android/exoplayer2/util/PriorityTaskManager.html" title="class in com.google.android.exoplayer2.util">PriorityTaskManager</a>&nbsp;priorityTaskManager)</code>
-<div class="block">Constructs a new instance.</div>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;
+<div class="block"><span class="deprecationComment">Use <a href="../../../../com/google/android/exoplayer2/DefaultLoadControl.Builder.html" title="class in com.google.android.exoplayer2"><code>DefaultLoadControl.Builder</code></a> instead.</span></div>
+</div>
 </td>
 </tr>
 </table>
@@ -437,12 +464,9 @@ implements <a href="../../../../com/google/android/exoplayer2/LoadControl.html" 
 <ul class="blockList">
 <li class="blockList">
 <h4>DefaultLoadControl</h4>
-<pre>public&nbsp;DefaultLoadControl(<a href="../../../../com/google/android/exoplayer2/upstream/DefaultAllocator.html" title="class in com.google.android.exoplayer2.upstream">DefaultAllocator</a>&nbsp;allocator)</pre>
-<div class="block">Constructs a new instance, using the <code>DEFAULT_*</code> constants defined in this class.</div>
-<dl>
-<dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>allocator</code> - The <a href="../../../../com/google/android/exoplayer2/upstream/DefaultAllocator.html" title="class in com.google.android.exoplayer2.upstream"><code>DefaultAllocator</code></a> used by the loader.</dd>
-</dl>
+<pre><a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Deprecated.html" target="_top" title="class or interface in java.lang">@Deprecated</a>
+public&nbsp;DefaultLoadControl(<a href="../../../../com/google/android/exoplayer2/upstream/DefaultAllocator.html" title="class in com.google.android.exoplayer2.upstream">DefaultAllocator</a>&nbsp;allocator)</pre>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;<span class="deprecationComment">Use <a href="../../../../com/google/android/exoplayer2/DefaultLoadControl.Builder.html" title="class in com.google.android.exoplayer2"><code>DefaultLoadControl.Builder</code></a> instead.</span></div>
 </li>
 </ul>
 <a name="DefaultLoadControl-com.google.android.exoplayer2.upstream.DefaultAllocator-int-int-int-int-int-boolean-">
@@ -451,31 +475,15 @@ implements <a href="../../../../com/google/android/exoplayer2/LoadControl.html" 
 <ul class="blockList">
 <li class="blockList">
 <h4>DefaultLoadControl</h4>
-<pre>public&nbsp;DefaultLoadControl(<a href="../../../../com/google/android/exoplayer2/upstream/DefaultAllocator.html" title="class in com.google.android.exoplayer2.upstream">DefaultAllocator</a>&nbsp;allocator,
-                          int&nbsp;minBufferMs,
-                          int&nbsp;maxBufferMs,
-                          int&nbsp;bufferForPlaybackMs,
-                          int&nbsp;bufferForPlaybackAfterRebufferMs,
-                          int&nbsp;targetBufferBytes,
-                          boolean&nbsp;prioritizeTimeOverSizeThresholds)</pre>
-<div class="block">Constructs a new instance.</div>
-<dl>
-<dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>allocator</code> - The <a href="../../../../com/google/android/exoplayer2/upstream/DefaultAllocator.html" title="class in com.google.android.exoplayer2.upstream"><code>DefaultAllocator</code></a> used by the loader.</dd>
-<dd><code>minBufferMs</code> - The minimum duration of media that the player will attempt to ensure is
-     buffered at all times, in milliseconds.</dd>
-<dd><code>maxBufferMs</code> - The maximum duration of media that the player will attempt buffer, in
-     milliseconds.</dd>
-<dd><code>bufferForPlaybackMs</code> - The duration of media that must be buffered for playback to start or
-     resume following a user action such as a seek, in milliseconds.</dd>
-<dd><code>bufferForPlaybackAfterRebufferMs</code> - The default duration of media that must be buffered for
-     playback to resume after a rebuffer, in milliseconds. A rebuffer is defined to be caused by
-     buffer depletion rather than a user action.</dd>
-<dd><code>targetBufferBytes</code> - The target buffer size in bytes. If set to <a href="../../../../com/google/android/exoplayer2/C.html#LENGTH_UNSET"><code>C.LENGTH_UNSET</code></a>, the
-     target buffer size will be calculated using <a href="../../../../com/google/android/exoplayer2/DefaultLoadControl.html#calculateTargetBufferSize-com.google.android.exoplayer2.Renderer:A-com.google.android.exoplayer2.trackselection.TrackSelectionArray-"><code>calculateTargetBufferSize(Renderer[],
-     TrackSelectionArray)</code></a>.</dd>
-<dd><code>prioritizeTimeOverSizeThresholds</code> - Whether the load control prioritizes buffer time</dd>
-</dl>
+<pre><a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Deprecated.html" target="_top" title="class or interface in java.lang">@Deprecated</a>
+public&nbsp;DefaultLoadControl(<a href="../../../../com/google/android/exoplayer2/upstream/DefaultAllocator.html" title="class in com.google.android.exoplayer2.upstream">DefaultAllocator</a>&nbsp;allocator,
+                                      int&nbsp;minBufferMs,
+                                      int&nbsp;maxBufferMs,
+                                      int&nbsp;bufferForPlaybackMs,
+                                      int&nbsp;bufferForPlaybackAfterRebufferMs,
+                                      int&nbsp;targetBufferBytes,
+                                      boolean&nbsp;prioritizeTimeOverSizeThresholds)</pre>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;<span class="deprecationComment">Use <a href="../../../../com/google/android/exoplayer2/DefaultLoadControl.Builder.html" title="class in com.google.android.exoplayer2"><code>DefaultLoadControl.Builder</code></a> instead.</span></div>
 </li>
 </ul>
 <a name="DefaultLoadControl-com.google.android.exoplayer2.upstream.DefaultAllocator-int-int-int-int-int-boolean-com.google.android.exoplayer2.util.PriorityTaskManager-">
@@ -484,34 +492,16 @@ implements <a href="../../../../com/google/android/exoplayer2/LoadControl.html" 
 <ul class="blockListLast">
 <li class="blockList">
 <h4>DefaultLoadControl</h4>
-<pre>public&nbsp;DefaultLoadControl(<a href="../../../../com/google/android/exoplayer2/upstream/DefaultAllocator.html" title="class in com.google.android.exoplayer2.upstream">DefaultAllocator</a>&nbsp;allocator,
-                          int&nbsp;minBufferMs,
-                          int&nbsp;maxBufferMs,
-                          int&nbsp;bufferForPlaybackMs,
-                          int&nbsp;bufferForPlaybackAfterRebufferMs,
-                          int&nbsp;targetBufferBytes,
-                          boolean&nbsp;prioritizeTimeOverSizeThresholds,
-                          <a href="../../../../com/google/android/exoplayer2/util/PriorityTaskManager.html" title="class in com.google.android.exoplayer2.util">PriorityTaskManager</a>&nbsp;priorityTaskManager)</pre>
-<div class="block">Constructs a new instance.</div>
-<dl>
-<dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>allocator</code> - The <a href="../../../../com/google/android/exoplayer2/upstream/DefaultAllocator.html" title="class in com.google.android.exoplayer2.upstream"><code>DefaultAllocator</code></a> used by the loader.</dd>
-<dd><code>minBufferMs</code> - The minimum duration of media that the player will attempt to ensure is
-     buffered at all times, in milliseconds.</dd>
-<dd><code>maxBufferMs</code> - The maximum duration of media that the player will attempt buffer, in
-     milliseconds.</dd>
-<dd><code>bufferForPlaybackMs</code> - The duration of media that must be buffered for playback to start or
-     resume following a user action such as a seek, in milliseconds.</dd>
-<dd><code>bufferForPlaybackAfterRebufferMs</code> - The default duration of media that must be buffered for
-     playback to resume after a rebuffer, in milliseconds. A rebuffer is defined to be caused by
-     buffer depletion rather than a user action.</dd>
-<dd><code>targetBufferBytes</code> - The target buffer size in bytes. If set to <a href="../../../../com/google/android/exoplayer2/C.html#LENGTH_UNSET"><code>C.LENGTH_UNSET</code></a>, the
-     target buffer size will be calculated using <a href="../../../../com/google/android/exoplayer2/DefaultLoadControl.html#calculateTargetBufferSize-com.google.android.exoplayer2.Renderer:A-com.google.android.exoplayer2.trackselection.TrackSelectionArray-"><code>calculateTargetBufferSize(Renderer[],
-     TrackSelectionArray)</code></a>.</dd>
-<dd><code>prioritizeTimeOverSizeThresholds</code> - Whether the load control prioritizes buffer time
-     constraints over buffer size constraints.</dd>
-<dd><code>priorityTaskManager</code> - If not null, registers itself as a task with priority <a href="../../../../com/google/android/exoplayer2/C.html#PRIORITY_PLAYBACK"><code>C.PRIORITY_PLAYBACK</code></a> during loading periods, and unregisters itself during draining</dd>
-</dl>
+<pre><a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Deprecated.html" target="_top" title="class or interface in java.lang">@Deprecated</a>
+public&nbsp;DefaultLoadControl(<a href="../../../../com/google/android/exoplayer2/upstream/DefaultAllocator.html" title="class in com.google.android.exoplayer2.upstream">DefaultAllocator</a>&nbsp;allocator,
+                                      int&nbsp;minBufferMs,
+                                      int&nbsp;maxBufferMs,
+                                      int&nbsp;bufferForPlaybackMs,
+                                      int&nbsp;bufferForPlaybackAfterRebufferMs,
+                                      int&nbsp;targetBufferBytes,
+                                      boolean&nbsp;prioritizeTimeOverSizeThresholds,
+                                      <a href="../../../../com/google/android/exoplayer2/util/PriorityTaskManager.html" title="class in com.google.android.exoplayer2.util">PriorityTaskManager</a>&nbsp;priorityTaskManager)</pre>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;<span class="deprecationComment">Use <a href="../../../../com/google/android/exoplayer2/DefaultLoadControl.Builder.html" title="class in com.google.android.exoplayer2"><code>DefaultLoadControl.Builder</code></a> instead.</span></div>
 </li>
 </ul>
 </li>
@@ -750,7 +740,7 @@ implements <a href="../../../../com/google/android/exoplayer2/LoadControl.html" 
 <div class="subNav">
 <ul class="navList">
 <li><a href="../../../../com/google/android/exoplayer2/DefaultControlDispatcher.html" title="class in com.google.android.exoplayer2"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
-<li><a href="../../../../com/google/android/exoplayer2/DefaultRenderersFactory.html" title="class in com.google.android.exoplayer2"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
+<li><a href="../../../../com/google/android/exoplayer2/DefaultLoadControl.Builder.html" title="class in com.google.android.exoplayer2"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
 </ul>
 <ul class="navList">
 <li><a href="../../../../index.html?com/google/android/exoplayer2/DefaultLoadControl.html" target="_top">Frames</a></li>
@@ -774,7 +764,7 @@ implements <a href="../../../../com/google/android/exoplayer2/LoadControl.html" 
 <div>
 <ul class="subNavList">
 <li>Summary:&nbsp;</li>
-<li>Nested&nbsp;|&nbsp;</li>
+<li><a href="#nested.class.summary">Nested</a>&nbsp;|&nbsp;</li>
 <li><a href="#field.summary">Field</a>&nbsp;|&nbsp;</li>
 <li><a href="#constructor.summary">Constr</a>&nbsp;|&nbsp;</li>
 <li><a href="#method.summary">Method</a></li>

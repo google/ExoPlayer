@@ -41,7 +41,7 @@
 <div class="subNav">
 <ul class="navList">
 <li><a href="../../../../../com/google/android/exoplayer2/metadata/scte35/package-summary.html">Prev&nbsp;Package</a></li>
-<li><a href="../../../../../com/google/android/exoplayer2/source/package-summary.html">Next&nbsp;Package</a></li>
+<li><a href="../../../../../com/google/android/exoplayer2/scheduler/package-summary.html">Next&nbsp;Package</a></li>
 </ul>
 <ul class="navList">
 <li><a href="../../../../../index.html?com/google/android/exoplayer2/offline/package-summary.html" target="_top">Frames</a></li>
@@ -86,9 +86,22 @@
 </td>
 </tr>
 <tr class="rowColor">
-<td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/offline/Downloader.ProgressListener.html" title="interface in com.google.android.exoplayer2.offline">Downloader.ProgressListener</a></td>
+<td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/offline/DownloadHelper.Callback.html" title="interface in com.google.android.exoplayer2.offline">DownloadHelper.Callback</a></td>
 <td class="colLast">
-<div class="block">Listener notified when download progresses.</div>
+<div class="block">A callback to be notified when the <a href="../../../../../com/google/android/exoplayer2/offline/DownloadHelper.html" title="class in com.google.android.exoplayer2.offline"><code>DownloadHelper</code></a> is prepared.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/offline/DownloadManager.Listener.html" title="interface in com.google.android.exoplayer2.offline">DownloadManager.Listener</a></td>
+<td class="colLast">
+<div class="block">Listener for <a href="../../../../../com/google/android/exoplayer2/offline/DownloadManager.html" title="class in com.google.android.exoplayer2.offline"><code>DownloadManager</code></a> events.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/offline/FilterableManifest.html" title="interface in com.google.android.exoplayer2.offline">FilterableManifest</a>&lt;T,K&gt;</td>
+<td class="colLast">
+<div class="block">A manifest that can generate copies of itself including only the streams specified by the given
+ keys.</div>
 </td>
 </tr>
 </tbody>
@@ -103,19 +116,91 @@
 </tr>
 <tbody>
 <tr class="altColor">
+<td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/offline/ActionFile.html" title="class in com.google.android.exoplayer2.offline">ActionFile</a></td>
+<td class="colLast">
+<div class="block">Stores and loads <a href="../../../../../com/google/android/exoplayer2/offline/DownloadAction.html" title="class in com.google.android.exoplayer2.offline"><code>DownloadAction</code></a>s to/from a file.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/offline/DownloadAction.html" title="class in com.google.android.exoplayer2.offline">DownloadAction</a></td>
+<td class="colLast">
+<div class="block">Contains the necessary parameters for a download or remove action.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/offline/DownloadAction.Deserializer.html" title="class in com.google.android.exoplayer2.offline">DownloadAction.Deserializer</a></td>
+<td class="colLast">
+<div class="block">Used to deserialize <a href="../../../../../com/google/android/exoplayer2/offline/DownloadAction.html" title="class in com.google.android.exoplayer2.offline"><code>DownloadAction</code></a>s.</div>
+</td>
+</tr>
+<tr class="rowColor">
 <td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/offline/DownloaderConstructorHelper.html" title="class in com.google.android.exoplayer2.offline">DownloaderConstructorHelper</a></td>
 <td class="colLast">
 <div class="block">A helper class that holds necessary parameters for <a href="../../../../../com/google/android/exoplayer2/offline/Downloader.html" title="interface in com.google.android.exoplayer2.offline"><code>Downloader</code></a> construction.</div>
 </td>
 </tr>
+<tr class="altColor">
+<td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/offline/DownloadHelper.html" title="class in com.google.android.exoplayer2.offline">DownloadHelper</a></td>
+<td class="colLast">
+<div class="block">A helper for initializing and removing downloads.</div>
+</td>
+</tr>
 <tr class="rowColor">
+<td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/offline/DownloadManager.html" title="class in com.google.android.exoplayer2.offline">DownloadManager</a></td>
+<td class="colLast">
+<div class="block">Manages multiple stream download and remove requests.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/offline/DownloadManager.TaskState.html" title="class in com.google.android.exoplayer2.offline">DownloadManager.TaskState</a></td>
+<td class="colLast">
+<div class="block">Represents state of a task.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/offline/DownloadService.html" title="class in com.google.android.exoplayer2.offline">DownloadService</a></td>
+<td class="colLast">
+<div class="block">A <a href="https://developer.android.com/reference/android/app/Service.html" target="_top" title="class or interface in android.app"><code>Service</code></a> for downloading media.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/offline/FilteringManifestParser.html" title="class in com.google.android.exoplayer2.offline">FilteringManifestParser</a>&lt;T extends <a href="../../../../../com/google/android/exoplayer2/offline/FilterableManifest.html" title="interface in com.google.android.exoplayer2.offline">FilterableManifest</a>&lt;T,K&gt;,K&gt;</td>
+<td class="colLast">
+<div class="block">A manifest parser that includes only the tracks identified by the given track keys.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/offline/ProgressiveDownloadAction.html" title="class in com.google.android.exoplayer2.offline">ProgressiveDownloadAction</a></td>
+<td class="colLast">
+<div class="block">An action to download or remove downloaded progressive streams.</div>
+</td>
+</tr>
+<tr class="altColor">
 <td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/offline/ProgressiveDownloader.html" title="class in com.google.android.exoplayer2.offline">ProgressiveDownloader</a></td>
 <td class="colLast">
 <div class="block">A downloader for progressive media streams.</div>
 </td>
 </tr>
+<tr class="rowColor">
+<td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/offline/ProgressiveDownloadHelper.html" title="class in com.google.android.exoplayer2.offline">ProgressiveDownloadHelper</a></td>
+<td class="colLast">
+<div class="block">A <a href="../../../../../com/google/android/exoplayer2/offline/DownloadHelper.html" title="class in com.google.android.exoplayer2.offline"><code>DownloadHelper</code></a> for progressive streams.</div>
+</td>
+</tr>
 <tr class="altColor">
-<td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/offline/SegmentDownloader.html" title="class in com.google.android.exoplayer2.offline">SegmentDownloader</a>&lt;M,K&gt;</td>
+<td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/offline/SegmentDownloadAction.html" title="class in com.google.android.exoplayer2.offline">SegmentDownloadAction</a>&lt;K extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Comparable.html" target="_top" title="class or interface in java.lang">Comparable</a>&lt;K&gt;&gt;</td>
+<td class="colLast">
+<div class="block"><a href="../../../../../com/google/android/exoplayer2/offline/DownloadAction.html" title="class in com.google.android.exoplayer2.offline"><code>DownloadAction</code></a> for <a href="../../../../../com/google/android/exoplayer2/offline/SegmentDownloader.html" title="class in com.google.android.exoplayer2.offline"><code>SegmentDownloader</code></a>s.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/offline/SegmentDownloadAction.SegmentDownloadActionDeserializer.html" title="class in com.google.android.exoplayer2.offline">SegmentDownloadAction.SegmentDownloadActionDeserializer</a>&lt;K&gt;</td>
+<td class="colLast">
+<div class="block">Base class for <a href="../../../../../com/google/android/exoplayer2/offline/SegmentDownloadAction.html" title="class in com.google.android.exoplayer2.offline"><code>SegmentDownloadAction</code></a> <code>Deserializer</code>s.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/offline/SegmentDownloader.html" title="class in com.google.android.exoplayer2.offline">SegmentDownloader</a>&lt;M extends <a href="../../../../../com/google/android/exoplayer2/offline/FilterableManifest.html" title="interface in com.google.android.exoplayer2.offline">FilterableManifest</a>&lt;M,K&gt;,K&gt;</td>
 <td class="colLast">
 <div class="block">Base class for multi segment stream downloaders.</div>
 </td>
@@ -124,6 +209,13 @@
 <td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/offline/SegmentDownloader.Segment.html" title="class in com.google.android.exoplayer2.offline">SegmentDownloader.Segment</a></td>
 <td class="colLast">
 <div class="block">Smallest unit of content to be downloaded.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/offline/TrackKey.html" title="class in com.google.android.exoplayer2.offline">TrackKey</a></td>
+<td class="colLast">
+<div class="block">Identifies a given track by the index of the containing period, the index of the containing group
+ within the period, and the index of the track within the group.</div>
 </td>
 </tr>
 </tbody>
@@ -141,6 +233,23 @@
 <td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/offline/DownloadException.html" title="class in com.google.android.exoplayer2.offline">DownloadException</a></td>
 <td class="colLast">
 <div class="block">Thrown on an error during downloading.</div>
+</td>
+</tr>
+</tbody>
+</table>
+</li>
+<li class="blockList">
+<table class="typeSummary" border="0" cellpadding="3" cellspacing="0" summary="Annotation Types Summary table, listing annotation types, and an explanation">
+<caption><span>Annotation Types Summary</span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colFirst" scope="col">Annotation Type</th>
+<th class="colLast" scope="col">Description</th>
+</tr>
+<tbody>
+<tr class="altColor">
+<td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/offline/DownloadManager.TaskState.State.html" title="annotation in com.google.android.exoplayer2.offline">DownloadManager.TaskState.State</a></td>
+<td class="colLast">
+<div class="block">Task states.</div>
 </td>
 </tr>
 </tbody>
@@ -169,7 +278,7 @@
 <div class="subNav">
 <ul class="navList">
 <li><a href="../../../../../com/google/android/exoplayer2/metadata/scte35/package-summary.html">Prev&nbsp;Package</a></li>
-<li><a href="../../../../../com/google/android/exoplayer2/source/package-summary.html">Next&nbsp;Package</a></li>
+<li><a href="../../../../../com/google/android/exoplayer2/scheduler/package-summary.html">Next&nbsp;Package</a></li>
 </ul>
 <ul class="navList">
 <li><a href="../../../../../index.html?com/google/android/exoplayer2/offline/package-summary.html" target="_top">Frames</a></li>

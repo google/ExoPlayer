@@ -207,7 +207,8 @@ implements <a href="../../../../../../com/google/android/exoplayer2/ext/mediases
 </tr>
 <tr id="i2" class="altColor">
 <td class="colFirst"><code>abstract <a href="https://developer.android.com/reference/android/support.v4.media.MediaDescriptionCompat.html" target="_top" title="class or interface in android">android.support.v4.media.MediaDescriptionCompat</a></code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/ext/mediasession/TimelineQueueNavigator.html#getMediaDescription-int-">getMediaDescription</a></span>(int&nbsp;windowIndex)</code>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/ext/mediasession/TimelineQueueNavigator.html#getMediaDescription-com.google.android.exoplayer2.Player-int-">getMediaDescription</a></span>(<a href="../../../../../../com/google/android/exoplayer2/Player.html" title="interface in com.google.android.exoplayer2">Player</a>&nbsp;player,
+                   int&nbsp;windowIndex)</code>
 <div class="block">Gets the <a href="https://developer.android.com/reference/android/support.v4.media.MediaDescriptionCompat.html" target="_top" title="class or interface in android"><code>MediaDescriptionCompat</code></a> for a given timeline window index.</div>
 </td>
 </tr>
@@ -366,16 +367,18 @@ implements <a href="../../../../../../com/google/android/exoplayer2/ext/mediases
 <!--   -->
 </a>
 <h3>Method Detail</h3>
-<a name="getMediaDescription-int-">
+<a name="getMediaDescription-com.google.android.exoplayer2.Player-int-">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>getMediaDescription</h4>
-<pre>public abstract&nbsp;<a href="https://developer.android.com/reference/android/support.v4.media.MediaDescriptionCompat.html" target="_top" title="class or interface in android">android.support.v4.media.MediaDescriptionCompat</a>&nbsp;getMediaDescription(int&nbsp;windowIndex)</pre>
+<pre>public abstract&nbsp;<a href="https://developer.android.com/reference/android/support.v4.media.MediaDescriptionCompat.html" target="_top" title="class or interface in android">android.support.v4.media.MediaDescriptionCompat</a>&nbsp;getMediaDescription(<a href="../../../../../../com/google/android/exoplayer2/Player.html" title="interface in com.google.android.exoplayer2">Player</a>&nbsp;player,
+                                                                                    int&nbsp;windowIndex)</pre>
 <div class="block">Gets the <a href="https://developer.android.com/reference/android/support.v4.media.MediaDescriptionCompat.html" target="_top" title="class or interface in android"><code>MediaDescriptionCompat</code></a> for a given timeline window index.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>player</code> - The current player.</dd>
 <dd><code>windowIndex</code> - The timeline window index for which to provide a description.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>A <a href="https://developer.android.com/reference/android/support.v4.media.MediaDescriptionCompat.html" target="_top" title="class or interface in android"><code>MediaDescriptionCompat</code></a>.</dd>

@@ -139,16 +139,14 @@ implements <a href="../../../../../com/google/android/exoplayer2/trackselection/
 <td class="colOne"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/trackselection/AdaptiveTrackSelection.Factory.html#Factory-com.google.android.exoplayer2.upstream.BandwidthMeter-">Factory</a></span>(<a href="../../../../../com/google/android/exoplayer2/upstream/BandwidthMeter.html" title="interface in com.google.android.exoplayer2.upstream">BandwidthMeter</a>&nbsp;bandwidthMeter)</code>&nbsp;</td>
 </tr>
 <tr class="rowColor">
-<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/trackselection/AdaptiveTrackSelection.Factory.html#Factory-com.google.android.exoplayer2.upstream.BandwidthMeter-int-int-int-int-float-">Factory</a></span>(<a href="../../../../../com/google/android/exoplayer2/upstream/BandwidthMeter.html" title="interface in com.google.android.exoplayer2.upstream">BandwidthMeter</a>&nbsp;bandwidthMeter,
-       int&nbsp;maxInitialBitrate,
+<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/trackselection/AdaptiveTrackSelection.Factory.html#Factory-com.google.android.exoplayer2.upstream.BandwidthMeter-int-int-int-float-">Factory</a></span>(<a href="../../../../../com/google/android/exoplayer2/upstream/BandwidthMeter.html" title="interface in com.google.android.exoplayer2.upstream">BandwidthMeter</a>&nbsp;bandwidthMeter,
        int&nbsp;minDurationForQualityIncreaseMs,
        int&nbsp;maxDurationForQualityDecreaseMs,
        int&nbsp;minDurationToRetainAfterDiscardMs,
        float&nbsp;bandwidthFraction)</code>&nbsp;</td>
 </tr>
 <tr class="altColor">
-<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/trackselection/AdaptiveTrackSelection.Factory.html#Factory-com.google.android.exoplayer2.upstream.BandwidthMeter-int-int-int-int-float-float-long-com.google.android.exoplayer2.util.Clock-">Factory</a></span>(<a href="../../../../../com/google/android/exoplayer2/upstream/BandwidthMeter.html" title="interface in com.google.android.exoplayer2.upstream">BandwidthMeter</a>&nbsp;bandwidthMeter,
-       int&nbsp;maxInitialBitrate,
+<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/trackselection/AdaptiveTrackSelection.Factory.html#Factory-com.google.android.exoplayer2.upstream.BandwidthMeter-int-int-int-float-float-long-com.google.android.exoplayer2.util.Clock-">Factory</a></span>(<a href="../../../../../com/google/android/exoplayer2/upstream/BandwidthMeter.html" title="interface in com.google.android.exoplayer2.upstream">BandwidthMeter</a>&nbsp;bandwidthMeter,
        int&nbsp;minDurationForQualityIncreaseMs,
        int&nbsp;maxDurationForQualityDecreaseMs,
        int&nbsp;minDurationToRetainAfterDiscardMs,
@@ -214,14 +212,13 @@ implements <a href="../../../../../com/google/android/exoplayer2/trackselection/
 </dl>
 </li>
 </ul>
-<a name="Factory-com.google.android.exoplayer2.upstream.BandwidthMeter-int-int-int-int-float-">
+<a name="Factory-com.google.android.exoplayer2.upstream.BandwidthMeter-int-int-int-float-">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>Factory</h4>
 <pre>public&nbsp;Factory(<a href="../../../../../com/google/android/exoplayer2/upstream/BandwidthMeter.html" title="interface in com.google.android.exoplayer2.upstream">BandwidthMeter</a>&nbsp;bandwidthMeter,
-               int&nbsp;maxInitialBitrate,
                int&nbsp;minDurationForQualityIncreaseMs,
                int&nbsp;maxDurationForQualityDecreaseMs,
                int&nbsp;minDurationToRetainAfterDiscardMs,
@@ -229,30 +226,27 @@ implements <a href="../../../../../com/google/android/exoplayer2/trackselection/
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>bandwidthMeter</code> - Provides an estimate of the currently available bandwidth.</dd>
-<dd><code>maxInitialBitrate</code> - The maximum bitrate in bits per second that should be assumed
-     when a bandwidth estimate is unavailable.</dd>
-<dd><code>minDurationForQualityIncreaseMs</code> - The minimum duration of buffered data required for
-     the selected track to switch to one of higher quality.</dd>
-<dd><code>maxDurationForQualityDecreaseMs</code> - The maximum duration of buffered data required for
-     the selected track to switch to one of lower quality.</dd>
+<dd><code>minDurationForQualityIncreaseMs</code> - The minimum duration of buffered data required for the
+     selected track to switch to one of higher quality.</dd>
+<dd><code>maxDurationForQualityDecreaseMs</code> - The maximum duration of buffered data required for the
+     selected track to switch to one of lower quality.</dd>
 <dd><code>minDurationToRetainAfterDiscardMs</code> - When switching to a track of significantly higher
      quality, the selection may indicate that media already buffered at the lower quality can
      be discarded to speed up the switch. This is the minimum duration of media that must be
      retained at the lower quality.</dd>
 <dd><code>bandwidthFraction</code> - The fraction of the available bandwidth that the selection should
-     consider available for use. Setting to a value less than 1 is recommended to account
-     for inaccuracies in the bandwidth estimator.</dd>
+     consider available for use. Setting to a value less than 1 is recommended to account for
+     inaccuracies in the bandwidth estimator.</dd>
 </dl>
 </li>
 </ul>
-<a name="Factory-com.google.android.exoplayer2.upstream.BandwidthMeter-int-int-int-int-float-float-long-com.google.android.exoplayer2.util.Clock-">
+<a name="Factory-com.google.android.exoplayer2.upstream.BandwidthMeter-int-int-int-float-float-long-com.google.android.exoplayer2.util.Clock-">
 <!--   -->
 </a>
 <ul class="blockListLast">
 <li class="blockList">
 <h4>Factory</h4>
 <pre>public&nbsp;Factory(<a href="../../../../../com/google/android/exoplayer2/upstream/BandwidthMeter.html" title="interface in com.google.android.exoplayer2.upstream">BandwidthMeter</a>&nbsp;bandwidthMeter,
-               int&nbsp;maxInitialBitrate,
                int&nbsp;minDurationForQualityIncreaseMs,
                int&nbsp;maxDurationForQualityDecreaseMs,
                int&nbsp;minDurationToRetainAfterDiscardMs,
@@ -262,9 +256,7 @@ implements <a href="../../../../../com/google/android/exoplayer2/trackselection/
                <a href="../../../../../com/google/android/exoplayer2/util/Clock.html" title="interface in com.google.android.exoplayer2.util">Clock</a>&nbsp;clock)</pre>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>bandwidthMeter</code> - Provides an estimate of the currently available bandwidth.</dd>
-<dd><code>maxInitialBitrate</code> - The maximum bitrate in bits per second that should be assumed when a
-     bandwidth estimate is unavailable.</dd>
+<dd><code>bandwidthMeter</code> - Provides an estimate of the currently available bandwidth..</dd>
 <dd><code>minDurationForQualityIncreaseMs</code> - The minimum duration of buffered data required for the
      selected track to switch to one of higher quality.</dd>
 <dd><code>maxDurationForQualityDecreaseMs</code> - The maximum duration of buffered data required for the

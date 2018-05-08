@@ -259,8 +259,8 @@ extends <a href="../../../../../com/google/android/exoplayer2/source/Sequenceabl
  <a href="../../../../../com/google/android/exoplayer2/source/MediaPeriod.html#maybeThrowPrepareError--"><code>maybeThrowPrepareError()</code></a> will throw an <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/io/IOException.html" target="_top" title="class or interface in java.io"><code>IOException</code></a>.
 
  <p>If preparation succeeds and results in a source timeline change (e.g. the period duration
- becoming known), <a href="../../../../../com/google/android/exoplayer2/source/MediaSource.Listener.html#onSourceInfoRefreshed-com.google.android.exoplayer2.source.MediaSource-com.google.android.exoplayer2.Timeline-java.lang.Object-"><code>MediaSource.Listener.onSourceInfoRefreshed(MediaSource, Timeline,
- Object)</code></a> will be called before <code>callback.onPrepared</code>.</div>
+ becoming known), <a href="../../../../../com/google/android/exoplayer2/source/MediaSource.SourceInfoRefreshListener.html#onSourceInfoRefreshed-com.google.android.exoplayer2.source.MediaSource-com.google.android.exoplayer2.Timeline-java.lang.Object-"><code>MediaSource.SourceInfoRefreshListener.onSourceInfoRefreshed(MediaSource, Timeline, Object)</code></a>
+ will be called before <code>callback.onPrepared</code>.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>callback</code> - Callback to receive updates from this period, including being notified when
@@ -280,7 +280,7 @@ extends <a href="../../../../../com/google/android/exoplayer2/source/Sequenceabl
 <div class="block">Throws an error that's preventing the period from becoming prepared. Does nothing if no such
  error exists.
 
- <p>This method should only be called before the period has completed preparation.</div>
+ <p>This method is only called before the period has completed preparation.</div>
 <dl>
 <dt><span class="throwsLabel">Throws:</span></dt>
 <dd><code><a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/io/IOException.html" target="_top" title="class or interface in java.io">IOException</a></code> - The underlying error.</dd>
@@ -296,7 +296,7 @@ extends <a href="../../../../../com/google/android/exoplayer2/source/Sequenceabl
 <pre><a href="../../../../../com/google/android/exoplayer2/source/TrackGroupArray.html" title="class in com.google.android.exoplayer2.source">TrackGroupArray</a>&nbsp;getTrackGroups()</pre>
 <div class="block">Returns the <a href="../../../../../com/google/android/exoplayer2/source/TrackGroup.html" title="class in com.google.android.exoplayer2.source"><code>TrackGroup</code></a>s exposed by the period.
 
- <p>This method should only be called after the period has been prepared.</div>
+ <p>This method is only called after the period has been prepared.</div>
 <dl>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>The <a href="../../../../../com/google/android/exoplayer2/source/TrackGroup.html" title="class in com.google.android.exoplayer2.source"><code>TrackGroup</code></a>s.</dd>
@@ -324,7 +324,7 @@ extends <a href="../../../../../com/google/android/exoplayer2/source/Sequenceabl
  corresponding flag in <code>streamResetFlags</code> will be set to true. This flag will also be set
  if a new sample stream is created.
 
- <p>This method should only be called after the period has been prepared.</div>
+ <p>This method is only called after the period has been prepared.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>selections</code> - The renderer track selections.</dd>
@@ -352,7 +352,7 @@ extends <a href="../../../../../com/google/android/exoplayer2/source/Sequenceabl
                    boolean&nbsp;toKeyframe)</pre>
 <div class="block">Discards buffered media up to the specified position.
 
- <p>This method should only be called after the period has been prepared.</div>
+ <p>This method is only called after the period has been prepared.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>positionUs</code> - The position in microseconds.</dd>
@@ -372,7 +372,8 @@ extends <a href="../../../../../com/google/android/exoplayer2/source/Sequenceabl
 
  <p>After this method has returned a value other than <a href="../../../../../com/google/android/exoplayer2/C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a>, all <a href="../../../../../com/google/android/exoplayer2/source/SampleStream.html" title="interface in com.google.android.exoplayer2.source"><code>SampleStream</code></a>s provided by the period are guaranteed to start from a key frame.
 
- <p>This method should only be called after the period has been prepared.</div>
+ <p>This method is only called after the period has been prepared and before reading from any
+ <a href="../../../../../com/google/android/exoplayer2/source/SampleStream.html" title="interface in com.google.android.exoplayer2.source"><code>SampleStream</code></a>s provided by the period.</div>
 <dl>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>If a discontinuity was read then the playback position in microseconds after the
@@ -392,7 +393,7 @@ extends <a href="../../../../../com/google/android/exoplayer2/source/Sequenceabl
  <p>After this method has been called, all <a href="../../../../../com/google/android/exoplayer2/source/SampleStream.html" title="interface in com.google.android.exoplayer2.source"><code>SampleStream</code></a>s provided by the period are
  guaranteed to start from a key frame.
 
- <p>This method should only be called when at least one track is selected.</div>
+ <p>This method is only called when at least one track is selected.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>positionUs</code> - The seek position in microseconds.</dd>
@@ -412,7 +413,7 @@ extends <a href="../../../../../com/google/android/exoplayer2/source/Sequenceabl
 <div class="block">Returns the position to which a seek will be performed, given the specified seek position and
  <a href="../../../../../com/google/android/exoplayer2/SeekParameters.html" title="class in com.google.android.exoplayer2"><code>SeekParameters</code></a>.
 
- <p>This method should only be called after the period has been prepared.</div>
+ <p>This method is only called after the period has been prepared.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>positionUs</code> - The seek position in microseconds.</dd>
@@ -432,7 +433,7 @@ extends <a href="../../../../../com/google/android/exoplayer2/source/Sequenceabl
 <pre>long&nbsp;getBufferedPositionUs()</pre>
 <div class="block">Returns an estimate of the position up to which data is buffered for the enabled tracks.
 
- <p>This method should only be called when at least one track is selected.</div>
+ <p>This method is only called when at least one track is selected.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="../../../../../com/google/android/exoplayer2/source/SequenceableLoader.html#getBufferedPositionUs--">getBufferedPositionUs</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/source/SequenceableLoader.html" title="interface in com.google.android.exoplayer2.source">SequenceableLoader</a></code></dd>
@@ -451,8 +452,8 @@ extends <a href="../../../../../com/google/android/exoplayer2/source/Sequenceabl
 <pre>long&nbsp;getNextLoadPositionUs()</pre>
 <div class="block">Returns the next load time, or <a href="../../../../../com/google/android/exoplayer2/C.html#TIME_END_OF_SOURCE"><code>C.TIME_END_OF_SOURCE</code></a> if loading has finished.
 
- <p>This method should only be called after the period has been prepared. It may be called when
- no tracks are selected.</div>
+ <p>This method is only called after the period has been prepared. It may be called when no
+ tracks are selected.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="../../../../../com/google/android/exoplayer2/source/SequenceableLoader.html#getNextLoadPositionUs--">getNextLoadPositionUs</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/source/SequenceableLoader.html" title="interface in com.google.android.exoplayer2.source">SequenceableLoader</a></code></dd>
@@ -496,7 +497,7 @@ extends <a href="../../../../../com/google/android/exoplayer2/source/Sequenceabl
 <pre>void&nbsp;reevaluateBuffer(long&nbsp;positionUs)</pre>
 <div class="block">Re-evaluates the buffer given the playback position.
 
- <p>This method should only be called after the period has been prepared.
+ <p>This method is only called after the period has been prepared.
 
  <p>A period may choose to discard buffered media so that it can be re-buffered in a different
  quality.</div>

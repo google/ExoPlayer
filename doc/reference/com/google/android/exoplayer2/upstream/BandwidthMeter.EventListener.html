@@ -97,6 +97,10 @@ var activeTableTab = "activeTableTab";
 <ul class="blockList">
 <li class="blockList">
 <dl>
+<dt>All Known Implementing Classes:</dt>
+<dd><a href="../../../../../com/google/android/exoplayer2/analytics/AnalyticsCollector.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsCollector</a></dd>
+</dl>
+<dl>
 <dt>Enclosing interface:</dt>
 <dd><a href="../../../../../com/google/android/exoplayer2/upstream/BandwidthMeter.html" title="interface in com.google.android.exoplayer2.upstream">BandwidthMeter</a></dd>
 </dl>
@@ -155,15 +159,13 @@ var activeTableTab = "activeTableTab";
                        long&nbsp;bytes,
                        long&nbsp;bitrate)</pre>
 <div class="block">Called periodically to indicate that bytes have been transferred.
- <p>
- Note: The estimated bitrate is typically derived from more information than just
- <code>bytes</code> and <code>elapsedMs</code>.</div>
+
+ <p>Note: The estimated bitrate is typically derived from more information than just <code>bytes</code> and <code>elapsedMs</code>.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>elapsedMs</code> - The time taken to transfer the bytes, in milliseconds.</dd>
 <dd><code>bytes</code> - The number of bytes transferred.</dd>
-<dd><code>bitrate</code> - The estimated bitrate in bits/sec, or <a href="../../../../../com/google/android/exoplayer2/upstream/BandwidthMeter.html#NO_ESTIMATE"><code>BandwidthMeter.NO_ESTIMATE</code></a> if an estimate is
-     not available.</dd>
+<dd><code>bitrate</code> - The estimated bitrate in bits/sec.</dd>
 </dl>
 </li>
 </ul>

@@ -275,7 +275,7 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 <tr id="i0" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/ext/mediasession/MediaSessionConnector.html#setErrorMessageProvider-com.google.android.exoplayer2.util.ErrorMessageProvider-">setErrorMessageProvider</a></span>(<a href="../../../../../../com/google/android/exoplayer2/util/ErrorMessageProvider.html" title="interface in com.google.android.exoplayer2.util">ErrorMessageProvider</a>&lt;? super <a href="../../../../../../com/google/android/exoplayer2/ExoPlaybackException.html" title="class in com.google.android.exoplayer2">ExoPlaybackException</a>&gt;&nbsp;errorMessageProvider)</code>
-<div class="block">Sets the <a href="../../../../../../com/google/android/exoplayer2/util/ErrorMessageProvider.html" title="interface in com.google.android.exoplayer2.util"><code>ErrorMessageProvider</code></a>.</div>
+<div class="block">Sets the optional <a href="../../../../../../com/google/android/exoplayer2/util/ErrorMessageProvider.html" title="interface in com.google.android.exoplayer2.util"><code>ErrorMessageProvider</code></a>.</div>
 </td>
 </tr>
 <tr id="i1" class="rowColor">
@@ -450,17 +450,18 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 <li class="blockList">
 <h4>setPlayer</h4>
 <pre>public&nbsp;void&nbsp;setPlayer(<a href="../../../../../../com/google/android/exoplayer2/Player.html" title="interface in com.google.android.exoplayer2">Player</a>&nbsp;player,
+                      <a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
                       <a href="../../../../../../com/google/android/exoplayer2/ext/mediasession/MediaSessionConnector.PlaybackPreparer.html" title="interface in com.google.android.exoplayer2.ext.mediasession">MediaSessionConnector.PlaybackPreparer</a>&nbsp;playbackPreparer,
                       <a href="../../../../../../com/google/android/exoplayer2/ext/mediasession/MediaSessionConnector.CustomActionProvider.html" title="interface in com.google.android.exoplayer2.ext.mediasession">MediaSessionConnector.CustomActionProvider</a>...&nbsp;customActionProviders)</pre>
 <div class="block">Sets the player to be connected to the media session.
- <p>
- The order in which any <a href="../../../../../../com/google/android/exoplayer2/ext/mediasession/MediaSessionConnector.CustomActionProvider.html" title="interface in com.google.android.exoplayer2.ext.mediasession"><code>MediaSessionConnector.CustomActionProvider</code></a>s are passed determines the order of the
+
+ <p>The order in which any <a href="../../../../../../com/google/android/exoplayer2/ext/mediasession/MediaSessionConnector.CustomActionProvider.html" title="interface in com.google.android.exoplayer2.ext.mediasession"><code>MediaSessionConnector.CustomActionProvider</code></a>s are passed determines the order of the
  actions published with the playback state of the session.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>player</code> - The player to be connected to the <code>MediaSession</code>.</dd>
 <dd><code>playbackPreparer</code> - An optional <a href="../../../../../../com/google/android/exoplayer2/ext/mediasession/MediaSessionConnector.PlaybackPreparer.html" title="interface in com.google.android.exoplayer2.ext.mediasession"><code>MediaSessionConnector.PlaybackPreparer</code></a> for preparing the player.</dd>
-<dd><code>customActionProviders</code> - An optional <a href="../../../../../../com/google/android/exoplayer2/ext/mediasession/MediaSessionConnector.CustomActionProvider.html" title="interface in com.google.android.exoplayer2.ext.mediasession"><code>MediaSessionConnector.CustomActionProvider</code></a>s to publish and handle
+<dd><code>customActionProviders</code> - Optional <a href="../../../../../../com/google/android/exoplayer2/ext/mediasession/MediaSessionConnector.CustomActionProvider.html" title="interface in com.google.android.exoplayer2.ext.mediasession"><code>MediaSessionConnector.CustomActionProvider</code></a>s to publish and handle
      custom actions.</dd>
 </dl>
 </li>
@@ -471,8 +472,9 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 <ul class="blockList">
 <li class="blockList">
 <h4>setErrorMessageProvider</h4>
-<pre>public&nbsp;void&nbsp;setErrorMessageProvider(<a href="../../../../../../com/google/android/exoplayer2/util/ErrorMessageProvider.html" title="interface in com.google.android.exoplayer2.util">ErrorMessageProvider</a>&lt;? super <a href="../../../../../../com/google/android/exoplayer2/ExoPlaybackException.html" title="class in com.google.android.exoplayer2">ExoPlaybackException</a>&gt;&nbsp;errorMessageProvider)</pre>
-<div class="block">Sets the <a href="../../../../../../com/google/android/exoplayer2/util/ErrorMessageProvider.html" title="interface in com.google.android.exoplayer2.util"><code>ErrorMessageProvider</code></a>.</div>
+<pre>public&nbsp;void&nbsp;setErrorMessageProvider(<a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
+                                    <a href="../../../../../../com/google/android/exoplayer2/util/ErrorMessageProvider.html" title="interface in com.google.android.exoplayer2.util">ErrorMessageProvider</a>&lt;? super <a href="../../../../../../com/google/android/exoplayer2/ExoPlaybackException.html" title="class in com.google.android.exoplayer2">ExoPlaybackException</a>&gt;&nbsp;errorMessageProvider)</pre>
+<div class="block">Sets the optional <a href="../../../../../../com/google/android/exoplayer2/util/ErrorMessageProvider.html" title="interface in com.google.android.exoplayer2.util"><code>ErrorMessageProvider</code></a>.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>errorMessageProvider</code> - The error message provider.</dd>

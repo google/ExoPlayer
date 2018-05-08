@@ -16,12 +16,6 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":6,"i1":6,"i2":6,"i3":6};
-var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],4:["t3","Abstract Methods"]};
-var altColor = "altColor";
-var rowColor = "rowColor";
-var tableTab = "tableTab";
-var activeTableTab = "activeTableTab";
 </script>
 <noscript>
 <div>JavaScript is disabled on your browser.</div>
@@ -74,13 +68,13 @@ var activeTableTab = "activeTableTab";
 <li>Nested&nbsp;|&nbsp;</li>
 <li>Field&nbsp;|&nbsp;</li>
 <li>Constr&nbsp;|&nbsp;</li>
-<li><a href="#method.summary">Method</a></li>
+<li>Method</li>
 </ul>
 <ul class="subNavList">
 <li>Detail:&nbsp;</li>
 <li>Field&nbsp;|&nbsp;</li>
 <li>Constr&nbsp;|&nbsp;</li>
-<li><a href="#method.detail">Method</a></li>
+<li>Method</li>
 </ul>
 </div>
 <a name="skip.navbar.top">
@@ -97,124 +91,54 @@ var activeTableTab = "activeTableTab";
 <ul class="blockList">
 <li class="blockList">
 <dl>
-<dt>All Known Implementing Classes:</dt>
-<dd><a href="../../../../../com/google/android/exoplayer2/util/EventLogger.html" title="class in com.google.android.exoplayer2.util">EventLogger</a></dd>
+<dt>All Superinterfaces:</dt>
+<dd><a href="../../../../../com/google/android/exoplayer2/drm/DefaultDrmSessionEventListener.html" title="interface in com.google.android.exoplayer2.drm">DefaultDrmSessionEventListener</a></dd>
 </dl>
 <dl>
 <dt>Enclosing class:</dt>
 <dd><a href="../../../../../com/google/android/exoplayer2/drm/DefaultDrmSessionManager.html" title="class in com.google.android.exoplayer2.drm">DefaultDrmSessionManager</a>&lt;<a href="../../../../../com/google/android/exoplayer2/drm/DefaultDrmSessionManager.html" title="type parameter in DefaultDrmSessionManager">T</a> extends <a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaCrypto.html" title="interface in com.google.android.exoplayer2.drm">ExoMediaCrypto</a>&gt;</dd>
 </dl>
 <hr>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;
+<div class="block"><span class="deprecationComment">Use <a href="../../../../../com/google/android/exoplayer2/drm/DefaultDrmSessionEventListener.html" title="interface in com.google.android.exoplayer2.drm"><code>DefaultDrmSessionEventListener</code></a>.</span></div>
+</div>
 <br>
-<pre>public static interface <span class="typeNameLabel">DefaultDrmSessionManager.EventListener</span></pre>
-<div class="block">Listener of <a href="../../../../../com/google/android/exoplayer2/drm/DefaultDrmSessionManager.html" title="class in com.google.android.exoplayer2.drm"><code>DefaultDrmSessionManager</code></a> events.</div>
+<pre><a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Deprecated.html" target="_top" title="class or interface in java.lang">@Deprecated</a>
+public static interface <span class="typeNameLabel">DefaultDrmSessionManager.EventListener</span>
+extends <a href="../../../../../com/google/android/exoplayer2/drm/DefaultDrmSessionEventListener.html" title="interface in com.google.android.exoplayer2.drm">DefaultDrmSessionEventListener</a></pre>
 </li>
 </ul>
 </div>
 <div class="summary">
 <ul class="blockList">
 <li class="blockList">
+<!-- ======== NESTED CLASS SUMMARY ======== -->
+<ul class="blockList">
+<li class="blockList"><a name="nested.class.summary">
+<!--   -->
+</a>
+<h3>Nested Class Summary</h3>
+<ul class="blockList">
+<li class="blockList"><a name="nested.classes.inherited.from.class.com.google.android.exoplayer2.drm.DefaultDrmSessionEventListener">
+<!--   -->
+</a>
+<h3>Nested classes/interfaces inherited from interface&nbsp;com.google.android.exoplayer2.drm.<a href="../../../../../com/google/android/exoplayer2/drm/DefaultDrmSessionEventListener.html" title="interface in com.google.android.exoplayer2.drm">DefaultDrmSessionEventListener</a></h3>
+<code><a href="../../../../../com/google/android/exoplayer2/drm/DefaultDrmSessionEventListener.EventDispatcher.html" title="class in com.google.android.exoplayer2.drm">DefaultDrmSessionEventListener.EventDispatcher</a></code></li>
+</ul>
+</li>
+</ul>
 <!-- ========== METHOD SUMMARY =========== -->
 <ul class="blockList">
 <li class="blockList"><a name="method.summary">
 <!--   -->
 </a>
 <h3>Method Summary</h3>
-<table class="memberSummary" border="0" cellpadding="3" cellspacing="0" summary="Method Summary table, listing methods, and an explanation">
-<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t3" class="tableTab"><span><a href="javascript:show(4);">Abstract Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
-<tr>
-<th class="colFirst" scope="col">Modifier and Type</th>
-<th class="colLast" scope="col">Method and Description</th>
-</tr>
-<tr id="i0" class="altColor">
-<td class="colFirst"><code>void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/drm/DefaultDrmSessionManager.EventListener.html#onDrmKeysLoaded--">onDrmKeysLoaded</a></span>()</code>
-<div class="block">Called each time keys are loaded.</div>
-</td>
-</tr>
-<tr id="i1" class="rowColor">
-<td class="colFirst"><code>void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/drm/DefaultDrmSessionManager.EventListener.html#onDrmKeysRemoved--">onDrmKeysRemoved</a></span>()</code>
-<div class="block">Called each time offline keys are removed.</div>
-</td>
-</tr>
-<tr id="i2" class="altColor">
-<td class="colFirst"><code>void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/drm/DefaultDrmSessionManager.EventListener.html#onDrmKeysRestored--">onDrmKeysRestored</a></span>()</code>
-<div class="block">Called each time offline keys are restored.</div>
-</td>
-</tr>
-<tr id="i3" class="rowColor">
-<td class="colFirst"><code>void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/drm/DefaultDrmSessionManager.EventListener.html#onDrmSessionManagerError-java.lang.Exception-">onDrmSessionManagerError</a></span>(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Exception.html" target="_top" title="class or interface in java.lang">Exception</a>&nbsp;e)</code>
-<div class="block">Called when a drm error occurs.</div>
-</td>
-</tr>
-</table>
-</li>
-</ul>
-</li>
-</ul>
-</div>
-<div class="details">
 <ul class="blockList">
-<li class="blockList">
-<!-- ============ METHOD DETAIL ========== -->
-<ul class="blockList">
-<li class="blockList"><a name="method.detail">
+<li class="blockList"><a name="methods.inherited.from.class.com.google.android.exoplayer2.drm.DefaultDrmSessionEventListener">
 <!--   -->
 </a>
-<h3>Method Detail</h3>
-<a name="onDrmKeysLoaded--">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>onDrmKeysLoaded</h4>
-<pre>void&nbsp;onDrmKeysLoaded()</pre>
-<div class="block">Called each time keys are loaded.</div>
-</li>
-</ul>
-<a name="onDrmSessionManagerError-java.lang.Exception-">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>onDrmSessionManagerError</h4>
-<pre>void&nbsp;onDrmSessionManagerError(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Exception.html" target="_top" title="class or interface in java.lang">Exception</a>&nbsp;e)</pre>
-<div class="block">Called when a drm error occurs.
- <p>
- This method being called does not indicate that playback has failed, or that it will fail.
- The player may be able to recover from the error and continue. Hence applications should
- <em>not</em> implement this method to display a user visible error or initiate an application
- level retry (<code>Player.EventListener#onPlayerError</code> is the appropriate place to implement
- such behavior). This method is called to provide the application with an opportunity to log
- the error if it wishes to do so.</div>
-<dl>
-<dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>e</code> - The corresponding exception.</dd>
-</dl>
-</li>
-</ul>
-<a name="onDrmKeysRestored--">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>onDrmKeysRestored</h4>
-<pre>void&nbsp;onDrmKeysRestored()</pre>
-<div class="block">Called each time offline keys are restored.</div>
-</li>
-</ul>
-<a name="onDrmKeysRemoved--">
-<!--   -->
-</a>
-<ul class="blockListLast">
-<li class="blockList">
-<h4>onDrmKeysRemoved</h4>
-<pre>void&nbsp;onDrmKeysRemoved()</pre>
-<div class="block">Called each time offline keys are removed.</div>
-</li>
+<h3>Methods inherited from interface&nbsp;com.google.android.exoplayer2.drm.<a href="../../../../../com/google/android/exoplayer2/drm/DefaultDrmSessionEventListener.html" title="interface in com.google.android.exoplayer2.drm">DefaultDrmSessionEventListener</a></h3>
+<code><a href="../../../../../com/google/android/exoplayer2/drm/DefaultDrmSessionEventListener.html#onDrmKeysLoaded--">onDrmKeysLoaded</a>, <a href="../../../../../com/google/android/exoplayer2/drm/DefaultDrmSessionEventListener.html#onDrmKeysRemoved--">onDrmKeysRemoved</a>, <a href="../../../../../com/google/android/exoplayer2/drm/DefaultDrmSessionEventListener.html#onDrmKeysRestored--">onDrmKeysRestored</a>, <a href="../../../../../com/google/android/exoplayer2/drm/DefaultDrmSessionEventListener.html#onDrmSessionManagerError-java.lang.Exception-">onDrmSessionManagerError</a></code></li>
 </ul>
 </li>
 </ul>
@@ -271,13 +195,13 @@ var activeTableTab = "activeTableTab";
 <li>Nested&nbsp;|&nbsp;</li>
 <li>Field&nbsp;|&nbsp;</li>
 <li>Constr&nbsp;|&nbsp;</li>
-<li><a href="#method.summary">Method</a></li>
+<li>Method</li>
 </ul>
 <ul class="subNavList">
 <li>Detail:&nbsp;</li>
 <li>Field&nbsp;|&nbsp;</li>
 <li>Constr&nbsp;|&nbsp;</li>
-<li><a href="#method.detail">Method</a></li>
+<li>Method</li>
 </ul>
 </div>
 <a name="skip.navbar.bottom">

@@ -413,6 +413,7 @@ implements <a href="../../../../../../com/google/android/exoplayer2/extractor/Ex
 <li class="blockList">
 <h4>FragmentedMp4Extractor</h4>
 <pre>public&nbsp;FragmentedMp4Extractor(int&nbsp;flags,
+                              <a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
                               <a href="../../../../../../com/google/android/exoplayer2/util/TimestampAdjuster.html" title="class in com.google.android.exoplayer2.util">TimestampAdjuster</a>&nbsp;timestampAdjuster)</pre>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -428,15 +429,18 @@ implements <a href="../../../../../../com/google/android/exoplayer2/extractor/Ex
 <li class="blockList">
 <h4>FragmentedMp4Extractor</h4>
 <pre>public&nbsp;FragmentedMp4Extractor(int&nbsp;flags,
+                              <a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
                               <a href="../../../../../../com/google/android/exoplayer2/util/TimestampAdjuster.html" title="class in com.google.android.exoplayer2.util">TimestampAdjuster</a>&nbsp;timestampAdjuster,
+                              <a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
                               <a href="../../../../../../com/google/android/exoplayer2/extractor/mp4/Track.html" title="class in com.google.android.exoplayer2.extractor.mp4">Track</a>&nbsp;sideloadedTrack,
+                              <a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
                               <a href="../../../../../../com/google/android/exoplayer2/drm/DrmInitData.html" title="class in com.google.android.exoplayer2.drm">DrmInitData</a>&nbsp;sideloadedDrmInitData)</pre>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>flags</code> - Flags that control the extractor's behavior.</dd>
 <dd><code>timestampAdjuster</code> - Adjusts sample timestamps. May be null if no adjustment is needed.</dd>
-<dd><code>sideloadedTrack</code> - Sideloaded track information, in the case that the extractor
-     will not receive a moov box in the input data. Null if a moov box is expected.</dd>
+<dd><code>sideloadedTrack</code> - Sideloaded track information, in the case that the extractor will not
+     receive a moov box in the input data. Null if a moov box is expected.</dd>
 <dd><code>sideloadedDrmInitData</code> - The <a href="../../../../../../com/google/android/exoplayer2/drm/DrmInitData.html" title="class in com.google.android.exoplayer2.drm"><code>DrmInitData</code></a> to use for encrypted tracks. If null, the
      pssh boxes (if present) will be used.</dd>
 </dl>
@@ -449,16 +453,19 @@ implements <a href="../../../../../../com/google/android/exoplayer2/extractor/Ex
 <li class="blockList">
 <h4>FragmentedMp4Extractor</h4>
 <pre>public&nbsp;FragmentedMp4Extractor(int&nbsp;flags,
+                              <a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
                               <a href="../../../../../../com/google/android/exoplayer2/util/TimestampAdjuster.html" title="class in com.google.android.exoplayer2.util">TimestampAdjuster</a>&nbsp;timestampAdjuster,
+                              <a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
                               <a href="../../../../../../com/google/android/exoplayer2/extractor/mp4/Track.html" title="class in com.google.android.exoplayer2.extractor.mp4">Track</a>&nbsp;sideloadedTrack,
+                              <a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
                               <a href="../../../../../../com/google/android/exoplayer2/drm/DrmInitData.html" title="class in com.google.android.exoplayer2.drm">DrmInitData</a>&nbsp;sideloadedDrmInitData,
                               <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/List.html" target="_top" title="class or interface in java.util">List</a>&lt;<a href="../../../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a>&gt;&nbsp;closedCaptionFormats)</pre>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>flags</code> - Flags that control the extractor's behavior.</dd>
 <dd><code>timestampAdjuster</code> - Adjusts sample timestamps. May be null if no adjustment is needed.</dd>
-<dd><code>sideloadedTrack</code> - Sideloaded track information, in the case that the extractor
-     will not receive a moov box in the input data. Null if a moov box is expected.</dd>
+<dd><code>sideloadedTrack</code> - Sideloaded track information, in the case that the extractor will not
+     receive a moov box in the input data. Null if a moov box is expected.</dd>
 <dd><code>sideloadedDrmInitData</code> - The <a href="../../../../../../com/google/android/exoplayer2/drm/DrmInitData.html" title="class in com.google.android.exoplayer2.drm"><code>DrmInitData</code></a> to use for encrypted tracks. If null, the
      pssh boxes (if present) will be used.</dd>
 <dd><code>closedCaptionFormats</code> - For tracks that contain SEI messages, the formats of the closed
@@ -473,8 +480,11 @@ implements <a href="../../../../../../com/google/android/exoplayer2/extractor/Ex
 <li class="blockList">
 <h4>FragmentedMp4Extractor</h4>
 <pre>public&nbsp;FragmentedMp4Extractor(int&nbsp;flags,
+                              <a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
                               <a href="../../../../../../com/google/android/exoplayer2/util/TimestampAdjuster.html" title="class in com.google.android.exoplayer2.util">TimestampAdjuster</a>&nbsp;timestampAdjuster,
+                              <a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
                               <a href="../../../../../../com/google/android/exoplayer2/extractor/mp4/Track.html" title="class in com.google.android.exoplayer2.extractor.mp4">Track</a>&nbsp;sideloadedTrack,
+                              <a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
                               <a href="../../../../../../com/google/android/exoplayer2/drm/DrmInitData.html" title="class in com.google.android.exoplayer2.drm">DrmInitData</a>&nbsp;sideloadedDrmInitData,
                               <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/List.html" target="_top" title="class or interface in java.util">List</a>&lt;<a href="../../../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a>&gt;&nbsp;closedCaptionFormats,
                               <a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
@@ -483,8 +493,8 @@ implements <a href="../../../../../../com/google/android/exoplayer2/extractor/Ex
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>flags</code> - Flags that control the extractor's behavior.</dd>
 <dd><code>timestampAdjuster</code> - Adjusts sample timestamps. May be null if no adjustment is needed.</dd>
-<dd><code>sideloadedTrack</code> - Sideloaded track information, in the case that the extractor
-     will not receive a moov box in the input data. Null if a moov box is expected.</dd>
+<dd><code>sideloadedTrack</code> - Sideloaded track information, in the case that the extractor will not
+     receive a moov box in the input data. Null if a moov box is expected.</dd>
 <dd><code>sideloadedDrmInitData</code> - The <a href="../../../../../../com/google/android/exoplayer2/drm/DrmInitData.html" title="class in com.google.android.exoplayer2.drm"><code>DrmInitData</code></a> to use for encrypted tracks. If null, the
      pssh boxes (if present) will be used.</dd>
 <dd><code>closedCaptionFormats</code> - For tracks that contain SEI messages, the formats of the closed

@@ -128,15 +128,15 @@ var activeTableTab = "activeTableTab";
 </tr>
 <tr id="i0" class="altColor">
 <td class="colFirst"><code>void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsPlaylistTracker.PlaylistEventListener.html#onPlaylistBlacklisted-com.google.android.exoplayer2.source.hls.playlist.HlsMasterPlaylist.HlsUrl-long-">onPlaylistBlacklisted</a></span>(<a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsMasterPlaylist.HlsUrl.html" title="class in com.google.android.exoplayer2.source.hls.playlist">HlsMasterPlaylist.HlsUrl</a>&nbsp;url,
-                     long&nbsp;blacklistDurationMs)</code>
-<div class="block">Called if an error is encountered while loading a playlist.</div>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsPlaylistTracker.PlaylistEventListener.html#onPlaylistChanged--">onPlaylistChanged</a></span>()</code>
+<div class="block">Called a playlist changes.</div>
 </td>
 </tr>
 <tr id="i1" class="rowColor">
-<td class="colFirst"><code>void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsPlaylistTracker.PlaylistEventListener.html#onPlaylistChanged--">onPlaylistChanged</a></span>()</code>
-<div class="block">Called a playlist changes.</div>
+<td class="colFirst"><code>boolean</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsPlaylistTracker.PlaylistEventListener.html#onPlaylistError-com.google.android.exoplayer2.source.hls.playlist.HlsMasterPlaylist.HlsUrl-boolean-">onPlaylistError</a></span>(<a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsMasterPlaylist.HlsUrl.html" title="class in com.google.android.exoplayer2.source.hls.playlist">HlsMasterPlaylist.HlsUrl</a>&nbsp;url,
+               boolean&nbsp;shouldBlacklist)</code>
+<div class="block">Called if an error is encountered while loading a playlist.</div>
 </td>
 </tr>
 </table>
@@ -164,20 +164,21 @@ var activeTableTab = "activeTableTab";
 <div class="block">Called a playlist changes.</div>
 </li>
 </ul>
-<a name="onPlaylistBlacklisted-com.google.android.exoplayer2.source.hls.playlist.HlsMasterPlaylist.HlsUrl-long-">
+<a name="onPlaylistError-com.google.android.exoplayer2.source.hls.playlist.HlsMasterPlaylist.HlsUrl-boolean-">
 <!--   -->
 </a>
 <ul class="blockListLast">
 <li class="blockList">
-<h4>onPlaylistBlacklisted</h4>
-<pre>void&nbsp;onPlaylistBlacklisted(<a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsMasterPlaylist.HlsUrl.html" title="class in com.google.android.exoplayer2.source.hls.playlist">HlsMasterPlaylist.HlsUrl</a>&nbsp;url,
-                           long&nbsp;blacklistDurationMs)</pre>
+<h4>onPlaylistError</h4>
+<pre>boolean&nbsp;onPlaylistError(<a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsMasterPlaylist.HlsUrl.html" title="class in com.google.android.exoplayer2.source.hls.playlist">HlsMasterPlaylist.HlsUrl</a>&nbsp;url,
+                        boolean&nbsp;shouldBlacklist)</pre>
 <div class="block">Called if an error is encountered while loading a playlist.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>url</code> - The loaded url that caused the error.</dd>
-<dd><code>blacklistDurationMs</code> - The number of milliseconds for which the playlist has been
-     blacklisted.</dd>
+<dd><code>shouldBlacklist</code> - Whether the playlist should be blacklisted.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>True if blacklisting did not encounter errors. False otherwise.</dd>
 </dl>
 </li>
 </ul>

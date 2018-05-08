@@ -380,7 +380,7 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 <td class="colFirst"><code><a href="../../../../com/google/android/exoplayer2/Timeline.Window.html" title="class in com.google.android.exoplayer2">Timeline.Window</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/Timeline.html#getWindow-int-com.google.android.exoplayer2.Timeline.Window-boolean-">getWindow</a></span>(int&nbsp;windowIndex,
          <a href="../../../../com/google/android/exoplayer2/Timeline.Window.html" title="class in com.google.android.exoplayer2">Timeline.Window</a>&nbsp;window,
-         boolean&nbsp;setIds)</code>
+         boolean&nbsp;setTag)</code>
 <div class="block">Populates a <a href="../../../../com/google/android/exoplayer2/Timeline.Window.html" title="class in com.google.android.exoplayer2"><code>Timeline.Window</code></a> with data for the window at the specified index.</div>
 </td>
 </tr>
@@ -388,7 +388,7 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 <td class="colFirst"><code>abstract <a href="../../../../com/google/android/exoplayer2/Timeline.Window.html" title="class in com.google.android.exoplayer2">Timeline.Window</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/Timeline.html#getWindow-int-com.google.android.exoplayer2.Timeline.Window-boolean-long-">getWindow</a></span>(int&nbsp;windowIndex,
          <a href="../../../../com/google/android/exoplayer2/Timeline.Window.html" title="class in com.google.android.exoplayer2">Timeline.Window</a>&nbsp;window,
-         boolean&nbsp;setIds,
+         boolean&nbsp;setTag,
          long&nbsp;defaultPositionProjectionUs)</code>
 <div class="block">Populates a <a href="../../../../com/google/android/exoplayer2/Timeline.Window.html" title="class in com.google.android.exoplayer2"><code>Timeline.Window</code></a> with data for the window at the specified index.</div>
 </td>
@@ -580,7 +580,7 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 <pre>public final&nbsp;<a href="../../../../com/google/android/exoplayer2/Timeline.Window.html" title="class in com.google.android.exoplayer2">Timeline.Window</a>&nbsp;getWindow(int&nbsp;windowIndex,
                                        <a href="../../../../com/google/android/exoplayer2/Timeline.Window.html" title="class in com.google.android.exoplayer2">Timeline.Window</a>&nbsp;window)</pre>
 <div class="block">Populates a <a href="../../../../com/google/android/exoplayer2/Timeline.Window.html" title="class in com.google.android.exoplayer2"><code>Timeline.Window</code></a> with data for the window at the specified index. Does not populate
- <a href="../../../../com/google/android/exoplayer2/Timeline.Window.html#id"><code>Timeline.Window.id</code></a>.</div>
+ <a href="../../../../com/google/android/exoplayer2/Timeline.Window.html#tag"><code>Timeline.Window.tag</code></a>.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>windowIndex</code> - The index of the window.</dd>
@@ -598,14 +598,14 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 <h4>getWindow</h4>
 <pre>public final&nbsp;<a href="../../../../com/google/android/exoplayer2/Timeline.Window.html" title="class in com.google.android.exoplayer2">Timeline.Window</a>&nbsp;getWindow(int&nbsp;windowIndex,
                                        <a href="../../../../com/google/android/exoplayer2/Timeline.Window.html" title="class in com.google.android.exoplayer2">Timeline.Window</a>&nbsp;window,
-                                       boolean&nbsp;setIds)</pre>
+                                       boolean&nbsp;setTag)</pre>
 <div class="block">Populates a <a href="../../../../com/google/android/exoplayer2/Timeline.Window.html" title="class in com.google.android.exoplayer2"><code>Timeline.Window</code></a> with data for the window at the specified index.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>windowIndex</code> - The index of the window.</dd>
 <dd><code>window</code> - The <a href="../../../../com/google/android/exoplayer2/Timeline.Window.html" title="class in com.google.android.exoplayer2"><code>Timeline.Window</code></a> to populate. Must not be null.</dd>
-<dd><code>setIds</code> - Whether <a href="../../../../com/google/android/exoplayer2/Timeline.Window.html#id"><code>Timeline.Window.id</code></a> should be populated. If false, the field will be set to
-     null. The caller should pass false for efficiency reasons unless the field is required.</dd>
+<dd><code>setTag</code> - Whether <a href="../../../../com/google/android/exoplayer2/Timeline.Window.html#tag"><code>Timeline.Window.tag</code></a> should be populated. If false, the field will be set
+     to null. The caller should pass false for efficiency reasons unless the field is required.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>The populated <a href="../../../../com/google/android/exoplayer2/Timeline.Window.html" title="class in com.google.android.exoplayer2"><code>Timeline.Window</code></a>, for convenience.</dd>
 </dl>
@@ -619,15 +619,15 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 <h4>getWindow</h4>
 <pre>public abstract&nbsp;<a href="../../../../com/google/android/exoplayer2/Timeline.Window.html" title="class in com.google.android.exoplayer2">Timeline.Window</a>&nbsp;getWindow(int&nbsp;windowIndex,
                                           <a href="../../../../com/google/android/exoplayer2/Timeline.Window.html" title="class in com.google.android.exoplayer2">Timeline.Window</a>&nbsp;window,
-                                          boolean&nbsp;setIds,
+                                          boolean&nbsp;setTag,
                                           long&nbsp;defaultPositionProjectionUs)</pre>
 <div class="block">Populates a <a href="../../../../com/google/android/exoplayer2/Timeline.Window.html" title="class in com.google.android.exoplayer2"><code>Timeline.Window</code></a> with data for the window at the specified index.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>windowIndex</code> - The index of the window.</dd>
 <dd><code>window</code> - The <a href="../../../../com/google/android/exoplayer2/Timeline.Window.html" title="class in com.google.android.exoplayer2"><code>Timeline.Window</code></a> to populate. Must not be null.</dd>
-<dd><code>setIds</code> - Whether <a href="../../../../com/google/android/exoplayer2/Timeline.Window.html#id"><code>Timeline.Window.id</code></a> should be populated. If false, the field will be set to
-     null. The caller should pass false for efficiency reasons unless the field is required.</dd>
+<dd><code>setTag</code> - Whether <a href="../../../../com/google/android/exoplayer2/Timeline.Window.html#tag"><code>Timeline.Window.tag</code></a> should be populated. If false, the field will be set
+     to null. The caller should pass false for efficiency reasons unless the field is required.</dd>
 <dd><code>defaultPositionProjectionUs</code> - A duration into the future that the populated window's
      default start position should be projected.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>

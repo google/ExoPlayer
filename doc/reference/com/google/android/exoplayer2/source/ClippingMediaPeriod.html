@@ -169,10 +169,11 @@ implements <a href="../../../../../com/google/android/exoplayer2/source/MediaPer
 <th class="colOne" scope="col">Constructor and Description</th>
 </tr>
 <tr class="altColor">
-<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/source/ClippingMediaPeriod.html#ClippingMediaPeriod-com.google.android.exoplayer2.source.MediaPeriod-boolean-">ClippingMediaPeriod</a></span>(<a href="../../../../../com/google/android/exoplayer2/source/MediaPeriod.html" title="interface in com.google.android.exoplayer2.source">MediaPeriod</a>&nbsp;mediaPeriod,
-                   boolean&nbsp;enableInitialDiscontinuity)</code>
-<div class="block">Creates a new clipping media period that provides a clipped view of the specified
- <a href="../../../../../com/google/android/exoplayer2/source/MediaPeriod.html" title="interface in com.google.android.exoplayer2.source"><code>MediaPeriod</code></a>'s sample streams.</div>
+<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/source/ClippingMediaPeriod.html#ClippingMediaPeriod-com.google.android.exoplayer2.source.MediaPeriod-boolean-long-long-">ClippingMediaPeriod</a></span>(<a href="../../../../../com/google/android/exoplayer2/source/MediaPeriod.html" title="interface in com.google.android.exoplayer2.source">MediaPeriod</a>&nbsp;mediaPeriod,
+                   boolean&nbsp;enableInitialDiscontinuity,
+                   long&nbsp;startUs,
+                   long&nbsp;endUs)</code>
+<div class="block">Creates a new clipping media period that provides a clipped view of the specified <a href="../../../../../com/google/android/exoplayer2/source/MediaPeriod.html" title="interface in com.google.android.exoplayer2.source"><code>MediaPeriod</code></a>'s sample streams.</div>
 </td>
 </tr>
 </table>
@@ -285,9 +286,9 @@ implements <a href="../../../../../com/google/android/exoplayer2/source/MediaPer
 </tr>
 <tr id="i14" class="altColor">
 <td class="colFirst"><code>void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/source/ClippingMediaPeriod.html#setClipping-long-long-">setClipping</a></span>(long&nbsp;startUs,
-           long&nbsp;endUs)</code>
-<div class="block">Sets the clipping start/end times for this period, in microseconds.</div>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/source/ClippingMediaPeriod.html#updateClipping-long-long-">updateClipping</a></span>(long&nbsp;startUs,
+              long&nbsp;endUs)</code>
+<div class="block">Updates the clipping start/end times for this period, in microseconds.</div>
 </td>
 </tr>
 </table>
@@ -330,26 +331,27 @@ implements <a href="../../../../../com/google/android/exoplayer2/source/MediaPer
 <!--   -->
 </a>
 <h3>Constructor Detail</h3>
-<a name="ClippingMediaPeriod-com.google.android.exoplayer2.source.MediaPeriod-boolean-">
+<a name="ClippingMediaPeriod-com.google.android.exoplayer2.source.MediaPeriod-boolean-long-long-">
 <!--   -->
 </a>
 <ul class="blockListLast">
 <li class="blockList">
 <h4>ClippingMediaPeriod</h4>
 <pre>public&nbsp;ClippingMediaPeriod(<a href="../../../../../com/google/android/exoplayer2/source/MediaPeriod.html" title="interface in com.google.android.exoplayer2.source">MediaPeriod</a>&nbsp;mediaPeriod,
-                           boolean&nbsp;enableInitialDiscontinuity)</pre>
-<div class="block">Creates a new clipping media period that provides a clipped view of the specified
- <a href="../../../../../com/google/android/exoplayer2/source/MediaPeriod.html" title="interface in com.google.android.exoplayer2.source"><code>MediaPeriod</code></a>'s sample streams.
- <p>
- The clipping start/end positions must be specified by calling <a href="../../../../../com/google/android/exoplayer2/source/ClippingMediaPeriod.html#setClipping-long-long-"><code>setClipping(long, long)</code></a>
- on the playback thread before preparation completes.
- <p>
- If the start point is guaranteed to be a key frame, pass <code>false</code> to <code>enableInitialPositionDiscontinuity</code> to suppress an initial discontinuity when the period is
+                           boolean&nbsp;enableInitialDiscontinuity,
+                           long&nbsp;startUs,
+                           long&nbsp;endUs)</pre>
+<div class="block">Creates a new clipping media period that provides a clipped view of the specified <a href="../../../../../com/google/android/exoplayer2/source/MediaPeriod.html" title="interface in com.google.android.exoplayer2.source"><code>MediaPeriod</code></a>'s sample streams.
+
+ <p>If the start point is guaranteed to be a key frame, pass <code>false</code> to <code>enableInitialPositionDiscontinuity</code> to suppress an initial discontinuity when the period is
  first read from.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>mediaPeriod</code> - The media period to clip.</dd>
 <dd><code>enableInitialDiscontinuity</code> - Whether the initial discontinuity should be enabled.</dd>
+<dd><code>startUs</code> - The clipping start time, in microseconds.</dd>
+<dd><code>endUs</code> - The clipping end time, in microseconds, or <a href="../../../../../com/google/android/exoplayer2/C.html#TIME_END_OF_SOURCE"><code>C.TIME_END_OF_SOURCE</code></a> to
+     indicate the end of the period.</dd>
 </dl>
 </li>
 </ul>
@@ -361,15 +363,15 @@ implements <a href="../../../../../com/google/android/exoplayer2/source/MediaPer
 <!--   -->
 </a>
 <h3>Method Detail</h3>
-<a name="setClipping-long-long-">
+<a name="updateClipping-long-long-">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
-<h4>setClipping</h4>
-<pre>public&nbsp;void&nbsp;setClipping(long&nbsp;startUs,
-                        long&nbsp;endUs)</pre>
-<div class="block">Sets the clipping start/end times for this period, in microseconds.</div>
+<h4>updateClipping</h4>
+<pre>public&nbsp;void&nbsp;updateClipping(long&nbsp;startUs,
+                           long&nbsp;endUs)</pre>
+<div class="block">Updates the clipping start/end times for this period, in microseconds.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>startUs</code> - The clipping start time, in microseconds.</dd>
@@ -393,8 +395,8 @@ implements <a href="../../../../../com/google/android/exoplayer2/source/MediaPer
  <a href="../../../../../com/google/android/exoplayer2/source/MediaPeriod.html#maybeThrowPrepareError--"><code>MediaPeriod.maybeThrowPrepareError()</code></a> will throw an <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/io/IOException.html" target="_top" title="class or interface in java.io"><code>IOException</code></a>.
 
  <p>If preparation succeeds and results in a source timeline change (e.g. the period duration
- becoming known), <a href="../../../../../com/google/android/exoplayer2/source/MediaSource.Listener.html#onSourceInfoRefreshed-com.google.android.exoplayer2.source.MediaSource-com.google.android.exoplayer2.Timeline-java.lang.Object-"><code>MediaSource.Listener.onSourceInfoRefreshed(MediaSource, Timeline,
- Object)</code></a> will be called before <code>callback.onPrepared</code>.</div>
+ becoming known), <a href="../../../../../com/google/android/exoplayer2/source/MediaSource.SourceInfoRefreshListener.html#onSourceInfoRefreshed-com.google.android.exoplayer2.source.MediaSource-com.google.android.exoplayer2.Timeline-java.lang.Object-"><code>MediaSource.SourceInfoRefreshListener.onSourceInfoRefreshed(MediaSource, Timeline, Object)</code></a>
+ will be called before <code>callback.onPrepared</code>.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="../../../../../com/google/android/exoplayer2/source/MediaPeriod.html#prepare-com.google.android.exoplayer2.source.MediaPeriod.Callback-long-">prepare</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/source/MediaPeriod.html" title="interface in com.google.android.exoplayer2.source">MediaPeriod</a></code></dd>
@@ -417,7 +419,7 @@ implements <a href="../../../../../com/google/android/exoplayer2/source/MediaPer
 <div class="block">Throws an error that's preventing the period from becoming prepared. Does nothing if no such
  error exists.
 
- <p>This method should only be called before the period has completed preparation.</div>
+ <p>This method is only called before the period has completed preparation.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="../../../../../com/google/android/exoplayer2/source/MediaPeriod.html#maybeThrowPrepareError--">maybeThrowPrepareError</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/source/MediaPeriod.html" title="interface in com.google.android.exoplayer2.source">MediaPeriod</a></code></dd>
@@ -436,7 +438,7 @@ implements <a href="../../../../../com/google/android/exoplayer2/source/MediaPer
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/source/MediaPeriod.html#getTrackGroups--">MediaPeriod</a></code></span></div>
 <div class="block">Returns the <a href="../../../../../com/google/android/exoplayer2/source/TrackGroup.html" title="class in com.google.android.exoplayer2.source"><code>TrackGroup</code></a>s exposed by the period.
 
- <p>This method should only be called after the period has been prepared.</div>
+ <p>This method is only called after the period has been prepared.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="../../../../../com/google/android/exoplayer2/source/MediaPeriod.html#getTrackGroups--">getTrackGroups</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/source/MediaPeriod.html" title="interface in com.google.android.exoplayer2.source">MediaPeriod</a></code></dd>
@@ -467,7 +469,7 @@ implements <a href="../../../../../com/google/android/exoplayer2/source/MediaPer
  corresponding flag in <code>streamResetFlags</code> will be set to true. This flag will also be set
  if a new sample stream is created.
 
- <p>This method should only be called after the period has been prepared.</div>
+ <p>This method is only called after the period has been prepared.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="../../../../../com/google/android/exoplayer2/source/MediaPeriod.html#selectTracks-com.google.android.exoplayer2.trackselection.TrackSelection:A-boolean:A-com.google.android.exoplayer2.source.SampleStream:A-boolean:A-long-">selectTracks</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/source/MediaPeriod.html" title="interface in com.google.android.exoplayer2.source">MediaPeriod</a></code></dd>
@@ -498,7 +500,7 @@ implements <a href="../../../../../com/google/android/exoplayer2/source/MediaPer
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/source/MediaPeriod.html#discardBuffer-long-boolean-">MediaPeriod</a></code></span></div>
 <div class="block">Discards buffered media up to the specified position.
 
- <p>This method should only be called after the period has been prepared.</div>
+ <p>This method is only called after the period has been prepared.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="../../../../../com/google/android/exoplayer2/source/MediaPeriod.html#discardBuffer-long-boolean-">discardBuffer</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/source/MediaPeriod.html" title="interface in com.google.android.exoplayer2.source">MediaPeriod</a></code></dd>
@@ -519,7 +521,7 @@ implements <a href="../../../../../com/google/android/exoplayer2/source/MediaPer
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/source/MediaPeriod.html#reevaluateBuffer-long-">MediaPeriod</a></code></span></div>
 <div class="block">Re-evaluates the buffer given the playback position.
 
- <p>This method should only be called after the period has been prepared.
+ <p>This method is only called after the period has been prepared.
 
  <p>A period may choose to discard buffered media so that it can be re-buffered in a different
  quality.</div>
@@ -547,7 +549,8 @@ implements <a href="../../../../../com/google/android/exoplayer2/source/MediaPer
 
  <p>After this method has returned a value other than <a href="../../../../../com/google/android/exoplayer2/C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a>, all <a href="../../../../../com/google/android/exoplayer2/source/SampleStream.html" title="interface in com.google.android.exoplayer2.source"><code>SampleStream</code></a>s provided by the period are guaranteed to start from a key frame.
 
- <p>This method should only be called after the period has been prepared.</div>
+ <p>This method is only called after the period has been prepared and before reading from any
+ <a href="../../../../../com/google/android/exoplayer2/source/SampleStream.html" title="interface in com.google.android.exoplayer2.source"><code>SampleStream</code></a>s provided by the period.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="../../../../../com/google/android/exoplayer2/source/MediaPeriod.html#readDiscontinuity--">readDiscontinuity</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/source/MediaPeriod.html" title="interface in com.google.android.exoplayer2.source">MediaPeriod</a></code></dd>
@@ -567,7 +570,7 @@ implements <a href="../../../../../com/google/android/exoplayer2/source/MediaPer
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/source/MediaPeriod.html#getBufferedPositionUs--">MediaPeriod</a></code></span></div>
 <div class="block">Returns an estimate of the position up to which data is buffered for the enabled tracks.
 
- <p>This method should only be called when at least one track is selected.</div>
+ <p>This method is only called when at least one track is selected.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="../../../../../com/google/android/exoplayer2/source/MediaPeriod.html#getBufferedPositionUs--">getBufferedPositionUs</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/source/MediaPeriod.html" title="interface in com.google.android.exoplayer2.source">MediaPeriod</a></code></dd>
@@ -592,7 +595,7 @@ implements <a href="../../../../../com/google/android/exoplayer2/source/MediaPer
  <p>After this method has been called, all <a href="../../../../../com/google/android/exoplayer2/source/SampleStream.html" title="interface in com.google.android.exoplayer2.source"><code>SampleStream</code></a>s provided by the period are
  guaranteed to start from a key frame.
 
- <p>This method should only be called when at least one track is selected.</div>
+ <p>This method is only called when at least one track is selected.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="../../../../../com/google/android/exoplayer2/source/MediaPeriod.html#seekToUs-long-">seekToUs</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/source/MediaPeriod.html" title="interface in com.google.android.exoplayer2.source">MediaPeriod</a></code></dd>
@@ -615,7 +618,7 @@ implements <a href="../../../../../com/google/android/exoplayer2/source/MediaPer
 <div class="block">Returns the position to which a seek will be performed, given the specified seek position and
  <a href="../../../../../com/google/android/exoplayer2/SeekParameters.html" title="class in com.google.android.exoplayer2"><code>SeekParameters</code></a>.
 
- <p>This method should only be called after the period has been prepared.</div>
+ <p>This method is only called after the period has been prepared.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="../../../../../com/google/android/exoplayer2/source/MediaPeriod.html#getAdjustedSeekPositionUs-long-com.google.android.exoplayer2.SeekParameters-">getAdjustedSeekPositionUs</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/source/MediaPeriod.html" title="interface in com.google.android.exoplayer2.source">MediaPeriod</a></code></dd>
@@ -638,8 +641,8 @@ implements <a href="../../../../../com/google/android/exoplayer2/source/MediaPer
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/source/MediaPeriod.html#getNextLoadPositionUs--">MediaPeriod</a></code></span></div>
 <div class="block">Returns the next load time, or <a href="../../../../../com/google/android/exoplayer2/C.html#TIME_END_OF_SOURCE"><code>C.TIME_END_OF_SOURCE</code></a> if loading has finished.
 
- <p>This method should only be called after the period has been prepared. It may be called when
- no tracks are selected.</div>
+ <p>This method is only called after the period has been prepared. It may be called when no
+ tracks are selected.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="../../../../../com/google/android/exoplayer2/source/MediaPeriod.html#getNextLoadPositionUs--">getNextLoadPositionUs</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/source/MediaPeriod.html" title="interface in com.google.android.exoplayer2.source">MediaPeriod</a></code></dd>

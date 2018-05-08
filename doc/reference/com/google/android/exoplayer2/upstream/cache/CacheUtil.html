@@ -171,23 +171,25 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 </tr>
 <tr id="i0" class="altColor">
 <td class="colFirst"><code>static void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheUtil.html#cache-com.google.android.exoplayer2.upstream.DataSpec-com.google.android.exoplayer2.upstream.cache.Cache-com.google.android.exoplayer2.upstream.cache.CacheDataSource-byte:A-com.google.android.exoplayer2.util.PriorityTaskManager-int-com.google.android.exoplayer2.upstream.cache.CacheUtil.CachingCounters-boolean-">cache</a></span>(<a href="../../../../../../com/google/android/exoplayer2/upstream/DataSpec.html" title="class in com.google.android.exoplayer2.upstream">DataSpec</a>&nbsp;dataSpec,
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheUtil.html#cache-com.google.android.exoplayer2.upstream.DataSpec-com.google.android.exoplayer2.upstream.cache.Cache-com.google.android.exoplayer2.upstream.cache.CacheDataSource-byte:A-com.google.android.exoplayer2.util.PriorityTaskManager-int-com.google.android.exoplayer2.upstream.cache.CacheUtil.CachingCounters-java.util.concurrent.atomic.AtomicBoolean-boolean-">cache</a></span>(<a href="../../../../../../com/google/android/exoplayer2/upstream/DataSpec.html" title="class in com.google.android.exoplayer2.upstream">DataSpec</a>&nbsp;dataSpec,
      <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/Cache.html" title="interface in com.google.android.exoplayer2.upstream.cache">Cache</a>&nbsp;cache,
      <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheDataSource.html" title="class in com.google.android.exoplayer2.upstream.cache">CacheDataSource</a>&nbsp;dataSource,
      byte[]&nbsp;buffer,
      <a href="../../../../../../com/google/android/exoplayer2/util/PriorityTaskManager.html" title="class in com.google.android.exoplayer2.util">PriorityTaskManager</a>&nbsp;priorityTaskManager,
      int&nbsp;priority,
      <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheUtil.CachingCounters.html" title="class in com.google.android.exoplayer2.upstream.cache">CacheUtil.CachingCounters</a>&nbsp;counters,
+     <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/concurrent/atomic/AtomicBoolean.html" target="_top" title="class or interface in java.util.concurrent.atomic">AtomicBoolean</a>&nbsp;isCanceled,
      boolean&nbsp;enableEOFException)</code>
 <div class="block">Caches the data defined by <code>dataSpec</code> while skipping already cached data.</div>
 </td>
 </tr>
 <tr id="i1" class="rowColor">
 <td class="colFirst"><code>static void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheUtil.html#cache-com.google.android.exoplayer2.upstream.DataSpec-com.google.android.exoplayer2.upstream.cache.Cache-com.google.android.exoplayer2.upstream.DataSource-com.google.android.exoplayer2.upstream.cache.CacheUtil.CachingCounters-">cache</a></span>(<a href="../../../../../../com/google/android/exoplayer2/upstream/DataSpec.html" title="class in com.google.android.exoplayer2.upstream">DataSpec</a>&nbsp;dataSpec,
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheUtil.html#cache-com.google.android.exoplayer2.upstream.DataSpec-com.google.android.exoplayer2.upstream.cache.Cache-com.google.android.exoplayer2.upstream.DataSource-com.google.android.exoplayer2.upstream.cache.CacheUtil.CachingCounters-java.util.concurrent.atomic.AtomicBoolean-">cache</a></span>(<a href="../../../../../../com/google/android/exoplayer2/upstream/DataSpec.html" title="class in com.google.android.exoplayer2.upstream">DataSpec</a>&nbsp;dataSpec,
      <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/Cache.html" title="interface in com.google.android.exoplayer2.upstream.cache">Cache</a>&nbsp;cache,
      <a href="../../../../../../com/google/android/exoplayer2/upstream/DataSource.html" title="interface in com.google.android.exoplayer2.upstream">DataSource</a>&nbsp;upstream,
-     <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheUtil.CachingCounters.html" title="class in com.google.android.exoplayer2.upstream.cache">CacheUtil.CachingCounters</a>&nbsp;counters)</code>
+     <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheUtil.CachingCounters.html" title="class in com.google.android.exoplayer2.upstream.cache">CacheUtil.CachingCounters</a>&nbsp;counters,
+     <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/concurrent/atomic/AtomicBoolean.html" target="_top" title="class or interface in java.util.concurrent.atomic">AtomicBoolean</a>&nbsp;isCanceled)</code>
 <div class="block">Caches the data defined by <code>dataSpec</code>, skipping already cached data.</div>
 </td>
 </tr>
@@ -311,7 +313,7 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 </dl>
 </li>
 </ul>
-<a name="cache-com.google.android.exoplayer2.upstream.DataSpec-com.google.android.exoplayer2.upstream.cache.Cache-com.google.android.exoplayer2.upstream.DataSource-com.google.android.exoplayer2.upstream.cache.CacheUtil.CachingCounters-">
+<a name="cache-com.google.android.exoplayer2.upstream.DataSpec-com.google.android.exoplayer2.upstream.cache.Cache-com.google.android.exoplayer2.upstream.DataSource-com.google.android.exoplayer2.upstream.cache.CacheUtil.CachingCounters-java.util.concurrent.atomic.AtomicBoolean-">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -321,7 +323,9 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
                          <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/Cache.html" title="interface in com.google.android.exoplayer2.upstream.cache">Cache</a>&nbsp;cache,
                          <a href="../../../../../../com/google/android/exoplayer2/upstream/DataSource.html" title="interface in com.google.android.exoplayer2.upstream">DataSource</a>&nbsp;upstream,
                          <a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
-                         <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheUtil.CachingCounters.html" title="class in com.google.android.exoplayer2.upstream.cache">CacheUtil.CachingCounters</a>&nbsp;counters)
+                         <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheUtil.CachingCounters.html" title="class in com.google.android.exoplayer2.upstream.cache">CacheUtil.CachingCounters</a>&nbsp;counters,
+                         <a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
+                         <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/concurrent/atomic/AtomicBoolean.html" target="_top" title="class or interface in java.util.concurrent.atomic">AtomicBoolean</a>&nbsp;isCanceled)
                   throws <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/io/IOException.html" target="_top" title="class or interface in java.io">IOException</a>,
                          <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/InterruptedException.html" target="_top" title="class or interface in java.lang">InterruptedException</a></pre>
 <div class="block">Caches the data defined by <code>dataSpec</code>, skipping already cached data. Caching stops early
@@ -332,13 +336,14 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 <dd><code>cache</code> - A <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/Cache.html" title="interface in com.google.android.exoplayer2.upstream.cache"><code>Cache</code></a> to store the data.</dd>
 <dd><code>upstream</code> - A <a href="../../../../../../com/google/android/exoplayer2/upstream/DataSource.html" title="interface in com.google.android.exoplayer2.upstream"><code>DataSource</code></a> for reading data not in the cache.</dd>
 <dd><code>counters</code> - If not null, updated during caching.</dd>
+<dd><code>isCanceled</code> - An optional flag that will interrupt caching if set to true.</dd>
 <dt><span class="throwsLabel">Throws:</span></dt>
 <dd><code><a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/io/IOException.html" target="_top" title="class or interface in java.io">IOException</a></code> - If an error occurs reading from the source.</dd>
-<dd><code><a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/InterruptedException.html" target="_top" title="class or interface in java.lang">InterruptedException</a></code> - If the thread was interrupted.</dd>
+<dd><code><a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/InterruptedException.html" target="_top" title="class or interface in java.lang">InterruptedException</a></code> - If the thread was interrupted directly or via <code>isCanceled</code>.</dd>
 </dl>
 </li>
 </ul>
-<a name="cache-com.google.android.exoplayer2.upstream.DataSpec-com.google.android.exoplayer2.upstream.cache.Cache-com.google.android.exoplayer2.upstream.cache.CacheDataSource-byte:A-com.google.android.exoplayer2.util.PriorityTaskManager-int-com.google.android.exoplayer2.upstream.cache.CacheUtil.CachingCounters-boolean-">
+<a name="cache-com.google.android.exoplayer2.upstream.DataSpec-com.google.android.exoplayer2.upstream.cache.Cache-com.google.android.exoplayer2.upstream.cache.CacheDataSource-byte:A-com.google.android.exoplayer2.util.PriorityTaskManager-int-com.google.android.exoplayer2.upstream.cache.CacheUtil.CachingCounters-java.util.concurrent.atomic.AtomicBoolean-boolean-">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -352,6 +357,8 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
                          int&nbsp;priority,
                          <a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
                          <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheUtil.CachingCounters.html" title="class in com.google.android.exoplayer2.upstream.cache">CacheUtil.CachingCounters</a>&nbsp;counters,
+                         <a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
+                         <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/concurrent/atomic/AtomicBoolean.html" target="_top" title="class or interface in java.util.concurrent.atomic">AtomicBoolean</a>&nbsp;isCanceled,
                          boolean&nbsp;enableEOFException)
                   throws <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/io/IOException.html" target="_top" title="class or interface in java.io">IOException</a>,
                          <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/InterruptedException.html" target="_top" title="class or interface in java.lang">InterruptedException</a></pre>
@@ -372,11 +379,12 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
      caching.</dd>
 <dd><code>priority</code> - The priority of this task. Used with <code>priorityTaskManager</code>.</dd>
 <dd><code>counters</code> - If not null, updated during caching.</dd>
+<dd><code>isCanceled</code> - An optional flag that will interrupt caching if set to true.</dd>
 <dd><code>enableEOFException</code> - Whether to throw an <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/io/EOFException.html" target="_top" title="class or interface in java.io"><code>EOFException</code></a> if end of input has been
      reached unexpectedly.</dd>
 <dt><span class="throwsLabel">Throws:</span></dt>
 <dd><code><a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/io/IOException.html" target="_top" title="class or interface in java.io">IOException</a></code> - If an error occurs reading from the source.</dd>
-<dd><code><a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/InterruptedException.html" target="_top" title="class or interface in java.lang">InterruptedException</a></code> - If the thread was interrupted.</dd>
+<dd><code><a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/InterruptedException.html" target="_top" title="class or interface in java.lang">InterruptedException</a></code> - If the thread was interrupted directly or via <code>isCanceled</code>.</dd>
 </dl>
 </li>
 </ul>

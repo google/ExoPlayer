@@ -2,15 +2,15 @@
 <!-- NewPage -->
 <html lang="en">
 <head>
-<title>FilteringDashManifestParser (ExoPlayer library)</title>
-<link rel="stylesheet" type="text/css" href="../../../../../../../stylesheet.css" title="Style">
-<script type="text/javascript" src="../../../../../../../script.js"></script>
+<title>FilteringManifestParser (ExoPlayer library)</title>
+<link rel="stylesheet" type="text/css" href="../../../../../stylesheet.css" title="Style">
+<script type="text/javascript" src="../../../../../script.js"></script>
 </head>
 <body>
 <script type="text/javascript"><!--
     try {
         if (location.href.indexOf('is-external=true') == -1) {
-            parent.document.title="FilteringDashManifestParser (ExoPlayer library)";
+            parent.document.title="FilteringManifestParser (ExoPlayer library)";
         }
     }
     catch(err) {
@@ -35,26 +35,26 @@ var activeTableTab = "activeTableTab";
 <!--   -->
 </a>
 <ul class="navList" title="Navigation">
-<li><a href="../../../../../../../overview-summary.html">Overview</a></li>
+<li><a href="../../../../../overview-summary.html">Overview</a></li>
 <li><a href="package-summary.html">Package</a></li>
 <li class="navBarCell1Rev">Class</li>
 <li><a href="package-tree.html">Tree</a></li>
-<li><a href="../../../../../../../deprecated-list.html">Deprecated</a></li>
-<li><a href="../../../../../../../index-all.html">Index</a></li>
-<li><a href="../../../../../../../help-doc.html">Help</a></li>
+<li><a href="../../../../../deprecated-list.html">Deprecated</a></li>
+<li><a href="../../../../../index-all.html">Index</a></li>
+<li><a href="../../../../../help-doc.html">Help</a></li>
 </ul>
 </div>
 <div class="subNav">
 <ul class="navList">
-<li><a href="../../../../../../../com/google/android/exoplayer2/source/dash/manifest/EventStream.html" title="class in com.google.android.exoplayer2.source.dash.manifest"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
-<li><a href="../../../../../../../com/google/android/exoplayer2/source/dash/manifest/Period.html" title="class in com.google.android.exoplayer2.source.dash.manifest"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
+<li><a href="../../../../../com/google/android/exoplayer2/offline/FilterableManifest.html" title="interface in com.google.android.exoplayer2.offline"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
+<li><a href="../../../../../com/google/android/exoplayer2/offline/ProgressiveDownloadAction.html" title="class in com.google.android.exoplayer2.offline"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
 </ul>
 <ul class="navList">
-<li><a href="../../../../../../../index.html?com/google/android/exoplayer2/source/dash/manifest/FilteringDashManifestParser.html" target="_top">Frames</a></li>
-<li><a href="FilteringDashManifestParser.html" target="_top">No&nbsp;Frames</a></li>
+<li><a href="../../../../../index.html?com/google/android/exoplayer2/offline/FilteringManifestParser.html" target="_top">Frames</a></li>
+<li><a href="FilteringManifestParser.html" target="_top">No&nbsp;Frames</a></li>
 </ul>
 <ul class="navList" id="allclasses_navbar_top">
-<li><a href="../../../../../../../allclasses-noframe.html">All&nbsp;Classes</a></li>
+<li><a href="../../../../../allclasses-noframe.html">All&nbsp;Classes</a></li>
 </ul>
 <div>
 <script type="text/javascript"><!--
@@ -89,15 +89,15 @@ var activeTableTab = "activeTableTab";
 <!-- ========= END OF TOP NAVBAR ========= -->
 <!-- ======== START OF CLASS DATA ======== -->
 <div class="header">
-<div class="subTitle">com.google.android.exoplayer2.source.dash.manifest</div>
-<h2 title="Class FilteringDashManifestParser" class="title">Class FilteringDashManifestParser</h2>
+<div class="subTitle">com.google.android.exoplayer2.offline</div>
+<h2 title="Class FilteringManifestParser" class="title">Class FilteringManifestParser&lt;T extends <a href="../../../../../com/google/android/exoplayer2/offline/FilterableManifest.html" title="interface in com.google.android.exoplayer2.offline">FilterableManifest</a>&lt;T,K&gt;,K&gt;</h2>
 </div>
 <div class="contentContainer">
 <ul class="inheritance">
 <li><a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Object.html" target="_top" title="class or interface in java.lang">java.lang.Object</a></li>
 <li>
 <ul class="inheritance">
-<li>com.google.android.exoplayer2.source.dash.manifest.FilteringDashManifestParser</li>
+<li>com.google.android.exoplayer2.offline.FilteringManifestParser&lt;T,K&gt;</li>
 </ul>
 </li>
 </ul>
@@ -106,15 +106,14 @@ var activeTableTab = "activeTableTab";
 <li class="blockList">
 <dl>
 <dt>All Implemented Interfaces:</dt>
-<dd><a href="../../../../../../../com/google/android/exoplayer2/upstream/ParsingLoadable.Parser.html" title="interface in com.google.android.exoplayer2.upstream">ParsingLoadable.Parser</a>&lt;<a href="../../../../../../../com/google/android/exoplayer2/source/dash/manifest/DashManifest.html" title="class in com.google.android.exoplayer2.source.dash.manifest">DashManifest</a>&gt;</dd>
+<dd><a href="../../../../../com/google/android/exoplayer2/upstream/ParsingLoadable.Parser.html" title="interface in com.google.android.exoplayer2.upstream">ParsingLoadable.Parser</a>&lt;T&gt;</dd>
 </dl>
 <hr>
 <br>
-<pre>public final class <span class="typeNameLabel">FilteringDashManifestParser</span>
+<pre>public final class <span class="typeNameLabel">FilteringManifestParser&lt;T extends <a href="../../../../../com/google/android/exoplayer2/offline/FilterableManifest.html" title="interface in com.google.android.exoplayer2.offline">FilterableManifest</a>&lt;T,K&gt;,K&gt;</span>
 extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Object.html" target="_top" title="class or interface in java.lang">Object</a>
-implements <a href="../../../../../../../com/google/android/exoplayer2/upstream/ParsingLoadable.Parser.html" title="interface in com.google.android.exoplayer2.upstream">ParsingLoadable.Parser</a>&lt;<a href="../../../../../../../com/google/android/exoplayer2/source/dash/manifest/DashManifest.html" title="class in com.google.android.exoplayer2.source.dash.manifest">DashManifest</a>&gt;</pre>
-<div class="block">A parser of media presentation description files which includes only the representations
- identified by the given keys.</div>
+implements <a href="../../../../../com/google/android/exoplayer2/upstream/ParsingLoadable.Parser.html" title="interface in com.google.android.exoplayer2.upstream">ParsingLoadable.Parser</a>&lt;T&gt;</pre>
+<div class="block">A manifest parser that includes only the tracks identified by the given track keys.</div>
 </li>
 </ul>
 </div>
@@ -133,7 +132,8 @@ implements <a href="../../../../../../../com/google/android/exoplayer2/upstream/
 <th class="colOne" scope="col">Constructor and Description</th>
 </tr>
 <tr class="altColor">
-<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../../../com/google/android/exoplayer2/source/dash/manifest/FilteringDashManifestParser.html#FilteringDashManifestParser-java.util.ArrayList-">FilteringDashManifestParser</a></span>(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/ArrayList.html" target="_top" title="class or interface in java.util">ArrayList</a>&lt;<a href="../../../../../../../com/google/android/exoplayer2/source/dash/manifest/RepresentationKey.html" title="class in com.google.android.exoplayer2.source.dash.manifest">RepresentationKey</a>&gt;&nbsp;filter)</code>&nbsp;</td>
+<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/offline/FilteringManifestParser.html#FilteringManifestParser-com.google.android.exoplayer2.upstream.ParsingLoadable.Parser-java.util.List-">FilteringManifestParser</a></span>(<a href="../../../../../com/google/android/exoplayer2/upstream/ParsingLoadable.Parser.html" title="interface in com.google.android.exoplayer2.upstream">ParsingLoadable.Parser</a>&lt;<a href="../../../../../com/google/android/exoplayer2/offline/FilteringManifestParser.html" title="type parameter in FilteringManifestParser">T</a>&gt;&nbsp;parser,
+                       <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/List.html" target="_top" title="class or interface in java.util">List</a>&lt;<a href="../../../../../com/google/android/exoplayer2/offline/FilteringManifestParser.html" title="type parameter in FilteringManifestParser">K</a>&gt;&nbsp;trackKeys)</code>&nbsp;</td>
 </tr>
 </table>
 </li>
@@ -151,8 +151,8 @@ implements <a href="../../../../../../../com/google/android/exoplayer2/upstream/
 <th class="colLast" scope="col">Method and Description</th>
 </tr>
 <tr id="i0" class="altColor">
-<td class="colFirst"><code><a href="../../../../../../../com/google/android/exoplayer2/source/dash/manifest/DashManifest.html" title="class in com.google.android.exoplayer2.source.dash.manifest">DashManifest</a></code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../../com/google/android/exoplayer2/source/dash/manifest/FilteringDashManifestParser.html#parse-android.net.Uri-java.io.InputStream-">parse</a></span>(<a href="https://developer.android.com/reference/android/net/Uri.html" target="_top" title="class or interface in android.net">Uri</a>&nbsp;uri,
+<td class="colFirst"><code><a href="../../../../../com/google/android/exoplayer2/offline/FilteringManifestParser.html" title="type parameter in FilteringManifestParser">T</a></code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/offline/FilteringManifestParser.html#parse-android.net.Uri-java.io.InputStream-">parse</a></span>(<a href="https://developer.android.com/reference/android/net/Uri.html" target="_top" title="class or interface in android.net">Uri</a>&nbsp;uri,
      <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/io/InputStream.html" target="_top" title="class or interface in java.io">InputStream</a>&nbsp;inputStream)</code>
 <div class="block">Parses an object from a response.</div>
 </td>
@@ -179,16 +179,18 @@ implements <a href="../../../../../../../com/google/android/exoplayer2/upstream/
 <!--   -->
 </a>
 <h3>Constructor Detail</h3>
-<a name="FilteringDashManifestParser-java.util.ArrayList-">
+<a name="FilteringManifestParser-com.google.android.exoplayer2.upstream.ParsingLoadable.Parser-java.util.List-">
 <!--   -->
 </a>
 <ul class="blockListLast">
 <li class="blockList">
-<h4>FilteringDashManifestParser</h4>
-<pre>public&nbsp;FilteringDashManifestParser(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/ArrayList.html" target="_top" title="class or interface in java.util">ArrayList</a>&lt;<a href="../../../../../../../com/google/android/exoplayer2/source/dash/manifest/RepresentationKey.html" title="class in com.google.android.exoplayer2.source.dash.manifest">RepresentationKey</a>&gt;&nbsp;filter)</pre>
+<h4>FilteringManifestParser</h4>
+<pre>public&nbsp;FilteringManifestParser(<a href="../../../../../com/google/android/exoplayer2/upstream/ParsingLoadable.Parser.html" title="interface in com.google.android.exoplayer2.upstream">ParsingLoadable.Parser</a>&lt;<a href="../../../../../com/google/android/exoplayer2/offline/FilteringManifestParser.html" title="type parameter in FilteringManifestParser">T</a>&gt;&nbsp;parser,
+                               <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/List.html" target="_top" title="class or interface in java.util">List</a>&lt;<a href="../../../../../com/google/android/exoplayer2/offline/FilteringManifestParser.html" title="type parameter in FilteringManifestParser">K</a>&gt;&nbsp;trackKeys)</pre>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>filter</code> - The representation keys that should be retained in the parsed manifests.</dd>
+<dd><code>parser</code> - A parser for the manifest that will be filtered.</dd>
+<dd><code>trackKeys</code> - The track keys. If null or empty then filtering will not occur.</dd>
 </dl>
 </li>
 </ul>
@@ -206,21 +208,21 @@ implements <a href="../../../../../../../com/google/android/exoplayer2/upstream/
 <ul class="blockListLast">
 <li class="blockList">
 <h4>parse</h4>
-<pre>public&nbsp;<a href="../../../../../../../com/google/android/exoplayer2/source/dash/manifest/DashManifest.html" title="class in com.google.android.exoplayer2.source.dash.manifest">DashManifest</a>&nbsp;parse(<a href="https://developer.android.com/reference/android/net/Uri.html" target="_top" title="class or interface in android.net">Uri</a>&nbsp;uri,
-                          <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/io/InputStream.html" target="_top" title="class or interface in java.io">InputStream</a>&nbsp;inputStream)
-                   throws <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/io/IOException.html" target="_top" title="class or interface in java.io">IOException</a></pre>
-<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../../../com/google/android/exoplayer2/upstream/ParsingLoadable.Parser.html#parse-android.net.Uri-java.io.InputStream-">ParsingLoadable.Parser</a></code></span></div>
+<pre>public&nbsp;<a href="../../../../../com/google/android/exoplayer2/offline/FilteringManifestParser.html" title="type parameter in FilteringManifestParser">T</a>&nbsp;parse(<a href="https://developer.android.com/reference/android/net/Uri.html" target="_top" title="class or interface in android.net">Uri</a>&nbsp;uri,
+               <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/io/InputStream.html" target="_top" title="class or interface in java.io">InputStream</a>&nbsp;inputStream)
+        throws <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/io/IOException.html" target="_top" title="class or interface in java.io">IOException</a></pre>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/upstream/ParsingLoadable.Parser.html#parse-android.net.Uri-java.io.InputStream-">ParsingLoadable.Parser</a></code></span></div>
 <div class="block">Parses an object from a response.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code><a href="../../../../../../../com/google/android/exoplayer2/upstream/ParsingLoadable.Parser.html#parse-android.net.Uri-java.io.InputStream-">parse</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../../../com/google/android/exoplayer2/upstream/ParsingLoadable.Parser.html" title="interface in com.google.android.exoplayer2.upstream">ParsingLoadable.Parser</a>&lt;<a href="../../../../../../../com/google/android/exoplayer2/source/dash/manifest/DashManifest.html" title="class in com.google.android.exoplayer2.source.dash.manifest">DashManifest</a>&gt;</code></dd>
+<dd><code><a href="../../../../../com/google/android/exoplayer2/upstream/ParsingLoadable.Parser.html#parse-android.net.Uri-java.io.InputStream-">parse</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/upstream/ParsingLoadable.Parser.html" title="interface in com.google.android.exoplayer2.upstream">ParsingLoadable.Parser</a>&lt;<a href="../../../../../com/google/android/exoplayer2/offline/FilteringManifestParser.html" title="type parameter in FilteringManifestParser">T</a> extends <a href="../../../../../com/google/android/exoplayer2/offline/FilterableManifest.html" title="interface in com.google.android.exoplayer2.offline">FilterableManifest</a>&lt;<a href="../../../../../com/google/android/exoplayer2/offline/FilteringManifestParser.html" title="type parameter in FilteringManifestParser">T</a>,<a href="../../../../../com/google/android/exoplayer2/offline/FilteringManifestParser.html" title="type parameter in FilteringManifestParser">K</a>&gt;&gt;</code></dd>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>uri</code> - The source <a href="https://developer.android.com/reference/android/net/Uri.html" target="_top" title="class or interface in android.net"><code>Uri</code></a> of the response, after any redirection.</dd>
 <dd><code>inputStream</code> - An <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/io/InputStream.html" target="_top" title="class or interface in java.io"><code>InputStream</code></a> from which the response data can be read.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>The parsed object.</dd>
 <dt><span class="throwsLabel">Throws:</span></dt>
-<dd><code><a href="../../../../../../../com/google/android/exoplayer2/ParserException.html" title="class in com.google.android.exoplayer2">ParserException</a></code> - If an error occurs parsing the data.</dd>
+<dd><code><a href="../../../../../com/google/android/exoplayer2/ParserException.html" title="class in com.google.android.exoplayer2">ParserException</a></code> - If an error occurs parsing the data.</dd>
 <dd><code><a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/io/IOException.html" target="_top" title="class or interface in java.io">IOException</a></code> - If an error occurs reading data from the stream.</dd>
 </dl>
 </li>
@@ -241,26 +243,26 @@ implements <a href="../../../../../../../com/google/android/exoplayer2/upstream/
 <!--   -->
 </a>
 <ul class="navList" title="Navigation">
-<li><a href="../../../../../../../overview-summary.html">Overview</a></li>
+<li><a href="../../../../../overview-summary.html">Overview</a></li>
 <li><a href="package-summary.html">Package</a></li>
 <li class="navBarCell1Rev">Class</li>
 <li><a href="package-tree.html">Tree</a></li>
-<li><a href="../../../../../../../deprecated-list.html">Deprecated</a></li>
-<li><a href="../../../../../../../index-all.html">Index</a></li>
-<li><a href="../../../../../../../help-doc.html">Help</a></li>
+<li><a href="../../../../../deprecated-list.html">Deprecated</a></li>
+<li><a href="../../../../../index-all.html">Index</a></li>
+<li><a href="../../../../../help-doc.html">Help</a></li>
 </ul>
 </div>
 <div class="subNav">
 <ul class="navList">
-<li><a href="../../../../../../../com/google/android/exoplayer2/source/dash/manifest/EventStream.html" title="class in com.google.android.exoplayer2.source.dash.manifest"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
-<li><a href="../../../../../../../com/google/android/exoplayer2/source/dash/manifest/Period.html" title="class in com.google.android.exoplayer2.source.dash.manifest"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
+<li><a href="../../../../../com/google/android/exoplayer2/offline/FilterableManifest.html" title="interface in com.google.android.exoplayer2.offline"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
+<li><a href="../../../../../com/google/android/exoplayer2/offline/ProgressiveDownloadAction.html" title="class in com.google.android.exoplayer2.offline"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
 </ul>
 <ul class="navList">
-<li><a href="../../../../../../../index.html?com/google/android/exoplayer2/source/dash/manifest/FilteringDashManifestParser.html" target="_top">Frames</a></li>
-<li><a href="FilteringDashManifestParser.html" target="_top">No&nbsp;Frames</a></li>
+<li><a href="../../../../../index.html?com/google/android/exoplayer2/offline/FilteringManifestParser.html" target="_top">Frames</a></li>
+<li><a href="FilteringManifestParser.html" target="_top">No&nbsp;Frames</a></li>
 </ul>
 <ul class="navList" id="allclasses_navbar_bottom">
-<li><a href="../../../../../../../allclasses-noframe.html">All&nbsp;Classes</a></li>
+<li><a href="../../../../../allclasses-noframe.html">All&nbsp;Classes</a></li>
 </ul>
 <div>
 <script type="text/javascript"><!--

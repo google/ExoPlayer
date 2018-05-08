@@ -212,8 +212,8 @@ var activeTableTab = "activeTableTab";
          int&nbsp;inputSampleRate,
          int&nbsp;specifiedBufferSize,
          int[]&nbsp;outputChannels,
-         int&nbsp;trimStartSamples,
-         int&nbsp;trimEndSamples)</code>
+         int&nbsp;trimStartFrames,
+         int&nbsp;trimEndFrames)</code>
 <div class="block">Configures (or reconfigures) the sink.</div>
 </td>
 </tr>
@@ -431,8 +431,8 @@ var activeTableTab = "activeTableTab";
                int&nbsp;specifiedBufferSize,
                <a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
                int[]&nbsp;outputChannels,
-               int&nbsp;trimStartSamples,
-               int&nbsp;trimEndSamples)
+               int&nbsp;trimStartFrames,
+               int&nbsp;trimEndFrames)
         throws <a href="../../../../../com/google/android/exoplayer2/audio/AudioSink.ConfigurationException.html" title="class in com.google.android.exoplayer2.audio">AudioSink.ConfigurationException</a></pre>
 <div class="block">Configures (or reconfigures) the sink.</div>
 <dl>
@@ -445,11 +445,11 @@ var activeTableTab = "activeTableTab";
 <dd><code>outputChannels</code> - A mapping from input to output channels that is applied to this sink's
      input as a preprocessing step, if handling PCM input. Specify <code>null</code> to leave the
      input unchanged. Otherwise, the element at index <code>i</code> specifies index of the input
-     channel to map to output channel <code>i</code> when preprocessing input buffers. After the
-     map is applied the audio data will have <code>outputChannels.length</code> channels.</dd>
-<dd><code>trimStartSamples</code> - The number of audio samples to trim from the start of data written to
-     the sink after this call.</dd>
-<dd><code>trimEndSamples</code> - The number of audio samples to trim from data written to the sink
+     channel to map to output channel <code>i</code> when preprocessing input buffers. After the map
+     is applied the audio data will have <code>outputChannels.length</code> channels.</dd>
+<dd><code>trimStartFrames</code> - The number of audio frames to trim from the start of data written to the
+     sink after this call.</dd>
+<dd><code>trimEndFrames</code> - The number of audio frames to trim from data written to the sink
      immediately preceding the next call to <a href="../../../../../com/google/android/exoplayer2/audio/AudioSink.html#reset--"><code>reset()</code></a> or this method.</dd>
 <dt><span class="throwsLabel">Throws:</span></dt>
 <dd><code><a href="../../../../../com/google/android/exoplayer2/audio/AudioSink.ConfigurationException.html" title="class in com.google.android.exoplayer2.audio">AudioSink.ConfigurationException</a></code> - If an error occurs configuring the sink.</dd>

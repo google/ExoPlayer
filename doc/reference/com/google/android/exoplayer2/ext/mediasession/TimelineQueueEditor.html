@@ -113,10 +113,9 @@ var activeTableTab = "activeTableTab";
 <pre>public final class <span class="typeNameLabel">TimelineQueueEditor</span>
 extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Object.html" target="_top" title="class or interface in java.lang">Object</a>
 implements <a href="../../../../../../com/google/android/exoplayer2/ext/mediasession/MediaSessionConnector.QueueEditor.html" title="interface in com.google.android.exoplayer2.ext.mediasession">MediaSessionConnector.QueueEditor</a>, <a href="../../../../../../com/google/android/exoplayer2/ext/mediasession/MediaSessionConnector.CommandReceiver.html" title="interface in com.google.android.exoplayer2.ext.mediasession">MediaSessionConnector.CommandReceiver</a></pre>
-<div class="block">A <a href="../../../../../../com/google/android/exoplayer2/ext/mediasession/MediaSessionConnector.QueueEditor.html" title="interface in com.google.android.exoplayer2.ext.mediasession"><code>MediaSessionConnector.QueueEditor</code></a> implementation based on the
- <a href="../../../../../../com/google/android/exoplayer2/source/DynamicConcatenatingMediaSource.html" title="class in com.google.android.exoplayer2.source"><code>DynamicConcatenatingMediaSource</code></a>.
- <p>
- This class implements the <a href="../../../../../../com/google/android/exoplayer2/ext/mediasession/MediaSessionConnector.CommandReceiver.html" title="interface in com.google.android.exoplayer2.ext.mediasession"><code>MediaSessionConnector.CommandReceiver</code></a> interface and handles
+<div class="block">A <a href="../../../../../../com/google/android/exoplayer2/ext/mediasession/MediaSessionConnector.QueueEditor.html" title="interface in com.google.android.exoplayer2.ext.mediasession"><code>MediaSessionConnector.QueueEditor</code></a> implementation based on the <a href="../../../../../../com/google/android/exoplayer2/source/ConcatenatingMediaSource.html" title="class in com.google.android.exoplayer2.source"><code>ConcatenatingMediaSource</code></a>.
+
+ <p>This class implements the <a href="../../../../../../com/google/android/exoplayer2/ext/mediasession/MediaSessionConnector.CommandReceiver.html" title="interface in com.google.android.exoplayer2.ext.mediasession"><code>MediaSessionConnector.CommandReceiver</code></a> interface and handles
  the <a href="../../../../../../com/google/android/exoplayer2/ext/mediasession/TimelineQueueEditor.html#COMMAND_MOVE_QUEUE_ITEM"><code>COMMAND_MOVE_QUEUE_ITEM</code></a> to move a queue item instead of removing and inserting it.
  This allows to move the currently playing window without interrupting playback.</div>
 </li>
@@ -199,16 +198,16 @@ implements <a href="../../../../../../com/google/android/exoplayer2/ext/mediases
 <th class="colOne" scope="col">Constructor and Description</th>
 </tr>
 <tr class="altColor">
-<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/ext/mediasession/TimelineQueueEditor.html#TimelineQueueEditor-android.support.v4.media.session.MediaControllerCompat-com.google.android.exoplayer2.source.DynamicConcatenatingMediaSource-com.google.android.exoplayer2.ext.mediasession.TimelineQueueEditor.QueueDataAdapter-com.google.android.exoplayer2.ext.mediasession.TimelineQueueEditor.MediaSourceFactory-">TimelineQueueEditor</a></span>(<a href="https://developer.android.com/reference/android/support.v4.media.session.MediaControllerCompat.html" target="_top" title="class or interface in android">android.support.v4.media.session.MediaControllerCompat</a>&nbsp;mediaController,
-                   <a href="../../../../../../com/google/android/exoplayer2/source/DynamicConcatenatingMediaSource.html" title="class in com.google.android.exoplayer2.source">DynamicConcatenatingMediaSource</a>&nbsp;queueMediaSource,
+<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/ext/mediasession/TimelineQueueEditor.html#TimelineQueueEditor-android.support.v4.media.session.MediaControllerCompat-com.google.android.exoplayer2.source.ConcatenatingMediaSource-com.google.android.exoplayer2.ext.mediasession.TimelineQueueEditor.QueueDataAdapter-com.google.android.exoplayer2.ext.mediasession.TimelineQueueEditor.MediaSourceFactory-">TimelineQueueEditor</a></span>(<a href="https://developer.android.com/reference/android/support.v4.media.session.MediaControllerCompat.html" target="_top" title="class or interface in android">android.support.v4.media.session.MediaControllerCompat</a>&nbsp;mediaController,
+                   <a href="../../../../../../com/google/android/exoplayer2/source/ConcatenatingMediaSource.html" title="class in com.google.android.exoplayer2.source">ConcatenatingMediaSource</a>&nbsp;queueMediaSource,
                    <a href="../../../../../../com/google/android/exoplayer2/ext/mediasession/TimelineQueueEditor.QueueDataAdapter.html" title="interface in com.google.android.exoplayer2.ext.mediasession">TimelineQueueEditor.QueueDataAdapter</a>&nbsp;queueDataAdapter,
                    <a href="../../../../../../com/google/android/exoplayer2/ext/mediasession/TimelineQueueEditor.MediaSourceFactory.html" title="interface in com.google.android.exoplayer2.ext.mediasession">TimelineQueueEditor.MediaSourceFactory</a>&nbsp;sourceFactory)</code>
 <div class="block">Creates a new <a href="../../../../../../com/google/android/exoplayer2/ext/mediasession/TimelineQueueEditor.html" title="class in com.google.android.exoplayer2.ext.mediasession"><code>TimelineQueueEditor</code></a> with a given mediaSourceFactory.</div>
 </td>
 </tr>
 <tr class="rowColor">
-<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/ext/mediasession/TimelineQueueEditor.html#TimelineQueueEditor-android.support.v4.media.session.MediaControllerCompat-com.google.android.exoplayer2.source.DynamicConcatenatingMediaSource-com.google.android.exoplayer2.ext.mediasession.TimelineQueueEditor.QueueDataAdapter-com.google.android.exoplayer2.ext.mediasession.TimelineQueueEditor.MediaSourceFactory-com.google.android.exoplayer2.ext.mediasession.TimelineQueueEditor.MediaDescriptionEqualityChecker-">TimelineQueueEditor</a></span>(<a href="https://developer.android.com/reference/android/support.v4.media.session.MediaControllerCompat.html" target="_top" title="class or interface in android">android.support.v4.media.session.MediaControllerCompat</a>&nbsp;mediaController,
-                   <a href="../../../../../../com/google/android/exoplayer2/source/DynamicConcatenatingMediaSource.html" title="class in com.google.android.exoplayer2.source">DynamicConcatenatingMediaSource</a>&nbsp;queueMediaSource,
+<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/ext/mediasession/TimelineQueueEditor.html#TimelineQueueEditor-android.support.v4.media.session.MediaControllerCompat-com.google.android.exoplayer2.source.ConcatenatingMediaSource-com.google.android.exoplayer2.ext.mediasession.TimelineQueueEditor.QueueDataAdapter-com.google.android.exoplayer2.ext.mediasession.TimelineQueueEditor.MediaSourceFactory-com.google.android.exoplayer2.ext.mediasession.TimelineQueueEditor.MediaDescriptionEqualityChecker-">TimelineQueueEditor</a></span>(<a href="https://developer.android.com/reference/android/support.v4.media.session.MediaControllerCompat.html" target="_top" title="class or interface in android">android.support.v4.media.session.MediaControllerCompat</a>&nbsp;mediaController,
+                   <a href="../../../../../../com/google/android/exoplayer2/source/ConcatenatingMediaSource.html" title="class in com.google.android.exoplayer2.source">ConcatenatingMediaSource</a>&nbsp;queueMediaSource,
                    <a href="../../../../../../com/google/android/exoplayer2/ext/mediasession/TimelineQueueEditor.QueueDataAdapter.html" title="interface in com.google.android.exoplayer2.ext.mediasession">TimelineQueueEditor.QueueDataAdapter</a>&nbsp;queueDataAdapter,
                    <a href="../../../../../../com/google/android/exoplayer2/ext/mediasession/TimelineQueueEditor.MediaSourceFactory.html" title="interface in com.google.android.exoplayer2.ext.mediasession">TimelineQueueEditor.MediaSourceFactory</a>&nbsp;sourceFactory,
                    com.google.android.exoplayer2.ext.mediasession.TimelineQueueEditor.MediaDescriptionEqualityChecker&nbsp;equalityChecker)</code>
@@ -345,7 +344,7 @@ implements <a href="../../../../../../com/google/android/exoplayer2/ext/mediases
 <!--   -->
 </a>
 <h3>Constructor Detail</h3>
-<a name="TimelineQueueEditor-android.support.v4.media.session.MediaControllerCompat-com.google.android.exoplayer2.source.DynamicConcatenatingMediaSource-com.google.android.exoplayer2.ext.mediasession.TimelineQueueEditor.QueueDataAdapter-com.google.android.exoplayer2.ext.mediasession.TimelineQueueEditor.MediaSourceFactory-">
+<a name="TimelineQueueEditor-android.support.v4.media.session.MediaControllerCompat-com.google.android.exoplayer2.source.ConcatenatingMediaSource-com.google.android.exoplayer2.ext.mediasession.TimelineQueueEditor.QueueDataAdapter-com.google.android.exoplayer2.ext.mediasession.TimelineQueueEditor.MediaSourceFactory-">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -354,7 +353,7 @@ implements <a href="../../../../../../com/google/android/exoplayer2/ext/mediases
 <pre>public&nbsp;TimelineQueueEditor(<a href="https://developer.android.com/reference/android/support.annotation.NonNull.html" target="_top" title="class or interface in android">@NonNull</a>
                            <a href="https://developer.android.com/reference/android/support.v4.media.session.MediaControllerCompat.html" target="_top" title="class or interface in android">android.support.v4.media.session.MediaControllerCompat</a>&nbsp;mediaController,
                            <a href="https://developer.android.com/reference/android/support.annotation.NonNull.html" target="_top" title="class or interface in android">@NonNull</a>
-                           <a href="../../../../../../com/google/android/exoplayer2/source/DynamicConcatenatingMediaSource.html" title="class in com.google.android.exoplayer2.source">DynamicConcatenatingMediaSource</a>&nbsp;queueMediaSource,
+                           <a href="../../../../../../com/google/android/exoplayer2/source/ConcatenatingMediaSource.html" title="class in com.google.android.exoplayer2.source">ConcatenatingMediaSource</a>&nbsp;queueMediaSource,
                            <a href="https://developer.android.com/reference/android/support.annotation.NonNull.html" target="_top" title="class or interface in android">@NonNull</a>
                            <a href="../../../../../../com/google/android/exoplayer2/ext/mediasession/TimelineQueueEditor.QueueDataAdapter.html" title="interface in com.google.android.exoplayer2.ext.mediasession">TimelineQueueEditor.QueueDataAdapter</a>&nbsp;queueDataAdapter,
                            <a href="https://developer.android.com/reference/android/support.annotation.NonNull.html" target="_top" title="class or interface in android">@NonNull</a>
@@ -363,14 +362,13 @@ implements <a href="../../../../../../com/google/android/exoplayer2/ext/mediases
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>mediaController</code> - A <a href="https://developer.android.com/reference/android/support.v4.media.session.MediaControllerCompat.html" target="_top" title="class or interface in android"><code>MediaControllerCompat</code></a> to read the current queue.</dd>
-<dd><code>queueMediaSource</code> - The <a href="../../../../../../com/google/android/exoplayer2/source/DynamicConcatenatingMediaSource.html" title="class in com.google.android.exoplayer2.source"><code>DynamicConcatenatingMediaSource</code></a> to
-     manipulate.</dd>
+<dd><code>queueMediaSource</code> - The <a href="../../../../../../com/google/android/exoplayer2/source/ConcatenatingMediaSource.html" title="class in com.google.android.exoplayer2.source"><code>ConcatenatingMediaSource</code></a> to manipulate.</dd>
 <dd><code>queueDataAdapter</code> - A <a href="../../../../../../com/google/android/exoplayer2/ext/mediasession/TimelineQueueEditor.QueueDataAdapter.html" title="interface in com.google.android.exoplayer2.ext.mediasession"><code>TimelineQueueEditor.QueueDataAdapter</code></a> to change the backing data.</dd>
 <dd><code>sourceFactory</code> - The <a href="../../../../../../com/google/android/exoplayer2/ext/mediasession/TimelineQueueEditor.MediaSourceFactory.html" title="interface in com.google.android.exoplayer2.ext.mediasession"><code>TimelineQueueEditor.MediaSourceFactory</code></a> to build media sources.</dd>
 </dl>
 </li>
 </ul>
-<a name="TimelineQueueEditor-android.support.v4.media.session.MediaControllerCompat-com.google.android.exoplayer2.source.DynamicConcatenatingMediaSource-com.google.android.exoplayer2.ext.mediasession.TimelineQueueEditor.QueueDataAdapter-com.google.android.exoplayer2.ext.mediasession.TimelineQueueEditor.MediaSourceFactory-com.google.android.exoplayer2.ext.mediasession.TimelineQueueEditor.MediaDescriptionEqualityChecker-">
+<a name="TimelineQueueEditor-android.support.v4.media.session.MediaControllerCompat-com.google.android.exoplayer2.source.ConcatenatingMediaSource-com.google.android.exoplayer2.ext.mediasession.TimelineQueueEditor.QueueDataAdapter-com.google.android.exoplayer2.ext.mediasession.TimelineQueueEditor.MediaSourceFactory-com.google.android.exoplayer2.ext.mediasession.TimelineQueueEditor.MediaDescriptionEqualityChecker-">
 <!--   -->
 </a>
 <ul class="blockListLast">
@@ -379,7 +377,7 @@ implements <a href="../../../../../../com/google/android/exoplayer2/ext/mediases
 <pre>public&nbsp;TimelineQueueEditor(<a href="https://developer.android.com/reference/android/support.annotation.NonNull.html" target="_top" title="class or interface in android">@NonNull</a>
                            <a href="https://developer.android.com/reference/android/support.v4.media.session.MediaControllerCompat.html" target="_top" title="class or interface in android">android.support.v4.media.session.MediaControllerCompat</a>&nbsp;mediaController,
                            <a href="https://developer.android.com/reference/android/support.annotation.NonNull.html" target="_top" title="class or interface in android">@NonNull</a>
-                           <a href="../../../../../../com/google/android/exoplayer2/source/DynamicConcatenatingMediaSource.html" title="class in com.google.android.exoplayer2.source">DynamicConcatenatingMediaSource</a>&nbsp;queueMediaSource,
+                           <a href="../../../../../../com/google/android/exoplayer2/source/ConcatenatingMediaSource.html" title="class in com.google.android.exoplayer2.source">ConcatenatingMediaSource</a>&nbsp;queueMediaSource,
                            <a href="https://developer.android.com/reference/android/support.annotation.NonNull.html" target="_top" title="class or interface in android">@NonNull</a>
                            <a href="../../../../../../com/google/android/exoplayer2/ext/mediasession/TimelineQueueEditor.QueueDataAdapter.html" title="interface in com.google.android.exoplayer2.ext.mediasession">TimelineQueueEditor.QueueDataAdapter</a>&nbsp;queueDataAdapter,
                            <a href="https://developer.android.com/reference/android/support.annotation.NonNull.html" target="_top" title="class or interface in android">@NonNull</a>
@@ -390,8 +388,7 @@ implements <a href="../../../../../../com/google/android/exoplayer2/ext/mediases
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>mediaController</code> - A <a href="https://developer.android.com/reference/android/support.v4.media.session.MediaControllerCompat.html" target="_top" title="class or interface in android"><code>MediaControllerCompat</code></a> to read the current queue.</dd>
-<dd><code>queueMediaSource</code> - The <a href="../../../../../../com/google/android/exoplayer2/source/DynamicConcatenatingMediaSource.html" title="class in com.google.android.exoplayer2.source"><code>DynamicConcatenatingMediaSource</code></a> to
-     manipulate.</dd>
+<dd><code>queueMediaSource</code> - The <a href="../../../../../../com/google/android/exoplayer2/source/ConcatenatingMediaSource.html" title="class in com.google.android.exoplayer2.source"><code>ConcatenatingMediaSource</code></a> to manipulate.</dd>
 <dd><code>queueDataAdapter</code> - A <a href="../../../../../../com/google/android/exoplayer2/ext/mediasession/TimelineQueueEditor.QueueDataAdapter.html" title="interface in com.google.android.exoplayer2.ext.mediasession"><code>TimelineQueueEditor.QueueDataAdapter</code></a> to change the backing data.</dd>
 <dd><code>sourceFactory</code> - The <a href="../../../../../../com/google/android/exoplayer2/ext/mediasession/TimelineQueueEditor.MediaSourceFactory.html" title="interface in com.google.android.exoplayer2.ext.mediasession"><code>TimelineQueueEditor.MediaSourceFactory</code></a> to build media sources.</dd>
 <dd><code>equalityChecker</code> - The <code>MediaDescriptionEqualityChecker</code> to match queue items.</dd>

@@ -47,7 +47,7 @@ var activeTableTab = "activeTableTab";
 <div class="subNav">
 <ul class="navList">
 <li><a href="../../../../../com/google/android/exoplayer2/audio/AudioSink.WriteException.html" title="class in com.google.android.exoplayer2.audio"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
-<li><a href="../../../../../com/google/android/exoplayer2/audio/DefaultAudioSink.InvalidAudioTrackTimestampException.html" title="class in com.google.android.exoplayer2.audio"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
+<li><a href="../../../../../com/google/android/exoplayer2/audio/DefaultAudioSink.AudioProcessorChain.html" title="interface in com.google.android.exoplayer2.audio"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
 </ul>
 <ul class="navList">
 <li><a href="../../../../../index.html?com/google/android/exoplayer2/audio/DefaultAudioSink.html" target="_top">Frames</a></li>
@@ -139,10 +139,23 @@ implements <a href="../../../../../com/google/android/exoplayer2/audio/AudioSink
 <th class="colLast" scope="col">Class and Description</th>
 </tr>
 <tr class="altColor">
+<td class="colFirst"><code>static interface&nbsp;</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/audio/DefaultAudioSink.AudioProcessorChain.html" title="interface in com.google.android.exoplayer2.audio">DefaultAudioSink.AudioProcessorChain</a></span></code>
+<div class="block">Provides a chain of audio processors, which are used for any user-defined processing and
+ applying playback parameters (if supported).</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>static class&nbsp;</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/audio/DefaultAudioSink.DefaultAudioProcessorChain.html" title="class in com.google.android.exoplayer2.audio">DefaultAudioSink.DefaultAudioProcessorChain</a></span></code>
+<div class="block">The default audio processor chain, which applies a (possibly empty) chain of user-defined audio
+ processors followed by <a href="../../../../../com/google/android/exoplayer2/audio/SilenceSkippingAudioProcessor.html" title="class in com.google.android.exoplayer2.audio"><code>SilenceSkippingAudioProcessor</code></a> and <a href="../../../../../com/google/android/exoplayer2/audio/SonicAudioProcessor.html" title="class in com.google.android.exoplayer2.audio"><code>SonicAudioProcessor</code></a>.</div>
+</td>
+</tr>
+<tr class="altColor">
 <td class="colFirst"><code>static class&nbsp;</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/audio/DefaultAudioSink.InvalidAudioTrackTimestampException.html" title="class in com.google.android.exoplayer2.audio">DefaultAudioSink.InvalidAudioTrackTimestampException</a></span></code>
-<div class="block">Thrown when <a href="https://developer.android.com/reference/android/media/AudioTrack.html?is-external=true#getTimestamp-android.media.AudioTimestamp-" title="class or interface in android.media"><code>AudioTrack.getTimestamp(android.media.AudioTimestamp)</code></a> returns a spurious timestamp, if
- <a href="../../../../../com/google/android/exoplayer2/audio/DefaultAudioSink.html#failOnSpuriousAudioTimestamp"><code>failOnSpuriousAudioTimestamp</code></a> is set.</div>
+<div class="block">Thrown when the audio track has provided a spurious timestamp, if <a href="../../../../../com/google/android/exoplayer2/audio/DefaultAudioSink.html#failOnSpuriousAudioTimestamp"><code>failOnSpuriousAudioTimestamp</code></a> is set.</div>
 </td>
 </tr>
 </table>
@@ -205,12 +218,24 @@ implements <a href="../../../../../com/google/android/exoplayer2/audio/AudioSink
 </tr>
 <tr class="altColor">
 <td class="colOne"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/audio/DefaultAudioSink.html#DefaultAudioSink-com.google.android.exoplayer2.audio.AudioCapabilities-com.google.android.exoplayer2.audio.AudioProcessor:A-">DefaultAudioSink</a></span>(<a href="../../../../../com/google/android/exoplayer2/audio/AudioCapabilities.html" title="class in com.google.android.exoplayer2.audio">AudioCapabilities</a>&nbsp;audioCapabilities,
-                <a href="../../../../../com/google/android/exoplayer2/audio/AudioProcessor.html" title="interface in com.google.android.exoplayer2.audio">AudioProcessor</a>[]&nbsp;audioProcessors)</code>&nbsp;</td>
+                <a href="../../../../../com/google/android/exoplayer2/audio/AudioProcessor.html" title="interface in com.google.android.exoplayer2.audio">AudioProcessor</a>[]&nbsp;audioProcessors)</code>
+<div class="block">Creates a new default audio sink.</div>
+</td>
 </tr>
 <tr class="rowColor">
 <td class="colOne"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/audio/DefaultAudioSink.html#DefaultAudioSink-com.google.android.exoplayer2.audio.AudioCapabilities-com.google.android.exoplayer2.audio.AudioProcessor:A-boolean-">DefaultAudioSink</a></span>(<a href="../../../../../com/google/android/exoplayer2/audio/AudioCapabilities.html" title="class in com.google.android.exoplayer2.audio">AudioCapabilities</a>&nbsp;audioCapabilities,
                 <a href="../../../../../com/google/android/exoplayer2/audio/AudioProcessor.html" title="interface in com.google.android.exoplayer2.audio">AudioProcessor</a>[]&nbsp;audioProcessors,
-                boolean&nbsp;enableConvertHighResIntPcmToFloat)</code>&nbsp;</td>
+                boolean&nbsp;enableConvertHighResIntPcmToFloat)</code>
+<div class="block">Creates a new default audio sink, optionally using float output for high resolution PCM.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/audio/DefaultAudioSink.html#DefaultAudioSink-com.google.android.exoplayer2.audio.AudioCapabilities-com.google.android.exoplayer2.audio.DefaultAudioSink.AudioProcessorChain-boolean-">DefaultAudioSink</a></span>(<a href="../../../../../com/google/android/exoplayer2/audio/AudioCapabilities.html" title="class in com.google.android.exoplayer2.audio">AudioCapabilities</a>&nbsp;audioCapabilities,
+                <a href="../../../../../com/google/android/exoplayer2/audio/DefaultAudioSink.AudioProcessorChain.html" title="interface in com.google.android.exoplayer2.audio">DefaultAudioSink.AudioProcessorChain</a>&nbsp;audioProcessorChain,
+                boolean&nbsp;enableConvertHighResIntPcmToFloat)</code>
+<div class="block">Creates a new default audio sink, optionally using float output for high resolution PCM and
+ with the specified <code>audioProcessorChain</code>.</div>
+</td>
 </tr>
 </table>
 </li>
@@ -234,8 +259,8 @@ implements <a href="../../../../../com/google/android/exoplayer2/audio/AudioSink
          int&nbsp;inputSampleRate,
          int&nbsp;specifiedBufferSize,
          int[]&nbsp;outputChannels,
-         int&nbsp;trimStartSamples,
-         int&nbsp;trimEndSamples)</code>
+         int&nbsp;trimStartFrames,
+         int&nbsp;trimEndFrames)</code>
 <div class="block">Configures (or reconfigures) the sink.</div>
 </td>
 </tr>
@@ -424,6 +449,7 @@ implements <a href="../../../../../com/google/android/exoplayer2/audio/AudioSink
 <pre>public&nbsp;DefaultAudioSink(<a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
                         <a href="../../../../../com/google/android/exoplayer2/audio/AudioCapabilities.html" title="class in com.google.android.exoplayer2.audio">AudioCapabilities</a>&nbsp;audioCapabilities,
                         <a href="../../../../../com/google/android/exoplayer2/audio/AudioProcessor.html" title="interface in com.google.android.exoplayer2.audio">AudioProcessor</a>[]&nbsp;audioProcessors)</pre>
+<div class="block">Creates a new default audio sink.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>audioCapabilities</code> - The audio capabilities for playback on this device. May be null if the
@@ -436,19 +462,45 @@ implements <a href="../../../../../com/google/android/exoplayer2/audio/AudioSink
 <a name="DefaultAudioSink-com.google.android.exoplayer2.audio.AudioCapabilities-com.google.android.exoplayer2.audio.AudioProcessor:A-boolean-">
 <!--   -->
 </a>
-<ul class="blockListLast">
+<ul class="blockList">
 <li class="blockList">
 <h4>DefaultAudioSink</h4>
 <pre>public&nbsp;DefaultAudioSink(<a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
                         <a href="../../../../../com/google/android/exoplayer2/audio/AudioCapabilities.html" title="class in com.google.android.exoplayer2.audio">AudioCapabilities</a>&nbsp;audioCapabilities,
                         <a href="../../../../../com/google/android/exoplayer2/audio/AudioProcessor.html" title="interface in com.google.android.exoplayer2.audio">AudioProcessor</a>[]&nbsp;audioProcessors,
                         boolean&nbsp;enableConvertHighResIntPcmToFloat)</pre>
+<div class="block">Creates a new default audio sink, optionally using float output for high resolution PCM.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>audioCapabilities</code> - The audio capabilities for playback on this device. May be null if the
      default capabilities (no encoded audio passthrough support) should be assumed.</dd>
 <dd><code>audioProcessors</code> - An array of <a href="../../../../../com/google/android/exoplayer2/audio/AudioProcessor.html" title="interface in com.google.android.exoplayer2.audio"><code>AudioProcessor</code></a>s that will process PCM audio before
      output. May be empty.</dd>
+<dd><code>enableConvertHighResIntPcmToFloat</code> - Whether to enable conversion of high resolution
+     integer PCM to 32-bit float for output, if possible. Functionality that uses 16-bit integer
+     audio processing (for example, speed and pitch adjustment) will not be available when float
+     output is in use.</dd>
+</dl>
+</li>
+</ul>
+<a name="DefaultAudioSink-com.google.android.exoplayer2.audio.AudioCapabilities-com.google.android.exoplayer2.audio.DefaultAudioSink.AudioProcessorChain-boolean-">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>DefaultAudioSink</h4>
+<pre>public&nbsp;DefaultAudioSink(<a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
+                        <a href="../../../../../com/google/android/exoplayer2/audio/AudioCapabilities.html" title="class in com.google.android.exoplayer2.audio">AudioCapabilities</a>&nbsp;audioCapabilities,
+                        <a href="../../../../../com/google/android/exoplayer2/audio/DefaultAudioSink.AudioProcessorChain.html" title="interface in com.google.android.exoplayer2.audio">DefaultAudioSink.AudioProcessorChain</a>&nbsp;audioProcessorChain,
+                        boolean&nbsp;enableConvertHighResIntPcmToFloat)</pre>
+<div class="block">Creates a new default audio sink, optionally using float output for high resolution PCM and
+ with the specified <code>audioProcessorChain</code>.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>audioCapabilities</code> - The audio capabilities for playback on this device. May be null if the
+     default capabilities (no encoded audio passthrough support) should be assumed.</dd>
+<dd><code>audioProcessorChain</code> - An <a href="../../../../../com/google/android/exoplayer2/audio/DefaultAudioSink.AudioProcessorChain.html" title="interface in com.google.android.exoplayer2.audio"><code>DefaultAudioSink.AudioProcessorChain</code></a> which is used to apply playback
+     parameters adjustments. The instance passed in must not be reused in other sinks.</dd>
 <dd><code>enableConvertHighResIntPcmToFloat</code> - Whether to enable conversion of high resolution
      integer PCM to 32-bit float for output, if possible. Functionality that uses 16-bit integer
      audio processing (for example, speed and pitch adjustment) will not be available when float
@@ -532,8 +584,8 @@ implements <a href="../../../../../com/google/android/exoplayer2/audio/AudioSink
                       int&nbsp;specifiedBufferSize,
                       <a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
                       int[]&nbsp;outputChannels,
-                      int&nbsp;trimStartSamples,
-                      int&nbsp;trimEndSamples)
+                      int&nbsp;trimStartFrames,
+                      int&nbsp;trimEndFrames)
                throws <a href="../../../../../com/google/android/exoplayer2/audio/AudioSink.ConfigurationException.html" title="class in com.google.android.exoplayer2.audio">AudioSink.ConfigurationException</a></pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/audio/AudioSink.html#configure-int-int-int-int-int:A-int-int-">AudioSink</a></code></span></div>
 <div class="block">Configures (or reconfigures) the sink.</div>
@@ -549,11 +601,11 @@ implements <a href="../../../../../com/google/android/exoplayer2/audio/AudioSink
 <dd><code>outputChannels</code> - A mapping from input to output channels that is applied to this sink's
      input as a preprocessing step, if handling PCM input. Specify <code>null</code> to leave the
      input unchanged. Otherwise, the element at index <code>i</code> specifies index of the input
-     channel to map to output channel <code>i</code> when preprocessing input buffers. After the
-     map is applied the audio data will have <code>outputChannels.length</code> channels.</dd>
-<dd><code>trimStartSamples</code> - The number of audio samples to trim from the start of data written to
-     the sink after this call.</dd>
-<dd><code>trimEndSamples</code> - The number of audio samples to trim from data written to the sink
+     channel to map to output channel <code>i</code> when preprocessing input buffers. After the map
+     is applied the audio data will have <code>outputChannels.length</code> channels.</dd>
+<dd><code>trimStartFrames</code> - The number of audio frames to trim from the start of data written to the
+     sink after this call.</dd>
+<dd><code>trimEndFrames</code> - The number of audio frames to trim from data written to the sink
      immediately preceding the next call to <a href="../../../../../com/google/android/exoplayer2/audio/AudioSink.html#reset--"><code>AudioSink.reset()</code></a> or this method.</dd>
 <dt><span class="throwsLabel">Throws:</span></dt>
 <dd><code><a href="../../../../../com/google/android/exoplayer2/audio/AudioSink.ConfigurationException.html" title="class in com.google.android.exoplayer2.audio">AudioSink.ConfigurationException</a></code> - If an error occurs configuring the sink.</dd>
@@ -871,7 +923,7 @@ implements <a href="../../../../../com/google/android/exoplayer2/audio/AudioSink
 <div class="subNav">
 <ul class="navList">
 <li><a href="../../../../../com/google/android/exoplayer2/audio/AudioSink.WriteException.html" title="class in com.google.android.exoplayer2.audio"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
-<li><a href="../../../../../com/google/android/exoplayer2/audio/DefaultAudioSink.InvalidAudioTrackTimestampException.html" title="class in com.google.android.exoplayer2.audio"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
+<li><a href="../../../../../com/google/android/exoplayer2/audio/DefaultAudioSink.AudioProcessorChain.html" title="interface in com.google.android.exoplayer2.audio"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
 </ul>
 <ul class="navList">
 <li><a href="../../../../../index.html?com/google/android/exoplayer2/audio/DefaultAudioSink.html" target="_top">Frames</a></li>

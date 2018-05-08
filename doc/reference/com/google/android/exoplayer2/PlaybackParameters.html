@@ -130,7 +130,8 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 <tr class="altColor">
 <td class="colFirst"><code>static <a href="../../../../com/google/android/exoplayer2/PlaybackParameters.html" title="class in com.google.android.exoplayer2">PlaybackParameters</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/PlaybackParameters.html#DEFAULT">DEFAULT</a></span></code>
-<div class="block">The default playback parameters: real-time playback with no pitch modification.</div>
+<div class="block">The default playback parameters: real-time playback with no pitch modification or silence
+ skipping.</div>
 </td>
 </tr>
 <tr class="rowColor">
@@ -140,6 +141,12 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 </td>
 </tr>
 <tr class="altColor">
+<td class="colFirst"><code>boolean</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/PlaybackParameters.html#skipSilence">skipSilence</a></span></code>
+<div class="block">Whether to skip silence in the input.</div>
+</td>
+</tr>
+<tr class="rowColor">
 <td class="colFirst"><code>float</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/PlaybackParameters.html#speed">speed</a></span></code>
 <div class="block">The factor by which playback will be sped up.</div>
@@ -160,9 +167,22 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 <th class="colOne" scope="col">Constructor and Description</th>
 </tr>
 <tr class="altColor">
+<td class="colOne"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/PlaybackParameters.html#PlaybackParameters-float-">PlaybackParameters</a></span>(float&nbsp;speed)</code>
+<div class="block">Creates new playback parameters that set the playback speed.</div>
+</td>
+</tr>
+<tr class="rowColor">
 <td class="colOne"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/PlaybackParameters.html#PlaybackParameters-float-float-">PlaybackParameters</a></span>(float&nbsp;speed,
                   float&nbsp;pitch)</code>
-<div class="block">Creates new playback parameters.</div>
+<div class="block">Creates new playback parameters that set the playback speed and audio pitch scaling factor.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colOne"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/PlaybackParameters.html#PlaybackParameters-float-float-boolean-">PlaybackParameters</a></span>(float&nbsp;speed,
+                  float&nbsp;pitch,
+                  boolean&nbsp;skipSilence)</code>
+<div class="block">Creates new playback parameters that set the playback speed, audio pitch scaling factor and
+ whether to skip silence in the audio stream.</div>
 </td>
 </tr>
 </table>
@@ -224,7 +244,8 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 <li class="blockList">
 <h4>DEFAULT</h4>
 <pre>public static final&nbsp;<a href="../../../../com/google/android/exoplayer2/PlaybackParameters.html" title="class in com.google.android.exoplayer2">PlaybackParameters</a> DEFAULT</pre>
-<div class="block">The default playback parameters: real-time playback with no pitch modification.</div>
+<div class="block">The default playback parameters: real-time playback with no pitch modification or silence
+ skipping.</div>
 </li>
 </ul>
 <a name="speed">
@@ -240,11 +261,21 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 <a name="pitch">
 <!--   -->
 </a>
-<ul class="blockListLast">
+<ul class="blockList">
 <li class="blockList">
 <h4>pitch</h4>
 <pre>public final&nbsp;float pitch</pre>
 <div class="block">The factor by which the audio pitch will be scaled.</div>
+</li>
+</ul>
+<a name="skipSilence">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>skipSilence</h4>
+<pre>public final&nbsp;boolean skipSilence</pre>
+<div class="block">Whether to skip silence in the input.</div>
 </li>
 </ul>
 </li>
@@ -255,19 +286,52 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 <!--   -->
 </a>
 <h3>Constructor Detail</h3>
+<a name="PlaybackParameters-float-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>PlaybackParameters</h4>
+<pre>public&nbsp;PlaybackParameters(float&nbsp;speed)</pre>
+<div class="block">Creates new playback parameters that set the playback speed.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>speed</code> - The factor by which playback will be sped up. Must be greater than zero.</dd>
+</dl>
+</li>
+</ul>
 <a name="PlaybackParameters-float-float-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>PlaybackParameters</h4>
+<pre>public&nbsp;PlaybackParameters(float&nbsp;speed,
+                          float&nbsp;pitch)</pre>
+<div class="block">Creates new playback parameters that set the playback speed and audio pitch scaling factor.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>speed</code> - The factor by which playback will be sped up. Must be greater than zero.</dd>
+<dd><code>pitch</code> - The factor by which the audio pitch will be scaled. Must be greater than zero.</dd>
+</dl>
+</li>
+</ul>
+<a name="PlaybackParameters-float-float-boolean-">
 <!--   -->
 </a>
 <ul class="blockListLast">
 <li class="blockList">
 <h4>PlaybackParameters</h4>
 <pre>public&nbsp;PlaybackParameters(float&nbsp;speed,
-                          float&nbsp;pitch)</pre>
-<div class="block">Creates new playback parameters.</div>
+                          float&nbsp;pitch,
+                          boolean&nbsp;skipSilence)</pre>
+<div class="block">Creates new playback parameters that set the playback speed, audio pitch scaling factor and
+ whether to skip silence in the audio stream.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>speed</code> - The factor by which playback will be sped up. Must be greater than zero.</dd>
 <dd><code>pitch</code> - The factor by which the audio pitch will be scaled. Must be greater than zero.</dd>
+<dd><code>skipSilence</code> - Whether to skip silences in the audio stream.</dd>
 </dl>
 </li>
 </ul>
