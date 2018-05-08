@@ -160,8 +160,9 @@ public class HlsMediaPlaylistParserTest {
         new ByteArrayInputStream(playlistString.getBytes(Charset.forName(C.UTF8_NAME)));
     HlsMediaPlaylist playlist =
         (HlsMediaPlaylist) new HlsPlaylistParser().parse(playlistUri, inputStream);
-    assertThat(playlist.drmInitData.schemeType).isEqualTo(C.CENC_TYPE_cbcs);
-    assertThat(playlist.drmInitData.get(0).matches(C.WIDEVINE_UUID)).isTrue();
+    assertThat(playlist.segments.get(0).drmInitData).isNull();
+    assertThat(playlist.segments.get(1).drmInitData.schemeType).isEqualTo(C.CENC_TYPE_cbcs);
+    assertThat(playlist.segments.get(1).drmInitData.get(0).matches(C.WIDEVINE_UUID)).isTrue();
   }
 
   @Test
@@ -184,8 +185,9 @@ public class HlsMediaPlaylistParserTest {
         new ByteArrayInputStream(playlistString.getBytes(Charset.forName(C.UTF8_NAME)));
     HlsMediaPlaylist playlist =
         (HlsMediaPlaylist) new HlsPlaylistParser().parse(playlistUri, inputStream);
-    assertThat(playlist.drmInitData.schemeType).isEqualTo(C.CENC_TYPE_cenc);
-    assertThat(playlist.drmInitData.get(0).matches(C.WIDEVINE_UUID)).isTrue();
+    assertThat(playlist.segments.get(0).drmInitData).isNull();
+    assertThat(playlist.segments.get(1).drmInitData.schemeType).isEqualTo(C.CENC_TYPE_cenc);
+    assertThat(playlist.segments.get(1).drmInitData.get(0).matches(C.WIDEVINE_UUID)).isTrue();
   }
 
   @Test
@@ -208,8 +210,46 @@ public class HlsMediaPlaylistParserTest {
         new ByteArrayInputStream(playlistString.getBytes(Charset.forName(C.UTF8_NAME)));
     HlsMediaPlaylist playlist =
         (HlsMediaPlaylist) new HlsPlaylistParser().parse(playlistUri, inputStream);
-    assertThat(playlist.drmInitData.schemeType).isEqualTo(C.CENC_TYPE_cenc);
-    assertThat(playlist.drmInitData.get(0).matches(C.WIDEVINE_UUID)).isTrue();
+    assertThat(playlist.segments.get(0).drmInitData).isNull();
+    assertThat(playlist.segments.get(1).drmInitData.schemeType).isEqualTo(C.CENC_TYPE_cenc);
+    assertThat(playlist.segments.get(1).drmInitData.get(0).matches(C.WIDEVINE_UUID)).isTrue();
+  }
+
+  @Test
+  public void testParseMultipleEncryptionsMethod() throws Exception {
+    Uri playlistUri = Uri.parse("https://example.com/test.m3u8");
+    String playlistString =
+        "#EXTM3U\n"
+            + "#EXT-X-MEDIA-SEQUENCE:0\n"
+            + "#EXTINF:8,\n"
+            + "https://priv.example.com/1.ts\n"
+            + "\n"
+            + "#EXT-X-KEY:URI=\"data:text/plain;base64,VGhpcyBpcyBhbiBlYXN0ZXIgZWdn\","
+            + "IV=0x9358382AEB449EE23C3D809DA0B9CCD3,KEYFORMATVERSIONS=\"1\","
+            + "KEYFORMAT=\"urn:uuid:edef8ba9-79d6-4ace-a3c8-27dcd51d21ed\","
+            + "IV=0x1566B,METHOD=SAMPLE-AES-CENC \n"
+            + "#EXTINF:8,\n"
+            + "https://priv.example.com/2.ts\n"
+            + "#EXT-X-KEY:METHOD=NONE\n"
+            + "#EXTINF:8,\n"
+            + "https://priv.example.com/3.ts\n"
+            + "#EXT-X-KEY:URI=\"data:text/plain;base64,VGhpcyBpcyBhbiBlYXN0ZXIgZWdn\","
+            + "IV=0x9358382AEB449EE23C3D809DA0B9CCD3,KEYFORMATVERSIONS=\"1\","
+            + "KEYFORMAT=\"urn:uuid:edef8ba9-79d6-4ace-a3c8-27dcd51d21ed\","
+            + "IV=0x1566B,METHOD=SAMPLE-AES-CENC \n"
+            + "#EXTINF:8,\n"
+            + "https://priv.example.com/4.ts\n"
+            + "#EXT-X-ENDLIST\n";
+    InputStream inputStream =
+        new ByteArrayInputStream(playlistString.getBytes(Charset.forName(C.UTF8_NAME)));
+    HlsMediaPlaylist playlist =
+        (HlsMediaPlaylist) new HlsPlaylistParser().parse(playlistUri, inputStream);
+    assertThat(playlist.segments.get(0).drmInitData).isNull();
+    assertThat(playlist.segments.get(1).drmInitData.schemeType).isEqualTo(C.CENC_TYPE_cenc);
+    assertThat(playlist.segments.get(1).drmInitData.get(0).matches(C.WIDEVINE_UUID)).isTrue();
+    assertThat(playlist.segments.get(2).drmInitData).isNull();
+    assertThat(playlist.segments.get(3).drmInitData.schemeType).isEqualTo(C.CENC_TYPE_cenc);
+    assertThat(playlist.segments.get(3).drmInitData.get(0).matches(C.WIDEVINE_UUID)).isTrue();
   }
 
   @Test
