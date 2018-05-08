@@ -36,7 +36,6 @@ public final class LoopingMediaSource extends CompositeMediaSource<Void> {
   private final int loopCount;
 
   private int childPeriodCount;
-  private Listener listener;
 
   /**
    * Loops the provided source indefinitely. Note that it is usually better to use
@@ -61,9 +60,8 @@ public final class LoopingMediaSource extends CompositeMediaSource<Void> {
   }
 
   @Override
-  public void prepareSource(ExoPlayer player, boolean isTopLevelSource, final Listener listener) {
-    super.prepareSource(player, isTopLevelSource, listener);
-    this.listener = listener;
+  public void prepareSourceInternal(ExoPlayer player, boolean isTopLevelSource) {
+    super.prepareSourceInternal(player, isTopLevelSource);
     prepareChildSource(/* id= */ null, childSource);
   }
 
@@ -81,9 +79,8 @@ public final class LoopingMediaSource extends CompositeMediaSource<Void> {
   }
 
   @Override
-  public void releaseSource() {
-    super.releaseSource();
-    listener = null;
+  public void releaseSourceInternal() {
+    super.releaseSourceInternal();
     childPeriodCount = 0;
   }
 
@@ -95,7 +92,7 @@ public final class LoopingMediaSource extends CompositeMediaSource<Void> {
         loopCount != Integer.MAX_VALUE
             ? new LoopingTimeline(timeline, loopCount)
             : new InfinitelyLoopingTimeline(timeline);
-    listener.onSourceInfoRefreshed(this, loopingTimeline, manifest);
+    refreshSourceInfo(loopingTimeline, manifest);
   }
 
   private static final class LoopingTimeline extends AbstractConcatenatedTimeline {

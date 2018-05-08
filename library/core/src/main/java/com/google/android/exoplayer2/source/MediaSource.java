@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.source;
 
+import android.os.Handler;
 import android.support.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlayer;
@@ -25,25 +26,26 @@ import java.io.IOException;
 /**
  * Defines and provides media to be played by an {@link ExoPlayer}. A MediaSource has two main
  * responsibilities:
+ *
  * <ul>
  *   <li>To provide the player with a {@link Timeline} defining the structure of its media, and to
- *   provide a new timeline whenever the structure of the media changes. The MediaSource provides
- *   these timelines by calling {@link Listener#onSourceInfoRefreshed} on the {@link Listener}
- *   passed to {@link #prepareSource(ExoPlayer, boolean, Listener)}.</li>
+ *       provide a new timeline whenever the structure of the media changes. The MediaSource
+ *       provides these timelines by calling {@link SourceInfoRefreshListener#onSourceInfoRefreshed}
+ *       on the {@link SourceInfoRefreshListener}s passed to {@link #prepareSource(ExoPlayer,
+ *       boolean, SourceInfoRefreshListener)}.
  *   <li>To provide {@link MediaPeriod} instances for the periods in its timeline. MediaPeriods are
- *   obtained by calling {@link #createPeriod(MediaPeriodId, Allocator)}, and provide a way for the
- *   player to load and read the media.</li>
+ *       obtained by calling {@link #createPeriod(MediaPeriodId, Allocator)}, and provide a way for
+ *       the player to load and read the media.
  * </ul>
- * All methods are called on the player's internal playback thread, as described in the
- * {@link ExoPlayer} Javadoc. They should not be called directly from application code. Instances
- * should not be re-used, meaning they should be passed to {@link ExoPlayer#prepare} at most once.
+ *
+ * All methods are called on the player's internal playback thread, as described in the {@link
+ * ExoPlayer} Javadoc. They should not be called directly from application code. Instances can be
+ * re-used, but only for one {@link ExoPlayer} instance simultaneously.
  */
 public interface MediaSource {
 
-  /**
-   * Listener for source events.
-   */
-  interface Listener {
+  /** Listener for source events. */
+  interface SourceInfoRefreshListener {
 
     /**
      * Called when manifest and/or timeline has been refreshed.
@@ -170,21 +172,43 @@ public interface MediaSource {
 
   }
 
-  String MEDIA_SOURCE_REUSED_ERROR_MESSAGE = "MediaSource instances are not allowed to be reused.";
+  /**
+   * Adds a {@link MediaSourceEventListener} to the list of listeners which are notified of media
+   * source events.
+   *
+   * @param handler A handler on the which listener events will be posted.
+   * @param eventListener The listener to be added.
+   */
+  void addEventListener(Handler handler, MediaSourceEventListener eventListener);
 
   /**
-   * Starts preparation of the source.
-   * <p>
-   * Should not be called directly from application code.
+   * Removes a {@link MediaSourceEventListener} from the list of listeners which are notified of
+   * media source events.
+   *
+   * @param eventListener The listener to be removed.
+   */
+  void removeEventListener(MediaSourceEventListener eventListener);
+
+  /**
+   * Starts source preparation if not yet started, and adds a listener for timeline and/or manifest
+   * updates.
+   *
+   * <p>Should not be called directly from application code.
+   *
+   * <p>The listener will be also be notified if the source already has a timeline and/or manifest.
+   *
+   * <p>For each call to this method, a call to {@link #releaseSource(SourceInfoRefreshListener)} is
+   * needed to remove the listener and to release the source if no longer required.
    *
    * @param player The player for which this source is being prepared.
-   * @param isTopLevelSource Whether this source has been passed directly to
-   *     {@link ExoPlayer#prepare(MediaSource)} or
-   *     {@link ExoPlayer#prepare(MediaSource, boolean, boolean)}. If {@code false}, this source is
-   *     being prepared by another source (e.g. {@link ConcatenatingMediaSource}) for composition.
-   * @param listener The listener for source events.
+   * @param isTopLevelSource Whether this source has been passed directly to {@link
+   *     ExoPlayer#prepare(MediaSource)} or {@link ExoPlayer#prepare(MediaSource, boolean,
+   *     boolean)}. If {@code false}, this source is being prepared by another source (e.g. {@link
+   *     ConcatenatingMediaSource}) for composition.
+   * @param listener The listener to be added.
    */
-  void prepareSource(ExoPlayer player, boolean isTopLevelSource, Listener listener);
+  void prepareSource(
+      ExoPlayer player, boolean isTopLevelSource, SourceInfoRefreshListener listener);
 
   /**
    * Throws any pending error encountered while loading or refreshing source information.
@@ -216,10 +240,12 @@ public interface MediaSource {
   void releasePeriod(MediaPeriod mediaPeriod);
 
   /**
-   * Releases the source.
-   * <p>
-   * Should not be called directly from application code.
+   * Removes a listener for timeline and/or manifest updates and releases the source if no longer
+   * required.
+   *
+   * <p>Should not be called directly from application code.
+   *
+   * @param listener The listener to be removed.
    */
-  void releaseSource();
-
+  void releaseSource(SourceInfoRefreshListener listener);
 }

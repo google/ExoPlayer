@@ -92,6 +92,8 @@ public final class Metadata implements Parcelable {
     return Arrays.hashCode(entries);
   }
 
+  // Parcelable implementation.
+
   @Override
   public int describeContents() {
     return 0;

@@ -19,6 +19,7 @@ import android.support.annotation.IntDef;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.audio.Ac3Util;
+import com.google.android.exoplayer2.audio.Ac3Util.SyncFrameInfo;
 import com.google.android.exoplayer2.extractor.ExtractorOutput;
 import com.google.android.exoplayer2.extractor.TrackOutput;
 import com.google.android.exoplayer2.extractor.ts.TsPayloadReader.TrackIdGenerator;
@@ -187,7 +188,7 @@ public final class Ac3Reader implements ElementaryStreamReader {
   @SuppressWarnings("ReferenceEquality")
   private void parseHeader() {
     headerScratchBits.setPosition(0);
-    Ac3Util.Ac3SyncFrameInfo frameInfo = Ac3Util.parseAc3SyncframeInfo(headerScratchBits);
+    SyncFrameInfo frameInfo = Ac3Util.parseAc3SyncframeInfo(headerScratchBits);
     if (format == null || frameInfo.channelCount != format.channelCount
         || frameInfo.sampleRate != format.sampleRate
         || frameInfo.mimeType != format.sampleMimeType) {

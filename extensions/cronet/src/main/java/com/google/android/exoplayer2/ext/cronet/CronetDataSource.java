@@ -280,6 +280,7 @@ public class CronetDataSource extends UrlRequest.Callback implements HttpDataSou
             new SocketTimeoutException(), dataSpec, getStatus(currentUrlRequest));
       }
     } catch (InterruptedException e) {
+      Thread.currentThread().interrupt();
       throw new OpenException(new InterruptedIOException(e), dataSpec, Status.INVALID);
     }
 
@@ -352,17 +353,18 @@ public class CronetDataSource extends UrlRequest.Callback implements HttpDataSou
         if (!operation.block(readTimeoutMs)) {
           throw new SocketTimeoutException();
         }
-      } catch (InterruptedException | SocketTimeoutException e) {
-        // If we're timing out or getting interrupted, the operation is still ongoing.
-        // So we'll need to replace readBuffer to avoid the possibility of it being written to by
-        // this operation during a subsequent request.
+      } catch (InterruptedException e) {
+        // The operation is ongoing so replace readBuffer to avoid it being written to by this
+        // operation during a subsequent request.
         readBuffer = null;
+        Thread.currentThread().interrupt();
         throw new HttpDataSourceException(
-            e instanceof InterruptedException
-                ? new InterruptedIOException((InterruptedException) e)
-                : (SocketTimeoutException) e,
-            currentDataSpec,
-            HttpDataSourceException.TYPE_READ);
+            new InterruptedIOException(e), currentDataSpec, HttpDataSourceException.TYPE_READ);
+      } catch (SocketTimeoutException e) {
+        // The operation is ongoing so replace readBuffer to avoid it being written to by this
+        // operation during a subsequent request.
+        readBuffer = null;
+        throw new HttpDataSourceException(e, currentDataSpec, HttpDataSourceException.TYPE_READ);
       }
 
       if (exception != null) {

@@ -141,6 +141,78 @@ public class HlsMediaPlaylistParserTest {
   }
 
   @Test
+  public void testParseSampleAesMethod() throws Exception {
+    Uri playlistUri = Uri.parse("https://example.com/test.m3u8");
+    String playlistString =
+        "#EXTM3U\n"
+            + "#EXT-X-MEDIA-SEQUENCE:0\n"
+            + "#EXTINF:8,\n"
+            + "https://priv.example.com/1.ts\n"
+            + "\n"
+            + "#EXT-X-KEY:METHOD=SAMPLE-AES,URI="
+            + "\"data:text/plain;base64,VGhpcyBpcyBhbiBlYXN0ZXIgZWdn\","
+            + "IV=0x9358382AEB449EE23C3D809DA0B9CCD3,KEYFORMATVERSIONS=\"1\","
+            + "KEYFORMAT=\"com.widevine\",IV=0x1566B\n"
+            + "#EXTINF:8,\n"
+            + "https://priv.example.com/2.ts\n"
+            + "#EXT-X-ENDLIST\n";
+    InputStream inputStream =
+        new ByteArrayInputStream(playlistString.getBytes(Charset.forName(C.UTF8_NAME)));
+    HlsMediaPlaylist playlist =
+        (HlsMediaPlaylist) new HlsPlaylistParser().parse(playlistUri, inputStream);
+    assertThat(playlist.drmInitData.schemeType).isEqualTo(C.CENC_TYPE_cbcs);
+    assertThat(playlist.drmInitData.get(0).matches(C.WIDEVINE_UUID)).isTrue();
+  }
+
+  @Test
+  public void testParseSampleAesCencMethod() throws Exception {
+    Uri playlistUri = Uri.parse("https://example.com/test.m3u8");
+    String playlistString =
+        "#EXTM3U\n"
+            + "#EXT-X-MEDIA-SEQUENCE:0\n"
+            + "#EXTINF:8,\n"
+            + "https://priv.example.com/1.ts\n"
+            + "\n"
+            + "#EXT-X-KEY:URI=\"data:text/plain;base64,VGhpcyBpcyBhbiBlYXN0ZXIgZWdn\","
+            + "IV=0x9358382AEB449EE23C3D809DA0B9CCD3,KEYFORMATVERSIONS=\"1\","
+            + "KEYFORMAT=\"urn:uuid:edef8ba9-79d6-4ace-a3c8-27dcd51d21ed\","
+            + "IV=0x1566B,METHOD=SAMPLE-AES-CENC \n"
+            + "#EXTINF:8,\n"
+            + "https://priv.example.com/2.ts\n"
+            + "#EXT-X-ENDLIST\n";
+    InputStream inputStream =
+        new ByteArrayInputStream(playlistString.getBytes(Charset.forName(C.UTF8_NAME)));
+    HlsMediaPlaylist playlist =
+        (HlsMediaPlaylist) new HlsPlaylistParser().parse(playlistUri, inputStream);
+    assertThat(playlist.drmInitData.schemeType).isEqualTo(C.CENC_TYPE_cenc);
+    assertThat(playlist.drmInitData.get(0).matches(C.WIDEVINE_UUID)).isTrue();
+  }
+
+  @Test
+  public void testParseSampleAesCtrMethod() throws Exception {
+    Uri playlistUri = Uri.parse("https://example.com/test.m3u8");
+    String playlistString =
+        "#EXTM3U\n"
+            + "#EXT-X-MEDIA-SEQUENCE:0\n"
+            + "#EXTINF:8,\n"
+            + "https://priv.example.com/1.ts\n"
+            + "\n"
+            + "#EXT-X-KEY:METHOD=SAMPLE-AES-CTR,URI="
+            + "\"data:text/plain;base64,VGhpcyBpcyBhbiBlYXN0ZXIgZWdn\","
+            + "IV=0x9358382AEB449EE23C3D809DA0B9CCD3,KEYFORMATVERSIONS=\"1\","
+            + "KEYFORMAT=\"com.widevine\",IV=0x1566B\n"
+            + "#EXTINF:8,\n"
+            + "https://priv.example.com/2.ts\n"
+            + "#EXT-X-ENDLIST\n";
+    InputStream inputStream =
+        new ByteArrayInputStream(playlistString.getBytes(Charset.forName(C.UTF8_NAME)));
+    HlsMediaPlaylist playlist =
+        (HlsMediaPlaylist) new HlsPlaylistParser().parse(playlistUri, inputStream);
+    assertThat(playlist.drmInitData.schemeType).isEqualTo(C.CENC_TYPE_cenc);
+    assertThat(playlist.drmInitData.get(0).matches(C.WIDEVINE_UUID)).isTrue();
+  }
+
+  @Test
   public void testGapTag() throws IOException {
     Uri playlistUri = Uri.parse("https://example.com/test2.m3u8");
     String playlistString =
@@ -174,5 +246,36 @@ public class HlsMediaPlaylistParserTest {
     assertThat(playlist.segments.get(1).hasGapTag).isFalse();
     assertThat(playlist.segments.get(2).hasGapTag).isTrue();
     assertThat(playlist.segments.get(3).hasGapTag).isFalse();
+  }
+
+  @Test
+  public void testMapTag() throws IOException {
+    Uri playlistUri = Uri.parse("https://example.com/test3.m3u8");
+    String playlistString =
+        "#EXTM3U\n"
+            + "#EXT-X-VERSION:3\n"
+            + "#EXT-X-TARGETDURATION:5\n"
+            + "#EXT-X-MEDIA-SEQUENCE:10\n"
+            + "#EXTINF:5.005,\n"
+            + "02/00/27.ts\n"
+            + "#EXT-X-MAP:URI=\"init1.ts\""
+            + "#EXTINF:5.005,\n"
+            + "02/00/32.ts\n"
+            + "#EXTINF:5.005,\n"
+            + "02/00/42.ts\n"
+            + "#EXT-X-MAP:URI=\"init2.ts\""
+            + "#EXTINF:5.005,\n"
+            + "02/00/47.ts\n";
+    InputStream inputStream =
+        new ByteArrayInputStream(playlistString.getBytes(Charset.forName(C.UTF8_NAME)));
+    HlsMediaPlaylist playlist =
+        (HlsMediaPlaylist) new HlsPlaylistParser().parse(playlistUri, inputStream);
+
+    List<Segment> segments = playlist.segments;
+    assertThat(segments.get(0).initializationSegment).isNull();
+    assertThat(segments.get(1).initializationSegment)
+        .isSameAs(segments.get(2).initializationSegment);
+    assertThat(segments.get(1).initializationSegment.url).isEqualTo("init1.ts");
+    assertThat(segments.get(3).initializationSegment.url).isEqualTo("init2.ts");
   }
 }

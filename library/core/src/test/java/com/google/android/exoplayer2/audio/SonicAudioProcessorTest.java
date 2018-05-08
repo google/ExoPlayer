@@ -94,6 +94,7 @@ public final class SonicAudioProcessorTest {
   public void testIsActiveWithSpeedChange() throws Exception {
     sonicAudioProcessor.setSpeed(1.5f);
     sonicAudioProcessor.configure(44100, 2, C.ENCODING_PCM_16BIT);
+    sonicAudioProcessor.flush();
     assertThat(sonicAudioProcessor.isActive()).isTrue();
   }
 
@@ -101,6 +102,7 @@ public final class SonicAudioProcessorTest {
   public void testIsActiveWithPitchChange() throws Exception {
     sonicAudioProcessor.setPitch(1.5f);
     sonicAudioProcessor.configure(44100, 2, C.ENCODING_PCM_16BIT);
+    sonicAudioProcessor.flush();
     assertThat(sonicAudioProcessor.isActive()).isTrue();
   }
 

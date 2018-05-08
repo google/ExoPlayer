@@ -127,6 +127,7 @@ public class LibvpxVideoRenderer extends BaseRenderer {
 
   private Bitmap bitmap;
   private boolean renderedFirstFrame;
+  private long initialPositionUs;
   private long joiningDeadlineMs;
   private Surface surface;
   private VpxOutputBufferRenderer outputBufferRenderer;
@@ -168,8 +169,15 @@ public class LibvpxVideoRenderer extends BaseRenderer {
   public LibvpxVideoRenderer(boolean scaleToFit, long allowedJoiningTimeMs,
       Handler eventHandler, VideoRendererEventListener eventListener,
       int maxDroppedFramesToNotify) {
-    this(scaleToFit, allowedJoiningTimeMs, eventHandler, eventListener, maxDroppedFramesToNotify,
-        null, false, false);
+    this(
+        scaleToFit,
+        allowedJoiningTimeMs,
+        eventHandler,
+        eventListener,
+        maxDroppedFramesToNotify,
+        /* drmSessionManager= */ null,
+        /* playClearSamplesWithoutKeys= */ false,
+        /* disableLoopFilter= */ false);
   }
 
   /**
@@ -303,6 +311,7 @@ public class LibvpxVideoRenderer extends BaseRenderer {
     inputStreamEnded = false;
     outputStreamEnded = false;
     clearRenderedFirstFrame();
+    initialPositionUs = C.TIME_UNSET;
     consecutiveDroppedFrameCount = 0;
     if (decoder != null) {
       flushDecoder();
@@ -809,6 +818,10 @@ public class LibvpxVideoRenderer extends BaseRenderer {
    */
   private boolean processOutputBuffer(long positionUs, long elapsedRealtimeUs)
       throws ExoPlaybackException {
+    if (initialPositionUs == C.TIME_UNSET) {
+      initialPositionUs = positionUs;
+    }
+
     long earlyUs = outputBuffer.timeUs - positionUs;
     if (outputMode == VpxDecoder.OUTPUT_MODE_NONE) {
       // Skip frames in sync with playback, so we'll be at the right frame if the mode changes.
@@ -828,7 +841,7 @@ public class LibvpxVideoRenderer extends BaseRenderer {
       return true;
     }
 
-    if (!isStarted) {
+    if (!isStarted || positionUs == initialPositionUs) {
       return false;
     }
 

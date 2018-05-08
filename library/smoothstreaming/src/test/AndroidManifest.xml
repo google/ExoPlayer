@@ -14,9 +14,4 @@
      limitations under the License.
 -->
 
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.google.android.exoplayer2.source.smoothstreaming.test">
-
-  <uses-sdk android:minSdkVersion="14" android:targetSdkVersion="26"/>
-
-</manifest>
+<manifest package="com.google.android.exoplayer2.source.smoothstreaming.test"/>

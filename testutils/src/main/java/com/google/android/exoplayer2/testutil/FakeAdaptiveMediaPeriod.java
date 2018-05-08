@@ -35,7 +35,6 @@ import java.util.List;
 public class FakeAdaptiveMediaPeriod extends FakeMediaPeriod
     implements SequenceableLoader.Callback<ChunkSampleStream<FakeChunkSource>> {
 
-  private final EventDispatcher eventDispatcher;
   private final Allocator allocator;
   private final FakeChunkSource.Factory chunkSourceFactory;
   private final long durationUs;
@@ -50,8 +49,7 @@ public class FakeAdaptiveMediaPeriod extends FakeMediaPeriod
       Allocator allocator,
       FakeChunkSource.Factory chunkSourceFactory,
       long durationUs) {
-    super(trackGroupArray);
-    this.eventDispatcher = eventDispatcher;
+    super(trackGroupArray, eventDispatcher);
     this.allocator = allocator;
     this.chunkSourceFactory = chunkSourceFactory;
     this.durationUs = durationUs;
@@ -60,10 +58,10 @@ public class FakeAdaptiveMediaPeriod extends FakeMediaPeriod
 
   @Override
   public void release() {
-    super.release();
     for (ChunkSampleStream<FakeChunkSource> sampleStream : sampleStreams) {
       sampleStream.release();
     }
+    super.release();
   }
 
   @Override

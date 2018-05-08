@@ -17,14 +17,10 @@ package com.google.android.exoplayer2.trackselection;
 
 import java.util.Arrays;
 
-/**
- * The result of a {@link TrackSelector} operation.
- */
+/** An array of {@link TrackSelection}s. */
 public final class TrackSelectionArray {
 
-  /**
-   * The number of selections in the result. Greater than or equal to zero.
-   */
+  /** The length of this array. */
   public final int length;
 
   private final TrackSelection[] trackSelections;

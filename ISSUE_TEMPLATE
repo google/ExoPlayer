@@ -38,4 +38,6 @@ devices and Android versions.
 Capture a full bug report using "adb bugreport". Output from "adb logcat" or a
 log snippet is NOT sufficient. Please attach the captured bug report as a file.
 If you don't wish to post it publicly, please submit the issue, then email the
-bug report to dev.exoplayer@gmail.com using a subject in the format "Issue #1234".
+bug report to dev.exoplayer@gmail.com using a subject in the format
+"Issue #1234".
+

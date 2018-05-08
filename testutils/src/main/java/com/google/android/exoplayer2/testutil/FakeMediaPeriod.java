@@ -17,50 +17,64 @@ package com.google.android.exoplayer2.testutil;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import android.net.Uri;
 import android.os.Handler;
+import android.os.SystemClock;
 import android.support.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.SeekParameters;
 import com.google.android.exoplayer2.source.MediaPeriod;
+import com.google.android.exoplayer2.source.MediaSourceEventListener.EventDispatcher;
 import com.google.android.exoplayer2.source.SampleStream;
 import com.google.android.exoplayer2.source.TrackGroup;
 import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.trackselection.TrackSelection;
+import com.google.android.exoplayer2.upstream.DataSpec;
 import java.io.IOException;
 
 /**
  * Fake {@link MediaPeriod} that provides tracks from the given {@link TrackGroupArray}. Selecting
- * tracks will give the player {@link FakeSampleStream}s.
+ * tracks will give the player {@link FakeSampleStream}s. Loading data completes immediately after
+ * the period has finished preparing.
  */
 public class FakeMediaPeriod implements MediaPeriod {
 
+  public static final DataSpec FAKE_DATA_SPEC = new DataSpec(Uri.parse("http://fake.uri"));
+
   private final TrackGroupArray trackGroupArray;
+  protected final EventDispatcher eventDispatcher;
 
   @Nullable private Handler playerHandler;
   @Nullable private Callback prepareCallback;
 
   private boolean deferOnPrepared;
+  private boolean notifiedReadingStarted;
   private boolean prepared;
   private long seekOffsetUs;
   private long discontinuityPositionUs;
 
   /**
    * @param trackGroupArray The track group array.
+   * @param eventDispatcher A dispatcher for media source events.
    */
-  public FakeMediaPeriod(TrackGroupArray trackGroupArray) {
-    this(trackGroupArray, false);
+  public FakeMediaPeriod(TrackGroupArray trackGroupArray, EventDispatcher eventDispatcher) {
+    this(trackGroupArray, eventDispatcher, /* deferOnPrepared */ false);
   }
 
   /**
    * @param trackGroupArray The track group array.
+   * @param eventDispatcher A dispatcher for media source events.
    * @param deferOnPrepared Whether {@link MediaPeriod.Callback#onPrepared(MediaPeriod)} should be
    *     called only after {@link #setPreparationComplete()} has been called. If {@code false}
    *     preparation completes immediately.
    */
-  public FakeMediaPeriod(TrackGroupArray trackGroupArray, boolean deferOnPrepared) {
+  public FakeMediaPeriod(
+      TrackGroupArray trackGroupArray, EventDispatcher eventDispatcher, boolean deferOnPrepared) {
     this.trackGroupArray = trackGroupArray;
+    this.eventDispatcher = eventDispatcher;
     this.deferOnPrepared = deferOnPrepared;
     discontinuityPositionUs = C.TIME_UNSET;
+    eventDispatcher.mediaPeriodCreated();
   }
 
   /**
@@ -79,13 +93,13 @@ public class FakeMediaPeriod implements MediaPeriod {
   public synchronized void setPreparationComplete() {
     deferOnPrepared = false;
     if (playerHandler != null && prepareCallback != null) {
-      playerHandler.post(new Runnable() {
-        @Override
-        public void run() {
-          prepared = true;
-          prepareCallback.onPrepared(FakeMediaPeriod.this);
-        }
-      });
+      playerHandler.post(
+          new Runnable() {
+            @Override
+            public void run() {
+              finishPreparation();
+            }
+          });
     }
   }
 
@@ -100,16 +114,26 @@ public class FakeMediaPeriod implements MediaPeriod {
 
   public void release() {
     prepared = false;
+    eventDispatcher.mediaPeriodReleased();
   }
 
   @Override
   public synchronized void prepare(Callback callback, long positionUs) {
+    eventDispatcher.loadStarted(
+        FAKE_DATA_SPEC,
+        C.DATA_TYPE_MEDIA,
+        C.TRACK_TYPE_UNKNOWN,
+        /* trackFormat= */ null,
+        C.SELECTION_REASON_UNKNOWN,
+        /* trackSelectionData= */ null,
+        /* mediaStartTimeUs= */ 0,
+        /* mediaEndTimeUs = */ C.TIME_UNSET,
+        SystemClock.elapsedRealtime());
+    prepareCallback = callback;
     if (deferOnPrepared) {
       playerHandler = new Handler();
-      prepareCallback = callback;
     } else {
-      prepared = true;
-      callback.onPrepared(this);
+      finishPreparation();
     }
   }
 
@@ -161,6 +185,10 @@ public class FakeMediaPeriod implements MediaPeriod {
   @Override
   public long readDiscontinuity() {
     assertThat(prepared).isTrue();
+    if (!notifiedReadingStarted) {
+      eventDispatcher.readingStarted();
+      notifiedReadingStarted = true;
+    }
     long positionDiscontinuityUs = this.discontinuityPositionUs;
     this.discontinuityPositionUs = C.TIME_UNSET;
     return positionDiscontinuityUs;
@@ -191,12 +219,28 @@ public class FakeMediaPeriod implements MediaPeriod {
 
   @Override
   public boolean continueLoading(long positionUs) {
-    assertThat(prepared).isTrue();
     return false;
   }
 
   protected SampleStream createSampleStream(TrackSelection selection) {
-    return new FakeSampleStream(selection.getSelectedFormat());
+    return new FakeSampleStream(
+        selection.getSelectedFormat(), eventDispatcher, /* shouldOutputSample= */ true);
   }
 
+  private void finishPreparation() {
+    prepared = true;
+    prepareCallback.onPrepared(this);
+    eventDispatcher.loadCompleted(
+        FAKE_DATA_SPEC,
+        C.DATA_TYPE_MEDIA,
+        C.TRACK_TYPE_UNKNOWN,
+        /* trackFormat= */ null,
+        C.SELECTION_REASON_UNKNOWN,
+        /* trackSelectionData= */ null,
+        /* mediaStartTimeUs= */ 0,
+        /* mediaEndTimeUs = */ C.TIME_UNSET,
+        SystemClock.elapsedRealtime(),
+        /* loadDurationMs= */ 0,
+        /* bytesLoaded= */ 100);
+  }
 }

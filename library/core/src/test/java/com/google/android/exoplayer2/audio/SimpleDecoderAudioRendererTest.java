@@ -92,7 +92,7 @@ public class SimpleDecoderAudioRendererTest {
     audioRenderer.enable(
         RendererConfiguration.DEFAULT,
         new Format[] {FORMAT},
-        new FakeSampleStream(FORMAT, false),
+        new FakeSampleStream(FORMAT, /* eventDispatcher= */ null, /* shouldOutputSample= */ false),
         0,
         false,
         0);

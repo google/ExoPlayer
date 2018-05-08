@@ -67,6 +67,13 @@ public final class CommentFrame extends Id3Frame {
   }
 
   @Override
+  public String toString() {
+    return id + ": language=" + language + ", description=" + description;
+  }
+
+  // Parcelable implementation.
+
+  @Override
   public void writeToParcel(Parcel dest, int flags) {
     dest.writeString(id);
     dest.writeString(language);

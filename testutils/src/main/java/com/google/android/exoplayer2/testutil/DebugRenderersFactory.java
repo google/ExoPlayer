@@ -42,9 +42,8 @@ import java.util.ArrayList;
 @TargetApi(16)
 public class DebugRenderersFactory extends DefaultRenderersFactory {
 
-  public DebugRenderersFactory(Context context,
-      DrmSessionManager<FrameworkMediaCrypto> drmSessionManager) {
-    super(context, drmSessionManager, DefaultRenderersFactory.EXTENSION_RENDERER_MODE_OFF, 0);
+  public DebugRenderersFactory(Context context) {
+    super(context, DefaultRenderersFactory.EXTENSION_RENDERER_MODE_OFF, 0);
   }
 
   @Override
