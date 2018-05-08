@@ -146,6 +146,15 @@ public final class CastPlayer implements Player {
     pendingSeekWindowIndex = C.INDEX_UNSET;
     pendingSeekPositionMs = C.TIME_UNSET;
     updateInternalState();
+
+    if (remoteMediaClient != null) {
+      try {
+        remoteMediaClient.addListener(statusListener);
+        remoteMediaClient.addProgressListener(statusListener, PROGRESS_REPORT_PERIOD_MS);
+        updateInternalState();
+      } catch (NullPointerException ignored) {
+      }
+    }
   }
 
   // Media Queue manipulation methods.
@@ -160,7 +169,9 @@ public final class CastPlayer implements Player {
    * @return The Cast {@code PendingResult}, or null if no session is available.
    */
   public PendingResult<MediaChannelResult> loadItem(MediaQueueItem item, long positionMs) {
-    return loadItems(new MediaQueueItem[] {item}, 0, positionMs, REPEAT_MODE_OFF);
+    pendingSeekWindowIndex = 0;
+    currentWindowIndex = 0;
+    return loadItems(new MediaQueueItem[]{item}, 0, positionMs, REPEAT_MODE_OFF);
   }
 
   /**
@@ -179,9 +190,12 @@ public final class CastPlayer implements Player {
     if (remoteMediaClient != null) {
       positionMs = positionMs != C.TIME_UNSET ? positionMs : 0;
       waitingForInitialTimeline = true;
+      pendingSeekWindowIndex = startIndex;
+      currentWindowIndex = startIndex;
       return remoteMediaClient.queueLoad(items, startIndex, getCastRepeatMode(repeatMode),
           positionMs, null);
     }
+
     return null;
   }
 
@@ -500,7 +514,8 @@ public final class CastPlayer implements Player {
   @Override
   public long getDuration() {
     return currentTimeline.isEmpty() ? C.TIME_UNSET
-        : currentTimeline.getWindow(getCurrentWindowIndex(), window).getDurationMs();
+        : currentTimeline.getWindow(getCurrentWindowIndex() < 0 ? 0 : getCurrentWindowIndex(),
+            window).getDurationMs();
   }
 
   @Override
@@ -529,13 +544,15 @@ public final class CastPlayer implements Player {
   @Override
   public boolean isCurrentWindowDynamic() {
     return !currentTimeline.isEmpty()
-        && currentTimeline.getWindow(getCurrentWindowIndex(), window).isDynamic;
+        && currentTimeline
+        .getWindow(getCurrentWindowIndex() < 0 ? 0 : getCurrentWindowIndex(), window).isDynamic;
   }
 
   @Override
   public boolean isCurrentWindowSeekable() {
     return !currentTimeline.isEmpty()
-        && currentTimeline.getWindow(getCurrentWindowIndex(), window).isSeekable;
+        && currentTimeline
+        .getWindow(getCurrentWindowIndex() < 0 ? 0 : getCurrentWindowIndex(), window).isSeekable;
   }
 
   @Override
@@ -748,12 +765,12 @@ public final class CastPlayer implements Player {
 
   /**
    * Retrieves the current item index from {@code mediaStatus} and maps it into a window index. If
-   * there is no media session, returns 0.
+   * there is no media session, returns -1.
    */
   private static int fetchCurrentWindowIndex(@Nullable MediaStatus mediaStatus) {
     Integer currentItemId = mediaStatus != null
         ? mediaStatus.getIndexById(mediaStatus.getCurrentItemId()) : null;
-    return currentItemId != null ? currentItemId : 0;
+    return currentItemId != null ? currentItemId : -1;
   }
 
   private static boolean isTrackActive(long id, long[] activeTrackIds) {
@@ -804,7 +821,8 @@ public final class CastPlayer implements Player {
     }
 
     @Override
-    public void onMetadataUpdated() {}
+    public void onMetadataUpdated() {
+    }
 
     @Override
     public void onQueueStatusUpdated() {
@@ -819,7 +837,6 @@ public final class CastPlayer implements Player {
 
     @Override
     public void onAdBreakStatusUpdated() {}
-
 
     // SessionManagerListener implementation.
 
