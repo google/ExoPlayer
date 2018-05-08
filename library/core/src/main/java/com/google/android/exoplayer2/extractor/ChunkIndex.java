@@ -16,6 +16,7 @@
 package com.google.android.exoplayer2.extractor;
 
 import com.google.android.exoplayer2.util.Util;
+import java.util.Arrays;
 
 /**
  * Defines chunks of samples within a media stream.
@@ -102,4 +103,19 @@ public final class ChunkIndex implements SeekMap {
     }
   }
 
+  @Override
+  public String toString() {
+    return "ChunkIndex("
+        + "length="
+        + length
+        + ", sizes="
+        + Arrays.toString(sizes)
+        + ", offsets="
+        + Arrays.toString(offsets)
+        + ", timeUs="
+        + Arrays.toString(timesUs)
+        + ", durationsUs="
+        + Arrays.toString(durationsUs)
+        + ")";
+  }
 }

@@ -89,7 +89,7 @@ import com.google.android.gms.cast.MediaTrack;
       case CastStatusCodes.UNKNOWN_ERROR:
         return "An unknown, unexpected error has occurred.";
       default:
-        return "Unknown: " + statusCode;
+        return CastStatusCodes.getStatusCodeString(statusCode);
     }
   }
 

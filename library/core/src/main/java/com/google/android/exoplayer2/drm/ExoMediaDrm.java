@@ -15,13 +15,13 @@
  */
 package com.google.android.exoplayer2.drm;
 
-import android.annotation.TargetApi;
 import android.media.DeniedByServerException;
 import android.media.MediaCryptoException;
 import android.media.MediaDrm;
 import android.media.MediaDrmException;
 import android.media.NotProvisionedException;
 import android.os.Handler;
+import android.support.annotation.Nullable;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -30,7 +30,6 @@ import java.util.UUID;
 /**
  * Used to obtain keys for decrypting protected media streams. See {@link android.media.MediaDrm}.
  */
-@TargetApi(18)
 public interface ExoMediaDrm<T extends ExoMediaCrypto> {
 
   /**
@@ -72,14 +71,18 @@ public interface ExoMediaDrm<T extends ExoMediaCrypto> {
     /**
      * Called when an event occurs that requires the app to be notified
      *
-     * @param mediaDrm the {@link ExoMediaDrm} object on which the event occurred.
-     * @param sessionId the DRM session ID on which the event occurred
-     * @param event indicates the event type
-     * @param extra an secondary error code
-     * @param data optional byte array of data that may be associated with the event
+     * @param mediaDrm The {@link ExoMediaDrm} object on which the event occurred.
+     * @param sessionId The DRM session ID on which the event occurred.
+     * @param event Indicates the event type.
+     * @param extra A secondary error code.
+     * @param data Optional byte array of data that may be associated with the event.
      */
-    void onEvent(ExoMediaDrm<? extends T> mediaDrm, byte[] sessionId, int event, int extra,
-        byte[] data);
+    void onEvent(
+        ExoMediaDrm<? extends T> mediaDrm,
+        byte[] sessionId,
+        int event,
+        int extra,
+        @Nullable byte[] data);
   }
 
   /**
@@ -90,20 +93,25 @@ public interface ExoMediaDrm<T extends ExoMediaCrypto> {
      * Called when the keys in a session change status, such as when the license is renewed or
      * expires.
      *
-     * @param mediaDrm the {@link ExoMediaDrm} object on which the event occurred.
-     * @param sessionId the DRM session ID on which the event occurred.
-     * @param exoKeyInfo a list of {@link KeyStatus} that contains key ID and status.
-     * @param hasNewUsableKey true if new key becomes usable.
+     * @param mediaDrm The {@link ExoMediaDrm} object on which the event occurred.
+     * @param sessionId The DRM session ID on which the event occurred.
+     * @param exoKeyInformation A list of {@link KeyStatus} that contains key ID and status.
+     * @param hasNewUsableKey Whether a new key became usable.
      */
-    void onKeyStatusChange(ExoMediaDrm<? extends T> mediaDrm, byte[] sessionId,
-                           List<KeyStatus> exoKeyInfo, boolean hasNewUsableKey);
+    void onKeyStatusChange(
+        ExoMediaDrm<? extends T> mediaDrm,
+        byte[] sessionId,
+        List<KeyStatus> exoKeyInformation,
+        boolean hasNewUsableKey);
   }
 
   /**
    * @see android.media.MediaDrm.KeyStatus
    */
   interface KeyStatus {
+    /** Returns the status code for the key. */
     int getStatusCode();
+    /** Returns the id for the key. */
     byte[] getKeyId();
   }
 
@@ -218,15 +226,16 @@ public interface ExoMediaDrm<T extends ExoMediaCrypto> {
    */
   void closeSession(byte[] sessionId);
 
-  /**
-   * @see MediaDrm#getKeyRequest(byte[], byte[], String, int, HashMap)
-   */
-  KeyRequest getKeyRequest(byte[] scope, byte[] init, String mimeType, int keyType,
-      HashMap<String, String> optionalParameters) throws NotProvisionedException;
+  /** @see MediaDrm#getKeyRequest(byte[], byte[], String, int, HashMap) */
+  KeyRequest getKeyRequest(
+      byte[] scope,
+      byte[] init,
+      String mimeType,
+      int keyType,
+      HashMap<String, String> optionalParameters)
+      throws NotProvisionedException;
 
-  /**
-   * @see MediaDrm#provideKeyResponse(byte[], byte[])
-   */
+  /** @see MediaDrm#provideKeyResponse(byte[], byte[]) */
   byte[] provideKeyResponse(byte[] scope, byte[] response)
       throws NotProvisionedException, DeniedByServerException;
 

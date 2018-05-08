@@ -62,6 +62,13 @@ public final class TextInformationFrame extends Id3Frame {
   }
 
   @Override
+  public String toString() {
+    return id + ": value=" + value;
+  }
+
+  // Parcelable implementation.
+
+  @Override
   public void writeToParcel(Parcel dest, int flags) {
     dest.writeString(id);
     dest.writeString(description);

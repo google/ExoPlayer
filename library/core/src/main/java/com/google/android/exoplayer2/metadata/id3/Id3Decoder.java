@@ -53,6 +53,16 @@ public final class Id3Decoder implements MetadataDecoder {
 
   }
 
+  /** A predicate that indicates no frames should be decoded. */
+  public static final FramePredicate NO_FRAMES_PREDICATE =
+      new FramePredicate() {
+
+        @Override
+        public boolean evaluate(int majorVersion, int id0, int id1, int id2, int id3) {
+          return false;
+        }
+      };
+
   private static final String TAG = "Id3Decoder";
 
   /**
@@ -518,7 +528,7 @@ public final class Id3Decoder implements MetadataDecoder {
     if (majorVersion == 2) {
       mimeTypeEndIndex = 2;
       mimeType = "image/" + Util.toLowerInvariant(new String(data, 0, 3, "ISO-8859-1"));
-      if (mimeType.equals("image/jpg")) {
+      if ("image/jpg".equals(mimeType)) {
         mimeType = "image/jpeg";
       }
     } else {

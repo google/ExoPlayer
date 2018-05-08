@@ -40,7 +40,7 @@ public class DefaultMediaClockTest {
   private static final long TEST_POSITION_US = 123456789012345678L;
   private static final long SLEEP_TIME_MS = 1_000;
   private static final PlaybackParameters TEST_PLAYBACK_PARAMETERS =
-      new PlaybackParameters(2.0f, 1.0f);
+      new PlaybackParameters(/* speed= */ 2f);
 
   @Mock private PlaybackParameterListener listener;
   private FakeClock fakeClock;

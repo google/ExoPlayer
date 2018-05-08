@@ -16,6 +16,7 @@
 package com.google.android.exoplayer2.source.hls;
 
 import android.os.Handler;
+import android.support.annotation.IntDef;
 import android.util.Log;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
@@ -43,6 +44,8 @@ import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.Util;
 import java.io.IOException;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 import java.util.ArrayList;
 import java.util.Arrays;
 
@@ -72,6 +75,14 @@ import java.util.Arrays;
   }
 
   private static final String TAG = "HlsSampleStreamWrapper";
+
+  public static final int SAMPLE_QUEUE_INDEX_PENDING = -1;
+  public static final int SAMPLE_QUEUE_INDEX_NO_MAPPING_FATAL = -2;
+  public static final int SAMPLE_QUEUE_INDEX_NO_MAPPING_NON_FATAL = -3;
+
+  @Retention(RetentionPolicy.SOURCE)
+  @IntDef({PRIMARY_TYPE_NONE, PRIMARY_TYPE_TEXT, PRIMARY_TYPE_AUDIO, PRIMARY_TYPE_VIDEO})
+  private @interface PrimaryTrackType {}
 
   private static final int PRIMARY_TYPE_NONE = 0;
   private static final int PRIMARY_TYPE_TEXT = 1;
@@ -107,6 +118,7 @@ import java.util.Arrays;
   // Tracks are complicated in HLS. See documentation of buildTracks for details.
   // Indexed by track (as exposed by this source).
   private TrackGroupArray trackGroups;
+  private TrackGroupArray optionalTrackGroups;
   // Indexed by track group.
   private int[] trackGroupToSampleQueueIndex;
   private int primaryTrackGroupIndex;
@@ -182,13 +194,18 @@ import java.util.Arrays;
   /**
    * Prepares the sample stream wrapper with master playlist information.
    *
-   * @param trackGroups This {@link TrackGroupArray} to expose.
+   * @param trackGroups The {@link TrackGroupArray} to expose.
    * @param primaryTrackGroupIndex The index of the adaptive track group.
+   * @param optionalTrackGroups A subset of {@code trackGroups} that should not trigger a failure if
+   *     not found in the media playlist's segments.
    */
   public void prepareWithMasterPlaylistInfo(
-      TrackGroupArray trackGroups, int primaryTrackGroupIndex) {
+      TrackGroupArray trackGroups,
+      int primaryTrackGroupIndex,
+      TrackGroupArray optionalTrackGroups) {
     prepared = true;
     this.trackGroups = trackGroups;
+    this.optionalTrackGroups = optionalTrackGroups;
     this.primaryTrackGroupIndex = primaryTrackGroupIndex;
     callback.onPrepared();
   }
@@ -201,21 +218,19 @@ import java.util.Arrays;
     return trackGroups;
   }
 
-  public boolean isMappingFinished() {
-    return trackGroupToSampleQueueIndex != null;
-  }
-
   public int bindSampleQueueToSampleStream(int trackGroupIndex) {
-    if (!isMappingFinished()) {
-      return C.INDEX_UNSET;
+    if (trackGroupToSampleQueueIndex == null) {
+      return SAMPLE_QUEUE_INDEX_PENDING;
     }
     int sampleQueueIndex = trackGroupToSampleQueueIndex[trackGroupIndex];
     if (sampleQueueIndex == C.INDEX_UNSET) {
-      return C.INDEX_UNSET;
+      return optionalTrackGroups.indexOf(trackGroups.get(trackGroupIndex)) == C.INDEX_UNSET
+          ? SAMPLE_QUEUE_INDEX_NO_MAPPING_FATAL
+          : SAMPLE_QUEUE_INDEX_NO_MAPPING_NON_FATAL;
     }
     if (sampleQueuesEnabledStates[sampleQueueIndex]) {
       // This sample queue is already bound to a different sample stream.
-      return C.INDEX_UNSET;
+      return SAMPLE_QUEUE_INDEX_NO_MAPPING_FATAL;
     }
     sampleQueuesEnabledStates[sampleQueueIndex] = true;
     return sampleQueueIndex;
@@ -407,8 +422,8 @@ import java.util.Arrays;
     chunkSource.setIsTimestampMaster(isTimestampMaster);
   }
 
-  public void onPlaylistBlacklisted(HlsUrl url, long blacklistMs) {
-    chunkSource.onPlaylistBlacklisted(url, blacklistMs);
+  public boolean onPlaylistError(HlsUrl url, boolean shouldBlacklist) {
+    return chunkSource.onPlaylistError(url, shouldBlacklist);
   }
 
   // SampleStream implementation.
@@ -583,8 +598,8 @@ import java.util.Arrays;
   }
 
   @Override
-  public int onLoadError(Chunk loadable, long elapsedRealtimeMs, long loadDurationMs,
-      IOException error) {
+  public @Loader.RetryAction int onLoadError(
+      Chunk loadable, long elapsedRealtimeMs, long loadDurationMs, IOException error) {
     long bytesLoaded = loadable.bytesLoaded();
     boolean isMediaChunk = isMediaChunk(loadable);
     boolean cancelable = !isMediaChunk || bytesLoaded == 0;
@@ -773,7 +788,7 @@ import java.util.Arrays;
       mapSampleQueuesToMatchTrackGroups();
     } else {
       // Tracks are created using media segment information.
-      buildTracks();
+      buildTracksFromSampleStreams();
       prepared = true;
       callback.onPrepared();
     }
@@ -797,41 +812,42 @@ import java.util.Arrays;
   /**
    * Builds tracks that are exposed by this {@link HlsSampleStreamWrapper} instance, as well as
    * internal data-structures required for operation.
-   * <p>
-   * Tracks in HLS are complicated. A HLS master playlist contains a number of "variants". Each
+   *
+   * <p>Tracks in HLS are complicated. A HLS master playlist contains a number of "variants". Each
    * variant stream typically contains muxed video, audio and (possibly) additional audio, metadata
    * and caption tracks. We wish to allow the user to select between an adaptive track that spans
    * all variants, as well as each individual variant. If multiple audio tracks are present within
    * each variant then we wish to allow the user to select between those also.
-   * <p>
-   * To do this, tracks are constructed as follows. The {@link HlsChunkSource} exposes (N+1) tracks,
-   * where N is the number of variants defined in the HLS master playlist. These consist of one
-   * adaptive track defined to span all variants and a track for each individual variant. The
+   *
+   * <p>To do this, tracks are constructed as follows. The {@link HlsChunkSource} exposes (N+1)
+   * tracks, where N is the number of variants defined in the HLS master playlist. These consist of
+   * one adaptive track defined to span all variants and a track for each individual variant. The
    * adaptive track is initially selected. The extractor is then prepared to discover the tracks
    * inside of each variant stream. The two sets of tracks are then combined by this method to
    * create a third set, which is the set exposed by this {@link HlsSampleStreamWrapper}:
+   *
    * <ul>
-   * <li>The extractor tracks are inspected to infer a "primary" track type. If a video track is
-   * present then it is always the primary type. If not, audio is the primary type if present.
-   * Else text is the primary type if present. Else there is no primary type.</li>
-   * <li>If there is exactly one extractor track of the primary type, it's expanded into (N+1)
-   * exposed tracks, all of which correspond to the primary extractor track and each of which
-   * corresponds to a different chunk source track. Selecting one of these tracks has the effect
-   * of switching the selected track on the chunk source.</li>
-   * <li>All other extractor tracks are exposed directly. Selecting one of these tracks has the
-   * effect of selecting an extractor track, leaving the selected track on the chunk source
-   * unchanged.</li>
+   *   <li>The extractor tracks are inspected to infer a "primary" track type. If a video track is
+   *       present then it is always the primary type. If not, audio is the primary type if present.
+   *       Else text is the primary type if present. Else there is no primary type.
+   *   <li>If there is exactly one extractor track of the primary type, it's expanded into (N+1)
+   *       exposed tracks, all of which correspond to the primary extractor track and each of which
+   *       corresponds to a different chunk source track. Selecting one of these tracks has the
+   *       effect of switching the selected track on the chunk source.
+   *   <li>All other extractor tracks are exposed directly. Selecting one of these tracks has the
+   *       effect of selecting an extractor track, leaving the selected track on the chunk source
+   *       unchanged.
    * </ul>
    */
-  private void buildTracks() {
+  private void buildTracksFromSampleStreams() {
     // Iterate through the extractor tracks to discover the "primary" track type, and the index
     // of the single track of this type.
-    int primaryExtractorTrackType = PRIMARY_TYPE_NONE;
+    @PrimaryTrackType int primaryExtractorTrackType = PRIMARY_TYPE_NONE;
     int primaryExtractorTrackIndex = C.INDEX_UNSET;
     int extractorTrackCount = sampleQueues.length;
     for (int i = 0; i < extractorTrackCount; i++) {
       String sampleMimeType = sampleQueues[i].getUpstreamFormat().sampleMimeType;
-      int trackType;
+      @PrimaryTrackType int trackType;
       if (MimeTypes.isVideo(sampleMimeType)) {
         trackType = PRIMARY_TYPE_VIDEO;
       } else if (MimeTypes.isAudio(sampleMimeType)) {
@@ -880,6 +896,8 @@ import java.util.Arrays;
       }
     }
     this.trackGroups = new TrackGroupArray(trackGroups);
+    Assertions.checkState(optionalTrackGroups == null);
+    optionalTrackGroups = TrackGroupArray.EMPTY;
   }
 
   private HlsMediaChunk getLastMediaChunk() {

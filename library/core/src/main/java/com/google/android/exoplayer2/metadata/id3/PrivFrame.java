@@ -63,6 +63,12 @@ public final class PrivFrame extends Id3Frame {
   }
 
   @Override
+  public String toString() {
+    return id + ": owner=" + owner;
+  }
+  // Parcelable implementation.
+
+  @Override
   public void writeToParcel(Parcel dest, int flags) {
     dest.writeString(owner);
     dest.writeByteArray(privateData);

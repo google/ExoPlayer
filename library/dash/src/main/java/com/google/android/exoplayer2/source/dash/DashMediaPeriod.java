@@ -79,6 +79,7 @@ import java.util.List;
   private DashManifest manifest;
   private int periodIndex;
   private List<EventStream> eventStreams;
+  private boolean notifiedReadingStarted;
 
   public DashMediaPeriod(
       int id,
@@ -114,6 +115,7 @@ import java.util.List;
         eventStreams);
     trackGroups = result.first;
     trackGroupInfos = result.second;
+    eventDispatcher.mediaPeriodCreated();
   }
 
   /**
@@ -148,6 +150,7 @@ import java.util.List;
     for (ChunkSampleStream<DashChunkSource> sampleStream : sampleStreams) {
       sampleStream.release(this);
     }
+    eventDispatcher.mediaPeriodReleased();
   }
 
   // ChunkSampleStream.ReleaseCallback implementation.
@@ -325,6 +328,10 @@ import java.util.List;
 
   @Override
   public long readDiscontinuity() {
+    if (!notifiedReadingStarted) {
+      eventDispatcher.readingStarted();
+      notifiedReadingStarted = true;
+    }
     return C.TIME_UNSET;
   }
 

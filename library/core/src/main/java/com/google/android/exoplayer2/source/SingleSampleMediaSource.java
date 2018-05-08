@@ -21,7 +21,6 @@ import android.support.annotation.Nullable;
 import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.Timeline;
-import com.google.android.exoplayer2.source.MediaSourceEventListener.EventDispatcher;
 import com.google.android.exoplayer2.upstream.Allocator;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DataSpec;
@@ -31,7 +30,7 @@ import java.io.IOException;
 /**
  * Loads data at a given {@link Uri} as a single sample belonging to a single {@link MediaPeriod}.
  */
-public final class SingleSampleMediaSource implements MediaSource {
+public final class SingleSampleMediaSource extends BaseMediaSource {
 
   /**
    * Listener of {@link SingleSampleMediaSource} events.
@@ -59,6 +58,7 @@ public final class SingleSampleMediaSource implements MediaSource {
     private int minLoadableRetryCount;
     private boolean treatLoadErrorsAsEndOfStream;
     private boolean isCreateCalled;
+    private @Nullable Object tag;
 
     /**
      * Creates a factory for {@link SingleSampleMediaSource}s.
@@ -69,6 +69,20 @@ public final class SingleSampleMediaSource implements MediaSource {
     public Factory(DataSource.Factory dataSourceFactory) {
       this.dataSourceFactory = Assertions.checkNotNull(dataSourceFactory);
       this.minLoadableRetryCount = DEFAULT_MIN_LOADABLE_RETRY_COUNT;
+    }
+
+    /**
+     * Sets a tag for the media source which will be published in the {@link Timeline} of the source
+     * as {@link Timeline.Window#tag}.
+     *
+     * @param tag A tag for the media source.
+     * @return This factory, for convenience.
+     * @throws IllegalStateException If one of the {@code create} methods has already been called.
+     */
+    public Factory setTag(Object tag) {
+      Assertions.checkState(!isCreateCalled);
+      this.tag = tag;
+      return this;
     }
 
     /**
@@ -102,8 +116,7 @@ public final class SingleSampleMediaSource implements MediaSource {
     }
 
     /**
-     * Returns a new {@link ExtractorMediaSource} using the current parameters. Media source events
-     * will not be delivered.
+     * Returns a new {@link ExtractorMediaSource} using the current parameters.
      *
      * @param uri The {@link Uri}.
      * @param format The {@link Format} of the media stream.
@@ -111,25 +124,6 @@ public final class SingleSampleMediaSource implements MediaSource {
      * @return The new {@link ExtractorMediaSource}.
      */
     public SingleSampleMediaSource createMediaSource(Uri uri, Format format, long durationUs) {
-      return createMediaSource(uri, format, durationUs, null, null);
-    }
-
-    /**
-     * Returns a new {@link SingleSampleMediaSource} using the current parameters.
-     *
-     * @param uri The {@link Uri}.
-     * @param format The {@link Format} of the media stream.
-     * @param durationUs The duration of the media stream in microseconds.
-     * @param eventHandler A handler for events.
-     * @param eventListener A listener of events., Format format, long durationUs
-     * @return The newly built {@link SingleSampleMediaSource}.
-     */
-    public SingleSampleMediaSource createMediaSource(
-        Uri uri,
-        Format format,
-        long durationUs,
-        @Nullable Handler eventHandler,
-        @Nullable MediaSourceEventListener eventListener) {
       isCreateCalled = true;
       return new SingleSampleMediaSource(
           uri,
@@ -137,9 +131,26 @@ public final class SingleSampleMediaSource implements MediaSource {
           format,
           durationUs,
           minLoadableRetryCount,
-          eventHandler,
-          eventListener,
-          treatLoadErrorsAsEndOfStream);
+          treatLoadErrorsAsEndOfStream,
+          tag);
+    }
+
+    /**
+     * @deprecated Use {@link #createMediaSource(Uri, Format, long)} and {@link
+     *     #addEventListener(Handler, MediaSourceEventListener)} instead.
+     */
+    @Deprecated
+    public SingleSampleMediaSource createMediaSource(
+        Uri uri,
+        Format format,
+        long durationUs,
+        @Nullable Handler eventHandler,
+        @Nullable MediaSourceEventListener eventListener) {
+      SingleSampleMediaSource mediaSource = createMediaSource(uri, format, durationUs);
+      if (eventHandler != null && eventListener != null) {
+        mediaSource.addEventListener(eventHandler, eventListener);
+      }
+      return mediaSource;
     }
 
   }
@@ -153,7 +164,6 @@ public final class SingleSampleMediaSource implements MediaSource {
   private final DataSource.Factory dataSourceFactory;
   private final Format format;
   private final long durationUs;
-  private final MediaSourceEventListener.EventDispatcher eventDispatcher;
   private final int minLoadableRetryCount;
   private final boolean treatLoadErrorsAsEndOfStream;
   private final Timeline timeline;
@@ -188,7 +198,14 @@ public final class SingleSampleMediaSource implements MediaSource {
       Format format,
       long durationUs,
       int minLoadableRetryCount) {
-    this(uri, dataSourceFactory, format, durationUs, minLoadableRetryCount, null, null, false);
+    this(
+        uri,
+        dataSourceFactory,
+        format,
+        durationUs,
+        minLoadableRetryCount,
+        /* treatLoadErrorsAsEndOfStream= */ false,
+        /* tag= */ null);
   }
 
   /**
@@ -223,9 +240,11 @@ public final class SingleSampleMediaSource implements MediaSource {
         format,
         durationUs,
         minLoadableRetryCount,
-        eventHandler,
-        eventListener == null ? null : new EventListenerWrapper(eventListener, eventSourceId),
-        treatLoadErrorsAsEndOfStream);
+        treatLoadErrorsAsEndOfStream,
+        /* tag= */ null);
+    if (eventHandler != null && eventListener != null) {
+      addEventListener(eventHandler, new EventListenerWrapper(eventListener, eventSourceId));
+    }
   }
 
   private SingleSampleMediaSource(
@@ -234,24 +253,23 @@ public final class SingleSampleMediaSource implements MediaSource {
       Format format,
       long durationUs,
       int minLoadableRetryCount,
-      Handler eventHandler,
-      MediaSourceEventListener eventListener,
-      boolean treatLoadErrorsAsEndOfStream) {
+      boolean treatLoadErrorsAsEndOfStream,
+      @Nullable Object tag) {
     this.dataSourceFactory = dataSourceFactory;
     this.format = format;
     this.durationUs = durationUs;
     this.minLoadableRetryCount = minLoadableRetryCount;
     this.treatLoadErrorsAsEndOfStream = treatLoadErrorsAsEndOfStream;
-    this.eventDispatcher = new EventDispatcher(eventHandler, eventListener);
     dataSpec = new DataSpec(uri);
-    timeline = new SinglePeriodTimeline(durationUs, true, false);
+    timeline =
+        new SinglePeriodTimeline(durationUs, /* isSeekable= */ true, /* isDynamic= */ false, tag);
   }
 
   // MediaSource implementation.
 
   @Override
-  public void prepareSource(ExoPlayer player, boolean isTopLevelSource, Listener listener) {
-    listener.onSourceInfoRefreshed(this, timeline, null);
+  public void prepareSourceInternal(ExoPlayer player, boolean isTopLevelSource) {
+    refreshSourceInfo(timeline, /* manifest= */ null);
   }
 
   @Override
@@ -268,7 +286,7 @@ public final class SingleSampleMediaSource implements MediaSource {
         format,
         durationUs,
         minLoadableRetryCount,
-        eventDispatcher,
+        createEventDispatcher(id),
         treatLoadErrorsAsEndOfStream);
   }
 
@@ -278,7 +296,7 @@ public final class SingleSampleMediaSource implements MediaSource {
   }
 
   @Override
-  public void releaseSource() {
+  public void releaseSourceInternal() {
     // Do nothing.
   }
 
@@ -286,7 +304,7 @@ public final class SingleSampleMediaSource implements MediaSource {
    * Wraps a deprecated {@link EventListener}, invoking its callback from the equivalent callback in
    * {@link MediaSourceEventListener}.
    */
-  private static final class EventListenerWrapper implements MediaSourceEventListener {
+  private static final class EventListenerWrapper extends DefaultMediaSourceEventListener {
 
     private final EventListener eventListener;
     private final int eventSourceId;
@@ -297,82 +315,14 @@ public final class SingleSampleMediaSource implements MediaSource {
     }
 
     @Override
-    public void onLoadStarted(
-        DataSpec dataSpec,
-        int dataType,
-        int trackType,
-        Format trackFormat,
-        int trackSelectionReason,
-        Object trackSelectionData,
-        long mediaStartTimeMs,
-        long mediaEndTimeMs,
-        long elapsedRealtimeMs) {
-      // Do nothing.
-    }
-
-    @Override
-    public void onLoadCompleted(
-        DataSpec dataSpec,
-        int dataType,
-        int trackType,
-        Format trackFormat,
-        int trackSelectionReason,
-        Object trackSelectionData,
-        long mediaStartTimeMs,
-        long mediaEndTimeMs,
-        long elapsedRealtimeMs,
-        long loadDurationMs,
-        long bytesLoaded) {
-      // Do nothing.
-    }
-
-    @Override
-    public void onLoadCanceled(
-        DataSpec dataSpec,
-        int dataType,
-        int trackType,
-        Format trackFormat,
-        int trackSelectionReason,
-        Object trackSelectionData,
-        long mediaStartTimeMs,
-        long mediaEndTimeMs,
-        long elapsedRealtimeMs,
-        long loadDurationMs,
-        long bytesLoaded) {
-      // Do nothing.
-    }
-
-    @Override
     public void onLoadError(
-        DataSpec dataSpec,
-        int dataType,
-        int trackType,
-        Format trackFormat,
-        int trackSelectionReason,
-        Object trackSelectionData,
-        long mediaStartTimeMs,
-        long mediaEndTimeMs,
-        long elapsedRealtimeMs,
-        long loadDurationMs,
-        long bytesLoaded,
+        int windowIndex,
+        @Nullable MediaPeriodId mediaPeriodId,
+        LoadEventInfo loadEventInfo,
+        MediaLoadData mediaLoadData,
         IOException error,
         boolean wasCanceled) {
       eventListener.onLoadError(eventSourceId, error);
-    }
-
-    @Override
-    public void onUpstreamDiscarded(int trackType, long mediaStartTimeMs, long mediaEndTimeMs) {
-      // Do nothing.
-    }
-
-    @Override
-    public void onDownstreamFormatChanged(
-        int trackType,
-        Format trackFormat,
-        int trackSelectionReason,
-        Object trackSelectionData,
-        long mediaTimeMs) {
-      // Do nothing.
     }
   }
 }

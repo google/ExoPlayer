@@ -29,12 +29,12 @@ dependencies {
     // This dependency is necessary to force the supportLibraryVersion of
     // com.android.support:support-v4 to be used. Else an older version (25.2.0)
     // is included via:
-    // com.google.android.gms:play-services-ads:11.4.2
-    // |-- com.google.android.gms:play-services-ads-lite:11.4.2
-    //   |-- com.google.android.gms:play-services-basement:11.4.2
-    //     |-- com.android.support:support-v4:25.2.0
+    // com.google.android.gms:play-services-ads:12.0.0
+    // |-- com.google.android.gms:play-services-ads-lite:12.0.0
+    //   |-- com.google.android.gms:play-services-basement:12.0.0
+    //     |-- com.android.support:support-v4:26.1.0
     api 'com.android.support:support-v4:' + supportLibraryVersion
-    api 'com.google.ads.interactivemedia.v3:interactivemedia:3.7.4'
+    api 'com.google.ads.interactivemedia.v3:interactivemedia:3.8.5'
     implementation project(modulePrefix + 'library-core')
     implementation 'com.google.android.gms:play-services-ads:' + playServicesLibraryVersion
 }

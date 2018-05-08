@@ -74,7 +74,12 @@ public final class FfmpegAudioRenderer extends SimpleDecoderAudioRenderer {
    */
   public FfmpegAudioRenderer(Handler eventHandler, AudioRendererEventListener eventListener,
       AudioSink audioSink, boolean enableFloatOutput) {
-    super(eventHandler, eventListener, null, false, audioSink);
+    super(
+        eventHandler,
+        eventListener,
+        /* drmSessionManager= */ null,
+        /* playClearSamplesWithoutKeys= */ false,
+        audioSink);
     this.enableFloatOutput = enableFloatOutput;
   }
 

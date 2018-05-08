@@ -220,7 +220,7 @@ public final class CacheDataSourceTest {
                 .newDefaultData()
                 .appendReadData(1024 * 1024)
                 .endData());
-    CacheUtil.cache(dataSpec, cache, upstream2, null);
+    CacheUtil.cache(dataSpec, cache, upstream2, /* counters= */ null, /* isCanceled= */ null);
 
     // Read the rest of the data.
     TestUtil.readToEnd(cacheDataSource);
@@ -271,7 +271,7 @@ public final class CacheDataSourceTest {
                 .newDefaultData()
                 .appendReadData(1024 * 1024)
                 .endData());
-    CacheUtil.cache(dataSpec, cache, upstream2, null);
+    CacheUtil.cache(dataSpec, cache, upstream2, /* counters= */ null, /* isCanceled= */ null);
 
     // Read the rest of the data.
     TestUtil.readToEnd(cacheDataSource);
@@ -287,7 +287,7 @@ public final class CacheDataSourceTest {
 
     // Cache the latter half of the data.
     DataSpec dataSpec = new DataSpec(testDataUri, 512, C.LENGTH_UNSET, testDataKey);
-    CacheUtil.cache(dataSpec, cache, upstream, null);
+    CacheUtil.cache(dataSpec, cache, upstream, /* counters= */ null, /* isCanceled= */ null);
 
     // Create cache read-only CacheDataSource.
     CacheDataSource cacheDataSource =
@@ -318,7 +318,7 @@ public final class CacheDataSourceTest {
     // Cache the latter half of the data.
     int halfDataLength = 512;
     DataSpec dataSpec = new DataSpec(testDataUri, halfDataLength, C.LENGTH_UNSET, testDataKey);
-    CacheUtil.cache(dataSpec, cache, upstream, null);
+    CacheUtil.cache(dataSpec, cache, upstream, /* counters= */ null, /* isCanceled= */ null);
 
     // Create blocking CacheDataSource.
     CacheDataSource cacheDataSource =

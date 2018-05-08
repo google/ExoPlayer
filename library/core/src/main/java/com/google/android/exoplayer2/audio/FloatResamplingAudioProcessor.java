@@ -17,7 +17,6 @@ package com.google.android.exoplayer2.audio;
 
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
-import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Util;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -86,8 +85,6 @@ import java.nio.ByteOrder;
 
   @Override
   public void queueInput(ByteBuffer inputBuffer) {
-    Assertions.checkState(isActive());
-
     boolean isInput32Bit = sourceEncoding == C.ENCODING_PCM_32BIT;
     int position = inputBuffer.position();
     int limit = inputBuffer.limit();
@@ -150,10 +147,10 @@ import java.nio.ByteOrder;
   @Override
   public void reset() {
     flush();
-    buffer = EMPTY_BUFFER;
     sampleRateHz = Format.NO_VALUE;
     channelCount = Format.NO_VALUE;
     sourceEncoding = C.ENCODING_INVALID;
+    buffer = EMPTY_BUFFER;
   }
 
   /**

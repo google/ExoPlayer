@@ -112,7 +112,7 @@ public class DashManifestParser extends DefaultHandler
     long durationMs = parseDuration(xpp, "mediaPresentationDuration", C.TIME_UNSET);
     long minBufferTimeMs = parseDuration(xpp, "minBufferTime", C.TIME_UNSET);
     String typeString = xpp.getAttributeValue(null, "type");
-    boolean dynamic = typeString != null && typeString.equals("dynamic");
+    boolean dynamic = typeString != null && "dynamic".equals(typeString);
     long minUpdateTimeMs = dynamic ? parseDuration(xpp, "minimumUpdatePeriod", C.TIME_UNSET)
         : C.TIME_UNSET;
     long timeShiftBufferDepthMs = dynamic
@@ -732,19 +732,23 @@ public class DashManifestParser extends DefaultHandler
 
   /**
    * Parses a single Event node in the manifest.
-   * <p>
+   *
    * @param xpp The current xml parser.
    * @param schemeIdUri The schemeIdUri of the parent EventStream.
    * @param value The schemeIdUri of the parent EventStream.
    * @param timescale The timescale of the parent EventStream.
-   * @param scratchOutputStream A {@link ByteArrayOutputStream} that's used when parsing event
+   * @param scratchOutputStream A {@link ByteArrayOutputStream} that is used when parsing event
    *     objects.
    * @return The {@link EventMessage} parsed from this EventStream node.
    * @throws XmlPullParserException If there is any error parsing this node.
    * @throws IOException If there is any error reading from the underlying input stream.
    */
-  protected EventMessage parseEvent(XmlPullParser xpp, String schemeIdUri, String value,
-      long timescale, ByteArrayOutputStream scratchOutputStream)
+  protected EventMessage parseEvent(
+      XmlPullParser xpp,
+      String schemeIdUri,
+      String value,
+      long timescale,
+      ByteArrayOutputStream scratchOutputStream)
       throws IOException, XmlPullParserException {
     long id = parseLong(xpp, "id", 0);
     long duration = parseLong(xpp, "duration", C.TIME_UNSET);

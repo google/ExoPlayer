@@ -21,6 +21,7 @@ import android.util.Log;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.reflect.Field;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -86,7 +87,7 @@ public final class CronetEngineWrapper {
   public CronetEngineWrapper(Context context, boolean preferGMSCoreCronet) {
     CronetEngine cronetEngine = null;
     @CronetEngineSource int cronetEngineSource = SOURCE_UNAVAILABLE;
-    List<CronetProvider> cronetProviders = CronetProvider.getAllProviders(context);
+    List<CronetProvider> cronetProviders = new ArrayList<>(CronetProvider.getAllProviders(context));
     // Remove disabled and fallback Cronet providers from list
     for (int i = cronetProviders.size() - 1; i >= 0; i--) {
       if (!cronetProviders.get(i).isEnabled()

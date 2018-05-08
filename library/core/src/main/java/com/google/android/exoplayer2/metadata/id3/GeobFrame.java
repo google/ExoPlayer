@@ -72,6 +72,19 @@ public final class GeobFrame extends Id3Frame {
   }
 
   @Override
+  public String toString() {
+    return id
+        + ": mimeType="
+        + mimeType
+        + ", filename="
+        + filename
+        + ", description="
+        + description;
+  }
+
+  // Parcelable implementation.
+
+  @Override
   public void writeToParcel(Parcel dest, int flags) {
     dest.writeString(mimeType);
     dest.writeString(filename);

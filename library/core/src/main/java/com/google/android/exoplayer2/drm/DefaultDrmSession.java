@@ -25,6 +25,7 @@ import android.os.Message;
 import android.util.Log;
 import android.util.Pair;
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.drm.DefaultDrmSessionEventListener.EventDispatcher;
 import com.google.android.exoplayer2.drm.ExoMediaDrm.DefaultKeyRequest;
 import com.google.android.exoplayer2.drm.ExoMediaDrm.KeyRequest;
 import com.google.android.exoplayer2.drm.ExoMediaDrm.ProvisionRequest;
@@ -80,8 +81,7 @@ import java.util.UUID;
   private final String mimeType;
   private final @DefaultDrmSessionManager.Mode int mode;
   private final HashMap<String, String> optionalKeyRequestParameters;
-  private final Handler eventHandler;
-  private final DefaultDrmSessionManager.EventListener eventListener;
+  private final EventDispatcher eventDispatcher;
   private final int initialDrmRequestRetryCount;
 
   /* package */ final MediaDrmCallback callback;
@@ -109,17 +109,22 @@ import java.util.UUID;
    * @param optionalKeyRequestParameters The optional key request parameters.
    * @param callback The media DRM callback.
    * @param playbackLooper The playback looper.
-   * @param eventHandler The handler to post listener events.
-   * @param eventListener The DRM session manager event listener.
+   * @param eventDispatcher The dispatcher for DRM session manager events.
    * @param initialDrmRequestRetryCount The number of times to retry for initial provisioning and
    *     key request before reporting error.
    */
-  public DefaultDrmSession(UUID uuid, ExoMediaDrm<T> mediaDrm,
-      ProvisioningManager<T> provisioningManager, byte[] initData, String mimeType,
-      @DefaultDrmSessionManager.Mode int mode, byte[] offlineLicenseKeySetId,
-      HashMap<String, String> optionalKeyRequestParameters, MediaDrmCallback callback,
-      Looper playbackLooper, Handler eventHandler,
-      DefaultDrmSessionManager.EventListener eventListener,
+  public DefaultDrmSession(
+      UUID uuid,
+      ExoMediaDrm<T> mediaDrm,
+      ProvisioningManager<T> provisioningManager,
+      byte[] initData,
+      String mimeType,
+      @DefaultDrmSessionManager.Mode int mode,
+      byte[] offlineLicenseKeySetId,
+      HashMap<String, String> optionalKeyRequestParameters,
+      MediaDrmCallback callback,
+      Looper playbackLooper,
+      EventDispatcher eventDispatcher,
       int initialDrmRequestRetryCount) {
     this.uuid = uuid;
     this.provisioningManager = provisioningManager;
@@ -129,9 +134,7 @@ import java.util.UUID;
     this.optionalKeyRequestParameters = optionalKeyRequestParameters;
     this.callback = callback;
     this.initialDrmRequestRetryCount = initialDrmRequestRetryCount;
-
-    this.eventHandler = eventHandler;
-    this.eventListener = eventListener;
+    this.eventDispatcher = eventDispatcher;
     state = STATE_OPENING;
 
     postResponseHandler = new PostResponseHandler(playbackLooper);
@@ -306,14 +309,7 @@ import java.util.UUID;
             onError(new KeysExpiredException());
           } else {
             state = STATE_OPENED_WITH_KEYS;
-            if (eventHandler != null && eventListener != null) {
-              eventHandler.post(new Runnable() {
-                @Override
-                public void run() {
-                  eventListener.onDrmKeysRestored();
-                }
-              });
-            }
+            eventDispatcher.drmKeysRestored();
           }
         }
         break;
@@ -391,14 +387,7 @@ import java.util.UUID;
       }
       if (mode == DefaultDrmSessionManager.MODE_RELEASE) {
         mediaDrm.provideKeyResponse(offlineLicenseKeySetId, responseData);
-        if (eventHandler != null && eventListener != null) {
-          eventHandler.post(new Runnable() {
-            @Override
-            public void run() {
-              eventListener.onDrmKeysRemoved();
-            }
-          });
-        }
+        eventDispatcher.drmKeysRemoved();
       } else {
         byte[] keySetId = mediaDrm.provideKeyResponse(sessionId, responseData);
         if ((mode == DefaultDrmSessionManager.MODE_DOWNLOAD
@@ -407,14 +396,7 @@ import java.util.UUID;
           offlineLicenseKeySetId = keySetId;
         }
         state = STATE_OPENED_WITH_KEYS;
-        if (eventHandler != null && eventListener != null) {
-          eventHandler.post(new Runnable() {
-            @Override
-            public void run() {
-              eventListener.onDrmKeysLoaded();
-            }
-          });
-        }
+        eventDispatcher.drmKeysLoaded();
       }
     } catch (Exception e) {
       onKeysError(e);
@@ -438,14 +420,7 @@ import java.util.UUID;
 
   private void onError(final Exception e) {
     lastException = new DrmSessionException(e);
-    if (eventHandler != null && eventListener != null) {
-      eventHandler.post(new Runnable() {
-        @Override
-        public void run() {
-          eventListener.onDrmSessionManagerError(e);
-        }
-      });
-    }
+    eventDispatcher.drmSessionManagerError(e);
     if (state != STATE_OPENED_WITH_KEYS) {
       state = STATE_ERROR;
     }

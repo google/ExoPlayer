@@ -52,7 +52,6 @@ public final class AdaptiveTrackSelectionTest {
   public void setUp() {
     initMocks(this);
     fakeClock = new FakeClock(0);
-    when(mockBandwidthMeter.getBitrateEstimate()).thenReturn(BandwidthMeter.NO_ESTIMATE);
   }
 
   @Test
@@ -62,7 +61,8 @@ public final class AdaptiveTrackSelectionTest {
     Format format3 = videoFormat(/* bitrate= */ 2000, /* width= */ 960, /* height= */ 720);
     TrackGroup trackGroup = new TrackGroup(format1, format2, format3);
 
-    adaptiveTrackSelection = adaptiveTrackSelection(trackGroup, /* initialBitrate= */ 1000);
+    when(mockBandwidthMeter.getBitrateEstimate()).thenReturn(1000L);
+    adaptiveTrackSelection = adaptiveTrackSelection(trackGroup);
 
     assertThat(adaptiveTrackSelection.getSelectedFormat()).isEqualTo(format2);
     assertThat(adaptiveTrackSelection.getSelectionReason()).isEqualTo(C.SELECTION_REASON_INITIAL);
@@ -76,8 +76,7 @@ public final class AdaptiveTrackSelectionTest {
     TrackGroup trackGroup = new TrackGroup(format1, format2, format3);
 
     when(mockBandwidthMeter.getBitrateEstimate()).thenReturn(500L);
-
-    adaptiveTrackSelection = adaptiveTrackSelection(trackGroup, /* initialBitrate= */ 1000);
+    adaptiveTrackSelection = adaptiveTrackSelection(trackGroup);
 
     assertThat(adaptiveTrackSelection.getSelectedFormat()).isEqualTo(format1);
     assertThat(adaptiveTrackSelection.getSelectionReason()).isEqualTo(C.SELECTION_REASON_INITIAL);
@@ -90,13 +89,12 @@ public final class AdaptiveTrackSelectionTest {
     Format format3 = videoFormat(/* bitrate= */ 2000, /* width= */ 960, /* height= */ 720);
     TrackGroup trackGroup = new TrackGroup(format1, format2, format3);
 
-    // initially bandwidth meter does not have any estimation. The second measurement onward returns
-    // 2000L, which prompts the track selection to switch up if possible.
-    when(mockBandwidthMeter.getBitrateEstimate()).thenReturn(BandwidthMeter.NO_ESTIMATE, 2000L);
-
+    // The second measurement onward returns 2000L, which prompts the track selection to switch up
+    // if possible.
+    when(mockBandwidthMeter.getBitrateEstimate()).thenReturn(1000L, 2000L);
     adaptiveTrackSelection =
         adaptiveTrackSelectionWithMinDurationForQualityIncreaseMs(
-            trackGroup, /* initialBitrate= */ 1000, /* minDurationForQualityIncreaseMs= */ 10_000);
+            trackGroup, /* minDurationForQualityIncreaseMs= */ 10_000);
 
     adaptiveTrackSelection.updateSelectedTrack(
         /* playbackPositionUs= */ 0,
@@ -117,13 +115,12 @@ public final class AdaptiveTrackSelectionTest {
     Format format3 = videoFormat(/* bitrate= */ 2000, /* width= */ 960, /* height= */ 720);
     TrackGroup trackGroup = new TrackGroup(format1, format2, format3);
 
-    // initially bandwidth meter does not have any estimation. The second measurement onward returns
-    // 2000L, which prompts the track selection to switch up if possible.
-    when(mockBandwidthMeter.getBitrateEstimate()).thenReturn(BandwidthMeter.NO_ESTIMATE, 2000L);
-
+    // The second measurement onward returns 2000L, which prompts the track selection to switch up
+    // if possible.
+    when(mockBandwidthMeter.getBitrateEstimate()).thenReturn(1000L, 2000L);
     adaptiveTrackSelection =
         adaptiveTrackSelectionWithMinDurationForQualityIncreaseMs(
-            trackGroup, /* initialBitrate= */ 1000, /* minDurationForQualityIncreaseMs= */ 10_000);
+            trackGroup, /* minDurationForQualityIncreaseMs= */ 10_000);
 
     adaptiveTrackSelection.updateSelectedTrack(
         /* playbackPositionUs= */ 0,
@@ -144,13 +141,12 @@ public final class AdaptiveTrackSelectionTest {
     Format format3 = videoFormat(/* bitrate= */ 2000, /* width= */ 960, /* height= */ 720);
     TrackGroup trackGroup = new TrackGroup(format1, format2, format3);
 
-    // initially bandwidth meter does not have any estimation. The second measurement onward returns
-    // 500L, which prompts the track selection to switch down if necessary.
-    when(mockBandwidthMeter.getBitrateEstimate()).thenReturn(BandwidthMeter.NO_ESTIMATE, 500L);
-
+    // The second measurement onward returns 500L, which prompts the track selection to switch down
+    // if necessary.
+    when(mockBandwidthMeter.getBitrateEstimate()).thenReturn(1000L, 500L);
     adaptiveTrackSelection =
         adaptiveTrackSelectionWithMaxDurationForQualityDecreaseMs(
-            trackGroup, /* initialBitrate= */ 1000, /* maxDurationForQualityDecreaseMs= */ 25_000);
+            trackGroup, /* maxDurationForQualityDecreaseMs= */ 25_000);
 
     adaptiveTrackSelection.updateSelectedTrack(
         /* playbackPositionUs= */ 0,
@@ -171,13 +167,12 @@ public final class AdaptiveTrackSelectionTest {
     Format format3 = videoFormat(/* bitrate= */ 2000, /* width= */ 960, /* height= */ 720);
     TrackGroup trackGroup = new TrackGroup(format1, format2, format3);
 
-    // initially bandwidth meter does not have any estimation. The second measurement onward returns
-    // 500L, which prompts the track selection to switch down if necessary.
-    when(mockBandwidthMeter.getBitrateEstimate()).thenReturn(BandwidthMeter.NO_ESTIMATE, 500L);
-
+    // The second measurement onward returns 500L, which prompts the track selection to switch down
+    // if necessary.
+    when(mockBandwidthMeter.getBitrateEstimate()).thenReturn(1000L, 500L);
     adaptiveTrackSelection =
         adaptiveTrackSelectionWithMaxDurationForQualityDecreaseMs(
-            trackGroup, /* initialBitrate= */ 1000, /* maxDurationForQualityDecreaseMs= */ 25_000);
+            trackGroup, /* maxDurationForQualityDecreaseMs= */ 25_000);
 
     adaptiveTrackSelection.updateSelectedTrack(
         /* playbackPositionUs= */ 0,
@@ -210,7 +205,7 @@ public final class AdaptiveTrackSelectionTest {
     queue.add(chunk3);
 
     when(mockBandwidthMeter.getBitrateEstimate()).thenReturn(500L);
-    adaptiveTrackSelection = adaptiveTrackSelection(trackGroup, /* initialBitrate= */ 1000);
+    adaptiveTrackSelection = adaptiveTrackSelection(trackGroup);
 
     int size = adaptiveTrackSelection.evaluateQueueSize(0, queue);
     assertThat(size).isEqualTo(3);
@@ -238,7 +233,6 @@ public final class AdaptiveTrackSelectionTest {
     adaptiveTrackSelection =
         adaptiveTrackSelectionWithMinTimeBetweenBufferReevaluationMs(
             trackGroup,
-            /* initialBitrate= */ 1000,
             /* durationToRetainAfterDiscardMs= */ 15_000,
             /* minTimeBetweenBufferReevaluationMs= */ 2000);
 
@@ -276,7 +270,6 @@ public final class AdaptiveTrackSelectionTest {
     adaptiveTrackSelection =
         adaptiveTrackSelectionWithMinTimeBetweenBufferReevaluationMs(
             trackGroup,
-            /* initialBitrate= */ 1000,
             /* durationToRetainAfterDiscardMs= */ 15_000,
             /* minTimeBetweenBufferReevaluationMs= */ 2000);
 
@@ -294,12 +287,11 @@ public final class AdaptiveTrackSelectionTest {
     assertThat(newSize).isEqualTo(2);
   }
 
-  private AdaptiveTrackSelection adaptiveTrackSelection(TrackGroup trackGroup, int initialBitrate) {
+  private AdaptiveTrackSelection adaptiveTrackSelection(TrackGroup trackGroup) {
     return new AdaptiveTrackSelection(
         trackGroup,
         selectedAllTracksInGroup(trackGroup),
         mockBandwidthMeter,
-        initialBitrate,
         AdaptiveTrackSelection.DEFAULT_MIN_DURATION_FOR_QUALITY_INCREASE_MS,
         AdaptiveTrackSelection.DEFAULT_MAX_DURATION_FOR_QUALITY_DECREASE_MS,
         AdaptiveTrackSelection.DEFAULT_MIN_DURATION_TO_RETAIN_AFTER_DISCARD_MS,
@@ -310,12 +302,11 @@ public final class AdaptiveTrackSelectionTest {
   }
 
   private AdaptiveTrackSelection adaptiveTrackSelectionWithMinDurationForQualityIncreaseMs(
-      TrackGroup trackGroup, int initialBitrate, long minDurationForQualityIncreaseMs) {
+      TrackGroup trackGroup, long minDurationForQualityIncreaseMs) {
     return new AdaptiveTrackSelection(
         trackGroup,
         selectedAllTracksInGroup(trackGroup),
         mockBandwidthMeter,
-        initialBitrate,
         minDurationForQualityIncreaseMs,
         AdaptiveTrackSelection.DEFAULT_MAX_DURATION_FOR_QUALITY_DECREASE_MS,
         AdaptiveTrackSelection.DEFAULT_MIN_DURATION_TO_RETAIN_AFTER_DISCARD_MS,
@@ -326,12 +317,11 @@ public final class AdaptiveTrackSelectionTest {
   }
 
   private AdaptiveTrackSelection adaptiveTrackSelectionWithMaxDurationForQualityDecreaseMs(
-      TrackGroup trackGroup, int initialBitrate, long maxDurationForQualityDecreaseMs) {
+      TrackGroup trackGroup, long maxDurationForQualityDecreaseMs) {
     return new AdaptiveTrackSelection(
         trackGroup,
         selectedAllTracksInGroup(trackGroup),
         mockBandwidthMeter,
-        initialBitrate,
         AdaptiveTrackSelection.DEFAULT_MIN_DURATION_FOR_QUALITY_INCREASE_MS,
         maxDurationForQualityDecreaseMs,
         AdaptiveTrackSelection.DEFAULT_MIN_DURATION_TO_RETAIN_AFTER_DISCARD_MS,
@@ -343,18 +333,16 @@ public final class AdaptiveTrackSelectionTest {
 
   private AdaptiveTrackSelection adaptiveTrackSelectionWithMinTimeBetweenBufferReevaluationMs(
       TrackGroup trackGroup,
-      int initialBitrate,
       long durationToRetainAfterDiscardMs,
       long minTimeBetweenBufferReevaluationMs) {
     return new AdaptiveTrackSelection(
         trackGroup,
         selectedAllTracksInGroup(trackGroup),
         mockBandwidthMeter,
-        initialBitrate,
         AdaptiveTrackSelection.DEFAULT_MIN_DURATION_FOR_QUALITY_INCREASE_MS,
         AdaptiveTrackSelection.DEFAULT_MAX_DURATION_FOR_QUALITY_DECREASE_MS,
         durationToRetainAfterDiscardMs,
-        /* bandwidth fraction= */ 1.0f,
+        /* bandwidthFraction= */ 1.0f,
         AdaptiveTrackSelection.DEFAULT_BUFFERED_FRACTION_TO_LIVE_EDGE_FOR_QUALITY_INCREASE,
         minTimeBetweenBufferReevaluationMs,
         fakeClock);

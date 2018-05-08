@@ -61,8 +61,16 @@ public final class SingleSampleMediaChunk extends BaseMediaChunk {
       long chunkIndex,
       int trackType,
       Format sampleFormat) {
-    super(dataSource, dataSpec, trackFormat, trackSelectionReason, trackSelectionData, startTimeUs,
-        endTimeUs, chunkIndex);
+    super(
+        dataSource,
+        dataSpec,
+        trackFormat,
+        trackSelectionReason,
+        trackSelectionData,
+        startTimeUs,
+        endTimeUs,
+        C.TIME_UNSET,
+        chunkIndex);
     this.trackType = trackType;
     this.sampleFormat = sampleFormat;
   }

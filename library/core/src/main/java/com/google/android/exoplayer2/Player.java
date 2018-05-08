@@ -460,6 +460,17 @@ public interface Player {
   int getPlaybackState();
 
   /**
+   * Returns the error that caused playback to fail. This is the same error that will have been
+   * reported via {@link Player.EventListener#onPlayerError(ExoPlaybackException)} at the time of
+   * failure. It can be queried using this method until {@code stop(true)} is called or the player
+   * is re-prepared.
+   *
+   * @return The error, or {@code null}.
+   */
+  @Nullable
+  ExoPlaybackException getPlaybackError();
+
+  /**
    * Sets whether playback should proceed when {@link #getPlaybackState()} == {@link #STATE_READY}.
    * <p>
    * If the player is already in the ready state then this method can be used to pause and resume
@@ -654,6 +665,12 @@ public interface Player {
    * currently being played is the first window.
    */
   int getPreviousWindowIndex();
+
+  /**
+   * Returns the tag of the currently playing window in the timeline. May be null if no tag is set
+   * or the timeline is not yet available.
+   */
+  @Nullable Object getCurrentTag();
 
   /**
    * Returns the duration of the current window in milliseconds, or {@link C#TIME_UNSET} if the

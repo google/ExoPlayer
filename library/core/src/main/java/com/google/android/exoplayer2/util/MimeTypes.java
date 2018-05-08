@@ -134,14 +134,13 @@ public final class MimeTypes {
     return BASE_TYPE_APPLICATION.equals(getTopLevelType(mimeType));
   }
 
-
   /**
    * Derives a video sample mimeType from a codecs attribute.
    *
    * @param codecs The codecs attribute.
    * @return The derived video mimeType, or null if it could not be derived.
    */
-  public static String getVideoMediaMimeType(String codecs) {
+  public static @Nullable String getVideoMediaMimeType(@Nullable String codecs) {
     if (codecs == null) {
       return null;
     }
@@ -161,7 +160,7 @@ public final class MimeTypes {
    * @param codecs The codecs attribute.
    * @return The derived audio mimeType, or null if it could not be derived.
    */
-  public static String getAudioMediaMimeType(String codecs) {
+  public static @Nullable String getAudioMediaMimeType(@Nullable String codecs) {
     if (codecs == null) {
       return null;
     }
@@ -181,7 +180,7 @@ public final class MimeTypes {
    * @param codec The codec identifier to derive.
    * @return The mimeType, or null if it could not be derived.
    */
-  public static String getMediaMimeType(String codec) {
+  public static @Nullable String getMediaMimeType(@Nullable String codec) {
     if (codec == null) {
       return null;
     }
@@ -345,7 +344,7 @@ public final class MimeTypes {
    * @param mimeType The mimeType whose top-level type is required.
    * @return The top-level type, or null if the mimeType is null.
    */
-  private static String getTopLevelType(String mimeType) {
+  private static @Nullable String getTopLevelType(@Nullable String mimeType) {
     if (mimeType == null) {
       return null;
     }
