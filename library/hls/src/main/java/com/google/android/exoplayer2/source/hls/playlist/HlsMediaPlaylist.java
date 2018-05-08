@@ -42,6 +42,11 @@ public final class HlsMediaPlaylist extends HlsPlaylist {
      * used for all segments that share an EXT-X-MAP tag.
      */
     @Nullable public final Segment initializationSegment;
+    /**
+     * DRM initialization data for sample decryption, or null if none of the segment uses sample
+     * encryption.
+     */
+    @Nullable public final DrmInitData drmInitData;
     /** The duration of the segment in microseconds, as defined by #EXTINF. */
     public final long durationUs;
     /**
@@ -81,7 +86,7 @@ public final class HlsMediaPlaylist extends HlsPlaylist {
      * @param byterangeLength See {@link #byterangeLength}.
      */
     public Segment(String uri, long byterangeOffset, long byterangeLength) {
-      this(uri, null, 0, -1, C.TIME_UNSET, null, null, byterangeOffset, byterangeLength, false);
+      this(uri, null, null, 0, -1, C.TIME_UNSET, null, null, byterangeOffset, byterangeLength, false);
     }
 
     /**
@@ -99,6 +104,7 @@ public final class HlsMediaPlaylist extends HlsPlaylist {
     public Segment(
         String url,
         Segment initializationSegment,
+        @Nullable DrmInitData drmInitData,
         long durationUs,
         int relativeDiscontinuitySequence,
         long relativeStartTimeUs,
@@ -109,6 +115,7 @@ public final class HlsMediaPlaylist extends HlsPlaylist {
         boolean hasGapTag) {
       this.url = url;
       this.initializationSegment = initializationSegment;
+      this.drmInitData = drmInitData;
       this.durationUs = durationUs;
       this.relativeDiscontinuitySequence = relativeDiscontinuitySequence;
       this.relativeStartTimeUs = relativeStartTimeUs;
@@ -184,11 +191,6 @@ public final class HlsMediaPlaylist extends HlsPlaylist {
    */
   public final boolean hasProgramDateTime;
   /**
-   * DRM initialization data for sample decryption, or null if none of the segment uses sample
-   * encryption.
-   */
-  public final DrmInitData drmInitData;
-  /**
    * The list of segments in the playlist.
    */
   public final List<Segment> segments;
@@ -211,7 +213,6 @@ public final class HlsMediaPlaylist extends HlsPlaylist {
    * @param hasIndependentSegmentsTag See {@link #hasIndependentSegmentsTag}.
    * @param hasEndTag See {@link #hasEndTag}.
    * @param hasProgramDateTime See {@link #hasProgramDateTime}.
-   * @param drmInitData See {@link #drmInitData}.
    * @param segments See {@link #segments}.
    */
   public HlsMediaPlaylist(
@@ -228,7 +229,6 @@ public final class HlsMediaPlaylist extends HlsPlaylist {
       boolean hasIndependentSegmentsTag,
       boolean hasEndTag,
       boolean hasProgramDateTime,
-      DrmInitData drmInitData,
       List<Segment> segments) {
     super(baseUri, tags);
     this.playlistType = playlistType;
@@ -241,7 +241,6 @@ public final class HlsMediaPlaylist extends HlsPlaylist {
     this.hasIndependentSegmentsTag = hasIndependentSegmentsTag;
     this.hasEndTag = hasEndTag;
     this.hasProgramDateTime = hasProgramDateTime;
-    this.drmInitData = drmInitData;
     this.segments = Collections.unmodifiableList(segments);
     if (!segments.isEmpty()) {
       Segment last = segments.get(segments.size() - 1);
@@ -309,7 +308,6 @@ public final class HlsMediaPlaylist extends HlsPlaylist {
         hasIndependentSegmentsTag,
         hasEndTag,
         hasProgramDateTime,
-        drmInitData,
         segments);
   }
 
@@ -337,7 +335,6 @@ public final class HlsMediaPlaylist extends HlsPlaylist {
         hasIndependentSegmentsTag,
         /* hasEndTag= */ true,
         hasProgramDateTime,
-        drmInitData,
         segments);
   }
 

@@ -17,6 +17,7 @@ package com.google.android.exoplayer2.source.hls.playlist;
 
 import android.net.Uri;
 import android.util.Base64;
+import android.util.SparseArray;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.ParserException;
@@ -424,8 +425,7 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
           } else if (method != null) {
             SchemeData schemeData = parseWidevineSchemeData(line, keyFormat);
             if (schemeData != null) {
-              drmInitData =
-                  new DrmInitData(
+              drmInitData = new DrmInitData(
                       (METHOD_SAMPLE_AES_CENC.equals(method)
                               || METHOD_SAMPLE_AES_CTR.equals(method))
                           ? C.CENC_TYPE_cenc
@@ -475,6 +475,7 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
             new Segment(
                 line,
                 initializationSegment,
+                drmInitData,
                 segmentDurationUs,
                 relativeDiscontinuitySequence,
                 segmentStartTimeUs,
@@ -506,7 +507,6 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
         hasIndependentSegmentsTag,
         hasEndTag,
         /* hasProgramDateTime= */ playlistStartTimeUs != 0,
-        drmInitData,
         segments);
   }
 
