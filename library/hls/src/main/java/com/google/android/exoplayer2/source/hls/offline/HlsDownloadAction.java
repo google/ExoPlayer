@@ -20,63 +20,56 @@ import android.support.annotation.Nullable;
 import com.google.android.exoplayer2.offline.DownloadAction;
 import com.google.android.exoplayer2.offline.DownloaderConstructorHelper;
 import com.google.android.exoplayer2.offline.SegmentDownloadAction;
+import com.google.android.exoplayer2.source.hls.playlist.RenditionKey;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.util.List;
 
 /** An action to download or remove downloaded HLS streams. */
-public final class HlsDownloadAction extends SegmentDownloadAction<String> {
+public final class HlsDownloadAction extends SegmentDownloadAction<RenditionKey> {
+
+  private static final String TYPE = "hls";
+  private static final int VERSION = 0;
 
   public static final Deserializer DESERIALIZER =
-      new SegmentDownloadActionDeserializer<String>() {
+      new SegmentDownloadActionDeserializer<RenditionKey>(TYPE, VERSION) {
 
         @Override
-        public String getType() {
-          return TYPE;
-        }
-
-        @Override
-        protected String readKey(DataInputStream input) throws IOException {
-          return input.readUTF();
-        }
-
-        @Override
-        protected String[] createKeyArray(int keyCount) {
-          return new String[keyCount];
+        protected RenditionKey readKey(DataInputStream input) throws IOException {
+          int renditionGroup = input.readInt();
+          int trackIndex = input.readInt();
+          return new RenditionKey(renditionGroup, trackIndex);
         }
 
         @Override
         protected DownloadAction createDownloadAction(
-            Uri manifestUri, boolean removeAction, String data, String[] keys) {
-          return new HlsDownloadAction(manifestUri, removeAction, data, keys);
+            Uri uri, boolean isRemoveAction, byte[] data, List<RenditionKey> keys) {
+          return new HlsDownloadAction(uri, isRemoveAction, data, keys);
         }
       };
 
-  private static final String TYPE = "HlsDownloadAction";
-
-  /** @see SegmentDownloadAction#SegmentDownloadAction(Uri, boolean, String, Object[]) */
+  /**
+   * @param uri The HLS playlist URI.
+   * @param isRemoveAction Whether the data will be removed. If {@code false} it will be downloaded.
+   * @param data Optional custom data for this action.
+   * @param keys Keys of renditions to be downloaded. If empty, all renditions are downloaded. If
+   *     {@code removeAction} is true, {@code keys} must empty.
+   */
   public HlsDownloadAction(
-      Uri manifestUri, boolean removeAction, @Nullable String data, String... keys) {
-    super(manifestUri, removeAction, data, keys);
-  }
-
-  @Override
-  protected String getType() {
-    return TYPE;
+      Uri uri, boolean isRemoveAction, @Nullable byte[] data, List<RenditionKey> keys) {
+    super(TYPE, VERSION, uri, isRemoveAction, data, keys);
   }
 
   @Override
   protected HlsDownloader createDownloader(DownloaderConstructorHelper constructorHelper) {
-    HlsDownloader downloader = new HlsDownloader(manifestUri, constructorHelper);
-    if (!isRemoveAction()) {
-      downloader.selectRepresentations(keys);
-    }
-    return downloader;
+    return new HlsDownloader(uri, keys, constructorHelper);
   }
 
   @Override
-  protected void writeKey(DataOutputStream output, String key) throws IOException {
-    output.writeUTF(key);
+  protected void writeKey(DataOutputStream output, RenditionKey key) throws IOException {
+    output.writeInt(key.type);
+    output.writeInt(key.trackIndex);
   }
 
 }

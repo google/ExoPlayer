@@ -20,64 +20,52 @@ import android.support.annotation.Nullable;
 import com.google.android.exoplayer2.offline.DownloadAction;
 import com.google.android.exoplayer2.offline.DownloaderConstructorHelper;
 import com.google.android.exoplayer2.offline.SegmentDownloadAction;
-import com.google.android.exoplayer2.source.smoothstreaming.manifest.TrackKey;
+import com.google.android.exoplayer2.source.smoothstreaming.manifest.StreamKey;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.util.List;
 
 /** An action to download or remove downloaded SmoothStreaming streams. */
-public final class SsDownloadAction extends SegmentDownloadAction<TrackKey> {
+public final class SsDownloadAction extends SegmentDownloadAction<StreamKey> {
+
+  private static final String TYPE = "ss";
+  private static final int VERSION = 0;
 
   public static final Deserializer DESERIALIZER =
-      new SegmentDownloadActionDeserializer<TrackKey>() {
+      new SegmentDownloadActionDeserializer<StreamKey>(TYPE, VERSION) {
 
-    @Override
-    public String getType() {
-      return TYPE;
-    }
+        @Override
+        protected StreamKey readKey(DataInputStream input) throws IOException {
+          return new StreamKey(input.readInt(), input.readInt());
+        }
 
-    @Override
-    protected TrackKey readKey(DataInputStream input) throws IOException {
-      return new TrackKey(input.readInt(), input.readInt());
-    }
+        @Override
+        protected DownloadAction createDownloadAction(
+            Uri uri, boolean isRemoveAction, byte[] data, List<StreamKey> keys) {
+          return new SsDownloadAction(uri, isRemoveAction, data, keys);
+        }
+      };
 
-    @Override
-    protected TrackKey[] createKeyArray(int keyCount) {
-      return new TrackKey[keyCount];
-    }
-
-    @Override
-    protected DownloadAction createDownloadAction(Uri manifestUri, boolean removeAction,
-        String data, TrackKey[] keys) {
-      return new SsDownloadAction(manifestUri, removeAction, data, keys);
-    }
-
-  };
-
-  private static final String TYPE = "SsDownloadAction";
-
-  /** @see SegmentDownloadAction#SegmentDownloadAction(Uri, boolean, String, Object[]) */
+  /**
+   * @param uri The SmoothStreaming manifest URI.
+   * @param isRemoveAction Whether the data will be removed. If {@code false} it will be downloaded.
+   * @param data Optional custom data for this action.
+   * @param keys Keys of streams to be downloaded. If empty, all streams are downloaded. If {@code
+   *     removeAction} is true, {@code keys} must be empty.
+   */
   public SsDownloadAction(
-      Uri manifestUri, boolean removeAction, @Nullable String data, TrackKey... keys) {
-    super(manifestUri, removeAction, data, keys);
-  }
-
-  @Override
-  protected String getType() {
-    return TYPE;
+      Uri uri, boolean isRemoveAction, @Nullable byte[] data, List<StreamKey> keys) {
+    super(TYPE, VERSION, uri, isRemoveAction, data, keys);
   }
 
   @Override
   protected SsDownloader createDownloader(DownloaderConstructorHelper constructorHelper) {
-    SsDownloader downloader = new SsDownloader(manifestUri, constructorHelper);
-    if (!isRemoveAction()) {
-      downloader.selectRepresentations(keys);
-    }
-    return downloader;
+    return new SsDownloader(uri, keys, constructorHelper);
   }
 
   @Override
-  protected void writeKey(DataOutputStream output, TrackKey key) throws IOException {
+  protected void writeKey(DataOutputStream output, StreamKey key) throws IOException {
     output.writeInt(key.streamElementIndex);
     output.writeInt(key.trackIndex);
   }

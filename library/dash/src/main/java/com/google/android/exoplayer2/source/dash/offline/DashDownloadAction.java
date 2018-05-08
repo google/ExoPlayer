@@ -24,56 +24,44 @@ import com.google.android.exoplayer2.source.dash.manifest.RepresentationKey;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.util.List;
 
 /** An action to download or remove downloaded DASH streams. */
 public final class DashDownloadAction extends SegmentDownloadAction<RepresentationKey> {
 
+  private static final String TYPE = "dash";
+  private static final int VERSION = 0;
+
   public static final Deserializer DESERIALIZER =
-      new SegmentDownloadActionDeserializer<RepresentationKey>() {
+      new SegmentDownloadActionDeserializer<RepresentationKey>(TYPE, VERSION) {
 
-    @Override
-    public String getType() {
-      return TYPE;
-    }
+        @Override
+        protected RepresentationKey readKey(DataInputStream input) throws IOException {
+          return new RepresentationKey(input.readInt(), input.readInt(), input.readInt());
+        }
 
-    @Override
-    protected RepresentationKey readKey(DataInputStream input) throws IOException {
-      return new RepresentationKey(input.readInt(), input.readInt(), input.readInt());
-    }
+        @Override
+        protected DownloadAction createDownloadAction(
+            Uri uri, boolean isRemoveAction, byte[] data, List<RepresentationKey> keys) {
+          return new DashDownloadAction(uri, isRemoveAction, data, keys);
+        }
+      };
 
-    @Override
-    protected RepresentationKey[] createKeyArray(int keyCount) {
-      return new RepresentationKey[keyCount];
-    }
-
-    @Override
-    protected DownloadAction createDownloadAction(Uri manifestUri, boolean removeAction,
-        String data, RepresentationKey[] keys) {
-      return new DashDownloadAction(manifestUri, removeAction, data, keys);
-    }
-
-  };
-
-  private static final String TYPE = "DashDownloadAction";
-
-  /** @see SegmentDownloadAction#SegmentDownloadAction(Uri, boolean, String, Object[]) */
+  /**
+   * @param uri The DASH manifest URI.
+   * @param isRemoveAction Whether the data will be removed. If {@code false} it will be downloaded.
+   * @param data Optional custom data for this action.
+   * @param keys Keys of representations to be downloaded. If empty, all representations are
+   *     downloaded. If {@code removeAction} is true, {@code keys} must be empty.
+   */
   public DashDownloadAction(
-      Uri manifestUri, boolean removeAction, @Nullable String data, RepresentationKey... keys) {
-    super(manifestUri, removeAction, data, keys);
-  }
-
-  @Override
-  protected String getType() {
-    return TYPE;
+      Uri uri, boolean isRemoveAction, @Nullable byte[] data, List<RepresentationKey> keys) {
+    super(TYPE, VERSION, uri, isRemoveAction, data, keys);
   }
 
   @Override
   protected DashDownloader createDownloader(DownloaderConstructorHelper constructorHelper) {
-    DashDownloader downloader = new DashDownloader(manifestUri, constructorHelper);
-    if (!isRemoveAction()) {
-      downloader.selectRepresentations(keys);
-    }
-    return downloader;
+    return new DashDownloader(uri, keys, constructorHelper);
   }
 
   @Override

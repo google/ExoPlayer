@@ -15,14 +15,11 @@
  */
 package com.google.android.exoplayer2.source.dash.manifest;
 
-import android.os.Parcel;
-import android.os.Parcelable;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 
-/**
- * Uniquely identifies a {@link Representation} in a {@link DashManifest}.
- */
-public final class RepresentationKey implements Parcelable, Comparable<RepresentationKey> {
+/** Uniquely identifies a {@link Representation} in a {@link DashManifest}. */
+public final class RepresentationKey implements Comparable<RepresentationKey> {
 
   public final int periodIndex;
   public final int adaptationSetIndex;
@@ -39,49 +36,8 @@ public final class RepresentationKey implements Parcelable, Comparable<Represent
     return periodIndex + "." + adaptationSetIndex + "." + representationIndex;
   }
 
-  // Parcelable implementation.
-
   @Override
-  public int describeContents() {
-    return 0;
-  }
-
-  @Override
-  public void writeToParcel(Parcel dest, int flags) {
-    dest.writeInt(periodIndex);
-    dest.writeInt(adaptationSetIndex);
-    dest.writeInt(representationIndex);
-  }
-
-  public static final Creator<RepresentationKey> CREATOR =
-      new Creator<RepresentationKey>() {
-        @Override
-        public RepresentationKey createFromParcel(Parcel in) {
-          return new RepresentationKey(in.readInt(), in.readInt(), in.readInt());
-        }
-
-        @Override
-        public RepresentationKey[] newArray(int size) {
-          return new RepresentationKey[size];
-        }
-      };
-
-  // Comparable implementation.
-
-  @Override
-  public int compareTo(@NonNull RepresentationKey o) {
-    int result = periodIndex - o.periodIndex;
-    if (result == 0) {
-      result = adaptationSetIndex - o.adaptationSetIndex;
-      if (result == 0) {
-        result = representationIndex - o.representationIndex;
-      }
-    }
-    return result;
-  }
-
-  @Override
-  public boolean equals(Object o) {
+  public boolean equals(@Nullable Object o) {
     if (this == o) {
       return true;
     }
@@ -100,6 +56,20 @@ public final class RepresentationKey implements Parcelable, Comparable<Represent
     int result = periodIndex;
     result = 31 * result + adaptationSetIndex;
     result = 31 * result + representationIndex;
+    return result;
+  }
+
+  // Comparable implementation.
+
+  @Override
+  public int compareTo(@NonNull RepresentationKey o) {
+    int result = periodIndex - o.periodIndex;
+    if (result == 0) {
+      result = adaptationSetIndex - o.adaptationSetIndex;
+      if (result == 0) {
+        result = representationIndex - o.representationIndex;
+      }
+    }
     return result;
   }
 

@@ -17,7 +17,6 @@ package com.google.android.exoplayer2.offline;
 
 import android.net.Uri;
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DataSpec;
@@ -27,19 +26,19 @@ import com.google.android.exoplayer2.upstream.cache.CacheUtil;
 import com.google.android.exoplayer2.upstream.cache.CacheUtil.CachingCounters;
 import com.google.android.exoplayer2.util.PriorityTaskManager;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * Base class for multi segment stream downloaders.
  *
- * <p>All of the methods are blocking. Also they are not thread safe, except {@link
- * #getTotalSegments()}, {@link #getDownloadedSegments()} and {@link #getDownloadedBytes()}.
- *
  * @param <M> The type of the manifest object.
- * @param <K> The type of the representation key object.
+ * @param <K> The type of the streams key object.
  */
-public abstract class SegmentDownloader<M, K> implements Downloader {
+public abstract class SegmentDownloader<M extends FilterableManifest<M, K>, K>
+    implements Downloader {
 
   /** Smallest unit of content to be downloaded. */
   protected static class Segment implements Comparable<Segment> {
@@ -69,149 +68,89 @@ public abstract class SegmentDownloader<M, K> implements Downloader {
   private final Cache cache;
   private final CacheDataSource dataSource;
   private final CacheDataSource offlineDataSource;
+  private final ArrayList<K> streamKeys;
+  private final AtomicBoolean isCanceled;
 
-  private M manifest;
-  private K[] keys;
   private volatile int totalSegments;
   private volatile int downloadedSegments;
   private volatile long downloadedBytes;
 
   /**
    * @param manifestUri The {@link Uri} of the manifest to be downloaded.
-   * @param constructorHelper a {@link DownloaderConstructorHelper} instance.
+   * @param streamKeys Keys defining which streams in the manifest should be selected for download.
+   *     If empty, all streams are downloaded.
+   * @param constructorHelper A {@link DownloaderConstructorHelper} instance.
    */
-  public SegmentDownloader(Uri manifestUri, DownloaderConstructorHelper constructorHelper) {
+  public SegmentDownloader(
+      Uri manifestUri, List<K> streamKeys, DownloaderConstructorHelper constructorHelper) {
     this.manifestUri = manifestUri;
+    this.streamKeys = new ArrayList<>(streamKeys);
     this.cache = constructorHelper.getCache();
     this.dataSource = constructorHelper.buildCacheDataSource(false);
     this.offlineDataSource = constructorHelper.buildCacheDataSource(true);
     this.priorityTaskManager = constructorHelper.getPriorityTaskManager();
-    resetCounters();
+    totalSegments = C.LENGTH_UNSET;
+    isCanceled = new AtomicBoolean();
   }
 
   /**
-   * Returns the manifest. Downloads and parses it if necessary.
+   * Downloads the selected streams in the media. If multiple streams are selected, they are
+   * downloaded in sync with one another.
    *
-   * @return The manifest.
-   * @throws IOException If an error occurs reading data.
-   */
-  public final M getManifest() throws IOException {
-    return getManifestIfNeeded(false);
-  }
-
-  /**
-   * Selects multiple representations pointed to by the keys for downloading, checking status. Any
-   * previous selection is cleared. If keys array is empty, all representations are downloaded.
-   */
-  public final void selectRepresentations(K[] keys) {
-    this.keys = keys.length > 0 ? keys.clone() : null;
-    resetCounters();
-  }
-
-  /**
-   * Returns keys for all representations.
-   *
-   * @see #selectRepresentations(Object[])
-   */
-  public abstract K[] getAllRepresentationKeys() throws IOException;
-
-  /**
-   * Initializes the total segments, downloaded segments and downloaded bytes counters for the
-   * selected representations.
-   *
-   * @throws IOException Thrown when there is an io error while reading from cache.
-   * @throws DownloadException Thrown if the media cannot be downloaded.
-   * @throws InterruptedException If the thread has been interrupted.
-   * @see #getTotalSegments()
-   * @see #getDownloadedSegments()
-   * @see #getDownloadedBytes()
-   */
-  @Override
-  public final void init() throws InterruptedException, IOException {
-    try {
-      getManifestIfNeeded(true);
-    } catch (IOException e) {
-      // Either the manifest file isn't available offline or not parsable.
-      return;
-    }
-    try {
-      initStatus(true);
-    } catch (IOException | InterruptedException e) {
-      resetCounters();
-      throw e;
-    }
-  }
-
-  /**
-   * Downloads the content for the selected representations in sync or resumes a previously stopped
-   * download.
-   *
-   * @param listener If not null, called during download.
-   * @throws IOException Thrown when there is an io error while downloading.
-   * @throws DownloadException Thrown if the media cannot be downloaded.
+   * @throws IOException Thrown when there is an error downloading.
    * @throws InterruptedException If the thread has been interrupted.
    */
+  // downloadedSegments and downloadedBytes are only written from this method, and this method
+  // should not be called from more than one thread. Hence non-atomic updates are valid.
+  @SuppressWarnings("NonAtomicVolatileUpdate")
   @Override
-  public final synchronized void download(@Nullable ProgressListener listener)
-      throws IOException, InterruptedException {
+  public final void download() throws IOException, InterruptedException {
     priorityTaskManager.add(C.PRIORITY_DOWNLOAD);
+
     try {
-      getManifestIfNeeded(false);
-      List<Segment> segments = initStatus(false);
-      notifyListener(listener); // Initial notification.
+      List<Segment> segments = initDownload();
       Collections.sort(segments);
       byte[] buffer = new byte[BUFFER_SIZE_BYTES];
       CachingCounters cachingCounters = new CachingCounters();
       for (int i = 0; i < segments.size(); i++) {
-        CacheUtil.cache(segments.get(i).dataSpec, cache, dataSource, buffer,
-            priorityTaskManager, C.PRIORITY_DOWNLOAD, cachingCounters, true);
-        downloadedBytes += cachingCounters.newlyCachedBytes;
-        downloadedSegments++;
-        notifyListener(listener);
+        try {
+          CacheUtil.cache(
+              segments.get(i).dataSpec,
+              cache,
+              dataSource,
+              buffer,
+              priorityTaskManager,
+              C.PRIORITY_DOWNLOAD,
+              cachingCounters,
+              isCanceled,
+              true);
+          downloadedSegments++;
+        } finally {
+          downloadedBytes += cachingCounters.newlyCachedBytes;
+        }
       }
     } finally {
       priorityTaskManager.remove(C.PRIORITY_DOWNLOAD);
     }
   }
 
-  /**
-   * Returns the total number of segments in the representations which are selected, or {@link
-   * C#LENGTH_UNSET} if it hasn't been calculated yet.
-   *
-   * @see #init()
-   */
-  public final int getTotalSegments() {
-    return totalSegments;
+  @Override
+  public void cancel() {
+    isCanceled.set(true);
   }
 
-  /**
-   * Returns the total number of downloaded segments in the representations which are selected, or
-   * {@link C#LENGTH_UNSET} if it hasn't been calculated yet.
-   *
-   * @see #init()
-   */
-  public final int getDownloadedSegments() {
-    return downloadedSegments;
-  }
-
-  /**
-   * Returns the total number of downloaded bytes in the representations which are selected, or
-   * {@link C#LENGTH_UNSET} if it hasn't been calculated yet.
-   *
-   * @see #init()
-   */
   @Override
   public final long getDownloadedBytes() {
     return downloadedBytes;
   }
 
   @Override
-  public float getDownloadPercentage() {
+  public final float getDownloadPercentage() {
     // Take local snapshot of the volatile fields
     int totalSegments = this.totalSegments;
     int downloadedSegments = this.downloadedSegments;
     if (totalSegments == C.LENGTH_UNSET || downloadedSegments == C.LENGTH_UNSET) {
-      return Float.NaN;
+      return C.PERCENTAGE_UNSET;
     }
     return totalSegments == 0 ? 100f : (downloadedSegments * 100f) / totalSegments;
   }
@@ -219,28 +158,20 @@ public abstract class SegmentDownloader<M, K> implements Downloader {
   @Override
   public final void remove() throws InterruptedException {
     try {
-      getManifestIfNeeded(true);
+      M manifest = getManifest(offlineDataSource, manifestUri);
+      List<Segment> segments = getSegments(offlineDataSource, manifest, true);
+      for (int i = 0; i < segments.size(); i++) {
+        removeUri(segments.get(i).dataSpec.uri);
+      }
     } catch (IOException e) {
-      // Either the manifest file isn't available offline, or it's not parsable. Continue anyway to
-      // reset the counters and attempt to remove the manifest file.
+      // Ignore exceptions when removing.
+    } finally {
+      // Always attempt to remove the manifest.
+      removeUri(manifestUri);
     }
-    resetCounters();
-    if (manifest != null) {
-      List<Segment> segments = null;
-      try {
-        segments = getSegments(offlineDataSource, manifest, getAllRepresentationKeys(), true);
-      } catch (IOException e) {
-        // Ignore exceptions. We do our best with what's available offline.
-      }
-      if (segments != null) {
-        for (int i = 0; i < segments.size(); i++) {
-          remove(segments.get(i).dataSpec.uri);
-        }
-      }
-      manifest = null;
-    }
-    remove(manifestUri);
   }
+
+  // Internal methods.
 
   /**
    * Loads and parses the manifest.
@@ -253,51 +184,29 @@ public abstract class SegmentDownloader<M, K> implements Downloader {
   protected abstract M getManifest(DataSource dataSource, Uri uri) throws IOException;
 
   /**
-   * Returns a list of {@link Segment}s for given keys.
+   * Returns a list of all downloadable {@link Segment}s for a given manifest.
    *
    * @param dataSource The {@link DataSource} through which to load any required data.
    * @param manifest The manifest containing the segments.
-   * @param keys The selected representation keys.
-   * @param allowIncompleteIndex Whether to continue in the case that a load error prevents all
+   * @param allowIncompleteList Whether to continue in the case that a load error prevents all
    *     segments from being listed. If true then a partial segment list will be returned. If false
    *     an {@link IOException} will be thrown.
    * @throws InterruptedException Thrown if the thread was interrupted.
    * @throws IOException Thrown if {@code allowPartialIndex} is false and a load error occurs, or if
    *     the media is not in a form that allows for its segments to be listed.
-   * @return A list of {@link Segment}s for given keys.
+   * @return The list of downloadable {@link Segment}s.
    */
-  protected abstract List<Segment> getSegments(DataSource dataSource, M manifest, K[] keys,
-      boolean allowIncompleteIndex) throws InterruptedException, IOException;
+  protected abstract List<Segment> getSegments(
+      DataSource dataSource, M manifest, boolean allowIncompleteList)
+      throws InterruptedException, IOException;
 
-  private void resetCounters() {
-    totalSegments = C.LENGTH_UNSET;
-    downloadedSegments = C.LENGTH_UNSET;
-    downloadedBytes = C.LENGTH_UNSET;
-  }
-
-  private void remove(Uri uri) {
-    CacheUtil.remove(cache, CacheUtil.generateKey(uri));
-  }
-
-  private void notifyListener(ProgressListener listener) {
-    if (listener != null) {
-      listener.onDownloadProgress(this, getDownloadPercentage(), downloadedBytes);
+  /** Initializes the download, returning a list of {@link Segment}s that need to be downloaded. */
+  private List<Segment> initDownload() throws IOException, InterruptedException {
+    M manifest = getManifest(dataSource, manifestUri);
+    if (!streamKeys.isEmpty()) {
+      manifest = manifest.copy(streamKeys);
     }
-  }
-
-  /**
-   * Initializes totalSegments, downloadedSegments and downloadedBytes for selected representations.
-   * If not offline then downloads missing metadata.
-   *
-   * @return A list of not fully downloaded segments.
-   */
-  private synchronized List<Segment> initStatus(boolean offline)
-      throws IOException, InterruptedException {
-    DataSource dataSource = getDataSource(offline);
-    if (keys == null) {
-      keys = getAllRepresentationKeys();
-    }
-    List<Segment> segments = getSegments(dataSource, manifest, keys, offline);
+    List<Segment> segments = getSegments(dataSource, manifest, /* allowIncompleteList= */ false);
     CachingCounters cachingCounters = new CachingCounters();
     totalSegments = segments.size();
     downloadedSegments = 0;
@@ -315,15 +224,8 @@ public abstract class SegmentDownloader<M, K> implements Downloader {
     return segments;
   }
 
-  private M getManifestIfNeeded(boolean offline) throws IOException {
-    if (manifest == null) {
-      manifest = getManifest(getDataSource(offline), manifestUri);
-    }
-    return manifest;
-  }
-
-  private DataSource getDataSource(boolean offline) {
-    return offline ? offlineDataSource : dataSource;
+  private void removeUri(Uri uri) {
+    CacheUtil.remove(cache, CacheUtil.generateKey(uri));
   }
 
 }

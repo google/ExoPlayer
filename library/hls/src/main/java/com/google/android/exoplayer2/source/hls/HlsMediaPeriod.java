@@ -344,7 +344,7 @@ public final class HlsMediaPeriod implements MediaPeriod, HlsSampleStreamWrapper
       Format renditionFormat = audioRendition.format;
       if (allowChunklessPreparation && renditionFormat.codecs != null) {
         sampleStreamWrapper.prepareWithMasterPlaylistInfo(
-            new TrackGroupArray(new TrackGroup(audioRendition.format)), 0);
+            new TrackGroupArray(new TrackGroup(audioRendition.format)), 0, TrackGroupArray.EMPTY);
       } else {
         sampleStreamWrapper.continuePreparing();
       }
@@ -362,7 +362,7 @@ public final class HlsMediaPeriod implements MediaPeriod, HlsSampleStreamWrapper
               positionUs);
       sampleStreamWrappers[currentWrapperIndex++] = sampleStreamWrapper;
       sampleStreamWrapper.prepareWithMasterPlaylistInfo(
-          new TrackGroupArray(new TrackGroup(url.format)), 0);
+          new TrackGroupArray(new TrackGroup(url.format)), 0, TrackGroupArray.EMPTY);
     }
 
     // All wrappers are enabled during preparation.
@@ -386,7 +386,7 @@ public final class HlsMediaPeriod implements MediaPeriod, HlsSampleStreamWrapper
    *       master playlist either contains an EXT-X-MEDIA tag without the URI attribute or does not
    *       contain any EXT-X-MEDIA tag.
    *   <li>Closed captions will only be exposed if they are declared by the master playlist.
-   *   <li>ID3 tracks are not exposed.
+   *   <li>An ID3 track is exposed preemptively, in case the segments contain an ID3 track.
    * </ul>
    *
    * @param masterPlaylist The HLS master playlist.
@@ -463,8 +463,21 @@ public final class HlsMediaPeriod implements MediaPeriod, HlsSampleStreamWrapper
         // Variants contain codecs but no video or audio entries could be identified.
         throw new IllegalArgumentException("Unexpected codecs attribute: " + codecs);
       }
+
+      TrackGroup id3TrackGroup =
+          new TrackGroup(
+              Format.createSampleFormat(
+                  /* id= */ "ID3",
+                  MimeTypes.APPLICATION_ID3,
+                  /* codecs= */ null,
+                  /* bitrate= */ Format.NO_VALUE,
+                  /* drmInitData= */ null));
+      muxedTrackGroups.add(id3TrackGroup);
+
       sampleStreamWrapper.prepareWithMasterPlaylistInfo(
-          new TrackGroupArray(muxedTrackGroups.toArray(new TrackGroup[0])), 0);
+          new TrackGroupArray(muxedTrackGroups.toArray(new TrackGroup[0])),
+          0,
+          new TrackGroupArray(id3TrackGroup));
     } else {
       sampleStreamWrapper.setIsTimestampMaster(true);
       sampleStreamWrapper.continuePreparing();

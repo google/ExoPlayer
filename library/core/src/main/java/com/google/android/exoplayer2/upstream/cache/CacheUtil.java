@@ -26,6 +26,7 @@ import com.google.android.exoplayer2.util.Util;
 import java.io.EOFException;
 import java.io.IOException;
 import java.util.NavigableSet;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * Caching related utility methods.
@@ -112,14 +113,27 @@ public final class CacheUtil {
    * @param cache A {@link Cache} to store the data.
    * @param upstream A {@link DataSource} for reading data not in the cache.
    * @param counters If not null, updated during caching.
+   * @param isCanceled An optional flag that will interrupt caching if set to true.
    * @throws IOException If an error occurs reading from the source.
-   * @throws InterruptedException If the thread was interrupted.
+   * @throws InterruptedException If the thread was interrupted directly or via {@code isCanceled}.
    */
   public static void cache(
-      DataSpec dataSpec, Cache cache, DataSource upstream, @Nullable CachingCounters counters)
+      DataSpec dataSpec,
+      Cache cache,
+      DataSource upstream,
+      @Nullable CachingCounters counters,
+      @Nullable AtomicBoolean isCanceled)
       throws IOException, InterruptedException {
-    cache(dataSpec, cache, new CacheDataSource(cache, upstream),
-        new byte[DEFAULT_BUFFER_SIZE_BYTES], null, 0, counters, false);
+    cache(
+        dataSpec,
+        cache,
+        new CacheDataSource(cache, upstream),
+        new byte[DEFAULT_BUFFER_SIZE_BYTES],
+        null,
+        0,
+        counters,
+        null,
+        false);
   }
 
   /**
@@ -140,10 +154,11 @@ public final class CacheUtil {
    *     caching.
    * @param priority The priority of this task. Used with {@code priorityTaskManager}.
    * @param counters If not null, updated during caching.
+   * @param isCanceled An optional flag that will interrupt caching if set to true.
    * @param enableEOFException Whether to throw an {@link EOFException} if end of input has been
    *     reached unexpectedly.
    * @throws IOException If an error occurs reading from the source.
-   * @throws InterruptedException If the thread was interrupted.
+   * @throws InterruptedException If the thread was interrupted directly or via {@code isCanceled}.
    */
   public static void cache(
       DataSpec dataSpec,
@@ -153,6 +168,7 @@ public final class CacheUtil {
       PriorityTaskManager priorityTaskManager,
       int priority,
       @Nullable CachingCounters counters,
+      @Nullable AtomicBoolean isCanceled,
       boolean enableEOFException)
       throws IOException, InterruptedException {
     Assertions.checkNotNull(dataSource);
@@ -170,6 +186,9 @@ public final class CacheUtil {
     long start = dataSpec.absoluteStreamPosition;
     long left = dataSpec.length != C.LENGTH_UNSET ? dataSpec.length : cache.getContentLength(key);
     while (left != 0) {
+      if (isCanceled != null && isCanceled.get()) {
+        throw new InterruptedException();
+      }
       long blockLength =
           cache.getCachedLength(key, start, left != C.LENGTH_UNSET ? left : Long.MAX_VALUE);
       if (blockLength > 0) {

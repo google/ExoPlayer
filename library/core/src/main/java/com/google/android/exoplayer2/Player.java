@@ -460,6 +460,17 @@ public interface Player {
   int getPlaybackState();
 
   /**
+   * Returns the error that caused playback to fail. This is the same error that will have been
+   * reported via {@link Player.EventListener#onPlayerError(ExoPlaybackException)} at the time of
+   * failure. It can be queried using this method until {@code stop(true)} is called or the player
+   * is re-prepared.
+   *
+   * @return The error, or {@code null}.
+   */
+  @Nullable
+  ExoPlaybackException getPlaybackError();
+
+  /**
    * Sets whether playback should proceed when {@link #getPlaybackState()} == {@link #STATE_READY}.
    * <p>
    * If the player is already in the ready state then this method can be used to pause and resume

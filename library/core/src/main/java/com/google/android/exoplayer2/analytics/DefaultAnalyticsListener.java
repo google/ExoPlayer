@@ -153,18 +153,6 @@ public abstract class DefaultAnalyticsListener implements AnalyticsListener {
   public void onRenderedFirstFrame(EventTime eventTime, Surface surface) {}
 
   @Override
-  public void onAdLoadError(EventTime eventTime, IOException error) {}
-
-  @Override
-  public void onInternalAdLoadError(EventTime eventTime, RuntimeException error) {}
-
-  @Override
-  public void onAdClicked(EventTime eventTime) {}
-
-  @Override
-  public void onAdTapped(EventTime eventTime) {}
-
-  @Override
   public void onDrmKeysLoaded(EventTime eventTime) {}
 
   @Override

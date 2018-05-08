@@ -18,7 +18,6 @@ package com.google.android.exoplayer2.upstream.cache;
 import android.net.Uri;
 import android.support.annotation.IntDef;
 import android.support.annotation.Nullable;
-import android.util.Log;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.upstream.DataSink;
 import com.google.android.exoplayer2.upstream.DataSource;
@@ -52,8 +51,6 @@ public final class CacheDataSource implements DataSource {
    */
   public static final long DEFAULT_MAX_CACHE_FILE_SIZE = 2 * 1024 * 1024;
 
-  private static final String TAG = "CacheDataSource";
-
   /**
    * Flags controlling the cache's behavior.
    */
@@ -85,10 +82,13 @@ public final class CacheDataSource implements DataSource {
   @IntDef({CACHE_IGNORED_REASON_ERROR, CACHE_IGNORED_REASON_UNSET_LENGTH})
   public @interface CacheIgnoredReason {}
 
-  /** Cache ignored due to a cache related error */
+  /** Cache not ignored. */
+  private static final int CACHE_NOT_IGNORED = -1;
+
+  /** Cache ignored due to a cache related error. */
   public static final int CACHE_IGNORED_REASON_ERROR = 0;
 
-  /** Cache ignored due to a request with an unset length */
+  /** Cache ignored due to a request with an unset length. */
   public static final int CACHE_IGNORED_REASON_UNSET_LENGTH = 1;
 
   /**
@@ -218,11 +218,16 @@ public final class CacheDataSource implements DataSource {
     try {
       key = CacheUtil.getKey(dataSpec);
       uri = dataSpec.uri;
-      actualUri = loadRedirectedUriOrReturnGivenUri(cache, key, uri);
+      actualUri = getRedirectedUriOrDefault(cache, key, /* defaultUri= */ uri);
       flags = dataSpec.flags;
       readPosition = dataSpec.position;
-      currentRequestIgnoresCache = (ignoreCacheOnError && seenCacheError)
-          || (dataSpec.length == C.LENGTH_UNSET && ignoreCacheForUnsetLengthRequests);
+
+      int reason = shouldIgnoreCacheForRequest(dataSpec);
+      currentRequestIgnoresCache = reason != CACHE_NOT_IGNORED;
+      if (currentRequestIgnoresCache) {
+        notifyCacheIgnored(reason);
+      }
+
       if (dataSpec.length != C.LENGTH_UNSET || currentRequestIgnoresCache) {
         bytesRemaining = dataSpec.length;
       } else {
@@ -264,7 +269,7 @@ public final class CacheDataSource implements DataSource {
           bytesRemaining -= bytesRead;
         }
       } else if (currentDataSpecLengthUnset) {
-        setBytesRemainingAndMaybeStoreLength(0);
+        setNoBytesRemainingAndMaybeStoreLength();
       } else if (bytesRemaining > 0 || bytesRemaining == C.LENGTH_UNSET) {
         closeCurrentSource();
         openNextSource(false);
@@ -273,7 +278,7 @@ public final class CacheDataSource implements DataSource {
       return bytesRead;
     } catch (IOException e) {
       if (currentDataSpecLengthUnset && isCausedByPositionOutOfRange(e)) {
-        setBytesRemainingAndMaybeStoreLength(0);
+        setNoBytesRemainingAndMaybeStoreLength();
         return C.RESULT_END_OF_INPUT;
       }
       handleBeforeThrow(e);
@@ -317,17 +322,11 @@ public final class CacheDataSource implements DataSource {
     CacheSpan nextSpan;
     if (currentRequestIgnoresCache) {
       nextSpan = null;
-      if (eventListener != null) {
-        int reason =
-            ignoreCacheOnError && seenCacheError
-                ? CACHE_IGNORED_REASON_ERROR
-                : CACHE_IGNORED_REASON_UNSET_LENGTH;
-        eventListener.onCacheIgnored(reason);
-      }
     } else if (blockOnCache) {
       try {
         nextSpan = cache.startReadWrite(key, readPosition);
       } catch (InterruptedException e) {
+        Thread.currentThread().interrupt();
         throw new InterruptedIOException();
       }
     } else {
@@ -400,46 +399,38 @@ public final class CacheDataSource implements DataSource {
     currentDataSource = nextDataSource;
     currentDataSpecLengthUnset = nextDataSpec.length == C.LENGTH_UNSET;
     long resolvedLength = nextDataSource.open(nextDataSpec);
-    if (currentDataSpecLengthUnset && resolvedLength != C.LENGTH_UNSET) {
-      setBytesRemainingAndMaybeStoreLength(resolvedLength);
-    }
-    // TODO find a way to store length and redirected uri in one metadata mutation.
-    maybeUpdateActualUriFieldAndRedirectedUriMetadata();
-  }
 
-  private void maybeUpdateActualUriFieldAndRedirectedUriMetadata() {
-    if (!isReadingFromUpstream()) {
-      return;
-    }
-    actualUri = currentDataSource.getUri();
-    maybeUpdateRedirectedUriMetadata();
-  }
-
-  private void maybeUpdateRedirectedUriMetadata() {
-    if (!isWritingToCache()) {
-      return;
-    }
+    // Update bytesRemaining, actualUri and (if writing to cache) the cache metadata.
     ContentMetadataMutations mutations = new ContentMetadataMutations();
-    boolean isRedirected = !uri.equals(actualUri);
-    if (isRedirected) {
-      ContentMetadataInternal.setRedirectedUri(mutations, actualUri);
-    } else {
-      ContentMetadataInternal.removeRedirectedUri(mutations);
+    if (currentDataSpecLengthUnset && resolvedLength != C.LENGTH_UNSET) {
+      bytesRemaining = resolvedLength;
+      ContentMetadataInternal.setContentLength(mutations, readPosition + bytesRemaining);
     }
-    try {
+    if (isReadingFromUpstream()) {
+      actualUri = currentDataSource.getUri();
+      boolean isRedirected = !uri.equals(actualUri);
+      if (isRedirected) {
+        ContentMetadataInternal.setRedirectedUri(mutations, actualUri);
+      } else {
+        ContentMetadataInternal.removeRedirectedUri(mutations);
+      }
+    }
+    if (isWritingToCache()) {
       cache.applyContentMetadataMutations(key, mutations);
-    } catch (CacheException e) {
-      String message =
-          "Couldn't update redirected URI. "
-              + "This might cause relative URIs get resolved incorrectly.";
-      Log.w(TAG, message, e);
     }
   }
 
-  private static Uri loadRedirectedUriOrReturnGivenUri(Cache cache, String key, Uri uri) {
+  private void setNoBytesRemainingAndMaybeStoreLength() throws IOException {
+    bytesRemaining = 0;
+    if (isWritingToCache()) {
+      cache.setContentLength(key, readPosition);
+    }
+  }
+
+  private static Uri getRedirectedUriOrDefault(Cache cache, String key, Uri defaultUri) {
     ContentMetadata contentMetadata = cache.getContentMetadata(key);
     Uri redirectedUri = ContentMetadataInternal.getRedirectedUri(contentMetadata);
-    return redirectedUri == null ? uri : redirectedUri;
+    return redirectedUri == null ? defaultUri : redirectedUri;
   }
 
   private static boolean isCausedByPositionOutOfRange(IOException e) {
@@ -454,13 +445,6 @@ public final class CacheDataSource implements DataSource {
       cause = cause.getCause();
     }
     return false;
-  }
-
-  private void setBytesRemainingAndMaybeStoreLength(long bytesRemaining) throws IOException {
-    this.bytesRemaining = bytesRemaining;
-    if (isWritingToCache()) {
-      cache.setContentLength(key, readPosition + bytesRemaining);
-    }
   }
 
   private boolean isReadingFromUpstream() {
@@ -498,6 +482,22 @@ public final class CacheDataSource implements DataSource {
   private void handleBeforeThrow(IOException exception) {
     if (isReadingFromCache() || exception instanceof CacheException) {
       seenCacheError = true;
+    }
+  }
+
+  private int shouldIgnoreCacheForRequest(DataSpec dataSpec) {
+    if (ignoreCacheOnError && seenCacheError) {
+      return CACHE_IGNORED_REASON_ERROR;
+    } else if (ignoreCacheForUnsetLengthRequests && dataSpec.length == C.LENGTH_UNSET) {
+      return CACHE_IGNORED_REASON_UNSET_LENGTH;
+    } else {
+      return CACHE_NOT_IGNORED;
+    }
+  }
+
+  private void notifyCacheIgnored(@CacheIgnoredReason int reason) {
+    if (eventListener != null) {
+      eventListener.onCacheIgnored(reason);
     }
   }
 

@@ -105,14 +105,10 @@ public final class AnalyticsCollectorTest {
   private static final int EVENT_DROPPED_VIDEO_FRAMES = 30;
   private static final int EVENT_VIDEO_SIZE_CHANGED = 31;
   private static final int EVENT_RENDERED_FIRST_FRAME = 32;
-  private static final int EVENT_AD_LOAD_ERROR = 33;
-  private static final int EVENT_INTERNAL_AD_LOAD_ERROR = 34;
-  private static final int EVENT_AD_CLICKED = 35;
-  private static final int EVENT_AD_TAPPED = 36;
-  private static final int EVENT_DRM_KEYS_LOADED = 37;
-  private static final int EVENT_DRM_ERROR = 38;
-  private static final int EVENT_DRM_KEYS_RESTORED = 39;
-  private static final int EVENT_DRM_KEYS_REMOVED = 40;
+  private static final int EVENT_DRM_KEYS_LOADED = 33;
+  private static final int EVENT_DRM_ERROR = 34;
+  private static final int EVENT_DRM_KEYS_RESTORED = 35;
+  private static final int EVENT_DRM_KEYS_REMOVED = 36;
 
   private static final int TIMEOUT_MS = 10000;
   private static final Timeline SINGLE_PERIOD_TIMELINE = new FakeTimeline(/* windowCount= */ 1);
@@ -1087,26 +1083,6 @@ public final class AnalyticsCollectorTest {
     @Override
     public void onRenderedFirstFrame(EventTime eventTime, Surface surface) {
       reportedEvents.add(new ReportedEvent(EVENT_RENDERED_FIRST_FRAME, eventTime));
-    }
-
-    @Override
-    public void onAdLoadError(EventTime eventTime, IOException error) {
-      reportedEvents.add(new ReportedEvent(EVENT_AD_LOAD_ERROR, eventTime));
-    }
-
-    @Override
-    public void onInternalAdLoadError(EventTime eventTime, RuntimeException error) {
-      reportedEvents.add(new ReportedEvent(EVENT_INTERNAL_AD_LOAD_ERROR, eventTime));
-    }
-
-    @Override
-    public void onAdClicked(EventTime eventTime) {
-      reportedEvents.add(new ReportedEvent(EVENT_AD_CLICKED, eventTime));
-    }
-
-    @Override
-    public void onAdTapped(EventTime eventTime) {
-      reportedEvents.add(new ReportedEvent(EVENT_AD_TAPPED, eventTime));
     }
 
     @Override

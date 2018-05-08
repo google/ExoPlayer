@@ -334,12 +334,11 @@ public final class MediaSessionConnector {
   private Player player;
   private CustomActionProvider[] customActionProviders;
   private Map<String, CustomActionProvider> customActionMap;
-  private ErrorMessageProvider<? super ExoPlaybackException> errorMessageProvider;
+  private @Nullable ErrorMessageProvider<? super ExoPlaybackException> errorMessageProvider;
   private PlaybackPreparer playbackPreparer;
   private QueueNavigator queueNavigator;
   private QueueEditor queueEditor;
   private RatingCallback ratingCallback;
-  private ExoPlaybackException playbackException;
 
   /**
    * Creates an instance. Must be called on the same thread that is used to construct the player
@@ -403,16 +402,18 @@ public final class MediaSessionConnector {
 
   /**
    * Sets the player to be connected to the media session.
-   * <p>
-   * The order in which any {@link CustomActionProvider}s are passed determines the order of the
+   *
+   * <p>The order in which any {@link CustomActionProvider}s are passed determines the order of the
    * actions published with the playback state of the session.
    *
    * @param player The player to be connected to the {@code MediaSession}.
    * @param playbackPreparer An optional {@link PlaybackPreparer} for preparing the player.
-   * @param customActionProviders An optional {@link CustomActionProvider}s to publish and handle
+   * @param customActionProviders Optional {@link CustomActionProvider}s to publish and handle
    *     custom actions.
    */
-  public void setPlayer(Player player, PlaybackPreparer playbackPreparer,
+  public void setPlayer(
+      Player player,
+      @Nullable PlaybackPreparer playbackPreparer,
       CustomActionProvider... customActionProviders) {
     if (this.player != null) {
       this.player.removeListener(exoPlayerEventListener);
@@ -435,13 +436,16 @@ public final class MediaSessionConnector {
   }
 
   /**
-   * Sets the {@link ErrorMessageProvider}.
+   * Sets the optional {@link ErrorMessageProvider}.
    *
    * @param errorMessageProvider The error message provider.
    */
   public void setErrorMessageProvider(
-      ErrorMessageProvider<? super ExoPlaybackException> errorMessageProvider) {
-    this.errorMessageProvider = errorMessageProvider;
+      @Nullable ErrorMessageProvider<? super ExoPlaybackException> errorMessageProvider) {
+    if (this.errorMessageProvider != errorMessageProvider) {
+      this.errorMessageProvider = errorMessageProvider;
+      updateMediaSessionPlaybackState();
+    }
   }
 
   /**
@@ -451,9 +455,11 @@ public final class MediaSessionConnector {
    * @param queueNavigator The queue navigator.
    */
   public void setQueueNavigator(QueueNavigator queueNavigator) {
-    unregisterCommandReceiver(this.queueNavigator);
-    this.queueNavigator = queueNavigator;
-    registerCommandReceiver(queueNavigator);
+    if (this.queueNavigator != queueNavigator) {
+      unregisterCommandReceiver(this.queueNavigator);
+      this.queueNavigator = queueNavigator;
+      registerCommandReceiver(queueNavigator);
+    }
   }
 
   /**
@@ -462,11 +468,13 @@ public final class MediaSessionConnector {
    * @param queueEditor The queue editor.
    */
   public void setQueueEditor(QueueEditor queueEditor) {
-    unregisterCommandReceiver(this.queueEditor);
-    this.queueEditor = queueEditor;
-    registerCommandReceiver(queueEditor);
-    mediaSession.setFlags(queueEditor == null ? BASE_MEDIA_SESSION_FLAGS
-        : EDITOR_MEDIA_SESSION_FLAGS);
+    if (this.queueEditor != queueEditor) {
+      unregisterCommandReceiver(this.queueEditor);
+      this.queueEditor = queueEditor;
+      registerCommandReceiver(queueEditor);
+      mediaSession.setFlags(
+          queueEditor == null ? BASE_MEDIA_SESSION_FLAGS : EDITOR_MEDIA_SESSION_FLAGS);
+    }
   }
 
   /**
@@ -475,9 +483,11 @@ public final class MediaSessionConnector {
    * @param ratingCallback The rating callback.
    */
   public void setRatingCallback(RatingCallback ratingCallback) {
-    unregisterCommandReceiver(this.ratingCallback);
-    this.ratingCallback = ratingCallback;
-    registerCommandReceiver(this.ratingCallback);
+    if (this.ratingCallback != ratingCallback) {
+      unregisterCommandReceiver(this.ratingCallback);
+      this.ratingCallback = ratingCallback;
+      registerCommandReceiver(this.ratingCallback);
+    }
   }
 
   private void registerCommandReceiver(CommandReceiver commandReceiver) {
@@ -514,16 +524,16 @@ public final class MediaSessionConnector {
     }
     customActionMap = Collections.unmodifiableMap(currentActions);
 
-    int sessionPlaybackState = playbackException != null ? PlaybackStateCompat.STATE_ERROR
-        : mapPlaybackState(player.getPlaybackState(), player.getPlayWhenReady());
-    if (playbackException != null) {
-      if (errorMessageProvider != null) {
-        Pair<Integer, String> message = errorMessageProvider.getErrorMessage(playbackException);
-        builder.setErrorMessage(message.first, message.second);
-      }
-      if (player.getPlaybackState() != Player.STATE_IDLE) {
-        playbackException = null;
-      }
+    int playbackState = player.getPlaybackState();
+    ExoPlaybackException playbackError =
+        playbackState == Player.STATE_IDLE ? player.getPlaybackError() : null;
+    int sessionPlaybackState =
+        playbackError != null
+            ? PlaybackStateCompat.STATE_ERROR
+            : mapPlaybackState(player.getPlaybackState(), player.getPlayWhenReady());
+    if (playbackError != null && errorMessageProvider != null) {
+      Pair<Integer, String> message = errorMessageProvider.getErrorMessage(playbackError);
+      builder.setErrorMessage(message.first, message.second);
     }
     long activeQueueItemId = queueNavigator != null ? queueNavigator.getActiveQueueItemId(player)
         : MediaSessionCompat.QueueItem.UNKNOWN_ID;
@@ -696,12 +706,6 @@ public final class MediaSessionConnector {
     public void onShuffleModeEnabledChanged(boolean shuffleModeEnabled) {
       mediaSession.setShuffleMode(shuffleModeEnabled ? PlaybackStateCompat.SHUFFLE_MODE_ALL
           : PlaybackStateCompat.SHUFFLE_MODE_NONE);
-      updateMediaSessionPlaybackState();
-    }
-
-    @Override
-    public void onPlayerError(ExoPlaybackException error) {
-      playbackException = error;
       updateMediaSessionPlaybackState();
     }
 

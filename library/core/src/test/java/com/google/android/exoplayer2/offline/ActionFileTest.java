@@ -17,6 +17,7 @@ package com.google.android.exoplayer2.offline;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import android.net.Uri;
 import com.google.android.exoplayer2.offline.DownloadAction.Deserializer;
 import com.google.android.exoplayer2.util.Util;
 import java.io.DataInputStream;
@@ -63,7 +64,7 @@ public class ActionFileTest {
   @Test
   public void testLoadIncompleteHeaderThrowsIOException() throws Exception {
     try {
-      loadActions(new Object[] {DownloadAction.MASTER_VERSION});
+      loadActions(new Object[] {ActionFile.VERSION});
       Assert.fail();
     } catch (IOException e) {
       // Expected exception.
@@ -72,39 +73,83 @@ public class ActionFileTest {
 
   @Test
   public void testLoadCompleteHeaderZeroAction() throws Exception {
-    DownloadAction[] actions =
-        loadActions(new Object[] {DownloadAction.MASTER_VERSION, /*action count*/0});
+    DownloadAction[] actions = loadActions(new Object[] {ActionFile.VERSION, 0});
     assertThat(actions).isNotNull();
     assertThat(actions).hasLength(0);
   }
 
   @Test
   public void testLoadAction() throws Exception {
-    DownloadAction[] actions = loadActions(
-        new Object[] {DownloadAction.MASTER_VERSION, /*action count*/1, /*action 1*/"type2", 321},
-        new FakeDeserializer("type2"));
+    byte[] data = Util.getUtf8Bytes("321");
+    DownloadAction[] actions =
+        loadActions(
+            new Object[] {
+              ActionFile.VERSION,
+              1, // Action count
+              "type2", // Action 1
+              FakeDownloadAction.VERSION,
+              data,
+            },
+            new FakeDeserializer("type2"));
     assertThat(actions).isNotNull();
     assertThat(actions).hasLength(1);
-    assertAction(actions[0], "type2", DownloadAction.MASTER_VERSION, 321);
+    assertAction(actions[0], "type2", FakeDownloadAction.VERSION, data);
   }
 
   @Test
   public void testLoadActions() throws Exception {
-    DownloadAction[] actions = loadActions(
-        new Object[] {DownloadAction.MASTER_VERSION, /*action count*/2, /*action 1*/"type1", 123,
-            /*action 2*/"type2", 321}, // Action 2
-        new FakeDeserializer("type1"), new FakeDeserializer("type2"));
+    byte[] data1 = Util.getUtf8Bytes("123");
+    byte[] data2 = Util.getUtf8Bytes("321");
+    DownloadAction[] actions =
+        loadActions(
+            new Object[] {
+              ActionFile.VERSION,
+              2, // Action count
+              "type1", // Action 1
+              FakeDownloadAction.VERSION,
+              data1,
+              "type2", // Action 2
+              FakeDownloadAction.VERSION,
+              data2,
+            },
+            new FakeDeserializer("type1"),
+            new FakeDeserializer("type2"));
     assertThat(actions).isNotNull();
     assertThat(actions).hasLength(2);
-    assertAction(actions[0], "type1", DownloadAction.MASTER_VERSION, 123);
-    assertAction(actions[1], "type2", DownloadAction.MASTER_VERSION, 321);
+    assertAction(actions[0], "type1", FakeDownloadAction.VERSION, data1);
+    assertAction(actions[1], "type2", FakeDownloadAction.VERSION, data2);
   }
 
   @Test
   public void testLoadNotSupportedVersion() throws Exception {
     try {
-      loadActions(new Object[] {DownloadAction.MASTER_VERSION + 1, /*action count*/1,
-              /*action 1*/"type2", 321}, new FakeDeserializer("type2"));
+      loadActions(
+          new Object[] {
+            ActionFile.VERSION + 1,
+            1, // Action count
+            "type2", // Action 1
+            FakeDownloadAction.VERSION,
+            Util.getUtf8Bytes("321"),
+          },
+          new FakeDeserializer("type2"));
+      Assert.fail();
+    } catch (IOException e) {
+      // Expected exception.
+    }
+  }
+
+  @Test
+  public void testLoadNotSupportedActionVersion() throws Exception {
+    try {
+      loadActions(
+          new Object[] {
+            ActionFile.VERSION,
+            1, // Action count
+            "type2", // Action 1
+            FakeDownloadAction.VERSION + 1,
+            Util.getUtf8Bytes("321"),
+          },
+          new FakeDeserializer("type2"));
       Assert.fail();
     } catch (IOException e) {
       // Expected exception.
@@ -114,8 +159,15 @@ public class ActionFileTest {
   @Test
   public void testLoadNotSupportedType() throws Exception {
     try {
-      loadActions(new Object[] {DownloadAction.MASTER_VERSION, /*action count*/1,
-              /*action 1*/"type2", 321}, new FakeDeserializer("type1"));
+      loadActions(
+          new Object[] {
+            ActionFile.VERSION,
+            1, // Action count
+            "type2", // Action 1
+            FakeDownloadAction.VERSION,
+            Util.getUtf8Bytes("321"),
+          },
+          new FakeDeserializer("type1"));
       Assert.fail();
     } catch (DownloadException e) {
       // Expected exception.
@@ -129,10 +181,13 @@ public class ActionFileTest {
 
   @Test
   public void testStoreAndLoadActions() throws Exception {
-    doTestSerializationRoundTrip(new DownloadAction[] {
-        new FakeDownloadAction("type1", DownloadAction.MASTER_VERSION, 123),
-        new FakeDownloadAction("type2", DownloadAction.MASTER_VERSION, 321),
-    }, new FakeDeserializer("type1"), new FakeDeserializer("type2"));
+    doTestSerializationRoundTrip(
+        new DownloadAction[] {
+          new FakeDownloadAction("type1", Util.getUtf8Bytes("123")),
+          new FakeDownloadAction("type2", Util.getUtf8Bytes("321")),
+        },
+        new FakeDeserializer("type1"),
+        new FakeDeserializer("type2"));
   }
 
   private void doTestSerializationRoundTrip(DownloadAction[] actions,
@@ -149,9 +204,13 @@ public class ActionFileTest {
     try {
       for (Object value : values) {
         if (value instanceof Integer) {
-          dataOutputStream.writeInt((Integer) value); // Action count
+          dataOutputStream.writeInt((Integer) value);
         } else if (value instanceof String) {
-          dataOutputStream.writeUTF((String) value); // Action count
+          dataOutputStream.writeUTF((String) value);
+        } else if (value instanceof byte[]) {
+          byte[] data = (byte[]) value;
+          dataOutputStream.writeInt(data.length);
+          dataOutputStream.write(data);
         } else {
           throw new IllegalArgumentException();
         }
@@ -162,61 +221,40 @@ public class ActionFileTest {
     return new ActionFile(tempFile).load(deserializers);
   }
 
-  private static void assertAction(DownloadAction action, String type, int version, int data) {
+  private static void assertAction(DownloadAction action, String type, int version, byte[] data) {
     assertThat(action).isInstanceOf(FakeDownloadAction.class);
-    assertThat(action.getType()).isEqualTo(type);
+    assertThat(action.type).isEqualTo(type);
     assertThat(((FakeDownloadAction) action).version).isEqualTo(version);
     assertThat(((FakeDownloadAction) action).data).isEqualTo(data);
   }
 
-  private static class FakeDeserializer implements Deserializer {
-    final String type;
+  private static class FakeDeserializer extends Deserializer {
 
     FakeDeserializer(String type) {
-      this.type = type;
-    }
-
-    @Override
-    public String getType() {
-      return type;
+      super(type, FakeDownloadAction.VERSION);
     }
 
     @Override
     public DownloadAction readFromStream(int version, DataInputStream input) throws IOException {
-      return new FakeDownloadAction(type, version, input.readInt());
+      int dataLength = input.readInt();
+      byte[] data = new byte[dataLength];
+      input.readFully(data);
+      return new FakeDownloadAction(type, data);
     }
   }
 
   private static class FakeDownloadAction extends DownloadAction {
-    final String type;
-    final int version;
-    final int data;
 
-    private FakeDownloadAction(String type, int version, int data) {
-      super(null);
-      this.type = type;
-      this.version = version;
-      this.data = data;
-    }
+    public static final int VERSION = 0;
 
-    @Override
-    protected String getType() {
-      return type;
+    private FakeDownloadAction(String type, byte[] data) {
+      super(type, VERSION, Uri.parse("http://test.com"), /* isRemoveAction= */ false, data);
     }
 
     @Override
     protected void writeToStream(DataOutputStream output) throws IOException {
-      output.writeInt(data);
-    }
-
-    @Override
-    public boolean isRemoveAction() {
-      return false;
-    }
-
-    @Override
-    protected boolean isSameMedia(DownloadAction other) {
-      return false;
+      output.writeInt(data.length);
+      output.write(data);
     }
 
     @Override
@@ -224,27 +262,6 @@ public class ActionFileTest {
       return null;
     }
 
-    // auto generated code
-
-    @Override
-    public boolean equals(Object o) {
-      if (this == o) {
-        return true;
-      }
-      if (o == null || getClass() != o.getClass()) {
-        return false;
-      }
-      FakeDownloadAction that = (FakeDownloadAction) o;
-      return version == that.version && data == that.data && type.equals(that.type);
-    }
-
-    @Override
-    public int hashCode() {
-      int result = type.hashCode();
-      result = 31 * result + version;
-      result = 31 * result + data;
-      return result;
-    }
   }
 
 }
