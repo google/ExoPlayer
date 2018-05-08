@@ -232,9 +232,9 @@ public final class CastPlayer implements Player {
    * exist, does nothing.
    *
    * @param periodId The id of the period ({@link #getCurrentTimeline}) that corresponds to the item
-   * to remove.
+   *     to remove.
    * @return The Cast {@code PendingResult}, or null if no media queue or no period with id {@code
-   * periodId} exist.
+   *     periodId} exist.
    */
   public PendingResult<MediaChannelResult> removeItem(int periodId) {
     if (getMediaStatus() != null && currentTimeline.getIndexOfPeriod(periodId) != C.INDEX_UNSET) {
@@ -248,11 +248,11 @@ public final class CastPlayer implements Player {
    * periodId} exist, does nothing.
    *
    * @param periodId The id of the period ({@link #getCurrentTimeline}) that corresponds to the item
-   * to move.
+   *     to move.
    * @param newIndex The target index of the item in the media queue. Must be in the range 0 &lt;=
-   * index &lt; {@link Timeline#getPeriodCount()}, as provided by {@link #getCurrentTimeline()}.
+   *     index &lt; {@link Timeline#getPeriodCount()}, as provided by {@link #getCurrentTimeline()}.
    * @return The Cast {@code PendingResult}, or null if no media queue or no period with id {@code
-   * periodId} exist.
+   *     periodId} exist.
    */
   public PendingResult<MediaChannelResult> moveItem(int periodId, int newIndex) {
     Assertions.checkArgument(newIndex >= 0 && newIndex < currentTimeline.getPeriodCount());
@@ -267,9 +267,9 @@ public final class CastPlayer implements Player {
    * period with id {@code periodId} exist.
    *
    * @param periodId The id of the period ({@link #getCurrentTimeline}) that corresponds to the item
-   * to get.
+   *     to get.
    * @return The item that corresponds to the period with the given id, or null if no media queue or
-   * period with id {@code periodId} exist.
+   *     period with id {@code periodId} exist.
    */
   public MediaQueueItem getItem(int periodId) {
     MediaStatus mediaStatus = getMediaStatus();
@@ -817,16 +817,13 @@ public final class CastPlayer implements Player {
     }
 
     @Override
-    public void onPreloadStatusUpdated() {
-    }
+    public void onPreloadStatusUpdated() {}
 
     @Override
-    public void onSendingRemoteMediaRequest() {
-    }
+    public void onSendingRemoteMediaRequest() {}
 
     @Override
-    public void onAdBreakStatusUpdated() {
-    }
+    public void onAdBreakStatusUpdated() {}
 
     // SessionManagerListener implementation.
 
