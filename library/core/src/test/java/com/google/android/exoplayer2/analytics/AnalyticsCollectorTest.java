@@ -846,7 +846,7 @@ public final class AnalyticsCollectorTest {
     }
 
     @Override
-    public boolean equals(Object other) {
+    public boolean equals(@Nullable Object other) {
       if (!(other instanceof EventWindowAndPeriodId)) {
         return false;
       }
