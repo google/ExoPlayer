@@ -2,7 +2,8 @@
 
 ### dev-v2 (not yet released) ###
 
-* Coming soon...
+* OkHttp extension: Fix to correctly include response headers in thrown
+  `InvalidResponseCodeException`s.
 
 ### 2.8.0 ###
 
