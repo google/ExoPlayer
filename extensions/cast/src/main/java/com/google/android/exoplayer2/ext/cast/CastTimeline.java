@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.ext.cast;
 
+import android.support.annotation.Nullable;
 import android.util.SparseIntArray;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Timeline;
@@ -110,7 +111,7 @@ import java.util.Map;
   // equals and hashCode implementations.
 
   @Override
-  public boolean equals(Object other) {
+  public boolean equals(@Nullable Object other) {
     if (this == other) {
       return true;
     } else if (!(other instanceof CastTimeline)) {
