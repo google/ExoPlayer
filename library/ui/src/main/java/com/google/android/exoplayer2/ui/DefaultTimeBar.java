@@ -408,8 +408,8 @@ public class DefaultTimeBar extends View implements TimeBar {
     switch (event.getAction()) {
       case MotionEvent.ACTION_DOWN:
         if (isInSeekBar(x, y)) {
-          startScrubbing();
           positionScrubber(x);
+          startScrubbing();
           scrubPosition = getScrubberPosition();
           update();
           invalidate();
