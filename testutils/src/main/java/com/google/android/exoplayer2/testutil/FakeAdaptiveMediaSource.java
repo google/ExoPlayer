@@ -18,9 +18,9 @@ package com.google.android.exoplayer2.testutil;
 import android.os.Handler;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.Timeline.Period;
-import com.google.android.exoplayer2.source.AdaptiveMediaSourceEventListener;
-import com.google.android.exoplayer2.source.AdaptiveMediaSourceEventListener.EventDispatcher;
 import com.google.android.exoplayer2.source.MediaSource;
+import com.google.android.exoplayer2.source.MediaSourceEventListener;
+import com.google.android.exoplayer2.source.MediaSourceEventListener.EventDispatcher;
 import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.upstream.Allocator;
 
@@ -30,23 +30,29 @@ import com.google.android.exoplayer2.upstream.Allocator;
  */
 public class FakeAdaptiveMediaSource extends FakeMediaSource {
 
-  private final EventDispatcher eventDispatcher;
   private final FakeChunkSource.Factory chunkSourceFactory;
 
-  public FakeAdaptiveMediaSource(Timeline timeline, Object manifest,
-      TrackGroupArray trackGroupArray, Handler eventHandler,
-      AdaptiveMediaSourceEventListener eventListener, FakeChunkSource.Factory chunkSourceFactory) {
+  public FakeAdaptiveMediaSource(
+      Timeline timeline,
+      Object manifest,
+      TrackGroupArray trackGroupArray,
+      Handler eventHandler,
+      MediaSourceEventListener eventListener,
+      FakeChunkSource.Factory chunkSourceFactory) {
     super(timeline, manifest, trackGroupArray);
-    this.eventDispatcher = new EventDispatcher(eventHandler, eventListener);
     this.chunkSourceFactory = chunkSourceFactory;
+    addEventListener(eventHandler, eventListener);
   }
 
   @Override
-  protected FakeMediaPeriod createFakeMediaPeriod(MediaPeriodId id, TrackGroupArray trackGroupArray,
-      Allocator allocator) {
+  protected FakeMediaPeriod createFakeMediaPeriod(
+      MediaPeriodId id,
+      TrackGroupArray trackGroupArray,
+      Allocator allocator,
+      EventDispatcher eventDispatcher) {
     Period period = timeline.getPeriod(id.periodIndex, new Period());
-    return new FakeAdaptiveMediaPeriod(trackGroupArray, eventDispatcher, allocator,
-        chunkSourceFactory, period.durationUs);
+    return new FakeAdaptiveMediaPeriod(
+        trackGroupArray, eventDispatcher, allocator, chunkSourceFactory, period.durationUs);
   }
 
 }

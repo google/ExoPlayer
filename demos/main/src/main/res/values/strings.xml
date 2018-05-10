@@ -13,26 +13,15 @@
      See the License for the specific language governing permissions and
      limitations under the License.
 -->
-
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
 
   <string name="application_name">ExoPlayer</string>
 
-  <string name="video">Video</string>
-
-  <string name="audio">Audio</string>
-
-  <string name="text">Text</string>
-
-  <string name="retry">Retry</string>
-
-  <string name="selection_disabled">Disabled</string>
-
-  <string name="selection_default">Default</string>
-
   <string name="unexpected_intent_action">Unexpected intent action: <xliff:g id="action">%1$s</xliff:g></string>
 
-  <string name="enable_random_adaptation">Enable random adaptation</string>
+  <string name="error_generic">Playback failed</string>
+
+  <string name="error_unrecognized_abr_algorithm">Unrecognized ABR algorithm</string>
 
   <string name="error_drm_not_supported">Protected content not supported on API levels below 18</string>
 
@@ -57,5 +46,15 @@
   <string name="sample_list_load_error">One or more sample lists failed to load</string>
 
   <string name="ima_not_loaded">Playing sample without ads, as the IMA extension was not loaded</string>
+
+  <string name="download_start_error">Failed to start download</string>
+
+  <string name="download_playlist_unsupported">This demo app does not support downloading playlists</string>
+
+  <string name="download_drm_unsupported">This demo app does not support downloading protected content</string>
+
+  <string name="download_scheme_unsupported">This demo app only supports downloading http streams</string>
+
+  <string name="download_ads_unsupported">IMA does not support offline ads</string>
 
 </resources>

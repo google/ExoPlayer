@@ -13,29 +13,40 @@
      See the License for the specific language governing permissions and
      limitations under the License.
 -->
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:keepScreenOn="true">
-  <com.google.android.exoplayer2.ui.SimpleExoPlayerView android:id="@+id/player_view"
-      android:layout_width="match_parent"
-      app:repeat_toggle_modes="all|one"
-      android:layout_height="0dp"
-      android:layout_weight="12" />
-  <ListView
-      android:id="@+id/sample_list"
-      android:choiceMode="singleChoice"
+  <com.google.android.exoplayer2.ui.PlayerView android:id="@+id/local_player_view"
       android:layout_width="match_parent"
       android:layout_height="0dp"
-      android:layout_weight="12" />
-  <com.google.android.exoplayer2.ui.PlaybackControlView
-      android:id="@+id/cast_control_view"
+      android:layout_weight="12"
+      app:repeat_toggle_modes="all|one"/>
+  <RelativeLayout android:layout_width="match_parent"
+      android:layout_height="0dp"
+      android:layout_weight="12">
+    <android.support.v7.widget.RecyclerView android:id="@+id/sample_list"
+        android:choiceMode="singleChoice"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:scrollbars="vertical"
+        android:fadeScrollbars="false"/>
+    <ImageButton android:id="@+id/add_sample_button"
+        android:background="@drawable/ic_add_circle_white_24dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentBottom="true"
+        android:padding="30dp"/>
+  </RelativeLayout>
+  <com.google.android.exoplayer2.ui.PlayerControlView android:id="@+id/cast_control_view"
       android:layout_width="match_parent"
       android:layout_height="0dp"
-      app:show_timeout="-1"
       android:layout_weight="2"
-      android:visibility="gone"/>
+      android:visibility="gone"
+      app:repeat_toggle_modes="all|one"
+      app:show_timeout="-1"/>
 </LinearLayout>

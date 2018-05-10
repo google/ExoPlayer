@@ -3,6 +3,14 @@
 The FFmpeg extension provides `FfmpegAudioRenderer`, which uses FFmpeg for
 decoding and can render audio encoded in a variety of formats.
 
+## License note ##
+
+Please note that whilst the code in this repository is licensed under
+[Apache 2.0][], using this extension also requires building and including one or
+more external libraries as described below. These are licensed separately.
+
+[Apache 2.0]: https://github.com/google/ExoPlayer/blob/release-v2/LICENSE
+
 ## Build instructions ##
 
 To use this extension you need to clone the ExoPlayer repository and depend on
@@ -21,7 +29,8 @@ EXOPLAYER_ROOT="$(pwd)"
 FFMPEG_EXT_PATH="${EXOPLAYER_ROOT}/extensions/ffmpeg/src/main"
 ```
 
-* Download the [Android NDK][] and set its location in an environment variable:
+* Download the [Android NDK][] and set its location in an environment variable.
+  Only versions up to NDK 15c are supported currently.
 
 ```
 NDK_PATH="<path to Android NDK>"

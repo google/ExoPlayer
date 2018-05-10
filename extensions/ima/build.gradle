@@ -1,3 +1,16 @@
+// Copyright (C) 2017 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 apply from: '../../constants.gradle'
 apply plugin: 'com.android.library'
 
@@ -6,28 +19,24 @@ android {
     buildToolsVersion project.ext.buildToolsVersion
 
     defaultConfig {
-        minSdkVersion 14
+        minSdkVersion project.ext.minSdkVersion
         targetSdkVersion project.ext.targetSdkVersion
-        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+        consumerProguardFiles 'proguard-rules.txt'
     }
 }
 
 dependencies {
-    compile project(modulePrefix + 'library-core')
     // This dependency is necessary to force the supportLibraryVersion of
-    // com.android.support:support-v4 to be used. Else an older version (25.2.0) is included via:
-    // com.google.android.gms:play-services-ads:11.0.2
-    // |-- com.google.android.gms:play-services-ads-lite:[11.0.2] -> 11.0.2
-    //   |-- com.google.android.gms:play-services-basement:[11.0.2] -> 11.0.2
-    //     |-- com.android.support:support-v4:25.2.0
-    compile 'com.android.support:support-v4:' + supportLibraryVersion
-    compile 'com.google.ads.interactivemedia.v3:interactivemedia:3.7.4'
-    compile 'com.google.android.gms:play-services-ads:' + playServicesLibraryVersion
-    androidTestCompile project(modulePrefix + 'library')
-    androidTestCompile 'com.google.dexmaker:dexmaker:' + dexmakerVersion
-    androidTestCompile 'com.google.dexmaker:dexmaker-mockito:' + dexmakerVersion
-    androidTestCompile 'org.mockito:mockito-core:' + mockitoVersion
-    androidTestCompile 'com.android.support.test:runner:' + testSupportLibraryVersion
+    // com.android.support:support-v4 to be used. Else an older version (25.2.0)
+    // is included via:
+    // com.google.android.gms:play-services-ads:12.0.0
+    // |-- com.google.android.gms:play-services-ads-lite:12.0.0
+    //   |-- com.google.android.gms:play-services-basement:12.0.0
+    //     |-- com.android.support:support-v4:26.1.0
+    api 'com.android.support:support-v4:' + supportLibraryVersion
+    api 'com.google.ads.interactivemedia.v3:interactivemedia:3.8.5'
+    implementation project(modulePrefix + 'library-core')
+    implementation 'com.google.android.gms:play-services-ads:' + playServicesLibraryVersion
 }
 
 ext {

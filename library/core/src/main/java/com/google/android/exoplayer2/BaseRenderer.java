@@ -15,7 +15,10 @@
  */
 package com.google.android.exoplayer2;
 
+import android.support.annotation.Nullable;
 import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
+import com.google.android.exoplayer2.drm.DrmInitData;
+import com.google.android.exoplayer2.drm.DrmSessionManager;
 import com.google.android.exoplayer2.source.SampleStream;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.MediaClock;
@@ -32,6 +35,7 @@ public abstract class BaseRenderer implements Renderer, RendererCapabilities {
   private int index;
   private int state;
   private SampleStream stream;
+  private Format[] streamFormats;
   private long streamOffsetUs;
   private boolean readEndOfStream;
   private boolean streamIsFinal;
@@ -95,6 +99,7 @@ public abstract class BaseRenderer implements Renderer, RendererCapabilities {
     Assertions.checkState(!streamIsFinal);
     this.stream = stream;
     readEndOfStream = false;
+    streamFormats = formats;
     streamOffsetUs = offsetUs;
     onStreamChanged(formats, offsetUs);
   }
@@ -143,6 +148,7 @@ public abstract class BaseRenderer implements Renderer, RendererCapabilities {
     Assertions.checkState(state == STATE_ENABLED);
     state = STATE_DISABLED;
     stream = null;
+    streamFormats = null;
     streamIsFinal = false;
     onDisabled();
   }
@@ -154,7 +160,7 @@ public abstract class BaseRenderer implements Renderer, RendererCapabilities {
     return ADAPTIVE_NOT_SUPPORTED;
   }
 
-  // ExoPlayerComponent implementation.
+  // PlayerMessage.Target implementation.
 
   @Override
   public void handleMessage(int what, Object object) throws ExoPlaybackException {
@@ -243,6 +249,11 @@ public abstract class BaseRenderer implements Renderer, RendererCapabilities {
 
   // Methods to be called by subclasses.
 
+  /** Returns the formats of the currently enabled stream. */
+  protected final Format[] getStreamFormats() {
+    return streamFormats;
+  }
+
   /**
    * Returns the configuration set when the renderer was most recently enabled.
    */
@@ -307,6 +318,27 @@ public abstract class BaseRenderer implements Renderer, RendererCapabilities {
    */
   protected final boolean isSourceReady() {
     return readEndOfStream ? streamIsFinal : stream.isReady();
+  }
+
+  /**
+   * Returns whether {@code drmSessionManager} supports the specified {@code drmInitData}, or true
+   * if {@code drmInitData} is null.
+   *
+   * @param drmSessionManager The drm session manager.
+   * @param drmInitData {@link DrmInitData} of the format to check for support.
+   * @return Whether {@code drmSessionManager} supports the specified {@code drmInitData}, or
+   *     true if {@code drmInitData} is null.
+   */
+  protected static boolean supportsFormatDrm(@Nullable DrmSessionManager<?> drmSessionManager,
+      @Nullable DrmInitData drmInitData) {
+    if (drmInitData == null) {
+      // Content is unencrypted.
+      return true;
+    } else if (drmSessionManager == null) {
+      // Content is encrypted, but no drm session manager is available.
+      return false;
+    }
+    return drmSessionManager.canAcquireSession(drmInitData);
   }
 
 }

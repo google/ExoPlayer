@@ -28,7 +28,7 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * Default implementation for {@link TsPayloadReader.Factory}.
+ * Default {@link TsPayloadReader.Factory} implementation.
  */
 public final class DefaultTsPayloadReaderFactory implements TsPayloadReader.Factory {
 

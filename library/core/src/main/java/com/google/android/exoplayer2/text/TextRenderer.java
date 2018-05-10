@@ -37,7 +37,7 @@ import java.util.List;
  * <p>
  * {@link Subtitle}s are decoded from sample data using {@link SubtitleDecoder} instances obtained
  * from a {@link SubtitleDecoderFactory}. The actual rendering of the subtitle {@link Cue}s is
- * delegated to an {@link TextOutput}.
+ * delegated to a {@link TextOutput}.
  */
 public final class TextRenderer extends BaseRenderer implements Callback {
 
@@ -117,9 +117,13 @@ public final class TextRenderer extends BaseRenderer implements Callback {
 
   @Override
   public int supportsFormat(Format format) {
-    return decoderFactory.supportsFormat(format) ? FORMAT_HANDLED
-        : (MimeTypes.isText(format.sampleMimeType) ? FORMAT_UNSUPPORTED_SUBTYPE
-        : FORMAT_UNSUPPORTED_TYPE);
+    if (decoderFactory.supportsFormat(format)) {
+      return supportsFormatDrm(null, format.drmInitData) ? FORMAT_HANDLED : FORMAT_UNSUPPORTED_DRM;
+    } else if (MimeTypes.isText(format.sampleMimeType)) {
+      return FORMAT_UNSUPPORTED_SUBTYPE;
+    } else {
+      return FORMAT_UNSUPPORTED_TYPE;
+    }
   }
 
   @Override
@@ -287,9 +291,9 @@ public final class TextRenderer extends BaseRenderer implements Callback {
   }
 
   private long getNextEventTime() {
-    return ((nextSubtitleEventIndex == C.INDEX_UNSET)
-        || (nextSubtitleEventIndex >= subtitle.getEventTimeCount())) ? Long.MAX_VALUE
-        : (subtitle.getEventTime(nextSubtitleEventIndex));
+    return nextSubtitleEventIndex == C.INDEX_UNSET
+        || nextSubtitleEventIndex >= subtitle.getEventTimeCount()
+        ? Long.MAX_VALUE : subtitle.getEventTime(nextSubtitleEventIndex);
   }
 
   private void updateOutput(List<Cue> cues) {

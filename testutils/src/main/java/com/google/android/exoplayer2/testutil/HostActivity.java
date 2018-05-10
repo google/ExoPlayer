@@ -15,7 +15,7 @@
  */
 package com.google.android.exoplayer2.testutil;
 
-import static junit.framework.Assert.fail;
+import static org.junit.Assert.fail;
 
 import android.app.Activity;
 import android.content.Context;
@@ -31,6 +31,7 @@ import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.Window;
 import com.google.android.exoplayer2.util.Assertions;
+import com.google.android.exoplayer2.util.Util;
 
 /**
  * A host activity for performing playback tests.
@@ -137,6 +138,12 @@ public final class HostActivity extends Activity implements SurfaceHolder.Callba
         fail(message);
       }
     } else {
+      runOnUiThread(new Runnable() {
+        @Override
+        public void run() {
+          hostedTest.forceStop();
+        }
+      });
       String message = "Test timed out after " + timeoutMs + " ms.";
       Log.e(TAG, message);
       if (failOnTimeout) {
@@ -153,7 +160,7 @@ public final class HostActivity extends Activity implements SurfaceHolder.Callba
     super.onCreate(savedInstanceState);
     requestWindowFeature(Window.FEATURE_NO_TITLE);
     setContentView(getResources().getIdentifier("host_activity", "layout", getPackageName()));
-    surfaceView = (SurfaceView) findViewById(
+    surfaceView = findViewById(
         getResources().getIdentifier("surface_view", "id", getPackageName()));
     surfaceView.getHolder().addCallback(this);
   }
@@ -173,12 +180,17 @@ public final class HostActivity extends Activity implements SurfaceHolder.Callba
   @Override
   public void onPause() {
     super.onPause();
-    maybeStopHostedTest();
+    if (Util.SDK_INT <= 23) {
+      maybeStopHostedTest();
+    }
   }
 
   @Override
   public void onStop() {
     super.onStop();
+    if (Util.SDK_INT > 23) {
+      maybeStopHostedTest();
+    }
     wakeLock.release();
     wakeLock = null;
     wifiLock.release();

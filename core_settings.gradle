@@ -24,6 +24,7 @@ include modulePrefix + 'library-hls'
 include modulePrefix + 'library-smoothstreaming'
 include modulePrefix + 'library-ui'
 include modulePrefix + 'testutils'
+include modulePrefix + 'testutils-robolectric'
 include modulePrefix + 'extension-ffmpeg'
 include modulePrefix + 'extension-flac'
 include modulePrefix + 'extension-gvr'
@@ -35,6 +36,7 @@ include modulePrefix + 'extension-opus'
 include modulePrefix + 'extension-vp9'
 include modulePrefix + 'extension-rtmp'
 include modulePrefix + 'extension-leanback'
+include modulePrefix + 'extension-jobdispatcher'
 
 project(modulePrefix + 'library').projectDir = new File(rootDir, 'library/all')
 project(modulePrefix + 'library-core').projectDir = new File(rootDir, 'library/core')
@@ -43,6 +45,7 @@ project(modulePrefix + 'library-hls').projectDir = new File(rootDir, 'library/hl
 project(modulePrefix + 'library-smoothstreaming').projectDir = new File(rootDir, 'library/smoothstreaming')
 project(modulePrefix + 'library-ui').projectDir = new File(rootDir, 'library/ui')
 project(modulePrefix + 'testutils').projectDir = new File(rootDir, 'testutils')
+project(modulePrefix + 'testutils-robolectric').projectDir = new File(rootDir, 'testutils_robolectric')
 project(modulePrefix + 'extension-ffmpeg').projectDir = new File(rootDir, 'extensions/ffmpeg')
 project(modulePrefix + 'extension-flac').projectDir = new File(rootDir, 'extensions/flac')
 project(modulePrefix + 'extension-gvr').projectDir = new File(rootDir, 'extensions/gvr')
@@ -54,6 +57,7 @@ project(modulePrefix + 'extension-opus').projectDir = new File(rootDir, 'extensi
 project(modulePrefix + 'extension-vp9').projectDir = new File(rootDir, 'extensions/vp9')
 project(modulePrefix + 'extension-rtmp').projectDir = new File(rootDir, 'extensions/rtmp')
 project(modulePrefix + 'extension-leanback').projectDir = new File(rootDir, 'extensions/leanback')
+project(modulePrefix + 'extension-jobdispatcher').projectDir = new File(rootDir, 'extensions/jobdispatcher')
 
 if (gradle.ext.has('exoplayerIncludeCronetExtension')
         && gradle.ext.exoplayerIncludeCronetExtension) {

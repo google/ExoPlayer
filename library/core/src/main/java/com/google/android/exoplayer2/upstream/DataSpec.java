@@ -17,6 +17,7 @@ package com.google.android.exoplayer2.upstream;
 
 import android.net.Uri;
 import android.support.annotation.IntDef;
+import android.support.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.util.Assertions;
 import java.lang.annotation.Retention;
@@ -48,7 +49,8 @@ public final class DataSpec {
   public static final int FLAG_ALLOW_GZIP = 1 << 0;
 
   /**
-   * Permits content to be cached even if its length can not be resolved.
+   * Permits content to be cached even if its length can not be resolved. Typically this's the case
+   * for progressive live streams and when {@link #FLAG_ALLOW_GZIP} is used.
    */
   public static final int FLAG_ALLOW_CACHING_UNKNOWN_LENGTH = 1 << 1;
 
@@ -79,7 +81,7 @@ public final class DataSpec {
    * A key that uniquely identifies the original stream. Used for cache indexing. May be null if the
    * {@link DataSpec} is not intended to be used in conjunction with a cache.
    */
-  public final String key;
+  @Nullable public final String key;
   /**
    * Request flags. Currently {@link #FLAG_ALLOW_GZIP} and
    * {@link #FLAG_ALLOW_CACHING_UNKNOWN_LENGTH} are the only supported flags.
@@ -113,7 +115,7 @@ public final class DataSpec {
    * @param length {@link #length}.
    * @param key {@link #key}.
    */
-  public DataSpec(Uri uri, long absoluteStreamPosition, long length, String key) {
+  public DataSpec(Uri uri, long absoluteStreamPosition, long length, @Nullable String key) {
     this(uri, absoluteStreamPosition, absoluteStreamPosition, length, key, 0);
   }
 
@@ -147,8 +149,8 @@ public final class DataSpec {
   }
 
   /**
-   * Construct a {@link DataSpec} where {@link #position} may differ from
-   * {@link #absoluteStreamPosition}.
+   * Construct a {@link DataSpec} where {@link #position} may differ from {@link
+   * #absoluteStreamPosition}.
    *
    * @param uri {@link #uri}.
    * @param postBody {@link #postBody}.
@@ -158,8 +160,14 @@ public final class DataSpec {
    * @param key {@link #key}.
    * @param flags {@link #flags}.
    */
-  public DataSpec(Uri uri, byte[] postBody, long absoluteStreamPosition, long position, long length,
-      String key, @Flags int flags) {
+  public DataSpec(
+      Uri uri,
+      byte[] postBody,
+      long absoluteStreamPosition,
+      long position,
+      long length,
+      @Nullable String key,
+      @Flags int flags) {
     Assertions.checkArgument(absoluteStreamPosition >= 0);
     Assertions.checkArgument(position >= 0);
     Assertions.checkArgument(length > 0 || length == C.LENGTH_UNSET);

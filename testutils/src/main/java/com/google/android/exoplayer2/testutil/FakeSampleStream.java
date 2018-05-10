@@ -15,25 +15,40 @@
  */
 package com.google.android.exoplayer2.testutil;
 
+import android.support.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.FormatHolder;
 import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
+import com.google.android.exoplayer2.source.MediaSourceEventListener.EventDispatcher;
 import com.google.android.exoplayer2.source.SampleStream;
 import java.io.IOException;
 
 /**
- * Fake {@link SampleStream} that outputs a given {@link Format} then sets the end of stream flag
- * on its input buffer.
+ * Fake {@link SampleStream} that outputs a given {@link Format}, an optional sample containing a
+ * single zero byte, then end of stream.
  */
 public final class FakeSampleStream implements SampleStream {
 
   private final Format format;
+  private final @Nullable EventDispatcher eventDispatcher;
 
   private boolean readFormat;
+  private boolean readSample;
 
-  public FakeSampleStream(Format format) {
+  /**
+   * Creates fake sample stream which outputs the given {@link Format}, optionally one sample with
+   * zero bytes, then end of stream.
+   *
+   * @param format The {@link Format} to output.
+   * @param eventDispatcher An {@link EventDispatcher} to notify of read events.
+   * @param shouldOutputSample Whether the sample stream should output a sample.
+   */
+  public FakeSampleStream(
+      Format format, @Nullable EventDispatcher eventDispatcher, boolean shouldOutputSample) {
     this.format = format;
+    this.eventDispatcher = eventDispatcher;
+    readSample = !shouldOutputSample;
   }
 
   @Override
@@ -48,6 +63,21 @@ public final class FakeSampleStream implements SampleStream {
       formatHolder.format = format;
       readFormat = true;
       return C.RESULT_FORMAT_READ;
+    } else if (!readSample) {
+      buffer.timeUs = 0;
+      buffer.ensureSpaceForWrite(1);
+      buffer.data.put((byte) 0);
+      buffer.flip();
+      readSample = true;
+      if (eventDispatcher != null) {
+        eventDispatcher.downstreamFormatChanged(
+            C.TRACK_TYPE_UNKNOWN,
+            format,
+            C.SELECTION_REASON_UNKNOWN,
+            /* trackSelectionData= */ null,
+            /* mediaTimeUs= */ 0);
+      }
+      return C.RESULT_BUFFER_READ;
     } else {
       buffer.setFlags(C.BUFFER_FLAG_END_OF_STREAM);
       return C.RESULT_BUFFER_READ;

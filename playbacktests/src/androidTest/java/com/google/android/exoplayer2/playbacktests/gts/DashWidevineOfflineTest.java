@@ -15,10 +15,14 @@
  */
 package com.google.android.exoplayer2.playbacktests.gts;
 
+import static com.google.common.truth.Truth.assertThat;
+import static com.google.common.truth.Truth.assertWithMessage;
+
 import android.media.MediaDrm.MediaDrmStateException;
 import android.net.Uri;
 import android.test.ActivityInstrumentationTestCase2;
 import android.util.Pair;
+import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.drm.DrmInitData;
 import com.google.android.exoplayer2.drm.DrmSession.DrmSessionException;
 import com.google.android.exoplayer2.drm.FrameworkMediaCrypto;
@@ -32,7 +36,6 @@ import com.google.android.exoplayer2.upstream.DefaultHttpDataSourceFactory;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.Util;
 import java.io.IOException;
-import junit.framework.Assert;
 
 /**
  * Tests Widevine encrypted DASH playbacks using offline keys.
@@ -66,8 +69,10 @@ public final class DashWidevineOfflineTest extends ActivityInstrumentationTestCa
     boolean useL1Widevine = DashTestRunner.isL1WidevineAvailable(MimeTypes.VIDEO_H264);
     String widevineLicenseUrl = DashTestData.getWidevineLicenseUrl(true, useL1Widevine);
     httpDataSourceFactory = new DefaultHttpDataSourceFactory(USER_AGENT);
-    offlineLicenseHelper = OfflineLicenseHelper.newWidevineInstance(widevineLicenseUrl,
-        httpDataSourceFactory);
+    if (Util.SDK_INT >= 18) {
+      offlineLicenseHelper = OfflineLicenseHelper.newWidevineInstance(widevineLicenseUrl,
+          httpDataSourceFactory);
+    }
   }
 
   @Override
@@ -86,7 +91,7 @@ public final class DashWidevineOfflineTest extends ActivityInstrumentationTestCa
 
   // Offline license tests
 
-  public void testWidevineOfflineLicense() throws Exception {
+  public void testWidevineOfflineLicenseV22() throws Exception {
     if (Util.SDK_INT < 22) {
       return; // Pass.
     }
@@ -95,10 +100,10 @@ public final class DashWidevineOfflineTest extends ActivityInstrumentationTestCa
 
     // Renew license after playback should still work
     offlineLicenseKeySetId = offlineLicenseHelper.renewLicense(offlineLicenseKeySetId);
-    Assert.assertNotNull(offlineLicenseKeySetId);
+    assertThat(offlineLicenseKeySetId).isNotNull();
   }
 
-  public void testWidevineOfflineReleasedLicense() throws Throwable {
+  public void testWidevineOfflineReleasedLicenseV22() throws Throwable {
     if (Util.SDK_INT < 22) {
       return; // Pass.
     }
@@ -124,7 +129,7 @@ public final class DashWidevineOfflineTest extends ActivityInstrumentationTestCa
     }
   }
 
-  public void testWidevineOfflineExpiredLicense() throws Exception {
+  public void testWidevineOfflineExpiredLicenseV22() throws Exception {
     if (Util.SDK_INT < 22) {
       return; // Pass.
     }
@@ -133,8 +138,10 @@ public final class DashWidevineOfflineTest extends ActivityInstrumentationTestCa
     // Wait until the license expires
     long licenseDuration =
         offlineLicenseHelper.getLicenseDurationRemainingSec(offlineLicenseKeySetId).first;
-    assertTrue("License duration should be less than 30 sec. "
-        + "Server settings might have changed.", licenseDuration < 30);
+    assertWithMessage(
+            "License duration should be less than 30 sec. " + "Server settings might have changed.")
+        .that(licenseDuration < 30)
+        .isTrue();
     while (licenseDuration > 0) {
       synchronized (this) {
         wait(licenseDuration * 1000 + 2000);
@@ -142,14 +149,16 @@ public final class DashWidevineOfflineTest extends ActivityInstrumentationTestCa
       long previousDuration = licenseDuration;
       licenseDuration =
           offlineLicenseHelper.getLicenseDurationRemainingSec(offlineLicenseKeySetId).first;
-      assertTrue("License duration should be decreasing.", previousDuration > licenseDuration);
+      assertWithMessage("License duration should be decreasing.")
+          .that(previousDuration > licenseDuration)
+          .isTrue();
     }
 
     // DefaultDrmSessionManager should renew the license and stream play fine
     testRunner.run();
   }
 
-  public void testWidevineOfflineLicenseExpiresOnPause() throws Exception {
+  public void testWidevineOfflineLicenseExpiresOnPauseV22() throws Exception {
     if (Util.SDK_INT < 22) {
       return; // Pass.
     }
@@ -159,9 +168,12 @@ public final class DashWidevineOfflineTest extends ActivityInstrumentationTestCa
     Pair<Long, Long> licenseDurationRemainingSec =
         offlineLicenseHelper.getLicenseDurationRemainingSec(offlineLicenseKeySetId);
     long licenseDuration = licenseDurationRemainingSec.first;
-    assertTrue("License duration should be less than 30 sec. "
-        + "Server settings might have changed.", licenseDuration < 30);
+    assertWithMessage(
+            "License duration should be less than 30 sec. " + "Server settings might have changed.")
+        .that(licenseDuration < 30)
+        .isTrue();
     ActionSchedule schedule = new ActionSchedule.Builder(TAG)
+        .waitForPlaybackState(Player.STATE_READY)
         .delay(3000).pause().delay(licenseDuration * 1000 + 2000).play().build();
 
     // DefaultDrmSessionManager should renew the license and stream play fine
@@ -174,8 +186,8 @@ public final class DashWidevineOfflineTest extends ActivityInstrumentationTestCa
         Uri.parse(DashTestData.WIDEVINE_H264_MANIFEST));
     DrmInitData drmInitData = DashUtil.loadDrmInitData(dataSource, dashManifest.getPeriod(0));
     offlineLicenseKeySetId = offlineLicenseHelper.downloadLicense(drmInitData);
-    Assert.assertNotNull(offlineLicenseKeySetId);
-    Assert.assertTrue(offlineLicenseKeySetId.length > 0);
+    assertThat(offlineLicenseKeySetId).isNotNull();
+    assertThat(offlineLicenseKeySetId.length).isGreaterThan(0);
     testRunner.setOfflineLicenseKeySetId(offlineLicenseKeySetId);
   }
 

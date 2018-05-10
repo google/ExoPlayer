@@ -15,8 +15,10 @@
  */
 package com.google.android.exoplayer2.testutil;
 
+import static com.google.common.truth.Truth.assertWithMessage;
+
 import android.os.ConditionVariable;
-import android.os.Handler;
+import android.os.Looper;
 import android.os.SystemClock;
 import android.util.Log;
 import android.view.Surface;
@@ -25,42 +27,39 @@ import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.ExoPlayerFactory;
 import com.google.android.exoplayer2.Format;
-import com.google.android.exoplayer2.PlaybackParameters;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.RenderersFactory;
 import com.google.android.exoplayer2.SimpleExoPlayer;
-import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.audio.AudioRendererEventListener;
-import com.google.android.exoplayer2.audio.AudioTrack;
+import com.google.android.exoplayer2.audio.DefaultAudioSink;
 import com.google.android.exoplayer2.decoder.DecoderCounters;
 import com.google.android.exoplayer2.drm.DrmSessionManager;
 import com.google.android.exoplayer2.drm.FrameworkMediaCrypto;
 import com.google.android.exoplayer2.source.MediaSource;
-import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.testutil.HostActivity.HostedTest;
 import com.google.android.exoplayer2.trackselection.AdaptiveTrackSelection;
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
 import com.google.android.exoplayer2.trackselection.MappingTrackSelector;
-import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
 import com.google.android.exoplayer2.upstream.BandwidthMeter;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DefaultBandwidthMeter;
 import com.google.android.exoplayer2.upstream.TransferListener;
+import com.google.android.exoplayer2.util.Clock;
+import com.google.android.exoplayer2.util.HandlerWrapper;
 import com.google.android.exoplayer2.util.Util;
 import com.google.android.exoplayer2.video.VideoRendererEventListener;
-import junit.framework.Assert;
 
 /**
  * A {@link HostedTest} for {@link ExoPlayer} playback tests.
  */
-public abstract class ExoHostedTest implements HostedTest, Player.EventListener,
+public abstract class ExoHostedTest extends Player.DefaultEventListener implements HostedTest,
     AudioRendererEventListener, VideoRendererEventListener {
 
   static {
-    // ExoPlayer's AudioTrack class is able to work around spurious timestamps reported by the
-    // platform (by ignoring them). Disable this workaround, since we're interested in testing
-    // that the underlying platform is behaving correctly.
-    AudioTrack.failOnSpuriousAudioTimestamp = true;
+    // DefaultAudioSink is able to work around spurious timestamps reported by the platform (by
+    // ignoring them). Disable this workaround, since we're interested in testing that the
+    // underlying platform is behaving correctly.
+    DefaultAudioSink.failOnSpuriousAudioTimestamp = true;
   }
 
   public static final long MAX_PLAYING_TIME_DISCREPANCY_MS = 2000;
@@ -76,12 +75,14 @@ public abstract class ExoHostedTest implements HostedTest, Player.EventListener,
   private final ConditionVariable testFinished;
 
   private ActionSchedule pendingSchedule;
-  private Handler actionHandler;
-  private MappingTrackSelector trackSelector;
+  private HandlerWrapper actionHandler;
+  private DefaultTrackSelector trackSelector;
   private SimpleExoPlayer player;
   private Surface surface;
   private ExoPlaybackException playerError;
   private Player.EventListener playerEventListener;
+  private VideoRendererEventListener videoDebugListener;
+  private AudioRendererEventListener audioDebugListener;
   private boolean playerWasPrepared;
 
   private boolean playing;
@@ -130,7 +131,7 @@ public abstract class ExoHostedTest implements HostedTest, Player.EventListener,
     if (player == null) {
       pendingSchedule = schedule;
     } else {
-      schedule.start(player, trackSelector, surface, actionHandler);
+      schedule.start(player, trackSelector, surface, actionHandler, /* callback= */ null);
     }
   }
 
@@ -141,6 +142,26 @@ public abstract class ExoHostedTest implements HostedTest, Player.EventListener,
     this.playerEventListener = eventListener;
     if (player != null) {
       player.addListener(eventListener);
+    }
+  }
+
+  /**
+   * Sets an {@link VideoRendererEventListener} to listen for video debug events during the test.
+   */
+  public final void setVideoDebugListener(VideoRendererEventListener videoDebugListener) {
+    this.videoDebugListener = videoDebugListener;
+    if (player != null) {
+      player.addVideoDebugListener(videoDebugListener);
+    }
+  }
+
+  /**
+   * Sets an {@link AudioRendererEventListener} to listen for audio debug events during the test.
+   */
+  public final void setAudioDebugListener(AudioRendererEventListener audioDebugListener) {
+    this.audioDebugListener = audioDebugListener;
+    if (player != null) {
+      player.addAudioDebugListener(audioDebugListener);
     }
   }
 
@@ -159,14 +180,20 @@ public abstract class ExoHostedTest implements HostedTest, Player.EventListener,
     if (playerEventListener != null) {
       player.addListener(playerEventListener);
     }
+    if (videoDebugListener != null) {
+      player.addVideoDebugListener(videoDebugListener);
+    }
+    if (audioDebugListener != null) {
+      player.addAudioDebugListener(audioDebugListener);
+    }
     player.addListener(this);
-    player.setAudioDebugListener(this);
-    player.setVideoDebugListener(this);
+    player.addAudioDebugListener(this);
+    player.addVideoDebugListener(this);
     player.setPlayWhenReady(true);
-    actionHandler = new Handler();
+    actionHandler = Clock.DEFAULT.createHandler(Looper.myLooper(), /* callback= */ null);
     // Schedule any pending actions.
     if (pendingSchedule != null) {
-      pendingSchedule.start(player, trackSelector, surface, actionHandler);
+      pendingSchedule.start(player, trackSelector, surface, actionHandler, /* callback= */ null);
       pendingSchedule = null;
     }
   }
@@ -193,25 +220,18 @@ public abstract class ExoHostedTest implements HostedTest, Player.EventListener,
       // Assert that the playback spanned the correct duration of time.
       long minAllowedActualPlayingTimeMs = playingTimeToAssertMs - MAX_PLAYING_TIME_DISCREPANCY_MS;
       long maxAllowedActualPlayingTimeMs = playingTimeToAssertMs + MAX_PLAYING_TIME_DISCREPANCY_MS;
-      Assert.assertTrue("Total playing time: " + totalPlayingTimeMs + ". Expected: "
-          + playingTimeToAssertMs, minAllowedActualPlayingTimeMs <= totalPlayingTimeMs
-          && totalPlayingTimeMs <= maxAllowedActualPlayingTimeMs);
+      assertWithMessage(
+              "Total playing time: " + totalPlayingTimeMs + ". Expected: " + playingTimeToAssertMs)
+          .that(
+              minAllowedActualPlayingTimeMs <= totalPlayingTimeMs
+                  && totalPlayingTimeMs <= maxAllowedActualPlayingTimeMs)
+          .isTrue();
     }
     // Make any additional assertions.
     assertPassed(audioDecoderCounters, videoDecoderCounters);
   }
 
   // Player.EventListener
-
-  @Override
-  public void onLoadingChanged(boolean isLoading) {
-    // Do nothing.
-  }
-
-  @Override
-  public void onTracksChanged(TrackGroupArray trackGroups, TrackSelectionArray trackSelections) {
-    // Do nothing.
-  }
 
   @Override
   public final void onPlayerStateChanged(boolean playWhenReady, int playbackState) {
@@ -231,35 +251,10 @@ public abstract class ExoHostedTest implements HostedTest, Player.EventListener,
   }
 
   @Override
-  public void onRepeatModeChanged(int repeatMode) {
-    // Do nothing.
-  }
-
-  @Override
-  public void onShuffleModeEnabledChanged(boolean shuffleModeEnabled) {
-    // Do nothing.
-  }
-
-  @Override
   public final void onPlayerError(ExoPlaybackException error) {
     playerWasPrepared = true;
     playerError = error;
     onPlayerErrorInternal(error);
-  }
-
-  @Override
-  public final void onPositionDiscontinuity() {
-    // Do nothing.
-  }
-
-  @Override
-  public final void onPlaybackParametersChanged(PlaybackParameters playbackParameters) {
-    // Do nothing.
-  }
-
-  @Override
-  public final void onTimelineChanged(Timeline timeline, Object manifest) {
-    // Do nothing.
   }
 
   // AudioRendererEventListener
@@ -292,7 +287,7 @@ public abstract class ExoHostedTest implements HostedTest, Player.EventListener,
   }
 
   @Override
-  public void onAudioTrackUnderrun(int bufferSize, long bufferSizeMs, long elapsedSinceLastFeedMs) {
+  public void onAudioSinkUnderrun(int bufferSize, long bufferSizeMs, long elapsedSinceLastFeedMs) {
     Log.e(tag, "audioTrackUnderrun [" + bufferSize + ", " + bufferSizeMs + ", "
         + elapsedSinceLastFeedMs + "]", null);
   }
@@ -364,8 +359,8 @@ public abstract class ExoHostedTest implements HostedTest, Player.EventListener,
   }
 
   @SuppressWarnings("unused")
-  protected MappingTrackSelector buildTrackSelector(HostActivity host,
-      BandwidthMeter bandwidthMeter) {
+  protected DefaultTrackSelector buildTrackSelector(
+      HostActivity host, BandwidthMeter bandwidthMeter) {
     return new DefaultTrackSelector(new AdaptiveTrackSelection.Factory(bandwidthMeter));
   }
 

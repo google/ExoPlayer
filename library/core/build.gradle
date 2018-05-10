@@ -21,12 +21,17 @@ android {
     defaultConfig {
         minSdkVersion project.ext.minSdkVersion
         targetSdkVersion project.ext.targetSdkVersion
+        consumerProguardFiles 'proguard-rules.txt'
     }
 
     // Workaround to prevent circular dependency on project :testutils.
     sourceSets {
         androidTest {
             java.srcDirs += "../../testutils/src/main/java/"
+        }
+        test {
+            java.srcDirs += "../../testutils/src/main/java/"
+            java.srcDirs += "../../testutils_robolectric/src/main/java/"
         }
     }
 
@@ -37,13 +42,25 @@ android {
         //    testCoverageEnabled = true
         // }
     }
+
+    lintOptions {
+        lintConfig file("../../checker-framework-lint.xml")
+    }
 }
 
 dependencies {
-    compile 'com.android.support:support-annotations:' + supportLibraryVersion
-    androidTestCompile 'com.google.dexmaker:dexmaker:' + dexmakerVersion
-    androidTestCompile 'com.google.dexmaker:dexmaker-mockito:' + dexmakerVersion
-    androidTestCompile 'org.mockito:mockito-core:' + mockitoVersion
+    implementation 'com.android.support:support-annotations:' + supportLibraryVersion
+    implementation 'org.checkerframework:checker-qual:' + checkerframeworkVersion
+    androidTestImplementation 'com.google.dexmaker:dexmaker:' + dexmakerVersion
+    androidTestImplementation 'com.google.dexmaker:dexmaker-mockito:' + dexmakerVersion
+    androidTestImplementation 'com.google.truth:truth:' + truthVersion
+    androidTestImplementation 'org.mockito:mockito-core:' + mockitoVersion
+    testImplementation 'com.google.truth:truth:' + truthVersion
+    testImplementation 'junit:junit:' + junitVersion
+    testImplementation 'org.mockito:mockito-core:' + mockitoVersion
+    testImplementation 'org.robolectric:robolectric:' + robolectricVersion
+    testImplementation 'com.google.auto.value:auto-value-annotations:' + autoValueVersion
+    testAnnotationProcessor 'com.google.auto.value:auto-value:' + autoValueVersion
 }
 
 ext {

@@ -49,10 +49,11 @@ import java.nio.ByteBuffer;
    * @param initialInputBufferSize The initial size of each input buffer.
    * @param exoMediaCrypto The {@link ExoMediaCrypto} object required for decoding encrypted
    *     content. Maybe null and can be ignored if decoder does not handle encrypted content.
+   * @param disableLoopFilter Disable the libvpx in-loop smoothing filter.
    * @throws VpxDecoderException Thrown if an exception occurs when initializing the decoder.
    */
   public VpxDecoder(int numInputBuffers, int numOutputBuffers, int initialInputBufferSize,
-      ExoMediaCrypto exoMediaCrypto) throws VpxDecoderException {
+      ExoMediaCrypto exoMediaCrypto, boolean disableLoopFilter) throws VpxDecoderException {
     super(new VpxInputBuffer[numInputBuffers], new VpxOutputBuffer[numOutputBuffers]);
     if (!VpxLibrary.isAvailable()) {
       throw new VpxDecoderException("Failed to load decoder native libraries.");
@@ -61,7 +62,7 @@ import java.nio.ByteBuffer;
     if (exoMediaCrypto != null && !VpxLibrary.vpxIsSecureDecodeSupported()) {
       throw new VpxDecoderException("Vpx decoder does not support secure decode.");
     }
-    vpxDecContext = vpxInit();
+    vpxDecContext = vpxInit(disableLoopFilter);
     if (vpxDecContext == 0) {
       throw new VpxDecoderException("Failed to initialize decoder");
     }
@@ -99,6 +100,11 @@ import java.nio.ByteBuffer;
   }
 
   @Override
+  protected VpxDecoderException createUnexpectedDecodeException(Throwable error) {
+    return new VpxDecoderException("Unexpected decode error", error);
+  }
+
+  @Override
   protected VpxDecoderException decode(VpxInputBuffer inputBuffer, VpxOutputBuffer outputBuffer,
       boolean reset) {
     ByteBuffer inputData = inputBuffer.data;
@@ -120,14 +126,16 @@ import java.nio.ByteBuffer;
       }
     }
 
-    outputBuffer.init(inputBuffer.timeUs, outputMode);
-    int getFrameResult = vpxGetFrame(vpxDecContext, outputBuffer);
-    if (getFrameResult == 1) {
-      outputBuffer.addFlag(C.BUFFER_FLAG_DECODE_ONLY);
-    } else if (getFrameResult == -1) {
-      return new VpxDecoderException("Buffer initialization failed.");
+    if (!inputBuffer.isDecodeOnly()) {
+      outputBuffer.init(inputBuffer.timeUs, outputMode);
+      int getFrameResult = vpxGetFrame(vpxDecContext, outputBuffer);
+      if (getFrameResult == 1) {
+        outputBuffer.addFlag(C.BUFFER_FLAG_DECODE_ONLY);
+      } else if (getFrameResult == -1) {
+        return new VpxDecoderException("Buffer initialization failed.");
+      }
+      outputBuffer.colorInfo = inputBuffer.colorInfo;
     }
-    outputBuffer.colorInfo = inputBuffer.colorInfo;
     return null;
   }
 
@@ -137,7 +145,7 @@ import java.nio.ByteBuffer;
     vpxClose(vpxDecContext);
   }
 
-  private native long vpxInit();
+  private native long vpxInit(boolean disableLoopFilter);
   private native long vpxClose(long context);
   private native long vpxDecode(long context, ByteBuffer encoded, int length);
   private native long vpxSecureDecode(long context, ByteBuffer encoded, int length,

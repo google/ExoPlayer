@@ -3,6 +3,14 @@
 The Flac extension provides `FlacExtractor` and `LibflacAudioRenderer`, which
 use libFLAC (the Flac decoding library) to extract and decode FLAC audio.
 
+## License note ##
+
+Please note that whilst the code in this repository is licensed under
+[Apache 2.0][], using this extension also requires building and including one or
+more external libraries as described below. These are licensed separately.
+
+[Apache 2.0]: https://github.com/google/ExoPlayer/blob/release-v2/LICENSE
+
 ## Build instructions ##
 
 To use this extension you need to clone the ExoPlayer repository and depend on
@@ -30,7 +38,7 @@ NDK_PATH="<path to Android NDK>"
 
 ```
 cd "${FLAC_EXT_PATH}/jni" && \
-curl http://downloads.xiph.org/releases/flac/flac-1.3.1.tar.xz | tar xJ && \
+curl https://ftp.osuosl.org/pub/xiph/releases/flac/flac-1.3.1.tar.xz | tar xJ && \
 mv flac-1.3.1 flac
 ```
 

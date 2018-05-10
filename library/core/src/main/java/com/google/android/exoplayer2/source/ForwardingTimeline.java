@@ -35,19 +35,31 @@ public abstract class ForwardingTimeline extends Timeline {
   }
 
   @Override
-  public int getNextWindowIndex(int windowIndex, @Player.RepeatMode int repeatMode) {
-    return timeline.getNextWindowIndex(windowIndex, repeatMode);
+  public int getNextWindowIndex(int windowIndex, @Player.RepeatMode int repeatMode,
+      boolean shuffleModeEnabled) {
+    return timeline.getNextWindowIndex(windowIndex, repeatMode, shuffleModeEnabled);
   }
 
   @Override
-  public int getPreviousWindowIndex(int windowIndex, @Player.RepeatMode int repeatMode) {
-    return timeline.getPreviousWindowIndex(windowIndex, repeatMode);
+  public int getPreviousWindowIndex(int windowIndex, @Player.RepeatMode int repeatMode,
+      boolean shuffleModeEnabled) {
+    return timeline.getPreviousWindowIndex(windowIndex, repeatMode, shuffleModeEnabled);
   }
 
   @Override
-  public Window getWindow(int windowIndex, Window window, boolean setIds,
-      long defaultPositionProjectionUs) {
-    return timeline.getWindow(windowIndex, window, setIds, defaultPositionProjectionUs);
+  public int getLastWindowIndex(boolean shuffleModeEnabled) {
+    return timeline.getLastWindowIndex(shuffleModeEnabled);
+  }
+
+  @Override
+  public int getFirstWindowIndex(boolean shuffleModeEnabled) {
+    return timeline.getFirstWindowIndex(shuffleModeEnabled);
+  }
+
+  @Override
+  public Window getWindow(
+      int windowIndex, Window window, boolean setTag, long defaultPositionProjectionUs) {
+    return timeline.getWindow(windowIndex, window, setTag, defaultPositionProjectionUs);
   }
 
   @Override

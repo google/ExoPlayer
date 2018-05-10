@@ -28,34 +28,32 @@ repository and depend on the modules locally.
 ### From JCenter ###
 
 The easiest way to get started using ExoPlayer is to add it as a gradle
-dependency. You need to make sure you have the JCenter and Google Maven
-repositories included in the `build.gradle` file in the root of your project:
+dependency. You need to make sure you have the JCenter and Google repositories
+included in the `build.gradle` file in the root of your project:
 
 ```gradle
 repositories {
     jcenter()
-    maven {
-        url "https://maven.google.com"
-    }
+    google()
 }
 ```
 
-Next add a gradle compile dependency to the `build.gradle` file of your app
-module. The following will add a dependency to the full library:
+Next add a dependency in the `build.gradle` file of your app module. The
+following will add a dependency to the full library:
 
 ```gradle
-compile 'com.google.android.exoplayer:exoplayer:r2.X.X'
+implementation 'com.google.android.exoplayer:exoplayer:2.X.X'
 ```
 
-where `r2.X.X` is your preferred version. Alternatively, you can depend on only
+where `2.X.X` is your preferred version. Alternatively, you can depend on only
 the library modules that you actually need. For example the following will add
 dependencies on the Core, DASH and UI library modules, as might be required for
 an app that plays DASH content:
 
 ```gradle
-compile 'com.google.android.exoplayer:exoplayer-core:r2.X.X'
-compile 'com.google.android.exoplayer:exoplayer-dash:r2.X.X'
-compile 'com.google.android.exoplayer:exoplayer-ui:r2.X.X'
+implementation 'com.google.android.exoplayer:exoplayer-core:2.X.X'
+implementation 'com.google.android.exoplayer:exoplayer-dash:2.X.X'
+implementation 'com.google.android.exoplayer:exoplayer-ui:2.X.X'
 ```
 
 The available library modules are listed below. Adding a dependency to the full
@@ -70,13 +68,13 @@ individually.
 
 In addition to library modules, ExoPlayer has multiple extension modules that
 depend on external libraries to provide additional functionality. Some
-extensions are available from JCenter, whereas others must be built manaully.
-Browse the [extensions directory] and their individual READMEs for details.
+extensions are available from JCenter, whereas others must be built manually.
+Browse the [extensions directory][] and their individual READMEs for details.
 
 More information on the library and extension modules that are available from
 JCenter can be found on [Bintray][].
 
-[extensions directory][]: https://github.com/google/ExoPlayer/tree/release-v2/extensions/
+[extensions directory]: https://github.com/google/ExoPlayer/tree/release-v2/extensions/
 [Bintray]: https://bintray.com/google/exoplayer
 
 ### Locally ###
@@ -107,9 +105,9 @@ You should now see the ExoPlayer modules appear as part of your project. You can
 depend on them as you would on any other local module, for example:
 
 ```gradle
-compile project(':exoplayer-library-core')
-compile project(':exoplayer-library-dash')
-compile project(':exoplayer-library-ui)
+implementation project(':exoplayer-library-core')
+implementation project(':exoplayer-library-dash')
+implementation project(':exoplayer-library-ui')
 ```
 
 ## Developing ExoPlayer ##

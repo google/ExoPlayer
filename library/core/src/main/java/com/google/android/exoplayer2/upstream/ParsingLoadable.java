@@ -49,6 +49,22 @@ public final class ParsingLoadable<T> implements Loadable {
   }
 
   /**
+   * Loads a single parsable object.
+   *
+   * @param dataSource The {@link DataSource} through which the object should be read.
+   * @param uri The {@link Uri} of the object to read.
+   * @return The parsed object
+   * @throws IOException Thrown if there is an error while loading or parsing.
+   */
+  public static <T> T load(DataSource dataSource, Parser<? extends T> parser, Uri uri)
+      throws IOException {
+    ParsingLoadable<T> loadable =
+        new ParsingLoadable<>(dataSource, uri, C.DATA_TYPE_UNKNOWN, parser);
+    loadable.load();
+    return loadable.getResult();
+  }
+
+  /**
    * The {@link DataSpec} that defines the data to be loaded.
    */
   public final DataSpec dataSpec;
@@ -72,7 +88,11 @@ public final class ParsingLoadable<T> implements Loadable {
    * @param parser Parses the object from the response.
    */
   public ParsingLoadable(DataSource dataSource, Uri uri, int type, Parser<? extends T> parser) {
-    this(dataSource, new DataSpec(uri, DataSpec.FLAG_ALLOW_GZIP), type, parser);
+    this(
+        dataSource,
+        new DataSpec(uri, DataSpec.FLAG_ALLOW_GZIP | DataSpec.FLAG_ALLOW_CACHING_UNKNOWN_LENGTH),
+        type,
+        parser);
   }
 
   /**

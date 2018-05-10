@@ -1,5 +1,462 @@
 # Release notes #
 
+### dev-v2 (not yet released) ###
+
+* OkHttp extension: Fix to correctly include response headers in thrown
+  `InvalidResponseCodeException`s.
+
+### 2.8.0 ###
+
+* Downloading:
+  * Add `DownloadService`, `DownloadManager` and related classes
+    ([#2643](https://github.com/google/ExoPlayer/issues/2643)). Information on
+    using these components to download progressive formats can be found
+    [here](https://medium.com/google-exoplayer/downloading-streams-6d259eec7f95).
+    To see how to download DASH, HLS and SmoothStreaming media, take a look at
+    the app.
+  * Updated main demo app to support downloading DASH, HLS, SmoothStreaming and
+    progressive media.
+* MediaSources:
+  * Allow reusing media sources after they have been released and
+    also in parallel to allow adding them multiple times to a concatenation.
+    ([#3498](https://github.com/google/ExoPlayer/issues/3498)).
+  * Merged `DynamicConcatenatingMediaSource` into `ConcatenatingMediaSource` and
+    deprecated `DynamicConcatenatingMediaSource`.
+  * Allow clipping of child media sources where the period and window have a
+    non-zero offset with `ClippingMediaSource`.
+  * Allow adding and removing `MediaSourceEventListener`s to MediaSources after
+    they have been created. Listening to events is now supported for all
+    media sources including composite sources.
+  * Added callbacks to `MediaSourceEventListener` to get notified when media
+    periods are created, released and being read from.
+  * Support live stream clipping with `ClippingMediaSource`.
+  * Allow setting tags for all media sources in their factories. The tag of the
+    current window can be retrieved with `ExoPlayer.getCurrentTag`.
+* UI components:
+  * Add support for displaying error messages and a buffering spinner in
+    `PlayerView`.
+  * Add support for listening to `AspectRatioFrameLayout`'s aspect ratio update
+    ([#3736](https://github.com/google/ExoPlayer/issues/3736)).
+  * Add `PlayerNotificationManager` for displaying notifications reflecting the
+    player state.
+  * Add `TrackSelectionView` for selecting tracks with `DefaultTrackSelector`.
+  * Add `TrackNameProvider` for converting track `Format`s to textual
+    descriptions, and `DefaultTrackNameProvider` as a default implementation.
+* Track selection:
+  * Reworked `MappingTrackSelector` and `DefaultTrackSelector`.
+  * `DefaultTrackSelector.Parameters` now implements `Parcelable`.
+  * Added UI components for track selection (see above).
+* Audio:
+  * Support extracting data from AMR container formats, including both narrow
+    and wide band ([#2527](https://github.com/google/ExoPlayer/issues/2527)).
+  * FLAC:
+    * Sniff FLAC files correctly if they have ID3 headers
+      ([#4055](https://github.com/google/ExoPlayer/issues/4055)).
+    * Supports FLAC files with high sample rate (176400 and 192000)
+      ([#3769](https://github.com/google/ExoPlayer/issues/3769)).
+  * Factor out `AudioTrack` position tracking from `DefaultAudioSink`.
+  * Fix an issue where the playback position would pause just after playback
+    begins, and poll the audio timestamp less frequently once it starts
+    advancing ([#3841](https://github.com/google/ExoPlayer/issues/3841)).
+  * Add an option to skip silent audio in `PlaybackParameters`
+    ((#2635)[https://github.com/google/ExoPlayer/issues/2635]).
+  * Fix an issue where playback of TrueHD streams would get stuck after seeking
+    due to not finding a syncframe
+    ((#3845)[https://github.com/google/ExoPlayer/issues/3845]).
+  * Fix an issue with eac3-joc playback where a codec would fail to configure
+    ((#4165)[https://github.com/google/ExoPlayer/issues/4165]).
+  * Handle non-empty end-of-stream buffers, to fix gapless playback of streams
+    with encoder padding when the decoder returns a non-empty final buffer.
+  * Allow trimming more than one sample when applying an elst audio edit via
+    gapless playback info.
+  * Allow overriding skipping/scaling with custom `AudioProcessor`s
+    ((#3142)[https://github.com/google/ExoPlayer/issues/3142]).
+* Caching:
+  * Add release method to the `Cache` interface, and prevent multiple instances
+    of `SimpleCache` using the same folder at the same time.
+  * Cache redirect URLs
+    ([#2360](https://github.com/google/ExoPlayer/issues/2360)).
+* DRM:
+  * Allow multiple listeners for `DefaultDrmSessionManager`.
+  * Pass `DrmSessionManager` to `ExoPlayerFactory` instead of `RendererFactory`.
+  * Change minimum API requirement for CBC and pattern encryption from 24 to 25
+    ([#4022][https://github.com/google/ExoPlayer/issues/4022]).
+  * Fix handling of 307/308 redirects when making license requests
+    ([#4108](https://github.com/google/ExoPlayer/issues/4108)).
+* HLS:
+  * Fix playlist loading error propagation when the current selection does
+    not include all of the playlist's variants.
+  * Fix SAMPLE-AES-CENC and SAMPLE-AES-CTR EXT-X-KEY methods
+    ([#4145](https://github.com/google/ExoPlayer/issues/4145)).
+  * Preeptively declare an ID3 track in chunkless preparation
+    ([#4016](https://github.com/google/ExoPlayer/issues/4016)).
+  * Add support for multiple #EXT-X-MAP tags in a media playlist
+    ([#4164](https://github.com/google/ExoPlayer/issues/4182)).
+  * Fix seeking in live streams
+    ([#4187](https://github.com/google/ExoPlayer/issues/4187)).
+* IMA:
+  * Allow setting the ad media load timeout
+    ([#3691](https://github.com/google/ExoPlayer/issues/3691)).
+  * Expose ad load errors via `MediaSourceEventListener` on `AdsMediaSource`,
+    and allow setting an ad event listener on `ImaAdsLoader`. Deprecate the
+    `AdsMediaSource.EventListener`.
+* Add `AnalyticsListener` interface which can be registered in
+  `SimpleExoPlayer` to receive detailed metadata for each ExoPlayer event.
+* Optimize seeking in FMP4 by enabling seeking to the nearest sync sample within
+  a fragment. This benefits standalone FMP4 playbacks, DASH and SmoothStreaming.
+* Updated default max buffer length in `DefaultLoadControl`.
+* Fix ClearKey decryption error if the key contains a forward slash
+  ([#4075](https://github.com/google/ExoPlayer/issues/4075)).
+* Fix crash when switching surface on Huawei P9 Lite
+  ([#4084](https://github.com/google/ExoPlayer/issues/4084)), and Philips QM163E
+  ([#4104](https://github.com/google/ExoPlayer/issues/4104)).
+* Support ZLIB compressed PGS subtitles.
+* Added `getPlaybackError` to `Player` interface.
+* Moved initial bitrate estimate from `AdaptiveTrackSelection` to
+  `DefaultBandwidthMeter`.
+* Removed default renderer time offset of 60000000 from internal player. The
+  actual renderer timestamp offset can be obtained by listening to
+  `BaseRenderer.onStreamChanged`.
+* Added dependencies on checkerframework annotations for static code analysis.
+
+### 2.7.3 ###
+
+* Fix ProGuard configuration for Cast, IMA and OkHttp extensions.
+* Update OkHttp extension to depend on OkHttp 3.10.0.
+
+### 2.7.2 ###
+
+* Gradle: Upgrade Gradle version from 4.1 to 4.4 so it can work with Android
+  Studio 3.1 ([#3708](https://github.com/google/ExoPlayer/issues/3708)).
+* Match codecs starting with "mp4a" to different Audio MimeTypes
+  ([#3779](https://github.com/google/ExoPlayer/issues/3779)).
+* Fix ANR issue on Redmi 4X and Redmi Note 4
+  ([#4006](https://github.com/google/ExoPlayer/issues/4006)).
+* Fix handling of zero padded strings when parsing Matroska streams
+  ([#4010](https://github.com/google/ExoPlayer/issues/4010)).
+* Fix "Decoder input buffer too small" error when playing some FLAC streams.
+* MediaSession extension: Omit fast forward and rewind actions when media is not
+  seekable ([#4001](https://github.com/google/ExoPlayer/issues/4001)).
+
+### 2.7.1 ###
+
+* Gradle: Replaced 'compile' (deprecated) with 'implementation' and
+  'api'. This may lead to build breakage for applications upgrading from
+  previous version that rely on indirect dependencies of certain modules. In
+  such cases, application developers need to add the missing dependency to
+  their gradle file. You can read more about the new dependency configurations
+  [here](https://developer.android.com/studio/build/gradle-plugin-3-0-0-migration.html#new_configurations).
+* HlsMediaSource: Make HLS periods start at zero instead of the epoch.
+  Applications that rely on HLS timelines having a period starting at
+  the epoch will need to update their handling of HLS timelines. The program
+  date time is still available via the informational
+  `Timeline.Window.windowStartTimeMs` field
+  ([#3865](https://github.com/google/ExoPlayer/issues/3865),
+  [#3888](https://github.com/google/ExoPlayer/issues/3888)).
+* Enable seeking in MP4 streams where duration is set incorrectly in the track
+  header ([#3926](https://github.com/google/ExoPlayer/issues/3926)).
+* Video: Force rendering a frame periodically in `MediaCodecVideoRenderer` and
+  `LibvpxVideoRenderer`, even if it is late.
+
+### 2.7.0 ###
+
+* Player interface:
+  * Add optional parameter to `stop` to reset the player when stopping.
+  * Add a reason to `EventListener.onTimelineChanged` to distinguish between
+    initial preparation, reset and dynamic updates.
+  * Add `Player.DISCONTINUITY_REASON_AD_INSERTION` to the possible reasons
+    reported in `Eventlistener.onPositionDiscontinuity` to distinguish
+    transitions to and from ads within one period from transitions between
+    periods.
+  * Replaced `ExoPlayer.sendMessages` with `ExoPlayer.createMessage` to allow
+    more customization of the message. Now supports setting a message delivery
+    playback position and/or a delivery handler
+    ([#2189](https://github.com/google/ExoPlayer/issues/2189)).
+  * Add `Player.VideoComponent`, `Player.TextComponent` and
+    `Player.MetadataComponent` interfaces that define optional video, text and
+    metadata output functionality. New `getVideoComponent`, `getTextComponent`
+    and `getMetadataComponent` methods provide access to this functionality.
+* Add `ExoPlayer.setSeekParameters` for controlling how seek operations are
+  performed. The `SeekParameters` class contains defaults for exact seeking and
+  seeking to the closest sync points before, either side or after specified seek
+  positions. `SeekParameters` are not currently supported when playing HLS
+  streams.
+* DefaultTrackSelector:
+  * Replace `DefaultTrackSelector.Parameters` copy methods with a builder.
+  * Support disabling of individual text track selection flags.
+* Buffering:
+  * Allow a back-buffer of media to be retained behind the current playback
+    position, for fast backward seeking. The back-buffer can be configured by
+    custom `LoadControl` implementations.
+  * Add ability for `SequenceableLoader` to re-evaluate its buffer and discard
+    buffered media so that it can be re-buffered in a different quality.
+  * Allow more flexible loading strategy when playing media containing multiple
+    sub-streams, by allowing injection of custom `CompositeSequenceableLoader`
+    factories through `DashMediaSource.Factory`, `HlsMediaSource.Factory`,
+    `SsMediaSource.Factory`, and `MergingMediaSource`.
+  * Play out existing buffer before retrying for progressive live streams
+    ([#1606](https://github.com/google/ExoPlayer/issues/1606)).
+* UI components:
+  * Generalized player and control views to allow them to bind with any
+    `Player`, and renamed them to `PlayerView` and `PlayerControlView`
+    respectively.
+  * Made `PlayerView` automatically apply video rotation when configured to use
+    `TextureView` ([#91](https://github.com/google/ExoPlayer/issues/91)).
+  * Made `PlayerView` play button behave correctly when the player is ended
+    ([#3689](https://github.com/google/ExoPlayer/issues/3689)), and call a
+    `PlaybackPreparer` when the player is idle.
+* DRM: Optimistically attempt playback of DRM protected content that does not
+  declare scheme specific init data in the manifest. If playback of clear
+  samples without keys is allowed, delay DRM session error propagation until
+  keys are actually needed
+  ([#3630](https://github.com/google/ExoPlayer/issues/3630)).
+* DASH:
+  * Support in-band Emsg events targeting the player with scheme id
+    `urn:mpeg:dash:event:2012` and scheme values "1", "2" and "3".
+  * Support EventStream elements in DASH manifests.
+* HLS:
+    * Add opt-in support for chunkless preparation in HLS. This allows an
+      HLS source to finish preparation without downloading any chunks, which can
+      significantly reduce initial buffering time
+      ([#3149](https://github.com/google/ExoPlayer/issues/3149)). More details
+      can be found
+      [here](https://medium.com/google-exoplayer/faster-hls-preparation-f6611aa15ea6).
+    * Fail if unable to sync with the Transport Stream, rather than entering
+      stuck in an indefinite buffering state.
+    * Fix mime type propagation
+      ([#3653](https://github.com/google/ExoPlayer/issues/3653)).
+    * Fix ID3 context reuse across segment format changes
+      ([#3622](https://github.com/google/ExoPlayer/issues/3622)).
+    * Use long for media sequence numbers
+      ([#3747](https://github.com/google/ExoPlayer/issues/3747))
+    * Add initial support for the EXT-X-GAP tag.
+* Audio:
+  * Support TrueHD passthrough for rechunked samples in Matroska files
+    ([#2147](https://github.com/google/ExoPlayer/issues/2147)).
+  * Support resampling 24-bit and 32-bit integer to 32-bit float for high
+    resolution output in `DefaultAudioSink`
+    ([#3635](https://github.com/google/ExoPlayer/pull/3635)).
+* Captions:
+  * Basic support for PGS subtitles
+    ([#3008](https://github.com/google/ExoPlayer/issues/3008)).
+  * Fix handling of CEA-608 captions where multiple buffers have the same
+    presentation timestamp
+    ([#3782](https://github.com/google/ExoPlayer/issues/3782)).
+* Caching:
+  * Fix cache corruption issue
+    ([#3762](https://github.com/google/ExoPlayer/issues/3762)).
+  * Implement periodic check in `CacheDataSource` to see whether it's possible
+    to switch to reading/writing the cache having initially bypassed it.
+* IMA extension:
+    * Fix the player getting stuck when an ad group fails to load
+      ([#3584](https://github.com/google/ExoPlayer/issues/3584)).
+    * Work around loadAd not being called beore the LOADED AdEvent arrives
+      ([#3552](https://github.com/google/ExoPlayer/issues/3552)).
+    * Handle asset mismatch errors
+      ([#3801](https://github.com/google/ExoPlayer/issues/3801)).
+    * Add support for playing non-Extractor content MediaSources in
+      the IMA demo app
+      ([#3676](https://github.com/google/ExoPlayer/issues/3676)).
+    * Fix handling of ad tags where ad groups are out of order
+      ([#3716](https://github.com/google/ExoPlayer/issues/3716)).
+    * Fix handling of ad tags with only preroll/postroll ad groups
+      ([#3715](https://github.com/google/ExoPlayer/issues/3715)).
+    * Propagate ad media preparation errors to IMA so that the ads can be
+      skipped.
+    * Handle exceptions in IMA callbacks so that can be logged less verbosely.
+* New Cast extension. Simplifies toggling between local and Cast playbacks.
+* `EventLogger` moved from the demo app into the core library.
+* Fix ANR issue on the Huawei P8 Lite, Huawei Y6II, Moto C+, Meizu M5C,
+  Lenovo K4 Note and Sony Xperia E5.
+  ([#3724](https://github.com/google/ExoPlayer/issues/3724),
+  [#3835](https://github.com/google/ExoPlayer/issues/3835)).
+* Fix potential NPE when removing media sources from a
+  DynamicConcatenatingMediaSource
+  ([#3796](https://github.com/google/ExoPlayer/issues/3796)).
+* Check `sys.display-size` on Philips ATVs
+  ([#3807](https://github.com/google/ExoPlayer/issues/3807)).
+* Release `Extractor`s on the loading thread to avoid potentially leaking
+  resources when the playback thread has quit by the time the loading task has
+  completed.
+* ID3: Better handle malformed ID3 data
+  ([#3792](https://github.com/google/ExoPlayer/issues/3792).
+* Support 14-bit mode and little endianness in DTS PES packets
+  ([#3340](https://github.com/google/ExoPlayer/issues/3340)).
+* Demo app: Add ability to download not DRM protected content.
+
+### 2.6.1 ###
+
+* Add factories to `ExtractorMediaSource`, `HlsMediaSource`, `SsMediaSource`,
+  `DashMediaSource` and `SingleSampleMediaSource`.
+* Use the same listener `MediaSourceEventListener` for all MediaSource
+  implementations.
+* IMA extension:
+  * Support non-ExtractorMediaSource ads
+    ([#3302](https://github.com/google/ExoPlayer/issues/3302)).
+  * Skip ads before the ad preceding the player's initial seek position
+    ([#3527](https://github.com/google/ExoPlayer/issues/3527)).
+  * Fix ad loading when there is no preroll.
+  * Add an option to turn off hiding controls during ad playback
+    ([#3532](https://github.com/google/ExoPlayer/issues/3532)).
+  * Support specifying an ads response instead of an ad tag
+    ([#3548](https://github.com/google/ExoPlayer/issues/3548)).
+  * Support overriding the ad load timeout
+    ([#3556](https://github.com/google/ExoPlayer/issues/3556)).
+* DASH: Support time zone designators in ISO8601 UTCTiming elements
+  ([#3524](https://github.com/google/ExoPlayer/issues/3524)).
+* Audio:
+  * Support 32-bit PCM float output from `DefaultAudioSink`, and add an option
+    to use this with `FfmpegAudioRenderer`.
+  * Add support for extracting 32-bit WAVE files
+    ([#3379](https://github.com/google/ExoPlayer/issues/3379)).
+  * Support extraction and decoding of Dolby Atmos
+    ([#2465](https://github.com/google/ExoPlayer/issues/2465)).
+  * Fix handling of playback parameter changes while paused when followed by a
+    seek.
+* SimpleExoPlayer: Allow multiple audio and video debug listeners.
+* DefaultTrackSelector: Support undefined language text track selection when the
+  preferred language is not available
+  ([#2980](https://github.com/google/ExoPlayer/issues/2980)).
+* Add options to `DefaultLoadControl` to set maximum buffer size in bytes and
+  to choose whether size or time constraints are prioritized.
+* Use surfaceless context for secure `DummySurface`, if available
+  ([#3558](https://github.com/google/ExoPlayer/issues/3558)).
+* FLV: Fix playback of live streams that do not contain an audio track
+  ([#3188](https://github.com/google/ExoPlayer/issues/3188)).
+* CEA-608: Fix handling of row count changes in roll-up mode
+  ([#3513](https://github.com/google/ExoPlayer/issues/3513)).
+* Prevent period transitions when seeking to the end of a period when paused
+  ([#2439](https://github.com/google/ExoPlayer/issues/2439)).
+
+### 2.6.0 ###
+
+* Removed "r" prefix from versions. This release is "2.6.0", not "r2.6.0".
+* New `Player.DefaultEventListener` abstract class can be extended to avoid
+  having to implement all methods defined by `Player.EventListener`.
+* Added a reason to `EventListener.onPositionDiscontinuity`
+  ([#3252](https://github.com/google/ExoPlayer/issues/3252)).
+* New `setShuffleModeEnabled` method for enabling shuffled playback.
+* SimpleExoPlayer: Support for multiple video, text and metadata outputs.
+* Support for `Renderer`s that don't consume any media
+  ([#3212](https://github.com/google/ExoPlayer/issues/3212)).
+* Fix reporting of internal position discontinuities via
+  `Player.onPositionDiscontinuity`. `DISCONTINUITY_REASON_SEEK_ADJUSTMENT` is
+  added to disambiguate position adjustments during seeks from other types of
+  internal position discontinuity.
+* Fix potential `IndexOutOfBoundsException` when calling `ExoPlayer.getDuration`
+  ([#3362](https://github.com/google/ExoPlayer/issues/3362)).
+* Fix playbacks involving looping, concatenation and ads getting stuck when
+  media contains tracks with uneven durations
+  ([#1874](https://github.com/google/ExoPlayer/issues/1874)).
+* Fix issue with `ContentDataSource` when reading from certain `ContentProvider`
+  implementations ([#3426](https://github.com/google/ExoPlayer/issues/3426)).
+* Better playback experience when the video decoder cannot keep up, by skipping
+  to key-frames. This is particularly relevant for variable speed playbacks.
+* Allow `SingleSampleMediaSource` to suppress load errors
+  ([#3140](https://github.com/google/ExoPlayer/issues/3140)).
+* `DynamicConcatenatingMediaSource`: Allow specifying a callback to be invoked
+  after a dynamic playlist modification has been applied
+  ([#3407](https://github.com/google/ExoPlayer/issues/3407)).
+* Audio: New `AudioSink` interface allows customization of audio output path.
+* Offline: Added `Downloader` implementations for DASH, HLS, SmoothStreaming
+  and progressive streams.
+* Track selection:
+  * Fixed adaptive track selection logic for live playbacks
+    ([#3017](https://github.com/google/ExoPlayer/issues/3017)).
+  * Added ability to select the lowest bitrate tracks.
+* DASH:
+  * Don't crash when a malformed or unexpected manifest update occurs
+    ([#2795](https://github.com/google/ExoPlayer/issues/2795)).
+* HLS:
+  * Support for Widevine protected FMP4 variants.
+  * Support CEA-608 in FMP4 variants.
+  * Support extractor injection
+    ([#2748](https://github.com/google/ExoPlayer/issues/2748)).
+* DRM:
+  * Improved compatibility with ClearKey content
+    ([#3138](https://github.com/google/ExoPlayer/issues/3138)).
+  * Support multiple PSSH boxes of the same type.
+  * Retry initial provisioning and key requests if they fail
+  * Fix incorrect parsing of non-CENC sinf boxes.
+* IMA extension:
+  * Expose `AdsLoader` via getter
+    ([#3322](https://github.com/google/ExoPlayer/issues/3322)).
+  * Handle `setPlayWhenReady` calls during ad playbacks
+    ([#3303](https://github.com/google/ExoPlayer/issues/3303)).
+  * Ignore seeks if an ad is playing
+    ([#3309](https://github.com/google/ExoPlayer/issues/3309)).
+  * Improve robustness of `ImaAdsLoader` in case content is not paused between
+    content to ad transitions
+    ([#3430](https://github.com/google/ExoPlayer/issues/3430)).
+* UI:
+  * Allow specifying a `Drawable` for the `TimeBar` scrubber
+    ([#3337](https://github.com/google/ExoPlayer/issues/3337)).
+  * Allow multiple listeners on `TimeBar`
+    ([#3406](https://github.com/google/ExoPlayer/issues/3406)).
+* New Leanback extension: Simplifies binding Exoplayer to Leanback UI
+  components.
+* Unit tests moved to Robolectric.
+* Misc bugfixes.
+
+### r2.5.4 ###
+
+* Remove unnecessary media playlist fetches during playback of live HLS streams.
+* Add the ability to inject a HLS playlist parser through `HlsMediaSource`.
+* Fix potential `IndexOutOfBoundsException` when using `ImaMediaSource`
+  ([#3334](https://github.com/google/ExoPlayer/issues/3334)).
+* Fix an issue parsing MP4 content containing non-CENC sinf boxes.
+* Fix memory leak when seeking with repeated periods.
+* Fix playback position when `ExoPlayer.prepare` is called with `resetPosition`
+  set to false.
+* Ignore MP4 edit lists that seem invalid
+  ([#3351](https://github.com/google/ExoPlayer/issues/3351)).
+* Add extractor flag for ignoring all MP4 edit lists
+  ([#3358](https://github.com/google/ExoPlayer/issues/3358)).
+* Improve extensibility by exposing public constructors for
+  `FrameworkMediaCrypto` and by making `DefaultDashChunkSource.getNextChunk`
+  non-final.
+
+### r2.5.3 ###
+
+* IMA extension: Support skipping of skippable ads on AndroidTV and other
+  non-touch devices ([#3258](https://github.com/google/ExoPlayer/issues/3258)).
+* HLS: Fix broken WebVTT captions when PTS wraps around
+  ([#2928](https://github.com/google/ExoPlayer/issues/2928)).
+* Captions: Fix issues rendering CEA-608 captions
+  ([#3250](https://github.com/google/ExoPlayer/issues/3250)).
+* Workaround broken AAC decoders on Galaxy S6
+  ([#3249](https://github.com/google/ExoPlayer/issues/3249)).
+* Caching: Fix infinite loop when cache eviction fails
+  ([#3260](https://github.com/google/ExoPlayer/issues/3260)).
+* Caching: Force use of BouncyCastle on JellyBean to fix decryption issue
+  ([#2755](https://github.com/google/ExoPlayer/issues/2755)).
+
+### r2.5.2 ###
+
+* IMA extension: Fix issue where ad playback could end prematurely for some
+  content types ([#3180](https://github.com/google/ExoPlayer/issues/3180)).
+* RTMP extension: Fix SIGABRT on fast RTMP stream restart
+  ([#3156](https://github.com/google/ExoPlayer/issues/3156)).
+* UI: Allow app to manually specify ad markers
+  ([#3184](https://github.com/google/ExoPlayer/issues/3184)).
+* DASH: Expose segment indices to subclasses of DefaultDashChunkSource
+  ([#3037](https://github.com/google/ExoPlayer/issues/3037)).
+* Captions: Added robustness against malformed WebVTT captions
+  ([#3228](https://github.com/google/ExoPlayer/issues/3228)).
+* DRM: Support forcing a specific license URL.
+* Fix playback error when seeking in media loaded through content:// URIs
+  ([#3216](https://github.com/google/ExoPlayer/issues/3216)).
+* Fix issue playing MP4s in which the last atom specifies a size of zero
+  ([#3191](https://github.com/google/ExoPlayer/issues/3191)).
+* Workaround playback failures on some Xiaomi devices
+  ([#3171](https://github.com/google/ExoPlayer/issues/3171)).
+* Workaround SIGSEGV issue on some devices when setting and swapping surface for
+  secure playbacks ([#3215](https://github.com/google/ExoPlayer/issues/3215)).
+* Workaround for Nexus 7 issue when swapping output surface
+  ([#3236](https://github.com/google/ExoPlayer/issues/3236)).
+* Workaround for SimpleExoPlayerView's surface not being hidden properly
+  ([#3160](https://github.com/google/ExoPlayer/issues/3160)).
+
 ### r2.5.1 ###
 
 * Fix an issue that could cause the reported playback position to stop advancing
@@ -13,7 +470,7 @@
   easy and seamless way of incorporating display ads into ExoPlayer playbacks.
   You can read more about the IMA extension
   [here](https://medium.com/google-exoplayer/playing-ads-with-exoplayer-and-ima-868dfd767ea).
-* MediaSession extension: Provides an easy to to connect ExoPlayer with
+* MediaSession extension: Provides an easy way to connect ExoPlayer with
   MediaSessionCompat in the Android Support Library.
 * RTMP extension: An extension for playing streams over RTMP.
 * Build: Made it easier for application developers to depend on a local checkout

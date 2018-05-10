@@ -16,6 +16,7 @@
 package com.google.android.exoplayer2.playbacktests.gts;
 
 import android.test.ActivityInstrumentationTestCase2;
+import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.testutil.ActionSchedule;
 import com.google.android.exoplayer2.testutil.HostActivity;
 import com.google.android.exoplayer2.util.MimeTypes;
@@ -39,8 +40,9 @@ public final class CommonEncryptionDrmTest extends ActivityInstrumentationTestCa
 
   // Seeks help reproduce playback issues in certain devices.
   private static final ActionSchedule ACTION_SCHEDULE_WITH_SEEKS = new ActionSchedule.Builder(TAG)
-      .delay(30000).seek(300000).delay(10000).seek(270000).delay(10000).seek(200000).delay(10000)
-      .seek(732000).build();
+      .waitForPlaybackState(Player.STATE_READY).delay(30000).seekAndWait(300000).delay(10000)
+      .seekAndWait(270000).delay(10000).seekAndWait(200000).delay(10000).seekAndWait(732000)
+      .build();
 
   private DashTestRunner testRunner;
 
@@ -65,7 +67,7 @@ public final class CommonEncryptionDrmTest extends ActivityInstrumentationTestCa
     super.tearDown();
   }
 
-  public void testCencSchemeType() {
+  public void testCencSchemeTypeV18() {
     if (Util.SDK_INT < 18) {
       // Pass.
       return;
@@ -73,23 +75,27 @@ public final class CommonEncryptionDrmTest extends ActivityInstrumentationTestCa
     testRunner.setStreamName("test_widevine_h264_scheme_cenc").setManifestUrl(URL_cenc).run();
   }
 
-  public void testCbc1SchemeType() {
-    if (Util.SDK_INT < 24) {
+  public void testCbc1SchemeTypeV25() {
+    if (Util.SDK_INT < 25) {
+      // cbc1 support was added in API 24, but it is stable from API 25 onwards.
+      // See [internal: b/65634809].
       // Pass.
       return;
     }
     testRunner.setStreamName("test_widevine_h264_scheme_cbc1").setManifestUrl(URL_cbc1).run();
   }
 
-  public void testCbcsSchemeType() {
-    if (Util.SDK_INT < 24) {
+  public void testCbcsSchemeTypeV25() {
+    if (Util.SDK_INT < 25) {
+      // cbcs support was added in API 24, but it is stable from API 25 onwards.
+      // See [internal: b/65634809].
       // Pass.
       return;
     }
     testRunner.setStreamName("test_widevine_h264_scheme_cbcs").setManifestUrl(URL_cbcs).run();
   }
 
-  public void testCensSchemeType() {
+  public void testCensSchemeTypeV25() {
     // TODO: Implement once content is available. Track [internal: b/31219813].
   }
 

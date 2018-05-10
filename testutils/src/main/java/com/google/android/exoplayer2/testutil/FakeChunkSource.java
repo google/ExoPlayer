@@ -16,7 +16,9 @@
 package com.google.android.exoplayer2.testutil;
 
 import android.net.Uri;
+import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
+import com.google.android.exoplayer2.SeekParameters;
 import com.google.android.exoplayer2.source.chunk.Chunk;
 import com.google.android.exoplayer2.source.chunk.ChunkHolder;
 import com.google.android.exoplayer2.source.chunk.ChunkSource;
@@ -27,6 +29,7 @@ import com.google.android.exoplayer2.trackselection.TrackSelection;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DataSpec;
 import com.google.android.exoplayer2.util.MimeTypes;
+import com.google.android.exoplayer2.util.Util;
 import java.io.IOException;
 import java.util.List;
 
@@ -71,6 +74,17 @@ public final class FakeChunkSource implements ChunkSource {
   }
 
   @Override
+  public long getAdjustedSeekPositionUs(long positionUs, SeekParameters seekParameters) {
+    int chunkIndex = dataSet.getChunkIndexByPosition(positionUs);
+    long firstSyncUs = dataSet.getStartTime(chunkIndex);
+    long secondSyncUs =
+        firstSyncUs < positionUs && chunkIndex < dataSet.getChunkCount() - 1
+            ? dataSet.getStartTime(chunkIndex + 1)
+            : firstSyncUs;
+    return Util.resolveSeekPositionUs(positionUs, seekParameters, firstSyncUs, secondSyncUs);
+  }
+
+  @Override
   public void maybeThrowError() throws IOException {
     // Do nothing.
   }
@@ -81,18 +95,22 @@ public final class FakeChunkSource implements ChunkSource {
   }
 
   @Override
-  public void getNextChunk(MediaChunk previous, long playbackPositionUs, ChunkHolder out) {
-    long bufferedDurationUs = previous != null ? (previous.endTimeUs - playbackPositionUs) : 0;
-    trackSelection.updateSelectedTrack(bufferedDurationUs);
-    int chunkIndex = previous == null ? dataSet.getChunkIndexByPosition(playbackPositionUs)
-        : previous.getNextChunkIndex();
+  public void getNextChunk(MediaChunk previous, long playbackPositionUs, long loadPositionUs,
+      ChunkHolder out) {
+    long bufferedDurationUs = loadPositionUs - playbackPositionUs;
+    trackSelection.updateSelectedTrack(playbackPositionUs, bufferedDurationUs, C.TIME_UNSET);
+    int chunkIndex =
+        previous == null
+            ? dataSet.getChunkIndexByPosition(playbackPositionUs)
+            : (int) previous.getNextChunkIndex();
     if (chunkIndex >= dataSet.getChunkCount()) {
       out.endOfStream = true;
     } else {
       Format selectedFormat = trackSelection.getSelectedFormat();
       long startTimeUs = dataSet.getStartTime(chunkIndex);
       long endTimeUs = startTimeUs + dataSet.getChunkDuration(chunkIndex);
-      String uri = dataSet.getUri(trackSelection.getSelectedIndex());
+      int trackGroupIndex = trackSelection.getIndexInTrackGroup(trackSelection.getSelectedIndex());
+      String uri = dataSet.getUri(trackGroupIndex);
       Segment fakeDataChunk = dataSet.getData(uri).getSegments().get(chunkIndex);
       DataSpec dataSpec = new DataSpec(Uri.parse(uri), fakeDataChunk.byteOffset,
           fakeDataChunk.length, null);

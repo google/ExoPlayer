@@ -15,15 +15,15 @@
 -->
 
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.google.android.exoplayer2.demo"
-    android:versionCode="2501"
-    android:versionName="2.5.1">
+    package="com.google.android.exoplayer2.demo">
 
   <uses-permission android:name="android.permission.INTERNET"/>
   <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
+  <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
+
   <uses-feature android:name="android.software.leanback" android:required="false"/>
   <uses-feature android:name="android.hardware.touchscreen" android:required="false"/>
-  <uses-sdk android:minSdkVersion="16" android:targetSdkVersion="26"/>
+  <uses-sdk/>
 
   <application
       android:label="@string/application_name"
@@ -74,6 +74,18 @@
         <category android:name="android.intent.category.DEFAULT"/>
       </intent-filter>
     </activity>
+
+    <service android:name="com.google.android.exoplayer2.demo.DemoDownloadService"
+        android:exported="false">
+      <intent-filter>
+        <action android:name="com.google.android.exoplayer.downloadService.action.INIT"/>
+        <category android:name="android.intent.category.DEFAULT"/>
+      </intent-filter>
+    </service>
+
+    <service android:name="com.google.android.exoplayer2.scheduler.PlatformScheduler$PlatformSchedulerService"
+        android:permission="android.permission.BIND_JOB_SERVICE"
+        android:exported="true"/>
 
   </application>
 

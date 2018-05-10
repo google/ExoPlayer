@@ -16,10 +16,10 @@
 
 <resources>
 
-  <string name="application_name">ExoCast Demo</string>
+  <string name="application_name">Exo Cast Demo</string>
 
-  <string name="media_route_menu_title">ExoCast</string>
+  <string name="media_route_menu_title">Cast</string>
 
-  <string name="error_unsupported_drm">DRM scheme not supported by this device.</string>
+  <string name="sample_list_dialog_title">Add samples</string>
 
 </resources>

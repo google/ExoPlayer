@@ -16,10 +16,12 @@
 package com.google.android.exoplayer2.ext.flac;
 
 import android.os.Handler;
+import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.audio.AudioProcessor;
 import com.google.android.exoplayer2.audio.AudioRendererEventListener;
 import com.google.android.exoplayer2.audio.SimpleDecoderAudioRenderer;
+import com.google.android.exoplayer2.drm.DrmSessionManager;
 import com.google.android.exoplayer2.drm.ExoMediaCrypto;
 import com.google.android.exoplayer2.util.MimeTypes;
 
@@ -46,9 +48,18 @@ public class LibflacAudioRenderer extends SimpleDecoderAudioRenderer {
   }
 
   @Override
-  protected int supportsFormatInternal(Format format) {
-    return FlacLibrary.isAvailable() && MimeTypes.AUDIO_FLAC.equalsIgnoreCase(format.sampleMimeType)
-        ? FORMAT_HANDLED : FORMAT_UNSUPPORTED_TYPE;
+  protected int supportsFormatInternal(DrmSessionManager<ExoMediaCrypto> drmSessionManager,
+      Format format) {
+    if (!FlacLibrary.isAvailable()
+        || !MimeTypes.AUDIO_FLAC.equalsIgnoreCase(format.sampleMimeType)) {
+      return FORMAT_UNSUPPORTED_TYPE;
+    } else if (!supportsOutputEncoding(C.ENCODING_PCM_16BIT)) {
+      return FORMAT_UNSUPPORTED_SUBTYPE;
+    } else if (!supportsFormatDrm(drmSessionManager, format.drmInitData)) {
+      return FORMAT_UNSUPPORTED_DRM;
+    } else {
+      return FORMAT_HANDLED;
+    }
   }
 
   @Override

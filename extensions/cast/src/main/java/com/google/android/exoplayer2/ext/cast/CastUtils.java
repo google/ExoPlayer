@@ -15,19 +15,29 @@
  */
 package com.google.android.exoplayer2.ext.cast;
 
+import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.gms.cast.CastStatusCodes;
+import com.google.android.gms.cast.MediaInfo;
 import com.google.android.gms.cast.MediaTrack;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * Utility methods for ExoPlayer/Cast integration.
  */
 /* package */ final class CastUtils {
 
-  private static final Map<Integer, String> CAST_STATUS_CODE_TO_STRING;
+  /**
+   * Returns the duration in microseconds advertised by a media info, or {@link C#TIME_UNSET} if
+   * unknown or not applicable.
+   *
+   * @param mediaInfo The media info to get the duration from.
+   * @return The duration in microseconds.
+   */
+  public static long getStreamDurationUs(MediaInfo mediaInfo) {
+    long durationMs =
+        mediaInfo != null ? mediaInfo.getStreamDuration() : MediaInfo.UNKNOWN_DURATION;
+    return durationMs != MediaInfo.UNKNOWN_DURATION ? C.msToUs(durationMs) : C.TIME_UNSET;
+  }
 
   /**
    * Returns a descriptive log string for the given {@code statusCode}, or "Unknown." if not one of
@@ -38,8 +48,49 @@ import java.util.Map;
    *     {@link CastStatusCodes}.
    */
   public static String getLogString(int statusCode) {
-    String description = CAST_STATUS_CODE_TO_STRING.get(statusCode);
-    return description != null ? description : "Unknown.";
+    switch (statusCode) {
+      case CastStatusCodes.APPLICATION_NOT_FOUND:
+        return "A requested application could not be found.";
+      case CastStatusCodes.APPLICATION_NOT_RUNNING:
+        return "A requested application is not currently running.";
+      case CastStatusCodes.AUTHENTICATION_FAILED:
+        return "Authentication failure.";
+      case CastStatusCodes.CANCELED:
+        return "An in-progress request has been canceled, most likely because another action has "
+            + "preempted it.";
+      case CastStatusCodes.ERROR_SERVICE_CREATION_FAILED:
+        return "The Cast Remote Display service could not be created.";
+      case CastStatusCodes.ERROR_SERVICE_DISCONNECTED:
+        return "The Cast Remote Display service was disconnected.";
+      case CastStatusCodes.FAILED:
+        return "The in-progress request failed.";
+      case CastStatusCodes.INTERNAL_ERROR:
+        return "An internal error has occurred.";
+      case CastStatusCodes.INTERRUPTED:
+        return "A blocking call was interrupted while waiting and did not run to completion.";
+      case CastStatusCodes.INVALID_REQUEST:
+        return "An invalid request was made.";
+      case CastStatusCodes.MESSAGE_SEND_BUFFER_TOO_FULL:
+        return "A message could not be sent because there is not enough room in the send buffer at "
+            + "this time.";
+      case CastStatusCodes.MESSAGE_TOO_LARGE:
+        return "A message could not be sent because it is too large.";
+      case CastStatusCodes.NETWORK_ERROR:
+        return "Network I/O error.";
+      case CastStatusCodes.NOT_ALLOWED:
+        return "The request was disallowed and could not be completed.";
+      case CastStatusCodes.REPLACED:
+        return "The request's progress is no longer being tracked because another request of the "
+            + "same type has been made before the first request completed.";
+      case CastStatusCodes.SUCCESS:
+        return "Success.";
+      case CastStatusCodes.TIMEOUT:
+        return "An operation has timed out.";
+      case CastStatusCodes.UNKNOWN_ERROR:
+        return "An unknown, unexpected error has occurred.";
+      default:
+        return CastStatusCodes.getStatusCodeString(statusCode);
+    }
   }
 
   /**
@@ -52,41 +103,6 @@ import java.util.Map;
   public static Format mediaTrackToFormat(MediaTrack mediaTrack) {
     return Format.createContainerFormat(mediaTrack.getContentId(), mediaTrack.getContentType(),
         null, null, Format.NO_VALUE, 0, mediaTrack.getLanguage());
-  }
-
-  static {
-    HashMap<Integer, String> statusCodeToString = new HashMap<>();
-    statusCodeToString.put(CastStatusCodes.APPLICATION_NOT_FOUND,
-        "A requested application could not be found.");
-    statusCodeToString.put(CastStatusCodes.APPLICATION_NOT_RUNNING,
-        "A requested application is not currently running.");
-    statusCodeToString.put(CastStatusCodes.AUTHENTICATION_FAILED, "Authentication failure.");
-    statusCodeToString.put(CastStatusCodes.CANCELED, "An in-progress request has been "
-        + "canceled, most likely because another action has preempted it.");
-    statusCodeToString.put(CastStatusCodes.ERROR_SERVICE_CREATION_FAILED,
-        "The Cast Remote Display service could not be created.");
-    statusCodeToString.put(CastStatusCodes.ERROR_SERVICE_DISCONNECTED,
-        "The Cast Remote Display service was disconnected.");
-    statusCodeToString.put(CastStatusCodes.FAILED, "The in-progress request failed.");
-    statusCodeToString.put(CastStatusCodes.INTERNAL_ERROR, "An internal error has occurred.");
-    statusCodeToString.put(CastStatusCodes.INTERRUPTED,
-        "A blocking call was interrupted while waiting and did not run to completion.");
-    statusCodeToString.put(CastStatusCodes.INVALID_REQUEST, "An invalid request was made.");
-    statusCodeToString.put(CastStatusCodes.MESSAGE_SEND_BUFFER_TOO_FULL, "A message could "
-        + "not be sent because there is not enough room in the send buffer at this time.");
-    statusCodeToString.put(CastStatusCodes.MESSAGE_TOO_LARGE,
-        "A message could not be sent because it is too large.");
-    statusCodeToString.put(CastStatusCodes.NETWORK_ERROR, "Network I/O error.");
-    statusCodeToString.put(CastStatusCodes.NOT_ALLOWED,
-        "The request was disallowed and could not be completed.");
-    statusCodeToString.put(CastStatusCodes.REPLACED,
-        "The request's progress is no longer being tracked because another request of the same type"
-            + " has been made before the first request completed.");
-    statusCodeToString.put(CastStatusCodes.SUCCESS, "Success.");
-    statusCodeToString.put(CastStatusCodes.TIMEOUT, "An operation has timed out.");
-    statusCodeToString.put(CastStatusCodes.UNKNOWN_ERROR,
-        "An unknown, unexpected error has occurred.");
-    CAST_STATUS_CODE_TO_STRING = Collections.unmodifiableMap(statusCodeToString);
   }
 
   private CastUtils() {}

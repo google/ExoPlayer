@@ -15,6 +15,8 @@
  */
 package com.google.android.exoplayer2.ext.mediasession;
 
+import android.os.Bundle;
+import android.os.ResultReceiver;
 import android.support.annotation.Nullable;
 import android.support.v4.media.MediaDescriptionCompat;
 import android.support.v4.media.session.MediaSessionCompat;
@@ -23,7 +25,6 @@ import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.util.Util;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -72,10 +73,11 @@ public abstract class TimelineQueueNavigator implements MediaSessionConnector.Qu
   /**
    * Gets the {@link MediaDescriptionCompat} for a given timeline window index.
    *
+   * @param player The current player.
    * @param windowIndex The timeline window index for which to provide a description.
    * @return A {@link MediaDescriptionCompat}.
    */
-  public abstract MediaDescriptionCompat getMediaDescription(int windowIndex);
+  public abstract MediaDescriptionCompat getMediaDescription(Player player, int windowIndex);
 
   @Override
   public long getSupportedQueueNavigatorActions(Player player) {
@@ -126,8 +128,7 @@ public abstract class TimelineQueueNavigator implements MediaSessionConnector.Qu
     if (timeline.isEmpty()) {
       return;
     }
-    int previousWindowIndex = timeline.getPreviousWindowIndex(player.getCurrentWindowIndex(),
-        player.getRepeatMode());
+    int previousWindowIndex = player.getPreviousWindowIndex();
     if (player.getCurrentPosition() > MAX_POSITION_FOR_SEEK_TO_PREVIOUS
         || previousWindowIndex == C.INDEX_UNSET) {
       player.seekTo(0);
@@ -154,16 +155,22 @@ public abstract class TimelineQueueNavigator implements MediaSessionConnector.Qu
     if (timeline.isEmpty()) {
       return;
     }
-    int nextWindowIndex = timeline.getNextWindowIndex(player.getCurrentWindowIndex(),
-        player.getRepeatMode());
+    int nextWindowIndex = player.getNextWindowIndex();
     if (nextWindowIndex != C.INDEX_UNSET) {
       player.seekTo(nextWindowIndex, C.TIME_UNSET);
     }
   }
 
+  // CommandReceiver implementation.
+
   @Override
-  public void onSetShuffleModeEnabled(Player player, boolean enabled) {
-    player.setShuffleModeEnabled(enabled);
+  public String[] getCommands() {
+    return null;
+  }
+
+  @Override
+  public void onCommand(Player player, String command, Bundle extras, ResultReceiver cb) {
+    // Do nothing.
   }
 
   private void publishFloatingQueueWindow(Player player) {
@@ -179,10 +186,11 @@ public abstract class TimelineQueueNavigator implements MediaSessionConnector.Qu
         windowCount - queueSize);
     List<MediaSessionCompat.QueueItem> queue = new ArrayList<>();
     for (int i = startIndex; i < startIndex + queueSize; i++) {
-      queue.add(new MediaSessionCompat.QueueItem(getMediaDescription(i), i));
+      queue.add(new MediaSessionCompat.QueueItem(getMediaDescription(player, i), i));
     }
     mediaSession.setQueue(queue);
     activeQueueItemId = currentWindowIndex;
   }
 
 }
+

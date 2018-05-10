@@ -12,10 +12,10 @@ Cast receiver app.
 The easiest way to use the extension is to add it as a gradle dependency:
 
 ```gradle
-compile 'com.google.android.exoplayer:extension-cast:rX.X.X'
+implementation 'com.google.android.exoplayer:extension-cast:2.X.X'
 ```
 
-where `rX.X.X` is the version, which must match the version of the ExoPlayer
+where `2.X.X` is the version, which must match the version of the ExoPlayer
 library being used.
 
 Alternatively, you can clone the ExoPlayer repository and depend on the module
@@ -27,7 +27,4 @@ locally. Instructions for doing this can be found in ExoPlayer's
 ## Using the extension ##
 
 Create a `CastPlayer` and use it to integrate Cast into your app using
-ExoPlayer's common Player interface. You can try the Cast Extension to see how a
-[PlaybackControlView][] can be used to control playback in a remote receiver app.
-
-[PlaybackControlView]: https://google.github.io/ExoPlayer/doc/reference/com/google/android/exoplayer2/ui/PlaybackControlView.html
+ExoPlayer's common `Player` interface.

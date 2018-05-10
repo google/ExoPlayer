@@ -23,6 +23,7 @@ import android.media.MediaCodec;
 import android.media.MediaFormat;
 import android.support.annotation.IntDef;
 import android.view.Surface;
+import com.google.android.exoplayer2.PlayerMessage.Target;
 import com.google.android.exoplayer2.util.Util;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -62,6 +63,9 @@ public final class C {
    * Represents an unset or unknown length.
    */
   public static final int LENGTH_UNSET = -1;
+
+  /** Represents an unset or unknown percentage. */
+  public static final int PERCENTAGE_UNSET = -1;
 
   /**
    * The number of microseconds in one second.
@@ -122,13 +126,22 @@ public final class C {
    */
   public static final int AUDIO_SESSION_ID_UNSET = AudioManager.AUDIO_SESSION_ID_GENERATE;
 
-  /**
-   * Represents an audio encoding, or an invalid or unset value.
-   */
+  /** Represents an audio encoding, or an invalid or unset value. */
   @Retention(RetentionPolicy.SOURCE)
-  @IntDef({Format.NO_VALUE, ENCODING_INVALID, ENCODING_PCM_8BIT, ENCODING_PCM_16BIT,
-      ENCODING_PCM_24BIT, ENCODING_PCM_32BIT, ENCODING_AC3, ENCODING_E_AC3, ENCODING_DTS,
-      ENCODING_DTS_HD})
+  @IntDef({
+    Format.NO_VALUE,
+    ENCODING_INVALID,
+    ENCODING_PCM_8BIT,
+    ENCODING_PCM_16BIT,
+    ENCODING_PCM_24BIT,
+    ENCODING_PCM_32BIT,
+    ENCODING_PCM_FLOAT,
+    ENCODING_AC3,
+    ENCODING_E_AC3,
+    ENCODING_DTS,
+    ENCODING_DTS_HD,
+    ENCODING_DOLBY_TRUEHD
+  })
   public @interface Encoding {}
 
   /**
@@ -136,44 +149,30 @@ public final class C {
    */
   @Retention(RetentionPolicy.SOURCE)
   @IntDef({Format.NO_VALUE, ENCODING_INVALID, ENCODING_PCM_8BIT, ENCODING_PCM_16BIT,
-      ENCODING_PCM_24BIT, ENCODING_PCM_32BIT})
+      ENCODING_PCM_24BIT, ENCODING_PCM_32BIT, ENCODING_PCM_FLOAT})
   public @interface PcmEncoding {}
-  /**
-   * @see AudioFormat#ENCODING_INVALID
-   */
+  /** @see AudioFormat#ENCODING_INVALID */
   public static final int ENCODING_INVALID = AudioFormat.ENCODING_INVALID;
-  /**
-   * @see AudioFormat#ENCODING_PCM_8BIT
-   */
+  /** @see AudioFormat#ENCODING_PCM_8BIT */
   public static final int ENCODING_PCM_8BIT = AudioFormat.ENCODING_PCM_8BIT;
-  /**
-   * @see AudioFormat#ENCODING_PCM_16BIT
-   */
+  /** @see AudioFormat#ENCODING_PCM_16BIT */
   public static final int ENCODING_PCM_16BIT = AudioFormat.ENCODING_PCM_16BIT;
-  /**
-   * PCM encoding with 24 bits per sample.
-   */
+  /** PCM encoding with 24 bits per sample. */
   public static final int ENCODING_PCM_24BIT = 0x80000000;
-  /**
-   * PCM encoding with 32 bits per sample.
-   */
+  /** PCM encoding with 32 bits per sample. */
   public static final int ENCODING_PCM_32BIT = 0x40000000;
-  /**
-   * @see AudioFormat#ENCODING_AC3
-   */
+  /** @see AudioFormat#ENCODING_PCM_FLOAT */
+  public static final int ENCODING_PCM_FLOAT = AudioFormat.ENCODING_PCM_FLOAT;
+  /** @see AudioFormat#ENCODING_AC3 */
   public static final int ENCODING_AC3 = AudioFormat.ENCODING_AC3;
-  /**
-   * @see AudioFormat#ENCODING_E_AC3
-   */
+  /** @see AudioFormat#ENCODING_E_AC3 */
   public static final int ENCODING_E_AC3 = AudioFormat.ENCODING_E_AC3;
-  /**
-   * @see AudioFormat#ENCODING_DTS
-   */
+  /** @see AudioFormat#ENCODING_DTS */
   public static final int ENCODING_DTS = AudioFormat.ENCODING_DTS;
-  /**
-   * @see AudioFormat#ENCODING_DTS_HD
-   */
+  /** @see AudioFormat#ENCODING_DTS_HD */
   public static final int ENCODING_DTS_HD = AudioFormat.ENCODING_DTS_HD;
+  /** @see AudioFormat#ENCODING_DOLBY_TRUEHD */
+  public static final int ENCODING_DOLBY_TRUEHD = AudioFormat.ENCODING_DOLBY_TRUEHD;
 
   /**
    * @see AudioFormat#CHANNEL_OUT_7POINT1_SURROUND
@@ -421,6 +420,11 @@ public final class C {
   public static final int SELECTION_FLAG_AUTOSELECT = 4;
 
   /**
+   * Represents an undetermined language as an ISO 639 alpha-3 language code.
+   */
+  public static final String LANGUAGE_UNDETERMINED = "und";
+
+  /**
    * Represents a streaming or other media type.
    */
   @Retention(RetentionPolicy.SOURCE)
@@ -489,6 +493,8 @@ public final class C {
    * A data type constant for time synchronization data.
    */
   public static final int DATA_TYPE_TIME_SYNCHRONIZATION = 5;
+  /** A data type constant for ads loader data. */
+  public static final int DATA_TYPE_AD = 6;
   /**
    * Applications or extensions may define custom {@code DATA_TYPE_*} constants greater than or
    * equal to this value.
@@ -519,6 +525,10 @@ public final class C {
    * A type constant for metadata tracks.
    */
   public static final int TRACK_TYPE_METADATA = 4;
+  /**
+   * A type constant for a dummy or empty track.
+   */
+  public static final int TRACK_TYPE_NONE = 5;
   /**
    * Applications or extensions may define custom {@code TRACK_TYPE_*} constants greater than or
    * equal to this value.
@@ -638,37 +648,37 @@ public final class C {
   public static final UUID PLAYREADY_UUID = new UUID(0x9A04F07998404286L, 0xAB92E65BE0885F95L);
 
   /**
-   * The type of a message that can be passed to a video {@link Renderer} via
-   * {@link ExoPlayer#sendMessages} or {@link ExoPlayer#blockingSendMessages}. The message object
-   * should be the target {@link Surface}, or null.
+   * The type of a message that can be passed to a video {@link Renderer} via {@link
+   * ExoPlayer#createMessage(Target)}. The message payload should be the target {@link Surface}, or
+   * null.
    */
   public static final int MSG_SET_SURFACE = 1;
 
   /**
-   * A type of a message that can be passed to an audio {@link Renderer} via
-   * {@link ExoPlayer#sendMessages} or {@link ExoPlayer#blockingSendMessages}. The message object
-   * should be a {@link Float} with 0 being silence and 1 being unity gain.
+   * A type of a message that can be passed to an audio {@link Renderer} via {@link
+   * ExoPlayer#createMessage(Target)}. The message payload should be a {@link Float} with 0 being
+   * silence and 1 being unity gain.
    */
   public static final int MSG_SET_VOLUME = 2;
 
   /**
-   * A type of a message that can be passed to an audio {@link Renderer} via
-   * {@link ExoPlayer#sendMessages} or {@link ExoPlayer#blockingSendMessages}. The message object
-   * should be an {@link com.google.android.exoplayer2.audio.AudioAttributes} instance that will
-   * configure the underlying audio track. If not set, the default audio attributes will be used.
-   * They are suitable for general media playback.
-   * <p>
-   * Setting the audio attributes during playback may introduce a short gap in audio output as the
-   * audio track is recreated. A new audio session id will also be generated.
-   * <p>
-   * If tunneling is enabled by the track selector, the specified audio attributes will be ignored,
-   * but they will take effect if audio is later played without tunneling.
-   * <p>
-   * If the device is running a build before platform API version 21, audio attributes cannot be set
-   * directly on the underlying audio track. In this case, the usage will be mapped onto an
+   * A type of a message that can be passed to an audio {@link Renderer} via {@link
+   * ExoPlayer#createMessage(Target)}. The message payload should be an {@link
+   * com.google.android.exoplayer2.audio.AudioAttributes} instance that will configure the
+   * underlying audio track. If not set, the default audio attributes will be used. They are
+   * suitable for general media playback.
+   *
+   * <p>Setting the audio attributes during playback may introduce a short gap in audio output as
+   * the audio track is recreated. A new audio session id will also be generated.
+   *
+   * <p>If tunneling is enabled by the track selector, the specified audio attributes will be
+   * ignored, but they will take effect if audio is later played without tunneling.
+   *
+   * <p>If the device is running a build before platform API version 21, audio attributes cannot be
+   * set directly on the underlying audio track. In this case, the usage will be mapped onto an
    * equivalent stream type using {@link Util#getStreamTypeForAudioUsage(int)}.
-   * <p>
-   * To get audio attributes that are equivalent to a legacy stream type, pass the stream type to
+   *
+   * <p>To get audio attributes that are equivalent to a legacy stream type, pass the stream type to
    * {@link Util#getAudioUsageForStreamType(int)} and use the returned {@link C.AudioUsage} to build
    * an audio attributes instance.
    */
@@ -676,17 +686,17 @@ public final class C {
 
   /**
    * The type of a message that can be passed to a {@link MediaCodec}-based video {@link Renderer}
-   * via {@link ExoPlayer#sendMessages} or {@link ExoPlayer#blockingSendMessages}. The message
-   * object should be one of the integer scaling modes in {@link C.VideoScalingMode}.
-   * <p>
-   * Note that the scaling mode only applies if the {@link Surface} targeted by the renderer is
+   * via {@link ExoPlayer#createMessage(Target)}. The message payload should be one of the integer
+   * scaling modes in {@link C.VideoScalingMode}.
+   *
+   * <p>Note that the scaling mode only applies if the {@link Surface} targeted by the renderer is
    * owned by a {@link android.view.SurfaceView}.
    */
   public static final int MSG_SET_SCALING_MODE = 4;
 
   /**
-   * Applications or extensions may define custom {@code MSG_*} constants greater than or equal to
-   * this value.
+   * Applications or extensions may define custom {@code MSG_*} constants that can be passed to
+   * {@link Renderer}s. These custom constants must be greater than or equal to this value.
    */
   public static final int MSG_CUSTOM_BASE = 10000;
 

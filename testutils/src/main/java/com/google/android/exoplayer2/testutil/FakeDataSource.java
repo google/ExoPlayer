@@ -217,7 +217,7 @@ public class FakeDataSource implements DataSource {
     return dataSpecs;
   }
 
-  protected void onDataRead(int bytesRead) {
+  protected void onDataRead(int bytesRead) throws IOException {
     // Do nothing. Can be overridden.
   }
 

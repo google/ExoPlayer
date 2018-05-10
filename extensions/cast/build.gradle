@@ -21,16 +21,29 @@ android {
     defaultConfig {
         minSdkVersion 14
         targetSdkVersion project.ext.targetSdkVersion
-        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+        consumerProguardFiles 'proguard-rules.txt'
     }
 }
 
 dependencies {
-    compile 'com.android.support:appcompat-v7:' + supportLibraryVersion
-    compile 'com.android.support:mediarouter-v7:' + supportLibraryVersion
-    compile 'com.google.android.gms:play-services-cast-framework:' + playServicesLibraryVersion
-    compile project(modulePrefix + 'library-core')
-    compile project(modulePrefix + 'library-ui')
+    // These dependencies are necessary to force the supportLibraryVersion of
+    // com.android.support:support-v4, com.android.support:appcompat-v7 and
+    // com.android.support:mediarouter-v7 to be used. Else older versions are
+    // used, for example:
+    // com.google.android.gms:play-services-cast-framework:12.0.0
+    // |-- com.google.android.gms:play-services-basement:12.0.0
+    //   |-- com.android.support:support-v4:26.1.0
+    api 'com.android.support:support-v4:' + supportLibraryVersion
+    api 'com.android.support:appcompat-v7:' + supportLibraryVersion
+    api 'com.android.support:mediarouter-v7:' + supportLibraryVersion
+    api 'com.google.android.gms:play-services-cast-framework:' + playServicesLibraryVersion
+    implementation project(modulePrefix + 'library-core')
+    implementation project(modulePrefix + 'library-ui')
+    testImplementation project(modulePrefix + 'testutils')
+    testImplementation 'junit:junit:' + junitVersion
+    testImplementation 'org.mockito:mockito-core:' + mockitoVersion
+    testImplementation 'org.robolectric:robolectric:' + robolectricVersion
+    testImplementation project(modulePrefix + 'testutils-robolectric')
 }
 
 ext {

@@ -3,6 +3,14 @@
 The VP9 extension provides `LibvpxVideoRenderer`, which uses libvpx (the VPx
 decoding library) to decode VP9 video.
 
+## License note ##
+
+Please note that whilst the code in this repository is licensed under
+[Apache 2.0][], using this extension also requires building and including one or
+more external libraries as described below. These are licensed separately.
+
+[Apache 2.0]: https://github.com/google/ExoPlayer/blob/release-v2/LICENSE
+
 ## Build instructions ##
 
 To use this extension you need to clone the ExoPlayer repository and depend on
@@ -20,7 +28,7 @@ EXOPLAYER_ROOT="$(pwd)"
 VP9_EXT_PATH="${EXOPLAYER_ROOT}/extensions/vp9/src/main"
 ```
 
-* Download the [Android NDK][] and set its location in an environment variable:
+* Download the [Android NDK][] and set its location in an environment variable.
 
 ```
 NDK_PATH="<path to Android NDK>"
@@ -62,6 +70,7 @@ ${NDK_PATH}/ndk-build APP_ABI=all -j4
 
 [top level README]: https://github.com/google/ExoPlayer/blob/release-v2/README.md
 [Android NDK]: https://developer.android.com/tools/sdk/ndk/index.html
+[#3520]: https://github.com/google/ExoPlayer/issues/3520
 
 ## Notes ##
 

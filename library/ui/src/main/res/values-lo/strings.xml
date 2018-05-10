@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+  <string name="exo_controls_previous_description">ເພງກ່ອນໜ້າ</string>
+  <string name="exo_controls_next_description">ເພງຕໍ່ໄປ</string>
+  <string name="exo_controls_pause_description">ຢຸດຊົ່ວຄາວ</string>
+  <string name="exo_controls_play_description">ຫຼິ້ນ</string>
+  <string name="exo_controls_stop_description">ຢຸດ</string>
+  <string name="exo_controls_rewind_description">ຍ້ອນກັບ</string>
+  <string name="exo_controls_fastforward_description">ເລື່ອນໄປໜ້າ</string>
+  <string name="exo_controls_repeat_off_description">ບໍ່ຫຼິ້ນຊ້ຳ</string>
+  <string name="exo_controls_repeat_one_description">ຫຼິ້ນຊໍ້າ</string>
+  <string name="exo_controls_repeat_all_description">ຫຼິ້ນຊ້ຳທັງໝົດ</string>
+  <string name="exo_controls_shuffle_description">ຫຼີ້ນແບບສຸ່ມ</string>
+  <string name="exo_controls_fullscreen_description">ໂໝດເຕັມຈໍ</string>
+  <string name="exo_download_description">ດາວໂຫລດ</string>
+  <string name="exo_download_notification_channel_name">ດາວໂຫລດ</string>
+  <string name="exo_download_downloading">ກຳລັງດາວໂຫລດ</string>
+  <string name="exo_download_completed">ດາວໂຫລດສຳເລັດແລ້ວ</string>
+  <string name="exo_download_failed">ດາວໂຫຼດບໍ່ສຳເລັດ</string>
+  <string name="exo_download_removing">ກຳລັງລຶບການດາວໂຫລດອອກ</string>
+  <string name="exo_track_selection_title_video">ວິດີໂອ</string>
+  <string name="exo_track_selection_title_audio">ສຽງ</string>
+  <string name="exo_track_selection_title_text">ຂໍ້ຄວາມ</string>
+  <string name="exo_track_selection_none">ບໍ່ມີ</string>
+  <string name="exo_track_selection_auto">ອັດຕະໂນມັດ</string>
+  <string name="exo_track_unknown">ບໍ່ຮູ້ຈັກ</string>
+  <string name="exo_track_resolution">%1$d × %2$d</string>
+  <string name="exo_track_mono">ໂມໂນ</string>
+  <string name="exo_track_stereo">ສະເຕຣິໂອ</string>
+  <string name="exo_track_surround">ສຽງຮອບທິດທາງ</string>
+  <string name="exo_track_surround_5_point_1">ສຽງຮອບທິດທາງ 5.1</string>
+  <string name="exo_track_surround_7_point_1">ສຽງຮອບທິດທາງ 7.1</string>
+  <string name="exo_track_bitrate">%1$.2f Mbps</string>
+  <string name="exo_item_list">%1$s, %2$s</string>
+</resources>

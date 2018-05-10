@@ -15,21 +15,22 @@
  */
 package com.google.android.exoplayer2.source;
 
+import android.support.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.Timeline;
+import com.google.android.exoplayer2.source.ShuffleOrder.UnshuffledShuffleOrder;
 import com.google.android.exoplayer2.upstream.Allocator;
 import com.google.android.exoplayer2.util.Assertions;
-import java.io.IOException;
 
 /**
  * Loops a {@link MediaSource} a specified number of times.
- * <p>
- * Note: To loop a {@link MediaSource} indefinitely, it is usually better to use
- * {@link ExoPlayer#setRepeatMode(int)}.
+ *
+ * <p>Note: To loop a {@link MediaSource} indefinitely, it is usually better to use {@link
+ * ExoPlayer#setRepeatMode(int)}.
  */
-public final class LoopingMediaSource implements MediaSource {
+public final class LoopingMediaSource extends CompositeMediaSource<Void> {
 
   private final MediaSource childSource;
   private final int loopCount;
@@ -59,27 +60,16 @@ public final class LoopingMediaSource implements MediaSource {
   }
 
   @Override
-  public void prepareSource(ExoPlayer player, boolean isTopLevelSource, final Listener listener) {
-    childSource.prepareSource(player, false, new Listener() {
-      @Override
-      public void onSourceInfoRefreshed(Timeline timeline, Object manifest) {
-        childPeriodCount = timeline.getPeriodCount();
-        Timeline loopingTimeline = loopCount != Integer.MAX_VALUE
-            ? new LoopingTimeline(timeline, loopCount) : new InfinitelyLoopingTimeline(timeline);
-        listener.onSourceInfoRefreshed(loopingTimeline, manifest);
-      }
-    });
-  }
-
-  @Override
-  public void maybeThrowSourceInfoRefreshError() throws IOException {
-    childSource.maybeThrowSourceInfoRefreshError();
+  public void prepareSourceInternal(ExoPlayer player, boolean isTopLevelSource) {
+    super.prepareSourceInternal(player, isTopLevelSource);
+    prepareChildSource(/* id= */ null, childSource);
   }
 
   @Override
   public MediaPeriod createPeriod(MediaPeriodId id, Allocator allocator) {
     return loopCount != Integer.MAX_VALUE
-        ? childSource.createPeriod(new MediaPeriodId(id.periodIndex % childPeriodCount), allocator)
+        ? childSource.createPeriod(id.copyWithPeriodIndex(id.periodIndex % childPeriodCount),
+            allocator)
         : childSource.createPeriod(id, allocator);
   }
 
@@ -89,8 +79,20 @@ public final class LoopingMediaSource implements MediaSource {
   }
 
   @Override
-  public void releaseSource() {
-    childSource.releaseSource();
+  public void releaseSourceInternal() {
+    super.releaseSourceInternal();
+    childPeriodCount = 0;
+  }
+
+  @Override
+  protected void onChildSourceInfoRefreshed(
+      Void id, MediaSource mediaSource, Timeline timeline, @Nullable Object manifest) {
+    childPeriodCount = timeline.getPeriodCount();
+    Timeline loopingTimeline =
+        loopCount != Integer.MAX_VALUE
+            ? new LoopingTimeline(timeline, loopCount)
+            : new InfinitelyLoopingTimeline(timeline);
+    refreshSourceInfo(loopingTimeline, manifest);
   }
 
   private static final class LoopingTimeline extends AbstractConcatenatedTimeline {
@@ -101,13 +103,15 @@ public final class LoopingMediaSource implements MediaSource {
     private final int loopCount;
 
     public LoopingTimeline(Timeline childTimeline, int loopCount) {
-      super(loopCount);
+      super(/* isAtomic= */ false, new UnshuffledShuffleOrder(loopCount));
       this.childTimeline = childTimeline;
       childPeriodCount = childTimeline.getPeriodCount();
       childWindowCount = childTimeline.getWindowCount();
       this.loopCount = loopCount;
-      Assertions.checkState(loopCount <= Integer.MAX_VALUE / childPeriodCount,
-          "LoopingMediaSource contains too many periods");
+      if (childPeriodCount > 0) {
+        Assertions.checkState(loopCount <= Integer.MAX_VALUE / childPeriodCount,
+            "LoopingMediaSource contains too many periods");
+      }
     }
 
     @Override
@@ -167,15 +171,20 @@ public final class LoopingMediaSource implements MediaSource {
     }
 
     @Override
-    public int getNextWindowIndex(int windowIndex, @Player.RepeatMode int repeatMode) {
-      int childNextWindowIndex = timeline.getNextWindowIndex(windowIndex, repeatMode);
-      return childNextWindowIndex == C.INDEX_UNSET ? 0 : childNextWindowIndex;
+    public int getNextWindowIndex(int windowIndex, @Player.RepeatMode int repeatMode,
+        boolean shuffleModeEnabled) {
+      int childNextWindowIndex = timeline.getNextWindowIndex(windowIndex, repeatMode,
+          shuffleModeEnabled);
+      return childNextWindowIndex == C.INDEX_UNSET ? getFirstWindowIndex(shuffleModeEnabled)
+          : childNextWindowIndex;
     }
 
     @Override
-    public int getPreviousWindowIndex(int windowIndex, @Player.RepeatMode int repeatMode) {
-      int childPreviousWindowIndex = timeline.getPreviousWindowIndex(windowIndex, repeatMode);
-      return childPreviousWindowIndex == C.INDEX_UNSET ? getWindowCount() - 1
+    public int getPreviousWindowIndex(int windowIndex, @Player.RepeatMode int repeatMode,
+        boolean shuffleModeEnabled) {
+      int childPreviousWindowIndex = timeline.getPreviousWindowIndex(windowIndex, repeatMode,
+          shuffleModeEnabled);
+      return childPreviousWindowIndex == C.INDEX_UNSET ? getLastWindowIndex(shuffleModeEnabled)
           : childPreviousWindowIndex;
     }
 

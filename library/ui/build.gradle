@@ -33,8 +33,9 @@ android {
 }
 
 dependencies {
-    compile project(modulePrefix + 'library-core')
-    compile 'com.android.support:support-annotations:' + supportLibraryVersion
+    implementation project(modulePrefix + 'library-core')
+    implementation 'com.android.support:support-media-compat:' + supportLibraryVersion
+    implementation 'com.android.support:support-annotations:' + supportLibraryVersion
 }
 
 ext {

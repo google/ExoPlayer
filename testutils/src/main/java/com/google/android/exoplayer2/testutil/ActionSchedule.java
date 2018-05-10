@@ -15,39 +15,67 @@
  */
 package com.google.android.exoplayer2.testutil;
 
-import android.os.Handler;
+import android.os.Looper;
+import android.support.annotation.Nullable;
 import android.view.Surface;
 import com.google.android.exoplayer2.C;
-import com.google.android.exoplayer2.ExoPlayer;
+import com.google.android.exoplayer2.ExoPlaybackException;
+import com.google.android.exoplayer2.PlaybackParameters;
 import com.google.android.exoplayer2.Player;
+import com.google.android.exoplayer2.PlayerMessage;
+import com.google.android.exoplayer2.PlayerMessage.Target;
 import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.testutil.Action.ClearVideoSurface;
 import com.google.android.exoplayer2.testutil.Action.ExecuteRunnable;
+import com.google.android.exoplayer2.testutil.Action.PlayUntilPosition;
 import com.google.android.exoplayer2.testutil.Action.PrepareSource;
 import com.google.android.exoplayer2.testutil.Action.Seek;
+import com.google.android.exoplayer2.testutil.Action.SendMessages;
 import com.google.android.exoplayer2.testutil.Action.SetPlayWhenReady;
+import com.google.android.exoplayer2.testutil.Action.SetPlaybackParameters;
 import com.google.android.exoplayer2.testutil.Action.SetRendererDisabled;
 import com.google.android.exoplayer2.testutil.Action.SetRepeatMode;
+import com.google.android.exoplayer2.testutil.Action.SetShuffleModeEnabled;
 import com.google.android.exoplayer2.testutil.Action.SetVideoSurface;
 import com.google.android.exoplayer2.testutil.Action.Stop;
+import com.google.android.exoplayer2.testutil.Action.ThrowPlaybackException;
+import com.google.android.exoplayer2.testutil.Action.WaitForPlaybackState;
 import com.google.android.exoplayer2.testutil.Action.WaitForPositionDiscontinuity;
+import com.google.android.exoplayer2.testutil.Action.WaitForSeekProcessed;
 import com.google.android.exoplayer2.testutil.Action.WaitForTimelineChanged;
-import com.google.android.exoplayer2.trackselection.MappingTrackSelector;
+import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
+import com.google.android.exoplayer2.util.Assertions;
+import com.google.android.exoplayer2.util.HandlerWrapper;
 
 /**
  * Schedules a sequence of {@link Action}s for execution during a test.
  */
 public final class ActionSchedule {
 
+  /**
+   * Callback to notify listener that the action schedule has finished.
+   */
+  public interface Callback {
+
+    /**
+     * Called when action schedule finished executing all its actions.
+     */
+    void onActionScheduleFinished();
+
+  }
+
   private final ActionNode rootNode;
+  private final CallbackAction callbackAction;
 
   /**
    * @param rootNode The first node in the sequence.
+   * @param callbackAction The final action which can be used to trigger a callback.
    */
-  private ActionSchedule(ActionNode rootNode) {
+  private ActionSchedule(ActionNode rootNode, CallbackAction callbackAction) {
     this.rootNode = rootNode;
+    this.callbackAction = callbackAction;
   }
 
   /**
@@ -57,9 +85,16 @@ public final class ActionSchedule {
    * @param trackSelector The track selector to which actions should be applied.
    * @param surface The surface to use when applying actions.
    * @param mainHandler A handler associated with the main thread of the host activity.
+   * @param callback A {@link Callback} to notify when the action schedule finishes, or null if no
+   *     notification is needed.
    */
-  /* package */ void start(SimpleExoPlayer player, MappingTrackSelector trackSelector,
-      Surface surface, Handler mainHandler) {
+  /* package */ void start(
+      SimpleExoPlayer player,
+      DefaultTrackSelector trackSelector,
+      Surface surface,
+      HandlerWrapper mainHandler,
+      @Nullable Callback callback) {
+    callbackAction.setCallback(callback);
     rootNode.schedule(player, trackSelector, surface, mainHandler);
   }
 
@@ -70,8 +105,8 @@ public final class ActionSchedule {
 
     private final String tag;
     private final ActionNode rootNode;
-    private long currentDelayMs;
 
+    private long currentDelayMs;
     private ActionNode previousNode;
 
     /**
@@ -126,6 +161,49 @@ public final class ActionSchedule {
     }
 
     /**
+     * Schedules a seek action to be executed.
+     *
+     * @param windowIndex The window to seek to.
+     * @param positionMs The seek position.
+     * @return The builder, for convenience.
+     */
+    public Builder seek(int windowIndex, long positionMs) {
+      return apply(new Seek(tag, windowIndex, positionMs));
+    }
+
+    /**
+     * Schedules a seek action to be executed and waits until playback resumes after the seek.
+     *
+     * @param positionMs The seek position.
+     * @return The builder, for convenience.
+     */
+    public Builder seekAndWait(long positionMs) {
+      return apply(new Seek(tag, positionMs))
+          .apply(new WaitForSeekProcessed(tag))
+          .apply(new WaitForPlaybackState(tag, Player.STATE_READY));
+    }
+
+    /**
+     * Schedules a delay until the player indicates that a seek has been processed.
+     *
+     * @return The builder, for convenience.
+     */
+    public Builder waitForSeekProcessed() {
+      return apply(new WaitForSeekProcessed(tag));
+    }
+
+    /**
+     * Schedules a playback parameters setting action to be executed.
+     *
+     * @param playbackParameters The playback parameters to set.
+     * @return The builder, for convenience.
+     * @see Player#setPlaybackParameters(PlaybackParameters)
+     */
+    public Builder setPlaybackParameters(PlaybackParameters playbackParameters) {
+      return apply(new SetPlaybackParameters(tag, playbackParameters));
+    }
+
+    /**
      * Schedules a stop action to be executed.
      *
      * @return The builder, for convenience.
@@ -135,12 +213,45 @@ public final class ActionSchedule {
     }
 
     /**
+     * Schedules a stop action to be executed.
+     *
+     * @param reset Whether the player should be reset.
+     * @return The builder, for convenience.
+     */
+    public Builder stop(boolean reset) {
+      return apply(new Stop(tag, reset));
+    }
+
+    /**
      * Schedules a play action to be executed.
      *
      * @return The builder, for convenience.
      */
     public Builder play() {
       return apply(new SetPlayWhenReady(tag, true));
+    }
+
+    /**
+     * Schedules a play action to be executed, waits until the player reaches the specified
+     * position, and pauses the player again.
+     *
+     * @param windowIndex The window index at which the player should be paused again.
+     * @param positionMs The position in that window at which the player should be paused again.
+     * @return The builder, for convenience.
+     */
+    public Builder playUntilPosition(int windowIndex, long positionMs) {
+      return apply(new PlayUntilPosition(tag, windowIndex, positionMs));
+    }
+
+    /**
+     * Schedules a play action to be executed, waits until the player reaches the start of the
+     * specified window, and pauses the player again.
+     *
+     * @param windowIndex The window index at which the player should be paused again.
+     * @return The builder, for convenience.
+     */
+    public Builder playUntilStartOfWindow(int windowIndex) {
+      return apply(new PlayUntilPosition(tag, windowIndex, /* positionMs= */ 0));
     }
 
     /**
@@ -199,7 +310,7 @@ public final class ActionSchedule {
 
     /**
      * Schedules a new source preparation action to be executed.
-     * @see ExoPlayer#prepare(MediaSource, boolean, boolean).
+     * @see com.google.android.exoplayer2.ExoPlayer#prepare(MediaSource, boolean, boolean).
      *
      * @return The builder, for convenience.
      */
@@ -218,12 +329,60 @@ public final class ActionSchedule {
     }
 
     /**
-     * Schedules a delay until the timeline changed to a specified expected timeline.
+     * Schedules a shuffle setting action to be executed.
      *
-     * @param expectedTimeline The expected timeline to wait for.
      * @return The builder, for convenience.
      */
-    public Builder waitForTimelineChanged(Timeline expectedTimeline) {
+    public Builder setShuffleModeEnabled(boolean shuffleModeEnabled) {
+      return apply(new SetShuffleModeEnabled(tag, shuffleModeEnabled));
+    }
+
+    /**
+     * Schedules sending a {@link PlayerMessage}.
+     *
+     * @param positionMs The position in the current window at which the message should be sent, in
+     *     milliseconds.
+     * @return The builder, for convenience.
+     */
+    public Builder sendMessage(Target target, long positionMs) {
+      return apply(new SendMessages(tag, target, positionMs));
+    }
+
+    /**
+     * Schedules sending a {@link PlayerMessage}.
+     *
+     * @param target A message target.
+     * @param windowIndex The window index at which the message should be sent.
+     * @param positionMs The position at which the message should be sent, in milliseconds.
+     * @return The builder, for convenience.
+     */
+    public Builder sendMessage(Target target, int windowIndex, long positionMs) {
+      return apply(
+          new SendMessages(tag, target, windowIndex, positionMs, /* deleteAfterDelivery= */ true));
+    }
+
+    /**
+     * Schedules to send a {@link PlayerMessage}.
+     *
+     * @param target A message target.
+     * @param windowIndex The window index at which the message should be sent.
+     * @param positionMs The position at which the message should be sent, in milliseconds.
+     * @param deleteAfterDelivery Whether the message will be deleted after delivery.
+     * @return The builder, for convenience.
+     */
+    public Builder sendMessage(
+        Target target, int windowIndex, long positionMs, boolean deleteAfterDelivery) {
+      return apply(new SendMessages(tag, target, windowIndex, positionMs, deleteAfterDelivery));
+    }
+
+    /**
+     * Schedules a delay until the timeline changed to a specified expected timeline.
+     *
+     * @param expectedTimeline The expected timeline to wait for. If null, wait for any timeline
+     *     change.
+     * @return The builder, for convenience.
+     */
+    public Builder waitForTimelineChanged(@Nullable Timeline expectedTimeline) {
       return apply(new WaitForTimelineChanged(tag, expectedTimeline));
     }
 
@@ -237,6 +396,16 @@ public final class ActionSchedule {
     }
 
     /**
+     * Schedules a delay until the playback state changed to the specified state.
+     *
+     * @param targetPlaybackState The target playback state.
+     * @return The builder, for convenience.
+     */
+    public Builder waitForPlaybackState(int targetPlaybackState) {
+      return apply(new WaitForPlaybackState(tag, targetPlaybackState));
+    }
+
+    /**
      * Schedules a {@link Runnable} to be executed.
      *
      * @return The builder, for convenience.
@@ -245,8 +414,20 @@ public final class ActionSchedule {
       return apply(new ExecuteRunnable(tag, runnable));
     }
 
+    /**
+     * Schedules to throw a playback exception on the playback thread.
+     *
+     * @param exception The exception to throw.
+     * @return The builder, for convenience.
+     */
+    public Builder throwPlaybackException(ExoPlaybackException exception) {
+      return apply(new ThrowPlaybackException(tag, exception));
+    }
+
     public ActionSchedule build() {
-      return new ActionSchedule(rootNode);
+      CallbackAction callbackAction = new CallbackAction(tag);
+      apply(callbackAction);
+      return new ActionSchedule(rootNode, callbackAction);
     }
 
     private Builder appendActionNode(ActionNode actionNode) {
@@ -255,7 +436,50 @@ public final class ActionSchedule {
       currentDelayMs = 0;
       return this;
     }
+  }
 
+  /**
+   * Provides a wrapper for a {@link Target} which has access to the player when handling messages.
+   * Can be used with {@link Builder#sendMessage(Target, long)}.
+   */
+  public abstract static class PlayerTarget implements Target {
+
+    private SimpleExoPlayer player;
+
+    /** Handles the message send to the component and additionally provides access to the player. */
+    public abstract void handleMessage(SimpleExoPlayer player, int messageType, Object message);
+
+    /** Sets the player to be passed to {@link #handleMessage(SimpleExoPlayer, int, Object)}. */
+    /* package */ void setPlayer(SimpleExoPlayer player) {
+      this.player = player;
+    }
+
+    @Override
+    public final void handleMessage(int messageType, Object message) throws ExoPlaybackException {
+      handleMessage(player, messageType, message);
+    }
+  }
+
+  /**
+   * Provides a wrapper for a {@link Runnable} which has access to the player. Can be used with
+   * {@link Builder#executeRunnable(Runnable)}.
+   */
+  public abstract static class PlayerRunnable implements Runnable {
+
+    private SimpleExoPlayer player;
+
+    /** Executes Runnable with reference to player. */
+    public abstract void run(SimpleExoPlayer player);
+
+    /** Sets the player to be passed to {@link #run(SimpleExoPlayer)} . */
+    /* package */ void setPlayer(SimpleExoPlayer player) {
+      this.player = player;
+    }
+
+    @Override
+    public final void run() {
+      run(player);
+    }
   }
 
   /**
@@ -270,9 +494,9 @@ public final class ActionSchedule {
     private ActionNode next;
 
     private SimpleExoPlayer player;
-    private MappingTrackSelector trackSelector;
+    private DefaultTrackSelector trackSelector;
     private Surface surface;
-    private Handler mainHandler;
+    private HandlerWrapper mainHandler;
 
     /**
      * @param action The wrapped action.
@@ -304,28 +528,43 @@ public final class ActionSchedule {
     }
 
     /**
-     * Schedules {@link #action} to be executed after {@link #delayMs}. The {@link #next} node
-     * will be scheduled immediately after {@link #action} is executed.
+     * Schedules {@link #action} to be executed after {@link #delayMs}. The {@link #next} node will
+     * be scheduled immediately after {@link #action} is executed.
      *
      * @param player The player to which actions should be applied.
      * @param trackSelector The track selector to which actions should be applied.
      * @param surface The surface to use when applying actions.
      * @param mainHandler A handler associated with the main thread of the host activity.
      */
-    public void schedule(SimpleExoPlayer player, MappingTrackSelector trackSelector,
-        Surface surface, Handler mainHandler) {
+    public void schedule(
+        SimpleExoPlayer player,
+        DefaultTrackSelector trackSelector,
+        Surface surface,
+        HandlerWrapper mainHandler) {
       this.player = player;
       this.trackSelector = trackSelector;
       this.surface = surface;
       this.mainHandler = mainHandler;
-      mainHandler.postDelayed(this, delayMs);
+      if (delayMs == 0 && Looper.myLooper() == mainHandler.getLooper()) {
+        run();
+      } else {
+        mainHandler.postDelayed(this, delayMs);
+      }
     }
 
     @Override
     public void run() {
       action.doActionAndScheduleNext(player, trackSelector, surface, mainHandler, next);
       if (repeatIntervalMs != C.TIME_UNSET) {
-        mainHandler.postDelayed(this, repeatIntervalMs);
+        mainHandler.postDelayed(
+            new Runnable() {
+              @Override
+              public void run() {
+                action.doActionAndScheduleNext(player, trackSelector, surface, mainHandler, null);
+                mainHandler.postDelayed(this, repeatIntervalMs);
+              }
+            },
+            repeatIntervalMs);
       }
     }
 
@@ -341,11 +580,51 @@ public final class ActionSchedule {
     }
 
     @Override
-    protected void doActionImpl(SimpleExoPlayer player, MappingTrackSelector trackSelector,
-        Surface surface) {
+    protected void doActionImpl(
+        SimpleExoPlayer player, DefaultTrackSelector trackSelector, Surface surface) {
       // Do nothing.
     }
+  }
 
+  /**
+   * An action calling a specified {@link ActionSchedule.Callback}.
+   */
+  private static final class CallbackAction extends Action {
+
+    private @Nullable Callback callback;
+
+    public CallbackAction(String tag) {
+      super(tag, "FinishedCallback");
+    }
+
+    public void setCallback(@Nullable Callback callback) {
+      this.callback = callback;
+    }
+
+    @Override
+    protected void doActionAndScheduleNextImpl(
+        SimpleExoPlayer player,
+        DefaultTrackSelector trackSelector,
+        Surface surface,
+        HandlerWrapper handler,
+        ActionNode nextAction) {
+      Assertions.checkArgument(nextAction == null);
+      if (callback != null) {
+        handler.post(
+            new Runnable() {
+              @Override
+              public void run() {
+                callback.onActionScheduleFinished();
+              }
+            });
+      }
+    }
+
+    @Override
+    protected void doActionImpl(
+        SimpleExoPlayer player, DefaultTrackSelector trackSelector, Surface surface) {
+      // Not triggered.
+    }
   }
 
 }

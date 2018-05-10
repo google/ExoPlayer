@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+  <string name="exo_controls_previous_description">Папярэдні трэк</string>
+  <string name="exo_controls_next_description">Наступны трэк</string>
+  <string name="exo_controls_pause_description">Паўза</string>
+  <string name="exo_controls_play_description">Гуляць</string>
+  <string name="exo_controls_stop_description">Спыніць</string>
+  <string name="exo_controls_rewind_description">Пераматаць назад</string>
+  <string name="exo_controls_fastforward_description">Пераматаць уперад</string>
+  <string name="exo_controls_repeat_off_description">Не паўтараць нічога</string>
+  <string name="exo_controls_repeat_one_description">Паўтарыць адзін элемент</string>
+  <string name="exo_controls_repeat_all_description">Паўтарыць усе</string>
+  <string name="exo_controls_shuffle_description">Перамяшаць</string>
+  <string name="exo_controls_fullscreen_description">Поўнаэкранны рэжым</string>
+  <string name="exo_download_description">Спампаваць</string>
+  <string name="exo_download_notification_channel_name">Спампоўкі</string>
+  <string name="exo_download_downloading">Спампоўваецца</string>
+  <string name="exo_download_completed">Спампоўка завершана</string>
+  <string name="exo_download_failed">Збой спампоўкі</string>
+  <string name="exo_download_removing">Выдаленне спамповак</string>
+  <string name="exo_track_selection_title_video">Відэа</string>
+  <string name="exo_track_selection_title_audio">Аўдыя</string>
+  <string name="exo_track_selection_title_text">Тэкст</string>
+  <string name="exo_track_selection_none">Няма</string>
+  <string name="exo_track_selection_auto">Аўтаматычна</string>
+  <string name="exo_track_unknown">Невядома</string>
+  <string name="exo_track_resolution">%1$d × %2$d</string>
+  <string name="exo_track_mono">Мона</string>
+  <string name="exo_track_stereo">Стэрэа</string>
+  <string name="exo_track_surround">Аб\'ёмны гук</string>
+  <string name="exo_track_surround_5_point_1">Аб\'ёмны гук 5.1</string>
+  <string name="exo_track_surround_7_point_1">Аб\'ёмны гук 7.1</string>
+  <string name="exo_track_bitrate">%1$.2f Мбіт/с</string>
+  <string name="exo_item_list">%1$s, %2$s</string>
+</resources>

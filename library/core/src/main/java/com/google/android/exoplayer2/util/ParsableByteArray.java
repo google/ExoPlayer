@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.util;
 
+import com.google.android.exoplayer2.C;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 
@@ -232,7 +233,7 @@ public final class ParsableByteArray {
   }
 
   /**
-   * Reads the next two bytes as an signed value.
+   * Reads the next two bytes as a signed value.
    */
   public short readShort() {
     return (short) ((data[position++] & 0xFF) << 8
@@ -251,6 +252,15 @@ public final class ParsableByteArray {
    */
   public int readUnsignedInt24() {
     return (data[position++] & 0xFF) << 16
+        | (data[position++] & 0xFF) << 8
+        | (data[position++] & 0xFF);
+  }
+
+  /**
+   * Reads the next three bytes as a signed value.
+   */
+  public int readInt24() {
+    return ((data[position++] & 0xFF) << 24) >> 8
         | (data[position++] & 0xFF) << 8
         | (data[position++] & 0xFF);
   }
@@ -304,7 +314,7 @@ public final class ParsableByteArray {
   }
 
   /**
-   * Reads the next four bytes as an signed value in little endian order.
+   * Reads the next four bytes as a signed value in little endian order.
    */
   public int readLittleEndianInt() {
     return (data[position++] & 0xFF)
@@ -428,7 +438,7 @@ public final class ParsableByteArray {
    * @return The string encoded by the bytes.
    */
   public String readString(int length) {
-    return readString(length, Charset.defaultCharset());
+    return readString(length, Charset.forName(C.UTF8_NAME));
   }
 
   /**

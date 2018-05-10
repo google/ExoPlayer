@@ -40,8 +40,8 @@ public final class MetadataRenderer extends BaseRenderer implements Callback {
 
   private static final int MSG_INVOKE_RENDERER = 0;
   // TODO: Holding multiple pending metadata objects is temporary mitigation against
-  // https://github.com/google/ExoPlayer/issues/1874
-  // It should be removed once this issue has been addressed.
+  // https://github.com/google/ExoPlayer/issues/1874. It should be removed once this issue has been
+  // addressed.
   private static final int MAX_PENDING_METADATA_COUNT = 5;
 
   private final MetadataDecoderFactory decoderFactory;
@@ -92,7 +92,11 @@ public final class MetadataRenderer extends BaseRenderer implements Callback {
 
   @Override
   public int supportsFormat(Format format) {
-    return decoderFactory.supportsFormat(format) ? FORMAT_HANDLED : FORMAT_UNSUPPORTED_TYPE;
+    if (decoderFactory.supportsFormat(format)) {
+      return supportsFormatDrm(null, format.drmInitData) ? FORMAT_HANDLED : FORMAT_UNSUPPORTED_DRM;
+    } else {
+      return FORMAT_UNSUPPORTED_TYPE;
+    }
   }
 
   @Override
