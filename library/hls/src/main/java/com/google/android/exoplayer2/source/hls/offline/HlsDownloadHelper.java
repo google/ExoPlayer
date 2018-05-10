@@ -57,6 +57,12 @@ public final class HlsDownloadHelper extends DownloadHelper {
     playlist = ParsingLoadable.load(dataSource, new HlsPlaylistParser(), uri);
   }
 
+  /** Returns the HLS playlist. Must not be called until after preparation completes. */
+  public HlsPlaylist getPlaylist() {
+    Assertions.checkNotNull(playlist);
+    return playlist;
+  }
+
   @Override
   public int getPeriodCount() {
     Assertions.checkNotNull(playlist);

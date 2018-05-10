@@ -52,6 +52,12 @@ public final class SsDownloadHelper extends DownloadHelper {
     manifest = ParsingLoadable.load(dataSource, new SsManifestParser(), uri);
   }
 
+  /** Returns the SmoothStreaming manifest. Must not be called until after preparation completes. */
+  public SsManifest getManifest() {
+    Assertions.checkNotNull(manifest);
+    return manifest;
+  }
+
   @Override
   public int getPeriodCount() {
     Assertions.checkNotNull(manifest);
