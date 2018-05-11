@@ -189,6 +189,8 @@ public final class TextRenderer extends BaseRenderer implements Callback {
             releaseBuffers();
             outputStreamEnded = true;
           }
+        } else {
+          textRendererNeedsUpdate = true;
         }
       } else if (nextSubtitle.timeUs <= positionUs) {
         // Advance to the next subtitle. Sync the next event index and trigger an update.
