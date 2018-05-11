@@ -30,15 +30,11 @@ android {
         //    testCoverageEnabled = true
         // }
     }
-
-    lintOptions {
-        lintConfig file("../../checker-framework-lint.xml")
-    }
 }
 
 dependencies {
     implementation project(modulePrefix + 'library-core')
-    implementation 'org.checkerframework:checker-qual:' + checkerframeworkVersion
+    compileOnly 'org.checkerframework:checker-qual:' + checkerframeworkVersion
     implementation 'com.android.support:support-annotations:' + supportLibraryVersion
     testImplementation project(modulePrefix + 'testutils-robolectric')
 }
