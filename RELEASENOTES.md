@@ -4,6 +4,10 @@
 
 * OkHttp extension: Fix to correctly include response headers in thrown
   `InvalidResponseCodeException`s.
+* UI components:
+  * Add `PlayerView.setKeepContentOnPlayerReset` to keep the currently displayed
+    video frame or media artwork visible when the player is reset
+    ([#2843](https://github.com/google/ExoPlayer/issues/2843)).
 
 ### 2.8.0 ###
 
