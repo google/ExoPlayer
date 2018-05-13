@@ -70,6 +70,13 @@ class FLACParser {
     }
   }
 
+  void seekAbsolute(int64_t timeUs) {
+    if (mDecoder != NULL) {
+      mEOF = false;
+      FLAC__stream_decoder_seek_absolute(mDecoder, (timeUs * getSampleRate()) / 1000000LL);
+    }
+  }
+
   int64_t getDecodePosition() {
     uint64_t position;
     if (mDecoder != NULL

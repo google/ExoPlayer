@@ -86,10 +86,11 @@ import java.nio.ByteBuffer;
    * This method is called from the native code.
    *
    * @param target A target {@link ByteBuffer} into which data should be written.
+   * @param offset The offset into the target array at which to write.
    * @return Returns the number of bytes read, or -1 on failure. It's not an error if this returns
    * zero; it just means all the data read from the source.
    */
-  public int read(ByteBuffer target) throws IOException, InterruptedException {
+  public int read(ByteBuffer target, int offset) throws IOException, InterruptedException {
     int byteCount = target.remaining();
     if (byteBufferData != null) {
       byteCount = Math.min(byteCount, byteBufferData.remaining());
@@ -100,6 +101,11 @@ import java.nio.ByteBuffer;
 
       byteBufferData.limit(originalLimit);
     } else if (extractorInput != null) {
+      int skip = offset - ((int) extractorInput.getPosition());
+      if (skip < 0) {
+        return -1;
+      }
+      extractorInput.skipFully(skip);
       byteCount = Math.min(byteCount, TEMP_BUFFER_SIZE);
       int read = readFromExtractorInput(0, byteCount);
       if (read < 4) {
@@ -114,6 +120,17 @@ import java.nio.ByteBuffer;
       return -1;
     }
     return byteCount;
+  }
+
+  /**
+   * This method is called from the native code.
+   */
+  public long getStreamLength() {
+    if (extractorInput != null) {
+      return extractorInput.getLength();
+    } else {
+      return -1;
+    }
   }
 
   public FlacStreamInfo decodeMetadata() throws IOException, InterruptedException {
@@ -170,6 +187,10 @@ import java.nio.ByteBuffer;
     flacRelease(nativeDecoderContext);
   }
 
+  public void seekAbsolute(long timeUs) {
+    flacSeekAbsolute(nativeDecoderContext, timeUs);
+  }
+
   private int readFromExtractorInput(int offset, int length)
       throws IOException, InterruptedException {
     int read = extractorInput.read(tempBuffer, offset, length);
@@ -193,6 +214,7 @@ import java.nio.ByteBuffer;
   private native String flacGetStateString(long context);
   private native void flacFlush(long context);
   private native void flacReset(long context, long newPosition);
+  private native void flacSeekAbsolute(long context, long timeUs);
   private native void flacRelease(long context);
 
 }

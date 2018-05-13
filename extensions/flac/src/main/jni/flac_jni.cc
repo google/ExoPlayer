@@ -39,17 +39,14 @@ class JavaDataSource : public DataSource {
  public:
   void setFlacDecoderJni(JNIEnv *env, jobject flacDecoderJni) {
     this->env = env;
-    this->flacDecoderJni = flacDecoderJni;
-    if (mid == NULL) {
-      jclass cls = env->GetObjectClass(flacDecoderJni);
-      mid = env->GetMethodID(cls, "read", "(Ljava/nio/ByteBuffer;)I");
-      env->DeleteLocalRef(cls);
+    if (this->flacDecoderJni == NULL) {
+      this->flacDecoderJni = env->NewGlobalRef(flacDecoderJni);
     }
   }
 
   ssize_t readAt(off64_t offset, void *const data, size_t size) {
     jobject byteBuffer = env->NewDirectByteBuffer(data, size);
-    int result = env->CallIntMethod(flacDecoderJni, mid, byteBuffer);
+    int result = env->CallIntMethod(flacDecoderJni, readMethodId(), byteBuffer, offset);
     if (env->ExceptionCheck()) {
       // Exception is thrown in Java when returning from the native call.
       result = -1;
@@ -58,10 +55,28 @@ class JavaDataSource : public DataSource {
     return result;
   }
 
+  ssize_t getStreamLength() {
+    return env->CallLongMethod(flacDecoderJni, getStreamLengthMethodId());
+  }
+
  private:
   JNIEnv *env;
   jobject flacDecoderJni;
   jmethodID mid;
+
+  jmethodID readMethodId() {
+    jclass cls = env->GetObjectClass(flacDecoderJni);
+    jmethodID mid = env->GetMethodID(cls, "read", "(Ljava/nio/ByteBuffer;I)I");
+    env->DeleteLocalRef(cls);
+    return mid;
+  }
+
+  jmethodID getStreamLengthMethodId() {
+    jclass cls = env->GetObjectClass(flacDecoderJni);
+    jmethodID mid = env->GetMethodID(cls, "getStreamLength", "()J");
+    env->DeleteLocalRef(cls);
+    return mid;
+  }
 };
 
 struct Context {
@@ -157,6 +172,11 @@ DECODER_FUNC(void, flacFlush, jlong jContext) {
 DECODER_FUNC(void, flacReset, jlong jContext, jlong newPosition) {
   Context *context = reinterpret_cast<Context *>(jContext);
   context->parser->reset(newPosition);
+}
+
+DECODER_FUNC(void, flacSeekAbsolute, jlong jContext, jlong timeUs) {
+  Context *context = reinterpret_cast<Context *>(jContext);
+  context->parser->seekAbsolute(timeUs);
 }
 
 DECODER_FUNC(void, flacRelease, jlong jContext) {
