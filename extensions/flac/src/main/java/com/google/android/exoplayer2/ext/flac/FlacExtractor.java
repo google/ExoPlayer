@@ -179,24 +179,20 @@ public final class FlacExtractor implements Extractor {
       outputByteBuffer = ByteBuffer.wrap(outputBuffer.data);
     }
 
-    outputBuffer.reset();
     long lastDecodePosition = decoderJni.getDecodePosition();
-    int size;
     try {
-      size = decoderJni.decodeSample(outputByteBuffer);
-    } catch (IOException e) {
-      if (lastDecodePosition >= 0) {
-        decoderJni.reset(lastDecodePosition);
-        input.setRetryPosition(lastDecodePosition, e);
-      }
-      throw e;
+      decoderJni.decodeSampleWithBacktrackPosition(outputByteBuffer, lastDecodePosition);
+    } catch (FlacDecoderJni.FlacFrameDecodeException e) {
+      throw new IOException("Cannot read frame at position " + lastDecodePosition, e);
     }
-    if (size <= 0) {
+    int outputSize = outputByteBuffer.limit();
+    if (outputSize == 0) {
       return RESULT_END_OF_INPUT;
     }
-    trackOutput.sampleData(outputBuffer, size);
-    trackOutput.sampleMetadata(decoderJni.getLastSampleTimestamp(), C.BUFFER_FLAG_KEY_FRAME, size,
-        0, null);
+    outputBuffer.setPosition(0);
+    trackOutput.sampleData(outputBuffer, outputSize);
+    trackOutput.sampleMetadata(
+        decoderJni.getLastFrameTimestamp(), C.BUFFER_FLAG_KEY_FRAME, outputSize, 0, null);
 
     return decoderJni.isEndOfData() ? RESULT_END_OF_INPUT : RESULT_CONTINUE;
   }
