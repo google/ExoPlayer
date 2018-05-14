@@ -1,5 +1,6 @@
 package com.google.android.exoplayer2.source.rtp.format;
 
+import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.util.CodecSpecificDataUtil;
 import com.google.android.exoplayer2.util.MimeTypes;
 
@@ -72,6 +73,8 @@ public final class RtpAudioPayload extends RtpPayloadFormat {
 
         public Builder() {
             super(AUDIO);
+            ptime = Format.NO_VALUE;
+            maxptime = Format.NO_VALUE;
         }
 
         public Builder channels(int channels) {

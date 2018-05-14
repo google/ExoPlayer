@@ -17,15 +17,13 @@ package com.google.android.exoplayer2.source.rtp.format;
 
 import android.util.Base64;
 
+import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.util.CodecSpecificDataUtil;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.NalUnitUtil;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.util.Collections;
+import java.util.ArrayList;
 import java.util.List;
-
 
 public final class RtpVideoPayload extends RtpPayloadFormat {
     private int width;
@@ -44,6 +42,8 @@ public final class RtpVideoPayload extends RtpPayloadFormat {
         this.height = builder.height;
         this.framerate = builder.framerate;
         this.quality = builder.quality;
+
+        pixelWidthAspectRatio = 1.0f;
     }
 
     public int width() { return width; }
@@ -84,45 +84,38 @@ public final class RtpVideoPayload extends RtpPayloadFormat {
                     in the following form, base16-encoded: [start code][SPS][start code][PPS],
                     where [start code] is the following four bytes: 0x00, 0x00, 0x00, 0x01.
                     */
-                    ByteArrayOutputStream nals = new ByteArrayOutputStream();
+                    String[] paramSets = parameters.value(FormatSpecificParameter.SPROP_PARAMETER_SETS).
+                            split(",");
+                    if (paramSets.length == 2) {
+                        codecSpecificData = new ArrayList<>();
+                        for (String s : paramSets) {
+                            if ((s != null) && (s.length() != 0)) {
+                                byte[] nal = Base64.decode(s, Base64.DEFAULT);
 
-                    for (String s : parameters.value(FormatSpecificParameter.SPROP_PARAMETER_SETS).
-                            split(",")) {
-                        if ((s != null) && (s.length() != 0)) {
-                            byte[] nal = Base64.decode(s, Base64.DEFAULT);
-
-                            if ((nal != null) && (nal.length != 0)) {
-
-                                try {
-                                    nals.write(CodecSpecificDataUtil.buildNalUnit
+                                if ((nal != null) && (nal.length != 0)) {
+                                    codecSpecificData.add(CodecSpecificDataUtil.buildNalUnit
                                             (nal, 0, nal.length));
-                                } catch (IOException ex) {
-                                    codecSpecificData = Collections.singletonList(new byte[0]);
-                                    return codecSpecificData;
                                 }
                             }
                         }
-                    }
 
-                    codecSpecificData = Collections.singletonList(nals.toByteArray());
-                    byte[] sps = codecSpecificData.get(0);
+                        byte[] sps = codecSpecificData.get(0);
+                        NalUnitUtil.SpsData spsData = NalUnitUtil.parseSpsNalUnit(
+                                sps, 4, sps.length);
 
-                    NalUnitUtil.SpsData spsData = NalUnitUtil.parseSpsNalUnit(
-                            sps, 3, sps.length);
+                        pixelWidthAspectRatio = spsData.pixelWidthAspectRatio;
 
-                    this.pixelWidthAspectRatio = spsData.pixelWidthAspectRatio;
+                        if (width == Format.NO_VALUE && height == Format.NO_VALUE) {
+                            width = spsData.width;
+                            height = spsData.height;
 
-                    if (spsData.width > width) {
-                        width = spsData.width;
-                    }
-
-                    if (spsData.height > height) {
-                        height = spsData.height;
+                        } else if ((width != Format.NO_VALUE && spsData.width != width) ||
+                                    (height != Format.NO_VALUE && spsData.height != height)) {
+                            codecSpecificData.clear();
+                            codecSpecificData = null;
+                        }
                     }
                 }
-
-            } else {
-                codecSpecificData = Collections.singletonList(new byte[0]);
             }
         }
 
@@ -137,6 +130,9 @@ public final class RtpVideoPayload extends RtpPayloadFormat {
 
         public Builder() {
             super(VIDEO);
+            width = Format.NO_VALUE;
+            height = Format.NO_VALUE;
+            framerate = Format.NO_VALUE;
         }
 
         public Builder width(int width) {

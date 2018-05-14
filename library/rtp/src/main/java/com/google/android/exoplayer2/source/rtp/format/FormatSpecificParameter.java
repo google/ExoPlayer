@@ -127,7 +127,7 @@ public class FormatSpecificParameter {
     public static FormatSpecificParameter parse(String line) {
         try {
 
-            Matcher matcher = regexMediaAttribute.matcher(line.toLowerCase());
+            Matcher matcher = regexMediaAttribute.matcher(line);
 
             if (matcher.find()) {
                 return (matcher.group(3) == null) ?

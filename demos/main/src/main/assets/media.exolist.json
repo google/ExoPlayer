@@ -7,6 +7,10 @@
         "uri": "rtsp://80.28.249.45:8114/rtsph2641080p"
       },
       {
+        "name": "Live stream from Danmarks plass",
+        "uri": "rtsp://stream.vosskom.no:1935/bt/Danmarksplass.stream"
+      },
+      {
         "name": "Live stream TV from Hessdalen - Camera 2",
         "uri": "rtsp://freja.hiof.no:1935/rtplive/_definst_/hessdalen02.stream"
       },
