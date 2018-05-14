@@ -12,5 +12,5 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-include ':audio-app'
-include ':video-app'
+include ':audio-app', ':audio-app-kotlin'
+include ':video-app', ':video-app-kotlin'
