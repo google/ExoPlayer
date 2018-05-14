@@ -183,7 +183,8 @@ public final class ClippingMediaSourceTest {
             /* windowPositionInPeriodUs= */ TEST_PERIOD_DURATION_US,
             /* windowDefaultStartPositionUs= */ TEST_CLIP_AMOUNT_US,
             /* isSeekable= */ true,
-            /* isDynamic= */ true);
+            /* isDynamic= */ true,
+            /* tag= */ null);
 
     Timeline clippedTimeline = getClippedTimeline(timeline, /* durationUs= */ TEST_CLIP_AMOUNT_US);
     assertThat(clippedTimeline.getWindow(0, window).getDurationUs()).isEqualTo(TEST_CLIP_AMOUNT_US);
@@ -203,7 +204,8 @@ public final class ClippingMediaSourceTest {
             /* windowPositionInPeriodUs= */ TEST_PERIOD_DURATION_US,
             /* windowDefaultStartPositionUs= */ TEST_CLIP_AMOUNT_US,
             /* isSeekable= */ true,
-            /* isDynamic= */ true);
+            /* isDynamic= */ true,
+            /* tag= */ null);
     Timeline timeline2 =
         new SinglePeriodTimeline(
             /* periodDurationUs= */ 3 * TEST_PERIOD_DURATION_US,
@@ -211,7 +213,8 @@ public final class ClippingMediaSourceTest {
             /* windowPositionInPeriodUs= */ 2 * TEST_PERIOD_DURATION_US,
             /* windowDefaultStartPositionUs= */ TEST_CLIP_AMOUNT_US,
             /* isSeekable= */ true,
-            /* isDynamic= */ true);
+            /* isDynamic= */ true,
+            /* tag= */ null);
 
     Timeline[] clippedTimelines =
         getClippedTimelines(
@@ -248,7 +251,8 @@ public final class ClippingMediaSourceTest {
             /* windowPositionInPeriodUs= */ TEST_PERIOD_DURATION_US,
             /* windowDefaultStartPositionUs= */ TEST_CLIP_AMOUNT_US,
             /* isSeekable= */ true,
-            /* isDynamic= */ true);
+            /* isDynamic= */ true,
+            /* tag= */ null);
     Timeline timeline2 =
         new SinglePeriodTimeline(
             /* periodDurationUs= */ 4 * TEST_PERIOD_DURATION_US,
@@ -256,7 +260,8 @@ public final class ClippingMediaSourceTest {
             /* windowPositionInPeriodUs= */ 3 * TEST_PERIOD_DURATION_US,
             /* windowDefaultStartPositionUs= */ TEST_CLIP_AMOUNT_US,
             /* isSeekable= */ true,
-            /* isDynamic= */ true);
+            /* isDynamic= */ true,
+            /* tag= */ null);
 
     Timeline[] clippedTimelines =
         getClippedTimelines(
@@ -293,7 +298,8 @@ public final class ClippingMediaSourceTest {
             /* windowPositionInPeriodUs= */ TEST_PERIOD_DURATION_US,
             /* windowDefaultStartPositionUs= */ TEST_CLIP_AMOUNT_US,
             /* isSeekable= */ true,
-            /* isDynamic= */ true);
+            /* isDynamic= */ true,
+            /* tag= */ null);
     Timeline timeline2 =
         new SinglePeriodTimeline(
             /* periodDurationUs= */ 3 * TEST_PERIOD_DURATION_US,
@@ -301,7 +307,8 @@ public final class ClippingMediaSourceTest {
             /* windowPositionInPeriodUs= */ 2 * TEST_PERIOD_DURATION_US,
             /* windowDefaultStartPositionUs= */ TEST_CLIP_AMOUNT_US,
             /* isSeekable= */ true,
-            /* isDynamic= */ true);
+            /* isDynamic= */ true,
+            /* tag= */ null);
 
     Timeline[] clippedTimelines =
         getClippedTimelines(
@@ -339,7 +346,8 @@ public final class ClippingMediaSourceTest {
             /* windowPositionInPeriodUs= */ TEST_PERIOD_DURATION_US,
             /* windowDefaultStartPositionUs= */ TEST_CLIP_AMOUNT_US,
             /* isSeekable= */ true,
-            /* isDynamic= */ true);
+            /* isDynamic= */ true,
+            /* tag= */ null);
     Timeline timeline2 =
         new SinglePeriodTimeline(
             /* periodDurationUs= */ 4 * TEST_PERIOD_DURATION_US,
@@ -347,7 +355,8 @@ public final class ClippingMediaSourceTest {
             /* windowPositionInPeriodUs= */ 3 * TEST_PERIOD_DURATION_US,
             /* windowDefaultStartPositionUs= */ TEST_CLIP_AMOUNT_US,
             /* isSeekable= */ true,
-            /* isDynamic= */ true);
+            /* isDynamic= */ true,
+            /* tag= */ null);
 
     Timeline[] clippedTimelines =
         getClippedTimelines(
@@ -382,7 +391,7 @@ public final class ClippingMediaSourceTest {
     Timeline clippedTimeline =
         getClippedTimeline(
             timeline, TEST_CLIP_AMOUNT_US, TEST_PERIOD_DURATION_US - TEST_CLIP_AMOUNT_US);
-    TimelineAsserts.assertWindowIds(clippedTimeline, 111);
+    TimelineAsserts.assertWindowTags(clippedTimeline, 111);
     TimelineAsserts.assertPeriodCounts(clippedTimeline, 1);
     TimelineAsserts.assertPreviousWindowIndices(
         clippedTimeline, Player.REPEAT_MODE_OFF, false, C.INDEX_UNSET);

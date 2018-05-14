@@ -33,13 +33,13 @@ import java.io.IOException;
   public HlsSampleStream(HlsSampleStreamWrapper sampleStreamWrapper, int trackGroupIndex) {
     this.sampleStreamWrapper = sampleStreamWrapper;
     this.trackGroupIndex = trackGroupIndex;
-    sampleQueueIndex = C.INDEX_UNSET;
+    sampleQueueIndex = HlsSampleStreamWrapper.SAMPLE_QUEUE_INDEX_PENDING;
   }
 
   public void unbindSampleQueue() {
-    if (sampleQueueIndex != C.INDEX_UNSET) {
+    if (sampleQueueIndex != HlsSampleStreamWrapper.SAMPLE_QUEUE_INDEX_PENDING) {
       sampleStreamWrapper.unbindSampleQueue(trackGroupIndex);
-      sampleQueueIndex = C.INDEX_UNSET;
+      sampleQueueIndex = HlsSampleStreamWrapper.SAMPLE_QUEUE_INDEX_PENDING;
     }
   }
 
@@ -47,12 +47,14 @@ import java.io.IOException;
 
   @Override
   public boolean isReady() {
-    return ensureBoundSampleQueue() && sampleStreamWrapper.isReady(sampleQueueIndex);
+    return sampleQueueIndex == HlsSampleStreamWrapper.SAMPLE_QUEUE_INDEX_NO_MAPPING_NON_FATAL
+        || (maybeMapToSampleQueue() && sampleStreamWrapper.isReady(sampleQueueIndex));
   }
 
   @Override
   public void maybeThrowError() throws IOException {
-    if (!ensureBoundSampleQueue() && sampleStreamWrapper.isMappingFinished()) {
+    maybeMapToSampleQueue();
+    if (sampleQueueIndex == HlsSampleStreamWrapper.SAMPLE_QUEUE_INDEX_NO_MAPPING_FATAL) {
       throw new SampleQueueMappingException(
           sampleStreamWrapper.getTrackGroups().get(trackGroupIndex).getFormat(0).sampleMimeType);
     }
@@ -61,27 +63,24 @@ import java.io.IOException;
 
   @Override
   public int readData(FormatHolder formatHolder, DecoderInputBuffer buffer, boolean requireFormat) {
-    if (!ensureBoundSampleQueue()) {
-      return C.RESULT_NOTHING_READ;
-    }
-    return sampleStreamWrapper.readData(sampleQueueIndex, formatHolder, buffer, requireFormat);
+    return maybeMapToSampleQueue()
+        ? sampleStreamWrapper.readData(sampleQueueIndex, formatHolder, buffer, requireFormat)
+        : C.RESULT_NOTHING_READ;
   }
 
   @Override
   public int skipData(long positionUs) {
-    if (!ensureBoundSampleQueue()) {
-      return 0;
-    }
-    return sampleStreamWrapper.skipData(sampleQueueIndex, positionUs);
+    return maybeMapToSampleQueue() ? sampleStreamWrapper.skipData(sampleQueueIndex, positionUs) : 0;
   }
 
   // Internal methods.
 
-  private boolean ensureBoundSampleQueue() {
-    if (sampleQueueIndex != C.INDEX_UNSET) {
-      return true;
+  private boolean maybeMapToSampleQueue() {
+    if (sampleQueueIndex == HlsSampleStreamWrapper.SAMPLE_QUEUE_INDEX_PENDING) {
+      sampleQueueIndex = sampleStreamWrapper.bindSampleQueueToSampleStream(trackGroupIndex);
     }
-    sampleQueueIndex = sampleStreamWrapper.bindSampleQueueToSampleStream(trackGroupIndex);
-    return sampleQueueIndex != C.INDEX_UNSET;
+    return sampleQueueIndex != HlsSampleStreamWrapper.SAMPLE_QUEUE_INDEX_PENDING
+        && sampleQueueIndex != HlsSampleStreamWrapper.SAMPLE_QUEUE_INDEX_NO_MAPPING_NON_FATAL
+        && sampleQueueIndex != HlsSampleStreamWrapper.SAMPLE_QUEUE_INDEX_NO_MAPPING_FATAL;
   }
 }

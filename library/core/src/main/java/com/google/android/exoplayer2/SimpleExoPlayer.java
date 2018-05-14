@@ -27,9 +27,12 @@ import android.view.Surface;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.TextureView;
+import com.google.android.exoplayer2.analytics.AnalyticsCollector;
+import com.google.android.exoplayer2.analytics.AnalyticsListener;
 import com.google.android.exoplayer2.audio.AudioAttributes;
 import com.google.android.exoplayer2.audio.AudioRendererEventListener;
 import com.google.android.exoplayer2.decoder.DecoderCounters;
+import com.google.android.exoplayer2.drm.DefaultDrmSessionManager;
 import com.google.android.exoplayer2.drm.DrmSessionManager;
 import com.google.android.exoplayer2.drm.FrameworkMediaCrypto;
 import com.google.android.exoplayer2.metadata.Metadata;
@@ -44,6 +47,7 @@ import com.google.android.exoplayer2.util.Clock;
 import com.google.android.exoplayer2.util.Util;
 import com.google.android.exoplayer2.video.VideoRendererEventListener;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArraySet;
 
@@ -63,6 +67,7 @@ public class SimpleExoPlayer implements ExoPlayer, Player.VideoComponent, Player
   protected final Renderer[] renderers;
 
   private final ExoPlayer player;
+  private final Handler eventHandler;
   private final ComponentListener componentListener;
   private final CopyOnWriteArraySet<com.google.android.exoplayer2.video.VideoListener>
       videoListeners;
@@ -70,6 +75,7 @@ public class SimpleExoPlayer implements ExoPlayer, Player.VideoComponent, Player
   private final CopyOnWriteArraySet<MetadataOutput> metadataOutputs;
   private final CopyOnWriteArraySet<VideoRendererEventListener> videoDebugListeners;
   private final CopyOnWriteArraySet<AudioRendererEventListener> audioDebugListeners;
+  private final AnalyticsCollector analyticsCollector;
 
   private Format videoFormat;
   private Format audioFormat;
@@ -85,6 +91,7 @@ public class SimpleExoPlayer implements ExoPlayer, Player.VideoComponent, Player
   private int audioSessionId;
   private AudioAttributes audioAttributes;
   private float audioVolume;
+  private MediaSource mediaSource;
 
   /**
    * @param renderersFactory A factory for creating {@link Renderer}s to be used by the instance.
@@ -98,7 +105,12 @@ public class SimpleExoPlayer implements ExoPlayer, Player.VideoComponent, Player
       TrackSelector trackSelector,
       LoadControl loadControl,
       @Nullable DrmSessionManager<FrameworkMediaCrypto> drmSessionManager) {
-    this(renderersFactory, trackSelector, loadControl, drmSessionManager, Clock.DEFAULT);
+    this(
+        renderersFactory,
+        trackSelector,
+        loadControl,
+        drmSessionManager,
+        new AnalyticsCollector.Factory());
   }
 
   /**
@@ -107,6 +119,32 @@ public class SimpleExoPlayer implements ExoPlayer, Player.VideoComponent, Player
    * @param loadControl The {@link LoadControl} that will be used by the instance.
    * @param drmSessionManager An optional {@link DrmSessionManager}. May be null if the instance
    *     will not be used for DRM protected playbacks.
+   * @param analyticsCollectorFactory A factory for creating the {@link AnalyticsCollector} that
+   *     will collect and forward all player events.
+   */
+  protected SimpleExoPlayer(
+      RenderersFactory renderersFactory,
+      TrackSelector trackSelector,
+      LoadControl loadControl,
+      @Nullable DrmSessionManager<FrameworkMediaCrypto> drmSessionManager,
+      AnalyticsCollector.Factory analyticsCollectorFactory) {
+    this(
+        renderersFactory,
+        trackSelector,
+        loadControl,
+        drmSessionManager,
+        analyticsCollectorFactory,
+        Clock.DEFAULT);
+  }
+
+  /**
+   * @param renderersFactory A factory for creating {@link Renderer}s to be used by the instance.
+   * @param trackSelector The {@link TrackSelector} that will be used by the instance.
+   * @param loadControl The {@link LoadControl} that will be used by the instance.
+   * @param drmSessionManager An optional {@link DrmSessionManager}. May be null if the instance
+   *     will not be used for DRM protected playbacks.
+   * @param analyticsCollectorFactory A factory for creating the {@link AnalyticsCollector} that
+   *     will collect and forward all player events.
    * @param clock The {@link Clock} that will be used by the instance. Should always be {@link
    *     Clock#DEFAULT}, unless the player is being used from a test.
    */
@@ -115,6 +153,7 @@ public class SimpleExoPlayer implements ExoPlayer, Player.VideoComponent, Player
       TrackSelector trackSelector,
       LoadControl loadControl,
       @Nullable DrmSessionManager<FrameworkMediaCrypto> drmSessionManager,
+      AnalyticsCollector.Factory analyticsCollectorFactory,
       Clock clock) {
     componentListener = new ComponentListener();
     videoListeners = new CopyOnWriteArraySet<>();
@@ -123,7 +162,7 @@ public class SimpleExoPlayer implements ExoPlayer, Player.VideoComponent, Player
     videoDebugListeners = new CopyOnWriteArraySet<>();
     audioDebugListeners = new CopyOnWriteArraySet<>();
     Looper eventLooper = Looper.myLooper() != null ? Looper.myLooper() : Looper.getMainLooper();
-    Handler eventHandler = new Handler(eventLooper);
+    eventHandler = new Handler(eventLooper);
     renderers =
         renderersFactory.createRenderers(
             eventHandler,
@@ -141,6 +180,14 @@ public class SimpleExoPlayer implements ExoPlayer, Player.VideoComponent, Player
 
     // Build the player and associated objects.
     player = createExoPlayerImpl(renderers, trackSelector, loadControl, clock);
+    analyticsCollector = analyticsCollectorFactory.createAnalyticsCollector(player, clock);
+    addListener(analyticsCollector);
+    videoDebugListeners.add(analyticsCollector);
+    audioDebugListeners.add(analyticsCollector);
+    addMetadataOutput(analyticsCollector);
+    if (drmSessionManager instanceof DefaultDrmSessionManager) {
+      ((DefaultDrmSessionManager) drmSessionManager).addListener(eventHandler, analyticsCollector);
+    }
   }
 
   @Override
@@ -281,6 +328,29 @@ public class SimpleExoPlayer implements ExoPlayer, Player.VideoComponent, Player
   @Deprecated
   public @C.StreamType int getAudioStreamType() {
     return Util.getStreamTypeForAudioUsage(audioAttributes.usage);
+  }
+
+  /** Returns the {@link AnalyticsCollector} used for collecting analytics events. */
+  public AnalyticsCollector getAnalyticsCollector() {
+    return analyticsCollector;
+  }
+
+  /**
+   * Adds an {@link AnalyticsListener} to receive analytics events.
+   *
+   * @param listener The listener to be added.
+   */
+  public void addAnalyticsListener(AnalyticsListener listener) {
+    analyticsCollector.addListener(listener);
+  }
+
+  /**
+   * Removes an {@link AnalyticsListener}.
+   *
+   * @param listener The listener to be removed.
+   */
+  public void removeAnalyticsListener(AnalyticsListener listener) {
+    analyticsCollector.removeListener(listener);
   }
 
   /**
@@ -465,10 +535,20 @@ public class SimpleExoPlayer implements ExoPlayer, Player.VideoComponent, Player
     removeTextOutput(output);
   }
 
+  /**
+   * Adds a {@link MetadataOutput} to receive metadata.
+   *
+   * @param listener The output to register.
+   */
   public void addMetadataOutput(MetadataOutput listener) {
     metadataOutputs.add(listener);
   }
 
+  /**
+   * Removes a {@link MetadataOutput}.
+   *
+   * @param listener The output to remove.
+   */
   public void removeMetadataOutput(MetadataOutput listener) {
     metadataOutputs.remove(listener);
   }
@@ -481,7 +561,7 @@ public class SimpleExoPlayer implements ExoPlayer, Player.VideoComponent, Player
    */
   @Deprecated
   public void setMetadataOutput(MetadataOutput output) {
-    metadataOutputs.clear();
+    metadataOutputs.retainAll(Collections.singleton(analyticsCollector));
     if (output != null) {
       addMetadataOutput(output);
     }
@@ -499,65 +579,61 @@ public class SimpleExoPlayer implements ExoPlayer, Player.VideoComponent, Player
   }
 
   /**
-   * Sets a listener to receive debug events from the video renderer.
-   *
-   * @param listener The listener.
-   * @deprecated Use {@link #addVideoDebugListener(VideoRendererEventListener)}.
+   * @deprecated Use {@link #addAnalyticsListener(AnalyticsListener)} to get more detailed debug
+   *     information.
    */
   @Deprecated
   public void setVideoDebugListener(VideoRendererEventListener listener) {
-    videoDebugListeners.clear();
+    videoDebugListeners.retainAll(Collections.singleton(analyticsCollector));
     if (listener != null) {
       addVideoDebugListener(listener);
     }
   }
 
   /**
-   * Adds a listener to receive debug events from the video renderer.
-   *
-   * @param listener The listener.
+   * @deprecated Use {@link #addAnalyticsListener(AnalyticsListener)} to get more detailed debug
+   *     information.
    */
+  @Deprecated
   public void addVideoDebugListener(VideoRendererEventListener listener) {
     videoDebugListeners.add(listener);
   }
 
   /**
-   * Removes a listener to receive debug events from the video renderer.
-   *
-   * @param listener The listener.
+   * @deprecated Use {@link #addAnalyticsListener(AnalyticsListener)} and {@link
+   *     #removeAnalyticsListener(AnalyticsListener)} to get more detailed debug information.
    */
+  @Deprecated
   public void removeVideoDebugListener(VideoRendererEventListener listener) {
     videoDebugListeners.remove(listener);
   }
 
   /**
-   * Sets a listener to receive debug events from the audio renderer.
-   *
-   * @param listener The listener.
-   * @deprecated Use {@link #addAudioDebugListener(AudioRendererEventListener)}.
+   * @deprecated Use {@link #addAnalyticsListener(AnalyticsListener)} to get more detailed debug
+   *     information.
    */
   @Deprecated
   public void setAudioDebugListener(AudioRendererEventListener listener) {
-    audioDebugListeners.clear();
+    audioDebugListeners.retainAll(Collections.singleton(analyticsCollector));
     if (listener != null) {
       addAudioDebugListener(listener);
     }
   }
 
   /**
-   * Adds a listener to receive debug events from the audio renderer.
-   *
-   * @param listener The listener.
+   * @deprecated Use {@link #addAnalyticsListener(AnalyticsListener)} to get more detailed debug
+   *     information.
    */
+  @Deprecated
   public void addAudioDebugListener(AudioRendererEventListener listener) {
     audioDebugListeners.add(listener);
   }
 
   /**
-   * Removes a listener to receive debug events from the audio renderer.
-   *
-   * @param listener The listener.
+   * @deprecated Use {@link #addAnalyticsListener(AnalyticsListener)} and {@link
+   *     #removeAnalyticsListener(AnalyticsListener)} to get more detailed debug information.
    */
+  @Deprecated
   public void removeAudioDebugListener(AudioRendererEventListener listener) {
     audioDebugListeners.remove(listener);
   }
@@ -585,12 +661,25 @@ public class SimpleExoPlayer implements ExoPlayer, Player.VideoComponent, Player
   }
 
   @Override
+  public ExoPlaybackException getPlaybackError() {
+    return player.getPlaybackError();
+  }
+
+  @Override
   public void prepare(MediaSource mediaSource) {
-    player.prepare(mediaSource);
+    prepare(mediaSource, /* resetPosition= */ true, /* resetState= */ true);
   }
 
   @Override
   public void prepare(MediaSource mediaSource, boolean resetPosition, boolean resetState) {
+    if (this.mediaSource != mediaSource) {
+      if (this.mediaSource != null) {
+        this.mediaSource.removeEventListener(analyticsCollector);
+        analyticsCollector.resetForNewMediaSource();
+      }
+      mediaSource.addEventListener(eventHandler, analyticsCollector);
+      this.mediaSource = mediaSource;
+    }
     player.prepare(mediaSource, resetPosition, resetState);
   }
 
@@ -631,21 +720,25 @@ public class SimpleExoPlayer implements ExoPlayer, Player.VideoComponent, Player
 
   @Override
   public void seekToDefaultPosition() {
+    analyticsCollector.notifySeekStarted();
     player.seekToDefaultPosition();
   }
 
   @Override
   public void seekToDefaultPosition(int windowIndex) {
+    analyticsCollector.notifySeekStarted();
     player.seekToDefaultPosition(windowIndex);
   }
 
   @Override
   public void seekTo(long positionMs) {
+    analyticsCollector.notifySeekStarted();
     player.seekTo(positionMs);
   }
 
   @Override
   public void seekTo(int windowIndex, long positionMs) {
+    analyticsCollector.notifySeekStarted();
     player.seekTo(windowIndex, positionMs);
   }
 
@@ -665,13 +758,23 @@ public class SimpleExoPlayer implements ExoPlayer, Player.VideoComponent, Player
   }
 
   @Override
+  public @Nullable Object getCurrentTag() {
+    return player.getCurrentTag();
+  }
+
+  @Override
   public void stop() {
-    player.stop();
+    stop(/* reset= */ false);
   }
 
   @Override
   public void stop(boolean reset) {
     player.stop(reset);
+    if (mediaSource != null) {
+      mediaSource.removeEventListener(analyticsCollector);
+      mediaSource = null;
+      analyticsCollector.resetForNewMediaSource();
+    }
   }
 
   @Override
@@ -683,6 +786,9 @@ public class SimpleExoPlayer implements ExoPlayer, Player.VideoComponent, Player
         surface.release();
       }
       surface = null;
+    }
+    if (mediaSource != null) {
+      mediaSource.removeEventListener(analyticsCollector);
     }
   }
 

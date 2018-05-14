@@ -46,6 +46,7 @@ android {
 
 dependencies {
     implementation 'com.android.support:support-annotations:' + supportLibraryVersion
+    compileOnly 'org.checkerframework:checker-qual:' + checkerframeworkVersion
     androidTestImplementation 'com.google.dexmaker:dexmaker:' + dexmakerVersion
     androidTestImplementation 'com.google.dexmaker:dexmaker-mockito:' + dexmakerVersion
     androidTestImplementation 'com.google.truth:truth:' + truthVersion
@@ -54,6 +55,8 @@ dependencies {
     testImplementation 'junit:junit:' + junitVersion
     testImplementation 'org.mockito:mockito-core:' + mockitoVersion
     testImplementation 'org.robolectric:robolectric:' + robolectricVersion
+    testImplementation 'com.google.auto.value:auto-value-annotations:' + autoValueVersion
+    testAnnotationProcessor 'com.google.auto.value:auto-value:' + autoValueVersion
 }
 
 ext {

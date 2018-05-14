@@ -17,6 +17,7 @@ package com.google.android.exoplayer2.drm;
 
 import android.os.Handler;
 import com.google.android.exoplayer2.Player;
+import com.google.android.exoplayer2.util.Assertions;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 /** Listener of {@link DefaultDrmSessionManager} events. */
@@ -57,6 +58,7 @@ public interface DefaultDrmSessionEventListener {
 
     /** Adds listener to event dispatcher. */
     public void addListener(Handler handler, DefaultDrmSessionEventListener eventListener) {
+      Assertions.checkArgument(handler != null && eventListener != null);
       listeners.add(new HandlerAndListener(handler, eventListener));
     }
 

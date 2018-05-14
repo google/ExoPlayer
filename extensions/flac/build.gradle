@@ -31,8 +31,10 @@ android {
 }
 
 dependencies {
+    implementation 'com.android.support:support-annotations:' + supportLibraryVersion
     implementation project(modulePrefix + 'library-core')
     androidTestImplementation project(modulePrefix + 'testutils')
+    testImplementation project(modulePrefix + 'testutils-robolectric')
 }
 
 ext {

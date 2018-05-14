@@ -85,6 +85,7 @@ public class FakeRenderer extends BaseRenderer {
       if (result == C.RESULT_FORMAT_READ) {
         formatReadCount++;
         assertThat(expectedFormats).contains(formatHolder.format);
+        onFormatChanged(formatHolder.format);
       } else if (result == C.RESULT_BUFFER_READ) {
         if (buffer.isEndOfStream()) {
           isEnded = true;
@@ -92,6 +93,7 @@ public class FakeRenderer extends BaseRenderer {
         }
         lastSamplePositionUs = buffer.timeUs;
         sampleBufferReadCount++;
+        onBufferRead();
       } else {
         Assertions.checkState(result == C.RESULT_NOTHING_READ);
         return;
@@ -115,4 +117,9 @@ public class FakeRenderer extends BaseRenderer {
         ? (FORMAT_HANDLED | ADAPTIVE_SEAMLESS) : FORMAT_UNSUPPORTED_TYPE;
   }
 
+  /** Called when the renderer reads a new format. */
+  protected void onFormatChanged(Format format) {}
+
+  /** Called when the renderer read a sample from the buffer. */
+  protected void onBufferRead() {}
 }

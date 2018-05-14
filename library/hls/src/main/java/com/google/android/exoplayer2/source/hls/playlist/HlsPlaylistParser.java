@@ -123,7 +123,8 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
               + METHOD_SAMPLE_AES_CENC
               + "|"
               + METHOD_SAMPLE_AES_CTR
-              + ")");
+              + ")"
+              + "\\s*(,|$)");
   private static final Pattern REGEX_KEYFORMAT = Pattern.compile("KEYFORMAT=\"(.+?)\"");
   private static final Pattern REGEX_URI = Pattern.compile("URI=\"(.+?)\"");
   private static final Pattern REGEX_IV = Pattern.compile("IV=([^,.*]+)");
@@ -473,6 +474,7 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
         segments.add(
             new Segment(
                 line,
+                initializationSegment,
                 segmentDurationUs,
                 relativeDiscontinuitySequence,
                 segmentStartTimeUs,
@@ -490,10 +492,22 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
         hasGapTag = false;
       }
     }
-    return new HlsMediaPlaylist(playlistType, baseUri, tags, startOffsetUs, playlistStartTimeUs,
-        hasDiscontinuitySequence, playlistDiscontinuitySequence, mediaSequence, version,
-        targetDurationUs, hasIndependentSegmentsTag, hasEndTag, playlistStartTimeUs != 0,
-        drmInitData, initializationSegment, segments);
+    return new HlsMediaPlaylist(
+        playlistType,
+        baseUri,
+        tags,
+        startOffsetUs,
+        playlistStartTimeUs,
+        hasDiscontinuitySequence,
+        playlistDiscontinuitySequence,
+        mediaSequence,
+        version,
+        targetDurationUs,
+        hasIndependentSegmentsTag,
+        hasEndTag,
+        /* hasProgramDateTime= */ playlistStartTimeUs != 0,
+        drmInitData,
+        segments);
   }
 
   private static SchemeData parseWidevineSchemeData(String line, String keyFormat)

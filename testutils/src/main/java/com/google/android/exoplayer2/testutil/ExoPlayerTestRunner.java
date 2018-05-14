@@ -28,6 +28,8 @@ import com.google.android.exoplayer2.Renderer;
 import com.google.android.exoplayer2.RenderersFactory;
 import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.Timeline;
+import com.google.android.exoplayer2.analytics.AnalyticsCollector;
+import com.google.android.exoplayer2.analytics.AnalyticsListener;
 import com.google.android.exoplayer2.audio.AudioRendererEventListener;
 import com.google.android.exoplayer2.drm.DrmSessionManager;
 import com.google.android.exoplayer2.drm.FrameworkMediaCrypto;
@@ -36,7 +38,6 @@ import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.text.TextOutput;
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
-import com.google.android.exoplayer2.trackselection.MappingTrackSelector;
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
 import com.google.android.exoplayer2.trackselection.TrackSelector;
 import com.google.android.exoplayer2.util.Clock;
@@ -78,7 +79,7 @@ public final class ExoPlayerTestRunner extends Player.DefaultEventListener
     private Timeline timeline;
     private Object manifest;
     private MediaSource mediaSource;
-    private MappingTrackSelector trackSelector;
+    private DefaultTrackSelector trackSelector;
     private LoadControl loadControl;
     private Format[] supportedFormats;
     private Renderer[] renderers;
@@ -87,6 +88,7 @@ public final class ExoPlayerTestRunner extends Player.DefaultEventListener
     private Player.EventListener eventListener;
     private VideoRendererEventListener videoRendererEventListener;
     private AudioRendererEventListener audioRendererEventListener;
+    private AnalyticsListener analyticsListener;
     private Integer expectedPlayerEndedCount;
 
     /**
@@ -137,13 +139,13 @@ public final class ExoPlayerTestRunner extends Player.DefaultEventListener
     }
 
     /**
-     * Sets a {@link MappingTrackSelector} to be used by the test runner. The default value is a
-     * {@link DefaultTrackSelector}.
+     * Sets a {@link DefaultTrackSelector} to be used by the test runner. The default value is a
+     * {@link DefaultTrackSelector} in its initial configuration.
      *
-     * @param trackSelector A {@link MappingTrackSelector} to be used by the test runner.
+     * @param trackSelector A {@link DefaultTrackSelector} to be used by the test runner.
      * @return This builder.
      */
-    public Builder setTrackSelector(MappingTrackSelector trackSelector) {
+    public Builder setTrackSelector(DefaultTrackSelector trackSelector) {
       this.trackSelector = trackSelector;
       return this;
     }
@@ -263,6 +265,17 @@ public final class ExoPlayerTestRunner extends Player.DefaultEventListener
     }
 
     /**
+     * Sets an {@link AnalyticsListener} to be registered.
+     *
+     * @param analyticsListener An {@link AnalyticsListener} to be registered.
+     * @return This builder.
+     */
+    public Builder setAnalyticsListener(AnalyticsListener analyticsListener) {
+      this.analyticsListener = analyticsListener;
+      return this;
+    }
+
+    /**
      * Sets the number of times the test runner is expected to reach the {@link Player#STATE_ENDED}
      * or {@link Player#STATE_IDLE}. The default is 1. This affects how long
      * {@link ExoPlayerTestRunner#blockUntilEnded(long)} waits.
@@ -331,6 +344,7 @@ public final class ExoPlayerTestRunner extends Player.DefaultEventListener
           eventListener,
           videoRendererEventListener,
           audioRendererEventListener,
+          analyticsListener,
           expectedPlayerEndedCount);
     }
   }
@@ -338,12 +352,13 @@ public final class ExoPlayerTestRunner extends Player.DefaultEventListener
   private final Clock clock;
   private final MediaSource mediaSource;
   private final RenderersFactory renderersFactory;
-  private final MappingTrackSelector trackSelector;
+  private final DefaultTrackSelector trackSelector;
   private final LoadControl loadControl;
   private final @Nullable ActionSchedule actionSchedule;
   private final @Nullable Player.EventListener eventListener;
   private final @Nullable VideoRendererEventListener videoRendererEventListener;
   private final @Nullable AudioRendererEventListener audioRendererEventListener;
+  private final @Nullable AnalyticsListener analyticsListener;
 
   private final HandlerThread playerThread;
   private final HandlerWrapper handler;
@@ -364,12 +379,13 @@ public final class ExoPlayerTestRunner extends Player.DefaultEventListener
       Clock clock,
       MediaSource mediaSource,
       RenderersFactory renderersFactory,
-      MappingTrackSelector trackSelector,
+      DefaultTrackSelector trackSelector,
       LoadControl loadControl,
       @Nullable ActionSchedule actionSchedule,
       @Nullable Player.EventListener eventListener,
       @Nullable VideoRendererEventListener videoRendererEventListener,
       @Nullable AudioRendererEventListener audioRendererEventListener,
+      @Nullable AnalyticsListener analyticsListener,
       int expectedPlayerEndedCount) {
     this.clock = clock;
     this.mediaSource = mediaSource;
@@ -380,6 +396,7 @@ public final class ExoPlayerTestRunner extends Player.DefaultEventListener
     this.eventListener = eventListener;
     this.videoRendererEventListener = videoRendererEventListener;
     this.audioRendererEventListener = audioRendererEventListener;
+    this.analyticsListener = analyticsListener;
     this.timelines = new ArrayList<>();
     this.manifests = new ArrayList<>();
     this.timelineChangeReasons = new ArrayList<>();
@@ -417,6 +434,9 @@ public final class ExoPlayerTestRunner extends Player.DefaultEventListener
               }
               if (audioRendererEventListener != null) {
                 player.addAudioDebugListener(audioRendererEventListener);
+              }
+              if (analyticsListener != null) {
+                player.addAnalyticsListener(analyticsListener);
               }
               player.setPlayWhenReady(true);
               if (actionSchedule != null) {
@@ -637,7 +657,13 @@ public final class ExoPlayerTestRunner extends Player.DefaultEventListener
         TrackSelector trackSelector,
         LoadControl loadControl,
         Clock clock) {
-      super(renderersFactory, trackSelector, loadControl, /* drmSessionManager= */ null, clock);
+      super(
+          renderersFactory,
+          trackSelector,
+          loadControl,
+          /* drmSessionManager= */ null,
+          new AnalyticsCollector.Factory(),
+          clock);
     }
   }
 }

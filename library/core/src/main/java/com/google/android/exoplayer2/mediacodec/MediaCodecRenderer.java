@@ -129,7 +129,10 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
    */
   private static final long MAX_CODEC_HOTSWAP_TIME_MS = 1000;
 
-  /** The possible return values for {@link #canKeepCodec(MediaCodec, boolean, Format, Format)}. */
+  /**
+   * The possible return values for {@link #canKeepCodec(MediaCodec, MediaCodecInfo, Format,
+   * Format)}.
+   */
   @Retention(RetentionPolicy.SOURCE)
   @IntDef({
     KEEP_CODEC_RESULT_NO,
@@ -885,7 +888,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
 
     boolean keepingCodec = false;
     if (pendingDrmSession == drmSession && codec != null) {
-      switch (canKeepCodec(codec, codecInfo.adaptive, oldFormat, format)) {
+      switch (canKeepCodec(codec, codecInfo, oldFormat, format)) {
         case KEEP_CODEC_RESULT_NO:
           // Do nothing.
           break;
@@ -962,13 +965,13 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
    * <p>The default implementation returns {@link #KEEP_CODEC_RESULT_NO}.
    *
    * @param codec The existing {@link MediaCodec} instance.
-   * @param codecIsAdaptive Whether the codec is adaptive.
+   * @param codecInfo A {@link MediaCodecInfo} describing the decoder.
    * @param oldFormat The format for which the existing instance is configured.
    * @param newFormat The new format.
    * @return Whether the instance can be kept, and if it can whether it requires reconfiguration.
    */
   protected @KeepCodecResult int canKeepCodec(
-      MediaCodec codec, boolean codecIsAdaptive, Format oldFormat, Format newFormat) {
+      MediaCodec codec, MediaCodecInfo codecInfo, Format oldFormat, Format newFormat) {
     return KEEP_CODEC_RESULT_NO;
   }
 
@@ -1027,7 +1030,8 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
           shouldSkipAdaptationWorkaroundOutputBuffer = false;
           codec.releaseOutputBuffer(outputIndex, false);
           return true;
-        } else if ((outputBufferInfo.flags & MediaCodec.BUFFER_FLAG_END_OF_STREAM) != 0) {
+        } else if (outputBufferInfo.size == 0
+            && (outputBufferInfo.flags & MediaCodec.BUFFER_FLAG_END_OF_STREAM) != 0) {
           // The dequeued buffer indicates the end of the stream. Process it immediately.
           processEndOfStream();
           return false;
@@ -1094,8 +1098,12 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
 
     if (processedOutputBuffer) {
       onProcessedOutputBuffer(outputBufferInfo.presentationTimeUs);
+      boolean isEndOfStream = (outputBufferInfo.flags & MediaCodec.BUFFER_FLAG_END_OF_STREAM) != 0;
       resetOutputBuffer();
-      return true;
+      if (!isEndOfStream) {
+        return true;
+      }
+      processEndOfStream();
     }
 
     return false;

@@ -37,7 +37,7 @@ public final class DeferredMediaPeriod implements MediaPeriod, MediaPeriod.Callb
     /**
      * Called the first time an error occurs while refreshing source info or preparing the period.
      */
-    void onPrepareError(IOException exception);
+    void onPrepareError(MediaPeriodId mediaPeriodId, IOException exception);
   }
 
   public final MediaSource mediaSource;
@@ -140,7 +140,7 @@ public final class DeferredMediaPeriod implements MediaPeriod, MediaPeriod.Callb
       }
       if (!notifiedPrepareError) {
         notifiedPrepareError = true;
-        listener.onPrepareError(e);
+        listener.onPrepareError(id, e);
       }
     }
   }

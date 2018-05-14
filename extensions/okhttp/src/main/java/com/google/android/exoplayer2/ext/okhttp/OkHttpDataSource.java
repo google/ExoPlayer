@@ -170,7 +170,7 @@ public class OkHttpDataSource implements HttpDataSource {
 
     // Check for a valid response code.
     if (!response.isSuccessful()) {
-      Map<String, List<String>> headers = request.headers().toMultimap();
+      Map<String, List<String>> headers = response.headers().toMultimap();
       closeConnectionQuietly();
       InvalidResponseCodeException exception = new InvalidResponseCodeException(
           responseCode, headers, dataSpec);
@@ -325,7 +325,7 @@ public class OkHttpDataSource implements HttpDataSource {
     while (bytesSkipped != bytesToSkip) {
       int readLength = (int) Math.min(bytesToSkip - bytesSkipped, skipBuffer.length);
       int read = responseByteStream.read(skipBuffer, 0, readLength);
-      if (Thread.interrupted()) {
+      if (Thread.currentThread().isInterrupted()) {
         throw new InterruptedIOException();
       }
       if (read == -1) {

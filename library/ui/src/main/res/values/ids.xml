@@ -33,5 +33,7 @@
   <item name="exo_duration" type="id"/>
   <item name="exo_position" type="id"/>
   <item name="exo_progress" type="id"/>
+  <item name="exo_buffering" type="id"/>
+  <item name="exo_error_message" type="id"/>
 
 </resources>

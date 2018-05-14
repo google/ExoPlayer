@@ -15,7 +15,7 @@
  */
 package com.google.android.exoplayer2.upstream.cache;
 
-import com.google.android.exoplayer2.C;
+import android.support.annotation.Nullable;
 import com.google.android.exoplayer2.upstream.cache.Cache.CacheException;
 import com.google.android.exoplayer2.util.Assertions;
 import java.io.DataInputStream;
@@ -56,7 +56,9 @@ import java.util.TreeSet;
     CachedContent cachedContent = new CachedContent(id, key);
     if (version < VERSION_METADATA_INTRODUCED) {
       long length = input.readLong();
-      cachedContent.setLength(length);
+      ContentMetadataMutations mutations = new ContentMetadataMutations();
+      ContentMetadataInternal.setContentLength(mutations, length);
+      cachedContent.applyMetadataMutations(mutations);
     } else {
       cachedContent.metadata = DefaultContentMetadata.readFromStream(input);
     }
@@ -101,20 +103,7 @@ import java.util.TreeSet;
   public boolean applyMetadataMutations(ContentMetadataMutations mutations) {
     DefaultContentMetadata oldMetadata = metadata;
     metadata = metadata.copyWithMutationsApplied(mutations);
-    return metadata.equals(oldMetadata);
-  }
-
-  /**
-   * Returns the length of the original stream, or {@link C#LENGTH_UNSET} if the length is unknown.
-   */
-  public long getLength() {
-    return metadata.get(ContentMetadata.METADATA_NAME_LENGTH, C.LENGTH_UNSET);
-  }
-
-  /** Sets the length of the content. */
-  public void setLength(long length) {
-    applyMetadataMutations(
-        new ContentMetadataMutations().set(ContentMetadata.METADATA_NAME_LENGTH, length));
+    return !metadata.equals(oldMetadata);
   }
 
   /** Returns whether the content is locked. */
@@ -232,7 +221,7 @@ import java.util.TreeSet;
     int result = id;
     result = 31 * result + key.hashCode();
     if (version < VERSION_METADATA_INTRODUCED) {
-      long length = getLength();
+      long length = ContentMetadataInternal.getContentLength(metadata);
       result = 31 * result + (int) (length ^ (length >>> 32));
     } else {
       result = 31 * result + metadata.hashCode();
@@ -248,7 +237,7 @@ import java.util.TreeSet;
   }
 
   @Override
-  public boolean equals(Object o) {
+  public boolean equals(@Nullable Object o) {
     if (this == o) {
       return true;
     }

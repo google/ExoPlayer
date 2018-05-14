@@ -195,7 +195,7 @@ public final class DrmInitData implements Comparator<SchemeData>, Parcelable {
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(@Nullable Object obj) {
     if (this == obj) {
       return true;
     }
@@ -338,7 +338,7 @@ public final class DrmInitData implements Comparator<SchemeData>, Parcelable {
     }
 
     @Override
-    public boolean equals(Object obj) {
+    public boolean equals(@Nullable Object obj) {
       if (!(obj instanceof SchemeData)) {
         return false;
       }
