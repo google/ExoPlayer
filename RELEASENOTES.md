@@ -8,6 +8,8 @@
   * Add `PlayerView.setKeepContentOnPlayerReset` to keep the currently displayed
     video frame or media artwork visible when the player is reset
     ([#2843](https://github.com/google/ExoPlayer/issues/2843)).
+* Fix crash when switching surface on Moto E(4)
+  ([#4134](https://github.com/google/ExoPlayer/issues/4134)).
 
 ### 2.8.0 ###
 
