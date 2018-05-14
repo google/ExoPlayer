@@ -44,8 +44,16 @@ class FLACParser {
     return mStreamInfo;
   }
 
-  int64_t getLastTimestamp() const {
+  int64_t getLastFrameTimestamp() const {
     return (1000000LL * mWriteHeader.number.sample_number) / getSampleRate();
+  }
+
+  int64_t getLastFrameFirstSampleIndex() const {
+    return mWriteHeader.number.sample_number;
+  }
+
+  int64_t getNextFrameFirstSampleIndex() const {
+    return mWriteHeader.number.sample_number + mWriteHeader.blocksize;
   }
 
   bool decodeMetadata();
@@ -81,6 +89,11 @@ class FLACParser {
 
   const char *getDecoderStateString() {
     return FLAC__stream_decoder_get_resolved_state_string(mDecoder);
+  }
+
+  bool isDecoderAtEndOfStream() const {
+    return FLAC__stream_decoder_get_state(mDecoder) ==
+           FLAC__STREAM_DECODER_END_OF_STREAM;
   }
 
  private:
