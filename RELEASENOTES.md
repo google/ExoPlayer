@@ -4,6 +4,7 @@
 
 * OkHttp extension: Fix to correctly include response headers in thrown
   `InvalidResponseCodeException`s.
+* Add possibility to cancel `PlayerMessage`s.
 * UI components:
   * Add `PlayerView.setKeepContentOnPlayerReset` to keep the currently displayed
     video frame or media artwork visible when the player is reset
