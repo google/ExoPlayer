@@ -11,6 +11,8 @@
     ([#2843](https://github.com/google/ExoPlayer/issues/2843)).
 * Fix crash when switching surface on Moto E(4)
   ([#4134](https://github.com/google/ExoPlayer/issues/4134)).
+* Audio: Fix extraction of PCM in MP4/MOV
+  ([#4228](https://github.com/google/ExoPlayer/issues/4228)).
 
 ### 2.8.0 ###
 
