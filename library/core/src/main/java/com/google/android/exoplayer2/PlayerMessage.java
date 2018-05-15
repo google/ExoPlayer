@@ -63,6 +63,7 @@ public final class PlayerMessage {
   private boolean isSent;
   private boolean isDelivered;
   private boolean isProcessed;
+  private boolean isCanceled;
 
   /**
    * Creates a new message.
@@ -240,6 +241,24 @@ public final class PlayerMessage {
     isSent = true;
     sender.sendMessage(this);
     return this;
+  }
+
+  /**
+   * Cancels the message delivery.
+   *
+   * @return This message.
+   * @throws IllegalStateException If this method is called before {@link #send()}.
+   */
+  public synchronized PlayerMessage cancel() {
+    Assertions.checkState(isSent);
+    isCanceled = true;
+    markAsProcessed(/* isDelivered= */ false);
+    return this;
+  }
+
+  /** Returns whether the message delivery has been canceled. */
+  public synchronized boolean isCanceled() {
+    return isCanceled;
   }
 
   /**
