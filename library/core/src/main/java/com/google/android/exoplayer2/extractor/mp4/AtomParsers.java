@@ -189,11 +189,13 @@ import java.util.List;
       }
     }
 
-    // True if we can rechunk fixed-sample-size data. Note that we only rechunk raw audio.
-    boolean isRechunkable = sampleSizeBox.isFixedSampleSize()
-        && MimeTypes.AUDIO_RAW.equals(track.format.sampleMimeType)
-        && remainingTimestampDeltaChanges == 0 && remainingTimestampOffsetChanges == 0
-        && remainingSynchronizationSamples == 0;
+    // Fixed sample size raw audio may need to be rechunked.
+    boolean isFixedSampleSizeRawAudio =
+        sampleSizeBox.isFixedSampleSize()
+            && MimeTypes.AUDIO_RAW.equals(track.format.sampleMimeType)
+            && remainingTimestampDeltaChanges == 0
+            && remainingTimestampOffsetChanges == 0
+            && remainingSynchronizationSamples == 0;
 
     long[] offsets;
     int[] sizes;
@@ -203,7 +205,7 @@ import java.util.List;
     long timestampTimeUnits = 0;
     long duration;
 
-    if (!isRechunkable) {
+    if (!isFixedSampleSizeRawAudio) {
       offsets = new long[sampleCount];
       sizes = new int[sampleCount];
       timestamps = new long[sampleCount];
@@ -296,7 +298,8 @@ import java.util.List;
         chunkOffsetsBytes[chunkIterator.index] = chunkIterator.offset;
         chunkSampleCounts[chunkIterator.index] = chunkIterator.numSamples;
       }
-      int fixedSampleSize = sampleSizeBox.readNextSampleSize();
+      int fixedSampleSize =
+          Util.getPcmFrameSize(track.format.pcmEncoding, track.format.channelCount);
       FixedSampleSizeRechunker.Results rechunkedResults = FixedSampleSizeRechunker.rechunk(
           fixedSampleSize, chunkOffsetsBytes, chunkSampleCounts, timestampDeltaInTimeUnits);
       offsets = rechunkedResults.offsets;
@@ -1224,7 +1227,7 @@ import java.util.List;
       stsc.setPosition(Atom.FULL_HEADER_SIZE);
       remainingSamplesPerChunkChanges = stsc.readUnsignedIntToInt();
       Assertions.checkState(stsc.readInt() == 1, "first_chunk must be 1");
-      index = C.INDEX_UNSET;
+      index = -1;
     }
 
     public boolean moveNext() {
