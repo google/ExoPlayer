@@ -13,6 +13,9 @@
   ([#4134](https://github.com/google/ExoPlayer/issues/4134)).
 * Audio: Fix extraction of PCM in MP4/MOV
   ([#4228](https://github.com/google/ExoPlayer/issues/4228)).
+* HLS:
+  * Fix playback of livestreams with EXT-X-PROGRAM-DATE-TIME tags
+    ([#4239](https://github.com/google/ExoPlayer/issues/4239)).
 
 ### 2.8.0 ###
 

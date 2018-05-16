@@ -208,7 +208,10 @@ public final class HlsPlaylistTracker implements Loader.Callback<ParsingLoadable
     return snapshot;
   }
 
-  /** Returns the start time of the first loaded primary playlist. */
+  /**
+   * Returns the start time of the first loaded primary playlist, or {@link C#TIME_UNSET} if no
+   * media playlist has been loaded.
+   */
   public long getInitialStartTimeUs() {
     return initialStartTimeUs;
   }
