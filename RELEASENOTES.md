@@ -11,8 +11,11 @@
     ([#2843](https://github.com/google/ExoPlayer/issues/2843)).
 * Fix crash when switching surface on Moto E(4)
   ([#4134](https://github.com/google/ExoPlayer/issues/4134)).
-* Audio: Fix extraction of PCM in MP4/MOV
-  ([#4228](https://github.com/google/ExoPlayer/issues/4228)).
+* Audio:
+  * Fix extraction of PCM in MP4/MOV
+    ([#4228](https://github.com/google/ExoPlayer/issues/4228)).
+  * FLAC: Supports seeking for FLAC files without SEEKTABLE
+    ([#1808](https://github.com/google/ExoPlayer/issues/1808)).
 * HLS:
   * Fix playback of livestreams with EXT-X-PROGRAM-DATE-TIME tags
     ([#4239](https://github.com/google/ExoPlayer/issues/4239)).
