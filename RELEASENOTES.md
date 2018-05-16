@@ -20,8 +20,11 @@
   * Fix playback of livestreams with EXT-X-PROGRAM-DATE-TIME tags
     ([#4239](https://github.com/google/ExoPlayer/issues/4239)).
 * Caption:
-  * Fix a TTML styling issue when there are multiple regions displayed at the
-    same time that can make text size of each region much smaller than defined.
+  * TTML:
+    * Fix a styling issue when there are multiple regions displayed at the same
+      time that can make text size of each region much smaller than defined.
+    * Fix an issue when the caption line has no text (empty line or only line
+      break), and the line's background is still displayed.
 
 ### 2.8.0 ###
 
