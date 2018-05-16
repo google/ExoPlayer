@@ -372,12 +372,22 @@ import com.google.android.exoplayer2.util.Util;
       float previousBottom = layout.getLineTop(0);
       int lineCount = layout.getLineCount();
       for (int i = 0; i < lineCount; i++) {
-        lineBounds.left = layout.getLineLeft(i) - textPaddingX;
-        lineBounds.right = layout.getLineRight(i) + textPaddingX;
+        float lineTextBoundLeft = layout.getLineLeft(i);
+        float lineTextBoundRight = layout.getLineRight(i);
+        lineBounds.left = lineTextBoundLeft - textPaddingX;
+        lineBounds.right = lineTextBoundRight + textPaddingX;
         lineBounds.top = previousBottom;
         lineBounds.bottom = layout.getLineBottom(i);
         previousBottom = lineBounds.bottom;
-        canvas.drawRoundRect(lineBounds, cornerRadius, cornerRadius, paint);
+        float lineTextWidth = lineTextBoundRight - lineTextBoundLeft;
+        if (lineTextWidth > 0) {
+          // Do not draw a line's background color if it has no text.
+          // For some reason, calculating the width manually is more reliable than
+          // layout.getLineWidth().
+          // Sometimes, lineTextBoundRight == lineTextBoundLeft, and layout.getLineWidth() still
+          // returns non-zero value.
+          canvas.drawRoundRect(lineBounds, cornerRadius, cornerRadius, paint);
+        }
       }
     }
 
