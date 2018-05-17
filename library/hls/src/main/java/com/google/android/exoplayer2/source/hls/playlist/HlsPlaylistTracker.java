@@ -570,7 +570,8 @@ public final class HlsPlaylistTracker implements Loader.Callback<ParsingLoadable
       eventDispatcher.loadError(loadable.dataSpec, C.DATA_TYPE_MANIFEST, elapsedRealtimeMs,
           loadDurationMs, loadable.bytesLoaded(), error, isFatal);
       boolean shouldBlacklist = ChunkedTrackBlacklistUtil.shouldBlacklist(error);
-      boolean shouldRetryIfNotFatal = notifyPlaylistError(playlistUrl, shouldBlacklist);
+      boolean shouldRetryIfNotFatal =
+          notifyPlaylistError(playlistUrl, shouldBlacklist) || !shouldBlacklist;
       if (isFatal) {
         return Loader.DONT_RETRY_FATAL;
       }
