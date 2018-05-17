@@ -25,6 +25,8 @@
       time that can make text size of each region much smaller than defined.
     * Fix an issue when the caption line has no text (empty line or only line
       break), and the line's background is still displayed.
+    * Support TTML font size using % correctly (as percentage of document cell
+      resolution).
 
 ### 2.8.0 ###
 
@@ -101,7 +103,7 @@
   * Allow multiple listeners for `DefaultDrmSessionManager`.
   * Pass `DrmSessionManager` to `ExoPlayerFactory` instead of `RendererFactory`.
   * Change minimum API requirement for CBC and pattern encryption from 24 to 25
-    ([#4022][https://github.com/google/ExoPlayer/issues/4022]).
+    ([#4022](https://github.com/google/ExoPlayer/issues/4022)).
   * Fix handling of 307/308 redirects when making license requests
     ([#4108](https://github.com/google/ExoPlayer/issues/4108)).
 * HLS:

@@ -179,8 +179,18 @@ import java.util.TreeSet;
     List<Cue> cues = new ArrayList<>();
     for (Entry<String, SpannableStringBuilder> entry : regionOutputs.entrySet()) {
       TtmlRegion region = regionMap.get(entry.getKey());
-      cues.add(new Cue(cleanUpText(entry.getValue()), null, region.line, region.lineType,
-          region.lineAnchor, region.position, Cue.TYPE_UNSET, region.width));
+      cues.add(
+          new Cue(
+              cleanUpText(entry.getValue()),
+              /* textAlignment= */ null,
+              region.line,
+              region.lineType,
+              region.lineAnchor,
+              region.position,
+              /* positionAnchor= */ Cue.TYPE_UNSET,
+              region.width,
+              region.textSizeType,
+              region.textSize));
     }
     return cues;
   }
