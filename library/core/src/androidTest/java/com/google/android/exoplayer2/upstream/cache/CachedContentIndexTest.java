@@ -19,7 +19,8 @@ import static com.google.common.truth.Truth.assertThat;
 import static com.google.common.truth.Truth.assertWithMessage;
 
 import android.net.Uri;
-import android.test.InstrumentationTestCase;
+import android.support.test.InstrumentationRegistry;
+import android.support.test.runner.AndroidJUnit4;
 import android.util.SparseArray;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.util.Util;
@@ -29,9 +30,14 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.Set;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 
 /** Tests {@link CachedContentIndex}. */
-public class CachedContentIndexTest extends InstrumentationTestCase {
+@RunWith(AndroidJUnit4.class)
+public class CachedContentIndexTest {
 
   private final byte[] testIndexV1File = {
       0, 0, 0, 1, // version
@@ -70,19 +76,19 @@ public class CachedContentIndexTest extends InstrumentationTestCase {
   private CachedContentIndex index;
   private File cacheDir;
 
-  @Override
+  @Before
   public void setUp() throws Exception {
-    super.setUp();
-    cacheDir = Util.createTempDirectory(getInstrumentation().getContext(), "ExoPlayerTest");
+    cacheDir =
+        Util.createTempDirectory(InstrumentationRegistry.getTargetContext(), "ExoPlayerTest");
     index = new CachedContentIndex(cacheDir);
   }
 
-  @Override
-  protected void tearDown() throws Exception {
+  @After
+  public void tearDown() {
     Util.recursiveDelete(cacheDir);
-    super.tearDown();
   }
 
+  @Test
   public void testAddGetRemove() throws Exception {
     final String key1 = "key1";
     final String key2 = "key2";
@@ -132,10 +138,12 @@ public class CachedContentIndexTest extends InstrumentationTestCase {
     assertThat(cacheSpanFile.exists()).isTrue();
   }
 
+  @Test
   public void testStoreAndLoad() throws Exception {
     assertStoredAndLoadedEqual(index, new CachedContentIndex(cacheDir));
   }
 
+  @Test
   public void testLoadV1() throws Exception {
     FileOutputStream fos = new FileOutputStream(new File(cacheDir, CachedContentIndex.FILE_NAME));
     fos.write(testIndexV1File);
@@ -153,6 +161,7 @@ public class CachedContentIndexTest extends InstrumentationTestCase {
     assertThat(ContentMetadataInternal.getContentLength(metadata2)).isEqualTo(2560);
   }
 
+  @Test
   public void testLoadV2() throws Exception {
     FileOutputStream fos = new FileOutputStream(new File(cacheDir, CachedContentIndex.FILE_NAME));
     fos.write(testIndexV2File);
@@ -171,7 +180,8 @@ public class CachedContentIndexTest extends InstrumentationTestCase {
     assertThat(ContentMetadataInternal.getContentLength(metadata2)).isEqualTo(2560);
   }
 
-  public void testAssignIdForKeyAndGetKeyForId() throws Exception {
+  @Test
+  public void testAssignIdForKeyAndGetKeyForId() {
     final String key1 = "key1";
     final String key2 = "key2";
     int id1 = index.assignIdForKey(key1);
@@ -183,7 +193,8 @@ public class CachedContentIndexTest extends InstrumentationTestCase {
     assertThat(index.assignIdForKey(key2)).isEqualTo(id2);
   }
 
-  public void testGetNewId() throws Exception {
+  @Test
+  public void testGetNewId() {
     SparseArray<String> idToKey = new SparseArray<>();
     assertThat(CachedContentIndex.getNewId(idToKey)).isEqualTo(0);
     idToKey.put(10, "");
@@ -194,6 +205,7 @@ public class CachedContentIndexTest extends InstrumentationTestCase {
     assertThat(CachedContentIndex.getNewId(idToKey)).isEqualTo(1);
   }
 
+  @Test
   public void testEncryption() throws Exception {
     byte[] key = "Bar12345Bar12345".getBytes(C.UTF8_NAME); // 128 bit key
     byte[] key2 = "Foo12345Foo12345".getBytes(C.UTF8_NAME); // 128 bit key
@@ -250,7 +262,8 @@ public class CachedContentIndexTest extends InstrumentationTestCase {
     assertStoredAndLoadedEqual(index, new CachedContentIndex(cacheDir, key));
   }
 
-  public void testRemoveEmptyNotLockedCachedContent() throws Exception {
+  @Test
+  public void testRemoveEmptyNotLockedCachedContent() {
     CachedContent cachedContent = index.getOrAdd("key1");
 
     index.maybeRemove(cachedContent.key);
@@ -258,6 +271,7 @@ public class CachedContentIndexTest extends InstrumentationTestCase {
     assertThat(index.get(cachedContent.key)).isNull();
   }
 
+  @Test
   public void testCantRemoveNotEmptyCachedContent() throws Exception {
     CachedContent cachedContent = index.getOrAdd("key1");
     File cacheSpanFile =
@@ -270,7 +284,8 @@ public class CachedContentIndexTest extends InstrumentationTestCase {
     assertThat(index.get(cachedContent.key)).isNotNull();
   }
 
-  public void testCantRemoveLockedCachedContent() throws Exception {
+  @Test
+  public void testCantRemoveLockedCachedContent() {
     CachedContent cachedContent = index.getOrAdd("key1");
     cachedContent.setLocked(true);
 
