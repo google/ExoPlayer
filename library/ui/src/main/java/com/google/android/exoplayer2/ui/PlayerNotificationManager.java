@@ -797,7 +797,7 @@ public class PlayerNotificationManager {
    * @param largeIcon The large icon to be used.
    * @return The {@link Notification} which has been built.
    */
-  protected Notification createNotification(Player player, @Nullable Bitmap largeIcon) {
+  public Notification createNotification(Player player, @Nullable Bitmap largeIcon) {
     boolean isPlayingAd = player.isPlayingAd();
     NotificationCompat.Builder builder = new NotificationCompat.Builder(context, channelId);
     List<String> actionNames = getActions(player);
