@@ -42,15 +42,11 @@ android {
         //    testCoverageEnabled = true
         // }
     }
-
-    lintOptions {
-        lintConfig file("../../checker-framework-lint.xml")
-    }
 }
 
 dependencies {
     implementation 'com.android.support:support-annotations:' + supportLibraryVersion
-    implementation 'org.checkerframework:checker-qual:' + checkerframeworkVersion
+    compileOnly 'org.checkerframework:checker-qual:' + checkerframeworkVersion
     androidTestImplementation 'com.google.dexmaker:dexmaker:' + dexmakerVersion
     androidTestImplementation 'com.google.dexmaker:dexmaker-mockito:' + dexmakerVersion
     androidTestImplementation 'com.google.truth:truth:' + truthVersion

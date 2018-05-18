@@ -649,18 +649,18 @@ public final class ImaAdsLoader extends Player.DefaultEventListener implements A
 
   @Override
   public void loadAd(String adUriString) {
-    if (adGroupIndex == C.INDEX_UNSET) {
-      Log.w(
-          TAG,
-          "Unexpected loadAd without LOADED event; assuming ad group index is actually "
-              + expectedAdGroupIndex);
-      adGroupIndex = expectedAdGroupIndex;
-      adsManager.start();
-    }
-    if (DEBUG) {
-      Log.d(TAG, "loadAd in ad group " + adGroupIndex);
-    }
     try {
+      if (adGroupIndex == C.INDEX_UNSET) {
+        Log.w(
+            TAG,
+            "Unexpected loadAd without LOADED event; assuming ad group index is actually "
+                + expectedAdGroupIndex);
+        adGroupIndex = expectedAdGroupIndex;
+        adsManager.start();
+      }
+      if (DEBUG) {
+        Log.d(TAG, "loadAd in ad group " + adGroupIndex);
+      }
       int adIndexInAdGroup = getAdIndexInAdGroupToLoad(adGroupIndex);
       if (adIndexInAdGroup == C.INDEX_UNSET) {
         Log.w(TAG, "Unexpected loadAd in an ad group with no remaining unavailable ads");

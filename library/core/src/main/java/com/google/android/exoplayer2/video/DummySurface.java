@@ -15,29 +15,29 @@
  */
 package com.google.android.exoplayer2.video;
 
+import static com.google.android.exoplayer2.util.EGLSurfaceTexture.SECURE_MODE_NONE;
+import static com.google.android.exoplayer2.util.EGLSurfaceTexture.SECURE_MODE_PROTECTED_PBUFFER;
+import static com.google.android.exoplayer2.util.EGLSurfaceTexture.SECURE_MODE_SURFACELESS_CONTEXT;
+
 import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.graphics.SurfaceTexture;
-import android.graphics.SurfaceTexture.OnFrameAvailableListener;
 import android.opengl.EGL14;
-import android.opengl.EGLConfig;
-import android.opengl.EGLContext;
 import android.opengl.EGLDisplay;
-import android.opengl.EGLSurface;
-import android.opengl.GLES20;
 import android.os.Handler;
 import android.os.Handler.Callback;
 import android.os.HandlerThread;
 import android.os.Message;
-import android.support.annotation.IntDef;
+import android.support.annotation.Nullable;
 import android.util.Log;
 import android.view.Surface;
 import com.google.android.exoplayer2.util.Assertions;
+import com.google.android.exoplayer2.util.EGLSurfaceTexture;
+import com.google.android.exoplayer2.util.EGLSurfaceTexture.SecureMode;
 import com.google.android.exoplayer2.util.Util;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
 import javax.microedition.khronos.egl.EGL10;
+import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 /**
  * A dummy {@link Surface}.
@@ -49,16 +49,6 @@ public final class DummySurface extends Surface {
 
   private static final String EXTENSION_PROTECTED_CONTENT = "EGL_EXT_protected_content";
   private static final String EXTENSION_SURFACELESS_CONTEXT = "EGL_KHR_surfaceless_context";
-
-  private static final int EGL_PROTECTED_CONTENT_EXT = 0x32C0;
-
-  @Retention(RetentionPolicy.SOURCE)
-  @IntDef({SECURE_MODE_NONE, SECURE_MODE_SURFACELESS_CONTEXT, SECURE_MODE_PROTECTED_PBUFFER})
-  private @interface SecureMode {}
-
-  private static final int SECURE_MODE_NONE = 0;
-  private static final int SECURE_MODE_SURFACELESS_CONTEXT = 1;
-  private static final int SECURE_MODE_PROTECTED_PBUFFER = 2;
 
   /**
    * Whether the surface is secure.
@@ -161,32 +151,25 @@ public final class DummySurface extends Surface {
         : SECURE_MODE_PROTECTED_PBUFFER;
   }
 
-  private static class DummySurfaceThread extends HandlerThread implements OnFrameAvailableListener,
-      Callback {
+  private static class DummySurfaceThread extends HandlerThread implements Callback {
 
     private static final int MSG_INIT = 1;
-    private static final int MSG_UPDATE_TEXTURE = 2;
-    private static final int MSG_RELEASE = 3;
+    private static final int MSG_RELEASE = 2;
 
-    private final int[] textureIdHolder;
-    private EGLDisplay display;
-    private EGLContext context;
-    private EGLSurface pbuffer;
-    private Handler handler;
-    private SurfaceTexture surfaceTexture;
-
-    private Error initError;
-    private RuntimeException initException;
-    private DummySurface surface;
+    private @MonotonicNonNull EGLSurfaceTexture eglSurfaceTexure;
+    private @MonotonicNonNull Handler handler;
+    private @Nullable Error initError;
+    private @Nullable RuntimeException initException;
+    private @Nullable DummySurface surface;
 
     public DummySurfaceThread() {
       super("dummySurface");
-      textureIdHolder = new int[1];
     }
 
     public DummySurface init(@SecureMode int secureMode) {
       start();
-      handler = new Handler(getLooper(), this);
+      handler = new Handler(getLooper(), /* callback= */ this);
+      eglSurfaceTexure = new EGLSurfaceTexture(handler);
       boolean wasInterrupted = false;
       synchronized (this) {
         handler.obtainMessage(MSG_INIT, secureMode, 0).sendToTarget();
@@ -207,17 +190,13 @@ public final class DummySurface extends Surface {
       } else if (initError != null) {
         throw initError;
       } else {
-        return surface;
+        return Assertions.checkNotNull(surface);
       }
     }
 
     public void release() {
+      Assertions.checkNotNull(handler);
       handler.sendEmptyMessage(MSG_RELEASE);
-    }
-
-    @Override
-    public void onFrameAvailable(SurfaceTexture surfaceTexture) {
-      handler.sendEmptyMessage(MSG_UPDATE_TEXTURE);
     }
 
     @Override
@@ -238,9 +217,6 @@ public final class DummySurface extends Surface {
             }
           }
           return true;
-        case MSG_UPDATE_TEXTURE:
-          surfaceTexture.updateTexImage();
-          return true;
         case MSG_RELEASE:
           try {
             releaseInternal();
@@ -256,103 +232,16 @@ public final class DummySurface extends Surface {
     }
 
     private void initInternal(@SecureMode int secureMode) {
-      display = EGL14.eglGetDisplay(EGL14.EGL_DEFAULT_DISPLAY);
-      Assertions.checkState(display != null, "eglGetDisplay failed");
-
-      int[] version = new int[2];
-      boolean eglInitialized = EGL14.eglInitialize(display, version, 0, version, 1);
-      Assertions.checkState(eglInitialized, "eglInitialize failed");
-
-      int[] eglAttributes =
-          new int[] {
-            EGL14.EGL_RENDERABLE_TYPE, EGL14.EGL_OPENGL_ES2_BIT,
-            EGL14.EGL_RED_SIZE, 8,
-            EGL14.EGL_GREEN_SIZE, 8,
-            EGL14.EGL_BLUE_SIZE, 8,
-            EGL14.EGL_ALPHA_SIZE, 8,
-            EGL14.EGL_DEPTH_SIZE, 0,
-            EGL14.EGL_CONFIG_CAVEAT, EGL14.EGL_NONE,
-            EGL14.EGL_SURFACE_TYPE, EGL14.EGL_WINDOW_BIT,
-            EGL14.EGL_NONE
-          };
-      EGLConfig[] configs = new EGLConfig[1];
-      int[] numConfigs = new int[1];
-      boolean eglChooseConfigSuccess =
-          EGL14.eglChooseConfig(display, eglAttributes, 0, configs, 0, 1, numConfigs, 0);
-      Assertions.checkState(eglChooseConfigSuccess && numConfigs[0] > 0 && configs[0] != null,
-          "eglChooseConfig failed");
-
-      EGLConfig config = configs[0];
-      int[] glAttributes;
-      if (secureMode == SECURE_MODE_NONE) {
-        glAttributes = new int[] {EGL14.EGL_CONTEXT_CLIENT_VERSION, 2, EGL14.EGL_NONE};
-      } else {
-        glAttributes =
-            new int[] {
-              EGL14.EGL_CONTEXT_CLIENT_VERSION,
-              2,
-              EGL_PROTECTED_CONTENT_EXT,
-              EGL14.EGL_TRUE,
-              EGL14.EGL_NONE
-            };
-      }
-      context =
-          EGL14.eglCreateContext(
-              display, config, android.opengl.EGL14.EGL_NO_CONTEXT, glAttributes, 0);
-      Assertions.checkState(context != null, "eglCreateContext failed");
-
-      EGLSurface surface;
-      if (secureMode == SECURE_MODE_SURFACELESS_CONTEXT) {
-        surface = EGL14.EGL_NO_SURFACE;
-      } else {
-        int[] pbufferAttributes;
-        if (secureMode == SECURE_MODE_PROTECTED_PBUFFER) {
-          pbufferAttributes =
-              new int[] {
-                EGL14.EGL_WIDTH,
-                1,
-                EGL14.EGL_HEIGHT,
-                1,
-                EGL_PROTECTED_CONTENT_EXT,
-                EGL14.EGL_TRUE,
-                EGL14.EGL_NONE
-              };
-        } else {
-          pbufferAttributes = new int[] {EGL14.EGL_WIDTH, 1, EGL14.EGL_HEIGHT, 1, EGL14.EGL_NONE};
-        }
-        pbuffer = EGL14.eglCreatePbufferSurface(display, config, pbufferAttributes, 0);
-        Assertions.checkState(pbuffer != null, "eglCreatePbufferSurface failed");
-        surface = pbuffer;
-      }
-
-      boolean eglMadeCurrent = EGL14.eglMakeCurrent(display, surface, surface, context);
-      Assertions.checkState(eglMadeCurrent, "eglMakeCurrent failed");
-
-      GLES20.glGenTextures(1, textureIdHolder, 0);
-      surfaceTexture = new SurfaceTexture(textureIdHolder[0]);
-      surfaceTexture.setOnFrameAvailableListener(this);
-      this.surface = new DummySurface(this, surfaceTexture, secureMode != SECURE_MODE_NONE);
+      Assertions.checkNotNull(eglSurfaceTexure);
+      eglSurfaceTexure.init(secureMode);
+      this.surface =
+          new DummySurface(
+              this, eglSurfaceTexure.getSurfaceTexture(), secureMode != SECURE_MODE_NONE);
     }
 
     private void releaseInternal() {
-      try {
-        if (surfaceTexture != null) {
-          surfaceTexture.release();
-          GLES20.glDeleteTextures(1, textureIdHolder, 0);
-        }
-      } finally {
-        if (pbuffer != null) {
-          EGL14.eglDestroySurface(display, pbuffer);
-        }
-        if (context != null) {
-          EGL14.eglDestroyContext(display, context);
-        }
-        pbuffer = null;
-        context = null;
-        display = null;
-        surface = null;
-        surfaceTexture = null;
-      }
+      Assertions.checkNotNull(eglSurfaceTexure);
+      eglSurfaceTexure.release();
     }
 
   }

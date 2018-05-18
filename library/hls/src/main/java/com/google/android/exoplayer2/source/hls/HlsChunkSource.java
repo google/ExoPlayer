@@ -198,24 +198,24 @@ import java.util.List;
 
   /**
    * Returns the next chunk to load.
-   * <p>
-   * If a chunk is available then {@link HlsChunkHolder#chunk} is set. If the end of the stream has
-   * been reached then {@link HlsChunkHolder#endOfStream} is set. If a chunk is not available but
-   * the end of the stream has not been reached, {@link HlsChunkHolder#playlist} is set to
+   *
+   * <p>If a chunk is available then {@link HlsChunkHolder#chunk} is set. If the end of the stream
+   * has been reached then {@link HlsChunkHolder#endOfStream} is set. If a chunk is not available
+   * but the end of the stream has not been reached, {@link HlsChunkHolder#playlist} is set to
    * contain the {@link HlsUrl} that refers to the playlist that needs refreshing.
    *
    * @param previous The most recently loaded media chunk.
-   * @param playbackPositionUs The current playback position in microseconds. If playback of the
-   *     period to which this chunk source belongs has not yet started, the value will be the
-   *     starting position in the period minus the duration of any media in previous periods still
-   *     to be played.
-   * @param loadPositionUs The current load position in microseconds. If {@code previous} is null,
-   *     this is the starting position from which chunks should be provided. Else it's equal to
-   *     {@code previous.endTimeUs}.
+   * @param playbackPositionUs The current playback position relative to the period start in
+   *     microseconds. If playback of the period to which this chunk source belongs has not yet
+   *     started, the value will be the starting position in the period minus the duration of any
+   *     media in previous periods still to be played.
+   * @param loadPositionUs The current load position relative to the period start in microseconds.
+   *     If {@code previous} is null, this is the starting position from which chunks should be
+   *     provided. Else it's equal to {@code previous.endTimeUs}.
    * @param out A holder to populate.
    */
-  public void getNextChunk(HlsMediaChunk previous, long playbackPositionUs, long loadPositionUs,
-      HlsChunkHolder out) {
+  public void getNextChunk(
+      HlsMediaChunk previous, long playbackPositionUs, long loadPositionUs, HlsChunkHolder out) {
     int oldVariantIndex = previous == null ? C.INDEX_UNSET
         : trackGroup.indexOf(previous.trackFormat);
     long bufferedDurationUs = loadPositionUs - playbackPositionUs;
@@ -261,12 +261,13 @@ import java.util.List;
         // If the playlist is too old to contain the chunk, we need to refresh it.
         chunkMediaSequence = mediaPlaylist.mediaSequence + mediaPlaylist.segments.size();
       } else {
-        // The playlist start time is subtracted from the target position because the segment start
-        // times are relative to the start of the playlist, but the target position is not.
+        long positionOfPlaylistInPeriodUs =
+            mediaPlaylist.startTimeUs - playlistTracker.getInitialStartTimeUs();
+        long targetPositionInPlaylistUs = targetPositionUs - positionOfPlaylistInPeriodUs;
         chunkMediaSequence =
             Util.binarySearchFloor(
                     mediaPlaylist.segments,
-                    /* value= */ targetPositionUs - mediaPlaylist.startTimeUs,
+                    /* value= */ targetPositionInPlaylistUs,
                     /* inclusive= */ true,
                     /* stayInBounds= */ !playlistTracker.isLive() || previous == null)
                 + mediaPlaylist.mediaSequence;
@@ -330,9 +331,9 @@ import java.util.List;
     }
 
     // Compute start time of the next chunk.
-    long offsetFromInitialStartTimeUs =
+    long positionOfPlaylistInPeriodUs =
         mediaPlaylist.startTimeUs - playlistTracker.getInitialStartTimeUs();
-    long startTimeUs = offsetFromInitialStartTimeUs + segment.relativeStartTimeUs;
+    long segmentStartTimeInPeriodUs = positionOfPlaylistInPeriodUs + segment.relativeStartTimeUs;
     int discontinuitySequence = mediaPlaylist.discontinuitySequence
         + segment.relativeDiscontinuitySequence;
     TimestampAdjuster timestampAdjuster = timestampAdjusterProvider.getAdjuster(
@@ -352,8 +353,8 @@ import java.util.List;
             muxedCaptionFormats,
             trackSelection.getSelectionReason(),
             trackSelection.getSelectionData(),
-            startTimeUs,
-            startTimeUs + segment.durationUs,
+            segmentStartTimeInPeriodUs,
+            segmentStartTimeInPeriodUs + segment.durationUs,
             chunkMediaSequence,
             discontinuitySequence,
             segment.hasGapTag,

@@ -51,6 +51,7 @@
     <attr name="hide_during_ads" format="boolean"/>
     <attr name="auto_show" format="boolean"/>
     <attr name="show_buffering" format="boolean"/>
+    <attr name="keep_content_on_player_reset" format="boolean"/>
     <attr name="resize_mode"/>
     <attr name="surface_type"/>
     <attr name="player_layout_id"/>

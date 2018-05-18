@@ -15,7 +15,6 @@
  */
 package com.google.android.exoplayer2.upstream.cache;
 
-import android.util.Log;
 import android.util.SparseArray;
 import com.google.android.exoplayer2.upstream.cache.Cache.CacheException;
 import com.google.android.exoplayer2.util.Assertions;
@@ -26,7 +25,6 @@ import java.io.BufferedInputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -52,8 +50,6 @@ import javax.crypto.spec.SecretKeySpec;
   private static final int VERSION = 2;
 
   private static final int FLAG_ENCRYPTED_INDEX = 1;
-
-  private static final String TAG = "CachedContentIndex";
 
   private final HashMap<String, CachedContent> keyToContent;
   private final SparseArray<String> idToKey;
@@ -248,13 +244,12 @@ import javax.crypto.spec.SecretKeySpec;
         add(cachedContent);
         hashCode += cachedContent.headerHashCode(version);
       }
-      if (input.readInt() != hashCode) {
+      int fileHashCode = input.readInt();
+      boolean isEOF = input.read() == -1;
+      if (fileHashCode != hashCode || !isEOF) {
         return false;
       }
-    } catch (FileNotFoundException e) {
-      return false;
     } catch (IOException e) {
-      Log.e(TAG, "Error reading cache content index file.", e);
       return false;
     } finally {
       if (input != null) {
