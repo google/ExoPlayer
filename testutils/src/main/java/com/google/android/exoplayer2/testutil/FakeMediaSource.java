@@ -159,6 +159,11 @@ public class FakeMediaSource extends BaseMediaSource {
     }
   }
 
+  /** Asserts that the source has been prepared. */
+  public void assertPrepared() {
+    assertThat(preparedSource).isTrue();
+  }
+
   /**
    * Assert that the source and all periods have been released.
    */
