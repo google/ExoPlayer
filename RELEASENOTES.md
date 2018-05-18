@@ -11,6 +11,9 @@
     ([#2843](https://github.com/google/ExoPlayer/issues/2843)).
 * Fix crash when switching surface on Moto E(4)
   ([#4134](https://github.com/google/ExoPlayer/issues/4134)).
+* Fix a bug that could cause event listeners to be called with inconsistent
+  information if an event listener interacted with the player
+  ([#4262](https://github.com/google/ExoPlayer/issues/4262)).
 * Audio:
   * Fix extraction of PCM in MP4/MOV
     ([#4228](https://github.com/google/ExoPlayer/issues/4228)).
