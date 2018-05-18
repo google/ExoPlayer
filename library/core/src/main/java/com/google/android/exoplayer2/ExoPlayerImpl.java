@@ -193,6 +193,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
     if (this.playWhenReady != playWhenReady) {
       this.playWhenReady = playWhenReady;
       internalPlayer.setPlayWhenReady(playWhenReady);
+      PlaybackInfo playbackInfo = this.playbackInfo;
       for (Player.EventListener listener : listeners) {
         listener.onPlayerStateChanged(playWhenReady, playbackInfo.playbackState);
       }
@@ -570,7 +571,8 @@ import java.util.concurrent.CopyOnWriteArraySet;
         }
         break;
       case ExoPlayerImplInternal.MSG_ERROR:
-        playbackError = (ExoPlaybackException) msg.obj;
+        ExoPlaybackException playbackError = (ExoPlaybackException) msg.obj;
+        this.playbackError = playbackError;
         for (Player.EventListener listener : listeners) {
           listener.onPlayerError(playbackError);
         }
@@ -652,7 +654,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
     boolean playbackStateChanged = playbackInfo.playbackState != newPlaybackInfo.playbackState;
     boolean isLoadingChanged = playbackInfo.isLoading != newPlaybackInfo.isLoading;
     boolean trackSelectorResultChanged =
-        this.playbackInfo.trackSelectorResult != newPlaybackInfo.trackSelectorResult;
+        playbackInfo.trackSelectorResult != newPlaybackInfo.trackSelectorResult;
     playbackInfo = newPlaybackInfo;
     if (timelineOrManifestChanged || timelineChangeReason == TIMELINE_CHANGE_REASON_PREPARED) {
       for (Player.EventListener listener : listeners) {
