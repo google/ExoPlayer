@@ -397,6 +397,21 @@ public class PlayerNotificationManager {
   }
 
   /**
+   * Creates the notification given the current player state.
+   *
+   * @param largeIcon The large icon to be used.
+   * @return The {@link Notification} which has been built.
+   */
+  public Notification createNotification(@Nullable Bitmap largeIcon) {
+    if (player != null) {
+      Notification notification = createNotification(player, largeIcon);
+      notificationManager.notify(notificationId, notification);
+      return notification;
+    }
+    return null
+  }
+
+  /**
    * Sets the {@link Player}.
    *
    * <p>Setting the player starts a notification immediately unless the player is in {@link
