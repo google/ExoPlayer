@@ -22,6 +22,8 @@
 * HLS:
   * Fix playback of livestreams with EXT-X-PROGRAM-DATE-TIME tags
     ([#4239](https://github.com/google/ExoPlayer/issues/4239)).
+  * Fix playback of clipped streams starting from non-keyframe positions
+    ([#4241](https://github.com/google/ExoPlayer/issues/4241)).
 * Caption:
   * TTML:
     * Fix a styling issue when there are multiple regions displayed at the same
