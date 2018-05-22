@@ -2,6 +2,15 @@
 
 ### dev-v2 (not yet released) ###
 
+* Coming soon
+
+### 2.8.1 ###
+
+* HLS:
+  * Fix playback of livestreams with EXT-X-PROGRAM-DATE-TIME tags
+    ([#4239](https://github.com/google/ExoPlayer/issues/4239)).
+  * Fix playback of clipped streams starting from non-keyframe positions
+    ([#4241](https://github.com/google/ExoPlayer/issues/4241)).
 * OkHttp extension: Fix to correctly include response headers in thrown
   `InvalidResponseCodeException`s.
 * Add possibility to cancel `PlayerMessage`s.
@@ -19,12 +28,7 @@
     ([#4228](https://github.com/google/ExoPlayer/issues/4228)).
   * FLAC: Supports seeking for FLAC files without SEEKTABLE
     ([#1808](https://github.com/google/ExoPlayer/issues/1808)).
-* HLS:
-  * Fix playback of livestreams with EXT-X-PROGRAM-DATE-TIME tags
-    ([#4239](https://github.com/google/ExoPlayer/issues/4239)).
-  * Fix playback of clipped streams starting from non-keyframe positions
-    ([#4241](https://github.com/google/ExoPlayer/issues/4241)).
-* Caption:
+* Captions:
   * TTML:
     * Fix a styling issue when there are multiple regions displayed at the same
       time that can make text size of each region much smaller than defined.
