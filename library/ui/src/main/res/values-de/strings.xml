@@ -21,7 +21,7 @@
   <string name="exo_track_selection_title_video">Video</string>
   <string name="exo_track_selection_title_audio">Audio</string>
   <string name="exo_track_selection_title_text">Text</string>
-  <string name="exo_track_selection_none">Keiner</string>
+  <string name="exo_track_selection_none">Ohne</string>
   <string name="exo_track_selection_auto">Automatisch</string>
   <string name="exo_track_unknown">Unbekannt</string>
   <string name="exo_track_resolution">%1$d × %2$d</string>
@@ -31,5 +31,5 @@
   <string name="exo_track_surround_5_point_1">5.1-Surround-Sound</string>
   <string name="exo_track_surround_7_point_1">7.1-Surround-Sound</string>
   <string name="exo_track_bitrate">%1$.2f Mbit/s</string>
-  <string name="exo_item_list">%1$s und %2$s</string>
+  <string name="exo_item_list">%1$s, %2$s</string>
 </resources>

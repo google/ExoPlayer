@@ -56,6 +56,12 @@ public final class DashDownloadHelper extends DownloadHelper {
             manifestDataSourceFactory.createDataSource(), new DashManifestParser(), uri);
   }
 
+  /** Returns the DASH manifest. Must not be called until after preparation completes. */
+  public DashManifest getManifest() {
+    Assertions.checkNotNull(manifest);
+    return manifest;
+  }
+
   @Override
   public int getPeriodCount() {
     Assertions.checkNotNull(manifest);

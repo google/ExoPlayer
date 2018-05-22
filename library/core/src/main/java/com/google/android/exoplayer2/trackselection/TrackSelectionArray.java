@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.trackselection;
 
+import android.support.annotation.Nullable;
 import java.util.Arrays;
 
 /** An array of {@link TrackSelection}s. */
@@ -64,7 +65,7 @@ public final class TrackSelectionArray {
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(@Nullable Object obj) {
     if (this == obj) {
       return true;
     }

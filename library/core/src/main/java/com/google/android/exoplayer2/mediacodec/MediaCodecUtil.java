@@ -482,13 +482,13 @@ public final class MediaCodecUtil {
       return null;
     }
 
-    Integer profile = AVC_PROFILE_NUMBER_TO_CONST.get(profileInteger);
-    if (profile == null) {
+    int profile = AVC_PROFILE_NUMBER_TO_CONST.get(profileInteger, -1);
+    if (profile == -1) {
       Log.w(TAG, "Unknown AVC profile: " + profileInteger);
       return null;
     }
-    Integer level = AVC_LEVEL_NUMBER_TO_CONST.get(levelInteger);
-    if (level == null) {
+    int level = AVC_LEVEL_NUMBER_TO_CONST.get(levelInteger, -1);
+    if (level == -1) {
       Log.w(TAG, "Unknown AVC level: " + levelInteger);
       return null;
     }
@@ -639,7 +639,7 @@ public final class MediaCodecUtil {
     }
 
     @Override
-    public boolean equals(Object obj) {
+    public boolean equals(@Nullable Object obj) {
       if (this == obj) {
         return true;
       }
