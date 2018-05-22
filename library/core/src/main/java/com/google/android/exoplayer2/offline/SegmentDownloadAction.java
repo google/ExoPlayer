@@ -112,7 +112,7 @@ public abstract class SegmentDownloadAction<K extends Comparable<K>> extends Dow
   protected abstract void writeKey(DataOutputStream output, K key) throws IOException;
 
   @Override
-  public boolean equals(Object o) {
+  public boolean equals(@Nullable Object o) {
     if (this == o) {
       return true;
     }

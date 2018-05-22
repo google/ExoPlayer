@@ -33,6 +33,7 @@ import com.google.android.exoplayer2.offline.DownloadAction.Deserializer;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.cache.Cache;
 import com.google.android.exoplayer2.util.Assertions;
+import com.google.android.exoplayer2.util.Util;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
@@ -250,7 +251,6 @@ public final class DownloadManager {
     Assertions.checkState(!released);
     Task task = addTaskForAction(action);
     if (initialized) {
-      notifyListenersTaskStateChange(task);
       saveActions();
       maybeStartTasks();
       if (task.currentState == STATE_QUEUED) {
@@ -413,7 +413,6 @@ public final class DownloadManager {
     if (released) {
       return;
     }
-    logd("Task state is changed", task);
     boolean stopped = !task.isActive();
     if (stopped) {
       activeDownloadTasks.remove(task);
@@ -430,6 +429,7 @@ public final class DownloadManager {
   }
 
   private void notifyListenersTaskStateChange(Task task) {
+    logd("Task state is changed", task);
     TaskState taskState = task.getDownloadState();
     for (Listener listener : listeners) {
       listener.onTaskStateChanged(this, taskState);
@@ -468,18 +468,16 @@ public final class DownloadManager {
                       listener.onInitialized(DownloadManager.this);
                     }
                     if (!pendingTasks.isEmpty()) {
-                      for (int i = 0; i < pendingTasks.size(); i++) {
-                        tasks.add(pendingTasks.get(i));
-                      }
+                      tasks.addAll(pendingTasks);
                       saveActions();
                     }
                     maybeStartTasks();
-                    for (int i = 0; i < pendingTasks.size(); i++) {
-                      Task pendingTask = pendingTasks.get(i);
-                      if (pendingTask.currentState == STATE_QUEUED) {
+                    for (int i = 0; i < tasks.size(); i++) {
+                      Task task = tasks.get(i);
+                      if (task.currentState == STATE_QUEUED) {
                         // Task did not change out of its initial state, and so its initial state
                         // won't have been reported to listeners. Do so now.
-                        notifyListenersTaskStateChange(pendingTask);
+                        notifyListenersTaskStateChange(task);
                       }
                     }
                   }
@@ -699,7 +697,17 @@ public final class DownloadManager {
           + ' '
           + (action.isRemoveAction ? "remove" : "download")
           + ' '
+          + toString(action.data)
+          + ' '
           + getStateString();
+    }
+
+    private static String toString(byte[] data) {
+      if (data.length > 100) {
+        return "<data is too long>";
+      } else {
+        return '\'' + Util.fromUtf8Bytes(data) + '\'';
+      }
     }
 
     private String getStateString() {

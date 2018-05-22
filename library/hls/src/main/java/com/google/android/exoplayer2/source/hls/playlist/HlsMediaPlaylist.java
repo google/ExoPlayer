@@ -146,7 +146,9 @@ public final class HlsMediaPlaylist extends HlsPlaylist {
    */
   public final long startOffsetUs;
   /**
-   * The start time of the playlist in playback timebase in microseconds.
+   * If {@link #hasProgramDateTime} is true, contains the datetime as microseconds since epoch.
+   * Otherwise, contains the aggregated duration of removed segments up to this snapshot of the
+   * playlist.
    */
   public final long startTimeUs;
   /**

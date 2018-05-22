@@ -185,10 +185,6 @@ public interface ExoPlayer extends Player {
    */
   Looper getPlaybackLooper();
 
-  @Override
-  @Nullable
-  ExoPlaybackException getPlaybackError();
-
   /**
    * Prepares the player to play the provided {@link MediaSource}. Equivalent to
    * {@code prepare(mediaSource, true, true)}.

@@ -133,6 +133,12 @@ import java.util.List;
  *         <li>Corresponding method: {@link #setShutterBackgroundColor(int)}
  *         <li>Default: {@code unset}
  *       </ul>
+ *   <li><b>{@code keep_content_on_player_reset}</b> - Whether the currently displayed video frame
+ *       or media artwork is kept visible when the player is reset.
+ *       <ul>
+ *         <li>Corresponding method: {@link #setKeepContentOnPlayerReset(boolean)}
+ *         <li>Default: {@code false}
+ *       </ul>
  *   <li><b>{@code player_layout_id}</b> - Specifies the id of the layout to be inflated. See below
  *       for more details.
  *       <ul>
@@ -242,6 +248,7 @@ public class PlayerView extends FrameLayout {
   private boolean useArtwork;
   private Bitmap defaultArtwork;
   private boolean showBuffering;
+  private boolean keepContentOnPlayerReset;
   private @Nullable ErrorMessageProvider<? super ExoPlaybackException> errorMessageProvider;
   private @Nullable CharSequence customErrorMessage;
   private int controllerShowTimeoutMs;
@@ -313,6 +320,9 @@ public class PlayerView extends FrameLayout {
             a.getBoolean(R.styleable.PlayerView_hide_on_touch, controllerHideOnTouch);
         controllerAutoShow = a.getBoolean(R.styleable.PlayerView_auto_show, controllerAutoShow);
         showBuffering = a.getBoolean(R.styleable.PlayerView_show_buffering, showBuffering);
+        keepContentOnPlayerReset =
+            a.getBoolean(
+                R.styleable.PlayerView_keep_content_on_player_reset, keepContentOnPlayerReset);
         controllerHideDuringAds =
             a.getBoolean(R.styleable.PlayerView_hide_during_ads, controllerHideDuringAds);
       } finally {
@@ -472,14 +482,12 @@ public class PlayerView extends FrameLayout {
     if (useController) {
       controller.setPlayer(player);
     }
-    if (shutterView != null) {
-      shutterView.setVisibility(VISIBLE);
-    }
     if (subtitleView != null) {
       subtitleView.setCues(null);
     }
     updateBuffering();
     updateErrorMessage();
+    updateForCurrentTrackSelections(/* isNewPlayer= */ true);
     if (player != null) {
       Player.VideoComponent newVideoComponent = player.getVideoComponent();
       if (newVideoComponent != null) {
@@ -496,10 +504,8 @@ public class PlayerView extends FrameLayout {
       }
       player.addListener(componentListener);
       maybeShowController(false);
-      updateForCurrentTrackSelections();
     } else {
       hideController();
-      hideArtwork();
     }
   }
 
@@ -542,7 +548,7 @@ public class PlayerView extends FrameLayout {
     Assertions.checkState(!useArtwork || artworkView != null);
     if (this.useArtwork != useArtwork) {
       this.useArtwork = useArtwork;
-      updateForCurrentTrackSelections();
+      updateForCurrentTrackSelections(/* isNewPlayer= */ false);
     }
   }
 
@@ -560,7 +566,7 @@ public class PlayerView extends FrameLayout {
   public void setDefaultArtwork(Bitmap defaultArtwork) {
     if (this.defaultArtwork != defaultArtwork) {
       this.defaultArtwork = defaultArtwork;
-      updateForCurrentTrackSelections();
+      updateForCurrentTrackSelections(/* isNewPlayer= */ false);
     }
   }
 
@@ -597,6 +603,32 @@ public class PlayerView extends FrameLayout {
   public void setShutterBackgroundColor(int color) {
     if (shutterView != null) {
       shutterView.setBackgroundColor(color);
+    }
+  }
+
+  /**
+   * Sets whether the currently displayed video frame or media artwork is kept visible when the
+   * player is reset. A player reset is defined to mean the player being re-prepared with different
+   * media, {@link Player#stop(boolean)} being called with {@code reset=true}, or the player being
+   * replaced or cleared by calling {@link #setPlayer(Player)}.
+   *
+   * <p>If enabled, the currently displayed video frame or media artwork will be kept visible until
+   * the player set on the view has been successfully prepared with new media and loaded enough of
+   * it to have determined the available tracks. Hence enabling this option allows transitioning
+   * from playing one piece of media to another, or from using one player instance to another,
+   * without clearing the view's content.
+   *
+   * <p>If disabled, the currently displayed video frame or media artwork will be hidden as soon as
+   * the player is reset. Note that the video frame is hidden by making {@code exo_shutter} visible.
+   * Hence the video frame will not be hidden if using a custom layout that omits this view.
+   *
+   * @param keepContentOnPlayerReset Whether the currently displayed video frame or media artwork is
+   *     kept visible when the player is reset.
+   */
+  public void setKeepContentOnPlayerReset(boolean keepContentOnPlayerReset) {
+    if (this.keepContentOnPlayerReset != keepContentOnPlayerReset) {
+      this.keepContentOnPlayerReset = keepContentOnPlayerReset;
+      updateForCurrentTrackSelections(/* isNewPlayer= */ false);
     }
   }
 
@@ -961,10 +993,20 @@ public class PlayerView extends FrameLayout {
     return player != null && player.isPlayingAd() && player.getPlayWhenReady();
   }
 
-  private void updateForCurrentTrackSelections() {
-    if (player == null) {
+  private void updateForCurrentTrackSelections(boolean isNewPlayer) {
+    if (player == null || player.getCurrentTrackGroups().isEmpty()) {
+      if (!keepContentOnPlayerReset) {
+        hideArtwork();
+        closeShutter();
+      }
       return;
     }
+
+    if (isNewPlayer && !keepContentOnPlayerReset) {
+      // Hide any video from the previous player.
+      closeShutter();
+    }
+
     TrackSelectionArray selections = player.getCurrentTrackSelections();
     for (int i = 0; i < selections.length; i++) {
       if (player.getRendererType(i) == C.TRACK_TYPE_VIDEO && selections.get(i) != null) {
@@ -974,10 +1016,9 @@ public class PlayerView extends FrameLayout {
         return;
       }
     }
+
     // Video disabled so the shutter must be closed.
-    if (shutterView != null) {
-      shutterView.setVisibility(VISIBLE);
-    }
+    closeShutter();
     // Display artwork if enabled and available, else hide it.
     if (useArtwork) {
       for (int i = 0; i < selections.length; i++) {
@@ -1031,6 +1072,12 @@ public class PlayerView extends FrameLayout {
     if (artworkView != null) {
       artworkView.setImageResource(android.R.color.transparent); // Clears any bitmap reference.
       artworkView.setVisibility(INVISIBLE);
+    }
+  }
+
+  private void closeShutter() {
+    if (shutterView != null) {
+      shutterView.setVisibility(View.VISIBLE);
     }
   }
 
@@ -1177,7 +1224,7 @@ public class PlayerView extends FrameLayout {
 
     @Override
     public void onTracksChanged(TrackGroupArray tracks, TrackSelectionArray selections) {
-      updateForCurrentTrackSelections();
+      updateForCurrentTrackSelections(/* isNewPlayer= */ false);
     }
 
     // Player.EventListener implementation

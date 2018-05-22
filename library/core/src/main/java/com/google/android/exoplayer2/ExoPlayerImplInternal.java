@@ -854,6 +854,9 @@ import java.util.Collections;
   }
 
   private void deliverMessage(PlayerMessage message) throws ExoPlaybackException {
+    if (message.isCanceled()) {
+      return;
+    }
     try {
       message.getTarget().handleMessage(message.getType(), message.getPayload());
     } finally {
@@ -945,7 +948,7 @@ import java.util.Collections;
         && nextInfo.resolvedPeriodTimeUs > oldPeriodPositionUs
         && nextInfo.resolvedPeriodTimeUs <= newPeriodPositionUs) {
       sendMessageToTarget(nextInfo.message);
-      if (nextInfo.message.getDeleteAfterDelivery()) {
+      if (nextInfo.message.getDeleteAfterDelivery() || nextInfo.message.isCanceled()) {
         pendingMessages.remove(nextPendingMessageIndex);
       } else {
         nextPendingMessageIndex++;

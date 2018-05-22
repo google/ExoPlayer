@@ -51,6 +51,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.atomic.AtomicReference;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
@@ -1813,6 +1814,88 @@ public final class ExoPlayerTest {
   }
 
   @Test
+  public void testCancelMessageBeforeDelivery() throws Exception {
+    Timeline timeline = new FakeTimeline(/* windowCount= */ 1);
+    final PositionGrabbingMessageTarget target = new PositionGrabbingMessageTarget();
+    final AtomicReference<PlayerMessage> message = new AtomicReference<>();
+    ActionSchedule actionSchedule =
+        new ActionSchedule.Builder("testCancelMessage")
+            .pause()
+            .waitForPlaybackState(Player.STATE_BUFFERING)
+            .executeRunnable(
+                new PlayerRunnable() {
+                  @Override
+                  public void run(SimpleExoPlayer player) {
+                    message.set(
+                        player.createMessage(target).setPosition(/* positionMs= */ 50).send());
+                  }
+                })
+            // Play a bit to ensure message arrived in internal player.
+            .playUntilPosition(/* windowIndex= */ 0, /* positionMs= */ 30)
+            .executeRunnable(
+                new Runnable() {
+                  @Override
+                  public void run() {
+                    message.get().cancel();
+                  }
+                })
+            .play()
+            .build();
+    new Builder()
+        .setTimeline(timeline)
+        .setActionSchedule(actionSchedule)
+        .build()
+        .start()
+        .blockUntilEnded(TIMEOUT_MS);
+    assertThat(message.get().isCanceled()).isTrue();
+    assertThat(target.messageCount).isEqualTo(0);
+  }
+
+  @Test
+  public void testCancelRepeatedMessageAfterDelivery() throws Exception {
+    Timeline timeline = new FakeTimeline(/* windowCount= */ 1);
+    final PositionGrabbingMessageTarget target = new PositionGrabbingMessageTarget();
+    final AtomicReference<PlayerMessage> message = new AtomicReference<>();
+    ActionSchedule actionSchedule =
+        new ActionSchedule.Builder("testCancelMessage")
+            .pause()
+            .waitForPlaybackState(Player.STATE_BUFFERING)
+            .executeRunnable(
+                new PlayerRunnable() {
+                  @Override
+                  public void run(SimpleExoPlayer player) {
+                    message.set(
+                        player
+                            .createMessage(target)
+                            .setPosition(/* positionMs= */ 50)
+                            .setDeleteAfterDelivery(/* deleteAfterDelivery= */ false)
+                            .send());
+                  }
+                })
+            // Play until the message has been delivered.
+            .playUntilPosition(/* windowIndex= */ 0, /* positionMs= */ 51)
+            // Seek back, cancel the message, and play past the same position again.
+            .seek(/* positionMs= */ 0)
+            .executeRunnable(
+                new Runnable() {
+                  @Override
+                  public void run() {
+                    message.get().cancel();
+                  }
+                })
+            .play()
+            .build();
+    new Builder()
+        .setTimeline(timeline)
+        .setActionSchedule(actionSchedule)
+        .build()
+        .start()
+        .blockUntilEnded(TIMEOUT_MS);
+    assertThat(message.get().isCanceled()).isTrue();
+    assertThat(target.messageCount).isEqualTo(1);
+  }
+
+  @Test
   public void testSetAndSwitchSurface() throws Exception {
     final List<Integer> rendererMessages = new ArrayList<>();
     Renderer videoRenderer =
@@ -1934,8 +2017,10 @@ public final class ExoPlayerTest {
 
     @Override
     public void handleMessage(SimpleExoPlayer player, int messageType, Object message) {
-      windowIndex = player.getCurrentWindowIndex();
-      positionMs = player.getCurrentPosition();
+      if (player != null) {
+        windowIndex = player.getCurrentWindowIndex();
+        positionMs = player.getCurrentPosition();
+      }
       messageCount++;
     }
   }

@@ -36,6 +36,7 @@ dependencies {
     implementation project(modulePrefix + 'library-core')
     implementation 'com.android.support:support-media-compat:' + supportLibraryVersion
     implementation 'com.android.support:support-annotations:' + supportLibraryVersion
+    compileOnly 'org.checkerframework:checker-qual:' + checkerframeworkVersion
 }
 
 ext {
