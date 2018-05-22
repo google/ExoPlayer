@@ -43,8 +43,8 @@ public final class HlsMediaPlaylist extends HlsPlaylist {
      */
     @Nullable public final Segment initializationSegment;
     /**
-     * DRM initialization data for sample decryption, or null if none of the segment uses sample
-     * encryption.
+     * {@link DrmInitData} for sample decryption, or null if the segment's samples are not
+     * DRM-protected.
      */
     @Nullable public final DrmInitData drmInitData;
     /** The duration of the segment in microseconds, as defined by #EXTINF. */
@@ -86,7 +86,8 @@ public final class HlsMediaPlaylist extends HlsPlaylist {
      * @param byterangeLength See {@link #byterangeLength}.
      */
     public Segment(String uri, long byterangeOffset, long byterangeLength) {
-      this(uri, null, null, 0, -1, C.TIME_UNSET, null, null, byterangeOffset, byterangeLength, false);
+      this(uri, null, null, 0, -1, C.TIME_UNSET, null, null, byterangeOffset, byterangeLength,
+          false);
     }
 
     /**
