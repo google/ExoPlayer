@@ -92,6 +92,7 @@ public class SimpleExoPlayer implements ExoPlayer, Player.VideoComponent, Player
   private AudioAttributes audioAttributes;
   private float audioVolume;
   private MediaSource mediaSource;
+  private @Nullable List<Cue> currentCues;
 
   /**
    * @param renderersFactory A factory for creating {@link Renderer}s to be used by the instance.
@@ -502,6 +503,9 @@ public class SimpleExoPlayer implements ExoPlayer, Player.VideoComponent, Player
 
   @Override
   public void addTextOutput(TextOutput listener) {
+    if(currentCues != null) {
+      listener.onCues(currentCues);
+    }
     textOutputs.add(listener);
   }
 
@@ -775,6 +779,7 @@ public class SimpleExoPlayer implements ExoPlayer, Player.VideoComponent, Player
       mediaSource = null;
       analyticsCollector.resetForNewMediaSource();
     }
+    currentCues = null;
   }
 
   @Override
@@ -790,6 +795,7 @@ public class SimpleExoPlayer implements ExoPlayer, Player.VideoComponent, Player
     if (mediaSource != null) {
       mediaSource.removeEventListener(analyticsCollector);
     }
+    currentCues = null;
   }
 
   @Override
@@ -1095,6 +1101,7 @@ public class SimpleExoPlayer implements ExoPlayer, Player.VideoComponent, Player
 
     @Override
     public void onCues(List<Cue> cues) {
+      currentCues = cues;
       for (TextOutput textOutput : textOutputs) {
         textOutput.onCues(cues);
       }
