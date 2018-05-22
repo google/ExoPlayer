@@ -1089,7 +1089,9 @@
 <div class="block">The average bandwidth in bits per second, or <a href="com/google/android/exoplayer2/Format.html#NO_VALUE"><code>Format.NO_VALUE</code></a> if unknown or not applicable.</div>
 </dd>
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/util/FlacStreamInfo.html#bitRate--">bitRate()</a></span> - Method in class com.google.android.exoplayer2.util.<a href="com/google/android/exoplayer2/util/FlacStreamInfo.html" title="class in com.google.android.exoplayer2.util">FlacStreamInfo</a></dt>
-<dd>&nbsp;</dd>
+<dd>
+<div class="block">Returns the bit-rate of the FLAC stream.</div>
+</dd>
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/util/ParsableBitArray.html#bitsLeft--">bitsLeft()</a></span> - Method in class com.google.android.exoplayer2.util.<a href="com/google/android/exoplayer2/util/ParsableBitArray.html" title="class in com.google.android.exoplayer2.util">ParsableBitArray</a></dt>
 <dd>
 <div class="block">Returns the number of bits yet to be read.</div>
@@ -1637,6 +1639,10 @@
 <dd>&nbsp;</dd>
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/offline/SegmentDownloader.html#cancel--">cancel()</a></span> - Method in class com.google.android.exoplayer2.offline.<a href="com/google/android/exoplayer2/offline/SegmentDownloader.html" title="class in com.google.android.exoplayer2.offline">SegmentDownloader</a></dt>
 <dd>&nbsp;</dd>
+<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/PlayerMessage.html#cancel--">cancel()</a></span> - Method in class com.google.android.exoplayer2.<a href="com/google/android/exoplayer2/PlayerMessage.html" title="class in com.google.android.exoplayer2">PlayerMessage</a></dt>
+<dd>
+<div class="block">Cancels the message delivery.</div>
+</dd>
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/scheduler/PlatformScheduler.html#cancel--">cancel()</a></span> - Method in class com.google.android.exoplayer2.scheduler.<a href="com/google/android/exoplayer2/scheduler/PlatformScheduler.html" title="class in com.google.android.exoplayer2.scheduler">PlatformScheduler</a></dt>
 <dd>&nbsp;</dd>
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/scheduler/Scheduler.html#cancel--">cancel()</a></span> - Method in interface com.google.android.exoplayer2.scheduler.<a href="com/google/android/exoplayer2/scheduler/Scheduler.html" title="interface in com.google.android.exoplayer2.scheduler">Scheduler</a></dt>
@@ -3303,6 +3309,10 @@
 <dd>
 <div class="block">Creates a text cue.</div>
 </dd>
+<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/text/Cue.html#Cue-java.lang.CharSequence-android.text.Layout.Alignment-float-int-int-float-int-float-int-float-">Cue(CharSequence, Layout.Alignment, float, int, int, float, int, float, int, float)</a></span> - Constructor for class com.google.android.exoplayer2.text.<a href="com/google/android/exoplayer2/text/Cue.html" title="class in com.google.android.exoplayer2.text">Cue</a></dt>
+<dd>
+<div class="block">Creates a text cue.</div>
+</dd>
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/text/Cue.html#Cue-java.lang.CharSequence-android.text.Layout.Alignment-float-int-int-float-int-float-boolean-int-">Cue(CharSequence, Layout.Alignment, float, int, int, float, int, float, boolean, int)</a></span> - Constructor for class com.google.android.exoplayer2.text.<a href="com/google/android/exoplayer2/text/Cue.html" title="class in com.google.android.exoplayer2.text">Cue</a></dt>
 <dd>
 <div class="block">Creates a text cue.</div>
@@ -3314,6 +3324,10 @@
 <dt><a href="com/google/android/exoplayer2/text/Cue.LineType.html" title="annotation in com.google.android.exoplayer2.text"><span class="typeNameLink">Cue.LineType</span></a> - Annotation Type in <a href="com/google/android/exoplayer2/text/package-summary.html">com.google.android.exoplayer2.text</a></dt>
 <dd>
 <div class="block">The type of line, which may be unset.</div>
+</dd>
+<dt><a href="com/google/android/exoplayer2/text/Cue.TextSizeType.html" title="annotation in com.google.android.exoplayer2.text"><span class="typeNameLink">Cue.TextSizeType</span></a> - Annotation Type in <a href="com/google/android/exoplayer2/text/package-summary.html">com.google.android.exoplayer2.text</a></dt>
+<dd>
+<div class="block">The type of default text size for this cue, which may be unset.</div>
 </dd>
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/text/webvtt/WebvttCueParser.html#CUE_HEADER_PATTERN">CUE_HEADER_PATTERN</a></span> - Static variable in class com.google.android.exoplayer2.text.webvtt.<a href="com/google/android/exoplayer2/text/webvtt/WebvttCueParser.html" title="class in com.google.android.exoplayer2.text.webvtt">WebvttCueParser</a></dt>
 <dd>&nbsp;</dd>
@@ -3793,8 +3807,8 @@
 </dd>
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/DefaultLoadControl.html#DEFAULT_BUFFER_FOR_PLAYBACK_AFTER_REBUFFER_MS">DEFAULT_BUFFER_FOR_PLAYBACK_AFTER_REBUFFER_MS</a></span> - Static variable in class com.google.android.exoplayer2.<a href="com/google/android/exoplayer2/DefaultLoadControl.html" title="class in com.google.android.exoplayer2">DefaultLoadControl</a></dt>
 <dd>
-<div class="block">The default duration of media that must be buffered for playback to resume after a rebuffer,
- in milliseconds.</div>
+<div class="block">The default duration of media that must be buffered for playback to resume after a rebuffer, in
+ milliseconds.</div>
 </dd>
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/DefaultLoadControl.html#DEFAULT_BUFFER_FOR_PLAYBACK_MS">DEFAULT_BUFFER_FOR_PLAYBACK_MS</a></span> - Static variable in class com.google.android.exoplayer2.<a href="com/google/android/exoplayer2/DefaultLoadControl.html" title="class in com.google.android.exoplayer2">DefaultLoadControl</a></dt>
 <dd>
@@ -5005,7 +5019,9 @@
 <div class="block">The duration of this window in microseconds, or <a href="com/google/android/exoplayer2/C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a> if unknown.</div>
 </dd>
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/util/FlacStreamInfo.html#durationUs--">durationUs()</a></span> - Method in class com.google.android.exoplayer2.util.<a href="com/google/android/exoplayer2/util/FlacStreamInfo.html" title="class in com.google.android.exoplayer2.util">FlacStreamInfo</a></dt>
-<dd>&nbsp;</dd>
+<dd>
+<div class="block">Returns the duration of the FLAC stream in microseconds.</div>
+</dd>
 <dt><a href="com/google/android/exoplayer2/text/dvb/DvbDecoder.html" title="class in com.google.android.exoplayer2.text.dvb"><span class="typeNameLink">DvbDecoder</span></a> - Class in <a href="com/google/android/exoplayer2/text/dvb/package-summary.html">com.google.android.exoplayer2.text.dvb</a></dt>
 <dd>
 <div class="block">A <a href="com/google/android/exoplayer2/text/SimpleSubtitleDecoder.html" title="class in com.google.android.exoplayer2.text"><code>SimpleSubtitleDecoder</code></a> for DVB subtitles.</div>
@@ -5099,6 +5115,20 @@
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/extractor/mp4/Track.html#editListMediaTimes">editListMediaTimes</a></span> - Variable in class com.google.android.exoplayer2.extractor.mp4.<a href="com/google/android/exoplayer2/extractor/mp4/Track.html" title="class in com.google.android.exoplayer2.extractor.mp4">Track</a></dt>
 <dd>
 <div class="block">Media times for edit list segments in the track timescale.</div>
+</dd>
+<dt><a href="com/google/android/exoplayer2/util/EGLSurfaceTexture.html" title="class in com.google.android.exoplayer2.util"><span class="typeNameLink">EGLSurfaceTexture</span></a> - Class in <a href="com/google/android/exoplayer2/util/package-summary.html">com.google.android.exoplayer2.util</a></dt>
+<dd>
+<div class="block">Generates a <a href="https://developer.android.com/reference/android/graphics/SurfaceTexture.html" target="_top" title="class or interface in android.graphics"><code>SurfaceTexture</code></a> using EGL/GLES functions.</div>
+</dd>
+<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/util/EGLSurfaceTexture.html#EGLSurfaceTexture-android.os.Handler-">EGLSurfaceTexture(Handler)</a></span> - Constructor for class com.google.android.exoplayer2.util.<a href="com/google/android/exoplayer2/util/EGLSurfaceTexture.html" title="class in com.google.android.exoplayer2.util">EGLSurfaceTexture</a></dt>
+<dd>&nbsp;</dd>
+<dt><a href="com/google/android/exoplayer2/util/EGLSurfaceTexture.GlException.html" title="class in com.google.android.exoplayer2.util"><span class="typeNameLink">EGLSurfaceTexture.GlException</span></a> - Exception in <a href="com/google/android/exoplayer2/util/package-summary.html">com.google.android.exoplayer2.util</a></dt>
+<dd>
+<div class="block">A runtime exception to be thrown if some EGL operations failed.</div>
+</dd>
+<dt><a href="com/google/android/exoplayer2/util/EGLSurfaceTexture.SecureMode.html" title="annotation in com.google.android.exoplayer2.util"><span class="typeNameLink">EGLSurfaceTexture.SecureMode</span></a> - Annotation Type in <a href="com/google/android/exoplayer2/util/package-summary.html">com.google.android.exoplayer2.util</a></dt>
+<dd>
+<div class="block">Secure mode to be used by the EGL surface and context.</div>
 </dd>
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/util/Clock.html#elapsedRealtime--">elapsedRealtime()</a></span> - Method in interface com.google.android.exoplayer2.util.<a href="com/google/android/exoplayer2/util/Clock.html" title="interface in com.google.android.exoplayer2.util">Clock</a></dt>
 <dd>&nbsp;</dd>
@@ -5895,7 +5925,9 @@
 <div class="block">Constructs a FlacStreamInfo parsing the given binary FLAC stream info metadata structure.</div>
 </dd>
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/util/FlacStreamInfo.html#FlacStreamInfo-int-int-int-int-int-int-int-long-">FlacStreamInfo(int, int, int, int, int, int, int, long)</a></span> - Constructor for class com.google.android.exoplayer2.util.<a href="com/google/android/exoplayer2/util/FlacStreamInfo.html" title="class in com.google.android.exoplayer2.util">FlacStreamInfo</a></dt>
-<dd>&nbsp;</dd>
+<dd>
+<div class="block">Constructs a FlacStreamInfo given the parameters.</div>
+</dd>
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/upstream/DataSpec.html#FLAG_ALLOW_CACHING_UNKNOWN_LENGTH">FLAG_ALLOW_CACHING_UNKNOWN_LENGTH</a></span> - Static variable in class com.google.android.exoplayer2.upstream.<a href="com/google/android/exoplayer2/upstream/DataSpec.html" title="class in com.google.android.exoplayer2.upstream">DataSpec</a></dt>
 <dd>
 <div class="block">Permits content to be cached even if its length can not be resolved.</div>
@@ -6392,6 +6424,10 @@
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/SimpleExoPlayer.html#getAnalyticsCollector--">getAnalyticsCollector()</a></span> - Method in class com.google.android.exoplayer2.<a href="com/google/android/exoplayer2/SimpleExoPlayer.html" title="class in com.google.android.exoplayer2">SimpleExoPlayer</a></dt>
 <dd>
 <div class="block">Returns the <a href="com/google/android/exoplayer2/analytics/AnalyticsCollector.html" title="class in com.google.android.exoplayer2.analytics"><code>AnalyticsCollector</code></a> used for collecting analytics events.</div>
+</dd>
+<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/util/FlacStreamInfo.html#getApproxBytesPerFrame--">getApproxBytesPerFrame()</a></span> - Method in class com.google.android.exoplayer2.util.<a href="com/google/android/exoplayer2/util/FlacStreamInfo.html" title="class in com.google.android.exoplayer2.util">FlacStreamInfo</a></dt>
+<dd>
+<div class="block">Returns the approximate number of bytes per frame for the current FLAC stream.</div>
 </dd>
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/util/XmlPullParserUtil.html#getAttributeValue-org.xmlpull.v1.XmlPullParser-java.lang.String-">getAttributeValue(XmlPullParser, String)</a></span> - Static method in class com.google.android.exoplayer2.util.<a href="com/google/android/exoplayer2/util/XmlPullParserUtil.html" title="class in com.google.android.exoplayer2.util">XmlPullParserUtil</a></dt>
 <dd>
@@ -7174,7 +7210,8 @@
 </dd>
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/source/hls/playlist/HlsPlaylistTracker.html#getInitialStartTimeUs--">getInitialStartTimeUs()</a></span> - Method in class com.google.android.exoplayer2.source.hls.playlist.<a href="com/google/android/exoplayer2/source/hls/playlist/HlsPlaylistTracker.html" title="class in com.google.android.exoplayer2.source.hls.playlist">HlsPlaylistTracker</a></dt>
 <dd>
-<div class="block">Returns the start time of the first loaded primary playlist.</div>
+<div class="block">Returns the start time of the first loaded primary playlist, or <a href="com/google/android/exoplayer2/C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a> if no
+ media playlist has been loaded.</div>
 </dd>
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/util/Util.html#getIntegerCodeForString-java.lang.String-">getIntegerCodeForString(String)</a></span> - Static method in class com.google.android.exoplayer2.util.<a href="com/google/android/exoplayer2/util/Util.html" title="class in com.google.android.exoplayer2.util">Util</a></dt>
 <dd>
@@ -7264,10 +7301,18 @@
 </dd>
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/source/dash/offline/DashDownloader.html#getManifest-com.google.android.exoplayer2.upstream.DataSource-android.net.Uri-">getManifest(DataSource, Uri)</a></span> - Method in class com.google.android.exoplayer2.source.dash.offline.<a href="com/google/android/exoplayer2/source/dash/offline/DashDownloader.html" title="class in com.google.android.exoplayer2.source.dash.offline">DashDownloader</a></dt>
 <dd>&nbsp;</dd>
+<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/source/dash/offline/DashDownloadHelper.html#getManifest--">getManifest()</a></span> - Method in class com.google.android.exoplayer2.source.dash.offline.<a href="com/google/android/exoplayer2/source/dash/offline/DashDownloadHelper.html" title="class in com.google.android.exoplayer2.source.dash.offline">DashDownloadHelper</a></dt>
+<dd>
+<div class="block">Returns the DASH manifest.</div>
+</dd>
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/source/hls/offline/HlsDownloader.html#getManifest-com.google.android.exoplayer2.upstream.DataSource-android.net.Uri-">getManifest(DataSource, Uri)</a></span> - Method in class com.google.android.exoplayer2.source.hls.offline.<a href="com/google/android/exoplayer2/source/hls/offline/HlsDownloader.html" title="class in com.google.android.exoplayer2.source.hls.offline">HlsDownloader</a></dt>
 <dd>&nbsp;</dd>
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/source/smoothstreaming/offline/SsDownloader.html#getManifest-com.google.android.exoplayer2.upstream.DataSource-android.net.Uri-">getManifest(DataSource, Uri)</a></span> - Method in class com.google.android.exoplayer2.source.smoothstreaming.offline.<a href="com/google/android/exoplayer2/source/smoothstreaming/offline/SsDownloader.html" title="class in com.google.android.exoplayer2.source.smoothstreaming.offline">SsDownloader</a></dt>
 <dd>&nbsp;</dd>
+<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/source/smoothstreaming/offline/SsDownloadHelper.html#getManifest--">getManifest()</a></span> - Method in class com.google.android.exoplayer2.source.smoothstreaming.offline.<a href="com/google/android/exoplayer2/source/smoothstreaming/offline/SsDownloadHelper.html" title="class in com.google.android.exoplayer2.source.smoothstreaming.offline">SsDownloadHelper</a></dt>
+<dd>
+<div class="block">Returns the SmoothStreaming manifest.</div>
+</dd>
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/source/hls/playlist/HlsPlaylistTracker.html#getMasterPlaylist--">getMasterPlaylist()</a></span> - Method in class com.google.android.exoplayer2.source.hls.playlist.<a href="com/google/android/exoplayer2/source/hls/playlist/HlsPlaylistTracker.html" title="class in com.google.android.exoplayer2.source.hls.playlist">HlsPlaylistTracker</a></dt>
 <dd>
 <div class="block">Returns the master playlist.</div>
@@ -7616,8 +7661,6 @@
 <div class="block">Returns the number of pixels if this is a video format whose <a href="com/google/android/exoplayer2/Format.html#width"><code>Format.width</code></a> and <a href="com/google/android/exoplayer2/Format.html#height"><code>Format.height</code></a>
  are known, or <a href="com/google/android/exoplayer2/Format.html#NO_VALUE"><code>Format.NO_VALUE</code></a> otherwise</div>
 </dd>
-<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/ExoPlayer.html#getPlaybackError--">getPlaybackError()</a></span> - Method in interface com.google.android.exoplayer2.<a href="com/google/android/exoplayer2/ExoPlayer.html" title="interface in com.google.android.exoplayer2">ExoPlayer</a></dt>
-<dd>&nbsp;</dd>
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/ext/cast/CastPlayer.html#getPlaybackError--">getPlaybackError()</a></span> - Method in class com.google.android.exoplayer2.ext.cast.<a href="com/google/android/exoplayer2/ext/cast/CastPlayer.html" title="class in com.google.android.exoplayer2.ext.cast">CastPlayer</a></dt>
 <dd>&nbsp;</dd>
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/Player.html#getPlaybackError--">getPlaybackError()</a></span> - Method in interface com.google.android.exoplayer2.<a href="com/google/android/exoplayer2/Player.html" title="interface in com.google.android.exoplayer2">Player</a></dt>
@@ -7676,6 +7719,10 @@
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/ui/DebugTextViewHelper.html#getPlayerStateString--">getPlayerStateString()</a></span> - Method in class com.google.android.exoplayer2.ui.<a href="com/google/android/exoplayer2/ui/DebugTextViewHelper.html" title="class in com.google.android.exoplayer2.ui">DebugTextViewHelper</a></dt>
 <dd>
 <div class="block">Returns a string containing player state debugging information.</div>
+</dd>
+<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/source/hls/offline/HlsDownloadHelper.html#getPlaylist--">getPlaylist()</a></span> - Method in class com.google.android.exoplayer2.source.hls.offline.<a href="com/google/android/exoplayer2/source/hls/offline/HlsDownloadHelper.html" title="class in com.google.android.exoplayer2.source.hls.offline">HlsDownloadHelper</a></dt>
+<dd>
+<div class="block">Returns the HLS playlist.</div>
 </dd>
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/source/hls/playlist/HlsPlaylistTracker.html#getPlaylistSnapshot-com.google.android.exoplayer2.source.hls.playlist.HlsMasterPlaylist.HlsUrl-">getPlaylistSnapshot(HlsMasterPlaylist.HlsUrl)</a></span> - Method in class com.google.android.exoplayer2.source.hls.playlist.<a href="com/google/android/exoplayer2/source/hls/playlist/HlsPlaylistTracker.html" title="class in com.google.android.exoplayer2.source.hls.playlist">HlsPlaylistTracker</a></dt>
 <dd>
@@ -7938,6 +7985,10 @@
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/source/chunk/ChunkExtractorWrapper.html#getSampleFormats--">getSampleFormats()</a></span> - Method in class com.google.android.exoplayer2.source.chunk.<a href="com/google/android/exoplayer2/source/chunk/ChunkExtractorWrapper.html" title="class in com.google.android.exoplayer2.source.chunk">ChunkExtractorWrapper</a></dt>
 <dd>
 <div class="block">Returns the sample <a href="com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2"><code>Format</code></a>s most recently output by the extractor, or null.</div>
+</dd>
+<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/util/FlacStreamInfo.html#getSampleIndex-long-">getSampleIndex(long)</a></span> - Method in class com.google.android.exoplayer2.util.<a href="com/google/android/exoplayer2/util/FlacStreamInfo.html" title="class in com.google.android.exoplayer2.util">FlacStreamInfo</a></dt>
+<dd>
+<div class="block">Returns the sample index for the sample at given position.</div>
 </dd>
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/offline/DownloadService.html#getScheduler--">getScheduler()</a></span> - Method in class com.google.android.exoplayer2.offline.<a href="com/google/android/exoplayer2/offline/DownloadService.html" title="class in com.google.android.exoplayer2.offline">DownloadService</a></dt>
 <dd>
@@ -8222,6 +8273,10 @@
 <dd>&nbsp;</dd>
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/source/smoothstreaming/SsMediaSource.Factory.html#getSupportedTypes--">getSupportedTypes()</a></span> - Method in class com.google.android.exoplayer2.source.smoothstreaming.<a href="com/google/android/exoplayer2/source/smoothstreaming/SsMediaSource.Factory.html" title="class in com.google.android.exoplayer2.source.smoothstreaming">SsMediaSource.Factory</a></dt>
 <dd>&nbsp;</dd>
+<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/util/EGLSurfaceTexture.html#getSurfaceTexture--">getSurfaceTexture()</a></span> - Method in class com.google.android.exoplayer2.util.<a href="com/google/android/exoplayer2/util/EGLSurfaceTexture.html" title="class in com.google.android.exoplayer2.util">EGLSurfaceTexture</a></dt>
+<dd>
+<div class="block">Returns the wrapped <a href="https://developer.android.com/reference/android/graphics/SurfaceTexture.html" target="_top" title="class or interface in android.graphics"><code>SurfaceTexture</code></a>.</div>
+</dd>
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/PlayerMessage.html#getTarget--">getTarget()</a></span> - Method in class com.google.android.exoplayer2.<a href="com/google/android/exoplayer2/PlayerMessage.html" title="class in com.google.android.exoplayer2">PlayerMessage</a></dt>
 <dd>
 <div class="block">Returns the target the message is sent to.</div>
@@ -9236,6 +9291,10 @@
 <dd>
 <div class="block">Initialize the view to select tracks for a specified renderer using a <a href="com/google/android/exoplayer2/trackselection/DefaultTrackSelector.html" title="class in com.google.android.exoplayer2.trackselection"><code>DefaultTrackSelector</code></a>.</div>
 </dd>
+<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/util/EGLSurfaceTexture.html#init-int-">init(int)</a></span> - Method in class com.google.android.exoplayer2.util.<a href="com/google/android/exoplayer2/util/EGLSurfaceTexture.html" title="class in com.google.android.exoplayer2.util">EGLSurfaceTexture</a></dt>
+<dd>
+<div class="block">Initializes required EGL parameters and creates the <a href="https://developer.android.com/reference/android/graphics/SurfaceTexture.html" target="_top" title="class or interface in android.graphics"><code>SurfaceTexture</code></a>.</div>
+</dd>
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/drm/DefaultDrmSessionManager.html#INITIAL_DRM_REQUEST_RETRY_COUNT">INITIAL_DRM_REQUEST_RETRY_COUNT</a></span> - Static variable in class com.google.android.exoplayer2.drm.<a href="com/google/android/exoplayer2/drm/DefaultDrmSessionManager.html" title="class in com.google.android.exoplayer2.drm">DefaultDrmSessionManager</a></dt>
 <dd>
 <div class="block">Number of times to retry for initial provisioning and key request for reporting error.</div>
@@ -9371,6 +9430,10 @@
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/upstream/cache/SimpleCache.html#isCacheFolderLocked-java.io.File-">isCacheFolderLocked(File)</a></span> - Static method in class com.google.android.exoplayer2.upstream.cache.<a href="com/google/android/exoplayer2/upstream/cache/SimpleCache.html" title="class in com.google.android.exoplayer2.upstream.cache">SimpleCache</a></dt>
 <dd>
 <div class="block">Returns whether <code>cacheFolder</code> is locked by a <a href="com/google/android/exoplayer2/upstream/cache/SimpleCache.html" title="class in com.google.android.exoplayer2.upstream.cache"><code>SimpleCache</code></a> instance.</div>
+</dd>
+<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/PlayerMessage.html#isCanceled--">isCanceled()</a></span> - Method in class com.google.android.exoplayer2.<a href="com/google/android/exoplayer2/PlayerMessage.html" title="class in com.google.android.exoplayer2">PlayerMessage</a></dt>
+<dd>
+<div class="block">Returns whether the message delivery has been canceled.</div>
 </dd>
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/ext/cast/CastPlayer.html#isCastSessionAvailable--">isCastSessionAvailable()</a></span> - Method in class com.google.android.exoplayer2.ext.cast.<a href="com/google/android/exoplayer2/ext/cast/CastPlayer.html" title="class in com.google.android.exoplayer2.ext.cast">CastPlayer</a></dt>
 <dd>
@@ -10276,7 +10339,9 @@
 <div class="block">The maximum number of dropped buffers without an interleaving rendered output buffer.</div>
 </dd>
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/util/FlacStreamInfo.html#maxDecodedFrameSize--">maxDecodedFrameSize()</a></span> - Method in class com.google.android.exoplayer2.util.<a href="com/google/android/exoplayer2/util/FlacStreamInfo.html" title="class in com.google.android.exoplayer2.util">FlacStreamInfo</a></dt>
-<dd>&nbsp;</dd>
+<dd>
+<div class="block">Returns the maximum size for a decoded frame from the FLAC stream.</div>
+</dd>
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/util/FlacStreamInfo.html#maxFrameSize">maxFrameSize</a></span> - Variable in class com.google.android.exoplayer2.util.<a href="com/google/android/exoplayer2/util/FlacStreamInfo.html" title="class in com.google.android.exoplayer2.util">FlacStreamInfo</a></dt>
 <dd>&nbsp;</dd>
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/mediacodec/MediaCodecUtil.html#maxH264DecodableFrameSize--">maxH264DecodableFrameSize()</a></span> - Static method in class com.google.android.exoplayer2.mediacodec.<a href="com/google/android/exoplayer2/mediacodec/MediaCodecUtil.html" title="class in com.google.android.exoplayer2.mediacodec">MediaCodecUtil</a></dt>
@@ -11799,6 +11864,8 @@
 <dd>
 <div class="block">See <code>MediaSessionCompat.Callback#onFastForward()</code>.</div>
 </dd>
+<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/util/EGLSurfaceTexture.html#onFrameAvailable-android.graphics.SurfaceTexture-">onFrameAvailable(SurfaceTexture)</a></span> - Method in class com.google.android.exoplayer2.util.<a href="com/google/android/exoplayer2/util/EGLSurfaceTexture.html" title="class in com.google.android.exoplayer2.util">EGLSurfaceTexture</a></dt>
+<dd>&nbsp;</dd>
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/offline/DownloadManager.Listener.html#onIdle-com.google.android.exoplayer2.offline.DownloadManager-">onIdle(DownloadManager)</a></span> - Method in interface com.google.android.exoplayer2.offline.<a href="com/google/android/exoplayer2/offline/DownloadManager.Listener.html" title="interface in com.google.android.exoplayer2.offline">DownloadManager.Listener</a></dt>
 <dd>
 <div class="block">Called when there is no active task left.</div>
@@ -14467,6 +14534,10 @@
 <dd>
 <div class="block">Releases the <a href="com/google/android/exoplayer2/upstream/Loader.html" title="class in com.google.android.exoplayer2.upstream"><code>Loader</code></a>.</div>
 </dd>
+<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/util/EGLSurfaceTexture.html#release--">release()</a></span> - Method in class com.google.android.exoplayer2.util.<a href="com/google/android/exoplayer2/util/EGLSurfaceTexture.html" title="class in com.google.android.exoplayer2.util">EGLSurfaceTexture</a></dt>
+<dd>
+<div class="block">Releases all allocated resources.</div>
+</dd>
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/video/DummySurface.html#release--">release()</a></span> - Method in class com.google.android.exoplayer2.video.<a href="com/google/android/exoplayer2/video/DummySurface.html" title="class in com.google.android.exoplayer2.video">DummySurface</a></dt>
 <dd>&nbsp;</dd>
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/source/CompositeMediaSource.html#releaseChildSource-T-">releaseChildSource(T)</a></span> - Method in class com.google.android.exoplayer2.source.<a href="com/google/android/exoplayer2/source/CompositeMediaSource.html" title="class in com.google.android.exoplayer2.source">CompositeMediaSource</a></dt>
@@ -14683,6 +14754,10 @@
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/SimpleExoPlayer.html#removeMetadataOutput-com.google.android.exoplayer2.metadata.MetadataOutput-">removeMetadataOutput(MetadataOutput)</a></span> - Method in class com.google.android.exoplayer2.<a href="com/google/android/exoplayer2/SimpleExoPlayer.html" title="class in com.google.android.exoplayer2">SimpleExoPlayer</a></dt>
 <dd>
 <div class="block">Removes a <a href="com/google/android/exoplayer2/metadata/MetadataOutput.html" title="interface in com.google.android.exoplayer2.metadata"><code>MetadataOutput</code></a>.</div>
+</dd>
+<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/util/UriUtil.html#removeQueryParameter-android.net.Uri-java.lang.String-">removeQueryParameter(Uri, String)</a></span> - Static method in class com.google.android.exoplayer2.util.<a href="com/google/android/exoplayer2/util/UriUtil.html" title="class in com.google.android.exoplayer2.util">UriUtil</a></dt>
+<dd>
+<div class="block">Removes query parameter from an Uri, if present.</div>
 </dd>
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/util/Util.html#removeRange-java.util.List-int-int-">removeRange(List&lt;T&gt;, int, int)</a></span> - Static method in class com.google.android.exoplayer2.util.<a href="com/google/android/exoplayer2/util/Util.html" title="class in com.google.android.exoplayer2.util">Util</a></dt>
 <dd>
@@ -15206,6 +15281,8 @@
 <dd>&nbsp;</dd>
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/ui/DebugTextViewHelper.html#run--">run()</a></span> - Method in class com.google.android.exoplayer2.ui.<a href="com/google/android/exoplayer2/ui/DebugTextViewHelper.html" title="class in com.google.android.exoplayer2.ui">DebugTextViewHelper</a></dt>
 <dd>&nbsp;</dd>
+<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/util/EGLSurfaceTexture.html#run--">run()</a></span> - Method in class com.google.android.exoplayer2.util.<a href="com/google/android/exoplayer2/util/EGLSurfaceTexture.html" title="class in com.google.android.exoplayer2.util">EGLSurfaceTexture</a></dt>
+<dd>&nbsp;</dd>
 </dl>
 <a name="I:S">
 <!--   -->
@@ -15387,6 +15464,18 @@
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/video/DummySurface.html#secure">secure</a></span> - Variable in class com.google.android.exoplayer2.video.<a href="com/google/android/exoplayer2/video/DummySurface.html" title="class in com.google.android.exoplayer2.video">DummySurface</a></dt>
 <dd>
 <div class="block">Whether the surface is secure.</div>
+</dd>
+<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/util/EGLSurfaceTexture.html#SECURE_MODE_NONE">SECURE_MODE_NONE</a></span> - Static variable in class com.google.android.exoplayer2.util.<a href="com/google/android/exoplayer2/util/EGLSurfaceTexture.html" title="class in com.google.android.exoplayer2.util">EGLSurfaceTexture</a></dt>
+<dd>
+<div class="block">No secure EGL surface and context required.</div>
+</dd>
+<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/util/EGLSurfaceTexture.html#SECURE_MODE_PROTECTED_PBUFFER">SECURE_MODE_PROTECTED_PBUFFER</a></span> - Static variable in class com.google.android.exoplayer2.util.<a href="com/google/android/exoplayer2/util/EGLSurfaceTexture.html" title="class in com.google.android.exoplayer2.util">EGLSurfaceTexture</a></dt>
+<dd>
+<div class="block">Creating a secure surface backed by a pixel buffer.</div>
+</dd>
+<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/util/EGLSurfaceTexture.html#SECURE_MODE_SURFACELESS_CONTEXT">SECURE_MODE_SURFACELESS_CONTEXT</a></span> - Static variable in class com.google.android.exoplayer2.util.<a href="com/google/android/exoplayer2/util/EGLSurfaceTexture.html" title="class in com.google.android.exoplayer2.util">EGLSurfaceTexture</a></dt>
+<dd>
+<div class="block">Creating a surfaceless, secured EGL context.</div>
 </dd>
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/mediacodec/MediaCodecRenderer.DecoderInitializationException.html#secureDecoderRequired">secureDecoderRequired</a></span> - Variable in exception com.google.android.exoplayer2.mediacodec.<a href="com/google/android/exoplayer2/mediacodec/MediaCodecRenderer.DecoderInitializationException.html" title="class in com.google.android.exoplayer2.mediacodec">MediaCodecRenderer.DecoderInitializationException</a></dt>
 <dd>
@@ -15804,6 +15893,10 @@
 <dd>
 <div class="block">Sets the times of ad groups and whether each ad group has been played.</div>
 </dd>
+<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/ui/DefaultTimeBar.html#setAdMarkerColor-int-">setAdMarkerColor(int)</a></span> - Method in class com.google.android.exoplayer2.ui.<a href="com/google/android/exoplayer2/ui/DefaultTimeBar.html" title="class in com.google.android.exoplayer2.ui">DefaultTimeBar</a></dt>
+<dd>
+<div class="block">Sets the color for unplayed ad markers.</div>
+</dd>
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/DefaultLoadControl.Builder.html#setAllocator-com.google.android.exoplayer2.upstream.DefaultAllocator-">setAllocator(DefaultAllocator)</a></span> - Method in class com.google.android.exoplayer2.<a href="com/google/android/exoplayer2/DefaultLoadControl.Builder.html" title="class in com.google.android.exoplayer2">DefaultLoadControl.Builder</a></dt>
 <dd>
 <div class="block">Sets the <a href="com/google/android/exoplayer2/upstream/DefaultAllocator.html" title="class in com.google.android.exoplayer2.upstream"><code>DefaultAllocator</code></a> used by the loader.</div>
@@ -15891,6 +15984,11 @@
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/DefaultLoadControl.Builder.html#setBufferDurationsMs-int-int-int-int-">setBufferDurationsMs(int, int, int, int)</a></span> - Method in class com.google.android.exoplayer2.<a href="com/google/android/exoplayer2/DefaultLoadControl.Builder.html" title="class in com.google.android.exoplayer2">DefaultLoadControl.Builder</a></dt>
 <dd>
 <div class="block">Sets the buffer duration parameters.</div>
+</dd>
+<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/ui/DefaultTimeBar.html#setBufferedColor-int-">setBufferedColor(int)</a></span> - Method in class com.google.android.exoplayer2.ui.<a href="com/google/android/exoplayer2/ui/DefaultTimeBar.html" title="class in com.google.android.exoplayer2.ui">DefaultTimeBar</a></dt>
+<dd>
+<div class="block">Sets the color for the portion of the time bar after the current played position up to the
+ current buffered position.</div>
 </dd>
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/ui/DefaultTimeBar.html#setBufferedPosition-long-">setBufferedPosition(long)</a></span> - Method in class com.google.android.exoplayer2.ui.<a href="com/google/android/exoplayer2/ui/DefaultTimeBar.html" title="class in com.google.android.exoplayer2.ui">DefaultTimeBar</a></dt>
 <dd>&nbsp;</dd>
@@ -16179,6 +16277,11 @@
 </dd>
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/text/webvtt/WebvttCssStyle.html#setItalic-boolean-">setItalic(boolean)</a></span> - Method in class com.google.android.exoplayer2.text.webvtt.<a href="com/google/android/exoplayer2/text/webvtt/WebvttCssStyle.html" title="class in com.google.android.exoplayer2.text.webvtt">WebvttCssStyle</a></dt>
 <dd>&nbsp;</dd>
+<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/ui/PlayerView.html#setKeepContentOnPlayerReset-boolean-">setKeepContentOnPlayerReset(boolean)</a></span> - Method in class com.google.android.exoplayer2.ui.<a href="com/google/android/exoplayer2/ui/PlayerView.html" title="class in com.google.android.exoplayer2.ui">PlayerView</a></dt>
+<dd>
+<div class="block">Sets whether the currently displayed video frame or media artwork is kept visible when the
+ player is reset.</div>
+</dd>
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/ui/DefaultTimeBar.html#setKeyCountIncrement-int-">setKeyCountIncrement(int)</a></span> - Method in class com.google.android.exoplayer2.ui.<a href="com/google/android/exoplayer2/ui/DefaultTimeBar.html" title="class in com.google.android.exoplayer2.ui">DefaultTimeBar</a></dt>
 <dd>&nbsp;</dd>
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/ui/TimeBar.html#setKeyCountIncrement-int-">setKeyCountIncrement(int)</a></span> - Method in interface com.google.android.exoplayer2.ui.<a href="com/google/android/exoplayer2/ui/TimeBar.html" title="interface in com.google.android.exoplayer2.ui">TimeBar</a></dt>
@@ -16404,6 +16507,14 @@
 <dd>
 <div class="block">Sets the <a href="com/google/android/exoplayer2/PlaybackPreparer.html" title="interface in com.google.android.exoplayer2"><code>PlaybackPreparer</code></a>.</div>
 </dd>
+<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/ui/DefaultTimeBar.html#setPlayedAdMarkerColor-int-">setPlayedAdMarkerColor(int)</a></span> - Method in class com.google.android.exoplayer2.ui.<a href="com/google/android/exoplayer2/ui/DefaultTimeBar.html" title="class in com.google.android.exoplayer2.ui">DefaultTimeBar</a></dt>
+<dd>
+<div class="block">Sets the color for played ad markers.</div>
+</dd>
+<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/ui/DefaultTimeBar.html#setPlayedColor-int-">setPlayedColor(int)</a></span> - Method in class com.google.android.exoplayer2.ui.<a href="com/google/android/exoplayer2/ui/DefaultTimeBar.html" title="class in com.google.android.exoplayer2.ui">DefaultTimeBar</a></dt>
+<dd>
+<div class="block">Sets the color for the portion of the time bar representing media before the playback position.</div>
+</dd>
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/ext/mediasession/MediaSessionConnector.html#setPlayer-com.google.android.exoplayer2.Player-com.google.android.exoplayer2.ext.mediasession.MediaSessionConnector.PlaybackPreparer-com.google.android.exoplayer2.ext.mediasession.MediaSessionConnector.CustomActionProvider...-">setPlayer(Player, MediaSessionConnector.PlaybackPreparer, MediaSessionConnector.CustomActionProvider...)</a></span> - Method in class com.google.android.exoplayer2.ext.mediasession.<a href="com/google/android/exoplayer2/ext/mediasession/MediaSessionConnector.html" title="class in com.google.android.exoplayer2.ext.mediasession">MediaSessionConnector</a></dt>
 <dd>
 <div class="block">Sets the player to be connected to the media session.</div>
@@ -16593,6 +16704,10 @@
 <div class="block">Sets an offset that will be added to the timestamps (and sub-sample timestamps) of samples
  that are subsequently queued.</div>
 </dd>
+<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/ui/DefaultTimeBar.html#setScrubberColor-int-">setScrubberColor(int)</a></span> - Method in class com.google.android.exoplayer2.ui.<a href="com/google/android/exoplayer2/ui/DefaultTimeBar.html" title="class in com.google.android.exoplayer2.ui">DefaultTimeBar</a></dt>
+<dd>
+<div class="block">Sets the color for the scrubber handle.</div>
+</dd>
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/ExoPlayer.html#setSeekParameters-com.google.android.exoplayer2.SeekParameters-">setSeekParameters(SeekParameters)</a></span> - Method in interface com.google.android.exoplayer2.<a href="com/google/android/exoplayer2/ExoPlayer.html" title="interface in com.google.android.exoplayer2">ExoPlayer</a></dt>
 <dd>
 <div class="block">Sets the parameters that control how seek operations are performed.</div>
@@ -16740,7 +16855,8 @@
 </dd>
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/ui/TrackSelectionView.html#setTrackNameProvider-com.google.android.exoplayer2.ui.TrackNameProvider-">setTrackNameProvider(TrackNameProvider)</a></span> - Method in class com.google.android.exoplayer2.ui.<a href="com/google/android/exoplayer2/ui/TrackSelectionView.html" title="class in com.google.android.exoplayer2.ui">TrackSelectionView</a></dt>
 <dd>
-<div class="block">Sets the <a href="com/google/android/exoplayer2/ui/TrackNameProvider.html" title="interface in com.google.android.exoplayer2.ui"><code>TrackNameProvider</code></a> used to generate the user visible name of each track.</div>
+<div class="block">Sets the <a href="com/google/android/exoplayer2/ui/TrackNameProvider.html" title="interface in com.google.android.exoplayer2.ui"><code>TrackNameProvider</code></a> used to generate the user visible name of each track and
+ updates the view with track names queried from the specified provider.</div>
 </dd>
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/source/SingleSampleMediaSource.Factory.html#setTreatLoadErrorsAsEndOfStream-boolean-">setTreatLoadErrorsAsEndOfStream(boolean)</a></span> - Method in class com.google.android.exoplayer2.source.<a href="com/google/android/exoplayer2/source/SingleSampleMediaSource.Factory.html" title="class in com.google.android.exoplayer2.source">SingleSampleMediaSource.Factory</a></dt>
 <dd>
@@ -16772,6 +16888,10 @@
 </dd>
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/text/webvtt/WebvttCssStyle.html#setUnderline-boolean-">setUnderline(boolean)</a></span> - Method in class com.google.android.exoplayer2.text.webvtt.<a href="com/google/android/exoplayer2/text/webvtt/WebvttCssStyle.html" title="class in com.google.android.exoplayer2.text.webvtt">WebvttCssStyle</a></dt>
 <dd>&nbsp;</dd>
+<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/ui/DefaultTimeBar.html#setUnplayedColor-int-">setUnplayedColor(int)</a></span> - Method in class com.google.android.exoplayer2.ui.<a href="com/google/android/exoplayer2/ui/DefaultTimeBar.html" title="class in com.google.android.exoplayer2.ui">DefaultTimeBar</a></dt>
+<dd>
+<div class="block">Sets the color for the portion of the time bar after the current played position.</div>
+</dd>
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/source/SampleQueue.html#setUpstreamFormatChangeListener-com.google.android.exoplayer2.source.SampleQueue.UpstreamFormatChangedListener-">setUpstreamFormatChangeListener(SampleQueue.UpstreamFormatChangedListener)</a></span> - Method in class com.google.android.exoplayer2.source.<a href="com/google/android/exoplayer2/source/SampleQueue.html" title="class in com.google.android.exoplayer2.source">SampleQueue</a></dt>
 <dd>
 <div class="block">Sets a listener to be notified of changes to the upstream format.</div>
@@ -17547,7 +17667,7 @@
 </dd>
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/source/hls/playlist/HlsMediaPlaylist.html#startTimeUs">startTimeUs</a></span> - Variable in class com.google.android.exoplayer2.source.hls.playlist.<a href="com/google/android/exoplayer2/source/hls/playlist/HlsMediaPlaylist.html" title="class in com.google.android.exoplayer2.source.hls.playlist">HlsMediaPlaylist</a></dt>
 <dd>
-<div class="block">The start time of the playlist in playback timebase in microseconds.</div>
+<div class="block">If <a href="com/google/android/exoplayer2/source/hls/playlist/HlsMediaPlaylist.html#hasProgramDateTime"><code>HlsMediaPlaylist.hasProgramDateTime</code></a> is true, contains the datetime as microseconds since epoch.</div>
 </dd>
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/offline/DownloadService.html#startWithAction-android.content.Context-java.lang.Class-com.google.android.exoplayer2.offline.DownloadAction-boolean-">startWithAction(Context, Class&lt;? extends DownloadService&gt;, DownloadAction, boolean)</a></span> - Static method in class com.google.android.exoplayer2.offline.<a href="com/google/android/exoplayer2/offline/DownloadService.html" title="class in com.google.android.exoplayer2.offline">DownloadService</a></dt>
 <dd>
@@ -18005,6 +18125,18 @@
 <dd>
 <div class="block">The cue text, or null if this is an image cue.</div>
 </dd>
+<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/text/Cue.html#TEXT_SIZE_TYPE_ABSOLUTE">TEXT_SIZE_TYPE_ABSOLUTE</a></span> - Static variable in class com.google.android.exoplayer2.text.<a href="com/google/android/exoplayer2/text/Cue.html" title="class in com.google.android.exoplayer2.text">Cue</a></dt>
+<dd>
+<div class="block">Text size is measured in number of pixels.</div>
+</dd>
+<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/text/Cue.html#TEXT_SIZE_TYPE_FRACTIONAL">TEXT_SIZE_TYPE_FRACTIONAL</a></span> - Static variable in class com.google.android.exoplayer2.text.<a href="com/google/android/exoplayer2/text/Cue.html" title="class in com.google.android.exoplayer2.text">Cue</a></dt>
+<dd>
+<div class="block">Text size is measured as a fraction of the viewport size minus the view padding.</div>
+</dd>
+<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/text/Cue.html#TEXT_SIZE_TYPE_FRACTIONAL_IGNORE_PADDING">TEXT_SIZE_TYPE_FRACTIONAL_IGNORE_PADDING</a></span> - Static variable in class com.google.android.exoplayer2.text.<a href="com/google/android/exoplayer2/text/Cue.html" title="class in com.google.android.exoplayer2.text">Cue</a></dt>
+<dd>
+<div class="block">Text size is measured as a fraction of the viewport size, ignoring the view padding</div>
+</dd>
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/util/MimeTypes.html#TEXT_SSA">TEXT_SSA</a></span> - Static variable in class com.google.android.exoplayer2.util.<a href="com/google/android/exoplayer2/util/MimeTypes.html" title="class in com.google.android.exoplayer2.util">MimeTypes</a></dt>
 <dd>&nbsp;</dd>
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/util/MimeTypes.html#TEXT_VTT">TEXT_VTT</a></span> - Static variable in class com.google.android.exoplayer2.util.<a href="com/google/android/exoplayer2/util/MimeTypes.html" title="class in com.google.android.exoplayer2.util">MimeTypes</a></dt>
@@ -18036,6 +18168,16 @@
 <div class="block"><span class="deprecatedLabel">Deprecated.</span>
 <div class="block"><span class="deprecationComment">Use <a href="com/google/android/exoplayer2/text/TextOutput.html" title="interface in com.google.android.exoplayer2.text"><code>TextOutput</code></a>.</span></div>
 </div>
+</dd>
+<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/text/Cue.html#textSize">textSize</a></span> - Variable in class com.google.android.exoplayer2.text.<a href="com/google/android/exoplayer2/text/Cue.html" title="class in com.google.android.exoplayer2.text">Cue</a></dt>
+<dd>
+<div class="block">The default text size for this cue's text, or <a href="com/google/android/exoplayer2/text/Cue.html#DIMEN_UNSET"><code>Cue.DIMEN_UNSET</code></a> if this cue has no default
+ text size.</div>
+</dd>
+<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/text/Cue.html#textSizeType">textSizeType</a></span> - Variable in class com.google.android.exoplayer2.text.<a href="com/google/android/exoplayer2/text/Cue.html" title="class in com.google.android.exoplayer2.text">Cue</a></dt>
+<dd>
+<div class="block">The default text size type for this cue's text, or <a href="com/google/android/exoplayer2/text/Cue.html#TYPE_UNSET"><code>Cue.TYPE_UNSET</code></a> if this cue has no
+ default text size.</div>
 </dd>
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/C.html#TIME_END_OF_SOURCE">TIME_END_OF_SOURCE</a></span> - Static variable in class com.google.android.exoplayer2.<a href="com/google/android/exoplayer2/C.html" title="class in com.google.android.exoplayer2">C</a></dt>
 <dd>
@@ -19314,6 +19456,10 @@
 <dd>
 <div class="block">Returns an instance with all ads in the specified ad group skipped (except for those already
  marked as played or in the error state).</div>
+</dd>
+<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/upstream/DataSpec.html#withUri-android.net.Uri-">withUri(Uri)</a></span> - Method in class com.google.android.exoplayer2.upstream.<a href="com/google/android/exoplayer2/upstream/DataSpec.html" title="class in com.google.android.exoplayer2.upstream">DataSpec</a></dt>
+<dd>
+<div class="block">Returns a copy of this <a href="com/google/android/exoplayer2/upstream/DataSpec.html" title="class in com.google.android.exoplayer2.upstream"><code>DataSpec</code></a> with the specified Uri.</div>
 </dd>
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/upstream/ByteArrayDataSink.html#write-byte:A-int-int-">write(byte[], int, int)</a></span> - Method in class com.google.android.exoplayer2.upstream.<a href="com/google/android/exoplayer2/upstream/ByteArrayDataSink.html" title="class in com.google.android.exoplayer2.upstream">ByteArrayDataSink</a></dt>
 <dd>&nbsp;</dd>

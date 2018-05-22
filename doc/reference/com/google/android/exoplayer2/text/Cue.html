@@ -137,6 +137,12 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 <div class="block">The type of line, which may be unset.</div>
 </td>
 </tr>
+<tr class="altColor">
+<td class="colFirst"><code>static interface&nbsp;</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/text/Cue.TextSizeType.html" title="annotation in com.google.android.exoplayer2.text">Cue.TextSizeType</a></span></code>
+<div class="block">The type of default text size for this cue, which may be unset.</div>
+</td>
+</tr>
 </table>
 </li>
 </ul>
@@ -250,24 +256,56 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 </td>
 </tr>
 <tr class="rowColor">
+<td class="colFirst"><code>static int</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/text/Cue.html#TEXT_SIZE_TYPE_ABSOLUTE">TEXT_SIZE_TYPE_ABSOLUTE</a></span></code>
+<div class="block">Text size is measured in number of pixels.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>static int</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/text/Cue.html#TEXT_SIZE_TYPE_FRACTIONAL">TEXT_SIZE_TYPE_FRACTIONAL</a></span></code>
+<div class="block">Text size is measured as a fraction of the viewport size minus the view padding.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>static int</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/text/Cue.html#TEXT_SIZE_TYPE_FRACTIONAL_IGNORE_PADDING">TEXT_SIZE_TYPE_FRACTIONAL_IGNORE_PADDING</a></span></code>
+<div class="block">Text size is measured as a fraction of the viewport size, ignoring the view padding</div>
+</td>
+</tr>
+<tr class="altColor">
 <td class="colFirst"><code><a href="https://developer.android.com/reference/android/text/Layout.Alignment.html" target="_top" title="class or interface in android.text">Layout.Alignment</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/text/Cue.html#textAlignment">textAlignment</a></span></code>
 <div class="block">The alignment of the cue text within the cue box, or null if the alignment is undefined.</div>
 </td>
 </tr>
+<tr class="rowColor">
+<td class="colFirst"><code>float</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/text/Cue.html#textSize">textSize</a></span></code>
+<div class="block">The default text size for this cue's text, or <a href="../../../../../com/google/android/exoplayer2/text/Cue.html#DIMEN_UNSET"><code>DIMEN_UNSET</code></a> if this cue has no default
+ text size.</div>
+</td>
+</tr>
 <tr class="altColor">
+<td class="colFirst"><code>int</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/text/Cue.html#textSizeType">textSizeType</a></span></code>
+<div class="block">The default text size type for this cue's text, or <a href="../../../../../com/google/android/exoplayer2/text/Cue.html#TYPE_UNSET"><code>TYPE_UNSET</code></a> if this cue has no
+ default text size.</div>
+</td>
+</tr>
+<tr class="rowColor">
 <td class="colFirst"><code>static int</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/text/Cue.html#TYPE_UNSET">TYPE_UNSET</a></span></code>
 <div class="block">An unset anchor or line type value.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>int</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/text/Cue.html#windowColor">windowColor</a></span></code>
 <div class="block">The fill color of the window.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>boolean</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/text/Cue.html#windowColorSet">windowColorSet</a></span></code>
 <div class="block">Specifies whether or not the <a href="../../../../../com/google/android/exoplayer2/text/Cue.html#windowColor"><code>windowColor</code></a> property is set.</div>
@@ -327,6 +365,20 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
    float&nbsp;size,
    boolean&nbsp;windowColorSet,
    int&nbsp;windowColor)</code>
+<div class="block">Creates a text cue.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/text/Cue.html#Cue-java.lang.CharSequence-android.text.Layout.Alignment-float-int-int-float-int-float-int-float-">Cue</a></span>(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/CharSequence.html" target="_top" title="class or interface in java.lang">CharSequence</a>&nbsp;text,
+   <a href="https://developer.android.com/reference/android/text/Layout.Alignment.html" target="_top" title="class or interface in android.text">Layout.Alignment</a>&nbsp;textAlignment,
+   float&nbsp;line,
+   int&nbsp;lineType,
+   int&nbsp;lineAnchor,
+   float&nbsp;position,
+   int&nbsp;positionAnchor,
+   float&nbsp;size,
+   int&nbsp;textSizeType,
+   float&nbsp;textSize)</code>
 <div class="block">Creates a text cue.</div>
 </td>
 </tr>
@@ -460,6 +512,48 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 </dl>
 </li>
 </ul>
+<a name="TEXT_SIZE_TYPE_FRACTIONAL">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>TEXT_SIZE_TYPE_FRACTIONAL</h4>
+<pre>public static final&nbsp;int TEXT_SIZE_TYPE_FRACTIONAL</pre>
+<div class="block">Text size is measured as a fraction of the viewport size minus the view padding.</div>
+<dl>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="../../../../../constant-values.html#com.google.android.exoplayer2.text.Cue.TEXT_SIZE_TYPE_FRACTIONAL">Constant Field Values</a></dd>
+</dl>
+</li>
+</ul>
+<a name="TEXT_SIZE_TYPE_FRACTIONAL_IGNORE_PADDING">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>TEXT_SIZE_TYPE_FRACTIONAL_IGNORE_PADDING</h4>
+<pre>public static final&nbsp;int TEXT_SIZE_TYPE_FRACTIONAL_IGNORE_PADDING</pre>
+<div class="block">Text size is measured as a fraction of the viewport size, ignoring the view padding</div>
+<dl>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="../../../../../constant-values.html#com.google.android.exoplayer2.text.Cue.TEXT_SIZE_TYPE_FRACTIONAL_IGNORE_PADDING">Constant Field Values</a></dd>
+</dl>
+</li>
+</ul>
+<a name="TEXT_SIZE_TYPE_ABSOLUTE">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>TEXT_SIZE_TYPE_ABSOLUTE</h4>
+<pre>public static final&nbsp;int TEXT_SIZE_TYPE_ABSOLUTE</pre>
+<div class="block">Text size is measured in number of pixels.</div>
+<dl>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="../../../../../constant-values.html#com.google.android.exoplayer2.text.Cue.TEXT_SIZE_TYPE_ABSOLUTE">Constant Field Values</a></dd>
+</dl>
+</li>
+</ul>
 <a name="text">
 <!--   -->
 </a>
@@ -514,28 +608,27 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 <h4>lineType</h4>
 <pre>public final&nbsp;int lineType</pre>
 <div class="block">The type of the <a href="../../../../../com/google/android/exoplayer2/text/Cue.html#line"><code>line</code></a> value.
- <p>
- <a href="../../../../../com/google/android/exoplayer2/text/Cue.html#LINE_TYPE_FRACTION"><code>LINE_TYPE_FRACTION</code></a> indicates that <a href="../../../../../com/google/android/exoplayer2/text/Cue.html#line"><code>line</code></a> is a fractional position within the
+
+ <p><a href="../../../../../com/google/android/exoplayer2/text/Cue.html#LINE_TYPE_FRACTION"><code>LINE_TYPE_FRACTION</code></a> indicates that <a href="../../../../../com/google/android/exoplayer2/text/Cue.html#line"><code>line</code></a> is a fractional position within the
  viewport.
- <p>
- <a href="../../../../../com/google/android/exoplayer2/text/Cue.html#LINE_TYPE_NUMBER"><code>LINE_TYPE_NUMBER</code></a> indicates that <a href="../../../../../com/google/android/exoplayer2/text/Cue.html#line"><code>line</code></a> is a line number, where the size of each
- line is taken to be the size of the first line of the cue. When <a href="../../../../../com/google/android/exoplayer2/text/Cue.html#line"><code>line</code></a> is greater than
- or equal to 0 lines count from the start of the viewport, with 0 indicating zero offset from
- the start edge. When <a href="../../../../../com/google/android/exoplayer2/text/Cue.html#line"><code>line</code></a> is negative lines count from the end of the viewport, with
- -1 indicating zero offset from the end edge. For horizontal text the line spacing is the height
- of the first line of the cue, and the start and end of the viewport are the top and bottom
- respectively.
- <p>
- Note that it's particularly important to consider the effect of <a href="../../../../../com/google/android/exoplayer2/text/Cue.html#lineAnchor"><code>lineAnchor</code></a> when using
- <a href="../../../../../com/google/android/exoplayer2/text/Cue.html#LINE_TYPE_NUMBER"><code>LINE_TYPE_NUMBER</code></a>. <code>(line == 0 &amp;&amp; lineAnchor == ANCHOR_TYPE_START)</code> positions a
- (potentially multi-line) cue at the very top of the viewport.
- <code>(line == -1 &amp;&amp; lineAnchor == ANCHOR_TYPE_END)</code> positions a (potentially multi-line) cue
- at the very bottom of the viewport. <code>(line == 0 &amp;&amp; lineAnchor == ANCHOR_TYPE_END)</code>
- and <code>(line == -1 &amp;&amp; lineAnchor == ANCHOR_TYPE_START)</code> position cues entirely outside of
- the viewport. <code>(line == 1 &amp;&amp; lineAnchor == ANCHOR_TYPE_END)</code> positions a cue so that only
- the last line is visible at the top of the viewport.
- <code>(line == -2 &amp;&amp; lineAnchor == ANCHOR_TYPE_START)</code> position a cue so that only its first
- line is visible at the bottom of the viewport.</div>
+
+ <p><a href="../../../../../com/google/android/exoplayer2/text/Cue.html#LINE_TYPE_NUMBER"><code>LINE_TYPE_NUMBER</code></a> indicates that <a href="../../../../../com/google/android/exoplayer2/text/Cue.html#line"><code>line</code></a> is a line number, where the size of
+ each line is taken to be the size of the first line of the cue. When <a href="../../../../../com/google/android/exoplayer2/text/Cue.html#line"><code>line</code></a> is greater
+ than or equal to 0 lines count from the start of the viewport, with 0 indicating zero offset
+ from the start edge. When <a href="../../../../../com/google/android/exoplayer2/text/Cue.html#line"><code>line</code></a> is negative lines count from the end of the viewport,
+ with -1 indicating zero offset from the end edge. For horizontal text the line spacing is the
+ height of the first line of the cue, and the start and end of the viewport are the top and
+ bottom respectively.
+
+ <p>Note that it's particularly important to consider the effect of <a href="../../../../../com/google/android/exoplayer2/text/Cue.html#lineAnchor"><code>lineAnchor</code></a> when
+ using <a href="../../../../../com/google/android/exoplayer2/text/Cue.html#LINE_TYPE_NUMBER"><code>LINE_TYPE_NUMBER</code></a>. <code>(line == 0 &amp;&amp; lineAnchor == ANCHOR_TYPE_START)</code>
+ positions a (potentially multi-line) cue at the very top of the viewport. <code>(line == -1 &amp;&amp;
+ lineAnchor == ANCHOR_TYPE_END)</code> positions a (potentially multi-line) cue at the very bottom of
+ the viewport. <code>(line == 0 &amp;&amp; lineAnchor == ANCHOR_TYPE_END)</code> and <code>(line == -1 &amp;&amp;
+ lineAnchor == ANCHOR_TYPE_START)</code> position cues entirely outside of the viewport. <code>(line
+ == 1 &amp;&amp; lineAnchor == ANCHOR_TYPE_END)</code> positions a cue so that only the last line is visible
+ at the top of the viewport. <code>(line == -2 &amp;&amp; lineAnchor == ANCHOR_TYPE_START)</code> position a
+ cue so that only its first line is visible at the bottom of the viewport.</div>
 </li>
 </ul>
 <a name="lineAnchor">
@@ -545,12 +638,10 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 <li class="blockList">
 <h4>lineAnchor</h4>
 <pre>public final&nbsp;int lineAnchor</pre>
-<div class="block">The cue box anchor positioned by <a href="../../../../../com/google/android/exoplayer2/text/Cue.html#line"><code>line</code></a>. One of <a href="../../../../../com/google/android/exoplayer2/text/Cue.html#ANCHOR_TYPE_START"><code>ANCHOR_TYPE_START</code></a>,
- <a href="../../../../../com/google/android/exoplayer2/text/Cue.html#ANCHOR_TYPE_MIDDLE"><code>ANCHOR_TYPE_MIDDLE</code></a>, <a href="../../../../../com/google/android/exoplayer2/text/Cue.html#ANCHOR_TYPE_END"><code>ANCHOR_TYPE_END</code></a> and <a href="../../../../../com/google/android/exoplayer2/text/Cue.html#TYPE_UNSET"><code>TYPE_UNSET</code></a>.
- <p>
- For the normal case of horizontal text, <a href="../../../../../com/google/android/exoplayer2/text/Cue.html#ANCHOR_TYPE_START"><code>ANCHOR_TYPE_START</code></a>, <a href="../../../../../com/google/android/exoplayer2/text/Cue.html#ANCHOR_TYPE_MIDDLE"><code>ANCHOR_TYPE_MIDDLE</code></a>
- and <a href="../../../../../com/google/android/exoplayer2/text/Cue.html#ANCHOR_TYPE_END"><code>ANCHOR_TYPE_END</code></a> correspond to the top, middle and bottom of the cue box
- respectively.</div>
+<div class="block">The cue box anchor positioned by <a href="../../../../../com/google/android/exoplayer2/text/Cue.html#line"><code>line</code></a>. One of <a href="../../../../../com/google/android/exoplayer2/text/Cue.html#ANCHOR_TYPE_START"><code>ANCHOR_TYPE_START</code></a>, <a href="../../../../../com/google/android/exoplayer2/text/Cue.html#ANCHOR_TYPE_MIDDLE"><code>ANCHOR_TYPE_MIDDLE</code></a>, <a href="../../../../../com/google/android/exoplayer2/text/Cue.html#ANCHOR_TYPE_END"><code>ANCHOR_TYPE_END</code></a> and <a href="../../../../../com/google/android/exoplayer2/text/Cue.html#TYPE_UNSET"><code>TYPE_UNSET</code></a>.
+
+ <p>For the normal case of horizontal text, <a href="../../../../../com/google/android/exoplayer2/text/Cue.html#ANCHOR_TYPE_START"><code>ANCHOR_TYPE_START</code></a>, <a href="../../../../../com/google/android/exoplayer2/text/Cue.html#ANCHOR_TYPE_MIDDLE"><code>ANCHOR_TYPE_MIDDLE</code></a> and <a href="../../../../../com/google/android/exoplayer2/text/Cue.html#ANCHOR_TYPE_END"><code>ANCHOR_TYPE_END</code></a> correspond to the top, middle and bottom of
+ the cue box respectively.</div>
 </li>
 </ul>
 <a name="position">
@@ -575,12 +666,10 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 <li class="blockList">
 <h4>positionAnchor</h4>
 <pre>public final&nbsp;int positionAnchor</pre>
-<div class="block">The cue box anchor positioned by <a href="../../../../../com/google/android/exoplayer2/text/Cue.html#position"><code>position</code></a>. One of <a href="../../../../../com/google/android/exoplayer2/text/Cue.html#ANCHOR_TYPE_START"><code>ANCHOR_TYPE_START</code></a>,
- <a href="../../../../../com/google/android/exoplayer2/text/Cue.html#ANCHOR_TYPE_MIDDLE"><code>ANCHOR_TYPE_MIDDLE</code></a>, <a href="../../../../../com/google/android/exoplayer2/text/Cue.html#ANCHOR_TYPE_END"><code>ANCHOR_TYPE_END</code></a> and <a href="../../../../../com/google/android/exoplayer2/text/Cue.html#TYPE_UNSET"><code>TYPE_UNSET</code></a>.
- <p>
- For the normal case of horizontal text, <a href="../../../../../com/google/android/exoplayer2/text/Cue.html#ANCHOR_TYPE_START"><code>ANCHOR_TYPE_START</code></a>, <a href="../../../../../com/google/android/exoplayer2/text/Cue.html#ANCHOR_TYPE_MIDDLE"><code>ANCHOR_TYPE_MIDDLE</code></a>
- and <a href="../../../../../com/google/android/exoplayer2/text/Cue.html#ANCHOR_TYPE_END"><code>ANCHOR_TYPE_END</code></a> correspond to the left, middle and right of the cue box
- respectively.</div>
+<div class="block">The cue box anchor positioned by <a href="../../../../../com/google/android/exoplayer2/text/Cue.html#position"><code>position</code></a>. One of <a href="../../../../../com/google/android/exoplayer2/text/Cue.html#ANCHOR_TYPE_START"><code>ANCHOR_TYPE_START</code></a>, <a href="../../../../../com/google/android/exoplayer2/text/Cue.html#ANCHOR_TYPE_MIDDLE"><code>ANCHOR_TYPE_MIDDLE</code></a>, <a href="../../../../../com/google/android/exoplayer2/text/Cue.html#ANCHOR_TYPE_END"><code>ANCHOR_TYPE_END</code></a> and <a href="../../../../../com/google/android/exoplayer2/text/Cue.html#TYPE_UNSET"><code>TYPE_UNSET</code></a>.
+
+ <p>For the normal case of horizontal text, <a href="../../../../../com/google/android/exoplayer2/text/Cue.html#ANCHOR_TYPE_START"><code>ANCHOR_TYPE_START</code></a>, <a href="../../../../../com/google/android/exoplayer2/text/Cue.html#ANCHOR_TYPE_MIDDLE"><code>ANCHOR_TYPE_MIDDLE</code></a> and <a href="../../../../../com/google/android/exoplayer2/text/Cue.html#ANCHOR_TYPE_END"><code>ANCHOR_TYPE_END</code></a> correspond to the left, middle and right of
+ the cue box respectively.</div>
 </li>
 </ul>
 <a name="size">
@@ -619,11 +708,33 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 <a name="windowColor">
 <!--   -->
 </a>
-<ul class="blockListLast">
+<ul class="blockList">
 <li class="blockList">
 <h4>windowColor</h4>
 <pre>public final&nbsp;int windowColor</pre>
 <div class="block">The fill color of the window.</div>
+</li>
+</ul>
+<a name="textSizeType">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>textSizeType</h4>
+<pre>public final&nbsp;int textSizeType</pre>
+<div class="block">The default text size type for this cue's text, or <a href="../../../../../com/google/android/exoplayer2/text/Cue.html#TYPE_UNSET"><code>TYPE_UNSET</code></a> if this cue has no
+ default text size.</div>
+</li>
+</ul>
+<a name="textSize">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>textSize</h4>
+<pre>public final&nbsp;float textSize</pre>
+<div class="block">The default text size for this cue's text, or <a href="../../../../../com/google/android/exoplayer2/text/Cue.html#DIMEN_UNSET"><code>DIMEN_UNSET</code></a> if this cue has no default
+ text size.</div>
 </li>
 </ul>
 </li>
@@ -657,12 +768,10 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
      <a href="../../../../../com/google/android/exoplayer2/text/Cue.html#ANCHOR_TYPE_MIDDLE"><code>ANCHOR_TYPE_MIDDLE</code></a>, <a href="../../../../../com/google/android/exoplayer2/text/Cue.html#ANCHOR_TYPE_END"><code>ANCHOR_TYPE_END</code></a> and <a href="../../../../../com/google/android/exoplayer2/text/Cue.html#TYPE_UNSET"><code>TYPE_UNSET</code></a>.</dd>
 <dd><code>verticalPosition</code> - The position of the vertical anchor within the viewport, expressed as a
      fraction of the viewport height.</dd>
-<dd><code>verticalPositionAnchor</code> - The vertical anchor. One of <a href="../../../../../com/google/android/exoplayer2/text/Cue.html#ANCHOR_TYPE_START"><code>ANCHOR_TYPE_START</code></a>,
-     <a href="../../../../../com/google/android/exoplayer2/text/Cue.html#ANCHOR_TYPE_MIDDLE"><code>ANCHOR_TYPE_MIDDLE</code></a>, <a href="../../../../../com/google/android/exoplayer2/text/Cue.html#ANCHOR_TYPE_END"><code>ANCHOR_TYPE_END</code></a> and <a href="../../../../../com/google/android/exoplayer2/text/Cue.html#TYPE_UNSET"><code>TYPE_UNSET</code></a>.</dd>
+<dd><code>verticalPositionAnchor</code> - The vertical anchor. One of <a href="../../../../../com/google/android/exoplayer2/text/Cue.html#ANCHOR_TYPE_START"><code>ANCHOR_TYPE_START</code></a>, <a href="../../../../../com/google/android/exoplayer2/text/Cue.html#ANCHOR_TYPE_MIDDLE"><code>ANCHOR_TYPE_MIDDLE</code></a>, <a href="../../../../../com/google/android/exoplayer2/text/Cue.html#ANCHOR_TYPE_END"><code>ANCHOR_TYPE_END</code></a> and <a href="../../../../../com/google/android/exoplayer2/text/Cue.html#TYPE_UNSET"><code>TYPE_UNSET</code></a>.</dd>
 <dd><code>width</code> - The width of the cue as a fraction of the viewport width.</dd>
-<dd><code>height</code> - The height of the cue as a fraction of the viewport height, or
-     <a href="../../../../../com/google/android/exoplayer2/text/Cue.html#DIMEN_UNSET"><code>DIMEN_UNSET</code></a> if the bitmap should be displayed at its natural height for the
-     specified <code>width</code>.</dd>
+<dd><code>height</code> - The height of the cue as a fraction of the viewport height, or <a href="../../../../../com/google/android/exoplayer2/text/Cue.html#DIMEN_UNSET"><code>DIMEN_UNSET</code></a> if the bitmap should be displayed at its natural height for the specified
+     <code>width</code>.</dd>
 </dl>
 </li>
 </ul>
@@ -706,6 +815,38 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 <dd><code>position</code> - See <a href="../../../../../com/google/android/exoplayer2/text/Cue.html#position"><code>position</code></a>.</dd>
 <dd><code>positionAnchor</code> - See <a href="../../../../../com/google/android/exoplayer2/text/Cue.html#positionAnchor"><code>positionAnchor</code></a>.</dd>
 <dd><code>size</code> - See <a href="../../../../../com/google/android/exoplayer2/text/Cue.html#size"><code>size</code></a>.</dd>
+</dl>
+</li>
+</ul>
+<a name="Cue-java.lang.CharSequence-android.text.Layout.Alignment-float-int-int-float-int-float-int-float-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>Cue</h4>
+<pre>public&nbsp;Cue(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/CharSequence.html" target="_top" title="class or interface in java.lang">CharSequence</a>&nbsp;text,
+           <a href="https://developer.android.com/reference/android/text/Layout.Alignment.html" target="_top" title="class or interface in android.text">Layout.Alignment</a>&nbsp;textAlignment,
+           float&nbsp;line,
+           int&nbsp;lineType,
+           int&nbsp;lineAnchor,
+           float&nbsp;position,
+           int&nbsp;positionAnchor,
+           float&nbsp;size,
+           int&nbsp;textSizeType,
+           float&nbsp;textSize)</pre>
+<div class="block">Creates a text cue.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>text</code> - See <a href="../../../../../com/google/android/exoplayer2/text/Cue.html#text"><code>text</code></a>.</dd>
+<dd><code>textAlignment</code> - See <a href="../../../../../com/google/android/exoplayer2/text/Cue.html#textAlignment"><code>textAlignment</code></a>.</dd>
+<dd><code>line</code> - See <a href="../../../../../com/google/android/exoplayer2/text/Cue.html#line"><code>line</code></a>.</dd>
+<dd><code>lineType</code> - See <a href="../../../../../com/google/android/exoplayer2/text/Cue.html#lineType"><code>lineType</code></a>.</dd>
+<dd><code>lineAnchor</code> - See <a href="../../../../../com/google/android/exoplayer2/text/Cue.html#lineAnchor"><code>lineAnchor</code></a>.</dd>
+<dd><code>position</code> - See <a href="../../../../../com/google/android/exoplayer2/text/Cue.html#position"><code>position</code></a>.</dd>
+<dd><code>positionAnchor</code> - See <a href="../../../../../com/google/android/exoplayer2/text/Cue.html#positionAnchor"><code>positionAnchor</code></a>.</dd>
+<dd><code>size</code> - See <a href="../../../../../com/google/android/exoplayer2/text/Cue.html#size"><code>size</code></a>.</dd>
+<dd><code>textSizeType</code> - See <a href="../../../../../com/google/android/exoplayer2/text/Cue.html#textSizeType"><code>textSizeType</code></a>.</dd>
+<dd><code>textSize</code> - See <a href="../../../../../com/google/android/exoplayer2/text/Cue.html#textSize"><code>textSize</code></a>.</dd>
 </dl>
 </li>
 </ul>

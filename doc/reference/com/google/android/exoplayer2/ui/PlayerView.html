@@ -16,7 +16,7 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":10,"i11":10,"i12":10,"i13":10,"i14":10,"i15":10,"i16":10,"i17":10,"i18":10,"i19":10,"i20":10,"i21":10,"i22":10,"i23":10,"i24":10,"i25":10,"i26":10,"i27":10,"i28":10,"i29":10,"i30":10,"i31":10,"i32":10,"i33":10,"i34":10,"i35":10,"i36":10,"i37":10,"i38":10,"i39":10,"i40":10,"i41":9};
+var methods = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":10,"i11":10,"i12":10,"i13":10,"i14":10,"i15":10,"i16":10,"i17":10,"i18":10,"i19":10,"i20":10,"i21":10,"i22":10,"i23":10,"i24":10,"i25":10,"i26":10,"i27":10,"i28":10,"i29":10,"i30":10,"i31":10,"i32":10,"i33":10,"i34":10,"i35":10,"i36":10,"i37":10,"i38":10,"i39":10,"i40":10,"i41":10,"i42":9};
 var tabs = {65535:["t0","All Methods"],1:["t1","Static Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -203,6 +203,12 @@ extends <a href="https://developer.android.com/reference/android/widget/FrameLay
        <ul>
          <li>Corresponding method: <a href="../../../../../com/google/android/exoplayer2/ui/PlayerView.html#setShutterBackgroundColor-int-"><code>setShutterBackgroundColor(int)</code></a>
          <li>Default: <code>unset</code>
+       </ul>
+   <li><b><code>keep_content_on_player_reset</code></b> - Whether the currently displayed video frame
+       or media artwork is kept visible when the player is reset.
+       <ul>
+         <li>Corresponding method: <a href="../../../../../com/google/android/exoplayer2/ui/PlayerView.html#setKeepContentOnPlayerReset-boolean-"><code>setKeepContentOnPlayerReset(boolean)</code></a>
+         <li>Default: <code>false</code>
        </ul>
    <li><b><code>player_layout_id</code></b> - Specifies the id of the layout to be inflated. See below
        for more details.
@@ -553,81 +559,88 @@ extends <a href="https://developer.android.com/reference/android/widget/FrameLay
 </tr>
 <tr id="i28" class="altColor">
 <td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/ui/PlayerView.html#setKeepContentOnPlayerReset-boolean-">setKeepContentOnPlayerReset</a></span>(boolean&nbsp;keepContentOnPlayerReset)</code>
+<div class="block">Sets whether the currently displayed video frame or media artwork is kept visible when the
+ player is reset.</div>
+</td>
+</tr>
+<tr id="i29" class="rowColor">
+<td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/ui/PlayerView.html#setPlaybackPreparer-com.google.android.exoplayer2.PlaybackPreparer-">setPlaybackPreparer</a></span>(<a href="../../../../../com/google/android/exoplayer2/PlaybackPreparer.html" title="interface in com.google.android.exoplayer2">PlaybackPreparer</a>&nbsp;playbackPreparer)</code>
 <div class="block">Sets the <a href="../../../../../com/google/android/exoplayer2/PlaybackPreparer.html" title="interface in com.google.android.exoplayer2"><code>PlaybackPreparer</code></a>.</div>
 </td>
 </tr>
-<tr id="i29" class="rowColor">
+<tr id="i30" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/ui/PlayerView.html#setPlayer-com.google.android.exoplayer2.Player-">setPlayer</a></span>(<a href="../../../../../com/google/android/exoplayer2/Player.html" title="interface in com.google.android.exoplayer2">Player</a>&nbsp;player)</code>
 <div class="block">Set the <a href="../../../../../com/google/android/exoplayer2/Player.html" title="interface in com.google.android.exoplayer2"><code>Player</code></a> to use.</div>
 </td>
 </tr>
-<tr id="i30" class="altColor">
+<tr id="i31" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/ui/PlayerView.html#setRepeatToggleModes-int-">setRepeatToggleModes</a></span>(int&nbsp;repeatToggleModes)</code>
 <div class="block">Sets which repeat toggle modes are enabled.</div>
 </td>
 </tr>
-<tr id="i31" class="rowColor">
+<tr id="i32" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/ui/PlayerView.html#setResizeMode-int-">setResizeMode</a></span>(int&nbsp;resizeMode)</code>
 <div class="block">Sets the resize mode.</div>
 </td>
 </tr>
-<tr id="i32" class="altColor">
+<tr id="i33" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/ui/PlayerView.html#setRewindIncrementMs-int-">setRewindIncrementMs</a></span>(int&nbsp;rewindMs)</code>
 <div class="block">Sets the rewind increment in milliseconds.</div>
 </td>
 </tr>
-<tr id="i33" class="rowColor">
+<tr id="i34" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/ui/PlayerView.html#setShowBuffering-boolean-">setShowBuffering</a></span>(boolean&nbsp;showBuffering)</code>
 <div class="block">Sets whether a buffering spinner is displayed when the player is in the buffering state.</div>
 </td>
 </tr>
-<tr id="i34" class="altColor">
+<tr id="i35" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/ui/PlayerView.html#setShowMultiWindowTimeBar-boolean-">setShowMultiWindowTimeBar</a></span>(boolean&nbsp;showMultiWindowTimeBar)</code>
 <div class="block">Sets whether the time bar should show all windows, as opposed to just the current one.</div>
 </td>
 </tr>
-<tr id="i35" class="rowColor">
+<tr id="i36" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/ui/PlayerView.html#setShowShuffleButton-boolean-">setShowShuffleButton</a></span>(boolean&nbsp;showShuffleButton)</code>
 <div class="block">Sets whether the shuffle button is shown.</div>
 </td>
 </tr>
-<tr id="i36" class="altColor">
+<tr id="i37" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/ui/PlayerView.html#setShutterBackgroundColor-int-">setShutterBackgroundColor</a></span>(int&nbsp;color)</code>
 <div class="block">Sets the background color of the <code>exo_shutter</code> view.</div>
 </td>
 </tr>
-<tr id="i37" class="rowColor">
+<tr id="i38" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/ui/PlayerView.html#setUseArtwork-boolean-">setUseArtwork</a></span>(boolean&nbsp;useArtwork)</code>
 <div class="block">Sets whether artwork is displayed if present in the media.</div>
 </td>
 </tr>
-<tr id="i38" class="altColor">
+<tr id="i39" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/ui/PlayerView.html#setUseController-boolean-">setUseController</a></span>(boolean&nbsp;useController)</code>
 <div class="block">Sets whether the playback controls can be shown.</div>
 </td>
 </tr>
-<tr id="i39" class="rowColor">
+<tr id="i40" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/ui/PlayerView.html#setVisibility-int-">setVisibility</a></span>(int&nbsp;visibility)</code>&nbsp;</td>
 </tr>
-<tr id="i40" class="altColor">
+<tr id="i41" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/ui/PlayerView.html#showController--">showController</a></span>()</code>
 <div class="block">Shows the playback controls.</div>
 </td>
 </tr>
-<tr id="i41" class="rowColor">
+<tr id="i42" class="altColor">
 <td class="colFirst"><code>static void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/ui/PlayerView.html#switchTargetView-com.google.android.exoplayer2.Player-com.google.android.exoplayer2.ui.PlayerView-com.google.android.exoplayer2.ui.PlayerView-">switchTargetView</a></span>(<a href="../../../../../com/google/android/exoplayer2/Player.html" title="interface in com.google.android.exoplayer2">Player</a>&nbsp;player,
                 <a href="../../../../../com/google/android/exoplayer2/ui/PlayerView.html" title="class in com.google.android.exoplayer2.ui">PlayerView</a>&nbsp;oldPlayerView,
@@ -896,6 +909,34 @@ extends <a href="https://developer.android.com/reference/android/widget/FrameLay
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>color</code> - The background color.</dd>
+</dl>
+</li>
+</ul>
+<a name="setKeepContentOnPlayerReset-boolean-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setKeepContentOnPlayerReset</h4>
+<pre>public&nbsp;void&nbsp;setKeepContentOnPlayerReset(boolean&nbsp;keepContentOnPlayerReset)</pre>
+<div class="block">Sets whether the currently displayed video frame or media artwork is kept visible when the
+ player is reset. A player reset is defined to mean the player being re-prepared with different
+ media, <a href="../../../../../com/google/android/exoplayer2/Player.html#stop-boolean-"><code>Player.stop(boolean)</code></a> being called with <code>reset=true</code>, or the player being
+ replaced or cleared by calling <a href="../../../../../com/google/android/exoplayer2/ui/PlayerView.html#setPlayer-com.google.android.exoplayer2.Player-"><code>setPlayer(Player)</code></a>.
+
+ <p>If enabled, the currently displayed video frame or media artwork will be kept visible until
+ the player set on the view has been successfully prepared with new media and loaded enough of
+ it to have determined the available tracks. Hence enabling this option allows transitioning
+ from playing one piece of media to another, or from using one player instance to another,
+ without clearing the view's content.
+
+ <p>If disabled, the currently displayed video frame or media artwork will be hidden as soon as
+ the player is reset. Note that the video frame is hidden by making <code>exo_shutter</code> visible.
+ Hence the video frame will not be hidden if using a custom layout that omits this view.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>keepContentOnPlayerReset</code> - Whether the currently displayed video frame or media artwork is
+     kept visible when the player is reset.</dd>
 </dl>
 </li>
 </ul>

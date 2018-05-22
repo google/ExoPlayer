@@ -262,7 +262,8 @@ extends <a href="https://developer.android.com/reference/android/widget/LinearLa
 <tr id="i4" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/ui/TrackSelectionView.html#setTrackNameProvider-com.google.android.exoplayer2.ui.TrackNameProvider-">setTrackNameProvider</a></span>(<a href="../../../../../com/google/android/exoplayer2/ui/TrackNameProvider.html" title="interface in com.google.android.exoplayer2.ui">TrackNameProvider</a>&nbsp;trackNameProvider)</code>
-<div class="block">Sets the <a href="../../../../../com/google/android/exoplayer2/ui/TrackNameProvider.html" title="interface in com.google.android.exoplayer2.ui"><code>TrackNameProvider</code></a> used to generate the user visible name of each track.</div>
+<div class="block">Sets the <a href="../../../../../com/google/android/exoplayer2/ui/TrackNameProvider.html" title="interface in com.google.android.exoplayer2.ui"><code>TrackNameProvider</code></a> used to generate the user visible name of each track and
+ updates the view with track names queried from the specified provider.</div>
 </td>
 </tr>
 </table>
@@ -331,6 +332,7 @@ extends <a href="https://developer.android.com/reference/android/widget/LinearLa
 <li class="blockList">
 <h4>TrackSelectionView</h4>
 <pre>public&nbsp;TrackSelectionView(<a href="https://developer.android.com/reference/android/content/Context.html" target="_top" title="class or interface in android.content">Context</a>&nbsp;context,
+                          <a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
                           <a href="https://developer.android.com/reference/android/util/AttributeSet.html" target="_top" title="class or interface in android.util">AttributeSet</a>&nbsp;attrs)</pre>
 </li>
 </ul>
@@ -341,7 +343,9 @@ extends <a href="https://developer.android.com/reference/android/widget/LinearLa
 <li class="blockList">
 <h4>TrackSelectionView</h4>
 <pre>public&nbsp;TrackSelectionView(<a href="https://developer.android.com/reference/android/content/Context.html" target="_top" title="class or interface in android.content">Context</a>&nbsp;context,
+                          <a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
                           <a href="https://developer.android.com/reference/android/util/AttributeSet.html" target="_top" title="class or interface in android.util">AttributeSet</a>&nbsp;attrs,
+                          <a href="https://developer.android.com/reference/android/support.annotation.AttrRes.html" target="_top" title="class or interface in android">@AttrRes</a>
                           int&nbsp;defStyleAttr)</pre>
 </li>
 </ul>
@@ -414,7 +418,8 @@ extends <a href="https://developer.android.com/reference/android/widget/LinearLa
 <li class="blockList">
 <h4>setTrackNameProvider</h4>
 <pre>public&nbsp;void&nbsp;setTrackNameProvider(<a href="../../../../../com/google/android/exoplayer2/ui/TrackNameProvider.html" title="interface in com.google.android.exoplayer2.ui">TrackNameProvider</a>&nbsp;trackNameProvider)</pre>
-<div class="block">Sets the <a href="../../../../../com/google/android/exoplayer2/ui/TrackNameProvider.html" title="interface in com.google.android.exoplayer2.ui"><code>TrackNameProvider</code></a> used to generate the user visible name of each track.</div>
+<div class="block">Sets the <a href="../../../../../com/google/android/exoplayer2/ui/TrackNameProvider.html" title="interface in com.google.android.exoplayer2.ui"><code>TrackNameProvider</code></a> used to generate the user visible name of each track and
+ updates the view with track names queried from the specified provider.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>trackNameProvider</code> - The <a href="../../../../../com/google/android/exoplayer2/ui/TrackNameProvider.html" title="interface in com.google.android.exoplayer2.ui"><code>TrackNameProvider</code></a> to use.</dd>

@@ -16,7 +16,7 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10};
+var methods = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -179,18 +179,24 @@ extends <a href="../../../../../../../com/google/android/exoplayer2/offline/Down
 </td>
 </tr>
 <tr id="i2" class="altColor">
+<td class="colFirst"><code><a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsPlaylist.html" title="class in com.google.android.exoplayer2.source.hls.playlist">HlsPlaylist</a></code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../../com/google/android/exoplayer2/source/hls/offline/HlsDownloadHelper.html#getPlaylist--">getPlaylist</a></span>()</code>
+<div class="block">Returns the HLS playlist.</div>
+</td>
+</tr>
+<tr id="i3" class="rowColor">
 <td class="colFirst"><code><a href="../../../../../../../com/google/android/exoplayer2/source/hls/offline/HlsDownloadAction.html" title="class in com.google.android.exoplayer2.source.hls.offline">HlsDownloadAction</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../../com/google/android/exoplayer2/source/hls/offline/HlsDownloadHelper.html#getRemoveAction-byte:A-">getRemoveAction</a></span>(byte[]&nbsp;data)</code>
 <div class="block">Builds a <a href="../../../../../../../com/google/android/exoplayer2/offline/DownloadAction.html" title="class in com.google.android.exoplayer2.offline"><code>DownloadAction</code></a> for removing the media.</div>
 </td>
 </tr>
-<tr id="i3" class="rowColor">
+<tr id="i4" class="altColor">
 <td class="colFirst"><code><a href="../../../../../../../com/google/android/exoplayer2/source/TrackGroupArray.html" title="class in com.google.android.exoplayer2.source">TrackGroupArray</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../../com/google/android/exoplayer2/source/hls/offline/HlsDownloadHelper.html#getTrackGroups-int-">getTrackGroups</a></span>(int&nbsp;periodIndex)</code>
 <div class="block">Returns the track groups for the given period.</div>
 </td>
 </tr>
-<tr id="i4" class="altColor">
+<tr id="i5" class="rowColor">
 <td class="colFirst"><code>protected void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../../com/google/android/exoplayer2/source/hls/offline/HlsDownloadHelper.html#prepareInternal--">prepareInternal</a></span>()</code>
 <div class="block">Called on a background thread during preparation.</div>
@@ -259,6 +265,16 @@ extends <a href="../../../../../../../com/google/android/exoplayer2/offline/Down
 <dt><span class="throwsLabel">Throws:</span></dt>
 <dd><code><a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/io/IOException.html" target="_top" title="class or interface in java.io">IOException</a></code> - If preparation fails.</dd>
 </dl>
+</li>
+</ul>
+<a name="getPlaylist--">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getPlaylist</h4>
+<pre>public&nbsp;<a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsPlaylist.html" title="class in com.google.android.exoplayer2.source.hls.playlist">HlsPlaylist</a>&nbsp;getPlaylist()</pre>
+<div class="block">Returns the HLS playlist. Must not be called until after preparation completes.</div>
 </li>
 </ul>
 <a name="getPeriodCount--">

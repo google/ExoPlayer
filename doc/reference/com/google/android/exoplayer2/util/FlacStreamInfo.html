@@ -16,7 +16,7 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":10,"i1":10,"i2":10};
+var methods = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -187,7 +187,9 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
               int&nbsp;sampleRate,
               int&nbsp;channels,
               int&nbsp;bitsPerSample,
-              long&nbsp;totalSamples)</code>&nbsp;</td>
+              long&nbsp;totalSamples)</code>
+<div class="block">Constructs a FlacStreamInfo given the parameters.</div>
+</td>
 </tr>
 </table>
 </li>
@@ -206,15 +208,33 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 </tr>
 <tr id="i0" class="altColor">
 <td class="colFirst"><code>int</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/FlacStreamInfo.html#bitRate--">bitRate</a></span>()</code>&nbsp;</td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/FlacStreamInfo.html#bitRate--">bitRate</a></span>()</code>
+<div class="block">Returns the bit-rate of the FLAC stream.</div>
+</td>
 </tr>
 <tr id="i1" class="rowColor">
 <td class="colFirst"><code>long</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/FlacStreamInfo.html#durationUs--">durationUs</a></span>()</code>&nbsp;</td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/FlacStreamInfo.html#durationUs--">durationUs</a></span>()</code>
+<div class="block">Returns the duration of the FLAC stream in microseconds.</div>
+</td>
 </tr>
 <tr id="i2" class="altColor">
+<td class="colFirst"><code>long</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/FlacStreamInfo.html#getApproxBytesPerFrame--">getApproxBytesPerFrame</a></span>()</code>
+<div class="block">Returns the approximate number of bytes per frame for the current FLAC stream.</div>
+</td>
+</tr>
+<tr id="i3" class="rowColor">
+<td class="colFirst"><code>long</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/FlacStreamInfo.html#getSampleIndex-long-">getSampleIndex</a></span>(long&nbsp;timeUs)</code>
+<div class="block">Returns the sample index for the sample at given position.</div>
+</td>
+</tr>
+<tr id="i4" class="altColor">
 <td class="colFirst"><code>int</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/FlacStreamInfo.html#maxDecodedFrameSize--">maxDecodedFrameSize</a></span>()</code>&nbsp;</td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/FlacStreamInfo.html#maxDecodedFrameSize--">maxDecodedFrameSize</a></span>()</code>
+<div class="block">Returns the maximum size for a decoded frame from the FLAC stream.</div>
+</td>
 </tr>
 </table>
 <ul class="blockList">
@@ -351,6 +371,21 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
                       int&nbsp;channels,
                       int&nbsp;bitsPerSample,
                       long&nbsp;totalSamples)</pre>
+<div class="block">Constructs a FlacStreamInfo given the parameters.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>minBlockSize</code> - Minimum block size of the FLAC stream.</dd>
+<dd><code>maxBlockSize</code> - Maximum block size of the FLAC stream.</dd>
+<dd><code>minFrameSize</code> - Minimum frame size of the FLAC stream.</dd>
+<dd><code>maxFrameSize</code> - Maximum frame size of the FLAC stream.</dd>
+<dd><code>sampleRate</code> - Sample rate of the FLAC stream.</dd>
+<dd><code>channels</code> - Number of channels of the FLAC stream.</dd>
+<dd><code>bitsPerSample</code> - Number of bits per sample of the FLAC stream.</dd>
+<dd><code>totalSamples</code> - Total samples of the FLAC stream.</dd>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="https://xiph.org/flac/format.html#metadata_block_streaminfo">FLAC format
+     METADATA_BLOCK_STREAMINFO</a></dd>
+</dl>
 </li>
 </ul>
 </li>
@@ -368,6 +403,7 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 <li class="blockList">
 <h4>maxDecodedFrameSize</h4>
 <pre>public&nbsp;int&nbsp;maxDecodedFrameSize()</pre>
+<div class="block">Returns the maximum size for a decoded frame from the FLAC stream.</div>
 </li>
 </ul>
 <a name="bitRate--">
@@ -377,15 +413,43 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 <li class="blockList">
 <h4>bitRate</h4>
 <pre>public&nbsp;int&nbsp;bitRate()</pre>
+<div class="block">Returns the bit-rate of the FLAC stream.</div>
 </li>
 </ul>
 <a name="durationUs--">
 <!--   -->
 </a>
-<ul class="blockListLast">
+<ul class="blockList">
 <li class="blockList">
 <h4>durationUs</h4>
 <pre>public&nbsp;long&nbsp;durationUs()</pre>
+<div class="block">Returns the duration of the FLAC stream in microseconds.</div>
+</li>
+</ul>
+<a name="getSampleIndex-long-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getSampleIndex</h4>
+<pre>public&nbsp;long&nbsp;getSampleIndex(long&nbsp;timeUs)</pre>
+<div class="block">Returns the sample index for the sample at given position.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>timeUs</code> - Time position in microseconds in the FLAC stream.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>The sample index for the sample at given position.</dd>
+</dl>
+</li>
+</ul>
+<a name="getApproxBytesPerFrame--">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>getApproxBytesPerFrame</h4>
+<pre>public&nbsp;long&nbsp;getApproxBytesPerFrame()</pre>
+<div class="block">Returns the approximate number of bytes per frame for the current FLAC stream.</div>
 </li>
 </ul>
 </li>

@@ -247,7 +247,7 @@ extends <a href="../../../../../../../com/google/android/exoplayer2/source/hls/p
 <tr class="altColor">
 <td class="colFirst"><code>long</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsMediaPlaylist.html#startTimeUs">startTimeUs</a></span></code>
-<div class="block">The start time of the playlist in playback timebase in microseconds.</div>
+<div class="block">If <a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsMediaPlaylist.html#hasProgramDateTime"><code>hasProgramDateTime</code></a> is true, contains the datetime as microseconds since epoch.</div>
 </td>
 </tr>
 <tr class="rowColor">
@@ -435,7 +435,9 @@ extends <a href="../../../../../../../com/google/android/exoplayer2/source/hls/p
 <li class="blockList">
 <h4>startTimeUs</h4>
 <pre>public final&nbsp;long startTimeUs</pre>
-<div class="block">The start time of the playlist in playback timebase in microseconds.</div>
+<div class="block">If <a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsMediaPlaylist.html#hasProgramDateTime"><code>hasProgramDateTime</code></a> is true, contains the datetime as microseconds since epoch.
+ Otherwise, contains the aggregated duration of removed segments up to this snapshot of the
+ playlist.</div>
 </li>
 </ul>
 <a name="hasDiscontinuitySequence">
