@@ -23,6 +23,7 @@ import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.source.BaseMediaSource;
 import com.google.android.exoplayer2.source.MediaPeriod;
 import com.google.android.exoplayer2.source.MediaSource;
+import com.google.android.exoplayer2.source.MediaSource.SourceInfoRefreshListener;
 import com.google.android.exoplayer2.source.ads.AdsMediaSource;
 import com.google.android.exoplayer2.upstream.Allocator;
 import com.google.android.exoplayer2.upstream.DataSource;
@@ -34,11 +35,9 @@ import java.io.IOException;
  * @deprecated Use com.google.android.exoplayer2.source.ads.AdsMediaSource with ImaAdsLoader.
  */
 @Deprecated
-public final class ImaAdsMediaSource extends BaseMediaSource {
+public final class ImaAdsMediaSource extends BaseMediaSource implements SourceInfoRefreshListener {
 
   private final AdsMediaSource adsMediaSource;
-
-  private SourceInfoRefreshListener adsMediaSourceListener;
 
   /**
    * Constructs a new source that inserts ads linearly with the content specified by
@@ -78,15 +77,7 @@ public final class ImaAdsMediaSource extends BaseMediaSource {
 
   @Override
   public void prepareSourceInternal(final ExoPlayer player, boolean isTopLevelSource) {
-    adsMediaSourceListener =
-        new SourceInfoRefreshListener() {
-          @Override
-          public void onSourceInfoRefreshed(
-              MediaSource source, Timeline timeline, @Nullable Object manifest) {
-            refreshSourceInfo(timeline, manifest);
-          }
-        };
-    adsMediaSource.prepareSource(player, isTopLevelSource, adsMediaSourceListener);
+    adsMediaSource.prepareSource(player, isTopLevelSource, /* listener= */ this);
   }
 
   @Override
@@ -106,6 +97,12 @@ public final class ImaAdsMediaSource extends BaseMediaSource {
 
   @Override
   public void releaseSourceInternal() {
-    adsMediaSource.releaseSource(adsMediaSourceListener);
+    adsMediaSource.releaseSource(/* listener= */ this);
+  }
+
+  @Override
+  public void onSourceInfoRefreshed(
+      MediaSource source, Timeline timeline, @Nullable Object manifest) {
+    refreshSourceInfo(timeline, manifest);
   }
 }
