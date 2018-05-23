@@ -97,7 +97,7 @@ public interface Player {
      *
      * @param surface The {@link Surface}.
      */
-    void setVideoSurface(Surface surface);
+    void setVideoSurface(@Nullable Surface surface);
 
     /**
      * Clears the {@link Surface} onto which video is being rendered if it matches the one passed.
