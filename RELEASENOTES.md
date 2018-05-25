@@ -1,5 +1,10 @@
 # Release notes #
 
+### 2.8.2 ###
+
+* Fix inconsistent `Player.EventListener` invocations for recursive player state
+  changes ([#4276](https://github.com/google/ExoPlayer/issues/4276)).
+
 ### 2.8.1 ###
 
 * HLS:
