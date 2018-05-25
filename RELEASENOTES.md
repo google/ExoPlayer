@@ -2,7 +2,8 @@
 
 ### dev-v2 (not yet released) ###
 
-* Coming soon
+* Fix inconsistent `Player.EventListener` invocations for recursive player state
+  changes ([#4276](https://github.com/google/ExoPlayer/issues/4276)).
 
 ### 2.8.1 ###
 
