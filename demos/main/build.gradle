@@ -57,6 +57,8 @@ android {
 }
 
 dependencies {
+    implementation "com.google.android.exoplayer:extension-okhttp:2.8.0"
+    implementation 'com.squareup.okhttp3:logging-interceptor:3.9.0'
     implementation 'com.android.support:support-annotations:' + supportLibraryVersion
     implementation project(modulePrefix + 'library-core')
     implementation project(modulePrefix + 'library-dash')
