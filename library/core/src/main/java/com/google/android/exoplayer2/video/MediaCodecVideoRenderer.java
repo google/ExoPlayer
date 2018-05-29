@@ -1179,6 +1179,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
     // https://github.com/google/ExoPlayer/issues/4084,
     // https://github.com/google/ExoPlayer/issues/4104.
     // https://github.com/google/ExoPlayer/issues/4134.
+    // https://github.com/google/ExoPlayer/issues/4315
     return (("deb".equals(Util.DEVICE) // Nexus 7 (2013)
                 || "flo".equals(Util.DEVICE) // Nexus 7 (2013)
                 || "mido".equals(Util.DEVICE) // Redmi Note 4
@@ -1192,7 +1193,8 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
                 || "M5c".equals(Util.DEVICE) // Meizu M5C
                 || "QM16XE_U".equals(Util.DEVICE) // Philips QM163E
                 || "A7010a48".equals(Util.DEVICE) // Lenovo K4 Note
-                || "woods_f".equals(Util.MODEL)) // Moto E (4)
+                || "woods_f".equals(Util.MODEL) // Moto E (4)
+                || "watson".equals(Util.DEVICE)) // Moto C
             && "OMX.MTK.VIDEO.DECODER.AVC".equals(name))
         || (("ALE-L21".equals(Util.MODEL) // Huawei P8 Lite
                 || "CAM-L21".equals(Util.MODEL)) // Huawei Y6II
