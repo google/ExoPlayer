@@ -46,6 +46,7 @@ import com.google.android.exoplayer2.drm.FrameworkMediaCrypto;
 import com.google.android.exoplayer2.drm.FrameworkMediaDrm;
 import com.google.android.exoplayer2.drm.HttpMediaDrmCallback;
 import com.google.android.exoplayer2.drm.UnsupportedDrmException;
+import com.google.android.exoplayer2.ext.okhttp.OkHttpDataSourceFactory;
 import com.google.android.exoplayer2.mediacodec.MediaCodecRenderer.DecoderInitializationException;
 import com.google.android.exoplayer2.mediacodec.MediaCodecUtil.DecoderQueryException;
 import com.google.android.exoplayer2.offline.FilteringManifestParser;
@@ -90,6 +91,9 @@ import java.net.CookiePolicy;
 import java.util.List;
 import java.util.UUID;
 
+import okhttp3.OkHttpClient;
+import okhttp3.logging.HttpLoggingInterceptor;
+
 /** An activity that plays media using {@link SimpleExoPlayer}. */
 public class PlayerActivity extends Activity
     implements OnClickListener, PlaybackPreparer, PlayerControlView.VisibilityListener {
@@ -123,7 +127,15 @@ public class PlayerActivity extends Activity
   private static final String KEY_POSITION = "position";
   private static final String KEY_AUTO_PLAY = "auto_play";
 
-  private static final DefaultBandwidthMeter BANDWIDTH_METER = new DefaultBandwidthMeter();
+  private static final DefaultBandwidthMeter BANDWIDTH_METER = new DefaultBandwidthMeter.Builder().setEventListener(
+          new Handler(),
+          new BandwidthMeter.EventListener() {
+            @Override
+            public void onBandwidthSample(int elapsedMs, long bytes, long bitrate) {
+              Log.d("test", String.format("elapsedMs=%s, bytes=%s, bitrate=%s", elapsedMs, bytes, bitrate));
+            }
+          }
+  ).build();
   private static final CookieManager DEFAULT_COOKIE_MANAGER;
   static {
     DEFAULT_COOKIE_MANAGER = new CookieManager();
@@ -457,7 +469,13 @@ public class PlayerActivity extends Activity
                     new SsManifestParser(), (List<StreamKey>) getOfflineStreamKeys(uri)))
             .createMediaSource(uri);
       case C.TYPE_HLS:
-        return new HlsMediaSource.Factory(mediaDataSourceFactory)
+        HttpLoggingInterceptor loggingInterceptor = new HttpLoggingInterceptor();
+        loggingInterceptor.setLevel(HttpLoggingInterceptor.Level.BODY);  // Comment out this line will fix the problem
+        OkHttpClient httpClient = new OkHttpClient.Builder().addInterceptor(loggingInterceptor).build();
+        OkHttpDataSourceFactory dataSourceFactory = new OkHttpDataSourceFactory(httpClient, "ua", BANDWIDTH_METER);
+        String myLiveStreamingUrl = "https://hfokcjwweqxkni.data.mediastore.ap-northeast-1.amazonaws.com/cookpad-tv/Episode-600000163/primary.m3u8";
+        uri = Uri.parse(myLiveStreamingUrl);
+        return new HlsMediaSource.Factory(dataSourceFactory)
             .setPlaylistParser(
                 new FilteringManifestParser<>(
                     new HlsPlaylistParser(), (List<RenditionKey>) getOfflineStreamKeys(uri)))
