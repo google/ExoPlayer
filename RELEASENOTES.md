@@ -4,6 +4,8 @@
 
 * Fix inconsistent `Player.EventListener` invocations for recursive player state
   changes ([#4276](https://github.com/google/ExoPlayer/issues/4276)).
+* IMA: Don't advertise support for video/mpeg ad media, as we don't have an
+  extractor for this ([#4297](https://github.com/google/ExoPlayer/issues/4297)).
 
 ### 2.8.1 ###
 
