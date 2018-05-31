@@ -205,7 +205,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
     this.allowedJoiningTimeMs = allowedJoiningTimeMs;
     this.maxDroppedFramesToNotify = maxDroppedFramesToNotify;
     this.context = context.getApplicationContext();
-    frameReleaseTimeHelper = new VideoFrameReleaseTimeHelper(context);
+    frameReleaseTimeHelper = new VideoFrameReleaseTimeHelper(this.context);
     eventDispatcher = new EventDispatcher(eventHandler, eventListener);
     deviceNeedsAutoFrcWorkaround = deviceNeedsAutoFrcWorkaround();
     pendingOutputStreamOffsetsUs = new long[MAX_PENDING_OUTPUT_STREAM_OFFSET_COUNT];
