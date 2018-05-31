@@ -250,11 +250,12 @@ public final class Loader implements LoaderErrorThrower {
     private static final int MSG_IO_EXCEPTION = 3;
     private static final int MSG_FATAL_ERROR = 4;
 
-    private final T loadable;
-    private final Loader.Callback<T> callback;
     public final int defaultMinRetryCount;
+
+    private final T loadable;
     private final long startTimeMs;
 
+    private @Nullable Loader.Callback<T> callback;
     private IOException currentError;
     private int errorCount;
 
@@ -304,6 +305,11 @@ public final class Loader implements LoaderErrorThrower {
         finish();
         long nowMs = SystemClock.elapsedRealtime();
         callback.onLoadCanceled(loadable, nowMs, nowMs - startTimeMs, true);
+        // If loading, this task will be referenced from a GC root (the loading thread) until
+        // cancellation completes. The time taken for cancellation to complete depends on the
+        // implementation of the Loadable that the task is loading. We null the callback reference
+        // here so that it doesn't prevent garbage collection whilst cancellation is ongoing.
+        callback = null;
       }
     }
 
