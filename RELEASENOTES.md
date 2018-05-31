@@ -2,6 +2,10 @@
 
 ### dev-v2 (not yet released) ###
 
+* Turned on Java 8 compiler support for the ExoPlayer library. Apps that depend
+  on ExoPlayer via its source code rather than an AAR may need to add
+  `compileOptions { targetCompatibility JavaVersion.VERSION_1_8 }` to their
+  gradle settings to ensure bytecode compatibility.
 * Fix inconsistent `Player.EventListener` invocations for recursive player state
   changes ([#4276](https://github.com/google/ExoPlayer/issues/4276)).
 * IMA: Don't advertise support for video/mpeg ad media, as we don't have an
