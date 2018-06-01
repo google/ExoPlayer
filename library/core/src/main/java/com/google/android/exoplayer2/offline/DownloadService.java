@@ -187,17 +187,6 @@ public abstract class DownloadService extends Service {
     downloadManager = getDownloadManager();
     downloadManagerListener = new DownloadManagerListener();
     downloadManager.addListener(downloadManagerListener);
-
-    RequirementsHelper requirementsHelper;
-    synchronized (requirementsHelpers) {
-      Class<? extends DownloadService> clazz = getClass();
-      requirementsHelper = requirementsHelpers.get(clazz);
-      if (requirementsHelper == null) {
-        requirementsHelper = new RequirementsHelper(this, getRequirements(), getScheduler(), clazz);
-        requirementsHelpers.put(clazz, requirementsHelper);
-      }
-    }
-    requirementsHelper.start();
   }
 
   @Override
@@ -237,6 +226,7 @@ public abstract class DownloadService extends Service {
         Log.e(TAG, "Ignoring unrecognized action: " + intentAction);
         break;
     }
+    maybeStartWatchingRequirements();
     if (downloadManager.isIdle()) {
       stop();
     }
@@ -248,14 +238,7 @@ public abstract class DownloadService extends Service {
     logd("onDestroy");
     foregroundNotificationUpdater.stopPeriodicUpdates();
     downloadManager.removeListener(downloadManagerListener);
-    if (downloadManager.getTaskCount() == 0) {
-      synchronized (requirementsHelpers) {
-        RequirementsHelper requirementsHelper = requirementsHelpers.remove(getClass());
-        if (requirementsHelper != null) {
-          requirementsHelper.stop();
-        }
-      }
-    }
+    maybeStopWatchingRequirements();
   }
 
   @Nullable
@@ -312,6 +295,31 @@ public abstract class DownloadService extends Service {
     // Do nothing.
   }
 
+  private void maybeStartWatchingRequirements() {
+    if (downloadManager.getDownloadCount() == 0) {
+      return;
+    }
+    Class<? extends DownloadService> clazz = getClass();
+    RequirementsHelper requirementsHelper = requirementsHelpers.get(clazz);
+    if (requirementsHelper == null) {
+      requirementsHelper = new RequirementsHelper(this, getRequirements(), getScheduler(), clazz);
+      requirementsHelpers.put(clazz, requirementsHelper);
+      requirementsHelper.start();
+      logd("started watching requirements");
+    }
+  }
+
+  private void maybeStopWatchingRequirements() {
+    if (downloadManager.getDownloadCount() > 0) {
+      return;
+    }
+    RequirementsHelper requirementsHelper = requirementsHelpers.remove(getClass());
+    if (requirementsHelper != null) {
+      requirementsHelper.stop();
+      logd("stopped watching requirements");
+    }
+  }
+
   private void stop() {
     foregroundNotificationUpdater.stopPeriodicUpdates();
     // Make sure startForeground is called before stopping. Workaround for [Internal: b/69424260].
@@ -331,7 +339,7 @@ public abstract class DownloadService extends Service {
   private final class DownloadManagerListener implements DownloadManager.Listener {
     @Override
     public void onInitialized(DownloadManager downloadManager) {
-      // Do nothing.
+      maybeStartWatchingRequirements();
     }
 
     @Override
