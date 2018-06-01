@@ -349,11 +349,6 @@ import java.util.Arrays;
     }
 
     @Override
-    public boolean isLoadCanceled() {
-      return false;
-    }
-
-    @Override
     public void load() throws IOException, InterruptedException {
       // We always load from the beginning, so reset the sampleSize to 0.
       sampleSize = 0;

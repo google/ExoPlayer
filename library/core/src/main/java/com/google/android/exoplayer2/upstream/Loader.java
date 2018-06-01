@@ -58,11 +58,6 @@ public final class Loader implements LoaderErrorThrower {
     void cancelLoad();
 
     /**
-     * Returns whether the load has been canceled.
-     */
-    boolean isLoadCanceled();
-
-    /**
      * Performs the load, returning on completion or cancellation.
      *
      * @throws IOException If the input could not be loaded.
@@ -260,6 +255,7 @@ public final class Loader implements LoaderErrorThrower {
     private int errorCount;
 
     private volatile Thread executorThread;
+    private volatile boolean canceled;
     private volatile boolean released;
 
     public LoadTask(Looper looper, T loadable, Loader.Callback<T> callback,
@@ -296,6 +292,7 @@ public final class Loader implements LoaderErrorThrower {
           sendEmptyMessage(MSG_CANCEL);
         }
       } else {
+        canceled = true;
         loadable.cancelLoad();
         if (executorThread != null) {
           executorThread.interrupt();
@@ -317,7 +314,7 @@ public final class Loader implements LoaderErrorThrower {
     public void run() {
       try {
         executorThread = Thread.currentThread();
-        if (!loadable.isLoadCanceled()) {
+        if (!canceled) {
           TraceUtil.beginSection("load:" + loadable.getClass().getSimpleName());
           try {
             loadable.load();
@@ -334,7 +331,7 @@ public final class Loader implements LoaderErrorThrower {
         }
       } catch (InterruptedException e) {
         // The load was canceled.
-        Assertions.checkState(loadable.isLoadCanceled());
+        Assertions.checkState(canceled);
         if (!released) {
           sendEmptyMessage(MSG_END_OF_SOURCE);
         }
@@ -379,7 +376,7 @@ public final class Loader implements LoaderErrorThrower {
       finish();
       long nowMs = SystemClock.elapsedRealtime();
       long durationMs = nowMs - startTimeMs;
-      if (loadable.isLoadCanceled()) {
+      if (canceled) {
         callback.onLoadCanceled(loadable, nowMs, durationMs, false);
         return;
       }

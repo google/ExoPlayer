@@ -76,11 +76,6 @@ public abstract class DataChunk extends Chunk {
   }
 
   @Override
-  public final boolean isLoadCanceled() {
-    return loadCanceled;
-  }
-
-  @Override
   public final void load() throws IOException, InterruptedException {
     try {
       dataSource.open(dataSpec);
