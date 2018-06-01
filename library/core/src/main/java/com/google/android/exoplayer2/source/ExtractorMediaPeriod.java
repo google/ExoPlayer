@@ -833,11 +833,6 @@ import java.util.Arrays;
     }
 
     @Override
-    public boolean isLoadCanceled() {
-      return loadCanceled;
-    }
-
-    @Override
     public void load() throws IOException, InterruptedException {
       int result = Extractor.RESULT_CONTINUE;
       while (result == Extractor.RESULT_CONTINUE && !loadCanceled) {

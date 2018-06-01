@@ -207,11 +207,6 @@ import java.util.concurrent.atomic.AtomicInteger;
   }
 
   @Override
-  public boolean isLoadCanceled() {
-    return loadCanceled;
-  }
-
-  @Override
   public void load() throws IOException, InterruptedException {
     maybeLoadInitData();
     if (!loadCanceled) {
