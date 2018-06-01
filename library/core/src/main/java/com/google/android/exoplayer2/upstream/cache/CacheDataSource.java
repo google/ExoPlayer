@@ -119,6 +119,7 @@ public final class CacheDataSource implements DataSource {
   private final DataSource cacheReadDataSource;
   private final DataSource cacheWriteDataSource;
   private final DataSource upstreamDataSource;
+  private final CacheKeyFactory cacheKeyFactory;
   @Nullable private final EventListener eventListener;
 
   private final boolean blockOnCache;
@@ -178,8 +179,13 @@ public final class CacheDataSource implements DataSource {
    */
   public CacheDataSource(Cache cache, DataSource upstream, @Flags int flags,
       long maxCacheFileSize) {
-    this(cache, upstream, new FileDataSource(), new CacheDataSink(cache, maxCacheFileSize),
-        flags, null);
+    this(
+        cache,
+        upstream,
+        new FileDataSource(),
+        new CacheDataSink(cache, maxCacheFileSize),
+        flags,
+        /* eventListener= */ null);
   }
 
   /**
@@ -198,8 +204,43 @@ public final class CacheDataSource implements DataSource {
    */
   public CacheDataSource(Cache cache, DataSource upstream, DataSource cacheReadDataSource,
       DataSink cacheWriteDataSink, @Flags int flags, @Nullable EventListener eventListener) {
+    this(
+        cache,
+        upstream,
+        cacheReadDataSource,
+        cacheWriteDataSink,
+        flags,
+        eventListener,
+        /* cacheKeyFactory= */ null);
+  }
+
+  /**
+   * Constructs an instance with arbitrary {@link DataSource} and {@link DataSink} instances for
+   * reading and writing the cache. One use of this constructor is to allow data to be transformed
+   * before it is written to disk.
+   *
+   * @param cache The cache.
+   * @param upstream A {@link DataSource} for reading data not in the cache.
+   * @param cacheReadDataSource A {@link DataSource} for reading data from the cache.
+   * @param cacheWriteDataSink A {@link DataSink} for writing data to the cache. If null, cache is
+   *     accessed read-only.
+   * @param flags A combination of {@link #FLAG_BLOCK_ON_CACHE}, {@link #FLAG_IGNORE_CACHE_ON_ERROR}
+   *     and {@link #FLAG_IGNORE_CACHE_FOR_UNSET_LENGTH_REQUESTS}, or 0.
+   * @param eventListener An optional {@link EventListener} to receive events.
+   * @param cacheKeyFactory An optional factory for cache keys.
+   */
+  public CacheDataSource(
+      Cache cache,
+      DataSource upstream,
+      DataSource cacheReadDataSource,
+      DataSink cacheWriteDataSink,
+      @Flags int flags,
+      @Nullable EventListener eventListener,
+      @Nullable CacheKeyFactory cacheKeyFactory) {
     this.cache = cache;
     this.cacheReadDataSource = cacheReadDataSource;
+    this.cacheKeyFactory =
+        cacheKeyFactory != null ? cacheKeyFactory : CacheUtil.DEFAULT_CACHE_KEY_FACTORY;
     this.blockOnCache = (flags & FLAG_BLOCK_ON_CACHE) != 0;
     this.ignoreCacheOnError = (flags & FLAG_IGNORE_CACHE_ON_ERROR) != 0;
     this.ignoreCacheForUnsetLengthRequests =
@@ -216,7 +257,7 @@ public final class CacheDataSource implements DataSource {
   @Override
   public long open(DataSpec dataSpec) throws IOException {
     try {
-      key = CacheUtil.getKey(dataSpec);
+      key = cacheKeyFactory.buildCacheKey(dataSpec);
       uri = dataSpec.uri;
       actualUri = getRedirectedUriOrDefault(cache, key, /* defaultUri= */ uri);
       flags = dataSpec.flags;

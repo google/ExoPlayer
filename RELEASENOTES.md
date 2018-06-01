@@ -2,6 +2,8 @@
 
 ### dev-v2 (not yet released) ###
 
+* Allow apps to pass a `CacheKeyFactory` for setting custom cache keys when
+  creating a `CacheDataSource`.
 * Turned on Java 8 compiler support for the ExoPlayer library. Apps that depend
   on ExoPlayer via its source code rather than an AAR may need to add
   `compileOptions { targetCompatibility JavaVersion.VERSION_1_8 }` to their
