@@ -392,11 +392,6 @@ public final class AdaptiveTrackSelectionTest {
     }
 
     @Override
-    public boolean isLoadCanceled() {
-      return false;
-    }
-
-    @Override
     public void load() throws IOException, InterruptedException {
       // Do nothing.
     }
