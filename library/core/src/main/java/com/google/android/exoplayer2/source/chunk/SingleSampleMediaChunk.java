@@ -34,7 +34,6 @@ public final class SingleSampleMediaChunk extends BaseMediaChunk {
   private final Format sampleFormat;
 
   private volatile int bytesLoaded;
-  private volatile boolean loadCanceled;
   private volatile boolean loadCompleted;
 
   /**
@@ -90,12 +89,7 @@ public final class SingleSampleMediaChunk extends BaseMediaChunk {
 
   @Override
   public void cancelLoad() {
-    loadCanceled = true;
-  }
-
-  @Override
-  public boolean isLoadCanceled() {
-    return loadCanceled;
+    // Do nothing.
   }
 
   @SuppressWarnings("NonAtomicVolatileUpdate")
