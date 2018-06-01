@@ -54,6 +54,15 @@ public final class CacheUtil {
   /** Default buffer size to be used while caching. */
   public static final int DEFAULT_BUFFER_SIZE_BYTES = 128 * 1024;
 
+  /** Default {@link CacheKeyFactory} that calls through to {@link #getKey}. */
+  public static final CacheKeyFactory DEFAULT_CACHE_KEY_FACTORY =
+      new CacheKeyFactory() {
+        @Override
+        public String buildCacheKey(DataSpec dataSpec) {
+          return getKey(dataSpec);
+        }
+      };
+
   /**
    * Generates a cache key out of the given {@link Uri}.
    *
