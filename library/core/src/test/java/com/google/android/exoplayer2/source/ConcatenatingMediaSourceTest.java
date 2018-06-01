@@ -25,6 +25,7 @@ import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.Timeline.Period;
 import com.google.android.exoplayer2.source.MediaSource.MediaPeriodId;
+import com.google.android.exoplayer2.source.ShuffleOrder.DefaultShuffleOrder;
 import com.google.android.exoplayer2.testutil.DummyMainThread;
 import com.google.android.exoplayer2.testutil.FakeMediaSource;
 import com.google.android.exoplayer2.testutil.FakeShuffleOrder;
@@ -911,6 +912,58 @@ public final class ConcatenatingMediaSourceTest {
 
     testRunner.assertCompletedMediaPeriodLoads(
         new MediaPeriodId(/* periodIndex= */ 0, /* windowSequenceNumber= */ 0));
+  }
+
+  @Test
+  public void testChildSourceIsNotPreparedWithLazyPreparation() throws IOException {
+    FakeMediaSource[] childSources = createMediaSources(/* count= */ 2);
+    mediaSource =
+        new ConcatenatingMediaSource(
+            /* isAtomic= */ false,
+            /* useLazyPreparation= */ true,
+            new DefaultShuffleOrder(0),
+            childSources);
+    testRunner = new MediaSourceTestRunner(mediaSource, /* allocator= */ null);
+    testRunner.prepareSource();
+
+    assertThat(childSources[0].isPrepared()).isFalse();
+    assertThat(childSources[1].isPrepared()).isFalse();
+  }
+
+  @Test
+  public void testChildSourceIsPreparedWithLazyPreparationAfterPeriodCreation() throws IOException {
+    FakeMediaSource[] childSources = createMediaSources(/* count= */ 2);
+    mediaSource =
+        new ConcatenatingMediaSource(
+            /* isAtomic= */ false,
+            /* useLazyPreparation= */ true,
+            new DefaultShuffleOrder(0),
+            childSources);
+    testRunner = new MediaSourceTestRunner(mediaSource, /* allocator= */ null);
+    testRunner.prepareSource();
+    testRunner.createPeriod(new MediaPeriodId(/* periodIndex= */ 0, /* windowSequenceNumber= */ 0));
+
+    assertThat(childSources[0].isPrepared()).isTrue();
+    assertThat(childSources[1].isPrepared()).isFalse();
+  }
+
+  @Test
+  public void testChildSourceWithLazyPreparationOnlyPreparesSourceOnce() throws IOException {
+    FakeMediaSource[] childSources = createMediaSources(/* count= */ 2);
+    mediaSource =
+        new ConcatenatingMediaSource(
+            /* isAtomic= */ false,
+            /* useLazyPreparation= */ true,
+            new DefaultShuffleOrder(0),
+            childSources);
+    testRunner = new MediaSourceTestRunner(mediaSource, /* allocator= */ null);
+    testRunner.prepareSource();
+
+    // The lazy preparation must only be triggered once, even if we create multiple periods from
+    // the media source. FakeMediaSource.prepareSource asserts that it's not called twice, so
+    // creating two periods shouldn't throw.
+    testRunner.createPeriod(new MediaPeriodId(/* periodIndex= */ 0, /* windowSequenceNumber= */ 0));
+    testRunner.createPeriod(new MediaPeriodId(/* periodIndex= */ 0, /* windowSequenceNumber= */ 0));
   }
 
   private void assertCompletedAllMediaPeriodLoads(Timeline timeline) {

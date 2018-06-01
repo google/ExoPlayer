@@ -159,9 +159,9 @@ public class FakeMediaSource extends BaseMediaSource {
     }
   }
 
-  /** Asserts that the source has been prepared. */
-  public void assertPrepared() {
-    assertThat(preparedSource).isTrue();
+  /** Returns whether the source is currently prepared. */
+  public boolean isPrepared() {
+    return preparedSource;
   }
 
   /**

@@ -10,6 +10,9 @@
   changes ([#4276](https://github.com/google/ExoPlayer/issues/4276)).
 * IMA: Don't advertise support for video/mpeg ad media, as we don't have an
   extractor for this ([#4297](https://github.com/google/ExoPlayer/issues/4297)).
+* Add support for lazy preparation of playlist media sources in
+  `ConcatenatingMediaSource`
+  ([#3972](https://github.com/google/ExoPlayer/issues/3972)).
 * HLS:
   * Allow injection of custom playlist trackers.
 
