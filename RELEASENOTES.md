@@ -6,7 +6,9 @@
   extractor for this ([#4297](https://github.com/google/ExoPlayer/issues/4297)).
 * DASH: Fix playback getting stuck when playing representations that have both
   sidx atoms and non-zero presentationTimeOffset values.
-* HLS: Fix adaptation in live playlists with EXT-X-PROGRAM-DATE-TIME tags.
+* HLS:
+  * Allow injection of custom playlist trackers.
+  * Fix adaptation in live playlists with EXT-X-PROGRAM-DATE-TIME tags.
 * Mitigate memory leaks when `MediaSource` loads are slow to cancel
   ([#4249](https://github.com/google/ExoPlayer/issues/4249)).
 * Fix inconsistent `Player.EventListener` invocations for recursive player state
