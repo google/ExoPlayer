@@ -17,6 +17,8 @@
   ([#3972](https://github.com/google/ExoPlayer/issues/3972)).
 * HLS:
   * Allow injection of custom playlist trackers.
+* Add method to `BandwidthMeter` to return the `TransferListener` used to gather
+  bandwidth information.
 
 ### 2.8.1 ###
 

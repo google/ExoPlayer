@@ -172,6 +172,11 @@ public final class DefaultBandwidthMeter implements BandwidthMeter, TransferList
   }
 
   @Override
+  public @Nullable TransferListener<?> getTransferListener() {
+    return this;
+  }
+
+  @Override
   public synchronized void onTransferStart(Object source, DataSpec dataSpec) {
     if (streamCount == 0) {
       sampleStartTimeMs = clock.elapsedRealtime();
@@ -206,14 +211,10 @@ public final class DefaultBandwidthMeter implements BandwidthMeter, TransferList
     sampleBytesTransferred = 0;
   }
 
-  private void notifyBandwidthSample(final int elapsedMs, final long bytes, final long bitrate) {
+  private void notifyBandwidthSample(int elapsedMs, long bytes, long bitrate) {
     if (eventHandler != null && eventListener != null) {
-      eventHandler.post(new Runnable()  {
-        @Override
-        public void run() {
-          eventListener.onBandwidthSample(elapsedMs, bytes, bitrate);
-        }
-      });
+      EventListener eventListener = this.eventListener;
+      eventHandler.post(() -> eventListener.onBandwidthSample(elapsedMs, bytes, bitrate));
     }
   }
 }
