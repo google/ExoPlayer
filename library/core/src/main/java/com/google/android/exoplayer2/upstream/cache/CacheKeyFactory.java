@@ -15,16 +15,15 @@
  */
 package com.google.android.exoplayer2.upstream.cache;
 
-import android.net.Uri;
 import com.google.android.exoplayer2.upstream.DataSpec;
 
-/** Factory for custom cache keys. */
+/** Factory for cache keys. */
 public interface CacheKeyFactory {
 
   /**
-   * Returns a custom cache key for the given {@link Uri}.
+   * Returns a cache key for the given {@link DataSpec}.
    *
-   * @param dataSpec The upstream source from which data will be read and cached.
+   * @param dataSpec The data being cached.
    */
   String buildCacheKey(DataSpec dataSpec);
 }
