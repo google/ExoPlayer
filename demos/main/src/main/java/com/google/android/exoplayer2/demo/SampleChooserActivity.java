@@ -94,16 +94,14 @@ public class SampleChooserActivity extends Activity
     SampleListLoader loaderTask = new SampleListLoader();
     loaderTask.execute(uris);
 
-    // Ping the download service in case it's not running (but should be).
-    Intent serviceIntent =
-        new Intent(this, DemoDownloadService.class).setAction(DownloadService.ACTION_INIT);
+    // Start the download service if it should be running but it's not currently.
     // Starting the service in the foreground causes notification flicker if there is no scheduled
     // action. Starting it in the background throws an exception if the app is in the background too
     // (e.g. if device screen is locked).
     try {
-      startService(serviceIntent);
+      DownloadService.start(this, DemoDownloadService.class);
     } catch (IllegalStateException e) {
-      startForegroundService(serviceIntent);
+      DownloadService.startForeground(this, DemoDownloadService.class);
     }
   }
 
