@@ -15,6 +15,8 @@
 * Add support for lazy preparation of playlist media sources in
   `ConcatenatingMediaSource`
   ([#3972](https://github.com/google/ExoPlayer/issues/3972)).
+* Pass `BandwidthMeter` to `TrackSelection.Factory` which can be used to obtain
+  bandwidth estimates in the future. Always null at the moment.
 * HLS:
   * Allow injection of custom playlist trackers.
 * Add method to `BandwidthMeter` to return the `TransferListener` used to gather

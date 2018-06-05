@@ -19,9 +19,13 @@ import static com.google.android.exoplayer2.RendererCapabilities.FORMAT_EXCEEDS_
 import static com.google.android.exoplayer2.RendererCapabilities.FORMAT_HANDLED;
 import static com.google.android.exoplayer2.RendererConfiguration.DEFAULT;
 import static com.google.common.truth.Truth.assertThat;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyVararg;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
 import android.os.Parcel;
@@ -38,6 +42,7 @@ import com.google.android.exoplayer2.trackselection.DefaultTrackSelector.Paramet
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector.ParametersBuilder;
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector.SelectionOverride;
 import com.google.android.exoplayer2.trackselection.TrackSelector.InvalidationListener;
+import com.google.android.exoplayer2.upstream.BandwidthMeter;
 import com.google.android.exoplayer2.util.MimeTypes;
 import java.util.HashMap;
 import java.util.Map;
@@ -71,33 +76,33 @@ public final class DefaultTrackSelectorTest {
   private static final RendererCapabilities[] RENDERER_CAPABILITIES_WITH_NO_SAMPLE_RENDERER =
       new RendererCapabilities[] {VIDEO_CAPABILITIES, NO_SAMPLE_CAPABILITIES};
 
-  private static final TrackGroup VIDEO_TRACK_GROUP =
-      new TrackGroup(
-          Format.createVideoSampleFormat(
-              "video",
-              MimeTypes.VIDEO_H264,
-              null,
-              Format.NO_VALUE,
-              Format.NO_VALUE,
-              1024,
-              768,
-              Format.NO_VALUE,
-              null,
-              null));
-  private static final TrackGroup AUDIO_TRACK_GROUP =
-      new TrackGroup(
-          Format.createAudioSampleFormat(
-              "audio",
-              MimeTypes.AUDIO_AAC,
-              null,
-              Format.NO_VALUE,
-              Format.NO_VALUE,
-              2,
-              44100,
-              null,
-              null,
-              0,
-              null));
+  private static final Format VIDEO_FORMAT =
+      Format.createVideoSampleFormat(
+          "video",
+          MimeTypes.VIDEO_H264,
+          null,
+          Format.NO_VALUE,
+          Format.NO_VALUE,
+          1024,
+          768,
+          Format.NO_VALUE,
+          null,
+          null);
+  private static final Format AUDIO_FORMAT =
+      Format.createAudioSampleFormat(
+          "audio",
+          MimeTypes.AUDIO_AAC,
+          null,
+          Format.NO_VALUE,
+          Format.NO_VALUE,
+          2,
+          44100,
+          null,
+          null,
+          0,
+          null);
+  private static final TrackGroup VIDEO_TRACK_GROUP = new TrackGroup(VIDEO_FORMAT);
+  private static final TrackGroup AUDIO_TRACK_GROUP = new TrackGroup(AUDIO_FORMAT);
   private static final TrackGroupArray TRACK_GROUPS =
       new TrackGroupArray(VIDEO_TRACK_GROUP, AUDIO_TRACK_GROUP);
 
@@ -282,7 +287,7 @@ public final class DefaultTrackSelectorTest {
   @Test
   public void testSetParameterWithDefaultParametersDoesNotNotifyInvalidationListener()
       throws Exception {
-    trackSelector.init(invalidationListener);
+    trackSelector.init(invalidationListener, /* bandwidthMeter= */ null);
 
     verify(invalidationListener, never()).onTrackSelectionsInvalidated();
   }
@@ -295,7 +300,7 @@ public final class DefaultTrackSelectorTest {
   public void testSetParameterWithNonDefaultParameterNotifyInvalidationListener()
       throws Exception {
     Parameters parameters = new ParametersBuilder().setPreferredAudioLanguage("eng").build();
-    trackSelector.init(invalidationListener);
+    trackSelector.init(invalidationListener, /* bandwidthMeter= */ null);
     trackSelector.setParameters(parameters);
 
     verify(invalidationListener).onTrackSelectionsInvalidated();
@@ -310,7 +315,7 @@ public final class DefaultTrackSelectorTest {
   public void testSetParameterWithSameParametersDoesNotNotifyInvalidationListenerAgain()
       throws Exception {
     ParametersBuilder builder = new ParametersBuilder().setPreferredAudioLanguage("eng");
-    trackSelector.init(invalidationListener);
+    trackSelector.init(invalidationListener, /* bandwidthMeter= */ null);
     trackSelector.setParameters(builder.build());
     trackSelector.setParameters(builder.build());
 
@@ -954,6 +959,116 @@ public final class DefaultTrackSelectorTest {
         singleTrackGroup(lowerBitrateFormat, higherBitrateFormat));
 
     assertThat(result.selections.get(0).getSelectedFormat()).isEqualTo(lowerBitrateFormat);
+  }
+
+  @Test
+  public void testSelectTracksWithMultipleAudioTracksReturnsAdaptiveTrackSelection()
+      throws Exception {
+    TrackSelection adaptiveTrackSelection = mock(TrackSelection.class);
+    TrackSelection.Factory adaptiveTrackSelectionFactory = mock(TrackSelection.Factory.class);
+    when(adaptiveTrackSelectionFactory.createTrackSelection(any(), any(), anyVararg()))
+        .thenReturn(adaptiveTrackSelection);
+
+    trackSelector = new DefaultTrackSelector(adaptiveTrackSelectionFactory);
+
+    BandwidthMeter bandwidthMeter = mock(BandwidthMeter.class);
+    trackSelector.init(invalidationListener, bandwidthMeter);
+
+    TrackGroupArray trackGroupArray = singleTrackGroup(AUDIO_FORMAT, AUDIO_FORMAT);
+    TrackSelectorResult result =
+        trackSelector.selectTracks(
+            new RendererCapabilities[] {AUDIO_CAPABILITIES}, trackGroupArray);
+
+    assertThat(result.length).isEqualTo(1);
+    assertThat(result.selections.get(0)).isEqualTo(adaptiveTrackSelection);
+    verify(adaptiveTrackSelectionFactory)
+        .createTrackSelection(trackGroupArray.get(0), bandwidthMeter, 0, 1);
+  }
+
+  @Test
+  public void testSelectTracksWithMultipleAudioTracksOverrideReturnsAdaptiveTrackSelection()
+      throws Exception {
+    TrackSelection adaptiveTrackSelection = mock(TrackSelection.class);
+    TrackSelection.Factory adaptiveTrackSelectionFactory = mock(TrackSelection.Factory.class);
+    when(adaptiveTrackSelectionFactory.createTrackSelection(any(), any(), anyVararg()))
+        .thenReturn(adaptiveTrackSelection);
+
+    trackSelector = new DefaultTrackSelector(adaptiveTrackSelectionFactory);
+
+    BandwidthMeter bandwidthMeter = mock(BandwidthMeter.class);
+    trackSelector.init(invalidationListener, bandwidthMeter);
+
+    TrackGroupArray trackGroupArray = singleTrackGroup(AUDIO_FORMAT, AUDIO_FORMAT, AUDIO_FORMAT);
+    trackSelector.setParameters(
+        trackSelector
+            .buildUponParameters()
+            .setSelectionOverride(
+                /* rendererIndex= */ 0,
+                trackGroupArray,
+                new SelectionOverride(/* groupIndex= */ 0, /* tracks= */ 1, 2)));
+    TrackSelectorResult result =
+        trackSelector.selectTracks(
+            new RendererCapabilities[] {AUDIO_CAPABILITIES}, trackGroupArray);
+
+    assertThat(result.length).isEqualTo(1);
+    assertThat(result.selections.get(0)).isEqualTo(adaptiveTrackSelection);
+    verify(adaptiveTrackSelectionFactory)
+        .createTrackSelection(trackGroupArray.get(0), bandwidthMeter, 1, 2);
+  }
+
+  @Test
+  public void testSelectTracksWithMultipleVideoTracksReturnsAdaptiveTrackSelection()
+      throws Exception {
+    TrackSelection adaptiveTrackSelection = mock(TrackSelection.class);
+    TrackSelection.Factory adaptiveTrackSelectionFactory = mock(TrackSelection.Factory.class);
+    when(adaptiveTrackSelectionFactory.createTrackSelection(any(), any(), anyVararg()))
+        .thenReturn(adaptiveTrackSelection);
+
+    trackSelector = new DefaultTrackSelector(adaptiveTrackSelectionFactory);
+
+    BandwidthMeter bandwidthMeter = mock(BandwidthMeter.class);
+    trackSelector.init(invalidationListener, bandwidthMeter);
+
+    TrackGroupArray trackGroupArray = singleTrackGroup(VIDEO_FORMAT, VIDEO_FORMAT);
+    TrackSelectorResult result =
+        trackSelector.selectTracks(
+            new RendererCapabilities[] {VIDEO_CAPABILITIES}, trackGroupArray);
+
+    assertThat(result.length).isEqualTo(1);
+    assertThat(result.selections.get(0)).isEqualTo(adaptiveTrackSelection);
+    verify(adaptiveTrackSelectionFactory)
+        .createTrackSelection(trackGroupArray.get(0), bandwidthMeter, 0, 1);
+  }
+
+  @Test
+  public void testSelectTracksWithMultipleVideoTracksOverrideReturnsAdaptiveTrackSelection()
+      throws Exception {
+    TrackSelection adaptiveTrackSelection = mock(TrackSelection.class);
+    TrackSelection.Factory adaptiveTrackSelectionFactory = mock(TrackSelection.Factory.class);
+    when(adaptiveTrackSelectionFactory.createTrackSelection(any(), any(), anyVararg()))
+        .thenReturn(adaptiveTrackSelection);
+
+    trackSelector = new DefaultTrackSelector(adaptiveTrackSelectionFactory);
+
+    BandwidthMeter bandwidthMeter = mock(BandwidthMeter.class);
+    trackSelector.init(invalidationListener, bandwidthMeter);
+
+    TrackGroupArray trackGroupArray = singleTrackGroup(VIDEO_FORMAT, VIDEO_FORMAT, VIDEO_FORMAT);
+    trackSelector.setParameters(
+        trackSelector
+            .buildUponParameters()
+            .setSelectionOverride(
+                /* rendererIndex= */ 0,
+                trackGroupArray,
+                new SelectionOverride(/* groupIndex= */ 0, /* tracks= */ 1, 2)));
+    TrackSelectorResult result =
+        trackSelector.selectTracks(
+            new RendererCapabilities[] {VIDEO_CAPABILITIES}, trackGroupArray);
+
+    assertThat(result.length).isEqualTo(1);
+    assertThat(result.selections.get(0)).isEqualTo(adaptiveTrackSelection);
+    verify(adaptiveTrackSelectionFactory)
+        .createTrackSelection(trackGroupArray.get(0), bandwidthMeter, 1, 2);
   }
 
   private static void assertTrackSelections(TrackSelectorResult result, TrackSelection[] expected) {

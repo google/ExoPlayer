@@ -1206,7 +1206,9 @@ public class DefaultTrackSelector extends MappingTrackSelector {
             rendererTrackSelections[i] =
                 Assertions.checkNotNull(adaptiveTrackSelectionFactory)
                     .createTrackSelection(
-                        rendererTrackGroups.get(override.groupIndex), override.tracks);
+                        rendererTrackGroups.get(override.groupIndex),
+                        getBandwidthMeter(),
+                        override.tracks);
           }
         }
       }
@@ -1352,7 +1354,8 @@ public class DefaultTrackSelector extends MappingTrackSelector {
               formatSupports,
               mixedMimeTypeAdaptationSupports,
               params,
-              adaptiveTrackSelectionFactory);
+              adaptiveTrackSelectionFactory,
+              getBandwidthMeter());
     }
     if (selection == null) {
       selection = selectFixedVideoTrack(groups, formatSupports, params);
@@ -1365,7 +1368,8 @@ public class DefaultTrackSelector extends MappingTrackSelector {
       int[][] formatSupport,
       int mixedMimeTypeAdaptationSupports,
       Parameters params,
-      TrackSelection.Factory adaptiveTrackSelectionFactory)
+      TrackSelection.Factory adaptiveTrackSelectionFactory,
+      @Nullable BandwidthMeter bandwidthMeter)
       throws ExoPlaybackException {
     int requiredAdaptiveSupport = params.allowNonSeamlessAdaptiveness
         ? (RendererCapabilities.ADAPTIVE_NOT_SEAMLESS | RendererCapabilities.ADAPTIVE_SEAMLESS)
@@ -1381,7 +1385,7 @@ public class DefaultTrackSelector extends MappingTrackSelector {
           params.viewportOrientationMayChange);
       if (adaptiveTracks.length > 0) {
         return Assertions.checkNotNull(adaptiveTrackSelectionFactory)
-            .createTrackSelection(group, adaptiveTracks);
+            .createTrackSelection(group, bandwidthMeter, adaptiveTracks);
       }
     }
     return null;
@@ -1600,8 +1604,8 @@ public class DefaultTrackSelector extends MappingTrackSelector {
           getAdaptiveAudioTracks(
               selectedGroup, formatSupports[selectedGroupIndex], params.allowMixedMimeAdaptiveness);
       if (adaptiveTracks.length > 0) {
-        return adaptiveTrackSelectionFactory.createTrackSelection(selectedGroup,
-            adaptiveTracks);
+        return adaptiveTrackSelectionFactory
+            .createTrackSelection(selectedGroup, getBandwidthMeter(), adaptiveTracks);
       }
     }
     return new FixedTrackSelection(selectedGroup, selectedTrackIndex);
