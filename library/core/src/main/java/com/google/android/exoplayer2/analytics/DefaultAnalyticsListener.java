@@ -16,6 +16,7 @@
 package com.google.android.exoplayer2.analytics;
 
 import android.net.NetworkInfo;
+import android.support.annotation.Nullable;
 import android.view.Surface;
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.Format;
@@ -111,7 +112,7 @@ public abstract class DefaultAnalyticsListener implements AnalyticsListener {
   public void onViewportSizeChange(EventTime eventTime, int width, int height) {}
 
   @Override
-  public void onNetworkTypeChanged(EventTime eventTime, NetworkInfo networkInfo) {}
+  public void onNetworkTypeChanged(EventTime eventTime, @Nullable NetworkInfo networkInfo) {}
 
   @Override
   public void onMetadata(EventTime eventTime, Metadata metadata) {}
