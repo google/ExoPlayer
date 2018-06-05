@@ -54,6 +54,7 @@ android {
 dependencies {
     implementation 'com.android.support:support-annotations:' + supportLibraryVersion
     compileOnly 'org.checkerframework:checker-qual:' + checkerframeworkVersion
+    compileOnly 'org.checkerframework:checker-compat-qual:' + checkerframeworkVersion
     androidTestImplementation 'com.google.dexmaker:dexmaker:' + dexmakerVersion
     androidTestImplementation 'com.google.dexmaker:dexmaker-mockito:' + dexmakerVersion
     androidTestImplementation 'com.google.truth:truth:' + truthVersion
