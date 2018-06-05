@@ -20,6 +20,7 @@ import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.source.TrackGroup;
 import com.google.android.exoplayer2.source.chunk.MediaChunk;
+import com.google.android.exoplayer2.upstream.BandwidthMeter;
 import java.util.List;
 
 /**
@@ -37,15 +38,28 @@ public interface TrackSelection {
   interface Factory {
 
     /**
+     * @deprecated Use and implement {@link
+     *     #createTrackSelection(TrackGroup, BandwidthMeter, int...)} instead.
+     */
+    @Deprecated
+    default TrackSelection createTrackSelection(TrackGroup group, int... tracks) {
+      return createTrackSelection(group, /* bandwidthMeter= */ null, tracks);
+    }
+
+    /**
      * Creates a new selection.
      *
      * @param group The {@link TrackGroup}. Must not be null.
+     * @param bandwidthMeter A {@link BandwidthMeter} which can be used to select tracks, or null if
+     *     no such bandwidth meter is available.
      * @param tracks The indices of the selected tracks within the {@link TrackGroup}. Must not be
      *     null or empty. May be in any order.
      * @return The created selection.
      */
-    TrackSelection createTrackSelection(TrackGroup group, int... tracks);
-
+    default TrackSelection createTrackSelection(
+        TrackGroup group, @Nullable BandwidthMeter bandwidthMeter, int... tracks) {
+      return createTrackSelection(group, tracks);
+    }
   }
 
   /**

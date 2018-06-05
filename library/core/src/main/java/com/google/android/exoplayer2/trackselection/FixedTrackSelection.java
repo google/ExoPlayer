@@ -18,6 +18,7 @@ package com.google.android.exoplayer2.trackselection;
 import android.support.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.source.TrackGroup;
+import com.google.android.exoplayer2.upstream.BandwidthMeter;
 import com.google.android.exoplayer2.util.Assertions;
 
 /**
@@ -48,7 +49,8 @@ public final class FixedTrackSelection extends BaseTrackSelection {
     }
 
     @Override
-    public FixedTrackSelection createTrackSelection(TrackGroup group, int... tracks) {
+    public FixedTrackSelection createTrackSelection(
+        TrackGroup group, @Nullable BandwidthMeter bandwidthMeter, int... tracks) {
       Assertions.checkArgument(tracks.length == 1);
       return new FixedTrackSelection(group, tracks[0], reason, data);
     }
