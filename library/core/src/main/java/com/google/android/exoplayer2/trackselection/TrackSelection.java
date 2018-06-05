@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.trackselection;
 
+import android.support.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.source.TrackGroup;
@@ -129,10 +130,8 @@ public interface TrackSelection {
    */
   int getSelectionReason();
 
-  /**
-   * Returns optional data associated with the current track selection.
-   */
-  Object getSelectionData();
+  /** Returns optional data associated with the current track selection. */
+  @Nullable Object getSelectionData();
 
   // Adaptation.
 
