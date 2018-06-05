@@ -1173,7 +1173,7 @@ public class DefaultTrackSelector extends MappingTrackSelector {
   // MappingTrackSelector implementation.
 
   @Override
-  protected final Pair<@NullableType RendererConfiguration[], @NullableType TrackSelection[]>
+  protected final Pair<RendererConfiguration[], TrackSelection[]>
       selectTracks(
           MappedTrackInfo mappedTrackInfo,
           int[][][] rendererFormatSupports,
@@ -1181,7 +1181,7 @@ public class DefaultTrackSelector extends MappingTrackSelector {
           throws ExoPlaybackException {
     Parameters params = parametersReference.get();
     int rendererCount = mappedTrackInfo.getRendererCount();
-    @NullableType TrackSelection[] rendererTrackSelections =
+    TrackSelection[] rendererTrackSelections =
         selectAllTracks(
             mappedTrackInfo,
             rendererFormatSupports,
@@ -1404,7 +1404,7 @@ public class DefaultTrackSelector extends MappingTrackSelector {
     String selectedMimeType = null;
     if (!allowMixedMimeTypes) {
       // Select the mime type for which we have the most adaptive tracks.
-      HashSet<@NullableType String> seenMimeTypes = new HashSet<>();
+      HashSet<String> seenMimeTypes = new HashSet<>();
       int selectedMimeTypeTrackCount = 0;
       for (int i = 0; i < selectedTrackIndices.size(); i++) {
         int trackIndex = selectedTrackIndices.get(i);

@@ -383,7 +383,7 @@ public abstract class MappingTrackSelector extends TrackSelector {
             rendererFormatSupports,
             unmappedTrackGroupArray);
 
-    Pair<@NullableType RendererConfiguration[], @NullableType TrackSelection[]> result =
+    Pair<RendererConfiguration[], TrackSelection[]> result =
         selectTracks(
             mappedTrackInfo, rendererFormatSupports, rendererMixedMimeTypeAdaptationSupports);
     return new TrackSelectorResult(result.first, result.second, mappedTrackInfo);
@@ -403,7 +403,7 @@ public abstract class MappingTrackSelector extends TrackSelector {
    *     RendererCapabilities#getTrackType()} is {@link C#TRACK_TYPE_NONE}.
    * @throws ExoPlaybackException If an error occurs while selecting the tracks.
    */
-  protected abstract Pair<@NullableType RendererConfiguration[], @NullableType TrackSelection[]>
+  protected abstract Pair<RendererConfiguration[], TrackSelection[]>
       selectTracks(
           MappedTrackInfo mappedTrackInfo,
           int[][][] rendererFormatSupports,

@@ -668,7 +668,6 @@ public class ConcatenatingMediaSource extends CompositeMediaSource<MediaSourceHo
 
     public MediaSourceHolder(MediaSource mediaSource) {
       this.mediaSource = mediaSource;
-      this.uid = System.identityHashCode(this);
       this.timeline = new DeferredTimeline();
       this.activeMediaPeriods = new ArrayList<>();
       this.uid = new Object();
