@@ -29,7 +29,6 @@ import com.google.android.exoplayer2.util.Util;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.Arrays;
-import org.checkerframework.checker.nullness.compatqual.NullableType;
 
 /**
  * Base class for {@link TrackSelector}s that first establish a mapping between {@link TrackGroup}s
