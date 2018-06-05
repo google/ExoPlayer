@@ -17,7 +17,6 @@ package com.google.android.exoplayer2.trackselection;
 
 import android.support.annotation.Nullable;
 import java.util.Arrays;
-import org.checkerframework.checker.nullness.compatqual.NullableType;
 
 /** An array of {@link TrackSelection}s. */
 public final class TrackSelectionArray {
@@ -25,13 +24,13 @@ public final class TrackSelectionArray {
   /** The length of this array. */
   public final int length;
 
-  private final @NullableType TrackSelection[] trackSelections;
+  private final TrackSelection[] trackSelections;
 
   // Lazily initialized hashcode.
   private int hashCode;
 
   /** @param trackSelections The selections. Must not be null, but may contain null elements. */
-  public TrackSelectionArray(@NullableType TrackSelection... trackSelections) {
+  public TrackSelectionArray(TrackSelection... trackSelections) {
     this.trackSelections = trackSelections;
     this.length = trackSelections.length;
   }
@@ -47,7 +46,7 @@ public final class TrackSelectionArray {
   }
 
   /** Returns the selections in a newly allocated array. */
-  public @NullableType TrackSelection[] getAll() {
+  public TrackSelection[] getAll() {
     return trackSelections.clone();
   }
 

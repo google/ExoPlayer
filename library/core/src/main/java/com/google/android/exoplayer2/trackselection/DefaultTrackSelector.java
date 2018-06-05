@@ -43,7 +43,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
-import org.checkerframework.checker.nullness.compatqual.NullableType;
 
 /**
  * A default {@link TrackSelector} suitable for most use cases. Track selections are made according
@@ -1214,7 +1213,7 @@ public class DefaultTrackSelector extends MappingTrackSelector {
 
     // Initialize the renderer configurations to the default configuration for all renderers with
     // selections, and null otherwise.
-    @NullableType RendererConfiguration[] rendererConfigurations =
+    RendererConfiguration[] rendererConfigurations =
         new RendererConfiguration[rendererCount];
     for (int i = 0; i < rendererCount; i++) {
       boolean forceRendererDisabled = params.getRendererDisabled(i);
@@ -1254,14 +1253,14 @@ public class DefaultTrackSelector extends MappingTrackSelector {
    *     disabled, unless RendererCapabilities#getTrackType()} is {@link C#TRACK_TYPE_NONE}.
    * @throws ExoPlaybackException If an error occurs while selecting the tracks.
    */
-  protected @NullableType TrackSelection[] selectAllTracks(
+  protected TrackSelection[] selectAllTracks(
       MappedTrackInfo mappedTrackInfo,
       int[][][] rendererFormatSupports,
       int[] rendererMixedMimeTypeAdaptationSupports,
       Parameters params)
       throws ExoPlaybackException {
     int rendererCount = mappedTrackInfo.getRendererCount();
-    @NullableType TrackSelection[] rendererTrackSelections = new TrackSelection[rendererCount];
+    TrackSelection[] rendererTrackSelections = new TrackSelection[rendererCount];
 
     boolean seenVideoRendererWithMappedTracks = false;
     boolean selectedVideoTracks = false;
@@ -1792,8 +1791,8 @@ public class DefaultTrackSelector extends MappingTrackSelector {
   private static void maybeConfigureRenderersForTunneling(
       MappedTrackInfo mappedTrackInfo,
       int[][][] renderererFormatSupports,
-      @NullableType RendererConfiguration[] rendererConfigurations,
-      @NullableType TrackSelection[] trackSelections,
+      RendererConfiguration[] rendererConfigurations,
+      TrackSelection[] trackSelections,
       int tunnelingAudioSessionId) {
     if (tunnelingAudioSessionId == C.AUDIO_SESSION_ID_UNSET) {
       return;
