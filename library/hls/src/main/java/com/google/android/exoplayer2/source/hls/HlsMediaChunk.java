@@ -237,7 +237,7 @@ import java.util.concurrent.atomic.AtomicInteger;
         initSegmentBytesLoaded = (int) (input.getPosition() - initDataSpec.absoluteStreamPosition);
       }
     } finally {
-      Util.closeQuietly(dataSource);
+      Util.closeQuietly(initDataSource);
     }
     initLoadCompleted = true;
   }
