@@ -1177,9 +1177,9 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
     // https://github.com/google/ExoPlayer/issues/3835,
     // https://github.com/google/ExoPlayer/issues/4006,
     // https://github.com/google/ExoPlayer/issues/4084,
-    // https://github.com/google/ExoPlayer/issues/4104.
-    // https://github.com/google/ExoPlayer/issues/4134.
-    // https://github.com/google/ExoPlayer/issues/4315
+    // https://github.com/google/ExoPlayer/issues/4104,
+    // https://github.com/google/ExoPlayer/issues/4134,
+    // https://github.com/google/ExoPlayer/issues/4315.
     return (("deb".equals(Util.DEVICE) // Nexus 7 (2013)
                 || "flo".equals(Util.DEVICE) // Nexus 7 (2013)
                 || "mido".equals(Util.DEVICE) // Redmi Note 4
