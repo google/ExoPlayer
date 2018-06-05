@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.trackselection;
 
+import android.support.annotation.Nullable;
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.Renderer;
@@ -89,7 +90,7 @@ public abstract class TrackSelector {
 
   }
 
-  private InvalidationListener listener;
+  private @Nullable InvalidationListener listener;
 
   /**
    * Called by the player to initialize the selector.

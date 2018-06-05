@@ -203,7 +203,9 @@ public class TrackSelectionView extends LinearLayout {
       removeViewAt(i);
     }
 
-    if (trackSelector == null) {
+    MappingTrackSelector.MappedTrackInfo trackInfo =
+        trackSelector == null ? null : trackSelector.getCurrentMappedTrackInfo();
+    if (trackSelector == null || trackInfo == null) {
       // The view is not initialized.
       disableView.setEnabled(false);
       defaultView.setEnabled(false);
@@ -212,7 +214,6 @@ public class TrackSelectionView extends LinearLayout {
     disableView.setEnabled(true);
     defaultView.setEnabled(true);
 
-    MappingTrackSelector.MappedTrackInfo trackInfo = trackSelector.getCurrentMappedTrackInfo();
     trackGroups = trackInfo.getTrackGroups(rendererIndex);
 
     DefaultTrackSelector.Parameters parameters = trackSelector.getParameters();
