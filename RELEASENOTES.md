@@ -8,10 +8,6 @@
   on ExoPlayer via its source code rather than an AAR may need to add
   `compileOptions { targetCompatibility JavaVersion.VERSION_1_8 }` to their
   gradle settings to ensure bytecode compatibility.
-* Fix inconsistent `Player.EventListener` invocations for recursive player state
-  changes ([#4276](https://github.com/google/ExoPlayer/issues/4276)).
-* IMA: Don't advertise support for video/mpeg ad media, as we don't have an
-  extractor for this ([#4297](https://github.com/google/ExoPlayer/issues/4297)).
 * Add support for lazy preparation of playlist media sources in
   `ConcatenatingMediaSource`
   ([#3972](https://github.com/google/ExoPlayer/issues/3972)).
@@ -21,6 +17,17 @@
   * Allow injection of custom playlist trackers.
 * Add method to `BandwidthMeter` to return the `TransferListener` used to gather
   bandwidth information.
+
+### 2.8.2 ###
+
+* IMA: Don't advertise support for video/mpeg ad media, as we don't have an
+  extractor for this ([#4297](https://github.com/google/ExoPlayer/issues/4297)).
+* Mitigate memory leaks when `MediaSource` loads are slow to cancel
+  ([#4249](https://github.com/google/ExoPlayer/issues/4249)).
+* Fix inconsistent `Player.EventListener` invocations for recursive player state
+  changes ([#4276](https://github.com/google/ExoPlayer/issues/4276)).
+* Fix `MediaCodec.native_setSurface` crash on Moto C
+  ([#4315](https://github.com/google/ExoPlayer/issues/4315)).
 
 ### 2.8.1 ###
 
