@@ -50,7 +50,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.Stack;
 import java.util.UUID;
 
 /**
@@ -141,7 +140,7 @@ public final class FragmentedMp4Extractor implements Extractor {
   // Parser state.
   private final ParsableByteArray atomHeader;
   private final byte[] extendedTypeScratch;
-  private final Stack<ContainerAtom> containerAtoms;
+  private final ArrayDeque<ContainerAtom> containerAtoms;
   private final ArrayDeque<MetadataSampleInfo> pendingMetadataSampleInfos;
   private final @Nullable TrackOutput additionalEmsgTrackOutput;
 
@@ -257,7 +256,7 @@ public final class FragmentedMp4Extractor implements Extractor {
     nalPrefix = new ParsableByteArray(5);
     nalBuffer = new ParsableByteArray();
     extendedTypeScratch = new byte[16];
-    containerAtoms = new Stack<>();
+    containerAtoms = new ArrayDeque<>();
     pendingMetadataSampleInfos = new ArrayDeque<>();
     trackBundles = new SparseArray<>();
     durationUs = C.TIME_UNSET;
@@ -390,7 +389,7 @@ public final class FragmentedMp4Extractor implements Extractor {
 
     if (shouldParseContainerAtom(atomType)) {
       long endPosition = input.getPosition() + atomSize - Atom.HEADER_SIZE;
-      containerAtoms.add(new ContainerAtom(atomType, endPosition));
+      containerAtoms.push(new ContainerAtom(atomType, endPosition));
       if (atomSize == atomHeaderBytesRead) {
         processAtomEnded(endPosition);
       } else {

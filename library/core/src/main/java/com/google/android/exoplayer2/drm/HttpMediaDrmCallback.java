@@ -108,7 +108,8 @@ public final class HttpMediaDrmCallback implements MediaDrmCallback {
 
   @Override
   public byte[] executeProvisionRequest(UUID uuid, ProvisionRequest request) throws IOException {
-    String url = request.getDefaultUrl() + "&signedRequest=" + new String(request.getData());
+    String url =
+        request.getDefaultUrl() + "&signedRequest=" + Util.fromUtf8Bytes(request.getData());
     return executePost(dataSourceFactory, url, new byte[0], null);
   }
 
