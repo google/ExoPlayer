@@ -25,11 +25,14 @@ import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.graphics.Point;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Parcel;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.telephony.TelephonyManager;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.Display;
@@ -63,6 +66,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import org.checkerframework.checker.nullness.qual.PolyNull;
 
 /**
  * Miscellaneous utility methods.
@@ -397,8 +401,8 @@ public final class Util {
    * @param text The text to convert.
    * @return The lower case text, or null if {@code text} is null.
    */
-  public static String toLowerInvariant(String text) {
-    return text == null ? null : text.toLowerCase(Locale.US);
+  public static @PolyNull String toLowerInvariant(@PolyNull String text) {
+    return text == null ? text : text.toLowerCase(Locale.US);
   }
 
   /**
@@ -407,8 +411,8 @@ public final class Util {
    * @param text The text to convert.
    * @return The upper case text, or null if {@code text} is null.
    */
-  public static String toUpperInvariant(String text) {
-    return text == null ? null : text.toUpperCase(Locale.US);
+  public static @PolyNull String toUpperInvariant(@PolyNull String text) {
+    return text == null ? text : text.toUpperCase(Locale.US);
   }
 
   /**
@@ -1452,6 +1456,72 @@ public final class Util {
   }
 
   /**
+   * Returns the {@link C.NetworkType} of the current network connection. {@link
+   * C#NETWORK_TYPE_UNKNOWN} will be returned if the {@code ACCESS_NETWORK_STATE} permission is not
+   * granted or the network connection type couldn't be determined.
+   *
+   * @param context A context to access the connectivity manager.
+   * @return The {@link C.NetworkType} of the current network connection, or {@link
+   *     C#NETWORK_TYPE_UNKNOWN} if the {@code ACCESS_NETWORK_STATE} permission is not granted or
+   *     {@code context} is null.
+   */
+  public static @C.NetworkType int getNetworkType(@Nullable Context context) {
+    if (context == null) {
+      return C.NETWORK_TYPE_UNKNOWN;
+    }
+    NetworkInfo networkInfo;
+    try {
+      ConnectivityManager connectivityManager =
+          (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+      if (connectivityManager == null) {
+        return C.NETWORK_TYPE_UNKNOWN;
+      }
+      networkInfo = connectivityManager.getActiveNetworkInfo();
+    } catch (SecurityException e) {
+      // Permission ACCESS_NETWORK_STATE not granted.
+      return C.NETWORK_TYPE_UNKNOWN;
+    }
+    if (networkInfo == null || !networkInfo.isConnected()) {
+      return C.NETWORK_TYPE_OFFLINE;
+    }
+    switch (networkInfo.getType()) {
+      case ConnectivityManager.TYPE_WIFI:
+        return C.NETWORK_TYPE_WIFI;
+      case ConnectivityManager.TYPE_WIMAX:
+        return C.NETWORK_TYPE_4G;
+      case ConnectivityManager.TYPE_MOBILE:
+      case ConnectivityManager.TYPE_MOBILE_DUN:
+      case ConnectivityManager.TYPE_MOBILE_HIPRI:
+        return getMobileNetworkType(networkInfo);
+      case ConnectivityManager.TYPE_ETHERNET:
+        return C.NETWORK_TYPE_ETHERNET;
+      default: // Ethernet, VPN, Bluetooth, Dummy.
+        return C.NETWORK_TYPE_OTHER;
+    }
+  }
+
+  /**
+   * Returns the upper-case ISO 3166-1 alpha-2 country code of the current registered operator's MCC
+   * (Mobile Country Code), or the country code of the default Locale if not available.
+   *
+   * @param context A context to access the telephony service. If null, only the Locale can be used.
+   * @return The upper-case ISO 3166-1 alpha-2 country code, or an empty String if unavailable.
+   */
+  public static String getCountryCode(@Nullable Context context) {
+    if (context != null) {
+      TelephonyManager telephonyManager =
+          (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
+      if (telephonyManager != null) {
+        String countryCode = telephonyManager.getNetworkCountryIso();
+        if (!TextUtils.isEmpty(countryCode)) {
+          return toUpperInvariant(countryCode);
+        }
+      }
+    }
+    return toUpperInvariant(Locale.getDefault().getCountry());
+  }
+
+  /**
    * Gets the physical size of the default display, in pixels.
    *
    * @param context Any context.
@@ -1543,6 +1613,36 @@ public final class Util {
   private static void getDisplaySizeV9(Display display, Point outSize) {
     outSize.x = display.getWidth();
     outSize.y = display.getHeight();
+  }
+
+  private static @C.NetworkType int getMobileNetworkType(NetworkInfo networkInfo) {
+    switch (networkInfo.getSubtype()) {
+      case TelephonyManager.NETWORK_TYPE_EDGE:
+      case TelephonyManager.NETWORK_TYPE_GPRS:
+        return C.NETWORK_TYPE_2G;
+      case TelephonyManager.NETWORK_TYPE_1xRTT:
+      case TelephonyManager.NETWORK_TYPE_CDMA:
+      case TelephonyManager.NETWORK_TYPE_EVDO_0:
+      case TelephonyManager.NETWORK_TYPE_EVDO_A:
+      case TelephonyManager.NETWORK_TYPE_EVDO_B:
+      case TelephonyManager.NETWORK_TYPE_HSDPA:
+      case TelephonyManager.NETWORK_TYPE_HSPA:
+      case TelephonyManager.NETWORK_TYPE_HSUPA:
+      case TelephonyManager.NETWORK_TYPE_IDEN:
+      case TelephonyManager.NETWORK_TYPE_UMTS:
+      case TelephonyManager.NETWORK_TYPE_EHRPD:
+      case TelephonyManager.NETWORK_TYPE_HSPAP:
+      case TelephonyManager.NETWORK_TYPE_TD_SCDMA:
+        return C.NETWORK_TYPE_3G;
+      case TelephonyManager.NETWORK_TYPE_LTE:
+        return C.NETWORK_TYPE_4G;
+      case TelephonyManager.NETWORK_TYPE_IWLAN:
+        return C.NETWORK_TYPE_WIFI;
+      case TelephonyManager.NETWORK_TYPE_GSM:
+      case TelephonyManager.NETWORK_TYPE_UNKNOWN:
+      default: // Future mobile network types.
+        return C.NETWORK_TYPE_CELLULAR_UNKNOWN;
+    }
   }
 
   /**
