@@ -24,7 +24,7 @@ import java.io.EOFException;
 import java.io.IOException;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
-import java.util.Stack;
+import java.util.ArrayDeque;
 
 /**
  * Default implementation of {@link EbmlReader}.
@@ -46,14 +46,20 @@ import java.util.Stack;
   private static final int VALID_FLOAT32_ELEMENT_SIZE_BYTES = 4;
   private static final int VALID_FLOAT64_ELEMENT_SIZE_BYTES = 8;
 
-  private final byte[] scratch = new byte[8];
-  private final Stack<MasterElement> masterElementsStack = new Stack<>();
-  private final VarintReader varintReader = new VarintReader();
+  private final byte[] scratch;
+  private final ArrayDeque<MasterElement> masterElementsStack;
+  private final VarintReader varintReader;
 
   private EbmlReaderOutput output;
   private @ElementState int elementState;
   private int elementId;
   private long elementContentSize;
+
+  public DefaultEbmlReader() {
+    scratch = new byte[8];
+    masterElementsStack = new ArrayDeque<>();
+    varintReader = new VarintReader();
+  }
 
   @Override
   public void init(EbmlReaderOutput eventHandler) {
@@ -100,7 +106,7 @@ import java.util.Stack;
         case EbmlReaderOutput.TYPE_MASTER:
           long elementContentPosition = input.getPosition();
           long elementEndPosition = elementContentPosition + elementContentSize;
-          masterElementsStack.add(new MasterElement(elementId, elementEndPosition));
+          masterElementsStack.push(new MasterElement(elementId, elementEndPosition));
           output.startMasterElement(elementId, elementContentPosition, elementContentSize);
           elementState = ELEMENT_STATE_READ_ID;
           return true;

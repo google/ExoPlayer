@@ -144,7 +144,7 @@ public final class MimeTypes {
     if (codecs == null) {
       return null;
     }
-    String[] codecList = codecs.split(",");
+    String[] codecList = Util.split(codecs, ",");
     for (String codec : codecList) {
       String mimeType = getMediaMimeType(codec);
       if (mimeType != null && isVideo(mimeType)) {
@@ -164,7 +164,7 @@ public final class MimeTypes {
     if (codecs == null) {
       return null;
     }
-    String[] codecList = codecs.split(",");
+    String[] codecList = Util.split(codecs, ",");
     for (String codec : codecList) {
       String mimeType = getMediaMimeType(codec);
       if (mimeType != null && isAudio(mimeType)) {
