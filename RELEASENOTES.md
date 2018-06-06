@@ -10,6 +10,8 @@
   changes ([#4276](https://github.com/google/ExoPlayer/issues/4276)).
 * Fix `MediaCodec.native_setSurface` crash on Moto C
   ([#4315](https://github.com/google/ExoPlayer/issues/4315)).
+* Set `METADATA_KEY_TITLE` on media descriptions
+  ((#4292)[https://github.com/google/ExoPlayer/issues/4292]).
 
 ### 2.8.1 ###
 
