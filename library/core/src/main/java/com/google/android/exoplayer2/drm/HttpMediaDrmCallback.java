@@ -17,6 +17,7 @@ package com.google.android.exoplayer2.drm;
 
 import android.annotation.TargetApi;
 import android.net.Uri;
+import android.support.annotation.Nullable;
 import android.text.TextUtils;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.drm.ExoMediaDrm.KeyRequest;
@@ -114,8 +115,13 @@ public final class HttpMediaDrmCallback implements MediaDrmCallback {
   }
 
   @Override
-  public byte[] executeKeyRequest(UUID uuid, KeyRequest request) throws Exception {
+  public byte[] executeKeyRequest(
+      UUID uuid, KeyRequest request, @Nullable String mediaProvidedLicenseServerUrl)
+      throws Exception {
     String url = request.getDefaultUrl();
+    if (TextUtils.isEmpty(url)) {
+      url = mediaProvidedLicenseServerUrl;
+    }
     if (forceDefaultLicenseUrl || TextUtils.isEmpty(url)) {
       url = defaultLicenseUrl;
     }
