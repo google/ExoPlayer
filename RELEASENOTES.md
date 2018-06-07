@@ -17,6 +17,7 @@
   * Allow injection of custom playlist trackers.
 * Add method to `BandwidthMeter` to return the `TransferListener` used to gather
   bandwidth information.
+* Add callback to `VideoListener` to notify of surface size changes.
 
 ### 2.8.2 ###
 

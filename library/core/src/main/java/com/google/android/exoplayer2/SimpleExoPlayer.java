@@ -16,6 +16,7 @@
 package com.google.android.exoplayer2;
 
 import android.annotation.TargetApi;
+import android.graphics.Rect;
 import android.graphics.SurfaceTexture;
 import android.media.MediaCodec;
 import android.media.PlaybackParams;
@@ -86,6 +87,8 @@ public class SimpleExoPlayer implements ExoPlayer, Player.VideoComponent, Player
   private int videoScalingMode;
   private SurfaceHolder surfaceHolder;
   private TextureView textureView;
+  private int surfaceWidth;
+  private int surfaceHeight;
   private DecoderCounters videoDecoderCounters;
   private DecoderCounters audioDecoderCounters;
   private int audioSessionId;
@@ -238,6 +241,8 @@ public class SimpleExoPlayer implements ExoPlayer, Player.VideoComponent, Player
   public void setVideoSurface(Surface surface) {
     removeSurfaceCallbacks();
     setVideoSurfaceInternal(surface, false);
+    int newSurfaceSize = surface == null ? 0 : C.LENGTH_UNSET;
+    maybeNotifySurfaceSizeChanged(/* width= */ newSurfaceSize, /* height= */ newSurfaceSize);
   }
 
   @Override
@@ -253,10 +258,18 @@ public class SimpleExoPlayer implements ExoPlayer, Player.VideoComponent, Player
     this.surfaceHolder = surfaceHolder;
     if (surfaceHolder == null) {
       setVideoSurfaceInternal(null, false);
+      maybeNotifySurfaceSizeChanged(/* width= */ 0, /* height= */ 0);
     } else {
       surfaceHolder.addCallback(componentListener);
       Surface surface = surfaceHolder.getSurface();
-      setVideoSurfaceInternal(surface != null && surface.isValid() ? surface : null, false);
+      if (surface != null && surface.isValid()) {
+        setVideoSurfaceInternal(surface, /* ownsSurface= */ false);
+        Rect surfaceSize = surfaceHolder.getSurfaceFrame();
+        maybeNotifySurfaceSizeChanged(surfaceSize.width(), surfaceSize.height());
+      } else {
+        setVideoSurfaceInternal(/* surface= */ null, /* ownsSurface= */ false);
+        maybeNotifySurfaceSizeChanged(/* width= */ 0, /* height= */ 0);
+      }
     }
   }
 
@@ -283,6 +296,7 @@ public class SimpleExoPlayer implements ExoPlayer, Player.VideoComponent, Player
     this.textureView = textureView;
     if (textureView == null) {
       setVideoSurfaceInternal(null, true);
+      maybeNotifySurfaceSizeChanged(/* width= */ 0, /* height= */ 0);
     } else {
       if (textureView.getSurfaceTextureListener() != null) {
         Log.w(TAG, "Replacing existing SurfaceTextureListener.");
@@ -290,7 +304,13 @@ public class SimpleExoPlayer implements ExoPlayer, Player.VideoComponent, Player
       textureView.setSurfaceTextureListener(componentListener);
       SurfaceTexture surfaceTexture = textureView.isAvailable() ? textureView.getSurfaceTexture()
           : null;
-      setVideoSurfaceInternal(surfaceTexture == null ? null : new Surface(surfaceTexture), true);
+      if (surfaceTexture == null) {
+        setVideoSurfaceInternal(/* surface= */ null, /* ownsSurface= */ true);
+        maybeNotifySurfaceSizeChanged(/* width= */ 0, /* height= */ 0);
+      } else {
+        setVideoSurfaceInternal(new Surface(surfaceTexture), /* ownsSurface= */ true);
+        maybeNotifySurfaceSizeChanged(textureView.getWidth(), textureView.getHeight());
+      }
     }
   }
 
@@ -973,6 +993,16 @@ public class SimpleExoPlayer implements ExoPlayer, Player.VideoComponent, Player
     this.ownsSurface = ownsSurface;
   }
 
+  private void maybeNotifySurfaceSizeChanged(int width, int height) {
+    if (width != surfaceWidth || height != surfaceHeight) {
+      surfaceWidth = width;
+      surfaceHeight = height;
+      for (com.google.android.exoplayer2.video.VideoListener videoListener : videoListeners) {
+        videoListener.onSurfaceSizeChanged(width, height);
+      }
+    }
+  }
+
   private final class ComponentListener implements VideoRendererEventListener,
       AudioRendererEventListener, TextOutput, MetadataOutput, SurfaceHolder.Callback,
       TextureView.SurfaceTextureListener {
@@ -1126,12 +1156,13 @@ public class SimpleExoPlayer implements ExoPlayer, Player.VideoComponent, Player
 
     @Override
     public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
-      // Do nothing.
+      maybeNotifySurfaceSizeChanged(width, height);
     }
 
     @Override
     public void surfaceDestroyed(SurfaceHolder holder) {
       setVideoSurfaceInternal(null, false);
+      maybeNotifySurfaceSizeChanged(/* width= */ 0, /* height= */ 0);
     }
 
     // TextureView.SurfaceTextureListener implementation
@@ -1139,16 +1170,18 @@ public class SimpleExoPlayer implements ExoPlayer, Player.VideoComponent, Player
     @Override
     public void onSurfaceTextureAvailable(SurfaceTexture surfaceTexture, int width, int height) {
       setVideoSurfaceInternal(new Surface(surfaceTexture), true);
+      maybeNotifySurfaceSizeChanged(width, height);
     }
 
     @Override
     public void onSurfaceTextureSizeChanged(SurfaceTexture surfaceTexture, int width, int height) {
-      // Do nothing.
+      maybeNotifySurfaceSizeChanged(width, height);
     }
 
     @Override
     public boolean onSurfaceTextureDestroyed(SurfaceTexture surfaceTexture) {
       setVideoSurfaceInternal(null, true);
+      maybeNotifySurfaceSizeChanged(/* width= */ 0, /* height= */ 0);
       return true;
     }
 
@@ -1156,7 +1189,6 @@ public class SimpleExoPlayer implements ExoPlayer, Player.VideoComponent, Player
     public void onSurfaceTextureUpdated(SurfaceTexture surfaceTexture) {
       // Do nothing.
     }
-
   }
 
 }
