@@ -32,6 +32,7 @@ import java.io.IOException;
 import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
 import java.nio.ByteBuffer;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -247,7 +248,7 @@ public class CronetDataSource extends UrlRequest.Callback implements HttpDataSou
 
   @Override
   public Map<String, List<String>> getResponseHeaders() {
-    return responseInfo == null ? null : responseInfo.getAllHeaders();
+    return responseInfo == null ? Collections.emptyMap() : responseInfo.getAllHeaders();
   }
 
   @Override

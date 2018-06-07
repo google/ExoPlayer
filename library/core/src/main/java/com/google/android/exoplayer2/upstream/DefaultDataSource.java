@@ -21,6 +21,8 @@ import android.util.Log;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Util;
 import java.io.IOException;
+import java.util.List;
+import java.util.Map;
 
 /**
  * A {@link DataSource} that supports multiple URI schemes. The supported schemes are:
@@ -155,6 +157,13 @@ public final class DefaultDataSource implements DataSource {
   @Override
   public Uri getUri() {
     return dataSource == null ? null : dataSource.getUri();
+  }
+
+  @Override
+  public Map<String, List<String>> getResponseHeaders() {
+    return dataSource == null
+        ? DataSource.super.getResponseHeaders()
+        : dataSource.getResponseHeaders();
   }
 
   @Override

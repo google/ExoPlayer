@@ -19,6 +19,9 @@ import android.net.Uri;
 import android.support.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import java.io.IOException;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 
 /**
  * A component from which streams of data can be read.
@@ -81,6 +84,14 @@ public interface DataSource {
    * @return The {@link Uri} from which data is being read, or null if the source is not open.
    */
   @Nullable Uri getUri();
+
+  /**
+   * When the source is open, returns the response headers associated with the last {@link #open}
+   * call. Otherwise, returns an empty map.
+   */
+  default Map<String, List<String>> getResponseHeaders() {
+    return Collections.emptyMap();
+  }
 
   /**
    * Closes the source.

@@ -31,6 +31,8 @@ import java.io.IOException;
 import java.io.InterruptedIOException;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.util.List;
+import java.util.Map;
 
 /**
  * A {@link DataSource} that reads and writes a {@link Cache}. Requests are fulfilled from the cache
@@ -330,6 +332,14 @@ public final class CacheDataSource implements DataSource {
   @Override
   public Uri getUri() {
     return actualUri;
+  }
+
+  @Override
+  public Map<String, List<String>> getResponseHeaders() {
+    // TODO: Implement.
+    return isReadingFromUpstream()
+        ? upstreamDataSource.getResponseHeaders()
+        : DataSource.super.getResponseHeaders();
   }
 
   @Override

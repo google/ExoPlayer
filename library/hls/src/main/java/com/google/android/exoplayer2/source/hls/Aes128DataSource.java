@@ -27,6 +27,8 @@ import java.security.InvalidKeyException;
 import java.security.Key;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.AlgorithmParameterSpec;
+import java.util.List;
+import java.util.Map;
 import javax.crypto.Cipher;
 import javax.crypto.CipherInputStream;
 import javax.crypto.NoSuchPaddingException;
@@ -86,14 +88,6 @@ import javax.crypto.spec.SecretKeySpec;
   }
 
   @Override
-  public void close() throws IOException {
-    if (cipherInputStream != null) {
-      cipherInputStream = null;
-      upstream.close();
-    }
-  }
-
-  @Override
   public int read(byte[] buffer, int offset, int readLength) throws IOException {
     Assertions.checkState(cipherInputStream != null);
     int bytesRead = cipherInputStream.read(buffer, offset, readLength);
@@ -108,4 +102,16 @@ import javax.crypto.spec.SecretKeySpec;
     return upstream.getUri();
   }
 
+  @Override
+  public Map<String, List<String>> getResponseHeaders() {
+    return upstream.getResponseHeaders();
+  }
+
+  @Override
+  public void close() throws IOException {
+    if (cipherInputStream != null) {
+      cipherInputStream = null;
+      upstream.close();
+    }
+  }
 }
