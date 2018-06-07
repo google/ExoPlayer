@@ -1,5 +1,11 @@
 # Release notes #
 
+### 2.8.3 ###
+
+* DRM:
+  * Allow DrmInitData to carry a license server URL
+    ([#3393](https://github.com/google/ExoPlayer/issues/3393)).
+
 ### 2.8.2 ###
 
 * IMA: Don't advertise support for video/mpeg ad media, as we don't have an
