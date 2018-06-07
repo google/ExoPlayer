@@ -15,6 +15,9 @@
   bandwidth estimates in the future. Always null at the moment.
 * HLS:
   * Allow injection of custom playlist trackers.
+* DRM:
+  * Allow DrmInitData to carry a license server URL
+    ([#3393](https://github.com/google/ExoPlayer/issues/3393)).
 * Add method to `BandwidthMeter` to return the `TransferListener` used to gather
   bandwidth information.
 * Add callback to `VideoListener` to notify of surface size changes.

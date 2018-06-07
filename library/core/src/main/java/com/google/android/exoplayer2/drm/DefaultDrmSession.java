@@ -22,11 +22,12 @@ import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Looper;
 import android.os.Message;
+import android.support.annotation.Nullable;
 import android.util.Log;
 import android.util.Pair;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.drm.DefaultDrmSessionEventListener.EventDispatcher;
-import com.google.android.exoplayer2.drm.ExoMediaDrm.DefaultKeyRequest;
+import com.google.android.exoplayer2.drm.DrmInitData.SchemeData;
 import com.google.android.exoplayer2.drm.ExoMediaDrm.KeyRequest;
 import com.google.android.exoplayer2.drm.ExoMediaDrm.ProvisionRequest;
 import java.util.Arrays;
@@ -77,8 +78,7 @@ import java.util.UUID;
 
   private final ExoMediaDrm<T> mediaDrm;
   private final ProvisioningManager<T> provisioningManager;
-  private final byte[] initData;
-  private final String mimeType;
+  private final SchemeData schemeData;
   private final @DefaultDrmSessionManager.Mode int mode;
   private final HashMap<String, String> optionalKeyRequestParameters;
   private final EventDispatcher eventDispatcher;
@@ -103,9 +103,11 @@ import java.util.UUID;
    * @param uuid The UUID of the drm scheme.
    * @param mediaDrm The media DRM.
    * @param provisioningManager The manager for provisioning.
-   * @param initData The DRM init data.
+   * @param schemeData The DRM data for this session, or null if a {@code offlineLicenseKeySetId} is
+   *     provided.
    * @param mode The DRM mode.
-   * @param offlineLicenseKeySetId The offlineLicense KeySetId.
+   * @param offlineLicenseKeySetId The offline license key set identifier, or null when not using
+   *     offline keys.
    * @param optionalKeyRequestParameters The optional key request parameters.
    * @param callback The media DRM callback.
    * @param playbackLooper The playback looper.
@@ -117,10 +119,9 @@ import java.util.UUID;
       UUID uuid,
       ExoMediaDrm<T> mediaDrm,
       ProvisioningManager<T> provisioningManager,
-      byte[] initData,
-      String mimeType,
+      @Nullable SchemeData schemeData,
       @DefaultDrmSessionManager.Mode int mode,
-      byte[] offlineLicenseKeySetId,
+      @Nullable byte[] offlineLicenseKeySetId,
       HashMap<String, String> optionalKeyRequestParameters,
       MediaDrmCallback callback,
       Looper playbackLooper,
@@ -131,6 +132,7 @@ import java.util.UUID;
     this.mediaDrm = mediaDrm;
     this.mode = mode;
     this.offlineLicenseKeySetId = offlineLicenseKeySetId;
+    this.schemeData = offlineLicenseKeySetId == null ? schemeData : null;
     this.optionalKeyRequestParameters = optionalKeyRequestParameters;
     this.callback = callback;
     this.initialDrmRequestRetryCount = initialDrmRequestRetryCount;
@@ -141,14 +143,6 @@ import java.util.UUID;
     requestHandlerThread = new HandlerThread("DrmRequestHandler");
     requestHandlerThread.start();
     postRequestHandler = new PostRequestHandler(requestHandlerThread.getLooper());
-
-    if (offlineLicenseKeySetId == null) {
-      this.initData = initData;
-      this.mimeType = mimeType;
-    } else {
-      this.initData = null;
-      this.mimeType = null;
-    }
   }
 
   // Life cycle.
@@ -187,11 +181,35 @@ import java.util.UUID;
   }
 
   public boolean hasInitData(byte[] initData) {
-    return Arrays.equals(this.initData, initData);
+    return Arrays.equals(schemeData != null ? schemeData.data : null, initData);
   }
 
   public boolean hasSessionId(byte[] sessionId) {
     return Arrays.equals(this.sessionId, sessionId);
+  }
+
+  @SuppressWarnings("deprecation")
+  public void onMediaDrmEvent(int what) {
+    if (!isOpen()) {
+      return;
+    }
+    switch (what) {
+      case ExoMediaDrm.EVENT_KEY_REQUIRED:
+        doLicense(false);
+        break;
+      case ExoMediaDrm.EVENT_KEY_EXPIRED:
+        // When an already expired key is loaded MediaDrm sends this event immediately. Ignore
+        // this event if the state isn't STATE_OPENED_WITH_KEYS yet which means we're still
+        // waiting for key response.
+        onKeysExpired();
+        break;
+      case ExoMediaDrm.EVENT_PROVISION_REQUIRED:
+        state = STATE_OPENED;
+        provisioningManager.provisionRequired(this);
+        break;
+      default:
+        break;
+    }
   }
 
   // Provisioning implementation.
@@ -356,14 +374,19 @@ import java.util.UUID;
 
   private void postKeyRequest(int type, boolean allowRetry) {
     byte[] scope = type == ExoMediaDrm.KEY_TYPE_RELEASE ? offlineLicenseKeySetId : sessionId;
+    byte[] initData = null;
+    String mimeType = null;
+    String licenseServerUrl = null;
+    if (schemeData != null) {
+      initData = schemeData.data;
+      mimeType = schemeData.mimeType;
+      licenseServerUrl = schemeData.licenseServerUrl;
+    }
     try {
-      KeyRequest request = mediaDrm.getKeyRequest(scope, initData, mimeType, type,
-          optionalKeyRequestParameters);
-      if (C.CLEARKEY_UUID.equals(uuid)) {
-        request = new DefaultKeyRequest(ClearKeyUtil.adjustRequestData(request.getData()),
-            request.getDefaultUrl());
-      }
-      postRequestHandler.obtainMessage(MSG_KEYS, request, allowRetry).sendToTarget();
+      KeyRequest request =
+          mediaDrm.getKeyRequest(scope, initData, mimeType, type, optionalKeyRequestParameters);
+      Pair<KeyRequest, String> arguments = Pair.create(request, licenseServerUrl);
+      postRequestHandler.obtainMessage(MSG_KEYS, arguments, allowRetry).sendToTarget();
     } catch (Exception e) {
       onKeysError(e);
     }
@@ -382,9 +405,6 @@ import java.util.UUID;
 
     try {
       byte[] responseData = (byte[]) response;
-      if (C.CLEARKEY_UUID.equals(uuid)) {
-        responseData = ClearKeyUtil.adjustResponseData(responseData);
-      }
       if (mode == DefaultDrmSessionManager.MODE_RELEASE) {
         mediaDrm.provideKeyResponse(offlineLicenseKeySetId, responseData);
         eventDispatcher.drmKeysRemoved();
@@ -430,30 +450,7 @@ import java.util.UUID;
     return state == STATE_OPENED || state == STATE_OPENED_WITH_KEYS;
   }
 
-  @SuppressWarnings("deprecation")
-  public void onMediaDrmEvent(int what) {
-    if (!isOpen()) {
-      return;
-    }
-    switch (what) {
-      case ExoMediaDrm.EVENT_KEY_REQUIRED:
-        doLicense(false);
-        break;
-      case ExoMediaDrm.EVENT_KEY_EXPIRED:
-        // When an already expired key is loaded MediaDrm sends this event immediately. Ignore
-        // this event if the state isn't STATE_OPENED_WITH_KEYS yet which means we're still
-        // waiting for key response.
-        onKeysExpired();
-        break;
-      case ExoMediaDrm.EVENT_PROVISION_REQUIRED:
-        state = STATE_OPENED;
-        provisioningManager.provisionRequired(this);
-        break;
-      default:
-        break;
-    }
-
-  }
+  // Internal classes.
 
   @SuppressLint("HandlerLeak")
   private class PostResponseHandler extends Handler {
@@ -492,6 +489,7 @@ import java.util.UUID;
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public void handleMessage(Message msg) {
       Object response;
       try {
@@ -500,7 +498,8 @@ import java.util.UUID;
             response = callback.executeProvisionRequest(uuid, (ProvisionRequest) msg.obj);
             break;
           case MSG_KEYS:
-            response = callback.executeKeyRequest(uuid, (KeyRequest) msg.obj);
+            Pair<KeyRequest, String> arguments = (Pair<KeyRequest, String>) msg.obj;
+            response = callback.executeKeyRequest(uuid, arguments.first, arguments.second);
             break;
           default:
             throw new RuntimeException();
@@ -534,5 +533,4 @@ import java.util.UUID;
     }
 
   }
-
 }
