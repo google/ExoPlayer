@@ -251,7 +251,7 @@ public final class SubtitleView extends View implements TextOutput {
     // Calculate the bounds after padding is taken into account.
     int left = getLeft() + getPaddingLeft();
     int top = rawTop + getPaddingTop();
-    int right = getRight() + getPaddingRight();
+    int right = getRight() - getPaddingRight();
     int bottom = rawBottom - getPaddingBottom();
     if (bottom <= top || right <= left) {
       // No space to draw subtitles.
