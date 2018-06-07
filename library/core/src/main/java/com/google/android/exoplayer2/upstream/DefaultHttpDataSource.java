@@ -32,6 +32,7 @@ import java.net.HttpURLConnection;
 import java.net.NoRouteToHostException;
 import java.net.ProtocolException;
 import java.net.URL;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
@@ -162,7 +163,7 @@ public class DefaultHttpDataSource implements HttpDataSource {
 
   @Override
   public Map<String, List<String>> getResponseHeaders() {
-    return connection == null ? null : connection.getHeaderFields();
+    return connection == null ? Collections.emptyMap() : connection.getHeaderFields();
   }
 
   @Override

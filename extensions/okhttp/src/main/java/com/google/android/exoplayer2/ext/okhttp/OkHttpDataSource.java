@@ -30,6 +30,7 @@ import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InterruptedIOException;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
@@ -131,7 +132,7 @@ public class OkHttpDataSource implements HttpDataSource {
 
   @Override
   public Map<String, List<String>> getResponseHeaders() {
-    return response == null ? null : response.headers().toMultimap();
+    return response == null ? Collections.emptyMap() : response.headers().toMultimap();
   }
 
   @Override
