@@ -278,7 +278,7 @@ public final class MimeTypes {
    * @param mimeType The MIME type.
    * @return The {@link C}{@code .TRACK_TYPE_*} constant that corresponds to a specified MIME type.
    */
-  public static int getTrackType(String mimeType) {
+  public static int getTrackType(@Nullable String mimeType) {
     if (TextUtils.isEmpty(mimeType)) {
       return C.TRACK_TYPE_UNKNOWN;
     } else if (isAudio(mimeType)) {
