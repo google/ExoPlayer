@@ -29,6 +29,8 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Build;
+import android.os.Handler;
+import android.os.Looper;
 import android.os.Parcel;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -66,6 +68,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import org.checkerframework.checker.initialization.qual.UnknownInitialization;
 import org.checkerframework.checker.nullness.qual.PolyNull;
 
 /**
@@ -237,10 +240,39 @@ public final class Util {
    * @param length The output array length. Must be less or equal to the length of the input array.
    * @return The copied array.
    */
-  @SuppressWarnings("nullness:assignment.type.incompatible")
+  @SuppressWarnings({"nullness:argument.type.incompatible", "nullness:return.type.incompatible"})
   public static <T> T[] nullSafeArrayCopy(T[] input, int length) {
     Assertions.checkArgument(length <= input.length);
     return Arrays.copyOf(input, length);
+  }
+
+  /**
+   * Creates a {@link Handler} with the specified {@link Handler.Callback} on the current {@link
+   * Looper} thread. The method accepts partially initialized objects as callback under the
+   * assumption that the Handler won't be used to send messages until the callback is fully
+   * initialized.
+   *
+   * @param callback A {@link Handler.Callback}. May be a partially initialized class.
+   * @return A {@link Handler} with the specified callback on the current {@link Looper} thread.
+   */
+  public static Handler createHandler(Handler.@UnknownInitialization Callback callback) {
+    return createHandler(Looper.myLooper(), callback);
+  }
+
+  /**
+   * Creates a {@link Handler} with the specified {@link Handler.Callback} on the specified {@link
+   * Looper} thread. The method accepts partially initialized objects as callback under the
+   * assumption that the Handler won't be used to send messages until the callback is fully
+   * initialized.
+   *
+   * @param looper A {@link Looper} to run the callback on.
+   * @param callback A {@link Handler.Callback}. May be a partially initialized class.
+   * @return A {@link Handler} with the specified callback on the current {@link Looper} thread.
+   */
+  @SuppressWarnings({"nullness:argument.type.incompatible", "nullness:return.type.incompatible"})
+  public static Handler createHandler(
+      Looper looper, Handler.@UnknownInitialization Callback callback) {
+    return new Handler(looper, callback);
   }
 
   /**
