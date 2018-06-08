@@ -29,9 +29,9 @@ import com.google.android.exoplayer2.offline.DownloadManager;
 import com.google.android.exoplayer2.offline.DownloadManager.TaskState;
 import com.google.android.exoplayer2.offline.DownloadService;
 import com.google.android.exoplayer2.offline.DownloaderConstructorHelper;
+import com.google.android.exoplayer2.offline.StreamKey;
 import com.google.android.exoplayer2.scheduler.Requirements;
 import com.google.android.exoplayer2.scheduler.Scheduler;
-import com.google.android.exoplayer2.source.dash.manifest.RepresentationKey;
 import com.google.android.exoplayer2.testutil.DummyMainThread;
 import com.google.android.exoplayer2.testutil.FakeDataSet;
 import com.google.android.exoplayer2.testutil.FakeDataSource;
@@ -65,8 +65,8 @@ public class DownloadServiceDashTest {
   private SimpleCache cache;
   private File tempFolder;
   private FakeDataSet fakeDataSet;
-  private RepresentationKey fakeRepresentationKey1;
-  private RepresentationKey fakeRepresentationKey2;
+  private StreamKey fakeStreamKey1;
+  private StreamKey fakeStreamKey2;
   private Context context;
   private DownloadService dashDownloadService;
   private ConditionVariable pauseDownloadCondition;
@@ -108,8 +108,8 @@ public class DownloadServiceDashTest {
             .setRandomData("text_segment_3", 3);
     final DataSource.Factory fakeDataSourceFactory =
         new FakeDataSource.Factory(null).setFakeDataSet(fakeDataSet);
-    fakeRepresentationKey1 = new RepresentationKey(0, 0, 0);
-    fakeRepresentationKey2 = new RepresentationKey(0, 1, 0);
+    fakeStreamKey1 = new StreamKey(0, 0, 0);
+    fakeStreamKey2 = new StreamKey(0, 1, 0);
 
     dummyMainThread.runOnMainThread(
         new Runnable() {
@@ -180,8 +180,8 @@ public class DownloadServiceDashTest {
   @Ignore // b/78877092
   @Test
   public void testMultipleDownloadAction() throws Throwable {
-    downloadKeys(fakeRepresentationKey1);
-    downloadKeys(fakeRepresentationKey2);
+    downloadKeys(fakeStreamKey1);
+    downloadKeys(fakeStreamKey2);
 
     downloadManagerListener.blockUntilTasksCompleteAndThrowAnyDownloadError();
 
@@ -191,7 +191,7 @@ public class DownloadServiceDashTest {
   @Ignore // b/78877092
   @Test
   public void testRemoveAction() throws Throwable {
-    downloadKeys(fakeRepresentationKey1, fakeRepresentationKey2);
+    downloadKeys(fakeStreamKey1, fakeStreamKey2);
 
     downloadManagerListener.blockUntilTasksCompleteAndThrowAnyDownloadError();
 
@@ -206,7 +206,7 @@ public class DownloadServiceDashTest {
   @Test
   public void testRemoveBeforeDownloadComplete() throws Throwable {
     pauseDownloadCondition = new ConditionVariable();
-    downloadKeys(fakeRepresentationKey1, fakeRepresentationKey2);
+    downloadKeys(fakeStreamKey1, fakeStreamKey2);
 
     removeAll();
 
@@ -219,7 +219,7 @@ public class DownloadServiceDashTest {
     callDownloadServiceOnStart(newAction(TEST_MPD_URI, true, null));
   }
 
-  private void downloadKeys(RepresentationKey... keys) {
+  private void downloadKeys(StreamKey... keys) {
     callDownloadServiceOnStart(newAction(TEST_MPD_URI, false, null, keys));
   }
 
@@ -236,8 +236,8 @@ public class DownloadServiceDashTest {
   }
 
   private static DashDownloadAction newAction(
-      Uri uri, boolean isRemoveAction, @Nullable byte[] data, RepresentationKey... keys) {
-    ArrayList<RepresentationKey> keysList = new ArrayList<>();
+      Uri uri, boolean isRemoveAction, @Nullable byte[] data, StreamKey... keys) {
+    ArrayList<StreamKey> keysList = new ArrayList<>();
     Collections.addAll(keysList, keys);
     return new DashDownloadAction(uri, isRemoveAction, data, keysList);
   }

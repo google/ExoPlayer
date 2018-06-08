@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017 The Android Open Source Project
+ * Copyright (C) 2018 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,25 +13,46 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.android.exoplayer2.source.smoothstreaming.manifest;
+package com.google.android.exoplayer2.offline;
 
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
-/** Uniquely identifies a track in a {@link SsManifest}. */
+/**
+ * Identifies a given track by the index of the containing period, the index of the containing group
+ * within the period, and the index of the track within the group.
+ */
 public final class StreamKey implements Comparable<StreamKey> {
 
-  public final int streamElementIndex;
+  /** The period index. */
+  public final int periodIndex;
+  /** The group index. */
+  public final int groupIndex;
+  /** The track index. */
   public final int trackIndex;
 
-  public StreamKey(int streamElementIndex, int trackIndex) {
-    this.streamElementIndex = streamElementIndex;
+  /**
+   * @param groupIndex The group index.
+   * @param trackIndex The track index.
+   */
+  public StreamKey(int groupIndex, int trackIndex) {
+    this(0, groupIndex, trackIndex);
+  }
+
+  /**
+   * @param periodIndex The period index.
+   * @param groupIndex The group index.
+   * @param trackIndex The track index.
+   */
+  public StreamKey(int periodIndex, int groupIndex, int trackIndex) {
+    this.periodIndex = periodIndex;
+    this.groupIndex = groupIndex;
     this.trackIndex = trackIndex;
   }
 
   @Override
   public String toString() {
-    return streamElementIndex + "." + trackIndex;
+    return periodIndex + "." + groupIndex + "." + trackIndex;
   }
 
   @Override
@@ -44,12 +65,15 @@ public final class StreamKey implements Comparable<StreamKey> {
     }
 
     StreamKey that = (StreamKey) o;
-    return streamElementIndex == that.streamElementIndex && trackIndex == that.trackIndex;
+    return periodIndex == that.periodIndex
+        && groupIndex == that.groupIndex
+        && trackIndex == that.trackIndex;
   }
 
   @Override
   public int hashCode() {
-    int result = streamElementIndex;
+    int result = periodIndex;
+    result = 31 * result + groupIndex;
     result = 31 * result + trackIndex;
     return result;
   }
@@ -58,9 +82,12 @@ public final class StreamKey implements Comparable<StreamKey> {
 
   @Override
   public int compareTo(@NonNull StreamKey o) {
-    int result = streamElementIndex - o.streamElementIndex;
+    int result = periodIndex - o.periodIndex;
     if (result == 0) {
-      result = trackIndex - o.trackIndex;
+      result = groupIndex - o.groupIndex;
+      if (result == 0) {
+        result = trackIndex - o.trackIndex;
+      }
     }
     return result;
   }

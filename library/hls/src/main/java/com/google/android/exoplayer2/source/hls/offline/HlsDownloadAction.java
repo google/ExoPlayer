@@ -20,31 +20,31 @@ import android.support.annotation.Nullable;
 import com.google.android.exoplayer2.offline.DownloadAction;
 import com.google.android.exoplayer2.offline.DownloaderConstructorHelper;
 import com.google.android.exoplayer2.offline.SegmentDownloadAction;
-import com.google.android.exoplayer2.source.hls.playlist.RenditionKey;
+import com.google.android.exoplayer2.offline.StreamKey;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.List;
 
 /** An action to download or remove downloaded HLS streams. */
-public final class HlsDownloadAction extends SegmentDownloadAction<RenditionKey> {
+public final class HlsDownloadAction extends SegmentDownloadAction {
 
   private static final String TYPE = "hls";
   private static final int VERSION = 0;
 
   public static final Deserializer DESERIALIZER =
-      new SegmentDownloadActionDeserializer<RenditionKey>(TYPE, VERSION) {
+      new SegmentDownloadActionDeserializer(TYPE, VERSION) {
 
         @Override
-        protected RenditionKey readKey(DataInputStream input) throws IOException {
+        protected StreamKey readKey(DataInputStream input) throws IOException {
           int renditionGroup = input.readInt();
           int trackIndex = input.readInt();
-          return new RenditionKey(renditionGroup, trackIndex);
+          return new StreamKey(renditionGroup, trackIndex);
         }
 
         @Override
         protected DownloadAction createDownloadAction(
-            Uri uri, boolean isRemoveAction, byte[] data, List<RenditionKey> keys) {
+            Uri uri, boolean isRemoveAction, byte[] data, List<StreamKey> keys) {
           return new HlsDownloadAction(uri, isRemoveAction, data, keys);
         }
       };
@@ -57,7 +57,7 @@ public final class HlsDownloadAction extends SegmentDownloadAction<RenditionKey>
    *     {@code removeAction} is true, {@code keys} must empty.
    */
   public HlsDownloadAction(
-      Uri uri, boolean isRemoveAction, @Nullable byte[] data, List<RenditionKey> keys) {
+      Uri uri, boolean isRemoveAction, @Nullable byte[] data, List<StreamKey> keys) {
     super(TYPE, VERSION, uri, isRemoveAction, data, keys);
   }
 
@@ -67,8 +67,8 @@ public final class HlsDownloadAction extends SegmentDownloadAction<RenditionKey>
   }
 
   @Override
-  protected void writeKey(DataOutputStream output, RenditionKey key) throws IOException {
-    output.writeInt(key.type);
+  protected void writeKey(DataOutputStream output, StreamKey key) throws IOException {
+    output.writeInt(key.groupIndex);
     output.writeInt(key.trackIndex);
   }
 

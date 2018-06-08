@@ -20,6 +20,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.drm.DrmInitData;
+import com.google.android.exoplayer2.offline.StreamKey;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.Collections;
@@ -256,7 +257,7 @@ public final class HlsMediaPlaylist extends HlsPlaylist {
   }
 
   @Override
-  public HlsMediaPlaylist copy(List<RenditionKey> renditionKeys) {
+  public HlsMediaPlaylist copy(List<StreamKey> streamKeys) {
     return this;
   }
 

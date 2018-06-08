@@ -25,19 +25,11 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-/**
- * {@link DownloadAction} for {@link SegmentDownloader}s.
- *
- * @param <K> The type of the representation key object.
- */
-public abstract class SegmentDownloadAction<K extends Comparable<K>> extends DownloadAction {
+/** {@link DownloadAction} for {@link SegmentDownloader}s. */
+public abstract class SegmentDownloadAction extends DownloadAction {
 
-  /**
-   * Base class for {@link SegmentDownloadAction} {@link Deserializer}s.
-   *
-   * @param <K> The type of the representation key object.
-   */
-  protected abstract static class SegmentDownloadActionDeserializer<K> extends Deserializer {
+  /** Base class for {@link SegmentDownloadAction} {@link Deserializer}s. */
+  protected abstract static class SegmentDownloadActionDeserializer extends Deserializer {
 
     public SegmentDownloadActionDeserializer(String type, int version) {
       super(type, version);
@@ -52,7 +44,7 @@ public abstract class SegmentDownloadAction<K extends Comparable<K>> extends Dow
       byte[] data = new byte[dataLength];
       input.readFully(data);
       int keyCount = input.readInt();
-      List<K> keys = new ArrayList<>();
+      List<StreamKey> keys = new ArrayList<>();
       for (int i = 0; i < keyCount; i++) {
         keys.add(readKey(input));
       }
@@ -60,14 +52,14 @@ public abstract class SegmentDownloadAction<K extends Comparable<K>> extends Dow
     }
 
     /** Deserializes a key from the {@code input}. */
-    protected abstract K readKey(DataInputStream input) throws IOException;
+    protected abstract StreamKey readKey(DataInputStream input) throws IOException;
 
     /** Returns a {@link DownloadAction}. */
     protected abstract DownloadAction createDownloadAction(
-        Uri manifestUri, boolean isRemoveAction, byte[] data, List<K> keys);
+        Uri manifestUri, boolean isRemoveAction, byte[] data, List<StreamKey> keys);
   }
 
-  public final List<K> keys;
+  public final List<StreamKey> keys;
 
   /**
    * @param type The type of the action.
@@ -84,13 +76,13 @@ public abstract class SegmentDownloadAction<K extends Comparable<K>> extends Dow
       Uri uri,
       boolean isRemoveAction,
       @Nullable byte[] data,
-      List<K> keys) {
+      List<StreamKey> keys) {
     super(type, version, uri, isRemoveAction, data);
     if (isRemoveAction) {
       Assertions.checkArgument(keys.isEmpty());
       this.keys = Collections.emptyList();
     } else {
-      ArrayList<K> mutableKeys = new ArrayList<>(keys);
+      ArrayList<StreamKey> mutableKeys = new ArrayList<>(keys);
       Collections.sort(mutableKeys);
       this.keys = Collections.unmodifiableList(mutableKeys);
     }
@@ -109,7 +101,7 @@ public abstract class SegmentDownloadAction<K extends Comparable<K>> extends Dow
   }
 
   /** Serializes the {@code key} into the {@code output}. */
-  protected abstract void writeKey(DataOutputStream output, K key) throws IOException;
+  protected abstract void writeKey(DataOutputStream output, StreamKey key) throws IOException;
 
   @Override
   public boolean equals(@Nullable Object o) {
@@ -119,7 +111,7 @@ public abstract class SegmentDownloadAction<K extends Comparable<K>> extends Dow
     if (!super.equals(o)) {
       return false;
     }
-    SegmentDownloadAction<?> that = (SegmentDownloadAction<?>) o;
+    SegmentDownloadAction that = (SegmentDownloadAction) o;
     return keys.equals(that.keys);
   }
 

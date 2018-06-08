@@ -27,7 +27,7 @@ import static org.mockito.Mockito.when;
 
 import com.google.android.exoplayer2.offline.DownloadException;
 import com.google.android.exoplayer2.offline.DownloaderConstructorHelper;
-import com.google.android.exoplayer2.source.dash.manifest.RepresentationKey;
+import com.google.android.exoplayer2.offline.StreamKey;
 import com.google.android.exoplayer2.testutil.FakeDataSet;
 import com.google.android.exoplayer2.testutil.FakeDataSource;
 import com.google.android.exoplayer2.testutil.FakeDataSource.Factory;
@@ -77,7 +77,7 @@ public class DashDownloaderTest {
             .setRandomData("audio_segment_2", 5)
             .setRandomData("audio_segment_3", 6);
 
-    DashDownloader dashDownloader = getDashDownloader(fakeDataSet, new RepresentationKey(0, 0, 0));
+    DashDownloader dashDownloader = getDashDownloader(fakeDataSet, new StreamKey(0, 0, 0));
     dashDownloader.download();
     assertCachedData(cache, fakeDataSet);
   }
@@ -96,7 +96,7 @@ public class DashDownloaderTest {
             .setRandomData("audio_segment_2", 5)
             .setRandomData("audio_segment_3", 6);
 
-    DashDownloader dashDownloader = getDashDownloader(fakeDataSet, new RepresentationKey(0, 0, 0));
+    DashDownloader dashDownloader = getDashDownloader(fakeDataSet, new StreamKey(0, 0, 0));
     dashDownloader.download();
     assertCachedData(cache, fakeDataSet);
   }
@@ -115,8 +115,7 @@ public class DashDownloaderTest {
             .setRandomData("text_segment_3", 3);
 
     DashDownloader dashDownloader =
-        getDashDownloader(
-            fakeDataSet, new RepresentationKey(0, 0, 0), new RepresentationKey(0, 1, 0));
+        getDashDownloader(fakeDataSet, new StreamKey(0, 0, 0), new StreamKey(0, 1, 0));
     dashDownloader.download();
     assertCachedData(cache, fakeDataSet);
   }
@@ -159,7 +158,7 @@ public class DashDownloaderTest {
     when(factory.createDataSource()).thenReturn(fakeDataSource);
 
     DashDownloader dashDownloader =
-        getDashDownloader(factory, new RepresentationKey(0, 0, 0), new RepresentationKey(0, 1, 0));
+        getDashDownloader(factory, new StreamKey(0, 0, 0), new StreamKey(0, 1, 0));
     dashDownloader.download();
 
     DataSpec[] openedDataSpecs = fakeDataSource.getAndClearOpenedDataSpecs();
@@ -191,7 +190,7 @@ public class DashDownloaderTest {
     when(factory.createDataSource()).thenReturn(fakeDataSource);
 
     DashDownloader dashDownloader =
-        getDashDownloader(factory, new RepresentationKey(0, 0, 0), new RepresentationKey(1, 0, 0));
+        getDashDownloader(factory, new StreamKey(0, 0, 0), new StreamKey(1, 0, 0));
     dashDownloader.download();
 
     DataSpec[] openedDataSpecs = fakeDataSource.getAndClearOpenedDataSpecs();
@@ -220,7 +219,7 @@ public class DashDownloaderTest {
             .endData()
             .setRandomData("audio_segment_3", 6);
 
-    DashDownloader dashDownloader = getDashDownloader(fakeDataSet, new RepresentationKey(0, 0, 0));
+    DashDownloader dashDownloader = getDashDownloader(fakeDataSet, new StreamKey(0, 0, 0));
     try {
       dashDownloader.download();
       fail();
@@ -245,7 +244,7 @@ public class DashDownloaderTest {
             .endData()
             .setRandomData("audio_segment_3", 6);
 
-    DashDownloader dashDownloader = getDashDownloader(fakeDataSet, new RepresentationKey(0, 0, 0));
+    DashDownloader dashDownloader = getDashDownloader(fakeDataSet, new StreamKey(0, 0, 0));
     assertThat(dashDownloader.getDownloadedBytes()).isEqualTo(0);
 
     try {
@@ -274,8 +273,7 @@ public class DashDownloaderTest {
             .setRandomData("text_segment_3", 3);
 
     DashDownloader dashDownloader =
-        getDashDownloader(
-            fakeDataSet, new RepresentationKey(0, 0, 0), new RepresentationKey(0, 1, 0));
+        getDashDownloader(fakeDataSet, new StreamKey(0, 0, 0), new StreamKey(0, 1, 0));
     dashDownloader.download();
     dashDownloader.remove();
     assertCacheEmpty(cache);
@@ -288,7 +286,7 @@ public class DashDownloaderTest {
             .setData(TEST_MPD_URI, TEST_MPD_NO_INDEX)
             .setRandomData("test_segment_1", 4);
 
-    DashDownloader dashDownloader = getDashDownloader(fakeDataSet, new RepresentationKey(0, 0, 0));
+    DashDownloader dashDownloader = getDashDownloader(fakeDataSet, new StreamKey(0, 0, 0));
     try {
       dashDownloader.download();
       fail();
@@ -299,17 +297,17 @@ public class DashDownloaderTest {
     assertCacheEmpty(cache);
   }
 
-  private DashDownloader getDashDownloader(FakeDataSet fakeDataSet, RepresentationKey... keys) {
+  private DashDownloader getDashDownloader(FakeDataSet fakeDataSet, StreamKey... keys) {
     return getDashDownloader(new Factory(null).setFakeDataSet(fakeDataSet), keys);
   }
 
-  private DashDownloader getDashDownloader(Factory factory, RepresentationKey... keys) {
+  private DashDownloader getDashDownloader(Factory factory, StreamKey... keys) {
     return new DashDownloader(
         TEST_MPD_URI, keysList(keys), new DownloaderConstructorHelper(cache, factory));
   }
 
-  private static ArrayList<RepresentationKey> keysList(RepresentationKey... keys) {
-    ArrayList<RepresentationKey> keysList = new ArrayList<>();
+  private static ArrayList<StreamKey> keysList(StreamKey... keys) {
+    ArrayList<StreamKey> keysList = new ArrayList<>();
     Collections.addAll(keysList, keys);
     return keysList;
   }

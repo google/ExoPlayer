@@ -21,7 +21,7 @@ import android.net.Uri;
 import android.support.annotation.Nullable;
 import com.google.android.exoplayer2.offline.DownloadAction;
 import com.google.android.exoplayer2.offline.DownloaderConstructorHelper;
-import com.google.android.exoplayer2.source.dash.manifest.RepresentationKey;
+import com.google.android.exoplayer2.offline.StreamKey;
 import com.google.android.exoplayer2.upstream.DummyDataSource;
 import com.google.android.exoplayer2.upstream.cache.Cache;
 import java.io.ByteArrayInputStream;
@@ -104,16 +104,13 @@ public class DashDownloadActionTest {
 
     DashDownloadAction action6 = newAction(uri1, /* isRemoveAction= */ false, /* data= */ null);
     DashDownloadAction action7 =
-        newAction(
-            uri1, /* isRemoveAction= */ false, /* data= */ null, new RepresentationKey(0, 0, 0));
+        newAction(uri1, /* isRemoveAction= */ false, /* data= */ null, new StreamKey(0, 0, 0));
     assertNotEqual(action6, action7);
 
     DashDownloadAction action8 =
-        newAction(
-            uri1, /* isRemoveAction= */ false, /* data= */ null, new RepresentationKey(1, 1, 1));
+        newAction(uri1, /* isRemoveAction= */ false, /* data= */ null, new StreamKey(1, 1, 1));
     DashDownloadAction action9 =
-        newAction(
-            uri1, /* isRemoveAction= */ false, /* data= */ null, new RepresentationKey(0, 0, 0));
+        newAction(uri1, /* isRemoveAction= */ false, /* data= */ null, new StreamKey(0, 0, 0));
     assertNotEqual(action8, action9);
 
     DashDownloadAction action10 = newAction(uri1, /* isRemoveAction= */ true, /* data= */ null);
@@ -125,27 +122,26 @@ public class DashDownloadActionTest {
             uri1,
             /* isRemoveAction= */ false,
             /* data= */ null,
-            new RepresentationKey(0, 0, 0),
-            new RepresentationKey(1, 1, 1));
+            new StreamKey(0, 0, 0),
+            new StreamKey(1, 1, 1));
     DashDownloadAction action13 =
         newAction(
             uri1,
             /* isRemoveAction= */ false,
             /* data= */ null,
-            new RepresentationKey(1, 1, 1),
-            new RepresentationKey(0, 0, 0));
+            new StreamKey(1, 1, 1),
+            new StreamKey(0, 0, 0));
     assertEqual(action12, action13);
 
     DashDownloadAction action14 =
-        newAction(
-            uri1, /* isRemoveAction= */ false, /* data= */ null, new RepresentationKey(0, 0, 0));
+        newAction(uri1, /* isRemoveAction= */ false, /* data= */ null, new StreamKey(0, 0, 0));
     DashDownloadAction action15 =
         newAction(
             uri1,
             /* isRemoveAction= */ false,
             /* data= */ null,
-            new RepresentationKey(1, 1, 1),
-            new RepresentationKey(0, 0, 0));
+            new StreamKey(1, 1, 1),
+            new StreamKey(0, 0, 0));
     assertNotEqual(action14, action15);
 
     DashDownloadAction action16 = newAction(uri1, /* isRemoveAction= */ false, /* data= */ null);
@@ -168,8 +164,8 @@ public class DashDownloadActionTest {
             uri2,
             /* isRemoveAction= */ false,
             /* data= */ null,
-            new RepresentationKey(0, 0, 0),
-            new RepresentationKey(1, 1, 1)));
+            new StreamKey(0, 0, 0),
+            new StreamKey(1, 1, 1)));
   }
 
   private static void assertNotEqual(DashDownloadAction action1, DashDownloadAction action2) {
@@ -197,8 +193,8 @@ public class DashDownloadActionTest {
   }
 
   private static DashDownloadAction newAction(
-      Uri uri, boolean isRemoveAction, @Nullable byte[] data, RepresentationKey... keys) {
-    ArrayList<RepresentationKey> keysList = new ArrayList<>();
+      Uri uri, boolean isRemoveAction, @Nullable byte[] data, StreamKey... keys) {
+    ArrayList<StreamKey> keysList = new ArrayList<>();
     Collections.addAll(keysList, keys);
     return new DashDownloadAction(uri, isRemoveAction, data, keysList);
   }

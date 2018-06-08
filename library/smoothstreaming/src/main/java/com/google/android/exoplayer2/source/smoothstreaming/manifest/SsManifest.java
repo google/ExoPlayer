@@ -19,6 +19,7 @@ import android.net.Uri;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.offline.FilterableManifest;
+import com.google.android.exoplayer2.offline.StreamKey;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.UriUtil;
 import com.google.android.exoplayer2.util.Util;
@@ -33,7 +34,7 @@ import java.util.UUID;
  * @see <a href="http://msdn.microsoft.com/en-us/library/ee673436(v=vs.90).aspx">IIS Smooth
  *     Streaming Client Manifest Format</a>
  */
-public class SsManifest implements FilterableManifest<SsManifest, StreamKey> {
+public class SsManifest implements FilterableManifest<SsManifest> {
 
   public static final int UNSET_LOOKAHEAD = -1;
 
@@ -130,7 +131,7 @@ public class SsManifest implements FilterableManifest<SsManifest, StreamKey> {
     List<Format> copiedFormats = new ArrayList<>();
     for (int i = 0; i < sortedKeys.size(); i++) {
       StreamKey key = sortedKeys.get(i);
-      StreamElement streamElement = streamElements[key.streamElementIndex];
+      StreamElement streamElement = streamElements[key.groupIndex];
       if (streamElement != currentStreamElement && currentStreamElement != null) {
         // We're advancing to a new stream element. Add the current one.
         copiedStreamElements.add(currentStreamElement.copy(copiedFormats.toArray(new Format[0])));
