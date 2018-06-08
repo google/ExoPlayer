@@ -18,6 +18,7 @@ package com.google.android.exoplayer2.source.dash.manifest;
 import android.net.Uri;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.offline.FilterableManifest;
+import com.google.android.exoplayer2.offline.StreamKey;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedList;
@@ -27,7 +28,7 @@ import java.util.List;
  * Represents a DASH media presentation description (mpd), as defined by ISO/IEC 23009-1:2014
  * Section 5.3.1.2.
  */
-public class DashManifest implements FilterableManifest<DashManifest, RepresentationKey> {
+public class DashManifest implements FilterableManifest<DashManifest> {
 
   /**
    * The {@code availabilityStartTime} value in milliseconds since epoch, or {@link C#TIME_UNSET} if
@@ -123,10 +124,10 @@ public class DashManifest implements FilterableManifest<DashManifest, Representa
   }
 
   @Override
-  public final DashManifest copy(List<RepresentationKey> streamKeys) {
-    LinkedList<RepresentationKey> keys = new LinkedList<>(streamKeys);
+  public final DashManifest copy(List<StreamKey> streamKeys) {
+    LinkedList<StreamKey> keys = new LinkedList<>(streamKeys);
     Collections.sort(keys);
-    keys.add(new RepresentationKey(-1, -1, -1)); // Add a stopper key to the end
+    keys.add(new StreamKey(-1, -1, -1)); // Add a stopper key to the end
 
     ArrayList<Period> copyPeriods = new ArrayList<>();
     long shiftMs = 0;
@@ -153,21 +154,21 @@ public class DashManifest implements FilterableManifest<DashManifest, Representa
   }
 
   private static ArrayList<AdaptationSet> copyAdaptationSets(
-      List<AdaptationSet> adaptationSets, LinkedList<RepresentationKey> keys) {
-    RepresentationKey key = keys.poll();
+      List<AdaptationSet> adaptationSets, LinkedList<StreamKey> keys) {
+    StreamKey key = keys.poll();
     int periodIndex = key.periodIndex;
     ArrayList<AdaptationSet> copyAdaptationSets = new ArrayList<>();
     do {
-      int adaptationSetIndex = key.adaptationSetIndex;
+      int adaptationSetIndex = key.groupIndex;
       AdaptationSet adaptationSet = adaptationSets.get(adaptationSetIndex);
 
       List<Representation> representations = adaptationSet.representations;
       ArrayList<Representation> copyRepresentations = new ArrayList<>();
       do {
-        Representation representation = representations.get(key.representationIndex);
+        Representation representation = representations.get(key.trackIndex);
         copyRepresentations.add(representation);
         key = keys.poll();
-      } while(key.periodIndex == periodIndex && key.adaptationSetIndex == adaptationSetIndex);
+      } while (key.periodIndex == periodIndex && key.groupIndex == adaptationSetIndex);
 
       copyAdaptationSets.add(new AdaptationSet(adaptationSet.id, adaptationSet.type,
           copyRepresentations, adaptationSet.accessibilityDescriptors,

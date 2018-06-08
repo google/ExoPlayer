@@ -18,12 +18,12 @@ package com.google.android.exoplayer2.source.smoothstreaming.offline;
 import android.net.Uri;
 import android.support.annotation.Nullable;
 import com.google.android.exoplayer2.offline.DownloadHelper;
+import com.google.android.exoplayer2.offline.StreamKey;
 import com.google.android.exoplayer2.offline.TrackKey;
 import com.google.android.exoplayer2.source.TrackGroup;
 import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.source.smoothstreaming.manifest.SsManifest;
 import com.google.android.exoplayer2.source.smoothstreaming.manifest.SsManifestParser;
-import com.google.android.exoplayer2.source.smoothstreaming.manifest.StreamKey;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.ParsingLoadable;
 import com.google.android.exoplayer2.util.Assertions;
@@ -82,8 +82,7 @@ public final class SsDownloadHelper extends DownloadHelper {
 
   @Override
   public SsDownloadAction getRemoveAction(@Nullable byte[] data) {
-    return new SsDownloadAction(
-        uri, /* isRemoveAction= */ true, data, Collections.<StreamKey>emptyList());
+    return new SsDownloadAction(uri, /* isRemoveAction= */ true, data, Collections.emptyList());
   }
 
   private static List<StreamKey> toStreamKeys(List<TrackKey> trackKeys) {

@@ -37,6 +37,7 @@ import com.google.android.exoplayer2.offline.DownloadManager.TaskState;
 import com.google.android.exoplayer2.offline.DownloadService;
 import com.google.android.exoplayer2.offline.ProgressiveDownloadHelper;
 import com.google.android.exoplayer2.offline.SegmentDownloadAction;
+import com.google.android.exoplayer2.offline.StreamKey;
 import com.google.android.exoplayer2.offline.TrackKey;
 import com.google.android.exoplayer2.source.TrackGroup;
 import com.google.android.exoplayer2.source.TrackGroupArray;
@@ -111,7 +112,7 @@ public class DownloadTracker implements DownloadManager.Listener {
   }
 
   @SuppressWarnings("unchecked")
-  public <K> List<K> getOfflineStreamKeys(Uri uri) {
+  public List<StreamKey> getOfflineStreamKeys(Uri uri) {
     if (!trackedDownloadStates.containsKey(uri)) {
       return Collections.emptyList();
     }
@@ -282,6 +283,7 @@ public class DownloadTracker implements DownloadManager.Listener {
       Toast.makeText(
               context.getApplicationContext(), R.string.download_start_error, Toast.LENGTH_LONG)
           .show();
+      Log.e(TAG, "Failed to start download", e);
     }
 
     @Override

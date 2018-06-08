@@ -16,6 +16,7 @@
 package com.google.android.exoplayer2.source.hls.playlist;
 
 import com.google.android.exoplayer2.Format;
+import com.google.android.exoplayer2.offline.StreamKey;
 import com.google.android.exoplayer2.util.MimeTypes;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -23,6 +24,10 @@ import java.util.List;
 
 /** Represents an HLS master playlist. */
 public final class HlsMasterPlaylist extends HlsPlaylist {
+
+  public static final int GROUP_INDEX_VARIANT = 0;
+  public static final int GROUP_INDEX_AUDIO = 1;
+  public static final int GROUP_INDEX_SUBTITLE = 2;
 
   /**
    * Represents a url in an HLS master playlist.
@@ -108,13 +113,13 @@ public final class HlsMasterPlaylist extends HlsPlaylist {
   }
 
   @Override
-  public HlsMasterPlaylist copy(List<RenditionKey> renditionKeys) {
+  public HlsMasterPlaylist copy(List<StreamKey> streamKeys) {
     return new HlsMasterPlaylist(
         baseUri,
         tags,
-        copyRenditionsList(variants, RenditionKey.TYPE_VARIANT, renditionKeys),
-        copyRenditionsList(audios, RenditionKey.TYPE_AUDIO, renditionKeys),
-        copyRenditionsList(subtitles, RenditionKey.TYPE_SUBTITLE, renditionKeys),
+        copyRenditionsList(variants, GROUP_INDEX_VARIANT, streamKeys),
+        copyRenditionsList(audios, GROUP_INDEX_AUDIO, streamKeys),
+        copyRenditionsList(subtitles, GROUP_INDEX_SUBTITLE, streamKeys),
         muxedAudioFormat,
         muxedCaptionFormats);
   }
@@ -133,13 +138,13 @@ public final class HlsMasterPlaylist extends HlsPlaylist {
   }
 
   private static List<HlsUrl> copyRenditionsList(
-      List<HlsUrl> renditions, int renditionType, List<RenditionKey> renditionKeys) {
-    List<HlsUrl> copiedRenditions = new ArrayList<>(renditionKeys.size());
+      List<HlsUrl> renditions, int groupIndex, List<StreamKey> streamKeys) {
+    List<HlsUrl> copiedRenditions = new ArrayList<>(streamKeys.size());
     for (int i = 0; i < renditions.size(); i++) {
       HlsUrl rendition = renditions.get(i);
-      for (int j = 0; j < renditionKeys.size(); j++) {
-        RenditionKey renditionKey = renditionKeys.get(j);
-        if (renditionKey.type == renditionType && renditionKey.trackIndex == i) {
+      for (int j = 0; j < streamKeys.size(); j++) {
+        StreamKey streamKey = streamKeys.get(j);
+        if (streamKey.groupIndex == groupIndex && streamKey.trackIndex == i) {
           copiedRenditions.add(rendition);
           break;
         }

@@ -20,24 +20,26 @@ import android.support.annotation.Nullable;
 import com.google.android.exoplayer2.offline.DownloadAction;
 import com.google.android.exoplayer2.offline.DownloaderConstructorHelper;
 import com.google.android.exoplayer2.offline.SegmentDownloadAction;
-import com.google.android.exoplayer2.source.smoothstreaming.manifest.StreamKey;
+import com.google.android.exoplayer2.offline.StreamKey;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.List;
 
 /** An action to download or remove downloaded SmoothStreaming streams. */
-public final class SsDownloadAction extends SegmentDownloadAction<StreamKey> {
+public final class SsDownloadAction extends SegmentDownloadAction {
 
   private static final String TYPE = "ss";
   private static final int VERSION = 0;
 
   public static final Deserializer DESERIALIZER =
-      new SegmentDownloadActionDeserializer<StreamKey>(TYPE, VERSION) {
+      new SegmentDownloadActionDeserializer(TYPE, VERSION) {
 
         @Override
         protected StreamKey readKey(DataInputStream input) throws IOException {
-          return new StreamKey(input.readInt(), input.readInt());
+          int groupIndex = input.readInt();
+          int trackIndex = input.readInt();
+          return new StreamKey(groupIndex, trackIndex);
         }
 
         @Override
@@ -66,7 +68,7 @@ public final class SsDownloadAction extends SegmentDownloadAction<StreamKey> {
 
   @Override
   protected void writeKey(DataOutputStream output, StreamKey key) throws IOException {
-    output.writeInt(key.streamElementIndex);
+    output.writeInt(key.groupIndex);
     output.writeInt(key.trackIndex);
   }
 
