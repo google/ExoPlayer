@@ -28,6 +28,8 @@
 
 * IMA: Don't advertise support for video/mpeg ad media, as we don't have an
   extractor for this ([#4297](https://github.com/google/ExoPlayer/issues/4297)).
+* DASH: Fix playback getting stuck when playing representations that have both
+  sidx atoms and non-zero presentationTimeOffset values.
 * Mitigate memory leaks when `MediaSource` loads are slow to cancel
   ([#4249](https://github.com/google/ExoPlayer/issues/4249)).
 * Fix inconsistent `Player.EventListener` invocations for recursive player state
