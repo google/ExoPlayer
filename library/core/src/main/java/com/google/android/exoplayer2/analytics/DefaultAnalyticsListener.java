@@ -107,7 +107,7 @@ public abstract class DefaultAnalyticsListener implements AnalyticsListener {
       EventTime eventTime, int totalLoadTimeMs, long totalBytesLoaded, long bitrateEstimate) {}
 
   @Override
-  public void onViewportSizeChange(EventTime eventTime, int width, int height) {}
+  public void onSurfaceSizeChanged(EventTime eventTime, int width, int height) {}
 
   @Override
   public void onMetadata(EventTime eventTime, Metadata metadata) {}

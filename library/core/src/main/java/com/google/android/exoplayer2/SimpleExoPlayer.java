@@ -188,6 +188,7 @@ public class SimpleExoPlayer implements ExoPlayer, Player.VideoComponent, Player
     analyticsCollector = analyticsCollectorFactory.createAnalyticsCollector(player, clock);
     addListener(analyticsCollector);
     videoDebugListeners.add(analyticsCollector);
+    videoListeners.add(analyticsCollector);
     audioDebugListeners.add(analyticsCollector);
     addMetadataOutput(analyticsCollector);
     if (drmSessionManager instanceof DefaultDrmSessionManager) {
@@ -1045,8 +1046,12 @@ public class SimpleExoPlayer implements ExoPlayer, Player.VideoComponent, Player
     public void onVideoSizeChanged(int width, int height, int unappliedRotationDegrees,
         float pixelWidthHeightRatio) {
       for (com.google.android.exoplayer2.video.VideoListener videoListener : videoListeners) {
-        videoListener.onVideoSizeChanged(width, height, unappliedRotationDegrees,
-            pixelWidthHeightRatio);
+        // Prevent duplicate notification if a listener is both a VideoRendererDebugListener and
+        // VideoListener as they have the same method signature.
+        if (!videoDebugListeners.contains(videoListener)) {
+          videoListener.onVideoSizeChanged(
+              width, height, unappliedRotationDegrees, pixelWidthHeightRatio);
+        }
       }
       for (VideoRendererEventListener videoDebugListener : videoDebugListeners) {
         videoDebugListener.onVideoSizeChanged(width, height, unappliedRotationDegrees,

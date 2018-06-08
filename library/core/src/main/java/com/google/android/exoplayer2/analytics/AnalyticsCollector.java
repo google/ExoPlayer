@@ -38,6 +38,7 @@ import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
 import com.google.android.exoplayer2.upstream.BandwidthMeter;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Clock;
+import com.google.android.exoplayer2.video.VideoListener;
 import com.google.android.exoplayer2.video.VideoRendererEventListener;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -58,7 +59,8 @@ public class AnalyticsCollector
         VideoRendererEventListener,
         MediaSourceEventListener,
         BandwidthMeter.EventListener,
-        DefaultDrmSessionEventListener {
+        DefaultDrmSessionEventListener,
+        VideoListener {
 
   /** Factory for an analytics collector. */
   public static class Factory {
@@ -142,19 +144,6 @@ public class AnalyticsCollector
       for (AnalyticsListener listener : listeners) {
         listener.onSeekStarted(eventTime);
       }
-    }
-  }
-
-  /**
-   * Notify analytics collector that the viewport size changed.
-   *
-   * @param width The new width of the viewport in device-independent pixels (dp).
-   * @param height The new height of the viewport in device-independent pixels (dp).
-   */
-  public final void notifyViewportSizeChanged(int width, int height) {
-    EventTime eventTime = generatePlayingMediaPeriodEventTime();
-    for (AnalyticsListener listener : listeners) {
-      listener.onViewportSizeChange(eventTime, width, height);
     }
   }
 
@@ -285,6 +274,16 @@ public class AnalyticsCollector
   }
 
   @Override
+  public final void onVideoDisabled(DecoderCounters counters) {
+    // The renderers are disabled after we changed the playing media period on the playback thread
+    // but before this change is reported to the app thread.
+    EventTime eventTime = generateLastReportedPlayingMediaPeriodEventTime();
+    for (AnalyticsListener listener : listeners) {
+      listener.onDecoderDisabled(eventTime, C.TRACK_TYPE_VIDEO, counters);
+    }
+  }
+
+  @Override
   public final void onRenderedFirstFrame(Surface surface) {
     EventTime eventTime = generateReadingMediaPeriodEventTime();
     for (AnalyticsListener listener : listeners) {
@@ -292,13 +291,18 @@ public class AnalyticsCollector
     }
   }
 
+  // VideoListener implementation.
+
   @Override
-  public final void onVideoDisabled(DecoderCounters counters) {
-    // The renderers are disabled after we changed the playing media period on the playback thread
-    // but before this change is reported to the app thread.
-    EventTime eventTime = generateLastReportedPlayingMediaPeriodEventTime();
+  public final void onRenderedFirstFrame() {
+    // Do nothing. Already reported in VideoRendererEventListener.onRenderedFirstFrame.
+  }
+
+  @Override
+  public void onSurfaceSizeChanged(int width, int height) {
+    EventTime eventTime = generateReadingMediaPeriodEventTime();
     for (AnalyticsListener listener : listeners) {
-      listener.onDecoderDisabled(eventTime, C.TRACK_TYPE_VIDEO, counters);
+      listener.onSurfaceSizeChanged(eventTime, width, height);
     }
   }
 
