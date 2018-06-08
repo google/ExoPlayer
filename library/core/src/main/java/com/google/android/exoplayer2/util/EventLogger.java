@@ -15,7 +15,6 @@
  */
 package com.google.android.exoplayer2.util;
 
-import android.net.NetworkInfo;
 import android.os.SystemClock;
 import android.support.annotation.Nullable;
 import android.util.Log;
@@ -366,11 +365,6 @@ public class EventLogger implements AnalyticsListener {
   @Override
   public void onViewportSizeChange(EventTime eventTime, int width, int height) {
     logd(eventTime, "viewportSizeChanged", width + ", " + height);
-  }
-
-  @Override
-  public void onNetworkTypeChanged(EventTime eventTime, @Nullable NetworkInfo networkInfo) {
-    logd(eventTime, "networkTypeChanged", networkInfo == null ? "none" : networkInfo.toString());
   }
 
   @Override

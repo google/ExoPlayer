@@ -15,7 +15,6 @@
  */
 package com.google.android.exoplayer2.analytics;
 
-import android.net.NetworkInfo;
 import android.support.annotation.Nullable;
 import android.view.Surface;
 import com.google.android.exoplayer2.C;
@@ -156,18 +155,6 @@ public class AnalyticsCollector
     EventTime eventTime = generatePlayingMediaPeriodEventTime();
     for (AnalyticsListener listener : listeners) {
       listener.onViewportSizeChange(eventTime, width, height);
-    }
-  }
-
-  /**
-   * Notify analytics collector that the network type or connectivity changed.
-   *
-   * @param networkInfo The new network info, or null if no network connection exists.
-   */
-  public final void notifyNetworkTypeChanged(@Nullable NetworkInfo networkInfo) {
-    EventTime eventTime = generatePlayingMediaPeriodEventTime();
-    for (AnalyticsListener listener : listeners) {
-      listener.onNetworkTypeChanged(eventTime, networkInfo);
     }
   }
 
