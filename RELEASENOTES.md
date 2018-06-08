@@ -21,6 +21,8 @@
 * Add method to `BandwidthMeter` to return the `TransferListener` used to gather
   bandwidth information.
 * Add callback to `VideoListener` to notify of surface size changes.
+* Allow apps to register custom MIME types
+  ([#4264](https://github.com/google/ExoPlayer/issues/4264)).
 
 ### 2.8.2 ###
 
