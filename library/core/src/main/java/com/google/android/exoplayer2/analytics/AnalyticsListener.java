@@ -15,7 +15,6 @@
  */
 package com.google.android.exoplayer2.analytics;
 
-import android.net.NetworkInfo;
 import android.support.annotation.Nullable;
 import android.view.Surface;
 import com.google.android.exoplayer2.C;
@@ -312,14 +311,6 @@ public interface AnalyticsListener {
    * @param height The height of the viewport in device-independent pixels (dp).
    */
   void onViewportSizeChange(EventTime eventTime, int width, int height);
-
-  /**
-   * Called when the type of the network connection changed.
-   *
-   * @param eventTime The event time.
-   * @param networkInfo The network info for the current connection, or null if disconnected.
-   */
-  void onNetworkTypeChanged(EventTime eventTime, @Nullable NetworkInfo networkInfo);
 
   /**
    * Called when there is {@link Metadata} associated with the current playback time.
