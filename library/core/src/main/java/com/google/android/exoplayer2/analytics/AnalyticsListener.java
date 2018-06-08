@@ -304,13 +304,15 @@ public interface AnalyticsListener {
       EventTime eventTime, int totalLoadTimeMs, long totalBytesLoaded, long bitrateEstimate);
 
   /**
-   * Called when the viewport size of the output surface changed.
+   * Called when the output surface size changed.
    *
    * @param eventTime The event time.
-   * @param width The width of the viewport in device-independent pixels (dp).
-   * @param height The height of the viewport in device-independent pixels (dp).
+   * @param width The surface width in pixels. May be {@link C#LENGTH_UNSET} if unknown, or 0 if the
+   *     video is not rendered onto a surface.
+   * @param height The surface height in pixels. May be {@link C#LENGTH_UNSET} if unknown, or 0 if
+   *     the video is not rendered onto a surface.
    */
-  void onViewportSizeChange(EventTime eventTime, int width, int height);
+  void onSurfaceSizeChanged(EventTime eventTime, int width, int height);
 
   /**
    * Called when there is {@link Metadata} associated with the current playback time.

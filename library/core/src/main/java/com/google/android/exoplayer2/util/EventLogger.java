@@ -363,8 +363,8 @@ public class EventLogger implements AnalyticsListener {
   }
 
   @Override
-  public void onViewportSizeChange(EventTime eventTime, int width, int height) {
-    logd(eventTime, "viewportSizeChanged", width + ", " + height);
+  public void onSurfaceSizeChanged(EventTime eventTime, int width, int height) {
+    logd(eventTime, "surfaceSizeChanged", width + ", " + height);
   }
 
   @Override
