@@ -12,6 +12,8 @@
   ([#4315](https://github.com/google/ExoPlayer/issues/4315)).
 * Set `METADATA_KEY_TITLE` on media descriptions
   ((#4292)[https://github.com/google/ExoPlayer/issues/4292]).
+* Allow apps to register custom MIME types
+  ([#4264](https://github.com/google/ExoPlayer/issues/4264)).
 
 ### 2.8.1 ###
 
