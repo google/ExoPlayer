@@ -339,8 +339,7 @@ public final class HlsMediaSource extends BaseMediaSource
         extractorFactory,
         new DefaultCompositeSequenceableLoaderFactory(),
         minLoadableRetryCount,
-        new DefaultHlsPlaylistTracker(
-            dataSourceFactory, minLoadableRetryCount, new HlsPlaylistParser()),
+        new DefaultHlsPlaylistTracker(dataSourceFactory, minLoadableRetryCount, playlistParser),
         /* allowChunklessPreparation= */ false,
         /* tag= */ null);
     if (eventHandler != null && eventListener != null) {
