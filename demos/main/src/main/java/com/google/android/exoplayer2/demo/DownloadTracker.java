@@ -271,11 +271,11 @@ public class DownloadTracker implements DownloadManager.Listener {
             trackTitles.add(trackNameProvider.getTrackName(trackGroup.getFormat(k)));
           }
         }
-        if (!trackKeys.isEmpty()) {
-          builder.setView(dialogView);
-        }
-        builder.create().show();
       }
+      if (!trackKeys.isEmpty()) {
+        builder.setView(dialogView);
+      }
+      builder.create().show();
     }
 
     @Override
