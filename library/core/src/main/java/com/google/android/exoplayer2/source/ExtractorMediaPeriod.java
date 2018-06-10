@@ -18,6 +18,8 @@ package com.google.android.exoplayer2.source;
 import android.net.Uri;
 import android.os.Handler;
 import android.support.annotation.Nullable;
+import android.util.Log;
+
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.FormatHolder;
@@ -74,6 +76,7 @@ import java.util.Arrays;
    * sample timestamp seen when buffering completes.
    */
   private static final long DEFAULT_LAST_SAMPLE_DURATION_US = 10000;
+  private static final String TAG = "ExtractorMediaPeriod";
 
   private final Uri uri;
   private final DataSource dataSource;
@@ -831,6 +834,11 @@ import java.util.Arrays;
     @Override
     public void cancelLoad() {
       loadCanceled = true;
+      try {
+        dataSource.close();
+      } catch (IOException e) {
+        Log.i(TAG, "exception on cancelLoad", e);
+      }
     }
 
     @Override
