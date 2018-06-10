@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.source.hls;
 
+import android.util.Log;
 import android.util.Pair;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
@@ -46,6 +47,7 @@ import java.util.concurrent.atomic.AtomicInteger;
       "com.apple.streaming.transportStreamTimestamp";
 
   private static final AtomicInteger uidSource = new AtomicInteger();
+  private static final String TAG = "HlsMediaChunk";
 
   /**
    * A unique identifier for the chunk.
@@ -204,6 +206,11 @@ import java.util.concurrent.atomic.AtomicInteger;
   @Override
   public void cancelLoad() {
     loadCanceled = true;
+    try {
+      dataSource.close();
+    } catch (IOException e) {
+      Log.i(TAG, "exception on cancelLoad", e);
+    }
   }
 
   @Override
