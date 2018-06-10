@@ -326,19 +326,19 @@ public final class Loader implements LoaderErrorThrower {
           sendEmptyMessage(MSG_END_OF_SOURCE);
         }
       } catch (IOException e) {
-        if (!released) {
+        if (!released && !canceled) {
           obtainMessage(MSG_IO_EXCEPTION, e).sendToTarget();
         }
       } catch (InterruptedException e) {
         // The load was canceled.
         Assertions.checkState(canceled);
-        if (!released) {
+        if (!released && !canceled) {
           sendEmptyMessage(MSG_END_OF_SOURCE);
         }
       } catch (Exception e) {
         // This should never happen, but handle it anyway.
         Log.e(TAG, "Unexpected exception loading stream", e);
-        if (!released) {
+        if (!released && !canceled) {
           obtainMessage(MSG_IO_EXCEPTION, new UnexpectedLoaderException(e)).sendToTarget();
         }
       } catch (OutOfMemoryError e) {
@@ -346,7 +346,7 @@ public final class Loader implements LoaderErrorThrower {
         // needs to allocate a large amount of memory. We don't want the process to die in this
         // case, but we do want the playback to fail.
         Log.e(TAG, "OutOfMemory error loading stream", e);
-        if (!released) {
+        if (!released && !canceled) {
           obtainMessage(MSG_IO_EXCEPTION, new UnexpectedLoaderException(e)).sendToTarget();
         }
       } catch (Error e) {
@@ -354,7 +354,7 @@ public final class Loader implements LoaderErrorThrower {
         // executor may catch the error (b/20616433). Throw it here, but also pass and throw it from
         // the handler thread so that the process dies even if the executor behaves in this way.
         Log.e(TAG, "Unexpected error loading stream", e);
-        if (!released) {
+        if (!released && !canceled) {
           obtainMessage(MSG_FATAL_ERROR, e).sendToTarget();
         }
         throw e;
