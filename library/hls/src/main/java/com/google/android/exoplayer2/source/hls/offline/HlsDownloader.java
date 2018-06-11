@@ -118,10 +118,7 @@ public final class HlsDownloader extends SegmentDownloader<HlsPlaylist> {
   }
 
   private static HlsPlaylist loadManifest(DataSource dataSource, Uri uri) throws IOException {
-    ParsingLoadable<HlsPlaylist> loadable =
-        new ParsingLoadable<>(dataSource, uri, C.DATA_TYPE_MANIFEST, new HlsPlaylistParser());
-    loadable.load();
-    return loadable.getResult();
+    return ParsingLoadable.load(dataSource, new HlsPlaylistParser(), uri, C.DATA_TYPE_MANIFEST);
   }
 
   private static void addSegment(

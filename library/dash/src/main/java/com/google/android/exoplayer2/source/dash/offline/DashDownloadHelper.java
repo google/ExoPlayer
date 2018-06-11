@@ -17,6 +17,7 @@ package com.google.android.exoplayer2.source.dash.offline;
 
 import android.net.Uri;
 import android.support.annotation.Nullable;
+import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.offline.DownloadHelper;
 import com.google.android.exoplayer2.offline.StreamKey;
@@ -52,7 +53,8 @@ public final class DashDownloadHelper extends DownloadHelper {
   @Override
   protected void prepareInternal() throws IOException {
     DataSource dataSource = manifestDataSourceFactory.createDataSource();
-    manifest = ParsingLoadable.load(dataSource, new DashManifestParser(), uri);
+    manifest =
+        ParsingLoadable.load(dataSource, new DashManifestParser(), uri, C.DATA_TYPE_MANIFEST);
   }
 
   /** Returns the DASH manifest. Must not be called until after preparation completes. */
