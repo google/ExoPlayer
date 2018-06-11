@@ -255,6 +255,11 @@ public abstract class StubExoPlayer implements ExoPlayer {
   }
 
   @Override
+  public long getTotalBufferedDuration() {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
   public boolean isCurrentWindowDynamic() {
     throw new UnsupportedOperationException();
   }
@@ -281,6 +286,11 @@ public abstract class StubExoPlayer implements ExoPlayer {
 
   @Override
   public long getContentPosition() {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public long getContentBufferedPosition() {
     throw new UnsupportedOperationException();
   }
 }

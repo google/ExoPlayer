@@ -678,22 +678,26 @@ public interface Player {
    */
   long getDuration();
 
-  /**
-   * Returns the playback position in the current window, in milliseconds.
-   */
+  /** Returns the playback position in the current content window or ad, in milliseconds. */
   long getCurrentPosition();
 
   /**
-   * Returns an estimate of the position in the current window up to which data is buffered, in
-   * milliseconds.
+   * Returns an estimate of the position in the current content window or ad up to which data is
+   * buffered, in milliseconds.
    */
   long getBufferedPosition();
 
   /**
-   * Returns an estimate of the percentage in the current window up to which data is buffered, or 0
-   * if no estimate is available.
+   * Returns an estimate of the percentage in the current content window or ad up to which data is
+   * buffered, or 0 if no estimate is available.
    */
   int getBufferedPercentage();
+
+  /**
+   * Returns an estimate of the total buffered duration from the current position, in milliseconds.
+   * This includes pre-buffered data for subsequent ads and windows.
+   */
+  long getTotalBufferedDuration();
 
   /**
    * Returns whether the current window is dynamic, or {@code false} if the {@link Timeline} is
@@ -735,4 +739,10 @@ public interface Player {
    */
   long getContentPosition();
 
+  /**
+   * If {@link #isPlayingAd()} returns {@code true}, returns an estimate of the content position in
+   * the current content window up to which data is buffered, in milliseconds. If there is no ad
+   * playing, the returned position is the same as that returned by {@link #getBufferedPosition()}.
+   */
+  long getContentBufferedPosition();
 }

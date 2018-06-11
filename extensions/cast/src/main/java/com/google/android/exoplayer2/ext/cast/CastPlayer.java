@@ -527,6 +527,15 @@ public final class CastPlayer implements Player {
   }
 
   @Override
+  public long getTotalBufferedDuration() {
+    long bufferedPosition = getBufferedPosition();
+    long currentPosition = getCurrentPosition();
+    return bufferedPosition == C.TIME_UNSET || currentPosition == C.TIME_UNSET
+        ? 0
+        : bufferedPosition - currentPosition;
+  }
+
+  @Override
   public boolean isCurrentWindowDynamic() {
     return !currentTimeline.isEmpty()
         && currentTimeline.getWindow(getCurrentWindowIndex(), window).isDynamic;
@@ -561,6 +570,11 @@ public final class CastPlayer implements Player {
   @Override
   public long getContentPosition() {
     return getCurrentPosition();
+  }
+
+  @Override
+  public long getContentBufferedPosition() {
+    return getBufferedPosition();
   }
 
   // Internal methods.

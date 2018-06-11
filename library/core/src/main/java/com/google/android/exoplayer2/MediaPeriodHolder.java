@@ -127,7 +127,8 @@ import com.google.android.exoplayer2.util.Assertions;
     if (!prepared) {
       return info.startPositionUs;
     }
-    long bufferedPositionUs = mediaPeriod.getBufferedPositionUs();
+    long bufferedPositionUs =
+        hasEnabledTracks ? mediaPeriod.getBufferedPositionUs() : C.TIME_END_OF_SOURCE;
     return bufferedPositionUs == C.TIME_END_OF_SOURCE && convertEosToDuration
         ? info.durationUs
         : bufferedPositionUs;

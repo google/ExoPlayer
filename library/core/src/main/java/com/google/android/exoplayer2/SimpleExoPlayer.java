@@ -906,6 +906,11 @@ public class SimpleExoPlayer implements ExoPlayer, Player.VideoComponent, Player
   }
 
   @Override
+  public long getTotalBufferedDuration() {
+    return player.getTotalBufferedDuration();
+  }
+
+  @Override
   public boolean isCurrentWindowDynamic() {
     return player.isCurrentWindowDynamic();
   }
@@ -933,6 +938,11 @@ public class SimpleExoPlayer implements ExoPlayer, Player.VideoComponent, Player
   @Override
   public long getContentPosition() {
     return player.getContentPosition();
+  }
+
+  @Override
+  public long getContentBufferedPosition() {
+    return player.getContentBufferedPosition();
   }
 
   // Internal methods.
