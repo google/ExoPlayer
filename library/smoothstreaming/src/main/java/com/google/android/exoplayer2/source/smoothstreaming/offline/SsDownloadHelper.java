@@ -17,6 +17,7 @@ package com.google.android.exoplayer2.source.smoothstreaming.offline;
 
 import android.net.Uri;
 import android.support.annotation.Nullable;
+import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.offline.DownloadHelper;
 import com.google.android.exoplayer2.offline.StreamKey;
 import com.google.android.exoplayer2.offline.TrackKey;
@@ -49,7 +50,7 @@ public final class SsDownloadHelper extends DownloadHelper {
   @Override
   protected void prepareInternal() throws IOException {
     DataSource dataSource = manifestDataSourceFactory.createDataSource();
-    manifest = ParsingLoadable.load(dataSource, new SsManifestParser(), uri);
+    manifest = ParsingLoadable.load(dataSource, new SsManifestParser(), uri, C.DATA_TYPE_MANIFEST);
   }
 
   /** Returns the SmoothStreaming manifest. Must not be called until after preparation completes. */

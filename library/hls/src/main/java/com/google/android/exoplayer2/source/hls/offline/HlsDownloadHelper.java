@@ -17,6 +17,7 @@ package com.google.android.exoplayer2.source.hls.offline;
 
 import android.net.Uri;
 import android.support.annotation.Nullable;
+import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.offline.DownloadHelper;
 import com.google.android.exoplayer2.offline.StreamKey;
@@ -54,7 +55,7 @@ public final class HlsDownloadHelper extends DownloadHelper {
   @Override
   protected void prepareInternal() throws IOException {
     DataSource dataSource = manifestDataSourceFactory.createDataSource();
-    playlist = ParsingLoadable.load(dataSource, new HlsPlaylistParser(), uri);
+    playlist = ParsingLoadable.load(dataSource, new HlsPlaylistParser(), uri, C.DATA_TYPE_MANIFEST);
   }
 
   /** Returns the HLS playlist. Must not be called until after preparation completes. */

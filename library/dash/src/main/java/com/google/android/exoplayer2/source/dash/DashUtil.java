@@ -54,7 +54,7 @@ public final class DashUtil {
    */
   public static DashManifest loadManifest(DataSource dataSource, Uri uri)
       throws IOException {
-    return ParsingLoadable.load(dataSource, new DashManifestParser(), uri);
+    return ParsingLoadable.load(dataSource, new DashManifestParser(), uri, C.DATA_TYPE_MANIFEST);
   }
 
   /**

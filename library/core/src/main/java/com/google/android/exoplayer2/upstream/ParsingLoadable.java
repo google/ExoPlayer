@@ -16,9 +16,11 @@
 package com.google.android.exoplayer2.upstream;
 
 import android.net.Uri;
+import android.support.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ParserException;
 import com.google.android.exoplayer2.upstream.Loader.Loadable;
+import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Util;
 import java.io.IOException;
 import java.io.InputStream;
@@ -52,16 +54,17 @@ public final class ParsingLoadable<T> implements Loadable {
    * Loads a single parsable object.
    *
    * @param dataSource The {@link DataSource} through which the object should be read.
+   * @param parser The {@link Parser} to parse the object from the response.
    * @param uri The {@link Uri} of the object to read.
+   * @param type The type of the data. One of the {@link C}{@code DATA_TYPE_*} constants.
    * @return The parsed object
    * @throws IOException Thrown if there is an error while loading or parsing.
    */
-  public static <T> T load(DataSource dataSource, Parser<? extends T> parser, Uri uri)
+  public static <T> T load(DataSource dataSource, Parser<? extends T> parser, Uri uri, int type)
       throws IOException {
-    ParsingLoadable<T> loadable =
-        new ParsingLoadable<>(dataSource, uri, C.DATA_TYPE_UNKNOWN, parser);
+    ParsingLoadable<T> loadable = new ParsingLoadable<>(dataSource, uri, type, parser);
     loadable.load();
-    return loadable.getResult();
+    return Assertions.checkNotNull(loadable.getResult());
   }
 
   /**
@@ -77,7 +80,7 @@ public final class ParsingLoadable<T> implements Loadable {
   private final DataSource dataSource;
   private final Parser<? extends T> parser;
 
-  private volatile T result;
+  private volatile @Nullable T result;
   private volatile long bytesLoaded;
 
   /**
@@ -108,10 +111,8 @@ public final class ParsingLoadable<T> implements Loadable {
     this.parser = parser;
   }
 
-  /**
-   * Returns the loaded object, or null if an object has not been loaded.
-   */
-  public final T getResult() {
+  /** Returns the loaded object, or null if an object has not been loaded. */
+  public final @Nullable T getResult() {
     return result;
   }
 
@@ -135,11 +136,11 @@ public final class ParsingLoadable<T> implements Loadable {
     DataSourceInputStream inputStream = new DataSourceInputStream(dataSource, dataSpec);
     try {
       inputStream.open();
-      result = parser.parse(dataSource.getUri(), inputStream);
+      Uri dataSourceUri = Assertions.checkNotNull(dataSource.getUri());
+      result = parser.parse(dataSourceUri, inputStream);
     } finally {
       bytesLoaded = inputStream.bytesRead();
       Util.closeQuietly(inputStream);
     }
   }
-
 }
