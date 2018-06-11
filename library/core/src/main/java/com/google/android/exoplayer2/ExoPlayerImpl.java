@@ -470,27 +470,35 @@ import java.util.concurrent.CopyOnWriteArraySet;
   public long getCurrentPosition() {
     if (shouldMaskPosition()) {
       return maskingWindowPositionMs;
+    } else if (playbackInfo.periodId.isAd()) {
+      return C.usToMs(playbackInfo.positionUs);
     } else {
-      return playbackInfoPositionUsToWindowPositionMs(playbackInfo.positionUs);
+      return periodPositionUsToWindowPositionMs(playbackInfo.periodId, playbackInfo.positionUs);
     }
   }
 
   @Override
   public long getBufferedPosition() {
-    // TODO - Implement this properly.
-    if (shouldMaskPosition()) {
-      return maskingWindowPositionMs;
-    } else {
-      return playbackInfoPositionUsToWindowPositionMs(playbackInfo.bufferedPositionUs);
+    if (isPlayingAd()) {
+      return playbackInfo.loadingMediaPeriodId.equals(playbackInfo.periodId)
+          ? C.usToMs(playbackInfo.bufferedPositionUs)
+          : getDuration();
     }
+    return getContentBufferedPosition();
   }
 
   @Override
   public int getBufferedPercentage() {
     long position = getBufferedPosition();
     long duration = getDuration();
-    return position == C.TIME_UNSET || duration == C.TIME_UNSET ? 0
+    return position == C.TIME_UNSET || duration == C.TIME_UNSET
+        ? 0
         : (duration == 0 ? 100 : Util.constrainValue((int) ((position * 100) / duration), 0, 100));
+  }
+
+  @Override
+  public long getTotalBufferedDuration() {
+    return Math.max(0, C.usToMs(playbackInfo.totalBufferedDurationUs));
   }
 
   @Override
@@ -528,6 +536,29 @@ import java.util.concurrent.CopyOnWriteArraySet;
     } else {
       return getCurrentPosition();
     }
+  }
+
+  @Override
+  public long getContentBufferedPosition() {
+    if (shouldMaskPosition()) {
+      return maskingWindowPositionMs;
+    }
+    if (playbackInfo.loadingMediaPeriodId.windowSequenceNumber
+        != playbackInfo.periodId.windowSequenceNumber) {
+      return playbackInfo.timeline.getWindow(getCurrentWindowIndex(), window).getDurationMs();
+    }
+    long contentBufferedPositionUs = playbackInfo.bufferedPositionUs;
+    if (playbackInfo.loadingMediaPeriodId.isAd()) {
+      Timeline.Period loadingPeriod =
+          playbackInfo.timeline.getPeriod(playbackInfo.loadingMediaPeriodId.periodIndex, period);
+      contentBufferedPositionUs =
+          loadingPeriod.getAdGroupTimeUs(playbackInfo.loadingMediaPeriodId.adGroupIndex);
+      if (contentBufferedPositionUs == C.TIME_END_OF_SOURCE) {
+        contentBufferedPositionUs = loadingPeriod.durationUs;
+      }
+    }
+    return periodPositionUsToWindowPositionMs(
+        playbackInfo.loadingMediaPeriodId, contentBufferedPositionUs);
   }
 
   @Override
@@ -649,7 +680,11 @@ import java.util.concurrent.CopyOnWriteArraySet;
         playbackState,
         /* isLoading= */ false,
         resetState ? TrackGroupArray.EMPTY : playbackInfo.trackGroups,
-        resetState ? emptyTrackSelectorResult : playbackInfo.trackSelectorResult);
+        resetState ? emptyTrackSelectorResult : playbackInfo.trackSelectorResult,
+        playbackInfo.periodId,
+        playbackInfo.startPositionUs,
+        /* totalBufferedDurationUs= */ 0,
+        playbackInfo.startPositionUs);
   }
 
   private void updatePlaybackInfo(
@@ -683,12 +718,10 @@ import java.util.concurrent.CopyOnWriteArraySet;
     }
   }
 
-  private long playbackInfoPositionUsToWindowPositionMs(long positionUs) {
+  private long periodPositionUsToWindowPositionMs(MediaPeriodId periodId, long positionUs) {
     long positionMs = C.usToMs(positionUs);
-    if (!playbackInfo.periodId.isAd()) {
-      playbackInfo.timeline.getPeriod(playbackInfo.periodId.periodIndex, period);
-      positionMs += period.getPositionInWindowMs();
-    }
+    playbackInfo.timeline.getPeriod(periodId.periodIndex, period);
+    positionMs += period.getPositionInWindowMs();
     return positionMs;
   }
 

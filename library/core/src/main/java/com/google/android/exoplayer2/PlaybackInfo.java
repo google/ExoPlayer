@@ -25,18 +25,49 @@ import com.google.android.exoplayer2.trackselection.TrackSelectorResult;
  */
 /* package */ final class PlaybackInfo {
 
+  /** The current {@link Timeline}. */
   public final Timeline timeline;
+  /** The current manifest. */
   public final @Nullable Object manifest;
+  /** The {@link MediaPeriodId} of the currently playing media period in the {@link #timeline}. */
   public final MediaPeriodId periodId;
+  /**
+   * The start position at which playback started in {@link #periodId} relative to the start of the
+   * associated period in the {@link #timeline}, in microseconds.
+   */
   public final long startPositionUs;
+  /**
+   * If {@link #periodId} refers to an ad, the position of the suspended content relative to the
+   * start of the associated period in the {@link #timeline}, in microseconds. {@link C#TIME_UNSET}
+   * if {@link #periodId} does not refer to an ad.
+   */
   public final long contentPositionUs;
+  /** The current playback state. One of the {@link Player}.STATE_ constants. */
   public final int playbackState;
+  /** Whether the player is currently loading. */
   public final boolean isLoading;
+  /** The currently available track groups. */
   public final TrackGroupArray trackGroups;
+  /** The result of the current track selection. */
   public final TrackSelectorResult trackSelectorResult;
+  /** The {@link MediaPeriodId} of the currently loading media period in the {@link #timeline}. */
+  public final MediaPeriodId loadingMediaPeriodId;
 
-  public volatile long positionUs;
+  /**
+   * Position up to which media is buffered in {@link #loadingMediaPeriodId) relative to the start
+   * of the associated period in the {@link #timeline}, in microseconds.
+   */
   public volatile long bufferedPositionUs;
+  /**
+   * Total duration of buffered media from {@link #positionUs} to {@link #bufferedPositionUs}
+   * including all ads.
+   */
+  public volatile long totalBufferedDurationUs;
+  /**
+   * Current playback position in {@link #periodId} relative to the start of the associated period
+   * in the {@link #timeline}, in microseconds.
+   */
+  public volatile long positionUs;
 
   public PlaybackInfo(
       Timeline timeline,
@@ -52,7 +83,11 @@ import com.google.android.exoplayer2.trackselection.TrackSelectorResult;
         Player.STATE_IDLE,
         /* isLoading= */ false,
         trackGroups,
-        trackSelectorResult);
+        trackSelectorResult,
+        new MediaPeriodId(/* periodIndex= */ 0),
+        startPositionUs,
+        /* totalBufferedDurationUs= */ 0,
+        startPositionUs);
   }
 
   public PlaybackInfo(
@@ -64,18 +99,24 @@ import com.google.android.exoplayer2.trackselection.TrackSelectorResult;
       int playbackState,
       boolean isLoading,
       TrackGroupArray trackGroups,
-      TrackSelectorResult trackSelectorResult) {
+      TrackSelectorResult trackSelectorResult,
+      MediaPeriodId loadingMediaPeriodId,
+      long bufferedPositionUs,
+      long totalBufferedDurationUs,
+      long positionUs) {
     this.timeline = timeline;
     this.manifest = manifest;
     this.periodId = periodId;
     this.startPositionUs = startPositionUs;
     this.contentPositionUs = contentPositionUs;
-    this.positionUs = startPositionUs;
-    this.bufferedPositionUs = startPositionUs;
     this.playbackState = playbackState;
     this.isLoading = isLoading;
     this.trackGroups = trackGroups;
     this.trackSelectorResult = trackSelectorResult;
+    this.loadingMediaPeriodId = loadingMediaPeriodId;
+    this.bufferedPositionUs = bufferedPositionUs;
+    this.totalBufferedDurationUs = totalBufferedDurationUs;
+    this.positionUs = positionUs;
   }
 
   public PlaybackInfo fromNewPosition(
@@ -89,93 +130,113 @@ import com.google.android.exoplayer2.trackselection.TrackSelectorResult;
         playbackState,
         isLoading,
         trackGroups,
-        trackSelectorResult);
+        trackSelectorResult,
+        periodId,
+        startPositionUs,
+        /* totalBufferedDurationUs= */ 0,
+        startPositionUs);
   }
 
   public PlaybackInfo copyWithPeriodIndex(int periodIndex) {
-    PlaybackInfo playbackInfo =
-        new PlaybackInfo(
-            timeline,
-            manifest,
-            periodId.copyWithPeriodIndex(periodIndex),
-            startPositionUs,
-            contentPositionUs,
-            playbackState,
-            isLoading,
-            trackGroups,
-            trackSelectorResult);
-    copyMutablePositions(this, playbackInfo);
-    return playbackInfo;
+    return new PlaybackInfo(
+        timeline,
+        manifest,
+        periodId.copyWithPeriodIndex(periodIndex),
+        startPositionUs,
+        contentPositionUs,
+        playbackState,
+        isLoading,
+        trackGroups,
+        trackSelectorResult,
+        loadingMediaPeriodId,
+        bufferedPositionUs,
+        totalBufferedDurationUs,
+        positionUs);
   }
 
   public PlaybackInfo copyWithTimeline(Timeline timeline, Object manifest) {
-    PlaybackInfo playbackInfo =
-        new PlaybackInfo(
-            timeline,
-            manifest,
-            periodId,
-            startPositionUs,
-            contentPositionUs,
-            playbackState,
-            isLoading,
-            trackGroups,
-            trackSelectorResult);
-    copyMutablePositions(this, playbackInfo);
-    return playbackInfo;
+    return new PlaybackInfo(
+        timeline,
+        manifest,
+        periodId,
+        startPositionUs,
+        contentPositionUs,
+        playbackState,
+        isLoading,
+        trackGroups,
+        trackSelectorResult,
+        loadingMediaPeriodId,
+        bufferedPositionUs,
+        totalBufferedDurationUs,
+        positionUs);
   }
 
   public PlaybackInfo copyWithPlaybackState(int playbackState) {
-    PlaybackInfo playbackInfo =
-        new PlaybackInfo(
-            timeline,
-            manifest,
-            periodId,
-            startPositionUs,
-            contentPositionUs,
-            playbackState,
-            isLoading,
-            trackGroups,
-            trackSelectorResult);
-    copyMutablePositions(this, playbackInfo);
-    return playbackInfo;
+    return new PlaybackInfo(
+        timeline,
+        manifest,
+        periodId,
+        startPositionUs,
+        contentPositionUs,
+        playbackState,
+        isLoading,
+        trackGroups,
+        trackSelectorResult,
+        loadingMediaPeriodId,
+        bufferedPositionUs,
+        totalBufferedDurationUs,
+        positionUs);
   }
 
   public PlaybackInfo copyWithIsLoading(boolean isLoading) {
-    PlaybackInfo playbackInfo =
-        new PlaybackInfo(
-            timeline,
-            manifest,
-            periodId,
-            startPositionUs,
-            contentPositionUs,
-            playbackState,
-            isLoading,
-            trackGroups,
-            trackSelectorResult);
-    copyMutablePositions(this, playbackInfo);
-    return playbackInfo;
+    return new PlaybackInfo(
+        timeline,
+        manifest,
+        periodId,
+        startPositionUs,
+        contentPositionUs,
+        playbackState,
+        isLoading,
+        trackGroups,
+        trackSelectorResult,
+        loadingMediaPeriodId,
+        bufferedPositionUs,
+        totalBufferedDurationUs,
+        positionUs);
   }
 
   public PlaybackInfo copyWithTrackInfo(
       TrackGroupArray trackGroups, TrackSelectorResult trackSelectorResult) {
-    PlaybackInfo playbackInfo =
-        new PlaybackInfo(
-            timeline,
-            manifest,
-            periodId,
-            startPositionUs,
-            contentPositionUs,
-            playbackState,
-            isLoading,
-            trackGroups,
-            trackSelectorResult);
-    copyMutablePositions(this, playbackInfo);
-    return playbackInfo;
+    return new PlaybackInfo(
+        timeline,
+        manifest,
+        periodId,
+        startPositionUs,
+        contentPositionUs,
+        playbackState,
+        isLoading,
+        trackGroups,
+        trackSelectorResult,
+        loadingMediaPeriodId,
+        bufferedPositionUs,
+        totalBufferedDurationUs,
+        positionUs);
   }
 
-  private static void copyMutablePositions(PlaybackInfo from, PlaybackInfo to) {
-    to.positionUs = from.positionUs;
-    to.bufferedPositionUs = from.bufferedPositionUs;
+  public PlaybackInfo copyWithLoadingMediaPeriodId(MediaPeriodId loadingMediaPeriodId) {
+    return new PlaybackInfo(
+        timeline,
+        manifest,
+        periodId,
+        startPositionUs,
+        contentPositionUs,
+        playbackState,
+        isLoading,
+        trackGroups,
+        trackSelectorResult,
+        loadingMediaPeriodId,
+        bufferedPositionUs,
+        totalBufferedDurationUs,
+        positionUs);
   }
-
 }

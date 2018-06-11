@@ -419,6 +419,7 @@ import java.util.Collections;
     if (!queue.updateRepeatMode(repeatMode)) {
       seekToCurrentPosition(/* sendDiscontinuity= */ true);
     }
+    updateLoadingMediaPeriodId();
   }
 
   private void setShuffleModeEnabledInternal(boolean shuffleModeEnabled)
@@ -427,6 +428,7 @@ import java.util.Collections;
     if (!queue.updateShuffleModeEnabled(shuffleModeEnabled)) {
       seekToCurrentPosition(/* sendDiscontinuity= */ true);
     }
+    updateLoadingMediaPeriodId();
   }
 
   private void seekToCurrentPosition(boolean sendDiscontinuity) throws ExoPlaybackException {
@@ -483,11 +485,12 @@ import java.util.Collections;
       playbackInfo.positionUs = periodPositionUs;
     }
 
-    // Update the buffered position.
+    // Update the buffered position and total buffered duration.
+    MediaPeriodHolder loadingPeriod = queue.getLoadingPeriod();
     playbackInfo.bufferedPositionUs =
-        enabledRenderers.length == 0
-            ? playingPeriodHolder.info.durationUs
-            : playingPeriodHolder.getBufferedPositionUs(/* convertEosToDuration= */ true);
+        loadingPeriod.getBufferedPositionUs(/* convertEosToDuration= */ true);
+    playbackInfo.totalBufferedDurationUs =
+        playbackInfo.bufferedPositionUs - loadingPeriod.toPeriodTime(rendererPositionUs);
   }
 
   private void doSomeWork() throws ExoPlaybackException, IOException {
@@ -691,6 +694,7 @@ import java.util.Collections;
       resetRendererPosition(periodPositionUs);
     }
 
+    updateLoadingMediaPeriodId();
     handler.sendEmptyMessage(MSG_DO_SOME_WORK);
     return periodPositionUs;
   }
@@ -785,18 +789,26 @@ import java.util.Collections;
       pendingMessages.clear();
       nextPendingMessageIndex = 0;
     }
+    // Set the start position to TIME_UNSET so that a subsequent seek to 0 isn't ignored.
+    MediaPeriodId mediaPeriodId =
+        resetPosition ? new MediaPeriodId(getFirstPeriodIndex()) : playbackInfo.periodId;
+    long startPositionUs = resetPosition ? C.TIME_UNSET : playbackInfo.positionUs;
+    long contentPositionUs = resetPosition ? C.TIME_UNSET : playbackInfo.contentPositionUs;
     playbackInfo =
         new PlaybackInfo(
             resetState ? Timeline.EMPTY : playbackInfo.timeline,
             resetState ? null : playbackInfo.manifest,
-            resetPosition ? new MediaPeriodId(getFirstPeriodIndex()) : playbackInfo.periodId,
-            // Set the start position to TIME_UNSET so that a subsequent seek to 0 isn't ignored.
-            resetPosition ? C.TIME_UNSET : playbackInfo.positionUs,
-            resetPosition ? C.TIME_UNSET : playbackInfo.contentPositionUs,
+            mediaPeriodId,
+            startPositionUs,
+            contentPositionUs,
             playbackInfo.playbackState,
             /* isLoading= */ false,
             resetState ? TrackGroupArray.EMPTY : playbackInfo.trackGroups,
-            resetState ? emptyTrackSelectorResult : playbackInfo.trackSelectorResult);
+            resetState ? emptyTrackSelectorResult : playbackInfo.trackSelectorResult,
+            mediaPeriodId,
+            startPositionUs,
+            /* totalBufferedDurationUs= */ 0,
+            startPositionUs);
     if (releaseMediaSource) {
       if (mediaSource != null) {
         mediaSource.releaseSource(/* listener= */ this);
@@ -1051,6 +1063,7 @@ import java.util.Collections;
         updateLoadControlTrackSelection(periodHolder.trackGroups, periodHolder.trackSelectorResult);
       }
     }
+    updateLoadingMediaPeriodId();
     if (playbackInfo.playbackState != Player.STATE_ENDED) {
       maybeContinueLoading();
       updatePlaybackPositions();
@@ -1249,6 +1262,7 @@ import java.util.Collections;
     if (!queue.updateQueuedPeriods(playingPeriodId, rendererPositionUs)) {
       seekToCurrentPosition(/* sendDiscontinuity= */ false);
     }
+    updateLoadingMediaPeriodId();
   }
 
   private void handleSourceInfoRefreshEndedPlayback() {
@@ -1494,6 +1508,7 @@ import java.util.Collections;
                 info);
         mediaPeriod.prepare(this, info.startPositionUs);
         setIsLoading(true);
+        updateLoadingMediaPeriodId();
       }
     }
   }
@@ -1618,6 +1633,13 @@ import java.util.Collections;
     MediaPeriodHolder readingPeriodHolder = queue.getReadingPeriod();
     return readingPeriodHolder.next != null && readingPeriodHolder.next.prepared
         && renderer.hasReadStreamToEnd();
+  }
+
+  private void updateLoadingMediaPeriodId() {
+    MediaPeriodHolder loadingMediaPeriodHolder = queue.getLoadingPeriod();
+    MediaPeriodId loadingMediaPeriodId =
+        loadingMediaPeriodHolder == null ? playbackInfo.periodId : loadingMediaPeriodHolder.info.id;
+    playbackInfo = playbackInfo.copyWithLoadingMediaPeriodId(loadingMediaPeriodId);
   }
 
   @NonNull

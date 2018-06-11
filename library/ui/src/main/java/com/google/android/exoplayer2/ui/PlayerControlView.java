@@ -715,7 +715,7 @@ public class PlayerControlView extends FrameLayout {
     long bufferedPosition = 0;
     long duration = 0;
     if (player != null) {
-      long currentWindowTimeBarOffsetUs = 0;
+      long currentWindowTimeBarOffsetMs = 0;
       long durationUs = 0;
       int adGroupCount = 0;
       Timeline timeline = player.getCurrentTimeline();
@@ -726,7 +726,7 @@ public class PlayerControlView extends FrameLayout {
             multiWindowTimeBar ? timeline.getWindowCount() - 1 : currentWindowIndex;
         for (int i = firstWindowIndex; i <= lastWindowIndex; i++) {
           if (i == currentWindowIndex) {
-            currentWindowTimeBarOffsetUs = durationUs;
+            currentWindowTimeBarOffsetMs = C.usToMs(durationUs);
           }
           timeline.getWindow(i, window);
           if (window.durationUs == C.TIME_UNSET) {
@@ -762,15 +762,8 @@ public class PlayerControlView extends FrameLayout {
         }
       }
       duration = C.usToMs(durationUs);
-      position = C.usToMs(currentWindowTimeBarOffsetUs);
-      bufferedPosition = position;
-      if (player.isPlayingAd()) {
-        position += player.getContentPosition();
-        bufferedPosition = position;
-      } else {
-        position += player.getCurrentPosition();
-        bufferedPosition += player.getBufferedPosition();
-      }
+      position = currentWindowTimeBarOffsetMs + player.getContentPosition();
+      bufferedPosition = currentWindowTimeBarOffsetMs + player.getContentBufferedPosition();
       if (timeBar != null) {
         int extraAdGroupCount = extraAdGroupTimesMs.length;
         int totalAdGroupCount = adGroupCount + extraAdGroupCount;
