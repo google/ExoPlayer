@@ -574,8 +574,6 @@ public class AnalyticsCollector
       // This event is for content in a future window. Assume default start position.
       eventPositionMs = timeline.getWindow(windowIndex, window).getDefaultPositionMs();
     }
-    // TODO(b/30792113): implement this properly (player.getTotalBufferedDuration()).
-    long bufferedDurationMs = player.getBufferedPosition() - player.getContentPosition();
     return new EventTime(
         realtimeMs,
         timeline,
@@ -583,7 +581,7 @@ public class AnalyticsCollector
         mediaPeriodId,
         eventPositionMs,
         player.getCurrentPosition(),
-        bufferedDurationMs);
+        player.getTotalBufferedDuration());
   }
 
   private EventTime generateEventTime(@Nullable WindowAndMediaPeriodId mediaPeriod) {
