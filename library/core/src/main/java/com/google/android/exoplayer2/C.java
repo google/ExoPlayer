@@ -136,6 +136,8 @@ public final class C {
     ENCODING_PCM_24BIT,
     ENCODING_PCM_32BIT,
     ENCODING_PCM_FLOAT,
+    ENCODING_PCM_MU_LAW,
+    ENCODING_PCM_A_LAW,
     ENCODING_AC3,
     ENCODING_E_AC3,
     ENCODING_DTS,
@@ -144,12 +146,19 @@ public final class C {
   })
   public @interface Encoding {}
 
-  /**
-   * Represents a PCM audio encoding, or an invalid or unset value.
-   */
+  /** Represents a PCM audio encoding, or an invalid or unset value. */
   @Retention(RetentionPolicy.SOURCE)
-  @IntDef({Format.NO_VALUE, ENCODING_INVALID, ENCODING_PCM_8BIT, ENCODING_PCM_16BIT,
-      ENCODING_PCM_24BIT, ENCODING_PCM_32BIT, ENCODING_PCM_FLOAT})
+  @IntDef({
+    Format.NO_VALUE,
+    ENCODING_INVALID,
+    ENCODING_PCM_8BIT,
+    ENCODING_PCM_16BIT,
+    ENCODING_PCM_24BIT,
+    ENCODING_PCM_32BIT,
+    ENCODING_PCM_FLOAT,
+    ENCODING_PCM_MU_LAW,
+    ENCODING_PCM_A_LAW
+  })
   public @interface PcmEncoding {}
   /** @see AudioFormat#ENCODING_INVALID */
   public static final int ENCODING_INVALID = AudioFormat.ENCODING_INVALID;
@@ -163,6 +172,10 @@ public final class C {
   public static final int ENCODING_PCM_32BIT = 0x40000000;
   /** @see AudioFormat#ENCODING_PCM_FLOAT */
   public static final int ENCODING_PCM_FLOAT = AudioFormat.ENCODING_PCM_FLOAT;
+  /** Audio encoding for mu-law. */
+  public static final int ENCODING_PCM_MU_LAW = 0x10000000;
+  /** Audio encoding for A-law. */
+  public static final int ENCODING_PCM_A_LAW = 0x20000000;
   /** @see AudioFormat#ENCODING_AC3 */
   public static final int ENCODING_AC3 = AudioFormat.ENCODING_AC3;
   /** @see AudioFormat#ENCODING_E_AC3 */

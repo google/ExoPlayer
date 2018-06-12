@@ -27,6 +27,8 @@
   ([#4023](https://github.com/google/ExoPlayer/issues/4023)).
 * Allow apps to register custom MIME types
   ([#4264](https://github.com/google/ExoPlayer/issues/4264)).
+* Add support for mu-law and A-law PCM with the ffmpeg extension
+  ([#4360](https://github.com/google/ExoPlayer/issues/4360)).
 
 ### 2.8.2 ###
 

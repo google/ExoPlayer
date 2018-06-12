@@ -20,6 +20,7 @@ import android.os.Handler;
 import android.os.Looper;
 import android.os.SystemClock;
 import android.support.annotation.IntDef;
+import android.support.annotation.Nullable;
 import com.google.android.exoplayer2.BaseRenderer;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlaybackException;
@@ -121,7 +122,9 @@ public abstract class SimpleDecoderAudioRenderer extends BaseRenderer implements
    * @param eventListener A listener of events. May be null if delivery of events is not required.
    * @param audioProcessors Optional {@link AudioProcessor}s that will process audio before output.
    */
-  public SimpleDecoderAudioRenderer(Handler eventHandler, AudioRendererEventListener eventListener,
+  public SimpleDecoderAudioRenderer(
+      @Nullable Handler eventHandler,
+      @Nullable AudioRendererEventListener eventListener,
       AudioProcessor... audioProcessors) {
     this(
         eventHandler,
@@ -139,8 +142,10 @@ public abstract class SimpleDecoderAudioRenderer extends BaseRenderer implements
    * @param audioCapabilities The audio capabilities for playback on this device. May be null if the
    *     default capabilities (no encoded audio passthrough support) should be assumed.
    */
-  public SimpleDecoderAudioRenderer(Handler eventHandler, AudioRendererEventListener eventListener,
-      AudioCapabilities audioCapabilities) {
+  public SimpleDecoderAudioRenderer(
+      @Nullable Handler eventHandler,
+      @Nullable AudioRendererEventListener eventListener,
+      @Nullable AudioCapabilities audioCapabilities) {
     this(
         eventHandler,
         eventListener,
@@ -164,9 +169,13 @@ public abstract class SimpleDecoderAudioRenderer extends BaseRenderer implements
    *     has obtained the keys necessary to decrypt encrypted regions of the media.
    * @param audioProcessors Optional {@link AudioProcessor}s that will process audio before output.
    */
-  public SimpleDecoderAudioRenderer(Handler eventHandler, AudioRendererEventListener eventListener,
-      AudioCapabilities audioCapabilities, DrmSessionManager<ExoMediaCrypto> drmSessionManager,
-      boolean playClearSamplesWithoutKeys, AudioProcessor... audioProcessors) {
+  public SimpleDecoderAudioRenderer(
+      @Nullable Handler eventHandler,
+      @Nullable AudioRendererEventListener eventListener,
+      @Nullable AudioCapabilities audioCapabilities,
+      @Nullable DrmSessionManager<ExoMediaCrypto> drmSessionManager,
+      boolean playClearSamplesWithoutKeys,
+      AudioProcessor... audioProcessors) {
     this(eventHandler, eventListener, drmSessionManager,
         playClearSamplesWithoutKeys, new DefaultAudioSink(audioCapabilities, audioProcessors));
   }
@@ -184,8 +193,11 @@ public abstract class SimpleDecoderAudioRenderer extends BaseRenderer implements
    *     has obtained the keys necessary to decrypt encrypted regions of the media.
    * @param audioSink The sink to which audio will be output.
    */
-  public SimpleDecoderAudioRenderer(Handler eventHandler, AudioRendererEventListener eventListener,
-      DrmSessionManager<ExoMediaCrypto> drmSessionManager, boolean playClearSamplesWithoutKeys,
+  public SimpleDecoderAudioRenderer(
+      @Nullable Handler eventHandler,
+      @Nullable AudioRendererEventListener eventListener,
+      @Nullable DrmSessionManager<ExoMediaCrypto> drmSessionManager,
+      boolean playClearSamplesWithoutKeys,
       AudioSink audioSink) {
     super(C.TRACK_TYPE_AUDIO);
     this.drmSessionManager = drmSessionManager;

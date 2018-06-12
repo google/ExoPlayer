@@ -371,7 +371,7 @@ public final class DefaultAudioSink implements AudioSink {
 
   @Override
   public boolean isEncodingSupported(@C.Encoding int encoding) {
-    if (Util.isEncodingPcm(encoding)) {
+    if (Util.isEncodingLinearPcm(encoding)) {
       // AudioTrack supports 16-bit integer PCM output in all platform API versions, and float
       // output from platform API version 21 only. Other integer PCM encodings are resampled by this
       // sink to 16-bit PCM.
@@ -405,7 +405,7 @@ public final class DefaultAudioSink implements AudioSink {
     this.inputSampleRate = inputSampleRate;
     int channelCount = inputChannelCount;
     int sampleRate = inputSampleRate;
-    isInputPcm = Util.isEncodingPcm(inputEncoding);
+    isInputPcm = Util.isEncodingLinearPcm(inputEncoding);
     shouldConvertHighResIntPcmToFloat =
         enableConvertHighResIntPcmToFloat
             && isEncodingSupported(C.ENCODING_PCM_32BIT)
