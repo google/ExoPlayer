@@ -96,7 +96,10 @@ public final class DefaultHlsPlaylistTracker
             initialPlaylistUri,
             C.DATA_TYPE_MANIFEST,
             playlistParser);
-    initialPlaylistLoader.startLoading(masterPlaylistLoadable, this, minRetryCount);
+    long elapsedRealtime =
+        initialPlaylistLoader.startLoading(masterPlaylistLoadable, this, minRetryCount);
+    eventDispatcher.loadStarted(
+        masterPlaylistLoadable.dataSpec, masterPlaylistLoadable.type, elapsedRealtime);
   }
 
   @Override
@@ -509,7 +512,10 @@ public final class DefaultHlsPlaylistTracker
     // Internal methods.
 
     private void loadPlaylistImmediately() {
-      mediaPlaylistLoader.startLoading(mediaPlaylistLoadable, this, minRetryCount);
+      long elapsedRealtime =
+          mediaPlaylistLoader.startLoading(mediaPlaylistLoadable, this, minRetryCount);
+      eventDispatcher.loadStarted(
+          mediaPlaylistLoadable.dataSpec, mediaPlaylistLoadable.type, elapsedRealtime);
     }
 
     private void processLoadedPlaylist(HlsMediaPlaylist loadedPlaylist) {
