@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.decoder;
 
+import android.support.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.util.Assertions;
 import java.util.ArrayDeque;
@@ -292,14 +293,13 @@ public abstract class SimpleDecoder<I extends DecoderInputBuffer, O extends Outp
    * Decodes the {@code inputBuffer} and stores any decoded output in {@code outputBuffer}.
    *
    * @param inputBuffer The buffer to decode.
-   * @param outputBuffer The output buffer to store decoded data. The flag
-   *     {@link C#BUFFER_FLAG_DECODE_ONLY} will be set if the same flag is set on
-   *     {@code inputBuffer}, but may be set/unset as required. If the flag is set when the call
-   *     returns then the output buffer will not be made available to dequeue. The output buffer
-   *     may not have been populated in this case.
+   * @param outputBuffer The output buffer to store decoded data. The flag {@link
+   *     C#BUFFER_FLAG_DECODE_ONLY} will be set if the same flag is set on {@code inputBuffer}, but
+   *     may be set/unset as required. If the flag is set when the call returns then the output
+   *     buffer will not be made available to dequeue. The output buffer may not have been populated
+   *     in this case.
    * @param reset Whether the decoder must be reset before decoding.
    * @return A decoder exception if an error occurred, or null if decoding was successful.
    */
-  protected abstract E decode(I inputBuffer, O outputBuffer, boolean reset);
-
+  protected abstract @Nullable E decode(I inputBuffer, O outputBuffer, boolean reset);
 }
