@@ -31,6 +31,7 @@ import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.TimestampAdjuster;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Default {@link HlsExtractorFactory} implementation.
@@ -48,9 +49,14 @@ public final class DefaultHlsExtractorFactory implements HlsExtractorFactory {
   public static final String WEBVTT_FILE_EXTENSION = ".webvtt";
 
   @Override
-  public Pair<Extractor, Boolean> createExtractor(Extractor previousExtractor, Uri uri,
-      Format format, List<Format> muxedCaptionFormats, DrmInitData drmInitData,
-      TimestampAdjuster timestampAdjuster) {
+  public Pair<Extractor, Boolean> createExtractor(
+      Extractor previousExtractor,
+      Uri uri,
+      Format format,
+      List<Format> muxedCaptionFormats,
+      DrmInitData drmInitData,
+      TimestampAdjuster timestampAdjuster,
+      Map<String, List<String>> responseHeaders) {
     String lastPathSegment = uri.getLastPathSegment();
     if (lastPathSegment == null) {
       lastPathSegment = "";

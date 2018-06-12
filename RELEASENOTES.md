@@ -15,6 +15,7 @@
   bandwidth estimates in the future. Always null at the moment.
 * HLS:
   * Allow injection of custom playlist trackers.
+  * Pass HTTP response headers to `HlsExtractorFactory.createExtractor`.
 * DRM:
   * Allow DrmInitData to carry a license server URL
     ([#3393](https://github.com/google/ExoPlayer/issues/3393)).

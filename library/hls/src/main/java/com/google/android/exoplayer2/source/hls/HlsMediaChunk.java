@@ -69,12 +69,15 @@ import java.util.concurrent.atomic.AtomicInteger;
   private final boolean hasGapTag;
   private final TimestampAdjuster timestampAdjuster;
   private final boolean shouldSpliceIn;
-  private final Extractor extractor;
-  private final boolean isPackedAudioExtractor;
-  private final boolean reusingExtractor;
-  private final Id3Decoder id3Decoder;
-  private final ParsableByteArray id3Data;
+  private final HlsExtractorFactory extractorFactory;
+  private final List<Format> muxedCaptionFormats;
+  private final DrmInitData drmInitData;
+  private final Extractor previousExtractor;
 
+  private Extractor extractor;
+  private boolean isPackedAudioExtractor;
+  private Id3Decoder id3Decoder;
+  private ParsableByteArray id3Data;
   private HlsSampleStreamWrapper output;
   private int initSegmentBytesLoaded;
   private int bytesLoaded;
@@ -145,32 +148,20 @@ import java.util.concurrent.atomic.AtomicInteger;
     // Note: this.dataSource and dataSource may be different.
     this.isEncrypted = this.dataSource instanceof Aes128DataSource;
     this.hasGapTag = hasGapTag;
+    this.extractorFactory = extractorFactory;
+    this.muxedCaptionFormats = muxedCaptionFormats;
+    this.drmInitData = drmInitData;
     Extractor previousExtractor = null;
     if (previousChunk != null) {
+      id3Decoder = previousChunk.id3Decoder;
+      id3Data = previousChunk.id3Data;
       shouldSpliceIn = previousChunk.hlsUrl != hlsUrl;
       previousExtractor = previousChunk.discontinuitySequenceNumber != discontinuitySequenceNumber
           || shouldSpliceIn ? null : previousChunk.extractor;
     } else {
       shouldSpliceIn = false;
     }
-    Pair<Extractor, Boolean> extractorData = extractorFactory.createExtractor(previousExtractor,
-        dataSpec.uri, trackFormat, muxedCaptionFormats, drmInitData, timestampAdjuster);
-    extractor = extractorData.first;
-    isPackedAudioExtractor = extractorData.second;
-    reusingExtractor = extractor == previousExtractor;
-    initLoadCompleted = reusingExtractor && initDataSpec != null;
-    if (isPackedAudioExtractor) {
-      if (previousChunk != null && previousChunk.id3Data != null) {
-        id3Decoder = previousChunk.id3Decoder;
-        id3Data = previousChunk.id3Data;
-      } else {
-        id3Decoder = new Id3Decoder();
-        id3Data = new ParsableByteArray(Id3Decoder.ID3_HEADER_LENGTH);
-      }
-    } else {
-      id3Decoder = null;
-      id3Data = null;
-    }
+    this.previousExtractor = previousExtractor;
     initDataSource = dataSource;
     uid = uidSource.getAndIncrement();
   }
@@ -183,10 +174,6 @@ import java.util.concurrent.atomic.AtomicInteger;
    */
   public void init(HlsSampleStreamWrapper output) {
     this.output = output;
-    output.init(uid, shouldSpliceIn, reusingExtractor);
-    if (!reusingExtractor) {
-      extractor.init(output);
-    }
   }
 
   @Override
@@ -217,7 +204,7 @@ import java.util.concurrent.atomic.AtomicInteger;
     }
   }
 
-  // Internal loading methods.
+  // Internal methods.
 
   private void maybeLoadInitData() throws IOException, InterruptedException {
     if (initLoadCompleted || initDataSpec == null) {
@@ -226,8 +213,7 @@ import java.util.concurrent.atomic.AtomicInteger;
     }
     DataSpec initSegmentDataSpec = initDataSpec.subrange(initSegmentBytesLoaded);
     try {
-      ExtractorInput input = new DefaultExtractorInput(initDataSource,
-          initSegmentDataSpec.absoluteStreamPosition, initDataSource.open(initSegmentDataSpec));
+      DefaultExtractorInput input = prepareExtraction(initDataSource, initSegmentDataSpec);
       try {
         int result = Extractor.RESULT_CONTINUE;
         while (result == Extractor.RESULT_CONTINUE && !loadCanceled) {
@@ -263,8 +249,7 @@ import java.util.concurrent.atomic.AtomicInteger;
       timestampAdjuster.setFirstSampleTimestampUs(startTimeUs);
     }
     try {
-      ExtractorInput input = new DefaultExtractorInput(dataSource,
-          loadDataSpec.absoluteStreamPosition, dataSource.open(loadDataSpec));
+      ExtractorInput input = prepareExtraction(dataSource, loadDataSpec);
       if (isPackedAudioExtractor && !id3TimestampPeeked) {
         long id3Timestamp = peekId3PrivTimestamp(input);
         id3TimestampPeeked = true;
@@ -285,6 +270,37 @@ import java.util.concurrent.atomic.AtomicInteger;
     } finally {
       Util.closeQuietly(dataSource);
     }
+  }
+
+  private DefaultExtractorInput prepareExtraction(DataSource dataSource, DataSpec dataSpec)
+      throws IOException {
+    long bytesToRead = dataSource.open(dataSpec);
+
+    if (extractor == null) {
+      Pair<Extractor, Boolean> extractorData =
+          extractorFactory.createExtractor(
+              previousExtractor,
+              dataSpec.uri,
+              trackFormat,
+              muxedCaptionFormats,
+              drmInitData,
+              timestampAdjuster,
+              dataSource.getResponseHeaders());
+      extractor = extractorData.first;
+      isPackedAudioExtractor = extractorData.second;
+      boolean reusingExtractor = extractor == previousExtractor;
+      initLoadCompleted = reusingExtractor && initDataSpec != null;
+      if (isPackedAudioExtractor && id3Data == null) {
+        id3Decoder = new Id3Decoder();
+        id3Data = new ParsableByteArray(Id3Decoder.ID3_HEADER_LENGTH);
+      }
+      output.init(uid, shouldSpliceIn, reusingExtractor);
+      if (!reusingExtractor) {
+        extractor.init(output);
+      }
+    }
+
+    return new DefaultExtractorInput(dataSource, dataSpec.absoluteStreamPosition, bytesToRead);
   }
 
   /**
