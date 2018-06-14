@@ -45,6 +45,8 @@
   ([#4315](https://github.com/google/ExoPlayer/issues/4315)).
 * Set `METADATA_KEY_TITLE` on media descriptions
   ((#4292)[https://github.com/google/ExoPlayer/issues/4292]).
+* Fix missing whitespace in CEA-608
+  ([#3906](https://github.com/google/ExoPlayer/issues/3906)).
 
 ### 2.8.1 ###
 
