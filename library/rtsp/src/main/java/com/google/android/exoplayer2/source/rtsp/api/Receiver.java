@@ -203,7 +203,7 @@ import java.util.regex.Pattern;
                                         } else if (header == Header.ContentLength) {
                                             mediaLength = Integer.parseInt(matcher.group(2).trim());
 
-                                        } else {
+                                        } else if (header != null) {
                                             builder.header(header, matcher.group(2).trim());
                                         }
                                     }

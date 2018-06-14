@@ -22,6 +22,7 @@ import android.support.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.ExoPlayerLibraryInfo;
+import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.source.BaseMediaSource;
 import com.google.android.exoplayer2.source.MediaPeriod;
 import com.google.android.exoplayer2.source.MediaSource;
@@ -172,20 +173,22 @@ public final class RtspMediaSource extends BaseMediaSource implements Client.Eve
         ((RtspMediaPeriod) mediaPeriod).release();
     }
 
-
     @Override
     public void prepareSourceInternal(ExoPlayer player, boolean isTopLevelSource) {
-        client = new Client.Builder(factory).uri(uri).listener(this).build();
+        Player.VideoComponent videoComponent = player.getVideoComponent();
+        Assertions.checkNotNull(videoComponent, "VideoComponent is null");
+
+        client = new Client.Builder(factory).setUri(uri).setListener(this).build();
+        EventDispatcher eventDispatcher = createEventDispatcher(/* mediaPeriodId= */ null);
 
         try {
 
-            player.getVideoComponent().addVideoListener(client.session());
             client.open();
-
-        } catch (NullPointerException e) {
+            videoComponent.addVideoListener(client.session());
 
         } catch (IOException e) {
-            client = null;
+            eventDispatcher.loadError(new DataSpec(uri), C.DATA_TYPE_MEDIA_INITIALIZATION, 0, 0,
+                    0, new IOException("Client open failed.", e.getCause()), false);
         }
     }
 

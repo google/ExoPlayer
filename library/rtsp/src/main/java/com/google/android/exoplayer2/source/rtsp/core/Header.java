@@ -72,6 +72,7 @@ public enum Header {
     W3Authenticate("WWW-Authenticate"),
     xAcceptRetransmit("x-Accept-Retransmit"),
     xAcceptDynamicRate("x-Accept-Dynamic-Rate"),
+    xDynamicRate("x-Dynamic-Rate"),
     XmayNotify("x-mayNotify"),
     XplayNow("x-playNow"),
     XnoFlush("x-noFlush");

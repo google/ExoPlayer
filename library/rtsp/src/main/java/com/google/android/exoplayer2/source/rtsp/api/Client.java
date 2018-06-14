@@ -62,6 +62,8 @@ import java.util.regex.Pattern;
 public abstract class Client {
 
     public interface Factory<T> {
+        Factory<T> setFlags(@Flags int flags);
+        Factory<T> setNatMethod(@NatMethod int natMethod);
         T create(Client.Builder builder);
     }
 
@@ -83,7 +85,6 @@ public abstract class Client {
          *
          */
         void onClientError(Throwable throwable);
-
     }
 
     private static final Pattern rexegRtpMap = Pattern.compile("\\d+\\s+([a-zA-Z0-9-]*)/(\\d+){1}(/(\\d+))?",
@@ -100,6 +101,26 @@ public abstract class Client {
 
     static final List<Protocol> DEFAULT_PROTOCOLS = Collections.unmodifiableList(Arrays.asList(
             Protocol.RTSP_1_0));
+
+    @Retention(RetentionPolicy.SOURCE)
+    @IntDef(flag = true, value = {FLAG_ENABLE_RTCP_SUPPORT, FLAG_FORCE_RTCP_MUXED})
+    public @interface Flags {}
+    public static final int FLAG_ENABLE_RTCP_SUPPORT = 1;
+    public static final int FLAG_FORCE_RTCP_MUXED = 1 << 1;
+
+    @Retention(RetentionPolicy.SOURCE)
+    @IntDef(flag = true, value = {FLAG_AUTO_DETECT, FLAG_FORCE_RTSP_INTERLEAVED,
+            FLAG_FORCE_RTSP_TUNNELING})
+    public @interface Mode {}
+    public static final int FLAG_AUTO_DETECT = 0;
+    public static final int FLAG_FORCE_RTSP_INTERLEAVED = 1;
+    public static final int FLAG_FORCE_RTSP_TUNNELING = 2;
+
+    @Retention(RetentionPolicy.SOURCE)
+    @IntDef(value = {RTSP_NAT_NONE, RTSP_NAT_DUMMY})
+    public @interface NatMethod {}
+    public static final int RTSP_NAT_NONE = 0;
+    public static final int RTSP_NAT_DUMMY = 1;
 
     @Retention(RetentionPolicy.SOURCE)
     @IntDef(flag = true, value = {IDLE, INIT, READY, PLAYING, RECORDING})
@@ -120,7 +141,10 @@ public abstract class Client {
 
     private final Uri uri;
     private final int retries;
+    private @Flags int flags;
     private final EventListener listener;
+    private final @NatMethod int natMethod;
+    private final @Mode int mode;
 
     private Credentials credentials;
 
@@ -128,8 +152,11 @@ public abstract class Client {
 
     public Client(Builder builder) {
         uri = builder.uri;
+        flags = builder.flags;
         retries = builder.retries;
         listener = builder.listener;
+        natMethod = builder.natMethod;
+        mode = builder.mode;
 
         dispatcher = new Dispatcher.Builder().client(this).build();
         session = new MediaSession.Builder().client(this).build();
@@ -169,6 +196,14 @@ public abstract class Client {
 
     public final boolean isProtocolSupported(Protocol protocol) {
         return DEFAULT_PROTOCOLS.contains(protocol);
+    }
+
+    public boolean isFlagSet(@Flags int flag) {
+        return (flags & flag) != 0;
+    }
+
+    public boolean isNatSet(@NatMethod int method) {
+        return (natMethod & method) != 0;
     }
 
     public final void dispatch(Request request) {
@@ -399,6 +434,10 @@ public abstract class Client {
                                             }
                                         }
 
+                                    } else if (Attribute.RTCP_MUX.equalsIgnoreCase(attribute.name())) {
+                                        trackBuilder.muxed(true);
+                                        flags |= FLAG_FORCE_RTCP_MUXED;
+
                                     } else if (Attribute.SDPLANG.equalsIgnoreCase(attribute.name())) {
                                         trackBuilder.language(attribute.value());
 
@@ -429,7 +468,6 @@ public abstract class Client {
                                                     payloadBuilder.addEncodingParameter(FormatSpecificParameter.parse(parameter));
                                                 }
                                             }
-
                                         } else if (Attribute.FRAMERATE.equalsIgnoreCase(attribute.name())) {
                                             ((RtpVideoPayload.Builder) payloadBuilder).framerate(
                                                     Float.parseFloat(attribute.value()));
@@ -630,7 +668,7 @@ public abstract class Client {
 
     protected abstract void sendOptionsRequest();
     protected abstract void sendDescribeRequest();
-    public abstract void sendSetupRequest(String trackId, Transport transport, int localPort);
+    public abstract void sendSetupRequest(MediaTrack track, int localPort);
     public abstract void sendPlayRequest(Range range);
     public abstract void sendPlayRequest(Range range, float scale);
     public abstract void sendPauseRequest();
@@ -654,7 +692,11 @@ public abstract class Client {
     public static final class Builder {
         Uri uri;
         int retries;
+        @Flags int flags;
         EventListener listener;
+        @NatMethod int natMethod;
+        @Mode int mode;
+
         final Factory<? extends Client> factory;
 
         Handler eventHandler;
@@ -664,7 +706,22 @@ public abstract class Client {
             this.factory = factory;
         }
 
-        public Client.Builder listener(EventListener listener) {
+        public Client.Builder setFlags(@Flags int flags) {
+            this.flags = flags;
+            return this;
+        }
+
+        public Client.Builder setNatMethod(@NatMethod int natMethod) {
+            this.natMethod = natMethod;
+            return this;
+        }
+
+        public Client.Builder setMode(@Mode int mode) {
+            this.mode = mode;
+            return this;
+        }
+
+        public Client.Builder setListener(EventListener listener) {
             if (listener == null) throw new IllegalArgumentException("listener == null");
 
             this.listener = listener;
@@ -685,14 +742,14 @@ public abstract class Client {
             return this;
         }
 
-        public Client.Builder retries(int retries) {
+        public Client.Builder setRetries(int retries) {
             if (retries < 0) throw new IllegalArgumentException("retries is wrong");
 
             this.retries = retries;
             return this;
         }
 
-        public Client.Builder uri(Uri uri) {
+        public Client.Builder setUri(Uri uri) {
             if (uri == null) throw new NullPointerException("uri == null");
 
             this.uri = uri;

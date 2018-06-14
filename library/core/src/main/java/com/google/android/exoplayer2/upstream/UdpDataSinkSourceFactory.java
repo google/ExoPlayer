@@ -48,7 +48,7 @@ public final class UdpDataSinkSourceFactory implements Factory {
     }
 
     @Override
-    public DataSource createDataSource() {
+    public UdpDataSinkSource createDataSource() {
         return new UdpDataSinkSource(listener, maxPacketSize);
     }
 

@@ -30,14 +30,15 @@ public final class Attribute {
     public final static String FRAMESIZE = "framesize";
     public final static String FRAMERATE = "framerate";
     public final static String INACTIVE = "inactive";
-    public final static String RTPMAP = "rtpmap";
-    public final static String RANGE = "range";
     public final static String LENGTH = "length";
-    public final static String PTIME = "ptime";
     public final static String MAXPTIME = "maxptime";
+    public final static String MPEG4_ESID = "mpeg4-esid";
+    public final static String RANGE = "range";
+    public final static String RTCP_MUX = "rtcp-mux";
+    public final static String RTPMAP = "rtpmap";
+    public final static String PTIME = "ptime";
     public final static String QUALITY = "quality";
     public final static String SDPLANG = "sdplang";
-    public final static String MPEG4_ESID = "mpeg4-esid";
 
     private String name;
     private String value;

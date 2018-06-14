@@ -46,7 +46,7 @@ import java.util.TreeSet;
             final int GREATER = 1;
 
             int sequenceSample = sample.packet.sequenceNumber();
-            int sequenceDelta = this.packet.sequenceNumber() - sequenceSample;
+            int sequenceDelta = packet.sequenceNumber() - sequenceSample;
 
             if (sequenceDelta >= 0 && sequenceDelta < MAX_DROPOUT) {
                 if (sequenceDelta == 0) {
@@ -68,103 +68,96 @@ import java.util.TreeSet;
 
     private static final int MAX_DROPOUT = 3000;
     private static final int MAX_MISORDER = 100;
+    private static final int RTP_SEQ_MOD = 1<<16;
 
-    private int jitter; // estimated jitter
-
-    private int baseSequence; // base sequence number
     private volatile int lastSequence; // last sequence number pop
-    private int maxSequence; // highest sequence number seen
 
-    private long lastRxTimestamp;
-    private long lastRtpTimestamp;
+    private long lastArrivalTimestamp;
+    private long lastSentTimestamp;
 
     private boolean isStarted;
 
     private final int clockrate;
     private final TreeSet<RtpSample> samples;
+    private final RtpStatistics.RtpStatsInfo statsInfo;
 
     public RtpSamplesQueue(int clockrate) {
         this.clockrate = clockrate;
+
         samples = new TreeSet<>();
+        statsInfo = new RtpStatistics.RtpStatsInfo();
     }
 
-    public void offer(RtpPacket packet) {
+    public synchronized void offer(RtpPacket packet) {
         int sequence = packet.sequenceNumber();
-        long rtpTimestamp = packet.timestamp();
-        long nowTimestamp = System.currentTimeMillis();
+        long sentTimestamp = packet.timestamp();
+        long arrivalTimestamp = System.currentTimeMillis();
 
         if (!isStarted) {
-            baseSequence = sequence;
-            maxSequence = sequence - 1;
-            lastSequence = maxSequence;
+            statsInfo.baseSequence = sequence;
+            statsInfo.maxSequence = sequence - 1;
+            lastSequence = statsInfo.maxSequence;
+
             isStarted = true;
 
         } else {
-            long timestampDelta = ((nowTimestamp - lastRxTimestamp) * clockrate) / C.MICROS_PER_SECOND;
-            timestampDelta -= rtpTimestamp - lastRtpTimestamp;
+            long timestampDelta = ((arrivalTimestamp - lastArrivalTimestamp) * clockrate) / C.MICROS_PER_SECOND;
+            timestampDelta -= sentTimestamp - lastSentTimestamp;
 
             if (timestampDelta < 0) {
                 timestampDelta = -timestampDelta;
             }
 
-            jitter += ((timestampDelta - jitter) + 8) >> 4;
+            statsInfo.jitter += ((timestampDelta - statsInfo.jitter) + 8) >> 4;
         }
 
-        lastRtpTimestamp = rtpTimestamp;
-        lastRxTimestamp = nowTimestamp;
+        lastSentTimestamp = sentTimestamp;
+        lastArrivalTimestamp = arrivalTimestamp;
 
-        int expected = (maxSequence + 1) % 65536;
+        int expected = (statsInfo.maxSequence + 1) % RTP_SEQ_MOD;
         int sequenceDelta = sequence - expected;
 
         if (sequenceDelta >= 0 && sequenceDelta < MAX_DROPOUT) {
-            maxSequence = sequence;
-            samples.add(new RtpSample(packet, nowTimestamp));
-
-            //Log.v("RtpSamplesQueue","RTP packet enqueue[0]: base=[" + baseSequence + "], max=[" + maxSequence + "], last=[" + lastSequence + "], seq=[" + packet.sequenceNumber() +
-              //      "], timestamp=[" + packet.timestamp() + "], payloadType=[" + packet.payloadType() + "]");
+            statsInfo.maxSequence = sequence;
+            samples.add(new RtpSample(packet, arrivalTimestamp));
 
         } else if (sequenceDelta < -MAX_MISORDER || sequenceDelta >= MAX_DROPOUT) {
 			/* the sequence number made a very large jump */
-            if (sequence < baseSequence) {
-                samples.add(new RtpSample(packet, nowTimestamp));
-
-                //Log.v("RtpSamplesQueue","RTP packet enqueue[1]: base=[" + baseSequence + "], max=[" + maxSequence + "], last=[" + lastSequence + "], seq=[" + packet.sequenceNumber() +
-                  //      "], timestamp=[" + packet.timestamp() + "], payloadType=[" + packet.payloadType() + "]");
+            if (sequence < statsInfo.baseSequence) {
+                samples.add(new RtpSample(packet, arrivalTimestamp));
 
             } else if (-sequenceDelta >= expected) {
-                maxSequence = sequence;
-                samples.add(new RtpSample(packet, nowTimestamp));
+                if (expected < statsInfo.maxSequence) {
+                    statsInfo.cycles++;
+                }
+                statsInfo.maxSequence = sequence;
+                samples.add(new RtpSample(packet, arrivalTimestamp));
 
-                //Log.v("RtpSamplesQueue","RTP packet enqueue[2]: base=[" + baseSequence + "], max=[" + maxSequence + "], last=[" + lastSequence + "], seq=[" + packet.sequenceNumber() +
-                  //      "], timestamp=[" + packet.timestamp() + "], payloadType=[" + packet.payloadType() + "]");
             } else {
-                if (sequence < baseSequence) {
+                if (sequenceDelta >= MAX_DROPOUT) {
                     samples.clear();
-                    maxSequence = sequence;
-                    baseSequence = sequence;
+                    statsInfo.maxSequence = sequence;
+                    statsInfo.baseSequence = sequence;
                     lastSequence = sequence;
                 }
-                samples.add(new RtpSample(packet, nowTimestamp));
-
-                //Log.v("RtpSamplesQueue","RTP packet enqueue[3]: base=[" + baseSequence + "], max=[" + maxSequence + "], last=[" + lastSequence + "], seq=[" + packet.sequenceNumber() +
-                  //      "], timestamp=[" + packet.timestamp() + "], payloadType=[" + packet.payloadType() + "]");
+                samples.add(new RtpSample(packet, arrivalTimestamp));
             }
 
         } else { /* delta < 0 && delta >= -MAX_MISORDER */
             if (sequence > lastSequence) {
-                maxSequence = sequence;
-                samples.add(new RtpSample(packet, nowTimestamp));
+                statsInfo.maxSequence = sequence;
+                samples.add(new RtpSample(packet, arrivalTimestamp));
 
-                //Log.v("RtpSamplesQueue","RTP packet enqueue[4]: base=[" + baseSequence + "], max=[" + maxSequence + "], last=[" + lastSequence + "], seq=[" + packet.sequenceNumber() +
-                  //      "], timestamp=[" + packet.timestamp() + "], payloadType=[" + packet.payloadType() + "]");
             } else {
-                //Log.v("RtpSamplesQueue","RTP packet rejected: base=[" + baseSequence + "], max=[" + maxSequence + "], last=[" + lastSequence + "], seq=[" + packet.sequenceNumber() +
-                  //      "], timestamp=[" + packet.timestamp() + "], payloadType=[" + packet.payloadType() + "]");
+                // Do nothing.
+                return;
             }
         }
+
+        statsInfo.received++;
     }
 
-    public RtpPacket pop() {
+    public synchronized RtpPacket pop() {
         if (isStarted && samples.size() > 1) {
             long nowTimestamp = System.currentTimeMillis();
 
@@ -176,23 +169,19 @@ import java.util.TreeSet;
             RtpSample higher = iteratorSamples.next();
             RtpPacket expected = higher.packet();
 
-            int sequenceDelta = ((packet.sequenceNumber() + 1) % 65536) - expected.sequenceNumber();
+            int sequenceDelta = ((packet.sequenceNumber() + 1) % RTP_SEQ_MOD) - expected.sequenceNumber();
 
             if (sequenceDelta == 0) {
-                baseSequence = packet.sequenceNumber();
-                lastSequence = baseSequence;
-
-                //Log.v("RtpSamplesQueue","RTP packet dequeue[0]: base=[" + baseSequence + "], max=[" + maxSequence + "], last=[" + lastSequence + "], seq=[" + packet.sequenceNumber() +
-                  //      "], timestamp=[" + packet.timestamp() + "], payloadType=[" + packet.payloadType() + "]");
-
+                statsInfo.baseSequence = packet.sequenceNumber();
+                lastSequence = statsInfo.baseSequence;
                 samples.pollFirst();
                 return packet;
             }
 
             long deadlineTimestamp = 0;
 
-            if (jitter > 0 && clockrate > 0) {
-                deadlineTimestamp = (C.MICROS_PER_SECOND * 3 * jitter) / clockrate;
+            if (statsInfo.jitter > 0 && clockrate > 0) {
+                deadlineTimestamp = (C.MICROS_PER_SECOND * 3 * statsInfo.jitter) / clockrate;
             }
 
             // Make sure we wait at least for 25 msec
@@ -206,24 +195,16 @@ import java.util.TreeSet;
             if (nowTimestamp >= deadlineTimestamp) {
                 samples.pollFirst();
                 // Discontinuity detection
-                int deltaSequence = packet.sequenceNumber() - ((baseSequence + 1) % 65536);
+                int deltaSequence = packet.sequenceNumber() - ((statsInfo.baseSequence + 1) % RTP_SEQ_MOD);
                 if (deltaSequence != 0 && deltaSequence >= 0x8000) {
                     // Trash too late packets
-                    baseSequence = expected.sequenceNumber();
-                    lastSequence = baseSequence;
-
-                    //Log.v("RtpSamplesQueue","RTP packet discarded [" + deltaSequence + "]: base=[" + baseSequence + "], max=[" + maxSequence + "], last=[" + lastSequence + "], seq=[" + packet.sequenceNumber() +
-                      //      "], millisInQueue=[" + (nowTimestamp - sample.timestamp()) + "], payloadType=[" + packet.payloadType() + "]");
-
+                    statsInfo.baseSequence = expected.sequenceNumber();
+                    lastSequence = statsInfo.baseSequence;
                     return null;
                 }
 
-                baseSequence = packet.sequenceNumber();
-                lastSequence = baseSequence;
-
-                //Log.v("RtpSamplesQueue", "RTP packet dequeue[1]: base=[" + baseSequence + "], max=[" + maxSequence + "], last=[" + lastSequence + "], seq=[" + packet.sequenceNumber() +
-                  //      "], millisInQueue=[" + (nowTimestamp - sample.timestamp()) + "], payloadType=[" + packet.payloadType() + "]");
-
+                statsInfo.baseSequence = packet.sequenceNumber();
+                lastSequence = statsInfo.baseSequence;
                 return packet;
             }
         }
@@ -231,11 +212,11 @@ import java.util.TreeSet;
         return null;
     }
 
-    public void clear() {
+    public synchronized void clear() {
         samples.clear();
     }
 
-    public boolean isEmpty() {
-        return samples.isEmpty();
+    public synchronized RtpStatistics.RtpStatsInfo getStatsInfo() {
+        return new RtpStatistics.RtpStatsInfo(statsInfo);
     }
 }

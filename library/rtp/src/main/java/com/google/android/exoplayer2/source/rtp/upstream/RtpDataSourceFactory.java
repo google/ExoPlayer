@@ -26,27 +26,39 @@ import com.google.android.exoplayer2.upstream.UdpDataSource;
 public final class RtpDataSourceFactory implements Factory {
 
     private final TransferListener<? super UdpDataSource> listener;
+    private final @RtpDataSource.Flags int flags;
     private final int clockrate;
 
     /**
      * @param clockrate The clock rate.
      */
     public RtpDataSourceFactory(int clockrate) {
-        this(clockrate, null);
+        this(clockrate, 0);
     }
 
     /**
      * @param clockrate The clock rate.
+     * @param flags The optional flags.
+     */
+    public RtpDataSourceFactory(int clockrate, @RtpDataSource.Flags int flags) {
+        this(clockrate, flags, null);
+    }
+
+    /**
+     * @param clockrate The clock rate.
+     * @param flags The optional flags.
      * @param listener An optional listener.
      */
-    public RtpDataSourceFactory(int clockrate, TransferListener<? super UdpDataSource> listener) {
+    public RtpDataSourceFactory(int clockrate, @RtpDataSource.Flags int flags,
+                                TransferListener<? super UdpDataSource> listener) {
+        this.flags = flags;
         this.clockrate = clockrate;
         this.listener = listener;
     }
 
     @Override
-    public DataSource createDataSource() {
-        return new RtpDataSource(clockrate, listener);
+    public RtpDataSource createDataSource() {
+        return new RtpDataSource(clockrate, flags, listener);
     }
 
 }

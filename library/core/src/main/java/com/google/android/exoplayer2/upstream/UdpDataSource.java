@@ -35,6 +35,10 @@ public class UdpDataSource implements DataSource {
    */
   public static final class UdpDataSourceException extends IOException {
 
+    public UdpDataSourceException(String message) {
+      super(message);
+    }
+
     public UdpDataSourceException(IOException cause) {
       super(cause);
     }

@@ -59,7 +59,7 @@ public class UdpDataSinkSource extends UdpDataSource {
 
         try {
 
-            if (socket.isConnected()) {
+            if (socket != null && socket.isConnected()) {
                 byte[] data = Arrays.copyOfRange(buffer, offset, offset + length);
                 DatagramPacket packet = new DatagramPacket(data, data.length);
                 socket.send(packet);
@@ -78,7 +78,7 @@ public class UdpDataSinkSource extends UdpDataSource {
 
         try {
 
-            if (socket.isBound()) {
+            if (socket != null && socket.isBound()) {
                 byte[] data = Arrays.copyOfRange(buffer, offset, offset + length);
                 DatagramPacket packet = new DatagramPacket(data, data.length, address, port);
                 socket.send(packet);
@@ -90,7 +90,11 @@ public class UdpDataSinkSource extends UdpDataSource {
     }
 
     public int getLocalPort() {
-        SocketAddress socketAddress = socket.getLocalSocketAddress();
-        return ((InetSocketAddress) socketAddress).getPort();
+        if (socket != null) {
+            SocketAddress socketAddress = socket.getLocalSocketAddress();
+            return ((InetSocketAddress) socketAddress).getPort();
+        }
+
+        return -1;
     }
 }

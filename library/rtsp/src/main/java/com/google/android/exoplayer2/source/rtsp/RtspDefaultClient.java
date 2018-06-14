@@ -22,6 +22,7 @@ import com.google.android.exoplayer2.source.rtsp.core.MediaType;
 import com.google.android.exoplayer2.source.rtsp.core.Range;
 import com.google.android.exoplayer2.source.rtsp.core.Request;
 import com.google.android.exoplayer2.source.rtsp.core.Transport;
+import com.google.android.exoplayer2.source.rtsp.media.MediaTrack;
 
 public final class RtspDefaultClient extends Client {
 
@@ -30,8 +31,21 @@ public final class RtspDefaultClient extends Client {
 
     public static Client.Factory<RtspDefaultClient> factory() {
         return new Client.Factory<RtspDefaultClient>() {
+            private @Flags int flags;
+            private @NatMethod int natMethod;
+
+            public Client.Factory<RtspDefaultClient> setFlags(@Flags int flags) {
+                this.flags = flags;
+                return this;
+            }
+
+            public Client.Factory<RtspDefaultClient> setNatMethod(@NatMethod int natMethod) {
+                this.natMethod = natMethod;
+                return this;
+            }
+
             public RtspDefaultClient create(Client.Builder builder) {
-                return new RtspDefaultClient(builder);
+                return new RtspDefaultClient(builder.setFlags(flags).setNatMethod(natMethod));
             }
         };
     }
@@ -48,7 +62,7 @@ public final class RtspDefaultClient extends Client {
 
     @Override
     protected void sendOptionsRequest() {
-        Request.Builder builder = new Request.Builder().options().url("*");
+        Request.Builder builder = new Request.Builder().options().url(session.uri().toString());
         builder.header(Header.CSeq, session.nexCSeq());
         builder.header(Header.UserAgent, USER_AGENT);
 
@@ -66,12 +80,24 @@ public final class RtspDefaultClient extends Client {
     }
 
     @Override
-    public void sendSetupRequest(String trackId, Transport transport, int localPort) {
-        Request.Builder builder = new Request.Builder().setup().url(trackId);
+    public void sendSetupRequest(MediaTrack track, int localPort) {
+        Request.Builder builder = new Request.Builder().setup().url(track.url());
         builder.header(Header.CSeq, session.nexCSeq());
         builder.header(Header.UserAgent, USER_AGENT);
 
-        builder.header(Header.Transport, transport + ";client_port=" + localPort);
+        Transport transport = track.format().transport();
+
+        if (isFlagSet(FLAG_ENABLE_RTCP_SUPPORT)) {
+            if (isFlagSet(FLAG_FORCE_RTCP_MUXED)) {
+                builder.header(Header.Transport, transport + ";client_port=" + localPort +
+                        "-" + localPort);
+            } else {
+                builder.header(Header.Transport, transport + ";client_port=" + localPort +
+                        "-" + (localPort + 1));
+            }
+        } else {
+            builder.header(Header.Transport, transport + ";client_port=" + localPort);
+        }
 
         dispatch(builder.build());
     }

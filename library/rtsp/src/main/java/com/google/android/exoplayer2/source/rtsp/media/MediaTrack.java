@@ -23,12 +23,14 @@ public final class MediaTrack {
             Pattern.CASE_INSENSITIVE);
 
     private final String url;
+    private final boolean muxed;
     private final String trackId;
     private final String language;
     private final MediaFormat format;
 
     MediaTrack(Builder builder) {
         this.url = builder.url;
+        this.muxed = builder.muxed;
         this.trackId = builder.trackId;
         this.language = builder.language;
         this.format = builder.format;
@@ -36,12 +38,13 @@ public final class MediaTrack {
 
     public String url() { return url; }
 
+    public boolean isMuxed() { return muxed; }
+
     public String trackId() { return trackId; }
 
     public String language() { return language; }
 
     public MediaFormat format() { return format; }
-
 
     @Override
     public boolean equals(Object obj) {
@@ -50,6 +53,7 @@ public final class MediaTrack {
 
     public static class Builder {
         String url;
+        boolean muxed;
         String trackId;
         String language;
         MediaFormat format;
@@ -63,6 +67,11 @@ public final class MediaTrack {
             }
 
             this.url = url;
+            return this;
+        }
+
+        public Builder muxed(boolean muxed) {
+            this.muxed = muxed;
             return this;
         }
 

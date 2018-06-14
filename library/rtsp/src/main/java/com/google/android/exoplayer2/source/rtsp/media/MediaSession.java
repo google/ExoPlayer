@@ -35,6 +35,10 @@ import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import static com.google.android.exoplayer2.source.rtsp.api.Client.FLAG_ENABLE_RTCP_SUPPORT;
+import static com.google.android.exoplayer2.source.rtsp.api.Client.FLAG_FORCE_RTCP_MUXED;
+import static com.google.android.exoplayer2.source.rtsp.api.Client.RTSP_NAT_DUMMY;
+
 public final class MediaSession implements VideoListener {
 
     public interface EventListener {
@@ -293,6 +297,18 @@ public final class MediaSession implements VideoListener {
         state = IDLE;
     }
 
+    public final boolean isRtcpSupported() {
+        return client.isFlagSet(FLAG_ENABLE_RTCP_SUPPORT);
+    }
+
+    public final boolean isRtcpMuxed() {
+        return client.isFlagSet(FLAG_FORCE_RTCP_MUXED);
+    }
+
+    public final boolean isNatRequired() {
+        return client.isNatSet(RTSP_NAT_DUMMY);
+    }
+
     public void prepareStreams(RtspSampleStreamWrapper... sampleStreamWrappers) {
         if (state == IDLE) {
             for (RtspSampleStreamWrapper sampleStreamWrapper : sampleStreamWrappers) {
@@ -310,12 +326,11 @@ public final class MediaSession implements VideoListener {
         }
     }
 
-
     public void continuePrepareStream(RtspSampleStreamWrapper sampleStreamWrapper) {
         MediaTrack track = sampleStreamWrapper.getMediaTrack();
         int localPort = sampleStreamWrapper.getLocalPort();
 
-        client.sendSetupRequest(track.url(), track.format().transport(), localPort);
+        client.sendSetupRequest(track, localPort);
     }
 
     public synchronized void configTransport(Transport transport) {

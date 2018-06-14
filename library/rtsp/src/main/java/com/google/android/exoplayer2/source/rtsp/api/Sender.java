@@ -23,6 +23,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.RejectedExecutionException;
 
 
 /* package */ final class Sender {
@@ -77,6 +78,8 @@ import java.util.concurrent.Executors;
 
                 } catch (IOException ex) {
                     eventListener.onSendFailure(message);
+
+                } catch (RejectedExecutionException ex) {
                 }
             }
         });

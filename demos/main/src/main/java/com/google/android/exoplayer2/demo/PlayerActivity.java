@@ -69,6 +69,7 @@ import com.google.android.exoplayer2.source.smoothstreaming.manifest.SsManifestP
 import com.google.android.exoplayer2.source.smoothstreaming.manifest.StreamKey;
 import com.google.android.exoplayer2.source.rtsp.RtspDefaultClient;
 import com.google.android.exoplayer2.source.rtsp.RtspMediaSource;
+import com.google.android.exoplayer2.source.rtsp.api.Client;
 import com.google.android.exoplayer2.trackselection.AdaptiveTrackSelection;
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
 import com.google.android.exoplayer2.trackselection.MappingTrackSelector.MappedTrackInfo;
@@ -466,7 +467,9 @@ public class PlayerActivity extends Activity
             .createMediaSource(uri);
       case C.TYPE_OTHER:
         if (uri.getScheme().equals("rtsp")) {
-          return new RtspMediaSource.Factory(RtspDefaultClient.factory())
+          return new RtspMediaSource.Factory(RtspDefaultClient.factory()
+                  .setFlags(Client.FLAG_ENABLE_RTCP_SUPPORT)
+                  .setNatMethod(Client.RTSP_NAT_DUMMY))
                   .createMediaSource(uri);
         } else {
           return new ExtractorMediaSource.Factory(mediaDataSourceFactory)

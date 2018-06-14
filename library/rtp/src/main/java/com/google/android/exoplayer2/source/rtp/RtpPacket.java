@@ -18,6 +18,7 @@ package com.google.android.exoplayer2.source.rtp;
 import android.support.annotation.Nullable;
 
 import com.google.android.exoplayer2.extractor.ExtractorInput;
+import com.google.android.exoplayer2.source.rtp.rtcp.RtcpPacket;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -65,6 +66,8 @@ public final class RtpPacket {
     /* MPEG payload-type constants */
     private static final int RTP_MPA_TYPE = 0x0E;     // MPEG-1 and MPEG-2 audio
     private static final int RTP_MPV_TYPE = 0x20;     // MPEG-1 and MPEG-2 video
+
+    private static final int RTP_PAYLOAD_MAX = 127;
 
     //Fields that compose the RTP header
     private int version;
@@ -146,7 +149,7 @@ public final class RtpPacket {
     public byte[] extension() { return hdrExtension; }
 
 
-    public byte[] toBytes() {
+    public byte[] getBytes() {
         // build the header
         int payloadLen = (payload == null) ? 0 : payload.length;
         int cscrLen = csrcCount * 4;
@@ -219,7 +222,16 @@ public final class RtpPacket {
         headLen += RTP_HDR_SIZE + csrcLen;
 
         boolean marker = ((packet[1] & 0x80) >> 7) == 1;
+
+        // Read and check the payload type as describe on RFC 5761 - Multiplexing RTP Data and
+        // Control Packets on a Single Port according to Section 4
         int payloadType = packet[1] & 0x7F;
+        if ((payloadType >= RtcpPacket.RTCP_PAYLOAD_MIN &&
+                payloadType <= RtcpPacket.RTCP_PAYLOAD_MAX) ||
+                (payloadType+RTP_PAYLOAD_MAX >= RtcpPacket.RTCP_PAYLOAD_MIN &&
+                        payloadType+RTP_PAYLOAD_MAX <= RtcpPacket.RTCP_PAYLOAD_MAX)) {
+            return null;
+        }
 
         /* profile-based skip: adopted from vlc 0.8.6 code */
         if ((RtpPacket.RTP_MPA_TYPE == payloadType) || (RtpPacket.RTP_MPV_TYPE == payloadType)) {
@@ -309,7 +321,15 @@ public final class RtpPacket {
         csrcLen = CSRC_SIZE * csrcCount;
         headLen += RTP_HDR_SIZE + csrcLen;
 
+        // Read and check the payload type as describe on RFC 5761 - Multiplexing RTP Data and
+        // Control Packets on a Single Port
         int payloadType = packet[1] & 0x7F;
+        if ((payloadType >= RtcpPacket.RTCP_PAYLOAD_MIN &&
+                payloadType <= RtcpPacket.RTCP_PAYLOAD_MAX) ||
+                (payloadType+RTP_PAYLOAD_MAX >= RtcpPacket.RTCP_PAYLOAD_MIN &&
+                        payloadType+RTP_PAYLOAD_MAX <= RtcpPacket.RTCP_PAYLOAD_MAX)) {
+            return 0;
+        }
 
         /* profile-based skip: adopted from vlc 0.8.6 code */
         if ((RtpPacket.RTP_MPA_TYPE == payloadType) || (RtpPacket.RTP_MPV_TYPE == payloadType)) {

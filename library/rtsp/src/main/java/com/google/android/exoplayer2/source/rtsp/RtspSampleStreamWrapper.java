@@ -40,6 +40,7 @@ import com.google.android.exoplayer2.source.rtp.extractor.DefaultRtpExtractor;
 import com.google.android.exoplayer2.source.rtp.extractor.RtpExtractorInput;
 import com.google.android.exoplayer2.source.rtp.extractor.RtpMp2tExtractor;
 import com.google.android.exoplayer2.source.rtp.format.RtpPayloadFormat;
+import com.google.android.exoplayer2.source.rtp.rtcp.RtcpRrPacket;
 import com.google.android.exoplayer2.source.rtp.upstream.RtpDataSource;
 import com.google.android.exoplayer2.source.rtp.upstream.RtpDataSourceFactory;
 import com.google.android.exoplayer2.source.rtsp.core.Transport;
@@ -66,6 +67,8 @@ import java.net.SocketTimeoutException;
 import java.util.Arrays;
 
 import static com.google.android.exoplayer2.extractor.ts.DefaultTsPayloadReaderFactory.FLAG_ALLOW_NON_IDR_KEYFRAMES;
+import static com.google.android.exoplayer2.source.rtp.upstream.RtpDataSource.FLAG_ENABLE_RTCP_FEEDBACK;
+import static com.google.android.exoplayer2.source.rtp.upstream.RtpDataSource.FLAG_FORCE_RTCP_MULTIPLEXING;
 
 public final class RtspSampleStreamWrapper implements
         Loader.Callback<RtspSampleStreamWrapper.MediaStreamLoadable>,
@@ -174,17 +177,32 @@ public final class RtspSampleStreamWrapper implements
             return;
         }
 
-        Transport transport = track.format().transport();
+        if (session.isNatRequired()) {
+            final int NUM_TIMES_TO_SEND = 2;
+            Transport transport = track.format().transport();
 
-        if (transport.serverPort() != null && transport.serverPort().length > 0) {
-            if (Transport.RTP_PROTOCOL.equals(transport.transportProtocol())) {
-                sendRtpPunchPacket((transport.source() != null) ? transport.source() :
-                        (transport.destination() != null) ? transport.destination() :
-                                Uri.parse(track.url()).getHost(), Integer.parseInt(transport.serverPort()[0]));
-            } else {
-                sendPunchPacket((transport.source() != null) ? transport.source() :
-                        (transport.destination() != null) ? transport.destination() :
-                                Uri.parse(track.url()).getHost(), Integer.parseInt(transport.serverPort()[0]));
+            if (transport.serverPort() != null && transport.serverPort().length > 0) {
+                int port = Integer.parseInt(transport.serverPort()[0]);
+                for (int count = 0; count < NUM_TIMES_TO_SEND; count++) {
+                    if (Transport.RTP_PROTOCOL.equals(transport.transportProtocol())) {
+                        sendRtpPunchPacket((transport.source() != null) ? transport.source() :
+                                (transport.destination() != null) ? transport.destination() :
+                                        Uri.parse(track.url()).getHost(), port);
+
+                        if (transport.serverPort().length == 2 && session.isRtcpSupported() &&
+                                !session.isRtcpMuxed()) {
+                            int rtcpPort = Integer.parseInt(transport.serverPort()[1]);
+                            sendRtcpPunchPacket((transport.source() != null) ? transport.source() :
+                                    (transport.destination() != null) ? transport.destination() :
+                                            Uri.parse(track.url()).getHost(), rtcpPort);
+                        }
+
+                    } else {
+                        sendPunchPacket((transport.source() != null) ? transport.source() :
+                                (transport.destination() != null) ? transport.destination() :
+                                        Uri.parse(track.url()).getHost(), port);
+                    }
+                }
             }
         }
 
@@ -193,8 +211,7 @@ public final class RtspSampleStreamWrapper implements
 
     private void sendPunchPacket(String host, int port) {
         try {
-
-            byte[] punchMessage = "Hello".getBytes();
+            byte[] punchMessage = "Dummy".getBytes();
             loadable.dataSource.writeTo(punchMessage, 0, punchMessage.length,
                     InetAddress.getByName(host), port);
 
@@ -205,10 +222,17 @@ public final class RtspSampleStreamWrapper implements
 
     private void sendRtpPunchPacket(String host, int port) {
         try {
+            ((RtpDataSource)loadable.dataSource).writeTo(new RtpPacket.Builder().build(),
+                    InetAddress.getByName(host), port);
 
-            byte[] punchMessage = new RtpPacket.Builder().build().toBytes();
+        } catch (IOException ex) {
 
-            loadable.dataSource.writeTo(punchMessage, 0, punchMessage.length,
+        }
+    }
+
+    private void sendRtcpPunchPacket(String host, int port) {
+        try {
+            ((RtpDataSource)loadable.dataSource).writeTo(new RtcpRrPacket.Builder().build(),
                     InetAddress.getByName(host), port);
 
         } catch (IOException ex) {
@@ -638,6 +662,11 @@ public final class RtspSampleStreamWrapper implements
                     Transport transport = format.transport();
 
                     if (Transport.RTP_PROTOCOL.equals(transport.transportProtocol())) {
+
+                        if (transport.ssrc() != null) {
+                            ((RtpDataSource) dataSource).setSsrc(Long.parseLong(transport.ssrc(), 16));
+                        }
+
                         extractorInput = new RtpExtractorInput((RtpDataSource)dataSource);
 
                         if (MimeTypes.VIDEO_MP2T.equals(format.format().sampleMimeType())) {
@@ -740,19 +769,27 @@ public final class RtspSampleStreamWrapper implements
 
         private void buildAndOpenDataSource() {
             try {
-
                 MediaFormat format = track.format();
                 Transport transport = format.transport();
                 String urlScheme = "udp";
 
                 if (Transport.RTP_PROTOCOL.equals(transport.transportProtocol())) {
+                    @RtpDataSource.Flags int flags = 0;
                     RtpPayloadFormat payloadFormat = format.format();
-                    dataSource = (RtpDataSource) new RtpDataSourceFactory(payloadFormat.clockrate())
+                    if (session.isRtcpSupported()) {
+                        flags |= FLAG_ENABLE_RTCP_FEEDBACK;
+                    }
+
+                    if (track.isMuxed()) {
+                        flags |= FLAG_FORCE_RTCP_MULTIPLEXING;
+                    }
+
+                    dataSource = new RtpDataSourceFactory(payloadFormat.clockrate(), flags)
                             .createDataSource();
                     urlScheme = "rtp";
 
                 } else {
-                    dataSource = (UdpDataSinkSource) new UdpDataSinkSourceFactory(MAX_UDP_PACKET_SIZE)
+                    dataSource = new UdpDataSinkSourceFactory(MAX_UDP_PACKET_SIZE)
                             .createDataSource();
                 }
 
@@ -774,10 +811,8 @@ public final class RtspSampleStreamWrapper implements
             try {
                 int result = Extractor.RESULT_CONTINUE;
                 while (result == Extractor.RESULT_CONTINUE && !loadCanceled) {
-
                     while (result == Extractor.RESULT_CONTINUE && !loadCanceled && !pendingReset) {
                         try {
-
                             result = extractor.read(extractorInput, null);
 
                         } catch (UdpDataSource.UdpDataSourceException e) {

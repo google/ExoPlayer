@@ -40,6 +40,9 @@ public final class Transport {
     private static final Pattern regexDestination =
             Pattern.compile("destination=(\\w|\\.\\w)+", Pattern.CASE_INSENSITIVE);
 
+    private static final Pattern regexSsrc =
+            Pattern.compile("ssrc=([0-9|a-f|A-F]{8})", Pattern.CASE_INSENSITIVE);
+
     public static final Transport SPEC_MP2T = Transport.parse("MP2T/H2221");
     public static final Transport SPEC_RAW = Transport.parse("RAW/RAW");
     public static final Transport SPEC_RTP = Transport.parse("RTP/AVP");
@@ -149,6 +152,8 @@ public final class Transport {
     private String source;
     private String destination;
 
+    private String ssrc;
+
     Transport(Transport transport) {
         this.deliveryType = transport.deliveryType;
         this.transportProtocol = transport.transportProtocol;
@@ -158,11 +163,12 @@ public final class Transport {
         this.serverPort = transport.serverPort;
         this.source = transport.source;
         this.destination = transport.destination;
+        this.ssrc = transport.ssrc;
     }
 
     Transport(@TransportProtocol String transportProtocol, @Profile String profile,
               @LowerTransport String lowerTransport, String[] clientPort, String[] serverPort,
-              String source, String destination) {
+              String source, String destination, String ssrc) {
         this.deliveryType = unicast;
         this.transportProtocol = transportProtocol;
         this.profile = profile;
@@ -171,6 +177,7 @@ public final class Transport {
         this.serverPort = serverPort;
         this.source = source;
         this.destination = destination;
+        this.ssrc = ssrc;
     }
 
     public String transportProtocol() {
@@ -205,6 +212,10 @@ public final class Transport {
         return destination;
     }
 
+    public String ssrc() {
+        return ssrc;
+    }
+
     @Nullable
     public static Transport parse(String mediaProtocol) {
         return parse(mediaProtocol, null);
@@ -214,6 +225,7 @@ public final class Transport {
     public static Transport parse(String mediaProtocol, String mediaFormat) {
         String source = null;
         String destination = null;
+        String ssrc = null;
         String[] clientPort = null;
         String[] serverPort = null;
         @Profile String profile = RAW_PROFILE;
@@ -282,8 +294,16 @@ public final class Transport {
                 }
             }
 
+            if (mediaProtocol.contains("ssrc")) {
+                Matcher matcher = regexSsrc.matcher(mediaProtocol);
+
+                if (matcher.find()) {
+                    ssrc = matcher.group(1);
+                }
+            }
+
             return new Transport(transportProtocol, profile, lowerTransport,
-                    clientPort, serverPort, source, destination);
+                    clientPort, serverPort, source, destination, ssrc);
         }
         catch (Exception ex) {
 
@@ -329,6 +349,10 @@ public final class Transport {
             if (serverPort.length == 2) {
                 str.append('-').append(serverPort[1]);
             }
+        }
+
+        if (ssrc != null) {
+            str.append(";ssrc=").append(ssrc);
         }
 
         return str.toString();
