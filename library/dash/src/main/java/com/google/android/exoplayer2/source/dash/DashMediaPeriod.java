@@ -16,6 +16,7 @@
 package com.google.android.exoplayer2.source.dash;
 
 import android.support.annotation.IntDef;
+import android.support.annotation.Nullable;
 import android.util.Pair;
 import android.util.SparseArray;
 import android.util.SparseIntArray;
@@ -72,7 +73,7 @@ import java.util.List;
   private final IdentityHashMap<ChunkSampleStream<DashChunkSource>, PlayerTrackEmsgHandler>
       trackEmsgHandlerBySampleStream;
 
-  private Callback callback;
+  private @Nullable Callback callback;
   private ChunkSampleStream<DashChunkSource>[] sampleStreams;
   private EventSampleStream[] eventSampleStreams;
   private SequenceableLoader compositeSequenceableLoader;
@@ -150,6 +151,7 @@ import java.util.List;
     for (ChunkSampleStream<DashChunkSource> sampleStream : sampleStreams) {
       sampleStream.release(this);
     }
+    callback = null;
     eventDispatcher.mediaPeriodReleased();
   }
 

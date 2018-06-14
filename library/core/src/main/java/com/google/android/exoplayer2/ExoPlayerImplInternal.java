@@ -162,7 +162,7 @@ import java.util.Collections;
     enabledRenderers = new Renderer[0];
     window = new Timeline.Window();
     period = new Timeline.Period();
-    trackSelector.init(this);
+    trackSelector.init(/* listener= */ this, /* bandwidthMeter= */ null);
 
     // Note: The documentation for Process.THREAD_PRIORITY_AUDIO that states "Applications can
     // not normally change to this priority" is incorrect.
@@ -873,6 +873,9 @@ import java.util.Collections;
   }
 
   private void deliverMessage(PlayerMessage message) throws ExoPlaybackException {
+    if (message.isCanceled()) {
+      return;
+    }
     try {
       message.getTarget().handleMessage(message.getType(), message.getPayload());
     } finally {
@@ -964,7 +967,7 @@ import java.util.Collections;
         && nextInfo.resolvedPeriodTimeUs > oldPeriodPositionUs
         && nextInfo.resolvedPeriodTimeUs <= newPeriodPositionUs) {
       sendMessageToTarget(nextInfo.message);
-      if (nextInfo.message.getDeleteAfterDelivery()) {
+      if (nextInfo.message.getDeleteAfterDelivery() || nextInfo.message.isCanceled()) {
         pendingMessages.remove(nextPendingMessageIndex);
       } else {
         nextPendingMessageIndex++;
@@ -1559,6 +1562,7 @@ import java.util.Collections;
     }
   }
 
+  @SuppressWarnings("ParameterNotNullable")
   private void updatePlayingPeriodRenderers(@Nullable MediaPeriodHolder oldPlayingPeriodHolder)
       throws ExoPlaybackException {
     MediaPeriodHolder newPlayingPeriodHolder = queue.getPlayingPeriod();

@@ -2,12 +2,67 @@
 
 ### dev-v2 (not yet released) ###
 
+* Allow apps to pass a `CacheKeyFactory` for setting custom cache keys when
+  creating a `CacheDataSource`.
+* Turned on Java 8 compiler support for the ExoPlayer library. Apps that depend
+  on ExoPlayer via its source code rather than an AAR may need to add
+  `compileOptions { targetCompatibility JavaVersion.VERSION_1_8 }` to their
+  gradle settings to ensure bytecode compatibility.
+* Add support for lazy preparation of playlist media sources in
+  `ConcatenatingMediaSource`
+  ([#3972](https://github.com/google/ExoPlayer/issues/3972)).
+* Pass `BandwidthMeter` to `TrackSelection.Factory` which can be used to obtain
+  bandwidth estimates in the future. Always null at the moment.
+* HLS:
+  * Allow injection of custom playlist trackers.
+* Add method to `BandwidthMeter` to return the `TransferListener` used to gather
+  bandwidth information.
+
+### 2.8.2 ###
+
+* IMA: Don't advertise support for video/mpeg ad media, as we don't have an
+  extractor for this ([#4297](https://github.com/google/ExoPlayer/issues/4297)).
+* Mitigate memory leaks when `MediaSource` loads are slow to cancel
+  ([#4249](https://github.com/google/ExoPlayer/issues/4249)).
+* Fix inconsistent `Player.EventListener` invocations for recursive player state
+  changes ([#4276](https://github.com/google/ExoPlayer/issues/4276)).
+* Fix `MediaCodec.native_setSurface` crash on Moto C
+  ([#4315](https://github.com/google/ExoPlayer/issues/4315)).
+* Set `METADATA_KEY_TITLE` on media descriptions
+  ((#4292)[https://github.com/google/ExoPlayer/issues/4292]).
+
+### 2.8.1 ###
+
+* HLS:
+  * Fix playback of livestreams with EXT-X-PROGRAM-DATE-TIME tags
+    ([#4239](https://github.com/google/ExoPlayer/issues/4239)).
+  * Fix playback of clipped streams starting from non-keyframe positions
+    ([#4241](https://github.com/google/ExoPlayer/issues/4241)).
 * OkHttp extension: Fix to correctly include response headers in thrown
   `InvalidResponseCodeException`s.
+* Add possibility to cancel `PlayerMessage`s.
 * UI components:
   * Add `PlayerView.setKeepContentOnPlayerReset` to keep the currently displayed
     video frame or media artwork visible when the player is reset
     ([#2843](https://github.com/google/ExoPlayer/issues/2843)).
+* Fix crash when switching surface on Moto E(4)
+  ([#4134](https://github.com/google/ExoPlayer/issues/4134)).
+* Fix a bug that could cause event listeners to be called with inconsistent
+  information if an event listener interacted with the player
+  ([#4262](https://github.com/google/ExoPlayer/issues/4262)).
+* Audio:
+  * Fix extraction of PCM in MP4/MOV
+    ([#4228](https://github.com/google/ExoPlayer/issues/4228)).
+  * FLAC: Supports seeking for FLAC files without SEEKTABLE
+    ([#1808](https://github.com/google/ExoPlayer/issues/1808)).
+* Captions:
+  * TTML:
+    * Fix a styling issue when there are multiple regions displayed at the same
+      time that can make text size of each region much smaller than defined.
+    * Fix an issue when the caption line has no text (empty line or only line
+      break), and the line's background is still displayed.
+    * Support TTML font size using % correctly (as percentage of document cell
+      resolution).
 
 ### 2.8.0 ###
 
@@ -84,7 +139,7 @@
   * Allow multiple listeners for `DefaultDrmSessionManager`.
   * Pass `DrmSessionManager` to `ExoPlayerFactory` instead of `RendererFactory`.
   * Change minimum API requirement for CBC and pattern encryption from 24 to 25
-    ([#4022][https://github.com/google/ExoPlayer/issues/4022]).
+    ([#4022](https://github.com/google/ExoPlayer/issues/4022)).
   * Fix handling of 307/308 redirects when making license requests
     ([#4108](https://github.com/google/ExoPlayer/issues/4108)).
 * HLS:

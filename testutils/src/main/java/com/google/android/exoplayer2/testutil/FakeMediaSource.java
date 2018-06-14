@@ -159,6 +159,11 @@ public class FakeMediaSource extends BaseMediaSource {
     }
   }
 
+  /** Returns whether the source is currently prepared. */
+  public boolean isPrepared() {
+    return preparedSource;
+  }
+
   /**
    * Assert that the source and all periods have been released.
    */

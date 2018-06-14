@@ -102,6 +102,7 @@ import java.util.Arrays;
   private final Runnable maybeFinishPrepareRunnable;
   private final Runnable onTracksEndedRunnable;
   private final Handler handler;
+  private final ArrayList<HlsSampleStream> hlsSampleStreams;
 
   private SampleQueue[] sampleQueues;
   private int[] sampleQueueTrackIds;
@@ -166,6 +167,7 @@ import java.util.Arrays;
     sampleQueueIsAudioVideoFlags = new boolean[0];
     sampleQueuesEnabledStates = new boolean[0];
     mediaChunks = new ArrayList<>();
+    hlsSampleStreams = new ArrayList<>();
     maybeFinishPrepareRunnable =
         new Runnable() {
           @Override
@@ -219,9 +221,6 @@ import java.util.Arrays;
   }
 
   public int bindSampleQueueToSampleStream(int trackGroupIndex) {
-    if (trackGroupToSampleQueueIndex == null) {
-      return SAMPLE_QUEUE_INDEX_PENDING;
-    }
     int sampleQueueIndex = trackGroupToSampleQueueIndex[trackGroupIndex];
     if (sampleQueueIndex == C.INDEX_UNSET) {
       return optionalTrackGroups.indexOf(trackGroups.get(trackGroupIndex)) == C.INDEX_UNSET
@@ -295,6 +294,9 @@ import java.util.Arrays;
         }
         streams[i] = new HlsSampleStream(this, trackGroupIndex);
         streamResetFlags[i] = true;
+        if (trackGroupToSampleQueueIndex != null) {
+          ((HlsSampleStream) streams[i]).bindSampleQueue();
+        }
         // If there's still a chance of avoiding a seek, try and seek within the sample queue.
         if (sampleQueuesBuilt && !seekRequired) {
           SampleQueue sampleQueue = sampleQueues[trackGroupToSampleQueueIndex[trackGroupIndex]];
@@ -360,6 +362,7 @@ import java.util.Arrays;
       }
     }
 
+    updateSampleStreams(streams);
     seenFirstTrackSelection = true;
     return seekRequired;
   }
@@ -411,6 +414,7 @@ import java.util.Arrays;
     loader.release(this);
     handler.removeCallbacksAndMessages(null);
     released = true;
+    hlsSampleStreams.clear();
   }
 
   @Override
@@ -750,6 +754,15 @@ import java.util.Arrays;
 
   // Internal methods.
 
+  private void updateSampleStreams(SampleStream[] streams) {
+    hlsSampleStreams.clear();
+    for (SampleStream stream : streams) {
+      if (stream != null) {
+        hlsSampleStreams.add((HlsSampleStream) stream);
+      }
+    }
+  }
+
   private boolean finishedReadingChunk(HlsMediaChunk chunk) {
     int chunkUid = chunk.uid;
     int sampleQueueCount = sampleQueues.length;
@@ -806,6 +819,9 @@ import java.util.Arrays;
           break;
         }
       }
+    }
+    for (HlsSampleStream sampleStream : hlsSampleStreams) {
+      sampleStream.bindSampleQueue();
     }
   }
 

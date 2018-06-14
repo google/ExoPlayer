@@ -51,6 +51,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.atomic.AtomicReference;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
@@ -1813,6 +1814,88 @@ public final class ExoPlayerTest {
   }
 
   @Test
+  public void testCancelMessageBeforeDelivery() throws Exception {
+    Timeline timeline = new FakeTimeline(/* windowCount= */ 1);
+    final PositionGrabbingMessageTarget target = new PositionGrabbingMessageTarget();
+    final AtomicReference<PlayerMessage> message = new AtomicReference<>();
+    ActionSchedule actionSchedule =
+        new ActionSchedule.Builder("testCancelMessage")
+            .pause()
+            .waitForPlaybackState(Player.STATE_BUFFERING)
+            .executeRunnable(
+                new PlayerRunnable() {
+                  @Override
+                  public void run(SimpleExoPlayer player) {
+                    message.set(
+                        player.createMessage(target).setPosition(/* positionMs= */ 50).send());
+                  }
+                })
+            // Play a bit to ensure message arrived in internal player.
+            .playUntilPosition(/* windowIndex= */ 0, /* positionMs= */ 30)
+            .executeRunnable(
+                new Runnable() {
+                  @Override
+                  public void run() {
+                    message.get().cancel();
+                  }
+                })
+            .play()
+            .build();
+    new Builder()
+        .setTimeline(timeline)
+        .setActionSchedule(actionSchedule)
+        .build()
+        .start()
+        .blockUntilEnded(TIMEOUT_MS);
+    assertThat(message.get().isCanceled()).isTrue();
+    assertThat(target.messageCount).isEqualTo(0);
+  }
+
+  @Test
+  public void testCancelRepeatedMessageAfterDelivery() throws Exception {
+    Timeline timeline = new FakeTimeline(/* windowCount= */ 1);
+    final PositionGrabbingMessageTarget target = new PositionGrabbingMessageTarget();
+    final AtomicReference<PlayerMessage> message = new AtomicReference<>();
+    ActionSchedule actionSchedule =
+        new ActionSchedule.Builder("testCancelMessage")
+            .pause()
+            .waitForPlaybackState(Player.STATE_BUFFERING)
+            .executeRunnable(
+                new PlayerRunnable() {
+                  @Override
+                  public void run(SimpleExoPlayer player) {
+                    message.set(
+                        player
+                            .createMessage(target)
+                            .setPosition(/* positionMs= */ 50)
+                            .setDeleteAfterDelivery(/* deleteAfterDelivery= */ false)
+                            .send());
+                  }
+                })
+            // Play until the message has been delivered.
+            .playUntilPosition(/* windowIndex= */ 0, /* positionMs= */ 51)
+            // Seek back, cancel the message, and play past the same position again.
+            .seek(/* positionMs= */ 0)
+            .executeRunnable(
+                new Runnable() {
+                  @Override
+                  public void run() {
+                    message.get().cancel();
+                  }
+                })
+            .play()
+            .build();
+    new Builder()
+        .setTimeline(timeline)
+        .setActionSchedule(actionSchedule)
+        .build()
+        .start()
+        .blockUntilEnded(TIMEOUT_MS);
+    assertThat(message.get().isCanceled()).isTrue();
+    assertThat(target.messageCount).isEqualTo(1);
+  }
+
+  @Test
   public void testSetAndSwitchSurface() throws Exception {
     final List<Integer> rendererMessages = new ArrayList<>();
     Renderer videoRenderer =
@@ -1897,6 +1980,105 @@ public final class ExoPlayerTest {
         .inOrder();
   }
 
+  @Test
+  public void testRecursivePlayerChangesReportConsistentValuesForAllListeners() throws Exception {
+    // We add two listeners to the player. The first stops the player as soon as it's ready and both
+    // record the state change events they receive.
+    final AtomicReference<Player> playerReference = new AtomicReference<>();
+    final List<Integer> eventListener1States = new ArrayList<>();
+    final List<Integer> eventListener2States = new ArrayList<>();
+    final EventListener eventListener1 =
+        new DefaultEventListener() {
+          @Override
+          public void onPlayerStateChanged(boolean playWhenReady, int playbackState) {
+            eventListener1States.add(playbackState);
+            if (playbackState == Player.STATE_READY) {
+              playerReference.get().stop(/* reset= */ true);
+            }
+          }
+        };
+    final EventListener eventListener2 =
+        new DefaultEventListener() {
+          @Override
+          public void onPlayerStateChanged(boolean playWhenReady, int playbackState) {
+            eventListener2States.add(playbackState);
+          }
+        };
+    ActionSchedule actionSchedule =
+        new ActionSchedule.Builder("testRecursivePlayerChanges")
+            .executeRunnable(
+                new PlayerRunnable() {
+                  @Override
+                  public void run(SimpleExoPlayer player) {
+                    playerReference.set(player);
+                    player.addListener(eventListener1);
+                    player.addListener(eventListener2);
+                  }
+                })
+            .build();
+    new ExoPlayerTestRunner.Builder()
+        .setActionSchedule(actionSchedule)
+        .build()
+        .start()
+        .blockUntilEnded(TIMEOUT_MS);
+
+    assertThat(eventListener1States)
+        .containsExactly(Player.STATE_BUFFERING, Player.STATE_READY, Player.STATE_IDLE)
+        .inOrder();
+    assertThat(eventListener2States)
+        .containsExactly(Player.STATE_BUFFERING, Player.STATE_READY, Player.STATE_IDLE)
+        .inOrder();
+  }
+
+  @Test
+  public void testRecursivePlayerChangesAreReportedInCorrectOrder() throws Exception {
+    // The listener stops the player as soon as it's ready (which should report a timeline and state
+    // change) and sets playWhenReady to false when the timeline callback is received.
+    final AtomicReference<Player> playerReference = new AtomicReference<>();
+    final List<Boolean> eventListenerPlayWhenReady = new ArrayList<>();
+    final List<Integer> eventListenerStates = new ArrayList<>();
+    final EventListener eventListener =
+        new DefaultEventListener() {
+          @Override
+          public void onTimelineChanged(Timeline timeline, Object manifest, int reason) {
+            if (timeline.isEmpty()) {
+              playerReference.get().setPlayWhenReady(/* playWhenReady= */ false);
+            }
+          }
+
+          @Override
+          public void onPlayerStateChanged(boolean playWhenReady, int playbackState) {
+            eventListenerPlayWhenReady.add(playWhenReady);
+            eventListenerStates.add(playbackState);
+            if (playbackState == Player.STATE_READY) {
+              playerReference.get().stop(/* reset= */ true);
+            }
+          }
+        };
+    ActionSchedule actionSchedule =
+        new ActionSchedule.Builder("testRecursivePlayerChanges")
+            .executeRunnable(
+                new PlayerRunnable() {
+                  @Override
+                  public void run(SimpleExoPlayer player) {
+                    playerReference.set(player);
+                    player.addListener(eventListener);
+                  }
+                })
+            .build();
+    new ExoPlayerTestRunner.Builder()
+        .setActionSchedule(actionSchedule)
+        .build()
+        .start()
+        .blockUntilEnded(TIMEOUT_MS);
+
+    assertThat(eventListenerStates)
+        .containsExactly(
+            Player.STATE_BUFFERING, Player.STATE_READY, Player.STATE_IDLE, Player.STATE_IDLE)
+        .inOrder();
+    assertThat(eventListenerPlayWhenReady).containsExactly(true, true, true, false).inOrder();
+  }
+
   // Internal methods.
 
   private static ActionSchedule.Builder addSurfaceSwitch(ActionSchedule.Builder builder) {
@@ -1934,8 +2116,10 @@ public final class ExoPlayerTest {
 
     @Override
     public void handleMessage(SimpleExoPlayer player, int messageType, Object message) {
-      windowIndex = player.getCurrentWindowIndex();
-      positionMs = player.getCurrentPosition();
+      if (player != null) {
+        windowIndex = player.getCurrentWindowIndex();
+        positionMs = player.getCurrentPosition();
+      }
       messageCount++;
     }
   }

@@ -67,7 +67,7 @@ public final class DataSpec {
   /**
    * Body for a POST request, null otherwise.
    */
-  public final byte[] postBody;
+  public final @Nullable byte[] postBody;
   /**
    * The absolute position of the data in the full stream.
    */
@@ -87,12 +87,12 @@ public final class DataSpec {
    * A key that uniquely identifies the original stream. Used for cache indexing. May be null if the
    * {@link DataSpec} is not intended to be used in conjunction with a cache.
    */
-  @Nullable public final String key;
+  public final @Nullable String key;
   /**
    * Request flags. Currently {@link #FLAG_ALLOW_GZIP} and
    * {@link #FLAG_ALLOW_CACHING_UNKNOWN_LENGTH} are the only supported flags.
    */
-  @Flags public final int flags;
+  public final @Flags int flags;
 
   /**
    * Construct a {@link DataSpec} for the given uri and with {@link #key} set to null.
@@ -134,7 +134,8 @@ public final class DataSpec {
    * @param key {@link #key}.
    * @param flags {@link #flags}.
    */
-  public DataSpec(Uri uri, long absoluteStreamPosition, long length, String key, @Flags int flags) {
+  public DataSpec(
+      Uri uri, long absoluteStreamPosition, long length, @Nullable String key, @Flags int flags) {
     this(uri, absoluteStreamPosition, absoluteStreamPosition, length, key, flags);
   }
 
@@ -149,7 +150,12 @@ public final class DataSpec {
    * @param key {@link #key}.
    * @param flags {@link #flags}.
    */
-  public DataSpec(Uri uri, long absoluteStreamPosition, long position, long length, String key,
+  public DataSpec(
+      Uri uri,
+      long absoluteStreamPosition,
+      long position,
+      long length,
+      @Nullable String key,
       @Flags int flags) {
     this(uri, null, absoluteStreamPosition, position, length, key, flags);
   }
@@ -168,7 +174,7 @@ public final class DataSpec {
    */
   public DataSpec(
       Uri uri,
-      byte[] postBody,
+      @Nullable byte[] postBody,
       long absoluteStreamPosition,
       long position,
       long length,
@@ -228,4 +234,13 @@ public final class DataSpec {
     }
   }
 
+  /**
+   * Returns a copy of this {@link DataSpec} with the specified Uri.
+   *
+   * @param uri The new source {@link Uri}.
+   * @return The copied {@link DataSpec} with the specified Uri.
+   */
+  public DataSpec withUri(Uri uri) {
+    return new DataSpec(uri, postBody, absoluteStreamPosition, position, length, key, flags);
+  }
 }

@@ -18,10 +18,22 @@ android {
     compileSdkVersion project.ext.compileSdkVersion
     buildToolsVersion project.ext.buildToolsVersion
 
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+
     defaultConfig {
         minSdkVersion project.ext.minSdkVersion
         targetSdkVersion project.ext.targetSdkVersion
         consumerProguardFiles 'proguard-rules.txt'
+
+        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+
+        // The following argument makes the Android Test Orchestrator run its
+        // "pm clear" command after each test invocation. This command ensures
+        // that the app's state is completely cleared between tests.
+        testInstrumentationRunnerArguments clearPackageData: 'true'
     }
 
     // Workaround to prevent circular dependency on project :testutils.
@@ -47,10 +59,13 @@ android {
 dependencies {
     implementation 'com.android.support:support-annotations:' + supportLibraryVersion
     compileOnly 'org.checkerframework:checker-qual:' + checkerframeworkVersion
+    compileOnly 'org.checkerframework:checker-compat-qual:' + checkerframeworkVersion
     androidTestImplementation 'com.google.dexmaker:dexmaker:' + dexmakerVersion
     androidTestImplementation 'com.google.dexmaker:dexmaker-mockito:' + dexmakerVersion
     androidTestImplementation 'com.google.truth:truth:' + truthVersion
     androidTestImplementation 'org.mockito:mockito-core:' + mockitoVersion
+    androidTestImplementation 'com.android.support.test:runner:' + testRunnerVersion
+    androidTestUtil 'com.android.support.test:orchestrator:' + testRunnerVersion
     testImplementation 'com.google.truth:truth:' + truthVersion
     testImplementation 'junit:junit:' + junitVersion
     testImplementation 'org.mockito:mockito-core:' + mockitoVersion

@@ -18,6 +18,11 @@ android {
     compileSdkVersion project.ext.compileSdkVersion
     buildToolsVersion project.ext.buildToolsVersion
 
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+
     defaultConfig {
         minSdkVersion project.ext.minSdkVersion
         targetSdkVersion project.ext.targetSdkVersion
@@ -27,14 +32,14 @@ android {
 
 dependencies {
     // This dependency is necessary to force the supportLibraryVersion of
-    // com.android.support:support-v4 to be used. Else an older version (25.2.0)
-    // is included via:
-    // com.google.android.gms:play-services-ads:12.0.0
-    // |-- com.google.android.gms:play-services-ads-lite:12.0.0
-    //   |-- com.google.android.gms:play-services-basement:12.0.0
+    // com.android.support:support-v4 to be used. Else an older version is
+    // included via:
+    // com.google.android.gms:play-services-ads:15.0.1
+    // |-- com.google.android.gms:play-services-ads-identifier:15.0.1
+    //   |-- com.google.android.gms:play-services-basement:15.0.1
     //     |-- com.android.support:support-v4:26.1.0
     api 'com.android.support:support-v4:' + supportLibraryVersion
-    api 'com.google.ads.interactivemedia.v3:interactivemedia:3.8.5'
+    api 'com.google.ads.interactivemedia.v3:interactivemedia:3.8.7'
     implementation project(modulePrefix + 'library-core')
     implementation 'com.google.android.gms:play-services-ads:' + playServicesLibraryVersion
 }

@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.source.hls;
 
+import android.support.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.SeekParameters;
@@ -57,7 +58,7 @@ public final class HlsMediaPeriod implements MediaPeriod, HlsSampleStreamWrapper
   private final CompositeSequenceableLoaderFactory compositeSequenceableLoaderFactory;
   private final boolean allowChunklessPreparation;
 
-  private Callback callback;
+  private @Nullable Callback callback;
   private int pendingPrepareCount;
   private TrackGroupArray trackGroups;
   private HlsSampleStreamWrapper[] sampleStreamWrappers;
@@ -96,6 +97,7 @@ public final class HlsMediaPeriod implements MediaPeriod, HlsSampleStreamWrapper
     for (HlsSampleStreamWrapper sampleStreamWrapper : sampleStreamWrappers) {
       sampleStreamWrapper.release();
     }
+    callback = null;
     eventDispatcher.mediaPeriodReleased();
   }
 

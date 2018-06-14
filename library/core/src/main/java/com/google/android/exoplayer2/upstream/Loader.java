@@ -58,11 +58,6 @@ public final class Loader implements LoaderErrorThrower {
     void cancelLoad();
 
     /**
-     * Returns whether the load has been canceled.
-     */
-    boolean isLoadCanceled();
-
-    /**
      * Performs the load, returning on completion or cancellation.
      *
      * @throws IOException If the input could not be loaded.
@@ -250,15 +245,17 @@ public final class Loader implements LoaderErrorThrower {
     private static final int MSG_IO_EXCEPTION = 3;
     private static final int MSG_FATAL_ERROR = 4;
 
-    private final T loadable;
-    private final Loader.Callback<T> callback;
     public final int defaultMinRetryCount;
+
+    private final T loadable;
     private final long startTimeMs;
 
+    private @Nullable Loader.Callback<T> callback;
     private IOException currentError;
     private int errorCount;
 
     private volatile Thread executorThread;
+    private volatile boolean canceled;
     private volatile boolean released;
 
     public LoadTask(Looper looper, T loadable, Loader.Callback<T> callback,
@@ -295,6 +292,7 @@ public final class Loader implements LoaderErrorThrower {
           sendEmptyMessage(MSG_CANCEL);
         }
       } else {
+        canceled = true;
         loadable.cancelLoad();
         if (executorThread != null) {
           executorThread.interrupt();
@@ -304,6 +302,11 @@ public final class Loader implements LoaderErrorThrower {
         finish();
         long nowMs = SystemClock.elapsedRealtime();
         callback.onLoadCanceled(loadable, nowMs, nowMs - startTimeMs, true);
+        // If loading, this task will be referenced from a GC root (the loading thread) until
+        // cancellation completes. The time taken for cancellation to complete depends on the
+        // implementation of the Loadable that the task is loading. We null the callback reference
+        // here so that it doesn't prevent garbage collection whilst cancellation is ongoing.
+        callback = null;
       }
     }
 
@@ -311,7 +314,7 @@ public final class Loader implements LoaderErrorThrower {
     public void run() {
       try {
         executorThread = Thread.currentThread();
-        if (!loadable.isLoadCanceled()) {
+        if (!canceled) {
           TraceUtil.beginSection("load:" + loadable.getClass().getSimpleName());
           try {
             loadable.load();
@@ -328,7 +331,7 @@ public final class Loader implements LoaderErrorThrower {
         }
       } catch (InterruptedException e) {
         // The load was canceled.
-        Assertions.checkState(loadable.isLoadCanceled());
+        Assertions.checkState(canceled);
         if (!released) {
           sendEmptyMessage(MSG_END_OF_SOURCE);
         }
@@ -373,7 +376,7 @@ public final class Loader implements LoaderErrorThrower {
       finish();
       long nowMs = SystemClock.elapsedRealtime();
       long durationMs = nowMs - startTimeMs;
-      if (loadable.isLoadCanceled()) {
+      if (canceled) {
         callback.onLoadCanceled(loadable, nowMs, durationMs, false);
         return;
       }

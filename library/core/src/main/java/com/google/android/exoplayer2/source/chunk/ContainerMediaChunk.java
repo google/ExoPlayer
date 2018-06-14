@@ -49,7 +49,7 @@ public class ContainerMediaChunk extends BaseMediaChunk {
    * @param endTimeUs The end time of the media contained by the chunk, in microseconds.
    * @param seekTimeUs The media time from which output will begin, or {@link C#TIME_UNSET} if the
    *     whole chunk should be output.
-   * @param chunkIndex The index of the chunk.
+   * @param chunkIndex The index of the chunk, or {@link C#INDEX_UNSET} if it is not known.
    * @param chunkCount The number of chunks in the underlying media that are spanned by this
    *     instance. Normally equal to one, but may be larger if multiple chunks as defined by the
    *     underlying media are being merged into a single load.
@@ -104,11 +104,6 @@ public class ContainerMediaChunk extends BaseMediaChunk {
   @Override
   public final void cancelLoad() {
     loadCanceled = true;
-  }
-
-  @Override
-  public final boolean isLoadCanceled() {
-    return loadCanceled;
   }
 
   @SuppressWarnings("NonAtomicVolatileUpdate")

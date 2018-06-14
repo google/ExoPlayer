@@ -26,8 +26,8 @@ import com.google.android.exoplayer2.util.Util;
 import com.google.android.exoplayer2.util.XmlPullParserUtil;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.util.ArrayDeque;
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -38,6 +38,7 @@ import org.xmlpull.v1.XmlPullParserFactory;
 /**
  * A {@link SimpleSubtitleDecoder} for TTML supporting the DFXP presentation profile. Features
  * supported by this decoder are:
+ *
  * <ul>
  *   <li>content
  *   <li>core
@@ -51,7 +52,9 @@ import org.xmlpull.v1.XmlPullParserFactory;
  *   <li>time-clock
  *   <li>time-offset-with-frames
  *   <li>time-offset-with-ticks
+ *   <li>cell-resolution
  * </ul>
+ *
  * @see <a href="http://www.w3.org/TR/ttaf1-dfxp/">TTML specification</a>
  */
 public final class TtmlDecoder extends SimpleSubtitleDecoder {
@@ -74,11 +77,14 @@ public final class TtmlDecoder extends SimpleSubtitleDecoder {
   private static final Pattern FONT_SIZE = Pattern.compile("^(([0-9]*.)?[0-9]+)(px|em|%)$");
   private static final Pattern PERCENTAGE_COORDINATES =
       Pattern.compile("^(\\d+\\.?\\d*?)% (\\d+\\.?\\d*?)%$");
+  private static final Pattern CELL_RESOLUTION = Pattern.compile("^(\\d+) (\\d+)$");
 
   private static final int DEFAULT_FRAME_RATE = 30;
 
   private static final FrameAndTickRate DEFAULT_FRAME_AND_TICK_RATE =
       new FrameAndTickRate(DEFAULT_FRAME_RATE, 1, 1);
+  private static final CellResolution DEFAULT_CELL_RESOLUTION =
+      new CellResolution(/* columns= */ 32, /* rows= */ 15);
 
   private final XmlPullParserFactory xmlParserFactory;
 
@@ -103,27 +109,29 @@ public final class TtmlDecoder extends SimpleSubtitleDecoder {
       ByteArrayInputStream inputStream = new ByteArrayInputStream(bytes, 0, length);
       xmlParser.setInput(inputStream, null);
       TtmlSubtitle ttmlSubtitle = null;
-      LinkedList<TtmlNode> nodeStack = new LinkedList<>();
+      ArrayDeque<TtmlNode> nodeStack = new ArrayDeque<>();
       int unsupportedNodeDepth = 0;
       int eventType = xmlParser.getEventType();
       FrameAndTickRate frameAndTickRate = DEFAULT_FRAME_AND_TICK_RATE;
+      CellResolution cellResolution = DEFAULT_CELL_RESOLUTION;
       while (eventType != XmlPullParser.END_DOCUMENT) {
-        TtmlNode parent = nodeStack.peekLast();
+        TtmlNode parent = nodeStack.peek();
         if (unsupportedNodeDepth == 0) {
           String name = xmlParser.getName();
           if (eventType == XmlPullParser.START_TAG) {
             if (TtmlNode.TAG_TT.equals(name)) {
               frameAndTickRate = parseFrameAndTickRates(xmlParser);
+              cellResolution = parseCellResolution(xmlParser, DEFAULT_CELL_RESOLUTION);
             }
             if (!isSupportedTag(name)) {
               Log.i(TAG, "Ignoring unsupported tag: " + xmlParser.getName());
               unsupportedNodeDepth++;
             } else if (TtmlNode.TAG_HEAD.equals(name)) {
-              parseHeader(xmlParser, globalStyles, regionMap);
+              parseHeader(xmlParser, globalStyles, regionMap, cellResolution);
             } else {
               try {
                 TtmlNode node = parseNode(xmlParser, parent, regionMap, frameAndTickRate);
-                nodeStack.addLast(node);
+                nodeStack.push(node);
                 if (parent != null) {
                   parent.addChild(node);
                 }
@@ -137,9 +145,9 @@ public final class TtmlDecoder extends SimpleSubtitleDecoder {
             parent.addChild(TtmlNode.buildTextNode(xmlParser.getText()));
           } else if (eventType == XmlPullParser.END_TAG) {
             if (xmlParser.getName().equals(TtmlNode.TAG_TT)) {
-              ttmlSubtitle = new TtmlSubtitle(nodeStack.getLast(), globalStyles, regionMap);
+              ttmlSubtitle = new TtmlSubtitle(nodeStack.peek(), globalStyles, regionMap);
             }
-            nodeStack.removeLast();
+            nodeStack.pop();
           }
         } else {
           if (eventType == XmlPullParser.START_TAG) {
@@ -170,7 +178,7 @@ public final class TtmlDecoder extends SimpleSubtitleDecoder {
     float frameRateMultiplier = 1;
     String frameRateMultiplierString = xmlParser.getAttributeValue(TTP, "frameRateMultiplier");
     if (frameRateMultiplierString != null) {
-      String[] parts = frameRateMultiplierString.split(" ");
+      String[] parts = Util.split(frameRateMultiplierString, " ");
       if (parts.length != 2) {
         throw new SubtitleDecoderException("frameRateMultiplier doesn't have 2 parts");
       }
@@ -193,8 +201,36 @@ public final class TtmlDecoder extends SimpleSubtitleDecoder {
     return new FrameAndTickRate(frameRate * frameRateMultiplier, subFrameRate, tickRate);
   }
 
-  private Map<String, TtmlStyle> parseHeader(XmlPullParser xmlParser,
-      Map<String, TtmlStyle> globalStyles, Map<String, TtmlRegion> globalRegions)
+  private CellResolution parseCellResolution(XmlPullParser xmlParser, CellResolution defaultValue)
+      throws SubtitleDecoderException {
+    String cellResolution = xmlParser.getAttributeValue(TTP, "cellResolution");
+    if (cellResolution == null) {
+      return defaultValue;
+    }
+
+    Matcher cellResolutionMatcher = CELL_RESOLUTION.matcher(cellResolution);
+    if (!cellResolutionMatcher.matches()) {
+      Log.w(TAG, "Ignoring malformed cell resolution: " + cellResolution);
+      return defaultValue;
+    }
+    try {
+      int columns = Integer.parseInt(cellResolutionMatcher.group(1));
+      int rows = Integer.parseInt(cellResolutionMatcher.group(2));
+      if (columns == 0 || rows == 0) {
+        throw new SubtitleDecoderException("Invalid cell resolution " + columns + " " + rows);
+      }
+      return new CellResolution(columns, rows);
+    } catch (NumberFormatException e) {
+      Log.w(TAG, "Ignoring malformed cell resolution: " + cellResolution);
+      return defaultValue;
+    }
+  }
+
+  private Map<String, TtmlStyle> parseHeader(
+      XmlPullParser xmlParser,
+      Map<String, TtmlStyle> globalStyles,
+      Map<String, TtmlRegion> globalRegions,
+      CellResolution cellResolution)
       throws IOException, XmlPullParserException {
     do {
       xmlParser.next();
@@ -210,7 +246,7 @@ public final class TtmlDecoder extends SimpleSubtitleDecoder {
           globalStyles.put(style.getId(), style);
         }
       } else if (XmlPullParserUtil.isStartTag(xmlParser, TtmlNode.TAG_REGION)) {
-        TtmlRegion ttmlRegion = parseRegionAttributes(xmlParser);
+        TtmlRegion ttmlRegion = parseRegionAttributes(xmlParser, cellResolution);
         if (ttmlRegion != null) {
           globalRegions.put(ttmlRegion.id, ttmlRegion);
         }
@@ -221,12 +257,12 @@ public final class TtmlDecoder extends SimpleSubtitleDecoder {
 
   /**
    * Parses a region declaration.
-   * <p>
-   * If the region defines an origin and extent, it is required that they're defined as percentages
-   * of the viewport. Region declarations that define origin and extent in other formats are
-   * unsupported, and null is returned.
+   *
+   * <p>If the region defines an origin and extent, it is required that they're defined as
+   * percentages of the viewport. Region declarations that define origin and extent in other formats
+   * are unsupported, and null is returned.
    */
-  private TtmlRegion parseRegionAttributes(XmlPullParser xmlParser) {
+  private TtmlRegion parseRegionAttributes(XmlPullParser xmlParser, CellResolution cellResolution) {
     String regionId = XmlPullParserUtil.getAttributeValue(xmlParser, TtmlNode.ATTR_ID);
     if (regionId == null) {
       return null;
@@ -305,11 +341,21 @@ public final class TtmlDecoder extends SimpleSubtitleDecoder {
       }
     }
 
-    return new TtmlRegion(regionId, position, line, Cue.LINE_TYPE_FRACTION, lineAnchor, width);
+    float regionTextHeight = 1.0f / cellResolution.rows;
+    return new TtmlRegion(
+        regionId,
+        position,
+        line,
+        /* lineType= */ Cue.LINE_TYPE_FRACTION,
+        lineAnchor,
+        width,
+        /* textSizeType= */ Cue.TEXT_SIZE_TYPE_FRACTIONAL_IGNORE_PADDING,
+        /* textSize= */ regionTextHeight);
   }
 
   private String[] parseStyleIds(String parentStyleIds) {
-    return parentStyleIds.split("\\s+");
+    parentStyleIds = parentStyleIds.trim();
+    return parentStyleIds.isEmpty() ? new String[0] : Util.split(parentStyleIds, "\\s+");
   }
 
   private TtmlStyle parseStyleAttributes(XmlPullParser parser, TtmlStyle style) {
@@ -486,7 +532,7 @@ public final class TtmlDecoder extends SimpleSubtitleDecoder {
 
   private static void parseFontSize(String expression, TtmlStyle out) throws
       SubtitleDecoderException {
-    String[] expressions = expression.split("\\s+");
+    String[] expressions = Util.split(expression, "\\s+");
     Matcher matcher;
     if (expressions.length == 1) {
       matcher = FONT_SIZE.matcher(expression);
@@ -592,6 +638,17 @@ public final class TtmlDecoder extends SimpleSubtitleDecoder {
       this.effectiveFrameRate = effectiveFrameRate;
       this.subFrameRate = subFrameRate;
       this.tickRate = tickRate;
+    }
+  }
+
+  /** Represents the cell resolution for a TTML file. */
+  private static final class CellResolution {
+    final int columns;
+    final int rows;
+
+    CellResolution(int columns, int rows) {
+      this.columns = columns;
+      this.rows = rows;
     }
   }
 }

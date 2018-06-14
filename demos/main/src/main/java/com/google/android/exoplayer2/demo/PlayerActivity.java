@@ -139,6 +139,7 @@ public class PlayerActivity extends Activity
 
   private DataSource.Factory mediaDataSourceFactory;
   private SimpleExoPlayer player;
+  private FrameworkMediaDrm mediaDrm;
   private MediaSource mediaSource;
   private DefaultTrackSelector trackSelector;
   private DefaultTrackSelector.Parameters trackSelectorParameters;
@@ -498,8 +499,9 @@ public class PlayerActivity extends Activity
             keyRequestPropertiesArray[i + 1]);
       }
     }
-    return new DefaultDrmSessionManager<>(
-        uuid, FrameworkMediaDrm.newInstance(uuid), drmCallback, null, multiSession);
+    releaseMediaDrm();
+    mediaDrm = FrameworkMediaDrm.newInstance(uuid);
+    return new DefaultDrmSessionManager<>(uuid, mediaDrm, drmCallback, null, multiSession);
   }
 
   private void releasePlayer() {
@@ -512,6 +514,23 @@ public class PlayerActivity extends Activity
       player = null;
       mediaSource = null;
       trackSelector = null;
+    }
+    releaseMediaDrm();
+  }
+
+  private void releaseMediaDrm() {
+    if (mediaDrm != null) {
+      mediaDrm.release();
+      mediaDrm = null;
+    }
+  }
+
+  private void releaseAdsLoader() {
+    if (adsLoader != null) {
+      adsLoader.release();
+      adsLoader = null;
+      loadedAdTagUri = null;
+      playerView.getOverlayFrameLayout().removeAllViews();
     }
   }
 
@@ -584,15 +603,6 @@ public class PlayerActivity extends Activity
       return null;
     } catch (Exception e) {
       throw new RuntimeException(e);
-    }
-  }
-
-  private void releaseAdsLoader() {
-    if (adsLoader != null) {
-      adsLoader.release();
-      adsLoader = null;
-      loadedAdTagUri = null;
-      playerView.getOverlayFrameLayout().removeAllViews();
     }
   }
 

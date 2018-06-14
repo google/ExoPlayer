@@ -21,6 +21,8 @@ import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.res.TypedArray;
+import android.support.annotation.AttrRes;
+import android.support.annotation.Nullable;
 import android.util.AttributeSet;
 import android.util.Pair;
 import android.view.LayoutInflater;
@@ -54,7 +56,7 @@ public class TrackSelectionView extends LinearLayout {
   private int rendererIndex;
   private TrackGroupArray trackGroups;
   private boolean isDisabled;
-  private SelectionOverride override;
+  private @Nullable SelectionOverride override;
 
   /**
    * Gets a pair consisting of a dialog and the {@link TrackSelectionView} that will be shown by it.
@@ -100,11 +102,13 @@ public class TrackSelectionView extends LinearLayout {
     this(context, null);
   }
 
-  public TrackSelectionView(Context context, AttributeSet attrs) {
+  public TrackSelectionView(Context context, @Nullable AttributeSet attrs) {
     this(context, attrs, 0);
   }
 
-  public TrackSelectionView(Context context, AttributeSet attrs, int defStyleAttr) {
+  @SuppressWarnings("nullness")
+  public TrackSelectionView(
+      Context context, @Nullable AttributeSet attrs, @AttrRes int defStyleAttr) {
     super(context, attrs, defStyleAttr);
     TypedArray attributeArray =
         context
@@ -152,7 +156,7 @@ public class TrackSelectionView extends LinearLayout {
    * @param allowAdaptiveSelections Whether adaptive selection is enabled.
    */
   public void setAllowAdaptiveSelections(boolean allowAdaptiveSelections) {
-    if (!this.allowAdaptiveSelections == allowAdaptiveSelections) {
+    if (this.allowAdaptiveSelections != allowAdaptiveSelections) {
       this.allowAdaptiveSelections = allowAdaptiveSelections;
       updateViews();
     }
@@ -168,12 +172,14 @@ public class TrackSelectionView extends LinearLayout {
   }
 
   /**
-   * Sets the {@link TrackNameProvider} used to generate the user visible name of each track.
+   * Sets the {@link TrackNameProvider} used to generate the user visible name of each track and
+   * updates the view with track names queried from the specified provider.
    *
    * @param trackNameProvider The {@link TrackNameProvider} to use.
    */
   public void setTrackNameProvider(TrackNameProvider trackNameProvider) {
     this.trackNameProvider = Assertions.checkNotNull(trackNameProvider);
+    updateViews();
   }
 
   /**
@@ -197,7 +203,9 @@ public class TrackSelectionView extends LinearLayout {
       removeViewAt(i);
     }
 
-    if (trackSelector == null) {
+    MappingTrackSelector.MappedTrackInfo trackInfo =
+        trackSelector == null ? null : trackSelector.getCurrentMappedTrackInfo();
+    if (trackSelector == null || trackInfo == null) {
       // The view is not initialized.
       disableView.setEnabled(false);
       defaultView.setEnabled(false);
@@ -206,7 +214,6 @@ public class TrackSelectionView extends LinearLayout {
     disableView.setEnabled(true);
     defaultView.setEnabled(true);
 
-    MappingTrackSelector.MappedTrackInfo trackInfo = trackSelector.getCurrentMappedTrackInfo();
     trackGroups = trackInfo.getTrackGroups(rendererIndex);
 
     DefaultTrackSelector.Parameters parameters = trackSelector.getParameters();
@@ -306,20 +313,20 @@ public class TrackSelectionView extends LinearLayout {
       override = new SelectionOverride(groupIndex, trackIndex);
     } else {
       // An existing override is being modified.
-      boolean isEnabled = ((CheckedTextView) view).isChecked();
       int overrideLength = override.length;
-      if (isEnabled) {
+      int[] overrideTracks = override.tracks;
+      if (((CheckedTextView) view).isChecked()) {
         // Remove the track from the override.
         if (overrideLength == 1) {
           // The last track is being removed, so the override becomes empty.
           override = null;
           isDisabled = true;
         } else {
-          int[] tracks = getTracksRemoving(override.tracks, trackIndex);
+          int[] tracks = getTracksRemoving(overrideTracks, trackIndex);
           override = new SelectionOverride(groupIndex, tracks);
         }
       } else {
-        int[] tracks = getTracksAdding(override.tracks, trackIndex);
+        int[] tracks = getTracksAdding(overrideTracks, trackIndex);
         override = new SelectionOverride(groupIndex, tracks);
       }
     }

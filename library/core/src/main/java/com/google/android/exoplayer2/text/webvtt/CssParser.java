@@ -18,6 +18,7 @@ package com.google.android.exoplayer2.text.webvtt;
 import android.text.TextUtils;
 import com.google.android.exoplayer2.util.ColorParser;
 import com.google.android.exoplayer2.util.ParsableByteArray;
+import com.google.android.exoplayer2.util.Util;
 import java.util.Arrays;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -314,7 +315,7 @@ import java.util.regex.Pattern;
       }
       selector = selector.substring(0, voiceStartIndex);
     }
-    String[] classDivision = selector.split("\\.");
+    String[] classDivision = Util.split(selector, "\\.");
     String tagAndIdDivision = classDivision[0];
     int idPrefixIndex = tagAndIdDivision.indexOf('#');
     if (idPrefixIndex != -1) {

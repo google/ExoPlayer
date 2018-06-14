@@ -19,6 +19,7 @@ import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.FormatHolder;
 import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
 import com.google.android.exoplayer2.source.SampleStream;
+import com.google.android.exoplayer2.util.Assertions;
 import java.io.IOException;
 
 /**
@@ -36,6 +37,11 @@ import java.io.IOException;
     sampleQueueIndex = HlsSampleStreamWrapper.SAMPLE_QUEUE_INDEX_PENDING;
   }
 
+  public void bindSampleQueue() {
+    Assertions.checkArgument(sampleQueueIndex == HlsSampleStreamWrapper.SAMPLE_QUEUE_INDEX_PENDING);
+    sampleQueueIndex = sampleStreamWrapper.bindSampleQueueToSampleStream(trackGroupIndex);
+  }
+
   public void unbindSampleQueue() {
     if (sampleQueueIndex != HlsSampleStreamWrapper.SAMPLE_QUEUE_INDEX_PENDING) {
       sampleStreamWrapper.unbindSampleQueue(trackGroupIndex);
@@ -48,12 +54,11 @@ import java.io.IOException;
   @Override
   public boolean isReady() {
     return sampleQueueIndex == HlsSampleStreamWrapper.SAMPLE_QUEUE_INDEX_NO_MAPPING_NON_FATAL
-        || (maybeMapToSampleQueue() && sampleStreamWrapper.isReady(sampleQueueIndex));
+        || (hasValidSampleQueueIndex() && sampleStreamWrapper.isReady(sampleQueueIndex));
   }
 
   @Override
   public void maybeThrowError() throws IOException {
-    maybeMapToSampleQueue();
     if (sampleQueueIndex == HlsSampleStreamWrapper.SAMPLE_QUEUE_INDEX_NO_MAPPING_FATAL) {
       throw new SampleQueueMappingException(
           sampleStreamWrapper.getTrackGroups().get(trackGroupIndex).getFormat(0).sampleMimeType);
@@ -63,22 +68,21 @@ import java.io.IOException;
 
   @Override
   public int readData(FormatHolder formatHolder, DecoderInputBuffer buffer, boolean requireFormat) {
-    return maybeMapToSampleQueue()
+    return hasValidSampleQueueIndex()
         ? sampleStreamWrapper.readData(sampleQueueIndex, formatHolder, buffer, requireFormat)
         : C.RESULT_NOTHING_READ;
   }
 
   @Override
   public int skipData(long positionUs) {
-    return maybeMapToSampleQueue() ? sampleStreamWrapper.skipData(sampleQueueIndex, positionUs) : 0;
+    return hasValidSampleQueueIndex()
+        ? sampleStreamWrapper.skipData(sampleQueueIndex, positionUs)
+        : 0;
   }
 
   // Internal methods.
 
-  private boolean maybeMapToSampleQueue() {
-    if (sampleQueueIndex == HlsSampleStreamWrapper.SAMPLE_QUEUE_INDEX_PENDING) {
-      sampleQueueIndex = sampleStreamWrapper.bindSampleQueueToSampleStream(trackGroupIndex);
-    }
+  private boolean hasValidSampleQueueIndex() {
     return sampleQueueIndex != HlsSampleStreamWrapper.SAMPLE_QUEUE_INDEX_PENDING
         && sampleQueueIndex != HlsSampleStreamWrapper.SAMPLE_QUEUE_INDEX_NO_MAPPING_NON_FATAL
         && sampleQueueIndex != HlsSampleStreamWrapper.SAMPLE_QUEUE_INDEX_NO_MAPPING_FATAL;

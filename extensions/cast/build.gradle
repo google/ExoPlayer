@@ -18,6 +18,11 @@ android {
     compileSdkVersion project.ext.compileSdkVersion
     buildToolsVersion project.ext.buildToolsVersion
 
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+
     defaultConfig {
         minSdkVersion 14
         targetSdkVersion project.ext.targetSdkVersion
@@ -30,9 +35,10 @@ dependencies {
     // com.android.support:support-v4, com.android.support:appcompat-v7 and
     // com.android.support:mediarouter-v7 to be used. Else older versions are
     // used, for example:
-    // com.google.android.gms:play-services-cast-framework:12.0.0
-    // |-- com.google.android.gms:play-services-basement:12.0.0
-    //   |-- com.android.support:support-v4:26.1.0
+    // com.google.android.gms:play-services-cast-framework:15.0.1
+    // |-- com.google.android.gms:play-services-base:15.0.1
+    //   |-- com.google.android.gms:play-services-basement:15.0.1
+    //     |-- com.android.support:support-v4:26.1.0
     api 'com.android.support:support-v4:' + supportLibraryVersion
     api 'com.android.support:appcompat-v7:' + supportLibraryVersion
     api 'com.android.support:mediarouter-v7:' + supportLibraryVersion

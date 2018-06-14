@@ -89,12 +89,12 @@ import com.google.android.exoplayer2.video.MediaCodecVideoRenderer;
  * model">
  *
  * <ul>
- *   <li>It is strongly recommended that ExoPlayer instances are created and accessed from a single
- *       application thread. The application's main thread is ideal. Accessing an instance from
- *       multiple threads is discouraged as it may cause synchronization problems.
- *   <li>Registered listeners are called on the thread that created the ExoPlayer instance, unless
- *       the thread that created the ExoPlayer instance does not have a {@link Looper}. In that
- *       case, registered listeners will be called on the application's main thread.
+ *   <li>ExoPlayer instances must be accessed from a single application thread. This must be the
+ *       thread the player is created on if that thread has a {@link Looper}, or the application's
+ *       main thread otherwise.
+ *   <li>Registered listeners are called on the thread the player is created on if that thread has a
+ *       {@link Looper}, or the application's main thread otherwise. Note that this means registered
+ *       listeners are called on the same thread which must be used to access the player.
  *   <li>An internal playback thread is responsible for playback. Injected player components such as
  *       Renderers, MediaSources, TrackSelectors and LoadControls are called by the player on this
  *       thread.
@@ -184,10 +184,6 @@ public interface ExoPlayer extends Player {
    * @return The {@link Looper} associated with the playback thread.
    */
   Looper getPlaybackLooper();
-
-  @Override
-  @Nullable
-  ExoPlaybackException getPlaybackError();
 
   /**
    * Prepares the player to play the provided {@link MediaSource}. Equivalent to
