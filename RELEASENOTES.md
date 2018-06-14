@@ -12,8 +12,10 @@
   changes ([#4276](https://github.com/google/ExoPlayer/issues/4276)).
 * Fix `MediaCodec.native_setSurface` crash on Moto C
   ([#4315](https://github.com/google/ExoPlayer/issues/4315)).
+* Fix missing whitespace in CEA-608
+  ([#3906](https://github.com/google/ExoPlayer/issues/3906)).
 * Set `METADATA_KEY_TITLE` on media descriptions
-  ((#4292)[https://github.com/google/ExoPlayer/issues/4292]).
+  ([#4292](https://github.com/google/ExoPlayer/issues/4292)).
 * Allow apps to register custom MIME types
   ([#4264](https://github.com/google/ExoPlayer/issues/4264)).
 
