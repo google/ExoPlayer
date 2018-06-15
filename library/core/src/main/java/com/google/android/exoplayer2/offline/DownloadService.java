@@ -44,6 +44,10 @@ public abstract class DownloadService extends Service {
   /** Starts a download service, adding a new {@link DownloadAction} to be executed. */
   public static final String ACTION_ADD = "com.google.android.exoplayer.downloadService.action.ADD";
 
+  /** Reloads the download requirements. */
+  public static final String ACTION_RELOAD_REQUIREMENTS =
+      "com.google.android.exoplayer.downloadService.action.RELOAD_REQUIREMENTS";
+
   /** Like {@link #ACTION_INIT}, but with {@link #KEY_FOREGROUND} implicitly set to true. */
   private static final String ACTION_RESTART =
       "com.google.android.exoplayer.downloadService.action.RESTART";
@@ -150,8 +154,7 @@ public abstract class DownloadService extends Service {
       Class<? extends DownloadService> clazz,
       DownloadAction downloadAction,
       boolean foreground) {
-    return new Intent(context, clazz)
-        .setAction(ACTION_ADD)
+    return getIntent(context, clazz, ACTION_ADD)
         .putExtra(KEY_DOWNLOAD_ACTION, downloadAction.toByteArray())
         .putExtra(KEY_FOREGROUND, foreground);
   }
@@ -186,7 +189,7 @@ public abstract class DownloadService extends Service {
    * @see #startForeground(Context, Class)
    */
   public static void start(Context context, Class<? extends DownloadService> clazz) {
-    context.startService(new Intent(context, clazz).setAction(ACTION_INIT));
+    context.startService(getIntent(context, clazz, ACTION_INIT));
   }
 
   /**
@@ -199,8 +202,7 @@ public abstract class DownloadService extends Service {
    * @see #start(Context, Class)
    */
   public static void startForeground(Context context, Class<? extends DownloadService> clazz) {
-    Intent intent =
-        new Intent(context, clazz).setAction(ACTION_INIT).putExtra(KEY_FOREGROUND, true);
+    Intent intent = getIntent(context, clazz, ACTION_INIT).putExtra(KEY_FOREGROUND, true);
     Util.startForegroundService(context, intent);
   }
 
@@ -248,6 +250,10 @@ public abstract class DownloadService extends Service {
         break;
       case ACTION_START_DOWNLOADS:
         downloadManager.startDownloads();
+        break;
+      case ACTION_RELOAD_REQUIREMENTS:
+        stopWatchingRequirements();
+        maybeStartWatchingRequirements();
         break;
       default:
         Log.e(TAG, "Ignoring unrecognized action: " + intentAction);
@@ -340,6 +346,10 @@ public abstract class DownloadService extends Service {
     if (downloadManager.getDownloadCount() > 0) {
       return;
     }
+    stopWatchingRequirements();
+  }
+
+  private void stopWatchingRequirements() {
     RequirementsHelper requirementsHelper = requirementsHelpers.remove(getClass());
     if (requirementsHelper != null) {
       requirementsHelper.stop();
@@ -361,6 +371,11 @@ public abstract class DownloadService extends Service {
     if (DEBUG) {
       Log.d(TAG, message);
     }
+  }
+
+  private static Intent getIntent(
+      Context context, Class<? extends DownloadService> clazz, String action) {
+    return new Intent(context, clazz).setAction(action);
   }
 
   private final class DownloadManagerListener implements DownloadManager.Listener {
@@ -484,8 +499,7 @@ public abstract class DownloadService extends Service {
     }
 
     private void startServiceWithAction(String action) {
-      Intent intent =
-          new Intent(context, serviceClass).setAction(action).putExtra(KEY_FOREGROUND, true);
+      Intent intent = getIntent(context, serviceClass, action).putExtra(KEY_FOREGROUND, true);
       Util.startForegroundService(context, intent);
     }
   }
