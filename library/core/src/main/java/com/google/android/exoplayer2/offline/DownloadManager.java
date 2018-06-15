@@ -773,7 +773,7 @@ public final class DownloadManager {
     private void stop() {
       if (changeStateAndNotify(STATE_STARTED, STATE_STARTED_STOPPING)) {
         logd("Stopping", this);
-        thread.interrupt();
+        cancelDownload();
       }
     }
 

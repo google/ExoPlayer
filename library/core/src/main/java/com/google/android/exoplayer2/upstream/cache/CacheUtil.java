@@ -195,9 +195,7 @@ public final class CacheUtil {
     long start = dataSpec.absoluteStreamPosition;
     long left = dataSpec.length != C.LENGTH_UNSET ? dataSpec.length : cache.getContentLength(key);
     while (left != 0) {
-      if (isCanceled != null && isCanceled.get()) {
-        throw new InterruptedException();
-      }
+      throwExceptionIfInterruptedOrCancelled(isCanceled);
       long blockLength =
           cache.getCachedLength(key, start, left != C.LENGTH_UNSET ? left : Long.MAX_VALUE);
       if (blockLength > 0) {
@@ -205,8 +203,17 @@ public final class CacheUtil {
       } else {
         // There is a hole in the cache which is at least "-blockLength" long.
         blockLength = -blockLength;
-        long read = readAndDiscard(dataSpec, start, blockLength, dataSource, buffer,
-            priorityTaskManager, priority, counters);
+        long read =
+            readAndDiscard(
+                dataSpec,
+                start,
+                blockLength,
+                dataSource,
+                buffer,
+                priorityTaskManager,
+                priority,
+                counters,
+                isCanceled);
         if (read < blockLength) {
           // Reached to the end of the data.
           if (enableEOFException && left != C.LENGTH_UNSET) {
@@ -233,21 +240,28 @@ public final class CacheUtil {
    *     caching.
    * @param priority The priority of this task.
    * @param counters Counters to be set during reading.
+   * @param isCanceled An optional flag that will interrupt caching if set to true.
    * @return Number of read bytes, or 0 if no data is available because the end of the opened range
    *     has been reached.
    */
-  private static long readAndDiscard(DataSpec dataSpec, long absoluteStreamPosition, long length,
-      DataSource dataSource, byte[] buffer, PriorityTaskManager priorityTaskManager, int priority,
-      CachingCounters counters) throws IOException, InterruptedException {
+  private static long readAndDiscard(
+      DataSpec dataSpec,
+      long absoluteStreamPosition,
+      long length,
+      DataSource dataSource,
+      byte[] buffer,
+      PriorityTaskManager priorityTaskManager,
+      int priority,
+      CachingCounters counters,
+      AtomicBoolean isCanceled)
+      throws IOException, InterruptedException {
     while (true) {
       if (priorityTaskManager != null) {
         // Wait for any other thread with higher priority to finish its job.
         priorityTaskManager.proceed(priority);
       }
       try {
-        if (Thread.interrupted()) {
-          throw new InterruptedException();
-        }
+        throwExceptionIfInterruptedOrCancelled(isCanceled);
         // Create a new dataSpec setting length to C.LENGTH_UNSET to prevent getting an error in
         // case the given length exceeds the end of input.
         dataSpec = new DataSpec(dataSpec.uri, dataSpec.postBody, absoluteStreamPosition,
@@ -260,9 +274,7 @@ public final class CacheUtil {
         }
         long totalRead = 0;
         while (totalRead != length) {
-          if (Thread.interrupted()) {
-            throw new InterruptedException();
-          }
+          throwExceptionIfInterruptedOrCancelled(isCanceled);
           int read = dataSource.read(buffer, 0,
               length != C.LENGTH_UNSET ? (int) Math.min(buffer.length, length - totalRead)
                   : buffer.length);
@@ -293,6 +305,13 @@ public final class CacheUtil {
       } catch (Cache.CacheException e) {
         // do nothing
       }
+    }
+  }
+
+  private static void throwExceptionIfInterruptedOrCancelled(AtomicBoolean isCanceled)
+      throws InterruptedException {
+    if (Thread.interrupted() || (isCanceled != null && isCanceled.get())) {
+      throw new InterruptedException();
     }
   }
 
