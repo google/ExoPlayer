@@ -25,16 +25,18 @@ import android.graphics.Paint;
 import android.graphics.Paint.Join;
 import android.graphics.Paint.Style;
 import android.graphics.Rect;
-import android.graphics.RectF;
 import android.text.Layout.Alignment;
 import android.text.SpannableStringBuilder;
+import android.text.Spanned;
 import android.text.StaticLayout;
 import android.text.TextPaint;
 import android.text.TextUtils;
 import android.text.style.AbsoluteSizeSpan;
+import android.text.style.BackgroundColorSpan;
 import android.text.style.RelativeSizeSpan;
 import android.util.DisplayMetrics;
 import android.util.Log;
+
 import com.google.android.exoplayer2.text.CaptionStyleCompat;
 import com.google.android.exoplayer2.text.Cue;
 import com.google.android.exoplayer2.util.Util;
@@ -51,13 +53,7 @@ import com.google.android.exoplayer2.util.Util;
    */
   private static final float INNER_PADDING_RATIO = 0.125f;
 
-  /**
-   * Temporary rectangle used for computing line bounds.
-   */
-  private final RectF lineBounds = new RectF();
-
   // Styled dimensions.
-  private final float cornerRadius;
   private final float outlineWidth;
   private final float shadowRadius;
   private final float shadowOffset;
@@ -114,7 +110,6 @@ import com.google.android.exoplayer2.util.Util;
     Resources resources = context.getResources();
     DisplayMetrics displayMetrics = resources.getDisplayMetrics();
     int twoDpInPx = Math.round((2f * displayMetrics.densityDpi) / DisplayMetrics.DENSITY_DEFAULT);
-    cornerRadius = twoDpInPx;
     outlineWidth = twoDpInPx;
     shadowRadius = twoDpInPx;
     shadowOffset = twoDpInPx;
@@ -260,6 +255,13 @@ import com.google.android.exoplayer2.util.Util;
       cueText = newCueText;
     }
 
+    if (Color.alpha(backgroundColor) > 0) {
+      SpannableStringBuilder newCueText = new SpannableStringBuilder(cueText);
+      newCueText.setSpan(new BackgroundColorSpan(backgroundColor), 0, newCueText.length(),
+          Spanned.SPAN_PRIORITY);
+      cueText = newCueText;
+    }
+
     Alignment textAlignment = cueTextAlignment == null ? Alignment.ALIGN_CENTER : cueTextAlignment;
     textLayout = new StaticLayout(cueText, textPaint, availableWidth, textAlignment, spacingMult,
         spacingAdd, true);
@@ -365,30 +367,6 @@ import com.google.android.exoplayer2.util.Util;
       paint.setColor(windowColor);
       canvas.drawRect(-textPaddingX, 0, layout.getWidth() + textPaddingX, layout.getHeight(),
           paint);
-    }
-
-    if (Color.alpha(backgroundColor) > 0) {
-      paint.setColor(backgroundColor);
-      float previousBottom = layout.getLineTop(0);
-      int lineCount = layout.getLineCount();
-      for (int i = 0; i < lineCount; i++) {
-        float lineTextBoundLeft = layout.getLineLeft(i);
-        float lineTextBoundRight = layout.getLineRight(i);
-        lineBounds.left = lineTextBoundLeft - textPaddingX;
-        lineBounds.right = lineTextBoundRight + textPaddingX;
-        lineBounds.top = previousBottom;
-        lineBounds.bottom = layout.getLineBottom(i);
-        previousBottom = lineBounds.bottom;
-        float lineTextWidth = lineTextBoundRight - lineTextBoundLeft;
-        if (lineTextWidth > 0) {
-          // Do not draw a line's background color if it has no text.
-          // For some reason, calculating the width manually is more reliable than
-          // layout.getLineWidth().
-          // Sometimes, lineTextBoundRight == lineTextBoundLeft, and layout.getLineWidth() still
-          // returns non-zero value.
-          canvas.drawRoundRect(lineBounds, cornerRadius, cornerRadius, paint);
-        }
-      }
     }
 
     if (edgeType == CaptionStyleCompat.EDGE_TYPE_OUTLINE) {
