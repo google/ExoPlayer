@@ -31,6 +31,8 @@
   ([#4348](https://github.com/google/ExoPlayer/issues/4348)).
 * Fix issue when switching track selection from an embedded track to a primary
   track in DASH ([#4477](https://github.com/google/ExoPlayer/issues/4477)).
+* Add `PlayerView.isControllerVisible`
+  ([#4385](https://github.com/google/ExoPlayer/issues/4385)).
 
 ### 2.8.2 ###
 
