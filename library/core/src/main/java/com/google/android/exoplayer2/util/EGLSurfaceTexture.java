@@ -111,6 +111,10 @@ public final class EGLSurfaceTexture implements SurfaceTexture.OnFrameAvailableL
         GLES20.glDeleteTextures(1, textureIdHolder, 0);
       }
     } finally {
+      if (display != null && !display.equals(EGL14.EGL_NO_DISPLAY)) {
+        EGL14.eglMakeCurrent(
+            display, EGL14.EGL_NO_SURFACE, EGL14.EGL_NO_SURFACE, EGL14.EGL_NO_CONTEXT);
+      }
       if (surface != null && !surface.equals(EGL14.EGL_NO_SURFACE)) {
         EGL14.eglDestroySurface(display, surface);
       }
