@@ -143,13 +143,13 @@ import java.util.List;
  *       for more details.
  *       <ul>
  *         <li>Corresponding method: None
- *         <li>Default: {@code R.id.exo_player_view}
+ *         <li>Default: {@code R.layout.exo_player_view}
  *       </ul>
  *   <li><b>{@code controller_layout_id}</b> - Specifies the id of the layout resource to be
  *       inflated by the child {@link PlayerControlView}. See below for more details.
  *       <ul>
  *         <li>Corresponding method: None
- *         <li>Default: {@code R.id.exo_player_control_view}
+ *         <li>Default: {@code R.layout.exo_player_control_view}
  *       </ul>
  *   <li>All attributes that can be set on a {@link PlayerControlView} can also be set on a
  *       PlayerView, and will be propagated to the inflated {@link PlayerControlView} unless the
