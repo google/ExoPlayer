@@ -681,8 +681,12 @@ public class PlayerView extends FrameLayout {
     }
     boolean isDpadWhenControlHidden =
         isDpadKey(event.getKeyCode()) && useController && !controller.isVisible();
-    maybeShowController(true);
-    return isDpadWhenControlHidden || dispatchMediaKeyEvent(event) || super.dispatchKeyEvent(event);
+    boolean handled =
+        isDpadWhenControlHidden || dispatchMediaKeyEvent(event) || super.dispatchKeyEvent(event);
+    if (handled) {
+      maybeShowController(true);
+    }
+    return handled;
   }
 
   /**
