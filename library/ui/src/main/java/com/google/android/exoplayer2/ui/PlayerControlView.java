@@ -87,7 +87,7 @@ import java.util.Locale;
  *       below for more details.
  *       <ul>
  *         <li>Corresponding method: None
- *         <li>Default: {@code R.id.exo_player_control_view}
+ *         <li>Default: {@code R.layout.exo_player_control_view}
  *       </ul>
  * </ul>
  *
