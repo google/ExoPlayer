@@ -26,8 +26,6 @@
   two additional convenience methods `Player.getTotalBufferedDuration` and
   `Player.getContentBufferedDuration`
   ([#4023](https://github.com/google/ExoPlayer/issues/4023)).
-* Allow apps to register custom MIME types
-  ([#4264](https://github.com/google/ExoPlayer/issues/4264)).
 * Add support for mu-law and A-law PCM with the ffmpeg extension
   ([#4360](https://github.com/google/ExoPlayer/issues/4360)).
 
@@ -43,10 +41,12 @@
   changes ([#4276](https://github.com/google/ExoPlayer/issues/4276)).
 * Fix `MediaCodec.native_setSurface` crash on Moto C
   ([#4315](https://github.com/google/ExoPlayer/issues/4315)).
-* Set `METADATA_KEY_TITLE` on media descriptions
-  ((#4292)[https://github.com/google/ExoPlayer/issues/4292]).
 * Fix missing whitespace in CEA-608
   ([#3906](https://github.com/google/ExoPlayer/issues/3906)).
+* Set `METADATA_KEY_TITLE` on media descriptions
+  ([#4292](https://github.com/google/ExoPlayer/issues/4292)).
+* Allow apps to register custom MIME types
+  ([#4264](https://github.com/google/ExoPlayer/issues/4264)).
 
 ### 2.8.1 ###
 
