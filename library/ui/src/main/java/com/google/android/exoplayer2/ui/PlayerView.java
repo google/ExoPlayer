@@ -696,6 +696,11 @@ public class PlayerView extends FrameLayout {
     return useController && controller.dispatchMediaKeyEvent(event);
   }
 
+  /** Returns whether the controller is currently visible. */
+  public boolean isControllerVisible() {
+    return controller != null && controller.isVisible();
+  }
+
   /**
    * Shows the playback controls. Does nothing if playback controls are disabled.
    *
