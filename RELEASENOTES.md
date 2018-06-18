@@ -28,6 +28,8 @@
   ([#4023](https://github.com/google/ExoPlayer/issues/4023)).
 * Add support for mu-law and A-law PCM with the ffmpeg extension
   ([#4360](https://github.com/google/ExoPlayer/issues/4360)).
+* Add `PlayerView.isControllerVisible`
+  ([#4385](https://github.com/google/ExoPlayer/issues/4385)).
 
 ### 2.8.2 ###
 
