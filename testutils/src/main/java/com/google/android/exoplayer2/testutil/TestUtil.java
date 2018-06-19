@@ -20,6 +20,7 @@ import static org.junit.Assert.fail;
 
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.extractor.Extractor;
@@ -145,6 +146,10 @@ public class TestUtil {
     return new String(getByteArray(context, fileName));
   }
 
+  public static Bitmap readBitmapFromFile(Context context, String fileName) throws IOException {
+    return BitmapFactory.decodeStream(getInputStream(context, fileName));
+  }
+
   /**
    * Asserts that data read from a {@link DataSource} matches {@code expected}.
    *
@@ -187,9 +192,8 @@ public class TestUtil {
   /**
    * Calculates the Peak-Signal-to-Noise-Ratio value for 2 bitmaps.
    *
-   * <p>It is calculated as the logarithmic decibel(dB) value of the ratio between square of peak
-   * R/G/B values (255.0 * 255.0), and the average mean-squared-error of R/G/B values from the two
-   * bitmaps. The higher the value, the more similar they are.
+   * <p>This is the logarithmic decibel(dB) value of the average mean-squared-error of normalized
+   * (0.0-1.0) R/G/B values from the two bitmaps. The higher the value, the more similar they are.
    *
    * @param firstBitmap The first bitmap.
    * @param secondBitmap The second bitmap.
@@ -198,25 +202,25 @@ public class TestUtil {
   private static double getPsnr(Bitmap firstBitmap, Bitmap secondBitmap) {
     assertThat(firstBitmap.getWidth()).isEqualTo(secondBitmap.getWidth());
     assertThat(firstBitmap.getHeight()).isEqualTo(secondBitmap.getHeight());
-    double mse = 0;
+    long mse = 0;
     for (int i = 0; i < firstBitmap.getWidth(); i++) {
       for (int j = 0; j < firstBitmap.getHeight(); j++) {
         int firstColorInt = firstBitmap.getPixel(i, j);
-        double firstRed = Color.red(firstColorInt);
-        double firstGreen = Color.green(firstColorInt);
-        double firstBlue = Color.blue(firstColorInt);
+        int firstRed = Color.red(firstColorInt);
+        int firstGreen = Color.green(firstColorInt);
+        int firstBlue = Color.blue(firstColorInt);
         int secondColorInt = secondBitmap.getPixel(i, j);
-        double secondRed = Color.red(secondColorInt);
-        double secondGreen = Color.green(secondColorInt);
-        double secondBlue = Color.blue(secondColorInt);
+        int secondRed = Color.red(secondColorInt);
+        int secondGreen = Color.green(secondColorInt);
+        int secondBlue = Color.blue(secondColorInt);
         mse +=
             ((firstRed - secondRed) * (firstRed - secondRed)
-                    + (firstGreen - secondGreen) * (firstGreen - secondGreen)
-                    + (firstBlue - secondBlue) * (firstBlue - secondBlue))
-                / 3.0;
+                + (firstGreen - secondGreen) * (firstGreen - secondGreen)
+                + (firstBlue - secondBlue) * (firstBlue - secondBlue));
       }
     }
-    mse = mse / (firstBitmap.getWidth() * firstBitmap.getHeight());
-    return 10 * Math.log10(255.0 * 255.0 / mse);
+    double normalizedMse =
+        mse / (255.0 * 255.0 * 3.0 * firstBitmap.getWidth() * firstBitmap.getHeight());
+    return 10 * Math.log10(1.0 / normalizedMse);
   }
 }
