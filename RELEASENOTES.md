@@ -16,6 +16,7 @@
 * HLS:
   * Allow injection of custom playlist trackers.
   * Pass HTTP response headers to `HlsExtractorFactory.createExtractor`.
+  * Fix adaptation in live playlists with EXT-X-PROGRAM-DATE-TIME tags.
 * DRM:
   * Allow DrmInitData to carry a license server URL
     ([#3393](https://github.com/google/ExoPlayer/issues/3393)).
