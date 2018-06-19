@@ -104,7 +104,7 @@ import java.util.List;
   // the way in which HlsSampleStreamWrapper generates track groups. Use only index based methods
   // in TrackSelection to avoid unexpected behavior.
   private TrackSelection trackSelection;
-  private long liveEdgeTimeUs;
+  private long liveEdgeInPeriodTimeUs;
   private boolean seenExpectedPlaylistError;
 
   /**
@@ -128,7 +128,7 @@ import java.util.List;
     this.variants = variants;
     this.timestampAdjusterProvider = timestampAdjusterProvider;
     this.muxedCaptionFormats = muxedCaptionFormats;
-    liveEdgeTimeUs = C.TIME_UNSET;
+    liveEdgeInPeriodTimeUs = C.TIME_UNSET;
     Format[] variantFormats = new Format[variants.length];
     int[] initialTrackSelection = new int[variants.length];
     for (int i = 0; i < variants.length; i++) {
@@ -254,16 +254,17 @@ import java.util.List;
 
     // Select the chunk.
     long chunkMediaSequence;
+    long startOfPlaylistInPeriodUs =
+        mediaPlaylist.startTimeUs - playlistTracker.getInitialStartTimeUs();
     if (previous == null || switchingVariant) {
-      long targetPositionUs = (previous == null || independentSegments) ? loadPositionUs
-          : previous.startTimeUs;
-      if (!mediaPlaylist.hasEndTag && targetPositionUs >= mediaPlaylist.getEndTimeUs()) {
+      long endOfPlaylistInPeriodUs = startOfPlaylistInPeriodUs + mediaPlaylist.durationUs;
+      long targetPositionInPeriodUs =
+          (previous == null || independentSegments) ? loadPositionUs : previous.startTimeUs;
+      if (!mediaPlaylist.hasEndTag && targetPositionInPeriodUs >= endOfPlaylistInPeriodUs) {
         // If the playlist is too old to contain the chunk, we need to refresh it.
         chunkMediaSequence = mediaPlaylist.mediaSequence + mediaPlaylist.segments.size();
       } else {
-        long positionOfPlaylistInPeriodUs =
-            mediaPlaylist.startTimeUs - playlistTracker.getInitialStartTimeUs();
-        long targetPositionInPlaylistUs = targetPositionUs - positionOfPlaylistInPeriodUs;
+        long targetPositionInPlaylistUs = targetPositionInPeriodUs - startOfPlaylistInPeriodUs;
         chunkMediaSequence =
             Util.binarySearchFloor(
                     mediaPlaylist.segments,
@@ -277,6 +278,8 @@ import java.util.List;
           selectedVariantIndex = oldVariantIndex;
           selectedUrl = variants[selectedVariantIndex];
           mediaPlaylist = playlistTracker.getPlaylistSnapshot(selectedUrl);
+          startOfPlaylistInPeriodUs =
+              mediaPlaylist.startTimeUs - playlistTracker.getInitialStartTimeUs();
           chunkMediaSequence = previous.getNextChunkIndex();
         }
       }
@@ -331,9 +334,7 @@ import java.util.List;
     }
 
     // Compute start time of the next chunk.
-    long positionOfPlaylistInPeriodUs =
-        mediaPlaylist.startTimeUs - playlistTracker.getInitialStartTimeUs();
-    long segmentStartTimeInPeriodUs = positionOfPlaylistInPeriodUs + segment.relativeStartTimeUs;
+    long segmentStartTimeInPeriodUs = startOfPlaylistInPeriodUs + segment.relativeStartTimeUs;
     int discontinuitySequence = mediaPlaylist.discontinuitySequence
         + segment.relativeDiscontinuitySequence;
     TimestampAdjuster timestampAdjuster = timestampAdjusterProvider.getAdjuster(
@@ -420,12 +421,17 @@ import java.util.List;
   // Private methods.
 
   private long resolveTimeToLiveEdgeUs(long playbackPositionUs) {
-    final boolean resolveTimeToLiveEdgePossible = liveEdgeTimeUs != C.TIME_UNSET;
-    return resolveTimeToLiveEdgePossible ? liveEdgeTimeUs - playbackPositionUs : C.TIME_UNSET;
+    final boolean resolveTimeToLiveEdgePossible = liveEdgeInPeriodTimeUs != C.TIME_UNSET;
+    return resolveTimeToLiveEdgePossible
+        ? liveEdgeInPeriodTimeUs - playbackPositionUs
+        : C.TIME_UNSET;
   }
 
   private void updateLiveEdgeTimeUs(HlsMediaPlaylist mediaPlaylist) {
-    liveEdgeTimeUs = mediaPlaylist.hasEndTag ? C.TIME_UNSET : mediaPlaylist.getEndTimeUs();
+    liveEdgeInPeriodTimeUs =
+        mediaPlaylist.hasEndTag
+            ? C.TIME_UNSET
+            : (mediaPlaylist.getEndTimeUs() - playlistTracker.getInitialStartTimeUs());
   }
 
   private EncryptionKeyChunk newEncryptionKeyChunk(Uri keyUri, String iv, int variantIndex,
