@@ -81,10 +81,16 @@ import java.util.concurrent.CopyOnWriteArraySet;
    * @param trackSelector The {@link TrackSelector} that will be used by the instance.
    * @param loadControl The {@link LoadControl} that will be used by the instance.
    * @param clock The {@link Clock} that will be used by the instance.
+   * @param looper The {@link Looper} which must be used for all calls to the player and which is
+   *     used to call listeners on.
    */
   @SuppressLint("HandlerLeak")
   public ExoPlayerImpl(
-      Renderer[] renderers, TrackSelector trackSelector, LoadControl loadControl, Clock clock) {
+      Renderer[] renderers,
+      TrackSelector trackSelector,
+      LoadControl loadControl,
+      Clock clock,
+      Looper looper) {
     Log.i(TAG, "Init " + Integer.toHexString(System.identityHashCode(this)) + " ["
         + ExoPlayerLibraryInfo.VERSION_SLASHY + "] [" + Util.DEVICE_DEBUG_INFO + "]");
     Assertions.checkState(renderers.length > 0);
@@ -102,13 +108,13 @@ import java.util.concurrent.CopyOnWriteArraySet;
     window = new Timeline.Window();
     period = new Timeline.Period();
     playbackParameters = PlaybackParameters.DEFAULT;
-    Looper eventLooper = Looper.myLooper() != null ? Looper.myLooper() : Looper.getMainLooper();
-    eventHandler = new Handler(eventLooper) {
-      @Override
-      public void handleMessage(Message msg) {
-        ExoPlayerImpl.this.handleEvent(msg);
-      }
-    };
+    eventHandler =
+        new Handler(looper) {
+          @Override
+          public void handleMessage(Message msg) {
+            ExoPlayerImpl.this.handleEvent(msg);
+          }
+        };
     playbackInfo =
         new PlaybackInfo(
             Timeline.EMPTY,
@@ -144,6 +150,11 @@ import java.util.concurrent.CopyOnWriteArraySet;
   @Override
   public Looper getPlaybackLooper() {
     return internalPlayer.getPlaybackLooper();
+  }
+
+  @Override
+  public Looper getApplicationLooper() {
+    return eventHandler.getLooper();
   }
 
   @Override

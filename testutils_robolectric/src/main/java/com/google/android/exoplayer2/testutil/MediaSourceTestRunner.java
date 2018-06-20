@@ -443,6 +443,11 @@ public class MediaSourceTestRunner {
     }
 
     @Override
+    public Looper getApplicationLooper() {
+      return handler.getLooper();
+    }
+
+    @Override
     public PlayerMessage createMessage(PlayerMessage.Target target) {
       return new PlayerMessage(
           /* sender= */ this, target, Timeline.EMPTY, /* defaultWindowIndex= */ 0, handler);
