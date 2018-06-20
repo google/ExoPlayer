@@ -121,6 +121,10 @@ public final class EGLSurfaceTexture implements SurfaceTexture.OnFrameAvailableL
       if (context != null) {
         EGL14.eglDestroyContext(display, context);
       }
+      // EGL14.eglReleaseThread could crash before Android K (see [internal: b/11327779]).
+      if (Util.SDK_INT >= 19) {
+        EGL14.eglReleaseThread();
+      }
       display = null;
       context = null;
       surface = null;
