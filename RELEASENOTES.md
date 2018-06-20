@@ -30,7 +30,8 @@
 * Add support for mu-law and A-law PCM with the ffmpeg extension
   ([#4360](https://github.com/google/ExoPlayer/issues/4360)).
 * MediaSession extension:
-  * Allow apps to set custom metadata with a MediaMetadataProvider.
+  * Allow apps to set custom metadata with a MediaMetadataProvider
+    ([#3497](https://github.com/google/ExoPlayer/issues/3497)).
 * Add `PlayerView.isControllerVisible`
   ([#4385](https://github.com/google/ExoPlayer/issues/4385)).
 * Expose all internal ID3 data stored in MP4 udta boxes, and switch from using
@@ -52,6 +53,8 @@
   ([#4315](https://github.com/google/ExoPlayer/issues/4315)).
 * Fix missing whitespace in CEA-608
   ([#3906](https://github.com/google/ExoPlayer/issues/3906)).
+* Fix crash downloading HLS media playlists
+  ([#4396](https://github.com/google/ExoPlayer/issues/4396)).
 * Set `METADATA_KEY_TITLE` on media descriptions
   ([#4292](https://github.com/google/ExoPlayer/issues/4292)).
 * Allow apps to register custom MIME types
@@ -116,7 +119,7 @@
     periods are created, released and being read from.
   * Support live stream clipping with `ClippingMediaSource`.
   * Allow setting tags for all media sources in their factories. The tag of the
-    current window can be retrieved with `ExoPlayer.getCurrentTag`.
+    current window can be retrieved with `Player.getCurrentTag`.
 * UI components:
   * Add support for displaying error messages and a buffering spinner in
     `PlayerView`.
