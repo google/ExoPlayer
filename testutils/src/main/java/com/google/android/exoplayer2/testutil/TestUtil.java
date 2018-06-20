@@ -186,7 +186,7 @@ public class TestUtil {
    */
   public static void assertBitmapsAreSimilar(
       Bitmap expectedBitmap, Bitmap actualBitmap, double psnrThresholdDb) {
-    assertThat(getPsnr(expectedBitmap, actualBitmap) >= psnrThresholdDb).isTrue();
+    assertThat(getPsnr(expectedBitmap, actualBitmap)).isAtLeast(psnrThresholdDb);
   }
 
   /**
