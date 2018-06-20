@@ -29,6 +29,8 @@
   ([#4023](https://github.com/google/ExoPlayer/issues/4023)).
 * Add support for mu-law and A-law PCM with the ffmpeg extension
   ([#4360](https://github.com/google/ExoPlayer/issues/4360)).
+* MediaSession extension:
+  * Allow apps to set custom metadata with a MediaMetadataProvider.
 * Add `PlayerView.isControllerVisible`
   ([#4385](https://github.com/google/ExoPlayer/issues/4385)).
 * Expose all internal ID3 data stored in MP4 udta boxes, and switch from using
