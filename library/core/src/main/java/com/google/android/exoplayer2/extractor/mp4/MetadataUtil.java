@@ -20,6 +20,7 @@ import com.google.android.exoplayer2.metadata.Metadata;
 import com.google.android.exoplayer2.metadata.id3.ApicFrame;
 import com.google.android.exoplayer2.metadata.id3.CommentFrame;
 import com.google.android.exoplayer2.metadata.id3.Id3Frame;
+import com.google.android.exoplayer2.metadata.id3.InternalFrame;
 import com.google.android.exoplayer2.metadata.id3.TextInformationFrame;
 import com.google.android.exoplayer2.util.ParsableByteArray;
 import com.google.android.exoplayer2.util.Util;
@@ -293,14 +294,13 @@ import com.google.android.exoplayer2.util.Util;
         data.skipBytes(atomSize - 12);
       }
     }
-    if (!"com.apple.iTunes".equals(domain) || !"iTunSMPB".equals(name) || dataAtomPosition == -1) {
-      // We're only interested in iTunSMPB.
+    if (domain == null || name == null || dataAtomPosition == -1) {
       return null;
     }
     data.setPosition(dataAtomPosition);
     data.skipBytes(16); // size (4), type (4), version (1), flags (3), empty (4)
     String value = data.readNullTerminatedString(dataAtomSize - 16);
-    return new CommentFrame(LANGUAGE_UNDEFINED, name, value);
+    return new InternalFrame(domain, name, value);
   }
 
   private static int parseUint8AttributeValue(ParsableByteArray data) {
