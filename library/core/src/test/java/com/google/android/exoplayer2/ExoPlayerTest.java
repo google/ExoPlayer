@@ -1393,7 +1393,7 @@ public final class ExoPlayerTest {
         .build()
         .start()
         .blockUntilEnded(TIMEOUT_MS);
-    assertThat(target.positionMs >= 50).isTrue();
+    assertThat(target.positionMs).isAtLeast(50L);
   }
 
   @Test
@@ -1413,7 +1413,7 @@ public final class ExoPlayerTest {
         .build()
         .start()
         .blockUntilEnded(TIMEOUT_MS);
-    assertThat(target.positionMs >= 50).isTrue();
+    assertThat(target.positionMs).isAtLeast(50L);
   }
 
   @Test
@@ -1435,8 +1435,8 @@ public final class ExoPlayerTest {
         .build()
         .start()
         .blockUntilEnded(TIMEOUT_MS);
-    assertThat(target50.positionMs >= 50).isTrue();
-    assertThat(target80.positionMs >= 80).isTrue();
+    assertThat(target50.positionMs).isAtLeast(50L);
+    assertThat(target80.positionMs).isAtLeast(80L);
     assertThat(target80.positionMs).isAtLeast(target50.positionMs);
   }
 
@@ -1459,8 +1459,8 @@ public final class ExoPlayerTest {
         .build()
         .start()
         .blockUntilEnded(TIMEOUT_MS);
-    assertThat(target1.positionMs >= 50).isTrue();
-    assertThat(target2.positionMs >= 50).isTrue();
+    assertThat(target1.positionMs).isAtLeast(50L);
+    assertThat(target2.positionMs).isAtLeast(50L);
   }
 
   @Test
@@ -1481,7 +1481,7 @@ public final class ExoPlayerTest {
         .build()
         .start()
         .blockUntilEnded(TIMEOUT_MS);
-    assertThat(target.positionMs >= 50).isTrue();
+    assertThat(target.positionMs).isAtLeast(50L);
   }
 
   @Test
@@ -1545,7 +1545,7 @@ public final class ExoPlayerTest {
         .build()
         .start()
         .blockUntilEnded(TIMEOUT_MS);
-    assertThat(target.positionMs >= 50).isTrue();
+    assertThat(target.positionMs).isAtLeast(50L);
   }
 
   @Test
@@ -1565,7 +1565,7 @@ public final class ExoPlayerTest {
         .build()
         .start()
         .blockUntilEnded(TIMEOUT_MS);
-    assertThat(target.positionMs >= 50).isTrue();
+    assertThat(target.positionMs).isAtLeast(50L);
   }
 
   @Test
@@ -1631,7 +1631,7 @@ public final class ExoPlayerTest {
         .start()
         .blockUntilEnded(TIMEOUT_MS);
     assertThat(target.messageCount).isEqualTo(1);
-    assertThat(target.positionMs >= 50).isTrue();
+    assertThat(target.positionMs).isAtLeast(50L);
   }
 
   @Test
@@ -1660,7 +1660,7 @@ public final class ExoPlayerTest {
         .start()
         .blockUntilEnded(TIMEOUT_MS);
     assertThat(target.messageCount).isEqualTo(2);
-    assertThat(target.positionMs >= 50).isTrue();
+    assertThat(target.positionMs).isAtLeast(50L);
   }
 
   @Test
@@ -1694,7 +1694,7 @@ public final class ExoPlayerTest {
         .build()
         .start()
         .blockUntilEnded(TIMEOUT_MS);
-    assertThat(target.positionMs >= 50).isTrue();
+    assertThat(target.positionMs).isAtLeast(50L);
     assertThat(target.windowIndex).isEqualTo(1);
   }
 
@@ -1716,7 +1716,7 @@ public final class ExoPlayerTest {
         .start()
         .blockUntilEnded(TIMEOUT_MS);
     assertThat(target.windowIndex).isEqualTo(2);
-    assertThat(target.positionMs >= 50).isTrue();
+    assertThat(target.positionMs).isAtLeast(50L);
   }
 
   @Test
@@ -1737,7 +1737,7 @@ public final class ExoPlayerTest {
         .start()
         .blockUntilEnded(TIMEOUT_MS);
     assertThat(target.windowIndex).isEqualTo(2);
-    assertThat(target.positionMs >= 50).isTrue();
+    assertThat(target.positionMs).isAtLeast(50L);
   }
 
   @Test
@@ -1774,7 +1774,7 @@ public final class ExoPlayerTest {
         .build()
         .start()
         .blockUntilEnded(TIMEOUT_MS);
-    assertThat(target.positionMs >= 50).isTrue();
+    assertThat(target.positionMs).isAtLeast(50L);
     assertThat(target.windowIndex).isEqualTo(0);
   }
 
