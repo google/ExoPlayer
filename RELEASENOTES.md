@@ -33,6 +33,8 @@
   track in DASH ([#4477](https://github.com/google/ExoPlayer/issues/4477)).
 * Add `PlayerView.isControllerVisible`
   ([#4385](https://github.com/google/ExoPlayer/issues/4385)).
+* Expose all internal ID3 data stored in MP4 udta boxes, and switch from using
+  CommentFrame to InternalFrame for frames with gapless metadata in MP4.
 
 ### 2.8.2 ###
 
