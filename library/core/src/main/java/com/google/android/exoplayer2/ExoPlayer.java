@@ -89,12 +89,13 @@ import com.google.android.exoplayer2.video.MediaCodecVideoRenderer;
  * model">
  *
  * <ul>
- *   <li>ExoPlayer instances must be accessed from a single application thread. This must be the
- *       thread the player is created on if that thread has a {@link Looper}, or the application's
- *       main thread otherwise.
- *   <li>Registered listeners are called on the thread the player is created on if that thread has a
- *       {@link Looper}, or the application's main thread otherwise. Note that this means registered
- *       listeners are called on the same thread which must be used to access the player.
+ *   <li>ExoPlayer instances must be accessed from the thread associated with {@link
+ *       #getApplicationLooper()}. This Looper can be specified when creating the player, or this is
+ *       the Looper of the thread the player is created on, or the Looper of the application's main
+ *       thread if the player is created on a thread without Looper.
+ *   <li>Registered listeners are called on the thread thread associated with {@link
+ *       #getApplicationLooper()}. Note that this means registered listeners are called on the same
+ *       thread which must be used to access the player.
  *   <li>An internal playback thread is responsible for playback. Injected player components such as
  *       Renderers, MediaSources, TrackSelectors and LoadControls are called by the player on this
  *       thread.
@@ -178,12 +179,14 @@ public interface ExoPlayer extends Player {
   @Deprecated
   @RepeatMode int REPEAT_MODE_ALL = Player.REPEAT_MODE_ALL;
 
-  /**
-   * Gets the {@link Looper} associated with the playback thread.
-   *
-   * @return The {@link Looper} associated with the playback thread.
-   */
+  /** Returns the {@link Looper} associated with the playback thread. */
   Looper getPlaybackLooper();
+
+  /**
+   * Returns the {@link Looper} associated with the application thread that's used to access the
+   * player and on which player events are received.
+   */
+  Looper getApplicationLooper();
 
   /**
    * Prepares the player to play the provided {@link MediaSource}. Equivalent to

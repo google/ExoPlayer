@@ -33,6 +33,8 @@
   ([#4385](https://github.com/google/ExoPlayer/issues/4385)).
 * Expose all internal ID3 data stored in MP4 udta boxes, and switch from using
   CommentFrame to InternalFrame for frames with gapless metadata in MP4.
+* Allow setting the `Looper`, which is used to access the player, in
+  `ExoPlayerFactory` ([#4278](https://github.com/google/ExoPlayer/issues/4278)).
 
 ### 2.8.2 ###
 

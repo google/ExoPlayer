@@ -19,7 +19,6 @@ import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.Looper;
 import android.os.ResultReceiver;
 import android.os.SystemClock;
 import android.support.annotation.NonNull;
@@ -39,6 +38,7 @@ import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.util.ErrorMessageProvider;
 import com.google.android.exoplayer2.util.RepeatModeUtil;
+import com.google.android.exoplayer2.util.Util;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -323,7 +323,6 @@ public final class MediaSessionConnector {
   public final MediaSessionCompat mediaSession;
 
   private final MediaControllerCompat mediaController;
-  private final Handler handler;
   private final boolean doMaintainMetadata;
   private final ExoPlayerEventListener exoPlayerEventListener;
   private final MediaSessionCallback mediaSessionCallback;
@@ -341,10 +340,9 @@ public final class MediaSessionConnector {
   private RatingCallback ratingCallback;
 
   /**
-   * Creates an instance. Must be called on the same thread that is used to construct the player
-   * instances passed to {@link #setPlayer(Player, PlaybackPreparer, CustomActionProvider...)}.
-   * <p>
-   * Equivalent to {@code MediaSessionConnector(mediaSession, new DefaultPlaybackController())}.
+   * Creates an instance.
+   *
+   * <p>Equivalent to {@code MediaSessionConnector(mediaSession, new DefaultPlaybackController())}.
    *
    * @param mediaSession The {@link MediaSessionCompat} to connect to.
    */
@@ -353,8 +351,7 @@ public final class MediaSessionConnector {
   }
 
   /**
-   * Creates an instance. Must be called on the same thread that is used to construct the player
-   * instances passed to {@link #setPlayer(Player, PlaybackPreparer, CustomActionProvider...)}.
+   * Creates an instance.
    *
    * <p>Equivalent to {@code MediaSessionConnector(mediaSession, playbackController, true, null)}.
    *
@@ -367,8 +364,7 @@ public final class MediaSessionConnector {
   }
 
   /**
-   * Creates an instance. Must be called on the same thread that is used to construct the player
-   * instances passed to {@link #setPlayer(Player, PlaybackPreparer, CustomActionProvider...)}.
+   * Creates an instance.
    *
    * @param mediaSession The {@link MediaSessionCompat} to connect to.
    * @param playbackController A {@link PlaybackController} for handling playback actions, or {@code
@@ -388,8 +384,6 @@ public final class MediaSessionConnector {
     this.playbackController = playbackController != null ? playbackController
         : new DefaultPlaybackController();
     this.metadataExtrasPrefix = metadataExtrasPrefix != null ? metadataExtrasPrefix : "";
-    this.handler = new Handler(Looper.myLooper() != null ? Looper.myLooper()
-        : Looper.getMainLooper());
     this.doMaintainMetadata = doMaintainMetadata;
     mediaSession.setFlags(BASE_MEDIA_SESSION_FLAGS);
     mediaController = mediaSession.getController();
@@ -401,7 +395,8 @@ public final class MediaSessionConnector {
   }
 
   /**
-   * Sets the player to be connected to the media session.
+   * Sets the player to be connected to the media session. Must be called on the same thread that is
+   * used to access the player.
    *
    * <p>The order in which any {@link CustomActionProvider}s are passed determines the order of the
    * actions published with the playback state of the session.
@@ -428,6 +423,7 @@ public final class MediaSessionConnector {
     this.customActionProviders = (player != null && customActionProviders != null)
         ? customActionProviders : new CustomActionProvider[0];
     if (player != null) {
+      Handler handler = new Handler(Util.getLooper());
       mediaSession.setCallback(mediaSessionCallback, handler);
       player.addListener(exoPlayerEventListener);
     }

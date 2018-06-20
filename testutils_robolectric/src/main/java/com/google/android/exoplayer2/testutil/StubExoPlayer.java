@@ -50,6 +50,11 @@ public abstract class StubExoPlayer implements ExoPlayer {
   }
 
   @Override
+  public Looper getApplicationLooper() {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
   public void addListener(Player.EventListener listener) {
     throw new UnsupportedOperationException();
   }

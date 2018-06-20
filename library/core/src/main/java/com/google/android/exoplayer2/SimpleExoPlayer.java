@@ -98,23 +98,40 @@ public class SimpleExoPlayer implements ExoPlayer, Player.VideoComponent, Player
   private List<Cue> currentCues;
 
   /**
-   * @param renderersFactory A factory for creating {@link Renderer}s to be used by the instance.
-   * @param trackSelector The {@link TrackSelector} that will be used by the instance.
-   * @param loadControl The {@link LoadControl} that will be used by the instance.
-   * @param drmSessionManager An optional {@link DrmSessionManager}. May be null if the instance
-   *     will not be used for DRM protected playbacks.
+   * @deprecated Use {@link #SimpleExoPlayer(RenderersFactory, TrackSelector, LoadControl,
+   *     DrmSessionManager, Looper)}.
    */
+  @Deprecated
   protected SimpleExoPlayer(
       RenderersFactory renderersFactory,
       TrackSelector trackSelector,
       LoadControl loadControl,
       @Nullable DrmSessionManager<FrameworkMediaCrypto> drmSessionManager) {
+    this(renderersFactory, trackSelector, loadControl, drmSessionManager, Util.getLooper());
+  }
+
+  /**
+   * @param renderersFactory A factory for creating {@link Renderer}s to be used by the instance.
+   * @param trackSelector The {@link TrackSelector} that will be used by the instance.
+   * @param loadControl The {@link LoadControl} that will be used by the instance.
+   * @param drmSessionManager An optional {@link DrmSessionManager}. May be null if the instance
+   *     will not be used for DRM protected playbacks.
+   * @param looper The {@link Looper} which must be used for all calls to the player and which is
+   *     used to call listeners on.
+   */
+  protected SimpleExoPlayer(
+      RenderersFactory renderersFactory,
+      TrackSelector trackSelector,
+      LoadControl loadControl,
+      @Nullable DrmSessionManager<FrameworkMediaCrypto> drmSessionManager,
+      Looper looper) {
     this(
         renderersFactory,
         trackSelector,
         loadControl,
         drmSessionManager,
-        new AnalyticsCollector.Factory());
+        new AnalyticsCollector.Factory(),
+        looper);
   }
 
   /**
@@ -125,20 +142,24 @@ public class SimpleExoPlayer implements ExoPlayer, Player.VideoComponent, Player
    *     will not be used for DRM protected playbacks.
    * @param analyticsCollectorFactory A factory for creating the {@link AnalyticsCollector} that
    *     will collect and forward all player events.
+   * @param looper The {@link Looper} which must be used for all calls to the player and which is
+   *     used to call listeners on.
    */
   protected SimpleExoPlayer(
       RenderersFactory renderersFactory,
       TrackSelector trackSelector,
       LoadControl loadControl,
       @Nullable DrmSessionManager<FrameworkMediaCrypto> drmSessionManager,
-      AnalyticsCollector.Factory analyticsCollectorFactory) {
+      AnalyticsCollector.Factory analyticsCollectorFactory,
+      Looper looper) {
     this(
         renderersFactory,
         trackSelector,
         loadControl,
         drmSessionManager,
         analyticsCollectorFactory,
-        Clock.DEFAULT);
+        Clock.DEFAULT,
+        looper);
   }
 
   /**
@@ -151,6 +172,8 @@ public class SimpleExoPlayer implements ExoPlayer, Player.VideoComponent, Player
    *     will collect and forward all player events.
    * @param clock The {@link Clock} that will be used by the instance. Should always be {@link
    *     Clock#DEFAULT}, unless the player is being used from a test.
+   * @param looper The {@link Looper} which must be used for all calls to the player and which is
+   *     used to call listeners on.
    */
   protected SimpleExoPlayer(
       RenderersFactory renderersFactory,
@@ -158,15 +181,15 @@ public class SimpleExoPlayer implements ExoPlayer, Player.VideoComponent, Player
       LoadControl loadControl,
       @Nullable DrmSessionManager<FrameworkMediaCrypto> drmSessionManager,
       AnalyticsCollector.Factory analyticsCollectorFactory,
-      Clock clock) {
+      Clock clock,
+      Looper looper) {
     componentListener = new ComponentListener();
     videoListeners = new CopyOnWriteArraySet<>();
     textOutputs = new CopyOnWriteArraySet<>();
     metadataOutputs = new CopyOnWriteArraySet<>();
     videoDebugListeners = new CopyOnWriteArraySet<>();
     audioDebugListeners = new CopyOnWriteArraySet<>();
-    Looper eventLooper = Looper.myLooper() != null ? Looper.myLooper() : Looper.getMainLooper();
-    eventHandler = new Handler(eventLooper);
+    eventHandler = new Handler(looper);
     renderers =
         renderersFactory.createRenderers(
             eventHandler,
@@ -184,7 +207,7 @@ public class SimpleExoPlayer implements ExoPlayer, Player.VideoComponent, Player
     currentCues = Collections.emptyList();
 
     // Build the player and associated objects.
-    player = createExoPlayerImpl(renderers, trackSelector, loadControl, clock);
+    player = createExoPlayerImpl(renderers, trackSelector, loadControl, clock, looper);
     analyticsCollector = analyticsCollectorFactory.createAnalyticsCollector(player, clock);
     addListener(analyticsCollector);
     videoDebugListeners.add(analyticsCollector);
@@ -672,6 +695,11 @@ public class SimpleExoPlayer implements ExoPlayer, Player.VideoComponent, Player
   }
 
   @Override
+  public Looper getApplicationLooper() {
+    return player.getApplicationLooper();
+  }
+
+  @Override
   public void addListener(Player.EventListener listener) {
     player.addListener(listener);
   }
@@ -954,11 +982,17 @@ public class SimpleExoPlayer implements ExoPlayer, Player.VideoComponent, Player
    * @param trackSelector The {@link TrackSelector} that will be used by the instance.
    * @param loadControl The {@link LoadControl} that will be used by the instance.
    * @param clock The {@link Clock} that will be used by this instance.
+   * @param looper The {@link Looper} which must be used for all calls to the player and which is
+   *     used to call listeners on.
    * @return A new {@link ExoPlayer} instance.
    */
   protected ExoPlayer createExoPlayerImpl(
-      Renderer[] renderers, TrackSelector trackSelector, LoadControl loadControl, Clock clock) {
-    return new ExoPlayerImpl(renderers, trackSelector, loadControl, clock);
+      Renderer[] renderers,
+      TrackSelector trackSelector,
+      LoadControl loadControl,
+      Clock clock,
+      Looper looper) {
+    return new ExoPlayerImpl(renderers, trackSelector, loadControl, clock, looper);
   }
 
   private void removeSurfaceCallbacks() {
