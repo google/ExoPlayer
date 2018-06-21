@@ -28,6 +28,7 @@ import com.google.android.exoplayer2.source.hls.playlist.HlsMediaPlaylist.Segmen
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.Loader;
 import com.google.android.exoplayer2.upstream.ParsingLoadable;
+import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.UriUtil;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -49,10 +50,10 @@ public final class DefaultHlsPlaylistTracker
   private final int minRetryCount;
   private final IdentityHashMap<HlsUrl, MediaPlaylistBundle> playlistBundles;
   private final List<PlaylistEventListener> listeners;
-  private final Loader initialPlaylistLoader;
 
-  private Handler playlistRefreshHandler;
   private EventDispatcher eventDispatcher;
+  private Loader initialPlaylistLoader;
+  private Handler playlistRefreshHandler;
   private PrimaryPlaylistListener primaryPlaylistListener;
   private HlsMasterPlaylist masterPlaylist;
   private HlsUrl primaryHlsUrl;
@@ -75,7 +76,6 @@ public final class DefaultHlsPlaylistTracker
     this.minRetryCount = minRetryCount;
     this.playlistParser = playlistParser;
     listeners = new ArrayList<>();
-    initialPlaylistLoader = new Loader("DefaultHlsPlaylistTracker:MasterPlaylist");
     playlistBundles = new IdentityHashMap<>();
     initialStartTimeUs = C.TIME_UNSET;
   }
@@ -96,6 +96,8 @@ public final class DefaultHlsPlaylistTracker
             initialPlaylistUri,
             C.DATA_TYPE_MANIFEST,
             playlistParser);
+    Assertions.checkState(initialPlaylistLoader == null);
+    initialPlaylistLoader = new Loader("DefaultHlsPlaylistTracker:MasterPlaylist");
     long elapsedRealtime =
         initialPlaylistLoader.startLoading(masterPlaylistLoadable, this, minRetryCount);
     eventDispatcher.loadStarted(
@@ -104,11 +106,17 @@ public final class DefaultHlsPlaylistTracker
 
   @Override
   public void release() {
+    primaryHlsUrl = null;
+    primaryUrlSnapshot = null;
+    masterPlaylist = null;
+    initialStartTimeUs = C.TIME_UNSET;
     initialPlaylistLoader.release();
+    initialPlaylistLoader = null;
     for (MediaPlaylistBundle bundle : playlistBundles.values()) {
       bundle.release();
     }
     playlistRefreshHandler.removeCallbacksAndMessages(null);
+    playlistRefreshHandler = null;
     playlistBundles.clear();
   }
 
@@ -148,7 +156,9 @@ public final class DefaultHlsPlaylistTracker
 
   @Override
   public void maybeThrowPrimaryPlaylistRefreshError() throws IOException {
-    initialPlaylistLoader.maybeThrowError();
+    if (initialPlaylistLoader != null) {
+      initialPlaylistLoader.maybeThrowError();
+    }
     if (primaryHlsUrl != null) {
       maybeThrowPlaylistRefreshError(primaryHlsUrl);
     }
