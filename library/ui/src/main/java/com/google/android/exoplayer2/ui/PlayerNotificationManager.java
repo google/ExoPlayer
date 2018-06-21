@@ -460,7 +460,7 @@ public class PlayerNotificationManager {
       return;
     }
     this.fastForwardMs = fastForwardMs;
-    maybeUpdateNotification();
+    invalidate();
   }
 
   /**
@@ -474,7 +474,7 @@ public class PlayerNotificationManager {
       return;
     }
     this.rewindMs = rewindMs;
-    maybeUpdateNotification();
+    invalidate();
   }
 
   /**
@@ -485,7 +485,7 @@ public class PlayerNotificationManager {
   public final void setUseNavigationActions(boolean useNavigationActions) {
     if (this.useNavigationActions != useNavigationActions) {
       this.useNavigationActions = useNavigationActions;
-      maybeUpdateNotification();
+      invalidate();
     }
   }
 
@@ -497,7 +497,7 @@ public class PlayerNotificationManager {
   public final void setUsePlayPauseActions(boolean usePlayPauseActions) {
     if (this.usePlayPauseActions != usePlayPauseActions) {
       this.usePlayPauseActions = usePlayPauseActions;
-      maybeUpdateNotification();
+      invalidate();
     }
   }
 
@@ -520,7 +520,7 @@ public class PlayerNotificationManager {
     } else {
       stopPendingIntent = null;
     }
-    maybeUpdateNotification();
+    invalidate();
   }
 
   /**
@@ -531,7 +531,7 @@ public class PlayerNotificationManager {
   public final void setMediaSessionToken(MediaSessionCompat.Token token) {
     if (!Util.areEqual(this.mediaSessionToken, token)) {
       mediaSessionToken = token;
-      maybeUpdateNotification();
+      invalidate();
     }
   }
 
@@ -555,7 +555,7 @@ public class PlayerNotificationManager {
       default:
         throw new IllegalArgumentException();
     }
-    maybeUpdateNotification();
+    invalidate();
   }
 
   /**
@@ -569,7 +569,7 @@ public class PlayerNotificationManager {
   public final void setColorized(boolean colorized) {
     if (this.colorized != colorized) {
       this.colorized = colorized;
-      maybeUpdateNotification();
+      invalidate();
     }
   }
 
@@ -583,7 +583,7 @@ public class PlayerNotificationManager {
   public final void setDefaults(int defaults) {
     if (this.defaults != defaults) {
       this.defaults = defaults;
-      maybeUpdateNotification();
+      invalidate();
     }
   }
 
@@ -597,7 +597,7 @@ public class PlayerNotificationManager {
   public final void setColor(int color) {
     if (this.color != color) {
       this.color = color;
-      maybeUpdateNotification();
+      invalidate();
     }
   }
 
@@ -613,7 +613,7 @@ public class PlayerNotificationManager {
   public final void setOngoing(boolean ongoing) {
     if (this.ongoing != ongoing) {
       this.ongoing = ongoing;
-      maybeUpdateNotification();
+      invalidate();
     }
   }
 
@@ -642,7 +642,7 @@ public class PlayerNotificationManager {
       default:
         throw new IllegalArgumentException();
     }
-    maybeUpdateNotification();
+    invalidate();
   }
 
   /**
@@ -655,7 +655,7 @@ public class PlayerNotificationManager {
   public final void setSmallIcon(@DrawableRes int smallIconResourceId) {
     if (this.smallIconResourceId != smallIconResourceId) {
       this.smallIconResourceId = smallIconResourceId;
-      maybeUpdateNotification();
+      invalidate();
     }
   }
 
@@ -669,7 +669,7 @@ public class PlayerNotificationManager {
   public final void setUseChronometer(boolean useChronometer) {
     if (this.useChronometer != useChronometer) {
       this.useChronometer = useChronometer;
-      maybeUpdateNotification();
+      invalidate();
     }
   }
 
@@ -696,7 +696,14 @@ public class PlayerNotificationManager {
       default:
         throw new IllegalStateException();
     }
-    maybeUpdateNotification();
+    invalidate();
+  }
+
+  /** Forces an update of the notification if already started. */
+  public void invalidate() {
+    if (isNotificationStarted && player != null) {
+      updateNotification(null);
+    }
   }
 
   @RequiresNonNull("player")
@@ -716,12 +723,6 @@ public class PlayerNotificationManager {
           notificationListener.onNotificationStarted(notificationId, notification);
         }
       }
-    }
-  }
-
-  private void maybeUpdateNotification() {
-    if (isNotificationStarted && player != null) {
-      updateNotification(null);
     }
   }
 
