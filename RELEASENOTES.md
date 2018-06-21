@@ -16,6 +16,8 @@
   ([#3906](https://github.com/google/ExoPlayer/issues/3906)).
 * Fix crash downloading HLS media playlists
   ([#4396](https://github.com/google/ExoPlayer/issues/4396)).
+* Fix a bug where download cancellation was ignored
+  ([#4403](https://github.com/google/ExoPlayer/issues/4403)).
 * Set `METADATA_KEY_TITLE` on media descriptions
   ([#4292](https://github.com/google/ExoPlayer/issues/4292)).
 * Allow apps to register custom MIME types

@@ -129,11 +129,11 @@ public final class CacheUtil {
         cache,
         new CacheDataSource(cache, upstream),
         new byte[DEFAULT_BUFFER_SIZE_BYTES],
-        null,
-        0,
+        /* priorityTaskManager= */ null,
+        /* priority= */ 0,
         counters,
-        null,
-        false);
+        isCanceled,
+        /* enableEOFException= */ false);
   }
 
   /**
