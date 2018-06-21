@@ -96,6 +96,30 @@ public final class AdPlaybackState {
       return count == C.LENGTH_UNSET || getFirstAdIndexToPlay() < count;
     }
 
+    @Override
+    public boolean equals(Object o) {
+      if (this == o) {
+        return true;
+      }
+      if (o == null || getClass() != o.getClass()) {
+        return false;
+      }
+      AdGroup adGroup = (AdGroup) o;
+      return count == adGroup.count
+          && Arrays.equals(uris, adGroup.uris)
+          && Arrays.equals(states, adGroup.states)
+          && Arrays.equals(durationsUs, adGroup.durationsUs);
+    }
+
+    @Override
+    public int hashCode() {
+      int result = count;
+      result = 31 * result + Arrays.hashCode(uris);
+      result = 31 * result + Arrays.hashCode(states);
+      result = 31 * result + Arrays.hashCode(durationsUs);
+      return result;
+    }
+
     /**
      * Returns a new instance with the ad count set to {@code count}. This method may only be called
      * if this instance's ad count has not yet been specified.
@@ -393,4 +417,29 @@ public final class AdPlaybackState {
     }
   }
 
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+    AdPlaybackState that = (AdPlaybackState) o;
+    return adGroupCount == that.adGroupCount
+        && adResumePositionUs == that.adResumePositionUs
+        && contentDurationUs == that.contentDurationUs
+        && Arrays.equals(adGroupTimesUs, that.adGroupTimesUs)
+        && Arrays.equals(adGroups, that.adGroups);
+  }
+
+  @Override
+  public int hashCode() {
+    int result = adGroupCount;
+    result = 31 * result + (int) adResumePositionUs;
+    result = 31 * result + (int) contentDurationUs;
+    result = 31 * result + Arrays.hashCode(adGroupTimesUs);
+    result = 31 * result + Arrays.hashCode(adGroups);
+    return result;
+  }
 }
