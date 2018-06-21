@@ -38,6 +38,8 @@
   CommentFrame to InternalFrame for frames with gapless metadata in MP4.
 * Allow setting the `Looper`, which is used to access the player, in
   `ExoPlayerFactory` ([#4278](https://github.com/google/ExoPlayer/issues/4278)).
+* Fix a bug where download cancellation was ignored
+  ([#4403](https://github.com/google/ExoPlayer/issues/4403)).
 
 ### 2.8.2 ###
 
