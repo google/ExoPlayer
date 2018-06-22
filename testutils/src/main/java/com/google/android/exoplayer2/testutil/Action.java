@@ -572,7 +572,7 @@ public abstract class Action {
         return;
       }
       Player.EventListener listener =
-          new Player.DefaultEventListener() {
+          new Player.EventListener() {
             @Override
             public void onTimelineChanged(
                 Timeline timeline, Object manifest, @Player.TimelineChangeReason int reason) {
@@ -618,13 +618,14 @@ public abstract class Action {
       if (nextAction == null) {
         return;
       }
-      player.addListener(new Player.DefaultEventListener() {
-        @Override
-        public void onPositionDiscontinuity(@Player.DiscontinuityReason int reason) {
-          player.removeListener(this);
-          nextAction.schedule(player, trackSelector, surface, handler);
-        }
-      });
+      player.addListener(
+          new Player.EventListener() {
+            @Override
+            public void onPositionDiscontinuity(@Player.DiscontinuityReason int reason) {
+              player.removeListener(this);
+              nextAction.schedule(player, trackSelector, surface, handler);
+            }
+          });
     }
 
     @Override
@@ -663,15 +664,16 @@ public abstract class Action {
       if (targetPlaybackState == player.getPlaybackState()) {
         nextAction.schedule(player, trackSelector, surface, handler);
       } else {
-        player.addListener(new Player.DefaultEventListener() {
-          @Override
-          public void onPlayerStateChanged(boolean playWhenReady, int playbackState) {
-            if (targetPlaybackState == playbackState) {
-              player.removeListener(this);
-              nextAction.schedule(player, trackSelector, surface, handler);
-            }
-          }
-        });
+        player.addListener(
+            new Player.EventListener() {
+              @Override
+              public void onPlayerStateChanged(boolean playWhenReady, int playbackState) {
+                if (targetPlaybackState == playbackState) {
+                  player.removeListener(this);
+                  nextAction.schedule(player, trackSelector, surface, handler);
+                }
+              }
+            });
       }
     }
 
@@ -704,13 +706,14 @@ public abstract class Action {
       if (nextAction == null) {
         return;
       }
-      player.addListener(new Player.DefaultEventListener() {
-        @Override
-        public void onSeekProcessed() {
-          player.removeListener(this);
-          nextAction.schedule(player, trackSelector, surface, handler);
-        }
-      });
+      player.addListener(
+          new Player.EventListener() {
+            @Override
+            public void onSeekProcessed() {
+              player.removeListener(this);
+              nextAction.schedule(player, trackSelector, surface, handler);
+            }
+          });
     }
 
     @Override

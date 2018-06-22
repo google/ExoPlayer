@@ -937,7 +937,7 @@ public class PlayerNotificationManager {
     return actions;
   }
 
-  private class PlayerListener extends Player.DefaultEventListener {
+  private class PlayerListener implements Player.EventListener {
 
     @Override
     public void onPlayerStateChanged(boolean playWhenReady, int playbackState) {

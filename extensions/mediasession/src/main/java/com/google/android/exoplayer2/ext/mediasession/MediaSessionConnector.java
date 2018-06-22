@@ -716,7 +716,7 @@ public final class MediaSessionConnector {
     }
   }
 
-  private class ExoPlayerEventListener extends Player.DefaultEventListener {
+  private class ExoPlayerEventListener implements Player.EventListener {
 
     private int currentWindowIndex;
     private int currentWindowCount;

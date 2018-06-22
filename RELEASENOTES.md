@@ -40,6 +40,8 @@
   `ExoPlayerFactory` ([#4278](https://github.com/google/ExoPlayer/issues/4278)).
 * Fix a bug where download cancellation was ignored
   ([#4403](https://github.com/google/ExoPlayer/issues/4403)).
+* Deprecate `Player.DefaultEventListener` as selective listener overrides can
+  be directly made with the `Player.EventListener` interface.
 
 ### 2.8.2 ###
 

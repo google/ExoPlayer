@@ -51,11 +51,8 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-/**
- * Helper class to run an ExoPlayer test.
- */
-public final class ExoPlayerTestRunner extends Player.DefaultEventListener
-    implements ActionSchedule.Callback {
+/** Helper class to run an ExoPlayer test. */
+public final class ExoPlayerTestRunner implements Player.EventListener, ActionSchedule.Callback {
 
   /**
    * Builder to set-up a {@link ExoPlayerTestRunner}. Default fake implementations will be used for

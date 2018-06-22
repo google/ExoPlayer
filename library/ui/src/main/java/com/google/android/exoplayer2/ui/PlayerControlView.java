@@ -1030,8 +1030,8 @@ public class PlayerControlView extends FrameLayout {
     return true;
   }
 
-  private final class ComponentListener extends Player.DefaultEventListener
-      implements TimeBar.OnScrubListener, OnClickListener {
+  private final class ComponentListener
+      implements Player.EventListener, TimeBar.OnScrubListener, OnClickListener {
 
     @Override
     public void onScrubStart(TimeBar timeBar, long position) {

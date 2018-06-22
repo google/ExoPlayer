@@ -248,8 +248,8 @@ public final class LeanbackPlayerAdapter extends PlayerAdapter implements Runnab
     surfaceHolderGlueHost.setSurfaceHolderCallback(null);
   }
 
-  private final class ComponentListener extends Player.DefaultEventListener
-      implements SurfaceHolder.Callback, VideoListener {
+  private final class ComponentListener
+      implements Player.EventListener, SurfaceHolder.Callback, VideoListener {
 
     // SurfaceHolder.Callback implementation.
 

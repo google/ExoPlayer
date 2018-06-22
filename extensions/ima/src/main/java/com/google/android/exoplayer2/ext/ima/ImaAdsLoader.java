@@ -66,11 +66,15 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-/**
- * Loads ads using the IMA SDK. All methods are called on the main thread.
- */
-public final class ImaAdsLoader extends Player.DefaultEventListener implements AdsLoader,
-    VideoAdPlayer, ContentProgressProvider, AdErrorListener, AdsLoadedListener, AdEventListener {
+/** Loads ads using the IMA SDK. All methods are called on the main thread. */
+public final class ImaAdsLoader
+    implements Player.EventListener,
+        AdsLoader,
+        VideoAdPlayer,
+        ContentProgressProvider,
+        AdErrorListener,
+        AdsLoadedListener,
+        AdEventListener {
 
   static {
     ExoPlayerLibraryInfo.registerModule("goog.exo.ima");

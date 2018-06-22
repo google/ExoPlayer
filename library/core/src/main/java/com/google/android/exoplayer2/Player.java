@@ -215,23 +215,25 @@ public interface Player {
   }
 
   /**
-   * Listener of changes in player state.
+   * Listener of changes in player state. All methods have no-op default implementations to allow
+   * selective overrides.
    */
   interface EventListener {
 
     /**
      * Called when the timeline and/or manifest has been refreshed.
-     * <p>
-     * Note that if the timeline has changed then a position discontinuity may also have occurred.
-     * For example, the current period index may have changed as a result of periods being added or
-     * removed from the timeline. This will <em>not</em> be reported via a separate call to
+     *
+     * <p>Note that if the timeline has changed then a position discontinuity may also have
+     * occurred. For example, the current period index may have changed as a result of periods being
+     * added or removed from the timeline. This will <em>not</em> be reported via a separate call to
      * {@link #onPositionDiscontinuity(int)}.
      *
      * @param timeline The latest timeline. Never null, but may be empty.
      * @param manifest The latest manifest. May be null.
      * @param reason The {@link TimelineChangeReason} responsible for this timeline change.
      */
-    void onTimelineChanged(Timeline timeline, Object manifest, @TimelineChangeReason int reason);
+    default void onTimelineChanged(
+        Timeline timeline, Object manifest, @TimelineChangeReason int reason) {}
 
     /**
      * Called when the available or selected tracks change.
@@ -240,46 +242,47 @@ public interface Player {
      * @param trackSelections The track selections for each renderer. Never null and always of
      *     length {@link #getRendererCount()}, but may contain null elements.
      */
-    void onTracksChanged(TrackGroupArray trackGroups, TrackSelectionArray trackSelections);
+    default void onTracksChanged(
+        TrackGroupArray trackGroups, TrackSelectionArray trackSelections) {}
 
     /**
      * Called when the player starts or stops loading the source.
      *
      * @param isLoading Whether the source is currently being loaded.
      */
-    void onLoadingChanged(boolean isLoading);
+    default void onLoadingChanged(boolean isLoading) {}
 
     /**
-     * Called when the value returned from either {@link #getPlayWhenReady()} or
-     * {@link #getPlaybackState()} changes.
+     * Called when the value returned from either {@link #getPlayWhenReady()} or {@link
+     * #getPlaybackState()} changes.
      *
      * @param playWhenReady Whether playback will proceed when ready.
      * @param playbackState One of the {@code STATE} constants.
      */
-    void onPlayerStateChanged(boolean playWhenReady, int playbackState);
+    default void onPlayerStateChanged(boolean playWhenReady, int playbackState) {}
 
     /**
      * Called when the value of {@link #getRepeatMode()} changes.
      *
      * @param repeatMode The {@link RepeatMode} used for playback.
      */
-    void onRepeatModeChanged(@RepeatMode int repeatMode);
+    default void onRepeatModeChanged(@RepeatMode int repeatMode) {}
 
     /**
      * Called when the value of {@link #getShuffleModeEnabled()} changes.
      *
      * @param shuffleModeEnabled Whether shuffling of windows is enabled.
      */
-    void onShuffleModeEnabledChanged(boolean shuffleModeEnabled);
+    default void onShuffleModeEnabledChanged(boolean shuffleModeEnabled) {}
 
     /**
      * Called when an error occurs. The playback state will transition to {@link #STATE_IDLE}
-     * immediately after this method is called. The player instance can still be used, and
-     * {@link #release()} must still be called on the player should it no longer be required.
+     * immediately after this method is called. The player instance can still be used, and {@link
+     * #release()} must still be called on the player should it no longer be required.
      *
      * @param error The error.
      */
-    void onPlayerError(ExoPlaybackException error);
+    default void onPlayerError(ExoPlaybackException error) {}
 
     /**
      * Called when a position discontinuity occurs without a change to the timeline. A position
@@ -287,14 +290,14 @@ public interface Player {
      * transitioning from one period in the timeline to the next), or when the playback position
      * jumps within the period currently being played (as a result of a seek being performed, or
      * when the source introduces a discontinuity internally).
-     * <p>
-     * When a position discontinuity occurs as a result of a change to the timeline this method is
-     * <em>not</em> called. {@link #onTimelineChanged(Timeline, Object, int)} is called in this
+     *
+     * <p>When a position discontinuity occurs as a result of a change to the timeline this method
+     * is <em>not</em> called. {@link #onTimelineChanged(Timeline, Object, int)} is called in this
      * case.
      *
      * @param reason The {@link DiscontinuityReason} responsible for the discontinuity.
      */
-    void onPositionDiscontinuity(@DiscontinuityReason int reason);
+    default void onPositionDiscontinuity(@DiscontinuityReason int reason) {}
 
     /**
      * Called when the current playback parameters change. The playback parameters may change due to
@@ -304,20 +307,21 @@ public interface Player {
      *
      * @param playbackParameters The playback parameters.
      */
-    void onPlaybackParametersChanged(PlaybackParameters playbackParameters);
+    default void onPlaybackParametersChanged(PlaybackParameters playbackParameters) {}
 
     /**
      * Called when all pending seek requests have been processed by the player. This is guaranteed
-     * to happen after any necessary changes to the player state were reported to
-     * {@link #onPlayerStateChanged(boolean, int)}.
+     * to happen after any necessary changes to the player state were reported to {@link
+     * #onPlayerStateChanged(boolean, int)}.
      */
-    void onSeekProcessed();
-
+    default void onSeekProcessed() {}
   }
 
   /**
-   * {@link EventListener} allowing selective overrides. All methods are implemented as no-ops.
+   * @deprecated Use {@link EventListener} interface directly for selective overrides as all methods
+   *     are implemented as no-op default methods.
    */
+  @Deprecated
   abstract class DefaultEventListener implements EventListener {
 
     @Override
@@ -327,60 +331,11 @@ public interface Player {
       onTimelineChanged(timeline, manifest);
     }
 
-    @Override
-    public void onTracksChanged(TrackGroupArray trackGroups, TrackSelectionArray trackSelections) {
-      // Do nothing.
-    }
-
-    @Override
-    public void onLoadingChanged(boolean isLoading) {
-      // Do nothing.
-    }
-
-    @Override
-    public void onPlayerStateChanged(boolean playWhenReady, int playbackState) {
-      // Do nothing.
-    }
-
-    @Override
-    public void onRepeatModeChanged(@RepeatMode int repeatMode) {
-      // Do nothing.
-    }
-
-    @Override
-    public void onShuffleModeEnabledChanged(boolean shuffleModeEnabled) {
-      // Do nothing.
-    }
-
-    @Override
-    public void onPlayerError(ExoPlaybackException error) {
-      // Do nothing.
-    }
-
-    @Override
-    public void onPositionDiscontinuity(@DiscontinuityReason int reason) {
-      // Do nothing.
-    }
-
-    @Override
-    public void onPlaybackParametersChanged(PlaybackParameters playbackParameters) {
-      // Do nothing.
-    }
-
-    @Override
-    public void onSeekProcessed() {
-      // Do nothing.
-    }
-
-    /**
-     * @deprecated Use {@link DefaultEventListener#onTimelineChanged(Timeline, Object, int)}
-     *     instead.
-     */
+    /** @deprecated Use {@link EventListener#onTimelineChanged(Timeline, Object, int)} instead. */
     @Deprecated
     public void onTimelineChanged(Timeline timeline, Object manifest) {
       // Do nothing.
     }
-
   }
 
   /**
