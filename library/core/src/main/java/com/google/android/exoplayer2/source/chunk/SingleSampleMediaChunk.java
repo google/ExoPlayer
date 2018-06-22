@@ -33,8 +33,8 @@ public final class SingleSampleMediaChunk extends BaseMediaChunk {
   private final int trackType;
   private final Format sampleFormat;
 
-  private volatile int bytesLoaded;
-  private volatile boolean loadCompleted;
+  private long nextLoadPosition;
+  private boolean loadCompleted;
 
   /**
    * @param dataSource The source from which the data should be loaded.
@@ -80,11 +80,6 @@ public final class SingleSampleMediaChunk extends BaseMediaChunk {
     return loadCompleted;
   }
 
-  @Override
-  public long bytesLoaded() {
-    return bytesLoaded;
-  }
-
   // Loadable implementation.
 
   @Override
@@ -95,14 +90,15 @@ public final class SingleSampleMediaChunk extends BaseMediaChunk {
   @SuppressWarnings("NonAtomicVolatileUpdate")
   @Override
   public void load() throws IOException, InterruptedException {
-    DataSpec loadDataSpec = dataSpec.subrange(bytesLoaded);
+    DataSpec loadDataSpec = dataSpec.subrange(nextLoadPosition);
     try {
       // Create and open the input.
       long length = dataSource.open(loadDataSpec);
       if (length != C.LENGTH_UNSET) {
-        length += bytesLoaded;
+        length += nextLoadPosition;
       }
-      ExtractorInput extractorInput = new DefaultExtractorInput(dataSource, bytesLoaded, length);
+      ExtractorInput extractorInput =
+          new DefaultExtractorInput(dataSource, nextLoadPosition, length);
       BaseMediaChunkOutput output = getOutput();
       output.setSampleOffsetUs(0);
       TrackOutput trackOutput = output.track(0, trackType);
@@ -110,10 +106,10 @@ public final class SingleSampleMediaChunk extends BaseMediaChunk {
       // Load the sample data.
       int result = 0;
       while (result != C.RESULT_END_OF_INPUT) {
-        bytesLoaded += result;
+        nextLoadPosition += result;
         result = trackOutput.sampleData(extractorInput, Integer.MAX_VALUE, true);
       }
-      int sampleSize = bytesLoaded;
+      int sampleSize = (int) nextLoadPosition;
       trackOutput.sampleMetadata(startTimeUs, C.BUFFER_FLAG_KEY_FRAME, sampleSize, 0, null);
     } finally {
       Util.closeQuietly(dataSource);

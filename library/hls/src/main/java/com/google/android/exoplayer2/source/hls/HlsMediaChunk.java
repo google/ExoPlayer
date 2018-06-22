@@ -80,11 +80,11 @@ import java.util.concurrent.atomic.AtomicInteger;
   private ParsableByteArray id3Data;
   private HlsSampleStreamWrapper output;
   private int initSegmentBytesLoaded;
-  private int bytesLoaded;
+  private int nextLoadPosition;
   private boolean id3TimestampPeeked;
   private boolean initLoadCompleted;
   private volatile boolean loadCanceled;
-  private volatile boolean loadCompleted;
+  private boolean loadCompleted;
 
   /**
    * @param extractorFactory A {@link HlsExtractorFactory} from which the HLS media chunk extractor
@@ -145,8 +145,7 @@ import java.util.concurrent.atomic.AtomicInteger;
     this.hlsUrl = hlsUrl;
     this.isMasterTimestampSource = isMasterTimestampSource;
     this.timestampAdjuster = timestampAdjuster;
-    // Note: this.dataSource and dataSource may be different.
-    this.isEncrypted = this.dataSource instanceof Aes128DataSource;
+    this.isEncrypted = fullSegmentEncryptionKey != null;
     this.hasGapTag = hasGapTag;
     this.extractorFactory = extractorFactory;
     this.muxedCaptionFormats = muxedCaptionFormats;
@@ -179,11 +178,6 @@ import java.util.concurrent.atomic.AtomicInteger;
   @Override
   public boolean isLoadCompleted() {
     return loadCompleted;
-  }
-
-  @Override
-  public long bytesLoaded() {
-    return bytesLoaded;
   }
 
   // Loadable implementation
@@ -237,9 +231,9 @@ import java.util.concurrent.atomic.AtomicInteger;
     boolean skipLoadedBytes;
     if (isEncrypted) {
       loadDataSpec = dataSpec;
-      skipLoadedBytes = bytesLoaded != 0;
+      skipLoadedBytes = nextLoadPosition != 0;
     } else {
-      loadDataSpec = dataSpec.subrange(bytesLoaded);
+      loadDataSpec = dataSpec.subrange(nextLoadPosition);
       skipLoadedBytes = false;
     }
     if (!isMasterTimestampSource) {
@@ -257,7 +251,7 @@ import java.util.concurrent.atomic.AtomicInteger;
             ? timestampAdjuster.adjustTsTimestamp(id3Timestamp) : startTimeUs);
       }
       if (skipLoadedBytes) {
-        input.skipFully(bytesLoaded);
+        input.skipFully(nextLoadPosition);
       }
       try {
         int result = Extractor.RESULT_CONTINUE;
@@ -265,7 +259,7 @@ import java.util.concurrent.atomic.AtomicInteger;
           result = extractor.read(input, null);
         }
       } finally {
-        bytesLoaded = (int) (input.getPosition() - dataSpec.absoluteStreamPosition);
+        nextLoadPosition = (int) (input.getPosition() - dataSpec.absoluteStreamPosition);
       }
     } finally {
       Util.closeQuietly(dataSource);

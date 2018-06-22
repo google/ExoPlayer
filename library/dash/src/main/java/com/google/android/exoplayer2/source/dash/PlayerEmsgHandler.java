@@ -336,7 +336,7 @@ public final class PlayerEmsgHandler implements Handler.Callback {
 
     @Override
     public void sampleMetadata(
-        long timeUs, int flags, int size, int offset, CryptoData encryptionData) {
+        long timeUs, int flags, int size, int offset, @Nullable CryptoData encryptionData) {
       sampleQueue.sampleMetadata(timeUs, flags, size, offset, encryptionData);
       parseAndDiscardSamples();
     }
