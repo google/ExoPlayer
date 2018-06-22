@@ -459,7 +459,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
     if (areAdaptationCompatible(codecInfo.adaptive, oldFormat, newFormat)
         && newFormat.width <= codecMaxValues.width
         && newFormat.height <= codecMaxValues.height
-        && getMaxInputSize(newFormat) <= codecMaxValues.inputSize) {
+        && getMaxInputSize(codecInfo, newFormat) <= codecMaxValues.inputSize) {
       return oldFormat.initializationDataEquals(newFormat)
           ? KEEP_CODEC_RESULT_YES_WITHOUT_RECONFIGURATION
           : KEEP_CODEC_RESULT_YES_WITH_RECONFIGURATION;
@@ -981,7 +981,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
       throws DecoderQueryException {
     int maxWidth = format.width;
     int maxHeight = format.height;
-    int maxInputSize = getMaxInputSize(format);
+    int maxInputSize = getMaxInputSize(codecInfo, format);
     if (streamFormats.length == 1) {
       // The single entry in streamFormats must correspond to the format for which the codec is
       // being configured.
@@ -994,7 +994,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
             (streamFormat.width == Format.NO_VALUE || streamFormat.height == Format.NO_VALUE);
         maxWidth = Math.max(maxWidth, streamFormat.width);
         maxHeight = Math.max(maxHeight, streamFormat.height);
-        maxInputSize = Math.max(maxInputSize, getMaxInputSize(streamFormat));
+        maxInputSize = Math.max(maxInputSize, getMaxInputSize(codecInfo, streamFormat));
       }
     }
     if (haveUnknownDimensions) {
@@ -1004,7 +1004,9 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
         maxWidth = Math.max(maxWidth, codecMaxSize.x);
         maxHeight = Math.max(maxHeight, codecMaxSize.y);
         maxInputSize =
-            Math.max(maxInputSize, getMaxInputSize(format.sampleMimeType, maxWidth, maxHeight));
+            Math.max(
+                maxInputSize,
+                getMaxInputSize(codecInfo, format.sampleMimeType, maxWidth, maxHeight));
         Log.w(TAG, "Codec max resolution adjusted to: " + maxWidth + "x" + maxHeight);
       }
     }
@@ -1053,13 +1055,14 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
   }
 
   /**
-   * Returns a maximum input buffer size for a given format.
+   * Returns a maximum input buffer size for a given codec and format.
    *
+   * @param codecInfo Information about the {@link MediaCodec} being configured.
    * @param format The format.
    * @return A maximum input buffer size in bytes, or {@link Format#NO_VALUE} if a maximum could not
    *     be determined.
    */
-  private static int getMaxInputSize(Format format) {
+  private static int getMaxInputSize(MediaCodecInfo codecInfo, Format format) {
     if (format.maxInputSize != Format.NO_VALUE) {
       // The format defines an explicit maximum input size. Add the total size of initialization
       // data buffers, as they may need to be queued in the same input buffer as the largest sample.
@@ -1072,20 +1075,22 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
     } else {
       // Calculated maximum input sizes are overestimates, so it's not necessary to add the size of
       // initialization data.
-      return getMaxInputSize(format.sampleMimeType, format.width, format.height);
+      return getMaxInputSize(codecInfo, format.sampleMimeType, format.width, format.height);
     }
   }
 
   /**
-   * Returns a maximum input size for a given mime type, width and height.
+   * Returns a maximum input size for a given codec, mime type, width and height.
    *
+   * @param codecInfo Information about the {@link MediaCodec} being configured.
    * @param sampleMimeType The format mime type.
    * @param width The width in pixels.
    * @param height The height in pixels.
    * @return A maximum input size in bytes, or {@link Format#NO_VALUE} if a maximum could not be
    *     determined.
    */
-  private static int getMaxInputSize(String sampleMimeType, int width, int height) {
+  private static int getMaxInputSize(
+      MediaCodecInfo codecInfo, String sampleMimeType, int width, int height) {
     if (width == Format.NO_VALUE || height == Format.NO_VALUE) {
       // We can't infer a maximum input size without video dimensions.
       return Format.NO_VALUE;
@@ -1101,9 +1106,12 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
         minCompressionRatio = 2;
         break;
       case MimeTypes.VIDEO_H264:
-        if ("BRAVIA 4K 2015".equals(Util.MODEL)) {
-          // The Sony BRAVIA 4k TV has input buffers that are too small for the calculated 4k video
-          // maximum input size, so use the default value.
+        if ("BRAVIA 4K 2015".equals(Util.MODEL) // Sony Bravia 4K
+            || ("Amazon".equals(Util.MANUFACTURER)
+                && ("KFSOWI".equals(Util.MODEL) // Kindle Soho
+                    || ("AFTS".equals(Util.MODEL) && codecInfo.secure)))) { // Fire TV Gen 2
+          // Use the default value for cases where platform limitations may prevent buffers of the
+          // calculated maximum input size from being allocated.
           return Format.NO_VALUE;
         }
         // Round up width/height to an integer number of macroblocks.
