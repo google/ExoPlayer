@@ -15,13 +15,17 @@
  */
 package com.google.android.exoplayer2.source.chunk;
 
+import android.net.Uri;
 import android.support.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DataSpec;
 import com.google.android.exoplayer2.upstream.Loader.Loadable;
+import com.google.android.exoplayer2.upstream.StatsDataSource;
 import com.google.android.exoplayer2.util.Assertions;
+import java.util.List;
+import java.util.Map;
 
 /**
  * An abstract base class for {@link Loadable} implementations that load chunks of data required
@@ -64,7 +68,7 @@ public abstract class Chunk implements Loadable {
    */
   public final long endTimeUs;
 
-  protected final DataSource dataSource;
+  protected final StatsDataSource dataSource;
 
   /**
    * @param dataSource The source from which the data should be loaded.
@@ -85,7 +89,7 @@ public abstract class Chunk implements Loadable {
       @Nullable Object trackSelectionData,
       long startTimeUs,
       long endTimeUs) {
-    this.dataSource = Assertions.checkNotNull(dataSource);
+    this.dataSource = new StatsDataSource(dataSource);
     this.dataSpec = Assertions.checkNotNull(dataSpec);
     this.type = type;
     this.trackFormat = trackFormat;
@@ -103,8 +107,31 @@ public abstract class Chunk implements Loadable {
   }
 
   /**
-   * Returns the number of bytes that have been loaded.
+   * Returns the number of bytes that have been loaded. Must only be called after the load
+   * completed, failed, or was canceled.
    */
-  public abstract long bytesLoaded();
+  public final long bytesLoaded() {
+    return dataSource.getBytesRead();
+  }
 
+  /**
+   * Returns the {@link Uri} associated with the last {@link DataSource#open} call. If redirection
+   * occurred, this is the redirected uri. Must only be called after the load completed, failed, or
+   * was canceled.
+   *
+   * @see DataSource#getUri().
+   */
+  public final Uri getUri() {
+    return dataSource.getLastOpenedUri();
+  }
+
+  /**
+   * Returns the response headers associated with the last {@link DataSource#open} call. Must only
+   * be called after the load completed, failed, or was canceled.
+   *
+   * @see DataSource#getResponseHeaders().
+   */
+  public final Map<String, List<String>> getResponseHeaders() {
+    return dataSource.getLastResponseHeaders();
+  }
 }

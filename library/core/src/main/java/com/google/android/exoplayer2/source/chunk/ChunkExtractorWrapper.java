@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.source.chunk;
 
+import android.support.annotation.Nullable;
 import android.util.SparseArray;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
@@ -103,7 +104,7 @@ public final class ChunkExtractorWrapper implements ExtractorOutput {
    * @param seekTimeUs The seek position within the new chunk, or {@link C#TIME_UNSET} to output the
    *     whole chunk.
    */
-  public void init(TrackOutputProvider trackOutputProvider, long seekTimeUs) {
+  public void init(@Nullable TrackOutputProvider trackOutputProvider, long seekTimeUs) {
     this.trackOutputProvider = trackOutputProvider;
     if (!extractorInitialized) {
       extractor.init(this);

@@ -20,6 +20,7 @@ import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.extractor.DefaultExtractorInput;
 import com.google.android.exoplayer2.extractor.Extractor;
 import com.google.android.exoplayer2.extractor.ExtractorInput;
+import com.google.android.exoplayer2.extractor.PositionHolder;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DataSpec;
 import com.google.android.exoplayer2.util.Assertions;
@@ -31,13 +32,15 @@ import java.io.IOException;
  */
 public class ContainerMediaChunk extends BaseMediaChunk {
 
+  private static final PositionHolder DUMMY_POSITION_HOLDER = new PositionHolder();
+
   private final int chunkCount;
   private final long sampleOffsetUs;
   private final ChunkExtractorWrapper extractorWrapper;
 
-  private volatile int bytesLoaded;
+  private long nextLoadPosition;
   private volatile boolean loadCanceled;
-  private volatile boolean loadCompleted;
+  private boolean loadCompleted;
 
   /**
    * @param dataSource The source from which the data should be loaded.
@@ -94,11 +97,6 @@ public class ContainerMediaChunk extends BaseMediaChunk {
     return loadCompleted;
   }
 
-  @Override
-  public final long bytesLoaded() {
-    return bytesLoaded;
-  }
-
   // Loadable implementation.
 
   @Override
@@ -109,12 +107,12 @@ public class ContainerMediaChunk extends BaseMediaChunk {
   @SuppressWarnings("NonAtomicVolatileUpdate")
   @Override
   public final void load() throws IOException, InterruptedException {
-    DataSpec loadDataSpec = dataSpec.subrange(bytesLoaded);
+    DataSpec loadDataSpec = dataSpec.subrange(nextLoadPosition);
     try {
       // Create and open the input.
       ExtractorInput input = new DefaultExtractorInput(dataSource,
           loadDataSpec.absoluteStreamPosition, dataSource.open(loadDataSpec));
-      if (bytesLoaded == 0) {
+      if (nextLoadPosition == 0) {
         // Configure the output and set it as the target for the extractor wrapper.
         BaseMediaChunkOutput output = getOutput();
         output.setSampleOffsetUs(sampleOffsetUs);
@@ -126,11 +124,11 @@ public class ContainerMediaChunk extends BaseMediaChunk {
         Extractor extractor = extractorWrapper.extractor;
         int result = Extractor.RESULT_CONTINUE;
         while (result == Extractor.RESULT_CONTINUE && !loadCanceled) {
-          result = extractor.read(input, null);
+          result = extractor.read(input, DUMMY_POSITION_HOLDER);
         }
         Assertions.checkState(result != Extractor.RESULT_SEEK);
       } finally {
-        bytesLoaded = (int) (input.getPosition() - dataSpec.absoluteStreamPosition);
+        nextLoadPosition = input.getPosition() - dataSpec.absoluteStreamPosition;
       }
     } finally {
       Util.closeQuietly(dataSource);
