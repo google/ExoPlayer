@@ -121,11 +121,17 @@ public final class FrameworkMediaDrm implements ExoMediaDrm<FrameworkMediaCrypto
   public KeyRequest getKeyRequest(byte[] scope, byte[] init, String mimeType, int keyType,
       HashMap<String, String> optionalParameters) throws NotProvisionedException {
 
-    // Prior to L the Widevine CDM required data to be extracted from the PSSH atom.
-    if (Util.SDK_INT < 21 && C.WIDEVINE_UUID.equals(uuid)) {
+    // Prior to L the Widevine CDM required data to be extracted from the PSSH atom. Some Amazon
+    // devices also required data to be extracted from the PSSH atom for PlayReady.
+    if ((Util.SDK_INT < 21 && C.WIDEVINE_UUID.equals(uuid))
+        || (C.PLAYREADY_UUID.equals(uuid)
+            && "Amazon".equals(Util.MANUFACTURER)
+            && ("AFTB".equals(Util.MODEL) // Fire TV Gen 1
+                || "AFTS".equals(Util.MODEL) // Fire TV Gen 2
+                || "AFTM".equals(Util.MODEL)))) { // Fire TV Stick Gen 1
       byte[] psshData = PsshAtomUtil.parseSchemeSpecificData(init, uuid);
       if (psshData == null) {
-        // Extraction failed. schemeData isn't a Widevine PSSH atom, so leave it unchanged.
+        // Extraction failed. schemeData isn't a PSSH atom, so leave it unchanged.
       } else {
         init = psshData;
       }
