@@ -19,7 +19,6 @@ import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.fail;
 
 import android.view.Surface;
-import com.google.android.exoplayer2.Player.DefaultEventListener;
 import com.google.android.exoplayer2.Player.EventListener;
 import com.google.android.exoplayer2.Timeline.Window;
 import com.google.android.exoplayer2.source.ConcatenatingMediaSource;
@@ -483,7 +482,7 @@ public final class ExoPlayerTest {
             .build();
     final List<Integer> playbackStatesWhenSeekProcessed = new ArrayList<>();
     EventListener eventListener =
-        new DefaultEventListener() {
+        new EventListener() {
           private int currentPlaybackState = Player.STATE_IDLE;
 
           @Override
@@ -535,7 +534,7 @@ public final class ExoPlayerTest {
             .build();
     final boolean[] onSeekProcessedCalled = new boolean[1];
     EventListener listener =
-        new DefaultEventListener() {
+        new EventListener() {
           @Override
           public void onSeekProcessed() {
             onSeekProcessedCalled[0] = true;
@@ -1988,7 +1987,7 @@ public final class ExoPlayerTest {
     final List<Integer> eventListener1States = new ArrayList<>();
     final List<Integer> eventListener2States = new ArrayList<>();
     final EventListener eventListener1 =
-        new DefaultEventListener() {
+        new EventListener() {
           @Override
           public void onPlayerStateChanged(boolean playWhenReady, int playbackState) {
             eventListener1States.add(playbackState);
@@ -1998,7 +1997,7 @@ public final class ExoPlayerTest {
           }
         };
     final EventListener eventListener2 =
-        new DefaultEventListener() {
+        new EventListener() {
           @Override
           public void onPlayerStateChanged(boolean playWhenReady, int playbackState) {
             eventListener2States.add(playbackState);
@@ -2038,7 +2037,7 @@ public final class ExoPlayerTest {
     final List<Boolean> eventListenerPlayWhenReady = new ArrayList<>();
     final List<Integer> eventListenerStates = new ArrayList<>();
     final EventListener eventListener =
-        new DefaultEventListener() {
+        new EventListener() {
           @Override
           public void onTimelineChanged(Timeline timeline, Object manifest, int reason) {
             if (timeline.isEmpty()) {

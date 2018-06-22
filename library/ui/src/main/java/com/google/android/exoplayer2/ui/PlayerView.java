@@ -1179,8 +1179,8 @@ public class PlayerView extends FrameLayout {
         || keyCode == KeyEvent.KEYCODE_DPAD_CENTER;
   }
 
-  private final class ComponentListener extends Player.DefaultEventListener
-      implements TextOutput, VideoListener, OnLayoutChangeListener {
+  private final class ComponentListener
+      implements Player.EventListener, TextOutput, VideoListener, OnLayoutChangeListener {
 
     // TextOutput implementation
 

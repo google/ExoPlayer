@@ -655,7 +655,7 @@ public class PlayerActivity extends Activity
     return false;
   }
 
-  private class PlayerEventListener extends Player.DefaultEventListener {
+  private class PlayerEventListener implements Player.EventListener {
 
     @Override
     public void onPlayerStateChanged(boolean playWhenReady, int playbackState) {

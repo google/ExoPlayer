@@ -49,11 +49,12 @@ import com.google.android.exoplayer2.util.HandlerWrapper;
 import com.google.android.exoplayer2.util.Util;
 import com.google.android.exoplayer2.video.VideoRendererEventListener;
 
-/**
- * A {@link HostedTest} for {@link ExoPlayer} playback tests.
- */
-public abstract class ExoHostedTest extends Player.DefaultEventListener implements HostedTest,
-    AudioRendererEventListener, VideoRendererEventListener {
+/** A {@link HostedTest} for {@link ExoPlayer} playback tests. */
+public abstract class ExoHostedTest
+    implements Player.EventListener,
+        HostedTest,
+        AudioRendererEventListener,
+        VideoRendererEventListener {
 
   static {
     // DefaultAudioSink is able to work around spurious timestamps reported by the platform (by
