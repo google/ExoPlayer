@@ -138,6 +138,11 @@ import java.util.concurrent.CopyOnWriteArraySet;
   }
 
   @Override
+  public AudioComponent getAudioComponent() {
+    return null;
+  }
+
+  @Override
   public VideoComponent getVideoComponent() {
     return null;
   }

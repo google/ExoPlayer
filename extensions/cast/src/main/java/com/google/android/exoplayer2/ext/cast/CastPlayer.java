@@ -284,6 +284,11 @@ public final class CastPlayer implements Player {
   // Player implementation.
 
   @Override
+  public AudioComponent getAudioComponent() {
+    return null;
+  }
+
+  @Override
   public VideoComponent getVideoComponent() {
     return null;
   }
