@@ -355,6 +355,7 @@ public class DashManifestParser extends DefaultHandler
   protected Pair<String, SchemeData> parseContentProtection(XmlPullParser xpp)
       throws XmlPullParserException, IOException {
     String schemeType = null;
+    String licenseServerUrl = null;
     byte[] data = null;
     UUID uuid = null;
     boolean requiresSecureDecoder = false;
@@ -389,7 +390,9 @@ public class DashManifestParser extends DefaultHandler
 
     do {
       xpp.next();
-      if (XmlPullParserUtil.isStartTag(xpp, "widevine:license")) {
+      if (XmlPullParserUtil.isStartTag(xpp, "ms:laurl")) {
+        licenseServerUrl = xpp.getAttributeValue(null, "licenseUrl");
+      } else if (XmlPullParserUtil.isStartTag(xpp, "widevine:license")) {
         String robustnessLevel = xpp.getAttributeValue(null, "robustness_level");
         requiresSecureDecoder = robustnessLevel != null && robustnessLevel.startsWith("HW");
       } else if (data == null) {
@@ -409,8 +412,11 @@ public class DashManifestParser extends DefaultHandler
         }
       }
     } while (!XmlPullParserUtil.isEndTag(xpp, "ContentProtection"));
-    SchemeData schemeData = uuid != null
-        ? new SchemeData(uuid, MimeTypes.VIDEO_MP4, data, requiresSecureDecoder) : null;
+    SchemeData schemeData =
+        uuid != null
+            ? new SchemeData(
+                uuid, licenseServerUrl, MimeTypes.VIDEO_MP4, data, requiresSecureDecoder)
+            : null;
     return Pair.create(schemeType, schemeData);
   }
 
