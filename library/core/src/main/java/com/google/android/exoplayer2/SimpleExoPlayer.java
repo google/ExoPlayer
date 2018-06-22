@@ -57,7 +57,8 @@ import java.util.concurrent.CopyOnWriteArraySet;
  * be obtained from {@link ExoPlayerFactory}.
  */
 @TargetApi(16)
-public class SimpleExoPlayer implements ExoPlayer, Player.VideoComponent, Player.TextComponent {
+public class SimpleExoPlayer
+    implements ExoPlayer, Player.AudioComponent, Player.VideoComponent, Player.TextComponent {
 
   /** @deprecated Use {@link com.google.android.exoplayer2.video.VideoListener}. */
   @Deprecated
@@ -83,8 +84,7 @@ public class SimpleExoPlayer implements ExoPlayer, Player.VideoComponent, Player
 
   private Surface surface;
   private boolean ownsSurface;
-  @C.VideoScalingMode
-  private int videoScalingMode;
+  private @C.VideoScalingMode int videoScalingMode;
   private SurfaceHolder surfaceHolder;
   private TextureView textureView;
   private int surfaceWidth;
@@ -220,6 +220,11 @@ public class SimpleExoPlayer implements ExoPlayer, Player.VideoComponent, Player
   }
 
   @Override
+  public AudioComponent getAudioComponent() {
+    return this;
+  }
+
+  @Override
   public VideoComponent getVideoComponent() {
     return this;
   }
@@ -345,6 +350,45 @@ public class SimpleExoPlayer implements ExoPlayer, Player.VideoComponent, Player
     }
   }
 
+  @Override
+  public void setAudioAttributes(AudioAttributes audioAttributes) {
+    this.audioAttributes = audioAttributes;
+    for (Renderer renderer : renderers) {
+      if (renderer.getTrackType() == C.TRACK_TYPE_AUDIO) {
+        player
+            .createMessage(renderer)
+            .setType(C.MSG_SET_AUDIO_ATTRIBUTES)
+            .setPayload(audioAttributes)
+            .send();
+      }
+    }
+  }
+
+  @Override
+  public AudioAttributes getAudioAttributes() {
+    return audioAttributes;
+  }
+
+  @Override
+  public int getAudioSessionId() {
+    return audioSessionId;
+  }
+
+  @Override
+  public void setVolume(float audioVolume) {
+    this.audioVolume = audioVolume;
+    for (Renderer renderer : renderers) {
+      if (renderer.getTrackType() == C.TRACK_TYPE_AUDIO) {
+        player.createMessage(renderer).setType(C.MSG_SET_VOLUME).setPayload(audioVolume).send();
+      }
+    }
+  }
+
+  @Override
+  public float getVolume() {
+    return audioVolume;
+  }
+
   /**
    * Sets the stream type for audio playback, used by the underlying audio track.
    * <p>
@@ -400,63 +444,6 @@ public class SimpleExoPlayer implements ExoPlayer, Player.VideoComponent, Player
   }
 
   /**
-   * Sets the attributes for audio playback, used by the underlying audio track. If not set, the
-   * default audio attributes will be used. They are suitable for general media playback.
-   * <p>
-   * Setting the audio attributes during playback may introduce a short gap in audio output as the
-   * audio track is recreated. A new audio session id will also be generated.
-   * <p>
-   * If tunneling is enabled by the track selector, the specified audio attributes will be ignored,
-   * but they will take effect if audio is later played without tunneling.
-   * <p>
-   * If the device is running a build before platform API version 21, audio attributes cannot be set
-   * directly on the underlying audio track. In this case, the usage will be mapped onto an
-   * equivalent stream type using {@link Util#getStreamTypeForAudioUsage(int)}.
-   *
-   * @param audioAttributes The attributes to use for audio playback.
-   */
-  public void setAudioAttributes(AudioAttributes audioAttributes) {
-    this.audioAttributes = audioAttributes;
-    for (Renderer renderer : renderers) {
-      if (renderer.getTrackType() == C.TRACK_TYPE_AUDIO) {
-        player
-            .createMessage(renderer)
-            .setType(C.MSG_SET_AUDIO_ATTRIBUTES)
-            .setPayload(audioAttributes)
-            .send();
-      }
-    }
-  }
-
-  /**
-   * Returns the attributes for audio playback.
-   */
-  public AudioAttributes getAudioAttributes() {
-    return audioAttributes;
-  }
-
-  /**
-   * Sets the audio volume, with 0 being silence and 1 being unity gain.
-   *
-   * @param audioVolume The audio volume.
-   */
-  public void setVolume(float audioVolume) {
-    this.audioVolume = audioVolume;
-    for (Renderer renderer : renderers) {
-      if (renderer.getTrackType() == C.TRACK_TYPE_AUDIO) {
-        player.createMessage(renderer).setType(C.MSG_SET_VOLUME).setPayload(audioVolume).send();
-      }
-    }
-  }
-
-  /**
-   * Returns the audio volume, with 0 being silence and 1 being unity gain.
-   */
-  public float getVolume() {
-    return audioVolume;
-  }
-
-  /**
    * Sets the {@link PlaybackParams} governing audio playback.
    *
    * @deprecated Use {@link #setPlaybackParameters(PlaybackParameters)}.
@@ -487,13 +474,6 @@ public class SimpleExoPlayer implements ExoPlayer, Player.VideoComponent, Player
    */
   public Format getAudioFormat() {
     return audioFormat;
-  }
-
-  /**
-   * Returns the audio session identifier, or {@link C#AUDIO_SESSION_ID_UNSET} if not set.
-   */
-  public int getAudioSessionId() {
-    return audioSessionId;
   }
 
   /**

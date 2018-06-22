@@ -35,6 +35,11 @@ import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
 public abstract class StubExoPlayer implements ExoPlayer {
 
   @Override
+  public AudioComponent getAudioComponent() {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
   public VideoComponent getVideoComponent() {
     throw new UnsupportedOperationException();
   }

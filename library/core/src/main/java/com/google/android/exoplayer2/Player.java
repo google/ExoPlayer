@@ -22,9 +22,11 @@ import android.view.Surface;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.TextureView;
+import com.google.android.exoplayer2.audio.AudioAttributes;
 import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.text.TextOutput;
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
+import com.google.android.exoplayer2.util.Util;
 import com.google.android.exoplayer2.video.VideoListener;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -49,6 +51,44 @@ import java.lang.annotation.RetentionPolicy;
  * </ul>
  */
 public interface Player {
+
+  /** The audio component of a {@link Player}. */
+  interface AudioComponent {
+
+    /**
+     * Sets the attributes for audio playback, used by the underlying audio track. If not set, the
+     * default audio attributes will be used. They are suitable for general media playback.
+     *
+     * <p>Setting the audio attributes during playback may introduce a short gap in audio output as
+     * the audio track is recreated. A new audio session id will also be generated.
+     *
+     * <p>If tunneling is enabled by the track selector, the specified audio attributes will be
+     * ignored, but they will take effect if audio is later played without tunneling.
+     *
+     * <p>If the device is running a build before platform API version 21, audio attributes cannot
+     * be set directly on the underlying audio track. In this case, the usage will be mapped onto an
+     * equivalent stream type using {@link Util#getStreamTypeForAudioUsage(int)}.
+     *
+     * @param audioAttributes The attributes to use for audio playback.
+     */
+    void setAudioAttributes(AudioAttributes audioAttributes);
+
+    /** Returns the attributes for audio playback. */
+    AudioAttributes getAudioAttributes();
+
+    /** Returns the audio session identifier, or {@link C#AUDIO_SESSION_ID_UNSET} if not set. */
+    int getAudioSessionId();
+
+    /**
+     * Sets the audio volume, with 0 being silence and 1 being unity gain.
+     *
+     * @param audioVolume The audio volume.
+     */
+    void setVolume(float audioVolume);
+
+    /** Returns the audio volume, with 0 being silence and 1 being unity gain. */
+    float getVolume();
+  }
 
   /** The video component of a {@link Player}. */
   interface VideoComponent {
@@ -427,6 +467,10 @@ public interface Player {
    * Timeline or manifest changed as a result of an dynamic update introduced by the played media.
    */
   int TIMELINE_CHANGE_REASON_DYNAMIC = 2;
+
+  /** Returns the component of this player for audio output, or null if audio is not supported. */
+  @Nullable
+  AudioComponent getAudioComponent();
 
   /** Returns the component of this player for video output, or null if video is not supported. */
   @Nullable
