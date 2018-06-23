@@ -21,17 +21,21 @@ import android.util.SparseBooleanArray;
 import android.util.SparseIntArray;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ParserException;
+import com.google.android.exoplayer2.extractor.DefaultExtractorInput;
 import com.google.android.exoplayer2.extractor.Extractor;
 import com.google.android.exoplayer2.extractor.ExtractorInput;
 import com.google.android.exoplayer2.extractor.ExtractorOutput;
 import com.google.android.exoplayer2.extractor.ExtractorsFactory;
 import com.google.android.exoplayer2.extractor.PositionHolder;
 import com.google.android.exoplayer2.extractor.SeekMap;
+import com.google.android.exoplayer2.extractor.SeekPoint;
 import com.google.android.exoplayer2.extractor.TrackOutput;
 import com.google.android.exoplayer2.extractor.ts.DefaultTsPayloadReaderFactory.Flags;
 import com.google.android.exoplayer2.extractor.ts.TsPayloadReader.DvbSubtitleInfo;
 import com.google.android.exoplayer2.extractor.ts.TsPayloadReader.EsInfo;
 import com.google.android.exoplayer2.extractor.ts.TsPayloadReader.TrackIdGenerator;
+import com.google.android.exoplayer2.upstream.DataSource;
+import com.google.android.exoplayer2.upstream.DataSpec;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.ParsableBitArray;
 import com.google.android.exoplayer2.util.ParsableByteArray;
@@ -43,12 +47,13 @@ import java.lang.annotation.RetentionPolicy;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 /**
  * Extracts data from the MPEG-2 TS container format.
  */
-public final class TsExtractor implements Extractor {
+public final class TsExtractor implements Extractor, SeekMap {
 
   /**
    * Factory for {@link TsExtractor} instances.
@@ -98,6 +103,28 @@ public final class TsExtractor implements Extractor {
   public static final int TS_STREAM_TYPE_SPLICE_INFO = 0x86;
   public static final int TS_STREAM_TYPE_DVBSUBS = 0x59;
 
+  private static final Comparator<SeekPoint> SEEK_POINT_COMPARATOR = new Comparator<SeekPoint>() {
+    @Override
+    public int compare(SeekPoint p1, SeekPoint p2) {
+      int result = (p1.timeUs < p2.timeUs ? -1 : (p1.timeUs == p2.timeUs ? 0 : 1));
+      if (result != 0) return result;
+      return (p1.position < p2.position ? -1 : (p1.position == p2.position ? 0 : 1));
+    }
+  };
+
+  private static class SortedSeekPointList extends ArrayList<SeekPoint>{
+    @Override
+    public boolean add(SeekPoint seekPoint) {
+      // Make sure the list is always sorted, so we can use binary search
+      // We potentially insert items out of order when we skip parts for fast seeking
+      int index = Collections.binarySearch(this, seekPoint, SEEK_POINT_COMPARATOR);
+      if (index < 0) index = ~index;
+      else return false;  // The element is already contained in the list
+      super.add(index, seekPoint);
+      return true;
+    }
+  }
+
   private static final int TS_PACKET_SIZE = 188;
   private static final int TS_SYNC_BYTE = 0x47; // First byte of each TS packet.
   private static final int TS_PAT_PID = 0;
@@ -109,6 +136,9 @@ public final class TsExtractor implements Extractor {
 
   private static final int BUFFER_SIZE = TS_PACKET_SIZE * 50;
   private static final int SNIFF_TS_PACKET_COUNT = 5;
+
+  private static final int DURATION_READ_PACKETS = 100;
+  private static final int MAX_SEEK_OFFSET_US = 200000; // Twice the max distance between two pcrs
 
   @Mode private final int mode;
   private final List<TimestampAdjuster> timestampAdjusters;
@@ -124,6 +154,12 @@ public final class TsExtractor implements Extractor {
   private boolean tracksEnded;
   private TsPayloadReader id3Reader;
   private int bytesSinceLastSync;
+
+  // For seeking
+  private SparseArray<SortedSeekPointList> passedSeekPoints;
+  private long seekTimeUs = C.TIME_UNSET; // The time we are seeking to. Used to skip payloads.
+  private int seekPid = -1; // The pid of the time we are seeking to. Used to skip payloads.
+  private SeekPoint endSeekPoint = null;
 
   public TsExtractor() {
     this(0);
@@ -169,6 +205,7 @@ public final class TsExtractor implements Extractor {
     trackIds = new SparseBooleanArray();
     tsPayloadReaders = new SparseArray<>();
     continuityCounters = new SparseIntArray();
+    passedSeekPoints = new SparseArray<>();
     resetPayloadReaders();
   }
 
@@ -195,15 +232,14 @@ public final class TsExtractor implements Extractor {
   @Override
   public void init(ExtractorOutput output) {
     this.output = output;
-    output.seekMap(new SeekMap.Unseekable(C.TIME_UNSET));
+    output.seekMap(this);
   }
 
   @Override
   public void seek(long position, long timeUs) {
-    int timestampAdjustersCount = timestampAdjusters.size();
-    for (int i = 0; i < timestampAdjustersCount; i++) {
-      timestampAdjusters.get(i).reset();
-    }
+
+    // We don't reset the timestamp adjusters here
+
     tsPacketBuffer.reset();
     continuityCounters.clear();
     // Elementary stream readers' state should be cleared to get consistent behaviours when seeking.
@@ -272,6 +308,7 @@ public final class TsExtractor implements Extractor {
     boolean adaptationFieldExists = (tsPacketHeader & 0x20) != 0;
     boolean payloadExists = (tsPacketHeader & 0x10) != 0;
 
+    // Check if we're interested in the payload stream with this pid
     TsPayloadReader payloadReader = payloadExists ? tsPayloadReaders.get(pid) : null;
     if (payloadReader == null) {
       tsPacketBuffer.setPosition(endOfPacket);
@@ -293,10 +330,45 @@ public final class TsExtractor implements Extractor {
       }
     }
 
-    // Skip the adaptation field.
-    if (adaptationFieldExists) {
+    // Manage seeking structure
+    if (mode != MODE_HLS && adaptationFieldExists) {
       int adaptationFieldLength = tsPacketBuffer.readUnsignedByte();
-      tsPacketBuffer.skipBytes(adaptationFieldLength);
+      if (adaptationFieldLength > 0) {
+        int flags = tsPacketBuffer.readUnsignedByte();
+        boolean pcrFlagSet = (flags & 0x10) == 0x10;
+        if (pcrFlagSet && adaptationFieldLength >= 7) {
+          byte[] pcrBytes = new byte[6];
+          tsPacketBuffer.readBytes(pcrBytes, 0, pcrBytes.length);
+          long positionUs = getPcrPositionUs(pcrBytes);
+
+          SortedSeekPointList seekPointsForPid = passedSeekPoints.get(pid);
+          if (seekPointsForPid == null){
+            seekPointsForPid = new SortedSeekPointList();
+            passedSeekPoints.put(pid, seekPointsForPid);
+          }
+          seekPointsForPid.add(new SeekPoint(positionUs, input.getPosition() - TS_PACKET_SIZE));
+
+          if (seekTimeUs != C.TIME_UNSET && seekPid == pid &&
+              seekTimeUs - positionUs > MAX_SEEK_OFFSET_US){
+            // Skip rest of packet since we're too far from the seek point
+            tsPacketBuffer.setPosition(endOfPacket);
+            return RESULT_CONTINUE;
+          } else {
+            seekTimeUs = C.TIME_UNSET;
+          }
+
+          tsPacketBuffer.skipBytes(adaptationFieldLength - 7);
+        } else {
+          tsPacketBuffer.skipBytes(adaptationFieldLength - 1);
+        }
+      }
+    }
+
+    // We can skip consuming the payload data if we're seeking and the payload doesn't contain
+    // metadata
+    if (seekTimeUs != C.TIME_UNSET && !(payloadReader instanceof SectionReader)){
+      tsPacketBuffer.setPosition(endOfPacket);
+      return RESULT_CONTINUE;
     }
 
     // Read the payload.
@@ -308,7 +380,210 @@ public final class TsExtractor implements Extractor {
     return RESULT_CONTINUE;
   }
 
+  /**
+   * Tries to extract a ts file's duration by reading pcr values from the start and from the end
+   * of the stream. The maximal difference between pcrs from the same pid is used as duration.
+   * @param dataSource The data source to read the stream data from. ExtractorInputs from the start
+   *                   and the end of the stream will be constructed on this dataSource, so it should
+   *                   support efficient skipping.
+   * @param originalDataSpec The data spec that is used for playback of the stream. Used for accessing
+   *                         the stream and for restoring the dataSource once we're done.
+   * @throws IOException From the underlying source or input
+   * @throws InterruptedException From the underlying source or input
+   */
+  public void readDuration(DataSource dataSource, DataSpec originalDataSpec)
+      throws IOException, InterruptedException {
+    // Only read duration if this is not an HLS chunk
+    if (mode == MODE_HLS) return;
+
+    // Make sure we only try reading the duration once
+    if (endSeekPoint != null) return;
+    endSeekPoint = new SeekPoint(C.LENGTH_UNSET, C.LENGTH_UNSET);
+
+    // Open a new ExtractorInput from the start of the stream
+    dataSource.close();
+    DataSpec startDataSpec = new DataSpec(originalDataSpec.uri, 0,
+        originalDataSpec.length, originalDataSpec.key);
+    long dataLength = dataSource.open(startDataSpec);
+    ExtractorInput input = new DefaultExtractorInput(dataSource, 0, dataLength);
+    long inputLength = input.getLength();
+
+    ParsableByteArray packetBuffer = new ParsableByteArray(TS_PACKET_SIZE * DURATION_READ_PACKETS);
+
+    input.readFully(packetBuffer.data, 0, packetBuffer.limit());
+    SparseArray<Long> minPositionsUs = readPcrsFromPackets(packetBuffer, true);
+
+    // Open a new ExtractorInput from the end of the stream
+    dataSource.close();
+    long skipTarget = input.getLength() - (packetBuffer.limit());
+    DataSpec endDataSpec = new DataSpec(originalDataSpec.uri, skipTarget,
+        packetBuffer.limit(), originalDataSpec.key);
+    dataSource.open(endDataSpec);
+    input = new DefaultExtractorInput(dataSource, skipTarget, dataLength);
+    packetBuffer.setPosition(0);
+
+    input.readFully(packetBuffer.data, 0, packetBuffer.limit());
+    SparseArray<Long> maxPositionsUs = readPcrsFromPackets(packetBuffer, false);
+
+    // Find the maximal difference between pcrs of the same pid
+    long maxDuration = C.LENGTH_UNSET;
+    for (int i = 0; i < minPositionsUs.size(); i++){
+      int pid = minPositionsUs.keyAt(i);
+      Long maxPositionForPid = maxPositionsUs.get(pid);
+      if (maxPositionForPid != null){
+        long durationForPid = maxPositionForPid - minPositionsUs.get(pid);
+        if (durationForPid > maxDuration) maxDuration = durationForPid;
+      }
+    }
+
+    if (maxDuration != C.LENGTH_UNSET){
+      endSeekPoint = new SeekPoint(maxDuration, inputLength);
+    }
+
+    // Restore the data source to its original state
+    dataSource.close();
+    dataSource.open(originalDataSpec);
+  }
+
+  // SeekMap implementation
+
+  @Override
+  public boolean isSeekable() {
+    return mode != MODE_HLS;
+  }
+
+  @Override
+  public long getDurationUs() {
+    return endSeekPoint == null ? C.LENGTH_UNSET : endSeekPoint.timeUs;
+  }
+
+  @Override
+  public SeekPoints getSeekPoints(long timeUs) {
+    if (mode == MODE_HLS){
+      return null;
+    }
+
+    // Seeking to the very beginning if requested or if we don't know any seek points
+    if (timeUs == 0 || passedSeekPoints.size() == 0){
+      return new SeekPoints(SeekPoint.START);
+    }
+
+    // Assume all payload streams have the same duration, so just use the first one here
+    int usedSeekPid = passedSeekPoints.keyAt(0);
+    SortedSeekPointList seekPoints = passedSeekPoints.get(usedSeekPid);
+
+    // Search for the closest position using binary search
+    // The first time-position might not be aligned with 0 (live-streaming)
+    timeUs += seekPoints.get(0).timeUs;
+    int lower = 0, upper = seekPoints.size();
+    int mid = -1;
+    while (lower < upper) {
+      mid = (lower + upper) / 2;
+      if (seekPoints.get(mid).timeUs == timeUs) {
+        break;
+      } else if (seekPoints.get(mid).timeUs > timeUs) {
+        upper = mid;
+      } else if (seekPoints.get(mid).timeUs < timeUs) {
+        lower = mid + 1;
+      }
+    }
+
+    if (mid == -1) return null;
+
+    SeekPoint seekPoint = seekPoints.get(mid);
+
+    long timeDiff = timeUs - seekPoint.timeUs;
+    if (Math.abs(timeDiff) > MAX_SEEK_OFFSET_US) {
+      seekPid = usedSeekPid;
+
+      if (timeDiff > 0) seekTimeUs = timeUs;
+
+      // Fast Seeking: Interpolate a seek point using duration and input length.
+      // This hugely improves seek performance, but it's based on heuristics.
+      // In the worst case, seeking might jump to a position that is a bit after the
+      // actual position for the requested time.
+      if (endSeekPoint != null && endSeekPoint.timeUs != C.LENGTH_UNSET &&
+          endSeekPoint.position != C.LENGTH_UNSET) {
+        float bytesPerUs = ((float) endSeekPoint.position) / ((float) endSeekPoint.timeUs);
+        long estimatedBytesDiff = (long) (bytesPerUs * ((float) timeDiff));
+
+        // Make sure the estimated point is always before the actual point
+        float reductionFactor = timeDiff > 0 ? 0.8f : 1.2f;
+        estimatedBytesDiff = (long) (((float) estimatedBytesDiff) * reductionFactor);
+        timeDiff = (long) (((float) timeDiff) * reductionFactor);
+
+        seekPoint = new SeekPoint(seekPoint.timeUs + timeDiff,
+            seekPoint.position + estimatedBytesDiff);
+
+        // The interpolated seek point is before the actual point even if the nearest actual
+        // seek point is after it.
+        seekTimeUs = timeUs;
+      }
+    }
+    return new SeekPoints(seekPoint);
+  }
+
   // Internals.
+
+  private SparseArray<Long> readPcrsFromPackets(ParsableByteArray packetBuffer, boolean collectMinValues) {
+    SparseArray<Long> pcrs = new SparseArray<>();
+
+    for (int i = 0; i < packetBuffer.limit() / TS_PACKET_SIZE &&
+        packetBuffer.bytesLeft() >= TS_PACKET_SIZE; i++) {
+
+      while (packetBuffer.peekUnsignedByte() != TS_SYNC_BYTE &&
+          packetBuffer.bytesLeft() > TS_PACKET_SIZE) {
+        packetBuffer.readUnsignedByte();
+      }
+      if (packetBuffer.peekUnsignedByte() != TS_SYNC_BYTE) {
+        // We weren't able to find the start of a packet
+        break;
+      }
+
+      int endOfPacket = packetBuffer.getPosition() + TS_PACKET_SIZE;
+
+      int tsPacketHeader = packetBuffer.readInt();
+      if ((tsPacketHeader & 0x800000) != 0) { // transport_error_indicator
+        // There are uncorrectable errors in this packet.
+        continue;
+      }
+
+      int pid = (tsPacketHeader & 0x1FFF00) >> 8;
+      boolean adaptationFieldExists = (tsPacketHeader & 0x20) != 0;
+
+      if (adaptationFieldExists) {
+        int adaptationFieldLength = packetBuffer.readUnsignedByte();
+        if (adaptationFieldLength > 0) {
+          int flags = packetBuffer.readUnsignedByte();
+          boolean pcrFlagSet = (flags & 0x10) == 0x10;
+          if (pcrFlagSet && adaptationFieldLength >= 7) {
+            byte[] pcrBytes = new byte[6];
+            packetBuffer.readBytes(pcrBytes, 0, pcrBytes.length);
+
+            long positionUs = getPcrPositionUs(pcrBytes);
+            long existingValueForPid = pcrs.get(pid, collectMinValues ?
+                Long.MAX_VALUE : Long.MIN_VALUE);
+            if (collectMinValues == positionUs < existingValueForPid) {
+              pcrs.put(pid, positionUs);
+            }
+          }
+        }
+      }
+      packetBuffer.setPosition(endOfPacket);
+    }
+
+    return pcrs;
+  }
+
+  // Calculate time position in microseconds from a pcr value
+  private long getPcrPositionUs(byte[] pcrBytes) {
+    long pcr = (((long)((pcrBytes[0] << 24)
+        + (pcrBytes[1] << 16 & 0x00FF0000)
+        + (pcrBytes[2] << 8 & 0x0000FF00)
+        + (pcrBytes[3] & 0x000000FF))) << 1 & 0x00000001FFFFFFFFL)
+        + (pcrBytes[4] >> 7 & 1);
+    return (pcr / 90) * 1000;
+  }
 
   private void resetPayloadReaders() {
     trackIds.clear();
