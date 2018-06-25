@@ -42,6 +42,8 @@
   ([#4403](https://github.com/google/ExoPlayer/issues/4403)).
 * Deprecate `Player.DefaultEventListener` as selective listener overrides can
   be directly made with the `Player.EventListener` interface.
+* Deprecate `DefaultAnalyticsListener` as selective listener overrides can be
+  directly made with the `AnalyticsListener` interface.
 
 ### 2.8.2 ###
 
