@@ -27,6 +27,7 @@ import com.google.android.exoplayer2.source.hls.playlist.HlsMasterPlaylist.HlsUr
 import com.google.android.exoplayer2.source.hls.playlist.HlsMediaPlaylist.Segment;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.Loader;
+import com.google.android.exoplayer2.upstream.Loader.LoadErrorAction;
 import com.google.android.exoplayer2.upstream.ParsingLoadable;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.UriUtil;
@@ -229,7 +230,7 @@ public final class DefaultHlsPlaylistTracker
   }
 
   @Override
-  public @Loader.RetryAction int onLoadError(
+  public LoadErrorAction onLoadError(
       ParsingLoadable<HlsPlaylist> loadable,
       long elapsedRealtimeMs,
       long loadDurationMs,
@@ -485,7 +486,7 @@ public final class DefaultHlsPlaylistTracker
     }
 
     @Override
-    public @Loader.RetryAction int onLoadError(
+    public LoadErrorAction onLoadError(
         ParsingLoadable<HlsPlaylist> loadable,
         long elapsedRealtimeMs,
         long loadDurationMs,
