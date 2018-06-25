@@ -178,15 +178,18 @@ public final class TsExtractor implements Extractor {
   public boolean sniff(ExtractorInput input) throws IOException, InterruptedException {
     byte[] buffer = tsPacketBuffer.data;
     input.peekFully(buffer, 0, TS_PACKET_SIZE * SNIFF_TS_PACKET_COUNT);
-    for (int j = 0; j < TS_PACKET_SIZE; j++) {
-      for (int i = 0; true; i++) {
-        if (i == SNIFF_TS_PACKET_COUNT) {
-          input.skipFully(j);
-          return true;
-        }
-        if (buffer[j + i * TS_PACKET_SIZE] != TS_SYNC_BYTE) {
+    for (int startPosCandidate = 0; startPosCandidate < TS_PACKET_SIZE; startPosCandidate++) {
+      // Try to identify at least SNIFF_TS_PACKET_COUNT packets starting with TS_SYNC_BYTE.
+      boolean isSyncBytePatternCorrect = true;
+      for (int i = 0; i < SNIFF_TS_PACKET_COUNT; i++) {
+        if (buffer[startPosCandidate + i * TS_PACKET_SIZE] != TS_SYNC_BYTE) {
+          isSyncBytePatternCorrect = false;
           break;
         }
+      }
+      if (isSyncBytePatternCorrect) {
+        input.skipFully(startPosCandidate);
+        return true;
       }
     }
     return false;
@@ -219,46 +222,17 @@ public final class TsExtractor implements Extractor {
   @Override
   public int read(ExtractorInput input, PositionHolder seekPosition)
       throws IOException, InterruptedException {
-    byte[] data = tsPacketBuffer.data;
-
-    // Shift bytes to the start of the buffer if there isn't enough space left at the end.
-    if (BUFFER_SIZE - tsPacketBuffer.getPosition() < TS_PACKET_SIZE) {
-      int bytesLeft = tsPacketBuffer.bytesLeft();
-      if (bytesLeft > 0) {
-        System.arraycopy(data, tsPacketBuffer.getPosition(), data, 0, bytesLeft);
-      }
-      tsPacketBuffer.reset(data, bytesLeft);
+    if (!fillBufferWithAtLeastOnePacket(input)) {
+      return RESULT_END_OF_INPUT;
     }
 
-    // Read more bytes until we have at least one packet.
-    while (tsPacketBuffer.bytesLeft() < TS_PACKET_SIZE) {
-      int limit = tsPacketBuffer.limit();
-      int read = input.read(data, limit, BUFFER_SIZE - limit);
-      if (read == C.RESULT_END_OF_INPUT) {
-        return RESULT_END_OF_INPUT;
-      }
-      tsPacketBuffer.setLimit(limit + read);
+    int endOfPacket = findEndOfFirstTsPacketInBuffer();
+    int limit = tsPacketBuffer.limit();
+    if (endOfPacket > limit) {
+      return RESULT_CONTINUE;
     }
 
     // Note: See ISO/IEC 13818-1, section 2.4.3.2 for details of the header format.
-    int limit = tsPacketBuffer.limit();
-    int position = tsPacketBuffer.getPosition();
-    int searchStart = position;
-    while (position < limit && data[position] != TS_SYNC_BYTE) {
-      position++;
-    }
-    tsPacketBuffer.setPosition(position);
-
-    int endOfPacket = position + TS_PACKET_SIZE;
-    if (endOfPacket > limit) {
-      bytesSinceLastSync += position - searchStart;
-      if (mode == MODE_HLS && bytesSinceLastSync > TS_PACKET_SIZE * 2) {
-        throw new ParserException("Cannot find sync byte. Most likely not a Transport Stream.");
-      }
-      return RESULT_CONTINUE;
-    }
-    bytesSinceLastSync = 0;
-
     int tsPacketHeader = tsPacketBuffer.readInt();
     if ((tsPacketHeader & 0x800000) != 0) { // transport_error_indicator
       // There are uncorrectable errors in this packet.
@@ -309,6 +283,67 @@ public final class TsExtractor implements Extractor {
   }
 
   // Internals.
+
+  private boolean fillBufferWithAtLeastOnePacket(ExtractorInput input)
+      throws IOException, InterruptedException {
+    byte[] data = tsPacketBuffer.data;
+    // Shift bytes to the start of the buffer if there isn't enough space left at the end.
+    if (BUFFER_SIZE - tsPacketBuffer.getPosition() < TS_PACKET_SIZE) {
+      int bytesLeft = tsPacketBuffer.bytesLeft();
+      if (bytesLeft > 0) {
+        System.arraycopy(data, tsPacketBuffer.getPosition(), data, 0, bytesLeft);
+      }
+      tsPacketBuffer.reset(data, bytesLeft);
+    }
+    // Read more bytes until we have at least one packet.
+    while (tsPacketBuffer.bytesLeft() < TS_PACKET_SIZE) {
+      int limit = tsPacketBuffer.limit();
+      int read = input.read(data, limit, BUFFER_SIZE - limit);
+      if (read == C.RESULT_END_OF_INPUT) {
+        return false;
+      }
+      tsPacketBuffer.setLimit(limit + read);
+    }
+    return true;
+  }
+
+  /**
+   * Returns the position of the end of the first TS packet (exclusive) in the packet buffer.
+   *
+   * <p>This may be a position beyond the buffer limit if the packet has not been read fully into
+   * the buffer, or if no packet could be found within the buffer.
+   */
+  private int findEndOfFirstTsPacketInBuffer() throws ParserException {
+    int searchStart = tsPacketBuffer.getPosition();
+    int limit = tsPacketBuffer.limit();
+    int syncBytePosition = findSyncBytePosition(tsPacketBuffer.data, searchStart, limit);
+    // Discard all bytes before the sync byte.
+    // If sync byte is not found, this means discard the whole buffer.
+    tsPacketBuffer.setPosition(syncBytePosition);
+    int endOfPacket = syncBytePosition + TS_PACKET_SIZE;
+    if (endOfPacket > limit) {
+      bytesSinceLastSync += syncBytePosition - searchStart;
+      if (mode == MODE_HLS && bytesSinceLastSync > TS_PACKET_SIZE * 2) {
+        throw new ParserException("Cannot find sync byte. Most likely not a Transport Stream.");
+      }
+    } else {
+      // We have found a packet within the buffer.
+      bytesSinceLastSync = 0;
+    }
+    return endOfPacket;
+  }
+
+  /**
+   * Returns the position of the first TS_SYNC_BYTE within the range [startPosition, limitPosition)
+   * from the provided data array, or returns limitPosition if sync byte could not be found.
+   */
+  private static int findSyncBytePosition(byte[] data, int startPosition, int limitPosition) {
+    int position = startPosition;
+    while (position < limitPosition && data[position] != TS_SYNC_BYTE) {
+      position++;
+    }
+    return position;
+  }
 
   private void resetPayloadReaders() {
     trackIds.clear();
