@@ -38,6 +38,7 @@ import com.google.android.exoplayer2.upstream.Allocator;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DataSpec;
 import com.google.android.exoplayer2.upstream.Loader;
+import com.google.android.exoplayer2.upstream.Loader.LoadErrorAction;
 import com.google.android.exoplayer2.upstream.Loader.Loadable;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.ConditionVariable;
@@ -532,7 +533,7 @@ import java.util.Arrays;
   }
 
   @Override
-  public @Loader.RetryAction int onLoadError(
+  public LoadErrorAction onLoadError(
       ExtractingLoadable loadable, long elapsedRealtimeMs, long loadDurationMs, IOException error) {
     boolean isErrorFatal = isLoadableExceptionFatal(error);
     eventDispatcher.loadError(

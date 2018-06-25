@@ -40,6 +40,7 @@ import com.google.android.exoplayer2.source.hls.playlist.HlsMasterPlaylist.HlsUr
 import com.google.android.exoplayer2.trackselection.TrackSelection;
 import com.google.android.exoplayer2.upstream.Allocator;
 import com.google.android.exoplayer2.upstream.Loader;
+import com.google.android.exoplayer2.upstream.Loader.LoadErrorAction;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.Util;
@@ -602,7 +603,7 @@ import java.util.Arrays;
   }
 
   @Override
-  public @Loader.RetryAction int onLoadError(
+  public LoadErrorAction onLoadError(
       Chunk loadable, long elapsedRealtimeMs, long loadDurationMs, IOException error) {
     long bytesLoaded = loadable.bytesLoaded();
     boolean isMediaChunk = isMediaChunk(loadable);

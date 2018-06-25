@@ -23,6 +23,7 @@ import android.os.SystemClock;
 import android.support.annotation.IntDef;
 import android.support.annotation.Nullable;
 import android.util.Log;
+import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.TraceUtil;
 import com.google.android.exoplayer2.util.Util;
@@ -110,12 +111,12 @@ public final class Loader implements LoaderErrorThrower {
      * @param elapsedRealtimeMs {@link SystemClock#elapsedRealtime} when the error occurred.
      * @param loadDurationMs The duration of the load up to the point at which the error occurred.
      * @param error The load error.
-     * @return The desired retry action. One of {@link Loader#RETRY}, {@link
-     *     Loader#RETRY_RESET_ERROR_COUNT}, {@link Loader#DONT_RETRY} and {@link
-     *     Loader#DONT_RETRY_FATAL}.
+     * @return The desired error handling action. One of {@link Loader#RETRY}, {@link
+     *     Loader#RETRY_RESET_ERROR_COUNT}, {@link Loader#DONT_RETRY}, {@link
+     *     Loader#DONT_RETRY_FATAL} or a retry action created by {@link #createRetryAction}.
      */
-    @RetryAction
-    int onLoadError(T loadable, long elapsedRealtimeMs, long loadDurationMs, IOException error);
+    LoadErrorAction onLoadError(
+        T loadable, long elapsedRealtimeMs, long loadDurationMs, IOException error);
   }
 
   /**
@@ -130,15 +131,51 @@ public final class Loader implements LoaderErrorThrower {
 
   }
 
-  /** Actions that can be taken in response to a load error. */
+  /** Types of action that can be taken in response to a load error. */
   @Retention(RetentionPolicy.SOURCE)
-  @IntDef({RETRY, RETRY_RESET_ERROR_COUNT, DONT_RETRY, DONT_RETRY_FATAL})
-  public @interface RetryAction {}
+  @IntDef({
+    ACTION_TYPE_RETRY,
+    ACTION_TYPE_RETRY_AND_RESET_ERROR_COUNT,
+    ACTION_TYPE_DONT_RETRY,
+    ACTION_TYPE_DONT_RETRY_FATAL
+  })
+  private @interface RetryActionType {}
 
-  public static final int RETRY = 0;
-  public static final int RETRY_RESET_ERROR_COUNT = 1;
-  public static final int DONT_RETRY = 2;
-  public static final int DONT_RETRY_FATAL = 3;
+  private static final int ACTION_TYPE_RETRY = 0;
+  private static final int ACTION_TYPE_RETRY_AND_RESET_ERROR_COUNT = 1;
+  private static final int ACTION_TYPE_DONT_RETRY = 2;
+  private static final int ACTION_TYPE_DONT_RETRY_FATAL = 3;
+
+  /** Retries the load using the default delay. */
+  public static final LoadErrorAction RETRY =
+      createRetryAction(/* resetErrorCount= */ false, C.TIME_UNSET);
+  /** Retries the load using the default delay and resets the error count. */
+  public static final LoadErrorAction RETRY_RESET_ERROR_COUNT =
+      createRetryAction(/* resetErrorCount= */ true, C.TIME_UNSET);
+  /** Discards the failed loading task and ignores any errors that have occurred. */
+  public static final LoadErrorAction DONT_RETRY =
+      new LoadErrorAction(ACTION_TYPE_DONT_RETRY, C.TIME_UNSET);
+  /**
+   * Discards the failed load. The next call to {@link #maybeThrowError()} will throw the last load
+   * error.
+   */
+  public static final LoadErrorAction DONT_RETRY_FATAL =
+      new LoadErrorAction(ACTION_TYPE_DONT_RETRY_FATAL, C.TIME_UNSET);
+
+  /**
+   * Action that can be taken in response to {@link Callback#onLoadError(Loadable, long, long,
+   * IOException)}.
+   */
+  public static final class LoadErrorAction {
+
+    private final @RetryActionType int type;
+    private final long retryDelayMillis;
+
+    private LoadErrorAction(@RetryActionType int type, long retryDelayMillis) {
+      this.type = type;
+      this.retryDelayMillis = retryDelayMillis;
+    }
+  }
 
   private final ExecutorService downloadExecutorService;
 
@@ -150,6 +187,19 @@ public final class Loader implements LoaderErrorThrower {
    */
   public Loader(String threadName) {
     this.downloadExecutorService = Util.newSingleThreadExecutor(threadName);
+  }
+
+  /**
+   * Creates a {@link LoadErrorAction} for retrying with the given parameters.
+   *
+   * @param resetErrorCount Whether the previous error count should be set to zero.
+   * @param retryDelayMillis The number of milliseconds to wait before retrying.
+   * @return A {@link LoadErrorAction} for retrying with the given parameters.
+   */
+  public static LoadErrorAction createRetryAction(boolean resetErrorCount, long retryDelayMillis) {
+    return new LoadErrorAction(
+        resetErrorCount ? ACTION_TYPE_RETRY_AND_RESET_ERROR_COUNT : ACTION_TYPE_RETRY,
+        retryDelayMillis);
   }
 
   /**
@@ -395,12 +445,16 @@ public final class Loader implements LoaderErrorThrower {
           break;
         case MSG_IO_EXCEPTION:
           currentError = (IOException) msg.obj;
-          int retryAction = callback.onLoadError(loadable, nowMs, durationMs, currentError);
-          if (retryAction == DONT_RETRY_FATAL) {
+          LoadErrorAction action = callback.onLoadError(loadable, nowMs, durationMs, currentError);
+          if (action.type == ACTION_TYPE_DONT_RETRY_FATAL) {
             fatalError = currentError;
-          } else if (retryAction != DONT_RETRY) {
-            errorCount = retryAction == RETRY_RESET_ERROR_COUNT ? 1 : errorCount + 1;
-            start(getRetryDelayMillis());
+          } else if (action.type != ACTION_TYPE_DONT_RETRY) {
+            errorCount =
+                action.type == ACTION_TYPE_RETRY_AND_RESET_ERROR_COUNT ? 1 : errorCount + 1;
+            start(
+                action.retryDelayMillis != C.TIME_UNSET
+                    ? action.retryDelayMillis
+                    : getRetryDelayMillis());
           }
           break;
         default:

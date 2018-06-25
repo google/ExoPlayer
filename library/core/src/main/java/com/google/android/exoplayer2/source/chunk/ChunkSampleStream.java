@@ -28,6 +28,7 @@ import com.google.android.exoplayer2.source.SampleStream;
 import com.google.android.exoplayer2.source.SequenceableLoader;
 import com.google.android.exoplayer2.upstream.Allocator;
 import com.google.android.exoplayer2.upstream.Loader;
+import com.google.android.exoplayer2.upstream.Loader.LoadErrorAction;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Util;
 import java.io.IOException;
@@ -409,7 +410,7 @@ public class ChunkSampleStream<T extends ChunkSource> implements SampleStream, S
   }
 
   @Override
-  public @Loader.RetryAction int onLoadError(
+  public LoadErrorAction onLoadError(
       Chunk loadable, long elapsedRealtimeMs, long loadDurationMs, IOException error) {
     long bytesLoaded = loadable.bytesLoaded();
     boolean isMediaChunk = isMediaChunk(loadable);

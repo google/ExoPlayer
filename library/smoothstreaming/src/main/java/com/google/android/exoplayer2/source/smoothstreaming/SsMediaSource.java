@@ -41,6 +41,7 @@ import com.google.android.exoplayer2.source.smoothstreaming.manifest.SsUtil;
 import com.google.android.exoplayer2.upstream.Allocator;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.Loader;
+import com.google.android.exoplayer2.upstream.Loader.LoadErrorAction;
 import com.google.android.exoplayer2.upstream.LoaderErrorThrower;
 import com.google.android.exoplayer2.upstream.ParsingLoadable;
 import com.google.android.exoplayer2.util.Assertions;
@@ -540,7 +541,7 @@ public final class SsMediaSource extends BaseMediaSource
   }
 
   @Override
-  public @Loader.RetryAction int onLoadError(
+  public LoadErrorAction onLoadError(
       ParsingLoadable<SsManifest> loadable,
       long elapsedRealtimeMs,
       long loadDurationMs,

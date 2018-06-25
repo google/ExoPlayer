@@ -13,6 +13,9 @@
   ([#3972](https://github.com/google/ExoPlayer/issues/3972)).
 * Pass `BandwidthMeter` to `TrackSelection.Factory` which can be used to obtain
   bandwidth estimates in the future. Always null at the moment.
+* Error handling:
+  * Allow configuration of the Loader retry delay
+    ([#3370](https://github.com/google/ExoPlayer/issues/3370)).
 * HLS:
   * Allow injection of custom playlist trackers.
   * Pass HTTP response headers to `HlsExtractorFactory.createExtractor`.
