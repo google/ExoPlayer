@@ -1187,7 +1187,8 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
     // https://github.com/google/ExoPlayer/issues/4084,
     // https://github.com/google/ExoPlayer/issues/4104,
     // https://github.com/google/ExoPlayer/issues/4134,
-    // https://github.com/google/ExoPlayer/issues/4315.
+    // https://github.com/google/ExoPlayer/issues/4315,
+    // https://github.com/google/ExoPlayer/issues/4419.
     return (("deb".equals(Util.DEVICE) // Nexus 7 (2013)
                 || "flo".equals(Util.DEVICE) // Nexus 7 (2013)
                 || "mido".equals(Util.DEVICE) // Redmi Note 4
@@ -1204,6 +1205,8 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
                 || "woods_f".equals(Util.MODEL) // Moto E (4)
                 || "watson".equals(Util.DEVICE)) // Moto C
             && "OMX.MTK.VIDEO.DECODER.AVC".equals(name))
+      || (("needle".equals(Util.DEVICE)) // FireTV 4K
+            && "OMX.amlogic.avc.decoder.awesome".equals(name))
         || (("ALE-L21".equals(Util.MODEL) // Huawei P8 Lite
                 || "CAM-L21".equals(Util.MODEL)) // Huawei Y6II
             && "OMX.k3.video.decoder.avc".equals(name))
