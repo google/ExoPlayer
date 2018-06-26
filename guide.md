@@ -182,6 +182,10 @@ SimpleExoPlayer player =
     ExoPlayerFactory.newSimpleInstance(context, trackSelector);
 {% endhighlight %}
 
+ExoPlayer instances must be accessed from a single application thread. This must
+be the thread the player is created on if that thread has a {@link Looper}, or
+the application's main thread otherwise.
+
 ### Attaching the player to a view ###
 
 The ExoPlayer library provides a `PlayerView`, which encapsulates a
@@ -230,10 +234,10 @@ player.prepare(videoSource);
 ### Controlling the player ###
 
 Once the player has been prepared, playback can be controlled by calling methods
-on the player. For example `setPlayWhenReady` can be used to start and pause
-playback, the various `seekTo` methods can be used to seek within the media,
-`setRepeatMode` can be used to control if and how the media is looped, and
-`setPlaybackParameters` can be used to adjust the playback speed and pitch.
+on the player. For example `setPlayWhenReady` starts and pauses playback, the
+various `seekTo` methods seek within the media,`setRepeatMode` controls if and
+how media is looped, `setShuffleModeEnabled` controls playlist shuffling, and
+`setPlaybackParameters` adjusts playback speed and pitch.
 
 If the player is bound to a `PlayerView` or `PlayerControlView` then user
 interaction with these components will cause corresponding methods on the player
@@ -276,12 +280,90 @@ files (`ExtractorMediaSource`). Examples of how to instantiate all four can be
 found in `PlayerActivity` in the [main demo app][].
 
 In addition to the MediaSource implementations described above, the ExoPlayer
-library also provides `MergingMediaSource`, `LoopingMediaSource` and
-`ConcatenatingMediaSource`. These `MediaSource` implementations enable more
-complex playback functionality through composition. Some of the common use
-cases are described below. Note that although the following examples are
-described in the context of video playback, they apply equally to audio only
-playback too, and indeed to the playback of any supported media type(s).
+library also provides `ConcatenatingMediaSource`, `ClippingMediaSource`,
+`LoopingMediaSource` and `MergingMediaSource`. These `MediaSource`
+implementations enable more complex playback functionality through composition.
+Some of the common use cases are described below. Note that although the
+following examples are described in the context of video playback, they apply
+equally to audio only playback too, and indeed to the playback of any supported
+media type(s).
+
+### Playlists ###
+
+Playlists are supported using `ConcatenatingMediaSource`, which enables
+sequential playback of multiple `MediaSource`s. The following example represents
+a playlist consisting of two videos.
+
+{% highlight java %}
+MediaSource firstSource =
+    new ExtractorMediaSource.Factory(...).createMediaSource(firstVideoUri);
+MediaSource secondSource =
+    new ExtractorMediaSource.Factory(...).createMediaSource(secondVideoUri);
+// Plays the first video, then the second video.
+ConcatenatingMediaSource concatenatedSource =
+    new ConcatenatingMediaSource(firstSource, secondSource);
+{% endhighlight %}
+
+Transitions between the concatenated sources are seamless. There is no
+requirement that they are of the same format (e.g., it’s fine to concatenate a
+video file containing 480p H264 with one that contains 720p VP9). They may even
+be of different types (e.g., it’s fine to concatenate a video with an audio only
+stream). It's allowed to use individual `MediaSource`s multiple times within a
+concatenation.
+
+It's possible to dynamically modify a playlist by adding, removing and moving
+`MediaSource`s within a `ConcatenatingMediaSource`. This can be done both before
+and during playback by calling the corresponding `ConcatenatingMediaSource`
+methods. The player automatically handles modifications during playback in the
+correct way. For example if the currently playing `MediaSource` is moved,
+playback is not interrupted and its new successor will be played upon
+completion. If the currently playing `MediaSource` is removed, the player will
+automatically move to playing the first remaining successor, or transition to
+the ended state if no such successor exists.
+
+### Clipping a video ###
+
+`ClippingMediaSource` can be used to clip a `MediaSource` so that only part of
+it is played. The following example clips a video playback to start at 5 seconds
+and end at 10 seconds.
+
+{% highlight java %}
+MediaSource videoSource =
+    new ExtractorMediaSource.Factory(...).createMediaSource(videoUri);
+// Clip to start at 5 seconds and end at 10 seconds.
+ClippingMediaSource clippingSource =
+    new ClippingMediaSource(
+        videoSource,
+        /* startPositionUs= */ 5_000_000,
+        /* endPositionUs= */ 10_000_000);
+{% endhighlight %}
+
+To clip only the start of the source, `endPositionUs` can be set to
+`C.TIME_END_OF_SOURCE`. To clip only to a particular duration, there is a
+constructor that takes a `durationUs` argument.
+
+{% include info-box.html content="When clipping the start of a video file, try
+to align the start position with a keyframe if possible. If the start position
+is not aligned with a keyframe then the player will need to decode and discard
+data from the previous keyframe up to the start position before playback can
+begin. This will introduce a short delay at the start of playback, including
+when the player transitions to playing the `ClippingMediaSource` as part of a
+playlist or due to looping." %}
+
+### Looping a video ###
+
+{% include info-box.html content="To loop indefinitely, it is usually better to
+use `ExoPlayer.setRepeatMode` instead of `LoopingMediaSource`." %}
+
+A video can be seamlessly looped a fixed number of times using a
+`LoopingMediaSource`. The following example plays a video twice.
+
+{% highlight java %}
+MediaSource source =
+    new ExtractorMediaSource.Factory(...).createMediaSource(videoUri);
+// Plays the video twice.
+LoopingMediaSource loopingSource = new LoopingMediaSource(source, 2);
+{% endhighlight %}
 
 ### Side-loading a subtitle file ###
 
@@ -304,43 +386,6 @@ MediaSource subtitleSource =
 // Plays the video with the sideloaded subtitle.
 MergingMediaSource mergedSource =
     new MergingMediaSource(videoSource, subtitleSource);
-{% endhighlight %}
-
-### Looping a video ###
-
-{% include info-box.html content="To loop indefinitely, it is usually better to
-use `ExoPlayer.setRepeatMode` instead of `LoopingMediaSource`." %}
-
-A video can be seamlessly looped a fixed number of times using a
-`LoopingMediaSource`. The following example plays a video twice.
-
-{% highlight java %}
-MediaSource source =
-    new ExtractorMediaSource.Factory(...).createMediaSource(videoUri);
-// Plays the video twice.
-LoopingMediaSource loopingSource = new LoopingMediaSource(source, 2);
-{% endhighlight %}
-
-### Playing a sequence of videos ###
-
-`ConcatenatingMediaSource` enables sequential playback of multiple individual
-`MediaSource`s. The following example plays two videos in sequence. Transitions
-between sources are seamless. There is no requirement that the sources being
-concatenated are of the same format (e.g., it’s fine to concatenate a video file
-containing 480p H264 with one that contains 720p VP9). The sources may even be
-of different types (e.g., it’s fine to concatenate a video with an audio only
-stream). It's also allowed to use individual `MediaSource`s multiple times
-within a concatenation. `MediaSource`s can also be dynamically added, removed
-and moved both before and during playback.
-
-{% highlight java %}
-MediaSource firstSource =
-    new ExtractorMediaSource.Factory(...).createMediaSource(firstVideoUri);
-MediaSource secondSource =
-    new ExtractorMediaSource.Factory(...).createMediaSource(secondVideoUri);
-// Plays the first video, then the second video.
-ConcatenatingMediaSource concatenatedSource =
-    new ConcatenatingMediaSource(firstSource, secondSource);
 {% endhighlight %}
 
 ### Advanced composition ###
@@ -437,7 +482,7 @@ When building custom components, we recommend the following:
   changes by calling ExoPlayer’s `sendMessages` and `blockingSendMessages`
   methods.
 
-## Advanced topics ##  
+## Advanced topics ##
 
 ### Digital Rights Management ###
 
