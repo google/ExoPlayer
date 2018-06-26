@@ -20,7 +20,9 @@ import static com.google.android.exoplayer2.util.MimeTypes.VIDEO_MP4;
 import static com.google.android.exoplayer2.util.MimeTypes.VIDEO_WEBM;
 import static com.google.common.truth.Truth.assertThat;
 
+import android.os.Bundle;
 import android.os.Parcel;
+
 import com.google.android.exoplayer2.drm.DrmInitData;
 import com.google.android.exoplayer2.metadata.Metadata;
 import com.google.android.exoplayer2.metadata.id3.TextInformationFrame;
@@ -63,11 +65,12 @@ public final class FormatTest {
         new TextInformationFrame("id2", "description2", "value2"));
     ColorInfo colorInfo =  new ColorInfo(C.COLOR_SPACE_BT709,
         C.COLOR_RANGE_LIMITED, C.COLOR_TRANSFER_SDR, new byte[] {1, 2, 3, 4, 5, 6, 7});
-
+    Bundle params = new Bundle();
+    params.putInt(Format.KEY_ASPECT_RATIO_TYPE, 100);
     Format formatToParcel = new Format("id", MimeTypes.VIDEO_MP4, MimeTypes.VIDEO_H264, null,
         1024, 2048, 1920, 1080, 24, 90, 2, projectionData, C.STEREO_MODE_TOP_BOTTOM, colorInfo, 6,
         44100, C.ENCODING_PCM_24BIT, 1001, 1002, 0, "und", Format.NO_VALUE,
-        Format.OFFSET_SAMPLE_RELATIVE, INIT_DATA, drmInitData, metadata);
+        Format.OFFSET_SAMPLE_RELATIVE, INIT_DATA, drmInitData, metadata, params);
 
     Parcel parcel = Parcel.obtain();
     formatToParcel.writeToParcel(parcel, 0);
@@ -75,6 +78,8 @@ public final class FormatTest {
 
     Format formatFromParcel = Format.CREATOR.createFromParcel(parcel);
     assertThat(formatFromParcel).isEqualTo(formatToParcel);
+    int aspectRatio = formatFromParcel.params.getInt(Format.KEY_ASPECT_RATIO_TYPE);
+    assertThat(aspectRatio).isEqualTo(100);
 
     parcel.recycle();
   }
