@@ -49,6 +49,7 @@ public final class PsshAtomUtil {
    * @param data The scheme specific data.
    * @return The PSSH atom.
    */
+  @SuppressWarnings("ParameterNotNullable")
   public static byte[] buildPsshAtom(
       UUID systemId, @Nullable UUID[] keyIds, @Nullable byte[] data) {
     boolean buildV1Atom = keyIds != null;

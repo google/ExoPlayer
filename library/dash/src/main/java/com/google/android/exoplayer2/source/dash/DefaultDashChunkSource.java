@@ -354,7 +354,10 @@ public class DefaultDashChunkSource implements DashChunkSource {
       if (representationHolder.segmentIndex == null) {
         SeekMap seekMap = representationHolder.extractorWrapper.getSeekMap();
         if (seekMap != null) {
-          representationHolder.segmentIndex = new DashWrappingSegmentIndex((ChunkIndex) seekMap);
+          representationHolder.segmentIndex =
+              new DashWrappingSegmentIndex(
+                  (ChunkIndex) seekMap,
+                  representationHolder.representation.presentationTimeOffsetUs);
         }
       }
     }

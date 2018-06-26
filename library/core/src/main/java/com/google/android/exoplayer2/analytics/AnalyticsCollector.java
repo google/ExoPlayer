@@ -46,6 +46,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
+import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 /**
  * Data collector which is able to forward analytics events to {@link AnalyticsListener}s by
@@ -66,29 +67,34 @@ public class AnalyticsCollector
     /**
      * Creates an analytics collector for the specified player.
      *
-     * @param player The {@link Player} for which data will be collected.
+     * @param player The {@link Player} for which data will be collected. Can be null, if the player
+     *     is set by calling {@link AnalyticsCollector#setPlayer(Player)} before using the analytics
+     *     collector.
      * @param clock A {@link Clock} used to generate timestamps.
      * @return An analytics collector.
      */
-    public AnalyticsCollector createAnalyticsCollector(Player player, Clock clock) {
+    public AnalyticsCollector createAnalyticsCollector(@Nullable Player player, Clock clock) {
       return new AnalyticsCollector(player, clock);
     }
   }
 
   private final CopyOnWriteArraySet<AnalyticsListener> listeners;
-  private final Player player;
   private final Clock clock;
   private final Window window;
   private final MediaPeriodQueueTracker mediaPeriodQueueTracker;
 
+  private @MonotonicNonNull Player player;
+
   /**
    * Creates an analytics collector for the specified player.
    *
-   * @param player The {@link Player} for which data will be collected.
+   * @param player The {@link Player} for which data will be collected. Can be null, if the player
+   *     is set by calling {@link AnalyticsCollector#setPlayer(Player)} before using the analytics
+   *     collector.
    * @param clock A {@link Clock} used to generate timestamps.
    */
-  protected AnalyticsCollector(Player player, Clock clock) {
-    this.player = Assertions.checkNotNull(player);
+  protected AnalyticsCollector(@Nullable Player player, Clock clock) {
+    this.player = player;
     this.clock = Assertions.checkNotNull(clock);
     listeners = new CopyOnWriteArraySet<>();
     mediaPeriodQueueTracker = new MediaPeriodQueueTracker();
@@ -111,6 +117,17 @@ public class AnalyticsCollector
    */
   public void removeListener(AnalyticsListener listener) {
     listeners.remove(listener);
+  }
+
+  /**
+   * Sets the player for which data will be collected. Must only be called if no player has been set
+   * yet.
+   *
+   * @param player The {@link Player} for which data will be collected.
+   */
+  public void setPlayer(Player player) {
+    Assertions.checkState(this.player == null);
+    this.player = Assertions.checkNotNull(player);
   }
 
   // External events.
@@ -541,6 +558,7 @@ public class AnalyticsCollector
 
   /** Returns a new {@link EventTime} for the specified window index and media period id. */
   protected EventTime generateEventTime(int windowIndex, @Nullable MediaPeriodId mediaPeriodId) {
+    Assertions.checkNotNull(player);
     long realtimeMs = clock.elapsedRealtime();
     Timeline timeline = player.getCurrentTimeline();
     long eventPositionMs;
@@ -579,7 +597,7 @@ public class AnalyticsCollector
 
   private EventTime generateEventTime(@Nullable WindowAndMediaPeriodId mediaPeriod) {
     if (mediaPeriod == null) {
-      int windowIndex = player.getCurrentWindowIndex();
+      int windowIndex = Assertions.checkNotNull(player).getCurrentWindowIndex();
       MediaPeriodId mediaPeriodId = mediaPeriodQueueTracker.tryResolveWindowIndex(windowIndex);
       return generateEventTime(windowIndex, mediaPeriodId);
     }

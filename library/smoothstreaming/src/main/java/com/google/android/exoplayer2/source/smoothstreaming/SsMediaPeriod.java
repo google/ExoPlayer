@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.source.smoothstreaming;
 
+import android.support.annotation.Nullable;
 import android.util.Base64;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.SeekParameters;
@@ -52,7 +53,7 @@ import java.util.ArrayList;
   private final TrackEncryptionBox[] trackEncryptionBoxes;
   private final CompositeSequenceableLoaderFactory compositeSequenceableLoaderFactory;
 
-  private Callback callback;
+  private @Nullable Callback callback;
   private SsManifest manifest;
   private ChunkSampleStream<SsChunkSource>[] sampleStreams;
   private SequenceableLoader compositeSequenceableLoader;
@@ -98,6 +99,7 @@ import java.util.ArrayList;
     for (ChunkSampleStream<SsChunkSource> sampleStream : sampleStreams) {
       sampleStream.release();
     }
+    callback = null;
     eventDispatcher.mediaPeriodReleased();
   }
 

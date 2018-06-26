@@ -160,9 +160,9 @@ public abstract class DownloadService extends Service {
    * Starts the service, adding an action to be executed.
    *
    * @param context A {@link Context}.
-   * @param clazz The concrete download service being targeted by the intent.
+   * @param clazz The concrete download service to be started.
    * @param downloadAction The action to be executed.
-   * @param foreground Whether this intent will be used to start the service in the foreground.
+   * @param foreground Whether the service is started in the foreground.
    */
   public static void startWithAction(
       Context context,
@@ -177,6 +177,33 @@ public abstract class DownloadService extends Service {
     }
   }
 
+  /**
+   * Starts the service without adding a new action. If there are any not finished actions and the
+   * requirements are met, the service resumes executing actions. Otherwise it stops immediately.
+   *
+   * @param context A {@link Context}.
+   * @param clazz The concrete download service to be started.
+   * @see #startForeground(Context, Class)
+   */
+  public static void start(Context context, Class<? extends DownloadService> clazz) {
+    context.startService(new Intent(context, clazz).setAction(ACTION_INIT));
+  }
+
+  /**
+   * Starts the service in the foreground without adding a new action. If there are any not finished
+   * actions and the requirements are met, the service resumes executing actions. Otherwise it stops
+   * immediately.
+   *
+   * @param context A {@link Context}.
+   * @param clazz The concrete download service to be started.
+   * @see #start(Context, Class)
+   */
+  public static void startForeground(Context context, Class<? extends DownloadService> clazz) {
+    Intent intent =
+        new Intent(context, clazz).setAction(ACTION_INIT).putExtra(KEY_FOREGROUND, true);
+    Util.startForegroundService(context, intent);
+  }
+
   @Override
   public void onCreate() {
     logd("onCreate");
@@ -187,17 +214,6 @@ public abstract class DownloadService extends Service {
     downloadManager = getDownloadManager();
     downloadManagerListener = new DownloadManagerListener();
     downloadManager.addListener(downloadManagerListener);
-
-    RequirementsHelper requirementsHelper;
-    synchronized (requirementsHelpers) {
-      Class<? extends DownloadService> clazz = getClass();
-      requirementsHelper = requirementsHelpers.get(clazz);
-      if (requirementsHelper == null) {
-        requirementsHelper = new RequirementsHelper(this, getRequirements(), getScheduler(), clazz);
-        requirementsHelpers.put(clazz, requirementsHelper);
-      }
-    }
-    requirementsHelper.start();
   }
 
   @Override
@@ -237,6 +253,7 @@ public abstract class DownloadService extends Service {
         Log.e(TAG, "Ignoring unrecognized action: " + intentAction);
         break;
     }
+    maybeStartWatchingRequirements();
     if (downloadManager.isIdle()) {
       stop();
     }
@@ -248,14 +265,7 @@ public abstract class DownloadService extends Service {
     logd("onDestroy");
     foregroundNotificationUpdater.stopPeriodicUpdates();
     downloadManager.removeListener(downloadManagerListener);
-    if (downloadManager.getTaskCount() == 0) {
-      synchronized (requirementsHelpers) {
-        RequirementsHelper requirementsHelper = requirementsHelpers.remove(getClass());
-        if (requirementsHelper != null) {
-          requirementsHelper.stop();
-        }
-      }
-    }
+    maybeStopWatchingRequirements();
   }
 
   @Nullable
@@ -312,6 +322,31 @@ public abstract class DownloadService extends Service {
     // Do nothing.
   }
 
+  private void maybeStartWatchingRequirements() {
+    if (downloadManager.getDownloadCount() == 0) {
+      return;
+    }
+    Class<? extends DownloadService> clazz = getClass();
+    RequirementsHelper requirementsHelper = requirementsHelpers.get(clazz);
+    if (requirementsHelper == null) {
+      requirementsHelper = new RequirementsHelper(this, getRequirements(), getScheduler(), clazz);
+      requirementsHelpers.put(clazz, requirementsHelper);
+      requirementsHelper.start();
+      logd("started watching requirements");
+    }
+  }
+
+  private void maybeStopWatchingRequirements() {
+    if (downloadManager.getDownloadCount() > 0) {
+      return;
+    }
+    RequirementsHelper requirementsHelper = requirementsHelpers.remove(getClass());
+    if (requirementsHelper != null) {
+      requirementsHelper.stop();
+      logd("stopped watching requirements");
+    }
+  }
+
   private void stop() {
     foregroundNotificationUpdater.stopPeriodicUpdates();
     // Make sure startForeground is called before stopping. Workaround for [Internal: b/69424260].
@@ -331,7 +366,7 @@ public abstract class DownloadService extends Service {
   private final class DownloadManagerListener implements DownloadManager.Listener {
     @Override
     public void onInitialized(DownloadManager downloadManager) {
-      // Do nothing.
+      maybeStartWatchingRequirements();
     }
 
     @Override

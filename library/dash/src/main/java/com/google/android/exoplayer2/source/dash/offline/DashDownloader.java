@@ -167,7 +167,9 @@ public final class DashDownloader extends SegmentDownloader<DashManifest, Repres
       return index;
     }
     ChunkIndex seekMap = DashUtil.loadChunkIndex(dataSource, trackType, representation);
-    return seekMap == null ? null : new DashWrappingSegmentIndex(seekMap);
+    return seekMap == null
+        ? null
+        : new DashWrappingSegmentIndex(seekMap, representation.presentationTimeOffsetUs);
   }
 
 }

@@ -69,11 +69,6 @@ public final class InitializationChunk extends Chunk {
     loadCanceled = true;
   }
 
-  @Override
-  public boolean isLoadCanceled() {
-    return loadCanceled;
-  }
-
   @SuppressWarnings("NonAtomicVolatileUpdate")
   @Override
   public void load() throws IOException, InterruptedException {

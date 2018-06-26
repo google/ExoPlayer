@@ -48,7 +48,9 @@ public final class TrackSelectorResult {
    *     TrackSelector#onSelectionActivated(Object)} should the selection be activated.
    */
   public TrackSelectorResult(
-      RendererConfiguration[] rendererConfigurations, TrackSelection[] selections, Object info) {
+      RendererConfiguration[] rendererConfigurations,
+      TrackSelection[] selections,
+      Object info) {
     this.rendererConfigurations = rendererConfigurations;
     this.selections = new TrackSelectionArray(selections);
     this.info = info;

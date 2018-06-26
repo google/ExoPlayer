@@ -29,9 +29,7 @@ public final class TrackSelectionArray {
   // Lazily initialized hashcode.
   private int hashCode;
 
-  /**
-   * @param trackSelections The selections. Must not be null, but may contain null elements.
-   */
+  /** @param trackSelections The selections. Must not be null, but may contain null elements. */
   public TrackSelectionArray(TrackSelection... trackSelections) {
     this.trackSelections = trackSelections;
     this.length = trackSelections.length;
@@ -43,13 +41,11 @@ public final class TrackSelectionArray {
    * @param index The index of the selection.
    * @return The selection.
    */
-  public TrackSelection get(int index) {
+  public @Nullable TrackSelection get(int index) {
     return trackSelections[index];
   }
 
-  /**
-   * Returns the selections in a newly allocated array.
-   */
+  /** Returns the selections in a newly allocated array. */
   public TrackSelection[] getAll() {
     return trackSelections.clone();
   }

@@ -262,10 +262,21 @@ public final class DownloadManager {
     return task.id;
   }
 
-  /** Returns the current number of tasks. */
+  /** Returns the number of tasks. */
   public int getTaskCount() {
     Assertions.checkState(!released);
     return tasks.size();
+  }
+
+  /** Returns the number of download tasks. */
+  public int getDownloadCount() {
+    int count = 0;
+    for (int i = 0; i < tasks.size(); i++) {
+      if (!tasks.get(i).action.isRemoveAction) {
+        count++;
+      }
+    }
+    return count;
   }
 
   /** Returns the state of a task, or null if no such task exists */

@@ -207,11 +207,6 @@ import java.util.concurrent.atomic.AtomicInteger;
   }
 
   @Override
-  public boolean isLoadCanceled() {
-    return loadCanceled;
-  }
-
-  @Override
   public void load() throws IOException, InterruptedException {
     maybeLoadInitData();
     if (!loadCanceled) {
@@ -242,7 +237,7 @@ import java.util.concurrent.atomic.AtomicInteger;
         initSegmentBytesLoaded = (int) (input.getPosition() - initDataSpec.absoluteStreamPosition);
       }
     } finally {
-      Util.closeQuietly(dataSource);
+      Util.closeQuietly(initDataSource);
     }
     initLoadCompleted = true;
   }

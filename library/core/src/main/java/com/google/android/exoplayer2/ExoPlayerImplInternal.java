@@ -1543,6 +1543,7 @@ import java.util.Collections;
     }
   }
 
+  @SuppressWarnings("ParameterNotNullable")
   private void updatePlayingPeriodRenderers(@Nullable MediaPeriodHolder oldPlayingPeriodHolder)
       throws ExoPlaybackException {
     MediaPeriodHolder newPlayingPeriodHolder = queue.getPlayingPeriod();
