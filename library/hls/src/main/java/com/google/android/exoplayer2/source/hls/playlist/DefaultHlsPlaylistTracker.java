@@ -106,7 +106,7 @@ public final class DefaultHlsPlaylistTracker
   }
 
   @Override
-  public void release() {
+  public void stop() {
     primaryHlsUrl = null;
     primaryUrlSnapshot = null;
     masterPlaylist = null;
