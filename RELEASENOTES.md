@@ -48,7 +48,7 @@
 * Deprecate `DefaultAnalyticsListener` as selective listener overrides can be
   directly made with the `AnalyticsListener` interface.
 * IMA: Fix behavior when creating/releasing the player then releasing
-  `ImaAdsLoader` ((#3879)[https://github.com/google/ExoPlayer/issues/3879]).
+  `ImaAdsLoader` ([#3879](https://github.com/google/ExoPlayer/issues/3879)).
 
 ### 2.8.2 ###
 
