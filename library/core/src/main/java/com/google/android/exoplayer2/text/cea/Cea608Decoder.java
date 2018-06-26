@@ -374,6 +374,9 @@ public final class Cea608Decoder extends CeaDecoder {
   private void handleMidrowCtrl(byte cc2) {
     // TODO: support the extended styles (i.e. backgrounds and transparencies)
 
+    // A midrow control code advances the cursor.
+    currentCueBuilder.append(' ');
+
     // cc2 - 0|0|1|0|ATRBT|U
     // ATRBT is the 3-byte encoded attribute, and U is the underline toggle
     boolean isUnderlined = (cc2 & 0x01) == 0x01;

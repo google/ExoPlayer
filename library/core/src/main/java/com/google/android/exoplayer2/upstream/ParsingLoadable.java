@@ -78,7 +78,6 @@ public final class ParsingLoadable<T> implements Loadable {
   private final Parser<? extends T> parser;
 
   private volatile T result;
-  private volatile boolean isCanceled;
   private volatile long bytesLoaded;
 
   /**
@@ -128,14 +127,7 @@ public final class ParsingLoadable<T> implements Loadable {
 
   @Override
   public final void cancelLoad() {
-    // We don't actually cancel anything, but we need to record the cancellation so that
-    // isLoadCanceled can return the correct value.
-    isCanceled = true;
-  }
-
-  @Override
-  public final boolean isLoadCanceled() {
-    return isCanceled;
+    // Do nothing.
   }
 
   @Override

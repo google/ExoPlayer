@@ -37,9 +37,9 @@ import com.google.android.exoplayer2.util.Util;
 import java.io.IOException;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Stack;
 
 /**
  * Extracts data from the MP4 container format.
@@ -101,7 +101,7 @@ public final class Mp4Extractor implements Extractor, SeekMap {
   private final ParsableByteArray nalLength;
 
   private final ParsableByteArray atomHeader;
-  private final Stack<ContainerAtom> containerAtoms;
+  private final ArrayDeque<ContainerAtom> containerAtoms;
 
   @State private int parserState;
   private int atomType;
@@ -137,7 +137,7 @@ public final class Mp4Extractor implements Extractor, SeekMap {
   public Mp4Extractor(@Flags int flags) {
     this.flags = flags;
     atomHeader = new ParsableByteArray(Atom.LONG_HEADER_SIZE);
-    containerAtoms = new Stack<>();
+    containerAtoms = new ArrayDeque<>();
     nalStartCode = new ParsableByteArray(NalUnitUtil.NAL_START_CODE);
     nalLength = new ParsableByteArray(4);
     sampleTrackIndex = C.INDEX_UNSET;
@@ -303,7 +303,7 @@ public final class Mp4Extractor implements Extractor, SeekMap {
 
     if (shouldParseContainerAtom(atomType)) {
       long endPosition = input.getPosition() + atomSize - atomHeaderBytesRead;
-      containerAtoms.add(new ContainerAtom(atomType, endPosition));
+      containerAtoms.push(new ContainerAtom(atomType, endPosition));
       if (atomSize == atomHeaderBytesRead) {
         processAtomEnded(endPosition);
       } else {

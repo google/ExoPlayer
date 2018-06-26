@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.trackselection;
 
+import android.support.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.source.TrackGroup;
@@ -90,7 +91,9 @@ public interface TrackSelection {
   int getIndexInTrackGroup(int index);
 
   /**
-   * Returns the index in the selection of the track with the specified format.
+   * Returns the index in the selection of the track with the specified format. The format is
+   * located by identity so, for example, {@code selection.indexOf(selection.getFormat(index)) ==
+   * index} even if multiple selected tracks have formats that contain the same values.
    *
    * @param format The format.
    * @return The index in the selection, or {@link C#INDEX_UNSET} if the track with the specified
@@ -129,10 +132,8 @@ public interface TrackSelection {
    */
   int getSelectionReason();
 
-  /**
-   * Returns optional data associated with the current track selection.
-   */
-  Object getSelectionData();
+  /** Returns optional data associated with the current track selection. */
+  @Nullable Object getSelectionData();
 
   // Adaptation.
 

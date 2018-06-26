@@ -311,10 +311,10 @@ public final class Util {
    * Returns a normalized RFC 639-2/T code for {@code language}.
    *
    * @param language A case-insensitive ISO 639 alpha-2 or alpha-3 language code.
-   * @return The all-lowercase normalized code, or null if the input was null, or
-   *     {@code language.toLowerCase()} if the language could not be normalized.
+   * @return The all-lowercase normalized code, or null if the input was null, or {@code
+   *     language.toLowerCase()} if the language could not be normalized.
    */
-  public static String normalizeLanguageCode(String language) {
+  public static @Nullable String normalizeLanguageCode(@Nullable String language) {
     try {
       return language == null ? null : new Locale(language).getISO3Language();
     } catch (MissingResourceException e) {
@@ -333,6 +333,18 @@ public final class Util {
   }
 
   /**
+   * Returns a new {@link String} constructed by decoding UTF-8 encoded bytes in a subarray.
+   *
+   * @param bytes The UTF-8 encoded bytes to decode.
+   * @param offset The index of the first byte to decode.
+   * @param length The number of bytes to decode.
+   * @return The string.
+   */
+  public static String fromUtf8Bytes(byte[] bytes, int offset, int length) {
+    return new String(bytes, offset, length, Charset.forName(C.UTF8_NAME));
+  }
+
+  /**
    * Returns a new byte array containing the code points of a {@link String} encoded using UTF-8.
    *
    * @param value The {@link String} whose bytes should be obtained.
@@ -340,6 +352,33 @@ public final class Util {
    */
   public static byte[] getUtf8Bytes(String value) {
     return value.getBytes(Charset.forName(C.UTF8_NAME));
+  }
+
+  /**
+   * Splits a string using {@code value.split(regex, -1}). Note: this is is similar to {@link
+   * String#split(String)} but empty matches at the end of the string will not be omitted from the
+   * returned array.
+   *
+   * @param value The string to split.
+   * @param regex A delimiting regular expression.
+   * @return The array of strings resulting from splitting the string.
+   */
+  public static String[] split(String value, String regex) {
+    return value.split(regex, /* limit= */ -1);
+  }
+
+  /**
+   * Splits the string at the first occurrence of the delimiter {@code regex}. If the delimiter does
+   * not match, returns an array with one element which is the input string. If the delimiter does
+   * match, returns an array with the portion of the string before the delimiter and the rest of the
+   * string.
+   *
+   * @param value The string.
+   * @param regex A delimiting regular expression.
+   * @return The string split by the first occurrence of the delimiter.
+   */
+  public static String[] splitAtFirst(String value, String regex) {
+    return value.split(regex, /* limit= */ 2);
   }
 
   /**
@@ -978,7 +1017,7 @@ public final class Util {
     if (TextUtils.isEmpty(codecs)) {
       return null;
     }
-    String[] codecArray = codecs.trim().split("(\\s*,\\s*)");
+    String[] codecArray = split(codecs.trim(), "(\\s*,\\s*)");
     StringBuilder builder = new StringBuilder();
     for (String codec : codecArray) {
       if (trackType == MimeTypes.getTrackTypeOfCodec(codec)) {
@@ -1454,7 +1493,7 @@ public final class Util {
         // If we managed to read sys.display-size, attempt to parse it.
         if (!TextUtils.isEmpty(sysDisplaySize)) {
           try {
-            String[] sysDisplaySizeParts = sysDisplaySize.trim().split("x");
+            String[] sysDisplaySizeParts = split(sysDisplaySize.trim(), "x");
             if (sysDisplaySizeParts.length == 2) {
               int width = Integer.parseInt(sysDisplaySizeParts[0]);
               int height = Integer.parseInt(sysDisplaySizeParts[1]);

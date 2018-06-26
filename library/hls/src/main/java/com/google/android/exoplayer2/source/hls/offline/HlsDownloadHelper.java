@@ -73,6 +73,7 @@ public final class HlsDownloadHelper extends DownloadHelper {
   public TrackGroupArray getTrackGroups(int periodIndex) {
     Assertions.checkNotNull(playlist);
     if (playlist instanceof HlsMediaPlaylist) {
+      renditionTypes = new int[0];
       return TrackGroupArray.EMPTY;
     }
     // TODO: Generate track groups as in playback. Reverse the mapping in getDownloadAction.

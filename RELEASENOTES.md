@@ -1,5 +1,31 @@
 # Release notes #
 
+### 2.8.2 ###
+
+* IMA: Don't advertise support for video/mpeg ad media, as we don't have an
+  extractor for this ([#4297](https://github.com/google/ExoPlayer/issues/4297)).
+* DASH: Fix playback getting stuck when playing representations that have both
+  sidx atoms and non-zero presentationTimeOffset values.
+* HLS:
+  * Allow injection of custom playlist trackers.
+  * Fix adaptation in live playlists with EXT-X-PROGRAM-DATE-TIME tags.
+* Mitigate memory leaks when `MediaSource` loads are slow to cancel
+  ([#4249](https://github.com/google/ExoPlayer/issues/4249)).
+* Fix inconsistent `Player.EventListener` invocations for recursive player state
+  changes ([#4276](https://github.com/google/ExoPlayer/issues/4276)).
+* Fix `MediaCodec.native_setSurface` crash on Moto C
+  ([#4315](https://github.com/google/ExoPlayer/issues/4315)).
+* Fix missing whitespace in CEA-608
+  ([#3906](https://github.com/google/ExoPlayer/issues/3906)).
+* Fix crash downloading HLS media playlists
+  ([#4396](https://github.com/google/ExoPlayer/issues/4396)).
+* Fix a bug where download cancellation was ignored
+  ([#4403](https://github.com/google/ExoPlayer/issues/4403)).
+* Set `METADATA_KEY_TITLE` on media descriptions
+  ([#4292](https://github.com/google/ExoPlayer/issues/4292)).
+* Allow apps to register custom MIME types
+  ([#4264](https://github.com/google/ExoPlayer/issues/4264)).
+
 ### 2.8.1 ###
 
 * HLS:
@@ -59,7 +85,7 @@
     periods are created, released and being read from.
   * Support live stream clipping with `ClippingMediaSource`.
   * Allow setting tags for all media sources in their factories. The tag of the
-    current window can be retrieved with `ExoPlayer.getCurrentTag`.
+    current window can be retrieved with `Player.getCurrentTag`.
 * UI components:
   * Add support for displaying error messages and a buffering spinner in
     `PlayerView`.

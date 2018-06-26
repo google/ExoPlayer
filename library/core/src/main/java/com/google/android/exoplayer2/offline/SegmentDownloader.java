@@ -201,6 +201,8 @@ public abstract class SegmentDownloader<M extends FilterableManifest<M, K>, K>
       throws InterruptedException, IOException;
 
   /** Initializes the download, returning a list of {@link Segment}s that need to be downloaded. */
+  // Writes to downloadedSegments and downloadedBytes are safe. See the comment on download().
+  @SuppressWarnings("NonAtomicVolatileUpdate")
   private List<Segment> initDownload() throws IOException, InterruptedException {
     M manifest = getManifest(dataSource, manifestUri);
     if (!streamKeys.isEmpty()) {

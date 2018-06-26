@@ -19,7 +19,6 @@ import android.os.Handler;
 import android.os.Looper;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.util.SparseIntArray;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.ExoPlayer;
@@ -34,6 +33,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
@@ -656,7 +656,7 @@ public class ConcatenatingMediaSource extends CompositeMediaSource<MediaSourceHo
   /* package */ static final class MediaSourceHolder implements Comparable<MediaSourceHolder> {
 
     public final MediaSource mediaSource;
-    public final int uid;
+    public final Object uid;
 
     public DeferredTimeline timeline;
     public int childIndex;
@@ -668,9 +668,9 @@ public class ConcatenatingMediaSource extends CompositeMediaSource<MediaSourceHo
 
     public MediaSourceHolder(MediaSource mediaSource) {
       this.mediaSource = mediaSource;
-      this.uid = System.identityHashCode(this);
       this.timeline = new DeferredTimeline();
       this.activeMediaPeriods = new ArrayList<>();
+      this.uid = new Object();
     }
 
     public void reset(int childIndex, int firstWindowIndexInChild, int firstPeriodIndexInChild) {
@@ -728,8 +728,8 @@ public class ConcatenatingMediaSource extends CompositeMediaSource<MediaSourceHo
     private final int[] firstPeriodInChildIndices;
     private final int[] firstWindowInChildIndices;
     private final Timeline[] timelines;
-    private final int[] uids;
-    private final SparseIntArray childIndexByUid;
+    private final Object[] uids;
+    private final HashMap<Object, Integer> childIndexByUid;
 
     public ConcatenatedTimeline(
         Collection<MediaSourceHolder> mediaSourceHolders,
@@ -744,8 +744,8 @@ public class ConcatenatingMediaSource extends CompositeMediaSource<MediaSourceHo
       firstPeriodInChildIndices = new int[childCount];
       firstWindowInChildIndices = new int[childCount];
       timelines = new Timeline[childCount];
-      uids = new int[childCount];
-      childIndexByUid = new SparseIntArray();
+      uids = new Object[childCount];
+      childIndexByUid = new HashMap<>();
       int index = 0;
       for (MediaSourceHolder mediaSourceHolder : mediaSourceHolders) {
         timelines[index] = mediaSourceHolder.timeline;
@@ -768,11 +768,8 @@ public class ConcatenatingMediaSource extends CompositeMediaSource<MediaSourceHo
 
     @Override
     protected int getChildIndexByChildUid(Object childUid) {
-      if (!(childUid instanceof Integer)) {
-        return C.INDEX_UNSET;
-      }
-      int index = childIndexByUid.get((int) childUid, -1);
-      return index == -1 ? C.INDEX_UNSET : index;
+      Integer index = childIndexByUid.get(childUid);
+      return index == null ? C.INDEX_UNSET : index;
     }
 
     @Override
@@ -804,7 +801,6 @@ public class ConcatenatingMediaSource extends CompositeMediaSource<MediaSourceHo
     public int getPeriodCount() {
       return periodCount;
     }
-
   }
 
   /**

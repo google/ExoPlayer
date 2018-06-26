@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.trackselection;
 
+import android.support.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.source.TrackGroup;
@@ -242,9 +243,11 @@ public class AdaptiveTrackSelection extends BaseTrackSelection {
     this.minTimeBetweenBufferReevaluationMs = minTimeBetweenBufferReevaluationMs;
     this.clock = clock;
     playbackSpeed = 1f;
-    selectedIndex = determineIdealSelectedIndex(Long.MIN_VALUE);
     reason = C.SELECTION_REASON_INITIAL;
     lastBufferEvaluationMs = C.TIME_UNSET;
+    @SuppressWarnings("nullness:method.invocation.invalid")
+    int selectedIndex = determineIdealSelectedIndex(Long.MIN_VALUE);
+    this.selectedIndex = selectedIndex;
   }
 
   @Override
@@ -301,7 +304,7 @@ public class AdaptiveTrackSelection extends BaseTrackSelection {
   }
 
   @Override
-  public Object getSelectionData() {
+  public @Nullable Object getSelectionData() {
     return null;
   }
 

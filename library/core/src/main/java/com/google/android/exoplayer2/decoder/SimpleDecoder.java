@@ -17,7 +17,7 @@ package com.google.android.exoplayer2.decoder;
 
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.util.Assertions;
-import java.util.LinkedList;
+import java.util.ArrayDeque;
 
 /**
  * Base class for {@link Decoder}s that use their own decode thread.
@@ -28,8 +28,8 @@ public abstract class SimpleDecoder<I extends DecoderInputBuffer, O extends Outp
   private final Thread decodeThread;
 
   private final Object lock;
-  private final LinkedList<I> queuedInputBuffers;
-  private final LinkedList<O> queuedOutputBuffers;
+  private final ArrayDeque<I> queuedInputBuffers;
+  private final ArrayDeque<O> queuedOutputBuffers;
   private final I[] availableInputBuffers;
   private final O[] availableOutputBuffers;
 
@@ -48,8 +48,8 @@ public abstract class SimpleDecoder<I extends DecoderInputBuffer, O extends Outp
    */
   protected SimpleDecoder(I[] inputBuffers, O[] outputBuffers) {
     lock = new Object();
-    queuedInputBuffers = new LinkedList<>();
-    queuedOutputBuffers = new LinkedList<>();
+    queuedInputBuffers = new ArrayDeque<>();
+    queuedOutputBuffers = new ArrayDeque<>();
     availableInputBuffers = inputBuffers;
     availableInputBufferCount = inputBuffers.length;
     for (int i = 0; i < availableInputBufferCount; i++) {

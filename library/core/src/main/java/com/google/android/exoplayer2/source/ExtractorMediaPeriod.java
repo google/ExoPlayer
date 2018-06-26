@@ -90,7 +90,7 @@ import java.util.Arrays;
   private final Runnable onContinueLoadingRequestedRunnable;
   private final Handler handler;
 
-  private Callback callback;
+  private @Nullable Callback callback;
   private SeekMap seekMap;
   private SampleQueue[] sampleQueues;
   private int[] sampleQueueTrackIds;
@@ -190,6 +190,7 @@ import java.util.Arrays;
     }
     loader.release(this);
     handler.removeCallbacksAndMessages(null);
+    callback = null;
     released = true;
     eventDispatcher.mediaPeriodReleased();
   }
@@ -830,11 +831,6 @@ import java.util.Arrays;
     @Override
     public void cancelLoad() {
       loadCanceled = true;
-    }
-
-    @Override
-    public boolean isLoadCanceled() {
-      return loadCanceled;
     }
 
     @Override
