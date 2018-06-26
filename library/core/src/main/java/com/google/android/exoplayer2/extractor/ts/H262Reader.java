@@ -36,6 +36,7 @@ public final class H262Reader implements ElementaryStreamReader {
   private static final int START_SEQUENCE_HEADER = 0xB3;
   private static final int START_EXTENSION = 0xB5;
   private static final int START_GROUP = 0xB8;
+  private static final int START_USER_DATA = 0xB2;
 
   private String formatId;
   private TrackOutput output;
@@ -62,16 +63,30 @@ public final class H262Reader implements ElementaryStreamReader {
   private long sampleTimeUs;
   private boolean sampleIsKeyframe;
   private boolean sampleHasPicture;
-
+  private NalUnitTargetBuffer userData = null;
+  private UserDataReader userDataReader = null;
+  // Scratch variables to avoid allocations.
+  private ParsableByteArray userDataParsable = null;
   public H262Reader() {
+    this(null);
+  }
+  public H262Reader(UserDataReader userDataReader) {
+    this.userDataReader = userDataReader;
     prefixFlags = new boolean[4];
     csdBuffer = new CsdBuffer(128);
+    if (userDataReader != null) {
+      userData = new NalUnitTargetBuffer(START_USER_DATA, 128);
+      userDataParsable = new ParsableByteArray();
+    }
   }
 
   @Override
   public void seek() {
     NalUnitUtil.clearPrefixFlags(prefixFlags);
     csdBuffer.reset();
+    if (userData != null) {
+      userData.reset();
+    }
     totalBytesWritten = 0;
     startedFirstSample = false;
   }
@@ -81,6 +96,9 @@ public final class H262Reader implements ElementaryStreamReader {
     idGenerator.generateNewId();
     formatId = idGenerator.getFormatId();
     output = extractorOutput.track(idGenerator.getTrackId(), C.TRACK_TYPE_VIDEO);
+    if (userDataReader != null) {
+      userDataReader.createTracks(extractorOutput, idGenerator);
+    }
   }
 
   @Override
@@ -106,6 +124,9 @@ public final class H262Reader implements ElementaryStreamReader {
         if (!hasOutputFormat) {
           csdBuffer.onData(dataArray, offset, limit);
         }
+        if (userData != null) {
+          userData.appendToNalUnit(dataArray, offset, limit);
+        }
         return;
       }
 
@@ -130,7 +151,25 @@ public final class H262Reader implements ElementaryStreamReader {
           hasOutputFormat = true;
         }
       }
+      if (userDataReader != null && userData != null) {
+        int lengthToStartCode = startCodeOffset - offset;
+        int bytesAlreadyPassed = 0;
+        if (lengthToStartCode > 0) {
+          userData.appendToNalUnit(dataArray, offset, startCodeOffset);
+        } else {
+          bytesAlreadyPassed = -lengthToStartCode;
+        }
 
+        if (userData.endNalUnit(bytesAlreadyPassed)) {
+          int unescapedLength = NalUnitUtil.unescapeStream(userData.nalData, userData.nalLength);
+          userDataParsable.reset(userData.nalData, unescapedLength);
+          userDataReader.consume(sampleTimeUs, userDataParsable);
+        }
+
+        if (startCodeValue == START_USER_DATA && data.data[startCodeOffset + 2] == 0x1) {
+          userData.startNalUnit(startCodeValue);
+        }
+      }
       if (startCodeValue == START_PICTURE || startCodeValue == START_SEQUENCE_HEADER) {
         int bytesWrittenPastStartCode = limit - startCodeOffset;
         if (startedFirstSample && sampleHasPicture && hasOutputFormat) {

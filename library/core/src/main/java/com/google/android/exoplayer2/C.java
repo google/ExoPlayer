@@ -80,6 +80,12 @@ public final class C {
   /** The number of bits per byte. */
   public static final int BITS_PER_BYTE = 8;
 
+  /** non-Wide aspect ratio */
+  public static final int NON_WIDE_ASPECT_RATIO_TYPE = 1;
+
+  /** Wide aspect ratio */
+  public static final int WIDE_ASPECT_RATIO_TYPE = 2;
+
   /**
    * The name of the ASCII charset.
    */
