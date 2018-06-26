@@ -169,8 +169,6 @@ public final class AdsMediaSource extends CompositeMediaSource<MediaPeriodId> {
 
   }
 
-  private static final String TAG = "AdsMediaSource";
-
   private final MediaSource contentMediaSource;
   private final MediaSourceFactory adMediaSourceFactory;
   private final AdsLoader adsLoader;
@@ -338,7 +336,7 @@ public final class AdsMediaSource extends CompositeMediaSource<MediaPeriodId> {
           Arrays.fill(adDurationsUs[adGroupIndex], oldAdCount, adCount, C.TIME_UNSET);
         }
         adGroupMediaSources[adGroupIndex][adIndexInAdGroup] = adMediaSource;
-        deferredMediaPeriodByAdMediaSource.put(adMediaSource, new ArrayList<DeferredMediaPeriod>());
+        deferredMediaPeriodByAdMediaSource.put(adMediaSource, new ArrayList<>());
         prepareChildSource(id, adMediaSource);
       }
       MediaSource mediaSource = adGroupMediaSources[adGroupIndex][adIndexInAdGroup];
