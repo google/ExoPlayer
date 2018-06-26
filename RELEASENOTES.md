@@ -16,13 +16,9 @@
 * Error handling:
   * Allow configuration of the Loader retry delay
     ([#3370](https://github.com/google/ExoPlayer/issues/3370)).
-* HLS:
-  * Allow injection of custom playlist trackers.
-  * Pass HTTP response headers to `HlsExtractorFactory.createExtractor`.
-  * Fix adaptation in live playlists with EXT-X-PROGRAM-DATE-TIME tags.
-* DRM:
-  * Allow DrmInitData to carry a license server URL
-    ([#3393](https://github.com/google/ExoPlayer/issues/3393)).
+* HLS: Pass HTTP response headers to `HlsExtractorFactory.createExtractor`.
+* DRM: Allow DrmInitData to carry a license server URL
+  ([#3393](https://github.com/google/ExoPlayer/issues/3393)).
 * Add method to `BandwidthMeter` to return the `TransferListener` used to gather
   bandwidth information.
 * Add callback to `VideoListener` to notify of surface size changes.
@@ -41,8 +37,6 @@
   CommentFrame to InternalFrame for frames with gapless metadata in MP4.
 * Allow setting the `Looper`, which is used to access the player, in
   `ExoPlayerFactory` ([#4278](https://github.com/google/ExoPlayer/issues/4278)).
-* Fix a bug where download cancellation was ignored
-  ([#4403](https://github.com/google/ExoPlayer/issues/4403)).
 * Deprecate `Player.DefaultEventListener` as selective listener overrides can
   be directly made with the `Player.EventListener` interface.
 * Deprecate `DefaultAnalyticsListener` as selective listener overrides can be
@@ -56,6 +50,9 @@
   extractor for this ([#4297](https://github.com/google/ExoPlayer/issues/4297)).
 * DASH: Fix playback getting stuck when playing representations that have both
   sidx atoms and non-zero presentationTimeOffset values.
+* HLS:
+  * Allow injection of custom playlist trackers.
+  * Fix adaptation in live playlists with EXT-X-PROGRAM-DATE-TIME tags.
 * Mitigate memory leaks when `MediaSource` loads are slow to cancel
   ([#4249](https://github.com/google/ExoPlayer/issues/4249)).
 * Fix inconsistent `Player.EventListener` invocations for recursive player state
@@ -66,6 +63,8 @@
   ([#3906](https://github.com/google/ExoPlayer/issues/3906)).
 * Fix crash downloading HLS media playlists
   ([#4396](https://github.com/google/ExoPlayer/issues/4396)).
+* Fix a bug where download cancellation was ignored
+  ([#4403](https://github.com/google/ExoPlayer/issues/4403)).
 * Set `METADATA_KEY_TITLE` on media descriptions
   ([#4292](https://github.com/google/ExoPlayer/issues/4292)).
 * Allow apps to register custom MIME types
