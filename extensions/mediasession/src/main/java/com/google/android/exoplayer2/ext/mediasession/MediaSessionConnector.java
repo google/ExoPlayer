@@ -429,8 +429,8 @@ public final class MediaSessionConnector {
       mediaSession.setCallback(mediaSessionCallback, handler);
       player.addListener(exoPlayerEventListener);
     }
-    updateMediaSessionPlaybackState();
-    updateMediaSessionMetadata();
+    invalidateMediaSessionPlaybackState();
+    invalidateMediaSessionMetadata();
   }
 
   /**
@@ -442,7 +442,7 @@ public final class MediaSessionConnector {
       @Nullable ErrorMessageProvider<? super ExoPlaybackException> errorMessageProvider) {
     if (this.errorMessageProvider != errorMessageProvider) {
       this.errorMessageProvider = errorMessageProvider;
-      updateMediaSessionPlaybackState();
+      invalidateMediaSessionPlaybackState();
     }
   }
 
@@ -494,13 +494,19 @@ public final class MediaSessionConnector {
    * <p>Apps normally only need to call this method when the backing data for a given media item has
    * changed and the metadata should be updated immediately.
    */
-  public final void updateMediaSessionMetadata() {
-    if (mediaMetadataProvider != null) {
+  public final void invalidateMediaSessionMetadata() {
+    if (mediaMetadataProvider != null && player != null) {
       mediaSession.setMetadata(mediaMetadataProvider.getMetadata(player));
     }
   }
 
-  private void updateMediaSessionPlaybackState() {
+  /**
+   * Updates the playback state of the media session.
+   *
+   * <p>Apps normally only need to call this method when the custom actions provided by a {@link
+   * CustomActionProvider} changed and the playback state needs to be updated immediately.
+   */
+  public final void invalidateMediaSessionPlaybackState() {
     PlaybackStateCompat.Builder builder = new PlaybackStateCompat.Builder();
     if (player == null) {
       builder.setActions(buildPlaybackActions()).setState(PlaybackStateCompat.STATE_NONE, 0, 0, 0);
@@ -546,6 +552,19 @@ public final class MediaSessionConnector {
             SystemClock.elapsedRealtime())
         .setExtras(extras);
     mediaSession.setPlaybackState(builder.build());
+  }
+
+  /**
+   * Updates the queue of the media session by calling {@link
+   * QueueNavigator#onTimelineChanged(Player)}.
+   *
+   * <p>Apps normally only need to call this method when the backing data for a given queue item has
+   * changed and the queue should be updated immediately.
+   */
+  public final void invalidateMediaSessionQueue() {
+    if (queueNavigator != null && player != null) {
+      queueNavigator.onTimelineChanged(player);
+    }
   }
 
   private void registerCommandReceiver(CommandReceiver commandReceiver) {
@@ -728,19 +747,19 @@ public final class MediaSessionConnector {
       int windowIndex = player.getCurrentWindowIndex();
       if (queueNavigator != null) {
         queueNavigator.onTimelineChanged(player);
-        updateMediaSessionPlaybackState();
+        invalidateMediaSessionPlaybackState();
       } else if (currentWindowCount != windowCount || currentWindowIndex != windowIndex) {
         // active queue item and queue navigation actions may need to be updated
-        updateMediaSessionPlaybackState();
+        invalidateMediaSessionPlaybackState();
       }
       currentWindowCount = windowCount;
       currentWindowIndex = windowIndex;
-      updateMediaSessionMetadata();
+      invalidateMediaSessionMetadata();
     }
 
     @Override
     public void onPlayerStateChanged(boolean playWhenReady, int playbackState) {
-      updateMediaSessionPlaybackState();
+      invalidateMediaSessionPlaybackState();
     }
 
     @Override
@@ -751,7 +770,7 @@ public final class MediaSessionConnector {
               : repeatMode == Player.REPEAT_MODE_ALL
                   ? PlaybackStateCompat.REPEAT_MODE_ALL
                   : PlaybackStateCompat.REPEAT_MODE_NONE);
-      updateMediaSessionPlaybackState();
+      invalidateMediaSessionPlaybackState();
     }
 
     @Override
@@ -760,7 +779,7 @@ public final class MediaSessionConnector {
           shuffleModeEnabled
               ? PlaybackStateCompat.SHUFFLE_MODE_ALL
               : PlaybackStateCompat.SHUFFLE_MODE_NONE);
-      updateMediaSessionPlaybackState();
+      invalidateMediaSessionPlaybackState();
     }
 
     @Override
@@ -772,16 +791,16 @@ public final class MediaSessionConnector {
         currentWindowIndex = player.getCurrentWindowIndex();
         // Update playback state after queueNavigator.onCurrentWindowIndexChanged has been called
         // and before updating metadata.
-        updateMediaSessionPlaybackState();
-        updateMediaSessionMetadata();
+        invalidateMediaSessionPlaybackState();
+        invalidateMediaSessionMetadata();
         return;
       }
-      updateMediaSessionPlaybackState();
+      invalidateMediaSessionPlaybackState();
     }
 
     @Override
     public void onPlaybackParametersChanged(PlaybackParameters playbackParameters) {
-      updateMediaSessionPlaybackState();
+      invalidateMediaSessionPlaybackState();
     }
   }
 
@@ -869,7 +888,7 @@ public final class MediaSessionConnector {
       Map<String, CustomActionProvider> actionMap = customActionMap;
       if (actionMap.containsKey(action)) {
         actionMap.get(action).onCustomAction(action, extras);
-        updateMediaSessionPlaybackState();
+        invalidateMediaSessionPlaybackState();
       }
     }
 
