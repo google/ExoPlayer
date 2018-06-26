@@ -5,6 +5,8 @@
 * DRM:
   * Allow DrmInitData to carry a license server URL
     ([#3393](https://github.com/google/ExoPlayer/issues/3393)).
+* IMA: Fix behavior when creating/releasing the player then releasing
+  `ImaAdsLoader` ((#3879)[https://github.com/google/ExoPlayer/issues/3879]).
 
 ### 2.8.2 ###
 
