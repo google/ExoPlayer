@@ -324,7 +324,9 @@
 </dd>
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/SimpleExoPlayer.html#addListener-com.google.android.exoplayer2.Player.EventListener-">addListener(Player.EventListener)</a></span> - Method in class com.google.android.exoplayer2.<a href="com/google/android/exoplayer2/SimpleExoPlayer.html" title="class in com.google.android.exoplayer2">SimpleExoPlayer</a></dt>
 <dd>&nbsp;</dd>
-<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/source/hls/playlist/HlsPlaylistTracker.html#addListener-com.google.android.exoplayer2.source.hls.playlist.HlsPlaylistTracker.PlaylistEventListener-">addListener(HlsPlaylistTracker.PlaylistEventListener)</a></span> - Method in class com.google.android.exoplayer2.source.hls.playlist.<a href="com/google/android/exoplayer2/source/hls/playlist/HlsPlaylistTracker.html" title="class in com.google.android.exoplayer2.source.hls.playlist">HlsPlaylistTracker</a></dt>
+<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/source/hls/playlist/DefaultHlsPlaylistTracker.html#addListener-com.google.android.exoplayer2.source.hls.playlist.HlsPlaylistTracker.PlaylistEventListener-">addListener(HlsPlaylistTracker.PlaylistEventListener)</a></span> - Method in class com.google.android.exoplayer2.source.hls.playlist.<a href="com/google/android/exoplayer2/source/hls/playlist/DefaultHlsPlaylistTracker.html" title="class in com.google.android.exoplayer2.source.hls.playlist">DefaultHlsPlaylistTracker</a></dt>
+<dd>&nbsp;</dd>
+<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/source/hls/playlist/HlsPlaylistTracker.html#addListener-com.google.android.exoplayer2.source.hls.playlist.HlsPlaylistTracker.PlaylistEventListener-">addListener(HlsPlaylistTracker.PlaylistEventListener)</a></span> - Method in interface com.google.android.exoplayer2.source.hls.playlist.<a href="com/google/android/exoplayer2/source/hls/playlist/HlsPlaylistTracker.html" title="interface in com.google.android.exoplayer2.source.hls.playlist">HlsPlaylistTracker</a></dt>
 <dd>
 <div class="block">Registers a listener to receive events from the playlist tracker.</div>
 </dd>
@@ -997,9 +999,15 @@
 <dd>&nbsp;</dd>
 <dt><a href="com/google/android/exoplayer2/source/chunk/BaseMediaChunk.html" title="class in com.google.android.exoplayer2.source.chunk"><span class="typeNameLink">BaseMediaChunk</span></a> - Class in <a href="com/google/android/exoplayer2/source/chunk/package-summary.html">com.google.android.exoplayer2.source.chunk</a></dt>
 <dd>
-<div class="block">A base implementation of <a href="com/google/android/exoplayer2/source/chunk/MediaChunk.html" title="class in com.google.android.exoplayer2.source.chunk"><code>MediaChunk</code></a> that outputs to a <code>BaseMediaChunkOutput</code>.</div>
+<div class="block">A base implementation of <a href="com/google/android/exoplayer2/source/chunk/MediaChunk.html" title="class in com.google.android.exoplayer2.source.chunk"><code>MediaChunk</code></a> that outputs to a <a href="com/google/android/exoplayer2/source/chunk/BaseMediaChunkOutput.html" title="class in com.google.android.exoplayer2.source.chunk"><code>BaseMediaChunkOutput</code></a>.</div>
 </dd>
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/source/chunk/BaseMediaChunk.html#BaseMediaChunk-com.google.android.exoplayer2.upstream.DataSource-com.google.android.exoplayer2.upstream.DataSpec-com.google.android.exoplayer2.Format-int-java.lang.Object-long-long-long-long-">BaseMediaChunk(DataSource, DataSpec, Format, int, Object, long, long, long, long)</a></span> - Constructor for class com.google.android.exoplayer2.source.chunk.<a href="com/google/android/exoplayer2/source/chunk/BaseMediaChunk.html" title="class in com.google.android.exoplayer2.source.chunk">BaseMediaChunk</a></dt>
+<dd>&nbsp;</dd>
+<dt><a href="com/google/android/exoplayer2/source/chunk/BaseMediaChunkOutput.html" title="class in com.google.android.exoplayer2.source.chunk"><span class="typeNameLink">BaseMediaChunkOutput</span></a> - Class in <a href="com/google/android/exoplayer2/source/chunk/package-summary.html">com.google.android.exoplayer2.source.chunk</a></dt>
+<dd>
+<div class="block">An output for <a href="com/google/android/exoplayer2/source/chunk/BaseMediaChunk.html" title="class in com.google.android.exoplayer2.source.chunk"><code>BaseMediaChunk</code></a>s.</div>
+</dd>
+<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/source/chunk/BaseMediaChunkOutput.html#BaseMediaChunkOutput-int:A-com.google.android.exoplayer2.source.SampleQueue:A-">BaseMediaChunkOutput(int[], SampleQueue[])</a></span> - Constructor for class com.google.android.exoplayer2.source.chunk.<a href="com/google/android/exoplayer2/source/chunk/BaseMediaChunkOutput.html" title="class in com.google.android.exoplayer2.source.chunk">BaseMediaChunkOutput</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="com/google/android/exoplayer2/source/BaseMediaSource.html" title="class in com.google.android.exoplayer2.source"><span class="typeNameLink">BaseMediaSource</span></a> - Class in <a href="com/google/android/exoplayer2/source/package-summary.html">com.google.android.exoplayer2.source</a></dt>
 <dd>
@@ -1880,7 +1888,7 @@
 <dd>&nbsp;</dd>
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/source/chunk/MediaChunk.html#chunkIndex">chunkIndex</a></span> - Variable in class com.google.android.exoplayer2.source.chunk.<a href="com/google/android/exoplayer2/source/chunk/MediaChunk.html" title="class in com.google.android.exoplayer2.source.chunk">MediaChunk</a></dt>
 <dd>
-<div class="block">The chunk index.</div>
+<div class="block">The chunk index, or <a href="com/google/android/exoplayer2/C.html#INDEX_UNSET"><code>C.INDEX_UNSET</code></a> if it is not known.</div>
 </dd>
 <dt><a href="com/google/android/exoplayer2/source/chunk/ChunkSampleStream.html" title="class in com.google.android.exoplayer2.source.chunk"><span class="typeNameLink">ChunkSampleStream</span></a>&lt;<a href="com/google/android/exoplayer2/source/chunk/ChunkSampleStream.html" title="type parameter in ChunkSampleStream">T</a> extends <a href="com/google/android/exoplayer2/source/chunk/ChunkSource.html" title="interface in com.google.android.exoplayer2.source.chunk">ChunkSource</a>&gt; - Class in <a href="com/google/android/exoplayer2/source/chunk/package-summary.html">com.google.android.exoplayer2.source.chunk</a></dt>
 <dd>
@@ -2266,8 +2274,6 @@
 <dd>
 <div class="block">Parser for color expressions found in styling formats, e.g.</div>
 </dd>
-<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/util/ColorParser.html#ColorParser--">ColorParser()</a></span> - Constructor for class com.google.android.exoplayer2.util.<a href="com/google/android/exoplayer2/util/ColorParser.html" title="class in com.google.android.exoplayer2.util">ColorParser</a></dt>
-<dd>&nbsp;</dd>
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/video/ColorInfo.html#colorRange">colorRange</a></span> - Variable in class com.google.android.exoplayer2.video.<a href="com/google/android/exoplayer2/video/ColorInfo.html" title="class in com.google.android.exoplayer2.video">ColorInfo</a></dt>
 <dd>
 <div class="block">The color range of the video.</div>
@@ -3452,7 +3458,7 @@
 <div class="block">An implementation of <a href="com/google/android/exoplayer2/source/dash/DashSegmentIndex.html" title="interface in com.google.android.exoplayer2.source.dash"><code>DashSegmentIndex</code></a> that wraps a <a href="com/google/android/exoplayer2/extractor/ChunkIndex.html" title="class in com.google.android.exoplayer2.extractor"><code>ChunkIndex</code></a> parsed from a
  media stream.</div>
 </dd>
-<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/source/dash/DashWrappingSegmentIndex.html#DashWrappingSegmentIndex-com.google.android.exoplayer2.extractor.ChunkIndex-">DashWrappingSegmentIndex(ChunkIndex)</a></span> - Constructor for class com.google.android.exoplayer2.source.dash.<a href="com/google/android/exoplayer2/source/dash/DashWrappingSegmentIndex.html" title="class in com.google.android.exoplayer2.source.dash">DashWrappingSegmentIndex</a></dt>
+<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/source/dash/DashWrappingSegmentIndex.html#DashWrappingSegmentIndex-com.google.android.exoplayer2.extractor.ChunkIndex-long-">DashWrappingSegmentIndex(ChunkIndex, long)</a></span> - Constructor for class com.google.android.exoplayer2.source.dash.<a href="com/google/android/exoplayer2/source/dash/DashWrappingSegmentIndex.html" title="class in com.google.android.exoplayer2.source.dash">DashWrappingSegmentIndex</a></dt>
 <dd>&nbsp;</dd>
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/decoder/DecoderInputBuffer.html#data">data</a></span> - Variable in class com.google.android.exoplayer2.decoder.<a href="com/google/android/exoplayer2/decoder/DecoderInputBuffer.html" title="class in com.google.android.exoplayer2.decoder">DecoderInputBuffer</a></dt>
 <dd>
@@ -4279,6 +4285,12 @@
 </dd>
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/source/hls/DefaultHlsExtractorFactory.html#DefaultHlsExtractorFactory--">DefaultHlsExtractorFactory()</a></span> - Constructor for class com.google.android.exoplayer2.source.hls.<a href="com/google/android/exoplayer2/source/hls/DefaultHlsExtractorFactory.html" title="class in com.google.android.exoplayer2.source.hls">DefaultHlsExtractorFactory</a></dt>
 <dd>&nbsp;</dd>
+<dt><a href="com/google/android/exoplayer2/source/hls/playlist/DefaultHlsPlaylistTracker.html" title="class in com.google.android.exoplayer2.source.hls.playlist"><span class="typeNameLink">DefaultHlsPlaylistTracker</span></a> - Class in <a href="com/google/android/exoplayer2/source/hls/playlist/package-summary.html">com.google.android.exoplayer2.source.hls.playlist</a></dt>
+<dd>
+<div class="block">Default implementation for <a href="com/google/android/exoplayer2/source/hls/playlist/HlsPlaylistTracker.html" title="interface in com.google.android.exoplayer2.source.hls.playlist"><code>HlsPlaylistTracker</code></a>.</div>
+</dd>
+<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/source/hls/playlist/DefaultHlsPlaylistTracker.html#DefaultHlsPlaylistTracker-com.google.android.exoplayer2.source.hls.HlsDataSourceFactory-int-com.google.android.exoplayer2.upstream.ParsingLoadable.Parser-">DefaultHlsPlaylistTracker(HlsDataSourceFactory, int, ParsingLoadable.Parser&lt;HlsPlaylist&gt;)</a></span> - Constructor for class com.google.android.exoplayer2.source.hls.playlist.<a href="com/google/android/exoplayer2/source/hls/playlist/DefaultHlsPlaylistTracker.html" title="class in com.google.android.exoplayer2.source.hls.playlist">DefaultHlsPlaylistTracker</a></dt>
+<dd>&nbsp;</dd>
 <dt><a href="com/google/android/exoplayer2/upstream/DefaultHttpDataSource.html" title="class in com.google.android.exoplayer2.upstream"><span class="typeNameLink">DefaultHttpDataSource</span></a> - Class in <a href="com/google/android/exoplayer2/upstream/package-summary.html">com.google.android.exoplayer2.upstream</a></dt>
 <dd>
 <div class="block">An <a href="com/google/android/exoplayer2/upstream/HttpDataSource.html" title="interface in com.google.android.exoplayer2.upstream"><code>HttpDataSource</code></a> that uses Android's <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/net/HttpURLConnection.html" target="_top" title="class or interface in java.net"><code>HttpURLConnection</code></a>.</div>
@@ -5056,20 +5068,22 @@
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/source/DynamicConcatenatingMediaSource.html#DynamicConcatenatingMediaSource--">DynamicConcatenatingMediaSource()</a></span> - Constructor for class com.google.android.exoplayer2.source.<a href="com/google/android/exoplayer2/source/DynamicConcatenatingMediaSource.html" title="class in com.google.android.exoplayer2.source">DynamicConcatenatingMediaSource</a></dt>
 <dd>
 <div class="block"><span class="deprecatedLabel">Deprecated.</span>
-<div class="block"><span class="deprecationComment">Use <a href="com/google/android/exoplayer2/source/ConcatenatingMediaSource.html#ConcatenatingMediaSource--"><code>ConcatenatingMediaSource.ConcatenatingMediaSource()</code></a> instead.</span></div>
+<div class="block"><span class="deprecationComment">Use <a href="com/google/android/exoplayer2/source/ConcatenatingMediaSource.html#ConcatenatingMediaSource-com.google.android.exoplayer2.source.MediaSource...-"><code>ConcatenatingMediaSource.ConcatenatingMediaSource(MediaSource...)</code></a>
+     instead.</span></div>
 </div>
 </dd>
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/source/DynamicConcatenatingMediaSource.html#DynamicConcatenatingMediaSource-boolean-">DynamicConcatenatingMediaSource(boolean)</a></span> - Constructor for class com.google.android.exoplayer2.source.<a href="com/google/android/exoplayer2/source/DynamicConcatenatingMediaSource.html" title="class in com.google.android.exoplayer2.source">DynamicConcatenatingMediaSource</a></dt>
 <dd>
 <div class="block"><span class="deprecatedLabel">Deprecated.</span>
-<div class="block"><span class="deprecationComment">Use <a href="com/google/android/exoplayer2/source/ConcatenatingMediaSource.html#ConcatenatingMediaSource-boolean-"><code>ConcatenatingMediaSource.ConcatenatingMediaSource(boolean)</code></a> instead.</span></div>
+<div class="block"><span class="deprecationComment">Use <a href="com/google/android/exoplayer2/source/ConcatenatingMediaSource.html#ConcatenatingMediaSource-boolean-com.google.android.exoplayer2.source.MediaSource...-"><code>ConcatenatingMediaSource.ConcatenatingMediaSource(boolean,
+     MediaSource...)</code></a> instead.</span></div>
 </div>
 </dd>
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/source/DynamicConcatenatingMediaSource.html#DynamicConcatenatingMediaSource-boolean-com.google.android.exoplayer2.source.ShuffleOrder-">DynamicConcatenatingMediaSource(boolean, ShuffleOrder)</a></span> - Constructor for class com.google.android.exoplayer2.source.<a href="com/google/android/exoplayer2/source/DynamicConcatenatingMediaSource.html" title="class in com.google.android.exoplayer2.source">DynamicConcatenatingMediaSource</a></dt>
 <dd>
 <div class="block"><span class="deprecatedLabel">Deprecated.</span>
-<div class="block"><span class="deprecationComment">Use <a href="com/google/android/exoplayer2/source/ConcatenatingMediaSource.html#ConcatenatingMediaSource-boolean-com.google.android.exoplayer2.source.ShuffleOrder-"><code>ConcatenatingMediaSource.ConcatenatingMediaSource(boolean,
-     ShuffleOrder)</code></a> instead.</span></div>
+<div class="block"><span class="deprecationComment">Use <a href="com/google/android/exoplayer2/source/ConcatenatingMediaSource.html#ConcatenatingMediaSource-boolean-com.google.android.exoplayer2.source.ShuffleOrder-com.google.android.exoplayer2.source.MediaSource...-"><code>ConcatenatingMediaSource.ConcatenatingMediaSource(boolean, ShuffleOrder,
+     MediaSource...)</code></a> instead.</span></div>
 </div>
 </dd>
 </dl>
@@ -6124,8 +6138,7 @@
 </dd>
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/trackselection/DefaultTrackSelector.html#formatHasLanguage-com.google.android.exoplayer2.Format-java.lang.String-">formatHasLanguage(Format, String)</a></span> - Static method in class com.google.android.exoplayer2.trackselection.<a href="com/google/android/exoplayer2/trackselection/DefaultTrackSelector.html" title="class in com.google.android.exoplayer2.trackselection">DefaultTrackSelector</a></dt>
 <dd>
-<div class="block">Returns whether a <a href="com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2"><code>Format</code></a> specifies a particular language, or <code>false</code> if
- <code>language</code> is null.</div>
+<div class="block">Returns whether a <a href="com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2"><code>Format</code></a> specifies a particular language, or <code>false</code> if <code>language</code> is null.</div>
 </dd>
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/trackselection/DefaultTrackSelector.html#formatHasNoLanguage-com.google.android.exoplayer2.Format-">formatHasNoLanguage(Format)</a></span> - Static method in class com.google.android.exoplayer2.trackselection.<a href="com/google/android/exoplayer2/trackselection/DefaultTrackSelector.html" title="class in com.google.android.exoplayer2.trackselection">DefaultTrackSelector</a></dt>
 <dd>
@@ -6200,6 +6213,10 @@
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/util/Util.html#fromUtf8Bytes-byte:A-">fromUtf8Bytes(byte[])</a></span> - Static method in class com.google.android.exoplayer2.util.<a href="com/google/android/exoplayer2/util/Util.html" title="class in com.google.android.exoplayer2.util">Util</a></dt>
 <dd>
 <div class="block">Returns a new <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang"><code>String</code></a> constructed by decoding UTF-8 encoded bytes.</div>
+</dd>
+<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/util/Util.html#fromUtf8Bytes-byte:A-int-int-">fromUtf8Bytes(byte[], int, int)</a></span> - Static method in class com.google.android.exoplayer2.util.<a href="com/google/android/exoplayer2/util/Util.html" title="class in com.google.android.exoplayer2.util">Util</a></dt>
+<dd>
+<div class="block">Returns a new <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang"><code>String</code></a> constructed by decoding UTF-8 encoded bytes in a subarray.</div>
 </dd>
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/source/hls/playlist/HlsMediaPlaylist.Segment.html#fullSegmentEncryptionKeyUri">fullSegmentEncryptionKeyUri</a></span> - Variable in class com.google.android.exoplayer2.source.hls.playlist.<a href="com/google/android/exoplayer2/source/hls/playlist/HlsMediaPlaylist.Segment.html" title="class in com.google.android.exoplayer2.source.hls.playlist">HlsMediaPlaylist.Segment</a></dt>
 <dd>
@@ -6931,6 +6948,10 @@
 <dd>&nbsp;</dd>
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/source/smoothstreaming/offline/SsDownloadHelper.html#getDownloadAction-byte:A-java.util.List-">getDownloadAction(byte[], List&lt;TrackKey&gt;)</a></span> - Method in class com.google.android.exoplayer2.source.smoothstreaming.offline.<a href="com/google/android/exoplayer2/source/smoothstreaming/offline/SsDownloadHelper.html" title="class in com.google.android.exoplayer2.source.smoothstreaming.offline">SsDownloadHelper</a></dt>
 <dd>&nbsp;</dd>
+<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/offline/DownloadManager.html#getDownloadCount--">getDownloadCount()</a></span> - Method in class com.google.android.exoplayer2.offline.<a href="com/google/android/exoplayer2/offline/DownloadManager.html" title="class in com.google.android.exoplayer2.offline">DownloadManager</a></dt>
+<dd>
+<div class="block">Returns the number of download tasks.</div>
+</dd>
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/offline/Downloader.html#getDownloadedBytes--">getDownloadedBytes()</a></span> - Method in interface com.google.android.exoplayer2.offline.<a href="com/google/android/exoplayer2/offline/Downloader.html" title="interface in com.google.android.exoplayer2.offline">Downloader</a></dt>
 <dd>
 <div class="block">Returns the total number of downloaded bytes.</div>
@@ -7208,7 +7229,9 @@
 <div class="block">Returns a <a href="com/google/android/exoplayer2/source/dash/manifest/RangedUri.html" title="class in com.google.android.exoplayer2.source.dash.manifest"><code>RangedUri</code></a> defining the location of the representation's initialization data,
  or null if no initialization data exists.</div>
 </dd>
-<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/source/hls/playlist/HlsPlaylistTracker.html#getInitialStartTimeUs--">getInitialStartTimeUs()</a></span> - Method in class com.google.android.exoplayer2.source.hls.playlist.<a href="com/google/android/exoplayer2/source/hls/playlist/HlsPlaylistTracker.html" title="class in com.google.android.exoplayer2.source.hls.playlist">HlsPlaylistTracker</a></dt>
+<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/source/hls/playlist/DefaultHlsPlaylistTracker.html#getInitialStartTimeUs--">getInitialStartTimeUs()</a></span> - Method in class com.google.android.exoplayer2.source.hls.playlist.<a href="com/google/android/exoplayer2/source/hls/playlist/DefaultHlsPlaylistTracker.html" title="class in com.google.android.exoplayer2.source.hls.playlist">DefaultHlsPlaylistTracker</a></dt>
+<dd>&nbsp;</dd>
+<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/source/hls/playlist/HlsPlaylistTracker.html#getInitialStartTimeUs--">getInitialStartTimeUs()</a></span> - Method in interface com.google.android.exoplayer2.source.hls.playlist.<a href="com/google/android/exoplayer2/source/hls/playlist/HlsPlaylistTracker.html" title="interface in com.google.android.exoplayer2.source.hls.playlist">HlsPlaylistTracker</a></dt>
 <dd>
 <div class="block">Returns the start time of the first loaded primary playlist, or <a href="com/google/android/exoplayer2/C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a> if no
  media playlist has been loaded.</div>
@@ -7313,7 +7336,9 @@
 <dd>
 <div class="block">Returns the SmoothStreaming manifest.</div>
 </dd>
-<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/source/hls/playlist/HlsPlaylistTracker.html#getMasterPlaylist--">getMasterPlaylist()</a></span> - Method in class com.google.android.exoplayer2.source.hls.playlist.<a href="com/google/android/exoplayer2/source/hls/playlist/HlsPlaylistTracker.html" title="class in com.google.android.exoplayer2.source.hls.playlist">HlsPlaylistTracker</a></dt>
+<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/source/hls/playlist/DefaultHlsPlaylistTracker.html#getMasterPlaylist--">getMasterPlaylist()</a></span> - Method in class com.google.android.exoplayer2.source.hls.playlist.<a href="com/google/android/exoplayer2/source/hls/playlist/DefaultHlsPlaylistTracker.html" title="class in com.google.android.exoplayer2.source.hls.playlist">DefaultHlsPlaylistTracker</a></dt>
+<dd>&nbsp;</dd>
+<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/source/hls/playlist/HlsPlaylistTracker.html#getMasterPlaylist--">getMasterPlaylist()</a></span> - Method in interface com.google.android.exoplayer2.source.hls.playlist.<a href="com/google/android/exoplayer2/source/hls/playlist/HlsPlaylistTracker.html" title="interface in com.google.android.exoplayer2.source.hls.playlist">HlsPlaylistTracker</a></dt>
 <dd>
 <div class="block">Returns the master playlist.</div>
 </dd>
@@ -7442,7 +7467,7 @@
 <dd>&nbsp;</dd>
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/source/chunk/MediaChunk.html#getNextChunkIndex--">getNextChunkIndex()</a></span> - Method in class com.google.android.exoplayer2.source.chunk.<a href="com/google/android/exoplayer2/source/chunk/MediaChunk.html" title="class in com.google.android.exoplayer2.source.chunk">MediaChunk</a></dt>
 <dd>
-<div class="block">Returns the next chunk index.</div>
+<div class="block">Returns the next chunk index or <a href="com/google/android/exoplayer2/C.html#INDEX_UNSET"><code>C.INDEX_UNSET</code></a> if it is not known.</div>
 </dd>
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/text/Subtitle.html#getNextEventTimeIndex-long-">getNextEventTimeIndex(long)</a></span> - Method in interface com.google.android.exoplayer2.text.<a href="com/google/android/exoplayer2/text/Subtitle.html" title="interface in com.google.android.exoplayer2.text">Subtitle</a></dt>
 <dd>
@@ -7724,10 +7749,11 @@
 <dd>
 <div class="block">Returns the HLS playlist.</div>
 </dd>
-<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/source/hls/playlist/HlsPlaylistTracker.html#getPlaylistSnapshot-com.google.android.exoplayer2.source.hls.playlist.HlsMasterPlaylist.HlsUrl-">getPlaylistSnapshot(HlsMasterPlaylist.HlsUrl)</a></span> - Method in class com.google.android.exoplayer2.source.hls.playlist.<a href="com/google/android/exoplayer2/source/hls/playlist/HlsPlaylistTracker.html" title="class in com.google.android.exoplayer2.source.hls.playlist">HlsPlaylistTracker</a></dt>
+<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/source/hls/playlist/DefaultHlsPlaylistTracker.html#getPlaylistSnapshot-com.google.android.exoplayer2.source.hls.playlist.HlsMasterPlaylist.HlsUrl-">getPlaylistSnapshot(HlsMasterPlaylist.HlsUrl)</a></span> - Method in class com.google.android.exoplayer2.source.hls.playlist.<a href="com/google/android/exoplayer2/source/hls/playlist/DefaultHlsPlaylistTracker.html" title="class in com.google.android.exoplayer2.source.hls.playlist">DefaultHlsPlaylistTracker</a></dt>
+<dd>&nbsp;</dd>
+<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/source/hls/playlist/HlsPlaylistTracker.html#getPlaylistSnapshot-com.google.android.exoplayer2.source.hls.playlist.HlsMasterPlaylist.HlsUrl-">getPlaylistSnapshot(HlsMasterPlaylist.HlsUrl)</a></span> - Method in interface com.google.android.exoplayer2.source.hls.playlist.<a href="com/google/android/exoplayer2/source/hls/playlist/HlsPlaylistTracker.html" title="interface in com.google.android.exoplayer2.source.hls.playlist">HlsPlaylistTracker</a></dt>
 <dd>
-<div class="block">Returns the most recent snapshot available of the playlist referenced by the provided
- <a href="com/google/android/exoplayer2/source/hls/playlist/HlsMasterPlaylist.HlsUrl.html" title="class in com.google.android.exoplayer2.source.hls.playlist"><code>HlsMasterPlaylist.HlsUrl</code></a>.</div>
+<div class="block">Returns the most recent snapshot available of the playlist referenced by the provided <a href="com/google/android/exoplayer2/source/hls/playlist/HlsMasterPlaylist.HlsUrl.html" title="class in com.google.android.exoplayer2.source.hls.playlist"><code>HlsMasterPlaylist.HlsUrl</code></a>.</div>
 </dd>
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/util/Util.html#getPlayoutDurationForMediaDuration-long-float-">getPlayoutDurationForMediaDuration(long, float)</a></span> - Static method in class com.google.android.exoplayer2.util.<a href="com/google/android/exoplayer2/util/Util.html" title="class in com.google.android.exoplayer2.util">Util</a></dt>
 <dd>
@@ -8283,7 +8309,7 @@
 </dd>
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/offline/DownloadManager.html#getTaskCount--">getTaskCount()</a></span> - Method in class com.google.android.exoplayer2.offline.<a href="com/google/android/exoplayer2/offline/DownloadManager.html" title="class in com.google.android.exoplayer2.offline">DownloadManager</a></dt>
 <dd>
-<div class="block">Returns the current number of tasks.</div>
+<div class="block">Returns the number of tasks.</div>
 </dd>
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/offline/DownloadManager.html#getTaskState-int-">getTaskState(int)</a></span> - Method in class com.google.android.exoplayer2.offline.<a href="com/google/android/exoplayer2/offline/DownloadManager.html" title="class in com.google.android.exoplayer2.offline">DownloadManager</a></dt>
 <dd>
@@ -8569,6 +8595,10 @@
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/source/SampleQueue.html#getWriteIndex--">getWriteIndex()</a></span> - Method in class com.google.android.exoplayer2.source.<a href="com/google/android/exoplayer2/source/SampleQueue.html" title="class in com.google.android.exoplayer2.source">SampleQueue</a></dt>
 <dd>
 <div class="block">Returns the current absolute write index.</div>
+</dd>
+<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/source/chunk/BaseMediaChunkOutput.html#getWriteIndices--">getWriteIndices()</a></span> - Method in class com.google.android.exoplayer2.source.chunk.<a href="com/google/android/exoplayer2/source/chunk/BaseMediaChunkOutput.html" title="class in com.google.android.exoplayer2.source.chunk">BaseMediaChunkOutput</a></dt>
+<dd>
+<div class="block">Returns the current absolute write indices of the individual sample queues.</div>
 </dd>
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/trackselection/BaseTrackSelection.html#group">group</a></span> - Variable in class com.google.android.exoplayer2.trackselection.<a href="com/google/android/exoplayer2/trackselection/BaseTrackSelection.html" title="class in com.google.android.exoplayer2.trackselection">BaseTrackSelection</a></dt>
 <dd>
@@ -8942,12 +8972,10 @@
 </dd>
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/source/hls/playlist/HlsPlaylistParser.html#HlsPlaylistParser--">HlsPlaylistParser()</a></span> - Constructor for class com.google.android.exoplayer2.source.hls.playlist.<a href="com/google/android/exoplayer2/source/hls/playlist/HlsPlaylistParser.html" title="class in com.google.android.exoplayer2.source.hls.playlist">HlsPlaylistParser</a></dt>
 <dd>&nbsp;</dd>
-<dt><a href="com/google/android/exoplayer2/source/hls/playlist/HlsPlaylistTracker.html" title="class in com.google.android.exoplayer2.source.hls.playlist"><span class="typeNameLink">HlsPlaylistTracker</span></a> - Class in <a href="com/google/android/exoplayer2/source/hls/playlist/package-summary.html">com.google.android.exoplayer2.source.hls.playlist</a></dt>
+<dt><a href="com/google/android/exoplayer2/source/hls/playlist/HlsPlaylistTracker.html" title="interface in com.google.android.exoplayer2.source.hls.playlist"><span class="typeNameLink">HlsPlaylistTracker</span></a> - Interface in <a href="com/google/android/exoplayer2/source/hls/playlist/package-summary.html">com.google.android.exoplayer2.source.hls.playlist</a></dt>
 <dd>
-<div class="block">Tracks playlists linked to a provided playlist url.</div>
+<div class="block">Tracks playlists associated to an HLS stream and provides snapshots.</div>
 </dd>
-<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/source/hls/playlist/HlsPlaylistTracker.html#HlsPlaylistTracker-android.net.Uri-com.google.android.exoplayer2.source.hls.HlsDataSourceFactory-com.google.android.exoplayer2.source.MediaSourceEventListener.EventDispatcher-int-com.google.android.exoplayer2.source.hls.playlist.HlsPlaylistTracker.PrimaryPlaylistListener-com.google.android.exoplayer2.upstream.ParsingLoadable.Parser-">HlsPlaylistTracker(Uri, HlsDataSourceFactory, MediaSourceEventListener.EventDispatcher, int, HlsPlaylistTracker.PrimaryPlaylistListener, ParsingLoadable.Parser&lt;HlsPlaylist&gt;)</a></span> - Constructor for class com.google.android.exoplayer2.source.hls.playlist.<a href="com/google/android/exoplayer2/source/hls/playlist/HlsPlaylistTracker.html" title="class in com.google.android.exoplayer2.source.hls.playlist">HlsPlaylistTracker</a></dt>
-<dd>&nbsp;</dd>
 <dt><a href="com/google/android/exoplayer2/source/hls/playlist/HlsPlaylistTracker.PlaylistEventListener.html" title="interface in com.google.android.exoplayer2.source.hls.playlist"><span class="typeNameLink">HlsPlaylistTracker.PlaylistEventListener</span></a> - Interface in <a href="com/google/android/exoplayer2/source/hls/playlist/package-summary.html">com.google.android.exoplayer2.source.hls.playlist</a></dt>
 <dd>
 <div class="block">Called on playlist loading events.</div>
@@ -9276,7 +9304,7 @@
 <dd>&nbsp;</dd>
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/source/chunk/BaseMediaChunk.html#init-com.google.android.exoplayer2.source.chunk.BaseMediaChunkOutput-">init(BaseMediaChunkOutput)</a></span> - Method in class com.google.android.exoplayer2.source.chunk.<a href="com/google/android/exoplayer2/source/chunk/BaseMediaChunk.html" title="class in com.google.android.exoplayer2.source.chunk">BaseMediaChunk</a></dt>
 <dd>
-<div class="block">Initializes the chunk for loading, setting the <code>BaseMediaChunkOutput</code> that will receive
+<div class="block">Initializes the chunk for loading, setting the <a href="com/google/android/exoplayer2/source/chunk/BaseMediaChunkOutput.html" title="class in com.google.android.exoplayer2.source.chunk"><code>BaseMediaChunkOutput</code></a> that will receive
  samples as they are loaded.</div>
 </dd>
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/source/chunk/ChunkExtractorWrapper.html#init-com.google.android.exoplayer2.source.chunk.ChunkExtractorWrapper.TrackOutputProvider-long-">init(ChunkExtractorWrapper.TrackOutputProvider, long)</a></span> - Method in class com.google.android.exoplayer2.source.chunk.<a href="com/google/android/exoplayer2/source/chunk/ChunkExtractorWrapper.html" title="class in com.google.android.exoplayer2.source.chunk">ChunkExtractorWrapper</a></dt>
@@ -9624,28 +9652,16 @@
 </dd>
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/text/webvtt/WebvttCssStyle.html#isLinethrough--">isLinethrough()</a></span> - Method in class com.google.android.exoplayer2.text.webvtt.<a href="com/google/android/exoplayer2/text/webvtt/WebvttCssStyle.html" title="class in com.google.android.exoplayer2.text.webvtt">WebvttCssStyle</a></dt>
 <dd>&nbsp;</dd>
-<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/source/hls/playlist/HlsPlaylistTracker.html#isLive--">isLive()</a></span> - Method in class com.google.android.exoplayer2.source.hls.playlist.<a href="com/google/android/exoplayer2/source/hls/playlist/HlsPlaylistTracker.html" title="class in com.google.android.exoplayer2.source.hls.playlist">HlsPlaylistTracker</a></dt>
+<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/source/hls/playlist/DefaultHlsPlaylistTracker.html#isLive--">isLive()</a></span> - Method in class com.google.android.exoplayer2.source.hls.playlist.<a href="com/google/android/exoplayer2/source/hls/playlist/DefaultHlsPlaylistTracker.html" title="class in com.google.android.exoplayer2.source.hls.playlist">DefaultHlsPlaylistTracker</a></dt>
+<dd>&nbsp;</dd>
+<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/source/hls/playlist/HlsPlaylistTracker.html#isLive--">isLive()</a></span> - Method in interface com.google.android.exoplayer2.source.hls.playlist.<a href="com/google/android/exoplayer2/source/hls/playlist/HlsPlaylistTracker.html" title="interface in com.google.android.exoplayer2.source.hls.playlist">HlsPlaylistTracker</a></dt>
 <dd>
-<div class="block">Returns whether this is live content.</div>
+<div class="block">Returns whether the tracked playlists describe a live stream.</div>
 </dd>
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/source/smoothstreaming/manifest/SsManifest.html#isLive">isLive</a></span> - Variable in class com.google.android.exoplayer2.source.smoothstreaming.manifest.<a href="com/google/android/exoplayer2/source/smoothstreaming/manifest/SsManifest.html" title="class in com.google.android.exoplayer2.source.smoothstreaming.manifest">SsManifest</a></dt>
 <dd>
 <div class="block">Whether the manifest describes a live presentation still in progress.</div>
 </dd>
-<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/source/chunk/ContainerMediaChunk.html#isLoadCanceled--">isLoadCanceled()</a></span> - Method in class com.google.android.exoplayer2.source.chunk.<a href="com/google/android/exoplayer2/source/chunk/ContainerMediaChunk.html" title="class in com.google.android.exoplayer2.source.chunk">ContainerMediaChunk</a></dt>
-<dd>&nbsp;</dd>
-<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/source/chunk/DataChunk.html#isLoadCanceled--">isLoadCanceled()</a></span> - Method in class com.google.android.exoplayer2.source.chunk.<a href="com/google/android/exoplayer2/source/chunk/DataChunk.html" title="class in com.google.android.exoplayer2.source.chunk">DataChunk</a></dt>
-<dd>&nbsp;</dd>
-<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/source/chunk/InitializationChunk.html#isLoadCanceled--">isLoadCanceled()</a></span> - Method in class com.google.android.exoplayer2.source.chunk.<a href="com/google/android/exoplayer2/source/chunk/InitializationChunk.html" title="class in com.google.android.exoplayer2.source.chunk">InitializationChunk</a></dt>
-<dd>&nbsp;</dd>
-<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/source/chunk/SingleSampleMediaChunk.html#isLoadCanceled--">isLoadCanceled()</a></span> - Method in class com.google.android.exoplayer2.source.chunk.<a href="com/google/android/exoplayer2/source/chunk/SingleSampleMediaChunk.html" title="class in com.google.android.exoplayer2.source.chunk">SingleSampleMediaChunk</a></dt>
-<dd>&nbsp;</dd>
-<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/upstream/Loader.Loadable.html#isLoadCanceled--">isLoadCanceled()</a></span> - Method in interface com.google.android.exoplayer2.upstream.<a href="com/google/android/exoplayer2/upstream/Loader.Loadable.html" title="interface in com.google.android.exoplayer2.upstream">Loader.Loadable</a></dt>
-<dd>
-<div class="block">Returns whether the load has been canceled.</div>
-</dd>
-<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/upstream/ParsingLoadable.html#isLoadCanceled--">isLoadCanceled()</a></span> - Method in class com.google.android.exoplayer2.upstream.<a href="com/google/android/exoplayer2/upstream/ParsingLoadable.html" title="class in com.google.android.exoplayer2.upstream">ParsingLoadable</a></dt>
-<dd>&nbsp;</dd>
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/source/chunk/ContainerMediaChunk.html#isLoadCompleted--">isLoadCompleted()</a></span> - Method in class com.google.android.exoplayer2.source.chunk.<a href="com/google/android/exoplayer2/source/chunk/ContainerMediaChunk.html" title="class in com.google.android.exoplayer2.source.chunk">ContainerMediaChunk</a></dt>
 <dd>&nbsp;</dd>
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/source/chunk/MediaChunk.html#isLoadCompleted--">isLoadCompleted()</a></span> - Method in class com.google.android.exoplayer2.source.chunk.<a href="com/google/android/exoplayer2/source/chunk/MediaChunk.html" title="class in com.google.android.exoplayer2.source.chunk">MediaChunk</a></dt>
@@ -9779,7 +9795,9 @@
 <dd>
 <div class="block">Whether it's possible to seek within this window.</div>
 </dd>
-<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/source/hls/playlist/HlsPlaylistTracker.html#isSnapshotValid-com.google.android.exoplayer2.source.hls.playlist.HlsMasterPlaylist.HlsUrl-">isSnapshotValid(HlsMasterPlaylist.HlsUrl)</a></span> - Method in class com.google.android.exoplayer2.source.hls.playlist.<a href="com/google/android/exoplayer2/source/hls/playlist/HlsPlaylistTracker.html" title="class in com.google.android.exoplayer2.source.hls.playlist">HlsPlaylistTracker</a></dt>
+<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/source/hls/playlist/DefaultHlsPlaylistTracker.html#isSnapshotValid-com.google.android.exoplayer2.source.hls.playlist.HlsMasterPlaylist.HlsUrl-">isSnapshotValid(HlsMasterPlaylist.HlsUrl)</a></span> - Method in class com.google.android.exoplayer2.source.hls.playlist.<a href="com/google/android/exoplayer2/source/hls/playlist/DefaultHlsPlaylistTracker.html" title="class in com.google.android.exoplayer2.source.hls.playlist">DefaultHlsPlaylistTracker</a></dt>
+<dd>&nbsp;</dd>
+<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/source/hls/playlist/HlsPlaylistTracker.html#isSnapshotValid-com.google.android.exoplayer2.source.hls.playlist.HlsMasterPlaylist.HlsUrl-">isSnapshotValid(HlsMasterPlaylist.HlsUrl)</a></span> - Method in interface com.google.android.exoplayer2.source.hls.playlist.<a href="com/google/android/exoplayer2/source/hls/playlist/HlsPlaylistTracker.html" title="interface in com.google.android.exoplayer2.source.hls.playlist">HlsPlaylistTracker</a></dt>
 <dd>
 <div class="block">Returns whether the snapshot of the playlist referenced by the provided <a href="com/google/android/exoplayer2/source/hls/playlist/HlsMasterPlaylist.HlsUrl.html" title="class in com.google.android.exoplayer2.source.hls.playlist"><code>HlsMasterPlaylist.HlsUrl</code></a> is
  valid, meaning all the segments referenced by the playlist are expected to be available.</div>
@@ -10472,10 +10490,11 @@
  <a href="com/google/android/exoplayer2/upstream/Loader.Loadable.html" title="interface in com.google.android.exoplayer2.upstream"><code>Loader.Loadable</code></a> has incurred a number of errors greater than the specified minimum number
  of retries.</div>
 </dd>
-<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/source/hls/playlist/HlsPlaylistTracker.html#maybeThrowPlaylistRefreshError-com.google.android.exoplayer2.source.hls.playlist.HlsMasterPlaylist.HlsUrl-">maybeThrowPlaylistRefreshError(HlsMasterPlaylist.HlsUrl)</a></span> - Method in class com.google.android.exoplayer2.source.hls.playlist.<a href="com/google/android/exoplayer2/source/hls/playlist/HlsPlaylistTracker.html" title="class in com.google.android.exoplayer2.source.hls.playlist">HlsPlaylistTracker</a></dt>
+<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/source/hls/playlist/DefaultHlsPlaylistTracker.html#maybeThrowPlaylistRefreshError-com.google.android.exoplayer2.source.hls.playlist.HlsMasterPlaylist.HlsUrl-">maybeThrowPlaylistRefreshError(HlsMasterPlaylist.HlsUrl)</a></span> - Method in class com.google.android.exoplayer2.source.hls.playlist.<a href="com/google/android/exoplayer2/source/hls/playlist/DefaultHlsPlaylistTracker.html" title="class in com.google.android.exoplayer2.source.hls.playlist">DefaultHlsPlaylistTracker</a></dt>
+<dd>&nbsp;</dd>
+<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/source/hls/playlist/HlsPlaylistTracker.html#maybeThrowPlaylistRefreshError-com.google.android.exoplayer2.source.hls.playlist.HlsMasterPlaylist.HlsUrl-">maybeThrowPlaylistRefreshError(HlsMasterPlaylist.HlsUrl)</a></span> - Method in interface com.google.android.exoplayer2.source.hls.playlist.<a href="com/google/android/exoplayer2/source/hls/playlist/HlsPlaylistTracker.html" title="interface in com.google.android.exoplayer2.source.hls.playlist">HlsPlaylistTracker</a></dt>
 <dd>
-<div class="block">If the playlist is having trouble refreshing the playlist referenced by the given
- <a href="com/google/android/exoplayer2/source/hls/playlist/HlsMasterPlaylist.HlsUrl.html" title="class in com.google.android.exoplayer2.source.hls.playlist"><code>HlsMasterPlaylist.HlsUrl</code></a>, this method throws the underlying error.</div>
+<div class="block">If the playlist is having trouble refreshing the playlist referenced by the given <a href="com/google/android/exoplayer2/source/hls/playlist/HlsMasterPlaylist.HlsUrl.html" title="class in com.google.android.exoplayer2.source.hls.playlist"><code>HlsMasterPlaylist.HlsUrl</code></a>, this method throws the underlying error.</div>
 </dd>
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/source/ClippingMediaPeriod.html#maybeThrowPrepareError--">maybeThrowPrepareError()</a></span> - Method in class com.google.android.exoplayer2.source.<a href="com/google/android/exoplayer2/source/ClippingMediaPeriod.html" title="class in com.google.android.exoplayer2.source">ClippingMediaPeriod</a></dt>
 <dd>&nbsp;</dd>
@@ -10487,7 +10506,9 @@
 <dd>
 <div class="block">Throws an error that's preventing the period from becoming prepared.</div>
 </dd>
-<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/source/hls/playlist/HlsPlaylistTracker.html#maybeThrowPrimaryPlaylistRefreshError--">maybeThrowPrimaryPlaylistRefreshError()</a></span> - Method in class com.google.android.exoplayer2.source.hls.playlist.<a href="com/google/android/exoplayer2/source/hls/playlist/HlsPlaylistTracker.html" title="class in com.google.android.exoplayer2.source.hls.playlist">HlsPlaylistTracker</a></dt>
+<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/source/hls/playlist/DefaultHlsPlaylistTracker.html#maybeThrowPrimaryPlaylistRefreshError--">maybeThrowPrimaryPlaylistRefreshError()</a></span> - Method in class com.google.android.exoplayer2.source.hls.playlist.<a href="com/google/android/exoplayer2/source/hls/playlist/DefaultHlsPlaylistTracker.html" title="class in com.google.android.exoplayer2.source.hls.playlist">DefaultHlsPlaylistTracker</a></dt>
+<dd>&nbsp;</dd>
+<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/source/hls/playlist/HlsPlaylistTracker.html#maybeThrowPrimaryPlaylistRefreshError--">maybeThrowPrimaryPlaylistRefreshError()</a></span> - Method in interface com.google.android.exoplayer2.source.hls.playlist.<a href="com/google/android/exoplayer2/source/hls/playlist/HlsPlaylistTracker.html" title="interface in com.google.android.exoplayer2.source.hls.playlist">HlsPlaylistTracker</a></dt>
 <dd>
 <div class="block">If the tracker is having trouble refreshing the master playlist or the primary playlist, this
  method throws the underlying error.</div>
@@ -11916,7 +11937,7 @@
 <dd>&nbsp;</dd>
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/source/DefaultMediaSourceEventListener.html#onLoadCanceled-int-com.google.android.exoplayer2.source.MediaSource.MediaPeriodId-com.google.android.exoplayer2.source.MediaSourceEventListener.LoadEventInfo-com.google.android.exoplayer2.source.MediaSourceEventListener.MediaLoadData-">onLoadCanceled(int, MediaSource.MediaPeriodId, MediaSourceEventListener.LoadEventInfo, MediaSourceEventListener.MediaLoadData)</a></span> - Method in class com.google.android.exoplayer2.source.<a href="com/google/android/exoplayer2/source/DefaultMediaSourceEventListener.html" title="class in com.google.android.exoplayer2.source">DefaultMediaSourceEventListener</a></dt>
 <dd>&nbsp;</dd>
-<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/source/hls/playlist/HlsPlaylistTracker.html#onLoadCanceled-com.google.android.exoplayer2.upstream.ParsingLoadable-long-long-boolean-">onLoadCanceled(ParsingLoadable&lt;HlsPlaylist&gt;, long, long, boolean)</a></span> - Method in class com.google.android.exoplayer2.source.hls.playlist.<a href="com/google/android/exoplayer2/source/hls/playlist/HlsPlaylistTracker.html" title="class in com.google.android.exoplayer2.source.hls.playlist">HlsPlaylistTracker</a></dt>
+<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/source/hls/playlist/DefaultHlsPlaylistTracker.html#onLoadCanceled-com.google.android.exoplayer2.upstream.ParsingLoadable-long-long-boolean-">onLoadCanceled(ParsingLoadable&lt;HlsPlaylist&gt;, long, long, boolean)</a></span> - Method in class com.google.android.exoplayer2.source.hls.playlist.<a href="com/google/android/exoplayer2/source/hls/playlist/DefaultHlsPlaylistTracker.html" title="class in com.google.android.exoplayer2.source.hls.playlist">DefaultHlsPlaylistTracker</a></dt>
 <dd>&nbsp;</dd>
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/source/MediaSourceEventListener.html#onLoadCanceled-int-com.google.android.exoplayer2.source.MediaSource.MediaPeriodId-com.google.android.exoplayer2.source.MediaSourceEventListener.LoadEventInfo-com.google.android.exoplayer2.source.MediaSourceEventListener.MediaLoadData-">onLoadCanceled(int, MediaSource.MediaPeriodId, MediaSourceEventListener.LoadEventInfo, MediaSourceEventListener.MediaLoadData)</a></span> - Method in interface com.google.android.exoplayer2.source.<a href="com/google/android/exoplayer2/source/MediaSourceEventListener.html" title="interface in com.google.android.exoplayer2.source">MediaSourceEventListener</a></dt>
 <dd>
@@ -11942,7 +11963,7 @@
 <dd>&nbsp;</dd>
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/source/DefaultMediaSourceEventListener.html#onLoadCompleted-int-com.google.android.exoplayer2.source.MediaSource.MediaPeriodId-com.google.android.exoplayer2.source.MediaSourceEventListener.LoadEventInfo-com.google.android.exoplayer2.source.MediaSourceEventListener.MediaLoadData-">onLoadCompleted(int, MediaSource.MediaPeriodId, MediaSourceEventListener.LoadEventInfo, MediaSourceEventListener.MediaLoadData)</a></span> - Method in class com.google.android.exoplayer2.source.<a href="com/google/android/exoplayer2/source/DefaultMediaSourceEventListener.html" title="class in com.google.android.exoplayer2.source">DefaultMediaSourceEventListener</a></dt>
 <dd>&nbsp;</dd>
-<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/source/hls/playlist/HlsPlaylistTracker.html#onLoadCompleted-com.google.android.exoplayer2.upstream.ParsingLoadable-long-long-">onLoadCompleted(ParsingLoadable&lt;HlsPlaylist&gt;, long, long)</a></span> - Method in class com.google.android.exoplayer2.source.hls.playlist.<a href="com/google/android/exoplayer2/source/hls/playlist/HlsPlaylistTracker.html" title="class in com.google.android.exoplayer2.source.hls.playlist">HlsPlaylistTracker</a></dt>
+<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/source/hls/playlist/DefaultHlsPlaylistTracker.html#onLoadCompleted-com.google.android.exoplayer2.upstream.ParsingLoadable-long-long-">onLoadCompleted(ParsingLoadable&lt;HlsPlaylist&gt;, long, long)</a></span> - Method in class com.google.android.exoplayer2.source.hls.playlist.<a href="com/google/android/exoplayer2/source/hls/playlist/DefaultHlsPlaylistTracker.html" title="class in com.google.android.exoplayer2.source.hls.playlist">DefaultHlsPlaylistTracker</a></dt>
 <dd>&nbsp;</dd>
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/source/MediaSourceEventListener.html#onLoadCompleted-int-com.google.android.exoplayer2.source.MediaSource.MediaPeriodId-com.google.android.exoplayer2.source.MediaSourceEventListener.LoadEventInfo-com.google.android.exoplayer2.source.MediaSourceEventListener.MediaLoadData-">onLoadCompleted(int, MediaSource.MediaPeriodId, MediaSourceEventListener.LoadEventInfo, MediaSourceEventListener.MediaLoadData)</a></span> - Method in interface com.google.android.exoplayer2.source.<a href="com/google/android/exoplayer2/source/MediaSourceEventListener.html" title="interface in com.google.android.exoplayer2.source">MediaSourceEventListener</a></dt>
 <dd>
@@ -11979,7 +12000,7 @@
 <div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when an error occurs loading media data.</div>
 </dd>
-<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/source/hls/playlist/HlsPlaylistTracker.html#onLoadError-com.google.android.exoplayer2.upstream.ParsingLoadable-long-long-java.io.IOException-">onLoadError(ParsingLoadable&lt;HlsPlaylist&gt;, long, long, IOException)</a></span> - Method in class com.google.android.exoplayer2.source.hls.playlist.<a href="com/google/android/exoplayer2/source/hls/playlist/HlsPlaylistTracker.html" title="class in com.google.android.exoplayer2.source.hls.playlist">HlsPlaylistTracker</a></dt>
+<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/source/hls/playlist/DefaultHlsPlaylistTracker.html#onLoadError-com.google.android.exoplayer2.upstream.ParsingLoadable-long-long-java.io.IOException-">onLoadError(ParsingLoadable&lt;HlsPlaylist&gt;, long, long, IOException)</a></span> - Method in class com.google.android.exoplayer2.source.hls.playlist.<a href="com/google/android/exoplayer2/source/hls/playlist/DefaultHlsPlaylistTracker.html" title="class in com.google.android.exoplayer2.source.hls.playlist">DefaultHlsPlaylistTracker</a></dt>
 <dd>&nbsp;</dd>
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/source/MediaSourceEventListener.html#onLoadError-int-com.google.android.exoplayer2.source.MediaSource.MediaPeriodId-com.google.android.exoplayer2.source.MediaSourceEventListener.LoadEventInfo-com.google.android.exoplayer2.source.MediaSourceEventListener.MediaLoadData-java.io.IOException-boolean-">onLoadError(int, MediaSource.MediaPeriodId, MediaSourceEventListener.LoadEventInfo, MediaSourceEventListener.MediaLoadData, IOException, boolean)</a></span> - Method in interface com.google.android.exoplayer2.source.<a href="com/google/android/exoplayer2/source/MediaSourceEventListener.html" title="interface in com.google.android.exoplayer2.source">MediaSourceEventListener</a></dt>
 <dd>
@@ -13537,6 +13558,14 @@
 <dd>&nbsp;</dd>
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/source/hls/playlist/HlsMediaPlaylist.html#PLAYLIST_TYPE_VOD">PLAYLIST_TYPE_VOD</a></span> - Static variable in class com.google.android.exoplayer2.source.hls.playlist.<a href="com/google/android/exoplayer2/source/hls/playlist/HlsMediaPlaylist.html" title="class in com.google.android.exoplayer2.source.hls.playlist">HlsMediaPlaylist</a></dt>
 <dd>&nbsp;</dd>
+<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/source/hls/playlist/HlsPlaylistTracker.PlaylistResetException.html#PlaylistResetException-java.lang.String-">PlaylistResetException(String)</a></span> - Constructor for exception com.google.android.exoplayer2.source.hls.playlist.<a href="com/google/android/exoplayer2/source/hls/playlist/HlsPlaylistTracker.PlaylistResetException.html" title="class in com.google.android.exoplayer2.source.hls.playlist">HlsPlaylistTracker.PlaylistResetException</a></dt>
+<dd>
+<div class="block">Creates an instance.</div>
+</dd>
+<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/source/hls/playlist/HlsPlaylistTracker.PlaylistStuckException.html#PlaylistStuckException-java.lang.String-">PlaylistStuckException(String)</a></span> - Constructor for exception com.google.android.exoplayer2.source.hls.playlist.<a href="com/google/android/exoplayer2/source/hls/playlist/HlsPlaylistTracker.PlaylistStuckException.html" title="class in com.google.android.exoplayer2.source.hls.playlist">HlsPlaylistTracker.PlaylistStuckException</a></dt>
+<dd>
+<div class="block">Creates an instance.</div>
+</dd>
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/source/hls/playlist/HlsMediaPlaylist.html#playlistType">playlistType</a></span> - Variable in class com.google.android.exoplayer2.source.hls.playlist.<a href="com/google/android/exoplayer2/source/hls/playlist/HlsMediaPlaylist.html" title="class in com.google.android.exoplayer2.source.hls.playlist">HlsMediaPlaylist</a></dt>
 <dd>
 <div class="block">The type of the playlist.</div>
@@ -14369,9 +14398,11 @@
 <dd>
 <div class="block">Re-evaluates the buffer given the playback position.</div>
 </dd>
-<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/source/hls/playlist/HlsPlaylistTracker.html#refreshPlaylist-com.google.android.exoplayer2.source.hls.playlist.HlsMasterPlaylist.HlsUrl-">refreshPlaylist(HlsMasterPlaylist.HlsUrl)</a></span> - Method in class com.google.android.exoplayer2.source.hls.playlist.<a href="com/google/android/exoplayer2/source/hls/playlist/HlsPlaylistTracker.html" title="class in com.google.android.exoplayer2.source.hls.playlist">HlsPlaylistTracker</a></dt>
+<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/source/hls/playlist/DefaultHlsPlaylistTracker.html#refreshPlaylist-com.google.android.exoplayer2.source.hls.playlist.HlsMasterPlaylist.HlsUrl-">refreshPlaylist(HlsMasterPlaylist.HlsUrl)</a></span> - Method in class com.google.android.exoplayer2.source.hls.playlist.<a href="com/google/android/exoplayer2/source/hls/playlist/DefaultHlsPlaylistTracker.html" title="class in com.google.android.exoplayer2.source.hls.playlist">DefaultHlsPlaylistTracker</a></dt>
+<dd>&nbsp;</dd>
+<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/source/hls/playlist/HlsPlaylistTracker.html#refreshPlaylist-com.google.android.exoplayer2.source.hls.playlist.HlsMasterPlaylist.HlsUrl-">refreshPlaylist(HlsMasterPlaylist.HlsUrl)</a></span> - Method in interface com.google.android.exoplayer2.source.hls.playlist.<a href="com/google/android/exoplayer2/source/hls/playlist/HlsPlaylistTracker.html" title="interface in com.google.android.exoplayer2.source.hls.playlist">HlsPlaylistTracker</a></dt>
 <dd>
-<div class="block">Triggers a playlist refresh and whitelists it.</div>
+<div class="block">Requests a playlist refresh and whitelists it.</div>
 </dd>
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/source/BaseMediaSource.html#refreshSourceInfo-com.google.android.exoplayer2.Timeline-java.lang.Object-">refreshSourceInfo(Timeline, Object)</a></span> - Method in class com.google.android.exoplayer2.source.<a href="com/google/android/exoplayer2/source/BaseMediaSource.html" title="class in com.google.android.exoplayer2.source">BaseMediaSource</a></dt>
 <dd>
@@ -14381,6 +14412,10 @@
 <dd>
 <div class="block">Registers the receiver, meaning it will notify the listener when audio capability changes
  occur.</div>
+</dd>
+<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/util/MimeTypes.html#registerCustomMimeType-java.lang.String-java.lang.String-int-">registerCustomMimeType(String, String, int)</a></span> - Static method in class com.google.android.exoplayer2.util.<a href="com/google/android/exoplayer2/util/MimeTypes.html" title="class in com.google.android.exoplayer2.util">MimeTypes</a></dt>
+<dd>
+<div class="block">Registers a custom MIME type.</div>
 </dd>
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/ExoPlayerLibraryInfo.html#registeredModules--">registeredModules()</a></span> - Static method in class com.google.android.exoplayer2.<a href="com/google/android/exoplayer2/ExoPlayerLibraryInfo.html" title="class in com.google.android.exoplayer2">ExoPlayerLibraryInfo</a></dt>
 <dd>
@@ -14498,9 +14533,11 @@
 </dd>
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/source/hls/HlsMediaPeriod.html#release--">release()</a></span> - Method in class com.google.android.exoplayer2.source.hls.<a href="com/google/android/exoplayer2/source/hls/HlsMediaPeriod.html" title="class in com.google.android.exoplayer2.source.hls">HlsMediaPeriod</a></dt>
 <dd>&nbsp;</dd>
-<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/source/hls/playlist/HlsPlaylistTracker.html#release--">release()</a></span> - Method in class com.google.android.exoplayer2.source.hls.playlist.<a href="com/google/android/exoplayer2/source/hls/playlist/HlsPlaylistTracker.html" title="class in com.google.android.exoplayer2.source.hls.playlist">HlsPlaylistTracker</a></dt>
+<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/source/hls/playlist/DefaultHlsPlaylistTracker.html#release--">release()</a></span> - Method in class com.google.android.exoplayer2.source.hls.playlist.<a href="com/google/android/exoplayer2/source/hls/playlist/DefaultHlsPlaylistTracker.html" title="class in com.google.android.exoplayer2.source.hls.playlist">DefaultHlsPlaylistTracker</a></dt>
+<dd>&nbsp;</dd>
+<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/source/hls/playlist/HlsPlaylistTracker.html#release--">release()</a></span> - Method in interface com.google.android.exoplayer2.source.hls.playlist.<a href="com/google/android/exoplayer2/source/hls/playlist/HlsPlaylistTracker.html" title="interface in com.google.android.exoplayer2.source.hls.playlist">HlsPlaylistTracker</a></dt>
 <dd>
-<div class="block">Releases the playlist tracker.</div>
+<div class="block">Releases all acquired resources.</div>
 </dd>
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/text/cea/Cea608Decoder.html#release--">release()</a></span> - Method in class com.google.android.exoplayer2.text.cea.<a href="com/google/android/exoplayer2/text/cea/Cea608Decoder.html" title="class in com.google.android.exoplayer2.text.cea">Cea608Decoder</a></dt>
 <dd>&nbsp;</dd>
@@ -14725,7 +14762,9 @@
 </dd>
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/SimpleExoPlayer.html#removeListener-com.google.android.exoplayer2.Player.EventListener-">removeListener(Player.EventListener)</a></span> - Method in class com.google.android.exoplayer2.<a href="com/google/android/exoplayer2/SimpleExoPlayer.html" title="class in com.google.android.exoplayer2">SimpleExoPlayer</a></dt>
 <dd>&nbsp;</dd>
-<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/source/hls/playlist/HlsPlaylistTracker.html#removeListener-com.google.android.exoplayer2.source.hls.playlist.HlsPlaylistTracker.PlaylistEventListener-">removeListener(HlsPlaylistTracker.PlaylistEventListener)</a></span> - Method in class com.google.android.exoplayer2.source.hls.playlist.<a href="com/google/android/exoplayer2/source/hls/playlist/HlsPlaylistTracker.html" title="class in com.google.android.exoplayer2.source.hls.playlist">HlsPlaylistTracker</a></dt>
+<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/source/hls/playlist/DefaultHlsPlaylistTracker.html#removeListener-com.google.android.exoplayer2.source.hls.playlist.HlsPlaylistTracker.PlaylistEventListener-">removeListener(HlsPlaylistTracker.PlaylistEventListener)</a></span> - Method in class com.google.android.exoplayer2.source.hls.playlist.<a href="com/google/android/exoplayer2/source/hls/playlist/DefaultHlsPlaylistTracker.html" title="class in com.google.android.exoplayer2.source.hls.playlist">DefaultHlsPlaylistTracker</a></dt>
+<dd>&nbsp;</dd>
+<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/source/hls/playlist/HlsPlaylistTracker.html#removeListener-com.google.android.exoplayer2.source.hls.playlist.HlsPlaylistTracker.PlaylistEventListener-">removeListener(HlsPlaylistTracker.PlaylistEventListener)</a></span> - Method in interface com.google.android.exoplayer2.source.hls.playlist.<a href="com/google/android/exoplayer2/source/hls/playlist/HlsPlaylistTracker.html" title="interface in com.google.android.exoplayer2.source.hls.playlist">HlsPlaylistTracker</a></dt>
 <dd>
 <div class="block">Unregisters a listener.</div>
 </dd>
@@ -16515,6 +16554,10 @@
 <dd>
 <div class="block">Sets the color for the portion of the time bar representing media before the playback position.</div>
 </dd>
+<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/analytics/AnalyticsCollector.html#setPlayer-com.google.android.exoplayer2.Player-">setPlayer(Player)</a></span> - Method in class com.google.android.exoplayer2.analytics.<a href="com/google/android/exoplayer2/analytics/AnalyticsCollector.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsCollector</a></dt>
+<dd>
+<div class="block">Sets the player for which data will be collected.</div>
+</dd>
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/ext/mediasession/MediaSessionConnector.html#setPlayer-com.google.android.exoplayer2.Player-com.google.android.exoplayer2.ext.mediasession.MediaSessionConnector.PlaybackPreparer-com.google.android.exoplayer2.ext.mediasession.MediaSessionConnector.CustomActionProvider...-">setPlayer(Player, MediaSessionConnector.PlaybackPreparer, MediaSessionConnector.CustomActionProvider...)</a></span> - Method in class com.google.android.exoplayer2.ext.mediasession.<a href="com/google/android/exoplayer2/ext/mediasession/MediaSessionConnector.html" title="class in com.google.android.exoplayer2.ext.mediasession">MediaSessionConnector</a></dt>
 <dd>
 <div class="block">Sets the player to be connected to the media session.</div>
@@ -16534,6 +16577,10 @@
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/source/hls/HlsMediaSource.Factory.html#setPlaylistParser-com.google.android.exoplayer2.upstream.ParsingLoadable.Parser-">setPlaylistParser(ParsingLoadable.Parser&lt;HlsPlaylist&gt;)</a></span> - Method in class com.google.android.exoplayer2.source.hls.<a href="com/google/android/exoplayer2/source/hls/HlsMediaSource.Factory.html" title="class in com.google.android.exoplayer2.source.hls">HlsMediaSource.Factory</a></dt>
 <dd>
 <div class="block">Sets the parser to parse HLS playlists.</div>
+</dd>
+<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/source/hls/HlsMediaSource.Factory.html#setPlaylistTracker-com.google.android.exoplayer2.source.hls.playlist.HlsPlaylistTracker-">setPlaylistTracker(HlsPlaylistTracker)</a></span> - Method in class com.google.android.exoplayer2.source.hls.<a href="com/google/android/exoplayer2/source/hls/HlsMediaSource.Factory.html" title="class in com.google.android.exoplayer2.source.hls">HlsMediaSource.Factory</a></dt>
+<dd>
+<div class="block">Sets the HLS playlist tracker.</div>
 </dd>
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/ext/cast/CastPlayer.html#setPlayWhenReady-boolean-">setPlayWhenReady(boolean)</a></span> - Method in class com.google.android.exoplayer2.ext.cast.<a href="com/google/android/exoplayer2/ext/cast/CastPlayer.html" title="class in com.google.android.exoplayer2.ext.cast">CastPlayer</a></dt>
 <dd>&nbsp;</dd>
@@ -16698,6 +16745,11 @@
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/ui/PlayerView.html#setRewindIncrementMs-int-">setRewindIncrementMs(int)</a></span> - Method in class com.google.android.exoplayer2.ui.<a href="com/google/android/exoplayer2/ui/PlayerView.html" title="class in com.google.android.exoplayer2.ui">PlayerView</a></dt>
 <dd>
 <div class="block">Sets the rewind increment in milliseconds.</div>
+</dd>
+<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/source/chunk/BaseMediaChunkOutput.html#setSampleOffsetUs-long-">setSampleOffsetUs(long)</a></span> - Method in class com.google.android.exoplayer2.source.chunk.<a href="com/google/android/exoplayer2/source/chunk/BaseMediaChunkOutput.html" title="class in com.google.android.exoplayer2.source.chunk">BaseMediaChunkOutput</a></dt>
+<dd>
+<div class="block">Sets an offset that will be added to the timestamps (and sub-sample timestamps) of samples
+ subsequently written to the sample queues.</div>
 </dd>
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/source/SampleQueue.html#setSampleOffsetUs-long-">setSampleOffsetUs(long)</a></span> - Method in class com.google.android.exoplayer2.source.<a href="com/google/android/exoplayer2/source/SampleQueue.html" title="class in com.google.android.exoplayer2.source">SampleQueue</a></dt>
 <dd>
@@ -17460,6 +17512,14 @@
 <dd>
 <div class="block">Represents a splice event as contained in a <a href="com/google/android/exoplayer2/metadata/scte35/SpliceScheduleCommand.html" title="class in com.google.android.exoplayer2.metadata.scte35"><code>SpliceScheduleCommand</code></a>.</div>
 </dd>
+<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/util/Util.html#split-java.lang.String-java.lang.String-">split(String, String)</a></span> - Static method in class com.google.android.exoplayer2.util.<a href="com/google/android/exoplayer2/util/Util.html" title="class in com.google.android.exoplayer2.util">Util</a></dt>
+<dd>
+<div class="block">Splits a string using <code>value.split(regex, -1</code>).</div>
+</dd>
+<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/util/Util.html#splitAtFirst-java.lang.String-java.lang.String-">splitAtFirst(String, String)</a></span> - Static method in class com.google.android.exoplayer2.util.<a href="com/google/android/exoplayer2/util/Util.html" title="class in com.google.android.exoplayer2.util">Util</a></dt>
+<dd>
+<div class="block">Splits the string at the first occurrence of the delimiter <code>regex</code>.</div>
+</dd>
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/util/CodecSpecificDataUtil.html#splitNalUnits-byte:A-">splitNalUnits(byte[])</a></span> - Static method in class com.google.android.exoplayer2.util.<a href="com/google/android/exoplayer2/util/CodecSpecificDataUtil.html" title="class in com.google.android.exoplayer2.util">CodecSpecificDataUtil</a></dt>
 <dd>
 <div class="block">Splits an array of NAL units.</div>
@@ -17583,6 +17643,10 @@
 </dd>
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/NoSampleRenderer.html#start--">start()</a></span> - Method in class com.google.android.exoplayer2.<a href="com/google/android/exoplayer2/NoSampleRenderer.html" title="class in com.google.android.exoplayer2">NoSampleRenderer</a></dt>
 <dd>&nbsp;</dd>
+<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/offline/DownloadService.html#start-android.content.Context-java.lang.Class-">start(Context, Class&lt;? extends DownloadService&gt;)</a></span> - Static method in class com.google.android.exoplayer2.offline.<a href="com/google/android/exoplayer2/offline/DownloadService.html" title="class in com.google.android.exoplayer2.offline">DownloadService</a></dt>
+<dd>
+<div class="block">Starts the service without adding a new action.</div>
+</dd>
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/Renderer.html#start--">start()</a></span> - Method in interface com.google.android.exoplayer2.<a href="com/google/android/exoplayer2/Renderer.html" title="interface in com.google.android.exoplayer2">Renderer</a></dt>
 <dd>
 <div class="block">Starts the renderer, meaning that calls to <a href="com/google/android/exoplayer2/Renderer.html#render-long-long-"><code>Renderer.render(long, long)</code></a> will cause media to be
@@ -17596,9 +17660,11 @@
 <dd>
 <div class="block">The (zero based) index of the first byte of the range.</div>
 </dd>
-<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/source/hls/playlist/HlsPlaylistTracker.html#start--">start()</a></span> - Method in class com.google.android.exoplayer2.source.hls.playlist.<a href="com/google/android/exoplayer2/source/hls/playlist/HlsPlaylistTracker.html" title="class in com.google.android.exoplayer2.source.hls.playlist">HlsPlaylistTracker</a></dt>
+<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/source/hls/playlist/DefaultHlsPlaylistTracker.html#start-android.net.Uri-com.google.android.exoplayer2.source.MediaSourceEventListener.EventDispatcher-com.google.android.exoplayer2.source.hls.playlist.HlsPlaylistTracker.PrimaryPlaylistListener-">start(Uri, MediaSourceEventListener.EventDispatcher, HlsPlaylistTracker.PrimaryPlaylistListener)</a></span> - Method in class com.google.android.exoplayer2.source.hls.playlist.<a href="com/google/android/exoplayer2/source/hls/playlist/DefaultHlsPlaylistTracker.html" title="class in com.google.android.exoplayer2.source.hls.playlist">DefaultHlsPlaylistTracker</a></dt>
+<dd>&nbsp;</dd>
+<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/source/hls/playlist/HlsPlaylistTracker.html#start-android.net.Uri-com.google.android.exoplayer2.source.MediaSourceEventListener.EventDispatcher-com.google.android.exoplayer2.source.hls.playlist.HlsPlaylistTracker.PrimaryPlaylistListener-">start(Uri, MediaSourceEventListener.EventDispatcher, HlsPlaylistTracker.PrimaryPlaylistListener)</a></span> - Method in interface com.google.android.exoplayer2.source.hls.playlist.<a href="com/google/android/exoplayer2/source/hls/playlist/HlsPlaylistTracker.html" title="interface in com.google.android.exoplayer2.source.hls.playlist">HlsPlaylistTracker</a></dt>
 <dd>
-<div class="block">Starts tracking all the playlists related to the provided Uri.</div>
+<div class="block">Starts the playlist tracker.</div>
 </dd>
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/ui/DebugTextViewHelper.html#start--">start()</a></span> - Method in class com.google.android.exoplayer2.ui.<a href="com/google/android/exoplayer2/ui/DebugTextViewHelper.html" title="class in com.google.android.exoplayer2.ui">DebugTextViewHelper</a></dt>
 <dd>
@@ -17618,6 +17684,10 @@
 </dd>
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/upstream/cache/SimpleCache.html#startFile-java.lang.String-long-long-">startFile(String, long, long)</a></span> - Method in class com.google.android.exoplayer2.upstream.cache.<a href="com/google/android/exoplayer2/upstream/cache/SimpleCache.html" title="class in com.google.android.exoplayer2.upstream.cache">SimpleCache</a></dt>
 <dd>&nbsp;</dd>
+<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/offline/DownloadService.html#startForeground-android.content.Context-java.lang.Class-">startForeground(Context, Class&lt;? extends DownloadService&gt;)</a></span> - Static method in class com.google.android.exoplayer2.offline.<a href="com/google/android/exoplayer2/offline/DownloadService.html" title="class in com.google.android.exoplayer2.offline">DownloadService</a></dt>
+<dd>
+<div class="block">Starts the service in the foreground without adding a new action.</div>
+</dd>
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/util/Util.html#startForegroundService-android.content.Context-android.content.Intent-">startForegroundService(Context, Intent)</a></span> - Static method in class com.google.android.exoplayer2.util.<a href="com/google/android/exoplayer2/util/Util.html" title="class in com.google.android.exoplayer2.util">Util</a></dt>
 <dd>
 <div class="block">Calls <a href="https://developer.android.com/reference/android/content/Context.html?is-external=true#startForegroundService-android.content.Intent-" title="class or interface in android.content"><code>Context.startForegroundService(Intent)</code></a> if <a href="com/google/android/exoplayer2/util/Util.html#SDK_INT"><code>Util.SDK_INT</code></a> is 26 or higher, or
@@ -18431,6 +18501,8 @@
 <div class="block">Encapsulates information describing an MP4 track.</div>
 </dd>
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/extractor/mp4/Track.html#Track-int-int-long-long-long-com.google.android.exoplayer2.Format-int-com.google.android.exoplayer2.extractor.mp4.TrackEncryptionBox:A-int-long:A-long:A-">Track(int, int, long, long, long, Format, int, TrackEncryptionBox[], int, long[], long[])</a></span> - Constructor for class com.google.android.exoplayer2.extractor.mp4.<a href="com/google/android/exoplayer2/extractor/mp4/Track.html" title="class in com.google.android.exoplayer2.extractor.mp4">Track</a></dt>
+<dd>&nbsp;</dd>
+<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/source/chunk/BaseMediaChunkOutput.html#track-int-int-">track(int, int)</a></span> - Method in class com.google.android.exoplayer2.source.chunk.<a href="com/google/android/exoplayer2/source/chunk/BaseMediaChunkOutput.html" title="class in com.google.android.exoplayer2.source.chunk">BaseMediaChunkOutput</a></dt>
 <dd>&nbsp;</dd>
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/source/chunk/ChunkExtractorWrapper.html#track-int-int-">track(int, int)</a></span> - Method in class com.google.android.exoplayer2.source.chunk.<a href="com/google/android/exoplayer2/source/chunk/ChunkExtractorWrapper.html" title="class in com.google.android.exoplayer2.source.chunk">ChunkExtractorWrapper</a></dt>
 <dd>&nbsp;</dd>

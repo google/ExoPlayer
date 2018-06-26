@@ -16,7 +16,7 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10};
+var methods = {"i0":10,"i1":10,"i2":10,"i3":10};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -215,17 +215,11 @@ extends <a href="../../../../../../com/google/android/exoplayer2/source/chunk/Ba
 </tr>
 <tr id="i2" class="altColor">
 <td class="colFirst"><code>boolean</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/source/chunk/SingleSampleMediaChunk.html#isLoadCanceled--">isLoadCanceled</a></span>()</code>
-<div class="block">Returns whether the load has been canceled.</div>
-</td>
-</tr>
-<tr id="i3" class="rowColor">
-<td class="colFirst"><code>boolean</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/source/chunk/SingleSampleMediaChunk.html#isLoadCompleted--">isLoadCompleted</a></span>()</code>
 <div class="block">Returns whether the chunk has been fully loaded.</div>
 </td>
 </tr>
-<tr id="i4" class="altColor">
+<tr id="i3" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/source/chunk/SingleSampleMediaChunk.html#load--">load</a></span>()</code>
 <div class="block">Performs the load, returning on completion or cancellation.</div>
@@ -299,7 +293,7 @@ extends <a href="../../../../../../com/google/android/exoplayer2/source/chunk/Ba
 <dd><code>trackSelectionData</code> - See <a href="../../../../../../com/google/android/exoplayer2/source/chunk/Chunk.html#trackSelectionData"><code>Chunk.trackSelectionData</code></a>.</dd>
 <dd><code>startTimeUs</code> - The start time of the media contained by the chunk, in microseconds.</dd>
 <dd><code>endTimeUs</code> - The end time of the media contained by the chunk, in microseconds.</dd>
-<dd><code>chunkIndex</code> - The index of the chunk.</dd>
+<dd><code>chunkIndex</code> - The index of the chunk, or <a href="../../../../../../com/google/android/exoplayer2/C.html#INDEX_UNSET"><code>C.INDEX_UNSET</code></a> if it is not known.</dd>
 <dd><code>trackType</code> - The type of the chunk. Typically one of the <a href="../../../../../../com/google/android/exoplayer2/C.html" title="class in com.google.android.exoplayer2"><code>C</code></a> <code>TRACK_TYPE_*</code>
      constants.</dd>
 <dd><code>sampleFormat</code> - The <a href="../../../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2"><code>Format</code></a> of the sample in the chunk.</dd>
@@ -353,17 +347,6 @@ extends <a href="../../../../../../com/google/android/exoplayer2/source/chunk/Ba
 <pre>public&nbsp;void&nbsp;cancelLoad()</pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/upstream/Loader.Loadable.html#cancelLoad--">Loader.Loadable</a></code></span></div>
 <div class="block">Cancels the load.</div>
-</li>
-</ul>
-<a name="isLoadCanceled--">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>isLoadCanceled</h4>
-<pre>public&nbsp;boolean&nbsp;isLoadCanceled()</pre>
-<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/upstream/Loader.Loadable.html#isLoadCanceled--">Loader.Loadable</a></code></span></div>
-<div class="block">Returns whether the load has been canceled.</div>
 </li>
 </ul>
 <a name="load--">

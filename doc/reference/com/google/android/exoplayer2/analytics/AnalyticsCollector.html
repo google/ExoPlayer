@@ -16,7 +16,7 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":10,"i11":10,"i12":10,"i13":10,"i14":10,"i15":10,"i16":10,"i17":10,"i18":10,"i19":10,"i20":10,"i21":10,"i22":10,"i23":10,"i24":10,"i25":10,"i26":10,"i27":10,"i28":10,"i29":10,"i30":10,"i31":10,"i32":10,"i33":10,"i34":10,"i35":10,"i36":10,"i37":10,"i38":10,"i39":10,"i40":10,"i41":10,"i42":10,"i43":10,"i44":10,"i45":10};
+var methods = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":10,"i11":10,"i12":10,"i13":10,"i14":10,"i15":10,"i16":10,"i17":10,"i18":10,"i19":10,"i20":10,"i21":10,"i22":10,"i23":10,"i24":10,"i25":10,"i26":10,"i27":10,"i28":10,"i29":10,"i30":10,"i31":10,"i32":10,"i33":10,"i34":10,"i35":10,"i36":10,"i37":10,"i38":10,"i39":10,"i40":10,"i41":10,"i42":10,"i43":10,"i44":10,"i45":10,"i46":10};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -523,6 +523,12 @@ implements <a href="../../../../../com/google/android/exoplayer2/Player.EventLis
 <div class="block">Resets the analytics collector for a new media source.</div>
 </td>
 </tr>
+<tr id="i46" class="altColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/analytics/AnalyticsCollector.html#setPlayer-com.google.android.exoplayer2.Player-">setPlayer</a></span>(<a href="../../../../../com/google/android/exoplayer2/Player.html" title="interface in com.google.android.exoplayer2">Player</a>&nbsp;player)</code>
+<div class="block">Sets the player for which data will be collected.</div>
+</td>
+</tr>
 </table>
 <ul class="blockList">
 <li class="blockList"><a name="methods.inherited.from.class.java.lang.Object">
@@ -551,12 +557,15 @@ implements <a href="../../../../../com/google/android/exoplayer2/Player.EventLis
 <ul class="blockListLast">
 <li class="blockList">
 <h4>AnalyticsCollector</h4>
-<pre>protected&nbsp;AnalyticsCollector(<a href="../../../../../com/google/android/exoplayer2/Player.html" title="interface in com.google.android.exoplayer2">Player</a>&nbsp;player,
+<pre>protected&nbsp;AnalyticsCollector(<a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
+                             <a href="../../../../../com/google/android/exoplayer2/Player.html" title="interface in com.google.android.exoplayer2">Player</a>&nbsp;player,
                              <a href="../../../../../com/google/android/exoplayer2/util/Clock.html" title="interface in com.google.android.exoplayer2.util">Clock</a>&nbsp;clock)</pre>
 <div class="block">Creates an analytics collector for the specified player.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>player</code> - The <a href="../../../../../com/google/android/exoplayer2/Player.html" title="interface in com.google.android.exoplayer2"><code>Player</code></a> for which data will be collected.</dd>
+<dd><code>player</code> - The <a href="../../../../../com/google/android/exoplayer2/Player.html" title="interface in com.google.android.exoplayer2"><code>Player</code></a> for which data will be collected. Can be null, if the player
+     is set by calling <a href="../../../../../com/google/android/exoplayer2/analytics/AnalyticsCollector.html#setPlayer-com.google.android.exoplayer2.Player-"><code>setPlayer(Player)</code></a> before using the analytics
+     collector.</dd>
 <dd><code>clock</code> - A <a href="../../../../../com/google/android/exoplayer2/util/Clock.html" title="interface in com.google.android.exoplayer2.util"><code>Clock</code></a> used to generate timestamps.</dd>
 </dl>
 </li>
@@ -594,6 +603,21 @@ implements <a href="../../../../../com/google/android/exoplayer2/Player.EventLis
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>listener</code> - The listener to remove.</dd>
+</dl>
+</li>
+</ul>
+<a name="setPlayer-com.google.android.exoplayer2.Player-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setPlayer</h4>
+<pre>public&nbsp;void&nbsp;setPlayer(<a href="../../../../../com/google/android/exoplayer2/Player.html" title="interface in com.google.android.exoplayer2">Player</a>&nbsp;player)</pre>
+<div class="block">Sets the player for which data will be collected. Must only be called if no player has been set
+ yet.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>player</code> - The <a href="../../../../../com/google/android/exoplayer2/Player.html" title="interface in com.google.android.exoplayer2"><code>Player</code></a> for which data will be collected.</dd>
 </dl>
 </li>
 </ul>

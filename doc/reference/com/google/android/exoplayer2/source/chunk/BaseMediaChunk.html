@@ -47,7 +47,7 @@ var activeTableTab = "activeTableTab";
 <div class="subNav">
 <ul class="navList">
 <li>Prev&nbsp;Class</li>
-<li><a href="../../../../../../com/google/android/exoplayer2/source/chunk/Chunk.html" title="class in com.google.android.exoplayer2.source.chunk"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
+<li><a href="../../../../../../com/google/android/exoplayer2/source/chunk/BaseMediaChunkOutput.html" title="class in com.google.android.exoplayer2.source.chunk"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
 </ul>
 <ul class="navList">
 <li><a href="../../../../../../index.html?com/google/android/exoplayer2/source/chunk/BaseMediaChunk.html" target="_top">Frames</a></li>
@@ -126,7 +126,7 @@ var activeTableTab = "activeTableTab";
 <br>
 <pre>public abstract class <span class="typeNameLabel">BaseMediaChunk</span>
 extends <a href="../../../../../../com/google/android/exoplayer2/source/chunk/MediaChunk.html" title="class in com.google.android.exoplayer2.source.chunk">MediaChunk</a></pre>
-<div class="block">A base implementation of <a href="../../../../../../com/google/android/exoplayer2/source/chunk/MediaChunk.html" title="class in com.google.android.exoplayer2.source.chunk"><code>MediaChunk</code></a> that outputs to a <code>BaseMediaChunkOutput</code>.</div>
+<div class="block">A base implementation of <a href="../../../../../../com/google/android/exoplayer2/source/chunk/MediaChunk.html" title="class in com.google.android.exoplayer2.source.chunk"><code>MediaChunk</code></a> that outputs to a <a href="../../../../../../com/google/android/exoplayer2/source/chunk/BaseMediaChunkOutput.html" title="class in com.google.android.exoplayer2.source.chunk"><code>BaseMediaChunkOutput</code></a>.</div>
 </li>
 </ul>
 </div>
@@ -214,15 +214,15 @@ extends <a href="../../../../../../com/google/android/exoplayer2/source/chunk/Me
 </td>
 </tr>
 <tr id="i1" class="rowColor">
-<td class="colFirst"><code>protected com.google.android.exoplayer2.source.chunk.BaseMediaChunkOutput</code></td>
+<td class="colFirst"><code>protected <a href="../../../../../../com/google/android/exoplayer2/source/chunk/BaseMediaChunkOutput.html" title="class in com.google.android.exoplayer2.source.chunk">BaseMediaChunkOutput</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/source/chunk/BaseMediaChunk.html#getOutput--">getOutput</a></span>()</code>
 <div class="block">Returns the output most recently passed to <a href="../../../../../../com/google/android/exoplayer2/source/chunk/BaseMediaChunk.html#init-com.google.android.exoplayer2.source.chunk.BaseMediaChunkOutput-"><code>init(BaseMediaChunkOutput)</code></a>.</div>
 </td>
 </tr>
 <tr id="i2" class="altColor">
 <td class="colFirst"><code>void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/source/chunk/BaseMediaChunk.html#init-com.google.android.exoplayer2.source.chunk.BaseMediaChunkOutput-">init</a></span>(com.google.android.exoplayer2.source.chunk.BaseMediaChunkOutput&nbsp;output)</code>
-<div class="block">Initializes the chunk for loading, setting the <code>BaseMediaChunkOutput</code> that will receive
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/source/chunk/BaseMediaChunk.html#init-com.google.android.exoplayer2.source.chunk.BaseMediaChunkOutput-">init</a></span>(<a href="../../../../../../com/google/android/exoplayer2/source/chunk/BaseMediaChunkOutput.html" title="class in com.google.android.exoplayer2.source.chunk">BaseMediaChunkOutput</a>&nbsp;output)</code>
+<div class="block">Initializes the chunk for loading, setting the <a href="../../../../../../com/google/android/exoplayer2/source/chunk/BaseMediaChunkOutput.html" title="class in com.google.android.exoplayer2.source.chunk"><code>BaseMediaChunkOutput</code></a> that will receive
  samples as they are loaded.</div>
 </td>
 </tr>
@@ -253,7 +253,7 @@ extends <a href="../../../../../../com/google/android/exoplayer2/source/chunk/Me
 <!--   -->
 </a>
 <h3>Methods inherited from interface&nbsp;com.google.android.exoplayer2.upstream.<a href="../../../../../../com/google/android/exoplayer2/upstream/Loader.Loadable.html" title="interface in com.google.android.exoplayer2.upstream">Loader.Loadable</a></h3>
-<code><a href="../../../../../../com/google/android/exoplayer2/upstream/Loader.Loadable.html#cancelLoad--">cancelLoad</a>, <a href="../../../../../../com/google/android/exoplayer2/upstream/Loader.Loadable.html#isLoadCanceled--">isLoadCanceled</a>, <a href="../../../../../../com/google/android/exoplayer2/upstream/Loader.Loadable.html#load--">load</a></code></li>
+<code><a href="../../../../../../com/google/android/exoplayer2/upstream/Loader.Loadable.html#cancelLoad--">cancelLoad</a>, <a href="../../../../../../com/google/android/exoplayer2/upstream/Loader.Loadable.html#load--">load</a></code></li>
 </ul>
 </li>
 </ul>
@@ -314,7 +314,7 @@ extends <a href="../../../../../../com/google/android/exoplayer2/source/chunk/Me
 <dd><code>endTimeUs</code> - The end time of the media contained by the chunk, in microseconds.</dd>
 <dd><code>seekTimeUs</code> - The media time from which output will begin, or <a href="../../../../../../com/google/android/exoplayer2/C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a> if the
      whole chunk should be output.</dd>
-<dd><code>chunkIndex</code> - The index of the chunk.</dd>
+<dd><code>chunkIndex</code> - The index of the chunk, or <a href="../../../../../../com/google/android/exoplayer2/C.html#INDEX_UNSET"><code>C.INDEX_UNSET</code></a> if it is not known.</dd>
 </dl>
 </li>
 </ul>
@@ -332,8 +332,8 @@ extends <a href="../../../../../../com/google/android/exoplayer2/source/chunk/Me
 <ul class="blockList">
 <li class="blockList">
 <h4>init</h4>
-<pre>public&nbsp;void&nbsp;init(com.google.android.exoplayer2.source.chunk.BaseMediaChunkOutput&nbsp;output)</pre>
-<div class="block">Initializes the chunk for loading, setting the <code>BaseMediaChunkOutput</code> that will receive
+<pre>public&nbsp;void&nbsp;init(<a href="../../../../../../com/google/android/exoplayer2/source/chunk/BaseMediaChunkOutput.html" title="class in com.google.android.exoplayer2.source.chunk">BaseMediaChunkOutput</a>&nbsp;output)</pre>
+<div class="block">Initializes the chunk for loading, setting the <a href="../../../../../../com/google/android/exoplayer2/source/chunk/BaseMediaChunkOutput.html" title="class in com.google.android.exoplayer2.source.chunk"><code>BaseMediaChunkOutput</code></a> that will receive
  samples as they are loaded.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -358,7 +358,7 @@ extends <a href="../../../../../../com/google/android/exoplayer2/source/chunk/Me
 <ul class="blockListLast">
 <li class="blockList">
 <h4>getOutput</h4>
-<pre>protected final&nbsp;com.google.android.exoplayer2.source.chunk.BaseMediaChunkOutput&nbsp;getOutput()</pre>
+<pre>protected final&nbsp;<a href="../../../../../../com/google/android/exoplayer2/source/chunk/BaseMediaChunkOutput.html" title="class in com.google.android.exoplayer2.source.chunk">BaseMediaChunkOutput</a>&nbsp;getOutput()</pre>
 <div class="block">Returns the output most recently passed to <a href="../../../../../../com/google/android/exoplayer2/source/chunk/BaseMediaChunk.html#init-com.google.android.exoplayer2.source.chunk.BaseMediaChunkOutput-"><code>init(BaseMediaChunkOutput)</code></a>.</div>
 </li>
 </ul>
@@ -390,7 +390,7 @@ extends <a href="../../../../../../com/google/android/exoplayer2/source/chunk/Me
 <div class="subNav">
 <ul class="navList">
 <li>Prev&nbsp;Class</li>
-<li><a href="../../../../../../com/google/android/exoplayer2/source/chunk/Chunk.html" title="class in com.google.android.exoplayer2.source.chunk"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
+<li><a href="../../../../../../com/google/android/exoplayer2/source/chunk/BaseMediaChunkOutput.html" title="class in com.google.android.exoplayer2.source.chunk"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
 </ul>
 <ul class="navList">
 <li><a href="../../../../../../index.html?com/google/android/exoplayer2/source/chunk/BaseMediaChunk.html" target="_top">Frames</a></li>

@@ -501,7 +501,9 @@ implements <a href="../../../../../com/google/android/exoplayer2/trackselection/
 <h4>indexOf</h4>
 <pre>public final&nbsp;int&nbsp;indexOf(<a href="../../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;format)</pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelection.html#indexOf-com.google.android.exoplayer2.Format-">TrackSelection</a></code></span></div>
-<div class="block">Returns the index in the selection of the track with the specified format.</div>
+<div class="block">Returns the index in the selection of the track with the specified format. The format is
+ located by identity so, for example, <code>selection.indexOf(selection.getFormat(index)) ==
+ index</code> even if multiple selected tracks have formats that contain the same values.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelection.html#indexOf-com.google.android.exoplayer2.Format-">indexOf</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelection.html" title="interface in com.google.android.exoplayer2.trackselection">TrackSelection</a></code></dd>

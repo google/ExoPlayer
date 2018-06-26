@@ -148,7 +148,8 @@ implements <a href="../../../../../../com/google/android/exoplayer2/source/dash/
 <th class="colOne" scope="col">Constructor and Description</th>
 </tr>
 <tr class="altColor">
-<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/source/dash/DashWrappingSegmentIndex.html#DashWrappingSegmentIndex-com.google.android.exoplayer2.extractor.ChunkIndex-">DashWrappingSegmentIndex</a></span>(<a href="../../../../../../com/google/android/exoplayer2/extractor/ChunkIndex.html" title="class in com.google.android.exoplayer2.extractor">ChunkIndex</a>&nbsp;chunkIndex)</code>&nbsp;</td>
+<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/source/dash/DashWrappingSegmentIndex.html#DashWrappingSegmentIndex-com.google.android.exoplayer2.extractor.ChunkIndex-long-">DashWrappingSegmentIndex</a></span>(<a href="../../../../../../com/google/android/exoplayer2/extractor/ChunkIndex.html" title="class in com.google.android.exoplayer2.extractor">ChunkIndex</a>&nbsp;chunkIndex,
+                        long&nbsp;timeOffsetUs)</code>&nbsp;</td>
 </tr>
 </table>
 </li>
@@ -232,16 +233,18 @@ implements <a href="../../../../../../com/google/android/exoplayer2/source/dash/
 <!--   -->
 </a>
 <h3>Constructor Detail</h3>
-<a name="DashWrappingSegmentIndex-com.google.android.exoplayer2.extractor.ChunkIndex-">
+<a name="DashWrappingSegmentIndex-com.google.android.exoplayer2.extractor.ChunkIndex-long-">
 <!--   -->
 </a>
 <ul class="blockListLast">
 <li class="blockList">
 <h4>DashWrappingSegmentIndex</h4>
-<pre>public&nbsp;DashWrappingSegmentIndex(<a href="../../../../../../com/google/android/exoplayer2/extractor/ChunkIndex.html" title="class in com.google.android.exoplayer2.extractor">ChunkIndex</a>&nbsp;chunkIndex)</pre>
+<pre>public&nbsp;DashWrappingSegmentIndex(<a href="../../../../../../com/google/android/exoplayer2/extractor/ChunkIndex.html" title="class in com.google.android.exoplayer2.extractor">ChunkIndex</a>&nbsp;chunkIndex,
+                                long&nbsp;timeOffsetUs)</pre>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>chunkIndex</code> - The <a href="../../../../../../com/google/android/exoplayer2/extractor/ChunkIndex.html" title="class in com.google.android.exoplayer2.extractor"><code>ChunkIndex</code></a> to wrap.</dd>
+<dd><code>timeOffsetUs</code> - An offset to subtract from the times in the wrapped index, in microseconds.</dd>
 </dl>
 </li>
 </ul>

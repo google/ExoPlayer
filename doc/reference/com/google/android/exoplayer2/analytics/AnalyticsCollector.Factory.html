@@ -200,12 +200,15 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 <ul class="blockListLast">
 <li class="blockList">
 <h4>createAnalyticsCollector</h4>
-<pre>public&nbsp;<a href="../../../../../com/google/android/exoplayer2/analytics/AnalyticsCollector.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsCollector</a>&nbsp;createAnalyticsCollector(<a href="../../../../../com/google/android/exoplayer2/Player.html" title="interface in com.google.android.exoplayer2">Player</a>&nbsp;player,
+<pre>public&nbsp;<a href="../../../../../com/google/android/exoplayer2/analytics/AnalyticsCollector.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsCollector</a>&nbsp;createAnalyticsCollector(<a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
+                                                   <a href="../../../../../com/google/android/exoplayer2/Player.html" title="interface in com.google.android.exoplayer2">Player</a>&nbsp;player,
                                                    <a href="../../../../../com/google/android/exoplayer2/util/Clock.html" title="interface in com.google.android.exoplayer2.util">Clock</a>&nbsp;clock)</pre>
 <div class="block">Creates an analytics collector for the specified player.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>player</code> - The <a href="../../../../../com/google/android/exoplayer2/Player.html" title="interface in com.google.android.exoplayer2"><code>Player</code></a> for which data will be collected.</dd>
+<dd><code>player</code> - The <a href="../../../../../com/google/android/exoplayer2/Player.html" title="interface in com.google.android.exoplayer2"><code>Player</code></a> for which data will be collected. Can be null, if the player
+     is set by calling <a href="../../../../../com/google/android/exoplayer2/analytics/AnalyticsCollector.html#setPlayer-com.google.android.exoplayer2.Player-"><code>AnalyticsCollector.setPlayer(Player)</code></a> before using the analytics
+     collector.</dd>
 <dd><code>clock</code> - A <a href="../../../../../com/google/android/exoplayer2/util/Clock.html" title="interface in com.google.android.exoplayer2.util"><code>Clock</code></a> used to generate timestamps.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>An analytics collector.</dd>

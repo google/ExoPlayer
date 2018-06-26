@@ -16,7 +16,7 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10};
+var methods = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -218,22 +218,16 @@ extends <a href="../../../../../../com/google/android/exoplayer2/source/chunk/Ba
 <tr id="i2" class="altColor">
 <td class="colFirst"><code>long</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/source/chunk/ContainerMediaChunk.html#getNextChunkIndex--">getNextChunkIndex</a></span>()</code>
-<div class="block">Returns the next chunk index.</div>
+<div class="block">Returns the next chunk index or <a href="../../../../../../com/google/android/exoplayer2/C.html#INDEX_UNSET"><code>C.INDEX_UNSET</code></a> if it is not known.</div>
 </td>
 </tr>
 <tr id="i3" class="rowColor">
-<td class="colFirst"><code>boolean</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/source/chunk/ContainerMediaChunk.html#isLoadCanceled--">isLoadCanceled</a></span>()</code>
-<div class="block">Returns whether the load has been canceled.</div>
-</td>
-</tr>
-<tr id="i4" class="altColor">
 <td class="colFirst"><code>boolean</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/source/chunk/ContainerMediaChunk.html#isLoadCompleted--">isLoadCompleted</a></span>()</code>
 <div class="block">Returns whether the chunk has been fully loaded.</div>
 </td>
 </tr>
-<tr id="i5" class="rowColor">
+<tr id="i4" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/source/chunk/ContainerMediaChunk.html#load--">load</a></span>()</code>
 <div class="block">Performs the load, returning on completion or cancellation.</div>
@@ -304,7 +298,7 @@ extends <a href="../../../../../../com/google/android/exoplayer2/source/chunk/Ba
 <dd><code>endTimeUs</code> - The end time of the media contained by the chunk, in microseconds.</dd>
 <dd><code>seekTimeUs</code> - The media time from which output will begin, or <a href="../../../../../../com/google/android/exoplayer2/C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a> if the
      whole chunk should be output.</dd>
-<dd><code>chunkIndex</code> - The index of the chunk.</dd>
+<dd><code>chunkIndex</code> - The index of the chunk, or <a href="../../../../../../com/google/android/exoplayer2/C.html#INDEX_UNSET"><code>C.INDEX_UNSET</code></a> if it is not known.</dd>
 <dd><code>chunkCount</code> - The number of chunks in the underlying media that are spanned by this
      instance. Normally equal to one, but may be larger if multiple chunks as defined by the
      underlying media are being merged into a single load.</dd>
@@ -329,7 +323,7 @@ extends <a href="../../../../../../com/google/android/exoplayer2/source/chunk/Ba
 <h4>getNextChunkIndex</h4>
 <pre>public&nbsp;long&nbsp;getNextChunkIndex()</pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from class:&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/source/chunk/MediaChunk.html#getNextChunkIndex--">MediaChunk</a></code></span></div>
-<div class="block">Returns the next chunk index.</div>
+<div class="block">Returns the next chunk index or <a href="../../../../../../com/google/android/exoplayer2/C.html#INDEX_UNSET"><code>C.INDEX_UNSET</code></a> if it is not known.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Overrides:</span></dt>
 <dd><code><a href="../../../../../../com/google/android/exoplayer2/source/chunk/MediaChunk.html#getNextChunkIndex--">getNextChunkIndex</a></code>&nbsp;in class&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/source/chunk/MediaChunk.html" title="class in com.google.android.exoplayer2.source.chunk">MediaChunk</a></code></dd>
@@ -375,17 +369,6 @@ extends <a href="../../../../../../com/google/android/exoplayer2/source/chunk/Ba
 <pre>public final&nbsp;void&nbsp;cancelLoad()</pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/upstream/Loader.Loadable.html#cancelLoad--">Loader.Loadable</a></code></span></div>
 <div class="block">Cancels the load.</div>
-</li>
-</ul>
-<a name="isLoadCanceled--">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>isLoadCanceled</h4>
-<pre>public final&nbsp;boolean&nbsp;isLoadCanceled()</pre>
-<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/upstream/Loader.Loadable.html#isLoadCanceled--">Loader.Loadable</a></code></span></div>
-<div class="block">Returns whether the load has been canceled.</div>
 </li>
 </ul>
 <a name="load--">

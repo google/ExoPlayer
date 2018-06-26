@@ -348,8 +348,7 @@ extends <a href="../../../../../com/google/android/exoplayer2/trackselection/Map
 <td class="colFirst"><code>protected static boolean</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/trackselection/DefaultTrackSelector.html#formatHasLanguage-com.google.android.exoplayer2.Format-java.lang.String-">formatHasLanguage</a></span>(<a href="../../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;format,
                  <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;language)</code>
-<div class="block">Returns whether a <a href="../../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2"><code>Format</code></a> specifies a particular language, or <code>false</code> if
- <code>language</code> is null.</div>
+<div class="block">Returns whether a <a href="../../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2"><code>Format</code></a> specifies a particular language, or <code>false</code> if <code>language</code> is null.</div>
 </td>
 </tr>
 <tr id="i5" class="rowColor">
@@ -567,7 +566,8 @@ extends <a href="../../../../../com/google/android/exoplayer2/trackselection/Map
 <ul class="blockListLast">
 <li class="blockList">
 <h4>DefaultTrackSelector</h4>
-<pre>public&nbsp;DefaultTrackSelector(<a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelection.Factory.html" title="interface in com.google.android.exoplayer2.trackselection">TrackSelection.Factory</a>&nbsp;adaptiveTrackSelectionFactory)</pre>
+<pre>public&nbsp;DefaultTrackSelector(<a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
+                            <a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelection.Factory.html" title="interface in com.google.android.exoplayer2.trackselection">TrackSelection.Factory</a>&nbsp;adaptiveTrackSelectionFactory)</pre>
 <div class="block">Constructs an instance that uses a factory to create adaptive track selections.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -692,8 +692,9 @@ public final&nbsp;boolean&nbsp;hasSelectionOverride(int&nbsp;rendererIndex,
 <li class="blockList">
 <h4>getSelectionOverride</h4>
 <pre><a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Deprecated.html" target="_top" title="class or interface in java.lang">@Deprecated</a>
+ <a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
 public final&nbsp;<a href="../../../../../com/google/android/exoplayer2/trackselection/DefaultTrackSelector.SelectionOverride.html" title="class in com.google.android.exoplayer2.trackselection">DefaultTrackSelector.SelectionOverride</a>&nbsp;getSelectionOverride(int&nbsp;rendererIndex,
-                                                                                     <a href="../../../../../com/google/android/exoplayer2/source/TrackGroupArray.html" title="class in com.google.android.exoplayer2.source">TrackGroupArray</a>&nbsp;groups)</pre>
+                                                                                                <a href="../../../../../com/google/android/exoplayer2/source/TrackGroupArray.html" title="class in com.google.android.exoplayer2.source">TrackGroupArray</a>&nbsp;groups)</pre>
 <div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;<span class="deprecationComment">Use <a href="../../../../../com/google/android/exoplayer2/trackselection/DefaultTrackSelector.Parameters.html#getSelectionOverride-int-com.google.android.exoplayer2.source.TrackGroupArray-"><code>DefaultTrackSelector.Parameters.getSelectionOverride(int, TrackGroupArray)</code></a>.</span></div>
 </li>
 </ul>
@@ -807,12 +808,14 @@ public&nbsp;void&nbsp;setTunnelingAudioSessionId(int&nbsp;tunnelingAudioSessionI
 <ul class="blockList">
 <li class="blockList">
 <h4>selectVideoTrack</h4>
-<pre>protected&nbsp;<a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelection.html" title="interface in com.google.android.exoplayer2.trackselection">TrackSelection</a>&nbsp;selectVideoTrack(<a href="../../../../../com/google/android/exoplayer2/source/TrackGroupArray.html" title="class in com.google.android.exoplayer2.source">TrackGroupArray</a>&nbsp;groups,
-                                          int[][]&nbsp;formatSupports,
-                                          int&nbsp;mixedMimeTypeAdaptationSupports,
-                                          <a href="../../../../../com/google/android/exoplayer2/trackselection/DefaultTrackSelector.Parameters.html" title="class in com.google.android.exoplayer2.trackselection">DefaultTrackSelector.Parameters</a>&nbsp;params,
-                                          <a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelection.Factory.html" title="interface in com.google.android.exoplayer2.trackselection">TrackSelection.Factory</a>&nbsp;adaptiveTrackSelectionFactory)
-                                   throws <a href="../../../../../com/google/android/exoplayer2/ExoPlaybackException.html" title="class in com.google.android.exoplayer2">ExoPlaybackException</a></pre>
+<pre><a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
+protected&nbsp;<a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelection.html" title="interface in com.google.android.exoplayer2.trackselection">TrackSelection</a>&nbsp;selectVideoTrack(<a href="../../../../../com/google/android/exoplayer2/source/TrackGroupArray.html" title="class in com.google.android.exoplayer2.source">TrackGroupArray</a>&nbsp;groups,
+                                                    int[][]&nbsp;formatSupports,
+                                                    int&nbsp;mixedMimeTypeAdaptationSupports,
+                                                    <a href="../../../../../com/google/android/exoplayer2/trackselection/DefaultTrackSelector.Parameters.html" title="class in com.google.android.exoplayer2.trackselection">DefaultTrackSelector.Parameters</a>&nbsp;params,
+                                                    <a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
+                                                    <a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelection.Factory.html" title="interface in com.google.android.exoplayer2.trackselection">TrackSelection.Factory</a>&nbsp;adaptiveTrackSelectionFactory)
+                                             throws <a href="../../../../../com/google/android/exoplayer2/ExoPlaybackException.html" title="class in com.google.android.exoplayer2">ExoPlaybackException</a></pre>
 <div class="block">Called by <code>#selectAllTracks(MappedTrackInfo, int[][][], int[], Parameters)</code> to create a
  <a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelection.html" title="interface in com.google.android.exoplayer2.trackselection"><code>TrackSelection</code></a> for a video renderer.</div>
 <dl>
@@ -837,12 +840,14 @@ public&nbsp;void&nbsp;setTunnelingAudioSessionId(int&nbsp;tunnelingAudioSessionI
 <ul class="blockList">
 <li class="blockList">
 <h4>selectAudioTrack</h4>
-<pre>protected&nbsp;<a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelection.html" title="interface in com.google.android.exoplayer2.trackselection">TrackSelection</a>&nbsp;selectAudioTrack(<a href="../../../../../com/google/android/exoplayer2/source/TrackGroupArray.html" title="class in com.google.android.exoplayer2.source">TrackGroupArray</a>&nbsp;groups,
-                                          int[][]&nbsp;formatSupports,
-                                          int&nbsp;mixedMimeTypeAdaptationSupports,
-                                          <a href="../../../../../com/google/android/exoplayer2/trackselection/DefaultTrackSelector.Parameters.html" title="class in com.google.android.exoplayer2.trackselection">DefaultTrackSelector.Parameters</a>&nbsp;params,
-                                          <a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelection.Factory.html" title="interface in com.google.android.exoplayer2.trackselection">TrackSelection.Factory</a>&nbsp;adaptiveTrackSelectionFactory)
-                                   throws <a href="../../../../../com/google/android/exoplayer2/ExoPlaybackException.html" title="class in com.google.android.exoplayer2">ExoPlaybackException</a></pre>
+<pre><a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
+protected&nbsp;<a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelection.html" title="interface in com.google.android.exoplayer2.trackselection">TrackSelection</a>&nbsp;selectAudioTrack(<a href="../../../../../com/google/android/exoplayer2/source/TrackGroupArray.html" title="class in com.google.android.exoplayer2.source">TrackGroupArray</a>&nbsp;groups,
+                                                    int[][]&nbsp;formatSupports,
+                                                    int&nbsp;mixedMimeTypeAdaptationSupports,
+                                                    <a href="../../../../../com/google/android/exoplayer2/trackselection/DefaultTrackSelector.Parameters.html" title="class in com.google.android.exoplayer2.trackselection">DefaultTrackSelector.Parameters</a>&nbsp;params,
+                                                    <a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
+                                                    <a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelection.Factory.html" title="interface in com.google.android.exoplayer2.trackselection">TrackSelection.Factory</a>&nbsp;adaptiveTrackSelectionFactory)
+                                             throws <a href="../../../../../com/google/android/exoplayer2/ExoPlaybackException.html" title="class in com.google.android.exoplayer2">ExoPlaybackException</a></pre>
 <div class="block">Called by <code>#selectAllTracks(MappedTrackInfo, int[][][], int[], Parameters)</code> to create a
  <a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelection.html" title="interface in com.google.android.exoplayer2.trackselection"><code>TrackSelection</code></a> for an audio renderer.</div>
 <dl>
@@ -867,10 +872,11 @@ public&nbsp;void&nbsp;setTunnelingAudioSessionId(int&nbsp;tunnelingAudioSessionI
 <ul class="blockList">
 <li class="blockList">
 <h4>selectTextTrack</h4>
-<pre>protected&nbsp;<a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelection.html" title="interface in com.google.android.exoplayer2.trackselection">TrackSelection</a>&nbsp;selectTextTrack(<a href="../../../../../com/google/android/exoplayer2/source/TrackGroupArray.html" title="class in com.google.android.exoplayer2.source">TrackGroupArray</a>&nbsp;groups,
-                                         int[][]&nbsp;formatSupport,
-                                         <a href="../../../../../com/google/android/exoplayer2/trackselection/DefaultTrackSelector.Parameters.html" title="class in com.google.android.exoplayer2.trackselection">DefaultTrackSelector.Parameters</a>&nbsp;params)
-                                  throws <a href="../../../../../com/google/android/exoplayer2/ExoPlaybackException.html" title="class in com.google.android.exoplayer2">ExoPlaybackException</a></pre>
+<pre><a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
+protected&nbsp;<a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelection.html" title="interface in com.google.android.exoplayer2.trackselection">TrackSelection</a>&nbsp;selectTextTrack(<a href="../../../../../com/google/android/exoplayer2/source/TrackGroupArray.html" title="class in com.google.android.exoplayer2.source">TrackGroupArray</a>&nbsp;groups,
+                                                   int[][]&nbsp;formatSupport,
+                                                   <a href="../../../../../com/google/android/exoplayer2/trackselection/DefaultTrackSelector.Parameters.html" title="class in com.google.android.exoplayer2.trackselection">DefaultTrackSelector.Parameters</a>&nbsp;params)
+                                            throws <a href="../../../../../com/google/android/exoplayer2/ExoPlaybackException.html" title="class in com.google.android.exoplayer2">ExoPlaybackException</a></pre>
 <div class="block">Called by <code>#selectAllTracks(MappedTrackInfo, int[][][], int[], Parameters)</code> to create a
  <a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelection.html" title="interface in com.google.android.exoplayer2.trackselection"><code>TrackSelection</code></a> for a text renderer.</div>
 <dl>
@@ -892,11 +898,12 @@ public&nbsp;void&nbsp;setTunnelingAudioSessionId(int&nbsp;tunnelingAudioSessionI
 <ul class="blockList">
 <li class="blockList">
 <h4>selectOtherTrack</h4>
-<pre>protected&nbsp;<a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelection.html" title="interface in com.google.android.exoplayer2.trackselection">TrackSelection</a>&nbsp;selectOtherTrack(int&nbsp;trackType,
-                                          <a href="../../../../../com/google/android/exoplayer2/source/TrackGroupArray.html" title="class in com.google.android.exoplayer2.source">TrackGroupArray</a>&nbsp;groups,
-                                          int[][]&nbsp;formatSupport,
-                                          <a href="../../../../../com/google/android/exoplayer2/trackselection/DefaultTrackSelector.Parameters.html" title="class in com.google.android.exoplayer2.trackselection">DefaultTrackSelector.Parameters</a>&nbsp;params)
-                                   throws <a href="../../../../../com/google/android/exoplayer2/ExoPlaybackException.html" title="class in com.google.android.exoplayer2">ExoPlaybackException</a></pre>
+<pre><a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
+protected&nbsp;<a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelection.html" title="interface in com.google.android.exoplayer2.trackselection">TrackSelection</a>&nbsp;selectOtherTrack(int&nbsp;trackType,
+                                                    <a href="../../../../../com/google/android/exoplayer2/source/TrackGroupArray.html" title="class in com.google.android.exoplayer2.source">TrackGroupArray</a>&nbsp;groups,
+                                                    int[][]&nbsp;formatSupport,
+                                                    <a href="../../../../../com/google/android/exoplayer2/trackselection/DefaultTrackSelector.Parameters.html" title="class in com.google.android.exoplayer2.trackselection">DefaultTrackSelector.Parameters</a>&nbsp;params)
+                                             throws <a href="../../../../../com/google/android/exoplayer2/ExoPlaybackException.html" title="class in com.google.android.exoplayer2">ExoPlaybackException</a></pre>
 <div class="block">Called by <code>#selectAllTracks(MappedTrackInfo, int[][][], int[], Parameters)</code> to create a
  <a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelection.html" title="interface in com.google.android.exoplayer2.trackselection"><code>TrackSelection</code></a> for a renderer whose type is neither video, audio or text.</div>
 <dl>
@@ -960,9 +967,9 @@ public&nbsp;void&nbsp;setTunnelingAudioSessionId(int&nbsp;tunnelingAudioSessionI
 <li class="blockList">
 <h4>formatHasLanguage</h4>
 <pre>protected static&nbsp;boolean&nbsp;formatHasLanguage(<a href="../../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;format,
+                                           <a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
                                            <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;language)</pre>
-<div class="block">Returns whether a <a href="../../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2"><code>Format</code></a> specifies a particular language, or <code>false</code> if
- <code>language</code> is null.</div>
+<div class="block">Returns whether a <a href="../../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2"><code>Format</code></a> specifies a particular language, or <code>false</code> if <code>language</code> is null.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>format</code> - The <a href="../../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2"><code>Format</code></a>.</dd>

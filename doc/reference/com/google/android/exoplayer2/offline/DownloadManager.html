@@ -16,7 +16,7 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":10,"i11":10};
+var methods = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":10,"i11":10,"i12":10};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -237,59 +237,65 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 </tr>
 <tr id="i2" class="altColor">
 <td class="colFirst"><code>int</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/offline/DownloadManager.html#getTaskCount--">getTaskCount</a></span>()</code>
-<div class="block">Returns the current number of tasks.</div>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/offline/DownloadManager.html#getDownloadCount--">getDownloadCount</a></span>()</code>
+<div class="block">Returns the number of download tasks.</div>
 </td>
 </tr>
 <tr id="i3" class="rowColor">
+<td class="colFirst"><code>int</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/offline/DownloadManager.html#getTaskCount--">getTaskCount</a></span>()</code>
+<div class="block">Returns the number of tasks.</div>
+</td>
+</tr>
+<tr id="i4" class="altColor">
 <td class="colFirst"><code><a href="../../../../../com/google/android/exoplayer2/offline/DownloadManager.TaskState.html" title="class in com.google.android.exoplayer2.offline">DownloadManager.TaskState</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/offline/DownloadManager.html#getTaskState-int-">getTaskState</a></span>(int&nbsp;taskId)</code>
 <div class="block">Returns the state of a task, or null if no such task exists</div>
 </td>
 </tr>
-<tr id="i4" class="altColor">
+<tr id="i5" class="rowColor">
 <td class="colFirst"><code>int</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/offline/DownloadManager.html#handleAction-byte:A-">handleAction</a></span>(byte[]&nbsp;actionData)</code>
 <div class="block">Deserializes an action from <code>actionData</code>, and calls <a href="../../../../../com/google/android/exoplayer2/offline/DownloadManager.html#handleAction-com.google.android.exoplayer2.offline.DownloadAction-"><code>handleAction(DownloadAction)</code></a>.</div>
 </td>
 </tr>
-<tr id="i5" class="rowColor">
+<tr id="i6" class="altColor">
 <td class="colFirst"><code>int</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/offline/DownloadManager.html#handleAction-com.google.android.exoplayer2.offline.DownloadAction-">handleAction</a></span>(<a href="../../../../../com/google/android/exoplayer2/offline/DownloadAction.html" title="class in com.google.android.exoplayer2.offline">DownloadAction</a>&nbsp;action)</code>
 <div class="block">Handles the given action.</div>
 </td>
 </tr>
-<tr id="i6" class="altColor">
+<tr id="i7" class="rowColor">
 <td class="colFirst"><code>boolean</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/offline/DownloadManager.html#isIdle--">isIdle</a></span>()</code>
 <div class="block">Returns whether there are no active tasks.</div>
 </td>
 </tr>
-<tr id="i7" class="rowColor">
+<tr id="i8" class="altColor">
 <td class="colFirst"><code>boolean</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/offline/DownloadManager.html#isInitialized--">isInitialized</a></span>()</code>
 <div class="block">Returns whether the manager has completed initialization.</div>
 </td>
 </tr>
-<tr id="i8" class="altColor">
+<tr id="i9" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/offline/DownloadManager.html#release--">release</a></span>()</code>
 <div class="block">Stops all of the tasks and releases resources.</div>
 </td>
 </tr>
-<tr id="i9" class="rowColor">
+<tr id="i10" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/offline/DownloadManager.html#removeListener-com.google.android.exoplayer2.offline.DownloadManager.Listener-">removeListener</a></span>(<a href="../../../../../com/google/android/exoplayer2/offline/DownloadManager.Listener.html" title="interface in com.google.android.exoplayer2.offline">DownloadManager.Listener</a>&nbsp;listener)</code>
 <div class="block">Removes a <a href="../../../../../com/google/android/exoplayer2/offline/DownloadManager.Listener.html" title="interface in com.google.android.exoplayer2.offline"><code>DownloadManager.Listener</code></a>.</div>
 </td>
 </tr>
-<tr id="i10" class="altColor">
+<tr id="i11" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/offline/DownloadManager.html#startDownloads--">startDownloads</a></span>()</code>
 <div class="block">Starts the download tasks.</div>
 </td>
 </tr>
-<tr id="i11" class="rowColor">
+<tr id="i12" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/offline/DownloadManager.html#stopDownloads--">stopDownloads</a></span>()</code>
 <div class="block">Stops all of the download tasks.</div>
@@ -515,7 +521,17 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 <li class="blockList">
 <h4>getTaskCount</h4>
 <pre>public&nbsp;int&nbsp;getTaskCount()</pre>
-<div class="block">Returns the current number of tasks.</div>
+<div class="block">Returns the number of tasks.</div>
+</li>
+</ul>
+<a name="getDownloadCount--">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getDownloadCount</h4>
+<pre>public&nbsp;int&nbsp;getDownloadCount()</pre>
+<div class="block">Returns the number of download tasks.</div>
 </li>
 </ul>
 <a name="getTaskState-int-">

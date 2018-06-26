@@ -16,7 +16,7 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":9,"i1":6,"i2":6,"i3":10,"i4":6,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":9};
+var methods = {"i0":9,"i1":6,"i2":6,"i3":10,"i4":6,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":9,"i11":9,"i12":9};
 var tabs = {65535:["t0","All Methods"],1:["t1","Static Methods"],2:["t2","Instance Methods"],4:["t3","Abstract Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -306,6 +306,20 @@ extends <a href="https://developer.android.com/reference/android/app/Service.htm
 </tr>
 <tr id="i10" class="altColor">
 <td class="colFirst"><code>static void</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/offline/DownloadService.html#start-android.content.Context-java.lang.Class-">start</a></span>(<a href="https://developer.android.com/reference/android/content/Context.html" target="_top" title="class or interface in android.content">Context</a>&nbsp;context,
+     <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Class.html" target="_top" title="class or interface in java.lang">Class</a>&lt;? extends <a href="../../../../../com/google/android/exoplayer2/offline/DownloadService.html" title="class in com.google.android.exoplayer2.offline">DownloadService</a>&gt;&nbsp;clazz)</code>
+<div class="block">Starts the service without adding a new action.</div>
+</td>
+</tr>
+<tr id="i11" class="rowColor">
+<td class="colFirst"><code>static void</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/offline/DownloadService.html#startForeground-android.content.Context-java.lang.Class-">startForeground</a></span>(<a href="https://developer.android.com/reference/android/content/Context.html" target="_top" title="class or interface in android.content">Context</a>&nbsp;context,
+               <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Class.html" target="_top" title="class or interface in java.lang">Class</a>&lt;? extends <a href="../../../../../com/google/android/exoplayer2/offline/DownloadService.html" title="class in com.google.android.exoplayer2.offline">DownloadService</a>&gt;&nbsp;clazz)</code>
+<div class="block">Starts the service in the foreground without adding a new action.</div>
+</td>
+</tr>
+<tr id="i12" class="altColor">
+<td class="colFirst"><code>static void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/offline/DownloadService.html#startWithAction-android.content.Context-java.lang.Class-com.google.android.exoplayer2.offline.DownloadAction-boolean-">startWithAction</a></span>(<a href="https://developer.android.com/reference/android/content/Context.html" target="_top" title="class or interface in android.content">Context</a>&nbsp;context,
                <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Class.html" target="_top" title="class or interface in java.lang">Class</a>&lt;? extends <a href="../../../../../com/google/android/exoplayer2/offline/DownloadService.html" title="class in com.google.android.exoplayer2.offline">DownloadService</a>&gt;&nbsp;clazz,
                <a href="../../../../../com/google/android/exoplayer2/offline/DownloadAction.html" title="class in com.google.android.exoplayer2.offline">DownloadAction</a>&nbsp;downloadAction,
@@ -539,9 +553,48 @@ extends <a href="https://developer.android.com/reference/android/app/Service.htm
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>context</code> - A <a href="https://developer.android.com/reference/android/content/Context.html" target="_top" title="class or interface in android.content"><code>Context</code></a>.</dd>
-<dd><code>clazz</code> - The concrete download service being targeted by the intent.</dd>
+<dd><code>clazz</code> - The concrete download service to be started.</dd>
 <dd><code>downloadAction</code> - The action to be executed.</dd>
-<dd><code>foreground</code> - Whether this intent will be used to start the service in the foreground.</dd>
+<dd><code>foreground</code> - Whether the service is started in the foreground.</dd>
+</dl>
+</li>
+</ul>
+<a name="start-android.content.Context-java.lang.Class-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>start</h4>
+<pre>public static&nbsp;void&nbsp;start(<a href="https://developer.android.com/reference/android/content/Context.html" target="_top" title="class or interface in android.content">Context</a>&nbsp;context,
+                         <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Class.html" target="_top" title="class or interface in java.lang">Class</a>&lt;? extends <a href="../../../../../com/google/android/exoplayer2/offline/DownloadService.html" title="class in com.google.android.exoplayer2.offline">DownloadService</a>&gt;&nbsp;clazz)</pre>
+<div class="block">Starts the service without adding a new action. If there are any not finished actions and the
+ requirements are met, the service resumes executing actions. Otherwise it stops immediately.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>context</code> - A <a href="https://developer.android.com/reference/android/content/Context.html" target="_top" title="class or interface in android.content"><code>Context</code></a>.</dd>
+<dd><code>clazz</code> - The concrete download service to be started.</dd>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="../../../../../com/google/android/exoplayer2/offline/DownloadService.html#startForeground-android.content.Context-java.lang.Class-"><code>startForeground(Context, Class)</code></a></dd>
+</dl>
+</li>
+</ul>
+<a name="startForeground-android.content.Context-java.lang.Class-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>startForeground</h4>
+<pre>public static&nbsp;void&nbsp;startForeground(<a href="https://developer.android.com/reference/android/content/Context.html" target="_top" title="class or interface in android.content">Context</a>&nbsp;context,
+                                   <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Class.html" target="_top" title="class or interface in java.lang">Class</a>&lt;? extends <a href="../../../../../com/google/android/exoplayer2/offline/DownloadService.html" title="class in com.google.android.exoplayer2.offline">DownloadService</a>&gt;&nbsp;clazz)</pre>
+<div class="block">Starts the service in the foreground without adding a new action. If there are any not finished
+ actions and the requirements are met, the service resumes executing actions. Otherwise it stops
+ immediately.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>context</code> - A <a href="https://developer.android.com/reference/android/content/Context.html" target="_top" title="class or interface in android.content"><code>Context</code></a>.</dd>
+<dd><code>clazz</code> - The concrete download service to be started.</dd>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="../../../../../com/google/android/exoplayer2/offline/DownloadService.html#start-android.content.Context-java.lang.Class-"><code>start(Context, Class)</code></a></dd>
 </dl>
 </li>
 </ul>

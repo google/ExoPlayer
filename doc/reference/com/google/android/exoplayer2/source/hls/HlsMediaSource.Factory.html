@@ -16,7 +16,7 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":10,"i1":42,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10};
+var methods = {"i0":10,"i1":42,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"],32:["t6","Deprecated Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -216,6 +216,12 @@ implements <a href="../../../../../../com/google/android/exoplayer2/source/ads/A
 </tr>
 <tr id="i8" class="altColor">
 <td class="colFirst"><code><a href="../../../../../../com/google/android/exoplayer2/source/hls/HlsMediaSource.Factory.html" title="class in com.google.android.exoplayer2.source.hls">HlsMediaSource.Factory</a></code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/source/hls/HlsMediaSource.Factory.html#setPlaylistTracker-com.google.android.exoplayer2.source.hls.playlist.HlsPlaylistTracker-">setPlaylistTracker</a></span>(<a href="../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsPlaylistTracker.html" title="interface in com.google.android.exoplayer2.source.hls.playlist">HlsPlaylistTracker</a>&nbsp;playlistTracker)</code>
+<div class="block">Sets the HLS playlist tracker.</div>
+</td>
+</tr>
+<tr id="i9" class="rowColor">
+<td class="colFirst"><code><a href="../../../../../../com/google/android/exoplayer2/source/hls/HlsMediaSource.Factory.html" title="class in com.google.android.exoplayer2.source.hls">HlsMediaSource.Factory</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/source/hls/HlsMediaSource.Factory.html#setTag-java.lang.Object-">setTag</a></span>(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Object.html" target="_top" title="class or interface in java.lang">Object</a>&nbsp;tag)</code>
 <div class="block">Sets a tag for the media source which will be published in the <a href="../../../../../../com/google/android/exoplayer2/Timeline.html" title="class in com.google.android.exoplayer2"><code>Timeline</code></a> of the source as <a href="../../../../../../com/google/android/exoplayer2/Timeline.Window.html#tag"><code>Timeline.Window.tag</code></a>.</div>
 </td>
@@ -343,10 +349,33 @@ implements <a href="../../../../../../com/google/android/exoplayer2/source/ads/A
 <li class="blockList">
 <h4>setPlaylistParser</h4>
 <pre>public&nbsp;<a href="../../../../../../com/google/android/exoplayer2/source/hls/HlsMediaSource.Factory.html" title="class in com.google.android.exoplayer2.source.hls">HlsMediaSource.Factory</a>&nbsp;setPlaylistParser(<a href="../../../../../../com/google/android/exoplayer2/upstream/ParsingLoadable.Parser.html" title="interface in com.google.android.exoplayer2.upstream">ParsingLoadable.Parser</a>&lt;<a href="../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsPlaylist.html" title="class in com.google.android.exoplayer2.source.hls.playlist">HlsPlaylist</a>&gt;&nbsp;playlistParser)</pre>
-<div class="block">Sets the parser to parse HLS playlists. The default is an instance of <a href="../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsPlaylistParser.html" title="class in com.google.android.exoplayer2.source.hls.playlist"><code>HlsPlaylistParser</code></a>.</div>
+<div class="block">Sets the parser to parse HLS playlists. The default is an instance of <a href="../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsPlaylistParser.html" title="class in com.google.android.exoplayer2.source.hls.playlist"><code>HlsPlaylistParser</code></a>.
+
+ <p>Must not be called after calling <a href="../../../../../../com/google/android/exoplayer2/source/hls/HlsMediaSource.Factory.html#setPlaylistTracker-com.google.android.exoplayer2.source.hls.playlist.HlsPlaylistTracker-"><code>setPlaylistTracker(com.google.android.exoplayer2.source.hls.playlist.HlsPlaylistTracker)</code></a> on the same builder.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>playlistParser</code> - A <code>ParsingLoadable.Parser</code> for HLS playlists.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>This factory, for convenience.</dd>
+<dt><span class="throwsLabel">Throws:</span></dt>
+<dd><code><a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/IllegalStateException.html" target="_top" title="class or interface in java.lang">IllegalStateException</a></code> - If one of the <code>create</code> methods has already been called.</dd>
+</dl>
+</li>
+</ul>
+<a name="setPlaylistTracker-com.google.android.exoplayer2.source.hls.playlist.HlsPlaylistTracker-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setPlaylistTracker</h4>
+<pre>public&nbsp;<a href="../../../../../../com/google/android/exoplayer2/source/hls/HlsMediaSource.Factory.html" title="class in com.google.android.exoplayer2.source.hls">HlsMediaSource.Factory</a>&nbsp;setPlaylistTracker(<a href="../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsPlaylistTracker.html" title="interface in com.google.android.exoplayer2.source.hls.playlist">HlsPlaylistTracker</a>&nbsp;playlistTracker)</pre>
+<div class="block">Sets the HLS playlist tracker. The default is an instance of <a href="../../../../../../com/google/android/exoplayer2/source/hls/playlist/DefaultHlsPlaylistTracker.html" title="class in com.google.android.exoplayer2.source.hls.playlist"><code>DefaultHlsPlaylistTracker</code></a>. Playlist trackers must not be shared by <a href="../../../../../../com/google/android/exoplayer2/source/hls/HlsMediaSource.html" title="class in com.google.android.exoplayer2.source.hls"><code>HlsMediaSource</code></a>
+ instances.
+
+ <p>Must not be called after calling <a href="../../../../../../com/google/android/exoplayer2/source/hls/HlsMediaSource.Factory.html#setPlaylistParser-com.google.android.exoplayer2.upstream.ParsingLoadable.Parser-"><code>setPlaylistParser(com.google.android.exoplayer2.upstream.ParsingLoadable.Parser&lt;com.google.android.exoplayer2.source.hls.playlist.HlsPlaylist&gt;)</code></a> on the same builder.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>playlistTracker</code> - A tracker for HLS playlists.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>This factory, for convenience.</dd>
 <dt><span class="throwsLabel">Throws:</span></dt>

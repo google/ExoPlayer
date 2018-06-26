@@ -381,7 +381,8 @@ implements <a href="https://developer.android.com/reference/android/os/Parcelabl
 <ul class="blockList">
 <li class="blockList">
 <h4>preferredAudioLanguage</h4>
-<pre>public final&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a> preferredAudioLanguage</pre>
+<pre><a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
+public final&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a> preferredAudioLanguage</pre>
 <div class="block">The preferred language for audio, as well as for forced text tracks, as an ISO 639-2/T tag.
  <code>null</code> selects the default track, or the first track if there's no default.</div>
 </li>
@@ -392,7 +393,8 @@ implements <a href="https://developer.android.com/reference/android/os/Parcelabl
 <ul class="blockList">
 <li class="blockList">
 <h4>preferredTextLanguage</h4>
-<pre>public final&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a> preferredTextLanguage</pre>
+<pre><a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
+public final&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a> preferredTextLanguage</pre>
 <div class="block">The preferred language for text tracks as an ISO 639-2/T tag. <code>null</code> selects the
  default track if there is one, or no track otherwise.</div>
 </li>
@@ -600,8 +602,9 @@ implements <a href="https://developer.android.com/reference/android/os/Parcelabl
 <ul class="blockList">
 <li class="blockList">
 <h4>getSelectionOverride</h4>
-<pre>public final&nbsp;<a href="../../../../../com/google/android/exoplayer2/trackselection/DefaultTrackSelector.SelectionOverride.html" title="class in com.google.android.exoplayer2.trackselection">DefaultTrackSelector.SelectionOverride</a>&nbsp;getSelectionOverride(int&nbsp;rendererIndex,
-                                                                         <a href="../../../../../com/google/android/exoplayer2/source/TrackGroupArray.html" title="class in com.google.android.exoplayer2.source">TrackGroupArray</a>&nbsp;groups)</pre>
+<pre><a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
+public final&nbsp;<a href="../../../../../com/google/android/exoplayer2/trackselection/DefaultTrackSelector.SelectionOverride.html" title="class in com.google.android.exoplayer2.trackselection">DefaultTrackSelector.SelectionOverride</a>&nbsp;getSelectionOverride(int&nbsp;rendererIndex,
+                                                                                   <a href="../../../../../com/google/android/exoplayer2/source/TrackGroupArray.html" title="class in com.google.android.exoplayer2.source">TrackGroupArray</a>&nbsp;groups)</pre>
 <div class="block">Returns the override for the specified renderer and <a href="../../../../../com/google/android/exoplayer2/source/TrackGroupArray.html" title="class in com.google.android.exoplayer2.source"><code>TrackGroupArray</code></a>.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
