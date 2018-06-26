@@ -100,8 +100,8 @@ public interface HlsPlaylistTracker {
   /**
    * Starts the playlist tracker.
    *
-   * <p>Must be called from the playback thread. A tracker may be restarted after a {@link
-   * #release()} call.
+   * <p>Must be called from the playback thread. A tracker may be restarted after a {@link #stop()}
+   * call.
    *
    * @param initialPlaylistUri Uri of the HLS stream. Can point to a media playlist or a master
    *     playlist.
@@ -111,8 +111,12 @@ public interface HlsPlaylistTracker {
   void start(
       Uri initialPlaylistUri, EventDispatcher eventDispatcher, PrimaryPlaylistListener listener);
 
-  /** Releases all acquired resources. Must be called once per {@link #start} call. */
-  void release();
+  /**
+   * Stops the playlist tracker and releases any acquired resources.
+   *
+   * <p>Must be called once per {@link #start} call.
+   */
+  void stop();
 
   /**
    * Registers a listener to receive events from the playlist tracker.
