@@ -234,7 +234,8 @@ public final class DefaultHlsPlaylistTracker
       ParsingLoadable<HlsPlaylist> loadable,
       long elapsedRealtimeMs,
       long loadDurationMs,
-      IOException error) {
+      IOException error,
+      int errorCount) {
     boolean isFatal = error instanceof ParserException;
     eventDispatcher.loadError(
         loadable.dataSpec,
@@ -490,7 +491,8 @@ public final class DefaultHlsPlaylistTracker
         ParsingLoadable<HlsPlaylist> loadable,
         long elapsedRealtimeMs,
         long loadDurationMs,
-        IOException error) {
+        IOException error,
+        int errorCount) {
       boolean isFatal = error instanceof ParserException;
       eventDispatcher.loadError(
           loadable.dataSpec,

@@ -604,7 +604,11 @@ import java.util.Arrays;
 
   @Override
   public LoadErrorAction onLoadError(
-      Chunk loadable, long elapsedRealtimeMs, long loadDurationMs, IOException error) {
+      Chunk loadable,
+      long elapsedRealtimeMs,
+      long loadDurationMs,
+      IOException error,
+      int errorCount) {
     long bytesLoaded = loadable.bytesLoaded();
     boolean isMediaChunk = isMediaChunk(loadable);
     boolean cancelable = !isMediaChunk || bytesLoaded == 0;

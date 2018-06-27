@@ -411,7 +411,11 @@ public class ChunkSampleStream<T extends ChunkSource> implements SampleStream, S
 
   @Override
   public LoadErrorAction onLoadError(
-      Chunk loadable, long elapsedRealtimeMs, long loadDurationMs, IOException error) {
+      Chunk loadable,
+      long elapsedRealtimeMs,
+      long loadDurationMs,
+      IOException error,
+      int errorCount) {
     long bytesLoaded = loadable.bytesLoaded();
     boolean isMediaChunk = isMediaChunk(loadable);
     int lastChunkIndex = mediaChunks.size() - 1;

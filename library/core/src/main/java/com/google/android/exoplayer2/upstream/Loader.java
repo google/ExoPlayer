@@ -111,12 +111,13 @@ public final class Loader implements LoaderErrorThrower {
      * @param elapsedRealtimeMs {@link SystemClock#elapsedRealtime} when the error occurred.
      * @param loadDurationMs The duration of the load up to the point at which the error occurred.
      * @param error The load error.
+     * @param errorCount The number of errors this load has encountered, including this one.
      * @return The desired error handling action. One of {@link Loader#RETRY}, {@link
      *     Loader#RETRY_RESET_ERROR_COUNT}, {@link Loader#DONT_RETRY}, {@link
      *     Loader#DONT_RETRY_FATAL} or a retry action created by {@link #createRetryAction}.
      */
     LoadErrorAction onLoadError(
-        T loadable, long elapsedRealtimeMs, long loadDurationMs, IOException error);
+        T loadable, long elapsedRealtimeMs, long loadDurationMs, IOException error, int errorCount);
   }
 
   /**
@@ -164,7 +165,7 @@ public final class Loader implements LoaderErrorThrower {
 
   /**
    * Action that can be taken in response to {@link Callback#onLoadError(Loadable, long, long,
-   * IOException)}.
+   * IOException, int)}.
    */
   public static final class LoadErrorAction {
 
@@ -445,12 +446,15 @@ public final class Loader implements LoaderErrorThrower {
           break;
         case MSG_IO_EXCEPTION:
           currentError = (IOException) msg.obj;
-          LoadErrorAction action = callback.onLoadError(loadable, nowMs, durationMs, currentError);
+          errorCount++;
+          LoadErrorAction action =
+              callback.onLoadError(loadable, nowMs, durationMs, currentError, errorCount);
           if (action.type == ACTION_TYPE_DONT_RETRY_FATAL) {
             fatalError = currentError;
           } else if (action.type != ACTION_TYPE_DONT_RETRY) {
-            errorCount =
-                action.type == ACTION_TYPE_RETRY_AND_RESET_ERROR_COUNT ? 1 : errorCount + 1;
+            if (action.type == ACTION_TYPE_RETRY_AND_RESET_ERROR_COUNT) {
+              errorCount = 1;
+            }
             start(
                 action.retryDelayMillis != C.TIME_UNSET
                     ? action.retryDelayMillis

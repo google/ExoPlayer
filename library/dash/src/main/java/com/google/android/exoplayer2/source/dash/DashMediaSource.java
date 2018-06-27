@@ -1175,7 +1175,8 @@ public final class DashMediaSource extends BaseMediaSource {
         ParsingLoadable<DashManifest> loadable,
         long elapsedRealtimeMs,
         long loadDurationMs,
-        IOException error) {
+        IOException error,
+        int errorCount) {
       return onManifestLoadError(loadable, elapsedRealtimeMs, loadDurationMs, error);
     }
 
@@ -1200,7 +1201,8 @@ public final class DashMediaSource extends BaseMediaSource {
         ParsingLoadable<Long> loadable,
         long elapsedRealtimeMs,
         long loadDurationMs,
-        IOException error) {
+        IOException error,
+        int errorCount) {
       return onUtcTimestampLoadError(loadable, elapsedRealtimeMs, loadDurationMs, error);
     }
 
