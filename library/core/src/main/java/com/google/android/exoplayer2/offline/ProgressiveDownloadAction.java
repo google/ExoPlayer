@@ -44,7 +44,33 @@ public final class ProgressiveDownloadAction extends DownloadAction {
         }
       };
 
-  public final @Nullable String customCacheKey;
+  private final @Nullable String customCacheKey;
+
+  /**
+   * Creates a progressive stream download action.
+   *
+   * @param uri Uri of the data to be downloaded.
+   * @param data Optional custom data for this action.
+   * @param customCacheKey A custom key that uniquely identifies the original stream. If not null it
+   *     is used for cache indexing.
+   */
+  public static ProgressiveDownloadAction createDownloadAction(
+      Uri uri, @Nullable byte[] data, @Nullable String customCacheKey) {
+    return new ProgressiveDownloadAction(uri, /* isRemoveAction= */ false, data, customCacheKey);
+  }
+
+  /**
+   * Creates a progressive stream remove action.
+   *
+   * @param uri Uri of the data to be removed.
+   * @param data Optional custom data for this action.
+   * @param customCacheKey A custom key that uniquely identifies the original stream. If not null it
+   *     is used for cache indexing.
+   */
+  public static ProgressiveDownloadAction createRemoveAction(
+      Uri uri, @Nullable byte[] data, @Nullable String customCacheKey) {
+    return new ProgressiveDownloadAction(uri, /* isRemoveAction= */ true, data, customCacheKey);
+  }
 
   /**
    * @param uri Uri of the data to be downloaded.
@@ -52,7 +78,10 @@ public final class ProgressiveDownloadAction extends DownloadAction {
    * @param data Optional custom data for this action.
    * @param customCacheKey A custom key that uniquely identifies the original stream. If not null it
    *     is used for cache indexing.
+   * @deprecated Use {@link #createDownloadAction(Uri, byte[], String)} or {@link
+   *     #createRemoveAction(Uri, byte[], String)}.
    */
+  @Deprecated
   public ProgressiveDownloadAction(
       Uri uri, boolean isRemoveAction, @Nullable byte[] data, @Nullable String customCacheKey) {
     super(TYPE, VERSION, uri, isRemoveAction, data);
@@ -60,7 +89,7 @@ public final class ProgressiveDownloadAction extends DownloadAction {
   }
 
   @Override
-  protected ProgressiveDownloader createDownloader(DownloaderConstructorHelper constructorHelper) {
+  public ProgressiveDownloader createDownloader(DownloaderConstructorHelper constructorHelper) {
     return new ProgressiveDownloader(uri, customCacheKey, constructorHelper);
   }
 
@@ -105,4 +134,5 @@ public final class ProgressiveDownloadAction extends DownloadAction {
   private String getCacheKey() {
     return customCacheKey != null ? customCacheKey : CacheUtil.generateKey(uri);
   }
+
 }

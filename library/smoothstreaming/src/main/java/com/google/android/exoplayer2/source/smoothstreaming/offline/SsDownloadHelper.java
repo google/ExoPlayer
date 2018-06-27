@@ -30,7 +30,6 @@ import com.google.android.exoplayer2.upstream.ParsingLoadable;
 import com.google.android.exoplayer2.util.Assertions;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
@@ -78,12 +77,12 @@ public final class SsDownloadHelper extends DownloadHelper {
 
   @Override
   public SsDownloadAction getDownloadAction(@Nullable byte[] data, List<TrackKey> trackKeys) {
-    return new SsDownloadAction(uri, /* isRemoveAction= */ false, data, toStreamKeys(trackKeys));
+    return SsDownloadAction.createDownloadAction(uri, data, toStreamKeys(trackKeys));
   }
 
   @Override
   public SsDownloadAction getRemoveAction(@Nullable byte[] data) {
-    return new SsDownloadAction(uri, /* isRemoveAction= */ true, data, Collections.emptyList());
+    return SsDownloadAction.createRemoveAction(uri, data);
   }
 
   private static List<StreamKey> toStreamKeys(List<TrackKey> trackKeys) {

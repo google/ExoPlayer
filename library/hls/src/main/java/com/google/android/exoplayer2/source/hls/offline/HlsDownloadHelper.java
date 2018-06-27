@@ -34,7 +34,6 @@ import com.google.android.exoplayer2.util.Assertions;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
@@ -100,13 +99,13 @@ public final class HlsDownloadHelper extends DownloadHelper {
   @Override
   public HlsDownloadAction getDownloadAction(@Nullable byte[] data, List<TrackKey> trackKeys) {
     Assertions.checkNotNull(renditionGroups);
-    return new HlsDownloadAction(
-        uri, /* isRemoveAction= */ false, data, toStreamKeys(trackKeys, renditionGroups));
+    return HlsDownloadAction.createDownloadAction(
+        uri, data, toStreamKeys(trackKeys, renditionGroups));
   }
 
   @Override
   public HlsDownloadAction getRemoveAction(@Nullable byte[] data) {
-    return new HlsDownloadAction(uri, /* isRemoveAction= */ true, data, Collections.emptyList());
+    return HlsDownloadAction.createRemoveAction(uri, data);
   }
 
   private static Format[] toFormats(List<HlsMasterPlaylist.HlsUrl> hlsUrls) {

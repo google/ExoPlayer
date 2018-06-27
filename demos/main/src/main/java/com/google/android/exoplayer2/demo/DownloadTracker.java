@@ -36,7 +36,6 @@ import com.google.android.exoplayer2.offline.DownloadManager;
 import com.google.android.exoplayer2.offline.DownloadManager.TaskState;
 import com.google.android.exoplayer2.offline.DownloadService;
 import com.google.android.exoplayer2.offline.ProgressiveDownloadHelper;
-import com.google.android.exoplayer2.offline.SegmentDownloadAction;
 import com.google.android.exoplayer2.offline.StreamKey;
 import com.google.android.exoplayer2.offline.TrackKey;
 import com.google.android.exoplayer2.source.TrackGroup;
@@ -86,7 +85,7 @@ public class DownloadTracker implements DownloadManager.Listener {
       Context context,
       DataSource.Factory dataSourceFactory,
       File actionFile,
-      DownloadAction.Deserializer[] deserializers) {
+      DownloadAction.Deserializer... deserializers) {
     this.context = context.getApplicationContext();
     this.dataSourceFactory = dataSourceFactory;
     this.actionFile = new ActionFile(actionFile);
@@ -96,7 +95,8 @@ public class DownloadTracker implements DownloadManager.Listener {
     HandlerThread actionFileWriteThread = new HandlerThread("DownloadTracker");
     actionFileWriteThread.start();
     actionFileWriteHandler = new Handler(actionFileWriteThread.getLooper());
-    loadTrackedActions(deserializers);
+    loadTrackedActions(
+        deserializers.length > 0 ? deserializers : DownloadAction.getDefaultDeserializers());
   }
 
   public void addListener(Listener listener) {
@@ -116,11 +116,7 @@ public class DownloadTracker implements DownloadManager.Listener {
     if (!trackedDownloadStates.containsKey(uri)) {
       return Collections.emptyList();
     }
-    DownloadAction action = trackedDownloadStates.get(uri);
-    if (action instanceof SegmentDownloadAction) {
-      return ((SegmentDownloadAction) action).keys;
-    }
-    return Collections.emptyList();
+    return trackedDownloadStates.get(uri).getKeys();
   }
 
   public void toggleDownload(Activity activity, String name, Uri uri, String extension) {
