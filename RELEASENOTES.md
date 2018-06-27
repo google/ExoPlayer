@@ -6,7 +6,9 @@
   * Allow DrmInitData to carry a license server URL
     ([#3393](https://github.com/google/ExoPlayer/issues/3393)).
 * IMA: Fix behavior when creating/releasing the player then releasing
-  `ImaAdsLoader` ((#3879)[https://github.com/google/ExoPlayer/issues/3879]).
+  `ImaAdsLoader` ([#3879](https://github.com/google/ExoPlayer/issues/3879)).
+* Fix issue playing DRM protected streams on Asus Zenfone 2
+  ([#4403](https://github.com/google/ExoPlayer/issues/4413)).
 
 ### 2.8.2 ###
 
