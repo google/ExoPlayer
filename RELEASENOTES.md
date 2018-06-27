@@ -2,6 +2,8 @@
 
 ### dev-v2 (not yet released) ###
 
+* MediaSession extension:
+  * Allow apps to set custom errors.
 * Allow apps to pass a `CacheKeyFactory` for setting custom cache keys when
   creating a `CacheDataSource`.
 * Turned on Java 8 compiler support for the ExoPlayer library. Apps that depend

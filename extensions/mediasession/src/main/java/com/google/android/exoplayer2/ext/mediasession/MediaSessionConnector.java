@@ -308,6 +308,7 @@ public final class MediaSessionConnector {
   private CustomActionProvider[] customActionProviders;
   private Map<String, CustomActionProvider> customActionMap;
   private @Nullable ErrorMessageProvider<? super ExoPlaybackException> errorMessageProvider;
+  private @Nullable Pair<Integer, CharSequence> customError;
   private PlaybackPreparer playbackPreparer;
   private QueueNavigator queueNavigator;
   private QueueEditor queueEditor;
@@ -489,6 +490,31 @@ public final class MediaSessionConnector {
   }
 
   /**
+   * Sets a custom error on the session.
+   *
+   * <p>This sets the error code via {@link PlaybackStateCompat.Builder#setErrorMessage(int,
+   * CharSequence)}. By default, the error code will be set to {@link
+   * PlaybackStateCompat#ERROR_CODE_APP_ERROR}.
+   *
+   * @param message The error string to report or {@code null} to clear the error.
+   */
+  public void setCustomErrorMessage(@Nullable CharSequence message) {
+    int code = (message == null) ? 0 : PlaybackStateCompat.ERROR_CODE_APP_ERROR;
+    setCustomErrorMessage(message, code);
+  }
+
+  /**
+   * Sets a custom error on the session.
+   *
+   * @param message The error string to report or {@code null} to clear the error.
+   * @param code The error code to report. Ignored when {@code message} is {@code null}.
+   */
+  public void setCustomErrorMessage(@Nullable CharSequence message, int code) {
+    customError = (message == null) ? null : new Pair<>(code, message);
+    invalidateMediaSessionPlaybackState();
+  }
+
+  /**
    * Updates the metadata of the media session.
    *
    * <p>Apps normally only need to call this method when the backing data for a given media item has
@@ -527,11 +553,14 @@ public final class MediaSessionConnector {
     int playbackState = player.getPlaybackState();
     ExoPlaybackException playbackError =
         playbackState == Player.STATE_IDLE ? player.getPlaybackError() : null;
+    boolean reportError = playbackError != null || customError != null;
     int sessionPlaybackState =
-        playbackError != null
+        reportError
             ? PlaybackStateCompat.STATE_ERROR
             : mapPlaybackState(player.getPlaybackState(), player.getPlayWhenReady());
-    if (playbackError != null && errorMessageProvider != null) {
+    if (customError != null) {
+      builder.setErrorMessage(customError.first, customError.second);
+    } else if (playbackError != null && errorMessageProvider != null) {
       Pair<Integer, String> message = errorMessageProvider.getErrorMessage(playbackError);
       builder.setErrorMessage(message.first, message.second);
     }
