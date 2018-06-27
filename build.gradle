@@ -17,15 +17,15 @@ buildscript {
         google()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:3.1.0'
+        classpath 'com.android.tools.build:gradle:3.1.3'
         classpath 'com.novoda:bintray-release:0.8.1'
     }
     // Workaround for the following test coverage issue. Remove when fixed:
     // https://code.google.com/p/android/issues/detail?id=226070
     configurations.all {
         resolutionStrategy {
-            force 'org.jacoco:org.jacoco.report:0.7.4.201502262128'
-            force 'org.jacoco:org.jacoco.core:0.7.4.201502262128'
+            force 'org.jacoco:org.jacoco.report:0.8.1'
+            force 'org.jacoco:org.jacoco.core:0.8.1'
         }
     }
 }
