@@ -545,7 +545,8 @@ public final class SsMediaSource extends BaseMediaSource
       ParsingLoadable<SsManifest> loadable,
       long elapsedRealtimeMs,
       long loadDurationMs,
-      IOException error) {
+      IOException error,
+      int errorCount) {
     boolean isFatal = error instanceof ParserException;
     manifestEventDispatcher.loadError(
         loadable.dataSpec,

@@ -62,7 +62,6 @@ import java.util.Arrays;
   /* package */ boolean loadingSucceeded;
   /* package */ byte[] sampleData;
   /* package */ int sampleSize;
-  private int errorCount;
 
   public SingleSampleMediaPeriod(
       DataSpec dataSpec,
@@ -230,8 +229,11 @@ import java.util.Arrays;
 
   @Override
   public LoadErrorAction onLoadError(
-      SourceLoadable loadable, long elapsedRealtimeMs, long loadDurationMs, IOException error) {
-    errorCount++;
+      SourceLoadable loadable,
+      long elapsedRealtimeMs,
+      long loadDurationMs,
+      IOException error,
+      int errorCount) {
     boolean cancel = treatLoadErrorsAsEndOfStream && errorCount >= minLoadableRetryCount;
     eventDispatcher.loadError(
         loadable.dataSpec,

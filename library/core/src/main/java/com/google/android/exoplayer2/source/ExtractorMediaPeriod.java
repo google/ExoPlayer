@@ -534,7 +534,11 @@ import java.util.Arrays;
 
   @Override
   public LoadErrorAction onLoadError(
-      ExtractingLoadable loadable, long elapsedRealtimeMs, long loadDurationMs, IOException error) {
+      ExtractingLoadable loadable,
+      long elapsedRealtimeMs,
+      long loadDurationMs,
+      IOException error,
+      int errorCount) {
     boolean isErrorFatal = isLoadableExceptionFatal(error);
     eventDispatcher.loadError(
         loadable.dataSpec,
