@@ -53,6 +53,7 @@ import com.google.android.exoplayer2.source.ads.AdPlaybackState;
 import com.google.android.exoplayer2.source.ads.AdPlaybackState.AdState;
 import com.google.android.exoplayer2.source.ads.AdsLoader;
 import com.google.android.exoplayer2.source.ads.AdsMediaSource.AdLoadException;
+import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
 import com.google.android.exoplayer2.upstream.DataSpec;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.MimeTypes;
@@ -269,6 +270,7 @@ public final class ImaAdsLoader
   private ViewGroup adUiViewGroup;
   private VideoProgressUpdate lastContentProgress;
   private VideoProgressUpdate lastAdProgress;
+  private int lastVolumePercentage;
 
   private AdsManager adsManager;
   private AdLoadException pendingAdLoadError;
@@ -473,6 +475,7 @@ public final class ImaAdsLoader
     this.player = player;
     this.eventListener = eventListener;
     this.adUiViewGroup = adUiViewGroup;
+    lastVolumePercentage = 0;
     lastAdProgress = null;
     lastContentProgress = null;
     adDisplayContainer.setAdContainer(adUiViewGroup);
@@ -501,6 +504,7 @@ public final class ImaAdsLoader
               playingAd ? C.msToUs(player.getCurrentPosition()) : 0);
       adsManager.pause();
     }
+    lastVolumePercentage = getVolume();
     lastAdProgress = getAdProgress();
     lastContentProgress = getContentProgress();
     player.removeListener(this);
@@ -661,6 +665,27 @@ public final class ImaAdsLoader
     } else {
       return VideoProgressUpdate.VIDEO_TIME_NOT_READY;
     }
+  }
+
+  @Override
+  public int getVolume() {
+    if (player == null) {
+      return lastVolumePercentage;
+    }
+
+    Player.AudioComponent audioComponent = player.getAudioComponent();
+    if (audioComponent != null) {
+      return (int) (audioComponent.getVolume() * 100);
+    }
+
+    // Check for a selected track using an audio renderer.
+    TrackSelectionArray trackSelections = player.getCurrentTrackSelections();
+    for (int i = 0; i < player.getRendererCount() && i < trackSelections.length; i++) {
+      if (player.getRendererType(i) == C.TRACK_TYPE_AUDIO && trackSelections.get(i) != null) {
+        return 100;
+      }
+    }
+    return 0;
   }
 
   @Override
