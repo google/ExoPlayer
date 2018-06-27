@@ -71,6 +71,9 @@ public final class FrameworkMediaDrm implements ExoMediaDrm<FrameworkMediaCrypto
     uuid = Util.SDK_INT < 27 && C.CLEARKEY_UUID.equals(uuid) ? C.COMMON_PSSH_UUID : uuid;
     this.uuid = uuid;
     this.mediaDrm = new MediaDrm(uuid);
+    if (C.WIDEVINE_UUID.equals(uuid) && needsForceL3Workaround()) {
+      mediaDrm.setPropertyString("securityLevel", "L3");
+    }
   }
 
   @Override
@@ -222,4 +225,12 @@ public final class FrameworkMediaDrm implements ExoMediaDrm<FrameworkMediaCrypto
         forceAllowInsecureDecoderComponents);
   }
 
+  /**
+   * Returns whether the device codec is known to fail if security level L1 is used.
+   *
+   * <p>See <a href="https://github.com/google/ExoPlayer/issues/4413">GitHub issue #4413</a>.
+   */
+  private static boolean needsForceL3Workaround() {
+    return "ASUS_Z00AD".equals(Util.MODEL);
+  }
 }
