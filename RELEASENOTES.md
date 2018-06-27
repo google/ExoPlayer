@@ -37,6 +37,7 @@
   CommentFrame to InternalFrame for frames with gapless metadata in MP4.
 * Allow setting the `Looper`, which is used to access the player, in
   `ExoPlayerFactory` ([#4278](https://github.com/google/ExoPlayer/issues/4278)).
+* Use default Deserializers if non given to DownloadManager.
 * Deprecate `Player.DefaultEventListener` as selective listener overrides can
   be directly made with the `Player.EventListener` interface.
 * Deprecate `DefaultAnalyticsListener` as selective listener overrides can be

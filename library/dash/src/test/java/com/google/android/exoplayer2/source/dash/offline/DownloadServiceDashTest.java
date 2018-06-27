@@ -25,6 +25,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.support.annotation.Nullable;
+import com.google.android.exoplayer2.offline.DownloadAction;
 import com.google.android.exoplayer2.offline.DownloadManager;
 import com.google.android.exoplayer2.offline.DownloadManager.TaskState;
 import com.google.android.exoplayer2.offline.DownloadService;
@@ -216,7 +217,7 @@ public class DownloadServiceDashTest {
     callDownloadServiceOnStart(newAction(TEST_MPD_URI, false, null, keys));
   }
 
-  private void callDownloadServiceOnStart(final DashDownloadAction action) {
+  private void callDownloadServiceOnStart(final DownloadAction action) {
     dummyMainThread.runOnMainThread(
         new Runnable() {
           @Override
@@ -228,10 +229,16 @@ public class DownloadServiceDashTest {
         });
   }
 
-  private static DashDownloadAction newAction(
+  private static DownloadAction newAction(
       Uri uri, boolean isRemoveAction, @Nullable byte[] data, StreamKey... keys) {
     ArrayList<StreamKey> keysList = new ArrayList<>();
     Collections.addAll(keysList, keys);
-    return new DashDownloadAction(uri, isRemoveAction, data, keysList);
+    DownloadAction result;
+    if (isRemoveAction) {
+      result = DashDownloadAction.createRemoveAction(uri, data);
+    } else {
+      result = DashDownloadAction.createDownloadAction(uri, data, keysList);
+    }
+    return result;
   }
 }

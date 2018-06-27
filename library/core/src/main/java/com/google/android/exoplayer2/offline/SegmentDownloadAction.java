@@ -46,13 +46,18 @@ public abstract class SegmentDownloadAction extends DownloadAction {
       int keyCount = input.readInt();
       List<StreamKey> keys = new ArrayList<>();
       for (int i = 0; i < keyCount; i++) {
-        keys.add(readKey(input));
+        keys.add(readKey(version, input));
       }
       return createDownloadAction(uri, isRemoveAction, data, keys);
     }
 
     /** Deserializes a key from the {@code input}. */
-    protected abstract StreamKey readKey(DataInputStream input) throws IOException;
+    protected StreamKey readKey(int version, DataInputStream input) throws IOException {
+      int periodIndex = input.readInt();
+      int groupIndex = input.readInt();
+      int trackIndex = input.readInt();
+      return new StreamKey(periodIndex, groupIndex, trackIndex);
+    }
 
     /** Returns a {@link DownloadAction}. */
     protected abstract DownloadAction createDownloadAction(
@@ -89,6 +94,11 @@ public abstract class SegmentDownloadAction extends DownloadAction {
   }
 
   @Override
+  public List<StreamKey> getKeys() {
+    return keys;
+  }
+
+  @Override
   public final void writeToStream(DataOutputStream output) throws IOException {
     output.writeUTF(uri.toString());
     output.writeBoolean(isRemoveAction);
@@ -99,9 +109,6 @@ public abstract class SegmentDownloadAction extends DownloadAction {
       writeKey(output, keys.get(i));
     }
   }
-
-  /** Serializes the {@code key} into the {@code output}. */
-  protected abstract void writeKey(DataOutputStream output, StreamKey key) throws IOException;
 
   @Override
   public boolean equals(@Nullable Object o) {
@@ -122,4 +129,10 @@ public abstract class SegmentDownloadAction extends DownloadAction {
     return result;
   }
 
+  /** Serializes the {@code key} into the {@code output}. */
+  private void writeKey(DataOutputStream output, StreamKey key) throws IOException {
+    output.writeInt(key.periodIndex);
+    output.writeInt(key.groupIndex);
+    output.writeInt(key.trackIndex);
+  }
 }

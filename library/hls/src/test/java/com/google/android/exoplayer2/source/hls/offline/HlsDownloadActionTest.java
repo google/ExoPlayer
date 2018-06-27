@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017 The Android Open Source Project
+ * Copyright (C) 2018 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.android.exoplayer2.source.dash.offline;
+package com.google.android.exoplayer2.source.hls.offline;
 
 import static com.google.common.truth.Truth.assertThat;
 
@@ -37,9 +37,9 @@ import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.robolectric.RobolectricTestRunner;
 
-/** Unit tests for {@link DashDownloadAction}. */
+/** Unit tests for {@link HlsDownloadAction}. */
 @RunWith(RobolectricTestRunner.class)
-public class DashDownloadActionTest {
+public class HlsDownloadActionTest {
 
   private Uri uri1;
   private Uri uri2;
@@ -100,26 +100,23 @@ public class DashDownloadActionTest {
     assertNotEqual(action4, action5);
 
     DownloadAction action6 = createDownloadAction(uri1);
-    DownloadAction action7 = createDownloadAction(uri1, new StreamKey(0, 0, 0));
+    DownloadAction action7 = createDownloadAction(uri1, new StreamKey(0, 0));
     assertNotEqual(action6, action7);
 
-    DownloadAction action8 = createDownloadAction(uri1, new StreamKey(1, 1, 1));
-    DownloadAction action9 = createDownloadAction(uri1, new StreamKey(0, 0, 0));
+    DownloadAction action8 = createDownloadAction(uri1, new StreamKey(1, 1));
+    DownloadAction action9 = createDownloadAction(uri1, new StreamKey(0, 0));
     assertNotEqual(action8, action9);
 
     DownloadAction action10 = createRemoveAction(uri1);
     DownloadAction action11 = createRemoveAction(uri2);
     assertNotEqual(action10, action11);
 
-    DownloadAction action12 =
-        createDownloadAction(uri1, new StreamKey(0, 0, 0), new StreamKey(1, 1, 1));
-    DownloadAction action13 =
-        createDownloadAction(uri1, new StreamKey(1, 1, 1), new StreamKey(0, 0, 0));
+    DownloadAction action12 = createDownloadAction(uri1, new StreamKey(0, 0), new StreamKey(1, 1));
+    DownloadAction action13 = createDownloadAction(uri1, new StreamKey(1, 1), new StreamKey(0, 0));
     assertEqual(action12, action13);
 
-    DownloadAction action14 = createDownloadAction(uri1, new StreamKey(0, 0, 0));
-    DownloadAction action15 =
-        createDownloadAction(uri1, new StreamKey(1, 1, 1), new StreamKey(0, 0, 0));
+    DownloadAction action14 = createDownloadAction(uri1, new StreamKey(0, 0));
+    DownloadAction action15 = createDownloadAction(uri1, new StreamKey(1, 1), new StreamKey(0, 0));
     assertNotEqual(action14, action15);
 
     DownloadAction action16 = createDownloadAction(uri1);
@@ -138,7 +135,15 @@ public class DashDownloadActionTest {
     doTestSerializationRoundTrip(createDownloadAction(uri1));
     doTestSerializationRoundTrip(createRemoveAction(uri1));
     doTestSerializationRoundTrip(
-        createDownloadAction(uri2, new StreamKey(0, 0, 0), new StreamKey(1, 1, 1)));
+        createDownloadAction(uri2, new StreamKey(0, 0), new StreamKey(1, 1)));
+  }
+
+  @Test
+  public void testSerializerVersion0() throws Exception {
+    doTestSerializationV0RoundTrip(createDownloadAction(uri1));
+    doTestSerializationV0RoundTrip(createRemoveAction(uri1));
+    doTestSerializationV0RoundTrip(
+        createDownloadAction(uri2, new StreamKey(0, 0), new StreamKey(1, 1)));
   }
 
   private static void assertNotEqual(DownloadAction action1, DownloadAction action2) {
@@ -156,22 +161,45 @@ public class DashDownloadActionTest {
     DataOutputStream output = new DataOutputStream(out);
     DownloadAction.serializeToStream(action, output);
 
+    assertEqual(action, deserializeActionFromStream(out));
+  }
+
+  private static void doTestSerializationV0RoundTrip(HlsDownloadAction action) throws IOException {
+    ByteArrayOutputStream out = new ByteArrayOutputStream();
+    DataOutputStream output = new DataOutputStream(out);
+    DataOutputStream dataOutputStream = new DataOutputStream(output);
+    dataOutputStream.writeUTF(action.type);
+    dataOutputStream.writeInt(/* version */ 0);
+    dataOutputStream.writeUTF(action.uri.toString());
+    dataOutputStream.writeBoolean(action.isRemoveAction);
+    dataOutputStream.writeInt(action.data.length);
+    dataOutputStream.write(action.data);
+    dataOutputStream.writeInt(action.keys.size());
+    for (int i = 0; i < action.keys.size(); i++) {
+      StreamKey key = action.keys.get(i);
+      dataOutputStream.writeInt(key.groupIndex);
+      dataOutputStream.writeInt(key.trackIndex);
+    }
+    dataOutputStream.flush();
+
+    assertEqual(action, deserializeActionFromStream(out));
+  }
+
+  private static DownloadAction deserializeActionFromStream(ByteArrayOutputStream out)
+      throws IOException {
     ByteArrayInputStream in = new ByteArrayInputStream(out.toByteArray());
     DataInputStream input = new DataInputStream(in);
-    DownloadAction action2 =
-        DownloadAction.deserializeFromStream(
-            new DownloadAction.Deserializer[] {DashDownloadAction.DESERIALIZER}, input);
-
-    assertThat(action).isEqualTo(action2);
+    return DownloadAction.deserializeFromStream(
+        new DownloadAction.Deserializer[] {HlsDownloadAction.DESERIALIZER}, input);
   }
 
-  private static DownloadAction createDownloadAction(Uri uri, StreamKey... keys) {
+  private static HlsDownloadAction createDownloadAction(Uri uri, StreamKey... keys) {
     ArrayList<StreamKey> keysList = new ArrayList<>();
     Collections.addAll(keysList, keys);
-    return DashDownloadAction.createDownloadAction(uri, null, keysList);
+    return HlsDownloadAction.createDownloadAction(uri, null, keysList);
   }
 
-  private static DownloadAction createRemoveAction(Uri uri) {
-    return DashDownloadAction.createRemoveAction(uri, null);
+  private static HlsDownloadAction createRemoveAction(Uri uri) {
+    return HlsDownloadAction.createRemoveAction(uri, null);
   }
 }

@@ -51,12 +51,13 @@ public final class ProgressiveDownloadHelper extends DownloadHelper {
   }
 
   @Override
-  public DownloadAction getDownloadAction(@Nullable byte[] data, List<TrackKey> trackKeys) {
-    return new ProgressiveDownloadAction(uri, false, data, customCacheKey);
+  public ProgressiveDownloadAction getDownloadAction(
+      @Nullable byte[] data, List<TrackKey> trackKeys) {
+    return ProgressiveDownloadAction.createDownloadAction(uri, data, customCacheKey);
   }
 
   @Override
-  public DownloadAction getRemoveAction(@Nullable byte[] data) {
-    return new ProgressiveDownloadAction(uri, true, data, customCacheKey);
+  public ProgressiveDownloadAction getRemoveAction(@Nullable byte[] data) {
+    return ProgressiveDownloadAction.createRemoveAction(uri, data, customCacheKey);
   }
 }

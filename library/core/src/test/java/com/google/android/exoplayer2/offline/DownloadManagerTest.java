@@ -510,7 +510,7 @@ public class DownloadManagerTest {
     }
 
     @Override
-    protected Downloader createDownloader(DownloaderConstructorHelper downloaderConstructorHelper) {
+    public Downloader createDownloader(DownloaderConstructorHelper downloaderConstructorHelper) {
       return downloader;
     }
 

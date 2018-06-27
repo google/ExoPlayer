@@ -33,7 +33,6 @@ import com.google.android.exoplayer2.upstream.ParsingLoadable;
 import com.google.android.exoplayer2.util.Assertions;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
@@ -88,12 +87,12 @@ public final class DashDownloadHelper extends DownloadHelper {
 
   @Override
   public DashDownloadAction getDownloadAction(@Nullable byte[] data, List<TrackKey> trackKeys) {
-    return new DashDownloadAction(uri, /* isRemoveAction= */ false, data, toStreamKeys(trackKeys));
+    return DashDownloadAction.createDownloadAction(uri, data, toStreamKeys(trackKeys));
   }
 
   @Override
   public DashDownloadAction getRemoveAction(@Nullable byte[] data) {
-    return new DashDownloadAction(uri, /* isRemoveAction= */ true, data, Collections.emptyList());
+    return DashDownloadAction.createRemoveAction(uri, data);
   }
 
   private static List<StreamKey> toStreamKeys(List<TrackKey> trackKeys) {

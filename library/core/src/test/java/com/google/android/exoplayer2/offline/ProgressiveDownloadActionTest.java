@@ -32,9 +32,7 @@ import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.robolectric.RobolectricTestRunner;
 
-/**
- * Unit tests for {@link ProgressiveDownloadAction}.
- */
+/** Unit tests for {@link ProgressiveDownloadAction}. */
 @RunWith(RobolectricTestRunner.class)
 public class ProgressiveDownloadActionTest {
 
@@ -49,112 +47,109 @@ public class ProgressiveDownloadActionTest {
 
   @Test
   public void testDownloadActionIsNotRemoveAction() throws Exception {
-    ProgressiveDownloadAction action = new ProgressiveDownloadAction(uri1, false, null, null);
+    DownloadAction action = createDownloadAction(uri1, null);
     assertThat(action.isRemoveAction).isFalse();
   }
 
   @Test
   public void testRemoveActionisRemoveAction() throws Exception {
-    ProgressiveDownloadAction action2 = new ProgressiveDownloadAction(uri1, true, null, null);
+    DownloadAction action2 = createRemoveAction(uri1, null);
     assertThat(action2.isRemoveAction).isTrue();
   }
 
   @Test
   public void testCreateDownloader() throws Exception {
     MockitoAnnotations.initMocks(this);
-    ProgressiveDownloadAction action = new ProgressiveDownloadAction(uri1, false, null, null);
-    DownloaderConstructorHelper constructorHelper = new DownloaderConstructorHelper(
-        Mockito.mock(Cache.class), DummyDataSource.FACTORY);
+    DownloadAction action = createDownloadAction(uri1, null);
+    DownloaderConstructorHelper constructorHelper =
+        new DownloaderConstructorHelper(Mockito.mock(Cache.class), DummyDataSource.FACTORY);
     assertThat(action.createDownloader(constructorHelper)).isNotNull();
   }
 
   @Test
   public void testSameUriCacheKeyDifferentAction_IsSameMedia() throws Exception {
-    ProgressiveDownloadAction action1 = new ProgressiveDownloadAction(uri1, true, null, null);
-    ProgressiveDownloadAction action2 = new ProgressiveDownloadAction(uri1, false, null, null);
+    DownloadAction action1 = createRemoveAction(uri1, null);
+    DownloadAction action2 = createDownloadAction(uri1, null);
     assertSameMedia(action1, action2);
   }
 
   @Test
   public void testNullCacheKeyDifferentUriAction_IsNotSameMedia() throws Exception {
-    ProgressiveDownloadAction action3 = new ProgressiveDownloadAction(uri2, true, null, null);
-    ProgressiveDownloadAction action4 = new ProgressiveDownloadAction(uri1, false, null, null);
+    DownloadAction action3 = createRemoveAction(uri2, null);
+    DownloadAction action4 = createDownloadAction(uri1, null);
     assertNotSameMedia(action3, action4);
   }
 
   @Test
   public void testSameCacheKeyDifferentUriAction_IsSameMedia() throws Exception {
-    ProgressiveDownloadAction action5 = new ProgressiveDownloadAction(uri2, true, null, "key");
-    ProgressiveDownloadAction action6 = new ProgressiveDownloadAction(uri1, false, null, "key");
+    DownloadAction action5 = createRemoveAction(uri2, "key");
+    DownloadAction action6 = createDownloadAction(uri1, "key");
     assertSameMedia(action5, action6);
   }
 
   @Test
   public void testSameUriDifferentCacheKeyAction_IsNotSameMedia() throws Exception {
-    ProgressiveDownloadAction action7 = new ProgressiveDownloadAction(uri1, true, null, "key");
-    ProgressiveDownloadAction action8 = new ProgressiveDownloadAction(uri1, false, null, "key2");
+    DownloadAction action7 = createRemoveAction(uri1, "key");
+    DownloadAction action8 = createDownloadAction(uri1, "key2");
     assertNotSameMedia(action7, action8);
   }
 
   @Test
   public void testSameUriNullCacheKeyAction_IsNotSameMedia() throws Exception {
-    ProgressiveDownloadAction action1 = new ProgressiveDownloadAction(uri1, true, null, "key");
-    ProgressiveDownloadAction action2 = new ProgressiveDownloadAction(uri1, false, null, null);
+    DownloadAction action1 = createRemoveAction(uri1, "key");
+    DownloadAction action2 = createDownloadAction(uri1, null);
     assertNotSameMedia(action1, action2);
   }
 
   @Test
   public void testEquals() throws Exception {
-    ProgressiveDownloadAction action1 = new ProgressiveDownloadAction(uri1, true, null, null);
+    DownloadAction action1 = createRemoveAction(uri1, null);
     assertThat(action1.equals(action1)).isTrue();
 
-    ProgressiveDownloadAction action2 = new ProgressiveDownloadAction(uri1, true, null, null);
-    ProgressiveDownloadAction action3 = new ProgressiveDownloadAction(uri1, true, null, null);
+    DownloadAction action2 = createRemoveAction(uri1, null);
+    DownloadAction action3 = createRemoveAction(uri1, null);
     assertThat(action2.equals(action3)).isTrue();
 
-    ProgressiveDownloadAction action4 = new ProgressiveDownloadAction(uri1, true, null, null);
-    ProgressiveDownloadAction action5 = new ProgressiveDownloadAction(uri1, false, null, null);
+    DownloadAction action4 = createRemoveAction(uri1, null);
+    DownloadAction action5 = createDownloadAction(uri1, null);
     assertThat(action4.equals(action5)).isFalse();
 
-    ProgressiveDownloadAction action6 = new ProgressiveDownloadAction(uri1, true, null, null);
-    ProgressiveDownloadAction action7 = new ProgressiveDownloadAction(uri1, true, null, "key");
+    DownloadAction action6 = createRemoveAction(uri1, null);
+    DownloadAction action7 = createRemoveAction(uri1, "key");
     assertThat(action6.equals(action7)).isFalse();
 
-    ProgressiveDownloadAction action8 = new ProgressiveDownloadAction(uri1, true, null, "key2");
-    ProgressiveDownloadAction action9 = new ProgressiveDownloadAction(uri1, true, null, "key");
+    DownloadAction action8 = createRemoveAction(uri1, "key2");
+    DownloadAction action9 = createRemoveAction(uri1, "key");
     assertThat(action8.equals(action9)).isFalse();
 
-    ProgressiveDownloadAction action10 = new ProgressiveDownloadAction(uri1, true, null, null);
-    ProgressiveDownloadAction action11 = new ProgressiveDownloadAction(uri2, true, null, null);
+    DownloadAction action10 = createRemoveAction(uri1, null);
+    DownloadAction action11 = createRemoveAction(uri2, null);
     assertThat(action10.equals(action11)).isFalse();
   }
 
   @Test
   public void testSerializerGetType() throws Exception {
-    ProgressiveDownloadAction action = new ProgressiveDownloadAction(uri1, false, null, null);
+    DownloadAction action = createDownloadAction(uri1, null);
     assertThat(action.type).isNotNull();
   }
 
   @Test
   public void testSerializerWriteRead() throws Exception {
-    doTestSerializationRoundTrip(new ProgressiveDownloadAction(uri1, false, null, null));
-    doTestSerializationRoundTrip(new ProgressiveDownloadAction(uri2, true, null, "key"));
+    doTestSerializationRoundTrip(createDownloadAction(uri1, null));
+    doTestSerializationRoundTrip(createRemoveAction(uri2, "key"));
   }
 
-  private void assertSameMedia(
-      ProgressiveDownloadAction action1, ProgressiveDownloadAction action2) {
+  private void assertSameMedia(DownloadAction action1, DownloadAction action2) {
     assertThat(action1.isSameMedia(action2)).isTrue();
     assertThat(action2.isSameMedia(action1)).isTrue();
   }
 
-  private void assertNotSameMedia(
-      ProgressiveDownloadAction action1, ProgressiveDownloadAction action2) {
+  private void assertNotSameMedia(DownloadAction action1, DownloadAction action2) {
     assertThat(action1.isSameMedia(action2)).isFalse();
     assertThat(action2.isSameMedia(action1)).isFalse();
   }
 
-  private static void doTestSerializationRoundTrip(ProgressiveDownloadAction action)
-      throws IOException {
+  private static void doTestSerializationRoundTrip(DownloadAction action) throws IOException {
     ByteArrayOutputStream out = new ByteArrayOutputStream();
     DataOutputStream output = new DataOutputStream(out);
     DownloadAction.serializeToStream(action, output);
@@ -168,4 +163,11 @@ public class ProgressiveDownloadActionTest {
     assertThat(action2).isEqualTo(action);
   }
 
+  private static DownloadAction createDownloadAction(Uri uri1, String customCacheKey) {
+    return ProgressiveDownloadAction.createDownloadAction(uri1, null, customCacheKey);
+  }
+
+  private static DownloadAction createRemoveAction(Uri uri1, String customCacheKey) {
+    return ProgressiveDownloadAction.createRemoveAction(uri1, null, customCacheKey);
+  }
 }

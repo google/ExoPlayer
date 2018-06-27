@@ -1,0 +1,7 @@
+# Proguard rules specific to the hls module.
+
+# Constructors accessed via reflection in SegmentDownloadAction
+-dontnote com.google.android.exoplayer2.source.hls.offline.HlsDownloadAction
+-keepclassmembers class com.google.android.exoplayer2.source.hls.offline.HlsDownloadAction {
+  static ** DESERIALIZER;
+}

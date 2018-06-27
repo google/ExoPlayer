@@ -16,13 +16,8 @@
 package com.google.android.exoplayer2.demo;
 
 import android.app.Application;
-import com.google.android.exoplayer2.offline.DownloadAction.Deserializer;
 import com.google.android.exoplayer2.offline.DownloadManager;
 import com.google.android.exoplayer2.offline.DownloaderConstructorHelper;
-import com.google.android.exoplayer2.offline.ProgressiveDownloadAction;
-import com.google.android.exoplayer2.source.dash.offline.DashDownloadAction;
-import com.google.android.exoplayer2.source.hls.offline.HlsDownloadAction;
-import com.google.android.exoplayer2.source.smoothstreaming.offline.SsDownloadAction;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
 import com.google.android.exoplayer2.upstream.DefaultHttpDataSourceFactory;
@@ -46,13 +41,6 @@ public class DemoApplication extends Application {
   private static final String DOWNLOAD_TRACKER_ACTION_FILE = "tracked_actions";
   private static final String DOWNLOAD_CONTENT_DIRECTORY = "downloads";
   private static final int MAX_SIMULTANEOUS_DOWNLOADS = 2;
-  private static final Deserializer[] DOWNLOAD_DESERIALIZERS =
-      new Deserializer[] {
-        DashDownloadAction.DESERIALIZER,
-        HlsDownloadAction.DESERIALIZER,
-        SsDownloadAction.DESERIALIZER,
-        ProgressiveDownloadAction.DESERIALIZER
-      };
 
   protected String userAgent;
 
@@ -105,14 +93,12 @@ public class DemoApplication extends Application {
               downloaderConstructorHelper,
               MAX_SIMULTANEOUS_DOWNLOADS,
               DownloadManager.DEFAULT_MIN_RETRY_COUNT,
-              new File(getDownloadDirectory(), DOWNLOAD_ACTION_FILE),
-              DOWNLOAD_DESERIALIZERS);
+              new File(getDownloadDirectory(), DOWNLOAD_ACTION_FILE));
       downloadTracker =
           new DownloadTracker(
               /* context= */ this,
               buildDataSourceFactory(/* listener= */ null),
-              new File(getDownloadDirectory(), DOWNLOAD_TRACKER_ACTION_FILE),
-              DOWNLOAD_DESERIALIZERS);
+              new File(getDownloadDirectory(), DOWNLOAD_TRACKER_ACTION_FILE));
       downloadManager.addListener(downloadTracker);
     }
   }
