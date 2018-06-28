@@ -829,7 +829,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
         && !codecNeedsSetOutputSurfaceWorkaround(codecInfo.name)
         && (!codecInfo.secure || DummySurface.isSecureSupported(context));
   }
-  
+
   private void setJoiningDeadlineMs() {
     joiningDeadlineMs = allowedJoiningTimeMs > 0
         ? (SystemClock.elapsedRealtime() + allowedJoiningTimeMs) : C.TIME_UNSET;
@@ -1172,12 +1172,17 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
     return Util.SDK_INT <= 22 && "foster".equals(Util.DEVICE) && "NVIDIA".equals(Util.MANUFACTURER);
   }
 
+  /**
+   * Returns whether the device is known to handle {@link DummySurface} incorrectly.
+   *
+   * <p>If true is returned then use of {@link DummySurface} is disabled.
+   */
   private static boolean codecNeedsDummySurfaceWorkaround(String name) {
     // Work around https://github.com/google/ExoPlayer/issues/4419.
-    return (("needle".equals(Util.DEVICE)) // FireTV 4K
-            && "OMX.amlogic.avc.decoder.awesome".equals(name));
+    return ("Amazon".equals(Util.MANUFACTURER) && "AFTN".equals(Util.MODEL)) // FireTV 4K
+        && "OMX.amlogic.avc.decoder.awesome".equals(name);
   }
-  
+
   /**
    * Returns whether the device is known to implement {@link MediaCodec#setOutputSurface(Surface)}
    * incorrectly.

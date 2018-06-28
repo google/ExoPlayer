@@ -36,7 +36,6 @@ import android.text.style.BackgroundColorSpan;
 import android.text.style.RelativeSizeSpan;
 import android.util.DisplayMetrics;
 import android.util.Log;
-
 import com.google.android.exoplayer2.text.CaptionStyleCompat;
 import com.google.android.exoplayer2.text.Cue;
 import com.google.android.exoplayer2.util.Util;
@@ -257,8 +256,8 @@ import com.google.android.exoplayer2.util.Util;
 
     if (Color.alpha(backgroundColor) > 0) {
       SpannableStringBuilder newCueText = new SpannableStringBuilder(cueText);
-      newCueText.setSpan(new BackgroundColorSpan(backgroundColor), 0, newCueText.length(),
-          Spanned.SPAN_PRIORITY);
+      newCueText.setSpan(
+          new BackgroundColorSpan(backgroundColor), 0, newCueText.length(), Spanned.SPAN_PRIORITY);
       cueText = newCueText;
     }
 
