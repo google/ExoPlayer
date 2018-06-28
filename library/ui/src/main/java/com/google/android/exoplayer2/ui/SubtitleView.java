@@ -206,7 +206,7 @@ public final class SubtitleView extends View implements TextOutput {
    * {@link CaptioningManager#getUserStyle()}, or to a default style before API level 19.
    */
   public void setUserDefaultStyle() {
-    setStyle(Util.SDK_INT >= 19 && !isInEditMode()
+    setStyle(Util.SDK_INT >= 19 && isCaptionManagerEnabled() &&!isInEditMode()
         ? getUserCaptionStyleV19() : CaptionStyleCompat.DEFAULT);
   }
 
@@ -313,6 +313,13 @@ public final class SubtitleView extends View implements TextOutput {
       default:
         return Cue.DIMEN_UNSET;
     }
+  }
+
+  @TargetApi(19)
+  private boolean isCaptionManagerEnabled() {
+    CaptioningManager captioningManager =
+            (CaptioningManager) getContext().getSystemService(Context.CAPTIONING_SERVICE);
+    return captioningManager.isEnabled();
   }
 
   @TargetApi(19)
