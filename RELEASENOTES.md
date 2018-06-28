@@ -48,6 +48,8 @@
   `ImaAdsLoader` ([#3879](https://github.com/google/ExoPlayer/issues/3879)).
 * Fix issue playing DRM protected streams on Asus Zenfone 2
   ([#4403](https://github.com/google/ExoPlayer/issues/4413)).
+* Add support for multiple audio and video tracks in MPEG-PS streams
+  ([#4406](https://github.com/google/ExoPlayer/issues/4406)).
 
 ### 2.8.2 ###
 
