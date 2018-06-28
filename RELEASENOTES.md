@@ -53,6 +53,7 @@
 * Add uri field to `LoadEventInfo` in `MediaSourceEventListener` or
   `AnalyticsListener` callbacks. This uri is the redirected uri if redirection
   occurred ([#2054](https://github.com/google/ExoPlayer/issues/2054)).
+* Improved compatibility with FireOS devices.
 
 ### 2.8.2 ###
 
