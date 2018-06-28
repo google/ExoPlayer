@@ -154,7 +154,8 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
 public class DefaultTrackSelector extends MappingTrackSelector {
 
   /**
-   * A builder for {@link Parameters}.
+   * A builder for {@link Parameters}. See the {@link Parameters} documentation for explanations of
+   * the parameters that can be configured using this builder.
    */
   public static final class ParametersBuilder {
 
@@ -178,9 +179,7 @@ public class DefaultTrackSelector extends MappingTrackSelector {
     private boolean viewportOrientationMayChange;
     private int tunnelingAudioSessionId;
 
-    /**
-     * Creates a builder obtaining the initial values from {@link Parameters#DEFAULT}.
-     */
+    /** Creates a builder with default initial values. */
     public ParametersBuilder() {
       this(Parameters.DEFAULT);
     }
@@ -344,15 +343,15 @@ public class DefaultTrackSelector extends MappingTrackSelector {
     }
 
     /**
-     * Equivalent to invoking {@link #setViewportSize} with the viewport size obtained from
-     * {@link Util#getPhysicalDisplaySize(Context)}.
+     * Equivalent to calling {@link #setViewportSize(int, int, boolean)} with the viewport size
+     * obtained from {@link Util#getPhysicalDisplaySize(Context)}.
      *
-     * @param context The context to obtain the viewport size from.
-     * @param viewportOrientationMayChange See {@link #viewportOrientationMayChange}.
+     * @param context Any context.
+     * @param viewportOrientationMayChange See {@link Parameters#viewportOrientationMayChange}.
      * @return This builder.
      */
-    public ParametersBuilder setViewportSizeToPhysicalDisplaySize(Context context,
-        boolean viewportOrientationMayChange) {
+    public ParametersBuilder setViewportSizeToPhysicalDisplaySize(
+        Context context, boolean viewportOrientationMayChange) {
       // Assume the viewport is fullscreen.
       Point viewportSize = Util.getPhysicalDisplaySize(context);
       return setViewportSize(viewportSize.x, viewportSize.y, viewportOrientationMayChange);
@@ -369,13 +368,16 @@ public class DefaultTrackSelector extends MappingTrackSelector {
     }
 
     /**
-     * See {@link Parameters#viewportWidth}, {@link Parameters#maxVideoHeight} and
-     * {@link Parameters#viewportOrientationMayChange}.
+     * See {@link Parameters#viewportWidth}, {@link Parameters#maxVideoHeight} and {@link
+     * Parameters#viewportOrientationMayChange}.
      *
+     * @param viewportWidth See {@link Parameters#viewportWidth}.
+     * @param viewportHeight See {@link Parameters#viewportHeight}.
+     * @param viewportOrientationMayChange See {@link Parameters#viewportOrientationMayChange}.
      * @return This builder.
      */
-    public ParametersBuilder setViewportSize(int viewportWidth, int viewportHeight,
-        boolean viewportOrientationMayChange) {
+    public ParametersBuilder setViewportSize(
+        int viewportWidth, int viewportHeight, boolean viewportOrientationMayChange) {
       this.viewportWidth = viewportWidth;
       this.viewportHeight = viewportHeight;
       this.viewportOrientationMayChange = viewportOrientationMayChange;
@@ -486,8 +488,10 @@ public class DefaultTrackSelector extends MappingTrackSelector {
     }
 
     /**
-     * Enables or disables tunneling. To enable tunneling, pass an audio session id to use when in
-     * tunneling mode. Session ids can be generated using {@link
+     * See {@link Parameters#tunnelingAudioSessionId}.
+     *
+     * <p>Enables or disables tunneling. To enable tunneling, pass an audio session id to use when
+     * in tunneling mode. Session ids can be generated using {@link
      * C#generateAudioSessionIdV21(Context)}. To disable tunneling pass {@link
      * C#AUDIO_SESSION_ID_UNSET}. Tunneling will only be activated if it's both enabled and
      * supported by the audio and video renderers for the selected tracks.
@@ -541,25 +545,7 @@ public class DefaultTrackSelector extends MappingTrackSelector {
   /** Constraint parameters for {@link DefaultTrackSelector}. */
   public static final class Parameters implements Parcelable {
 
-    /**
-     * An instance with default values:
-     *
-     * <ul>
-     *   <li>No preferred audio language.
-     *   <li>No preferred text language.
-     *   <li>Text tracks with undetermined language are not selected if no track with {@link
-     *       #preferredTextLanguage} is available.
-     *   <li>All selection flags are considered for text track selections.
-     *   <li>Lowest bitrate track selections are not forced.
-     *   <li>Adaptation between different mime types is not allowed.
-     *   <li>Non seamless adaptation is allowed.
-     *   <li>No max limit for video width/height.
-     *   <li>No max video bitrate.
-     *   <li>Video constraints are exceeded if no supported selection can be made otherwise.
-     *   <li>Renderer capabilities are exceeded if no supported selection can be made.
-     *   <li>No viewport constraints.
-     * </ul>
-     */
+    /** An instance with default values. */
     public static final Parameters DEFAULT = new Parameters();
 
     // Per renderer overrides.
@@ -569,105 +555,140 @@ public class DefaultTrackSelector extends MappingTrackSelector {
 
     // Audio
     /**
-     * The preferred language for audio, as well as for forced text tracks, as an ISO 639-2/T tag.
-     * {@code null} selects the default track, or the first track if there's no default.
+     * The preferred language for audio and forced text tracks, as an ISO 639-2/T tag. {@code null}
+     * selects the default track, or the first track if there's no default. The default value is
+     * {@code null}.
      */
     public final @Nullable String preferredAudioLanguage;
 
     // Text
     /**
      * The preferred language for text tracks as an ISO 639-2/T tag. {@code null} selects the
-     * default track if there is one, or no track otherwise.
+     * default track if there is one, or no track otherwise. The default value is {@code null}.
      */
     public final @Nullable String preferredTextLanguage;
     /**
-     * Whether a text track with undetermined language should be selected if no track with
-     * {@link #preferredTextLanguage} is available, or if {@link #preferredTextLanguage} is unset.
+     * Whether a text track with undetermined language should be selected if no track with {@link
+     * #preferredTextLanguage} is available, or if {@link #preferredTextLanguage} is unset. The
+     * default value is {@code false}.
      */
     public final boolean selectUndeterminedTextLanguage;
     /**
      * Bitmask of selection flags that are disabled for text track selections. See {@link
-     * C.SelectionFlags}.
+     * C.SelectionFlags}. The default value is {@code 0} (i.e. no flags).
      */
     public final int disabledTextTrackSelectionFlags;
 
     // Video
     /**
-     * Maximum allowed video width.
+     * Maximum allowed video width. The default value is {@link Integer#MAX_VALUE} (i.e. no
+     * constraint).
+     *
+     * <p>Note: To restrict adaptive video track selections to be suitable for a given viewport (the
+     * region of the display within which video will be played), it's preferable to use viewport
+     * constraints ({@link #viewportWidth}, {@link #viewportHeight} and
+     * {@link #viewportOrientationMayChange}) rather than video size constraints
+     * ({@link #maxVideoWidth and {@link #maxVideoHeight}). This is because selecting video tracks
+     * for a given viewport is normally more nuanced than imposing fixed limits on resolution (e.g.
+     * it's normally preferable to select one format that exceeds the size of the viewport, and to
+     * take into account the possibility that the orientation of the viewport may change).
      */
     public final int maxVideoWidth;
     /**
-     * Maximum allowed video height.
+     * Maximum allowed video height. The default value is {@link Integer#MAX_VALUE} (i.e. no
+     * constraint).
+     *
+     * <p>Note: To restrict adaptive video track selections to be suitable for a given viewport (the
+     * region of the display within which video will be played), it's preferable to use viewport
+     * constraints ({@link #viewportWidth}, {@link #viewportHeight} and
+     * {@link #viewportOrientationMayChange}) rather than video size constraints
+     * ({@link #maxVideoWidth and {@link #maxVideoHeight}). This is because selecting video tracks
+     * for a given viewport is normally more nuanced than imposing fixed limits on resolution (e.g.
+     * it's normally preferable to select one format that exceeds the size of the viewport, and to
+     * take into account the possibility that the orientation of the viewport may change).
      */
     public final int maxVideoHeight;
     /**
-     * Maximum video bitrate.
+     * Maximum video bitrate. The default value is {@link Integer#MAX_VALUE} (i.e. no constraint).
      */
     public final int maxVideoBitrate;
     /**
-     * Whether to exceed video constraints when no selection can be made otherwise.
+     * Whether to exceed the {@link #maxVideoWidth}, {@link #maxVideoHeight} and {@link
+     * #maxVideoBitrate} constraints when no selection can be made otherwise. The default value is
+     * {@code true}.
      */
     public final boolean exceedVideoConstraintsIfNecessary;
     /**
-     * Viewport width in pixels. Constrains video tracks selections for adaptive playbacks so that
-     * only tracks suitable for the viewport are selected.
+     * Viewport width in pixels. Constrains video track selections for adaptive playbacks so that
+     * only tracks suitable for the viewport are selected. The default value is {@link
+     * Integer#MAX_VALUE} (i.e. no constraint).
      */
     public final int viewportWidth;
     /**
-     * Viewport height in pixels. Constrains video tracks selections for adaptive playbacks so that
-     * only tracks suitable for the viewport are selected.
+     * Viewport height in pixels. Constrains video track selections for adaptive playbacks so that
+     * only tracks suitable for the viewport are selected. The default value is {@link
+     * Integer#MAX_VALUE} (i.e. no constraint).
      */
     public final int viewportHeight;
     /**
-     * Whether the viewport orientation may change during playback. Constrains video tracks
+     * Whether the viewport orientation may change during playback. Constrains video track
      * selections for adaptive playbacks so that only tracks suitable for the viewport are selected.
+     * The default value is {@code true}.
      */
     public final boolean viewportOrientationMayChange;
 
     // General
     /**
      * Whether to force selection of the single lowest bitrate audio and video tracks that comply
-     * with all other constraints.
+     * with all other constraints. The default value is {@code false}.
      */
     public final boolean forceLowestBitrate;
     /**
-     * Whether to allow adaptive selections containing mixed mime types.
+     * Whether to allow adaptive selections containing mixed mime types. The default value is {@code
+     * false}.
      */
     public final boolean allowMixedMimeAdaptiveness;
     /**
-     * Whether to allow adaptive selections where adaptation may not be completely seamless.
+     * Whether to allow adaptive selections where adaptation may not be completely seamless. The
+     * default value is {@code true}.
      */
     public final boolean allowNonSeamlessAdaptiveness;
     /**
-     * Whether to exceed renderer capabilities when no selection can be made otherwise.
+     * Whether to exceed renderer capabilities when no selection can be made otherwise. This
+     * parameter applies when all of the tracks available for a renderer exceed the renderer's
+     * reported capabilities. If the parameter is {@code true} then the lowest quality track will
+     * still be selected. Playback may succeed if the renderer has under-reported its true
+     * capabilities. If {@code false} then no track will be selected. The default value is {@code
+     * true}.
      */
     public final boolean exceedRendererCapabilitiesIfNecessary;
     /**
      * The audio session id to use when tunneling, or {@link C#AUDIO_SESSION_ID_UNSET} if tunneling
-     * is not to be enabled.
+     * is disabled. The default value is {@link C#AUDIO_SESSION_ID_UNSET} (i.e. tunneling is
+     * disabled).
      */
     public final int tunnelingAudioSessionId;
 
     private Parameters() {
       this(
-          new SparseArray<Map<TrackGroupArray, SelectionOverride>>(),
-          new SparseBooleanArray(),
-          null,
-          null,
-          false,
-          0,
-          false,
-          false,
-          true,
-          Integer.MAX_VALUE,
-          Integer.MAX_VALUE,
-          Integer.MAX_VALUE,
-          true,
-          true,
-          Integer.MAX_VALUE,
-          Integer.MAX_VALUE,
-          true,
-          C.AUDIO_SESSION_ID_UNSET);
+          /* selectionOverrides= */ new SparseArray<>(),
+          /* rendererDisabledFlags= */ new SparseBooleanArray(),
+          /* preferredAudioLanguage= */ null,
+          /* preferredTextLanguage= */ null,
+          /* selectUndeterminedTextLanguage= */ false,
+          /* disabledTextTrackSelectionFlags= */ 0,
+          /* forceLowestBitrate= */ false,
+          /* allowMixedMimeAdaptiveness= */ false,
+          /* allowNonSeamlessAdaptiveness= */ true,
+          /* maxVideoWidth= */ Integer.MAX_VALUE,
+          /* maxVideoHeight= */ Integer.MAX_VALUE,
+          /* maxVideoBitrate= */ Integer.MAX_VALUE,
+          /* exceedVideoConstraintsIfNecessary= */ true,
+          /* exceedRendererCapabilitiesIfNecessary= */ true,
+          /* viewportWidth= */ Integer.MAX_VALUE,
+          /* viewportHeight= */ Integer.MAX_VALUE,
+          /* viewportOrientationMayChange= */ true,
+          /* tunnelingAudioSessionId= */ C.AUDIO_SESSION_ID_UNSET);
     }
 
     /* package */ Parameters(
