@@ -117,6 +117,7 @@ public final class TsExtractor implements Extractor {
   private final TsPayloadReader.Factory payloadReaderFactory;
   private final SparseArray<TsPayloadReader> tsPayloadReaders; // Indexed by pid
   private final SparseBooleanArray trackIds;
+  private final SparseBooleanArray trackPids;
 
   // Accessed only by the loading thread.
   private ExtractorOutput output;
@@ -167,6 +168,7 @@ public final class TsExtractor implements Extractor {
     }
     tsPacketBuffer = new ParsableByteArray(new byte[BUFFER_SIZE], 0);
     trackIds = new SparseBooleanArray();
+    trackPids = new SparseBooleanArray();
     tsPayloadReaders = new SparseArray<>();
     continuityCounters = new SparseIntArray();
     resetPayloadReaders();
@@ -203,14 +205,16 @@ public final class TsExtractor implements Extractor {
 
   @Override
   public void seek(long position, long timeUs) {
+    Assertions.checkState(mode != MODE_HLS);
     int timestampAdjustersCount = timestampAdjusters.size();
     for (int i = 0; i < timestampAdjustersCount; i++) {
       timestampAdjusters.get(i).reset();
     }
     tsPacketBuffer.reset();
     continuityCounters.clear();
-    // Elementary stream readers' state should be cleared to get consistent behaviours when seeking.
-    resetPayloadReaders();
+    for (int i = 0; i < tsPayloadReaders.size(); i++) {
+      tsPayloadReaders.valueAt(i).seek();
+    }
     bytesSinceLastSync = 0;
   }
 
@@ -274,10 +278,21 @@ public final class TsExtractor implements Extractor {
     }
 
     // Read the payload.
-    tsPacketBuffer.setLimit(endOfPacket);
-    payloadReader.consume(tsPacketBuffer, payloadUnitStartIndicator);
-    tsPacketBuffer.setLimit(limit);
+    boolean wereTracksEnded = tracksEnded;
+    if (shouldConsumePacketPayload(pid)) {
+      tsPacketBuffer.setLimit(endOfPacket);
+      payloadReader.consume(tsPacketBuffer, payloadUnitStartIndicator);
+      tsPacketBuffer.setLimit(limit);
+    }
 
+    if (mode != MODE_HLS && !wereTracksEnded && tracksEnded) {
+      // We have read all tracks from all PMTs in this stream. Now seek to the beginning and read
+      // again to make sure we output all media, including any contained in packets prior to those
+      // containing the track information.
+      seek(/* position= */ 0, /* timeUs= */ 0);
+      seekPosition.position = 0;
+      return RESULT_SEEK;
+    }
     tsPacketBuffer.setPosition(endOfPacket);
     return RESULT_CONTINUE;
   }
@@ -343,6 +358,12 @@ public final class TsExtractor implements Extractor {
       position++;
     }
     return position;
+  }
+
+  private boolean shouldConsumePacketPayload(int packetPid) {
+    return mode == MODE_HLS
+        || tracksEnded
+        || !trackPids.get(packetPid, /* valueIfKeyNotFound= */ false); // It's a PSI packet
   }
 
   private void resetPayloadReaders() {
@@ -511,14 +532,16 @@ public final class TsExtractor implements Extractor {
       int trackIdCount = trackIdToPidScratch.size();
       for (int i = 0; i < trackIdCount; i++) {
         int trackId = trackIdToPidScratch.keyAt(i);
+        int trackPid = trackIdToPidScratch.valueAt(i);
         trackIds.put(trackId, true);
+        trackPids.put(trackPid, true);
         TsPayloadReader reader = trackIdToReaderScratch.valueAt(i);
         if (reader != null) {
           if (reader != id3Reader) {
             reader.init(timestampAdjuster, output,
                 new TrackIdGenerator(programNumber, trackId, MAX_PID_PLUS_ONE));
           }
-          tsPayloadReaders.put(trackIdToPidScratch.valueAt(i), reader);
+          tsPayloadReaders.put(trackPid, reader);
         }
       }
 
